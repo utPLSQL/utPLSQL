@@ -27,7 +27,7 @@ utconfig.html,utConfig Package
 utresult.html,utResult Package
 utassert.html,utAssert Package
 utgen.html,utGen Package
-utgen_frontend.html, utGen Front-End
+utgen_frontend.html,utGen Front-End
 utoutput.html,utOutput Package
 utreceq.html,utRecEq Package
 defsuite.html,Define Test Suites
