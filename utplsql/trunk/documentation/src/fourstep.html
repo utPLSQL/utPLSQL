@@ -24,7 +24,6 @@ prior to installation. If you wish to install a fresh copy of utPLSQL, and not u
 over the existing installation, please follow the steps below for removing
 utPLSQL.</p>
 
-
 <p>Connect via SQL*Plus to the session that will own the
 utPLSQL components. If you do not already have a schema defined, then you must
 create it. The utPLSQL schema must have the authority to:</p>
@@ -52,34 +51,34 @@ connect sys as sysdba
 grant execute on dbms_pipe to utp;</pre>
 
 <p><b>Note</b> If the schema in question does not have the ability to create and drop public synonyms, you 
-will get error messages when installing.  However, utPLSQL will still function correctly.</p>
+may get error messages when installing.  However, utPLSQL will still function correctly.</p>
 
-<p>Once you have connected to the schema, run the utplsql_install.sql
-file to install all utPLSQL objects. If the working directory of your SQL*Plus
-session is the directory holding the utPLSQL files, you can issue this command:</p>
+<p>Once you have connected to the schema, run the ut_i_do.sql
+file with the parameter "install" to install all utPLSQL objects. If the working directory of your SQL*Plus
+session is the directory holding the utPLSQL files, you can issue this as follows:</p>
 
 <p> </p>
 
-<pre>SQL&gt; @utplsql_install</pre><pre> </pre>
+<pre>SQL&gt; @ut_i_do install</pre><pre> </pre>
 
 <p>If the working directory of your SQL*Plus session is <i>not</i>
 the directory holding the utPLSQL files, you can issue this command:</p>
 
 <p> </p>
 
-<pre>SQL&gt; @&lt;directory&gt;utplsql_install</pre><pre> </pre>
+<pre>SQL&gt; @&lt;directory&gt;ut_i_do install</pre><pre> </pre>
 
 <p>as in:</p>
 
 <p> </p>
 
-<pre>SQL&gt; @c:\utplsql\utplsql_install</pre><pre> </pre>
+<pre>SQL&gt; @c:\utplsql\ut_i_do install</pre><pre> </pre>
 
 <p>or</p>
 
 <p> </p>
 
-<pre>SQL&gt; @/orautils/utplsql/utplsql_install</pre><pre> </pre>
+<pre>SQL&gt; @/orautils/utplsql/ut_i_do install</pre><pre> </pre>
 
 <p>This file will remove the existing installation of utPLSQL
 and then create all tables and packages needed.</p>
@@ -87,22 +86,22 @@ and then create all tables and packages needed.</p>
 <p> </p>
 
 <p>To check the installation of utPLSQL, examine the
-utplsql_install.log file.</p>
+ut_i_install.log file.</p>
 
 <h3><a name="Upgrade"></a>Removing utPLSQL</h3>
 
-<p>To de-install the product, run the utplsql_uninstall.sql
-script, as in:</p>
+<p>To de-install the product, run the ut_i_do.sql
+script again, but with the parameter "uninstall", as in:</p>
 
 <p> </p>
 
-<pre>SQL&gt; @utplsql_uninstall</pre><pre> </pre>
+<pre>SQL&gt; @ut_i_do uninstall</pre><pre> </pre>
 
 <p>or</p>
 
 <p> </p>
 
-<pre>SQL&gt; @&lt;directory&gt;utplsql_uninstall</pre>
+<pre>SQL&gt; @&lt;directory&gt;ut_i_do uninstall</pre>
 
 <h2><a name="step2"></a>Step 2. Choose a program to test and identify the test
 cases.</h2>
