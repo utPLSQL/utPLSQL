@@ -106,7 +106,12 @@ IS
 
    /* end 2.0.10.1 additions */
 
-   -- RMM start
+   -- Set the directory for file output
+   PROCEDURE setfiledir (
+      dir_in        IN   VARCHAR2 := NULL
+     ,username_in   IN   VARCHAR2 := NULL
+   );
+
    -- Get the directory for file output   
    FUNCTION filedir (username_in IN VARCHAR2 := NULL)
       RETURN VARCHAR2;
