@@ -2,12 +2,12 @@
 CREATE OR REPLACE PACKAGE BODY utplsql2
 IS
    
-/*
+/************************************************************************
 GNU General Public License for utPLSQL
 
-Copyright (C) 2000
-Steven Feuerstein, steven@stevenfeuerstein.com
-Chris Rimmer, chris@sunset.force9.co.uk
+Copyright (C) 2000-2003 
+Steven Feuerstein and the utPLSQL Project
+(steven@stevenfeuerstein.com)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,16 +22,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
--------------------------------------------------------------------------------
---Modification History
--------------------------------------------------------------------------------
---WHO                 WHEN         WHAT
--------------------------------------------------------------------------------
---SEF                 15 Nov 2001  2.0.8.1: Add support for unit test level 
---                                          setup/teardown
---Chris Rimmer        08 Nov 2000  Changed to use new utConfig package
--------------------------------------------------------------------------------
+************************************************************************
+$Log$
+************************************************************************/
 
    g_trc       BOOLEAN         := FALSE;
    g_version   VARCHAR2 (100)  := '1.5.6';
