@@ -1,36 +1,7 @@
 <!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
-   
-   
-   
-   <title>utPLSQL - Glossary &amp; Requirements</title>
-</head>
-<body>
- 
-<table cols="1" width="100%">
-<tr>
-<td bgcolor="#800080"><a href="index.html"><img height="56" src="utplsql.jpg" width="373"></a></td>
-</tr>
-</table>
-
-<blockquote>
-Authors: Steven Feuerstein,
-Chris Rimmer
-
-Copyright 2000-2001, all rights
-reserved
-</blockquote>
-[ <a href="index.html">Home</a> | <b><a href="started.html">Getting
-Started</a></b> | <a href="buildpack.html">Build Test Packages</a>
-| <a href="examples.html">Examples</a> | <a href="userguide.html">User
-Guide</a> | <a href="release.html">Release Notes</a> | <a href="map.html">Document
-Map</a> ]
-<p><a href="started.html">&lt; Previous Section: Getting Started</a>
-| <a href="fourstep.html">Next Section: The Four Step Program to Using utPLSQL
-></a>
-<br> 
+<html><head><title></title></head><body>
 <!-- Begin utPLSQL Body -->
+<!-- $Id$ -->
 <h1>
 Glossary and Requirements</h1>
 
@@ -86,23 +57,29 @@ rights and native dynamic SQL. You can also, however, use utPLSQL on Oracle7
 (7.3.4 and above) and Oracle8.
 
 Requirements for using utPLSQL include:
+<ul>
+<li>
 <p>
-&middot;The
-schema owning utPLSQL objects must have EXECUTE authority on the DBMS_PIPE
+The schema owning utPLSQL objects must have EXECUTE authority on the DBMS_PIPE
 package, as well as the ability to create tables and packages.
+</p></li>
+<li>
 <p>
-&middot;If
+If
 you want utPLSQL to automatically recompile test packages for you, you
 will need to have <a href="admin.html#UTL_FILE">UTL_FILE</a> installed and
 configured to read from the directory or directories in which your package
 source files are located.
+</p></li>
+<li>
 <p>
-&middot;<b>Optional</b>:
+<b>Optional</b>:
 ability to create public synonyms. The installation script will attempt
 to create public synonyms. If your schema does not hae the authority to
 do so, these commands will fail, but utPLSQL will still be available for
 use in the owning schema.
-<p>
+</p></li>
+</ul>
 <h3>
 Requirements for Executing Test Code</h3>
 <p>
@@ -115,12 +92,12 @@ privileges to the utPLSQL schema. utPLSQL uses dynamic PL/SQL to run the test co
 EXECUTE privileges on those code elements (both the code to be tested and the test packages) -- or the AUTHID CURRENT_USER 
 capability of Oracle8i. 
 <p>
-FOR ORACLE8i AND ABOVE
+<h4>For Oracle8i and above</h4>
 <p>
 You do not need to grant any additional privileges, unless you want to test code owned by one schema from another schema. 
 In that case, you will need to grant EXECUTE to the schema from which you run your tests on both the code to be tested and the test package.
 <p>
-FOR ORACLE7 AND ORACLE8
+<h4>For Oracle7 and Oracle8</h4>
 <p>  
 You must grant EXECUTE to the utPLSQL schema on both the code to be tested and the test package.
 These grants must be made directly and not through roles.

@@ -1,52 +1,7 @@
 <!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
- 
-  <title>utPLSQL - Release Notes</title>
-  
-</head>
-  <body style="tab-interval:.5in" vlink="blue" lang="EN-US" link="blue">
-  
-  
-<p>
-  </p>
-  
-<table cols="1" cellpadding="0" border="0" width="100%">
-  
-    <tr>
-   <td>
-   
-      <p><a href="index.html"><img height="56" src="utplsql.jpg" width="373">
-      </a>
-      </p>
-   </td>
-  </tr>
- 
-  
-</table>
-  
-<p><br>
-Authors: Steven Feuerstein, Chris Rimmer</p>
-  
-<p>Copyright
-2000-2001, all rights reserved<br>
- <!--[if !supportLineBreakNewLine]--><br>
- <!--[endif]--></p>
-  
-<p>[ <a href="index.html">Home</a>
- | <a href="started.html">Getting Started</a>
- | <a href="buildpack.html">Build Test Packages</a>
- | <a href="examples.html">Examples</a>
- | <a href="userguide.html">User Guide</a>
- | <b>Release Notes</b> | <a href="map.html">Document Map</a>
- ] </p>
-  
-<p><a href="defsuite.html">&lt; Previous Section: Define Test Suites</a>
- | <a href="map.html">Next Section: Document Map &gt;</a>
- <br>
- </p>
-  
+<html><head><title></title></head><body>
 <!-- Begin utPLSQL Body -->
+<!-- $Id$ -->
 <h1>Release Notes</h1>
   
 <h2>Known Issues</h2>
@@ -90,7 +45,7 @@ doesn't exist.</li>
   <li>
 Modified      utpackage.upd - changed parameter suite_in to suite_id_in (the
 type was      INTEGER).  Changed the UPDATE WHERE clause first line
-to      VL(suite_id,0) = NVL(suite_id_in,0).</li>
+to      NVL(suite_id,0) = NVL(suite_id_in,0).</li>
   
   <li>
 Modified      utplsql.testsuite - v_suite (the suite id)  was in the
@@ -123,7 +78,7 @@ they      are run by adding the tc_run_id to the utr_outcome table.</li>
 Change ut_utp LOB      column to VARCHAR2 for the time being.</li>
   
   <li>
-Fixed ALTER TBLE      statement in ut_config.tab.</li>
+Fixed ALTER TABLE      statement in ut_config.tab.</li>
   
   <li>
 Change utplsql.test to      allow for compilation of test package before
@@ -165,177 +120,135 @@ shown below:</li>
  
 </ul>
   
-<p><!--[if !supportEmptyParas]-->
- <!--[endif]--></p>
-  
-<p>
-SQL&gt; exec utplsql.test ('str', per_method_setup_in =&gt; true)</p>
+<p><pre>
+SQL&gt; exec utplsql.test ('str', per_method_setup_in =&gt; true)
+</pre></p>
   
 <h3>utPLSQL version 2.0.7</h3>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Revamp
+<ul type="Disc">
+<li>        Revamp
 utAssert2.define_message implement to simplify creation of new assertion
-programs</p>
+programs</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Modify
-implementation if ieqminus to avoid duplicate column </p>
+<li>Modify
+implementation if ieqminus to avoid duplicate column </li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Change
+<li>Change
 naming conventions for utPLSQL2 from prefix to delimiter driven (utconfig.delimiter):
 QU##NNN. This affects only those test packages which use the utPLSQL2.test
 program to run the tests (ie for version 1 utPLSQL test packages and utPLSQL.test,
-you can still use your prefix-based approaches).</p>
+you can still use your prefix-based approaches).</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Add
-utAssert2.fileExists</p>
+<li>Add
+utAssert2.fileExists</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Compile
-utAssert2 with AUTHID CURRENT_USER for Oracle8i and above.</p>
+<li>Compile
+utAssert2 with AUTHID CURRENT_USER for Oracle8i and above.</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->2.0.7.2
-Fix index creation for ut_assertion table.</p>
+<li>(2.0.7.2)
+Fix index creation for ut_assertion table.</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->2.0.7.2
-Fix foreign key definition in ut_argument.</p>
+<li>(2.0.7.2)
+Fix foreign key definition in ut_argument.</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->2.0.7.2
-Fix foreign key definition in uta_eq.</p>
-  
+<li>(2.0.7.2)
+Fix foreign key definition in uta_eq.</li>
+</ul>
+
 <h3>utPLSQL version 2.0.6</h3>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Fix
-to utgen.pkb to allow generation of procedure bodies when no grid is used.</p>
+<ul type="Disc">
+<li>Fix
+to utgen.pkb to allow generation of procedure bodies when no grid is used.</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Allow
-developers to turn off display of successful results (utResult.include_successes)</p>
-  
+<li>Allow
+developers to turn off display of successful results (utResult.include_successes)</li>
+</ul>
+
 <h3>utPLSQL version 2.0.5</h3>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Allow
+<ul type="Disc">
+<li>Allow
 user to specify individual program or programs (via wildcard) to be tested
-from a whole package.</p>
+from a whole package.</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Add
+<li>Add
 ut_deterministic and ut_deterministic_arg tables to facilitate generate of
-test packages for deterministic functions.</p>
+test packages for deterministic functions.</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Add
+<li>Add
 ut_deterministic.fmx Oracle Forms GUI to allow easy generation of test packages
-for deterministic functions.</p>
-  
+for deterministic functions.</li>
+</ul>
+
 <h3>utPLSQL version 2.0.4</h3>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Implement
-test suite execution in utPLSQL2.</p>
+<ul type="Disc">
+<li>Implement
+test suite execution in utPLSQL2.</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Implement
+<li>Implement
 ut_suite_utp table (and the corresponding utsuiteutp package) as an intersection
-of ut_suite and ut_utp, defining all those UTPs in a given suite.</p>
+of ut_suite and ut_utp, defining all those UTPs in a given suite.</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Improved
+<li>Improved
 error handling with utrerror assertions and general reporting mechanisms.
 Assertion and error handling logic applied to define-time packages like utsuite
-and utsuiteutp.</p>
+and utsuiteutp.</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Revamp
+<li>Revamp
 installation process; no longer use OraShare, remove testcase2 entirely.
-</p>
+</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Create
-stand alone utverify procedure.</p>
+<li>Create
+stand alone utverify procedure.</li>
+</ul>
   
 <h3>utPLSQL version 2.0.3</h3>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->Add
+<ul type="Disc">
+<li>Add
 utr_error table and utrerror package; now all errors are logged to the table
 for viewing afterwards. utPLSQL NEVER passes back an unhandled exception
-to the console.</p>
+to the console.</li>
   
-<p><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->utAssert.eqfile
-now flags problems when opening files.</p>
+<li>utAssert.eqfile
+now flags problems when opening files.</li>
+</ul>
   
 <h3>utPLSQL version 2.0.2</h3>
   
-<h3><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->
+<ul type="Disc">
+<li>
 clarify how that null_ok_in is supposed to work. For utAssert.this, it should
 mean that if the value of the Boolean expression coming in is null, then
 that means "success". For eq, it shoudl mean that if BOTH values coming in
-are NULL, that is "success". For eqfile, if both files are empty...etc.</h3>
+are NULL, that is "success". For eqfile, if both files are empty...etc.</li>
   
-<h3><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->
-add null_ok_in to eqqueryvalue assertions.</h3>
+<li>
+add null_ok_in to eqqueryvalue assertions.</li>
   
-<h3><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->
-add utassert.eqqueryvalue for NUMBER</h3>
+<li>
+add utassert.eqqueryvalue for NUMBER</li>
   
-<h3><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->
-Enhance utgen to properly generate code for overloaded programs in packages</h3>
-  
+<li>
+Enhance utgen to properly generate code for overloaded programs in packages</li>
+</ul>
+
 <h3>utPLSQL version 2.0.1</h3>
   
-<h3><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->
-store results in utr_outcome tables</h3>
+<ul type="Disc">
+<li>
+store results in utr_outcome tables</li>
   
-<h3><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->
-support results reporting compatibility with V1</h3>
+<li>
+support results reporting compatibility with V1</li>
   
-<h3><!--[if !supportLists]-->
-&middot;
-        <!--[endif]-->
-display results of all test, success and failure.</h3>
-  
+<li>
+display results of all test, success and failure.</li>
+</ul>
+
 <h3>utPLSQL version 1.5.6</h3>
   
 <ul type="Disc">
@@ -391,14 +304,14 @@ to isolate all tester      configuration information.</li>
   
 <h4>Bug Fixes</h4>
   
-<p>  
-&middot;
+<ul type="Disc">
+<li>
   utPLSQL.setconfig now sets the user information properly when
 the package is first initialized (bug introduced in 1.5.3). 
-</p>
-  
+</li>
+</ul>
+
 <h3>utPLSQL version 1.5.3</h3>
-  
   
 <h4>Documentation and Usage Changes</h4>
   
@@ -409,14 +322,14 @@ If you choose to manually      register your tests with calls to utPLSQL.addtest
 in your setup procedure,      you must now INCLUDE the unit test prefix,
 as in:</li>
  
-</ul>
   
 <pre>utPLSQL.addtest ('ut_betwnstr');</pre>
   
-<p>utPLSQL 
+utPLSQL 
 will no longer add the prefix for you. This means that you may need to change 
-your calls to addtest -- or remove them entirely and rely on auto-registration.</p>
-  
+your calls to addtest -- or remove them entirely and rely on auto-registration.
+</ul>
+
 <h4>
 Bug Fixes</h4>
   

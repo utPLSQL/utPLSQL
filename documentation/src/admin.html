@@ -1,37 +1,7 @@
 <!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
-   
-   
-   
-   <title>utPLSQL - Administrative Topics</title>
-</head>
-<body>
- 
-<table cols="1" width="100%">
-<tr>
-<td bgcolor="#800080"><a href="index.html"><img height="56" src="utplsql.jpg" width="373"></a></td>
-</tr>
-</table>
-
-<blockquote>
-Authors: Steven Feuerstein,
-Chris Rimmer
-
-Copyright 2000-2001, all rights
-reserved
-</blockquote>
-[ <a href="index.html">Home</a> | <b><a href="started.html">Getting
-Started</a></b> | <a href="buildpack.html">Build Test Packages</a>
-| <a href="examples.html">Examples</a> | <a href="userguide.html">User
-Guide</a> | <a href="release.html">Release Notes</a> | <a href="map.html">Document
-Map</a> ]
-<p><a href="fourstep.html">&lt; Previous Section: The Four Step Program
-to Using utPLSQL</a> | <a href="buildpack.html">Next Section:
-Build Test Packages ></a>
-<br> 
-
+<html><head><title></title></head><body>
 <!-- Begin utPLSQL Body -->
+<!-- $Id$ -->
 <h1>
 Administrative Topics</h1>
 
@@ -73,42 +43,42 @@ file) for the database instance on which UTL_FILE is running.
 location and the name of the file, in separate arguments. This file location
 is then checked against the list of accessible directories.
 <p>The format of the parameter for file access in the init.ora file is:
-
+<pre>
 utl_file_dir = &lt;directory>
-
+</pre>
 Include a parameter for utl_file_dir for each directory you want to make
 accessible for UTL_FILE operations. The following entries, for example,
 enable four different directories in Unix:
-
+<pre>
 utl_file_dir = /tmp
-<br>utl_file_dir = /ora_apps/hr/time_reporting
-<br>utl_file_dir = /ora_apps/hr/time_reporting/log
-<br>utl_file_dir = /users/test_area
-
+utl_file_dir = /ora_apps/hr/time_reporting
+utl_file_dir = /ora_apps/hr/time_reporting/log
+utl_file_dir = /users/test_area
+</pre>
 To bypass server security and allow read/write access to all directories,
 you can use this special syntax:
-
+<pre>
 utl_file_dir = *
-
+</pre>
 You should not use this option on production systems. In a development
 system, this entry certainly makes it easier for developers to get up and
 running on UTL_FILE and test their code. You should, however, only allow
 access to a few specific directories when you move the application to production.
-<p><b>Some observations on working with and setting up accessible directories
-with UTL_FILE:</b>
+<h4>Some observations on working with and setting up accessible directories
+with UTL_FILE:</h4>
 <p>Access is not recursive through subdirectories. If the following lines
 were in your init.ora file, for example,
-
+<pre>
 utl_file_dir = c:\group\dev1
-<br>utl_file_dir = c:\group\prod\oe
-<br>utl_file_dir = c:\group\prod\ar
-
+utl_file_dir = c:\group\prod\oe
+utl_file_dir = c:\group\prod\ar
+</pre>
 then you would not be able to open a file in the c:\group\prod\oe\reports
 subdirectory.
 <p>Do not include the following entry in Unix systems:
-
+<pre>
 utl_file_dir = .
-
+</pre>
 This would allow you to read/write on the current directory in the operating
 system.
 <p>Do not enclose the directory names within single or double quotes.
@@ -120,12 +90,12 @@ access or change these files.
 <p>You should not end your directory name with a delimiter, such as the
 forward slash in Unix. The following specification of a directory will
 result in problems when trying to read from or write to the directory:
-
+<pre>
 utl_file_dir = /tmp/orafiles/
-
+</pre>
 After you modify your parameter initialization file, you will need to stop
 and then restart your database instance.
-<p><b><i>Test UTL_FILE Access</i></b>
+<h4>Test UTL_FILE Access</h4>
 <p>If you have never before used or relied on UTL_FILE, you should write
 a simple test to verify that UTL_FILE is now working. You can use the code
 shown below (after changing your directory names and names for existing
@@ -185,10 +155,13 @@ any errors which might occur).
 <h3>
 <a name="Project_Team"></a>Join the utPLSQL Project Team</h3>
 
-To take part in the utPLSQL project, please join
-our email distribution group. Go to <a href="http://www.egroups.com/">www.egroups.com</a>,
-join, and subscribe to the utPLSQL list. You will be including in ongoing
-communication about utPLSQL via eGroups.
+To take part in the utPLSQL project, first please join
+our email distribution group. Go to 
+<a href="http://groups.yahoo.com/group/utPLSQL-Info">http://groups.yahoo.com/group/utPLSQL-Info</a>
+and subscribe to the utPLSQL-Info list. You will be including in ongoing
+communication about utPLSQL. Once you are up to speed on the project, you
+can go to the <A href="http://utplsql.sourceforge.net">SourceForge site</A>, choose a task and begin
+to contribute.
 
 <h3>
 <a name="Reporting"></a>Reporting Bugs and Enhancement Requests</h3>
@@ -196,9 +169,9 @@ communication about utPLSQL via eGroups.
 To identify the version of utPLSQL you are running,
 you can execute the following program in SQL*Plus:
 
-<pre>SQL> set serveroutput on</pre>
+<pre>SQL&gt; set serveroutput on</pre>
 
-<pre>SQL> exec dbms_output.put_line (utPLSQL.version)</pre>
+<pre>SQL&gt; exec dbms_output.put_line (utPLSQL.version)</pre>
 
 You can also look inside the utPLSQL package (utPLSQL.pkb)
 and check the value of the g_version private variable.
