@@ -14,7 +14,6 @@ admin.html,Administrative Topics
 buildpack.html,Build Test Packages*
 howto.html,How to build a test package
 testrun.html,A "Test Run" with utPLSQL
-advanced.html,Advanced Topics
 examples.html,Examples*
 xref.html,Cross-reference by Assertion Type
 testproc.html,Test a Procedure
