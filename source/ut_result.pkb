@@ -1,10 +1,12 @@
 CREATE OR REPLACE PACKAGE BODY utresult
 IS 
    
-/*
+/************************************************************************
 GNU General Public License for utPLSQL
 
-Copyright (C) 2000 Steven Feuerstein, steven@stevenfeuerstein.com
+Copyright (C) 2000-2003 
+Steven Feuerstein and the utPLSQL Project
+(steven@stevenfeuerstein.com)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,7 +21,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+************************************************************************
+$Log$
+************************************************************************/
+
    resultindx            PLS_INTEGER;
    g_header_shown        BOOLEAN     := FALSE ;
    g_include_successes   BOOLEAN     := TRUE ;

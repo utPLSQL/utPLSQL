@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE BODY utconfig
 IS
-/*
+/************************************************************************
 GNU General Public License for utPLSQL
 
-Copyright (C) 2000
-Steven Feuerstein, steven@stevenfeuerstein.com
-Chris Rimmer, chris@sunset.force9.co.uk
+Copyright (C) 2000-2003 
+Steven Feuerstein and the utPLSQL Project
+(steven@stevenfeuerstein.com)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,7 +20,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
+************************************************************************
+$Log$
+************************************************************************/
+
 -------------------------------------------------------------------------------
 --Description
 -------------------------------------------------------------------------------
@@ -28,12 +31,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 --settings for different users.  The configuration data to be used by utPLSQL
 --by default is set by calling settester.  Wherever a username is passed as NULL, 
 --it is assumed to be that user.  This defaults initially to the current user.
--------------------------------------------------------------------------------
---Modification History
--------------------------------------------------------------------------------
---WHO                 WHEN         WHAT
--------------------------------------------------------------------------------
---Chris Rimmer        22 Oct 2000  Created from utplsql package
 -------------------------------------------------------------------------------
 
 ----------------------------------------------------------------------------

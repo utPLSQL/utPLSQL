@@ -1,33 +1,29 @@
 CREATE OR REPLACE PACKAGE BODY utassert2
 IS
-   /*
- GNU General Public License for utPLSQL
- 
- Copyright (C) 2000
- Steven Feuerstein, steven@stevenfeuerstein.com
- Chris Rimmer, chris@sunset.force9.co.uk
- 
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with this program (see license.txt); if not, write to the Free Software
- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- */
-   /*Modification History:
-   chrisrimmer      19-Feb-2002  Added g_previous_pass, previous_passed 
-                                and previous_failed
-   studious:01/20/2002:Assertion for object existance
-   chrisrimmer      10-Jun-2002  Added eqoutput assertions 
-   Venky            08-AUG-2002  Added refcursor assertions 12345
-   */
+
+/************************************************************************
+GNU General Public License for utPLSQL
+
+Copyright (C) 2000-2003 
+Steven Feuerstein and the utPLSQL Project
+(steven@stevenfeuerstein.com)
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program (see license.txt); if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+************************************************************************
+$Log$
+************************************************************************/
 
    /* START chrisrimmer 42694 */
    g_previous_pass              BOOLEAN;
@@ -3733,5 +3729,4 @@ UNION
 
 END utassert2;
 /
-REM SHO ERR
 

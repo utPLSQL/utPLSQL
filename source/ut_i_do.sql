@@ -106,11 +106,10 @@ SET TERMOUT ON
 
 PROMPT &line2
 PROMPT GNU General Public License for utPLSQL
-PROMPT
-PROMPT Copyright (C) 2000
-PROMPT Steven Feuerstein, steven@stevenfeuerstein.com
-PROMPT Chris Rimmer, chris@sunset.force9.co.uk
-PROMPT
+PROMPT 
+PROMPT Copyright (C) 2000-2003 
+PROMPT Steven Feuerstein and the utPLSQL Project
+PROMPT (steven@stevenfeuerstein.com)
 PROMPT
 PROMPT This program is free software; you can redistribute it and/or modify
 PROMPT it under the terms of the GNU General Public License as published by
