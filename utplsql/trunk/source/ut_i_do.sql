@@ -65,6 +65,22 @@ SELECT DECODE (upper('&v_orcl_vers'),
                'Ignore 9i code */') col  
   FROM dual;
   
+COLUMN col NOPRINT NEW_VALUE startnot92
+SELECT DECODE (UPPER('&v_orcl_vers'),
+               '8.1', '/* Use Non 9i code! */',
+               '9.0', '/* Use Non 9i code! */',
+               '9.1', '/* Use Non 9i code! */',
+               '/* Ignore Non 9i code') col  
+  FROM dual;
+
+COLUMN col NOPRINT NEW_VALUE endnot92
+SELECT DECODE (UPPER('&v_orcl_vers'),
+               '8.1', '/* Use Non 9i code! */',
+               '9.0', '/* Use Non 9i code! */',
+               '9.1', '/* Use Non 9i code! */',
+               'Ignore Non 9i code */') col  
+  FROM dual;
+
 COLUMN col NOPRINT NEW_VALUE start81
 SELECT DECODE (UPPER('&v_orcl_vers'),
                '8.1', '/* Use 8i code! */',
