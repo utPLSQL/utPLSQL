@@ -1,0 +1,68 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html><head><title></title></head><body>
+<!-- Begin utPLSQL Body -->
+<!-- $Id$ -->
+<h1>
+utGen Front End
+</h1>
+<h2>
+<a name="introduction"></a>Introduction
+</h2>
+With the utGen package it is possible to generate a test package based on the information in the table ut_grid:<br />
+<pre>
+  PROCEDURE testpkg_from_table (
+      package_in       IN   VARCHAR2,
+      program_in       IN   VARCHAR2 := '%',
+      samepackage_in   IN   BOOLEAN := FALSE,
+      prefix_in        IN   VARCHAR2 := NULL,
+      schema_in        IN   VARCHAR2 := NULL,
+      output_type_in   IN   PLS_INTEGER := c_screen,
+      dir_in           IN   VARCHAR2 := NULL,
+      date_format_in       IN   VARCHAR2
+            := 'MM/DD/YYYY'
+  );
+</pre>
+This procedure is based on the testpkg_from_string procedure.
+You can fill this table with test cases using the Windows frontend utgen.exe provided in the utplsql framework.<br />
+<br />
+The frontend looks like this:<br />
+<img src="utgen_function.jpg" width="800" height="500" alt="" border="0">
+<h2>
+<a name="objects"></a>Objects
+</h2>
+This is the object browser for utgen.exe. I retrieves all Functions, Procedures and Packages from the database. Select the Function, Procedure or Package you want to create testcases for.<br />
+<h2>
+<a name="procedures"></a>Procedures
+</h2>
+If you selected a Package then the package contents are displayed here. If a function or procedure in the package is overloaded then they will display the overload number Oracle gives it prefixed by a colon (:)<br />
+Here you can select the function of procedure from the package you want to create testcases for.<br />
+<h2>
+<a name="parameters"></a>Parameters
+</h2>
+When you have selected a function or procedure then here the parameters are displayed. In the last column you can enter the values for these parameters.<br />
+Using the button [set argument list] you can set the values in the testcase.<br />
+Using the button [get argument list] you can get the values from a selected testcase from the database<br />
+<h2>
+<a name="utgen"></a>utPL/SQL info
+</h2>
+On this line you can enter your test case name (tcname), a (unique) message for the testcase and the assertion type (currently only supports EQ and ISNULL)<br />
+<h2>
+<a name="testcases"></a>Testcases
+</h2>
+Here you can see the defined testcases for the selected function or procedure.<br />
+Select one of these cases and press [Modify] to modify this case (to modify the arguments list use the [get arguments list] button).<br />
+Select one of these cases and press [Delete] to delete this case from the database.<br />
+
+<h2>
+<a name="procedure"></a>Procedure
+</h2>
+This is how the screen looks when you select a procedure
+<img src="utgen_procedure.jpg" width="800" height="500" alt="" border="0">
+<h2>
+<a name="package"></a>Package
+</h2>
+This is how the screen looks when you select a procedure
+<img src="utgen_package.jpg" width="800" height="500" alt="" border="0">
+<!-- End utPLSQL Body -->
+</body>
+</html>
