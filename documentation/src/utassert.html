@@ -8,12 +8,6 @@
   
 <table cellspacing="5">
  <tbody>
-    <tr>
- <td width="25%"><a href="#utassert.this">utAssert.showresults</a> <br>
-      <a href="#Showresults">utAssert.noshowresults</a> <br>
-      <a href="#utassert.this">utAssert.showingresults</a></td>
-  <td><a href="#Showresults">Set the showing of results immediately</a></td>
- </tr>
   <tr>
  <td><a href="#utassert.this">utAssert.this</a></td>
   <td><a href="#utassert.this">Generic "Assert This" Procedure</a></td>
@@ -131,22 +125,6 @@ to allow an exception to be propagated out unhandled. </td>
   </tbody>
 </table>
   
-<h2> <a name="Showresults"></a>Showing Results Immediately</h2>
- You can request that utPLSQL display results immediately after running the
-assertion program. The default behavior is that utAssert will simply pass
-the results to utResult for later processing. You might want to see results
-immediately if you are building your own small testing script and are not
-calling utPLSQL.test. 
-<p>To request results immediately, call the showResults procedure: <pre>   PROCEDURE utAssert.showresults;</pre>
- This a session-level setting, and must be reset each time you connect to 
-Oracle. You can turn off showing of results by calling the noShowResults program: 
-<pre>   PROCEDURE utAssert.noshowresults;</pre>
- To determine the current status of this setting, you can call the following 
-function: <pre>   FUNCTION utAssert.showing_results return boolean;</pre>
- Here is an example of a simple script that calls an assertion routine and 
-immediately shows the results: <pre>set serveroutput on size 1000000<br>BEGIN<br>   utAssert.showresults;<br>   utAssert.eq (<br>      'Test of betwn',      <br>      str.betwn ('this is a string', 3, 7),      <br>      'this is a pipe'      );<br>END;<br>/</pre>
- And here is the result of running this script: <pre>FAILURE: "Unnamed Test"<br>: Test of betwn; expected "this is a pipe", got "is is"</pre>
-  </p>
 <h2> <a name="utassert.this"></a>Generic "Assert This" Assertion Procedure</h2>
   This most generic assertion program simply says "assert this" and passes
 a Boolean expression. It is used by all the other assertion routines, which
