@@ -19,8 +19,8 @@ automated table encapsulation package generation, including <a href="http://www.
 Designer</a>, <a href="http://www.revealnet.com">RevealNet</a>'s PL/Generator
 and a variety of IDE (integrated development environment) tools.
 <p>Suppose, then, that I used PL/Generator to generate a table encapsulation
-package for the employee table. It would look like the code found in <a href="../Examples/te_employee.pks">te_employee.pks</a>
-and <a href="../Examples/te_employee.pkb">te_employee.pkb</a> (being rather
+package for the employee table. It would look like the code found in te_employee.pks
+and te_employee.pkb<a href="#footnote">(1)</a> (being rather
 lengthy, we will not reproduce it in the documentation. If you take a look,
 you will see that their are dozens of programs in the API, which means
 that you would have lots of work to do in building your unit test cases.
@@ -38,7 +38,8 @@ creator of utPLSQL, <a href="http://www.stevenfeuerstein.com">Steven Feuerstein<
 has also been working on generator utilities for a number of years. One
 of these utilities, currently "code named" GenX, came in very handy for
 creating a test package for his PL/Generator-generated encapsulation packages.
-<p>Using CGML (Code Generation Markup Language), Steven created a <a href="../Examples/Unit test package for TE package.gdr">template</a>
+<p>Using CGML (Code Generation Markup Language), Steven created a template 
+(See te_utpkg.gdr in the Examples directory of the utPLSQL distribution)
 that reads information from the data dictionary and defines the setup,
 teardown and at least a good starting point for the unit test procedures.
 Here is the template logic for the setup procedure:
@@ -70,8 +71,8 @@ You are not, of course, expected to understand all the logic and syntax
 in this fragment. If you are interested in pursuing these sorts of genreation
 opportunities and would like to check out GenX, drop a note to <a href="mailto:steven@stevenfeuerstein.com">Steven
 Feuerstein</a>.
-<p>Here is a portion of the generated logic (found in <a href="../Examples/ut_te_employee.pks">ut_te_employee.pks</a>
-and <a href="../Examples/ut_te_employee.pkb">ut_te_employee.pkb</a>), the
+<p>Here is a portion of the generated logic (found in ut_te_employee.pks
+and ut_te_employee.pkb"<a href="#footnote">(1)</a>), the
 program that tests the delete operation in the encapsulation package:
 <pre>   PROCEDURE ut_del1
    IS
@@ -83,7 +84,7 @@ program that tests the delete operation in the encapsulation package:
       DELETE FROM ut_DEL1
        WHERE employee_id = -1
       ';
-      te_employee.del (-1, rowcount_out => fdbk);
+      te_employee.del (-1, rowcount_out =&gt; fdbk);
       -- Test results
       utassert.eqtable ('Delete rows', 'EMPLOYEE', 'ut_DEL1');
       /* Successful delete */
@@ -99,7 +100,7 @@ program that tests the delete operation in the encapsulation package:
       LOOP
          te_employee.del (
             rec.employee_id,
-            rowcount_out => fdbk
+            rowcount_out =&gt; fdbk
          );
       END LOOP;
 
@@ -146,8 +147,8 @@ If all the tests modify the same test table, ti will be very difficult
 if not impossible to verify success or notice failure.
 <p>So I decided that the best way to run my unit tests for DML operations
 was to create a separate test table for each unit test. As a consequence,
-my setup procedure for the <a href="../Examples/ut_te_employee.pkb">te_employee
-package</a> looks like this:
+my setup procedure for the te_employee package looks like this:
+(See ut_te_employee.pkb in the Examples directory of the utPLSQL distribution)
 <pre>   PROCEDURE ut_setup
    IS
    BEGIN
@@ -260,7 +261,9 @@ the teardown program I generated for the te_employee package:
 Again, I use dynamic SQL, but enclose each DROP TABLE statement inside
 its own exception section so that if for any reason the DROP fails, I continue
 on in an attempt to get as much done as possible.
-
+<hr>
+<h3><a name="footnote">Footnotes</a></h3>
+1. These files are in the Examples directory of the utPLSQL distribution.
 <!-- End utPLSQL Body -->
 </body>
 </html>
