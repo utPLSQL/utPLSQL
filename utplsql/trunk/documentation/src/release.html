@@ -22,6 +22,40 @@ within them.<br>
 </ul>
 <h2>Change History<br>
 </h2>
+<h3>utPLSQL version 2.0.10.1</h3>
+<ul type="disc">
+<li>
+Allow user to specify (as part of their individual configuration) that they
+only want to show failed tests, and then whether all information or just the
+description (request from Heinz of UBS). Supersedes the
+utresult.ignore_successes and utresult.include_successes (whose settings do not
+persist across sessions).
+</li>
+<li>
+Support for testing contents of REF CURSORs (cursor variables) has been added
+(provided by Venky Mangapillai) with the eq_refc_table and eq_refc_query
+assertion routines.
+</li>
+<li>
+Adds testpkg_from_table to utgen to allow generation of a test package directly
+from the new ut_grid table (provided by Patrick Barel). Patrick has also built
+a Windows-based front end, utGen.exe, that allows us to populate this grid very
+easily. Thanks, Patrick!
+</li>
+<li>
+Add ut_outcome_seq sequence for ut_outcome table.
+</li>
+<li>
+Add control_info and test_info columns to ut_outcome table.
+</li>
+<li>
+Add ability to direct output from utPLSQL's test run (the test results) to a
+file instead of to the screen. This functionality was provided by Rainer
+Medert. The documentation for this feature has not yet been integrated into the
+documentation set. You will find the "beta" documentation in the
+file_output_spec.doc in the doc directory.
+</li>
+</ul>
 <h3>utPLSQL version 2.0.9.2</h3>
 <ul type="disc">
   <li>Surround
