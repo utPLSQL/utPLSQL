@@ -10,7 +10,8 @@
 <table cellpadding="0" border="0" cellspacing="5">
  <tr>
   <td width="25%">
-  <p><a href="#utplsql.test">utPLSQL.test</a></p>
+  <p><a href="#utplsql.test">utPLSQL.test</a><br>
+  <a href="#utplsql.test">utPLSQL.run</a></p>
   </td>
   <td>
   <p><a href="#utplsql.test">Run a test</a></p>
@@ -18,7 +19,8 @@
  </tr>
  <tr>
   <td>
-  <p><a href="#utplsql.testsuite">utPLSQL.testsuite</a></p>
+  <p><a href="#utplsql.testsuite">utPLSQL.testsuite</a><br>
+  <a href="#utplsql.testsuite">utPLSQL.runsuite</a></p>
   </td>
   <td>
   <p><a href="#utplsql.testsuite">Run a test suite</a></p>
@@ -82,8 +84,8 @@ your own test package</a>. </p>
 <p>where the parameters are defined as follows: <br>
   </p>
 
-<table cellpadding="0" border="1" width="100%">
- <tr>
+<table border="1" cellpadding="0" width="100%">
+ <tbody><tr>
   <td width="19%">
   <p>package_in</p>
   </td>
@@ -193,7 +195,19 @@ your own test package</a>. </p>
   execution as a whole.</p>
   </td>
  </tr>
-</table>
+<!-- added by Jens Schauder -->
+ <tr>
+  <td width="19%">
+  <p>override_package_in </p>
+  </td>
+  <td width="79%">
+  <p>Override the automatic determination of package names thus removing the
+  one to one relationship between test package and package to test. 
+  Default is NULL. Instead of using this parameter consider the procedure <a href="#utplsql.run">run</a>.</p>
+  </td>
+ </tr>
+<!-- end of addition -->
+</tbody></table>
 
 <p>Here are some examples of using the utPLSQL.test procedure: </p>
 
@@ -225,7 +239,116 @@ this: </p>
 
 <pre>FAILURE: &quot;betwnstr&quot;
 BETWNSTR: IS NULL: NULL start
-BETWNSTR: End larger than string length; expected &quot;cdeg&quot;, got &quot;cdefg&quot;</pre>
+BETWNSTR: End larger than string length; expected "cdeg", got "cdefg"</pre>
+
+<!-- added by Jens Schauder -->
+<h3><a name="utplsql.run"></a>Running a Test the other way</h3>
+
+<p> The normal usage of the test procedure as described above assumes that for
+each package you want to test, say <code>mypackage</code>, has a package for
+testing this package having the same name but with an additional prefix:
+<code>ut_mypackage</code>. Instead of using this approach,  you can use the procedure
+<code>run</code>. This procedure runs a test package directly without any further 
+conditions on the name or other packages. The only condition that still applies
+is the naming conventions necessary to make it a valid test package.
+</p>
+<pre>
+PROCEDURE run (
+    testpackage_in      IN VARCHAR2,
+    prefix_in           IN VARCHAR2 := NULL,
+    suite_in            IN VARCHAR2 := NULL,
+    owner_in            IN VARCHAR2 := NULL,
+    reset_results_in    IN BOOLEAN  := TRUE,
+    from_suite_in       IN BOOLEAN  := FALSE,
+    subprogram_in       IN VARCHAR2 := '%',
+    per_method_setup_id IN BOOLEAN  := FALSE);
+</pre>
+
+<p>where the parameters are defined as follows: <br>
+  </p>
+
+<table border="1" cellpadding="0" width="100%">
+ <tbody><tr>
+  <td width="19%">
+  <p>test_package_in</p>
+  </td>
+  <td width="79%">
+  <p>The name of the test package to run.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="19%">
+  <p>prefix_in</p>
+  </td>
+  <td width="79%">
+  <p>The prefix to be appended to package_in to come up with
+  the name of the test package. If you do not provide a value, NULL is used as 
+  a default. i.e. the package name is used as provided in the first parameter</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="19%">
+  <p>suite_in</p>
+  </td>
+  <td width="79%">
+  <p>The name of the suite that contains the specified test
+  package. This is an optional value and is used to update <a href="#Statistics">statistics</a>
+  for the test.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="19%">
+  <p>owner_in</p>
+  </td>
+  <td width="79%">
+  <p>The name of the schema that was specified when the test
+  suite was defined and the packaged added to the suite.  This is an
+  optional value and is used to update <a href="#Statistics">statistics</a> for
+  the test.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="19%">
+  <p>reset_results_in</p>
+  </td>
+  <td width="79%">
+  <p>Pass FALSE to tell utPLSQL to <i>not</i> reset the results
+  information, in which case you will still be able to view results by calling <a href="utresult.html">utResult.show</a> . Otherwise, utPLSQL clears the result
+  data after each test.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="19%">
+  <p>from_suite_in</p>
+  </td>
+  <td width="79%">
+  <p>Pass TRUE to tell utPLSQL that this test is being run from
+  within a test suite (for internal use only).</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="19%">
+  <p>subprogram_in</p>
+  </td>
+  <td width="79%">
+  <p>Pass a string to restrict which of the test procedures
+  will be executed for this run. Default of <code>'%'</code> means all tests will be run.</p>
+  </td>
+ </tr>
+ <tr>
+  <td width="19%">
+  <p>per_method_setup_in</p>
+  </td>
+  <td width="79%">
+  <p>Pass TRUE to run the setup and teardown procedure before
+  and after each unit test procedure is executed. Default of FALSE means that
+  these programs will be run once, at the start and end of the package test
+  execution as a whole.</p>
+  </td>
+ </tr>
+</tbody></table>
+
+<!-- end of addition -->
 
 <h3><a name="utplsql.testsuite"></a>Running a Test Suite</h3>
 
@@ -256,6 +379,26 @@ suite itself (stored in a series of utPLSQL tables). </p>
 
 <p>Before you can test an entire suite, you must <a href="defsuite.html">define
 the suite</a>. </p>
+
+<!-- added by Jens Schauder -->
+<h3><a name="utplsql.runsuite"></a>Running a Test Suite the other way</h3>
+
+<p>Similiar to the <a href="#utplsql.run">run</a> procedure for single packages, there is the
+<code>runsuite</code> procedure to run testsuites. When you use this procedure 
+there is no relationship assumed between the names of test packages specified in the
+test suite and the procedures to be tested.
+</p>
+
+<pre>PROCEDURE utPLSQL.runsuite (
+   suite_in IN VARCHAR2,
+   reset_results_in IN BOOLEAN := TRUE
+   per_method_setup_in in BOOLEAN := FALSE
+   );</pre>
+   
+<p>
+The usage of the parameters is just as in <a href="#utplsql.testsuite">testsuite</a>. 
+</p>
+<!-- end of addition -->
 
 <h3><a name="Statistics"></a>Recording and Accessing Test Statistics</h3>
 
