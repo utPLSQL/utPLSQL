@@ -54,34 +54,19 @@ grant execute on dbms_pipe to utp;</pre>
 may get error messages when installing.  However, utPLSQL will still function correctly.</p>
 
 <p>Once you have connected to the schema, run the ut_i_do.sql
-file with the parameter "install" to install all utPLSQL objects. If the working directory of your SQL*Plus
-session is the directory holding the utPLSQL files, you can issue this as follows:</p>
+file with the parameter "install" to install all utPLSQL objects. You should ensure that 
+the working directory of your SQL*Plus
+session is the directory holding the utPLSQL files, then issue this as follows:</p>
 
 <p> </p>
 
 <pre>SQL&gt; @ut_i_do install</pre><pre> </pre>
 
-<p>If the working directory of your SQL*Plus session is <i>not</i>
-the directory holding the utPLSQL files, you can issue this command:</p>
-
-<p> </p>
-
-<pre>SQL&gt; @&lt;directory&gt;ut_i_do install</pre><pre> </pre>
-
-<p>as in:</p>
-
-<p> </p>
-
-<pre>SQL&gt; @c:\utplsql\ut_i_do install</pre><pre> </pre>
-
-<p>or</p>
-
-<p> </p>
-
-<pre>SQL&gt; @/orautils/utplsql/ut_i_do install</pre><pre> </pre>
 
 <p>This file will remove the existing installation of utPLSQL
-and then create all tables and packages needed.</p>
+and then create all tables and packages needed.  Note that the installation script
+creates some files dynamically using the SPOOL command.  For this reason, it is 
+necessary that you have write permission in the directory.</p>
 
 <p> </p>
 
@@ -96,12 +81,6 @@ script again, but with the parameter "uninstall", as in:</p>
 <p> </p>
 
 <pre>SQL&gt; @ut_i_do uninstall</pre><pre> </pre>
-
-<p>or</p>
-
-<p> </p>
-
-<pre>SQL&gt; @&lt;directory&gt;ut_i_do uninstall</pre>
 
 <h2><a name="step2"></a>Step 2. Choose a program to test and identify the test
 cases.</h2>
