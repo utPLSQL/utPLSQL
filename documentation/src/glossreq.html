@@ -51,22 +51,20 @@ that can then be tested in sequence by executing the test suite as a whole.
 <h2>
 <a name="Requirements"></a>Requirements</h2>
 
-If you are using Oracle8i, utPLSQL takes advantage
+If you are using Oracle8i or above, utPLSQL takes advantage
 of a number of Oracle8i features, including autonomous transactions, invoker
-rights and native dynamic SQL. You can also, however, use utPLSQL on Oracle7
+rights and native dynamic SQL. utPLSQL will however still run on Oracle7
 (7.3.4 and above) and Oracle8.
 
 Requirements for using utPLSQL include:
 <ul>
 <li>
 <p>
-The schema owning utPLSQL objects must have EXECUTE authority on the DBMS_PIPE
-package, as well as the ability to create tables and packages.
+The schema owning utPLSQL objects must have the ability to create tables and packages.
 </p></li>
 <li>
 <p>
-If
-you want utPLSQL to automatically recompile test packages for you, you
+If you want utPLSQL to automatically recompile test packages for you, you
 will need to have <a href="admin.html#UTL_FILE">UTL_FILE</a> installed and
 configured to read from the directory or directories in which your package
 source files are located.
@@ -74,11 +72,14 @@ source files are located.
 <li>
 <p>
 <b>Optional</b>:
-ability to create public synonyms. The installation script will attempt
+The Ability to create public synonyms. The installation script will attempt
 to create public synonyms. If your schema does not hae the authority to
 do so, these commands will fail, but utPLSQL will still be available for
 use in the owning schema.
 </p></li>
+<li><b>Optional</b>:
+Execute privilege on the DBMS_PIPE package.  Without this, the UTPIPE package will not compile.  
+However, this is only required if you want to test data accessed via DBMS_PIPE.</li>
 </ul>
 <h3>
 Requirements for Executing Test Code</h3>
@@ -90,7 +91,7 @@ you want to test, as well as the test packages), then no additional privileges a
 If, however, you install utPLSQL in a shared schema and then access it from other schemas, you may need to grant additional 
 privileges to the utPLSQL schema. utPLSQL uses dynamic PL/SQL to run the test code. It therefore requires directly granted
 EXECUTE privileges on those code elements (both the code to be tested and the test packages) -- or the AUTHID CURRENT_USER 
-capability of Oracle8i. 
+capability of Oracle8i and above. 
 <p>
 <h4>For Oracle8i and above</h4>
 <p>
@@ -104,5 +105,6 @@ These grants must be made directly and not through roles.
 
 
 <!-- End utPLSQL Body -->
+
 </body>
 </html>

@@ -31,7 +31,6 @@ create it. The utPLSQL schema must have the authority to:</p>
 <ul>
 <li>Create a session.</li>
 <li>Create tables, views, packages and sequences.</li>
-<li>Execute the SYS.DBMS_PIPE package.</li>
 </ul>
 
 <p>The following is an example script submitted by Bill Pribyl, which creates a user "UTP" with sufficient privileges 
@@ -46,11 +45,10 @@ grant create session, create table, create procedure,
   drop public synonym to utp;
 
 alter user utp quota unlimited on users;
+</pre>
 
-connect sys as sysdba
-grant execute on dbms_pipe to utp;</pre>
-
-<p><b>Note</b> If the schema in question does not have the ability to create and drop public synonyms, you 
+<p><b>Note</b> If the schema in question does not have the ability to create and drop public synonyms 
+or execute privilege on DBMS_PIPE, you 
 may get error messages when installing.  However, utPLSQL will still function correctly.</p>
 
 <p>Once you have connected to the schema, run the ut_i_do.sql
@@ -63,8 +61,8 @@ session is the directory holding the utPLSQL files, then issue this as follows:<
 <pre>SQL&gt; @ut_i_do install</pre><pre> </pre>
 
 
-<p>This file will remove the existing installation of utPLSQL
-and then create all tables and packages needed.  Note that the installation script
+<p>This file will create all tables, packages and other objects needed.  
+Note that the installation script
 creates some files dynamically using the SPOOL command.  For this reason, it is 
 necessary that you have write permission in the directory.</p>
 
@@ -341,7 +339,7 @@ errors:</p>
 
 <pre>SQL&gt; @ut_betwnstr.pks</pre><pre> </pre><pre>Package created.</pre><pre> </pre><pre>SQL&gt; @ut_betwnstr.pkb</pre><pre> </pre><pre>Package body created.</pre>
 
-<p>Note: when you run your test, utPLSQL will automatically
+<p>Note: when you run your test, utPLSQL will by default 
 attempt to recompile your test package to ensure that the latest changes are
 incorporated into the test. It is still worth doing an initial compile to make
 sure you built your test properly. You will also need to make sure that <a href="admin.html#UTL_FILE">UTL_FILE</a> is installed and configured so that your
@@ -385,13 +383,19 @@ your test! </p>
 
 <h3><a name="Recompile"></a>Automatic Recompilation of Test Package</h3>
 
-<p>utPLSQL will, by default, recompile your test package code
+<p>utPLSQL will, by default, attempt to recompile your test package code
 (which must be put in two files &lt;name&gt;.pks for the package specification
-and &lt;name&gt;.pkb for the package body). In order to do this, utPLSQL uses
-the UTL_FILE package provided by Oracle to read the source code files and then
-compile the code found in those files. Before using UTL_FILE you must <a href="admin.html#UTL_FILE">configure</a> it for use from within PL/SQL. </p>
+and &lt;name&gt;.pkb for the package body). This of course assumes that the files
+are situated on the same machine as your database.  If this is not the case, you can 
+turn off this functionality by calling <a href="utconfig.html#autocompile">utConfig.autocompile</a>
+as follows:</p>
 
-<p>Once you have confirmed that UTL_FILE works in your database instance, you
+<pre>utConfig.autocompile(false);</pre>
+
+<p>If you do wish to use this functionality, utPLSQL needs
+the UTL_FILE package provided by Oracle to read the source code files and then
+compile the code found in those files. Before using UTL_FILE you must <a href="admin.html#UTL_FILE">configure</a> it for use from within PL/SQL.  
+Once you have confirmed that UTL_FILE works in your database instance, you
 must tell utPLSQL where the test package is located by calling utPLSQL.setdir.
 If you do not do this, then utPLSQL will not be able to recompile your test
 package before each run, and instead will display an error message. </p>
@@ -401,10 +405,6 @@ utPLSQL the location of your source code. Suppose that I stored all my code in e
 call in SQL*Plus: </p>
 
 <pre>SQL&gt; exec utplsql.setdir ('e:\utplsql\testall')</pre>
-
-<p>You could also put this program call in your login.sql file
-(see the login_sample.sql file) so that you don't have to type that code every
-time you start up SQL*Plus (or connect to another session within SQL*Plus). </p>
 
 <h2><a name="Fromhere"></a>Where To Go From Here</h2>
 
