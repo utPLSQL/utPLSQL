@@ -98,7 +98,7 @@ kind of and how many tests you run for your program. </p>
 
 <p>Suppose, for example, that I have created a stand alone function called
 betwnStr (a variation on SUBSTR that returns a sub-string based on a starting
-and ending location) that is stored in <a href="..\Examples\betwnstr.sf">betwnstr.sf</a>:
+and ending location) that is stored in betwnstr.sf<a href="#footnote">(1)</a>:
 </p>
 
 <pre>CREATE OR REPLACE FUNCTION betwnStr (</pre><pre>   string_in IN VARCHAR2,</pre><pre>   start_in IN INTEGER,</pre><pre>   end_in IN INTEGER</pre><pre>   )</pre><pre>   RETURN VARCHAR2</pre><pre>IS</pre><pre>BEGIN</pre><pre>   RETURN (</pre><pre>      SUBSTR (</pre><pre>         string_in,</pre><pre>         start_in,</pre><pre>         end_in &#8211; start_in + 1</pre><pre>         )</pre><pre>      );</pre><pre>END;</pre>
@@ -226,12 +226,12 @@ utPLSQL packages. While you are &quot;Getting Started&quot;, however, we will
 rely completely on the defaults and get you up and testing ASAP. </p>
 
 <p>So if I am going to test the stand-alone procedure, betwnstr, my test
-package specification, saved in <a href="..\Examples\ut_betwnstr.pks">ut_betwnstr.pks</a>,
+package specification, saved in ut_betwnstr.pks<a href="#footnote">(1)</a>,
 will look like this: </p>
 
 <pre>CREATE OR REPLACE PACKAGE ut_betwnstr</pre><pre>IS</pre><pre>   PROCEDURE ut_setup;</pre><pre>   PROCEDURE ut_teardown;</pre><pre> </pre><pre>   PROCEDURE ut_betwnstr;</pre><pre>END ut_betwnstr;</pre><pre>/</pre>
 
-<p>Now let's build the package body, saved in <a href="..\Examples\ut_betwnstr.pkb">ut_betwnstr.pkb</a>. In this very simple
+<p>Now let's build the package body, saved in ut_betwnstr.pkb<a href="#footnote">(1)</a>. In this very simple
 case, I don't have to set up any data structures and I do not, therefore, have
 to tear anything down. My teardown  procedure can be empty (but it <i>must</i>
 be present). So I have: </p>
@@ -365,7 +365,7 @@ SQL*Plus and connect to the schema owning the code you want to test. </p>
 
 <p>Then run your test package within the utPLSQL testing framework by calling <a href="utplsql.html#utplsql.test">utPLSQL.test</a>: </p>
 
-<pre>SQL&gt; exec utplsql.test ('<a href="..\e:\utplsql\testall">betwnstr</a>', recompile_in =&gt; FALSE)</pre>
+<pre>SQL&gt; exec utplsql.test ('betwnstr', recompile_in =&gt; FALSE)</pre>
 
 <p>That second parameter in the call to utplsql.test,
 &quot;recompile_in =&gt; FALSE&quot;, tells utPLSQL that you have already
@@ -403,10 +403,10 @@ If you do not do this, then utPLSQL will not be able to recompile your test
 package before each run, and instead will display an error message. </p>
 
 <p>Call the <a href="utconfig.html#Setdir">utConfig.setdir</a> program to tell
-utPLSQL the location of your source code. Suppose that I stored all my code in <a href="..\e:\utplsql\testall">e:\utplsql\testall</a>. Then I would make this
+utPLSQL the location of your source code. Suppose that I stored all my code in e:\utplsql\testall. Then I would make this
 call in SQL*Plus: </p>
 
-<pre>SQL&gt; exec utplsql.setdir ('<a href="..\e:\utplsql\testall">e:\utplsql\testall</a>')</pre>
+<pre>SQL&gt; exec utplsql.setdir ('e:\utplsql\testall')</pre>
 
 <p>You could also put this program call in your login.sql file
 (see the login_sample.sql file) so that you don't have to type that code every
@@ -430,6 +430,12 @@ Build Test Packages</a>.</p>
 <p>To see a wide array of examples of building test cases and
 different kinds of test packages, visit the <a href="examples.html">Examples</a>
 document. </p>
+
+<hr>
+
+<a name="footnote"><h3>Footnotes</h3></a>
+
+<p>1. This file is to be found in the Examples directory of the utPLSQL distribution.</p>
 
 <!-- End utPLSQL Body -->
 </body>
