@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.6  2004/11/23 14:56:48  chrisrimmer
+Moved dbms_pipe code into its own package.  Also changed some preprocessor flags
+
 Revision 1.5  2004/11/16 09:46:49  chrisrimmer
 Changed to new version detection system.
 
@@ -39,7 +42,7 @@ Added Standard Headers
 ************************************************************************/
 
    g_trc       BOOLEAN        := FALSE;
-   g_version   VARCHAR2 (100) := '2.1.1';
+   g_version   VARCHAR2 (100) := '2.2';
 
    tests       test_tt;
    testpkg     test_rt;
