@@ -87,6 +87,16 @@ utConfig Package</h1>
 </tr>
 
 <tr>
+   <td><a href="#ShowFailuresOnly">utConfig.showfailuresonly</a></td>
+   <td><a href="#ShowFailuresOnly">Turn off the display of successful tests</a></td>
+</tr>
+
+<tr>
+   <td><a href="#ShowFailuresOnly">utConfig.showfailuresonly</a></td>
+   <td><a href="#ShowFailuresOnly">Return whether successful test results are shown or not</a></td>
+</tr>
+
+<tr>
    <td><a href="fileout.html#setgetfile">utConfig.setfile </a></td>
    <td><a href="fileout.html#setgetfile">Sets file output TRUE or FALSE</a></td>
 </tr>
@@ -444,6 +454,21 @@ or utPLSQL.testsuite.
 while the current delimiter can be obtained by the function:
 <pre>FUNCTION delimiter (username_in IN VARCHAR2 := NULL)
   RETURN VARCHAR2;</pre>
+</p>
+
+<h2>
+   <a name="ShowFailuresOnly">Turn off the display of successful test results</a>
+</h2>
+<p>
+By default, the results of all the tests are shown.  This includes both successful and unsuccessful
+results.  The following procedure allows you to limit the tests shown to only those that have failed:
+<pre>PROCEDURE showfailuresonly (
+     onoff_in      IN   BOOLEAN,
+     username_in   IN   VARCHAR2 := NULL
+   );</pre>
+the current setting can be obtained by the function:
+<pre>FUNCTION showingfailuresonly (username_in IN VARCHAR2 := NULL)
+      RETURN BOOLEAN;</pre>
 </p>
 <!-- End utPLSQL Body -->
 </body>
