@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    /* Test suite API */
@@ -68,9 +71,14 @@ $Log$
 	  per_method_setup_in in ut_suite.per_method_setup%type := null
    );
    
+   --Get a ref cursor returning suite details   
    FUNCTION suites (
       name_like_in   IN   VARCHAR2 := '%'
    )
       RETURN utconfig.refcur_t;
+      
+   --Simply write out the results of the above to dbms_output      
+   PROCEDURE show_suites (name_like_in IN VARCHAR2 := '%');
+         
 END utsuite;
 /
