@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:46  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    g_pkgstring      VARCHAR2 (32767);
@@ -172,7 +175,7 @@ $Log$
       delim_in             IN   VARCHAR2 := c_delim,
       date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY',
       only_if_in_grid_in   IN   BOOLEAN := FALSE,
-	  override_file_in IN   VARCHAR2 := NULL
+		   override_file_in IN   VARCHAR2 := NULL
    )
    IS 
       fid            UTL_FILE.file_type;
@@ -186,7 +189,7 @@ $Log$
       l_grid         grid_tt;
 
       CURSOR prog_cur (package_in IN VARCHAR2, program_in IN VARCHAR2)
-      IS
+      IS &startnot92
          SELECT DISTINCT owner, package_name, object_name, overload,
                          object_name || overload
                                full_name
@@ -203,6 +206,34 @@ $Log$
                           AND package_in IS NULL
                           AND object_name = UPPER (program_in)
                          );
+         &endnot92
+         &start92
+         SELECT owner, object_name package_name, procedure_name object_name,
+                DECODE (
+                   ROW_NUMBER () OVER (PARTITION BY procedure_name ORDER BY object_name),
+                   1, NULL,
+                   ROW_NUMBER () OVER (PARTITION BY procedure_name ORDER BY object_name)
+                ) overload,
+                   procedure_name
+                || DECODE (
+                      ROW_NUMBER () OVER (PARTITION BY procedure_name ORDER BY object_name),
+                      1, NULL,
+                      ROW_NUMBER () OVER (PARTITION BY procedure_name ORDER BY object_name)
+                ) full_name
+           FROM all_procedures
+          WHERE     owner = NVL (UPPER (schema_in), USER)
+                AND (    object_name = UPPER (package_in)
+                     AND procedure_name LIKE
+                                        NVL (UPPER (program_in), '%')
+                    )
+             OR (    (   object_name IS NULL
+                      -- 2.0.9.1 9i changes way package_name is set.
+                      OR object_name = UPPER (program_in)
+                     )
+                 AND package_in IS NULL
+                 AND procedure_name = UPPER (program_in)
+                );         
+         &end92
 
       CURSOR arg_cur (
          schema_in     IN   VARCHAR2,
@@ -256,7 +287,7 @@ $Log$
 
             fid := UTL_FILE.fopen (
                       v_dir,
-					  NVL (override_file_in, 
+		 		 		 		 		   NVL (override_file_in, 
                          NVL (prefix_in, utconfig.prefix (schema_in))
                       || package_in
                       || '.'
@@ -837,7 +868,7 @@ $Log$
       schema_in        IN   VARCHAR2 := NULL,
       output_type_in   IN   PLS_INTEGER := c_screen,
       dir_in           IN   VARCHAR2 := NULL,
-	  override_file_in IN   VARCHAR2 := NULL
+		   override_file_in IN   VARCHAR2 := NULL
    )
    IS 
       l_grid   grid_tt;
@@ -853,7 +884,7 @@ $Log$
          output_type_in,
          dir_in,
          only_if_in_grid_in      => FALSE,
-		 override_file_in => override_file_in
+		 		  override_file_in => override_file_in
       );
    END;
 
@@ -878,7 +909,7 @@ $Log$
       arg_delim_in         IN   VARCHAR2 := c_delim,
       date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY',
       only_if_in_grid_in   IN   BOOLEAN := FALSE,
-	  override_file_in IN   VARCHAR2 := NULL
+		   override_file_in IN   VARCHAR2 := NULL
    )
    IS 
       c_progname   VARCHAR2 (30)      := 'testpkg_from_file';
@@ -923,7 +954,7 @@ $Log$
          arg_delim_in,
          date_format_in,
          only_if_in_grid_in,
-		 override_file_in => override_file_in
+		 		  override_file_in => override_file_in
       );
    EXCEPTION
       WHEN UTL_FILE.invalid_path
@@ -966,7 +997,7 @@ $Log$
       arg_delim_in         IN   VARCHAR2 := c_delim,
       date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY',
       only_if_in_grid_in   IN   BOOLEAN := FALSE,
-	  override_file_in IN   VARCHAR2 := NULL
+		   override_file_in IN   VARCHAR2 := NULL
    )
    IS 
       c_progname   VARCHAR2 (30)   := 'testpkg_from_string';
@@ -1008,7 +1039,7 @@ $Log$
             arg_delim_in,
             date_format_in,
             only_if_in_grid_in,
-		    override_file_in => override_file_in
+		 		     override_file_in => override_file_in
          );
       END IF;
    END;
@@ -1017,7 +1048,7 @@ $Log$
       package_in   IN   VARCHAR2,
       grid_in      IN   VARCHAR2,
       dir_in       IN   VARCHAR2 := NULL,
-	  override_file_in IN   VARCHAR2 := NULL
+		   override_file_in IN   VARCHAR2 := NULL
    )
    IS
    BEGIN
@@ -1027,23 +1058,23 @@ $Log$
          output_type_in          => c_file,
          dir_in                  => dir_in,
          only_if_in_grid_in      => TRUE,
-		 override_file_in => override_file_in
+		 		  override_file_in => override_file_in
       );
    END;
 
    PROCEDURE clear_grid (
       owner_in            IN   ut_grid.owner%TYPE
-	 ,package_in          IN   ut_grid.PACKAGE%TYPE)
+		  ,package_in          IN   ut_grid.PACKAGE%TYPE)
    IS
    BEGIN
    delete from ut_grid  WHERE ut_grid.owner = UPPER (owner_in)
-			  AND ut_grid.PACKAGE = UPPER (package_in);
-			  
+		 		 		   AND ut_grid.PACKAGE = UPPER (package_in);
+		 		 		   
    END;
    
    PROCEDURE add_to_grid (
       owner_in            IN   ut_grid.owner%TYPE
-	 ,package_in          IN   ut_grid.PACKAGE%TYPE
+		  ,package_in          IN   ut_grid.PACKAGE%TYPE
      ,progname_in         IN   ut_grid.progname%TYPE
      ,overload_in         IN   ut_grid.overload%TYPE
      ,tcname_in           IN   ut_grid.tcname%TYPE
@@ -1074,18 +1105,18 @@ $Log$
       output_type_in   IN   PLS_INTEGER := c_screen,
       dir_in           IN   VARCHAR2 := NULL,
       date_format_in   IN   VARCHAR2 := 'MM/DD/YYYY',
-	  override_file_in IN   VARCHAR2 := NULL
+		   override_file_in IN   VARCHAR2 := NULL
    )
    IS 
       CURSOR c_ut_grid (p_package VARCHAR2, p_owner VARCHAR2)
       IS
          SELECT   ut_grid.owner,
-		          ut_grid.progname, ut_grid.overload, ut_grid.tcname,
+		 		           ut_grid.progname, ut_grid.overload, ut_grid.tcname,
                   ut_grid.MESSAGE, ut_grid.arglist, ut_grid.return_value,
                   ut_grid.assertion_type
              FROM ut_grid
             WHERE ut_grid.owner = UPPER (p_owner)
-			  AND ut_grid.PACKAGE = UPPER (p_package)
+		 		 		   AND ut_grid.PACKAGE = UPPER (p_package)
          ORDER BY ut_grid.progname;
 
       lv_grid      utgen.grid_tt;
@@ -1137,7 +1168,7 @@ $Log$
           , output_type_in   => output_type_in
           , dir_in           => dir_in
           , date_format_in   => date_format_in
-		  , override_file_in => override_file_in
+		 		   , override_file_in => override_file_in
           );
 
       END IF; -- lv_index > -1

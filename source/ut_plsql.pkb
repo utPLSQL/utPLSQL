@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    g_trc       BOOLEAN        := FALSE;
@@ -63,19 +66,19 @@ $Log$
      fid IN OUT UTL_FILE.FILE_TYPE
   ) IS
    
-     v 	 		VARCHAR2(10) := '-- TEST --';
-     c_endcmd 	VARCHAR2(13) := '-- TESTEND --';
+     v           VARCHAR2(10) := '-- TEST --';
+     c_endcmd    VARCHAR2(13) := '-- TESTEND --';
 
      dir        ut_config.directory%TYPE;
      
-	 file_dir   ut_config.filedir%TYPE; 
+    file_dir   ut_config.filedir%TYPE; 
      file_out   ut_config.fileout%TYPE; 
      userprefix ut_config.fileuserprefix%TYPE; 
      incprog    ut_config.fileincprogname%TYPE; 
      date_formt ut_config.filedateformat%TYPE; 
-     extension  ut_config.fileextension%TYPE;	
-	 
-	 progname VARCHAR2(35); 
+     extension  ut_config.fileextension%TYPE;   
+    
+    progname VARCHAR2(35); 
      
      no_dir EXCEPTION;
      
@@ -91,9 +94,9 @@ $Log$
     -- open file if not already open
     -- and write header record
     IF NOT UTL_FILE.is_open(fid) THEN
-	  
-	  -- Get the output file directory
-	  file_dir := utConfig.filedir ();
+     
+     -- Get the output file directory
+     file_dir := utConfig.filedir ();
       --  check if NULL
       IF file_dir IS NULL THEN
         -- try directory
@@ -103,32 +106,32 @@ $Log$
           -- redirect output to DBMS_OUTPUT
           set_pl_to_file (FALSE);
           raise no_dir;
-	    END IF;
+       END IF;
       END IF;
 
-	  -- Get the userprefix from config
-	  userprefix := utConfig.userprefix();
-	  IF userprefix IS NULL THEN
-	    -- use the current user if userprefix IS NULL
-		userprefix := USER;
+     -- Get the userprefix from config
+     userprefix := utConfig.userprefix();
+     IF userprefix IS NULL THEN
+       -- use the current user if userprefix IS NULL
+      userprefix := USER;
       END IF;
-	  userprefix := userprefix ||'_';
+     userprefix := userprefix ||'_';
 
       -- include progname in filename ?
-	  progname := NULL;
-	  IF utConfig.includeprogname() THEN
-	    progname := v_in|| '_';
-	  END IF;
+     progname := NULL;
+     IF utConfig.includeprogname() THEN
+       progname := v_in|| '_';
+     END IF;
       
-	  -- get the date format
-	  date_formt := utConfig.dateformat;
-	  
-	  -- get the file extension
-	  extension := utConfig.fileextension();
-	  
-	  fid := UTL_FILE.FOPEN (file_dir, userprefix||progname||
-	         to_char(sysdate,date_formt)||extension, 'A');
- 	  UTL_FILE.PUT_LINE (fid, '-- '||to_char(sysdate,date_formt));
+     -- get the date format
+     date_formt := utConfig.dateformat;
+     
+     -- get the file extension
+     extension := utConfig.fileextension();
+     
+     fid := UTL_FILE.FOPEN (file_dir, userprefix||progname||
+            to_char(sysdate,date_formt)||extension, 'A');
+      UTL_FILE.PUT_LINE (fid, '-- '||to_char(sysdate,date_formt));
       UTL_FILE.PUT_LINE (fid, v);
     END IF; 
  
@@ -139,9 +142,9 @@ $Log$
     -- '-- TESTEND --' gets written to file as well
     IF v_in = c_endcmd AND UTL_FILE.is_open(fid) THEN
       -- get the date format
-	  date_formt := utConfig.dateformat;
+     date_formt := utConfig.dateformat;
       UTL_FILE.PUT_LINE (fid, '-- '||to_char(sysdate,date_formt));
- 	  UTL_FILE.FCLOSE (fid);
+      UTL_FILE.FCLOSE (fid);
     END IF;
 
   EXCEPTION
@@ -204,7 +207,7 @@ $Log$
       THEN
          DBMS_OUTPUT.put_line (s);
          -- 2.1.2 PBA we should return here...
-         RETURN;		 
+         RETURN;       
       -- Simple case: s is short.
       ELSIF LENGTH (s) <= maxlinelen
       THEN
@@ -255,14 +258,14 @@ $Log$
    )
    IS
    BEGIN
-   	  -- RMM start
+        -- RMM start
       IF get_pl_to_file THEN
-	     pl_to_file(str,g_fid);
-	  ELSIF NOT get_pl_to_file 
-	  -- RMM end
-	  THEN 
+        pl_to_file(str,g_fid);
+     ELSIF NOT get_pl_to_file 
+     -- RMM end
+     THEN 
          show (str, len, expand_in);
-	  END IF;
+     END IF;
    END;
 
    FUNCTION vc2bool (vc IN VARCHAR2)
@@ -346,7 +349,7 @@ $Log$
             /* Begin changes to check if v_prog is an object */
             DECLARE
                block   VARCHAR2(100) := 
-			      'DECLARE obj ' || v_prog || '; BEGIN NULL; END;';
+               'DECLARE obj ' || v_prog || '; BEGIN NULL; END;';
                &start73
                cur     PLS_INTEGER := DBMS_SQL.open_cursor;
                fdbk    PLS_INTEGER;
@@ -465,8 +468,8 @@ $Log$
 
       IF owner_in IS NOT NULL
       THEN
-	     -- 2.0.10.2: embed owner_in in double quotes to support
-		 --           OS authentication 
+        -- 2.0.10.2: embed owner_in in double quotes to support
+       --           OS authentication 
          retval := '"' || owner_in || '"' 
          --retval :=    owner_in
                    || '.'
@@ -722,7 +725,7 @@ $Log$
       END IF;
 
       utresult.init (from_suite_in);
-	  
+     
       -- 2.0.1 compatibilty with utPLSQL2
       utplsql2.set_runnum;
 
@@ -815,11 +818,11 @@ $Log$
       END LOOP;
 
       UTL_FILE.fclose (fid);
-	  
-	  if tracing then 
-	  pl ('Compiling ' || lines (lines.first));
-	  end if;
-	  
+     
+     if tracing then 
+     pl ('Compiling ' || lines (lines.first));
+     end if;
+     
       DBMS_SQL.parse (
          cur,
          lines,
@@ -916,7 +919,7 @@ $Log$
         END;
 
    
-	  IF tracing
+     IF tracing
       THEN
          pl (   'Setpkg to '
              || testpkg.pkg);
@@ -962,7 +965,8 @@ $Log$
       THEN
          -- Populate test information from ALL_ARGUMENTS
          FOR rec IN
-             (SELECT DISTINCT object_name
+             &startnot92
+             (SELECT DISTINCT object_name procedure_name
                          FROM all_arguments
                         WHERE owner =
                                  NVL (
@@ -993,10 +997,31 @@ $Log$
                                      || c_teardown
                                   )
                                  ))
+             &endnot92
+             &start92
+             (SELECT procedure_name 
+                FROM all_procedures
+               WHERE owner = NVL (UPPER (owner_in), USER)
+                 AND object_name = UPPER (v_pkg)
+                 AND procedure_name LIKE    UPPER (prefix_in)
+                                    || '%'
+                 AND procedure_name LIKE
+                                UPPER (   prefix_in
+                                       || subprogram_in)
+                 AND procedure_name NOT IN (UPPER (
+                                                  prefix_in
+                                               || c_setup
+                                            ),
+                                            UPPER (
+                                                  prefix_in
+                                               || c_teardown
+                                            )
+                                           ))
+             &end92
          LOOP
             addtest (
                testpkg_in.pkg,
-               rec.object_name,
+               rec.procedure_name,
                prefix_in,
                iterations_in=> 1,
                override_in=> TRUE
@@ -1109,8 +1134,8 @@ $Log$
    IS
       indx                 PLS_INTEGER;
       v_pkg                VARCHAR2 (100);
-	  -- 2.0.10.1: use dir in config
-	  v_dir maxvc2_t := NVL (dir_in, utconfig.dir);
+     -- 2.0.10.1: use dir in config
+     v_dir maxvc2_t := NVL (dir_in, utconfig.dir);
       v_start              DATE              := SYSDATE;
       v_prefix             ut_config.prefix%TYPE
    := NVL (prefix_in, utconfig.prefix (owner_in));
@@ -1154,20 +1179,20 @@ $Log$
          IF suite_in IS NULL AND get_pl_to_file THEN
            pl('-- TESTEND --'); 
          END IF;
-         -- RMM end		 
+         -- RMM end       
       END;
    BEGIN
       init (v_prefix, v_dir, from_suite_in);
       -- RMM start
       g_pl_to_file := utConfig.getfile();
       IF g_pl_to_file THEN
-       		 IF suite_in IS NOT NULL THEN
-       		   -- we run a test suite
+              IF suite_in IS NOT NULL THEN
+                -- we run a test suite
          pl(suite_in);
-       		 ELSE
+              ELSE
          -- we run a single package test
-       		   pl(package_in);
-       		 END IF;
+                pl(package_in);
+              END IF;
       END IF;
       -- RMM end
 
@@ -1212,7 +1237,7 @@ $Log$
             END IF;
 
             utreceq.COMPILE (package_in);
-			
+         
             COMPILE (
                   -- 2.0.9.1 Package name without OWNER
                   -- 2.0.9.2 Switch to use of record based info.
@@ -1376,7 +1401,7 @@ begin
       IF get_pl_to_file THEN
         pl('-- TESTEND --');
       END IF; 
-      -- RMM end		
+      -- RMM end      
 
    END;
 
