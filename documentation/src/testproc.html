@@ -43,8 +43,8 @@ END;
 After compiling my code cleanly, I <a href="utgen.html">generate
 my test package</a>:
 
-<pre>SQL> SET SERVEROUTPUT ON FORMAT WRAPPED
-SQL> exec utGen.testpkg ('calc_secs_between ')
+<pre>SQL&gt; SET SERVEROUTPUT ON FORMAT WRAPPED
+SQL&gt; exec utGen.testpkg ('calc_secs_between ')
 CREATE OR REPLACE PACKAGE ut_calc_secs_between
 IS
    PROCEDURE ut_setup;
@@ -72,16 +72,16 @@ IS
    PROCEDURE ut_CALC_SECS_BETWEEN IS
    BEGIN
       CALC_SECS_BETWEEN (
-            DATE1 => ''
+            DATE1 =&gt; ''
             ,
-            DATE2 => ''
+            DATE2 =&gt; ''
             ,
-            SECS => ''
+            SECS =&gt; ''
        );
 
       utAssert.this (
          'Test of CALC_SECS_BETWEEN',
-         '&lt;boolean expression>'
+         '&lt;boolean expression&gt;'
          );
    END ut_CALC_SECS_BETWEEN;
 
@@ -93,7 +93,7 @@ is actually easier to deposit the code directly into two separate files
 for package spec and body, ut_calc_secs_between.pks and ut_calc_secs_between.pkb,
 which I do as follows:
 
-<pre>SQL> exec utGen.testpkg ('calc_secs_between ', output_type_in => utGen.c_file)</pre>
+<pre>SQL&gt; exec utGen.testpkg ('calc_secs_between ', output_type_in =&gt; utGen.c_file)</pre>
 
 By conforming to this standard, utPLSQL can
 automatically compile this code before each test. I now edit the ut_calc_secs_between
@@ -104,11 +104,11 @@ IS
    secs PLS_INTEGER;
 BEGIN
    CALC_SECS_BETWEEN (
-         DATE1 => SYSDATE
+         DATE1 =&gt; SYSDATE
          ,
-         DATE2 => SYSDATE
+         DATE2 =&gt; SYSDATE
          ,
-         SECS => secs
+         SECS =&gt; secs
     );
 
    utAssert.eq (
@@ -118,11 +118,11 @@ BEGIN
       );
       
    CALC_SECS_BETWEEN (
-         DATE1 => SYSDATE
+         DATE1 =&gt; SYSDATE
          ,
-         DATE2 => SYSDATE+1
+         DATE2 =&gt; SYSDATE+1
          ,
-         SECS => secs
+         SECS =&gt; secs
     );
 
    utAssert.eq (
@@ -135,17 +135,17 @@ END ut_CALC_SECS_BETWEEN;</pre>
 
 and now I can run my test:
 
-<pre>SQL> exec utplsql.test ('calc_secs_between')
+<pre>SQL&gt; exec utplsql.test ('calc_secs_between')
 .
->    SSSS   U     U   CCC     CCC   EEEEEEE   SSSS     SSSS
->   S    S  U     U  C   C   C   C  E        S    S   S    S
->  S        U     U C     C C     C E       S        S
->   S       U     U C       C       E        S        S
->    SSSS   U     U C       C       EEEE      SSSS     SSSS
->        S  U     U C       C       E             S        S
->         S U     U C     C C     C E              S        S
->   S    S   U   U   C   C   C   C  E        S    S   S    S
->    SSSS     UUU     CCC     CCC   EEEEEEE   SSSS     SSSS
+&gt;    SSSS   U     U   CCC     CCC   EEEEEEE   SSSS     SSSS
+&gt;   S    S  U     U  C   C   C   C  E        S    S   S    S
+&gt;  S        U     U C     C C     C E       S        S
+&gt;   S       U     U C       C       E        S        S
+&gt;    SSSS   U     U C       C       EEEE      SSSS     SSSS
+&gt;        S  U     U C       C       E             S        S
+&gt;         S U     U C     C C     C E              S        S
+&gt;   S    S   U   U   C   C   C   C  E        S    S   S    S
+&gt;    SSSS     UUU     CCC     CCC   EEEEEEE   SSSS     SSSS
 .
  SUCCESS: "calc_secs_between"</pre>
 
@@ -174,6 +174,7 @@ After I run this test, I cannot simply check
 the value returned by the procedure. Instead, I must check to see how many
 rows are left in the table. Fortunately, I have another dynamic SQL utility
 to help me out here, one that returns the count of rows in any table:
+(Note that you could also use <a href="utassert.html#eqqueryvalue">utAssert.eqqueryvalue</a> here.)
 
 <pre>/*file tabcount.sf */
 CREATE OR REPLACE FUNCTION tabcount (
@@ -197,8 +198,8 @@ END;
 So I will <a href="utgen.html">generate a package</a>
 to test truncit and then modify the package body:
 
-<pre>SQL> SET SERVEROUTPUT ON FORMAT WRAPPED
-SQL> exec utGen.testpkg ('truncit', output_type_in => utGen.c_file)</pre>
+<pre>SQL&gt; SET SERVEROUTPUT ON FORMAT WRAPPED
+SQL&gt; exec utGen.testpkg ('truncit', output_type_in =&gt; utGen.c_file)</pre>
 
 To run my test, I need to truncate a table.
 That is an irreversible action, so I will create a "temporary" table in
@@ -226,9 +227,9 @@ IS
    PROCEDURE ut_TRUNCIT IS
    BEGIN
       TRUNCIT (
-            TAB => 'temp_emp'
+            TAB =&gt; 'temp_emp'
             ,
-            SCH => USER
+            SCH =&gt; USER
        );
 
       utAssert.eq (
