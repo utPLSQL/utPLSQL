@@ -1,0 +1,147 @@
+SQL> @@str_same.pks
+
+Package created.
+
+SQL> @@str_same.pkb
+
+Package body created.
+
+SQL> BEGIN
+  2     p.l ('*** Basic package for stand alone procedure');
+  3     utgen.testpkg ('betwnstr');
+  4  
+  5     p.l ('*** Basic package for package');
+  6     utgen.testpkg ('str');
+  7  
+  8     p.l ('*** Place test code in same package as source');
+  9     utgen.testpkg ('str', samepackage_in => TRUE);
+ 10  
+ 11     p.l ('*** Change prefix, direct output to file');
+ 12     utgen.testpkg ('str', prefix_in => 'tst_', output_type_in => utgen.c_file,
+ 13        dir_in => 'c:\temp');
+ 14  END;
+ 15  /
+*** Basic package for stand alone procedure                                    
+CREATE OR REPLACE PACKAGE ut_betwnstr                                           
+IS                                                                              
+   PROCEDURE ut_setup;                                                          
+   PROCEDURE ut_teardown;                                                       
+                                                                                
+   -- For each program to test...                                               
+   PROCEDURE ut_BETWNSTR;                                                       
+END ut_betwnstr;                                                                
+/                                                                               
+CREATE OR REPLACE PACKAGE BODY ut_betwnstr                                      
+IS                                                                              
+   PROCEDURE ut_setup                                                           
+   IS                                                                           
+   BEGIN                                                                        
+      NULL;                                                                     
+   END;                                                                         
+                                                                                
+   PROCEDURE ut_teardown                                                        
+   IS                                                                           
+   BEGIN                                                                        
+      NULL;                                                                     
+   END;                                                                         
+                                                                                
+   -- For each program to test...                                               
+   PROCEDURE ut_BETWNSTR IS                                                     
+   BEGIN                                                                        
+      utAssert.this (                                                           
+         'Test of BETWNSTR',                                                    
+         BETWNSTR(                                                              
+            STRING_IN => ''                                                     
+            ,                                                                   
+            START_IN => ''                                                      
+            ,                                                                   
+            END_IN => ''                                                        
+            )                                                                   
+         );                                                                     
+   END ut_BETWNSTR;                                                             
+                                                                                
+END ut_betwnstr;                                                                
+/                                                                               
+*** Basic package for package                                                  
+CREATE OR REPLACE PACKAGE ut_str                                                
+IS                                                                              
+   PROCEDURE ut_setup;                                                          
+   PROCEDURE ut_teardown;                                                       
+                                                                                
+   -- For each program to test...                                               
+   PROCEDURE ut_BETWN;                                                          
+END ut_str;                                                                     
+/                                                                               
+CREATE OR REPLACE PACKAGE BODY ut_str                                           
+IS                                                                              
+   PROCEDURE ut_setup                                                           
+   IS                                                                           
+   BEGIN                                                                        
+      NULL;                                                                     
+   END;                                                                         
+                                                                                
+   PROCEDURE ut_teardown                                                        
+   IS                                                                           
+   BEGIN                                                                        
+      NULL;                                                                     
+   END;                                                                         
+                                                                                
+   -- For each program to test...                                               
+   PROCEDURE ut_BETWN IS                                                        
+   BEGIN                                                                        
+      utAssert.this (                                                           
+         'Test of BETWN',                                                       
+               STR.BETWN(                                                       
+            STRING_IN => ''                                                     
+            ,                                                                   
+            START_IN => ''                                                      
+            ,                                                                   
+            END_IN => ''                                                        
+            )                                                                   
+         );                                                                     
+   END ut_BETWN;                                                                
+                                                                                
+END ut_str;                                                                     
+/                                                                               
+*** Place test code in same package as source                                  
+-- START: place in specification of source package                              
+   PROCEDURE ut_setup;                                                          
+   PROCEDURE ut_teardown;                                                       
+                                                                                
+   -- For each program to test...                                               
+   PROCEDURE ut_BETWN;                                                          
+-- END: place in specification of source package                                
+-- START: place in body of source package                                       
+   PROCEDURE ut_setup                                                           
+   IS                                                                           
+   BEGIN                                                                        
+      NULL;                                                                     
+   END;                                                                         
+                                                                                
+   PROCEDURE ut_teardown                                                        
+   IS                                                                           
+   BEGIN                                                                        
+      NULL;                                                                     
+   END;                                                                         
+                                                                                
+   -- For each program to test...                                               
+   PROCEDURE ut_BETWN IS                                                        
+   BEGIN                                                                        
+      utAssert.this (                                                           
+         'Test of BETWN',                                                       
+               STR.BETWN(                                                       
+            STRING_IN => ''                                                     
+            ,                                                                   
+            START_IN => ''                                                      
+            ,                                                                   
+            END_IN => ''                                                        
+            )                                                                   
+         );                                                                     
+   END ut_BETWN;                                                                
+                                                                                
+-- END: place in body of source package                                         
+*** Change prefix, direct output to file                                       
+
+PL/SQL procedure successfully completed.
+
+SQL> SPOOL OFF

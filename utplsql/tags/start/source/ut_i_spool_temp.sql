@@ -1,0 +1,31 @@
+PROMPT Recompiling...
+alter package UTCONFIG compile package;
+alter package UTPLSQL compile package;
+alter package UTRESULT compile package;
+alter package UTPLSQL_UTIL compile package;
+alter package UTASSERT2 compile package;
+alter package UTASSERT compile package;
+alter package UTPLSQL2 compile package;
+alter package UTUTP compile package;
+alter package UTRESULT2 compile package;
+alter package UTOUTCOME compile package;
+alter package UTUNITTEST compile package;
+alter package UTTESTPREP compile package;
+alter package UTTESTCASE compile package;
+alter package UTPACKAGE compile package;
+alter package UTSUITEUTP compile package;
+alter package UTSUITE compile package;
+alter package UTTEST compile package;
+alter package UTAEQ compile package;
+alter package UTGEN compile package;
+alter package UTROUTCOME compile package;
+alter package UTVVALUE compile package;
+alter package UTRTESTCASE compile package;
+alter package UTRUTP compile package;
+alter package UTRUNITTEST compile package;
+alter package UTRSUITE compile package;
+alter package UTRERROR compile package;
+alter package UTOUTPUT compile package;
+alter package UTRECEQ compile package;
+alter package UT_UTOUTPUT compile package;
+PROMPT .                            Finished
