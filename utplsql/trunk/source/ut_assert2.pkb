@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:46  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    /* START chrisrimmer 42694 */
@@ -2553,7 +2556,7 @@ UNION
       l_indicator          PLS_INTEGER;
       v_block              VARCHAR2 (32767)
    :=    'BEGIN '
-      || RTRIM (check_call_in, ';')
+      || RTRIM (RTRIM (check_call_in), ';')
       || ';
                :indicator := 0;
              EXCEPTION
@@ -2636,7 +2639,7 @@ UNION
       l_indicator          PLS_INTEGER;
       v_block              VARCHAR2 (32767)
    :=    'BEGIN '
-      || RTRIM (check_call_in, ';')
+      || RTRIM (RTRIM (check_call_in), ';')
       || ';
                :indicator := 0;
              EXCEPTION
