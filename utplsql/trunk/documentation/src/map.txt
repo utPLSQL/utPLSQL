@@ -29,5 +29,6 @@ utconfig.html,utConfig Package
 utresult.html,utResult Package
 utassert.html,utAssert Package
 utgen.html,utGen Package
+utoutput.html,utOutput Package
 defsuite.html,Define Test Suites
 release.html,Release Notes*
