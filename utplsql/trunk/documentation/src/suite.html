@@ -18,9 +18,9 @@ BEGIN
    
    -- Add packages for testing
    utpackage.add (
-      'PLVision', 'PLVstr', dir_in => 'e:\openoracle\utplsql\examples');
+      'PLVision', 'PLVstr', dir_in =&gt; 'e:\openoracle\utplsql\examples');
    utpackage.add (
-      'PLVision', 'PLVdate', dir_in => 'e:\openoracle\utplsql\examples');
+      'PLVision', 'PLVdate', dir_in =&gt; 'e:\openoracle\utplsql\examples');
 END;   
 /</pre>
 This is a very simple test suite definition. I rely on all defaults, but
@@ -37,16 +37,16 @@ options:
 
    utpackage.add ('PLVision',
       'PLVstr',
-      dir_in => 'e:\openoracle\utplsql\examples',
-      seq_in => 1,
-      samepackage_in => TRUE
+      dir_in =&gt; 'e:\openoracle\utplsql\examples',
+      seq_in =&gt; 1,
+      samepackage_in =&gt; TRUE
    );
 
    utpackage.add ('PLVision',
       'PLVdate',
-      dir_in => 'e:\openoracle\utplsql\examples',
-      seq_in => 2,
-      samepackage_in => TRUE
+      dir_in =&gt; 'e:\openoracle\utplsql\examples',
+      seq_in =&gt; 2,
+      samepackage_in =&gt; TRUE
    );
 END;
 /</pre>

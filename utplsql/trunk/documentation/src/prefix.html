@@ -13,17 +13,17 @@ with ten procedures, each of which <i>already</i> have "ut_" as a prefix
 you get the picture).
 <p>Since this prefix is not hard-coded into utPLSQL, you can very easily
 specify your own prefix. You can do this when you run a test, as in:
-<pre>SQL> utPLSQL.test ('te_employee', prefix_in => 'test_');</pre>
+<pre>SQL&gt; utPLSQL.test ('te_employee', prefix_in =&gt; 'test_');</pre>
 You can also specify a prefix when you add a package to a test suite, as
 in:
-<pre>SQL> utPackage.add ('mysuite', 'mypackage' prefix_in => 'test_');</pre>
+<pre>SQL&gt; utPackage.add ('mysuite', 'mypackage' prefix_in =&gt; 'test_');</pre>
 Of course, when you specify a non-default prefix, you must also build your
 test package using that prefix. If you plan to generate a starting point
 for your package with utGen, be sure to specify your prefix at that point,
 as in:
-<pre>SQL> utGen.testpkg('mypackage' prefix_in => 'test_');</pre>
-For an example of a package with a non-default prefix, check out <a href="../Examples/test_te_employee.pks">test_te_employee.pks</a>
-and <a href="../Examples/test_te_employee.pkb">test_te_employee.pkb</a>.
+<pre>SQL&gt; utGen.testpkg('mypackage' prefix_in =&gt; 'test_');</pre>
+For an example of a package with a non-default prefix, check out test_te_employee.pks
+and test_te_employee.pkb (Both to be found in the Examples directory of the utPLSQL distribution).
 
 <!-- End utPLSQL Body -->
 </body>
