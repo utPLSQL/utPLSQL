@@ -19,7 +19,5 @@
 @@ut_i_run utr_error.tab
 @@ut_i_run ut_deterministic.tab
 @@ut_i_run ut_deterministic_arg.tab
-@@ut_i_run utv_value.tab
-@@ut_i_run uta_eq.tab
 @@ut_i_run ut_receq.tab
 @@ut_i_run ut_grid.tab

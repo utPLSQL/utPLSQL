@@ -13,7 +13,6 @@ PROMPT &line1
 PROMPT DROPPING &UT PACKAGES
 PROMPT &line1
 
-drop package UTAEQ;
 drop package UTASSERT2;
 drop package UTASSERT;
 drop package UTCONFIG;
@@ -40,17 +39,14 @@ drop package UTTESTCASE;
 drop package UTTESTPREP;
 drop package UTUNITTEST;
 drop package UTUTP;
-drop package UTVVALUE;
 
 SET TERMOUT ON
 PROMPT &line1
 PROMPT DROPPING &UT PUBLIC SYNONYMS
 PROMPT &line1
 
-drop public synonym UTAEQ;
 drop public synonym UTASSERT2;
 drop public synonym UTASSERT;
-drop public synonym UTA_EQ;
 drop public synonym UTCONFIG;
 drop public synonym UTGEN;
 drop public synonym UTOUTCOME;
@@ -81,8 +77,6 @@ drop public synonym UTTESTCASE;
 drop public synonym UTTESTPREP;
 drop public synonym UTUNITTEST;
 drop public synonym UTUTP;
-drop public synonym UTVVALUE;
-drop public synonym UTV_VALUE;
 drop public synonym UT_ARGUMENT;
 drop public synonym UT_ASSERTION;
 drop public synonym UT_CONFIG;
@@ -102,9 +96,7 @@ drop public synonym UT_TESTPREP;
 drop public synonym UT_UNITTEST;
 drop public synonym UT_UTOUTPUT;
 drop public synonym UT_UTP;
-drop public synonym UTA_EQ_SEQ;
 drop public synonym UTPLSQL_RUNNUM_SEQ;
-drop public synonym UTV_VALUE_SEQ;
 drop public synonym UT_ASSERTION_SEQ;
 drop public synonym UT_PACKAGE_SEQ;
 drop public synonym UT_RECEQ_SEQ;
@@ -122,9 +114,7 @@ PROMPT &line1
 PROMPT DROPPING &UT SEQUENCES
 PROMPT &line1
 
-drop sequence UTA_EQ_SEQ;
 drop sequence UTPLSQL_RUNNUM_SEQ;
-drop sequence UTV_VALUE_SEQ;
 drop sequence UT_ASSERTION_SEQ;
 drop sequence UT_PACKAGE_SEQ;
 drop sequence UT_RECEQ_SEQ;
@@ -140,14 +130,12 @@ PROMPT &line1
 PROMPT DROPPING &UT TABLES
 PROMPT &line1
 
-drop table UTA_EQ cascade constraints;
 drop table UTR_ERROR cascade constraints;
 drop table UTR_OUTCOME cascade constraints;
 drop table UTR_SUITE cascade constraints;
 drop table UTR_TESTCASE cascade constraints;
 drop table UTR_UNITTEST cascade constraints;
 drop table UTR_UTP cascade constraints;
-drop table UTV_VALUE cascade constraints;
 drop table UT_ARGUMENT cascade constraints;
 drop table UT_ASSERTION cascade constraints;
 drop table UT_CONFIG cascade constraints;

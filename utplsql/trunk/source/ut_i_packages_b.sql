@@ -22,8 +22,6 @@
 @@ut_i_run ut_rtestcase.pkb
 @@ut_i_run ut_routcome.pkb
 @@ut_i_run ut_rerror.pkb
-@@ut_i_run ut_vvalue.pkb
-@@ut_i_run ut_aeq.pkb
 @@ut_i_run ut_receq.pkb
 @@ut_i_run ut_output.pkb
 @@ut_i_run ut_utoutput.pkb
