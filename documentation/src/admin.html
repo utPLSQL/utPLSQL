@@ -1,0 +1,428 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   
+   
+   
+   <title>utPLSQL - Administrative Topics</title>
+</head>
+<body>
+ 
+<table cols="1" width="100%">
+<tr>
+<td bgcolor="#800080"><a href="index.html"><img height="56" src="utplsql.jpg" width="373"></a></td>
+</tr>
+</table>
+
+<blockquote>
+Authors: Steven Feuerstein,
+Chris Rimmer
+
+Copyright 2000-2001, all rights
+reserved
+</blockquote>
+[ <a href="index.html">Home</a> | <b><a href="started.html">Getting
+Started</a></b> | <a href="buildpack.html">Build Test Packages</a>
+| <a href="examples.html">Examples</a> | <a href="userguide.html">User
+Guide</a> | <a href="release.html">Release Notes</a> | <a href="map.html">Document
+Map</a> ]
+<p><a href="fourstep.html">&lt; Previous Section: The Four Step Program
+to Using utPLSQL</a> | <a href="buildpack.html">Next Section:
+Build Test Packages ></a>
+<br> 
+
+<!-- Begin utPLSQL Body -->
+<h1>
+Administrative Topics</h1>
+
+<h3>
+<a href="admin.html">Configuring UTL_FILE</a></h3>
+
+<h3>
+<a href="#Project_Team">Join the Project Team</a></h3>
+
+<h3>
+<a href="#Reporting">Reporting Bugs and Enhancement Requests</a></h3>
+
+<h3>
+<a href="#Components">Components</a></h3>
+
+<h3>
+<a href="#Files">File Descriptions</a></h3>
+
+<h2>
+<a name="Admin"></a>Administrative Topics</h2>
+
+<h3>
+<a name="UTL_FILE"></a>Configuring UTL_FILE</h3>
+If you want utPLSQL to automatically recompile your test packages, you
+will need to make sure that UTL_FILE is enabled in your database (this
+allows you to read/write operating system files). The database initialization
+parameter file (aka, the "init.ora" file) must have at least one utl_file_dir
+parameter in it for this to work. Here is some background and guidelines
+for working with UTL_FILE:
+<p>UTL_FILE lets you read and write files accessible from the server on
+which your database is running. So, theoretically, you could use UTL_FILE
+to write right over your tablespace data files, control files and so on.
+That is, of course, a very bad idea. Server security requires the ability
+to place restrictions on where you can read and write your files.
+<p>UTL_FILE implements this security by limiting access to files that reside
+in one of the directories specified in the init.ora file (parameter initialization
+file) for the database instance on which UTL_FILE is running.
+<p>When you call UTL_FILE.FOPEN to open a file, you must specify both the
+location and the name of the file, in separate arguments. This file location
+is then checked against the list of accessible directories.
+<p>The format of the parameter for file access in the init.ora file is:
+
+utl_file_dir = &lt;directory>
+
+Include a parameter for utl_file_dir for each directory you want to make
+accessible for UTL_FILE operations. The following entries, for example,
+enable four different directories in Unix:
+
+utl_file_dir = /tmp
+<br>utl_file_dir = /ora_apps/hr/time_reporting
+<br>utl_file_dir = /ora_apps/hr/time_reporting/log
+<br>utl_file_dir = /users/test_area
+
+To bypass server security and allow read/write access to all directories,
+you can use this special syntax:
+
+utl_file_dir = *
+
+You should not use this option on production systems. In a development
+system, this entry certainly makes it easier for developers to get up and
+running on UTL_FILE and test their code. You should, however, only allow
+access to a few specific directories when you move the application to production.
+<p><b>Some observations on working with and setting up accessible directories
+with UTL_FILE:</b>
+<p>Access is not recursive through subdirectories. If the following lines
+were in your init.ora file, for example,
+
+utl_file_dir = c:\group\dev1
+<br>utl_file_dir = c:\group\prod\oe
+<br>utl_file_dir = c:\group\prod\ar
+
+then you would not be able to open a file in the c:\group\prod\oe\reports
+subdirectory.
+<p>Do not include the following entry in Unix systems:
+
+utl_file_dir = .
+
+This would allow you to read/write on the current directory in the operating
+system.
+<p>Do not enclose the directory names within single or double quotes.
+<p>In the UNIX environment, a file created by UTL_FILE.FOPEN has as its
+owner the shadow process running the Oracle instance. This is usually the
+oracle owner. If you try to access these files outside of UTL_FILE, you
+will need to have the correct privileges (or be logged in as oracle) to
+access or change these files.
+<p>You should not end your directory name with a delimiter, such as the
+forward slash in Unix. The following specification of a directory will
+result in problems when trying to read from or write to the directory:
+
+utl_file_dir = /tmp/orafiles/
+
+After you modify your parameter initialization file, you will need to stop
+and then restart your database instance.
+<p><b><i>Test UTL_FILE Access</i></b>
+<p>If you have never before used or relied on UTL_FILE, you should write
+a simple test to verify that UTL_FILE is now working. You can use the code
+shown below (after changing your directory names and names for existing
+and new files) to make sure you've got it running properly.
+<pre> </pre>
+
+<pre>SET SERVEROUTPUT ON</pre>
+
+<pre>DECLARE
+   fid UTL_FILE.FILE_TYPE;
+   v VARCHAR2(32767);
+   PROCEDURE recNgo (str IN VARCHAR2)
+   IS
+   BEGIN
+      DBMS_OUTPUT.PUT_LINE ('UTL_FILE error ' || str);
+</pre>
+
+<pre>      UTL_FILE.FCLOSE (fid);
+   END;
+BEGIN
+   /* Change the directory name to one to which you at least 
+   || THINK you have read/write access.
+   */
+   fid := UTL_FILE.FOPEN ('e:\demo', 'existing_file', 'R');
+   UTL_FILE.GET_LINE (fid, v);
+   dbms_output.put_line (v);</pre>
+
+<pre>   UTL_FILE.FCLOSE (fid);
+</pre>
+
+<pre>   fid := UTL_FILE.FOPEN ('e:\demo', 'new_file', 'W');</pre>
+
+<pre>   UTL_FILE.PUT_LINE (fid, v);</pre>
+
+<pre>   UTL_FILE.FCLOSE (fid);
+EXCEPTION
+   WHEN UTL_FILE.INVALID_PATH
+    THEN recNgo ('invalid_path');
+   WHEN UTL_FILE.INVALID_MODE
+    THEN recNgo ('invalid_mode');
+   WHEN UTL_FILE.INVALID_FILEHANDLE
+    THEN recNgo ('invalid_filehandle');
+   WHEN UTL_FILE.INVALID_OPERATION
+    THEN recNgo ('invalid_operation');
+   WHEN UTL_FILE.READ_ERROR
+    THEN recNgo ('read_error');
+   WHEN UTL_FILE.WRITE_ERROR
+    THEN recNgo ('write_error');
+   WHEN UTL_FILE.INTERNAL_ERROR
+    THEN recNgo ('internal_error');
+END;
+/</pre>
+If an error occurs, it will be displayed on your screen (note: the "set
+serveroutput on" is not required for UTL_FILE to work, but simply to display
+any errors which might occur).
+<br> 
+<h3>
+<a name="Project_Team"></a>Join the utPLSQL Project Team</h3>
+
+To take part in the utPLSQL project, please join
+our email distribution group. Go to <a href="http://www.egroups.com/">www.egroups.com</a>,
+join, and subscribe to the utPLSQL list. You will be including in ongoing
+communication about utPLSQL via eGroups.
+
+<h3>
+<a name="Reporting"></a>Reporting Bugs and Enhancement Requests</h3>
+
+To identify the version of utPLSQL you are running,
+you can execute the following program in SQL*Plus:
+
+<pre>SQL> set serveroutput on</pre>
+
+<pre>SQL> exec dbms_output.put_line (utPLSQL.version)</pre>
+
+You can also look inside the utPLSQL package (utPLSQL.pkb)
+and check the value of the g_version private variable.
+
+<h3>
+<a name="Components"></a>Components</h3>
+
+Here are the various components of utPLSQL:
+
+<h4>
+Tables</h4>
+All tables are created by the tables.sql (or updated by the tablesupg.sql)
+file.
+<br> 
+<table cellpadding="0" border="BORDER" cellspacing="0">
+<tr>
+<td width="139" valign="TOP">
+ut_suite
+</td>
+
+<td width="96" valign="TOP">
+table
+</td>
+
+<td width="408" valign="TOP">
+Persistent storage of test suites defined. 
+</td>
+</tr>
+
+<tr>
+<td width="139" valign="TOP">
+ut_package
+</td>
+
+<td width="96" valign="TOP">
+table
+</td>
+
+<td width="408" valign="TOP">
+Persistent storage of packages to be run within
+a suite. 
+</td>
+</tr>
+
+<tr>
+<td width="139" valign="TOP">
+ut_test
+</td>
+
+<td width="96" valign="TOP">
+table
+</td>
+
+<td width="408" valign="TOP">
+Definition of an individual unit test.
+</td>
+</tr>
+
+<tr>
+<td width="139" valign="TOP">
+ut_testcase
+</td>
+
+<td width="96" valign="TOP">
+table
+</td>
+
+<td width="408" valign="TOP">
+Definition of a test case within a unit test. 
+</td>
+</tr>
+
+<tr>
+<td width="139" valign="TOP">ut_config </td>
+
+<td width="96" valign="TOP">table </td>
+
+<td width="408" valign="TOP">Holds
+configuration information for each user </td>
+</tr>
+
+<tr>
+<td width="139" valign="TOP">ut_assertion </td>
+
+<td width="96" valign="TOP">table </td>
+
+<td width="408" valign="TOP">Contains
+the definitions of the various assertion routines in the utAssert package.
+This table will be used (potentially) by GUI front ends to utPLSQL. </td>
+</tr>
+</table>
+
+<h4>
+Packages</h4>
+All packages are created the code.sql file.
+<br> 
+<table cellpadding="0" border="BORDER" cellspacing="0">
+<tr>
+<td width="139" valign="TOP">
+utPLSQL
+</td>
+
+<td width="96" valign="TOP">
+package
+</td>
+
+<td width="408" valign="TOP">
+Main test package. 
+</td>
+</tr>
+
+<tr>
+<td>utConfig</td>
+
+<td>package</td>
+
+<td>API to ut_config table</td>
+</tr>
+
+<tr>
+<td width="139" valign="TOP">
+utSuite
+</td>
+
+<td width="96" valign="TOP">
+package
+</td>
+
+<td width="408" valign="TOP">
+API to ut_suite table. 
+</td>
+</tr>
+
+<tr>
+<td width="139" valign="TOP">
+utPackage
+</td>
+
+<td width="96" valign="TOP">
+package
+</td>
+
+<td width="408" valign="TOP">
+API to ut_ package table. 
+</td>
+</tr>
+
+<tr>
+<td width="139" valign="TOP">
+utTest
+</td>
+
+<td width="96" valign="TOP">
+package
+</td>
+
+<td width="408" valign="TOP">
+API to ut_test table. 
+</td>
+</tr>
+
+<tr>
+<td width="139" valign="TOP">
+utTestcase
+</td>
+
+<td width="96" valign="TOP">
+package
+</td>
+
+<td width="408" valign="TOP">
+API to ut_testcase table. 
+</td>
+</tr>
+
+<tr>
+<td width="139" valign="TOP">
+utAssert
+</td>
+
+<td width="96" valign="TOP">
+package
+</td>
+
+<td width="408" valign="TOP">
+Collection of assertion routines available to test
+the results of your programs. 
+</td>
+</tr>
+
+<tr>
+<td width="139" valign="TOP">
+utResult
+</td>
+
+<td width="96" valign="TOP">
+package
+</td>
+
+<td width="408" valign="TOP">
+API to the results array that is populated by calls
+to the utAssert assertions. 
+</td>
+</tr>
+
+<tr>
+<td width="139" valign="TOP">
+utGen
+</td>
+
+<td width="96" valign="TOP">
+package
+</td>
+
+<td width="408" valign="TOP">
+Generates a starting point for test packages for
+your own package. 
+</td>
+</tr>
+</table>
+
+<h3>
+<a name="Files"></a>File Descriptions</h3>
+
+<!-- End utPLSQL Body -->
+</body>
+</html>
