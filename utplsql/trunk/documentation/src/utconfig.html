@@ -88,22 +88,22 @@ in the test package setup procedure.
 recompile your test package before execution. You can turn off this feature
 and manually recompile only when you desire (a fine idea if your test package
 has gotten very large!).
-<h3>
-<a name="Whoseconfig"></a>Return whose configuration is being used</h3>
+<h2>
+<a name="Whoseconfig"></a>Return whose configuration is being used</h2>
 By default, the configuration stored for the currently-connected user will
 be used.  However, it is possible to use configurations stored against
 other usernames.  To show whose configuration is currently being used
 the following function is used:
 <pre>FUNCTION utConfig.tester RETURN VARCHAR2;</pre>
 
-<h3>
-<a name="setconfig"></a>Set whose configuration is being used</h3>
+<h2>
+<a name="setconfig"></a>Set whose configuration is being used</h2>
 This returns the configuration that will be used whenever a username is
 not specified.  To set this, the following procedure is used:
 <pre>PROCEDURE utConfig.settester (username_in IN VARCHAR2 := USER);</pre>
 
-<h3>
-<a name="Showconfig"></a>View a schema's configuration</h3>
+<h2>
+<a name="Showconfig"></a>View a schema's configuration</h2>
 Call the utconfig.showconfig procedure to view the configuration for a specified
 schema. The header is:
 <pre>PROCEDURE utConfig.showconfig (username_in IN VARCHAR2 := NULL);</pre>
@@ -134,8 +134,8 @@ Here is such a script (to be found in Examples\login_sample.sql):
 SET SERVEROUTPUT ON SIZE 1000000 FORMAT WRAPPED
 exec utconfig.showconfig</pre>
 
-<h3>
-<a name="Setdir"></a>Set the directory containing the test package code</h3>
+<h2>
+<a name="Setdir"></a>Set the directory containing the test package code</h2>
 If you want utPLSQL to compile your test package, you must tell it the
 directory in which your code is found. You can do this either when you
 <a href="defsuite.html">define
@@ -156,14 +156,14 @@ Note that this directory must be accessible through UTL_FILE.
 <p>You might consider putting the the call to utConfig.setdir into your
 login.sql so that it is run automatically, each time your start up SQL*Plus
 -- if you are always working from the same directory.
-<h3>
-<a name="dir"></a>Return the directory containing the test package code</h3>
+<h2>
+<a name="dir"></a>Return the directory containing the test package code</h2>
 You can obtain the current directory with a call to utConfig.dir:
 <pre>FUNCTION utConfig.dir (username_in IN VARCHAR2 := NULL)
       RETURN VARCHAR2;</pre>
 
-<h3>
-<a name="Setprefix"></a>Set the default unit test prefix for your code.</h3>
+<h2>
+<a name="Setprefix"></a>Set the default unit test prefix for your code.</h2>
 The unit test prefix is very important in utPLSQL; the utility uses the
 prefix to associate source code to be tested with the test package. The
 prefix also allows utPLSQL to automatically identify the programs within
@@ -179,15 +179,15 @@ used</a> configuration is set), as in:
 or, with the specification of a non-current schema:
 <pre>SQL> exec utconfig.setPrefix ('t_', 'ANALYSIS');</pre>
 
-<h3>
-<a name="prefix"></a>Return the default unit test prefix for your code.</h3>
+<h2>
+<a name="prefix"></a>Return the default unit test prefix for your code.</h2>
 You can obtain the current prefix with a call to utConfig.prefix:
 <pre>FUNCTION utConfig.prefix (username_in IN VARCHAR2 := NULL)
       RETURN VARCHAR2;</pre>
 uPLSQL currently does not support the use of a suffix, or combination of
 suffix and prefix, to identify test packages and unit test procedures.
-<h3>
-<a name="Manualregister"></a>Set the registration mode (manual or automatic).</h3>
+<h2>
+<a name="Manualregister"></a>Set the registration mode (manual or automatic).</h2>
 As of utPLSQL v1.5.1, you no longer have to register your unit test procedures
 in the setup procedure of your test package. Instead, utPLSQL will scan
 the data dictionary (via theALL_ARGUMENTS view) for the names of all the
@@ -205,8 +205,8 @@ as in:
 <pre>SQL> exec utConfig.registerTest (TRUE)</pre>
 Note: if you are using automatic unit test detection, any calls to utPLSQL.addtest
 in the setup procedure <i><b>will be ignored</b>.</i>
-<h3>
-<a name="Autocompile"></a>Set autocompile feature</h3>
+<h2>
+<a name="Autocompile"></a>Set autocompile feature</h2>
 
 The default settings for utPLSQL is to re-compile
 your base package before each unit test. This guarantees that any recent
@@ -253,8 +253,8 @@ You are running the tests
 on a server to which you have no access other than via a database connection.
 </ul>
 
-<h4>
-Turning off Auto-compile</h4>
+<h3>
+Turning off Auto-compile</h3>
 
 If you are working with products like SQL*Navigator,
 you may be always editing from code stored in the database. In this case,
