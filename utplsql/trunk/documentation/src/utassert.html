@@ -72,7 +72,11 @@ passed or failed<br>
  <td><a href="#eqoutput">utAssert.eqoutput</a></td>
  <td><a href="#eqoutput">Check Equality of DBMS_OUTPUT Collections</a></td>
  </tr>
-
+ <tr>
+    <td><a href="#object">utAssert.objexists</a><br>
+       <a href="#object">utAssert.objnotexists</a></td>
+    <td><a href="#object">Check for existence of database objects</a></td>
+ </tr>
   </tbody>
 </table>
      The utAssert package provides a set of assertion routines ("assert that
@@ -664,7 +668,35 @@ Kahn';
    <li>ignore_whitespace_in - this specifies that whitespace differences should be ignored when comparing lines.</li>
 </ul>
 
-<p>Finally, note that only the text itself is compared.  These assertions do not care about how the records within the collections are numbered.</p>
+<p>Finally, note that only the text itself is compared.  These assertions do
+not care about how the records within the collections are numbered.</p>
+
+<h2> <a name="object">Check for Existence of Database Objects</a></h2>
+
+<p> The following assertions (created by Raji) check that a named database
+object exists or does not exist:
+
+<pre>PROCEDURE objExists (
+   msg_in            IN   VARCHAR2,
+   check_this_in     IN   VARCHAR2,
+   null_ok_in        IN   BOOLEAN := FALSE,
+   raise_exc_in      IN   BOOLEAN := FALSE
+);
+
+PROCEDURE objnotExists (
+   msg_in            IN   VARCHAR2,
+   check_this_in     IN   VARCHAR2,
+   null_ok_in        IN   BOOLEAN := FALSE,
+   raise_exc_in      IN   BOOLEAN := FALSE
+);</pre>
+
+In both cases, the check_this_in parameter gives the name of the object to
+check for.  So passing 'MYTHING' will check if the MYTHING object exists.  This
+is assumed to be in the current schema.  To check for objects in a schema other
+than the current one, simply add the name of the schema, separated by a dot.
+So passing 'ANOTHER.THATTHING' will check for the existence of the THATTHING
+object in the ANOTHER schema.</p> 
+
 <h2> <a name="utassert-BYOA"></a>Building Your Own Assertion</h2>
   You may want to build assertion routines that fit your specific needs.
 If PL/SQL supported inheritance, you could extend the utAssert assertion
@@ -677,7 +709,9 @@ utAssert package for any changes.  <pre>PROCEDURE this (<br>   msg_in IN VARCHAR
   <pre>         -- Registers the results in the utResult databank.<br>         utresult.report (msg_in);<br>      ELSE<br>         utplsql.pl (msg_in);<br>      END IF;<br>      <br>      IF showing_results AND register_in<br>      THEN</pre>
   <pre>         -- Show the results of the test more recently run.<br>         utresult.showlast;<br>      END IF;<br><br>      IF raise_exc_in<br>      THEN<br>         RAISE test_failure;<br>      END IF;<br>   END IF;<br>END;</pre>
   The most important statement to include in your assertion routine is the
-call to utResult.report, which will log the results of the test.  <!-- End utPLSQL Body -->
+  call to utResult.report, which will log the results of the test.  
+  
+<!-- End utPLSQL Body -->
  
 </body>
 </html>
