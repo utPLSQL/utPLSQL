@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    g_trc       BOOLEAN         := FALSE;
@@ -150,7 +153,7 @@ $Log$
    BEGIN
       IF tracing
       THEN
-         utplsql.pl (   'Runprog of '
+         utreport.pl (   'Runprog of '
                      || procedure_in);
       END IF;
 
@@ -186,12 +189,12 @@ $Log$
 
          IF tracing
          THEN
-            utplsql.pl (
+            utreport.pl (
                   'Procedure execution Error "'
                || SQLERRM
                || '" on: '
             );
-            utplsql.pl (v_str);
+            utreport.pl (v_str);
          END IF;
 
          IF unittest_id_in IS NOT NULL
@@ -341,7 +344,7 @@ $Log$
          LOOP
             IF tracing
             THEN
-               utplsql.pl (
+               utreport.pl (
                      'Unit testing: '
                   || ut_rec.program_name
                );

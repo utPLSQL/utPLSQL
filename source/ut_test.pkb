@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    FUNCTION name_from_id (id_in IN ut_test.id%TYPE)
@@ -80,7 +83,7 @@ $Log$
    EXCEPTION
       WHEN OTHERS
       THEN
-         utplsql.pl (   'Add test error: '
+         utreport.pl (   'Add test error: '
                      || SQLERRM);
          &start81 ROLLBACK; &end81
          RAISE;
@@ -108,7 +111,7 @@ $Log$
    EXCEPTION
       WHEN OTHERS
       THEN
-         utplsql.pl (   'Remove test error: '
+         utreport.pl (   'Remove test error: '
                      || SQLERRM);
          &start81 ROLLBACK; &end81
          RAISE;
@@ -149,7 +152,7 @@ $Log$
    EXCEPTION
       WHEN OTHERS
       THEN
-         utplsql.pl (   'Update test error: '
+         utreport.pl (   'Update test error: '
                      || SQLERRM);
          &start81 ROLLBACK; &end81
          RAISE;

@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    /* Test result record structure */
@@ -51,12 +54,6 @@ $Log$
    );
 
    PROCEDURE showlast (run_id_in IN utr_outcome.run_id%TYPE := NULL);
-
-   PROCEDURE showresults (
-      success_in   IN   BOOLEAN,
-      program_in   IN   VARCHAR2,
-      run_id_in    IN   utr_outcome.run_id%TYPE := NULL
-   );
 
    PROCEDURE init (from_suite_in IN BOOLEAN := FALSE);
 

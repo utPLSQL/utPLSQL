@@ -1,5 +1,9 @@
 @@ut_i_run ut_config.pkb
 @@ut_i_run ut_plsql.pkb
+@@ut_i_run ut_report.pkb
+@@ut_i_run ut_outputreporter.pkb
+@@ut_i_run ut_filereporter.pkb
+@@ut_i_run ut_htmlreporter.pkb
 @@ut_i_run ut_result.pkb
 @@ut_i_run ut_plsql_util.pkb
 @@ut_i_run ut_assert2.pkb
@@ -24,4 +28,5 @@
 @@ut_i_run ut_rerror.pkb
 @@ut_i_run ut_receq.pkb
 @@ut_i_run ut_output.pkb
+
 @@ut_i_run ut_utoutput.pkb

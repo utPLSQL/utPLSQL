@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    PROCEDURE delete_receq (id_in ut_receq.id%TYPE)
@@ -52,9 +55,9 @@ $Log$
    EXCEPTION
       WHEN OTHERS
       THEN
-         utplsql.pl (SQLERRM);
+         utreport.pl (SQLERRM);
          DBMS_SQL.close_cursor (v_cur);
-         utplsql.pl (
+         utreport.pl (
             'Delete failed - function probably used by another package'
          );
    END;
@@ -126,8 +129,8 @@ $Log$
    EXCEPTION
       WHEN VALUE_ERROR
       THEN
-         utplsql.pl ('Generated test name is too long');
-         utplsql.pl (
+         utreport.pl ('Generated test name is too long');
+         utreport.pl (
             'Resubmit with a defined test_name_in=>''EQ_your_name'''
          );
          RETURN NULL;
@@ -223,7 +226,7 @@ $Log$
 
       IF v_pkg_id IS NULL
       THEN
-         utplsql.pl (pkg_name_in || ' does not exist');
+         utreport.pl (pkg_name_in || ' does not exist');
       ELSIF v_receq_id IS NULL
       THEN
          SELECT object_type
@@ -243,7 +246,7 @@ $Log$
       END IF;
 
       utreceq.COMPILE (v_receq_id);
-      utplsql.pl (v_recname || ' compiled for ' || v_obj_type || ' ' || record_in);
+      utreport.pl (v_recname || ' compiled for ' || v_obj_type || ' ' || record_in);
 
       BEGIN
          INSERT INTO ut_receq_pkg
@@ -251,14 +254,14 @@ $Log$
       EXCEPTION
          WHEN DUP_VAL_ON_INDEX
          THEN
-            utplsql.pl (
+            utreport.pl (
                v_recname || ' already registered for package ' || pkg_name_in
             );
       END;
    EXCEPTION
       WHEN NO_DATA_FOUND
       THEN
-         utplsql.pl (record_in || ' does not exist in schema ' || rec_owner_in);
+         utreport.pl (record_in || ' does not exist in schema ' || rec_owner_in);
    END ADD;
 
    PROCEDURE COMPILE (pkg_name_in IN ut_package.NAME%TYPE)

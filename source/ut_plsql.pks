@@ -23,7 +23,10 @@ You should have received a copy of the GNU General Public License
 along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
-$Log$
+$Log: ut_plsql.pks,v 
+Revision 1.2  2003/07/01 19:36:47  chrisrimme
+Added Standard Header
+
 ************************************************************************/
 
    c_success    CONSTANT VARCHAR2 (7)     := 'SUCCESS';
@@ -72,23 +75,6 @@ $Log$
    currcase              testcase_rt;
 
    /* Utility programs */
-
-   -- RMM start
-   FUNCTION get_pl_to_file RETURN BOOLEAN;
-   
-   PROCEDURE set_pl_to_file (
-      val         IN BOOLEAN := FALSE
-   );
-   -- RMM end
-   
-   PROCEDURE pl (
-      str         IN   VARCHAR2,
-      len         IN   INTEGER := 80,
-      expand_in   IN   BOOLEAN := TRUE
-   );
-
-   PROCEDURE bpl (bool IN BOOLEAN);
-
    FUNCTION vc2bool (vc IN VARCHAR2)
       RETURN BOOLEAN;
 

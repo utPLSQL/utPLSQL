@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.3  2004/05/11 15:33:57  chrisrimmer
+Added 9.2 specific code from Mark Vilrokx
+
 Revision 1.2  2003/07/01 19:36:47  chrisrimmer
 Added Standard Headers
 
@@ -32,241 +35,8 @@ Added Standard Headers
    g_trc       BOOLEAN        := FALSE;
    g_version   VARCHAR2 (100) := '2.1.1';
 
--- RMM start
-   g_pl_to_file BOOLEAN       := FALSE; -- to control pl file output
-   g_fid     UTL_FILE.FILE_TYPE;        -- to control pl file output
--- RMM end
-
    tests       test_tt;
    testpkg     test_rt;
-
-   -- Start utility definitions
-   /* RMM start */
-   /* Added this function for file output control*/ 
-   FUNCTION get_pl_to_file RETURN BOOLEAN
-   IS
-   BEGIN
-     RETURN g_pl_to_file;
-   END;
-   
-   /* RMM  */
-   /* Added this procedure for file output control*/ 
-   PROCEDURE set_pl_to_file (
-      val         IN BOOLEAN := FALSE
-   )
-   IS
-   BEGIN
-      g_pl_to_file   := val;
-   END;
-  
-  /* RMM  */
-  /* Added this procedure for file output*/ 
-  PROCEDURE pl_to_file (
-     v_in IN VARCHAR2,
-     fid IN OUT UTL_FILE.FILE_TYPE
-  ) IS
-   
-     v           VARCHAR2(10) := '-- TEST --';
-     c_endcmd    VARCHAR2(13) := '-- TESTEND --';
-
-     dir        ut_config.directory%TYPE;
-     
-    file_dir   ut_config.filedir%TYPE; 
-     file_out   ut_config.fileout%TYPE; 
-     userprefix ut_config.fileuserprefix%TYPE; 
-     incprog    ut_config.fileincprogname%TYPE; 
-     date_formt ut_config.filedateformat%TYPE; 
-     extension  ut_config.fileextension%TYPE;   
-    
-    progname VARCHAR2(35); 
-     
-     no_dir EXCEPTION;
-     
-     PROCEDURE recNgo (str IN VARCHAR2)
-     IS
-     BEGIN
-       DBMS_OUTPUT.PUT_LINE ('UTL_FILE error ' || str);
-       UTL_FILE.FCLOSE (fid);
-     END;
-
-  BEGIN
-
-    -- open file if not already open
-    -- and write header record
-    IF NOT UTL_FILE.is_open(fid) THEN
-     
-     -- Get the output file directory
-     file_dir := utConfig.filedir ();
-      --  check if NULL
-      IF file_dir IS NULL THEN
-        -- try directory
-        file_dir := utConfig.dir ();
-        --  check if NULL
-        IF file_dir IS NULL THEN
-          -- redirect output to DBMS_OUTPUT
-          set_pl_to_file (FALSE);
-          raise no_dir;
-       END IF;
-      END IF;
-
-     -- Get the userprefix from config
-     userprefix := utConfig.userprefix();
-     IF userprefix IS NULL THEN
-       -- use the current user if userprefix IS NULL
-      userprefix := USER;
-      END IF;
-     userprefix := userprefix ||'_';
-
-      -- include progname in filename ?
-     progname := NULL;
-     IF utConfig.includeprogname() THEN
-       progname := v_in|| '_';
-     END IF;
-      
-     -- get the date format
-     date_formt := utConfig.dateformat;
-     
-     -- get the file extension
-     extension := utConfig.fileextension();
-     
-     fid := UTL_FILE.FOPEN (file_dir, userprefix||progname||
-            to_char(sysdate,date_formt)||extension, 'A');
-      UTL_FILE.PUT_LINE (fid, '-- '||to_char(sysdate,date_formt));
-      UTL_FILE.PUT_LINE (fid, v);
-    END IF; 
- 
-    -- write input to file
-    UTL_FILE.PUT_LINE (fid, v_in);
- 
-    -- close file on testend command
-    -- '-- TESTEND --' gets written to file as well
-    IF v_in = c_endcmd AND UTL_FILE.is_open(fid) THEN
-      -- get the date format
-     date_formt := utConfig.dateformat;
-      UTL_FILE.PUT_LINE (fid, '-- '||to_char(sysdate,date_formt));
-      UTL_FILE.FCLOSE (fid);
-    END IF;
-
-  EXCEPTION
-    WHEN UTL_FILE.INVALID_PATH
-     THEN recNgo ('invalid_path');
-    WHEN UTL_FILE.INVALID_MODE
-     THEN recNgo ('invalid_mode');
-    WHEN UTL_FILE.INVALID_FILEHANDLE
-     THEN recNgo ('invalid_filehandle');
-    WHEN UTL_FILE.INVALID_OPERATION
-     THEN recNgo ('invalid_operation');
-    WHEN UTL_FILE.READ_ERROR
-     THEN recNgo ('read_error');
-    WHEN UTL_FILE.WRITE_ERROR
-     THEN recNgo ('write_error');
-    WHEN UTL_FILE.INTERNAL_ERROR
-     THEN recNgo ('internal_error');
-    WHEN no_dir
-     THEN recNgo ('utPLSQL.pl_to_file: No directory specified for file output');
-  END pl_to_file;
-  /* RMM end */
-    
-   -- This is an interface to dbms_output.put_line that tries to
-   -- sensibly split long lines (which is useful if you want to 
-   -- print large dynamic sql statements). From Alistair Bayley
-   PROCEDURE show (
-      s                VARCHAR2,
-      maxlinelenparm   NUMBER := 255,
-      expand           BOOLEAN := TRUE
-   )
-   IS
-      output_buffer_overflow   EXCEPTION;
-      PRAGMA EXCEPTION_INIT (output_buffer_overflow, -20000);
-      i                        NUMBER;
-      maxlinelen               NUMBER
-                                    := GREATEST (1, LEAST (255, maxlinelenparm));
-   
-      FUNCTION locatenewline (str VARCHAR2)
-         RETURN NUMBER
-      IS
-         i10   NUMBER;
-         i13   NUMBER;
-      BEGIN
-         i13 := NVL (INSTR (SUBSTR (str, 1, maxlinelen), CHR (13)), 0);
-         i10 := NVL (INSTR (SUBSTR (str, 1, maxlinelen), CHR (10)), 0);
-   
-         IF i13 = 0
-         THEN
-            RETURN i10;
-         ELSIF i10 = 0
-         THEN
-            RETURN i13;
-         ELSE
-            RETURN LEAST (i13, i10);
-         END IF;
-      END;
-   BEGIN
-      -- 2.1.2 if NULL, abort.
-      IF s IS NULL
-      THEN
-         DBMS_OUTPUT.put_line (s);
-         -- 2.1.2 PBA we should return here...
-         RETURN;       
-      -- Simple case: s is short.
-      ELSIF LENGTH (s) <= maxlinelen
-      THEN
-         DBMS_OUTPUT.put_line (s);
-         RETURN;
-      END IF;
-   
-      -- OK, so it's long. Look for newline chars as a good place to split.
-      i := locatenewline (s);
-   
-      IF i > 0
-      THEN -- cool, we can split at a newline
-         DBMS_OUTPUT.put_line (SUBSTR (s, 1, i - 1));
-         show (SUBSTR (s, i + 1), maxlinelen, expand);
-      ELSE
-         -- No newlines. Look for a convenient space prior to the 255-char limit.
-         -- Search backwards from maxLineLen.
-         i := NVL (INSTR (SUBSTR (s, 1, maxlinelen), ' ', -1), 0);
-   
-         IF i > 0
-         THEN
-            DBMS_OUTPUT.put_line (SUBSTR (s, 1, i - 1));
-            show (SUBSTR (s, i + 1), maxlinelen, expand);
-         ELSE
-            -- No whitespace - split at max line length.
-            i := maxlinelen;
-            DBMS_OUTPUT.put_line (SUBSTR (s, 1, i));
-            show (SUBSTR (s, i + 1), maxlinelen, expand);
-         END IF;
-      END IF;
-   EXCEPTION
-      WHEN output_buffer_overflow
-      THEN
-         IF NOT expand
-         THEN
-            RAISE;
-         ELSE
-            DBMS_OUTPUT.ENABLE (1000000);
-            -- set false so won't expand again
-            show (s, maxlinelen, FALSE);
-         END IF;
-   END;
-
-   PROCEDURE pl (
-      str         IN   VARCHAR2,
-      len         IN   INTEGER := 80,
-      expand_in   IN   BOOLEAN := TRUE
-   )
-   IS
-   BEGIN
-        -- RMM start
-      IF get_pl_to_file THEN
-        pl_to_file(str,g_fid);
-     ELSIF NOT get_pl_to_file 
-     -- RMM end
-     THEN 
-         show (str, len, expand_in);
-     END IF;
-   END;
 
    FUNCTION vc2bool (vc IN VARCHAR2)
       RETURN BOOLEAN
@@ -296,12 +66,6 @@ Added Standard Headers
       ELSE
          RETURN 'NULL';
       END IF;
-   END;
-
-   PROCEDURE bpl (bool IN BOOLEAN)
-   IS
-   BEGIN
-      pl (bool2vc (bool));
    END;
 
    FUNCTION progexists (
@@ -597,23 +361,23 @@ Added Standard Headers
    BEGIN
       IF tracing
       THEN
-         pl (   'Runprog of '
+         utreport.pl (   'Runprog of '
              || name_in);
-         pl (
+         utreport.pl (
                '   Package and program = '
             || v_pkg
             || '.'
             || v_name
          );
-         pl (
+         utreport.pl (
                '   Same package? '
             || bool2vc (testpkg.samepkg)
          );
-         pl (
+         utreport.pl (
                '   Is package? '
             || bool2vc (testpkg.ispkg)
          );
-         pl (   '   Prefix = '
+         utreport.pl (   '   Prefix = '
              || testpkg.prefix);
       END IF;
 
@@ -640,12 +404,12 @@ Added Standard Headers
 
          IF tracing
          THEN
-            pl (
+            utreport.pl (
                   'Compile Error "'
                || SQLERRM
                || '" on: '
             );
-            pl (v_str);
+            utreport.pl (v_str);
          END IF;
 
          utassert.this (
@@ -706,6 +470,11 @@ Added Standard Headers
    )
    IS
    BEGIN
+   
+      IF NOT NVL(from_suite_in, FALSE) THEN
+        utreport.open;
+      END IF;
+   
       init_tests;
 
       --Removed test for null as utConfig.prefix never returns null 
@@ -731,7 +500,7 @@ Added Standard Headers
 
       IF tracing
       THEN
-         pl ('Initialized utPLSQL session...');
+         utreport.pl ('Initialized utPLSQL session...');
       END IF;
    END;
 
@@ -750,7 +519,7 @@ Added Standard Headers
       IS
       BEGIN
          UTL_FILE.fclose (fid);
-         pl (
+         utreport.pl (
                'Error compiling '
             || file_in
             || ' located in "'
@@ -758,11 +527,11 @@ Added Standard Headers
             || '": '
             || str
          );
-         pl (
+         utreport.pl (
                '   Please make sure the directory for utPLSQL is set by calling '
             || 'utConfig.setdir.'
          );
-         pl (
+         utreport.pl (
             '   Your test package must reside in this directory.'
          );
 
@@ -818,11 +587,11 @@ Added Standard Headers
       END LOOP;
 
       UTL_FILE.fclose (fid);
-     
-     if tracing then 
-     pl ('Compiling ' || lines (lines.first));
-     end if;
-     
+	  
+	  if tracing then 
+	  utreport.pl ('Compiling ' || lines (lines.first));
+	  end if;
+	  
       DBMS_SQL.parse (
          cur,
          lines,
@@ -921,21 +690,21 @@ Added Standard Headers
    
      IF tracing
       THEN
-         pl (   'Setpkg to '
+         utreport.pl (   'Setpkg to '
              || testpkg.pkg);
-         pl (
+         utreport.pl (
                '   Package and program = '
             || v_pkg
          );
-         pl (
+         utreport.pl (
                '   Same package? '
             || bool2vc (testpkg.samepkg)
          );
-         pl (
+         utreport.pl (
                '   Is package? '
             || bool2vc (testpkg.ispkg)
          );
-         pl (   '   Prefix = '
+         utreport.pl (   '   Prefix = '
              || testpkg.prefix);
       END IF;
    END;
@@ -1057,22 +826,22 @@ Added Standard Headers
       THEN
          IF tracing
          THEN
-            pl ('Addtest');
-            pl (
+            utreport.pl ('Addtest');
+            utreport.pl (
                   '   Package and program = '
                || package_in
                || '.'
                || name_in
             );
-            pl (
+            utreport.pl (
                   '   Same package? '
                || bool2vc (testpkg.samepkg)
             );
-            pl (
+            utreport.pl (
                   '   Override? '
                || bool2vc (override_in)
             );
-            pl (   '   Prefix = '
+            utreport.pl (   '   Prefix = '
                 || prefix_in);
          END IF;
 
@@ -1174,35 +943,23 @@ Added Standard Headers
          THEN
             init_tests;
          END IF;
-         -- RMM start
-         -- close output file if open
-         IF suite_in IS NULL AND get_pl_to_file THEN
-           pl('-- TESTEND --'); 
+         
+         IF suite_in IS NULL THEN
+            utreport.close;
          END IF;
-         -- RMM end       
+         		 
       END;
    BEGIN
       init (v_prefix, v_dir, from_suite_in);
-      -- RMM start
-      g_pl_to_file := utConfig.getfile();
-      IF g_pl_to_file THEN
-              IF suite_in IS NOT NULL THEN
-                -- we run a test suite
-         pl(suite_in);
-              ELSE
-         -- we run a single package test
-                pl(package_in);
-              END IF;
-      END IF;
-      -- RMM end
 
       IF NOT progexists (package_in, owner_in)
       THEN
-         pl (
+         utreport.pl (
                'Program named "'
             || package_in
             || '" does not exist.'
          );
+         utreport.close;         
       ELSE
          setpkg (
             package_in,
@@ -1228,7 +985,7 @@ Added Standard Headers
          THEN
             IF tracing
             THEN
-               pl (
+               utreport.pl (
                      'Recompiling '
                   || v_pkg
                   || ' in '
@@ -1287,11 +1044,11 @@ Added Standard Headers
 
          IF indx IS NULL
          THEN
-            pl ('Warning!');
-            pl (
+            utreport.pl ('Warning!');
+            utreport.pl (
                'Warning...no tests were identified for execution!'
             );
-            pl ('Warning!');
+            utreport.pl ('Warning!');
          ELSE
             LOOP
                EXIT WHEN indx IS NULL;
@@ -1332,6 +1089,9 @@ Added Standard Headers
       v_pkg_start     DATE;
       v_override      VARCHAR2 (1000);
    BEGIN
+   
+      utreport.open;
+   
       IF v_suite IS NULL
       THEN
          utassert.this (
@@ -1392,17 +1152,13 @@ begin
          );
       END IF;
 
+      utreport.close;
+      
       IF reset_results_in
       THEN
          init;
       END IF;
-      -- RMM start
-      -- close output file if open
-      IF get_pl_to_file THEN
-        pl('-- TESTEND --');
-      END IF; 
-      -- RMM end      
-
+      
    END;
 
    /* Programs used in individual unit test programs. */

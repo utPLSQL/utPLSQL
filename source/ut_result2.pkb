@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    PROCEDURE report (
@@ -48,12 +51,12 @@ $Log$
    BEGIN
       IF utplsql2.tracing
       THEN
-         utplsql.pl ('Record outcome result:');
-         utplsql.pl (utplsql2.runnum);
-         utplsql.pl (utplsql2.tc_runnum);
-         utplsql.pl (outcome_in);
-         utplsql.bpl (test_failed_in);
-         utplsql.pl (description_in);
+         utreport.pl ('Record outcome result:');
+         utreport.pl (utplsql2.runnum);
+         utreport.pl (utplsql2.tc_runnum);
+         utreport.pl (outcome_in);
+         utreport.pl (test_failed_in);
+         utreport.pl (description_in);
       END IF;
 
       IF register_in
@@ -82,7 +85,7 @@ $Log$
          THEN
             utresult.report (description_in);
          ELSE
-            utplsql.pl (description_in);
+            utreport.pl (description_in);
          END IF;
 
          IF showresults_in AND register_in

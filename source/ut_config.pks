@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE utconfig &start81 AUTHID CURRENT_USER &end81
+CREATE OR REPLACE PACKAGE Utconfig &start81 AUTHID CURRENT_USER &end81
 IS
 
 /************************************************************************
@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.3  2003/07/01 19:36:46  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
 -------------------------------------------------------------------------------
@@ -42,12 +45,11 @@ $Log$
    -- RMM start
    -- Record definition used by fileinfo function
    TYPE rec_fileinfo IS RECORD (
-      fileout           ut_config.fileout%TYPE
-     ,filedir           ut_config.filedir%TYPE
-     ,fileuserprefix    ut_config.fileuserprefix%TYPE
-     ,fileincprogname   ut_config.fileincprogname%TYPE
-     ,filedateformat    ut_config.filedateformat%TYPE
-     ,fileextension     ut_config.filedateformat%TYPE
+      filedir           UT_CONFIG.filedir%TYPE
+     ,fileuserprefix    UT_CONFIG.fileuserprefix%TYPE
+     ,fileincprogname   UT_CONFIG.fileincprogname%TYPE
+     ,filedateformat    UT_CONFIG.filedateformat%TYPE
+     ,fileextension     UT_CONFIG.filedateformat%TYPE
    );
 
    -- RMM end
@@ -59,7 +61,7 @@ $Log$
       SELECT owner, object_name, object_type, created, last_ddl_time, status
         FROM all_objects;
 
-   cursor source_cur
+   CURSOR source_cur
    IS
      SELECT line, text FROM all_source;
 	 
@@ -135,15 +137,15 @@ $Log$
    FUNCTION filedir (username_in IN VARCHAR2 := NULL)
       RETURN VARCHAR2;
 
-   -- Set the file output flag
-   PROCEDURE setfile (
-      fileout_in    IN   BOOLEAN := FALSE
+   -- Set the default reporter
+   PROCEDURE setreporter (
+      reporter_in   IN   VARCHAR2
      ,username_in   IN   VARCHAR2 := NULL
    );
 
-   -- Get the file output flag for a user
-   FUNCTION getfile (username_in IN VARCHAR2 := NULL)
-      RETURN BOOLEAN;
+   -- Get the default reporter for a user
+   FUNCTION getreporter (username_in IN VARCHAR2 := NULL)
+      RETURN VARCHAR2;
 
    -- Set the file prefix for a user
    PROCEDURE setuserprefix (
@@ -187,8 +189,7 @@ $Log$
 
    -- Set all of the file output columns for a user
    PROCEDURE setfileinfo (
-      fileout_in         IN   BOOLEAN := FALSE
-     ,dir_in             IN   VARCHAR2 := NULL
+      dir_in             IN   VARCHAR2 := NULL
      ,userprefix_in      IN   VARCHAR2 := NULL
      ,incname_in         IN   BOOLEAN := FALSE
      ,dateformat_in      IN   VARCHAR2 := 'yyyyddmmhh24miss'
@@ -204,14 +205,14 @@ $Log$
 
    -- 2.1.1: Single update and insert procedure
    PROCEDURE upd (
-      username_in             IN   ut_config.username%TYPE
-     ,autocompile_in          IN   ut_config.autocompile%TYPE
-     ,prefix_in               IN   ut_config.prefix%TYPE
-     ,show_failures_only_in   IN   ut_config.show_failures_only%TYPE
-     ,directory_in            IN   ut_config.DIRECTORY%TYPE
-     ,filedir_in              IN   ut_config.filedir%TYPE
-     ,show_config_info_in     IN   ut_config.show_config_info%TYPE
-     ,editor_in               IN   ut_config.editor%TYPE
+      username_in             IN   UT_CONFIG.username%TYPE
+     ,autocompile_in          IN   UT_CONFIG.autocompile%TYPE
+     ,prefix_in               IN   UT_CONFIG.prefix%TYPE
+     ,show_failures_only_in   IN   UT_CONFIG.show_failures_only%TYPE
+     ,directory_in            IN   UT_CONFIG.DIRECTORY%TYPE
+     ,filedir_in              IN   UT_CONFIG.filedir%TYPE
+     ,show_config_info_in     IN   UT_CONFIG.show_config_info%TYPE
+     ,editor_in               IN   UT_CONFIG.editor%TYPE
     );
 
    /* The upd procedure does an insert if no row exists.
@@ -260,13 +261,13 @@ $Log$
    PROCEDURE get_onerow (
       schema_in                IN       VARCHAR2
      ,username_out             OUT      VARCHAR2
-     ,autocompile_out          OUT      ut_config.autocompile%TYPE
-     ,prefix_out               OUT      ut_config.prefix%TYPE
-     ,show_failures_only_out   OUT       ut_config.show_failures_only%TYPE
-     ,directory_out            OUT      ut_config.DIRECTORY%TYPE
-     ,filedir_out              OUT      ut_config.filedir%TYPE
-     ,show_config_info_out     OUT      ut_config.show_config_info%TYPE
-     ,editor_out               OUT      ut_config.editor%TYPE
+     ,autocompile_out          OUT      UT_CONFIG.autocompile%TYPE
+     ,prefix_out               OUT      UT_CONFIG.prefix%TYPE
+     ,show_failures_only_out   OUT       UT_CONFIG.show_failures_only%TYPE
+     ,directory_out            OUT      UT_CONFIG.DIRECTORY%TYPE
+     ,filedir_out              OUT      UT_CONFIG.filedir%TYPE
+     ,show_config_info_out     OUT      UT_CONFIG.show_config_info%TYPE
+     ,editor_out               OUT      UT_CONFIG.editor%TYPE
    );
 END;
 /

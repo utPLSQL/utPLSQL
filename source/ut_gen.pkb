@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.4  2004/05/11 15:36:58  chrisrimmer
+Added tweak to cursor from Steven F
+
 Revision 1.3  2004/05/11 15:33:56  chrisrimmer
 Added 9.2 specific code from Mark Vilrokx
 
@@ -285,7 +288,7 @@ Added Standard Headers
 
             IF utplsql.tracing
             THEN
-               utplsql.pl (v_dir || '-' || package_in || '.' || ext);
+               utreport.pl (v_dir || '-' || package_in || '.' || ext);
             END IF;
 
             fid := UTL_FILE.fopen (
@@ -306,7 +309,7 @@ Added Standard Headers
       BEGIN
          IF output_type_in = c_screen
          THEN
-            utplsql.pl (str);
+            utOutputReporter.pl(str);
          ELSIF output_type_in = c_string
          THEN
             g_pkgstring := g_pkgstring || '|' || str;
@@ -859,7 +862,7 @@ Added Standard Headers
 
       IF err_in IS NOT NULL
       THEN
-         utplsql.pl (prog_in || ' File IO failure: ' || err_in);
+         utreport.pl (prog_in || ' File IO failure: ' || err_in);
       END IF;
    END;
 
@@ -1313,7 +1316,7 @@ Added Standard Headers
       FOR indx IN 1 .. countrows
       LOOP
          setrow (indx);
-         utplsql.pl (getrow);
+         utreport.pl (getrow);
       END LOOP;
    END;
 
