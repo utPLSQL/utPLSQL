@@ -13,7 +13,7 @@ IS
    PROCEDURE ut_setup
    IS
    BEGIN
-      NULL;
+     dbms_output.enable(1000000);
    END;
    
    PROCEDURE ut_teardown
