@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.4  2004/11/16 09:46:49  chrisrimmer
+Changed to new version detection system.
+
 Revision 1.3  2004/07/14 17:01:57  chrisrimmer
 Added first version of pluggable reporter packages
 
@@ -94,7 +97,7 @@ Added Standard Headers
       END IF;
 
       &start_ge_8_1 v_id := utplsql.seqval ('ut_package'); &start_ge_8_1
-      &start_lt_8 SELECT ut_package_seq.NEXTVAL INTO v_id FROM dual; &end_lt_8
+      &start_lt_8_1 SELECT ut_package_seq.NEXTVAL INTO v_id FROM dual; &end_lt_8_1
 
       INSERT INTO ut_package
                   (id, suite_id, name,
@@ -106,7 +109,7 @@ Added Standard Headers
       IF id_from_name( UPPER (package_in),owner_in) IS NULL 
       THEN
          &start_ge_8_1 v_id := utplsql.seqval ('ut_package'); &start_ge_8_1
-         &start_lt_8 SELECT ut_package_seq.NEXTVAL INTO v_id FROM dual; &end_lt_8
+         &start_lt_8_1 SELECT ut_package_seq.NEXTVAL INTO v_id FROM dual; &end_lt_8_1
 
          INSERT INTO ut_package
                   (id, suite_id, name,
@@ -167,7 +170,7 @@ Added Standard Headers
          END;
 
          &start_ge_8_1
-         &start_lt_8
+         &start_lt_8_1
          -- 7.3 DBMS_SQL Implementation
          DECLARE
             cur        PLS_INTEGER      := DBMS_SQL.open_cursor;
@@ -210,7 +213,7 @@ Added Standard Headers
 
             DBMS_SQL.close_cursor (cur);
          END;
-      &end_lt_8
+      &end_lt_8_1
       END IF;
    &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION

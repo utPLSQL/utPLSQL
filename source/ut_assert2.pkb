@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.5  2004/11/16 09:46:48  chrisrimmer
+Changed to new version detection system.
+
 Revision 1.4  2004/07/14 17:01:57  chrisrimmer
 Added first version of pluggable reporter packages
 
@@ -41,25 +44,6 @@ Added Standard Headers
    g_showresults                BOOLEAN     := FALSE ;
    c_not_placeholder   CONSTANT VARCHAR2 (10)
             := '#$NOT$#';
-
-   -- DBMS_PIPE functionality based on code provided by John Beresniewicz, 
-   -- Savant Corp, in ORACLE BUILT-IN PACKAGES
-
-   -- For pipe equality checking
-   TYPE msg_rectype IS RECORD (
-      item_type                     INTEGER,
-      mvc2                          VARCHAR2 (4093),
-      mdt                           DATE,
-      mnum                          NUMBER,
-      mrid                          ROWID,
-      mraw                          RAW (4093));
-
-   /*
- || msg_tbltype tables can hold an ordered list of
- || message items, thus any message can be captured
- */
-   TYPE msg_tbltype IS TABLE OF msg_rectype
-      INDEX BY BINARY_INTEGER;
 
    FUNCTION id (name_in IN ut_assertion.NAME%TYPE)
       RETURN ut_assertion.id%TYPE
@@ -700,11 +684,11 @@ Added Standard Headers
       raise_exc_in    IN   BOOLEAN := FALSE
    )
    IS
-      &start_lt_8
+      &start_lt_8_1
       fdbk      PLS_INTEGER;
       cur       PLS_INTEGER
                           := DBMS_SQL.open_cursor;
-      &end_lt_8
+      &end_lt_8_1
       ival      PLS_INTEGER;
       /* 2.0.8 suggested replacement below by Chris Rimmer
 to avoid duplicate column name issues
@@ -752,7 +736,7 @@ UNION
       &start_ge_8_1
       EXECUTE IMMEDIATE v_block USING  OUT ival;
       &start_ge_8_1
-      &start_lt_8
+      &start_lt_8_1
       DBMS_SQL.parse (
          cur,
          v_block,
@@ -771,7 +755,7 @@ UNION
          ival
       );
       DBMS_SQL.close_cursor (cur);
-      &end_lt_8
+      &end_lt_8_1
 
       this (
          outcome_in,
@@ -786,9 +770,9 @@ UNION
    EXCEPTION
       WHEN OTHERS
       THEN
-         &start_lt_8
+         &start_lt_8_1
          DBMS_SQL.close_cursor (cur);
-         &end_lt_8
+         &end_lt_8_1
 
 
          this (
@@ -1003,11 +987,11 @@ UNION
 
       cv          cv_t;
       &start_ge_8_1
-      &start_lt_8
+      &start_lt_8_1
       cur         PLS_INTEGER
                           := DBMS_SQL.open_cursor;
       fdbk        PLS_INTEGER;
-   &end_lt_8
+   &end_lt_8_1
 
    BEGIN
       IF utplsql2.tracing
@@ -1026,7 +1010,7 @@ UNION
       FETCH cv INTO l_value;
       CLOSE cv;
       &start_ge_8_1
-      &start_lt_8
+      &start_lt_8_1
       DBMS_SQL.parse (
          cur,
          check_query_in,
@@ -1036,7 +1020,7 @@ UNION
       fdbk := DBMS_SQL.execute_and_fetch (cur);
       DBMS_SQL.column_value (cur, 1, l_value);
       DBMS_SQL.close_cursor (cur);
-      &end_lt_8
+      &end_lt_8_1
       l_success :=
             (l_value = against_value_in)
          OR (    l_value IS NULL
@@ -1095,11 +1079,11 @@ UNION
 
       cv          cv_t;
       &start_ge_8_1
-      &start_lt_8
+      &start_lt_8_1
       cur         PLS_INTEGER
                           := DBMS_SQL.open_cursor;
       fdbk        PLS_INTEGER;
-   &end_lt_8
+   &end_lt_8_1
 
    BEGIN
       IF utplsql2.tracing
@@ -1118,7 +1102,7 @@ UNION
       FETCH cv INTO l_value;
       CLOSE cv;
       &start_ge_8_1
-      &start_lt_8
+      &start_lt_8_1
       DBMS_SQL.parse (
          cur,
          check_query_in,
@@ -1128,7 +1112,7 @@ UNION
       fdbk := DBMS_SQL.execute_and_fetch (cur);
       DBMS_SQL.column_value (cur, 1, l_value);
       DBMS_SQL.close_cursor (cur);
-      &end_lt_8
+      &end_lt_8_1
       l_success :=
             (l_value = against_value_in)
          OR (    l_value IS NULL
@@ -1196,11 +1180,11 @@ UNION
 
       cv          cv_t;
       &start_ge_8_1
-      &start_lt_8
+      &start_lt_8_1
       cur         PLS_INTEGER
                           := DBMS_SQL.open_cursor;
       fdbk        PLS_INTEGER;
-   &end_lt_8
+   &end_lt_8_1
 
    BEGIN
       IF utplsql2.tracing
@@ -1219,7 +1203,7 @@ UNION
       FETCH cv INTO l_value;
       CLOSE cv;
       &start_ge_8_1
-      &start_lt_8
+      &start_lt_8_1
       DBMS_SQL.parse (
          cur,
          check_query_in,
@@ -1229,7 +1213,7 @@ UNION
       fdbk := DBMS_SQL.execute_and_fetch (cur);
       DBMS_SQL.column_value (cur, 1, l_value);
       DBMS_SQL.close_cursor (cur);
-      &end_lt_8
+      &end_lt_8_1
 
       l_success :=
             (l_value = against_value_in)
@@ -1479,76 +1463,9 @@ UNION
          cleanup (FALSE , msg_in => msg_in);
    END;
 
-   PROCEDURE receive_and_unpack (
-      pipe_in           IN       VARCHAR2,
-      msg_tbl_out       OUT      msg_tbltype,
-      pipe_status_out   IN OUT   PLS_INTEGER
-   )
-   IS
-      invalid_item_type   EXCEPTION;
-      null_msg_tbl        msg_tbltype;
-      next_item           INTEGER;
-      item_count          INTEGER     := 0;
-   BEGIN
-      pipe_status_out :=
-         DBMS_PIPE.receive_message (
-            pipe_in,
-            TIMEOUT=> 0
-         );
-
-      IF pipe_status_out != 0
-      THEN
-         RAISE invalid_item_type;
-      END IF;
-
-      LOOP
-         next_item := DBMS_PIPE.next_item_type;
-         EXIT WHEN next_item = 0;
-         item_count :=   item_count
-                       + 1;
-         msg_tbl_out (item_count).item_type :=
-                                        next_item;
-
-         IF next_item = 9
-         THEN
-            DBMS_PIPE.unpack_message (
-               msg_tbl_out (item_count).mvc2
-            );
-         ELSIF next_item = 6
-         THEN
-            DBMS_PIPE.unpack_message (
-               msg_tbl_out (item_count).mnum
-            );
-         ELSIF next_item = 11
-         THEN
-            DBMS_PIPE.unpack_message_rowid (
-               msg_tbl_out (item_count).mrid
-            );
-         ELSIF next_item = 12
-         THEN
-            DBMS_PIPE.unpack_message (
-               msg_tbl_out (item_count).mdt
-            );
-         ELSIF next_item = 23
-         THEN
-            DBMS_PIPE.unpack_message_raw (
-               msg_tbl_out (item_count).mraw
-            );
-         ELSE
-            RAISE invalid_item_type;
-         END IF;
-
-         next_item := DBMS_PIPE.next_item_type;
-      END LOOP;
-   EXCEPTION
-      WHEN invalid_item_type
-      THEN
-         msg_tbl_out := null_msg_tbl;
-   END receive_and_unpack;
-
    PROCEDURE compare_pipe_tabs (
-      tab1                msg_tbltype,
-      tab2                msg_tbltype,
+      tab1                utpipe.msg_tbltype,
+      tab2                utpipe.msg_tbltype,
       same_out   IN OUT   BOOLEAN
    )
    IS
@@ -1602,8 +1519,8 @@ UNION
       raise_exc_in      IN   BOOLEAN := FALSE
    )
    IS
-      check_tab        msg_tbltype;
-      against_tab      msg_tbltype;
+      check_tab        utpipe.msg_tbltype;
+      against_tab      utpipe.msg_tbltype;
       check_status     PLS_INTEGER;
       against_status   PLS_INTEGER;
       same_message     BOOLEAN     := FALSE ;
@@ -1613,12 +1530,12 @@ UNION
    BEGIN
       -- Compare contents of two pipes.
       LOOP
-         receive_and_unpack (
+         utpipe.receive_and_unpack (
             check_this_in,
             check_tab,
             check_status
          );
-         receive_and_unpack (
+         utpipe.receive_and_unpack (
             against_this_in,
             against_tab,
             against_status
@@ -1695,17 +1612,17 @@ UNION
             :=    'begin :val := '
                || str
                || '; end;';
-      &start_lt_8 
+      &start_lt_8_1 
       fdbk     PLS_INTEGER;
       cur      PLS_INTEGER
                           := DBMS_SQL.open_cursor;
-      &end_lt_8
+      &end_lt_8_1
       retval   NUMBER;
    BEGIN
       &start_ge_8_1
       EXECUTE IMMEDIATE sqlstr USING  OUT retval;
       &start_ge_8_1
-      &start_lt_8
+      &start_lt_8_1
       DBMS_SQL.parse (
          cur,
          sqlstr,
@@ -1714,14 +1631,14 @@ UNION
       fdbk := DBMS_SQL.EXECUTE (cur);
       DBMS_SQL.variable_value (cur, 'val', retval);
       DBMS_SQL.close_cursor (cur);
-      &end_lt_8
+      &end_lt_8_1
       RETURN retval;
    EXCEPTION
       WHEN OTHERS
       THEN
-         &start_lt_8
+         &start_lt_8_1
          DBMS_SQL.close_cursor (cur);
-         &end_lt_8
+         &end_lt_8_1
          RAISE;
    END;
 
@@ -2098,11 +2015,11 @@ UNION
       bada                  PLS_INTEGER;
       badtext               VARCHAR2 (32767);
       null_and_valid        BOOLEAN          := FALSE ;
-      &start_lt_8 
+      &start_lt_8_1 
       fdbk                  PLS_INTEGER;
       cur                   PLS_INTEGER
                           := DBMS_SQL.open_cursor;
-   &end_lt_8
+   &end_lt_8_1
 
    BEGIN
       validatecoll (
@@ -2176,7 +2093,7 @@ UNION
                 IN    against_startrow_in,
                 IN    v_matchrow;
             &start_ge_8_1
-            &start_lt_8
+            &start_lt_8_1
             DBMS_SQL.parse (
                cur,
                dynblock,
@@ -2224,7 +2141,7 @@ UNION
                badtext
             );
             DBMS_SQL.close_cursor (cur);
-         &end_lt_8
+         &end_lt_8_1
          END IF;
 
          this (
@@ -2249,9 +2166,9 @@ UNION
    EXCEPTION
       WHEN OTHERS
       THEN --p.l (sqlerrm);
-         &start_lt_8
+         &start_lt_8_1
          DBMS_SQL.close_cursor (cur);
-         &end_lt_8
+         &end_lt_8_1
 
          this (
             outcome_in,
@@ -2307,11 +2224,11 @@ UNION
       valid_interim         BOOLEAN;
       invalid_interim_msg   VARCHAR2 (4000);
       null_and_valid        BOOLEAN          := FALSE ;
-      &start_lt_8 
+      &start_lt_8_1 
       fdbk                  PLS_INTEGER;
       cur                   PLS_INTEGER
                           := DBMS_SQL.open_cursor;
-   &end_lt_8
+   &end_lt_8_1
 
    BEGIN
       validatecoll (
@@ -2364,7 +2281,7 @@ UNION
           IN    against_startrow_in,
           IN    v_matchrow;
       &start_ge_8_1
-      &start_lt_8
+      &start_lt_8_1
       DBMS_SQL.parse (
          cur,
          dynblock,
@@ -2413,7 +2330,7 @@ UNION
       );
       DBMS_SQL.close_cursor (cur);
 
-      &end_lt_8
+      &end_lt_8_1
 
       <<normal_termination>>
       this (
@@ -2437,9 +2354,9 @@ UNION
    EXCEPTION
       WHEN OTHERS
       THEN --p.l (sqlerrm);
-         &start_lt_8
+         &start_lt_8_1
          DBMS_SQL.close_cursor (cur);
-         &end_lt_8
+         &end_lt_8_1
 
          this (
             outcome_in,
@@ -2574,17 +2491,17 @@ UNION
       || ';
                 WHEN OTHERS THEN :indicator := SQLCODE;
              END;';
-      &start_lt_8
+      &start_lt_8_1
       cur                  PLS_INTEGER
                           := DBMS_SQL.open_cursor;
       ret_val              PLS_INTEGER;
-   &end_lt_8
+   &end_lt_8_1
    BEGIN
       --Fire off the dynamic PL/SQL
       &start_ge_8_1
       EXECUTE IMMEDIATE v_block USING  OUT l_indicator;
       &start_ge_8_1
-      &start_lt_8
+      &start_lt_8_1
       DBMS_SQL.parse (
          cur,
          v_block,
@@ -2598,7 +2515,7 @@ UNION
          l_indicator
       );
       DBMS_SQL.close_cursor (cur);
-      &end_lt_8
+      &end_lt_8_1
 
       this (
          outcome_in,
@@ -2657,17 +2574,17 @@ UNION
       || ';'
       || ' ELSE :indicator := SQLCODE; END IF;
              END;';
-      &start_lt_8
+      &start_lt_8_1
       cur                  PLS_INTEGER
                           := DBMS_SQL.open_cursor;
       ret_val              PLS_INTEGER;
-   &end_lt_8
+   &end_lt_8_1
    BEGIN
       --Fire off the dynamic PL/SQL
       &start_ge_8_1
       EXECUTE IMMEDIATE v_block USING  OUT l_indicator;
       &start_ge_8_1
-      &start_lt_8
+      &start_lt_8_1
       DBMS_SQL.parse (
          cur,
          v_block,
@@ -2681,7 +2598,7 @@ UNION
          l_indicator
       );
       DBMS_SQL.close_cursor (cur);
-      &end_lt_8
+      &end_lt_8_1
 
       this (
          outcome_in,

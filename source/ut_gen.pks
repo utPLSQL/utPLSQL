@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.3  2004/11/16 09:46:49  chrisrimmer
+Changed to new version detection system.
+
 Revision 1.2  2003/07/01 19:36:46  chrisrimmer
 Added Standard Headers
 
@@ -38,12 +41,12 @@ Added Standard Headers
    c_asis      CONSTANT CHAR (1)       := '!';
    &start_ge_8_1 SUBTYPE codeline_t IS VARCHAR2(200); &end_ge_8_1
 
-   &start_lt_8
+   &start_lt_8_1
    v_codeline           VARCHAR2 (200);
 
    SUBTYPE codeline_t IS v_codeline%TYPE;
 
-   &end_lt_8
+   &end_lt_8_1
 
    -- Each line in the grid represents a test case 
    -- 
