@@ -37,6 +37,13 @@ utResult Package</h1>
 
 <td><a href="#Iterate">Iterate through the results array</a></td>
 </tr>
+
+<tr>
+   <td><a href="#Successes">utResult.include_successes</a><br>
+      <a href="#Successes">utResult.ignore_successes</a></td>
+   <td><a href="#Successes">Control the display of passed tests</a></td>
+</tr>
+
 </table>
 
 The utResult package offers an API to the information
@@ -48,8 +55,8 @@ So, generally, you do not have to do anything to
 see or evaluate the results of a test (or suite of tests). The information
 will be displayed on your screen using DBMS_OUTPUT. You might, however,
 want to access this information in another environment (say, Oracle Forms
-or Java, etc.). You might also want to <a href="advanced.html#BYOTE">build
-your own assertion logic or test engine</a>. In either of these cases,
+or Java, etc.). You might also want to build
+your own assertion logic or test engine. In either of these cases,
 you will want to use the programs in the utResult package.
 
 <h2>
@@ -102,6 +109,16 @@ PROCEDURE utResult.nthresult (
 );
 
 FUNCTION utResult.resultcount RETURN PLS_INTEGER;</pre>
+
+<h2>
+   <a name = "Successes"></a>Control the Display of Success Messages</h2>
+<p>The following procedures turn on or off the display of success messages.  In other words,
+when turned on (as is the default) a message will be displayed for each successful assertion.  
+The specifications are as follows:
+<pre>
+procedure include_successes;
+procedure ignore_successes; </pre></p>
+
 <!-- End utPLSQL Body -->
 </body>
 </html>
