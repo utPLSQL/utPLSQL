@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.4  2004/11/23 14:56:47  chrisrimmer
+Moved dbms_pipe code into its own package.  Also changed some preprocessor flags
+
 Revision 1.3  2004/11/16 09:46:49  chrisrimmer
 Changed to new version detection system.
 
@@ -39,96 +42,96 @@ Added Standard Headers
    c_delim     CONSTANT CHAR (1)       := ';';
    c_comment   CONSTANT CHAR (1)       := '#';
    c_asis      CONSTANT CHAR (1)       := '!';
+
    &start_ge_8_1 SUBTYPE codeline_t IS VARCHAR2(200); &end_ge_8_1
 
    &start_lt_8_1
    v_codeline           VARCHAR2 (200);
-
    SUBTYPE codeline_t IS v_codeline%TYPE;
-
    &end_lt_8_1
 
    -- Each line in the grid represents a test case 
    -- 
 
    TYPE grid_rt IS RECORD (
-      progname         VARCHAR2 (100),
-      overload         PLS_INTEGER,
-      tcname           VARCHAR2 (100),
-      MESSAGE          VARCHAR2 (2000),
-      arglist          VARCHAR2 (2000),
-      return_value     VARCHAR2 (2000),
-      assertion_type   VARCHAR2 (100)
+      progname         VARCHAR2 (100)
+    , overload         PLS_INTEGER
+    , tcname           VARCHAR2 (100)
+    , MESSAGE          VARCHAR2 (2000)
+    , arglist          VARCHAR2 (2000)
+    , return_value     VARCHAR2 (2000)
+    , assertion_type   VARCHAR2 (100)
+    , null_ok          VARCHAR2 (1)                        -- NOK0205: Y or N
    );
 
    TYPE grid_tt IS TABLE OF grid_rt
       INDEX BY BINARY_INTEGER;
 
    PROCEDURE testpkg (
-      package_in       IN   VARCHAR2,
-      program_in       IN   VARCHAR2 := '%',
-      samepackage_in   IN   BOOLEAN := FALSE ,
-      prefix_in        IN   VARCHAR2 := NULL,
-      schema_in        IN   VARCHAR2 := NULL,
-      output_type_in   IN   PLS_INTEGER := c_screen,
-      dir_in           IN   VARCHAR2 := NULL,
-	  override_file_in IN   VARCHAR2 := NULL
+      package_in         IN   VARCHAR2
+    , program_in         IN   VARCHAR2 := '%'
+    , samepackage_in     IN   BOOLEAN := FALSE
+    , prefix_in          IN   VARCHAR2 := NULL
+    , schema_in          IN   VARCHAR2 := NULL
+    , output_type_in     IN   PLS_INTEGER := c_screen
+    , dir_in             IN   VARCHAR2 := NULL
+    , override_file_in   IN   VARCHAR2 := NULL
    );
 
    PROCEDURE testpkg (
-      package_in           IN   VARCHAR2,
-      grid_in              IN   grid_tt,
-      program_in           IN   VARCHAR2 := '%',
-      samepackage_in       IN   BOOLEAN := FALSE ,
-      prefix_in            IN   VARCHAR2 := NULL,
-      schema_in            IN   VARCHAR2 := NULL,
-      output_type_in       IN   PLS_INTEGER := c_screen,
-      dir_in               IN   VARCHAR2 := NULL,
-      delim_in             IN   VARCHAR2 := c_delim,
-      date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY',
-      only_if_in_grid_in   IN   BOOLEAN := FALSE,
-	  override_file_in IN   VARCHAR2 := NULL
+      package_in           IN   VARCHAR2
+    , grid_in              IN   grid_tt
+    , program_in           IN   VARCHAR2 := '%'
+    , samepackage_in       IN   BOOLEAN := FALSE
+    , prefix_in            IN   VARCHAR2 := NULL
+    , schema_in            IN   VARCHAR2 := NULL
+    , output_type_in       IN   PLS_INTEGER := c_screen
+    , dir_in               IN   VARCHAR2 := NULL
+    , delim_in             IN   VARCHAR2 := c_delim
+    , date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY'
+    , only_if_in_grid_in   IN   BOOLEAN := FALSE
+    , override_file_in     IN   VARCHAR2 := NULL
    );
 
    PROCEDURE testpkg_from_file (
-      package_in           IN   VARCHAR2,
-      gridfile_loc_in      IN   VARCHAR2,
-      gridfile_in          IN   VARCHAR2,
-      program_in           IN   VARCHAR2 := '%',
-      samepackage_in       IN   BOOLEAN := FALSE ,
-      prefix_in            IN   VARCHAR2 := NULL,
-      schema_in            IN   VARCHAR2 := NULL,
-      output_type_in       IN   PLS_INTEGER := c_screen,
-      dir_in               IN   VARCHAR2 := NULL,
-      field_delim_in       IN   VARCHAR2 := '|',
-      arg_delim_in         IN   VARCHAR2 := c_delim,
-      date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY',
-      only_if_in_grid_in   IN   BOOLEAN := FALSE,
-	  override_file_in IN   VARCHAR2 := NULL
+      package_in           IN   VARCHAR2
+    , gridfile_loc_in      IN   VARCHAR2
+    , gridfile_in          IN   VARCHAR2
+    , program_in           IN   VARCHAR2 := '%'
+    , samepackage_in       IN   BOOLEAN := FALSE
+    , prefix_in            IN   VARCHAR2 := NULL
+    , schema_in            IN   VARCHAR2 := NULL
+    , output_type_in       IN   PLS_INTEGER := c_screen
+    , dir_in               IN   VARCHAR2 := NULL
+    , field_delim_in       IN   VARCHAR2 := '|'
+    , arg_delim_in         IN   VARCHAR2 := c_delim
+    , date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY'
+    , only_if_in_grid_in   IN   BOOLEAN := FALSE
+    , override_file_in     IN   VARCHAR2 := NULL
    );
 
    PROCEDURE testpkg_from_string (
-      package_in           IN   VARCHAR2,
-      grid_in              IN   VARCHAR2,
-      program_in           IN   VARCHAR2 := '%',
-      samepackage_in       IN   BOOLEAN := FALSE ,
-      prefix_in            IN   VARCHAR2 := NULL,
-      schema_in            IN   VARCHAR2 := NULL,
-      output_type_in       IN   PLS_INTEGER := c_screen,
-      dir_in               IN   VARCHAR2 := NULL,
-      line_delim_in        IN   VARCHAR := CHR (10),
-      field_delim_in       IN   VARCHAR2 := '|',
-      arg_delim_in         IN   VARCHAR2 := c_delim,
-      date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY',
-      only_if_in_grid_in   IN   BOOLEAN := FALSE,
-	  override_file_in IN   VARCHAR2 := NULL
+      package_in           IN   VARCHAR2
+    , grid_in              IN   VARCHAR2
+    , program_in           IN   VARCHAR2 := '%'
+    , samepackage_in       IN   BOOLEAN := FALSE
+    , prefix_in            IN   VARCHAR2 := NULL
+    , schema_in            IN   VARCHAR2 := NULL
+    , output_type_in       IN   PLS_INTEGER := c_screen
+    , dir_in               IN   VARCHAR2 := NULL
+    , line_delim_in        IN   VARCHAR := CHR (10)
+    , field_delim_in       IN   VARCHAR2 := '|'
+    , arg_delim_in         IN   VARCHAR2 := c_delim
+    , date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY'
+    , only_if_in_grid_in   IN   BOOLEAN := FALSE
+    , override_file_in     IN   VARCHAR2 := NULL
    );
 
    PROCEDURE testpkg_from_string_od (
-      package_in   IN   VARCHAR2,
-      grid_in      IN   VARCHAR2,
-      dir_in       IN   VARCHAR2 := NULL,
-	  override_file_in IN   VARCHAR2 := NULL
+      package_in         IN   VARCHAR2
+    , grid_in            IN   VARCHAR2
+    , dir_in             IN   VARCHAR2 := NULL
+    , override_file_in   IN   VARCHAR2 := NULL
    );
 
    -- Retrieve single string with generated package.
@@ -168,46 +171,47 @@ Added Standard Headers
    PROCEDURE prevrow;
 
    PROCEDURE showrows (
-      startrow   IN   PLS_INTEGER := NULL,
-      endrow     IN   PLS_INTEGER := NULL
+      startrow   IN   PLS_INTEGER := NULL
+    , endrow     IN   PLS_INTEGER := NULL
    );
 
    FUNCTION isfunction (
-      schema_in     IN   VARCHAR2,
-      package_in    IN   VARCHAR2,
-      program_in    IN   VARCHAR2,
-      overload_in   IN   PLS_INTEGER := NULL
+      schema_in     IN   VARCHAR2
+    , package_in    IN   VARCHAR2
+    , program_in    IN   VARCHAR2
+    , overload_in   IN   PLS_INTEGER := NULL
    )
       RETURN BOOLEAN;
 
    -- 2.0.10.1  From Patrick Barel
    PROCEDURE add_to_grid (
       owner_in            IN   ut_grid.owner%TYPE
-	 ,package_in          IN   ut_grid.PACKAGE%TYPE
-     ,progname_in         IN   ut_grid.progname%TYPE
-     ,overload_in         IN   ut_grid.overload%TYPE
-     ,tcname_in           IN   ut_grid.tcname%TYPE
-     ,message_in          IN   ut_grid.MESSAGE%TYPE
-     ,arglist_in          IN   ut_grid.arglist%TYPE
-     ,return_value_in     IN   ut_grid.return_value%TYPE
-     ,assertion_type_in   IN   ut_grid.assertion_type%TYPE
+    , package_in          IN   ut_grid.PACKAGE%TYPE
+    , progname_in         IN   ut_grid.progname%TYPE
+    , overload_in         IN   ut_grid.overload%TYPE
+    , tcname_in           IN   ut_grid.tcname%TYPE
+    , message_in          IN   ut_grid.MESSAGE%TYPE
+    , arglist_in          IN   ut_grid.arglist%TYPE
+    , return_value_in     IN   ut_grid.return_value%TYPE
+    , assertion_type_in   IN   ut_grid.assertion_type%TYPE
    );
-   
+
    PROCEDURE clear_grid (
-      owner_in            IN   ut_grid.owner%TYPE
-	 ,package_in          IN   ut_grid.PACKAGE%TYPE);
-   
+      owner_in     IN   ut_grid.owner%TYPE
+    , package_in   IN   ut_grid.PACKAGE%TYPE
+   );
+
    /* START Patch72 607131 */
    PROCEDURE testpkg_from_table (
-      package_in       IN   VARCHAR2,
-      program_in       IN   VARCHAR2 := '%',
-      samepackage_in   IN   BOOLEAN := FALSE ,
-      prefix_in        IN   VARCHAR2 := NULL,
-      schema_in        IN   VARCHAR2 := NULL,
-      output_type_in   IN   PLS_INTEGER := c_screen,
-      dir_in           IN   VARCHAR2 := NULL,
-      date_format_in   IN   VARCHAR2 := 'MM/DD/YYYY',
-	  override_file_in IN   VARCHAR2 := NULL
+      package_in         IN   VARCHAR2
+    , program_in         IN   VARCHAR2 := '%'
+    , samepackage_in     IN   BOOLEAN := FALSE
+    , prefix_in          IN   VARCHAR2 := NULL
+    , schema_in          IN   VARCHAR2 := NULL
+    , output_type_in     IN   PLS_INTEGER := c_screen
+    , dir_in             IN   VARCHAR2 := NULL
+    , date_format_in     IN   VARCHAR2 := 'MM/DD/YYYY'
+    , override_file_in   IN   VARCHAR2 := NULL
    );
 /* END Patch72 607131 */
 
