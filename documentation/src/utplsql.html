@@ -40,6 +40,16 @@
   <p><a href="#Version">Get the version of utPLSQL</a></p>
   </td>
  </tr>
+ <tr>
+  <td>
+     <p><a href="#Trace">utPLSQL.trc</a><br>
+     <a href="#Trace">utPLSQL.notrc</a><br>
+     <a href="#Trace">utPLSQL.tracing</a></p>
+  </td>
+  <td>
+     <p><a href="#Trace">Control utPLSQL's tracing mechanism</a></p>
+  </td>
+ </tr>
 </table>
 
 <h2><a name="utplsql.test"></a>Run a Test or Test Suite</h2>
@@ -55,7 +65,19 @@ your own test package</a>. </p>
 
 <p>To run a test for a single package, use the utPLSQL.test procedure: </p>
 
-<pre>PROCEDURE utPLSQL.test (</pre><pre>   package_in IN VARCHAR2,</pre><pre>   samepackage_in IN BOOLEAN := FALSE,</pre><pre>   prefix_in IN VARCHAR2 := NULL,</pre><pre>   recompile_in IN BOOLEAN := TRUE,</pre><pre>   dir_in IN VARCHAR2 := NULL,</pre><pre>   suite_in in VARCHAR2 := NULL,</pre><pre>   owner_in IN VARCHAR2 := NULL,</pre><pre>   reset_results_in IN BOOLEAN := TRUE ,</pre><pre>   from_suite_in         IN   BOOLEAN := FALSE,</pre><pre>   subprogram_in         IN   VARCHAR2 := '%',</pre><pre>   per_method_setup_in   IN   BOOLEAN := FALSE</pre><pre>);</pre>
+<pre>PROCEDURE utPLSQL.test (
+   package_in IN VARCHAR2,
+   samepackage_in IN BOOLEAN := FALSE,
+   prefix_in IN VARCHAR2 := NULL,
+   recompile_in IN BOOLEAN := TRUE,
+   dir_in IN VARCHAR2 := NULL,
+   suite_in in VARCHAR2 := NULL,
+   owner_in IN VARCHAR2 := NULL,
+   reset_results_in IN BOOLEAN := TRUE ,
+   from_suite_in         IN   BOOLEAN := FALSE,
+   subprogram_in         IN   VARCHAR2 := '%',
+   per_method_setup_in   IN   BOOLEAN := FALSE
+);</pre>
 
 <p>where the parameters are defined as follows: <br>
   </p>
@@ -201,7 +223,9 @@ If successful, you will see output like this: </p>
 <p>If the test fails at some point, you will see output like
 this: </p>
 
-<pre>FAILURE: &quot;betwnstr&quot;</pre><pre>BETWNSTR: IS NULL: NULL start</pre><pre>BETWNSTR: End larger than string length; expected &quot;cdeg&quot;, got &quot;cdefg&quot;</pre>
+<pre>FAILURE: &quot;betwnstr&quot;
+BETWNSTR: IS NULL: NULL start
+BETWNSTR: End larger than string length; expected &quot;cdeg&quot;, got &quot;cdefg&quot;</pre>
 
 <h3><a name="utplsql.testsuite"></a>Running a Test Suite</h3>
 
@@ -209,7 +233,12 @@ this: </p>
 can set up a test suite that consists of one or more test packages. You can
 then run an entire suite of tests with a call to utPLSQL.testsuite: </p>
 
-<pre>PROCEDURE utPLSQL.testsuite (</pre><pre>   suite_in IN VARCHAR2,</pre><pre>   recompile_in IN BOOLEAN := TRUE,</pre><pre>   reset_results_in IN BOOLEAN := TRUE</pre><pre>   );</pre>
+<pre>PROCEDURE utPLSQL.testsuite (
+   suite_in IN VARCHAR2,
+   recompile_in IN BOOLEAN := TRUE,
+   reset_results_in IN BOOLEAN := TRUE
+   per_method_setup_in in BOOLEAN := FALSE
+   );</pre>
 
 <p>where suite_in is the name of the suite and recompiled_in
 determines the <a href="utconfig.html#Autocompile">auto compilation behavior</a>.
@@ -278,7 +307,18 @@ within a test suite.</p>
 
 <p>Use the utPLSQL.addtest procedure to register a unit test.</p>
 
-<pre>   PROCEDURE utPLSQL.addtest (</pre><pre>      NAME_IN IN VARCHAR2,</pre><pre>      utprefix_in IN VARCHAR2,</pre><pre>      iterations_in IN PLS_INTEGER := 1</pre><pre>   );</pre><pre> </pre><pre>   PROCEDURE utPLSQL.addtest (</pre><pre>      package_in IN VARCHAR2,</pre><pre>      NAME_IN IN VARCHAR2,</pre><pre>      utprefix_in IN VARCHAR2,</pre><pre>      iterations_in IN PLS_INTEGER := 1</pre><pre>   );</pre>
+<pre>   PROCEDURE utPLSQL.addtest (
+      NAME_IN IN VARCHAR2,
+      utprefix_in IN VARCHAR2,
+      iterations_in IN PLS_INTEGER := 1
+   );
+ 
+   PROCEDURE utPLSQL.addtest (
+      package_in IN VARCHAR2,
+      NAME_IN IN VARCHAR2,
+      utprefix_in IN VARCHAR2,
+      iterations_in IN PLS_INTEGER := 1
+   );</pre>
 
 <p>where</p>
 
@@ -303,7 +343,22 @@ the package name.</p>
 <p>Here is a setup procedure that sets up a series of tests for
 a query-only encapsulation of the employee table:</p>
 
-<pre>CREATE OR REPLACE PACKAGE BODY ut_te_employee</pre><pre>IS</pre><pre>   PROCEDURE ut_setup</pre><pre>   IS</pre><pre>   BEGIN</pre><pre>      utplsql.addtest ('UT_EMP_DEPT_LOOKUPROWCOUNT');</pre><pre>      utplsql.addtest ('UT_EMP_JOB_LOOKUPROWCOUNT');</pre><pre>      utplsql.addtest ('UT_EMP_MGR_LOOKUPROWCOUNT');</pre><pre>      utplsql.addtest ('UT_HIRE_DATE$VAL');</pre><pre>      utplsql.addtest ('UT_I_EMPLOYEE_NAME$ROW');</pre><pre>      utplsql.addtest ('UT_I_EMPLOYEE_NAME$VAL');</pre><pre>      utplsql.addtest ('UT_ONEROW');</pre><pre>      utplsql.addtest ('UT_PKYROWCOUNT');</pre><pre>      utplsql.addtest ('UT_ROWCOUNT');</pre><pre>      utplsql.addtest ('UT_SALARY$VAL');</pre><pre>   END;</pre>
+<pre>CREATE OR REPLACE PACKAGE BODY ut_te_employee
+IS
+   PROCEDURE ut_setup
+   IS
+   BEGIN
+      utplsql.addtest ('UT_EMP_DEPT_LOOKUPROWCOUNT');
+      utplsql.addtest ('UT_EMP_JOB_LOOKUPROWCOUNT');
+      utplsql.addtest ('UT_EMP_MGR_LOOKUPROWCOUNT');
+      utplsql.addtest ('UT_HIRE_DATE$VAL');
+      utplsql.addtest ('UT_I_EMPLOYEE_NAME$ROW');
+      utplsql.addtest ('UT_I_EMPLOYEE_NAME$VAL');
+      utplsql.addtest ('UT_ONEROW');
+      utplsql.addtest ('UT_PKYROWCOUNT');
+      utplsql.addtest ('UT_ROWCOUNT');
+      utplsql.addtest ('UT_SALARY$VAL');
+   END;</pre>
 
 <p>Once you have placed your addtest programs into your test
 package's setup procedure, you are ready to <a href="buildpack.html">build your own unit tests</a>.</p>
@@ -314,6 +369,77 @@ package's setup procedure, you are ready to <a href="buildpack.html">build your 
 utPLSQL you have installed: </p>
 
 <pre>FUNCTION utPLSQL.version RETURN VARCHAR2</pre>
+
+<h2><a name="Trace"></a>utPLSQL Trace</h2>
+
+<p>These routines are very simple and take no arguments:</p>
+
+<pre>
+PROCEDURE trc;
+
+PROCEDURE notrc;
+
+FUNCTION tracing RETURN BOOLEAN;
+</pre>
+
+<p>The procedures trc and notrc are used to turn tracing on and off
+respectively.  The function tracing returns TRUE if tracing is currently turned
+on and FALSE otherwise.  This facility is useful when writing code in utPLSQL
+(the framework itself, not your test code).  An example of the output generated
+is:</p>
+
+<pre>
+Initialized utPLSQL session...
+Setpkg to Lottery
+Package and program = ut_Lottery
+Same package? N
+Is package? Y
+Prefix = ut_
+Recompiling ut_Lottery in
+Runprog of ut_SETUP
+Package and program = ut_Lottery.ut_SETUP
+Same package? N
+Is package? Y
+Prefix = ut_
+Addtest
+Package and program = Lottery.UT_DRAW
+Same package? N
+Override? Y
+Prefix = ut_
+Runprog of UT_DRAW
+Package and program = ut_Lottery.UT_DRAW
+Same package? N
+Is package? Y
+Prefix = ut_
+.
+&gt;  FFFFFFF   AA     III  L      U     U RRRRR   EEEEEEE
+&gt;  F        A  A     I   L      U     U R    R  E
+&gt;  F       A    A    I   L      U     U R     R E
+&gt;  F      A      A   I   L      U     U R     R E
+&gt;  FFFF   A      A   I   L      U     U RRRRRR  EEEE
+&gt;  F      AAAAAAAA   I   L      U     U R   R   E
+&gt;  F      A      A   I   L      U     U R    R  E
+&gt;  F      A      A   I   L       U   U  R     R E
+&gt;  F      A      A  III  LLLLLLL  UUU   R     R EEEEEEE
+.
+FAILURE: "Lottery"
+.
+&gt; Individual Test Case Results:
+&gt;
+FAILURE - EQ "Test of DRAW" Expected "01 02 05 27 43 49" and got "02 04 27 28 31 33"
+&gt;
+&gt;
+&gt; Errors recorded in utPLSQL Error Log:
+&gt;
+&gt; NONE FOUND
+Runprog of ut_TEARDOWN
+Package and program = ut_Lottery.ut_TEARDOWN
+Same package? N
+Is package? Y
+Prefix = ut_
+
+PL/SQL procedure successfully completed.
+</pre>
 
 <!-- End utPLSQL Body -->
 </body>
