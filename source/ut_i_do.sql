@@ -10,35 +10,38 @@ SET DEFINE ON
 ----------------------------------------------------
 -- ou installator
 --
--- paprameter 1 values:
+-- parameter 1 values:
 --
---  1 - UT full installation
---  2 - Recompile UT code base
---  3 - Create public synonyms for UT
---  4 - Deinstall UT
+--  install   - UT full installation
+--  recompile - Recompile UT code base
+--  synonyms  - Create public synonyms for UT
+--  uninstall - Deinstall UT
 ----------------------------------------------------
 
 DEFINE line1='-------------------------------------------------------------'
 DEFINE line2='============================================================='
 DEFINE finished='.                            Finished'
-DEFINE UT='UT'
+DEFINE UT='utPLSQL'
 
 COLUMN col NOPRINT NEW_VALUE ut_owner
 select USER col from dual;
 
 
 COLUMN col NOPRINT NEW_VALUE next_script
-select decode(&1,1,'ut_i_install',
-                 2,'ut_i_recompile',
-                 3,'ut_i_synonyms',
-                 4,'ut_i_uninstall',
+select decode(LOWER('&1'),'install','ut_i_install',
+                 'recompile','ut_i_recompile',
+                 'compile','ut_i_recompile',
+                 'synonyms','ut_i_synonyms',
+                 'synonym','ut_i_synonyms',
+                 'uninstall','ut_i_uninstall',
+                 'deinstall','ut_i_uninstall',
                    'ERROR') col from dual;
 
 COLUMN col NOPRINT NEW_VALUE txt_prompt
-select decode(&1,1,'I N S T A L L A T I O N',
-                 2,'R E C O M P I L A T I O N',
-                 3,'S Y N O N Y M S',
-                 4,'D E I N S T A L L A T I O N',
+select decode('&next_script','ut_i_install','I N S T A L L A T I O N',
+                 'ut_i_recompile','R E C O M P I L A T I O N',
+                 'ut_i_synonyms','S Y N O N Y M S',
+                 'ut_i_uninstall','D E I N S T A L L A T I O N',
                    'ERROR') col from dual;
 ------------------------------------------------------
 COLUMN col NOPRINT NEW_VALUE v_orcl_vers
