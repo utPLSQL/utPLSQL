@@ -41,7 +41,7 @@ DEFINE prompt_text='Creating &UT view '
 ----------------------------------------------------PACKAGE HEADERS
 SET TERMOUT ON
 PROMPT &line1
-PROMPT CREATING utPLSQL PACKAGE HEADERS
+PROMPT CREATING &UT PACKAGE HEADERS
 PROMPT &line1
 
 DEFINE prompt_text='Creating &UT package specification '
@@ -51,7 +51,7 @@ DEFINE prompt_text='Creating &UT package specification '
 ----------------------------------------------------PACKAGE BODIES
 SET TERMOUT ON
 PROMPT &line1
-PROMPT CREATING utPLSQL PACKAGE BODIES
+PROMPT CREATING &UT PACKAGE BODIES
 PROMPT &line1
 
 DEFINE prompt_text='Creating &UT package body '
