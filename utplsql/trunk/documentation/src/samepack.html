@@ -12,13 +12,14 @@ this, you will put the setup, teardown and unit test procedures inside
 the package specification and body. We look at two examples:
 <ul>
 <li>
-Testing a simple string function</li>
-
-Testing the population of a collection
+<a href="#str">Testing a simple string function</a></li>
+<li>
+<a href="#coll">Testing the population of a collection</a></li>
 </ul>
 
 <h3>
-Testing a simple string function</h3>
+   <a name="str">   
+      Testing a simple string function</a></h3>
 Suppose I have my basic sting package, containing (for now at least) just
 a single function:
 <pre>/*file str.pks */
@@ -67,22 +68,22 @@ utPLSQL Configuration for SCOTT
 
 PL/SQL procedure successfully completed.
 
-SQL> exec utPLSQL.test ('str', samepackage_in=>TRUE)
+SQL&gt; exec utPLSQL.test ('str', samepackage_in =&gt; TRUE)
 .
->    SSSS   U     U   CCC     CCC   EEEEEEE   SSSS     SSSS
->   S    S  U     U  C   C   C   C  E        S    S   S    S
->  S        U     U C     C C     C E       S        S
->   S       U     U C       C       E        S        S
->    SSSS   U     U C       C       EEEE      SSSS     SSSS
->        S  U     U C       C       E             S        S
->         S U     U C     C C     C E              S        S
->   S    S   U   U   C   C   C   C  E        S    S   S    S
->    SSSS     UUU     CCC     CCC   EEEEEEE   SSSS     SSSS
+&gt;    SSSS   U     U   CCC     CCC   EEEEEEE   SSSS     SSSS
+&gt;   S    S  U     U  C   C   C   C  E        S    S   S    S
+&gt;  S        U     U C     C C     C E       S        S
+&gt;   S       U     U C       C       E        S        S
+&gt;    SSSS   U     U C       C       EEEE      SSSS     SSSS
+&gt;        S  U     U C       C       E             S        S
+&gt;         S U     U C     C C     C E              S        S
+&gt;   S    S   U   U   C   C   C   C  E        S    S   S    S
+&gt;    SSSS     UUU     CCC     CCC   EEEEEEE   SSSS     SSSS
 .
  SUCCESS: "str"</pre>
 
-<h3>
-Testing the population of a collection</h3>
+<h3><a name="coll">
+      Testing the population of a collection</a></h3>
 Collections are very useful structures, but they can be difficult to analyze
 and compare. utPLSQL provides the utAssert.eqColl and utAssert.eqCollAPI
 programs to help you do this.
