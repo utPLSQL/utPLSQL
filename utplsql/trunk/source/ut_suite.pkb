@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    FUNCTION name_from_id (id_in IN ut_suite.id%TYPE)
@@ -238,5 +241,30 @@ $Log$
       THEN
          RETURN retval;
    END;
+   
+   --Simply write out the results of the above to dbms_output
+   PROCEDURE show_suites (name_like_in IN VARCHAR2 := '%')
+   IS
+     indent VARCHAR2(20) := ' ';
+     suites_cur utconfig.refcur_t;
+     suite ut_suite%ROWTYPE;
+
+     CURSOR packages_cur (pi_id ut_suite.id%TYPE) IS
+        SELECT * FROM ut_package
+        WHERE suite_id = pi_id;
+  
+   BEGIN
+      suites_cur := suites(name_like_in);
+      
+      LOOP
+         FETCH suites_cur INTO suite;
+         EXIT WHEN suites_cur%NOTFOUND;
+         dbms_output.put_line(suite.name);
+         FOR pack IN packages_cur(suite.id) LOOP
+            dbms_output.put_line(indent || pack.name);
+         END LOOP;
+      END LOOP;
+   END show_suites;
+   
 END utsuite;
 /
