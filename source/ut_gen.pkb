@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.5  2004/07/14 17:01:57  chrisrimmer
+Added first version of pluggable reporter packages
+
 Revision 1.4  2004/05/11 15:36:58  chrisrimmer
 Added tweak to cursor from Steven F
 
@@ -195,7 +198,7 @@ Added Standard Headers
       l_grid         grid_tt;
 
       CURSOR prog_cur (package_in IN VARCHAR2, program_in IN VARCHAR2)
-      IS &startnot92
+      IS &start_lt_9
          SELECT DISTINCT owner, package_name, object_name, overload,
                          object_name || overload
                                full_name
@@ -212,8 +215,8 @@ Added Standard Headers
                           AND package_in IS NULL
                           AND object_name = UPPER (program_in)
                          );
-         &endnot92
-         &start92
+         &end_lt_9
+         &start_ge_9
          SELECT owner, object_name package_name, procedure_name object_name,
                 DECODE (
                    ROW_NUMBER () OVER (PARTITION BY procedure_name ORDER BY object_name),
@@ -239,7 +242,7 @@ Added Standard Headers
                  AND package_in IS NULL
                  AND procedure_name = UPPER (program_in)
                 );         
-         &end92
+         &end_ge_9
 
       CURSOR arg_cur (
          schema_in     IN   VARCHAR2,
@@ -299,7 +302,7 @@ Added Standard Headers
                       || '.'
                       || ext),
                       'W'
-                   &start81 , max_linesize => 32767 &end81
+                   &start_ge_8_1 , max_linesize => 32767 &start_ge_8_1
                    );
          END IF;
       END;

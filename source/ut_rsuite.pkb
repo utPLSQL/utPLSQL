@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    PROCEDURE initiate (
@@ -32,9 +35,9 @@ $Log$
       start_on_in   IN   DATE := SYSDATE
    )
    IS
-      &start81 
+      &start_ge_8_1 
       PRAGMA autonomous_transaction;
-   &end81
+   &start_ge_8_1
 
    BEGIN
       utplsql2.set_current_suite (suite_id_in);
@@ -43,22 +46,22 @@ $Log$
                   (run_id, suite_id, start_on)
            VALUES (run_id_in, suite_id_in, start_on_in);
 
-      &start81 
+      &start_ge_8_1 
       COMMIT;
-   &end81
+   &start_ge_8_1
    EXCEPTION
       WHEN DUP_VAL_ON_INDEX
       THEN
          -- Run has already been initiated. Ignore...
          NULL;
-         &start81 
+         &start_ge_8_1 
          ROLLBACK;
-      &end81
+      &start_ge_8_1
       WHEN OTHERS
       THEN
-         &start81 
+         &start_ge_8_1 
          ROLLBACK;
-         &end81
+         &start_ge_8_1
          utrerror.suite_report (
             run_id_in,
             suite_id_in,
@@ -77,10 +80,10 @@ $Log$
       end_on_in     IN   DATE := SYSDATE
    )
    IS
-      &start81 
+      &start_ge_8_1 
       PRAGMA autonomous_transaction;
 
-      &end81
+      &start_ge_8_1
 
       CURSOR start_cur
       IS
@@ -115,15 +118,15 @@ $Log$
               VALUES (run_id_in, suite_id_in, l_status, end_on_in);
       END IF;
 
-      &start81 
+      &start_ge_8_1 
       COMMIT;
-   &end81
+   &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
-         &start81 
+         &start_ge_8_1 
          ROLLBACK;
-         &end81
+         &start_ge_8_1
          utrerror.suite_report (
             run_id_in,
             suite_id_in,

@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    PROCEDURE initiate (
@@ -31,9 +34,9 @@ $Log$
     , start_on_in IN DATE := SYSDATE
    )
    IS
-      &start81 
+      &start_ge_8_1 
       PRAGMA AUTONOMOUS_TRANSACTION;
-   &end81
+   &start_ge_8_1
    BEGIN
       utplsql2.set_current_outcome (outcome_id_in);
 
@@ -43,22 +46,22 @@ $Log$
            VALUES (run_id_in, outcome_id_in, start_on_in
                   );
 
-      &start81 
+      &start_ge_8_1 
       COMMIT;
-   &end81
+   &start_ge_8_1
    EXCEPTION
       WHEN DUP_VAL_ON_INDEX
       THEN
          -- Run has already been initiated. Ignore...
          NULL;
-         &start81 
+         &start_ge_8_1 
          ROLLBACK;
-      &end81
+      &start_ge_8_1
       WHEN OTHERS
       THEN
-         &start81 
+         &start_ge_8_1 
          ROLLBACK;
-         &end81
+         &start_ge_8_1
          utrerror.oc_report (run_id_in
                            , outcome_id_in
                            , SQLCODE
@@ -79,10 +82,10 @@ $Log$
     , end_on_in IN DATE := SYSDATE
    )
    IS
-      &start81 
+      &start_ge_8_1 
       PRAGMA AUTONOMOUS_TRANSACTION;
 
-      &end81
+      &start_ge_8_1
 
       CURSOR start_cur (id_in IN utr_outcome.outcome_id%TYPE)
       IS
@@ -128,15 +131,15 @@ $Log$
       END IF;
 
       CLOSE start_cur;
-      &start81 
+      &start_ge_8_1 
       COMMIT;
-   &end81
+   &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
-         &start81 
+         &start_ge_8_1 
          ROLLBACK;
-         &end81
+         &start_ge_8_1
          utrerror.oc_report (run_id_in
                            , outcome_id_in
                            , SQLCODE
@@ -164,16 +167,16 @@ $Log$
 
    PROCEDURE clear_results (run_id_in IN utr_outcome.run_id%TYPE)
    IS
-      &start81 
+      &start_ge_8_1 
       PRAGMA AUTONOMOUS_TRANSACTION;
-   &end81
+   &start_ge_8_1
    BEGIN
       DELETE FROM utr_outcome
             WHERE run_id = run_id_in;
 
-      &start81 
+      &start_ge_8_1 
       COMMIT;
-   &end81
+   &start_ge_8_1
    END;
 
    PROCEDURE clear_results (
@@ -182,9 +185,9 @@ $Log$
     , start_from_in IN DATE
    )
    IS
-      &start81 
+      &start_ge_8_1 
       PRAGMA AUTONOMOUS_TRANSACTION;
-   &end81
+   &start_ge_8_1
    BEGIN
       DELETE FROM utr_outcome
             WHERE start_on >= start_from_in
@@ -195,16 +198,16 @@ $Log$
                         AND u.owner = owner_in
                         AND u.program = program_in);
 
-      &start81 
+      &start_ge_8_1 
       COMMIT;
-   &end81
+   &start_ge_8_1
    END;
 
    PROCEDURE clear_all_but_last (owner_in IN VARCHAR2, program_in IN VARCHAR2)
    IS
-      &start81 
+      &start_ge_8_1 
       PRAGMA AUTONOMOUS_TRANSACTION;
-      &end81
+      &start_ge_8_1
    BEGIN
       DELETE FROM utr_outcome
             WHERE start_on <
@@ -220,9 +223,9 @@ $Log$
                       WHERE r.utp_id = u.ID
                         AND u.owner = owner_in
                         AND u.program = program_in);
-      &start81
+      &start_ge_8_1
       COMMIT;
-      &end81
+      &start_ge_8_1
    END;
 END utroutcome;
 /

@@ -25,9 +25,6 @@ drop package UTPLSQL;
 drop package UTPLSQL_UTIL;
 drop package UTRECEQ;
 drop package UTRERROR;
-drop package UTREPORT;
-drop package UTOUTPUTREPORTER;
-drop package UTFILEREPORTER;
 drop package UTRESULT2;
 drop package UTRESULT;
 drop package UTROUTCOME;
@@ -43,7 +40,13 @@ drop package UTTESTPREP;
 drop package UTUNITTEST;
 drop package UTUTP;
 
+drop package UTFILEREPORTER;
+drop package UTHTMLREPORTER;
+drop package UTOUTPUTREPORTER;
+drop package UTREPORT;
+
 drop package UT_UTOUTPUT;
+
 
 SET TERMOUT ON
 PROMPT &line1
@@ -82,6 +85,10 @@ drop public synonym UTTESTCASE;
 drop public synonym UTTESTPREP;
 drop public synonym UTUNITTEST;
 drop public synonym UTUTP;
+drop public synonym UTFILEREPORTER;
+drop public synonym UTHTMLREPORTER;
+drop public synonym UTOUTPUTREPORTER;
+drop public synonym UTREPORT;
 drop public synonym UT_ARGUMENT;
 drop public synonym UT_ASSERTION;
 drop public synonym UT_CONFIG;
@@ -132,14 +139,6 @@ drop sequence UT_UTP_SEQ;
 
 SET TERMOUT ON
 PROMPT &line1
-PROMPT DROPPING &UT VIEWS
-PROMPT &line1
-
-drop view utv_last_run;
-drop view utv_result_full;
-
-SET TERMOUT ON
-PROMPT &line1
 PROMPT DROPPING &UT TABLES
 PROMPT &line1
 
@@ -167,4 +166,5 @@ drop table UT_TESTCASE cascade constraints;
 drop table UT_TESTPREP cascade constraints;
 drop table UT_UNITTEST cascade constraints;
 drop table UT_UTP cascade constraints;
+
 

@@ -85,9 +85,9 @@ Added Standard Headers
    )
    IS
       l_message   VARCHAR2 (2000);
-      &start81 
+      &start_ge_8_1 
       PRAGMA autonomous_transaction;
-   &end81
+   &start_ge_8_1
    BEGIN
       -- If error already recorded, simply re-raise.
 
@@ -130,22 +130,22 @@ Added Standard Headers
          END IF;
       END IF;
 
-      &start81 
+      &start_ge_8_1 
       COMMIT;
 
-      &end81
+      &start_ge_8_1
 
       IF raiseexc
       THEN
          raise_error (errcode_in, errtext_in);
       END IF;
-   &start81 
+   &start_ge_8_1 
    EXCEPTION
       WHEN OTHERS
       THEN
          ROLLBACK;
          RAISE;
-   &end81
+   &start_ge_8_1
    END;
 
    PROCEDURE report (

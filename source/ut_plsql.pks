@@ -1,5 +1,5 @@
 /* Formatted on 2001/07/13 12:29 (RevealNet Formatter v4.4.1) */
-CREATE OR REPLACE PACKAGE utplsql &start81 AUTHID CURRENT_USER &end81
+CREATE OR REPLACE PACKAGE utplsql &start_ge_8_1 AUTHID CURRENT_USER &end_ge_8_1
 IS
    
 /************************************************************************
@@ -23,9 +23,9 @@ You should have received a copy of the GNU General Public License
 along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
-$Log: ut_plsql.pks,v 
-Revision 1.2  2003/07/01 19:36:47  chrisrimme
-Added Standard Header
+$Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
 
 ************************************************************************/
 
@@ -37,13 +37,13 @@ Added Standard Header
    c_teardown   CONSTANT CHAR (8)         := 'TEARDOWN';
    c_enabled   CONSTANT CHAR (7)         := 'ENABLED';
    c_disabled   CONSTANT CHAR (8)         := 'DISABLED';
-   &start73
+   &start_lt_8
    dbmaxvc2              VARCHAR2 (2000);
-   &end73
-   &start81
+   &end_lt_8
+   &start_ge_8_1
    dbmaxvc2              VARCHAR2 (4000);
 
-   &end81
+   &end_ge_8_1
    SUBTYPE dbmaxvc2_t IS dbmaxvc2%TYPE;
 
    maxvc2                VARCHAR2 (32767);
@@ -241,3 +241,4 @@ Added Standard Header
       RETURN VARCHAR2;
 END;
 /
+
