@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.3  2004/05/11 15:33:56  chrisrimmer
+Added 9.2 specific code from Mark Vilrokx
+
 Revision 1.2  2003/07/01 19:36:46  chrisrimmer
 Added Standard Headers
 
@@ -1115,7 +1118,7 @@ Added Standard Headers
                   ut_grid.MESSAGE, ut_grid.arglist, ut_grid.return_value,
                   ut_grid.assertion_type
              FROM ut_grid
-            WHERE ut_grid.owner = UPPER (p_owner)
+            WHERE NVL(ut_grid.owner, USER) = UPPER (p_owner)
 		 		 		   AND ut_grid.PACKAGE = UPPER (p_package)
          ORDER BY ut_grid.progname;
 
