@@ -30,3 +30,8 @@
 @@ut_i_run ut_output.pks
 
 @@ut_i_run ut_utoutput.pks
+
+@@ut_i_run ut_filereporter.pks
+@@ut_i_run ut_htmlreporter.pks
+@@ut_i_run ut_outputreporter.pks
+@@ut_i_run ut_report.pks

@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE utsuiteutp -- &start81 AUTHID CURRENT_USER &end81
+CREATE OR REPLACE PACKAGE utsuiteutp -- &start_ge_8_1 AUTHID CURRENT_USER &end_ge_8_1
 IS
 
 /************************************************************************
@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    c_name     CONSTANT CHAR (18) := 'SUITE-UTP PACKAGE';

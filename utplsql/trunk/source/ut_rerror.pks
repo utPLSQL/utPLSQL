@@ -1,5 +1,5 @@
 /* Formatted on 2001/07/13 12:29 (RevealNet Formatter v4.4.1) */
-CREATE OR REPLACE PACKAGE utrerror &start81 AUTHID CURRENT_USER &end81
+CREATE OR REPLACE PACKAGE utrerror &start_ge_8_1 AUTHID CURRENT_USER &end_ge_8_1
 IS
 
 /************************************************************************

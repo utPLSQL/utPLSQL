@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    FUNCTION name (
@@ -115,9 +118,9 @@ FUNCTION full_name (
             := NULL
    )
    IS
-      &start81 
+      &start_ge_8_1 
       PRAGMA autonomous_transaction;
-      &end81
+      &start_ge_8_1
       l_id   ut_unittest.id%TYPE;
    BEGIN
       SELECT ut_unittest_seq.NEXTVAL
@@ -129,18 +132,18 @@ FUNCTION full_name (
                    description)
            VALUES (l_id, UPPER (program_name_in), seq_in,  description_in);
 
-      &start81 
+      &start_ge_8_1 
       COMMIT;
-   &end81
+   &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          IF utrerror.uterrcode = utrerror.assertion_failure
          THEN
-            &start81 ROLLBACK; &end81
+            &start_ge_8_1 ROLLBACK; &start_ge_8_1
             RAISE;
          ELSE
-            &start81 ROLLBACK; &end81
+            &start_ge_8_1 ROLLBACK; &start_ge_8_1
             utrerror.report_define_error (
                c_abbrev,
                   'Unittest for '
@@ -159,25 +162,25 @@ FUNCTION full_name (
 
    PROCEDURE rem (id_in IN ut_unittest.id%TYPE)
    IS
-      &start81 
+      &start_ge_8_1 
       PRAGMA autonomous_transaction;
-   &end81
+   &start_ge_8_1
    BEGIN
       DELETE FROM ut_unittest
             WHERE id = id_in;
 
-      &start81 
+      &start_ge_8_1 
       COMMIT;
-   &end81 
+   &start_ge_8_1 
    EXCEPTION
       WHEN OTHERS
       THEN
          IF utrerror.uterrcode = utrerror.assertion_failure
          THEN
-            &start81 ROLLBACK; &end81
+            &start_ge_8_1 ROLLBACK; &start_ge_8_1
             RAISE;
          ELSE
-            &start81 ROLLBACK; &end81
+            &start_ge_8_1 ROLLBACK; &start_ge_8_1
             utrerror.report_define_error (
                c_abbrev,
                   'Unittest ID '

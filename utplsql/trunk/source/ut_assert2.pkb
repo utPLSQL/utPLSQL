@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.4  2004/07/14 17:01:57  chrisrimmer
+Added first version of pluggable reporter packages
+
 Revision 1.3  2003/07/11 14:32:52  chrisrimmer
 Added 'throws' bugfix from Ivan Desjardins
 
@@ -697,11 +700,11 @@ Added Standard Headers
       raise_exc_in    IN   BOOLEAN := FALSE
    )
    IS
-      &start73
+      &start_lt_8
       fdbk      PLS_INTEGER;
       cur       PLS_INTEGER
                           := DBMS_SQL.open_cursor;
-      &end73
+      &end_lt_8
       ival      PLS_INTEGER;
       /* 2.0.8 suggested replacement below by Chris Rimmer
 to avoid duplicate column name issues
@@ -746,10 +749,10 @@ UNION
           CLOSE cur;
        END;';
    BEGIN
-      &start81
+      &start_ge_8_1
       EXECUTE IMMEDIATE v_block USING  OUT ival;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       DBMS_SQL.parse (
          cur,
          v_block,
@@ -768,7 +771,7 @@ UNION
          ival
       );
       DBMS_SQL.close_cursor (cur);
-      &end73
+      &end_lt_8
 
       this (
          outcome_in,
@@ -783,9 +786,9 @@ UNION
    EXCEPTION
       WHEN OTHERS
       THEN
-         &start73
+         &start_lt_8
          DBMS_SQL.close_cursor (cur);
-         &end73
+         &end_lt_8
 
 
          this (
@@ -995,16 +998,16 @@ UNION
       l_value     VARCHAR2 (2000);
       l_success   BOOLEAN;
 
-      &start81
+      &start_ge_8_1
       TYPE cv_t IS REF CURSOR;
 
       cv          cv_t;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       cur         PLS_INTEGER
                           := DBMS_SQL.open_cursor;
       fdbk        PLS_INTEGER;
-   &end73
+   &end_lt_8
 
    BEGIN
       IF utplsql2.tracing
@@ -1018,12 +1021,12 @@ UNION
          );
       END IF;
 
-      &start81
+      &start_ge_8_1
       OPEN cv FOR check_query_in;
       FETCH cv INTO l_value;
       CLOSE cv;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       DBMS_SQL.parse (
          cur,
          check_query_in,
@@ -1033,7 +1036,7 @@ UNION
       fdbk := DBMS_SQL.execute_and_fetch (cur);
       DBMS_SQL.column_value (cur, 1, l_value);
       DBMS_SQL.close_cursor (cur);
-      &end73
+      &end_lt_8
       l_success :=
             (l_value = against_value_in)
          OR (    l_value IS NULL
@@ -1087,16 +1090,16 @@ UNION
       l_value     DATE;
       l_success   BOOLEAN;
 
-      &start81
+      &start_ge_8_1
       TYPE cv_t IS REF CURSOR;
 
       cv          cv_t;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       cur         PLS_INTEGER
                           := DBMS_SQL.open_cursor;
       fdbk        PLS_INTEGER;
-   &end73
+   &end_lt_8
 
    BEGIN
       IF utplsql2.tracing
@@ -1110,12 +1113,12 @@ UNION
          );
       END IF;
 
-      &start81
+      &start_ge_8_1
       OPEN cv FOR check_query_in;
       FETCH cv INTO l_value;
       CLOSE cv;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       DBMS_SQL.parse (
          cur,
          check_query_in,
@@ -1125,7 +1128,7 @@ UNION
       fdbk := DBMS_SQL.execute_and_fetch (cur);
       DBMS_SQL.column_value (cur, 1, l_value);
       DBMS_SQL.close_cursor (cur);
-      &end73
+      &end_lt_8
       l_success :=
             (l_value = against_value_in)
          OR (    l_value IS NULL
@@ -1187,17 +1190,17 @@ UNION
       l_value     NUMBER;
       l_success   BOOLEAN;
 
-      &start81
+      &start_ge_8_1
 
       TYPE cv_t IS REF CURSOR;
 
       cv          cv_t;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       cur         PLS_INTEGER
                           := DBMS_SQL.open_cursor;
       fdbk        PLS_INTEGER;
-   &end73
+   &end_lt_8
 
    BEGIN
       IF utplsql2.tracing
@@ -1211,12 +1214,12 @@ UNION
          );
       END IF;
 
-      &start81
+      &start_ge_8_1
       OPEN cv FOR check_query_in;
       FETCH cv INTO l_value;
       CLOSE cv;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       DBMS_SQL.parse (
          cur,
          check_query_in,
@@ -1226,7 +1229,7 @@ UNION
       fdbk := DBMS_SQL.execute_and_fetch (cur);
       DBMS_SQL.column_value (cur, 1, l_value);
       DBMS_SQL.close_cursor (cur);
-      &end73
+      &end_lt_8
 
       l_success :=
             (l_value = against_value_in)
@@ -1365,7 +1368,7 @@ UNION
             UTL_FILE.fopen (
                check_this_dir_in,
                check_this_in,
-               'R' &start81, max_linesize => 32767 &end81
+               'R' &start_ge_8_1, max_linesize => 32767 &start_ge_8_1
             );
       EXCEPTION
          WHEN OTHERS
@@ -1382,7 +1385,7 @@ UNION
                ),
                against_this_in,
                'R'
-            &start81, max_linesize => 32767 &end81
+            &start_ge_8_1, max_linesize => 32767 &start_ge_8_1
             );
       EXCEPTION
          WHEN OTHERS
@@ -1692,17 +1695,17 @@ UNION
             :=    'begin :val := '
                || str
                || '; end;';
-      &start73 
+      &start_lt_8 
       fdbk     PLS_INTEGER;
       cur      PLS_INTEGER
                           := DBMS_SQL.open_cursor;
-      &end73
+      &end_lt_8
       retval   NUMBER;
    BEGIN
-      &start81
+      &start_ge_8_1
       EXECUTE IMMEDIATE sqlstr USING  OUT retval;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       DBMS_SQL.parse (
          cur,
          sqlstr,
@@ -1711,14 +1714,14 @@ UNION
       fdbk := DBMS_SQL.EXECUTE (cur);
       DBMS_SQL.variable_value (cur, 'val', retval);
       DBMS_SQL.close_cursor (cur);
-      &end73
+      &end_lt_8
       RETURN retval;
    EXCEPTION
       WHEN OTHERS
       THEN
-         &start73
+         &start_lt_8
          DBMS_SQL.close_cursor (cur);
-         &end73
+         &end_lt_8
          RAISE;
    END;
 
@@ -2095,11 +2098,11 @@ UNION
       bada                  PLS_INTEGER;
       badtext               VARCHAR2 (32767);
       null_and_valid        BOOLEAN          := FALSE ;
-      &start73 
+      &start_lt_8 
       fdbk                  PLS_INTEGER;
       cur                   PLS_INTEGER
                           := DBMS_SQL.open_cursor;
-   &end73
+   &end_lt_8
 
    BEGIN
       validatecoll (
@@ -2162,7 +2165,7 @@ UNION
                   'NEXT',
                   NULL
                );
-            &start81
+            &start_ge_8_1
             EXECUTE IMMEDIATE dynblock
                USING  IN check_endrow_in,
                 IN    against_endrow_in,
@@ -2172,8 +2175,8 @@ UNION
                 IN    check_startrow_in,
                 IN    against_startrow_in,
                 IN    v_matchrow;
-            &end81
-            &start73
+            &start_ge_8_1
+            &start_lt_8
             DBMS_SQL.parse (
                cur,
                dynblock,
@@ -2221,7 +2224,7 @@ UNION
                badtext
             );
             DBMS_SQL.close_cursor (cur);
-         &end73
+         &end_lt_8
          END IF;
 
          this (
@@ -2246,9 +2249,9 @@ UNION
    EXCEPTION
       WHEN OTHERS
       THEN --p.l (sqlerrm);
-         &start73
+         &start_lt_8
          DBMS_SQL.close_cursor (cur);
-         &end73
+         &end_lt_8
 
          this (
             outcome_in,
@@ -2304,11 +2307,11 @@ UNION
       valid_interim         BOOLEAN;
       invalid_interim_msg   VARCHAR2 (4000);
       null_and_valid        BOOLEAN          := FALSE ;
-      &start73 
+      &start_lt_8 
       fdbk                  PLS_INTEGER;
       cur                   PLS_INTEGER
                           := DBMS_SQL.open_cursor;
-   &end73
+   &end_lt_8
 
    BEGIN
       validatecoll (
@@ -2350,7 +2353,7 @@ UNION
                      nextrowfunc_in,
                      getvalfunc_in
                   );
-      &start81
+      &start_ge_8_1
       EXECUTE IMMEDIATE dynblock
          USING  IN check_endrow_in,
           IN    against_endrow_in,
@@ -2360,8 +2363,8 @@ UNION
           IN    check_startrow_in,
           IN    against_startrow_in,
           IN    v_matchrow;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       DBMS_SQL.parse (
          cur,
          dynblock,
@@ -2410,7 +2413,7 @@ UNION
       );
       DBMS_SQL.close_cursor (cur);
 
-      &end73
+      &end_lt_8
 
       <<normal_termination>>
       this (
@@ -2434,9 +2437,9 @@ UNION
    EXCEPTION
       WHEN OTHERS
       THEN --p.l (sqlerrm);
-         &start73
+         &start_lt_8
          DBMS_SQL.close_cursor (cur);
-         &end73
+         &end_lt_8
 
          this (
             outcome_in,
@@ -2571,17 +2574,17 @@ UNION
       || ';
                 WHEN OTHERS THEN :indicator := SQLCODE;
              END;';
-      &start73
+      &start_lt_8
       cur                  PLS_INTEGER
                           := DBMS_SQL.open_cursor;
       ret_val              PLS_INTEGER;
-   &end73
+   &end_lt_8
    BEGIN
       --Fire off the dynamic PL/SQL
-      &start81
+      &start_ge_8_1
       EXECUTE IMMEDIATE v_block USING  OUT l_indicator;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       DBMS_SQL.parse (
          cur,
          v_block,
@@ -2595,7 +2598,7 @@ UNION
          l_indicator
       );
       DBMS_SQL.close_cursor (cur);
-      &end73
+      &end_lt_8
 
       this (
          outcome_in,
@@ -2654,17 +2657,17 @@ UNION
       || ';'
       || ' ELSE :indicator := SQLCODE; END IF;
              END;';
-      &start73
+      &start_lt_8
       cur                  PLS_INTEGER
                           := DBMS_SQL.open_cursor;
       ret_val              PLS_INTEGER;
-   &end73
+   &end_lt_8
    BEGIN
       --Fire off the dynamic PL/SQL
-      &start81
+      &start_ge_8_1
       EXECUTE IMMEDIATE v_block USING  OUT l_indicator;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       DBMS_SQL.parse (
          cur,
          v_block,
@@ -2678,7 +2681,7 @@ UNION
          l_indicator
       );
       DBMS_SQL.close_cursor (cur);
-      &end73
+      &end_lt_8
 
       this (
          outcome_in,
@@ -3304,7 +3307,7 @@ UNION
          UTL_FILE.fopen (
             dir_in,
             file_in,
-            'R' &start81, max_linesize => 32767 &end81
+            'R' &start_ge_8_1, max_linesize => 32767 &start_ge_8_1
          );
       cleanup (TRUE , msg_in);
    EXCEPTION

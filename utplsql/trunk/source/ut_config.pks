@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE Utconfig &start81 AUTHID CURRENT_USER &end81
+CREATE OR REPLACE PACKAGE utconfig &start_ge_8_1 AUTHID CURRENT_USER &end_ge_8_1
 IS
 
 /************************************************************************
@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.4  2004/07/14 17:01:57  chrisrimmer
+Added first version of pluggable reporter packages
+
 Revision 1.3  2003/07/01 19:36:46  chrisrimmer
 Added Standard Headers
 
@@ -61,7 +64,7 @@ Added Standard Headers
       SELECT owner, object_name, object_type, created, last_ddl_time, status
         FROM all_objects;
 
-   CURSOR source_cur
+   cursor source_cur
    IS
      SELECT line, text FROM all_source;
 	 
@@ -205,14 +208,14 @@ Added Standard Headers
 
    -- 2.1.1: Single update and insert procedure
    PROCEDURE upd (
-      username_in             IN   UT_CONFIG.username%TYPE
-     ,autocompile_in          IN   UT_CONFIG.autocompile%TYPE
-     ,prefix_in               IN   UT_CONFIG.prefix%TYPE
-     ,show_failures_only_in   IN   UT_CONFIG.show_failures_only%TYPE
-     ,directory_in            IN   UT_CONFIG.DIRECTORY%TYPE
-     ,filedir_in              IN   UT_CONFIG.filedir%TYPE
-     ,show_config_info_in     IN   UT_CONFIG.show_config_info%TYPE
-     ,editor_in               IN   UT_CONFIG.editor%TYPE
+      username_in             IN   ut_config.username%TYPE
+     ,autocompile_in          IN   ut_config.autocompile%TYPE
+     ,prefix_in               IN   ut_config.prefix%TYPE
+     ,show_failures_only_in   IN   ut_config.show_failures_only%TYPE
+     ,directory_in            IN   ut_config.DIRECTORY%TYPE
+     ,filedir_in              IN   ut_config.filedir%TYPE
+     ,show_config_info_in     IN   ut_config.show_config_info%TYPE
+     ,editor_in               IN   ut_config.editor%TYPE
     );
 
    /* The upd procedure does an insert if no row exists.
@@ -261,13 +264,13 @@ Added Standard Headers
    PROCEDURE get_onerow (
       schema_in                IN       VARCHAR2
      ,username_out             OUT      VARCHAR2
-     ,autocompile_out          OUT      UT_CONFIG.autocompile%TYPE
-     ,prefix_out               OUT      UT_CONFIG.prefix%TYPE
-     ,show_failures_only_out   OUT       UT_CONFIG.show_failures_only%TYPE
-     ,directory_out            OUT      UT_CONFIG.DIRECTORY%TYPE
-     ,filedir_out              OUT      UT_CONFIG.filedir%TYPE
-     ,show_config_info_out     OUT      UT_CONFIG.show_config_info%TYPE
-     ,editor_out               OUT      UT_CONFIG.editor%TYPE
+     ,autocompile_out          OUT      ut_config.autocompile%TYPE
+     ,prefix_out               OUT      ut_config.prefix%TYPE
+     ,show_failures_only_out   OUT      ut_config.show_failures_only%TYPE
+     ,directory_out            OUT      ut_config.DIRECTORY%TYPE
+     ,filedir_out              OUT      ut_config.filedir%TYPE
+     ,show_config_info_out     OUT      ut_config.show_config_info%TYPE
+     ,editor_out               OUT      ut_config.editor%TYPE
    );
 END;
 /

@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY Utconfig
+CREATE OR REPLACE PACKAGE BODY utconfig
 IS
 /************************************************************************
 GNU General Public License for utPLSQL
@@ -22,6 +22,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.3  2004/07/14 17:01:57  chrisrimmer
+Added first version of pluggable reporter packages
+
 Revision 1.2  2003/07/01 19:36:46  chrisrimmer
 Added Standard Headers
 
@@ -45,9 +48,9 @@ Added Standard Headers
 -- Get the configuration record for a user from the table
 ----------------------------------------------------------------------------   
    FUNCTION config (username_in IN VARCHAR2 := USER)
-      RETURN UT_CONFIG%ROWTYPE
+      RETURN ut_config%ROWTYPE
    IS
-      rec   UT_CONFIG%ROWTYPE;
+      rec   ut_config%ROWTYPE;
    BEGIN
       --Short cut for current user
       IF username_in = tester
@@ -81,33 +84,33 @@ Added Standard Headers
      ,username_in   IN   VARCHAR2 := NULL
    )
    IS
-      &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
 
       --Local procedure to do dynamic SQL
       PROCEDURE do_dml (statement_in IN VARCHAR2)
       IS
-      &start73 cursor_handle INTEGER; &end73
-      &start73 ROWS INTEGER; &end73
+      &start_lt_8 cursor_handle INTEGER; &end_lt_8
+      &start_lt_8 rows INTEGER; &end_lt_8
       BEGIN
          --In 8i, just do it
-         &start81 EXECUTE IMMEDIATE statement_in; COMMIT; &end81
+         &start_ge_8_1 EXECUTE IMMEDIATE statement_in; COMMIT; &start_ge_8_1
 
            --Otherwise use DBMS_SQL
-           &start73
+           &start_lt_8
          --Open the cursor
-         cursor_handle := DBMS_SQL.OPEN_CURSOR;
+         cursor_handle := DBMS_SQL.open_cursor;
          -- Parse the Statement
-         DBMS_SQL.PARSE (cursor_handle, statement_in, DBMS_SQL.native);
+         DBMS_SQL.parse (cursor_handle, statement_in, DBMS_SQL.native);
          -- Execute the Statement 
          ROWS := DBMS_SQL.EXECUTE (cursor_handle);
          -- Close the cursor 
-         DBMS_SQL.CLOSE_CURSOR (cursor_handle);
+         DBMS_SQL.close_cursor (cursor_handle);
       EXCEPTION
          WHEN OTHERS
          THEN
-            DBMS_SQL.CLOSE_CURSOR (cursor_handle);
+            DBMS_SQL.close_cursor (cursor_handle);
             RAISE;
-      &end73
+      &end_lt_8
       END;
    BEGIN
       BEGIN
@@ -139,11 +142,11 @@ Added Standard Headers
          THEN
             --Something else went wrong
             UtOutputreporter.pl (SQLERRM);
-            &start81 ROLLBACK; &end81
+            &start_ge_8_1 ROLLBACK; &start_ge_8_1
             RETURN;
       END;
 
-      &start81 COMMIT; &end81
+      &start_ge_8_1 COMMIT; &start_ge_8_1
 
       --If it's the current user, force update of package record
       IF username_in = tester
@@ -224,7 +227,7 @@ Added Standard Headers
       RETURN VARCHAR2
    IS
       --Holds the user's config record
-      rec      UT_CONFIG%ROWTYPE;
+      rec      ut_config%ROWTYPE;
       --Holds the username in question
       v_user   VARCHAR2 (100)      := NVL (UPPER (username_in), tester);
    BEGIN
@@ -301,7 +304,7 @@ Added Standard Headers
    PROCEDURE autocompile (onoff_in IN BOOLEAN, username_in IN VARCHAR2 := NULL)
    IS
       --Holds the flag as 'Y'/'N'
-      v_autocompile   CHAR (1)       := Utplsql.bool2vc (onoff_in);
+      v_autocompile   CHAR (1)       := utplsql.bool2vc (onoff_in);
       --Holds the user to set 
       v_user          VARCHAR2 (100) := NVL (UPPER (username_in), tester);
    BEGIN
@@ -323,7 +326,7 @@ Added Standard Headers
       --Pull in the configuration
       rec := config (v_user);
       --Return autocompile, defaulting to TRUE if NULL
-      RETURN NVL (Utplsql.vc2bool (rec.autocompile), TRUE);
+      RETURN NVL (utplsql.vc2bool (rec.autocompile), TRUE);
    END;
 
 ----------------------------------------------------------------------------
@@ -333,7 +336,7 @@ Added Standard Headers
             := NULL)
    IS
       --Holds the flag as 'Y'/'N'
-      v_registertest   CHAR (1)       := Utplsql.bool2vc (onoff_in);
+      v_registertest   CHAR (1)       := utplsql.bool2vc (onoff_in);
       --Holds the username in question
       v_user           VARCHAR2 (100) := NVL (UPPER (username_in), tester);
    BEGIN
@@ -355,7 +358,7 @@ Added Standard Headers
       --Pull in the configuration
       rec := config (v_user);
       --Return registertest, defaulting to FALSE if NULL
-      RETURN NVL (Utplsql.vc2bool (rec.registertest), FALSE);
+      RETURN NVL (utplsql.vc2bool (rec.registertest), FALSE);
    END;
 
    -- Show failures only?
@@ -365,7 +368,7 @@ Added Standard Headers
    )
    IS
       --Holds the flag as 'Y'/'N'
-      v_showfailuresonly   CHAR (1)       := Utplsql.bool2vc (onoff_in);
+      v_showfailuresonly   CHAR (1)       := utplsql.bool2vc (onoff_in);
       --Holds the username in question
       v_user               VARCHAR2 (100)
                                          := NVL (UPPER (username_in), tester);
@@ -385,7 +388,7 @@ Added Standard Headers
       --Pull in the configuration
       rec := config (v_user);
       --Return show_failures_only, defaulting to FALSE if NULL
-      RETURN NVL (Utplsql.vc2bool (rec.show_failures_only), FALSE);
+      RETURN NVL (utplsql.vc2bool (rec.show_failures_only), FALSE);
    END;
 
 -- RMM start
@@ -495,7 +498,7 @@ Added Standard Headers
    )
    IS
       --Holds the flag as 'Y'/'N'
-      v_incname   CHAR (1)       := Utplsql.bool2vc (incname_in);
+      v_incname   CHAR (1)       := utplsql.bool2vc (incname_in);
       --Holds the user to set
       v_user      VARCHAR2 (100) := NVL (UPPER (username_in), tester);
    BEGIN
@@ -517,7 +520,7 @@ Added Standard Headers
       --Pull in the configuration
       rec := config (v_user);
       --Return autocompile, defaulting to TRUE if NULL
-      RETURN NVL (Utplsql.vc2bool (rec.fileincprogname), FALSE);
+      RETURN NVL (utplsql.vc2bool (rec.fileincprogname), FALSE);
    END;
 
 ----------------------------------------------------------------------------
@@ -642,7 +645,7 @@ Added Standard Headers
      ,editor_in               IN   ut_config.editor%TYPE
    ) 
    IS
-   &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+   &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
    BEGIN
       INSERT INTO ut_config
                   (username, autocompile, prefix
@@ -653,7 +656,7 @@ Added Standard Headers
                   ,show_failures_only_in, directory_in, filedir_in
                   ,show_config_info_in, editor_in
                   );
-   &start81 COMMIT; &end81
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN DUP_VAL_ON_INDEX
       THEN
@@ -668,7 +671,7 @@ Added Standard Headers
           WHERE username = username_in;
       WHEN OTHERS
       THEN
-         &start81 ROLLBACK; &end81
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          NULL; -- Present to assist in formatting
    END;
 

@@ -1,5 +1,5 @@
 /* Formatted on 2001/07/13 12:29 (RevealNet Formatter v4.4.1) */
-CREATE OR REPLACE PACKAGE BODY utsuiteutp -- &start81 AUTHID CURRENT_USER &end81
+CREATE OR REPLACE PACKAGE BODY utsuiteutp -- &start_ge_8_1 AUTHID CURRENT_USER &start_ge_8_1
 IS
    
 /************************************************************************
@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.3  2004/07/14 17:01:57  chrisrimmer
+Added first version of pluggable reporter packages
+
 Revision 1.2  2003/07/01 19:36:47  chrisrimmer
 Added Standard Headers
 
@@ -96,7 +99,7 @@ Added Standard Headers
      ,enabled_in    IN   ut_suite_utp.enabled%TYPE := NULL
    )
    IS
-   &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+   &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
    BEGIN
       utrerror.assert (suite_id_in IS NOT NULL, 'Suite ID cannot be null.');
       utrerror.assert (utp_id_in IS NOT NULL, 'UTP ID cannot be null.');
@@ -104,22 +107,22 @@ Added Standard Headers
       INSERT INTO ut_suite_utp
                   (suite_id, utp_id, seq, enabled)
            VALUES (suite_id_in, utp_id_in, seq_in, enabled_in);
-   &start81 COMMIT; &end81
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN DUP_VAL_ON_INDEX
       THEN
          -- already exists. Just ignore.
-         &start81 ROLLBACK; &end81
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          NULL;
       WHEN OTHERS
       THEN
    IF utrerror.uterrcode = utrerror.assertion_failure
          THEN
-                     &start81 ROLLBACK; &end81
+                     &start_ge_8_1 ROLLBACK; &start_ge_8_1
                      raise;
          ELSE
                   
-         &start81 ROLLBACK; &end81
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          utrerror.report_define_error (
             c_abbrev,
                'Suite '
@@ -135,20 +138,20 @@ Added Standard Headers
       utp_id_in     IN   ut_utp.id%TYPE
    )
    IS
-      &start81 
+      &start_ge_8_1 
       PRAGMA autonomous_transaction;
-   &end81
+   &start_ge_8_1
    BEGIN
       DELETE FROM ut_suite_utp
             WHERE suite_id = suite_id_in
               AND utp_id = utp_id_in;
-   &start81 COMMIT; &end81
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          utreport.pl (   'Remove suite-utp error: '
                      || SQLERRM);
-         &start81 ROLLBACK; &end81
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          RAISE;
    END;
 

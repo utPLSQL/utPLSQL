@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.3  2004/07/14 17:01:57  chrisrimmer
+Added first version of pluggable reporter packages
+
 Revision 1.2  2003/07/01 19:36:47  chrisrimmer
 Added Standard Headers
 
@@ -146,10 +149,10 @@ Added Standard Headers
    IS
       v_name   VARCHAR2 (100)   := procedure_in;
       v_str    VARCHAR2 (32767);
-      &start73 
+      &start_lt_8 
       fdbk     PLS_INTEGER;
       cur      PLS_INTEGER      := DBMS_SQL.open_cursor;
-   &end73
+   &end_lt_8
    BEGIN
       IF tracing
       THEN
@@ -171,21 +174,21 @@ Added Standard Headers
                      || ';'
                   )
                || ' END;';
-      &start81
+      &start_ge_8_1
       EXECUTE IMMEDIATE v_str;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       DBMS_SQL.parse (cur, v_str, DBMS_SQL.native);
       fdbk := DBMS_SQL.EXECUTE (cur);
       DBMS_SQL.close_cursor (cur);
-   &end73
+   &end_lt_8
    EXCEPTION
       WHEN OTHERS
       THEN
-         &start73
+         &start_lt_8
          DBMS_SQL.close_cursor (cur);
 
-         &end73
+         &end_lt_8
 
          IF tracing
          THEN

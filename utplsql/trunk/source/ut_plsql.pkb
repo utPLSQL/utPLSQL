@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.4  2004/07/14 17:01:57  chrisrimmer
+Added first version of pluggable reporter packages
+
 Revision 1.3  2004/05/11 15:33:57  chrisrimmer
 Added 9.2 specific code from Mark Vilrokx
 
@@ -114,16 +117,16 @@ Added Standard Headers
             DECLARE
                block   VARCHAR2(100) := 
                'DECLARE obj ' || v_prog || '; BEGIN NULL; END;';
-               &start73
+               &start_lt_8
                cur     PLS_INTEGER := DBMS_SQL.open_cursor;
                fdbk    PLS_INTEGER;
-               &end73
+               &end_lt_8
             BEGIN
-               &start81
+               &start_ge_8_1
                EXECUTE IMMEDIATE block;
-               &end81
+               &start_ge_8_1
               
-               &start73
+               &start_lt_8
                DBMS_SQL.parse (
                   cur, 
                   block, 
@@ -133,15 +136,15 @@ Added Standard Headers
                fdbk := DBMS_SQL.EXECUTE(cur);
               
                DBMS_SQL.close_cursor(cur);
-               &end73
+               &end_lt_8
               
                RETURN TRUE;
             EXCEPTION
                WHEN OTHERS 
                THEN
-                  &start73
+                  &start_lt_8
                   DBMS_SQL.close_cursor(cur);
-                  &end73
+                  &end_lt_8
                   RETURN FALSE;
             END; 
             /* End changes to check if v_prog is an object */
@@ -353,11 +356,11 @@ Added Standard Headers
                := progname (NAME_IN, testpkg.samepkg, testpkg.prefix);
       */
       v_str    VARCHAR2 (32767);
-      &start73 
+      &start_lt_8 
       fdbk     PLS_INTEGER;
       cur      PLS_INTEGER
                           := DBMS_SQL.open_cursor;
-   &end73
+   &end_lt_8
    BEGIN
       IF tracing
       THEN
@@ -386,21 +389,21 @@ Added Standard Headers
                || '.'
                || v_name
                || ';  END;';
-      &start81
+      &start_ge_8_1
       EXECUTE IMMEDIATE v_str;
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       DBMS_SQL.parse (cur, v_str, DBMS_SQL.native);
       fdbk := DBMS_SQL.EXECUTE (cur);
       DBMS_SQL.close_cursor (cur);
-   &end73
+   &end_lt_8
    EXCEPTION
       WHEN OTHERS
       THEN
-         &start73
+         &start_lt_8
          DBMS_SQL.close_cursor (cur);
 
-         &end73
+         &end_lt_8
 
          IF tracing
          THEN
@@ -470,11 +473,6 @@ Added Standard Headers
    )
    IS
    BEGIN
-   
-      IF NOT NVL(from_suite_in, FALSE) THEN
-        utreport.open;
-      END IF;
-   
       init_tests;
 
       --Removed test for null as utConfig.prefix never returns null 
@@ -549,9 +547,9 @@ Added Standard Headers
          UTL_FILE.fopen (
             v_dir,
             file_in,
-            'R' &start81 
+            'R' &start_ge_8_1 
                ,
-            max_linesize=> 32767 &end81
+            max_linesize=> 32767 &start_ge_8_1
          );
 
       LOOP
@@ -734,7 +732,7 @@ Added Standard Headers
       THEN
          -- Populate test information from ALL_ARGUMENTS
          FOR rec IN
-             &startnot92
+             &start_lt_9
              (SELECT DISTINCT object_name procedure_name
                          FROM all_arguments
                         WHERE owner =
@@ -766,8 +764,8 @@ Added Standard Headers
                                      || c_teardown
                                   )
                                  ))
-             &endnot92
-             &start92
+             &end_lt_9
+             &start_ge_9
              (SELECT procedure_name 
                 FROM all_procedures
                WHERE owner = NVL (UPPER (owner_in), USER)
@@ -786,7 +784,7 @@ Added Standard Headers
                                                || c_teardown
                                             )
                                            ))
-             &end92
+             &end_ge_9
          LOOP
             addtest (
                testpkg_in.pkg,
@@ -959,7 +957,6 @@ Added Standard Headers
             || package_in
             || '" does not exist.'
          );
-         utreport.close;         
       ELSE
          setpkg (
             package_in,
@@ -1089,9 +1086,6 @@ Added Standard Headers
       v_pkg_start     DATE;
       v_override      VARCHAR2 (1000);
    BEGIN
-   
-      utreport.open;
-   
       IF v_suite IS NULL
       THEN
          utassert.this (
@@ -1152,8 +1146,6 @@ begin
          );
       END IF;
 
-      utreport.close;
-      
       IF reset_results_in
       THEN
          init;
@@ -1224,12 +1216,12 @@ begin
       fdbk     PLS_INTEGER;
       retval   PLS_INTEGER;
    BEGIN
-      &start81
+      &start_ge_8_1
       EXECUTE IMMEDIATE sqlstr
          INTO retval;
 
-      &end81
-      &start73
+      &start_ge_8_1
+      &start_lt_8
       DECLARE
          fdbk   PLS_INTEGER;
          cur    PLS_INTEGER
@@ -1251,7 +1243,7 @@ begin
             RAISE;
       END;
 
-      &end73
+      &end_lt_8
       RETURN retval;
    END;
 

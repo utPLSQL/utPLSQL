@@ -60,6 +60,7 @@ Added Standard Headers
    IS 
       indx     PLS_INTEGER               := results.FIRST;
       l_id     utr_outcome.run_id%TYPE   := NVL (run_id_in, utplsql2.runnum);
+      norows   BOOLEAN;
    BEGIN
    
       utreport.before_results(run_id_in);

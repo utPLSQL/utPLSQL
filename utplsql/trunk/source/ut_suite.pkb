@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.4  2004/07/14 17:01:57  chrisrimmer
+Added first version of pluggable reporter packages
+
 Revision 1.3  2003/12/23 15:30:53  chrisrimmer
 Added Jens Schauder's show_suites procedure
 
@@ -87,18 +90,18 @@ Added Standard Headers
 	  per_method_setup_in in ut_suite.per_method_setup%type := null
    )
    IS
-      &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
       v_id   ut_suite.id%TYPE;
    BEGIN
       utrerror.assert (name_in IS NOT NULL, 'Suite names cannot be null.');
 
-      &start81 v_id := utplsql.seqval ('ut_suite'); &end81
-      &start73 SELECT ut_suite_seq.NEXTVAL INTO v_id FROM dual; &end73
+      &start_ge_8_1 v_id := utplsql.seqval ('ut_suite'); &start_ge_8_1
+      &start_lt_8 SELECT ut_suite_seq.NEXTVAL INTO v_id FROM dual; &end_lt_8
 
       INSERT INTO ut_suite
                   (id, name, description, executions, failures,per_method_setup)
            VALUES (v_id, UPPER (name_in), desc_in, 0, 0,per_method_setup_in);
-   &start81 COMMIT; &end81
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN DUP_VAL_ON_INDEX
       THEN
@@ -107,7 +110,7 @@ Added Standard Headers
             rem (name_in);
             ADD (name_in, desc_in, per_method_setup_in => per_method_setup_in);
          ELSE
-            &start81 ROLLBACK; &end81
+            &start_ge_8_1 ROLLBACK; &start_ge_8_1
             RAISE;
          END IF;
       WHEN OTHERS
@@ -115,10 +118,10 @@ Added Standard Headers
       
         IF utrerror.uterrcode = utrerror.assertion_failure
          THEN
-                     &start81 ROLLBACK; &end81
+                     &start_ge_8_1 ROLLBACK; &start_ge_8_1
                      raise;
          ELSE
-                  &start81 ROLLBACK; &end81
+                  &start_ge_8_1 ROLLBACK; &start_ge_8_1
          utrerror.report_define_error (
             c_abbrev,
                'Suite '
@@ -130,7 +133,7 @@ Added Standard Headers
 
    PROCEDURE rem (id_in IN ut_suite.id%TYPE)
    IS
-   &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+   &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
    BEGIN
       -- V1 compatibility
       DELETE FROM ut_package
@@ -141,19 +144,19 @@ Added Standard Headers
 
       DELETE FROM ut_suite
             WHERE id = id_in;
-   &start81 COMMIT; &end81
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          utreport.pl (   'Remove suite error: '
                      || SQLERRM);
-         &start81 ROLLBACK; &end81
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          RAISE;
    END;
 
    PROCEDURE rem (name_in IN ut_suite.name%TYPE)
    IS
-      &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
       v_id   ut_suite.id%TYPE;
    BEGIN
       rem (id_from_name (name_in));
@@ -167,7 +170,7 @@ Added Standard Headers
 	  per_method_setup_in in ut_suite.per_method_setup%type := null
    )
    IS
-      &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
       l_status    VARCHAR2 (100) := utplsql.c_success;
       v_failure   PLS_INTEGER    := 0;
 
@@ -206,13 +209,13 @@ Added Standard Headers
          );
          do_upd;
       END IF;
-   &start81 COMMIT; &end81
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          utreport.pl (   'Update suite error: '
                      || SQLERRM);
-         &start81 ROLLBACK; &end81
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          RAISE;
    END;
 

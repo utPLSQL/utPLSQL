@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE utoutputreporter &start81 AUTHID CURRENT_USER &end81
+CREATE OR REPLACE PACKAGE utoutputreporter &start_ge_8_1 AUTHID CURRENT_USER &end_ge_8_1
 IS
    
 /************************************************************************

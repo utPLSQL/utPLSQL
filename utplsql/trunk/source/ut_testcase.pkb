@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.3  2004/07/14 17:01:57  chrisrimmer
+Added first version of pluggable reporter packages
+
 Revision 1.2  2003/07/01 19:36:47  chrisrimmer
 Added Standard Headers
 
@@ -68,23 +71,23 @@ Added Standard Headers
       seq_in        IN   PLS_INTEGER := NULL
    )
    IS
-      &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
       v_id   ut_testcase.id%TYPE;
    BEGIN
-      &start81 v_id := utplsql.seqval ('ut_testcase'); &end81
-      &start73 SELECT ut_testcase_seq.NEXTVAL INTO v_id FROM dual; &end73
+      &start_ge_8_1 v_id := utplsql.seqval ('ut_testcase'); &start_ge_8_1
+      &start_lt_8 SELECT ut_testcase_seq.NEXTVAL INTO v_id FROM dual; &end_lt_8
       INSERT INTO ut_testcase
                   (id, test_id, name, description,
                    seq)
            VALUES (v_id, test_in, UPPER (testcase_in), desc_in,
                    NVL (seq_in, 1));
-   &start81 COMMIT; &end81
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          utreport.pl (   'Add test error: '
                      || SQLERRM);
-         &start81 ROLLBACK; &end81
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          RAISE;
    END;
 
@@ -101,18 +104,18 @@ Added Standard Headers
 
    PROCEDURE rem (test_in IN INTEGER, testcase_in IN VARCHAR2)
    IS
-   &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+   &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
    BEGIN
       DELETE FROM ut_testcase
             WHERE test_id = test_in
               AND name LIKE UPPER (testcase_in);
-   &start81 COMMIT; &end81
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          utreport.pl (   'Remove test error: '
                      || SQLERRM);
-         &start81 ROLLBACK; &end81
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          RAISE;
    END;
 
@@ -130,7 +133,7 @@ Added Standard Headers
       successful_in        BOOLEAN
    )
    IS
-      &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
       v_failure   PLS_INTEGER := 0;
    BEGIN
       IF NOT successful_in
@@ -147,13 +150,13 @@ Added Standard Headers
                         + v_failure
        WHERE test_id = test_in
          AND name = UPPER (testcase_in);
-   &start81 COMMIT; &end81
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          utreport.pl (   'Update test error: '
                      || SQLERRM);
-         &start81 ROLLBACK; &end81
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          RAISE;
    END;
 

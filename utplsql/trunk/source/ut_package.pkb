@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.3  2004/07/14 17:01:57  chrisrimmer
+Added first version of pluggable reporter packages
+
 Revision 1.2  2003/07/01 19:36:47  chrisrimmer
 Added Standard Headers
 
@@ -78,7 +81,7 @@ Added Standard Headers
       test_overloads_in   IN   BOOLEAN := FALSE
    )
    IS
-      &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
       v_owner    VARCHAR2 (30)                 := NVL (owner_in, USER);
       v_id       ut_package.id%TYPE;
       v_same     ut_package.samepackage%TYPE   := utplsql.c_yes;
@@ -90,8 +93,8 @@ Added Standard Headers
          v_same := utplsql.c_no;
       END IF;
 
-      &start81 v_id := utplsql.seqval ('ut_package'); &end81
-      &start73 SELECT ut_package_seq.NEXTVAL INTO v_id FROM dual; &end73
+      &start_ge_8_1 v_id := utplsql.seqval ('ut_package'); &start_ge_8_1
+      &start_lt_8 SELECT ut_package_seq.NEXTVAL INTO v_id FROM dual; &end_lt_8
 
       INSERT INTO ut_package
                   (id, suite_id, name,
@@ -102,8 +105,8 @@ Added Standard Headers
                    0, 0);
       IF id_from_name( UPPER (package_in),owner_in) IS NULL 
       THEN
-         &start81 v_id := utplsql.seqval ('ut_package'); &end81
-         &start73 SELECT ut_package_seq.NEXTVAL INTO v_id FROM dual; &end73
+         &start_ge_8_1 v_id := utplsql.seqval ('ut_package'); &start_ge_8_1
+         &start_lt_8 SELECT ut_package_seq.NEXTVAL INTO v_id FROM dual; &end_lt_8
 
          INSERT INTO ut_package
                   (id, suite_id, name,
@@ -114,13 +117,13 @@ Added Standard Headers
                    0, 0);
          
 
-         &start81 COMMIT; &end81
+         &start_ge_8_1 COMMIT; &start_ge_8_1
       END IF;
       IF add_tests_in
       THEN
          -- For each program in ALL_ARGUMENTS, add a test.
 
-         &start81 
+         &start_ge_8_1 
          -- 8i NDS implementation
          DECLARE
             TYPE cv_t IS REF CURSOR;
@@ -163,8 +166,8 @@ Added Standard Headers
             CLOSE cv;
          END;
 
-         &end81
-         &start73
+         &start_ge_8_1
+         &start_lt_8
          -- 7.3 DBMS_SQL Implementation
          DECLARE
             cur        PLS_INTEGER      := DBMS_SQL.open_cursor;
@@ -207,9 +210,9 @@ Added Standard Headers
 
             DBMS_SQL.close_cursor (cur);
          END;
-      &end73
+      &end_lt_8
       END IF;
-   &start81 COMMIT; &end81
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN DUP_VAL_ON_INDEX
       THEN
@@ -221,13 +224,13 @@ Added Standard Headers
           WHERE owner = UPPER (v_owner)
             AND name = UPPER (package_in)
             AND suite_id = suite_in;
-      &start81 COMMIT; &end81
+      &start_ge_8_1 COMMIT; &start_ge_8_1
 
       WHEN OTHERS
       THEN
          utreport.pl (   'Add package error: '
                      || SQLERRM);
-         &start81 ROLLBACK; &end81
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          RAISE;
    END;
 
@@ -263,7 +266,7 @@ Added Standard Headers
       owner_in     IN   VARCHAR2 := NULL
    )
    IS
-   &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+   &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
    BEGIN
       DELETE FROM ut_package
             WHERE (   suite_id = UPPER (suite_in)
@@ -273,13 +276,13 @@ Added Standard Headers
                   )
               AND name = UPPER (package_in)
               AND owner = NVL (UPPER (owner_in), USER);
-   &start81 COMMIT; &end81
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          utreport.pl (   'Remove package error: '
                      || SQLERRM);
-         &start81 ROLLBACK; &end81
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          RAISE;
    END;
 
@@ -303,7 +306,7 @@ Added Standard Headers
    )
    IS
       l_status    VARCHAR2 (100) := utplsql.c_success;
-      &start81 PRAGMA AUTONOMOUS_TRANSACTION; &end81
+      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
       v_failure   PLS_INTEGER    := 0;
 
       PROCEDURE do_upd
@@ -346,13 +349,13 @@ Added Standard Headers
          );
          do_upd;
       END IF;
-   &start81 COMMIT; &end81
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          utreport.pl (   'Update package error: '
                      || SQLERRM);
-         &start81 ROLLBACK; &end81
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          RAISE;
    END;
 

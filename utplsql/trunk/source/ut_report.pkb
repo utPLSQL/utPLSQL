@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.1  2004/07/14 17:01:57  chrisrimmer
+Added first version of pluggable reporter packages
+
 
 ************************************************************************/
 

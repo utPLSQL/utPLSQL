@@ -44,79 +44,6 @@ select decode('&next_script','ut_i_install','I N S T A L L A T I O N',
                  'ut_i_uninstall','D E I N S T A L L A T I O N',
                    'ERROR') col from dual;
 ------------------------------------------------------
-COLUMN col NOPRINT NEW_VALUE v_orcl_vers
-
-SELECT SUBSTR(version,1,3) col
-  FROM product_component_version
- WHERE UPPER(PRODUCT) LIKE 'ORACLE7%'
-    OR UPPER(PRODUCT) LIKE 'PERSONAL ORACLE%'
-    OR UPPER(PRODUCT) LIKE 'ORACLE8%'
-    OR UPPER(PRODUCT) LIKE 'ORACLE9%';
-
-COLUMN col NOPRINT NEW_VALUE start92
-SELECT DECODE (UPPER('&v_orcl_vers'),
-               '9.2', '/* Use 9i code! */',
-               '/* Ignore 9i code') col  
-  FROM dual;
-
-COLUMN col NOPRINT NEW_VALUE end92
-SELECT DECODE (upper('&v_orcl_vers'),
-               '9.2', '/* Use 9i code! */',
-               'Ignore 9i code */') col  
-  FROM dual;
-  
-COLUMN col NOPRINT NEW_VALUE startnot92
-SELECT DECODE (UPPER('&v_orcl_vers'),
-               '8.1', '/* Use Non 9i code! */',
-               '9.0', '/* Use Non 9i code! */',
-               '9.1', '/* Use Non 9i code! */',
-               '/* Ignore Non 9i code') col  
-  FROM dual;
-
-COLUMN col NOPRINT NEW_VALUE endnot92
-SELECT DECODE (UPPER('&v_orcl_vers'),
-               '8.1', '/* Use Non 9i code! */',
-               '9.0', '/* Use Non 9i code! */',
-               '9.1', '/* Use Non 9i code! */',
-               'Ignore Non 9i code */') col  
-  FROM dual;
-
-COLUMN col NOPRINT NEW_VALUE start81
-SELECT DECODE (UPPER('&v_orcl_vers'),
-               '8.1', '/* Use 8i code! */',
-               '9.0', '/* Use 8i code! */',
-               '9.1', '/* Use 8i code! */',
-               '9.2', '/* Use 8i code! */',
-               '/* Ignore 8i code') col  
-  FROM dual;
-
-COLUMN col NOPRINT NEW_VALUE end81
-SELECT DECODE (upper('&v_orcl_vers'),
-               '8.1', '/* Use 8i code! */',
-               '9.0', '/* Use 8i code! */',
-               '9.1', '/* Use 8i code! */',
-               '9.2', '/* Use 8i code! */',
-               'Ignore 8i code */') col  
-  FROM dual;
-
-COLUMN col NOPRINT NEW_VALUE start73
-SELECT DECODE (UPPER('&v_orcl_vers'),
-               '8.1', '/* Ignore Oracle7 code! ',
-               '9.0', '/* Ignore Oracle7 code! ',
-               '9.1', '/* Ignore Oracle7 code! ',
-               '9.2', '/* Ignore Oracle7 code! ',
-               '/* Use Oracle7 code */') col  
-  FROM dual;
-
-COLUMN col NOPRINT NEW_VALUE end73
-SELECT DECODE (UPPER('&v_orcl_vers'),
-               '8.1', 'Ignore Oracle7 code! */',
-               '9.0', 'Ignore Oracle7 code! */',
-               '9.1', 'Ignore Oracle7 code! */',
-               '9.2', 'Ignore Oracle7 code! */',
-               '/* Use Oracle7 code */') col  
-  FROM dual;
-------------------------------------------------------
 
 SET TERMOUT ON
 
@@ -144,4 +71,5 @@ PROMPT &line2
 PROMPT
 
 PROMPT [ &txt_prompt ]
+@@ut_i_preprocess
 @@&next_script

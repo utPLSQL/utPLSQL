@@ -1,5 +1,5 @@
 CREATE OR REPLACE PACKAGE utgen 
-&start81 AUTHID CURRENT_USER &end81
+&start_ge_8_1 AUTHID CURRENT_USER &end_ge_8_1
 IS 
    
 /************************************************************************
@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:46  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    c_screen    CONSTANT PLS_INTEGER    := 1;
@@ -33,14 +36,14 @@ $Log$
    c_delim     CONSTANT CHAR (1)       := ';';
    c_comment   CONSTANT CHAR (1)       := '#';
    c_asis      CONSTANT CHAR (1)       := '!';
-   &start81 SUBTYPE codeline_t IS VARCHAR2(200); &end81
+   &start_ge_8_1 SUBTYPE codeline_t IS VARCHAR2(200); &end_ge_8_1
 
-   &start73
+   &start_lt_8
    v_codeline           VARCHAR2 (200);
 
    SUBTYPE codeline_t IS v_codeline%TYPE;
 
-   &end73
+   &end_lt_8
 
    -- Each line in the grid represents a test case 
    -- 
