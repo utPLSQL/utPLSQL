@@ -12,7 +12,8 @@ use strict;
 #Make a tag filter object
 
 my $tf = HTML::TagFilter->new(
-	strip_comments => 0);
+	strip_comments => 0,
+	skip_xss_protection => 1);
 
 #Allow these tags	
 $tf->allow_tags({ title => {none=>[]}, 
