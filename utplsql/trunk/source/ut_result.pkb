@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    resultindx            PLS_INTEGER;
@@ -41,112 +44,13 @@ $Log$
       g_include_successes := FALSE ;
    END;
 
-   PROCEDURE showresults (
-      success_in   IN   BOOLEAN,
-      program_in   IN   VARCHAR2,
-      run_id_in    IN   utr_outcome.run_id%TYPE := NULL
-   )
-   IS
-   BEGIN
-      IF success_in
-      THEN
-         utplsql.pl ('. ');
-         utplsql.pl (
-            '>    SSSS   U     U   CCC     CCC   EEEEEEE   SSSS     SSSS   '
-         );
-         utplsql.pl (
-            '>   S    S  U     U  C   C   C   C  E        S    S   S    S  '
-         );
-         utplsql.pl (
-            '>  S        U     U C     C C     C E       S        S        '
-         );
-         utplsql.pl (
-            '>   S       U     U C       C       E        S        S       '
-         );
-         utplsql.pl (
-            '>    SSSS   U     U C       C       EEEE      SSSS     SSSS   '
-         );
-         utplsql.pl (
-            '>        S  U     U C       C       E             S        S  '
-         );
-         utplsql.pl (
-            '>         S U     U C     C C     C E              S        S '
-         );
-         utplsql.pl (
-            '>   S    S   U   U   C   C   C   C  E        S    S   S    S  '
-         );
-         utplsql.pl (
-            '>    SSSS     UUU     CCC     CCC   EEEEEEE   SSSS     SSSS   '
-         );
-      ELSE
-         utplsql.pl ('. ');
-         utplsql.pl (
-            '>  FFFFFFF   AA     III  L      U     U RRRRR   EEEEEEE '
-         );
-         utplsql.pl (
-            '>  F        A  A     I   L      U     U R    R  E       '
-         );
-         utplsql.pl (
-            '>  F       A    A    I   L      U     U R     R E       '
-         );
-         utplsql.pl (
-            '>  F      A      A   I   L      U     U R     R E       '
-         );
-         utplsql.pl (
-            '>  FFFF   A      A   I   L      U     U RRRRRR  EEEE    '
-         );
-         utplsql.pl (
-            '>  F      AAAAAAAA   I   L      U     U R   R   E       '
-         );
-         utplsql.pl (
-            '>  F      A      A   I   L      U     U R    R  E       '
-         );
-         utplsql.pl (
-            '>  F      A      A   I   L       U   U  R     R E       '
-         );
-         utplsql.pl (
-            '>  F      A      A  III  LLLLLLL  UUU   R     R EEEEEEE '
-         );
-      END IF;
-
-      utplsql.pl ('. ');
-
-      IF run_id_in IS NOT NULL
-      THEN
-         utplsql.pl ('. Run ID: ' || run_id_in);
-      ELSE
-         IF success_in
-         THEN
-            utplsql.pl (' SUCCESS: "' || NVL (program_in, 'Unnamed Test') || '"');
-         ELSE
-            utplsql.pl (' FAILURE: "' || NVL (program_in, 'Unnamed Test') || '"');
-         END IF;
-      END IF;
-
-      utplsql.pl ('. ');
-   END;
-
-   PROCEDURE showheader (run_id_in IN utr_outcome.run_id%TYPE := NULL)
-   IS
-   BEGIN
-      IF g_header_shown
-      THEN
-         NULL;
-      ELSE
-         showresults (success (run_id_in), utplsql.currpkg, run_id_in);
-      END IF;
-
-      -- Disable selectivity of showing header for now.
-      g_header_shown := FALSE ;
-   END;
-
    PROCEDURE showone (
       run_id_in   IN   utr_outcome.run_id%TYPE := NULL,
       indx_in     IN   PLS_INTEGER
    )
    IS
    BEGIN
-      utplsql.pl (results (indx_in).NAME || ': ' || results (indx_in).msg);
+      utreport.pl (results (indx_in).NAME || ': ' || results (indx_in).msg);
    END;
 
    PROCEDURE show (
@@ -156,13 +60,10 @@ $Log$
    IS 
       indx     PLS_INTEGER               := results.FIRST;
       l_id     utr_outcome.run_id%TYPE   := NVL (run_id_in, utplsql2.runnum);
-      norows   BOOLEAN;
    BEGIN
-      showheader (run_id_in);
-      utplsql.pl ('> Individual Test Case Results:');
-      utplsql.pl ('>');
-      norows := TRUE ;
-
+   
+      utreport.before_results(run_id_in);
+      
       FOR rec IN (SELECT   *
                       FROM utr_outcome
                      WHERE run_id = l_id
@@ -180,55 +81,25 @@ $Log$
             NULL;
          ELSIF utconfig.showingfailuresonly
 		 THEN
-		    norows := FALSE ;
-            utplsql.pl (rec.description);
-            utplsql.pl ('>');		 
+            utreport.show_failure(rec);
 		 ELSE
-            norows := FALSE ;
-			utplsql.pl (
-			   rec.status || ' - ' || 
-			   rec.description);
-            utplsql.pl ('>');
+            utreport.show_result(rec);
          END IF;
       END LOOP;
 
-      IF norows AND utconfig.showingfailuresonly 
-      THEN
-         utplsql.pl ('> NO FAILURES FOUND');
-      ELSIF norows
-      THEN
-         utplsql.pl ('> NONE FOUND');
-      END IF;
-
-      utplsql.pl ('>');
-      utplsql.pl ('> Errors recorded in utPLSQL Error Log:');
-      utplsql.pl ('>');
-      norows := TRUE ;
+      utreport.after_results(run_id_in);
+      
+      utreport.before_errors(run_id_in);
 
       FOR rec IN (SELECT *
                     FROM utr_error
                    WHERE run_id = l_id)
       LOOP
-         norows := FALSE ;
-         utplsql.pl (rec.errlevel || ' - ' || rec.errcode || ': ' || rec.errtext);
+         utreport.show_error(rec);
       END LOOP;
 
-      IF norows
-      THEN
-         utplsql.pl ('> NONE FOUND');
-      END IF;
-
+      utreport.after_errors(run_id_in);
       
-/*V1 approach
-      IF failure
-      THEN
-         LOOP
-            EXIT WHEN indx IS NULL;
-            showone (indx);
-            indx := results.NEXT (indx);
-         END LOOP;
-      END IF;
-*/
       IF reset_in
       THEN
          init;

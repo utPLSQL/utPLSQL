@@ -25,6 +25,9 @@ drop package UTPLSQL;
 drop package UTPLSQL_UTIL;
 drop package UTRECEQ;
 drop package UTRERROR;
+drop package UTREPORT;
+drop package UTOUTPUTREPORTER;
+drop package UTFILEREPORTER;
 drop package UTRESULT2;
 drop package UTRESULT;
 drop package UTROUTCOME;
@@ -39,6 +42,8 @@ drop package UTTESTCASE;
 drop package UTTESTPREP;
 drop package UTUNITTEST;
 drop package UTUTP;
+
+drop package UT_UTOUTPUT;
 
 SET TERMOUT ON
 PROMPT &line1
@@ -124,6 +129,14 @@ drop sequence UT_TESTCASE_SEQ;
 drop sequence UT_TEST_SEQ;
 drop sequence UT_UNITTEST_SEQ;
 drop sequence UT_UTP_SEQ;
+
+SET TERMOUT ON
+PROMPT &line1
+PROMPT DROPPING &UT VIEWS
+PROMPT &line1
+
+drop view utv_last_run;
+drop view utv_result_full;
 
 SET TERMOUT ON
 PROMPT &line1

@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY utconfig
+CREATE OR REPLACE PACKAGE BODY Utconfig
 IS
 /************************************************************************
 GNU General Public License for utPLSQL
@@ -22,6 +22,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:46  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
 -------------------------------------------------------------------------------
@@ -42,9 +45,9 @@ $Log$
 -- Get the configuration record for a user from the table
 ----------------------------------------------------------------------------   
    FUNCTION config (username_in IN VARCHAR2 := USER)
-      RETURN ut_config%ROWTYPE
+      RETURN UT_CONFIG%ROWTYPE
    IS
-      rec   ut_config%ROWTYPE;
+      rec   UT_CONFIG%ROWTYPE;
    BEGIN
       --Short cut for current user
       IF username_in = tester
@@ -84,7 +87,7 @@ $Log$
       PROCEDURE do_dml (statement_in IN VARCHAR2)
       IS
       &start73 cursor_handle INTEGER; &end73
-      &start73 rows INTEGER; &end73
+      &start73 ROWS INTEGER; &end73
       BEGIN
          --In 8i, just do it
          &start81 EXECUTE IMMEDIATE statement_in; COMMIT; &end81
@@ -92,17 +95,17 @@ $Log$
            --Otherwise use DBMS_SQL
            &start73
          --Open the cursor
-         cursor_handle := DBMS_SQL.open_cursor;
+         cursor_handle := DBMS_SQL.OPEN_CURSOR;
          -- Parse the Statement
-         DBMS_SQL.parse (cursor_handle, statement_in, DBMS_SQL.native);
+         DBMS_SQL.PARSE (cursor_handle, statement_in, DBMS_SQL.native);
          -- Execute the Statement 
          ROWS := DBMS_SQL.EXECUTE (cursor_handle);
          -- Close the cursor 
-         DBMS_SQL.close_cursor (cursor_handle);
+         DBMS_SQL.CLOSE_CURSOR (cursor_handle);
       EXCEPTION
          WHEN OTHERS
          THEN
-            DBMS_SQL.close_cursor (cursor_handle);
+            DBMS_SQL.CLOSE_CURSOR (cursor_handle);
             RAISE;
       &end73
       END;
@@ -135,7 +138,7 @@ $Log$
          WHEN OTHERS
          THEN
             --Something else went wrong
-            utplsql.pl (SQLERRM);
+            UtOutputreporter.pl (SQLERRM);
             &start81 ROLLBACK; &end81
             RETURN;
       END;
@@ -185,23 +188,21 @@ $Log$
       --Get the configuration
       rec := config (v_user);
       --Now show it
-      utplsql.pl ('============================================================='
-                 );
-      utplsql.pl ('utPLSQL Configuration for ' || v_user);
-      utplsql.pl ('   Directory: ' || rec.DIRECTORY);
-      utplsql.pl ('   Autcompile? ' || rec.autocompile);
-      utplsql.pl ('   Manual test registration? ' || rec.registertest);
-      utplsql.pl ('   Prefix = ' || rec.prefix);
-      utplsql.pl ('   ----- File Output settings:');
-      utplsql.pl ('   Output directory: ' || rec.filedir);
-      utplsql.pl ('   Output flag     = ' || rec.fileout);
-      utplsql.pl ('   User prefix     = ' || rec.fileuserprefix);
-      utplsql.pl ('   Include progname? ' || rec.fileincprogname);
-      utplsql.pl ('   Date format     = ' || rec.filedateformat);
-      utplsql.pl ('   File extension  = ' || rec.fileextension);
-      utplsql.pl ('   ----- End File Output settings');
-      utplsql.pl ('============================================================='
-                 );
+      utOutputReporter.pl ('=============================================================');
+      utOutputReporter.pl ('utPLSQL Configuration for ' || v_user);
+      utOutputReporter.pl ('   Directory: ' || rec.DIRECTORY);
+      utOutputReporter.pl ('   Autcompile? ' || rec.autocompile);
+      utOutputReporter.pl ('   Manual test registration? ' || rec.registertest);
+      utOutputReporter.pl ('   Prefix = ' || rec.prefix);
+      utOutputReporter.pl ('   Default reporter     = ' || rec.reporter);
+	  utOutputReporter.pl ('   ----- File Output settings:');
+      utOutputReporter.pl ('   Output directory: ' || rec.filedir);
+      utOutputReporter.pl ('   User prefix     = ' || rec.fileuserprefix);
+      utOutputReporter.pl ('   Include progname? ' || rec.fileincprogname);
+      utOutputReporter.pl ('   Date format     = ' || rec.filedateformat);
+      utOutputReporter.pl ('   File extension  = ' || rec.fileextension);
+      utOutputReporter.pl ('   ----- End File Output settings');
+      utOutputReporter.pl ('=============================================================');
    END;
 
 ----------------------------------------------------------------------------
@@ -223,7 +224,7 @@ $Log$
       RETURN VARCHAR2
    IS
       --Holds the user's config record
-      rec      ut_config%ROWTYPE;
+      rec      UT_CONFIG%ROWTYPE;
       --Holds the username in question
       v_user   VARCHAR2 (100)      := NVL (UPPER (username_in), tester);
    BEGIN
@@ -300,7 +301,7 @@ $Log$
    PROCEDURE autocompile (onoff_in IN BOOLEAN, username_in IN VARCHAR2 := NULL)
    IS
       --Holds the flag as 'Y'/'N'
-      v_autocompile   CHAR (1)       := utplsql.bool2vc (onoff_in);
+      v_autocompile   CHAR (1)       := Utplsql.bool2vc (onoff_in);
       --Holds the user to set 
       v_user          VARCHAR2 (100) := NVL (UPPER (username_in), tester);
    BEGIN
@@ -322,7 +323,7 @@ $Log$
       --Pull in the configuration
       rec := config (v_user);
       --Return autocompile, defaulting to TRUE if NULL
-      RETURN NVL (utplsql.vc2bool (rec.autocompile), TRUE);
+      RETURN NVL (Utplsql.vc2bool (rec.autocompile), TRUE);
    END;
 
 ----------------------------------------------------------------------------
@@ -332,7 +333,7 @@ $Log$
             := NULL)
    IS
       --Holds the flag as 'Y'/'N'
-      v_registertest   CHAR (1)       := utplsql.bool2vc (onoff_in);
+      v_registertest   CHAR (1)       := Utplsql.bool2vc (onoff_in);
       --Holds the username in question
       v_user           VARCHAR2 (100) := NVL (UPPER (username_in), tester);
    BEGIN
@@ -354,7 +355,7 @@ $Log$
       --Pull in the configuration
       rec := config (v_user);
       --Return registertest, defaulting to FALSE if NULL
-      RETURN NVL (utplsql.vc2bool (rec.registertest), FALSE);
+      RETURN NVL (Utplsql.vc2bool (rec.registertest), FALSE);
    END;
 
    -- Show failures only?
@@ -364,7 +365,7 @@ $Log$
    )
    IS
       --Holds the flag as 'Y'/'N'
-      v_showfailuresonly   CHAR (1)       := utplsql.bool2vc (onoff_in);
+      v_showfailuresonly   CHAR (1)       := Utplsql.bool2vc (onoff_in);
       --Holds the username in question
       v_user               VARCHAR2 (100)
                                          := NVL (UPPER (username_in), tester);
@@ -384,7 +385,7 @@ $Log$
       --Pull in the configuration
       rec := config (v_user);
       --Return show_failures_only, defaulting to FALSE if NULL
-      RETURN NVL (utplsql.vc2bool (rec.show_failures_only), FALSE);
+      RETURN NVL (Utplsql.vc2bool (rec.show_failures_only), FALSE);
    END;
 
 -- RMM start
@@ -421,27 +422,26 @@ $Log$
    END;
 
 ----------------------------------------------------------------------------
--- Set the file output flag for a user
+-- Set the default reporter for a user
 ----------------------------------------------------------------------------
-   PROCEDURE setfile (
-      fileout_in    IN   BOOLEAN := FALSE
+   PROCEDURE setreporter (
+      reporter_in   IN   VARCHAR2
      ,username_in   IN   VARCHAR2 := NULL
    )
    IS
-      --Holds the flag as 'Y'/'N'
-      v_fileout   CHAR (1)       := utplsql.bool2vc (fileout_in);
       --Holds the user to set
       v_user      VARCHAR2 (100) := NVL (UPPER (username_in), tester);
    BEGIN
       --Set the configuration
-      setconfig ('fileout', v_fileout, v_user);
+      setconfig ('reporter', reporter_in, v_user);
+	  Utreport.USE(reporter_in);
    END;
 
 ----------------------------------------------------------------------------
--- Get the file output flag for a user
+-- Get the default reporter for a user
 ----------------------------------------------------------------------------
-   FUNCTION getfile (username_in IN VARCHAR2 := NULL)
-      RETURN BOOLEAN
+   FUNCTION getreporter (username_in IN VARCHAR2 := NULL)
+      RETURN VARCHAR2
    IS
       --Holds the user's config record
       rec      ut_config%ROWTYPE;
@@ -451,7 +451,7 @@ $Log$
       --Pull in the configuration
       rec := config (v_user);
       --Return autocompile, defaulting to TRUE if NULL
-      RETURN NVL (utplsql.vc2bool (rec.fileout), FALSE);
+      RETURN rec.reporter;
    END;
 
 ----------------------------------------------------------------------------
@@ -495,7 +495,7 @@ $Log$
    )
    IS
       --Holds the flag as 'Y'/'N'
-      v_incname   CHAR (1)       := utplsql.bool2vc (incname_in);
+      v_incname   CHAR (1)       := Utplsql.bool2vc (incname_in);
       --Holds the user to set
       v_user      VARCHAR2 (100) := NVL (UPPER (username_in), tester);
    BEGIN
@@ -517,7 +517,7 @@ $Log$
       --Pull in the configuration
       rec := config (v_user);
       --Return autocompile, defaulting to TRUE if NULL
-      RETURN NVL (utplsql.vc2bool (rec.fileincprogname), FALSE);
+      RETURN NVL (Utplsql.vc2bool (rec.fileincprogname), FALSE);
    END;
 
 ----------------------------------------------------------------------------
@@ -588,8 +588,7 @@ $Log$
 -- Set all of the file output columns for a user
 ----------------------------------------------------------------------------
    PROCEDURE setfileinfo (
-      fileout_in         IN   BOOLEAN := FALSE
-     ,dir_in             IN   VARCHAR2 := NULL
+      dir_in             IN   VARCHAR2 := NULL
      ,userprefix_in      IN   VARCHAR2 := NULL
      ,incname_in         IN   BOOLEAN := FALSE
      ,dateformat_in      IN   VARCHAR2 := 'yyyyddmmhh24miss'
@@ -598,8 +597,6 @@ $Log$
    )
    IS
    BEGIN
-      NULL;
-      setfile (fileout_in, username_in);
       setfiledir (dir_in, username_in);
       setuserprefix (userprefix_in, username_in);
       setincludeprogname (incname_in, username_in);
@@ -623,7 +620,6 @@ $Log$
       --Pull in the configuration
       rec := config (v_user);
       --populate the record
-      fileinfo_rec.fileout := rec.fileout;
       fileinfo_rec.filedir := rec.filedir;
       fileinfo_rec.fileuserprefix := rec.fileuserprefix;
       fileinfo_rec.fileincprogname := rec.fileincprogname;
@@ -687,7 +683,7 @@ $Log$
    BEGIN
       OPEN retval FOR
          SELECT ao.owner, ao.object_name, ao.object_type, ao.created
-               ,ao.last_ddl_time, utrutp.last_run_status (
+               ,ao.last_ddl_time, Utrutp.last_run_status (
 			   ao.owner, ao.object_name) status
            FROM all_objects ao
           WHERE ao.owner = UPPER (schema_in)	

@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    FUNCTION name_from_id (id_in IN ut_package.id%TYPE)
@@ -147,7 +150,7 @@ $Log$
 
                IF utplsql.tracing
                THEN
-                  utplsql.pl (   'Adding test '
+                  utreport.pl (   'Adding test '
                               || package_in
                               || '.'
                               || v_name);
@@ -192,7 +195,7 @@ $Log$
 
                IF utplsql.tracing
                THEN
-                  utplsql.pl (   'Adding test '
+                  utreport.pl (   'Adding test '
                               || package_in
                               || '.'
                               || v_name);
@@ -222,7 +225,7 @@ $Log$
 
       WHEN OTHERS
       THEN
-         utplsql.pl (   'Add package error: '
+         utreport.pl (   'Add package error: '
                      || SQLERRM);
          &start81 ROLLBACK; &end81
          RAISE;
@@ -274,7 +277,7 @@ $Log$
    EXCEPTION
       WHEN OTHERS
       THEN
-         utplsql.pl (   'Remove package error: '
+         utreport.pl (   'Remove package error: '
                      || SQLERRM);
          &start81 ROLLBACK; &end81
          RAISE;
@@ -347,7 +350,7 @@ $Log$
    EXCEPTION
       WHEN OTHERS
       THEN
-         utplsql.pl (   'Update package error: '
+         utreport.pl (   'Update package error: '
                      || SQLERRM);
          &start81 ROLLBACK; &end81
          RAISE;

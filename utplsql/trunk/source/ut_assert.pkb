@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:46  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
    g_showresults   BOOLEAN := FALSE;
@@ -314,7 +317,7 @@ $Log$
    -- which have been defined dynamically?
    IS
    BEGIN
-      utplsql.pl ('utAssert.eqCursor is not yet implemented!');
+      utreport.pl ('utAssert.eqCursor is not yet implemented!');
    END;
 
    PROCEDURE eqfile (

@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.3  2003/12/23 15:30:53  chrisrimmer
+Added Jens Schauder's show_suites procedure
+
 Revision 1.2  2003/07/01 19:36:47  chrisrimmer
 Added Standard Headers
 
@@ -142,7 +145,7 @@ Added Standard Headers
    EXCEPTION
       WHEN OTHERS
       THEN
-         utplsql.pl (   'Remove suite error: '
+         utreport.pl (   'Remove suite error: '
                      || SQLERRM);
          &start81 ROLLBACK; &end81
          RAISE;
@@ -207,7 +210,7 @@ Added Standard Headers
    EXCEPTION
       WHEN OTHERS
       THEN
-         utplsql.pl (   'Update suite error: '
+         utreport.pl (   'Update suite error: '
                      || SQLERRM);
          &start81 ROLLBACK; &end81
          RAISE;

@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.3  2003/07/11 14:32:52  chrisrimmer
+Added 'throws' bugfix from Ivan Desjardins
+
 Revision 1.2  2003/07/01 19:36:46  chrisrimmer
 Added Standard Headers
 
@@ -134,12 +137,12 @@ Added Standard Headers
       
       IF utplsql2.tracing
       THEN
-         utplsql.pl (
+         utreport.pl (
                'utPLSQL TRACE on Assert: '
             || msg_in
          );
-         utplsql.pl ('Results:');
-         utplsql.bpl (l_failure);
+         utreport.pl ('Results:');
+         utreport.pl (l_failure);
       END IF;
 
       -- Report results failure and success
@@ -278,7 +281,7 @@ Added Standard Headers
       THEN
          IF utplsql2.tracing
          THEN
-            utplsql.pl (
+            utreport.pl (
                   'Outcome '
                || outcome_in
                || ' is not defined.'
@@ -320,7 +323,7 @@ Added Standard Headers
       IF utplsql2.tracing
       THEN
          -- Optional trace of assertion call.
-         --utplsql.pl (<assertion-specific message>);
+         --utreport.pl (<assertion-specific message>);
          NULL;
       END IF;
 
@@ -490,7 +493,7 @@ Added Standard Headers
     IF utplsql2.tracing
     THEN
       -- Optional trace of assertion call.
-       utplsql.pl (<assertion-specific message>);
+       utreport.pl (<assertion-specific message>);
     END IF;
 
     this (
@@ -531,7 +534,7 @@ Added Standard Headers
    BEGIN
       IF utplsql2.tracing
       THEN
-         utplsql.pl (
+         utreport.pl (
                'EQ Compare "'
             || check_this_in
             || '" to "'
@@ -590,7 +593,7 @@ Added Standard Headers
    BEGIN
       IF utplsql2.tracing
       THEN
-         utplsql.pl (
+         utreport.pl (
                'Compare "'
             || b2v (check_this_in)
             || '" to "'
@@ -652,7 +655,7 @@ Added Standard Headers
 
       IF utplsql2.tracing
       THEN
-         utplsql.pl (
+         utreport.pl (
                'Compare "'
             || v_check
             || '" to "'
@@ -1006,7 +1009,7 @@ UNION
    BEGIN
       IF utplsql2.tracing
       THEN
-         utplsql.pl (
+         utreport.pl (
                'V EQQueryValue Compare "'
             || check_query_in
             || '" to "'
@@ -1098,7 +1101,7 @@ UNION
    BEGIN
       IF utplsql2.tracing
       THEN
-         utplsql.pl (
+         utreport.pl (
                'D EQQueryValue Compare "'
             || check_query_in
             || '" to "'
@@ -1199,7 +1202,7 @@ UNION
    BEGIN
       IF utplsql2.tracing
       THEN
-         utplsql.pl (
+         utreport.pl (
                'N EQQueryValue Compare "'
             || check_query_in
             || '" to "'
@@ -1280,7 +1283,7 @@ UNION
    -- which have been defined dynamically?
    IS
    BEGIN
-      utplsql.pl (
+      utreport.pl (
          'utAssert.eqCursor is not yet implemented!'
       );
    END;
@@ -2977,7 +2980,7 @@ UNION
    -- which have been defined dynamically?
    IS
    BEGIN
-      utplsql.pl (
+      utreport.pl (
          'utAssert.eqCursor is not yet implemented!'
       );
    END;
@@ -3401,7 +3404,7 @@ UNION
       IF utplsql2.tracing
       THEN
          -- Optional trace of assertion call.
-         utplsql.pl (
+         utreport.pl (
                'verfying that the object "'
             || check_this_in
             || '"exists'
@@ -3439,7 +3442,7 @@ UNION
       IF utplsql2.tracing
       THEN
          -- Optional trace of assertion call.
-         utplsql.pl (
+         utreport.pl (
                'verifying that the object "'
             || check_this_in
             || '"does not exist'
