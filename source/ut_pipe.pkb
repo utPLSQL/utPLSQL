@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY UTPIPE 
+CREATE OR REPLACE PACKAGE BODY UTPIPE &start_ge_8_1 AUTHID CURRENT_USER &end_ge_8_1
 IS
 
 /************************************************************************
@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.1  2004/11/23 14:56:47  chrisrimmer
+Moved dbms_pipe code into its own package.  Also changed some preprocessor flags
+
 
 ************************************************************************/
 
