@@ -57,10 +57,35 @@ utConfig Package</h1>
 </tr>
 
 <tr>
+   <td><a href="#Manualregister">utConfig.registering</a></td>
+
+<td><a href="#Manualregister">Return the registration mode</a></td>
+</tr>
+
+<tr>
 <td><a href="#Autocompile">utConfig.autocompile</a></td>
 
 <td><a href="#Autocompile">Set autocompile feature</a></td>
 </tr>
+
+<tr>
+   <td><a href="#Autocompile">utConfig.autocompiling</a></td>
+
+   <td><a href="#Autocompile">Return the autocompile flag</a></td>
+</tr>
+
+<tr>
+<td><a href="#Delimiter">utConfig.setdelimiter</a></td>
+
+<td><a href="#Delimiter">Set the V2 delimiter</a></td>
+</tr>
+
+<tr>
+   <td><a href="#Delimiter">utConfig.delimiter</a></td>
+
+   <td><a href="#Delimiter">Return the V2 delimiter</a></td>
+</tr>
+
 </table>
 
 <p>To make it as easy as possible for you to run your tests, utPLSQL stores
@@ -149,9 +174,9 @@ change it by passing a different value.
 where dir_in is the directory and username_in is the name of the schema
 to which this directory applies (NULL means the <a href="#Whoseconfig">currently
 used</a> configuration is set), as in:
-<pre>SQL> exec utconfig.setdir ('e:\demo\utplsql');</pre>
+<pre>SQL&gt; exec utconfig.setdir ('e:\demo\utplsql');</pre>
 or, with the specification of a non-current schema:
-<pre>SQL> exec utconfig.setdir ('e:\demo\utplsql', 'ANALYSIS');</pre>
+<pre>SQL&gt; exec utconfig.setdir ('e:\demo\utplsql', 'ANALYSIS');</pre>
 Note that this directory must be accessible through UTL_FILE.
 <p>You might consider putting the the call to utConfig.setdir into your
 login.sql so that it is run automatically, each time your start up SQL*Plus
@@ -175,9 +200,9 @@ you call utPLSQL.test or by calling the utConfig.setprefix procedure:
 where prefix_in is the prefix and username_in is the name of the schema
 to which this prefix applies (NULL means the <a href="#Whoseconfig">currently
 used</a> configuration is set), as in:
-<pre>SQL> exec utconfig.setPrefix ('tst#');</pre>
+<pre>SQL&gt; exec utconfig.setPrefix ('tst#');</pre>
 or, with the specification of a non-current schema:
-<pre>SQL> exec utconfig.setPrefix ('t_', 'ANALYSIS');</pre>
+<pre>SQL&gt; exec utconfig.setPrefix ('t_', 'ANALYSIS');</pre>
 
 <h2>
 <a name="prefix"></a>Return the default unit test prefix for your code.</h2>
@@ -202,9 +227,16 @@ procedure. To do this, you call the utConfig.registerTest procedure:
       username_in IN VARCHAR2 := NULL
    );</pre>
 as in:
-<pre>SQL> exec utConfig.registerTest (TRUE)</pre>
+<pre>SQL&gt; exec utConfig.registerTest (TRUE)</pre>
 Note: if you are using automatic unit test detection, any calls to utPLSQL.addtest
 in the setup procedure <i><b>will be ignored</b>.</i>
+
+<p>You can return the current registration mode using the following function:
+<pre>FUNCTION registeringtest (username_in IN VARCHAR2 := NULL)
+   RETURN BOOLEAN;</pre>
+This returns TRUE if the registration mode has been set to manual and FALSE otherwise.
+</p>
+
 <h2>
 <a name="Autocompile"></a>Set autocompile feature</h2>
 
@@ -228,8 +260,8 @@ or <a href="utplsql.html#utplsql.testsuite">utPLSQL.testsuite</a> (the dir_in
 parameter).
 
 The package specification
-must be contained in a file named &lt;package>.pks; the body must be stored
-in &lt;package>.pkb.
+must be contained in a file named &lt;package&gt;.pks; the body must be stored
+in &lt;package&gt;.pkb.
 
 You must have configured
 the
@@ -278,11 +310,11 @@ to utPLSQL.test or utPLSQL.testsuite. Here is an example:
 
 <pre>   utsuite.addpkg (</pre>
 
-<pre>      'PLVision', 'PLVstr', dir_in => 'e:\utplsql');</pre>
+<pre>      'PLVision', 'PLVstr', dir_in =&gt; 'e:\utplsql');</pre>
 
 <pre>   utsuite.addpkg (</pre>
 
-<pre>      'PLVision', 'PLVdate', dir_in => 'e:\utplsql');</pre>
+<pre>      'PLVision', 'PLVdate', dir_in =&gt; 'e:\utplsql');</pre>
 
 <pre>  </pre>
 
@@ -290,7 +322,7 @@ to utPLSQL.test or utPLSQL.testsuite. Here is an example:
 
 <pre>   utplsql.testsuite (</pre>
 
-<pre>      'PLVision', recompile_in => FALSE);</pre>
+<pre>      'PLVision', recompile_in =&gt; FALSE);</pre>
 
 <pre>END;</pre>
 
@@ -315,7 +347,7 @@ call to turn off autocompilation for the SCOTT schema:
 
 <br> 
 <br> 
-<pre>SQL> exec utconfig.autocompile (FALSE, 'SCOTT') </pre>
+<pre>SQL&gt; exec utconfig.autocompile (FALSE, 'SCOTT') </pre>
 This program updates the ut_config table with your information and then
 commits the setting.
 
@@ -331,6 +363,17 @@ Note: When you set the schema-level recompilation
 value to FALSE, that will override anything you pass in a call to utPLSQL.test
 or utPLSQL.testsuite.
 
+<h2>
+   <a name="Delimiter"></a>V2 Delimiter</h2>
+<p> You can set the delimiter to be used in V2 procedure names using the following procedure:
+<pre>PROCEDURE setdelimiter (
+  delimiter_in IN VARCHAR2, 
+  username_in IN VARCHAR2 := NULL
+); </pre>
+while the current delimiter can be obtained by the function:
+<pre>FUNCTION delimiter (username_in IN VARCHAR2 := NULL)
+  RETURN VARCHAR2;</pre>
+</p>
 <!-- End utPLSQL Body -->
 </body>
 </html>
