@@ -22,6 +22,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2003/07/01 19:36:47  chrisrimmer
+Added Standard Headers
+
 ************************************************************************/
 
 AS 
@@ -960,19 +963,19 @@ AS
 
    PROCEDURE execute_ddl (stmt VARCHAR2)
    IS 
-      --&start73
+      &start73
       fdbk   PLS_INTEGER;
       cur    PLS_INTEGER := DBMS_SQL.open_cursor;
-   --&end73
+      &end73
    BEGIN
-      --&start81
+      &start81
       EXECUTE IMMEDIATE stmt;
-      --&end81
-      --&start73
+      &end81
+      &start73
       DBMS_SQL.parse (cur, stmt, DBMS_SQL.native);
       fdbk := DBMS_SQL.EXECUTE (cur);
       DBMS_SQL.close_cursor (cur);
-   --&end73
+      &end73
    EXCEPTION
       WHEN OTHERS
       THEN
