@@ -1,0 +1,5 @@
+# This contains a list of authors and their
+# email address, separated by a comma
+#
+Steven Feuerstein,steven@stevenfeuerstein.com
+Chris Rimmer,c@24.org.uk

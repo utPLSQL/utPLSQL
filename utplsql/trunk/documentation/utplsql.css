@@ -1,0 +1,38 @@
+/* utPLSQL Stylesheet */
+/*$Id$*/
+
+/* For top-level headings and utPLSQL logo, we want a 
+   purple bar across the page */
+H1, .purple_bar {font-family: Arial, Helvetica, Sans-Serif;
+    color: #ffffff;
+    background: #800080;
+    margin-left: 0px;
+    margin-right: 0px;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px}
+
+/* Second level headings in purple */
+H2 {font-family: Arial, Helvetica, Sans-Serif;
+    color: #800080}
+
+/* Other headings in Sans Serif Font */
+H3, H4, H5, H6 {font-family: Arial, Helvetica, Sans-Serif}
+
+/* Pre formatted code is in a gray box, in monotype */
+Pre {font-family: Courier, Monotype;
+    font-size: smaller;
+    color: #000000;
+    background: #f0f0f0;
+    margin-left: 20px;
+    margin-right: 20px;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-right: 10px}
+
+/* Code in monotype */
+Code {font-family: Courier, Monotype;}
+
+/* Copyright notice is tiny */
+.copyright {font-size: xx-small}

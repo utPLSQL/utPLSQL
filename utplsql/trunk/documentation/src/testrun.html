@@ -1,0 +1,409 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   
+   
+   
+   <title>utPLSQL - A Test Run with utPLSQL</title>
+</head>
+<body>
+ 
+<table cols="1" width="100%">
+<tr>
+<td bgcolor="#800080"><a href="index.html"><img height="56" src="utplsql.jpg" width="373"></a></td>
+</tr>
+</table>
+
+<blockquote>
+Authors: Steven Feuerstein,
+Chris Rimmer
+
+Copyright 2000-2001, all rights
+reserved
+</blockquote>
+[ <a href="index.html">Home</a> | <a href="started.html">Getting
+Started</a> | <b><a href="buildpack.html">Build Test Packages</a></b>
+| <a href="examples.html">Examples</a> | <a href="userguide.html">User
+Guide</a> | <a href="release.html">Release Notes</a> | <a href="map.html">Document
+Map</a> ]
+<p><a href="howto.html">&lt; Previous Section: How to build a test package</a>
+| <a href="advanced.html">Next Section: Advanced Topics ></a>
+<br> 
+<!-- Begin utPLSQL Body -->
+<h1>
+A "Test Run"  with utPLSQL</h1>
+
+<p><a name="Testrun"></a>I will put utPLSQL to work in a small-scale development
+effort, to show you how it all hangs together. I've got a "hangnail" in
+my PL/SQL development work, called SUBSTR. This function bothers me and
+I want to take care of it. What's the problem? SUBSTR is great when you
+know the starting location of a string and number of characters you want.In
+many situations, though, I have the start and end locations and I need
+to figure out the number of characters I then want. Is it:
+<pre>mystring := SUBSTR (full_string, 5, 17); -- start and end? Nah...</pre>
+
+<pre>mystring := SUBSTR (full_string, 5, 12); -- end – start?</pre>
+
+<pre>mystring := SUBSTR (full_string, 5, 13); -- end – start + 1?</pre>
+
+<pre>mystring := SUBSTR (full_string, 5, 11); -- end – start 1 1?</pre>
+
+Why should I have to remember stuff like this? I
+never do, and so I take out a scrap of paper, write down 'abcdefgh', put
+a mark over the "c" and another over the "g", count on my fingers and then
+remember that of course the formula is "end – start + 1".
+
+All right, so I did that a dozen times, I am sick
+of it and determined to stop wasting my time in the future. I will write
+a function called "str.betwn" (the betwn function defined in the str package)
+that does the work and the remembering for me.
+
+Instead of immediately coding the function, however,
+I will first write my unit tests with utPLSQL! Since my source package
+is named "str", I will create a test package named "ut_str". I am a lazy
+fellow, so I will take the lazy way out and generate the starting point
+for my package:
+
+<pre>SQL> exec <a href="utgen.html">utgen.testpkg</a> ('str', output_type_in => utplsql.c_file)</pre>
+
+Note: for the above call to work, I must have already
+set my default directory for utPLSQL, which I do via a SQL*Plus login script
+that looks like this:
+
+<pre>exec utplsql.setdir ('e:\utplsql\test')</pre>
+
+<pre>SET SERVEROUTPUT ON SIZE 1000000 FORMAT WRAPPED</pre>
+
+Otherwise, I would need to specify the directory
+in my call to genpkg, as in:
+
+<pre>SQL> exec utgen.testpkg ('str', output_type_in => utplsql.c_file, dir_in => 'e:\utplsql\test')</pre>
+
+I then will find this package spec in the ut_str.pks
+file:
+
+<pre>CREATE OR REPLACE PACKAGE ut_str</pre>
+
+<pre>IS</pre>
+
+<pre>   PROCEDURE ut_setup;</pre>
+
+<pre>   PROCEDURE ut_teardown;</pre>
+
+<pre>  </pre>
+
+<pre>   -- For each program to test...</pre>
+
+<pre>   PROCEDURE ut_betwn;</pre>
+
+<pre>END ut_str;</pre>
+
+<pre>/</pre>
+
+And I don't really have to modify the specification
+at all. The body will, on the other hand, require some work, since I haven't
+yet figured out a way to automatically generate the test code itself. Here
+is the purely <a href="utgen.html">generated</a> test package body found
+in the ut_str.pkb file:
+
+<pre>CREATE OR REPLACE PACKAGE BODY ut_str</pre>
+
+<pre>IS</pre>
+
+<pre>   PROCEDURE ut_setup</pre>
+
+<pre>   IS</pre>
+
+<pre>   BEGIN</pre>
+
+<pre>      NULL;</pre>
+
+<pre>   END;</pre>
+
+<pre>  </pre>
+
+<pre>   PROCEDURE ut_teardown</pre>
+
+<pre>   IS</pre>
+
+<pre>   BEGIN</pre>
+
+<pre>      NULL;</pre>
+
+<pre>   END;</pre>
+
+<pre>  </pre>
+
+<pre>   -- For each program to test...</pre>
+
+<pre>   PROCEDURE ut_betwn</pre>
+
+<pre>   IS</pre>
+
+<pre>   BEGIN</pre>
+
+<pre>      utAssert.this (</pre>
+
+<pre>         'Test of betwn',</pre>
+
+<pre>         &lt;boolean expression>,</pre>
+
+<pre>         );</pre>
+
+<pre>   END;</pre>
+
+<pre>[ENDFOREACH]</pre>
+
+<pre>  </pre>
+
+<pre>END ut_str;</pre>
+
+<pre>/</pre>
+
+The setup and teardown procedures are fine (I don't
+have any special setup and therefore teardown requirements), but the ut_betwn
+needs lots of work. It doesn't really test anything yet.
+
+Before I start writing my test code, however, I
+will just sit back and think about what I want to test. Here are some inputs
+that I can think of:
+
+<br> 
+<table cellpadding="0" border="BORDER" cellspacing="0">
+<tr>
+<td width="127" valign="TOP">
+String
+</td>
+
+<td width="180" valign="TOP">
+Start
+</td>
+
+<td width="168" valign="TOP">
+End
+</td>
+
+<td width="168" valign="TOP">
+Expected Result
+</td>
+</tr>
+
+<tr>
+<td width="127" valign="TOP">
+"this is a string"
+</td>
+
+<td width="180" valign="TOP">
+3 (positive number)
+</td>
+
+<td width="168" valign="TOP">
+7 (bigger positive number)
+</td>
+
+<td width="168" valign="TOP">
+"is is"
+</td>
+</tr>
+
+<tr>
+<td width="127" valign="TOP">
+"this is a string"
+</td>
+
+<td width="180" valign="TOP">
+-3 (invalid negative number)
+</td>
+
+<td width="168" valign="TOP">
+7 (bigger positive number)
+</td>
+
+<td width="168" valign="TOP">
+"ing" (consistent with SUBSTR behavior)
+</td>
+</tr>
+
+<tr>
+<td width="127" valign="TOP">
+"this is a string"
+</td>
+
+<td width="180" valign="TOP">
+3 (positive number)
+</td>
+
+<td width="168" valign="TOP">
+1 (smaller positive number)
+</td>
+
+<td width="168" valign="TOP">
+NULL
+</td>
+</tr>
+</table>
+
+
+<p>We could easily come up with a whole lot more test
+cases – and if this was real life and not product documentation, I would
+not move forward until I had identified all interesting tests. So let's
+suppose I have done that and now I am ready to do some coding. Since I
+am testing a function, I will want to compare the result of the function
+call to my expected results. I will therefore change my assertion from
+the generic "assert this" procedure to the utAssert.eq program, and put
+the call to the function right into the assertion routine. Here, then,
+is my first crack at transforming my ut_betwn procedure:
+<pre>PROCEDURE ut_betwn IS</pre>
+
+<pre>BEGIN</pre>
+
+<pre>   utAssert.eq (</pre>
+
+<pre>      'Test of betwn',</pre>
+
+<pre>      str.betwn ('this is a string', 3, 7),</pre>
+
+<pre>      'is is'</pre>
+
+<pre>      );</pre>
+
+<pre>END;</pre>
+
+Following the Extreme Programming philosophy ("code
+a little, test a lot"), I will test this test case before I add all the
+other test cases. I do this with a very simple call:
+
+<pre>SQL> exec utplsql.test ('str')
+
+>    SSSS   U     U   CCC     CCC   EEEEEEE   SSSS     SSSS
+>   S    S  U     U  C   C   C   C  E        S    S   S    S
+>  S        U     U C     C C     C E       S        S
+>   S       U     U C       C       E        S        S
+>    SSSS   U     U C       C       EEEE      SSSS     SSSS
+>        S  U     U C       C       E             S        S
+>         S U     U C     C C     C E              S        S
+>   S    S   U   U   C   C   C   C  E        S    S   S    S
+>    SSSS     UUU     CCC     CCC   EEEEEEE   SSSS     SSSS
+
+>SUCCESS: "str"</pre>
+
+Now, you could say: "Great it worked!" Or you could
+say: "I have no idea if it worked. Maybe it <i>always</i> says success."
+I go for the latter, so let's deliberately cause a failure:
+
+<pre>PROCEDURE ut_betwn IS</pre>
+
+<pre>BEGIN</pre>
+
+<pre>   utAssert.eq (</pre>
+
+<pre>      'Test of betwn',</pre>
+
+<pre>      str.betwn ('this is a string', 3, 7),</pre>
+
+<pre>      'this is a pipe'</pre>
+
+<pre>      );</pre>
+
+<pre>END;</pre>
+
+Saving the file (but not bothering to recompile,
+since utPLSQL will do it for me <a href="utconfig.html#Autocompile">automagically</a>),
+I then run my test again:
+
+<pre>SQL> exec utplsql.test ('str', recompile_in=>false)
+
+>  FFFFFFF   AA     III  L      U     U RRRRR   EEEEEEE
+>  F        A  A     I   L      U     U R    R  E
+>  F       A    A    I   L      U     U R     R E
+>  F      A      A   I   L      U     U R     R E
+>  FFFF   A      A   I   L      U     U RRRRRR  EEEE
+>  F      AAAAAAAA   I   L      U     U R   R   E
+>  F      A      A   I   L      U     U R    R  E
+>  F      A      A   I   L       U   U  R     R E
+>  F      A      A  III  LLLLLLL  UUU   R     R EEEEEEE
+
+FAILURE: "str"
+
+BETWN: Typical Valid Usage; expected "is is", got "this is a pipe"</pre>
+
+Now I have a higher degree of confidence that I
+am getting this right. Excellent! Now I will add the other test cases:
+
+<pre>PROCEDURE ut_betwn IS</pre>
+
+<pre>BEGIN</pre>
+
+<pre>   utAssert.eq (</pre>
+
+<pre>      'Typical Valid Usage',</pre>
+
+<pre>      str.betwn ('this is a string', 3, 7),</pre>
+
+<pre>      'is is'</pre>
+
+<pre>      );</pre>
+
+<pre>     </pre>
+
+<pre>   utAssert.eq (</pre>
+
+<pre>      'Test Negative Start',</pre>
+
+<pre>      str.betwn ('this is a string', -3, 7),</pre>
+
+<pre>      'ing'</pre>
+
+<pre>      );</pre>
+
+<pre>     </pre>
+
+<pre>   utAssert.isNULL (</pre>
+
+<pre>      'Start bigger than end',</pre>
+
+<pre>      str.betwn ('this is a string', 3, 1)</pre>
+
+<pre>      );</pre>
+
+<pre>END;</pre>
+
+I will deliberately cause each of these tests to
+fail, to give you a sense of the quality of feedback:
+
+<pre>>  FFFFFFF   AA     III  L      U     U RRRRR   EEEEEEE
+>  F        A  A     I   L      U     U R    R  E
+>  F       A    A    I   L      U     U R     R E
+>  F      A      A   I   L      U     U R     R E
+>  FFFF   A      A   I   L      U     U RRRRRR  EEEE
+>  F      AAAAAAAA   I   L      U     U R   R   E
+>  F      A      A   I   L      U     U R    R  E
+>  F      A      A   I   L       U   U  R     R E
+>  F      A      A  III  LLLLLLL  UUU   R     R EEEEEEE
+
+FAILURE: "str"</pre>
+
+<pre>betwn: Typical Valid Usage; expected "is is", got "this is a pipe"</pre>
+
+<pre>betwn: Test Negative Start; expected "ing", got "BRRRING"</pre>
+
+<pre>betwn: IS NOT NULL: Start bigger than end</pre>
+
+Faced with these results, I can zoom in on the code
+within str.betwn that is causing these incorrect results. I resist the
+temptation to fix the code for all my tests all at once. Instead, I make
+one change at a time, then run my test again. I do that over and over again
+until the failure for the single test case goes away. Then I move to the
+next one. Eventually, I get a green light and am highly confident of my
+program – if, of course, I really did come up with an exhaustive list of
+tests.
+
+As I think of another test case, I add a call to
+utAssert to run that test.
+
+As a bug is reported to me, I add a call to utAssert
+to reproduce that bug. Then I repair my code.
+
+<!-- End utPLSQL Body -->
+</body>
+</html>

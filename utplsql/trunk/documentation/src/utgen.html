@@ -1,0 +1,563 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   
+   
+   
+   <title>utPLSQL - utGen Package</title>
+</head>
+<body>
+ 
+<table cols="1" width="100%">
+<tr>
+<td bgcolor="#800080"><a href="index.html"><img height="56" src="utplsql.jpg" width="373"></a></td>
+</tr>
+</table>
+
+<blockquote>
+Authors: Steven Feuerstein,
+Chris Rimmer
+
+Copyright 2000-2001, all rights
+reserved
+</blockquote>
+[ <a href="index.html">Home</a> | <a href="started.html">Getting
+Started</a> | <a href="buildpack.html">Build Test Packages</a>
+| <a href="examples.html">Examples</a> | <b><a href="userguide.html">User
+Guide</a></b> | <a href="release.html">Release Notes</a> | <a href="map.html">Document
+Map</a> ]
+<p><a href="utassert.html">&lt; Previous Section: utAssert Package</a> |
+<a href="defsuite.html">Next
+Section: Define Test Suites></a>
+<br> 
+<!-- Begin utPLSQL Body -->
+<h1>
+utGen Package</h1>
+
+<p>This package contains the following procedures and functions:
+<br> 
+<table cellspacing="5">
+<tr>
+<td width="25%"><a href="#testpkg">utGen.testpkg</a></td>
+
+<td><a href="#testpkg">Generate skeleton test packages</a></td>
+</tr>
+
+<tr>
+<td><a href="#string">utGen.pkgstring</a></td>
+
+<td><a href="#string">Get skeleton as a string</a></td>
+</tr>
+
+<tr>
+<td><a href="#array">utGen.countRows</a>
+<br><a href="#array">utGen.firstRow</a>
+<br><a href="#array">utGen.firstBodyRow</a>
+<br><a href="#array">utGen.atFirstRow</a>
+<br><a href="#array">utGen.lastRow</a>
+<br><a href="#array">utGen.atLastRow</a>
+<br><a href="#array">utGen.setRow</a>
+<br><a href="#array">utGen.getRow</a>
+<br><a href="#array">utGen.nextRow;</a>
+<br><a href="#array">utGen.prevRow;</a>
+<br><a href="#array">utGen.showRows</a>
+<br><a href="#array">utGen.nthRow</a></td>
+
+<td><a href="#array">Get rows from generated skeleton test package as array</a></td>
+</tr>
+</table>
+
+
+<h3>
+<a name="testpkg"></a>Generate Skeleton Test Packages</h3>
+The utGen contains a procedure that allows you to generate a starting point
+for a unit test package. This package can be sent to the <a href="#screen">screen</a>,
+a <a href="#file">file</a>, a <a href="#string">delimited string</a> or
+an <a href="#array">array</a> (best for interfacing with a front end).
+You can generate a stand-alone test package or code "fragments" to be placed
+inside an existing source package.
+
+We strongly recommend that you use utGen.testpkg
+as a starting point for all of your utPLSQL unit test construction. By
+taking this approach, you will most easily (and transparently) conform
+to the most up to date guidelines for utPLSQL test packages.
+
+Note: While utGen.testpkg goes as far as
+possible to generate sensible unit test code, you will need to edit this
+code before you can compile and use it.
+
+Here is the header of the testpkg procedure:
+
+<pre>   PROCEDURE utGen.testpkg (</pre>
+
+<pre>      package_in IN VARCHAR2,</pre>
+
+<pre>      program_in IN VARCHAR2 := '%',</pre>
+
+<pre>      samepackage_in IN BOOLEAN := FALSE,</pre>
+
+<pre>      prefix_in IN VARCHAR2 := NULL,</pre>
+
+<pre>      schema_in IN VARCHAR2 := NULL,</pre>
+
+<pre>      output_type_in IN PLS_INTEGER := c_screen,</pre>
+
+<pre>      dir_in IN VARCHAR2 := NULL,</pre>
+
+<pre>      delim_in IN VARCHAR2 := c_delim</pre>
+
+<pre>   );</pre>
+
+And here is a description of the parameters:
+
+<table cellpadding="0" border="BORDER" cellspacing="0">
+<tr>
+<td><b>Parameter Name</b></td>
+
+<td><b>Usage</b></td>
+</tr>
+
+<tr>
+<td width="118" valign="TOP">
+package_in
+</td>
+
+<td width="544" valign="TOP">
+The name of the package or stand-alone program for
+which a test package is to be generated.
+</td>
+</tr>
+
+<tr>
+<td width="118" valign="TOP">
+program_in
+</td>
+
+<td width="544" valign="TOP">
+The filter to be applied to the list of programs
+for which unit test procedures will be generated. So if you only wanted
+to generate unit tests for programs that start with "UPD", you would pass
+'UPD%' for this argument.
+</td>
+</tr>
+
+<tr>
+<td width="118" valign="TOP">
+samepackage_in
+</td>
+
+<td width="544" valign="TOP">
+TRUE if you plan to insert the generated code into
+the source package, FALSE if you want a stand-alone test package.
+</td>
+</tr>
+
+<tr>
+<td width="118" valign="TOP">
+prefix_in
+</td>
+
+<td width="544" valign="TOP">
+The prefix to be used for the test package and/or
+unit test procedures. See section " Organizing Your Test Code" for details.
+</td>
+</tr>
+
+<tr>
+<td width="118" valign="TOP">
+schema_in
+</td>
+
+<td width="544" valign="TOP">
+The schema that owns the package or program specified
+by package_in. The default is the currently connected schema.
+</td>
+</tr>
+
+<tr>
+<td width="118" valign="TOP">
+output_type_in
+</td>
+
+<td width="544" valign="TOP">
+The type of output that will receive the generated
+code. Valid options are defined as packaged constants:
+
+<pre>utGen.c_file</pre>
+
+<pre>utGen.c_screen</pre>
+
+<pre>utGen.c_string</pre>
+
+<pre>utGen.c_array</pre>
+
+The following sections explain the way you would
+work with these constants and the resulting generated code.
+</td>
+</tr>
+
+<tr>
+<td width="118" valign="TOP">
+dir_in
+</td>
+
+<td width="544" valign="TOP">
+The location of the file containing the generated
+code. Used only if you specify utGen.c_file for the output type.
+</td>
+</tr>
+
+<tr>
+<td width="118" valign="TOP">
+delim_in
+</td>
+
+<td width="544" valign="TOP">
+The delimiter used to separate lines of generated
+code. Used only if you specify utGen.c_string for the output type.
+</td>
+</tr>
+</table>
+
+
+<p>Before you use utGen.testpkg, you should make a few
+decisions about your generated code:
+<ul type="disc">
+<li>
+Do you want the generated test code to be a stand-alone package or to be
+inserted into an existing package? The default is stand-alone. Pass TRUE
+for samepackage_in if you want to generate code that can be easily cut
+and pasted into your source package. Note that utGen.testpkg does <i>not</i>
+actually modify your source package.</li>
+
+Do you want to generate a unit test program
+for every procedure and function in your package? If so, then go with the
+default for program_in. If, on the other hand, your package has one hundred
+programs and you only want to test, say, only those programs that perform
+updates, you might want to pass a non-trivial filter, such as "UPD%".
+
+Where do you want to send your output? You
+can display to the screen, which can then be grabbed and put into a file
+(or in SQL*Plus spool it directly to a file). You can send the code to
+a file. You can deposit the code in a delimited string and then parse it
+within your own environment. Finally -- and of most relevance if you are
+building a GUI interface to utPLSQL -- you can generate to an internal
+array and then retrieve individual rows of the arrays through the utGen
+API.
+</ul>
+
+Here are some examples of using utGen.testpkg:
+
+<ol>
+<li>
+Generate to the screen a stand-alone test package for the STR package:</li>
+</ol>
+
+<blockquote>
+<blockquote>
+<pre>SQL> exec utGen.testpkg ('str')</pre>
+</blockquote>
+</blockquote>
+
+<ol>
+<li>
+Generate to the screen unit test code to be embedded inside the STR package:</li>
+</ol>
+
+<blockquote>
+<blockquote>
+<pre>SQL> exec utGen.testpkg ('str', samepackage_in => TRUE)</pre>
+</blockquote>
+</blockquote>
+
+<ol>
+<li>
+Generate to the screen unit test code for all programs whose names contain
+"STR" to be embedded inside the STR package,.</li>
+</ol>
+
+<blockquote>
+<blockquote>
+<pre>SQL> exec utGen.testpkg ('str', '%STR%', samepackage_in => TRUE)</pre>
+</blockquote>
+</blockquote>
+
+Now let's explore how to direct the generated code
+to different types of output.
+
+<h3>
+<a name="screen"></a>Generating to Screen</h3>
+
+The default behavior of utGen.testpkg is to generate
+code to your screen (via DBMS_OUTPUT.PUT_LINE). So unless you specify some
+other value for output_type_in, the code will be displayed on your screen
+or within a window of your PL/SQL IDE (such as TOAD or SQL*Programmer and
+so on). You can then transfer that content to a file, or move it to another
+window for immediate editing and compilation.
+
+Here is an example of using utGen.testpkg, while
+also spooling to a file:
+
+<pre>SQL> set serveroutput on size 1000000</pre>
+
+<pre>SQL> spool str.pkg</pre>
+
+<pre>SQL> exec utgen.testpkg ('str')</pre>
+
+...out comes the code...
+
+<pre>SQL> spool off</pre>
+
+If DBMS_OUTPUT is not enabled in your session, then
+utGen.testpkg will not generate any output.
+
+<h3>
+<a name="file"></a>Generating to File</h3>
+
+If you are working with utGen in a command line
+style (ie, you are not using a utGen-enabled GUI), then you will probably
+find it most useful to generate testing code directly to file. You do this
+by specifying utGen.c_file for the output type. You must also specify the
+directory in which you want the files (one for the package specification
+and another for the body)created.
+
+Here's a generation request that creates two files
+named ut_str.pks and ut_str.pkb in the /newcode directory:
+
+<pre>SQL> exec utgen.testpkg ('str', output_type_in => utGen.c_file, dir_in => '/newcode')</pre>
+
+Notes on generating to file:
+
+
+<ol>
+<li>
+You do not have to specify a directory if you have previously (in your
+current session) called utConfig.setdir to set the default directory for
+all file-related utPLSQL operations. The following two lines of code are,
+in other words, equivalent to the single line shown above:</li>
+</ol>
+
+
+<blockquote>
+<blockquote>
+<pre>SQL> exec utconfig.setdir ('/newcode')</pre>
+
+<pre>SQL> exec utgen.testpkg ('str', output_type_in => utGen.c_file);</pre>
+</blockquote>
+</blockquote>
+
+<ol>
+<li>
+You set up the UTL_FILE package (add at least one utl_file_dir entry in
+your database parameter initialization file) and make sure your directory
+is accessible through UTL_FILE, before this operation can succeed.</li>
+</ol>
+
+<h3>
+<a name="string"></a>Generating to String</h3>
+
+If you are accessing utPLSQL functionality through
+a GUI, you might find it more useful to direct output to a string (or array,
+see next section). You probably don't want to hassle with UTL_FILE (server-based
+file IO) and grabbing information from DBMS_OUTPUT.PUT_LINE is just a general
+hassle.
+
+If you generate to a string, you can then retrieve
+that string value into a local variable and then parse it for display and
+manipulation. Here is an example of redirection to string:
+
+<pre>BEGIN</pre>
+
+<pre>   utgen.testpkg ('str', output_type_in => utGen.c_string);</pre>
+
+<pre>END;</pre>
+
+The generated code is composed of multiple lines
+of information, so they need to be separated by a delimiter. The default
+delimiter is the vertical bar, '|'. You can override that and provide your
+own delimiter. In the following example, I have decided to use the carriage
+return character as my delimiter:
+
+<pre>BEGIN</pre>
+
+<pre>   utgen.testpkg (</pre>
+
+<pre>      'str',</pre>
+
+<pre>      output_type_in => utGen.c_string,</pre>
+
+<pre>      delim_in => CHR(10));</pre>
+
+<pre>END;</pre>
+
+Great, so the code has been put in a string. How
+do <i>you </i>get all that generated code? Call the utGen.pkgstring function:
+
+<pre>FUNCTION utGen.pkgString RETURN VARCHAR2;</pre>
+
+<h3>
+<a name="array"></a>Generating to Array</h3>
+
+If you are accessing utPLSQL functionality through
+a GUI, you might find it more useful to direct output to an array. You
+probably don't want to hassle with UTL_FILE (server-based file IO) and
+grabbing information from DBMS_OUTPUT.PUT_LINE is just a general hassle.
+
+If you generate to an array, you can then retrieve
+the individual lines of code in the array through an API provided by utGen
+(the array itself is "hidden"). Here is an example of redirection to the
+utGen array:
+
+<pre>BEGIN</pre>
+
+<pre>   utgen.testpkg ('str', output_type_in => utGen.c_array);</pre>
+
+<pre>END;</pre>
+
+Great, so the code has been put in an array. How
+do <i>you </i>get all that generated code? Take advantage of the utGen
+API to retrieve individual rows in the array, which offers these features:
+
+Get the number of rows currently in the array:
+
+<pre>   FUNCTION utGen.countRows RETURN PLS_INTEGER;</pre>
+
+Get the absolute index of the first row in the array:
+
+<pre>   FUNCTION utGen.firstRow RETURN PLS_INTEGER;</pre>
+
+Get the absolute index of the last row in the array:
+
+<pre>   FUNCTION utGen.lastRow RETURN PLS_INTEGER;</pre>
+
+The API offers a set of programs to iterate through
+the array, by maintaining a "current row" inside the package. You can:
+
+Find out if you are positioned at the first row
+in the set:
+
+<pre>   FUNCTION utGen.atFirstRow RETURN BOOLEAN;</pre>
+
+Find out if you are positioned at the last row in
+the set:
+
+<pre>   FUNCTION utGen.atLastRow RETURN BOOLEAN;</pre>
+
+Find the first relative row containing the start
+of the package body definition. This is handy when you want to put the
+code for the specification and body in separate windows and/or files:
+
+<pre>   FUNCTION utGen.firstBodyRow RETURN PLS_INTEGER;</pre>
+
+Retrieve the text in the Nth row of the array. This
+gives you "random access" to the contents of the array. You can even specify
+a negative direction to get the Nth row from the <i>end</i> of the array.
+
+<pre>   FUNCTION utGen.nthRow (nth IN PLS_INTEGER, direction utGen.IN SIGNTYPE := 1) RETURN codeline_t;</pre>
+
+Set the pointer in the array to the specified row
+number. This allows you then move either forward or backward from that
+row in the array (using nextRow and prevRow, respectively):
+
+<pre>   PROCEDURE utGen.setRow (nth IN PLS_INTEGER);</pre>
+
+Retrieve the line of code stored in the current
+row in the array (set via setRow, nextRow or prevRow):
+
+<pre>   FUNCTION utGen.getRow RETURN codeline_t;</pre>
+
+Go to the next row in the array:
+
+<pre>   PROCEDURE utGen.nextRow;</pre>
+
+Go to the previous row in the array:
+
+<pre>   PROCEDURE utGen.prevRow;</pre>
+
+Show the contents of the array using DBMS_OUTPUT.PUT_LINE:
+
+<pre>   PROCEDURE utGen.showRows (</pre>
+
+<pre>      startRow IN PLS_INTEGER := NULL,</pre>
+
+<pre>      endRow IN PLS_INTEGER := NULL);</pre>
+
+Here is the code I would write in PL/SQL using this
+API to display the contents of the array (actually, it is the implementation
+of showRows):
+
+<pre>   PROCEDURE showrows (</pre>
+
+<pre>      startrow IN PLS_INTEGER := NULL,</pre>
+
+<pre>      endrow IN PLS_INTEGER := NULL</pre>
+
+<pre>   )</pre>
+
+<pre>   IS</pre>
+
+<pre>      v_start PLS_INTEGER</pre>
+
+<pre>                    := NVL (startrow, 1);</pre>
+
+<pre>      v_end PLS_INTEGER</pre>
+
+<pre>         := NVL (endrow, utGen.countRows);</pre>
+
+<pre>   BEGIN</pre>
+
+<pre>      FOR indx IN 1 .. utGen.countRows</pre>
+
+<pre>      LOOP</pre>
+
+<pre>         DBMS_OUTPUT.put_line (utGen.getRow (indx));</pre>
+
+<pre>      END LOOP;</pre>
+
+<pre>   END;</pre>
+
+Here is the code I would write to separate out the
+contents of the specification from the body:
+
+<pre>   PROCEDURE showrows (</pre>
+
+<pre>      startrow IN PLS_INTEGER := NULL,</pre>
+
+<pre>      endrow IN PLS_INTEGER := NULL</pre>
+
+<pre>   )</pre>
+
+<pre>   IS</pre>
+
+<pre>      v_start PLS_INTEGER</pre>
+
+<pre>                    := NVL (startrow, 1);</pre>
+
+<pre>      v_end PLS_INTEGER</pre>
+
+<pre>         := NVL (endrow, utGen.countRows);</pre>
+
+<pre>   BEGIN</pre>
+
+<pre>      FOR indx IN 1 .. utGen.countRows</pre>
+
+<pre>      LOOP</pre>
+
+<pre>         IF indx = utGen.firstBodyRow</pre>
+
+<pre>         THEN</pre>
+
+<pre>            -- switch to Body window or file</pre>
+
+<pre>         END IF;</pre>
+
+<pre>         write_to_target (utGen.getRow (indx));</pre>
+
+<pre>      END LOOP;</pre>
+
+<pre>   END;</pre>
+
+
+<!-- End utPLSQL Body -->
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   
+   
+   
+   <title>utPLSQL - Test a Function</title>
+</head>
+<body>
+ 
+<table cols="1" width="100%">
+<tr>
+<td bgcolor="#800080"><a href="index.html"><img height="56" src="utplsql.jpg" width="373"></a></td>
+</tr>
+</table>
+
+<blockquote>
+Authors: Steven Feuerstein,
+Chris Rimmer
+
+Copyright 2000-2001, all rights
+reserved
+</blockquote>
+[ <a href="index.html">Home</a> | <a href="started.html">Getting
+Started</a> | <a href="buildpack.html">Build Test Packages</a>
+| <b><a href="examples.html">Examples</a></b> | <a href="userguide.html">User
+Guide</a> | <a href="release.html">Release Notes</a> | <a href="map.html">Document
+Map</a> ]
+<p><a href="testproc.html">&lt; Previous Section: Test a Procedure</a> |
+<a href="testapi.html">Next
+Section: Test an Entire Package API ></a>
+<br> 
+<!-- Begin utPLSQL Body -->
+<h1>
+Test a Function</h1>
+
+<p>As with the procedure, there are a couple of scenarios to consider:
+<ul>
+<li>
+The <a href="#ScalarFunction">function returns a scalar value</a> (number,
+date, string, Boolean). In this case, you can embed your call to the function
+directly inside a call to a uAssert assertion program, making your test
+procedure very concise and easy to write.</li>
+
+
+<li>
+The <a href="#CompositeFunction">function returns a non-scalar value</a>,
+such as an object or a collection. In this case, you will need to call
+the function and then evaluate the contents of the returned structure.</li>
+
+
+
+<li>
+A third situation to consider is that your function returns a value, but
+it also takes a number of other actions, the success of which is not reflected
+in the returned value. Fully testing such a function (one with "side effects")
+can be very difficult, since you must test for a variety of conditions.</li>
+
+</ul>
+
+<h3>
+<a name="ScalarFunction"></a>Testing a Scalar Function</h3>
+First, a test of a function returning a scalar value. Consider the following
+packaged function:
+<pre>/*file str.pks and str.pkb */
+CREATE OR REPLACE PACKAGE str
+IS
+   FUNCTION betwn (
+      string_in IN VARCHAR2,
+      start_in IN PLS_INTEGER,
+      end_in IN PLS_INTEGER
+   )
+      RETURN VARCHAR2;
+END str;
+/</pre>
+The str.betwn function returns the sub-string of a string_in that is found
+between the start and end locations specified by start_in and end_in.
+<p>So...time to test! I <a href="utgen.html">generate a test package</a>
+and then modify the unit test procedure to check for various conditions:
+<pre>/*file ut_str.pkb */
+CREATE OR REPLACE PACKAGE BODY ut_str
+IS
+   PROCEDURE ut_setup
+   IS
+   BEGIN
+      NULL;
+   END;
+   
+   PROCEDURE ut_teardown
+   IS
+   BEGIN
+      NULL;
+   END;
+
+   -- For each program to test...
+   PROCEDURE ut_betwn IS
+   BEGIN
+      utAssert.eq (
+         'Typical Valid Usage',
+         str.betwn ('this is a string', 3, 7),
+         'is is' 
+         );
+         
+      utAssert.eq (
+         'Test Negative Start',
+         str.betwn ('this is a string', -3, 7),
+         'ing'
+         );
+         
+      utAssert.isNULL (
+         'Start bigger than end',
+         str.betwn ('this is a string', 3, 1)
+         );
+   END ut_betwn;
+
+END ut_str;
+/</pre>
+As you can see, my calls to str.betwn are embedded right within calls to
+utAssert.eq and utAssert.isNULL, making my test code
+<h3>
+<a name="CompositeFunction"></a>Testing a Composite Function</h3>
+
+<!-- End utPLSQL Body -->
+</body>
+</html>

@@ -1,0 +1,503 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   
+   
+   
+   <title>utPLSQL - How to build a test package</title>
+</head>
+<body>
+ 
+<table cols="1" width="100%">
+<tr>
+<td bgcolor="#800080"><a href="index.html"><img height="56" src="utplsql.jpg" width="373"></a></td>
+</tr>
+</table>
+
+<blockquote>
+Authors: Steven Feuerstein,
+Chris Rimmer
+
+Copyright 2000-2001, all rights
+reserved
+</blockquote>
+[ <a href="index.html">Home</a> | <a href="started.html">Getting
+Started</a> | <b><a href="buildpack.html">Build Test Packages</a></b>
+| <a href="examples.html">Examples</a> | <a href="userguide.html">User
+Guide</a> | <a href="release.html">Release Notes</a> | <a href="map.html">Document
+Map</a> ]
+<p><a href="buildpack.html">&lt; Previous Section: Build Test
+Packages</a> | <a href="testrun.html">Next Section: A "Test Run" with utPLSQL
+></a>
+<br> 
+<!-- Begin utPLSQL Body -->
+<h1>
+How to build a test package</h1>
+
+<h1>
+<a name="Instructions"></a><b>Instructions</b></h1>
+To use utPLSQL, you will build a test package containing your unit tests.
+This test package must conform to the API (application programmatic interface)
+rules of utPLSQL, so that utPLSQL can run your tests automatically.
+<p>Every test package must have:
+<blockquote>
+<h3>
+<a href="#Setup">A setup procedure</a> - register your unit test and set
+up any data structures needed for testing.</h3>
+
+<h3>
+<a href="#Teardown">A teardown procedure</a> - remove any data structures
+created for testing.</h3>
+
+<h3>
+<a href="#Unittest">One or more unit test procedures</a> - perform the
+unit tests.</h3>
+</blockquote>
+The names you give to your test package, setup, teardown and unit test
+proceedures must also follow the utPLSQL <a href="#Naming">Naming Conventions</a>.
+<h3>
+<a name="Setup"></a>Setup Procedure</h3>
+
+The utPLSQL.test and utPLSQL.testsuite programs
+will call the setup procedure of your test package before it runs any unit
+tests. Use this procedure to define your unit tests and also initialize
+any data structures needed for your units. The package specification header
+for this procedure must be of this form:
+
+<pre>CREATE OR REPLACE PACKAGE &lt;prefix>&lt;package></pre>
+
+<pre>IS</pre>
+
+<pre>   PROCEDURE &lt;prefix>setup;</pre>
+
+where &lt;prefix> is the unit test prefix and &lt;package>
+is the name of the package (or stand alone program) to be tested. The default
+naming convention is that your test package and all utPLSQL programs, including
+the setup procedure, have a prefix of "ut_", as in:
+
+<pre>CREATE OR REPLACE PACKAGE ut_&lt;program></pre>
+
+<pre>IS</pre>
+
+<pre>   PROCEDURE ut_setup;</pre>
+
+Note: if you are using <a href="utconfig.html#Manualregister">manual
+registration of unit tests</a> (which is <i>not</i> the default setting
+and is <i>not</i> recommeded), see <a href="#Naming">Naming Conventions</a>
+for details on when and how to apply prefixes to your package and procedure
+names.
+
+Now let's take a look at the body/implementation
+of the setup procedure and how you can use it to define test data structures
+and, optionally, register unit tests.
+
+<h4>
+Define test data structures</h4>
+You should  use the setup procedure to define data structures you
+need in one or more of your tests. You might, for example, want to create
+a temporary table to hold information for comparison. You might populate
+a collection or a record a scalar global variable.
+<p>Here is an example of such a procedure (see Examples\ut_te_employee.pkb
+for the full implementation):
+<pre>PROCEDURE ut_setup
+IS
+BEGIN
+   ut_teardown;</pre>
+
+<pre>   EXECUTE IMMEDIATE 'CREATE TABLE ut_employee AS
+         SELECT * FROM employee';
+
+   EXECUTE IMMEDIATE 'CREATE TABLE ut_DEL1 AS
+         SELECT * FROM employee';
+
+   EXECUTE IMMEDIATE 'CREATE TABLE ut_DELBY_EMP_DEPT_LOOKUP AS
+         SELECT * FROM employee';
+END;</pre>
+For each of my tests, I create a separate table to modify and then use
+in my utAssert comparison.
+<p>You could place these statements in each of the individual unit test
+procedures. The advantage of storing them all in the single setup procedure
+is that they are easier to manage -- and also easier to tear down or destroy
+when you are done.
+<h4>
+Manual registration of unit tests</h4>
+
+If you have decided to choose <a href="utconfig.html#Manualregister">manual
+registration</a> of your unit test procedures, then you will need to register
+each procedure with a call to <a href="utplsql.html#Register">utPLSQL.registertest</a>
+in the setup procedure. This is not recommended. But if you insist...
+
+Here is an example of a setup procedure for the
+PLVdate package:
+
+<pre>CREATE OR REPLACE PACKAGE BODY ut_plvdate</pre>
+
+<pre>IS</pre>
+
+<pre>   PROCEDURE ut_setup</pre>
+
+<pre>   IS</pre>
+
+<pre>   BEGIN</pre>
+
+<pre>      utplsql.addtest ('ut_to_date');</pre>
+
+<pre>      utplsql.addtest ('ut_to_char');</pre>
+
+<pre>   END;</pre>
+
+The names passed to the utPLSQL.addtest procedure
+must match the interface of the defined <a href="#Unittest">unit test procedures</a>
+with the following interface. So the above two calls to addtest tell utPLSQL
+to look for two unit test procedures named ut_to_date and ut_to_char.
+
+<h3>
+<a name="Teardown"></a>Teardown Procedure</h3>
+
+The utPLSQL.test and utPLSQL.testsuite programs
+will call the teardown procedure of your test package after it runs all
+unit tests. Use this procedure to destroy or remove any data structures
+that were needed for your units. The contents of this procedure should,
+in general, be the logical reverse of the contents of the <a href="#Setup">setup
+procedure</a>. The package specification header for this procedure must
+be of this form:
+
+<pre>CREATE OR REPLACE PACKAGE &lt;prefix>&lt;package></pre>
+
+<pre>IS</pre>
+
+<pre>   PROCEDURE &lt;prefix>teardown;</pre>
+
+where &lt;prefix> is the unit test prefix and &lt;package>
+is the name of the package (or stand alone program) to be tested.
+
+The default naming convention is that your test
+package and all utPLSQL programs, including the teardown procedure, have
+a prefix of "ut_", as in:
+
+<pre>CREATE OR REPLACE PACKAGE ut_&lt;program></pre>
+
+<pre>IS</pre>
+
+<pre>   PROCEDURE ut_teardown;</pre>
+
+Note: if you are using <a href="utconfig.html#Manualregister">manual
+registration of unit tests</a> (which is <i>not</i> the default setting
+and is <i>not</i> recommeded), see <a href="#Naming">Naming Conventions</a>
+for details on when and how to apply prefixes to your package and procedure
+names.
+
+Now let's take a look at the body/implementation
+of the teardown procedure and how you can use it to remove test data structures.
+
+Here is an example of the most common type of teardown
+procedure -- it does nothing:
+
+<pre>CREATE OR REPLACE PACKAGE ut_sales_pkg</pre>
+
+<pre>IS</pre>
+
+<pre>   PROCEDURE teardown</pre>
+
+<pre>   IS</pre>
+
+<pre>   BEGIN</pre>
+
+<pre>      NULL;</pre>
+
+<pre>   END;</pre>
+
+This is what your teardown procedure will look like
+when you do not need to create any special data structures for your tests.
+If I were testing a simple string utility, for example, I do not need a
+database table or collection to run my tests. Note that even if your teardown
+procedure does nothing, <i>it still must be present in the package specification
+and body</i>. utPLSQL will look for and try to execute the procedure as
+part of its S.O.P. (standard operating procedure).
+
+Now, if your setup procedure creates something,
+you should probably destroy it in teardown. You might drop or truncate
+tables, do a ROLLBACK or simply make sure files and cursors are closed.
+Here is an example of such a procedure:
+
+<pre>PROCEDURE teardown</pre>
+
+<pre>IS</pre>
+
+<pre>BEGIN</pre>
+
+<pre>   mycollection.DELETE;</pre>
+
+<pre>   EXECUTE IMMEDIATE 'TRUNCATE TABLE ' || workspace_tab;</pre>
+
+<pre>   DBMS_SESSION.FREE_UNUSED_USER_MEMORY;</pre>
+
+<pre>END;</pre>
+
+<h3>
+<a name="Unittest"></a>The Unit Test Procedure</h3>
+
+The unit test procedure is, of course, where it
+gets really interesting and <i>very</i> application specific.
+
+The general format for a test procedure is as follows:
+
+<pre>CREATE OR REPLACE PACKAGE &lt;prefix>&lt;package>
+IS
+   PROCEDURE &lt;prefix>&lt;program>;</pre>
+
+where &lt;prefix> is the unit test prefix and &lt;package>
+is the name of the package (or stand alone program) to be tested. The default
+naming convention is that your test package and the unit test procedure
+each have a prefix of "ut_". You can override that prefix with another
+of your own choosing in your call to <a href="utplsql.html#utplsql.test">utPLSQL.test
+or utPLSQL.testsuite</a>. Under some circumstances, you <i>can</i> drop
+the prefix on the unit test procedure, but this is not recommended. see
+<a href="#Naming">Naming
+Conventions</a>. for details.
+
+Here is a very generic version of a unit test package
+specification and a single unit test procedure:
+
+<pre>-- Test package for stand alone program</pre>
+
+<pre>CREATE OR REPLACE PACKAGE ut_&lt;package></pre>
+
+<pre>IS</pre>
+
+<pre>   PROCEDURE ut_setup;</pre>
+
+<pre>   PROCEDURE ut_teardown;</pre>
+
+<pre>   PROCEDURE ut_&lt;program>;</pre>
+
+<pre>END;</pre>
+
+The body of your unit test procedure is, well, mostly
+yours to figure out, since we don't know what you are testing and how you
+need to test it. The basic format of this test procedure, however, should
+be:
+
+<pre>PROCEDURE &lt;myprogram>
+IS
+BEGIN
+   &lt;run package.myprogram or set up for test>
+
+   -- call a utAssert assertion to check results:
+   <a href="utassert.html">utAssert</a>.&lt;assertion> (...);
+
+   &lt;repeat of the above for different test cases>
+EXCEPTION
+   WHEN OTHERS
+   THEN
+      utAssert.this (
+         'Unknown failure of &lt;package.myprogram>: ' || SQLERRM,
+         FALSE);
+END;</pre>
+You should include a call to a utAssert assertion program in the exception
+section to trap unexpected errors and register a test failure (I pass FALSE
+for the second argument, which guarantees a failure!). You might, of course,
+have other handlers to trap specific exceptions like NO_DATA_FOUND and
+either register a failure or ignore the exception, since it might not be
+an actual test failure.
+<p>Here is an example of a unit test procedure that contains multiple calls
+to assertion programs for different test cases.
+<pre>PROCEDURE ut_BETWNSTR IS
+BEGIN
+   utAssert.eq (
+      'Typical valid usage',
+      BETWNSTR(
+         STRING_IN => 'abcdefg'
+         ,
+         START_IN => 3
+         ,
+         END_IN => 5
+         ),
+      'cde'
+      );
+      
+   utAssert.isnull (
+      'NULL start',
+      BETWNSTR(
+         STRING_IN => 'abcdefg'
+         ,
+         START_IN => NULL
+         ,
+         END_IN => 5
+         )
+      );
+
+   utAssert.isnull (
+      'NULL end',
+      BETWNSTR(
+         STRING_IN => 'abcdefg'
+         ,
+         START_IN => 2
+         ,
+         END_IN => NULL
+         )
+      );
+      
+   utAssert.isnull (
+      'End smaller than start',
+      BETWNSTR(
+         STRING_IN => 'abcdefg'
+         ,
+         START_IN => 5
+         ,
+         END_IN => 2
+         )
+      );
+      
+   utAssert.eq (
+      'End larger than string length',
+      BETWNSTR(
+         STRING_IN => 'abcdefg'
+         ,
+         START_IN => 3
+         ,
+         END_IN => 200
+         ),
+      'cdefg'
+      );
+      
+END ut_BETWNSTR;</pre>
+In the above case, I am testing a function, so I call the function "in
+line" with the assertion program. When testing a procedure, you will call
+the procedure first and then call the appropriate assertion program to
+test the outcome.
+<p>Explore the <a href="examples.html">Examples</a> to learn about different
+ways to write unit test procedures.
+<h3>
+<a name="Naming"></a>Naming Conventions</h3>
+When you execute a test or test suite, utPLSQL looks for a test package,
+based on the name of the program you are testing. It then attempts to execute
+specific programs within that package. utPLSQL allows you to test stand-alone
+programs (procedure or function) or package-based programs. When testing
+the contents of a package, you can place your unit test procedures in the
+<a href="samepack.html">same
+package</a> or a separate test package. That's a lot of flexibility, and
+flexibility generally leads to confusion.
+<p>To make things as simple as possible, the default mode of utPLSQL follows
+this simple rule:
+
+<p><b>Your unit test package and each utPLSQL-related program in that package
+(setup, teardown and unit tests) must all use the same prefix.</b>
+
+<p>The default prefix is "ut_", but you can override that with your own.
+If you follow this rule (and you can follow it very easily by using the
+<a href="utgen.html">utGen
+package</a> to generate a starting point for your test packages), utPLSQL
+<p>If you are following the utPLSQL defaults and letting the utility automatically
+detect and execute unit tests, <b>do not read any further!</b>
+<p>If you choose to perform<a href="utconfig.html#Manualregister"> manual
+registration </a>of your unit tests, then read the following sections carefully,
+as there is a scenario in which you should <i>not </i>apply the utPLSQL
+prefix to your unit test procedures.
+<p>This section describes the conventions or rules that utPLSQL follows
+to locate and execute your unit tests. There are three different "scenarios"
+to consider:
+<p><a href="#NC1">Separate test package to test package-based programs</a>
+<p><a href="#NC2">Separate test package to test a stand-alone program</a>
+<p><a href="#NC3">Single package containing both source to be tested and
+unit test programs</a>
+<p>While these rules might seem confusing at first glance, you will find
+over time that they are designed to make the issue of what things are named
+as transparent as possible when you run your tests. In other words, you
+simply ask to test "mypackage"; you don't have to run some oddly-named
+program with a prefix in front of it.
+<p>In addition, you can use the <a href="utgen.html">utGen package</a> to
+generate a starting point for your test packages. utGen will automatically
+follow the rules; you only need to "fill in the blanks" of your unit test
+procedures within the established headers.
+<h4>
+<a name="NC1"></a>Separate test package to test package-based programs</h4>
+If you are placing your unit test code in a package separate from your
+source code (the default setting), then the name of that test package must
+be of the form:
+<pre>&lt;prefix>&lt;package></pre>
+where &lt;prefix> is the utPLSQL prefix and &lt;package> is the name of
+the package containing the programs to be tested.
+<p>You specify the prefix in one of the following ways:
+<ul>
+<li>
+When you call utPLSQL.test or utPLSQL.testsuite, you can pass a value for
+the prefix_in parameter (the default is "ut_").</li>
+
+When you call utPackage.add to add a package
+to a suite, you can pass a value for the prefix_in parameter (the default
+is "ut_"). This prefix is then stored in the ut_package table.
+</ul>
+The names of the test package programs, on the other hand, should <i>not</i>
+have a prefix before them. These prefixes are not necessary to distinguish
+the test procedure with the program being tested, since they are defined
+in different packages.
+<h4>
+<a name="NC2"></a>Separate test package to test a stand-alone program</h4>
+If you are placing your unit test code in a package separate from your
+source code (the default setting), then the name of that test package must
+be of the form:
+<pre>&lt;prefix>&lt;program></pre>
+where &lt;prefix> is the utPLSQL prefix and &lt;program> is the name of
+the stand-alone program you plan to test.
+<p>You specify the prefix in one of the following ways:
+<ul>
+<li>
+When you call utPLSQL.test or utPLSQL.testsuite, you can pass a value for
+the prefix_in parameter (the default is "ut_").</li>
+
+When you call utPackage.add to add a package
+to a suite, you can pass a value for the prefix_in parameter (the default
+is "ut_"). This prefix is then stored in the ut_package table.
+</ul>
+The names of the test package programs, on the other hand, also must have
+the same prefix. This is necessary to avoid confusing naming conflicts
+between the program you are testing and the name of the unit test procedure
+for that program, as in the following package that tests the betwnstr function:
+<pre>CREATE OR REPLACE PACKAGE ut_betwnstr
+IS
+   PROCEDURE ut_setup;
+   PROCEDURE ut_teardown;
+   PROCEDURE ut_betwnstr;
+END ut_betwnstr;
+/</pre>
+I suppose that looks odd; I have created a function named ut_betwnstr.ut_betwnstr
+and it would be very strange to write code like that. But that is the whole
+point of utPLSQL: I don't <i>have</i> to write code like that. I just run
+my test with nothing more than this:
+<pre>SQL> exec utPLSQL.test ('betwnstr')</pre>
+
+<h4>
+<a name="NC3"></a>Single package containing both source to be tested and
+unit test programs</h4>
+Finally, there is the scenario in which a developer places all of her test
+programs (setup, teardown and unit tests) in the same package as the code
+to be tested. In this case, there is no separate test package, so all of
+the test programs must use the utPLSQL prefix, as in:
+<pre>CREATE OR REPLACE PACKAGE str
+IS
+   FUNCTION betwn (
+      string_in IN VARCHAR2,
+      start_in IN PLS_INTEGER,
+      end_in IN PLS_INTEGER
+   )
+      RETURN VARCHAR2;
+      
+   PROCEDURE ut_setup;
+   PROCEDURE ut_teardown;
+   PROCEDURE ut_betwn;
+      
+END str;
+/</pre>
+You specify the prefix in one of the following ways:
+<blockquote>
+<li>
+When you call utPLSQL.test or utPLSQL.testsuite, you can pass a value for
+the prefix_in parameter (the default is "ut_"). When you call utPackage.add
+to add a package to a suite, you can pass a value for the prefix_in parameter
+(the default is "ut_"). This prefix is then stored in the ut_package table.</li>
+</blockquote>
+
+<!-- End utPLSQL Body -->
+</body>
+</html>

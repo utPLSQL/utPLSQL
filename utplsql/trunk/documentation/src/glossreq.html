@@ -1,0 +1,131 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   
+   
+   
+   <title>utPLSQL - Glossary &amp; Requirements</title>
+</head>
+<body>
+ 
+<table cols="1" width="100%">
+<tr>
+<td bgcolor="#800080"><a href="index.html"><img height="56" src="utplsql.jpg" width="373"></a></td>
+</tr>
+</table>
+
+<blockquote>
+Authors: Steven Feuerstein,
+Chris Rimmer
+
+Copyright 2000-2001, all rights
+reserved
+</blockquote>
+[ <a href="index.html">Home</a> | <b><a href="started.html">Getting
+Started</a></b> | <a href="buildpack.html">Build Test Packages</a>
+| <a href="examples.html">Examples</a> | <a href="userguide.html">User
+Guide</a> | <a href="release.html">Release Notes</a> | <a href="map.html">Document
+Map</a> ]
+<p><a href="started.html">&lt; Previous Section: Getting Started</a>
+| <a href="fourstep.html">Next Section: The Four Step Program to Using utPLSQL
+></a>
+<br> 
+<!-- Begin utPLSQL Body -->
+<h1>
+Glossary and Requirements</h1>
+
+<h2>
+<a name="Glossary"></a>Glossary</h2>
+
+Before diving into the details, let's make sure
+we have a common vocabulary.
+
+<h3>
+Unit Test</h3>
+
+A test of a single unit or program. Suppose you
+have built product.total_sales, a function to calculate and return total
+sales of the specified product for a given date period. You will then build
+a single procedure to perform the test for that function.
+
+<h3>
+Test Case</h3>
+
+Individual cases or test scenarios for a unit test.
+You will want to try out different scenarios (valid and invalid product
+Ids, various date ranges, etc.). Each different combination of inputs (parameter
+values) is a different test case. These are bundled up and executed within
+the single unit test procedure.
+
+<h3>
+Package Test</h3>
+
+A set of unit tests which test the functionality
+of all programs in a single PL/SQL package (or a single stand-alone program
+unit – procedure or function).
+
+The way utPLSQL works today, you <i>must</i> define
+your various tests cases and unit tests within a test package (though it
+<i>could</i>
+be the same package containing the functionality).
+
+<h3>
+Test Suite</h3>
+
+A series of package tests. Obviously, any application
+of non-trivial complexity will consist of multiple packages, each covering
+their own area of functionality. A test suite contains a series of packages
+that can then be tested in sequence by executing the test suite as a whole.
+
+<h2>
+<a name="Requirements"></a>Requirements</h2>
+
+If you are using Oracle8i, utPLSQL takes advantage
+of a number of Oracle8i features, including autonomous transactions, invoker
+rights and native dynamic SQL. You can also, however, use utPLSQL on Oracle7
+(7.3.4 and above) and Oracle8.
+
+Requirements for using utPLSQL include:
+<p>
+&middot;The
+schema owning utPLSQL objects must have EXECUTE authority on the DBMS_PIPE
+package, as well as the ability to create tables and packages.
+<p>
+&middot;If
+you want utPLSQL to automatically recompile test packages for you, you
+will need to have <a href="admin.html#UTL_FILE">UTL_FILE</a> installed and
+configured to read from the directory or directories in which your package
+source files are located.
+<p>
+&middot;<b>Optional</b>:
+ability to create public synonyms. The installation script will attempt
+to create public synonyms. If your schema does not hae the authority to
+do so, these commands will fail, but utPLSQL will still be available for
+use in the owning schema.
+<p>
+<h3>
+Requirements for Executing Test Code</h3>
+<p>
+
+If you install and use utPLSQL from within a single schema (ie, the same schema that owns utPLSQL code and tables owns the code
+you want to test, as well as the test packages), then no additional privileges are needed.
+<p>
+If, however, you install utPLSQL in a shared schema and then access it from other schemas, you may need to grant additional 
+privileges to the utPLSQL schema. utPLSQL uses dynamic PL/SQL to run the test code. It therefore requires directly granted
+EXECUTE privileges on those code elements (both the code to be tested and the test packages) -- or the AUTHID CURRENT_USER 
+capability of Oracle8i. 
+<p>
+FOR ORACLE8i AND ABOVE
+<p>
+You do not need to grant any additional privileges, unless you want to test code owned by one schema from another schema. 
+In that case, you will need to grant EXECUTE to the schema from which you run your tests on both the code to be tested and the test package.
+<p>
+FOR ORACLE7 AND ORACLE8
+<p>  
+You must grant EXECUTE to the utPLSQL schema on both the code to be tested and the test package.
+These grants must be made directly and not through roles.
+
+
+<!-- End utPLSQL Body -->
+</body>
+</html>
