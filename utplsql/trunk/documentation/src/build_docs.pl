@@ -92,7 +92,7 @@ foreach $index (0..$#map){
 	open OUTPUT, ">$OUTDIR/$map[$index]->[0]" or die "Cannot open $OUTDIR/$map[$index]->[0]";
 
 	if ($index != $#map){
-		system("clean_html.pl $map[$index]->[0] > $map[$index]->[0].clean");
+		system("./clean_html.pl $map[$index]->[0] > $map[$index]->[0].clean");
 		open INPUT, "$map[$index]->[0].clean" or die "Cannot open $map[$index]->[0].clean";
 	}
 
