@@ -8,6 +8,11 @@ SET DEFINE ON
 TTITLE OFF
 SET SERVEROUTPUT ON SIZE 1000000 FORMAT WRAPPED
 
+SET TERMOUT ON
+PROMPT &line1
+PROMPT DROPPING &UT PACKAGES
+PROMPT &line1
+
 drop package UTAEQ;
 drop package UTASSERT2;
 drop package UTASSERT;
@@ -36,6 +41,12 @@ drop package UTTESTPREP;
 drop package UTUNITTEST;
 drop package UTUTP;
 drop package UTVVALUE;
+
+SET TERMOUT ON
+PROMPT &line1
+PROMPT DROPPING &UT PUBLIC SYNONYMS
+PROMPT &line1
+
 drop public synonym UTAEQ;
 drop public synonym UTASSERT2;
 drop public synonym UTASSERT;
@@ -91,6 +102,26 @@ drop public synonym UT_TESTPREP;
 drop public synonym UT_UNITTEST;
 drop public synonym UT_UTOUTPUT;
 drop public synonym UT_UTP;
+drop public synonym UTA_EQ_SEQ;
+drop public synonym UTPLSQL_RUNNUM_SEQ;
+drop public synonym UTV_VALUE_SEQ;
+drop public synonym UT_ASSERTION_SEQ;
+drop public synonym UT_PACKAGE_SEQ;
+drop public synonym UT_RECEQ_SEQ;
+drop public synonym UT_REFCURSOR_RESULTS_SEQ;
+drop public synonym UT_SUITE_SEQ;
+drop public synonym UT_TESTCASE_SEQ;
+drop public synonym UT_TEST_SEQ;
+drop public synonym UT_UNITTEST_SEQ;
+drop public synonym UT_UTP_SEQ;
+drop public synonym UTV_LAST_RUN;
+drop public synonym UTV_RESULT_FULL;
+
+SET TERMOUT ON
+PROMPT &line1
+PROMPT DROPPING &UT SEQUENCES
+PROMPT &line1
+
 drop sequence UTA_EQ_SEQ;
 drop sequence UTPLSQL_RUNNUM_SEQ;
 drop sequence UTV_VALUE_SEQ;
@@ -103,6 +134,12 @@ drop sequence UT_TESTCASE_SEQ;
 drop sequence UT_TEST_SEQ;
 drop sequence UT_UNITTEST_SEQ;
 drop sequence UT_UTP_SEQ;
+
+SET TERMOUT ON
+PROMPT &line1
+PROMPT DROPPING &UT TABLES
+PROMPT &line1
+
 drop table UTA_EQ cascade constraints;
 drop table UTR_ERROR cascade constraints;
 drop table UTR_OUTCOME cascade constraints;
@@ -130,7 +167,3 @@ drop table UT_TESTPREP cascade constraints;
 drop table UT_UNITTEST cascade constraints;
 drop table UT_UTP cascade constraints;
 
-SPOOL OFF
-SET TERMOUT ON
-
-@@&uscript
