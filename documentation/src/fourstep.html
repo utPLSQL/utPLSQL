@@ -24,19 +24,35 @@ prior to installation. If you wish to install a fresh copy of utPLSQL, and not u
 over the existing installation, please follow the steps below for removing
 utPLSQL.</p>
 
-<p> </p>
 
 <p>Connect via SQL*Plus to the session that will own the
 utPLSQL components. If you do not already have a schema defined, then you must
 create it. The utPLSQL schema must have the authority to:</p>
 
-<p> </p>
+<ul>
+<li>Create a session.</li>
+<li>Create tables, views, packages and sequences.</li>
+<li>Execute the SYS.DBMS_PIPE package.</li>
+</ul>
 
-<p>Create tables</p>
+<p>The following is an example script submitted by Bill Pribyl, which creates a user "UTP" with sufficient privileges 
+to install utPLSQL.  Obviously it is only an example and will need to be changed for your environment:</p>
 
-<p>Create packages</p>
+<pre>connect system/manager
+create user utp identified by utp default tablespace
+  users temporary tablespace temp;
 
-<p> </p>
+grant create session, create table, create procedure,
+  create sequence, create view, create public synonym,
+  drop public synonym to utp;
+
+alter user utp quota unlimited on users;
+
+connect sys as sysdba
+grant execute on dbms_pipe to utp;</pre>
+
+<p><b>Note</b> If the schema in question does not have the ability to create and drop public synonyms, you 
+will get error messages when installing.  However, utPLSQL will still function correctly.</p>
 
 <p>Once you have connected to the schema, run the utplsql_install.sql
 file to install all utPLSQL objects. If the working directory of your SQL*Plus
