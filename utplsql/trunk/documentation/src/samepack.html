@@ -1,35 +1,7 @@
 <!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
-   
-   
-   
-   <title>utPLSQL - Put Test Code in Same Package</title>
-</head>
-<body>
- 
-<table cols="1" width="100%">
-<tr>
-<td bgcolor="#800080"><a href="index.html"><img height="56" src="utplsql.jpg" width="373"></a></td>
-</tr>
-</table>
-
-<blockquote>
-Authors: Steven Feuerstein,
-Chris Rimmer
-
-Copyright 2000-2001, all rights
-reserved
-</blockquote>
-[ <a href="index.html">Home</a> | <a href="started.html">Getting
-Started</a> | <a href="buildpack.html">Build Test Packages</a>
-| <b><a href="examples.html">Examples</a></b> | <a href="userguide.html">User
-Guide</a> | <a href="release.html">Release Notes</a> | <a href="map.html">Document
-Map</a> ]
-<p><a href="testapi.html">&lt; Previous Section: Test an Entire Package
-API</a> | <a href="prefix.html">Next Section: Use Non-Default Prefix ></a>
-<br> 
+<html><head><title></title></head><body>
 <!-- Begin utPLSQL Body -->
+<!-- $Id$ -->
 <h1>
 Put Test Code in Same Package</h1>
 
@@ -84,7 +56,7 @@ The package body contains nothing unusual; it is the same test for str.betwn
 that you can find in the <a href="testfunc.html#ScalarFunction">Testing
 a Scalar Function</a> example. But when I execute my test, I need to tell
 utPLSQL that my test code is located in the same package:
-<pre>SQL> exec utplsql.showconfig
+<pre>SQL&gt; exec utconfig.showconfig
 =============================================================
 utPLSQL Configuration for SCOTT
    Directory: e:\openoracle\utplsql\utinstall\examples

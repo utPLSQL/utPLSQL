@@ -1,35 +1,7 @@
 <!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html>
-<head>
-   
-   
-   
-   <title>utPLSQL - utConfig Package</title>
-</head>
-<body>
- 
-<table cols="1" width="100%">
-<tr>
-<td bgcolor="#800080"><a href="index.html"><img height="56" src="utplsql.jpg" width="373"></a></td>
-</tr>
-</table>
-
-<blockquote>
-Authors: Steven Feuerstein,
-Chris Rimmer
-
-Copyright 2000-2001, all rights
-reserved
-</blockquote>
-[ <a href="index.html">Home</a> | <a href="started.html">Getting
-Started</a> | <a href="buildpack.html">Build Test Packages</a>
-| <a href="examples.html">Examples</a> | <b><a href="userguide.html">User
-Guide</a></b> | <a href="release.html">Release Notes</a> | <a href="map.html">Document
-Map</a> ]
-<p><a href="utplsql.html">&lt; Previous Section: utPLSQL Package</a> | <a href="utresult.html">Next
-Section: utResult Package ></a>
-<br> 
+<html><head><title></title></head><body>
 <!-- Begin utPLSQL Body -->
+<!-- $Id$ -->
 <h1>
 utConfig Package</h1>
 
@@ -132,13 +104,13 @@ not specified.  To set this, the following procedure is used:
 
 <h3>
 <a name="Showconfig"></a>View a schema's configuration</h3>
-Call the utPLSQL.showconfig procedure to view the configuration for a specified
+Call the utconfig.showconfig procedure to view the configuration for a specified
 schema. The header is:
 <pre>PROCEDURE utConfig.showconfig (username_in IN VARCHAR2 := NULL);</pre>
 If you do not specify a schema, then the <a href="#Whoseconfig">currently
 used</a> configuration is returned. Here is an example of output from this
 procedure:
-<pre>SQL> exec utconfig.showconfig
+<pre>SQL&gt; exec utconfig.showconfig
 =============================================================
 utPLSQL Configuration for SCOTT
    Directory: /apps/utplsql/code
@@ -147,7 +119,7 @@ utPLSQL Configuration for SCOTT
    Prefix = test_
 =============================================================</pre>
 And here is an example of calling showConfig for a different schema:
-<pre>SQL> exec utconfig.showconfig ('COMP')
+<pre>SQL&gt; exec utconfig.showconfig ('COMP')
 =============================================================
 utPLSQL Configuration for COMP
    Directory: M:\shared_apps\utplsql\comp
