@@ -35,18 +35,18 @@ tests. Use this procedure to define your unit tests and also initialize
 any data structures needed for your units. The package specification header
 for this procedure must be of this form:
 
-<pre>CREATE OR REPLACE PACKAGE &lt;prefix>&lt;package></pre>
+<pre>CREATE OR REPLACE PACKAGE &lt;prefix&gt;&lt;package&gt;</pre>
 
 <pre>IS</pre>
 
-<pre>   PROCEDURE &lt;prefix>setup;</pre>
+<pre>   PROCEDURE &lt;prefix&gt;setup;</pre>
 
-where &lt;prefix> is the unit test prefix and &lt;package>
+where &lt;prefix&gt; is the unit test prefix and &lt;package&gt;
 is the name of the package (or stand alone program) to be tested. The default
 naming convention is that your test package and all utPLSQL programs, including
 the setup procedure, have a prefix of "ut_", as in:
 
-<pre>CREATE OR REPLACE PACKAGE ut_&lt;program></pre>
+<pre>CREATE OR REPLACE PACKAGE ut_&lt;program&gt;</pre>
 
 <pre>IS</pre>
 
@@ -68,8 +68,8 @@ You should  use the setup procedure to define data structures you
 need in one or more of your tests. You might, for example, want to create
 a temporary table to hold information for comparison. You might populate
 a collection or a record a scalar global variable.
-<p>Here is an example of such a procedure (see Examples\ut_te_employee.pkb
-for the full implementation):
+<p>Here is an example of such a procedure (see the file ut_te_employee.pkb 
+in the Examples directory of the utPLSQL distribution for the full implementation):
 <pre>PROCEDURE ut_setup
 IS
 BEGIN
