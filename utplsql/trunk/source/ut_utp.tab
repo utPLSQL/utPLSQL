@@ -1,5 +1,4 @@
 CREATE TABLE ut_utp (
-   name VARCHAR2(30), /* V2: now constructed as UTP<delimiter>id */
    id INTEGER,
    description VARCHAR2(2000),
    prefix   VARCHAR2(10), /* V1 compatibility. V2: use ut_config.delimiter to construct names. */
@@ -19,6 +18,8 @@ CREATE TABLE ut_utp (
 REM 2.0.8.1
 ALTER TABLE ut_utp ADD per_method_setup char(1);
 
+ALTER TABLE ut_utp ADD name VARCHAR2(30);
+   
 REM 2.1.1 
 REM /* Owner of UTP  */
 ALTER TABLE ut_utp ADD utp_owner VARCHAR2(30); 
