@@ -44,8 +44,10 @@ close MAP;
 push @map, ["map.html", "Document Map", 1];
 $nav = "[ $nav | <A href=\"map.html\">Document Map</A> ]";
 
-#Holds the copyright string
+#Hold the copyright strings
 my $copyright;
+my $copymeta;
+my $authormeta;
 
 #Read the authors file
 open AUTHORS, "authors.txt" or die "Cannot open authors.txt";
@@ -58,12 +60,15 @@ while (<AUTHORS>){
 		($name, $email) = split /,/;
 		$copyright .= ', ' if $copyright;
 		$copyright .= "<A href=\"mailto:$email\">$name<A>";
+		$authormeta .= ', ' if $authormeta;
+		$authormeta .= $name;
 	}
 }
 close AUTHORS;
 
-#Put together the rest of the copyright notice
+#Put together the rest of the copyright notices
 $copyright = "Copyright (C) 2000-".(((gmtime(time))[5])+1900)." $copyright All rights reserved";
+$copymeta = "(C) 2000-".(((gmtime(time))[5])+1900)." $authormeta";
 
 my $logo = '<div class="purple_bar"><a href="index.html"><img src="utplsql.jpg" border=0></a></div>';
 
@@ -91,10 +96,17 @@ foreach $index (0..$#map){
 		open INPUT, "$map[$index]->[0].clean" or die "Cannot open $map[$index]->[0].clean";
 	}
 
-	print OUTPUT "<!doctype html public \"-//w3c//dtd html 4.0 transitional//en\">\n";
+	print OUTPUT "<!doctype html public \"-//w3c//dtd html 4.0 transitional//en\">\n\n\n";
+	print OUTPUT "<!-- WARNING! This file is generated. -->\n";
+	print OUTPUT "<!-- To alter documentation, edit files in src directory -->\n\n\n";
 	print OUTPUT "<html><head>\n";
 	print OUTPUT "<title>$map[$index]->[1]</title>\n";
-	print OUTPUT "<link rel=\"stylesheet\" href=\"utplsql.css\" content=\"text/css\">";
+	print OUTPUT "<link rel=\"stylesheet\" href=\"utplsql.css\" content=\"text/css\">\n";
+	print OUTPUT "<meta name=\"keywords\" content=\"utPLSQL, PL\\SQL, Unit Testing, Framework, Oracle\"/>\n";
+        print OUTPUT "<meta name=\"description\" content=\"Unit Testing PL\\SQL\"/>\n";
+	print OUTPUT "<meta name=\"title\" content=\"$map[$index]->[1]\"/>\n";
+	print OUTPUT "<meta name=\"author\" content=\"$authormeta\"/>\n";
+	print OUTPUT "<meta name=\"copyright\" content=\"$copymeta\"/>\n";
 	print OUTPUT "</head><body>\n";
 	print OUTPUT "$logo\n";
 	print OUTPUT "<p>$nav</p>\n";
@@ -103,9 +115,15 @@ foreach $index (0..$#map){
 	#Either print the body, or construct it for the document map 
 	if ($index != $#map){
 		while (<INPUT>){
-			$body = 1 if /^\s*<!-- Begin utPLSQL Body -->\s*$/;
+			if (/(<!-- Begin utPLSQL Body -->.*)/){
+				$_ = "$1\n";
+				$body = 1;
+			}
+			if (/(.*<!-- End utPLSQL Body -->)/i){
+				$body = 0;
+				print OUTPUT "$1\n";
+			}
 			print OUTPUT $_ if $body;
-			$body = 0 if /^\s*<!-- End utPLSQL Body -->\s*$/i;
 		}
 		close INPUT;
 		unlink("$map[$index]->[0].clean");
