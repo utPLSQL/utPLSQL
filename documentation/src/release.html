@@ -16,9 +16,29 @@ is possible to work around this problem by turning off autonomous transactions
 , but this can cause other problems if the tests themselves have rollbacks
 within them.<br>
   </li>
+<li>The utAssert.eqtable assertion program will not work with tables that
+    contain non-scalar datatypes, such as LOBs, XMLType, collections and so on.
+  </li>
 </ul>
 <h2>Change History<br>
 </h2>
+<h3>utPLSQL version 2.0.9.2</h3>
+<ul type="disc">
+  <li>Surround
+    AUTHID CURRENT_USER clause of utreceq.pks to allow for installation on
+    Oracle7 and Oracle8.</li>
+  <li>Add
+    override_package_in argument to utPLSQL.test so that you can bypass the
+    standard ut_&lt;package&gt; naming conventions for testing. This is useful
+    when your package name's length is 28 or above. By passing in the override
+    package name, you can avoid the name limitation.</li>
+  <li>New
+    assertion programs to validate DBMS_OUTPUT text that is generated from
+    within a program.</li>
+  <li>Add
+    utplsql.run and utplsql.runsuite to run a named test package directly, and
+    not correlate it via the name of the program being tested.</li>
+</ul>
 <h3>utPLSQL version 2.0.9.1</h3>
   
 <ul type="Disc">
