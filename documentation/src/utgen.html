@@ -39,8 +39,8 @@ utGen Package</h1>
 </table>
 
 
-<h3>
-<a name="testpkg"></a>Generate Skeleton Test Packages</h3>
+<h2>
+<a name="testpkg"></a>Generate Skeleton Test Packages</h2>
 The utGen contains a procedure that allows you to generate a starting point
 for a unit test package. This package can be sent to the <a href="#screen">screen</a>,
 a <a href="#file">file</a>, a <a href="#string">delimited string</a> or
@@ -256,8 +256,8 @@ Generate to the screen unit test code for all programs whose names contain
 Now let's explore how to direct the generated code
 to different types of output.
 
-<h3>
-<a name="screen"></a>Generating to Screen</h3>
+<h2>
+<a name="screen"></a>Generating to Screen</h2>
 
 The default behavior of utGen.testpkg is to generate
 code to your screen (via DBMS_OUTPUT.PUT_LINE). So unless you specify some
@@ -282,8 +282,8 @@ also spooling to a file:
 If DBMS_OUTPUT is not enabled in your session, then
 utGen.testpkg will not generate any output.
 
-<h3>
-<a name="file"></a>Generating to File</h3>
+<h2>
+<a name="file"></a>Generating to File</h2>
 
 If you are working with utGen in a command line
 style (ie, you are not using a utGen-enabled GUI), then you will probably
@@ -324,8 +324,8 @@ your database parameter initialization file) and make sure your directory
 is accessible through UTL_FILE, before this operation can succeed.</li>
 </ol>
 
-<h3>
-<a name="string"></a>Generating to String</h3>
+<h2>
+<a name="string"></a>Generating to String</h2>
 
 If you are accessing utPLSQL functionality through
 a GUI, you might find it more useful to direct output to a string (or array,
@@ -366,8 +366,8 @@ do <i>you </i>get all that generated code? Call the utGen.pkgstring function:
 
 <pre>FUNCTION utGen.pkgString RETURN VARCHAR2;</pre>
 
-<h3>
-<a name="array"></a>Generating to Array</h3>
+<h2>
+<a name="array"></a>Generating to Array</h2>
 
 If you are accessing utPLSQL functionality through
 a GUI, you might find it more useful to direct output to an array. You
