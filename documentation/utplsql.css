@@ -32,7 +32,8 @@ Pre {font-family: Courier, Monotype;
     padding-right: 10px}
 
 /* Code in monotype */
-Code {font-family: Courier, Monotype;}
+Code {font-family: Courier, Monotype;
+     font-size: smaller;}
 
 /* Copyright notice is tiny */
 .copyright {font-size: xx-small}
