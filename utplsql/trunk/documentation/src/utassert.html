@@ -68,7 +68,11 @@ utAssert.previous_failed</a><br>
 passed or failed<br>
       </a></td>
     </tr>
- 
+   <tr>
+ <td><a href="#eqoutput">utAssert.eqoutput</a></td>
+ <td><a href="#eqoutput">Check Equality of DBMS_OUTPUT Collections</a></td>
+ </tr>
+
   </tbody>
 </table>
      The utAssert package provides a set of assertion routines ("assert that
@@ -569,7 +573,7 @@ BEGIN
   utAssert.eqqueryvalue('Insert 5 rows',
     'SELECT COUNT(*)
     FROM TRIPS
-    WHERE CITY = 'Rio de Janeiro',
+    WHERE CITY = ''Rio de Janeiro''',
     5);
     
   /* If that worked, look in more detail */
@@ -579,7 +583,7 @@ BEGIN
     utAssert.eqqueryvalue('All with todays date',
       'SELECT COUNT(*)
        FROM TRIPS
-       WHERE CITY = 'Rio de Janeiro'
+       WHERE CITY = ''Rio de Janeiro'''
        AND TRUNC(CREATED) = TRUNC(SYSDATE)',
        5);
      
@@ -587,14 +591,80 @@ BEGIN
     utAssert.eqqueryvalue('Hotel Specfied',
       'SELECT COUNT(*)
        FROM TRIPS T, HOTELS H
-       WHERE T.CITY = 'Rio de Janeiro'
+       WHERE T.CITY = ''Rio de Janeiro'''
        AND T.HOTEL = H.ID',
        5);
      
  END IF;
    
 END;</pre>
-<p></p>
+
+<h2> <a name="eqoutput">Comparing output from DBMS_OUTPUT</a></h2>
+
+<p>To complement the <a href="utoutput.html">utOutput</a> package, these
+assertions allow you to easily compare collections of the type
+DBMS_OUTPUT.CHARARR.  Unlike the <a href="#utassert.eqcoll">eqcoll and
+   eqcollapi</a> assertions, this allows the comparison of locally defined
+collections.  The procedures are declared as follows:</p>
+
+<pre>
+PROCEDURE eqoutput (
+   msg_in                IN   VARCHAR2,
+   check_this_in         IN   DBMS_OUTPUT.CHARARR,
+   against_this_in       IN   DBMS_OUTPUT.CHARARR,
+   ignore_case_in        IN   BOOLEAN := FALSE,
+   ignore_whitespace_in  IN   BOOLEAN := FALSE,
+   null_ok_in            IN   BOOLEAN := TRUE,
+   raise_exc_in          IN   BOOLEAN := FALSE
+);
+
+PROCEDURE eqoutput (
+   msg_in                IN   VARCHAR2,
+   check_this_in         IN   DBMS_OUTPUT.CHARARR,
+   against_this_in       IN   VARCHAR2,
+   line_delimiter_in     IN   CHAR := NULL,
+   ignore_case_in        IN   BOOLEAN := FALSE,
+   ignore_whitespace_in  IN   BOOLEAN := FALSE,
+   null_ok_in            IN   BOOLEAN := TRUE,
+   raise_exc_in          IN   BOOLEAN := FALSE
+);
+</pre>
+
+<p>The first version simply compares two collections, whereas the second compares a collection against a delimited string.  The delimiter
+can be specified by the line_delimiter_in parameter.  If NULL is passed in (which is the default) then the lines are delimited by carriage returns.
+Thus to test a collection mybuff which should look like:</p>
+
+<pre>
+   mybuff(0) := 'Zidane';
+   mybuff(1) := 'Ronaldo';
+   mybuff(2) := 'Kahn';
+</pre>
+
+<p>we could pass in parameters:</p>
+
+<pre>
+   check_this_in =&gt; 'Zidane|Ronaldo|Kahn';
+   line_delimiter_in =&gt; '|';
+</pre>
+
+<p>or:</p>
+
+<pre>
+   check_this_in =&gt; 
+'Zidane
+Ronaldo
+Kahn';
+   line_delimiter_in =&gt; NULL;
+</pre>
+
+<p>There are also the following flags to modify the way that the line-by-line comparisons are carried out:</p>
+
+<ul>
+   <li>ignore_case_in - this specifies that case should be ignored when comparing lines.</li>
+   <li>ignore_whitespace_in - this specifies that whitespace differences should be ignored when comparing lines.</li>
+</ul>
+
+<p>Finally, note that only the text itself is compared.  These assertions do not care about how the records within the collections are numbered.</p>
 <h2> <a name="utassert-BYOA"></a>Building Your Own Assertion</h2>
   You may want to build assertion routines that fit your specific needs.
 If PL/SQL supported inheritance, you could extend the utAssert assertion
