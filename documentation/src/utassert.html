@@ -71,7 +71,15 @@ passed or failed<br>
        <a href="#object">utAssert.objnotexists</a></td>
     <td><a href="#object">Check for existence of database objects</a></td>
  </tr>
-  </tbody>
+ <tr>
+    <td><a href="#eq_refc_query">utAssert.eq_refc_query</a></td>
+    <td><a href="#eq_refc_query">Check Equality of RefCursor and Query</a></td>
+ </tr>
+ <tr>
+    <td><a href="#eq_refc_table">utAssert.eq_refc_table</a></td>
+    <td><a href="#eq_refc_table">Check Equality of RefCursor and Database Table</a></td>
+ </tr>
+</tbody>
 </table>
      The utAssert package provides a set of assertion routines ("assert that
 the following condition is true") that you will use to register the outcome
@@ -675,6 +683,206 @@ than the current one, simply add the name of the schema, separated by a dot.
 So passing 'ANOTHER.THATTHING' will check for the existence of the THATTHING
 object in the ANOTHER schema.</p> 
 
+<h2> <a name="eq_refc_query"></a>Check Equality of RefCursor and Query</h2>
+  If you have a procedure or function that returns a REF CURSOR type you often would like to compare the data of the REF CURSOR against a query (if your REF CURSOR returns a complete table you can use <a href="#eq_refc_table">utAssert.eq_refc_table</a> below). In this case, you specify the REF CURSOR of the procedure or function and the full SELECT statement as parameters. By using eq_refc_query, you may be able to avoid the huge workload of constructing separate tables with preset data.
+
+<p>Before calling the comparison you have to specifiy the parameters of the procedure or function you are going to use. 
+This is done with the procedures utPLSQL_Util.reg_In_Param, utPLSQL_Util.reg_InOut_Param or utPLSQL_Util.reg_Out_Param. 
+The details of the parameters are built up in a variable of type utplsql_util.utplsql_params, which is then passed into eq_refc_query.
+
+<pre>
+PROCEDURE utPLSQL_Util.reg_In_Param (
+   par_pos            PLS_INTEGER,
+   par_val            VARCHAR2 | NUMBER | DATE,
+   params    IN OUT   utplsql_util.utplsql_params );
+
+PROCEDURE utPLSQL_Util.reg_InOut_Param (
+   par_pos            PLS_INTEGER,
+   par_val            VARCHAR2 | NUMBER | DATE,
+   params    IN OUT   utplsql_util.utplsql_params );
+
+PROCEDURE utPLSQL_Util.reg_Out_Param (
+   par_pos            PLS_INTEGER,
+   par_type           VARCHAR2,
+   params    IN OUT   utplsql_util.utplsql_params );
+</pre>
+
+<p>Having specified all the parameters for the procedure or function returning the REF CURSOR, the comparison can be started.
+
+<pre>
+PROCEDURE utAssert.eq_refc_query (
+   p_msg_nm          IN   VARCHAR2,
+   proc_name         IN   VARCHAR2,
+   params            IN   utplsql_util.utplsql_params,
+   cursor_position   IN   PLS_INTEGER,
+   qry               IN   VARCHAR2 );
+</pre>
+
+  where the reg_In_Param, reg_InOut_Param and reg_Out_Param-specific parameters are as follows:  
+<table cellpadding="0" border="1" cellspacing="0">
+ <tbody>
+    <tr>
+ <td><b>Parameter</b></td>
+  <td><b>Description</b></td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> par_pos </td>
+  <td width="561" valign="Top"> Defines the parameter position beginning with 1, or 0 specifying the return value
+      </td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> par_type </td>
+  <td width="561" valign="Top"> Specifies the data type of the return value and must be one out of 'NUMBER', 'VARCHAR', 'CHAR' or 'REFCURSOR'
+      </td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> params </td>
+  <td width="561" valign="Top"> The local variable to keep the values that is used as a parameter for eq_refc_query
+      </td>
+ </tr>
+  </tbody>
+</table>
+
+<p>  and the eq_refc_query-specific parameters are as follows:  
+<table cellpadding="0" border="1" cellspacing="0">
+ <tbody>
+    <tr>
+ <td><b>Parameter</b></td>
+  <td><b>Description</b></td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> p_msg_nm </td>
+  <td width="561" valign="Top"> The message to be displayed if the test fails
+      </td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> proc_name </td>
+  <td width="561" valign="Top"> Specifies the procedure or function that delivers the REF CURSOR
+      </td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> params </td>
+  <td width="561" valign="Top"> The parameter setting for the procedure or function
+      </td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> cursor_position </td>
+  <td width="561" valign="Top"> Position of the REF CURSOR parameter to be checked, beginning with 1, or 0 to specify the return value of a function
+      </td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> qry </td>
+  <td width="561" valign="Top"> The SELECT statement to be checked against
+      </td>
+ </tr>
+  </tbody>
+</table>
+
+<p>Finally, note that only the record itself is compared. These assertions do not care about how the records within the cursor are numbered.</p>
+
+
+<h2> <a name="eq_refc_table"></a>Check Equality of RefCursor and Database Table</h2>
+
+  If you have a procedure or function that returns a REF CURSOR type that represents a complete table or view you 
+  often would like to compare the data of this REF CURSOR against the table or view 
+  (if your REF CURSOR doesn't return a complete table or view you can use <a href="#eq_refc_query">utAssert.eq_refc_query</a> above). 
+  In this case, you specify the REF CURSOR of the procedure or function and the table or view name as parameters. 
+  By using eq_refc_table, you may be able to avoid the huge workload of constructing separate tables with preset data.
+
+<p>Before calling the comparison you have to specifiy the parameters of the procedure or function you are going to use. 
+This is done with the procedures utPLSQL_Util.reg_In_Param, utPLSQL_Util.reg_InOut_Param or utPLSQL_Util.reg_Out_Param. 
+The details of the parameters are built up in a variable of type utplsql_util.utplsql_params, which is then passed into eq_refc_query.
+
+<pre>
+PROCEDURE utPLSQL_Util.reg_In_Param (
+   par_pos            PLS_INTEGER,
+   par_val            VARCHAR2 | NUMBER | DATE,
+   params    IN OUT   utplsql_util.utplsql_params );
+
+PROCEDURE utPLSQL_Util.reg_InOut_Param (
+   par_pos            PLS_INTEGER,
+   par_val            VARCHAR2 | NUMBER | DATE,
+   params    IN OUT   utplsql_util.utplsql_params );
+
+PROCEDURE utPLSQL_Util.reg_Out_Param (
+   par_pos            PLS_INTEGER,
+   par_type           VARCHAR2,
+   params    IN OUT   utplsql_util.utplsql_params );
+</pre>
+
+<p>Having specified all the parameters for the procedure or function returning the REF CURSOR, the comparison can be started.
+
+<pre>
+PROCEDURE utAssert.eq_refc_table (
+   p_msg_nm          IN   VARCHAR2,
+   proc_name         IN   VARCHAR2,
+   params            IN   utplsql_util.utplsql_params,
+   cursor_position   IN   PLS_INTEGER,
+   table_name        IN   VARCHAR2 );
+</pre>
+
+  where the reg_In_Param, reg_InOut_Param and reg_Out_Param-specific parameters are as follows:  
+<table cellpadding="0" border="1" cellspacing="0">
+ <tbody>
+    <tr>
+ <td><b>Parameter</b></td>
+  <td><b>Description</b></td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> par_pos </td>
+  <td width="561" valign="Top"> Defines the parameter position beginning with 1, or 0 specifying the return value
+      </td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> par_type </td>
+  <td width="561" valign="Top"> Specifies the data type of the return value and must be one out of 'NUMBER', 'VARCHAR', 'CHAR' or 'REFCURSOR'
+      </td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> params </td>
+  <td width="561" valign="Top"> The local variable to keep the values that is used as a parameter for eq_refc_query
+      </td>
+ </tr>
+  </tbody>
+</table>
+
+<p>  and the eq_refc_query-specific parameters are as follows:  
+<table cellpadding="0" border="1" cellspacing="0">
+ <tbody>
+    <tr>
+ <td><b>Parameter</b></td>
+  <td><b>Description</b></td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> p_msg_nm </td>
+  <td width="561" valign="Top"> The message to be displayed if the test fails
+      </td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> proc_name </td>
+  <td width="561" valign="Top"> Specifies the procedure or function that delivers the REF CURSOR
+      </td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> params </td>
+  <td width="561" valign="Top"> The parameter setting for the procedure or function
+      </td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> cursor_position </td>
+  <td width="561" valign="Top"> Position of the REF CURSOR parameter to be checked, beginning with 1, or 0 to specify the return value of a function
+      </td>
+ </tr>
+  <tr>
+ <td width="102" valign="Top"> table_name </td>
+  <td width="561" valign="Top"> The name of the table name or view to be checked against
+      </td>
+ </tr>
+  </tbody>
+</table>
+
+<p>Finally, note that only the record itself is compared. These assertions do not care about how the records within the cursor are numbered.</p>
+
 <h2> <a name="utassert-BYOA"></a>Building Your Own Assertion</h2>
   You may want to build assertion routines that fit your specific needs.
 If PL/SQL supported inheritance, you could extend the utAssert assertion
@@ -688,7 +896,7 @@ utAssert package for any changes.  <pre>PROCEDURE this (<br>   msg_in IN VARCHAR
   <pre>         -- Show the results of the test more recently run.<br>         utresult.showlast;<br>      END IF;<br><br>      IF raise_exc_in<br>      THEN<br>         RAISE test_failure;<br>      END IF;<br>   END IF;<br>END;</pre>
   The most important statement to include in your assertion routine is the
   call to utResult.report, which will log the results of the test.  
-  
+
 <!-- End utPLSQL Body -->
  
 </body>
