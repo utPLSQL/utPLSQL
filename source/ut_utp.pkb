@@ -324,7 +324,7 @@ prefix_out  := rec.prefix;
    END;
    
    PROCEDURE upd (
-      id_in        IN   ut_utp.id%TYPE,
+      id_in         IN   ut_utp.id%TYPE,
       program_directory_in       IN   ut_utp.program_directory%TYPE := NULL,
       directory_in       IN   ut_utp.directory%TYPE := NULL,
       name_in       IN   ut_utp.name%TYPE := NULL,
