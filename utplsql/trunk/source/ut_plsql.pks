@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.4  2004/11/16 09:46:49  chrisrimmer
+Changed to new version detection system.
+
 Revision 1.2  2003/07/01 19:36:47  chrisrimmer
 Added Standard Headers
 
@@ -37,9 +40,9 @@ Added Standard Headers
    c_teardown   CONSTANT CHAR (8)         := 'TEARDOWN';
    c_enabled   CONSTANT CHAR (7)         := 'ENABLED';
    c_disabled   CONSTANT CHAR (8)         := 'DISABLED';
-   &start_lt_8
+   &start_lt_8_1
    dbmaxvc2              VARCHAR2 (2000);
-   &end_lt_8
+   &end_lt_8_1
    &start_ge_8_1
    dbmaxvc2              VARCHAR2 (4000);
 

@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.4  2004/11/16 09:46:48  chrisrimmer
+Changed to new version detection system.
+
 Revision 1.3  2004/07/14 17:01:57  chrisrimmer
 Added first version of pluggable reporter packages
 
@@ -33,25 +36,6 @@ Added Standard Headers
 ************************************************************************/
 
    g_showresults   BOOLEAN := FALSE;
-
-   -- DBMS_PIPE functionality based on code provided by John Beresniewicz, 
-   -- Savant Corp, in ORACLE BUILT-IN PACKAGES
-
-   -- For pipe equality checking
-   TYPE msg_rectype IS RECORD (
-      item_type                     INTEGER,
-      mvc2                          VARCHAR2 (4093),
-      mdt                           DATE,
-      mnum                          NUMBER,
-      mrid                          ROWID,
-      mraw                          RAW (4093));
-
-   /*
-   || msg_tbltype tables can hold an ordered list of
-   || message items, thus any message can be captured
-   */
-   TYPE msg_tbltype IS TABLE OF msg_rectype
-      INDEX BY BINARY_INTEGER;
 
    PROCEDURE this (
       msg_in          IN   VARCHAR2,

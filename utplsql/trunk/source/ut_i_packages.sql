@@ -28,10 +28,10 @@
 @@ut_i_run ut_rerror.pks
 @@ut_i_run ut_receq.pks
 @@ut_i_run ut_output.pks
-
-@@ut_i_run ut_utoutput.pks
-
 @@ut_i_run ut_filereporter.pks
 @@ut_i_run ut_htmlreporter.pks
 @@ut_i_run ut_outputreporter.pks
 @@ut_i_run ut_report.pks
+@@ut_i_run ut_pipe.pks
+
+@@ut_i_run ut_utoutput.pks

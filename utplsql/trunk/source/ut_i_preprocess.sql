@@ -60,24 +60,4 @@ COLUMN col NOPRINT NEW_VALUE end_lt_8_1
 SELECT decode(greatest(8, &major_v+(&minor_v/10)), 8, '/* < v8.1 */', ' >= v8.1 */') col  
 FROM dual;
 
---Flags for 8.x code
 
-COLUMN col NOPRINT NEW_VALUE start_ge_8
-
-SELECT decode(greatest(7, &major_v), 7, '/* < v8 ', '/* >= v8 */') col  
-FROM dual;
-
-COLUMN col NOPRINT NEW_VALUE end_ge_8
-
-SELECT decode(greatest(7, &major_v), 7, ' < v8 */', '/* >= v8 */') col
-FROM dual;
-      
-COLUMN col NOPRINT NEW_VALUE start_lt_8
-
-SELECT decode(greatest(7, &major_v), 7, '/* < v8 */', '/* >= v8 ') col  
-FROM dual;
-
-COLUMN col NOPRINT NEW_VALUE end_lt_8
-
-SELECT decode(greatest(7, &major_v), 7, '/* < v8 */', ' >= v8 */') col  
-FROM dual;

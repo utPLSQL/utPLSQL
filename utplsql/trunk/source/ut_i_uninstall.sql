@@ -39,11 +39,11 @@ drop package UTTESTCASE;
 drop package UTTESTPREP;
 drop package UTUNITTEST;
 drop package UTUTP;
-
 drop package UTFILEREPORTER;
 drop package UTHTMLREPORTER;
 drop package UTOUTPUTREPORTER;
 drop package UTREPORT;
+drop package UTPIPE;
 
 drop package UT_UTOUTPUT;
 
@@ -89,6 +89,7 @@ drop public synonym UTFILEREPORTER;
 drop public synonym UTHTMLREPORTER;
 drop public synonym UTOUTPUTREPORTER;
 drop public synonym UTREPORT;
+drop public synonym UTPIPE;
 drop public synonym UT_ARGUMENT;
 drop public synonym UT_ASSERTION;
 drop public synonym UT_CONFIG;
@@ -106,7 +107,6 @@ drop public synonym UT_TEST;
 drop public synonym UT_TESTCASE;
 drop public synonym UT_TESTPREP;
 drop public synonym UT_UNITTEST;
-drop public synonym UT_UTOUTPUT;
 drop public synonym UT_UTP;
 drop public synonym UTPLSQL_RUNNUM_SEQ;
 drop public synonym UT_ASSERTION_SEQ;
