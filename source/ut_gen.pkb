@@ -4,7 +4,7 @@ IS
 /************************************************************************
 GNU General Public License for utPLSQL
 
-Copyright (C) 2000-2003 
+Copyright (C) 2000-2005 
 Steven Feuerstein and the utPLSQL Project
 (steven@stevenfeuerstein.com)
 
@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.6  2004/11/16 09:46:49  chrisrimmer
+Changed to new version detection system.
+
 Revision 1.5  2004/07/14 17:01:57  chrisrimmer
 Added first version of pluggable reporter packages
 
@@ -47,16 +50,15 @@ Added Standard Headers
    pkgarray         code_tt;
 
    -- 1.5.6 Generic string parser
-
    TYPE item_tt IS TABLE OF VARCHAR2 (2000)
       INDEX BY BINARY_INTEGER;
 
    PROCEDURE parse_string (
-      string_in   IN       VARCHAR2,
-      items_out   IN OUT   item_tt,
-      delim_in    IN       VARCHAR2 := ','
+      string_in   IN       VARCHAR2
+    , items_out   IN OUT   item_tt
+    , delim_in    IN       VARCHAR2 := ','
    )
-   IS 
+   IS
       v_item       VARCHAR2 (32767);
       v_loc        PLS_INTEGER;
       v_startloc   PLS_INTEGER      := 1;
@@ -99,31 +101,30 @@ Added Standard Headers
    END parse_string;
 
    PROCEDURE get_nextline (
-      file_in    IN       UTL_FILE.file_type,
-      line_out   OUT      VARCHAR2,
-      eof_out    OUT      BOOLEAN
+      file_in    IN       UTL_FILE.file_type
+    , line_out   OUT      VARCHAR2
+    , eof_out    OUT      BOOLEAN
    )
    IS
    BEGIN
       UTL_FILE.get_line (file_in, line_out);
-      eof_out := FALSE ;
+      eof_out := FALSE;
    EXCEPTION
       WHEN NO_DATA_FOUND
       THEN
          line_out := NULL;
-         eof_out := TRUE ;
+         eof_out := TRUE;
    END;
 
    -- 1.5.6: add this and rewrite isfunction
-
    FUNCTION return_type (
-      schema_in     IN   VARCHAR2,
-      package_in    IN   VARCHAR2,
-      program_in    IN   VARCHAR2,
-      overload_in   IN   PLS_INTEGER := NULL
+      schema_in     IN   VARCHAR2
+    , package_in    IN   VARCHAR2
+    , program_in    IN   VARCHAR2
+    , overload_in   IN   PLS_INTEGER := NULL
    )
       RETURN VARCHAR2
-   IS 
+   IS
       retval   all_arguments.data_type%TYPE;
    BEGIN
       SELECT data_type
@@ -161,32 +162,33 @@ Added Standard Headers
    END;
 
    FUNCTION isfunction (
-      schema_in     IN   VARCHAR2,
-      package_in    IN   VARCHAR2,
-      program_in    IN   VARCHAR2,
-      overload_in   IN   PLS_INTEGER := NULL
+      schema_in     IN   VARCHAR2
+    , package_in    IN   VARCHAR2
+    , program_in    IN   VARCHAR2
+    , overload_in   IN   PLS_INTEGER := NULL
    )
       RETURN BOOLEAN
    IS
    BEGIN
-      RETURN (return_type (schema_in, package_in, program_in, overload_in) IS NOT NULL);
+      RETURN (return_type (schema_in, package_in, program_in, overload_in) IS NOT NULL
+             );
    END;
 
    PROCEDURE testpkg (
-      package_in           IN   VARCHAR2,
-      grid_in              IN   grid_tt,
-      program_in           IN   VARCHAR2 := '%',
-      samepackage_in       IN   BOOLEAN := FALSE ,
-      prefix_in            IN   VARCHAR2 := NULL,
-      schema_in            IN   VARCHAR2 := NULL,
-      output_type_in       IN   PLS_INTEGER := c_screen,
-      dir_in               IN   VARCHAR2 := NULL,
-      delim_in             IN   VARCHAR2 := c_delim,
-      date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY',
-      only_if_in_grid_in   IN   BOOLEAN := FALSE,
-		   override_file_in IN   VARCHAR2 := NULL
+      package_in           IN   VARCHAR2
+    , grid_in              IN   grid_tt
+    , program_in           IN   VARCHAR2 := '%'
+    , samepackage_in       IN   BOOLEAN := FALSE
+    , prefix_in            IN   VARCHAR2 := NULL
+    , schema_in            IN   VARCHAR2 := NULL
+    , output_type_in       IN   PLS_INTEGER := c_screen
+    , dir_in               IN   VARCHAR2 := NULL
+    , delim_in             IN   VARCHAR2 := c_delim
+    , date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY'
+    , only_if_in_grid_in   IN   BOOLEAN := FALSE
+    , override_file_in     IN   VARCHAR2 := NULL
    )
-   IS 
+   IS
       fid            UTL_FILE.file_type;
       v_ispkg        BOOLEAN     := utplsql.ispackage (package_in, schema_in);
       v_dir          VARCHAR2 (2000)    := NVL (dir_in, utconfig.dir);
@@ -245,10 +247,10 @@ Added Standard Headers
          &end_ge_9
 
       CURSOR arg_cur (
-         schema_in     IN   VARCHAR2,
-         package_in    IN   VARCHAR2,
-         program_in    IN   VARCHAR2,
-         overload_in   IN   PLS_INTEGER
+         schema_in     IN   VARCHAR2
+       , package_in    IN   VARCHAR2
+       , program_in    IN   VARCHAR2
+       , overload_in   IN   PLS_INTEGER
       )
       IS
          SELECT   argument_name, data_type
@@ -283,27 +285,30 @@ Added Standard Headers
             g_firstbodyrow := NULL;
          ELSIF output_type_in = c_file
          THEN
-            utassert.this (
-               'Compile error: you must specify a directory with utConfig.setdir!',
-               v_dir IS NOT NULL,
-               register_in      => FALSE
-            );
+            utassert.this
+               ('Compile error: you must specify a directory with utConfig.setdir!'
+              , v_dir IS NOT NULL
+              , register_in      => FALSE
+               );
 
             IF utplsql.tracing
             THEN
                utreport.pl (v_dir || '-' || package_in || '.' || ext);
             END IF;
 
-            fid := UTL_FILE.fopen (
-                      v_dir,
-		 		 		 		 		   NVL (override_file_in, 
-                         NVL (prefix_in, utconfig.prefix (schema_in))
-                      || package_in
-                      || '.'
-                      || ext),
-                      'W'
-                   &start_ge_8_1 , max_linesize => 32767 &start_ge_8_1
-                   );
+            fid :=
+               UTL_FILE.fopen (v_dir
+                             , NVL (override_file_in
+                                  ,    NVL (prefix_in
+                                          , utconfig.prefix (schema_in)
+                                           )
+                                    || package_in
+                                    || '.'
+                                    || ext
+                                   )
+                             , 'W'
+                             , max_linesize      => 32767
+                              );
          END IF;
       END;
 
@@ -340,11 +345,11 @@ Added Standard Headers
          END IF;
       END;
 
-      FUNCTION program_call ( -- 2.0.9.1 switch to whole record
-      rec             IN   prog_cur%ROWTYPE,
-         is_package   IN   BOOLEAN               /*
-                                                   package_in   IN   VARCHAR2,
-                                                   program_in   IN   VARCHAR2 */
+      FUNCTION program_call (                -- 2.0.9.1 switch to whole record
+         rec          IN   prog_cur%ROWTYPE
+       , is_package   IN   BOOLEAN             /*
+                                                 package_in   IN   VARCHAR2,
+                                                 program_in   IN   VARCHAR2 */
       )
          RETURN VARCHAR2
       IS
@@ -357,8 +362,10 @@ Added Standard Headers
          END IF;
       END;
 
-      PROCEDURE iputline (string_in IN VARCHAR2, indentby_in IN PLS_INTEGER
-               := 3)
+      PROCEDURE iputline (
+         string_in     IN   VARCHAR2
+       , indentby_in   IN   PLS_INTEGER := 3
+      )
       IS
       BEGIN
          putline (LPAD (' ', indentby_in, ' ') || string_in);
@@ -371,14 +378,14 @@ Added Standard Headers
       END;
 
       FUNCTION include_program (
-         NAME_IN            IN   VARCHAR2,
-         overload_in        IN   PLS_INTEGER,
-         curr_name_in       IN   VARCHAR2,
-         curr_overload_in   IN   PLS_INTEGER
+         NAME_IN            IN   VARCHAR2
+       , overload_in        IN   PLS_INTEGER
+       , curr_name_in       IN   VARCHAR2
+       , curr_overload_in   IN   PLS_INTEGER
       )
          RETURN BOOLEAN
       IS
-      BEGIN
+      BEGIN 
          RETURN (    UPPER (NAME_IN) = curr_name_in
                  AND (   overload_in = curr_overload_in
                       OR (overload_in = 1 AND curr_overload_in IS NULL)
@@ -390,7 +397,7 @@ Added Standard Headers
 
       FUNCTION include_program (rec IN prog_cur%ROWTYPE, grid_in IN grid_tt)
          RETURN BOOLEAN
-      IS 
+      IS
          retval       BOOLEAN     := NOT only_if_in_grid_in;
          grid_index   PLS_INTEGER := grid_in.FIRST;
       BEGIN
@@ -400,14 +407,13 @@ Added Standard Headers
             LOOP
                EXIT WHEN grid_index IS NULL;
 
-               IF include_program (
-                     grid_in (grid_index).progname,
-                     grid_in (grid_index).overload,
-                     rec.object_name,
-                     rec.overload
-                  )
+               IF include_program (grid_in (grid_index).progname
+                                 , grid_in (grid_index).overload
+                                 , rec.object_name
+                                 , rec.overload
+                                  )
                THEN
-                  retval := TRUE ;
+                  retval := TRUE;
                   EXIT;
                ELSE
                   grid_index := grid_in.NEXT (grid_index);
@@ -419,10 +425,10 @@ Added Standard Headers
       END;
 
       PROCEDURE generate_setup (
-         prefix_in       IN   VARCHAR2,
-         schema_in       IN   VARCHAR2,
-         objpackage_in   IN   VARCHAR2,
-         objprogram_in   IN   VARCHAR2
+         prefix_in       IN   VARCHAR2
+       , schema_in       IN   VARCHAR2
+       , objpackage_in   IN   VARCHAR2
+       , objprogram_in   IN   VARCHAR2
       )
       IS
       BEGIN
@@ -438,7 +444,9 @@ Added Standard Headers
             LOOP
                IF include_program (rec, grid_in)
                THEN
-                  iputline ('   utPLSQL.addtest (''' || rec.full_name || ''');');
+                  iputline ('   utPLSQL.addtest (''' || rec.full_name
+                            || ''');'
+                           );
                END IF;
             END LOOP;
          ELSE
@@ -466,21 +474,35 @@ Added Standard Headers
          RETURN SUBSTR (string_in, 1, 1) = c_asis;
       END;
 
+      -- NOK0205: manage null ok argument inclusion
+      PROCEDURE add_null_ok (grid_in IN grid_rt)
+      IS
+      BEGIN
+         IF grid_in.null_ok = 'Y'
+         THEN
+            i6putline ('   ,null_ok_in => TRUE');
+         ELSIF grid_in.null_ok = 'N'
+         THEN
+            i6putline ('   ,null_ok_in => FALSE');
+         END IF;
+      END add_null_ok;
+
       PROCEDURE generate_ut_procedure (
-         prefix_in   IN   VARCHAR2,
-         rec         IN   prog_cur%ROWTYPE,
+         prefix_in   IN   VARCHAR2
+       , rec         IN   prog_cur%ROWTYPE
+       ,
          /*schema_in       IN   VARCHAR2,
          objpackage_in   IN   VARCHAR2,
          objprogram_in   IN   VARCHAR2,*/
          grid_in     IN   grid_tt
       )
-      IS 
+      IS
          v_isfunction   BOOLEAN;
          v_datatype     VARCHAR2 (100);
 
          FUNCTION data_value (value_in IN VARCHAR2, type_in IN VARCHAR2)
             RETURN VARCHAR2
-         IS 
+         IS
             retval   VARCHAR2 (2000) := value_in;
          BEGIN
             IF is_expression (value_in)
@@ -500,39 +522,41 @@ Added Standard Headers
                retval := value_in;
             ELSIF type_in LIKE '%DATE%'
             THEN
-               retval :=    'TO_DATE ('''
-                         || value_in
-                         || ''', '''
-                         || date_format_in
-                         || ''')';
+               retval :=
+                     'TO_DATE ('''
+                  || value_in
+                  || ''', '''
+                  || date_format_in
+                  || ''')';
             END IF;
 
             RETURN retval;
          END;
 
          PROCEDURE generate_testcase (
-            rec             IN   prog_cur%ROWTYPE,
-            isfunction_in   IN   BOOLEAN,
-            datatype_in     IN   VARCHAR2,
-            grid_in         IN   grid_rt
+            rec             IN   prog_cur%ROWTYPE
+          , isfunction_in   IN   BOOLEAN
+          , datatype_in     IN   VARCHAR2
+          , grid_in         IN   grid_rt
          )
-         IS 
+         IS
             l_entries   item_tt;
 
             PROCEDURE putarg (
-               arg_in      IN   arg_cur%ROWTYPE,
-               ntharg_in   IN   PLS_INTEGER
+               arg_in      IN   arg_cur%ROWTYPE
+             , ntharg_in   IN   PLS_INTEGER
             )
             IS
             BEGIN
                IF l_entries.COUNT > 0
                THEN
-                  i6putline (
-                        '   '
-                     || arg_in.argument_name
-                     || ' => '
-                     || data_value (l_entries (ntharg_in), arg_in.data_type)
-                  );
+                  i6putline (   '   '
+                             || arg_in.argument_name
+                             || ' => '
+                             || data_value (l_entries (ntharg_in)
+                                          , arg_in.data_type
+                                           )
+                            );
                ELSE
                   i6putline ('   ' || arg_in.argument_name || ' => ''''');
                END IF;
@@ -556,23 +580,25 @@ Added Standard Headers
 
             IF isfunction_in
             THEN
-               i6putline (
-                     'against_this := '
-                  || data_value (grid_in.return_value, datatype_in)
-                  || ';'
-               );
+               i6putline (   'against_this := '
+                          || data_value (grid_in.return_value, datatype_in)
+                          || ';'
+                         );
             END IF;
 
             i6putline (' ');
             i6putline ('-- Execute test code' || testname);
             i6putline (' ');
-            OPEN arg_cur (
-               rec.owner,
-               rec.package_name,
-               rec.object_name,
-               rec.overload
-            );
-            FETCH arg_cur INTO arg;
+
+            OPEN arg_cur (rec.owner
+                        , rec.package_name
+                        , rec.object_name
+                        , rec.overload
+                         );
+
+            FETCH arg_cur
+             INTO arg;
+
             noargs := arg_cur%NOTFOUND;
 
             IF isfunction_in
@@ -582,9 +608,8 @@ Added Standard Headers
 
             IF noargs
             THEN
-               i6putline ( -- 2.0.9.1: use procedure, not explicit concat.
-               program_call (rec, v_ispkg) || ';'
-               );
+               i6putline (    -- 2.0.9.1: use procedure, not explicit concat.
+                          program_call (rec, v_ispkg) || ';');
             ELSE
                i6putline (program_call (rec, v_ispkg) || ' (');
 
@@ -596,7 +621,9 @@ Added Standard Headers
                WHILE arg_cur%FOUND
                LOOP
                   putarg (arg, arg_cur%ROWCOUNT);
-                  FETCH arg_cur INTO arg;
+
+                  FETCH arg_cur
+                   INTO arg;
 
                   IF arg_cur%FOUND
                   THEN
@@ -608,15 +635,14 @@ Added Standard Headers
             END IF;
 
             CLOSE arg_cur;
+
             i6putline (' ');
             i6putline ('-- Assert success' || testname);
             i6putline (' ');
 
-            
--- Here I should access information in ut_assertion table to dynamically
+            -- Here I should access information in ut_assertion table to dynamically
             -- build the call to the utAssert procedure. For now, I will hard code
             -- for EQ and ISNULL to demonstrate the possibilities.
-
             IF v_isfunction
             THEN
                IF    grid_in.assertion_type = 'EQ'
@@ -624,37 +650,39 @@ Added Standard Headers
                THEN
                   i6putline ('-- Compare the two values.');
                   i6putline ('utAssert.eq (');
-                  i6putline (
-                        '   '''
-                     || NVL (grid_in.MESSAGE, 'Test of ' || rec.object_name)
-                     || ''','
-                  );
+                  i6putline (   '   '''
+                             || NVL (grid_in.MESSAGE
+                                   , 'Test of ' || rec.object_name
+                                    )
+                             || ''','
+                            );
                   i6putline ('   check_this,');
                   i6putline ('   against_this');
+                  add_null_ok (grid_in);
                   i6putline ('   );');
                ELSIF grid_in.assertion_type = 'ISNULL'
                THEN
                   i6putline ('-- Check for NULL return value.');
                   i6putline ('utAssert.isNULL (');
-                  i6putline (
-                        '   '''
-                     || NVL (
-                           grid_in.MESSAGE,
-                           'NULL Test for ' || rec.object_name
-                        )
-                     || ''','
-                  );
+                  i6putline (   '   '''
+                             || NVL (grid_in.MESSAGE
+                                   , 'NULL Test for ' || rec.object_name
+                                    )
+                             || ''','
+                            );
                   i6putline ('   check_this');
                   i6putline ('   );');
                END IF;
             ELSE
                i6putline ('utAssert.this (');
-               i6putline (
-                     '   '''
-                  || NVL (grid_in.MESSAGE, 'Test of ' || rec.object_name)
-                  || ''','
-               );
+               i6putline (   '   '''
+                          || NVL (grid_in.MESSAGE
+                                , 'Test of ' || rec.object_name
+                                 )
+                          || ''','
+                         );
                i6putline ('   ''<boolean expression>''');
+               add_null_ok (grid_in);
                i6putline ('   );');
             END IF;
 
@@ -663,31 +691,31 @@ Added Standard Headers
          END;
 
          PROCEDURE generate_testcase (
-            rec             IN   prog_cur%ROWTYPE,
-            isfunction_in   IN   BOOLEAN,
-            datatype_in     IN   VARCHAR2
+            rec             IN   prog_cur%ROWTYPE
+          , isfunction_in   IN   BOOLEAN
+          , datatype_in     IN   VARCHAR2
          )
-         IS 
+         IS
             l_empty   grid_rt;
          BEGIN
             generate_testcase (rec, isfunction_in, datatype_in, l_empty);
          END;
       BEGIN
-         v_isfunction := isfunction (
-                            rec.owner,
-                            rec.package_name,
-                            rec.object_name,
-                            rec.overload
-                         );
+         v_isfunction :=
+            isfunction (rec.owner
+                      , rec.package_name
+                      , rec.object_name
+                      , rec.overload
+                       );
 
          IF v_isfunction
          THEN
-            v_datatype := return_type (
-                             rec.owner,
-                             rec.package_name,
-                             rec.object_name,
-                             rec.overload
-                          );
+            v_datatype :=
+               return_type (rec.owner
+                          , rec.package_name
+                          , rec.object_name
+                          , rec.overload
+                           );
          END IF;
 
          iputline ('PROCEDURE ' || prefix_in || rec.full_name);
@@ -708,36 +736,36 @@ Added Standard Headers
          ELSE
             FOR indx IN grid_in.FIRST .. grid_in.LAST
             LOOP
-               generate_testcase (
-                  rec,
-                  v_isfunction,
-                  v_datatype,
-                  grid_in (indx)
-               );
+               generate_testcase (rec
+                                , v_isfunction
+                                , v_datatype
+                                , grid_in (indx)
+                                 ); 
             END LOOP;
          END IF;
 
          iputline ('END ' || v_progprefix || rec.full_name || ';');
          putline ('');
       END;
-   BEGIN                                                      /* MAIN TESTPKG */
-      utassert.this (
-         'Invalid target to generate a package: ' || output_type_in,
-         output_type_in IN (c_string, c_screen, c_file, c_array),
-         register_in      => FALSE
-      );
-      v_pkg := utplsql.pkgname (
-                  package_in,
-                  samepackage_in,
-                  NVL (prefix_in, utconfig.prefix (schema_in)),
-                  v_ispkg
-               );
-      v_progprefix := utplsql.progname (
-                         NULL,
-                         samepackage_in,
-                         NVL (prefix_in, utconfig.prefix (schema_in)),
-                         v_ispkg
-                      );
+
+   BEGIN                                                    /* MAIN TESTPKG */
+      utassert.this ('Invalid target to generate a package: '
+                     || output_type_in
+                   , output_type_in IN (c_string, c_screen, c_file, c_array)
+                   , register_in      => FALSE
+                    );
+      v_pkg :=
+         utplsql.pkgname (package_in
+                        , samepackage_in
+                        , NVL (prefix_in, utconfig.prefix (schema_in))
+                        , v_ispkg
+                         );
+      v_progprefix :=
+         utplsql.progname (NULL
+                         , samepackage_in
+                         , NVL (prefix_in, utconfig.prefix (schema_in))
+                         , v_ispkg
+                          );
 
       IF v_ispkg
       THEN
@@ -751,7 +779,6 @@ Added Standard Headers
       setup ('pks');
 
       -- Spit out the package spec
-
       IF samepackage_in
       THEN
          putline ('-- START: place in specification of source package');
@@ -782,7 +809,6 @@ Added Standard Headers
       END IF;
 
       -- Spit out the package body into a separate file
-
       IF output_type_in = c_file
       THEN
          cleanup;
@@ -818,28 +844,25 @@ Added Standard Headers
             FOR indx IN grid_in.FIRST .. grid_in.LAST
             LOOP
                -- should switch to passing in records.
-               IF include_program (
-                     grid_in (indx).progname,
-                     grid_in (indx).overload,
-                     rec.object_name,
-                     rec.overload
-                  )
+               IF include_program (grid_in (indx).progname
+                                 , grid_in (indx).overload
+                                 , rec.object_name
+                                 , rec.overload
+                                  )
                THEN
-                  l_grid (indx) := grid_in (indx);
+			      -- NOK0205g - assign to sequential rows, not same indx value
+                  l_grid (l_grid.COUNT + 1) := grid_in (indx);
                END IF;
             END LOOP;
          END IF;
 
-         IF l_grid.COUNT > 0 OR NOT NVL (only_if_in_grid_in, FALSE )
+         IF l_grid.COUNT > 0 OR NOT NVL (only_if_in_grid_in, FALSE)
 --         IF      l_grid.COUNT > 0
          THEN
-            generate_ut_procedure (
-               v_progprefix,
-               rec,                                          /*schema_in,
-                                                             rec.package_name,
-                                                             rec.object_name,*/
-               l_grid
-            );
+            generate_ut_procedure (v_progprefix, rec,      /*schema_in,
+                                                           rec.package_name,
+                                                           rec.object_name,*/
+                                   l_grid);
          END IF;
       END LOOP;
 
@@ -855,9 +878,9 @@ Added Standard Headers
    END testpkg;
 
    PROCEDURE clean_up_file_io (
-      prog_in   IN       VARCHAR2,
-      file_in   IN OUT   UTL_FILE.file_type,
-      err_in    IN       VARCHAR2 := NULL
+      prog_in   IN       VARCHAR2
+    , file_in   IN OUT   UTL_FILE.file_type
+    , err_in    IN       VARCHAR2 := NULL
    )
    IS
    BEGIN
@@ -870,31 +893,30 @@ Added Standard Headers
    END;
 
    PROCEDURE testpkg (
-      package_in       IN   VARCHAR2,
-      program_in       IN   VARCHAR2 := '%',
-      samepackage_in   IN   BOOLEAN := FALSE ,
-      prefix_in        IN   VARCHAR2 := NULL,
-      schema_in        IN   VARCHAR2 := NULL,
-      output_type_in   IN   PLS_INTEGER := c_screen,
-      dir_in           IN   VARCHAR2 := NULL,
-		   override_file_in IN   VARCHAR2 := NULL
+      package_in         IN   VARCHAR2
+    , program_in         IN   VARCHAR2 := '%'
+    , samepackage_in     IN   BOOLEAN := FALSE
+    , prefix_in          IN   VARCHAR2 := NULL
+    , schema_in          IN   VARCHAR2 := NULL
+    , output_type_in     IN   PLS_INTEGER := c_screen
+    , dir_in             IN   VARCHAR2 := NULL
+    , override_file_in   IN   VARCHAR2 := NULL
    )
-   IS 
+   IS
       l_grid   grid_tt;
    BEGIN
       -- pass an empty grid to the engine.
-      testpkg (
-         package_in,
-         l_grid,
-         program_in,
-         samepackage_in,
-         prefix_in,
-         schema_in,
-         output_type_in,
-         dir_in,
-         only_if_in_grid_in      => FALSE,
-		 		  override_file_in => override_file_in
-      );
+      testpkg (package_in
+             , l_grid
+             , program_in
+             , samepackage_in
+             , prefix_in
+             , schema_in
+             , output_type_in
+             , dir_in
+             , only_if_in_grid_in      => FALSE
+             , override_file_in        => override_file_in
+              );
    END;
 
    FUNCTION valid_entry (string_in IN VARCHAR2)
@@ -905,22 +927,22 @@ Added Standard Headers
    END;
 
    PROCEDURE testpkg_from_file (
-      package_in           IN   VARCHAR2,
-      gridfile_loc_in      IN   VARCHAR2,
-      gridfile_in          IN   VARCHAR2,
-      program_in           IN   VARCHAR2 := '%',
-      samepackage_in       IN   BOOLEAN := FALSE ,
-      prefix_in            IN   VARCHAR2 := NULL,
-      schema_in            IN   VARCHAR2 := NULL,
-      output_type_in       IN   PLS_INTEGER := c_screen,
-      dir_in               IN   VARCHAR2 := NULL,
-      field_delim_in       IN   VARCHAR2 := '|',
-      arg_delim_in         IN   VARCHAR2 := c_delim,
-      date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY',
-      only_if_in_grid_in   IN   BOOLEAN := FALSE,
-		   override_file_in IN   VARCHAR2 := NULL
+      package_in           IN   VARCHAR2
+    , gridfile_loc_in      IN   VARCHAR2
+    , gridfile_in          IN   VARCHAR2
+    , program_in           IN   VARCHAR2 := '%'
+    , samepackage_in       IN   BOOLEAN := FALSE
+    , prefix_in            IN   VARCHAR2 := NULL
+    , schema_in            IN   VARCHAR2 := NULL
+    , output_type_in       IN   PLS_INTEGER := c_screen
+    , dir_in               IN   VARCHAR2 := NULL
+    , field_delim_in       IN   VARCHAR2 := '|'
+    , arg_delim_in         IN   VARCHAR2 := c_delim
+    , date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY'
+    , only_if_in_grid_in   IN   BOOLEAN := FALSE
+    , override_file_in     IN   VARCHAR2 := NULL
    )
-   IS 
+   IS
       c_progname   VARCHAR2 (30)      := 'testpkg_from_file';
       fid          UTL_FILE.file_type;
       l_line       VARCHAR2 (1000);
@@ -951,20 +973,19 @@ Added Standard Headers
       END LOOP;
 
       clean_up_file_io (c_progname, fid);
-      testpkg (
-         package_in,
-         l_grid,
-         program_in,
-         samepackage_in,
-         prefix_in,
-         schema_in,
-         output_type_in,
-         dir_in,
-         arg_delim_in,
-         date_format_in,
-         only_if_in_grid_in,
-		 		  override_file_in => override_file_in
-      );
+      testpkg (package_in
+             , l_grid
+             , program_in
+             , samepackage_in
+             , prefix_in
+             , schema_in
+             , output_type_in
+             , dir_in
+             , arg_delim_in
+             , date_format_in
+             , only_if_in_grid_in
+             , override_file_in      => override_file_in
+              );
    EXCEPTION
       WHEN UTL_FILE.invalid_path
       THEN
@@ -993,22 +1014,22 @@ Added Standard Headers
    END testpkg_from_file;
 
    PROCEDURE testpkg_from_string (
-      package_in           IN   VARCHAR2,
-      grid_in              IN   VARCHAR2,
-      program_in           IN   VARCHAR2 := '%',
-      samepackage_in       IN   BOOLEAN := FALSE ,
-      prefix_in            IN   VARCHAR2 := NULL,
-      schema_in            IN   VARCHAR2 := NULL,
-      output_type_in       IN   PLS_INTEGER := c_screen,
-      dir_in               IN   VARCHAR2 := NULL,
-      line_delim_in        IN   VARCHAR := CHR (10),
-      field_delim_in       IN   VARCHAR2 := '|',
-      arg_delim_in         IN   VARCHAR2 := c_delim,
-      date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY',
-      only_if_in_grid_in   IN   BOOLEAN := FALSE,
-		   override_file_in IN   VARCHAR2 := NULL
+      package_in           IN   VARCHAR2
+    , grid_in              IN   VARCHAR2
+    , program_in           IN   VARCHAR2 := '%'
+    , samepackage_in       IN   BOOLEAN := FALSE
+    , prefix_in            IN   VARCHAR2 := NULL
+    , schema_in            IN   VARCHAR2 := NULL
+    , output_type_in       IN   PLS_INTEGER := c_screen
+    , dir_in               IN   VARCHAR2 := NULL
+    , line_delim_in        IN   VARCHAR := CHR (10)
+    , field_delim_in       IN   VARCHAR2 := '|'
+    , arg_delim_in         IN   VARCHAR2 := c_delim
+    , date_format_in       IN   VARCHAR2 := 'MM/DD/YYYY'
+    , only_if_in_grid_in   IN   BOOLEAN := FALSE
+    , override_file_in     IN   VARCHAR2 := NULL
    )
-   IS 
+   IS
       c_progname   VARCHAR2 (30)   := 'testpkg_from_string';
       l_line       VARCHAR2 (1000);
       l_lines      item_tt;
@@ -1033,99 +1054,101 @@ Added Standard Headers
                l_grid (l_indx).arglist := l_entries (5);
                l_grid (l_indx).return_value := l_entries (6);
                l_grid (l_indx).assertion_type := UPPER (l_entries (7));
+               -- NOK0205: grab value for last entry as well.
+               l_grid (l_indx).null_ok := UPPER (l_entries (8));
             END IF;
          END LOOP;
 
-         testpkg (
-            package_in,
-            l_grid,
-            program_in,
-            samepackage_in,
-            prefix_in,
-            schema_in,
-            output_type_in,
-            dir_in,
-            arg_delim_in,
-            date_format_in,
-            only_if_in_grid_in,
-		 		     override_file_in => override_file_in
-         );
+         testpkg (package_in
+                , l_grid
+                , program_in
+                , samepackage_in
+                , prefix_in
+                , schema_in
+                , output_type_in
+                , dir_in
+                , arg_delim_in
+                , date_format_in
+                , only_if_in_grid_in
+                , override_file_in      => override_file_in
+                 );
       END IF;
    END;
 
    PROCEDURE testpkg_from_string_od (
-      package_in   IN   VARCHAR2,
-      grid_in      IN   VARCHAR2,
-      dir_in       IN   VARCHAR2 := NULL,
-		   override_file_in IN   VARCHAR2 := NULL
+      package_in         IN   VARCHAR2
+    , grid_in            IN   VARCHAR2
+    , dir_in             IN   VARCHAR2 := NULL
+    , override_file_in   IN   VARCHAR2 := NULL
    )
    IS
    BEGIN
-      testpkg_from_string (
-         package_in,
-         grid_in,
-         output_type_in          => c_file,
-         dir_in                  => dir_in,
-         only_if_in_grid_in      => TRUE,
-		 		  override_file_in => override_file_in
-      );
+      testpkg_from_string (package_in
+                         , grid_in
+                         , output_type_in          => c_file
+                         , dir_in                  => dir_in
+                         , only_if_in_grid_in      => TRUE
+                         , override_file_in        => override_file_in
+                          );
    END;
 
    PROCEDURE clear_grid (
-      owner_in            IN   ut_grid.owner%TYPE
-		  ,package_in          IN   ut_grid.PACKAGE%TYPE)
+      owner_in     IN   ut_grid.owner%TYPE
+    , package_in   IN   ut_grid.PACKAGE%TYPE
+   )
    IS
    BEGIN
-   delete from ut_grid  WHERE ut_grid.owner = UPPER (owner_in)
-		 		 		   AND ut_grid.PACKAGE = UPPER (package_in);
-		 		 		   
+      DELETE FROM ut_grid
+            WHERE ut_grid.owner = UPPER (owner_in)
+              AND ut_grid.PACKAGE = UPPER (package_in);
    END;
-   
+
    PROCEDURE add_to_grid (
       owner_in            IN   ut_grid.owner%TYPE
-		  ,package_in          IN   ut_grid.PACKAGE%TYPE
-     ,progname_in         IN   ut_grid.progname%TYPE
-     ,overload_in         IN   ut_grid.overload%TYPE
-     ,tcname_in           IN   ut_grid.tcname%TYPE
-     ,message_in          IN   ut_grid.MESSAGE%TYPE
-     ,arglist_in          IN   ut_grid.arglist%TYPE
-     ,return_value_in     IN   ut_grid.return_value%TYPE
-     ,assertion_type_in   IN   ut_grid.assertion_type%TYPE
+    , package_in          IN   ut_grid.PACKAGE%TYPE
+    , progname_in         IN   ut_grid.progname%TYPE
+    , overload_in         IN   ut_grid.overload%TYPE
+    , tcname_in           IN   ut_grid.tcname%TYPE
+    , message_in          IN   ut_grid.MESSAGE%TYPE
+    , arglist_in          IN   ut_grid.arglist%TYPE
+    , return_value_in     IN   ut_grid.return_value%TYPE
+    , assertion_type_in   IN   ut_grid.assertion_type%TYPE
    )
    IS
    BEGIN
       INSERT INTO ut_grid
-                  (owner, PACKAGE, progname, overload, tcname, MESSAGE
-                  ,arglist, return_value, assertion_type
+                  (owner, PACKAGE, progname, overload
+                 , tcname, MESSAGE, arglist, return_value
+                 , assertion_type
                   )
-           VALUES (owner_in, package_in, progname_in, overload_in, tcname_in, message_in
-                  ,arglist_in, return_value_in, assertion_type_in
+           VALUES (owner_in, package_in, progname_in, overload_in
+                 , tcname_in, message_in, arglist_in, return_value_in
+                 , assertion_type_in
                   );
    END add_to_grid;
-   
+
    -- 2.0.10.1  From Patrick Barel
 /* START Patch72 607131 */
    PROCEDURE testpkg_from_table (
-      package_in       IN   VARCHAR2,
-      program_in       IN   VARCHAR2 := '%',
-      samepackage_in   IN   BOOLEAN := FALSE ,
-      prefix_in        IN   VARCHAR2 := NULL,
-      schema_in        IN   VARCHAR2 := NULL,
-      output_type_in   IN   PLS_INTEGER := c_screen,
-      dir_in           IN   VARCHAR2 := NULL,
-      date_format_in   IN   VARCHAR2 := 'MM/DD/YYYY',
-		   override_file_in IN   VARCHAR2 := NULL
+      package_in         IN   VARCHAR2
+    , program_in         IN   VARCHAR2 := '%'
+    , samepackage_in     IN   BOOLEAN := FALSE
+    , prefix_in          IN   VARCHAR2 := NULL
+    , schema_in          IN   VARCHAR2 := NULL
+    , output_type_in     IN   PLS_INTEGER := c_screen
+    , dir_in             IN   VARCHAR2 := NULL
+    , date_format_in     IN   VARCHAR2 := 'MM/DD/YYYY'
+    , override_file_in   IN   VARCHAR2 := NULL
    )
-   IS 
+   IS
       CURSOR c_ut_grid (p_package VARCHAR2, p_owner VARCHAR2)
       IS
-         SELECT   ut_grid.owner,
-		 		           ut_grid.progname, ut_grid.overload, ut_grid.tcname,
-                  ut_grid.MESSAGE, ut_grid.arglist, ut_grid.return_value,
-                  ut_grid.assertion_type
+         SELECT   ut_grid.owner, ut_grid.progname, ut_grid.overload
+                , ut_grid.tcname, ut_grid.MESSAGE, ut_grid.arglist
+                , ut_grid.return_value, ut_grid.assertion_type
              FROM ut_grid
-            WHERE NVL(ut_grid.owner, USER) = UPPER (p_owner)
-		 		 		   AND ut_grid.PACKAGE = UPPER (p_package)
+            WHERE ut_grid.owner = UPPER (p_owner)
+              AND ut_grid.PACKAGE = UPPER (p_package)
          ORDER BY ut_grid.progname;
 
       lv_grid      utgen.grid_tt;
@@ -1135,10 +1158,14 @@ Added Standard Headers
       IF c_ut_grid%ISOPEN
       THEN
          CLOSE c_ut_grid;
-      END IF; -- c_ut_grid%IsOpen
+      END IF;                                              -- c_ut_grid%IsOpen
 
-      OPEN c_ut_grid (p_package => package_in, p_owner => NVL (schema_in, USER));
-      FETCH c_ut_grid INTO rc_ut_grid;
+      OPEN c_ut_grid (p_package      => package_in
+                    , p_owner        => NVL (schema_in, USER)
+                     );
+
+      FETCH c_ut_grid
+       INTO rc_ut_grid;
 
       WHILE c_ut_grid%FOUND
       LOOP
@@ -1150,13 +1177,15 @@ Added Standard Headers
          lv_grid (lv_index).arglist := rc_ut_grid.arglist;
          lv_grid (lv_index).return_value := rc_ut_grid.return_value;
          lv_grid (lv_index).assertion_type := rc_ut_grid.assertion_type;
-         FETCH c_ut_grid INTO rc_ut_grid;
+
+         FETCH c_ut_grid
+          INTO rc_ut_grid;
       END LOOP;
 
       IF c_ut_grid%ISOPEN
       THEN
          CLOSE c_ut_grid;
-      END IF; -- c_ut_grid%IsOpen
+      END IF;                                              -- c_ut_grid%IsOpen
 
       IF lv_index > -1
       THEN
@@ -1167,23 +1196,23 @@ Added Standard Headers
          );
 */
 -- We have access to all parameters (either sent in or default). Why not use them?
-         utgen.testpkg (
-            package_in       => package_in /* SEF fix 10/9/2 lv_package*/
-          , grid_in          => lv_grid
-          , program_in       => program_in
-          , samepackage_in   => samepackage_in
-          , prefix_in        => prefix_in
-          , schema_in        => schema_in
-          , output_type_in   => output_type_in
-          , dir_in           => dir_in
-          , date_format_in   => date_format_in
-		 		   , override_file_in => override_file_in
-          );
-
-      END IF; -- lv_index > -1
+         utgen.testpkg
+                     (package_in            => package_in
+                                                /* SEF fix 10/9/2 lv_package*/
+                    , grid_in               => lv_grid
+                    , program_in            => program_in
+                    , samepackage_in        => samepackage_in
+                    , prefix_in             => prefix_in
+                    , schema_in             => schema_in
+                    , output_type_in        => output_type_in
+                    , dir_in                => dir_in
+                    , date_format_in        => date_format_in
+                    , override_file_in      => override_file_in
+                     );
+      END IF;                                                 -- lv_index > -1
    END;
-/* END Patch72 607131 */
 
+/* END Patch72 607131 */
    FUNCTION pkgstring
       RETURN VARCHAR2
    IS
@@ -1194,7 +1223,7 @@ Added Standard Headers
    /* Returns data in order retrieved (ie, Nth row). */
    FUNCTION nthrow (nth IN PLS_INTEGER, direction IN SIGNTYPE := 1)
       RETURN codeline_t
-   IS 
+   IS
       v_nth    PLS_INTEGER := 1;
       v_row    PLS_INTEGER;
       retval   codeline_t;
@@ -1309,10 +1338,10 @@ Added Standard Headers
    END;
 
    PROCEDURE showrows (
-      startrow   IN   PLS_INTEGER := NULL,
-      endrow     IN   PLS_INTEGER := NULL
+      startrow   IN   PLS_INTEGER := NULL
+    , endrow     IN   PLS_INTEGER := NULL
    )
-   IS 
+   IS
       v_start   PLS_INTEGER := NVL (startrow, 1);
       v_end     PLS_INTEGER := NVL (endrow, countrows);
    BEGIN
@@ -1324,7 +1353,7 @@ Added Standard Headers
    END;
 
    -- TO COMPLETE: apply same output type flexibility
-   -- from testpkg to receq_compare. 
+   -- from testpkg to receq_compare.
    PROCEDURE putline (str IN VARCHAR2)
    IS
    BEGIN
@@ -1333,13 +1362,13 @@ Added Standard Headers
 
 -- 2.0.8 Implementation provided by Dan Spencer!
    PROCEDURE receq_package (
-      table_in   IN   VARCHAR2,
-      pkg_in     IN   VARCHAR2 := NULL,
-      owner_in   IN   VARCHAR2 := NULL
+      table_in   IN   VARCHAR2
+    , pkg_in     IN   VARCHAR2 := NULL
+    , owner_in   IN   VARCHAR2 := NULL
    )
-   IS 
+   IS
       v_pkg     VARCHAR2 (30)
-                         := NVL (pkg_in, SUBSTR ('receq_' || table_in, 1, 30));
+                        := NVL (pkg_in, SUBSTR ('receq_' || table_in, 1, 30));
       v_owner   VARCHAR2 (30) := UPPER (NVL (owner_in, USER));
       v_table   VARCHAR2 (30) := UPPER (table_in);
    BEGIN
@@ -1349,13 +1378,12 @@ Added Standard Headers
                          FROM all_tables
                         WHERE owner = v_owner AND table_name = v_table)
       LOOP
-         putline (
-               'FUNCTION eq(a '
-            || tabs_rec.table_name
-            || '%ROWTYPE , b '
-            || tabs_rec.table_name
-            || '%ROWTYPE ) RETURN BOOLEAN; '
-         );
+         putline (   'FUNCTION eq(a '
+                  || tabs_rec.table_name
+                  || '%ROWTYPE , b '
+                  || tabs_rec.table_name
+                  || '%ROWTYPE ) RETURN BOOLEAN; '
+                 );
       END LOOP;
 
       putline (' END ' || v_pkg || ';');
@@ -1367,22 +1395,21 @@ Added Standard Headers
                          FROM all_tables
                         WHERE owner = v_owner AND table_name = v_table)
       LOOP
-         putline (
-               'FUNCTION eq( a '
-            || tabs_rec.table_name
-            || '%ROWTYPE , '
-            || 'b '
-            || tabs_rec.table_name
-            || '%ROWTYPE ) '
-            || 'RETURN BOOLEAN '
-         );
+         putline (   'FUNCTION eq( a '
+                  || tabs_rec.table_name
+                  || '%ROWTYPE , '
+                  || 'b '
+                  || tabs_rec.table_name
+                  || '%ROWTYPE ) '
+                  || 'RETURN BOOLEAN '
+                 );
          putline ('IS BEGIN ');
          putline ('    RETURN (');
 
          FOR user_tab_columns_rec IN (SELECT   *
                                           FROM user_tab_columns
                                          WHERE table_name =
-                                                          tabs_rec.table_name
+                                                           tabs_rec.table_name
                                       ORDER BY column_id)
          LOOP
             IF user_tab_columns_rec.column_id > 1
@@ -1392,29 +1419,27 @@ Added Standard Headers
 
             IF user_tab_columns_rec.data_type = 'CLOB'
             THEN
-               putline (
-                     '( ( a.'
-                  || user_tab_columns_rec.column_name
-                  || ' IS NULL AND  b.'
-                  || user_tab_columns_rec.column_name
-                  || ' IS NULL ) OR DBMS_LOB.COMPARE( a.'
-                  || user_tab_columns_rec.column_name
-                  || ' , b.'
-                  || user_tab_columns_rec.column_name
-                  || ') = 0 )'
-               );
+               putline (   '( ( a.'
+                        || user_tab_columns_rec.column_name
+                        || ' IS NULL AND  b.'
+                        || user_tab_columns_rec.column_name
+                        || ' IS NULL ) OR DBMS_LOB.COMPARE( a.'
+                        || user_tab_columns_rec.column_name
+                        || ' , b.'
+                        || user_tab_columns_rec.column_name
+                        || ') = 0 )'
+                       );
             ELSE
-               putline (
-                     '( ( a.'
-                  || user_tab_columns_rec.column_name
-                  || ' IS NULL AND  b.'
-                  || user_tab_columns_rec.column_name
-                  || ' IS NULL ) OR a.'
-                  || user_tab_columns_rec.column_name
-                  || ' = b.'
-                  || user_tab_columns_rec.column_name
-                  || ')'
-               );
+               putline (   '( ( a.'
+                        || user_tab_columns_rec.column_name
+                        || ' IS NULL AND  b.'
+                        || user_tab_columns_rec.column_name
+                        || ' IS NULL ) OR a.'
+                        || user_tab_columns_rec.column_name
+                        || ' = b.'
+                        || user_tab_columns_rec.column_name
+                        || ')'
+                       );
             END IF;
          END LOOP;
 
