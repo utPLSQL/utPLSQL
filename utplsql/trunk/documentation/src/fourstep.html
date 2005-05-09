@@ -13,7 +13,9 @@ cases.</a></h3>
 
 <h3><a href="#step4">Step 4. Run your test.</a></h3>
 
-<h3><a name="Reporting"></a><a href="#Fromhere"></a><a href="#Fromhere"></a><a href="#Fromhere">Where To Go From Here</a></h3>
+<h3><a href="#schemas">A note on which schemas to use</a></h3>
+
+<h3><a name="Reporting"></a><a href="#Fromhere"></a><a href="#Fromhere"></a><a href="#Fromhere">Where to go from here</a></h3>
 
 <h2><a name="step1"></a>Step 1. Install (and Upgrade) utPLSQL.</h2>
 
@@ -33,7 +35,9 @@ create it. The utPLSQL schema must have the authority to:</p>
 <li>Create tables, views, packages and sequences.</li>
 </ul>
 
-<p>The following is an example script submitted by Bill Pribyl, which creates a user "UTP" with sufficient privileges 
+<p>If you like, you can install utPLSQL into the SYSTEM schema, which will avoid the need to create
+a new user.  However, you may prefer to keep everything in a separate place. 
+The following is an example script submitted by Bill Pribyl, which creates a user "UTP" with sufficient privileges 
 to install utPLSQL.  Obviously it is only an example and will need to be changed for your environment:</p>
 
 <pre>connect system/manager
@@ -406,7 +410,18 @@ call in SQL*Plus: </p>
 
 <pre>SQL&gt; exec utplsql.setdir ('e:\utplsql\testall')</pre>
 
-<h2><a name="Fromhere"></a>Where To Go From Here</h2>
+<h2><a name="schemas"></a>A note on which schemas to use</h2>
+
+<p>In <a href="#step1">step 1</a>, above, we described which user should own the objects which make up the utPLSQL framework.
+However, there has often been confusion about which schema should contain the test packages and which schema to connect as
+when running the tests.  There are many ways to do it, but the simplest is as follows:
+<ul>
+	<li>It doesn't matter which schema owns utPLSQL itself, so long as other users have access to it.</li>
+	<li>The test packages should go in the same schema as the code that is being tested.</li>
+	<li>You should connect as the user who owns the test packages (and hence the tested code) when running the tests</li>
+</ul></p>
+
+<h2><a name="Fromhere"></a>Where to go from here</h2>
 
 <p>If you proceeded through all four steps, you should now have
 used utPLSQL successfully to test a very simple function (betwnstr) or your own
