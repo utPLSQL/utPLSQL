@@ -22,6 +22,21 @@ within them.<br>
 </ul>
 <h2>Change History<br>
 </h2>
+<h3>utPLSQL version 2.2</h3>
+<ul type="disc">
+	<li>
+	This version introduces the concept of Output Reporters.  The existing code to output to DBMS_OUPUT or to file has been refactored to 
+	fit into this framework.
+</li>
+<li>
+The installation procedure has been changed so that the database version is picked up more robustly.  Version 2.2 works with 10g, 
+which previous versions did not.  It should also work with future versions (so long as the version is to be found in the same place
+in the data dictionary).
+</li>
+<li>
+There are also a variety of small fixes in this release.
+</li>
+</ul>
 <h3>utPLSQL version 2.1.1</h3>
 <ul type="disc">
 <li>

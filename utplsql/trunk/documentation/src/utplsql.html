@@ -26,14 +26,7 @@
   <p><a href="#utplsql.testsuite">Run a test suite</a></p>
   </td>
  </tr>
- <tr>
-  <td>
-  <p><a href="#Register">utPLSQL.addtest</a></p>
-  </td>
-  <td>
-  <p><a href="#Register">Register a unit test in a test package</a></p>
-  </td>
- </tr>
+
  <tr>
   <td>
   <p><a href="#Version">utPLSQL.version</a></p>
@@ -50,6 +43,14 @@
   </td>
   <td>
      <p><a href="#Trace">Control utPLSQL's tracing mechanism</a></p>
+  </td>
+</tr>
+  <tr>
+  <td>
+  <p><a href="#Register">utPLSQL.addtest</a></p>
+  </td>
+  <td>
+  <p><a href="#Register">Register a unit test in a test package</a></p>
   </td>
  </tr>
 </table>
@@ -419,6 +420,85 @@ after each test is run: </p>
 <p>All of this is done for you automatically. You can then write queries and reports against the
 ut_package and ut_suite tables. </p>
 
+
+<h2><a name="Version"></a>Return utPLSQL version</h2>
+
+<p>Run the utPLSQL.version function to return the version of
+utPLSQL you have installed: </p>
+
+<pre>FUNCTION utPLSQL.version RETURN VARCHAR2</pre>
+
+<h2><a name="Trace"></a>utPLSQL Trace</h2>
+
+<p>These routines are very simple and take no arguments:</p>
+
+<pre>
+PROCEDURE trc;
+
+PROCEDURE notrc;
+
+FUNCTION tracing RETURN BOOLEAN;
+</pre>
+
+<p>The procedures trc and notrc are used to turn tracing on and off
+respectively.  The function tracing returns TRUE if tracing is currently turned
+on and FALSE otherwise.  This facility is useful when writing code in utPLSQL
+(the framework itself, not your test code).  An example of the output generated
+is:</p>
+
+<pre>
+Initialized utPLSQL session...
+Setpkg to Lottery
+Package and program = ut_Lottery
+Same package? N
+Is package? Y
+Prefix = ut_
+Recompiling ut_Lottery in
+Runprog of ut_SETUP
+Package and program = ut_Lottery.ut_SETUP
+Same package? N
+Is package? Y
+Prefix = ut_
+Addtest
+Package and program = Lottery.UT_DRAW
+Same package? N
+Override? Y
+Prefix = ut_
+Runprog of UT_DRAW
+Package and program = ut_Lottery.UT_DRAW
+Same package? N
+Is package? Y
+Prefix = ut_
+.
+&gt;  FFFFFFF   AA     III  L      U     U RRRRR   EEEEEEE
+&gt;  F        A  A     I   L      U     U R    R  E
+&gt;  F       A    A    I   L      U     U R     R E
+&gt;  F      A      A   I   L      U     U R     R E
+&gt;  FFFF   A      A   I   L      U     U RRRRRR  EEEE
+&gt;  F      AAAAAAAA   I   L      U     U R   R   E
+&gt;  F      A      A   I   L      U     U R    R  E
+&gt;  F      A      A   I   L       U   U  R     R E
+&gt;  F      A      A  III  LLLLLLL  UUU   R     R EEEEEEE
+.
+FAILURE: "Lottery"
+.
+&gt; Individual Test Case Results:
+&gt;
+FAILURE - EQ "Test of DRAW" Expected "01 02 05 27 43 49" and got "02 04 27 28 31 33"
+&gt;
+&gt;
+&gt; Errors recorded in utPLSQL Error Log:
+&gt;
+&gt; NONE FOUND
+Runprog of ut_TEARDOWN
+Package and program = ut_Lottery.ut_TEARDOWN
+Same package? N
+Is package? Y
+Prefix = ut_
+
+PL/SQL procedure successfully completed.
+</pre>
+
 <h2><a name="Register"></a>Register a Unit Test</h2>
 
 <p><b>As of version 1.4.1, you
@@ -506,83 +586,6 @@ IS
 <p>Once you have placed your addtest programs into your test
 package's setup procedure, you are ready to <a href="buildpack.html">build your own unit tests</a>.</p>
 
-<h2><a name="Version"></a>Return utPLSQL version</h2>
-
-<p>Run the utPLSQL.version function to return the version of
-utPLSQL you have installed: </p>
-
-<pre>FUNCTION utPLSQL.version RETURN VARCHAR2</pre>
-
-<h2><a name="Trace"></a>utPLSQL Trace</h2>
-
-<p>These routines are very simple and take no arguments:</p>
-
-<pre>
-PROCEDURE trc;
-
-PROCEDURE notrc;
-
-FUNCTION tracing RETURN BOOLEAN;
-</pre>
-
-<p>The procedures trc and notrc are used to turn tracing on and off
-respectively.  The function tracing returns TRUE if tracing is currently turned
-on and FALSE otherwise.  This facility is useful when writing code in utPLSQL
-(the framework itself, not your test code).  An example of the output generated
-is:</p>
-
-<pre>
-Initialized utPLSQL session...
-Setpkg to Lottery
-Package and program = ut_Lottery
-Same package? N
-Is package? Y
-Prefix = ut_
-Recompiling ut_Lottery in
-Runprog of ut_SETUP
-Package and program = ut_Lottery.ut_SETUP
-Same package? N
-Is package? Y
-Prefix = ut_
-Addtest
-Package and program = Lottery.UT_DRAW
-Same package? N
-Override? Y
-Prefix = ut_
-Runprog of UT_DRAW
-Package and program = ut_Lottery.UT_DRAW
-Same package? N
-Is package? Y
-Prefix = ut_
-.
-&gt;  FFFFFFF   AA     III  L      U     U RRRRR   EEEEEEE
-&gt;  F        A  A     I   L      U     U R    R  E
-&gt;  F       A    A    I   L      U     U R     R E
-&gt;  F      A      A   I   L      U     U R     R E
-&gt;  FFFF   A      A   I   L      U     U RRRRRR  EEEE
-&gt;  F      AAAAAAAA   I   L      U     U R   R   E
-&gt;  F      A      A   I   L      U     U R    R  E
-&gt;  F      A      A   I   L       U   U  R     R E
-&gt;  F      A      A  III  LLLLLLL  UUU   R     R EEEEEEE
-.
-FAILURE: "Lottery"
-.
-&gt; Individual Test Case Results:
-&gt;
-FAILURE - EQ "Test of DRAW" Expected "01 02 05 27 43 49" and got "02 04 27 28 31 33"
-&gt;
-&gt;
-&gt; Errors recorded in utPLSQL Error Log:
-&gt;
-&gt; NONE FOUND
-Runprog of ut_TEARDOWN
-Package and program = ut_Lottery.ut_TEARDOWN
-Same package? N
-Is package? Y
-Prefix = ut_
-
-PL/SQL procedure successfully completed.
-</pre>
 
 <!-- End utPLSQL Body -->
 </body>
