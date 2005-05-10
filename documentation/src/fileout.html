@@ -3,14 +3,14 @@
 <!-- Begin utPLSQL Body -->
 <!-- $Id$ -->
 <h1>
-Configuring File Output
+Configuring the File Reporter
 </h1>
 
 <h2>
 <a name="outline"></a>Outline
 </h2>
 By default, the results of a test run are written to the screen 
-(via DBMS_OUTPUT).  The subprograms described in this section were created 
+(via the default Output Reporter).  The subprograms described in this section were created 
 by Rainer Medert to allow these results to be written to file instead.
 They form part of the utConfig package.
 Don't forget that you will first need to enable file output from the database 
@@ -20,22 +20,8 @@ via the UTL_FILE_DIR parameter in order to do this.
 <a name="setgetfile"></a>Turning file output on
 </h2>
 
-<p>To turn on file output, use the follow procedure:</p>
-
-<pre>PROCEDURE setfile (
-  fileout_in IN BOOLEAN := FALSE, 
-  username_in IN VARCHAR2 := NULL
-);</pre>
-
-<p>the boolean flag specifies whether file output should be turned on or off, 
-while the username specifies which tester to set the flag for.  As usual, 
-this defaults to the user returned by utConfig.tester.</p>
-
-<p>To see if file output is being used, use the following:</p>
-
-<pre>FUNCTION getfile (username_in IN VARCHAR2 := NULL) RETURN BOOLEAN;</pre>
-
-<p>this will return the file output flag for the given user.</p>
+<p>To turn on file output, you will need to switch to using the File Reporter, or a custom reporter
+that uses it.  See <a href="reporter">this page</a> for details.</p>
 
 <h2>
 <a name="setfiledir"></a>Setting the directory to be used
@@ -127,7 +113,6 @@ in the resulting filename!</p>
 <p>It is possible to set all the file output parameters at once using the following procedure:</p>
 
 <pre>PROCEDURE setfileinfo ( 
-  fileout_in IN BOOLEAN := FALSE,
   dir_in IN VARCHAR2 := NULL,
   userprefix_in IN VARCHAR2 := NULL, 
   incname_in IN BOOLEAN := FALSE,     

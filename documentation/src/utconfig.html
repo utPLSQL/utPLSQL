@@ -92,24 +92,24 @@ utConfig Package</h1>
 </tr>
 
 <tr>
-   <td><a href="#ShowFailuresOnly">utConfig.showfailuresonly</a></td>
+   <td><a href="#ShowFailuresOnly">utConfig.showingfailuresonly</a></td>
    <td><a href="#ShowFailuresOnly">Return whether successful test results are shown or not</a></td>
 </tr>
 
 <tr>
-   <td><a href="fileout.html#setgetfile">utConfig.setfile </a></td>
-   <td><a href="fileout.html#setgetfile">Sets file output TRUE or FALSE</a></td>
+	<td><a href="#setgetreporter">utConfig.setreporter</a></td>
+	<td><a href="#setgetreporter">Sets the default Output Reporter to use</a></td>
 </tr>
 
 <tr>
-   <td><a href="fileout.html#setgetfile">utConfig.getfile </a></td>
-   <td><a href="fileout.html#setgetfile">Return whether file output is being used</a></td>
+   <td><a href="#setgetreporter">utConfig.getreporter</a></td>
+   <td><a href="#setgetreporter">Gets the name of the default Output Reporter to use</a></td>
 </tr>
 
 
 <tr>
    <td><a href="fileout.html#setfiledir">utConfig.setfiledir</a></td>
-   <td><a href="fileout.html#setfiledir">Set the directory for the file output</a></td>
+   <td><a href="fileout.html#setfiledir">Set the directory for file output</a></td>
 </tr>   
 
 <tr>
@@ -119,47 +119,47 @@ utConfig Package</h1>
 
 <tr>
    <td><a href="fileout.html#filename1">utConfig.setuserprefix</a></td>
-   <td><a href="fileout.html#filename1">Set the user prefix for the output file name</a></td>
+   <td><a href="fileout.html#filename1">Set the user prefix for output file names</a></td>
 </tr>
 
 <tr>
    <td><a href="fileout.html#filename1">utConfig.userprefix</a></td>
-   <td><a href="fileout.html#filename1">Return the user prefix for the output file name</a></td>
+   <td><a href="fileout.html#filename1">Return the user prefix for output file names</a></td>
 </tr>
 
 <tr>
    <td><a href="fileout.html#filename2">utConfig.setincludeprogname</a></td>
-   <td><a href="fileout.html#filename2">Set whether to include the name of the program being tested in the output file name</a></td>
+   <td><a href="fileout.html#filename2">Set whether to include the name of the program being tested in output file names</a></td>
 </tr>
 
 <tr>
    <td><a href="fileout.html#filename2">utConfig.includeprogname</a></td>
-   <td><a href="fileout.html#filename2">Return whether to include the name of the program being tested in the output file name</a></td>
+   <td><a href="fileout.html#filename2">Return whether to include the name of the program being tested in output file names</a></td>
 </tr>
 
 <tr>
    <td><a href="fileout.html#filename3">utConfig.setdateformat</a></td>
-   <td><a href="fileout.html#filename3">Set the date format for the date portion of the output file name</a></td>
+   <td><a href="fileout.html#filename3">Set the date format for the date portion of output file names</a></td>
 </tr>
 
 <tr>
    <td><a href="fileout.html#filename3">utConfig.dateformat</a></td>
-   <td><a href="fileout.html#filename3">Return the date format used to construct output file name</a></td>
+   <td><a href="fileout.html#filename3">Return the date format used to construct output file names</a></td>
 </tr>
 
 <tr>
    <td><a href="fileout.html#filename4">utConfig.setfileextension</a></td>
-   <td><a href="fileout.html#filename4">Set the file extension for the output file name</a></td>
+   <td><a href="fileout.html#filename4">Set the file extension for output file names</a></td>
 </tr>
 
 <tr>
    <td><a href="fileout.html#filename4">utConfig.fileextension</a></td>
-   <td><a href="fileout.html#filename4">Return the file extension used for the output file name</a></td>
+   <td><a href="fileout.html#filename4">Return the file extension used for output file names</a></td>
 </tr>
 
 <tr>
    <td><a href="fileout.html#allinone">utConfig.setfileinfo</a></td>
-   <td><a href="fileout.html#allinone">Set all of the above file output related items </a></td>
+   <td><a href="fileout.html#allinone">Set all of the above file output related items</a></td>
 </tr>
 
 <tr>
@@ -470,6 +470,25 @@ the current setting can be obtained by the function:
 <pre>FUNCTION showingfailuresonly (username_in IN VARCHAR2 := NULL)
       RETURN BOOLEAN;</pre>
 </p>
+
+
+<h2>
+	<a name="setgetreporter">Set and Get the default output reporter</a>
+</h2>
+<p>
+By default, all results are sent to the screen via DBMS_OUTPUT.  However, it is possible to use other output reporters as described in more detail
+on <a href="reporter.html">this page</a>.  The following procedure allows you to set which output reporter should be used by default:
+<pre>PROCEDURE setreporter (
+      reporter_in   IN   VARCHAR2
+     ,username_in   IN   VARCHAR2 := NULL
+   );
+</pre>
+as usual, the current setting can be obtain by the following function:
+<pre>FUNCTION getreporter (username_in IN VARCHAR2 := NULL)
+      RETURN VARCHAR2;
+</pre>
+</p>
+
 <!-- End utPLSQL Body -->
 </body>
 </html>

@@ -24,11 +24,12 @@ suite.html,Create and Run a Test Suite
 userguide.html,User Guide*
 utplsql.html,utPLSQL Package
 utconfig.html,utConfig Package
-fileout.html,Configuring File Output
 utresult.html,utResult Package
 utassert.html,utAssert Package
 utgen.html,utGen Package
 utoutput.html,utOutput Package
 utreceq.html,utRecEq Package
-defsuite.html,Define Test Suites
+defsuite.html,Defining Test Suites
+reporter.html,Custom Reporter Packages
+fileout.html,Configuring the File Reporter
 release.html,Release Notes*
