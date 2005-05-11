@@ -2,7 +2,7 @@
 Welcome to utPLSQL, the unit testing framework for PL/SQL
 ====================================================================
 
-Copyright (c) 2000-2003, Steven Feuerstein and the utPLSQL Project
+Copyright (c) 2000-2005, Steven Feuerstein and the utPLSQL Project
 
 You have downloaded utPLSQL. 
 
