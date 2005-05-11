@@ -79,7 +79,8 @@ END utMyRssReporter;
 /
 </pre>
 </p>
-The implementation of these procedures should be as follows:
+Your reporter package can define other functions and procedures, for example to allow configuration, but all the procedures shown above should be defined. 
+The usage of these procedures is as follows:
 <h3>open</h3>
 <p>This is called at the very start of the process and is the ideal place to do initialization, such as opening any files that you will be writing to.</p>
 
@@ -139,7 +140,23 @@ you have defined your reporter in the utMyRssReporter package, you need to call:
    utConfig.setreporter('MyRss');
 END; </pre>
 
-Then you just run your tests as usual and hopefully your reporter will format the results as you expect.
+Then you just run your tests as usual and hopefully your reporter will format the results as you expect.  
+
+<h3>Sending output to the current reporter</h3>
+If you wish to send output to the current reporter, for example, for logging purposes, you should call utReport.pl.  
+This is part of the utReport package, which acts as a facade and passes any calls through to the current reporter package. 
+So if you have set up a custom reporter package 'utMyRssReporter' as shown above and called utConfig.setreporter('MyRss'), 
+any calls such as the following:
+
+<pre>BEGIN
+  utReport.pl('Logging Message');
+END;</pre>
+
+will be equivalent to 
+
+<pre>BEGIN
+  utMyRssReporter.pl('Logging Message');
+END;</pre>
 
 <!-- End utPLSQL Body -->
 </body>
