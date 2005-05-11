@@ -26,6 +26,7 @@ select decode(&fine,0,'','create public synonym '||object_name||' for '||object_
 from all_objects
 where owner='&ut_owner' 
 and object_name like 'UT%' 
+and object_name not in ('UT_UTOUTPUT', 'UT_UTREPORT')
 and object_type IN ('PACKAGE', 'TABLE', 'VIEW', 'SEQUENCE');
 select decode(&fine,0,'','PROMPT &finished') from dual;
 
