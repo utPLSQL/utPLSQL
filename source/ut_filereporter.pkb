@@ -23,13 +23,16 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.2  2004/11/16 09:46:48  chrisrimmer
+Changed to new version detection system.
+
 Revision 1.1  2004/07/14 17:01:57  chrisrimmer
 Added first version of pluggable reporter packages
  
 
 ************************************************************************/
 
-  g_fid     UTL_FILE.FILE_TYPE;
+  g_fid      UTL_FILE.FILE_TYPE := NULL;
 
   PROCEDURE record_error (str IN VARCHAR2)
   IS
@@ -47,7 +50,7 @@ Added first version of pluggable reporter packages
       END IF;
     
   	  g_fid := UTL_FILE.FOPEN (dir, filename, filemode);             
-             
+
   EXCEPTION
     WHEN UTL_FILE.INVALID_PATH
      THEN record_error ('invalid_path');
@@ -145,10 +148,52 @@ Added first version of pluggable reporter packages
              
   END; 
 
+  PROCEDURE before_results(run_id IN utr_outcome.run_id%TYPE)
+  IS
+  BEGIN
+    utOutputReporter.before_results(run_id);
+  END;
+  
+  PROCEDURE show_failure
+  IS
+  BEGIN
+    utOutputReporter.show_failure;
+  END;
+  
+  PROCEDURE show_result
+  IS
+  BEGIN
+    utOutputReporter.show_result;
+  END;
+  
+  PROCEDURE after_results(run_id IN utr_outcome.run_id%TYPE)
+  IS
+  BEGIN
+    utOutputReporter.after_results(run_id);
+  END;
+   
+  PROCEDURE before_errors(run_id IN utr_error.run_id%TYPE)
+  IS
+  BEGIN
+    utOutputReporter.before_errors(run_id);
+  END;
+  
+  PROCEDURE show_error
+  IS
+  BEGIN
+    utOutputReporter.show_error;
+  END;
+  
+  PROCEDURE after_errors(run_id IN utr_error.run_id%TYPE)
+  IS
+  BEGIN
+    utOutputReporter.after_errors(run_id);
+  END; 
+  
   PROCEDURE CLOSE(bool_abort BOOLEAN := FALSE)
   IS
   BEGIN
-    IF NOT bool_abort THEN
+    IF NOT bool_abort AND g_fid.ID IS NOT NULL THEN
  	  pl('-- '||TO_CHAR(SYSDATE,Utconfig.dateformat));             
     END IF;
     
@@ -159,6 +204,10 @@ Added first version of pluggable reporter packages
   IS
   BEGIN
 
+    IF g_fid.ID IS NULL THEN
+      utfilereporter.open;
+    END IF; 
+  
     -- write input to file
     UTL_FILE.PUT_LINE (g_fid, str);
  
