@@ -80,7 +80,10 @@ END utMyRssReporter;
 </pre>
 </p>
 Your reporter package can define other functions and procedures, for example to allow configuration, but all the procedures shown above should be defined. 
-The usage of these procedures is as follows:
+The usage of these procedures follows.  <b>Note</b> If you want to keep the
+format of the output the same as for the Output Reporter, but wish to send 
+it elsewhere, you can define open, close and pl, but simply call the equivalent 
+procedure in utOutputReporter for the others.  For an example of this, see the File Reporter.
 <h3>open</h3>
 <p>This is called at the very start of the process and is the ideal place to do initialization, such as opening any files that you will be writing to.</p>
 
