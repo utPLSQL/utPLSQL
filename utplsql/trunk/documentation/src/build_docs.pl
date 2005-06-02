@@ -92,7 +92,10 @@ foreach $index (0..$#map){
 	open OUTPUT, ">$OUTDIR/$map[$index]->[0]" or die "Cannot open $OUTDIR/$map[$index]->[0]";
 
 	if ($index != $#map){
-		system("./clean_html.pl $map[$index]->[0] > $map[$index]->[0].clean");
+# PBA 20050602: The following line didn't seem to work on my configuration
+#               removed the ./ and now it does work.
+#		system("./clean_html.pl $map[$index]->[0] > $map[$index]->[0].clean");
+		system("clean_html.pl $map[$index]->[0] > $map[$index]->[0].clean");
 		open INPUT, "$map[$index]->[0].clean" or die "Cannot open $map[$index]->[0].clean";
 	}
 
@@ -103,7 +106,7 @@ foreach $index (0..$#map){
 	print OUTPUT "<title>$map[$index]->[1]</title>\n";
 	print OUTPUT "<link rel=\"stylesheet\" href=\"utplsql.css\" content=\"text/css\">\n";
 	print OUTPUT "<meta name=\"keywords\" content=\"utPLSQL, PL\\SQL, Unit Testing, Framework, Oracle\"/>\n";
-        print OUTPUT "<meta name=\"description\" content=\"Unit Testing PL\\SQL\"/>\n";
+  print OUTPUT "<meta name=\"description\" content=\"Unit Testing PL\\SQL\"/>\n";
 	print OUTPUT "<meta name=\"title\" content=\"$map[$index]->[1]\"/>\n";
 	print OUTPUT "<meta name=\"author\" content=\"$authormeta\"/>\n";
 	print OUTPUT "<meta name=\"copyright\" content=\"$copymeta\"/>\n";
