@@ -26,7 +26,7 @@ within them.<br>
 <ul type="disc">
 	<li>
 	This version introduces the concept of Output Reporters.  The existing code to output to DBMS_OUPUT or to file has been refactored to 
-	fit into this framework.
+	fit into this framework. As a result of this, the pl procedure in the utplsql package has been moved to the utreport package.
 </li>
 <li>
 The installation procedure has been changed so that the database version is picked up more robustly.  Version 2.2 works with 10g, 
