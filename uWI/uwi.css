@@ -1,0 +1,338 @@
+/*******************************************************************************
+*    Copyright 2004, 2005 Mark Vilrokx and the utPLSQL Project
+*    (mvilrokx@gmail.com, markvilrokx@hotmail.com)
+*
+*    This file is part of uWI: the utPLSQL Web Interface.
+*
+*    uWI is free software; you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation; either version 2 of the License, or
+*   (at your option) any later version.
+*
+*    uWI is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with uWI; if not, write to the Free Software
+*    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*
+*******************************************************************************/
+
+body {background-color: #F0F0F0; 
+      font-family : Verdana, Arial, Geneva, Helvetica, sans-serif;
+      font-size : 70%;
+      margin-left: 3%;
+      margin-right: 5%;
+}
+
+#train {
+   text-align: left;
+}
+
+#train LI {
+   float:left; 
+   display:block;
+   text-align:left;
+   padding-right: 1em;
+}
+
+#train LI A {
+   font-weight:bold;
+   color: black;
+}
+
+#train LI A:hover {
+   color:white;
+   background-color : black;
+}
+
+
+#query_table {
+   clear: both;
+}
+
+
+#query_table table {
+   clear: both;
+   border-top : inset 1px #000000;
+   border-bottom : inset 1px #000000;
+   padding : 10px;
+   margin : 10px;
+   margin-left: auto;
+   margin-right: auto;
+   border-collapse : collapse; 
+   border-spacing : 0px;
+   width : 100%;
+   font-size : 100%;
+}
+
+#query_table table th {
+   background-color : #bbb;
+   color:#444;
+   border-bottom : inset 3px #000000;
+   border-collapse : collapse; 
+   border-spacing : 0px;
+   font-weight: bold;
+   text-align : left;
+}
+
+#query_table table th A {
+   text-decoration:none;
+   font-weight:bold;
+   color: black;
+}
+
+#query_table table th A:hover {
+   color:white;
+   background-color : black;
+}
+
+#query_table table td A {
+   font-weight:bold;
+   color: black;
+}
+
+#query_table table td A:hover {
+   color:white;
+   background-color : black;
+}
+
+#query_table table .odd {
+   background-color : White;
+}
+
+#query_table table .oddfailure {
+   border-top : inset 1px Red;
+   border-bottom : inset 1px Red;
+   background-color : #ffcccc;
+   font-weight: bold;
+   color: red;
+}
+
+#query_table table .even {
+}
+
+#query_table table .evenfailure {
+   border-top : inset 1px Red;
+   border-bottom : inset 1px Red;
+   background-color : #ffcccc;
+   font-weight: bold;
+   color: red;
+}
+
+#input_form {
+   float: left;
+   clear: both;
+   width: 60%;
+   margin-left: 15em;
+}
+
+#input_form fieldset {
+   background: #ddd;
+   padding: 2em;
+   border-top: #444 solid 2px;
+   border-bottom: #444 solid 2px;
+   border-left: none;
+   border-right: none;
+}
+
+#input_form legend {
+   color: #444;
+   background: #bbb;
+   font-weight: bold;
+   font-size : 110%;
+   padding: 3px 2em 3px 2em;
+   border: #444 solid 2px;
+}
+
+#input_form label {
+   width: 14em;
+   float: left;
+   text-align: right;
+   margin-bottom: 1em;
+   margin-right: 1em;
+   clear: both;
+   font-weight: bold;
+} 
+
+#input_form input,select,hidden
+{
+   float: left;
+   margin-bottom: 1em;
+   color: #444;
+   background: #F0F0F0;
+   border: #444 solid 1px;
+   font-weight: bold;
+}
+
+#input_form .submit_button {
+   margin-left: 1em;
+   clear: left;
+   padding: 3px 2em 3px 2em;
+}
+
+#input_form .submit_button:hover {
+   background: #bbb;
+}
+
+#input_form .reset_button {
+   margin-left: 15em;
+   font-weight: bold;
+   padding: 3px 2em 3px 2em;
+}
+
+#input_form .reset_button:hover {
+   background: #bbb;
+}
+
+#navigator {
+   clear: both;
+   text-align: center;
+}
+
+#navigator LI {
+   float:left; 
+   display:block;
+   width: 20px;
+   color: white;
+   font-weight: bold;
+   background-color: #bbb;
+}
+
+#navigator LI A {
+   font-weight:bold;
+   color: black;
+}
+
+#navigator LI A:hover {
+   color:white;
+   background-color : black;
+}
+
+#navbar {
+	position:relative;
+	float:left;
+	width:100%;
+	padding:0 0 1.75em 1em;
+	list-style:none;
+	line-height:1em;
+}
+
+#navbar LI {
+	float:left;
+	margin:0;
+	padding:0;
+}
+
+#navbar A {
+	display:block;
+	color:#444;
+	text-decoration:none;
+	font-weight:bold;
+	background:#ddd;
+	margin:0;
+	padding:0.25em 1em;
+	border-left:1px solid #fff;
+	border-top:1px solid #fff;
+	border-right:1px solid #aaa;
+}
+
+#navbar A:hover,
+#navbar A:active,
+#navbar A.here:link,
+#navbar A.here:visited {
+	background:#bbb;
+}
+
+#navbar A.here:link,
+#navbar A.here:visited {
+	position:relative;
+	z-index:102;
+}
+
+#navbar UL {
+	position:absolute;
+	left:0;
+	top:1.5em;
+	float:left;
+	background:#bbb;
+	/* width:100%; you can add this line for Firefox, it makes the menu bar go accross the screen, much nicer but it breaks IE */
+	margin:0;
+	padding:0.25em 0.25em 0.25em 1em;
+	list-style:none;
+	border-top:1px solid #fff;
+}
+
+#navbar UL LI {
+	float:left;
+	display:block;
+	margin-top:1px;
+}
+
+#navbar UL A {
+	background:#bbb;
+	color:#fff;
+	display:inline;
+	margin:0;
+	padding:0 1em;
+	border:0
+}
+
+#navbar UL A:hover,
+#navbar UL A:active,
+#navbar UL A.here:link,
+#navbar UL A.here:visited {
+	color:#444;
+}
+
+#footer {
+   clear: both;
+   text-align: center;
+   border-top:2px solid #444;
+   font-size: 80%;
+   padding-left: 20%;
+}
+
+#footer LI {
+   float: left; 
+   display:block;
+   /* width: 130px; */
+   padding-left: 2%;
+}
+
+#footer LI A {
+   font-weight:bold;
+   color: #444;
+   text-align: center;
+}
+
+#about {
+   clear: both;
+   margin-left: 20%;
+   margin-right: 30%;
+}
+
+#copyright {
+   clear: both;
+   font-size: 80%;
+   margin-left: 35%;
+   margin-top: 10%;
+  
+}
+
+#faq {
+   clear: both;
+   margin-left: 20%;
+   margin-right: 30%;
+}
+
+#noconnect {
+   clear: both;
+   margin-left: 18%;
+   margin-right: 22%;
+   padding: 2%;
+   font-weight: bold;
+   border: 2px solid black;
+}
