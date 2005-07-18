@@ -99,4 +99,4 @@ If you do not like the way uWI looks, you can customize the CSS file and make it
 
 8. Installation Problems
 ========================
-If you have any problems with getting uWI to work on your machine, please drop me an e-mail at  markvilrokx@hotmail.com
+If you have any problems with getting uWI to work on your machine, please drop me an e-mail at  markvilrokx@hotmail.com or post your question on the forum at http://utplsql.oracledeveloper.nl
