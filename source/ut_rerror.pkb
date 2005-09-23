@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.4  2004/11/16 09:46:49  chrisrimmer
+Changed to new version detection system.
+
 Revision 1.2  2003/07/01 19:36:47  chrisrimmer
 Added Standard Headers
 
@@ -87,7 +90,7 @@ Added Standard Headers
       l_message   VARCHAR2 (2000);
       &start_ge_8_1 
       PRAGMA autonomous_transaction;
-   &start_ge_8_1
+   &end_ge_8_1
    BEGIN
       -- If error already recorded, simply re-raise.
 
@@ -133,7 +136,7 @@ Added Standard Headers
       &start_ge_8_1 
       COMMIT;
 
-      &start_ge_8_1
+      &end_ge_8_1
 
       IF raiseexc
       THEN
@@ -145,7 +148,7 @@ Added Standard Headers
       THEN
          ROLLBACK;
          RAISE;
-   &start_ge_8_1
+   &end_ge_8_1
    END;
 
    PROCEDURE report (

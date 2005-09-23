@@ -23,6 +23,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.3  2004/11/16 09:46:49  chrisrimmer
+Changed to new version detection system.
+
 Revision 1.2  2003/07/01 19:36:47  chrisrimmer
 Added Standard Headers
 
@@ -36,7 +39,7 @@ Added Standard Headers
    IS
       &start_ge_8_1 
       PRAGMA AUTONOMOUS_TRANSACTION;
-   &start_ge_8_1
+   &end_ge_8_1
    BEGIN
       utplsql2.set_current_outcome (outcome_id_in);
 
@@ -48,7 +51,7 @@ Added Standard Headers
 
       &start_ge_8_1 
       COMMIT;
-   &start_ge_8_1
+   &end_ge_8_1
    EXCEPTION
       WHEN DUP_VAL_ON_INDEX
       THEN
@@ -56,12 +59,12 @@ Added Standard Headers
          NULL;
          &start_ge_8_1 
          ROLLBACK;
-      &start_ge_8_1
+      &end_ge_8_1
       WHEN OTHERS
       THEN
          &start_ge_8_1 
          ROLLBACK;
-         &start_ge_8_1
+         &end_ge_8_1
          utrerror.oc_report (run_id_in
                            , outcome_id_in
                            , SQLCODE
@@ -85,7 +88,7 @@ Added Standard Headers
       &start_ge_8_1 
       PRAGMA AUTONOMOUS_TRANSACTION;
 
-      &start_ge_8_1
+      &end_ge_8_1
 
       CURSOR start_cur (id_in IN utr_outcome.outcome_id%TYPE)
       IS
@@ -133,13 +136,13 @@ Added Standard Headers
       CLOSE start_cur;
       &start_ge_8_1 
       COMMIT;
-   &start_ge_8_1
+   &end_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          &start_ge_8_1 
          ROLLBACK;
-         &start_ge_8_1
+         &end_ge_8_1
          utrerror.oc_report (run_id_in
                            , outcome_id_in
                            , SQLCODE
@@ -169,14 +172,14 @@ Added Standard Headers
    IS
       &start_ge_8_1 
       PRAGMA AUTONOMOUS_TRANSACTION;
-   &start_ge_8_1
+   &end_ge_8_1
    BEGIN
       DELETE FROM utr_outcome
             WHERE run_id = run_id_in;
 
       &start_ge_8_1 
       COMMIT;
-   &start_ge_8_1
+   &end_ge_8_1
    END;
 
    PROCEDURE clear_results (
@@ -187,7 +190,7 @@ Added Standard Headers
    IS
       &start_ge_8_1 
       PRAGMA AUTONOMOUS_TRANSACTION;
-   &start_ge_8_1
+   &end_ge_8_1
    BEGIN
       DELETE FROM utr_outcome
             WHERE start_on >= start_from_in
@@ -200,14 +203,14 @@ Added Standard Headers
 
       &start_ge_8_1 
       COMMIT;
-   &start_ge_8_1
+   &end_ge_8_1
    END;
 
    PROCEDURE clear_all_but_last (owner_in IN VARCHAR2, program_in IN VARCHAR2)
    IS
       &start_ge_8_1 
       PRAGMA AUTONOMOUS_TRANSACTION;
-      &start_ge_8_1
+      &end_ge_8_1
    BEGIN
       DELETE FROM utr_outcome
             WHERE start_on <
