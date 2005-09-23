@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.4  2004/11/16 09:46:49  chrisrimmer
+Changed to new version detection system.
+
 Revision 1.3  2003/07/01 19:36:47  chrisrimmer
 Added Standard Headers
 
@@ -236,7 +239,7 @@ prefix_out  := rec.prefix;
    IS
       &start_ge_8_1 
       PRAGMA autonomous_transaction;
-      &start_ge_8_1
+      &end_ge_8_1
       l_id   ut_utp.id%TYPE;
 	  l_program ut_utp.name%type := program_in;
    BEGIN
@@ -262,17 +265,17 @@ prefix_out  := rec.prefix;
       &start_ge_8_1 
       COMMIT;
       
-   &start_ge_8_1
+   &end_ge_8_1
       id_out := l_id;
    EXCEPTION
       WHEN OTHERS
       THEN
          IF utrerror.uterrcode = utrerror.assertion_failure
          THEN
-            &start_ge_8_1 ROLLBACK; &start_ge_8_1
+            &start_ge_8_1 ROLLBACK; &end_ge_8_1
             RAISE;
          ELSE
-            &start_ge_8_1 ROLLBACK; &start_ge_8_1
+            &start_ge_8_1 ROLLBACK; &end_ge_8_1
             utrerror.report_define_error (
                c_abbrev,
                   'UTP for '
@@ -329,23 +332,23 @@ prefix_out  := rec.prefix;
    IS
       &start_ge_8_1 
       PRAGMA autonomous_transaction;
-   &start_ge_8_1
+   &end_ge_8_1
    BEGIN
       DELETE FROM ut_utp
             WHERE id = id_in;
 
       &start_ge_8_1 
       COMMIT;
-   &start_ge_8_1 
+   &end_ge_8_1 
    EXCEPTION
       WHEN OTHERS
       THEN
          IF utrerror.uterrcode = utrerror.assertion_failure
          THEN
-            &start_ge_8_1 ROLLBACK; &start_ge_8_1
+            &start_ge_8_1 ROLLBACK; &end_ge_8_1
             RAISE;
          ELSE
-            &start_ge_8_1 ROLLBACK; &start_ge_8_1
+            &start_ge_8_1 ROLLBACK; &end_ge_8_1
             utrerror.report_define_error (c_abbrev,    'UTP '
                                                     || id_in);
          END IF;
@@ -363,7 +366,7 @@ prefix_out  := rec.prefix;
    IS
       &start_ge_8_1 
       PRAGMA autonomous_transaction;
-      &start_ge_8_1
+      &end_ge_8_1
 	  l_name ut_utp.name%type := name_in;
    BEGIN
    if l_name not like '"%' then l_name := upper (l_name); end if; 
@@ -378,11 +381,11 @@ prefix_out  := rec.prefix;
       &start_ge_8_1 
       COMMIT;
       
-   &start_ge_8_1
+   &end_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
-            &start_ge_8_1 ROLLBACK; &start_ge_8_1
+            &start_ge_8_1 ROLLBACK; &end_ge_8_1
             utrerror.report_define_error (
                c_abbrev,
                   'UTP update for UTP '

@@ -24,6 +24,9 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
+Revision 1.5  2004/11/23 14:56:47  chrisrimmer
+Moved dbms_pipe code into its own package.  Also changed some preprocessor flags
+
 Revision 1.4  2004/11/16 09:46:49  chrisrimmer
 Changed to new version detection system.
 
@@ -84,7 +87,7 @@ Added Standard Headers
       test_overloads_in   IN   BOOLEAN := FALSE
    )
    IS
-      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
+      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &end_ge_8_1
       v_owner    VARCHAR2 (30)                 := NVL (owner_in, USER);
       v_id       ut_package.id%TYPE;
       v_same     ut_package.samepackage%TYPE   := utplsql.c_yes;
@@ -96,7 +99,7 @@ Added Standard Headers
          v_same := utplsql.c_no;
       END IF;
 
-      &start_ge_8_1 v_id := utplsql.seqval ('ut_package'); &start_ge_8_1
+      &start_ge_8_1 v_id := utplsql.seqval ('ut_package'); &end_ge_8_1
       &start_lt_8_1 SELECT ut_package_seq.NEXTVAL INTO v_id FROM dual; &end_lt_8_1
 
       INSERT INTO ut_package
@@ -108,7 +111,7 @@ Added Standard Headers
                    0, 0);
       IF id_from_name( UPPER (package_in),owner_in) IS NULL 
       THEN
-         &start_ge_8_1 v_id := utplsql.seqval ('ut_package'); &start_ge_8_1
+         &start_ge_8_1 v_id := utplsql.seqval ('ut_package'); &end_ge_8_1
          &start_lt_8_1 SELECT ut_package_seq.NEXTVAL INTO v_id FROM dual; &end_lt_8_1
 
          INSERT INTO ut_package
@@ -120,7 +123,7 @@ Added Standard Headers
                    0, 0);
          
 
-         &start_ge_8_1 COMMIT; &start_ge_8_1
+         &start_ge_8_1 COMMIT; &end_ge_8_1
       END IF;
       IF add_tests_in
       THEN
@@ -169,7 +172,7 @@ Added Standard Headers
             CLOSE cv;
          END;
 
-         &start_ge_8_1
+         &end_ge_8_1
          &start_lt_8_1
          -- 7.3 DBMS_SQL Implementation
          DECLARE
@@ -215,7 +218,7 @@ Added Standard Headers
          END;
       &end_lt_8_1
       END IF;
-   &start_ge_8_1 COMMIT; &start_ge_8_1
+   &start_ge_8_1 COMMIT; &end_ge_8_1
    EXCEPTION
       WHEN DUP_VAL_ON_INDEX
       THEN
@@ -227,13 +230,13 @@ Added Standard Headers
           WHERE owner = UPPER (v_owner)
             AND name = UPPER (package_in)
             AND suite_id = suite_in;
-      &start_ge_8_1 COMMIT; &start_ge_8_1
+      &start_ge_8_1 COMMIT; &end_ge_8_1
 
       WHEN OTHERS
       THEN
          utreport.pl (   'Add package error: '
                      || SQLERRM);
-         &start_ge_8_1 ROLLBACK; &start_ge_8_1
+         &start_ge_8_1 ROLLBACK; &end_ge_8_1
          RAISE;
    END;
 
@@ -269,7 +272,7 @@ Added Standard Headers
       owner_in     IN   VARCHAR2 := NULL
    )
    IS
-   &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
+   &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &end_ge_8_1
    BEGIN
       DELETE FROM ut_package
             WHERE (   suite_id = UPPER (suite_in)
@@ -279,13 +282,13 @@ Added Standard Headers
                   )
               AND name = UPPER (package_in)
               AND owner = NVL (UPPER (owner_in), USER);
-   &start_ge_8_1 COMMIT; &start_ge_8_1
+   &start_ge_8_1 COMMIT; &end_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          utreport.pl (   'Remove package error: '
                      || SQLERRM);
-         &start_ge_8_1 ROLLBACK; &start_ge_8_1
+         &start_ge_8_1 ROLLBACK; &end_ge_8_1
          RAISE;
    END;
 
@@ -309,7 +312,7 @@ Added Standard Headers
    )
    IS
       l_status    VARCHAR2 (100) := utplsql.c_success;
-      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
+      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &end_ge_8_1
       v_failure   PLS_INTEGER    := 0;
 
       PROCEDURE do_upd
@@ -352,13 +355,13 @@ Added Standard Headers
          );
          do_upd;
       END IF;
-   &start_ge_8_1 COMMIT; &start_ge_8_1
+   &start_ge_8_1 COMMIT; &end_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          utreport.pl (   'Update package error: '
                      || SQLERRM);
-         &start_ge_8_1 ROLLBACK; &start_ge_8_1
+         &start_ge_8_1 ROLLBACK; &end_ge_8_1
          RAISE;
    END;
 
