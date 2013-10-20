@@ -24,9 +24,6 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
-Revision 1.3  2004/11/16 09:46:49  chrisrimmer
-Changed to new version detection system.
-
 Revision 1.2  2003/07/01 19:36:47  chrisrimmer
 Added Standard Headers
 
@@ -123,7 +120,7 @@ FUNCTION full_name (
    IS
       &start_ge_8_1 
       PRAGMA autonomous_transaction;
-      &end_ge_8_1
+      &start_ge_8_1
       l_id   ut_unittest.id%TYPE;
    BEGIN
       SELECT ut_unittest_seq.NEXTVAL
@@ -137,16 +134,16 @@ FUNCTION full_name (
 
       &start_ge_8_1 
       COMMIT;
-   &end_ge_8_1
+   &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          IF utrerror.uterrcode = utrerror.assertion_failure
          THEN
-            &start_ge_8_1 ROLLBACK; &end_ge_8_1
+            &start_ge_8_1 ROLLBACK; &start_ge_8_1
             RAISE;
          ELSE
-            &start_ge_8_1 ROLLBACK; &end_ge_8_1
+            &start_ge_8_1 ROLLBACK; &start_ge_8_1
             utrerror.report_define_error (
                c_abbrev,
                   'Unittest for '
@@ -167,23 +164,23 @@ FUNCTION full_name (
    IS
       &start_ge_8_1 
       PRAGMA autonomous_transaction;
-   &end_ge_8_1
+   &start_ge_8_1
    BEGIN
       DELETE FROM ut_unittest
             WHERE id = id_in;
 
       &start_ge_8_1 
       COMMIT;
-   &end_ge_8_1 
+   &start_ge_8_1 
    EXCEPTION
       WHEN OTHERS
       THEN
          IF utrerror.uterrcode = utrerror.assertion_failure
          THEN
-            &start_ge_8_1 ROLLBACK; &end_ge_8_1
+            &start_ge_8_1 ROLLBACK; &start_ge_8_1
             RAISE;
          ELSE
-            &start_ge_8_1 ROLLBACK; &end_ge_8_1
+            &start_ge_8_1 ROLLBACK; &start_ge_8_1
             utrerror.report_define_error (
                c_abbrev,
                   'Unittest ID '

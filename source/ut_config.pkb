@@ -22,9 +22,6 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
-Revision 1.5  2004/11/23 14:56:47  chrisrimmer
-Moved dbms_pipe code into its own package.  Also changed some preprocessor flags
-
 Revision 1.4  2004/11/16 09:46:48  chrisrimmer
 Changed to new version detection system.
 
@@ -90,7 +87,7 @@ Added Standard Headers
      ,username_in   IN   VARCHAR2 := NULL
    )
    IS
-      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &end_ge_8_1
+      &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
 
       --Local procedure to do dynamic SQL
       PROCEDURE do_dml (statement_in IN VARCHAR2)
@@ -99,7 +96,7 @@ Added Standard Headers
       &start_lt_8_1 rows INTEGER; &end_lt_8_1
       BEGIN
          --In 8i, just do it
-         &start_ge_8_1 EXECUTE IMMEDIATE statement_in; COMMIT; &end_ge_8_1
+         &start_ge_8_1 EXECUTE IMMEDIATE statement_in; COMMIT; &start_ge_8_1
 
            --Otherwise use DBMS_SQL
            &start_lt_8_1
@@ -148,11 +145,11 @@ Added Standard Headers
          THEN
             --Something else went wrong
             UtOutputreporter.pl (SQLERRM);
-            &start_ge_8_1 ROLLBACK; &end_ge_8_1
+            &start_ge_8_1 ROLLBACK; &start_ge_8_1
             RETURN;
       END;
 
-      &start_ge_8_1 COMMIT; &end_ge_8_1
+      &start_ge_8_1 COMMIT; &start_ge_8_1
 
       --If it's the current user, force update of package record
       IF username_in = tester
@@ -651,7 +648,7 @@ Added Standard Headers
      ,editor_in               IN   ut_config.editor%TYPE
    ) 
    IS
-   &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &end_ge_8_1
+   &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
    BEGIN
       INSERT INTO ut_config
                   (username, autocompile, prefix
@@ -662,7 +659,7 @@ Added Standard Headers
                   ,show_failures_only_in, directory_in, filedir_in
                   ,show_config_info_in, editor_in
                   );
-   &start_ge_8_1 COMMIT; &end_ge_8_1
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN DUP_VAL_ON_INDEX
       THEN
@@ -675,12 +672,9 @@ Added Standard Headers
                ,filedir = filedir_in
                ,show_config_info = show_config_info_in
           WHERE username = username_in;
-          -- SF 20050922: Should have a commit; in the dup val exc header. 
-          --              Otherwise, Oracle raises exception and rollsback.
-          &start_ge_8_1 COMMIT; & start_ge_8_1
       WHEN OTHERS
       THEN
-         &start_ge_8_1 ROLLBACK; &end_ge_8_1
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          NULL; -- Present to assist in formatting
    END;
 

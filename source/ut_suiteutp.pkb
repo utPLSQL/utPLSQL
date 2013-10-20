@@ -24,9 +24,6 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
-Revision 1.5  2005/01/19 16:10:59  chrisrimmer
-Removed AUTHID clauses from package bodies
-
 Revision 1.4  2004/11/16 09:46:49  chrisrimmer
 Changed to new version detection system.
 
@@ -105,7 +102,7 @@ Added Standard Headers
      ,enabled_in    IN   ut_suite_utp.enabled%TYPE := NULL
    )
    IS
-   &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &end_ge_8_1
+   &start_ge_8_1 PRAGMA AUTONOMOUS_TRANSACTION; &start_ge_8_1
    BEGIN
       utrerror.assert (suite_id_in IS NOT NULL, 'Suite ID cannot be null.');
       utrerror.assert (utp_id_in IS NOT NULL, 'UTP ID cannot be null.');
@@ -113,22 +110,22 @@ Added Standard Headers
       INSERT INTO ut_suite_utp
                   (suite_id, utp_id, seq, enabled)
            VALUES (suite_id_in, utp_id_in, seq_in, enabled_in);
-   &start_ge_8_1 COMMIT; &end_ge_8_1
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN DUP_VAL_ON_INDEX
       THEN
          -- already exists. Just ignore.
-         &start_ge_8_1 ROLLBACK; &end_ge_8_1
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          NULL;
       WHEN OTHERS
       THEN
    IF utrerror.uterrcode = utrerror.assertion_failure
          THEN
-                     &start_ge_8_1 ROLLBACK; &end_ge_8_1
+                     &start_ge_8_1 ROLLBACK; &start_ge_8_1
                      raise;
          ELSE
                   
-         &start_ge_8_1 ROLLBACK; &end_ge_8_1
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          utrerror.report_define_error (
             c_abbrev,
                'Suite '
@@ -146,18 +143,18 @@ Added Standard Headers
    IS
       &start_ge_8_1 
       PRAGMA autonomous_transaction;
-   &end_ge_8_1
+   &start_ge_8_1
    BEGIN
       DELETE FROM ut_suite_utp
             WHERE suite_id = suite_id_in
               AND utp_id = utp_id_in;
-   &start_ge_8_1 COMMIT; &end_ge_8_1
+   &start_ge_8_1 COMMIT; &start_ge_8_1
    EXCEPTION
       WHEN OTHERS
       THEN
          utreport.pl (   'Remove suite-utp error: '
                      || SQLERRM);
-         &start_ge_8_1 ROLLBACK; &end_ge_8_1
+         &start_ge_8_1 ROLLBACK; &start_ge_8_1
          RAISE;
    END;
 

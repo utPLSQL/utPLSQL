@@ -24,9 +24,6 @@ along with this program (see license.txt); if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ************************************************************************
 $Log$
-Revision 1.7  2004/11/28 20:48:55  chrisrimmer
-Incremented version number
-
 Revision 1.6  2004/11/23 14:56:48  chrisrimmer
 Moved dbms_pipe code into its own package.  Also changed some preprocessor flags
 
@@ -558,7 +555,7 @@ Added Standard Headers
             file_in,
             'R' &start_ge_8_1 
                ,
-            max_linesize=> 32767 &end_ge_8_1
+            max_linesize=> 32767 &start_ge_8_1
          );
 
       LOOP

@@ -892,7 +892,7 @@ the pre-build assertions.  In order to integrate the results of your assertion
 test into the utResult package, you will want to mimic the utAssert.this procedure.
 Here is its current implementation (Release 1.3.2); check the body of the
 utAssert package for any changes.  <pre>PROCEDURE this (<br>   msg_in IN VARCHAR2,<br>   check_this_in IN BOOLEAN,<br>   null_ok_in IN BOOLEAN := FALSE,<br>   raise_exc_in IN BOOLEAN := FALSE,<br>   register_in IN BOOLEAN := TRUE<br>   )<br>IS<br>BEGIN<br>   IF    NOT check_this_in<br>      OR (    check_this_in IS NULL<br>          AND NOT null_ok_in)<br>   THEN<br>      IF register_in<br>      THEN</pre>
-  <pre>         -- Registers the results in the utResult databank.<br>         utresult.report (msg_in);<br>      ELSE<br>         utreport.pl (msg_in); -- used to be utplsql.pl (msg_in) (PBA 20050621)<br>      END IF;<br>      <br>      IF showing_results AND register_in<br>      THEN</pre>
+  <pre>         -- Registers the results in the utResult databank.<br>         utresult.report (msg_in);<br>      ELSE<br>         utplsql.pl (msg_in);<br>      END IF;<br>      <br>      IF showing_results AND register_in<br>      THEN</pre>
   <pre>         -- Show the results of the test more recently run.<br>         utresult.showlast;<br>      END IF;<br><br>      IF raise_exc_in<br>      THEN<br>         RAISE test_failure;<br>      END IF;<br>   END IF;<br>END;</pre>
   The most important statement to include in your assertion routine is the
   call to utResult.report, which will log the results of the test.  
