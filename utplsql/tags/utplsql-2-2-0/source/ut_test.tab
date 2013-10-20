@@ -1,0 +1,19 @@
+CREATE TABLE ut_test (
+   id INTEGER , 
+   package_id INTEGER, 
+   name VARCHAR2(200), 
+   description VARCHAR2(2000), 
+   seq INTEGER, 
+   executions INTEGER, 
+   failures INTEGER,
+   last_start DATE, 
+   last_end DATE,
+  CONSTRAINT ut_test_pk PRIMARY KEY (id)
+); 
+
+CREATE unique index ut_test_idx1 ON 
+   ut_test (name);
+
+ALTER table ut_test add CONSTRAINT ut_test_package_fk
+   FOREIGN KEY (package_id) REFERENCES ut_package;
+
