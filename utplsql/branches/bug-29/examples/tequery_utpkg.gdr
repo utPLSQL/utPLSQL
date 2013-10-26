@@ -1,0 +1,111 @@
+#===========================================================RevealNet GenX Driver==========
+# Description: Create package to perform unit testing against base package with utPLSQL.
+#==========================================================================================
+# Category: Unit Test Package for Table Encapsulation package
+#==========================================================================================
+# Summary: Designed to be a DOUBLE PASS generation. Generate once against the
+#          package, then generate this output against the base table!
+#
+# WARNING: Generating duplicate of entire package!
+#
+#==========================================================================================
+# Application area: Testing
+#==========================================================================================
+# Key words: PLSQL,PROG,ARG,UTPLSQL
+#==========================================================================================
+# Script Requirements/Dependencies
+#    Backend Version: PL/SQL 2.3 (Oracle 7.3) and above
+#    INCLUDEs: None
+#    EXECs: None
+#==========================================================================================
+# Generated Text Requirements/Dependencies
+#    Language and Version: PL/SQL 2.3 (Oracle 7.3) and above
+#    Operating System(s): Non-specific
+#==========================================================================================
+# Author: Steven Feuerstein, RevealNet: feuerstein@revealnet.com
+#==========================================================================================
+# Modification History
+# 
+# When      Who        What
+# -----------------------------------------------------------------------------------------
+# 05/2000   SEF        Created
+#==========================================================================================
+[SETALIAS]utprefix[TO]ut#
+[SETALIAS]tabprefix[TO]ut_
+[SETALIAS]olprog[TO]\[progname][overload]
+[SETALIAS]progtab[TO]\{tabprefix}{olprog}
+[SETALIAS]oltestprog[TO]\{utprefix}{olprog}
+[STOREIN]{utprefix}[objname].gdr
+[ASIS]
+[SET]objname[TO]#CHANGE THIS
+[SETALIAS]tabprefix[TO]ut_
+[ENDASIS]
+CREATE OR REPLACE PACKAGE [schema].{utprefix}[objname] AUTHID CURRENT_USER
+-- SECOND PASS INSTRUCTIONS:
+--
+-- Set the object name and generate this GDR to produce the test package.
+-- After generation, save to pks and pkb files and put in the specific
+-- code for the various tests.
+IS
+   [ASIS]
+   rec [objname]%ROWTYPE;
+[ENDASIS] 
+  
+   PROCEDURE {utprefix}setup;
+   
+   PROCEDURE {utprefix}teardown;
+
+[FOREACH]prog
+   [IF][progname][LIKE]%ROW%[OR][progname][LIKE]%$VAL[OR][progname][LIKE]$PKY
+   PROCEDURE ^{oltestprog}^;
+   [ENDIF]
+[ENDFOREACH]
+   
+END {utprefix}[objname];
+/
+CREATE OR REPLACE PACKAGE BODY [schema].{utprefix}[objname] AUTHID CURRENT_USER
+IS
+   PROCEDURE setup
+   IS
+   BEGIN
+      -- Clean start
+      {utprefix}teardown;
+   END;
+   
+   PROCEDURE teardown
+   IS
+   BEGIN
+      NULL;
+   END;
+[FOREACH]prog
+   [IF][progname][LIKE]%ROW%[OR][progname][LIKE]%$VAL[OR][progname][LIKE]$PKY
+
+   PROCEDURE {utprefix}[progname][overload]
+   IS
+   BEGIN  
+      -- Run baseline code.
+      
+      -- Compare to program call:
+      [progname] (
+      );
+      
+      -- Test results    
+      utAssert.eqtable (
+         'Successful [progname][overload]',
+         [progname],
+         'base query'
+      );
+               
+   EXCEPTION
+      WHEN OTHERS 
+      THEN
+         -- Force registration of test failure.
+         utAssert.this (
+            '[progname] exception ' || SQLERRM,
+            SQLCODE = 0);
+   END;
+   [ENDIF]
+[ENDFOREACH]
+   
+END {utprefix}[objname];
+/
