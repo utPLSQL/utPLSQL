@@ -169,3 +169,11 @@ drop table UT_UNITTEST cascade constraints;
 drop table UT_UTP cascade constraints;
 
 
+SET TERMOUT ON
+PROMPT &line1
+PROMPT DROPPING &UT VIEWS
+PROMPT &line1
+
+drop view UTV_RESULT_FULL;
+drop view UTV_LAST_RUN;
+
