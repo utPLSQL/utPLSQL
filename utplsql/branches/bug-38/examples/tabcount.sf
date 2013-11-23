@@ -1,0 +1,17 @@
+CREATE OR REPLACE FUNCTION tabcount (
+   sch IN VARCHAR2,
+   tab IN VARCHAR2)
+   RETURN INTEGER
+IS
+   retval  INTEGER;
+BEGIN
+   EXECUTE IMMEDIATE 
+      'SELECT COUNT(*) FROM ' || sch || '.' || tab
+      INTO retval; 
+   RETURN retval;
+EXCEPTION
+    WHEN OTHERS 
+    THEN
+       RETURN NULL; 
+END;
+/

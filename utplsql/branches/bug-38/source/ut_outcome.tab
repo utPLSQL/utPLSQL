@@ -1,0 +1,26 @@
+CREATE TABLE ut_outcome (
+id	integer,
+testcase_id integer, 
+seq integer,
+name	varchar2(200),
+assertion_type	varchar2(100),
+action_level	varchar2(10), -- V1 only; not used
+null_ok char(1) default 'N',
+raise_exception char(1) default 'N',
+declarations	varchar2 (2000),
+setup	varchar2 (2000),
+teardown	varchar2 (2000),
+exceptions	varchar2 (2000),
+  CONSTRAINT ut_outcome_pk PRIMARY KEY (id)
+);
+
+REM 2.0.10.1 Add control and test fields to help specify testing characteristics
+
+ALTER TABLE ut_outcome ADD control_info VARCHAR2(2000);
+ALTER TABLE ut_outcome ADD test_info VARCHAR2(2000);
+
+CREATE unique index ut_outcome_idx1 ON
+   ut_outcome (testcase_id, name);
+
+ALTER table ut_outcome add CONSTRAINT ut_outcome_testcase_fk
+   FOREIGN KEY (testcase_id) REFERENCES ut_testcase;
