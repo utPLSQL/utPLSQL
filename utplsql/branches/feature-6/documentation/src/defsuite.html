@@ -1,0 +1,106 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html><head><title></title></head><body>
+<!-- Begin utPLSQL Body -->
+<!-- $Id$ -->
+<h1>
+Defining Test Suites</h1>
+
+If you define test suites and register packages
+within those suites, then utPLSQL will run an unlimited number of
+tests with a single command.
+
+<h3>Note</h3>
+
+<ul type="disc">
+<li>
+All suite names are stored in upper case.</li>
+
+<li>
+If you do not specify a directory (dir_in),
+you will need to call utConfig.setdir if you want automatic compilation
+of your packages to occur.</li>
+
+<li>If you supply a value for seq_in, packages
+will be compiled and tested in ascending numeric sequence order.</li>
+
+<li>When you call utSuite.rem, it will remove all
+packages for that suite by calling utPackage.rem.</li>
+</ul>
+
+<h2>
+utSuite - Define Test Suites</h2>
+
+To create and remove test suites, call these programs:
+
+<pre>
+   PROCEDURE utSuite.add (
+      name_in IN VARCHAR2,
+      desc_in IN VARCHAR2 := NULL,
+      rem_if_exists_in IN BOOLEAN := TRUE
+      );
+
+   PROCEDURE utSuite.rem (name_in IN VARCHAR2);</pre>
+
+These programs manipulate the contents of the ut_suite
+table. See the tables.sql file for the DDL creating this table.
+
+<h2>
+ utPackage - Define Test Packages for a Suite</h2>
+
+To register  a package in a suite, call the following:
+
+<pre>   PROCEDURE utPackage.add (</pre>
+
+<pre>      suite_in IN VARCHAR2,</pre>
+
+<pre>      package_in IN VARCHAR2,</pre>
+
+<pre>      samepackage_in IN BOOLEAN := FALSE,</pre>
+
+<pre>      prefix_in IN VARCHAR2 := NULL,</pre>
+
+<pre>      dir_in IN VARCHAR2 := NULL,</pre>
+
+<pre>      seq_in IN PLS_INTEGER := NULL,</pre>
+
+<pre>      owner_in IN VARCHAR2 := NULL,</pre>
+
+<pre>      add_tests_in IN BOOLEAN := FALSE,</pre>
+
+<pre>      test_overloads_in IN BOOLEAN := FALSE</pre>
+
+<pre>   );</pre>
+
+This manipulates the contents of the ut_package
+table. See the tables.sql file for the DDL creating this table.
+
+Here is a sample script that defines a very small
+portion of the PL/Vision test suite:
+
+<pre>BEGIN</pre>
+
+<pre>   utSuite.add ('PLVision');</pre>
+
+<pre>  </pre>
+
+<pre>   utPackage.add</pre>
+
+<pre>      'PLVision', 'PLVstr', dir_in =&gt; 'e:\utplsql\test');</pre>
+
+<pre>  </pre>
+
+<pre>   utPackage.add (</pre>
+
+<pre>      'PLVision', 'PLVdate', dir_in =&gt; 'e:\utplsql\test'');</pre>
+
+<pre>  </pre>
+
+<pre>   utPLSQL.testsuite ('PLVision', recompile_in =&gt; TRUE);</pre>
+
+<pre>END;</pre>
+
+<pre>/</pre>
+
+<!-- End utPLSQL Body -->
+</body>
+</html>

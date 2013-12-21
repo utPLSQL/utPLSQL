@@ -1,0 +1,93 @@
+<html>
+<title>How to add to the utPLSQL documentation set</title>
+<!-- $Id$ -->
+<body>
+<h2>Writing Documentation</h2>
+<p>
+The utPLSQL documentation is built from a series of simple HTML files in the
+src directory.  These files have none of the navigation bars, logos or
+next/previous links which appear in the final documentation.  They are also
+stripped of font, color and style information at compile-time to let the
+stylesheet (utplsql.css) determine the overall look-and-feel.</p>
+
+<p> Unlike the code (at the time of writing), the documentation is held with CVS.  So to make changes, you should set yourself up with access to the utPLSQL CVS repository.  If you don't have the privileges, mail one of the Project Admins.  Check out the latest version and you're ready to go.</p>
+
+<h3>The HTML Files</h3>
+<p>As described above, the base files in the src directory are used to generate the final 
+product.  To add new documentation to one of these files, or to correct errors,
+simply edit it.  It makes sense to follow the layout that is already present in the 
+file, adding links at the top of the page where appropriate.  The HTML should be
+kept simple, so use the relevant header styles (&lt;H1&gt;...&lt;H6&gt;) to label your sections
+and subsections, use &lt;pre&gt; to mark sections of code etc.  Let the stylesheet
+do the work of setting the colors and fonts.</p>
+
+<p>If you are adding an entirely new file to the documentation, use the file 
+<code>template.html</code> as a basis.  This contains the relevant comment 
+lines which tell the scripts which parts of the file to use 
+(see the <A href="#comment">note below</A>). Finally, you will need to 
+edit map.txt to ensure that the file is linked from the other pages in 
+the documentation.  This is described in the next section.</p>
+
+<h3>The Control Files</h3>
+
+<p>The files are compiled into a documentation set situated in the top-level
+documentation directory using the 2 control files, map.txt and authors.txt.
+The first of these is the driving file, giving a list of the files to be
+included.  The second gives a list of authors to be included in the copyright
+notice on each page and referenced in the Meta tags.<p>
+
+<p>The format of map.txt is as follows:</p>
+<pre>
+   # Any line starting with a # is 
+   # considered a comment
+   #
+   index.html,Home*
+   started.html,Getting Started*
+   another.html,Further Docs
+   another2.html,Yet more docs</pre>
+
+   <p>Each line consists of the filename to be included and the title of the page,
+separated with a comma. Any file whose title is followed by an asterisk is
+considered the start of a new section.  This means a link to the file will
+appear in the navigation bar at the top of each page and it will appear in
+bold in the document map.  Note that the document map itself does not appear
+in map.txt, but is always added at the end and is considered a new section.
+This page is entirely generated at compile-time.</p>
+
+<p>To add a new page to the documentation, simply add it to this file in the 
+correct position.  Note that generally you will not be adding a new section!<p> 
+
+<p>The format of authors.txt is as follows:</p>
+<pre>
+   # Again, lines starting # are ignored
+   #
+   Steven Feuerstein,steven@stevenfeuerstein.com
+   Chris Rimmer,c@24.org.uk
+   A N Other,ano@ther.net</pre>
+
+   <p>Each line in this file simply gives the name of the author and their email
+   address, separated with a comma. So if you've made a contribution and your name
+   is not listed, add it!</p> 
+
+   <h3>The Scripts</h3>
+   <p>The 2 Perl scripts used to build the documentation are clean_html.pl and
+   build_docs.pl.</p>
+
+   <p>The first of these simply strips HTML files down to the basics, removing
+everything from the header and removing Javascript, fonts, color etc.  It
+requires the HTML::TagFilter module which in turn also requires the
+HTML::Parser and HTML::Tagset modules (all available from <A href="http://search.cpan.org">search.cpan.org</A>).<p>
+
+<p>The second script goes through each file listed in map.txt, cleans it using
+the previous script and then adds logos, navigation bars, next/previous links,
+copyright information etc.  The resulting files are put in the top-level
+documentation directory. </p>
+
+<p><i><a name="comment">NOTE</a>: Anything within a source file before the
+<code>&lt;!-- Begin utPLSQL Body --&gt;</code> comment line and after the 
+<code>&lt;!-- End utPLSQL Body --&gt;</code> comment line is ignored.</i></p>
+
+<font size=-1>Chris Rimmer, c@24.org.uk March 2002</font>
+
+</body>
+</html>
