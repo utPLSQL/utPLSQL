@@ -1,62 +1,86 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html><head><title></title></head><body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <title></title>
+</head>
+<body>
 <!-- Begin utPLSQL Body -->
 <!-- $Id$ -->
-<h1>Custom Reporter Packages</h1>
-<p>Generally, the default output provided by utPLSQL is sufficient.  This 
-just writes to the screen using DBMS_OUTPUT.  If you are running it 
-interactively while doing some development, you just need to know if the tests
-are passing and details of the failing tests.
-However, there are cases where you'd like the results to be reported in a
-different format, especially when the tests are being run in batch mode.  To
-support this, utPLSQL has the concept of Reporter Packages. utPLSQL is 
-distributed with the following reporter packages as standard:</p>
+   <h1>Custom Reporter Packages</h1>
+   <p>
+      Generally, the default output provided by utPLSQL is sufficient. This 
+      just writes to the screen using DBMS_OUTPUT.  If you are running it 
+      interactively while doing some development, you just need to know if the 
+      tests are passing and details of the failing tests. However, there are 
+      cases where you'd like the results to be reported in a different format, 
+      especially when the tests are being run in batch mode.  To support this, 
+      utPLSQL has the concept of Reporter Packages. utPLSQL is distributed with 
+      the following reporter packages as standard:
+   </p>
 
-<ul>
-	<li><a href="#outputreporter">Output Reporter</a></li>
-	<li><a href="#filereporter">File Reporter</a></li>
-	<li><a href="#htmlreporter">HTML Reporter</a></li>
-</ul>
+   <ul>
+      <li><a href="#outputreporter">Output Reporter</a></li>
+      <li><a href="#filereporter">File Reporter</a></li>
+      <li><a href="#htmlreporter">HTML Reporter</a></li>
+   </ul>
 
-The naming convention is that reporter packages are called
-UT<i><b>&lt;NAME&gt;</b></i>REPORTER. To set which reporter is used, you will
-need to call <a href="utconfig.html#setgetreporter">utConfig.Setreporter</a>, passing the name of the reporter.
-To use the HTML reporter for example, you should issue the following command:
-<pre>BEGIN
+   <p>
+      The naming convention is that reporter packages are called
+      UT<i><b>&lt;NAME&gt;</b></i>REPORTER. To set which reporter is used, you will
+      need to call <a href="utconfig.html#setgetreporter">utConfig.Setreporter</a>, passing the name of the reporter.
+      To use the HTML reporter for example, you should issue the following command:
+   </p>
+   
+<pre>
+BEGIN
    utConfig.setreporter('HTML');
-END; </pre>
+END; 
+</pre>
 
-For more details of how to develop your own custom
-reporter package, see <a href="#custom">below</a>.
+   <p>
+      For more details of how to develop your own custom
+      reporter package, see <a href="#custom">below</a>.
+   </p>
 
-<h2><a name="outputreporter"></a>Output Reporter</h2>
+   <h2><a name="outputreporter"></a>Output Reporter</h2>
 
-<p>Contained in the UTOUTPUTREPORTER package, this simply encapsulates the
-standard behaviour, whereby the output is written out to DBMS_OUTPUT.  When a
-problem occurs with another reporter, utPLSQL will automatically fall back on
-this mechanism to report problems.  This means it is wise to have DBMS_OUTPUT
-enabled even if you are using another output method.</p>
+   <p>
+      Contained in the UTOUTPUTREPORTER package, this simply encapsulates the
+      standard behaviour, whereby the output is written out to DBMS_OUTPUT.  When a
+      problem occurs with another reporter, utPLSQL will automatically fall back on
+      this mechanism to report problems.  This means it is wise to have DBMS_OUTPUT
+      enabled even if you are using another output method.
+   </p>
 
-<h2><a name="filereporter"></a>File Reporter</h2>
+   <h2><a name="filereporter"></a>File Reporter</h2>
 
-<p>This reporter, contained in the UTFILEREPORTER package, writes test results
-out to a file.  For details on how to configure this process, see the details 
-which can be found <a href="fileout.html">here</a>.  This functionality was
-available before version 2.2 of utPLSQL, but has now been moved into its own
-package.</p>
+   <p>
+      This reporter, contained in the UTFILEREPORTER package, writes test results
+      out to a file.  For details on how to configure this process, see the details 
+      which can be found <a href="fileout.html">here</a>.  This functionality was
+      available before version 2.2 of utPLSQL, but has now been moved into its own
+      package.
+   </p>
 
-<h2><a name="htmlreporter"></a>HTML Reporter</h2>
+   <h2><a name="htmlreporter"></a>HTML Reporter</h2>
 
-<p>The package UTHTMLREPORTER is really just an example package to be used as 
-a basis for your own custom reporters.  It builds on the filereporter described above to 
-send results to a file.  The difference is that the results are presented in a (rather crude) 
-HTML table.</p>
+   <p>
+      The package UTHTMLREPORTER is really just an example package to be used as 
+      a basis for your own custom reporters.  It builds on the filereporter described above to 
+      send results to a file.  The difference is that the results are presented in a (rather crude) 
+      HTML table.
+   </p>
 
-<h2><a name="custom"></a>Writing your own Reporter</h2>
+   <h2><a name="custom"></a>Writing your own Reporter</h2>
 
-<p>To define your own reporter package you need it conform to a particular API.  The various 
-procedures are then registered as 'callbacks' for utPLSQL to use.
-An example package spec is given below. 
+   <p>
+      To define your own reporter package you need it conform to a particular API.  The various 
+      procedures are then registered as 'callbacks' for utPLSQL to use.
+      An example package spec is given below. 
+   </p>
+
 <pre>
 CREATE OR REPLACE PACKAGE utMyRssReporter
 IS
@@ -78,88 +102,132 @@ IS
 END utMyRssReporter;
 /
 </pre>
-</p>
-Your reporter package can define other functions and procedures, for example to allow configuration, but all the procedures shown above should be defined. 
-The usage of these procedures follows.  <b>Note</b> If you want to keep the
-format of the output the same as for the Output Reporter, but wish to send 
-it elsewhere, you can define open, close and pl, but simply call the equivalent 
-procedure in utOutputReporter for the others.  For an example of this, see the File Reporter.
-<h3>open</h3>
-<p>This is called at the very start of the process and is the ideal place to do initialization, such as opening any files that you will be writing to.</p>
 
-<h3>pl</h3>
-<p>This is a general routine to simply write out the given string for purposes of logging etc.  
-If you don't want this to show up in your output, you can simply call <code>utoutputreporter.pl</code> to send this to DBMS_OUTPUT instead.</p>
+   <p>
+      Your reporter package can define other functions and procedures, for 
+      example to allow configuration, but all the procedures shown above should 
+      be defined. The usage of these procedures follows.  <b>Note</b> If you 
+      want to keep the format of the output the same as for the Output Reporter, 
+      but wish to send it elsewhere, you can define open, close and pl, but 
+      simply call the equivalent procedure in utOutputReporter for the others. 
+      For an example of this, see the File Reporter.
+   </p>
+      
+   <h3>open</h3>
 
-<h3>before_results</h3>
-<p>As the name suggests, this is called before the results are output. Note that the tests have already completed at this point,
-so it is possible to call <code>utresult.success (run_id)</code> to determine if the run was a success or not and display a large banner.</p>
+   <p>
+      This is called at the very start of the process and is the ideal place to 
+      do initialization, such as opening any files that you will be writing to.
+   </p>
 
-<h3>show_failure</h3>
-<p>This is called when a failure is reported and we are only showing failures (i.e. <a href="utconfig.html#showfailuresonly">utconfig.showfailuresonly</a> has been set).
-To get details of the failure, you will need to examine the package level record <code>utreport.outcome</code>.</p>
+   <h3>pl</h3>
+   <p>
+      This is a general routine to simply write out the given string for purposes of logging etc.  
+      If you don't want this to show up in your output, you can simply call <code>utoutputreporter.pl</code> to send this to DBMS_OUTPUT instead.
+   </p>
 
-<h3>show_result</h3>
-<p>This is called whenever a result is reported and we are showing all results.  To get details, you will need to examine <code>utreport.outcome</code>. See below for details.</p>
+   <h3>before_results</h3>
 
-<h3>after_results</h3>
-<p>This is called after all the results have been sent for output.</p>
+   <p>
+      As the name suggests, this is called before the results are output. Note that the tests have already completed at this point,
+      so it is possible to call <code>utresult.success (run_id)</code> to determine if the run was a success or not and display a large banner.
+   </p>
 
-<h3>before_errors</h3>
-<p>This is called before any errors are sent for output.</p>
+   <h3>show_failure</h3>
 
-<h3>show_error</h3>
-<p>This is called for each error to output.  To get details, you will need to examine the package level record <code>utreport.error</code>.  See below for details.</p>
+   <p>
+      This is called when a failure is reported and we are only showing failures (i.e. <a href="utconfig.html#showfailuresonly">utconfig.showfailuresonly</a> has been set).
+      To get details of the failure, you will need to examine the package level record <code>utreport.outcome</code>.
+   </p>
 
-<h3>after_errors</h3>
-<p>This is called after any errors have been sent for output.</p>
+   <h3>show_result</h3>
 
-<h2><a name="reportrecords"></a>Outcome and Error records</h2>
-<p>In order to keep the API as simple as possible, many of the procedures defined above take no parameters.  In particular, details of the outcome or error which
-triggered the callback are not passed through to your procedure.  These are stored as package level records in the utReport package as shown below.  
+   <p>
+      This is called whenever a result is reported and we are showing all 
+      results. To get details, you will need to examine 
+      <code>utreport.outcome</code>. See below for details.
+   </p>
 
-<pre>outcome utr_outcome%ROWTYPE;
-error utr_error%ROWTYPE;</pre>
+   <h3>after_results</h3>
+   <p>This is called after all the results have been sent for output.</p>
 
-The important fields in the outcome record are:
-<ul>
-	<li>status - This is a string which is either "SUCCESS" or "FAILURE" depending on the outcome of this test.</li>
-	<li>description - The text describing the success or failure.</li>
-</ul>
+   <h3>before_errors</h3>
+   <p>This is called before any errors are sent for output.</p>
 
-The important fields in the error record are:
-<ul>
-	<li>errlevel - The Error Level</li>
-	<li>errcode - The Error Code</li>
-	<li>errtext - The Description of the error that occurred</li>
-</ul>
-</p>
+   <h3>show_error</h3>
+   <p>
+      This is called for each error to output.  To get details, you will need 
+      to examine the package level record <code>utreport.error</code>.  
+      See below for details.
+   </p>
 
-<h2>Using Your Custom Reporter</h2>
-To use your custom reporter, you simply call <a href="utconfig.html#setgetreporter">utConfig.Setreporter</a> with the name of your reporter.  So if
-you have defined your reporter in the utMyRssReporter package, you need to call:
+   <h3>after_errors</h3>
+   <p>This is called after any errors have been sent for output.</p>
 
-<pre>BEGIN
+   <h2><a name="reportrecords"></a>Outcome and Error records</h2>
+   <p>
+      In order to keep the API as simple as possible, many of the procedures defined above take no parameters.  In particular, details of the outcome or error which
+      triggered the callback are not passed through to your procedure.  These are stored as package level records in the utReport package as shown below.  
+   </p>
+
+<pre>
+outcome utr_outcome%ROWTYPE;
+error utr_error%ROWTYPE;
+</pre>
+
+   <p>The important fields in the outcome record are:</p>
+
+   <ul>
+      <li>status - This is a string which is either "SUCCESS" or "FAILURE" depending on the outcome of this test.</li>
+      <li>description - The text describing the success or failure.</li>
+   </ul>
+
+   <p>The important fields in the error record are:</p>
+
+   <ul>
+      <li>errlevel - The Error Level</li>
+      <li>errcode - The Error Code</li>
+      <li>errtext - The Description of the error that occurred</li>
+   </ul>
+
+   <h2>Using Your Custom Reporter</h2>
+   <p>
+      To use your custom reporter, you simply call <a href="utconfig.html#setgetreporter">utConfig.Setreporter</a> with the name of your reporter.  So if
+      you have defined your reporter in the utMyRssReporter package, you need to call:
+   </p>
+
+<pre>
+BEGIN
    utConfig.setreporter('MyRss');
-END; </pre>
+END; 
+</pre>
 
-Then you just run your tests as usual and hopefully your reporter will format the results as you expect.  
+   <p>
+      Then you just run your tests as usual and hopefully your reporter will 
+      format the results as you expect.  
+   </p>
 
-<h3>Sending output to the current reporter</h3>
-If you wish to send output to the current reporter, for example, for logging purposes, you should call utReport.pl.  
-This is part of the utReport package, which acts as a facade and passes any calls through to the current reporter package. 
-So if you have set up a custom reporter package 'utMyRssReporter' as shown above and called utConfig.setreporter('MyRss'), 
-any calls such as the following:
+   <h3>Sending output to the current reporter</h3>
+   <p>
+      If you wish to send output to the current reporter, for example, for logging purposes, you should call utReport.pl.  
+      This is part of the utReport package, which acts as a facade and passes any calls through to the current reporter package. 
+      So if you have set up a custom reporter package 'utMyRssReporter' as shown above and called utConfig.setreporter('MyRss'), 
+      any calls such as the following:
+   </p>
 
-<pre>BEGIN
+<pre>
+BEGIN
   utReport.pl('Logging Message');
-END;</pre>
+END;
+</pre>
 
-will be equivalent to 
+   <p>will be equivalent to </p>
 
-<pre>BEGIN
+<pre>
+BEGIN
   utMyRssReporter.pl('Logging Message');
-END;</pre>
+END;
+</pre>
 
 <!-- End utPLSQL Body -->
 </body>
