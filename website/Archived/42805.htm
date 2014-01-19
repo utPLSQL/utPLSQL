@@ -1,0 +1,24 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong>Previous | <a href="42840.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Procedures considered harmful?<br>
+<b>Conf:</b> 540, Msg: 42805<br>
+<b>From:</b> Sten Vesterli (<a href="mailto:sten@vesterli.dk">sten@vesterli.dk</a>)<br>
+<b>Date:</b> 4/19/01 02:02 AM<br>
+
+<p><title>Procedures considered harmful? Sten Vesterli stenv sten@vesterli.dk</title>
+Inspired by the exception handling in Java, I am considering whether we would achieve better code by banning procedures from our packages.<br>
+<br>
+Consider:<br>
+- A programmer doesn't have to check for exceptions when calling a subprogram<br>
+- A programmer calling a function must put the return value somewhere<br>
+- If we define as standard that every function must return a status code, the programmer calling a function MUST consider possible errors<br>
+<br>
+Return values could be 0 (zero) for normal completion, 1 for warnings, 2 and higher for errors. The actual output (payload) of the function should be returned in an OUT parameter. <br>
+<br>
+What do you think? Would this work? Would it lead to better code?<br>
+<br>
+Best regards<br>
+<br>
+Sten Vesterli<br>
+
+
+</body>

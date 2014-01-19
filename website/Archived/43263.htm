@@ -1,0 +1,15 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="43262.htm">Previous</a> | <a href="43264.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Example for utAssert.throws<br>
+<b>Conf:</b> 539, Msg: 43263<br>
+<b>From:</b> Chris Rimmer (<a href="mailto:chris@nominet.org.uk">chris@nominet.org.uk</a>)<br>
+<b>Date:</b> 8/17/01 07:44 AM<br>
+
+<p><title>Example for utAssert.throws Chris Rimmer chrisrimmer chris@nominet.org.uk</title>
+Hmmm. Are you running 8i?  If you are not and the utAssert package is in the schema of a different user then the package will run in 'Definer-Rights' mode. This means it will not be able to resolve 'PMU.MAIN'.<br>
+<br>
+If this is the case, try <PRE><I>Schema</I>.PMU.MAIN</PRE> instead.<br>
+<br>
+Chris<br>
+
+
+</body>

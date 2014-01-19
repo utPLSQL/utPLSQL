@@ -1,0 +1,16 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="38821.htm">Previous</a> | <a href="38866.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> General Issues<br>
+<b>Conf:</b> 550, Msg: 38850<br>
+<b>From:</b> Steven Feuerstein (<a href="mailto:steven@stevenfeuerstein.com">steven@stevenfeuerstein.com</a>)<br>
+<b>Date:</b> 10/22/00 06:57 PM<br>
+
+<p><title>General Issues Steven Feuerstein sfeuerstein steven@stevenfeuerstein.com</title>
+So you install utPLSQL in schema U. You grant authority to run utPLSQL to schema X. In Oracle8i, utPLSQL uses AUTHID CURRENT_USER to make sure that when X runs U.utPLSQL, it references X objects, so there should be no problem.<br>
+<br>
+Prior to 8i, you would need to have synonyms set up for U (either public or private) and grants in place so that the code could be recongized from U (via dynamic PL/SQL blocks). <br>
+<br>
+Or you could install utPLSQL in each schema...<br>
+<br>
+SF
+
+</body>
