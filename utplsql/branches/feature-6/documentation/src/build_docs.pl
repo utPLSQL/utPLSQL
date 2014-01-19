@@ -90,7 +90,7 @@ sub build_copyright {
             chomp;
             ($name, $email) = split /,/;
             $copyright .= ', ' if $copyright;
-            $copyright .= "<A href=\"mailto:$email\">$name</A>";
+            $copyright .= "<a href=\"mailto:$email\">$name</a>";
             $authormeta .= ', ' if $authormeta;
             $authormeta .= $name;
         }
@@ -105,7 +105,7 @@ sub build_copyright {
 
 
 sub logo {
-    return '<div class="purple_bar"><a href="index.html"><img src="utplsql.jpg"></a></div>';
+    return '   <div class="purple_bar"><a href="index.html"><img src="utplsql.jpg" alt="utPLSQL logo" /></a></div>';
 }
 
 
@@ -113,36 +113,38 @@ sub build_nextprev {
     my ($index) = @_;
 
     if ($index != 0){
-        $nextprev = '<A href="'.($map[$index-1]->[0]).'">&lt; Previous Section: '.($map[$index-1]->[1]).'</A>';
+        $nextprev = '<a href="'.($map[$index-1]->[0]).'">&lt; Previous Section: '.($map[$index-1]->[1]).'</a>';
     } else {
         $nextprev = '';
     }
     if ($index != $#map){
         $nextprev .= ' | ' if $nextprev;
-        $nextprev .= '<A href="'.($map[$index+1]->[0]).'">Next Section: '.($map[$index+1]->[1]).' &gt;</A>';
+        $nextprev .= '<a href="'.($map[$index+1]->[0]).'">Next Section: '.($map[$index+1]->[1]).' &gt;</a>';
     }
 }
 
 sub html_header {
     my ($page_title) = @_;
     my $head;
-    $head  = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n";
-    $head .= "\"http://www.w3.org/TR/html4/loose.dtd\">\n\n\n";
+    $head  = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\"\n";
+    $head .= "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n\n\n";
     $head .= "<!-- WARNING! This file is generated. -->\n";
     $head .= "<!-- To alter documentation, edit files in src directory -->\n\n\n";
-    $head .= "<html><head>\n";
-    $head .= "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n";
-    $head .= "<title>$page_title</title>\n";
-    $head .= "<link rel=\"stylesheet\" href=\"utplsql.css\" type=\"text/css\">\n";
-    $head .= "<meta name=\"keywords\" content=\"utPLSQL, PL\\SQL, Unit Testing, Framework, Oracle\">\n";
-    $head .= "<meta name=\"description\" content=\"Unit Testing PL\\SQL\">\n";
-    $head .= "<meta name=\"title\" content=\"$page_title\">\n";
-    $head .= "<meta name=\"author\" content=\"$authormeta\">\n";
-    $head .= "<meta name=\"copyright\" content=\"$copymeta\">\n";
-    $head .= "</head><body>\n";
+    $head .= "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n";
+    $head .= "<head>\n";
+    $head .= "   <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n";
+    $head .= "   <title>$page_title</title>\n";
+    $head .= "   <link rel=\"stylesheet\" href=\"utplsql.css\" type=\"text/css\" />\n";
+    $head .= "   <meta name=\"keywords\" content=\"utPLSQL, PL\\SQL, Unit Testing, Framework, Oracle\" />\n";
+    $head .= "   <meta name=\"description\" content=\"Unit Testing PL\\SQL\" />\n";
+    $head .= "   <meta name=\"title\" content=\"$page_title\" />\n";
+    $head .= "   <meta name=\"author\" content=\"$authormeta\" />\n";
+    $head .= "   <meta name=\"copyright\" content=\"$copymeta\" />\n";
+    $head .= "</head>\n";
+    $head .= "<body>\n";
     $head .= logo()."\n";
-    $head .= "<p>$nav</p>\n";
-    $head .= "<p>$nextprev</p>\n";
+    $head .= "   <p>$nav</p>\n";
+    $head .= "   <p>$nextprev</p>\n";
 
     return $head;
 }
@@ -195,10 +197,11 @@ sub html_docmap {
 
 sub html_footer {
     my $footer;
-    $footer  = "<p>$nextprev</p>\n";
-    $footer .= logo()."\n";
-    $footer .= "<p class=\"copyright\">$copyright</p>\n";
-    $footer .= "</body></html>";
+    $footer  = "   <p>$nextprev</p>\n\n";
+    $footer .= logo()."\n\n";
+    $footer .= "   <p class=\"copyright\">$copyright</p>\n";
+    $footer .= "</body>\n";
+    $footer .= "</html>";
 
     return $footer;
 }
