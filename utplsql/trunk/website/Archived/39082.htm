@@ -1,0 +1,102 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="39073.htm">Previous</a> | <a href="39840.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Setup and Teardown procedures<br>
+<b>Conf:</b> 538, Msg: 39082<br>
+<b>From:</b> Steven Feuerstein (<a href="mailto:steven@stevenfeuerstein.com">steven@stevenfeuerstein.com</a>)<br>
+<b>Date:</b> 10/30/00 06:30 AM<br>
+
+<p><title>Setup and Teardown procedures Steven Feuerstein sfeuerstein steven@stevenfeuerstein.com</title>
+On 10/30/00 1:47:00 AM, Steven Deneir wrote:<br>
+&gt;utPLSQL is a great initiative<br>
+&gt;!<br>
+&gt;Still some questions / remarks<br>
+&gt;<br>
+&gt;<br>
+&gt;Apparently the setup and<br>
+&gt;teardown procedures are<br>
+&gt;launched only at the beginning<br>
+&gt;and at the end of the<br>
+&gt;unit-test.<br>
+&gt;This involves some problems :<br>
+&gt;if the unit to test reads and<br>
+&gt;manipulates data, the tester<br>
+&gt;must take these changes into<br>
+&gt;consideration for the<br>
+&gt;following test, which isn't<br>
+&gt;that easy.<br>
+&gt;Some people will argue to use<br>
+&gt;the Rollback statement. But<br>
+&gt;what with functions that issue<br>
+&gt;a commit statement and that<br>
+&gt;are used in the unit that must<br>
+&gt;be tested ?<br>
+&gt;It would be nice to have the<br>
+&gt;possibility to specify for<br>
+&gt;each test whether or not the<br>
+&gt;setup/teardown should be<br>
+&gt;re-executed. In that way there<br>
+&gt;is no performance loss when no<br>
+&gt;data-manipulation takes place.<br>
+<br>
+Added to enhancement list.<br>
+<br>
+&gt;<br>
+&gt;Most of the time there are<br>
+&gt;more procedures/functions to<br>
+&gt;test within a package. But I<br>
+&gt;only see 1 setup/teardown<br>
+&gt;procedure. Does that mean that<br>
+&gt;for all the routines to test<br>
+&gt;in the package there is only 1<br>
+&gt;setup/teardown procedure ?<br>
+&gt;If this is the case, the<br>
+&gt;tester must make sure that all<br>
+&gt;necessary data is available<br>
+&gt;for all procedures that will<br>
+&gt;be tested...<br>
+&gt;Maybe there should be a<br>
+&gt;setup/teardown for each<br>
+&gt;procedure/function within a<br>
+&gt;package.<br>
+<br>
+Added to enhancement list.<br>
+<br>
+&gt;<br>
+&gt;In the doc 'Build Test<br>
+&gt;Packages.htm' there is a line<br>
+&gt;indicating :<br>
+&gt;exec utgen.testpkg ('str',<br>
+&gt;output_type_in =><br>
+&gt;utplsql.c_file)<br>
+&gt;But utplsql.c_file does not<br>
+&gt;exists, I think this should be<br>
+&gt;:<br>
+&gt;exec utgen.testpkg ('str',<br>
+&gt;output_type_in =><br>
+&gt;utgen.c_file);<br>
+<br>
+Whoops! Fixed...<br>
+<br>
+&gt;<br>
+&gt;Is it possible not to use<br>
+&gt;scripts (OS-files) where the<br>
+&gt;source is stored ? I am always<br>
+&gt;working with one or another<br>
+&gt;tool, so I rarely use scripts.<br>
+&gt;This goes for the<br>
+&gt;recompilation of the packages<br>
+&gt;and for the generation of the<br>
+&gt;framework.<br>
+<br>
+If the code is stored in the database (I assume this is what you mean by working with "a tool"), then it has already been recompiled. You can simply turn off autocompilation:<br>
+<br>
+exec utplSQL.autocompile (FALSE) <br>
+<br>
+or<br>
+<br>
+exec utplSQL.autocompile (FALSE, 'SCHEMA') <br>
+<br>
+and then it will not try to compile OS scripts.<br>
+<br>
+Thanks! SF
+
+</body>
