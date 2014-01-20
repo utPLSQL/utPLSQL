@@ -1,0 +1,25 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="36677.htm">Previous</a> | <a href="36679.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Error compiling test package?<br>
+<b>Conf:</b> 537, Msg: 36678<br>
+<b>From:</b> Anonymous<br>
+<b>Date:</b> 8/15/00 08:41 AM<br>
+
+<p><title>Error compiling test package? Steven Feuerstein sfeuerstein steven@stevenfeuerstein.com</title>
+Why am I getting the compile errors? <br>
+<br>
+SQL> @test <br>
+<br>
+PL/SQL procedure successfully completed. <br>
+<br>
+Compile error: User-Defined Exception <br>
+Compile error: User-Defined Exception <br>
+Hello <br>
+FAILURE: Package "my_package" <br>
+MY_FUNCTION: Test of MY_FUNCTION; expected "Hello Again", got "Hello" <br>
+<br>
+PL/SQL procedure successfully completed. <br>
+<br>
+SQL> exec dbms_output.put_line(utplsql.version); <br>
+1.2.5 
+
+</body>
