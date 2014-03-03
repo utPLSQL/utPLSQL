@@ -18,10 +18,10 @@
    </p>
 
    <p> 
-      Unlike the code (at the time of writing), the documentation is held with 
-      CVS.  So to make changes, you should set yourself up with access to the 
-      utPLSQL CVS repository.  If you don't have the privileges, mail one of the 
-      Project Admins.  Check out the latest version and you're ready to go.
+      Like the code, the documentation is held within 
+      SVN. So to make changes, you should checkout the latest version from the 
+      trunk, make your changes, then submit an SVN "diff" file to a 
+      <a href = "https://sourceforge.net/p/utplsql/_list/tickets">ticket</a>
    </p>
 
    <h3>The HTML Files</h3>
@@ -49,10 +49,15 @@
 
    <p>
       The files are compiled into a documentation set situated in the top-level
-      documentation directory using the 2 control files, map.txt and authors.txt.
+      documentation directory using the 3 control files: map.txt, authors.txt and copyright_years.txt.
       The first of these is the driving file, giving a list of the files to be
       included.  The second gives a list of authors to be included in the copyright
-      notice on each page and referenced in the Meta tags.
+      notice on each page and referenced in the Meta tags (this is for 
+      historical reasons and lists the original contributors of the 
+      documentation - to keep it in line with the policy for source-code, all 
+      future contributions will go under the name of "the utPLSQL Project"). The
+      third file lists the years for the copyright statement - i.e. years when
+      significant changes were published.
    </p>
 
    <p>The format of map.txt is as follows:</p>
@@ -97,26 +102,39 @@
       address, separated with a comma. So if you've made a contribution and your name
       is not listed, add it!
    </p> 
+   
+   <p>The format of copyright_years.txt is as follows:</p>
+
+<pre>
+   # Again, lines starting # are ignored
+   #
+   2000-2005
+   2014
+</pre>
+
+   <p>
+      Each line will be separated by a comma in the copyright statement, so the 
+      above will generate: "2000-2005, 2014"
+   </p> 
 
    <h3>The Scripts</h3>
    
    <p>
-      The 2 Perl scripts used to build the documentation are clean_html.pl and
-      build_docs.pl.
+      The Perl script used to build the documentation is build_docs.pl.
    </p>
 
    <p>
-      The first of these simply strips HTML files down to the basics, removing
-      everything from the header and removing Javascript, fonts, color etc.  It
+      The script goes through each file listed in map.txt, cleans it up
+      and then adds logos, navigation bars, next/previous links,
+      copyright information etc. The resulting files are put in the top-level
+      documentation directory. 
+   </p>
+
+   <p>
+      The "cleaning" strips the source HTML files down to the basics, removing
+      everything from the header and removing Javascript, fonts, color, etc. It
       requires the HTML::TagFilter module which in turn also requires the
       HTML::Parser and HTML::Tagset modules (all available from <a href="http://search.cpan.org">search.cpan.org</a>).
-   </p>
-
-   <p>
-      The second script goes through each file listed in map.txt, cleans it using
-      the previous script and then adds logos, navigation bars, next/previous links,
-      copyright information etc.  The resulting files are put in the top-level
-      documentation directory. 
    </p>
 
    <p>
@@ -125,7 +143,7 @@
       <code>&lt;!-- End utPLSQL Body --&gt;</code> comment line is ignored.</i>
    </p>
 
-   <p style="font-size:smaller">Chris Rimmer, c@24.org.uk March 2002</p>
+   <p style="font-size:smaller">Copyright 2002, 2014 <a href="mailto:c@24.org.uk">Chris Rimmer</a> and the utPLSQL Project. All rights reserved</p>
 
 </body>
 </html>
