@@ -23,6 +23,7 @@ my $nav = '';
 my $copyright;
 my $copymeta;
 my $authormeta;
+my $copyrightyears;
 build_copyright();
 
 #Now build the documentation
@@ -97,10 +98,26 @@ sub build_copyright {
     }
     close $authorsfile;
     
+    #Read the copyright_years file
+    open (my $copyrightyearsfile, '<', 'copyright_years.txt') or die "Cannot open copyright_years.txt $!";
+    my $year;
+    while (<$copyrightyearsfile>){
+
+        #Ignore lines starting with #, or empty
+        if (not /^#/ and /\S/){
+            chomp;
+            $copyrightyears .= ', ' if $copyrightyears;
+            $copyrightyears .= $_;
+        }
+    }
+    close $copyrightyearsfile;
+    
+    $copyright .= ' and the utPLSQL Project';
+    $authormeta .= ' and the utPLSQL Project';
 
     #Put together the rest of the copyright notices
-    $copyright = "Copyright (C) 2000-".(((gmtime(time))[5])+1900)." $copyright and the utPLSQL Project. All rights reserved";
-    $copymeta = "(C) 2000-".(((gmtime(time))[5])+1900)." $authormeta and the utPLSQL Project";
+    $copyright = "Copyright &copy; $copyrightyears $copyright. All rights reserved";
+    $copymeta = "(C) $copyrightyears $authormeta";
 }
 
 
