@@ -14,7 +14,6 @@ my $OUTDIR = '..';
 
 #Holds the map
 my @map;
-populate_map();
 
 #Holds the top navigation string
 my $nav = '';
@@ -24,6 +23,8 @@ my $copyright;
 my $copymeta;
 my $authormeta;
 my $copyrightyears;
+
+populate_map();
 build_copyright();
 
 #Now build the documentation
