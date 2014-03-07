@@ -1,0 +1,43 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="36760.htm">Previous</a> | <a href="37924.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Ideas from Padders<br>
+<b>Conf:</b> 538, Msg: 37146<br>
+<b>From:</b> Steven Feuerstein (<a href="mailto:steven@stevenfeuerstein.com">steven@stevenfeuerstein.com</a>)<br>
+<b>Date:</b> 8/29/00 05:14 AM<br>
+
+<p><title>Ideas from Padders Steven Feuerstein sfeuerstein steven@stevenfeuerstein.com</title>
+Steven,<br>
+<br>
+Have posted previous mail on the utplsql board.<br>
+<br>
+&gt;I don't see why you would<br>
+&gt;turn tests on and off. The<br>
+&gt;whole point (as I understand<br>
+&gt;it) is to build a large body<br>
+&gt;of unit tests, ALL of which<br>
+&gt;must work ALL the time.<br>
+<br>
+I guess I was envisioning real-life things like changes in requirements or state of data for the unit making some tests obsolete or temporarily irrelevant, where you might not want to remove them altogether (the equivalent of commenting out an a call to utassert), or situations where a failed test call to a non-deterministic function may affect the results of following tests.<br>
+<br>
+&gt;The performance of unit<br>
+&gt;tests are not relevant.<br>
+&gt;Performance of the app is, but<br>
+&gt;that is a separate issue.<br>
+<br>
+Could you elaborate - I find this surprising since most tuning books appears to concern<br>
+themselves with finding bottlenecks in apps. and often the tuning crusade ends up pointing at a single function (e.g. your battle with the is_number function). If we determine an overall performance criteria at design time, the sub-functions themselves could be reasonably entitled to specific portions of the total available time. My feeling is that a function should be seen to be a failure if is performance is sufficiently poor so as to cause the app. to fail its performance<br>
+criteria (this sort of test would have probably prevented the original is_number function from ever being released). I concede that in many cases this would be a difficult thing to quantify. It would be a breeze to assert, however.<br>
+<br>
+&gt;- In terms of reporting on the<br>
+&gt;test results, the approach is<br>
+&gt;red light-green light. Either<br>
+&gt;it works (green light, nothing<br>
+&gt;else to report) or fails (red<br>
+&gt;light, in which the testing<br>
+&gt;mechanism does already report<br>
+&gt;on sources of failure.<br>
+<br>
+I agree, but I was really asking whether the testing history was as valid and useful/interesting as the version history.<br>
+<br>
+Padders
+
+</body>

@@ -1,0 +1,19 @@
+CREATE TABLE ut_unittest (
+id INTEGER,
+utp_id   INTEGER,
+program_name  VARCHAR2(30),
+overload INTEGER, /* overloading in the package definition */
+seq   INTEGER,
+description VARCHAR2(2000),
+status VARCHAR2(20), /* ENABLED or DISABLED */
+is_deterministic CHAR(1),
+declarations varchar2(2000),
+setup varchar2(2000),
+teardown varchar2(2000),
+exceptions varchar2(2000),
+  CONSTRAINT ut_unittest_pk PRIMARY KEY (id)
+);
+
+ALTER TABLE ut_unittest ADD CONSTRAINT ut_unittest_utp_fk
+   FOREIGN KEY (utp_id) REFERENCES ut_utp;
+

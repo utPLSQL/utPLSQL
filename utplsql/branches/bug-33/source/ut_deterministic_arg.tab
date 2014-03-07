@@ -1,0 +1,10 @@
+create table ut_deterministic_arg (
+   package varchar2(100),
+   overload integer,
+   name varchar2(100),
+   tcname varchar2(100),
+   seq integer,
+   arg_value varchar2(2000));
+   
+ALTER table ut_deterministic_arg add CONSTRAINT ut_deterministic_fk
+   FOREIGN KEY (package, overload, name, tcname) REFERENCES ut_deterministic;

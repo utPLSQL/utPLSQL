@@ -1,0 +1,17 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="43246.htm">Previous</a> | <a href="43253.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Boolean Function Versions of utAssert Procedures<br>
+<b>Conf:</b> 538, Msg: 43251<br>
+<b>From:</b> Chris Rimmer (<a href="mailto:chris@nominet.org.uk">chris@nominet.org.uk</a>)<br>
+<b>Date:</b> 8/15/01 01:10 AM<br>
+
+<p><title>Boolean Function Versions of utAssert Procedures Chris Rimmer chrisrimmer chris@nominet.org.uk</title>
+I agree that the tests should be independent of one another.  Does this mean that the assertions within a test must be independent of one another?<br>
+<br>
+The case I was thinking of was where I run a procedure which (in the case being tested) should create a number records in various tables.  This means I will need a large number of assertions to verify that it has succeeded.  So I start by doing some SELECT COUNT(*) queries on the tables (The Basic Tests), then actually check the contents of the tables (The Detailed Tests).<br>
+<br>
+In my example, I didn't mean that some tested function would be called in each assertion with different arguments. Perhaps I should have been clearer.<br>
+<br>
+Chris<br>
+
+
+</body>

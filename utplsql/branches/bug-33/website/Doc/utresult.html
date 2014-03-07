@@ -1,0 +1,149 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+
+
+<!-- WARNING! This file is generated. -->
+<!-- To alter documentation, edit files in src directory -->
+
+
+<html><head>
+<title>utResult Package</title>
+<link rel="stylesheet" href="utplsql.css" content="text/css">
+<meta name="keywords" content="utPLSQL, PL\SQL, Unit Testing, Framework, Oracle"/>
+<meta name="description" content="Unit Testing PL\SQL"/>
+<meta name="title" content="utResult Package"/>
+<meta name="author" content="Steven Feuerstein, Chris Rimmer, Patrick Barel"/>
+<meta name="copyright" content="(C) 2000-2005 Steven Feuerstein, Chris Rimmer, Patrick Barel"/>
+</head><body>
+<div class="purple_bar"><a href="index.html"><img src="utplsql.jpg" border=0></a></div>
+<p>[ <A href="index.html">Home</A>
+ | <A href="started.html">Getting Started</A>
+ | <A href="buildpack.html">Build Test Packages</A>
+ | <A href="examples.html">Examples</A>
+ | <A href="userguide.html">User Guide</A>
+ | <A href="release.html">Release Notes</A>
+ | <A href="map.html">Document Map</A> ]</p>
+<p><A href="utconfig.html">&lt; Previous Section: utConfig Package</A> | <A href="utassert.html">Next Section: utAssert Package &gt;</A></p>
+<!-- Begin utPLSQL Body -->
+<!-- $Id$ -->
+<h1>
+utResult Package</h1>
+
+<p>This package contains the following procedures and functions:
+<br> 
+<table cellspacing="5">
+<tr>
+<td width="25%"><a href="#Init">utResult.init</a></td>
+
+<td><a href="#Init">Initialize the results data</a></td>
+</tr>
+
+<tr>
+<td><a href="#ShowResults">utResult.show</a>
+<br><a href="#ShowResults">utResult.showone</a>
+<br><a href="#ShowResults">utResult.showlast</a></td>
+
+<td><a href="#ShowResults">Show results</a></td>
+</tr>
+
+<tr>
+<td><a href="#SuccessFailure">utResult.success</a>
+<br><a href="#SuccessFailure">utResult.failure</a></td>
+
+<td><a href="#SuccessFailure">Show the success or failure of the last test</a></td>
+</tr>
+
+<tr>
+<td><a href="#Iterate">utResult.firstresult</a>
+<br><a href="#Iterate">utResult.nextresult</a>
+<br><a href="#Iterate">utResult.nthresult</a>
+<br><a href="#Iterate">utResult.resultcount</a></td>
+
+<td><a href="#Iterate">Iterate through the results array</a></td>
+</tr>
+
+<tr>
+   <td><a href="#Successes">utResult.include_successes</a><br>
+      <a href="#Successes">utResult.ignore_successes</a></td>
+   <td><a href="#Successes">Control the display of passed tests</a></td>
+</tr>
+
+</table>
+
+The utResult package offers an API to the information
+sent by the various utAssert assertion routines after a test is run. If
+you employ the utPLSQL.test and utPLSQL.testsuite to run your tests, then
+the results will be displayed by calling the utResult.show procedure.
+
+So, generally, you do not have to do anything to see or evaluate the results of
+a test (or suite of tests). The information will be displayed on your screen
+using DBMS_OUTPUT, or elsewhere if you use a custom output reporter. You might,
+however, want to access this information in another environment (say, Oracle
+Forms or Java, etc.). You might also want to build your own assertion logic or
+test engine. In either of these cases, you will want to use the programs in the
+utResult package.
+
+<h2>
+<a name="Init"></a>Initialize</h2>
+Initialize the utResult data, setting it all back to NULL:
+<pre>PROCEDURE utResult.init;</pre>
+
+<h2>
+<a name="ShowResults"></a>Show Results</h2>
+Show the results of your test with one of the following three procedures.
+<pre>PROCEDURE utResult.show (reset_in IN BOOLEAN := FALSE);
+PROCEDURE utResult.showone (indx_in in pls_integer);
+PROCEDURE utResult.showlast;</pre>
+Use the <b>show</b> procedure to display the full set of results stored
+in the utResult array. If you pass TRUE for its single argument, the results
+informatino will be initialized.
+<p>Use the <b>showone</b> procedure to show the Nth result.
+<p>Use the <b>showlast</b> procedure to show the results of the last test
+run.
+<h2>
+<a name="SuccessFailure"></a>Retrieve Test Status</h2>
+The success and failure functions return the status of the most recently
+executed test.
+<pre>FUNCTION utResult.success RETURN BOOLEAN;
+FUNCTION utResult.failure RETURN BOOLEAN;</pre>
+
+<h2>
+<a name="Iterate"></a>Scan Results Array</h2>
+The utPLSQL.show procedure iterates through the contents of the utResult
+array and displays the information found there. You can write the same
+kind of logic by calling a combination of the following programs:
+<pre>PROCEDURE utResult.firstresult;
+
+FUNCTION utResult.nextresult RETURN utResult.result_rt;
+
+PROCEDURE utResult.nextresult (
+   name_out OUT VARCHAR2,
+   msg_out OUT VARCHAR2,
+   case_indx_out OUT PLS_INTEGER
+);
+
+FUNCTION utResult.nthresult (indx_in IN PLS_INTEGER)
+   RETURN utResult.result_rt;
+
+PROCEDURE utResult.nthresult (
+   indx_in IN PLS_INTEGER,
+   name_out OUT VARCHAR2,
+   msg_out OUT VARCHAR2,
+   case_indx_out OUT PLS_INTEGER
+);
+
+FUNCTION utResult.resultcount RETURN PLS_INTEGER;</pre>
+
+<h2>
+   <a name="Successes"></a>Control the Display of Success Messages</h2>
+<p>The following procedures turn on or off the display of success messages.  In other words,
+when turned on (as is the default) a message will be displayed for each successful assertion.  
+The specifications are as follows:
+<pre>
+procedure include_successes;
+procedure ignore_successes; </pre></p>
+
+<!-- End utPLSQL Body -->
+<p><A href="utconfig.html">&lt; Previous Section: utConfig Package</A> | <A href="utassert.html">Next Section: utAssert Package &gt;</A></p>
+<div class="purple_bar"><a href="index.html"><img src="utplsql.jpg" border=0></a></div>
+<p class="copyright">Copyright (C) 2000-2005 <A href="mailto:steven@stevenfeuerstein.com">Steven Feuerstein<A>, <A href="mailto:c@24.org.uk">Chris Rimmer<A>, <A href="mailto:pbarel@vda.nl">Patrick Barel<A> All rights reserved</p>
+</body></html>

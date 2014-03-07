@@ -1,0 +1,21 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="38866.htm">Previous</a> | <a href="38997.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Draft Spec for new utConfig Package, 1 Attachments<br>
+<b>Conf:</b> 550, Msg: 38984<br>
+<b>From:</b> Chris Rimmer (<a href="mailto:chris@nominet.org.uk">chris@nominet.org.uk</a>)<br>
+<b>Date:</b> 10/26/00 05:15 AM<br>
+
+<p><title>Draft Spec for new utConfig Package Chris Rimmer chrisrimmer chris.rimmer@tessella.co.uk</title>
+Following some discussion with Steven, I have been given the task of splitting out the parts of the utPLSQL package concerned with user configuration into a new utConfig package.  This will provide an API to the ut_Config table which holds settings such as what the prefix should be, where the package source is etc.<br>
+<br>
+I have attached the spec below.  It is not significantly different to the code in the utPLSQL package, except that setconfig is renamed to setuser and there is a new function called getuser which returns the name of the user whose configuration is currently the default.  This means that the changes to other packages should be minimal.  In fact, I don't think much more will be required than adding 'utConfig.' in a number of places.<br>
+<br>
+As far as I see it, the way that the package should work is as follows:  The configurations for multiple users are held in the ut_config table, with a single row for each user.  Initially, the current user's config is the default.  This, however, can be changed by calling setuser.  Whenever a change is made to the configuration, if no username is specified it is deemed to be a change to the default configuration.  Similarly, when a configuration value is requested via one of the access functions, if no username is specified then the value from the default config is returned.<br>
+<br>
+The only slight question remaining, as far as I see it, is about when the default configuration should be used.  Currently, if user X tests a package Y, then Y's configuration will be used. (Since 'Y' will be passed as the owner_in parameter to utPLSQL.test).  Perhaps there should be another parameter specifying whether to use the default configuration or that corresponding to the owner of the tested package?<br>
+<br>
+Any other comments or suggestions?<br>
+<br>
+Chris<br>
+
+
+<p><a href="utconfig_draft.pks"><img src="fa_doc-s.gif" alt="Click to open!" border=0 align=left></a>Draft utConfig Package Spec (1,430 bytes)<br clear=all></body>

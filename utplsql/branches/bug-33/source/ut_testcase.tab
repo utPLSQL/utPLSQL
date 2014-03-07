@@ -1,0 +1,31 @@
+CREATE TABLE ut_testcase (
+   id INTEGER, 
+   unittest_id INTEGER,
+   name VARCHAR2(200), 
+   seq	integer DEFAULT 1,
+   description VARCHAR2(2000),
+   status VARCHAR2(20), /* ENABLED or DISABLED */
+   declarations varchar2(2000),
+   setup varchar2(2000),
+   teardown varchar2(2000),
+   exceptions varchar2(2000),
+   /* From here down, for v1 compatibility only */
+   test_id INTEGER, 
+   prefix VARCHAR2(200), 
+   assertion VARCHAR2(100),
+   inline_assertion_call CHAR(1) DEFAULT 'N',  
+   executions INTEGER, 
+   failures INTEGER,
+   last_start DATE, 
+   last_end DATE,
+  CONSTRAINT ut_testcase_pk PRIMARY KEY (id)
+)
+/
+
+CREATE unique index ut_testcase_idx1 ON
+   ut_testcase (name);
+
+ALTER table ut_testcase add CONSTRAINT ut_testcase_unitest_fk
+   FOREIGN KEY (unittest_id) REFERENCES ut_unittest;
+   
+   
