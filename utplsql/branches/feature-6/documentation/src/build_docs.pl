@@ -67,7 +67,7 @@ sub populate_map {
             #Add entries ending in * to navigation bar
             if ($desc =~ s/\*$//){
                 $nav .= " | " if $nav;
-                $nav .= "<A href=\"$filename\">$desc</A>\n";
+                $nav .= "<a href=\"$filename\">$desc</a>\n";
                 $section = 1;
             }
             push @map, [$filename, $desc, $section];
@@ -77,7 +77,7 @@ sub populate_map {
 
     #Add the document map
     push @map, ["map.html", "Document Map", 1];
-    $nav = "[ $nav | <A href=\"map.html\">Document Map</A> ]";
+    $nav = "[ $nav | <a href=\"map.html\">Document Map</a> ]";
 }
 
 
@@ -204,7 +204,7 @@ sub html_docmap {
         } else {
             $body .= "&nbsp;&nbsp;";
         }
-        $body .= "<A href=\"$_->[0]\">$_->[1]</A><br>";
+        $body .= "<a href=\"$_->[0]\">$_->[1]</a><br>";
         $body .= "</b>" if $_->[2];
         $body .= "\n";
     }
