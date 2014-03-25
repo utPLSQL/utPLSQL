@@ -14,7 +14,7 @@
 
    <table cellpadding="0" border="0" cellspacing="5">
       <tr>
-         <td style="width:25%">
+         <td>
             <a href="#utplsql.test">utPLSQL.test</a><br />
             <a href="#utplsql.test">utPLSQL.run</a>
          </td>
@@ -95,129 +95,127 @@ PROCEDURE utPLSQL.test (
    <p>where the parameters are defined as follows:</p>
 
    <table border="1" cellpadding="0" width="100%">
-      <tbody>
-         <tr>
-            <td style="width:19%">
-               package_in
-            </td>
-            <td style="width:79%">
-               The name of the package or stand-alone program to be tested.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               samepackage_in
-            </td>
-            <td style="width:79%">
-               Pass TRUE if your unit test programs are defined in the same
-               package as the source code to be tested. The default is that you have created
-               a separate package.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               prefix_in
-            </td>
-            <td style="width:79%">
-               The prefix to be appended to package_in to come up with
-               the name of the test package. If you do not provide a value, the last prefix
-               you specified (or the default) will be used.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               recompile_in
-            </td>
-            <td style="width:79%">
-               Pass FALSE if you do not want utPLSQL to <a href="utconfig.html#Autocompile">automatically recompile</a> your test package
-               before running the test.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               dir_in
-            </td>
-            <td style="width:79%">
-               The directory containing the test package source code. If
-               you do not provide a value in your call to utPLSQL.test (the default) and if
-               you have not turned off automatic recompilation, utPLSQL will look for the
-               test package source code in the directory specified by a call to <a href="utconfig.html#Setdir">utConfig.setdir</a>. If you do not provide a
-               value, the last directory you specified (if any) will be used.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               suite_in
-            </td>
-            <td style="width:79%">
-               The name of the suite that contains the specified test
-               package. This is an optional value and is used to update <a href="#Statistics">statistics</a>
-               for the test.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               owner_in
-            </td>
-            <td style="width:79%">
-               The name of the schema that was specified when the test
-               suite was defined and the packaged added to the suite.  This is an
-               optional value and is used to update <a href="#Statistics">statistics</a> for
-               the test.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               reset_results_in
-            </td>
-            <td style="width:79%">
-               Pass FALSE to tell utPLSQL to <i>not</i> reset the results
-               information, in which case you will still be able to view results by calling <a href="utresult.html">utResult.show</a> . Otherwise, utPLSQL clears the result
-               data after each test.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               from_suite_in
-            </td>
-            <td style="width:79%">
-               Pass TRUE to tell utPLSQL that this test is being run from
-               within a test suite (for internal use only).
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               subprogram_in
-            </td>
-            <td style="width:79%">
-               Pass a string to restrict which of the test procedures
-               will be executed for this run. Default of % means all tests will be run.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               per_method_setup_in
-            </td>
-            <td style="width:79%">
-               Pass TRUE to run the setup and teardown procedure before
-               and after each unit test procedure is executed. Default of FALSE means that
-               these programs will be run once, at the start and end of the package test
-               execution as a whole.
-            </td>
-         </tr>
+      <tr>
+         <td>
+            package_in
+         </td>
+         <td>
+            The name of the package or stand-alone program to be tested.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            samepackage_in
+         </td>
+         <td>
+            Pass TRUE if your unit test programs are defined in the same
+            package as the source code to be tested. The default is that you have created
+            a separate package.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            prefix_in
+         </td>
+         <td>
+            The prefix to be appended to package_in to come up with
+            the name of the test package. If you do not provide a value, the last prefix
+            you specified (or the default) will be used.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            recompile_in
+         </td>
+         <td>
+            Pass FALSE if you do not want utPLSQL to <a href="utconfig.html#Autocompile">automatically recompile</a> your test package
+            before running the test.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            dir_in
+         </td>
+         <td>
+            The directory containing the test package source code. If
+            you do not provide a value in your call to utPLSQL.test (the default) and if
+            you have not turned off automatic recompilation, utPLSQL will look for the
+            test package source code in the directory specified by a call to <a href="utconfig.html#Setdir">utConfig.setdir</a>. If you do not provide a
+            value, the last directory you specified (if any) will be used.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            suite_in
+         </td>
+         <td>
+            The name of the suite that contains the specified test
+            package. This is an optional value and is used to update <a href="#Statistics">statistics</a>
+            for the test.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            owner_in
+         </td>
+         <td>
+            The name of the schema that was specified when the test
+            suite was defined and the packaged added to the suite.  This is an
+            optional value and is used to update <a href="#Statistics">statistics</a> for
+            the test.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            reset_results_in
+         </td>
+         <td>
+            Pass FALSE to tell utPLSQL to <i>not</i> reset the results
+            information, in which case you will still be able to view results by calling <a href="utresult.html">utResult.show</a> . Otherwise, utPLSQL clears the result
+            data after each test.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            from_suite_in
+         </td>
+         <td>
+            Pass TRUE to tell utPLSQL that this test is being run from
+            within a test suite (for internal use only).
+         </td>
+      </tr>
+      <tr>
+         <td>
+            subprogram_in
+         </td>
+         <td>
+            Pass a string to restrict which of the test procedures
+            will be executed for this run. Default of % means all tests will be run.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            per_method_setup_in
+         </td>
+         <td>
+            Pass TRUE to run the setup and teardown procedure before
+            and after each unit test procedure is executed. Default of FALSE means that
+            these programs will be run once, at the start and end of the package test
+            execution as a whole.
+         </td>
+      </tr>
 <!-- added by Jens Schauder -->
-         <tr>
-            <td style="width:19%">
-               override_package_in
-            </td>
-            <td style="width:79%">
-               Override the automatic determination of package names thus removing the
-               one to one relationship between test package and package to test. 
-               Default is NULL. Instead of using this parameter consider the procedure <a href="#utplsql.run">run</a>.
-            </td>
-         </tr>
+      <tr>
+         <td>
+            override_package_in
+         </td>
+         <td>
+            Override the automatic determination of package names thus removing the
+            one to one relationship between test package and package to test. 
+            Default is NULL. Instead of using this parameter consider the procedure <a href="#utplsql.run">run</a>.
+         </td>
+      </tr>
 <!-- end of addition -->
-      </tbody>
    </table>
 
    <p>Here are some examples of using the utPLSQL.test procedure: </p>
@@ -297,86 +295,84 @@ PROCEDURE run (
    <p>where the parameters are defined as follows:</p>
 
    <table border="1" cellpadding="0" width="100%">
-      <tbody>
-         <tr>
-            <td style="width:19%">
-               test_package_in
-            </td>
-            <td style="width:79%">
-               The name of the test package to run.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               prefix_in
-            </td>
-            <td style="width:79%">
-               The prefix to be appended to package_in to come up with
-               the name of the test package. If you do not provide a value, NULL is used as 
-               a default. i.e. the package name is used as provided in the first parameter
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               suite_in
-            </td>
-            <td style="width:79%">
-               The name of the suite that contains the specified test
-               package. This is an optional value and is used to update <a href="#Statistics">statistics</a>
-               for the test.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               owner_in
-            </td>
-            <td style="width:79%">
-               The name of the schema that was specified when the test
-               suite was defined and the packaged added to the suite.  This is an
-               optional value and is used to update <a href="#Statistics">statistics</a> for
-               the test.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               reset_results_in
-            </td>
-            <td style="width:79%">
-               Pass FALSE to tell utPLSQL to <i>not</i> reset the results
-               information, in which case you will still be able to view results by calling <a href="utresult.html">utResult.show</a> . Otherwise, utPLSQL clears the result
-               data after each test.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               from_suite_in
-            </td>
-            <td style="width:79%">
-               Pass TRUE to tell utPLSQL that this test is being run from
-               within a test suite (for internal use only).
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               subprogram_in
-            </td>
-            <td style="width:79%">
-               Pass a string to restrict which of the test procedures
-               will be executed for this run. Default of <code>'%'</code> means all tests will be run.
-            </td>
-         </tr>
-         <tr>
-            <td style="width:19%">
-               per_method_setup_in
-            </td>
-            <td style="width:79%">
-               Pass TRUE to run the setup and teardown procedure before
-               and after each unit test procedure is executed. Default of FALSE means that
-               these programs will be run once, at the start and end of the package test
-               execution as a whole.
-            </td>
-         </tr>
-      </tbody>
+      <tr>
+         <td>
+            test_package_in
+         </td>
+         <td>
+            The name of the test package to run.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            prefix_in
+         </td>
+         <td>
+            The prefix to be appended to package_in to come up with
+            the name of the test package. If you do not provide a value, NULL is used as 
+            a default. i.e. the package name is used as provided in the first parameter
+         </td>
+      </tr>
+      <tr>
+         <td>
+            suite_in
+         </td>
+         <td>
+            The name of the suite that contains the specified test
+            package. This is an optional value and is used to update <a href="#Statistics">statistics</a>
+            for the test.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            owner_in
+         </td>
+         <td>
+            The name of the schema that was specified when the test
+            suite was defined and the packaged added to the suite.  This is an
+            optional value and is used to update <a href="#Statistics">statistics</a> for
+            the test.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            reset_results_in
+         </td>
+         <td>
+            Pass FALSE to tell utPLSQL to <i>not</i> reset the results
+            information, in which case you will still be able to view results by calling <a href="utresult.html">utResult.show</a> . Otherwise, utPLSQL clears the result
+            data after each test.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            from_suite_in
+         </td>
+         <td>
+            Pass TRUE to tell utPLSQL that this test is being run from
+            within a test suite (for internal use only).
+         </td>
+      </tr>
+      <tr>
+         <td>
+            subprogram_in
+         </td>
+         <td>
+            Pass a string to restrict which of the test procedures
+            will be executed for this run. Default of <code>'%'</code> means all tests will be run.
+         </td>
+      </tr>
+      <tr>
+         <td>
+            per_method_setup_in
+         </td>
+         <td>
+            Pass TRUE to run the setup and teardown procedure before
+            and after each unit test procedure is executed. Default of FALSE means that
+            these programs will be run once, at the start and end of the package test
+            execution as a whole.
+         </td>
+      </tr>
    </table>
 
 <!-- end of addition -->

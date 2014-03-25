@@ -13,87 +13,85 @@
    <p>This package contains the following procedures and functions: </p>
   
    <table cellspacing="5">
-      <tbody>
-         <tr>
-            <td><a href="#utassert.this">utAssert.this</a></td>
-            <td><a href="#utassert.this">Generic "Assert This" Procedure</a></td>
-         </tr>
-         <tr>
-            <td>
-               <a href="#utassert.isnull">utAssert.isnull</a>
-               <a href="#utassert.isnull">utAssert.isnotnull</a>
-            </td>
-            <td><a href="#utassert.isnull">Check for NULL and NOT NULL values</a></td>
-         </tr>
-         <tr>
-            <td><a href="#utassert.eq">utAssert.eq</a></td>
-            <td><a href="#utassert.eq">Check Equality of Scalar Values</a></td>
-         </tr>
-         <tr>
-            <td><a href="#utassert.eqtable">utAssert.eqtable</a></td>
-            <td><a href="#utassert.eqtable">Check Equality of Database Tables</a></td>
-         </tr>
-         <tr>
-            <td><a href="#utassert.eqtabcount">utAssert.eqtabcount</a></td>
-            <td><a href="#utassert.eqtabcount">Check Equality of Table Counts</a></td>
-         </tr>
-         <tr>
-            <td><a href="#eqquery">utAssert.eqquery</a></td>
-            <td><a href="#eqquery">Check Equality of Queries</a></td>
-         </tr>
-         <tr>
-            <td><a href="#eqqueryvalue">utAssert.eqqueryvalue</a></td>
-            <td><a href="#eqqueryvalue">Check Equality of Query against single value</a></td>
-         </tr>
-         <tr>
-            <td><a href="#utassert.eqfile">utAssert.eqfile</a></td>
-            <td><a href="#utassert.eqfile">Check Equality of Files</a></td>
-         </tr>
-         <tr>
-            <td><a href="#utassert.eqpipe">utAssert.eqpipe</a></td>
-            <td><a href="#utassert.eqpipe">Check Equality of Database Pipes</a></td>
-         </tr>
-         <tr>
-            <td>
-               <a href="#utassert.eqcoll">utAssert.eqcoll</a>
-               <a href="#utassert.eqcoll">utAssert.eqcollapi</a>
-            </td>
-            <td><a href="#utassert.eqcoll">Check Equality of Collections</a></td>
-         </tr>
-         <tr>
-            <td><a href="#throws">utAssert.throws</a></td>
-            <td><a href="#throws">Check a procedure or function throws an exception</a></td>
-         </tr>
-         <tr>
-            <td>
-               <a href="#previous">utAssert.previous_passed
-               utAssert.previous_failed</a>
-            </td>
-            <td>
-               <a href="#previous">Check if the previous assertion
-               passed or failed</a>
-            </td>
-         </tr>
-         <tr>
-            <td><a href="#eqoutput">utAssert.eqoutput</a></td>
-            <td><a href="#eqoutput">Check Equality of DBMS_OUTPUT Collections</a></td>
-         </tr>
-         <tr>
-            <td>
-               <a href="#object">utAssert.objexists</a>
-               <a href="#object">utAssert.objnotexists</a>
-            </td>
-            <td><a href="#object">Check for existence of database objects</a></td>
-         </tr>
-         <tr>
-            <td><a href="#eq_refc_query">utAssert.eq_refc_query</a></td>
-            <td><a href="#eq_refc_query">Check Equality of RefCursor and Query</a></td>
-         </tr>
-         <tr>
-            <td><a href="#eq_refc_table">utAssert.eq_refc_table</a></td>
-            <td><a href="#eq_refc_table">Check Equality of RefCursor and Database Table</a></td>
-         </tr>
-      </tbody>
+      <tr>
+         <td><a href="#utassert.this">utAssert.this</a></td>
+         <td><a href="#utassert.this">Generic "Assert This" Procedure</a></td>
+      </tr>
+      <tr>
+         <td>
+            <a href="#utassert.isnull">utAssert.isnull</a>
+            <a href="#utassert.isnull">utAssert.isnotnull</a>
+         </td>
+         <td><a href="#utassert.isnull">Check for NULL and NOT NULL values</a></td>
+      </tr>
+      <tr>
+         <td><a href="#utassert.eq">utAssert.eq</a></td>
+         <td><a href="#utassert.eq">Check Equality of Scalar Values</a></td>
+      </tr>
+      <tr>
+         <td><a href="#utassert.eqtable">utAssert.eqtable</a></td>
+         <td><a href="#utassert.eqtable">Check Equality of Database Tables</a></td>
+      </tr>
+      <tr>
+         <td><a href="#utassert.eqtabcount">utAssert.eqtabcount</a></td>
+         <td><a href="#utassert.eqtabcount">Check Equality of Table Counts</a></td>
+      </tr>
+      <tr>
+         <td><a href="#eqquery">utAssert.eqquery</a></td>
+         <td><a href="#eqquery">Check Equality of Queries</a></td>
+      </tr>
+      <tr>
+         <td><a href="#eqqueryvalue">utAssert.eqqueryvalue</a></td>
+         <td><a href="#eqqueryvalue">Check Equality of Query against single value</a></td>
+      </tr>
+      <tr>
+         <td><a href="#utassert.eqfile">utAssert.eqfile</a></td>
+         <td><a href="#utassert.eqfile">Check Equality of Files</a></td>
+      </tr>
+      <tr>
+         <td><a href="#utassert.eqpipe">utAssert.eqpipe</a></td>
+         <td><a href="#utassert.eqpipe">Check Equality of Database Pipes</a></td>
+      </tr>
+      <tr>
+         <td>
+            <a href="#utassert.eqcoll">utAssert.eqcoll</a>
+            <a href="#utassert.eqcoll">utAssert.eqcollapi</a>
+         </td>
+         <td><a href="#utassert.eqcoll">Check Equality of Collections</a></td>
+      </tr>
+      <tr>
+         <td><a href="#throws">utAssert.throws</a></td>
+         <td><a href="#throws">Check a procedure or function throws an exception</a></td>
+      </tr>
+      <tr>
+         <td>
+            <a href="#previous">utAssert.previous_passed
+            utAssert.previous_failed</a>
+         </td>
+         <td>
+            <a href="#previous">Check if the previous assertion
+            passed or failed</a>
+         </td>
+      </tr>
+      <tr>
+         <td><a href="#eqoutput">utAssert.eqoutput</a></td>
+         <td><a href="#eqoutput">Check Equality of DBMS_OUTPUT Collections</a></td>
+      </tr>
+      <tr>
+         <td>
+            <a href="#object">utAssert.objexists</a>
+            <a href="#object">utAssert.objnotexists</a>
+         </td>
+         <td><a href="#object">Check for existence of database objects</a></td>
+      </tr>
+      <tr>
+         <td><a href="#eq_refc_query">utAssert.eq_refc_query</a></td>
+         <td><a href="#eq_refc_query">Check Equality of RefCursor and Query</a></td>
+      </tr>
+      <tr>
+         <td><a href="#eq_refc_table">utAssert.eq_refc_table</a></td>
+         <td><a href="#eq_refc_table">Check Equality of RefCursor and Database Table</a></td>
+      </tr>
    </table>
    <p>
       The utAssert package provides a set of assertion routines ("assert that
@@ -138,46 +136,44 @@ END;
    </p>
 
    <table cellpadding="0" border="1" width="714" cellspacing="0">
-      <tbody>
-         <tr>
-            <td style="width:151" valign="top"> msg_in </td>
-               <td style="width:532" valign="top">
-                  A message to be displayed if the assertion
-                  fails. This is the first argument and is mandatory, because the tests need
-                  to be self documenting. 
-               </td>
-         </tr>
-         <tr>
-            <td style="width:151" valign="top"> check_this_in </td>
-            <td style="width:532" valign="top">
-               The value to be checked.. If a Boolean expression,
-               this will usually include the invocation of the method being tested, resulting
-               in a single line of code for the entire test case. 
+      <tr>
+         <td valign="top"> msg_in </td>
+            <td valign="top">
+               A message to be displayed if the assertion
+               fails. This is the first argument and is mandatory, because the tests need
+               to be self documenting. 
             </td>
-         </tr>
-         <tr>
-            <td style="width:151" valign="top"> against_this_in </td>
-            <td style="width:532" valign="top"> 
-               For assert_eq, the assertion routine will
-               check the check_this_in value against the against_this_in value. This parameter
-               should be the certifiably correct value. 
+      </tr>
+      <tr>
+         <td valign="top"> check_this_in </td>
+         <td valign="top">
+            The value to be checked.. If a Boolean expression,
+            this will usually include the invocation of the method being tested, resulting
+            in a single line of code for the entire test case. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> against_this_in </td>
+         <td valign="top"> 
+            For assert_eq, the assertion routine will
+            check the check_this_in value against the against_this_in value. This parameter
+            should be the certifiably correct value. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> null_ok_in </td>
+            <td valign="top"> 
+               TRUE if a NULL value should be interpreted
+               as a successful test, FALSE if NULL indicates failure. 
             </td>
-         </tr>
-         <tr>
-            <td style="width:151" valign="top"> null_ok_in </td>
-               <td style="width:532" valign="top"> 
-                  TRUE if a NULL value should be interpreted
-                  as a successful test, FALSE if NULL indicates failure. 
-               </td>
-         </tr>
-         <tr>
-            <td style="width:151" valign="top"> raise_exc_in </td>
-            <td style="width:532" valign="top"> 
-               TRUE if it is OK for the assertion routine
-               to allow an exception to be propagated out unhandled. 
-            </td>
-         </tr>
-      </tbody>
+      </tr>
+      <tr>
+         <td valign="top"> raise_exc_in </td>
+         <td valign="top"> 
+            TRUE if it is OK for the assertion routine
+            to allow an exception to be propagated out unhandled. 
+         </td>
+      </tr>
    </table>
   
    <h2> <a name="utassert.this"></a>Generic "Assert This" Assertion Procedure</h2>
@@ -745,169 +741,163 @@ fillpipe: Pipes equal? Compared "emps" against "emps2"
    <p>where the eqcoll-specific parameters are as follows:</p>
    
    <table cellpadding="0" border="1" cellspacing="0">
-      <tbody>
-         <tr>
-            <td><b>Parameter</b></td>
-            <td><b>Description</b></td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> msg_in </td>
-            <td style="width:561" valign="top"> The message to be displayed if the test failes </td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> check_this_in </td>
-            <td style="width:561" valign="top"> 
-               The name of the collection to be checked.
-               Format: package.collection. In other words, the collection must be defined
-               in a package specification. Use eqCollAPI (and check_this_pkg_in) if you
-               want to hide the declaration of your collection in your package body (recommended). 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> against_this_in </td>
-            <td style="width:561" valign="top"> 
-               The name of the collection to be checked
-               against. Format: package.collection. In other words, the collection must
-               be defined in a package specification. Use eqCollAPI (and check_this_pkg_in)
-               if you want to hide the declaration of your collection in your package body
-               (recommended). 
-            </td>
-         </tr>
-      </tbody>
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> msg_in </td>
+         <td valign="top"> The message to be displayed if the test failes </td>
+      </tr>
+      <tr>
+         <td valign="top"> check_this_in </td>
+         <td valign="top"> 
+            The name of the collection to be checked.
+            Format: package.collection. In other words, the collection must be defined
+            in a package specification. Use eqCollAPI (and check_this_pkg_in) if you
+            want to hide the declaration of your collection in your package body (recommended). 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> against_this_in </td>
+         <td valign="top"> 
+            The name of the collection to be checked
+            against. Format: package.collection. In other words, the collection must
+            be defined in a package specification. Use eqCollAPI (and check_this_pkg_in)
+            if you want to hide the declaration of your collection in your package body
+            (recommended). 
+         </td>
+      </tr>
    </table>
    
    <p>and the eqcollAPI-specific parameters are as follows: </p>
   
    <table cellpadding="0" border="1" cellspacing="0">
-      <tbody>
-         <tr>
-            <td><b>Parameter</b></td>
-            <td><b>Description</b></td>
-         </tr>
-         <tr>
-            <td style="width:122" valign="top"> msg_in </td>
-            <td style="width:541" valign="top"> The message to be displayed if the test failes</td>
-         </tr>
-         <tr>
-            <td style="width:122" valign="top"> check_this_pkg_in </td>
-            <td style="width:541" valign="top"> 
-               The name of the package that contains the
-               collection to be checked. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:122" valign="top"> against_this_pkg_in </td>
-            <td style="width:541" valign="top"> 
-               The name of the package that contains the
-               collection to be checked against. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:122" valign="top"> countfunc_in </td>
-            <td style="width:541" valign="top"> 
-               The name of the function in the package that
-               returns the number of rows defined in the collection. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:122" valign="top"> firstrowfunc_in </td>
-            <td style="width:541" valign="top"> 
-               The name of the function in the package that
-               returns the first definedrow in the collection. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:122" valign="top"> lastrowfunc_in </td>
-            <td style="width:541" valign="top"> 
-               The name of the function in the package that
-               returns the last definedrow in the collection. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:122" valign="top"> nextrowfunc_in </td>
-            <td style="width:541" valign="top"> 
-               The name of the function in the package that
-               returns the next definedrow in the collection from the specified row. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:122" valign="top"> getvalfunc_in </td>
-            <td style="width:541" valign="top"> 
-               The name of the function in the package that
-               returns the contents of the specified row. 
-            </td>
-         </tr>
-      </tbody>
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> msg_in </td>
+         <td valign="top"> The message to be displayed if the test failes</td>
+      </tr>
+      <tr>
+         <td valign="top"> check_this_pkg_in </td>
+         <td valign="top"> 
+            The name of the package that contains the
+            collection to be checked. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> against_this_pkg_in </td>
+         <td valign="top"> 
+            The name of the package that contains the
+            collection to be checked against. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> countfunc_in </td>
+         <td valign="top"> 
+            The name of the function in the package that
+            returns the number of rows defined in the collection. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> firstrowfunc_in </td>
+         <td valign="top"> 
+            The name of the function in the package that
+            returns the first defined row in the collection. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> lastrowfunc_in </td>
+         <td valign="top"> 
+            The name of the function in the package that
+            returns the last defined row in the collection. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> nextrowfunc_in </td>
+         <td valign="top"> 
+            The name of the function in the package that
+            returns the next defined row in the collection from the specified row. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> getvalfunc_in </td>
+         <td valign="top"> 
+            The name of the function in the package that
+            returns the contents of the specified row. 
+         </td>
+      </tr>
    </table>
    
    <p>The parameters common to both eqColl and eqCollAPI are as follows </p>
   
    <table cellpadding="0" border="1" cellspacing="0">
-      <tbody>
-         <tr>
-            <td><b>Parameter</b></td>
-            <td><b>Description</b></td>
-         </tr>
-         <tr>
-            <td style="width:158" valign="top"> eqfunc_in </td>
-            <td style="width:504" valign="top"> 
-               The function used to determine if the contents
-               of each row of the two collections are the same. If you pass NULL for this 
-               argument, then a standard equality check will be used. This is fine for scalar
-               values, but will not work, for example, with tables of records. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:158" valign="top"> check_startrow_in </td>
-            <td style="width:504" valign="top"> 
-               The starting row in the check collection
-               for comparison. If NULL, then first row is used. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:158" valign="top"> check_endrow_in </td>
-            <td style="width:504" valign="top"> 
-               The ending row in the check collection for
-               comparison. If NULL, then last row is used. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:158" valign="top"> against_startrow_in </td>
-            <td style="width:504" valign="top"> 
-               The starting row in the against collection
-               for comparison. If NULL, then first row is used. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:158" valign="top"> against_endrow_in </td>
-            <td style="width:504" valign="top"> 
-               The ending row in the against collection
-               for comparison. If NULL, then last row is used. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:158" valign="top"> match_rownum_in </td>
-            <td style="width:504" valign="top"> 
-               Pass TRUE if you want to make sure that the
-               same row numbers are used in each collection. If FALSE, then the row numbers 
-               can be different, but the contents of each corresponding row must be the same. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:158" valign="top"> null_ok_in </td>
-            <td style="width:504" valign="top"> 
-               Pass TRUE if the assertion routine should
-               consider two NULL collections to be equal. 
-            </td>
-         </tr>
-         <tr>
-            <td style="width:158" valign="top"> raise_exc_in </td>
-            <td style="width:504" valign="top"> 
-               If you want the assertion to raise an exception 
-               on failure and stop the test from proceeding, pass TRUE for raise_exc_in. 
-            </td>
-         </tr>
-      </tbody>
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> eqfunc_in </td>
+         <td valign="top"> 
+            The function used to determine if the contents
+            of each row of the two collections are the same. If you pass NULL for this 
+            argument, then a standard equality check will be used. This is fine for scalar
+            values, but will not work, for example, with tables of records. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> check_startrow_in </td>
+         <td valign="top"> 
+            The starting row in the check collection
+            for comparison. If NULL, then first row is used. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> check_endrow_in </td>
+         <td valign="top"> 
+            The ending row in the check collection for
+            comparison. If NULL, then last row is used. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> against_startrow_in </td>
+         <td valign="top"> 
+            The starting row in the against collection
+            for comparison. If NULL, then first row is used. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> against_endrow_in </td>
+         <td valign="top"> 
+            The ending row in the against collection
+            for comparison. If NULL, then last row is used. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> match_rownum_in </td>
+         <td valign="top"> 
+            Pass TRUE if you want to make sure that the
+            same row numbers are used in each collection. If FALSE, then the row numbers 
+            can be different, but the contents of each corresponding row must be the same. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> null_ok_in </td>
+         <td valign="top"> 
+            Pass TRUE if the assertion routine should
+            consider two NULL collections to be equal. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> raise_exc_in </td>
+         <td valign="top"> 
+            If you want the assertion to raise an exception 
+            on failure and stop the test from proceeding, pass TRUE for raise_exc_in. 
+         </td>
+      </tr>
    </table>
    
    <p>
@@ -1204,55 +1194,51 @@ PROCEDURE utAssert.eq_refc_query (
    <p>where the reg_In_Param, reg_InOut_Param and reg_Out_Param-specific parameters are as follows:</p>
 
    <table cellpadding="0" border="1" cellspacing="0">
-      <tbody>
-         <tr>
-            <td><b>Parameter</b></td>
-            <td><b>Description</b></td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> par_pos </td>
-            <td style="width:561" valign="top"> Defines the parameter position beginning with 1, or 0 specifying the return value</td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> par_type </td>
-            <td style="width:561" valign="top"> Specifies the data type of the return value and must be one out of 'NUMBER', 'VARCHAR', 'CHAR' or 'REFCURSOR'</td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> params </td>
-            <td style="width:561" valign="top"> The local variable to keep the values that is used as a parameter for eq_refc_query</td>
-         </tr>
-      </tbody>
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> par_pos </td>
+         <td valign="top"> Defines the parameter position beginning with 1, or 0 specifying the return value</td>
+      </tr>
+      <tr>
+         <td valign="top"> par_type </td>
+         <td valign="top"> Specifies the data type of the return value and must be one out of 'NUMBER', 'VARCHAR', 'CHAR' or 'REFCURSOR'</td>
+      </tr>
+      <tr>
+         <td valign="top"> params </td>
+         <td valign="top"> The local variable to keep the values that is used as a parameter for eq_refc_query</td>
+      </tr>
    </table>
 
    <p>and the eq_refc_query-specific parameters are as follows:</p>
 
    <table cellpadding="0" border="1" cellspacing="0">
-      <tbody>
-         <tr>
-            <td><b>Parameter</b></td>
-            <td><b>Description</b></td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> p_msg_nm </td>
-            <td style="width:561" valign="top"> The message to be displayed if the test fails</td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> proc_name </td>
-            <td style="width:561" valign="top"> Specifies the procedure or function that delivers the REF CURSOR</td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> params </td>
-            <td style="width:561" valign="top"> The parameter setting for the procedure or function</td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> cursor_position </td>
-            <td style="width:561" valign="top"> Position of the REF CURSOR parameter to be checked, beginning with 1, or 0 to specify the return value of a function</td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> qry </td>
-            <td style="width:561" valign="top"> The SELECT statement to be checked against</td>
-         </tr>
-      </tbody>
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> p_msg_nm </td>
+         <td valign="top"> The message to be displayed if the test fails</td>
+      </tr>
+      <tr>
+         <td valign="top"> proc_name </td>
+         <td valign="top"> Specifies the procedure or function that delivers the REF CURSOR</td>
+      </tr>
+      <tr>
+         <td valign="top"> params </td>
+         <td valign="top"> The parameter setting for the procedure or function</td>
+      </tr>
+      <tr>
+         <td valign="top"> cursor_position </td>
+         <td valign="top"> Position of the REF CURSOR parameter to be checked, beginning with 1, or 0 to specify the return value of a function</td>
+      </tr>
+      <tr>
+         <td valign="top"> qry </td>
+         <td valign="top"> The SELECT statement to be checked against</td>
+      </tr>
    </table>
 
    <p>Finally, note that only the record itself is compared. These assertions do not care about how the records within the cursor are numbered.</p>
@@ -1305,55 +1291,51 @@ PROCEDURE utAssert.eq_refc_table (
    <p>where the reg_In_Param, reg_InOut_Param and reg_Out_Param-specific parameters are as follows:</p>
    
    <table cellpadding="0" border="1" cellspacing="0">
-      <tbody>
-         <tr>
-            <td><b>Parameter</b></td>
-            <td><b>Description</b></td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> par_pos </td>
-            <td style="width:561" valign="top"> Defines the parameter position beginning with 1, or 0 specifying the return value</td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> par_type </td>
-            <td style="width:561" valign="top"> Specifies the data type of the return value and must be one out of 'NUMBER', 'VARCHAR', 'CHAR' or 'REFCURSOR'</td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> params </td>
-            <td style="width:561" valign="top"> The local variable to keep the values that is used as a parameter for eq_refc_query</td>
-         </tr>
-      </tbody>
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> par_pos </td>
+         <td valign="top"> Defines the parameter position beginning with 1, or 0 specifying the return value</td>
+      </tr>
+      <tr>
+         <td valign="top"> par_type </td>
+         <td valign="top"> Specifies the data type of the return value and must be one out of 'NUMBER', 'VARCHAR', 'CHAR' or 'REFCURSOR'</td>
+      </tr>
+      <tr>
+         <td valign="top"> params </td>
+         <td valign="top"> The local variable to keep the values that is used as a parameter for eq_refc_query</td>
+      </tr>
    </table>
 
    <p>and the eq_refc_query-specific parameters are as follows:  </p>
 
    <table cellpadding="0" border="1" cellspacing="0">
-      <tbody>
-         <tr>
-            <td><b>Parameter</b></td>
-            <td><b>Description</b></td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> p_msg_nm </td>
-            <td style="width:561" valign="top"> The message to be displayed if the test fails</td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> proc_name </td>
-            <td style="width:561" valign="top"> Specifies the procedure or function that delivers the REF CURSOR</td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> params </td>
-            <td style="width:561" valign="top"> The parameter setting for the procedure or function</td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> cursor_position </td>
-            <td style="width:561" valign="top"> Position of the REF CURSOR parameter to be checked, beginning with 1, or 0 to specify the return value of a function</td>
-         </tr>
-         <tr>
-            <td style="width:102" valign="top"> table_name </td>
-            <td style="width:561" valign="top"> The name of the table name or view to be checked against</td>
-         </tr>
-      </tbody>
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> p_msg_nm </td>
+         <td valign="top"> The message to be displayed if the test fails</td>
+      </tr>
+      <tr>
+         <td valign="top"> proc_name </td>
+         <td valign="top"> Specifies the procedure or function that delivers the REF CURSOR</td>
+      </tr>
+      <tr>
+         <td valign="top"> params </td>
+         <td valign="top"> The parameter setting for the procedure or function</td>
+      </tr>
+      <tr>
+         <td valign="top"> cursor_position </td>
+         <td valign="top"> Position of the REF CURSOR parameter to be checked, beginning with 1, or 0 to specify the return value of a function</td>
+      </tr>
+      <tr>
+         <td valign="top"> table_name </td>
+         <td valign="top"> The name of the table name or view to be checked against</td>
+      </tr>
    </table>
 
    <p>Finally, note that only the record itself is compared. These assertions do not care about how the records within the cursor are numbered.</p>
