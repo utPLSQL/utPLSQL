@@ -7,10 +7,8 @@
 use strict;
 use warnings;
 use 5.010;
-use HTML::TagFilter;
+use File::Copy;
 
-#The directory the output goes into
-my $OUTDIR = '..';
 
 #Holds the map
 my @map;
@@ -30,22 +28,34 @@ build_copyright();
 #Now build the documentation
 my $index;
 my $nextprev;
-foreach $index (0..$#map){
 
-    open (my $outfile, '>', "$OUTDIR/$map[$index]->[0]") or die "Cannot open $OUTDIR/$map[$index]->[0] $!";
-    build_nextprev($index);
+output_doc_dir('..');
+output_doc_dir('../../website/Doc');
 
-    print $outfile html_header($map[$index]->[1]);
+sub output_doc_dir {
+    #The directory the output goes into
+    my ($OUTDIR) = @_;
+    
+    foreach $index (0..$#map){
 
-    #Either print the body, or construct it for the document map
-    if ($index != $#map){
-        print $outfile html_main("$map[$index]->[0]");
-    } else {
-        print $outfile html_docmap();
+        open (my $outfile, '>', "$OUTDIR/$map[$index]->[0]") or die "Cannot open $OUTDIR/$map[$index]->[0] $!";
+        build_nextprev($index);
+
+        print $outfile html_header($map[$index]->[1]);
+
+        #Either print the body, or construct it for the document map
+        if ($index != $#map){
+            print $outfile html_main("$map[$index]->[0]");
+        } else {
+            print $outfile html_docmap();
+        }
+
+        print $outfile html_footer();
+        close $outfile;
     }
-
-    print $outfile html_footer();
-    close $outfile;
+    
+    copy ("utplsql.css", "$OUTDIR");
+    copy ("utplsql.jpg", "$OUTDIR");
 }
 
 
