@@ -199,14 +199,15 @@ sub html_docmap {
     my $body;
         $body = "<h1>Document Map</h1>\n";
     foreach (@map){
+        $body .= "<p>";
         if ($_->[2]){
             $body .= "<b>";
         } else {
             $body .= "&nbsp;&nbsp;";
         }
-        $body .= "<a href=\"$_->[0]\">$_->[1]</a><br>";
+        $body .= "<a href=\"$_->[0]\">$_->[1]</a>";
         $body .= "</b>" if $_->[2];
-        $body .= "\n";
+        $body .= "</p>";
     }
 
     return $body;
@@ -217,6 +218,11 @@ sub html_footer {
     my $footer;
     $footer  = "   <p>$nextprev</p>\n\n";
     $footer .= logo()."\n\n";
+    $footer .= "   <p>\n";
+    $footer .= "      <a href=\"http://validator.w3.org/check?uri=referer\">\n";
+    $footer .= "         <img src=\"http://www.w3.org/Icons/valid-xhtml10\" alt=\"Valid XHTML 1.0 Strict\" height=\"31\" width=\"88\" />\n";
+    $footer .= "      </a>\n";
+    $footer .= "   </p>\n\n";
     $footer .= "   <p class=\"copyright\">$copyright</p>\n";
     $footer .= "</body>\n";
     $footer .= "</html>";
