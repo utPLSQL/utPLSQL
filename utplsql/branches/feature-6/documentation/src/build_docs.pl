@@ -169,15 +169,12 @@ sub html_header {
 
 
 sub html_main {
-    my ($dirty_filename) = @_;
-    my $clean_filename = "$dirty_filename.clean";
-
-    clean_file($dirty_filename);
+    my ($src_filename) = @_;
 
     my $body = "";
     my $in_body;
-    open (my $clean_file, '<', $clean_filename) or die "Cannot open $clean_filename $!";
-    while (<$clean_file>){
+    open (my $src_file, '<', $src_filename) or die "Cannot open $src_filename $!";
+    while (<$src_file>){
         if (/(<!-- Begin utPLSQL Body -->.*)/){
             $_ = "$1\n";
             $in_body = 1;
@@ -188,8 +185,7 @@ sub html_main {
         }
          $body .= $_ if $in_body;
     }
-    close $clean_file;
-    unlink($clean_filename);
+    close $src_file;
 
     return $body
 }
@@ -228,63 +224,4 @@ sub html_footer {
     $footer .= "</html>";
 
     return $footer;
-}
-
-sub clean_file {
-    my $tf = HTML::TagFilter->new(
-    strip_comments => 0,
-    skip_xss_protection => 1);
-
-    #Allow these tags
-    $tf->allow_tags({ title => {none=>[]},
-                  body  => {none=>[]},
-                  head  => {none=>[]},
-                  html  => {none=>[]},
-                  table => {any=>[]},
-                  tr    => {any=>[]},
-                  td    => {any=>[]}});
-
-    #...but get rid of style attributes
-    $tf->deny_tags({ table => {style=>[]},
-                     tr    => {style=>[]},
-                     td    => {style=>[]}});
-
-
-    my ($dirtyfilename) = @_;
-    my $cleanfilename = "$dirtyfilename.clean";
-
-    open(my $dirtyfile, '<', "$dirtyfilename") or die "Unable to open $dirtyfilename $!";
-    open(my $cleanfile, '>', "$cleanfilename") or die "Unable to open $cleanfilename $!";
-
-    my $dirtydata;
-    my $cleandata;
-
-    #Build up a string consisting of the
-    #whole file
-    while (<$dirtyfile>){
-        $dirtydata .= $_;
-    }
-
-    #Scrub it
-    $cleandata = $tf->filter($dirtydata);
-
-    #Now I do my own special cleaning...
-
-    #Remove nbsp - use <br> instead!
-    $cleandata =~ s/&nbsp;/ /gs;
-
-    #Strip those <![]> tags out
-    $cleandata =~ s/<!\[[^>]*>//gs;
-
-    #Remove everything from head but the title
-    $cleandata =~ s/<head>.*<title>/<head><title>/gs;
-    $cleandata =~ s/<\/title>.*<\/head>/<\/title><\/head>/gs;
-
-    #Remove </pre><pre> pairs with just whitespace between
-    $cleandata =~s/<\/pre>\s*<pre>/\n/gs;
-
-    print $cleanfile $cleandata;
-
-    close $dirtyfile;
-    close $cleanfile;
 }
