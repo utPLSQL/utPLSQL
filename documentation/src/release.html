@@ -1,628 +1,641 @@
-<!DOCTYPE html PUBLIC "-//w3c//dtd html 4.0 transitional//en">
-<html><head><title></title></head><body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <title></title>
+</head>
+<body>
 <!-- Begin utPLSQL Body -->
 <!-- $Id$ -->
-<h1>Release Notes</h1>
+   <h1>Release Notes</h1>
   
-<h2>Known Issues</h2>
-<h3>utPLSQL version 2.x</h3>
-<ul>
-  <li>There is an issue surrounding the use of utPLSQL on Oracle 8.1.7 where
-the tests use database links.  This is because Oracle will consider
-the transaction to be distributed and utPLSQL v2 uses autonomous transactions
-while the tests are running.  This situation causes ORA-00164 in 8.1.7
-(and apparently should not have been allowed in 8.1.5 or 8.1.6 either).  It
-is possible to work around this problem by turning off autonomous transactions
-, but this can cause other problems if the tests themselves have rollbacks
-within them.<br>
-  </li>
-<li>The utAssert.eqtable assertion program will not work with tables that
-    contain non-scalar datatypes, such as LOBs, XMLType, collections and so on.
-  </li>
-</ul>
-<h2>Change History<br>
-</h2>
-<h3>utPLSQL version 2.2</h3>
-<ul type="disc">
-	<li>
-	This version introduces the concept of Output Reporters.  The existing code to output to DBMS_OUPUT or to file has been refactored to 
-	fit into this framework. As a result of this, the pl procedure in the utplsql package has been moved to the utreport package.
-</li>
-<li>
-The installation procedure has been changed so that the database version is picked up more robustly.  Version 2.2 works with 10g, 
-which previous versions did not.  It should also work with future versions (so long as the version is to be found in the same place
-in the data dictionary).
-</li>
-<li>
-There are also a variety of small fixes in this release.
-</li>
-</ul>
-<h3>utPLSQL version 2.1.1</h3>
-<ul type="disc">
-<li>
-This version has a variety of small fixes and is released to coincide
-with <a href="http://www.ounit.com">OUnit</a> version 1.0.
-</li>
-<li>
-The installation procedure has been changed and a variety of bugs with it have been fixed.
-</li>
-<li>
-utGen.exe has been removed from the "core" utPLSQL distribution.  The functionallity it supplied will be included in a future version of Ounit.
-</li>
-</ul>
-<h3>utPLSQL version 2.0.10.1</h3>
-<ul type="disc">
-<li>
-Allow user to specify (as part of their individual configuration) that they
-only want to show failed tests, and then whether all information or just the
-description (request from Heinz of UBS). Supersedes the
-utresult.ignore_successes and utresult.include_successes (whose settings do not
-persist across sessions).
-</li>
-<li>
-Support for testing contents of REF CURSORs (cursor variables) has been added
-(provided by Venky Mangapillai) with the eq_refc_table and eq_refc_query
-assertion routines.
-</li>
-<li>
-Adds testpkg_from_table to utgen to allow generation of a test package directly
-from the new ut_grid table (provided by Patrick Barel). Patrick has also built
-a Windows-based front end, utGen.exe, that allows us to populate this grid very
-easily. Thanks, Patrick!
-</li>
-<li>
-Add ut_outcome_seq sequence for ut_outcome table.
-</li>
-<li>
-Add control_info and test_info columns to ut_outcome table.
-</li>
-<li>
-Add ability to direct output from utPLSQL's test run (the test results) to a
-file instead of to the screen. This functionality was provided by Rainer
-Medert. The documentation for this feature has not yet been integrated into the
-documentation set. You will find the "beta" documentation in the
-file_output_spec.doc in the doc directory.
-</li>
-</ul>
-<h3>utPLSQL version 2.0.9.2</h3>
-<ul type="disc">
-  <li>Surround
-    AUTHID CURRENT_USER clause of utreceq.pks to allow for installation on
-    Oracle7 and Oracle8.</li>
-  <li>Add
-    override_package_in argument to utPLSQL.test so that you can bypass the
-    standard ut_&lt;package&gt; naming conventions for testing. This is useful
-    when your package name's length is 28 or above. By passing in the override
-    package name, you can avoid the name limitation.</li>
-  <li>New
-    assertion programs to validate DBMS_OUTPUT text that is generated from
-    within a program.</li>
-  <li>Add
-    utplsql.run and utplsql.runsuite to run a named test package directly, and
-    not correlate it via the name of the program being tested.</li>
-</ul>
-<h3>utPLSQL version 2.0.9.1</h3>
+   <h2>Known Issues</h2>
+   <h3>utPLSQL version 2.x</h3>
+   <ul>
+      <li>
+         There is an issue surrounding the use of utPLSQL on Oracle 8.1.7 where
+         the tests use database links.  This is because Oracle will consider
+         the transaction to be distributed and utPLSQL v2 uses autonomous transactions
+         while the tests are running.  This situation causes ORA-00164 in 8.1.7
+         (and apparently should not have been allowed in 8.1.5 or 8.1.6 either).  It
+         is possible to work around this problem by turning off autonomous transactions
+         , but this can cause other problems if the tests themselves have rollbacks
+         within them.
+      </li>
+
+      <li>
+         The utAssert.eqtable assertion program will not work with tables that
+         contain non-scalar datatypes, such as LOBs, XMLType, collections and so on.
+      </li>
+   </ul>
+
+   <h2>Change History</h2>
+
+   <h3>utPLSQL version 2.2</h3>
+   
+   <ul>
+      <li>
+         This version introduces the concept of Output Reporters.  The existing code to output to DBMS_OUPUT or to file has been refactored to 
+         fit into this framework. As a result of this, the pl procedure in the utplsql package has been moved to the utreport package.
+      </li>
+      <li>
+         The installation procedure has been changed so that the database version is picked up more robustly.  Version 2.2 works with 10g, 
+         which previous versions did not.  It should also work with future versions (so long as the version is to be found in the same place
+         in the data dictionary).
+      </li>
+      <li>
+         There are also a variety of small fixes in this release.
+      </li>
+   </ul>
+
+   <h3>utPLSQL version 2.1.1</h3>
+
+   <ul>
+      <li>
+         This version has a variety of small fixes and is released to coincide
+         with <a href="http://www.ounit.com">OUnit</a> version 1.0.
+      </li>
+      <li>
+         The installation procedure has been changed and a variety of bugs with it have been fixed.
+      </li>
+      <li>
+         utGen.exe has been removed from the "core" utPLSQL distribution.  The functionallity it supplied will be included in a future version of Ounit.
+      </li>
+   </ul>
+
+   <h3>utPLSQL version 2.0.10.1</h3>
+
+   <ul>
+      <li>
+         Allow user to specify (as part of their individual configuration) that they
+         only want to show failed tests, and then whether all information or just the
+         description (request from Heinz of UBS). Supersedes the
+         utresult.ignore_successes and utresult.include_successes (whose settings do not
+         persist across sessions).
+      </li>
+      <li>
+         Support for testing contents of REF CURSORs (cursor variables) has been added
+         (provided by Venky Mangapillai) with the eq_refc_table and eq_refc_query
+         assertion routines.
+      </li>
+      <li>
+         Adds testpkg_from_table to utgen to allow generation of a test package directly
+         from the new ut_grid table (provided by Patrick Barel). Patrick has also built
+         a Windows-based front end, utGen.exe, that allows us to populate this grid very
+         easily. Thanks, Patrick!
+      </li>
+      <li>
+         Add ut_outcome_seq sequence for ut_outcome table.
+      </li>
+      <li>
+         Add control_info and test_info columns to ut_outcome table.
+      </li>
+      <li>
+         Add ability to direct output from utPLSQL's test run (the test results) to a
+         file instead of to the screen. This functionality was provided by Rainer
+         Medert. The documentation for this feature has not yet been integrated into the
+         documentation set. You will find the "beta" documentation in the
+         file_output_spec.doc in the doc directory.
+      </li>
+   </ul>
+
+   <h3>utPLSQL version 2.0.9.2</h3>
+   
+   <ul>
+      <li>
+         Surround AUTHID CURRENT_USER clause of utreceq.pks to allow for installation on
+         Oracle7 and Oracle8.
+      </li>
+      <li>
+         Add override_package_in argument to utPLSQL.test so that you can bypass the
+         standard ut_&lt;package&gt; naming conventions for testing. This is useful
+         when your package name's length is 28 or above. By passing in the override
+         package name, you can avoid the name limitation.
+      </li>
+      <li>
+         New assertion programs to validate DBMS_OUTPUT text that is generated from
+         within a program.
+      </li>
+      <li>
+         Add utplsql.run and utplsql.runsuite to run a named test package directly, and
+         not correlate it via the name of the program being tested.
+      </li>
+   </ul>
+
+   <h3>utPLSQL version 2.0.9.1</h3>
   
-<ul type="Disc">
+   <ul>
+      <li>
+         Add ut_reqeq table and utreceq package to support the creation of "record
+         equal" functions (contributed by Dan Spencer).
+      </li>
+      <li>
+         Modify utPLSQL.test so that the record comparison functions are generated
+         and recompiled whenever the source code is recompiled.
+         Call utreceq.add to register a package-table combination.
+      </li>
+      <li>
+         Modified utpackage.id_from_name to take an owner_in parameter with a
+         NULL default value. v_owner is set to nvl(owner_in,user).  added
+         owner = v_owner and suite_id is null to the WHERE clause.
+      </li>
+      <li>
+         Modified utpackage.add to add in a record with suite_id NULL if one
+         doesn't exist.
+      </li>
+      <li>
+         Modified utpackage.upd - changed parameter suite_in to suite_id_in (the
+         type was INTEGER).  Changed the UPDATE WHERE clause first line
+         to NVL(suite_id,0) = NVL(suite_id_in,0).
+      </li>
+      <li>
+         Modified utplsql.testsuite - v_suite (the suite id)  was in the
+         call to utplsql.test while the utplsql.test parameter list was expecting
+         the suite name.  The results of a test run are now logged to the
+         appropriate record in ut_package [the record for the suite if run from
+         testsuite, the record with suite_id NULL if run via an EXEC UTPLSQL.TEST('packagename')].
+      </li>
+      <li>
+         Add objExists and objNotExists assertion programs
+      </li>
+      <li>
+         Changes to utPLSQL.test engine so that you can test programs define
+         in one schema from another schema.
+      </li>
+      <li>
+         Add previous_passed and previous_failed to utAssert and utAssert2
+      </li>
+      <li>
+         Set order in which test case results are displayed to the order in which
+         they are run by adding the tc_run_id to the utr_outcome table.
+      </li>
+   </ul>
   
-  <li>
-Add ut_reqeq table and      utreceq package to support the creation of "record
-equal"      functions (contributed by Dan Spencer).</li>
+   <h3>utPLSQL version 2.0.8.2</h3>
   
-  <li>
-Modify utPLSQL.test so      that the record comparison functions are generated
-and recompiled whenever      the source code is recompiled.
-       Call utreceq.add to register a package-table combination.
-  </li>
+   <ul>
+      <li>
+         Change ut_utp LOB column to VARCHAR2 for the time being.
+      </li>
+      <li>
+         Fixed ALTER TABLE statement in ut_config.tab.
+      </li>
+      <li>
+         Change utplsql.test to allow for compilation of test package before
+         extracting list of test procedures from that package (avoids the "
+         Warning...no tests were identified for execution!" message).
+      </li>
   
-  <li>
-Modified      utpackage.id_from_name to take an owner_in parameter with a
-NULL default      value. v_owner is set to nvl(owner_in,user).  added
-owner = v_owner      and suite_id is null to the WHERE clause.</li>
+      <li>
+         Add utAssert2.eval generic comparison program, and also utAssert.eval,
+         with an overloading for just two values, to make it really easy to use.
+      </li>
+      <li>
+         Add utGen.receq_package procedure. It currently ONLY writes the code
+         out to the screen via DBMS_OUTPUT.PUT_LINE. It does not, in other words,
+         support the multiple outputs of utGen.testpkg. 
+      </li>
+      <li>
+         Update the utplsql_install.sql script to recognize Oracle9.0 and Oracle9.1 
+         versions and install all 8i features for those versions (there is nothing 
+         specific to 9i at this time).
+      </li>
+   </ul>
   
-  <li>
-Modified      utpackage.add to add in a record with suite_id NULL if one
-doesn't exist.</li>
+   <h3>utPLSQL version 2.0.8.1</h3>
   
-  <li>
-Modified      utpackage.upd - changed parameter suite_in to suite_id_in (the
-type was      INTEGER).  Changed the UPDATE WHERE clause first line
-to      NVL(suite_id,0) = NVL(suite_id_in,0).</li>
+   <ul>
+      <li>
+         Fixes to a number of minor installation errors.
+      </li>
+      <li>
+         Offers option in utPLSQL.test to request that setup and teardown is
+         executed with each test procedure and not the test package level. 
+         Implements a new features in utPLSQL.test that allows you to specify
+         that you want to run the setup and teardown procedures before and after
+         EACH unit test procedure, as opposed to running them once for the unit
+         test package as a whole. To utilize this feature, simply pass a value
+         of TRUE to the new per_method_setup_in parameter of utPLSQL.test as
+         shown below:
+      </li>
+   </ul>
   
-  <li>
-Modified      utplsql.testsuite - v_suite (the suite id)  was in the
-call to      utplsql.test while the utplsql.test parameter list was expecting
-the suite      name.  The results of a test run are now logged to the
-appropriate      record in ut_package [the record for the suite if run from
-testsuite, the      record with suite_id NULL if run via an EXEC UTPLSQL.TEST('packagename')].</li>
-  
-  <li>
-Add      objExists and objNotExists assertion programs</li>
-  
-  <li>
-Changes      to utPLSQL.test engine so that you can test programs define
-in one schema      from another schema.</li>
-  
-  <li>
-Add      previous_passed and previous_failed to utAssert and utAssert2</li>
-  
-  <li>
-Set      order in which test case results are displayed to the order in which
-they      are run by adding the tc_run_id to the utr_outcome table.</li>
- 
-</ul>
-  
-<h3>utPLSQL version 2.0.8.2</h3>
-  
-<ul type="Disc">
-  
-  <li>
-Change ut_utp LOB      column to VARCHAR2 for the time being.</li>
-  
-  <li>
-Fixed ALTER TABLE      statement in ut_config.tab.</li>
-  
-  <li>
-Change utplsql.test to      allow for compilation of test package before
-extracting list of test      procedures from that package (avoids the "
-Warning...no tests      were identified for execution!" message).</li>
-  
-  <li>
-Add      utAssert2.eval generic comparison program, and also utAssert.eval,
-with an      overloading for just two values, to make it really easy to use.</li>
-  
-  <li>
-Add      utGen.receq_package procedure. It currently ONLY writes the code
-out to      the screen via DBMS_OUTPUT.PUT_LINE. It does not, in other words,
-support      the multiple outputs of utGen.testpkg. </li>
-  
-  <li>
-Update      the utplsql_install.sql script to recognize Oracle9.0 and Oracle9.1 
-     versions and install all 8i features for those versions (there is nothing 
-     specific to 9i at this time).</li>
- 
-</ul>
-  
-<h3>utPLSQL version 2.0.8.1</h3>
-  
-<ul type="Disc">
-  
-  <li>
-Fixes to a number of      minor installation errors.</li>
-  
-  <li>
-Offers      option in utPLSQL.test to request that setup and teardown is
-executed with      each test procedure and not the test package level. 
-Implements a new      features in utPLSQL.test that allows you to specify
-that you want to run      the setup and teardown procedures before and after
-EACH unit test      procedure, as opposed to running them once for the unit
-test package as a      whole. To utilize this feature, simply pass a value
-of TRUE to the new      per_method_setup_in parameter of utPLSQL.test as
-shown below:</li>
- 
-</ul>
-  
-<p><pre>
+<pre>
 SQL&gt; exec utplsql.test ('str', per_method_setup_in =&gt; true)
-</pre></p>
+</pre>
   
-<h3>utPLSQL version 2.0.7</h3>
+   <h3>utPLSQL version 2.0.7</h3>
   
-<ul type="Disc">
-<li>        Revamp
-utAssert2.define_message implement to simplify creation of new assertion
-programs</li>
-  
-<li>Modify
-implementation if ieqminus to avoid duplicate column </li>
-  
-<li>Change
-naming conventions for utPLSQL2 from prefix to delimiter driven (utconfig.delimiter):
-QU##NNN. This affects only those test packages which use the utPLSQL2.test
-program to run the tests (ie for version 1 utPLSQL test packages and utPLSQL.test,
-you can still use your prefix-based approaches).</li>
-  
-<li>Add
-utAssert2.fileExists</li>
-  
-<li>Compile
-utAssert2 with AUTHID CURRENT_USER for Oracle8i and above.</li>
-  
-<li>(2.0.7.2)
-Fix index creation for ut_assertion table.</li>
-  
-<li>(2.0.7.2)
-Fix foreign key definition in ut_argument.</li>
-  
-<li>(2.0.7.2)
-Fix foreign key definition in uta_eq.</li>
-</ul>
+   <ul>
+      <li>
+         Revamp utAssert2.define_message implement to simplify creation of new assertion
+         programs
+      </li>
+      <li>
+         Modify implementation if ieqminus to avoid duplicate column 
+      </li>
+      <li>
+         Change naming conventions for utPLSQL2 from prefix to delimiter driven 
+         (utconfig.delimiter):QU##NNN. This affects only those test packages 
+         which use the utPLSQL2.test program to run the tests (ie for version 1 
+         utPLSQL test packages and utPLSQL.test, you can still use your prefix-based approaches).
+      </li>
+      <li>
+         Add utAssert2.fileExists
+      </li>
+      <li>
+         Compile utAssert2 with AUTHID CURRENT_USER for Oracle8i and above.
+      </li>
+      <li>
+         (2.0.7.2) Fix index creation for ut_assertion table.
+      </li>
+      <li>
+         (2.0.7.2) Fix foreign key definition in ut_argument.
+      </li>
+      <li>
+         (2.0.7.2) Fix foreign key definition in uta_eq.
+      </li>
+   </ul>
 
-<h3>utPLSQL version 2.0.6</h3>
+   <h3>utPLSQL version 2.0.6</h3>
   
-<ul type="Disc">
-<li>Fix
-to utgen.pkb to allow generation of procedure bodies when no grid is used.</li>
-  
-<li>Allow
-developers to turn off display of successful results (utResult.include_successes)</li>
-</ul>
+   <ul>
+      <li>
+         Fix to utgen.pkb to allow generation of procedure bodies when no grid is used.
+      </li>
+      <li>
+         Allow developers to turn off display of successful results (utResult.include_successes)
+      </li>
+   </ul>
 
-<h3>utPLSQL version 2.0.5</h3>
+   <h3>utPLSQL version 2.0.5</h3>
   
-<ul type="Disc">
-<li>Allow
-user to specify individual program or programs (via wildcard) to be tested
-from a whole package.</li>
-  
-<li>Add
-ut_deterministic and ut_deterministic_arg tables to facilitate generate of
-test packages for deterministic functions.</li>
-  
-<li>Add
-ut_deterministic.fmx Oracle Forms GUI to allow easy generation of test packages
-for deterministic functions.</li>
-</ul>
+   <ul>
+      <li>
+         Allow user to specify individual program or programs (via wildcard) to be tested
+         from a whole package.
+      </li>
+      <li>
+         Add ut_deterministic and ut_deterministic_arg tables to facilitate generate of
+         test packages for deterministic functions.
+      </li>
+      <li>
+         Add ut_deterministic.fmx Oracle Forms GUI to allow easy generation of test packages
+         for deterministic functions.
+      </li>
+   </ul>
 
-<h3>utPLSQL version 2.0.4</h3>
+   <h3>utPLSQL version 2.0.4</h3>
   
-<ul type="Disc">
-<li>Implement
-test suite execution in utPLSQL2.</li>
+   <ul>
+      <li>
+         Implement test suite execution in utPLSQL2.
+      </li>
+      <li>
+         Implement ut_suite_utp table (and the corresponding utsuiteutp package) as an intersection
+         of ut_suite and ut_utp, defining all those UTPs in a given suite.
+      </li>
+      <li>
+         Improved error handling with utrerror assertions and general reporting mechanisms.
+         Assertion and error handling logic applied to define-time packages like utsuite
+         and utsuiteutp.
+      </li>
+      <li>
+         Revamp installation process; no longer use OraShare, remove testcase2 entirely.
+      </li>
+      <li>
+         Create stand alone utverify procedure.
+      </li>
+   </ul>
   
-<li>Implement
-ut_suite_utp table (and the corresponding utsuiteutp package) as an intersection
-of ut_suite and ut_utp, defining all those UTPs in a given suite.</li>
+   <h3>utPLSQL version 2.0.3</h3>
   
-<li>Improved
-error handling with utrerror assertions and general reporting mechanisms.
-Assertion and error handling logic applied to define-time packages like utsuite
-and utsuiteutp.</li>
+   <ul>
+      <li>
+         Add utr_error table and utrerror package; now all errors are logged to the table
+         for viewing afterwards. utPLSQL NEVER passes back an unhandled exception
+         to the console.
+      </li>
+      <li>
+         utAssert.eqfile now flags problems when opening files.
+      </li>
+   </ul>
   
-<li>Revamp
-installation process; no longer use OraShare, remove testcase2 entirely.
-</li>
+   <h3>utPLSQL version 2.0.2</h3>
   
-<li>Create
-stand alone utverify procedure.</li>
-</ul>
-  
-<h3>utPLSQL version 2.0.3</h3>
-  
-<ul type="Disc">
-<li>Add
-utr_error table and utrerror package; now all errors are logged to the table
-for viewing afterwards. utPLSQL NEVER passes back an unhandled exception
-to the console.</li>
-  
-<li>utAssert.eqfile
-now flags problems when opening files.</li>
-</ul>
-  
-<h3>utPLSQL version 2.0.2</h3>
-  
-<ul type="Disc">
-<li>
-clarify how that null_ok_in is supposed to work. For utAssert.this, it should
-mean that if the value of the Boolean expression coming in is null, then
-that means "success". For eq, it shoudl mean that if BOTH values coming in
-are NULL, that is "success". For eqfile, if both files are empty...etc.</li>
-  
-<li>
-add null_ok_in to eqqueryvalue assertions.</li>
-  
-<li>
-add utassert.eqqueryvalue for NUMBER</li>
-  
-<li>
-Enhance utgen to properly generate code for overloaded programs in packages</li>
-</ul>
+   <ul>
+      <li>
+         Clarify how that null_ok_in is supposed to work. For utAssert.this, it should
+         mean that if the value of the Boolean expression coming in is null, then
+         that means "success". For eq, it shoudl mean that if BOTH values coming in
+         are NULL, that is "success". For eqfile, if both files are empty...etc.
+      </li>
+      <li>
+         Add null_ok_in to eqqueryvalue assertions.
+      </li>
+      <li>
+         Add utassert.eqqueryvalue for NUMBER
+      </li>
+      <li>
+         Enhance utgen to properly generate code for overloaded programs in packages
+      </li>
+   </ul>
 
-<h3>utPLSQL version 2.0.1</h3>
+   <h3>utPLSQL version 2.0.1</h3>
   
-<ul type="Disc">
-<li>
-store results in utr_outcome tables</li>
-  
-<li>
-support results reporting compatibility with V1</li>
-  
-<li>
-display results of all test, success and failure.</li>
-</ul>
+   <ul>
+      <li>
+         Store results in utr_outcome tables
+      </li>
+      <li>
+         Support results reporting compatibility with V1
+      </li>
+      <li>
+         Display results of all test, success and failure.
+      </li>
+   </ul>
 
-<h3>utPLSQL version 1.5.6</h3>
+   <h3>utPLSQL version 1.5.6</h3>
   
-<ul type="Disc">
+   <ul>  
+      <li>
+         New version of documentation courtesy of Chris Rimmer. Thanks, Chris!
+      </li>
+      <li>
+         utAssert fix in eqcoll to check for both values being null.
+      </li>
+      <li>
+         Enhancements to utGen to generate more self-explanatory code; comments
+         are now inserted to show the different sections in a standard test case
+         sequence.
+      </li>
+      <li>
+         Revamped installation procedure based on OraShare utility.
+      </li>
+      <li>
+         Add utGen.testpkg overloadings and new programs to support passing of
+         argument grids via collection, file or string (this feature is currently
+         undocumented outside of the release notes).
+      </li>
+   </ul>
   
-  <li>
-New version of      documentation courtesy of Chris Rimmer. Thanks, Chris!</li>
+   <h3>utPLSQL version 1.5.5</h3>
   
-  <li>
-utAssert fix in eqcoll to      check for both values being null.</li>
+   <h4>Bug Fixes</h4>
   
-  <li>
-Enhancements to utGen to      generate more self-explanatory code; comments
-are now inserted to show the      different sections in a standard test case
-sequence.</li>
+   <ul>
+      <li>
+         Change calls from DBMS_OUTPUT.PUT_LINE to utPLSQL.pl to avoid output
+         errors.
+      </li>
+      <li>
+         Avoid use of DBMS_SQL to obtain sequence values for Oracle7 and Oracle8
+         installations of utPLSQL.
+      </li>
+   </ul>
   
-  <li>
-Revamped installation      procedure based on OraShare utility.</li>
+   <h4>Enhancements</h4>
   
-  <li>
-Add utGen.testpkg      overloadings and new programs to support passing of
-argument grids via      collection, file or string (this feature is currently
-undocumented outside      of the release notes).</li>
- 
-</ul>
+   <ul>
+      <li>
+         Addition of utConfig package (created and integrated by Chris Rimmer)
+         to isolate all tester configuration information.
+      </li>
+   </ul>
   
-<h3>utPLSQL version 1.5.5</h3>
+   <h3>utPLSQL version 1.5.4</h3>
   
-<h4>Bug Fixes</h4>
+   <h4>Bug Fixes</h4>
   
-<ul type="Disc">
-  
-  <li>
-Change calls from DBMS_OUTPUT.PUT_LINE      to utPLSQL.pl to avoid output
-errors.</li>
-  
-  <li>
-Avoid use of DBMS_SQL to      obtain sequence values for Oracle7 and Oracle8
-installations of utPLSQL.</li>
- 
-</ul>
-  
-<h4>Enhancements</h4>
-  
-<ul type="Disc">
-  
-  <li>
-Addition of utConfig package      (created and integrated by Chris Rimmer)
-to isolate all tester      configuration information.</li>
- 
-</ul>
-  
-<h3>utPLSQL version 1.5.4</h3>
-  
-<h4>Bug Fixes</h4>
-  
-<ul type="Disc">
-<li>
-  utPLSQL.setconfig now sets the user information properly when
-the package is first initialized (bug introduced in 1.5.3). 
-</li>
-</ul>
+   <ul>
+      <li>
+         utPLSQL.setconfig now sets the user information properly when
+         the package is first initialized (bug introduced in 1.5.3). 
+      </li>
+   </ul>
 
-<h3>utPLSQL version 1.5.3</h3>
+   <h3>utPLSQL version 1.5.3</h3>
   
-<h4>Documentation and Usage Changes</h4>
+   <h4>Documentation and Usage Changes</h4>
   
-<ul type="Disc">
-  
-  <li>
-If you choose to manually      register your tests with calls to utPLSQL.addtest
-in your setup procedure,      you must now INCLUDE the unit test prefix,
-as in:</li>
- 
-  
-<pre>utPLSQL.addtest ('ut_betwnstr');</pre>
-  
-utPLSQL 
-will no longer add the prefix for you. This means that you may need to change 
-your calls to addtest -- or remove them entirely and rely on auto-registration.
-</ul>
+   <ul>  
+      <li>
+         If you choose to manually register your tests with calls to utPLSQL.addtest
+         in your setup procedure, you must now INCLUDE the unit test prefix,
+         as in:
 
-<h4>
-Bug Fixes</h4>
-  
-<ul type="Disc">
-  
-  <li>
-Auto-registration (using the      ALL_ARGUMENTS data dictionary view) now
-correctly ignores the setup and      teardown procedures.</li>
  
-</ul>
   
-<h4>
-Enhancements</h4>
+<pre>
+utPLSQL.addtest ('ut_betwnstr');
+</pre>
   
-<ul type="Disc">
+         utPLSQL 
+         will no longer add the prefix for you. This means that you may need to change 
+         your calls to addtest -- or remove them entirely and rely on auto-registration.
+      </li>
+   </ul>
+
+   <h4>Bug Fixes</h4>
   
-  <li>
-If no tests are run for the      specified program, then a warning is displayed,
-after which the SUCCESS      message is displayed.</li>
- 
-</ul>
+   <ul>
+      <li>
+         Auto-registration (using the ALL_ARGUMENTS data dictionary view) now
+         correctly ignores the setup and teardown procedures.
+      </li>
+   </ul>
   
-<h3>
-utPLSQL version 1.5.2</h3>
+   <h4>Enhancements</h4>
   
-<h4>
-Bug Fixes</h4>
+   <ul>
+      <li>
+         If no tests are run for the specified program, then a warning is displayed,
+         after which the SUCCESS message is displayed.
+      </li>
+   </ul>
   
-<ul type="Disc">
+   <h3>utPLSQL version 1.5.2</h3>
   
-  <li>
-Fix setting of default      prefix value in utPLSQL.pkb.</li>
+   <h4>Bug Fixes</h4>
   
-  <li>
-If you request execution of a      test suite that does not exist, that failure
-will be reported.</li>
+   <ul>
+      <li>
+         Fix setting of default prefix value in utPLSQL.pkb.
+      </li>
   
-  <li>
-If you request execution of      a test for a program or package that does
-not exist, that failure will be      reported.</li>
+      <li>
+         If you request execution of a test suite that does not exist, that failure
+         will be reported.
+      </li>
+      <li>
+         If you request execution of a test for a program or package that does
+         not exist, that failure will be reported.
+      </li>
+      <li>
+         Unique index on ut_package changed to allow multiple entries for same
+         package, in different suites.
+      </li>
+   </ul>
   
-  <li>
-Unique index on ut_package      changed to allow multiple entries for same
-package, in different suites.</li>
- 
-</ul>
+   <h4>Known Problems</h4>
   
-<h4>
-Known Problems</h4>
+   <ul>
+      <li>
+         When running a suite of test packages, the SUCCESS and FAILURE headers
+         will display for each package, and not for the overall suite.
+      </li>
+   </ul>
   
-<ul type="Disc">
+   <h4>Enhancements</h4>
   
-  <li>
-When running a suite of test      packages, the SUCCESS and FAILURE headers
-will display for each package,      and not for the overall suite.</li>
- 
-</ul>
+   <ul>
+      <li>
+         The utAssert package now offers isnull and isnotnull assertions overloaded
+         for Boolean values.
+      </li>
+   </ul>
   
-<h4>
-Enhancements</h4>
+   <h3>utPLSQL version 1.5.1</h3>
   
-<ul type="Disc">
+   <h4>Support for Oracle7.3, Oracle8 and Oracle8i</h4>
   
-  <li>
-The utAssert package now      offers isnull and isnotnull assertions overloaded
-for Boolean values..</li>
- 
-</ul>
+   <p>
+      utPLSQL can now be used on any version of Oracle from 7.3.4 and above! The
+      installation script automatically detects your Oracle RDBMS version and adjusts
+      the code accordingly (Using a great SQL*Plus trick, courtesy of Vladimir
+      Trusevich; check out the references to &amp;start81 and &amp;start73 in the
+      source code, as well as the queries in code.sql, to get a sense of how we
+      can maintain a single base of code for all these versions!).
+   </p>
   
-<h3>
-utPLSQL version 1.5.1</h3>
+   <p>There are some differences in how the code works: </p>
   
-<h4>
-Support for Oracle7.3, Oracle8 and Oracle8i</h4>
+   <ul>
+      <li>
+         In Oracle8i, the autonomous transaction feature is used to immediately
+         COMMIT any changes to underlying utPLSQL tables (such as defining a
+         test suite). In earlier versions, no COMMITs are performed by utPLSQL.
+      </li>
+   </ul>
   
-<p>
-utPLSQL can now be used on any version of Oracle from 7.3.4 and above! The
-installation script automatically detects your Oracle RDBMS version and adjusts
-the code accordingly (Using a great SQL*Plus trick, courtesy of Vladimir
-Trusevich; check out the references to &amp;start81 and &amp;start73 in the
-source code, as well as the queries in code.sql, to get a sense of how we
-can maintain a single base of code for all these versions!). </p>
-  
-<p>
-There are some differences in how the code works: </p>
-  
-<ul type="Disc">
-  
-  <li>
-In Oracle8i, the autonomous      transaction feature is used to immediately
-COMMIT any changes to      underlying utPLSQL tables (such as defining a
-test suite). In earlier      versions, no COMMITs are performed by utPLSQL.</li>
- 
-</ul>
-  
-  
-<p>
-In Oracle8i, the Invoker Rights model is used to allow all of utPLSQL code
-to run under the authority of the invoker, not the owner/definer. In earlier
-versions, the Definer Rights model is followed. So if you define utPLSQL
-in a central schema and then share it with others via GRANTs and synonyms,
-you may need to grant additional authority to the utPLSQL schema.</p>
+   <p>
+      In Oracle8i, the Invoker Rights model is used to allow all of utPLSQL code
+      to run under the authority of the invoker, not the owner/definer. In earlier
+      versions, the Definer Rights model is followed. So if you define utPLSQL
+      in a central schema and then share it with others via GRANTs and synonyms,
+      you may need to grant additional authority to the utPLSQL schema.
+   </p>
   
   
-<h4>
-Stores Additional Configuration Information</h4>
+   <h4>Stores Additional Configuration Information</h4>
   
-<p>
-When you set the directory for your test code (through a call to <a href="utconfig.html#Setdir">
-utPLSQL.setdir</a>
-, utPLSQL.test or utPLSQL.testsuite), that value is stored in the uPLSQL
-configuration table (ut_config). It will be used for current and future sessions
-as the default, until you change it. </p>
+   <p>
+      When you set the directory for your test code (through a call to <a href="utconfig.html#Setdir">
+      utPLSQL.setdir</a>
+      , utPLSQL.test or utPLSQL.testsuite), that value is stored in the uPLSQL
+      configuration table (ut_config). It will be used for current and future sessions
+      as the default, until you change it.
+   </p>
   
-<p>
-The prefix you specify in calls to <a href="utconfig.html#Setprefix">utPLSQL.setprefix</a>
-, utPLSQL.test or utPLSQL.testsuite will also be saved in the uPLSQL configuration
-table. It will be used for current and future sessions as the default, until
-you change it. </p>
+   <p>
+      The prefix you specify in calls to <a href="utconfig.html#Setprefix">utPLSQL.setprefix</a>
+      , utPLSQL.test or utPLSQL.testsuite will also be saved in the uPLSQL configuration
+      table. It will be used for current and future sessions as the default, until
+      you change it.
+   </p>
   
-<h4>
-Shows All Configuration Information</h4>
+   <h4>Shows All Configuration Information</h4>
   
-<p>
-Call the <a href="utconfig.html#Showconfig">utPLSQL.showconfig</a>
- procedure to display all of the stored configuration values for the specified
-schema. </p>
+   <p>
+      Call the <a href="utconfig.html#Showconfig">utPLSQL.showconfig</a>
+       procedure to display all of the stored configuration values for the specified
+      schema.
+   </p>
   
-<h3>
-utPLSQL version 1.4.1</h3>
+   <h3>utPLSQL version 1.4.1</h3>
   
-<h4>
-Automatic Test Registration</h4>
+   <h4>Automatic Test Registration</h4>
   
-<p>
-You no longer have to <a href="utconfig.html#Manualregister">manually register
-your unit test procedures</a>
- in the setup procedure. Instead, utPLSQL will (in default mode) read and
-execute the list of public procedures and functions  from the ALL_ARGUMENTS
-data dictionary view that conform to utPLSQL naming conventions. This enhancement
-makes utPLSQL much easier and simpler to use than before. Simply use the
-designated prefix (default being "ut_") on your program names, and they will
-be executed. </p>
+   <p>
+      You no longer have to <a href="utconfig.html#Manualregister">manually register
+      your unit test procedures</a>
+       in the setup procedure. Instead, utPLSQL will (in default mode) read and
+      execute the list of public procedures and functions  from the ALL_ARGUMENTS
+      data dictionary view that conform to utPLSQL naming conventions. This enhancement
+      makes utPLSQL much easier and simpler to use than before. Simply use the
+      designated prefix (default being "ut_") on your program names, and they will
+      be executed.
+   </p>
   
-<h4>
-Improved error handling and reporting</h4>
+   <h4>Improved error handling and reporting</h4>
   
-<p>
-Rather than display a small, easily missed test result, as in : </p>
+   <p>Rather than display a small, easily missed test result, as in : </p>
   
-<pre>SUCCESS: PLVstr</pre>
+<pre>
+SUCCESS: PLVstr
+</pre>
   
-<p>
-utPLSQL now displays  a much more noticeable (though still lacking in
-colors, as in red for failure and green for success) display of the "big
-picture", as in: </p>
+   <p>
+      utPLSQL now displays  a much more noticeable (though still lacking in
+      colors, as in red for failure and green for success) display of the "big
+      picture", as in: 
+   </p>
   
-<pre>SQL&gt; exec utplsql.test ('str', dir_in=&gt;'e:\openoracle\utplsql\utinstall\examples')</pre>
-<pre>.</pre>
-<pre>&gt;    SSSS   U     U   CCC     CCC   EEEEEEE   SSSS     SSSS</pre>
-<pre>&gt;   S    S  U     U  C   C   C   C  E        S    S   S    S</pre>
-<pre>&gt;  S        U     U C     C C     C E       S        S</pre>
-<pre>&gt;   S       U     U C       C       E        S        S</pre>
-<pre>&gt;    SSSS   U     U C       C       EEEE      SSSS     SSSS</pre>
-<pre>&gt;        S  U     U C       C       E             S        S</pre>
-<pre>&gt;         S U     U C     C C     C E              S        S</pre>
-<pre>&gt;   S    S   U   U   C   C   C   C  E        S    S   S    S</pre>
-<pre>&gt;    SSSS     UUU     CCC     CCC   EEEEEEE   SSSS     SSSS</pre>
-<pre>.</pre>
-<pre> SUCCESS: "str"</pre>
+<pre>
+SQL&gt; exec utplsql.test ('str', dir_in=&gt;'e:\openoracle\utplsql\utinstall\examples')
+.
+&gt;    SSSS   U     U   CCC     CCC   EEEEEEE   SSSS     SSSS
+&gt;   S    S  U     U  C   C   C   C  E        S    S   S    S
+&gt;  S        U     U C     C C     C E       S        S
+&gt;   S       U     U C       C       E        S        S
+&gt;    SSSS   U     U C       C       EEEE      SSSS     SSSS
+&gt;        S  U     U C       C       E             S        S
+&gt;         S U     U C     C C     C E              S        S
+&gt;   S    S   U   U   C   C   C   C  E        S    S   S    S
+&gt;    SSSS     UUU     CCC     CCC   EEEEEEE   SSSS     SSSS
+.
+ SUCCESS: "str"
+</pre>
   
-<h3>
-utPLSQL version 1.3.2</h3>
+   <h3>utPLSQL version 1.3.2</h3>
   
-<h4>
-Improved Statistics Recording</h4>
+   <h4>Improved Statistics Recording</h4>
   
-<p>
-utPLSQL will now record the status of the last test run in the ut_package
-and ut_suite tables. It also correctly updates those tables with a count
-of executions and failures. Finally, it is no longer necessary to define
-your package in and run it from a test suite for results to be recorded.
-</p>
+   <p>
+      utPLSQL will now record the status of the last test run in the ut_package
+      and ut_suite tables. It also correctly updates those tables with a count
+      of executions and failures. Finally, it is no longer necessary to define
+      your package in and run it from a test suite for results to be recorded.
+   </p>
   
-<h4>
-New Assertions and Assertion Features</h4>
+   <h4>New Assertions and Assertion Features</h4>
   
-<p>
-utAssert now offers assertion routines that allow you to easily validate
-the contents of PL/SQL collections (index-by tables, nested tables and varying
-arrays) by running either the <a href="utassert.html#utassert.eqcoll">utassert.eqcoll
-or utassert.ecollAPI</a>
- assertions. </p>
+   <p>
+      utAssert now offers assertion routines that allow you to easily validate
+      the contents of PL/SQL collections (index-by tables, nested tables and varying
+      arrays) by running either the <a href="utassert.html#utassert.eqcoll">utassert.eqcoll
+      or utassert.ecollAPI</a>
+      assertions. 
+   </p>
   
-<p>
-You can also now request that utAssert show the 
-results of a test immediately
- after execution. This allows you to build small test scripts without have
-to create a test package and run it through the utPLSQL test engine. </p>
+   <p>
+      You can also now request that utAssert show the 
+      results of a test immediately
+       after execution. This allows you to build small test scripts without have
+      to create a test package and run it through the utPLSQL test engine. 
+   </p>
   
-<h4>
-Bug Fixes</h4>
+   <h4>Bug Fixes</h4>
   
-<p>
-Generally, error handling is now improved, particularly for compile errors
-on test packages and modifications to underlying tables, such as ut_package.
-</p>
+   <p>
+      Generally, error handling is now improved, particularly for compile errors
+      on test packages and modifications to underlying tables, such as ut_package.
+   </p>
   
-<p>
-When a test has been completed, utPLSQL clears out the results information.
-</p>
+   <p>
+      When a test has been completed, utPLSQL clears out the results information.
+   </p>
   
 <!-- End utPLSQL Body -->
 </body>

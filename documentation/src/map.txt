@@ -13,7 +13,7 @@ fourstep.html,The Four Step Program to using utPLSQL
 admin.html,Administrative Topics
 buildpack.html,Build Test Packages*
 howto.html,How to build a test package
-testrun.html,A "Test Run" with utPLSQL
+testrun.html,A 'Test Run' with utPLSQL
 examples.html,Examples*
 testproc.html,Test a Procedure
 testfunc.html,Test a Function
