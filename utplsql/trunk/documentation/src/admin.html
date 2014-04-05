@@ -1,113 +1,155 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html><head><title></title></head><body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <title></title>
+</head>
+<body>
 <!-- Begin utPLSQL Body -->
 <!-- $Id$ -->
-<h1>
-Administrative Topics</h1>
+   <h1>Administrative Topics</h1>
 
-<h3>
-<a href="admin.html">Configuring UTL_FILE</a></h3>
+   <h3><a href="admin.html">Configuring UTL_FILE</a></h3>
 
-<h3>
-<a href="#Project_Team">Join the Project Team</a></h3>
+   <h3><a href="#Project_Team">Join the Project Team</a></h3>
 
-<h3>
-<a href="#Reporting">Reporting Bugs and Enhancement Requests</a></h3>
+   <h3><a href="#Reporting">Reporting Bugs and Enhancement Requests</a></h3>
 
-<h2>
-<a name="Admin"></a>Administrative Topics</h2>
+   <h2><a name="Admin"></a>Administrative Topics</h2>
 
-<h3>
-<a name="UTL_FILE"></a>Configuring UTL_FILE</h3>
-If you want utPLSQL to automatically recompile your test packages, you
-will need to make sure that UTL_FILE is enabled in your database (this
-allows you to read/write operating system files). The database initialization
-parameter file (aka, the "init.ora" file) must have at least one utl_file_dir
-parameter in it for this to work. Here is some background and guidelines
-for working with UTL_FILE:
-<p>UTL_FILE lets you read and write files accessible from the server on
-which your database is running. So, theoretically, you could use UTL_FILE
-to write right over your tablespace data files, control files and so on.
-That is, of course, a very bad idea. Server security requires the ability
-to place restrictions on where you can read and write your files.
-<p>UTL_FILE implements this security by limiting access to files that reside
-in one of the directories specified in the init.ora file (parameter initialization
-file) for the database instance on which UTL_FILE is running.
-<p>When you call UTL_FILE.FOPEN to open a file, you must specify both the
-location and the name of the file, in separate arguments. This file location
-is then checked against the list of accessible directories.
-<p>The format of the parameter for file access in the init.ora file is:
+   <h3><a name="UTL_FILE"></a>Configuring UTL_FILE</h3>
+   <p>
+      If you want utPLSQL to automatically recompile your test packages, you
+      will need to make sure that UTL_FILE is enabled in your database (this
+      allows you to read/write operating system files). The database initialization
+      parameter file (aka, the "init.ora" file) must have at least one utl_file_dir
+      parameter in it for this to work. Here is some background and guidelines
+      for working with UTL_FILE:
+   </p>
+   <p>
+      UTL_FILE lets you read and write files accessible from the server on
+      which your database is running. So, theoretically, you could use UTL_FILE
+      to write right over your tablespace data files, control files and so on.
+      That is, of course, a very bad idea. Server security requires the ability
+      to place restrictions on where you can read and write your files.
+   </p>
+   <p>
+      UTL_FILE implements this security by limiting access to files that reside
+      in one of the directories specified in the init.ora file (parameter initialization
+      file) for the database instance on which UTL_FILE is running.
+   </p>
+   <p>
+      When you call UTL_FILE.FOPEN to open a file, you must specify both the
+      location and the name of the file, in separate arguments. This file location
+      is then checked against the list of accessible directories.
+   </p>
+   <p>
+      The format of the parameter for file access in the init.ora file is:
+   </p>
 <pre>
 utl_file_dir = &lt;directory&gt;
 </pre>
-Include a parameter for utl_file_dir for each directory you want to make
-accessible for UTL_FILE operations. The following entries, for example,
-enable four different directories in Unix:
+   <p>
+      Include a parameter for utl_file_dir for each directory you want to make
+      accessible for UTL_FILE operations. The following entries, for example,
+      enable four different directories in Unix:
+   </p>
+   
 <pre>
 utl_file_dir = /tmp
 utl_file_dir = /ora_apps/hr/time_reporting
 utl_file_dir = /ora_apps/hr/time_reporting/log
 utl_file_dir = /users/test_area
 </pre>
-To bypass server security and allow read/write access to all directories,
-you can use this special syntax:
+
+   <p>
+      To bypass server security and allow read/write access to all directories,
+      you can use this special syntax:
+   </p>
+   
 <pre>
 utl_file_dir = *
 </pre>
-You should not use this option on production systems. In a development
-system, this entry certainly makes it easier for developers to get up and
-running on UTL_FILE and test their code. You should, however, only allow
-access to a few specific directories when you move the application to production.
-<h4>Some observations on working with and setting up accessible directories
-with UTL_FILE:</h4>
-<p>Access is not recursive through subdirectories. If the following lines
-were in your init.ora file, for example,
+
+   <p>
+      You should not use this option on production systems. In a development
+      system, this entry certainly makes it easier for developers to get up and
+      running on UTL_FILE and test their code. You should, however, only allow
+      access to a few specific directories when you move the application to production.
+   </p>
+   <h4>Some observations on working with and setting up accessible directories with UTL_FILE:</h4>
+   <p>
+      Access is not recursive through subdirectories. If the following lines
+      were in your init.ora file, for example,
+   </p>
+   
 <pre>
 utl_file_dir = c:\group\dev1
 utl_file_dir = c:\group\prod\oe
 utl_file_dir = c:\group\prod\ar
 </pre>
-then you would not be able to open a file in the c:\group\prod\oe\reports
-subdirectory.
-<p>Do not include the following entry in Unix systems:
+
+   <p>
+      then you would not be able to open a file in the c:\group\prod\oe\reports
+      subdirectory.
+   </p>
+   <p>
+      Do not include the following entry in Unix systems:
+   </p>
+   
 <pre>
 utl_file_dir = .
 </pre>
-This would allow you to read/write on the current directory in the operating
-system.
-<p>Do not enclose the directory names within single or double quotes.
-<p>In the UNIX environment, a file created by UTL_FILE.FOPEN has as its
-owner the shadow process running the Oracle instance. This is usually the
-oracle owner. If you try to access these files outside of UTL_FILE, you
-will need to have the correct privileges (or be logged in as oracle) to
-access or change these files.
-<p>You should not end your directory name with a delimiter, such as the
-forward slash in Unix. The following specification of a directory will
-result in problems when trying to read from or write to the directory:
+
+   <p>
+      This would allow you to read/write on the current directory in the operating
+      system.
+   </p>
+   <p>
+      Do not enclose the directory names within single or double quotes.
+   </p>
+   <p>
+      In the UNIX environment, a file created by UTL_FILE.FOPEN has as its
+      owner the shadow process running the Oracle instance. This is usually the
+      oracle owner. If you try to access these files outside of UTL_FILE, you
+      will need to have the correct privileges (or be logged in as oracle) to
+      access or change these files.
+   </p>
+   <p>
+      You should not end your directory name with a delimiter, such as the
+      forward slash in Unix. The following specification of a directory will
+      result in problems when trying to read from or write to the directory:
+   </p>
+   
 <pre>
 utl_file_dir = /tmp/orafiles/
 </pre>
-After you modify your parameter initialization file, you will need to stop
-and then restart your database instance.
-<h4>Test UTL_FILE Access</h4>
-<p>If you have never before used or relied on UTL_FILE, you should write
-a simple test to verify that UTL_FILE is now working. You can use the code
-shown below (after changing your directory names and names for existing
-and new files) to make sure you've got it running properly.
-<pre> </pre>
 
-<pre>SET SERVEROUTPUT ON</pre>
+   <p>
+      After you modify your parameter initialization file, you will need to stop
+      and then restart your database instance.
+   </p>
+   <h4>Test UTL_FILE Access</h4>
+   <p>
+      If you have never before used or relied on UTL_FILE, you should write
+      a simple test to verify that UTL_FILE is now working. You can use the code
+      shown below (after changing your directory names and names for existing
+      and new files) to make sure you've got it running properly.
+   </p>
 
-<pre>DECLARE
+<pre>
+SET SERVEROUTPUT ON
+
+DECLARE
    fid UTL_FILE.FILE_TYPE;
    v VARCHAR2(32767);
    PROCEDURE recNgo (str IN VARCHAR2)
    IS
    BEGIN
       DBMS_OUTPUT.PUT_LINE ('UTL_FILE error ' || str);
-</pre>
 
-<pre>      UTL_FILE.FCLOSE (fid);
+      UTL_FILE.FCLOSE (fid);
    END;
 BEGIN
    /* Change the directory name to one to which you at least 
@@ -115,59 +157,65 @@ BEGIN
    */
    fid := UTL_FILE.FOPEN ('e:\demo', 'existing_file', 'R');
    UTL_FILE.GET_LINE (fid, v);
-   dbms_output.put_line (v);</pre>
+   dbms_output.put_line (v);
 
-<pre>   UTL_FILE.FCLOSE (fid);
-</pre>
+   UTL_FILE.FCLOSE (fid);
 
-<pre>   fid := UTL_FILE.FOPEN ('e:\demo', 'new_file', 'W');</pre>
+   fid := UTL_FILE.FOPEN ('e:\demo', 'new_file', 'W');
 
-<pre>   UTL_FILE.PUT_LINE (fid, v);</pre>
+   UTL_FILE.PUT_LINE (fid, v);
 
-<pre>   UTL_FILE.FCLOSE (fid);
+   UTL_FILE.FCLOSE (fid);
 EXCEPTION
    WHEN UTL_FILE.INVALID_PATH
-    THEN recNgo ('invalid_path');
+      THEN recNgo ('invalid_path');
    WHEN UTL_FILE.INVALID_MODE
-    THEN recNgo ('invalid_mode');
+      THEN recNgo ('invalid_mode');
    WHEN UTL_FILE.INVALID_FILEHANDLE
-    THEN recNgo ('invalid_filehandle');
+      THEN recNgo ('invalid_filehandle');
    WHEN UTL_FILE.INVALID_OPERATION
-    THEN recNgo ('invalid_operation');
+      THEN recNgo ('invalid_operation');
    WHEN UTL_FILE.READ_ERROR
-    THEN recNgo ('read_error');
+      THEN recNgo ('read_error');
    WHEN UTL_FILE.WRITE_ERROR
-    THEN recNgo ('write_error');
+      THEN recNgo ('write_error');
    WHEN UTL_FILE.INTERNAL_ERROR
-    THEN recNgo ('internal_error');
+      THEN recNgo ('internal_error');
 END;
-/</pre>
-If an error occurs, it will be displayed on your screen (note: the "set
-serveroutput on" is not required for UTL_FILE to work, but simply to display
-any errors which might occur).
-<br> 
-<h3>
-<a name="Project_Team"></a>Join the utPLSQL Project Team</h3>
+/
+</pre>
+   <p>
+      If an error occurs, it will be displayed on your screen (note: the "set
+      serveroutput on" is not required for UTL_FILE to work, but simply to display
+      any errors which might occur).
+   </p>
 
-To take part in the utPLSQL project, first please join
-the utPLSQL Forum. Go to 
-<a href="http://utplsql.oracledeveloper.nl">http://utplsql.oracledeveloper.nl</a>
-and join in the discussions. Once you are up to speed on the project, you
-can go to the <A href="http://utplsql.sourceforge.net">SourceForge site</A>, choose a task and begin
-to contribute.
+   <h3><a name="Project_Team"></a>Join the utPLSQL Project Team</h3>
 
-<h3>
-<a name="Reporting"></a>Reporting Bugs and Enhancement Requests</h3>
+   <p>
+      To take part in the utPLSQL project, have a look round the 
+      <a href = "https://sourceforge.net/projects/utplsql/">utPLSQL project site</a>,
+      in particular the <a href = "https://sourceforge.net/p/utplsql/discussion">forums</a> 
+      and <a href = "https://sourceforge.net/projects/utplsql/support">ticket trackers</a>. 
+      Once you are up to speed on the project, you can choose a ticket and begin to contribute.
+   </p>
 
-To identify the version of utPLSQL you are running,
-you can execute the following program in SQL*Plus:
+   <h3><a name="Reporting"></a>Reporting Bugs and Enhancement Requests</h3>
 
-<pre>SQL&gt; set serveroutput on</pre>
+   <p>
+      To identify the version of utPLSQL you are running,
+      you can execute the following program in SQL*Plus:
+   </p>
 
-<pre>SQL&gt; exec dbms_output.put_line (utPLSQL.version)</pre>
+<pre>
+SQL&gt; set serveroutput on
+SQL&gt; exec dbms_output.put_line (utPLSQL.version)
+</pre>
 
-You can also look inside the utPLSQL package (utPLSQL.pkb)
-and check the value of the g_version private variable.
+   <p>
+      You can also look inside the utPLSQL package (utPLSQL.pkb)
+      and check the value of the g_version private variable.
+   </p>
 
 <!-- End utPLSQL Body -->
 </body>

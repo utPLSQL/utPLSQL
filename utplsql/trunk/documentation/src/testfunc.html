@@ -1,39 +1,48 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
-<html><head><title></title></head><body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <title></title>
+</head>
+<body>
 <!-- Begin utPLSQL Body -->
 <!-- $Id$ -->
-<h1>
-Test a Function</h1>
+   <h1>Test a Function</h1>
 
-<p>As with the procedure, there are a couple of scenarios to consider:
-<ul>
-<li>
-The <a href="#ScalarFunction">function returns a scalar value</a> (number,
-date, string, Boolean). In this case, you can embed your call to the function
-directly inside a call to a uAssert assertion program, making your test
-procedure very concise and easy to write.</li>
+   <p>
+      As with the procedure, there are a couple of scenarios to consider:
+   </p>
 
+   <ul>
+      <li>
+         The <a href="#ScalarFunction">function returns a scalar value</a> (number,
+         date, string, Boolean). In this case, you can embed your call to the function
+         directly inside a call to a uAssert assertion program, making your test
+         procedure very concise and easy to write.
+      </li>
+      <li>
+         The function returns a non-scalar value,
+         such as an object or a collection. In this case, you will need to call
+         the function and then evaluate the contents of the returned structure.
+      </li>
+      <li>
+         A third situation to consider is that your function returns a value, but
+         it also takes a number of other actions, the success of which is not reflected
+         in the returned value. Fully testing such a function (one with "side effects")
+         can be very difficult, since you must test for a variety of conditions.
+      </li>
+   </ul>
 
-<li>
-The function returns a non-scalar value,
-such as an object or a collection. In this case, you will need to call
-the function and then evaluate the contents of the returned structure.</li>
+   <h3><a name="ScalarFunction"></a>Testing a Scalar Function</h3>
+   
+   <p>
+      First, a test of a function returning a scalar value. Consider the following
+      packaged function:
+   </p>
 
-
-
-<li>
-A third situation to consider is that your function returns a value, but
-it also takes a number of other actions, the success of which is not reflected
-in the returned value. Fully testing such a function (one with "side effects")
-can be very difficult, since you must test for a variety of conditions.</li>
-
-</ul>
-
-<h3>
-<a name="ScalarFunction"></a>Testing a Scalar Function</h3>
-First, a test of a function returning a scalar value. Consider the following
-packaged function:
-<pre>/*file str.pks and str.pkb */
+<pre>
+/*file str.pks and str.pkb */
 CREATE OR REPLACE PACKAGE str
 IS
    FUNCTION betwn (
@@ -43,12 +52,21 @@ IS
    )
       RETURN VARCHAR2;
 END str;
-/</pre>
-The str.betwn function returns the sub-string of a string_in that is found
-between the start and end locations specified by start_in and end_in.
-<p>So...time to test! I <a href="utgen.html">generate a test package</a>
-and then modify the unit test procedure to check for various conditions:
-<pre>/*file ut_str.pkb */
+/
+</pre>
+
+   <p>
+      The str.betwn function returns the sub-string of a string_in that is found
+      between the start and end locations specified by start_in and end_in.
+   </p>
+   
+   <p>
+      So...time to test! I <a href="utgen.html">generate a test package</a>
+      and then modify the unit test procedure to check for various conditions:
+   </p>
+   
+<pre>
+/*file ut_str.pkb */
 CREATE OR REPLACE PACKAGE BODY ut_str
 IS
    PROCEDURE ut_setup
@@ -85,9 +103,13 @@ IS
    END ut_betwn;
 
 END ut_str;
-/</pre>
-As you can see, my calls to str.betwn are embedded right within calls to
-utAssert.eq and utAssert.isNULL, making my test code compact.
+/
+</pre>
+
+   <p>
+      As you can see, my calls to str.betwn are embedded right within calls to
+      utAssert.eq and utAssert.isNULL, making my test code compact.
+   </p>
 
 <!-- End utPLSQL Body -->
 </body>
