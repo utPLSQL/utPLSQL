@@ -1,0 +1,38 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="37945.htm">Previous</a> | <a href="37960.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Getting utPLSQL to work under Unix<br>
+<b>Conf:</b> 537, Msg: 37946<br>
+<b>From:</b> Richard Li (<a href="mailto:richardl@arsdigita.com">richardl@arsdigita.com</a>)<br>
+<b>Date:</b> 9/22/00 01:53 PM<br>
+
+<p><title>Getting utPLSQL to work under Unix Richard Li richardl@arsdigita.com richardl@arsdigita.com</title>
+A corallary observation of the above is that an integrity constraint compile error that throws an exception will make the package return SUCCESS. The code:<br>
+<br>
+    procedure new<br>
+    is<br>
+    begin<br>
+        dbms_output.put_line('calling new!');<br>
+	utassert.eq (<br>
+	    'Creating a new test object',<br>
+	    acs_object.new(100, 'test_object'),<br>
+	    100<br>
+        );<br>
+        dbms_output.put_line('exiting new!');<br>
+    end;<br>
+<br>
+results in:<br>
+<br>
+SQL> exec utplsql.test('acs_object');<br>
+exec utplsql.test('acs_object');<br>
+Compile error: User-Defined Exception<br>
+Compile error: User-Defined Exception<br>
+calling new!<br>
+Compile Error "ORA-02291: integrity constraint (RICHARD.ACS_OBJECTS_OBJECT_TYPE_<br>
+FK) violated - parent key not found" on:<br>
+BEGIN ut#acs_object.new;  END;<br>
+SUCCESS: Package "acs_object"<br>
+tearing down!<br>
+<br>
+Note that the second put_line doesn't get executed, and the SUCCESS message.<br>
+
+
+</body>

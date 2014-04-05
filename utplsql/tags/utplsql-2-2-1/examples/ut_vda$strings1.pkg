@@ -1,0 +1,1469 @@
+CREATE OR REPLACE PACKAGE ut_VDA$STRINGS
+IS
+   PROCEDURE ut_setup;
+   PROCEDURE ut_teardown;
+
+   -- For each program to test...
+   PROCEDURE ut_ALL_TRIM;
+   PROCEDURE ut_INSTRW1;
+   PROCEDURE ut_INSTRW2;
+   PROCEDURE ut_REPLACE;
+   PROCEDURE ut_SCAN;
+   PROCEDURE ut_SCAN2;
+END ut_VDA$STRINGS;
+/
+CREATE OR REPLACE PACKAGE BODY ut_VDA$STRINGS
+IS
+   PROCEDURE ut_setup
+   IS
+   BEGIN
+      NULL;
+   END;
+
+   PROCEDURE ut_teardown
+   IS
+   BEGIN
+      NULL;
+   END;
+   -- For each program to test...
+   PROCEDURE ut_ALL_TRIM
+   IS
+      -- Verify and complete data types.
+      against_this VARCHAR2(2000);
+      check_this VARCHAR2(2000);
+   BEGIN
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 'trim';
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.ALL_TRIM (
+         PI_TEXT => '  trim  '
+         ,
+         PI_TRIM => ' '
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'trim all spaces',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+   END ut_ALL_TRIM;
+
+   PROCEDURE ut_INSTRW1
+   IS
+      -- Verify and complete data types.
+      against_this BINARY_INTEGER;
+      check_this BINARY_INTEGER;
+   BEGIN
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 2;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'this is the search string'
+         ,
+         VP_EXP => '_is'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of _is',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 13;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 'search'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of search',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 0;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 'search'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 2
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'second occurence of search',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 1;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => '%search%'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of %search%',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 0;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 'search'
+         ,
+         VP_POS => 14
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of search starting at 14',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 13;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 'search'
+         ,
+         VP_POS => 13
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of search starting at 13',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 13;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => '%search%'
+         ,
+         VP_POS => 13
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of %search% starting at 13',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 2;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => '%search%'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 2
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'second occurence of %search%',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 0;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's_r'
+         ,
+         VP_POS => 21
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of s_r starting at 21',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 20;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's_r'
+         ,
+         VP_POS => 20
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of s_r starting at 20',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 20;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's_r'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of s_r',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 13;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's%r'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 3
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'third occurence of s%r',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 7;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's%r'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 2
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'second occurence of s%r',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 0;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's%r'
+         ,
+         VP_POS => 21
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of s%r starting at 21',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 20;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's%r'
+         ,
+         VP_POS => 14
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of s%r starting at 14',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 13;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's%r'
+         ,
+         VP_POS => 13
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of s%r starting at 13',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 4;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's%r'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of s%r',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 20;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's_%ng'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 4
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'fourth occurence of s_%ng',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 4;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's_%ng'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of s_%ng',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 0;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's__r'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 3
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'third occurence of s__r',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 0;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's__r'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 2
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'second occurence of s__r',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 0;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's__r'
+         ,
+         VP_POS => 14
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of s__r starting at 14',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 13;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's__r'
+         ,
+         VP_POS => 13
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of s__r starting at 13',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 13;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's__r'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of s__r',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 0;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's_r'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 3
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'third occurence of s_r',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 0;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's_r'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 2
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'second occurence of s_r',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 2;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => '%t_i_'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 2
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'second occurence of %t_i_',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 1;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => '%t_i_'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of %t_i_',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 20;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's%_%r'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 4
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'fourth occurence of s%_%r',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 3;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => '_s%s%s%s_'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of _s%s%s%s_',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 0;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => 's_%ng'
+         ,
+         VP_POS => 1
+         ,
+         VP_OCC => 5
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'fifth occurence of s_%ng',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 0;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         VP_WRD => 'This is the search string'
+         ,
+         VP_EXP => '%search%'
+         ,
+         VP_POS => 14
+         ,
+         VP_OCC => 1
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of %search% starting at 14',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+   END ut_INSTRW1;
+
+   PROCEDURE ut_INSTRW2
+   IS
+      -- Verify and complete data types.
+      against_this NUMBER;
+      check_this NUMBER;
+   BEGIN
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 0;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.INSTRW (
+         PI_TEXT => 'this is the search string'
+         ,
+         PI_SEARCH => '_IS'
+         ,
+         PI_POS => 1
+         ,
+         PI_NTH => 1
+         ,
+         PI_CASE => true
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'first occurence of _IS case sensitive',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+   END ut_INSTRW2;
+
+   PROCEDURE ut_REPLACE
+   IS
+      -- Verify and complete data types.
+      against_this VARCHAR2(2000);
+      check_this VARCHAR2(2000);
+   BEGIN
+
+      -- Define "control" operation for "replace"
+
+      against_this := 'this is the search string';
+
+      -- Execute test code for "replace"
+
+      check_this :=
+      VDA$STRINGS.REPLACE (
+         PI_SRCSTR => 'this is the search string'
+         ,
+         PI_OLDSUBSTR => 'is'
+         ,
+         PI_NEWSUBSTR => 'ese'
+         ,
+         PI_START_OCCURENCE => 1
+         ,
+         PI_OCCURENCES => 1
+       );
+
+      -- Assert success for "replace"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'replace is by ese',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "replace"
+   END ut_REPLACE;
+
+   PROCEDURE ut_SCAN
+   IS
+      -- Verify and complete data types.
+      against_this VARCHAR2(2000);
+      check_this VARCHAR2(2000);
+   BEGIN
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 'word1';
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN (
+         PI_TEXT => 'word1::word2::word3::word4'
+         ,
+         PI_NUM => 1
+         ,
+         PI_DELIMITER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'Find 1st word',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 'word2';
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN (
+         PI_TEXT => 'word1::word2::word3::word4'
+         ,
+         PI_NUM => 2
+         ,
+         PI_DELIMITER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'Find 2nd word',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 'word4';
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN (
+         PI_TEXT => 'word1::word2::word3::word4'
+         ,
+         PI_NUM => -1
+         ,
+         PI_DELIMITER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'Find last word',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+   END ut_SCAN;
+
+   PROCEDURE ut_SCAN2
+   IS
+      -- Verify and complete data types.
+      against_this VARCHAR2(2000);
+      check_this VARCHAR2(2000);
+   BEGIN
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 'word1';
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => 1
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         '1st word',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 'word4';
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => -2
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         '-2nd word',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := NULL;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => -6
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Check for NULL return value.
+      utAssert.isNULL (
+         '-6th word (null value)',
+         check_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 'word1';
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => -5
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         '-5th word',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 'word2';
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => -4
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         '-4th word',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := NULL;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => -3
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Check for NULL return value.
+      utAssert.isNULL (
+         '-3nd word (null value)',
+         check_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 'word5';
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => -1
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         '-1st word',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := NULL;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => 3
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Check for NULL return value.
+      utAssert.isNULL (
+         '3rd word (null value)',
+         check_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 'word5';
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => 5
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         '5th word',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := NULL;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => 6
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Check for NULL return value.
+      utAssert.isNULL (
+         '6th word (null value)',
+         check_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := NULL;
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => 0
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Check for NULL return value.
+      utAssert.isNULL (
+         '0th word (null value)',
+         check_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 'word4';
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => 4
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         '4th word',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+
+      -- Define "control" operation for "VDA$STRINGS"
+
+      against_this := 'word2';
+
+      -- Execute test code for "VDA$STRINGS"
+
+      check_this :=
+      VDA$STRINGS.SCAN2 (
+         PI_TEXT => 'word1::word2::::word4::word5'
+         ,
+         PI_NUM => 2
+         ,
+         PI_DELIMETER => '::'
+       );
+
+      -- Assert success for "VDA$STRINGS"
+
+      -- Compare the two values.
+      utAssert.eq (
+         '2nd word',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "VDA$STRINGS"
+   END ut_SCAN2;
+
+END ut_VDA$STRINGS;
+/

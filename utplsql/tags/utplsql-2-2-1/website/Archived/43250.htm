@@ -1,0 +1,32 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="42049.htm">Previous</a> | <a href="43252.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Example for utAssert.throws<br>
+<b>Conf:</b> 539, Msg: 43250<br>
+<b>From:</b> Alex Sokol (<a href="mailto:asokol@bcgi.net">asokol@bcgi.net</a>)<br>
+<b>Date:</b> 8/14/01 02:25 PM<br>
+
+<p><title>Example for utAssert.throws Alex Sokol asokol asokol@bcgi.net</title>
+I'm new to utPLSQL and started putting a test package to test my procedures. Procedures primary raise exceptions, therefore i started with utAssert.throws assertion. I followed the example in the user's guide, but getting an error ORA-06550<br>
+<br>
+FAILURE - Unable to run ut_pmu.UT_MAIN: ORA-06550: line 1, column 12:<br>
+PLS-00103:<br>
+Encountered the symbol "PMU" when expecting one of the following:<br>
+<br>
+   := . ( @<br>
+% ;<br>
+The symbol ":=" was substituted for "PMU" to continue.<br>
+<br>
+even though my package compiles and runs without errors.<br>
+My ut_ procedure is pretty stright forward:<br>
+<br>
+ utAssert.throws<br>
+     (msg_in=>'Wrong Execution Mode',<br>
+      check_call_in=>'exec pmu.main(''x'',''aws_mast'',''bdr'',''d:\temp'');',<br>
+      against_exc_in=>'INVALID_MODE');<br>
+<br>
+I was wondering if someone has another example of throws assertion I can look at?<br>
+<br>
+Thanks, Alex Sokol<br>
+Boston Communications Group.<br>
+
+
+</body>

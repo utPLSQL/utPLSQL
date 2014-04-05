@@ -1,0 +1,23 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="40806.htm">Previous</a> | <a href="40832.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> UTASSERT.IT_RAN...<br>
+<b>Conf:</b> 538, Msg: 40827<br>
+<b>From:</b> Steven Feuerstein (<a href="mailto:steven@stevenfeuerstein.com">steven@stevenfeuerstein.com</a>)<br>
+<b>Date:</b> 1/18/01 05:35 PM<br>
+
+<p><title>UTASSERT.IT_RAN... Steven Feuerstein sfeuerstein steven@stevenfeuerstein.com</title>
+Hmmm. Looked at your test code. Basically, you want to know if when the code is executed, it didn't raise an exception. That wouldn't be terribly hard to do -- EXCEPT that when you call the assertion program, you would have to pass the call to the procedure as a STRING:<br>
+<br>
+BEGIN<br>
+   utassert.runsOK ('checksum.calc');<br>
+<br>
+otherwise, the "argument" which is the call to checksum.calc will be evaluated before passing it to runsOK and an exception will be raised and so the assertion program will never actually be run. See what I mean?<br>
+<br>
+For a simple no parm function like the above, this is no big deal, but when you have to concat in params, YUCH!<br>
+<br>
+This is probably an example where offering more options and flexibility on GENERATION o the test package would come in much more handy, and I will record it as an enhancement that way!<br>
+<br>
+Does this make sense?<br>
+<br>
+SF
+
+</body>

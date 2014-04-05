@@ -1,0 +1,31 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="43260.htm">Previous</a> | <a href="43263.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Example for utAssert.throws<br>
+<b>Conf:</b> 539, Msg: 43262<br>
+<b>From:</b> Alex Sokol (<a href="mailto:asokol@bcgi.net">asokol@bcgi.net</a>)<br>
+<b>Date:</b> 8/17/01 07:06 AM<br>
+
+<p><title>Example for utAssert.throws Alex Sokol asokol asokol@bcgi.net</title>
+Chris,<br>
+  I have no troubles executing the procedure<br>
+  within SQL*Plus. It raises the correct<br>
+  exception and exits.<br>
+<br>
+  Without 'exec' in the call parameter I get<br>
+  the error ORA-06550<br>
+<br>
+FAILURE - Unable to run ut_pmu.UT_MAIN: ORA-06550: line 1, column 7:<br>
+PLS-00201:<br>
+identifier 'PMU.MAIN' must be declared<br>
+ORA-06550: line 1, column 7:<br>
+PL/SQL: Statement ignored<br>
+<br>
+I'm logged as the owner of PMU, and UT_PMU is<br>
+also created under the same schema. So, what<br>
+else do I need? It looks like it can't see<br>
+my pmu procedure when running utplsql.test procedure? Why?<br>
+Alex<br>
+btw, I tried your suggested utassert.throws and it ran successfully (meaning, it detected the wrong exception raised).<br>
+<br>
+
+
+</body>

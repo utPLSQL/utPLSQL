@@ -1,0 +1,23 @@
+/* Formatted by PL/Formatter v3.1.2.1 on 2001/04/12 10:49 */
+
+CREATE TABLE utr_outcome (
+   run_id INTEGER,
+   outcome_id integer,
+   start_on date,
+   end_on date,
+   status varchar2(100),
+   description varchar2(2000)
+);
+
+REM 2.0.9.1 Record order of execution of test.
+ALTER TABLE utr_outcome ADD tc_run_id INTEGER;
+
+ALTER table utr_outcome add CONSTRAINT utr_outcome_pk
+   primary key (run_id, outcome_id);
+
+-- Turn off to support V1 compatibility
+--ALTER table utr_outcome add CONSTRAINT utr_outcome_fk1
+--   FOREIGN KEY (outcome_id) REFERENCES ut_outcome;
+
+
+

@@ -1,0 +1,154 @@
+/*
+ * Cascading style sheet for WB Archive Creator
+ */
+
+/*
+ * Hyperlink coloring
+ */
+a:link		{ color: #0000FF; }
+a:active	{ color: #FF33CC; }
+a:visited	{ color: #800080; } 
+a:hover		{ color: #0000FF; }
+
+/*
+ * Body and element defaults.
+ */
+body { 
+	font-size: 75%;
+	line-height: 125%;
+	font-family: Verdana, Arial, Helvetica, sans-serif; 
+	background-color: #FFFFFF;
+} 
+
+p {
+	margin-top: .5em; 
+	margin-bottom: .5em;
+} 
+
+h1 {
+	font-size: 180%;
+	font-family: Arial, Helvetica, sans-serif;
+	margin-bottom: .5em;
+	line-height: 125%;
+} 
+
+h2 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 140%;
+	margin-top: 1.5em;
+	margin-bottom: .5em;
+} 
+
+strong {
+	font-size: 80%;
+	font-weight: bold;
+	margin-top: 1.2em;
+	margin-bottom: .5em;
+} 
+
+h4 {
+	font-size: 100%; 
+	color: maroon; 
+	margin-top: 1.2em; 
+	margin-bottom: .5em;
+}
+
+/*
+ * List adjustments
+ */
+
+ul, ol, ul ul, ol ol, ol ul, ul ol {
+	margin-left: 3.0em;
+	margin-top: 0.75em; 
+	margin-bottom: 0.75em; 
+} 
+
+li { 
+	margin-top: 0.375em; 
+	margin-bottom: 0.375em;
+} 
+
+dt {
+	margin-top: 0.5em;
+	margin-bottom: 0.375em;
+	font:bold;
+}
+
+dd {
+	margin-left: 1.5em;
+}
+
+/*
+ * All code-like stuff is controlled by the <code> tag. This means
+ * you need to use <pre><code> to get preformatted code. 
+ */
+pre	{
+	padding: 0.25em;
+	margin-top: 0.75em;
+	margin-bottom: 0.75em;
+	margin-left: 1.5em;
+	background-color: #C0FFFF;
+} 
+code { 
+	margin-top: 0em; 
+	margin-bottom: 0em; 
+	font-family: Lucida Console, Lucida Sans Typewriter, Courier New, Mono; 
+} 
+
+/*
+ * Tables
+ */
+table { 
+	font-size: 100%;
+}
+
+tr { 
+	margin: 0.5em;
+	vertical-align: top;
+}
+			
+th { 
+	margin: 0.5em;
+	text-align: left;
+	background-color: lightcyan;
+	vertical-align: top;
+	}
+						
+td {
+	margin: 0.5em;
+	text-align: left;
+	vertical-align: top;
+}
+
+/*
+ * Quick-class goodies
+ */
+
+.indent { 
+	margin-left: 1.5em; 
+} 
+
+.mini {
+	font-size: 75%;
+}
+
+p.desc {
+	padding: 0.25em;
+	margin-left: 1.5em;
+	background-color: #FFFFC0;
+}
+
+div.note {
+	margin-top: 1.5em;
+	padding: 0.25em;
+	margin-left: 3em;
+	margin-right: 3em;
+	background-color: #ffcc66;
+	margin-bottom: 1.5em;
+}
+
+div.copyright {
+	color: dimgray;
+	font-size: 75%;
+}
+
