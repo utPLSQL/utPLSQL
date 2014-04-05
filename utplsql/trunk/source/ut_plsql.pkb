@@ -45,7 +45,7 @@ Added Standard Headers
 ************************************************************************/
 
    g_trc       BOOLEAN        := FALSE;
-   g_version   VARCHAR2 (100) := '2.2';
+   g_version   VARCHAR2 (100) := '2.2.1';
 
    tests       test_tt;
    testpkg     test_rt;
