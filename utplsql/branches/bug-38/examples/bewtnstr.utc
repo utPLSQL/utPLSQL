@@ -1,5 +1,0 @@
-#program name|test case name|message|arguments|result|assertion type
-betwnstr|Normal|Typical valid usage|abcdefg;2;5|bcde|eq
-betwnstr|ZeroStart|Zero start value|abcdefg;0;5|abcde|eq
-betwnstr|BigEnd|Way big end value|abcdefg;5;500|efg|eq
-betwnstr|NULLstart|NULL start value|;5;500|null|isnull
