@@ -723,7 +723,8 @@ Added Standard Headers
       samepackage_in   IN   BOOLEAN := FALSE,
       prefix_in        IN   VARCHAR2 := NULL,
       owner_in         IN   VARCHAR2 := NULL,
-      subprogram_in    IN   VARCHAR2 := '%'
+      subprogram_in    IN   VARCHAR2 := '%',
+      alphabetic_order_in   IN   VARCHAR2 := 'Y'
    )
    IS
       v_pkg   VARCHAR2 (1000)
@@ -772,10 +773,10 @@ Added Standard Headers
                                         prefix_in
                                      || c_teardown
                                   )
-                                 ))
+                                 ) ORDER BY DECODE(alphabetic_order_in,'Y',procedure_name,object_id))
              &end_lt_9
              &start_ge_9
-             (SELECT procedure_name 
+             (SELECT procedure_name
                 FROM all_procedures
                WHERE owner = NVL (UPPER (owner_in), USER)
                  AND object_name = UPPER (v_pkg)
@@ -792,11 +793,10 @@ Added Standard Headers
                                                   prefix_in
                                                || c_teardown
                                             )
-                                           ))
+                                 ) ORDER BY DECODE(alphabetic_order_in,'Y',procedure_name,object_id))
              &end_ge_9
          LOOP
-            addtest (
-               testpkg_in.pkg,
+            addtest (               testpkg_in.pkg,
                rec.procedure_name,
                prefix_in,
                iterations_in=> 1,
