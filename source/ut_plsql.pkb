@@ -772,10 +772,10 @@ Added Standard Headers
                                         prefix_in
                                      || c_teardown
                                   )
-                                 ))
+                                 ) ORDER BY procedure_name)
              &end_lt_9
              &start_ge_9
-             (SELECT procedure_name 
+             (SELECT procedure_name
                 FROM all_procedures
                WHERE owner = NVL (UPPER (owner_in), USER)
                  AND object_name = UPPER (v_pkg)
@@ -792,7 +792,7 @@ Added Standard Headers
                                                   prefix_in
                                                || c_teardown
                                             )
-                                           ))
+                                 ) ORDER BY procedure_name)
              &end_ge_9
          LOOP
             addtest (
