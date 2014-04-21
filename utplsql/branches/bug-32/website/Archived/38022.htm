@@ -1,0 +1,54 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="38010.htm">Previous</a> | <a href="38056.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Testing a procedure and not a function, 2 Attachments<br>
+<b>Conf:</b> 537, Msg: 38022<br>
+<b>From:</b> Steven Feuerstein (<a href="mailto:steven@stevenfeuerstein.com">steven@stevenfeuerstein.com</a>)<br>
+<b>Date:</b> 9/26/00 01:30 PM<br>
+
+<p><title>Testing a procedure and not a function Steven Feuerstein sfeuerstein steven@stevenfeuerstein.com</title>
+If you are testing a procedure, then you run the procedure first and after that execute the appropriate utAssert program to check the results. Below find an example of a unit test I wrote for an encapsulated DELETE operation (I have attached the entire package):<br>
+<br>
+   PROCEDURE ut_del1<br>
+   IS<br>
+      fdbk PLS_INTEGER;<br>
+   BEGIN<br>
+      /* Delete that finds now rows. */<br>
+<br>
+      EXECUTE IMMEDIATE '<br>
+      DELETE FROM ut_DEL1<br>
+       WHERE employee_id = -1<br>
+      ';<br>
+      te_employee.del (-1, rowcount_out => fdbk);<br>
+      -- Test results<br>
+      utassert.eqtable ('Delete rows', 'EMPLOYEE', 'ut_DEL1');<br>
+      /* Successful delete */<br>
+<br>
+      EXECUTE IMMEDIATE '<br>
+      DELETE FROM ut_DEL1<br>
+       WHERE employee_id between 7800 and 7899<br>
+      ';<br>
+<br>
+      FOR rec IN (SELECT *<br>
+                    FROM employee<br>
+                   WHERE employee_id BETWEEN 7800 AND 7899)<br>
+      LOOP<br>
+         te_employee.del (<br>
+            rec.employee_id,<br>
+            rowcount_out => fdbk<br>
+         );<br>
+      END LOOP;<br>
+<br>
+      -- Test results<br>
+      utassert.eqtable ('Delete rows', 'EMPLOYEE', 'ut_DEL1');<br>
+      ROLLBACK;<br>
+   EXCEPTION<br>
+      WHEN OTHERS<br>
+      THEN<br>
+         utassert.this (<br>
+            'DEL1 exception ' || SQLERRM,<br>
+            SQLCODE = 0<br>
+         );<br>
+   END;<br>
+<br>
+I hope that helps...SF
+
+<p><a href="ut_TE_EMPLOYEE.pks"><img src="fa_app-s.gif" alt="Click to open!" border=0 align=left></a>  (722 bytes)<br clear=all><p><a href="ut_TE_EMPLOYEE.pkb"><img src="fa_app-s.gif" alt="Click to open!" border=0 align=left></a>  (23,361 bytes)<br clear=all></body>

@@ -1,0 +1,90 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong>Previous | <a href="37137.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> The eqtables assertion doesn't really do it.<br>
+<b>Conf:</b> 537, Msg: 36676<br>
+<b>From:</b> Steven Feuerstein (<a href="mailto:steven@stevenfeuerstein.com">steven@stevenfeuerstein.com</a>)<br>
+<b>Date:</b> 8/15/00 08:38 AM<br>
+
+<p><title>The eqtables assertion doesn't really do it. Steven Feuerstein sfeuerstein steven@stevenfeuerstein.com</title>
+Delivered-To: sfeuer@enteract.com <br>
+From: Jonathan Gennick <jonathan@gennick.com> <br>
+Reply-To: jonathan@gennick.com <br>
+To: "Feuerstein, Steven" <sfeuerstein@starbelly.com> <br>
+Subject: Comparing tables or equality <br>
+Date: Sun, 13 Aug 2000 16:33:26 -0400 <br>
+X-Mailer: Forte Agent 1.8/32.548 <br>
+X-IMSTrailer: __IMail_5__ <br>
+<br>
+<br>
+Steven,<br>
+<br>
+<br>
+There's a flaw in the table comparision logic that you write<br>
+about in the August issue of Oracle Professional. I think<br>
+your technique will work in cases where there are no<br>
+duplicate rows in either table, but there's no doubt that<br>
+the presence of dupes will cause it to generate erroneous<br>
+results. Note in the following example that A has 2 rows and<br>
+B has only one. Most people would not consider them "equal",<br>
+yet they pass the test:<br>
+<br>
+<br>
+SQL> l<br>
+  1  (select * from a<br>
+  2  minus select * from b)<br>
+  3  union<br>
+  4  (select * from b<br>
+  5* minus select * from a)<br>
+SQL> /<br>
+<br>
+<br>
+no rows selected<br>
+<br>
+<br>
+SQL> select * from a<br>
+  2  ;<br>
+<br>
+<br>
+X<br>
+-<br>
+Z<br>
+Z<br>
+<br>
+<br>
+SQL> select * from b;<br>
+<br>
+<br>
+X<br>
+-<br>
+Z<br>
+<br>
+<br>
+Even using UNION ALL didn't affect the results. There may be<br>
+other solutions when it comes to comparing tables, but if<br>
+you use this technique, I don't see any other option but to<br>
+count the rows in either table to be sure the counts are<br>
+identical. Actually, that wouldn't even work. You could get<br>
+duplicates that canceled each other out, and that kept the<br>
+counts idenitical. Hmm.... Hmm..... Hmm.... Is there a<br>
+reliable way to compare two tables when either may have<br>
+duplicate records that does not involve writing procedural<br>
+code to scan each record? I'll have to sleep on that a bit.<br>
+<br>
+<br>
+Jonathan<br>
+<br>
+<br>
+_____________________________________________________<br>
+jonathan@gennick.com   <br>
+<a target=_new href="http://gennick.com">http://gennick.com</a><br>
+Brighten the Corner Where You Are<br>
+<br>
+<br>
+Jonathan<br>
+<br>
+<br>
+_____________________________________________________<br>
+jonathan@gennick.com   <br>
+<a target=_new href="http://gennick.com">http://gennick.com</a><br>
+Brighten the Corner Where You Are
+
+</body>
