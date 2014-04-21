@@ -710,15 +710,15 @@ UNION
                SELECT 1
                FROM DUAL
                WHERE EXISTS (('
-      || query1_in
+      ||' ( ' || query1_in ||' ) '
       || ' MINUS '
-      || query2_in
+      ||' ( ' || query2_in ||' ) '
       || ')
         UNION
         ('
-      || query2_in
+      ||' ( ' || query2_in ||' ) '
       || ' MINUS '
-      || query1_in
+      ||' ( ' || query1_in ||' ) '
       || '));
           rec cur%ROWTYPE;
        BEGIN     
