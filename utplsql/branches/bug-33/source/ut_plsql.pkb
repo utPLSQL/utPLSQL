@@ -792,7 +792,7 @@ Added Standard Headers
                                                   prefix_in
                                                || c_teardown
                                             )
-                                 ) ORDER BY procedure_name))
+                                 ) ORDER BY procedure_name)
              &end_ge_9
          LOOP
             addtest (               testpkg_in.pkg,
