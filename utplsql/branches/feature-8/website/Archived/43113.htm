@@ -1,0 +1,25 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="43082.htm">Previous</a> | <a href="43114.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> utAssert.eq Does not handle NULLs correctly<br>
+<b>Conf:</b> 537, Msg: 43113<br>
+<b>From:</b> Jay Bundy (<a href="mailto:jay.bundy@lexis-nexis.com">jay.bundy@lexis-nexis.com</a>)<br>
+<b>Date:</b> 6/19/01 10:27 AM<br>
+
+<p><title>utAssert.eq Does not handle NULLs correctly Jay Bundy jaybundy jay.bundy@lexis-nexis.com</title>
+Hello,<br>
+<br>
+It looks like utAssert.eq calls the 'this' function with <br>
+check_this_in = against_this_in.<br>
+<br>
+Then, when the 'this' function runs, raises a failed test condition only if the boolean check_this_in is NULL and the null_ok_in parm is not set.  If eq has passed a NULL in EITHER check_this_in or against_this_in, the comparison result is NULL, which satisfies the check done in 'this' as ok.  In other words, the following call results in a passed assertion:<br>
+<br>
+utAssert.eq (<br>
+   msg_in => 'This assert cannot fail'<br>
+   check_this_in => 'c'<br>
+   against_this_in => NULL,<br>
+   null_ok_in => TRUE<br>
+   );<br>
+<br>
+The result of this call is a passed test.  Nowhere is there an IS NULL check done against against_this_in. Am I the first to notice this?<br>
+
+
+</body>

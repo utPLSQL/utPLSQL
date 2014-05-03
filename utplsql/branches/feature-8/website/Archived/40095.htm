@@ -1,0 +1,23 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="40088.htm">Previous</a> | <a href="40104.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> utplsql on Linux<br>
+<b>Conf:</b> 537, Msg: 40095<br>
+<b>From:</b> Predoiu Adrian (<a href="mailto:seli@romsys.ro">seli@romsys.ro</a>)<br>
+<b>Date:</b> 12/18/00 03:42 AM<br>
+
+<p><title>utplsql on Linux Predoiu Adrian seli seli@romsys.ro</title>
+The problem is not Linux 6.2 or Oracle 8.1.6.<br>
+If you do not have the procedure wlib_state you got this error.<br>
+So <br>
+create or replace procedure wlib_state as<br>
+begin<br>
+null;<br>
+end;<br>
+and after this run<br>
+begin<br>
+utplsql.test('wlib_state');<br>
+end;<br>
+Good luck<br>
+A.<br>
+
+
+</body>

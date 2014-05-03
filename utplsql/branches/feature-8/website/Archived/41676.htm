@@ -1,0 +1,23 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="40828.htm">Previous</a> | <a href="41705.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Confused by example<br>
+<b>Conf:</b> 539, Msg: 41676<br>
+<b>From:</b> Jason Dufair (<a href="mailto:jase@deadbeets.com">jase@deadbeets.com</a>)<br>
+<b>Date:</b> 2/23/01 12:47 PM<br>
+
+<p><title>Confused by example Jason Dufair jkdufair jase@deadbeets.com</title>
+Hi Steven and all -<br>
+<br>
+I've been eyeing utplsql for a month now like I would a new Ferrari.  I finally had some time to download it today and after bribing my dba with a trip to Aruba in exchange for utl_file access and create synonym rights, I think I have everything set up correctly.<br>
+<br>
+It appears that utplsql is doing what it is supposed to, but the odd thing is that when I attempt the betwnstr example, it fails "null end" test.  Indeed, when I run<br>
+<br>
+select betwnstr('abcde', 2, null) from dual<br>
+<br>
+I get 'bcde' as the answer.  But when I run<br>
+<br>
+select substr('abcde', 2, null - 2 + 1) from dual<br>
+<br>
+I get null.  Can anyone explain this?  We're on Oracle 7.3.4 with PL/SQL 3.3.4.0.0.  Many thanks.<br>
+
+
+</body>
