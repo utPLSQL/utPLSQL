@@ -23,9 +23,9 @@ TO USE
 Review the on-line documentation. Start with Getting Started, then check out
 Build Test Packages and dip into the User Guide as needed. 
 
-Any questions? Go to the utPLSQL Forum at 
+Any questions? Go to the utPLSQL Support page at 
 
-http://utplsql.oracledeveloper.nl
+https://sourceforge.net/projects/utplsql/support
 
 and let us know about it.
 
