@@ -183,12 +183,14 @@ sub upload_release {
 
 
 sub upload_zip {
-    system 'rsync -avP -e ssh ' . zip_filename() . ' ' . username() . '@frs.sourceforge.net:/home/pfs/project/utplsql/utPLSQL/' . version_number() . '/' . zip_filename();
+    say 'Uploading zip file...';
+    system 'rsync -avP -e ssh ' . zip_filename() . ' ' . username() . '@frs.sourceforge.net:/home/frs/project/utplsql/utPLSQL/' . version_number() . '/';
 }
 
 
 sub upload_website {
-    system 'rsync -avP -chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r -e ssh ../website/ ' . username() . '@web.sourceforge.net:/home/project-web/utplsql/htdocs/';
+    say 'Uploading website...';
+    system 'rsync -avP --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r -e ssh ../website/ ' . username() . '@web.sourceforge.net:/home/project-web/utplsql/htdocs/';
 }
 
 
