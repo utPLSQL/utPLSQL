@@ -1,0 +1,265 @@
+CREATE OR REPLACE PACKAGE EMPLOYEE_pipe
+-- Wrapper around pipe based on EMPLOYEE
+-- Generated using GenX
+-- Author: Steven Feuerstein, steven@stevenfeuerstein.com
+IS
+   PROCEDURE setpipe (pipe_in IN VARCHAR2);
+   FUNCTION pipe RETURN VARCHAR;
+
+   FUNCTION send (
+      EMPLOYEE_ID_in IN number,
+      LAST_NAME_in IN varchar2,
+      FIRST_NAME_in IN varchar2,
+      MIDDLE_INITIAL_in IN varchar2,
+      JOB_ID_in IN number,
+      MANAGER_ID_in IN number,
+      HIRE_DATE_in IN date,
+      SALARY_in IN number,
+      COMMISSION_in IN number,
+      DEPARTMENT_ID_in IN number,
+      CHANGED_BY_in IN varchar2,
+      CHANGED_ON_in IN date,
+      wait IN INTEGER := 0
+      ) RETURN PLS_INTEGER;
+
+   FUNCTION send (rec IN EMPLOYEE%ROWTYPE,
+      wait IN INTEGER := 0
+      ) RETURN PLS_INTEGER;
+
+   FUNCTION receive (
+      EMPLOYEE_ID_out OUT number,
+      LAST_NAME_out OUT varchar2,
+      FIRST_NAME_out OUT varchar2,
+      MIDDLE_INITIAL_out OUT varchar2,
+      JOB_ID_out OUT number,
+      MANAGER_ID_out OUT number,
+      HIRE_DATE_out OUT date,
+      SALARY_out OUT number,
+      COMMISSION_out OUT number,
+      DEPARTMENT_ID_out OUT number,
+      CHANGED_BY_out OUT varchar2,
+      CHANGED_ON_out OUT date,
+      wait IN INTEGER := 0
+      ) RETURN PLS_INTEGER;
+
+   FUNCTION receive (rec OUT EMPLOYEE%ROWTYPE,
+      wait IN INTEGER := 0
+      ) RETURN PLS_INTEGER;
+      
+   PROCEDURE fillpipe (pipe_in IN VARCHAR2);
+   PROCEDURE emptypipe (pipe_in IN VARCHAR2);
+
+   /* Unit Test code in same package */
+   
+   PROCEDURE ut_setup;
+   
+   PROCEDURE ut_teardown;
+   
+   PROCEDURE ut_fillpipe;
+END;
+/
+CREATE OR REPLACE PACKAGE BODY EMPLOYEE_pipe
+IS
+   g_name VARCHAR2(200) := 'EMPLOYEE_pipe';
+
+   PROCEDURE setpipe (pipe_in IN VARCHAR2) IS
+   BEGIN g_name := pipe_in; END;
+
+   FUNCTION pipe RETURN VARCHAR IS BEGIN RETURN g_name; END;
+
+   FUNCTION send (
+      EMPLOYEE_ID_in IN number,
+      LAST_NAME_in IN varchar2,
+      FIRST_NAME_in IN varchar2,
+      MIDDLE_INITIAL_in IN varchar2,
+      JOB_ID_in IN number,
+      MANAGER_ID_in IN number,
+      HIRE_DATE_in IN date,
+      SALARY_in IN number,
+      COMMISSION_in IN number,
+      DEPARTMENT_ID_in IN number,
+      CHANGED_BY_in IN varchar2,
+      CHANGED_ON_in IN date,
+      wait IN INTEGER := 0
+      ) RETURN PLS_INTEGER
+   IS
+      stat INTEGER;
+   BEGIN
+      DBMS_PIPE.RESET_BUFFER;
+      DBMS_PIPE.PACK_MESSAGE (EMPLOYEE_ID_in);
+      DBMS_PIPE.PACK_MESSAGE (LAST_NAME_in);
+      DBMS_PIPE.PACK_MESSAGE (FIRST_NAME_in);
+      DBMS_PIPE.PACK_MESSAGE (MIDDLE_INITIAL_in);
+      DBMS_PIPE.PACK_MESSAGE (JOB_ID_in);
+      DBMS_PIPE.PACK_MESSAGE (MANAGER_ID_in);
+      DBMS_PIPE.PACK_MESSAGE (HIRE_DATE_in);
+      DBMS_PIPE.PACK_MESSAGE (SALARY_in);
+      DBMS_PIPE.PACK_MESSAGE (COMMISSION_in);
+      DBMS_PIPE.PACK_MESSAGE (DEPARTMENT_ID_in);
+      DBMS_PIPE.PACK_MESSAGE (CHANGED_BY_in);
+      DBMS_PIPE.PACK_MESSAGE (CHANGED_ON_in);
+
+      stat := DBMS_PIPE.SEND_MESSAGE (g_name, wait);
+
+      RETURN stat;
+   END;
+
+   FUNCTION receive (
+      EMPLOYEE_ID_out OUT number,
+      LAST_NAME_out OUT varchar2,
+      FIRST_NAME_out OUT varchar2,
+      MIDDLE_INITIAL_out OUT varchar2,
+      JOB_ID_out OUT number,
+      MANAGER_ID_out OUT number,
+      HIRE_DATE_out OUT date,
+      SALARY_out OUT number,
+      COMMISSION_out OUT number,
+      DEPARTMENT_ID_out OUT number,
+      CHANGED_BY_out OUT varchar2,
+      CHANGED_ON_out OUT date,
+      wait IN INTEGER := 0
+      ) RETURN PLS_INTEGER
+   IS
+      stat INTEGER;
+   BEGIN
+      --// Receive next message and unpack for each column. //--
+      stat := DBMS_PIPE.RECEIVE_MESSAGE (g_name, wait);
+
+      IF stat = 0
+      THEN
+         DBMS_PIPE.UNPACK_MESSAGE (EMPLOYEE_ID_out);
+         DBMS_PIPE.UNPACK_MESSAGE (LAST_NAME_out);
+         DBMS_PIPE.UNPACK_MESSAGE (FIRST_NAME_out);
+         DBMS_PIPE.UNPACK_MESSAGE (MIDDLE_INITIAL_out);
+         DBMS_PIPE.UNPACK_MESSAGE (JOB_ID_out);
+         DBMS_PIPE.UNPACK_MESSAGE (MANAGER_ID_out);
+         DBMS_PIPE.UNPACK_MESSAGE (HIRE_DATE_out);
+         DBMS_PIPE.UNPACK_MESSAGE (SALARY_out);
+         DBMS_PIPE.UNPACK_MESSAGE (COMMISSION_out);
+         DBMS_PIPE.UNPACK_MESSAGE (DEPARTMENT_ID_out);
+         DBMS_PIPE.UNPACK_MESSAGE (CHANGED_BY_out);
+         DBMS_PIPE.UNPACK_MESSAGE (CHANGED_ON_out);
+      END IF;
+
+      RETURN stat;
+   END;
+
+   FUNCTION send (rec IN EMPLOYEE%ROWTYPE,
+      wait IN INTEGER := 0
+      ) RETURN PLS_INTEGER
+   IS
+      stat PLS_INTEGER;
+   BEGIN
+      stat := send (
+         rec.EMPLOYEE_ID,
+         rec.LAST_NAME,
+         rec.FIRST_NAME,
+         rec.MIDDLE_INITIAL,
+         rec.JOB_ID,
+         rec.MANAGER_ID,
+         rec.HIRE_DATE,
+         rec.SALARY,
+         rec.COMMISSION,
+         rec.DEPARTMENT_ID,
+         rec.CHANGED_BY,
+         rec.CHANGED_ON,
+         wait);
+      RETURN stat;
+   END;
+
+   FUNCTION receive (rec OUT EMPLOYEE%ROWTYPE,
+      wait IN INTEGER := 0
+      ) RETURN PLS_INTEGER
+   IS
+      stat PLS_INTEGER;
+   BEGIN
+      stat := receive (
+         rec.EMPLOYEE_ID,
+         rec.LAST_NAME,
+         rec.FIRST_NAME,
+         rec.MIDDLE_INITIAL,
+         rec.JOB_ID,
+         rec.MANAGER_ID,
+         rec.HIRE_DATE,
+         rec.SALARY,
+         rec.COMMISSION,
+         rec.DEPARTMENT_ID,
+         rec.CHANGED_BY,
+         rec.CHANGED_ON,
+         wait);
+      RETURN stat;
+   END;
+   
+   PROCEDURE fillpipe (pipe_in IN VARCHAR2)
+   IS
+      stat PLS_INTEGER;
+   BEGIN
+      employee_pipe.setpipe (pipe_in);
+      
+      FOR rec IN (SELECT *
+                    FROM employee)
+      LOOP
+         stat := employee_pipe.send (rec);
+      END LOOP;
+   END;
+   
+   PROCEDURE emptypipe (pipe_in IN VARCHAR2)
+   IS
+      stat PLS_INTEGER;
+   BEGIN
+      LOOP
+         stat := DBMS_PIPE.RECEIVE_MESSAGE (pipe_in, 0);
+         EXIT WHEN stat != 0;
+      END LOOP;
+   END;
+   
+   /* Unit Test code in same package */
+   
+   PROCEDURE ut_setup IS
+   BEGIN
+      NULL;
+   END;
+   
+   PROCEDURE ut_teardown IS
+   BEGIN
+      NULL;
+   END;
+   
+   PROCEDURE ut_fillpipe IS
+      stat PLS_INTEGER;
+   BEGIN
+      emptypipe ('emps');
+      emptypipe ('emps2');
+      
+      fillpipe ('emps');
+      
+      /* Direct filling of pipe. */
+      
+      FOR rec IN (SELECT *
+                    FROM employee)
+      LOOP
+         DBMS_PIPE.RESET_BUFFER;
+         DBMS_PIPE.PACK_MESSAGE (rec.EMPLOYEE_ID);
+         DBMS_PIPE.PACK_MESSAGE (rec.LAST_NAME);
+         DBMS_PIPE.PACK_MESSAGE (rec.FIRST_NAME);
+         DBMS_PIPE.PACK_MESSAGE (rec.MIDDLE_INITIAL);
+         DBMS_PIPE.PACK_MESSAGE (rec.JOB_ID);
+         DBMS_PIPE.PACK_MESSAGE (rec.MANAGER_ID);
+         DBMS_PIPE.PACK_MESSAGE (rec.HIRE_DATE);
+         DBMS_PIPE.PACK_MESSAGE (rec.SALARY);
+         DBMS_PIPE.PACK_MESSAGE (rec.COMMISSION);
+         DBMS_PIPE.PACK_MESSAGE (rec.DEPARTMENT_ID);
+         DBMS_PIPE.PACK_MESSAGE (rec.CHANGED_BY);
+         DBMS_PIPE.PACK_MESSAGE (rec.CHANGED_ON);
+
+         stat := DBMS_PIPE.SEND_MESSAGE ('emps2', 0);
+      END LOOP;
+      
+      /* Compare the two */
+      utassert.eqpipe (
+         'Two employee pipes', 'emps', 'emps2');
+         
+   END ut_fillpipe;
+   
+END;
+/
