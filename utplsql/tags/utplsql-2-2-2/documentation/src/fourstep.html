@@ -1,0 +1,629 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <title></title>
+</head>
+<body>
+<!-- Begin utPLSQL Body -->
+<!-- $Id$ -->
+   <h1>The Four Step Program to Using utPLSQL</h1>
+
+   <h3><a href="fourstep.html">Step 1. Install utPLSQL.</a></h3>
+
+   <h3><a href="#step2">Step 2. Choose a program to test and identify the test cases.</a></h3>
+
+   <h3><a href="#step3">Step 3. Build a test package.</a></h3>
+
+   <h3><a href="#step4">Step 4. Run your test.</a></h3>
+
+   <h3><a href="#schemas">A note on which schemas to use</a></h3>
+
+   <h3>
+      <a name="Reporting"></a>
+      <a href="#Fromhere"></a>
+      <a href="#Fromhere"></a>
+      <a href="#Fromhere">Where to go from here</a>
+   </h3>
+
+   <h2><a name="step1"></a>Step 1. Install (and Upgrade) utPLSQL.</h2>
+
+   <p>
+      Note: if you have already installed a previous version of
+      utPLSQL, you will use these same steps to perform your install. The
+      installation procedure does <i>not</i> remove any objects, such as tables,
+      prior to installation. If you wish to install a fresh copy of utPLSQL, and not upgrade
+      over the existing installation, please follow the steps below for removing
+      utPLSQL.
+   </p>
+
+   <p>
+      Connect via SQL*Plus to the session that will own the
+      utPLSQL components. If you do not already have a schema defined, then you must
+      create it. The utPLSQL schema must have the authority to:
+   </p>
+
+   <ul>
+      <li>Create a session.</li>
+      <li>Create tables, views, packages and sequences.</li>
+   </ul>
+
+   <p>
+      If you like, you can install utPLSQL into the SYSTEM schema, which will avoid the need to create
+      a new user.  However, you may prefer to keep everything in a separate place. 
+      The following is an example script submitted by Bill Pribyl, which creates a user "UTP" with sufficient privileges 
+      to install utPLSQL.  Obviously it is only an example and will need to be changed for your environment:
+   </p>
+
+<pre>
+connect system/manager
+create user utp identified by utp default tablespace
+  users temporary tablespace temp;
+
+grant create session, create table, create procedure,
+  create sequence, create view, create public synonym,
+  drop public synonym to utp;
+
+alter user utp quota unlimited on users;
+</pre>
+
+   <p>
+      <b>Note</b> If the schema in question does not have the ability to create 
+      and drop public synonyms or execute privilege on DBMS_PIPE, you may get 
+      error messages when installing.  However, utPLSQL will still function 
+      correctly.
+   </p>
+
+   <p>
+      Once you have connected to the schema, run the ut_i_do.sql
+      file with the parameter "install" to install all utPLSQL objects. You should ensure that 
+      the working directory of your SQL*Plus
+      session is the directory holding the utPLSQL files, then issue this as follows:
+   </p>
+
+<pre>
+SQL&gt; @ut_i_do install
+</pre>
+
+   <p>
+      This file will create all tables, packages and other objects needed.  
+      Note that the installation script
+      creates some files dynamically using the SPOOL command.  For this reason, it is 
+      necessary that you have write permission in the directory.
+   </p>
+
+   <p>To check the installation of utPLSQL, examine the ut_i_install.log file.</p>
+
+   <h3><a name="Upgrade"></a>Removing utPLSQL</h3>
+
+   <p>
+      To de-install the product, run the ut_i_do.sql
+      script again, but with the parameter "uninstall", as in:
+   </p>
+
+<pre>
+SQL&gt; @ut_i_do uninstall
+</pre>
+
+   <h2><a name="step2"></a>Step 2. Choose a program to test and identify the test cases.</h2>
+
+   <p>
+      You may want to test a single stand-alone procedure or
+      function, or a set of programs in a package. Pick the program and then come up
+      with the set of different cases you want to test. This data will determine what
+      kind of and how many tests you run for your program.
+   </p>
+
+   <p>
+      Suppose, for example, that I have created a stand alone function called
+      betwnStr (a variation on SUBSTR that returns a sub-string based on a starting
+      and ending location) that is stored in betwnstr.sf <a href="#footnote">(1)</a>:
+   </p>
+
+<pre>
+CREATE OR REPLACE FUNCTION betwnStr (
+   string_in IN VARCHAR2,
+   start_in  IN INTEGER,
+   end_in    IN INTEGER
+)
+RETURN VARCHAR2
+IS
+BEGIN
+   RETURN (
+      SUBSTR (
+         string_in,
+         start_in,
+         end_in - start_in + 1
+      )
+   );
+END;
+</pre>
+
+   <p>
+      To test this function, I will want to pass in a variety of
+      inputs, as shown in this table:
+   </p>
+
+   <table cellpadding="0" border="1" cellspacing="0">
+      <tr>
+         <td valign="top">
+            <p><b>Start </b></p>
+         </td>
+  
+         <td valign="top">
+            <p><b>End</b></p>
+         </td>
+  
+         <td valign="top">
+            <p><b>Result</b></p>
+         </td>
+      </tr>
+ 
+      <tr>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+         <td valign="top">
+            <p>NOT NULL</p>
+         </td>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+      </tr>
+      <tr>
+         <td valign="top">
+            <p>NOT NULL</p>
+         </td>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+      </tr>
+      <tr>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+      </tr>
+      <tr>
+         <td valign="top">
+            <p>3 (positive number)</p>
+         </td>
+         <td valign="top">
+            <p>1 (smaller positive number)</p>
+         </td>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+      </tr>
+      <tr>
+         <td valign="top">
+            <p>3 (positive number)</p>
+         </td>
+         <td valign="top">
+            <p>100 (larger than length of string)</p>
+         </td>
+         <td valign="top">
+            <p>Remainder of string from 3</p>
+         </td>
+      </tr>
+   </table>
+
+   <p>So now I know what I want to test and how I want to test it.</p>
+
+   <h2><a name="step3"></a>Step 3. Build a test package.</h2>
+
+   <p>
+      utPLSQL offers an easy, automated way to run your tests. To
+      work automatically, though, you have to follow some rules so that utPLSQL can
+      find and execute your test code. Here are the rules:
+   </p>
+
+   <p>The test code must be placed inside a test <i>package</i>.</p>
+
+   <p>
+      The test package specification should
+      be stored in a file named ut_&lt;program&gt;.pks and the body must be stored in
+      a file named ut_&lt;program&gt;.pkb (by following this naming convention,
+      utPLSQL can be set to automatically recompile your test package before each
+      test).
+   </p>
+
+   <p>
+      The test package must contain a <a href="howto.html#Setup">setup procedure</a> called ut_setup and a <a href="howto.html#Teardown">teardown procedure</a> called ut_teardown, neither of
+      which take any arguments.
+   </p>
+
+   <p>
+      The test package should have a separate procedure for each program to be 
+      tested in this package.
+   </p>
+
+   <p>
+      Now, you should know that there are a number of bells and
+      whistles in utPLSQL that allow you to change many default values (such as the
+      prefixes used for the setup, teardown and test procedures) and behavior of the
+      utPLSQL packages. While you are &quot;Getting Started&quot;, however, we will
+      rely completely on the defaults and get you up and testing ASAP. 
+   </p>
+
+   <p>
+      So if I am going to test the stand-alone procedure, betwnstr, my test
+      package specification, saved in ut_betwnstr.pks<a href="#footnote">(1)</a>,
+      will look like this: 
+   </p>
+
+<pre>
+CREATE OR REPLACE PACKAGE ut_betwnstr
+IS
+   PROCEDURE ut_setup;
+   PROCEDURE ut_teardown;
+   
+   PROCEDURE ut_betwnstr;
+END ut_betwnstr;
+/
+</pre>
+
+   <p>
+      Now let's build the package body, saved in ut_betwnstr.pkb<a href="#footnote">(1)</a>. In this very simple
+      case, I don't have to set up any data structures and I do not, therefore, have
+      to tear anything down. My teardown  procedure can be empty (but it <i>must</i>
+      be present). So I have: 
+   </p>
+
+<pre>
+CREATE OR REPLACE PACKAGE BODY ut_betwnstr
+IS
+   PROCEDURE ut_setup IS
+   BEGIN
+      NULL;
+   END;
+   
+   PROCEDURE ut_teardown
+   IS
+   BEGIN
+      NULL;
+   END;
+</pre>
+
+   <p>
+      Time to build the unit test procedure. To do this, I need to
+      go back to my grid of test cases and translate those sets of data inputs and
+      results into calls to programs in the <a href="utassert.html">utAssert</a>
+      package.  
+   </p>
+
+   <p>
+      utAssert offers a number of &quot;assertion routines&quot; that test the
+      values or expression you pass to them and then record the results in utPLSQL.
+      You can, with utAssert, test for equality between two strings or files or
+      tables or collections. You can test to see if an expression evaluates to NULL.
+      I can use both of these types of assertions (equality and IS NULL) for my test
+      cases, which I repeat below:
+   </p>
+
+   <table cellpadding="0" border="1" cellspacing="0">
+      <tr>
+         <td valign="top">
+            <p><b>Start </b></p>
+         </td>
+  
+         <td valign="top">
+            <p><b>End</b></p>
+         </td>
+  
+         <td valign="top">
+            <p><b>Result</b></p>
+         </td>
+      </tr>
+ 
+      <tr>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+         <td valign="top">
+            <p>NOT NULL</p>
+         </td>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+      </tr>
+      <tr>
+        <td valign="top">
+            <p>NOT NULL</p>
+         </td>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+      </tr>
+      <tr>
+        <td valign="top">
+            <p>NULL</p>
+         </td>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+      </tr>
+      <tr>
+        <td valign="top">
+            <p>3 (positive number)</p>
+         </td>
+         <td valign="top">
+            <p>1 (smaller positive number)</p>
+         </td>
+         <td valign="top">
+            <p>NULL</p>
+         </td>
+      </tr>
+      <tr>
+         <td valign="top">
+            <p>3 (positive number)</p>
+         </td>
+         <td valign="top">
+            <p>100 (larger than length of string)</p>
+         </td>
+         <td valign="top">
+            <p>Remainder of string</p>
+         </td>
+      </tr>
+   </table>
+
+   <p>
+      Here's how it works: for each test case, I provide a string description of
+      the case, then the expression I want to evaluate. Let's start with
+      &quot;typical valid usage&quot;. I pass a string &quot;abcdefg&quot;, a start
+      location of 3 and end location of 5, and betwnstr should return
+      &quot;cde&quot;. I express that in my unit test procedure as follows: 
+   </p>
+
+<pre>
+PROCEDURE ut_betwnstr IS
+BEGIN
+   <a href="utassert.html#utassert.eq">utAssert.eq</a> (
+      'Typical valid usage',
+      BETWNSTR(
+         STRING_IN =&gt; 'abcdefg',
+         START_IN =&gt; 3,
+         END_IN =&gt; 5
+      ),
+      'cde'
+   );
+</pre>
+
+   <p>
+      Notice that I call utAssert.eq because I want to compare the
+      value returned by betwnstr with the string &quot;cde&quot;. They <i>should</i>
+      be equal. 
+   </p>
+
+   <p>
+      I can now write another call to a utAssert program for each of my cases. In
+      this very next example, I call utAssert.isnull, because I am expecting betwnstr
+      to return a NULL value.
+   </p>
+
+<pre>
+      <a href="utassert.html#utassert.isnull">utAssert.isnull</a> (
+         'NULL start',
+         BETWNSTR(
+            STRING_IN =&gt; 'abcdefg',
+            START_IN =&gt; NULL,
+            END_IN =&gt; 5
+         )
+      );
+      
+      utAssert.isnull (
+         'NULL end',
+         BETWNSTR(
+            STRING_IN =&gt; 'abcdefg',
+            START_IN =&gt; 2,
+            END_IN =&gt; NULL
+         )
+      );
+      
+      utAssert.isnull (
+         'End smaller than start',
+         BETWNSTR(
+            STRING_IN =&gt; 'abcdefg',
+            START_IN =&gt; 5,
+            END_IN =&gt; 2
+         )
+      );
+      
+      utAssert.eq (
+         'End larger than string length',
+         BETWNSTR(
+            STRING_IN =&gt; 'abcdefg',
+            START_IN =&gt; 3,
+            END_IN =&gt; 200
+         ),
+         'cdefg'
+      );
+
+   END ut_BETWNSTR;
+   
+END ut_betwnstr;
+/
+</pre>
+
+   <p>
+      I have now created my unit test program for the betwnstr
+      function. I will compile both these files to make sure there are no compile
+      errors:
+   </p>
+
+<pre>
+SQL&gt; @ut_betwnstr.pks
+
+Package created.
+
+SQL&gt; @ut_betwnstr.pkb
+
+Package body created.
+</pre>
+
+   <p>
+      Note: when you run your test, utPLSQL will by default 
+      attempt to recompile your test package to ensure that the latest changes are
+      incorporated into the test. It is still worth doing an initial compile to make
+      sure you built your test properly. You will also need to make sure that <a href="admin.html#UTL_FILE">UTL_FILE</a> is installed and configured so that your
+      test package files can be read and compiled by utPLSQL.
+   </p>
+
+   <p>
+      So with the test package in place and compiling, now let's
+      see how we go about running the test.
+  </p>
+
+   <h2><a name="step4"></a>Step 4. Run your test.</h2>
+
+   <p>
+      You've built your code, you've built your test package,
+      you've compiled that test package. Now it's time to run the test. Start up
+      SQL*Plus and connect to the schema owning the code you want to test.
+   </p>
+
+   <p>
+      Then run your test package within the utPLSQL testing framework by calling <a href="utplsql.html#utplsql.test">utPLSQL.test</a>:
+   </p>
+
+<pre>
+SQL&gt; exec utplsql.test ('betwnstr', recompile_in =&gt; FALSE)
+</pre>
+
+   <p>
+      That second parameter in the call to utplsql.test,
+      &quot;recompile_in =&gt; FALSE&quot;, tells utPLSQL that you have already
+      compiled your test package. You can also have utPLSQL <a href="utconfig.html#Autocompile">automatically recompile</a> your test package
+      each time you run a test. 
+   </p>
+
+   <p>
+      If the test does not find any errors (which means that the assertion
+      programs did not detect any conflicts), you will see this output:
+   </p>
+
+<pre>
+SQL&gt; exec utplsql.test ('betwnstr', recompile_in =&gt; FALSE)
+SUCCESS: &quot;betwnstr&quot;
+</pre>
+
+   <p>If the test detected a failure, you will see output along these lines: </p>
+
+<pre>
+SQL&gt; exec utplsql.test ('betwnstr', recompile_in =&gt; FALSE)
+FAILURE: &quot;betwnstr&quot;
+BETWNSTR: IS NULL: NULL start
+BETWNSTR: End larger than string length; expected &quot;cdeg&quot;, got &quot;cdefg&quot;
+</pre>
+
+   <p>
+      As you can see, utPLSQL tells you the description of the
+      test case that failed, and also shows you as much as it can about what caused
+      the failure.
+   </p>
+
+   <p>
+      You have now successfully installed utPLSQL, written a test package and run
+      your test!
+   </p>
+
+   <h3><a name="Recompile"></a>Automatic Recompilation of Test Package</h3>
+
+   <p>
+      utPLSQL will, by default, attempt to recompile your test package code
+      (which must be put in two files &lt;name&gt;.pks for the package specification
+      and &lt;name&gt;.pkb for the package body). This of course assumes that the files
+      are situated on the same machine as your database.  If this is not the case, you can 
+      turn off this functionality by calling <a href="utconfig.html#autocompile">utConfig.autocompile</a>
+      as follows:
+   </p>
+
+<pre>
+utConfig.autocompile(false);
+</pre>
+
+   <p>
+      If you do wish to use this functionality, utPLSQL needs
+      the UTL_FILE package provided by Oracle to read the source code files and then
+      compile the code found in those files. Before using UTL_FILE you must <a href="admin.html#UTL_FILE">configure</a> it for use from within PL/SQL.  
+      Once you have confirmed that UTL_FILE works in your database instance, you
+      must tell utPLSQL where the test package is located by calling utPLSQL.setdir.
+      If you do not do this, then utPLSQL will not be able to recompile your test
+      package before each run, and instead will display an error message.
+   </p>
+
+   <p>
+      Call the <a href="utconfig.html#Setdir">utConfig.setdir</a> program to tell
+      utPLSQL the location of your source code. Suppose that I stored all my code in e:\utplsql\testall. Then I would make this
+      call in SQL*Plus:
+   </p>
+
+<pre>
+SQL&gt; exec utplsql.setdir ('e:\utplsql\testall')
+</pre>
+
+   <h2><a name="schemas"></a>A note on which schemas to use</h2>
+
+   <p>
+      In <a href="#step1">step 1</a>, above, we described which user should own the objects which make up the utPLSQL framework.
+      However, there has often been confusion about which schema should contain the test packages and which schema to connect as
+      when running the tests.  There are many ways to do it, but the simplest is as follows:
+   </p>
+   <ul>
+      <li>It doesn't matter which schema owns utPLSQL itself, so long as other users have access to it.</li>
+      <li>The test packages should go in the same schema as the code that is being tested.</li>
+      <li>You should connect as the user who owns the test packages (and hence the tested code) when running the tests</li>
+   </ul>
+
+   <h2><a name="Fromhere"></a>Where to go from here</h2>
+
+   <p>
+      If you proceeded through all four steps, you should now have
+      used utPLSQL successfully to test a very simple function (betwnstr) or your own
+      functionality. This will undoubtedly leave you very excited about using utPLSQL
+      to handle much more complex code and elaborate testing requirements.
+   </p>
+
+   <p>
+      To find out more about the different features and
+      functionality available in utPLSQL, visit the <a href="userguide.html">User
+      Guide</a>.
+   </p>
+
+   <p>
+      To read through a more thorough presentation of how to build
+      test packages in utPLSQL, visit <a href="buildpack.html">How to
+      Build Test Packages</a>.
+   </p>
+
+   <p>
+      To see a wide array of examples of building test cases and
+      different kinds of test packages, visit the <a href="examples.html">Examples</a>
+      document.
+   </p>
+
+<hr />
+
+<h3><a name="footnote">Footnotes</a></h3>
+
+<p>1. This file is to be found in the Examples directory of the utPLSQL distribution.</p>
+
+<!-- End utPLSQL Body -->
+</body>
+
+</html>

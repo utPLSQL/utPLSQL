@@ -1,0 +1,23 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="42307.htm">Previous</a> | <a href="43006.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> PACKAGE BODY UTASSERT failed TO install properly.<br>
+<b>Conf:</b> 550, Msg: 42320<br>
+<b>From:</b> Chris Rimmer (<a href="mailto:chris@nominet.org.uk">chris@nominet.org.uk</a>)<br>
+<b>Date:</b> 3/23/01 01:10 AM<br>
+
+<p><title>PACKAGE BODY UTASSERT failed TO install properly. Chris Rimmer chrisrimmer chris.rimmer@tessella.co.uk</title>
+You should have some sort of error message in the log file that gets created at install time.<br>
+<br>
+Alternatively, issue the following:<br>
+<br>
+select line, text <br>
+from user_errors<br>
+where name = 'UTASSERT'<br>
+and type = 'PACKAGE BODY'<br>
+order by line;<br>
+<br>
+That should give some indication of the problem.<br>
+<br>
+Chris<br>
+
+
+</body>

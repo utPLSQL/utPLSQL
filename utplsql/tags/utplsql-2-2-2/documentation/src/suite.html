@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <title></title>
+</head>
+<body>
+<!-- Begin utPLSQL Body -->
+<!-- $Id$ -->
+   <h1>Create and Run a Test Suite</h1>
+
+   <p>
+      Usually our applications are composed of multiple packages. To test
+      our application, we must test all of the packages. utPLSQL makes it easier
+      for you to do that by offering <a href="defsuite.html">test suites</a>.
+   </p>
+   <p>
+      Here is an example of a script that defines a (partial) test suite for
+      PL/Vision, a code library available from <a href="http://www.revealnet.com">RevealNet</a>
+      as part of its Active PL/SQL Knowledge Base:
+   </p>
+   
+<pre>
+/*file plvision.tst */
+BEGIN
+   -- Define a test suite for PL/Vision
+   utsuite.add ('PLVision');
+   
+   -- Add packages for testing
+   utpackage.add (
+      'PLVision', 'PLVstr', dir_in =&gt; 'e:\openoracle\utplsql\examples');
+   utpackage.add (
+      'PLVision', 'PLVdate', dir_in =&gt; 'e:\openoracle\utplsql\examples');
+END;   
+/
+</pre>
+
+   <p>
+      This is a very simple test suite definition. I rely on all defaults, but
+      I specify a location for my test package code. By doing this, utPLSQL will
+      be able to find my test packages even if the default/current utPLSQL directory
+      is set to another location.
+   </p>
+   <p>
+      If I want to, I can also specify the order in which packages are tested
+      by passing a value for the seq_in argument. I can request that the test
+      code be looked for in the same package as the source code, and so on. Here
+      is a rewriting of the above sutie creation script that demonstrates these
+      options:
+   </p>
+
+<pre>
+BEGIN
+   utsuite.add ('PLVision');
+
+   utpackage.add ('PLVision',
+      'PLVstr',
+      dir_in =&gt; 'e:\openoracle\utplsql\examples',
+      seq_in =&gt; 1,
+      samepackage_in =&gt; TRUE
+   );
+
+   utpackage.add ('PLVision',
+      'PLVdate',
+      dir_in =&gt; 'e:\openoracle\utplsql\examples',
+      seq_in =&gt; 2,
+      samepackage_in =&gt; TRUE
+   );
+END;
+/</pre>
+
+<!-- End utPLSQL Body -->
+</body>
+</html>

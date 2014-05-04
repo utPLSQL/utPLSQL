@@ -1,0 +1,12 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="39964.htm">Previous</a> | <a href="40094.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Seqval function does not work in Oracle 8.0.5.2.1<br>
+<b>Conf:</b> 537, Msg: 40077<br>
+<b>From:</b> Steven Feuerstein (<a href="mailto:steven@stevenfeuerstein.com">steven@stevenfeuerstein.com</a>)<br>
+<b>Date:</b> 12/16/00 08:36 AM<br>
+
+<p><title>Seqval function does not work in Oracle 8.0.5.2.1 Steven Feuerstein sfeuerstein steven@stevenfeuerstein.com</title>
+Hmmm. Sigh...this is a problem. To allow my generic utPLSQL.seqval function to work within SQL, I have to put a PRAGMA RESTRICT_REFERENCES on the function header. But I will not be able to do that since it uses DBMS_SQL. So it will take a bit of rewriting to change how sequence values are generated. My apologies!<br>
+<br>
+SF
+
+</body>

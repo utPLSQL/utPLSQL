@@ -1,0 +1,30 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="39082.htm">Previous</a> | <a href="39868.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Testing query vs single value<br>
+<b>Conf:</b> 538, Msg: 39840<br>
+<b>From:</b> Chris Rimmer (<a href="mailto:chris@nominet.org.uk">chris@nominet.org.uk</a>)<br>
+<b>Date:</b> 12/7/00 05:28 AM<br>
+
+<p><title>Testing query vs single value Chris Rimmer chrisrimmer chris.rimmer@tessella.co.uk</title>
+I'm not sure if its just me, but I seem to find myself much of the time using utAssert.eqquery to test one query against a trivial one which returns a fixed value. So if I want to check that my procedure has deleted a set of records from a table, I end up comparing the following queries:<br>
+<br>
+SELECT COUNT(*)<br>
+FROM <I>My_Table</I><br>
+WHERE <I>Some_Condition</I>;<br>
+<br>
+SELECT 0 from DUAL;<br>
+<br>
+The main problem with this (apart from some extra typing) is that when it fails, I just get told it failed, with no details.<br>
+<br>
+I would like something that looks like this:<br>
+<br>
+utAssert.eqqueryvalue(msg_in VARCHAR2,<br>
+check_query_in VARCHAR2, <br>
+against_value_in <I>VARCHAR2/NUMBER/DATE</I>,<br>
+raise_exc_in BOOLEAN);<br>
+<br>
+that fails if the query returns multiple values and tells me what it got when it returns the wrong value (i.e. by calling utAssert.eq)<br>
+<br>
+Chris<br>
+
+
+</body>

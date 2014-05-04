@@ -1,0 +1,31 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="38145.htm">Previous</a> | <a href="38257.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> utPLSQL v1.5.1 Pre-release software<br>
+<b>Conf:</b> 557, Msg: 38167<br>
+<b>From:</b> Chris Rimmer (<a href="mailto:chris@nominet.org.uk">chris@nominet.org.uk</a>)<br>
+<b>Date:</b> 10/2/00 08:30 AM<br>
+
+<p><title>utPLSQL v1.5.1 Pre-release software Chris Rimmer chrisrimmer chris.rimmer@tessella.co.uk</title>
+Steven,<br>
+<br>
+I think the documentation is looking really good, but I do have a few points to make.  The first is that the main links from index.htm do not work, as they are absolute file paths.<br>
+<br>
+More worryingly, I couldn't get your BETWNSTR example to work 'straight out of the box'.  I'm not sure if I did something wrong, but the problem boiled down to the prefix defaulting to NULL rather than 'ut_'.  I installed utplsql under my own schema along with the BETWNSTR function and UT_BETWNSTR package.  It seems that when I first use the UTPLSQL package it tries to store my user preferences in the g_config package variable.  I don't have any, so this variable is NULL.  Then, during my call to UTPLSQL.TEST, the function UTPLSQL.PREFIX is called.  This looks at g_config and hence returns NULL.  Shouldn't it return c_prefix in this circumstance?<br>
+<br>
+I also found that there were significant differences between the code for the BETWNSTR  example in the text and in the files themselves:<br>
+<br>
+-In the text, the package body refers to the testing procedure as BETWNSTR rather than UT_BETWNSTR.<br>
+<br>
+-In the text, the spec ends with 'END ut_str'<br>
+<br>
+-In the text, the body of UT_SETUP contains a call to UTPLSQL.ADDTEST, whereas it is NULL in the file.<br>
+<br>
+A couple of other typos leapt out at me: You make no mention of UT_CONFIG or UT_ASSERTION in the component list at the end of 'Getting Started'.  Also, you say in 'Build Test Packages' that the Teardown procedure will be called *before* any unit tests.  I think you mean 'after'!<br>
+<br>
+Finally, I thought the ordering of the sections was slightly strange.  If you are reading linearly, 'Getting Started' will be the place to start, but it seems to me that the next place to go would be 'Building Test Packages'. Only then would you move on to the more detailed information contained in the User Guide.<br>
+<br>
+That looks like a lot of criticism, but I hope it is constructive.<br>
+<br>
+Chris<br>
+
+
+</body>
