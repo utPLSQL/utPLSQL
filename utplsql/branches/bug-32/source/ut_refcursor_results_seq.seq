@@ -1,1 +1,0 @@
-create sequence ut_refcursor_results_seq INCREMENT BY 1 START WITH 1 ORDER NOCACHE;
