@@ -1,0 +1,20 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="37946.htm">Previous</a> | <a href="37962.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Getting utPLSQL to work under Unix<br>
+<b>Conf:</b> 537, Msg: 37960<br>
+<b>From:</b> Steven Feuerstein (<a href="mailto:steven@stevenfeuerstein.com">steven@stevenfeuerstein.com</a>)<br>
+<b>Date:</b> 9/23/00 12:11 PM<br>
+
+<p><title>Getting utPLSQL to work under Unix Steven Feuerstein sfeuerstein steven@stevenfeuerstein.com</title>
+There are two ways of addressing this:<br>
+<br>
+1. You include an exception handler that traps the error and then registers it as failure, as in:<br>
+<br>
+utassert.this (SQLERRM, FALSE);<br>
+<br>
+2. I enhance utPLSQL so that it traps any error and automatically registers it as false. <br>
+<br>
+For now, I suggest doing the former and we can consider the latter as an enhancement request.<br>
+<br>
+SF
+
+</body>

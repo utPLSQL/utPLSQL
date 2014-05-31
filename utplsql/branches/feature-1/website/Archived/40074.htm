@@ -1,0 +1,101 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="40184.htm">Previous</a> | <a href="40076.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> utplsql on Linux<br>
+<b>Conf:</b> 537, Msg: 40074<br>
+<b>From:</b> Cristi Petrescu-Prahova (<a href="mailto:cristipp@excite.com">cristipp@excite.com</a>)<br>
+<b>Date:</b> 12/16/00 06:49 AM<br>
+
+<p><title>utplsql on Linux Cristi Petrescu-Prahova cristipp cristipp@excite.com</title>
+Has anybody succeeded to install utplsql on Linux?<br>
+I am running Oracle 8.1.6 on Redhat 6.2.<br>
+I installed utplsql without any error.<br>
+I built the following package:<br>
+<code><br>
+create or replace package ut_wlib_state as<br>
+<br>
+	procedure ut_setup;<br>
+	procedure ut_teardown;<br>
+	<br>
+	procedure ut_setup_state;<br>
+<br>
+end ut_wlib_state;<br>
+/<br>
+show errors<br>
+<br>
+create or replace package body ut_wlib_state as<br>
+<br>
+	--<br>
+	<br>
+	procedure ut_setup is<br>
+	begin<br>
+	<br>
+		null;<br>
+		<br>
+	end;<br>
+	<br>
+	--<br>
+	<br>
+	procedure ut_teardown is<br>
+	begin<br>
+	<br>
+		null;<br>
+	<br>
+	end;<br>
+	<br>
+	--<br>
+	<br>
+	procedure ut_setup_state is<br>
+	begin<br>
+	<br>
+		utAssert.eq ('success', 'a', 'a');<br>
+					 <br>
+		utAssert.eq ('failure', 'a',  'abcd');<br>
+		<br>
+	end;<br>
+<br>
+	--<br>
+	<br>
+end ut_wlib_state;<br>
+/<br>
+show errors<br>
+</code><br>
+<br>
+I am trying to run utplsql:<br>
+<br>
+<code><br>
+exec utplsql.autocompile (false);<br>
+<br>
+exec utplsql.test ('wlib_state');<br>
+</code><br>
+<br>
+and all I get is an impenetrable error:<br>
+<code><br>
+BEGIN utplsql.test ('wlib_state'); END;<br>
+<br>
+*<br>
+ERROR at line 1:<br>
+ORA-06502: PL/SQL: numeric or value error<br>
+ORA-06512: at "SYS.STANDARD", line 67<br>
+ORA-06512: at "UTPLSQL.UTPLSQL", line 336<br>
+ORA-06550: line 1, column 7:<br>
+PLS-00103: Encountered the symbol "." when expecting one of the following:<br>
+begin declare exit for goto if loop mod null pragma raise<br>
+return select update while <an identifier><br>
+<a double-quoted delimited-identifier> <a bind variable> <<<br>
+close current delete fetch lock insert open rollback<br>
+savepoint set sql execute commit forall<br>
+<a single-quoted SQL string><br>
+The symbol "<an identifier>" was substituted for "." to continue.<br>
+ORA-06512: at "UTPLSQL.UTPLSQL", line 623<br>
+ORA-06512: at "UTPLSQL.UTPLSQL", line 687<br>
+ORA-06510: PL/SQL: unhandled user-defined exception<br>
+ORA-06512: at line 1<br>
+</code><br>
+<br>
+Does anybody know what's wrong?<br>
+<br>
+Thanks,<br>
+Cristi<br>
+<br>
+
+
+</body>

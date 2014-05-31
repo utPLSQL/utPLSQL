@@ -1,0 +1,12 @@
+create table ut_deterministic (
+   package varchar2(100),
+   overload integer,
+   name varchar2(100),
+   tcname varchar2(100),
+   message varchar2(2000),
+   arglist varchar2(2000),
+   result varchar2(2000),
+   assertion_type varchar2(20));
+   
+ALTER table ut_deterministic add CONSTRAINT ut_deterministic_pk
+   primary key (package, overload, name, tcname);   
