@@ -201,6 +201,22 @@ Added first version of pluggable reporter packages
       call('close');
    END;
 
+  
+  /*
+     proc: before_suite_results
+       Show suite overall banner and suite run stats
+       
+     parameters:
+       suite_id - suite id
+   */
+  PROCEDURE before_suite_results(
+    suite_id       ut_suite.id%TYPE
+  )
+  IS
+  BEGIN
+    call('before_suite_results', suite_id);
+  END before_suite_results;
+  
 BEGIN
 
    g_reporter := NVL(utconfig.getreporter, DEFAULT_REPORTER);

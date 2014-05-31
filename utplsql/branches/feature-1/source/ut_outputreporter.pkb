@@ -280,5 +280,80 @@ Added first version of pluggable reporter packages
      END IF;
    END;   
    
+   /*
+    proc: before_suite_results
+      Show suite overall result banner and suite run stats
+      
+    parameters:
+      suite_id - suite id
+  */
+  PROCEDURE before_suite_results(
+    suite_id       ut_suite.id%TYPE
+  )
+  IS
+    PROCEDURE show_suite_stats(
+      suite_id       ut_suite.id%TYPE
+    )
+    IS
+      total_cnt PLS_INTEGER;
+      succeeded_cnt  PLS_INTEGER;
+    BEGIN
+      SELECT COUNT(utp.id) total_cnt,
+             SUM(decode(utp.last_status,utresult2.c_success,1,0)) succeeded_cnt
+        INTO total_cnt,
+             succeeded_cnt
+        FROM ut_package utp
+       WHERE utp.suite_id = show_suite_stats.suite_id;
+      utreport.pl('SUITE STATS: '||to_char(succeeded_cnt)||' of '||to_char(total_cnt)||' packages succeeded.');
+      SELECT COUNT(o.tc_run_id),
+             SUM(decode(o.status,utresult2.c_success,1,0))
+        INTO total_cnt,
+             succeeded_cnt
+        FROM utr_outcome o,
+             ut_package utp
+       WHERE o.run_id = utp.last_run_id
+         AND utp.suite_id = show_suite_stats.suite_id;
+      utreport.pl('SUITE STATS: '||to_char(succeeded_cnt)||' of '||to_char(total_cnt)||' individual test cases succeeded.');
+      utreport.pl('.');
+    END show_suite_stats;
+    
+    PROCEDURE showsuitebanner(
+      suite_id       ut_suite.id%TYPE
+    )
+    IS
+    BEGIN
+      IF utresult.suite_success(suite_id => suite_id) THEN
+        utreport.pl('.');
+        utreport.pl('>   SSSS   U     U  III  TTTTTTT EEEEEEE        SSSS   U     U   CCC     CCC   EEEEEEE   SSSS     SSSS   ');
+        utreport.pl('>  S    S  U     U   I      T    E             S    S  U     U  C   C   C   C  E        S    S   S    S  ');
+        utreport.pl('> S        U     U   I      T    E            S        U     U C     C C     C E       S        S        ');
+        utreport.pl('>  S       U     U   I      T    E             S       U     U C       C       E        S        S       ');
+        utreport.pl('>   SSSS   U     U   I      T    EEEE           SSSS   U     U C       C       EEEE      SSSS     SSSS   ');
+        utreport.pl('>       S  U     U   I      T    E                  S  U     U C       C       E             S        S  ');
+        utreport.pl('>        S U     U   I      T    E                   S U     U C     C C     C E              S        S ');
+        utreport.pl('>  S    S   U   U    I      T    E             S    S   U   U   C   C   C   C  E        S    S   S    S  ');
+        utreport.pl('>   SSSS     UUU    III     T    EEEEEEE        SSSS     UUU     CCC     CCC   EEEEEEE   SSSS     SSSS   ');
+        utreport.pl('.');
+        utreport.pl('SUITE SUCCESS: "'||utsuite.name_from_id(id_in => suite_id)||'"');
+      ELSE
+        utreport.pl('.');
+        utreport.pl('>    SSSS   U     U  III  TTTTTTT EEEEEEE     FFFFFFF   AA     III  L      U     U RRRRR   EEEEEEE ');
+        utreport.pl('>   S    S  U     U   I      T    E           F        A  A     I   L      U     U R    R  E       ');
+        utreport.pl('>  S        U     U   I      T    E           F       A    A    I   L      U     U R     R E       ');
+        utreport.pl('>   S       U     U   I      T    E           F      A      A   I   L      U     U R     R E       ');
+        utreport.pl('>    SSSS   U     U   I      T    EEEE        FFFF   A      A   I   L      U     U RRRRRR  EEEE    ');
+        utreport.pl('>        S  U     U   I      T    E           F      AAAAAAAA   I   L      U     U R   R   E       ');
+        utreport.pl('>         S U     U   I      T    E           F      A      A   I   L      U     U R    R  E       ');
+        utreport.pl('>   S    S   U   U    I      T    E           F      A      A   I   L       U   U  R     R E       ');
+        utreport.pl('>    SSSS     UUU    III     T    EEEEEEE     F      A      A  III  LLLLLLL  UUU   R     R EEEEEEE ');
+        utreport.pl('.');
+        utreport.pl('SUITE FAILURE: "'||utsuite.name_from_id(id_in => suite_id)||'"');
+      END IF;
+    END showsuitebanner;
+    
+  BEGIN
+    showsuitebanner(suite_id => suite_id);
+    show_suite_stats(suite_id => suite_id);
+  END before_suite_results;
 END;
 /

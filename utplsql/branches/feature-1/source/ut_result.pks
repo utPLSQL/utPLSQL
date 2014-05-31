@@ -95,5 +95,19 @@ Added Standard Headers
       procedure include_successes;      
       procedure ignore_successes;
       
+  PROCEDURE showsuite(
+     suite_id       ut_suite.id%TYPE
+   );
+  
+  FUNCTION suite_success (
+    suite_id ut_suite.id%TYPE
+  )
+  RETURN BOOLEAN;
+  
+  FUNCTION suite_failure(
+    suite_id ut_suite.id%TYPE
+  )
+  RETURN BOOLEAN;
+
 END utresult;
 /

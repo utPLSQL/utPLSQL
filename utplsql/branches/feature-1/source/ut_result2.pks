@@ -101,5 +101,10 @@ Added Standard Headers
      ,show_failures_only_in   IN   ut_config.show_failures_only%TYPE
    )
       RETURN utconfig.refcur_t;
+   
+  FUNCTION suite_succeded(
+    suite_id  ut_suite.id%TYPE
+  )
+  RETURN BOOLEAN;
 END utresult2;
 /

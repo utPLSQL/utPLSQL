@@ -923,7 +923,10 @@ Added Standard Headers
       )
       IS
       BEGIN
-         utresult.show;
+        IF suite_in IS NULL THEN
+          utreport.open;
+          utresult.show;
+        END IF;
 
          IF NOT per_method_setup_in
          THEN
@@ -1095,6 +1098,8 @@ Added Standard Headers
       v_pkg_start     DATE;
       v_override      VARCHAR2 (1000);
    BEGIN
+     utreport.open;
+     BEGIN
       IF v_suite IS NULL
       THEN
          utassert.this (
@@ -1153,13 +1158,25 @@ begin
             SYSDATE,
             v_success
          );
+         
+        utresult.showsuite(suite_id => v_suite);
+        
       END IF;
 
       IF reset_results_in
       THEN
          init;
       END IF;
-      
+      utreport.close;
+     EXCEPTION
+       WHEN OTHERS THEN
+         utassert.this (
+               'utPLSQL.testsuite failure: '
+            || SQLERRM,
+            FALSE
+         );
+         utreport.close;
+     END;
    END;
 
    /* Programs used in individual unit test programs. */

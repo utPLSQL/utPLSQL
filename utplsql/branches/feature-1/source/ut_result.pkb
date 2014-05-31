@@ -225,5 +225,49 @@ Added Standard Headers
    BEGIN
       RETURN results.COUNT;
    END;
+   /*
+      proc: showsuite
+        Show result for whole suite using reporter
+   */
+  PROCEDURE showsuite(
+    suite_id       ut_suite.id%TYPE
+  )
+  IS
+    
+  BEGIN
+     --show suite banner and statistics
+     
+     utreport.before_suite_results(suite_id => suite_id);
+     
+     FOR rec IN (
+       SELECT utp.last_run_id
+         FROM ut_package utp
+        WHERE utp.suite_id = showsuite.suite_id
+     ) LOOP
+       show(
+         run_id_in => rec.last_run_id,
+         reset_in => FALSE
+       );
+     END LOOP;
+   END showsuite;
+   
+  FUNCTION suite_success (
+    suite_id ut_suite.id%TYPE
+  )
+  RETURN BOOLEAN
+  IS
+  BEGIN
+     RETURN utresult2.suite_succeded(suite_id => suite_id);
+  END suite_success;
+
+  FUNCTION suite_failure(
+    suite_id ut_suite.id%TYPE
+  )
+  RETURN BOOLEAN
+  IS
+  BEGIN
+     RETURN (NOT suite_success(suite_id => suite_id));
+  END suite_failure;
+   
 END utresult;
 /
