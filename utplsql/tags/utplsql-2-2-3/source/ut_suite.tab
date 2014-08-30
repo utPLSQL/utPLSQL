@@ -1,0 +1,19 @@
+CREATE TABLE ut_suite (
+   id INTEGER, 
+   name VARCHAR2(200), 
+   description VARCHAR2(2000),
+   frequency VARCHAR2(2000), 
+   created_by VARCHAR2(30),
+   created_on DATE,
+   executions INTEGER, -- V2 no longer used. see utr_suite
+   failures INTEGER, -- V2 no longer used. see utr_suite
+   last_status VARCHAR2(20), -- V2 no longer used. see utr_suite
+   last_start DATE, -- V2 no longer used. see utr_suite
+   last_end DATE, -- V2 no longer used. see utr_suite
+   per_method_setup char(1), -- 2.0.8.1
+  CONSTRAINT ut_suite_pk PRIMARY KEY (id)
+);
+
+CREATE unique index ut_suite_idx1 ON 
+   ut_suite (name);
+   

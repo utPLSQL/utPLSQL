@@ -1,0 +1,39 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="38257.htm">Previous</a> | <a href="38287.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> utPLSQL v1.5.1 Pre-release software, 1 Attachments<br>
+<b>Conf:</b> 557, Msg: 38260<br>
+<b>From:</b> Steven Feuerstein (<a href="mailto:steven@stevenfeuerstein.com">steven@stevenfeuerstein.com</a>)<br>
+<b>Date:</b> 10/4/00 09:33 AM<br>
+
+<p><title>utPLSQL v1.5.1 Pre-release software Steven Feuerstein sfeuerstein steven@stevenfeuerstein.com</title>
+You wrote:<br>
+<br>
+"More worryingly, I couldn't get your BETWNSTR example to work 'straight out of the box'. I'm not sure if I did something wrong, but the problem boiled down to the prefix defaulting to NULL rather than 'ut_'. I installed utplsql under my own schema along with the BETWNSTR function and UT_BETWNSTR package. It seems that when I first use the UTPLSQL package it tries to store my user preferences in the g_config package variable. I don't have any, so this variable is NULL. Then, during my call to UTPLSQL.TEST, the function UTPLSQL.PREFIX is called. This<br>
+looks at g_config and hence returns NULL. Shouldn't it return c_prefix in this circumstance?"<br>
+<br>
+I was unable to reproduce this. Here is what I did:<br>
+<br>
+1. delete all rows from ut_config.<br>
+<br>
+2. set my test code directory:<br>
+<br>
+exec utplsql.setdir ('e:\openoracle\utplsql\utinstall\examples')<br>
+SET SERVEROUTPUT ON SIZE 1000000 FORMAT WRAPPED<br>
+exec utplsql.showconfig<br>
+<br>
+and the showConfig showed me:<br>
+<br>
+=============================================================<br>
+utPLSQL Configuration for SCOTT<br>
+   Directory: e:\openoracle\utplsql\utinstall\examples<br>
+   Autcompile? Y<br>
+   Manual test registration? N<br>
+   Prefix = ut_<br>
+=============================================================<br>
+<br>
+Then I ran my test and it found the package all right. <br>
+<br>
+Now, I did make a couple of changes to utPLSQL.pkb that MIGHT address what you ran into. So please compile the attached file in your schema and try your test again. If it fails, please spool output to a file and attach a log showing the behavior.<br>
+<br>
+Thanks, SF
+
+<p><a href="utplsql.pkb"><img src="fa_app-s.gif" alt="Click to open!" border=0 align=left></a>  (23,962 bytes)<br clear=all></body>
