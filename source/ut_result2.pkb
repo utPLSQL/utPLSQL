@@ -47,7 +47,7 @@ Added Standard Headers
    )
    IS
       l_id            utr_outcome.outcome_id%TYPE    := outcome_in;
-      l_description   utr_outcome.description%TYPE   := description_in;
+      l_description   utr_outcome.description%TYPE   := substr(description_in,1,2000);
    BEGIN
       IF utplsql2.tracing
       THEN
@@ -66,7 +66,7 @@ Added Standard Headers
             -- v1 compatibility. Create an outcome ID and
             -- construct the message to match screen output.
             l_id := utroutcome.next_v1_id (utplsql2.runnum);
-            l_description := utplsql.currcase.NAME || ': ' || l_description;
+            l_description := substr(utplsql.currcase.NAME || ': ' || l_description,1,2000);
          END IF;
 
          utroutcome.RECORD (utplsql2.runnum
