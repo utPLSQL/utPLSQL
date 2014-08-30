@@ -127,7 +127,7 @@ Added Standard Headers
                     , end_on, description
                      )
               VALUES (run_id_in, tc_run_id_in, outcome_id_in, l_status
-                    , end_on_in, description_in
+                    , end_on_in, substr(description_in,1,2000)
                      );
 
          utplsql2.move_ahead_tc_runnum; -- 2.0.9.1
