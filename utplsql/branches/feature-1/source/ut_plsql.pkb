@@ -812,6 +812,18 @@ Added Standard Headers
    BEGIN
       RETURN testpkg.pkg;
    END;
+   
+   /*
+     func: currpkgowner
+       Return Owner of current package.
+   */
+   FUNCTION currpkgowner
+      RETURN VARCHAR2
+   IS
+   BEGIN
+      RETURN testpkg.owner;
+   END;
+
 
    PROCEDURE addtest (
       package_in      IN   VARCHAR2,
@@ -927,7 +939,7 @@ Added Standard Headers
           utreport.open;
           utresult.show;
         END IF;
-
+        BEGIN
          IF NOT per_method_setup_in
          THEN
             runprog (
@@ -936,6 +948,21 @@ Added Standard Headers
                TRUE
             );
          END IF;
+        EXCEPTION
+          WHEN OTHERS THEN
+            utassert.this (
+                   'Unable to run '
+                ||  v_prefix || c_teardown
+                || ': '
+                || SQLERRM,
+                FALSE,
+                --same as in "runprog" call
+                null_ok_in=> NULL,
+                raise_exc_in=> TRUE,
+                register_in=> TRUE
+             );
+        END;
+
 
          utpackage.upd (
             suite_in,

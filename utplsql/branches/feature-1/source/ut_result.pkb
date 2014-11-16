@@ -243,6 +243,8 @@ Added Standard Headers
        SELECT utp.last_run_id
          FROM ut_package utp
         WHERE utp.suite_id = showsuite.suite_id
+        --same order by as in utplsql.testsuite
+        ORDER BY utp.seq
      ) LOOP
        show(
          run_id_in => rec.last_run_id,
@@ -268,6 +270,42 @@ Added Standard Headers
   BEGIN
      RETURN (NOT suite_success(suite_id => suite_id));
   END suite_failure;
-   
+  
+  /*
+    func: get_suite_stats
+      return statistic on last run of suite. 
+      Statistic consist of:
+        -number of packages
+        -number of packages succeeded
+        -number of asserts
+        -number of asserts succeeded
+    params:
+      suite_id - suite id
+  */
+  FUNCTION get_suite_stats(
+    suite_id       ut_suite.id%TYPE
+  ) RETURN TSuiteStats
+  IS
+    Stats  TSuiteStats;
+  BEGIN
+    SELECT COUNT(utp.id) total_cnt,
+           SUM(decode(utp.last_status,utresult2.c_success,1,0)) succeeded_cnt
+      INTO Stats.totalpackages,
+           stats.succeededpackages
+      FROM ut_package utp
+     WHERE utp.suite_id = get_suite_stats.suite_id;
+     
+    SELECT COUNT(o.tc_run_id),
+           SUM(decode(o.status,utresult2.c_success,1,0))
+      INTO Stats.totalasserts,
+           Stats.succeededasserts
+      FROM utr_outcome o,
+           ut_package utp
+     WHERE o.run_id = utp.last_run_id
+       AND utp.suite_id = get_suite_stats.suite_id;
+       
+    RETURN Stats;
+  END get_suite_stats;
+
 END utresult;
 /

@@ -149,6 +149,9 @@ Added Standard Headers
 
    FUNCTION currpkg
       RETURN VARCHAR2;
+   
+   FUNCTION currpkgowner
+      RETURN VARCHAR2;
 
    PROCEDURE addtest (
       package_in      IN   VARCHAR2,

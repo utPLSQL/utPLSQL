@@ -40,7 +40,14 @@ Added Standard Headers
       INDEX BY BINARY_INTEGER;
 
    results   result_tt;
-
+   
+   TYPE TSuiteStats IS RECORD(
+     totalpackages        PLS_INTEGER,
+     succeededpackages    PLS_INTEGER,
+     totalasserts         PLS_INTEGER,
+     succeededasserts     PLS_INTEGER
+   );
+   
    PROCEDURE report (msg_in IN VARCHAR2);
 
    PROCEDURE show (
@@ -108,6 +115,10 @@ Added Standard Headers
     suite_id ut_suite.id%TYPE
   )
   RETURN BOOLEAN;
+  
+  FUNCTION get_suite_stats(
+    suite_id       ut_suite.id%TYPE
+  ) RETURN TSuiteStats;
 
 END utresult;
 /

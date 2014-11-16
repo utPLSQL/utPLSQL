@@ -38,6 +38,13 @@ Added Standard Headers
    FUNCTION id_from_name (name_in IN ut_package.name%TYPE,
        owner_in		  IN ut_package.owner%TYPE := NULL)
       RETURN ut_package.id%TYPE;
+   FUNCTION name_from_last_run_id(
+     last_run_id_in IN ut_package.last_run_id%TYPE
+   )
+   RETURN ut_package.name%TYPE;
+
+   FUNCTION owner_from_last_run_id (last_run_id_in IN ut_package.last_run_id%TYPE)
+      RETURN ut_package.owner%TYPE;
 
    PROCEDURE ADD (
       suite_in            IN   VARCHAR2,

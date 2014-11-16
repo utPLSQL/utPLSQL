@@ -133,6 +133,7 @@ Added first version of pluggable reporter packages
       run_id_in    IN   utr_outcome.run_id%TYPE := NULL
    )
    IS
+     program_name_and_run_id  VARCHAR2(2000);
    BEGIN
       IF success_in
       THEN
@@ -196,19 +197,16 @@ Added first version of pluggable reporter packages
       END IF;
 
       utreport.pl ('. ');
-
-      IF run_id_in IS NOT NULL
-      THEN
-         utreport.pl ('. Run ID: ' || run_id_in);
-      ELSE
-         IF success_in
-         THEN
-            utreport.pl (' SUCCESS: "' || NVL (program_in, 'Unnamed Test') || '"');
-         ELSE
-            utreport.pl (' FAILURE: "' || NVL (program_in, 'Unnamed Test') || '"');
-         END IF;
+      program_name_and_run_id := '"'||NVL (program_in, 'Unnamed Test')||'"';
+      IF run_id_in IS NOT NULL THEN
+        program_name_and_run_id := program_name_and_run_id ||' Run ID: ' || run_id_in;
       END IF;
-
+      IF success_in
+      THEN
+         utreport.pl (' SUCCESS: ' || program_name_and_run_id);
+      ELSE
+         utreport.pl (' FAILURE: ' || program_name_and_run_id);
+      END IF;
       utreport.pl ('. ');
    END;
 
@@ -216,12 +214,21 @@ Added first version of pluggable reporter packages
    IS
    BEGIN
      show(str);
-   END;   
-   
+   END;
+
    PROCEDURE before_results(run_id IN utr_outcome.run_id%TYPE)
    IS
+     v_packagename    ut_package.name%TYPE;
+     v_owner          ut_package.owner%TYPE;
    BEGIN
-      showbanner (utresult.success (run_id), utplsql.currpkg, run_id);
+     IF run_id IS NULL THEN
+       v_packagename := utplsql.currpkg;
+       v_owner :=  utplsql.currpkgowner;
+     ELSE
+       v_packagename := utpackage.name_from_last_run_id(last_run_id_in => run_id);
+       v_owner :=  utpackage.owner_from_last_run_id(last_run_id_in => run_id);
+     END IF;
+      showbanner (utresult.success (run_id), v_owner||'.'||v_packagename, run_id);
       utreport.pl ('> Individual Test Case Results:');
       utreport.pl ('>');
       norows := TRUE;
@@ -295,25 +302,11 @@ Added first version of pluggable reporter packages
       suite_id       ut_suite.id%TYPE
     )
     IS
-      total_cnt PLS_INTEGER;
-      succeeded_cnt  PLS_INTEGER;
+      SuiteStats utresult.TSuiteStats;
     BEGIN
-      SELECT COUNT(utp.id) total_cnt,
-             SUM(decode(utp.last_status,utresult2.c_success,1,0)) succeeded_cnt
-        INTO total_cnt,
-             succeeded_cnt
-        FROM ut_package utp
-       WHERE utp.suite_id = show_suite_stats.suite_id;
-      utreport.pl('SUITE STATS: '||to_char(succeeded_cnt)||' of '||to_char(total_cnt)||' packages succeeded.');
-      SELECT COUNT(o.tc_run_id),
-             SUM(decode(o.status,utresult2.c_success,1,0))
-        INTO total_cnt,
-             succeeded_cnt
-        FROM utr_outcome o,
-             ut_package utp
-       WHERE o.run_id = utp.last_run_id
-         AND utp.suite_id = show_suite_stats.suite_id;
-      utreport.pl('SUITE STATS: '||to_char(succeeded_cnt)||' of '||to_char(total_cnt)||' individual test cases succeeded.');
+      SuiteStats := utresult.get_suite_stats(suite_id => suite_id);
+      utreport.pl('SUITE STATS: '||to_char(SuiteStats.succeededpackages)||' of '||to_char(SuiteStats.totalpackages)||' packages succeeded.');
+      utreport.pl('SUITE STATS: '||to_char(SuiteStats.succeededasserts)||' of '||to_char(SuiteStats.totalasserts)||' individual test cases succeeded.');
       utreport.pl('.');
     END show_suite_stats;
     
