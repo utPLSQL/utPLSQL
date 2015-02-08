@@ -1,0 +1,53 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="37921.htm">Previous</a> | <a href="37946.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Getting utPLSQL to work under Unix<br>
+<b>Conf:</b> 537, Msg: 37945<br>
+<b>From:</b> Richard Li (<a href="mailto:richardl@arsdigita.com">richardl@arsdigita.com</a>)<br>
+<b>Date:</b> 9/22/00 01:36 PM<br>
+
+<p><title>Getting utPLSQL to work under Unix Richard Li richardl@arsdigita.com richardl@arsdigita.com</title>
+I renamed my files ut_acs_object.pks and ut_acs_object.pkb, removed my trailing slash, and renamed the package to be ut_acs_object. However, I get some ugly errors:<br>
+<br>
+SQL> exec utplsql.setdir('/web/richard/packages/acs-kernel/sql');<br>
+<br>
+PL/SQL procedure successfully completed.<br>
+<br>
+SQL> exec utplsql.test('acs_object');<br>
+exec utplsql.test('acs_object');<br>
+Compile error: User-Defined Exception<br>
+Compile error: User-Defined Exception<br>
+Compile Error "ORA-06550: line 1, column 7:<br>
+PLS-00201: identifier 'UT#ACS_OBJECT<br>
+.SETUP' must be declared<br>
+ORA-06550: line 1, column 7:<br>
+PL/SQL: Statement ignored"<br>
+ on:<br>
+BEGIN ut#acs_object.setup;  END;<br>
+BEGIN utplsql.test('acs_object'); END;<br>
+<br>
+*<br>
+ERROR at line 1:<br>
+ORA-06550: line 1, column 7:<br>
+PLS-00201: identifier 'UT#ACS_OBJECT.SETUP' must be declared<br>
+ORA-06550: line 1, column 7:<br>
+<br>
+I'm a little confused as to why the # still show up -- when did you update the version? Do you have it with anon checkout somewhere?<br>
+<br>
+So, anyway, I renamed everything to # and split things out into appropriately named files. At this point, I get:<br>
+<br>
+SQL> exec utplsql.test('acs_object');<br>
+exec utplsql.test('acs_object');<br>
+Compile error: User-Defined Exception<br>
+Compile error: User-Defined Exception<br>
+calling new!<br>
+Compile Error "ORA-02291: integrity constraint (RICHARD.ACS_OBJECTS_OBJECT_TYPE_<br>
+FK) violated - parent key not found" on:<br>
+BEGIN ut#acs_object.new;  END;<br>
+SUCCESS: Package "acs_object"<br>
+tearing down!<br>
+<br>
+Which is more or less what I expected (the constraint violation) except those pesky Compile errors still are there.<br>
+<br>
+Also, the utGen.sql file in the utInstall directory (which is where I have been installing from; there appears to be identicaly code in the 1.1 directory) should be renamed to be all lower case (or the install file modified accordingly).<br>
+
+
+</body>

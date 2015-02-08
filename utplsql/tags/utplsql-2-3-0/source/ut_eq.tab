@@ -1,0 +1,15 @@
+create table ut_eq (
+id	integer ,
+outcome_id	integer,
+data_type	integer,
+check_v	varchar2(2000),
+against_v	varchar2(2000),
+check_d	date	,
+against_d	date	,
+check_n	number	,
+against_n	number	,
+check_b	char(1)	,
+against_b	char(1),
+  CONSTRAINT ut_eq_pk PRIMARY KEY (id)
+);
+

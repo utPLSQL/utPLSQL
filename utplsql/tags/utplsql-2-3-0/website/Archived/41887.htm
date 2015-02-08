@@ -1,0 +1,34 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="41843.htm">Previous</a> | <a href="41900.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Do we have a utAssert to check for an exception<br>
+<b>Conf:</b> 550, Msg: 41887<br>
+<b>From:</b> Chris Rimmer (<a href="mailto:chris@nominet.org.uk">chris@nominet.org.uk</a>)<br>
+<b>Date:</b> 3/5/01 01:19 AM<br>
+
+<p><title>Do we have a utAssert to check for an exception Chris Rimmer chrisrimmer chris.rimmer@tessella.co.uk</title>
+Well I wrote one and have submitted it to Steven.  This means it should be in the next release, but since I think he is probably putting the finishing touches to his new book (due next month) you may have to wait a while.<br>
+<br>
+Meanwhile, you can achieve the same effect by doing the following to check that the correct value of SQLCODE is obtained:<br>
+<br>
+<TT><br>
+BEGIN<br>
+<br>
+  MyPackage.MyProcedure;<br>
+<br>
+  utAssert.this('No Exception', FALSE);<br>
+<br>
+EXCEPTION<br>
+<br>
+  WHEN OTHERS THEN<br>
+<br>
+    utAssert.eq('Exception', SQLCODE,<br>
+      MyExpectedValue);<br>
+<br>
+END;<br>
+</TT><br>
+<br>
+Alternatively, if you are using named exceptions you change the exception block to look for the correct exception instead...<br>
+<br>
+Chris<br>
+
+
+</body>

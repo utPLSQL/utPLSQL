@@ -1,0 +1,137 @@
+CREATE OR REPLACE PACKAGE ut_betwnstr
+IS
+   PROCEDURE ut_setup;
+   PROCEDURE ut_teardown;
+
+   -- For each program to test...
+   PROCEDURE ut_BETWNSTR;
+END ut_betwnstr;
+/
+CREATE OR REPLACE PACKAGE BODY ut_betwnstr
+IS
+   PROCEDURE ut_setup
+   IS
+   BEGIN
+      NULL;
+   END;
+
+   PROCEDURE ut_teardown
+   IS
+   BEGIN
+      NULL;
+   END;
+   -- For each program to test...
+   PROCEDURE ut_BETWNSTR
+   IS
+      -- Verify and complete data types.
+      against_this VARCHAR2(2000);
+      check_this VARCHAR2(2000);
+   BEGIN
+
+      -- Define "control" operation for "BETWNSTR"
+
+      against_this := 'bcde';
+
+      -- Execute test code for "BETWNSTR"
+
+      check_this :=
+      BETWNSTR (
+         STRING_IN => 'abcdefg'
+         ,
+         START_IN => 2
+         ,
+         END_IN => 5
+       );
+
+      -- Assert success for "BETWNSTR"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'Typical valid usage',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "BETWNSTR"
+
+      -- Define "control" operation for "BETWNSTR"
+
+      against_this := 'abcde';
+
+      -- Execute test code for "BETWNSTR"
+
+      check_this :=
+      BETWNSTR (
+         STRING_IN => 'abcdefg'
+         ,
+         START_IN => 0
+         ,
+         END_IN => 5
+       );
+
+      -- Assert success for "BETWNSTR"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'Zero start value',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "BETWNSTR"
+
+      -- Define "control" operation for "BETWNSTR"
+
+      against_this := 'efg';
+
+      -- Execute test code for "BETWNSTR"
+
+      check_this :=
+      BETWNSTR (
+         STRING_IN => 'abcdefg'
+         ,
+         START_IN => 5
+         ,
+         END_IN => 500
+       );
+
+      -- Assert success for "BETWNSTR"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'Way big end value',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "BETWNSTR"
+
+      -- Define "control" operation for "BETWNSTR"
+
+      against_this := NULL;
+
+      -- Execute test code for "BETWNSTR"
+
+      check_this :=
+      BETWNSTR (
+         STRING_IN => NULL
+         ,
+         START_IN => 5
+         ,
+         END_IN => 500
+       );
+
+      -- Assert success for "BETWNSTR"
+
+      -- Compare the two values.
+      utAssert.eq (
+         'NULL start value',
+         check_this,
+         against_this
+         );
+
+      -- End of test for "BETWNSTR"
+   END ut_BETWNSTR;
+
+END ut_betwnstr;
+/

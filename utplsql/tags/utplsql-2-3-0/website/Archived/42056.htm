@@ -1,0 +1,19 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="40825.htm">Previous</a> | <a href="42057.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> utassert.ieqminus<br>
+<b>Conf:</b> 537, Msg: 42056<br>
+<b>From:</b> Jason Dufair (<a href="mailto:jase@deadbeets.com">jase@deadbeets.com</a>)<br>
+<b>Date:</b> 3/12/01 01:43 PM<br>
+
+<p><title>utassert.ieqminus Jason Dufair jkdufair jase@deadbeets.com</title>
+Well, in the true spirit of open source software, another pair of eyes found a bug.  utassert.ieqminus is missing the following line:<br>
+<br>
+dbms_sql.bind_variable(cur, ':retval', ival);<br>
+<br>
+which should occur after:<br>
+<br>
+DBMS_SQL.PARSE (cur, v_block, DBMS_SQL.NATIVE);<br>
+<br>
+This is for Oracle 7.3 (yes, I'm one of the last few pariahs).  Steven, if you want me to send a patch, I'd be glad to.<br>
+
+
+</body>

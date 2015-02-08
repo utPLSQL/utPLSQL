@@ -1,0 +1,34 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="36758.htm">Previous</a> | <a href="37138.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Avoid use of synonyms on install!<br>
+<b>Conf:</b> 538, Msg: 36759<br>
+<b>From:</b> Steven Feuerstein (<a href="mailto:steven@stevenfeuerstein.com">steven@stevenfeuerstein.com</a>)<br>
+<b>Date:</b> 8/16/00 06:40 PM<br>
+
+<p><title>Avoid use of synonyms on install! Steven Feuerstein sfeuerstein steven@stevenfeuerstein.com</title>
+Darryl,<br>
+<br>
+Authorizaton of user for utPLSQL is a good idea for utPLSQL admin.<br>
+<br>
+Let me throw in an idea ...<br>
+1. Create objects and packages in utPLSQL schema.<br>
+2. Grant all privileges to roles<br>
+3. Grant Roles to users<br>
+4. When user logs in, use ALTER SESSION SET CURRENT SCHEMA to set it to<br>
+utPLSQL schema, we may not need synonyms (private or public). This could be<br>
+achieved by using a DB event trigger (ALTER LOGON).<br>
+<br>
+Of course this is an idea.<br>
+<br>
+As for synonyms, we should use private synonyms.<br>
+<br>
+Cheers<br>
+Raj<br>
+______________________________________________________<br>
+Rajendra Jamadagni              MIS, ESPN Inc.<br>
+Rajendra dot Jamadagni at ESPN dot com<br>
+QOTD: Any clod can have facts, but having an opinion is an art !<br>
+Any opinion expressed here is personal and doesn't reflect that of ESPN Inc.<br>
+<br>
+
+
+</body>

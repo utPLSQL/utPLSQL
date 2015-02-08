@@ -1,0 +1,19 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="42053.htm">Previous</a> | <a href="43185.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> Test individual procedure in package<br>
+<b>Conf:</b> 538, Msg: 43165<br>
+<b>From:</b> Chris Rimmer (<a href="mailto:chris@nominet.org.uk">chris@nominet.org.uk</a>)<br>
+<b>Date:</b> 7/17/01 01:15 AM<br>
+
+<p><title>Test individual procedure in package Chris Rimmer chrisrimmer chris@nominet.org.uk</title>
+Suppose you have a (large) package A and have written (an even bigger) test package ut_A.  You make some changes to your code and find that the procedure A.a fails some of its tests.  It would be nice to be able to test just this procedure while going through the debug, fix, test cycle since running all the tests on A could take some time.  Obviously once you've got A.a working you would then run the whole test package.<br>
+<br>
+I have hit this problem (perhaps this is an indication that my package is getting too big and complicated) but when running the tests take several minutes, this slows things up considerably.<br>
+<br>
+I would see the procedure name as being an extra argument to utPLSQL.test.  It would then run just ut_Setup, ut_a and ut_Teardown.<br>
+<br>
+Or is there a way of achieving this already?<br>
+<br>
+Chris<br>
+
+
+</body>

@@ -1,0 +1,29 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="43114.htm">Previous</a> | <a href="43118.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> utAssert.eq Does not handle NULLs correctly<br>
+<b>Conf:</b> 537, Msg: 43117<br>
+<b>From:</b> Steven Feuerstein (<a href="mailto:steven@stevenfeuerstein.com">steven@stevenfeuerstein.com</a>)<br>
+<b>Date:</b> 6/20/01 06:00 AM<br>
+
+<p><title>utAssert.eq Does not handle NULLs correctly Steven Feuerstein sfeuerstein steven@stevenfeuerstein.com</title>
+Hmmm. A few things:<br>
+<br>
+1. Check this out; it puzzles me:<br>
+<br>
+SQL> l<br>
+  1  begin<br>
+  2     p.l (NULL OR TRUE);<br>
+  3     p.l (NULL OR FALSE);<br>
+  4     p.l (NULL OR NULL);<br>
+  5* end;<br>
+SQL> /<br>
+TRUE<br>
+NULL<br>
+NULL<br>
+<br>
+Why the difference between the first two?<br>
+<br>
+2. I think I need to clarify how that null_ok_in is supposed to work. For utAssert.this, it should mean that if the value of the Boolean expression coming in is null, then that means "success". For eq, it shoudl mean that if BOTH values coming in are NULL, that is "success". For eqfile, if both files are empty...etc.<br>
+<br>
+Does this make sense to you?
+
+</body>

@@ -1,0 +1,75 @@
+<head><style type="text/css">@import url(wbarchiv.css);</style></head><body><strong><a href="40076.htm">Previous</a> | <a href="40088.htm">Next</a></strong><hr size=0>
+<b>Topic:</b> utplsql on Linux<br>
+<b>Conf:</b> 537, Msg: 40078<br>
+<b>From:</b> Cristi Petrescu-Prahova (<a href="mailto:cristipp@excite.com">cristipp@excite.com</a>)<br>
+<b>Date:</b> 12/16/00 09:01 AM<br>
+
+<p><title>utplsql on Linux Cristi Petrescu-Prahova cristipp cristipp@excite.com</title>
+First query:<br>
+<br>
+SQL> SELECT SUBSTR(version,1,3) col<br>
+FROM product_component_version<br>
+WHERE UPPER(product) LIKE 'ORACLE7%'<br>
+OR UPPER(product) LIKE 'PERSONAL ORACLE%'<br>
+OR UPPER(product) LIKE 'ORACLE8%';<br>
+<br>
+  2    3    4    5<br>
+COL<br>
+---<br>
+8.1<br>
+<br>
+Second query(ies):<br>
+SQL> @show 336<br>
+<br>
+LINE_OF_CODE<br>
+--------------------------------------------------------------------------------<br>
+331         THEN<br>
+332            pl ('Compile Error "' || SQLERRM || '" on: ');<br>
+333            pl (v_str);<br>
+334         END IF;<br>
+335<br>
+336         utAssert.this (<br>
+337            'Unable to run ' || v_pkg || '.' || v_name || ': ' ||<br>
+338            SQLERRM,<br>
+339            FALSE,<br>
+340            null_ok_in => NULL,<br>
+341            raise_exc_in => propagate_in,<br>
+SQL> @show 623<br>
+<br>
+LINE_OF_CODE<br>
+--------------------------------------------------------------------------------<br>
+618<br>
+619      PROCEDURE cleanup IS<br>
+620      BEGIN<br>
+621         utresult.show;<br>
+622<br>
+623         runprog (v_prefix || c_teardown, TRUE);<br>
+624<br>
+625         utpackage.upd (suite_in,<br>
+626            package_in,<br>
+627            v_start,<br>
+628            SYSDATE,<br>
+SQL> @show 687<br>
+<br>
+LINE_OF_CODE<br>
+--------------------------------------------------------------------------------<br>
+682      THEN<br>
+683         utAssert.this (<br>
+684            'utPLSQL.test failure: ' || SQLERRM,<br>
+685            FALSE);<br>
+686<br>
+687         cleanup;<br>
+688   END;<br>
+689<br>
+690   PROCEDURE testsuite (<br>
+691      suite_in IN VARCHAR2,<br>
+692      recompile_in IN BOOLEAN := TRUE,<br>
+SQL><br>
+<br>
+I'm still lost ;-)<br>
+Maybe you have a clue.<br>
+Thanks,<br>
+Cristi<br>
+
+
+</body>
