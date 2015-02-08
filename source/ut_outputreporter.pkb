@@ -133,6 +133,7 @@ Added first version of pluggable reporter packages
       run_id_in    IN   utr_outcome.run_id%TYPE := NULL
    )
    IS
+     program_name_and_run_id  VARCHAR2(2000);
    BEGIN
       IF success_in
       THEN
@@ -196,19 +197,16 @@ Added first version of pluggable reporter packages
       END IF;
 
       utreport.pl ('. ');
-
-      IF run_id_in IS NOT NULL
-      THEN
-         utreport.pl ('. Run ID: ' || run_id_in);
-      ELSE
-         IF success_in
-         THEN
-            utreport.pl (' SUCCESS: "' || NVL (program_in, 'Unnamed Test') || '"');
-         ELSE
-            utreport.pl (' FAILURE: "' || NVL (program_in, 'Unnamed Test') || '"');
-         END IF;
+      program_name_and_run_id := '"'||NVL (program_in, 'Unnamed Test')||'"';
+      IF run_id_in IS NOT NULL THEN
+        program_name_and_run_id := program_name_and_run_id ||' Run ID: ' || run_id_in;
       END IF;
-
+      IF success_in
+      THEN
+         utreport.pl (' SUCCESS: ' || program_name_and_run_id);
+      ELSE
+         utreport.pl (' FAILURE: ' || program_name_and_run_id);
+      END IF;
       utreport.pl ('. ');
    END;
 
@@ -216,12 +214,21 @@ Added first version of pluggable reporter packages
    IS
    BEGIN
      show(str);
-   END;   
-   
+   END;
+
    PROCEDURE before_results(run_id IN utr_outcome.run_id%TYPE)
    IS
+     v_packagename    ut_package.name%TYPE;
+     v_owner          ut_package.owner%TYPE;
    BEGIN
-      showbanner (utresult.success (run_id), utplsql.currpkg, run_id);
+     IF run_id IS NULL THEN
+       v_packagename := utplsql.currpkg;
+       v_owner :=  utplsql.currpkgowner;
+     ELSE
+       v_packagename := utpackage.name_from_last_run_id(last_run_id_in => run_id);
+       v_owner :=  utpackage.owner_from_last_run_id(last_run_id_in => run_id);
+     END IF;
+      showbanner (utresult.success (run_id), v_owner||'.'||v_packagename, run_id);
       utreport.pl ('> Individual Test Case Results:');
       utreport.pl ('>');
       norows := TRUE;
@@ -280,5 +287,66 @@ Added first version of pluggable reporter packages
      END IF;
    END;   
    
+   /*
+    proc: before_suite_results
+      Show suite overall result banner and suite run stats
+      
+    parameters:
+      suite_id - suite id
+  */
+  PROCEDURE before_suite_results(
+    suite_id       ut_suite.id%TYPE
+  )
+  IS
+    PROCEDURE show_suite_stats(
+      suite_id       ut_suite.id%TYPE
+    )
+    IS
+      SuiteStats utresult.TSuiteStats;
+    BEGIN
+      SuiteStats := utresult.get_suite_stats(suite_id => suite_id);
+      utreport.pl('SUITE STATS: '||to_char(SuiteStats.succeededpackages)||' of '||to_char(SuiteStats.totalpackages)||' packages succeeded.');
+      utreport.pl('SUITE STATS: '||to_char(SuiteStats.succeededasserts)||' of '||to_char(SuiteStats.totalasserts)||' individual test cases succeeded.');
+      utreport.pl('.');
+    END show_suite_stats;
+    
+    PROCEDURE showsuitebanner(
+      suite_id       ut_suite.id%TYPE
+    )
+    IS
+    BEGIN
+      IF utresult.suite_success(suite_id => suite_id) THEN
+        utreport.pl('.');
+        utreport.pl('>   SSSS   U     U  III  TTTTTTT EEEEEEE        SSSS   U     U   CCC     CCC   EEEEEEE   SSSS     SSSS   ');
+        utreport.pl('>  S    S  U     U   I      T    E             S    S  U     U  C   C   C   C  E        S    S   S    S  ');
+        utreport.pl('> S        U     U   I      T    E            S        U     U C     C C     C E       S        S        ');
+        utreport.pl('>  S       U     U   I      T    E             S       U     U C       C       E        S        S       ');
+        utreport.pl('>   SSSS   U     U   I      T    EEEE           SSSS   U     U C       C       EEEE      SSSS     SSSS   ');
+        utreport.pl('>       S  U     U   I      T    E                  S  U     U C       C       E             S        S  ');
+        utreport.pl('>        S U     U   I      T    E                   S U     U C     C C     C E              S        S ');
+        utreport.pl('>  S    S   U   U    I      T    E             S    S   U   U   C   C   C   C  E        S    S   S    S  ');
+        utreport.pl('>   SSSS     UUU    III     T    EEEEEEE        SSSS     UUU     CCC     CCC   EEEEEEE   SSSS     SSSS   ');
+        utreport.pl('.');
+        utreport.pl('SUITE SUCCESS: "'||utsuite.name_from_id(id_in => suite_id)||'"');
+      ELSE
+        utreport.pl('.');
+        utreport.pl('>    SSSS   U     U  III  TTTTTTT EEEEEEE     FFFFFFF   AA     III  L      U     U RRRRR   EEEEEEE ');
+        utreport.pl('>   S    S  U     U   I      T    E           F        A  A     I   L      U     U R    R  E       ');
+        utreport.pl('>  S        U     U   I      T    E           F       A    A    I   L      U     U R     R E       ');
+        utreport.pl('>   S       U     U   I      T    E           F      A      A   I   L      U     U R     R E       ');
+        utreport.pl('>    SSSS   U     U   I      T    EEEE        FFFF   A      A   I   L      U     U RRRRRR  EEEE    ');
+        utreport.pl('>        S  U     U   I      T    E           F      AAAAAAAA   I   L      U     U R   R   E       ');
+        utreport.pl('>         S U     U   I      T    E           F      A      A   I   L      U     U R    R  E       ');
+        utreport.pl('>   S    S   U   U    I      T    E           F      A      A   I   L       U   U  R     R E       ');
+        utreport.pl('>    SSSS     UUU    III     T    EEEEEEE     F      A      A  III  LLLLLLL  UUU   R     R EEEEEEE ');
+        utreport.pl('.');
+        utreport.pl('SUITE FAILURE: "'||utsuite.name_from_id(id_in => suite_id)||'"');
+      END IF;
+    END showsuitebanner;
+    
+  BEGIN
+    showsuitebanner(suite_id => suite_id);
+    show_suite_stats(suite_id => suite_id);
+  END before_suite_results;
 END;
 /

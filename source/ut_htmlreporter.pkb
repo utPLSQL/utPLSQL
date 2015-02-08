@@ -142,5 +142,27 @@ Added first version of pluggable reporter packages
      pl('</TABLE>');     
    END;   
    
+   
+  PROCEDURE before_suite_results(
+    suite_id       ut_suite.id%TYPE
+  )
+  IS
+    PROCEDURE showsuitebanner(
+      suite_id       ut_suite.id%TYPE
+    )
+    IS
+    BEGIN
+      pl('<H1>SUITE "'|| utsuite.name_from_id(id_in => suite_id) || '": ');
+      IF utresult.suite_success(suite_id => suite_id) THEN
+        pl_success;
+      ELSE
+        pl_failure;
+      END IF;
+      pl('</H1>');
+    END showsuitebanner;
+  BEGIN
+    
+    showsuitebanner(suite_id => suite_id);
+  END before_suite_results;
 END uthtmlreporter;
 /

@@ -98,6 +98,8 @@ IS
    PROCEDURE after_errors(run_id IN utr_error.run_id%TYPE);   
    
    PROCEDURE close;
+   
+   PROCEDURE before_suite_results(suite_id IN ut_suite.id%TYPE);
 
 END utMyRssReporter;
 /
@@ -163,6 +165,12 @@ END utMyRssReporter;
 
    <h3>after_errors</h3>
    <p>This is called after any errors have been sent for output.</p>
+
+   <h3>before_suite_results</h3>
+   <p>
+      This is called only when a suite is executed. It displays the overall 
+      banner and suite execution statistics.
+   </p>
 
    <h2><a name="reportrecords"></a>Outcome and Error records</h2>
    <p>
