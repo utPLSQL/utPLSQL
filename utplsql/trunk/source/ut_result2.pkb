@@ -323,5 +323,33 @@ Added Standard Headers
          ORDER BY start_on;
       RETURN retval;
    END results_details;
+  /*
+    func: suite_succeded
+      Return TRUE if last run for all packages of suite was successfull
+      otherwise return FALSE
+    
+    parameters:
+      suuite_id
+  */
+  FUNCTION suite_succeded(
+    suite_id  ut_suite.id%TYPE
+  )
+  RETURN BOOLEAN
+  IS
+    res   BOOLEAN := TRUE;
+  BEGIN
+    FOR rec IN (
+      SELECT u.last_run_id
+        FROM ut_package u
+       WHERE u.suite_id = suite_succeded.suite_id
+    ) LOOP
+      res := res AND run_succeeded(runnum_in => rec.last_run_id);
+      IF NOT res THEN
+        EXIT;
+      END IF;
+    END LOOP;
+    
+    RETURN res;
+  END suite_succeded;
 END utresult2;
 /

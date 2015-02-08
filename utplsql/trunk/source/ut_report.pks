@@ -47,6 +47,8 @@ $Log
    PROCEDURE after_errors(run_id IN utr_error.run_id%TYPE);
 
    PROCEDURE close;
+   
+   PROCEDURE before_suite_results(suite_id       ut_suite.id%TYPE);
 
 END;
 /

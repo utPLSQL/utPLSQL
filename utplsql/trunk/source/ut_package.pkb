@@ -74,6 +74,50 @@ Added Standard Headers
       THEN
          RETURN NULL;
    END;
+   /*
+     func: name_from_last_run_id
+       Return name of package using last run id. 
+       Return null if there is no package with given last run id.
+     params:
+       last_run_id_in - last run id of package
+   */
+   FUNCTION name_from_last_run_id (last_run_id_in IN ut_package.last_run_id%TYPE)
+      RETURN ut_package.name%TYPE
+   IS
+      retval   ut_package.name%TYPE;
+   BEGIN
+      SELECT name
+        INTO retval
+        FROM ut_package
+       WHERE last_run_id = last_run_id_in;
+      RETURN retval;
+   EXCEPTION
+      WHEN NO_DATA_FOUND
+      THEN
+         RETURN NULL;
+   END name_from_last_run_id;
+   /*
+     func:owner_from_last_run_id
+       Return owner of package using last run id. 
+       Return null if there is no package with given last run id.
+     params:
+       last_run_id_in - last run id of package
+   */
+   FUNCTION owner_from_last_run_id (last_run_id_in IN ut_package.last_run_id%TYPE)
+      RETURN ut_package.owner%TYPE
+   IS
+      retval   ut_package.owner%TYPE;
+   BEGIN
+      SELECT owner
+        INTO retval
+        FROM ut_package
+       WHERE last_run_id = last_run_id_in;
+      RETURN retval;
+   EXCEPTION
+      WHEN NO_DATA_FOUND
+      THEN
+         RETURN NULL;
+   END owner_from_last_run_id;
 
    PROCEDURE ADD (
       suite_in            IN   INTEGER,
