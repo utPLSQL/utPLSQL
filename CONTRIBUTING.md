@@ -23,11 +23,6 @@ Changes are welcome from all members of the Community.
 
 **Note:** Getting changes from others requires [Syncing your Local repository](https://help.github.com/articles/syncing-a-fork) with Master utPLSQL repository.    This can happen at any time.
 
-
-## Dependencies ##
-
-* Oracle Version XX.X or Later
-
 ## New to GIT ##
 
 If you are new to GIT here are some links to help you with understanding how it works.    
