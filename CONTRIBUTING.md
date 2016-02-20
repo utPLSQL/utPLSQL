@@ -7,7 +7,7 @@ Changes are welcome from all members of the Community.
 
 1. Create a [GitHub Account](https://github.com/join).
 2. Fork the utPLSQL Repository and setup your local Repository.
-     * Each of of the steps below are detailed [How to Fork](https://help.github.com/articles/fork-a-repo) article!
+     * Each of of the steps below are detailed in the [How to Fork](https://help.github.com/articles/fork-a-repo) article!
      * Clone your Fork to your local machine.
      * Configure "upstream" remote to the [master utPLSQL repository](https://github.com/utPLSQL/utPLSQL.git).
 3. For each change you want to make:       
@@ -30,12 +30,4 @@ If you are new to GIT here are some links to help you with understanding how it 
 - [GIT Documentation](http://git-scm.com/doc)
 - [Atlassian Git Tutorial](https://www.atlassian.com/git/tutorial/git-basics)
 - [What are other resources for learning Git and GitHub](https://help.github.com/articles/what-are-other-good-resources-for-learning-git-and-github) 
-
-
-## Feedback and Collaboration ##
-
-Find out where to put this, other projects have used Google+ Communities.
-
-
- 
 
