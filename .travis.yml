@@ -14,7 +14,8 @@ before_install:
   - .travis/oracle/download.sh
   - .travis/oracle/install.sh
 
-install: true
+install:
   - .travis/travis_install.sh
 
+#run unit tests here
 script: ls
