@@ -6,5 +6,7 @@ grant create session, create table, create procedure,
 
 grant unlimited tablespace to utp;
 
+--other grants
+grant execute on UTL_FILE to utp;
 --OPTIONAL
 grant execute on DBMS_PIPE to utp;

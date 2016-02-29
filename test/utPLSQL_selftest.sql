@@ -1,6 +1,12 @@
 set serveroutput on size 1000000
 set SERVEROUTPUT on size unlimited
 
+set linesize 132
+set termout off
+alter session set NLS_DATE_FORMAT = 'SYYYY-MM-DD"T"HH24:MI:SS';
+alter session set NLS_TIMESTAMP_FORMAT  = 'YYYY-MM-DD"T"HH:MI:SSXFF';
+set termout on
+
 DECLARE
  v_suitename varchar2(30) := 'utPLSQL_SELF';
 BEGIN
@@ -28,12 +34,25 @@ end loop;
    utPLSQL.testsuite (v_suitename, recompile_in => false);
 END;
 /
-column UT_SUITE_NAME FORMAT A30 HEADING name
 
 
-SELECT id,owner,name ut_suite_name, description, executions, failures, last_status, last_start
+column UT_SUITE_NAME FORMAT A30 HEADING NAME
+column ut_description format a40 word_wrapped HEADING DESCRIPTION
+
+
+SELECT name ut_suite_name, 
+--description ut_description,
+executions, failures, last_status, last_start
 FROM ut_package
 WHERE suite_id IS NOT NULL
 order by suite_id,seq;
 
-SELECT ID,NAME ut_suite_name,executions,failures,last_status FROM ut_suite;
+SELECT NAME ut_suite_name,executions,failures,last_status FROM ut_suite;
+
+--set return value as number of failures
+set termout off
+column f new_val fail_cnt
+SELECT sum(failures) f FROM ut_package WHERE suite_id IS NOT NULL ;
+set termout on
+
+exit fail_cnt
