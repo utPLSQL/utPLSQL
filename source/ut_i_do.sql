@@ -6,6 +6,7 @@ SET FEEDBACK OFF
 SET TTITLE OFF
 SET SERVEROUTPUT ON SIZE 1000000 FORMAT WRAPPED
 SET DEFINE ON
+set timing off
 
 ----------------------------------------------------
 -- ou installator

@@ -18,4 +18,5 @@ install:
   - .travis/travis_install.sh
 
 #run unit tests here
-script: ls
+script: 
+  - .travis/travis_unittest.sh
