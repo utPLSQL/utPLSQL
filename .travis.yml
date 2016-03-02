@@ -1,22 +1,17 @@
-
 sudo: required
-
 env:
   global:
-    - ORACLE_COOKIE=sqldev
-    - ORACLE_FILE=oracle11g/xe/oracle-xe-11.2.0-1.0.x86_64.rpm.zip
-    - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
-    - ORACLE_SID=XE
-
-# whitelist
-
+  - ORACLE_COOKIE=sqldev
+  - ORACLE_FILE=oracle11g/xe/oracle-xe-11.2.0-1.0.x86_64.rpm.zip
+  - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
+  - ORACLE_SID=XE
 before_install:
-  - .travis/oracle/download.sh
-  - .travis/oracle/install.sh
-
+- ".travis/oracle/download.sh"
+- ".travis/oracle/install.sh"
 install:
-  - .travis/travis_install.sh
-
-#run unit tests here
-script: 
-  - .travis/travis_unittest.sh
+- ".travis/travis_install.sh"
+script:
+- ".travis/travis_unittest.sh"
+notifications:
+  slack:
+    secure: ggG+BFOdk+7SRIqEs7RMTc6mWyBwNm85E6LbyigEqXbAv3nBYmcX6jhALiQ3cP6IkgOx9MfFlERsgxQJ7N4wDWRJMR35Gr/BCsokNcwMVHzNCppojVPspUl2dAPXAN0Is6+yDQFXvUcixgHc03ANXrqva0asklYGXOEm5R3snswlquWZCDanx+bO6uaXSRQ2W+wK7tVhfBhmeIuKwFvhxuUrG3DZLNKJZS8O0tY9c3VYjdSvtF9r55FPs8nTG1FQImcyuN44pchR2qUNf00LNssoZ+sxjioFYRUqoUnOjMw1B3mmVDbkKThiAVG4GnafAdNiGu374dmF20+sQKwDIqnCBvWtTmKtNeE2B83wNWj8ZSv7GqTsMHljRYTFAZ5BbCVSn6vvffYUFGO61MC18MqRnN6YJn9igUmpkLQn/qADitqlW4cpojEB4rTL1FRyqwmdEE16jHZomotkJqvQITJftZarbSh/z1mt9YhX5uCa8UobEHvL5WBL1EafkJm0q8oCBRd5eXSDqyx1Sd2x/s0/Q4Zrmp9317YNLQY5B5+j+QgggJ8jvWT+Cfge9AGJQ7L9fQZDLgHTH3jzeQWi3xaTlMfLZEZaIs05HxTUCoOZkLSwZpIhRstxJEK7VLIr07RvZrspz75ipixN1uFsYWzcPrK3wIoDcgpha/YfG2A=
