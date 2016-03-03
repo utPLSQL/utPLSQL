@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/Shoelace/utPLSQL.svg?branch=travis_ci)](https://travis-ci.org/Shoelace/utPLSQL)
+
+
 ====================================================================
 Welcome to utPLSQL, the unit testing framework for PL/SQL
 ====================================================================
