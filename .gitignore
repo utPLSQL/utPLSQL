@@ -1,3 +1,5 @@
 documentation/
 !documentation/src
 
+build/*.zip
+build/release*
