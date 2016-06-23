@@ -22,6 +22,7 @@ my $copymeta;
 my $authormeta;
 my $copyrightyears;
 
+
 populate_map();
 build_copyright();
 
@@ -29,8 +30,9 @@ build_copyright();
 my $index;
 my $nextprev;
 
-output_doc_dir('..');
-output_doc_dir('../../website/Doc');
+my $outputpath = '..\output';
+mkdir($outputpath);
+output_doc_dir($outputpath);
 
 sub output_doc_dir {
     #The directory the output goes into
