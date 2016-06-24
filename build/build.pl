@@ -21,46 +21,52 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 # ************************************************************************
 #
-# This perl script builds and optionally uploads a release of utPLSQL.
+# This perl script can do the following
+#  1.  Call the build_docs.pl to generate the documentation.
+#  2.  Create ZIP File for Release
+#      - Creates a "release" directory underneath the current directory.
+#      - Copies all the files for a release into this new directory.
+#      - Creates a zip file (the file that gets released) with the correct name.
+#  3.  Commit/Push the latest documentation to the utPLSQL.github.io repository.
 #
-# Please see <https://sourceforge.net/p/utplsql/wiki/Release%20Procedure/> for
+# Please see <https://github.com/utPLSQL/utPLSQL/wiki/Release-Procedure> for
 # the Release Procedure.
-#
-# Creating a release does the following:
-#  - Creates a "release" directory underneath the current directory.
-#  - Copies all the files for a release into this new directory.
-#  - Creates a zip file (the file that gets released) with the correct name.
-#
-# Uploading a release does all the above, plus the following:
-#  - Uploads the release zip to Sourceforge (it will become visible in the File 
-#    Download area, but will not be the default).
-#  - Uploads the website.
-#
-# $Id$
 #
 
 use strict;
 use warnings;
 use 5.010;
 
+
+use Cwd;
+use Cwd 'abs_path';
+use File::Spec;
 use File::Copy;
 use File::Copy::Recursive qw(dircopy);
 use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
-
+say "---------------------------------------------------------------";
+say " NOTE: Requires GIT SSH Keys to be setup to Update Web Docs.";
+say "---------------------------------------------------------------";
 say "Which build option do you require:";
-say "  1) Create release";
-say "  2) Create and upload release";
+say "  1) Create release ";
+say "     - Update Docs, Create Zip";
+say "  2) Create release and update website ";
+say "     - Update Docs,Create Zip,Update Web Docs";
+say "  3) Build and Update the website documentation without release";
+say "     - Update Docs,Update Web Docs";
+say "---------------------------------------------------------------";
 print "Please make selection: ";
 my $selection = <>;
+chop $selection;
 
-given($selection) {
-    when(1) {create_zip_release();}
-    when(2) {upload_release();}
-    default {
-        die "Invalid selection - exiting \n";
-    }
-}
-
+if    ($selection eq 1) { regenerate_docs();
+                          create_zip_release();}
+elsif ($selection eq 2) { regenerate_docs();
+                          create_zip_release();
+						  update_website();}
+elsif ($selection eq 3) { regenerate_docs();
+                          update_website(); }
+else { die "Invalid selection - exiting \n"; }
 
 sub version_number {
     state $version;
@@ -124,7 +130,7 @@ sub populate_release_directories {
     populate_code_directory();
     populate_doc_directory();
     populate_examples_directory();
-    copy ("../documentation/readme.txt", release_dir());
+    copy ("../readme.md", release_dir());
 }
 
 
@@ -134,7 +140,7 @@ sub populate_code_directory {
 
 
 sub populate_doc_directory{
-    dircopy ("../website/Doc", release_doc_dir());
+    dircopy ("../documentation/output", release_doc_dir());
 }
 
 
@@ -165,6 +171,7 @@ sub create_zip_release {
 
 
 sub upload_release {
+#Left here not used, but could be readded if desired later.
     my $confirmed;
 
     print "Please confirm you wish to upload this release: [".version_number()."] (Y/N)? ";
@@ -176,22 +183,89 @@ sub upload_release {
     }
 
     create_zip_release();
-    upload_zip();
-    upload_website();
-    #set_default_download();
+#    upload_zip();
+
 }
 
 
-sub upload_zip {
-    say 'Uploading zip file...';
-    system 'rsync -avP -e ssh ' . zip_filename() . ' ' . username() . '@frs.sourceforge.net:/home/frs/project/utplsql/utPLSQL/' . version_number() . '/';
+sub regenerate_docs {
+# Change working directory so that build_docs.pl can find the files.
+ my $orig_dir = cwd;
+ chdir '../documentation/src/';
+ system 'build_docs.pl';             
+ chdir $orig_dir;
 }
 
 
-sub upload_website {
-    say 'Uploading website...';
-    system 'rsync -avP --chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r -e ssh ../website/ ' . username() . '@web.sourceforge.net:/home/project-web/utplsql/htdocs/';
+sub confirm_update_docs {
+    my $confirmed;
+    print "Please confirm you wish to update documentation on web: (Y/N)? ";
+    $confirmed = <>;
+    chomp $confirmed;
+    my $result = 0;
+    if (($confirmed eq "Y" || $confirmed eq "y")) {
+        $result = 1;
+    }
+	return $result;
+}	
+sub setup_repo {    
+	if (!(-d '.git')) {
+	   system 'git clone git@github.com:utPLSQL/utPLSQL.github.io.git .';
+	}
+    system 'git checkout master';
+	system 'git pull';
 }
+sub copy_docs{
+    my $builddir = $_[0];
+	my $repodir  = $_[1];
+	my @bdirs = File::Spec->splitdir($builddir);
+	pop @bdirs;
+	my @rdirs = File::Spec->splitdir($repodir);
+	my $doc_output = File::Spec->catdir(@bdirs,'documentation','output');         
+	my $doc_repo = File::Spec->catdir(@rdirs,'docs');
+    dircopy ($doc_output, $doc_repo);  
+}
+
+sub add_and_commit{
+  system 'git add .';
+  my $output = qx/git status --porcelain/;
+  my $result = 0;
+  if ($output ne '') {
+    system 'git commit -m "Automated Doc Refresh from utPLSQL repo"';	
+	$result = 1;	
+  }
+  return $result;
+}
+
+
+sub push_changes{
+   system 'git push';
+}
+
+sub update_website {
+   
+    my $website_repo = ask_for_website_repo(); 
+	my $orig_cwd = cwd;
+	
+	if (!(-d $website_repo)) {
+	   make_dir $website_repo; 
+	}	
+	my $abs_website = abs_path($website_repo);
+    
+	chdir $website_repo;	
+	
+	setup_repo();
+	copy_docs($orig_cwd,$abs_website);
+	if (add_and_commit($abs_website) == 0){
+	  say "No Doc changes to commit and push."
+	}
+	else {
+	  if (confirm_update_docs() == 1) {
+	    push_changes();
+	  } 
+	}
+	cwd $orig_cwd;
+}    
 
 
 sub username {
@@ -205,3 +279,19 @@ sub username {
 
     return $username;
 }
+
+sub ask_for_website_repo {
+	my $web_repo_path;
+
+	say 'Please enter local working copy location of utPLSQL.github.io repository ';
+	say '  Press "Enter" for defaults of "../../utPLSQL.github.io" ';
+	$web_repo_path = <>;
+
+	chomp $web_repo_path;
+
+	if ($web_repo_path eq "") {
+		$web_repo_path = "../../utPLSQL.github.io";
+	  }
+	  
+	return $web_repo_path;  
+} 
