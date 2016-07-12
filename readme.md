@@ -1,3 +1,12 @@
-## Version 3	
+##UTPLSQL v3
 
-Placeholder file for Version 3 - Empty Branch.
+A clean rewrite of utPLSQL
+Current State: Non functioning
+
+#Directories
+
+* build -contains scripts used by the Jenkins to build the project
+* examples - contains example unit tests.
+* source - contains the code utPLSQL
+* tests - contains the tests written to test utPLSQL
+* docsource - contains source of documentation.
