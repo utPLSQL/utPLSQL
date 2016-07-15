@@ -16,8 +16,8 @@ AS
  procedure ut_exampletest
  as
  begin
-    ut3assert.areEqual('Test 1 Should Pass',1,1);
-    ut3assert.areEqual('Test 2 Should Pass',2,2); 
+    ut_assert.are_Equal('Test 1 Should Pass',1,1);
+    ut_assert.are_Equal('Test 2 Should Pass',2,2); 
  end;
  
 END;
