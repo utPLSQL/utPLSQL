@@ -3,11 +3,9 @@ as
 
 procedure begin_suite (a_reporter in ut_types.test_suite_reporter, a_suite in ut_types.test_suite)
 as
-  stmt varchar2(100);
-begin
-    if ut_metadata.package_valid(a_reporter.owner_name,a_reporter.package_name) and ut_metadata.procedure_exists(a_reporter.owner_name,a_reporter.package_name,a_reporter.begin_suite_procedure) then
-         stmt := 'begin '  || trim(a_reporter.package_name) || '.' || trim(a_reporter.begin_suite_procedure) || '(:suite); end;'; 
-        execute immediate stmt using a_suite;
+Begin
+    If Ut_Metadata.Package_Valid(A_Reporter.Owner_Name,A_Reporter.Package_Name) And Ut_Metadata.Procedure_Exists(A_Reporter.Owner_Name,A_Reporter.Package_Name,A_Reporter.Begin_Suite_Procedure) Then
+        execute immediate 'begin '  || nvl(Ut_Types.test_suite_reporter_bs_stmt(A_Reporter),'NULL') ||'; end;' using a_suite;
     end if;
 end;
 
@@ -15,8 +13,8 @@ procedure end_suite (a_reporter in ut_types.test_suite_reporter, a_suite in ut_t
 as
   stmt varchar2(100);
 begin
-    if ut_metadata.package_valid(a_reporter.owner_name,a_reporter.package_name) and ut_metadata.procedure_exists(a_reporter.owner_name,a_reporter.package_name,a_reporter.end_suite_procedure) then
-        stmt := 'begin '  || trim(a_reporter.package_name) || '.' || trim(a_reporter.end_suite_procedure) || '(:suite,:results); end;'; 
+    If Ut_Metadata.Package_Valid(A_Reporter.Owner_Name,A_Reporter.Package_Name) And Ut_Metadata.Procedure_Exists(A_Reporter.Owner_Name,A_Reporter.Package_Name,A_Reporter.End_Suite_Procedure) Then
+        stmt := 'begin '  || nvl(Ut_Types.test_suite_reporter_es_stmt(A_Reporter),'NULL') || '; end;'; 
         execute immediate stmt using a_suite,a_results;
     end if;
 end;
@@ -24,8 +22,8 @@ procedure begin_test(a_reporter in ut_types.test_suite_reporter, a_test in ut_ty
 as
   stmt varchar2(100);
 begin
-    if ut_metadata.package_valid(a_reporter.owner_name,a_reporter.package_name) and ut_metadata.procedure_exists(a_reporter.owner_name,a_reporter.package_name,a_reporter.begin_test_procedure) then
-        stmt := 'begin '  || trim(a_reporter.package_name) || '.' || trim(a_reporter.begin_test_procedure) || '(:test,:insuite); end;'; 
+    If Ut_Metadata.Package_Valid(A_Reporter.Owner_Name,A_Reporter.Package_Name) And Ut_Metadata.Procedure_Exists(A_Reporter.Owner_Name,A_Reporter.Package_Name,A_Reporter.Begin_Test_Procedure) Then
+        stmt := 'begin '  || nvl(Ut_Types.test_suite_reporter_bt_stmt(A_Reporter),'NULL') || '; end;'; 
         execute immediate stmt using a_test, a_in_suite;
     end if;
 end;
@@ -33,8 +31,8 @@ procedure end_test(a_reporter in ut_types.test_suite_reporter, a_test in ut_type
 as
   stmt varchar2(100);
 begin
-    if ut_metadata.package_valid(a_reporter.owner_name,a_reporter.package_name) and ut_metadata.procedure_exists(a_reporter.owner_name,a_reporter.package_name,a_reporter.end_test_procedure) then
-        stmt := 'begin '  || trim(a_reporter.package_name) || '.' || trim(a_reporter.end_test_procedure) || '(:test,:result,:insuite); end;'; 
+    If Ut_Metadata.Package_Valid(A_Reporter.Owner_Name,A_Reporter.Package_Name) And Ut_Metadata.Procedure_Exists(A_Reporter.Owner_Name,A_Reporter.Package_Name,A_Reporter.End_Test_Procedure) Then
+        stmt := 'begin '  || nvl(Ut_Types.test_suite_reporter_et_stmt(A_Reporter),'NULL')||'; end;'; 
         execute immediate stmt using a_test,a_result,a_in_suite;
     end if;    
 end;

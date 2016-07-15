@@ -22,13 +22,16 @@ create or replace package ut_types as
    
     type single_test is record
     ( 
-	    owner_name         dbms_quoted_id,
+        owner_name         dbms_quoted_id,
         object_name        dbms_quoted_id,  
         setup_procedure    dbms_quoted_id,
         teardown_procedure dbms_quoted_id,
         test_procedure     dbms_quoted_id
     );
-    function single_test_is_valid(a_single_test IN OUT NOCOPY single_test) return boolean;
+    function single_test_is_valid(a_single_test in out nocopy single_test) return boolean;
+    function single_test_setup_stmt(a_single_test in single_test) return varchar2;
+    function single_test_teardown_stmt(a_single_test in single_test) return varchar2;
+    function single_test_test_stmt(a_single_test in single_test) return varchar2;
     
     type test_execution_result is record
     (
@@ -63,5 +66,12 @@ create or replace package ut_types as
     );
     
     type test_suite_reporters is table of test_suite_reporter;
+
+    Function Test_Suite_Reporter_Is_Valid(A_Test_Suite_Reporter In Out Nocopy Test_Suite_Reporter) Return Boolean;
+    function test_suite_reporter_bs_stmt(a_test_suite_reporter in test_suite_reporter) return varchar2;
+    function test_suite_reporter_es_stmt(a_test_suite_reporter in test_suite_reporter) return varchar2;
+    function test_suite_reporter_bt_stmt(a_test_suite_reporter in test_suite_reporter) return varchar2;
+    function test_suite_reporter_et_stmt(a_test_suite_reporter in test_suite_reporter) return varchar2;
+
     
 end ut_types;

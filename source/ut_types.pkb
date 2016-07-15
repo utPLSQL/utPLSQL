@@ -53,16 +53,8 @@ begin
 	
 
   function single_test_is_valid(a_single_test IN OUT NOCOPY single_test) return boolean
-	is
-  NAME  VARCHAR2(200);
-  CONTEXT NUMBER;
-  SCHEMA VARCHAR2(200);
-  PART1 VARCHAR2(200);
-  PART2 VARCHAR2(200);
-  DBLINK VARCHAR2(200);
-  PART1_TYPE NUMBER;
-  OBJECT_NUMBER NUMBER;
-Begin
+  is
+  Begin
   If A_Single_Test.Test_Procedure Is Null Then Return False; End If;
   
   if not do_resolve(a_single_test.owner_name,a_single_test.object_name, a_single_test.test_procedure) then return false; end if;
@@ -79,4 +71,104 @@ Begin
   
   End Single_Test_Is_Valid;
   
+    function single_test_setup_stmt(a_single_test in single_test) return varchar2
+    Is
+    Begin
+      If Trim(A_Single_Test.Setup_Procedure ) Is Null or Trim(A_Single_Test.object_name ) Is Null Then Return Null; End If;
+
+      If Trim(A_Single_Test.Owner_Name)       Is Not Null Then 
+        Return Trim(A_Single_Test.Owner_Name)||'.'||A_Single_Test.Object_Name||'.'||A_Single_Test.Setup_Procedure;
+      Else
+        Return                                      A_Single_Test.Object_Name||'.'||A_Single_Test.Setup_Procedure;
+      End If;
+      
+    end;
+    
+    Function Single_Test_Teardown_Stmt(A_Single_Test In Single_Test) Return Varchar2
+    Is
+    Begin
+      If Trim(A_Single_Test.teardown_procedure ) Is Null or Trim(A_Single_Test.object_name ) Is Null Then Return Null; End If;
+
+      If Trim(A_Single_Test.Owner_Name)       Is Not Null Then 
+        Return Trim(A_Single_Test.Owner_Name)||'.'||A_Single_Test.Object_Name||'.'||A_Single_Test.teardown_procedure;
+      Else
+        Return                                      A_Single_Test.Object_Name||'.'||A_Single_Test.teardown_procedure;
+      End If;    
+      End;
+      
+      
+    function single_test_test_stmt(a_single_test in single_test) return varchar2
+        Is
+    Begin
+      If Trim(A_Single_Test.test_procedure ) Is Null or Trim(A_Single_Test.object_name ) Is Null Then Return Null; End If;
+
+      If Trim(A_Single_Test.Owner_Name)       Is Not Null Then 
+        Return Trim(A_Single_Test.Owner_Name)||'.'||A_Single_Test.Object_Name||'.'||A_Single_Test.test_procedure;
+      Else
+        Return                                      A_Single_Test.Object_Name||'.'||A_Single_Test.test_procedure;
+      End If;
+    end;
+    
+    
+  
+  function test_suite_reporter_is_valid(a_test_suite_reporter IN OUT NOCOPY test_suite_reporter) return boolean
+  is
+  v_retval boolean := FALSE;
+  begin
+   if a_test_suite_reporter.package_name is null then return false; end if;
+   
+   if do_resolve(a_test_suite_reporter.owner_name,a_test_suite_reporter.package_name, a_test_suite_reporter.begin_suite_procedure) then v_retval := true; end if;
+   if do_resolve(a_test_suite_reporter.owner_name,a_test_suite_reporter.package_name, a_test_suite_reporter.end_suite_procedure) then v_retval := true; end if;
+   if do_resolve(a_test_suite_reporter.owner_name,a_test_suite_reporter.package_name, a_test_suite_reporter.begin_test_procedure) then v_retval := true; end if;
+   if do_resolve(a_test_suite_reporter.owner_name,a_test_suite_reporter.package_name, a_test_suite_reporter.end_test_procedure) then v_retval := true; end if;
+   
+   return v_retval; --will be true if at least one of the procedures is valid
+  end;
+  
+    function test_suite_reporter_bs_stmt(a_test_suite_reporter in test_suite_reporter) return varchar2
+        Is
+    Begin
+      If Trim(a_test_suite_reporter.begin_suite_procedure ) Is Null or Trim(a_test_suite_reporter.package_name ) Is Null Then Return Null; End If;
+
+      If Trim(A_Test_Suite_Reporter.Owner_Name)       Is Not Null Then 
+        Return Trim(a_test_suite_reporter.Owner_Name)||'.'||a_test_suite_reporter.package_name||'.'||a_test_suite_reporter.begin_suite_procedure||'(:suite)';
+      Else
+        Return                                              a_test_suite_reporter.package_name||'.'||a_test_suite_reporter.begin_suite_procedure||'(:suite)';
+      End If;    
+    End;
+    
+    function test_suite_reporter_es_stmt(a_test_suite_reporter in test_suite_reporter) return varchar2
+        Is
+    Begin
+      If Trim(a_test_suite_reporter.end_suite_procedure ) Is Null or Trim(a_test_suite_reporter.package_name ) Is Null Then Return Null; End If;
+
+      If Trim(A_Test_Suite_Reporter.Owner_Name)       Is Not Null Then 
+        Return Trim(a_test_suite_reporter.Owner_Name)||'.'||a_test_suite_reporter.package_name||'.'||a_test_suite_reporter.end_suite_procedure||'(:suite,:results)';
+      Else
+        Return                                              a_test_suite_reporter.package_name||'.'||a_test_suite_reporter.end_suite_procedure||'(:suite,:results)';
+      End If;    
+    End;
+    Function Test_Suite_Reporter_Bt_Stmt(A_Test_Suite_Reporter In Test_Suite_Reporter) Return Varchar2
+        Is
+    Begin
+      If Trim(a_test_suite_reporter.begin_test_procedure ) Is Null or Trim(a_test_suite_reporter.package_name ) Is Null Then Return Null; End If;
+
+      If Trim(A_Test_Suite_Reporter.Owner_Name)       Is Not Null Then 
+        Return Trim(a_test_suite_reporter.Owner_Name)||'.'||a_test_suite_reporter.package_name||'.'||a_test_suite_reporter.begin_test_procedure|| '(:test,:insuite)';
+      Else
+        Return                                              a_test_suite_reporter.package_name||'.'||a_test_suite_reporter.begin_test_procedure|| '(:test,:insuite)';
+      End If;    
+    End;
+    function test_suite_reporter_et_stmt(a_test_suite_reporter in test_suite_reporter) return varchar2
+        Is
+    Begin
+      If Trim(a_test_suite_reporter.end_test_procedure ) Is Null or Trim(a_test_suite_reporter.package_name ) Is Null Then Return Null; End If;
+
+      If Trim(A_Test_Suite_Reporter.Owner_Name)       Is Not Null Then 
+        Return Trim(a_test_suite_reporter.Owner_Name)||'.'||a_test_suite_reporter.package_name||'.'||a_test_suite_reporter.end_test_procedure|| '(:test,:result,:insuite)';
+      Else
+        Return                                              a_test_suite_reporter.package_name||'.'||a_test_suite_reporter.end_test_procedure|| '(:test,:result,:insuite)';
+      End If;    
+    End;
+    
 end ut_types;

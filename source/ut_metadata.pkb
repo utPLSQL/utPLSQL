@@ -26,7 +26,10 @@ as
                             a_procedure_name in varchar2) return boolean
   as
     v_cnt integer;
-  begin
+  Begin
+   If A_Owner_Name Is Null Or A_Package_Name Is Null Or A_Procedure_Name Is Null Then
+      Return False;
+   end if;
     select 
         count(*) into v_cnt 
     from 

@@ -12,8 +12,10 @@ begin
     
     reporter.package_name := 'ut_dbms_output_reporter';
     
-    defaultreporters.extend;
-    defaultreporters(defaultreporters.last) := reporter;
+    if ut_types.test_suite_reporter_is_valid(reporter) then
+      defaultreporters.extend;
+      defaultreporters(defaultreporters.last) := reporter;
+    end if;
   end if;
 end;
 
