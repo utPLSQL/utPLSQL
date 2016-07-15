@@ -7,9 +7,21 @@ as
 
 */
 
-function package_valid(a_owner_name varchar2,a_package_name in varchar2) return boolean;
+/*
+  function: package_valid
   
+  check if package exists and is VALID.
+
+*/
+function package_valid   (a_owner_name varchar2,a_package_name in varchar2) return boolean;
+  
+/*
+  function: procedure_exists
+  
+  check if package exists and is VALID and contains the given procedure.
+
+*/
 function procedure_exists(a_owner_name varchar2,a_package_name in varchar2, a_procedure_name in varchar2) return boolean;
 
-end;
+end ut_metadata;
 
