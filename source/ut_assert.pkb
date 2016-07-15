@@ -51,7 +51,7 @@ is
  is
    v_result ut_types.assert_result;
  begin
-   $if $$ut_trace $then dbms_output.put_line('ut_assert.report_assert :' || assertresult || ':' || message ); $end
+   $if $$ut_trace $then dbms_output.put_line('ut_assert.report_assert :' || assert_result || ':' || message ); $end
    
    v_result.result := assert_result;
    v_result.message := message;
