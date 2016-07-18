@@ -1,44 +1,99 @@
-create or replace package body ut_metadata 
-as
+create or replace package body ut_metadata as
 
-  function package_valid(a_owner_name varchar2,a_package_name in varchar2) return boolean
-  as
+  function form_name(a_owner_name varchar2, a_object varchar2, a_subprogram varchar2 default null) return varchar2 is
+    name varchar2(200);
+  begin
+    name := a_object;
+    if trim(a_owner_name) is not null then
+      name := trim(a_owner_name) || '.' || name;
+    end if;
+    if trim(a_subprogram) is not null then
+      name := name || '.' || a_subprogram;
+    end if;
+    return name;
+  end form_name;
+
+  function package_valid(a_owner_name varchar2, a_package_name in varchar2) return boolean as
+    v_cnt         number;
+    name          varchar2(200);
+    schema        varchar2(200);
+    part1         varchar2(200);
+    part2         varchar2(200);
+    dblink        varchar2(200);
+    part1_type    number;
+    object_number number;
+  begin
+    --maybe use DBMS_UTILITY.NAME_RESOLVE first   
+    name := form_name(a_owner_name, a_package_name);
+    dbms_utility.name_resolve(name          => name
+                             ,context       => 1 -- pl/sql
+                             ,schema        => schema
+                             ,part1         => part1
+                             ,part2         => part2
+                             ,dblink        => dblink
+                             ,part1_type    => part1_type
+                             ,object_number => object_number);
+  
+    select count(*)
+      into v_cnt
+      from all_objects
+     where owner = schema
+       and object_name = part1
+       and object_type in ('PACKAGE', 'PACKAGE BODY')
+       and status = 'VALID';
+  
+    -- expect both package and body to be valid
+    return v_cnt = 2;
+  end;
+
+  function procedure_exists(a_owner_name varchar2, a_package_name in varchar2, a_procedure_name in varchar2)
+    return boolean as
     v_cnt integer;
   begin
-  --maybe use DBMS_UTILITY.NAME_RESOLVE first
-  
-    select 
-        count(*) into v_cnt
-    from
-        all_objects
-    where
-        owner = a_owner_name
-        and object_name = a_package_name
-        and object_type in ('PACKAGE','PACKAGE BODY')
-        and status = 'VALID';
-    
-    -- expect both package and body to be valid
-    return v_cnt = 2;    
-  end;
-  
-  function procedure_exists(a_owner_name varchar2,
-                            a_package_name in varchar2,
-                            a_procedure_name in varchar2) return boolean
-  as
-    v_cnt integer;
-  Begin
-   If A_Owner_Name Is Null Or A_Package_Name Is Null Or A_Procedure_Name Is Null Then
-      Return False;
-   end if;
-    select 
-        count(*) into v_cnt 
-    from 
-        all_procedures
-    where 
-        owner = a_owner_name
-        and object_name = a_package_name
-        and procedure_name = a_procedure_name;
+    if a_owner_name is null or a_package_name is null or a_procedure_name is null then
+      return false;
+    end if;
+    select count(*)
+      into v_cnt
+      from all_procedures
+     where owner = a_owner_name
+       and object_name = a_package_name
+       and procedure_name = a_procedure_name;
     --expect one method only for the package with that name.
     return v_cnt = 1;
-  end;                      
-end;  
+  end;
+
+  function do_resolve(the_owner in varchar2, the_object in varchar2, a_procedurename in varchar2) return boolean is
+    name          varchar2(200);
+    context       integer;
+    schema        varchar2(200);
+    part1         varchar2(200);
+    part2         varchar2(200);
+    dblink        varchar2(200);
+    part1_type    number;
+    object_number number;
+  begin
+    name := form_name(the_owner, the_object, a_procedurename);
+  
+    context := 1; --plsql
+  
+    begin
+      dbms_utility.name_resolve(name          => name
+                               ,context       => context
+                               ,schema        => schema
+                               ,part1         => part1
+                               ,part2         => part2
+                               ,dblink        => dblink
+                               ,part1_type    => part1_type
+                               ,object_number => object_number);
+    exception
+      when others then
+        --replace with correct exception
+        return false;
+    end;
+    return true;
+  
+  end do_resolve;
+
+end;
+/
