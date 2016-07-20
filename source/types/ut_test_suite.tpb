@@ -8,13 +8,13 @@ create or replace type body ut_test_suite is
     return;
   end ut_test_suite;
 
-  member procedure add_test(self in out nocopy ut_test_suite, a_item ut_test_object) is
+  member procedure add_item(self in out nocopy ut_test_suite, a_item ut_test_object) is
   begin
     self.items.extend;
     self.items(self.items.last) := a_item;
-  end add_test;
+  end add_item;
 
-  overriding member procedure execute(self in out nocopy ut_test_suite, a_reporter in ut_suite_reporter) is
+  overriding member procedure execute(self in out nocopy ut_test_suite, a_reporter in out nocopy ut_suite_reporter) is
   begin
     if a_reporter is not null then
       a_reporter.begin_suite(self.name);
@@ -49,8 +49,9 @@ create or replace type body ut_test_suite is
   end;
 
   overriding member procedure execute(self in out nocopy ut_test_suite) is
+	 v_null_reporter ut_suite_reporter;
   begin
-    self.execute(cast(null as ut_suite_reporter));
+    self.execute(v_null_reporter);
   end;
 
 end;

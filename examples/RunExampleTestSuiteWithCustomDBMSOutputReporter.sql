@@ -9,6 +9,8 @@ declare
   testtoexecute ut_test;
   reporter      ut_suite_reporter;
 begin
+  -- Install ut_custom_reporter first from example folder	
+
   suite := ut_test_suite(a_suite_name => 'Test Suite Name' /*,a_items => ut_test_objects_list()*/);
 
   testtoexecute := ut_test(a_object_name        => 'ut_exampletest'
@@ -25,14 +27,8 @@ begin
 
   suite.add_item(testtoexecute);
 
-  -- provide a reporter to process results
-  reporter := ut_dbms_output_suite_reporter;
+  -- provide a reporter to process results tabbing each hierarcy level by tab_size
+  reporter := ut_custom_reporter(a_tab_size => 2);
   suite.execute(reporter);
 end;
 /
-
-
-
-
-
-

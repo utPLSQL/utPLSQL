@@ -1,25 +1,40 @@
 create or replace package body ut_assert is
 
+  current_asserts_called ut_assert_list := ut_assert_list();
+
   function current_assert_test_result return integer is
+  begin
+    $if $$ut_trace $then
+    dbms_output.put_line('ut_assert.current_assert_test_result');
+    $end
+  
+    return get_assert_list_final_result(current_asserts_called);
+  end;
+
+  function get_assert_list_final_result(a_assert_list in ut_assert_list) return integer is
     v_result integer;
   begin
     $if $$ut_trace $then
-    dbms_output.put_line('ut_assert.currentasserttestresult');
+    dbms_output.put_line('ut_assert.get_assert_list_final_result');
     $end
   
-    v_result := ut_types.tr_success;
-    for i in current_asserts_called.first .. current_asserts_called.last loop
-      if current_asserts_called(i).result = ut_types.tr_failure then
-        v_result := ut_types.tr_failure;
-      end if;
+    if a_assert_list is not null then
     
-      if current_asserts_called(i).result = ut_types.tr_error then
-        v_result := ut_types.tr_error;
-        return v_result;
-      end if;
-    end loop;
+      v_result := ut_types.tr_success;
+      for i in a_assert_list.first .. a_assert_list.last loop
+        if a_assert_list(i).result = ut_types.tr_failure then
+          v_result := ut_types.tr_failure;
+        end if;
+      
+        if a_assert_list(i).result = ut_types.tr_error then
+          v_result := ut_types.tr_error;
+          exit;
+        end if;
+      end loop;
+    
+    end if;
     return v_result;
-  end;
+  end get_assert_list_final_result;
 
   procedure clear_asserts is
   begin
@@ -36,7 +51,6 @@ create or replace package body ut_assert is
     dbms_output.put_line('ut_assert.copy_called_asserts');
     $end
   
-    result   := ut_types.tr_success;
     newtable := ut_assert_list(); -- make sure new table is empty
     newtable.extend(current_asserts_called.last);
     for i in current_asserts_called.first .. current_asserts_called.last loop
@@ -45,21 +59,15 @@ create or replace package body ut_assert is
       $end
     
       newtable(i) := current_asserts_called(i);
-			
-      if result = ut_types.tr_success and newtable(i).result in (ut_types.tr_failure, ut_types.tr_error) then
-        result := newtable(i).result;
-      elsif result = ut_types.tr_failure and newtable(i).result = ut_types.tr_error then
-        result := ut_types.tr_error;
-      end if;
-			
-			exit when result = ut_types.tr_error;
     
       $if $$ut_trace $then
       dbms_output.put_line(i || '-end');
       $end
     end loop;
-		
-		clear_asserts;
+  
+    result := get_assert_list_final_result(newtable);
+  
+    clear_asserts;
   end process_asserts;
 
   procedure report_assert(assert_result in integer, message in varchar2) is
@@ -68,7 +76,7 @@ create or replace package body ut_assert is
     $if $$ut_trace $then
     dbms_output.put_line('ut_assert.report_assert :' || assert_result || ':' || message);
     $end
-    v_result := ut_assert_result(assert_result,message);
+    v_result := ut_assert_result(assert_result, message);
     current_asserts_called.extend;
     current_asserts_called(current_asserts_called.last) := v_result;
   end;
@@ -92,7 +100,7 @@ create or replace package body ut_assert is
 
   procedure are_equal(expected in number, actual in number) is
   begin
-    are_equal(expected, actual);
+    are_equal('Equality test', expected, actual);
   end;
 
   procedure are_equal(msg in varchar2, expected in number, actual in number) is

@@ -1,9 +1,9 @@
-create or replace type body ut_single_test is
+create or replace type body ut_test is
 
-  constructor function ut_single_test(a_object_name varchar2, a_test_procedure varchar2, a_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null)
+  constructor function ut_test(a_object_name varchar2, a_test_procedure varchar2, a_test_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null)
     return self as result is
   begin
-    self.name        := a_name;
+    self.name        := a_test_name;
     self.call_params := ut_test_call_params(object_name        => trim(a_object_name)
                                            ,test_procedure     => trim(a_test_procedure)
                                            ,owner_name         => coalesce(trim(a_owner_name)
@@ -11,9 +11,9 @@ create or replace type body ut_single_test is
                                            ,setup_procedure    => trim(a_setup_procedure)
                                            ,teardown_procedure => trim(a_teardown_procedure));
     return;
-  end ut_single_test;
+  end ut_test;
 
-  member function is_valid(self in ut_single_test) return boolean is
+  member function is_valid(self in ut_test) return boolean is
   begin
     if call_params.test_procedure is null then
       return false;
@@ -36,7 +36,7 @@ create or replace type body ut_single_test is
     return true;
   end is_valid;
 
-  member function setup_stmt(self in ut_single_test) return varchar2 is
+  member function setup_stmt(self in ut_test) return varchar2 is
   begin
     if trim(call_params.setup_procedure) is null or trim(call_params.object_name) is null then
       return null;
@@ -49,7 +49,7 @@ create or replace type body ut_single_test is
     end if;
   end setup_stmt;
 
-  member function test_stmt(self in ut_single_test) return varchar2 is
+  member function test_stmt(self in ut_test) return varchar2 is
   begin
     if trim(call_params.test_procedure) is null or trim(call_params.object_name) is null then
       return null;
@@ -62,7 +62,7 @@ create or replace type body ut_single_test is
     end if;
   end test_stmt;
 
-  member function teardown_stmt(self in ut_single_test) return varchar2 is
+  member function teardown_stmt(self in ut_test) return varchar2 is
   begin
     if trim(call_params.teardown_procedure) is null or trim(call_params.object_name) is null then
       return null;
@@ -75,7 +75,7 @@ create or replace type body ut_single_test is
     end if;
   end teardown_stmt;
 
-  overriding member procedure execute(self in out nocopy ut_single_test, a_reporter in ut_suite_reporter) is
+  overriding member procedure execute(self in out nocopy ut_test, a_reporter in out nocopy ut_suite_reporter) is
     params_valid boolean;  
   begin
     if a_reporter is not null then
@@ -84,7 +84,7 @@ create or replace type body ut_single_test is
   
     begin
       $if $$ut_trace $then
-      dbms_output.put_line('ut_single_test.execute');
+      dbms_output.put_line('ut_test.execute');
       $end
     
       self.execution_result := ut_execution_result();
@@ -116,7 +116,7 @@ create or replace type body ut_single_test is
     exception
       when others then
         $if $$ut_trace $then
-        dbms_output.put_line('ut_single_test.execute failed-' || sqlerrm(sqlcode) || ' ' ||
+        dbms_output.put_line('ut_test.execute failed-' || sqlerrm(sqlcode) || ' ' ||
                              dbms_utility.format_error_backtrace);
         $end
         -- most likely occured in setup or teardown if here.
@@ -133,9 +133,10 @@ create or replace type body ut_single_test is
     end if;
   end;
 
-  overriding member procedure execute(self in out nocopy ut_single_test) is
+  overriding member procedure execute(self in out nocopy ut_test) is
+	  v_null_reporter ut_suite_reporter;
   begin
-    self.execute(cast(null as ut_suite_reporter));
+    self.execute(v_null_reporter);
   end execute;
 
 end;

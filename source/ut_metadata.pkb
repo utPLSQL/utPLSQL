@@ -23,8 +23,9 @@ create or replace package body ut_metadata as
     part1_type    number;
     object_number number;
   begin
-    --maybe use DBMS_UTILITY.NAME_RESOLVE first   
+  
     name := form_name(a_owner_name, a_package_name);
+  
     dbms_utility.name_resolve(name          => name
                              ,context       => 1 -- pl/sql
                              ,schema        => schema
@@ -48,17 +49,34 @@ create or replace package body ut_metadata as
 
   function procedure_exists(a_owner_name varchar2, a_package_name in varchar2, a_procedure_name in varchar2)
     return boolean as
-    v_cnt integer;
+    v_cnt         number;
+    name          varchar2(200);
+    schema        varchar2(200);
+    part1         varchar2(200);
+    part2         varchar2(200);
+    dblink        varchar2(200);
+    part1_type    number;
+    object_number number;
   begin
-    if a_owner_name is null or a_package_name is null or a_procedure_name is null then
-      return false;
-    end if;
+  
+    name := form_name(a_owner_name, a_package_name, a_procedure_name);
+  
+    dbms_utility.name_resolve(name          => name
+                             ,context       => 1 -- pl/sql
+                             ,schema        => schema
+                             ,part1         => part1
+                             ,part2         => part2
+                             ,dblink        => dblink
+                             ,part1_type    => part1_type
+                             ,object_number => object_number);
+  
     select count(*)
       into v_cnt
       from all_procedures
-     where owner = a_owner_name
-       and object_name = a_package_name
-       and procedure_name = a_procedure_name;
+     where owner = schema
+       and object_name = part1
+       and procedure_name = part2;
+  
     --expect one method only for the package with that name.
     return v_cnt = 1;
   end;

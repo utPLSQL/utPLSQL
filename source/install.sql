@@ -7,20 +7,19 @@
 @@types/ut_suite_reporter.tps
 @@types/ut_test_object.tps
 @@types/ut_test_objects_list.tps
-@@types/ut_single_test.tps
+@@types/ut_test.tps
 @@types/ut_test_suite.tps
-@@types/ut_suite_reporters.tps
-@@types/ut_complex_suite_reporter.tps
+@@types/ut_reporter_decorator.tps
 @@types/ut_dbms_output_suite_reporter.tps
-@@ut_types.pks
-@@ut_test_runner.pks
-@@ut_types.pkb
+@@ut_utils.pks
+@@ut_utils.pkb
 @@types/ut_assert_result.tpb
 @@types/ut_execution_result.tpb
-@@types/ut_single_test.tpb
+@@types/ut_test.tpb
 @@types/ut_test_suite.tpb
+@@types/ut_test_call_params.tpb
+@@types/ut_reporter_decorator.tpb
 @@types/ut_dbms_output_suite_reporter.tpb
 @@ut_metadata.pkb
-@@ut_test_runner.pkb
 @@ut_assert.pkb
 
