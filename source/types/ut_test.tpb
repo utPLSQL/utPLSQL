@@ -6,8 +6,7 @@ create or replace type body ut_test is
     self.name        := a_test_name;
     self.call_params := ut_test_call_params(object_name        => trim(a_object_name)
                                            ,test_procedure     => trim(a_test_procedure)
-                                           ,owner_name         => coalesce(trim(a_owner_name)
-                                                                          ,sys_context('userenv', 'current_schema'))
+                                           ,owner_name         => trim(a_owner_name)
                                            ,setup_procedure    => trim(a_setup_procedure)
                                            ,teardown_procedure => trim(a_teardown_procedure));
     return;
@@ -19,61 +18,22 @@ create or replace type body ut_test is
       return false;
     end if;
   
-    if not ut_metadata.do_resolve(call_params.owner_name, call_params.object_name, call_params.test_procedure) then
+    if not ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.test_procedure) then
       return false;
     end if;
   
     if call_params.setup_procedure is not null and
-       not ut_metadata.do_resolve(call_params.owner_name, call_params.object_name, call_params.setup_procedure) then
+       not ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.setup_procedure) then
       return false;
     end if;
   
     if call_params.teardown_procedure is not null and
-       not ut_metadata.do_resolve(call_params.owner_name, call_params.object_name, call_params.teardown_procedure) then
+       not ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.teardown_procedure) then
       return false;
     end if;
   
     return true;
   end is_valid;
-
-  member function setup_stmt(self in ut_test) return varchar2 is
-  begin
-    if trim(call_params.setup_procedure) is null or trim(call_params.object_name) is null then
-      return null;
-    end if;
-  
-    if trim(call_params.owner_name) is not null then
-      return trim(call_params.owner_name) || '.' || call_params.object_name || '.' || call_params.setup_procedure;
-    else
-      return call_params.object_name || '.' || call_params.setup_procedure;
-    end if;
-  end setup_stmt;
-
-  member function test_stmt(self in ut_test) return varchar2 is
-  begin
-    if trim(call_params.test_procedure) is null or trim(call_params.object_name) is null then
-      return null;
-    end if;
-  
-    if trim(call_params.owner_name) is not null then
-      return trim(call_params.owner_name) || '.' || call_params.object_name || '.' || call_params.test_procedure;
-    else
-      return call_params.object_name || '.' || call_params.test_procedure;
-    end if;
-  end test_stmt;
-
-  member function teardown_stmt(self in ut_test) return varchar2 is
-  begin
-    if trim(call_params.teardown_procedure) is null or trim(call_params.object_name) is null then
-      return null;
-    end if;
-  
-    if trim(call_params.owner_name) is not null then
-      return trim(call_params.owner_name) || '.' || call_params.object_name || '.' || call_params.teardown_procedure;
-    else
-      return call_params.object_name || '.' || call_params.teardown_procedure;
-    end if;
-  end teardown_stmt;
 
   overriding member procedure execute(self in out nocopy ut_test, a_reporter in out nocopy ut_suite_reporter) is
     params_valid boolean;  

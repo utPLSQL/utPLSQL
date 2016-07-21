@@ -1,12 +1,19 @@
 create or replace type body ut_test_call_params is
 
-  static procedure execute_call(a_owner varchar2, a_object varchar2, a_subprogram varchar2) is
+  static procedure execute_call(a_owner varchar2, a_object varchar2, a_procedure_name varchar2) is
     stmt varchar2(200);
     i    number;
     c    number;
+  
+    owner          varchar2(200) := a_owner;
+    object_name    varchar2(200) := a_object;
+    procedure_name varchar2(200) := a_procedure_name;
+  
   begin
   
-    stmt := 'begin ' || ut_metadata.form_name(a_owner, a_object, a_subprogram) || '; end;';
+    ut_metadata.do_resolve(the_owner => owner, the_object => object_name, a_procedure_name => procedure_name);
+  
+    stmt := 'begin ' || ut_metadata.form_name(owner, object_name, procedure_name) || '; end;';
   
     $if $$ut_trace $then
     dbms_output.put_line('ut_test_call_params.execute_call stmt:' || stmt);

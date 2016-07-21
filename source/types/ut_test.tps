@@ -15,9 +15,6 @@ create or replace type ut_test force under ut_test_object
     return self as result,
 
   member function is_valid(self in ut_test) return boolean,
-  member function setup_stmt(self in ut_test) return varchar2,
-  member function test_stmt(self in ut_test) return varchar2,
-  member function teardown_stmt(self in ut_test) return varchar2,
 
   overriding member procedure execute(self in out nocopy ut_test, a_reporter in out nocopy ut_suite_reporter),
   overriding member procedure execute(self in out nocopy ut_test)

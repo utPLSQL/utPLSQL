@@ -1,5 +1,27 @@
 create or replace package body ut_metadata as
 
+  procedure do_resolve(the_owner in out varchar2, the_object in out varchar2, a_procedure_name in out varchar2) is
+    name          varchar2(200);
+    context       integer;
+    dblink        varchar2(200);
+    part1_type    number;
+    object_number number;
+  begin
+    name := form_name(the_owner, the_object, a_procedure_name);
+  
+    context := 1; --plsql
+  
+    dbms_utility.name_resolve(name          => name
+                             ,context       => context
+                             ,schema        => the_owner
+                             ,part1         => the_object
+                             ,part2         => a_procedure_name
+                             ,dblink        => dblink
+                             ,part1_type    => part1_type
+                             ,object_number => object_number);
+  
+  end do_resolve;
+
   function form_name(a_owner_name varchar2, a_object varchar2, a_subprogram varchar2 default null) return varchar2 is
     name varchar2(200);
   begin
@@ -24,16 +46,10 @@ create or replace package body ut_metadata as
     object_number number;
   begin
   
-    name := form_name(a_owner_name, a_package_name);
+    schema := a_owner_name;
+    part1  := a_package_name;
   
-    dbms_utility.name_resolve(name          => name
-                             ,context       => 1 -- pl/sql
-                             ,schema        => schema
-                             ,part1         => part1
-                             ,part2         => part2
-                             ,dblink        => dblink
-                             ,part1_type    => part1_type
-                             ,object_number => object_number);
+    do_resolve(schema, part1, part2);
   
     select count(*)
       into v_cnt
@@ -59,16 +75,11 @@ create or replace package body ut_metadata as
     object_number number;
   begin
   
-    name := form_name(a_owner_name, a_package_name, a_procedure_name);
+    schema := a_owner_name;
+    part1  := a_package_name;
+    part2  := a_procedure_name;
   
-    dbms_utility.name_resolve(name          => name
-                             ,context       => 1 -- pl/sql
-                             ,schema        => schema
-                             ,part1         => part1
-                             ,part2         => part2
-                             ,dblink        => dblink
-                             ,part1_type    => part1_type
-                             ,object_number => object_number);
+    do_resolve(schema, part1, part2);
   
     select count(*)
       into v_cnt
@@ -81,37 +92,19 @@ create or replace package body ut_metadata as
     return v_cnt = 1;
   end;
 
-  function do_resolve(the_owner in varchar2, the_object in varchar2, a_procedurename in varchar2) return boolean is
-    name          varchar2(200);
-    context       integer;
-    schema        varchar2(200);
-    part1         varchar2(200);
-    part2         varchar2(200);
-    dblink        varchar2(200);
-    part1_type    number;
-    object_number number;
+  function resolvable(the_owner in varchar2, the_object in varchar2, a_procedurename in varchar2) return boolean is
+    owner          varchar2(200);
+    object_name    varchar2(200);
+    procedure_name varchar2(200);
   begin
-    name := form_name(the_owner, the_object, a_procedurename);
-  
-    context := 1; --plsql
-  
-    begin
-      dbms_utility.name_resolve(name          => name
-                               ,context       => context
-                               ,schema        => schema
-                               ,part1         => part1
-                               ,part2         => part2
-                               ,dblink        => dblink
-                               ,part1_type    => part1_type
-                               ,object_number => object_number);
-    exception
-      when others then
-        --replace with correct exception
-        return false;
-    end;
+    owner          := the_owner;
+    object_name    := the_object;
+    procedure_name := a_procedurename;
+    do_resolve(owner, object_name, procedure_name);
     return true;
-  
-  end do_resolve;
-
+  exception
+    when others then
+      return false;
+  end resolvable;
 end;
 /
