@@ -20,14 +20,14 @@ create or replace package body ut_assert is
   
     if a_assert_list is not null then
     
-      v_result := ut_types.tr_success;
+      v_result := ut_utils.tr_success;
       for i in a_assert_list.first .. a_assert_list.last loop
-        if a_assert_list(i).result = ut_types.tr_failure then
-          v_result := ut_types.tr_failure;
+        if a_assert_list(i).result = ut_utils.tr_failure then
+          v_result := ut_utils.tr_failure;
         end if;
       
-        if a_assert_list(i).result = ut_types.tr_error then
-          v_result := ut_types.tr_error;
+        if a_assert_list(i).result = ut_utils.tr_error then
+          v_result := ut_utils.tr_error;
           exit;
         end if;
       end loop;
@@ -83,19 +83,19 @@ create or replace package body ut_assert is
 
   procedure report_success(message in varchar2, expected in varchar2, actual in varchar2) is
   begin
-    report_assert(ut_types.tr_success
+    report_assert(ut_utils.tr_success
                  ,nvl(message, '') || ' expected: ' || nvl(expected, '') || ' actual: ' || nvl(actual, ''));
   end;
 
   procedure report_failure(message in varchar2, expected in varchar2, actual in varchar2) is
   begin
-    report_assert(ut_types.tr_failure
+    report_assert(ut_utils.tr_failure
                  ,nvl(message, '') || ' expected: ' || nvl(expected, '') || ' actual: ' || nvl(actual, ''));
   end;
 
   procedure report_error(message in varchar2) is
   begin
-    report_assert(ut_types.tr_error, message);
+    report_assert(ut_utils.tr_error, message);
   end;
 
   procedure are_equal(expected in number, actual in number) is

@@ -4,13 +4,13 @@ create or replace type body ut_execution_result is
     return self as result is
   begin
     self.start_time := a_start_time;
-		self.result := ut_types.tr_success;
+		self.result := ut_utils.tr_success;
     return;
   end ut_execution_result;
 
   member function result_to_char(self in ut_execution_result) return varchar2 is
   begin
-    return ut_types.test_result_to_char(self.result);
+    return ut_utils.test_result_to_char(self.result);
   end result_to_char;
 
 end;
