@@ -1,7 +1,11 @@
 --This shows how the interna test engine works to test a single package.
 --No tables are used for this and exceptions are handled better.
 Clear Screen
-Set Serveroutput On Size Unlimited
+Set Serveroutput On Size Unlimited format truncated
+set echo off
+--install the example unit test packages
+@@ut_exampletest.pks
+@@ut_exampletest.pkb
 
 declare
   simple_test ut_test;

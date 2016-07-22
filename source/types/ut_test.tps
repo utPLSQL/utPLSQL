@@ -16,7 +16,7 @@ create or replace type ut_test force under ut_test_object
 
   member function is_valid(self in ut_test) return boolean,
 
-  overriding member procedure execute(self in out nocopy ut_test, a_reporter in out nocopy ut_suite_reporter),
+  overriding member procedure execute(self in out nocopy ut_test, a_reporter ut_suite_reporter),
   overriding member procedure execute(self in out nocopy ut_test)
 
 )
