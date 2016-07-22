@@ -4,7 +4,7 @@ create or replace type body ut_execution_result is
     return self as result is
   begin
     self.start_time := a_start_time;
-		self.result := ut_utils.tr_success;
+    self.result := ut_utils.tr_success;
     return;
   end ut_execution_result;
 

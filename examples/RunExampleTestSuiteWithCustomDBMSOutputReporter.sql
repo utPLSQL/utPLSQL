@@ -2,12 +2,19 @@
 --No tables are used for this.   
 --Suite Management packages are when developed will make this easier.
 Clear Screen
-Set Serveroutput On Size Unlimited
+Set Serveroutput On Size Unlimited format truncated --http://stackoverflow.com/questions/2584492/how-to-prevent-dbms-output-put-line-from-trimming-leading-whitespace
+set echo off
+--install the example unit test packages
+@@ut_exampletest.pks
+@@ut_exampletest.pkb
+@@ut_exampletest2.pks
+@@ut_exampletest2.pkb
+@@ut_custom_reporter.tps
+@@ut_custom_reporter.tpb
 
 declare
   suite         ut_test_suite;
   testtoexecute ut_test;
-  reporter      ut_suite_reporter;
 begin
   -- Install ut_custom_reporter first from example folder	
 
@@ -28,7 +35,9 @@ begin
   suite.add_item(testtoexecute);
 
   -- provide a reporter to process results tabbing each hierarcy level by tab_size
-  reporter := ut_custom_reporter(a_tab_size => 2);
-  suite.execute(reporter);
+  suite.execute(ut_custom_reporter(a_tab_size => 2));
 end;
 /
+
+
+drop type ut_custom_reporter;

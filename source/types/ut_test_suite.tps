@@ -6,7 +6,7 @@ create or replace type ut_test_suite force under ut_test_object
 	member procedure add_item(self in out nocopy ut_test_suite, a_item ut_test_object),
 
   --overriding member procedure run(self in out nocopy ut_test_suite),
-  overriding member procedure execute(self in out nocopy ut_test_suite, a_reporter in out nocopy ut_suite_reporter),
+  overriding member procedure execute(self in out nocopy ut_test_suite, a_reporter ut_suite_reporter),
   overriding member procedure execute(self in out nocopy ut_test_suite)
 )
 not final

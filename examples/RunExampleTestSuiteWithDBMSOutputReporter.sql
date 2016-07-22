@@ -2,12 +2,17 @@
 --No tables are used for this.   
 --Suite Management packages are when developed will make this easier.
 Clear Screen
-Set Serveroutput On Size Unlimited
+Set Serveroutput On Size Unlimited format truncated
+set echo off
+--install the example unit test packages
+@@ut_exampletest.pks
+@@ut_exampletest.pkb
+@@ut_exampletest2.pks
+@@ut_exampletest2.pkb
 
 declare
   suite         ut_test_suite;
   testtoexecute ut_test;
-  reporter      ut_suite_reporter;
 begin
   suite := ut_test_suite(a_suite_name => 'Test Suite Name' /*,a_items => ut_test_objects_list()*/);
 
@@ -26,13 +31,6 @@ begin
   suite.add_item(testtoexecute);
 
   -- provide a reporter to process results
-  reporter := ut_dbms_output_suite_reporter;
-  suite.execute(reporter);
+  suite.execute(ut_dbms_output_suite_reporter);
 end;
 /
-
-
-
-
-
-

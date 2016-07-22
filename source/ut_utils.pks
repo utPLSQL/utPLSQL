@@ -11,10 +11,10 @@ create or replace package ut_utils is
     tr_failure - one or more asserts failed
     tr_error   - exception was raised
   */
-  tr_success     constant number(1) := 1; -- test passed
-  tr_failure     constant number(1) := 2; -- one or more asserts failed
-  tr_error       constant number(1) := 3; -- exception was raised
-	
+  tr_success          constant number(1) := 1; -- test passed
+  tr_failure          constant number(1) := 2; -- one or more asserts failed
+  tr_error            constant number(1) := 3; -- exception was raised
+
   /*
      Function: test_result_to_char
         returns a string representation of a test_result.

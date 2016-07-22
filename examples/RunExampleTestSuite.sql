@@ -2,7 +2,13 @@
 --No tables are used for this.   
 --Suite Management packages are when developed will make this easier.
 Clear Screen
-Set Serveroutput On Size Unlimited
+Set Serveroutput On Size Unlimited format truncated
+set echo off
+--install the example unit test packages
+@@ut_exampletest.pks
+@@ut_exampletest.pkb
+@@ut_exampletest2.pks
+@@ut_exampletest2.pkb
 
 declare
   suite         ut_test_suite;
