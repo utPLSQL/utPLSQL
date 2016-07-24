@@ -1,8 +1,9 @@
 --Shows how to create a test suite with the default reporter which is dbms_output
 --No tables are used for this.   
 --Suite Management packages are when developed will make this easier.
-Clear Screen
-Set Serveroutput On Size Unlimited format truncated --http://stackoverflow.com/questions/2584492/how-to-prevent-dbms-output-put-line-from-trimming-leading-whitespace
+--Clear Screen
+--http://stackoverflow.com/questions/2584492/how-to-prevent-dbms-output-put-line-from-trimming-leading-whitespace
+Set Serveroutput On Size Unlimited format truncated
 set echo off
 --install the example unit test packages
 @@ut_exampletest.pks
@@ -40,4 +41,7 @@ end;
 /
 
 
-drop type ut_custom_reporter;
+--FIXME this drop is causing issues when executing script several times within single session
+--drop type ut_custom_reporter;
+drop package ut_exampletest;
+drop package ut_exampletest2;

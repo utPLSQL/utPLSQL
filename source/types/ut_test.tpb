@@ -14,29 +14,15 @@ create or replace type body ut_test is
 
   member function is_valid(self in ut_test) return boolean is
   begin
-    if call_params.test_procedure is null then
-      return false;
-    end if;
-  
-    if not ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.test_procedure) then
-      return false;
-    end if;
-  
-    if call_params.setup_procedure is not null and
-       not ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.setup_procedure) then
-      return false;
-    end if;
-  
-    if call_params.teardown_procedure is not null and
-       not ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.teardown_procedure) then
-      return false;
-    end if;
-  
-    return true;
+    return call_params.test_procedure is not null and ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.test_procedure) and (call_params.setup_procedure is null OR ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.setup_procedure)) and (call_params.teardown_procedure is null OR ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.teardown_procedure));
   end is_valid;
 
   overriding member procedure execute(self in out nocopy ut_test, a_reporter ut_suite_reporter) is
-    params_valid boolean;
+    reporter ut_suite_reporter := a_reporter;
+  begin
+    reporter := execute(reporter);
+  end;
+  overriding member function execute(self in out nocopy ut_test, a_reporter ut_suite_reporter) return ut_suite_reporter is
     reporter ut_suite_reporter := a_reporter;
   begin
     if reporter is not null then
@@ -49,10 +35,8 @@ create or replace type body ut_test is
       $end
     
       self.execution_result := ut_execution_result();
-    
-      self.call_params.validate_params(params_valid);
 			
-      if params_valid then
+      if self.call_params.validate_params() then
         self.call_params.setup;
         begin
           self.call_params.run_test;
@@ -97,6 +81,7 @@ create or replace type body ut_test is
                        ,a_execution_result => self.execution_result
                        ,a_assert_list      => self.assert_results);
     end if;
+    return reporter;
   end;
 
   overriding member procedure execute(self in out nocopy ut_test) is

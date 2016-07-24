@@ -1,7 +1,7 @@
 --Shows how to create a test suite with the default reporter which is dbms_output
 --No tables are used for this.   
 --Suite Management packages are when developed will make this easier.
-Clear Screen
+--Clear Screen
 Set Serveroutput On Size Unlimited format truncated
 set echo off
 --install the example unit test packages
@@ -43,4 +43,6 @@ begin
 end;
 /
 
-drop type ut_custom_reporter;
+--drop type ut_custom_reporter;
+drop package ut_exampletest;
+drop package ut_exampletest2;
