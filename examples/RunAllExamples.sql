@@ -6,3 +6,8 @@ set feedback off
 @@RunExampleTestSuiteWithCustomDBMSOutputReporter.sql
 @@RunExampleTestSuiteWithDBMSOutputReporter.sql
 @@RunExampleTestThroughBaseClass.sql
+@@TestPackageName.sql
+@@TestProcedureName.sql
+@@TestOwnerName.sql
+@@TestSetupProcedureName.sql
+@@TestTeardownProcedureName.sql
