@@ -11,3 +11,8 @@ prompt RunExampleTestSuiteWithDBMSOutputReporter
 @@RunExampleTestSuiteWithDBMSOutputReporter.sql
 prompt RunExampleTestThroughBaseClass
 @@RunExampleTestThroughBaseClass.sql
+@@TestPackageName.sql
+@@TestProcedureName.sql
+@@TestOwnerName.sql
+@@TestSetupProcedureName.sql
+@@TestTeardownProcedureName.sql
