@@ -36,7 +36,7 @@ begin
 
   suite2.add_item(testtoexecute);
 
-  suite_complex := ut_test_suite(a_suite_name => 'Complex Test Suite', a_items => ut_test_objects_list(suite1, suite2));
+  suite_complex := ut_test_suite(a_suite_name => 'Complex Test Suite', a_items => ut_objects_list(suite1, suite2));
 
   -- provide a reporter to process results
   suite_complex.execute(ut_custom_reporter(a_tab_size => 2));

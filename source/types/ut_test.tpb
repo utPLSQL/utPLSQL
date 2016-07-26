@@ -3,11 +3,11 @@ create or replace type body ut_test is
   constructor function ut_test(a_object_name varchar2, a_test_procedure varchar2, a_test_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null)
     return self as result is
   begin
-    self.name := a_test_name;
-		self.object_type := 1;
-    self.test := ut_test_call_params(object_name    => trim(a_object_name)
-                                    ,procedure_name => trim(a_test_procedure)
-                                    ,owner_name     => trim(a_owner_name));
+    self.name        := a_test_name;
+    self.object_type := 1;
+    self.test        := ut_test_call_params(object_name    => trim(a_object_name)
+                                           ,procedure_name => trim(a_test_procedure)
+                                           ,owner_name     => trim(a_owner_name));
   
     if a_setup_procedure is not null then
       self.setup := ut_test_call_params(object_name    => trim(a_object_name)
@@ -89,12 +89,16 @@ create or replace type body ut_test is
         self.execution_result.end_time := current_timestamp;
         ut_assert.process_asserts(self.items);
     end;
-		
-		self.calc_execution_result;
+  
+    self.calc_execution_result;
   
     if reporter is not null then
+      for i in 1 .. self.items.count loop
+        reporter.on_assert(treat(self.items(i) as ut_assert_result));
+      end loop;
       reporter.end_test(self);
     end if;
+
     return reporter;
   end;
 

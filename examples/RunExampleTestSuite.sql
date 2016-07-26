@@ -14,6 +14,7 @@ declare
   suite         ut_test_suite;
   testtoexecute ut_test;
   test_item     ut_test;
+	assert ut_assert_result;
 begin
   suite := ut_test_suite(a_suite_name => 'Test Suite Name' /*,a_items => ut_test_objects_list()*/);
 
@@ -39,9 +40,10 @@ begin
     dbms_output.put_line('Test:' || test_item.test.form_name);
     dbms_output.put_line('Result: ' || test_item.execution_result.result_to_char);
     dbms_output.put_line('Assert Results:');
-    for i in test_item.assert_results.first .. test_item.assert_results.last loop
-      dbms_output.put_line(i || ' - result: ' || test_item.assert_results(i).result_to_char);
-      dbms_output.put_line(i || ' - Message: ' || test_item.assert_results(i).message);
+    for i in test_item.items.first .. test_item.items.last loop
+			assert := treat(test_item.items(i) as ut_assert_result);
+      dbms_output.put_line(i || ' - result: ' || assert.result_to_char);
+      dbms_output.put_line(i || ' - Message: ' || assert.message);
     end loop;
   end loop;
   dbms_output.put_line('---------------------------------------------------');
