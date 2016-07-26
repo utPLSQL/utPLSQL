@@ -1,8 +1,13 @@
 Clear Screen
 set echo off
 set feedback off
+prompt RunExampleComplexSuiteWithCustomDBMSOutputReporter
 @@RunExampleComplexSuiteWithCustomDBMSOutputReporter.sql
+prompt RunExampleTestSuite
 @@RunExampleTestSuite.sql
+prompt RunExampleTestSuiteWithCustomDBMSOutputReporter
 @@RunExampleTestSuiteWithCustomDBMSOutputReporter.sql
+prompt RunExampleTestSuiteWithDBMSOutputReporter
 @@RunExampleTestSuiteWithDBMSOutputReporter.sql
+prompt RunExampleTestThroughBaseClass
 @@RunExampleTestThroughBaseClass.sql

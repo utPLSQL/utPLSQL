@@ -36,7 +36,7 @@ begin
   for test_idx in suite.items.first .. suite.items.last loop
     test_item := treat(suite.items(test_idx) as ut_test);
     dbms_output.put_line('---------------------------------------------------');
-    dbms_output.put_line('Test:' || test_item.call_params.object_name || '.' || test_item.call_params.test_procedure);
+    dbms_output.put_line('Test:' || test_item.test.form_name);
     dbms_output.put_line('Result: ' || test_item.execution_result.result_to_char);
     dbms_output.put_line('Assert Results:');
     for i in test_item.assert_results.first .. test_item.assert_results.last loop

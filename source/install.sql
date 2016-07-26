@@ -5,6 +5,8 @@
 @@ut_assert.pks
 @@types/ut_execution_result.tps
 @@types/ut_suite_reporter.tps
+@@types/ut_reporters_list.tps
+@@types/ut_composite_reporter.tps
 @@types/ut_test_object.tps
 @@types/ut_test_objects_list.tps
 @@types/ut_test.tps
@@ -18,6 +20,7 @@
 @@types/ut_test.tpb
 @@types/ut_test_suite.tpb
 @@types/ut_test_call_params.tpb
+@@types/ut_composite_reporter.tpb
 @@types/ut_reporter_decorator.tpb
 @@types/ut_dbms_output_suite_reporter.tpb
 @@ut_metadata.pkb

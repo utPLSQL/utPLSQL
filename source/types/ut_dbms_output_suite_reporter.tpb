@@ -34,14 +34,9 @@ create or replace type body ut_dbms_output_suite_reporter is
   begin
     print(ut_dbms_output_suite_reporter.c_dashed_line);
     if a_test_name is not null then
-      print('test  ' || a_test_name || ' (' ||
-            ut_metadata.form_name(a_test_call_params.owner_name
-                                 ,a_test_call_params.object_name
-                                 ,a_test_call_params.test_procedure) || ')');
+      print('test  ' || a_test_name || ' (' ||a_test_call_params.form_name || ')');
     else
-      print('test  ' || ut_metadata.form_name(a_test_call_params.owner_name
-                                             ,a_test_call_params.object_name
-                                             ,a_test_call_params.test_procedure));
+      print('test  ' || a_test_call_params.form_name);
     end if;
   end;
 

@@ -56,67 +56,46 @@ create or replace type body ut_test_call_params is
   end is_valid;
   */
 
-  member function validate_params(self in ut_test_call_params) return boolean is
+  member function validate_params(a_proc_type varchar2) return boolean is
     a_result boolean := true;
   begin
   
     if self.object_name is null then
       a_result := false;
-      ut_assert.report_error('Test is not invalid: test package is not defined');
+      ut_assert.report_error('Call params for ' || a_proc_type || ' are not valid: package is not defined');
     end if;
   
-    if self.test_procedure is null then
+    if self.procedure_name is null then
       a_result := false;
-      ut_assert.report_error('Test is not invalid: test procedure is not defined');
+      ut_assert.report_error('Call params for ' || a_proc_type || ' are not valid: procedure is not defined');
     end if;
   
     if a_result and not ut_metadata.package_valid(self.owner_name, self.object_name) then
       a_result := false;
-      ut_assert.report_error('package does not exist or is invalid: ' ||
+      ut_assert.report_error('Call params for ' || a_proc_type ||
+                             ' are not valid: package does not exist or is invalid: ' ||
                              nvl(self.object_name, '<missing package name>'));
     end if;
   
-    if a_result then
-      if not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.test_procedure) then
-        ut_assert.report_error('package missing test method ' || self.object_name || '.' ||
-                               nvl(self.test_procedure, '<missing procedure name>'));
-      end if;
-    
-      if self.setup_procedure is not null and
-         not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.setup_procedure) then
-        ut_assert.report_error('package missing setup method ' || self.object_name || '.' ||
-                               nvl(self.setup_procedure, '<missing procedure name>'));
-      end if;
-    
-      if self.teardown_procedure is not null and
-         not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.teardown_procedure) then
-        ut_assert.report_error('package missing teardown method ' || self.object_name || '.' ||
-                               nvl(self.teardown_procedure, '<missing procedure name>'));
-      end if;
+    if a_result and not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.procedure_name) then
+      a_result := false;
+      ut_assert.report_error('Call params for ' || a_proc_type || ' are not valid: package missing ' || a_proc_type ||
+                             ' procedure  ' || self.object_name || '.' ||
+                             nvl(self.procedure_name, '<missing procedure name>'));
     end if;
+  
     return a_result;
   end validate_params;
 
-  member procedure setup(self in ut_test_call_params) is
+  member function form_name return varchar2 is
   begin
-    if self.setup_procedure is not null and self.object_name is not null then
-      ut_test_call_params.execute_call(self.owner_name, self.object_name, self.setup_procedure);
-    end if;
-  end setup;
-
-  member procedure run_test(self in ut_test_call_params) is
-  begin
-    if self.test_procedure is not null and self.object_name is not null then
-      ut_test_call_params.execute_call(self.owner_name, self.object_name, self.test_procedure);
-    end if;
+    return ut_metadata.form_name(owner_name, object_name, procedure_name);
   end;
 
-  member procedure teardown(self in ut_test_call_params) is
+  member procedure execute(self in ut_test_call_params) is
   begin
-    if self.teardown_procedure is not null and self.object_name is not null then
-      ut_test_call_params.execute_call(self.owner_name, self.object_name, self.teardown_procedure);
-    end if;
-  end;
+    ut_test_call_params.execute_call(self.owner_name, self.object_name, self.procedure_name);
+  end execute;
 
 end;
 /

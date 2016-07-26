@@ -3,18 +3,32 @@ create or replace type body ut_test is
   constructor function ut_test(a_object_name varchar2, a_test_procedure varchar2, a_test_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null)
     return self as result is
   begin
-    self.name        := a_test_name;
-    self.call_params := ut_test_call_params(object_name        => trim(a_object_name)
-                                           ,test_procedure     => trim(a_test_procedure)
-                                           ,owner_name         => trim(a_owner_name)
-                                           ,setup_procedure    => trim(a_setup_procedure)
-                                           ,teardown_procedure => trim(a_teardown_procedure));
+    self.name := a_test_name;
+    self.test := ut_test_call_params(object_name    => trim(a_object_name)
+                                    ,procedure_name => trim(a_test_procedure)
+                                    ,owner_name     => trim(a_owner_name));
+  
+    if a_setup_procedure is not null then
+      self.setup := ut_test_call_params(object_name    => trim(a_object_name)
+                                       ,procedure_name => trim(a_setup_procedure)
+                                       ,owner_name     => trim(a_owner_name));
+    end if;
+  
+    if a_teardown_procedure is not null then
+      self.teardown := ut_test_call_params(object_name    => trim(a_object_name)
+                                          ,procedure_name => trim(a_teardown_procedure)
+                                          ,owner_name     => trim(a_owner_name));
+    end if;
     return;
   end ut_test;
 
   member function is_valid(self in ut_test) return boolean is
+    v_is_valid boolean;
   begin
-    return call_params.test_procedure is not null and ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.test_procedure) and (call_params.setup_procedure is null OR ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.setup_procedure)) and (call_params.teardown_procedure is null OR ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.teardown_procedure));
+    v_is_valid := test.validate_params('test') and setup is null or setup.validate_params('setup') and teardown is null or
+                  teardown.validate_params('teardown');
+  
+    return v_is_valid;
   end is_valid;
 
   overriding member procedure execute(self in out nocopy ut_test, a_reporter ut_suite_reporter) is
@@ -26,7 +40,7 @@ create or replace type body ut_test is
     reporter ut_suite_reporter := a_reporter;
   begin
     if reporter is not null then
-      reporter.begin_test(a_test_name => self.name, a_test_call_params => self.call_params);
+      reporter.begin_test(a_test_name => self.name, a_test_call_params => self.test);
     end if;
   
     begin
@@ -35,11 +49,11 @@ create or replace type body ut_test is
       $end
     
       self.execution_result := ut_execution_result();
-			
-      if self.call_params.validate_params() then
-        self.call_params.setup;
+    
+      if self.is_valid() then
+        self.setup.execute;
         begin
-          self.call_params.run_test;
+          self.test.execute;
         exception
           when others then
             -- dbms_utility.format_error_backtrace is 10g or later
@@ -51,7 +65,7 @@ create or replace type body ut_test is
             $end
             ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
         end;
-        self.call_params.teardown;
+        self.teardown.execute;
       end if;
     
       self.execution_result.end_time := current_timestamp;
@@ -77,7 +91,7 @@ create or replace type body ut_test is
   
     if reporter is not null then
       reporter.end_test(a_test_name        => self.name
-                       ,a_test_call_params => self.call_params
+                       ,a_test_call_params => self.test
                        ,a_execution_result => self.execution_result
                        ,a_assert_list      => self.assert_results);
     end if;
@@ -85,7 +99,7 @@ create or replace type body ut_test is
   end;
 
   overriding member procedure execute(self in out nocopy ut_test) is
-	  v_null_reporter ut_suite_reporter;
+    v_null_reporter ut_suite_reporter;
   begin
     self.execute(v_null_reporter);
   end execute;
