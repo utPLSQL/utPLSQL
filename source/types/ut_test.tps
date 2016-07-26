@@ -3,7 +3,7 @@ create or replace type ut_test force under ut_test_object
   setup ut_test_call_params,
 	test ut_test_call_params,
 	teardown ut_test_call_params,
-  assert_results ut_assert_list,
+  --assert_results ut_assert_list,
 
   constructor function ut_test(a_object_name varchar2, a_test_procedure varchar2, a_test_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null)
     return self as result,

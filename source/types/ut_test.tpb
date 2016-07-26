@@ -4,6 +4,7 @@ create or replace type body ut_test is
     return self as result is
   begin
     self.name := a_test_name;
+		self.object_type := 1;
     self.test := ut_test_call_params(object_name    => trim(a_object_name)
                                     ,procedure_name => trim(a_test_procedure)
                                     ,owner_name     => trim(a_owner_name));
@@ -40,7 +41,7 @@ create or replace type body ut_test is
     reporter ut_suite_reporter := a_reporter;
   begin
     if reporter is not null then
-      reporter.begin_test(a_test_name => self.name, a_test_call_params => self.test);
+      reporter.begin_test(self);
     end if;
   
     begin
@@ -70,7 +71,7 @@ create or replace type body ut_test is
     
       self.execution_result.end_time := current_timestamp;
     
-      ut_assert.process_asserts(self.assert_results, self.execution_result.result);
+      ut_assert.process_asserts(self.items);
     
     exception
       when others then
@@ -86,14 +87,13 @@ create or replace type body ut_test is
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
         self.execution_result.end_time := current_timestamp;
-        ut_assert.process_asserts(self.assert_results, self.execution_result.result);
+        ut_assert.process_asserts(self.items);
     end;
+		
+		self.calc_execution_result;
   
     if reporter is not null then
-      reporter.end_test(a_test_name        => self.name
-                       ,a_test_call_params => self.test
-                       ,a_execution_result => self.execution_result
-                       ,a_assert_list      => self.assert_results);
+      reporter.end_test(self);
     end if;
     return reporter;
   end;

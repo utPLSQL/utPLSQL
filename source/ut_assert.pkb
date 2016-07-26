@@ -1,6 +1,6 @@
 create or replace package body ut_assert is
 
-  current_asserts_called ut_assert_list := ut_assert_list();
+  current_asserts_called ut_objects_list := ut_objects_list();
 
   function current_assert_test_result return integer is
   begin
@@ -11,8 +11,9 @@ create or replace package body ut_assert is
     return get_assert_list_final_result(current_asserts_called);
   end;
 
-  function get_assert_list_final_result(a_assert_list in ut_assert_list) return integer is
+  function get_assert_list_final_result(a_assert_list in ut_objects_list) return integer is
     v_result integer;
+		assert ut_assert_result;
   begin
     $if $$ut_trace $then
     dbms_output.put_line('ut_assert.get_assert_list_final_result');
@@ -22,11 +23,12 @@ create or replace package body ut_assert is
     
       v_result := ut_utils.tr_success;
       for i in a_assert_list.first .. a_assert_list.last loop
-        if a_assert_list(i).result = ut_utils.tr_failure then
+				assert := treat(a_assert_list(i) as ut_assert_result);
+        if assert.result = ut_utils.tr_failure then
           v_result := ut_utils.tr_failure;
         end if;
       
-        if a_assert_list(i).result = ut_utils.tr_error then
+        if assert.result = ut_utils.tr_error then
           v_result := ut_utils.tr_error;
           exit;
         end if;
@@ -45,13 +47,13 @@ create or replace package body ut_assert is
     current_asserts_called.delete;
   end;
 
-  procedure process_asserts(newtable out ut_assert_list, result out integer) is
+  procedure process_asserts(newtable out ut_objects_list) is
   begin
     $if $$ut_trace $then
     dbms_output.put_line('ut_assert.copy_called_asserts');
     $end
   
-    newtable := ut_assert_list(); -- make sure new table is empty
+    newtable := ut_objects_list(); -- make sure new table is empty
     newtable.extend(current_asserts_called.last);
     for i in current_asserts_called.first .. current_asserts_called.last loop
       $if $$ut_trace $then
@@ -64,8 +66,6 @@ create or replace package body ut_assert is
       dbms_output.put_line(i || '-end');
       $end
     end loop;
-  
-    result := get_assert_list_final_result(newtable);
   
     clear_asserts;
   end process_asserts;
