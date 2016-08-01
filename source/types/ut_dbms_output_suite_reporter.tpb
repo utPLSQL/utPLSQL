@@ -51,7 +51,7 @@ create or replace type body ut_dbms_output_suite_reporter is
     test   ut_test := treat(a_test as ut_test);
     assert ut_assert_result;
   begin
-    print('result: ' || test.execution_result.result_to_char);
+    print('result: ' || test.result_to_char);
     print('asserts');
     for i in test.items.first .. test.items.last loop
       assert := treat(test.items(i) as ut_assert_result);

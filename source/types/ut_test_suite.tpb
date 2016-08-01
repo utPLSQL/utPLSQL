@@ -33,7 +33,7 @@ create or replace type body ut_test_suite is
     dbms_output.put_line('ut_test_suite.execute');
     $end
   
-    self.execution_result := ut_execution_result;
+    self.start_time := current_timestamp;
   
     for i in self.items.first .. self.items.last loop
 			test_object := treat(self.items(i) as ut_test_object);
@@ -41,18 +41,9 @@ create or replace type body ut_test_suite is
 			self.items(i) := test_object;
     end loop;
   
-    self.execution_result.end_time := current_timestamp;
-  
-    for i in self.items.first .. self.items.last loop
-      if (self.execution_result.result = ut_utils.tr_success and self.items(i)
-         .execution_result.result in (ut_utils.tr_failure, ut_utils.tr_error)) or
-         (self.execution_result.result = ut_utils.tr_failure and self.items(i)
-         .execution_result.result = ut_utils.tr_error) then
-        self.execution_result.result := self.items(i).execution_result.result;
-      end if;
-    
-      exit when self.execution_result.result = ut_utils.tr_error;
-    end loop;
+    self.end_time := current_timestamp;
+		
+		self.calc_execution_result;
   
     if reporter is not null then
       reporter.end_suite(self);

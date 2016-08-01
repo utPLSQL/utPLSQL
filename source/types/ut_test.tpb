@@ -5,18 +5,18 @@ create or replace type body ut_test is
   begin
     self.name        := a_test_name;
     self.object_type := 1;
-    self.test        := ut_test_call_params(object_name    => trim(a_object_name)
+    self.test        := ut_executable(object_name    => trim(a_object_name)
                                            ,procedure_name => trim(a_test_procedure)
                                            ,owner_name     => trim(a_owner_name));
   
     if a_setup_procedure is not null then
-      self.setup := ut_test_call_params(object_name    => trim(a_object_name)
+      self.setup := ut_executable(object_name    => trim(a_object_name)
                                        ,procedure_name => trim(a_setup_procedure)
                                        ,owner_name     => trim(a_owner_name));
     end if;
   
     if a_teardown_procedure is not null then
-      self.teardown := ut_test_call_params(object_name    => trim(a_object_name)
+      self.teardown := ut_executable(object_name    => trim(a_object_name)
                                           ,procedure_name => trim(a_teardown_procedure)
                                           ,owner_name     => trim(a_owner_name));
     end if;
@@ -26,8 +26,8 @@ create or replace type body ut_test is
   member function is_valid(self in ut_test) return boolean is
     v_is_valid boolean;
   begin
-    v_is_valid := test.validate_params('test') and setup is null or setup.validate_params('setup') and teardown is null or
-                  teardown.validate_params('teardown');
+    v_is_valid := test.is_valid('test') and (setup is null or setup.is_valid('setup')) and
+                  (teardown is null or teardown.is_valid('teardown'));
   
     return v_is_valid;
   end is_valid;
@@ -49,10 +49,13 @@ create or replace type body ut_test is
       dbms_output.put_line('ut_test.execute');
       $end
     
-      self.execution_result := ut_execution_result();
+      self.start_time := current_timestamp;
     
       if self.is_valid() then
-        self.setup.execute;
+        if self.setup is not null then
+          self.setup.execute;
+        end if;
+      
         begin
           self.test.execute;
         exception
@@ -66,10 +69,13 @@ create or replace type body ut_test is
             $end
             ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
         end;
-        self.teardown.execute;
+				
+        if self.teardown is not null then
+          self.teardown.execute;
+        end if;
       end if;
     
-      self.execution_result.end_time := current_timestamp;
+      self.end_time := current_timestamp;
     
       ut_assert.process_asserts(self.items);
     
@@ -86,7 +92,7 @@ create or replace type body ut_test is
         -- most likely occured in setup or teardown if here.
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-        self.execution_result.end_time := current_timestamp;
+        self.end_time := current_timestamp;
         ut_assert.process_asserts(self.items);
     end;
   
@@ -98,7 +104,7 @@ create or replace type body ut_test is
       end loop;
       reporter.end_test(self);
     end if;
-
+  
     return reporter;
   end;
 

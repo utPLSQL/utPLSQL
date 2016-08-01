@@ -38,7 +38,7 @@ begin
     test_item := treat(suite.items(test_idx) as ut_test);
     dbms_output.put_line('---------------------------------------------------');
     dbms_output.put_line('Test:' || test_item.test.form_name);
-    dbms_output.put_line('Result: ' || test_item.execution_result.result_to_char);
+    dbms_output.put_line('Result: ' || test_item.result_to_char);
     dbms_output.put_line('Assert Results:');
     for i in test_item.items.first .. test_item.items.last loop
 			assert := treat(test_item.items(i) as ut_assert_result);

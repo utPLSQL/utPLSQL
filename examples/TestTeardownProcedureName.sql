@@ -21,7 +21,7 @@ begin
   simple_test.execute();
 
 --Assert
-  if simple_test.execution_result.result != ut_utils.tr_error then
+  if simple_test.result != ut_utils.tr_error then
     dbms_output.put_line('  Success');
   else
     dbms_output.put_line('  Failure');
@@ -42,7 +42,7 @@ begin
   simple_test.execute();
 
 --Assert
-  if simple_test.execution_result.result = ut_utils.tr_error then
+  if simple_test.result = ut_utils.tr_error then
     dbms_output.put_line('  Success');
   else
     dbms_output.put_line('  Failure');
