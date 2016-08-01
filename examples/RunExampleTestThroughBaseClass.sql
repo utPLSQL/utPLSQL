@@ -1,6 +1,6 @@
 --This shows how the interna test engine works to test a single package.
 --No tables are used for this and exceptions are handled better.
-Clear Screen
+--Clear Screen
 Set Serveroutput On Size Unlimited format truncated
 set echo off
 --install the example unit test packages
@@ -23,3 +23,5 @@ begin
   simple_test.execute(reporter);
 end;
 /
+
+drop package ut_exampletest;

@@ -61,6 +61,9 @@ create or replace package body ut_metadata as
   
     -- expect both package and body to be valid
     return v_cnt = 2;
+  exception
+    when others then
+      return false;
   end;
 
   function procedure_exists(a_owner_name varchar2, a_package_name in varchar2, a_procedure_name in varchar2)
@@ -90,6 +93,9 @@ create or replace package body ut_metadata as
   
     --expect one method only for the package with that name.
     return v_cnt = 1;
+  exception
+    when others then
+      return false;
   end;
 
   function resolvable(the_owner in varchar2, the_object in varchar2, a_procedurename in varchar2) return boolean is

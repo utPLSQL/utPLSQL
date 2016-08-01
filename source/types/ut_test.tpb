@@ -4,43 +4,44 @@ create or replace type body ut_test is
     return self as result is
   begin
     self.name        := a_test_name;
-    self.call_params := ut_test_call_params(object_name        => trim(a_object_name)
-                                           ,test_procedure     => trim(a_test_procedure)
-                                           ,owner_name         => trim(a_owner_name)
-                                           ,setup_procedure    => trim(a_setup_procedure)
-                                           ,teardown_procedure => trim(a_teardown_procedure));
+    self.object_type := 1;
+    self.test        := ut_executable(object_name    => trim(a_object_name)
+                                           ,procedure_name => trim(a_test_procedure)
+                                           ,owner_name     => trim(a_owner_name));
+  
+    if a_setup_procedure is not null then
+      self.setup := ut_executable(object_name    => trim(a_object_name)
+                                       ,procedure_name => trim(a_setup_procedure)
+                                       ,owner_name     => trim(a_owner_name));
+    end if;
+  
+    if a_teardown_procedure is not null then
+      self.teardown := ut_executable(object_name    => trim(a_object_name)
+                                          ,procedure_name => trim(a_teardown_procedure)
+                                          ,owner_name     => trim(a_owner_name));
+    end if;
     return;
   end ut_test;
 
   member function is_valid(self in ut_test) return boolean is
+    v_is_valid boolean;
   begin
-    if call_params.test_procedure is null then
-      return false;
-    end if;
+    v_is_valid := test.is_valid('test') and (setup is null or setup.is_valid('setup')) and
+                  (teardown is null or teardown.is_valid('teardown'));
   
-    if not ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.test_procedure) then
-      return false;
-    end if;
-  
-    if call_params.setup_procedure is not null and
-       not ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.setup_procedure) then
-      return false;
-    end if;
-  
-    if call_params.teardown_procedure is not null and
-       not ut_metadata.resolvable(call_params.owner_name, call_params.object_name, call_params.teardown_procedure) then
-      return false;
-    end if;
-  
-    return true;
+    return v_is_valid;
   end is_valid;
 
   overriding member procedure execute(self in out nocopy ut_test, a_reporter ut_suite_reporter) is
-    params_valid boolean;
+    reporter ut_suite_reporter := a_reporter;
+  begin
+    reporter := execute(reporter);
+  end;
+  overriding member function execute(self in out nocopy ut_test, a_reporter ut_suite_reporter) return ut_suite_reporter is
     reporter ut_suite_reporter := a_reporter;
   begin
     if reporter is not null then
-      reporter.begin_test(a_test_name => self.name, a_test_call_params => self.call_params);
+      reporter.begin_test(self);
     end if;
   
     begin
@@ -48,14 +49,15 @@ create or replace type body ut_test is
       dbms_output.put_line('ut_test.execute');
       $end
     
-      self.execution_result := ut_execution_result();
+      self.start_time := current_timestamp;
     
-      self.call_params.validate_params(params_valid);
-			
-      if params_valid then
-        self.call_params.setup;
+      if self.is_valid() then
+        if self.setup is not null then
+          self.setup.execute;
+        end if;
+      
         begin
-          self.call_params.run_test;
+          self.test.execute;
         exception
           when others then
             -- dbms_utility.format_error_backtrace is 10g or later
@@ -67,12 +69,15 @@ create or replace type body ut_test is
             $end
             ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
         end;
-        self.call_params.teardown;
+				
+        if self.teardown is not null then
+          self.teardown.execute;
+        end if;
       end if;
     
-      self.execution_result.end_time := current_timestamp;
+      self.end_time := current_timestamp;
     
-      ut_assert.process_asserts(self.assert_results, self.execution_result.result);
+      ut_assert.process_asserts(self.items);
     
     exception
       when others then
@@ -87,20 +92,24 @@ create or replace type body ut_test is
         -- most likely occured in setup or teardown if here.
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-        self.execution_result.end_time := current_timestamp;
-        ut_assert.process_asserts(self.assert_results, self.execution_result.result);
+        self.end_time := current_timestamp;
+        ut_assert.process_asserts(self.items);
     end;
   
+    self.calc_execution_result;
+  
     if reporter is not null then
-      reporter.end_test(a_test_name        => self.name
-                       ,a_test_call_params => self.call_params
-                       ,a_execution_result => self.execution_result
-                       ,a_assert_list      => self.assert_results);
+      for i in 1 .. self.items.count loop
+        reporter.on_assert(treat(self.items(i) as ut_assert_result));
+      end loop;
+      reporter.end_test(self);
     end if;
+  
+    return reporter;
   end;
 
   overriding member procedure execute(self in out nocopy ut_test) is
-	  v_null_reporter ut_suite_reporter;
+    v_null_reporter ut_suite_reporter;
   begin
     self.execute(v_null_reporter);
   end execute;
