@@ -27,7 +27,15 @@ Changes are welcome from all members of the Community.
 
 * Snake case will be used.   This separates keywords in names with underscores.  `execute_test`
 * All names will be lower case.
-* Arguments to procedures and functions will start with `a_` an example would be procedure `is_valid(a_owner_name varchar2(30));`
+* Prefixes:
+	* Arguments to procedures and functions will start with `a_` an Example would be procedure `is_valid(a_owner_name varchar2(30));`
+	* Object types and packages will start with `ut_`
+	* Local variables `l_`
+	* Global variables `g_`
+	* Global Constants start with `gc_`
+	* Types in packages, objects start with `t_`
+	* Nested Tables start with `tt_`
+* varchar2 lengths are set in characters not bytes 
 
  
 ## New to GIT ##
