@@ -1,7 +1,7 @@
 --Shows how to create a test suite with the default reporter which is dbms_output
 --No tables are used for this.   
 --Suite Management packages are when developed will make this easier.
-Clear Screen
+--Clear Screen
 Set Serveroutput On Size Unlimited format truncated
 set echo off
 --install the example unit test packages
@@ -36,11 +36,13 @@ begin
 
   suite2.add_item(testtoexecute);
 
-  suite_complex := ut_test_suite(a_suite_name => 'Complex Test Suite', a_items => ut_test_objects_list(suite1, suite2));
+  suite_complex := ut_test_suite(a_suite_name => 'Complex Test Suite', a_items => ut_objects_list(suite1, suite2));
 
   -- provide a reporter to process results
   suite_complex.execute(ut_custom_reporter(a_tab_size => 2));
 end;
 /
 
-drop type ut_custom_reporter;
+--drop type ut_custom_reporter;
+drop package ut_exampletest;
+drop package ut_exampletest2;
