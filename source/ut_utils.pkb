@@ -10,5 +10,14 @@ create or replace package body ut_utils is
                 end;
   end test_result_to_char;
 
+  procedure debug_log(a_message varchar2) is
+  begin
+    $if $$ut_trace $then
+      dbms_output.put_line(a_message);
+    $else
+      null;
+    $end
+  end;
+
 end ut_utils;
 /

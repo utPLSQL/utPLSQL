@@ -42,9 +42,7 @@ create or replace type body ut_test is
     end if;
   
     begin
-      $if $$ut_trace $then
-      dbms_output.put_line('ut_test.execute');
-      $end
+      ut_utils.debug_log('ut_test.execute');
     
       self.start_time := current_timestamp;
     
@@ -60,10 +58,8 @@ create or replace type body ut_test is
             -- dbms_utility.format_error_backtrace is 10g or later
             -- utl_call_stack package may be better but it's 12c but still need to investigate
             -- article with details: http://www.oracle.com/technetwork/issue-archive/2014/14-jan/o14plsql-2045346.html
-            $if $$ut_trace $then
-            dbms_output.put_line('testmethod failed-' || sqlerrm(sqlcode) || ' ' ||
-                                 dbms_utility.format_error_backtrace);
-            $end
+            ut_utils.debug_log('testmethod failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
+
             ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
         end;
 				
@@ -82,10 +78,7 @@ create or replace type body ut_test is
           --raise on ORA-04068: existing state of packages has been discarded to avoid unrecoverable session exception
           raise;
         end if;
-        $if $$ut_trace $then
-        dbms_output.put_line('ut_test.execute failed-' || sqlerrm(sqlcode) || ' ' ||
-                             dbms_utility.format_error_backtrace);
-        $end
+        ut_utils.debug_log('ut_test.execute failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
         -- most likely occured in setup or teardown if here.
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);

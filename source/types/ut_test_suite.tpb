@@ -29,10 +29,8 @@ create or replace type body ut_test_suite is
       l_reporter.begin_suite(self);
     end if;
   
-    $if $$ut_trace $then
-    dbms_output.put_line('ut_test_suite.execute');
-    $end
-  
+    ut_utils.debug_log('ut_test_suite.execute');
+
     self.start_time := current_timestamp;
   
     for i in self.items.first .. self.items.last loop
