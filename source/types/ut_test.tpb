@@ -24,24 +24,21 @@ create or replace type body ut_test is
   end ut_test;
 
   member function is_valid(self in ut_test) return boolean is
-    v_is_valid boolean;
   begin
-    v_is_valid := test.is_valid('test') and (setup is null or setup.is_valid('setup')) and
+    return test.is_valid('test') and (setup is null or setup.is_valid('setup')) and
                   (teardown is null or teardown.is_valid('teardown'));
-  
-    return v_is_valid;
   end is_valid;
 
   overriding member procedure execute(self in out nocopy ut_test, a_reporter ut_suite_reporter) is
-    reporter ut_suite_reporter := a_reporter;
+    l_reporter ut_suite_reporter := a_reporter;
   begin
-    reporter := execute(reporter);
+    l_reporter := execute(l_reporter);
   end;
   overriding member function execute(self in out nocopy ut_test, a_reporter ut_suite_reporter) return ut_suite_reporter is
-    reporter ut_suite_reporter := a_reporter;
+    l_reporter ut_suite_reporter := a_reporter;
   begin
-    if reporter is not null then
-      reporter.begin_test(self);
+    if l_reporter is not null then
+      l_reporter.begin_test(self);
     end if;
   
     begin
@@ -98,20 +95,20 @@ create or replace type body ut_test is
   
     self.calc_execution_result;
   
-    if reporter is not null then
+    if l_reporter is not null then
       for i in 1 .. self.items.count loop
-        reporter.on_assert(treat(self.items(i) as ut_assert_result));
+        l_reporter.on_assert(treat(self.items(i) as ut_assert_result));
       end loop;
-      reporter.end_test(self);
+      l_reporter.end_test(self);
     end if;
   
-    return reporter;
+    return l_reporter;
   end;
 
   overriding member procedure execute(self in out nocopy ut_test) is
-    v_null_reporter ut_suite_reporter;
+    l_null_reporter ut_suite_reporter;
   begin
-    self.execute(v_null_reporter);
+    self.execute(l_null_reporter);
   end execute;
 
 end;
