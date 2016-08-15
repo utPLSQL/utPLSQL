@@ -4,6 +4,7 @@ create or replace type body ut_composite_reporter is
     return self as result is
   begin
     self.name := $$plsql_unit;
+    reporters := a_reporters;
     return;
   end;
 
