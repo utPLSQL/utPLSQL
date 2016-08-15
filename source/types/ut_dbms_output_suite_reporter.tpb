@@ -30,7 +30,7 @@ create or replace type body ut_dbms_output_suite_reporter is
     print(ut_dbms_output_suite_reporter.c_dashed_line);
   end;
 
-  overriding member procedure on_assert(self in out nocopy ut_dbms_output_suite_reporter, an_assert ut_object) as
+  overriding member procedure on_assert(self in out nocopy ut_dbms_output_suite_reporter, a_assert ut_object) as
   begin
     --todo: report total suite result here with pretty message
     null;

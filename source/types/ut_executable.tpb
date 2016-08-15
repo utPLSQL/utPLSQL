@@ -11,7 +11,7 @@ create or replace type body ut_executable is
   
   begin
   
-    ut_metadata.do_resolve(the_owner => owner, the_object => object_name, a_procedure_name => procedure_name);
+    ut_metadata.do_resolve(a_owner => owner, a_object => object_name, a_procedure_name => procedure_name);
   
     stmt := 'begin ' || ut_metadata.form_name(owner, object_name, procedure_name) || '; end;';
   

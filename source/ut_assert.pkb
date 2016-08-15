@@ -1,6 +1,6 @@
 create or replace package body ut_assert is
 
-  current_asserts_called ut_objects_list := ut_objects_list();
+  g_current_asserts_called ut_objects_list := ut_objects_list();
 
   function current_assert_test_result return integer is
   begin
@@ -8,12 +8,12 @@ create or replace package body ut_assert is
     dbms_output.put_line('ut_assert.current_assert_test_result');
     $end
   
-    return get_assert_list_final_result(current_asserts_called);
+    return get_assert_list_final_result(g_current_asserts_called);
   end;
 
   function get_assert_list_final_result(a_assert_list in ut_objects_list) return integer is
-    v_result integer;
-		assert ut_assert_result;
+    l_result integer;
+    l_assert ut_assert_result;
   begin
     $if $$ut_trace $then
     dbms_output.put_line('ut_assert.get_assert_list_final_result');
@@ -21,21 +21,21 @@ create or replace package body ut_assert is
   
     if a_assert_list is not null then
     
-      v_result := ut_utils.tr_success;
+      l_result := ut_utils.tr_success;
       for i in a_assert_list.first .. a_assert_list.last loop
-				assert := treat(a_assert_list(i) as ut_assert_result);
-        if assert.result = ut_utils.tr_failure then
-          v_result := ut_utils.tr_failure;
+				l_assert := treat(a_assert_list(i) as ut_assert_result);
+        if l_assert.result = ut_utils.tr_failure then
+          l_result := ut_utils.tr_failure;
         end if;
       
-        if assert.result = ut_utils.tr_error then
-          v_result := ut_utils.tr_error;
+        if l_assert.result = ut_utils.tr_error then
+          l_result := ut_utils.tr_error;
           exit;
         end if;
       end loop;
     
     end if;
-    return v_result;
+    return l_result;
   end get_assert_list_final_result;
 
   procedure clear_asserts is
@@ -44,23 +44,23 @@ create or replace package body ut_assert is
     dbms_output.put_line('ut_assert.clear_asserts');
     $end
   
-    current_asserts_called.delete;
+    g_current_asserts_called.delete;
   end;
 
-  procedure process_asserts(newtable out ut_objects_list) is
+  procedure process_asserts(a_newtable out ut_objects_list) is
   begin
     $if $$ut_trace $then
     dbms_output.put_line('ut_assert.copy_called_asserts');
     $end
   
-    newtable := ut_objects_list(); -- make sure new table is empty
-    newtable.extend(current_asserts_called.last);
-    for i in current_asserts_called.first .. current_asserts_called.last loop
+    a_newtable := ut_objects_list(); -- make sure new table is empty
+    a_newtable.extend(g_current_asserts_called.last);
+    for i in g_current_asserts_called.first .. g_current_asserts_called.last loop
       $if $$ut_trace $then
       dbms_output.put_line(i || '-start');
       $end
     
-      newtable(i) := current_asserts_called(i);
+      a_newtable(i) := g_current_asserts_called(i);
     
       $if $$ut_trace $then
       dbms_output.put_line(i || '-end');
@@ -70,45 +70,45 @@ create or replace package body ut_assert is
     clear_asserts;
   end process_asserts;
 
-  procedure report_assert(assert_result in integer, message in varchar2) is
-    v_result ut_assert_result;
+  procedure report_assert(a_assert_result in integer, a_message in varchar2) is
+    l_result ut_assert_result;
   begin
     $if $$ut_trace $then
-    dbms_output.put_line('ut_assert.report_assert :' || assert_result || ':' || message);
+    dbms_output.put_line('ut_assert.report_assert :' || a_assert_result || ':' || a_message);
     $end
-    v_result := ut_assert_result(assert_result, message);
-    current_asserts_called.extend;
-    current_asserts_called(current_asserts_called.last) := v_result;
+    l_result := ut_assert_result(a_assert_result, a_message);
+    g_current_asserts_called.extend;
+    g_current_asserts_called(g_current_asserts_called.last) := l_result;
   end;
 
-  procedure report_success(message in varchar2, expected in varchar2, actual in varchar2) is
+  procedure report_success(a_message in varchar2, a_expected in varchar2, a_actual in varchar2) is
   begin
     report_assert(ut_utils.tr_success
-                 ,nvl(message, '') || ' expected: ' || nvl(expected, '') || ' actual: ' || nvl(actual, ''));
+                 ,nvl(a_message, '') || ' expected: ' || nvl(a_expected, '') || ' actual: ' || nvl(a_actual, ''));
   end;
 
-  procedure report_failure(message in varchar2, expected in varchar2, actual in varchar2) is
+  procedure report_failure(a_message in varchar2, a_expected in varchar2, a_actual in varchar2) is
   begin
     report_assert(ut_utils.tr_failure
-                 ,nvl(message, '') || ' expected: ' || nvl(expected, '') || ' actual: ' || nvl(actual, ''));
+                 ,nvl(a_message, '') || ' expected: ' || nvl(a_expected, '') || ' actual: ' || nvl(a_actual, ''));
   end;
 
-  procedure report_error(message in varchar2) is
+  procedure report_error(a_message in varchar2) is
   begin
-    report_assert(ut_utils.tr_error, message);
+    report_assert(ut_utils.tr_error, a_message);
   end;
 
-  procedure are_equal(expected in number, actual in number) is
+  procedure are_equal(a_expected in number, a_actual in number) is
   begin
-    are_equal('Equality test', expected, actual);
+    are_equal('Equality test', a_expected, a_actual);
   end;
 
-  procedure are_equal(msg in varchar2, expected in number, actual in number) is
+  procedure are_equal(a_msg in varchar2, a_expected in number, a_actual in number) is
   begin
-    if expected = actual then
-      report_success(msg, expected, actual);
+    if a_expected = a_actual then
+      report_success(a_msg, a_expected, a_actual);
     else
-      report_failure(msg, expected, actual);
+      report_failure(a_msg, a_expected, a_actual);
     end if;
   end;
 

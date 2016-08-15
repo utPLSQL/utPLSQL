@@ -20,7 +20,7 @@ create or replace package ut_metadata as
 		
 		tries to resolve full subprogram name using dbms_utility.name_resolve
 	*/
-  function resolvable(the_owner in varchar2, the_object in varchar2, a_procedurename in varchar2) return boolean;
+  function resolvable(a_owner in varchar2, a_object in varchar2, a_procedurename in varchar2) return boolean;
 
   /*
     function: package_valid
@@ -46,7 +46,7 @@ create or replace package ut_metadata as
 		resolves [owner.]object[.procedure] using dbms_utility.name_resolve and returnes resolved parts 
 		
 	*/
-	procedure do_resolve(the_owner in out varchar2, the_object in out varchar2, a_procedure_name in out varchar2);
+	procedure do_resolve(a_owner in out varchar2, a_object in out varchar2, a_procedure_name in out varchar2);
 
 end ut_metadata;
 /
