@@ -1,5 +1,6 @@
 set echo off
 set feedback off
+set verify off
 Clear Screen
 set serveroutput on size unlimited format truncated
 @@lib/RunVars.sql
@@ -22,7 +23,11 @@ set serveroutput on size unlimited format truncated
 @@lib/RunTest.sql ut_test/ut_test.TeardownExecutedAfterTest.sql
 @@lib/RunTest.sql ut_test/ut_test.TeardownProcedureNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.TeardownProcedureNameNull.sql
+@@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithInvalidValues.sql
+@@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithNullValue.sql
+@@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.Success.sql
 
+@@lib/RunTest.sql ut_metadata/ut_metadata.form_name.TrimStandaloneProgramName.sql
 --Global cleanup
 drop package ut_example_tests;
 
