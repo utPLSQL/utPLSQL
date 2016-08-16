@@ -32,10 +32,10 @@ create or replace type body ut_custom_reporter is
     lvl := lvl + 1;
   end;
 	
-	overriding member procedure on_assert(self in out nocopy ut_custom_reporter, an_assert ut_object) is
+	overriding member procedure on_assert(self in out nocopy ut_custom_reporter, a_assert ut_object) is
 	begin
 		lvl := lvl + 1;
-    (self as ut_dbms_output_suite_reporter).on_assert(an_assert);
+    (self as ut_dbms_output_suite_reporter).on_assert(a_assert);
     lvl := lvl - 1;
 	end;
 

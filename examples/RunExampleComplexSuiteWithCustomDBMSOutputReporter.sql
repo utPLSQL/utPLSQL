@@ -43,6 +43,6 @@ begin
 end;
 /
 
---drop type ut_custom_reporter;
+drop type ut_custom_reporter;
 drop package ut_exampletest;
 drop package ut_exampletest2;
