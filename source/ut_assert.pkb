@@ -4,10 +4,8 @@ create or replace package body ut_assert is
 
   function current_assert_test_result return integer is
   begin
-    $if $$ut_trace $then
-    dbms_output.put_line('ut_assert.current_assert_test_result');
-    $end
-  
+    ut_utils.debug_log('ut_assert.current_assert_test_result');
+
     return get_assert_list_final_result(g_current_asserts_called);
   end;
 
@@ -15,10 +13,8 @@ create or replace package body ut_assert is
     l_result integer;
     l_assert ut_assert_result;
   begin
-    $if $$ut_trace $then
-    dbms_output.put_line('ut_assert.get_assert_list_final_result');
-    $end
-  
+    ut_utils.debug_log('ut_assert.get_assert_list_final_result');
+
     if a_assert_list is not null then
     
       l_result := ut_utils.tr_success;
@@ -40,42 +36,31 @@ create or replace package body ut_assert is
 
   procedure clear_asserts is
   begin
-    $if $$ut_trace $then
-    dbms_output.put_line('ut_assert.clear_asserts');
-    $end
-  
+    ut_utils.debug_log('ut_assert.clear_asserts');
     g_current_asserts_called.delete;
   end;
 
   procedure process_asserts(a_newtable out ut_objects_list) is
   begin
-    $if $$ut_trace $then
-    dbms_output.put_line('ut_assert.copy_called_asserts');
-    $end
-  
+    ut_utils.debug_log('ut_assert.copy_called_asserts');
+
     a_newtable := ut_objects_list(); -- make sure new table is empty
     a_newtable.extend(g_current_asserts_called.last);
     for i in g_current_asserts_called.first .. g_current_asserts_called.last loop
-      $if $$ut_trace $then
-      dbms_output.put_line(i || '-start');
-      $end
-    
+      ut_utils.debug_log(i || '-start');
+
       a_newtable(i) := g_current_asserts_called(i);
     
-      $if $$ut_trace $then
-      dbms_output.put_line(i || '-end');
-      $end
+      ut_utils.debug_log(i || '-end');
     end loop;
-  
+
     clear_asserts;
   end process_asserts;
 
   procedure report_assert(a_assert_result in integer, a_message in varchar2) is
     l_result ut_assert_result;
   begin
-    $if $$ut_trace $then
-    dbms_output.put_line('ut_assert.report_assert :' || a_assert_result || ':' || a_message);
-    $end
+    ut_utils.debug_log('ut_assert.report_assert :' || a_assert_result || ':' || a_message);
     l_result := ut_assert_result(a_assert_result, a_message);
     g_current_asserts_called.extend;
     g_current_asserts_called(g_current_asserts_called.last) := l_result;
