@@ -15,10 +15,8 @@ create or replace type body ut_executable is
   
     stmt := 'begin ' || ut_metadata.form_name(owner, object_name, procedure_name) || '; end;';
   
-    $if $$ut_trace $then
-    dbms_output.put_line('ut_executable.execute_call stmt:' || stmt);
-    $end
-  
+    ut_utils.debug_log('ut_executable.execute_call stmt:' || stmt);
+
     i := dbms_sql.open_cursor;
     dbms_sql.parse(c => i, statement => stmt, language_flag => dbms_sql.native);
     c := dbms_sql.execute(i);
