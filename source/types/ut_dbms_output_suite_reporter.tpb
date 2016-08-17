@@ -16,13 +16,13 @@ create or replace type body ut_dbms_output_suite_reporter is
     dbms_output.put_line(msg);
   end print;
 
-  overriding member procedure begin_suite(self in out nocopy ut_dbms_output_suite_reporter, a_suite ut_object) as
+  overriding member procedure before_suite(self in out nocopy ut_dbms_output_suite_reporter, a_suite ut_object) as
   begin
     print(ut_dbms_output_suite_reporter.c_dashed_line);
     print('suite "' || a_suite.name || '" started.');
   end;
 
-  overriding member procedure end_suite(self in out nocopy ut_dbms_output_suite_reporter, a_suite ut_object) as
+  overriding member procedure after_suite(self in out nocopy ut_dbms_output_suite_reporter, a_suite ut_object) as
   begin
     --todo: report total suite result here with pretty message
     print(ut_dbms_output_suite_reporter.c_dashed_line);
@@ -30,13 +30,13 @@ create or replace type body ut_dbms_output_suite_reporter is
     print(ut_dbms_output_suite_reporter.c_dashed_line);
   end;
 
-  overriding member procedure on_assert(self in out nocopy ut_dbms_output_suite_reporter, a_assert ut_object) as
+  overriding member procedure on_assert_process(self in out nocopy ut_dbms_output_suite_reporter, a_assert ut_object) as
   begin
     --todo: report total suite result here with pretty message
     null;
   end;
 
-  overriding member procedure begin_test(self in out nocopy ut_dbms_output_suite_reporter, a_test ut_object) as
+  overriding member procedure before_test(self in out nocopy ut_dbms_output_suite_reporter, a_test ut_object) as
     test ut_test := treat(a_test as ut_test);
   begin
     print(ut_dbms_output_suite_reporter.c_dashed_line);
@@ -47,7 +47,7 @@ create or replace type body ut_dbms_output_suite_reporter is
     end if;
   end;
 
-  overriding member procedure end_test(self in out nocopy ut_dbms_output_suite_reporter, a_test ut_object) as
+  overriding member procedure after_test(self in out nocopy ut_dbms_output_suite_reporter, a_test ut_object) as
     test   ut_test := treat(a_test as ut_test);
     assert ut_assert_result;
   begin

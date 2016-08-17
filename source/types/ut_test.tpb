@@ -39,7 +39,7 @@ create or replace type body ut_test is
     l_reporter ut_reporter := a_reporter;
   begin
     if l_reporter is not null then
-      l_reporter.begin_test(self);
+      l_reporter.before_test(self);
     end if;
   
     begin
@@ -49,9 +49,11 @@ create or replace type body ut_test is
     
       if self.is_valid() then
         if self.setup is not null then
+          l_reporter.on_test_setup(self);
           self.setup.execute;
         end if;
       
+        l_reporter.on_test_execute(self);
         begin
           self.test.execute;
         exception
@@ -60,18 +62,15 @@ create or replace type body ut_test is
             -- utl_call_stack package may be better but it's 12c but still need to investigate
             -- article with details: http://www.oracle.com/technetwork/issue-archive/2014/14-jan/o14plsql-2045346.html
             ut_utils.debug_log('testmethod failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-
+          
             ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
         end;
       
         if self.teardown is not null then
+          l_reporter.on_test_teardown(self);
           self.teardown.execute;
         end if;
       end if;
-    
-      self.end_time := current_timestamp;
-    
-      ut_assert.process_asserts(self.items);
     
     exception
       when others then
@@ -83,24 +82,27 @@ create or replace type body ut_test is
         -- most likely occured in setup or teardown if here.
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-        self.end_time := current_timestamp;
-        ut_assert.process_asserts(self.items);
     end;
+  
+    self.end_time := current_timestamp;
+  
+    l_reporter.before_asserts_process(self);
+    ut_assert.process_asserts(self.items);
   
     self.calc_execution_result;
   
     if l_reporter is not null then
       for i in 1 .. self.items.count loop
-        l_reporter.on_assert(treat(self.items(i) as ut_assert_result));
+        l_reporter.on_assert_process(treat(self.items(i) as ut_assert_result));
       end loop;
-      l_reporter.end_test(self);
+      l_reporter.after_test(self);
     end if;
   
     return l_reporter;
   end;
 
   overriding member procedure execute(self in out nocopy ut_test) is
-    l_null_reporter ut_reporter;
+    l_null_reporter ut_reporter := ut_reporter();
   begin
     self.execute(l_null_reporter);
   end execute;
