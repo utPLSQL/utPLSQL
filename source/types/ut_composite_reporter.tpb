@@ -8,7 +8,7 @@ create or replace type body ut_composite_reporter is
     return;
   end;
 
-  member procedure add_reporter(self in out nocopy ut_composite_reporter, a_reporter ut_suite_reporter) is
+  member procedure add_reporter(self in out nocopy ut_composite_reporter, a_reporter ut_reporter) is
   begin
     self.reporters.extend(1);
     self.reporters(self.reporters.last) := a_reporter;

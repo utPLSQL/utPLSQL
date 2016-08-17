@@ -1,4 +1,4 @@
-create or replace type ut_dbms_output_suite_reporter force under ut_suite_reporter
+create or replace type ut_dbms_output_suite_reporter force under ut_reporter
 (
 
   constructor function ut_dbms_output_suite_reporter return self as result,

@@ -42,6 +42,6 @@ end;
 
 
 --FIXME this drop is causing issues when executing script several times within single session
---drop type ut_custom_reporter;
+drop type ut_custom_reporter;
 drop package ut_exampletest;
 drop package ut_exampletest2;

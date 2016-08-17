@@ -33,15 +33,15 @@ create or replace type body ut_test_suite is
     return l_is_valid;
   end is_valid;
 
-  overriding member procedure execute(self in out nocopy ut_test_suite, a_reporter ut_suite_reporter) is
-    l_reporter ut_suite_reporter := a_reporter;
+  overriding member procedure execute(self in out nocopy ut_test_suite, a_reporter ut_reporter) is
+    l_reporter ut_reporter := a_reporter;
   begin
     l_reporter := execute(l_reporter);
   end;
 
-  overriding member function execute(self in out nocopy ut_test_suite, a_reporter ut_suite_reporter)
-    return ut_suite_reporter is
-    l_reporter    ut_suite_reporter := a_reporter;
+  overriding member function execute(self in out nocopy ut_test_suite, a_reporter ut_reporter)
+    return ut_reporter is
+    l_reporter    ut_reporter := a_reporter;
     l_test_object ut_test_object;
   begin
     if l_reporter is not null then
@@ -82,7 +82,7 @@ create or replace type body ut_test_suite is
   end;
 
   overriding member procedure execute(self in out nocopy ut_test_suite) is
-    l_null_reporter ut_suite_reporter;
+    l_null_reporter ut_reporter;
   begin
     self.execute(l_null_reporter);
   end;

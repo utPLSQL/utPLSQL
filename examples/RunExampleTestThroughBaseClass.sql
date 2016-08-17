@@ -9,7 +9,7 @@ set echo off
 
 declare
   simple_test ut_test;
-  reporter    ut_suite_reporter;
+  reporter    ut_reporter;
 begin
 
   simple_test := ut_test(a_object_name        => 'ut_exampletest'

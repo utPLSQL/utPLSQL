@@ -232,7 +232,7 @@ create or replace package body ut_suite_manager is
   
   end config_schema;
 
-  procedure run_schema_suites(a_owner_name varchar2, a_reporter in out nocopy ut_suite_reporter) is
+  procedure run_schema_suites(a_owner_name varchar2, a_reporter in out nocopy ut_reporter) is
     l_ind   varchar2(4000 char);
     l_suite ut_test_suite;
   begin
@@ -255,20 +255,20 @@ create or replace package body ut_suite_manager is
   
   end run_schema_suites;
 
-  procedure run_schema_suites_static(a_owner_name varchar2, a_reporter in ut_suite_reporter) is
-    l_temp_reported ut_suite_reporter;
+  procedure run_schema_suites_static(a_owner_name varchar2, a_reporter in ut_reporter) is
+    l_temp_reported ut_reporter;
   begin
     l_temp_reported := a_reporter;
     run_schema_suites(a_owner_name, l_temp_reported);
   end run_schema_suites_static;
 
-  procedure run_cur_schema_suites(a_reporter in out nocopy ut_suite_reporter) is
+  procedure run_cur_schema_suites(a_reporter in out nocopy ut_reporter) is
   begin
     run_schema_suites(sys_context('userenv', 'current_schema'), a_reporter);
   end run_cur_schema_suites;
 
-  procedure run_cur_schema_suites_static(a_reporter in ut_suite_reporter) is
-    l_temp_reported ut_suite_reporter;
+  procedure run_cur_schema_suites_static(a_reporter in ut_reporter) is
+    l_temp_reported ut_reporter;
   begin
     l_temp_reported := a_reporter;
     run_schema_suites(sys_context('userenv', 'current_schema'), l_temp_reported);
