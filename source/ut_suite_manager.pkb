@@ -5,9 +5,7 @@ create or replace package body ut_suite_manager is
 
   g_schema_suites tt_schena_suits_list;
 
-  gc_print_debug constant boolean := false;
-
-  procedure config_package(a_owner_name varchar2, a_object_name varchar2, a_object_suite out ut_test_suite, a_suite_package out varchar2) is
+  procedure config_package(a_owner_name varchar2, a_object_name varchar2, a_suite out ut_test_suite) is
     l_annotation_data    ut_metadata.typ_annotated_package;
     l_suite_name         ut_metadata.t_annotation_name;
     l_suite_annot_params ut_metadata.tt_annotation_params;
@@ -18,6 +16,7 @@ create or replace package body ut_suite_manager is
     l_default_teardown_proc varchar2(32 char);
     l_suite_setup_proc      varchar2(32 char);
     l_suite_teardown_proc   varchar2(32 char);
+    l_suite_package         varchar2(4000 char);
   
     l_proc_index ut_metadata.t_annotation_name;
   
@@ -39,13 +38,13 @@ create or replace package body ut_suite_manager is
       l_suite_name         := ut_metadata.get_annotation_param(l_suite_annot_params, 1);
     
       if l_annotation_data.annotations.exists('suitepackage') then
-        a_suite_package := ut_metadata.get_annotation_param(l_annotation_data.annotations('suitepackage'), 1) || '.' ||
+        l_suite_package := ut_metadata.get_annotation_param(l_annotation_data.annotations('suitepackage'), 1) || '.' ||
                            lower(l_object_name);
       else
-        a_suite_package := lower(l_object_name);
+        l_suite_package := lower(l_object_name);
       end if;
     
-      a_object_suite := ut_test_suite(l_suite_name, a_suite_package);
+      a_suite := ut_test_suite(l_suite_name, l_suite_package);
     
       l_proc_index := l_annotation_data.procedures.first;
       while (l_default_setup_proc is null or l_default_teardown_proc is null or l_suite_setup_proc is null or
@@ -66,15 +65,15 @@ create or replace package body ut_suite_manager is
       end loop;
     
       if l_suite_setup_proc is not null then
-        a_object_suite.set_suite_setup(a_object_name => l_object_name
-                                      ,a_proc_name   => l_suite_setup_proc
-                                      ,a_owner_name  => l_owner_name);
+        a_suite.set_suite_setup(a_object_name => l_object_name
+                               ,a_proc_name   => l_suite_setup_proc
+                               ,a_owner_name  => l_owner_name);
       end if;
     
       if l_suite_teardown_proc is not null then
-        a_object_suite.set_suite_teardown(a_object_name => l_object_name
-                                         ,a_proc_name   => l_suite_teardown_proc
-                                         ,a_owner_name  => l_owner_name);
+        a_suite.set_suite_teardown(a_object_name => l_object_name
+                                  ,a_proc_name   => l_suite_teardown_proc
+                                  ,a_owner_name  => l_owner_name);
       end if;
     
       l_proc_index := l_annotation_data.procedures.first;
@@ -101,7 +100,7 @@ create or replace package body ut_suite_manager is
                              ,a_setup_procedure    => nvl(l_setup_procedure, l_default_setup_proc)
                              ,a_teardown_procedure => nvl(l_teardown_procedure, l_default_teardown_proc));
           
-            a_object_suite.add_item(l_test);
+            a_suite.add_item(l_test);
           end if;
         
         end;
@@ -162,6 +161,7 @@ create or replace package body ut_suite_manager is
       end if;
     end;
   
+    $if $$ut_trace $then
     procedure print(a_suite ut_test_suite, a_pad pls_integer) is
       l_test ut_test;
     begin
@@ -176,26 +176,30 @@ create or replace package body ut_suite_manager is
           dbms_output.put_line(lpad(' ', a_pad + 2, ' ') || 'Test: ' || l_test.object_name);
         end if;
       end loop;
-    end;
+    end print;
+    $end
   
   begin
-  
+    -- form the single-dimension list of suites constructed from parsed packages
     for rec in (select t.owner
                       ,t.object_name
                   from all_objects t
                  where t.owner = a_owner_name
                    and t.object_type in ('PACKAGE')
                    and t.object_name not like 'UT\_%' escape '\') loop
-      config_package(rec.owner, rec.object_name, l_suite, l_suite_path);
+      -- parse the source of the package
+      config_package(rec.owner, rec.object_name, l_suite);
     
-      if l_suite_path is not null then
-        l_all_suites(l_suite_path) := l_suite;
+      if l_suite is not null then
+        l_all_suites(l_suite.object_name) := l_suite;
       end if;
     
     end loop;
   
     l_schema_suites.delete;
   
+    -- Restructure single-dimenstion list into hierarchy of suites by the value of %suitepackage attribute value
+    -- All root suite compose the root-suite list of the schema
     l_ind := l_all_suites.first;
     while l_ind is not null loop
     
@@ -215,20 +219,21 @@ create or replace package body ut_suite_manager is
       l_ind := l_all_suites.next(l_ind);
     end loop;
   
+    -- Each nonempty root-suite list for the schema is saved into the cache
     if l_schema_suites.count > 0 then
       g_schema_suites(a_owner_name) := l_schema_suites;
     elsif g_schema_suites.exists(a_owner_name) then
       g_schema_suites.delete(a_owner_name);
     end if;
   
-    -- printing results
-    if gc_print_debug then
-      l_ind := l_schema_suites.first;
-      while l_ind is not null loop
-        print(l_schema_suites(l_ind), 0);
-        l_ind := l_schema_suites.next(l_ind);
-      end loop;
-    end if;
+    -- printing results for debugging purpose
+    $if $$ut_trace $then
+    l_ind := l_schema_suites.first;
+    while l_ind is not null loop
+      print(l_schema_suites(l_ind), 0);
+      l_ind := l_schema_suites.next(l_ind);
+    end loop;
+    $end
   
   end config_schema;
 
