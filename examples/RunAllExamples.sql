@@ -13,3 +13,5 @@ prompt RunExampleTestThroughBaseClass
 @@RunExampleTestThroughBaseClass.sql
 prompt RunExampleTestSuiteWithCompositeReporter
 @@RunExampleTestSuiteWithCompositeReporter.sql
+prompt RunExampleTestAnnotationBasedForCurrentSchema
+@@RunExampleTestAnnotationBasedForCurrentSchema.sql
