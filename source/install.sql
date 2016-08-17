@@ -17,6 +17,7 @@
 
 @@ut_utils.pkb
 @@types/ut_assert_result.tpb
+@@types/ut_suite_reporter.tpb
 @@types/ut_object.tpb
 @@types/ut_composite_object.tpb
 @@types/ut_test.tpb
