@@ -242,9 +242,9 @@ create or replace package body ut_metadata as
     end if;
   
     l_package_comments := regexp_substr(srcstr        => l_pkg_spec
-                                       ,pattern       => 'CREATE\s+(OR\s+REPLACE) PACKAGE .*?(AS|IS)\s+((.*?{COMMENT#\d+}\s?)+)'
+                                       ,pattern       => 'CREATE\s+(OR\s+REPLACE)(\s+(NON)?EDITIONABLE)?\s+PACKAGE .*?(AS|IS)\s+((.*?{COMMENT#\d+}\s?)+)'
                                        ,modifier      => 'i'
-                                       ,subexpression => 3);
+                                       ,subexpression => 5);
   
     -- parsing for package annotations
     --v_annotated_pkg.name := pkg_name;

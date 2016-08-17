@@ -40,9 +40,9 @@ create or replace package body ut_suite_manager is
     
       if l_annotation_data.annotations.exists('suitepackage') then
         a_suite_package := ut_metadata.get_annotation_param(l_annotation_data.annotations('suitepackage'), 1) || '.' ||
-                           lower(a_object_name);
+                           lower(l_object_name);
       else
-        a_suite_package := lower(a_object_name);
+        a_suite_package := lower(l_object_name);
       end if;
     
       a_object_suite := ut_test_suite(l_suite_name, a_suite_package);
@@ -66,15 +66,15 @@ create or replace package body ut_suite_manager is
       end loop;
     
       if l_suite_setup_proc is not null then
-        a_object_suite.set_suite_setup(a_object_name => a_object_name
+        a_object_suite.set_suite_setup(a_object_name => l_object_name
                                       ,a_proc_name   => l_suite_setup_proc
-                                      ,a_owner_name  => a_owner_name);
+                                      ,a_owner_name  => l_owner_name);
       end if;
     
       if l_suite_teardown_proc is not null then
-        a_object_suite.set_suite_teardown(a_object_name => a_object_name
+        a_object_suite.set_suite_teardown(a_object_name => l_object_name
                                          ,a_proc_name   => l_suite_teardown_proc
-                                         ,a_owner_name  => a_owner_name);
+                                         ,a_owner_name  => l_owner_name);
       end if;
     
       l_proc_index := l_annotation_data.procedures.first;
@@ -94,10 +94,10 @@ create or replace package body ut_suite_manager is
               l_teardown_procedure := ut_metadata.get_annotation_param(l_proc_annotations('testteardown'), 1);
             end if;
           
-            l_test := ut_test(a_object_name        => a_object_name
+            l_test := ut_test(a_object_name        => l_object_name
                              ,a_test_procedure     => l_proc_index
                              ,a_test_name          => ut_metadata.get_annotation_param(l_proc_annotations('test'), 1)
-                             ,a_owner_name         => a_owner_name
+                             ,a_owner_name         => l_owner_name
                              ,a_setup_procedure    => nvl(l_setup_procedure, l_default_setup_proc)
                              ,a_teardown_procedure => nvl(l_teardown_procedure, l_default_teardown_proc));
           
