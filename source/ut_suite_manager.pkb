@@ -188,7 +188,9 @@ create or replace package body ut_suite_manager is
                    and t.object_name not like 'UT\_%' escape '\') loop
       config_package(rec.owner, rec.object_name, l_suite, l_suite_path);
     
-      l_all_suites(l_suite_path) := l_suite;
+      if l_suite_path is not null
+        l_all_suites(l_suite_path) := l_suite;
+      end if;
     
     end loop;
   
