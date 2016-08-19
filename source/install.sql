@@ -34,4 +34,7 @@ whenever oserror exit failure rollback
 @@ut_assert.pkb
 @@ut_suite_manager.pkb
 
+select * from user_errors
+where name not like 'BIN$%';
+
 exit success
