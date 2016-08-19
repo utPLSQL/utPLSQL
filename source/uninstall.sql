@@ -1,3 +1,5 @@
+drop package ut_suite_manager;
+
 drop package ut_assert;
 
 drop package ut_metadata;

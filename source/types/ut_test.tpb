@@ -5,28 +5,29 @@ create or replace type body ut_test is
   begin
     self.name        := a_test_name;
     self.object_type := 1;
+    self.object_name := lower(trim(a_test_procedure));
     self.test        := ut_executable(object_name    => trim(a_object_name)
-                                           ,procedure_name => trim(a_test_procedure)
-                                           ,owner_name     => trim(a_owner_name));
+                                     ,procedure_name => trim(a_test_procedure)
+                                     ,owner_name     => trim(a_owner_name));
   
     if a_setup_procedure is not null then
       self.setup := ut_executable(object_name    => trim(a_object_name)
-                                       ,procedure_name => trim(a_setup_procedure)
-                                       ,owner_name     => trim(a_owner_name));
+                                 ,procedure_name => trim(a_setup_procedure)
+                                 ,owner_name     => trim(a_owner_name));
     end if;
   
     if a_teardown_procedure is not null then
       self.teardown := ut_executable(object_name    => trim(a_object_name)
-                                          ,procedure_name => trim(a_teardown_procedure)
-                                          ,owner_name     => trim(a_owner_name));
+                                    ,procedure_name => trim(a_teardown_procedure)
+                                    ,owner_name     => trim(a_owner_name));
     end if;
     return;
   end ut_test;
 
-  member function is_valid(self in ut_test) return boolean is
+  member function is_valid return boolean is
   begin
-    return test.is_valid('test') and (setup is null or setup.is_valid('setup')) and
-                  (teardown is null or teardown.is_valid('teardown'));
+    return test.is_valid('test') and(setup is null or setup.is_valid('setup')) and(teardown is null or
+                                                                                   teardown.is_valid('teardown'));
   end is_valid;
 
   overriding member procedure execute(self in out nocopy ut_test, a_reporter ut_suite_reporter) is
@@ -62,7 +63,7 @@ create or replace type body ut_test is
 
             ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
         end;
-				
+      
         if self.teardown is not null then
           self.teardown.execute;
         end if;
