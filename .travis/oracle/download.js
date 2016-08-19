@@ -1,9 +1,20 @@
 // vim: set et sw=2 ts=2:
 "use strict";
+
+var fs = require('fs');
+
 var env = process.env;
 var Promise = require('bluebird');
 var Phantom = Promise.promisifyAll(require('node-phantom-simple'));
 var PhantomError = require('node-phantom-simple/headless_error');
+
+if (env['ORACLE_ZIP_DIR']) {
+  var directory = env['ORACLE_ZIP_DIR'];
+  if (!fs.existsSync(directory)) {
+    fs.mkdirSync(directory);
+  }
+  process.chdir(directory);
+}
 
 Phantom.createAsync({ parameters: { 'ssl-protocol': 'tlsv1' } }).then(function (browser) {
   browser = Promise.promisifyAll(browser, { suffix: 'Promise' });
