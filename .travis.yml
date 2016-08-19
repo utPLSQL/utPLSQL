@@ -30,8 +30,17 @@ addons:
 cache: 
   directories: 
     - .cache
+    - $HOME/.cache
 
 before_install:
+  - echo zipdir is $ORACLE_ZIP_DIR
+  - ls -la $ORACLE_ZIP_DIR
+  - ls -la .cache
+
+before_cache:
+  - ls -la $ORACLE_ZIP_DIR
+  - ls -la .cache
+
 # On trusty, download the zip file into a cachable directory
    - test "$DIST" = precise || export ORACLE_ZIP_DIR=$HOME/.cache
 # If the zip file already exists, do not download it again
