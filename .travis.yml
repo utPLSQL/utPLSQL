@@ -17,8 +17,17 @@ env:
     - ORA_SDTZ='Europe/London' #Needed as a client parameter
     - TZ='Europe/London'       #Needed as a DB Server parameter
 
+cache: 
+  directories: 
+    - .cache/oracle 
+
+before_install:
+# On trusty, download the zip file into a cachable directory
+   - test "$DIST" = precise || export ORACLE_ZIP_DIR=$HOME/.cache
+# If the zip file already exists, do not download it again
+   - test -f "$ORACLE_ZIP_DIR"/$(basename $ORACLE_FILE) || bash .travis/oracle/download.sh
+
 install:
-  - bash .travis/oracle/download.sh
   - bash .travis/oracle/install.sh
 
 script:

@@ -18,7 +18,14 @@ test -f /sbin/chkconfig ||
 
 test -d /var/lock/subsys || sudo mkdir /var/lock/subsys
 
-unzip -j "$(basename $ORACLE_FILE)" "*/$ORACLE_RPM"
+if [ "$ORACLE_ZIP_DIR" != "" ]; then
+  ORACLE_ZIP="$ORACLE_ZIP_DIR/$(basename $ORACLE_FILE)"
+else
+  ORACLE_ZIP="$(basename $ORACLE_FILE)"
+fi
+
+unzip -j $ORACLE_ZIP "*/$ORACLE_RPM"
+
 sudo rpm --install --nodeps --nopre "$ORACLE_RPM"
 
 echo 'OS_AUTHENT_PREFIX=""' | sudo tee -a "$ORACLE_HOME/config/scripts/init.ora" > /dev/null
