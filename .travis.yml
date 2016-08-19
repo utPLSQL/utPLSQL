@@ -32,14 +32,16 @@ cache:
     - .cache
     - $HOME/.cache
 
+before_cache:
+  - test "$ORACLE_ZIP_DIR" &&  ls -la $ORACLE_ZIP_DIR
+  - test .cache &&  ls -laR .cache
+  - ls -la $HOME
+  - ls -la .
+
 before_install:
   - echo zipdir is $ORACLE_ZIP_DIR
-  - ls -la $ORACLE_ZIP_DIR
-  - ls -la .cache
-
-before_cache:
-  - ls -la $ORACLE_ZIP_DIR
-  - ls -la .cache
+  - test "$ORACLE_ZIP_DIR" &&  ls -la $ORACLE_ZIP_DIR
+  - test .cache &&  ls -laR .cache
 
 # On trusty, download the zip file into a cachable directory
   - test "$DIST" = precise || export ORACLE_ZIP_DIR=$HOME/.cache
