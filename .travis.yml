@@ -32,15 +32,9 @@ cache:
     - .cache
     - $HOME/.cache
 
-before_cache:
-  - test -z "$ORACLE_ZIP_DIR" &&  ls -la $ORACLE_ZIP_DIR
-
 before_install:
 # On trusty, download the zip file into a cachable directory
   - test "$DIST" = precise || export ORACLE_ZIP_DIR=$HOME/.cache
-  - echo zipdir is $ORACLE_ZIP_DIR
-  - test -z "$ORACLE_ZIP_DIR" &&  ls -la $ORACLE_ZIP_DIR
-
 # If the zip file already exists, do not download it again
   - test -f "$ORACLE_ZIP_DIR"/$(basename $ORACLE_FILE) || bash .travis/oracle/download.sh
 
