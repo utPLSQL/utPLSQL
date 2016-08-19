@@ -1,3 +1,6 @@
+whenever sqlerror exit failure rollback
+whenever oserror exit failure rollback
+
 @@types/ut_object.tps
 @@types/ut_objects_list.tps
 @@types/ut_composite_object.tps
@@ -31,3 +34,4 @@
 @@ut_assert.pkb
 @@ut_suite_manager.pkb
 
+exit success
