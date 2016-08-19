@@ -19,7 +19,7 @@ env:
 
 cache: 
   directories: 
-    - .cache/oracle 
+    - .cache
 
 before_install:
 # On trusty, download the zip file into a cachable directory
