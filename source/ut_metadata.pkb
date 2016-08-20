@@ -27,12 +27,12 @@ create or replace package body ut_metadata as
   function form_name(a_owner_name varchar2, a_object varchar2, a_subprogram varchar2 default null) return varchar2 is
     l_name varchar2(200);
   begin
-    l_name := a_object;
+    l_name := trim(a_object);
     if trim(a_owner_name) is not null then
       l_name := trim(a_owner_name) || '.' || l_name;
     end if;
     if trim(a_subprogram) is not null then
-      l_name := l_name || '.' || a_subprogram;
+      l_name := l_name || '.' || trim(a_subprogram);
     end if;
     return l_name;
   end form_name;
