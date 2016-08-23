@@ -34,7 +34,18 @@ whenever oserror exit failure rollback
 @@ut_assert.pkb
 @@ut_suite_manager.pkb
 
-select * from user_errors
-where name not like 'BIN$%';
+select * from user_errors where name not like 'BIN$%';
+
+declare
+  l_cnt integer;
+begin
+  select count(1)
+    into l_cnt
+    from user_errors where name not like 'BIN$%';
+  if l_cnt > 0 then
+    raise_application_error(-20000, 'Not all sources were successfully installed.');
+  end if;
+end;
+/
 
 exit success
