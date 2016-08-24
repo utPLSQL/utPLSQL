@@ -42,9 +42,9 @@ install:
   - bash .travis/oracle/install.sh
 
 script:
-  - bash install.sh
-  - bash examples.sh
-  - bash test.sh
+  - bash .travis/install.sh
+  - bash .travis/examples.sh
+  - bash .travis/test.sh
 
 notifications:
   slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
