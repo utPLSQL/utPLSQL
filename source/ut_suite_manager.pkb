@@ -181,12 +181,32 @@ create or replace package body ut_suite_manager is
   
   begin
     -- form the single-dimension list of suites constructed from parsed packages
-    for rec in (select t.owner
-                      ,t.object_name
-                  from all_objects t
-                 where t.owner = a_owner_name
-                   and t.object_type in ('PACKAGE')
-                   and t.object_name not like 'UT\_%' escape '\') loop
+    for rec in (with excl as
+                   (select /*+materialize*/
+                    t1.owner
+                   ,t1.type_name
+                     from all_types t1
+                    start with t1.owner = sys_context('userenv', 'current_schema')
+                           and t1.type_name in ('UT_SUITE_REPORTER'
+                                               ,'UT_REPORTERS_LIST'
+                                               ,'UT_OBJECTS_LIST'
+                                               ,'UT_EXECUTABLE'
+                                               ,'UT_OBJECT')
+                   
+                   connect by prior t1.owner = t1.supertype_owner
+                          and prior t1.type_name = t1.supertype_name
+                   union all
+                   select tt.owner
+                         ,tt.object_name
+                     from all_objects tt
+                    where tt.owner = sys_context('userenv', 'current_schema')
+                      and tt.object_name in ('UT_METADATA', 'UT_SUITE_MANAGER', 'UT_ASSERT', 'UT_UTILS'))
+                  select t.owner
+                        ,t.object_name
+                    from all_objects t
+                   where t.owner = a_owner_name
+                     and t.object_type in ('PACKAGE')
+                     and (t.owner, t.object_name) not in (select * from excl)) loop
       -- parse the source of the package
       config_package(rec.owner, rec.object_name, l_suite);
     

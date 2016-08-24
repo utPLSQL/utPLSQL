@@ -1,5 +1,18 @@
 create or replace package body ut_metadata as
 
+  g_source_view varchar2(32);
+
+  function get_source_cursor(a_source_view varchar2, a_owner varchar2, a_object varchar2) return sys_refcursor is
+    c_query_str constant varchar2(1000) := 'select t.text from ' || a_source_view ||
+                                           ' t where t.owner = :a_owner and t.name = :a_object_name and t.type = ''PACKAGE'' order by t.line';
+    l_cur sys_refcursor;
+  
+  begin
+    open l_cur for c_query_str
+      using a_owner, a_object;
+    return l_cur;
+  end;
+
   procedure do_resolve(a_owner in out varchar2, a_object in out varchar2, a_procedure_name in out varchar2) is
     l_name          varchar2(200);
     l_context       integer;
@@ -183,6 +196,31 @@ create or replace package body ut_metadata as
     end print_parse_results;
     $end
   
+    function get_source(a_owner varchar2, a_object_name varchar2) return clob is
+      l_source clob;
+      l_txt    varchar2(4000);
+      l_cur    sys_refcursor;
+    begin
+    
+      dbms_lob.createtemporary(l_source, true);
+    
+      l_cur := get_source_cursor(g_source_view, a_owner, a_object_name);
+    
+      loop
+        fetch l_cur
+          into l_txt;
+        exit when l_cur%notfound;
+        dbms_lob.writeappend(l_source, length(l_txt), l_txt);
+      end loop;
+    
+      close l_cur;
+    
+      return l_source;
+    
+      --l_source := dbms_metadata.get_ddl(object_type => 'PACKAGE_SPEC', name => a_object_name, schema => a_owner);
+      --return l_source;
+    end get_source;
+  
     function get_annotations(a_source varchar2) return tt_annotations is
       l_loop_index            pls_integer := 1;
       l_comment_index         pls_integer;
@@ -257,7 +295,11 @@ create or replace package body ut_metadata as
     
     end;
   begin
-    l_pkg_spec := dbms_metadata.get_ddl(object_type => 'PACKAGE_SPEC', name => a_name, schema => a_owner_name);
+    l_pkg_spec := get_source(a_owner_name, a_name);
+  
+    if l_pkg_spec is null then
+      return;
+    end if;
   
     -- delete multiline comments
     l_pkg_spec := regexp_replace(srcstr => l_pkg_spec, pattern => c_multiline_comment_pattern, modifier => 'n');
@@ -271,30 +313,31 @@ create or replace package body ut_metadata as
     -- replace all single line comments with {COMMENT#12} element and store it's content for easier processing
     l_comment_pos := 1;
     loop
-      l_comment_pos := regexp_instr(srcstr        => l_pkg_spec
-                                   ,pattern       => c_singleline_comment_pattern
-                                   ,occurrence    => 1
-                                   ,modifier      => 'm'
-                                   ,position => l_comment_pos
-                                   --,subexpression => 1
-                                   );
+      l_comment_pos := regexp_instr(srcstr     => l_pkg_spec
+                                   ,pattern    => c_singleline_comment_pattern
+                                   ,occurrence => 1
+                                   ,modifier   => 'm'
+                                   ,position   => l_comment_pos
+                                    --,subexpression => 1
+                                    );
       exit when l_comment_pos = 0;
-      l_comment := trim(regexp_substr(srcstr        => l_pkg_spec
-                                     ,pattern       => c_singleline_comment_pattern
-                                     ,occurrence    => 1
-                                     ,position      => l_comment_pos
-                                     ,modifier      => 'm'
-                                     ,subexpression => 1));
+      l_comment := regexp_substr(srcstr        => l_pkg_spec
+                                ,pattern       => c_singleline_comment_pattern
+                                ,occurrence    => 1
+                                ,position      => l_comment_pos
+                                ,modifier      => 'm'
+                                ,subexpression => 1);
     
-      l_comments(l_comments.count + 1) := l_comment;
+      l_comments(l_comments.count + 1) := trim(l_comment);
       l_comment_replacer := replace(c_comment_replacer_patter, '%N%', l_comments.count);
     
-      l_pkg_spec := regexp_replace(srcstr     => l_pkg_spec
-                                  ,pattern    => c_singleline_comment_pattern
-                                  ,replacestr => l_comment_replacer
-                                  ,position   => l_comment_pos
-                                  ,occurrence => 1
-                                  ,modifier   => 'm');
+      l_pkg_spec    := regexp_replace(srcstr     => l_pkg_spec
+                                     ,pattern    => c_singleline_comment_pattern
+                                     ,replacestr => l_comment_replacer
+                                     ,position   => l_comment_pos
+                                     ,occurrence => 1
+                                     ,modifier   => 'm');
+      l_comment_pos := l_comment_pos + length(l_comment);
     
     end loop;
   
@@ -303,12 +346,11 @@ create or replace package body ut_metadata as
     $end
   
     l_package_comments := regexp_substr(srcstr        => l_pkg_spec
-                                       ,pattern       => '^\s*CREATE\s+(OR\s+REPLACE)?(\s+(NON)?EDITIONABLE)?\s+PACKAGE .*?(AS|IS)\s+((.*?{COMMENT#\d+}\s?)+)'
+                                       ,pattern       => '^\s*(CREATE\s+(OR\s+REPLACE)?(\s+(NON)?EDITIONABLE)?)?\s+PACKAGE .*?(AS|IS)\s+((.*?{COMMENT#\d+}\s?)+)'
                                        ,modifier      => 'i'
-                                       ,subexpression => 5);
+                                       ,subexpression => 6);
   
     -- parsing for package annotations
-    --v_annotated_pkg.name := pkg_name;
     if l_package_comments is not null then
       a_annotated_pkg.annotations := get_annotations(l_package_comments);
     end if;
@@ -320,35 +362,30 @@ create or replace package body ut_metadata as
                                       ,pattern    => c_annotation_block_pattern
                                       ,occurrence => 1
                                       ,modifier   => 'i'
-                                      ,position   => l_annot_proc_ind
-                                       --,subexpression => 0
-                                       );
+                                      ,position   => l_annot_proc_ind);
     
       exit when l_annot_proc_ind = 0;
     
-      l_annot_proc_block := trim(regexp_substr(srcstr     => l_pkg_spec
-                                              ,pattern    => c_annotation_block_pattern
-                                              ,position   => l_annot_proc_ind
-                                              ,occurrence => 1
-                                              ,modifier   => 'i'
-                                               --,subexpression => 0
-                                               ));
+      l_annot_proc_block := regexp_substr(srcstr     => l_pkg_spec
+                                         ,pattern    => c_annotation_block_pattern
+                                         ,position   => l_annot_proc_ind
+                                         ,occurrence => 1
+                                         ,modifier   => 'i');
     
-      l_proc_comments := trim(regexp_substr(srcstr  => l_annot_proc_block
-                                           ,pattern => c_annotation_block_pattern
-                                            --,occurrence    => 1
+      l_annot_proc_ind := l_annot_proc_ind + length(l_annot_proc_block);
+    
+      l_proc_comments := trim(regexp_substr(srcstr        => l_annot_proc_block
+                                           ,pattern       => c_annotation_block_pattern
                                            ,modifier      => 'i'
                                            ,subexpression => 1));
-      l_proc_name     := trim(regexp_substr(srcstr  => l_annot_proc_block
-                                           ,pattern => c_annotation_block_pattern
-                                            --,occurrence    => 1
+      l_proc_name     := trim(regexp_substr(srcstr        => l_annot_proc_block
+                                           ,pattern       => c_annotation_block_pattern
                                            ,modifier      => 'i'
                                            ,subexpression => 4));
     
       -- parse the comment block for the syntactically correct annotations and store them as an array
       a_annotated_pkg.procedures(l_proc_name) := get_annotations(l_proc_comments);
     
-      l_annot_proc_ind := l_annot_proc_ind + 1;
     end loop;
   
     -- printing out parsed structure for debugging
@@ -366,5 +403,19 @@ create or replace package body ut_metadata as
     end if;
     return l_result;
   end get_annotation_param;
+begin
+  declare
+    l_cur_temp sys_refcursor;
+  begin
+  
+    l_cur_temp     := get_source_cursor('dba_source', null, null);
+    g_source_view := 'dba_source';
+    close l_cur_temp;
+  
+  exception
+    when others then
+      g_source_view := 'all_source';
+  end;
+
 end;
 /
