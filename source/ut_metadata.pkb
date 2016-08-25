@@ -318,7 +318,6 @@ create or replace package body ut_metadata as
                                    ,occurrence => 1
                                    ,modifier   => 'm'
                                    ,position   => l_comment_pos
-                                    --,subexpression => 1
                                     );
       exit when l_comment_pos = 0;
       l_comment := regexp_substr(srcstr        => l_pkg_spec
@@ -337,7 +336,7 @@ create or replace package body ut_metadata as
                                      ,position   => l_comment_pos
                                      ,occurrence => 1
                                      ,modifier   => 'm');
-      l_comment_pos := l_comment_pos + length(l_comment);
+      l_comment_pos := l_comment_pos + length(l_comment_replacer);
     
     end loop;
   
