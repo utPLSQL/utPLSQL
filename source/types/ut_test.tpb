@@ -38,9 +38,7 @@ create or replace type body ut_test is
   overriding member function execute(self in out nocopy ut_test, a_reporter ut_reporter) return ut_reporter is
     l_reporter ut_reporter := a_reporter;
   begin
-    if l_reporter is not null then
-      l_reporter.before_test(self);
-    end if;
+    l_reporter.before_test(self);
   
     begin
       ut_utils.debug_log('ut_test.execute');
@@ -49,12 +47,14 @@ create or replace type body ut_test is
     
       if self.is_valid() then
         if self.setup is not null then
-          l_reporter.on_test_setup(self);
+          l_reporter.before_test_setup(self);
           self.setup.execute;
+          l_reporter.after_test_setup(self);
         end if;
       
-        l_reporter.on_test_execute(self);
+        l_reporter.before_test_execute(self);
         begin
+        
           self.test.execute;
         exception
           when others then
@@ -65,10 +65,12 @@ create or replace type body ut_test is
           
             ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
         end;
+        l_reporter.after_test_execute(self);
       
         if self.teardown is not null then
-          l_reporter.on_test_teardown(self);
+          l_reporter.before_test_teardown(self);
           self.teardown.execute;
+          l_reporter.after_test_teardown(self);
         end if;
       end if;
     
@@ -91,13 +93,14 @@ create or replace type body ut_test is
   
     self.calc_execution_result;
   
-    if l_reporter is not null then
-      for i in 1 .. self.items.count loop
-        l_reporter.on_assert_process(treat(self.items(i) as ut_assert_result));
-      end loop;
-      l_reporter.after_test(self);
-    end if;
+    for i in 1 .. self.items.count loop
+      l_reporter.on_assert_process(treat(self.items(i) as ut_assert_result));
+    end loop;
   
+    l_reporter.after_asserts_process(self);
+  
+    l_reporter.after_test(self);
+
     return l_reporter;
   end;
 

@@ -53,19 +53,25 @@ create or replace type body ut_test_suite is
     if self.is_valid() then
     
       if self.setup is not null then
-				l_reporter.on_suite_setup(self);
+				l_reporter.before_suite_setup(self);
         self.setup.execute;
+        l_reporter.after_suite_setup(self);
       end if;
     
       for i in self.items.first .. self.items.last loop
+        l_reporter.before_suite_item(a_suite => self,a_item_index => i);
+        
         l_test_object := treat(self.items(i) as ut_test_object);
         l_reporter := l_test_object.execute(a_reporter => l_reporter);
         self.items(i) := l_test_object;
+        
+        l_reporter.after_suite_item(a_suite => self,a_item_index => i);
       end loop;
     
       if self.setup is not null then
-				l_reporter.on_suite_teardown(self);
+        l_reporter.before_suite_teardown(self);
         self.teardown.execute;
+        l_reporter.after_suite_teardown(self);
       end if;
     
       self.calc_execution_result;
