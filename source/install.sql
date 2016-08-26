@@ -1,6 +1,7 @@
 whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
+prompt Installing utplsql framework
 @@types/ut_object.tps
 @@types/ut_objects_list.tps
 @@types/ut_composite_object.tps
@@ -34,14 +35,16 @@ whenever oserror exit failure rollback
 @@ut_assert.pkb
 @@ut_suite_manager.pkb
 
-select * from user_errors where name not like 'BIN$%';
+
+prompt Validating installation
+select * from user_errors where name not like 'BIN$%' and name like 'UT\_%' escape '\';
 
 declare
   l_cnt integer;
 begin
   select count(1)
     into l_cnt
-    from user_errors where name not like 'BIN$%';
+    from user_errors where name not like 'BIN$%' and name like 'UT\_%' escape '\';
   if l_cnt > 0 then
     raise_application_error(-20000, 'Not all sources were successfully installed.');
   end if;
