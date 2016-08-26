@@ -15,3 +15,5 @@ prompt RunExampleTestSuiteWithCompositeReporter
 @@RunExampleTestSuiteWithCompositeReporter.sql
 prompt RunExampleTestAnnotationBasedForCurrentSchema
 @@RunExampleTestAnnotationBasedForCurrentSchema.sql
+prompt RunExampleTestAnnotationsHugePackage
+@@RunExampleTestAnnotationsHugePackage.sql
