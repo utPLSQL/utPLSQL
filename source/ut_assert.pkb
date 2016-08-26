@@ -97,5 +97,41 @@ create or replace package body ut_assert is
     end if;
   end;
 
+  procedure are_equal(a_expected in anydata, a_actual in anydata) is
+  begin
+    are_equal('Equality test', a_expected, a_actual);
+  end;
+
+  procedure are_equal(a_msg in varchar2, a_expected in anydata, a_actual in anydata) is
+    l_expected any_data;
+    l_actual any_data;
+  begin
+     l_expected := any_data_builder.build(a_expected);
+     l_actual := any_data_builder.build(a_actual);
+     if l_expected.eq(l_actual) then
+      report_success(a_msg, l_expected.to_string(), l_actual.to_string());
+    else
+      report_failure(a_msg, l_expected.to_string(), l_actual.to_string());
+     end if;
+  end;
+
+  procedure are_equal(a_expected in sys_refcursor, a_actual in sys_refcursor) is
+  begin
+    are_equal('Equality test', a_expected, a_actual);
+  end;
+
+  procedure are_equal(a_msg in varchar2, a_expected in sys_refcursor, a_actual in sys_refcursor) is
+    l_expected any_data;
+    l_actual any_data;
+  begin
+     l_expected := any_data_builder.build(a_expected);
+     l_actual := any_data_builder.build(a_actual);
+     if l_expected.eq(l_actual) then
+      report_success(a_msg, l_expected.to_string(), l_actual.to_string());
+    else
+      report_failure(a_msg, l_expected.to_string(), l_actual.to_string());
+     end if;
+  end;
+
 end ut_assert;
 /

@@ -10,5 +10,11 @@ create or replace package ut_assert authid current_user as
   procedure are_equal(a_expected in number, a_actual in number);
   procedure are_equal(a_msg in varchar2, a_expected in number, a_actual in number);
 
+  procedure are_equal(a_expected in anydata, a_actual in anydata);
+  procedure are_equal(a_msg in varchar2, a_expected in anydata, a_actual in anydata);
+
+  procedure are_equal(a_expected in sys_refcursor, a_actual in sys_refcursor);
+  procedure are_equal(a_msg in varchar2, a_expected in sys_refcursor, a_actual in sys_refcursor);
+
 end ut_assert;
 /
