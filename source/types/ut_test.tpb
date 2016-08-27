@@ -71,8 +71,8 @@ create or replace type body ut_test is
     
       self.end_time := current_timestamp;
     
-      ut_assert.process_asserts(self.items);
-    
+      self.items := ut_assert.get_asserts_results();
+
     exception
       when others then
         if sqlcode = -04068 then
@@ -84,7 +84,7 @@ create or replace type body ut_test is
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
         self.end_time := current_timestamp;
-        ut_assert.process_asserts(self.items);
+        self.items := ut_assert.get_asserts_results();
     end;
   
     self.calc_execution_result;

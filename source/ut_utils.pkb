@@ -10,6 +10,15 @@ create or replace package body ut_utils is
                 end;
   end test_result_to_char;
 
+
+  function to_test_result(a_test boolean) return integer is
+  begin
+    return case a_test
+             when true then tr_success
+             else tr_failure
+           end;
+  end;
+
   procedure debug_log(a_message varchar2) is
   begin
     $if $$ut_trace $then

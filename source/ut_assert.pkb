@@ -1,88 +1,65 @@
 create or replace package body ut_assert is
 
-  g_current_asserts_called ut_objects_list := ut_objects_list();
+  g_asserts_called ut_objects_list := ut_objects_list();
 
-  function current_assert_test_result return integer is
+  function get_aggregate_asserts_result return integer is
+    l_result integer := ut_utils.tr_success;
   begin
-    ut_utils.debug_log('ut_assert.current_assert_test_result');
+    ut_utils.debug_log('ut_assert.get_aggregate_asserts_result');
 
-    return get_assert_list_final_result(g_current_asserts_called);
-  end;
-
-  function get_assert_list_final_result(a_assert_list in ut_objects_list) return integer is
-    l_result integer;
-    l_assert ut_assert_result;
-  begin
-    ut_utils.debug_log('ut_assert.get_assert_list_final_result');
-
-    if a_assert_list is not null then
-    
-      l_result := ut_utils.tr_success;
-      for i in a_assert_list.first .. a_assert_list.last loop
-				l_assert := treat(a_assert_list(i) as ut_assert_result);
-        if l_assert.result = ut_utils.tr_failure then
-          l_result := ut_utils.tr_failure;
-        end if;
-      
-        if l_assert.result = ut_utils.tr_error then
-          l_result := ut_utils.tr_error;
-          exit;
-        end if;
-      end loop;
-    
-    end if;
+    for i in 1 .. g_asserts_called.count loop
+      l_result := greatest(l_result, treat(g_asserts_called(i) as ut_assert_result).result);
+      exit when l_result = ut_utils.tr_error;
+    end loop;
     return l_result;
-  end get_assert_list_final_result;
+
+  end get_aggregate_asserts_result;
 
   procedure clear_asserts is
   begin
     ut_utils.debug_log('ut_assert.clear_asserts');
-    g_current_asserts_called.delete;
+    g_asserts_called.delete;
   end;
 
-  procedure process_asserts(a_newtable out ut_objects_list) is
+  function get_asserts_results return ut_objects_list is
+    l_asserts_results ut_objects_list;
   begin
-    ut_utils.debug_log('ut_assert.copy_called_asserts');
+    ut_utils.debug_log('ut_assert.get_asserts_results');
+    l_asserts_results := g_asserts_called;
+    clear_asserts();
+    return l_asserts_results;
+  end get_asserts_results;
 
-    a_newtable := ut_objects_list(); -- make sure new table is empty
-    a_newtable.extend(g_current_asserts_called.last);
-    for i in g_current_asserts_called.first .. g_current_asserts_called.last loop
-      ut_utils.debug_log(i || '-start');
-
-      a_newtable(i) := g_current_asserts_called(i);
-    
-      ut_utils.debug_log(i || '-end');
-    end loop;
-
-    clear_asserts;
-  end process_asserts;
-
-  procedure report_assert(a_assert_result in integer, a_message in varchar2) is
-    l_result ut_assert_result;
+  procedure add_assert_result(a_assert_result ut_assert_result) is
   begin
-    ut_utils.debug_log('ut_assert.report_assert :' || a_assert_result || ':' || a_message);
-    l_result := ut_assert_result(a_assert_result, a_message);
-    g_current_asserts_called.extend;
-    g_current_asserts_called(g_current_asserts_called.last) := l_result;
+    g_asserts_called.extend;
+    g_asserts_called(g_asserts_called.last) := a_assert_result;
   end;
 
-  procedure report_success(a_message in varchar2, a_expected in varchar2, a_actual in varchar2) is
+  function build_message(a_message varchar2, a_expected in varchar2, a_actual in varchar2) return varchar2 is
+    l_message varchar2(4000);
   begin
-    report_assert(ut_utils.tr_success
-                 ,nvl(a_message, '') || ' expected: ' || nvl(a_expected, '') || ' actual: ' || nvl(a_actual, ''));
+    return a_message || ', expected: ' || a_expected || ', actual: ' || a_actual;
   end;
 
-  procedure report_failure(a_message in varchar2, a_expected in varchar2, a_actual in varchar2) is
+  procedure build_assert_result(a_test boolean, a_expected in varchar2, a_actual in varchar2, a_message varchar2) is
   begin
-    report_assert(ut_utils.tr_failure
-                 ,nvl(a_message, '') || ' expected: ' || nvl(a_expected, '') || ' actual: ' || nvl(a_actual, ''));
+    ut_utils.debug_log('ut_assert.build_assert_result :' || ut_utils.to_test_result(a_test) || ':' || a_message);
+    add_assert_result(
+      ut_assert_result(
+        ut_utils.to_test_result(a_test),
+        build_message(a_message, a_expected, a_actual)
+      )
+    );
   end;
 
   procedure report_error(a_message in varchar2) is
   begin
-    report_assert(ut_utils.tr_error, a_message);
+    add_assert_result(ut_assert_result(ut_utils.tr_error, a_message));
   end;
 
+
+  --assertions
   procedure are_equal(a_expected in number, a_actual in number) is
   begin
     are_equal('Equality test', a_expected, a_actual);
@@ -90,11 +67,7 @@ create or replace package body ut_assert is
 
   procedure are_equal(a_msg in varchar2, a_expected in number, a_actual in number) is
   begin
-    if a_expected = a_actual then
-      report_success(a_msg, a_expected, a_actual);
-    else
-      report_failure(a_msg, a_expected, a_actual);
-    end if;
+    build_assert_result((a_expected = a_actual), a_expected, a_actual, a_msg);
   end;
 
   procedure are_equal(a_expected in anydata, a_actual in anydata) is
@@ -108,11 +81,7 @@ create or replace package body ut_assert is
   begin
      l_expected := any_data_builder.build(a_expected);
      l_actual := any_data_builder.build(a_actual);
-     if l_expected.eq(l_actual) then
-      report_success(a_msg, l_expected.to_string(), l_actual.to_string());
-    else
-      report_failure(a_msg, l_expected.to_string(), l_actual.to_string());
-     end if;
+     build_assert_result((l_expected.eq(l_actual)), l_expected.to_string(), l_actual.to_string(), a_msg);
   end;
 
   procedure are_equal(a_expected in sys_refcursor, a_actual in sys_refcursor) is
@@ -126,11 +95,7 @@ create or replace package body ut_assert is
   begin
      l_expected := any_data_builder.build(a_expected);
      l_actual := any_data_builder.build(a_actual);
-     if l_expected.eq(l_actual) then
-      report_success(a_msg, l_expected.to_string(), l_actual.to_string());
-    else
-      report_failure(a_msg, l_expected.to_string(), l_actual.to_string());
-     end if;
+     build_assert_result((l_expected.eq(l_actual)), l_expected.to_string(), l_actual.to_string(), a_msg);
   end;
 
 end ut_assert;
