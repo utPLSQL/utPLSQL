@@ -2,6 +2,8 @@ set echo off
 set feedback off
 set verify off
 Clear Screen
+set linesize 5000
+set pagesize 0
 set serveroutput on size unlimited format truncated
 @@lib/RunVars.sql
 
@@ -38,6 +40,8 @@ set serveroutput on size unlimited format truncated
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.anydata.GivesFailureWhenComparingDifferentData.sql
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.anydata.PutsObjectStrucureIntoMessage.sql
+@@lib/RunTest.sql ut_assert/ut_assert.are_equal.cursor.GivesFailureWhenComparingDifferentResultSets.sql
+@@lib/RunTest.sql ut_assert/ut_assert.are_equal.cursor.GivesSuccessWhenComparingIdenticalResultSets.sql
 --Global cleanup
 drop package ut_example_tests;
 

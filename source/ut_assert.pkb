@@ -37,9 +37,14 @@ create or replace package body ut_assert is
   end;
 
   function build_message(a_message varchar2, a_expected in varchar2, a_actual in varchar2) return varchar2 is
-    l_message varchar2(4000);
+    c_max_value_len constant integer := 1800;
   begin
-    return a_message || ', expected: ' || a_expected || ', actual: ' || a_actual;
+    return
+      a_message
+      || ', expected: '
+      || case when length(a_expected)>c_max_value_len then substr(a_expected,1,c_max_value_len-3)||'...' else a_expected end
+      || ', actual: ' ||
+      case when length(a_actual)>c_max_value_len then substr(a_actual,1,c_max_value_len-3)||'...' else a_actual end;
   end;
 
   procedure build_assert_result(a_test boolean, a_expected in varchar2, a_actual in varchar2, a_message varchar2) is
