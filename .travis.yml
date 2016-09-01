@@ -16,6 +16,9 @@ env:
     - DATABASE_NAME=XE
     - ORA_SDTZ='Europe/London' #Needed as a client parameter
     - TZ='Europe/London'       #Needed as a DB Server parameter
+    - UT3_USER=ut3
+    - UT3_PASSWORD=ut3
+    - UT3_TABLESPACE=users
 
 addons:
   apt:
@@ -42,9 +45,11 @@ install:
   - bash .travis/oracle/install.sh
 
 script:
+  - bash .travis/create_utplsql_user.sh
+  - bash .travis/install_libraries.sh
   - bash .travis/install.sh
-  - bash .travis/examples.sh
-  - bash .travis/test.sh
+  - bash .travis/run_examples.sh
+  - bash .travis/run_test.sh
 
 notifications:
   slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB

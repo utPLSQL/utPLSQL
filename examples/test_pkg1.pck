@@ -1,4 +1,4 @@
-create or replace package test_pkg1 is
+create or replace package TEST_PKG1 is
 
   /*
   This is the correct annotation

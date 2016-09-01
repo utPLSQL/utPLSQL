@@ -1,6 +1,17 @@
 create or replace package body ut_metadata as
 
-  gc_print_debug constant boolean := false;
+  g_source_view varchar2(32);
+
+  function get_source_cursor(a_source_view varchar2, a_owner varchar2, a_object varchar2) return sys_refcursor is
+    c_query_str constant varchar2(1000) := 'select t.text from ' || a_source_view ||
+                                           ' t where t.owner = :a_owner and t.name = :a_object_name and t.type = ''PACKAGE'' order by t.line';
+    l_cur sys_refcursor;
+
+  begin
+    open l_cur for c_query_str
+      using a_owner, a_object;
+    return l_cur;
+  end;
 
   procedure do_resolve(a_owner in out varchar2, a_object in out varchar2, a_procedure_name in out varchar2) is
     l_name          varchar2(200);
@@ -10,9 +21,9 @@ create or replace package body ut_metadata as
     l_object_number number;
   begin
     l_name := form_name(a_owner, a_object, a_procedure_name);
-  
+
     l_context := 1; --plsql
-  
+
     dbms_utility.name_resolve(name          => l_name
                              ,context       => l_context
                              ,schema        => a_owner
@@ -21,7 +32,7 @@ create or replace package body ut_metadata as
                              ,dblink        => l_dblink
                              ,part1_type    => l_part1_type
                              ,object_number => l_object_number);
-  
+
   end do_resolve;
 
   function form_name(a_owner_name varchar2, a_object varchar2, a_subprogram varchar2 default null) return varchar2 is
@@ -43,19 +54,19 @@ create or replace package body ut_metadata as
     l_package_name   varchar2(200);
     l_procedure_name varchar2(200);
   begin
-  
+
     l_schema       := a_owner_name;
     l_package_name := a_package_name;
-  
+
     do_resolve(l_schema, l_package_name, l_procedure_name);
-  
+
     select count(decode(status, 'VALID', 1, null)) / count(*)
       into l_cnt
       from all_objects
      where owner = l_schema
        and object_name = l_package_name
        and object_type in ('PACKAGE', 'PACKAGE BODY');
-  
+
     -- expect both package and body to be valid
     return l_cnt = 1;
   exception
@@ -70,20 +81,20 @@ create or replace package body ut_metadata as
     l_package_name   varchar2(200);
     l_procedure_name varchar2(200);
   begin
-  
+
     l_schema         := a_owner_name;
     l_package_name   := a_package_name;
     l_procedure_name := a_procedure_name;
-  
+
     do_resolve(l_schema, l_package_name, l_procedure_name);
-  
+
     select count(*)
       into l_cnt
       from all_procedures
      where owner = l_schema
        and object_name = l_package_name
        and procedure_name = l_procedure_name;
-  
+
     --expect one method only for the package with that name.
     return l_cnt = 1;
   exception
@@ -113,57 +124,147 @@ create or replace package body ut_metadata as
     l_proc_name        t_annotation_name;
     type tt_comment_list is table of varchar2(32767) index by pls_integer;
     l_comments tt_comment_list;
-  
-    l_comment varchar2(32767);
-  
+
+    l_comment_pos      pls_integer;
+    l_comment          varchar2(32767);
+    l_annot_proc_ind   number;
+    l_annot_proc_block varchar2(32767);
+
     c_multiline_comment_pattern   constant varchar2(50) := '/\*.*?\*/';
-    c_singleline_comment_pattern  constant varchar2(20) := ' *-{2,}(.*?)$';
+    c_singleline_comment_pattern  constant varchar2(20) := ' *--(.*?)$';
+    c_nonannotat_comment_pattern  constant varchar2(20) := ' *-{2,}\s*[^%]*?$';
     c_comment_replacer_patter     constant varchar2(50) := '{COMMENT#%N%}';
     c_comment_replacer_regex_ptrn constant varchar2(25) := '{COMMENT#(\d+)}';
     c_rgexp_identifier            constant varchar2(50) := '[a-z][a-z0-9#_$]*';
+    c_annotation_block_pattern    constant varchar2(200) := '((.*?{COMMENT#\d+}\s?)+)\s*(procedure|function)\s+(' ||
+                                                            c_rgexp_identifier || ')';
     l_comment_replacer varchar2(50);
-  
-    --v_annotated_pkg typ_annotated_package;
-  
+
+    $if $$ut_trace $then
+    procedure print_parse_results is
+      l_name      t_annotation_name := a_annotated_pkg.annotations.first;
+      l_proc_name t_annotation_name := a_annotated_pkg.procedures.first;
+    begin
+      dbms_output.put_line('package: ' || a_name);
+      dbms_output.put_line('Annotations count: ' || a_annotated_pkg.annotations.count);
+
+      while l_name is not null loop
+        dbms_output.put_line('  @' || l_name);
+        if a_annotated_pkg.annotations(l_name).count > 0 then
+          dbms_output.put_line('    Parameters:');
+
+          for j in 1 .. a_annotated_pkg.annotations(l_name).count loop
+            dbms_output.put_line('    ' || nvl(a_annotated_pkg.annotations(l_name)(j).key, '<Anonimous>') || ' = ' ||
+                                 nvl(a_annotated_pkg.annotations(l_name)(j).value, 'NULL'));
+          end loop;
+        else
+          dbms_output.put_line('    No parameters.');
+        end if;
+
+        l_name := a_annotated_pkg.annotations.next(l_name);
+
+      end loop;
+
+      dbms_output.put_line('Procedures count: ' || a_annotated_pkg.procedures.count);
+
+      while l_proc_name is not null loop
+        dbms_output.put_line(rpad('-', 80, '-'));
+        dbms_output.put_line('  Procedure: ' || l_proc_name);
+        dbms_output.put_line('  Annotations count: ' || a_annotated_pkg.procedures(l_proc_name).count);
+
+        l_name := a_annotated_pkg.procedures(l_proc_name).first;
+        while l_name is not null loop
+          dbms_output.put_line('    @' || l_name);
+          if a_annotated_pkg.procedures(l_proc_name)(l_name).count > 0 then
+            dbms_output.put_line('      Parameters:');
+
+            for j in 1 .. a_annotated_pkg.procedures(l_proc_name)(l_name).count loop
+              dbms_output.put_line('      ' ||
+                                   nvl(a_annotated_pkg.procedures(l_proc_name) (l_name)(j).key, '<Anonymous>') ||
+                                   ' = ' || nvl(a_annotated_pkg.procedures(l_proc_name) (l_name)(j).value, 'NULL'));
+            end loop;
+          else
+            dbms_output.put_line('      No parameters.');
+          end if;
+
+          l_name := a_annotated_pkg.procedures(l_proc_name).next(l_name);
+        end loop;
+
+        l_proc_name := a_annotated_pkg.procedures.next(l_proc_name);
+      end loop;
+
+    end print_parse_results;
+    $end
+
+    function get_source(a_owner varchar2, a_object_name varchar2) return clob is
+      l_source clob;
+      l_txt    varchar2(4000);
+      l_cur    sys_refcursor;
+    begin
+
+      dbms_lob.createtemporary(l_source, true);
+
+      l_cur := get_source_cursor(g_source_view, a_owner, a_object_name);
+
+      loop
+        fetch l_cur
+          into l_txt;
+        exit when l_cur%notfound;
+        dbms_lob.writeappend(l_source, length(l_txt), l_txt);
+      end loop;
+
+      close l_cur;
+
+      return l_source;
+
+      --l_source := dbms_metadata.get_ddl(object_type => 'PACKAGE_SPEC', name => a_object_name, schema => a_owner);
+      --return l_source;
+    end get_source;
+
     function get_annotations(a_source varchar2) return tt_annotations is
-      l_loop_index            pls_integer;
+      l_loop_index            pls_integer := 1;
       l_comment_index         pls_integer;
       l_comment               varchar2(32767);
       l_annotation_str        varchar2(32767);
       l_annotation_params_str varchar2(32767);
       l_annotation_name       varchar2(1000);
-      --v_annotation            typ_annotation;
-      l_annotation_params tt_annotation_params;
-      l_annotations_list  tt_annotations;
-    
+      l_annotation_params     tt_annotation_params;
+      l_annotations_list      tt_annotations;
+
       c_annotation_pattern constant varchar2(50) := '%' || c_rgexp_identifier || '(\(.*?\))?';
     begin
-      l_loop_index := 1;
+      -- loop while there are uprocessed comment blocks
       while 0 != nvl(regexp_instr(srcstr        => a_source
                                  ,pattern       => c_comment_replacer_regex_ptrn
                                  ,occurrence    => l_loop_index
                                  ,subexpression => 1)
                     ,0) loop
+
+        -- define index of the comment block and get it's content from cache
         l_comment_index := to_number(regexp_substr(a_source
                                                   ,c_comment_replacer_regex_ptrn
                                                   ,1
                                                   ,l_loop_index
                                                   ,subexpression => 1));
-      
+
         l_comment := l_comments(l_comment_index);
-      
+
+        -- strip everything except the annotation itself (spaces and others)
         l_annotation_str := regexp_substr(l_comment, c_annotation_pattern, 1, 1, modifier => 'i');
         if l_annotation_str is not null then
-        
+
           l_annotation_params.delete;
-        
+
+          -- get the annotation name and it's parameters if present
           l_annotation_name       := lower(regexp_substr(l_annotation_str
                                                         ,'%(' || c_rgexp_identifier || ')'
                                                         ,modifier => 'i'
                                                         ,subexpression => 1));
           l_annotation_params_str := trim(regexp_substr(l_annotation_str, '\((.*?)\)', subexpression => 1));
-        
+
           if l_annotation_params_str is not null then
+
+            -- parse the annotation parameters and store them as key-value pair array
             for param_ind in 1 .. regexp_count(l_annotation_params_str, '(.+?)(,|$)') loop
               declare
                 l_param_str  varchar2(32767);
@@ -173,165 +274,124 @@ create or replace package body ut_metadata as
                                             ,pattern       => '(.+?)(,|$)'
                                             ,occurrence    => param_ind
                                             ,subexpression => 1);
-              
+
                 l_param_item.key   := regexp_substr(srcstr        => l_param_str
                                                    ,pattern       => '(' || c_rgexp_identifier || ')\s*='
                                                    ,modifier      => 'i'
                                                    ,subexpression => 1);
                 l_param_item.value := regexp_substr(l_param_str, '(.+?=)?(.*$)', subexpression => 2);
-              
+
                 l_annotation_params(l_annotation_params.count + 1) := l_param_item;
               end;
             end loop;
           end if;
-        
+
           l_annotations_list(l_annotation_name) := l_annotation_params;
         end if;
         l_loop_index := l_loop_index + 1;
       end loop;
-    
+
       return l_annotations_list;
-    
+
     end;
   begin
-    l_pkg_spec := dbms_metadata.get_ddl(object_type => 'PACKAGE_SPEC', name => a_name, schema => a_owner_name);
-  
-    /*LOOP
-    
-      v_comment := TRIM(regexp_substr(srcstr     => v_pkg_spec
-                                     ,pattern    => c_multiline_comment_pattern
-                                     ,occurrence => 1
-                                     ,modifier   => 'n'));
-    
-      EXIT WHEN v_comment IS NULL;
-      v_comments(v_comments.count + 1) := v_comment;
-    
-      v_comment_replacer := REPLACE(c_comment_replacer_patter, '%N%', v_comments.count);
-      v_pkg_spec         := regexp_replace(srcstr     => v_pkg_spec
-                                          ,pattern    => c_multiline_comment_pattern
-                                          ,replacestr => v_comment_replacer
-                                          ,occurrence => 1
-                                          ,modifier   => 'n');
-    
-    END LOOP;*/
-  
+    l_pkg_spec := get_source(a_owner_name, a_name);
+
+    if l_pkg_spec is null then
+      return;
+    end if;
+
     -- delete multiline comments
     l_pkg_spec := regexp_replace(srcstr => l_pkg_spec, pattern => c_multiline_comment_pattern, modifier => 'n');
-  
+    l_pkg_spec := regexp_replace(srcstr => l_pkg_spec, pattern => c_nonannotat_comment_pattern, modifier => 'm');
+    l_pkg_spec := regexp_replace(srcstr     => l_pkg_spec
+                                ,pattern    => '((procedure|function)\s+' || c_rgexp_identifier || ')[^;]*'
+                                ,replacestr => '\1'
+                                ,modifier   => 'mn');
+    --dbms_output.put_line(l_pkg_spec);
+
+    -- replace all single line comments with {COMMENT#12} element and store it's content for easier processing
+    l_comment_pos := 1;
     loop
-      l_comment := trim(regexp_substr(srcstr        => l_pkg_spec
-                                     ,pattern       => c_singleline_comment_pattern
-                                     ,occurrence    => 1
-                                     ,modifier      => 'm'
-                                     ,subexpression => 1));
-    
-      exit when l_comment is null;
-      l_comments(l_comments.count + 1) := l_comment;
+      l_comment_pos := regexp_instr(srcstr     => l_pkg_spec
+                                   ,pattern    => c_singleline_comment_pattern
+                                   ,occurrence => 1
+                                   ,modifier   => 'm'
+                                   ,position   => l_comment_pos
+                                    );
+      exit when l_comment_pos = 0;
+      l_comment := regexp_substr(srcstr        => l_pkg_spec
+                                ,pattern       => c_singleline_comment_pattern
+                                ,occurrence    => 1
+                                ,position      => l_comment_pos
+                                ,modifier      => 'm'
+                                ,subexpression => 1);
+
+      l_comments(l_comments.count + 1) := trim(l_comment);
       l_comment_replacer := replace(c_comment_replacer_patter, '%N%', l_comments.count);
-    
-      l_pkg_spec := regexp_replace(srcstr     => l_pkg_spec
-                                  ,pattern    => c_singleline_comment_pattern
-                                  ,replacestr => l_comment_replacer
-                                  ,occurrence => 1
-                                  ,modifier   => 'm');
-    
+
+      l_pkg_spec    := regexp_replace(srcstr     => l_pkg_spec
+                                     ,pattern    => c_singleline_comment_pattern
+                                     ,replacestr => l_comment_replacer
+                                     ,position   => l_comment_pos
+                                     ,occurrence => 1
+                                     ,modifier   => 'm');
+      l_comment_pos := l_comment_pos + length(l_comment_replacer);
+
     end loop;
-  
-    if gc_print_debug then
-      dbms_output.put_line(l_pkg_spec);
-    end if;
-  
+
+    $if $$ut_trace $then
+    dbms_output.put_line(l_pkg_spec);
+    $end
+
     l_package_comments := regexp_substr(srcstr        => l_pkg_spec
-                                       ,pattern       => 'CREATE\s+(OR\s+REPLACE)(\s+(NON)?EDITIONABLE)?\s+PACKAGE .*?(AS|IS)\s+((.*?{COMMENT#\d+}\s?)+)'
+                                       ,pattern       => '^\s*(CREATE\s+(OR\s+REPLACE)?(\s+(NON)?EDITIONABLE)?\s+)?PACKAGE .*?\s+(AS|IS)\s+((.*?{COMMENT#\d+}\s?)+)'
                                        ,modifier      => 'i'
-                                       ,subexpression => 5);
-  
+                                       ,subexpression => 6);
+
     -- parsing for package annotations
-    --v_annotated_pkg.name := pkg_name;
     if l_package_comments is not null then
       a_annotated_pkg.annotations := get_annotations(l_package_comments);
     end if;
-  
-    for annot_proc_ind in 1 .. regexp_count(srcstr   => l_pkg_spec
-                                           ,pattern  => '((.*?{COMMENT#\d+}\s?)+)\s*(procedure|function)\s+(' ||
-                                                        c_rgexp_identifier || ')'
-                                           ,modifier => 'i') loop
-    
-      l_proc_comments := trim(regexp_substr(srcstr        => l_pkg_spec
-                                           ,pattern       => '((.*?{COMMENT#\d+}\s?)+)\s*(procedure|function)\s+(' ||
-                                                             c_rgexp_identifier || ')'
-                                           ,occurrence    => annot_proc_ind
+
+    -- loop through procedures and functions of the package and get all the comment blocks just before it's declaration
+    l_annot_proc_ind := 1;
+    loop
+      l_annot_proc_ind := regexp_instr(srcstr     => l_pkg_spec
+                                      ,pattern    => c_annotation_block_pattern
+                                      ,occurrence => 1
+                                      ,modifier   => 'i'
+                                      ,position   => l_annot_proc_ind);
+
+      exit when l_annot_proc_ind = 0;
+
+      l_annot_proc_block := regexp_substr(srcstr     => l_pkg_spec
+                                         ,pattern    => c_annotation_block_pattern
+                                         ,position   => l_annot_proc_ind
+                                         ,occurrence => 1
+                                         ,modifier   => 'i');
+
+      l_annot_proc_ind := l_annot_proc_ind + length(l_annot_proc_block);
+
+      l_proc_comments := trim(regexp_substr(srcstr        => l_annot_proc_block
+                                           ,pattern       => c_annotation_block_pattern
                                            ,modifier      => 'i'
                                            ,subexpression => 1));
-      l_proc_name     := trim(regexp_substr(srcstr        => l_pkg_spec
-                                           ,pattern       => '((.*?{COMMENT#\d+}\s?)+)\s*(procedure|function)\s+(' ||
-                                                             c_rgexp_identifier || ')'
-                                           ,occurrence    => annot_proc_ind
+      l_proc_name     := trim(regexp_substr(srcstr        => l_annot_proc_block
+                                           ,pattern       => c_annotation_block_pattern
                                            ,modifier      => 'i'
                                            ,subexpression => 4));
-    
+
+      -- parse the comment block for the syntactically correct annotations and store them as an array
       a_annotated_pkg.procedures(l_proc_name) := get_annotations(l_proc_comments);
-    
+
     end loop;
-  
-    if gc_print_debug then
-    
-      dbms_output.put_line('package: ' || a_name);
-      dbms_output.put_line('Annotations count: ' || a_annotated_pkg.annotations.count);
-    
-      declare
-        l_name      t_annotation_name := a_annotated_pkg.annotations.first;
-        l_proc_name t_annotation_name := a_annotated_pkg.procedures.first;
-      begin
-        while l_name is not null loop
-          dbms_output.put_line('  @' || l_name);
-          if a_annotated_pkg.annotations(l_name).count > 0 then
-            dbms_output.put_line('    Parameters:');
-          
-            for j in 1 .. a_annotated_pkg.annotations(l_name).count loop
-              dbms_output.put_line('    ' || nvl(a_annotated_pkg.annotations(l_name)(j).key, '<Anonimous>') || ' = ' ||
-                                   nvl(a_annotated_pkg.annotations(l_name)(j).value, 'NULL'));
-            end loop;
-          else
-            dbms_output.put_line('    No parameters.');
-          end if;
-        
-          l_name := a_annotated_pkg.annotations.next(l_name);
-        
-        end loop;
-      
-        dbms_output.put_line('Procedures count: ' || a_annotated_pkg.procedures.count);
-      
-        while l_proc_name is not null loop
-          dbms_output.put_line(rpad('-', 80, '-'));
-          dbms_output.put_line('  Procedure: ' || l_proc_name);
-          dbms_output.put_line('  Annotations count: ' || a_annotated_pkg.procedures(l_proc_name).count);
-        
-          l_name := a_annotated_pkg.procedures(l_proc_name).first;
-          while l_name is not null loop
-            dbms_output.put_line('    @' || l_name);
-            if a_annotated_pkg.procedures(l_proc_name)(l_name).count > 0 then
-              dbms_output.put_line('      Parameters:');
-            
-              for j in 1 .. a_annotated_pkg.procedures(l_proc_name)(l_name).count loop
-                dbms_output.put_line('      ' ||
-                                     nvl(a_annotated_pkg.procedures(l_proc_name) (l_name)(j).key, '<Anonymous>') ||
-                                     ' = ' || nvl(a_annotated_pkg.procedures(l_proc_name) (l_name)(j).value, 'NULL'));
-              end loop;
-            else
-              dbms_output.put_line('      No parameters.');
-            end if;
-          
-            l_name := a_annotated_pkg.procedures(l_proc_name).next(l_name);
-          end loop;
-        
-          l_proc_name := a_annotated_pkg.procedures.next(l_proc_name);
-        end loop;
-      
-      end;
-    
-    end if;
-  
+
+    -- printing out parsed structure for debugging
+    $if $$ut_trace $then
+    print_parse_results;
+    $end
+
   end parse_package_annotations;
 
   function get_annotation_param(a_param_list tt_annotation_params, a_def_index pls_integer) return varchar2 is
@@ -342,5 +402,19 @@ create or replace package body ut_metadata as
     end if;
     return l_result;
   end get_annotation_param;
+begin
+  declare
+    l_cur_temp sys_refcursor;
+  begin
+
+    l_cur_temp     := get_source_cursor('dba_source', null, null);
+    g_source_view := 'dba_source';
+    close l_cur_temp;
+
+  exception
+    when others then
+      g_source_view := 'all_source';
+  end;
+
 end;
 /

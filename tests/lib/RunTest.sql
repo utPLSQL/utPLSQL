@@ -19,3 +19,8 @@ begin
   end case;
 end;
 /
+
+begin
+  ut_assert.clear_asserts;
+end;
+/

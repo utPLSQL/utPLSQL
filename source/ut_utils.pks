@@ -31,6 +31,8 @@ create or replace package ut_utils is
   */
   function test_result_to_char(a_test_result integer) return varchar2;
 
+  function to_test_result(a_test boolean) return integer;
+
   procedure debug_log(a_message varchar2);
 
 end ut_utils;

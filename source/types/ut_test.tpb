@@ -89,7 +89,7 @@ create or replace type body ut_test is
     self.end_time := current_timestamp;
   
     l_reporter.before_asserts_process(self);
-    ut_assert.process_asserts(self.items);
+    self.items := ut_assert.get_asserts_results();
   
     self.calc_execution_result;
   
