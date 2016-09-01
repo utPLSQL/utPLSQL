@@ -33,20 +33,18 @@ create or replace type body ut_test_suite is
     return l_is_valid;
   end is_valid;
 
-  overriding member procedure execute(self in out nocopy ut_test_suite, a_reporter ut_suite_reporter) is
-    l_reporter ut_suite_reporter := a_reporter;
+  overriding member procedure execute(self in out nocopy ut_test_suite, a_reporter ut_reporter) is
+    l_reporter ut_reporter := a_reporter;
   begin
     l_reporter := execute(l_reporter);
   end;
 
-  overriding member function execute(self in out nocopy ut_test_suite, a_reporter ut_suite_reporter)
-    return ut_suite_reporter is
-    l_reporter    ut_suite_reporter := a_reporter;
+  overriding member function execute(self in out nocopy ut_test_suite, a_reporter ut_reporter)
+    return ut_reporter is
+    l_reporter    ut_reporter := a_reporter;
     l_test_object ut_test_object;
   begin
-    if l_reporter is not null then
-      l_reporter.begin_suite(self);
-    end if;
+    l_reporter.before_suite(self);
   
     ut_utils.debug_log('ut_test_suite.execute');
 
@@ -55,17 +53,25 @@ create or replace type body ut_test_suite is
     if self.is_valid() then
     
       if self.setup is not null then
+				l_reporter.before_suite_setup(self);
         self.setup.execute;
+        l_reporter.after_suite_setup(self);
       end if;
     
       for i in self.items.first .. self.items.last loop
+        l_reporter.before_suite_item(a_suite => self,a_item_index => i);
+        
         l_test_object := treat(self.items(i) as ut_test_object);
         l_reporter := l_test_object.execute(a_reporter => l_reporter);
         self.items(i) := l_test_object;
+        
+        l_reporter.after_suite_item(a_suite => self,a_item_index => i);
       end loop;
     
       if self.setup is not null then
+        l_reporter.before_suite_teardown(self);
         self.teardown.execute;
+        l_reporter.after_suite_teardown(self);
       end if;
     
       self.calc_execution_result;
@@ -75,14 +81,12 @@ create or replace type body ut_test_suite is
   
     self.end_time := current_timestamp;
   
-    if l_reporter is not null then
-      l_reporter.end_suite(self);
-    end if;
+    l_reporter.after_suite(self);
     return l_reporter;
   end;
 
   overriding member procedure execute(self in out nocopy ut_test_suite) is
-    l_null_reporter ut_suite_reporter;
+    l_null_reporter ut_reporter := ut_reporter();
   begin
     self.execute(l_null_reporter);
   end;

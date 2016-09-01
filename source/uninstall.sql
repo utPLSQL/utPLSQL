@@ -20,7 +20,7 @@ drop type ut_composite_reporter;
 
 drop type ut_reporters_list;
 
-drop type ut_suite_reporter force;
+drop type ut_reporter force;
 
 drop type ut_assert_result;
 
