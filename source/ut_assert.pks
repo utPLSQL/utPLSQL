@@ -14,6 +14,9 @@ create or replace package ut_assert authid current_user as
 
   procedure are_equal(a_expected in sys_refcursor, a_actual in sys_refcursor);
   procedure are_equal(a_msg in varchar2, a_expected in sys_refcursor, a_actual in sys_refcursor);
+  
+  procedure this(a_condition in boolean);
+  procedure this(a_msg in varchar2, a_condition in boolean);
 
 end ut_assert;
 /

@@ -53,10 +53,12 @@ create or replace type body ut_dbms_output_suite_reporter is
   begin
     print('result: ' || test.result_to_char);
     print('asserts');
-    for i in test.items.first .. test.items.last loop
-      assert := treat(test.items(i) as ut_assert_result);
-      print('assert ' || i || ' ' || assert.result_to_char || ' message: ' || assert.message);
-    end loop;
+    if test.items is not null and test.items.count >0 then
+      for i in test.items.first .. test.items.last loop
+        assert := treat(test.items(i) as ut_assert_result);
+        print('assert ' || i || ' ' || assert.result_to_char || ' message: ' || assert.message);
+      end loop;
+    end if;
   end;
 
 end;
