@@ -17,6 +17,7 @@ whenever oserror exit failure rollback
 @@types/ut_test_suite.tps
 @@types/ut_reporter_decorator.tps
 @@types/ut_dbms_output_suite_reporter.tps
+@@types/ut_teamcity_reporter.tps
 @@ut_utils.pks
 @@ut_metadata.pks
 @@expectation_data_values/ut_data_value.tps
@@ -69,6 +70,7 @@ whenever oserror exit failure rollback
 @@types/ut_composite_reporter.tpb
 @@types/ut_reporter_decorator.tpb
 @@types/ut_dbms_output_suite_reporter.tpb
+@@types/ut_teamcity_reporter.tpb
 @@ut_metadata.pkb
 @@expectation_data_values/ut_data_value_anydata.tpb
 @@expectation_data_values/ut_data_value_blob.tpb

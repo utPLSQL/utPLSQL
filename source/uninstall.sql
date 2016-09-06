@@ -76,6 +76,8 @@ drop package ut_metadata;
 
 drop package ut_utils;
 
+drop type ut_teamcity_reporter;
+
 drop type ut_dbms_output_suite_reporter;
 
 drop type ut_reporter_decorator;
