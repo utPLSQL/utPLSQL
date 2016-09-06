@@ -1,17 +1,17 @@
 --Arrange
 declare
-  l_expected number := &&1;
-  l_actual   number := &&2;
+  l_expected &&1 := &&2;
+  l_actual   &&1 := &&3;
   l_result   integer;
 begin
 --Act
   ut_assert.are_equal(l_expected, l_actual);
   l_result :=  ut_assert.get_aggregate_asserts_result();
 --Assert
-  if l_result = &&3 then
+  if l_result = &&4 then
     :test_result := ut_utils.tr_success;
   else
-    dbms_output.put_line('expected: '''||&&3||''', got: '''||l_result||'''' );
+    dbms_output.put_line('expected: '''||&&4||''', got: '''||l_result||'''' );
   end if;
 end;
 /

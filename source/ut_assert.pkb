@@ -57,6 +57,7 @@ create or replace package body ut_assert is
     add_assert_result(ut_assert_result(ut_utils.tr_error, a_message));
   end;
 
+
   --assertions
   procedure are_equal(a_expected in number, a_actual in number) is
   begin
@@ -64,6 +65,36 @@ create or replace package body ut_assert is
   end;
 
   procedure are_equal(a_msg in varchar2, a_expected in number, a_actual in number) is
+  begin
+    build_assert_result((a_expected = a_actual), a_expected, a_actual, a_msg);
+  end;
+
+  procedure are_equal(a_expected in varchar2, a_actual in varchar2) is
+  begin
+    are_equal('Equality test', a_expected, a_actual);
+  end;
+
+  procedure are_equal(a_msg in varchar2, a_expected in varchar2, a_actual in varchar2) is
+  begin
+    build_assert_result((a_expected = a_actual), a_expected, a_actual, a_msg);
+  end;
+
+  procedure are_equal(a_expected in date, a_actual in date) is
+  begin
+    are_equal('Equality test', a_expected, a_actual);
+  end;
+
+  procedure are_equal(a_msg in varchar2, a_expected in date, a_actual in date) is
+  begin
+    build_assert_result((a_expected = a_actual), a_expected, a_actual, a_msg);
+  end;
+
+  procedure are_equal(a_expected in timestamp_unconstrained, a_actual in timestamp_unconstrained) is
+  begin
+    are_equal('Equality test', a_expected, a_actual);
+  end;
+
+  procedure are_equal(a_msg in varchar2, a_expected in timestamp_unconstrained, a_actual in timestamp_unconstrained) is
   begin
     build_assert_result((a_expected = a_actual), a_expected, a_actual, a_msg);
   end;

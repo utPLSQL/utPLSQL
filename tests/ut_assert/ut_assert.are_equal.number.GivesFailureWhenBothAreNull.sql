@@ -1,3 +1,3 @@
-PROMPT Gives a failure when comparing null to null
+PROMPT Gives a failure when comparing number null to null
 
-@@ut_assert/ut_assert.are_equal.number.common 'null' 'null' 'ut_utils.tr_failure'
+@@ut_assert/common/ut_assert.are_equal.scalar.common.sql 'number' 'null' 'null' 'ut_utils.tr_failure'
