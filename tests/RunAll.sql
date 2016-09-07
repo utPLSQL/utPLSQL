@@ -40,7 +40,7 @@ set serveroutput on size unlimited format truncated
 
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.anydata.GivesFailureWhenComparingDifferentData.sql
-@@lib/RunTest.sql ut_assert/ut_assert.are_equal.anydata.PutsObjectStrucureIntoMessage.sql
+@@lib/RunTest.sql ut_assert/ut_assert.are_equal.anydata.PutsObjectStrucureIntoAssert.sql
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.cursor.GivesFailureWhenComparingDifferentResultSets.sql
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.cursor.GivesSuccessWhenComparingIdenticalResultSets.sql
 
@@ -71,6 +71,10 @@ set serveroutput on size unlimited format truncated
 
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.scalar.FailsToExecuteWhenNullsPassedAsParameters.sql
 
+@@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
+@@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigNumber.sql
+@@lib/RunTest.sql ut_utils/ut_utils.to_string.Date.sql
+@@lib/RunTest.sql ut_utils/ut_utils.to_string.Timestamp.sql
 --Global cleanup
 drop package ut_example_tests;
 

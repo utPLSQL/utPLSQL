@@ -22,6 +22,8 @@ drop type ut_reporters_list;
 
 drop type ut_reporter force;
 
+drop type ut_assert_list;
+
 drop type ut_assert_result;
 
 drop type ut_executable;

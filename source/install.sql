@@ -7,6 +7,7 @@ prompt Installing utplsql framework
 @@types/ut_composite_object.tps
 @@types/ut_executable.tps
 @@types/ut_assert_result.tps
+@@types/ut_assert_list.tps
 @@ut_assert.pks
 @@types/ut_reporter.tps
 @@types/ut_reporters_list.tps
