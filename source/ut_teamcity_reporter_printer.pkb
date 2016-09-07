@@ -14,7 +14,9 @@ create or replace package body ut_teamcity_reporter_printer is
     l_value   varchar2(32767);
   begin
     l_message := '##teamcity[' || a_command || ' timestamp=''' ||
-                 to_char(systimestamp, 'YYYY-MM-DD"T"HH24:MI:ss.FFTZHTZM') || '''';
+                 regexp_replace(to_char(systimestamp, 'YYYY-MM-DD"T"HH24:MI:ss.FFTZHTZM')
+                               ,'(\.\d{3})\d+(\+)'
+                               ,'\1\2') || '''';
   
     l_index := a_props.first;
     while l_index is not null loop
