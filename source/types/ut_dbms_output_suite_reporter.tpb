@@ -23,17 +23,34 @@ create or replace type body ut_dbms_output_suite_reporter is
   end;
 
   overriding member procedure after_suite(self in out nocopy ut_dbms_output_suite_reporter, a_suite ut_object) as
+    l_suite    ut_test_object := treat(a_suite as ut_test_object);
+    l_duration interval day(0) to second(6) := (l_suite.end_time - l_suite.start_time);
   begin
     --todo: report total suite result here with pretty message
     print(ut_dbms_output_suite_reporter.c_dashed_line);
-    print('suite "' || a_suite.name || '" ended.');
+    print('suite "' || l_suite.name || '" ended. Took: '||to_char(l_duration));
     print(ut_dbms_output_suite_reporter.c_dashed_line);
   end;
 
-  overriding member procedure on_assert_process(self in out nocopy ut_dbms_output_suite_reporter, a_assert ut_object) as
+  overriding member procedure before_asserts_process(self in out nocopy ut_dbms_output_suite_reporter, a_test in ut_object) as
   begin
-    --todo: report total suite result here with pretty message
-    null;
+    print('asserts');
+  end;
+
+  overriding member procedure on_assert_process(self in out nocopy ut_dbms_output_suite_reporter, a_assert ut_object) as
+    l_assert ut_assert_result := treat(a_assert as ut_assert_result);
+  begin
+    if l_assert is not null then
+      print(l_assert.result_to_char());
+      if l_assert.message is not null then
+        print('message: '||l_assert.message);
+      end if;
+      if l_assert.result != ut_utils.tr_success then
+        print('expected: ' || l_assert.expected_value_string||'('||l_assert.expected_type||')');
+        print('     got: ' || l_assert.actual_value_string||'('||l_assert.actual_type||')');
+        print('using: '||l_assert.name);
+      end if;
+    end if;
   end;
 
   overriding member procedure before_test(self in out nocopy ut_dbms_output_suite_reporter, a_test ut_object) as
@@ -48,17 +65,10 @@ create or replace type body ut_dbms_output_suite_reporter is
   end;
 
   overriding member procedure after_test(self in out nocopy ut_dbms_output_suite_reporter, a_test ut_object) as
-    test   ut_test := treat(a_test as ut_test);
-    assert ut_assert_result;
+    l_test     ut_test_object := treat(a_test as ut_test);
+    l_duration interval day(0) to second(6) := (l_test.end_time - l_test.start_time);
   begin
-    print('result: ' || test.result_to_char);
-    print('asserts');
-    if test.items is not null and test.items.count >0 then
-      for i in test.items.first .. test.items.last loop
-        assert := treat(test.items(i) as ut_assert_result);
-        print('assert ' || i || ' ' || assert.result_to_char || ' message: ' || assert.message);
-      end loop;
-    end if;
+    print('result: ' || l_test.result_to_char||'. Took: '||to_char(l_duration));
   end;
 
 end;
