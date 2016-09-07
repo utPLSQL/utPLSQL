@@ -28,5 +28,34 @@ create or replace package body ut_utils is
     $end
   end;
 
+
+  function to_string(a_value varchar2) return varchar2 is
+  begin
+    return case
+      when length(a_value) <= gc_max_sring_length then a_value
+      else substr(a_value,1,gc_overflow_substr_len) || gc_more_data_string
+    end;
+  end;
+
+  function to_string(a_value boolean) return varchar2 is
+  begin
+    return case a_value when true then 'TRUE' when false then 'FALSE' else 'NULL' end;
+  end;
+
+  function to_string(a_value number) return varchar2 is
+  begin
+    return to_char(a_value,gc_number_format);
+  end;
+
+  function to_string(a_value date) return varchar2 is
+  begin
+    return to_char(a_value,gc_date_format);
+  end;
+
+  function to_string(a_value timestamp_unconstrained) return varchar2 is
+  begin
+    return to_char(a_value,gc_timestamp_format);
+  end;
+
 end ut_utils;
 /
