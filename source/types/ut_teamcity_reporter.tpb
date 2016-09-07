@@ -8,12 +8,19 @@ create or replace type body ut_teamcity_reporter is
 
   overriding member procedure before_suite(self in out nocopy ut_teamcity_reporter, a_suite in ut_object) is
   begin
-    ut_teamcity_reporter_printer.test_suite_started(a_suite_name => treat(a_suite as ut_test_object).object_name);
+  
+    ut_teamcity_reporter_printer.test_suite_started(a_suite_name => coalesce(replace(treat(a_suite as ut_test_object).name
+                                                                                    ,'.')
+                                                                            ,treat(a_suite as ut_test_object)
+                                                                             .object_name));
   end;
 
   overriding member procedure after_suite(self in out nocopy ut_teamcity_reporter, a_suite in ut_object) is
   begin
-    ut_teamcity_reporter_printer.test_suite_finished(a_suite_name => treat(a_suite as ut_test_object).object_name);
+    ut_teamcity_reporter_printer.test_suite_finished(a_suite_name => coalesce(replace(treat(a_suite as ut_test_object).name
+                                                                                     ,'.')
+                                                                             ,treat(a_suite as ut_test_object)
+                                                                              .object_name));
   end;
 
   overriding member procedure before_suite_item(self in out nocopy ut_teamcity_reporter, a_suite in ut_object, a_item_index pls_integer) is
