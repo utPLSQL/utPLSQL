@@ -57,6 +57,7 @@ whenever oserror exit failure rollback
 @@ut_assert.pks
 @@ut_annotations.pks
 @@ut_suite_manager.pks
+@@ut_teamcity_reporter_printer.pks
 
 @@ut_utils.pkb
 @@types/ut_assert_result.tpb
@@ -108,6 +109,7 @@ whenever oserror exit failure rollback
 @@ut_assert.pkb
 @@ut_annotations.pkb
 @@ut_suite_manager.pkb
+@@ut_teamcity_reporter_printer.pkb
 
 
 prompt Validating installation

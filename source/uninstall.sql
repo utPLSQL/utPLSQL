@@ -1,3 +1,5 @@
+drop package ut_teamcity_reporter_printer;
+
 drop package ut_suite_manager;
 
 drop package ut_assert;
