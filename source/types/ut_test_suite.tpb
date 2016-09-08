@@ -68,7 +68,7 @@ create or replace type body ut_test_suite is
         l_reporter.after_suite_item(a_suite => self,a_item_index => i);
       end loop;
     
-      if self.setup is not null then
+      if self.teardown is not null then
         l_reporter.before_suite_teardown(self);
         self.teardown.execute;
         l_reporter.after_suite_teardown(self);
