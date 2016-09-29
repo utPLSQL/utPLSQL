@@ -71,6 +71,15 @@ set serveroutput on size unlimited format truncated
 
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.scalar.FailsToExecuteWhenNullsPassedAsParameters.sql
 
+@@lib/RunTest.sql ut_assert/ut_assert.is_not_null.date.GivesFailureForNullValue.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_not_null.date.GivesSuccessForNotNullValue.sql
+
+@@lib/RunTest.sql ut_assert/ut_assert.is_null.anydata.GivesFailureWhenDataIsNotNull.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_null.anydata.GivesSuccessWhenDataIsNull.sql
+
+@@lib/RunTest.sql ut_assert/ut_assert.is_null.date.GivesFailureForNotNullValue.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_null.date.GivesSuccessForNullValue.sql
+
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigNumber.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.Date.sql
