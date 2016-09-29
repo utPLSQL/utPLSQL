@@ -10,6 +10,7 @@ Changes are welcome from all members of the Community.
      * Each of the steps below are detailed in the [How to Fork](https://help.github.com/articles/fork-a-repo) article!
      * Clone your Fork to your local machine.
      * Configure "upstream" remote to the [master utPLSQL repository](https://github.com/utPLSQL/utPLSQL.git).
+     * Update the git submodules by issuing command: [git submodule update --remote --merge](http://stackoverflow.com/a/21195182)
 3. For each change you want to make:       
      * Create a new branch for your change. 
      * Make your change in your new branch. 

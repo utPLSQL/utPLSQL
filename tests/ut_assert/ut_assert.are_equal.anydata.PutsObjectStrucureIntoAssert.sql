@@ -17,12 +17,13 @@ begin
   l_assert_result := treat(ut_assert.get_asserts_results()(1) as ut_assert_result);
 
 --Assert
-  if l_assert_result.expected_value_string like q'[%department(%dept_name => 'HR'%)%]'
-    and l_assert_result.actual_value_string like q'[%department(%dept_name => 'IT'%)%]'
+  if l_assert_result.expected_value_string like q'[%DEPARTMENT(%dept_name => 'HR'%)%]'
+    and l_assert_result.actual_value_string like q'[%DEPARTMENT(%dept_name => 'IT'%)%]'
    then
     :test_result := ut_utils.tr_success;
   else
-    dbms_output.put_line( 'assert_result.message does not contain the objects' );
+    dbms_output.put_line( l_assert_result.expected_value_string );
+    dbms_output.put_line( l_assert_result.actual_value_string );
   end if;
 end;
 /

@@ -27,5 +27,35 @@ create or replace package ut_assert authid current_user as
   procedure this(a_condition in boolean);
   procedure this(a_msg in varchar2, a_condition in boolean);
 
+  procedure is_null(a_actual in number);
+  procedure is_null(a_msg in varchar2, a_actual in number);
+
+  procedure is_null(a_actual in varchar2);
+  procedure is_null(a_msg in varchar2, a_actual in varchar2);
+
+  procedure is_null(a_actual in date);
+  procedure is_null(a_msg in varchar2, a_actual in date);
+
+  procedure is_null(a_actual in timestamp_unconstrained);
+  procedure is_null(a_msg in varchar2, a_actual in timestamp_unconstrained);
+
+  procedure is_null(a_actual in anydata);
+  procedure is_null(a_msg in varchar2, a_actual in anydata);
+
+  procedure is_not_null(a_actual in number);
+  procedure is_not_null(a_msg in varchar2, a_actual in number);
+
+  procedure is_not_null(a_actual in varchar2);
+  procedure is_not_null(a_msg in varchar2, a_actual in varchar2);
+
+  procedure is_not_null(a_actual in date);
+  procedure is_not_null(a_msg in varchar2, a_actual in date);
+
+  procedure is_not_null(a_actual in timestamp_unconstrained);
+  procedure is_not_null(a_msg in varchar2, a_actual in timestamp_unconstrained);
+
+  procedure is_not_null(a_actual in anydata);
+  procedure is_not_null(a_msg in varchar2, a_actual in anydata);
+
 end ut_assert;
 /

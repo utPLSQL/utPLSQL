@@ -146,5 +146,116 @@ create or replace package body ut_assert is
     build_assert_result(a_condition, 'this', 'boolean', 'boolean', ut_utils.to_string(true), ut_utils.to_string(a_condition), ut_utils.to_string(a_msg));
   end;
 
+  procedure is_null(a_actual in number) is
+  begin
+    is_null(null, a_actual);
+  end;
+
+  procedure is_null(a_msg in varchar2, a_actual in number) is
+  begin
+    build_assert_result((a_actual is null), 'is_null', 'number', 'number', 'NULL', ut_utils.to_string(a_actual), ut_utils.to_string(a_msg));
+  end;
+
+  procedure is_null(a_actual in varchar2) is
+  begin
+    is_null(null, a_actual);
+  end;
+
+  procedure is_null(a_msg in varchar2, a_actual in varchar2) is
+  begin
+    build_assert_result((a_actual is null), 'is_null', 'varchar2', 'varchar2', 'NULL', ut_utils.to_string(a_actual), ut_utils.to_string(a_msg));
+  end;
+
+
+  procedure is_null(a_actual in date) is
+  begin
+    is_null(null, a_actual);
+  end;
+
+
+  procedure is_null(a_msg in varchar2, a_actual in date) is
+  begin
+    build_assert_result((a_actual is null), 'is_null', 'date', 'date', 'NULL', ut_utils.to_string(a_actual), ut_utils.to_string(a_msg));
+  end;
+
+
+  procedure is_null(a_actual in timestamp_unconstrained) is
+  begin
+    is_null(null, a_actual);
+  end;
+
+
+  procedure is_null(a_msg in varchar2, a_actual in timestamp_unconstrained) is
+  begin
+    build_assert_result((a_actual is null), 'is_null', 'timestamp', 'timestamp', 'NULL', ut_utils.to_string(a_actual), ut_utils.to_string(a_msg));
+  end;
+
+
+  procedure is_null(a_actual in anydata) is
+  begin
+    is_null(null, a_actual);
+  end;
+
+
+  procedure is_null(a_msg in varchar2, a_actual in anydata) is
+    l_actual any_data;
+  begin
+    l_actual := any_data_builder.build(a_actual);
+    build_assert_result( l_actual.is_null(), 'is_null', l_actual.type_name, l_actual.type_name, 'NULL', ut_utils.to_string(l_actual.to_string()), ut_utils.to_string(a_msg));
+  end;
+
+  procedure is_not_null(a_actual in number) is
+  begin
+    is_not_null(null, a_actual);
+  end;
+
+  procedure is_not_null(a_msg in varchar2, a_actual in number) is
+  begin
+    build_assert_result((a_actual is not null), 'is_not_null', 'number', 'number', 'NOT NULL', ut_utils.to_string(a_actual), ut_utils.to_string(a_msg));
+  end;
+
+  procedure is_not_null(a_actual in varchar2) is
+  begin
+    is_not_null(null, a_actual);
+  end;
+
+  procedure is_not_null(a_msg in varchar2, a_actual in varchar2) is
+  begin
+    build_assert_result((a_actual is not null), 'is_not_null', 'varchar2', 'varchar2', 'NOT NULL', ut_utils.to_string(a_actual), ut_utils.to_string(a_msg));
+  end;
+
+  procedure is_not_null(a_actual in date) is
+  begin
+    is_not_null(null, a_actual);
+  end;
+
+  procedure is_not_null(a_msg in varchar2, a_actual in date) is
+  begin
+    build_assert_result((a_actual is not null), 'is_not_null', 'date', 'date', 'NOT NULL', ut_utils.to_string(a_actual), ut_utils.to_string(a_msg));
+  end;
+
+  procedure is_not_null(a_actual in timestamp_unconstrained) is
+  begin
+    is_not_null(null, a_actual);
+  end;
+
+  procedure is_not_null(a_msg in varchar2, a_actual in timestamp_unconstrained) is
+  begin
+    build_assert_result((a_actual is not null), 'is_not_null', 'timestamp', 'timestamp', 'NOT NULL', ut_utils.to_string(a_actual), ut_utils.to_string(a_msg));
+  end;
+
+  procedure is_not_null(a_actual in anydata) is
+  begin
+    is_not_null(null, a_actual);
+  end;
+
+  procedure is_not_null(a_msg in varchar2, a_actual in anydata) is
+    l_actual any_data;
+  begin
+    l_actual := any_data_builder.build(a_actual);
+    build_assert_result( not l_actual.is_null(), 'is_not_null', l_actual.type_name, l_actual.type_name, 'NOT NULL', ut_utils.to_string(l_actual.to_string()), ut_utils.to_string(a_msg));
+  end;
+
+
 end ut_assert;
 /
