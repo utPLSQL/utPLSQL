@@ -5,7 +5,7 @@ create or replace package body ut_suite_manager is
 
   g_schema_suites tt_schena_suits_list;
 
-  procedure config_package(a_owner_name varchar2, a_object_name varchar2, a_suite out ut_test_suite) is
+  function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_test_suite is
     l_annotation_data    ut_metadata.typ_annotated_package;
     l_suite_name         ut_metadata.t_annotation_name;
     l_suite_annot_params ut_metadata.tt_annotation_params;
@@ -22,16 +22,14 @@ create or replace package body ut_suite_manager is
   
     l_owner_name  varchar2(32 char);
     l_object_name varchar2(32 char);
-    l_dummy       varchar2(32 char);
+    l_suite       ut_test_suite;
   
   begin
     l_owner_name  := a_owner_name;
     l_object_name := a_object_name;
   
-    ut_metadata.do_resolve(a_owner => l_owner_name, a_object => l_object_name, a_procedure_name => l_dummy);
-    ut_metadata.parse_package_annotations(a_owner_name    => l_owner_name
-                                         ,a_name          => l_object_name
-                                         ,a_annotated_pkg => l_annotation_data);
+    ut_metadata.do_resolve(a_owner => l_owner_name, a_object => l_object_name);
+    l_annotation_data := ut_metadata.parse_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
   
     if l_annotation_data.annotations.exists('suite') then
       l_suite_annot_params := l_annotation_data.annotations('suite');
@@ -44,7 +42,7 @@ create or replace package body ut_suite_manager is
         l_suite_package := lower(l_object_name);
       end if;
     
-      a_suite := ut_test_suite(l_suite_name, l_suite_package);
+      l_suite := ut_test_suite(l_suite_name, l_suite_package);
     
       l_proc_index := l_annotation_data.procedures.first;
       while (l_default_setup_proc is null or l_default_teardown_proc is null or l_suite_setup_proc is null or
@@ -65,13 +63,13 @@ create or replace package body ut_suite_manager is
       end loop;
     
       if l_suite_setup_proc is not null then
-        a_suite.set_suite_setup(a_object_name => l_object_name
+        l_suite.set_suite_setup(a_object_name => l_object_name
                                ,a_proc_name   => l_suite_setup_proc
                                ,a_owner_name  => l_owner_name);
       end if;
     
       if l_suite_teardown_proc is not null then
-        a_suite.set_suite_teardown(a_object_name => l_object_name
+        l_suite.set_suite_teardown(a_object_name => l_object_name
                                   ,a_proc_name   => l_suite_teardown_proc
                                   ,a_owner_name  => l_owner_name);
       end if;
@@ -100,14 +98,15 @@ create or replace package body ut_suite_manager is
                              ,a_setup_procedure    => nvl(l_setup_procedure, l_default_setup_proc)
                              ,a_teardown_procedure => nvl(l_teardown_procedure, l_default_teardown_proc));
           
-            a_suite.add_item(l_test);
+            l_suite.add_item(l_test);
           end if;
         
         end;
         l_proc_index := l_annotation_data.procedures.next(l_proc_index);
       end loop;
     end if;
-  
+    return l_suite;
+
   end config_package;
 
   procedure config_schema(a_owner_name varchar2) is
@@ -208,7 +207,7 @@ create or replace package body ut_suite_manager is
                      and t.object_type in ('PACKAGE')
                      and (t.owner, t.object_name) not in (select * from excl)) loop
       -- parse the source of the package
-      config_package(rec.owner, rec.object_name, l_suite);
+      l_suite := config_package(rec.owner, rec.object_name);
     
       if l_suite is not null then
         l_all_suites(l_suite.object_name) := l_suite;
