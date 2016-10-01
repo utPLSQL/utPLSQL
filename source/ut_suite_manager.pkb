@@ -29,7 +29,7 @@ create or replace package body ut_suite_manager is
     l_object_name := a_object_name;
   
     ut_metadata.do_resolve(a_owner => l_owner_name, a_object => l_object_name);
-    l_annotation_data := ut_annotations.parse_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
+    l_annotation_data := ut_annotations.get_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
   
     if l_annotation_data.package_annotations.exists('suite') then
       l_suite_annot_params := l_annotation_data.package_annotations('suite');

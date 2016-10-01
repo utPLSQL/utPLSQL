@@ -133,13 +133,15 @@ create or replace package body ut_metadata as
 begin
   declare
     l_cursor sys_refcursor;
+    l_object_does_not_exist exception;
+    pragma exception_init (l_object_does_not_exist, -942);
   begin
     l_cursor := get_package_spec_source_cursor('dba_source');
     close l_cursor;
     g_source_view := 'dba_source';
+   exception
+     when l_object_does_not_exist then
+       g_source_view := 'all_source';
   end;
-exception
-  when others then
-    g_source_view := 'all_source';
 end;
 /

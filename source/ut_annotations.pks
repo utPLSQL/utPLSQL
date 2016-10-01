@@ -53,11 +53,12 @@ create or replace package ut_annotations as
 
 
   /*
-    function: parse_package_annotations
+    function: get_package_annotations
 
-    parse package specification for annotations and return its annotated schema
+    get annotations for specified package specification and return its annotated schema
   */
-  function parse_package_annotations(a_owner_name varchar2, a_name varchar2) return typ_annotated_package;
+  function get_package_annotations(a_owner_name varchar2, a_name varchar2) return typ_annotated_package;
+
 
   /*
     function: get_annotation_param

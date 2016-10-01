@@ -17,11 +17,11 @@ create or replace package body ut_annotations as
   c_annotation_pattern          constant varchar2(50) := gc_annotation_qualifier || c_rgexp_identifier || '(\(.*?\))?';
 
 
-  function delete_multiline_comments(a_pkg_spec in clob) return clob is
+  function delete_multiline_comments(a_source in clob) return clob is
   begin
     return regexp_replace(
             srcstr => regexp_replace(
-                        srcstr => regexp_replace( srcstr => a_pkg_spec, pattern => c_multiline_comment_pattern, modifier => 'n')
+                        srcstr => regexp_replace( srcstr => a_source, pattern => c_multiline_comment_pattern, modifier => 'n')
                         ,pattern => c_nonannotat_comment_pattern, modifier => 'm')
             ,pattern    => '((procedure|function)\s+' || c_rgexp_identifier || ')[^;]*'
             ,replacestr => '\1'
@@ -160,21 +160,21 @@ create or replace package body ut_annotations as
     return l_procedure_annotations;
   end;
 
-  function extract_and_replace_comments(a_pkg_spec in out nocopy clob) return tt_comment_list is
+  function extract_and_replace_comments(a_source in out nocopy clob) return tt_comment_list is
     l_comments         tt_comment_list;
     l_comment_pos      pls_integer;
     l_comment_replacer varchar2(50);
   begin
     l_comment_pos := 1;
     loop
-      l_comment_pos := regexp_instr(srcstr     => a_pkg_spec
+      l_comment_pos := regexp_instr(srcstr     => a_source
                                    ,pattern    => c_singleline_comment_pattern
                                    ,occurrence => 1
                                    ,modifier   => 'm'
                                    ,position   => l_comment_pos
                                     );
       exit when l_comment_pos = 0;
-      l_comments(l_comments.count + 1) := trim(regexp_substr(srcstr        => a_pkg_spec
+      l_comments(l_comments.count + 1) := trim(regexp_substr(srcstr        => a_source
                                                             ,pattern       => c_singleline_comment_pattern
                                                             ,occurrence    => 1
                                                             ,position      => l_comment_pos
@@ -183,18 +183,18 @@ create or replace package body ut_annotations as
 
       l_comment_replacer := replace(c_comment_replacer_patter, '%N%', l_comments.count);
 
-      a_pkg_spec    := regexp_replace(srcstr     => a_pkg_spec
-                                     ,pattern    => c_singleline_comment_pattern
-                                     ,replacestr => l_comment_replacer
-                                     ,position   => l_comment_pos
-                                     ,occurrence => 1
-                                     ,modifier   => 'm');
+      a_source    := regexp_replace(srcstr     => a_source
+                                   ,pattern    => c_singleline_comment_pattern
+                                   ,replacestr => l_comment_replacer
+                                   ,position   => l_comment_pos
+                                   ,occurrence => 1
+                                   ,modifier   => 'm');
       l_comment_pos := l_comment_pos + length(l_comment_replacer);
 
     end loop;
 
     $if $$ut_trace $then
-      dbms_output.put_line(l_pkg_spec);
+      dbms_output.put_line(a_source);
     $end
     return l_comments;
   end extract_and_replace_comments;
@@ -255,30 +255,21 @@ create or replace package body ut_annotations as
   end print_parse_results;
   $end
 
-  ------------------------------
-  --public definitions
-
-  function parse_package_annotations(a_owner_name varchar2, a_name varchar2) return typ_annotated_package is
-    l_pkg_spec         clob;
-
+  function parse_package_annotations(a_source clob) return typ_annotated_package is
+    l_source           clob := a_source;
     l_comments         tt_comment_list;
     l_annotated_pkg    typ_annotated_package;
   begin
-    l_pkg_spec := ut_metadata.get_package_spec_source(a_owner_name, a_name);
 
-    if l_pkg_spec is null then
-      return null;
-    end if;
-
-    l_pkg_spec := delete_multiline_comments(l_pkg_spec);
+    l_source := delete_multiline_comments(l_source);
 
     -- replace all single line comments with {COMMENT#12} element and store it's content for easier processing
-    -- this call modifies l_pkg_spec
-    l_comments := extract_and_replace_comments(l_pkg_spec);
+    -- this call modifies a_source
+    l_comments := extract_and_replace_comments(l_source);
 
-    l_annotated_pkg.package_annotations  := get_package_annotations(l_pkg_spec, l_comments);
+    l_annotated_pkg.package_annotations  := get_package_annotations(l_source, l_comments);
 
-    l_annotated_pkg.procedure_annotations := get_procedure_annotations(l_pkg_spec, l_comments);
+    l_annotated_pkg.procedure_annotations := get_procedure_annotations(l_source, l_comments);
 
     -- printing out parsed structure for debugging
     $if $$ut_trace $then
@@ -287,6 +278,25 @@ create or replace package body ut_annotations as
 
     return l_annotated_pkg;
   end parse_package_annotations;
+
+  ------------------------------
+  --public definitions
+
+  function get_package_annotations(a_owner_name varchar2, a_name varchar2) return typ_annotated_package is
+    l_source clob;
+  begin
+
+    -- TODO: Add cache of annotations. Cache invalidation should be based on DDL timestamp.
+    -- Cache garbage collection should be executed once in a while to remove annotations cache for packages that were dropped.
+
+    l_source := ut_metadata.get_package_spec_source(a_owner_name, a_name);
+
+    if l_source is null then
+      return null;
+    else
+      return parse_package_annotations(l_source);
+    end if;
+  end;
 
   function get_annotation_param(a_param_list tt_annotation_params, a_def_index pls_integer) return varchar2 is
     l_result varchar2(32767);
