@@ -3,9 +3,12 @@ PROMPT Returns a full string representation of a timestamp with maximum precissi
 --Arrange
 declare
   l_value    timestamp(9) := to_timestamp('2016-12-31 23:59:59.123456789', 'yyyy-mm-dd hh24:mi:ss.ff');
-  l_expected varchar2(100) := '2016-12-31 23:59:59.123456789';
+  l_expected varchar2(100);
   l_result   varchar2(100);
+  l_delimiter varchar2(1);
 begin
+  select substr(value, 1, 1) into l_delimiter from nls_session_parameters t where t.parameter = 'NLS_NUMERIC_CHARACTERS';
+  l_expected := '2016-12-31 23:59:59'||l_delimiter||'123456789';
 --Act
   l_result :=  ut_utils.to_String(l_value);
 --Assert
