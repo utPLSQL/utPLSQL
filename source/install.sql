@@ -2,13 +2,15 @@ whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
 prompt Installing utplsql framework
+@@ut_annotation_package_info.sql
+@@ut_annotation_package_cache.sql
+@@ut_annotation_procedure_cache.sql
 @@types/ut_object.tps
 @@types/ut_objects_list.tps
 @@types/ut_composite_object.tps
 @@types/ut_executable.tps
 @@types/ut_assert_result.tps
 @@types/ut_assert_list.tps
-@@ut_assert.pks
 @@types/ut_reporter.tps
 @@types/ut_reporters_list.tps
 @@types/ut_composite_reporter.tps
@@ -19,6 +21,9 @@ prompt Installing utplsql framework
 @@types/ut_dbms_output_suite_reporter.tps
 @@ut_utils.pks
 @@ut_metadata.pks
+@@ut_assert.pks
+@@ut_annotations.pks
+@@ut_annotations_cache.pks
 @@ut_suite_manager.pks
 
 @@ut_utils.pkb
@@ -33,7 +38,9 @@ prompt Installing utplsql framework
 @@types/ut_reporter_decorator.tpb
 @@types/ut_dbms_output_suite_reporter.tpb
 @@ut_metadata.pkb
+@@ut_annotations.pkb
 @@ut_assert.pkb
+@@ut_annotations_cache.pkb
 @@ut_suite_manager.pkb
 
 
