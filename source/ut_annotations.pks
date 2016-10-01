@@ -61,6 +61,13 @@ create or replace package ut_annotations as
 
 
   /*
+    function: parse_package_sourcecode
+
+    parse annotations of a given source code
+  */
+  function parse_package_sourcecode(a_source clob) return typ_annotated_package;
+
+  /*
     function: get_annotation_param
 
     get annotation parameter on a specified index position
