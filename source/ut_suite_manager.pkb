@@ -6,11 +6,11 @@ create or replace package body ut_suite_manager is
   g_schema_suites tt_schena_suits_list;
 
   function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_test_suite is
-    l_annotation_data    ut_metadata.typ_annotated_package;
-    l_suite_name         ut_metadata.t_annotation_name;
-    l_suite_annot_params ut_metadata.tt_annotation_params;
+    l_annotation_data    ut_annotations.typ_annotated_package;
+    l_suite_name         ut_annotations.t_annotation_name;
+    l_suite_annot_params ut_annotations.tt_annotation_params;
     l_test               ut_test;
-    l_proc_annotations   ut_metadata.tt_annotations;
+    l_proc_annotations   ut_annotations.tt_annotations;
   
     l_default_setup_proc    varchar2(32 char);
     l_default_teardown_proc varchar2(32 char);
@@ -18,7 +18,7 @@ create or replace package body ut_suite_manager is
     l_suite_teardown_proc   varchar2(32 char);
     l_suite_package         varchar2(4000 char);
   
-    l_proc_index ut_metadata.t_annotation_name;
+    l_proc_name  ut_annotations.t_procedure_name;
   
     l_owner_name  varchar2(32 char);
     l_object_name varchar2(32 char);
@@ -29,14 +29,14 @@ create or replace package body ut_suite_manager is
     l_object_name := a_object_name;
   
     ut_metadata.do_resolve(a_owner => l_owner_name, a_object => l_object_name);
-    l_annotation_data := ut_metadata.parse_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
+    l_annotation_data := ut_annotations.parse_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
   
-    if l_annotation_data.annotations.exists('suite') then
-      l_suite_annot_params := l_annotation_data.annotations('suite');
-      l_suite_name         := ut_metadata.get_annotation_param(l_suite_annot_params, 1);
+    if l_annotation_data.package_annotations.exists('suite') then
+      l_suite_annot_params := l_annotation_data.package_annotations('suite');
+      l_suite_name         := ut_annotations.get_annotation_param(l_suite_annot_params, 1);
     
-      if l_annotation_data.annotations.exists('suitepackage') then
-        l_suite_package := ut_metadata.get_annotation_param(l_annotation_data.annotations('suitepackage'), 1) || '.' ||
+      if l_annotation_data.package_annotations.exists('suitepackage') then
+        l_suite_package := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('suitepackage'), 1) || '.' ||
                            lower(l_object_name);
       else
         l_suite_package := lower(l_object_name);
@@ -44,22 +44,22 @@ create or replace package body ut_suite_manager is
     
       l_suite := ut_test_suite(l_suite_name, l_suite_package);
     
-      l_proc_index := l_annotation_data.procedures.first;
+      l_proc_name := l_annotation_data.procedure_annotations.first;
       while (l_default_setup_proc is null or l_default_teardown_proc is null or l_suite_setup_proc is null or
-            l_suite_teardown_proc is null) and l_proc_index is not null loop
-        l_proc_annotations := l_annotation_data.procedures(l_proc_index);
+            l_suite_teardown_proc is null) and l_proc_name is not null loop
+        l_proc_annotations := l_annotation_data.procedure_annotations(l_proc_name);
       
         if l_proc_annotations.exists('setup') and l_default_setup_proc is null then
-          l_default_setup_proc := l_proc_index;
+          l_default_setup_proc := l_proc_name;
         elsif l_proc_annotations.exists('teardown') and l_default_teardown_proc is null then
-          l_default_teardown_proc := l_proc_index;
+          l_default_teardown_proc := l_proc_name;
         elsif l_proc_annotations.exists('suitesetup') and l_suite_setup_proc is null then
-          l_suite_setup_proc := l_proc_index;
+          l_suite_setup_proc := l_proc_name;
         elsif l_proc_annotations.exists('suiteteardown') and l_suite_teardown_proc is null then
-          l_suite_teardown_proc := l_proc_index;
+          l_suite_teardown_proc := l_proc_name;
         end if;
       
-        l_proc_index := l_annotation_data.procedures.next(l_proc_index);
+        l_proc_name := l_annotation_data.procedure_annotations.next(l_proc_name);
       end loop;
     
       if l_suite_setup_proc is not null then
@@ -74,26 +74,26 @@ create or replace package body ut_suite_manager is
                                   ,a_owner_name  => l_owner_name);
       end if;
     
-      l_proc_index := l_annotation_data.procedures.first;
-      while l_proc_index is not null loop
+      l_proc_name := l_annotation_data.procedure_annotations.first;
+      while l_proc_name is not null loop
         declare
           l_setup_procedure    varchar2(30 char);
           l_teardown_procedure varchar2(30 char);
         begin
-          l_proc_annotations := l_annotation_data.procedures(l_proc_index);
+          l_proc_annotations := l_annotation_data.procedure_annotations(l_proc_name);
         
           if l_proc_annotations.exists('test') then
             if l_proc_annotations.exists('testsetup') then
-              l_setup_procedure := ut_metadata.get_annotation_param(l_proc_annotations('testsetup'), 1);
+              l_setup_procedure := ut_annotations.get_annotation_param(l_proc_annotations('testsetup'), 1);
             end if;
           
             if l_proc_annotations.exists('testteardown') then
-              l_teardown_procedure := ut_metadata.get_annotation_param(l_proc_annotations('testteardown'), 1);
+              l_teardown_procedure := ut_annotations.get_annotation_param(l_proc_annotations('testteardown'), 1);
             end if;
           
             l_test := ut_test(a_object_name        => l_object_name
-                             ,a_test_procedure     => l_proc_index
-                             ,a_test_name          => ut_metadata.get_annotation_param(l_proc_annotations('test'), 1)
+                             ,a_test_procedure     => l_proc_name
+                             ,a_test_name          => ut_annotations.get_annotation_param(l_proc_annotations('test'), 1)
                              ,a_owner_name         => l_owner_name
                              ,a_setup_procedure    => nvl(l_setup_procedure, l_default_setup_proc)
                              ,a_teardown_procedure => nvl(l_teardown_procedure, l_default_teardown_proc));
@@ -102,7 +102,7 @@ create or replace package body ut_suite_manager is
           end if;
         
         end;
-        l_proc_index := l_annotation_data.procedures.next(l_proc_index);
+        l_proc_name := l_annotation_data.procedure_annotations.next(l_proc_name);
       end loop;
     end if;
     return l_suite;

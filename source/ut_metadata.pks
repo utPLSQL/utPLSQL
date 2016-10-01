@@ -6,29 +6,12 @@ create or replace package ut_metadata as
   
   */
 
-  subtype t_annotation_name is varchar2(1000);
-
-  type typ_annotation_param is record(
-     key   varchar2(255)
-    ,value varchar2(4000));
-
-  type tt_annotation_params is table of typ_annotation_param index by pls_integer;
-
-  type tt_annotations is table of tt_annotation_params index by t_annotation_name;
-
-  type tt_anoteded_procs is table of tt_annotations index by t_annotation_name;
-
-  type typ_annotated_package is record(
-     procedures  tt_anoteded_procs
-    ,annotations tt_annotations);
-
   /*
-    function form_name
+    function: form_name
       
     forms correct object/subprogram name to call as owner.object[.subprogram]
     
   */
-
   function form_name(a_owner_name varchar2, a_object varchar2, a_subprogram varchar2 default null) return varchar2;
 
   /*
@@ -64,21 +47,12 @@ create or replace package ut_metadata as
   */
   procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2, a_procedure_name in out nocopy varchar2);
 
-  function get_annotation_param(a_param_list tt_annotation_params, a_def_index pls_integer) return varchar2;
-
   /*
-    function: parse_package_annotations
-    
-    parse package specification for annotations and return its annotated schema
-  */
-  function parse_package_annotations(a_owner_name varchar2, a_name varchar2) return typ_annotated_package;
+    function: get_package_spec_source
 
-  /*
-    function: is_dba_source_accessible
-
-    check if utplsql can see dba_source system view (it's faster than all_source)
+    return the text of the package specification for a given package
   */
-  function is_dba_source_accessible return boolean;
+  function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob;
 
 end ut_metadata;
 /
