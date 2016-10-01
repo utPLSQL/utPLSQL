@@ -28,13 +28,13 @@ create or replace package ut_assert authid current_user as
   procedure are_equal(a_msg in varchar2, a_expected in sys_refcursor, a_actual in sys_refcursor);
   procedure are_equal(a_expected in sys_refcursor, a_actual in sys_refcursor);
   
-  -- Strings assertions
-	procedure str_like(a_msg in varchar2, a_checking_string in varchar2, a_mask in varchar, a_escape_char in varchar2);
-	procedure str_like(a_msg in varchar2, a_checking_string in varchar2, a_mask in varchar);
-	procedure str_like(a_checking_string in varchar2, a_mask in varchar2);
+  -- Pattern matching assertions
+	procedure is_like(a_msg in varchar2, a_checking_string in varchar2, a_mask in varchar, a_escape_char in varchar2);
+	procedure is_like(a_msg in varchar2, a_checking_string in varchar2, a_mask in varchar);
+	procedure is_like(a_checking_string in varchar2, a_mask in varchar2);
 	
-	procedure regexp_like(a_msg in varchar2, a_srcstr in varchar2,a_pattern in varchar2, a_modifier in varchar2 default null);
-	procedure regexp_like(a_srcstr in varchar2,a_pattern in varchar2, a_modifier in varchar2 default null);
+	procedure is_matching(a_msg in varchar2, a_checking_string in varchar2,a_pattern in varchar2, a_modifier in varchar2 default null);
+	procedure is_matching(a_checking_string in varchar2,a_pattern in varchar2, a_modifier in varchar2 default null);
 
   procedure is_null(a_actual in number);
   procedure is_null(a_msg in varchar2, a_actual in number);

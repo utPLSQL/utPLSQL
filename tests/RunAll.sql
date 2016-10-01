@@ -53,8 +53,6 @@ set serveroutput on size unlimited format truncated
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.varchar2.GivesFailureWhenBothAreNull.sql
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.varchar2.GivesFailureWhenExpectedIsNull.sql
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.varchar2.GivesSuccessForEqualValues.sql
-@@lib/RunTest.sql ut_assert/ut_assert.are_equal.varchar2.GivesSuccessForLikeString.sql
-@@lib/RunTest.sql ut_assert/ut_assert.are_equal.varchar2.GivesSuccessForLikeStringWithEscape.sql
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.varchar2.with_text.GivesTheProvidedTextAsMessage.sql
 
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.date.GivesFailureForDifferentValues.sql
@@ -81,6 +79,14 @@ set serveroutput on size unlimited format truncated
 
 @@lib/RunTest.sql ut_assert/ut_assert.is_null.date.GivesFailureForNotNullValue.sql
 @@lib/RunTest.sql ut_assert/ut_assert.is_null.date.GivesSuccessForNullValue.sql
+
+@@lib/RunTest.sql ut_assert/ut_assert.is_like.GivesSuccessForLikeString.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_like.GivesSuccessForLikeStringWithEscape.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_like.GivesFailureForLikeString.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_like.GivesFailureForLikeStringWithEscape.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_matching.GivesSuccessForMatchingString.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_matching.GivesSuccessForMatchingStringWithModifier.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_matching.GivesFailureForMatchingString.sql
 
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigNumber.sql

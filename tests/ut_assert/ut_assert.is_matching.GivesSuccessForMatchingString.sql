@@ -1,11 +1,11 @@
 --Arrange
 declare
-  l_mask     varchar2(10) := 'a%b';
-  l_string   varchar2(50) := 'asdfsdfsdfb';
+  l_mask     varchar2(20) := '[a-z]+\d+[a-z]+';
+  l_string   varchar2(50) := 'asd123asd';
   l_result   integer;
 begin
 --Act
-  ut_assert.str_like(l_string, l_mask);
+  ut_assert.is_matching(l_string, l_mask);
   l_result :=  ut_assert.get_aggregate_asserts_result();
 --Assert
   if l_result = ut_utils.tr_success then

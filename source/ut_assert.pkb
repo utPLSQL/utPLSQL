@@ -147,7 +147,7 @@ create or replace package body ut_assert is
   end;
 	
   -- Strings assertions
-  procedure str_like(a_msg in varchar2, a_checking_string in varchar2, a_mask in varchar, a_escape_char in varchar2) is
+  procedure is_like(a_msg in varchar2, a_checking_string in varchar2, a_mask in varchar, a_escape_char in varchar2) is
     l_condition boolean;
   begin
     if a_escape_char is not null then
@@ -155,26 +155,26 @@ create or replace package body ut_assert is
     else
       l_condition := a_checking_string like a_mask;
     end if;
-    build_assert_result(l_condition, 'str_like', 'varchar2', 'varchar2', ut_utils.to_string('like ' || a_mask), ut_utils.to_string(l_condition), a_msg);
+    build_assert_result(l_condition, 'is_like', 'varchar2', 'varchar2', ut_utils.to_string('like ' || a_mask), ut_utils.to_string(l_condition), a_msg);
   end;
-  procedure str_like(a_msg in varchar2, a_checking_string in varchar2, a_mask in varchar) is
+  procedure is_like(a_msg in varchar2, a_checking_string in varchar2, a_mask in varchar) is
   begin
-    str_like(a_msg, a_checking_string, a_mask, null);
+    is_like(a_msg, a_checking_string, a_mask, null);
   end;
-  procedure str_like(a_checking_string in varchar2, a_mask in varchar2) is
+  procedure is_like(a_checking_string in varchar2, a_mask in varchar2) is
   begin
-    str_like(a_msg => null, a_checking_string => a_checking_string, a_mask => a_mask);
+    is_like(a_msg => null, a_checking_string => a_checking_string, a_mask => a_mask);
   end;
 	
-  procedure regexp_like(a_msg in varchar2, a_srcstr in varchar2, a_pattern in varchar2, a_modifier in varchar2 default null) is
-    l_condition boolean := sys.standard.regexp_like(a_srcstr, a_pattern, a_pattern);
+  procedure is_matching(a_msg in varchar2, a_checking_string in varchar2, a_pattern in varchar2, a_modifier in varchar2 default null) is
+    l_condition boolean := sys.standard.regexp_like(a_checking_string, a_pattern, a_modifier);
   begin
-    build_assert_result(l_condition, 'regexp_like', 'varchar2', 'varchar2', ut_utils.to_string('pattern ' || a_pattern), ut_utils.to_string(l_condition), a_msg);
+    build_assert_result(l_condition, 'is_matching', 'varchar2', 'varchar2', ut_utils.to_string('pattern ' || a_pattern), ut_utils.to_string(l_condition), a_msg);
   end;
 	 
-  procedure regexp_like(a_srcstr in varchar2, a_pattern in varchar2, a_modifier in varchar2 default null) is
+  procedure is_matching(a_checking_string in varchar2, a_pattern in varchar2, a_modifier in varchar2 default null) is
   begin
-    regexp_like(null, a_srcstr, a_pattern, a_modifier);
+    is_matching(null, a_checking_string, a_pattern, a_modifier);
   end;
 
   procedure is_null(a_actual in number) is
