@@ -298,7 +298,9 @@ create or replace package body ut_annotations as
     l_comments         tt_comment_list;
     l_annotated_pkg    typ_annotated_package;
   begin
-
+    if l_source is null then
+      return null;
+    end if;
     l_source := delete_multiline_comments(l_source);
 
     -- replace all single line comments with {COMMENT#12} element and store it's content for easier processing
@@ -320,20 +322,18 @@ create or replace package body ut_annotations as
   ------------------------------
   --public definitions
 
-  function get_package_annotations(a_owner_name varchar2, a_name varchar2) return typ_annotated_package is
-    l_source clob;
+  function get_package_annotations(a_rec all_objects%rowtype) return typ_annotated_package is
+    l_result typ_annotated_package;
   begin
 
-    -- TODO: Add cache of annotations. Cache invalidation should be based on DDL timestamp.
-    -- Cache garbage collection should be executed once in a while to remove annotations cache for packages that were dropped.
-
-    l_source := ut_metadata.get_package_spec_source(a_owner_name, a_name);
-
-    if l_source is null then
-      return null;
+    if ut_annotations_cache.is_cache_valid(a_rec) then
+      l_result := ut_annotations_cache.get_cache_data(a_rec.owner, a_rec.object_name);
     else
-      return parse_package_annotations(l_source);
+      l_result := parse_package_annotations( ut_metadata.get_package_spec_source(a_rec.owner, a_rec.object_name) );
+      ut_annotations_cache.update_cache(a_rec.owner, a_rec.object_name, l_result);
     end if;
+
+      return l_result;
   end;
 
   function get_annotation_param(a_param_list tt_annotation_params, a_def_index pls_integer) return varchar2 is

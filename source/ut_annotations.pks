@@ -51,17 +51,19 @@ create or replace package ut_annotations as
     ,package_annotations    tt_annotations);
     
   /*
-    INTERNAL USE ONLY
-  */
-  function parse_package_annotations(a_source clob) return typ_annotated_package;
-
-  /*
     function: get_package_annotations
 
     get annotations for specified package specification and return its annotated schema
   */
-  function get_package_annotations(a_owner_name varchar2, a_name varchar2) return typ_annotated_package;
+  function get_package_annotations(a_rec all_objects%rowtype) return typ_annotated_package;
 
+
+  /*
+    function: parse_package_annotations
+
+    parse annotations of a given source code
+  */
+  function parse_package_annotations(a_source clob) return typ_annotated_package;
 
   /*
     function: get_annotation_param

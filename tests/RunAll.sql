@@ -11,9 +11,9 @@ set serveroutput on size unlimited format truncated
 @@helpers/ut_example_tests.pks
 @@helpers/ut_example_tests.pkb
 @@helpers/check_annotation_parsing.prc
+@@helpers/test_pkg1.pck
 
 --Tests to invoke
-
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameNull.sql
 @@lib/RunTest.sql ut_test/ut_test.PackageInInvalidState.sql
@@ -105,9 +105,18 @@ set serveroutput on size unlimited format truncated
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseComplexPackage.sql
 
 
+
+@@lib/RunTest.sql ut_annotations_cache/ut_annotations_cache.AutoPurgeCache.sql
+@@lib/RunTest.sql ut_annotations_cache/ut_annotations_cache.is_cache_valid.ReturnsFalseIfCacheNeedsRefresh.sql
+@@lib/RunTest.sql ut_annotations_cache/ut_annotations_cache.is_cache_valid.ReturnsTrueIfCacheIsUpToDate.sql
+@@lib/RunTest.sql ut_annotations_cache/ut_annotations_cache.purge_cache.ForAPackage.sql
+@@lib/RunTest.sql ut_annotations_cache/ut_annotations_cache.purge_cache.sql
+@@lib/RunTest.sql ut_annotations_cache/ut_annotations_cache.save_and_retrieve.sql
+
 --Global cleanup
 drop package ut_example_tests;
 drop procedure check_annotation_parsing;
+drop package test_pkg1;
 
 --Finally
 @@lib/RunSummary
