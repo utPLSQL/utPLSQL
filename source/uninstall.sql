@@ -2,6 +2,8 @@ drop package ut_suite_manager;
 
 drop package ut_assert;
 
+drop package ut_annotations_cache;
+
 drop package ut_annotations;
 
 drop package ut_metadata;
@@ -35,3 +37,9 @@ drop type ut_composite_object;
 drop type ut_objects_list;
 
 drop type ut_object;
+
+drop table ut_annotation_package_cache;
+
+drop table ut_annotation_procedure_cache;
+
+drop table ut_annotation_package_info;
