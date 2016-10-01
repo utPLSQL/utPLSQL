@@ -53,6 +53,8 @@ set serveroutput on size unlimited format truncated
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.varchar2.GivesFailureWhenBothAreNull.sql
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.varchar2.GivesFailureWhenExpectedIsNull.sql
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.varchar2.GivesSuccessForEqualValues.sql
+@@lib/RunTest.sql ut_assert/ut_assert.are_equal.varchar2.GivesSuccessForLikeString.sql
+@@lib/RunTest.sql ut_assert/ut_assert.are_equal.varchar2.GivesSuccessForLikeStringWithEscape.sql
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.varchar2.with_text.GivesTheProvidedTextAsMessage.sql
 
 @@lib/RunTest.sql ut_assert/ut_assert.are_equal.date.GivesFailureForDifferentValues.sql

@@ -1,7 +1,8 @@
+prompt Installing utplsql framework
+
 whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
-prompt Installing utplsql framework
 @@types/ut_object.tps
 @@types/ut_objects_list.tps
 @@types/ut_composite_object.tps
