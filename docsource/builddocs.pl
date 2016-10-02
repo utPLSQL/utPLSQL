@@ -6,6 +6,7 @@ use Markdent::Simple::Document;
 use Markdent::Simple::Fragment;
 use File::Map qw(map_file);
 use File::Path qw(make_path);
+use Cwd 'abs_path';
 
 use constant false => 0;
 use constant true  => 1;
@@ -13,6 +14,13 @@ use constant true  => 1;
 main();
 
 sub main{
+    # change current working directory to location of script.
+    # this keeps realative paths later in script easier to maintain.
+    # Source:  https://sysengineers.wordpress.com/2009/12/04/changing-working-directory-to-script-location-in-perl/
+    my $path = abs_path($0);
+    $path =~ s/builddocs.pl//gi;
+    chdir ($path);
+
     # Create output directories if the don't exists
 	make_path("../docs");
 	
