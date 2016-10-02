@@ -1,6 +1,6 @@
 sudo: required
 
-language: bash
+language: perl
 
 env:
   global:
@@ -36,6 +36,10 @@ cache:
     - $HOME/.cache
 
 before_install:
+  # perl modules needed for documenation generation
+  - "cpanm IPC::System::Simple"
+  - "cpanm Markdent"
+  - "cpanm File::Map"
 # On trusty, download the zip file into a cachable directory
   - test "$DIST" = precise || export ORACLE_ZIP_DIR=$HOME/.cache
 # If the zip file already exists, do not download it again
@@ -50,6 +54,7 @@ script:
   - bash .travis/install.sh
   - bash .travis/run_examples.sh
   - bash .travis/run_test.sh
+  - perl docsource/builddocs.pl
 
 notifications:
   slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
