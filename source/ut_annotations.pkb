@@ -7,12 +7,12 @@ create or replace package body ut_annotations as
 
   gc_annotation_qualifier       constant varchar2(1) := '%';
   c_multiline_comment_pattern   constant varchar2(50) := '/\*.*?\*/';
-  c_singleline_comment_pattern  constant varchar2(20) := ' *--(.*?)$';
-  c_nonannotat_comment_pattern  constant varchar2(20) := ' *-{2,}\s*[^'||gc_annotation_qualifier||']*?$';
+  c_singleline_comment_pattern  constant varchar2(30) := '( |'||chr(09)||')*--(.*?)$'; -- chr(09) is a tab character
+  c_nonannotat_comment_pattern  constant varchar2(30) := '( |'||chr(09)||')*-{2,}\s*[^'||gc_annotation_qualifier||']*?$';
   c_comment_replacer_patter     constant varchar2(50) := '{COMMENT#%N%}';
   c_comment_replacer_regex_ptrn constant varchar2(25) := '{COMMENT#(\d+)}';
   c_rgexp_identifier            constant varchar2(50) := '[a-z][a-z0-9#_$]*';
-  c_annotation_block_pattern    constant varchar2(200) := '((.*?{COMMENT#\d+}\s?)+)\s*(procedure|function)\s+(' ||
+  c_annotation_block_pattern    constant varchar2(200) := '(({COMMENT#\d+}'||chr(10)||')+)( |'||chr(09)||')*(procedure|function)\s+(' ||
                                                            c_rgexp_identifier || ')';
   c_annotation_pattern          constant varchar2(50) := gc_annotation_qualifier || c_rgexp_identifier || '(\(.*?\))?';
 
@@ -20,9 +20,10 @@ create or replace package body ut_annotations as
   function delete_multiline_comments(a_source in clob) return clob is
   begin
     return regexp_replace(
-            srcstr => regexp_replace(
-                        srcstr => regexp_replace( srcstr => a_source, pattern => c_multiline_comment_pattern, modifier => 'n')
-                        ,pattern => c_nonannotat_comment_pattern, modifier => 'm')
+            srcstr => regexp_replace(srcstr => regexp_replace(srcstr   => a_source
+                                                             ,pattern  => c_multiline_comment_pattern
+                                                             ,modifier => 'n')
+                                    ,pattern => c_nonannotat_comment_pattern, modifier => 'm')
             ,pattern    => '((procedure|function)\s+' || c_rgexp_identifier || ')[^;]*'
             ,replacestr => '\1'
             ,modifier   => 'mn'
@@ -150,7 +151,7 @@ create or replace package body ut_annotations as
       l_proc_name     := trim(regexp_substr(srcstr        => l_annot_proc_block
                                            ,pattern       => c_annotation_block_pattern
                                            ,modifier      => 'i'
-                                           ,subexpression => 4));
+                                           ,subexpression => 5));
 
       -- parse the comment block for the syntactically correct annotations and store them as an array
       l_procedure_annotations(l_proc_name) := get_annotations(l_proc_comments, a_comments);
@@ -179,7 +180,7 @@ create or replace package body ut_annotations as
                                                             ,occurrence    => 1
                                                             ,position      => l_comment_pos
                                                             ,modifier      => 'm'
-                                                            ,subexpression => 1));
+                                                            ,subexpression => 2));
 
       l_comment_replacer := replace(c_comment_replacer_patter, '%N%', l_comments.count);
 
