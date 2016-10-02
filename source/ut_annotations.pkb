@@ -7,18 +7,46 @@ create or replace package body ut_annotations as
 
   gc_annotation_qualifier       constant varchar2(1) := '%';
   c_multiline_comment_pattern   constant varchar2(50) := '/\*.*?\*/';
-  c_singleline_comment_pattern  constant varchar2(30) := '( |'||chr(09)||')*--(.*?)$'; -- chr(09) is a tab character
-  c_nonannotat_comment_pattern  constant varchar2(30) := '( |'||chr(09)||')*-{2,}\s*[^'||gc_annotation_qualifier||']*?$';
+  c_annot_comment_pattern       constant varchar2(30) := '^( |'||chr(09)||')*-- *('||gc_annotation_qualifier||'.*?)$'; -- chr(09) is a tab character
+  --c_nonannotat_comment_pattern  constant varchar2(30) := '^( |'||chr(09)||')*--+ *[^'||gc_annotation_qualifier||']*?$';
   c_comment_replacer_patter     constant varchar2(50) := '{COMMENT#%N%}';
   c_comment_replacer_regex_ptrn constant varchar2(25) := '{COMMENT#(\d+)}';
   c_rgexp_identifier            constant varchar2(50) := '[a-z][a-z0-9#_$]*';
-  c_annotation_block_pattern    constant varchar2(200) := '(({COMMENT#\d+}'||chr(10)||')+)( |'||chr(09)||')*(procedure|function)\s+(' ||
+  c_annotation_block_pattern    constant varchar2(200) := '(({COMMENT#.+}'||chr(10)||')+)( |'||chr(09)||')*(procedure|function)\s+(' ||
                                                            c_rgexp_identifier || ')';
   c_annotation_pattern          constant varchar2(50) := gc_annotation_qualifier || c_rgexp_identifier || '(\(.*?\))?';
 
 
   function delete_multiline_comments(a_source in clob) return clob is
+    l_tmp_clob clob;
   begin
+    
+/*    l_tmp_clob := regexp_replace(srcstr   => a_source
+                                ,pattern  => c_multiline_comment_pattern
+                                ,modifier => 'n');
+    l_tmp_clob := regexp_replace(srcstr   => l_tmp_clob
+                                ,pattern => c_nonannotat_comment_pattern
+                                ,modifier => 'm');
+
+--  performance is too low when deleting spaces as it leads to lots of writes
+--    l_tmp_clob := regexp_replace(srcstr   => l_tmp_cl0ob
+--                                ,pattern => '(( |'||chr(09)||')*'|| chr(10)||'){3,}'
+--                                ,replacestr => chr(10)||chr(10));                                
+    return  l_tmp_clob;  
+*/                             
+  return  regexp_replace(srcstr   => a_source
+                         ,pattern  => c_multiline_comment_pattern
+                         ,modifier => 'n');
+   
+   --this is not fast enough as the regexp parten is more complicated
+   /*
+   return regexp_replace(srcstr   => a_source
+                                ,pattern  => '('||c_multiline_comment_pattern
+                                              ||'|'||c_nonannotat_comment_pattern||')'
+                                ,modifier => 'mn');
+   */
+    
+    /*
     return regexp_replace(
             srcstr => regexp_replace(srcstr => regexp_replace(srcstr   => a_source
                                                              ,pattern  => c_multiline_comment_pattern
@@ -28,6 +56,7 @@ create or replace package body ut_annotations as
             ,replacestr => '\1'
             ,modifier   => 'mn'
           );
+    */          
   end;
 
   function get_annotations(a_source varchar2, a_comments tt_comment_list) return tt_annotations is
@@ -86,7 +115,7 @@ create or replace package body ut_annotations as
                                                  ,pattern       => '(' || c_rgexp_identifier || ')\s*='
                                                  ,modifier      => 'i'
                                                  ,subexpression => 1);
-              l_param_item.value := regexp_substr(l_param_str, '(.+?=)?(.*$)', subexpression => 2);
+              l_param_item.value := trim(regexp_substr(l_param_str, '(.+?=)?(.*$)', subexpression => 2));
 
               l_annotation_params(l_annotation_params.count + 1) := l_param_item;
             end;
@@ -156,7 +185,11 @@ create or replace package body ut_annotations as
       -- parse the comment block for the syntactically correct annotations and store them as an array
       l_procedure_annotations(l_proc_name) := get_annotations(l_proc_comments, a_comments);
 
-      l_annot_proc_ind := l_annot_proc_ind + length(l_annot_proc_block);
+      --l_annot_proc_ind := l_annot_proc_ind + length(l_annot_proc_block);
+      l_annot_proc_ind := regexp_instr(srcstr     => a_source
+                                      ,pattern    => ';'
+                                      ,occurrence => 1
+                                      ,position   => l_annot_proc_ind + length(l_annot_proc_block));
     end loop;
     return l_procedure_annotations;
   end;
@@ -168,15 +201,20 @@ create or replace package body ut_annotations as
   begin
     l_comment_pos := 1;
     loop
+
       l_comment_pos := regexp_instr(srcstr     => a_source
-                                   ,pattern    => c_singleline_comment_pattern
+                                   ,pattern    => c_annot_comment_pattern
                                    ,occurrence => 1
                                    ,modifier   => 'm'
-                                   ,position   => l_comment_pos
-                                    );
+                                   ,position   => l_comment_pos);
+                           
       exit when l_comment_pos = 0;
+      
+      -- position index is shifted by 1 because c_annot_comment_pattern contains ^ as first sign
+      -- but after instr index already points to the char on that line
+      l_comment_pos := l_comment_pos-1;
       l_comments(l_comments.count + 1) := trim(regexp_substr(srcstr        => a_source
-                                                            ,pattern       => c_singleline_comment_pattern
+                                                            ,pattern       => c_annot_comment_pattern
                                                             ,occurrence    => 1
                                                             ,position      => l_comment_pos
                                                             ,modifier      => 'm'
@@ -185,7 +223,7 @@ create or replace package body ut_annotations as
       l_comment_replacer := replace(c_comment_replacer_patter, '%N%', l_comments.count);
 
       a_source    := regexp_replace(srcstr     => a_source
-                                   ,pattern    => c_singleline_comment_pattern
+                                   ,pattern    => c_annot_comment_pattern
                                    ,replacestr => l_comment_replacer
                                    ,position   => l_comment_pos
                                    ,occurrence => 1
