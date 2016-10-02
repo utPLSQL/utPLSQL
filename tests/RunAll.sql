@@ -80,6 +80,14 @@ set serveroutput on size unlimited format truncated
 @@lib/RunTest.sql ut_assert/ut_assert.is_null.date.GivesFailureForNotNullValue.sql
 @@lib/RunTest.sql ut_assert/ut_assert.is_null.date.GivesSuccessForNullValue.sql
 
+@@lib/RunTest.sql ut_assert/ut_assert.is_like.GivesSuccessForLikeString.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_like.GivesSuccessForLikeStringWithEscape.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_like.GivesFailureForLikeString.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_like.GivesFailureForLikeStringWithEscape.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_matching.GivesSuccessForMatchingString.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_matching.GivesSuccessForMatchingStringWithModifier.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_matching.GivesFailureForMatchingString.sql
+
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigNumber.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.Date.sql
