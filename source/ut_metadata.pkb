@@ -4,14 +4,33 @@ create or replace package body ut_metadata as
   --private definitions
   g_source_view varchar2(32);
 
-  function get_package_spec_source_cursor(a_source_view varchar2, a_owner varchar2 := null, a_object varchar2 := null) return sys_refcursor is
-    c_query_str constant varchar2(1000) := 'select t.text from ' || a_source_view ||
-                                           ' t where t.owner = :a_owner and t.name = :a_object_name and t.type = ''PACKAGE'' order by t.line';
+  function get_package_spec_source_cursor(a_owner varchar2 := null, a_object varchar2 := null) return sys_refcursor is
     l_cur sys_refcursor;
-
+    l_object_does_not_exist exception;
+    pragma exception_init (l_object_does_not_exist, -942);
+    function get_query return varchar2 is 
+    begin
+      return 'select t.text from ' || g_source_view ||
+              ' t where t.owner = :a_owner and t.name = :a_object_name and t.type = ''PACKAGE'' order by t.line';
+    end;
   begin
-    open l_cur for c_query_str
-      using a_owner, a_object;
+    if g_source_view is not null then
+      open l_cur for get_query
+        using a_owner, a_object;
+    else
+      begin
+        g_source_view := 'dba_source';
+        open l_cur for get_query
+          using a_owner, a_object;
+      exception 
+        when l_object_does_not_exist then
+          g_source_view := 'all_source';
+          
+          open l_cur for get_query
+            using a_owner, a_object;
+      end;
+    end if;
+
     return l_cur;
   end;
 
@@ -120,7 +139,7 @@ create or replace package body ut_metadata as
   begin
 
     dbms_lob.createtemporary(l_source, true);
-    l_cur := get_package_spec_source_cursor(g_source_view, a_owner, a_object_name);
+    l_cur := get_package_spec_source_cursor(a_owner, a_object_name);
     fetch l_cur bulk collect into l_txt_tab;
     for i in 1 .. cardinality(l_txt_tab) loop
       dbms_lob.writeappend(l_source, length(l_txt_tab(i)), l_txt_tab(i));
@@ -130,18 +149,5 @@ create or replace package body ut_metadata as
 
   end get_package_spec_source;
 
-begin
-  declare
-    l_cursor sys_refcursor;
-    l_object_does_not_exist exception;
-    pragma exception_init (l_object_does_not_exist, -942);
-  begin
-    l_cursor := get_package_spec_source_cursor('dba_source');
-    close l_cursor;
-    g_source_view := 'dba_source';
-   exception
-     when l_object_does_not_exist then
-       g_source_view := 'all_source';
-  end;
 end;
 /

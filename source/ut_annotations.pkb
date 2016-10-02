@@ -101,7 +101,7 @@ create or replace package body ut_annotations as
 
   end get_annotations;
 
-  function get_package_annotations(a_source varchar2, a_comments tt_comment_list) return tt_annotations is
+  function get_package_annotations(a_source clob, a_comments tt_comment_list) return tt_annotations is
     l_package_comments varchar2(32767);
   begin
     l_package_comments := regexp_substr(srcstr        => a_source
@@ -116,7 +116,7 @@ create or replace package body ut_annotations as
       end;
   end;
 
-  function get_procedure_annotations(a_source varchar2, a_comments tt_comment_list) return tt_procedure_annotations is
+  function get_procedure_annotations(a_source clob, a_comments tt_comment_list) return tt_procedure_annotations is
     l_proc_comments         varchar2(32767);
     l_proc_name             t_annotation_name;
     l_annot_proc_ind        number;

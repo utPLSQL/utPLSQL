@@ -49,8 +49,11 @@ create or replace package ut_annotations as
   type typ_annotated_package is record(
      procedure_annotations  tt_procedure_annotations
     ,package_annotations    tt_annotations);
-
-
+    
+  /*
+    INTERNAL USE ONLY
+  */
+  function parse_package_annotations(a_source clob) return typ_annotated_package;
 
   /*
     function: get_package_annotations
