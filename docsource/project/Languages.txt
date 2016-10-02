@@ -1,4 +1,4 @@
-Format: 1.52
+Format: Development Release 07-07-2013 (1.52 base)
 
 # This is the Natural Docs languages file for this project.  If you change
 # anything here, it will apply to THIS PROJECT ONLY.  If you'd like to change
@@ -6,8 +6,7 @@ Format: 1.52
 # Config directory instead.
 
 
-# You can prevent certain file extensions from being scanned like this:
-# Ignore Extensions: [extension] [extension] ...
+Ignore Extension: pl
 
 
 #-------------------------------------------------------------------------------
@@ -115,4 +114,4 @@ Format: 1.52
 
 Alter Language: SQL
 
-   Add Extensions: pkb pks
+   Add Extensions: pks tps

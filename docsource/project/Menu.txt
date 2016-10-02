@@ -1,18 +1,11 @@
-Format: 1.52
+Format: Development Release 07-07-2013 (1.52 base)
 
 
-Title: UTPLSQL
-SubTitle: the unit test suite for Oracle PL/SQL
+Title: utPLSQL
+SubTitle: v 3.0 Alpha
 
-# You can add a footer to your documentation like this:
-# Footer: [text]
-# If you want to add a copyright notice, this would be the place to do it.
-
-# You can add a timestamp to your documentation like one of these:
-# Timestamp: Generated on month day, year
-# Timestamp: Updated mm/dd/yyyy
-# Timestamp: Last updated mon day
-#
+Footer: Copyright (c) 2016 - utPLSQL Project
+Timestamp: Generated on month day, year
 #   m     - One or two digit month.  January is "1"
 #   mm    - Always two digit month.  January is "01"
 #   mon   - Short month word.  January is "Jan"
@@ -45,18 +38,27 @@ SubTitle: the unit test suite for Oracle PL/SQL
 # --------------------------------------------------------------------------
 
 
-Index: Everything
-Class Index: Class Index
-Function Index: Function Index
-File: License  (license.txt)
-File: ut_metadata  (ut_metadata.pks)
-File: ut_test_runner  (ut_test_runner.pks)
-File: ut_types  (ut_types.pks)
-Type Index: Type Index
-Constant Index: Constant Index
+Group: Documentation  {
+
+   File: Installation  (docsource/topics/install.txt)
+   File: Getting Started  (docsource/topics/getting-started.txt)
+   File: Annotations  (docsource/topics/Annotations.txt)
+   File: Support  (docsource/topics/Support.txt)
+   }  # Group: Documentation
+
+Group: Source  {
+
+   File: ut_metadata  (source/ut_metadata.pks)
+   File: ut_utils  (source/ut_utils.pks)
+   File: License  (source/license.txt)
+   File: Contributing  (docsource/topics/contributing.txt)
+   }  # Group: Source
 
 Group: Index  {
 
    Index: Everything
+   Class Index: Classes
+   Constant Index: Constants
+   Function Index: Functions
    }  # Group: Index
 
