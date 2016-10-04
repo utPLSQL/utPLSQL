@@ -14,6 +14,10 @@ use constant true  => 1;
 main();
 
 sub main{
+    # turn off buffering of output
+    $| = 1;
+    print "Generating utplsql Documenation \n";
+	print "results will be found in ..\\docs folder \n";
     # change current working directory to location of script.
     # this keeps realative paths later in script easier to maintain.
     # Source:  https://sysengineers.wordpress.com/2009/12/04/changing-working-directory-to-script-location-in-perl/
@@ -110,7 +114,8 @@ sub convert_markdown_and_insert {
    binmode FILE;
    print FILE $output;
    close FILE;
-   
+
+   print "Inserted $source as html into $dest \n"    
 }
 
 sub convert_markdown_file {
@@ -135,7 +140,7 @@ sub convert_markdown_file {
    print { $OUTFILE } $html or die "Cannot write to $dest";
    close $OUTFILE or die "Cannot close $dest";
    
-   print "Converted $source to $dest" 
+   print "Converted $source to $dest \n" 
 }
 
 
