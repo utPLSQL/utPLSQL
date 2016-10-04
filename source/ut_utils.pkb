@@ -57,5 +57,15 @@ create or replace package body ut_utils is
     return to_char(a_value,gc_timestamp_format);
   end;
 
+  function boolean_to_int(a_value boolean) return integer is
+  begin
+    return case a_value when true then 1 when false then 0 end;
+  end;
+
+  function int_to_boolean(a_value integer) return boolean is
+  begin
+    return case a_value when 1 then true when 0 then false end;
+  end;
+
 end ut_utils;
 /

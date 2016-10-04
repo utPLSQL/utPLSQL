@@ -63,17 +63,17 @@ create or replace type body ut_test is
             -- article with details: http://www.oracle.com/technetwork/issue-archive/2014/14-jan/o14plsql-2045346.html
             ut_utils.debug_log('testmethod failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
           
-            ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
+            ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
         end;
         l_reporter.after_test_execute(self);
-      
+
         if self.teardown is not null then
           l_reporter.before_test_teardown(self);
           self.teardown.execute;
           l_reporter.after_test_teardown(self);
         end if;
       end if;
-    
+
     exception
       when others then
         if sqlcode = -04068 then
@@ -82,14 +82,14 @@ create or replace type body ut_test is
         end if;
         ut_utils.debug_log('ut_test.execute failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
         -- most likely occured in setup or teardown if here.
-        ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
-        ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
+        ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
+        ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
     end;
-  
+
     self.end_time := current_timestamp;
-  
+
     l_reporter.before_asserts_process(self);
-    self.items := ut_assert.get_asserts_results();
+    self.items := ut_assert_processor.get_asserts_results();
   
     self.calc_execution_result;
   

@@ -52,5 +52,9 @@ create or replace package ut_utils is
 
   function to_string(a_value timestamp_unconstrained) return varchar2;
 
+  function boolean_to_int(a_value boolean) return integer;
+
+  function int_to_boolean(a_value integer) return boolean;
+
 end ut_utils;
 /

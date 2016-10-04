@@ -35,24 +35,24 @@ create or replace type body ut_executable is
   
     if self.object_name is null then
       a_result := false;
-      ut_assert.report_error('Call params for ' || a_proc_type || ' are not valid: package is not defined');
+      ut_assert_processor.report_error('Call params for ' || a_proc_type || ' are not valid: package is not defined');
     end if;
-  
+
     if self.procedure_name is null then
       a_result := false;
-      ut_assert.report_error('Call params for ' || a_proc_type || ' are not valid: procedure is not defined');
+      ut_assert_processor.report_error('Call params for ' || a_proc_type || ' are not valid: procedure is not defined');
     end if;
-  
+
     if a_result and not ut_metadata.package_valid(self.owner_name, self.object_name) then
       a_result := false;
-      ut_assert.report_error('Call params for ' || a_proc_type ||
+      ut_assert_processor.report_error('Call params for ' || a_proc_type ||
                              ' are not valid: package does not exist or is invalid: ' ||
                              nvl(self.object_name, '<missing package name>'));
     end if;
-  
+
     if a_result and not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.procedure_name) then
       a_result := false;
-      ut_assert.report_error('Call params for ' || a_proc_type || ' are not valid: package missing ' || a_proc_type ||
+      ut_assert_processor.report_error('Call params for ' || a_proc_type || ' are not valid: package missing ' || a_proc_type ||
                              ' procedure  ' || self.object_name || '.' ||
                              nvl(self.procedure_name, '<missing procedure name>'));
     end if;

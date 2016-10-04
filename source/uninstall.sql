@@ -2,7 +2,13 @@ drop package ut_suite_manager;
 
 drop package ut_assert;
 
+drop package ut;
+
+drop type ut_assertion_raw;
+
 drop type ut_assertion_varchar;
+
+drop type ut_assertion_number;
 
 drop type ut_assertion;
 

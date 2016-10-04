@@ -19,9 +19,12 @@ whenever oserror exit failure rollback
 @@types/ut_dbms_output_suite_reporter.tps
 @@ut_utils.pks
 @@ut_metadata.pks
-@@ut_assert_processor.pks
-@@types/ut_assertion.tps
-@@types/ut_assertion_varchar.tps
+@@assertions/ut_assert_processor.pks
+@@assertions/ut_assertion.tps
+@@assertions/ut_assertion_number.tps
+@@assertions/ut_assertion_varchar.tps
+--@@assertions/ut_assertion_raw.tps
+@@assertions/ut.pks
 @@ut_assert.pks
 @@ut_annotations.pks
 @@ut_suite_manager.pks
@@ -38,23 +41,26 @@ whenever oserror exit failure rollback
 @@types/ut_reporter_decorator.tpb
 @@types/ut_dbms_output_suite_reporter.tpb
 @@ut_metadata.pkb
-@@ut_assert_processor.pkb
-@@types/ut_assertion.tpb
-@@types/ut_assertion_varchar.tpb
+@@assertions/ut_assert_processor.pkb
+@@assertions/ut_assertion.tpb
+@@assertions/ut_assertion_number.tpb
+@@assertions/ut_assertion_varchar.tpb
+--@@assertions/ut_assertion_raw.tpb
+@@assertions/ut.pkb
 @@ut_assert.pkb
 @@ut_annotations.pkb
 @@ut_suite_manager.pkb
 
 
 prompt Validating installation
-select * from user_errors where name not like 'BIN$%' and name like 'UT\_%' escape '\';
+select * from user_errors where name not like 'BIN$%' and name like 'UT%';
 
 declare
   l_cnt integer;
 begin
   select count(1)
     into l_cnt
-    from user_errors where name not like 'BIN$%' and name like 'UT\_%' escape '\';
+    from user_errors where name not like 'BIN$%' and name like 'UT%';
   if l_cnt > 0 then
     raise_application_error(-20000, 'Not all sources were successfully installed.');
   end if;
