@@ -10,7 +10,7 @@ set echo off
 declare
   l_suite ut_test_suite;
 begin  
-  ut_suite_manager.config_package(a_owner_name => USER,a_object_name => 'TST_PKG_HUGE',a_suite => l_suite);
+  l_suite := ut_suite_manager.config_package(a_owner_name => USER,a_object_name => 'TST_PKG_HUGE');
 end;
 /
 
