@@ -19,6 +19,9 @@ whenever oserror exit failure rollback
 @@types/ut_dbms_output_suite_reporter.tps
 @@ut_utils.pks
 @@ut_metadata.pks
+@@ut_assert_processor.pks
+@@types/ut_assertion.tps
+@@types/ut_assertion_varchar.tps
 @@ut_assert.pks
 @@ut_annotations.pks
 @@ut_suite_manager.pks
@@ -35,8 +38,11 @@ whenever oserror exit failure rollback
 @@types/ut_reporter_decorator.tpb
 @@types/ut_dbms_output_suite_reporter.tpb
 @@ut_metadata.pkb
-@@ut_annotations.pkb
+@@ut_assert_processor.pkb
+@@types/ut_assertion.tpb
+@@types/ut_assertion_varchar.tpb
 @@ut_assert.pkb
+@@ut_annotations.pkb
 @@ut_suite_manager.pkb
 
 

@@ -2,6 +2,12 @@ drop package ut_suite_manager;
 
 drop package ut_assert;
 
+drop type ut_assertion_varchar;
+
+drop type ut_assertion;
+
+drop package ut_assert_processor;
+
 drop package ut_annotations;
 
 drop package ut_metadata;
