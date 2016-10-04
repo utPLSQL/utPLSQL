@@ -10,8 +10,10 @@ set serveroutput on size unlimited format truncated
 --Global setup
 @@helpers/ut_example_tests.pks
 @@helpers/ut_example_tests.pkb
+@@helpers/check_annotation_parsing.prc
 
 --Tests to invoke
+
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameNull.sql
 @@lib/RunTest.sql ut_test/ut_test.PackageInInvalidState.sql
@@ -80,12 +82,32 @@ set serveroutput on size unlimited format truncated
 @@lib/RunTest.sql ut_assert/ut_assert.is_null.date.GivesFailureForNotNullValue.sql
 @@lib/RunTest.sql ut_assert/ut_assert.is_null.date.GivesSuccessForNullValue.sql
 
+@@lib/RunTest.sql ut_assert/ut_assert.is_like.GivesSuccessForLikeString.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_like.GivesSuccessForLikeStringWithEscape.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_like.GivesFailureForLikeString.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_like.GivesFailureForLikeStringWithEscape.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_matching.GivesSuccessForMatchingString.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_matching.GivesSuccessForMatchingStringWithModifier.sql
+@@lib/RunTest.sql ut_assert/ut_assert.is_matching.GivesFailureForMatchingString.sql
+
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigNumber.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.Date.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.Timestamp.sql
+
+
+@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotation.sql
+@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithMultilineComment.sql
+@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithKeyValue.sql
+@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationNotBeforeProcedure.sql
+@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageAndProcedureLevelAnnotations.sql
+@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
+@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseComplexPackage.sql
+
+
 --Global cleanup
 drop package ut_example_tests;
+drop procedure check_annotation_parsing;
 
 --Finally
 @@lib/RunSummary
