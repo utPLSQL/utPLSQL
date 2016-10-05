@@ -8,6 +8,15 @@ var Promise = require('bluebird');
 var Phantom = Promise.promisifyAll(require('node-phantom-simple'));
 var PhantomError = require('node-phantom-simple/headless_error');
 
+var credentials = Object.keys(env)
+  .filter(function (key) { return key.indexOf('ORACLE_LOGIN_') == 0 })
+  .map(function (key) { return [key.substr(13), env[key]] });
+
+if (credentials.length <= 0) {
+  console.error("Missing ORACLE_LOGIN environment variables!");
+  process.exit(1);
+}
+
 if (env['ORACLE_ZIP_DIR']) {
   var directory = env['ORACLE_ZIP_DIR'];
   if (!fs.existsSync(directory)) {
@@ -72,11 +81,18 @@ Phantom.createAsync({ parameters: { 'ssl-protocol': 'tlsv1' } }).then(function (
       })
       .then(function (form) {
         return browser.exitPromise().then(function () {
-          for (var key in env) {
-            if (key.indexOf('ORACLE_LOGIN_') == 0 && env.hasOwnProperty(key)) {
-              var name = key.substr(13) + '=';
-              form.data = form.data.replace(name, name + env[key]);
-            }
+          var unapplied = credentials.filter(function (tuple) {
+            var applied = false;
+            form.data = form.data.replace(tuple[0] + '=', function (name) {
+              applied = true;
+              return name + encodeURIComponent(tuple[1]);
+            });
+            return !applied;
+          })
+          .map(function (tuple) { return tuple[0] });
+
+          if (unapplied.length > 0) {
+            console.warn("Unable to use all ORACLE_LOGIN environment variables: %j", unapplied);
           }
 
           var cmd = ['curl', [
