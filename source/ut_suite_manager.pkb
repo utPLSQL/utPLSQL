@@ -5,7 +5,7 @@ create or replace package body ut_suite_manager is
 
   g_schema_suites tt_schena_suits_list;
 
-  function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_test_suite is
+  function config_package(a_rec all_objects%rowtype) return ut_test_suite is
     l_annotation_data    ut_annotations.typ_annotated_package;
     l_suite_name         ut_annotations.t_annotation_name;
     l_suite_annot_params ut_annotations.tt_annotation_params;
@@ -25,11 +25,11 @@ create or replace package body ut_suite_manager is
     l_suite       ut_test_suite;
   
   begin
-    l_owner_name  := a_owner_name;
-    l_object_name := a_object_name;
+    l_owner_name  := a_rec.owner;
+    l_object_name := a_rec.object_name;
   
     ut_metadata.do_resolve(a_owner => l_owner_name, a_object => l_object_name);
-    l_annotation_data := ut_annotations.get_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
+    l_annotation_data := ut_annotations.get_package_annotations(a_rec);
   
     if l_annotation_data.package_annotations.exists('suite') then
       l_suite_annot_params := l_annotation_data.package_annotations('suite');
@@ -109,6 +109,21 @@ create or replace package body ut_suite_manager is
 
   end config_package;
 
+  function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_test_suite is
+    l_rec all_objects%rowtype;
+  begin
+    select *
+      into l_rec
+      from all_objects t
+     where t.owner = a_owner_name
+       and t.object_name = a_object_name
+       and t.object_type in ('PACKAGE');
+    return config_package(l_rec);
+  exception
+    when no_data_found then
+      return null;
+  end;
+
   procedure config_schema(a_owner_name varchar2) is
     l_suite      ut_test_suite;
     l_suite_path varchar2(4000);
@@ -180,13 +195,12 @@ create or replace package body ut_suite_manager is
   
   begin
     -- form the single-dimension list of suites constructed from parsed packages
-    for rec in (select t.owner
-                      ,t.object_name
+    for rec in (select *
                   from all_objects t
                  where t.owner = a_owner_name
                    and t.object_type in ('PACKAGE')) loop
       -- parse the source of the package
-      l_suite := config_package(rec.owner, rec.object_name);
+      l_suite := config_package(rec);
     
       if l_suite is not null then
         l_all_suites(l_suite.object_name) := l_suite;

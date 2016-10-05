@@ -3,6 +3,8 @@ prompt Installing utplsql framework
 whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
+@@ut_annotation_package_info.sql
+@@ut_annotation_package_cache.sql
 @@types/ut_object.tps
 @@types/ut_objects_list.tps
 @@types/ut_composite_object.tps
@@ -21,6 +23,7 @@ whenever oserror exit failure rollback
 @@ut_metadata.pks
 @@ut_assert.pks
 @@ut_annotations.pks
+@@ut_annotations_cache.pks
 @@ut_suite_manager.pks
 
 @@ut_utils.pkb
@@ -37,6 +40,7 @@ whenever oserror exit failure rollback
 @@ut_metadata.pkb
 @@ut_annotations.pkb
 @@ut_assert.pkb
+@@ut_annotations_cache.pkb
 @@ut_suite_manager.pkb
 
 
