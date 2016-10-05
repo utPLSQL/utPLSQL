@@ -13,18 +13,25 @@ create or replace type body ut_assertion as
 
   member procedure to_be_equal(self in ut_assertion, a_expected varchar2) is
   begin
+    ut_utils.debug_log('ut_assertion.to_be_equal(self in ut_assertion, a_expected varchar2)');
     self.build_assert_result( false, 'to be equal', ut_utils.to_string(a_expected), 'varchar2');
   end;
 
   member procedure to_be_equal(self in ut_assertion, a_expected number) is
   begin
+    ut_utils.debug_log('ut_assertion.to_be_equal(self in ut_assertion, a_expected number)');
     self.build_assert_result( false, 'to be equal', ut_utils.to_string(a_expected), 'number');
   end;
 
---  member procedure to_be_equal(self in ut_assertion, a_expected raw) is
---  begin
---    self.build_assert_result( false, 'to be equal', ut_utils.to_string(a_expected), 'raw');
---  end;
+  member procedure to_be_equal(self in ut_assertion, a_expected clob) is
+  begin
+    self.build_assert_result( false, 'to be equal', ut_utils.to_string(a_expected), 'clob');
+  end;
+
+  member procedure to_be_equal(self in ut_assertion, a_expected blob) is
+  begin
+    self.build_assert_result( false, 'to be equal', ut_utils.to_string(a_expected), 'blob');
+  end;
 
   final member procedure to_be_null is
   begin

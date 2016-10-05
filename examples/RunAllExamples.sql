@@ -17,3 +17,5 @@ prompt RunExampleTestAnnotationBasedForCurrentSchema
 @@RunExampleTestAnnotationBasedForCurrentSchema.sql
 prompt RunExampleTestAnnotationsHugePackage
 @@RunExampleTestAnnotationsHugePackage.sql
+prompt RunExpectations
+@@RunExpectations.sql

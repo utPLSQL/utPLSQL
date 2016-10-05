@@ -37,6 +37,22 @@ create or replace package body ut_utils is
     end;
   end;
 
+  function to_string(a_value clob) return varchar2 is
+    l_len integer := dbms_lob.getlength(a_value);
+  begin
+    return case when l_len <= gc_max_sring_length then a_value
+      else dbms_lob.substr( a_value, gc_overflow_substr_len ) || gc_more_data_string
+    end;
+  end;
+
+  function to_string(a_value blob) return varchar2 is
+    l_len integer := dbms_lob.getlength(a_value);
+  begin
+    return case when l_len <= gc_max_sring_length then utl_raw.cast_to_varchar2(a_value)
+      else utl_raw.cast_to_varchar2( dbms_lob.substr( a_value, gc_overflow_substr_len ) ) || gc_more_data_string
+    end;
+  end;
+
   function to_string(a_value boolean) return varchar2 is
   begin
     return case a_value when true then 'TRUE' when false then 'FALSE' else 'NULL' end;

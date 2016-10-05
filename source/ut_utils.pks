@@ -44,6 +44,10 @@ create or replace package ut_utils is
 
   function to_string(a_value varchar2) return varchar2;
 
+  function to_string(a_value clob) return varchar2;
+
+  function to_string(a_value blob) return varchar2;
+
   function to_string(a_value boolean) return varchar2;
 
   function to_string(a_value number) return varchar2;

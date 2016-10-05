@@ -4,7 +4,9 @@ drop package ut_assert;
 
 drop package ut;
 
-drop type ut_assertion_raw;
+drop type ut_assertion_blob;
+
+drop type ut_assertion_clob;
 
 drop type ut_assertion_varchar;
 

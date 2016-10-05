@@ -8,7 +8,8 @@ create or replace type ut_assertion as object
     a_expected_value_string in varchar2, a_expected_data_type varchar2 := null),
   member procedure to_be_equal(self in ut_assertion, a_expected varchar2),
   member procedure to_be_equal(self in ut_assertion, a_expected number),
---  member procedure to_be_equal(self in ut_assertion, a_expected raw),
+  member procedure to_be_equal(self in ut_assertion, a_expected clob),
+  member procedure to_be_equal(self in ut_assertion, a_expected blob),
   final member procedure to_be_null,
   final member procedure to_be_not_null
 )

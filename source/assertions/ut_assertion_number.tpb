@@ -4,6 +4,7 @@ create or replace type body ut_assertion_number as
   begin
     self.data_type := 'number';
     self.message := a_message;
+    self.actual := a_actual;
     self.actual_value_string := ut_utils.to_string(a_actual);
     self.is_null := ut_utils.boolean_to_int( (a_actual is null) );
     return;
@@ -11,6 +12,7 @@ create or replace type body ut_assertion_number as
 
   overriding member procedure to_be_equal(self in ut_assertion_number, a_expected number) is
   begin
+    ut_utils.debug_log('ut_assertion_number.to_be_equal(self in ut_assertion, a_expected number)');
     self.build_assert_result( (a_expected = self.actual), 'to be equal', ut_utils.to_string(a_expected));
   end;
 

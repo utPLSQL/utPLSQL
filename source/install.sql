@@ -23,7 +23,8 @@ whenever oserror exit failure rollback
 @@assertions/ut_assertion.tps
 @@assertions/ut_assertion_number.tps
 @@assertions/ut_assertion_varchar.tps
---@@assertions/ut_assertion_raw.tps
+@@assertions/ut_assertion_clob.tps
+@@assertions/ut_assertion_blob.tps
 @@assertions/ut.pks
 @@ut_assert.pks
 @@ut_annotations.pks
@@ -45,7 +46,8 @@ whenever oserror exit failure rollback
 @@assertions/ut_assertion.tpb
 @@assertions/ut_assertion_number.tpb
 @@assertions/ut_assertion_varchar.tpb
---@@assertions/ut_assertion_raw.tpb
+@@assertions/ut_assertion_clob.tpb
+@@assertions/ut_assertion_blob.tpb
 @@assertions/ut.pkb
 @@ut_assert.pkb
 @@ut_annotations.pkb
