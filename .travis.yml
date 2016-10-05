@@ -1,6 +1,6 @@
 sudo: required
 
-language: bash
+language: perl
 
 env:
   global:
