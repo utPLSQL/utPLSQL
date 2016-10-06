@@ -22,5 +22,6 @@ end;
 
 begin
   ut_assert.clear_asserts;
+  ut_assert_processor.clear_asserts;
 end;
 /

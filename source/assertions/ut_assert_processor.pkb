@@ -2,6 +2,18 @@ create or replace package body ut_assert_processor as
 
   g_asserts_called ut_assert_list := ut_assert_list();
 
+  g_nulls_are_equal boolean_not_null := true;
+
+  function nulls_are_equal return boolean is
+  begin
+    return g_nulls_are_equal;
+  end;
+
+  procedure nulls_are_equal(a_setting boolean_not_null) is
+  begin
+    g_nulls_are_equal := a_setting;
+  end;
+
   function get_aggregate_asserts_result return integer is
     l_result integer := ut_utils.tr_success;
   begin
