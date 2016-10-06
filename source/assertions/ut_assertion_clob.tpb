@@ -31,7 +31,7 @@ create or replace type body ut_assertion_clob as
     self.build_assert_result(l_condition, 'to be like', ut_utils.to_string(a_mask)||l_escape_msg);
   end;
 
-  member procedure to_be_matching(self in ut_assertion_clob, a_pattern in varchar2, a_modifier in varchar2 default null) is
+  member procedure to_match(self in ut_assertion_clob, a_pattern in varchar2, a_modifier in varchar2 default null) is
     l_modifiers_msg varchar2(100) := case when a_modifier is not null then ' using modifiers '''||a_modifier||'''' end;
   begin
     self.build_assert_result((regexp_like(self.actual, a_pattern, a_modifier)), 'to be matching', ut_utils.to_string(a_pattern)||l_modifiers_msg);

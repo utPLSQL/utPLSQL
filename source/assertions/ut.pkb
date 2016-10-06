@@ -10,9 +10,9 @@ create or replace package body ut is
     return ut_assertion_number(a_actual);
   end;
 
-  function expect(a_actual in varchar2, a_message varchar2 := null) return ut_assertion_varchar is
+  function expect(a_actual in varchar2, a_message varchar2 := null) return ut_assertion_varchar2 is
   begin
-    return ut_assertion_varchar(a_actual);
+    return ut_assertion_varchar2(a_actual);
   end;
 
   function expect(a_actual in clob, a_message varchar2 := null) return ut_assertion_clob is

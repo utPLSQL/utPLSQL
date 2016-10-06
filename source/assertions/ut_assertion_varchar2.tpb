@@ -1,6 +1,6 @@
-create or replace type body ut_assertion_varchar as
+create or replace type body ut_assertion_varchar2 as
 
-  constructor function ut_assertion_varchar(self in out nocopy ut_assertion_varchar, a_actual varchar2, a_message varchar2 default null) return self as result is
+  constructor function ut_assertion_varchar2(self in out nocopy ut_assertion_varchar2, a_actual varchar2, a_message varchar2 default null) return self as result is
   begin
     self.data_type := 'varchar2';
     self.message := a_message;
@@ -10,16 +10,16 @@ create or replace type body ut_assertion_varchar as
     return;
   end;
 
-  overriding member procedure to_equal(self in ut_assertion_varchar, a_expected varchar2, a_nulls_are_equal boolean := null) is
+  overriding member procedure to_equal(self in ut_assertion_varchar2, a_expected varchar2, a_nulls_are_equal boolean := null) is
   begin
-    ut_utils.debug_log('ut_assertion_varchar.to_equal(self in ut_assertion, a_expected varchar2)');
+    ut_utils.debug_log('ut_assertion_varchar2.to_equal(self in ut_assertion, a_expected varchar2)');
     self.build_assert_result(
       (   (a_expected is null and self.actual is null and coalesce(a_nulls_are_equal, ut_assert_processor.nulls_are_equal()))
        or (a_expected = self.actual)), 'to equal', ut_utils.to_string(a_expected)
     );
   end;
 
-  member procedure to_be_like(self in ut_assertion_varchar, a_mask in varchar2, a_escape_char in varchar2 := null) is
+  member procedure to_be_like(self in ut_assertion_varchar2, a_mask in varchar2, a_escape_char in varchar2 := null) is
     l_condition boolean;
     l_escape_msg varchar2(100) := case when a_escape_char is not null then ' using escape '''||a_escape_char||'''' end;
   begin
@@ -31,7 +31,7 @@ create or replace type body ut_assertion_varchar as
     self.build_assert_result(l_condition, 'to be like', ut_utils.to_string(a_mask)||l_escape_msg);
   end;
 
-  member procedure to_be_matching(self in ut_assertion_varchar, a_pattern in varchar2, a_modifier in varchar2 default null) is
+  member procedure to_match(self in ut_assertion_varchar2, a_pattern in varchar2, a_modifier in varchar2 default null) is
     l_modifiers_msg varchar2(100) := case when a_modifier is not null then ' using modifiers '''||a_modifier||'''' end;
   begin
     self.build_assert_result((regexp_like(self.actual, a_pattern, a_modifier)), 'to be matching', ut_utils.to_string(a_pattern)||l_modifiers_msg);

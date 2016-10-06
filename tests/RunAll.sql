@@ -120,6 +120,28 @@ set serveroutput on size unlimited format truncated
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseComplexPackage.sql
 
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.blob.GivesFailureForDifferentValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.blob.GivesFailureWhenActualIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.blob.GivesFailureWhenBothValuesAreNullAndArgumentAreNullEqualIsFalse.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.blob.GivesFailureWhenBothValuesAreNullAndConfigurationAreNullEqualIsFalse.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.blob.GivesFailureWhenExpectedIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.blob.GivesSuccessForEqualValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.blob.GivesSuccessWhenBothValuesAreNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.blob.GivesSuccessWhenBothValuesAreNullAndArgumentAreNullEqualIsTrue.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.blob.PutsNullIntoStringValueWhenActualIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.blob.PutsNullIntoStringValueWhenExpectedIsNull.sql
+
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.clob.GivesFailureForDifferentValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.clob.GivesFailureWhenActualIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.clob.GivesFailureWhenBothValuesAreNullAndArgumentAreNullEqualIsFalse.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.clob.GivesFailureWhenBothValuesAreNullAndConfigurationAreNullEqualIsFalse.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.clob.GivesFailureWhenExpectedIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.clob.GivesSuccessForEqualValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.clob.GivesSuccessWhenBothValuesAreNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.clob.GivesSuccessWhenBothValuesAreNullAndArgumentAreNullEqualIsTrue.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.clob.PutsNullIntoStringValueWhenActualIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.clob.PutsNullIntoStringValueWhenExpectedIsNull.sql
+
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.number.GivesFailureForDifferentValues.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.number.GivesSuccessForEqualValues.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.number.GivesSuccessWhenBothValuesAreNull.sql

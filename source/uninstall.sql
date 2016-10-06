@@ -8,7 +8,7 @@ drop type ut_assertion_blob;
 
 drop type ut_assertion_clob;
 
-drop type ut_assertion_varchar;
+drop type ut_assertion_varchar2;
 
 drop type ut_assertion_number;
 
