@@ -10,12 +10,12 @@ create or replace type body ut_assertion_varchar as
     return;
   end;
 
-  overriding member procedure to_be_equal(self in ut_assertion_varchar, a_expected varchar2) is
+  overriding member procedure to_equal(self in ut_assertion_varchar, a_expected varchar2, a_nulls_are_equal boolean := null) is
   begin
-    ut_utils.debug_log('ut_assertion_varchar.to_be_equal(self in ut_assertion, a_expected varchar2)');
+    ut_utils.debug_log('ut_assertion_varchar.to_equal(self in ut_assertion, a_expected varchar2)');
     self.build_assert_result(
-      ((a_expected is null and self.actual is null and ut_assert_processor.nulls_are_equal()) or (a_expected = self.actual))
-      , 'to be equal', ut_utils.to_string(a_expected)
+      (   (a_expected is null and self.actual is null and coalesce(a_nulls_are_equal, ut_assert_processor.nulls_are_equal()))
+       or (a_expected = self.actual)), 'to equal', ut_utils.to_string(a_expected)
     );
   end;
 

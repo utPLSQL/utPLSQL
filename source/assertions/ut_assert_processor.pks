@@ -1,5 +1,7 @@
 create or replace package ut_assert_processor authid current_user as
 
+  gc_default_nulls_are_equal constant boolean := true;
+
   subtype boolean_not_null is boolean not null;
 
   function nulls_are_equal return boolean;

@@ -6,7 +6,7 @@ declare
   l_test_message varchar2(30) := 'A test message';
 begin
 --Act
-  ut.expect(l_actual, l_test_message).to_be_equal(l_expected);
+  ut.expect(l_actual, l_test_message).to_equal(l_expected);
   l_results :=  ut_assert_processor.get_asserts_results();
 --Assert
   if treat(l_results(1) as ut_assert_result).message like ''||l_test_message||'' then

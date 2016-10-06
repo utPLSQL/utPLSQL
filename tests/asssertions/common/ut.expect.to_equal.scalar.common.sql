@@ -5,7 +5,7 @@ declare
   l_result   integer;
 begin
 --Act
-  ut.expect(l_actual).to_be_equal(l_expected);
+  ut.expect(l_actual).to_equal(l_expected);
   l_result :=  ut_assert_processor.get_aggregate_asserts_result();
 --Assert
   if l_result = &&4 then

@@ -2,7 +2,7 @@ create or replace package body ut_assert_processor as
 
   g_asserts_called ut_assert_list := ut_assert_list();
 
-  g_nulls_are_equal boolean_not_null := true;
+  g_nulls_are_equal boolean_not_null := gc_default_nulls_are_equal;
 
   function nulls_are_equal return boolean is
   begin

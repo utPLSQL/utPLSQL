@@ -10,10 +10,13 @@ create or replace type body ut_assertion_blob as
     return;
   end;
 
-  overriding member procedure to_be_equal(self in ut_assertion_blob, a_expected blob) is
+  overriding member procedure to_equal(self in ut_assertion_blob, a_expected blob, a_nulls_are_equal boolean := null) is
   begin
-    ut_utils.debug_log('ut_assertion_blob.to_be_equal(self in ut_assertion, a_expected blob)');
-    self.build_assert_result( (dbms_lob.compare( a_expected, self.actual ) = 0), 'to be equal', ut_utils.to_string(a_expected));
+    ut_utils.debug_log('ut_assertion_blob.to_equal(self in ut_assertion, a_expected blob)');
+    self.build_assert_result(
+      (   (a_expected is null and self.actual is null and coalesce(a_nulls_are_equal, ut_assert_processor.nulls_are_equal()))
+       or (dbms_lob.compare( a_expected, self.actual ) = 0)), 'to equal', ut_utils.to_string(a_expected)
+    );
   end;
 
 end;

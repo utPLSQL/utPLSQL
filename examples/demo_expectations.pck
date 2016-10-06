@@ -60,27 +60,27 @@ create or replace package body demo_expectations is
   -- %test(success of equal varchar)
   procedure test1 is
   begin
-    ut.expect( 'a varchar2 value' ).to_be_equal('a varchar2 value');
+    ut.expect( 'a varchar2 value' ).to_equal('a varchar2 value');
   end;
 
   -- %test(failure of different varchar)
   procedure test2 is
   begin
-    ut.expect('a varchar2 value').to_be_equal('a differernt varchar2 value');
+    ut.expect('a varchar2 value').to_equal('a differernt varchar2 value');
   end;
 
 
   -- %test(success of equal number)
   procedure test3 is
   begin
-    ut.expect(12345).to_be_equal(12345);
+    ut.expect(12345).to_equal(12345);
   end;
 
 
   -- %test(failure of different number)
   procedure test4 is
   begin
-    ut.expect(.0987654321).to_be_equal(.09876543210987654321);
+    ut.expect(.0987654321).to_equal(.09876543210987654321);
   end;
 
 
@@ -89,7 +89,7 @@ create or replace package body demo_expectations is
     a clob := 'a3';
     b clob := 'a3';
   begin
-    ut.expect(a).to_be_equal(b);
+    ut.expect(a).to_equal(b);
   end;
 
   -- %test(failure of different clob)
@@ -97,14 +97,14 @@ create or replace package body demo_expectations is
     a clob := 'a3';
     b clob := 'a4';
   begin
-    ut.expect(a).to_be_equal(b);
+    ut.expect(a).to_equal(b);
   end;
 
   -- %test(failure varchar with clob)
   procedure test7 is
     a clob := 'a3';
   begin
-    ut.expect(a).to_be_equal('a3');
+    ut.expect(a).to_equal('a3');
   end;
 
 
@@ -112,26 +112,26 @@ create or replace package body demo_expectations is
   procedure test8 is
     a clob := 'a3';
   begin
-    ut.expect('a3').to_be_equal(a);
+    ut.expect('a3').to_equal(a);
   end;
 
   -- %test(failure varchar with number)
   procedure test9 is
   begin
-    ut.expect('12345').to_be_equal(12345);
+    ut.expect('12345').to_equal(12345);
   end;
 
   -- %test(failure of number with varchar)
   procedure test10 is
   begin
-    ut.expect(12345).to_be_equal('12345');
+    ut.expect(12345).to_equal('12345');
   end;
 
   -- %test(failure number with clob)
   procedure test11 is
     a clob := '3';
   begin
-    ut.expect(a).to_be_equal(3);
+    ut.expect(a).to_equal(3);
   end;
 
 
@@ -139,7 +139,7 @@ create or replace package body demo_expectations is
   procedure test12 is
     a clob := '3';
   begin
-    ut.expect(3).to_be_equal(a);
+    ut.expect(3).to_equal(a);
   end;
 
   -- %test(success of equal blob)
@@ -147,7 +147,7 @@ create or replace package body demo_expectations is
     a blob := utl_raw.cast_to_raw('a3');
     b blob := utl_raw.cast_to_raw('a3');
   begin
-    ut.expect(a).to_be_equal(b);
+    ut.expect(a).to_equal(b);
   end;
 
   -- %test(failure of different blob)
@@ -155,7 +155,7 @@ create or replace package body demo_expectations is
     a blob := utl_raw.cast_to_raw('a3');
     b blob := utl_raw.cast_to_raw('a4');
   begin
-    ut.expect(a).to_be_equal(b);
+    ut.expect(a).to_equal(b);
   end;
 
   -- %test(failure of clob with blob)
@@ -163,7 +163,7 @@ create or replace package body demo_expectations is
     a clob := 'a3';
     b blob := utl_raw.cast_to_raw('a3');
   begin
-    ut.expect(a).to_be_equal(b);
+    ut.expect(a).to_equal(b);
   end;
 
   -- %test(failure of blob with clob)
@@ -171,7 +171,7 @@ create or replace package body demo_expectations is
     a blob := utl_raw.cast_to_raw('a3');
     b clob := 'a3';
   begin
-    ut.expect(a).to_be_equal(b);
+    ut.expect(a).to_equal(b);
   end;
 
 

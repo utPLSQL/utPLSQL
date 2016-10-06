@@ -1,18 +1,17 @@
-PROMPT Puts 'NULL' into assert results when actual value is null
-
 --Arrange
 declare
+  l_actual   &&1 := &&2;
+  l_expected &&1 := &&3;
   l_results      ut_objects_list;
 begin
 --Act
-  ut.expect(to_char(NULL)).to_be_equal('abc');
+  ut.expect(l_actual).to_equal(l_expected);
   l_results :=  ut_assert_processor.get_asserts_results();
 --Assert
   if treat(l_results(1) as ut_assert_result).actual_value_string = 'NULL' then
     :test_result := ut_utils.tr_success;
   else
-    dbms_output.put_line('expected: actual_value_string to be NULL, but got '''||treat(l_results(1) as ut_assert_result).actual_value_string||'''' );
+    dbms_output.put_line('expected: &4 to be NULL, but got '''||treat(l_results(1) as ut_assert_result).&4||'''' );
   end if;
 end;
 /
-
