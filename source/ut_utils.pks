@@ -11,20 +11,22 @@ create or replace package ut_utils is
     tr_failure - one or more asserts failed
     tr_error   - exception was raised
   */
-  tr_success                 constant number(1) := 1; -- test passed
-  tr_failure                 constant number(1) := 2; -- one or more asserts failed
-  tr_error                   constant number(1) := 3; -- exception was raised
+  tr_success                  constant number(1) := 1; -- test passed
+  tr_failure                  constant number(1) := 2; -- one or more asserts failed
+  tr_error                    constant number(1) := 3; -- exception was raised
 
-  tr_success_char            constant varchar2(7) := 'Success'; -- test passed
-  tr_failure_char            constant varchar2(7) := 'Failure'; -- one or more asserts failed
-  tr_error_char              constant varchar2(5) := 'Error'; -- exception was raised
+  tr_success_char             constant varchar2(7) := 'Success'; -- test passed
+  tr_failure_char             constant varchar2(7) := 'Failure'; -- one or more asserts failed
+  tr_error_char               constant varchar2(5) := 'Error'; -- exception was raised
 
-  gc_max_sring_length        constant integer := 4000;
-  gc_more_data_string        constant varchar2(5) := '[...]';
-  gc_overflow_substr_len     constant integer := gc_max_sring_length - length(gc_more_data_string);
-  gc_number_format           constant varchar2(100) := 'TM9';
-  gc_date_format             constant varchar2(100) := 'yyyy-mm-dd hh24:mi:ss';
-  gc_timestamp_format        constant varchar2(100) := 'yyyy-mm-dd hh24:mi:ssxff';
+  gc_max_output_string_length constant integer := 4000;
+  gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
+  gc_more_data_string         constant varchar2(5) := '[...]';
+  gc_overflow_substr_len      constant integer := gc_max_input_string_length - length(gc_more_data_string);
+  gc_number_format            constant varchar2(100) := 'TM9';
+  gc_date_format              constant varchar2(100) := 'yyyy-mm-dd hh24:mi:ss';
+  gc_timestamp_format         constant varchar2(100) := 'yyyy-mm-dd hh24:mi:ssxff';
+  gc_null_string              constant varchar2(4) := 'NULL';
   /*
      Function: test_result_to_char
         returns a string representation of a test_result.
