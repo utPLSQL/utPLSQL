@@ -41,7 +41,7 @@ The following table is a work in progress right now, and **will** change.   If y
 | Require Prefix on Test procedures | Yes   | No                     |
 | Auto Compilation of Tests | Yes           | No (Let us know if you use this) | 
 | Assertion Library         | 30 Assertions<sup>2</sup> | Still under development |
-| Custom Record Assertions	| requires generated code through **utRecEq** Package | Pass as into ANY_DATA Assertions  | 
+| Custom Record Assertions	| requires generated code through **utRecEq** Package | On Roadmap  | 
 | Test Skeleton Generation  | Yes           | On Roadmap             |
 | **Test Execution<sup>3</sup>** |          |                        |
 | Single Test Execution     |  Yes          | Yes                    | 
