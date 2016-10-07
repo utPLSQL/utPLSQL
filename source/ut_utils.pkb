@@ -18,6 +18,11 @@ create or replace package body ut_utils is
              else tr_failure
            end;
   end;
+  
+  function gen_savepoint_name return varchar2 is
+  begin
+    return 'ut_'||to_char(systimestamp,'yymmddhh24mmssff');
+  end;
 
   procedure debug_log(a_message varchar2) is
   begin

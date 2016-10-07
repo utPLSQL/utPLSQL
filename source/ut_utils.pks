@@ -18,6 +18,14 @@ create or replace package ut_utils is
   tr_success_char            constant varchar2(7) := 'Success'; -- test passed
   tr_failure_char            constant varchar2(7) := 'Failure'; -- one or more asserts failed
   tr_error_char              constant varchar2(5) := 'Error'; -- exception was raised
+  
+  /*
+    Constants: Rollback type for ut_test_object
+  */
+  gc_rollback_auto           constant number(1) := 0; -- rollback after each test and suite
+  gc_rollback_manual         constant number(1) := 1; -- leave transaction control manual
+  --gc_rollback_on_error       constant number(1) := 2; -- rollback tests only on error
+
 
   gc_max_sring_length        constant integer := 4000;
   gc_more_data_string        constant varchar2(5) := '[...]';
@@ -39,6 +47,8 @@ create or replace package ut_utils is
   function test_result_to_char(a_test_result integer) return varchar2;
 
   function to_test_result(a_test boolean) return integer;
+  
+  function gen_savepoint_name return varchar2;
 
   procedure debug_log(a_message varchar2);
 

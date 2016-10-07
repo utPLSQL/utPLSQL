@@ -1,6 +1,6 @@
 create or replace type body ut_test is
 
-  constructor function ut_test(a_object_name varchar2, a_test_procedure varchar2, a_test_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null)
+  constructor function ut_test(a_object_name varchar2, a_test_procedure varchar2, a_test_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null, a_rollback_type integer default null)
     return self as result is
   begin
     self.name        := a_test_name;
@@ -21,6 +21,16 @@ create or replace type body ut_test is
                                     ,procedure_name => trim(a_teardown_procedure)
                                     ,owner_name     => trim(a_owner_name));
     end if;
+    
+    if a_rollback_type is not null then
+      if a_rollback_type in (ut_utils.gc_rollback_auto, ut_utils.gc_rollback_on_error, ut_utils.gc_rollback_manual) then
+        self.rollback_type := a_rollback_type;
+      else
+        raise_application_error(-20200,'Rollback type is not supported');
+      end if;
+    else
+      self.rollback_type := ut_utils.gc_rollback_auto;
+    end if;
     return;
   end ut_test;
 
@@ -37,8 +47,14 @@ create or replace type body ut_test is
   end;
   overriding member function execute(self in out nocopy ut_test, a_reporter ut_reporter) return ut_reporter is
     l_reporter ut_reporter := a_reporter;
+    l_savepoint varchar2(30);
   begin
     l_reporter.before_test(self);
+    
+    if self.rollback_type = ut_utils.gc_rollback_auto then
+      l_savepoint := ut_utils.gen_savepoint_name;
+      execute immediate 'savepoint '||l_savepoint;
+    end if;
   
     begin
       ut_utils.debug_log('ut_test.execute');
@@ -46,6 +62,7 @@ create or replace type body ut_test is
       self.start_time := current_timestamp;
     
       if self.is_valid() then
+              
         if self.setup is not null then
           l_reporter.before_test_setup(self);
           self.setup.execute;
@@ -54,7 +71,6 @@ create or replace type body ut_test is
       
         l_reporter.before_test_execute(self);
         begin
-        
           self.test.execute;
         exception
           when others then
@@ -72,6 +88,8 @@ create or replace type body ut_test is
           self.teardown.execute;
           l_reporter.after_test_teardown(self);
         end if;
+        
+
       end if;
     
     exception
@@ -85,6 +103,10 @@ create or replace type body ut_test is
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
         ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
     end;
+    
+    if self.rollback_type = ut_utils.gc_rollback_auto then
+      execute immediate 'rollback to '||l_savepoint;
+    end if;
   
     self.end_time := current_timestamp;
   
