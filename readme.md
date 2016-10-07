@@ -10,7 +10,7 @@ Version 3 is a complete rewrite of utPLSQL from scratch.  Version 2 still suppor
 
 Primary Goals:
  - Easier to maintain 
-  - Only supports versions of Oracle under [Extend Support](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf)  (Currently 11.1, and 12.1)
+  - Only supports versions of Oracle under [Extend Support](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf)  (Currently 11.2, and 12.1)
   - API is documented in the code where possible.
  - Robust and vibrant assertion library.
  - Support for Code Coverage
