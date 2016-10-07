@@ -30,6 +30,7 @@ The following table is a work in progress right now, and **will** change.   If y
 | Documentation             | Yes           | Sparse - in progress   |
 | License                   | GPL v2        | Apache 2.0             |
 | **Tests Creation**        |               |                        |
+| Declarative test configuration coupled with the source code | No | Yes - Annotations<sup>1</sup>|
 | Tests as Packages         | Yes           | Yes                    |
 | Multiple Tests in a single Package | Yes  |  Yes                   |
 | Different Setup/Teardown <br/> For Each Test in a Single Package | No  | Yes |
@@ -57,7 +58,7 @@ The following table is a work in progress right now, and **will** change.   If y
 | Realtime test execution results | No       | On Roadmap             |
 | Custom Output reporter    | Yes           | Yes                    |
 
-<sup>1</sup> Annotations are specially formatted comments in your package specification.   See Documentation for more details. 
+<sup>1</sup> Annotations are specially formatted comments in your package specification.  This enables *declarative* test configuration that is coupled with the source code.   See Documentation for more details. 
 
 <sup>2</sup> **utAssert2** package - Contains 59 Assertions - 2 Not implemented = 57, 28 are duplicated only change on outcome_in parameter 57-28 = 29, **utPipe** package - Contains 1 Assertion 29 + 1 = 30
 
