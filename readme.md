@@ -52,9 +52,10 @@ The following table is a work in progress right now, and **will** change.   If y
 | DBMS_OUTPUT               | Yes           | Yes (format changed)   |
 | Stored in Table           | Yes           | On Roadmap             |
 | JUnit XML Format          | No            | On Roadmap             |
-| HTML Format               | YES           | On Roadmap             |
-| File                      | YES           | On Roadmap             |
-| Custom Output reporter    | YES           | Yes                    |
+| HTML Format               | Yes           | On Roadmap             |
+| File                      | Yes           | On Roadmap             |
+| Realtime test execution results | No       | On Roadmap             |
+| Custom Output reporter    | Yes           | Yes                    |
 
 <sup>1</sup> Annotations are specially formatted comments in your package specification.   See Documentation for more details. 
 
