@@ -47,6 +47,7 @@ The following table is a work in progress right now, and **will** change.   If y
 | Test Suite Execution      |  Yes          | Yes                    |
 | Subset of Suite Execution |  No           | Yes                    |
 | Multiple Suite Execution  |  No           | Yes                    |
+| Code Coverage             |  No           | On Roadmap             |
 | **Test Output**           |               |                        |
 | DBMS_OUTPUT               | Yes           | Yes (format changed)   |
 | Stored in Table           | Yes           | On Roadmap             |
