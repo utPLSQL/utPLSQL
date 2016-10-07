@@ -1,0 +1,19 @@
+Title: Annotations
+
+Annoations are comments that control test execution.  utPLSQL parses comments on a package specification only, comments in the package body are ignored.
+
+#TODO: Add parameters, examples and sync documentation with current annotation implementation.
+
+topic: Annotation list
+
+%suite - Marks package to be a suite with it procedures as tests. This way all testing packages might be found in the schema. Parameter of the annotation is the Suite name
+%suitepackage - Similar to java package. The example suite should be put as an element of the "globaltests" suite which is an element of the "all" suite. This allows one to execute "glovaltests" suite which would recursively run all the child suites including this one.
+%suitetype - The way for suite to have something like a type. One might collect suites based on the subject of tests (a system module for example). There might be critical tests to run every time and more covering but slow tests. This technique allows to configure something like "fast" testing.
+%setup - Marks procedure as a default setup procedure for the suite.
+%teardown - Marks procedure as a default teardown procedure for the suite.
+%test - Marks procedure as a test. Parameter is a name of the test
+%testtype - Another way to tag tests to filter afterwards
+%testsetup - Marks that special setup procedure has to be run before the test instead of the default one
+%testteardown - Marks that special teardown procedure has to be run before the test instead of the default one
+%suitesetup - Procedure with executes once at the beginning of the suite and doesn't executes before each test
+%suiteteardown - Procedure with executes once after the execution of the last test in the suite.
