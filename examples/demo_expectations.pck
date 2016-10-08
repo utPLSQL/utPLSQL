@@ -1,3 +1,5 @@
+drop package demo_expectations;
+
 create or replace package demo_expectations is
 
   -- %suite(Demoing asserts)
@@ -51,6 +53,8 @@ create or replace package demo_expectations is
   -- %test(failure of blob with clob)
   procedure test16;
 
+  -- %test(expectation using ut.expect('value').to_(equal('value'));)
+  procedure test17;
 end;
 /
 
@@ -174,6 +178,11 @@ create or replace package body demo_expectations is
     ut.expect(a).to_equal(b);
   end;
 
+  -- %test(expectation using ut.expect('value').to_(equal('value'));)
+  procedure test17 is
+  begin
+    ut.expect('value').to_(equal('value'));
+  end;
 
 end;
 /
