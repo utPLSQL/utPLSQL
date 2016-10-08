@@ -36,6 +36,7 @@ The following table is a work in progress right now, and **will** change.   If y
 | Different Setup/Teardown <br/> For Each Test in a Single Package | No  | Yes |
 | Suite Definition Storage  | Tables        | Package - Annotations<sup>1</sup>  |
 | Multiple Suites           | Yes           | Yes                    |
+| Suites can contain Suites | No            | Yes                    |
 | Automatic Test detection  | No            | Yes - Annotations<sup>1</sup>      |
 | Require Prefix on Test packages   | Yes   | No                     |
 | Require Prefix on Test procedures | Yes   | No                     |
@@ -49,7 +50,9 @@ The following table is a work in progress right now, and **will** change.   If y
 | Subset of Suite Execution |  No           | Yes                    |
 | Multiple Suite Execution  |  No           | Yes                    |
 | Code Coverage             |  No           | On Roadmap             |
+| Framework Transaction Control  | No       | Yes - Optional         | 
 | **Test Output**           |               |                        |
+| Multiple Output Reporters can be used during test execution | No | Yes |
 | DBMS_OUTPUT               | Yes           | Yes (format changed)   |
 | Stored in Table           | Yes           | On Roadmap             |
 | JUnit XML Format          | No            | On Roadmap             |
