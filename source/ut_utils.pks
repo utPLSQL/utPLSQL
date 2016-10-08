@@ -25,6 +25,9 @@ create or replace package ut_utils is
   gc_rollback_auto           constant number(1) := 0; -- rollback after each test and suite
   gc_rollback_manual         constant number(1) := 1; -- leave transaction control manual
   --gc_rollback_on_error       constant number(1) := 2; -- rollback tests only on error
+  
+  ex_unsopported_rollback_type exception;
+  pragma exception_init(ex_unsopported_rollback_type, -20200);
 
 
   gc_max_sring_length        constant integer := 4000;
@@ -61,6 +64,13 @@ create or replace package ut_utils is
   function to_string(a_value date) return varchar2;
 
   function to_string(a_value timestamp_unconstrained) return varchar2;
+  
+  /*
+   Procedure: validate_rollback_type
+   
+   Validates passed value against supported rollback types
+  */
+  procedure validate_rollback_type(a_rollback_type number);
 
 end ut_utils;
 /

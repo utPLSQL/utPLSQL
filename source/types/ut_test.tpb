@@ -23,11 +23,8 @@ create or replace type body ut_test is
     end if;
     
     if a_rollback_type is not null then
-      if a_rollback_type in (ut_utils.gc_rollback_auto, ut_utils.gc_rollback_on_error, ut_utils.gc_rollback_manual) then
-        self.rollback_type := a_rollback_type;
-      else
-        raise_application_error(-20200,'Rollback type is not supported');
-      end if;
+      ut_utils.validate_rollback_type(a_rollback_type);
+      self.rollback_type := a_rollback_type;
     else
       self.rollback_type := ut_utils.gc_rollback_auto;
     end if;
@@ -53,7 +50,7 @@ create or replace type body ut_test is
     
     if self.rollback_type = ut_utils.gc_rollback_auto then
       l_savepoint := ut_utils.gen_savepoint_name;
-      execute immediate 'savepoint '||l_savepoint;
+      execute immediate 'savepoint ' || l_savepoint;
     end if;
   
     begin
@@ -88,7 +85,6 @@ create or replace type body ut_test is
           self.teardown.execute;
           l_reporter.after_test_teardown(self);
         end if;
-        
 
       end if;
     
@@ -105,7 +101,7 @@ create or replace type body ut_test is
     end;
     
     if self.rollback_type = ut_utils.gc_rollback_auto then
-      execute immediate 'rollback to '||l_savepoint;
+      execute immediate 'rollback to ' || l_savepoint;
     end if;
   
     self.end_time := current_timestamp;

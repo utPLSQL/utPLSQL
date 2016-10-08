@@ -23,6 +23,18 @@ create or replace package body ut_utils is
   begin
     return 'ut_'||to_char(systimestamp,'yymmddhh24mmssff');
   end;
+  
+  /*
+   Procedure: validate_rollback_type
+   
+   Validates passed value against supported rollback types
+  */
+  procedure validate_rollback_type(a_rollback_type number) is
+  begin
+    if a_rollback_type not in (gc_rollback_auto, gc_rollback_manual) then
+      raise_application_error(-20200,'Rollback type is not supported');
+    end if;
+  end validate_rollback_type;
 
   procedure debug_log(a_message varchar2) is
   begin

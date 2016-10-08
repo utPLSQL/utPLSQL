@@ -1,5 +1,5 @@
-PL/SQL Developer Test script 3.0
-17
+Prompt Give failure for matching string using regexp
+
 --Arrange
 declare
   l_mask     varchar2(20) := '[a-z]+\d[a-z]+';
@@ -16,9 +16,4 @@ begin
     dbms_output.put_line('expected: string like'''||l_mask||''', got: '''||l_result||'''' );
   end if;
 end;
---/
-1
-test_result
-0
-5
-0
+/
