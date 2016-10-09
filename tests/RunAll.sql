@@ -11,7 +11,7 @@ set serveroutput on size unlimited format truncated
 @@helpers/ut_example_tests.pks
 @@helpers/ut_example_tests.pkb
 @@helpers/check_annotation_parsing.prc
-@@helpers/cre_tab_ut$test_table.sql
+@@helpers/cre_tab_ut_test_table.sql
 @@helpers/ut_transaction_control.pck
 
 --Tests to invoke
