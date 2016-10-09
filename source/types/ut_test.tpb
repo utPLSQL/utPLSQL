@@ -53,69 +53,75 @@ create or replace type body ut_test is
       execute immediate 'savepoint ' || l_savepoint;
     end if;
   
-    begin
-      ut_utils.debug_log('ut_test.execute');
-    
-      self.start_time := current_timestamp;
-    
-      if self.is_valid() then
-              
-        if self.setup is not null then
-          l_reporter.before_test_setup(self);
-          self.setup.execute;
-          l_reporter.after_test_setup(self);
-        end if;
-      
-        l_reporter.before_test_execute(self);
-        begin
-          self.test.execute;
-        exception
-          when others then
-            -- dbms_utility.format_error_backtrace is 10g or later
-            -- utl_call_stack package may be better but it's 12c but still need to investigate
-            -- article with details: http://www.oracle.com/technetwork/issue-archive/2014/14-jan/o14plsql-2045346.html
-            ut_utils.debug_log('testmethod failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-          
-            ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-        end;
-        l_reporter.after_test_execute(self);
-      
-        if self.teardown is not null then
-          l_reporter.before_test_teardown(self);
-          self.teardown.execute;
-          l_reporter.after_test_teardown(self);
-        end if;
+    ut_utils.debug_log('ut_test.execute');
 
+    self.start_time := current_timestamp;
+    
+    if nvl(self.ignore_flag,0) != 1 then
+      begin
+
+        if self.is_valid() then
+                
+          if self.setup is not null then
+            l_reporter.before_test_setup(self);
+            self.setup.execute;
+            l_reporter.after_test_setup(self);
+          end if;
+        
+          l_reporter.before_test_execute(self);
+          begin
+            self.test.execute;
+          exception
+            when others then
+              -- dbms_utility.format_error_backtrace is 10g or later
+              -- utl_call_stack package may be better but it's 12c but still need to investigate
+              -- article with details: http://www.oracle.com/technetwork/issue-archive/2014/14-jan/o14plsql-2045346.html
+              ut_utils.debug_log('testmethod failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
+            
+              ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
+          end;
+          l_reporter.after_test_execute(self);
+        
+          if self.teardown is not null then
+            l_reporter.before_test_teardown(self);
+            self.teardown.execute;
+            l_reporter.after_test_teardown(self);
+          end if;
+
+        end if;
+      
+      exception
+        when others then
+          if sqlcode = -04068 then
+            --raise on ORA-04068: existing state of packages has been discarded to avoid unrecoverable session exception
+            raise;
+          end if;
+          ut_utils.debug_log('ut_test.execute failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
+          -- most likely occured in setup or teardown if here.
+          ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
+          ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
+      end;
+      
+      if self.rollback_type = ut_utils.gc_rollback_auto then
+        execute immediate 'rollback to ' || l_savepoint;
       end if;
     
-    exception
-      when others then
-        if sqlcode = -04068 then
-          --raise on ORA-04068: existing state of packages has been discarded to avoid unrecoverable session exception
-          raise;
-        end if;
-        ut_utils.debug_log('ut_test.execute failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-        -- most likely occured in setup or teardown if here.
-        ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
-        ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-    end;
+      self.end_time := current_timestamp;
     
-    if self.rollback_type = ut_utils.gc_rollback_auto then
-      execute immediate 'rollback to ' || l_savepoint;
+      l_reporter.before_asserts_process(self);
+      self.items := ut_assert.get_asserts_results();
+    
+      self.calc_execution_result;
+    
+      for i in 1 .. self.items.count loop
+        l_reporter.on_assert_process(treat(self.items(i) as ut_assert_result));
+      end loop;
+    
+      l_reporter.after_asserts_process(self);
+    else
+      self.end_time := current_timestamp;
+      self.result := ut_utils.tr_ignore;
     end if;
-  
-    self.end_time := current_timestamp;
-  
-    l_reporter.before_asserts_process(self);
-    self.items := ut_assert.get_asserts_results();
-  
-    self.calc_execution_result;
-  
-    for i in 1 .. self.items.count loop
-      l_reporter.on_assert_process(treat(self.items(i) as ut_assert_result));
-    end loop;
-  
-    l_reporter.after_asserts_process(self);
   
     l_reporter.after_test(self);
 

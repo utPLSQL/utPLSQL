@@ -58,8 +58,10 @@ create or replace type body ut_test_suite is
     ut_utils.debug_log('ut_test_suite.execute');
 
     self.start_time := current_timestamp;
-  
-    if self.is_valid() then
+    
+    if self.ignore_flag = 1 then
+      self.result := ut_utils.tr_ignore;
+    elsif self.is_valid() then
       
       if self.rollback_type = ut_utils.gc_rollback_auto then
         l_savepoint := ut_utils.gen_savepoint_name;

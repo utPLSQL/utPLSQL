@@ -11,13 +11,16 @@ create or replace package ut_utils is
     tr_failure - one or more asserts failed
     tr_error   - exception was raised
   */
+  tr_ignore                  constant number(1) := 0; -- test/suite was ignored
   tr_success                 constant number(1) := 1; -- test passed
   tr_failure                 constant number(1) := 2; -- one or more asserts failed
   tr_error                   constant number(1) := 3; -- exception was raised
 
+  tr_ignore_char             constant varchar2(6) := 'Ignore'; -- test/suite was ignored
   tr_success_char            constant varchar2(7) := 'Success'; -- test passed
   tr_failure_char            constant varchar2(7) := 'Failure'; -- one or more asserts failed
   tr_error_char              constant varchar2(5) := 'Error'; -- exception was raised
+
   
   /*
     Constants: Rollback type for ut_test_object

@@ -52,16 +52,18 @@ create or replace package body ut_suite_manager is
                                 ut_utils.gc_rollback_manual
                               when 'auto' then
                                 ut_utils.gc_rollback_auto
-                              --when 'on-error' then
-                              --  ut_utils.gc_rollback_on_error
                               else
                                 ut_utils.gc_rollback_auto
                             end;
       else
         l_suite_rollback := ut_utils.gc_rollback_auto;
       end if;
-    
+          
       l_suite := ut_test_suite(l_suite_name, l_suite_package, a_rollback_type => l_suite_rollback);
+      
+      if l_annotation_data.package_annotations.exists('ignore') then
+        l_suite.set_ignore_flag(true);
+      end if;
     
       l_proc_name := l_annotation_data.procedure_annotations.first;
       while (l_default_setup_proc is null or l_default_teardown_proc is null or l_suite_setup_proc is null or
@@ -133,6 +135,10 @@ create or replace package body ut_suite_manager is
                              ,a_setup_procedure    => nvl(l_setup_procedure, l_default_setup_proc)
                              ,a_teardown_procedure => nvl(l_teardown_procedure, l_default_teardown_proc)
                              ,a_rollback_type      => l_rollback_type);
+                             
+            if l_proc_annotations.exists('ignore') then
+              l_test.set_ignore_flag(true);
+            end if;
           
             l_suite.add_item(l_test);
           end;

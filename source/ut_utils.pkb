@@ -6,6 +6,7 @@ create or replace package body ut_utils is
                   when tr_success then tr_success_char
                   when tr_failure then tr_failure_char
                   when tr_error   then tr_error_char
+                  when tr_ignore   then tr_ignore_char
                   else 'Unknown(' || coalesce(to_char(a_test_result),'NULL') || ')'
                 end;
   end test_result_to_char;
