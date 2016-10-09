@@ -142,6 +142,17 @@ set serveroutput on size unlimited format truncated
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.clob.PutsNullIntoStringValueWhenActualIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.clob.PutsNullIntoStringValueWhenExpectedIsNull.sql
 
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.date.GivesFailureForDifferentValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.date.GivesFailureWhenActualIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.date.GivesFailureWhenBothValuesAreNullAndArgumentAreNullEqualIsFalse.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.date.GivesFailureWhenBothValuesAreNullAndConfigurationAreNullEqualIsFalse.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.date.GivesFailureWhenExpectedIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.date.GivesSuccessForEqualValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.date.GivesSuccessWhenBothValuesAreNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.date.GivesSuccessWhenBothValuesAreNullAndArgumentAreNullEqualIsTrue.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.date.PutsNullIntoStringValueWhenActualIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.date.PutsNullIntoStringValueWhenExpectedIsNull.sql
+
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.number.GivesFailureForDifferentValues.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.number.GivesSuccessForEqualValues.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.number.GivesSuccessWhenBothValuesAreNull.sql
@@ -150,6 +161,17 @@ set serveroutput on size unlimited format truncated
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.number.PutsNullIntoStringValueWhenActualIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.number.GivesFailureWhenBothValuesAreNullAndArgumentAreNullEqualIsFalse.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.number.GivesSuccessWhenBothValuesAreNullAndArgumentAreNullEqualIsTrue.sql
+
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.timestamp.GivesFailureForDifferentValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.timestamp.GivesFailureWhenActualIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.timestamp.GivesFailureWhenBothValuesAreNullAndArgumentAreNullEqualIsFalse.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.timestamp.GivesFailureWhenBothValuesAreNullAndConfigurationAreNullEqualIsFalse.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.timestamp.GivesFailureWhenExpectedIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.timestamp.GivesSuccessForEqualValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.timestamp.GivesSuccessWhenBothValuesAreNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.timestamp.GivesSuccessWhenBothValuesAreNullAndArgumentAreNullEqualIsTrue.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.timestamp.PutsNullIntoStringValueWhenActualIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.timestamp.PutsNullIntoStringValueWhenExpectedIsNull.sql
 
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.varchar.GivesFailureForDifferentValues.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.varchar.GivesSuccessForEqualValues.sql

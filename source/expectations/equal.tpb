@@ -52,7 +52,7 @@ create or replace type body equal as
 
   constructor function equal(self in out nocopy equal, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null) return self as result is
   begin
-    init(ut_data_value_date('timestamp', ut_utils.boolean_to_int(a_expected is null), ut_utils.to_string(a_expected), a_expected), a_nulls_are_equal);
+    init(ut_data_value_timestamp('timestamp', ut_utils.boolean_to_int(a_expected is null), ut_utils.to_string(a_expected), a_expected), a_nulls_are_equal);
     return;
   end;
 

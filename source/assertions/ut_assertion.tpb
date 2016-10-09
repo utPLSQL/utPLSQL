@@ -58,6 +58,7 @@ create or replace type body ut_assertion as
         when self.actual_data is of (ut_data_value_blob) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_blob) )
         when self.actual_data is of (ut_data_value_clob) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_clob) )
         when self.actual_data is of (ut_data_value_date) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_date) )
+        when self.actual_data is of (ut_data_value_timestamp) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_timestamp) )
       end;
     l_assert_result.message := self.message;
     l_assert_result.name    := 'to '||l_assert_result.name;
