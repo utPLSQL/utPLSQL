@@ -1,5 +1,7 @@
 create or replace type equal under ut_expectation(
   nulls_are_equal number(1,0),
+  member procedure init(self in out nocopy equal, a_expected ut_data_value, a_nulls_are_equal boolean),
+  overriding member function build_assert_result( self in equal, a_assert_result boolean, a_actual ut_data_value) return ut_assert_result,
   constructor function equal(self in out nocopy equal, a_expected varchar2, a_nulls_are_equal boolean := null) return self as result,
   constructor function equal(self in out nocopy equal, a_expected number, a_nulls_are_equal boolean := null) return self as result,
   constructor function equal(self in out nocopy equal, a_expected clob, a_nulls_are_equal boolean := null) return self as result,
