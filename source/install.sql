@@ -24,6 +24,8 @@ whenever oserror exit failure rollback
 @@expectations/ut_data_value_clob.tps
 @@expectations/ut_data_value_blob.tps
 @@expectations/ut_data_value_number.tps
+@@expectations/ut_data_value_date.tps
+@@expectations/ut_data_value_timestamp.tps
 @@expectations/ut_expectation.tps
 @@expectations/equal.tps
 @@assertions/ut_assert_processor.pks
@@ -32,6 +34,8 @@ whenever oserror exit failure rollback
 @@assertions/ut_assertion_varchar2.tps
 @@assertions/ut_assertion_clob.tps
 @@assertions/ut_assertion_blob.tps
+@@assertions/ut_assertion_date.tps
+@@assertions/ut_assertion_timestamp.tps
 @@assertions/ut.pks
 @@ut_assert.pks
 @@ut_annotations.pks
@@ -57,6 +61,8 @@ whenever oserror exit failure rollback
 @@assertions/ut_assertion_varchar2.tpb
 @@assertions/ut_assertion_clob.tpb
 @@assertions/ut_assertion_blob.tpb
+@@assertions/ut_assertion_date.tpb
+@@assertions/ut_assertion_timestamp.tpb
 @@assertions/ut.pkb
 @@ut_assert.pkb
 @@ut_annotations.pkb

@@ -5,6 +5,8 @@ create or replace type ut_expectation as object(
   not instantiable member function run_expectation(self in ut_expectation, a_actual ut_data_value_number) return ut_assert_result,
   not instantiable member function run_expectation(self in ut_expectation, a_actual ut_data_value_clob) return ut_assert_result,
   not instantiable member function run_expectation(self in ut_expectation, a_actual ut_data_value_blob) return ut_assert_result,
+  not instantiable member function run_expectation(self in ut_expectation, a_actual ut_data_value_date) return ut_assert_result,
+  not instantiable member function run_expectation(self in ut_expectation, a_actual ut_data_value_timestamp) return ut_assert_result,
   final member function build_assert_result(self in ut_expectation, a_assert_result boolean, a_actual ut_data_value) return ut_assert_result
 ) not final not instantiable
 /

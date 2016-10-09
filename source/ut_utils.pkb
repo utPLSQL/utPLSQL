@@ -59,8 +59,8 @@ create or replace package body ut_utils is
   begin
     return
       case
-        when l_len <= gc_max_input_string_length then quote_string(utl_raw.cast_to_varchar2(a_value))
-        else quote_string(utl_raw.cast_to_varchar2(dbms_lob.substr(a_value, gc_overflow_substr_len))) || gc_more_data_string
+        when l_len <= gc_max_input_string_length then quote_string(rawtohex(a_value))
+        else to_string( rawtohex(dbms_lob.substr(a_value, gc_overflow_substr_len)) )
       end;
   end;
 

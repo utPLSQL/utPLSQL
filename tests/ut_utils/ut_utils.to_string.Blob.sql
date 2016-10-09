@@ -4,7 +4,7 @@ PROMPT Returns a blob converted to varchar and eclosed in quotes
 declare
   l_text     varchar2(32767) := 'A test char';
   l_value    blob := utl_raw.cast_to_raw(l_text);
-  l_expected varchar2(32767) := ''''||l_text||'''';
+  l_expected varchar2(32767) := ''''||rawtohex(l_value)||'''';
   l_result   varchar2(32767);
   l_delimiter varchar2(1);
 begin

@@ -4,6 +4,10 @@ drop package ut_assert;
 
 drop package ut;
 
+drop type ut_assertion_timestamp;
+
+drop type ut_assertion_date;
+
 drop type ut_assertion_blob;
 
 drop type ut_assertion_clob;
@@ -27,6 +31,10 @@ drop type ut_data_value_varchar2;
 drop type ut_data_value_clob;
 
 drop type ut_data_value_blob;
+
+drop type ut_data_value_date;
+
+drop type ut_data_value_timestamp;
 
 drop type ut_data_value;
 

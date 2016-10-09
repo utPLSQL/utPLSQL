@@ -25,17 +25,16 @@ create or replace package body ut is
     return ut_assertion_blob(a_actual);
   end;
 
+  function expect(a_actual in date, a_message varchar2 := null) return ut_assertion_date is
+  begin
+    return ut_assertion_date(a_actual);
+  end;
 
---  function expect(a_actual in date, a_message varchar2 := null) return ut_assertion_date is
---  begin
---    return ut_assertion_date(a_actual);
---  end;
---
---  function expect(a_actual in timestamp_tz_unconstrained, a_message varchar2 := null) return ut_assertion_timestamp is
---  begin
---    return ut_assertion_timestamp(a_actual);
---  end;
---
+  function expect(a_actual in timestamp_unconstrained, a_message varchar2 := null) return ut_assertion_timestamp is
+  begin
+    return ut_assertion_timestamp(a_actual);
+  end;
+
 --  function expect(a_actual in anydata, a_message varchar2 := null) return ut_assertion_anydata;
 --
 --  function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_assertion_cursor;

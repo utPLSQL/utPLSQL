@@ -1,5 +1,3 @@
-drop package demo_expectations;
-
 create or replace package demo_expectations is
 
   -- %suite(Demoing asserts)
@@ -55,6 +53,19 @@ create or replace package demo_expectations is
 
   -- %test(expectation using ut.expect('value').to_(equal('value'));)
   procedure test17;
+
+  -- %test(expectation using ut.expect(1).to_(equal(2));)
+  procedure test18;
+
+  -- %test(expectation using ut.expect(sysdate).to_(equal(sysdate));)
+  procedure test19;
+
+  -- %test(expectation using ut.expect(to_clob('a') ).to_(equal(to_clob('b')));)
+  procedure test20;
+
+  -- %test(expectation using ut.expect(to_blob('ffaa') ).to_(equal(to_blob('FFAA')));)
+  procedure test21;
+
 end;
 /
 
@@ -182,6 +193,31 @@ create or replace package body demo_expectations is
   procedure test17 is
   begin
     ut.expect('value').to_(equal('value'));
+  end;
+
+
+  -- %test(expectation using ut.expect(1).to_(equal(2));)
+  procedure test18 is
+  begin
+    ut.expect(1).to_(equal(2));
+  end;
+
+  -- %test(expectation using ut.expect(sysdate).to_(equal(sysdate));)
+  procedure test19 is
+  begin
+    ut.expect(sysdate).to_(equal(sysdate-1));
+  end;
+
+  -- %test(expectation using ut.expect(to_clob('a') ).to_(equal(to_clob('a')));)
+  procedure test20 is
+  begin
+    ut.expect(to_clob('a') ).to_(equal(to_clob('b')));
+  end;
+
+  -- %test(expectation using ut.expect(to_blob('ffaa') ).to_(equal(to_blob('FFAA')));)
+  procedure test21 is
+  begin
+    ut.expect(to_blob('ffaa') ).to_(equal(to_blob('FFAABB')));
   end;
 
 end;

@@ -15,5 +15,5 @@ end;
 /
 
 drop type ut_custom_reporter;
---drop package demo_expectations;
+drop package demo_expectations;
 
