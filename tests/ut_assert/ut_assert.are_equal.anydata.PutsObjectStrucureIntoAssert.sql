@@ -1,13 +1,13 @@
 PROMPT Puts Object structure as string into the Assert
 --Arrange
-create or replace type department as object(
+create or replace type department$ as object(
    dept_name varchar2(30)
 );
 /
 
 declare
-  l_expected department := department('HR');
-  l_actual   department := department('IT');
+  l_expected department$ := department$('HR');
+  l_actual   department$ := department$('IT');
   l_result   integer;
   l_assert_result  ut_assert_result;
 begin
@@ -17,8 +17,8 @@ begin
   l_assert_result := treat(ut_assert.get_asserts_results()(1) as ut_assert_result);
 
 --Assert
-  if l_assert_result.expected_value_string like q'[%DEPARTMENT(%dept_name => 'HR'%)%]'
-    and l_assert_result.actual_value_string like q'[%DEPARTMENT(%dept_name => 'IT'%)%]'
+  if l_assert_result.expected_value_string like q'[%DEPARTMENT$(%dept_name => 'HR'%)%]'
+    and l_assert_result.actual_value_string like q'[%DEPARTMENT$(%dept_name => 'IT'%)%]'
    then
     :test_result := ut_utils.tr_success;
   else
@@ -29,4 +29,4 @@ end;
 /
 
 --Cleanup
-drop type department;
+drop type department$;

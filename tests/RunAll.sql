@@ -11,6 +11,9 @@ set serveroutput on size unlimited format truncated
 @@helpers/ut_example_tests.pks
 @@helpers/ut_example_tests.pkb
 @@helpers/check_annotation_parsing.prc
+--@@helpers/cre_tab_ut_test_table.sql
+create table ut$test_table (val varchar2(1));
+@@helpers/ut_transaction_control.pck
 
 --Tests to invoke
 
@@ -27,6 +30,19 @@ set serveroutput on size unlimited format truncated
 @@lib/RunTest.sql ut_test/ut_test.TeardownExecutedAfterTest.sql
 @@lib/RunTest.sql ut_test/ut_test.TeardownProcedureNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.TeardownProcedureNameNull.sql
+
+@@lib/RunTest.sql ut_test/ut_test.Rollback_type.Auto.sql
+@@lib/RunTest.sql ut_test/ut_test.Rollback_type.AutoOnFailure.sql
+@@lib/RunTest.sql ut_test/ut_test.Rollback_type.Manual.sql
+@@lib/RunTest.sql ut_test/ut_test.Rollback_type.ManualOnFailure.sql
+@@lib/RunTest.sql ut_test/ut_test.IgnoreFlagSkipTest.sql
+
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Auto.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.AutoOnFailure.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Manual.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.ManualOnFailure.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.IgnoreFlagSkipSuite.sql
+
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithInvalidValues.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithNullValue.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.Success.sql
@@ -108,6 +124,8 @@ set serveroutput on size unlimited format truncated
 --Global cleanup
 drop package ut_example_tests;
 drop procedure check_annotation_parsing;
+drop package ut_transaction_control;
+drop table ut$test_table;
 
 --Finally
 @@lib/RunSummary

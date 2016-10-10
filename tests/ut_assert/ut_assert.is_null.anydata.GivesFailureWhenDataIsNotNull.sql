@@ -1,12 +1,12 @@
 PROMPT Gives a falure when oracle object is not null
 --Arrange
-create or replace type department as object(
+create or replace type department$ as object(
    dept_name varchar2(30)
 );
 /
 
 declare
-  l_actual   department := department('IT');
+  l_actual   department$ := department$('IT');
   l_result   integer;
 begin
 --Act
@@ -22,4 +22,4 @@ end;
 /
 
 --Cleanup
-drop type department;
+drop type department$;
