@@ -4,6 +4,10 @@ drop package ut_assert;
 
 drop package ut;
 
+drop type ut_assertion_timestamp_tz;
+
+drop type ut_assertion_timestamp_ltz;
+
 drop type ut_assertion_timestamp;
 
 drop type ut_assertion_date;
@@ -35,6 +39,10 @@ drop type ut_data_value_blob;
 drop type ut_data_value_date;
 
 drop type ut_data_value_timestamp;
+
+drop type ut_data_value_timestamp_ltz;
+
+drop type ut_data_value_timestamp_tz;
 
 drop type ut_data_value;
 

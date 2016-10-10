@@ -24,8 +24,9 @@ create or replace package ut_utils is
   gc_more_data_string         constant varchar2(5) := '[...]';
   gc_overflow_substr_len      constant integer := gc_max_input_string_length - length(gc_more_data_string);
   gc_number_format            constant varchar2(100) := 'TM9';
-  gc_date_format              constant varchar2(100) := 'yyyy-mm-dd hh24:mi:ss';
-  gc_timestamp_format         constant varchar2(100) := 'yyyy-mm-dd hh24:mi:ssxff';
+  gc_date_format              constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ss';
+  gc_timestamp_format         constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff';
+  gc_timestamp_tz_format      constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff tzh:tzm';
   gc_null_string              constant varchar2(4) := 'NULL';
   /*
      Function: test_result_to_char
@@ -57,6 +58,10 @@ create or replace package ut_utils is
   function to_string(a_value date) return varchar2;
 
   function to_string(a_value timestamp_unconstrained) return varchar2;
+
+  function to_string(a_value timestamp_tz_unconstrained) return varchar2;
+
+  function to_string(a_value timestamp_ltz_unconstrained) return varchar2;
 
   function boolean_to_int(a_value boolean) return integer;
 

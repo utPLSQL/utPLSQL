@@ -43,8 +43,20 @@ create or replace type body ut_assertion as
 
   member procedure to_equal(self in ut_assertion, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null) is
   begin
-    ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null)');
+    ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null)');
     self.build_assert_result( false, 'to equal', ut_utils.to_string(a_expected), 'timestamp');
+  end;
+
+  member procedure to_equal(self in ut_assertion, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null) is
+  begin
+    ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null)');
+    self.build_assert_result( false, 'to equal', ut_utils.to_string(a_expected), 'timestamp with local time zone');
+  end;
+
+  member procedure to_equal(self in ut_assertion, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null) is
+  begin
+    ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null)');
+    self.build_assert_result( false, 'to equal', ut_utils.to_string(a_expected), 'timestamp with time zone');
   end;
 
   member procedure to_(self in ut_assertion, a_expectation ut_expectation) is
@@ -59,6 +71,8 @@ create or replace type body ut_assertion as
         when self.actual_data is of (ut_data_value_clob) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_clob) )
         when self.actual_data is of (ut_data_value_date) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_date) )
         when self.actual_data is of (ut_data_value_timestamp) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_timestamp) )
+        when self.actual_data is of (ut_data_value_timestamp_tz) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_timestamp_tz) )
+        when self.actual_data is of (ut_data_value_timestamp_ltz) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_timestamp_ltz) )
       end;
     l_assert_result.message := self.message;
     l_assert_result.name    := 'to '||l_assert_result.name;

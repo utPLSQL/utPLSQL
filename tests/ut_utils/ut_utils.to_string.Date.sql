@@ -3,7 +3,7 @@ PROMPT Returns a full string representation of a date
 --Arrange
 declare
   l_value    date := to_date('2016-12-31 23:59:59', 'yyyy-mm-dd hh24:mi:ss');
-  l_expected varchar2(100) := '2016-12-31 23:59:59';
+  l_expected varchar2(100) := '2016-12-31T23:59:59';
   l_result   varchar2(100);
 begin
 --Act

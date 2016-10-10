@@ -84,6 +84,17 @@ create or replace package body ut_utils is
     return coalesce(to_char(a_value,gc_timestamp_format), gc_null_string);
   end;
 
+  function to_string(a_value timestamp_tz_unconstrained) return varchar2 is
+  begin
+    return coalesce(to_char(a_value,gc_timestamp_tz_format), gc_null_string);
+  end;
+
+  function to_string(a_value timestamp_ltz_unconstrained) return varchar2 is
+  begin
+    return coalesce(to_char(a_value,gc_timestamp_format), gc_null_string);
+  end;
+
+
   function boolean_to_int(a_value boolean) return integer is
   begin
     return case a_value when true then 1 when false then 0 end;
