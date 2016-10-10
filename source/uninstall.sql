@@ -4,21 +4,23 @@ drop package ut_assert;
 
 drop package ut;
 
+drop type ut_assertion_varchar2;
+
 drop type ut_assertion_timestamp_tz;
 
 drop type ut_assertion_timestamp_ltz;
 
 drop type ut_assertion_timestamp;
 
-drop type ut_assertion_date;
+drop type ut_assertion_number;
 
-drop type ut_assertion_blob;
+drop type ut_assertion_date;
 
 drop type ut_assertion_clob;
 
-drop type ut_assertion_varchar2;
+drop type ut_assertion_boolean;
 
-drop type ut_assertion_number;
+drop type ut_assertion_blob;
 
 drop type ut_assertion;
 
@@ -28,21 +30,23 @@ drop type equal;
 
 drop type ut_expectation;
 
-drop type ut_data_value_number;
-
 drop type ut_data_value_varchar2;
 
-drop type ut_data_value_clob;
-
-drop type ut_data_value_blob;
-
-drop type ut_data_value_date;
-
-drop type ut_data_value_timestamp;
+drop type ut_data_value_timestamp_tz;
 
 drop type ut_data_value_timestamp_ltz;
 
-drop type ut_data_value_timestamp_tz;
+drop type ut_data_value_timestamp;
+
+drop type ut_data_value_number;
+
+drop type ut_data_value_date;
+
+drop type ut_data_value_clob;
+
+drop type ut_data_value_boolean;
+
+drop type ut_data_value_blob;
 
 drop type ut_data_value;
 
