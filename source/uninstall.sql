@@ -26,6 +26,8 @@ drop type ut_assertion;
 
 drop package ut_assert_processor;
 
+drop type be_true;
+
 drop type equal;
 
 drop type ut_expectation;

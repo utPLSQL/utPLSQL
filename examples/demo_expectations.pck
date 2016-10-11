@@ -2,69 +2,14 @@ create or replace package demo_expectations is
 
   -- %suite(Demoing asserts)
 
-  -- %test(success of equal varchar)
-  procedure test1;
+  -- %test(demo of failure for to_equal expectation on value mismatch)
+  procedure demo_to_equal_failure;
 
-  -- %test(failure of different varchar)
-  procedure test2;
+  -- %test(demo of failure for to_equal expectation on data type mismatch)
+  procedure demo_to_equal_failure_types;
 
-  -- %test(success of equal number)
-  procedure test3;
-
-  -- %test(failure of different number)
-  procedure test4;
-
-  -- %test(success of equal clob)
-  procedure test5;
-
-  -- %test(failure of different clob)
-  procedure test6;
-
-  -- %test(failure varchar with clob)
-  procedure test7;
-
-  -- %test(failure of clob with varchar)
-  procedure test8;
-
-  -- %test(failure varchar with number)
-  procedure test9;
-
-  -- %test(failure of number with varchar)
-  procedure test10;
-
-  -- %test(failure number with clob)
-  procedure test11;
-
-
-  -- %test(failure of clob with number)
-  procedure test12;
-
-  -- %test(success of equal blob)
-  procedure test13;
-
-  -- %test(failure of different blob)
-  procedure test14;
-
-  -- %test(failure of clob with blob)
-  procedure test15;
-
-  -- %test(failure of blob with clob)
-  procedure test16;
-
-  -- %test(expectation using ut.expect('value').to_(equal('value'));)
-  procedure test17;
-
-  -- %test(expectation using ut.expect(1).to_(equal(2));)
-  procedure test18;
-
-  -- %test(expectation using ut.expect(sysdate).to_(equal(sysdate));)
-  procedure test19;
-
-  -- %test(expectation using ut.expect(to_clob('a') ).to_(equal(to_clob('b')));)
-  procedure test20;
-
-  -- %test(expectation using ut.expect(to_blob('ffaa') ).to_(equal(to_blob('FFAA')));)
-  procedure test21;
+  -- %test(demo of success for to_equal expectation)
+  procedure demo_to_equal_success;
 
 end;
 /
@@ -72,152 +17,122 @@ end;
 
 create or replace package body demo_expectations is
 
-  -- %test(success of equal varchar)
-  procedure test1 is
+  procedure demo_to_equal_failure is
+    l_expected_blob          blob     := to_blob('AF12FF');
+    l_expected_boolean       boolean  := true;
+    l_expected_clob          clob     := 'a string';
+    l_expected_date          date     := sysdate;
+    l_expected_number        number   := 12345;
+    l_expected_timestamp     timestamp with time zone := sysdate;
+    l_expected_timestamp_ltz timestamp with local time zone := sysdate;
+    l_expected_timestamp_tz  timestamp with time zone := sysdate;
+    l_expected_varchar2      varchar2(100) := 'a string';
+    l_actual_blob            blob     := to_blob('AF');
+    l_actual_boolean         boolean  := false;
+    l_actual_clob            clob     := 'a different string';
+    l_actual_date            date     := sysdate - 1;
+    l_actual_number          number   := 0.12345;
+    l_actual_timestamp       timestamp with time zone := sysdate - 1;
+    l_actual_timestamp_ltz   timestamp with local time zone := sysdate - 1;
+    l_actual_timestamp_tz    timestamp with time zone := sysdate - 1;
+    l_actual_varchar2        varchar2(100) := 'a different string';
   begin
-    ut.expect( 'a varchar2 value' ).to_equal('a varchar2 value');
+    ut.expect( l_actual_blob ).to_equal( l_expected_blob );
+    ut.expect( l_actual_boolean ).to_equal( l_expected_boolean );
+    ut.expect( l_actual_clob ).to_equal( l_expected_clob );
+    ut.expect( l_actual_date ).to_equal( l_expected_date );
+    ut.expect( l_actual_number ).to_equal( l_expected_number );
+    ut.expect( l_actual_timestamp ).to_equal( l_expected_timestamp );
+    ut.expect( l_actual_timestamp_ltz ).to_equal( l_expected_timestamp_ltz );
+    ut.expect( l_actual_timestamp_tz ).to_equal( l_expected_timestamp_tz );
+    ut.expect( l_actual_varchar2 ).to_equal( l_expected_varchar2 );
+
+    ut.expect( l_actual_blob ).to_( equal( l_expected_blob ) );
+    ut.expect( l_actual_boolean ).to_( equal( l_expected_boolean ) );
+    ut.expect( l_actual_clob ).to_( equal( l_expected_clob ) );
+    ut.expect( l_actual_date ).to_( equal( l_expected_date ) );
+    ut.expect( l_actual_number ).to_( equal( l_expected_number ) );
+    ut.expect( l_actual_timestamp ).to_( equal( l_expected_timestamp ) );
+    ut.expect( l_actual_timestamp_ltz ).to_( equal( l_expected_timestamp_ltz ) );
+    ut.expect( l_actual_timestamp_tz ).to_( equal( l_expected_timestamp_tz ) );
+    ut.expect( l_actual_varchar2 ).to_( equal( l_expected_varchar2 ) );
+
+    ut.expect( false ).to_be_true;
+    ut.expect( false ).to_( be_true );
+
   end;
 
-  -- %test(failure of different varchar)
-  procedure test2 is
+  procedure demo_to_equal_failure_types is
+    l_blob          blob     := to_blob('AF12FF');
+    l_boolean       boolean  := true;
+    l_clob          clob     := 'a string';
+    l_date          date     := sysdate;
+    l_number        number   := 12345;
+    l_timestamp     timestamp with time zone := sysdate;
+    l_timestamp_ltz timestamp with local time zone := sysdate;
+    l_timestamp_tz  timestamp with time zone := sysdate;
+    l_varchar2      varchar2(100) := 'a string';
   begin
-    ut.expect('a varchar2 value').to_equal('a differernt varchar2 value');
-  end;
+    ut.expect( l_blob ).to_equal( l_clob );
+    ut.expect( l_boolean ).to_equal( l_number );
+    ut.expect( l_clob ).to_equal( l_blob );
+    ut.expect( l_date ).to_equal( l_timestamp );
+    ut.expect( l_number ).to_equal( l_varchar2 );
+    ut.expect( l_timestamp ).to_equal( l_timestamp_ltz );
+    ut.expect( l_timestamp ).to_equal( l_timestamp_tz );
+    ut.expect( l_timestamp_ltz ).to_equal( l_date );
+    ut.expect( l_varchar2 ).to_equal( l_clob );
 
+    ut.expect( l_blob ).to_( equal( l_clob ) );
+    ut.expect( l_boolean ).to_( equal( l_number ) );
+    ut.expect( l_clob ).to_( equal( l_blob ) );
+    ut.expect( l_date ).to_( equal( l_timestamp ) );
+    ut.expect( l_number ).to_( equal( l_varchar2 ) );
+    ut.expect( l_timestamp ).to_( equal( l_timestamp_ltz ) );
+    ut.expect( l_timestamp ).to_( equal( l_timestamp_tz ) );
+    ut.expect( l_timestamp_ltz ).to_( equal( l_date ) );
+    ut.expect( l_varchar2 ).to_( equal( l_clob ) );
 
-  -- %test(success of equal number)
-  procedure test3 is
-  begin
-    ut.expect(12345).to_equal(12345);
-  end;
+    ut.expect( l_varchar2 ).to_be_true;
+    ut.expect( l_varchar2 ).to_( be_true );
 
-
-  -- %test(failure of different number)
-  procedure test4 is
-  begin
-    ut.expect(.0987654321).to_equal(.09876543210987654321);
-  end;
-
-
-  -- %test(success of equal clob)
-  procedure test5 is
-    a clob := 'a3';
-    b clob := 'a3';
-  begin
-    ut.expect(a).to_equal(b);
-  end;
-
-  -- %test(failure of different clob)
-  procedure test6 is
-    a clob := 'a3';
-    b clob := 'a4';
-  begin
-    ut.expect(a).to_equal(b);
-  end;
-
-  -- %test(failure varchar with clob)
-  procedure test7 is
-    a clob := 'a3';
-  begin
-    ut.expect(a).to_equal('a3');
-  end;
-
-
-  -- %test(failure of clob with varchar)
-  procedure test8 is
-    a clob := 'a3';
-  begin
-    ut.expect('a3').to_equal(a);
-  end;
-
-  -- %test(failure varchar with number)
-  procedure test9 is
-  begin
-    ut.expect('12345').to_equal(12345);
-  end;
-
-  -- %test(failure of number with varchar)
-  procedure test10 is
-  begin
-    ut.expect(12345).to_equal('12345');
-  end;
-
-  -- %test(failure number with clob)
-  procedure test11 is
-    a clob := '3';
-  begin
-    ut.expect(a).to_equal(3);
-  end;
-
-
-  -- %test(failure of clob with number)
-  procedure test12 is
-    a clob := '3';
-  begin
-    ut.expect(3).to_equal(a);
-  end;
-
-  -- %test(success of equal blob)
-  procedure test13 is
-    a blob := utl_raw.cast_to_raw('a3');
-    b blob := utl_raw.cast_to_raw('a3');
-  begin
-    ut.expect(a).to_equal(b);
-  end;
-
-  -- %test(failure of different blob)
-  procedure test14 is
-    a blob := utl_raw.cast_to_raw('a3');
-    b blob := utl_raw.cast_to_raw('a4');
-  begin
-    ut.expect(a).to_equal(b);
-  end;
-
-  -- %test(failure of clob with blob)
-  procedure test15 is
-    a clob := 'a3';
-    b blob := utl_raw.cast_to_raw('a3');
-  begin
-    ut.expect(a).to_equal(b);
-  end;
-
-  -- %test(failure of blob with clob)
-  procedure test16 is
-    a blob := utl_raw.cast_to_raw('a3');
-    b clob := 'a3';
-  begin
-    ut.expect(a).to_equal(b);
-  end;
-
-  -- %test(expectation using ut.expect('value').to_(equal('value'));)
-  procedure test17 is
-  begin
-    ut.expect('value').to_(equal('value'));
   end;
 
 
-  -- %test(expectation using ut.expect(1).to_(equal(2));)
-  procedure test18 is
+  procedure demo_to_equal_success is
+    l_blob          blob     := to_blob('AF12FF');
+    l_boolean       boolean  := true;
+    l_clob          clob     := 'a string';
+    l_date          date     := sysdate;
+    l_number        number   := 12345;
+    l_timestamp     timestamp with time zone := sysdate;
+    l_timestamp_ltz timestamp with local time zone := sysdate;
+    l_timestamp_tz  timestamp with time zone := sysdate;
+    l_varchar2      varchar2(100) := 'a string';
   begin
-    ut.expect(1).to_(equal(2));
-  end;
+    ut.expect( l_blob ).to_equal( l_blob );
+    ut.expect( l_boolean ).to_equal( l_boolean );
+    ut.expect( l_clob ).to_equal( l_clob );
+    ut.expect( l_date ).to_equal( l_date );
+    ut.expect( l_number ).to_equal( l_number );
+    ut.expect( l_timestamp ).to_equal( l_timestamp );
+    ut.expect( l_timestamp_ltz ).to_equal( l_timestamp_ltz );
+    ut.expect( l_timestamp_tz ).to_equal( l_timestamp_tz );
+    ut.expect( l_varchar2 ).to_equal( l_varchar2 );
 
-  -- %test(expectation using ut.expect(sysdate).to_(equal(sysdate));)
-  procedure test19 is
-  begin
-    ut.expect(sysdate).to_(equal(sysdate-1));
-  end;
+    ut.expect( l_blob ).to_( equal( l_blob ) );
+    ut.expect( l_boolean ).to_( equal( l_boolean ) );
+    ut.expect( l_clob ).to_( equal( l_clob ) );
+    ut.expect( l_date ).to_( equal( l_date ) );
+    ut.expect( l_number ).to_( equal( l_number ) );
+    ut.expect( l_timestamp ).to_( equal( l_timestamp ) );
+    ut.expect( l_timestamp_ltz ).to_( equal( l_timestamp_ltz ) );
+    ut.expect( l_timestamp_tz ).to_( equal( l_timestamp_tz ) );
+    ut.expect( l_varchar2 ).to_( equal( l_varchar2 ) );
 
-  -- %test(expectation using ut.expect(to_clob('a') ).to_(equal(to_clob('a')));)
-  procedure test20 is
-  begin
-    ut.expect(to_clob('a') ).to_(equal(to_clob('b')));
-  end;
+    ut.expect( true ).to_be_true;
+    ut.expect( true ).to_( be_true );
 
-  -- %test(expectation using ut.expect(to_blob('ffaa') ).to_(equal(to_blob('FFAA')));)
-  procedure test21 is
-  begin
-    ut.expect(to_blob('ffaa') ).to_(equal(to_blob('FFAABB')));
   end;
 
 end;

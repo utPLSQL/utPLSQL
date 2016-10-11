@@ -1,6 +1,7 @@
 Clear Screen
 set echo off
 set feedback off
+set linesize 1000
 prompt RunExampleComplexSuiteWithCustomDBMSOutputReporter
 @@RunExampleComplexSuiteWithCustomDBMSOutputReporter.sql
 prompt RunExampleTestSuite

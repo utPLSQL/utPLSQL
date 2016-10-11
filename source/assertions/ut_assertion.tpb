@@ -14,55 +14,55 @@ create or replace type body ut_assertion as
   member procedure to_equal(self in ut_assertion, a_expected blob, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected blob, a_nulls_are_equal boolean := null)');
-    self.build_assert_result( false, 'to equal', ut_utils.to_string(a_expected), 'blob');
+    self.build_assert_result( false, 'to_equal', ut_utils.to_string(a_expected), 'blob');
   end;
 
   member procedure to_equal(self in ut_assertion, a_expected boolean, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected boolean, a_nulls_are_equal boolean := null)');
-    self.build_assert_result( false, 'to equal', ut_utils.to_string(a_expected), 'boolean');
+    self.build_assert_result( false, 'to_equal', ut_utils.to_string(a_expected), 'boolean');
   end;
 
   member procedure to_equal(self in ut_assertion, a_expected clob, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected clob, a_nulls_are_equal boolean := null)');
-    self.build_assert_result( false, 'to equal', ut_utils.to_string(a_expected), 'clob');
+    self.build_assert_result( false, 'to_equal', ut_utils.to_string(a_expected), 'clob');
   end;
 
   member procedure to_equal(self in ut_assertion, a_expected date, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected date, a_nulls_are_equal boolean := null)');
-    self.build_assert_result( false, 'to equal', ut_utils.to_string(a_expected), 'date');
+    self.build_assert_result( false, 'to_equal', ut_utils.to_string(a_expected), 'date');
   end;
 
   member procedure to_equal(self in ut_assertion, a_expected number, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected number, a_nulls_are_equal boolean := null)');
-    self.build_assert_result( false, 'to equal', ut_utils.to_string(a_expected), 'number');
+    self.build_assert_result( false, 'to_equal', ut_utils.to_string(a_expected), 'number');
   end;
 
   member procedure to_equal(self in ut_assertion, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null)');
-    self.build_assert_result( false, 'to equal', ut_utils.to_string(a_expected), 'timestamp');
+    self.build_assert_result( false, 'to_equal', ut_utils.to_string(a_expected), 'timestamp');
   end;
 
   member procedure to_equal(self in ut_assertion, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null)');
-    self.build_assert_result( false, 'to equal', ut_utils.to_string(a_expected), 'timestamp with local time zone');
+    self.build_assert_result( false, 'to_equal', ut_utils.to_string(a_expected), 'timestamp with local time zone');
   end;
 
   member procedure to_equal(self in ut_assertion, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null)');
-    self.build_assert_result( false, 'to equal', ut_utils.to_string(a_expected), 'timestamp with time zone');
+    self.build_assert_result( false, 'to_equal', ut_utils.to_string(a_expected), 'timestamp with time zone');
   end;
 
   member procedure to_equal(self in ut_assertion, a_expected varchar2, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected varchar2, a_nulls_are_equal boolean := null)');
-    self.build_assert_result( false, 'to equal', ut_utils.to_string(a_expected), 'varchar2');
+    self.build_assert_result( false, 'to_equal', ut_utils.to_string(a_expected), 'varchar2');
   end;
 
   member procedure to_(self in ut_assertion, a_expectation ut_expectation) is
@@ -84,6 +84,19 @@ create or replace type body ut_assertion as
     l_assert_result.message := self.message;
     l_assert_result.name    := 'to '||l_assert_result.name;
     ut_assert_processor.add_assert_result( l_assert_result );
+  end;
+
+  final member procedure to_be_true(self in ut_assertion) is
+    l_result boolean;
+  begin
+    l_result :=
+    case when self.actual_data is of (ut_data_value_boolean)
+      then ut_utils.int_to_boolean(treat(self.actual_data as ut_data_value_boolean).value)
+      else false
+    end;
+    self.build_assert_result(
+      l_result
+      , 'to_be_true', ut_utils.to_string(true), 'boolean');
   end;
 
   final member procedure to_be_null is

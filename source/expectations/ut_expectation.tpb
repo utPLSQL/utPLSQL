@@ -2,7 +2,7 @@ create or replace type body ut_expectation as
 
   final member function not_implemented(a_actual ut_data_value)  return ut_assert_result is
   begin
-    ut_utils.debug_log('ERROR - equal.run_expectation(a_actual '||a_actual.type||')');
+    ut_utils.debug_log('ERROR - '||assert_name||'.run_expectation'||'(a_actual '||a_actual.type||')');
     return 
       ut_assert_result(
         self.assert_name, ut_utils.tr_error, self.expected.type, a_actual.type, self.expected.value_string, a_actual.value_string,

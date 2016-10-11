@@ -3,6 +3,7 @@
 --Suite Management packages are when developed will make this easier.
 --Clear Screen
 Set Serveroutput On Size Unlimited format truncated
+set linesize 1000
 set echo off
 --install the example unit test packages
 @@demo_expectations.pck
@@ -15,5 +16,5 @@ end;
 /
 
 drop type ut_custom_reporter;
-drop package demo_expectations;
+--drop package demo_expectations;
 

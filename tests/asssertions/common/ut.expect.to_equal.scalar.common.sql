@@ -8,7 +8,7 @@ begin
   ut.expect(l_actual).to_equal(l_expected);
   l_result :=  ut_assert_processor.get_aggregate_asserts_result();
 --Assert
-  if l_result = &&4 then
+  if nvl(:test_result, ut_utils.tr_success) = ut_utils.tr_success and l_result = &&4 then
     :test_result := ut_utils.tr_success;
   else
     dbms_output.put_line('expected: '''||&&4||''', got: '''||l_result||'''' );
