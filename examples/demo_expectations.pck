@@ -93,7 +93,7 @@ create or replace package body demo_expectations is
     ut.expect( l_timestamp_ltz ).to_( equal( l_date ) );
     ut.expect( l_varchar2 ).to_( equal( l_clob ) );
 
-    ut.expect( l_varchar2 ).to_be_true;
+    --ut.expect( l_varchar2 ).to_be_true; -- this will not compile
     ut.expect( l_varchar2 ).to_( be_true );
 
   end;
