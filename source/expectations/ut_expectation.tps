@@ -7,6 +7,7 @@ create or replace type ut_expectation as object(
   member function run_expectation(a_actual ut_data_value_clob) return ut_assert_result,
   member function run_expectation(a_actual ut_data_value_date) return ut_assert_result,
   member function run_expectation(a_actual ut_data_value_number) return ut_assert_result,
+  member function run_expectation(a_actual ut_data_value_refcursor) return ut_assert_result,
   member function run_expectation(a_actual ut_data_value_timestamp) return ut_assert_result,
   member function run_expectation(a_actual ut_data_value_timestamp_tz) return ut_assert_result,
   member function run_expectation(a_actual ut_data_value_timestamp_ltz) return ut_assert_result,

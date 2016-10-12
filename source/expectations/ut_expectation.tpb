@@ -30,6 +30,11 @@ create or replace type body ut_expectation as
     return not_implemented(a_actual);
   end;
 
+  member function run_expectation(a_actual ut_data_value_refcursor) return ut_assert_result is
+  begin
+    return not_implemented(a_actual);
+  end;
+
   member function run_expectation(a_actual ut_data_value_date) return ut_assert_result is
   begin
     return not_implemented(a_actual);

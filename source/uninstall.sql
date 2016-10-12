@@ -12,6 +12,8 @@ drop type ut_assertion_timestamp_ltz;
 
 drop type ut_assertion_timestamp;
 
+drop type ut_assertion_refcursor;
+
 drop type ut_assertion_number;
 
 drop type ut_assertion_date;
@@ -41,6 +43,8 @@ drop type ut_data_value_timestamp_ltz;
 drop type ut_data_value_timestamp;
 
 drop type ut_data_value_number;
+
+drop type ut_data_value_refcursor;
 
 drop type ut_data_value_date;
 

@@ -45,9 +45,13 @@ create or replace package body ut is
     return ut_assertion_varchar2(ut_data_value_varchar2(a_actual), a_message);
   end;
 
+  function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_assertion_refcursor is
+  begin
+    return ut_assertion_refcursor(ut_data_value_refcursor(a_actual), a_message);
+  end;
+
 --  function expect(a_actual in anydata, a_message varchar2 := null) return ut_assertion_anydata;
 --
---  function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_assertion_cursor;
 
 end ut;
 /

@@ -47,6 +47,12 @@ create or replace type body equal as
     return;
   end;
 
+  constructor function equal(self in out nocopy equal, a_expected sys_refcursor, a_nulls_are_equal boolean := null) return self as result is
+  begin
+    init(ut_data_value_refcursor(a_expected), a_nulls_are_equal);
+    return;
+  end;
+
   constructor function equal(self in out nocopy equal, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_timestamp(a_expected), a_nulls_are_equal);
@@ -115,6 +121,22 @@ create or replace type body equal as
       = a_actual.value
       , a_actual
     );
+  end;
+
+  overriding member function run_expectation(a_actual ut_data_value_refcursor) return ut_assert_result is
+    l_expected_cursor_number number;
+    l_actual_cursor_number number := a_actual.value;
+    l_result  boolean := false;
+  begin
+    if self.expected is of (ut_data_value_refcursor) then
+      l_expected_cursor_number := treat(self.expected as ut_data_value_refcursor).value;
+      if l_expected_cursor_number is not null and l_actual_cursor_number is not null then
+        l_result :=
+           xmltype( dbms_sql.to_refcursor(l_expected_cursor_number) ).getClobVal()
+           = xmltype( dbms_sql.to_refcursor(l_actual_cursor_number) ).getClobVal();
+      end if;
+    end if;
+    return self.build_assert_result( l_result , a_actual );
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_timestamp) return ut_assert_result is

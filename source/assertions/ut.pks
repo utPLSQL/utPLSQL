@@ -18,10 +18,10 @@ create or replace package ut authid current_user as
 
   function expect(a_actual in varchar2, a_message varchar2 := null) return ut_assertion_varchar2;
 
---  function expect(a_message varchar2 := null, a_actual in anydata) return ut_assertion_anydata;
---
---  function expect(a_message varchar2 := null, a_actual in sys_refcursor) return ut_assertion_cursor;
+  function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_assertion_refcursor;
 
+--  function expect(a_actual in anydata, a_message varchar2 := null) return ut_assertion_anydata;
+--
 
 end ut;
 /

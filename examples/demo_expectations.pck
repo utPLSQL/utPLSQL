@@ -36,6 +36,8 @@ create or replace package body demo_expectations is
     l_actual_timestamp_ltz   timestamp with local time zone := sysdate - 1;
     l_actual_timestamp_tz    timestamp with time zone := sysdate - 1;
     l_actual_varchar2        varchar2(100) := 'a different string';
+    l_actual_cursor          sys_refcursor;
+    l_expected_cursor        sys_refcursor;
   begin
     ut.expect( l_actual_blob ).to_equal( l_expected_blob );
     ut.expect( l_actual_boolean ).to_equal( l_expected_boolean );
@@ -60,6 +62,11 @@ create or replace package body demo_expectations is
     ut.expect( false ).to_be_true;
     ut.expect( false ).to_( be_true );
 
+    open l_actual_cursor for select * from user_objects where rownum <100;
+    open l_expected_cursor for select * from user_objects where rownum <5;
+
+    ut.expect(l_actual_cursor).to_equal(l_expected_cursor);
+
   end;
 
   procedure demo_to_equal_failure_types is
@@ -72,6 +79,7 @@ create or replace package body demo_expectations is
     l_timestamp_ltz timestamp with local time zone := sysdate;
     l_timestamp_tz  timestamp with time zone := sysdate;
     l_varchar2      varchar2(100) := 'a string';
+    l_cursor        sys_refcursor;
   begin
     ut.expect( l_blob ).to_equal( l_clob );
     ut.expect( l_boolean ).to_equal( l_number );
@@ -96,6 +104,8 @@ create or replace package body demo_expectations is
     --ut.expect( l_varchar2 ).to_be_true; -- this will not compile
     ut.expect( l_varchar2 ).to_( be_true );
 
+    open l_cursor for select * from user_objects where rownum <100;
+    ut.expect(l_cursor).to_equal(l_varchar2);
   end;
 
 
@@ -109,6 +119,8 @@ create or replace package body demo_expectations is
     l_timestamp_ltz timestamp with local time zone := sysdate;
     l_timestamp_tz  timestamp with time zone := sysdate;
     l_varchar2      varchar2(100) := 'a string';
+    l_cursor1        sys_refcursor;
+    l_cursor2        sys_refcursor;
   begin
     ut.expect( l_blob ).to_equal( l_blob );
     ut.expect( l_boolean ).to_equal( l_boolean );
@@ -133,6 +145,9 @@ create or replace package body demo_expectations is
     ut.expect( true ).to_be_true;
     ut.expect( true ).to_( be_true );
 
+    open l_cursor1 for select * from all_objects;
+    open l_cursor2 for select * from all_objects;
+    ut.expect(l_cursor1).to_equal(l_cursor2);
   end;
 
 end;

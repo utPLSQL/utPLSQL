@@ -25,6 +25,7 @@ whenever oserror exit failure rollback
 @@expectation_data_values/ut_data_value_clob.tps
 @@expectation_data_values/ut_data_value_date.tps
 @@expectation_data_values/ut_data_value_number.tps
+@@expectation_data_values/ut_data_value_refcursor.tps
 @@expectation_data_values/ut_data_value_timestamp.tps
 @@expectation_data_values/ut_data_value_timestamp_tz.tps
 @@expectation_data_values/ut_data_value_timestamp_ltz.tps
@@ -39,6 +40,7 @@ whenever oserror exit failure rollback
 @@assertions/ut_assertion_clob.tps
 @@assertions/ut_assertion_date.tps
 @@assertions/ut_assertion_number.tps
+@@assertions/ut_assertion_refcursor.tps
 @@assertions/ut_assertion_timestamp.tps
 @@assertions/ut_assertion_timestamp_ltz.tps
 @@assertions/ut_assertion_timestamp_tz.tps
@@ -66,6 +68,7 @@ whenever oserror exit failure rollback
 @@expectation_data_values/ut_data_value_clob.tpb
 @@expectation_data_values/ut_data_value_date.tpb
 @@expectation_data_values/ut_data_value_number.tpb
+@@expectation_data_values/ut_data_value_refcursor.tpb
 @@expectation_data_values/ut_data_value_timestamp.tpb
 @@expectation_data_values/ut_data_value_timestamp_tz.tpb
 @@expectation_data_values/ut_data_value_timestamp_ltz.tpb
@@ -80,6 +83,7 @@ whenever oserror exit failure rollback
 @@assertions/ut_assertion_clob.tpb
 @@assertions/ut_assertion_date.tpb
 @@assertions/ut_assertion_number.tpb
+@@assertions/ut_assertion_refcursor.tpb
 @@assertions/ut_assertion_timestamp.tpb
 @@assertions/ut_assertion_timestamp_ltz.tpb
 @@assertions/ut_assertion_timestamp_tz.tpb
