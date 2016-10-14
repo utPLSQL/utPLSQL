@@ -1,3 +1,5 @@
+Prompt Give failure for matching string using regexp
+
 --Arrange
 declare
   l_mask     varchar2(20) := '[a-z]+\d[a-z]+';

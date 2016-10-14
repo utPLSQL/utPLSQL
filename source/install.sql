@@ -55,6 +55,7 @@ whenever oserror exit failure rollback
 @@types/ut_reporter.tpb
 @@types/ut_object.tpb
 @@types/ut_composite_object.tpb
+@@types/ut_test_object.tpb
 @@types/ut_test.tpb
 @@types/ut_test_suite.tpb
 @@types/ut_executable.tpb

@@ -23,6 +23,9 @@ create or replace package body ut_suite_manager is
     l_owner_name  varchar2(32 char);
     l_object_name varchar2(32 char);
     l_suite       ut_test_suite;
+    
+    l_suite_rollback integer;
+    l_suite_rollback_annotation varchar2(4000);
   
   begin
     l_owner_name  := a_owner_name;
@@ -41,8 +44,26 @@ create or replace package body ut_suite_manager is
       else
         l_suite_package := lower(l_object_name);
       end if;
-    
-      l_suite := ut_test_suite(l_suite_name, l_suite_package);
+      
+      if l_annotation_data.package_annotations.exists('rollback') then
+        l_suite_rollback_annotation := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('rollback'), 1);
+        l_suite_rollback := case lower(l_suite_rollback_annotation) 
+                              when 'manual' then
+                                ut_utils.gc_rollback_manual
+                              when 'auto' then
+                                ut_utils.gc_rollback_auto
+                              else
+                                ut_utils.gc_rollback_auto
+                            end;
+      else
+        l_suite_rollback := ut_utils.gc_rollback_auto;
+      end if;
+          
+      l_suite := ut_test_suite(l_suite_name, l_suite_package, a_rollback_type => l_suite_rollback);
+      
+      if l_annotation_data.package_annotations.exists('ignore') then
+        l_suite.set_ignore_flag(true);
+      end if;
     
       l_proc_name := l_annotation_data.procedure_annotations.first;
       while (l_default_setup_proc is null or l_default_teardown_proc is null or l_suite_setup_proc is null or
@@ -76,13 +97,15 @@ create or replace package body ut_suite_manager is
     
       l_proc_name := l_annotation_data.procedure_annotations.first;
       while l_proc_name is not null loop
-        declare
-          l_setup_procedure    varchar2(30 char);
-          l_teardown_procedure varchar2(30 char);
-        begin
-          l_proc_annotations := l_annotation_data.procedure_annotations(l_proc_name);
-        
-          if l_proc_annotations.exists('test') then
+
+        l_proc_annotations := l_annotation_data.procedure_annotations(l_proc_name);
+        if l_proc_annotations.exists('test') then
+          declare
+            l_setup_procedure     varchar2(30 char);
+            l_teardown_procedure  varchar2(30 char);
+            l_rollback_annotation varchar2(4000);
+            l_rollback_type       integer := ut_utils.gc_rollback_auto;
+          begin
             if l_proc_annotations.exists('testsetup') then
               l_setup_procedure := ut_annotations.get_annotation_param(l_proc_annotations('testsetup'), 1);
             end if;
@@ -90,18 +113,37 @@ create or replace package body ut_suite_manager is
             if l_proc_annotations.exists('testteardown') then
               l_teardown_procedure := ut_annotations.get_annotation_param(l_proc_annotations('testteardown'), 1);
             end if;
+            
+            if l_proc_annotations.exists('rollback') then
+              l_rollback_annotation := ut_annotations.get_annotation_param(l_proc_annotations('rollback'), 1);
+              l_rollback_type := case lower(l_rollback_annotation) 
+                                   when 'manual' then
+                                     ut_utils.gc_rollback_manual
+                                   when 'auto' then
+                                     ut_utils.gc_rollback_auto
+                                   --when 'on-error' then
+                                   --  ut_utils.gc_rollback_on_error
+                                   else
+                                     l_suite_rollback
+                                   end;
+            end if;
           
             l_test := ut_test(a_object_name        => l_object_name
                              ,a_test_procedure     => l_proc_name
                              ,a_test_name          => ut_annotations.get_annotation_param(l_proc_annotations('test'), 1)
                              ,a_owner_name         => l_owner_name
                              ,a_setup_procedure    => nvl(l_setup_procedure, l_default_setup_proc)
-                             ,a_teardown_procedure => nvl(l_teardown_procedure, l_default_teardown_proc));
+                             ,a_teardown_procedure => nvl(l_teardown_procedure, l_default_teardown_proc)
+                             ,a_rollback_type      => l_rollback_type);
+                             
+            if l_proc_annotations.exists('ignore') then
+              l_test.set_ignore_flag(true);
+            end if;
           
             l_suite.add_item(l_test);
-          end if;
-        
-        end;
+          end;
+        end if;
+
         l_proc_name := l_annotation_data.procedure_annotations.next(l_proc_name);
       end loop;
     end if;

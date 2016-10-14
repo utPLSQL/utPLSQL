@@ -11,13 +11,25 @@ create or replace package ut_utils is
     tr_failure - one or more asserts failed
     tr_error   - exception was raised
   */
-  tr_success                  constant number(1) := 1; -- test passed
-  tr_failure                  constant number(1) := 2; -- one or more asserts failed
-  tr_error                    constant number(1) := 3; -- exception was raised
+  tr_ignore                  constant number(1) := 0; -- test/suite was ignored
+  tr_success                 constant number(1) := 1; -- test passed
+  tr_failure                 constant number(1) := 2; -- one or more asserts failed
+  tr_error                   constant number(1) := 3; -- exception was raised
 
-  tr_success_char             constant varchar2(7) := 'Success'; -- test passed
-  tr_failure_char             constant varchar2(7) := 'Failure'; -- one or more asserts failed
-  tr_error_char               constant varchar2(5) := 'Error'; -- exception was raised
+  tr_ignore_char             constant varchar2(6) := 'Ignore'; -- test/suite was ignored
+  tr_success_char            constant varchar2(7) := 'Success'; -- test passed
+  tr_failure_char            constant varchar2(7) := 'Failure'; -- one or more asserts failed
+  tr_error_char              constant varchar2(5) := 'Error'; -- exception was raised
+
+  /*
+    Constants: Rollback type for ut_test_object
+  */
+  gc_rollback_auto           constant number(1) := 0; -- rollback after each test and suite
+  gc_rollback_manual         constant number(1) := 1; -- leave transaction control manual
+  --gc_rollback_on_error       constant number(1) := 2; -- rollback tests only on error
+
+  ex_unsopported_rollback_type exception;
+  pragma exception_init(ex_unsopported_rollback_type, -20200);
 
   gc_max_output_string_length constant integer := 4000;
   gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
@@ -43,6 +55,8 @@ create or replace package ut_utils is
 
   function to_test_result(a_test boolean) return integer;
 
+  function gen_savepoint_name return varchar2;
+
   procedure debug_log(a_message varchar2);
 
   function to_string(a_value varchar2) return varchar2;
@@ -66,6 +80,13 @@ create or replace package ut_utils is
   function boolean_to_int(a_value boolean) return integer;
 
   function int_to_boolean(a_value integer) return boolean;
+
+  /*
+   Procedure: validate_rollback_type
+
+   Validates passed value against supported rollback types
+  */
+  procedure validate_rollback_type(a_rollback_type number);
 
 end ut_utils;
 /
