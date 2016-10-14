@@ -16,8 +16,8 @@ create or replace type ut_assertion as object
   member procedure to_equal(self in ut_assertion, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_assertion, a_expected varchar2, a_nulls_are_equal boolean := null),
   member procedure to_(self in ut_assertion, a_expectation ut_expectation),
-  final member procedure to_be_null,
-  final member procedure to_be_not_null
+  final member procedure to_be_null(self in ut_assertion),
+  final member procedure to_be_not_null(self in ut_assertion)
 )
 not final not instantiable
 /

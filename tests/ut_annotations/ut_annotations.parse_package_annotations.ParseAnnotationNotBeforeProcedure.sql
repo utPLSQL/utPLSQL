@@ -32,7 +32,7 @@ END;';
   
   check_annotation_parsing(l_expected, l_parsing_result);
   
-  if ut_assert.get_aggregate_asserts_result = ut_utils.tr_success then
+  if ut_assert_processor.get_aggregate_asserts_result = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;
   end if;
 

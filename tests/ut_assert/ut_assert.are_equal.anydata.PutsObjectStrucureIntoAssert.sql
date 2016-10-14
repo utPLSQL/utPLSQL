@@ -14,11 +14,11 @@ begin
 --Act
   ut_assert.are_equal( anydata.convertObject(l_expected), anydata.convertObject(l_actual) );
 
-  l_assert_result := treat(ut_assert.get_asserts_results()(1) as ut_assert_result);
+  l_assert_result := treat(ut_assert_processor.get_asserts_results()(1) as ut_assert_result);
 
 --Assert
-  if l_assert_result.expected_value_string like q'[%DEPARTMENT$(%dept_name => 'HR'%)%]'
-    and l_assert_result.actual_value_string like q'[%DEPARTMENT$(%dept_name => 'IT'%)%]'
+  if l_assert_result.expected_value_string like  '''<DEPARTMENT%><DEPT_NAME>HR</DEPT_NAME></DEPARTMENT%>'''
+    and l_assert_result.actual_value_string like '''<DEPARTMENT%><DEPT_NAME>it</DEPT_NAME></DEPARTMENT%>'''
    then
     :test_result := ut_utils.tr_success;
   else

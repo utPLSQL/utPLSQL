@@ -11,7 +11,7 @@ begin
   open l_actual for select * from user_procedures where rownum <=2;
 --Act
   ut_assert.are_equal( l_expected, l_actual );
-  l_result :=  ut_assert.get_aggregate_asserts_result();
+  l_result :=  ut_assert_processor.get_aggregate_asserts_result();
 --Assert
   if l_result = ut_utils.tr_failure then
     :test_result := ut_utils.tr_success;

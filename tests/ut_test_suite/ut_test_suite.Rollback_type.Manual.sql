@@ -20,13 +20,13 @@ begin
 --Act  
   l_suite.execute;
   
-  ut_assert.clear_asserts;
+  ut_assert_processor.clear_asserts;
 
 --Assert  
   ut_assert.this(ut_transaction_control.count_rows('t')>0);
   ut_assert.this(ut_transaction_control.count_rows('s')>0);
 
-  if ut_assert.get_aggregate_asserts_result = ut_utils.tr_success then
+  if ut_assert_processor.get_aggregate_asserts_result = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;
   end if;
 

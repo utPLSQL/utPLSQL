@@ -1,10 +1,5 @@
 create or replace package ut_assert authid current_user as
 
-  function get_aggregate_asserts_result return integer;
-  procedure clear_asserts;
-  procedure report_error(a_message in varchar2);
-  function get_asserts_results return ut_objects_list;
-	
 	-- General assertion
   procedure this(a_msg in varchar2, a_condition in boolean);
   procedure this(a_condition in boolean);

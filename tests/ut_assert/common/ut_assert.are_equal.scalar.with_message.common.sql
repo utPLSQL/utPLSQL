@@ -7,7 +7,7 @@ declare
 begin
 --Act
   ut_assert.are_equal(l_test_message, l_expected, l_actual);
-  l_results :=  ut_assert.get_asserts_results();
+  l_results :=  ut_assert_processor.get_asserts_results();
 --Assert
   if treat(l_results(1) as ut_assert_result).message like '%'||l_test_message||'%' then
     :test_result := ut_utils.tr_success;

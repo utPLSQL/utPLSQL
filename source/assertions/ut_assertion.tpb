@@ -100,13 +100,13 @@ create or replace type body ut_assertion as
     ut_assert_processor.add_assert_result( l_assert_result );
   end;
 
-  final member procedure to_be_null is
+  final member procedure to_be_null(self in ut_assertion) is
   begin
     ut_utils.debug_log('ut_assertion.to_be_null');
     self.build_assert_result(ut_utils.int_to_boolean(self.actual_data.is_null), 'to_be_null', null, ut_utils.to_string(to_char(null)));
   end;
 
-  final member procedure to_be_not_null is
+  final member procedure to_be_not_null(self in ut_assertion) is
   begin
     ut_utils.debug_log('ut_assertion.to_be_not_null');
     self.build_assert_result(not ut_utils.int_to_boolean(self.actual_data.is_null), 'to_be_not_null', null, ut_utils.to_string(to_char(null)));
