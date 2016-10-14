@@ -7,7 +7,7 @@ create or replace type department$ as object(
 
 declare
   l_expected department$ := department$('HR');
-  l_actual   department$ := department$('IT');
+  l_actual   department$ := department$('it');
   l_result   integer;
   l_assert_result  ut_assert_result;
 begin
