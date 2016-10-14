@@ -1,5 +1,10 @@
 create or replace package body ut is
 
+  function expect(a_actual in anydata, a_message varchar2 := null) return ut_assertion_anydata is
+  begin
+    return ut_assertion_anydata(ut_data_value_anydata(a_actual), a_message);
+  end;
+
   function expect(a_actual in blob, a_message varchar2 := null) return ut_assertion_blob is
   begin
     return ut_assertion_blob(ut_data_value_blob(a_actual), a_message);
@@ -49,9 +54,6 @@ create or replace package body ut is
   begin
     return ut_assertion_refcursor(ut_data_value_refcursor(a_actual), a_message);
   end;
-
---  function expect(a_actual in anydata, a_message varchar2 := null) return ut_assertion_anydata;
---
 
 end ut;
 /

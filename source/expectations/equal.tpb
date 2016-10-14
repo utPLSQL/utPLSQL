@@ -17,6 +17,12 @@ create or replace type body equal as
       );
   end;
 
+  constructor function equal(self in out nocopy equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result is
+  begin
+    init(ut_data_value_anydata(a_expected), a_nulls_are_equal);
+    return;
+  end;
+
   constructor function equal(self in out nocopy equal, a_expected blob, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_blob(a_expected), a_nulls_are_equal);
@@ -75,6 +81,16 @@ create or replace type body equal as
   begin
     init(ut_data_value_varchar2(a_expected), a_nulls_are_equal);
     return;
+  end;
+
+  overriding member function run_expectation(a_actual ut_data_value_anydata) return ut_assert_result is
+    l_expected anydata;
+  begin
+    l_expected :=  case when self.expected is of (ut_data_value_anydata) then treat(self.expected as ut_data_value_anydata).value end;
+    return self.build_assert_result(
+       xmltype(l_expected).getclobval() = xmltype(a_actual.value).getclobval()
+      , a_actual
+    );
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_blob) return ut_assert_result is

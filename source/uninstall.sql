@@ -24,6 +24,8 @@ drop type ut_assertion_boolean;
 
 drop type ut_assertion_blob;
 
+drop type ut_assertion_anydata;
+
 drop type ut_assertion;
 
 drop package ut_assert_processor;
@@ -53,6 +55,8 @@ drop type ut_data_value_clob;
 drop type ut_data_value_boolean;
 
 drop type ut_data_value_blob;
+
+drop type ut_data_value_anydata;
 
 drop type ut_data_value;
 

@@ -223,6 +223,10 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseComplexPackage.sql
 
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentData.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.anydata.PutsObjectStrucureIntoAssert.sql
+
 
 --Global cleanup
 drop package ut_example_tests;

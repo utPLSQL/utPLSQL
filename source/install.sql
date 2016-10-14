@@ -20,6 +20,7 @@ whenever oserror exit failure rollback
 @@ut_utils.pks
 @@ut_metadata.pks
 @@expectation_data_values/ut_data_value.tps
+@@expectation_data_values/ut_data_value_anydata.tps
 @@expectation_data_values/ut_data_value_blob.tps
 @@expectation_data_values/ut_data_value_boolean.tps
 @@expectation_data_values/ut_data_value_clob.tps
@@ -35,6 +36,7 @@ whenever oserror exit failure rollback
 @@expectations/be_true.tps
 @@assertions/ut_assert_processor.pks
 @@assertions/ut_assertion.tps
+@@assertions/ut_assertion_anydata.tps
 @@assertions/ut_assertion_blob.tps
 @@assertions/ut_assertion_boolean.tps
 @@assertions/ut_assertion_clob.tps
@@ -64,6 +66,7 @@ whenever oserror exit failure rollback
 @@types/ut_dbms_output_suite_reporter.tpb
 @@ut_metadata.pkb
 @@expectation_data_values/ut_data_value.tpb
+@@expectation_data_values/ut_data_value_anydata.tpb
 @@expectation_data_values/ut_data_value_blob.tpb
 @@expectation_data_values/ut_data_value_boolean.tpb
 @@expectation_data_values/ut_data_value_clob.tpb
@@ -79,6 +82,7 @@ whenever oserror exit failure rollback
 @@expectations/be_true.tpb
 @@assertions/ut_assert_processor.pkb
 @@assertions/ut_assertion.tpb
+@@assertions/ut_assertion_anydata.tpb
 @@assertions/ut_assertion_blob.tpb
 @@assertions/ut_assertion_boolean.tpb
 @@assertions/ut_assertion_clob.tpb

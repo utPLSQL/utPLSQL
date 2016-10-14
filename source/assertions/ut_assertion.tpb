@@ -11,6 +11,12 @@ create or replace type body ut_assertion as
     );
   end;
 
+  member procedure to_equal(self in ut_assertion, a_expected anydata, a_nulls_are_equal boolean := null) is
+  begin
+    ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected anydata, a_nulls_are_equal boolean := null)');
+    self.build_assert_result( false, 'to_equal', ut_utils.to_string(xmltype(a_expected).getclobval()), 'anydata');
+  end;
+
   member procedure to_equal(self in ut_assertion, a_expected blob, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_assertion.to_equal(self in ut_assertion, a_expected blob, a_nulls_are_equal boolean := null)');
@@ -77,6 +83,7 @@ create or replace type body ut_assertion as
     ut_utils.debug_log('ut_assertion.to_(self in ut_assertion, a_expectation ut_expectation)');
     l_assert_result :=
       case
+        when self.actual_data is of (ut_data_value_anydata) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_anydata) )
         when self.actual_data is of (ut_data_value_blob) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_blob) )
         when self.actual_data is of (ut_data_value_boolean) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_boolean) )
         when self.actual_data is of (ut_data_value_clob) then a_expectation.run_expectation( treat(self.actual_data as ut_data_value_clob) )
