@@ -84,111 +84,109 @@ create or replace type body equal as
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_anydata) return ut_assert_result is
-    l_expected anydata;
+    l_expected ut_data_value_anydata;
   begin
-    l_expected :=  case when self.expected is of (ut_data_value_anydata) then treat(self.expected as ut_data_value_anydata).value end;
-    return self.build_assert_result(
-       xmltype(l_expected).getclobval() = xmltype(a_actual.value).getclobval()
-      , a_actual
-    );
+    if self.expected is of (a_actual) then
+      l_expected := treat(self.expected as ut_data_value_anydata);
+    end if;
+    return self.build_assert_result( (xmltype(l_expected.value).getclobval() = xmltype(a_actual.value).getclobval()) , a_actual );
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_blob) return ut_assert_result is
+    l_expected ut_data_value_blob;
   begin
-    return self.build_assert_result(
-      dbms_lob.compare( case when self.expected is of (ut_data_value_blob) then treat(self.expected as ut_data_value_blob).value end
-        , a_actual.value) = 0
-      , a_actual
-    );
+    if self.expected is of (a_actual) then
+      l_expected := treat(self.expected as ut_data_value_blob);
+    end if;
+    return self.build_assert_result( dbms_lob.compare( l_expected.value, a_actual.value) = 0 , a_actual );
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_boolean) return ut_assert_result is
+    l_expected ut_data_value_boolean;
   begin
-    return self.build_assert_result(
-      case when self.expected is of (ut_data_value_boolean) then treat(self.expected as ut_data_value_boolean).value end
-      = a_actual.value
-      , a_actual
-    );
+    if self.expected is of (a_actual) then
+      l_expected := treat(self.expected as ut_data_value_boolean);
+    end if;
+    return self.build_assert_result( (l_expected.value = a_actual.value) , a_actual );
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_clob) return ut_assert_result is
+    l_expected ut_data_value_clob;
   begin
-    return self.build_assert_result(
-      dbms_lob.compare(
-        case when self.expected is of (ut_data_value_clob) then treat(self.expected as ut_data_value_clob).value end
-       , a_actual.value) = 0
-      , a_actual
-    );
+    if self.expected is of (a_actual) then
+      l_expected := treat(self.expected as ut_data_value_clob);
+    end if;
+    return self.build_assert_result( dbms_lob.compare(l_expected.value, a_actual.value) = 0 , a_actual );
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_date) return ut_assert_result is
+    l_expected ut_data_value_date;
   begin
-    return self.build_assert_result(
-      case when self.expected is of (ut_data_value_date) then treat(self.expected as ut_data_value_date).value end
-      = a_actual.value
-      , a_actual
-    );
+    if self.expected is of (a_actual) then
+      l_expected := treat(self.expected as ut_data_value_date);
+    end if;
+    return self.build_assert_result( (l_expected.value = a_actual.value) , a_actual );
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_number) return ut_assert_result is
+    l_expected ut_data_value_number;
   begin
-    return self.build_assert_result(
-      case when self.expected is of (ut_data_value_number) then treat(self.expected as ut_data_value_number).value end
-      = a_actual.value
-      , a_actual
-    );
+    if self.expected is of (a_actual) then
+      l_expected := treat(self.expected as ut_data_value_number);
+    end if;
+    return self.build_assert_result( (l_expected.value = a_actual.value) , a_actual );
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_refcursor) return ut_assert_result is
     l_expected_cursor_number number;
-    l_actual_cursor_number number := a_actual.value;
+    l_actual_cursor_number   number := a_actual.value;
     l_result  boolean := false;
   begin
-    if self.expected is of (ut_data_value_refcursor) then
+    if self.expected is of (a_actual) then
       l_expected_cursor_number := treat(self.expected as ut_data_value_refcursor).value;
-      if l_expected_cursor_number is not null and l_actual_cursor_number is not null then
-        l_result :=
-           xmltype( dbms_sql.to_refcursor(l_expected_cursor_number) ).getClobVal()
-           = xmltype( dbms_sql.to_refcursor(l_actual_cursor_number) ).getClobVal();
-      end if;
+    end if;
+    if l_expected_cursor_number is not null and l_actual_cursor_number is not null then
+      l_result :=
+         xmltype( dbms_sql.to_refcursor(l_expected_cursor_number) ).getClobVal()
+         = xmltype( dbms_sql.to_refcursor(l_actual_cursor_number) ).getClobVal();
     end if;
     return self.build_assert_result( l_result , a_actual );
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_timestamp) return ut_assert_result is
+    l_expected ut_data_value_timestamp;
   begin
-    return self.build_assert_result(
-      case when self.expected is of (ut_data_value_timestamp) then treat(self.expected as ut_data_value_timestamp).value end
-      = a_actual.value
-      , a_actual
-    );
+    if self.expected is of (a_actual) then
+      l_expected := treat(self.expected as ut_data_value_timestamp);
+    end if;
+    return self.build_assert_result( (l_expected.value = a_actual.value) , a_actual );
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_timestamp_tz) return ut_assert_result is
+    l_expected ut_data_value_timestamp_tz;
   begin
-    return self.build_assert_result(
-      case when self.expected is of (ut_data_value_timestamp_tz) then treat(self.expected as ut_data_value_timestamp_tz).value end
-      = a_actual.value
-      , a_actual
-    );
+    if self.expected is of (a_actual) then
+      l_expected := treat(self.expected as ut_data_value_timestamp_tz);
+    end if;
+    return self.build_assert_result( (l_expected.value = a_actual.value) , a_actual );
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_timestamp_ltz) return ut_assert_result is
+    l_expected ut_data_value_timestamp_ltz;
   begin
-    return self.build_assert_result(
-      case when self.expected is of (ut_data_value_timestamp_ltz) then treat(self.expected as ut_data_value_timestamp_ltz).value end
-      = a_actual.value
-      , a_actual
-    );
+    if self.expected is of (a_actual) then
+      l_expected := treat(self.expected as ut_data_value_timestamp_ltz);
+    end if;
+    return self.build_assert_result( (l_expected.value = a_actual.value) , a_actual );
   end;
 
   overriding member function run_expectation(a_actual ut_data_value_varchar2) return ut_assert_result is
+    l_expected ut_data_value_varchar2;
   begin
-    return self.build_assert_result(
-      case when self.expected is of (ut_data_value_varchar2) then treat(self.expected as ut_data_value_varchar2).value end
-      = a_actual.value
-      , a_actual
-    );
+    if self.expected is of (a_actual) then
+      l_expected := treat(self.expected as ut_data_value_varchar2);
+    end if;
+    return self.build_assert_result( (l_expected.value = a_actual.value) , a_actual );
   end;
 
 end;
