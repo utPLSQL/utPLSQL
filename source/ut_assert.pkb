@@ -41,6 +41,26 @@ create or replace package body ut_assert is
     ut.expect(a_actual,a_msg).to_equal(a_expected);
   end;
 
+  procedure are_equal(a_expected in timestamp_ltz_unconstrained, a_actual in timestamp_ltz_unconstrained) is
+  begin
+    are_equal(null, a_expected, a_actual);
+  end;
+
+  procedure are_equal(a_msg in varchar2, a_expected in timestamp_ltz_unconstrained, a_actual in timestamp_ltz_unconstrained) is
+  begin
+    ut.expect(a_actual,a_msg).to_equal(a_expected);
+  end;
+
+  procedure are_equal(a_expected in timestamp_tz_unconstrained, a_actual in timestamp_tz_unconstrained) is
+  begin
+    are_equal(null, a_expected, a_actual);
+  end;
+
+  procedure are_equal(a_msg in varchar2, a_expected in timestamp_tz_unconstrained, a_actual in timestamp_tz_unconstrained) is
+  begin
+    ut.expect(a_actual,a_msg).to_equal(a_expected);
+  end;
+
   procedure are_equal(a_expected in anydata, a_actual in anydata) is
   begin
     are_equal(null, a_expected, a_actual);
