@@ -8,7 +8,7 @@ declare
   l_delimiter varchar2(1);
 begin
   select substr(value, 1, 1) into l_delimiter from nls_session_parameters t where t.parameter = 'NLS_NUMERIC_CHARACTERS';
-  l_expected := '2016-12-31T23:59:59'||l_delimiter||'123456789 -8:00';
+  l_expected := '2016-12-31T23:59:59'||l_delimiter||'123456789 -08:00';
 --Act
   l_result :=  ut_utils.to_String(l_value);
 --Assert
