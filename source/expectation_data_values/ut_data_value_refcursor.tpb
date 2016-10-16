@@ -26,9 +26,14 @@ create or replace type body ut_data_value_refcursor as
   end;
 
   overriding member function to_string return varchar2 is
+    l_result clob;
   begin
-    --TODO - implement a way to get data out of ref_cursor wothout loosing the cursor
-    return ut_utils.to_string(to_char(null));
+    if self.value is not null then
+      dbms_xmlgen.setMaxRows(self.value, 100);
+      l_result := dbms_xmlgen.getxml(self.value);
+      dbms_xmlgen.restartQuery(self.value);
+    end if;
+    return ut_utils.to_string(l_result);
   end;
 
 end;

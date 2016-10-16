@@ -129,12 +129,14 @@ create or replace type body equal as
         l_expected ut_data_value_refcursor := treat(self.expected as ut_data_value_refcursor);
         l_actual   ut_data_value_refcursor := treat(a_actual as ut_data_value_refcursor);
       begin
-        l_result :=
-          equal_with_nulls(
-            (  xmltype( dbms_sql.to_refcursor(l_expected.value) ).getClobVal
-              = xmltype( dbms_sql.to_refcursor(l_actual.value) ).getClobVal)
-            , a_actual
-          );
+        if l_expected.value is not null and l_actual.value is not null then
+          --fetch 1M rows max
+          dbms_xmlgen.setMaxRows(l_expected.value, 1000000);
+          dbms_xmlgen.setMaxRows(l_actual.value, 1000000);
+          l_result := dbms_lob.compare( dbms_xmlgen.getxml(l_expected.value), dbms_xmlgen.getxml(l_actual.value) ) = 0;
+        else
+          l_result := equal_with_nulls( null, a_actual);
+        end if;
       end;
     elsif self.expected is of (ut_data_value_timestamp) and a_actual is of (ut_data_value_timestamp) then
       declare
