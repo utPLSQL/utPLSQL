@@ -21,6 +21,7 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsTrue.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesSuccessWhenExpessionIsFalse.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_like.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_be_not_null.GivesFailureWhenActualIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_be_not_null.GivesSuccessWhenActualIsNotNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_be_null.anydata.GivesSuccessWhenAnydataIsNull.sql
@@ -48,7 +49,7 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.PutsNullIntoStringValueWhenActualIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.PutsNullIntoStringValueWhenExpectedIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.with_text.GivesTheProvidedTextAsMessage.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_match.GivesSuccessWhenStringMatchesRegex.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_match.sql
 @@lib/RunTest.sql asssertions/ut_assert_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationNotBeforeProcedure.sql

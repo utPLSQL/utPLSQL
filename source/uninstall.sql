@@ -40,6 +40,8 @@ drop type be_null;
 
 drop type be_not_null;
 
+drop type be_like;
+
 drop type be_false;
 
 drop type ut_expectation;

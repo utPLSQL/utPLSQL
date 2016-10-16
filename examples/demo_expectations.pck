@@ -33,7 +33,13 @@ create or replace package demo_expectations is
   procedure demo_to_match_failure;
 
   -- %test(demo of success for to_match expectation)
-  procedure demo_to_matchl_success;
+  procedure demo_to_match_success;
+
+  -- %test(demo of failure for to_be_like expectation)
+  procedure demo_to_be_like_failure;
+
+  -- %test(demo of success for to_be_like expectation)
+  procedure demo_to_be_like_success;
 
 end;
 /
@@ -415,12 +421,12 @@ create or replace package body demo_expectations is
     ut.expect( l_clob ).to_( match('^Stephen$') );
     ut.expect( l_clob ).to_( match('^Stephen$', 'i') ); --case insensitive
 
-    ut.expect( sysdate ).to_( match('^Stephen$', 'i') ); --case insensitive
-    ut.expect( 12345 ).to_( match('^Stephen$', 'i') ); --case insensitive
+    ut.expect( sysdate ).to_( match(sysdate, 'i') ); --case insensitive
+    ut.expect( 12345 ).to_( match(12345, 'i') ); --case insensitive
 
   end;
 
-  procedure demo_to_matchl_success is
+  procedure demo_to_match_success is
     l_clob  clob := rpad('a',32767,'a')||'STEPHEN';
   begin
     ut.expect( 'Hi, I am Stephen' ).to_match('Stephen$');
@@ -431,6 +437,36 @@ create or replace package body demo_expectations is
     ut.expect( l_clob ).to_match('Stephen$', 'i'); --case insensitive
     ut.expect( l_clob ).to_( match('STEPHEN$') );
     ut.expect( l_clob ).to_( match('Stephen$', 'i') ); --case insensitive
+  end;
+
+  procedure demo_to_be_like_failure is
+    l_clob  clob := rpad('a',32767,'a')||'Stephen';
+  begin
+    ut.expect( 'STEPHEN' ).to_be_like('Stephen');
+    ut.expect( 'Stephen ' ).to_be_like('Stephen\_', '\'); --escape wildcards with '\'
+    ut.expect( 'stephen' ).to_( be_like('%Stephen%') );
+    ut.expect( 'Stephen ' ).to_( be_like('Stephen^_', '^') ); --escape wildcards with '^'
+    ut.expect( l_clob ).to_be_like('%stephen');
+    ut.expect( l_clob ).to_be_like('%Stephe\_', '\'); --escape wildcards with '\'
+    ut.expect( l_clob ).to_( be_like('%stephen') );
+    ut.expect( l_clob ).to_( be_like('%Stephe\_', '\') ); --escape wildcards with '\'
+
+    ut.expect( sysdate ).to_( be_like(sysdate) ); --case insensitive
+    ut.expect( 12345 ).to_( be_like(12345) ); --case insensitive
+
+  end;
+
+  procedure demo_to_be_like_success is
+    l_clob  clob := rpad('a',32767,'a')||'STEPHEN_';
+  begin
+    ut.expect( 'Hi, I am Stephen' ).to_be_like('%Stephen');
+    ut.expect( 'stephen_' ).to_be_like('_tephen\_', '\'); --escape wildcards with '\'
+    ut.expect( 'Hi, I am Stephen' ).to_( be_like('%Stephen') );
+    ut.expect( 'stephen_' ).to_( be_like('_tephen^_', '^')); --escape wildcards with '^'
+    ut.expect( l_clob ).to_be_like('a%a_TE%');
+    ut.expect( l_clob ).to_be_like('a%a_TE%\_', '\'); --escape wildcards with '\'
+    ut.expect( l_clob ).to_( be_like('a%a_TE%') );
+    ut.expect( l_clob ).to_( be_like('a%a_TE%\_', '\') ); --escape wildcards with '\'
   end;
 
 end;

@@ -33,6 +33,7 @@ whenever oserror exit failure rollback
 @@expectation_data_values/ut_data_value_varchar2.tps
 @@expectations/ut_expectation.tps
 @@expectations/be_false.tps
+@@expectations/be_like.tps
 @@expectations/be_not_null.tps
 @@expectations/be_null.tps
 @@expectations/be_true.tps
@@ -82,6 +83,7 @@ whenever oserror exit failure rollback
 @@expectation_data_values/ut_data_value_varchar2.tpb
 @@expectations/ut_expectation.tpb
 @@expectations/be_false.tpb
+@@expectations/be_like.tpb
 @@expectations/be_not_null.tpb
 @@expectations/be_null.tpb
 @@expectations/be_true.tpb
@@ -107,14 +109,14 @@ whenever oserror exit failure rollback
 
 
 prompt Validating installation
-select * from user_errors where name not like 'BIN$%' and (name like 'UT%' or name in ('EQUAL','BE_TRUE','BE_FALSE','BE_NULL','BE_NOT_NULL','MATCH'));
+select * from user_errors where name not like 'BIN$%' and (name like 'UT%' or name in ('EQUAL','BE_TRUE','BE_FALSE','BE_NULL','BE_NOT_NULL','MATCH','BE_LIKE'));
 
 declare
   l_cnt integer;
 begin
   select count(1)
     into l_cnt
-    from user_errors where name not like 'BIN$%' and (name like 'UT%' or name in ('EQUAL','BE_TRUE','BE_FALSE','BE_NULL','BE_NOT_NULL','MATCH'));
+    from user_errors where name not like 'BIN$%' and (name like 'UT%' or name in ('EQUAL','BE_TRUE','BE_FALSE','BE_NULL','BE_NOT_NULL','MATCH','BE_LIKE'));
   if l_cnt > 0 then
     raise_application_error(-20000, 'Not all sources were successfully installed.');
   end if;
