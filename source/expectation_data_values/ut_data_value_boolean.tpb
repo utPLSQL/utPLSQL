@@ -14,7 +14,7 @@ create or replace type body ut_data_value_boolean as
 
   overriding member function to_string return varchar2 is
   begin
-    return ut_utils.to_string(self.value);
+    return ut_utils.to_string(ut_utils.int_to_boolean(self.value));
   end;
 
 end;
