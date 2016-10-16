@@ -1,7 +1,7 @@
 create or replace type equal under ut_expectation(
-  nulls_are_equal number(1,0),
+  nulls_are_equal_flag number(1,0),
   member procedure init(self in out nocopy equal, a_expected ut_data_value, a_nulls_are_equal boolean),
-  overriding member function build_assert_result( self in equal, a_assert_result boolean, a_actual ut_data_value) return ut_assert_result,
+  member function equal_with_nulls( self in equal, a_assert_result boolean, a_actual ut_data_value) return boolean,
   constructor function equal(self in out nocopy equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result,
   constructor function equal(self in out nocopy equal, a_expected blob, a_nulls_are_equal boolean := null) return self as result,
   constructor function equal(self in out nocopy equal, a_expected boolean, a_nulls_are_equal boolean := null) return self as result,
@@ -13,16 +13,6 @@ create or replace type equal under ut_expectation(
   constructor function equal(self in out nocopy equal, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null) return self as result,
   constructor function equal(self in out nocopy equal, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null) return self as result,
   constructor function equal(self in out nocopy equal, a_expected varchar2, a_nulls_are_equal boolean := null) return self as result,
-  overriding member function run_expectation(a_actual ut_data_value_anydata) return ut_assert_result,
-  overriding member function run_expectation(a_actual ut_data_value_blob) return ut_assert_result,
-  overriding member function run_expectation(a_actual ut_data_value_boolean) return ut_assert_result,
-  overriding member function run_expectation(a_actual ut_data_value_clob) return ut_assert_result,
-  overriding member function run_expectation(a_actual ut_data_value_date) return ut_assert_result,
-  overriding member function run_expectation(a_actual ut_data_value_number) return ut_assert_result,
-  overriding member function run_expectation(a_actual ut_data_value_refcursor) return ut_assert_result,
-  overriding member function run_expectation(a_actual ut_data_value_timestamp) return ut_assert_result,
-  overriding member function run_expectation(a_actual ut_data_value_timestamp_ltz) return ut_assert_result,
-  overriding member function run_expectation(a_actual ut_data_value_timestamp_tz) return ut_assert_result,
-  overriding member function run_expectation(a_actual ut_data_value_varchar2) return ut_assert_result
+  overriding member function run_expectation(a_actual ut_data_value) return boolean
 )
 /

@@ -1,11 +1,11 @@
-PROMPT Gives a success when oracle object is null
+PROMPT Gives a success when object passed to anydata is null
 --Arrange
 declare
-  l_actual   department$;
+  l_expected department$;
   l_result   integer;
 begin
 --Act
-  ut_assert.is_null( anydata.convertObject(l_actual) );
+  ut.expect( anydata.convertObject(l_expected) ).to_be_null();
   l_result :=  ut_assert_processor.get_aggregate_asserts_result();
 --Assert
   if l_result = ut_utils.tr_success then
@@ -15,4 +15,3 @@ begin
   end if;
 end;
 /
-

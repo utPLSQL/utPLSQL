@@ -15,13 +15,16 @@ create or replace type body ut_assertion_varchar2 as
     else
       l_condition := treat(self.actual_data as ut_data_value_varchar2).value like a_mask;
     end if;
-    self.build_assert_result(l_condition, 'to be like', ut_utils.to_string(a_mask)||l_escape_msg);
+    self.add_assert_result(l_condition, 'to be like', ut_utils.to_string(a_mask)||l_escape_msg);
   end;
 
   member procedure to_match(self in ut_assertion_varchar2, a_pattern in varchar2, a_modifier in varchar2 default null) is
     l_modifiers_msg varchar2(100) := case when a_modifier is not null then ' using modifiers '''||a_modifier||'''' end;
   begin
-    self.build_assert_result((regexp_like(treat(self.actual_data as ut_data_value_varchar2).value, a_pattern, a_modifier)), 'to match', ut_utils.to_string(a_pattern)||l_modifiers_msg);
+    self.add_assert_result(
+      (regexp_like(treat(self.actual_data as ut_data_value_varchar2).value, a_pattern, a_modifier))
+      , 'to match', ut_utils.to_string(a_pattern)||l_modifiers_msg
+    );
   end;
 
 end;

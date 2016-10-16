@@ -14,9 +14,23 @@ set serveroutput on size unlimited format truncated
 --@@helpers/cre_tab_ut_test_table.sql
 create table ut$test_table (val varchar2(1));
 @@helpers/ut_transaction_control.pck
+@@helpers/department.tps
 
 --Tests to invoke
 
+@@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsTrue.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesSuccessWhenExpessionIsFalse.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_not_null.GivesFailureWhenActualIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_not_null.GivesSuccessWhenActualIsNotNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_null.anydata.GivesSuccessWhenAnydataIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_null.anydata.GivesSuccessWhenObjectPassedIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_null.GivesFailureWhenActualIsNotNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_null.GivesSuccessWhenActualIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_null.refcursor.GivesSuccessWhenCursorIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_true.GivesFailureWhenExpessionIsFalse.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_true.GivesFailureWhenExpessionIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_true.GivesSuccessWhenExpessionIsTrue.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentData.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.anydata.PutsObjectStrucureIntoAssert.sql
@@ -141,6 +155,7 @@ drop package ut_example_tests;
 drop procedure check_annotation_parsing;
 drop package ut_transaction_control;
 drop table ut$test_table;
+drop type department$;
 
 --Finally
 @@lib/RunSummary

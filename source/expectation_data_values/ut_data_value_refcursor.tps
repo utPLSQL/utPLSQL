@@ -25,6 +25,10 @@ create or replace type ut_data_value_refcursor under ut_data_value(
 
     constructor function that builds a cursor from a sql_statement that was passed in
   */
-  constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value varchar2) return self as result
+  constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value varchar2) return self as result,
+
+  overriding member function is_null return boolean,
+
+  overriding member function to_string return varchar2
 )
 /

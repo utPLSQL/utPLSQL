@@ -1,9 +1,21 @@
 create or replace type body ut_data_value_date as
+
   constructor function ut_data_value_date(self in out nocopy ut_data_value_date, a_value date) return self as result is
   begin
     self.value := a_value;
-    self.init('date', ut_utils.boolean_to_int(a_value is null), ut_utils.to_string(a_value));
+    self.type := 'date';
     return;
   end;
+
+  overriding member function is_null return boolean is
+  begin
+    return (self.value is null);
+  end;
+
+  overriding member function to_string return varchar2 is
+  begin
+    return ut_utils.to_string(self.value);
+  end;
+
 end;
 /

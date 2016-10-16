@@ -32,8 +32,11 @@ whenever oserror exit failure rollback
 @@expectation_data_values/ut_data_value_timestamp_ltz.tps
 @@expectation_data_values/ut_data_value_varchar2.tps
 @@expectations/ut_expectation.tps
-@@expectations/equal.tps
+@@expectations/be_false.tps
+@@expectations/be_not_null.tps
+@@expectations/be_null.tps
 @@expectations/be_true.tps
+@@expectations/equal.tps
 @@assertions/ut_assert_processor.pks
 @@assertions/ut_assertion.tps
 @@assertions/ut_assertion_anydata.tps
@@ -65,7 +68,6 @@ whenever oserror exit failure rollback
 @@types/ut_reporter_decorator.tpb
 @@types/ut_dbms_output_suite_reporter.tpb
 @@ut_metadata.pkb
-@@expectation_data_values/ut_data_value.tpb
 @@expectation_data_values/ut_data_value_anydata.tpb
 @@expectation_data_values/ut_data_value_blob.tpb
 @@expectation_data_values/ut_data_value_boolean.tpb
@@ -78,8 +80,11 @@ whenever oserror exit failure rollback
 @@expectation_data_values/ut_data_value_timestamp_ltz.tpb
 @@expectation_data_values/ut_data_value_varchar2.tpb
 @@expectations/ut_expectation.tpb
-@@expectations/equal.tpb
+@@expectations/be_false.tpb
+@@expectations/be_not_null.tpb
+@@expectations/be_null.tpb
 @@expectations/be_true.tpb
+@@expectations/equal.tpb
 @@assertions/ut_assert_processor.pkb
 @@assertions/ut_assertion.tpb
 @@assertions/ut_assertion_anydata.tpb
@@ -100,14 +105,14 @@ whenever oserror exit failure rollback
 
 
 prompt Validating installation
-select * from user_errors where name not like 'BIN$%' and (name like 'UT%' or name in ('EQUAL','BE_TRUE'));
+select * from user_errors where name not like 'BIN$%' and (name like 'UT%' or name in ('EQUAL','BE_TRUE','BE_FALSE','BE_NULL','BE_NOT_NULL'));
 
 declare
   l_cnt integer;
 begin
   select count(1)
     into l_cnt
-    from user_errors where name not like 'BIN$%' and (name like 'UT%' or name in ('EQUAL','BE_TRUE'));
+    from user_errors where name not like 'BIN$%' and (name like 'UT%' or name in ('EQUAL','BE_TRUE','BE_FALSE','BE_NULL','BE_NOT_NULL'));
   if l_cnt > 0 then
     raise_application_error(-20000, 'Not all sources were successfully installed.');
   end if;

@@ -1,9 +1,9 @@
-create or replace type body be_true as
+create or replace type body be_false as
 
-  constructor function be_true(self in out nocopy be_true) return self as result is
+  constructor function be_false(self in out nocopy be_false) return self as result is
   begin
     self.name := lower($$plsql_unit);
-    self.expected := ut_data_value_boolean(true);
+    self.expected := ut_data_value_boolean(false);
     return;
   end;
 
@@ -12,7 +12,7 @@ create or replace type body be_true as
     return
       case
         when a_actual is of (ut_data_value_boolean)
-        then ut_utils.int_to_boolean( treat(a_actual as ut_data_value_boolean).value)
+        then not ut_utils.int_to_boolean(treat(a_actual as ut_data_value_boolean).value)
         else (self as ut_expectation).run_expectation(a_actual)
       end;
   end;

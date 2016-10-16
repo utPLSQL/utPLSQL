@@ -30,9 +30,15 @@ drop type ut_assertion;
 
 drop package ut_assert_processor;
 
+drop type equal;
+
 drop type be_true;
 
-drop type equal;
+drop type be_null;
+
+drop type be_not_null;
+
+drop type be_false;
 
 drop type ut_expectation;
 

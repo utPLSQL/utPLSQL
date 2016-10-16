@@ -1,10 +1,5 @@
 PROMPT Puts Object structure as string into the Assert
 --Arrange
-create or replace type department$ as object(
-   dept_name varchar2(30)
-);
-/
-
 declare
   l_expected department$ := department$('HR');
   l_actual   department$ := department$('it');
@@ -26,6 +21,3 @@ begin
   end if;
 end;
 /
-
---Cleanup
-drop type department$;
