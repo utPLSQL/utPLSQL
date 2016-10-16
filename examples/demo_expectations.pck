@@ -29,6 +29,12 @@ create or replace package demo_expectations is
   -- %test(demo of success for to_be_not_null expectation)
   procedure demo_to_be_not_null_success;
 
+  -- %test(demo of failure for to_match expectation)
+  procedure demo_to_match_failure;
+
+  -- %test(demo of success for to_match expectation)
+  procedure demo_to_matchl_success;
+
 end;
 /
 
@@ -391,6 +397,32 @@ create or replace package body demo_expectations is
     ut.expect( l_timestamp_ltz ).to_( be_not_null );
     ut.expect( l_varchar2 ).to_( be_not_null );
     ut.expect( l_cursor ).to_( be_not_null );
+  end;
+
+  procedure demo_to_match_failure is
+    l_clob  clob := rpad('a',32767,'a')||'Stephen';
+  begin
+    ut.expect( 'STEPHEN' ).to_match('^Stephen$');
+    ut.expect( 'stephen ' ).to_match('^Stephen$', 'i'); --case insensitive
+    ut.expect( 'stephen' ).to_( match('^Stephen$') );
+    ut.expect( 'stephen ' ).to_( match('^Stephen$', 'i') ); --case insensitive
+    ut.expect( l_clob ).to_match('^Stephen$');
+    ut.expect( l_clob ).to_match('^Stephen$', 'i'); --case insensitive
+    ut.expect( l_clob ).to_( match('^Stephen$') );
+    ut.expect( l_clob ).to_( match('^Stephen$', 'i') ); --case insensitive
+  end;
+
+  procedure demo_to_matchl_success is
+    l_clob  clob := rpad('a',32767,'a')||'STEPHEN';
+  begin
+    ut.expect( 'Hi, I am Stephen' ).to_match('Stephen$');
+    ut.expect( 'stephen' ).to_match('^Stephen$', 'i'); --case insensitive
+    ut.expect( 'Hi, I am Stephen' ).to_( match('Stephen$') );
+    ut.expect( 'stephen' ).to_( match('^Stephen$', 'i') ); --case insensitive
+    ut.expect( l_clob ).to_match('STEPHEN');
+    ut.expect( l_clob ).to_match('Stephen$', 'i'); --case insensitive
+    ut.expect( l_clob ).to_( match('STEPHEN$') );
+    ut.expect( l_clob ).to_( match('Stephen$', 'i') ); --case insensitive
   end;
 
 end;

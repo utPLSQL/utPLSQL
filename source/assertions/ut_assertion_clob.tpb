@@ -18,10 +18,10 @@ create or replace type body ut_assertion_clob as
     self.add_assert_result(l_condition, 'to be like', ut_utils.to_string(a_mask)||l_escape_msg);
   end;
 
-  member procedure to_match(self in ut_assertion_clob, a_pattern in varchar2, a_modifier in varchar2 default null) is
-    l_modifiers_msg varchar2(100) := case when a_modifier is not null then ' using modifiers '''||a_modifier||'''' end;
+  member procedure to_match(self in ut_assertion_clob, a_pattern in varchar2, a_modifiers in varchar2 default null) is
   begin
-    self.add_assert_result((regexp_like(treat(self.actual_data as ut_data_value_clob).value, a_pattern, a_modifier)), 'to match', ut_utils.to_string(a_pattern)||l_modifiers_msg);
+    ut_utils.debug_log('ut_assertion_clob.to_match(self in ut_assertion, a_pattern in varchar2, a_modifiers in varchar2 default null)');
+    self.to_( match(a_pattern, a_modifiers) );
   end;
 
 end;
