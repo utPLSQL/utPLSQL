@@ -305,19 +305,19 @@ create or replace package body ut_suite_manager is
     l_temp_reported ut_reporter;
   begin
     l_temp_reported := a_reporter;
-    run_schema_suites(a_owner_name, l_temp_reported);
+    run_schema_suites(a_owner_name, l_temp_reported, a_force_parse_again);
   end run_schema_suites_static;
 
   procedure run_cur_schema_suites(a_reporter in out nocopy ut_reporter, a_force_parse_again boolean default false) is
   begin
-    run_schema_suites(sys_context('userenv', 'current_schema'), a_reporter);
+    run_schema_suites(sys_context('userenv', 'current_schema'), a_reporter, a_force_parse_again);
   end run_cur_schema_suites;
 
   procedure run_cur_schema_suites_static(a_reporter in ut_reporter, a_force_parse_again boolean default false) is
     l_temp_reported ut_reporter;
   begin
     l_temp_reported := a_reporter;
-    run_schema_suites(sys_context('userenv', 'current_schema'), l_temp_reported);
+    run_schema_suites(sys_context('userenv', 'current_schema'), l_temp_reported, a_force_parse_again);
   end run_cur_schema_suites_static;
 
 end ut_suite_manager;
