@@ -41,6 +41,12 @@ create or replace package demo_expectations is
   -- %test(demo of success for to_be_like expectation)
   procedure demo_to_be_like_success;
 
+  -- %test(demo of failure for not_to expectations)
+  procedure demo_not_to_failure;
+
+  -- %test(demo of success for not_to expectations)
+  procedure demo_not_to_success;
+
 end;
 /
 
@@ -467,6 +473,33 @@ create or replace package body demo_expectations is
     ut.expect( l_clob ).to_be_like('a%a_TE%\_', '\'); --escape wildcards with '\'
     ut.expect( l_clob ).to_( be_like('a%a_TE%') );
     ut.expect( l_clob ).to_( be_like('a%a_TE%\_', '\') ); --escape wildcards with '\'
+  end;
+
+  procedure demo_not_to_failure is
+  begin
+    ut.expect( 'Hi, I am Stephen' ).not_to( be_like('%Stephen') );
+    ut.expect( 'stephen' ).not_to( match('^Stephen$', 'i') ); --case insensitive
+    ut.expect( sysdate ).not_to( be_not_null() );
+    ut.expect( to_char(null) ).not_to( be_null() );
+    ut.expect( false ).not_to( be_false );
+    ut.expect( true ).not_to( be_true );
+    ut.expect( 123 ).not_to( be_false );
+    ut.expect( sysdate ).not_to( be_true );
+    ut.expect( 1 ).not_to( equal( 1 ) );
+    ut.expect( 1 ).not_to( equal( '1' ) );
+    ut.expect( to_char(null) ).not_to( equal( to_char(null) ) );
+  end;
+
+  procedure demo_not_to_success is
+  begin
+    ut.expect( sysdate ).not_to( be_null() );
+    ut.expect( to_char(null) ).not_to( be_not_null() );
+    ut.expect( true ).not_to( be_false );
+    ut.expect( false ).not_to( be_true );
+    ut.expect( cast(null as boolean) ).not_to( be_false );
+    ut.expect( cast(null as boolean) ).not_to( be_true );
+    ut.expect( 1 ).not_to( equal( 2 ) );
+    ut.expect( to_char(null) ).not_to( equal( to_char(null), a_nulls_are_equal=> false ) );
   end;
 
 end;

@@ -78,7 +78,7 @@ create or replace type body ut_assertion as
     self.to_( equal(a_expected) );
   end;
 
-  member procedure to_(self in ut_assertion, a_expectation ut_expectation) is
+  final member procedure to_(self in ut_assertion, a_expectation ut_expectation) is
     l_assert_result boolean;
     l_assert_name   varchar2(4000);
     l_expectation   ut_expectation := a_expectation;
@@ -87,6 +87,22 @@ create or replace type body ut_assertion as
 
     l_assert_result := l_expectation.run_expectation( self.actual_data );
     l_assert_name   := 'to '||l_expectation.name;
+    if l_expectation.expected is not null then
+      add_assert_result( l_assert_result, l_assert_name, l_expectation.additional_info, l_expectation.expected.to_string(), l_expectation.expected.type);
+    else
+      add_assert_result( l_assert_result, l_assert_name, l_expectation.additional_info );
+    end if;
+  end;
+
+  final member procedure not_to(self in ut_assertion, a_expectation ut_expectation) is
+    l_assert_result boolean;
+    l_assert_name   varchar2(4000);
+    l_expectation   ut_expectation := a_expectation;
+  begin
+    ut_utils.debug_log('ut_assertion.not_to(self in ut_assertion, a_expectation ut_expectation)');
+
+    l_assert_result := not l_expectation.run_expectation( self.actual_data );
+    l_assert_name   := 'not to '||l_expectation.name;
     if l_expectation.expected is not null then
       add_assert_result( l_assert_result, l_assert_name, l_expectation.additional_info, l_expectation.expected.to_string(), l_expectation.expected.type);
     else
