@@ -6,8 +6,8 @@ Set Serveroutput On Size Unlimited format truncated
 set linesize 1000
 set echo off
 --install the example unit test packages
-@@department$.tps
-@@departments$.tps
+@@department.tps
+@@departments.tps
 @@demo_expectations.pck
 @@ut_custom_reporter.tps
 @@ut_custom_reporter.tpb
