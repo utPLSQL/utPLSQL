@@ -133,7 +133,9 @@ create or replace type body equal as
           --fetch 1M rows max
           dbms_xmlgen.setMaxRows(l_expected.value, 1000000);
           dbms_xmlgen.setMaxRows(l_actual.value, 1000000);
+          --TODO - set formatting of date/timestamp/number for XML
           l_result := dbms_lob.compare( dbms_xmlgen.getxml(l_expected.value), dbms_xmlgen.getxml(l_actual.value) ) = 0;
+          --TODO - clear formatting of date/timestamp/number for XML
         else
           l_result := equal_with_nulls( null, a_actual);
         end if;

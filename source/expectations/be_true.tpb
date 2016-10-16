@@ -3,7 +3,6 @@ create or replace type body be_true as
   constructor function be_true(self in out nocopy be_true) return self as result is
   begin
     self.name := lower($$plsql_unit);
-    self.expected := ut_data_value_boolean(true);
     return;
   end;
 

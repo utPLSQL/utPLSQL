@@ -7,7 +7,7 @@ create or replace type body ut_assertion as
     ut_assert_processor.add_assert_result(
       ut_assert_result(
         a_assert_name, ut_utils.to_test_result(a_assert_result),
-        coalesce(a_expected_data_type, self.actual_data.type), self.actual_data.type, a_expected_value_string, self.actual_data.to_string(), self.message
+        a_expected_data_type, self.actual_data.type, a_expected_value_string, self.actual_data.to_string(), self.message
       )
     );
   end;
