@@ -6,7 +6,7 @@ create or replace type body be_false as
     return;
   end;
 
-  overriding member function run_expectation(a_actual ut_data_value) return boolean is
+  overriding member function run_expectation(self in out nocopy be_false, a_actual ut_data_value) return boolean is
   begin
     return
       case

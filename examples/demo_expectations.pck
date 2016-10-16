@@ -196,12 +196,16 @@ create or replace package body demo_expectations is
     ut.expect( l_null_boolean ).to_( be_true );
     ut.expect( l_null_boolean ).to_( be_true() );
 
+    ut.expect( 'a string value' ).to_( be_true() );
+
     ut.expect( true ).to_be_false;
     ut.expect( true ).to_( be_false );
     ut.expect( true ).to_( be_false() );
     ut.expect( l_null_boolean ).to_be_false;
     ut.expect( l_null_boolean ).to_( be_false );
     ut.expect( l_null_boolean ).to_( be_false() );
+
+    ut.expect( 'a string value' ).to_( be_false() );
   end;
 
   procedure demo_to_be_true_false_success is
@@ -410,6 +414,10 @@ create or replace package body demo_expectations is
     ut.expect( l_clob ).to_match('^Stephen$', 'i'); --case insensitive
     ut.expect( l_clob ).to_( match('^Stephen$') );
     ut.expect( l_clob ).to_( match('^Stephen$', 'i') ); --case insensitive
+
+    ut.expect( sysdate ).to_( match('^Stephen$', 'i') ); --case insensitive
+    ut.expect( 12345 ).to_( match('^Stephen$', 'i') ); --case insensitive
+
   end;
 
   procedure demo_to_matchl_success is

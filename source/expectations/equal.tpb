@@ -79,7 +79,7 @@ create or replace type body equal as
     return;
   end;
 
-  overriding member function run_expectation(a_actual ut_data_value) return boolean is
+  overriding member function run_expectation(self in out nocopy equal, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
     if self.expected is of (ut_data_value_anydata) and a_actual is of (ut_data_value_anydata) then

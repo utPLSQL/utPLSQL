@@ -13,6 +13,6 @@ create or replace type equal under ut_expectation(
   constructor function equal(self in out nocopy equal, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null) return self as result,
   constructor function equal(self in out nocopy equal, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null) return self as result,
   constructor function equal(self in out nocopy equal, a_expected varchar2, a_nulls_are_equal boolean := null) return self as result,
-  overriding member function run_expectation(a_actual ut_data_value) return boolean
+  overriding member function run_expectation(self in out nocopy equal, a_actual ut_data_value) return boolean
 )
 /
