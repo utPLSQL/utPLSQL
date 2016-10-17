@@ -43,13 +43,16 @@ create or replace type body ut_dbms_output_suite_reporter is
       if l_assert.result != ut_utils.tr_success then
         print('expected: ' || l_assert.actual_value_string||'('||l_assert.actual_type||')');
         print(
-          l_assert.name || ' ' ||l_assert.additional_info
+          l_assert.name || l_assert.additional_info
           || case
                when l_assert.expected_value_string is not null or l_assert.expected_type is not null
                then ': '||l_assert.expected_value_string||'('||l_assert.expected_type||')'
              end
         );
         print(l_assert.result_to_char());
+      end if;
+      if l_assert.error_message is not null then
+        print('error message: '||l_assert.error_message);
       end if;
     end if;
   end;

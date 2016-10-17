@@ -2,6 +2,9 @@ create or replace package demo_expectations is
 
   -- %suite(Demoing asserts)
 
+  -- %test(demo of expectations with nulls)
+  procedure demo_nulls_on_expectations;
+
   -- %test(demo of failure for to_equal expectation on value mismatch)
   procedure demo_to_equal_failure;
 
@@ -52,6 +55,49 @@ end;
 
 
 create or replace package body demo_expectations is
+
+  procedure demo_nulls_on_expectations is
+  begin
+    --fails on incompatible data types
+    ut.expect( to_clob('a text'), 'this should fail' ).to_equal( 'a text' );
+    ut.expect( to_clob('a text'), 'this should fail' ).to_( equal( 'a text' ) );
+    ut.expect( cast(systimestamp as timestamp), 'this should fail' ).to_( equal( systimestamp ) );
+    ut.expect( to_clob('a text'), 'this should fail' ).not_to( equal( 'a text' ) );
+    ut.expect( cast(systimestamp as timestamp), 'this should fail' ).not_to( equal( systimestamp ) );
+
+    --fails on incompatible data types even if values are null
+    ut.expect( to_char(null), 'this should fail' ).to_( equal( to_char(null) ) );
+    ut.expect( to_char(null), 'this should fail' ).not_to( equal( to_char(null) ) );
+
+    --fails on nulls not beeig equal
+    ut_assert_processor.nulls_are_equal(false);
+    ut.expect( to_char(null), 'fails when global null_are_equal=false' ).to_( equal(to_char(null) ) );
+    ut_assert_processor.nulls_are_equal( true );
+    ut.expect( to_char(null), 'fails when local null_are_equal=false' ).to_( equal(to_char(null), a_nulls_are_equal => false ) );
+
+    --succeeds when nulls are considered equal
+    ut_assert_processor.nulls_are_equal(false);
+    ut.expect( to_char(null) , 'succeeds when local null_are_equal=true' ).to_( equal( to_char(null), a_nulls_are_equal => true ) );
+    ut_assert_processor.nulls_are_equal( true );
+    ut.expect( to_char(null), 'succeeds when global null_are_equal=true' ).to_( equal( to_char(null) ) );
+
+    --fails as null is not comparable with not null
+    ut.expect( to_char(null), 'fails on null = not null' ).to_( equal( 'a text' ) );
+    ut.expect( 'a text', 'fails on not null = null' ).to_( equal( to_char(null) ) );
+    ut.expect( to_char(null), 'fails on null <> not null' ).not_to( equal( 'a text' ) );
+    ut.expect( 'a text', 'fails on not null <> null' ).not_to( equal( to_char(null) ) );
+    ut.expect( to_char(null), 'fails on null <> not null, with a_nulls_are_equal => true' ).not_to( equal( 'a text', a_nulls_are_equal => true ) );
+    ut.expect( 'a text', 'fails on not null <> null, with a_nulls_are_equal => false' ).not_to( equal( to_char(null), a_nulls_are_equal => false ) );
+
+    ut.expect( to_char(null), 'fails on null like ''text''' ).to_( be_like( 'a text' ) );
+    ut.expect( to_char(null), 'fails on null not like ''text''' ).not_to( be_like( 'a text' ) );
+
+    ut.expect( cast(null as boolean), 'fails on null = true' ).to_( be_true );
+    ut.expect( cast(null as boolean), 'fails on null <> true' ).not_to( be_true );
+    ut.expect( cast(null as boolean), 'fails on null = false' ).to_( be_false );
+    ut.expect( cast(null as boolean), 'fails on null <> false' ).not_to( be_false );
+
+  end;
 
   procedure demo_to_equal_failure is
     l_expected_anydata       anydata  := anydata.convertObject( department$('IT') );
