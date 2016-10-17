@@ -29,11 +29,11 @@ create or replace type body ut_data_value_refcursor as
     l_result clob;
   begin
     if self.value is not null then
-      --TODO - set formatting of date/timestamp/number for XML
+      ut_assert_processor.set_xml_nls_params();
       dbms_xmlgen.setMaxRows(self.value, 100);
       l_result := dbms_xmlgen.getxml(self.value);
       dbms_xmlgen.restartQuery(self.value);
-      --TODO - clear formatting of date/timestamp/number for XML
+      ut_assert_processor.reset_nls_params();
     end if;
     return ut_utils.to_string(l_result);
   end;

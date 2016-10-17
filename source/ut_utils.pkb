@@ -57,6 +57,7 @@ create or replace package body ut_utils is
   begin
     return
       case
+        when l_len = 0 then gc_null_string
         when l_len <= gc_max_input_string_length then quote_string(a_value)
         else quote_string(substr(a_value,1,gc_overflow_substr_len)) || gc_more_data_string
       end;
@@ -67,6 +68,7 @@ create or replace package body ut_utils is
   begin
     return
       case
+        when l_len = 0 then gc_null_string
         when l_len <= gc_max_input_string_length then quote_string(a_value)
         else quote_string(dbms_lob.substr(a_value, gc_overflow_substr_len)) || gc_more_data_string
       end;
@@ -77,6 +79,7 @@ create or replace package body ut_utils is
   begin
     return
       case
+        when l_len = 0 then gc_null_string
         when l_len <= gc_max_input_string_length then quote_string(rawtohex(a_value))
         else to_string( rawtohex(dbms_lob.substr(a_value, gc_overflow_substr_len)) )
       end;

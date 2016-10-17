@@ -87,7 +87,9 @@ create or replace type body equal as
         l_expected ut_data_value_anydata := treat(self.expected as ut_data_value_anydata);
         l_actual   ut_data_value_anydata := treat(a_actual as ut_data_value_anydata);
       begin
+        ut_assert_processor.set_xml_nls_params();
         l_result := equal_with_nulls((xmltype(l_expected.value).getclobval() = xmltype(l_actual.value).getclobval()), a_actual);
+        ut_assert_processor.reset_nls_params();
       end;
     elsif self.expected is of (ut_data_value_blob) and a_actual is of (ut_data_value_blob) then
       declare
@@ -133,9 +135,9 @@ create or replace type body equal as
           --fetch 1M rows max
           dbms_xmlgen.setMaxRows(l_expected.value, 1000000);
           dbms_xmlgen.setMaxRows(l_actual.value, 1000000);
-          --TODO - set formatting of date/timestamp/number for XML
+          ut_assert_processor.set_xml_nls_params();
           l_result := dbms_lob.compare( dbms_xmlgen.getxml(l_expected.value), dbms_xmlgen.getxml(l_actual.value) ) = 0;
-          --TODO - clear formatting of date/timestamp/number for XML
+          ut_assert_processor.reset_nls_params();
         else
           l_result := equal_with_nulls( null, a_actual);
         end if;

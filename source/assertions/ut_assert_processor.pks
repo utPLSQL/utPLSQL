@@ -18,5 +18,9 @@ create or replace package ut_assert_processor authid current_user as
 
   procedure report_error(a_message in varchar2);
 
+  procedure set_xml_nls_params;
+
+  procedure reset_nls_params;
+
 end;
 /

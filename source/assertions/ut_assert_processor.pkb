@@ -1,5 +1,9 @@
 create or replace package body ut_assert_processor as
 
+  type tt_nls_params is table of nls_session_parameters%rowtype;
+
+  g_session_params tt_nls_params;
+
   g_asserts_called ut_assert_list := ut_assert_list();
 
   g_nulls_are_equal boolean_not_null := gc_default_nulls_are_equal;
@@ -58,6 +62,41 @@ create or replace package body ut_assert_processor as
   procedure report_error(a_message in varchar2) is
   begin
     add_assert_result(ut_assert_result(ut_utils.tr_error, a_message));
+  end;
+
+  function get_session_parameters return tt_nls_params is
+    l_session_params tt_nls_params;
+  begin
+    select nsp.parameter, nsp.value
+      bulk collect into l_session_params
+     from nls_session_parameters nsp
+    where parameter
+       in ( 'NLS_DATE_FORMAT', 'NLS_TIMESTAMP_FORMAT', 'NLS_TIMESTAMP_TZ_FORMAT');
+
+    return l_session_params;
+  end;
+
+  procedure set_xml_nls_params is
+  begin
+    g_session_params := get_session_parameters();
+
+    execute immediate q'[alter session set events '19119 trace name context forever, level 0x8']';
+
+    execute immediate 'alter session set nls_date_format = '''||ut_utils.gc_date_format||'''';
+    execute immediate 'alter session set nls_timestamp_format = '''||ut_utils.gc_timestamp_format||'''';
+    execute immediate 'alter session set nls_timestamp_tz_format = '''||ut_utils.gc_timestamp_tz_format||'''';
+  end;
+
+  procedure reset_nls_params is
+  begin
+    execute immediate q'[alter session set events '19119 trace name context off']';
+
+    if g_session_params is not null then
+      for i in 1 .. g_session_params.count loop
+        execute immediate 'alter session set '||g_session_params(i).parameter||' = '''||g_session_params(i).value||'''';
+      end loop;
+    end if;
+
   end;
 
 end;

@@ -286,9 +286,9 @@ create or replace package body demo_expectations is
     l_date          date     := sysdate;
     l_number        number   := 12345;
     l_cursor        sys_refcursor;
-    l_timestamp     timestamp with time zone := sysdate;
-    l_timestamp_ltz timestamp with local time zone := sysdate;
-    l_timestamp_tz  timestamp with time zone := sysdate;
+    l_timestamp     timestamp with time zone := systimestamp;
+    l_timestamp_ltz timestamp with local time zone := l_timestamp;
+    l_timestamp_tz  timestamp with time zone := l_timestamp;
     l_varchar2      varchar2(100) := 'a string';
   begin
     open l_cursor for select * from user_objects where rownum <100;

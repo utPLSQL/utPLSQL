@@ -36,16 +36,17 @@ create or replace type body ut_data_value_anydata as
   end;
 
   overriding member function to_string return varchar2 is
+    l_result varchar2(32767);
   begin
-    return
-      ut_utils.to_string(
-        case
-          when self.is_null() then to_clob(null)
-          else xmltype(self.value).getclobval()
-        end
-      );
+    if self.is_null() then
+      l_result := ut_utils.to_string( to_char(null) );
+    else
+      ut_assert_processor.set_xml_nls_params();
+      l_result := ut_utils.to_string( xmltype(self.value).getclobval() );
+      ut_assert_processor.reset_nls_params();
+    end if;
+    return l_result;
   end;
-
 
 end;
 /
