@@ -1,10 +1,5 @@
 create or replace package ut_assert authid current_user as
 
-  function get_aggregate_asserts_result return integer;
-  procedure clear_asserts;
-  procedure report_error(a_message in varchar2);
-  function get_asserts_results return ut_objects_list;
-	
 	-- General assertion
   procedure this(a_msg in varchar2, a_condition in boolean);
   procedure this(a_condition in boolean);
@@ -21,6 +16,12 @@ create or replace package ut_assert authid current_user as
 
   procedure are_equal(a_msg in varchar2, a_expected in timestamp_unconstrained, a_actual in timestamp_unconstrained);
   procedure are_equal(a_expected in timestamp_unconstrained, a_actual in timestamp_unconstrained);
+
+  procedure are_equal(a_msg in varchar2, a_expected in timestamp_tz_unconstrained, a_actual in timestamp_tz_unconstrained);
+  procedure are_equal(a_expected in timestamp_tz_unconstrained, a_actual in timestamp_tz_unconstrained);
+
+  procedure are_equal(a_msg in varchar2, a_expected in timestamp_ltz_unconstrained, a_actual in timestamp_ltz_unconstrained);
+  procedure are_equal(a_expected in timestamp_ltz_unconstrained, a_actual in timestamp_ltz_unconstrained);
 
   procedure are_equal(a_msg in varchar2, a_expected in anydata, a_actual in anydata);
   procedure are_equal(a_expected in anydata, a_actual in anydata);

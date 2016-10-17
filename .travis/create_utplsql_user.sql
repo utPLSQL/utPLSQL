@@ -13,6 +13,6 @@ create user &ut3_user identified by &ut3_password default tablespace &ut3_tables
 
 grant create session, create procedure, create type, create table to &ut3_user;
 
-grant execute on sys.dbms_crypto to &ut3_user;
+grant alter session to &ut3_user;
 
 exit success

@@ -1,6 +1,7 @@
 Clear Screen
 set echo off
 set feedback off
+set linesize 1000
 prompt RunExampleComplexSuiteWithCustomDBMSOutputReporter
 @@RunExampleComplexSuiteWithCustomDBMSOutputReporter.sql
 prompt RunExampleTestSuite
@@ -17,3 +18,5 @@ prompt RunExampleTestAnnotationBasedForCurrentSchema
 @@RunExampleTestAnnotationBasedForCurrentSchema.sql
 prompt RunExampleTestAnnotationsHugePackage
 @@RunExampleTestAnnotationsHugePackage.sql
+prompt RunExpectations
+@@RunExpectations.sql

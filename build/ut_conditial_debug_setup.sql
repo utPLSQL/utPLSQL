@@ -4,7 +4,6 @@
 alter session set PLSQL_Warnings = 'enable:all';
 alter session set PLSQL_CCFlags = 'ut_trace:true';
 
-alter package ut_types compile  debug package;
-alter package ut_assert compile  debug package;
-alter package ut_testexecute compile  debug package;
-alter package ut_exampletest compile  debug package;
+alter package ut_annotations compile  debug package;
+alter package ut_suite_manager compile  debug package;
+alter package ut_utils compile  debug package;

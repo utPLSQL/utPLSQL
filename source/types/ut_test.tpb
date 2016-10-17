@@ -21,7 +21,7 @@ create or replace type body ut_test is
                                     ,procedure_name => trim(a_teardown_procedure)
                                     ,owner_name     => trim(a_owner_name));
     end if;
-    
+
     if a_rollback_type is not null then
       ut_utils.validate_rollback_type(a_rollback_type);
       self.rollback_type := a_rollback_type;
@@ -47,12 +47,12 @@ create or replace type body ut_test is
     l_savepoint varchar2(30);
   begin
     l_reporter.before_test(self);
-    
+
     if self.rollback_type = ut_utils.gc_rollback_auto then
       l_savepoint := ut_utils.gen_savepoint_name;
       execute immediate 'savepoint ' || l_savepoint;
     end if;
-  
+
     ut_utils.debug_log('ut_test.execute');
 
     self.start_time := current_timestamp;
@@ -61,13 +61,13 @@ create or replace type body ut_test is
       begin
 
         if self.is_valid() then
-                
+
           if self.setup is not null then
             l_reporter.before_test_setup(self);
             self.setup.execute;
             l_reporter.after_test_setup(self);
           end if;
-        
+
           l_reporter.before_test_execute(self);
           begin
             self.test.execute;
@@ -77,11 +77,11 @@ create or replace type body ut_test is
               -- utl_call_stack package may be better but it's 12c but still need to investigate
               -- article with details: http://www.oracle.com/technetwork/issue-archive/2014/14-jan/o14plsql-2045346.html
               ut_utils.debug_log('testmethod failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-            
-              ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
+
+              ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
           end;
           l_reporter.after_test_execute(self);
-        
+
           if self.teardown is not null then
             l_reporter.before_test_teardown(self);
             self.teardown.execute;
@@ -89,7 +89,7 @@ create or replace type body ut_test is
           end if;
 
         end if;
-      
+
       exception
         when others then
           if sqlcode = -04068 then
@@ -98,25 +98,25 @@ create or replace type body ut_test is
           end if;
           ut_utils.debug_log('ut_test.execute failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
           -- most likely occured in setup or teardown if here.
-          ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
-          ut_assert.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
+          ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
+          ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
       end;
-      
+
       if self.rollback_type = ut_utils.gc_rollback_auto then
         execute immediate 'rollback to ' || l_savepoint;
       end if;
-    
+
       self.end_time := current_timestamp;
-    
+
       l_reporter.before_asserts_process(self);
-      self.items := ut_assert.get_asserts_results();
-    
+      self.items := ut_assert_processor.get_asserts_results();
+
       self.calc_execution_result;
-    
+
       for i in 1 .. self.items.count loop
         l_reporter.on_assert_process(treat(self.items(i) as ut_assert_result));
       end loop;
-    
+
       l_reporter.after_asserts_process(self);
     else
       self.end_time := current_timestamp;
