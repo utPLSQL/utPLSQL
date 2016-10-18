@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/utPLSQL/utPLSQL.png?label=ready&title=Ready)](https://waffle.io/utPLSQL/utPLSQL)
 ## Welcome to utPLSQL, the unit testing framework for PL/SQL ##
 
 utPLSQL is a Unit Testing framework for Oracle PL/SQL.  
