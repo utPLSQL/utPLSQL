@@ -88,7 +88,7 @@ create or replace type body equal as
         l_actual   ut_data_value_anydata := treat(a_actual as ut_data_value_anydata);
       begin
         ut_assert_processor.set_xml_nls_params();
-        l_result := equal_with_nulls((xmltype(l_expected.value).getclobval() = xmltype(l_actual.value).getclobval()), a_actual);
+        l_result := equal_with_nulls((xmltype(l_expected.datavalue).getclobval() = xmltype(l_actual.datavalue).getclobval()), a_actual);
         ut_assert_processor.reset_nls_params();
       end;
     elsif self.expected is of (ut_data_value_blob) and a_actual is of (ut_data_value_blob) then
@@ -96,47 +96,47 @@ create or replace type body equal as
         l_expected ut_data_value_blob := treat(self.expected as ut_data_value_blob);
         l_actual   ut_data_value_blob := treat(a_actual as ut_data_value_blob);
       begin
-        l_result := equal_with_nulls((dbms_lob.compare( l_expected.value, l_actual.value) = 0), a_actual);
+        l_result := equal_with_nulls((dbms_lob.compare( l_expected.datavalue, l_actual.datavalue) = 0), a_actual);
       end;
     elsif self.expected is of (ut_data_value_boolean) and a_actual is of (ut_data_value_boolean) then
       declare
         l_expected ut_data_value_boolean := treat(self.expected as ut_data_value_boolean);
         l_actual   ut_data_value_boolean := treat(a_actual as ut_data_value_boolean);
       begin
-        l_result := equal_with_nulls((l_expected.value = l_actual.value), a_actual);
+        l_result := equal_with_nulls((l_expected.datavalue = l_actual.datavalue), a_actual);
       end;
     elsif self.expected is of (ut_data_value_clob) and a_actual is of (ut_data_value_clob) then
       declare
         l_expected ut_data_value_clob := treat(self.expected as ut_data_value_clob);
         l_actual   ut_data_value_clob := treat(a_actual as ut_data_value_clob);
       begin
-        l_result := equal_with_nulls((dbms_lob.compare( l_expected.value, l_actual.value) = 0), a_actual);
+        l_result := equal_with_nulls((dbms_lob.compare( l_expected.datavalue, l_actual.datavalue) = 0), a_actual);
       end;
     elsif self.expected is of (ut_data_value_date) and a_actual is of (ut_data_value_date) then
       declare
         l_expected ut_data_value_date := treat(self.expected as ut_data_value_date);
         l_actual   ut_data_value_date := treat(a_actual as ut_data_value_date);
       begin
-        l_result := equal_with_nulls((l_expected.value = l_actual.value), a_actual);
+        l_result := equal_with_nulls((l_expected.datavalue = l_actual.datavalue), a_actual);
       end;
     elsif self.expected is of (ut_data_value_number) and a_actual is of (ut_data_value_number) then
       declare
         l_expected ut_data_value_number := treat(self.expected as ut_data_value_number);
         l_actual   ut_data_value_number := treat(a_actual as ut_data_value_number);
       begin
-        l_result := equal_with_nulls((l_expected.value = l_actual.value), a_actual);
+        l_result := equal_with_nulls((l_expected.datavalue = l_actual.datavalue), a_actual);
       end;
     elsif self.expected is of (ut_data_value_refcursor) and a_actual is of (ut_data_value_refcursor) then
       declare
         l_expected ut_data_value_refcursor := treat(self.expected as ut_data_value_refcursor);
         l_actual   ut_data_value_refcursor := treat(a_actual as ut_data_value_refcursor);
       begin
-        if l_expected.value is not null and l_actual.value is not null then
+        if l_expected.datavalue is not null and l_actual.datavalue is not null then
           --fetch 1M rows max
-          dbms_xmlgen.setMaxRows(l_expected.value, 1000000);
-          dbms_xmlgen.setMaxRows(l_actual.value, 1000000);
+          dbms_xmlgen.setMaxRows(l_expected.datavalue, 1000000);
+          dbms_xmlgen.setMaxRows(l_actual.datavalue, 1000000);
           ut_assert_processor.set_xml_nls_params();
-          l_result := dbms_lob.compare( dbms_xmlgen.getxml(l_expected.value), dbms_xmlgen.getxml(l_actual.value) ) = 0;
+          l_result := dbms_lob.compare( dbms_xmlgen.getxml(l_expected.datavalue), dbms_xmlgen.getxml(l_actual.datavalue) ) = 0;
           ut_assert_processor.reset_nls_params();
         else
           l_result := equal_with_nulls( null, a_actual);
@@ -147,28 +147,28 @@ create or replace type body equal as
         l_expected ut_data_value_timestamp := treat(self.expected as ut_data_value_timestamp);
         l_actual   ut_data_value_timestamp := treat(a_actual as ut_data_value_timestamp);
       begin
-        l_result := equal_with_nulls((l_expected.value = l_actual.value), a_actual);
+        l_result := equal_with_nulls((l_expected.datavalue = l_actual.datavalue), a_actual);
       end;
     elsif self.expected is of (ut_data_value_timestamp_ltz) and a_actual is of (ut_data_value_timestamp_ltz) then
       declare
         l_expected ut_data_value_timestamp_ltz := treat(self.expected as ut_data_value_timestamp_ltz);
         l_actual   ut_data_value_timestamp_ltz := treat(a_actual as ut_data_value_timestamp_ltz);
       begin
-        l_result := equal_with_nulls((l_expected.value = l_actual.value), a_actual);
+        l_result := equal_with_nulls((l_expected.datavalue = l_actual.datavalue), a_actual);
       end;
     elsif self.expected is of (ut_data_value_timestamp_tz) and a_actual is of (ut_data_value_timestamp_tz) then
       declare
         l_expected ut_data_value_timestamp_tz := treat(self.expected as ut_data_value_timestamp_tz);
         l_actual   ut_data_value_timestamp_tz := treat(a_actual as ut_data_value_timestamp_tz);
       begin
-        l_result := equal_with_nulls((l_expected.value = l_actual.value), a_actual);
+        l_result := equal_with_nulls((l_expected.datavalue = l_actual.datavalue), a_actual);
       end;
     elsif self.expected is of (ut_data_value_varchar2) and a_actual is of (ut_data_value_varchar2) then
       declare
         l_expected ut_data_value_varchar2 := treat(self.expected as ut_data_value_varchar2);
         l_actual   ut_data_value_varchar2 := treat(a_actual as ut_data_value_varchar2);
       begin
-        l_result := equal_with_nulls((l_expected.value = l_actual.value), a_actual);
+        l_result := equal_with_nulls((l_expected.datavalue = l_actual.datavalue), a_actual);
       end;
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
