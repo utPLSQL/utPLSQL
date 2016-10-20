@@ -2,7 +2,7 @@ create or replace type ut_reporter force as object
 (
   name varchar2(250 char),
 
-  constructor function ut_reporter return self as result,
+  constructor function ut_reporter(self in out nocopy ut_reporter) return self as result,
 
   -- tese-run hooks
   member procedure before_run(self in out nocopy ut_reporter, a_suites in ut_objects_list),

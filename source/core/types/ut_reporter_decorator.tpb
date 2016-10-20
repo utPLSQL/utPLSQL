@@ -1,6 +1,6 @@
 create or replace type body ut_reporter_decorator is
 
-  constructor function ut_reporter_decorator(a_decorated_reporter ut_reporter) return self as result is
+  constructor function ut_reporter_decorator(self in out nocopy ut_reporter_decorator,a_decorated_reporter ut_reporter) return self as result is
   begin
     init(a_decorated_reporter);
     return;

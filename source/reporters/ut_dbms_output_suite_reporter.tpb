@@ -5,13 +5,13 @@ create or replace type body ut_dbms_output_suite_reporter is
     return lpad('-', 80, '-');
   end;
 
-  constructor function ut_dbms_output_suite_reporter return self as result is
+  constructor function ut_dbms_output_suite_reporter(self in out nocopy ut_dbms_output_suite_reporter) return self as result is
   begin
     self.name := $$plsql_unit;
     return;
   end;
 
-  member procedure print(msg varchar2) is
+  member procedure print(self in out nocopy ut_dbms_output_suite_reporter,msg varchar2) is
   begin
     dbms_output.put_line(msg);
   end print;
