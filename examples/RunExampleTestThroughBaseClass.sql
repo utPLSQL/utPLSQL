@@ -20,7 +20,7 @@ begin
                         ,a_teardown_procedure => 'teardown');
 
   reporter := ut_dbms_output_suite_reporter;
-  simple_test.execute(reporter);
+  simple_test.do_execute(reporter);
 end;
 /
 

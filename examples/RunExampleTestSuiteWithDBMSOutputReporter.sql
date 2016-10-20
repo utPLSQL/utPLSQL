@@ -31,7 +31,7 @@ begin
   suite.add_item(testtoexecute);
 
   -- provide a reporter to process results
-  suite.execute(ut_dbms_output_suite_reporter);
+  suite.so_execute(ut_dbms_output_suite_reporter);
 end;
 /
 
