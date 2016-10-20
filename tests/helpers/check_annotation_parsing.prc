@@ -11,10 +11,10 @@ create or replace procedure check_annotation_parsing(a_expected ut_annotations.t
           ut_assert.is_null('['||a_msg||'('||i||')]Check annotation param key',a_actual(i).key);
         end if;
         
-        if a_expected(i).value is not null then
-          ut_assert.are_equal('['||a_msg||'('||i||')]Check annotation param value',a_expected(i).value,a_actual(i).value);
+        if a_expected(i).val is not null then
+          ut_assert.are_equal('['||a_msg||'('||i||')]Check annotation param value',a_expected(i).val,a_actual(i).val);
         else
-          ut_assert.is_null('['||a_msg||'('||i||')]Check annotation param value',a_actual(i).value);
+          ut_assert.is_null('['||a_msg||'('||i||')]Check annotation param value',a_actual(i).val);
         end if;
       end loop;
     end if;
