@@ -1,6 +1,6 @@
 create or replace type body ut_test_suite is
 
-  constructor function ut_test_suite(a_suite_name varchar2, a_object_name varchar2 default null, a_items ut_objects_list default ut_objects_list(), a_rollback_type number default null)
+  constructor function ut_test_suite(self in out nocopy ut_test_suite,a_suite_name varchar2, a_object_name varchar2 default null, a_items ut_objects_list default ut_objects_list(), a_rollback_type number default null)
     return self as result is
   begin
     self.name        := a_suite_name;
@@ -41,13 +41,13 @@ create or replace type body ut_test_suite is
     return l_is_valid;
   end is_valid;
 
-  overriding member procedure execute(self in out nocopy ut_test_suite, a_reporter ut_reporter) is
+  overriding member procedure do_execute(self in out nocopy ut_test_suite, a_reporter ut_reporter) is
     l_reporter ut_reporter := a_reporter;
   begin
-    l_reporter := execute(l_reporter);
+    l_reporter := do_execute(l_reporter);
   end;
 
-  overriding member function execute(self in out nocopy ut_test_suite, a_reporter ut_reporter)
+  overriding member function do_execute(self in out nocopy ut_test_suite, a_reporter ut_reporter)
     return ut_reporter is
     l_reporter    ut_reporter := a_reporter;
     l_test_object ut_test_object;
@@ -70,7 +70,7 @@ create or replace type body ut_test_suite is
     
       if self.setup is not null then
 				l_reporter.before_suite_setup(self);
-        self.setup.execute;
+        self.setup.do_execute;
         l_reporter.after_suite_setup(self);
       end if;
     
@@ -78,7 +78,7 @@ create or replace type body ut_test_suite is
         l_reporter.before_suite_item(a_suite => self,a_item_index => i);
         
         l_test_object := treat(self.items(i) as ut_test_object);
-        l_reporter := l_test_object.execute(a_reporter => l_reporter);
+        l_reporter := l_test_object.do_execute(a_reporter => l_reporter);
         self.items(i) := l_test_object;
         
         l_reporter.after_suite_item(a_suite => self,a_item_index => i);
@@ -86,7 +86,7 @@ create or replace type body ut_test_suite is
     
       if self.teardown is not null then
         l_reporter.before_suite_teardown(self);
-        self.teardown.execute;
+        self.teardown.do_execute;
         l_reporter.after_suite_teardown(self);
       end if;
     
@@ -105,10 +105,10 @@ create or replace type body ut_test_suite is
     return l_reporter;
   end;
 
-  overriding member procedure execute(self in out nocopy ut_test_suite) is
+  overriding member procedure do_execute(self in out nocopy ut_test_suite) is
     l_null_reporter ut_reporter := ut_reporter();
   begin
-    self.execute(l_null_reporter);
+    self.do_execute(l_null_reporter);
   end;
 
 end;

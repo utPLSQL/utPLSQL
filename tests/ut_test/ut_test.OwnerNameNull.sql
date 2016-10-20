@@ -5,7 +5,7 @@ declare
   simple_test ut_test:= ut_test(a_owner_name => null, a_object_name => 'ut_example_tests', a_test_procedure => 'ut_passing_test');
 begin
 --Act
-  simple_test.execute();
+  simple_test.do_execute();
 --Assert
   if ut_example_tests.g_char = 'a' then
     :test_result := simple_test.result;

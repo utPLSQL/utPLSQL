@@ -17,7 +17,7 @@ begin
   l_suite := ut_test_suite(a_suite_name => 'Suite name', a_object_name => 'UT_TRANSACTION_CONTROL', a_items => ut_objects_list(l_test), a_rollback_type => ut_utils.gc_rollback_manual);
 
 --Act  
-  l_suite.execute;
+  l_suite.do_execute;
   
   ut_assert_processor.clear_asserts;
 

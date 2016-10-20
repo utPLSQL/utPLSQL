@@ -80,7 +80,7 @@ create or replace package body ut_assert_processor as
   begin
     g_session_params := get_session_parameters();
 
-    execute immediate q'[alter session set events '19119 trace name context forever, level 0x8']';
+    --execute immediate q'[alter session set events '19119 trace name context forever, level 0x8']';
 
     execute immediate 'alter session set nls_date_format = '''||ut_utils.gc_date_format||'''';
     execute immediate 'alter session set nls_timestamp_format = '''||ut_utils.gc_timestamp_format||'''';
@@ -89,7 +89,7 @@ create or replace package body ut_assert_processor as
 
   procedure reset_nls_params is
   begin
-    execute immediate q'[alter session set events '19119 trace name context off']';
+    --execute immediate q'[alter session set events '19119 trace name context off']';
 
     if g_session_params is not null then
       for i in 1 .. g_session_params.count loop

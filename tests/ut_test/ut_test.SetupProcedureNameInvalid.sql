@@ -10,7 +10,7 @@ declare
 begin
   ut_example_tests.g_char := null;
 --Act
-  simple_test.execute();
+  simple_test.do_execute();
 --Assert
   if simple_test.result = ut_utils.tr_error and ut_example_tests.g_char is null then
     :test_result := ut_utils.tr_success;
