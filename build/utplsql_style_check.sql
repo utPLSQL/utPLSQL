@@ -46,4 +46,5 @@ order by object_name, object_type, line, col
 
 exec  :errcnt := nvl('&errcnt_a',0) + nvl('&errcnt_l',0) + nvl('&errcnt_c',0); 
 
-quit :errcnt
+--quit :errcnt
+exit success
