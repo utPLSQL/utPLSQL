@@ -77,10 +77,16 @@ create or replace package body ut_assert_processor as
   end;
 
   procedure set_xml_nls_params is
+    insuf_privs exception;
+    pragma exception_init(insuf_privs, -1031);
   begin
     g_session_params := get_session_parameters();
-
-    execute immediate q'[alter session set events '19119 trace name context forever, level 0x8']';
+ 
+    begin
+      execute immediate q'[alter session set events '19119 trace name context forever, level 0x8']';
+    exception
+      when insuf_privs then NULL;
+    end;
 
     execute immediate 'alter session set nls_date_format = '''||ut_utils.gc_date_format||'''';
     execute immediate 'alter session set nls_timestamp_format = '''||ut_utils.gc_timestamp_format||'''';
@@ -88,8 +94,14 @@ create or replace package body ut_assert_processor as
   end;
 
   procedure reset_nls_params is
+    insuf_privs exception;
+    pragma exception_init(insuf_privs, -1031);
   begin
-    execute immediate q'[alter session set events '19119 trace name context off']';
+    begin
+      execute immediate q'[alter session set events '19119 trace name context off']';
+    exception
+    when insuf_privs then NULL;
+    end;
 
     if g_session_params is not null then
       for i in 1 .. g_session_params.count loop

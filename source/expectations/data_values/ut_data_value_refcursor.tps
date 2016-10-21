@@ -7,11 +7,11 @@ create or replace type ut_data_value_refcursor under ut_data_value(
 
 
   /*
-    var: value
+    var: datavalue
 
     Holds a dbms_xmlgen context for a cursor obtained by calling dbms_xmlgen.newContext(sys_refcursor)
   */
-  value number,
+  datavalue number,
 
   /*
     function: ut_data_value_refcursor

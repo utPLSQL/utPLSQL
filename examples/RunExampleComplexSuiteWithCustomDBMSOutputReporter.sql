@@ -22,7 +22,7 @@ begin
 
   testtoexecute := ut_test(a_object_name        => 'ut_exampletest'
                           ,a_test_procedure     => 'ut_exAmpletest'
-													,a_test_name          => 'Example test1'
+						  ,a_test_name          => 'Example test1'
                           ,a_setup_procedure    => 'Setup'
                           ,a_teardown_procedure => 'tEardown');
 
@@ -39,7 +39,7 @@ begin
   suite_complex := ut_test_suite(a_suite_name => 'Complex Test Suite', a_items => ut_objects_list(suite1, suite2));
 
   -- provide a reporter to process results
-  suite_complex.execute(ut_custom_reporter(a_tab_size => 2));
+  suite_complex.do_execute(ut_custom_reporter(a_tab_size => 2));
 end;
 /
 

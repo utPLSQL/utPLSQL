@@ -21,17 +21,17 @@ END;';
 --Assert
   l_ann_param := null;
   l_ann_param.key := 'name'; 
-  l_ann_param.value := 'Name of suite'; 
+  l_ann_param.val := 'Name of suite'; 
   l_expected.package_annotations('suite')(1) := l_ann_param;
   
   l_ann_param := null;
   l_ann_param.key := 'key'; 
-  l_ann_param.value := 'all.globaltests';  
+  l_ann_param.val := 'all.globaltests';  
   l_expected.package_annotations('suitepackage')(1) := l_ann_param;
   
   l_ann_param := null;
   l_ann_param.key := 'key2'; 
-  l_ann_param.value := 'foo';  
+  l_ann_param.val := 'foo';  
   l_expected.package_annotations('suitepackage')(2) := l_ann_param;
   
   check_annotation_parsing(l_expected, l_parsing_result);

@@ -36,7 +36,7 @@ begin
   suite.add_item(testtoexecute);
 
   -- provide a reporter to process results tabbing each hierarcy level by tab_size
-  suite.execute(ut_custom_reporter(a_tab_size => 2));
+  suite.do_execute(ut_custom_reporter(a_tab_size => 2));
 end;
 /
 

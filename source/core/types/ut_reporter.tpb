@@ -1,6 +1,6 @@
 create or replace type body ut_reporter is
 
-  constructor function ut_reporter return self as result is
+  constructor function ut_reporter(self in out nocopy ut_reporter) return self as result is
   begin
     self.name := 'Null reporter';
     return;

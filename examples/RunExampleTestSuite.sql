@@ -31,7 +31,7 @@ begin
                           ,a_teardown_procedure => 'TEARDOWN');
 
   suite.add_item(testtoexecute);
-  suite.execute;
+  suite.do_execute;
 
   -- No reporter used in this example so outputing the results manually.
   for test_idx in suite.items.first .. suite.items.last loop

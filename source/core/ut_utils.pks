@@ -1,4 +1,4 @@
-create or replace package ut_utils is
+create or replace package ut_utils authid definer is
 
   /*
     Package: ut_utils

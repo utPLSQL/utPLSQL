@@ -1,4 +1,4 @@
-create or replace package ut_annotations as
+create or replace package ut_annotations authid definer as
   /*
     package: ut_annotations
 
@@ -21,7 +21,7 @@ create or replace package ut_annotations as
   */
   type typ_annotation_param is record(
      key   varchar2(255)
-    ,value varchar2(4000));
+    ,val   varchar2(4000));
 
   /*
     type: typ_annotation_param

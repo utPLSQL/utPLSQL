@@ -1,6 +1,6 @@
 create or replace type body ut_test is
 
-  constructor function ut_test(a_object_name varchar2, a_test_procedure varchar2, a_test_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null, a_rollback_type integer default null)
+  constructor function ut_test(self in out nocopy ut_test,a_object_name varchar2, a_test_procedure varchar2, a_test_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null, a_rollback_type integer default null)
     return self as result is
   begin
     self.name        := a_test_name;
@@ -37,12 +37,12 @@ create or replace type body ut_test is
                                                                                    teardown.is_valid('teardown'));
   end is_valid;
 
-  overriding member procedure execute(self in out nocopy ut_test, a_reporter ut_reporter) is
+  overriding member procedure do_execute(self in out nocopy ut_test, a_reporter ut_reporter) is
     l_reporter ut_reporter := a_reporter;
   begin
-    l_reporter := execute(l_reporter);
+    l_reporter := do_execute(l_reporter);
   end;
-  overriding member function execute(self in out nocopy ut_test, a_reporter ut_reporter) return ut_reporter is
+  overriding member function do_execute(self in out nocopy ut_test, a_reporter ut_reporter) return ut_reporter is
     l_reporter ut_reporter := a_reporter;
     l_savepoint varchar2(30);
   begin
@@ -64,13 +64,13 @@ create or replace type body ut_test is
 
           if self.setup is not null then
             l_reporter.before_test_setup(self);
-            self.setup.execute;
+            self.setup.do_execute;
             l_reporter.after_test_setup(self);
           end if;
 
           l_reporter.before_test_execute(self);
           begin
-            self.test.execute;
+            self.test.do_execute;
           exception
             when others then
               -- dbms_utility.format_error_backtrace is 10g or later
@@ -84,7 +84,7 @@ create or replace type body ut_test is
 
           if self.teardown is not null then
             l_reporter.before_test_teardown(self);
-            self.teardown.execute;
+            self.teardown.do_execute;
             l_reporter.after_test_teardown(self);
           end if;
 
@@ -128,11 +128,11 @@ create or replace type body ut_test is
     return l_reporter;
   end;
 
-  overriding member procedure execute(self in out nocopy ut_test) is
+  overriding member procedure do_execute(self in out nocopy ut_test) is
     l_null_reporter ut_reporter := ut_reporter();
   begin
-    self.execute(l_null_reporter);
-  end execute;
+    self.do_execute(l_null_reporter);
+  end do_execute;
 
 end;
 /

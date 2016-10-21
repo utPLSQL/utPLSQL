@@ -18,7 +18,7 @@ begin
   l_suite.set_ignore_flag(true);
 
 --Act  
-  l_suite.execute;
+  l_suite.do_execute;
   
   ut_assert_processor.clear_asserts;
 

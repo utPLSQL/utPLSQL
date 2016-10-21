@@ -1,5 +1,12 @@
 prompt Installing utplsql framework
 
+set serveroutput on size unlimited 
+set timing off
+set define off
+
+ALTER SESSION SET PLSQL_WARNINGS = 'ENABLE:ALL', 'DISABLE:(6000,6001,6003,6010, 7206)';
+
+
 whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
@@ -126,14 +133,20 @@ whenever oserror exit failure rollback
 
 
 prompt Validating installation
-select * from user_errors where name not like 'BIN$%' and (name like 'UT%' or name in ('EQUAL','BE_TRUE','BE_FALSE','BE_NULL','BE_NOT_NULL','MATCH','BE_LIKE'));
+select * from user_errors 
+where name not like 'BIN$%'  --not recycled
+and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH')) -- utplsql objects
+and attribute = 'ERROR'; -- erors only. ignore warnings
 
 declare
   l_cnt integer;
 begin
   select count(1)
     into l_cnt
-    from user_errors where name not like 'BIN$%' and (name like 'UT%' or name in ('EQUAL','BE_TRUE','BE_FALSE','BE_NULL','BE_NOT_NULL','MATCH','BE_LIKE'));
+    from user_errors
+	where name not like 'BIN$%'
+    and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH'))
+    and attribute = 'ERROR';
   if l_cnt > 0 then
     raise_application_error(-20000, 'Not all sources were successfully installed.');
   end if;

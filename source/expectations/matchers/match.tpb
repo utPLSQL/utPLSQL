@@ -19,9 +19,9 @@ create or replace type body match as
     return
       case
         when a_actual is of (ut_data_value_varchar2)
-        then regexp_like(treat(a_actual as ut_data_value_varchar2).value, pattern, modifiers)
+        then regexp_like(treat(a_actual as ut_data_value_varchar2).datavalue, pattern, modifiers)
         when a_actual is of (ut_data_value_clob)
-        then regexp_like(treat(a_actual as ut_data_value_clob).value, pattern, modifiers)
+        then regexp_like(treat(a_actual as ut_data_value_clob).datavalue, pattern, modifiers)
         else (self as ut_matcher).run_matcher(a_actual)
       end;
   end;

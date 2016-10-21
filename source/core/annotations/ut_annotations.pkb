@@ -115,7 +115,7 @@ create or replace package body ut_annotations as
                                                  ,pattern       => '(' || c_rgexp_identifier || ')\s*='
                                                  ,modifier      => 'i'
                                                  ,subexpression => 1);
-              l_param_item.value := trim(regexp_substr(l_param_str, '(.+?=)?(.*$)', subexpression => 2));
+              l_param_item.val := trim(regexp_substr(l_param_str, '(.+?=)?(.*$)', subexpression => 2));
 
               l_annotation_params(l_annotation_params.count + 1) := l_param_item;
             end;
@@ -252,7 +252,7 @@ create or replace package body ut_annotations as
 
         for j in 1 .. a_annotated_pkg.package_annotations(l_name).count loop
           dbms_output.put_line('    ' || nvl(a_annotated_pkg.package_annotations(l_name)(j).key, '<Anonimous>') || ' = ' ||
-                               nvl(a_annotated_pkg.package_annotations(l_name)(j).value, 'NULL'));
+                               nvl(a_annotated_pkg.package_annotations(l_name)(j).val, 'NULL'));
         end loop;
       else
         dbms_output.put_line('    No parameters.');
@@ -278,7 +278,7 @@ create or replace package body ut_annotations as
           for j in 1 .. a_annotated_pkg.procedure_annotations(l_proc_name)(l_name).count loop
             dbms_output.put_line('      ' ||
                                  nvl(a_annotated_pkg.procedure_annotations(l_proc_name) (l_name)(j).key, '<Anonymous>') ||
-                                 ' = ' || nvl(a_annotated_pkg.procedure_annotations(l_proc_name) (l_name)(j).value, 'NULL'));
+                                 ' = ' || nvl(a_annotated_pkg.procedure_annotations(l_proc_name) (l_name)(j).val, 'NULL'));
           end loop;
         else
           dbms_output.put_line('      No parameters.');
@@ -340,7 +340,7 @@ create or replace package body ut_annotations as
     l_result varchar2(32767);
   begin
     if a_param_list.exists(a_def_index) then
-      l_result := a_param_list(a_def_index).value;
+      l_result := a_param_list(a_def_index).val;
     end if;
     return l_result;
   end get_annotation_param;

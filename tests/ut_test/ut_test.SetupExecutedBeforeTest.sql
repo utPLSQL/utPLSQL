@@ -10,7 +10,7 @@ declare
 begin
   ut_example_tests.g_number := null;
 --Act
-  simple_test.execute();
+  simple_test.do_execute();
 --Assert
   if ut_example_tests.g_number = 1 then
     :test_result := ut_utils.tr_success;
