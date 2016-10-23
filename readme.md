@@ -71,12 +71,11 @@ The following table is a work in progress right now, and **will** change.   If y
 __Primary Directories__
 
 * .travis - contains files needed for travis-ci integration
-* docsource - source code to the documentation generation 
+* docs - Markdown version of the documentation 
 * examples - contains example unit tests.
 * source - contains the code utPLSQL
 * lib - 3rd party libraries that are required for source. 
 * tests - contains the tests written to test utPLSQL
-* tools - contains required developer tools (NaturalDocs)
 
 
 

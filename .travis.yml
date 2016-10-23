@@ -1,6 +1,5 @@
 sudo: required
-
-language: perl
+language: python
 
 env:
   global:
@@ -19,6 +18,9 @@ env:
     - UT3_USER=ut3
     - UT3_PASSWORD=ut3
     - UT3_TABLESPACE=users
+      # Target Branch and Directory for Deployment of Docs
+    - PAGES_TARGET_BRANCH="gh-pages"   
+    - PAGES_VERSION_BASE="version3"
 
 addons:
   apt:
@@ -27,7 +29,6 @@ addons:
       - bc
       - rpm
       - unzip
-#      - libaio1
 
 
 cache: 
@@ -36,25 +37,23 @@ cache:
     - $HOME/.cache
 
 before_install:
-  # perl modules needed for documenation generation
-  - "cpanm IPC::System::Simple"
-  - "cpanm Markdent"
-  - "cpanm File::Map"
 # On trusty, download the zip file into a cachable directory
   - test "$DIST" = precise || export ORACLE_ZIP_DIR=$HOME/.cache
 # If the zip file already exists, do not download it again
   - test -f "$ORACLE_ZIP_DIR"/$(basename $ORACLE_FILE) || bash .travis/oracle/download.sh
 
 install:
+  - sudo pip install -r .travis/python_req.txt 
   - bash .travis/oracle/install.sh
-
+  
 script:
   - bash .travis/create_utplsql_user.sh
   - bash .travis/install_libraries.sh
   - bash .travis/install.sh
   - bash .travis/run_examples.sh
   - bash .travis/run_test.sh
-  - perl docsource/builddocs.pl
+  - bash .travis/build_docs.sh
+  - bash .travis/push_docs_to_gh_pages.sh
 
 notifications:
   slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
