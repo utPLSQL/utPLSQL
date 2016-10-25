@@ -5,6 +5,5 @@
 .travis.yml    export-ignore
 
 .travis export-ignore
-tools   export-ignore
 
-^docsource/* linguist-documentation
+^docs/* linguist-documentation
