@@ -74,6 +74,7 @@ whenever oserror exit failure rollback
 @@expectations/matchers/be_null.tps
 @@expectations/matchers/be_true.tps
 @@expectations/matchers/equal.tps
+@@expectations/matchers/be_between.tps
 @@expectations/matchers/match.tps
 @@expectations/ut_expectation.tps
 @@expectations/ut_expectation_anydata.tps
