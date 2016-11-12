@@ -11,7 +11,7 @@ declare
 	simple_test ut_test := ut_test(a_object_name => 'invalid_package', a_test_procedure => 'ut_exampletest');
 begin
 --Act
-	simple_test.execute();
+	simple_test.do_execute();
 --Assert
 	if simple_test.result = ut_utils.tr_error then
     :test_result := ut_utils.tr_success;

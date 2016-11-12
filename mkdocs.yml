@@ -1,0 +1,23 @@
+# Format documented here
+# http://www.mkdocs.org/user-guide/configuration/
+
+site_name: utPLSQL
+site_description: utPLSQL Documenation Powerful Unit Testing Framework for Oracle PL/SQL
+copyright: Copyright &copy; 2016 - utPLSQL Team
+repo_url: https://github.com/utplsql/utplsql/
+theme: mkdocs
+strict: true
+
+pages:
+  - Home: index.md
+  - User Guide:
+       - Installation: userguide/install.md
+       - Getting Started: userguide/getting-started.md
+       - Annotations: userguide/annotations.md
+       - Assertions: userguide/assertions.md
+       - Testing Best Pracitces: userguide/best-practices.md
+       - Upgrade utPLSQL : userguide/upgrade.md
+  - About:
+       - Project Details: about/project-details.md
+       - License: about/license.md
+       - Support: about/support.md

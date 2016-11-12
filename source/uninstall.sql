@@ -6,29 +6,29 @@ drop package ut_assert;
 
 drop package ut;
 
-drop type ut_assertion_varchar2;
+drop type ut_expectation_varchar2;
 
-drop type ut_assertion_timestamp_tz;
+drop type ut_expectation_timestamp_tz;
 
-drop type ut_assertion_timestamp_ltz;
+drop type ut_expectation_timestamp_ltz;
 
-drop type ut_assertion_timestamp;
+drop type ut_expectation_timestamp;
 
-drop type ut_assertion_refcursor;
+drop type ut_expectation_refcursor;
 
-drop type ut_assertion_number;
+drop type ut_expectation_number;
 
-drop type ut_assertion_date;
+drop type ut_expectation_date;
 
-drop type ut_assertion_clob;
+drop type ut_expectation_clob;
 
-drop type ut_assertion_boolean;
+drop type ut_expectation_boolean;
 
-drop type ut_assertion_blob;
+drop type ut_expectation_blob;
 
-drop type ut_assertion_anydata;
+drop type ut_expectation_anydata;
 
-drop type ut_assertion;
+drop type ut_expectation;
 
 drop package ut_assert_processor;
 
@@ -46,7 +46,7 @@ drop type be_like;
 
 drop type be_false;
 
-drop type ut_expectation;
+drop type ut_matcher;
 
 drop type ut_data_value_varchar2;
 
