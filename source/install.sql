@@ -125,6 +125,10 @@ whenever oserror exit failure rollback
 
 @@reporters/ut_dbms_output_suite_reporter.tps
 @@reporters/ut_dbms_output_suite_reporter.tpb
+@@reporters/ut_teamcity_reporter.tps
+@@reporters/ut_teamcity_reporter_printer.pks
+@@reporters/ut_teamcity_reporter_printer.pkb
+@@reporters/ut_teamcity_reporter.tpb
 
 @@legacy/ut_assert.pks
 @@legacy/ut_assert.pkb
@@ -133,10 +137,12 @@ whenever oserror exit failure rollback
 
 
 prompt Validating installation
+-- erors only. ignore warnings
 select * from user_errors 
 where name not like 'BIN$%'  --not recycled
 and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH')) -- utplsql objects
-and attribute = 'ERROR'; -- erors only. ignore warnings
+and attribute = 'ERROR'
+/
 
 declare
   l_cnt integer;

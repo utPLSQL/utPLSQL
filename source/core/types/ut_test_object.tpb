@@ -11,6 +11,15 @@ create or replace type body ut_test_object is
     
     self.rollback_type := a_rollback_type;
   end;
+
+  member function execution_time return number is
+    l_sec number;
+  begin
+    l_sec := extract(day from(end_time - start_time)) * 24 * 60 * 60 +
+             extract(hour from(end_time - start_time)) * 60 * 60 + extract(minute from(end_time - start_time)) * 60 +
+             extract(second from(end_time - start_time));
+    return l_sec;
+  end;
   
 end;
 /
