@@ -14,9 +14,7 @@ create or replace package body ut_teamcity_reporter_printer is
     l_value   varchar2(32767);
   begin
     l_message := '##teamcity[' || a_command || ' timestamp=''' ||
-                 regexp_replace(to_char(systimestamp, 'YYYY-MM-DD"T"HH24:MI:ss.FFTZHTZM')
-                               ,'(\.\d{3})\d+(\+)'
-                               ,'\1\2') || '''';
+                 regexp_replace(to_char(systimestamp, 'YYYY-MM-DD"T"HH24:MI:ss.FFTZHTZM'), '(\.\d{3})\d+(\+)', '\1\2') || '''';
   
     l_index := a_props.first;
     while l_index is not null loop
@@ -94,13 +92,19 @@ create or replace package body ut_teamcity_reporter_printer is
     l_props('flowId') := a_flow_id;
     message('testIgnored', l_props);
   end;
-  procedure test_failed(a_test_name varchar2, a_msg in varchar2 default null, a_details varchar2 default null, a_flow_id varchar2 default null) is
+  procedure test_failed(a_test_name varchar2, a_msg in varchar2 default null, a_details varchar2 default null, a_flow_id varchar2 default null, a_actual varchar2 default null, a_expected varchar2 default null) is
     l_props t_props;
   begin
     l_props('name') := a_test_name;
     l_props('message') := a_msg;
     l_props('details') := a_details;
     l_props('flowId') := a_flow_id;
+    
+    if a_actual is not null and a_expected is not null then
+      l_props('actual') := a_actual;
+      l_props('expected') := a_expected;
+    end if;
+    
     message('testFailed', l_props);
   end;
   procedure test_std_out(a_test_name varchar2, a_out in varchar2, a_flow_id in varchar2 default null) is
