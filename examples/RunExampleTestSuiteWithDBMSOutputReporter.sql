@@ -13,6 +13,7 @@ set echo off
 declare
   suite         ut_test_suite;
   testtoexecute ut_test;
+  reporter      ut_reporter;
 begin
   suite := ut_test_suite(a_suite_name => 'Test Suite Name' /*,a_items => ut_test_objects_list()*/);
 
@@ -31,7 +32,8 @@ begin
   suite.add_item(testtoexecute);
 
   -- provide a reporter to process results
-  suite.do_execute(ut_dbms_output_suite_reporter);
+  reporter := ut_dbms_output_suite_reporter;
+  suite.do_execute(reporter);
 end;
 /
 

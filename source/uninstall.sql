@@ -99,6 +99,10 @@ drop type ut_reporters_list;
 
 drop type ut_reporter force;
 
+drop type ut_output_dbms_output;
+
+drop type ut_output;
+
 drop type ut_assert_list;
 
 drop type ut_assert_result;

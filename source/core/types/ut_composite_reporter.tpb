@@ -1,6 +1,6 @@
 create or replace type body ut_composite_reporter is
 
-  constructor function ut_composite_reporter(self in out nocopy ut_composite_reporter,a_reporters ut_reporters_list default ut_reporters_list())
+  constructor function ut_composite_reporter(self in out nocopy ut_composite_reporter, a_reporters ut_reporters_list default ut_reporters_list())
     return self as result is
   begin
     self.name := $$plsql_unit;

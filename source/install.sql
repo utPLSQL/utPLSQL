@@ -1,6 +1,6 @@
 prompt Installing utplsql framework
 
-set serveroutput on size unlimited 
+set serveroutput on size unlimited
 set timing off
 set define off
 
@@ -23,6 +23,8 @@ whenever oserror exit failure rollback
 @@core/types/ut_executable.tps
 @@core/types/ut_assert_result.tps
 @@core/types/ut_assert_list.tps
+@@core/types/ut_output.tps
+@@core/types/ut_output_dbms_output.tps
 @@core/types/ut_reporter.tps
 @@core/types/ut_reporters_list.tps
 @@core/types/ut_composite_reporter.tps
@@ -44,6 +46,8 @@ whenever oserror exit failure rollback
 
 --core type bodies
 @@core/types/ut_assert_result.tpb
+@@core/types/ut_output.tpb
+@@core/types/ut_output_dbms_output.tpb
 @@core/types/ut_reporter.tpb
 @@core/types/ut_object.tpb
 @@core/types/ut_composite_object.tpb
@@ -128,8 +132,8 @@ whenever oserror exit failure rollback
 @@reporters/ut_dbms_output_suite_reporter.tps
 @@reporters/ut_dbms_output_suite_reporter.tpb
 @@reporters/ut_teamcity_reporter.tps
-@@reporters/ut_teamcity_reporter_printer.pks
-@@reporters/ut_teamcity_reporter_printer.pkb
+@@reporters/ut_teamcity_reporter_helper.pks
+@@reporters/ut_teamcity_reporter_helper.pkb
 @@reporters/ut_teamcity_reporter.tpb
 
 @@legacy/ut_assert.pks

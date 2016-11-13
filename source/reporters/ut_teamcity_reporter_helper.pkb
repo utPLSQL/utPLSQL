@@ -1,4 +1,4 @@
-create or replace package body ut_teamcity_reporter_printer is
+create or replace package body ut_teamcity_reporter_helper is
 
   subtype t_prop_index is varchar2(2000 char);
   type t_props is table of varchar2(32767) index by t_prop_index;
@@ -8,7 +8,7 @@ create or replace package body ut_teamcity_reporter_printer is
     return regexp_replace(a_value, '(''|"|' || chr(13) || '|' || chr(10) || '|[|])', '|\1');
   end;
 
-  procedure message(a_command in varchar2, a_props t_props default cast(null as t_props)) is
+  function message(a_command in varchar2, a_props t_props default cast(null as t_props)) return varchar2 is
     l_message varchar2(32767);
     l_index   t_prop_index;
     l_value   varchar2(32767);
@@ -25,42 +25,42 @@ create or replace package body ut_teamcity_reporter_printer is
       l_index := a_props.next(l_index);
     end loop;
     l_message := l_message || ']';
-    sys.dbms_output.put_line(l_message);
-  
+    return l_message;
+
   end message;
 
-  procedure block_opened(a_name varchar2, a_flow_id varchar2 default null) is
+  function block_opened(a_name varchar2, a_flow_id varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('name') := a_name;
     l_props('flowId') := a_flow_id;
-    message('blockOpened', l_props);
+    return message('blockOpened', l_props);
   end;
 
-  procedure block_closed(a_name varchar2, a_flow_id varchar2 default null) is
+  function block_closed(a_name varchar2, a_flow_id varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('name') := a_name;
     l_props('flowId') := a_flow_id;
-    message('blockClosed', l_props);
+    return message('blockClosed', l_props);
   end;
 
-  procedure test_suite_started(a_suite_name varchar2, a_flow_id varchar2 default null) is
+  function test_suite_started(a_suite_name varchar2, a_flow_id varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('name') := a_suite_name;
     l_props('flowId') := a_flow_id;
-    message('testSuiteStarted', l_props);
+    return message('testSuiteStarted', l_props);
   end;
-  procedure test_suite_finished(a_suite_name varchar2, a_flow_id varchar2 default null) is
+  function test_suite_finished(a_suite_name varchar2, a_flow_id varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('name') := a_suite_name;
     l_props('flowId') := a_flow_id;
-    message('testSuiteFinished', l_props);
+    return message('testSuiteFinished', l_props);
   end;
 
-  procedure test_started(a_test_name varchar2, a_capture_standard_output boolean default null, a_flow_id varchar2 default null) is
+  function test_started(a_test_name varchar2, a_capture_standard_output boolean default null, a_flow_id varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('name') := a_test_name;
@@ -73,26 +73,26 @@ create or replace package body ut_teamcity_reporter_printer is
                                            null
                                         end;
     l_props('flowId') := a_flow_id;
-    message('testStarted', l_props);
+    return message('testStarted', l_props);
   end;
 
-  procedure test_finished(a_test_name varchar2, a_test_duration_milisec number default null, a_flow_id varchar2 default null) is
+  function test_finished(a_test_name varchar2, a_test_duration_milisec number default null, a_flow_id varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('name') := a_test_name;
     l_props('duration') := a_test_duration_milisec;
     l_props('flowId') := a_flow_id;
-    message('testFinished', l_props);
+    return message('testFinished', l_props);
   end;
 
-  procedure test_ignored(a_test_name varchar2, a_flow_id varchar2 default null) is
+  function test_ignored(a_test_name varchar2, a_flow_id varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('name') := a_test_name;
     l_props('flowId') := a_flow_id;
-    message('testIgnored', l_props);
+    return message('testIgnored', l_props);
   end;
-  procedure test_failed(a_test_name varchar2, a_msg in varchar2 default null, a_details varchar2 default null, a_flow_id varchar2 default null, a_actual varchar2 default null, a_expected varchar2 default null) is
+  function test_failed(a_test_name varchar2, a_msg in varchar2 default null, a_details varchar2 default null, a_flow_id varchar2 default null, a_actual varchar2 default null, a_expected varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('name') := a_test_name;
@@ -105,34 +105,34 @@ create or replace package body ut_teamcity_reporter_printer is
       l_props('expected') := a_expected;
     end if;
     
-    message('testFailed', l_props);
+    return message('testFailed', l_props);
   end;
-  procedure test_std_out(a_test_name varchar2, a_out in varchar2, a_flow_id in varchar2 default null) is
+  function test_std_out(a_test_name varchar2, a_out in varchar2, a_flow_id in varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('name') := a_test_name;
     l_props('out') := a_out;
     l_props('flowId') := a_flow_id;
-    message('testStdOut', l_props);
+    return message('testStdOut', l_props);
   end;
-  procedure test_std_err(a_test_name varchar2, a_out in varchar2, a_flow_id in varchar2 default null) is
+  function test_std_err(a_test_name varchar2, a_out in varchar2, a_flow_id in varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('name') := a_test_name;
     l_props('out') := a_out;
     l_props('flowId') := a_flow_id;
-    message('testStdErr', l_props);
+    return message('testStdErr', l_props);
   end;
 
-  procedure custom_message(a_text in varchar2, a_status in varchar2, a_error_deatils in varchar2 default null, a_flow_id in varchar2 default null) is
+  function custom_message(a_text in varchar2, a_status in varchar2, a_error_deatils in varchar2 default null, a_flow_id in varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('text') := a_text;
     l_props('status') := a_status;
     l_props('errorDetails') := a_error_deatils;
     l_props('flowId') := a_flow_id;
-    message('message', l_props);
+    return message('message', l_props);
   end;
 
-end ut_teamcity_reporter_printer;
+end ut_teamcity_reporter_helper;
 /

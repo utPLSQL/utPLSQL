@@ -17,6 +17,7 @@ declare
   suite2        ut_test_suite;
   suite_complex ut_test_suite;
   testtoexecute ut_test;
+  reporter      ut_reporter;
 begin
   suite1 := ut_test_suite(a_suite_name => 'Test Suite 1' /*,a_items => ut_test_objects_list()*/);
 
@@ -39,7 +40,8 @@ begin
   suite_complex := ut_test_suite(a_suite_name => 'Complex Test Suite', a_items => ut_objects_list(suite1, suite2));
 
   -- provide a reporter to process results
-  suite_complex.do_execute(ut_custom_reporter(a_tab_size => 2));
+  reporter := ut_custom_reporter(a_tab_size => 2);
+  suite_complex.do_execute(reporter);
 end;
 /
 
