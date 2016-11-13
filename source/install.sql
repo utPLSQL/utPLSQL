@@ -23,8 +23,11 @@ whenever oserror exit failure rollback
 @@core/types/ut_executable.tps
 @@core/types/ut_assert_result.tps
 @@core/types/ut_assert_list.tps
+@@core/types/ut_output_clob_list.tps
 @@core/types/ut_output.tps
 @@core/types/ut_output_dbms_output.tps
+@@core/ut_output_pipe_helper.pks
+@@core/types/ut_output_dbms_pipe.tps
 @@core/types/ut_reporter.tps
 @@core/types/ut_reporters_list.tps
 @@core/types/ut_composite_reporter.tps
@@ -48,6 +51,8 @@ whenever oserror exit failure rollback
 @@core/types/ut_assert_result.tpb
 @@core/types/ut_output.tpb
 @@core/types/ut_output_dbms_output.tpb
+@@core/ut_output_pipe_helper.pkb
+@@core/types/ut_output_dbms_pipe.tpb
 @@core/types/ut_reporter.tpb
 @@core/types/ut_object.tpb
 @@core/types/ut_composite_object.tpb

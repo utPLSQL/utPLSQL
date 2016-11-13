@@ -1,11 +1,18 @@
 create or replace package ut_output_pipe_helper is
 
-  --sends a message to a named pipe
-  --and if sending fails it writes the message to the end of the buffer for pipe
-  procedure send(a_output_id varchar2, a_text varchar2);
+  --the limit size for pipe message is 4096, we want to make sure we're below that limit
+  subtype t_pipe_item is varchar(4000 byte);
+
+  --we're assuming max of 4 bytes per char
+  gc_size_limit_chars constant integer := 1000;
+
+  --adds message to pipe buffer and tries to sent all messages from the buffer
+  --exists immediately when sending timesout (pipe full)
+  --the messages that were sent are removed from buffer
+  procedure send(a_output_id varchar2, a_text t_pipe_item);
 
   --writes the message to the end of the buffer for pipe
-  procedure buffer(a_output_id varchar2, a_text varchar2);
+  procedure buffer(a_output_id varchar2, a_text t_pipe_item);
 
   --registers a close request and tries to close a pipe
   --by first sending out all messages remaining in the buffers

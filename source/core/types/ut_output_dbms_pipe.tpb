@@ -3,7 +3,7 @@ create or replace type body ut_output_dbms_pipe as
   constructor function ut_output_dbms_pipe(self in out nocopy ut_output_dbms_pipe) return self as result is
   begin
     self.output_type := $$plsql_unit;
-    self.output_id := ut_output_dbms_pipe.generate_output_id;
+    self.output_id := self.generate_output_id;
     return;
   end;
 
@@ -21,12 +21,11 @@ create or replace type body ut_output_dbms_pipe as
   end;
 
   overriding member procedure send(self in out nocopy ut_output_dbms_pipe, a_text clob) is
-    --we're assuming bax of 4 bytes per char
-    c_size_limit_chars constant integer := 1000;
-    l_text_part varchar2(4000 byte);
-    l_timeout_occured boolean;
-    i integer := 0;
+    c_size_limit_chars constant integer := ut_output_pipe_helper.gc_size_limit_chars;
+    l_text_part        ut_output_pipe_helper.t_pipe_item;
+    i                  integer := 0;
   begin
+    --split test into pieces of a size valid for pipe and send to pipe
     while i <= length(a_text) loop
       l_text_part := substr( a_text, i + 1, c_size_limit_chars );
       ut_output_pipe_helper.send( self.output_id, l_text_part);
