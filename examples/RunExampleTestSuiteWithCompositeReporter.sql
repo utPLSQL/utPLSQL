@@ -32,7 +32,7 @@ begin
   suite.add_item(testtoexecute);
 
   -- provide a reporter to process results
-  suite.do_execute(ut_composite_reporter(ut_reporters_list(ut_dbms_output_suite_reporter)));
+  suite.do_execute(ut_composite_reporter(ut_reporters_list(ut_dbms_output_suite_reporter, ut_dbms_output_suite_reporter)));
 end;
 /
 
