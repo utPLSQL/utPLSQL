@@ -55,6 +55,7 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureWhenActualIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureWhenBothActualAndExpectedRangeIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureWhenExpectedRangeIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesSuccessWhenDifferentTypes.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_match.sql
 @@lib/RunTest.sql asssertions/ut_assert_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
