@@ -1,3 +1,4 @@
+prompt Uninstalling utplsql framework
 drop package ut_teamcity_reporter_printer;
 
 drop package ut_suite_manager;
@@ -33,6 +34,8 @@ drop type ut_expectation;
 drop package ut_assert_processor;
 
 drop type match;
+
+drop type be_between;
 
 drop type equal;
 
