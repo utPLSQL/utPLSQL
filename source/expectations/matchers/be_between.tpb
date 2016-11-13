@@ -20,6 +20,12 @@ create or replace type body be_between is
     init(ut_data_value_number(a_lower_bound), ut_data_value_number(a_upper_bound));
     return;
   end;
+  constructor function be_between(self in out nocopy be_between, a_lower_bound varchar2, a_upper_bound varchar2)
+    return self as result is
+  begin
+    init(ut_data_value_varchar2(a_lower_bound), ut_data_value_varchar2(a_upper_bound));
+    return;
+  end;
   constructor function be_between(self in out nocopy be_between, a_lower_bound timestamp_unconstrained, a_upper_bound timestamp_unconstrained)
     return self as result is
   begin
@@ -55,6 +61,14 @@ create or replace type body be_between is
         l_lower  ut_data_value_number := treat(self.lower_bound as ut_data_value_number);
         l_upper  ut_data_value_number := treat(self.upper_bound as ut_data_value_number);
         l_actual ut_data_value_number := treat(a_actual as ut_data_value_number);
+      begin
+        l_result := l_actual.datavalue between l_lower.datavalue and l_upper.datavalue;
+      end;
+    elsif self.lower_bound is of(ut_data_value_varchar2) and self.lower_bound is of(ut_data_value_varchar2) and a_actual is of(ut_data_value_varchar2) then
+      declare
+        l_lower  ut_data_value_varchar2 := treat(self.lower_bound as ut_data_value_varchar2);
+        l_upper  ut_data_value_varchar2 := treat(self.upper_bound as ut_data_value_varchar2);
+        l_actual ut_data_value_varchar2 := treat(a_actual as ut_data_value_varchar2);
       begin
         l_result := l_actual.datavalue between l_lower.datavalue and l_upper.datavalue;
       end;

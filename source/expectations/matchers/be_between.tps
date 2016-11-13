@@ -9,6 +9,8 @@ create or replace type be_between under ut_matcher
     return self as result,
   constructor function be_between(self in out nocopy be_between, a_lower_bound number, a_upper_bound number)
     return self as result,
+  constructor function be_between(self in out nocopy be_between, a_lower_bound varchar2, a_upper_bound varchar2)
+    return self as result,    
   constructor function be_between(self in out nocopy be_between, a_lower_bound timestamp_unconstrained, a_upper_bound timestamp_unconstrained)
     return self as result,
   constructor function be_between(self in out nocopy be_between, a_lower_bound timestamp_tz_unconstrained, a_upper_bound timestamp_tz_unconstrained)

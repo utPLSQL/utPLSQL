@@ -8,7 +8,7 @@ create or replace type body ut_expectation_timestamp_ltz as
   
   member procedure to_be_between(self in ut_expectation_timestamp_ltz, a_lower_bound timestamp_ltz_unconstrained, a_higher_bound timestamp_ltz_unconstrained) is
   begin
-    ut_utils.debug_log('ut_expectation_date.to_be_between(self in ut_expectation_timestamp_ltz, a_lower_bound timestamp_ltz_unconstrained, a_higher_bound timestamp_ltz_unconstrained)');
+    ut_utils.debug_log('ut_expectation_timestamp_ltz.to_be_between(self in ut_expectation_timestamp_ltz, a_lower_bound timestamp_ltz_unconstrained, a_higher_bound timestamp_ltz_unconstrained)');
     self.to_( be_between(a_lower_bound, a_higher_bound) );
   end;
 
