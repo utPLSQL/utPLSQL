@@ -106,6 +106,7 @@ whenever oserror exit failure rollback
 @@expectations/matchers/be_null.tpb
 @@expectations/matchers/be_true.tpb
 @@expectations/matchers/equal.tpb
+@@expectations/matchers/be_between.tpb
 @@expectations/matchers/match.tpb
 @@expectations/ut_expectation.tpb
 @@expectations/ut_expectation_anydata.tpb
