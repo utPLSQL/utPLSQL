@@ -49,6 +49,13 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.PutsNullIntoStringValueWhenActualIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.PutsNullIntoStringValueWhenExpectedIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.with_text.GivesTheProvidedTextAsMessage.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureForDifferentValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesTrueForCorrectValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.with_text.GivesTheProvidedTextAsMessage.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureWhenActualIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureWhenBothActualAndExpectedRangeIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureWhenExpectedRangeIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesSuccessWhenDifferentTypes.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_match.sql
 @@lib/RunTest.sql asssertions/ut_assert_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
