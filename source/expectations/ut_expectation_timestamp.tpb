@@ -6,10 +6,10 @@ create or replace type body ut_expectation_timestamp as
     self.to_( equal(a_expected, a_nulls_are_equal) );
   end;
   
-  member procedure to_be_between(self in ut_expectation_timestamp, a_lower_bound timestamp_unconstrained, a_higher_bound timestamp_unconstrained) is
+  member procedure to_be_between(self in ut_expectation_timestamp, a_lower_bound timestamp_unconstrained, a_upper_bound timestamp_unconstrained) is
   begin
-    ut_utils.debug_log('ut_expectation_timestamp.to_be_between(self in ut_expectation_timestamp, a_lower_bound timestamp_unconstrained, a_higher_bound timestamp_unconstrained)');
-    self.to_( be_between(a_lower_bound, a_higher_bound) );
+    ut_utils.debug_log('ut_expectation_timestamp.to_be_between(self in ut_expectation_timestamp, a_lower_bound timestamp_unconstrained, a_upper_bound timestamp_unconstrained)');
+    self.to_( be_between(a_lower_bound, a_upper_bound) );
   end;
 
 end;

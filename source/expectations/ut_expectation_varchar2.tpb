@@ -6,10 +6,10 @@ create or replace type body ut_expectation_varchar2 as
     self.to_( equal(a_expected, a_nulls_are_equal) );
   end;
   
-  member procedure to_be_between(self in ut_expectation_varchar2, a_lower_bound varchar2, a_higher_bound varchar2) is
+  member procedure to_be_between(self in ut_expectation_varchar2, a_lower_bound varchar2, a_upper_bound varchar2) is
   begin
-    ut_utils.debug_log('ut_expectation_varchar2.to_be_between(self in ut_expectation_varchar2, a_lower_bound varchar2, a_higher_bound varchar2)');
-    self.to_( be_between(a_lower_bound,a_higher_bound) );
+    ut_utils.debug_log('ut_expectation_varchar2.to_be_between(self in ut_expectation_varchar2, a_lower_bound varchar2, a_upper_bound varchar2)');
+    self.to_( be_between(a_lower_bound,a_upper_bound) );
   end;
 
   member procedure to_be_like(self in ut_expectation_varchar2, a_mask in varchar2, a_escape_char in varchar2 := null) is
