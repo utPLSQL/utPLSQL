@@ -142,7 +142,7 @@ prompt Validating installation
 -- erors only. ignore warnings
 select * from user_errors 
 where name not like 'BIN$%'  --not recycled
-and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH')) -- utplsql objects
+and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH','BE_BETWEEN')) -- utplsql objects
 and attribute = 'ERROR'
 /
 
@@ -153,7 +153,7 @@ begin
     into l_cnt
     from user_errors
 	where name not like 'BIN$%'
-    and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH'))
+    and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH','BE_BETWEEN'))
     and attribute = 'ERROR';
   if l_cnt > 0 then
     raise_application_error(-20000, 'Not all sources were successfully installed.');
