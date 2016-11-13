@@ -130,8 +130,8 @@ whenever oserror exit failure rollback
 @@reporters/ut_dbms_output_suite_reporter.tps
 @@reporters/ut_dbms_output_suite_reporter.tpb
 @@reporters/ut_teamcity_reporter.tps
-@@reporters/ut_teamcity_reporter_printer.pks
-@@reporters/ut_teamcity_reporter_printer.pkb
+@@reporters/ut_teamcity_reporter_helper.pks
+@@reporters/ut_teamcity_reporter_helper.pkb
 @@reporters/ut_teamcity_reporter.tpb
 
 @@legacy/ut_assert.pks
