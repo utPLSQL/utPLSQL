@@ -48,7 +48,7 @@ create or replace type body be_between is
   overriding member function run_matcher(self in out nocopy be_between, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
-    if self.lower_bound is of(ut_data_value_date) and self.lower_bound is of(ut_data_value_date) and a_actual is of(ut_data_value_date) then
+    if self.lower_bound is of(ut_data_value_date) and self.upper_bound is of(ut_data_value_date) and a_actual is of(ut_data_value_date) then
       declare
         l_lower  ut_data_value_date := treat(self.lower_bound as ut_data_value_date);
         l_upper  ut_data_value_date := treat(self.upper_bound as ut_data_value_date);
@@ -56,7 +56,7 @@ create or replace type body be_between is
       begin
         l_result := l_actual.datavalue between l_lower.datavalue and l_upper.datavalue;
       end;
-    elsif self.lower_bound is of(ut_data_value_number) and self.lower_bound is of(ut_data_value_number) and a_actual is of(ut_data_value_number) then
+    elsif self.lower_bound is of(ut_data_value_number) and self.upper_bound is of(ut_data_value_number) and a_actual is of(ut_data_value_number) then
       declare
         l_lower  ut_data_value_number := treat(self.lower_bound as ut_data_value_number);
         l_upper  ut_data_value_number := treat(self.upper_bound as ut_data_value_number);
@@ -64,7 +64,7 @@ create or replace type body be_between is
       begin
         l_result := l_actual.datavalue between l_lower.datavalue and l_upper.datavalue;
       end;
-    elsif self.lower_bound is of(ut_data_value_varchar2) and self.lower_bound is of(ut_data_value_varchar2) and a_actual is of(ut_data_value_varchar2) then
+    elsif self.lower_bound is of(ut_data_value_varchar2) and self.upper_bound is of(ut_data_value_varchar2) and a_actual is of(ut_data_value_varchar2) then
       declare
         l_lower  ut_data_value_varchar2 := treat(self.lower_bound as ut_data_value_varchar2);
         l_upper  ut_data_value_varchar2 := treat(self.upper_bound as ut_data_value_varchar2);
@@ -72,7 +72,7 @@ create or replace type body be_between is
       begin
         l_result := l_actual.datavalue between l_lower.datavalue and l_upper.datavalue;
       end;
-    elsif self.lower_bound is of(ut_data_value_timestamp) and self.lower_bound is of(ut_data_value_timestamp) and a_actual is of(ut_data_value_timestamp) then
+    elsif self.lower_bound is of(ut_data_value_timestamp) and self.upper_bound is of(ut_data_value_timestamp) and a_actual is of(ut_data_value_timestamp) then
       declare
         l_lower  ut_data_value_timestamp := treat(self.lower_bound as ut_data_value_timestamp);
         l_upper  ut_data_value_timestamp := treat(self.upper_bound as ut_data_value_timestamp);
@@ -80,7 +80,7 @@ create or replace type body be_between is
       begin
         l_result := l_actual.datavalue between l_lower.datavalue and l_upper.datavalue;
       end;
-    elsif self.lower_bound is of(ut_data_value_timestamp_tz) and self.lower_bound is of(ut_data_value_timestamp_tz) and a_actual is of(ut_data_value_timestamp_tz) then
+    elsif self.lower_bound is of(ut_data_value_timestamp_tz) and self.upper_bound is of(ut_data_value_timestamp_tz) and a_actual is of(ut_data_value_timestamp_tz) then
       declare
         l_lower  ut_data_value_timestamp_tz := treat(self.lower_bound as ut_data_value_timestamp_tz);
         l_upper  ut_data_value_timestamp_tz := treat(self.upper_bound as ut_data_value_timestamp_tz);
@@ -88,7 +88,7 @@ create or replace type body be_between is
       begin
         l_result := l_actual.datavalue between l_lower.datavalue and l_upper.datavalue;
       end;
-    elsif self.lower_bound is of(ut_data_value_timestamp_ltz) and self.lower_bound is of(ut_data_value_timestamp_ltz) and a_actual is of(ut_data_value_timestamp_ltz) then
+    elsif self.lower_bound is of(ut_data_value_timestamp_ltz) and self.upper_bound is of(ut_data_value_timestamp_ltz) and a_actual is of(ut_data_value_timestamp_ltz) then
       declare
         l_lower  ut_data_value_timestamp_ltz := treat(self.lower_bound as ut_data_value_timestamp_ltz);
         l_upper  ut_data_value_timestamp_ltz := treat(self.upper_bound as ut_data_value_timestamp_ltz);
