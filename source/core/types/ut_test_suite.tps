@@ -12,10 +12,7 @@ create or replace type ut_test_suite force under ut_test_object
   member procedure set_suite_teardown(self in out nocopy ut_test_suite, a_object_name in varchar2, a_proc_name in varchar2, a_owner_name varchar2 default null),
   member function is_valid return boolean,
 
-  overriding member procedure do_execute(self in out nocopy ut_test_suite, a_reporter ut_reporter),
-  overriding member function  do_execute(self in out nocopy ut_test_suite, a_reporter ut_reporter)
-    return ut_reporter,
-  overriding member procedure do_execute(self in out nocopy ut_test_suite)
+  overriding member procedure do_execute(self in out nocopy ut_test_suite, a_reporter in out nocopy ut_reporter)
 )
 not final
 /

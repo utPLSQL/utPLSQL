@@ -20,6 +20,13 @@ create or replace type body ut_test_object is
              extract(second from(end_time - start_time));
     return l_sec;
   end;
-  
+
+  final member procedure do_execute(self in out nocopy ut_test_object) is
+    l_null_reporter ut_reporter := ut_reporter();
+  begin
+    self.do_execute(l_null_reporter);
+  end;
+
+
 end;
 /

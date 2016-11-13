@@ -292,7 +292,7 @@ create or replace package body ut_suite_manager is
       l_ind := g_schema_suites(a_owner_name).first;
       while l_ind is not null loop
         l_suite := g_schema_suites(a_owner_name) (l_ind);
-        a_reporter := l_suite.do_execute(a_reporter => a_reporter);
+        l_suite.do_execute(a_reporter => a_reporter);
         g_schema_suites(a_owner_name)(l_ind) := l_suite;
         l_ind := g_schema_suites(a_owner_name).next(l_ind);
       end loop;

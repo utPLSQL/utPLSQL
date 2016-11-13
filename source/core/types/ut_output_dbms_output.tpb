@@ -18,7 +18,7 @@ create or replace type body ut_output_dbms_output as
     c_size_limit_chars constant integer := (32767/2);
     i integer := 0;
   begin
-    while i <= length(a_text) loop
+    while i < length(a_text) loop
       l_text_part := substr( a_text, i + 1, c_size_limit_chars );
       dbms_output.put_line(l_text_part);
       i := i + c_size_limit_chars;

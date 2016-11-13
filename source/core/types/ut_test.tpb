@@ -37,16 +37,10 @@ create or replace type body ut_test is
                                                                                    teardown.is_valid('teardown'));
   end is_valid;
 
-  overriding member procedure do_execute(self in out nocopy ut_test, a_reporter ut_reporter) is
-    l_reporter ut_reporter := a_reporter;
-  begin
-    l_reporter := do_execute(l_reporter);
-  end;
-  overriding member function do_execute(self in out nocopy ut_test, a_reporter ut_reporter) return ut_reporter is
-    l_reporter ut_reporter := a_reporter;
+  overriding member procedure do_execute(self in out nocopy ut_test, a_reporter in out nocopy ut_reporter) is
     l_savepoint varchar2(30);
   begin
-    l_reporter.before_test(self);
+    a_reporter.before_test(self);
 
     if self.rollback_type = ut_utils.gc_rollback_auto then
       l_savepoint := ut_utils.gen_savepoint_name;
@@ -63,12 +57,12 @@ create or replace type body ut_test is
         if self.is_valid() then
 
           if self.setup is not null then
-            l_reporter.before_test_setup(self);
+            a_reporter.before_test_setup(self);
             self.setup.do_execute;
-            l_reporter.after_test_setup(self);
+            a_reporter.after_test_setup(self);
           end if;
 
-          l_reporter.before_test_execute(self);
+          a_reporter.before_test_execute(self);
           begin
             self.test.do_execute;
           exception
@@ -80,12 +74,12 @@ create or replace type body ut_test is
 
               ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
           end;
-          l_reporter.after_test_execute(self);
+          a_reporter.after_test_execute(self);
 
           if self.teardown is not null then
-            l_reporter.before_test_teardown(self);
+            a_reporter.before_test_teardown(self);
             self.teardown.do_execute;
-            l_reporter.after_test_teardown(self);
+            a_reporter.after_test_teardown(self);
           end if;
 
         end if;
@@ -108,31 +102,23 @@ create or replace type body ut_test is
 
       self.end_time := current_timestamp;
 
-      l_reporter.before_asserts_process(self);
+      a_reporter.before_asserts_process(self);
       self.items := ut_assert_processor.get_asserts_results();
 
       self.calc_execution_result;
 
       for i in 1 .. self.items.count loop
-        l_reporter.on_assert_process(treat(self.items(i) as ut_assert_result));
+        a_reporter.on_assert_process(treat(self.items(i) as ut_assert_result));
       end loop;
 
-      l_reporter.after_asserts_process(self);
+      a_reporter.after_asserts_process(self);
     else
       self.end_time := current_timestamp;
       self.result := ut_utils.tr_ignore;
     end if;
   
-    l_reporter.after_test(self);
-
-    return l_reporter;
+    a_reporter.after_test(self);
   end;
-
-  overriding member procedure do_execute(self in out nocopy ut_test) is
-    l_null_reporter ut_reporter := ut_reporter();
-  begin
-    self.do_execute(l_null_reporter);
-  end do_execute;
 
 end;
 /
