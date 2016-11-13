@@ -40,8 +40,6 @@ create or replace package ut_utils authid definer is
   gc_timestamp_format         constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff';
   gc_timestamp_tz_format      constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff tzh:tzm';
   gc_null_string              constant varchar2(4) := 'NULL';
-  gc_output_eom               constant varchar2(30) := '[{-end-of-message-}]';
-  gc_output_eot               constant varchar2(30) := '[{-end-of-transmission-}]';
   /*
      Function: test_result_to_char
         returns a string representation of a test_result.

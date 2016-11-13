@@ -3,8 +3,6 @@ create or replace type ut_output_dbms_pipe under ut_output (
   overriding member procedure open(self in out nocopy ut_output_dbms_pipe),
   overriding member procedure send(self in out nocopy ut_output_dbms_pipe, a_text clob),
   overriding member procedure close(self in out nocopy ut_output_dbms_pipe),
-  static function get_lines(a_output_id varchar2, a_timeout_sec integer := 60*60*4) return ut_output_clob_list pipelined,
-  member procedure to_screen(self in ut_output_dbms_pipe),
-  static procedure to_screen(a_output_id varchar2)
+  static function get_lines(a_output_id varchar2, a_timeout_sec integer := 60*60*4) return ut_output_clob_list pipelined
 ) not final
 /
