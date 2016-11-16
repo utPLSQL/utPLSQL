@@ -9,13 +9,20 @@ create or replace package ut_output_pipe_helper is
 
   --decides how long the process will be waiting to flush buffers
   gc_flush_timeout_seconds constant natural := 60;
-  gc_output_eom            constant varchar2(30) := '[{-end-of-message-}]';
-  gc_output_eot            constant varchar2(30) := '[{-end-of-transmission-}]';
+  gc_text                  constant integer := 9;
+  gc_eom                   constant integer := 11;
+  gc_eot                   constant integer := 23;
 
   --adds message to pipe buffer and tries to sent all messages from the buffer
   --exists immediately when sending timesout (pipe full)
   --the messages that were sent are removed from buffer
   procedure send(a_output_id t_output_id, a_text t_pipe_item);
+
+  --sends a end of message into a a pipe
+  procedure send_eom(a_output_id t_output_id);
+
+  --sends a end of message into a a pipe
+  procedure send_eot(a_output_id t_output_id);
 
   --marks a buffer as ready to be flushed and then
   --tries to flush all the data from all the outputs buffers to the pipes

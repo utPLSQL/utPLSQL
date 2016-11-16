@@ -28,12 +28,12 @@ create or replace type body ut_output_dbms_pipe as
       i := i + c_size_limit_chars;
     end loop;
     --SEND is closed by a EOM message
-    ut_output_pipe_helper.send( self.output_id, ut_output_pipe_helper.gc_output_eom );
+    ut_output_pipe_helper.send_eom(self.output_id);
   end;
 
   overriding member procedure close(self in out nocopy ut_output_dbms_pipe) is
   begin
-    ut_output_pipe_helper.send(self.output_id, ut_output_pipe_helper.gc_output_eot);
+    ut_output_pipe_helper.send_eot(self.output_id);
     ut_output_pipe_helper.flush(self.output_id);
   end;
 
@@ -43,6 +43,7 @@ create or replace type body ut_output_dbms_pipe as
     l_text            clob;
     l_timeout_occured boolean;
     l_need_to_send    boolean;
+    l_item_type       integer;
   begin
     if a_output_id is not null then
 
@@ -51,20 +52,26 @@ create or replace type body ut_output_dbms_pipe as
         l_need_to_send := false;
 
         --build a row. As a rule one call to 'send' is one row.
+        -- TODO - add detection of newline so that for each new line recieved in text, the code generates a new output row
         loop
-          l_timeout_occured := dbms_pipe.receive_message(a_output_id, a_timeout_sec) != 0;
+          dbms_pipe.reset_buffer;
+          l_timeout_occured := (dbms_pipe.receive_message(a_output_id, a_timeout_sec) != 0);
           exit when l_timeout_occured;
+          l_item_type := dbms_pipe.next_item_type();
+          exit when l_item_type in (ut_output_pipe_helper.gc_eom, ut_output_pipe_helper.gc_eot);
           dbms_pipe.unpack_message(l_text_part);
-          exit when ( l_text_part in (ut_output_pipe_helper.gc_output_eom, ut_output_pipe_helper.gc_output_eot) );
-          dbms_lob.writeappend(l_text, length(l_text_part), l_text_part);
+          if l_text_part is not null then
+            dbms_lob.writeappend(l_text, length(l_text_part), l_text_part);
+          end if;
           l_need_to_send := true;
         end loop;
 
         if l_need_to_send then
           pipe row( l_text );
+          dbms_lob.freetemporary(l_text);
         end if;
 
-        exit when (l_timeout_occured or l_text_part = ut_output_pipe_helper.gc_output_eot);
+        exit when (l_timeout_occured or l_item_type = ut_output_pipe_helper.gc_eot);
       end loop;
 
       l_flag := dbms_pipe.remove_pipe(a_output_id);

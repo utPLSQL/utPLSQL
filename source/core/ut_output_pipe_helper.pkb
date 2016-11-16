@@ -1,8 +1,11 @@
 create or replace package body ut_output_pipe_helper is
 
   -- private
-
-  type tt_pipe_buffer is table of varchar2(4000);
+  type t_pipe_buffer_rec is record(
+    message_type integer,
+    message      varchar2(4000)
+  );
+  type tt_pipe_buffer is table of t_pipe_buffer_rec;
 
   type t_output_buffer is record(
     to_flush boolean := false,
@@ -26,7 +29,13 @@ create or replace package body ut_output_pipe_helper is
       --iterate through buffer and try to sent all data from buffer
       -- exit loop on timeout
       while i is not null loop
-        dbms_pipe.pack_message( a_buffer(i) );
+        if a_buffer(i).message_type = gc_eom then
+          dbms_pipe.pack_message_rowid( NULL );
+        elsif a_buffer(i).message_type = gc_eot then
+          dbms_pipe.pack_message_raw( NULL );
+        else
+          dbms_pipe.pack_message( a_buffer(i).message );
+        end if;
         l_is_successful := dbms_pipe.send_message(a_output_id, a_timeout_seconds) = 0;
         exit when not l_is_successful;
         l_last_item := i;
@@ -57,6 +66,7 @@ create or replace package body ut_output_pipe_helper is
   --iterates through all the output buffers that were not purged
   --for each buffer tries to send the content of the buffer
   --if all content was sent, buffer is recycled (removed)
+  --returns true if the flushing succeeded for all buffers
   function flush_buffers(a_timeout_seconds naturaln := 0) return boolean is
     l_output_id           t_output_id;
     l_output_id_to_delete t_output_id;
@@ -66,10 +76,10 @@ create or replace package body ut_output_pipe_helper is
     l_output_id := g_outputs_buffer.first;
     while l_output_id is not null loop
       l_output_id_to_delete := null;
-      if send_from_buffer(l_output_id, a_timeout_seconds) = true then
+
+      l_timed_out := not send_from_buffer(l_output_id, a_timeout_seconds);
+      if not l_timed_out then
         l_output_id_to_delete := l_output_id;
-      else
-        l_timed_out := true;
       end if;
       l_output_id := g_outputs_buffer.next(l_output_id);
 
@@ -95,27 +105,33 @@ create or replace package body ut_output_pipe_helper is
     return true;
   end;
 
-  --remove all the pipes anf purges all the buffers
+  -- - remove pipes associated with buffers that are not yet deleted
+  -- - delete all the buffers
+  -- TODO - The purge procedure needs to be called by top level program (ut_runner)
+  --  in the EXCEPTION WHEN OTHERS block before raising back,
+  --  so that it tries to remove pipes on any exception before raising back to caller
   procedure purge is
     l_pipe_removal_status integer;
     l_output_id           t_output_id;
   begin
     l_output_id := g_outputs_buffer.first;
     while l_output_id is not null loop
+      l_pipe_removal_status := dbms_pipe.remove_pipe(l_output_id);
       l_output_id := g_outputs_buffer.next(l_output_id);
     end loop;
     g_outputs_buffer.delete;
   end;
 
   --writes the message to the end of the buffer
-  procedure buffer(a_output_id t_output_id, a_text t_pipe_item) is
+  procedure buffer(a_output_id t_output_id, a_text t_pipe_item, a_message_type integer := null) is
   begin
     if not g_outputs_buffer.exists(a_output_id) then
       g_outputs_buffer(a_output_id).data := tt_pipe_buffer();
       g_outputs_buffer(a_output_id).to_flush := false;
     end if;
     g_outputs_buffer(a_output_id).data.extend;
-    g_outputs_buffer(a_output_id).data(g_outputs_buffer(a_output_id).data.last) :=  a_text;
+    g_outputs_buffer(a_output_id).data(g_outputs_buffer(a_output_id).data.last).message_type :=  a_message_type;
+    g_outputs_buffer(a_output_id).data(g_outputs_buffer(a_output_id).data.last).message :=  a_text;
   end;
 
 
@@ -131,10 +147,27 @@ create or replace package body ut_output_pipe_helper is
       l_is_successful := send_from_buffer(a_output_id);
   end;
 
+  --sends a end of message into a a pipe
+  procedure send_eom(a_output_id t_output_id) is
+    l_is_successful boolean;
+  begin
+      buffer(a_output_id, null, gc_eom);
+      l_is_successful := send_from_buffer(a_output_id);
+  end;
+
+  --sends a end of message into a a pipe
+  procedure send_eot(a_output_id t_output_id) is
+    l_is_successful boolean;
+  begin
+      buffer(a_output_id, null, gc_eot);
+      l_is_successful := send_from_buffer(a_output_id);
+  end;
+
   --marks a buffer as ready to be flushed
   --tries to flush all the data from all the outputs buffers to the pipes immediately
   --in case, all buffers outputs are to be flused, it will try with a timeout.
   procedure flush(a_output_id t_output_id, a_timeout_seconds naturaln := gc_flush_timeout_seconds) is
+    l_buffers_flushed boolean := false;
   begin
     if g_outputs_buffer.exists(a_output_id) then
       g_outputs_buffer(a_output_id).to_flush := true;
@@ -144,9 +177,16 @@ create or replace package body ut_output_pipe_helper is
       --try as many times as there are seconds for timeout
       --each time try with one second delay
       for i in 1 .. a_timeout_seconds loop
-        exit when flush_buffers(a_timeout_seconds => 1) = true;
+        l_buffers_flushed := flush_buffers(a_timeout_seconds => 1);
+        exit when l_buffers_flushed;
       end loop;
-      purge();
+
+      --if timeout occured and buffers were not flushed then
+      -- - remove pipes associated with non flushed buffers
+      -- - delete the buffers
+      if not l_buffers_flushed then
+        purge();
+      end if;
     end if;
 
   end;
