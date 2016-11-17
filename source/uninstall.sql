@@ -1,5 +1,5 @@
 prompt Uninstalling utplsql framework
-drop package ut_teamcity_reporter_printer;
+drop package ut_teamcity_reporter_helper;
 
 drop package ut_suite_manager;
 
