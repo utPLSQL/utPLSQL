@@ -11,6 +11,7 @@ whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
 --common utilities
+@@core/types/ut_output_varchar2_list.tps
 @@core/ut_utils.pks
 @@core/ut_metadata.pks
 @@core/ut_utils.pkb

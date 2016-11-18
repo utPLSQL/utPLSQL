@@ -12,16 +12,15 @@ create or replace type body ut_output_dbms_output as
     null;
   end;
 
-  overriding member procedure send(self in out nocopy ut_output_dbms_output, a_text clob) is
-    l_text_part varchar2(32767 byte);
-    --we're assuming max of 2 bytes per char
-    c_size_limit_chars constant integer := (32767/2);
-    i integer := 0;
+  overriding member procedure send_line(self in out nocopy ut_output_dbms_output, a_text varchar2) is
   begin
-    while i < length(a_text) loop
-      l_text_part := substr( a_text, i + 1, c_size_limit_chars );
-      dbms_output.put_line(l_text_part);
-      i := i + c_size_limit_chars;
+    dbms_output.put_line(a_text);
+  end;
+
+  overriding member procedure send_clob(self in out nocopy ut_output_dbms_output, a_text clob) is
+  begin
+    for i in (select column_value as text from table(ut_utils.clob_to_table(a_text)) ) loop
+      dbms_output.put_line(i.text);
     end loop;
   end;
 

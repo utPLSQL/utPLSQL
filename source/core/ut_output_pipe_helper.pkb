@@ -33,7 +33,7 @@ create or replace package body ut_output_pipe_helper is
           dbms_pipe.pack_message_rowid( NULL );
         elsif a_buffer(i).message_type = gc_eot then
           dbms_pipe.pack_message_raw( NULL );
-        else
+        elsif a_buffer(i).message_type = gc_text then
           dbms_pipe.pack_message( a_buffer(i).message );
         end if;
         l_is_successful := dbms_pipe.send_message(a_output_id, a_timeout_seconds) = 0;
@@ -123,7 +123,7 @@ create or replace package body ut_output_pipe_helper is
   end;
 
   --writes the message to the end of the buffer
-  procedure buffer(a_output_id t_output_id, a_text t_pipe_item, a_message_type integer := null) is
+  procedure buffer(a_output_id t_output_id, a_message_type integer, a_text t_pipe_item := null) is
   begin
     if not g_outputs_buffer.exists(a_output_id) then
       g_outputs_buffer(a_output_id).data := tt_pipe_buffer();
@@ -135,32 +135,35 @@ create or replace package body ut_output_pipe_helper is
   end;
 
 
+  procedure buffer_and_send(a_output_id t_output_id, a_message_type integer, a_text t_pipe_item:= null) is
+    l_is_successful boolean;
+  begin
+      buffer(a_output_id, a_message_type, a_text);
+      l_is_successful := send_from_buffer(a_output_id);
+  end;
   ---public
 
   --adds message to pipe buffer and tries to sent all messages from the buffer
   --exists immediately when sending timesout (pipe full)
   --the messages that were sent are removed from buffer
-  procedure send(a_output_id t_output_id, a_text t_pipe_item) is
+  procedure send_text(a_output_id t_output_id, a_text t_pipe_item) is
     l_is_successful boolean;
   begin
-      buffer(a_output_id, a_text);
-      l_is_successful := send_from_buffer(a_output_id);
+      buffer_and_send(a_output_id, gc_text, a_text);
   end;
 
   --sends a end of message into a a pipe
   procedure send_eom(a_output_id t_output_id) is
     l_is_successful boolean;
   begin
-      buffer(a_output_id, null, gc_eom);
-      l_is_successful := send_from_buffer(a_output_id);
+      buffer_and_send(a_output_id, gc_eom);
   end;
 
   --sends a end of message into a a pipe
   procedure send_eot(a_output_id t_output_id) is
     l_is_successful boolean;
   begin
-      buffer(a_output_id, null, gc_eot);
-      l_is_successful := send_from_buffer(a_output_id);
+      buffer_and_send(a_output_id, gc_eot);
   end;
 
   --marks a buffer as ready to be flushed

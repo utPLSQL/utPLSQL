@@ -126,5 +126,59 @@ create or replace package body ut_utils is
     return case a_value when 1 then true when 0 then false end;
   end;
 
-end ut_utils;
+  function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10)) return ut_output_varchar2_list is
+    l_offset             integer := 1;
+    l_length             integer;
+    l_result             ut_output_varchar2_list := ut_output_varchar2_list();
+    l_delimiter_position integer;
+  begin
+    if a_string is not null then
+      l_length := length(a_string);
+      loop
+        l_result.extend;
+        l_delimiter_position := instr(a_string, a_delimiter, l_offset);
+        if l_delimiter_position > 0 then
+          l_result(l_result.last) := substr(a_string, l_offset, l_delimiter_position - l_offset);
+        else
+          l_result(l_result.last) := substr(a_string, l_offset);
+        end if;
+        exit when l_delimiter_position = 0;
+        l_offset := l_delimiter_position + 1;
+      end loop;
+    end if;
+    return l_result;
+  end;
+
+  function clob_to_table(a_clob clob, a_delimiter varchar2:= chr(10), a_max_amount integer := 32767) return ut_output_varchar2_list pipelined is
+    l_offset    integer := 1;
+    l_length    integer := dbms_lob.getlength(a_clob);
+    l_amount    integer := a_max_amount;
+    l_buffer    varchar2(32767);
+    l_last_line varchar2(32767);
+    l_results ut_output_varchar2_list;
+    l_is_last_line boolean;
+  begin
+    while l_offset <= l_length loop
+      l_amount := a_max_amount - coalesce( length(l_last_line), 0 );
+      dbms_lob.read(a_clob, l_amount, l_offset, l_buffer);
+      l_offset := l_offset + l_amount;
+
+      l_results := string_to_table( l_last_line || l_buffer, a_delimiter );
+      l_is_last_line := false;
+      for i in 1 .. l_results.count loop
+        if i < l_results.count or l_results.count = 1 then
+          pipe row( l_results(i) );
+        else
+          l_is_last_line := true;
+          l_last_line := l_results(i);
+        end if;
+      end loop;
+    end loop;
+    if l_is_last_line then
+      pipe row( l_last_line );
+    end if;
+    return;
+  end;
+
+end;
 /

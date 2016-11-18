@@ -109,6 +109,8 @@ drop type ut_output;
 
 drop type ut_output_clob_list;
 
+drop type ut_output_varchar2_list;
+
 drop type ut_assert_list;
 
 drop type ut_assert_result;

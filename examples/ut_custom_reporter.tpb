@@ -16,10 +16,10 @@ create or replace type body ut_custom_reporter is
     return tab_str;
   end tab;
 
-  overriding member procedure print(a_text varchar2) is
+  overriding member procedure print_text(a_text varchar2) is
   begin
-    (self as ut_dbms_output_suite_reporter).print(tab || a_text);
-  end print;
+    (self as ut_dbms_output_suite_reporter).print_text(tab || a_text);
+  end;
 
   overriding member procedure before_suite(self in out nocopy ut_custom_reporter, a_suite ut_object) as
   begin

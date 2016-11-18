@@ -16,7 +16,12 @@ create or replace type body ut_output_dbms_pipe as
     l_flag := dbms_pipe.create_pipe(self.output_id);
   end;
 
-  overriding member procedure send(self in out nocopy ut_output_dbms_pipe, a_text clob) is
+  overriding member procedure send_line(self in out nocopy ut_output_dbms_pipe, a_text varchar2) is
+  begin
+    self.send_clob(a_text);
+  end;
+
+  overriding member procedure send_clob(self in out nocopy ut_output_dbms_pipe, a_text clob) is
     c_size_limit_chars constant integer := ut_output_pipe_helper.gc_size_limit_chars;
     l_text_part        ut_output_pipe_helper.t_pipe_item;
     i                  integer := 0;
@@ -24,7 +29,7 @@ create or replace type body ut_output_dbms_pipe as
     --split test into pieces of a size valid for pipe and send to pipe
     while i < length(a_text) loop
       l_text_part := substr( a_text, i + 1, c_size_limit_chars );
-      ut_output_pipe_helper.send( self.output_id, l_text_part);
+      ut_output_pipe_helper.send_text( self.output_id, l_text_part);
       i := i + c_size_limit_chars;
     end loop;
     --SEND is closed by a EOM message

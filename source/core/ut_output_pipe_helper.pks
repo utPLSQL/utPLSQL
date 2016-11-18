@@ -16,7 +16,7 @@ create or replace package ut_output_pipe_helper is
   --adds message to pipe buffer and tries to sent all messages from the buffer
   --exists immediately when sending timesout (pipe full)
   --the messages that were sent are removed from buffer
-  procedure send(a_output_id t_output_id, a_text t_pipe_item);
+  procedure send_text(a_output_id t_output_id, a_text t_pipe_item);
 
   --sends a end of message into a a pipe
   procedure send_eom(a_output_id t_output_id);
