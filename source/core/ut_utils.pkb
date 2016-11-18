@@ -132,7 +132,7 @@ create or replace package body ut_utils is
     l_result             ut_output_varchar2_list := ut_output_varchar2_list();
     l_delimiter_position integer;
   begin
-    if a_string is not null then
+    if a_string is not null and a_delimiter is not null then
       l_length := length(a_string);
       loop
         l_result.extend;

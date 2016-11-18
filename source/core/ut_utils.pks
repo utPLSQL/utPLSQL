@@ -122,7 +122,7 @@ create or replace package ut_utils authid definer is
    Splits a given string into table of string by delimiter.
    The delimiter gets removed.
    If null passed as any of the parameters, empty table is returned.
-   If no occurence of a_delimiter found in a_text then text is returned as a single row of the table.
+   If split text is longer than a_max_amount it gets split into pieces of a_max_amount.
    If no text between delimiters found then an empty row is returned, example:
      string_to_table( 'a,,b', ',' ) gives table ut_output_varchar2_list( 'a', null, 'b' );
   */
