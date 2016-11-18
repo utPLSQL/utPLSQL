@@ -147,10 +147,12 @@ whenever oserror exit failure rollback
 
 
 
-
+set linesize 200
+column text format a100
 prompt Validating installation
 -- erors only. ignore warnings
-select * from user_errors 
+select name, type, sequence, line, position, text
+ from user_errors
 where name not like 'BIN$%'  --not recycled
 and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH','BE_BETWEEN')) -- utplsql objects
 and attribute = 'ERROR'
