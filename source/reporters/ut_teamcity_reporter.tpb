@@ -1,8 +1,9 @@
 create or replace type body ut_teamcity_reporter is
 
-  constructor function ut_teamcity_reporter return self as result is
+  constructor function ut_teamcity_reporter(a_output ut_output default ut_output_dbms_output()) return self as result is
   begin
-    self.name := $$plsql_unit;
+    self.name   := $$plsql_unit;
+    self.output := a_output;
     return;
   end;
 
