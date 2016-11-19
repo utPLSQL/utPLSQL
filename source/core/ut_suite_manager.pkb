@@ -5,6 +5,11 @@ create or replace package body ut_suite_manager is
 
   g_schema_suites tt_schena_suits_list;
 
+  function trim_path(a_path varchar2, a_part varchar2) return varchar2 is
+  begin
+    return substr(a_path, nvl(length(a_part), 0) + 1);
+  end;
+
   function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_test_suite is
     l_annotation_data    ut_annotations.typ_annotated_package;
     l_suite_name         ut_annotations.t_annotation_name;
@@ -153,7 +158,6 @@ create or replace package body ut_suite_manager is
 
   procedure config_schema(a_owner_name varchar2) is
     l_suite      ut_test_suite;
-    l_suite_path varchar2(4000);
   
     l_all_suites tt_schema_suits;
     l_ind        varchar2(4000 char);
@@ -181,7 +185,7 @@ create or replace package body ut_suite_manager is
             l_cur_item := treat(a_root_suite.items(l_ind) as ut_test_suite);
           end if;
         
-          put(l_cur_item, ltrim(a_path, l_temp_root || '.'), a_suite);
+          put(l_cur_item, trim_path(a_path, l_temp_root || '.'), a_suite);
         
           if l_ind is null then
             a_root_suite.add_item(l_cur_item);
@@ -191,7 +195,7 @@ create or replace package body ut_suite_manager is
         
         else
           a_root_suite := ut_test_suite(null, l_temp_root);
-          put(a_root_suite, ltrim(a_path, l_temp_root || '.'), a_suite);
+          put(a_root_suite, trim_path(a_path, l_temp_root || '.'), a_suite);
         end if;
       else
         if a_root_suite is not null then
@@ -247,7 +251,7 @@ create or replace package body ut_suite_manager is
     
       if l_schema_suites.exists(l_root) then
         l_root_suite := l_schema_suites(l_root);
-        l_path       := ltrim(l_ind, l_root || '.');
+        l_path       := trim_path(l_ind, l_root || '.');
       else
         l_root_suite := null;
         l_path       := l_ind;
