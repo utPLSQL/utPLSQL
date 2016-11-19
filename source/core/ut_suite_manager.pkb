@@ -158,7 +158,6 @@ create or replace package body ut_suite_manager is
 
   procedure config_schema(a_owner_name varchar2) is
     l_suite      ut_test_suite;
-    l_suite_path varchar2(4000);
   
     l_all_suites tt_schema_suits;
     l_ind        varchar2(4000 char);
