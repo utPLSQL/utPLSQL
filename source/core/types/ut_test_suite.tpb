@@ -1,20 +1,17 @@
 create or replace type body ut_test_suite is
 
-  constructor function ut_test_suite(self in out nocopy ut_test_suite,a_suite_name varchar2, a_object_name varchar2 default null, a_items ut_objects_list default ut_objects_list(), a_rollback_type number default null)
+  constructor function ut_test_suite (self in out nocopy ut_test_suite, a_suite_name varchar2, a_object_name varchar2, a_object_path varchar2 default null, a_items ut_objects_list default ut_objects_list(), a_rollback_type number default null) 
     return self as result is
   begin
-    self.name        := a_suite_name;
-    self.object_type := 2;
+    
+    self.init(a_desc_name     => a_suite_name
+             ,a_object_name   => a_object_name
+             ,a_object_type   => 2
+             ,a_object_path   => a_object_path
+             ,a_rollback_type => a_rollback_type);
+             
     self.items       := a_items;
-    self.object_name := lower(trim(a_object_name));
-    
-    if a_rollback_type is not null then
-      ut_utils.validate_rollback_type(a_rollback_type);
-      self.rollback_type := a_rollback_type;
-    else
-      self.rollback_type := ut_utils.gc_rollback_auto;
-    end if;  
-    
+  
     return;
   end ut_test_suite;
 
@@ -43,37 +40,37 @@ create or replace type body ut_test_suite is
 
   overriding member procedure do_execute(self in out nocopy ut_test_suite, a_reporter in out nocopy ut_reporter) is
     l_test_object ut_test_object;
-    l_savepoint varchar2(30);
+    l_savepoint   varchar2(30);
   begin
     a_reporter.before_suite(self);
   
     ut_utils.debug_log('ut_test_suite.execute');
-
+  
     self.start_time := current_timestamp;
-    
+  
     if self.ignore_flag = 1 then
       self.result := ut_utils.tr_ignore;
     elsif self.is_valid() then
-      
+    
       if self.rollback_type = ut_utils.gc_rollback_auto then
         l_savepoint := ut_utils.gen_savepoint_name;
         execute immediate 'savepoint ' || l_savepoint;
       end if;
     
       if self.setup is not null then
-				a_reporter.before_suite_setup(self);
+        a_reporter.before_suite_setup(self);
         self.setup.do_execute;
         a_reporter.after_suite_setup(self);
       end if;
     
       for i in self.items.first .. self.items.last loop
-        a_reporter.before_suite_item(a_suite => self,a_item_index => i);
-        
+        a_reporter.before_suite_item(a_suite => self, a_item_index => i);
+      
         l_test_object := treat(self.items(i) as ut_test_object);
         l_test_object.do_execute(a_reporter => a_reporter);
         self.items(i) := l_test_object;
-        
-        a_reporter.after_suite_item(a_suite => self,a_item_index => i);
+      
+        a_reporter.after_suite_item(a_suite => self, a_item_index => i);
       end loop;
     
       if self.teardown is not null then
@@ -83,7 +80,7 @@ create or replace type body ut_test_suite is
       end if;
     
       self.calc_execution_result;
-      
+    
       if self.rollback_type = ut_utils.gc_rollback_auto then
         execute immediate 'rollback to ' || l_savepoint;
       end if;

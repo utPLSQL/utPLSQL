@@ -11,6 +11,10 @@ create or replace package ut_suite_manager authid definer is
   procedure run_cur_schema_suites(a_reporter in out nocopy ut_reporter, a_force_parse_again boolean default false);
 
   procedure run_cur_schema_suites_static(a_reporter in ut_reporter, a_force_parse_again boolean default false);
+  
+  procedure run(a_path in varchar2, a_reporter in ut_reporter);
+  -- to be implemented
+  --procedure run(a_paths in ut_varchar2_list, a_reporter in ut_reporter);
 
 end ut_suite_manager;
 /

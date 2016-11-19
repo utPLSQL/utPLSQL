@@ -1,11 +1,16 @@
 create or replace type body ut_test is
 
-  constructor function ut_test(self in out nocopy ut_test,a_object_name varchar2, a_test_procedure varchar2, a_test_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null, a_rollback_type integer default null)
+  constructor function ut_test(self in out nocopy ut_test,a_object_name varchar2,a_object_path varchar2 default null, a_test_procedure varchar2, a_test_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null, a_rollback_type integer default null)
     return self as result is
   begin
-    self.name        := a_test_name;
+    
+    self.init(a_desc_name     => a_test_name
+             ,a_object_name   => a_test_procedure
+             ,a_object_type   => 1
+             ,a_object_path   => a_object_path
+             ,a_rollback_type => a_rollback_type);
+
     self.object_type := 1;
-    self.object_name := lower(trim(a_test_procedure));
     self.test        := ut_executable(object_name    => trim(a_object_name)
                                      ,procedure_name => trim(a_test_procedure)
                                      ,owner_name     => trim(a_owner_name));
@@ -22,12 +27,6 @@ create or replace type body ut_test is
                                     ,owner_name     => trim(a_owner_name));
     end if;
 
-    if a_rollback_type is not null then
-      ut_utils.validate_rollback_type(a_rollback_type);
-      self.rollback_type := a_rollback_type;
-    else
-      self.rollback_type := ut_utils.gc_rollback_auto;
-    end if;
     return;
   end ut_test;
 
