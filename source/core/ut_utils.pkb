@@ -126,27 +126,33 @@ create or replace package body ut_utils is
     return case a_value when 1 then true when 0 then false end;
   end;
 
-  function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10)) return ut_output_varchar2_list is
+  function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_output_varchar2_list pipelined is
     l_offset             integer := 1;
     l_length             integer;
-    l_result             ut_output_varchar2_list := ut_output_varchar2_list();
     l_delimiter_position integer;
+    l_skip_leading_delimiter boolean := coalesce(a_skip_leading_delimiter = 'Y',false);
   begin
-    if a_string is not null and a_delimiter is not null then
-      l_length := length(a_string);
-      loop
-        l_result.extend;
-        l_delimiter_position := instr(a_string, a_delimiter, l_offset);
-        if l_delimiter_position > 0 then
-          l_result(l_result.last) := substr(a_string, l_offset, l_delimiter_position - l_offset);
-        else
-          l_result(l_result.last) := substr(a_string, l_offset);
-        end if;
-        exit when l_delimiter_position = 0;
-        l_offset := l_delimiter_position + 1;
-      end loop;
+    if a_string is null then
+      return;
     end if;
-    return l_result;
+    if a_delimiter is null then
+      pipe row(a_string);
+      return;
+    end if;
+    l_length := length(a_string);
+    loop
+      l_delimiter_position := instr(a_string, a_delimiter, l_offset);
+      if not (l_delimiter_position = 1 and l_skip_leading_delimiter) then
+        if l_delimiter_position > 0 then
+          pipe row( substr(a_string, l_offset, l_delimiter_position - l_offset) );
+        else
+          pipe row( substr(a_string, l_offset) );
+        end if;
+      end if;
+      exit when l_delimiter_position = 0;
+      l_offset := l_delimiter_position + 1;
+    end loop;
+    return;
   end;
 
   function clob_to_table(a_clob clob, a_delimiter varchar2:= chr(10), a_max_amount integer := 32767) return ut_output_varchar2_list pipelined is
@@ -155,26 +161,37 @@ create or replace package body ut_utils is
     l_amount    integer := a_max_amount;
     l_buffer    varchar2(32767);
     l_last_line varchar2(32767);
-    l_results ut_output_varchar2_list;
-    l_is_last_line boolean;
+    l_results   ut_output_varchar2_list;
+    l_has_last_line boolean;
+    l_skip_leading_delimiter varchar2(1) := 'N';
   begin
     while l_offset <= l_length loop
       l_amount := a_max_amount - coalesce( length(l_last_line), 0 );
       dbms_lob.read(a_clob, l_amount, l_offset, l_buffer);
       l_offset := l_offset + l_amount;
 
-      l_results := string_to_table( l_last_line || l_buffer, a_delimiter );
-      l_is_last_line := false;
+      select column_value
+        bulk collect into l_results
+        from table( string_to_table( l_last_line || l_buffer, a_delimiter, l_skip_leading_delimiter ) );
       for i in 1 .. l_results.count loop
-        if i < l_results.count or l_results.count = 1 then
+        --if a split of lines was not done or not at the last line
+        if l_results.count = 1 or i < l_results.count then
           pipe row( l_results(i) );
-        else
-          l_is_last_line := true;
-          l_last_line := l_results(i);
         end if;
       end loop;
+
+      --check if we need to append the last line to the next element
+      if l_results.count = 1 then
+        l_has_last_line := false;
+        l_last_line := null;
+      elsif l_results.count > 1 then
+        l_has_last_line := true;
+        l_last_line := l_results(l_results.count);
+      end if;
+
+      l_skip_leading_delimiter := 'Y';
     end loop;
-    if l_is_last_line then
+    if l_has_last_line then
       pipe row( l_last_line );
     end if;
     return;

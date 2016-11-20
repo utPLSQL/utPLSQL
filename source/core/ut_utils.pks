@@ -95,6 +95,7 @@ create or replace package ut_utils authid definer is
      Parameters:
           a_string - the text to be split.
           a_delimiter - the delimiter character or string
+          a_skip_leading_delimiter - determines if the leading delimiter should be ignored, used by clob_to_table
 
      Returns:
         ut_output_varchar2_list - table of string
@@ -106,7 +107,7 @@ create or replace package ut_utils authid definer is
    If no text between delimiters found then an empty row is returned, example:
      string_to_table( 'a,,b', ',' ) gives table ut_output_varchar2_list( 'a', null, 'b' );
   */
-  function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10)) return ut_output_varchar2_list;
+  function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_output_varchar2_list pipelined;
 
   /*
    Function: clob_to_table
