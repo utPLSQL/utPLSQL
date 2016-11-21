@@ -107,10 +107,6 @@ drop type ut_output_dbms_output;
 
 drop type ut_output;
 
-drop type ut_output_clob_list;
-
-drop type ut_output_varchar2_list;
-
 drop type ut_assert_list;
 
 drop type ut_assert_result;
@@ -122,3 +118,5 @@ drop type ut_composite_object;
 drop type ut_objects_list;
 
 drop type ut_object;
+
+drop type ut_varchar2_list;

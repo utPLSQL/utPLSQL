@@ -126,7 +126,7 @@ create or replace package body ut_utils is
     return case a_value when 1 then true when 0 then false end;
   end;
 
-  function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_output_varchar2_list pipelined is
+  function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_varchar2_list pipelined is
     l_offset             integer := 1;
     l_length             integer;
     l_delimiter_position integer;
@@ -155,13 +155,13 @@ create or replace package body ut_utils is
     return;
   end;
 
-  function clob_to_table(a_clob clob, a_delimiter varchar2:= chr(10), a_max_amount integer := 32767) return ut_output_varchar2_list pipelined is
+  function clob_to_table(a_clob clob, a_max_amount integer := 32767, a_delimiter varchar2:= chr(10)) return ut_varchar2_list pipelined is
     l_offset    integer := 1;
     l_length    integer := dbms_lob.getlength(a_clob);
     l_amount    integer := a_max_amount;
     l_buffer    varchar2(32767);
     l_last_line varchar2(32767);
-    l_results   ut_output_varchar2_list;
+    l_results   ut_varchar2_list;
     l_has_last_line boolean;
     l_skip_leading_delimiter varchar2(1) := 'N';
   begin
@@ -195,6 +195,18 @@ create or replace package body ut_utils is
       pipe row( l_last_line );
     end if;
     return;
+  end;
+
+  function table_to_clob(a_text_table ut_varchar2_list) return clob is
+    l_result          clob;
+    l_text_table_rows integer := coalesce(cardinality(a_text_table),0);
+  begin
+
+    dbms_lob.createtemporary(l_result, true);
+    for i in 1 .. l_text_table_rows loop
+      dbms_lob.writeappend(l_result, length(a_text_table(i)), a_text_table(i));
+    end loop;
+    return l_result;
   end;
 
 end;

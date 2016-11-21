@@ -105,18 +105,23 @@ create or replace package body ut_output_pipe_helper is
     return true;
   end;
 
+  procedure remove_pipe(a_output_id t_output_id) is
+    l_status          integer;
+  begin
+    l_status := dbms_pipe.remove_pipe(a_output_id);
+  end;
+
   -- - remove pipes associated with buffers that are not yet deleted
   -- - delete all the buffers
   -- TODO - The purge procedure needs to be called by top level program (ut_runner)
   --  in the EXCEPTION WHEN OTHERS block before raising back,
   --  so that it tries to remove pipes on any exception before raising back to caller
   procedure purge is
-    l_pipe_removal_status integer;
     l_output_id           t_output_id;
   begin
     l_output_id := g_outputs_buffer.first;
     while l_output_id is not null loop
-      l_pipe_removal_status := dbms_pipe.remove_pipe(l_output_id);
+      remove_pipe(l_output_id);
       l_output_id := g_outputs_buffer.next(l_output_id);
     end loop;
     g_outputs_buffer.delete;
@@ -176,7 +181,7 @@ create or replace package body ut_output_pipe_helper is
       g_outputs_buffer(a_output_id).to_flush := true;
     end if;
 
-    if (flush_buffers() = false) and all_buffers_to_flush then
+    if (flush_buffers() = false) and all_buffers_to_flush() then
       --try as many times as there are seconds for timeout
       --each time try with one second delay
       for i in 1 .. a_timeout_seconds loop
@@ -194,5 +199,30 @@ create or replace package body ut_output_pipe_helper is
 
   end;
 
+  function get_message(a_output_id t_output_id, a_timeout_seconds integer, a_text in out nocopy clob) return integer is
+    l_result_flag     integer :=0;
+    l_status          integer;
+    l_text_part       ut_output_pipe_helper.t_pipe_item;
+    l_item_type       integer;
+  begin
+    loop
+      dbms_pipe.reset_buffer;
+      if 0 != dbms_pipe.receive_message(a_output_id, a_timeout_seconds) then
+        l_result_flag := gc_timeout;
+      else
+        l_result_flag := dbms_pipe.next_item_type();
+      end if;
+      exit when l_result_flag in (gc_eom, gc_eot, gc_timeout);
+
+      dbms_pipe.unpack_message(l_text_part);
+      if l_text_part is not null then
+        dbms_lob.writeappend(a_text, length(l_text_part), l_text_part);
+      end if;
+    end loop;
+    if l_result_flag in (gc_eot, gc_timeout) then
+      remove_pipe(a_output_id);
+    end if;
+    return l_result_flag;
+  end;
 end;
 /

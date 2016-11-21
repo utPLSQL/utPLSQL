@@ -42,45 +42,30 @@ create or replace type body ut_output_dbms_pipe as
     ut_output_pipe_helper.flush(self.output_id);
   end;
 
-  static function get_lines(a_output_id varchar2, a_timeout_sec integer := 60*60*4) return ut_output_clob_list pipelined is
-    l_flag            integer;
-    l_text_part       ut_output_pipe_helper.t_pipe_item;
+  static function get_lines(a_output_id varchar2, a_timeout_sec integer := 60*60*4) return ut_varchar2_list pipelined is
+    c_max_line_length constant integer := 4000;
     l_text            clob;
-    l_timeout_occured boolean;
-    l_need_to_send    boolean;
-    l_item_type       integer;
+    l_result_flag     integer;
+    l_results_tab     ut_varchar2_list;
   begin
-    if a_output_id is not null then
-
-      loop
-        dbms_lob.createtemporary(l_text, true);
-        l_need_to_send := false;
-
-        --build a row. As a rule one call to 'send' is one row.
-        -- TODO - add detection of newline so that for each new line recieved in text, the code generates a new output row
-        loop
-          dbms_pipe.reset_buffer;
-          l_timeout_occured := (dbms_pipe.receive_message(a_output_id, a_timeout_sec) != 0);
-          exit when l_timeout_occured;
-          l_item_type := dbms_pipe.next_item_type();
-          exit when l_item_type in (ut_output_pipe_helper.gc_eom, ut_output_pipe_helper.gc_eot);
-          dbms_pipe.unpack_message(l_text_part);
-          if l_text_part is not null then
-            dbms_lob.writeappend(l_text, length(l_text_part), l_text_part);
-          end if;
-          l_need_to_send := true;
-        end loop;
-
-        if l_need_to_send then
-          pipe row( l_text );
-          dbms_lob.freetemporary(l_text);
-        end if;
-
-        exit when (l_timeout_occured or l_item_type = ut_output_pipe_helper.gc_eot);
-      end loop;
-
-      l_flag := dbms_pipe.remove_pipe(a_output_id);
+    if a_output_id is null then
+      return;
     end if;
+
+    loop
+      dbms_lob.createtemporary(l_text, true);
+      --get message as a clob data and recieve information if the message is ended, timed out or it is the end of transmission
+      l_result_flag := ut_output_pipe_helper.get_message(a_output_id, a_timeout_sec, l_text);
+      -- convert message into collection of varchar2(4000) for SQL processing
+      select column_value bulk collect into l_results_tab from table( ut_utils.clob_to_table(l_text, c_max_line_length));
+      --pipe results one by one
+      for i in 1 .. l_results_tab.count loop
+        pipe row( l_results_tab(i) );
+      end loop;
+      dbms_lob.freetemporary(l_text);
+
+      exit when l_result_flag in (ut_output_pipe_helper.gc_eot, ut_output_pipe_helper.gc_timeout);
+    end loop;
     return;
   end;
 

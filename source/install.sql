@@ -11,7 +11,7 @@ whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
 --common utilities
-@@core/types/ut_output_varchar2_list.tps
+@@core/types/ut_varchar2_list.tps
 @@core/ut_utils.pks
 @@core/ut_metadata.pks
 @@core/ut_utils.pkb
@@ -24,7 +24,6 @@ whenever oserror exit failure rollback
 @@core/types/ut_executable.tps
 @@core/types/ut_assert_result.tps
 @@core/types/ut_assert_list.tps
-@@core/types/ut_output_clob_list.tps
 @@core/types/ut_output.tps
 @@core/types/ut_output_dbms_output.tps
 @@core/ut_output_pipe_helper.pks

@@ -12,6 +12,7 @@ create or replace package ut_output_pipe_helper is
   gc_text                  constant integer := 9;
   gc_eom                   constant integer := 11;
   gc_eot                   constant integer := 23;
+  gc_timeout               constant integer := -1;
 
   --adds message to pipe buffer and tries to sent all messages from the buffer
   --exists immediately when sending timesout (pipe full)
@@ -29,6 +30,8 @@ create or replace package ut_output_pipe_helper is
   --in case, all buffers outputs are to be flushed, it will try until a timeout occurs.
   -- If timed out, the open pies get purged and closed
   procedure flush(a_output_id t_output_id, a_timeout_seconds naturaln := gc_flush_timeout_seconds);
+
+  function get_message(a_output_id t_output_id, a_timeout_seconds integer, a_text in out nocopy clob) return integer;
 
 end;
 /
