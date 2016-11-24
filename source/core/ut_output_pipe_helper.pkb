@@ -71,14 +71,14 @@ create or replace package body ut_output_pipe_helper is
     l_output_id           t_output_id;
     l_output_id_to_delete t_output_id;
     l_pipe_removal_status integer;
-    l_timed_out           boolean := false;
+    l_succeeded           boolean := false;
   begin
     l_output_id := g_outputs_buffer.first;
     while l_output_id is not null loop
       l_output_id_to_delete := null;
 
-      l_timed_out := not send_from_buffer(l_output_id, a_timeout_seconds);
-      if not l_timed_out then
+      l_succeeded := send_from_buffer(l_output_id, a_timeout_seconds);
+      if l_succeeded then
         l_output_id_to_delete := l_output_id;
       end if;
       l_output_id := g_outputs_buffer.next(l_output_id);
@@ -88,7 +88,7 @@ create or replace package body ut_output_pipe_helper is
       end if;
 
     end loop;
-    return not l_timed_out;
+    return l_succeeded;
   end;
 
   --check if all the buffers are waiting to be flushed
@@ -103,12 +103,6 @@ create or replace package body ut_output_pipe_helper is
       l_output_id := g_outputs_buffer.next(l_output_id);
     end loop;
     return true;
-  end;
-
-  procedure remove_pipe(a_output_id t_output_id) is
-    l_status          integer;
-  begin
-    l_status := dbms_pipe.remove_pipe(a_output_id);
   end;
 
   -- - remove pipes associated with buffers that are not yet deleted
@@ -174,14 +168,16 @@ create or replace package body ut_output_pipe_helper is
   --marks a buffer as ready to be flushed
   --tries to flush all the data from all the outputs buffers to the pipes immediately
   --in case, all buffers outputs are to be flused, it will try with a timeout.
-  procedure flush(a_output_id t_output_id, a_timeout_seconds naturaln := gc_flush_timeout_seconds) is
+  procedure flush(a_output_id t_output_id, a_timeout_seconds naturaln) is
     l_buffers_flushed boolean := false;
   begin
     if g_outputs_buffer.exists(a_output_id) then
       g_outputs_buffer(a_output_id).to_flush := true;
     end if;
 
-    if (flush_buffers() = false) and all_buffers_to_flush() then
+    l_buffers_flushed := flush_buffers();
+    --if failed to flush data from buffer and all buffers are ready to be flushed
+    if not l_buffers_flushed and all_buffers_to_flush() then
       --try as many times as there are seconds for timeout
       --each time try with one second delay
       for i in 1 .. a_timeout_seconds loop
@@ -224,5 +220,12 @@ create or replace package body ut_output_pipe_helper is
     end if;
     return l_result_flag;
   end;
+
+  procedure remove_pipe(a_output_id t_output_id) is
+    l_status          integer;
+  begin
+    l_status := dbms_pipe.remove_pipe(a_output_id);
+  end;
+
 end;
 /

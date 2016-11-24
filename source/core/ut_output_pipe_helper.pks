@@ -7,8 +7,6 @@ create or replace package ut_output_pipe_helper is
   --we're assuming max of 2 bytes per char
   gc_size_limit_chars constant integer := 4000/2;
 
-  --decides how long the process will be waiting to flush buffers
-  gc_flush_timeout_seconds constant natural := 60;
   gc_text                  constant integer := 9;
   gc_eom                   constant integer := 11;
   gc_eot                   constant integer := 23;
@@ -29,9 +27,11 @@ create or replace package ut_output_pipe_helper is
   --tries to flush all the data from all the outputs buffers to the pipes
   --in case, all buffers outputs are to be flushed, it will try until a timeout occurs.
   -- If timed out, the open pies get purged and closed
-  procedure flush(a_output_id t_output_id, a_timeout_seconds naturaln := gc_flush_timeout_seconds);
+  procedure flush(a_output_id t_output_id, a_timeout_seconds naturaln);
 
   function get_message(a_output_id t_output_id, a_timeout_seconds integer, a_text in out nocopy clob) return integer;
+
+  procedure remove_pipe(a_output_id t_output_id);
 
 end;
 /

@@ -12,6 +12,7 @@ whenever oserror exit failure rollback
 
 --common utilities
 @@core/types/ut_varchar2_list.tps
+@@core/types/ut_clob_list.tps
 @@core/ut_utils.pks
 @@core/ut_metadata.pks
 @@core/ut_utils.pkb
@@ -26,6 +27,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_assert_list.tps
 @@core/types/ut_output.tps
 @@core/types/ut_output_dbms_output.tps
+@@core/types/ut_output_stream.tps
 @@core/ut_output_pipe_helper.pks
 @@core/types/ut_output_dbms_pipe.tps
 @@core/types/ut_reporter.tps
@@ -51,6 +53,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_assert_result.tpb
 @@core/types/ut_output.tpb
 @@core/types/ut_output_dbms_output.tpb
+@@core/types/ut_output_stream.tpb
 @@core/ut_output_pipe_helper.pkb
 @@core/types/ut_output_dbms_pipe.tpb
 @@core/types/ut_reporter.tpb

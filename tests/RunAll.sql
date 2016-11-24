@@ -137,7 +137,6 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.AutoOnFailure.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Manual.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.ManualOnFailure.sql
-@@ut_utils/ut_utils.clob_to_table.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithInvalidValues.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithNullValue.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.Success.sql
@@ -159,7 +158,18 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigNumber.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigVarchar2.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
+@@ut_utils/ut_utils.clob_to_table.sql
 
+@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.close.TimesOutAfterAGivenPeriodOfTimeAndRemovesPipe.sql
+@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_clob_lines.ReturnsSentLines.sql
+@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_lines.ReturnsSentLines.sql
+@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_lines.TimesOutAfterAGivenPeriodOfTime.sql
+@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.open.CreatesAPrivatePipe.sql
+@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.send_clob.SendsAClobIntoPipe.sql
+
+@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_clob_lines.ReturnsSentLines.sql
+@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.RetunrsNoRowsWhenNoDataInBuffer.sql
+@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.ReturnsSentLines.sql
 --Global cleanup
 drop package ut_example_tests;
 drop procedure check_annotation_parsing;

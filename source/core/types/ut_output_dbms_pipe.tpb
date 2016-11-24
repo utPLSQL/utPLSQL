@@ -36,13 +36,15 @@ create or replace type body ut_output_dbms_pipe as
     ut_output_pipe_helper.send_eom(self.output_id);
   end;
 
-  overriding member procedure close(self in out nocopy ut_output_dbms_pipe) is
+  --we do not remove the pipe here, it is responsibility of the consumer,
+  --when the pipe is fully consumed (recieved 'eot') then the consumer removed the pipe
+  overriding member procedure close(self in out nocopy ut_output_dbms_pipe, a_timeout_sec integer) is
   begin
     ut_output_pipe_helper.send_eot(self.output_id);
-    ut_output_pipe_helper.flush(self.output_id);
+    ut_output_pipe_helper.flush(self.output_id, a_timeout_sec);
   end;
 
-  static function get_lines(a_output_id varchar2, a_timeout_sec integer := 60*60*4) return ut_varchar2_list pipelined is
+  overriding member function get_lines(a_output_id varchar2, a_timeout_sec naturaln) return ut_varchar2_list pipelined is
     c_max_line_length constant integer := 4000;
     l_text            clob;
     l_result_flag     integer;
@@ -66,6 +68,32 @@ create or replace type body ut_output_dbms_pipe as
 
       exit when l_result_flag in (ut_output_pipe_helper.gc_eot, ut_output_pipe_helper.gc_timeout);
     end loop;
+    if l_result_flag = ut_output_pipe_helper.gc_eot then
+      ut_output_pipe_helper.remove_pipe(a_output_id);
+    end if;
+    return;
+  end;
+
+  overriding final member function get_clob_lines(a_output_id varchar2, a_timeout_sec naturaln) return ut_clob_list pipelined is
+    l_text            clob;
+    l_result_flag     integer;
+    l_results_tab     ut_varchar2_list;
+  begin
+    if a_output_id is null then
+      return;
+    end if;
+
+    loop
+      dbms_lob.createtemporary(l_text, true);
+      l_result_flag := ut_output_pipe_helper.get_message(a_output_id, a_timeout_sec, l_text);
+      exit when l_result_flag in (ut_output_pipe_helper.gc_eot, ut_output_pipe_helper.gc_timeout);
+      pipe row( l_text );
+      dbms_lob.freetemporary(l_text);
+    end loop;
+    dbms_lob.freetemporary(l_text);
+    if l_result_flag = ut_output_pipe_helper.gc_eot then
+      ut_output_pipe_helper.remove_pipe(a_output_id);
+    end if;
     return;
   end;
 

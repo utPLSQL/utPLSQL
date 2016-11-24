@@ -18,4 +18,7 @@ grant create job to &ut3_user;
 
 grant alter session to &ut3_user;
 
+--only needed to run unit tests for utplsql v3, not required to run utplsql v3 itself
+grant select any dictionary to &ut3_user;
+
 exit success

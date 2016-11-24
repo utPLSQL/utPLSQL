@@ -29,5 +29,35 @@ create or replace type body ut_output_dbms_output as
     null;
   end;
 
+  overriding final member function get_lines(a_output_id varchar2) return ut_varchar2_list pipelined is
+    l_buffer clob;
+    l_status integer;
+    c_max_line_length constant integer := 4000;
+    l_results_tab     ut_varchar2_list;
+  begin
+    loop
+      dbms_output.get_line (l_buffer, l_status);
+      exit when l_status != 0;
+      select column_value bulk collect into l_results_tab from table( ut_utils.clob_to_table(l_buffer, c_max_line_length));
+      --pipe results one by one
+      for i in 1 .. l_results_tab.count loop
+        pipe row( l_results_tab(i) );
+      end loop;
+    end loop;
+    return;
+  end;
+
+  overriding final member function get_clob_lines(a_output_id varchar2) return ut_clob_list pipelined is
+    l_buffer varchar2(32767);
+    l_status integer;
+  begin
+    loop
+      dbms_output.get_line (l_buffer, l_status);
+      exit when l_status != 0;
+      pipe row(l_buffer);
+    end loop;
+    return;
+  end;
+
 end;
 /
