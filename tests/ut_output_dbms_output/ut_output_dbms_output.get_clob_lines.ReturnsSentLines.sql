@@ -4,7 +4,7 @@ declare
   l_output   ut_output_dbms_output := ut_output_dbms_output();
   l_expected clob;
 begin
-  l_expected := lpad('a',32000,'a');
+  l_expected := lpad('a',32767,'a');
   --Act - open the pipe
   l_output.send_clob(l_expected);
   l_output.send_clob(l_expected);
