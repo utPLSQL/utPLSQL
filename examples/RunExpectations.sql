@@ -13,7 +13,7 @@ set echo off
 @@ut_custom_reporter.tpb
 
 begin
-  ut_suite_manager.run_cur_schema_suites_static(ut_custom_reporter(a_tab_size => 2), a_force_parse_again => true);
+  ut_suite_manager.run_cur_schema_suites_static(ut_documentation_reporter(), a_force_parse_again => true);
 end;
 /
 

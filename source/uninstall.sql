@@ -1,4 +1,5 @@
 prompt Uninstalling utplsql framework
+
 drop package ut_teamcity_reporter_helper;
 
 drop package ut_suite_manager;
@@ -80,6 +81,8 @@ drop package ut_annotations;
 drop package ut_metadata;
 
 drop package ut_utils;
+
+drop type ut_documentation_reporter;
 
 drop type ut_teamcity_reporter;
 

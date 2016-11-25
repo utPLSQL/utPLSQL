@@ -51,7 +51,7 @@ create or replace type body ut_test is
 
     self.start_time := current_timestamp;
     
-    if nvl(self.ignore_flag,0) != 1 then
+    if self.get_ignore_flag() = false then
       begin
 
         if self.is_valid() then

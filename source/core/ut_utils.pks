@@ -88,5 +88,7 @@ create or replace package ut_utils authid definer is
   */
   procedure validate_rollback_type(a_rollback_type number);
 
+  function time_diff(a_start_time timestamp with time zone, a_end_time timestamp with time zone) return number;
+
 end ut_utils;
 /

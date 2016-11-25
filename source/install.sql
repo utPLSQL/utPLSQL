@@ -135,6 +135,8 @@ whenever oserror exit failure rollback
 @@reporters/ut_teamcity_reporter_helper.pks
 @@reporters/ut_teamcity_reporter_helper.pkb
 @@reporters/ut_teamcity_reporter.tpb
+@@reporters/ut_documentation_reporter.tps
+@@reporters/ut_documentation_reporter.tpb
 
 @@legacy/ut_assert.pks
 @@legacy/ut_assert.pkb

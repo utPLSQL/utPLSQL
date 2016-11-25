@@ -126,5 +126,14 @@ create or replace package body ut_utils is
     return case a_value when 1 then true when 0 then false end;
   end;
 
+  function time_diff(a_start_time timestamp with time zone, a_end_time timestamp with time zone) return number is
+  begin
+    return
+      extract(day from(a_end_time - a_start_time)) * 24 * 60 * 60 +
+      extract(hour from(a_end_time - a_start_time)) * 60 * 60 +
+      extract(minute from(a_end_time - a_start_time)) * 60 +
+      extract(second from(a_end_time - a_start_time));
+  end;
+
 end ut_utils;
 /
