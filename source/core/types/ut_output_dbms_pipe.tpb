@@ -59,7 +59,7 @@ create or replace type body ut_output_dbms_pipe as
       --get message as a clob data and recieve information if the message is ended, timed out or it is the end of transmission
       l_result_flag := ut_output_pipe_helper.get_message(a_output_id, a_timeout_sec, l_text);
       -- convert message into collection of varchar2(4000) for SQL processing
-      select column_value bulk collect into l_results_tab from table( ut_utils.clob_to_table(l_text, c_max_line_length));
+      l_results_tab := ut_utils.clob_to_table(l_text, c_max_line_length);
       --pipe results one by one
       for i in 1 .. l_results_tab.count loop
         pipe row( l_results_tab(i) );
