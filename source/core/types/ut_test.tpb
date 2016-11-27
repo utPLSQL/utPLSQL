@@ -38,13 +38,17 @@ create or replace type body ut_test is
   end is_valid;
 
   overriding member procedure do_execute(self in out nocopy ut_test, a_reporter in out nocopy ut_reporter) is
-    l_savepoint varchar2(30);
-    l_failed    boolean := false;
-    function report_errors_from_call(a_exception_stack varchar2) return boolean is
+    l_savepoint       varchar2(30);
+    l_errors_raised   boolean := false;
+    l_error_stack     varchar2(32767);
+    l_error_backtrace varchar2(32767);
+
+    function process_errors_from_call( a_error_stack varchar2, a_error_backtrace varchar2) return boolean is
+      l_errors_stack_trace varchar2(32767) := rtrim(a_error_stack||a_error_backtrace, chr(10));
     begin
-      if a_exception_stack is not null then
-        ut_utils.debug_log('test method failed- ' ||a_exception_stack);
-        ut_assert_processor.report_error( a_exception_stack );
+      if l_errors_stack_trace is not null then
+        ut_utils.debug_log('test method failed- ' ||l_errors_stack_trace );
+        ut_assert_processor.report_error( l_errors_stack_trace );
         return true;
       else
         return false;
@@ -67,18 +71,21 @@ create or replace type body ut_test is
 
         if self.setup is not null then
           a_reporter.before_test_setup(self);
-          l_failed := report_errors_from_call( self.setup.do_execute() );
+          self.setup.do_execute(l_error_stack, l_error_backtrace);
+          l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );
           a_reporter.after_test_setup(self);
         end if;
 
-        if not l_failed then
+        if not l_errors_raised then
           a_reporter.before_test_execute(self);
-          l_failed := report_errors_from_call( self.test.do_execute() );
+          self.test.do_execute(l_error_stack, l_error_backtrace);
+          l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );
           a_reporter.after_test_execute(self);
 
           if self.teardown is not null then
             a_reporter.before_test_teardown(self);
-            l_failed := report_errors_from_call( self.teardown.do_execute() );
+            self.teardown.do_execute(l_error_stack, l_error_backtrace);
+            l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );
             a_reporter.after_test_teardown(self);
           end if;
 

@@ -1,10 +1,12 @@
 create or replace type body ut_executable is
 
-  static function execute_call(a_owner varchar2, a_object varchar2, a_procedure_name varchar2) return varchar2 is
+  static procedure execute_call(
+    a_owner varchar2, a_object varchar2, a_procedure_name varchar2,
+    a_error_stack out nocopy varchar2, a_error_backtrace out nocopy varchar2
+  ) is
     l_statement      varchar2(4000);
     l_status         number;
     l_cursor_number  number;
-    l_error_stack    varchar2(4000);
     l_owner          varchar2(200) := a_owner;
     l_object_name    varchar2(200) := a_object;
     l_procedure_name varchar2(200) := a_procedure_name;
@@ -15,7 +17,8 @@ create or replace type body ut_executable is
   
     l_statement :=
     'declare' || chr(10) ||
-    '  l_error_stack varchar2(4000);' || chr(10) ||
+    '  l_error_stack varchar2(32767);' || chr(10) ||
+    '  l_error_backtrace varchar2(32767);' || chr(10) ||
     'begin' || chr(10) ||
     '  begin' || chr(10) ||
     '    ' || ut_metadata.form_name(l_owner, l_object_name, l_procedure_name) || ';' || chr(10) ||
@@ -25,22 +28,24 @@ create or replace type body ut_executable is
     '      if sqlcode = -04068 then' || chr(10) ||
     '        raise;' || chr(10) ||
     '      end if;' || chr(10) ||
-    '      l_error_stack := dbms_utility.format_error_stack || dbms_utility.format_error_backtrace;' || chr(10) ||
+    '      l_error_stack := dbms_utility.format_error_stack;' || chr(10) ||
+    '      l_error_backtrace := dbms_utility.format_error_backtrace;' || chr(10) ||
     '  end;' || chr(10) ||
-    '  :l_error_stack := l_error_stack;' || chr(10) ||
+    '  :a_error_stack := l_error_stack;' || chr(10) ||
+    '  :a_error_backtrace := l_error_backtrace;' || chr(10) ||
     'end;';
 
     ut_utils.debug_log('ut_executable.execute_call l_statement: ' || l_statement);
 
-
     l_cursor_number := dbms_sql.open_cursor;
     dbms_sql.parse(l_cursor_number, statement => l_statement, language_flag => dbms_sql.native);
-    dbms_sql.bind_variable(l_cursor_number, 'l_error_stack', l_error_stack, 8000);
-    l_status := dbms_sql.execute(l_cursor_number);
-    dbms_sql.variable_value(l_cursor_number, 'l_error_stack', l_error_stack);
-    dbms_sql.close_cursor(l_cursor_number);
+    dbms_sql.bind_variable(l_cursor_number, 'a_error_stack', a_error_stack, 32767);
+    dbms_sql.bind_variable(l_cursor_number, 'a_error_backtrace', a_error_backtrace, 32767);
 
-    return rtrim(l_error_stack,chr(10));
+    l_status := dbms_sql.execute(l_cursor_number);
+    dbms_sql.variable_value(l_cursor_number, 'a_error_stack', a_error_stack);
+    dbms_sql.variable_value(l_cursor_number, 'a_error_backtrace', a_error_backtrace);
+    dbms_sql.close_cursor(l_cursor_number);
   end;
 
   member function is_valid(a_proc_type varchar2) return boolean is
@@ -80,14 +85,15 @@ create or replace type body ut_executable is
   end;
 
   member procedure do_execute(self in ut_executable) is
-    l_exception_stack varchar2(32767);
+    l_error_stack     varchar2(32767);
+    l_error_backtrace varchar2(32767);
   begin
-    l_exception_stack := do_execute();
+    do_execute(l_error_stack, l_error_backtrace);
   end do_execute;
 
-  member function do_execute(self in ut_executable) return varchar2 is
+	member procedure do_execute(self in ut_executable, a_error_stack out nocopy varchar2, a_error_backtrace out nocopy varchar2) is
   begin
-    return ut_executable.execute_call(self.owner_name, self.object_name, self.procedure_name);
+    ut_executable.execute_call(self.owner_name, self.object_name, self.procedure_name, a_error_stack, a_error_backtrace);
   end do_execute;
 
 end;
