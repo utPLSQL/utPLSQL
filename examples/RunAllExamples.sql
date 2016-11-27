@@ -21,4 +21,4 @@ prompt RunExampleTestAnnotationsHugePackage
 prompt RunExpectations
 @@RunExpectations.sql
 prompt RunWithDocumentationReporter
-RunWithDocumentationReporter.sql
+@@RunWithDocumentationReporter.sql

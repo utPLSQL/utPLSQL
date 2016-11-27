@@ -111,21 +111,6 @@ create or replace package body ut_assert_processor as
 
   end;
 
-  function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
-    l_line varchar2(4000);
-  begin
-    execute immediate
-      q'[select text from dba_source
-          where owner = :a_owner and name = :a_object_name and line = :a_line_no
-             -- skip the declarations, consider only definitions
-            and type not in ('PACKAGE', 'TYPE') ]'
-      into l_line using a_owner, a_object_name, a_line_no;
-    return '"'||ltrim(rtrim( lower( l_line ), chr(10) ))||'"';
-  exception
-    when no_data_found then
-      return null;
-  end;
-
   function who_called_expectation return varchar2 is
     l_call_stack                 varchar2(32767) := dbms_utility.format_call_stack();
     l_caller_stack_line          varchar2(4000);
@@ -148,7 +133,8 @@ create or replace package body ut_assert_processor as
     end if;
     return
       case when l_owner is not null and l_object_name is not null and l_line_no is not null then
-        'at "'||l_owner||'.'||l_object_name||'", line '||l_line_no||' '||get_source_definition_line(l_owner, l_object_name, l_line_no)
+        'at "' || l_owner || '.' || l_object_name || '", line '|| l_line_no || ' ' ||
+          ut_metadata.get_source_definition_line(l_owner, l_object_name, l_line_no)
       end;
   end;
 end;
