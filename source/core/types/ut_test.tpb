@@ -39,6 +39,17 @@ create or replace type body ut_test is
 
   overriding member procedure do_execute(self in out nocopy ut_test, a_reporter in out nocopy ut_reporter) is
     l_savepoint varchar2(30);
+    l_failed    boolean := false;
+    function report_errors_from_call(a_exception_stack varchar2) return boolean is
+    begin
+      if a_exception_stack is not null then
+        ut_utils.debug_log('test method failed- ' ||a_exception_stack);
+        ut_assert_processor.report_error( a_exception_stack );
+        return true;
+      else
+        return false;
+      end if;
+    end;
   begin
     a_reporter.before_test(self);
 
@@ -52,47 +63,28 @@ create or replace type body ut_test is
     self.start_time := current_timestamp;
     
     if self.get_ignore_flag() = false then
-      begin
+      if self.is_valid() then
 
-        if self.is_valid() then
+        if self.setup is not null then
+          a_reporter.before_test_setup(self);
+          l_failed := report_errors_from_call( self.setup.do_execute() );
+          a_reporter.after_test_setup(self);
+        end if;
 
-          if self.setup is not null then
-            a_reporter.before_test_setup(self);
-            self.setup.do_execute;
-            a_reporter.after_test_setup(self);
-          end if;
-
+        if not l_failed then
           a_reporter.before_test_execute(self);
-          begin
-            self.test.do_execute;
-          exception
-            when others then
-              -- dbms_utility.format_error_backtrace is 10g or later
-              -- utl_call_stack package may be better but it's 12c but still need to investigate
-              -- article with details: http://www.oracle.com/technetwork/issue-archive/2014/14-jan/o14plsql-2045346.html
-              ut_utils.debug_log('test method failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack || dbms_utility.format_error_backtrace);
-              ut_assert_processor.report_error( dbms_utility.format_error_stack || dbms_utility.format_error_backtrace );
-          end;
+          l_failed := report_errors_from_call( self.test.do_execute() );
           a_reporter.after_test_execute(self);
 
           if self.teardown is not null then
             a_reporter.before_test_teardown(self);
-            self.teardown.do_execute;
+            l_failed := report_errors_from_call( self.teardown.do_execute() );
             a_reporter.after_test_teardown(self);
           end if;
 
         end if;
 
-      exception
-        when others then
-          if sqlcode = -04068 then
-            --raise on ORA-04068: existing state of packages has been discarded to avoid unrecoverable session exception
-            raise;
-          end if;
-          ut_utils.debug_log('ut_test.execute failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-          -- most likely occured in setup or teardown if here.
-          ut_assert_processor.report_error( dbms_utility.format_error_stack || dbms_utility.format_error_backtrace );
-      end;
+      end if;
 
       if self.rollback_type = ut_utils.gc_rollback_auto then
         execute immediate 'rollback to ' || l_savepoint;

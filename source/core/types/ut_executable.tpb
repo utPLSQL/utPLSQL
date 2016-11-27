@@ -1,10 +1,10 @@
 create or replace type body ut_executable is
 
-  static procedure execute_call(a_owner varchar2, a_object varchar2, a_procedure_name varchar2) is
-    l_stmt varchar2(200);
-    l_cursorid    number;
-    l_rowsprocessed    number;
-  
+  static function execute_call(a_owner varchar2, a_object varchar2, a_procedure_name varchar2) return varchar2 is
+    l_statement      varchar2(4000);
+    l_status         number;
+    l_cursor_number  number;
+    l_error_stack    varchar2(4000);
     l_owner          varchar2(200) := a_owner;
     l_object_name    varchar2(200) := a_object;
     l_procedure_name varchar2(200) := a_procedure_name;
@@ -13,20 +13,34 @@ create or replace type body ut_executable is
   
     ut_metadata.do_resolve(a_owner => l_owner, a_object => l_object_name, a_procedure_name => l_procedure_name);
   
-    l_stmt := 'begin ' || ut_metadata.form_name(l_owner, l_object_name, l_procedure_name) || '; end;';
-  
-    ut_utils.debug_log('ut_executable.execute_call stmt:' || l_stmt);
+    l_statement :=
+    'declare' || chr(10) ||
+    '  l_error_stack varchar2(4000);' || chr(10) ||
+    'begin' || chr(10) ||
+    '  begin' || chr(10) ||
+    '    ' || ut_metadata.form_name(l_owner, l_object_name, l_procedure_name) || ';' || chr(10) ||
+    '  exception' || chr(10) ||
+    '    when others then ' || chr(10) ||
+    '      --raise on ORA-04068: existing state of packages has been discarded to avoid unrecoverable session exception' || chr(10) ||
+    '      if sqlcode = -04068 then' || chr(10) ||
+    '        raise;' || chr(10) ||
+    '      end if;' || chr(10) ||
+    '      l_error_stack := dbms_utility.format_error_stack || dbms_utility.format_error_backtrace;' || chr(10) ||
+    '  end;' || chr(10) ||
+    '  :l_error_stack := l_error_stack;' || chr(10) ||
+    'end;';
 
-    l_cursorid := dbms_sql.open_cursor;
-    dbms_sql.parse(c => l_cursorid, statement => l_stmt, language_flag => dbms_sql.native);
-    l_rowsprocessed := dbms_sql.execute(l_cursorid);
-    dbms_sql.close_cursor(l_cursorid);
-  exception
-    when others then
-      if l_cursorid is not null and dbms_sql.is_open(l_cursorid) then
-        dbms_sql.close_cursor(l_cursorid);
-      end if;
-      raise;
+    ut_utils.debug_log('ut_executable.execute_call l_statement: ' || l_statement);
+
+
+    l_cursor_number := dbms_sql.open_cursor;
+    dbms_sql.parse(l_cursor_number, statement => l_statement, language_flag => dbms_sql.native);
+    dbms_sql.bind_variable(l_cursor_number, 'l_error_stack', l_error_stack, 8000);
+    l_status := dbms_sql.execute(l_cursor_number);
+    dbms_sql.variable_value(l_cursor_number, 'l_error_stack', l_error_stack);
+    dbms_sql.close_cursor(l_cursor_number);
+
+    return rtrim(l_error_stack,chr(10));
   end;
 
   member function is_valid(a_proc_type varchar2) return boolean is
@@ -66,8 +80,14 @@ create or replace type body ut_executable is
   end;
 
   member procedure do_execute(self in ut_executable) is
+    l_exception_stack varchar2(32767);
   begin
-    ut_executable.execute_call(self.owner_name, self.object_name, self.procedure_name);
+    l_exception_stack := do_execute();
+  end do_execute;
+
+  member function do_execute(self in ut_executable) return varchar2 is
+  begin
+    return ut_executable.execute_call(self.owner_name, self.object_name, self.procedure_name);
   end do_execute;
 
 end;

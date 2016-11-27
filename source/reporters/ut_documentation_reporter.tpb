@@ -97,7 +97,9 @@ create or replace type body ut_documentation_reporter is
               if l_assert.error_message is not null then
                 self.print('error: '||ut_utils.indent_lines( l_assert.error_message, self.lvl*2+length('error: ') ) );
               end if;
-              self.print(l_assert.caller_info);
+              if l_assert.caller_info is not null then
+                self.print(l_assert.caller_info);
+              end if;
               self.print('');
             end if;
           end loop;
