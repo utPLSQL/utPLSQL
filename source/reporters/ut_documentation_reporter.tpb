@@ -52,7 +52,9 @@ create or replace type body ut_documentation_reporter is
     l_suite ut_test_suite := treat(a_suite as ut_test_suite);
   begin
     lvl := lvl - 1;
-    self.print( ' ' );
+    if lvl = 0 then
+      self.print(' ');
+    end if;
   end;
 
   overriding member procedure after_run(self in out nocopy ut_documentation_reporter, a_suites in ut_objects_list) as
@@ -86,7 +88,7 @@ create or replace type body ut_documentation_reporter is
         if a_assert.caller_info is not null then
           self.print(a_assert.caller_info);
         end if;
-        self.print('');
+        self.print(' ');
       end if;
     end;
 
@@ -116,7 +118,7 @@ create or replace type body ut_documentation_reporter is
       end loop;
     end;
 
-    procedure print_failures_summary is
+    procedure print_failures_details(a_suites in ut_objects_list) is
       l_failure_no integer := 0;
     begin
       if failed_test_count > 0 then
@@ -129,7 +131,7 @@ create or replace type body ut_documentation_reporter is
     end;
     
   begin
-    print_failures_summary();
+    print_failures_details(a_suites);
     for i in 1 .. a_suites.count loop
       l_start_time := least(l_start_time, treat(a_suites(i) as ut_test_object).start_time);
       l_end_time := greatest(l_end_time, treat(a_suites(i) as ut_test_object).end_time);
@@ -145,6 +147,7 @@ create or replace type body ut_documentation_reporter is
         when igonred_test_count > 0 then ', '||igonred_test_count||' ignored'
       end
     );
+    self.print(' ');
   end;
 
 end;
