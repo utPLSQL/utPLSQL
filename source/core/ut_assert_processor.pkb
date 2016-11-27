@@ -111,5 +111,45 @@ create or replace package body ut_assert_processor as
 
   end;
 
+  function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
+    l_line varchar2(4000);
+  begin
+    execute immediate
+      q'[select text from dba_source
+          where owner = :a_owner and name = :a_object_name and line = :a_line_no
+             -- skip the declarations, consider only definitions
+            and type not in ('PACKAGE', 'TYPE') ]'
+      into l_line using a_owner, a_object_name, a_line_no;
+    return '"'||ltrim(rtrim( lower( l_line ), chr(10) ))||'"';
+  exception
+    when no_data_found then
+      return null;
+  end;
+
+  function who_called_expectation return varchar2 is
+    l_call_stack                 varchar2(32767) := dbms_utility.format_call_stack();
+    l_caller_stack_line          varchar2(4000);
+    l_caller_type_and_name       varchar2(4000);
+    l_line_no                    integer;
+    l_owner                      varchar2(100);
+    l_object_name                varchar2(100);
+    l_last_space_pos             integer;
+    l_object_delimiter_pos       integer;
+    c_expectation_search_pattern constant varchar2(50) := '(.*\.UT_EXPECTATION[A-Z0-9#_$]*\s)+(.*)\s';
+  begin
+    l_caller_stack_line    := regexp_substr( l_call_stack, c_expectation_search_pattern, 1, 1, 'm', 2);
+    l_line_no              := to_number( trim( substr( l_caller_stack_line, 11, 10 ) ) );
+    l_caller_type_and_name    := substr( l_caller_stack_line, 23 );
+    l_last_space_pos       := instr( l_caller_type_and_name, ' ', -1 );
+    l_object_delimiter_pos := instr( l_caller_type_and_name, '.' );
+    if l_object_delimiter_pos > 0 then
+      l_owner := substr( l_caller_type_and_name, l_last_space_pos + 1, l_object_delimiter_pos - l_last_space_pos - 1 );
+      l_object_name  := substr( l_caller_type_and_name, l_object_delimiter_pos + 1 );
+    end if;
+    return
+      case when l_owner is not null and l_object_name is not null and l_line_no is not null then
+        'at "'||l_owner||'.'||l_object_name||'", line '||l_line_no||' '||get_source_definition_line(l_owner, l_object_name, l_line_no)
+      end;
+  end;
 end;
 /

@@ -81,7 +81,7 @@ create or replace package body ut_utils is
       case
         when l_len = 0 then gc_null_string
         when l_len <= gc_max_input_string_length then quote_string(rawtohex(a_value))
-        else to_string( rawtohex(dbms_lob.substr(a_value, gc_overflow_substr_len)) )
+        else quote_string( rawtohex(dbms_lob.substr(a_value, gc_overflow_substr_len)) )
       end;
   end;
 
@@ -133,6 +133,11 @@ create or replace package body ut_utils is
       extract(hour from(a_end_time - a_start_time)) * 60 * 60 +
       extract(minute from(a_end_time - a_start_time)) * 60 +
       extract(second from(a_end_time - a_start_time));
+  end;
+
+  function indent_lines(a_text varchar2, a_indent_size integer) return varchar2 is
+  begin
+    return replace( a_text, chr(10), chr(10) || lpad( ' ', a_indent_size ) );
   end;
 
 end ut_utils;

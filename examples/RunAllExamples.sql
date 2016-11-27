@@ -20,3 +20,5 @@ prompt RunExampleTestAnnotationsHugePackage
 @@RunExampleTestAnnotationsHugePackage.sql
 prompt RunExpectations
 @@RunExpectations.sql
+prompt RunWithDocumentationReporter
+RunWithDocumentationReporter.sql

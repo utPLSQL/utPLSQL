@@ -12,10 +12,8 @@ create or replace type body ut_documentation_reporter is
   end;
 
   member function tab(self in ut_documentation_reporter) return varchar2 is
-    tab_str varchar2(255);
   begin
-    tab_str := rpad(' ', lvl * 2);
-    return tab_str;
+    return rpad(' ', self.lvl * 2);
   end tab;
 
   overriding member procedure print(self in out nocopy ut_documentation_reporter, a_text varchar2) is
@@ -82,18 +80,25 @@ create or replace type body ut_documentation_reporter is
                 self.print('message: '||l_assert.message);
               end if;
               if l_assert.result != ut_utils.tr_success then
-                self.print('expected: ' || l_assert.actual_value_string||'('||l_assert.actual_type||')');
-                self.print(
-                  l_assert.name || l_assert.additional_info
-                  || case
-                       when l_assert.expected_value_string is not null or l_assert.expected_type is not null
-                       then ': '||l_assert.expected_value_string||'('||l_assert.expected_type||')'
-                     end
-                );
+                if l_assert.actual_value_string is not null or l_assert.actual_type is not null then
+                  self.print('expected: '||ut_utils.indent_lines( l_assert.actual_value_string||'('||l_assert.actual_type||')', self.lvl*2+length('expected: ') ) );
+                end if;
+                if l_assert.name is not null or l_assert.additional_info is not null
+                   or l_assert.expected_value_string is not null or l_assert.expected_type is not null then
+                  self.print(
+                    l_assert.name || l_assert.additional_info
+                    || case
+                         when l_assert.expected_value_string is not null or l_assert.expected_type is not null
+                         then ': '||ut_utils.indent_lines( l_assert.expected_value_string||'('||l_assert.expected_type||')', self.lvl*2+length(l_assert.name || l_assert.additional_info||': ') )
+                       end
+                  );
+                end if;
               end if;
               if l_assert.error_message is not null then
-                self.print('error: '||l_assert.error_message);
+                self.print('error: '||ut_utils.indent_lines( l_assert.error_message, self.lvl*2+length('error: ') ) );
               end if;
+              self.print(l_assert.caller_info);
+              self.print('');
             end if;
           end loop;
           lvl := lvl - 4;
@@ -117,9 +122,6 @@ create or replace type body ut_documentation_reporter is
         when igonred_test_count > 0 then ', '||igonred_test_count||' ignored'
       end
     );
-    --todo: report total suite result here with pretty message
---    self.print('suite "' || l_suite.name || '" ended. Took: '||to_char(l_duration));
---    self.print(ut_documentation_reporter.c_dashed_line);
   end;
 
 end;

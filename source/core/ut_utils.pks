@@ -90,5 +90,7 @@ create or replace package ut_utils authid definer is
 
   function time_diff(a_start_time timestamp with time zone, a_end_time timestamp with time zone) return number;
 
+  function indent_lines(a_text varchar2, a_indent_size integer) return varchar2;
+
 end ut_utils;
 /

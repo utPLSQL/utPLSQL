@@ -70,9 +70,8 @@ create or replace type body ut_test is
               -- dbms_utility.format_error_backtrace is 10g or later
               -- utl_call_stack package may be better but it's 12c but still need to investigate
               -- article with details: http://www.oracle.com/technetwork/issue-archive/2014/14-jan/o14plsql-2045346.html
-              ut_utils.debug_log('testmethod failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-
-              ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
+              ut_utils.debug_log('test method failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack || dbms_utility.format_error_backtrace);
+              ut_assert_processor.report_error( dbms_utility.format_error_stack || dbms_utility.format_error_backtrace );
           end;
           a_reporter.after_test_execute(self);
 
@@ -92,8 +91,7 @@ create or replace type body ut_test is
           end if;
           ut_utils.debug_log('ut_test.execute failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
           -- most likely occured in setup or teardown if here.
-          ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
-          ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
+          ut_assert_processor.report_error( dbms_utility.format_error_stack || dbms_utility.format_error_backtrace );
       end;
 
       if self.rollback_type = ut_utils.gc_rollback_auto then

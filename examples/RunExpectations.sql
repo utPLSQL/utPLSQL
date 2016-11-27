@@ -3,7 +3,7 @@
 --Suite Management packages are when developed will make this easier.
 --Clear Screen
 Set Serveroutput On Size Unlimited format truncated
-set linesize 1000
+set linesize 10000
 set echo off
 --install the example unit test packages
 @@department.tps
