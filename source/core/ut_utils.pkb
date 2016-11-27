@@ -81,7 +81,7 @@ create or replace package body ut_utils is
       case
         when l_len = 0 then gc_null_string
         when l_len <= gc_max_input_string_length then quote_string(rawtohex(a_value))
-        else quote_string( rawtohex(dbms_lob.substr(a_value, gc_overflow_substr_len)) )
+        else to_string( rawtohex(dbms_lob.substr(a_value, gc_overflow_substr_len)) )
       end;
   end;
 
