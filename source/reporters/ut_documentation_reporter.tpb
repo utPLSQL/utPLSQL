@@ -5,7 +5,7 @@ create or replace type body ut_documentation_reporter is
     self.name               := $$plsql_unit;
     self.output             := a_output;
     self.lvl                := 0;
-    self.failed_tests       := ut_objects_list();
+    self.failed_test_count  := 0;
     self.test_count         := 0;
     self.igonred_test_count := 0;
     return;
@@ -42,9 +42,8 @@ create or replace type body ut_documentation_reporter is
     l_message := coalesce( l_test.name, l_test.test.form_name );
     --if test failed, then add it to the failures list, print failure with number
     if l_test.result != ut_utils.tr_success then
-      failed_tests.extend;
-      failed_tests(failed_tests.last) := l_test;
-      l_message := l_message || ' (FAILED - '||failed_tests.last||')';
+      failed_test_count := failed_test_count + 1;
+      l_message := l_message || ' (FAILED - '||failed_test_count||')';
     end if;
     self.print( l_message );
   end;
@@ -59,54 +58,76 @@ create or replace type body ut_documentation_reporter is
   overriding member procedure after_run(self in out nocopy ut_documentation_reporter, a_suites in ut_objects_list) as
     l_start_time    timestamp with time zone := to_date('9999','yyyy');
     l_end_time      timestamp with time zone := to_date('0001','yyyy');
-    procedure print_failures_summary is
-      l_assert     ut_assert_result;
-      l_test       ut_test;
+
+    procedure print_failure_for_assert(a_assert ut_assert_result) is
     begin
-      if failed_tests.count > 0 then
+      if a_assert.result != ut_utils.tr_success then
+        if a_assert.message is not null then
+          self.print('message: '||a_assert.message);
+        end if;
+        if a_assert.result != ut_utils.tr_success then
+          if a_assert.actual_value_string is not null or a_assert.actual_type is not null then
+            self.print('expected: '||ut_utils.indent_lines( a_assert.actual_value_string||'('||a_assert.actual_type||')', self.lvl*2+length('expected: ') ) );
+          end if;
+          if a_assert.name is not null or a_assert.additional_info is not null
+             or a_assert.expected_value_string is not null or a_assert.expected_type is not null then
+            self.print(
+              a_assert.name || a_assert.additional_info
+              || case
+                   when a_assert.expected_value_string is not null or a_assert.expected_type is not null
+                   then ': '||ut_utils.indent_lines( a_assert.expected_value_string||'('||a_assert.expected_type||')', self.lvl*2+length(a_assert.name || a_assert.additional_info||': ') )
+                 end
+            );
+          end if;
+        end if;
+        if a_assert.error_message is not null then
+          self.print('error: '||ut_utils.indent_lines( a_assert.error_message, self.lvl*2+length('error: ') ) );
+        end if;
+        if a_assert.caller_info is not null then
+          self.print(a_assert.caller_info);
+        end if;
+        self.print('');
+      end if;
+    end;
+
+    procedure print_failures_for_test(a_test ut_test, a_failure_no in out nocopy integer) is
+    begin
+      if a_test.result != ut_utils.tr_success then      
+        a_failure_no := a_failure_no + 1;  
+        self.print(lpad(a_failure_no,  4,' ')||') '||coalesce( a_test.name, a_test.test.form_name ));
+        self.lvl := self.lvl + 3;
+        self.print('Failures/Errors:');
+        self.lvl := self.lvl + 1;
+        for j in 1 .. a_test.items.count loop
+          print_failure_for_assert(treat(a_test.items(j) as ut_assert_result));
+        end loop;
+        lvl := lvl - 4;
+      end if;
+    end;
+
+    procedure print_failures_from_suite(a_suite ut_test_suite, a_failure_no in out nocopy integer) is
+    begin
+      for i in 1 .. a_suite.items.count loop
+        if a_suite.items(i) is of (ut_test_suite) then
+          print_failures_from_suite(treat( a_suite.items(i) as ut_test_suite), a_failure_no);
+        elsif a_suite.items(i) is of (ut_test) then
+          print_failures_for_test(treat(a_suite.items(i) as ut_test), a_failure_no);
+        end if;
+      end loop;
+    end;
+
+    procedure print_failures_summary is
+      l_failure_no integer := 0;
+    begin
+      if failed_test_count > 0 then
 
         self.print( 'Failures:' );
-
-        for i in 1 .. failed_tests.count loop
-          l_test := treat(failed_tests(i) as ut_test);
-          self.print(lpad(i,  4,' ')||') '||coalesce( l_test.name, l_test.test.form_name ));
-          lvl := lvl + 3;
-          self.print('Failures/Errors:');
-          lvl := lvl + 1;
-          for j in 1 .. l_test.items.count loop
-            l_assert := treat(l_test.items(j) as ut_assert_result);
-            if l_assert.result != ut_utils.tr_success then
-              if l_assert.message is not null then
-                self.print('message: '||l_assert.message);
-              end if;
-              if l_assert.result != ut_utils.tr_success then
-                if l_assert.actual_value_string is not null or l_assert.actual_type is not null then
-                  self.print('expected: '||ut_utils.indent_lines( l_assert.actual_value_string||'('||l_assert.actual_type||')', self.lvl*2+length('expected: ') ) );
-                end if;
-                if l_assert.name is not null or l_assert.additional_info is not null
-                   or l_assert.expected_value_string is not null or l_assert.expected_type is not null then
-                  self.print(
-                    l_assert.name || l_assert.additional_info
-                    || case
-                         when l_assert.expected_value_string is not null or l_assert.expected_type is not null
-                         then ': '||ut_utils.indent_lines( l_assert.expected_value_string||'('||l_assert.expected_type||')', self.lvl*2+length(l_assert.name || l_assert.additional_info||': ') )
-                       end
-                  );
-                end if;
-              end if;
-              if l_assert.error_message is not null then
-                self.print('error: '||ut_utils.indent_lines( l_assert.error_message, self.lvl*2+length('error: ') ) );
-              end if;
-              if l_assert.caller_info is not null then
-                self.print(l_assert.caller_info);
-              end if;
-              self.print('');
-            end if;
-          end loop;
-          lvl := lvl - 4;
+        for i in 1 .. a_suites.count loop
+          print_failures_from_suite(treat(a_suites(i) as ut_test_suite), l_failure_no);
         end loop;
       end if;
     end;
+    
   begin
     print_failures_summary();
     for i in 1 .. a_suites.count loop
@@ -117,8 +138,8 @@ create or replace type body ut_documentation_reporter is
     self.print(
       test_count || ' tests' ||
       case
-        when failed_tests.count > 1 then ', '||failed_tests.count||' failures'
-        when failed_tests.count > 0 then ', '||failed_tests.count||' failure'
+        when failed_test_count > 1 then ', '||failed_test_count||' failures'
+        when failed_test_count > 0 then ', '||failed_test_count||' failure'
       end ||
       case
         when igonred_test_count > 0 then ', '||igonred_test_count||' ignored'

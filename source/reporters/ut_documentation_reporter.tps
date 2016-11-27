@@ -1,8 +1,8 @@
 create or replace type ut_documentation_reporter force under ut_reporter
 (
   lvl                integer,
-  failed_tests       ut_objects_list,
   test_count         integer,
+  failed_test_count  integer,
   igonred_test_count integer,
   constructor function ut_documentation_reporter(self in out nocopy ut_documentation_reporter, a_output ut_output default ut_output_dbms_output()) return self as result,
   member function tab(self in ut_documentation_reporter) return varchar2,
