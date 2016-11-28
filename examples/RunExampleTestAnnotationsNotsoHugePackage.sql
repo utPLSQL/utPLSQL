@@ -7,6 +7,8 @@ set echo off
 --install the example unit test packages
 @@tst_pkg_huge.pks
 
+alter package tst_pkg_huge compile PLSQL_CCFLAGS = 'tst_slim:true';
+
 declare
   l_suite ut_test_suite;
 begin  
@@ -14,5 +16,4 @@ begin
   dbms_output.put_line('suite_count='||l_suite.items.count);
 end;
 /
-
 drop package tst_pkg_huge;

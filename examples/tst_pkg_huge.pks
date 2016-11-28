@@ -304,7 +304,9 @@ create or replace package tst_pkg_huge is
     
     -- %test(Test number 100)
     procedure test100;
-$IF TRUE $THEN
+    
+$IF $$tst_slim $THEN
+$ELSE
     -- %test(Test number 101)
     procedure test101;
     

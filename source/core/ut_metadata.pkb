@@ -2,7 +2,6 @@ create or replace package body ut_metadata as
 
   ------------------------------
   --private definitions
-  g_source_view varchar2(32);
 
   ------------------------------
   --public definitions
@@ -30,12 +29,6 @@ create or replace package body ut_metadata as
                              ,dblink        => l_dblink
                              ,part1_type    => l_part1_type
                              ,object_number => l_object_number);
-
-/*
-exception
-when others then
-dbms_output.put_line(SQLERRM);
-raise;*/
 
   end do_resolve;
 
@@ -108,14 +101,14 @@ raise;*/
 
 
   function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob is
-    l_txt_tab ut_varchar2_list;
-  l_source_lines sys.dbms_preprocessor.source_lines_t;
+    l_source  clob;
+
+    l_source_lines sys.dbms_preprocessor.source_lines_t;
 
   begin
     dbms_lob.createtemporary(l_source, true);
     
-
-  l_source_lines := SYS.DBMS_PREPROCESSOR.GET_POST_PROCESSED_SOURCE(
+  l_source_lines := sys.dbms_preprocessor.get_post_processed_source(
     OBJECT_TYPE => 'PACKAGE',
     SCHEMA_NAME => a_owner,
     OBJECT_NAME => a_object_name

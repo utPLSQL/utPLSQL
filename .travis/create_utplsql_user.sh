@@ -14,5 +14,5 @@ SQL
 # create synonyms
 "$ORACLE_HOME/bin/sqlplus" -L -S / as sysdba <<SQL
 set echo off
-@@$(dirname "$(readlink -f "$0")")/utplsql_grants.sql $UT3_OWNER "$UT3_USER." ""
+@@$(dirname "$(readlink -f "$0")")/utplsql_synonyms.sql $UT3_OWNER "$UT3_USER." ""
 SQL
