@@ -10,4 +10,4 @@ cd source
 cd ..
 cd build
 #do style check
-"$ORACLE_HOME/bin/sqlplus" $UT3_OWNER_USER/$UT3_OWNER_PASSWORD @utplsql_style_check.sql
+"$ORACLE_HOME/bin/sqlplus" $UT3_OWNER/$UT3_OWNER_PASSWORD @utplsql_style_check.sql
