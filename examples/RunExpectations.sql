@@ -7,10 +7,15 @@ set linesize 1000
 set echo off
 --install the example unit test packages
 @@department.tps
+show errors
 @@departments.tps
+show errors
 @@demo_expectations.pck
+show errors
 @@ut_custom_reporter.tps
+show errors
 @@ut_custom_reporter.tpb
+show errors
 
 begin
   ut_suite_manager.run_cur_schema_suites_static(ut_custom_reporter(a_tab_size => 2), a_force_parse_again => true);

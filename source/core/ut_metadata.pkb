@@ -2,8 +2,6 @@ create or replace package body ut_metadata as
 
   ------------------------------
   --private definitions
-  g_source_view varchar2(32);
-
 
 
   ------------------------------
@@ -32,12 +30,6 @@ create or replace package body ut_metadata as
                              ,dblink        => l_dblink
                              ,part1_type    => l_part1_type
                              ,object_number => l_object_number);
-
-/*
-exception
-when others then
-dbms_output.put_line(SQLERRM);
-raise;*/
 
   end do_resolve;
 
@@ -115,37 +107,24 @@ raise;*/
     l_txt_tab t_source_tab;
     l_cur     sys_refcursor;
 
-  l_source_lines SYS.DBMS_PREPROCESSOR.SOURCE_LINES_T;
+    l_source_lines SYS.DBMS_PREPROCESSOR.SOURCE_LINES_T;
 
   begin
-dbms_output.put_line('getting source:'||a_object_name);
     dbms_lob.createtemporary(l_source, true);
     
 
-  l_source_lines := SYS.DBMS_PREPROCESSOR.GET_POST_PROCESSED_SOURCE(
-    OBJECT_TYPE => 'PACKAGE',
-    SCHEMA_NAME => a_owner,
-    OBJECT_NAME => a_object_name
-  );
-  dbms_output.put_line('lines length:'||l_source_lines.count);
-
- for i in 1 .. l_source_lines.count LOOP
- if length(rtrim(l_source_lines(i),CHR(10))) > 0 THEN
-  dbms_output.put_line(i||':'||(l_source_lines(i)));
- 
-      dbms_lob.writeappend(l_source, length(l_source_lines(i)), l_source_lines(i));
-      END IF;
- END LOOP;
-
-
-    /*l_cur := get_package_spec_source_cursor(a_owner, a_object_name);
-    fetch l_cur bulk collect into l_txt_tab;
-    for i in 1 .. cardinality(l_txt_tab) loop
-      dbms_lob.writeappend(l_source, length(l_txt_tab(i)), l_txt_tab(i));
-    end loop;
-    close l_cur;*/
+      l_source_lines := SYS.DBMS_PREPROCESSOR.GET_POST_PROCESSED_SOURCE(
+        OBJECT_TYPE => 'PACKAGE',
+        SCHEMA_NAME => a_owner,
+        OBJECT_NAME => a_object_name
+      );
     
-dbms_output.put_line('source length:'||dbms_lob.getlength(l_source));
+     for i in 1 .. l_source_lines.count LOOP
+       if length(rtrim(l_source_lines(i),CHR(10))) > 0 THEN
+         dbms_lob.writeappend(l_source, length(l_source_lines(i)), l_source_lines(i));
+       END IF;
+     END LOOP;
+
     return l_source;
 
   end get_package_spec_source;
