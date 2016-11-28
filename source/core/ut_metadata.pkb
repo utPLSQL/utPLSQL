@@ -4,38 +4,6 @@ create or replace package body ut_metadata as
   --private definitions
   g_source_view varchar2(32);
 
-  function get_source_view return varchar2 is
-  begin
-    if g_source_view is null then
-      declare
-        l_cursor sys_refcursor;
-        l_object_does_not_exist exception;
-        pragma exception_init (l_object_does_not_exist, -942);
-      begin
-        g_source_view := 'dba_source';
-        open l_cursor for 'select 1 from '||g_source_view ||' where rownum = 1';
-        close l_cursor;
-      exception
-        when l_object_does_not_exist then
-          g_source_view := 'all_source';
-      end;
-    end if;
-    return g_source_view;
-  end;
-
-  function get_package_spec_source_cursor(a_owner varchar2 := null, a_object varchar2 := null) return sys_refcursor is
-    l_cur sys_refcursor;
-    function get_query return varchar2 is
-    begin
-      return 'select t.text from ' || get_source_view() ||
-              ' t where t.owner = :a_owner and t.name = :a_object_name and t.type = ''PACKAGE'' order by t.line';
-    end;
-  begin
-    open l_cur for get_query
-      using a_owner, a_object;
-    return l_cur;
-  end;
-
   ------------------------------
   --public definitions
 
@@ -62,6 +30,12 @@ create or replace package body ut_metadata as
                              ,dblink        => l_dblink
                              ,part1_type    => l_part1_type
                              ,object_number => l_object_number);
+
+/*
+exception
+when others then
+dbms_output.put_line(SQLERRM);
+raise;*/
 
   end do_resolve;
 
@@ -135,13 +109,31 @@ create or replace package body ut_metadata as
 
   function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob is
     l_txt_tab ut_varchar2_list;
-    l_cur     sys_refcursor;
+  l_source_lines sys.dbms_preprocessor.source_lines_t;
+
   begin
-    l_cur := get_package_spec_source_cursor(a_owner, a_object_name);
+    dbms_lob.createtemporary(l_source, true);
+    
+
+  l_source_lines := SYS.DBMS_PREPROCESSOR.GET_POST_PROCESSED_SOURCE(
+    OBJECT_TYPE => 'PACKAGE',
+    SCHEMA_NAME => a_owner,
+    OBJECT_NAME => a_object_name
+  );
+
+ for i in 1 .. l_source_lines.count LOOP
+      dbms_lob.writeappend(l_source, length(l_source_lines(i)), l_source_lines(i));
+ END LOOP;
+
+
+    /*l_cur := get_package_spec_source_cursor(a_owner, a_object_name);
     fetch l_cur bulk collect into l_txt_tab;
-    close l_cur;
-    return ut_utils.table_to_clob(l_txt_tab);
-  end;
+    for i in 1 .. cardinality(l_txt_tab) loop
+      dbms_lob.writeappend(l_source, length(l_txt_tab(i)), l_txt_tab(i));
+    end loop;
+    close l_cur;*/
+    
+    return l_source;
 
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
     l_line varchar2(4000);
