@@ -7,7 +7,7 @@ set verify off
 
 define ut3_owner   = &1
 define ut3_user    = &2
-define ut3_syntype = &3
+define ut3_syntype = ""
 
 create &&ut3_syntype synonym &ut3_user.ut_test                       for &ut3_owner..ut_test;
 create &&ut3_syntype synonym &ut3_user.ut_reporter                   for &ut3_owner..ut_reporter;
