@@ -21,6 +21,7 @@ create or replace package body ut_metadata as
     l_object_number number;
   begin
     l_name := form_name(a_owner, a_object, a_procedure_name);
+--    dbms_output.put_line('looking for:'||l_name);
 
     dbms_utility.name_resolve(name          => l_name
                              ,context       => l_context

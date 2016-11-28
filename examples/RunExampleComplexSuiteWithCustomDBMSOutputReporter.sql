@@ -6,11 +6,17 @@ Set Serveroutput On Size Unlimited format truncated
 set echo off
 --install the example unit test packages
 @@ut_exampletest.pks
+show errors
 @@ut_exampletest.pkb
+show errors
 @@ut_exampletest2.pks
+show errors
 @@ut_exampletest2.pkb
+show errors
 @@ut_custom_reporter.tps
+show errors
 @@ut_custom_reporter.tpb
+show errors
 
 declare
   suite1        ut_test_suite;

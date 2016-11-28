@@ -1,4 +1,6 @@
-create or replace type ut_executable force as object
+create or replace type ut_executable 
+authid current_user
+as object
 (
   owner_name         varchar2(32 char),
   object_name        varchar2(32 char),

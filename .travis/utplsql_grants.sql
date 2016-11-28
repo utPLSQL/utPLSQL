@@ -1,4 +1,5 @@
-whenever sqlerror exit failure rollback
+whenever sqlerror continue
+-- exit failure rollback
 whenever oserror exit failure rollback
 set echo off
 set feedback off
