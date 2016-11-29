@@ -5,9 +5,9 @@ def message_lenght = 98765
 
 set define #
 --try runnong on windows
-$ start sqlplus %UT3_USER%/%UT3_PASSWORD%@%ORACLE_SID% @ut_output_dbms_pipe/common/ut_output_dbms_pipe.send_clob.sql '##pipe_name' ##message_lenght
+$ start sqlplus %UT3_USER%/%UT3_USER_PASSWORD%@%ORACLE_SID% @ut_output_dbms_pipe/common/ut_output_dbms_pipe.send_clob.sql '##pipe_name' ##message_lenght
 --try runnong on linus/unix
-! sqlplus ${UT3_USER}/${UT3_PASSWORD}@${ORACLE_SID} @ut_output_dbms_pipe/common/ut_output_dbms_pipe.send_clob.sql '##pipe_name' ##message_lenght &
+! sqlplus ${UT3_USER}/${UT3_USER_PASSWORD}@${ORACLE_SID} @ut_output_dbms_pipe/common/ut_output_dbms_pipe.send_clob.sql '##pipe_name' ##message_lenght &
 set define &
 
 declare

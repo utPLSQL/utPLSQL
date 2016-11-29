@@ -23,6 +23,7 @@ create or replace package body ut_output_pipe_helper is
     l_last_item     integer;
     i integer;
   begin
+$if $$ut_pipe_enable $then
     if a_buffer is not null then
       l_first_item := a_buffer.first;
       i := l_first_item;
@@ -51,6 +52,7 @@ create or replace package body ut_output_pipe_helper is
       dbms_pipe.reset_buffer;
       return l_is_successful;
     end if;
+$end
     return false;
   end;
 
@@ -201,6 +203,7 @@ create or replace package body ut_output_pipe_helper is
     l_text_part       ut_output_pipe_helper.t_pipe_item;
     l_item_type       integer;
   begin
+$if $$ut_pipe_enable $then
     loop
       dbms_pipe.reset_buffer;
       if 0 != dbms_pipe.receive_message(a_output_id, a_timeout_seconds) then
@@ -218,14 +221,18 @@ create or replace package body ut_output_pipe_helper is
     if l_result_flag in (gc_eot, gc_timeout) then
       remove_pipe(a_output_id);
     end if;
+$end
     return l_result_flag;
   end;
 
   procedure remove_pipe(a_output_id t_output_id) is
     l_status          integer;
   begin
+$if $$ut_pipe_enable $then
     l_status := dbms_pipe.remove_pipe(a_output_id);
-  end;
+$end
+	null;
+  end remove_pipe;
 
 end;
 /
