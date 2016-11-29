@@ -103,7 +103,6 @@ create or replace package body ut_metadata as
 
   function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob is
     l_source  clob;
-
     l_source_lines sys.dbms_preprocessor.source_lines_t;
 
   begin
@@ -119,14 +118,6 @@ create or replace package body ut_metadata as
       dbms_lob.writeappend(l_source, length(l_source_lines(i)), l_source_lines(i));
  END LOOP;
 
-
-    /*l_cur := get_package_spec_source_cursor(a_owner, a_object_name);
-    fetch l_cur bulk collect into l_txt_tab;
-    for i in 1 .. cardinality(l_txt_tab) loop
-      dbms_lob.writeappend(l_source, length(l_txt_tab(i)), l_txt_tab(i));
-    end loop;
-    close l_cur;*/
-    
     return l_source;
 
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
