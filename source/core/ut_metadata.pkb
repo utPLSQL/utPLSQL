@@ -104,18 +104,14 @@ create or replace package body ut_metadata as
   function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob is
     l_txt_tab ut_varchar2_list;
     l_cur     sys_refcursor;
-    l_source  CLOB;
-    l_source_lines SYS.DBMS_PREPROCESSOR.SOURCE_LINES_T;
+    l_source  clob;
+    l_source_lines sys.dbms_preprocessor.source_lines_t;
 
   begin
     dbms_lob.createtemporary(l_source, true);
     
 
-      l_source_lines := SYS.DBMS_PREPROCESSOR.GET_POST_PROCESSED_SOURCE(
-        OBJECT_TYPE => 'PACKAGE',
-        SCHEMA_NAME => a_owner,
-        OBJECT_NAME => a_object_name
-      );
+      l_source_lines := sys.dbms_preprocessor.get_post_processed_source( 'PACKAGE', a_owner, a_object_name  );
     
      for i in 1 .. l_source_lines.count LOOP
        if length(rtrim(l_source_lines(i),CHR(10))) > 0 THEN
