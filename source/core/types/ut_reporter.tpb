@@ -7,10 +7,15 @@ create or replace type body ut_reporter is
     return;
   end;
 
-  member procedure print(self in out nocopy ut_reporter, a_text varchar2) is
+  member procedure print_text(self in out nocopy ut_reporter, a_text varchar2) is
   begin
-    self.output.send(a_text);
-  end print;
+    self.output.send_line(a_text);
+  end;
+
+  member procedure print_clob(self in out nocopy ut_reporter, a_text clob) is
+  begin
+    self.output.send_clob(a_text);
+  end;
 
   member procedure before_run(self in out nocopy ut_reporter, a_suites in ut_objects_list) is
   begin

@@ -11,6 +11,8 @@ whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
 --common utilities
+@@core/types/ut_varchar2_list.tps
+@@core/types/ut_clob_list.tps
 @@core/ut_utils.pks
 @@core/ut_metadata.pks
 @@core/ut_utils.pkb
@@ -25,13 +27,15 @@ whenever oserror exit failure rollback
 @@core/types/ut_assert_list.tps
 @@core/types/ut_output.tps
 @@core/types/ut_output_dbms_output.tps
+@@core/types/ut_output_stream.tps
+@@core/ut_output_pipe_helper.pks
+@@core/types/ut_output_dbms_pipe.tps
 @@core/types/ut_reporter.tps
 @@core/types/ut_reporters_list.tps
 @@core/types/ut_composite_reporter.tps
 @@core/types/ut_test_object.tps
 @@core/types/ut_test.tps
 @@core/types/ut_test_suite.tps
-@@core/types/ut_reporter_decorator.tps
 --annoations
 @@core/annotations/ut_annotations.pks
 @@core/annotations/ut_annotations.pkb
@@ -48,6 +52,9 @@ whenever oserror exit failure rollback
 @@core/types/ut_assert_result.tpb
 @@core/types/ut_output.tpb
 @@core/types/ut_output_dbms_output.tpb
+@@core/types/ut_output_stream.tpb
+@@core/ut_output_pipe_helper.pkb
+@@core/types/ut_output_dbms_pipe.tpb
 @@core/types/ut_reporter.tpb
 @@core/types/ut_object.tpb
 @@core/types/ut_composite_object.tpb
@@ -56,7 +63,6 @@ whenever oserror exit failure rollback
 @@core/types/ut_test_suite.tpb
 @@core/types/ut_executable.tpb
 @@core/types/ut_composite_reporter.tpb
-@@core/types/ut_reporter_decorator.tpb
 
 --expecations and matchers
 @@expectations/data_values/ut_data_value.tps
@@ -129,8 +135,6 @@ whenever oserror exit failure rollback
 @@expectations/ut.pks
 @@expectations/ut.pkb
 
-@@reporters/ut_dbms_output_suite_reporter.tps
-@@reporters/ut_dbms_output_suite_reporter.tpb
 @@reporters/ut_teamcity_reporter.tps
 @@reporters/ut_teamcity_reporter_helper.pks
 @@reporters/ut_teamcity_reporter_helper.pkb
@@ -143,10 +147,12 @@ whenever oserror exit failure rollback
 
 
 
-
+set linesize 200
+column text format a100
 prompt Validating installation
 -- erors only. ignore warnings
-select * from user_errors 
+select name, type, sequence, line, position, text
+ from user_errors
 where name not like 'BIN$%'  --not recycled
 and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH','BE_BETWEEN')) -- utplsql objects
 and attribute = 'ERROR'
