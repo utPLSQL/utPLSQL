@@ -21,7 +21,6 @@ create or replace package body ut_metadata as
     l_object_number number;
   begin
     l_name := form_name(a_owner, a_object, a_procedure_name);
---    dbms_output.put_line('looking for:'||l_name);
 
     dbms_utility.name_resolve(name          => l_name
                              ,context       => l_context
@@ -103,11 +102,8 @@ create or replace package body ut_metadata as
 
 
   function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob is
-    type t_source_tab is table of all_source.text%type;
-    l_source  clob;
-    l_txt_tab t_source_tab;
+    l_txt_tab ut_varchar2_list;
     l_cur     sys_refcursor;
-
     l_source_lines SYS.DBMS_PREPROCESSOR.SOURCE_LINES_T;
 
   begin
