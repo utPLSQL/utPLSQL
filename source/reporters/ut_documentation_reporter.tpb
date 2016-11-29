@@ -16,15 +16,15 @@ create or replace type body ut_documentation_reporter is
     return rpad(' ', self.lvl * 2);
   end tab;
 
-  overriding member procedure print(self in out nocopy ut_documentation_reporter, a_text varchar2) is
+  overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2) is
   begin
-    (self as ut_reporter).print(tab || a_text);
-  end print;
+    (self as ut_reporter).print_text(tab || a_text);
+  end;
 
   overriding member procedure before_suite(self in out nocopy ut_documentation_reporter, a_suite ut_object) as
     l_suite ut_test_suite := treat(a_suite as ut_test_suite);
   begin
-    self.print( coalesce( a_suite.name, l_suite.object_name ) );
+    self.print_text( coalesce( a_suite.name, l_suite.object_name ) );
     lvl := lvl + 1;
   end;
 
@@ -45,7 +45,7 @@ create or replace type body ut_documentation_reporter is
       failed_test_count := failed_test_count + 1;
       l_message := l_message || ' (FAILED - '||failed_test_count||')';
     end if;
-    self.print( l_message );
+    self.print_text( l_message );
   end;
 
   overriding member procedure after_suite(self in out nocopy ut_documentation_reporter, a_suite ut_object) as
@@ -53,7 +53,7 @@ create or replace type body ut_documentation_reporter is
   begin
     lvl := lvl - 1;
     if lvl = 0 then
-      self.print(' ');
+      self.print_text(' ');
     end if;
   end;
 
@@ -65,15 +65,15 @@ create or replace type body ut_documentation_reporter is
     begin
       if a_assert.result != ut_utils.tr_success then
         if a_assert.message is not null then
-          self.print('message: '||a_assert.message);
+          self.print_text('message: '||a_assert.message);
         end if;
         if a_assert.result != ut_utils.tr_success then
           if a_assert.actual_value_string is not null or a_assert.actual_type is not null then
-            self.print('expected: '||ut_utils.indent_lines( a_assert.actual_value_string||'('||a_assert.actual_type||')', self.lvl*2+length('expected: ') ) );
+            self.print_text('expected: '||ut_utils.indent_lines( a_assert.actual_value_string||'('||a_assert.actual_type||')', self.lvl*2+length('expected: ') ) );
           end if;
           if a_assert.name is not null or a_assert.additional_info is not null
              or a_assert.expected_value_string is not null or a_assert.expected_type is not null then
-            self.print(
+            self.print_text(
               a_assert.name || a_assert.additional_info
               || case
                    when a_assert.expected_value_string is not null or a_assert.expected_type is not null
@@ -83,12 +83,12 @@ create or replace type body ut_documentation_reporter is
           end if;
         end if;
         if a_assert.error_message is not null then
-          self.print('error: '||ut_utils.indent_lines( a_assert.error_message, self.lvl*2+length('error: ') ) );
+          self.print_text('error: '||ut_utils.indent_lines( a_assert.error_message, self.lvl*2+length('error: ') ) );
         end if;
         if a_assert.caller_info is not null then
-          self.print(a_assert.caller_info);
+          self.print_text(a_assert.caller_info);
         end if;
-        self.print(' ');
+        self.print_text(' ');
       end if;
     end;
 
@@ -96,9 +96,9 @@ create or replace type body ut_documentation_reporter is
     begin
       if a_test.result != ut_utils.tr_success then      
         a_failure_no := a_failure_no + 1;  
-        self.print(lpad(a_failure_no,  4,' ')||') '||coalesce( a_test.name, a_test.test.form_name ));
+        self.print_text(lpad(a_failure_no,  4,' ')||') '||coalesce( a_test.name, a_test.test.form_name ));
         self.lvl := self.lvl + 3;
-        self.print('Failures/Errors:');
+        self.print_text('Failures/Errors:');
         self.lvl := self.lvl + 1;
         for j in 1 .. a_test.items.count loop
           print_failure_for_assert(treat(a_test.items(j) as ut_assert_result));
@@ -123,7 +123,7 @@ create or replace type body ut_documentation_reporter is
     begin
       if failed_test_count > 0 then
 
-        self.print( 'Failures:' );
+        self.print_text( 'Failures:' );
         for i in 1 .. a_suites.count loop
           print_failures_from_suite(treat(a_suites(i) as ut_test_suite), l_failure_no);
         end loop;
@@ -136,8 +136,8 @@ create or replace type body ut_documentation_reporter is
       l_start_time := least(l_start_time, treat(a_suites(i) as ut_test_object).start_time);
       l_end_time := greatest(l_end_time, treat(a_suites(i) as ut_test_object).end_time);
     end loop;
-    self.print( 'Finished in '||ut_utils.to_string(ut_utils.time_diff(l_start_time, l_end_time))||' seconds' );
-    self.print(
+    self.print_text( 'Finished in '||ut_utils.to_string(ut_utils.time_diff(l_start_time, l_end_time))||' seconds' );
+    self.print_text(
       test_count || ' tests' ||
       case
         when failed_test_count > 1 then ', '||failed_test_count||' failures'
@@ -147,7 +147,7 @@ create or replace type body ut_documentation_reporter is
         when igonred_test_count > 0 then ', '||igonred_test_count||' ignored'
       end
     );
-    self.print(' ');
+    self.print_text(' ');
   end;
 
 end;
