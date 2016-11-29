@@ -1,8 +1,7 @@
-whenever sqlerror continue
--- exit failure rollback
+whenever sqlerror  exit failure rollback
 whenever oserror exit failure rollback
 set echo off
-set feedback off
+set feedback on
 set heading off
 set verify off
 
