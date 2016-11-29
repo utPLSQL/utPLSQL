@@ -88,5 +88,48 @@ create or replace package ut_utils authid definer is
   */
   procedure validate_rollback_type(a_rollback_type number);
 
+
+  /*
+   Function: string_to_table
+
+     Parameters:
+          a_string - the text to be split.
+          a_delimiter - the delimiter character or string
+          a_skip_leading_delimiter - determines if the leading delimiter should be ignored, used by clob_to_table
+
+     Returns:
+        ut_varchar2_list - table of string
+
+   Splits a given string into table of string by delimiter.
+   The delimiter gets removed.
+   If null passed as any of the parameters, empty table is returned.
+   If no occurence of a_delimiter found in a_text then text is returned as a single row of the table.
+   If no text between delimiters found then an empty row is returned, example:
+     string_to_table( 'a,,b', ',' ) gives table ut_varchar2_list( 'a', null, 'b' );
+  */
+  function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_varchar2_list;
+
+  /*
+   Function: clob_to_table
+
+     Parameters:
+          a_clob - the text to be split.
+          a_delimiter - the delimiter character or string (default chr(10) )
+          a_max_amount - the maximum length of returned string (default 32767)
+
+     Returns:
+        ut_varchar2_list - table of string
+
+   Splits a given string into table of string by delimiter.
+   The delimiter gets removed.
+   If null passed as any of the parameters, empty table is returned.
+   If split text is longer than a_max_amount it gets split into pieces of a_max_amount.
+   If no text between delimiters found then an empty row is returned, example:
+     string_to_table( 'a,,b', ',' ) gives table ut_varchar2_list( 'a', null, 'b' );
+  */
+  function clob_to_table(a_clob clob, a_max_amount integer := 32767, a_delimiter varchar2:= chr(10)) return ut_varchar2_list;
+
+  function table_to_clob(a_text_table ut_varchar2_list) return clob;
+
 end ut_utils;
 /

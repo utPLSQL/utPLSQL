@@ -99,6 +99,12 @@ drop type ut_reporters_list;
 
 drop type ut_reporter force;
 
+drop type ut_output_dbms_pipe;
+
+drop package ut_output_pipe_helper;
+
+drop type ut_output_stream;
+
 drop type ut_output_dbms_output;
 
 drop type ut_output;
@@ -114,3 +120,7 @@ drop type ut_composite_object;
 drop type ut_objects_list;
 
 drop type ut_object;
+
+drop type ut_varchar2_list;
+
+drop type ut_clob_list;
