@@ -104,6 +104,7 @@ create or replace package body ut_metadata as
   function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob is
     l_txt_tab ut_varchar2_list;
     l_cur     sys_refcursor;
+    l_source  CLOB;
     l_source_lines SYS.DBMS_PREPROCESSOR.SOURCE_LINES_T;
 
   begin
