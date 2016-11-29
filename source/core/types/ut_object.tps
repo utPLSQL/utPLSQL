@@ -1,4 +1,6 @@
-create or replace type ut_object as object
+create or replace type ut_object 
+authid current_user
+as object
 (
   name varchar2(250 char),
   --execution_result ut_execution_result,

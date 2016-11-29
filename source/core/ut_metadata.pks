@@ -1,4 +1,4 @@
-create or replace package ut_metadata authid definer as
+create or replace package ut_metadata authid current_user as
   /*
     package: ut_metadata
   

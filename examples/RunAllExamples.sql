@@ -2,6 +2,9 @@ Clear Screen
 set echo off
 set feedback off
 set linesize 1000
+set trimout on
+set trimspool on
+
 prompt RunExampleComplexSuiteWithCustomDBMSOutputReporter
 @@RunExampleComplexSuiteWithCustomDBMSOutputReporter.sql
 prompt RunExampleTestSuite
@@ -18,5 +21,7 @@ prompt RunExampleTestAnnotationBasedForCurrentSchema
 @@RunExampleTestAnnotationBasedForCurrentSchema.sql
 prompt RunExampleTestAnnotationsHugePackage
 @@RunExampleTestAnnotationsHugePackage.sql
+prompt RunExampleTestAnnotationsNotsoHugePackage
+@@RunExampleTestAnnotationsNotsoHugePackage.sql
 prompt RunExpectations
 @@RunExpectations.sql
