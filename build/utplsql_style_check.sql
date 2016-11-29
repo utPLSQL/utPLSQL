@@ -1,5 +1,8 @@
 ALTER SESSION SET PLSCOPE_SETTINGS= 'IDENTIFIERS:ALL';
 
+set linesize 132
+set pagesize 100 
+
 --install or comple all code here
 exec dbms_utility.compile_schema(USER,compile_all => TRUE,reuse_settings => FALSE);
 

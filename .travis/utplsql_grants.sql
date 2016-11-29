@@ -39,6 +39,7 @@ grant execute on UT_ANNOTATIONS to &ut3_user;
 grant execute on UT_metadata to &ut3_user;
 
 
+grant execute on UT_VARCHAR2_LIST to &ut3_user;
 
 
 exit success

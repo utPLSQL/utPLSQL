@@ -1,7 +1,6 @@
 set echo off
 set feedback off
 set verify off
-Clear Screen
 set linesize 5000
 set pagesize 0
 set serveroutput on size unlimited format truncated
@@ -160,17 +159,17 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 @@ut_utils/ut_utils.clob_to_table.sql
 
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.close.TimesOutAfterAGivenPeriodOfTimeAndRemovesPipe.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_clob_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_lines.TimesOutAfterAGivenPeriodOfTime.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.open.CreatesAPrivatePipe.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.send_clob.SendsAClobIntoPipe.sql
+@@lib/RunTestIfEnabled.sql ut_output_pipe_helper ut_output_dbms_pipe/ut_output_dbms_pipe.close.TimesOutAfterAGivenPeriodOfTimeAndRemovesPipe.sql
+@@lib/RunTestIfEnabled.sql ut_output_pipe_helper ut_output_dbms_pipe/ut_output_dbms_pipe.get_clob_lines.ReturnsSentLines.sql
+@@lib/RunTestIfEnabled.sql ut_output_pipe_helper ut_output_dbms_pipe/ut_output_dbms_pipe.get_lines.ReturnsSentLines.sql
+@@lib/RunTestIfEnabled.sql ut_output_pipe_helper ut_output_dbms_pipe/ut_output_dbms_pipe.get_lines.TimesOutAfterAGivenPeriodOfTime.sql
+@@lib/RunTestIfEnabled.sql ut_output_pipe_helper ut_output_dbms_pipe/ut_output_dbms_pipe.open.CreatesAPrivatePipe.sql
+@@lib/RunTestIfEnabled.sql ut_output_pipe_helper ut_output_dbms_pipe/ut_output_dbms_pipe.send_clob.SendsAClobIntoPipe.sql
 
 @@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_clob_lines.ReturnsSentLines.sql
 @@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.RetunrsNoRowsWhenNoDataInBuffer.sql
 @@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.send_clob.SendsAClobIntoPipe.sql
+@@lib/RunTestIfEnabled.sql ut_output_pipe_helper ut_output_dbms_output/ut_output_dbms_output.send_clob.SendsAClobIntoPipe.sql
 --Global cleanup
 drop package ut_example_tests;
 drop procedure check_annotation_parsing;
