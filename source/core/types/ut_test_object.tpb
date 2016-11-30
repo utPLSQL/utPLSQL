@@ -26,14 +26,6 @@ create or replace type body ut_test_object is
     
     self.rollback_type := a_rollback_type;
   end;
-  
-  member procedure set_object_path(self in out nocopy ut_test_object, a_path varchar2) is
-  begin
-    if lower(a_path) not like lower('%'||self.object_name) then
-      raise_application_error(-20200,'Incorrect object path');
-    end if;
-    self.object_path := a_path;
-  end;
 
   member function execution_time return number is
     l_sec number;

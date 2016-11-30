@@ -46,8 +46,6 @@ create or replace package body ut_suite_manager is
       if l_annotation_data.package_annotations.exists('suitepackage') then
         l_suite_package := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('suitepackage'), 1) || '.' ||
                            lower(l_object_name);
-      --else
-      --  l_suite_package := lower(l_object_name);
       end if;
     
       if l_annotation_data.package_annotations.exists('rollback') then
@@ -187,7 +185,6 @@ create or replace package body ut_suite_manager is
           l_ind := a_root_suite.item_index(l_temp_root);
         
           if l_ind is null then
-            --l_cur_item := ut_test_suite(null, l_temp_root);
             l_cur_item := ut_test_suite(a_suite_name  => null
                                        ,a_object_name => l_temp_root
                                        ,a_object_path => l_path);
@@ -357,9 +354,7 @@ create or replace package body ut_suite_manager is
     else
       for i in 1 .. a_paths.count loop
         l_path := a_paths(i);
-        if regexp_like(l_path, '^\w+(\.\w+){0,2}$') or regexp_like(l_path, '^\w+:\w+(\.\w+)*$') then
-          null;
-        else
+        if l_path is null or not (regexp_like(l_path, '^\w+(\.\w+){0,2}$') or regexp_like(l_path, '^\w+:\w+(\.\w+)*$')) then
           raise_application_error(ut_utils.gc_invalid_path_format, 'Invalid path format: ' || nvl(l_path, 'NULL'));
         end if;
       end loop;
@@ -460,22 +455,19 @@ create or replace package body ut_suite_manager is
             l_path       := rtrim(l_schema || ':' || l_temp_suite.object_path || '.' || l_procedure_name, '.');
           end;
         end if;
+
+        -- fully quilified path branch in the form
+        -- by this time it's the only format left
+        -- schema:suite.suite.suite
+        l_suite_path      := regexp_substr(l_path, ':(.+)', subexpression => 1);
+        l_root_suite_name := regexp_substr(l_suite_path, '^\w+');
         
-        if regexp_like(l_path, '^\w+:.+$') then
-          -- fully quilified path branch in the form
-          -- schema:suite.suite.suite
+        l_suite := l_schema_suites(l_root_suite_name);
         
-          l_suite_path      := regexp_substr(l_path, ':(.+)', subexpression => 1);
-          l_root_suite_name := regexp_substr(l_suite_path, '^\w+');
+        set_skipped_flag(l_suite, regexp_substr(l_suite_path, '\.(.+)', subexpression => 1));
         
-          l_suite := l_schema_suites(l_root_suite_name);
-        
-          --set_skipped_flag(l_suite, l_suite_path);
-          set_skipped_flag(l_suite, regexp_substr(l_suite_path, '\.(.+)', subexpression => 1));
-        
-          l_objects_to_run.extend;
-          l_objects_to_run(l_objects_to_run.count) := l_suite;
-        end if;
+        l_objects_to_run.extend;
+        l_objects_to_run(l_objects_to_run.count) := l_suite;
 
       end if;
     
