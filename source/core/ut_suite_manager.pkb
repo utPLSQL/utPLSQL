@@ -480,6 +480,7 @@ create or replace package body ut_suite_manager is
           ut_running_suite ut_test_suite := treat(l_objects_to_run(i) as ut_test_suite);
         begin
           ut_running_suite.do_execute(l_reporter);
+          l_objects_to_run(i) := ut_running_suite;
         end;
       end loop;
       l_reporter.after_run(a_suites => l_objects_to_run);
