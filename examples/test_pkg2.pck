@@ -18,12 +18,12 @@ create or replace package body test_pkg2 is
 
   procedure test1 is
   begin
-    ut_assert.are_equal(a_msg => '1 equals 1 check', a_expected => 1, a_actual => 1);
+    ut.expect(1,'1 equals 1 check').to_equal(1);
   end;
 
   procedure test2 is
   begin
-    ut_assert.are_equal(a_msg => '2 equals 2 check', a_expected => 2, a_actual => 2);
+    ut.expect(2,'2 equals 2 check').to_equal(2);
   end;
 
 end test_pkg2;
