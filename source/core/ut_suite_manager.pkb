@@ -338,9 +338,11 @@ create or replace package body ut_suite_manager is
 
   function get_schema_suites(a_schema_name in varchar2) return tt_schema_suits is
   begin
-    if not g_schema_suites.exists(a_schema_name) then
-      config_schema(a_schema_name);
-    end if;
+    -- Currently cache invalidation on DDL is not implemented so schema is rescaned each time
+    --if not g_schema_suites.exists(a_schema_name) then
+    --  config_schema(a_schema_name);
+    --end if;
+    config_schema(a_schema_name);
   
     return g_schema_suites(a_schema_name);
   end get_schema_suites;
@@ -360,19 +362,17 @@ create or replace package body ut_suite_manager is
       end loop;
     end if;
   end validate_paths;
-
-  procedure run(a_paths in ut_varchar2_list, a_reporter in ut_reporter) is
+  
+  procedure configure_execution_by_path(a_paths in ut_varchar2_list, a_objects_to_run out nocopy ut_objects_list) is
     l_paths           ut_varchar2_list;
     l_path            varchar2(32767);
     l_schema          varchar2(4000);
-    l_objects_to_run  ut_objects_list := ut_objects_list();
     l_schema_suites   tt_schema_suits;
     l_index           varchar2(4000 char);
     l_suite           ut_test_suite;
     l_suite_path      varchar2(4000);
     l_root_suite_name varchar2(4000);
-    l_reporter        ut_reporter := a_reporter;
-  
+    
     function clean_paths(a_paths ut_varchar2_list) return ut_varchar2_list is
       l_paths ut_varchar2_list := ut_varchar2_list();
     begin
@@ -383,8 +383,8 @@ create or replace package body ut_suite_manager is
       l_paths := set(l_paths);
       return l_paths;
     end clean_paths;
-  
-    procedure set_skipped_flag(a_suite in out nocopy ut_test_object, a_path varchar2) is
+    
+    procedure skip_by_path(a_suite in out nocopy ut_test_object, a_path varchar2) is
       l_root      constant varchar2(32767) := regexp_substr(a_path, '\w+');
       l_rest_path constant varchar2(32767) := regexp_substr(a_path, '\.(.+)', subexpression => 1);
       l_item  ut_test_object;
@@ -404,7 +404,7 @@ create or replace package body ut_suite_manager is
           --l_object_name := regexp_substr(l_object_name,'\w+$'); -- temporary fix. seems like suite have suitepath in object_name
           if regexp_like(l_object_name, l_root, modifier => 'i') then
             
-            set_skipped_flag(l_item, l_rest_path);          
+            skip_by_path(l_item, l_rest_path);          
             l_items.extend;
             l_items(l_items.count) := l_item;
 
@@ -418,12 +418,14 @@ create or replace package body ut_suite_manager is
           raise_application_error(-20203, 'Suite note found');
         end if;
       end if;
-    end set_skipped_flag;
+    end skip_by_path;
+
   begin
     l_paths := clean_paths(a_paths);
   
     validate_paths(l_paths);
-  
+    a_objects_to_run := ut_objects_list();
+    
     -- current implementation operates only on a single path
     -- to be improved later
     for i in 1 .. l_paths.count loop
@@ -436,8 +438,8 @@ create or replace package body ut_suite_manager is
         -- run whole schema
         l_index := l_schema_suites.first;
         while l_index is not null loop
-          l_objects_to_run.extend;
-          l_objects_to_run(l_objects_to_run.count) := l_schema_suites(l_index);
+          a_objects_to_run.extend;
+          a_objects_to_run(a_objects_to_run.count) := l_schema_suites(l_index);
           l_index := l_schema_suites.next(l_index);
         end loop;
       else
@@ -464,24 +466,31 @@ create or replace package body ut_suite_manager is
         
         l_suite := l_schema_suites(l_root_suite_name);
         
-        set_skipped_flag(l_suite, regexp_substr(l_suite_path, '\.(.+)', subexpression => 1));
+        skip_by_path(l_suite, regexp_substr(l_suite_path, '\.(.+)', subexpression => 1));
         
-        l_objects_to_run.extend;
-        l_objects_to_run(l_objects_to_run.count) := l_suite;
+        a_objects_to_run.extend;
+        a_objects_to_run(a_objects_to_run.count) := l_suite;
 
       end if;
     
     end loop;
+  end configure_execution_by_path;
+
+  procedure run(a_paths in ut_varchar2_list, a_reporter in ut_reporter) is
+    l_objects_to_run  ut_objects_list;
+    l_reporter        ut_reporter := a_reporter;
+    ut_running_suite ut_test_suite;
+  begin
+    configure_execution_by_path(a_paths,l_objects_to_run);
   
     if l_objects_to_run.count > 0 then
       l_reporter.before_run(a_suites => l_objects_to_run);
       for i in 1 .. l_objects_to_run.count loop
-        declare
-          ut_running_suite ut_test_suite := treat(l_objects_to_run(i) as ut_test_suite);
-        begin
-          ut_running_suite.do_execute(l_reporter);
-          l_objects_to_run(i) := ut_running_suite;
-        end;
+
+        ut_running_suite := treat(l_objects_to_run(i) as ut_test_suite);
+        ut_running_suite.do_execute(l_reporter);
+        l_objects_to_run(i) := ut_running_suite;
+
       end loop;
       l_reporter.after_run(a_suites => l_objects_to_run);
     end if;
