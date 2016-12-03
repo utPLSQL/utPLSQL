@@ -111,5 +111,27 @@ create or replace package body ut_assert_processor as
 
   end;
 
+  function who_called_expectation return varchar2 is
+    c_call_stack                 constant varchar2(32767) := dbms_utility.format_call_stack();
+    l_caller_stack_line          varchar2(4000);
+    l_caller_type_and_name       varchar2(4000);
+    l_line_no                    integer;
+    l_owner                      varchar2(1000);
+    l_object_name                varchar2(1000);
+    c_expectation_search_pattern constant varchar2(50) := '(.*\.UT_EXPECTATION[A-Z0-9#_$]*\s)+(.*)\s';
+  begin
+    l_caller_stack_line    := regexp_substr( c_call_stack, c_expectation_search_pattern, 1, 1, 'm', 2);
+    l_line_no              := to_number( regexp_substr(l_caller_stack_line,'^\dx[0-9a-f]+\s+(\d+)',subexpression => 1) );
+    l_caller_type_and_name    := substr( l_caller_stack_line, 23 );
+    if l_caller_stack_line like '%.%' then
+      l_owner       := regexp_substr(l_caller_stack_line,'\s(\w+)\.(\w|\.)+$',subexpression => 1);
+      l_object_name := regexp_substr(l_caller_stack_line,'\s(\w+)\.((\w|\.)+)$',subexpression => 2);
+    end if;
+    return
+      case when l_owner is not null and l_object_name is not null and l_line_no is not null then
+        'at "' || l_owner || '.' || l_object_name || '", line '|| l_line_no || ' ' ||
+          ut_metadata.get_source_definition_line(l_owner, l_object_name, l_line_no)
+      end;
+  end;
 end;
 /

@@ -3,7 +3,7 @@
 --Suite Management packages are when developed will make this easier.
 --Clear Screen
 Set Serveroutput On Size Unlimited format truncated
-set linesize 1000
+set linesize 10000
 set echo off
 --install the example unit test packages
 @@department.tps
@@ -13,7 +13,7 @@ set echo off
 @@ut_custom_reporter.tpb
 
 begin
-  ut_suite_manager.run_cur_schema_suites_static(ut_custom_reporter(a_tab_size => 2), a_force_parse_again => true);
+  ut_suite_manager.run_cur_schema_suites_static(ut_documentation_reporter(), a_force_parse_again => true);
 end;
 /
 

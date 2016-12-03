@@ -7,6 +7,7 @@ create or replace type body ut_assert_result is
     self.object_type   := 0;
     self.result        := a_result;
     self.error_message := a_error_message;
+    self.caller_info   := ut_assert_processor.who_called_expectation();
     return;
   end ut_assert_result;
 
@@ -24,6 +25,9 @@ create or replace type body ut_assert_result is
     self.actual_type           := a_actual_type;
     self.expected_value_string := a_expected_value_string;
     self.actual_value_string   := a_actual_value_string;
+    if a_result = ut_utils.tr_failure then
+      self.caller_info           := ut_assert_processor.who_called_expectation();
+    end if;
     return;
   end ut_assert_result;
 

@@ -211,5 +211,19 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  function time_diff(a_start_time timestamp with time zone, a_end_time timestamp with time zone) return number is
+  begin
+    return
+      extract(day from(a_end_time - a_start_time)) * 24 * 60 * 60 +
+      extract(hour from(a_end_time - a_start_time)) * 60 * 60 +
+      extract(minute from(a_end_time - a_start_time)) * 60 +
+      extract(second from(a_end_time - a_start_time));
+  end;
+
+  function indent_lines(a_text varchar2, a_indent_size integer) return varchar2 is
+  begin
+    return replace( a_text, chr(10), chr(10) || lpad( ' ', a_indent_size ) );
+  end;
+
 end;
 /

@@ -131,5 +131,9 @@ create or replace package ut_utils authid definer is
 
   function table_to_clob(a_text_table ut_varchar2_list) return clob;
 
+  function time_diff(a_start_time timestamp with time zone, a_end_time timestamp with time zone) return number;
+
+  function indent_lines(a_text varchar2, a_indent_size integer) return varchar2;
+
 end ut_utils;
 /
