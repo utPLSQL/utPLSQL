@@ -25,7 +25,9 @@ create or replace type body ut_assert_result is
     self.actual_type           := a_actual_type;
     self.expected_value_string := a_expected_value_string;
     self.actual_value_string   := a_actual_value_string;
-    self.caller_info           := ut_assert_processor.who_called_expectation();
+    if a_result = ut_utils.tr_failure then
+      self.caller_info           := ut_assert_processor.who_called_expectation();
+    end if;
     return;
   end ut_assert_result;
 
