@@ -24,6 +24,8 @@ create &ut3_syntype synonym &ut3_user.ut_object              for &ut3_owner..ut_
 create &ut3_syntype synonym &ut3_user.ut_composite_reporter              for &ut3_owner..ut_composite_reporter;
 create &ut3_syntype synonym &ut3_user.ut_reporters_list              for &ut3_owner..ut_reporters_list;
 create &ut3_syntype synonym &ut3_user.ut_documentation_reporter   for &ut3_owner..ut_documentation_reporter;
+create &ut3_syntype synonym &ut3_user.ut_teamcity_reporter    for &ut3_owner..ut_teamcity_reporter;
+
 
 
 create &ut3_syntype synonym &ut3_user.ut              for &ut3_owner..ut;

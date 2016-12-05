@@ -9,8 +9,8 @@ define ut3_owner   = "&1"
 define ut3_user    = "&2"
 define ut3_syntype = "&3"
 
-create &ut3_syntype synonym &ut3_user.ut_output_dbms_pipe           for &ut3_owner..ut_output_dbms_pipe;
-
+create &ut3_syntype synonym &ut3_user.ut_output_dbms_pipe          for &ut3_owner..ut_output_dbms_pipe;
+create &ut3_syntype synonym &ut3_user.ut_output_pipe_helper        for &ut3_owner..ut_output_pipe_helper;
 
 exit success
 
