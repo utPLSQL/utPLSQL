@@ -21,6 +21,7 @@ grant execute       on ut_output_dbms_output to &ut3_user;
 grant execute,under on ut_reporter to &ut3_user;
 grant execute       on ut_composite_reporter to &ut3_user;
 grant execute       on ut_reporters_list to &ut3_user;
+grant execute,under on ut_documentation_reporter to &ut3_user;
 
 grant execute on equal to &ut3_user;
 grant execute on match to &ut3_user;
