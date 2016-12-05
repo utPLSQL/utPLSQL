@@ -137,6 +137,8 @@ create or replace package body ut_metadata as
   exception
     when no_data_found then
       return null;
+    when others then --TODO:replace this with ORA-24234
+      return null;
   end;
 
 end;
