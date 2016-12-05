@@ -1,7 +1,5 @@
 create or replace package ut_output_pipe_helper is
 
-  gc_enabled constant boolean := $if $$ut_pipe_enable $then TRUE; $else FALSE; $end
-
   --the limit size for pipe message is 4096, we want to make sure we're below that limit
   subtype t_pipe_item is varchar(4000 byte);
   subtype t_output_id is varchar2(128 byte);

@@ -108,6 +108,9 @@ create or replace package body ut_metadata as
   begin
     dbms_lob.createtemporary(l_source, true);
     
+  --    object_type
+  --      Must be one of "PACKAGE", "PACKAGE BODY", "PROCEDURE", "FUNCTION",
+  --      "TYPE", "TYPE BODY", or "TRIGGER".
   l_source_lines := sys.dbms_preprocessor.get_post_processed_source(
     OBJECT_TYPE => 'PACKAGE',
     SCHEMA_NAME => a_owner,
@@ -119,17 +122,18 @@ create or replace package body ut_metadata as
  END LOOP;
 
     return l_source;
+  end;
 
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
-    l_line varchar2(4000);
+    l_source_lines sys.dbms_preprocessor.source_lines_t;
   begin
-    execute immediate
-      'select text from ' || get_source_view() || q'[
-          where owner = :a_owner and name = :a_object_name and line = :a_line_no
-             -- skip the declarations, consider only definitions
-            and type != 'PACKAGE' ]'
-      into l_line using a_owner, a_object_name, a_line_no;
-    return '"'||ltrim(rtrim( lower( l_line ), chr(10) ))||'"';
+
+  l_source_lines := sys.dbms_preprocessor.get_post_processed_source(
+    OBJECT_TYPE => 'PACKAGE BODY',
+    SCHEMA_NAME => a_owner,
+    OBJECT_NAME => a_object_name
+  );
+    return '"'||ltrim(rtrim( lower( l_source_lines(a_line_no) ), chr(10) ))||'"';
   exception
     when no_data_found then
       return null;

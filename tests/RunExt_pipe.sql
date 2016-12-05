@@ -6,13 +6,8 @@ set pagesize 0
 set serveroutput on size unlimited format truncated
 @@lib/RunVars.sql
 
---Global setup
 
---Tests to invoke
-@@TestCore.sql
 @@TestExt_pipe.sql
-
---Global cleanup
 
 --Finally
 @@lib/RunSummary
