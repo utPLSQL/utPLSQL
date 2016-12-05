@@ -6,6 +6,9 @@ set pagesize 0
 set serveroutput on size unlimited format truncated
 @@lib/RunVars.sql
 
+define ut3_runuser       = "&1"
+define ut3_runpass       = "&2"
+
 --Global setup
 
 --Tests to invoke
