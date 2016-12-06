@@ -15,6 +15,8 @@ set serveroutput on size unlimited format truncated
 create table ut$test_table (val varchar2(1));
 @@helpers/ut_transaction_control.pck
 @@helpers/department.tps
+@@helpers/test_package_1.pck
+@@helpers/test_package_2.pck
 
 --Tests to invoke
 
@@ -177,6 +179,8 @@ drop procedure check_annotation_parsing;
 drop package ut_transaction_control;
 drop table ut$test_table;
 drop type department$;
+drop package test_package_1.pck
+drop package test_package_2.pck
 
 --Finally
 @@lib/RunSummary

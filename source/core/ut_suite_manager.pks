@@ -15,6 +15,9 @@ create or replace package ut_suite_manager authid definer is
   procedure run(a_path in varchar2, a_reporter in ut_reporter);
   -- to be implemented
   --procedure run(a_paths in ut_varchar2_list, a_reporter in ut_reporter);
+  
+  --INTERNAL USE  
+  procedure configure_execution_by_path(a_paths in ut_varchar2_list, a_objects_to_run out nocopy ut_objects_list);
 
 end ut_suite_manager;
 /
