@@ -1,13 +1,25 @@
 create or replace package body ut_suite_manager is
 
   type tt_schema_suits is table of ut_test_suite index by varchar2(4000 char);
-  type tt_schena_suits_list is table of tt_schema_suits index by varchar2(32 char);
+  type t_schema_cache is record (schema_suites tt_schema_suits, changed_at date);
+  type tt_schena_suits_list is table of t_schema_cache index by varchar2(32 char);
 
   g_schema_suites tt_schena_suits_list;
 
   function trim_path(a_path varchar2, a_part varchar2) return varchar2 is
   begin
     return substr(a_path, nvl(length(a_part), 0) + 1);
+  end;
+  
+  function get_schema_max_ddl(a_owner_name varchar2) return date is
+    l_date date;
+  begin
+    select max(t.LAST_DDL_TIME)
+      into l_date
+      from all_objects t
+     where t.owner = a_owner_name
+       and t.object_type in ('PACKAGE');
+    return l_date;
   end;
 
   function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_test_suite is
@@ -169,6 +181,8 @@ create or replace package body ut_suite_manager is
     l_root_suite ut_test_suite;
   
     l_schema_suites tt_schema_suits;
+    
+    l_max_ddl_date date;
   
     procedure put(a_root_suite in out nocopy ut_test_suite, a_path varchar2, a_suite ut_test_suite, a_parent_path varchar2 default null) is
       l_temp_root varchar2(4000 char);
@@ -234,6 +248,7 @@ create or replace package body ut_suite_manager is
     $end
   
   begin
+    l_max_ddl_date := get_schema_max_ddl(a_owner_name);
     -- form the single-dimension list of suites constructed from parsed packages
     for rec in (select t.owner
                       ,t.object_name
@@ -274,7 +289,8 @@ create or replace package body ut_suite_manager is
   
     -- Each nonempty root-suite list for the schema is saved into the cache
     if l_schema_suites.count > 0 then
-      g_schema_suites(a_owner_name) := l_schema_suites;
+      g_schema_suites(a_owner_name).schema_suites := l_schema_suites;
+      g_schema_suites(a_owner_name).changed_at := l_max_ddl_date;
     elsif g_schema_suites.exists(a_owner_name) then
       g_schema_suites.delete(a_owner_name);
     end if;
@@ -290,62 +306,16 @@ create or replace package body ut_suite_manager is
   
   end config_schema;
 
-  procedure run_schema_suites(a_owner_name varchar2, a_reporter in out nocopy ut_reporter, a_force_parse_again boolean default false) is
-    l_ind        varchar2(4000 char);
-    l_suite      ut_test_suite;
-    l_suite_list ut_objects_list := ut_objects_list();
-  begin
-    --TODO - we do not have a way to pass list of suites here
-    a_reporter.before_run(ut_objects_list());
-    if not g_schema_suites.exists(a_owner_name) or g_schema_suites(a_owner_name).count = 0 or
-       nvl(a_force_parse_again, false) then
-      config_schema(a_owner_name);
-    end if;
-  
-    if g_schema_suites.exists(a_owner_name) then
-      l_ind := g_schema_suites(a_owner_name).first;
-      while l_ind is not null loop
-        l_suite := g_schema_suites(a_owner_name) (l_ind);
-        l_suite.do_execute(a_reporter => a_reporter);
-        l_suite_list.extend; l_suite_list(l_suite_list.last) := l_suite;
-        l_ind := g_schema_suites(a_owner_name).next(l_ind);
-      end loop;
-    else
-      -- we have to figure out what to do here
-      null;
-    end if;
-    --TODO - we do not have a way to pass list of suites here
-    a_reporter.after_run(l_suite_list);
-  end run_schema_suites;
-
-  procedure run_schema_suites_static(a_owner_name varchar2, a_reporter in ut_reporter, a_force_parse_again boolean default false) is
-    l_temp_reported ut_reporter;
-  begin
-    l_temp_reported := a_reporter;
-    run_schema_suites(a_owner_name, l_temp_reported, a_force_parse_again);
-  end run_schema_suites_static;
-
-  procedure run_cur_schema_suites(a_reporter in out nocopy ut_reporter, a_force_parse_again boolean default false) is
-  begin
-    run_schema_suites(sys_context('userenv', 'current_schema'), a_reporter, a_force_parse_again);
-  end run_cur_schema_suites;
-
-  procedure run_cur_schema_suites_static(a_reporter in ut_reporter, a_force_parse_again boolean default false) is
-    l_temp_reported ut_reporter;
-  begin
-    l_temp_reported := a_reporter;
-    run_schema_suites(sys_context('userenv', 'current_schema'), l_temp_reported, a_force_parse_again);
-  end run_cur_schema_suites_static;
-
   function get_schema_suites(a_schema_name in varchar2) return tt_schema_suits is
   begin
     -- Currently cache invalidation on DDL is not implemented so schema is rescaned each time
-    --if not g_schema_suites.exists(a_schema_name) then
-    --  config_schema(a_schema_name);
-    --end if;
-    config_schema(a_schema_name);
+    if not g_schema_suites.exists(a_schema_name) 
+      or g_schema_suites(a_schema_name).changed_at<nvl(get_schema_max_ddl(a_schema_name), date'2999-12-31') then
+      ut_utils.debug_log('Rescanning schema ' || a_schema_name);
+      config_schema(a_schema_name);
+    end if;
   
-    return g_schema_suites(a_schema_name);
+    return g_schema_suites(a_schema_name).schema_suites;
   end get_schema_suites;
 
   -- Validate all paths are correctly formatted
