@@ -6,11 +6,8 @@ create or replace package ut_utils authid definer is
   
   */
 
-  /* Constants: Test Results
-    tr_success - test passed
-    tr_failure - one or more asserts failed
-    tr_error   - exception was raised
-  */
+  /* Constants: Test Results */
+  tr_skip                    constant number(1) := -1; -- silent skip without reporting. internal use
   tr_ignore                  constant number(1) := 0; -- test/suite was ignored
   tr_success                 constant number(1) := 1; -- test passed
   tr_failure                 constant number(1) := 2; -- one or more asserts failed
@@ -28,8 +25,18 @@ create or replace package ut_utils authid definer is
   gc_rollback_manual         constant number(1) := 1; -- leave transaction control manual
   --gc_rollback_on_error       constant number(1) := 2; -- rollback tests only on error
 
-  ex_unsopported_rollback_type exception;
-  pragma exception_init(ex_unsopported_rollback_type, -20200);
+  ex_unsupported_rollback_type exception;
+  gc_unsupported_rollback_type constant pls_integer := -20200;
+  pragma exception_init(ex_unsupported_rollback_type, -20200);
+  
+  ex_path_list_is_empty exception;
+  gc_path_list_is_empty constant pls_integer := -20201;
+  pragma exception_init(ex_path_list_is_empty, -20201);
+
+  ex_invalid_path_format exception;
+  gc_invalid_path_format constant pls_integer := -20202;
+  pragma exception_init(ex_invalid_path_format, -20202);
+  
 
   gc_max_output_string_length constant integer := 4000;
   gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
