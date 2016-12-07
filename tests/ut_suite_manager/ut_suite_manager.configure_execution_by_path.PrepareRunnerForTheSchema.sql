@@ -2,7 +2,7 @@ PROMPT Prepare runner for the schema
 
 --Arrange
 declare
-  c_path           varchar2(100) := user;
+  c_path           varchar2(100) := USER;
   l_objects_to_run ut_objects_list;
 
   l_test0_suite ut_test_suite;
