@@ -465,7 +465,11 @@ create or replace package body ut_suite_manager is
         l_suite_path      := regexp_substr(l_path, ':(.+)', subexpression => 1);
         l_root_suite_name := regexp_substr(l_suite_path, '^\w+');
         
-        l_suite := l_schema_suites(l_root_suite_name);
+        begin
+          l_suite := l_schema_suites(l_root_suite_name);
+        exception when no_data_found then
+          raise_application_error(-20203, 'Suite ' || l_root_suite_name || ' note found');
+        end;
         
         skip_by_path(l_suite, regexp_substr(l_suite_path, '\.(.+)', subexpression => 1));
         
