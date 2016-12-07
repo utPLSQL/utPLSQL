@@ -36,7 +36,6 @@ whenever oserror exit failure rollback
 @@core/types/ut_test_object.tps
 @@core/types/ut_test.tps
 @@core/types/ut_test_suite.tps
-@@core/types/ut_reporter_decorator.tps
 --annoations
 @@core/annotations/ut_annotations.pks
 @@core/annotations/ut_annotations.pkb
@@ -64,7 +63,6 @@ whenever oserror exit failure rollback
 @@core/types/ut_test_suite.tpb
 @@core/types/ut_executable.tpb
 @@core/types/ut_composite_reporter.tpb
-@@core/types/ut_reporter_decorator.tpb
 
 --expecations and matchers
 @@expectations/data_values/ut_data_value.tps
@@ -137,12 +135,12 @@ whenever oserror exit failure rollback
 @@expectations/ut.pks
 @@expectations/ut.pkb
 
-@@reporters/ut_dbms_output_suite_reporter.tps
-@@reporters/ut_dbms_output_suite_reporter.tpb
 @@reporters/ut_teamcity_reporter.tps
 @@reporters/ut_teamcity_reporter_helper.pks
 @@reporters/ut_teamcity_reporter_helper.pkb
 @@reporters/ut_teamcity_reporter.tpb
+@@reporters/ut_documentation_reporter.tps
+@@reporters/ut_documentation_reporter.tpb
 
 @@legacy/ut_assert.pks
 @@legacy/ut_assert.pkb

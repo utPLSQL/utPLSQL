@@ -19,7 +19,7 @@ begin
                         ,a_setup_procedure    => 'setup'
                         ,a_teardown_procedure => 'teardown');
 
-  reporter := ut_dbms_output_suite_reporter;
+  reporter := ut_documentation_reporter;
   simple_test.do_execute(reporter);
 end;
 /

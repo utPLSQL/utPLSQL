@@ -4,33 +4,35 @@ create or replace package body ut_metadata as
   --private definitions
   g_source_view varchar2(32);
 
+  function get_source_view return varchar2 is
+  begin
+    if g_source_view is null then
+      declare
+        l_cursor sys_refcursor;
+        l_object_does_not_exist exception;
+        pragma exception_init (l_object_does_not_exist, -942);
+      begin
+        g_source_view := 'dba_source';
+        open l_cursor for 'select 1 from '||g_source_view ||' where rownum = 1';
+        close l_cursor;
+      exception
+        when l_object_does_not_exist then
+          g_source_view := 'all_source';
+      end;
+    end if;
+    return g_source_view;
+  end;
+
   function get_package_spec_source_cursor(a_owner varchar2 := null, a_object varchar2 := null) return sys_refcursor is
     l_cur sys_refcursor;
-    l_object_does_not_exist exception;
-    pragma exception_init (l_object_does_not_exist, -942);
-    function get_query return varchar2 is 
+    function get_query return varchar2 is
     begin
-      return 'select t.text from ' || g_source_view ||
+      return 'select t.text from ' || get_source_view() ||
               ' t where t.owner = :a_owner and t.name = :a_object_name and t.type = ''PACKAGE'' order by t.line';
     end;
   begin
-    if g_source_view is not null then
-      open l_cur for get_query
-        using a_owner, a_object;
-    else
-      begin
-        g_source_view := 'dba_source';
-        open l_cur for get_query
-          using a_owner, a_object;
-      exception 
-        when l_object_does_not_exist then
-          g_source_view := 'all_source';
-          
-          open l_cur for get_query
-            using a_owner, a_object;
-      end;
-    end if;
-
+    open l_cur for get_query
+      using a_owner, a_object;
     return l_cur;
   end;
 
@@ -139,6 +141,21 @@ create or replace package body ut_metadata as
     fetch l_cur bulk collect into l_txt_tab;
     close l_cur;
     return ut_utils.table_to_clob(l_txt_tab);
+  end;
+
+  function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
+    l_line varchar2(4000);
+  begin
+    execute immediate
+      'select text from ' || get_source_view() || q'[
+          where owner = :a_owner and name = :a_object_name and line = :a_line_no
+             -- skip the declarations, consider only definitions
+            and type != 'PACKAGE' ]'
+      into l_line using a_owner, a_object_name, a_line_no;
+    return '"'||ltrim(rtrim( lower( l_line ), chr(10) ))||'"';
+  exception
+    when no_data_found then
+      return null;
   end;
 
 end;

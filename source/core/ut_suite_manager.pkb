@@ -291,8 +291,9 @@ create or replace package body ut_suite_manager is
   end config_schema;
 
   procedure run_schema_suites(a_owner_name varchar2, a_reporter in out nocopy ut_reporter, a_force_parse_again boolean default false) is
-    l_ind   varchar2(4000 char);
-    l_suite ut_test_suite;
+    l_ind        varchar2(4000 char);
+    l_suite      ut_test_suite;
+    l_suite_list ut_objects_list := ut_objects_list();
   begin
     --TODO - we do not have a way to pass list of suites here
     a_reporter.before_run(ut_objects_list());
@@ -306,7 +307,7 @@ create or replace package body ut_suite_manager is
       while l_ind is not null loop
         l_suite := g_schema_suites(a_owner_name) (l_ind);
         l_suite.do_execute(a_reporter => a_reporter);
-        g_schema_suites(a_owner_name)(l_ind) := l_suite;
+        l_suite_list.extend; l_suite_list(l_suite_list.last) := l_suite;
         l_ind := g_schema_suites(a_owner_name).next(l_ind);
       end loop;
     else
@@ -314,7 +315,7 @@ create or replace package body ut_suite_manager is
       null;
     end if;
     --TODO - we do not have a way to pass list of suites here
-    a_reporter.after_run(ut_objects_list());
+    a_reporter.after_run(l_suite_list);
   end run_schema_suites;
 
   procedure run_schema_suites_static(a_owner_name varchar2, a_reporter in ut_reporter, a_force_parse_again boolean default false) is

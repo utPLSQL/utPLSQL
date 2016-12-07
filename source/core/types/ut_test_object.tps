@@ -14,6 +14,7 @@ create or replace type ut_test_object force under ut_composite_object
   final member procedure do_execute(self in out nocopy ut_test_object),
 
   member procedure set_ignore_flag(self in out nocopy ut_test_object, a_ignore_flag boolean),
+  member function get_ignore_flag return boolean,
   member procedure set_rollback_type(self in out nocopy ut_test_object, a_rollback_type integer),
 
   member function execution_time return number

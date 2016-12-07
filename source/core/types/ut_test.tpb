@@ -37,7 +37,22 @@ create or replace type body ut_test is
   end is_valid;
 
   overriding member procedure do_execute(self in out nocopy ut_test, a_reporter in out nocopy ut_reporter) is
-    l_savepoint varchar2(30);
+    l_savepoint       varchar2(30);
+    l_errors_raised   boolean := false;
+    l_error_stack     varchar2(32767);
+    l_error_backtrace varchar2(32767);
+
+    function process_errors_from_call( a_error_stack varchar2, a_error_backtrace varchar2) return boolean is
+      l_errors_stack_trace varchar2(32767) := rtrim(a_error_stack||a_error_backtrace, chr(10));
+    begin
+      if l_errors_stack_trace is not null then
+        ut_utils.debug_log('test method failed- ' ||l_errors_stack_trace );
+        ut_assert_processor.report_error( l_errors_stack_trace );
+        return true;
+      else
+        return false;
+      end if;
+    end;
   begin
     a_reporter.before_test(self);
 
@@ -50,50 +65,32 @@ create or replace type body ut_test is
 
     self.start_time := current_timestamp;
     
-    if nvl(self.ignore_flag,0) != 1 then
-      begin
+    if self.get_ignore_flag() = false then
+      if self.is_valid() then
 
-        if self.is_valid() then
+        if self.setup is not null then
+          a_reporter.before_test_setup(self);
+          self.setup.do_execute(l_error_stack, l_error_backtrace);
+          l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );
+          a_reporter.after_test_setup(self);
+        end if;
 
-          if self.setup is not null then
-            a_reporter.before_test_setup(self);
-            self.setup.do_execute;
-            a_reporter.after_test_setup(self);
-          end if;
-
+        if not l_errors_raised then
           a_reporter.before_test_execute(self);
-          begin
-            self.test.do_execute;
-          exception
-            when others then
-              -- dbms_utility.format_error_backtrace is 10g or later
-              -- utl_call_stack package may be better but it's 12c but still need to investigate
-              -- article with details: http://www.oracle.com/technetwork/issue-archive/2014/14-jan/o14plsql-2045346.html
-              ut_utils.debug_log('testmethod failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-
-              ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-          end;
+          self.test.do_execute(l_error_stack, l_error_backtrace);
+          l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );
           a_reporter.after_test_execute(self);
 
           if self.teardown is not null then
             a_reporter.before_test_teardown(self);
-            self.teardown.do_execute;
+            self.teardown.do_execute(l_error_stack, l_error_backtrace);
+            l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );
             a_reporter.after_test_teardown(self);
           end if;
 
         end if;
 
-      exception
-        when others then
-          if sqlcode = -04068 then
-            --raise on ORA-04068: existing state of packages has been discarded to avoid unrecoverable session exception
-            raise;
-          end if;
-          ut_utils.debug_log('ut_test.execute failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-          -- most likely occured in setup or teardown if here.
-          ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
-          ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-      end;
+      end if;
 
       if self.rollback_type = ut_utils.gc_rollback_auto then
         execute immediate 'rollback to ' || l_savepoint;
