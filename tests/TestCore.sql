@@ -6,9 +6,12 @@
 create table ut$test_table (val varchar2(1));
 @@helpers/ut_transaction_control.pck
 @@helpers/department.tps
+@@helpers/test_package_3.pck
+@@helpers/test_package_1.pck
+@@helpers/test_package_2.pck
+
 
 --Tests to invoke
-
 @@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsTrue.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesSuccessWhenExpessionIsFalse.sql
@@ -151,9 +154,20 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 @@ut_utils/ut_utils.clob_to_table.sql
 
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheSchema.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByName.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByName.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByName.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageProcedureByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPath.sql
+
 @@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_clob_lines.ReturnsSentLines.sql
 @@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.RetunrsNoRowsWhenNoDataInBuffer.sql
 @@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.ReturnsSentLines.sql
+
 
 --Global cleanup
 drop package ut_example_tests;
@@ -161,4 +175,7 @@ drop procedure check_annotation_parsing;
 drop package ut_transaction_control;
 drop table ut$test_table;
 drop type department$;
+drop package test_package_1;
+drop package test_package_2;
+drop package test_package_3;
 

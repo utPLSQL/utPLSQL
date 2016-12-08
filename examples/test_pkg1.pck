@@ -65,13 +65,13 @@ create or replace package body test_pkg1 is
 
   procedure test1 is
   begin
+    ut.expect(g_val1,'1 equals 1 check').to_equal(1);
     ut_assert.are_equal(a_msg => '1 equals 1 check', a_expected => 1, a_actual => g_val1);
   end;
 
   procedure test2 is
   begin
-    --ut_assert.are_equal(a_msg => 'null equals null check', a_expected => to_number(null), a_actual => g_val1);
-    ut_assert.are_equal(a_msg => '2 equals 2 check', a_expected => 2, a_actual => g_val2);
+    ut.expect(g_val2,'2 equals 2 check').to_equal(2);
   end;
 
   procedure global_setup is

@@ -9,4 +9,5 @@
 
 @@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.send_clob.SendsAClobIntoPipe.sql
 
+
 --Global cleanup
