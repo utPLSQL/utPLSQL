@@ -13,11 +13,7 @@ create or replace type body ut_output_dbms_pipe as
     --create an explicit private pipe. Explicitly created pipes need to be removed explicitly
     --otherwise they stay in memmory forever https://docs.oracle.com/cd/B19306_01/appdev.102/b14258/d_pipe.htm#CHDEICJI
     --to check if there are any non-purged pipes execute:  select * from v$db_pipes where pipe_size > 0 order by name desc;
-$if $$ut_pipe_enable $then
     l_flag := dbms_pipe.create_pipe(self.output_id);
-$else
-	null;
-$end
   end;
 
   overriding member procedure send_line(self in out nocopy ut_output_dbms_pipe, a_text varchar2) is
