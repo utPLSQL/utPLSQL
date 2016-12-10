@@ -1,10 +1,10 @@
 create or replace package body ut_suite_manager is
 
-  type tt_schema_suits is table of ut_test_suite index by varchar2(4000 char);
-  type t_schema_cache is record (schema_suites tt_schema_suits, changed_at date);
-  type tt_schena_suits_list is table of t_schema_cache index by varchar2(32 char);
+  type tt_schema_suites is table of ut_test_suite index by varchar2(4000 char);
+  type t_schema_cache is record (schema_suites tt_schema_suites, changed_at date);
+  type tt_schena_suites_list is table of t_schema_cache index by varchar2(32 char);
 
-  g_schema_suites tt_schena_suits_list;
+  g_schema_suites tt_schena_suites_list;
 
   function trim_path(a_path varchar2, a_part varchar2) return varchar2 is
   begin
@@ -174,13 +174,13 @@ create or replace package body ut_suite_manager is
   procedure config_schema(a_owner_name varchar2) is
     l_suite ut_test_suite;
   
-    l_all_suites tt_schema_suits;
+    l_all_suites tt_schema_suites;
     l_ind        varchar2(4000 char);
     l_path       varchar2(4000 char);
     l_root       varchar2(4000 char);
     l_root_suite ut_test_suite;
   
-    l_schema_suites tt_schema_suits;
+    l_schema_suites tt_schema_suites;
     
     l_max_ddl_date date;
   
@@ -306,7 +306,7 @@ create or replace package body ut_suite_manager is
   
   end config_schema;
 
-  function get_schema_suites(a_schema_name in varchar2) return tt_schema_suits is
+  function get_schema_suites(a_schema_name in varchar2) return tt_schema_suites is
   begin
     -- Currently cache invalidation on DDL is not implemented so schema is rescaned each time
     if not g_schema_suites.exists(a_schema_name) 
@@ -338,7 +338,7 @@ create or replace package body ut_suite_manager is
     l_paths           ut_varchar2_list;
     l_path            varchar2(32767);
     l_schema          varchar2(4000);
-    l_schema_suites   tt_schema_suits;
+    l_schema_suites   tt_schema_suites;
     l_index           varchar2(4000 char);
     l_suite           ut_test_suite;
     l_suite_path      varchar2(4000);
