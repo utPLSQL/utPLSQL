@@ -23,10 +23,10 @@ create or replace package demo_expectations is
   -- %test(demo of failure for to_be_null expectation )
   procedure demo_to_be_null_failure;
 
-  -- %test(demo of failure for to_be_null expectation )
+  -- %test(demo of success for to_be_null expectation )
   procedure demo_to_be_null_success;
 
-  -- %test(demo of success for to_be_not_null expectation )
+  -- %test(demo of failure for to_be_not_null expectation )
   procedure demo_to_be_not_null_failure;
 
   -- %test(demo of success for to_be_not_null expectation)

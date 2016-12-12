@@ -4,7 +4,6 @@ set -ev
 
 cd source
 #install core of utplsql
-"$ORACLE_HOME/bin/sqlplus" $UT3_OWNER/$UT3_OWNER_PASSWORD @install.sql
 "$ORACLE_HOME/bin/sqlplus" $UT3_OWNER/$UT3_OWNER_PASSWORD @install_pipe.sql
 
 

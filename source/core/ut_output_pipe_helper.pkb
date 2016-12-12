@@ -225,7 +225,7 @@ create or replace package body ut_output_pipe_helper is
     l_status          integer;
   begin
     l_status := dbms_pipe.remove_pipe(a_output_id);
-  end;
+  end remove_pipe;
 
 end;
 /

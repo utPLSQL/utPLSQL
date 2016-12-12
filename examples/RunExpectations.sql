@@ -7,10 +7,15 @@ set linesize 10000
 set echo off
 --install the example unit test packages
 @@department.tps
+show errors
 @@departments.tps
+show errors
 @@demo_expectations.pck
+show errors
 @@ut_custom_reporter.tps
+show errors
 @@ut_custom_reporter.tpb
+show errors
 
 begin
   ut.run(user, ut_documentation_reporter());

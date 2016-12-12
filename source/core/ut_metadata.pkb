@@ -2,39 +2,6 @@ create or replace package body ut_metadata as
 
   ------------------------------
   --private definitions
-  g_source_view varchar2(32);
-
-  function get_source_view return varchar2 is
-  begin
-    if g_source_view is null then
-      declare
-        l_cursor sys_refcursor;
-        l_object_does_not_exist exception;
-        pragma exception_init (l_object_does_not_exist, -942);
-      begin
-        g_source_view := 'dba_source';
-        open l_cursor for 'select 1 from '||g_source_view ||' where rownum = 1';
-        close l_cursor;
-      exception
-        when l_object_does_not_exist then
-          g_source_view := 'all_source';
-      end;
-    end if;
-    return g_source_view;
-  end;
-
-  function get_package_spec_source_cursor(a_owner varchar2 := null, a_object varchar2 := null) return sys_refcursor is
-    l_cur sys_refcursor;
-    function get_query return varchar2 is
-    begin
-      return 'select t.text from ' || get_source_view() ||
-              ' t where t.owner = :a_owner and t.name = :a_object_name and t.type = ''PACKAGE'' order by t.line';
-    end;
-  begin
-    open l_cur for get_query
-      using a_owner, a_object;
-    return l_cur;
-  end;
 
   ------------------------------
   --public definitions
@@ -53,6 +20,7 @@ create or replace package body ut_metadata as
     l_object_number number;
   begin
     l_name := form_name(a_owner, a_object, a_procedure_name);
+--    dbms_output.put_line('looking for:'||l_name);
 
     dbms_utility.name_resolve(name          => l_name
                              ,context       => l_context
@@ -134,27 +102,42 @@ create or replace package body ut_metadata as
 
 
   function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob is
-    l_txt_tab ut_varchar2_list;
-    l_cur     sys_refcursor;
+    l_source  clob;
+    l_source_lines sys.dbms_preprocessor.source_lines_t;
+
   begin
-    l_cur := get_package_spec_source_cursor(a_owner, a_object_name);
-    fetch l_cur bulk collect into l_txt_tab;
-    close l_cur;
-    return ut_utils.table_to_clob(l_txt_tab);
+    dbms_lob.createtemporary(l_source, true);
+    
+  --    object_type
+  --      Must be one of "PACKAGE", "PACKAGE BODY", "PROCEDURE", "FUNCTION",
+  --      "TYPE", "TYPE BODY", or "TRIGGER".
+  l_source_lines := sys.dbms_preprocessor.get_post_processed_source(
+    OBJECT_TYPE => 'PACKAGE',
+    SCHEMA_NAME => a_owner,
+    OBJECT_NAME => a_object_name
+  );
+
+ for i in 1 .. l_source_lines.count LOOP
+      dbms_lob.writeappend(l_source, length(l_source_lines(i)), l_source_lines(i));
+ END LOOP;
+
+    return l_source;
   end;
 
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
-    l_line varchar2(4000);
+    l_source_lines sys.dbms_preprocessor.source_lines_t;
   begin
-    execute immediate
-      'select text from ' || get_source_view() || q'[
-          where owner = :a_owner and name = :a_object_name and line = :a_line_no
-             -- skip the declarations, consider only definitions
-            and type != 'PACKAGE' ]'
-      into l_line using a_owner, a_object_name, a_line_no;
-    return '"'||ltrim(rtrim( lower( l_line ), chr(10) ))||'"';
+
+  l_source_lines := sys.dbms_preprocessor.get_post_processed_source(
+    OBJECT_TYPE => 'PACKAGE BODY',
+    SCHEMA_NAME => a_owner,
+    OBJECT_NAME => a_object_name
+  );
+    return '"'||ltrim(rtrim( lower( l_source_lines(a_line_no) ), chr(10) ))||'"';
   exception
     when no_data_found then
+      return null;
+    when others then --TODO:replace this with ORA-24234
       return null;
   end;
 

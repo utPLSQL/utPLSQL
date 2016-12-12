@@ -20,6 +20,7 @@ create or replace type body ut_data_value_anydata as
     --check if typename is a schema based object
       l_anydata_accessor :=
         case when self.datavalue.gettype(l_type) = dbms_types.typecode_object then 'getObject' else 'getCollection' end;
+
       execute immediate '
         declare
           l_data '||self.datavalue.gettypename()||';

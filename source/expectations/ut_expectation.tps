@@ -1,4 +1,6 @@
-create or replace type ut_expectation as object
+create or replace type ut_expectation 
+authid current_user
+as object
 (
   actual_data         ut_data_value,
   message             varchar2(4000 char),

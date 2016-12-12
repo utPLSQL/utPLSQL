@@ -3,4 +3,4 @@
 set -ev
 
 cd examples
-"$ORACLE_HOME/bin/sqlplus" $UT3_USER/$UT3_PASSWORD @RunAllExamplesAsTests.sql
+"$ORACLE_HOME/bin/sqlplus" $UT3_OWNER/$UT3_OWNER_PASSWORD @RunAllExamplesAsTests.sql
