@@ -10,8 +10,8 @@ set echo off
 @@ut_custom_reporter.tps
 @@ut_custom_reporter.tpb
 
-begin  
-  ut_suite_manager.run_cur_schema_suites_static(ut_custom_reporter(a_tab_size => 2));
+begin
+  ut.run(user, ut_custom_reporter(a_tab_size => 2));
 end;
 /
 

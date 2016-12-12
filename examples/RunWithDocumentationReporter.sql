@@ -72,7 +72,7 @@ end;
 /
 
 begin
-  ut_suite_manager.run_cur_schema_suites_static(ut_documentation_reporter(), a_force_parse_again => true);
+  ut.run(user, ut_documentation_reporter());
 end;
 /
 

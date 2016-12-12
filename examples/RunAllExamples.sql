@@ -1,3 +1,4 @@
+PROMPT Run all examples
 Clear Screen
 set echo off
 set feedback off
