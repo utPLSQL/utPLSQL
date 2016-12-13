@@ -40,6 +40,7 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.anydata.PutsObjectStrucureIntoAssert.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.cursor.GivesFailureForDifferentValues.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.cursor.GivesSuccessForEqualValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.cursor.ReturnsCursorDataForFailure.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesFailureForDifferentDataTypes.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesFailureForDifferentValues.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesFailureWhenActualIsNull.sql
