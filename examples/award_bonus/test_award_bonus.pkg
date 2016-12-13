@@ -1,0 +1,82 @@
+create or replace package test_award_bonus as
+
+  -- %suite(Award bonus)
+
+  -- %test(Sets new salary as pct commision * sales amount)
+  -- %testsetup(add_test_employee)
+  procedure update_employee_salary;
+
+  -- %test(Raises exception if null bonus is passed)
+  -- %testsetup(add_employee_with_null_comm)
+  procedure fail_on_null_bonus;
+
+  procedure add_test_employee;
+
+  procedure add_employee_with_null_comm;
+
+end;
+/
+
+create or replace package body test_award_bonus as
+
+  gc_test_employee constant integer := -1;
+  gc_salary        constant number  := 4500;
+  gc_commision_pct constant number  := 0.2;
+
+  procedure update_employee_salary is
+    results      sys_refcursor;
+    expected     sys_refcursor;
+    not_affected sys_refcursor;
+    c_sales_amount constant number := 1000;
+  begin
+    --arrange
+    open expected for
+      select (salary + c_sales_amount * gc_commision_pct) as new_salary
+        from employees_test where employee_id = gc_test_employee;
+
+    open not_affected for
+      select * from employees where employee_id <> gc_test_employee;
+
+    --act
+    award_bonus(emp_id => gc_test_employee, sales_amt => c_sales_amount);
+
+    --assert
+    open results  for
+      select salary as new_salary
+        from employees_test where employee_id = gc_test_employee;
+
+    ut.expect( results ).to_( equal( expected ) );
+
+    open results for
+      select * from employees_test where employee_id != gc_test_employee;
+
+    ut.expect( results ).to_( equal( not_affected ) );
+  end;
+
+  procedure fail_on_null_bonus is
+  begin
+    award_bonus(emp_id => gc_test_employee, sales_amt => null);
+    ut.expect( sqlcode ).not_to( equal( 0 ) );
+  exception
+    when others then
+      ut.expect( sqlcode ).not_to( equal( 0 ) );
+  end;
+
+  procedure add_employee( emp_id number, comm_pct number, sal number ) is
+  begin
+    insert into employees_test (employee_id, commission_pct, salary)
+    values (emp_id, comm_pct, sal);
+  end;
+
+  procedure add_test_employee is
+  begin
+    add_employee(gc_test_employee, 0.2, gc_salary);
+  end;
+
+  procedure add_employee_with_null_comm is
+  begin
+    add_employee(gc_test_employee, null, gc_salary);
+  end;
+
+end;
+/
