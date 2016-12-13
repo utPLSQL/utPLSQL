@@ -140,8 +140,8 @@ create or replace type body ut_documentation_reporter is
     self.print_text(
       test_count || ' tests' ||
       case
-        when failed_test_count > 1 then ', '||failed_test_count||' failures'
-        when failed_test_count > 0 then ', '||failed_test_count||' failure'
+        when failed_test_count = 1 then ', '||failed_test_count||' failure'
+        else ', '||failed_test_count||' failures'
       end ||
       case
         when igonred_test_count > 0 then ', '||igonred_test_count||' ignored'
