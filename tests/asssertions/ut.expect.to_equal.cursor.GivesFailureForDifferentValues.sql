@@ -6,8 +6,8 @@ declare
   l_result   integer;
 begin
 --Act
-  open l_actual for select * from user_objects;
-  open l_expected for select * from user_objects where rownum <5;
+  open l_actual for select * from user_objects where rownum <=4;
+  open l_expected for select * from user_objects where rownum <=5;
   ut.expect(l_actual).to_equal(l_expected);
   l_result :=  ut_assert_processor.get_aggregate_asserts_result();
 --Assert
