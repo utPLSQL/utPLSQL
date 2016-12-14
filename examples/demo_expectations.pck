@@ -147,7 +147,7 @@ create or replace package body demo_expectations is
     ut.expect( l_actual_timestamp_tz ).to_( equal( l_expected_timestamp_tz ) );
     ut.expect( l_actual_varchar2 ).to_( equal( l_expected_varchar2 ) );
 
-    open l_actual_cursor for select * from user_objects where rownum <100;
+    open l_actual_cursor for select * from user_objects where rownum <6;
     open l_expected_cursor for select * from user_objects where rownum <5;
 
     ut.expect(l_actual_cursor).to_equal(l_expected_cursor);
@@ -178,7 +178,7 @@ create or replace package body demo_expectations is
     ut.expect( l_timestamp ).to_equal( l_timestamp_tz );
     ut.expect( l_timestamp_ltz ).to_equal( l_date );
     ut.expect( l_varchar2 ).to_equal( l_clob );
-    open l_cursor for select * from user_objects where rownum <100;
+    open l_cursor for select * from user_objects where rownum <5;
     ut.expect( l_cursor ).to_equal( l_varchar2 );
 
     --using the to_( equal( ) ) matcher
@@ -192,7 +192,7 @@ create or replace package body demo_expectations is
     ut.expect( l_timestamp ).to_( equal( l_timestamp_tz ) );
     ut.expect( l_timestamp_ltz ).to_( equal( l_date ) );
     ut.expect( l_varchar2 ).to_( equal( l_clob ) );
-    open l_cursor for select * from user_objects where rownum <100;
+    open l_cursor for select * from user_objects where rownum <5;
     ut.expect( l_varchar2 ).to_( equal( l_cursor ) );
 
   end;
@@ -223,8 +223,8 @@ create or replace package body demo_expectations is
     ut.expect( l_timestamp_ltz ).to_equal( l_timestamp_ltz );
     ut.expect( l_timestamp_tz ).to_equal( l_timestamp_tz );
     ut.expect( l_varchar2 ).to_equal( l_varchar2 );
-    open l_cursor1 for select * from all_objects;
-    open l_cursor2 for select * from all_objects;
+    open l_cursor1 for select * from all_objects where rownum <=50;
+    open l_cursor2 for select * from all_objects where rownum <=50;
     ut.expect( l_cursor1 ).to_equal( l_cursor2 );
 
     --using the to_( equal( ) ) matcher
@@ -239,8 +239,8 @@ create or replace package body demo_expectations is
     ut.expect( l_timestamp_tz ).to_( equal( l_timestamp_tz ) );
     ut.expect( l_varchar2 ).to_( equal( l_varchar2 ) );
 
-    open l_cursor1 for select * from all_objects;
-    open l_cursor2 for select * from all_objects;
+    open l_cursor1 for select * from all_objects where rownum <=50;
+    open l_cursor2 for select * from all_objects where rownum <=50;
     ut.expect( l_cursor1 ).to_( equal( l_cursor2 ) );
   end;
 
@@ -291,7 +291,7 @@ create or replace package body demo_expectations is
     l_timestamp_tz  timestamp with time zone := l_timestamp;
     l_varchar2      varchar2(100) := 'a string';
   begin
-    open l_cursor for select * from user_objects where rownum <100;
+    open l_cursor for select * from user_objects where rownum <5;
     --using the to_be_null() matcher
     ut.expect( l_anydata ).to_be_null();
     ut.expect( l_blob ).to_be_null();
@@ -306,7 +306,7 @@ create or replace package body demo_expectations is
     ut.expect( l_cursor ).to_be_null;
 
     --using the to_( be_null() ) matcher
-    open l_cursor for select * from user_objects where rownum <100;
+    open l_cursor for select * from user_objects where rownum <5;
     ut.expect( l_anydata ).to_( be_null() );
     ut.expect( l_blob ).to_( be_null() );
     ut.expect( l_boolean ).to_( be_null() );
@@ -432,7 +432,7 @@ create or replace package body demo_expectations is
     l_timestamp_tz  timestamp with time zone := sysdate;
     l_varchar2      varchar2(100) := 'a string';
   begin
-    open l_cursor for select * from user_objects where rownum <100;
+    open l_cursor for select * from user_objects where rownum <5;
     --using the to_be_not_null() matcher
     ut.expect( l_anydata ).to_be_not_null();
     ut.expect( l_blob ).to_be_not_null();
@@ -447,7 +447,7 @@ create or replace package body demo_expectations is
     ut.expect( l_cursor ).to_be_not_null;
 
     --using the to_( be_not_null() ) matcher
-    open l_cursor for select * from user_objects where rownum <100;
+    open l_cursor for select * from user_objects where rownum <5;
     ut.expect( l_anydata ).to_( be_not_null() );
     ut.expect( l_blob ).to_( be_not_null() );
     ut.expect( l_boolean ).to_( be_not_null() );
@@ -462,7 +462,7 @@ create or replace package body demo_expectations is
   end;
 
   procedure demo_to_match_failure is
-    l_clob  clob := rpad('a',32767,'a')||'Stephen';
+    l_clob  clob := 'There was a guy named Stephen';
   begin
     ut.expect( 'STEPHEN' ).to_match('^Stephen$');
     ut.expect( 'stephen ' ).to_match('^Stephen$', 'i'); --case insensitive
@@ -479,7 +479,7 @@ create or replace package body demo_expectations is
   end;
 
   procedure demo_to_match_success is
-    l_clob  clob := rpad('a',32767,'a')||'STEPHEN';
+    l_clob  clob := 'There was a guy named STEPHEN';
   begin
     ut.expect( 'Hi, I am Stephen' ).to_match('Stephen$');
     ut.expect( 'stephen' ).to_match('^Stephen$', 'i'); --case insensitive
@@ -492,7 +492,7 @@ create or replace package body demo_expectations is
   end;
 
   procedure demo_to_be_like_failure is
-    l_clob  clob := rpad('a',32767,'a')||'Stephen';
+    l_clob  clob := 'There was a guy named Stephen';
   begin
     ut.expect( 'STEPHEN' ).to_be_like('Stephen');
     ut.expect( 'Stephen ' ).to_be_like('Stephen\_', '\'); --escape wildcards with '\'
@@ -509,7 +509,7 @@ create or replace package body demo_expectations is
   end;
 
   procedure demo_to_be_like_success is
-    l_clob  clob := rpad('a',32767,'a')||'STEPHEN_';
+    l_clob  clob := 'There was a guy named STEPHEN_';
   begin
     ut.expect( 'Hi, I am Stephen' ).to_be_like('%Stephen');
     ut.expect( 'stephen_' ).to_be_like('_tephen\_', '\'); --escape wildcards with '\'

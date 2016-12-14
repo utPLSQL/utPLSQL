@@ -21,9 +21,12 @@ prompt RunExampleTestAnnotationsHugePackage
 @@RunExampleTestAnnotationsHugePackage.sql
 prompt RunExpectations
 @@RunExpectations.sql
-prompt RunWithDocumentationReporter
+
 @@RunWithDocumentationReporter.sql
 
+--workaround for suite level cache
+declare d date := sysdate; begin loop exit when d != sysdate; end loop; end;
+/
 @@award_bonus/run_award_bonus_test.sql
 --workaround for suite level cache
 declare d date := sysdate; begin loop exit when d != sysdate; end loop; end;
