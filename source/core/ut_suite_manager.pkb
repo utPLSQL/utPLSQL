@@ -312,7 +312,7 @@ create or replace package body ut_suite_manager is
   begin
     -- Currently cache invalidation on DDL is not implemented so schema is rescaned each time
     if not g_schema_suites.exists(a_schema_name)
-      or g_schema_suites(a_schema_name).changed_at < get_schema_max_ddl(a_schema_name) then
+      or g_schema_suites(a_schema_name).changed_at <= get_schema_max_ddl(a_schema_name) then
       ut_utils.debug_log('Rescanning schema ' || a_schema_name);
       config_schema(a_schema_name);
     end if;
