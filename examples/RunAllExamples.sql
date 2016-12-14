@@ -23,3 +23,13 @@ prompt RunExpectations
 @@RunExpectations.sql
 prompt RunWithDocumentationReporter
 @@RunWithDocumentationReporter.sql
+
+@@award_bonus/run_award_bonus_test.sql
+--workaround for suite level cache
+declare d date := sysdate; begin loop exit when d != sysdate; end loop; end;
+/
+@@between_string/run_betwnstr_test.sql
+--workaround for suite level cache
+declare d date := sysdate; begin loop exit when d != sysdate; end loop; end;
+/
+@@remove_rooms_by_name/run_remove_rooms_by_name_test.sql

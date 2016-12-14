@@ -35,7 +35,7 @@ create or replace package body test_award_bonus as
         from employees_test where employee_id = gc_test_employee;
 
     open not_affected for
-      select * from employees where employee_id <> gc_test_employee;
+      select * from employees_test where employee_id <> gc_test_employee;
 
     --act
     award_bonus(emp_id => gc_test_employee, sales_amt => c_sales_amount);
