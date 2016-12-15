@@ -50,8 +50,7 @@ create or replace type body ut_test_suite is
   
     if self.ignore_flag = 1 then
       self.result := ut_utils.tr_ignore;
-    elsif self.is_valid() then
-    
+    else
       if self.rollback_type = ut_utils.gc_rollback_auto then
         l_savepoint := ut_utils.gen_savepoint_name;
         execute immediate 'savepoint ' || l_savepoint;
@@ -84,8 +83,6 @@ create or replace type body ut_test_suite is
       if self.rollback_type = ut_utils.gc_rollback_auto then
         execute immediate 'rollback to ' || l_savepoint;
       end if;
-    else
-      self.result := ut_utils.tr_error;
     end if;
   
     self.end_time := current_timestamp;
