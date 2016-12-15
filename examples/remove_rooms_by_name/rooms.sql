@@ -6,7 +6,6 @@ create table rooms (
 create table room_contents (
   contents_key number primary key,
   room_key number,
-  name varchar2(100)
+  name varchar2(100),
+  constraint fk_rooms foreign key (room_key) references rooms (room_key)
 );
-
-alter table room_contents add constraint fk_rooms foreign key (room_key) references rooms (room_key);
