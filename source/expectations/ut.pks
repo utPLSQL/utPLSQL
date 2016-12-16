@@ -22,5 +22,9 @@ create or replace package ut authid current_user as
 
   function expect(a_actual in varchar2, a_message varchar2 := null) return ut_expectation_varchar2;
 
+  function expect(a_actual in yminterval_unconstrained, a_message varchar2 := null) return ut_expectation_yminterval;
+
+  function expect(a_actual in dsinterval_unconstrained, a_message varchar2 := null) return ut_expectation_dsinterval;
+
 end ut;
 /

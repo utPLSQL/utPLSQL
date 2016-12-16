@@ -54,6 +54,16 @@ create or replace package body ut is
   begin
     return ut_expectation_refcursor(ut_data_value_refcursor(a_actual), a_message);
   end;
-
+  
+  function expect(a_actual in yminterval_unconstrained, a_message varchar2 := null) return ut_expectation_yminterval is
+  begin
+    return ut_expectation_yminterval(ut_data_value_yminterval(a_actual), a_message);
+  end;
+    
+  function expect(a_actual in dsinterval_unconstrained, a_message varchar2 := null) return ut_expectation_dsinterval is
+  begin
+    return ut_expectation_dsinterval(ut_data_value_dsinterval(a_actual), a_message);
+  end;
+  
 end ut;
 /

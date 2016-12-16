@@ -1,4 +1,4 @@
-create or replace type ut_expectation as object
+create or replace type ut_expectation force as object
 (
   actual_data         ut_data_value,
   message             varchar2(4000 char),
@@ -15,6 +15,8 @@ create or replace type ut_expectation as object
   member procedure to_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected varchar2, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null),
   final member procedure to_(self in ut_expectation, a_matcher ut_matcher),
   final member procedure not_to(self in ut_expectation, a_matcher ut_matcher),
   final member procedure to_be_null(self in ut_expectation),

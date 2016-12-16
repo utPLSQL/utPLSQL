@@ -152,6 +152,11 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigVarchar2.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 
+@@lib/RunTest.sql ut_expectations/greater_or_equal.sql
+@@lib/RunTest.sql ut_expectations/greater_than.sql
+@@lib/RunTest.sql ut_expectations/less_or_equal.sql
+@@lib/RunTest.sql ut_expectations/less_than.sql
+
 --Global cleanup
 drop package ut_example_tests;
 drop procedure check_annotation_parsing;

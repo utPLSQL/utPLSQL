@@ -80,6 +80,18 @@ create or replace type body ut_expectation as
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected varchar2, a_nulls_are_equal boolean := null)');
     self.to_( equal(a_expected) );
   end;
+  
+  member procedure to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null) is
+  begin
+    ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null)');
+    self.to_( equal(a_expected) );
+  end;
+  
+  member procedure to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null) is
+  begin
+    ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null)');
+    self.to_( equal(a_expected) );
+  end;    
 
   final member procedure to_(self in ut_expectation, a_matcher ut_matcher) is
     l_assert_result boolean;
