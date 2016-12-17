@@ -54,5 +54,13 @@ create or replace package ut_metadata authid definer as
   */
   function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob;
 
+
+  /*
+    function: get_source_definition_line
+
+    return the text of the souce line for a given object, excludes package spec
+  */
+  function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2;
+
 end ut_metadata;
 /

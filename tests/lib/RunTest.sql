@@ -1,7 +1,6 @@
 var test_result number
 exec :test_result := null;
 
-prompt
 prompt Executing test: &1
 --exec dbms_output.put_line(lpad('-',60,'-'));
 exec :test_start_time := dbms_utility.get_time;
@@ -26,3 +25,5 @@ begin
   ut_assert_processor.clear_asserts;
 end;
 /
+
+prompt

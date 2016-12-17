@@ -1,0 +1,96 @@
+create or replace package test_remove_rooms_by_name as
+
+  -- %suite(Remove rooms by name)
+
+  -- %suitesetup
+  procedure setup_rooms;
+
+  -- %test(Removes a room without content in it)
+  procedure remove_empty_room;
+
+  -- %test(Does not remove room when it has content)
+  procedure room_with_content;
+
+  -- %test(Raises exception when null room name given)
+  procedure null_room_name;
+
+end;
+/
+
+create or replace package body test_remove_rooms_by_name as
+
+  procedure setup_rooms is
+  begin
+    insert all
+      into rooms values(1, 'Dining Room')
+      into rooms values(2, 'Living Room')
+      into rooms values(3, 'Office')
+      into rooms values(4, 'Bathroom')
+      into rooms values(5, 'Bedroom')
+    select 1 from dual;
+
+    insert all
+      into room_contents values(1, 1, 'Table')
+      into room_contents values(2, 1, 'Hutch')
+      into room_contents values(3, 1, 'Chair')
+      into room_contents values(4, 2, 'Sofa')
+      into room_contents values(5, 2, 'Lamp')
+      into room_contents values(6, 3, 'Desk')
+      into room_contents values(7, 3, 'Chair')
+      into room_contents values(8, 3, 'Computer')
+      into room_contents values(9, 3, 'Whiteboard')
+    select 1 from dual;
+  end;
+
+  procedure remove_empty_room is
+    l_rooms_not_named_b sys_refcursor;
+    l_remaining_rooms   sys_refcursor;
+  begin
+    open l_rooms_not_named_b for select * from rooms where name not like 'B%';
+
+    remove_rooms_by_name('B%');
+
+    open l_remaining_rooms for select * from rooms;
+    ut.expect( l_remaining_rooms ).to_(equal(l_rooms_not_named_b));
+  end;
+
+  procedure room_with_content is
+    l_rooms           sys_refcursor;
+    l_remaining_rooms sys_refcursor;
+  begin
+    open l_rooms for select * from rooms;
+
+    begin
+      remove_rooms_by_name('Living Room');
+      ut.expect( sqlcode ).to_( equal(-2292) );
+    exception
+      when others then
+        ut.expect( sqlcode ).to_( equal(-2292) );
+    end;
+
+    open l_remaining_rooms for select * from rooms;
+
+    ut.expect( l_remaining_rooms ).to_( equal( l_rooms ) );
+  end;
+
+  procedure null_room_name is
+    l_rooms           sys_refcursor;
+    l_remaining_rooms sys_refcursor;
+  begin
+    open l_rooms for select * from rooms;
+
+    begin
+      remove_rooms_by_name(NULL);
+      ut.expect( sqlcode ).to_( equal(-6501) );
+    exception
+      when others then
+        ut.expect( sqlcode ).to_( equal(-6501) );
+    end;
+
+    open l_remaining_rooms for select * from rooms;
+
+    ut.expect( l_remaining_rooms ).to_( equal( l_rooms ) );
+  end;
+
+end;
+/

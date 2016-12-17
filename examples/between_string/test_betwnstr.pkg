@@ -1,0 +1,43 @@
+create or replace package test_betwnstr as
+
+  -- %suite(Between string function)
+
+  -- %test(Returns substring from start position to end position)
+  procedure normal_case;
+
+  -- %test(Returns substring when start position is zero)
+  procedure zero_start_position;
+
+  -- %test(Returns string until end if end position is greated than string length)
+  procedure big_end_position;
+
+  -- %test(Returns null for null inlut srting value)
+  procedure null_string;
+end;
+/
+
+create or replace package body test_betwnstr as
+
+  procedure normal_case is
+  begin
+    ut.expect( betwnstr( '1234567', 2, 5 ) ).to_( equal('2345') );
+  end;
+
+  procedure zero_start_position is
+  begin
+    ut.expect( betwnstr( '1234567', 0, 5 ) ).to_( equal('12345') );
+  end;
+
+
+  procedure big_end_position is
+  begin
+    ut.expect( betwnstr( '1234567', 0, 500 ) ).to_( equal('1234567') );
+  end;
+
+  procedure null_string is
+  begin
+    ut.expect( betwnstr( null, 2, 5 ) ).to_( be_null );
+  end;
+
+end;
+/

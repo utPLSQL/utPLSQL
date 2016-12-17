@@ -1,11 +1,16 @@
 create or replace type body ut_test is
 
-  constructor function ut_test(self in out nocopy ut_test,a_object_name varchar2, a_test_procedure varchar2, a_test_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null, a_rollback_type integer default null)
+  constructor function ut_test(self in out nocopy ut_test,a_object_name varchar2,a_object_path varchar2 default null, a_test_procedure varchar2, a_test_name in varchar2 default null, a_owner_name varchar2 default null, a_setup_procedure varchar2 default null, a_teardown_procedure varchar2 default null, a_rollback_type integer default null)
     return self as result is
   begin
-    self.name        := a_test_name;
+    
+    self.init(a_desc_name     => a_test_name
+             ,a_object_name   => a_test_procedure
+             ,a_object_type   => 1
+             ,a_object_path   => a_object_path
+             ,a_rollback_type => a_rollback_type);
+
     self.object_type := 1;
-    self.object_name := lower(trim(a_test_procedure));
     self.test        := ut_executable(object_name    => trim(a_object_name)
                                      ,procedure_name => trim(a_test_procedure)
                                      ,owner_name     => trim(a_owner_name));
@@ -22,12 +27,6 @@ create or replace type body ut_test is
                                     ,owner_name     => trim(a_owner_name));
     end if;
 
-    if a_rollback_type is not null then
-      ut_utils.validate_rollback_type(a_rollback_type);
-      self.rollback_type := a_rollback_type;
-    else
-      self.rollback_type := ut_utils.gc_rollback_auto;
-    end if;
     return;
   end ut_test;
 
@@ -37,16 +36,25 @@ create or replace type body ut_test is
                                                                                    teardown.is_valid('teardown'));
   end is_valid;
 
-  overriding member procedure do_execute(self in out nocopy ut_test, a_reporter ut_reporter) is
-    l_reporter ut_reporter := a_reporter;
+  overriding member procedure do_execute(self in out nocopy ut_test, a_reporter in out nocopy ut_reporter) is
+    l_savepoint       varchar2(30);
+    l_errors_raised   boolean := false;
+    l_error_stack     varchar2(32767);
+    l_error_backtrace varchar2(32767);
+
+    function process_errors_from_call( a_error_stack varchar2, a_error_backtrace varchar2) return boolean is
+      l_errors_stack_trace varchar2(32767) := rtrim(a_error_stack||a_error_backtrace, chr(10));
+    begin
+      if l_errors_stack_trace is not null then
+        ut_utils.debug_log('test method failed- ' ||l_errors_stack_trace );
+        ut_assert_processor.report_error( l_errors_stack_trace );
+        return true;
+      else
+        return false;
+      end if;
+    end;
   begin
-    l_reporter := do_execute(l_reporter);
-  end;
-  overriding member function do_execute(self in out nocopy ut_test, a_reporter ut_reporter) return ut_reporter is
-    l_reporter ut_reporter := a_reporter;
-    l_savepoint varchar2(30);
-  begin
-    l_reporter.before_test(self);
+    a_reporter.before_test(self);
 
     if self.rollback_type = ut_utils.gc_rollback_auto then
       l_savepoint := ut_utils.gen_savepoint_name;
@@ -57,50 +65,32 @@ create or replace type body ut_test is
 
     self.start_time := current_timestamp;
     
-    if nvl(self.ignore_flag,0) != 1 then
-      begin
+    if self.get_ignore_flag() = false then
+      if self.is_valid() then
 
-        if self.is_valid() then
+        if self.setup is not null then
+          a_reporter.before_test_setup(self);
+          self.setup.do_execute(l_error_stack, l_error_backtrace);
+          l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );
+          a_reporter.after_test_setup(self);
+        end if;
 
-          if self.setup is not null then
-            l_reporter.before_test_setup(self);
-            self.setup.do_execute;
-            l_reporter.after_test_setup(self);
-          end if;
-
-          l_reporter.before_test_execute(self);
-          begin
-            self.test.do_execute;
-          exception
-            when others then
-              -- dbms_utility.format_error_backtrace is 10g or later
-              -- utl_call_stack package may be better but it's 12c but still need to investigate
-              -- article with details: http://www.oracle.com/technetwork/issue-archive/2014/14-jan/o14plsql-2045346.html
-              ut_utils.debug_log('testmethod failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-
-              ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-          end;
-          l_reporter.after_test_execute(self);
+        if not l_errors_raised then
+          a_reporter.before_test_execute(self);
+          self.test.do_execute(l_error_stack, l_error_backtrace);
+          l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );
+          a_reporter.after_test_execute(self);
 
           if self.teardown is not null then
-            l_reporter.before_test_teardown(self);
-            self.teardown.do_execute;
-            l_reporter.after_test_teardown(self);
+            a_reporter.before_test_teardown(self);
+            self.teardown.do_execute(l_error_stack, l_error_backtrace);
+            l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );
+            a_reporter.after_test_teardown(self);
           end if;
 
         end if;
 
-      exception
-        when others then
-          if sqlcode = -04068 then
-            --raise on ORA-04068: existing state of packages has been discarded to avoid unrecoverable session exception
-            raise;
-          end if;
-          ut_utils.debug_log('ut_test.execute failed-' || sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-          -- most likely occured in setup or teardown if here.
-          ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_stack);
-          ut_assert_processor.report_error(sqlerrm(sqlcode) || ' ' || dbms_utility.format_error_backtrace);
-      end;
+      end if;
 
       if self.rollback_type = ut_utils.gc_rollback_auto then
         execute immediate 'rollback to ' || l_savepoint;
@@ -108,31 +98,23 @@ create or replace type body ut_test is
 
       self.end_time := current_timestamp;
 
-      l_reporter.before_asserts_process(self);
+      a_reporter.before_asserts_process(self);
       self.items := ut_assert_processor.get_asserts_results();
 
       self.calc_execution_result;
 
       for i in 1 .. self.items.count loop
-        l_reporter.on_assert_process(treat(self.items(i) as ut_assert_result));
+        a_reporter.on_assert_process(treat(self.items(i) as ut_assert_result));
       end loop;
 
-      l_reporter.after_asserts_process(self);
+      a_reporter.after_asserts_process(self);
     else
       self.end_time := current_timestamp;
       self.result := ut_utils.tr_ignore;
     end if;
   
-    l_reporter.after_test(self);
-
-    return l_reporter;
+    a_reporter.after_test(self);
   end;
-
-  overriding member procedure do_execute(self in out nocopy ut_test) is
-    l_null_reporter ut_reporter := ut_reporter();
-  begin
-    self.do_execute(l_null_reporter);
-  end do_execute;
 
 end;
 /

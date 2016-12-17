@@ -1,3 +1,4 @@
+PROMPT Run all examples
 Clear Screen
 set echo off
 set feedback off
@@ -20,3 +21,9 @@ prompt RunExampleTestAnnotationsHugePackage
 @@RunExampleTestAnnotationsHugePackage.sql
 prompt RunExpectations
 @@RunExpectations.sql
+
+@@RunWithDocumentationReporter.sql
+
+@@award_bonus/run_award_bonus_test.sql
+@@between_string/run_betwnstr_test.sql
+@@remove_rooms_by_name/run_remove_rooms_by_name_test.sql

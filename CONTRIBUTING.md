@@ -15,7 +15,8 @@ Changes are welcome from all members of the Community.
      * Create a new branch for your change. 
      * Make your change in your new branch. 
          * Although changes can be made in the master branch, it easier long term if a new branch is used.
-     * **Verify code compiles and unit tests still pass.** 
+     * Make sure your change is covered with unit tests and/or is represented in examples
+     * **Verify code compiles and all existing and new unit tests pass.**
          * The quickest way to have a Pull Request not be accepted, is to submit code that does not compile or pass tests.
      * Commit change to your local repository.
      * Push change to your remote repository

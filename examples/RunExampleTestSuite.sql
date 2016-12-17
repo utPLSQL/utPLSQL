@@ -16,7 +16,7 @@ declare
   test_item     ut_test;
 	assert ut_assert_result;
 begin
-  suite := ut_test_suite(a_suite_name => 'Test Suite Name' /*,a_items => ut_test_objects_list()*/);
+  suite := ut_test_suite(a_suite_name => 'Test Suite Name', a_object_name => 'ut_exampletest' /*,a_items => ut_test_objects_list()*/);
 
   testtoexecute := ut_test(a_object_name        => 'ut_exampletest'
                           ,a_test_procedure     => 'ut_exAmpletest'

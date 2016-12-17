@@ -15,6 +15,9 @@ set serveroutput on size unlimited format truncated
 create table ut$test_table (val varchar2(1));
 @@helpers/ut_transaction_control.pck
 @@helpers/department.tps
+@@helpers/test_package_3.pck
+@@helpers/test_package_1.pck
+@@helpers/test_package_2.pck
 
 --Tests to invoke
 
@@ -37,6 +40,7 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.anydata.PutsObjectStrucureIntoAssert.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.cursor.GivesFailureForDifferentValues.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.cursor.GivesSuccessForEqualValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_equal.cursor.ReturnsCursorDataForFailure.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesFailureForDifferentDataTypes.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesFailureForDifferentValues.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesFailureWhenActualIsNull.sql
@@ -49,6 +53,13 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.PutsNullIntoStringValueWhenActualIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.PutsNullIntoStringValueWhenExpectedIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_equal.with_text.GivesTheProvidedTextAsMessage.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureForDifferentValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesTrueForCorrectValues.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.with_text.GivesTheProvidedTextAsMessage.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureWhenActualIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureWhenBothActualAndExpectedRangeIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureWhenExpectedRangeIsNull.sql
+@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesSuccessWhenDifferentTypes.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_match.sql
 @@lib/RunTest.sql asssertions/ut_assert_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
@@ -151,6 +162,29 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigNumber.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigVarchar2.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
+@@ut_utils/ut_utils.clob_to_table.sql
+
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheSchema.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByName.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByName.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByName.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageProcedureByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPath.sql
+
+@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.close.TimesOutAfterAGivenPeriodOfTimeAndRemovesPipe.sql
+@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_clob_lines.ReturnsSentLines.sql
+@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_lines.ReturnsSentLines.sql
+@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_lines.TimesOutAfterAGivenPeriodOfTime.sql
+@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.open.CreatesAPrivatePipe.sql
+@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.send_clob.SendsAClobIntoPipe.sql
+
+@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_clob_lines.ReturnsSentLines.sql
+@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.RetunrsNoRowsWhenNoDataInBuffer.sql
+@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.ReturnsSentLines.sql
+@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.send_clob.SendsAClobIntoPipe.sql
 
 @@lib/RunTest.sql ut_expectations/greater_or_equal.sql
 @@lib/RunTest.sql ut_expectations/greater_than.sql
@@ -163,6 +197,9 @@ drop procedure check_annotation_parsing;
 drop package ut_transaction_control;
 drop table ut$test_table;
 drop type department$;
+drop package test_package_1;
+drop package test_package_2;
+drop package test_package_3;
 
 --Finally
 @@lib/RunSummary
