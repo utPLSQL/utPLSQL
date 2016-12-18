@@ -5,6 +5,11 @@ create or replace package body ut is
     ut_suite_manager.run(a_path, a_reporter);
   end;
 
+  procedure run(a_paths in ut_varchar2_list, a_reporter in ut_reporter) is
+  begin
+    ut_suite_manager.run(a_paths, a_reporter);
+  end;
+
   function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_anydata is
   begin
     return ut_expectation_anydata(ut_data_value_anydata(a_actual), a_message);
