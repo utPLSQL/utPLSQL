@@ -43,6 +43,9 @@ whenever oserror exit failure rollback
 --suite manager
 @@core/ut_suite_manager.pks
 @@core/ut_suite_manager.pkb
+--test runner
+@@core/ut_runner.pks
+@@core/ut_runner.pkb
 
 --assertios execution state interface
 @@core/ut_assert_processor.pks

@@ -1,3 +1,8 @@
+alter session set plsql_optimize_level=1;
+--we need to use plsql optimize level=1 to prevent
+-- Oracle from changing the for loop to bulk collect into
+-- The row-by-row approach is needed to get the visible progress ot unit tests outputs
+--  as the tests get executed.
 create or replace type body ut_output_stream as
 
   overriding final member procedure close(self in out nocopy ut_output_stream) is
@@ -23,3 +28,5 @@ create or replace type body ut_output_stream as
 
 end;
 /
+--going back to the "default" level 2?
+alter session set plsql_optimize_level=2;
