@@ -1,8 +1,14 @@
+prompt Uninstalling utplsql framework
+
+drop package ut_teamcity_reporter_helper;
+
 drop package ut_suite_manager;
 
 drop package ut_assert;
 
 drop package ut;
+
+drop type ut_expectation_yminterval;
 
 drop type ut_expectation_varchar2;
 
@@ -15,6 +21,8 @@ drop type ut_expectation_timestamp;
 drop type ut_expectation_refcursor;
 
 drop type ut_expectation_number;
+
+drop type ut_expectation_dsinterval;
 
 drop type ut_expectation_date;
 
@@ -32,6 +40,8 @@ drop package ut_assert_processor;
 
 drop type match;
 
+drop type be_between;
+
 drop type equal;
 
 drop type be_true;
@@ -42,9 +52,19 @@ drop type be_not_null;
 
 drop type be_like;
 
+drop type be_greater_or_equal;
+
+drop type be_greater_than;
+
+drop type be_less_or_equal;
+
+drop type be_less_than;
+
 drop type be_false;
 
 drop type ut_matcher;
+
+drop type ut_data_value_yminterval;
 
 drop type ut_data_value_varchar2;
 
@@ -57,6 +77,8 @@ drop type ut_data_value_timestamp;
 drop type ut_data_value_number;
 
 drop type ut_data_value_refcursor;
+
+drop type ut_data_value_dsinterval;
 
 drop type ut_data_value_date;
 
@@ -76,9 +98,9 @@ drop package ut_metadata;
 
 drop package ut_utils;
 
-drop type ut_dbms_output_suite_reporter;
+drop type ut_documentation_reporter;
 
-drop type ut_reporter_decorator;
+drop type ut_teamcity_reporter;
 
 drop type ut_test_suite;
 
@@ -92,6 +114,16 @@ drop type ut_reporters_list;
 
 drop type ut_reporter force;
 
+drop type ut_output_dbms_pipe;
+
+drop package ut_output_pipe_helper;
+
+drop type ut_output_stream;
+
+drop type ut_output_dbms_output;
+
+drop type ut_output;
+
 drop type ut_assert_list;
 
 drop type ut_assert_result;
@@ -103,3 +135,7 @@ drop type ut_composite_object;
 drop type ut_objects_list;
 
 drop type ut_object;
+
+drop type ut_varchar2_list;
+
+drop type ut_clob_list;

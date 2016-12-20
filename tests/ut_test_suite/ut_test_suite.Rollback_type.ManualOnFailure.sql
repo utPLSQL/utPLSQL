@@ -23,9 +23,7 @@ begin
   ut_assert_processor.clear_asserts;
 
 --Assert  
-  --even if the manual mode is used and the feilure occurred all the changes in the test procedure are rollbacked by DB
-  --http://asktom.oracle.com/pls/apex/f?p=100:12:0::NO::P12_ORIG,P12_PREV_PAGE,P12_QUESTION_ID:Y,1,9532007800346890501
-  ut_assert.this(ut_transaction_control.count_rows('t')=0);
+  ut_assert.this(ut_transaction_control.count_rows('t')>0);
   ut_assert.this(ut_transaction_control.count_rows('s')>0);
 
   if ut_assert_processor.get_aggregate_asserts_result = ut_utils.tr_success then

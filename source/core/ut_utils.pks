@@ -6,30 +6,37 @@ create or replace package ut_utils authid definer is
   
   */
 
-  /* Constants: Test Results
-    tr_success - test passed
-    tr_failure - one or more asserts failed
-    tr_error   - exception was raised
-  */
-  tr_ignore  constant number(1) := 0; -- test/suite was ignored
-  tr_success constant number(1) := 1; -- test passed
-  tr_failure constant number(1) := 2; -- one or more asserts failed
-  tr_error   constant number(1) := 3; -- exception was raised
+  /* Constants: Test Results */
+  tr_skip                    constant number(1) := -1; -- silent skip without reporting. internal use
+  tr_ignore                  constant number(1) := 0; -- test/suite was ignored
+  tr_success                 constant number(1) := 1; -- test passed
+  tr_failure                 constant number(1) := 2; -- one or more asserts failed
+  tr_error                   constant number(1) := 3; -- exception was raised
 
-  tr_ignore_char  constant varchar2(6) := 'Ignore'; -- test/suite was ignored
-  tr_success_char constant varchar2(7) := 'Success'; -- test passed
-  tr_failure_char constant varchar2(7) := 'Failure'; -- one or more asserts failed
-  tr_error_char   constant varchar2(5) := 'Error'; -- exception was raised
+  tr_ignore_char             constant varchar2(6) := 'Ignore'; -- test/suite was ignored
+  tr_success_char            constant varchar2(7) := 'Success'; -- test passed
+  tr_failure_char            constant varchar2(7) := 'Failure'; -- one or more asserts failed
+  tr_error_char              constant varchar2(5) := 'Error'; -- exception was raised
 
   /*
     Constants: Rollback type for ut_test_object
   */
-  gc_rollback_auto   constant number(1) := 0; -- rollback after each test and suite
-  gc_rollback_manual constant number(1) := 1; -- leave transaction control manual
+  gc_rollback_auto           constant number(1) := 0; -- rollback after each test and suite
+  gc_rollback_manual         constant number(1) := 1; -- leave transaction control manual
   --gc_rollback_on_error       constant number(1) := 2; -- rollback tests only on error
 
-  ex_unsopported_rollback_type exception;
-  pragma exception_init(ex_unsopported_rollback_type, -20200);
+  ex_unsupported_rollback_type exception;
+  gc_unsupported_rollback_type constant pls_integer := -20200;
+  pragma exception_init(ex_unsupported_rollback_type, -20200);
+
+  ex_path_list_is_empty exception;
+  gc_path_list_is_empty constant pls_integer := -20201;
+  pragma exception_init(ex_path_list_is_empty, -20201);
+
+  ex_invalid_path_format exception;
+  gc_invalid_path_format constant pls_integer := -20202;
+  pragma exception_init(ex_invalid_path_format, -20202);
+
 
   gc_max_output_string_length constant integer := 4000;
   gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
@@ -87,10 +94,57 @@ create or replace package ut_utils authid definer is
 
   /*
    Procedure: validate_rollback_type
-  
+
    Validates passed value against supported rollback types
   */
   procedure validate_rollback_type(a_rollback_type number);
+
+
+  /*
+   Function: string_to_table
+
+     Parameters:
+          a_string - the text to be split.
+          a_delimiter - the delimiter character or string
+          a_skip_leading_delimiter - determines if the leading delimiter should be ignored, used by clob_to_table
+
+     Returns:
+        ut_varchar2_list - table of string
+
+   Splits a given string into table of string by delimiter.
+   The delimiter gets removed.
+   If null passed as any of the parameters, empty table is returned.
+   If no occurence of a_delimiter found in a_text then text is returned as a single row of the table.
+   If no text between delimiters found then an empty row is returned, example:
+     string_to_table( 'a,,b', ',' ) gives table ut_varchar2_list( 'a', null, 'b' );
+  */
+  function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_varchar2_list;
+
+  /*
+   Function: clob_to_table
+
+     Parameters:
+          a_clob - the text to be split.
+          a_delimiter - the delimiter character or string (default chr(10) )
+          a_max_amount - the maximum length of returned string (default 32767)
+
+     Returns:
+        ut_varchar2_list - table of string
+
+   Splits a given string into table of string by delimiter.
+   The delimiter gets removed.
+   If null passed as any of the parameters, empty table is returned.
+   If split text is longer than a_max_amount it gets split into pieces of a_max_amount.
+   If no text between delimiters found then an empty row is returned, example:
+     string_to_table( 'a,,b', ',' ) gives table ut_varchar2_list( 'a', null, 'b' );
+  */
+  function clob_to_table(a_clob clob, a_max_amount integer := 32767, a_delimiter varchar2:= chr(10)) return ut_varchar2_list;
+
+  function table_to_clob(a_text_table ut_varchar2_list) return clob;
+
+  function time_diff(a_start_time timestamp with time zone, a_end_time timestamp with time zone) return number;
+
+  function indent_lines(a_text varchar2, a_indent_size integer) return varchar2;
 
 end ut_utils;
 /

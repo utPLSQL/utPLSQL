@@ -14,8 +14,9 @@ PROMPT Runs test report using composite reporter
 declare
   suite         ut_test_suite;
   testtoexecute ut_test;
+  reporter      ut_reporter;
 begin
-  suite := ut_test_suite(a_suite_name => 'Test Suite Name' /*,a_items => ut_test_objects_list()*/);
+  suite := ut_test_suite(a_suite_name => 'Test Suite Name', a_object_name => 'ut_exampletest' /*,a_items => ut_test_objects_list()*/);
 
   testtoexecute := ut_test(a_object_name        => 'ut_exampletest'
                           ,a_test_procedure     => 'ut_exAmpletest'
@@ -32,7 +33,8 @@ begin
   suite.add_item(testtoexecute);
 
   -- provide a reporter to process results
-  suite.do_execute(ut_composite_reporter(ut_reporters_list(ut_dbms_output_suite_reporter)));
+  reporter := ut_composite_reporter(ut_reporters_list(ut_documentation_reporter, ut_teamcity_reporter));
+  suite.do_execute(reporter);
 end;
 /
 
