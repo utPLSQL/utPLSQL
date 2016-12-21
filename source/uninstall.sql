@@ -10,6 +10,8 @@ drop package ut_assert;
 
 drop package ut;
 
+drop type ut_expectation_yminterval;
+
 drop type ut_expectation_varchar2;
 
 drop type ut_expectation_timestamp_tz;
@@ -21,6 +23,8 @@ drop type ut_expectation_timestamp;
 drop type ut_expectation_refcursor;
 
 drop type ut_expectation_number;
+
+drop type ut_expectation_dsinterval;
 
 drop type ut_expectation_date;
 
@@ -50,9 +54,19 @@ drop type be_not_null;
 
 drop type be_like;
 
+drop type be_greater_or_equal;
+
+drop type be_greater_than;
+
+drop type be_less_or_equal;
+
+drop type be_less_than;
+
 drop type be_false;
 
 drop type ut_matcher;
+
+drop type ut_data_value_yminterval;
 
 drop type ut_data_value_varchar2;
 
@@ -65,6 +79,8 @@ drop type ut_data_value_timestamp;
 drop type ut_data_value_number;
 
 drop type ut_data_value_refcursor;
+
+drop type ut_data_value_dsinterval;
 
 drop type ut_data_value_date;
 

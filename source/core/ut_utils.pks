@@ -28,7 +28,7 @@ create or replace package ut_utils authid definer is
   ex_unsupported_rollback_type exception;
   gc_unsupported_rollback_type constant pls_integer := -20200;
   pragma exception_init(ex_unsupported_rollback_type, -20200);
-  
+
   ex_path_list_is_empty exception;
   gc_path_list_is_empty constant pls_integer := -20201;
   pragma exception_init(ex_path_list_is_empty, -20201);
@@ -36,7 +36,7 @@ create or replace package ut_utils authid definer is
   ex_invalid_path_format exception;
   gc_invalid_path_format constant pls_integer := -20202;
   pragma exception_init(ex_invalid_path_format, -20202);
-  
+
 
   gc_max_output_string_length constant integer := 4000;
   gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
@@ -83,6 +83,10 @@ create or replace package ut_utils authid definer is
   function to_string(a_value timestamp_tz_unconstrained) return varchar2;
 
   function to_string(a_value timestamp_ltz_unconstrained) return varchar2;
+
+  function to_string(a_value yminterval_unconstrained) return varchar2;
+
+  function to_string(a_value dsinterval_unconstrained) return varchar2;
 
   function boolean_to_int(a_value boolean) return integer;
 

@@ -78,7 +78,19 @@ create or replace type body equal as
     init(ut_data_value_varchar2(a_expected), a_nulls_are_equal);
     return;
   end;
-
+  
+  constructor function equal(self in out nocopy equal, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null) return self as result is
+  begin
+    init(ut_data_value_yminterval(a_expected), a_nulls_are_equal);
+    return;  
+  end;
+  
+  constructor function equal(self in out nocopy equal, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null) return self as result is
+  begin
+    init(ut_data_value_dsinterval(a_expected), a_nulls_are_equal);
+    return;  
+  end;
+  
   overriding member function run_matcher(self in out nocopy equal, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
@@ -167,6 +179,20 @@ create or replace type body equal as
       declare
         l_expected ut_data_value_varchar2 := treat(self.expected as ut_data_value_varchar2);
         l_actual   ut_data_value_varchar2 := treat(a_actual as ut_data_value_varchar2);
+      begin
+        l_result := equal_with_nulls((l_expected.datavalue = l_actual.datavalue), a_actual);
+      end;
+    elsif self.expected is of (ut_data_value_yminterval) and a_actual is of (ut_data_value_yminterval) then
+      declare
+        l_expected ut_data_value_yminterval := treat(self.expected as ut_data_value_yminterval);
+        l_actual   ut_data_value_yminterval := treat(a_actual as ut_data_value_yminterval);
+      begin
+        l_result := equal_with_nulls((l_expected.datavalue = l_actual.datavalue), a_actual);
+      end;
+    elsif self.expected is of (ut_data_value_dsinterval) and a_actual is of (ut_data_value_dsinterval) then
+      declare
+        l_expected ut_data_value_dsinterval := treat(self.expected as ut_data_value_dsinterval);
+        l_actual   ut_data_value_dsinterval := treat(a_actual as ut_data_value_dsinterval);
       begin
         l_result := equal_with_nulls((l_expected.datavalue = l_actual.datavalue), a_actual);
       end;

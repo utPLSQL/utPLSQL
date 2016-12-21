@@ -74,14 +74,20 @@ whenever oserror exit failure rollback
 @@expectations/data_values/ut_data_value_boolean.tps
 @@expectations/data_values/ut_data_value_clob.tps
 @@expectations/data_values/ut_data_value_date.tps
+@@expectations/data_values/ut_data_value_dsinterval.tps
 @@expectations/data_values/ut_data_value_number.tps
 @@expectations/data_values/ut_data_value_refcursor.tps
 @@expectations/data_values/ut_data_value_timestamp.tps
 @@expectations/data_values/ut_data_value_timestamp_tz.tps
 @@expectations/data_values/ut_data_value_timestamp_ltz.tps
 @@expectations/data_values/ut_data_value_varchar2.tps
+@@expectations/data_values/ut_data_value_yminterval.tps
 @@expectations/matchers/ut_matcher.tps
 @@expectations/matchers/be_false.tps
+@@expectations/matchers/be_greater_or_equal.tps
+@@expectations/matchers/be_greater_than.tps
+@@expectations/matchers/be_less_or_equal.tps
+@@expectations/matchers/be_less_than.tps
 @@expectations/matchers/be_like.tps
 @@expectations/matchers/be_not_null.tps
 @@expectations/matchers/be_null.tps
@@ -95,25 +101,33 @@ whenever oserror exit failure rollback
 @@expectations/ut_expectation_boolean.tps
 @@expectations/ut_expectation_clob.tps
 @@expectations/ut_expectation_date.tps
+@@expectations/ut_expectation_dsinterval.tps
 @@expectations/ut_expectation_number.tps
 @@expectations/ut_expectation_refcursor.tps
 @@expectations/ut_expectation_timestamp.tps
 @@expectations/ut_expectation_timestamp_ltz.tps
 @@expectations/ut_expectation_timestamp_tz.tps
 @@expectations/ut_expectation_varchar2.tps
+@@expectations/ut_expectation_yminterval.tps
 @@expectations/data_values/ut_data_value_anydata.tpb
 @@expectations/data_values/ut_data_value_blob.tpb
 @@expectations/data_values/ut_data_value_boolean.tpb
 @@expectations/data_values/ut_data_value_clob.tpb
 @@expectations/data_values/ut_data_value_date.tpb
+@@expectations/data_values/ut_data_value_dsinterval.tpb
 @@expectations/data_values/ut_data_value_number.tpb
 @@expectations/data_values/ut_data_value_refcursor.tpb
 @@expectations/data_values/ut_data_value_timestamp.tpb
 @@expectations/data_values/ut_data_value_timestamp_tz.tpb
 @@expectations/data_values/ut_data_value_timestamp_ltz.tpb
 @@expectations/data_values/ut_data_value_varchar2.tpb
+@@expectations/data_values/ut_data_value_yminterval.tpb
 @@expectations/matchers/ut_matcher.tpb
 @@expectations/matchers/be_false.tpb
+@@expectations/matchers/be_greater_or_equal.tpb
+@@expectations/matchers/be_greater_than.tpb
+@@expectations/matchers/be_less_or_equal.tpb
+@@expectations/matchers/be_less_than.tpb
 @@expectations/matchers/be_like.tpb
 @@expectations/matchers/be_not_null.tpb
 @@expectations/matchers/be_null.tpb
@@ -127,14 +141,16 @@ whenever oserror exit failure rollback
 @@expectations/ut_expectation_boolean.tpb
 @@expectations/ut_expectation_clob.tpb
 @@expectations/ut_expectation_date.tpb
+@@expectations/ut_expectation_dsinterval.tpb
 @@expectations/ut_expectation_number.tpb
 @@expectations/ut_expectation_refcursor.tpb
 @@expectations/ut_expectation_timestamp.tpb
 @@expectations/ut_expectation_timestamp_ltz.tpb
 @@expectations/ut_expectation_timestamp_tz.tpb
 @@expectations/ut_expectation_varchar2.tpb
+@@expectations/ut_expectation_yminterval.tpb
 
---expecatations interface
+--expectations interface
 @@expectations/ut.pks
 @@expectations/ut.pkb
 

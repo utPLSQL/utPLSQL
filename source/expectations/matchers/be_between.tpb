@@ -44,6 +44,20 @@ create or replace type body be_between is
     init(ut_data_value_timestamp_ltz(a_lower_bound), ut_data_value_timestamp_ltz(a_upper_bound));
     return;
   end;
+  
+  constructor function be_between(self in out nocopy be_between, a_lower_bound yminterval_unconstrained, a_upper_bound yminterval_unconstrained)
+    return self as result is   
+  begin
+    init(ut_data_value_yminterval(a_lower_bound), ut_data_value_yminterval(a_upper_bound));
+    return;  
+  end;
+
+  constructor function be_between(self in out nocopy be_between, a_lower_bound dsinterval_unconstrained, a_upper_bound dsinterval_unconstrained)
+    return self as result is   
+  begin
+    init(ut_data_value_dsinterval(a_lower_bound), ut_data_value_dsinterval(a_upper_bound));
+    return;   
+  end;  
 
   overriding member function run_matcher(self in out nocopy be_between, a_actual ut_data_value) return boolean is
     l_result boolean;
@@ -93,6 +107,22 @@ create or replace type body be_between is
         l_lower  ut_data_value_timestamp_ltz := treat(self.lower_bound as ut_data_value_timestamp_ltz);
         l_upper  ut_data_value_timestamp_ltz := treat(self.upper_bound as ut_data_value_timestamp_ltz);
         l_actual ut_data_value_timestamp_ltz := treat(a_actual as ut_data_value_timestamp_ltz);
+      begin
+        l_result := l_actual.datavalue between l_lower.datavalue and l_upper.datavalue;
+      end;
+    elsif self.lower_bound is of(ut_data_value_yminterval) and self.upper_bound is of(ut_data_value_yminterval) and a_actual is of(ut_data_value_yminterval) then
+      declare
+        l_lower  ut_data_value_yminterval := treat(self.lower_bound as ut_data_value_yminterval);
+        l_upper  ut_data_value_yminterval := treat(self.upper_bound as ut_data_value_yminterval);
+        l_actual ut_data_value_yminterval := treat(a_actual as ut_data_value_yminterval);
+      begin
+        l_result := l_actual.datavalue between l_lower.datavalue and l_upper.datavalue;
+      end;
+    elsif self.lower_bound is of(ut_data_value_dsinterval) and self.upper_bound is of(ut_data_value_dsinterval) and a_actual is of(ut_data_value_dsinterval) then
+      declare
+        l_lower  ut_data_value_dsinterval := treat(self.lower_bound as ut_data_value_dsinterval);
+        l_upper  ut_data_value_dsinterval := treat(self.upper_bound as ut_data_value_dsinterval);
+        l_actual ut_data_value_dsinterval := treat(a_actual as ut_data_value_dsinterval);
       begin
         l_result := l_actual.datavalue between l_lower.datavalue and l_upper.datavalue;
       end;

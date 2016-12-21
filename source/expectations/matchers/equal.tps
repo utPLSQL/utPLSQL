@@ -13,6 +13,8 @@ create or replace type equal under ut_matcher(
   constructor function equal(self in out nocopy equal, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null) return self as result,
   constructor function equal(self in out nocopy equal, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null) return self as result,
   constructor function equal(self in out nocopy equal, a_expected varchar2, a_nulls_are_equal boolean := null) return self as result,
+  constructor function equal(self in out nocopy equal, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null) return self as result,
+  constructor function equal(self in out nocopy equal, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null) return self as result,
   overriding member function run_matcher(self in out nocopy equal, a_actual ut_data_value) return boolean
 )
 /
