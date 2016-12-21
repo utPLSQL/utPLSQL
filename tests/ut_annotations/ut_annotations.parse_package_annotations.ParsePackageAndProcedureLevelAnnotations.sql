@@ -28,7 +28,8 @@ END;';
   l_ann_param.val := 'all.globaltests';  
   l_expected.package_annotations('suitepackage')(1) := l_ann_param;
   
-  l_expected.procedure_annotations('foo')('test') := cast( null as ut_annotations.tt_annotation_params);
+  l_expected.procedure_annotations(1).name := 'foo';
+  l_expected.procedure_annotations(1).annotations('test') := cast( null as ut_annotations.tt_annotation_params);
   
   check_annotation_parsing(l_expected, l_parsing_result);
   

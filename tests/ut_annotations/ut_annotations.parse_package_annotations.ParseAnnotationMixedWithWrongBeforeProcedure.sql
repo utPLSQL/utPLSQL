@@ -32,7 +32,8 @@ END;';
   
   l_ann_param := null;
   l_ann_param.val := 'some_value';  
-  l_expected.procedure_annotations('foo')('ann2')(1) := l_ann_param;
+  l_expected.procedure_annotations(1).name :='foo';
+  l_expected.procedure_annotations(1).annotations('ann2')(1) := l_ann_param;
   
   check_annotation_parsing(l_expected, l_parsing_result);
   
