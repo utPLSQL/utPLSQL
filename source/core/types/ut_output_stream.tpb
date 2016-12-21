@@ -27,4 +27,4 @@ end;
 -- Oracle from changing the for loop to bulk collect into
 -- The row-by-row approach is needed to get the visible progress ot unit tests outputs
 --  as the tests get executed.
-alter type body ut_output_stream compile plsql_optimize_level = 1;
+alter type ut_output_stream compile body plsql_optimize_level = 1;
