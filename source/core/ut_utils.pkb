@@ -114,6 +114,16 @@ create or replace package body ut_utils is
   begin
     return coalesce(to_char(a_value,gc_timestamp_format), gc_null_string);
   end;
+  
+  function to_string(a_value yminterval_unconstrained) return varchar2 IS
+  begin
+    return coalesce(to_char(a_value), gc_null_string);
+  end;
+
+  function to_string(a_value dsinterval_unconstrained) return varchar2 IS 
+  begin
+    return coalesce(to_char(a_value), gc_null_string);
+  end;
 
 
   function boolean_to_int(a_value boolean) return integer is

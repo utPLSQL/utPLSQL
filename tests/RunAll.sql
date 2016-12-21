@@ -186,6 +186,18 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.ReturnsSentLines.sql
 @@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.send_clob.SendsAClobIntoPipe.sql
 
+@@lib/RunTest.sql ut_expectations/greater_or_equal.sql
+@@lib/RunTest.sql ut_expectations/greater_than.sql
+@@lib/RunTest.sql ut_expectations/less_or_equal.sql
+@@lib/RunTest.sql ut_expectations/less_than.sql
+@@lib/RunTest.sql ut_expectations/be_between.sql
+@@lib/RunTest.sql ut_expectations/timestamp_between.sql
+@@lib/RunTest.sql ut_expectations/timestamp_ltz_between.sql
+@@lib/RunTest.sql ut_expectations/timestamp_ltz_not_between.sql
+@@lib/RunTest.sql ut_expectations/timestamp_not_between.sql
+@@lib/RunTest.sql ut_expectations/timestamp_tz_between.sql
+@@lib/RunTest.sql ut_expectations/timestamp_tz_not_between.sql
+
 --Global cleanup
 drop package ut_example_tests;
 drop procedure check_annotation_parsing;
