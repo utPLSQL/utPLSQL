@@ -1,8 +1,8 @@
 --Arrange
 declare
-  l_value timestamp := to_timestamp('1997-01-31 09:26:50.13','YYYY-MM-DD HH24.MI.SSXFF');
-  l_value_lower timestamp := to_timestamp('1997-01-31 09:26:50.11','YYYY-MM-DD HH24.MI.SSXFF');
-  l_value_upper timestamp := to_timestamp('1997-01-31 09:26:50.12','YYYY-MM-DD HH24.MI.SSXFF');
+  l_value timestamp := to_timestamp('1997-01-31 09:26:50.13','YYYY-MM-DD HH24.MI.SS.FF');
+  l_value_lower timestamp := to_timestamp('1997-01-31 09:26:50.11','YYYY-MM-DD HH24.MI.SS.FF');
+  l_value_upper timestamp := to_timestamp('1997-01-31 09:26:50.12','YYYY-MM-DD HH24.MI.SS.FF');
 
   l_result integer;
   l_asserts_results ut_objects_list;
