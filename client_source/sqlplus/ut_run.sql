@@ -5,7 +5,7 @@
   Current limit of script parameters is 39
 
 Scrip invocation:
-  ut_run_sqlplus.sql user password database [ut_path|ut_paths] (-f=format [-o=output] [-s] ...)
+  ut_run.sql user password database [ut_path|ut_paths] (-f=format [-o=output] [-s] ...)
 
 Parameters:
   user     - username to connect as
