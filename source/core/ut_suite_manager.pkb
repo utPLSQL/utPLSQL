@@ -465,7 +465,7 @@ create or replace package body ut_suite_manager is
       for i in 1 .. l_objects_to_run.count loop
 
         ut_running_suite := treat(l_objects_to_run(i) as ut_test_suite);
-        ut_running_suite.do_execute(l_reporter);
+        ut_running_suite.do_execute(l_reporter, null);
         l_objects_to_run(i) := ut_running_suite;
 
       end loop;

@@ -10,7 +10,7 @@ create or replace type ut_test_object force under ut_composite_object
   
   member procedure init(self in out nocopy ut_test_object, a_desc_name varchar2, a_object_name varchar2, a_object_type integer, a_object_path varchar2 default null, a_rollback_type integer default null),
   
-  not instantiable member procedure do_execute(self in out nocopy ut_test_object, a_reporter in out nocopy ut_reporter),
+  not instantiable member procedure do_execute(self in out nocopy ut_test_object, a_reporter in out nocopy ut_reporter, a_parent_err_msg varchar2),
   final member procedure do_execute(self in out nocopy ut_test_object),
 
   member procedure set_ignore_flag(self in out nocopy ut_test_object, a_ignore_flag boolean),

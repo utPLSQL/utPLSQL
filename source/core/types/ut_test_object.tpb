@@ -41,7 +41,7 @@ create or replace type body ut_test_object is
   final member procedure do_execute(self in out nocopy ut_test_object) is
     l_null_reporter ut_reporter := ut_reporter();
   begin
-    self.do_execute(l_null_reporter);
+    self.do_execute(l_null_reporter, null);
   end;
 
 
