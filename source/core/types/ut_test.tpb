@@ -36,7 +36,7 @@ create or replace type body ut_test is
                                                                                    teardown.is_valid('teardown'));
   end is_valid;
 
-  overriding member procedure do_execute(self in out nocopy ut_test, a_reporter in out nocopy ut_reporter, a_parent_err_msg varchar2) is
+  overriding member procedure do_execute(self in out nocopy ut_test, a_reporter in out nocopy ut_reporter, a_parent_err_msg varchar2 default null) is
     l_savepoint       varchar2(30);
     l_errors_raised   boolean := false;
     l_error_stack     varchar2(32767);

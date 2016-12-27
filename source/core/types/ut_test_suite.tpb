@@ -38,7 +38,7 @@ create or replace type body ut_test_suite is
     return l_is_valid;
   end is_valid;
 
-  overriding member procedure do_execute(self in out nocopy ut_test_suite, a_reporter in out nocopy ut_reporter, a_parent_err_msg varchar2) is
+  overriding member procedure do_execute(self in out nocopy ut_test_suite, a_reporter in out nocopy ut_reporter, a_parent_err_msg varchar2 default null) is
     l_test_object     ut_test_object;
     l_savepoint       varchar2(30);
     l_errors_raised   boolean;
