@@ -36,7 +36,7 @@ create or replace type body ut_test is
                                                                                    teardown.is_valid('teardown'));
   end is_valid;
 
-  overriding member procedure do_execute(self in out nocopy ut_test, a_reporter in out nocopy ut_reporter) is
+  overriding member procedure do_execute(self in out nocopy ut_test, a_reporter in out nocopy ut_reporter, a_parent_err_msg varchar2 default null) is
     l_savepoint       varchar2(30);
     l_errors_raised   boolean := false;
     l_error_stack     varchar2(32767);
@@ -68,7 +68,7 @@ create or replace type body ut_test is
     if self.get_ignore_flag() = false then
       if self.is_valid() then
 
-        if self.setup is not null then
+        if self.setup is not null and a_parent_err_msg is null then
           a_reporter.before_test_setup(self);
           self.setup.do_execute(l_error_stack, l_error_backtrace);
           l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );
@@ -77,11 +77,15 @@ create or replace type body ut_test is
 
         if not l_errors_raised then
           a_reporter.before_test_execute(self);
-          self.test.do_execute(l_error_stack, l_error_backtrace);
-          l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );
+          if a_parent_err_msg is null then
+            self.test.do_execute(l_error_stack, l_error_backtrace);
+            l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );
+          else
+            ut_assert_processor.report_error(a_parent_err_msg);
+          end if;
           a_reporter.after_test_execute(self);
 
-          if self.teardown is not null then
+          if self.teardown is not null and a_parent_err_msg is null then
             a_reporter.before_test_teardown(self);
             self.teardown.do_execute(l_error_stack, l_error_backtrace);
             l_errors_raised := process_errors_from_call( l_error_stack, l_error_backtrace );

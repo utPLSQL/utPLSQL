@@ -14,6 +14,7 @@ set serveroutput on size unlimited format truncated
 --@@helpers/cre_tab_ut_test_table.sql
 create table ut$test_table (val varchar2(1));
 @@helpers/ut_transaction_control.pck
+@@helpers/ut_fail_suite.pck
 @@helpers/department.tps
 @@helpers/test_package_3.pck
 @@helpers/test_package_1.pck
@@ -141,6 +142,7 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.AutoOnFailure.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Manual.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.ManualOnFailure.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.FailInSuiteSetup.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithInvalidValues.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithNullValue.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.Success.sql
@@ -202,6 +204,7 @@ create table ut$test_table (val varchar2(1));
 drop package ut_example_tests;
 drop procedure check_annotation_parsing;
 drop package ut_transaction_control;
+drop package ut_fail_suite;
 drop table ut$test_table;
 drop type department$;
 drop package test_package_1;

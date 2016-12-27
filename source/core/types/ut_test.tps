@@ -9,7 +9,7 @@ create or replace type ut_test force under ut_test_object
 
   member function is_valid return boolean,
 
-  overriding member procedure do_execute(self in out nocopy ut_test, a_reporter in out nocopy ut_reporter)
+  overriding member procedure do_execute(self in out nocopy ut_test, a_reporter in out nocopy ut_reporter, a_parent_err_msg varchar2 default null)
 )
 not final
 /

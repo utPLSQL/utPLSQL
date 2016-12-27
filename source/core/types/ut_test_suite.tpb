@@ -1,16 +1,16 @@
 create or replace type body ut_test_suite is
 
-  constructor function ut_test_suite (self in out nocopy ut_test_suite, a_suite_name varchar2, a_object_name varchar2, a_object_path varchar2 default null, a_items ut_objects_list default ut_objects_list(), a_rollback_type number default null) 
+  constructor function ut_test_suite(self in out nocopy ut_test_suite, a_suite_name varchar2, a_object_name varchar2, a_object_path varchar2 default null, a_items ut_objects_list default ut_objects_list(), a_rollback_type number default null)
     return self as result is
   begin
-    
+  
     self.init(a_desc_name     => a_suite_name
              ,a_object_name   => a_object_name
              ,a_object_type   => 2
              ,a_object_path   => a_object_path
              ,a_rollback_type => a_rollback_type);
-             
-    self.items       := a_items;
+  
+    self.items := a_items;
   
     return;
   end ut_test_suite;
@@ -38,9 +38,24 @@ create or replace type body ut_test_suite is
     return l_is_valid;
   end is_valid;
 
-  overriding member procedure do_execute(self in out nocopy ut_test_suite, a_reporter in out nocopy ut_reporter) is
-    l_test_object ut_test_object;
-    l_savepoint   varchar2(30);
+  overriding member procedure do_execute(self in out nocopy ut_test_suite, a_reporter in out nocopy ut_reporter, a_parent_err_msg varchar2 default null) is
+    l_test_object     ut_test_object;
+    l_savepoint       varchar2(30);
+    l_errors_raised   boolean;
+    l_errors_stack_trace varchar2(32767);
+    l_error_stack     varchar2(32767);
+    l_error_backtrace varchar2(32767);
+    function process_errors_from_call( a_error_stack varchar2, a_error_backtrace varchar2) return boolean is
+      l_errors_stack_trace varchar2(32767) := rtrim(a_error_stack||a_error_backtrace, chr(10));
+    begin
+      if l_errors_stack_trace is not null then
+        ut_utils.debug_log('test method failed- ' ||l_errors_stack_trace );
+        ut_assert_processor.report_error( l_errors_stack_trace );
+        return true;
+      else
+        return false;
+      end if;
+    end;
   begin
     a_reporter.before_suite(self);
   
@@ -56,25 +71,28 @@ create or replace type body ut_test_suite is
         execute immediate 'savepoint ' || l_savepoint;
       end if;
     
-      if self.setup is not null then
+      if self.setup is not null and a_parent_err_msg is null then
         a_reporter.before_suite_setup(self);
-        self.setup.do_execute;
+        self.setup.do_execute(l_error_stack, l_error_backtrace);
+        if l_error_stack is not null then
+          l_errors_stack_trace := 'Suite '||self.object_path||' setup failed.'||chr(10)|| rtrim(l_error_stack||l_error_backtrace, chr(10));
+        end if;
         a_reporter.after_suite_setup(self);
       end if;
     
       for i in self.items.first .. self.items.last loop
         a_reporter.before_suite_item(a_suite => self, a_item_index => i);
-      
+        
         l_test_object := treat(self.items(i) as ut_test_object);
-        l_test_object.do_execute(a_reporter => a_reporter);
+        l_test_object.do_execute(a_reporter => a_reporter, a_parent_err_msg => nvl(l_errors_stack_trace, a_parent_err_msg));
         self.items(i) := l_test_object;
-      
+        
         a_reporter.after_suite_item(a_suite => self, a_item_index => i);
       end loop;
-    
-      if self.teardown is not null then
+      
+      if self.teardown is not null and a_parent_err_msg is null then
         a_reporter.before_suite_teardown(self);
-        self.teardown.do_execute;
+        self.teardown.do_execute();
         a_reporter.after_suite_teardown(self);
       end if;
     

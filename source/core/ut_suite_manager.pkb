@@ -14,7 +14,7 @@ create or replace package body ut_suite_manager is
   function get_schema_max_ddl(a_owner_name varchar2) return date is
     l_date date;
   begin
-    select nvl(max(t.LAST_DDL_TIME), date'4999-12-31') 
+    select nvl(max(t.LAST_DDL_TIME), date'4999-12-31')
       into l_date
       from all_objects t
      where t.owner = a_owner_name
@@ -170,7 +170,7 @@ create or replace package body ut_suite_manager is
     return l_suite;
 
   end config_package;
-  
+
   procedure actualize_cache(a_owner_name varchar2, a_schema_suites tt_schema_suites) is
   begin
     if a_schema_suites.count > 0 then
@@ -317,7 +317,12 @@ create or replace package body ut_suite_manager is
       config_schema(a_schema_name);
     end if;
 
-    return g_schema_suites(a_schema_name).schema_suites;
+    begin
+      return g_schema_suites(a_schema_name).schema_suites;
+    exception
+      when no_data_found then
+        raise_application_error(-20203, 'Schema '||a_schema_name||' doesn''t have any suites');
+    end;
   end get_schema_suites;
 
   -- Validate all paths are correctly formatted
