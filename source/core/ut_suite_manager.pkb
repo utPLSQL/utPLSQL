@@ -123,7 +123,7 @@ create or replace package body ut_suite_manager is
             l_setup_procedure     varchar2(30 char);
             l_teardown_procedure  varchar2(30 char);
             l_rollback_annotation varchar2(4000);
-            l_rollback_type       integer := ut_utils.gc_rollback_auto;
+            l_rollback_type       integer := l_suite_rollback;
           begin
             if l_proc_annotations.exists('testsetup') then
               l_setup_procedure := ut_annotations.get_annotation_param(l_proc_annotations('testsetup'), 1);
