@@ -15,6 +15,8 @@ create or replace package ut authid current_user as
   */
   procedure run(a_path in varchar2, a_reporter in ut_reporter);
 
+  procedure run(a_paths in ut_varchar2_list, a_reporter in ut_reporter);
+
   function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_anydata;
 
   function expect(a_actual in blob, a_message varchar2 := null) return ut_expectation_blob;

@@ -137,8 +137,8 @@ create or replace package body ut_output_pipe_helper is
   procedure buffer_and_send(a_output_id t_output_id, a_message_type integer, a_text t_pipe_item:= null) is
     l_is_successful boolean;
   begin
-      buffer(a_output_id, a_message_type, a_text);
-      l_is_successful := send_from_buffer(a_output_id);
+    buffer(a_output_id, a_message_type, a_text);
+    l_is_successful := send_from_buffer(a_output_id);
   end;
   ---public
 

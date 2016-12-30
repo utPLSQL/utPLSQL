@@ -148,6 +148,7 @@ create or replace type body ut_documentation_reporter is
       end
     );
     self.print_text(' ');
+    (self as ut_reporter).after_run(a_suites);
   end;
 
 end;

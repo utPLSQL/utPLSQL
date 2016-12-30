@@ -2,6 +2,8 @@ prompt Uninstalling utplsql framework
 
 drop package ut_teamcity_reporter_helper;
 
+drop package ut_runner;
+
 drop package ut_suite_manager;
 
 drop package ut_assert;
