@@ -45,13 +45,18 @@ END;';
   l_ann_param.val := 'all.globaltests';  
   l_expected.package_annotations('suitepackage')(1) := l_ann_param;
   
-  l_expected.procedure_annotations('foo')('test') := cast( null as ut_annotations.tt_annotation_params);
-  l_expected.procedure_annotations('foo2')('setup') := cast( null as ut_annotations.tt_annotation_params);
+  l_expected.procedure_annotations(1).name := 'foo';
+  l_expected.procedure_annotations(1).annotations('test') := cast( null as ut_annotations.tt_annotation_params);
+  
+  l_expected.procedure_annotations(2).name := 'foo2';
+  l_expected.procedure_annotations(2).annotations('setup') := cast( null as ut_annotations.tt_annotation_params);
   
   l_ann_param := null;
   l_ann_param.key := 'key'; 
-  l_ann_param.val := 'testval'; 
-  l_expected.procedure_annotations('foo3')('setup')(1) := l_ann_param;
+  l_ann_param.val := 'testval';
+  
+  l_expected.procedure_annotations(3).name := 'foo3';
+  l_expected.procedure_annotations(3).annotations('setup')(1) := l_ann_param;
   
   check_annotation_parsing(l_expected, l_parsing_result);
   

@@ -146,12 +146,13 @@ create or replace package body ut_annotations as
       end;
   end;
 
-  function get_procedure_annotations(a_source clob, a_comments tt_comment_list) return tt_procedure_annotations is
+  function get_procedure_list(a_source clob, a_comments tt_comment_list) return tt_procedure_list is
     l_proc_comments         varchar2(32767);
     l_proc_name             t_annotation_name;
     l_annot_proc_ind        number;
     l_annot_proc_block      varchar2(32767);
     l_procedure_annotations tt_procedure_annotations;
+    l_procedure_list        tt_procedure_list;
   begin
     -- loop through procedures and functions of the package and get all the comment blocks just before it's declaration
     l_annot_proc_ind := 1;
@@ -183,7 +184,10 @@ create or replace package body ut_annotations as
                                            ,subexpression => 5));
 
       -- parse the comment block for the syntactically correct annotations and store them as an array
-      l_procedure_annotations(l_proc_name) := get_annotations(l_proc_comments, a_comments);
+      l_procedure_annotations.name := l_proc_name;
+      l_procedure_annotations.annotations := get_annotations(l_proc_comments, a_comments);
+      
+      l_procedure_list(l_procedure_list.count+1) := l_procedure_annotations;
 
       --l_annot_proc_ind := l_annot_proc_ind + length(l_annot_proc_block);
       l_annot_proc_ind := regexp_instr(srcstr     => a_source
@@ -191,7 +195,7 @@ create or replace package body ut_annotations as
                                       ,occurrence => 1
                                       ,position   => l_annot_proc_ind + length(l_annot_proc_block));
     end loop;
-    return l_procedure_annotations;
+    return l_procedure_list;
   end;
 
   function extract_and_replace_comments(a_source in out nocopy clob) return tt_comment_list is
@@ -307,7 +311,7 @@ create or replace package body ut_annotations as
 
     l_annotated_pkg.package_annotations  := get_package_annotations(l_source, l_comments);
 
-    l_annotated_pkg.procedure_annotations := get_procedure_annotations(l_source, l_comments);
+    l_annotated_pkg.procedure_annotations := get_procedure_list(l_source, l_comments);
 
     -- printing out parsed structure for debugging
     $if $$ut_trace $then

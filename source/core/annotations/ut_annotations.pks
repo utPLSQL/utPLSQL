@@ -39,7 +39,9 @@ create or replace package ut_annotations authid definer as
     type: tt_procedure_annotations
     a list of tt_annotations index by the procedure name
   */
-  type tt_procedure_annotations is table of tt_annotations index by t_procedure_name;
+  type tt_procedure_annotations is record(name t_procedure_name, annotations tt_annotations);
+  
+  type tt_procedure_list is table of tt_procedure_annotations index by pls_integer;
 
   /*
     type: typ_annotated_package
@@ -47,7 +49,7 @@ create or replace package ut_annotations authid definer as
 
   */
   type typ_annotated_package is record(
-     procedure_annotations  tt_procedure_annotations
+     procedure_annotations  tt_procedure_list
     ,package_annotations    tt_annotations);
     
   /*

@@ -1,7 +1,9 @@
 create or replace package body ut_suite_manager is
 
   type tt_schema_suites is table of ut_test_suite index by varchar2(4000 char);
-  type t_schema_cache is record (schema_suites tt_schema_suites, changed_at date);
+  type t_schema_cache is record(
+     schema_suites tt_schema_suites
+    ,changed_at    date);
   type tt_schena_suites_list is table of t_schema_cache index by varchar2(32 char);
 
   g_schema_suites tt_schena_suites_list;
@@ -14,7 +16,7 @@ create or replace package body ut_suite_manager is
   function get_schema_max_ddl(a_owner_name varchar2) return date is
     l_date date;
   begin
-    select nvl(max(t.LAST_DDL_TIME), date'4999-12-31') 
+    select nvl(max(t.last_ddl_time), date '4999-12-31')
       into l_date
       from all_objects t
      where t.owner = a_owner_name
@@ -84,10 +86,10 @@ create or replace package body ut_suite_manager is
         l_suite.set_ignore_flag(true);
       end if;
 
-      l_proc_name := l_annotation_data.procedure_annotations.first;
-      while (l_default_setup_proc is null or l_default_teardown_proc is null or l_suite_setup_proc is null or
-            l_suite_teardown_proc is null) and l_proc_name is not null loop
-        l_proc_annotations := l_annotation_data.procedure_annotations(l_proc_name);
+      for i in 1 .. l_annotation_data.procedure_annotations.count loop
+        exit when l_default_setup_proc is not null and l_default_teardown_proc is not null and l_suite_setup_proc is not null and l_suite_teardown_proc is not null;
+        l_proc_name        := l_annotation_data.procedure_annotations(i).name;
+        l_proc_annotations := l_annotation_data.procedure_annotations(i).annotations;
 
         if l_proc_annotations.exists('setup') and l_default_setup_proc is null then
           l_default_setup_proc := l_proc_name;
@@ -99,7 +101,6 @@ create or replace package body ut_suite_manager is
           l_suite_teardown_proc := l_proc_name;
         end if;
 
-        l_proc_name := l_annotation_data.procedure_annotations.next(l_proc_name);
       end loop;
 
       if l_suite_setup_proc is not null then
@@ -114,16 +115,15 @@ create or replace package body ut_suite_manager is
                                   ,a_owner_name  => l_owner_name);
       end if;
 
-      l_proc_name := l_annotation_data.procedure_annotations.first;
-      while l_proc_name is not null loop
-
-        l_proc_annotations := l_annotation_data.procedure_annotations(l_proc_name);
+      for i in 1 .. l_annotation_data.procedure_annotations.count loop
+        l_proc_name        := l_annotation_data.procedure_annotations(i).name;
+        l_proc_annotations := l_annotation_data.procedure_annotations(i).annotations;
         if l_proc_annotations.exists('test') then
           declare
             l_setup_procedure     varchar2(30 char);
             l_teardown_procedure  varchar2(30 char);
             l_rollback_annotation varchar2(4000);
-            l_rollback_type       integer := ut_utils.gc_rollback_auto;
+            l_rollback_type       integer := l_suite_rollback;
           begin
             if l_proc_annotations.exists('testsetup') then
               l_setup_procedure := ut_annotations.get_annotation_param(l_proc_annotations('testsetup'), 1);
@@ -164,13 +164,12 @@ create or replace package body ut_suite_manager is
           end;
         end if;
 
-        l_proc_name := l_annotation_data.procedure_annotations.next(l_proc_name);
       end loop;
     end if;
     return l_suite;
 
   end config_package;
-  
+
   procedure actualize_cache(a_owner_name varchar2, a_schema_suites tt_schema_suites) is
   begin
     if a_schema_suites.count > 0 then
@@ -194,22 +193,20 @@ create or replace package body ut_suite_manager is
 
     procedure put(a_root_suite in out nocopy ut_test_suite, a_path varchar2, a_suite ut_test_suite, a_parent_path varchar2 default null) is
       l_temp_root varchar2(4000 char);
-      l_path varchar2(4000 char);
+      l_path      varchar2(4000 char);
       l_cur_item  ut_test_suite;
       l_ind       pls_integer;
     begin
       if a_path like '%.%' then
         l_temp_root := regexp_substr(a_path, '^[^.]+');
-        l_path := ltrim(a_parent_path||'.'||l_temp_root,'.');
+        l_path      := ltrim(a_parent_path || '.' || l_temp_root, '.');
 
         if a_root_suite is not null then
 
           l_ind := a_root_suite.item_index(l_temp_root);
 
           if l_ind is null then
-            l_cur_item := ut_test_suite(a_suite_name  => null
-                                       ,a_object_name => l_temp_root
-                                       ,a_object_path => l_path);
+            l_cur_item := ut_test_suite(a_suite_name => null, a_object_name => l_temp_root, a_object_path => l_path);
           else
             l_cur_item := treat(a_root_suite.items(l_ind) as ut_test_suite);
           end if;
@@ -223,9 +220,7 @@ create or replace package body ut_suite_manager is
           end if;
 
         else
-          a_root_suite := ut_test_suite(a_suite_name  => null
-                                       ,a_object_name => l_temp_root
-                                       ,a_object_path => l_path);
+          a_root_suite := ut_test_suite(a_suite_name => null, a_object_name => l_temp_root, a_object_path => l_path);
           put(a_root_suite, trim_path(a_path, l_temp_root || '.'), a_suite, l_path);
         end if;
       else
@@ -241,7 +236,7 @@ create or replace package body ut_suite_manager is
     procedure print(a_suite ut_test_suite, a_pad pls_integer) is
       l_test ut_test;
     begin
-      dbms_output.put_line(lpad(' ', a_pad, ' ') || 'Suite: ' || a_suite.object_name||'('||a_suite.object_path||')');
+      dbms_output.put_line(lpad(' ', a_pad, ' ') || 'Suite: ' || a_suite.object_name || '(' || a_suite.object_path || ')');
       dbms_output.put_line(lpad(' ', a_pad, ' ') || 'Items: ');
       for i in 1 .. a_suite.items.count loop
         if a_suite.items(i) is of(ut_test_suite) then
@@ -249,7 +244,8 @@ create or replace package body ut_suite_manager is
         else
 
           l_test := treat(a_suite.items(i) as ut_test);
-          dbms_output.put_line(lpad(' ', a_pad + 2, ' ') || 'Test: ' || l_test.object_name||'('||l_test.object_path||')');
+          dbms_output.put_line(lpad(' ', a_pad + 2, ' ') || 'Test: ' || l_test.object_name || '(' ||
+                               l_test.object_path || ')');
         end if;
       end loop;
     end print;
@@ -311,8 +307,8 @@ create or replace package body ut_suite_manager is
   function get_schema_suites(a_schema_name in varchar2) return tt_schema_suites is
   begin
     -- Currently cache invalidation on DDL is not implemented so schema is rescaned each time
-    if not g_schema_suites.exists(a_schema_name)
-      or g_schema_suites(a_schema_name).changed_at <= get_schema_max_ddl(a_schema_name) then
+    if not g_schema_suites.exists(a_schema_name) or g_schema_suites(a_schema_name)
+      .changed_at <= get_schema_max_ddl(a_schema_name) then
       ut_utils.debug_log('Rescanning schema ' || a_schema_name);
       config_schema(a_schema_name);
     end if;
@@ -360,8 +356,8 @@ create or replace package body ut_suite_manager is
     procedure skip_by_path(a_suite in out nocopy ut_test_object, a_path varchar2) is
       l_root      constant varchar2(32767) := regexp_substr(a_path, '\w+');
       l_rest_path constant varchar2(32767) := regexp_substr(a_path, '\.(.+)', subexpression => 1);
-      l_item  ut_test_object;
-      l_items ut_objects_list := ut_objects_list();
+      l_item        ut_test_object;
+      l_items       ut_objects_list := ut_objects_list();
       l_object_name varchar2(32767);
 
     begin
@@ -387,7 +383,8 @@ create or replace package body ut_suite_manager is
 
         a_suite.items := l_items;
 
-        if l_items.count = 0 then--not l_found then
+        if l_items.count = 0 then
+          --not l_found then
           raise_application_error(-20203, 'Suite note found');
         end if;
       end if;
@@ -439,8 +436,9 @@ create or replace package body ut_suite_manager is
 
         begin
           l_suite := l_schema_suites(l_root_suite_name);
-        exception when no_data_found then
-          raise_application_error(-20203, 'Suite ' || l_root_suite_name || ' note found');
+        exception
+          when no_data_found then
+            raise_application_error(-20203, 'Suite ' || l_root_suite_name || ' note found');
         end;
 
         skip_by_path(l_suite, regexp_substr(l_suite_path, '\.(.+)', subexpression => 1));
