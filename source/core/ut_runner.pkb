@@ -29,9 +29,10 @@ create or replace package body ut_runner is
   end run;
 
   procedure set_run_params(a_params ut_varchar2_list) is
-    l_call_param  t_call_param;
-    l_call_params tt_call_params := tt_call_params();
-    l_ut_paths    varchar2(4000);
+    l_call_param          t_call_param;
+    l_call_params         tt_call_params := tt_call_params();
+    l_ut_paths            varchar2(4000);
+    l_force_out_to_screen boolean;
   begin
     for param in
       ( with
@@ -48,11 +49,16 @@ create or replace package body ut_runner is
         l_call_params.extend;
         l_call_params(l_call_params.last) := l_call_param;
         l_call_params(l_call_params.last).ut_reporter_name := param.param_value;
+        l_force_out_to_screen := false;
       elsif l_call_params.last is not null then
         if param.param_type = 'o' then
-           l_call_params(l_call_params.last).output_file_name := param.param_value;
+          l_call_params(l_call_params.last).output_file_name := param.param_value;
+          if not l_force_out_to_screen then
+            l_call_params(l_call_params.last).output_to_screen := 'off';
+          end if;
         elsif param.param_type = 's' then
           l_call_params(l_call_params.last).output_to_screen := 'on';
+          l_force_out_to_screen := true;
         end if;
       end if;
     end loop;

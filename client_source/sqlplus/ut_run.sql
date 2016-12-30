@@ -8,21 +8,31 @@ Scrip invocation:
   ut_run.sql user password database [ut_path|ut_paths] (-f=format [-o=output] [-s] ...)
 
 Parameters:
-  user     - username to connect as
-  password - password of the user
-  database - database to connect to
-  ut_path  - a path(s) ot unit test(s) to be executed: user[.package[.procedure]]
-  ut_paths - a comma separated list of ut_path (with no spaces in between)
-  -f=format - a format to be used for reporting
-  -o=output - a file name to put the outputs into
-  -s         - put output to screen can be used in combination with -o
+  user      - username to connect as
+  password  - password of the user
+  database  - database to connect to
+  ut_path   - a path(s) ot unit test(s) to be executed: user[.package[.procedure]]
+  ut_paths  - a comma separated list of ut_path (with no spaces in between)
+  -f=format - reporter to be used for reporting
+  -o=output - file name to save the output provided by the reporter.
+              If defined, the output is not displayed on screen by default. This can be changed with the -s parameter.
+              If not defined, then output will be displayed on screen, even if the parameter -s is not specified.
+              If more than one -o parameter is specified for one -f parameter, the last one is taken into consideration.
+  -s        - Forces putting output to to screen for a given -f parameter.
 
   Parameters -f, -o, -s are correlated. That is parameters -o and -s are defining outputs for -f.
-  Example:
-    ut_run hr hr xe hr -f=ut_documentation_reporter -o=run.log -s -f=ut_teamcity_reporter -o=teamcity.xml
-  Unit tests will be be invoked with two reporters:
-  - ut_documentation_reporter - this one will output to screen and into file "run.log"
-  - ut_teamcity_reporter - this one will output to file "teamcity.xml"
+  Examples of invocation using sqlplus from command line:
+
+    sqlplus /nolog @ut_run hr hr xe hr -f=ut_documentation_reporter -o=run.log -s -f=ut_teamcity_reporter -o=teamcity.xml
+
+      Unit tests will be be invoked with two reporters:
+      - ut_documentation_reporter - this one will output to screen and into file "run.log"
+      - ut_teamcity_reporter - this one will output to file "teamcity.xml"
+
+    sqlplus /nolog @ut_run hr hr xe hr -f=ut_documentation_reporter
+
+      Unit tests will be be invoked with ut_documentation_reporter as a format and the results will be printed to screen
+
  */
 
 whenever sqlerror exit failure
@@ -44,7 +54,7 @@ set verify off
 set heading off
 
 set define off
-spool make_input_params_optional.sql
+spool make_input_params_optional.sql.tmp
 declare
   l_sql_columns varchar2(4000);
 begin
@@ -58,13 +68,13 @@ end;
 spool off
 set define &
 
-@@make_input_params_optional.sql
+@@make_input_params_optional.sql.tmp
 
 
 --prepare executor scripts
 
 set define off
-spool set_run_params.sql
+spool set_run_params.sql.tmp
 declare
   l_params      varchar2(4000);
 begin
@@ -78,10 +88,10 @@ spool off
 set define &
 
 
-@@set_run_params.sql
+@@set_run_params.sql.tmp
 
 
-spool run_in_backgroung.sql
+spool run_in_backgroung.sql.tmp
 declare
   l_output_type varchar2(256) := ut_runner.get_streamed_output_type_name();
   l_run_params  ut_runner.t_run_params :=  ut_runner.get_run_params();
@@ -94,7 +104,7 @@ begin
   p(  'set trimspool on');
   p(  'set pagesize 0');
   p(  'set linesize 4000');
-  p(  'spool run_background.log');
+  p(  'spool ut_run.dbms_output.log');
   p(  'declare');
   p(  '  v_reporter       ut_reporter;');
   p(  '  v_reporters_list ut_reporters_list := ut_reporters_list();');
@@ -113,7 +123,7 @@ end;
 /
 spool off
 
-spool gather_data_from_outputs.sql
+spool gather_data_from_outputs.sql.tmp
 declare
   l_output_type varchar2(256) := ut_runner.get_streamed_output_type_name();
   l_run_params  ut_runner.t_run_params := ut_runner.get_run_params();
@@ -136,16 +146,24 @@ end;
 /
 
 spool off
-
+set termout off
 set define #
 --try running on windows
-$ start sqlplus ##1/##2@##3 @run_in_backgroung.sql
+$ start sqlplus ##1/##2@##3 @run_in_backgroung.sql.tmp
 --try running on linus/unix
-! sqlplus ##1/##2@##3 @run_in_backgroung.sql &
+! sqlplus ##1/##2@##3 @run_in_backgroung.sql.tmp &
 set define &
-
+set termout on
 --make sure we fetch row by row to indicate the progress
 set arraysize 1
-@gather_data_from_outputs.sql
+@gather_data_from_outputs.sql.tmp
+
+set termout off
+--cleanup temporary sql files
+--try running on windows
+$ del *.sql.tmp
+--try running on linus/unix
+! rm *.sql.tmp
+set termout on
 
 exit

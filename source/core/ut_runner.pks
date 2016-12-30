@@ -3,7 +3,7 @@ create or replace package ut_runner authid definer is
   type t_call_param is record (
     ut_reporter_name varchar2(4000),
     output_file_name   varchar2(4000),
-    output_to_screen   varchar2(3) := 'off',
+    output_to_screen   varchar2(3) := 'on',
     output_id          varchar2(4000)
   );
 
