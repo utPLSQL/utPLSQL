@@ -11,29 +11,33 @@ set echo off
 @@ut_exampletest2.pkb
 
 declare
-  suite         ut_test_suite;
-  testtoexecute ut_test;
-  reporter      ut_reporter;
+  suite         ut_suite;
+  listener      ut_execution_listener;
 begin
-  suite := ut_test_suite(a_suite_name => 'Test Suite Name', a_object_name => 'ut_exampletest' /*,a_items => ut_test_objects_list()*/);
+  -- Install ut_custom_reporter first from example folder
 
-  testtoexecute := ut_test(a_object_name        => 'ut_exampletest'
-                          ,a_test_procedure     => 'ut_exAmpletest'
-                          ,a_setup_procedure    => 'Setup'
-                          ,a_teardown_procedure => 'tEardown');
+  suite := ut_suite(a_object_owner=>null, a_object_name => 'ut_exampletest', a_name => null, a_description => 'Test Suite Name');
 
-  suite.add_item(testtoexecute);
+  suite.add_item(
+      ut_test(a_object_name    => 'ut_exampletest'
+      ,a_name        => 'ut_exAmpletest'
+      ,a_description           => 'Example test1'
+      ,a_before_test_proc_name => 'Setup'
+      ,a_after_test_proc_name  => 'tEardown')
+  );
 
-  testtoexecute := ut_test(a_object_name        => 'UT_EXAMPLETEST2'
-                          ,a_test_procedure     => 'UT_EXAMPLETEST'
-                          ,a_setup_procedure    => 'SETUP'
-                          ,a_teardown_procedure => 'TEARDOWN');
-
-  suite.add_item(testtoexecute);
+  suite.add_item(
+      ut_test(
+          a_object_name           => 'UT_EXAMPLETEST2',
+          a_name        => 'UT_EXAMPLETEST',
+          a_description           => 'Another example test',
+          a_before_test_proc_name => 'SETUP',
+          a_after_test_proc_name  => 'TEARDOWN')
+  );
 
   -- provide a reporter to process results
-  reporter := ut_documentation_reporter;
-  suite.do_execute(reporter);
+  listener := ut_execution_listener(ut_reporters(ut_documentation_reporter()));
+  suite.do_execute(listener);
 end;
 /
 

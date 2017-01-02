@@ -3,14 +3,15 @@ PROMPT Does not invoke setup procedure when setup procedure name for a test is n
 --Arrange
 declare
   simple_test ut_test := ut_test(
-    a_setup_procedure => null
+     a_before_test_proc_name => null
     ,a_object_name => 'ut_example_tests'
-    ,a_test_procedure => 'ut_passing_test'
+    ,a_name => 'ut_passing_test'
   );
+  listener ut_execution_listener := ut_execution_listener(ut_reporters());
 begin
   ut_example_tests.g_number := null;
 --Act
-  simple_test.do_execute();
+  simple_test.do_execute(listener);
 --Assert
   if ut_example_tests.g_number is null then
     :test_result := ut_utils.tr_success;

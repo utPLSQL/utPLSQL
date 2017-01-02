@@ -9,18 +9,18 @@ set echo off
 
 declare
   simple_test ut_test;
-  reporter    ut_reporter;
+  listener      ut_execution_listener;
 begin
 
-  simple_test := ut_test(a_object_name        => 'ut_exampletest'
-                        ,a_test_procedure     => 'ut_exampletest'
-                        ,a_test_name          => 'Simple test1'
-                        ,a_owner_name         => user
-                        ,a_setup_procedure    => 'setup'
-                        ,a_teardown_procedure => 'teardown');
+  simple_test := ut_test(
+      a_object_name    => 'ut_exampletest'
+      , a_name        => 'ut_exampletest'
+      , a_description           => 'Example test1'
+      , a_before_test_proc_name => 'setup'
+      , a_after_test_proc_name  => 'teardown');
 
-  reporter := ut_documentation_reporter;
-  simple_test.do_execute(reporter);
+  listener := ut_execution_listener(ut_reporters(ut_documentation_reporter()));
+  simple_test.do_execute(listener);
 end;
 /
 

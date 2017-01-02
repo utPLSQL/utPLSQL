@@ -13,35 +13,38 @@ set echo off
 @@ut_custom_reporter.tpb
 
 declare
-  suite1        ut_test_suite;
-  suite2        ut_test_suite;
-  suite_complex ut_test_suite;
-  testtoexecute ut_test;
-  reporter      ut_reporter;
+  suite1        ut_suite;
+  suite2        ut_suite;
+  suite_complex ut_suite;
+  listener      ut_execution_listener;
 begin
-  suite1 := ut_test_suite(a_suite_name => 'Test Suite 1', a_object_name => null /*,a_items => ut_test_objects_list()*/);
+  suite1 := ut_suite(a_object_owner=>null, a_object_name => null, a_name => null, a_description => 'Test Suite 1');
 
-  testtoexecute := ut_test(a_object_name        => 'ut_exampletest'
-                          ,a_test_procedure     => 'ut_exAmpletest'
-						              ,a_test_name          => 'Example test1'
-                          ,a_setup_procedure    => 'Setup'
-                          ,a_teardown_procedure => 'tEardown');
+  suite1.add_item(
+      ut_test(a_object_name    => 'ut_exampletest'
+      ,a_name                  => 'ut_exAmpletest'
+      ,a_description           => 'Example test1'
+      ,a_before_test_proc_name => 'Setup'
+      ,a_after_test_proc_name  => 'tEardown')
+  );
 
-  suite1.add_item(testtoexecute);
+  suite2        := ut_suite(a_object_owner=>null, a_object_name => null, a_name => null, a_description => 'Test Suite 2');
 
-  suite2        := ut_test_suite(a_suite_name => 'Test Suite 2', a_object_name => null /*,a_items => ut_test_objects_list()*/);
-  testtoexecute := ut_test(a_object_name        => 'UT_EXAMPLETEST2'
-                          ,a_test_procedure     => 'UT_EXAMPLETEST'
-                          ,a_setup_procedure    => 'SETUP'
-                          ,a_teardown_procedure => 'TEARDOWN');
+  suite2.add_item(
+      ut_test(
+      a_object_name           => 'UT_EXAMPLETEST2',
+      a_name                  => 'UT_EXAMPLETEST',
+      a_description           => 'Another example test',
+      a_before_test_proc_name => 'SETUP',
+      a_after_test_proc_name  => 'TEARDOWN')
+  );
 
-  suite2.add_item(testtoexecute);
-
-  suite_complex := ut_test_suite(a_suite_name => 'Complex Test Suite', a_object_name => null, a_items => ut_objects_list(suite1, suite2));
+  suite_complex := ut_suite( a_object_owner=>null, a_object_name => null, a_name => null, a_description => 'Complex Test Suite');
+  suite_complex.items := ut_suite_items(suite1, suite2);
 
   -- provide a reporter to process results
-  reporter := ut_custom_reporter(a_tab_size => 2);
-  suite_complex.do_execute(reporter);
+  listener := ut_execution_listener(ut_reporters(ut_custom_reporter(a_tab_size => 2)));
+  suite_complex.do_execute(listener);
 end;
 /
 

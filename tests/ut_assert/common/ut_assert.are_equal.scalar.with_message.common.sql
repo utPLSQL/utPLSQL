@@ -2,7 +2,7 @@
 declare
   l_expected     &&1 := &&2;
   l_actual       &&1 := &&3;
-  l_results      ut_objects_list;
+  l_results      ut_assert_results;
   l_test_message varchar2(30) := 'A test message';
 begin
 --Act

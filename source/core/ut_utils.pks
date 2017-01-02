@@ -7,7 +7,6 @@ create or replace package ut_utils authid definer is
   */
 
   /* Constants: Test Results */
-  tr_skip                    constant number(1) := -1; -- silent skip without reporting. internal use
   tr_ignore                  constant number(1) := 0; -- test/suite was ignored
   tr_success                 constant number(1) := 1; -- test passed
   tr_failure                 constant number(1) := 2; -- one or more asserts failed

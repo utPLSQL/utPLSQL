@@ -1,5 +1,7 @@
-create or replace type ut_assert_result force under ut_object
+create or replace type ut_assert_result as object
 (
+  name varchar2(250 char),
+  result integer(1),
   additional_info       varchar2(4000 char),
   expected_type         varchar2(250  char),
   actual_type           varchar2(250  char),

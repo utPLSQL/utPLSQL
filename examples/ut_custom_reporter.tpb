@@ -4,6 +4,9 @@ create or replace type body ut_custom_reporter is
   begin
     self.name     := $$plsql_unit;
     self.lvl      := 0;
+    self.failed_test_count  := 0;
+    self.test_count         := 0;
+    self.igonred_test_count := 0;
     self.tab_size := a_tab_size;
     self.output   := a_output;
     return;
@@ -21,32 +24,25 @@ create or replace type body ut_custom_reporter is
     (self as ut_documentation_reporter).print_text(tab || a_text);
   end;
 
-  overriding member procedure before_suite(self in out nocopy ut_custom_reporter, a_suite ut_object) as
+  overriding member procedure before_suite(self in out nocopy ut_custom_reporter, a_suite ut_suite_item) as
   begin
     (self as ut_documentation_reporter).before_suite(a_suite);
     lvl := lvl + 1;
   end;
 
-  overriding member procedure before_test(self in out nocopy ut_custom_reporter, a_test ut_object) as
+  overriding member procedure before_test(self in out nocopy ut_custom_reporter, a_test ut_suite_item) as
   begin
     (self as ut_documentation_reporter).before_test(a_test);
     lvl := lvl + 1;
   end;
 
-  overriding member procedure on_assert_process(self in out nocopy ut_custom_reporter, a_assert ut_object) is
-  begin
-    lvl := lvl + 1;
-    (self as ut_documentation_reporter).on_assert_process(a_assert);
-    lvl := lvl - 1;
-  end;
-
-  overriding member procedure after_test(self in out nocopy ut_custom_reporter, a_test ut_object) as
+  overriding member procedure after_test(self in out nocopy ut_custom_reporter, a_test ut_suite_item) as
   begin
     lvl := lvl - 1;
     (self as ut_documentation_reporter).after_test(a_test);
   end;
 
-  overriding member procedure after_suite(self in out nocopy ut_custom_reporter, a_suite ut_object) as
+  overriding member procedure after_suite(self in out nocopy ut_custom_reporter, a_suite ut_suite_item) as
   begin
     lvl := lvl - 1;
     (self as ut_documentation_reporter).after_suite(a_suite);

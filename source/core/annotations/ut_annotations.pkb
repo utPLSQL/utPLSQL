@@ -245,7 +245,7 @@ create or replace package body ut_annotations as
   $if $$ut_trace $then
   procedure print_parse_results(a_annotated_pkg typ_annotated_package) is
     l_name      t_annotation_name := a_annotated_pkg.package_annotations.first;
-    l_proc_name t_annotation_name := a_annotated_pkg.procedure_annotations.first;
+    l_proc_name t_annotation_name;
   begin
     dbms_output.put_line('Annotations count: ' || a_annotated_pkg.package_annotations.count);
 
@@ -268,30 +268,27 @@ create or replace package body ut_annotations as
 
     dbms_output.put_line('Procedures count: ' || a_annotated_pkg.procedure_annotations.count);
 
-    while l_proc_name is not null loop
+    for i in 1 .. a_annotated_pkg.procedure_annotations.count loop
+      l_proc_name := a_annotated_pkg.procedure_annotations(i).name;
       dbms_output.put_line(rpad('-', 80, '-'));
       dbms_output.put_line('  Procedure: ' || l_proc_name);
-      dbms_output.put_line('  Annotations count: ' || a_annotated_pkg.procedure_annotations(l_proc_name).count);
-
-      l_name := a_annotated_pkg.procedure_annotations(l_proc_name).first;
+      dbms_output.put_line('  Annotations count: ' || a_annotated_pkg.procedure_annotations(i).annotations.count);
+      l_name := a_annotated_pkg.procedure_annotations(i).annotations.first;
       while l_name is not null loop
         dbms_output.put_line('    @' || l_name);
-        if a_annotated_pkg.procedure_annotations(l_proc_name)(l_name).count > 0 then
+        if a_annotated_pkg.procedure_annotations(i).annotations(l_name).count > 0 then
           dbms_output.put_line('      Parameters:');
-
-          for j in 1 .. a_annotated_pkg.procedure_annotations(l_proc_name)(l_name).count loop
+          for j in 1 .. a_annotated_pkg.procedure_annotations(i).annotations(l_name).count loop
             dbms_output.put_line('      ' ||
-                                 nvl(a_annotated_pkg.procedure_annotations(l_proc_name) (l_name)(j).key, '<Anonymous>') ||
-                                 ' = ' || nvl(a_annotated_pkg.procedure_annotations(l_proc_name) (l_name)(j).val, 'NULL'));
+                                 nvl(a_annotated_pkg.procedure_annotations(i).annotations(l_name)(j).key, '<Anonymous>') ||
+                                 ' = ' || nvl(a_annotated_pkg.procedure_annotations(i).annotations(l_name)(j).val, 'NULL'));
           end loop;
         else
           dbms_output.put_line('      No parameters.');
         end if;
 
-        l_name := a_annotated_pkg.procedure_annotations(l_proc_name).next(l_name);
+        l_name := a_annotated_pkg.procedure_annotations(i).annotations.next(l_name);
       end loop;
-
-      l_proc_name := a_annotated_pkg.procedure_annotations.next(l_proc_name);
     end loop;
 
   end print_parse_results;

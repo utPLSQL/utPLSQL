@@ -107,14 +107,14 @@ begin
   p(  'spool ut_run.dbms_output.log');
   p(  'declare');
   p(  '  v_reporter       ut_reporter;');
-  p(  '  v_reporters_list ut_reporters_list := ut_reporters_list();');
+  p(  '  v_reporters_list ut_reporters := ut_reporters();');
   p(  'begin');
   for i in 1 .. cardinality(l_run_params.call_params) loop
     p('  v_reporter := '||l_run_params.call_params(i).ut_reporter_name||'('||l_output_type||'());');
     p('  v_reporter.output.output_id := '''||l_run_params.call_params(i).output_id||''';');
     p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
   end loop;
-  p(  '  ut.run( ut_varchar2_list('||l_run_params.ut_paths||'), ut_composite_reporter( v_reporters_list ) );');
+  p(  '  ut_runner.run( ut_varchar2_list('||l_run_params.ut_paths||'), v_reporters_list );');
   p(  'end;');
   p(  '/');
   p(  'spool off');

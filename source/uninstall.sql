@@ -1,5 +1,7 @@
 prompt Uninstalling utplsql framework
 
+spool uninstall.log
+
 drop package ut_teamcity_reporter_helper;
 
 drop package ut_runner;
@@ -104,17 +106,21 @@ drop type ut_documentation_reporter;
 
 drop type ut_teamcity_reporter;
 
-drop type ut_test_suite;
+drop type ut_suite;
 
 drop type ut_test;
 
-drop type ut_test_object;
+drop type ut_executable;
 
-drop type ut_composite_reporter;
+drop type ut_execution_listener;
 
-drop type ut_reporters_list;
+drop type ut_reporters;
 
 drop type ut_reporter force;
+
+drop type ut_suite_items;
+
+drop type ut_suite_item;
 
 drop type ut_output_dbms_pipe;
 
@@ -126,18 +132,12 @@ drop type ut_output_dbms_output;
 
 drop type ut_output;
 
-drop type ut_assert_list;
+drop type ut_assert_results;
 
 drop type ut_assert_result;
-
-drop type ut_executable;
-
-drop type ut_composite_object;
-
-drop type ut_objects_list;
-
-drop type ut_object;
 
 drop type ut_varchar2_list;
 
 drop type ut_clob_list;
+
+spool off

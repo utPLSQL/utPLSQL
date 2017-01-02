@@ -5,20 +5,20 @@ set feedback off
 set linesize 1000
 prompt RunExampleComplexSuiteWithCustomDBMSOutputReporter
 @@RunExampleComplexSuiteWithCustomDBMSOutputReporter.sql
+prompt RunExampleTestAnnotationBasedForCurrentSchema
+@@RunExampleTestAnnotationBasedForCurrentSchema.sql
+prompt RunExampleTestAnnotationsHugePackage
+@@RunExampleTestAnnotationsHugePackage.sql
 prompt RunExampleTestSuite
 @@RunExampleTestSuite.sql
+prompt RunExampleTestSuiteWithCompositeReporter
+@@RunExampleTestSuiteWithCompositeReporter.sql
 prompt RunExampleTestSuiteWithCustomDBMSOutputReporter
 @@RunExampleTestSuiteWithCustomDBMSOutputReporter.sql
 prompt RunExampleTestSuiteWithDBMSOutputReporter
 @@RunExampleTestSuiteWithDBMSOutputReporter.sql
 prompt RunExampleTestThroughBaseClass
 @@RunExampleTestThroughBaseClass.sql
-prompt RunExampleTestSuiteWithCompositeReporter
-@@RunExampleTestSuiteWithCompositeReporter.sql
-prompt RunExampleTestAnnotationBasedForCurrentSchema
-@@RunExampleTestAnnotationBasedForCurrentSchema.sql
-prompt RunExampleTestAnnotationsHugePackage
-@@RunExampleTestAnnotationsHugePackage.sql
 prompt RunExpectations
 @@RunExpectations.sql
 

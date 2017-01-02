@@ -97,7 +97,7 @@ begin
   p(  'spool run_background.log');
   p(  'declare');
   p(  '  v_reporter       ut_reporter;');
-  p(  '  v_reporters_list ut_reporters_list := ut_reporters_list();');
+  p(  '  v_reporters_list ut_reporters := ut_reporters();');
   p(  'begin');
   for i in 1 .. cardinality(l_run_params.call_params) loop
     p('  v_reporter := '||l_run_params.call_params(i).ut_reporter_name||'('||l_output_type||'());');

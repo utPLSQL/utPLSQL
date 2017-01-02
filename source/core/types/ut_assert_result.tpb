@@ -4,7 +4,6 @@ create or replace type body ut_assert_result is
     return self as result is
   begin
     self.name          := a_name;
-    self.object_type   := 0;
     self.result        := a_result;
     self.error_message := a_error_message;
     self.caller_info   := ut_assert_processor.who_called_expectation();
@@ -17,7 +16,6 @@ create or replace type body ut_assert_result is
   begin
     self.name                  := a_name;
     self.additional_info       := a_additional_info;
-    self.object_type           := 0;
     self.result                := a_result;
     self.message               := a_message;
     self.error_message         := a_error_message;

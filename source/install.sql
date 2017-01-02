@@ -4,6 +4,7 @@ set serveroutput on size unlimited
 set timing off
 set define off
 
+spool install.log
 ALTER SESSION SET PLSQL_WARNINGS = 'ENABLE:ALL', 'DISABLE:(6000,6001,6003,6010, 7206)';
 
 
@@ -19,23 +20,21 @@ whenever oserror exit failure rollback
 @@core/ut_metadata.pkb
 
 --core types
-@@core/types/ut_object.tps
-@@core/types/ut_objects_list.tps
-@@core/types/ut_composite_object.tps
-@@core/types/ut_executable.tps
 @@core/types/ut_assert_result.tps
-@@core/types/ut_assert_list.tps
+@@core/types/ut_assert_results.tps
 @@core/types/ut_output.tps
 @@core/types/ut_output_dbms_output.tps
 @@core/types/ut_output_stream.tps
 @@core/ut_output_pipe_helper.pks
 @@core/types/ut_output_dbms_pipe.tps
+@@core/types/ut_suite_item.tps
+@@core/types/ut_suite_items.tps
 @@core/types/ut_reporter.tps
-@@core/types/ut_reporters_list.tps
-@@core/types/ut_composite_reporter.tps
-@@core/types/ut_test_object.tps
+@@core/types/ut_reporters.tps
+@@core/types/ut_execution_listener.tps
+@@core/types/ut_executable.tps
 @@core/types/ut_test.tps
-@@core/types/ut_test_suite.tps
+@@core/types/ut_suite.tps
 --annoations
 @@core/annotations/ut_annotations.pks
 @@core/annotations/ut_annotations.pkb
@@ -52,6 +51,10 @@ whenever oserror exit failure rollback
 @@core/ut_assert_processor.pkb
 
 --core type bodies
+@@core/types/ut_suite_item.tpb
+@@core/types/ut_test.tpb
+@@core/types/ut_suite.tpb
+@@core/types/ut_execution_listener.tpb
 @@core/types/ut_assert_result.tpb
 @@core/types/ut_output.tpb
 @@core/types/ut_output_dbms_output.tpb
@@ -59,13 +62,7 @@ whenever oserror exit failure rollback
 @@core/ut_output_pipe_helper.pkb
 @@core/types/ut_output_dbms_pipe.tpb
 @@core/types/ut_reporter.tpb
-@@core/types/ut_object.tpb
-@@core/types/ut_composite_object.tpb
-@@core/types/ut_test_object.tpb
-@@core/types/ut_test.tpb
-@@core/types/ut_test_suite.tpb
 @@core/types/ut_executable.tpb
-@@core/types/ut_composite_reporter.tpb
 
 --expecations and matchers
 @@expectations/data_values/ut_data_value.tps
@@ -191,5 +188,7 @@ begin
   end if;
 end;
 /
+
+spool off
 
 exit success

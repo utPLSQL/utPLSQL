@@ -3,13 +3,14 @@ PROMPT Does not invoke teardown procedure when teardown procedure name for a tes
 --Arrange
 declare
   simple_test ut_test := ut_test(
-    a_teardown_procedure => null
+    a_after_test_proc_name => null
     ,a_object_name => 'ut_example_tests'
-    ,a_test_procedure => 'ut_passing_test'
+    ,a_name => 'ut_passing_test'
   );
+  listener ut_execution_listener := ut_execution_listener(ut_reporters());
 begin
 --Act
-  simple_test.do_execute();
+  simple_test.do_execute(listener);
 --Assert
   if ut_example_tests.g_char = 'a' then
     :test_result := ut_utils.tr_success;

@@ -2,30 +2,40 @@ create or replace package body ut_runner is
 
   g_run_params  t_run_params;
 
-  procedure run(a_paths in ut_varchar2_list, a_reporter in ut_reporter) is
-    l_objects_to_run  ut_objects_list;
-    l_reporter        ut_reporter := a_reporter;
-    ut_running_suite ut_test_suite;
+  procedure run(a_paths in ut_varchar2_list, a_reporters in ut_reporters) is
+    l_items_to_run  ut_suite_items;
+    l_listener      ut_execution_listener := ut_execution_listener(a_reporters);
+    l_current_suite ut_suite;
   begin
-    ut_suite_manager.configure_execution_by_path(a_paths,l_objects_to_run);
+    l_items_to_run := ut_suite_manager.configure_execution_by_path(a_paths);
 
-    if l_objects_to_run.count > 0 then
-      l_reporter.before_run(a_suites => l_objects_to_run);
-      for i in 1 .. l_objects_to_run.count loop
+    if l_items_to_run.count > 0 then
+      l_listener.before_run(a_suites => l_items_to_run);
+      for i in 1 .. l_items_to_run.count loop
 
-        ut_running_suite := treat(l_objects_to_run(i) as ut_test_suite);
-        ut_running_suite.do_execute(l_reporter);
-        l_objects_to_run(i) := ut_running_suite;
+        l_current_suite := treat(l_items_to_run(i) as ut_suite);
+        l_current_suite.do_execute(l_listener);
+        l_items_to_run(i) := l_current_suite;
 
       end loop;
-      l_reporter.after_run(a_suites => l_objects_to_run);
+      l_listener.after_run(a_suites => l_items_to_run);
     end if;
+  end;
+
+  procedure run(a_paths in ut_varchar2_list, a_reporter in ut_reporter) is
+  begin
+    run(a_paths, ut_reporters(a_reporter));
   end;
 
 
   procedure run(a_path in varchar2, a_reporter in ut_reporter) is
   begin
     run(ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema'))), a_reporter);
+  end run;
+
+  procedure run(a_path in varchar2, a_reporters in ut_reporters) is
+  begin
+    run(ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema'))), a_reporters);
   end run;
 
   procedure set_run_params(a_params ut_varchar2_list) is
