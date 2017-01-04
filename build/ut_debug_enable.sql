@@ -7,3 +7,4 @@ alter session set PLSQL_CCFlags = 'ut_trace:true';
 alter package ut_annotations compile  debug package;
 alter package ut_suite_manager compile  debug package;
 alter package ut_utils compile  debug package;
+exit
