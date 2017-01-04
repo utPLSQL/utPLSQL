@@ -21,34 +21,33 @@ create or replace type body ut_documentation_reporter is
     (self as ut_reporter).print_text(tab || a_text);
   end;
 
-  overriding member procedure before_suite(self in out nocopy ut_documentation_reporter, a_suite ut_suite_item) as
+  overriding member procedure before_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_suite) as
   begin
     self.print_text( coalesce( a_suite.description, a_suite.name ) );
     lvl := lvl + 1;
   end;
 
-  overriding member procedure before_test(self in out nocopy ut_documentation_reporter, a_test ut_suite_item) as
+  overriding member procedure before_calling_test(self in out nocopy ut_documentation_reporter, a_test ut_test) as
   begin
     test_count := test_count + 1;
-    if treat(a_test as ut_suite_item).get_ignore_flag() then
+    if a_test.get_ignore_flag() then
       igonred_test_count := igonred_test_count + 1;
     end if;
   end;
 
-  overriding member procedure after_test(self in out nocopy ut_documentation_reporter, a_test ut_suite_item) as
-    l_test    ut_test := treat(a_test as ut_test);
+  overriding member procedure after_calling_test(self in out nocopy ut_documentation_reporter, a_test ut_test) as
     l_message varchar2(4000);
   begin
-    l_message := coalesce( a_test.description, l_test.name );
+    l_message := coalesce( a_test.description, a_test.name );
     --if test failed, then add it to the failures list, print failure with number
-    if a_test.result != ut_utils.tr_success then
+    if a_test.result > ut_utils.tr_success then
       failed_test_count := failed_test_count + 1;
       l_message := l_message || ' (FAILED - '||failed_test_count||')';
     end if;
     self.print_text( l_message );
   end;
 
-  overriding member procedure after_suite(self in out nocopy ut_documentation_reporter, a_suite ut_suite_item) as
+  overriding member procedure after_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_suite) as
   begin
     lvl := lvl - 1;
     if lvl = 0 then
@@ -56,7 +55,7 @@ create or replace type body ut_documentation_reporter is
     end if;
   end;
 
-  overriding member procedure after_run(self in out nocopy ut_documentation_reporter, a_suites in ut_suite_items) as
+  overriding member procedure after_calling_run(self in out nocopy ut_documentation_reporter, a_run in ut_run) as
     l_start_time    timestamp with time zone := to_date('9999','yyyy');
     l_end_time      timestamp with time zone := to_date('0001','yyyy');
 
@@ -130,12 +129,8 @@ create or replace type body ut_documentation_reporter is
     end;
     
   begin
-    print_failures_details(a_suites);
-    for i in 1 .. a_suites.count loop
-      l_start_time := least(l_start_time, a_suites(i).start_time);
-      l_end_time := greatest(l_end_time, a_suites(i).end_time);
-    end loop;
-    self.print_text( 'Finished in '||ut_utils.to_string(ut_utils.time_diff(l_start_time, l_end_time))||' seconds' );
+    print_failures_details(a_run.items);
+    self.print_text( 'Finished in '||a_run.execution_time||' seconds' );
     self.print_text(
       test_count || ' tests' ||
       case
@@ -147,7 +142,7 @@ create or replace type body ut_documentation_reporter is
       end
     );
     self.print_text(' ');
-    (self as ut_reporter).after_run(a_suites);
+    (self as ut_reporter).after_calling_run(a_run);
   end;
 
 end;

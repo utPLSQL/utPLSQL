@@ -106,17 +106,21 @@ drop type ut_documentation_reporter;
 
 drop type ut_teamcity_reporter;
 
+drop type ut_execution_listener;
+
+drop type ut_reporters;
+
+drop type ut_reporter force;
+
+drop type ut_run;
+
 drop type ut_suite;
 
 drop type ut_test;
 
 drop type ut_executable;
 
-drop type ut_execution_listener;
-
-drop type ut_reporters;
-
-drop type ut_reporter force;
+drop type ut_listener_interface;
 
 drop type ut_suite_items;
 

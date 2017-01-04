@@ -22,13 +22,13 @@ create or replace type body ut_test as
     return l_is_valid;
   end;
 
-  member procedure do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_execution_listener) is
+  member procedure do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_listener_interface) is
     l_completed_without_errors boolean;
   begin
     l_completed_without_errors := self.do_execute(a_listener);
   end;
 
-  member function do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_execution_listener) return boolean is
+  member function do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_listener_interface) return boolean is
     l_completed_without_errors boolean;
     l_savepoint                varchar2(30);
   begin
@@ -42,7 +42,7 @@ create or replace type body ut_test as
       self.end_time := current_timestamp;
     else
 
-      a_listener.before_test(self);
+      a_listener.fire_before_event('test',self);
 
       if self.is_valid() then
 
@@ -66,10 +66,10 @@ create or replace type body ut_test as
       end if;
 
       self.end_time := current_timestamp;
-      a_listener.after_test(self);
       self.result := ut_assert_processor.get_aggregate_asserts_result();
       --expectation results need to be part of test results
       self.results := ut_assert_processor.get_asserts_results();
+      a_listener.fire_after_event('test',self);
 
     end if;
     return l_completed_without_errors;

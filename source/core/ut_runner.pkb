@@ -3,23 +3,12 @@ create or replace package body ut_runner is
   g_run_params  t_run_params;
 
   procedure run(a_paths in ut_varchar2_list, a_reporters in ut_reporters) is
-    l_items_to_run  ut_suite_items;
+    l_items_to_run  ut_run;
     l_listener      ut_execution_listener := ut_execution_listener(a_reporters);
     l_current_suite ut_suite;
   begin
-    l_items_to_run := ut_suite_manager.configure_execution_by_path(a_paths);
-
-    if l_items_to_run.count > 0 then
-      l_listener.before_run(a_suites => l_items_to_run);
-      for i in 1 .. l_items_to_run.count loop
-
-        l_current_suite := treat(l_items_to_run(i) as ut_suite);
-        l_current_suite.do_execute(l_listener);
-        l_items_to_run(i) := l_current_suite;
-
-      end loop;
-      l_listener.after_run(a_suites => l_items_to_run);
-    end if;
+    l_items_to_run := ut_run( ut_suite_manager.configure_execution_by_path(a_paths) );
+    l_items_to_run.do_execute(l_listener);
   end;
 
   procedure run(a_paths in ut_varchar2_list, a_reporter in ut_reporter) is

@@ -47,13 +47,13 @@ create or replace type body ut_suite as
     self.items(self.items.last) := a_item;
   end;
 
-  member procedure do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_execution_listener) is
+  member procedure do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_listener_interface) is
     l_completed_without_errors boolean;
   begin
     l_completed_without_errors := self.do_execute(a_listener);
   end;
 
-  member function do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_execution_listener) return boolean is
+  member function do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_listener_interface) return boolean is
     l_test_object     ut_test;
     l_suite_object    ut_suite;
     l_suite_savepoint varchar2(30);
@@ -66,7 +66,7 @@ create or replace type body ut_suite as
       self.result := ut_utils.tr_ignore;
       ut_utils.debug_log('ut_suite.execute - ignored');
     else
-      a_listener.before_suite(self);
+      a_listener.fire_before_event('suite',self);
 
       self.start_time := current_timestamp;
 
@@ -78,7 +78,6 @@ create or replace type body ut_suite as
       if l_completed_without_errors then
         for i in 1 .. self.items.count loop
           l_completed_without_errors := true;
-          a_listener.before_suite_item(a_suite => self, a_item_index => i);
 
           --savepoint
           l_item_savepoint := self.items(i).create_savepoint_if_needed();
@@ -108,7 +107,6 @@ create or replace type body ut_suite as
           --rollback to savepoint
           self.items(i).rollback_to_savepoint(l_item_savepoint);
 
-          a_listener.after_suite_item(a_suite => self, a_item_index => i);
 --          exit when not l_completed_without_errors;
         end loop;
       end if;
@@ -123,7 +121,7 @@ create or replace type body ut_suite as
 
       self.end_time := current_timestamp;
 
-      a_listener.after_suite(self);
+      a_listener.fire_after_event('suite',self);
     end if;
 
     return l_completed_without_errors;

@@ -17,78 +17,102 @@ create or replace type body ut_reporter is
     self.output.send_clob(a_text);
   end;
 
-  member procedure before_run(self in out nocopy ut_reporter, a_suites in ut_suite_items) is
+  -- run hooks
+  member procedure before_calling_run(self in out nocopy ut_reporter, a_run in ut_run) is
   begin
     self.output.open();
   end;
-  member procedure after_run(self in out nocopy ut_reporter, a_suites in ut_suite_items) is
-  begin
-    self.output.close();
-  end;
-  member procedure before_suite(self in out nocopy ut_reporter, a_suite in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure before_suite_setup(self in out nocopy ut_reporter, a_suite in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure after_suite_setup(self in out nocopy ut_reporter, a_suite in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure before_suite_item(self in out nocopy ut_reporter, a_suite in ut_suite_item, a_item_index pls_integer) is
-  begin
-    null;
-  end;
-  member procedure after_suite_item(self in out nocopy ut_reporter, a_suite in ut_suite_item, a_item_index pls_integer) is
-  begin
-    null;
-  end;
-  member procedure before_suite_teardown(self in out nocopy ut_reporter, a_suite in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure after_suite_teardown(self in out nocopy ut_reporter, a_suite in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure after_suite(self in out nocopy ut_reporter, a_suite in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure before_test(self in out nocopy ut_reporter, a_test in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure before_test_setup(self in out nocopy ut_reporter, a_test in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure after_test_setup(self in out nocopy ut_reporter, a_test in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure before_test_execute(self in out nocopy ut_reporter, a_test in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure after_test_execute(self in out nocopy ut_reporter, a_test in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure before_test_teardown(self in out nocopy ut_reporter, a_test in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure after_test_teardown(self in out nocopy ut_reporter, a_test in ut_suite_item) is
-  begin
-    null;
-  end;
-  member procedure after_test(self in out nocopy ut_reporter, a_test in ut_suite_item) is
+
+  -- suite hooks
+  member procedure before_calling_suite(self in out nocopy ut_reporter, a_suite in ut_suite) is
   begin
     null;
   end;
 
+  member procedure before_calling_before_all(self in out nocopy ut_reporter, a_suite in ut_suite) is
+  begin
+    null;
+  end;
+  member procedure after_calling_before_all (self in out nocopy ut_reporter, a_suite in ut_suite) is
+  begin
+    null;
+  end;
+
+  member procedure before_calling_before_each(self in out nocopy ut_reporter, a_suite in ut_suite) is
+  begin
+    null;
+  end;
+  member procedure after_calling_before_each (self in out nocopy ut_reporter, a_suite in ut_suite) is
+  begin
+    null;
+  end;
+
+  -- test hooks
+  member procedure before_calling_test(self in out nocopy ut_reporter, a_test in ut_test) is
+  begin
+    null;
+  end;
+
+  member procedure before_calling_before_test(self in out nocopy ut_reporter, a_test in ut_test) is
+  begin
+    null;
+  end;
+  member procedure after_calling_before_test (self in out nocopy ut_reporter, a_test in ut_test) is
+  begin
+    null;
+  end;
+
+  member procedure before_calling_test_execute(self in out nocopy ut_reporter, a_test in ut_test) is
+  begin
+    null;
+  end;
+  member procedure after_calling_test_execute (self in out nocopy ut_reporter, a_test in ut_test) is
+  begin
+    null;
+  end;
+
+  member procedure before_calling_after_test(self in out nocopy ut_reporter, a_test in ut_test) is
+  begin
+    null;
+  end;
+  member procedure after_calling_after_test (self in out nocopy ut_reporter, a_test in ut_test) is
+  begin
+    null;
+  end;
+
+  member procedure after_calling_test(self in out nocopy ut_reporter, a_test in ut_test) is
+  begin
+    null;
+  end;
+
+  --suite hooks continued
+  member procedure before_calling_after_each(self in out nocopy ut_reporter, a_suite in ut_suite) is
+  begin
+    null;
+  end;
+  member procedure after_calling_after_each (self in out nocopy ut_reporter, a_suite in ut_suite) is
+  begin
+    null;
+  end;
+
+  member procedure before_calling_after_all(self in out nocopy ut_reporter, a_suite in ut_suite) is
+  begin
+    null;
+  end;
+  member procedure after_calling_after_all (self in out nocopy ut_reporter, a_suite in ut_suite) is
+  begin
+    null;
+  end;
+
+  member procedure after_calling_suite(self in out nocopy ut_reporter, a_suite in ut_suite) is
+  begin
+    null;
+  end;
+
+  -- run hooks continued
+  member procedure after_calling_run (self in out nocopy ut_reporter, a_run in ut_run) is
+  begin
+    self.output.close();
+  end;
 end;
 /

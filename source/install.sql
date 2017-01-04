@@ -29,12 +29,14 @@ whenever oserror exit failure rollback
 @@core/types/ut_output_dbms_pipe.tps
 @@core/types/ut_suite_item.tps
 @@core/types/ut_suite_items.tps
-@@core/types/ut_reporter.tps
-@@core/types/ut_reporters.tps
-@@core/types/ut_execution_listener.tps
+@@core/types/ut_listener_interface.tps
 @@core/types/ut_executable.tps
 @@core/types/ut_test.tps
 @@core/types/ut_suite.tps
+@@core/types/ut_run.tps
+@@core/types/ut_reporter.tps
+@@core/types/ut_reporters.tps
+@@core/types/ut_execution_listener.tps
 --annoations
 @@core/annotations/ut_annotations.pks
 @@core/annotations/ut_annotations.pkb
@@ -54,6 +56,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_suite_item.tpb
 @@core/types/ut_test.tpb
 @@core/types/ut_suite.tpb
+@@core/types/ut_run.tpb
 @@core/types/ut_execution_listener.tpb
 @@core/types/ut_assert_result.tpb
 @@core/types/ut_output.tpb
