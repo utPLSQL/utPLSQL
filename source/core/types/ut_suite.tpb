@@ -7,11 +7,11 @@ create or replace type body ut_suite as
   ) return self as result is
   begin
     self.init(a_object_owner, a_object_name, a_name, a_description, a_path, a_rollback_type, a_ignore_flag);
-    self.before_all := ut_executable(self, a_before_all_proc_name, 'before_all');
-    self.before_each := ut_executable(self, a_before_each_proc_name, 'before_each');
+    self.before_all := ut_executable(self, a_before_all_proc_name, ut_utils.gc_before_all);
+    self.before_each := ut_executable(self, a_before_each_proc_name, ut_utils.gc_before_each);
     self.items := ut_suite_items();
-    self.after_each := ut_executable(self, a_after_each_proc_name, 'after_each');
-    self.after_all := ut_executable(self, a_after_all_proc_name, 'after_all');
+    self.after_each := ut_executable(self, a_after_each_proc_name, ut_utils.gc_after_each);
+    self.after_all := ut_executable(self, a_after_all_proc_name, ut_utils.gc_after_all);
     return;
   end;
 
@@ -66,7 +66,7 @@ create or replace type body ut_suite as
       self.result := ut_utils.tr_ignore;
       ut_utils.debug_log('ut_suite.execute - ignored');
     else
-      a_listener.fire_before_event('suite',self);
+      a_listener.fire_before_event(ut_utils.gc_suite,self);
 
       self.start_time := current_timestamp;
 
@@ -121,7 +121,7 @@ create or replace type body ut_suite as
 
       self.end_time := current_timestamp;
 
-      a_listener.fire_after_event('suite',self);
+      a_listener.fire_after_event(ut_utils.gc_suite,self);
     end if;
 
     return l_completed_without_errors;

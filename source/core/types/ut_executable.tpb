@@ -2,10 +2,10 @@ create or replace type body ut_executable is
 
   constructor function ut_executable(
     self in out nocopy ut_executable, a_context ut_suite_item,
-    a_procedure_name varchar2, a_executable_type varchar2
+    a_procedure_name varchar2, a_associated_event_name varchar2
   ) return self as result is
   begin
-    self.executable_type := a_executable_type;
+    self.associated_event_name := a_associated_event_name;
     self.owner_name := a_context.object_owner;
     self.object_name := a_context.object_name;
     self.procedure_name := a_procedure_name;
@@ -23,24 +23,24 @@ create or replace type body ut_executable is
 
     if self.object_name is null then
       l_result := false;
-      ut_assert_processor.report_error('Call params for ' || self.executable_type || ' are not valid: package is not defined');
+      ut_assert_processor.report_error('Call params for ' || self.associated_event_name || ' are not valid: package is not defined');
     end if;
 
     if self.procedure_name is null then
       l_result := false;
-      ut_assert_processor.report_error('Call params for ' || self.executable_type || ' are not valid: procedure is not defined');
+      ut_assert_processor.report_error('Call params for ' || self.associated_event_name || ' are not valid: procedure is not defined');
     end if;
 
     if l_result and not ut_metadata.package_valid(self.owner_name, self.object_name) then
       l_result := false;
-      ut_assert_processor.report_error('Call params for ' || self.executable_type ||
+      ut_assert_processor.report_error('Call params for ' || self.associated_event_name ||
                              ' are not valid: package does not exist or is invalid: ' ||
                              nvl(self.object_name, '<missing package name>'));
     end if;
 
     if l_result and not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.procedure_name) then
       l_result := false;
-      ut_assert_processor.report_error('Call params for ' || self.executable_type || ' are not valid: package missing ' ||
+      ut_assert_processor.report_error('Call params for ' || self.associated_event_name || ' are not valid: package missing ' ||
                              ' procedure  ' || self.object_name || '.' ||
                              nvl(self.procedure_name, '<missing procedure name>'));
     end if;
@@ -85,7 +85,7 @@ create or replace type body ut_executable is
   begin
     if self.is_defined() then
       --listener - before call to executable
-      a_listener.fire_before_event(executable_type, a_item);
+      a_listener.fire_before_event(self.associated_event_name, a_item);
 
       ut_metadata.do_resolve(a_owner => l_owner, a_object => l_object_name, a_procedure_name => l_procedure_name);
 
@@ -123,7 +123,7 @@ create or replace type body ut_executable is
 
       l_completed_without_errors := process_errors_from_call(l_error_stack, l_error_backtrace);
 
-      a_listener.fire_after_event(executable_type, a_item);
+      a_listener.fire_after_event(self.associated_event_name, a_item);
       --listener - after call to executable
     end if;
     return l_completed_without_errors;

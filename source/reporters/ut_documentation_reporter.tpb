@@ -18,7 +18,9 @@ create or replace type body ut_documentation_reporter is
 
   overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2) is
   begin
-    (self as ut_reporter).print_text(tab || a_text);
+    if a_text is not null then
+      (self as ut_reporter).print_text(tab || a_text);
+    end if;
   end;
 
   overriding member procedure before_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_suite) as
@@ -60,48 +62,25 @@ create or replace type body ut_documentation_reporter is
     l_end_time      timestamp with time zone := to_date('0001','yyyy');
 
     procedure print_failure_for_assert(a_assert ut_assert_result) is
+      l_lines ut_varchar2_list;
     begin
-      if a_assert.result != ut_utils.tr_success then
-        if a_assert.message is not null then
-          self.print_text('message: '||a_assert.message);
-        end if;
-        if a_assert.result != ut_utils.tr_success then
-          if a_assert.actual_value_string is not null or a_assert.actual_type is not null then
-            self.print_text('expected: '||ut_utils.indent_lines( a_assert.actual_value_string||'('||a_assert.actual_type||')', self.lvl*2+length('expected: ') ) );
-          end if;
-          if a_assert.name is not null or a_assert.additional_info is not null
-             or a_assert.expected_value_string is not null or a_assert.expected_type is not null then
-            self.print_text(
-              a_assert.name || a_assert.additional_info
-              || case
-                   when a_assert.expected_value_string is not null or a_assert.expected_type is not null
-                   then ': '||ut_utils.indent_lines( a_assert.expected_value_string||'('||a_assert.expected_type||')', self.lvl*2+length(a_assert.name || a_assert.additional_info||': ') )
-                 end
-            );
-          end if;
-        end if;
-        if a_assert.error_message is not null then
-          self.print_text('error: '||ut_utils.indent_lines( a_assert.error_message, self.lvl*2+length('error: ') ) );
-        end if;
-        if a_assert.caller_info is not null then
-          self.print_text(a_assert.caller_info);
-        end if;
-        self.print_text(' ');
-      end if;
+      l_lines := a_assert.get_result_lines();
+      for i in 1 .. l_lines.count loop
+        self.print_text(l_lines(i));
+      end loop;
     end;
 
     procedure print_failures_for_test(a_test ut_test, a_failure_no in out nocopy integer) is
     begin
       if a_test.result > ut_utils.tr_success then
-        a_failure_no := a_failure_no + 1;  
+        a_failure_no := a_failure_no + 1;
         self.print_text(lpad(a_failure_no,  4,' ')||') '||coalesce( a_test.name, a_test.item.form_name ));
         self.lvl := self.lvl + 3;
         self.print_text('Failures/Errors:');
-        self.lvl := self.lvl + 1;
         for j in 1 .. a_test.results.count loop
           print_failure_for_assert(a_test.results(j));
         end loop;
-        lvl := lvl - 4;
+        lvl := lvl - 3;
       end if;
     end;
 
@@ -122,12 +101,13 @@ create or replace type body ut_documentation_reporter is
       if failed_test_count > 0 then
 
         self.print_text( 'Failures:' );
+        self.print_text( ' ' );
         for i in 1 .. a_suites.count loop
           print_failures_from_suite(treat(a_suites(i) as ut_suite), l_failure_no);
         end loop;
       end if;
     end;
-    
+
   begin
     print_failures_details(a_run.items);
     self.print_text( 'Finished in '||a_run.execution_time||' seconds' );

@@ -18,7 +18,7 @@ create or replace type body ut_run as
   begin
     ut_utils.debug_log('ut_run.execute');
 
-    a_listener.fire_before_event('run', self);
+    a_listener.fire_before_event(ut_utils.gc_run, self);
 
     self.start_time := current_timestamp;
 
@@ -32,7 +32,7 @@ create or replace type body ut_run as
 
     self.end_time := current_timestamp;
 
-    a_listener.fire_after_event('run', self);
+    a_listener.fire_after_event(ut_utils.gc_run, self);
 
     return l_completed_without_errors;
   end;

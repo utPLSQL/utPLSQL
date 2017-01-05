@@ -6,9 +6,9 @@ create or replace type body ut_test as
   ) return self as result is
   begin
     self.init(a_object_owner, a_object_name, a_name, a_description, a_path, a_rollback_type, a_ignore_flag);
-    self.before_test := ut_executable(self, a_before_test_proc_name, 'before_test');
-    self.item := ut_executable(self, a_name, 'test_execute');
-    self.after_test := ut_executable(self, a_after_test_proc_name, 'after_test');
+    self.before_test := ut_executable(self, a_before_test_proc_name, ut_utils.gc_before_test);
+    self.item := ut_executable(self, a_name, ut_utils.gc_test_execute);
+    self.after_test := ut_executable(self, a_after_test_proc_name, ut_utils.gc_after_test);
     return;
   end;
 
@@ -42,7 +42,7 @@ create or replace type body ut_test as
       self.end_time := current_timestamp;
     else
 
-      a_listener.fire_before_event('test',self);
+      a_listener.fire_before_event(ut_utils.gc_test,self);
 
       if self.is_valid() then
 
@@ -69,7 +69,7 @@ create or replace type body ut_test as
       self.result := ut_assert_processor.get_aggregate_asserts_result();
       --expectation results need to be part of test results
       self.results := ut_assert_processor.get_asserts_results();
-      a_listener.fire_after_event('test',self);
+      a_listener.fire_after_event(ut_utils.gc_test,self);
 
     end if;
     return l_completed_without_errors;
