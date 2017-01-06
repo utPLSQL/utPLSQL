@@ -161,10 +161,6 @@ whenever oserror exit failure rollback
 @@reporters/ut_documentation_reporter.tps
 @@reporters/ut_documentation_reporter.tpb
 
-@@legacy/ut_assert.pks
-@@legacy/ut_assert.pkb
-
-
 
 set linesize 200
 column text format a100

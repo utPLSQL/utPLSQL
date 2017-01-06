@@ -4,18 +4,22 @@ create or replace package ut authid current_user as
   * Run suites/tests by path
   * Accepts value of the following formats:
   * schema - executes all suites in the schema
-  * schema:suite1[.suite2] - executes all items of suite1 (suite2) in the schema. 
+  * schema:suite1[.suite2] - executes all items of suite1 (suite2) in the schema.
   *                          suite1.suite2 is a suitepath variable
   * schema:suite1[.suite2][.test1] - executes test1 in suite suite1.suite2
   * schema.suite1 - executes the suite package suite1 in the schema "schema"
   *                 all the parent suites in the hiearcy setups/teardown procedures as also executed
   *                 all chile items are executed
-  * schema.suite1.test2 - executes test2 procedure of suite1 suite with execution of all 
+  * schema.suite1.test2 - executes test2 procedure of suite1 suite with execution of all
   *                       parent setup/teardown procedures
   */
-  procedure run(a_path in varchar2, a_reporter in ut_reporter);
+  procedure run(a_path in varchar2 := null, a_reporter in ut_reporter);
+
+  procedure run(a_path in varchar2 := null, a_reporters in ut_reporters);
 
   procedure run(a_paths in ut_varchar2_list, a_reporter in ut_reporter);
+
+  procedure run(a_paths in ut_varchar2_list, a_reporters in ut_reporters);
 
   function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_anydata;
 

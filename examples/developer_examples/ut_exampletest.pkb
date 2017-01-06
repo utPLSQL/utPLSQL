@@ -6,19 +6,19 @@ AS
  begin
    null;
  end;
- 
+
  procedure TearDown
  as
  begin
    null;
  end;
- 
+
  procedure ut_exampletest
  as
  begin
-    ut_assert.are_Equal('Test 1 Should Pass',1,1);
-    ut_assert.are_Equal('Test 2 Should Fail',1,2); 
+    ut.expect(1,'Test 1 Should Pass').to_equal(1);
+    ut.expect(2,'Test 2 Should Fail').to_equal(1);
  end;
- 
+
 END;
 /

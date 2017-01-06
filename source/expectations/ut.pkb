@@ -1,13 +1,23 @@
 create or replace package body ut is
 
-  procedure run(a_path in varchar2, a_reporter in ut_reporter) is
+  procedure run(a_path in varchar2 := null, a_reporter in ut_reporter) is
   begin
     ut_runner.run(a_path, a_reporter);
+  end;
+
+  procedure run(a_path in varchar2 := null, a_reporters in ut_reporters) is
+  begin
+    ut_runner.run(a_path, a_reporters);
   end;
 
   procedure run(a_paths in ut_varchar2_list, a_reporter in ut_reporter) is
   begin
     ut_runner.run(a_paths, a_reporter);
+  end;
+
+  procedure run(a_paths in ut_varchar2_list, a_reporters in ut_reporters) is
+  begin
+    ut_runner.run(a_paths, a_reporters);
   end;
 
   function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_anydata is
@@ -64,16 +74,16 @@ create or replace package body ut is
   begin
     return ut_expectation_refcursor(ut_data_value_refcursor(a_actual), a_message);
   end;
-  
+
   function expect(a_actual in yminterval_unconstrained, a_message varchar2 := null) return ut_expectation_yminterval is
   begin
     return ut_expectation_yminterval(ut_data_value_yminterval(a_actual), a_message);
   end;
-    
+
   function expect(a_actual in dsinterval_unconstrained, a_message varchar2 := null) return ut_expectation_dsinterval is
   begin
     return ut_expectation_dsinterval(ut_data_value_dsinterval(a_actual), a_message);
   end;
-  
+
 end ut;
 /

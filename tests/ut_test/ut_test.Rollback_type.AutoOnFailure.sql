@@ -1,4 +1,4 @@
-PROMPT Test auto transaction control 
+PROMPT Test auto transaction control
 
 --Arrange
 declare
@@ -10,20 +10,20 @@ declare
   l_cnt number;
   l_listener ut_execution_listener := ut_execution_listener(ut_reporters());
 begin
-  
+
   delete from ut$test_table;
 
   l_test := ut_test(a_object_name => 'ut_transaction_control',a_name => 'test_failure', a_rollback_type => ut_utils.gc_rollback_manual);
   l_suite := ut_suite(a_description => 'Suite name', a_name => 'UT_TRANSACTION_CONTROL', a_object_name => 'UT_TRANSACTION_CONTROL', a_rollback_type => ut_utils.gc_rollback_auto);
   l_suite.add_item(l_test);
 
---Act  
+--Act
   l_suite.do_execute(l_listener);
-  
+
   ut_assert_processor.clear_asserts;
 
---Assert  
-  ut_assert.this(ut_transaction_control.count_rows('t')=0);
+--Assert
+  ut.expect(ut_transaction_control.count_rows('t')).to_equal(0);
 
   if ut_assert_processor.get_aggregate_asserts_result = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;

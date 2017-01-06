@@ -17,13 +17,13 @@ begin
   l_suite := ut_suite(a_description => 'Suite name', a_name => 'UT_TRANSACTION_CONTROL', a_object_name => 'UT_TRANSACTION_CONTROL', a_rollback_type => ut_utils.gc_rollback_manual);
   l_suite.add_item(l_test);
 
---Act  
+--Act
   l_suite.do_execute(l_listener);
-  
+
   ut_assert_processor.clear_asserts;
 
---Assert  
-  ut_assert.this(ut_transaction_control.count_rows('t')>0);
+--Assert
+  ut.expect(ut_transaction_control.count_rows('t')).to_( be_greater_than(0) );
 
   if ut_assert_processor.get_aggregate_asserts_result = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;

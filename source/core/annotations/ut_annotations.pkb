@@ -20,7 +20,7 @@ create or replace package body ut_annotations as
   function delete_multiline_comments(a_source in clob) return clob is
     l_tmp_clob clob;
   begin
-    
+
 /*    l_tmp_clob := regexp_replace(srcstr   => a_source
                                 ,pattern  => c_multiline_comment_pattern
                                 ,modifier => 'n');
@@ -31,13 +31,13 @@ create or replace package body ut_annotations as
 --  performance is too low when deleting spaces as it leads to lots of writes
 --    l_tmp_clob := regexp_replace(srcstr   => l_tmp_cl0ob
 --                                ,pattern => '(( |'||chr(09)||')*'|| chr(10)||'){3,}'
---                                ,replacestr => chr(10)||chr(10));                                
-    return  l_tmp_clob;  
-*/                             
+--                                ,replacestr => chr(10)||chr(10));
+    return  l_tmp_clob;
+*/
   return  regexp_replace(srcstr   => a_source
                          ,pattern  => c_multiline_comment_pattern
                          ,modifier => 'n');
-   
+
    --this is not fast enough as the regexp parten is more complicated
    /*
    return regexp_replace(srcstr   => a_source
@@ -45,7 +45,7 @@ create or replace package body ut_annotations as
                                               ||'|'||c_nonannotat_comment_pattern||')'
                                 ,modifier => 'mn');
    */
-    
+
     /*
     return regexp_replace(
             srcstr => regexp_replace(srcstr => regexp_replace(srcstr   => a_source
@@ -56,7 +56,7 @@ create or replace package body ut_annotations as
             ,replacestr => '\1'
             ,modifier   => 'mn'
           );
-    */          
+    */
   end;
 
   function get_annotations(a_source varchar2, a_comments tt_comment_list) return tt_annotations is
@@ -186,7 +186,7 @@ create or replace package body ut_annotations as
       -- parse the comment block for the syntactically correct annotations and store them as an array
       l_procedure_annotations.name := l_proc_name;
       l_procedure_annotations.annotations := get_annotations(l_proc_comments, a_comments);
-      
+
       l_procedure_list(l_procedure_list.count+1) := l_procedure_annotations;
 
       --l_annot_proc_ind := l_annot_proc_ind + length(l_annot_proc_block);
@@ -211,9 +211,9 @@ create or replace package body ut_annotations as
                                    ,occurrence => 1
                                    ,modifier   => 'm'
                                    ,position   => l_comment_pos);
-                           
+
       exit when l_comment_pos = 0;
-      
+
       -- position index is shifted by 1 because c_annot_comment_pattern contains ^ as first sign
       -- but after instr index already points to the char on that line
       l_comment_pos := l_comment_pos-1;
@@ -236,9 +236,8 @@ create or replace package body ut_annotations as
 
     end loop;
 
-    $if $$ut_trace $then
-      dbms_output.put_line(a_source);
-    $end
+    ut_utils.debug_log(a_source);
+
     return l_comments;
   end extract_and_replace_comments;
 
@@ -255,7 +254,7 @@ create or replace package body ut_annotations as
         dbms_output.put_line('    Parameters:');
 
         for j in 1 .. a_annotated_pkg.package_annotations(l_name).count loop
-          dbms_output.put_line('    ' || nvl(a_annotated_pkg.package_annotations(l_name)(j).key, '<Anonimous>') || ' = ' ||
+          dbms_output.put_line('    ' || nvl(a_annotated_pkg.package_annotations(l_name)(j).key, '<Anonymous>') || ' = ' ||
                                nvl(a_annotated_pkg.package_annotations(l_name)(j).val, 'NULL'));
         end loop;
       else

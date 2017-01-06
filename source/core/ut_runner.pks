@@ -18,10 +18,10 @@ create or replace package ut_runner authid definer is
 
   procedure run(a_path in varchar2, a_reporters in ut_reporters);
 
-  -- implementation to be changed
+  -- TODO - implementation to be changed
   procedure run(a_paths in ut_varchar2_list, a_reporter in ut_reporter);
 
-  -- implementation to be changed
+  -- TODO - implementation to be changed
   procedure run(a_paths in ut_varchar2_list, a_reporters in ut_reporters);
 
 

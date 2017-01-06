@@ -8,8 +8,6 @@ drop package ut_runner;
 
 drop package ut_suite_manager;
 
-drop package ut_assert;
-
 drop package ut;
 
 drop type ut_expectation_yminterval;

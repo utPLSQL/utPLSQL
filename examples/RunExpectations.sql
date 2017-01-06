@@ -9,15 +9,12 @@ set echo off
 @@department.tps
 @@departments.tps
 @@demo_expectations.pck
-@@ut_custom_reporter.tps
-@@ut_custom_reporter.tpb
 
 begin
   ut.run(user, ut_documentation_reporter());
 end;
 /
 
-drop type ut_custom_reporter;
 drop package demo_expectations;
 drop type departments$;
 drop type department$;

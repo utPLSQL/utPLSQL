@@ -11,14 +11,14 @@ as
  begin
     g_char := null;
  end;
- 
+
  procedure ut_passing_test
  as
  begin
     g_number := g_number + 1;
     g_char := 'a';
-    ut_assert.are_equal('Test 1 Should Pass',1,1);
+    ut.expect(1,'Test 1 Should Pass').to_equal(1);
  end;
- 
+
 end;
 /

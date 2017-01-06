@@ -1,6 +1,4 @@
---Shows how to create a test suite with the default reporter which is dbms_output
---No tables are used for this.   
---Suite Management packages are when developed will make this easier.
+--Shows that even a very large package specification can be parsed quite quickly
 --Clear Screen
 Set Serveroutput On Size Unlimited format truncated
 set echo off
@@ -9,7 +7,7 @@ set echo off
 
 declare
   l_suite ut_suite;
-begin  
+begin
   l_suite := ut_suite_manager.config_package(a_owner_name => USER,a_object_name => 'TST_PKG_HUGE');
 end;
 /
