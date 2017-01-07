@@ -78,6 +78,7 @@ create or replace package ut_utils authid definer is
   function gen_savepoint_name return varchar2;
 
   procedure debug_log(a_message varchar2);
+  procedure debug_log(a_message clob);
 
   function to_string(a_value varchar2) return varchar2;
 
