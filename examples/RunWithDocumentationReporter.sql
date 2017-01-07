@@ -72,7 +72,7 @@ end;
 /
 
 begin
-  ut.run(user, ut_documentation_reporter());
+  ut_runner.run();
 end;
 /
 

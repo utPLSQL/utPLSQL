@@ -44,9 +44,6 @@ whenever oserror exit failure rollback
 --suite manager
 @@core/ut_suite_manager.pks
 @@core/ut_suite_manager.pkb
---test runner
-@@core/ut_runner.pks
-@@core/ut_runner.pkb
 
 --assertios execution state interface
 @@core/ut_assert_processor.pks
@@ -154,12 +151,17 @@ whenever oserror exit failure rollback
 @@expectations/ut.pks
 @@expectations/ut.pkb
 
+@@reporters/ut_documentation_reporter.tps
+@@reporters/ut_documentation_reporter.tpb
+
+--test runner
+@@core/ut_runner.pks
+@@core/ut_runner.pkb
+
 @@reporters/ut_teamcity_reporter.tps
 @@reporters/ut_teamcity_reporter_helper.pks
 @@reporters/ut_teamcity_reporter_helper.pkb
 @@reporters/ut_teamcity_reporter.tpb
-@@reporters/ut_documentation_reporter.tps
-@@reporters/ut_documentation_reporter.tpb
 
 
 set linesize 200
