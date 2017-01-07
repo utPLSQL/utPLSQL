@@ -32,8 +32,6 @@ create or replace package body ut_runner is
     run(ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema'))), a_reporters);
   end run;
 
-
-
   function parse_reporting_params(a_params ut_varchar2_list) return tt_call_params is
     l_default_call_param  t_call_param;
     l_call_params         tt_call_params := tt_call_params();

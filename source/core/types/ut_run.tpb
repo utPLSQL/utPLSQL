@@ -6,13 +6,13 @@ create or replace type body ut_run as
     return;
   end;
 
-  member procedure do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_listener_interface) is
+  overriding member procedure do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_listener_interface) is
     l_completed_without_errors boolean;
   begin
     l_completed_without_errors := self.do_execute(a_listener);
   end;
 
-  member function do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_listener_interface) return boolean is
+  overriding member function do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_listener_interface) return boolean is
     l_suite_object    ut_suite;
     l_completed_without_errors boolean;
   begin
@@ -23,9 +23,7 @@ create or replace type body ut_run as
     self.start_time := current_timestamp;
 
     for i in 1 .. self.items.count loop
-      l_suite_object := treat(self.items(i) as ut_suite);
       l_completed_without_errors := l_suite_object.do_execute(a_listener);
-      self.items(i) := l_suite_object;
     end loop;
 
     self.calc_execution_result;

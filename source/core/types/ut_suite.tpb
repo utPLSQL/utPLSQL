@@ -47,17 +47,15 @@ create or replace type body ut_suite as
     self.items(self.items.last) := a_item;
   end;
 
-  member procedure do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_listener_interface) is
+  overriding member procedure do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_listener_interface) is
     l_completed_without_errors boolean;
   begin
     l_completed_without_errors := self.do_execute(a_listener);
   end;
 
-  member function do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_listener_interface) return boolean is
-    l_test_object     ut_test;
-    l_suite_object    ut_suite;
-    l_suite_savepoint varchar2(30);
-    l_item_savepoint  varchar2(30);
+  overriding member function do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_listener_interface) return boolean is
+    l_suite_savepoint varchar2(30 char);
+    l_item_savepoint  varchar2(30 char);
     l_completed_without_errors boolean;
   begin
     ut_utils.debug_log('ut_suite.execute');
@@ -87,16 +85,9 @@ create or replace type body ut_suite as
             l_completed_without_errors := self.before_each.do_execute(self, a_listener);
           end if;
 
+          -- execute the item (test or suite)
           if l_completed_without_errors then
-            if self.items(i) is of (ut_suite) then
-              l_suite_object := treat(self.items(i) as ut_suite);
-              l_completed_without_errors := l_suite_object.do_execute(a_listener);
-              self.items(i) := l_suite_object;
-            elsif self.items(i) is of (ut_test) then
-              l_test_object := treat(self.items(i) as ut_test);
-              l_completed_without_errors := l_test_object.do_execute(a_listener);
-              self.items(i) := l_test_object;
-            end if;
+            l_completed_without_errors := self.items(i).do_execute(a_listener);
           end if;
 
           --after each

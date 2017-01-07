@@ -27,9 +27,10 @@ whenever oserror exit failure rollback
 @@core/types/ut_output_stream.tps
 @@core/ut_output_pipe_helper.pks
 @@core/types/ut_output_dbms_pipe.tps
+@@core/types/ut_suite_item_base.tps
+@@core/types/ut_listener_interface.tps
 @@core/types/ut_suite_item.tps
 @@core/types/ut_suite_items.tps
-@@core/types/ut_listener_interface.tps
 @@core/types/ut_executable.tps
 @@core/types/ut_test.tps
 @@core/types/ut_suite.tps

@@ -14,7 +14,7 @@ create or replace type body ut_suite_item as
     self.ignore_flag := ut_utils.boolean_to_int(a_ignore_flag);
   end;
 
-  member procedure set_ignore_flag( self in out nocopy ut_suite_item, a_ignore_flag boolean) is
+  member procedure set_ignore_flag(self in out nocopy ut_suite_item, a_ignore_flag boolean) is
   begin
     self.ignore_flag := ut_utils.boolean_to_int(a_ignore_flag);
   end;
@@ -34,7 +34,7 @@ create or replace type body ut_suite_item as
     return l_savepoint;
   end;
 
-  member procedure rollback_to_savepoint( self in ut_suite_item, a_savepoint varchar2) is
+  member procedure rollback_to_savepoint(self in ut_suite_item, a_savepoint varchar2) is
   begin
     if self.rollback_type = ut_utils.gc_rollback_auto and a_savepoint is not null then
       execute immediate 'rollback to ' || a_savepoint;

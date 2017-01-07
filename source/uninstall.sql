@@ -118,11 +118,13 @@ drop type ut_test;
 
 drop type ut_executable;
 
-drop type ut_listener_interface;
-
 drop type ut_suite_items;
 
 drop type ut_suite_item;
+
+drop type ut_listener_interface;
+
+drop type ut_suite_item_base;
 
 drop type ut_output_dbms_pipe;
 
