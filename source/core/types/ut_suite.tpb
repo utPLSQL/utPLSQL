@@ -30,16 +30,16 @@ create or replace type body ut_suite as
     l_item_index   pls_integer := self.items.first;
     c_lowered_name constant varchar2(4000 char) := lower(trim(a_name));
     l_result       pls_integer;
-    begin
-      while l_item_index is not null loop
-        if self.items(l_item_index).name = c_lowered_name then
-          l_result := l_item_index;
-          exit;
-        end if;
-        l_item_index := self.items.next(l_item_index);
-      end loop;
-      return l_result;
-    end item_index;
+  begin
+    while l_item_index is not null loop
+      if self.items(l_item_index).name = c_lowered_name then
+        l_result := l_item_index;
+        exit;
+      end if;
+      l_item_index := self.items.next(l_item_index);
+    end loop;
+    return l_result;
+  end item_index;
 
   member procedure add_item(self in out nocopy ut_suite, a_item ut_suite_item) is
   begin
@@ -129,19 +129,19 @@ create or replace type body ut_suite as
 
   member procedure calc_execution_result(self in out nocopy ut_suite) is
     l_result integer(1);
-    begin
-      if self.items is not null and self.items.count > 0 then
-        l_result := ut_utils.tr_ignore;
-        for i in 1 .. self.items.count loop
-          l_result := greatest(self.items(i).result, l_result);
-          exit when l_result = ut_utils.tr_error;
-        end loop;
-      else
-        l_result := ut_utils.tr_success;
-      end if;
+  begin
+    if self.items is not null and self.items.count > 0 then
+      l_result := ut_utils.tr_ignore;
+      for i in 1 .. self.items.count loop
+        l_result := greatest(self.items(i).result, l_result);
+        exit when l_result = ut_utils.tr_error;
+      end loop;
+    else
+      l_result := ut_utils.tr_success;
+    end if;
 
-      self.result := l_result;
-    end;
+    self.result := l_result;
+  end;
 
 end;
 /
