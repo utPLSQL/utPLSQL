@@ -50,7 +50,19 @@ create or replace package body ut_utils is
       null;
     $end
   end;
-
+  
+  procedure debug_log(a_message clob) is
+    l_varchars ut_varchar2_list;
+  begin
+    $if $$ut_trace $then
+      l_varchars := clob_to_table(a_message);
+      for i in 1..l_varchars.count loop
+        dbms_output.put_line(l_varchars(i));
+      end loop;
+    $else
+      null;
+    $end
+  end;
 
   function to_string(a_value varchar2) return varchar2 is
     l_len integer := coalesce(length(a_value),0);

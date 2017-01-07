@@ -3,7 +3,7 @@ PROMPT Reports error when unit test package name for a test is null
 --Arrange
 declare
 	simple_test ut_test := ut_test(a_object_name => null, a_name => 'ut_passing_test');
-	listener ut_execution_listener := ut_execution_listener(ut_reporters());
+	listener ut_event_listener := ut_event_listener(ut_reporters());
 begin
 --Act
 	simple_test.do_execute(listener);

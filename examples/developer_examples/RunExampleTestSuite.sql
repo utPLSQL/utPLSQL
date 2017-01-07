@@ -12,7 +12,7 @@ set echo off
 
 declare
   suite         ut_suite;
-  listener      ut_execution_listener := ut_execution_listener(ut_reporters());
+  listener      ut_event_listener := ut_event_listener(ut_reporters());
   test_item     ut_test;
   assert        ut_assert_result;
 begin

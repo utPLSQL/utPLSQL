@@ -6,14 +6,13 @@ create or replace type body ut_run as
     return;
   end;
 
-  member procedure do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_listener_interface) is
+  overriding member procedure do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base) is
     l_completed_without_errors boolean;
   begin
     l_completed_without_errors := self.do_execute(a_listener);
   end;
 
-  member function do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_listener_interface) return boolean is
-    l_suite_object    ut_suite;
+  overriding member function do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_completed_without_errors boolean;
   begin
     ut_utils.debug_log('ut_run.execute');
@@ -23,9 +22,7 @@ create or replace type body ut_run as
     self.start_time := current_timestamp;
 
     for i in 1 .. self.items.count loop
-      l_suite_object := treat(self.items(i) as ut_suite);
-      l_completed_without_errors := l_suite_object.do_execute(a_listener);
-      self.items(i) := l_suite_object;
+      l_completed_without_errors := self.items(i).do_execute(a_listener);
     end loop;
 
     self.calc_execution_result;
@@ -39,19 +36,19 @@ create or replace type body ut_run as
 
   member procedure calc_execution_result(self in out nocopy ut_run) is
     l_result integer(1);
-    begin
-      if self.items is not null and self.items.count > 0 then
-        l_result := ut_utils.tr_ignore;
-        for i in 1 .. self.items.count loop
-          l_result := greatest(self.items(i).result, l_result);
-          exit when l_result = ut_utils.tr_error;
-        end loop;
-      else
-        l_result := ut_utils.tr_success;
-      end if;
+  begin
+    if self.items is not null and self.items.count > 0 then
+      l_result := ut_utils.tr_ignore;
+      for i in 1 .. self.items.count loop
+        l_result := greatest(self.items(i).result, l_result);
+        exit when l_result = ut_utils.tr_error;
+      end loop;
+    else
+      l_result := ut_utils.tr_success;
+    end if;
 
-      self.result := l_result;
-    end;
+    self.result := l_result;
+  end;
 
 end;
 /

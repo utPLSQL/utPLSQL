@@ -13,7 +13,7 @@ set echo off
 PROMPT Runs test report using composite reporter
 declare
   suite         ut_suite;
-  listener      ut_execution_listener;
+  listener      ut_event_listener;
 begin
   suite := ut_suite(a_object_owner=>null, a_object_name => 'ut_exampletest', a_name => null, a_description => 'Test Suite Name');
 
@@ -35,7 +35,7 @@ begin
   );
 
   -- provide a reporter to process results
-  listener := ut_execution_listener(ut_reporters(ut_documentation_reporter, ut_teamcity_reporter));
+  listener := ut_event_listener(ut_reporters(ut_documentation_reporter, ut_teamcity_reporter));
   suite.do_execute(listener);
 end;
 /

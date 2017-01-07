@@ -15,7 +15,7 @@ set echo off
 
 declare
   suite         ut_suite;
-  listener      ut_execution_listener;
+  listener      ut_event_listener;
 begin
   -- Install ut_custom_reporter first from example folder	
 
@@ -39,7 +39,7 @@ begin
   );
 
   -- provide a reporter to process results tabbing each hierarcy level by tab_size
-  listener := ut_execution_listener(ut_reporters(ut_custom_reporter(a_tab_size => 2)));
+  listener := ut_event_listener(ut_reporters(ut_custom_reporter(a_tab_size => 2)));
   suite.do_execute(listener);
 end;
 /

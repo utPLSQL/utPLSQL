@@ -7,7 +7,7 @@ declare
     ,a_name        => 'ut_passing_test'
     ,a_before_test_proc_name => 'setup'
   );
-  listener ut_execution_listener := ut_execution_listener(ut_reporters());
+  listener ut_event_listener := ut_event_listener(ut_reporters());
 begin
   ut_example_tests.g_number := null;
 --Act
