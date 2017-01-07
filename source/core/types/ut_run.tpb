@@ -2,6 +2,7 @@ create or replace type body ut_run as
 
   constructor function ut_run( self in out nocopy ut_run, a_items ut_suite_items ) return self as result is
   begin
+    self.self_type := $$plsql_unit;
     self.items := a_items;
     return;
   end;

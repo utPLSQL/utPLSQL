@@ -6,6 +6,7 @@ create or replace type body ut_suite as
     a_after_all_proc_name varchar2 := null, a_before_each_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null
   ) return self as result is
   begin
+    self.self_type := $$plsql_unit;
     self.init(a_object_owner, a_object_name, a_name, a_description, a_path, a_rollback_type, a_ignore_flag);
     self.before_all := ut_executable(self, a_before_all_proc_name, ut_utils.gc_before_all);
     self.before_each := ut_executable(self, a_before_each_proc_name, ut_utils.gc_before_each);
