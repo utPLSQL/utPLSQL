@@ -353,14 +353,14 @@ create or replace package body ut_suite_manager is
     l_objects_to_run  ut_suite_items;
 
     function clean_paths(a_paths ut_varchar2_list) return ut_varchar2_list is
-      l_paths ut_varchar2_list := ut_varchar2_list();
+      l_paths_temp ut_varchar2_list := ut_varchar2_list();
     begin
-      l_paths.extend(a_paths.count);
+      l_paths_temp.extend(a_paths.count);
       for i in 1 .. a_paths.count loop
-        l_paths(i) := trim(lower(a_paths(i)));
+        l_paths_temp(i) := trim(lower(a_paths(i)));
       end loop;
-      l_paths := set(l_paths);
-      return l_paths;
+      l_paths_temp := set(l_paths_temp);
+      return l_paths_temp;
     end clean_paths;
 
     procedure skip_by_path(a_suite in out nocopy ut_suite_item, a_path varchar2) is
@@ -374,11 +374,8 @@ create or replace package body ut_suite_manager is
     begin
       a_suite.set_ignore_flag(false);
 
-      if a_suite is of (ut_suite) then
+      if a_path is not null and a_suite is not null and a_suite is of (ut_suite) then
         l_suite := treat(a_suite as ut_suite);
-      end if;
-
-      if a_path is not null and l_suite is not null then
 
         for i in 1 .. l_suite.items.count loop
 

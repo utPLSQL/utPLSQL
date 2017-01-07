@@ -49,9 +49,9 @@ create or replace type body ut_executable is
   end is_valid;
 
   member function form_name return varchar2 is
-    begin
-      return ut_metadata.form_name(owner_name, object_name, procedure_name);
-    end;
+  begin
+    return ut_metadata.form_name(owner_name, object_name, procedure_name);
+  end;
 
   member procedure do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_listener_interface) is
     l_completed_without_errors  boolean;
@@ -67,21 +67,21 @@ create or replace type body ut_executable is
     l_object_name    varchar2(200) := self.object_name;
     l_procedure_name varchar2(200) := self.procedure_name;
 
-    l_error_stack     varchar2(32767);
-    l_error_backtrace varchar2(32767);
+    l_error_stack     varchar2(32767 byte);
+    l_error_backtrace varchar2(32767 byte);
     l_completed_without_errors boolean := true;
 
-    function process_errors_from_call( a_error_stack varchar2, a_error_backtrace varchar2) return boolean is
-      l_errors_stack_trace varchar2(32767) := rtrim(a_error_stack||a_error_backtrace, chr(10));
-      begin
-        if l_errors_stack_trace is not null then
-          ut_utils.debug_log('test method failed- ' ||l_errors_stack_trace );
-          ut_assert_processor.report_error( l_errors_stack_trace );
-          return false;
-        else
-          return true;
-        end if;
-      end;
+    function process_errors_from_call(a_error_stack varchar2, a_error_backtrace varchar2) return boolean is
+      l_errors_stack_trace varchar2(32767 byte) := rtrim(a_error_stack||a_error_backtrace, chr(10));
+    begin
+      if l_errors_stack_trace is not null then
+        ut_utils.debug_log('test method failed- ' ||l_errors_stack_trace );
+        ut_assert_processor.report_error( l_errors_stack_trace );
+        return false;
+      else
+        return true;
+      end if;
+    end;
   begin
     if self.is_defined() then
       --listener - before call to executable
