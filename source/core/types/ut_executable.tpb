@@ -53,13 +53,13 @@ create or replace type body ut_executable is
     return ut_metadata.form_name(owner_name, object_name, procedure_name);
   end;
 
-  member procedure do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_listener_interface) is
+  member procedure do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is
     l_completed_without_errors  boolean;
   begin
     l_completed_without_errors := self.do_execute(a_item, a_listener);
   end do_execute;
 
-	member function do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_listener_interface) return boolean is
+	member function do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_statement      varchar2(4000);
     l_status         number;
     l_cursor_number  number;

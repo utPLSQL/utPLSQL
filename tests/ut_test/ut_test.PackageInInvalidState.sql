@@ -9,7 +9,7 @@ end;
 
 declare
 	simple_test ut_test := ut_test(a_object_name => 'invalid_package', a_name => 'ut_exampletest');
-	listener ut_execution_listener := ut_execution_listener(ut_reporters());
+	listener ut_event_listener := ut_event_listener(ut_reporters());
 begin
 --Act
 	simple_test.do_execute(listener);

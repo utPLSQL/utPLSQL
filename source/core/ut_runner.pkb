@@ -4,13 +4,13 @@ create or replace package body ut_runner is
 
   procedure run(a_paths ut_varchar2_list, a_reporters ut_reporters) is
     l_items_to_run  ut_run;
-    l_listener      ut_execution_listener;
+    l_listener      ut_event_listener;
     l_current_suite ut_suite;
   begin
     if a_reporters is null or a_reporters.count = 0 then
-      l_listener := ut_execution_listener(ut_reporters(ut_documentation_reporter()));
+      l_listener := ut_event_listener(ut_reporters(ut_documentation_reporter()));
     else
-      l_listener := ut_execution_listener(a_reporters);
+      l_listener := ut_event_listener(a_reporters);
     end if;
     l_items_to_run := ut_run( ut_suite_manager.configure_execution_by_path(a_paths) );
     l_items_to_run.do_execute(l_listener);

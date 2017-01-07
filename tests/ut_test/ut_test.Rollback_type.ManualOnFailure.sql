@@ -8,7 +8,7 @@ declare
   l_expected ut_annotations.typ_annotated_package;
   l_ann_param ut_annotations.typ_annotation_param;
   l_cnt number;
-  l_listener ut_execution_listener := ut_execution_listener(ut_reporters());
+  l_listener ut_event_listener := ut_event_listener(ut_reporters());
 begin
 
   delete from ut$test_table;

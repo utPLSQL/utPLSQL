@@ -7,7 +7,7 @@ declare
     ,a_object_name => 'ut_example_tests'
     ,a_name => 'ut_exampletest'
   );
-  listener ut_execution_listener := ut_execution_listener(ut_reporters());
+  listener ut_event_listener := ut_event_listener(ut_reporters());
 begin
   ut_example_tests.g_char := 'x';
 --Act

@@ -47,13 +47,13 @@ create or replace type body ut_suite as
     self.items(self.items.last) := a_item;
   end;
 
-  overriding member procedure do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_listener_interface) is
+  overriding member procedure do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_event_listener_base) is
     l_completed_without_errors boolean;
   begin
     l_completed_without_errors := self.do_execute(a_listener);
   end;
 
-  overriding member function do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_listener_interface) return boolean is
+  overriding member function do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_suite_savepoint varchar2(30);
     l_item_savepoint  varchar2(30);
     l_completed_without_errors boolean;

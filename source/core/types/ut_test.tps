@@ -23,7 +23,7 @@ create or replace type ut_test under ut_suite_item (
     a_path varchar2 := null, a_rollback_type integer := null, a_ignore_flag boolean := false, a_before_test_proc_name varchar2 := null, a_after_test_proc_name varchar2 := null
   ) return self as result,
   member function is_valid return boolean,
-  overriding member procedure do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_listener_interface),
-  overriding member function do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_listener_interface) return boolean
+  overriding member procedure do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base),
+  overriding member function do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base) return boolean
 )
 /

@@ -1,7 +1,7 @@
 create or replace type ut_suite_item_base as object (
 
   /**
-  * Object type is a pre-declaration to be referenced by ut_listener_interface
+  * Object type is a pre-declaration to be referenced by ut_event_listener_base
   * The true abstract type is ut_suite_item
   */
 

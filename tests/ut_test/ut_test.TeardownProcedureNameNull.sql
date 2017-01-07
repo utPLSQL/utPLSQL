@@ -7,7 +7,7 @@ declare
     ,a_object_name => 'ut_example_tests'
     ,a_name => 'ut_passing_test'
   );
-  listener ut_execution_listener := ut_execution_listener(ut_reporters());
+  listener ut_event_listener := ut_event_listener(ut_reporters());
 begin
 --Act
   simple_test.do_execute(listener);

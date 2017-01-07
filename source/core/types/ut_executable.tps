@@ -11,12 +11,12 @@ create or replace type ut_executable force as object
   member function is_valid return boolean,
   member function is_defined return boolean,
   member function form_name return varchar2,
-  member procedure do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_listener_interface),
+  member procedure do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base),
   /**
   * executes the defines executable
   * returns true if executed without exceptions
   * returns false if exceptions were raised
   */
-  member function do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_listener_interface) return boolean
+  member function do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean
 ) final
 /
