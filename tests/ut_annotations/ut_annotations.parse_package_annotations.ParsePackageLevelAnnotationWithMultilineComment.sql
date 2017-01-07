@@ -13,8 +13,9 @@ begin
   Some comment
   -- inlined
   */
-  -- %suite(Name of suite)
-  -- %suitepackage(all.globaltests)
+  -- %suite
+  --%displayname(Name of suite)
+  -- %suitepath(all.globaltests)
   
   procedure foo;
 END;';
@@ -25,11 +26,12 @@ END;';
 --Assert
   l_ann_param := null;
   l_ann_param.val := 'Name of suite'; 
-  l_expected.package_annotations('suite')(1) := l_ann_param;
+  l_expected.package_annotations('suite') := cast( null as ut_annotations.tt_annotation_params);
+  l_expected.package_annotations('displayname')(1) := l_ann_param;
   
   l_ann_param := null;
   l_ann_param.val := 'all.globaltests';  
-  l_expected.package_annotations('suitepackage')(1) := l_ann_param;
+  l_expected.package_annotations('suitepath')(1) := l_ann_param;
   
   check_annotation_parsing(l_expected, l_parsing_result);
   

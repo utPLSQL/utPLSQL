@@ -14,7 +14,7 @@ Parameters:
   -p=ut_path(s)- A path or a comma separated list of paths to unit test to be executed.
                  The path can be in one of the following formats:
                    schema[.package[.procedure]]
-                   schema:suitepacakge[.suitepackage[.suitepackage][...]][.procedure]
+                   schema:suite[.suite[.suite][...]][.procedure]
                  Both formats can be mixed in the comma separated list.
                  If only schema is provided, then all suites owner by that schema (user) are executed.
                  If -p is omitted, the current schema is used.
