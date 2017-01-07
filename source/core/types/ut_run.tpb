@@ -13,7 +13,6 @@ create or replace type body ut_run as
   end;
 
   overriding member function do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base) return boolean is
-    l_suite_object    ut_suite;
     l_completed_without_errors boolean;
   begin
     ut_utils.debug_log('ut_run.execute');
@@ -23,7 +22,7 @@ create or replace type body ut_run as
     self.start_time := current_timestamp;
 
     for i in 1 .. self.items.count loop
-      l_completed_without_errors := l_suite_object.do_execute(a_listener);
+      l_completed_without_errors := self.items(i).do_execute(a_listener);
     end loop;
 
     self.calc_execution_result;
