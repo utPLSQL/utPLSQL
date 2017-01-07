@@ -54,8 +54,8 @@ create or replace type body ut_suite as
   end;
 
   overriding member function do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_listener_interface) return boolean is
-    l_suite_savepoint varchar2(30 char);
-    l_item_savepoint  varchar2(30 char);
+    l_suite_savepoint varchar2(30);
+    l_item_savepoint  varchar2(30);
     l_completed_without_errors boolean;
   begin
     ut_utils.debug_log('ut_suite.execute');

@@ -67,12 +67,12 @@ create or replace type body ut_executable is
     l_object_name    varchar2(200) := self.object_name;
     l_procedure_name varchar2(200) := self.procedure_name;
 
-    l_error_stack     varchar2(32767 byte);
-    l_error_backtrace varchar2(32767 byte);
+    l_error_stack     varchar2(32767);
+    l_error_backtrace varchar2(32767);
     l_completed_without_errors boolean := true;
 
     function process_errors_from_call(a_error_stack varchar2, a_error_backtrace varchar2) return boolean is
-      l_errors_stack_trace varchar2(32767 byte) := rtrim(a_error_stack||a_error_backtrace, chr(10));
+      l_errors_stack_trace varchar2(32767) := rtrim(a_error_stack||a_error_backtrace, chr(10));
     begin
       if l_errors_stack_trace is not null then
         ut_utils.debug_log('test method failed- ' ||l_errors_stack_trace );

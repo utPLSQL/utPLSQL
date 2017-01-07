@@ -19,7 +19,7 @@ create or replace type body ut_execution_listener is
   overriding member procedure fire_event(self in out nocopy ut_execution_listener, a_event_timing varchar2, a_event_name varchar2, a_item ut_suite_item_base) is
     l_method varchar2(250) := a_event_timing||'_calling_'||a_event_name;
     l_reporter ut_reporter;
-    l_call_stmt varchar2(32767 byte);
+    l_call_stmt varchar2(32767);
   begin
     l_call_stmt := 'begin :a_reporter.'||l_method||'( :a_item ); end;';
     
