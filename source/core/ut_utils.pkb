@@ -52,9 +52,13 @@ create or replace package body ut_utils is
   end;
   
   procedure debug_log(a_message clob) is
+    l_varchars ut_varchar2_list;
   begin
     $if $$ut_trace $then
-      dbms_output.put_line(a_message);
+      l_varchars := clob_to_table(a_message);
+      for i in 1..l_varchars.count loop
+        dbms_output.put_line(l_varchars(i));
+      end loop;
     $else
       null;
     $end
