@@ -22,6 +22,7 @@ whenever oserror exit failure rollback
 --core types
 @@core/types/ut_assert_result.tps
 @@core/types/ut_assert_results.tps
+@@core/types/ut_results_counter.tps
 @@core/types/ut_output.tps
 @@core/types/ut_output_dbms_output.tps
 @@core/types/ut_output_stream.tps
@@ -51,6 +52,7 @@ whenever oserror exit failure rollback
 @@core/ut_assert_processor.pkb
 
 --core type bodies
+@@core/types/ut_results_counter.tpb
 @@core/types/ut_suite_item.tpb
 @@core/types/ut_test.tpb
 @@core/types/ut_suite.tpb
@@ -163,7 +165,8 @@ whenever oserror exit failure rollback
 @@reporters/ut_teamcity_reporter_helper.pks
 @@reporters/ut_teamcity_reporter_helper.pkb
 @@reporters/ut_teamcity_reporter.tpb
-
+@@reporters/ut_junit_reporter.tps
+@@reporters/ut_junit_reporter.tpb
 
 set linesize 200
 column text format a100

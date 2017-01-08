@@ -104,6 +104,8 @@ drop type ut_documentation_reporter;
 
 drop type ut_teamcity_reporter;
 
+drop type ut_junit_reporter;
+
 drop type ut_event_listener;
 
 drop type ut_reporters;
@@ -135,6 +137,8 @@ drop type ut_output_stream;
 drop type ut_output_dbms_output;
 
 drop type ut_output;
+
+drop type ut_results_counter;
 
 drop type ut_assert_results;
 

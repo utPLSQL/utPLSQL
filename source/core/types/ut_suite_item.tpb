@@ -12,6 +12,7 @@ create or replace type body ut_suite_item as
     self.path := nvl(lower(trim(a_path)), self.object_name);
     self.rollback_type := a_rollback_type;
     self.ignore_flag := ut_utils.boolean_to_int(a_ignore_flag);
+    self.results_count := ut_results_counter();
   end;
 
   member procedure set_ignore_flag(self in out nocopy ut_suite_item, a_ignore_flag boolean) is
