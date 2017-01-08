@@ -18,7 +18,6 @@ create or replace package ut_utils authid definer is
   gc_after_test              constant varchar2(10) := 'after_test';
   gc_after_each              constant varchar2(12) := 'after_each';
   gc_after_all               constant varchar2(12) := 'after_all';
-  gc_after_run               constant varchar2(12) := 'after_run';
 
   /* Constants: Test Results */
   tr_ignore                  constant number(1) := 0; -- test/suite was ignored
@@ -49,6 +48,16 @@ create or replace package ut_utils authid definer is
   ex_invalid_path_format exception;
   gc_invalid_path_format constant pls_integer := -20202;
   pragma exception_init(ex_invalid_path_format, -20202);
+  
+  -- Reporting event time not supported
+  ex_invalid_rep_event_time exception;
+  gc_invalid_rep_event_time constant pls_integer := -20210;
+  pragma exception_init(ex_invalid_rep_event_time, -20210);
+  
+  -- Reporting event name not supported
+  ex_invalid_rep_event_name exception;
+  gc_invalid_rep_event_name constant pls_integer := -20211;
+  pragma exception_init(ex_invalid_rep_event_name, -20211);
 
 
   gc_max_output_string_length constant integer := 4000;
