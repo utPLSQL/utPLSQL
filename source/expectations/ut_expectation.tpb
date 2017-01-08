@@ -10,7 +10,7 @@ create or replace type body ut_expectation as
     ut_assert_processor.add_assert_result(
       ut_assert_result(
         a_matcher_name, l_assert_info, a_error_message, ut_utils.to_test_result(coalesce(a_assert_result,false)),
-        a_expected_data_type, self.actual_data.datatype, a_expected_value_string, self.actual_data.to_string(), self.message
+        a_expected_data_type, self.actual_data.data_type, a_expected_value_string, self.actual_data.to_string(), self.message
       )
     );
   end;
@@ -104,7 +104,7 @@ create or replace type body ut_expectation as
     l_matcher_name   := 'to '||l_matcher.name;
     if l_matcher.expected is not null then
       add_assert_result( l_assert_result, l_matcher_name, l_matcher.additional_info, l_matcher.error_message
-        , l_matcher.expected.to_string(), l_matcher.expected.datatype );
+        , l_matcher.expected.to_string(), l_matcher.expected.data_type );
     else
       add_assert_result( l_assert_result, l_matcher_name, l_matcher.additional_info, l_matcher.error_message );
     end if;
@@ -121,7 +121,7 @@ create or replace type body ut_expectation as
     l_matcher_name   := 'not to '||l_matcher.name;
     if l_matcher.expected is not null then
       add_assert_result( l_assert_result, l_matcher_name, l_matcher.additional_info, l_matcher.error_message
-        , l_matcher.expected.to_string(), l_matcher.expected.datatype );
+        , l_matcher.expected.to_string(), l_matcher.expected.data_type );
     else
       add_assert_result( l_assert_result, l_matcher_name, l_matcher.additional_info, l_matcher.error_message );
     end if;
