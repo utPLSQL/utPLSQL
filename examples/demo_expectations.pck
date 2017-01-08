@@ -52,8 +52,6 @@ create or replace package demo_expectations is
 
 end;
 /
-
-
 create or replace package body demo_expectations is
 
   procedure demo_nulls_on_expectations is
@@ -515,10 +513,10 @@ create or replace package body demo_expectations is
     ut.expect( 'stephen_' ).to_be_like('_tephen\_', '\'); --escape wildcards with '\'
     ut.expect( 'Hi, I am Stephen' ).to_( be_like('%Stephen') );
     ut.expect( 'stephen_' ).to_( be_like('_tephen^_', '^')); --escape wildcards with '^'
-    ut.expect( l_clob ).to_be_like('a%a_TE%');
-    ut.expect( l_clob ).to_be_like('a%a_TE%\_', '\'); --escape wildcards with '\'
-    ut.expect( l_clob ).to_( be_like('a%a_TE%') );
-    ut.expect( l_clob ).to_( be_like('a%a_TE%\_', '\') ); --escape wildcards with '\'
+    ut.expect( l_clob ).to_be_like('a%S_EP%');
+    ut.expect( l_clob ).to_be_like('a%S_EP%\_', '\'); --escape wildcards with '\'
+    ut.expect( l_clob ).to_( be_like('a%S_EP%') );
+    ut.expect( l_clob ).to_( be_like('a%S_EP%\_', '\') ); --escape wildcards with '\'
   end;
 
   procedure demo_not_to_failure is
