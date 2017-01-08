@@ -3,7 +3,7 @@ create or replace type body ut_data_value_anydata as
   constructor function ut_data_value_anydata(self in out nocopy ut_data_value_anydata, a_value anydata) return self as result is
   begin
     self.datavalue := a_value;
-    self.datatype := 'anydata';
+    self.datatype  := a_value.gettypename;
     return;
   end;
 
@@ -15,9 +15,9 @@ create or replace type body ut_data_value_anydata as
   begin
     if self.datavalue is null then
       l_is_null := true;
-    elsif self.datavalue.gettypename like '%.%' then
-    --XMLTYPE doesn't like the null beeing passed to ANYDATA so we need to check if anydata holds null Object/collection
     --check if typename is a schema based object
+    elsif self.datavalue.gettypename like '%.%' then
+      --XMLTYPE doesn't like the null beeing passed to ANYDATA so we need to check if anydata holds null Object/collection
       l_anydata_accessor :=
         case when self.datavalue.gettype(l_type) = dbms_types.typecode_object then 'getObject' else 'getCollection' end;
       execute immediate '
@@ -37,12 +37,14 @@ create or replace type body ut_data_value_anydata as
 
   overriding member function to_string return varchar2 is
     l_result varchar2(32767);
+    l_clob   clob;
   begin
     if self.is_null() then
       l_result := ut_utils.to_string( to_char(null) );
     else
       ut_assert_processor.set_xml_nls_params();
-      l_result := ut_utils.to_string( xmltype(self.datavalue).getclobval() );
+      select xmlserialize(content xmltype(self.datavalue) indent) into l_clob from dual;
+      l_result := ut_utils.to_string( l_clob );
       ut_assert_processor.reset_nls_params();
     end if;
     return l_result;

@@ -78,19 +78,19 @@ create or replace type body equal as
     init(ut_data_value_varchar2(a_expected), a_nulls_are_equal);
     return;
   end;
-  
+
   constructor function equal(self in out nocopy equal, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_yminterval(a_expected), a_nulls_are_equal);
-    return;  
+    return;
   end;
-  
+
   constructor function equal(self in out nocopy equal, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_dsinterval(a_expected), a_nulls_are_equal);
-    return;  
+    return;
   end;
-  
+
   overriding member function run_matcher(self in out nocopy equal, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
@@ -100,7 +100,15 @@ create or replace type body equal as
         l_actual   ut_data_value_anydata := treat(a_actual as ut_data_value_anydata);
       begin
         ut_assert_processor.set_xml_nls_params();
-        l_result := equal_with_nulls((xmltype(l_expected.datavalue).getclobval() = xmltype(l_actual.datavalue).getclobval()), a_actual);
+        --XMLTYPE doesn't like the null being passed from anydata or object types, so we need to check if anydata holds null Object/collection
+        --This is why equal_with_nulls cannot be used here
+        if ut_utils.int_to_boolean( nulls_are_equal_flag ) and self.expected.is_null() and a_actual.is_null() then
+            l_result := true;
+        elsif self.expected.is_null() or a_actual.is_null() then
+          l_result := false;
+        else
+          l_result := xmltype(l_expected.datavalue).getclobval() = xmltype(l_actual.datavalue).getclobval();
+        end if;
         ut_assert_processor.reset_nls_params();
       end;
     elsif self.expected is of (ut_data_value_blob) and a_actual is of (ut_data_value_blob) then
