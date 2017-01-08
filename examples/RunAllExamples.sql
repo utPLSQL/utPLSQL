@@ -27,4 +27,4 @@ prompt RunExpectations
 @@award_bonus/run_award_bonus_test.sql
 @@between_string/run_betwnstr_test.sql
 @@remove_rooms_by_name/run_remove_rooms_by_name_test.sql
-
+@@demo_of_expectations/run.sql
