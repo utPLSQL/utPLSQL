@@ -28,12 +28,12 @@ create or replace package ut_runner authid definer is
   *                       parent setup/teardown procedures
   */
 
-  procedure run(a_path varchar2 := null, a_reporter ut_reporter := ut_documentation_reporter());
+  procedure run(a_path varchar2 := null, a_reporter ut_reporter_base := ut_documentation_reporter());
 
   procedure run(a_path varchar2, a_reporters ut_reporters);
 
   -- TODO - implementation to be changed
-  procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter := ut_documentation_reporter());
+  procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter());
 
   -- TODO - implementation to be changed
   procedure run(a_paths ut_varchar2_list, a_reporters ut_reporters);

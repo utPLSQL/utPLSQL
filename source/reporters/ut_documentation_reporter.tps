@@ -1,4 +1,4 @@
-create or replace type ut_documentation_reporter force under ut_reporter
+create or replace type ut_documentation_reporter force under ut_reporter_base
 (
   lvl                integer,
   test_count         integer,

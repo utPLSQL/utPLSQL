@@ -121,7 +121,7 @@ begin
   p(  'set linesize 4000');
   p(  'spool ut_run.dbms_output.log');
   p(  'declare');
-  p(  '  v_reporter       ut_reporter;');
+  p(  '  v_reporter       ut_reporter_base;');
   p(  '  v_reporters_list ut_reporters := ut_reporters();');
   p(  'begin');
   for i in 1 .. cardinality(l_run_params.call_params) loop

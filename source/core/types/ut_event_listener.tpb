@@ -22,7 +22,7 @@ create or replace type body ut_event_listener is
   begin
     l_call_stmt :=
       'declare' ||
-      '  v_reporter ut_reporter := :a_reporter; ' ||
+      '  v_reporter ut_reporter_base := :a_reporter; ' ||
       'begin' ||
       '  v_reporter.'||l_method||'( treat( :a_item as '||a_item.self_type||')); ' ||
       '  :a_reporter := v_reporter; ' ||

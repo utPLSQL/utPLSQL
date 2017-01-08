@@ -19,7 +19,7 @@ create or replace type body ut_documentation_reporter is
   overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2) is
   begin
     if a_text is not null then
-      (self as ut_reporter).print_text(tab || a_text);
+      (self as ut_reporter_base).print_text(tab || a_text);
     end if;
   end;
 
@@ -122,7 +122,7 @@ create or replace type body ut_documentation_reporter is
       end
     );
     self.print_text(' ');
-    (self as ut_reporter).after_calling_run(a_run);
+    (self as ut_reporter_base).after_calling_run(a_run);
   end;
 
 end;

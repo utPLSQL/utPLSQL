@@ -108,7 +108,7 @@ drop type ut_event_listener;
 
 drop type ut_reporters;
 
-drop type ut_reporter force;
+drop type ut_reporter_base force;
 
 drop type ut_run;
 

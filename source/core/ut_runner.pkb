@@ -16,13 +16,13 @@ create or replace package body ut_runner is
     l_items_to_run.do_execute(l_listener);
   end;
 
-  procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter := ut_documentation_reporter()) is
+  procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter()) is
   begin
     run(a_paths, ut_reporters(coalesce(a_reporter,ut_documentation_reporter())));
   end;
 
 
-  procedure run(a_path in varchar2, a_reporter ut_reporter := ut_documentation_reporter()) is
+  procedure run(a_path in varchar2, a_reporter ut_reporter_base := ut_documentation_reporter()) is
   begin
     run(ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema'))), a_reporter);
   end run;

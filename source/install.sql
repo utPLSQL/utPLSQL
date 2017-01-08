@@ -35,7 +35,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_test.tps
 @@core/types/ut_suite.tps
 @@core/types/ut_run.tps
-@@core/types/ut_reporter.tps
+@@core/types/ut_reporter_base.tps
 @@core/types/ut_reporters.tps
 @@core/types/ut_event_listener.tps
 --annoations
@@ -62,7 +62,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_output_stream.tpb
 @@core/ut_output_pipe_helper.pkb
 @@core/types/ut_output_dbms_pipe.tpb
-@@core/types/ut_reporter.tpb
+@@core/types/ut_reporter_base.tpb
 @@core/types/ut_executable.tpb
 
 --expecations and matchers
