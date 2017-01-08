@@ -4,7 +4,7 @@ declare
   l_value_lower &&1 := &&3;
   l_value_upper &&1 := &&4;
   l_result integer;
-  l_asserts_results ut_objects_list;
+  l_asserts_results ut_assert_results;
 begin
 --Act
   ut.expect(l_value1).to_(be_between(l_value_lower,l_value_upper));

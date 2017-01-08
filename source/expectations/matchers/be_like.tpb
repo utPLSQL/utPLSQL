@@ -18,9 +18,9 @@ create or replace type body be_like as
     l_value clob;
   begin
     if a_actual is of (ut_data_value_varchar2) then
-      l_value := treat(a_actual as ut_data_value_varchar2).datavalue;
+      l_value := treat(a_actual as ut_data_value_varchar2).data_value;
     elsif a_actual is of (ut_data_value_clob) then
-      l_value := treat(a_actual as ut_data_value_clob).datavalue;
+      l_value := treat(a_actual as ut_data_value_clob).data_value;
     end if;
 
     return

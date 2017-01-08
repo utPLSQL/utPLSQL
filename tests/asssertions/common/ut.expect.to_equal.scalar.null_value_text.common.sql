@@ -2,7 +2,7 @@
 declare
   l_actual   &&1 := &&2;
   l_expected &&1 := &&3;
-  l_results      ut_objects_list;
+  l_results      ut_assert_results;
 begin
 --Act
   ut.expect(l_actual).to_equal(l_expected);

@@ -11,7 +11,7 @@ create or replace type body be_false as
     return
       case
         when a_actual is of (ut_data_value_boolean)
-        then not ut_utils.int_to_boolean(treat(a_actual as ut_data_value_boolean).datavalue)
+        then not ut_utils.int_to_boolean(treat(a_actual as ut_data_value_boolean).data_value)
         else (self as ut_matcher).run_matcher(a_actual)
       end;
   end;

@@ -5,7 +5,7 @@ declare
   l_value_upper timestamp := to_timestamp('1997-01-31 09:26:50.14','YYYY-MM-DD HH24.MI.SS.FF');
 
   l_result integer;
-  l_asserts_results ut_objects_list;
+  l_asserts_results ut_assert_results;
 begin
   --Act
   ut.expect(l_value).to_(be_between(l_value_lower,l_value_upper));

@@ -4,6 +4,7 @@ set serveroutput on size unlimited
 set timing off
 set define off
 
+spool install.log
 ALTER SESSION SET PLSQL_WARNINGS = 'ENABLE:ALL', 'DISABLE:(6000,6001,6003,6010, 7206)';
 
 
@@ -19,23 +20,24 @@ whenever oserror exit failure rollback
 @@core/ut_metadata.pkb
 
 --core types
-@@core/types/ut_object.tps
-@@core/types/ut_objects_list.tps
-@@core/types/ut_composite_object.tps
-@@core/types/ut_executable.tps
 @@core/types/ut_assert_result.tps
-@@core/types/ut_assert_list.tps
+@@core/types/ut_assert_results.tps
 @@core/types/ut_output.tps
 @@core/types/ut_output_dbms_output.tps
 @@core/types/ut_output_stream.tps
 @@core/ut_output_pipe_helper.pks
 @@core/types/ut_output_dbms_pipe.tps
-@@core/types/ut_reporter.tps
-@@core/types/ut_reporters_list.tps
-@@core/types/ut_composite_reporter.tps
-@@core/types/ut_test_object.tps
+@@core/types/ut_suite_item_base.tps
+@@core/types/ut_event_listener_base.tps
+@@core/types/ut_suite_item.tps
+@@core/types/ut_suite_items.tps
+@@core/types/ut_executable.tps
 @@core/types/ut_test.tps
-@@core/types/ut_test_suite.tps
+@@core/types/ut_suite.tps
+@@core/types/ut_run.tps
+@@core/types/ut_reporter_base.tps
+@@core/types/ut_reporters.tps
+@@core/types/ut_event_listener.tps
 --annoations
 @@core/annotations/ut_annotations.pks
 @@core/annotations/ut_annotations.pkb
@@ -43,29 +45,25 @@ whenever oserror exit failure rollback
 --suite manager
 @@core/ut_suite_manager.pks
 @@core/ut_suite_manager.pkb
---test runner
-@@core/ut_runner.pks
-@@core/ut_runner.pkb
 
 --assertios execution state interface
 @@core/ut_assert_processor.pks
 @@core/ut_assert_processor.pkb
 
 --core type bodies
+@@core/types/ut_suite_item.tpb
+@@core/types/ut_test.tpb
+@@core/types/ut_suite.tpb
+@@core/types/ut_run.tpb
+@@core/types/ut_event_listener.tpb
 @@core/types/ut_assert_result.tpb
 @@core/types/ut_output.tpb
 @@core/types/ut_output_dbms_output.tpb
 @@core/types/ut_output_stream.tpb
 @@core/ut_output_pipe_helper.pkb
 @@core/types/ut_output_dbms_pipe.tpb
-@@core/types/ut_reporter.tpb
-@@core/types/ut_object.tpb
-@@core/types/ut_composite_object.tpb
-@@core/types/ut_test_object.tpb
-@@core/types/ut_test.tpb
-@@core/types/ut_test_suite.tpb
+@@core/types/ut_reporter_base.tpb
 @@core/types/ut_executable.tpb
-@@core/types/ut_composite_reporter.tpb
 
 --expecations and matchers
 @@expectations/data_values/ut_data_value.tps
@@ -154,16 +152,17 @@ whenever oserror exit failure rollback
 @@expectations/ut.pks
 @@expectations/ut.pkb
 
+@@reporters/ut_documentation_reporter.tps
+@@reporters/ut_documentation_reporter.tpb
+
+--test runner
+@@core/ut_runner.pks
+@@core/ut_runner.pkb
+
 @@reporters/ut_teamcity_reporter.tps
 @@reporters/ut_teamcity_reporter_helper.pks
 @@reporters/ut_teamcity_reporter_helper.pkb
 @@reporters/ut_teamcity_reporter.tpb
-@@reporters/ut_documentation_reporter.tps
-@@reporters/ut_documentation_reporter.tpb
-
-@@legacy/ut_assert.pks
-@@legacy/ut_assert.pkb
-
 
 
 set linesize 200
@@ -191,5 +190,7 @@ begin
   end if;
 end;
 /
+
+spool off
 
 exit success

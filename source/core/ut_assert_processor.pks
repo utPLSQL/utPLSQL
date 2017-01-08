@@ -12,7 +12,7 @@ create or replace package ut_assert_processor authid current_user as
 
   procedure clear_asserts;
 
-  function get_asserts_results return ut_objects_list;
+  function get_asserts_results return ut_assert_results;
 
   procedure add_assert_result(a_assert_result ut_assert_result);
 

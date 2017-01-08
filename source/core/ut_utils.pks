@@ -3,11 +3,23 @@ create or replace package ut_utils authid definer is
   /*
     Package: ut_utils
      a collection of tools used throught utplsql along with helper functions.
-  
+
   */
 
+
+  /* Constants: Event names */
+  gc_run                     constant varchar2(12) := 'run';
+  gc_suite                   constant varchar2(12) := 'suite';
+  gc_before_all              constant varchar2(12) := 'before_all';
+  gc_before_each             constant varchar2(12) := 'before_each';
+  gc_before_test             constant varchar2(12) := 'before_test';
+  gc_test                    constant varchar2(12) := 'test';
+  gc_test_execute            constant varchar2(12) := 'test_execute';
+  gc_after_test              constant varchar2(10) := 'after_test';
+  gc_after_each              constant varchar2(12) := 'after_each';
+  gc_after_all               constant varchar2(12) := 'after_all';
+
   /* Constants: Test Results */
-  tr_skip                    constant number(1) := -1; -- silent skip without reporting. internal use
   tr_ignore                  constant number(1) := 0; -- test/suite was ignored
   tr_success                 constant number(1) := 1; -- test passed
   tr_failure                 constant number(1) := 2; -- one or more asserts failed
@@ -36,6 +48,16 @@ create or replace package ut_utils authid definer is
   ex_invalid_path_format exception;
   gc_invalid_path_format constant pls_integer := -20202;
   pragma exception_init(ex_invalid_path_format, -20202);
+  
+  -- Reporting event time not supported
+  ex_invalid_rep_event_time exception;
+  gc_invalid_rep_event_time constant pls_integer := -20210;
+  pragma exception_init(ex_invalid_rep_event_time, -20210);
+  
+  -- Reporting event name not supported
+  ex_invalid_rep_event_name exception;
+  gc_invalid_rep_event_name constant pls_integer := -20211;
+  pragma exception_init(ex_invalid_rep_event_name, -20211);
 
 
   gc_max_output_string_length constant integer := 4000;
@@ -50,13 +72,13 @@ create or replace package ut_utils authid definer is
   /*
      Function: test_result_to_char
         returns a string representation of a test_result.
-  
+
      Parameters:
           a_test_result - <test_result>.
-  
+
      Returns:
         a_test_result as string.
-  
+
   */
   function test_result_to_char(a_test_result integer) return varchar2;
 
@@ -65,6 +87,7 @@ create or replace package ut_utils authid definer is
   function gen_savepoint_name return varchar2;
 
   procedure debug_log(a_message varchar2);
+  procedure debug_log(a_message clob);
 
   function to_string(a_value varchar2) return varchar2;
 
@@ -144,6 +167,9 @@ create or replace package ut_utils authid definer is
 
   function time_diff(a_start_time timestamp with time zone, a_end_time timestamp with time zone) return number;
 
+  /*
+  * Returns a text indented with spaces except the first line.
+  */
   function indent_lines(a_text varchar2, a_indent_size integer) return varchar2;
 
 end ut_utils;

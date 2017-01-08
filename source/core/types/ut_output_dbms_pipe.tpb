@@ -2,7 +2,7 @@ create or replace type body ut_output_dbms_pipe as
 
   constructor function ut_output_dbms_pipe(self in out nocopy ut_output_dbms_pipe) return self as result is
   begin
-    self.output_type := $$plsql_unit;
+    self.self_type := $$plsql_unit;
     self.output_id := self.generate_output_id;
     return;
   end;

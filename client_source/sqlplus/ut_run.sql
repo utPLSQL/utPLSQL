@@ -5,39 +5,54 @@
   Current limit of script parameters is 39
 
 Scrip invocation:
-  ut_run.sql user password database [ut_path|ut_paths] (-f=format [-o=output] [-s] ...)
+  ut_run.sql user/password@database [-p=(ut_path|ut_paths)] [-f=format [-o=output] [-s] ...]
 
 Parameters:
-  user      - username to connect as
-  password  - password of the user
-  database  - database to connect to
-  ut_path   - a path(s) ot unit test(s) to be executed: user[.package[.procedure]]
-  ut_paths  - a comma separated list of ut_path (with no spaces in between)
-  -f=format - reporter to be used for reporting
-  -o=output - file name to save the output provided by the reporter.
-              If defined, the output is not displayed on screen by default. This can be changed with the -s parameter.
-              If not defined, then output will be displayed on screen, even if the parameter -s is not specified.
-              If more than one -o parameter is specified for one -f parameter, the last one is taken into consideration.
-  -s        - Forces putting output to to screen for a given -f parameter.
+  user         - username to connect as
+  password     - password of the user
+  database     - database to connect to
+  -p=ut_path(s)- A path or a comma separated list of paths to unit test to be executed.
+                 The path can be in one of the following formats:
+                   schema[.package[.procedure]]
+                   schema:suitepacakge[.suitepackage[.suitepackage][...]][.procedure]
+                 Both formats can be mixed in the comma separated list.
+                 If only schema is provided, then all suites owner by that schema (user) are executed.
+                 If -p is omitted, the current schema is used.
+  -f=format    - A reporter to be used for reporting.
+                 Available options:
+                   -f=ut_documentation_reporter
+                     A textual pretty-print of unit test results (usually use for console output)
+                   -f=ut_teamcity_reporter
+                     A teamcity Unit Test reporter, that can be used to visualize progress of test execution as the job progresses.
+                   -f=ut_junit_reporter
+                     A junit xml format (as defined at: http://stackoverflow.com/a/9691131 and at https://gist.github.com/kuzuha/232902acab1344d6b578)
+                     Usually used for consumption by Continuous Integration servers like Jenkins/Hudson or Teamcity
+                 If no -f option is provided, the ut_documentation_reporter will be used.
+
+  -o=output    - file name to save the output provided by the reporter.
+                 If defined, the output is not displayed on screen by default. This can be changed with the -s parameter.
+                 If not defined, then output will be displayed on screen, even if the parameter -s is not specified.
+                 If more than one -o parameter is specified for one -f parameter, the last one is taken into consideration.
+  -s           - Forces putting output to to screen for a given -f parameter.
 
   Parameters -f, -o, -s are correlated. That is parameters -o and -s are defining outputs for -f.
   Examples of invocation using sqlplus from command line:
 
-    sqlplus /nolog @ut_run hr hr xe hr -f=ut_documentation_reporter -o=run.log -s -f=ut_teamcity_reporter -o=teamcity.xml
+    sqlplus /nolog @ut_run hr/hr@xe -p=hr_test -f=ut_documentation_reporter -o=run.log -s -f=ut_teamcity_reporter -o=teamcity.xml
 
-      Unit tests will be be invoked with two reporters:
-      - ut_documentation_reporter - this one will output to screen and into file "run.log"
-      - ut_teamcity_reporter - this one will output to file "teamcity.xml"
+      All Unit tests from schema "hr_test" will be be invoked with two reporters:
+      - ut_documentation_reporter - will output to screen and save it's output to file "run.log"
+      - ut_teamcity_reporter - will save it's output to file "teamcity.xml"
 
-    sqlplus /nolog @ut_run hr hr xe hr -f=ut_documentation_reporter
+    sqlplus /nolog @ut_run hr/hr@xe
 
-      Unit tests will be be invoked with ut_documentation_reporter as a format and the results will be printed to screen
+      All Unit tests from schema "hr" will be be invoked with ut_documentation_reporter as a format and the results will be printed to screen
 
  */
 
 whenever sqlerror exit failure
 whenever oserror exit failure
-conn &1/&2@&3
+conn &1
 whenever sqlerror continue
 whenever oserror continue
 
@@ -106,15 +121,15 @@ begin
   p(  'set linesize 4000');
   p(  'spool ut_run.dbms_output.log');
   p(  'declare');
-  p(  '  v_reporter       ut_reporter;');
-  p(  '  v_reporters_list ut_reporters_list := ut_reporters_list();');
+  p(  '  v_reporter       ut_reporter_base;');
+  p(  '  v_reporters_list ut_reporters := ut_reporters();');
   p(  'begin');
   for i in 1 .. cardinality(l_run_params.call_params) loop
     p('  v_reporter := '||l_run_params.call_params(i).ut_reporter_name||'('||l_output_type||'());');
     p('  v_reporter.output.output_id := '''||l_run_params.call_params(i).output_id||''';');
     p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
   end loop;
-  p(  '  ut.run( ut_varchar2_list('||l_run_params.ut_paths||'), ut_composite_reporter( v_reporters_list ) );');
+  p(  '  ut_runner.run( ut_varchar2_list('||l_run_params.ut_paths||'), v_reporters_list );');
   p(  'end;');
   p(  '/');
   p(  'spool off');
@@ -149,9 +164,9 @@ spool off
 set termout off
 set define #
 --try running on windows
-$ start sqlplus ##1/##2@##3 @run_in_backgroung.sql.tmp
+$ start sqlplus ##1 @run_in_backgroung.sql.tmp
 --try running on linus/unix
-! sqlplus ##1/##2@##3 @run_in_backgroung.sql.tmp &
+! sqlplus ##1 @run_in_backgroung.sql.tmp &
 set define &
 set termout on
 --make sure we fetch row by row to indicate the progress

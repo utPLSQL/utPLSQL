@@ -43,11 +43,11 @@ end;
 /
 
 create or replace package demo_doc_reporter2 is
-  -- %suite(A suite pacakge without body)
+  -- %suite(A suite package without body)
   -- %test(A test)
-  procedure passing_test1;
+  procedure test1;
   -- %test
-  procedure passing_test2;
+  procedure test2;
 end;
 /
 
@@ -72,7 +72,7 @@ end;
 /
 
 begin
-  ut.run(user, ut_documentation_reporter());
+  ut_runner.run();
 end;
 /
 

@@ -6,13 +6,13 @@ create or replace package TEST_PKG1 is
   -- %suite(Name of suite on test_pkg1)
   -- %suitepackage(all.globaltests)
 
-  /* 
+  /*
   Such comments are skipped
-  
+
   test name
   %test1
   %test2(name=123)
-    %test3(name2=123,tete=123) 
+    %test3(name2=123,tete=123)
   %test4(name2=123,tete)
   */
   /*
@@ -22,7 +22,7 @@ create or replace package TEST_PKG1 is
   --test name
   --%test1
   --%test2(name=123)
-  ----  %test3(name2=123,tete=123) 
+  ----  %test3(name2=123,tete=123)
   ---- asd %test4(name2=123,tete)
   --  t3 t4
   procedure foo;
@@ -66,7 +66,6 @@ create or replace package body test_pkg1 is
   procedure test1 is
   begin
     ut.expect(g_val1,'1 equals 1 check').to_equal(1);
-    ut_assert.are_equal(a_msg => '1 equals 1 check', a_expected => 1, a_actual => g_val1);
   end;
 
   procedure test2 is
