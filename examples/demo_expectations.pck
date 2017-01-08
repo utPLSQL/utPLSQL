@@ -513,10 +513,10 @@ create or replace package body demo_expectations is
     ut.expect( 'stephen_' ).to_be_like('_tephen\_', '\'); --escape wildcards with '\'
     ut.expect( 'Hi, I am Stephen' ).to_( be_like('%Stephen') );
     ut.expect( 'stephen_' ).to_( be_like('_tephen^_', '^')); --escape wildcards with '^'
-    ut.expect( l_clob ).to_be_like('a%S_EP%');
-    ut.expect( l_clob ).to_be_like('a%S_EP%\_', '\'); --escape wildcards with '\'
-    ut.expect( l_clob ).to_( be_like('a%S_EP%') );
-    ut.expect( l_clob ).to_( be_like('a%S_EP%\_', '\') ); --escape wildcards with '\'
+    ut.expect( l_clob ).to_be_like('%a%S_EP%');
+    ut.expect( l_clob ).to_be_like('%a%S_EP%\_', '\'); --escape wildcards with '\'
+    ut.expect( l_clob ).to_( be_like('%a%S_EP%') );
+    ut.expect( l_clob ).to_( be_like('%a%S_EP%\_', '\') ); --escape wildcards with '\'
   end;
 
   procedure demo_not_to_failure is
@@ -540,10 +540,9 @@ create or replace package body demo_expectations is
     ut.expect( to_char(null) ).not_to( be_not_null() );
     ut.expect( true ).not_to( be_false );
     ut.expect( false ).not_to( be_true );
-    ut.expect( cast(null as boolean) ).not_to( be_false );
-    ut.expect( cast(null as boolean) ).not_to( be_true );
+    ut.expect(sysdate).not_to( be_between(sysdate+1,sysdate+2) );
     ut.expect( 1 ).not_to( equal( 2 ) );
-    ut.expect( to_char(null) ).not_to( equal( to_char(null), a_nulls_are_equal=> false ) );
+    ut.expect( 'asd' ).not_to( be_like('z%q') );
   end;
 
 end;
