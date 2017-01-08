@@ -3,7 +3,7 @@ create or replace type body ut_data_value_anydata as
   constructor function ut_data_value_anydata(self in out nocopy ut_data_value_anydata, a_value anydata) return self as result is
   begin
     self.datavalue := a_value;
-    self.datatype  := a_value.gettypename;
+    self.datatype  := lower(a_value.gettypename);
     return;
   end;
 

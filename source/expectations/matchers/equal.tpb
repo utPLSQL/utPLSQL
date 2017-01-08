@@ -94,7 +94,9 @@ create or replace type body equal as
   overriding member function run_matcher(self in out nocopy equal, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
-    if self.expected is of (ut_data_value_anydata) and a_actual is of (ut_data_value_anydata) then
+    if self.expected is of (ut_data_value_anydata) and a_actual is of (ut_data_value_anydata)
+      --anydata can hold many different data types
+      and self.expected.datatype = a_actual.datatype then
       declare
         l_expected ut_data_value_anydata := treat(self.expected as ut_data_value_anydata);
         l_actual   ut_data_value_anydata := treat(a_actual as ut_data_value_anydata);
