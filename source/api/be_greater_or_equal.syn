@@ -1,0 +1,1 @@
+create synonym be_greater_or_equal for ut_be_greater_or_equal;

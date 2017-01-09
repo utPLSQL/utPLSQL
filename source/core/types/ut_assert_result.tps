@@ -10,7 +10,7 @@ create or replace type ut_assert_result as object
   result integer(1),
   /*
   * Additional information about the expression used by matcher
-  * Used for complex matcher: like, between, match etc.
+  * Used for complex matcher: like, between, ut_match etc.
   */
   additional_info       varchar2(4000 char),
   /*
