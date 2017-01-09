@@ -56,8 +56,8 @@ end test_pkg;
 | `%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarcies. |
 | `%displayname(<description>)` | Package/procedure | Human-familiar describtion of the suite/test. `%displayname(Name of the suite/test)` |
 | `%test` | Procedure | Denotes that a method is a test method. |
-| `%beforeall` | Procedure | Denotes that the annotated procedure should be executed before all `%test` methods in the current suite. |
-| `%afterall` | Procedure | Denotes that the annotated procedure should be executed after all `%test` methods in the current suite. |
+| `%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the current suite. |
+| `%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the current suite. |
 | `%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` method in the current suite. |
 | `%aftereach` | Procedure | Denotes that the annotated procedure should be executed after each `%test` method in the current suite. |
 | `%beforetest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed before the annotated `%test` procedure. |
