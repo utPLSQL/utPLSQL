@@ -4,11 +4,9 @@ create or replace type body ut_custom_reporter is
   begin
     self.name     := $$plsql_unit;
     self.lvl      := 0;
-    self.failed_test_count  := 0;
-    self.test_count         := 0;
-    self.igonred_test_count := 0;
     self.tab_size := a_tab_size;
     self.output   := a_output;
+    self.failed_test_running_count := 0;
     return;
   end;
 
