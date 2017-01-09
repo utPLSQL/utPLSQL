@@ -1,4 +1,4 @@
-create or replace type ut_run under ut_suite_item (
+create or replace type ut_run authid current_user under ut_suite_item (
   /**
   * The list of items (suites) to be invoked as part of this run
   */

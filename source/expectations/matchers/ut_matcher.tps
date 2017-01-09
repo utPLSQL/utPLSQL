@@ -1,4 +1,4 @@
-create or replace type ut_matcher as object(
+create or replace type ut_matcher authid current_user as object(
   name            varchar2(250),
   additional_info varchar2(4000),
   error_message   varchar2(4000),

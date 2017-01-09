@@ -4,27 +4,8 @@ set echo off
 set feedback off
 set linesize 1000
 
---developer examples
-prompt RunExampleComplexSuiteWithCustomReporter
-@@developer_examples/RunExampleComplexSuiteWithCustomReporter.sql
-prompt RunExampleTestSuiteWithCustomReporter
-@@developer_examples/RunExampleTestSuiteWithCustomReporter.sql
-prompt RunExampleTestAnnotationsParsingTimeHugePackage
-@@developer_examples/RunExampleTestAnnotationsParsingTimeHugePackage.sql
-prompt RunExampleTestSuite
-@@developer_examples/RunExampleTestSuite.sql
-prompt RunExampleTestSuiteWithCompositeReporter
-@@developer_examples/RunExampleTestSuiteWithCompositeReporter.sql
+-- Examples for users
+@@RunUserExamples.sql
 
-
-prompt RunExampleTestAnnotationBasedForCurrentSchema
-@@RunExampleTestAnnotationBasedForCurrentSchema.sql
-prompt RunExpectations
-@@RunExpectations.sql
-
-@@RunWithDocumentationReporter.sql
-
-@@award_bonus/run_award_bonus_test.sql
-@@between_string/run_betwnstr_test.sql
-@@remove_rooms_by_name/run_remove_rooms_by_name_test.sql
-@@demo_of_expectations/run.sql
+-- Framework developer examples
+@@RunDeveloperExamples.sql

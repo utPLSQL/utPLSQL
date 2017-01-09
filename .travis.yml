@@ -15,9 +15,12 @@ env:
     - DATABASE_NAME=XE
     - ORA_SDTZ='Europe/London' #Needed as a client parameter
     - TZ='Europe/London'       #Needed as a DB Server parameter
-    - UT3_USER=ut3
-    - UT3_PASSWORD=ut3
-    - UT3_TABLESPACE=users
+    - UT3_OWNER=ut3
+    - UT3_OWNER_PASSWORD=ut3
+    - UT3_OWNER_TABLESPACE=users
+    - UT3_USER=ut3_user
+    - UT3_USER_PASSWORD=ut3
+    - UT3_USER_TABLESPACE=users
       # Target Branch and Directory for Deployment of Docs
     - PAGES_TARGET_BRANCH="gh-pages"
     - PAGES_VERSION_BASE="version3"
@@ -47,11 +50,15 @@ install:
   - bash .travis/oracle/install.sh
 
 script:
+  - bash .travis/create_utplsql_owner.sh
   - bash .travis/create_utplsql_user.sh
   - bash .travis/install_libraries.sh
   - bash .travis/install.sh
-  - bash .travis/run_examples.sh
-  - bash .travis/run_test.sh
+  - bash .travis/grant_user.sh
+  - bash .travis/run_examples_as_owner.sh
+  - bash .travis/run_test_as_owner.sh
+  - bash .travis/run_examples_as_user.sh
+#  - bash .travis/run_test_as_user.sh
 #  - bash .travis/build_docs.sh
 #  - bash .travis/push_docs_to_gh_pages.sh
 

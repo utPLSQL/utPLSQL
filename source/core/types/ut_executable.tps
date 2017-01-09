@@ -1,4 +1,4 @@
-create or replace type ut_executable force as object
+create or replace type ut_executable force authid current_user as object
 (
   /**
   * The name of the event to be executed before and after the executable is invoked

@@ -1,4 +1,4 @@
-create or replace type ut_suite_item_base as object (
+create or replace type ut_suite_item_base authid current_user as object (
 
   /**
   * Object type is a pre-declaration to be referenced by ut_event_listener_base

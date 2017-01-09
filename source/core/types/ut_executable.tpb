@@ -34,7 +34,7 @@ create or replace type body ut_executable is
     if l_result and not ut_metadata.package_valid(self.owner_name, self.object_name) then
       l_result := false;
       ut_assert_processor.report_error('Call params for ' || self.associated_event_name ||
-                             ' are not valid: package does not exist or is invalid: ' ||
+                             ' are not valid: package does not exist or is invalid: ' ||nvl(self.owner_name, '<missing schema name>')||'.'||
                              nvl(self.object_name, '<missing package name>'));
     end if;
 

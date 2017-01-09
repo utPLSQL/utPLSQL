@@ -68,15 +68,15 @@ create or replace package body demo_expectations is
     ut.expect( to_char(null), 'this should fail' ).not_to( equal( to_char(null) ) );
 
     --fails on nulls not beeig equal
-    ut_assert_processor.nulls_are_equal(false);
+    ut.nulls_are_equal(false);
     ut.expect( to_char(null), 'fails when global null_are_equal=false' ).to_( equal(to_char(null) ) );
-    ut_assert_processor.nulls_are_equal( true );
+    ut.nulls_are_equal( true );
     ut.expect( to_char(null), 'fails when local null_are_equal=false' ).to_( equal(to_char(null), a_nulls_are_equal => false ) );
 
     --succeeds when nulls are considered equal
-    ut_assert_processor.nulls_are_equal(false);
+    ut.nulls_are_equal(false);
     ut.expect( to_char(null) , 'succeeds when local null_are_equal=true' ).to_( equal( to_char(null), a_nulls_are_equal => true ) );
-    ut_assert_processor.nulls_are_equal( true );
+    ut.nulls_are_equal( true );
     ut.expect( to_char(null), 'succeeds when global null_are_equal=true' ).to_( equal( to_char(null) ) );
 
     --fails as null is not comparable with not null

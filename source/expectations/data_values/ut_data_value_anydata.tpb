@@ -12,6 +12,9 @@ create or replace type body ut_data_value_anydata as
     l_data_is_null     pls_integer;
     l_type             anytype;
     l_anydata_accessor varchar2(30);
+    l_sql varchar2(32767);
+    l_cursor number;
+    l_status number;
   begin
     if self.data_value is null then
       l_is_null := true;
@@ -19,16 +22,31 @@ create or replace type body ut_data_value_anydata as
     elsif self.data_value.gettypename like '%.%' then
       --XMLTYPE doesn't like the null beeing passed to ANYDATA so we need to check if anydata holds null Object/collection
       l_anydata_accessor :=
-        case when self.data_value.gettype(l_type) = dbms_types.typecode_object then 'getObject' else 'getCollection' end;
-      execute immediate '
+        case when self.data_value.gettype(l_type) = sys.dbms_types.typecode_object then 'getObject' else 'getCollection' end;
+        
+        l_sql := '
         declare
           l_data '||self.data_value.gettypename()||';
           l_value anydata := :a_value;
           x integer;
         begin
           x := l_value.'||l_anydata_accessor||'(l_data);
-          :l_data_is_null := ut_utils.boolean_to_int(l_data is null);
-        end;' using in self.data_value, out l_data_is_null;
+          :l_data_is_null := case when l_data is null then 1 else 0 end;
+        end;';
+        l_cursor := sys.dbms_sql.open_cursor();
+        sys.dbms_sql.parse(l_cursor, l_sql, dbms_sql.native);
+        sys.dbms_sql.bind_variable(l_cursor,'a_value',self.data_value);
+        sys.dbms_sql.bind_variable(l_cursor,'l_data_is_null',l_data_is_null);
+        begin
+          l_status := sys.dbms_sql.execute(l_cursor);
+          sys.dbms_sql.variable_value(l_cursor,'l_data_is_null',l_data_is_null);
+          sys.dbms_sql.close_cursor(l_cursor);
+        exception when others then
+          if sys.dbms_sql.is_open(l_cursor) then
+            sys.dbms_sql.close_cursor(l_cursor);
+          end if;
+          raise;
+        end;
 
       l_is_null := ut_utils.int_to_boolean(l_data_is_null);
     end if;
