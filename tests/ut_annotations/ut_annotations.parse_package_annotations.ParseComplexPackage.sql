@@ -9,14 +9,15 @@ declare
 
 begin
   l_source := 'PACKAGE test_tt AS
-  -- %suite(Name of suite)
-  -- %suitepackage(all.globaltests)
+  -- %suite
+  -- %displayname(Name of suite)
+  -- %suitepath(all.globaltests)
   
   --%test
   procedure foo;
   
   
-  --%setup
+  --%beforeeach
   procedure foo2;
   
   --test comment
@@ -26,7 +27,7 @@ begin
   /*
   describtion of the procedure
   */
-  --%setup(key=testval)
+  --%beforeeach(key=testval)
   PROCEDURE foo3(a_value number default null);
   
   function foo4(a_val number default null
@@ -39,24 +40,25 @@ END;';
 --Assert
   l_ann_param := null;
   l_ann_param.val := 'Name of suite'; 
-  l_expected.package_annotations('suite')(1) := l_ann_param;
+  l_expected.package_annotations('suite') := cast( null as ut_annotations.tt_annotation_params);
+  l_expected.package_annotations('displayname')(1) := l_ann_param;
   
   l_ann_param := null;
   l_ann_param.val := 'all.globaltests';  
-  l_expected.package_annotations('suitepackage')(1) := l_ann_param;
+  l_expected.package_annotations('suitepath')(1) := l_ann_param;
   
   l_expected.procedure_annotations(1).name := 'foo';
   l_expected.procedure_annotations(1).annotations('test') := cast( null as ut_annotations.tt_annotation_params);
   
   l_expected.procedure_annotations(2).name := 'foo2';
-  l_expected.procedure_annotations(2).annotations('setup') := cast( null as ut_annotations.tt_annotation_params);
+  l_expected.procedure_annotations(2).annotations('beforeeach') := cast( null as ut_annotations.tt_annotation_params);
   
   l_ann_param := null;
   l_ann_param.key := 'key'; 
   l_ann_param.val := 'testval';
   
   l_expected.procedure_annotations(3).name := 'foo3';
-  l_expected.procedure_annotations(3).annotations('setup')(1) := l_ann_param;
+  l_expected.procedure_annotations(3).annotations('beforeeach')(1) := l_ann_param;
   
   check_annotation_parsing(l_expected, l_parsing_result);
   
