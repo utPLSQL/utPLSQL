@@ -104,7 +104,7 @@ drop type ut_documentation_reporter;
 
 drop type ut_teamcity_reporter;
 
-drop type ut_junit_reporter;
+drop type ut_xunit_reporter;
 
 drop type ut_event_listener;
 

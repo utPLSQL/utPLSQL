@@ -165,8 +165,8 @@ whenever oserror exit failure rollback
 @@reporters/ut_teamcity_reporter_helper.pks
 @@reporters/ut_teamcity_reporter_helper.pkb
 @@reporters/ut_teamcity_reporter.tpb
-@@reporters/ut_junit_reporter.tps
-@@reporters/ut_junit_reporter.tpb
+@@reporters/ut_xunit_reporter.tps
+@@reporters/ut_xunit_reporter.tpb
 
 set linesize 200
 column text format a100

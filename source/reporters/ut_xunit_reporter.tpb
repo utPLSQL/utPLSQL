@@ -1,13 +1,13 @@
-create or replace type body ut_junit_reporter is
+create or replace type body ut_xunit_reporter is
 
-  constructor function ut_junit_reporter(a_output ut_output default ut_output_dbms_output()) return self as result is
+  constructor function ut_xunit_reporter(a_output ut_output default ut_output_dbms_output()) return self as result is
   begin
     self.name   := $$plsql_unit;
     self.output := a_output;
     return;
   end;
 
-  overriding member procedure after_calling_run(self in out nocopy ut_junit_reporter, a_run in ut_run) is
+  overriding member procedure after_calling_run(self in out nocopy ut_xunit_reporter, a_run in ut_run) is
     l_suite_id    integer := 0;
     l_tests_count integer := a_run.results_count.ignored_count + a_run.results_count.success_count + a_run.results_count.failure_count + a_run.results_count.errored_count;
 
@@ -18,9 +18,6 @@ create or replace type body ut_junit_reporter is
 
     procedure print_test_elements(a_test ut_test) is
     begin
-      --     http://stackoverflow.com/questions/4922867/junit-xml-format-specification-that-hudson-supports
-      --     http://stackoverflow.com/questions/8079071/xml-format-specification-dtd-xsd-for-unit-test-reports
-      --     https://gist.github.com/kuzuha/232902acab1344d6b578
       self.print_text(
           '<testcase classname="'||get_path(a_test.path, a_test.name)||'" ' ||
           ' assertions="'||a_test.results.count||'"' ||

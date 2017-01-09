@@ -55,10 +55,10 @@ The following table is a work in progress right now, and **will** change.   If y
 | Multiple Output Reporters can be used during test execution | No | Yes |
 | DBMS_OUTPUT               | Yes           | Yes (format changed)   |
 | Stored in Table           | Yes           | On Roadmap             |
-| JUnit XML Format          | No            | On Roadmap             |
+| XUnit XML Format          | No            | Yes                    |
 | HTML Format               | Yes           | On Roadmap             |
 | File                      | Yes           | On Roadmap             |
-| Realtime test execution results | No       | On Roadmap             |
+| Realtime test execution results | No       | Yes             |
 | Custom Output reporter    | Yes           | Yes                    |
 
 <sup>1</sup> Annotations are specially formatted comments in your package specification.  This enables *declarative* test configuration that is coupled with the source code.   See Documentation for more details. 
