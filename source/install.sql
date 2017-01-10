@@ -83,18 +83,18 @@ whenever oserror exit failure rollback
 @@expectations/data_values/ut_data_value_varchar2.tps
 @@expectations/data_values/ut_data_value_yminterval.tps
 @@expectations/matchers/ut_matcher.tps
-@@expectations/matchers/be_false.tps
-@@expectations/matchers/be_greater_or_equal.tps
-@@expectations/matchers/be_greater_than.tps
-@@expectations/matchers/be_less_or_equal.tps
-@@expectations/matchers/be_less_than.tps
-@@expectations/matchers/be_like.tps
-@@expectations/matchers/be_not_null.tps
-@@expectations/matchers/be_null.tps
-@@expectations/matchers/be_true.tps
-@@expectations/matchers/equal.tps
-@@expectations/matchers/be_between.tps
-@@expectations/matchers/match.tps
+@@expectations/matchers/ut_be_false.tps
+@@expectations/matchers/ut_be_greater_or_equal.tps
+@@expectations/matchers/ut_be_greater_than.tps
+@@expectations/matchers/ut_be_less_or_equal.tps
+@@expectations/matchers/ut_be_less_than.tps
+@@expectations/matchers/ut_be_like.tps
+@@expectations/matchers/ut_be_not_null.tps
+@@expectations/matchers/ut_be_null.tps
+@@expectations/matchers/ut_be_true.tps
+@@expectations/matchers/ut_equal.tps
+@@expectations/matchers/ut_be_between.tps
+@@expectations/matchers/ut_match.tps
 @@expectations/ut_expectation.tps
 @@expectations/ut_expectation_anydata.tps
 @@expectations/ut_expectation_blob.tps
@@ -123,18 +123,18 @@ whenever oserror exit failure rollback
 @@expectations/data_values/ut_data_value_varchar2.tpb
 @@expectations/data_values/ut_data_value_yminterval.tpb
 @@expectations/matchers/ut_matcher.tpb
-@@expectations/matchers/be_false.tpb
-@@expectations/matchers/be_greater_or_equal.tpb
-@@expectations/matchers/be_greater_than.tpb
-@@expectations/matchers/be_less_or_equal.tpb
-@@expectations/matchers/be_less_than.tpb
-@@expectations/matchers/be_like.tpb
-@@expectations/matchers/be_not_null.tpb
-@@expectations/matchers/be_null.tpb
-@@expectations/matchers/be_true.tpb
-@@expectations/matchers/equal.tpb
-@@expectations/matchers/be_between.tpb
-@@expectations/matchers/match.tpb
+@@expectations/matchers/ut_be_false.tpb
+@@expectations/matchers/ut_be_greater_or_equal.tpb
+@@expectations/matchers/ut_be_greater_than.tpb
+@@expectations/matchers/ut_be_less_or_equal.tpb
+@@expectations/matchers/ut_be_less_than.tpb
+@@expectations/matchers/ut_be_like.tpb
+@@expectations/matchers/ut_be_not_null.tpb
+@@expectations/matchers/ut_be_null.tpb
+@@expectations/matchers/ut_be_true.tpb
+@@expectations/matchers/ut_equal.tpb
+@@expectations/matchers/ut_be_between.tpb
+@@expectations/matchers/ut_match.tpb
 @@expectations/ut_expectation.tpb
 @@expectations/ut_expectation_anydata.tpb
 @@expectations/ut_expectation_blob.tpb
@@ -151,15 +151,15 @@ whenever oserror exit failure rollback
 @@expectations/ut_expectation_yminterval.tpb
 
 --expectations interface
-@@expectations/ut.pks
-@@expectations/ut.pkb
+@@api/ut.pks
+@@api/ut.pkb
 
 @@reporters/ut_documentation_reporter.tps
 @@reporters/ut_documentation_reporter.tpb
 
 --test runner
-@@core/ut_runner.pks
-@@core/ut_runner.pkb
+@@api/ut_runner.pks
+@@api/ut_runner.pkb
 
 @@reporters/ut_teamcity_reporter.tps
 @@reporters/ut_teamcity_reporter_helper.pks
@@ -168,15 +168,29 @@ whenever oserror exit failure rollback
 @@reporters/ut_xunit_reporter.tps
 @@reporters/ut_xunit_reporter.tpb
 
+@@api/be_between.syn
+@@api/be_false.syn
+@@api/be_greater_or_equal.syn
+@@api/be_greater_than.syn
+@@api/be_less_or_equal.syn
+@@api/be_less_than.syn
+@@api/be_like.syn
+@@api/be_not_null.syn
+@@api/be_null.syn
+@@api/be_true.syn
+@@api/equal.syn
+@@api/match.syn
+
+
 set linesize 200
 column text format a100
 prompt Validating installation
--- erors only. ignore warnings
 select name, type, sequence, line, position, text
- from user_errors
-where name not like 'BIN$%'  --not recycled
-and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH','BE_BETWEEN')) -- utplsql objects
-and attribute = 'ERROR'
+  from user_errors
+ where name not like 'BIN$%'  --not recycled
+   and (name like 'UT%')
+   -- errors only. ignore warnings
+   and attribute = 'ERROR'
 /
 
 declare
@@ -185,9 +199,9 @@ begin
   select count(1)
     into l_cnt
     from user_errors
-	where name not like 'BIN$%'
-    and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH','BE_BETWEEN'))
-    and attribute = 'ERROR';
+   where name not like 'BIN$%'
+     and (name like 'UT%')
+     and attribute = 'ERROR';
   if l_cnt > 0 then
     raise_application_error(-20000, 'Not all sources were successfully installed.');
   end if;

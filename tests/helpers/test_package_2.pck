@@ -1,22 +1,22 @@
 create or replace package test_package_2 is
 
   --%suite
-  --%suitepackage(tests.test_package_1)
+  --%suitepath(tests.test_package_1)
 
   gv_glob_val varchar2(1);
 
-  --%setup
+  --%beforeeach
   procedure global_setup;
 
-  --%teardown
+  --%aftereach
   procedure global_teardown;
 
   --%test
   procedure test1;
 
   --%test
-  --%testsetup(test2_setup)
-  --%testteardown(test2_teardown)
+  --%beforetest(test2_setup)
+  --%aftertest(test2_teardown)
   procedure test2;
 
   procedure test2_setup;

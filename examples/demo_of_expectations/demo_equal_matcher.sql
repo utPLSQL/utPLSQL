@@ -13,31 +13,39 @@ create or replace type demo_departments as table of demo_department
 
 create or replace package demo_equal_matcher as
 
-  -- %suite(Equal matcher)
-  -- %suitepackage(org.utplsql.v3.demo.matchers)
+  -- %suite
+  -- %displayname(Equal matcher)
+  -- %suitepath(org.utplsql.v3.demo.matchers)
 
   -- TODO this should go into context(compare_objects, Comparing objects)
   -- %context(compare_objects, Comparing objects)
 
-    -- %test(Gives success when comparing identical objects containing identical data)
+    -- %test
+    -- %displayname(Gives success when comparing identical objects containing identical data)
     procedure object_compare_success;
 
-    -- %test(Gives failure when comparing to a null actual)
+    -- %test
+    -- %displayname(Gives failure when comparing to a null actual)
     procedure object_compare_null_actual;
 
-    -- %test(Gives failure when comparing to a null expected)
+    -- %test
+    -- %displayname(Gives failure when comparing to a null expected)
     procedure object_compare_null_expected;
 
-    -- %test(Gives success when comparing null actual to a null expected)
+    -- %test
+    -- %displayname(Gives success when comparing null actual to a null expected)
     procedure object_compare_null_both_ok;
 
-    -- %test(Gives failure when comparing null actual to a null expected, setting null equal to false)
+    -- %test
+    -- %displayname(Gives failure when comparing null actual to a null expected, setting null equal to false)
     procedure object_compare_null_both_fail;
 
-    -- %test(Gives failure when comparing identical objects containing different data)
+    -- %test
+    -- %displayname(Gives failure when comparing identical objects containing different data)
     procedure object_compare_different_data;
 
-    -- %test(Gives failure when comparing different objects containing identical data)
+    -- %test
+    -- %displayname(Gives failure when comparing different objects containing identical data)
     procedure object_compare_different_type;
 
   -- %end_context

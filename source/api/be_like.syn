@@ -1,0 +1,1 @@
+create synonym be_like for ut_be_like;

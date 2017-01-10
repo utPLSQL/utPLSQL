@@ -1,12 +1,12 @@
-create or replace type body be_false as
+create or replace type body ut_be_false as
 
-  constructor function be_false(self in out nocopy be_false) return self as result is
+  constructor function ut_be_false(self in out nocopy ut_be_false) return self as result is
   begin
     self.name := lower($$plsql_unit);
     return;
   end;
 
-  overriding member function run_matcher(self in out nocopy be_false, a_actual ut_data_value) return boolean is
+  overriding member function run_matcher(self in out nocopy ut_be_false, a_actual ut_data_value) return boolean is
   begin
     return
       case

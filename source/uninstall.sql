@@ -2,6 +2,30 @@ prompt Uninstalling utplsql framework
 
 spool uninstall.log
 
+drop synonym be_between;
+
+drop synonym match;
+
+drop synonym be_false;
+
+drop synonym be_greater_or_equal;
+
+drop synonym be_greater_than;
+
+drop synonym be_less_or_equal;
+
+drop synonym be_less_than;
+
+drop synonym be_like;
+
+drop synonym be_not_null;
+
+drop synonym be_null;
+
+drop synonym be_true;
+
+drop synonym equal;
+
 drop package ut_teamcity_reporter_helper;
 
 drop package ut_runner;
@@ -40,29 +64,29 @@ drop type ut_expectation;
 
 drop package ut_assert_processor;
 
-drop type match;
+drop type ut_match;
 
-drop type be_between;
+drop type ut_be_between;
 
-drop type equal;
+drop type ut_equal;
 
-drop type be_true;
+drop type ut_be_true;
 
-drop type be_null;
+drop type ut_be_null;
 
-drop type be_not_null;
+drop type ut_be_not_null;
 
-drop type be_like;
+drop type ut_be_like;
 
-drop type be_greater_or_equal;
+drop type ut_be_greater_or_equal;
 
-drop type be_greater_than;
+drop type ut_be_greater_than;
 
-drop type be_less_or_equal;
+drop type ut_be_less_or_equal;
 
-drop type be_less_than;
+drop type ut_be_less_than;
 
-drop type be_false;
+drop type ut_be_false;
 
 drop type ut_matcher;
 

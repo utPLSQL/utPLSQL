@@ -1,53 +1,70 @@
 create or replace package demo_expectations is
 
-  -- %suite(Demoing asserts)
+  -- %suite
+  -- %displayname(Demoing asserts)
 
-  -- %test(demo of expectations with nulls)
+  -- %test
+  -- %displayname(demo of expectations with nulls)
   procedure demo_nulls_on_expectations;
 
-  -- %test(demo of failure for to_equal expectation on value mismatch)
+  -- %test
+  -- %displayname(demo of failure for to_equal expectation on value mismatch)
   procedure demo_to_equal_failure;
 
-  -- %test(demo of failure for to_equal expectation on data type mismatch)
+  -- %test
+  -- %displayname(demo of failure for to_equal expectation on data type mismatch)
   procedure demo_to_equal_failure_types;
 
-  -- %test(demo of success for to_equal expectation)
+  -- %test
+  -- %displayname(demo of success for to_equal expectation)
   procedure demo_to_equal_success;
 
-  -- %test(demo of failure for to_be_true and to_be_false expectation)
+  -- %test
+  -- %displayname(demo of failure for to_be_true and to_be_false expectation)
   procedure demo_to_be_true_false_failure;
 
-  -- %test(demo of success for to_be_true and to_be_false expectation)
+  -- %test
+  -- %displayname(demo of success for to_be_true and to_be_false expectation)
   procedure demo_to_be_true_false_success;
 
-  -- %test(demo of failure for to_be_null expectation )
+  -- %test
+  -- %displayname(demo of failure for to_be_null expectation )
   procedure demo_to_be_null_failure;
 
-  -- %test(demo of failure for to_be_null expectation )
+  -- %test
+  -- %displayname(demo of failure for to_be_null expectation )
   procedure demo_to_be_null_success;
 
-  -- %test(demo of success for to_be_not_null expectation )
+  -- %test
+  -- %displayname(demo of success for to_be_not_null expectation )
   procedure demo_to_be_not_null_failure;
 
-  -- %test(demo of success for to_be_not_null expectation)
+  -- %test
+  -- %displayname(demo of success for to_be_not_null expectation)
   procedure demo_to_be_not_null_success;
 
-  -- %test(demo of failure for to_match expectation)
+  -- %test
+  -- %displayname(demo of failure for to_match expectation)
   procedure demo_to_match_failure;
 
-  -- %test(demo of success for to_match expectation)
+  -- %test
+  -- %displayname(demo of success for to_match expectation)
   procedure demo_to_match_success;
 
-  -- %test(demo of failure for to_be_like expectation)
+  -- %test
+  -- %displayname(demo of failure for to_be_like expectation)
   procedure demo_to_be_like_failure;
 
-  -- %test(demo of success for to_be_like expectation)
+  -- %test
+  -- %displayname(demo of success for to_be_like expectation)
   procedure demo_to_be_like_success;
 
-  -- %test(demo of failure for not_to expectations)
+  -- %test
+  -- %displayname(demo of failure for not_to expectations)
   procedure demo_not_to_failure;
 
-  -- %test(demo of success for not_to expectations)
+  -- %test
+  -- %displayname(demo of success for not_to expectations)
   procedure demo_not_to_success;
 
 end;

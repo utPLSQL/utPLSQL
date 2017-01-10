@@ -9,8 +9,9 @@ declare
 
 begin
   l_source := 'PACKAGE test_tt AS
-  -- %suite(name = Name of suite)
-  -- %suitepackage(key=all.globaltests,key2=foo)
+  -- %suite
+  --%displayname(name = Name of suite)
+  -- %suitepath(key=all.globaltests,key2=foo)
   
   procedure foo;
 END;';
@@ -22,17 +23,18 @@ END;';
   l_ann_param := null;
   l_ann_param.key := 'name'; 
   l_ann_param.val := 'Name of suite'; 
-  l_expected.package_annotations('suite')(1) := l_ann_param;
+  l_expected.package_annotations('suite') := cast( null as ut_annotations.tt_annotation_params);
+  l_expected.package_annotations('displayname')(1) := l_ann_param;
   
   l_ann_param := null;
   l_ann_param.key := 'key'; 
   l_ann_param.val := 'all.globaltests';  
-  l_expected.package_annotations('suitepackage')(1) := l_ann_param;
+  l_expected.package_annotations('suitepath')(1) := l_ann_param;
   
   l_ann_param := null;
   l_ann_param.key := 'key2'; 
   l_ann_param.val := 'foo';  
-  l_expected.package_annotations('suitepackage')(2) := l_ann_param;
+  l_expected.package_annotations('suitepath')(2) := l_ann_param;
   
   check_annotation_parsing(l_expected, l_parsing_result);
   
