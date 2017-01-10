@@ -106,24 +106,129 @@ create or replace package body ut_coverage_reporter_helper is
     l_return_code := dbms_profiler.stop_profiler();
   end;
 
--- select u.unit_owner, u.unit_name, s.line line_number, d.total_occur,
---        case when regexp_instr(s.text, '^\s*(((not)?(overriding|final|instantiable))*\s*(procedure|function)|end\s*;)',1,1,0,'i') = 0 then
---          d.total_occur
---         end skipped,
---        s.text
---   from plsql_profiler_units u
---   join all_source s
---     on s.owner = u.unit_owner
---    and s.name  = u.unit_name
---   left join plsql_profiler_data d
---     on u.runid = d.runid
---    and u.unit_number = d.unit_number
---    and s.line = d.line#
---  where u.runid = 7
---    and s.type not in ('PACKAGE','TYPE')
---    and u.unit_type not in ('PACKAGE SPEC','TYPE SPEC')
---  order by u.unit_owner, u.unit_name, s.line
-
+-- -- details query
+-- with coverage_source as(
+--       select
+--         u.unit_owner,
+--         u.unit_name,
+--         u.unit_type,
+--         s.line as line_number,
+--         d.total_occur,
+--         --skip procedure / function definition line as it is sometimes reported with 0 coverage, even if it was called
+--         case when
+--           regexp_instr(s.text, '^\s*(((not)?(overriding|final|instantiable))*\s*(procedure|function)|end\s*;)', 1, 1, 0,
+--                        'i') = 0
+--           then
+--             case when d.total_occur > 0
+--               then 1
+--             else d.total_occur end
+--         end       is_covered,
+--         s.text as line_text
+--       from plsql_profiler_units u
+--         join all_source s
+--           on s.owner = u.unit_owner
+--              and s.name = u.unit_name
+--         left join plsql_profiler_data d
+--           on u.runid = d.runid
+--              and u.unit_number = d.unit_number
+--              and s.line = d.line#
+--       where u.runid = 7
+--             and s.type not in ('PACKAGE', 'TYPE')
+--             and u.unit_type not in ('PACKAGE SPEC', 'TYPE SPEC')
+--     ),
+--     coverage_filtered as(
+--       select
+--         unit_owner,
+--         unit_name,
+--         unit_type,
+--         line_number,
+--         total_occur,
+--         case
+--           when regexp_instr(
+--                    line_text,
+--                    '^\s*(((not)?(overriding|final|instantiable))*\s*(procedure|function)|end\s*;)',
+--                    1, 1, 0, 'i'
+--                ) = 0
+--           then
+--             case when total_occur > 0 then 1 else total_occur end
+--          end is_covered,
+--          line_text
+--       from coverage_source
+--   ),
+--   coverage_calculated as (
+--     select
+--       unit_owner,
+--       unit_name,
+--       unit_type,
+--       line_number,
+--       total_occur,
+--       case is_covered when 1 then 'Y' when 0 then 'N' else NULL end is_covered,
+--       line_text
+--     from coverage_filtered
+--   )
+-- select
+--   unit_owner, unit_name, unit_type, line_number, is_covered, line_text
+-- from coverage_calculated
+-- order by unit_owner, unit_name, unit_type, line_number
+--
+-- --totals query
+-- with coverage_source as(
+--       select
+--         u.unit_owner,
+--         u.unit_name,
+--         u.unit_type,
+--         s.line as line_number,
+--         d.total_occur,
+--         --skip procedure / function definition line as it is sometimes reported with 0 coverage, even if it was called
+--         case when
+--           regexp_instr(s.text, '^\s*(((not)?(overriding|final|instantiable))*\s*(procedure|function)|end\s*;)', 1, 1, 0,
+--                        'i') = 0
+--           then
+--             case when d.total_occur > 0
+--               then 1
+--             else d.total_occur end
+--         end       is_covered,
+--         s.text as line_text
+--       from plsql_profiler_units u
+--         join all_source s
+--           on s.owner = u.unit_owner
+--              and s.name = u.unit_name
+--         left join plsql_profiler_data d
+--           on u.runid = d.runid
+--              and u.unit_number = d.unit_number
+--              and s.line = d.line#
+--       where u.runid = 7
+--             and s.type not in ('PACKAGE', 'TYPE')
+--             and u.unit_type not in ('PACKAGE SPEC', 'TYPE SPEC')
+--     ),
+--     coverage_filtered as(
+--       select
+--         unit_owner,
+--         unit_name,
+--         unit_type,
+--         line_number,
+--         total_occur,
+--         case
+--           when regexp_instr(
+--                    line_text,
+--                    '^\s*(((not)?(overriding|final|instantiable))*\s*(procedure|function)|end\s*;)',
+--                    1, 1, 0, 'i'
+--                ) = 0
+--           then
+--             case when total_occur > 0 then 1 else total_occur end
+--          end is_covered,
+--          line_text
+--       from coverage_source
+--   )
+-- select
+--   unit_owner, unit_name,
+--   count(1) lines_count,
+--   count(is_covered) coverable_lines_count,
+--   sum(is_covered) covered_lines_count,
+--   round(sum(is_covered) * 100 / count(is_covered),2) as coverage
+-- from coverage_filtered
+-- group by rollup(unit_owner, unit_name)
+-- order by unit_owner, unit_name;
 
 end;
 /
