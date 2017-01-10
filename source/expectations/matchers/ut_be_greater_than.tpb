@@ -1,54 +1,54 @@
-create or replace type body be_greater_than AS
+create or replace type body ut_be_greater_than AS
 
-  member procedure init(self in out nocopy be_greater_than, a_expected ut_data_value) is
+  member procedure init(self in out nocopy ut_be_greater_than, a_expected ut_data_value) is
   begin
     self.name := lower($$plsql_unit);
     self.expected := a_expected;
   end;
 
-  constructor function be_greater_than(self in out nocopy be_greater_than, a_expected date) return self as result is
+  constructor function ut_be_greater_than(self in out nocopy ut_be_greater_than, a_expected date) return self as result is
   begin
     init(ut_data_value_date(a_expected));
     return;
   end;
 
-  constructor function be_greater_than(self in out nocopy be_greater_than, a_expected NUMBER) return self as result is
+  constructor function ut_be_greater_than(self in out nocopy ut_be_greater_than, a_expected NUMBER) return self as result is
   begin
     init(ut_data_value_number(a_expected));
     return;
   end;
 
-  constructor function be_greater_than(self in out nocopy be_greater_than, a_expected timestamp_unconstrained) return self as result is
+  constructor function ut_be_greater_than(self in out nocopy ut_be_greater_than, a_expected timestamp_unconstrained) return self as result is
   begin
     init(ut_data_value_timestamp(a_expected));
     return;
   end;
 
-  constructor function be_greater_than(self in out nocopy be_greater_than, a_expected timestamp_tz_unconstrained) return self as result is
+  constructor function ut_be_greater_than(self in out nocopy ut_be_greater_than, a_expected timestamp_tz_unconstrained) return self as result is
   begin
     init(ut_data_value_timestamp_tz(a_expected));
     return;
   end;
 
-  constructor function be_greater_than(self in out nocopy be_greater_than, a_expected timestamp_ltz_unconstrained) return self as result is
+  constructor function ut_be_greater_than(self in out nocopy ut_be_greater_than, a_expected timestamp_ltz_unconstrained) return self as result is
   begin
     init(ut_data_value_timestamp_ltz(a_expected));
     return;
   end;
 
-  constructor function be_greater_than(self in out nocopy be_greater_than, a_expected yminterval_unconstrained) return self as RESULT IS
+  constructor function ut_be_greater_than(self in out nocopy ut_be_greater_than, a_expected yminterval_unconstrained) return self as RESULT IS
   begin
     init(ut_data_value_yminterval(a_expected));
     return;
   end;
 
-  constructor function be_greater_than(self in out nocopy be_greater_than, a_expected dsinterval_unconstrained) return self as RESULT IS
+  constructor function ut_be_greater_than(self in out nocopy ut_be_greater_than, a_expected dsinterval_unconstrained) return self as RESULT IS
   begin
     init(ut_data_value_dsinterval(a_expected));
     return;
   end;
 
-  overriding member function run_matcher(self in out nocopy be_greater_than, a_actual ut_data_value) return boolean is
+  overriding member function run_matcher(self in out nocopy ut_be_greater_than, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
     if self.expected is of (ut_data_value_date) and a_actual is of (ut_data_value_date) then

@@ -1,6 +1,6 @@
-create or replace type body equal as
+create or replace type body ut_equal as
 
-  member procedure init(self in out nocopy equal, a_expected ut_data_value, a_nulls_are_equal boolean) is
+  member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean) is
   begin
     self.nulls_are_equal_flag := ut_utils.boolean_to_int( coalesce(a_nulls_are_equal, ut_assert_processor.nulls_are_equal()) );
     self.name := lower($$plsql_unit);
@@ -9,89 +9,89 @@ create or replace type body equal as
 
   member function equal_with_nulls(a_assert_result boolean, a_actual ut_data_value) return boolean is
   begin
-    ut_utils.debug_log('equal.equal_with_nulls :' || ut_utils.to_test_result(a_assert_result) || ':');
+    ut_utils.debug_log('ut_equal.equal_with_nulls :' || ut_utils.to_test_result(a_assert_result) || ':');
     return ( a_assert_result or ( self.expected.is_null() and a_actual.is_null() and ut_utils.int_to_boolean( nulls_are_equal_flag ) ) );
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_anydata(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected blob, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected blob, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_blob(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected boolean, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected boolean, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_boolean(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected clob, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected clob, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_clob(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected date, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected date, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_date(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected number, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected number, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_number(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected sys_refcursor, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected sys_refcursor, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_refcursor(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_timestamp(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_timestamp_tz(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_timestamp_ltz(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected varchar2, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected varchar2, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_varchar2(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_yminterval(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  constructor function equal(self in out nocopy equal, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null) return self as result is
   begin
     init(ut_data_value_dsinterval(a_expected), a_nulls_are_equal);
     return;
   end;
 
-  overriding member function run_matcher(self in out nocopy equal, a_actual ut_data_value) return boolean is
+  overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
     if self.expected is of (ut_data_value_anydata) and a_actual is of (ut_data_value_anydata)

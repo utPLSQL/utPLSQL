@@ -1,0 +1,1 @@
+create synonym be_true for ut_be_true;

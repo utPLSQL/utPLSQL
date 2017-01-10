@@ -1,6 +1,6 @@
-create or replace type body match as
+create or replace type body ut_match as
 
-  constructor function match(self in out nocopy match, a_pattern in varchar2, a_modifiers in varchar2 default null) return self as result is
+  constructor function ut_match(self in out nocopy ut_match, a_pattern in varchar2, a_modifiers in varchar2 default null) return self as result is
   begin
     if a_pattern is not null then
      self.additional_info := 'pattern '''||a_pattern||'''';
@@ -14,7 +14,7 @@ create or replace type body match as
     return;
   end;
 
-  overriding member function run_matcher(self in out nocopy match, a_actual ut_data_value) return boolean is
+  overriding member function run_matcher(self in out nocopy ut_match, a_actual ut_data_value) return boolean is
   begin
     return
       case

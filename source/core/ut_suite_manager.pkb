@@ -27,7 +27,6 @@ create or replace package body ut_suite_manager is
   function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_suite is
     l_annotation_data    ut_annotations.typ_annotated_package;
     l_suite_name         ut_annotations.t_annotation_name;
-    l_suite_annot_params ut_annotations.tt_annotation_params;
     l_test               ut_test;
     l_proc_annotations   ut_annotations.tt_annotations;
 
@@ -53,11 +52,13 @@ create or replace package body ut_suite_manager is
     l_annotation_data := ut_annotations.get_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
 
     if l_annotation_data.package_annotations.exists('suite') then
-      l_suite_annot_params := l_annotation_data.package_annotations('suite');
-      l_suite_name         := ut_annotations.get_annotation_param(l_suite_annot_params, 1);
+      
+      if l_annotation_data.package_annotations.exists('displayname') then
+        l_suite_name         := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('displayname'), 1);
+      end if;
 
-      if l_annotation_data.package_annotations.exists('suitepackage') then
-        l_suite_path := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('suitepackage'), 1) || '.' ||
+      if l_annotation_data.package_annotations.exists('suitepath') then
+        l_suite_path := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('suitepath'), 1) || '.' ||
                         lower(l_object_name);
       end if;
 
@@ -81,13 +82,13 @@ create or replace package body ut_suite_manager is
         l_proc_name        := l_annotation_data.procedure_annotations(i).name;
         l_proc_annotations := l_annotation_data.procedure_annotations(i).annotations;
 
-        if l_proc_annotations.exists('setup') and l_default_setup_proc is null then
+        if l_proc_annotations.exists('beforeeach') and l_default_setup_proc is null then
           l_default_setup_proc := l_proc_name;
-        elsif l_proc_annotations.exists('teardown') and l_default_teardown_proc is null then
+        elsif l_proc_annotations.exists('aftereach') and l_default_teardown_proc is null then
           l_default_teardown_proc := l_proc_name;
-        elsif l_proc_annotations.exists('suitesetup') and l_suite_setup_proc is null then
+        elsif l_proc_annotations.exists('beforeall') and l_suite_setup_proc is null then
           l_suite_setup_proc := l_proc_name;
-        elsif l_proc_annotations.exists('suiteteardown') and l_suite_teardown_proc is null then
+        elsif l_proc_annotations.exists('afterall') and l_suite_teardown_proc is null then
           l_suite_teardown_proc := l_proc_name;
         end if;
 
@@ -99,14 +100,11 @@ create or replace package body ut_suite_manager is
           a_description   => l_suite_name,
           a_path          => l_suite_path, --a patch for this suite (excluding the package name of current suite)
           a_rollback_type => l_suite_rollback,
-          a_ignore_flag   => l_annotation_data.package_annotations.exists('ignore'),
+          a_ignore_flag   => l_annotation_data.package_annotations.exists('disable'),
           a_before_all_proc_name  => l_suite_setup_proc,
           a_after_all_proc_name   => l_suite_teardown_proc,
-          /**
-          * This is currently implemented at the test level with before_test/after_test calls
-          */
-          a_before_each_proc_name => null,--l_default_setup_proc,
-          a_after_each_proc_name  => null --l_default_teardown_proc
+          a_before_each_proc_name => l_default_setup_proc,
+          a_after_each_proc_name  => l_default_teardown_proc
       );
 
 
@@ -119,13 +117,18 @@ create or replace package body ut_suite_manager is
             l_teardown_procedure  varchar2(30 char);
             l_rollback_annotation varchar2(4000);
             l_rollback_type       integer := l_suite_rollback;
+            l_displayname         varchar2(4000);
           begin
-            if l_proc_annotations.exists('testsetup') then
-              l_setup_procedure := ut_annotations.get_annotation_param(l_proc_annotations('testsetup'), 1);
+            if l_proc_annotations.exists('beforetest') then
+              l_setup_procedure := ut_annotations.get_annotation_param(l_proc_annotations('beforetest'), 1);
             end if;
 
-            if l_proc_annotations.exists('testteardown') then
-              l_teardown_procedure := ut_annotations.get_annotation_param(l_proc_annotations('testteardown'), 1);
+            if l_proc_annotations.exists('aftertest') then
+              l_teardown_procedure := ut_annotations.get_annotation_param(l_proc_annotations('aftertest'), 1);
+            end if;
+            
+            if l_proc_annotations.exists('displayname') then
+              l_displayname := ut_annotations.get_annotation_param(l_proc_annotations('displayname'), 1);
             end if;
 
             if l_proc_annotations.exists('rollback') then
@@ -146,27 +149,12 @@ create or replace package body ut_suite_manager is
                 a_object_owner  => l_owner_name,
                 a_object_name   => l_object_name,
                 a_name          => l_proc_name,
-                a_description   => ut_annotations.get_annotation_param(l_proc_annotations('test'), 1),
+                a_description   => l_displayname,
                 a_path          => l_suite.path || '.' || l_proc_name,
                 a_rollback_type => l_rollback_type,
-                a_ignore_flag   => l_proc_annotations.exists('ignore'),
-                /**
-                * The current implementation is in a way that before_each will be overridden by the before_test.
-                * With the new approach we could have both before/after blocks getting executed:
-                * - procedure annotated with `%before_each` - to be executed before each and every tests
-                * - a test annotated with `%before_test(procedure_name)` - to be executed before this specific test
-                * I'm not sure of the value of the `%before_test(procedure_name)` annotation.
-                * The same can be done within the test procedure itself:
-                *   procedure test_insert_employee_fail is
-                *   begin
-                *     insert_employee_test_setup;
-                *     --do the testing stuff here
-                *     insert_employee_test_cleanup;
-                *   end;
-                * Doing it through annotations seems to kill the purpose a bit.
-                */
-                a_before_test_proc_name => nvl(l_setup_procedure, l_default_setup_proc),
-                a_after_test_proc_name  => nvl(l_teardown_procedure, l_default_teardown_proc)
+                a_ignore_flag   => l_proc_annotations.exists('disable'),
+                a_before_test_proc_name => l_setup_procedure,
+                a_after_test_proc_name  => l_teardown_procedure
             );
 
             l_suite.add_item(l_test);
@@ -278,7 +266,7 @@ create or replace package body ut_suite_manager is
 
     l_schema_suites.delete;
 
-    -- Restructure single-dimenstion list into hierarchy of suites by the value of %suitepackage attribute value
+    -- Restructure single-dimenstion list into hierarchy of suites by the value of %suitepath attribute value
     -- All root suite compose the root-suite list of the schema
     l_ind := l_all_suites.first;
     while l_ind is not null loop

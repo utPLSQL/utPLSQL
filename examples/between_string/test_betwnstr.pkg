@@ -1,21 +1,25 @@
 create or replace package test_betwnstr as
 
-  -- %suite(Between string function)
+  -- %suite
+  -- %displayname(Between string function)
 
-  -- %test(Returns substring from start position to end position)
+  -- %test
+  -- %displayname(Returns substring from start position to end position)
   procedure normal_case;
 
-  -- %test(Returns substring when start position is zero)
+  -- %test
+  -- %displayname(Returns substring when start position is zero)
   procedure zero_start_position;
 
-  -- %test(Returns string until end if end position is greated than string length)
+  -- %test
+  -- %displayname(Returns string until end if end position is greated than string length)
   procedure big_end_position;
 
-  -- %test(Returns null for null inlut srting value)
+  -- %test
+  -- %displayname(Returns null for null inlut srting value)
   procedure null_string;
 end;
 /
-
 create or replace package body test_betwnstr as
 
   procedure normal_case is

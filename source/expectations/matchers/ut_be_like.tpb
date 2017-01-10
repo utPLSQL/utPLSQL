@@ -1,6 +1,6 @@
-create or replace type body be_like as
+create or replace type body ut_be_like as
 
-  constructor function be_like(self in out nocopy be_like, a_mask in varchar2, a_escape_char in varchar2 := null) return self as result is
+  constructor function ut_be_like(self in out nocopy ut_be_like, a_mask in varchar2, a_escape_char in varchar2 := null) return self as result is
   begin
     if a_mask is not null then
      self.additional_info := ''''||a_mask||'''';
@@ -14,7 +14,7 @@ create or replace type body be_like as
     return;
   end;
 
-  overriding member function run_matcher(self in out nocopy be_like, a_actual ut_data_value) return boolean is
+  overriding member function run_matcher(self in out nocopy ut_be_like, a_actual ut_data_value) return boolean is
     l_value clob;
   begin
     if a_actual is of (ut_data_value_varchar2) then

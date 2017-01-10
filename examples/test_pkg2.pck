@@ -3,13 +3,16 @@ create or replace package test_pkg2 is
   /*
   This is the correct annotation
   */
-  -- %suite(Name of suite on test_pkg2)
-  -- %suitepackage(all)
+  -- %suite
+  -- %displayname(Name of suite on test_pkg2)
+  -- %suitepath(all)
 
-  -- %test(Name of test1)
+  -- %test
+  -- %displayname(Name of test1)
   procedure test1;
 
-  -- %test(Name of test2)
+  -- %test
+  -- %displayname(Name of test2)
   procedure test2;
 
 end;
