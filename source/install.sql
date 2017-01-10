@@ -183,26 +183,21 @@ whenever oserror exit failure rollback
 
 
 set linesize 200
+set verify off
+set define &
 column text format a100
+column error_count noprint new_value error_count
 prompt Validating installation
-select name, type, sequence, line, position, text
+select name, type, sequence, line, position, text, count(1) over() error_count
   from user_errors
  where name not like 'BIN$%'  --not recycled
-   and (name like 'UT%')
+     and (name = 'UT' or name like 'UT\_%' escape '\')
    -- errors only. ignore warnings
    and attribute = 'ERROR'
 /
 
-declare
-  l_cnt integer;
 begin
-  select count(1)
-    into l_cnt
-    from user_errors
-   where name not like 'BIN$%'
-     and (name like 'UT%')
-     and attribute = 'ERROR';
-  if l_cnt > 0 then
+  if to_number('&&error_count') > 0 then
     raise_application_error(-20000, 'Not all sources were successfully installed.');
   end if;
 end;
