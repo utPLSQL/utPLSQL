@@ -55,6 +55,8 @@ create or replace package body ut_suite_manager is
       
       if l_annotation_data.package_annotations.exists('displayname') then
         l_suite_name         := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('displayname'), 1);
+      elsif l_annotation_data.package_annotations('suite').count>0 then
+        l_suite_name         := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('suite'), 1);
       end if;
 
       if l_annotation_data.package_annotations.exists('suitepath') then
@@ -129,6 +131,8 @@ create or replace package body ut_suite_manager is
             
             if l_proc_annotations.exists('displayname') then
               l_displayname := ut_annotations.get_annotation_param(l_proc_annotations('displayname'), 1);
+            elsif l_proc_annotations('test').count>0 then
+              l_displayname := ut_annotations.get_annotation_param(l_proc_annotations('test'), 1);
             end if;
 
             if l_proc_annotations.exists('rollback') then
