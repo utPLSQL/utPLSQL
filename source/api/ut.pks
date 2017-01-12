@@ -27,9 +27,6 @@ create or replace package ut authid current_user as
   function expect(a_actual in dsinterval_unconstrained, a_message varchar2 := null) return ut_expectation_dsinterval;
   
   procedure fail(a_message in varchar2);
-  
-  function nulls_are_equal return boolean;
-  procedure nulls_are_equal(a_setting ut_assert_processor.boolean_not_null);
 
 end ut;
 /

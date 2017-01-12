@@ -69,16 +69,6 @@ create or replace package body ut is
   begin
     ut_assert_processor.report_error(a_message);
   end;
-  
-  function nulls_are_equal return boolean is
-  begin
-    return ut_assert_processor.nulls_are_equal;
-  end;
-
-  procedure nulls_are_equal(a_setting ut_assert_processor.boolean_not_null) is
-  begin
-    ut_assert_processor.nulls_are_equal(a_setting);
-  end;
 
 end ut;
 /
