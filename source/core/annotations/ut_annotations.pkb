@@ -135,9 +135,9 @@ create or replace package body ut_annotations as
     l_package_comments varchar2(32767);
   begin
     l_package_comments := regexp_substr(srcstr        => a_source
-                                       ,pattern       => '^\s*(CREATE\s+(OR\s+REPLACE)?(\s+(NON)?EDITIONABLE)?\s+)?PACKAGE .*?\s+(AS|IS)\s+((.*?{COMMENT#\d+}\s?)+)'
+                                       ,pattern       => '^\s*(CREATE\s+(OR\s+REPLACE)?(\s+(NON)?EDITIONABLE)?\s+)?PACKAGE(.|\s)*?(\s+(AS|IS)\s+)((.*?{COMMENT#\d+}\s?)+)'
                                        ,modifier      => 'i'
-                                       ,subexpression => 6);
+                                       ,subexpression => 8);
 
     -- parsing for package annotations
     return
