@@ -36,6 +36,6 @@ create or replace type ut_suite under ut_suite_item (
   member procedure add_item(self in out nocopy ut_suite, a_item ut_suite_item),
   overriding member function  do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_event_listener_base) return boolean,
   overriding member procedure do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_event_listener_base),
-  member procedure calc_execution_result(self in out nocopy ut_suite)
+  overriding member procedure calc_execution_result(self in out nocopy ut_suite)
 )
 /

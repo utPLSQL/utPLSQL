@@ -107,7 +107,7 @@ create or replace type body ut_suite as
         l_completed_without_errors := self.after_all.do_execute(self, a_listener);
       end if;
 
-      self.calc_execution_result;
+      self.calc_execution_result();
 
       self.rollback_to_savepoint(l_suite_savepoint);
 
@@ -119,21 +119,21 @@ create or replace type body ut_suite as
     return l_completed_without_errors;
   end;
 
-  member procedure calc_execution_result(self in out nocopy ut_suite) is
+  overriding member procedure calc_execution_result(self in out nocopy ut_suite) is
     l_result integer(1);
   begin
     if self.items is not null and self.items.count > 0 then
-      l_result := ut_utils.tr_ignore;
       for i in 1 .. self.items.count loop
-        l_result := greatest(self.items(i).result, l_result);
-        exit when l_result = ut_utils.tr_error;
+        self.results_count.sum_counter_values( self.items(i).results_count );
       end loop;
+      l_result := self.results_count.result_status();
     else
+      --if suite is empty then it's successful (no errors)
       l_result := ut_utils.tr_success;
     end if;
 
-    self.result := l_result;
-  end;
+      self.result := l_result;
+    end;
 
 end;
 /

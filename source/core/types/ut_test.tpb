@@ -65,15 +65,20 @@ create or replace type body ut_test as
         self.rollback_to_savepoint(l_savepoint);
 
       end if;
-
+      self.calc_execution_result();
       self.end_time := current_timestamp;
-      self.result := ut_assert_processor.get_aggregate_asserts_result();
-      --expectation results need to be part of test results
-      self.results := ut_assert_processor.get_asserts_results();
       a_listener.fire_after_event(ut_utils.gc_test,self);
 
     end if;
     return l_completed_without_errors;
+  end;
+
+  overriding member procedure calc_execution_result(self in out nocopy ut_test) is
+  begin
+    self.result := ut_assert_processor.get_aggregate_asserts_result();
+    --expectation results need to be part of test results
+    self.results := ut_assert_processor.get_asserts_results();
+    self.results_count := ut_results_counter(self.result);
   end;
 
 end;

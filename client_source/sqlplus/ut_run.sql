@@ -24,9 +24,9 @@ Parameters:
                      A textual pretty-print of unit test results (usually use for console output)
                    -f=ut_teamcity_reporter
                      A teamcity Unit Test reporter, that can be used to visualize progress of test execution as the job progresses.
-                   -f=ut_junit_reporter
-                     A junit xml format (as defined at: http://stackoverflow.com/a/9691131 and at https://gist.github.com/kuzuha/232902acab1344d6b578)
-                     Usually used for consumption by Continuous Integration servers like Jenkins/Hudson or Teamcity
+                   -f=ut_xunit_reporter
+                     A XUnit xml format (as defined at: http://stackoverflow.com/a/9691131 and at https://gist.github.com/kuzuha/232902acab1344d6b578)
+                     Usually used  by Continuous Integration servers like Jenkins/Hudson or Teamcity to display test results.
                  If no -f option is provided, the ut_documentation_reporter will be used.
 
   -o=output    - file name to save the output provided by the reporter.

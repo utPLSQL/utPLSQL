@@ -22,6 +22,7 @@ whenever oserror exit failure rollback
 --core types
 @@core/types/ut_assert_result.tps
 @@core/types/ut_assert_results.tps
+@@core/types/ut_results_counter.tps
 @@core/types/ut_output.tps
 @@core/types/ut_output_dbms_output.tps
 @@core/types/ut_output_stream.tps
@@ -51,6 +52,7 @@ whenever oserror exit failure rollback
 @@core/ut_assert_processor.pkb
 
 --core type bodies
+@@core/types/ut_results_counter.tpb
 @@core/types/ut_suite_item.tpb
 @@core/types/ut_test.tpb
 @@core/types/ut_suite.tpb
@@ -163,6 +165,8 @@ whenever oserror exit failure rollback
 @@reporters/ut_teamcity_reporter_helper.pks
 @@reporters/ut_teamcity_reporter_helper.pkb
 @@reporters/ut_teamcity_reporter.tpb
+@@reporters/ut_xunit_reporter.tps
+@@reporters/ut_xunit_reporter.tpb
 
 @@api/be_between.syn
 @@api/be_false.syn
@@ -179,26 +183,21 @@ whenever oserror exit failure rollback
 
 
 set linesize 200
+set verify off
+set define &
 column text format a100
+column error_count noprint new_value error_count
 prompt Validating installation
-select name, type, sequence, line, position, text
+select name, type, sequence, line, position, text, count(1) over() error_count
   from user_errors
  where name not like 'BIN$%'  --not recycled
-   and (name like 'UT%')
+     and (name = 'UT' or name like 'UT\_%' escape '\')
    -- errors only. ignore warnings
    and attribute = 'ERROR'
 /
 
-declare
-  l_cnt integer;
 begin
-  select count(1)
-    into l_cnt
-    from user_errors
-   where name not like 'BIN$%'
-     and (name like 'UT%')
-     and attribute = 'ERROR';
-  if l_cnt > 0 then
+  if to_number('&&error_count') > 0 then
     raise_application_error(-20000, 'Not all sources were successfully installed.');
   end if;
 end;
