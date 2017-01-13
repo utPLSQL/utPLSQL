@@ -175,6 +175,13 @@ whenever oserror exit failure rollback
 @@reporters/ut_xunit_reporter.tps
 @@reporters/ut_xunit_reporter.tpb
 
+@@coverage/ut_coverage_templates.tbl
+@@coverage/load_files.sql
+@@reporters/ut_coverage_reporter.tps
+@@reporters/ut_coverage_reporter_helper.pks
+@@reporters/ut_coverage_reporter_helper.pkb
+@@reporters/ut_coverage_reporter.tpb
+
 @@api/be_between.syn
 @@api/be_false.syn
 @@api/be_greater_or_equal.syn

@@ -33,6 +33,12 @@ drop synonym be_true;
 
 drop synonym equal;
 
+drop package ut_coverage_reporter_helper;
+
+drop type ut_coverage_reporter;
+
+drop table ut_coverage_templates;
+
 drop package ut_teamcity_reporter_helper;
 
 drop package ut_runner;

@@ -1,0 +1,24 @@
+<testsuites tests="4" skipped="0" error="0" failure="0" name="" time=".084388">
+    <testsuite tests="4" id="1" package="all" skipped="0" error="0" failure="0" name="" time=".082702">
+        <testsuite tests="2" id="2" package="all.globaltests" skipped="0" error="0" failure="0" name="" time=".060961">
+            <testsuite tests="2" id="3" package="all.globaltests.test_pkg1" skipped="0" error="0" failure="0"
+                       name="Name of suite on test_pkg1" time=".059538">
+                <testcase classname="all.globaltests.test_pkg1" assertions="1" skipped="0" error="0" failure="0"
+                          name="Name of test1" time=".017471" status="Success">
+                </testcase>
+                <testcase classname="all.globaltests.test_pkg1" assertions="1" skipped="0" error="0" failure="0"
+                          name="Name of test2" time=".006665" status="Success">
+                </testcase>
+            </testsuite>
+        </testsuite>
+        <testsuite tests="2" id="4" package="all.test_pkg2" skipped="0" error="0" failure="0"
+                   name="Name of suite on test_pkg2" time=".018728">
+            <testcase classname="all.test_pkg2" assertions="1" skipped="0" error="0" failure="0" name="Name of test1"
+                      time=".004185" status="Success">
+            </testcase>
+            <testcase classname="all.test_pkg2" assertions="1" skipped="0" error="0" failure="0" name="Name of test2"
+                      time=".007641" status="Success">
+            </testcase>
+        </testsuite>
+    </testsuite>
+</testsuites>
