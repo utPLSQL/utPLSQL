@@ -64,6 +64,11 @@ create or replace package body ut is
   begin
     return ut_expectation_dsinterval(ut_data_value_dsinterval(a_actual), a_message);
   end;
+  
+  procedure fail(a_message in varchar2) is
+  begin
+    ut_assert_processor.report_error(a_message);
+  end;
 
 end ut;
 /

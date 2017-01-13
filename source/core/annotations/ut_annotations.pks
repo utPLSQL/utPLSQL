@@ -1,4 +1,4 @@
-create or replace package ut_annotations authid definer as
+create or replace package ut_annotations authid current_user as
   /*
     package: ut_annotations
 

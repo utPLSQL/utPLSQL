@@ -1,4 +1,4 @@
-create or replace type ut_reporter_base force as object
+create or replace type ut_reporter_base force authid current_user as object
 (
   name   varchar2(250 char),
   output ut_output,

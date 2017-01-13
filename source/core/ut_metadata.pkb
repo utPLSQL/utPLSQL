@@ -89,7 +89,7 @@ create or replace package body ut_metadata as
     l_package_name := a_package_name;
 
     do_resolve(l_schema, l_package_name, l_procedure_name);
-
+    
     select count(decode(status, 'VALID', 1, null)) / count(*)
       into l_cnt
       from all_objects
@@ -117,7 +117,7 @@ create or replace package body ut_metadata as
     l_procedure_name := a_procedure_name;
 
     do_resolve(l_schema, l_package_name, l_procedure_name);
-
+    
     select count(*)
       into l_cnt
       from all_procedures
@@ -132,26 +132,37 @@ create or replace package body ut_metadata as
       return false;
   end;
 
-
   function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob is
-    l_txt_tab ut_varchar2_list;
-    l_cur     sys_refcursor;
+    l_lines   sys.dbms_preprocessor.source_lines_t;
+    l_source  clob;
   begin
-    l_cur := get_package_spec_source_cursor(a_owner, a_object_name);
-    fetch l_cur bulk collect into l_txt_tab;
-    close l_cur;
-    return ut_utils.table_to_clob(l_txt_tab);
+    begin
+      l_lines := sys.dbms_preprocessor.get_post_processed_source(object_type => 'PACKAGE',
+                                                                 schema_name => a_owner,
+                                                                 object_name => a_object_name);
+                                                                 
+      sys.dbms_lob.createtemporary(lob_loc => l_source, cache => true);
+      
+      for i in 1..l_lines.count loop
+        sys.dbms_lob.writeappend(l_source, length(l_lines(i)), l_lines(i));
+      end loop;
+
+    end;
+    return l_source;
   end;
 
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
     l_line varchar2(4000);
+    l_cursor sys_refcursor;
   begin
-    execute immediate
+    open l_cursor for
       'select text from ' || get_source_view() || q'[
           where owner = :a_owner and name = :a_object_name and line = :a_line_no
              -- skip the declarations, consider only definitions
             and type != 'PACKAGE' ]'
-      into l_line using a_owner, a_object_name, a_line_no;
+       using a_owner, a_object_name, a_line_no;
+     fetch l_cursor into l_line;
+     close l_cursor;
     return '"'||ltrim(rtrim( lower( l_line ), chr(10) ))||'"';
   exception
     when no_data_found then

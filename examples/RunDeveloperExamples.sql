@@ -1,0 +1,17 @@
+PROMPT Run developer examples
+Clear Screen
+set echo off
+set feedback off
+set linesize 1000
+
+--developer examples
+prompt RunExampleComplexSuiteWithCustomReporter
+@@developer_examples/RunExampleComplexSuiteWithCustomReporter.sql
+prompt RunExampleTestSuiteWithCustomReporter
+@@developer_examples/RunExampleTestSuiteWithCustomReporter.sql
+prompt RunExampleTestAnnotationsParsingTimeHugePackage
+@@developer_examples/RunExampleTestAnnotationsParsingTimeHugePackage.sql
+prompt RunExampleTestSuite
+@@developer_examples/RunExampleTestSuite.sql
+prompt RunExampleTestSuiteWithCompositeReporter
+@@developer_examples/RunExampleTestSuiteWithCompositeReporter.sql

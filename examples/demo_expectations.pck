@@ -84,25 +84,11 @@ create or replace package body demo_expectations is
     ut.expect( to_char(null), 'this should fail' ).to_( equal( to_char(null) ) );
     ut.expect( to_char(null), 'this should fail' ).not_to( equal( to_char(null) ) );
 
-    --fails on nulls not beeig equal
-    ut_assert_processor.nulls_are_equal(false);
-    ut.expect( to_char(null), 'fails when global null_are_equal=false' ).to_( equal(to_char(null) ) );
-    ut_assert_processor.nulls_are_equal( true );
-    ut.expect( to_char(null), 'fails when local null_are_equal=false' ).to_( equal(to_char(null), a_nulls_are_equal => false ) );
-
-    --succeeds when nulls are considered equal
-    ut_assert_processor.nulls_are_equal(false);
-    ut.expect( to_char(null) , 'succeeds when local null_are_equal=true' ).to_( equal( to_char(null), a_nulls_are_equal => true ) );
-    ut_assert_processor.nulls_are_equal( true );
-    ut.expect( to_char(null), 'succeeds when global null_are_equal=true' ).to_( equal( to_char(null) ) );
-
     --fails as null is not comparable with not null
     ut.expect( to_char(null), 'fails on null = not null' ).to_( equal( 'a text' ) );
     ut.expect( 'a text', 'fails on not null = null' ).to_( equal( to_char(null) ) );
     ut.expect( to_char(null), 'fails on null <> not null' ).not_to( equal( 'a text' ) );
     ut.expect( 'a text', 'fails on not null <> null' ).not_to( equal( to_char(null) ) );
-    ut.expect( to_char(null), 'fails on null <> not null, with a_nulls_are_equal => true' ).not_to( equal( 'a text', a_nulls_are_equal => true ) );
-    ut.expect( 'a text', 'fails on not null <> null, with a_nulls_are_equal => false' ).not_to( equal( to_char(null), a_nulls_are_equal => false ) );
 
     ut.expect( to_char(null), 'fails on null like ''text''' ).to_( be_like( 'a text' ) );
     ut.expect( to_char(null), 'fails on null not like ''text''' ).not_to( be_like( 'a text' ) );

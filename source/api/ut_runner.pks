@@ -1,4 +1,4 @@
-create or replace package ut_runner authid definer is
+create or replace package ut_runner authid current_user is
 
   type t_call_param is record (
     ut_reporter_name   varchar2(4000) := 'ut_documentation_reporter',

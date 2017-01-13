@@ -187,7 +187,7 @@ create or replace package body ut_suite_manager is
     l_root_suite ut_suite;
 
     l_schema_suites tt_schema_suites;
-
+    
     procedure put(a_root_suite in out nocopy ut_suite, a_path varchar2, a_suite ut_suite, a_parent_path varchar2 default null) is
       l_temp_root varchar2(4000 char);
       l_path      varchar2(4000 char);
@@ -309,8 +309,12 @@ create or replace package body ut_suite_manager is
       ut_utils.debug_log('Rescanning schema ' || a_schema_name);
       config_schema(a_schema_name);
     end if;
-
-    return g_schema_suites(a_schema_name).schema_suites;
+    
+    if g_schema_suites.exists(a_schema_name) then
+      return g_schema_suites(a_schema_name).schema_suites;
+    else
+      return cast(null as tt_schema_suites);
+    end if;
   end get_schema_suites;
 
   -- Validate all paths are correctly formatted

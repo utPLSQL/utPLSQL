@@ -1,4 +1,4 @@
-create or replace package ut_suite_manager authid definer is
+create or replace package ut_suite_manager authid current_user is
 
   function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_suite;
 
