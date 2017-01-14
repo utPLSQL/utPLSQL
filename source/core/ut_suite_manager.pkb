@@ -93,14 +93,14 @@ create or replace package body ut_suite_manager is
         end if;
 
       end loop;
-      l_suite := ut_suite(
-          a_object_owner  => l_owner_name,
-          a_object_name   => l_object_name,
-          a_name          => l_object_name, --this could be different for sub-suite (context)
-          a_description   => l_suite_name,
-          a_path          => l_suite_path, --a patch for this suite (excluding the package name of current suite)
-          a_rollback_type => l_suite_rollback,
-          a_ignore_flag   => l_annotation_data.package_annotations.exists('disable'),
+      l_suite := ut_real_suite(
+          a_object_owner          => l_owner_name,
+          a_object_name           => l_object_name,
+          a_name                  => l_object_name, --this could be different for sub-suite (context)
+          a_description           => l_suite_name,
+          a_path                  => l_suite_path, --a patch for this suite (excluding the package name of current suite)
+          a_rollback_type         => l_suite_rollback,
+          a_ignore_flag           => l_annotation_data.package_annotations.exists('disable'),
           a_before_all_proc_name  => l_suite_setup_proc,
           a_after_all_proc_name   => l_suite_teardown_proc,
           a_before_each_proc_name => l_default_setup_proc,
@@ -204,7 +204,7 @@ create or replace package body ut_suite_manager is
 
           if l_ind is null then
             --this only happens when a path of a real suite contains a parent-suite that is not a real package.
-            l_cur_item := ut_suite(a_object_name => l_temp_root, a_name => l_temp_root, a_path => l_path);
+            l_cur_item := ut_suite(a_object_owner => a_owner_name, a_object_name => l_temp_root, a_name => l_temp_root, a_path => l_path);
           else
             l_cur_item := treat(a_root_suite.items(l_ind) as ut_suite);
           end if;
@@ -218,7 +218,7 @@ create or replace package body ut_suite_manager is
           end if;
 
         else
-          a_root_suite := ut_suite(a_object_name => l_temp_root, a_name => l_temp_root, a_path => l_path);
+          a_root_suite := ut_suite(a_object_owner => a_owner_name, a_object_name => l_temp_root, a_name => l_temp_root, a_path => l_path);
           put(a_root_suite, trim_path(a_path, l_temp_root || '.'), a_suite, l_path);
         end if;
       else
@@ -356,8 +356,8 @@ create or replace package body ut_suite_manager is
     end clean_paths;
 
     procedure skip_by_path(a_suite in out nocopy ut_suite_item, a_path varchar2) is
-      l_root        constant varchar2(32767) := regexp_substr(a_path, '\w+');
-      l_rest_path   constant varchar2(32767) := regexp_substr(a_path, '\.(.+)', subexpression => 1);
+      c_root        constant varchar2(32767) := regexp_substr(a_path, '\w+');
+      c_rest_path   constant varchar2(32767) := regexp_substr(a_path, '\.(.+)', subexpression => 1);
       l_suite       ut_suite;
       l_item        ut_suite_item;
       l_items       ut_suite_items := ut_suite_items();
@@ -375,9 +375,9 @@ create or replace package body ut_suite_manager is
 
           l_item_name := l_item.name;
           --l_item_name := regexp_substr(l_item_name,'\w+$'); -- temporary fix. seems like suite have suitepath in object_name
-          if regexp_like(l_item_name, l_root, modifier => 'i') then
+          if regexp_like(l_item_name, c_root, modifier => 'i') then
 
-            skip_by_path(l_item, l_rest_path);
+            skip_by_path(l_item, c_rest_path);
             l_items.extend;
             l_items(l_items.count) := l_item;
 

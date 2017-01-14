@@ -138,6 +138,8 @@ drop type ut_reporter_base force;
 
 drop type ut_run;
 
+drop type ut_real_suite;
+
 drop type ut_suite;
 
 drop type ut_test;
