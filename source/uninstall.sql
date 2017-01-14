@@ -33,9 +33,17 @@ drop synonym be_true;
 
 drop synonym equal;
 
-drop package ut_coverage_reporter_helper;
+drop package ut_coverage_report_html_helper;
 
 drop type ut_coverage_reporter;
+
+drop package ut_coverage;
+
+drop table plsql_profiler_data cascade constraints;
+drop table plsql_profiler_units cascade constraints;
+drop table plsql_profiler_runs cascade constraints;
+
+drop sequence plsql_profiler_runnumber;
 
 drop table ut_coverage_templates;
 

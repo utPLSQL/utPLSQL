@@ -1,4 +1,4 @@
-create or replace package body ut_coverage_reporter_helper is
+create or replace package body ut_coverage_report_html_helper is
 
   type t_source_row is record (
     line integer,
@@ -7,7 +7,7 @@ create or replace package body ut_coverage_reporter_helper is
   type tt_source_data is table of t_source_row;
 
   --holds information about coverage data for run
-  g_coverage           tt_coverage;
+  g_coverage           ut_coverage.tt_coverage;
 
   --hold information about run coverage totals
   g_run_total_lines    integer := 0;
@@ -20,15 +20,6 @@ create or replace package body ut_coverage_reporter_helper is
   /**************
   * private definitions
   */
-  procedure reset_globals is
-  begin
-    g_coverage.delete;
-    g_run_total_lines    := 0;
-    g_run_relevant_lines := 0;
-    g_run_covered_lines  := 0;
-    dbms_lob.createtemporary(g_index_file_lines, true);
-  end;
-
   function get_file(a_file_name varchar2, a_is_static varchar2) return clob is
     l_content clob;
   begin
@@ -40,31 +31,40 @@ create or replace package body ut_coverage_reporter_helper is
     return l_content;
   end;
 
-  function build_table_line(a_object_owner varchar2, a_object_name varchar2) return varchar2 is
-    l_result varchar2(32767);
+  function build_table_line(
+    a_object_owner varchar2, a_object_name varchar2,
+    a_total_lines integer, a_relevant_lines integer, a_covered_lines integer
+  ) return varchar2 is
+    l_result       varchar2(32767);
+    l_object_name  varchar2(500) := upper(a_object_owner||'.'||a_object_name);
+    l_coverage_pct number(3,2) := round(nvl(a_covered_lines/nullif(a_relevant_lines,0),0),2);
+    l_min_cov      integer := trunc(l_coverage_pct/10)+1;
+    l_max_cov      integer := case when l_coverage_pct=100 then 11 else 10 end;
   begin
---     l_result :=
--- q'-    <tr class="all_schemas all_coverage <%= schema %>_schema <%= ((code_coverage.to_i/10)..(code_coverage==100 ? 10 : 9)).map{|i| (i+1).to_s<<'0'}.join(' ') %>">
---           <td class="left_align"><a href="<%= file_name %>"><%= object_name %></a></td>
---           <td class='right_align'><tt><%= total_lines %></tt></td>
---           <td class='right_align'><tt><%= analyzed_lines %></tt></td>
---           <td class="left_align"><div class="percent_graph_legend"><tt class=''><%= '%.2f' % total_coverage %>%</tt></div>
---         <div class="percent_graph">
---           <div class="covered" style="width:<%= total_coverage.to_i %>px"></div>
---           <div class="uncovered" style="width:<%= 100 - total_coverage.to_i %>px"></div>
---         </div></td>
---           <td class="left_align"><div class="percent_graph_legend"><tt class=''><%= '%.2f' % code_coverage %>%</tt></div>
---         <div class="percent_graph">
---           <div class="covered" style="width:<%= code_coverage.to_i %>px"></div>
---           <div class="uncovered" style="width:<%= 100 - code_coverage.to_i %>px"></div>
---         </div></td>
---         </tr>
--- -';
+    l_result :=
+'    <tr class="all_schemas all_coverage '||a_object_owner||'_schema';
+    for i in l_min_cov..l_max_cov loop
+      l_result := l_result || ' ' || i*10;
+    end loop;
+    l_result := l_result ||
+      '">
+          <td class="left_align"><a href="'||l_object_name||'.html">'||l_object_name||'</a></td>
+          <td class="right_align"><tt>'||a_covered_lines||'</tt></td>
+          <td class="right_align"><tt>'||(a_relevant_lines-a_covered_lines)||'</tt></td>
+          <td class="right_align"><tt>'||a_total_lines||'</tt></td>
+          <td class="right_align"><tt>'||a_relevant_lines||'</tt></td>
+          <td class="left_align"><div class="percent_graph_legend"><tt class="">'||l_coverage_pct||'%</tt></div>
+        <div class="percent_graph">
+          <div class="covered" style="width:'||round(l_coverage_pct)||'px"></div>
+          <div class="uncovered" style="width: 100-'||round(l_coverage_pct)||'px"></div>
+        </div></td>
+    </tr>
+';
     return l_result;
   end;
 
   function build_details_file_content(a_object_full_name varchar2, a_source_code tt_source_data,
-    a_coverage_data tt_unit_coverage, a_html_table_line varchar2
+    a_coverage_data ut_coverage.tt_unit_coverage, a_html_table_line varchar2
   ) return clob is
     l_file_part    varchar2(32767);
     l_details_file clob;
@@ -86,11 +86,11 @@ create or replace package body ut_coverage_reporter_helper is
       <thead>
         <tr>
           <th class="left_align">Name</th>
-          <th class="left_align">Code Coverage</th>
-          <th class="right_align">Total Lines</th>
-          <th class="right_align">Relevant Lines</th>
           <th class="right_align">Covered Lines</th>
           <th class="right_align">Uncovered Lines</th>
+          <th class="right_align">Total Lines</th>
+          <th class="right_align">Relevant Lines</th>
+          <th class="left_align">Total Coverage</th>
         </tr>
       </thead>
       <tbody>
@@ -103,7 +103,7 @@ create or replace package body ut_coverage_reporter_helper is
 
     for i in 1 .. a_source_code.count loop
       if a_coverage_data.exists(a_source_code(i).line) then
-        if a_coverage_data(a_source_code(i).line) > 0 then
+        if a_coverage_data(a_source_code(i).line) then
           l_classname := 'marked';
         else
           l_classname := 'uncovered';
@@ -124,149 +124,15 @@ create or replace package body ut_coverage_reporter_helper is
   /******************
   * public definitions
   */
-  function table_exists(a_table_name varchar2) return boolean is
-    l_count integer;
+  procedure init(a_coverage_data ut_coverage.tt_coverage) is
   begin
-    select count(1) into l_count from user_tables where table_name = a_table_name;
-    return l_count = 1;
+    g_coverage           := a_coverage_data;
+    g_run_total_lines    := 0;
+    g_run_relevant_lines := 0;
+    g_run_covered_lines  := 0;
+    dbms_lob.createtemporary(g_index_file_lines, true);
   end;
 
-  function sequence_exists(a_sequence_name varchar2) return boolean is
-    l_count integer;
-  begin
-    select count(1) into l_count from user_sequences where sequence_name = a_sequence_name;
-    return l_count = 1;
-  end;
-
-  procedure check_and_create_objects is
-  begin
-    if not sequence_exists('PLSQL_PROFILER_RUNNUMBER') then
-      execute immediate 'create sequence plsql_profiler_runnumber start with 1 nocache';
-    end if;
-    if not table_exists('PLSQL_PROFILER_RUNS') then
-      execute immediate 'create table plsql_profiler_runs
-        (
-          runid           number primary key,  -- unique run identifier,
-                                               -- from plsql_profiler_runnumber
-          related_run     number,              -- runid of related run (for client/
-                                               --     server correlation)
-          run_owner       varchar2(32),        -- user who started run
-          run_date        date,                -- start time of run
-          run_comment     varchar2(2047),      -- user provided comment for this run
-          run_total_time  number,              -- elapsed time for this run
-          run_system_info varchar2(2047),      -- currently unused
-          run_comment1    varchar2(2047),      -- additional comment
-          spare1          varchar2(256)        -- unused
-        )';
-    end if;
-    if not table_exists('PLSQL_PROFILER_UNITS') then
-      execute immediate 'create table plsql_profiler_units
-        (
-          runid              number references plsql_profiler_runs,
-          unit_number        number,           -- internally generated library unit #
-          unit_type          varchar2(32),     -- library unit type
-          unit_owner         varchar2(32),     -- library unit owner name
-          unit_name          varchar2(32),     -- library unit name
-          -- timestamp on library unit, can be used to detect changes to
-          -- unit between runs
-          unit_timestamp     date,
-          total_time         number DEFAULT 0 NOT NULL,
-          spare1             number,           -- unused
-          spare2             number,           -- unused
-          --
-          primary key (runid, unit_number)
-        )';
-    end if;
-    if not table_exists('PLSQL_PROFILER_DATA') then
-      execute immediate 'create table plsql_profiler_data
-        (
-          runid           number,           -- unique (generated) run identifier
-          unit_number     number,           -- internally generated library unit #
-          line#           number not null,  -- line number in unit
-          total_occur     number,           -- number of times line was executed
-          total_time      number,           -- total time spent executing line
-          min_time        number,           -- minimum execution time for this line
-          max_time        number,           -- maximum execution time for this line
-          spare1          number,           -- unused
-          spare2          number,           -- unused
-          spare3          number,           -- unused
-          spare4          number,           -- unused
-          --
-          primary key (runid, unit_number, line#),
-          foreign key (runid, unit_number) references plsql_profiler_units
-        )';
-    end if;
-  end;
-
-  function profiler_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) ) return binary_integer is
-    l_run_number  binary_integer;
-  begin
-    dbms_profiler.start_profiler(run_comment => a_run_comment, run_number => l_run_number);
-    return l_run_number;
-  end;
-
-  procedure profiler_flush is
-    l_return_code binary_integer;
-    l_run_number  binary_integer;
-  begin
-    l_return_code := dbms_profiler.flush_data();
-  end;
-
-  procedure profiler_pause is
-    l_return_code binary_integer;
-  begin
-    l_return_code := dbms_profiler.pause_profiler();
-  end;
-
-  procedure profiler_resume is
-    l_return_code binary_integer;
-  begin
-    l_return_code := dbms_profiler.resume_profiler();
-  end;
-
-  procedure profiler_stop is
-    l_return_code binary_integer;
-  begin
-    l_return_code := dbms_profiler.stop_profiler();
-  end;
-
-  procedure gather_coverage_data(a_run_id integer) is
-    type t_coverage_row is record(
-    unit_owner    varchar2(250),
-    unit_name     varchar2(250),
-    line_number   integer,
-    total_occur   number(38,0)
-    );
-    type tt_coverage_rows is table of t_coverage_row;
-    l_data    tt_coverage_rows;
-  begin
-    reset_globals;
-    --how to handle really really big coverages?
-    execute immediate q'[
-    select u.unit_owner, u.unit_name, d.line# as line_number, d.total_occur
-      from plsql_profiler_units u, plsql_profiler_data d
-     where u.runid = :a_run_id
-       and u.runid = d.runid
-       and u.unit_number = d.unit_number
-       and u.unit_type not in ('PACKAGE SPEC', 'TYPE SPEC')
-       -- TODO - add inclusive and exclusive filtering
-     order by u.unit_owner, u.unit_name, d.line#]'
-      bulk collect into l_data using a_run_id;
-
-    for i in 1 .. l_data.count loop
-      if l_data(i).total_occur = 0 then
-        g_coverage(l_data(i).unit_owner)(l_data(i).unit_name)(l_data(i).line_number) := 0;
-      elsif l_data(i).total_occur > 0 then
-        g_coverage(l_data(i).unit_owner)(l_data(i).unit_name)(l_data(i).line_number) := 1;
-      end if;
-    end loop;
-  end;
-
-  function get_coverage_data(a_run_id integer) return tt_coverage is
-  begin
-    gather_coverage_data(a_run_id);
-    return g_coverage;
-  end;
 
   function get_static_file_names return ut_varchar2_list is
     l_file_names ut_varchar2_list;
@@ -285,24 +151,24 @@ create or replace package body ut_coverage_reporter_helper is
 
   function get_details_file_content(a_object_owner varchar2, a_object_name varchar2) return clob is
     l_source_code      tt_source_data;
-    l_coverage_data    tt_unit_coverage;
+    l_coverage_data    ut_coverage.tt_unit_coverage;
     l_object_full_name varchar2(500);
     l_total_lines      integer;
     l_relevant_lines   integer;
-    l_covered_lines    integer;
+    l_covered_lines    integer := 0;
     l_line             binary_integer;
     l_html_table_line  varchar2(32767);
     l_result           clob;
   begin
+    select s.line, s.text
+      bulk collect into l_source_code
+      from all_source s
+     where s.owner = a_object_owner
+       and s.name = a_object_name
+       and s.type not in ('PACKAGE')
+     order by s.line;
+
     if g_coverage.exists(a_object_owner) and g_coverage(a_object_owner).exists(a_object_name) then
---      dbms_output.put_line('found');
-      select s.line, s.text
-        bulk collect into l_source_code
-        from all_source s
-       where s.owner = a_object_owner
-         and s.name = a_object_name
-         and s.type not in ('PACKAGE')
-       order by s.line;
 
       l_object_full_name := a_object_owner||'.'||a_object_name;
 
@@ -319,7 +185,9 @@ create or replace package body ut_coverage_reporter_helper is
       l_line := l_coverage_data.first;
       while l_line is not null loop
         -- add value of t_line_covered (0 - not covered, 1 - covered)
-        l_relevant_lines := l_relevant_lines + l_coverage_data(l_line);
+        if l_coverage_data(l_line) then
+          l_covered_lines := l_covered_lines + 1;
+        end if;
         l_line := l_coverage_data.next(l_line);
       end loop;
 
@@ -334,9 +202,10 @@ create or replace package body ut_coverage_reporter_helper is
 --           <th class="right_align">Covered Lines</th>
 --           <th class="right_align">Uncovered Lines</th>
 
-      l_html_table_line := '';
+      l_html_table_line := build_table_line( a_object_owner, a_object_name, l_total_lines, l_relevant_lines, l_covered_lines);
       l_result := build_details_file_content(l_object_full_name, l_source_code, l_coverage_data, l_html_table_line);
     else
+      --TODO - report a zero coverage on an item
       dbms_output.put_line('not found');
     end if;
     return l_result;

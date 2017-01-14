@@ -22,10 +22,10 @@ spool get_static_files.sql
 declare
   l_file_names ut_varchar2_list;
 begin
-  l_file_names := ut_coverage_reporter_helper.get_static_file_names();
+  l_file_names := ut_coverage_report_html_helper.get_static_file_names();
   for i in 1 .. l_file_names.count loop
     dbms_output.put_line('spool coverage/'||l_file_names(i));
-    dbms_output.put_line('select ut_coverage_reporter_helper.get_static_file('''||l_file_names(i)||''') from dual;');
+    dbms_output.put_line('select ut_coverage_report_html_helper.get_static_file('''||l_file_names(i)||''') from dual;');
     dbms_output.put_line('spool off');
   end loop;
 end;
@@ -33,19 +33,23 @@ end;
 
 spool off
 
--- set termout on
--- set feedback on
--- set echo on
-
 @@get_static_files.sql
 
+exec ut_runner.run(user||'.test_betwnstr', ut_coverage_reporter());
+
 begin
-  ut_coverage_reporter_helper.gather_coverage_data(1);
+  ut_coverage_report_html_helper.init(ut_coverage.get_coverage_data(1));
 end;
 /
 
 spool coverage/aa.html
-select ut_coverage_reporter_helper.get_details_file_content('UT3','BETWNSTR') from dual;
+  select ut_coverage_report_html_helper.get_details_file_content('UT3','BETWNSTR') from dual;
 spool off
+
+--try running on windows
+$ del get_static_files.sql
+--try running on linus/unix
+! rm get_static_files.sql
+
 
 exit
