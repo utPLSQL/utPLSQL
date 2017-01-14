@@ -1,8 +1,8 @@
 create or replace type body ut_real_suite as
 
   constructor function ut_real_suite(
-    self in out nocopy ut_real_suite, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_description varchar2 := null,
-    a_path varchar2 := null, a_rollback_type integer := null, a_ignore_flag boolean := false, a_before_all_proc_name varchar2 := null,
+    self in out nocopy ut_real_suite, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_path varchar2, a_description varchar2 := null,
+    a_rollback_type integer := null, a_ignore_flag boolean := false, a_before_all_proc_name varchar2 := null,
     a_after_all_proc_name varchar2 := null, a_before_each_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null
   ) return self as result is
   begin

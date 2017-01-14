@@ -97,8 +97,8 @@ create or replace package body ut_suite_manager is
           a_object_owner          => l_owner_name,
           a_object_name           => l_object_name,
           a_name                  => l_object_name, --this could be different for sub-suite (context)
+          a_path                  => l_suite_path,  --a patch for this suite (excluding the package name of current suite)
           a_description           => l_suite_name,
-          a_path                  => l_suite_path, --a patch for this suite (excluding the package name of current suite)
           a_rollback_type         => l_suite_rollback,
           a_ignore_flag           => l_annotation_data.package_annotations.exists('disable'),
           a_before_all_proc_name  => l_suite_setup_proc,
