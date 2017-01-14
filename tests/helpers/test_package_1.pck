@@ -12,9 +12,10 @@ create or replace package test_package_1 is
   procedure global_teardown;
 
   --%test
+  --%displayname(Test1 from test package 1)
   procedure test1;
 
-  --%test
+  --%test(Test2 from test package 1)
   --%beforetest(test2_setup)
   --%aftertest(test2_teardown)
   procedure test2;

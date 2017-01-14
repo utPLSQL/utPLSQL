@@ -26,6 +26,7 @@ begin
   l_test_proc := treat(l_test1_suite.items(1) as ut_test);   
   
   ut.expect(l_test_proc.name).to_equal('test2');
+  ut.expect(l_test_proc.description).to_equal('Test2 from test package 1');
   ut.expect(l_test_proc.before_test is not null).to_be_true;
   ut.expect(l_test_proc.after_test is not null).to_be_true;
   
