@@ -18,7 +18,6 @@ create or replace package body ut_annotations as
 
 
   function delete_multiline_comments(a_source in clob) return clob is
-    l_tmp_clob clob;
   begin
 
 /*    l_tmp_clob := regexp_replace(srcstr   => a_source
