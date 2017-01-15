@@ -1,6 +1,13 @@
-prompt Uninstalling utplsql framework
+prompt Uninstalling UTPLSQL v3 framework
+set serveroutput on size unlimited format truncated
+set verify off
+set define &
 
 spool uninstall.log
+
+define ut3_owner = &1
+
+alter session set current_schema = &&ut3_owner;
 
 drop synonym be_between;
 
@@ -171,5 +178,27 @@ drop type ut_assert_result;
 drop type ut_varchar2_list;
 
 drop type ut_clob_list;
+
+begin
+  for syn in (
+    select
+      case when owner = 'PUBLIC'
+        then 'public synonym '
+        else 'synonym ' || owner || '.' end || synonym_name as syn_name,
+      table_owner||'.'||table_name as for_object
+    from all_synonyms
+    where table_owner = upper('&&ut3_owner') and table_owner != owner
+  )
+  loop
+    begin
+      execute immediate 'drop '||syn.syn_name;
+      dbms_output.put_line('Dropped '||syn.syn_name||' for object '||syn.for_object);
+    exception
+      when others then
+        dbms_output.put_line('FAILED to drop '||syn.syn_name||' for object '||syn.for_object);
+    end;
+  end loop;
+end;
+/
 
 spool off
