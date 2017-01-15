@@ -14,7 +14,7 @@ pages:
        - Installation: userguide/install.md
        - Getting Started: userguide/getting-started.md
        - Annotations: userguide/annotations.md
-       - Assertions: userguide/assertions.md
+       - Expectations: userguide/expectations.md
        - Testing Best Pracitces: userguide/best-practices.md
        - Upgrade utPLSQL : userguide/upgrade.md
   - About:
