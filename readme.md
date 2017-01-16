@@ -67,6 +67,20 @@ The following table is a work in progress right now, and **will** change.   If y
 
 <sup>3</sup> Test execution comparison is in a single call so the results are combined.   We know it was always possible group in any way with multiple calls.  But that may not be desired under CI system where you want a single JUnit XML Output.
 
+# Installation
+
+To simply install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql`.
+
+This will create a new user `UT3` with password `UT3`, grant all needed privileges to that user and create PUBLIC synonyms needed tu sue the utPLSQL framework.
+
+Example invocation of the script from command line:
+```bash
+cd source
+sqlplus admin/admins_password@xe @@install_headless.sql  
+```
+
+For detailed instructions on other install options see the [Install Guide](docs/userguide/install.md)
+
 # Annotations
 
 Annotations provide a way to configure tests and suites in a declarative way similar to modern OOP languages.

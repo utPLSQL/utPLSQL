@@ -1,6 +1,6 @@
 create or replace package body ut_suite_manager is
 
-  type tt_schema_suites is table of ut_suite index by varchar2(4000 char);
+  type tt_schema_suites is table of ut_logical_suite index by varchar2(4000 char);
   type t_schema_cache is record(
      schema_suites tt_schema_suites
     ,changed_at    date);
@@ -24,7 +24,7 @@ create or replace package body ut_suite_manager is
     return l_date;
   end;
 
-  function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_suite is
+  function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_logical_suite is
     l_annotation_data    ut_annotations.typ_annotated_package;
     l_suite_name         ut_annotations.t_annotation_name;
     l_test               ut_test;
@@ -40,7 +40,7 @@ create or replace package body ut_suite_manager is
 
     l_owner_name  varchar2(250 char);
     l_object_name varchar2(250 char);
-    l_suite       ut_suite;
+    l_suite       ut_logical_suite;
 
     l_suite_rollback            integer;
     l_suite_rollback_annotation varchar2(4000);
@@ -95,14 +95,14 @@ create or replace package body ut_suite_manager is
         end if;
 
       end loop;
-      l_suite := ut_suite(
-          a_object_owner  => l_owner_name,
-          a_object_name   => l_object_name,
-          a_name          => l_object_name, --this could be different for sub-suite (context)
-          a_description   => l_suite_name,
-          a_path          => l_suite_path, --a patch for this suite (excluding the package name of current suite)
-          a_rollback_type => l_suite_rollback,
-          a_ignore_flag   => l_annotation_data.package_annotations.exists('disable'),
+      l_suite := ut_suite (
+          a_object_owner          => l_owner_name,
+          a_object_name           => l_object_name,
+          a_name                  => l_object_name, --this could be different for sub-suite (context)
+          a_path                  => l_suite_path,  --a patch for this suite (excluding the package name of current suite)
+          a_description           => l_suite_name,
+          a_rollback_type         => l_suite_rollback,
+          a_ignore_flag           => l_annotation_data.package_annotations.exists('disable'),
           a_before_all_proc_name  => l_suite_setup_proc,
           a_after_all_proc_name   => l_suite_teardown_proc,
           a_before_each_proc_name => l_default_setup_proc,
@@ -182,20 +182,20 @@ create or replace package body ut_suite_manager is
   end;
 
   procedure config_schema(a_owner_name varchar2) is
-    l_suite      ut_suite;
+    l_suite      ut_logical_suite;
 
     l_all_suites tt_schema_suites;
     l_ind        varchar2(4000 char);
     l_path       varchar2(4000 char);
     l_root       varchar2(4000 char);
-    l_root_suite ut_suite;
+    l_root_suite ut_logical_suite;
 
     l_schema_suites tt_schema_suites;
     
-    procedure put(a_root_suite in out nocopy ut_suite, a_path varchar2, a_suite ut_suite, a_parent_path varchar2 default null) is
+    procedure put(a_root_suite in out nocopy ut_logical_suite, a_path varchar2, a_suite ut_logical_suite, a_parent_path varchar2 default null) is
       l_temp_root varchar2(4000 char);
       l_path      varchar2(4000 char);
-      l_cur_item  ut_suite;
+      l_cur_item  ut_logical_suite;
       l_ind       pls_integer;
     begin
       if a_path like '%.%' then
@@ -208,9 +208,9 @@ create or replace package body ut_suite_manager is
 
           if l_ind is null then
             --this only happens when a path of a real suite contains a parent-suite that is not a real package.
-            l_cur_item := ut_suite(a_object_name => l_temp_root, a_name => l_temp_root, a_path => l_path);
+            l_cur_item := ut_logical_suite(a_object_owner => a_owner_name, a_object_name => l_temp_root, a_name => l_temp_root, a_path => l_path);
           else
-            l_cur_item := treat(a_root_suite.items(l_ind) as ut_suite);
+            l_cur_item := treat(a_root_suite.items(l_ind) as ut_logical_suite);
           end if;
 
           put(l_cur_item, trim_path(a_path, l_temp_root || '.'), a_suite, l_path);
@@ -222,7 +222,7 @@ create or replace package body ut_suite_manager is
           end if;
 
         else
-          a_root_suite := ut_suite(a_object_name => l_temp_root, a_name => l_temp_root, a_path => l_path);
+          a_root_suite := ut_logical_suite(a_object_owner => a_owner_name, a_object_name => l_temp_root, a_name => l_temp_root, a_path => l_path);
           put(a_root_suite, trim_path(a_path, l_temp_root || '.'), a_suite, l_path);
         end if;
       else
@@ -236,13 +236,13 @@ create or replace package body ut_suite_manager is
 
     $if $$ut_trace $then
     procedure print(a_item ut_suite_item, a_pad pls_integer) is
-      l_suite ut_suite;
+      l_suite ut_logical_suite;
       l_pad   varchar2(1000) := lpad(' ', a_pad, ' ');
     begin
-      if a_item is of (ut_suite) then
+      if a_item is of (ut_logical_suite) then
         dbms_output.put_line(l_pad || 'Suite: ' || a_item.name || '(' || a_item.path || ')');
         dbms_output.put_line(l_pad || 'Items: ');
-        l_suite := treat(a_item as ut_suite);
+        l_suite := treat(a_item as ut_logical_suite);
         for i in 1 .. l_suite.items.count loop
           print(l_suite.items(i), a_pad + 2);
         end loop;
@@ -343,7 +343,7 @@ create or replace package body ut_suite_manager is
     l_schema          varchar2(4000);
     l_schema_suites   tt_schema_suites;
     l_index           varchar2(4000 char);
-    l_suite           ut_suite;
+    l_suite           ut_logical_suite;
     l_suite_path      varchar2(4000);
     l_root_suite_name varchar2(4000);
     l_objects_to_run  ut_suite_items;
@@ -360,9 +360,9 @@ create or replace package body ut_suite_manager is
     end clean_paths;
 
     procedure skip_by_path(a_suite in out nocopy ut_suite_item, a_path varchar2) is
-      l_root        constant varchar2(32767) := regexp_substr(a_path, '\w+');
-      l_rest_path   constant varchar2(32767) := regexp_substr(a_path, '\.(.+)', subexpression => 1);
-      l_suite       ut_suite;
+      c_root        constant varchar2(32767) := regexp_substr(a_path, '\w+');
+      c_rest_path   constant varchar2(32767) := regexp_substr(a_path, '\.(.+)', subexpression => 1);
+      l_suite       ut_logical_suite;
       l_item        ut_suite_item;
       l_items       ut_suite_items := ut_suite_items();
       l_item_name   varchar2(32767);
@@ -370,8 +370,8 @@ create or replace package body ut_suite_manager is
     begin
       a_suite.set_ignore_flag(false);
 
-      if a_path is not null and a_suite is not null and a_suite is of (ut_suite) then
-        l_suite := treat(a_suite as ut_suite);
+      if a_path is not null and a_suite is not null and a_suite is of (ut_logical_suite) then
+        l_suite := treat(a_suite as ut_logical_suite);
 
         for i in 1 .. l_suite.items.count loop
 
@@ -379,9 +379,9 @@ create or replace package body ut_suite_manager is
 
           l_item_name := l_item.name;
           --l_item_name := regexp_substr(l_item_name,'\w+$'); -- temporary fix. seems like suite have suitepath in object_name
-          if regexp_like(l_item_name, l_root, modifier => 'i') then
+          if regexp_like(l_item_name, c_root, modifier => 'i') then
 
-            skip_by_path(l_item, l_rest_path);
+            skip_by_path(l_item, c_rest_path);
             l_items.extend;
             l_items(l_items.count) := l_item;
 
@@ -426,7 +426,7 @@ create or replace package body ut_suite_manager is
         -- convert SCHEMA.PACKAGE.PROCEDURE syntax to fully qualified path
         if regexp_like(l_path, '^\w+(\.\w+){1,2}$') then
           declare
-            l_temp_suite     ut_suite;
+            l_temp_suite     ut_logical_suite;
             l_package_name   varchar2(4000);
             l_procedure_name varchar2(4000);
           begin

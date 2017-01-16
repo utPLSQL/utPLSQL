@@ -46,7 +46,7 @@ create or replace type body ut_xunit_reporter is
       self.print_text('</testcase>');
     end;
 
-    procedure print_suite_elements(a_suite ut_suite, a_suite_id in out nocopy integer) is
+    procedure print_suite_elements(a_suite ut_logical_suite, a_suite_id in out nocopy integer) is
       l_tests_count integer := a_suite.results_count.ignored_count + a_suite.results_count.success_count + a_suite.results_count.failure_count + a_suite.results_count.errored_count;
     begin
       a_suite_id := a_suite_id + 1;
@@ -61,8 +61,8 @@ create or replace type body ut_xunit_reporter is
       for i in 1 .. a_suite.items.count loop
         if a_suite.items(i) is of (ut_test) then
           print_test_elements(treat(a_suite.items(i) as ut_test));
-        elsif a_suite.items(i) is of (ut_suite) then
-          print_suite_elements(treat(a_suite.items(i) as ut_suite), a_suite_id);
+        elsif a_suite.items(i) is of (ut_logical_suite) then
+          print_suite_elements(treat(a_suite.items(i) as ut_logical_suite), a_suite_id);
         end if;
       end loop;
       self.print_text('</testsuite>');
@@ -71,7 +71,7 @@ create or replace type body ut_xunit_reporter is
     l_suite_id := 0;
     self.print_text('<testsuites tests="'||l_tests_count||'"'||self.get_common_item_attributes(a_run)||'>');
     for i in 1 .. a_run.items.count loop
-      print_suite_elements(treat(a_run.items(i) as ut_suite), l_suite_id);
+      print_suite_elements(treat(a_run.items(i) as ut_logical_suite), l_suite_id);
     end loop;
     self.print_text('</testsuites>');
     (self as ut_reporter_base).after_calling_run(a_run);

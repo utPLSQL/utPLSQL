@@ -5,7 +5,7 @@ create or replace package body ut_runner is
   procedure run(a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false) is
     l_items_to_run  ut_run;
     l_listener      ut_event_listener;
-    l_current_suite ut_suite;
+    l_current_suite ut_logical_suite;
   begin
     ut_console_reporter_base.set_color_enabled(a_color_console);
     if a_reporters is null or a_reporters.count = 0 then
