@@ -1,7 +1,7 @@
-create or replace type body ut_suite as
+create or replace type body ut_logical_suite as
 
-  constructor function ut_suite(
-    self in out nocopy ut_suite,a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_description varchar2 := null, a_path varchar2
+  constructor function ut_logical_suite(
+    self in out nocopy ut_logical_suite,a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_description varchar2 := null, a_path varchar2
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
@@ -30,28 +30,28 @@ create or replace type body ut_suite as
     return l_result;
   end item_index;
 
-  member procedure add_item(self in out nocopy ut_suite, a_item ut_suite_item) is
+  member procedure add_item(self in out nocopy ut_logical_suite, a_item ut_suite_item) is
   begin
     self.items.extend;
     self.items(self.items.last) := a_item;
   end;
 
-  overriding member procedure do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_event_listener_base) is
+  overriding member procedure do_execute(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base) is
     l_completed_without_errors boolean;
   begin
     l_completed_without_errors := self.do_execute(a_listener);
   end;
 
-  overriding member function do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_event_listener_base) return boolean is
+  overriding member function do_execute(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_suite_savepoint varchar2(30);
     l_item_savepoint  varchar2(30);
     l_completed_without_errors boolean;
   begin
-    ut_utils.debug_log('ut_suite.execute');
+    ut_utils.debug_log('ut_logical_suite.execute');
 
     if self.get_ignore_flag() then
       self.result := ut_utils.tr_ignore;
-      ut_utils.debug_log('ut_suite.execute - ignored');
+      ut_utils.debug_log('ut_logical_suite.execute - ignored');
     else
       a_listener.fire_before_event(ut_utils.gc_suite,self);
 
@@ -73,7 +73,7 @@ create or replace type body ut_suite as
     return l_completed_without_errors;
   end;
 
-  overriding member procedure calc_execution_result(self in out nocopy ut_suite) is
+  overriding member procedure calc_execution_result(self in out nocopy ut_logical_suite) is
     l_result integer(1);
   begin
     if self.items is not null and self.items.count > 0 then

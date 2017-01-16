@@ -11,13 +11,13 @@ create or replace type ut_reporter_base force authid current_user as object
   member procedure before_calling_run(self in out nocopy ut_reporter_base, a_run in ut_run),
 
   -- suite hooks
-  member procedure before_calling_suite(self in out nocopy ut_reporter_base, a_suite in ut_suite),
+  member procedure before_calling_suite(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
 
-  member procedure before_calling_before_all(self in out nocopy ut_reporter_base, a_suite in ut_suite),
-  member procedure after_calling_before_all (self in out nocopy ut_reporter_base, a_suite in ut_suite),
+  member procedure before_calling_before_all(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
+  member procedure after_calling_before_all (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
 
-  member procedure before_calling_before_each(self in out nocopy ut_reporter_base, a_suite in ut_suite),
-  member procedure after_calling_before_each (self in out nocopy ut_reporter_base, a_suite in ut_suite),
+  member procedure before_calling_before_each(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
+  member procedure after_calling_before_each (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
 
   -- test hooks
   member procedure before_calling_test(self in out nocopy ut_reporter_base, a_test in ut_test),
@@ -34,13 +34,13 @@ create or replace type ut_reporter_base force authid current_user as object
   member procedure after_calling_test(self in out nocopy ut_reporter_base, a_test in ut_test),
 
   --suite hooks continued
-  member procedure before_calling_after_each(self in out nocopy ut_reporter_base, a_suite in ut_suite),
-  member procedure after_calling_after_each (self in out nocopy ut_reporter_base, a_suite in ut_suite),
+  member procedure before_calling_after_each(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
+  member procedure after_calling_after_each (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
 
-  member procedure before_calling_after_all(self in out nocopy ut_reporter_base, a_suite in ut_suite),
-  member procedure after_calling_after_all (self in out nocopy ut_reporter_base, a_suite in ut_suite),
+  member procedure before_calling_after_all(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
+  member procedure after_calling_after_all (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
 
-  member procedure after_calling_suite(self in out nocopy ut_reporter_base, a_suite in ut_suite),
+  member procedure after_calling_suite(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
 
   -- run hooks continued
   member procedure after_calling_run (self in out nocopy ut_reporter_base, a_run in ut_run)

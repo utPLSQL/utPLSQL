@@ -6,9 +6,9 @@ create or replace type ut_documentation_reporter force under ut_reporter_base
   member function tab(self in ut_documentation_reporter) return varchar2,
 
   overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2),
-  overriding member procedure before_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_suite),
+  overriding member procedure before_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_logical_suite),
   overriding member procedure after_calling_test(self in out nocopy ut_documentation_reporter, a_test ut_test),
-  overriding member procedure after_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_suite),
+  overriding member procedure after_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_logical_suite),
   overriding member procedure after_calling_run(self in out nocopy ut_documentation_reporter, a_run in ut_run)
 
 )

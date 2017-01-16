@@ -25,11 +25,11 @@ create or replace type body ut_event_listener is
             when ut_utils.gc_run then
               self.reporters(i).before_calling_run(treat(a_item as ut_run));
             when ut_utils.gc_suite then
-              self.reporters(i).before_calling_suite(treat(a_item as ut_suite));
+              self.reporters(i).before_calling_suite(treat(a_item as ut_logical_suite));
             when ut_utils.gc_before_all then
-              self.reporters(i).before_calling_before_all(treat(a_item as ut_suite));
+              self.reporters(i).before_calling_before_all(treat(a_item as ut_logical_suite));
             when ut_utils.gc_before_each then
-              self.reporters(i).before_calling_before_each(treat(a_item as ut_suite));
+              self.reporters(i).before_calling_before_each(treat(a_item as ut_logical_suite));
             when ut_utils.gc_test then
               self.reporters(i).before_calling_test(treat(a_item as ut_test));
             when ut_utils.gc_before_test then
@@ -39,9 +39,9 @@ create or replace type body ut_event_listener is
             when ut_utils.gc_after_test then
               self.reporters(i).before_calling_after_test(treat(a_item as ut_test));
             when ut_utils.gc_after_each then
-              self.reporters(i).before_calling_after_each(treat(a_item as ut_suite));
+              self.reporters(i).before_calling_after_each(treat(a_item as ut_logical_suite));
             when ut_utils.gc_after_all then
-              self.reporters(i).before_calling_after_all(treat(a_item as ut_suite));
+              self.reporters(i).before_calling_after_all(treat(a_item as ut_logical_suite));
             else
               raise_application_error(ut_utils.gc_invalid_rep_event_name,'Inavlid reporting event name - '|| nvl(a_event_name,'NULL'));
             end case;
@@ -50,11 +50,11 @@ create or replace type body ut_event_listener is
             when ut_utils.gc_run then
               self.reporters(i).after_calling_run(treat(a_item as ut_run));
             when ut_utils.gc_suite then
-              self.reporters(i).after_calling_suite(treat(a_item as ut_suite));
+              self.reporters(i).after_calling_suite(treat(a_item as ut_logical_suite));
             when ut_utils.gc_before_all then
-              self.reporters(i).after_calling_before_all(treat(a_item as ut_suite));
+              self.reporters(i).after_calling_before_all(treat(a_item as ut_logical_suite));
             when ut_utils.gc_before_each then
-              self.reporters(i).after_calling_before_each(treat(a_item as ut_suite));
+              self.reporters(i).after_calling_before_each(treat(a_item as ut_logical_suite));
             when ut_utils.gc_test then
               self.reporters(i).after_calling_test(treat(a_item as ut_test));
             when ut_utils.gc_before_test then
@@ -64,9 +64,9 @@ create or replace type body ut_event_listener is
             when ut_utils.gc_after_test then
               self.reporters(i).after_calling_after_test(treat(a_item as ut_test));
             when ut_utils.gc_after_each then
-              self.reporters(i).after_calling_after_each(treat(a_item as ut_suite));
+              self.reporters(i).after_calling_after_each(treat(a_item as ut_logical_suite));
             when ut_utils.gc_after_all then
-              self.reporters(i).after_calling_after_all(treat(a_item as ut_suite));
+              self.reporters(i).after_calling_after_all(treat(a_item as ut_logical_suite));
             else
               raise_application_error(ut_utils.gc_invalid_rep_event_name,'Inavlid reporting event name - '|| nvl(a_event_name,'NULL'));
           end case;

@@ -13,12 +13,12 @@ set echo off
 @@ut_custom_reporter.tpb
 
 declare
-  suite1        ut_suite;
-  suite2        ut_suite;
-  suite_complex ut_suite;
+  suite1        ut_logical_suite;
+  suite2        ut_logical_suite;
+  suite_complex ut_logical_suite;
   listener      ut_event_listener;
 begin
-  suite1 := ut_suite(a_object_owner=>null, a_object_name => null, a_name => null, a_description => 'Test Suite 1', a_path => null);
+  suite1 := ut_logical_suite(a_object_owner=>null, a_object_name => null, a_name => null, a_description => 'Test Suite 1', a_path => null);
 
   suite1.add_item(
       ut_test(a_object_name    => 'ut_exampletest'
@@ -28,7 +28,7 @@ begin
       ,a_after_test_proc_name  => 'tEardown')
   );
 
-  suite2        := ut_suite(a_object_owner=>null, a_object_name => null, a_name => null, a_description => 'Test Suite 2', a_path => null);
+  suite2        := ut_logical_suite(a_object_owner=>null, a_object_name => null, a_name => null, a_description => 'Test Suite 2', a_path => null);
 
   suite2.add_item(
       ut_test(
@@ -39,7 +39,7 @@ begin
       a_after_test_proc_name  => 'TEARDOWN')
   );
 
-  suite_complex := ut_suite( a_object_owner=>null, a_object_name => null, a_name => null, a_description => 'Complex Test Suite', a_path => null);
+  suite_complex := ut_logical_suite( a_object_owner=>null, a_object_name => null, a_name => null, a_description => 'Complex Test Suite', a_path => null);
   suite_complex.items := ut_suite_items(suite1, suite2);
 
   -- provide a reporter to process results

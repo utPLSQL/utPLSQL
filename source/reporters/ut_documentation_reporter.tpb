@@ -21,7 +21,7 @@ create or replace type body ut_documentation_reporter is
     end if;
   end;
 
-  overriding member procedure before_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_suite) as
+  overriding member procedure before_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_logical_suite) as
   begin
     self.print_text( coalesce( a_suite.description, a_suite.name ) );
     lvl := lvl + 1;
@@ -39,7 +39,7 @@ create or replace type body ut_documentation_reporter is
     self.print_text( l_message );
   end;
 
-  overriding member procedure after_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_suite) as
+  overriding member procedure after_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_logical_suite) as
   begin
     lvl := lvl - 1;
     if lvl = 0 then
@@ -71,11 +71,11 @@ create or replace type body ut_documentation_reporter is
       end if;
     end;
 
-    procedure print_failures_from_suite(a_suite ut_suite, a_failure_no in out nocopy integer) is
+    procedure print_failures_from_suite(a_suite ut_logical_suite, a_failure_no in out nocopy integer) is
     begin
       for i in 1 .. a_suite.items.count loop
-        if a_suite.items(i) is of (ut_suite) then
-          print_failures_from_suite(treat( a_suite.items(i) as ut_suite), a_failure_no);
+        if a_suite.items(i) is of (ut_logical_suite) then
+          print_failures_from_suite(treat( a_suite.items(i) as ut_logical_suite), a_failure_no);
         elsif a_suite.items(i) is of (ut_test) then
           print_failures_for_test(treat(a_suite.items(i) as ut_test), a_failure_no);
         end if;
@@ -90,7 +90,7 @@ create or replace type body ut_documentation_reporter is
         self.print_text( 'Failures:' );
         self.print_text( ' ' );
         for i in 1 .. a_run.items.count loop
-          print_failures_from_suite(treat(a_run.items(i) as ut_suite), l_failure_no);
+          print_failures_from_suite(treat(a_run.items(i) as ut_logical_suite), l_failure_no);
         end loop;
       end if;
     end;

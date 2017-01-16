@@ -7,7 +7,7 @@ create or replace type body ut_teamcity_reporter is
     return;
   end;
 
-  overriding member procedure before_calling_suite(self in out nocopy ut_teamcity_reporter, a_suite in ut_suite) is
+  overriding member procedure before_calling_suite(self in out nocopy ut_teamcity_reporter, a_suite in ut_logical_suite) is
   begin
     self.print_text(
       ut_teamcity_reporter_helper.test_suite_started(
@@ -15,7 +15,7 @@ create or replace type body ut_teamcity_reporter is
       );
   end;
 
-  overriding member procedure after_calling_suite(self in out nocopy ut_teamcity_reporter, a_suite in ut_suite) is
+  overriding member procedure after_calling_suite(self in out nocopy ut_teamcity_reporter, a_suite in ut_logical_suite) is
   begin
     self.print_text(
       ut_teamcity_reporter_helper.test_suite_finished(

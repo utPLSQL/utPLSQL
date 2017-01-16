@@ -1,4 +1,4 @@
-create or replace type ut_real_suite under ut_suite (
+create or replace type ut_suite  under ut_logical_suite (
   /**
   * The procedure to be invoked before all of the items of the suite (executed once)
   * Procedure exists within the package of the suite
@@ -19,8 +19,8 @@ create or replace type ut_real_suite under ut_suite (
   * Procedure exists within the package of the suite
   */
   after_all    ut_executable,
-  constructor function ut_real_suite(
-    self in out nocopy ut_real_suite, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_path varchar2, a_description varchar2 := null,
+  constructor function ut_suite (
+    self in out nocopy ut_suite , a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_path varchar2, a_description varchar2 := null,
     a_rollback_type integer := null, a_ignore_flag boolean := false, a_before_all_proc_name varchar2 := null,
     a_after_all_proc_name varchar2 := null, a_before_each_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null
   ) return self as result,
@@ -28,6 +28,6 @@ create or replace type ut_real_suite under ut_suite (
   /**
   * Finds the item in the suite by it's name and returns the item index
   */
-  overriding member function  do_execute(self in out nocopy ut_real_suite, a_listener in out nocopy ut_event_listener_base) return boolean
+  overriding member function  do_execute(self in out nocopy ut_suite , a_listener in out nocopy ut_event_listener_base) return boolean
 )
 /

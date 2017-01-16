@@ -1,7 +1,7 @@
-create or replace type body ut_real_suite as
+create or replace type body ut_suite  as
 
-  constructor function ut_real_suite(
-    self in out nocopy ut_real_suite, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_path varchar2, a_description varchar2 := null,
+  constructor function ut_suite (
+    self in out nocopy ut_suite , a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_path varchar2, a_description varchar2 := null,
     a_rollback_type integer := null, a_ignore_flag boolean := false, a_before_all_proc_name varchar2 := null,
     a_after_all_proc_name varchar2 := null, a_before_each_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null
   ) return self as result is
@@ -27,16 +27,16 @@ create or replace type body ut_real_suite as
     return l_is_valid;
   end;
 
-  overriding member function do_execute(self in out nocopy ut_real_suite, a_listener in out nocopy ut_event_listener_base) return boolean is
+  overriding member function do_execute(self in out nocopy ut_suite , a_listener in out nocopy ut_event_listener_base) return boolean is
     l_suite_savepoint varchar2(30);
     l_item_savepoint  varchar2(30);
     l_completed_without_errors boolean;
   begin
-    ut_utils.debug_log('ut_real_suite.execute');
+    ut_utils.debug_log('ut_suite .execute');
 
     if self.get_ignore_flag() then
       self.result := ut_utils.tr_ignore;
-      ut_utils.debug_log('ut_real_suite.execute - ignored');
+      ut_utils.debug_log('ut_suite .execute - ignored');
     else
       a_listener.fire_before_event(ut_utils.gc_suite,self);
 

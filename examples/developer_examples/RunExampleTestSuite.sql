@@ -11,12 +11,12 @@ set echo off
 @@ut_exampletest2.pkb
 
 declare
-  suite         ut_suite;
+  suite         ut_logical_suite;
   listener      ut_event_listener := ut_event_listener(ut_reporters());
   test_item     ut_test;
   assert        ut_assert_result;
 begin
-  suite := ut_suite(a_object_owner=>null, a_object_name => 'ut_exampletest', a_name => null, a_description => 'Test Suite Name',a_path => null);
+  suite := ut_logical_suite(a_object_owner=>null, a_object_name => 'ut_exampletest', a_name => null, a_description => 'Test Suite Name',a_path => null);
 
   suite.add_item(
       ut_test(a_object_name    => 'ut_exampletest'

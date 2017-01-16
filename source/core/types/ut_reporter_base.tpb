@@ -24,25 +24,25 @@ create or replace type body ut_reporter_base is
   end;
 
   -- suite hooks
-  member procedure before_calling_suite(self in out nocopy ut_reporter_base, a_suite in ut_suite) is
+  member procedure before_calling_suite(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
   begin
     null;
   end;
 
-  member procedure before_calling_before_all(self in out nocopy ut_reporter_base, a_suite in ut_suite) is
+  member procedure before_calling_before_all(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
   begin
     null;
   end;
-  member procedure after_calling_before_all (self in out nocopy ut_reporter_base, a_suite in ut_suite) is
+  member procedure after_calling_before_all (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
   begin
     null;
   end;
 
-  member procedure before_calling_before_each(self in out nocopy ut_reporter_base, a_suite in ut_suite) is
+  member procedure before_calling_before_each(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
   begin
     null;
   end;
-  member procedure after_calling_before_each (self in out nocopy ut_reporter_base, a_suite in ut_suite) is
+  member procedure after_calling_before_each (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
   begin
     null;
   end;
@@ -86,25 +86,25 @@ create or replace type body ut_reporter_base is
   end;
 
   --suite hooks continued
-  member procedure before_calling_after_each(self in out nocopy ut_reporter_base, a_suite in ut_suite) is
+  member procedure before_calling_after_each(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
   begin
     null;
   end;
-  member procedure after_calling_after_each (self in out nocopy ut_reporter_base, a_suite in ut_suite) is
-  begin
-    null;
-  end;
-
-  member procedure before_calling_after_all(self in out nocopy ut_reporter_base, a_suite in ut_suite) is
-  begin
-    null;
-  end;
-  member procedure after_calling_after_all (self in out nocopy ut_reporter_base, a_suite in ut_suite) is
+  member procedure after_calling_after_each (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
   begin
     null;
   end;
 
-  member procedure after_calling_suite(self in out nocopy ut_reporter_base, a_suite in ut_suite) is
+  member procedure before_calling_after_all(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
+  begin
+    null;
+  end;
+  member procedure after_calling_after_all (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
+  begin
+    null;
+  end;
+
+  member procedure after_calling_suite(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
   begin
     null;
   end;
