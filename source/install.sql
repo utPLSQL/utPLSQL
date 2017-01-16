@@ -2,10 +2,15 @@ prompt Installing utplsql framework
 
 set serveroutput on size unlimited
 set timing off
-set define off
+set verify off
+set define &
 
 spool install.log
-ALTER SESSION SET PLSQL_WARNINGS = 'ENABLE:ALL', 'DISABLE:(6000,6001,6003,6010, 7206)';
+
+define ut3_owner = &1
+alter session set current_schema = &&ut3_owner;
+alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(6000,6001,6003,6010, 7206)';
+set define off
 
 
 whenever sqlerror exit failure rollback
@@ -183,15 +188,15 @@ whenever oserror exit failure rollback
 
 
 set linesize 200
-set verify off
 set define &
 column text format a100
 column error_count noprint new_value error_count
 prompt Validating installation
 select name, type, sequence, line, position, text, count(1) over() error_count
-  from user_errors
- where name not like 'BIN$%'  --not recycled
-     and (name = 'UT' or name like 'UT\_%' escape '\')
+  from all_errors
+ where owner = '&&ut3_owner'
+   and name not like 'BIN$%'  --not recycled
+   and (name = 'UT' or name like 'UT\_%' escape '\')
    -- errors only. ignore warnings
    and attribute = 'ERROR'
 /
