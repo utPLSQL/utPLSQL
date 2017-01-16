@@ -33,12 +33,12 @@ create or replace type body ut_documentation_reporter is
     l_message := coalesce( a_test.description, a_test.name );
     --if test failed, then add it to the failures list, print failure with number
     if a_test.result = ut_utils.tr_ignore then
-      self.print_ignore_text(l_message || ' (IGNORED)');
+      self.print_yellow_text(l_message || ' (IGNORED)');
     elsif a_test.result = ut_utils.tr_success then
-      self.print_success_text(l_message);
+      self.print_green_text(l_message);
     elsif a_test.result > ut_utils.tr_success then
       failed_test_running_count := failed_test_running_count + 1;
-      self.print_failure_text(l_message || ' (FAILED - '||failed_test_running_count||')');
+      self.print_red_text(l_message || ' (FAILED - '||failed_test_running_count||')');
     end if;
   end;
 
@@ -57,9 +57,9 @@ create or replace type body ut_documentation_reporter is
     begin
       l_lines := a_assert.get_result_lines();
       for i in 1 .. l_lines.count loop
-        self.print_error_text(l_lines(i));
+        self.print_red_text(l_lines(i));
       end loop;
-      self.print_info_text(a_assert.caller_info);
+      self.print_cyan_text(a_assert.caller_info);
     end;
 
     procedure print_failures_for_test(a_test ut_test, a_failure_no in out nocopy integer) is
@@ -111,9 +111,9 @@ create or replace type body ut_documentation_reporter is
         when a_run.results_count.ignored_count > 0 then ', '||a_run.results_count.ignored_count||' ignored'
       end;
     if a_run.results_count.failure_count > 0 then
-      self.print_failure_text(l_summary_text);
+      self.print_red_text(l_summary_text);
     else
-      self.print_success_text(l_summary_text);
+      self.print_green_text(l_summary_text);
     end if;
     self.print_text(' ');
     (self as ut_reporter_base).after_calling_run(a_run);
