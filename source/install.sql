@@ -23,6 +23,8 @@ whenever oserror exit failure rollback
 @@core/ut_metadata.pks
 @@core/ut_utils.pkb
 @@core/ut_metadata.pkb
+@@core/ut_output_buffer.pks
+@@core/ut_output_buffer.pkb
 
 --core types
 @@core/types/ut_assert_result.tps

@@ -127,6 +127,8 @@ drop type ut_data_value;
 
 drop package ut_annotations;
 
+drop package ut_output_buffer;
+
 drop package ut_metadata;
 
 drop package ut_utils;
