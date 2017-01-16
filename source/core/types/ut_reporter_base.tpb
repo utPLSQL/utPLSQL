@@ -12,6 +12,37 @@ create or replace type body ut_reporter_base is
     self.output.send_line(a_text);
   end;
 
+  static procedure set_color_enabled(a_flag boolean) is
+  begin
+    ut_color_helper.color_enabled(a_flag);
+  end;
+
+  member procedure print_ignore_text(self in out nocopy ut_reporter_base, a_text varchar2) is
+  begin
+    self.print_text(ut_color_helper.yellow(a_text));
+  end;
+
+  member procedure print_success_text(self in out nocopy ut_reporter_base, a_text varchar2) is
+  begin
+    self.print_text(ut_color_helper.green(a_text));
+  end;
+
+  member procedure print_failure_text(self in out nocopy ut_reporter_base, a_text varchar2) is
+  begin
+    self.print_text(ut_color_helper.red(a_text));
+  end;
+
+  member procedure print_error_text(self in out nocopy ut_reporter_base, a_text varchar2) is
+  begin
+    self.print_text(ut_color_helper.red(a_text));
+  end;
+
+  member procedure print_info_text(self in out nocopy ut_reporter_base, a_text varchar2) is
+  begin
+    self.print_text(ut_color_helper.cyan(a_text));
+  end;
+
+
   member procedure print_clob(self in out nocopy ut_reporter_base, a_text clob) is
   begin
     self.output.send_clob(a_text);

@@ -111,11 +111,22 @@ create or replace package body ut_runner is
     end loop;
   end;
 
+  function is_color_enabled(a_params ut_varchar2_list) return boolean is
+  begin
+    for i in 1 .. cardinality(a_params) loop
+      if a_params(i) = '-c' then
+        return true;
+      end if;
+    end loop;
+    return false;
+  end;
+
   procedure set_run_params(a_params ut_varchar2_list) is
     l_call_params         tt_call_params := tt_call_params();
   begin
     l_call_params := parse_reporting_params(a_params);
     g_run_params.ut_paths := parse_paths_param(a_params);
+    g_run_params.color_enabled := is_color_enabled(a_params);
     setup_reporting_output_ids(l_call_params);
     g_run_params.call_params := l_call_params;
   end set_run_params;

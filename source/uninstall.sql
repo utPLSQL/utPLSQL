@@ -122,6 +122,8 @@ drop package ut_annotations;
 
 drop package ut_metadata;
 
+drop package ut_color_helper;
+
 drop package ut_utils;
 
 drop type ut_documentation_reporter;

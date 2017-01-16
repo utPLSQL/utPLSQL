@@ -5,7 +5,7 @@
   Current limit of script parameters is 39
 
 Scrip invocation:
-  ut_run.sql user/password@database [-p=(ut_path|ut_paths)] [-f=format [-o=output] [-s] ...]
+  ut_run.sql user/password@database [-p=(ut_path|ut_paths)] [-c] [-f=format [-o=output] [-s] ...]
 
 Parameters:
   user         - username to connect as
@@ -34,6 +34,7 @@ Parameters:
                  If not defined, then output will be displayed on screen, even if the parameter -s is not specified.
                  If more than one -o parameter is specified for one -f parameter, the last one is taken into consideration.
   -s           - Forces putting output to to screen for a given -f parameter.
+  -c           - If specified, enables printing of test results in colors as defined by ANSICONSOLE standards
 
   Parameters -f, -o, -s are correlated. That is parameters -o and -s are defining outputs for -f.
   Examples of invocation using sqlplus from command line:
@@ -129,6 +130,11 @@ begin
     p('  v_reporter.output.output_id := '''||l_run_params.call_params(i).output_id||''';');
     p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
   end loop;
+  if l_run_params.color_enabled then
+    p('  ut_reporter_base.set_color_enabled(true);');
+  else
+    p('  ut_reporter_base.set_color_enabled(false);');
+  end if;
   p(  '  ut_runner.run( ut_varchar2_list('||l_run_params.ut_paths||'), v_reporters_list );');
   p(  'end;');
   p(  '/');

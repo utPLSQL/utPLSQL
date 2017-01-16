@@ -10,8 +10,9 @@ create or replace package ut_runner authid current_user is
   type tt_call_params is table of t_call_param;
 
   type t_run_params is record(
-    ut_paths    varchar2(4000),
-    call_params tt_call_params
+    ut_paths      varchar2(4000),
+    color_enabled boolean,
+    call_params   tt_call_params
   );
 
   /**
