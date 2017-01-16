@@ -22,7 +22,7 @@ create or replace type body ut_custom_reporter is
     (self as ut_documentation_reporter).print_text(tab || a_text);
   end;
 
-  overriding member procedure before_calling_suite(self in out nocopy ut_custom_reporter, a_suite ut_suite) as
+  overriding member procedure before_calling_suite(self in out nocopy ut_custom_reporter, a_suite ut_logical_suite) as
   begin
     (self as ut_documentation_reporter).before_calling_suite(a_suite);
     lvl := lvl + 1;
@@ -40,7 +40,7 @@ create or replace type body ut_custom_reporter is
     (self as ut_documentation_reporter).after_calling_test(a_test);
   end;
 
-  overriding member procedure after_calling_suite(self in out nocopy ut_custom_reporter, a_suite ut_suite) as
+  overriding member procedure after_calling_suite(self in out nocopy ut_custom_reporter, a_suite ut_logical_suite) as
   begin
     lvl := lvl - 1;
     (self as ut_documentation_reporter).after_calling_suite(a_suite);

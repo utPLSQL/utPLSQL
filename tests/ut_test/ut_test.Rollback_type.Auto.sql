@@ -2,7 +2,7 @@ PROMPT Test auto transaction control
 
 --Arrange
 declare
-  l_suite ut_suite;
+  l_suite ut_logical_suite;
   l_test  ut_test;
   l_parsing_result ut_annotations.typ_annotated_package;
   l_expected ut_annotations.typ_annotated_package;
@@ -14,7 +14,7 @@ begin
   delete from ut$test_table;
 
   l_test := ut_test(a_object_name => 'ut_transaction_control',a_name => 'test', a_rollback_type => ut_utils.gc_rollback_manual);
-  l_suite := ut_suite(a_description => 'Suite name', a_name => 'UT_TRANSACTION_CONTROL', a_object_name => 'UT_TRANSACTION_CONTROL',a_rollback_type => ut_utils.gc_rollback_auto);
+  l_suite := ut_suite (a_description => 'Suite name', a_name => 'UT_TRANSACTION_CONTROL', a_object_name => 'UT_TRANSACTION_CONTROL',a_rollback_type => ut_utils.gc_rollback_auto,a_path => 'ut_transaction_control');
   l_suite.add_item(l_test);
 
 --Act
