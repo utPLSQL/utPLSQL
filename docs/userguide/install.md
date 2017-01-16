@@ -2,7 +2,7 @@
 
 To simply install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql`.
 
-This will create a new user `UT3` with password `UT3`, grant all needed privileges to that user and create PUBLIC synonyms needed tu sue the utPLSQL framework.
+This will create a new user `UT3` with password `UT3`, grant all needed privileges to that user and create PUBLIC synonyms needed to sue the utPLSQL framework.
 
 Example invocation of the script from command line:
 ```bash
