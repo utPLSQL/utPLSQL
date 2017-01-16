@@ -35,7 +35,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_executable.tps
 @@core/types/ut_test.tps
 @@core/types/ut_logical_suite.tps
-@@core/types/ut_suite .tps
+@@core/types/ut_suite.tps
 @@core/types/ut_run.tps
 @@core/types/ut_reporter_base.tps
 @@core/types/ut_reporters.tps
@@ -57,7 +57,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_suite_item.tpb
 @@core/types/ut_test.tpb
 @@core/types/ut_logical_suite.tpb
-@@core/types/ut_suite .tpb
+@@core/types/ut_suite.tpb
 @@core/types/ut_run.tpb
 @@core/types/ut_event_listener.tpb
 @@core/types/ut_assert_result.tpb
