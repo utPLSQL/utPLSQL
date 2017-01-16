@@ -18,7 +18,6 @@ create or replace package body ut_annotations as
 
 
   function delete_multiline_comments(a_source in clob) return clob is
-    l_tmp_clob clob;
   begin
 
 /*    l_tmp_clob := regexp_replace(srcstr   => a_source
@@ -135,9 +134,9 @@ create or replace package body ut_annotations as
     l_package_comments varchar2(32767);
   begin
     l_package_comments := regexp_substr(srcstr        => a_source
-                                       ,pattern       => '^\s*(CREATE\s+(OR\s+REPLACE)?(\s+(NON)?EDITIONABLE)?\s+)?PACKAGE .*?\s+(AS|IS)\s+((.*?{COMMENT#\d+}\s?)+)'
+                                       ,pattern       => '^\s*(CREATE\s+(OR\s+REPLACE)?(\s+(NON)?EDITIONABLE)?\s+)?PACKAGE\s[^;]*?(\s+(AS|IS)\s+)((.*?{COMMENT#\d+}\s?)+)'
                                        ,modifier      => 'i'
-                                       ,subexpression => 6);
+                                       ,subexpression => 7);
 
     -- parsing for package annotations
     return
@@ -329,7 +328,7 @@ create or replace package body ut_annotations as
 
     l_source := ut_metadata.get_package_spec_source(a_owner_name, a_name);
 
-    if l_source is null then
+    if l_source is null or sys.dbms_lob.getlength(l_source)=0 then
       return null;
     else
       return parse_package_annotations(l_source);
