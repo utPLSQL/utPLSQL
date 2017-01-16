@@ -1,4 +1,4 @@
-create or replace package body ut_color_helper as
+create or replace package body ut_ansiconsole_helper as
   c_red     constant varchar2(7) := chr(27) || '[31m';
   c_green   constant varchar2(7) := chr(27) || '[32m';
   c_yellow  constant varchar2(7) := chr(27) || '[33m';

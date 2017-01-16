@@ -115,6 +115,7 @@ declare
   begin
     dbms_output.put_line(a_text);
   end;
+  l_color_enabled varchar2(5) := case when l_run_params.color_enabled then 'true' else 'false' end;
 begin
   p(  'set serveroutput on size unlimited format truncated');
   p(  'set trimspool on');
@@ -130,12 +131,7 @@ begin
     p('  v_reporter.output.output_id := '''||l_run_params.call_params(i).output_id||''';');
     p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
   end loop;
-  if l_run_params.color_enabled then
-    p('  ut_reporter_base.set_color_enabled(true);');
-  else
-    p('  ut_reporter_base.set_color_enabled(false);');
-  end if;
-  p(  '  ut_runner.run( ut_varchar2_list('||l_run_params.ut_paths||'), v_reporters_list );');
+  p(  '  ut_runner.run( ut_varchar2_list('||l_run_params.ut_paths||'), v_reporters_list, a_color_console => '||l_color_enabled||' );');
   p(  'end;');
   p(  '/');
   p(  'spool off');

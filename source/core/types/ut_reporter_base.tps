@@ -6,20 +6,6 @@ create or replace type ut_reporter_base force authid current_user as object
 
   member procedure print_text(self in out nocopy ut_reporter_base, a_text varchar2),
 
-  static procedure set_color_enabled(a_flag boolean),
-
-  member procedure print_red_text(self in out nocopy ut_reporter_base, a_text varchar2),
-
-  member procedure print_green_text(self in out nocopy ut_reporter_base, a_text varchar2),
-
-  member procedure print_yellow_text(self in out nocopy ut_reporter_base, a_text varchar2),
-
-  member procedure print_blue_text(self in out nocopy ut_reporter_base, a_text varchar2),
-
-  member procedure print_cyan_text(self in out nocopy ut_reporter_base, a_text varchar2),
-
-  member procedure print_magenta_text(self in out nocopy ut_reporter_base, a_text varchar2),
-
   member procedure print_clob(self in out nocopy ut_reporter_base, a_text clob),
 
   -- run hooks

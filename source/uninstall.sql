@@ -122,7 +122,7 @@ drop package ut_annotations;
 
 drop package ut_metadata;
 
-drop package ut_color_helper;
+drop package ut_ansiconsole_helper;
 
 drop package ut_utils;
 
@@ -143,6 +143,8 @@ drop type ut_run;
 drop type ut_suite;
 
 drop type ut_test;
+
+drop type ut_console_reporter_base;
 
 drop type ut_executable;
 
