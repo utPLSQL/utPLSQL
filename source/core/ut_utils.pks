@@ -49,6 +49,10 @@ create or replace package ut_utils authid definer is
   gc_invalid_path_format constant pls_integer := -20202;
   pragma exception_init(ex_invalid_path_format, -20202);
   
+  ex_suite_package_not_found exception;
+  gc_suite_package_not_found constant pls_integer := -20204;
+  pragma exception_init(ex_suite_package_not_found, -20204);
+  
   -- Reporting event time not supported
   ex_invalid_rep_event_time exception;
   gc_invalid_rep_event_time constant pls_integer := -20210;
