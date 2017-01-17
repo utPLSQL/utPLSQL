@@ -65,7 +65,7 @@ create or replace type body ut_assert_result is
 
         l_expected_msg := '  ' || self.matcher_name || self.additional_info;
         if self.expected_value_string is not null or self.expected_type is not null then
-          l_expected_msg := l_expected_msg || ' this: ';
+          l_expected_msg := l_expected_msg || ': ';
           l_expected_val := self.expected_value_string||'('||self.expected_type||')';
           if length(l_expected_msg) > length(l_actual_val_msg) then
             l_actual_val_msg := rpad(l_actual_val_msg , length(l_expected_msg));
