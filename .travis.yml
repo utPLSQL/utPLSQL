@@ -58,6 +58,7 @@ script:
   - bash .travis/run_examples_as_owner.sh
   - bash .travis/run_test_as_owner.sh
   - bash .travis/run_examples_as_user.sh
+  - bash .travis/create_release.sh
 #  - bash .travis/run_test_as_user.sh
 #  - bash .travis/build_docs.sh
 #  - bash .travis/push_docs_to_gh_pages.sh
