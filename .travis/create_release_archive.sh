@@ -19,4 +19,5 @@ cp -r LICENSE release/
 cp -r authors.md release/
 cp -r CONTRIBUTING.md release/
 cd release
-zip -r ../release.zip *
+zip -r ../utplsql.zip *
+tar -zcvf ../utplsql.tar.gz *
