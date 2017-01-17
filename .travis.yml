@@ -63,6 +63,18 @@ script:
 #  - bash .travis/build_docs.sh
 #  - bash .travis/push_docs_to_gh_pages.sh
 
+deploy:
+  provider: releases
+  api_key: $github_api_token
+  file: 
+     - utPLSQL$TRAVIS_TAG.zip
+     - utPLSQL$TRAVIS_TAG.tar.gz
+  skip_cleanup:true
+  on:
+     repo: utPLSQL/utPLSQL
+     tags: true
+
 notifications:
   slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
+
 
