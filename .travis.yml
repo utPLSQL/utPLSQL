@@ -69,7 +69,7 @@ deploy:
   file: 
      - utPLSQL$TRAVIS_TAG.zip
      - utPLSQL$TRAVIS_TAG.tar.gz
-  skip_cleanup:true
+  skip_cleanup: true
   on:
      repo: utPLSQL/utPLSQL
      tags: true
