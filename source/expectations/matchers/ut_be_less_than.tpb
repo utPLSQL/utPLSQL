@@ -2,7 +2,7 @@ create or replace type body ut_be_less_than as
 
   member procedure init(self in out nocopy ut_be_less_than, a_expected ut_data_value) is
   begin
-    self.name     := lower($$plsql_unit);
+    self.name     := 'be less than';
     self.expected := a_expected;
   end;
 

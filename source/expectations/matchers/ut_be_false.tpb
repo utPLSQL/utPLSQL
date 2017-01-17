@@ -2,7 +2,7 @@ create or replace type body ut_be_false as
 
   constructor function ut_be_false(self in out nocopy ut_be_false) return self as result is
   begin
-    self.name := lower($$plsql_unit);
+    self.name := 'be false';
     return;
   end;
 
