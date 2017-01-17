@@ -8,7 +8,7 @@ create or replace type body ut_match as
        self.additional_info := self.additional_info ||', modifiers '''||a_modifiers||'''';
      end if;
     end if;
-    self.name      := lower($$plsql_unit);
+    self.name      := 'match';
     self.pattern   := a_pattern;
     self.modifiers := a_modifiers;
     return;

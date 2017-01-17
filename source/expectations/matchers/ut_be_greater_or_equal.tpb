@@ -2,7 +2,7 @@ create or replace type body ut_be_greater_or_equal AS
 
   member procedure init(self in out nocopy ut_be_greater_or_equal, a_expected ut_data_value) is
   begin
-    self.name := lower($$plsql_unit);
+    self.name := 'be greater or equal';
     self.expected := a_expected;
   end;
 
