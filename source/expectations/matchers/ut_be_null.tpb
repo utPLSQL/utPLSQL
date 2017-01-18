@@ -2,7 +2,7 @@ create or replace type body ut_be_null as
 
   constructor function ut_be_null(self in out nocopy ut_be_null) return self as result is
   begin
-    self.name := lower($$plsql_unit);
+    self.name := 'be null';
     return;
   end;
 

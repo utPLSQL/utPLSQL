@@ -411,6 +411,8 @@ create or replace package body ut_suite_manager is
     for i in 1 .. l_paths.count loop
       l_path   := l_paths(i);
       l_schema := regexp_substr(l_path, '^(\w+)(\.|:|$)', 1, 1, null, 1);
+      
+      l_schema := sys.dbms_assert.schema_name(upper(l_schema));
 
       l_schema_suites := get_schema_suites(upper(l_schema));
 
@@ -434,6 +436,11 @@ create or replace package body ut_suite_manager is
             l_procedure_name := regexp_substr(l_path, '^\w+\.(\w+)(\.(\w+))?$', subexpression => 3);
 
             l_temp_suite := config_package(l_schema, l_package_name);
+            
+            if l_temp_suite is null then
+              raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||l_schema||'.'||l_package_name|| ' not found');
+            end if;
+            
             l_path       := rtrim(l_schema || ':' || l_temp_suite.path || '.' || l_procedure_name, '.');
           end;
         end if;

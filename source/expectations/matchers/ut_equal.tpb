@@ -3,7 +3,7 @@ create or replace type body ut_equal as
   member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean) is
   begin
     self.nulls_are_equal_flag := ut_utils.boolean_to_int( coalesce(a_nulls_are_equal, ut_assert_processor.nulls_are_equal()) );
-    self.name := lower($$plsql_unit);
+    self.name := 'equal';
     self.expected := a_expected;
   end;
 
