@@ -9,7 +9,7 @@
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 
 ----------
-Version 3 is a complete rewrite of utPLSQL from scratch.  Version 2 still supports older versions of Oracle that are no longer available.   This has lead to difficult to maintain code.  Yet many developers wanted to take it to the next level.  The community that had developed on GitHub, decided that a new internal architecture was needed, from that version 3 was born.  Currently version 3 is not complete and is not ready for a production environment as the API is not stable and changing.   However it is quickly taking shape.  We welcome new developers to join our community and help utPLSQL grow.
+Version 3 is a complete rewrite of utPLSQL from scratch.  [Version 2](https://github.com/utPLSQL/utPLSQL/tree/version2) still supports older versions of Oracle that are no longer available.   This has lead to difficult to maintain code.  Yet many developers wanted to take it to the next level.  The community that had developed on GitHub, decided that a new internal architecture was needed, from that version 3 was born.  Currently version 3 is not complete and is not ready for a production environment as the API is not stable and changing.   However it is quickly taking shape.  We welcome new developers to join our community and help utPLSQL grow.
 
 Primary Goals:
  - Easier to maintain 
@@ -21,6 +21,11 @@ Primary Goals:
  - Published upgrade/conversion path from version 2.
  - Easily called from current PL/SQL development tools
  - More permissive License to allow vendors easier ability to integrate utPLSQL. 
+
+__Download__
+
+Published releases are available for download on the [utPLSQL GitHub Releases Page.](https://github.com/utPLSQL/utPLSQL/releases)
+
 
 __Version 2 to Version 3 Comparison__
 
