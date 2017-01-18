@@ -38,7 +38,7 @@ Usage:
   ut.expect( a_actual ).to_( match( a_pattern in varchar2, a_modifiers in varchar2 := null) )
 ```
 
-Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle regexp_like function](https://docs.oracle.com/cd/E11882_01/server.112/e41084/conditions007.htm#SQLRF00501)
+Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle regexp_like function](http://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501)
 
 ## equal
 
