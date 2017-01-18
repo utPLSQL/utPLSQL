@@ -169,6 +169,8 @@ whenever oserror exit failure rollback
 @@reporters/ut_documentation_reporter.tpb
 
 --test runner
+@@core/ut_runner_helper.pks
+@@core/ut_runner_helper.pkb
 @@api/ut_runner.pks
 @@api/ut_runner.pkb
 

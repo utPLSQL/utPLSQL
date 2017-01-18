@@ -1,19 +1,10 @@
 create or replace package ut_runner authid current_user is
 
-  type t_call_param is record (
-    ut_reporter_name   varchar2(4000) := 'ut_documentation_reporter',
-    output_file_name   varchar2(4000),
-    output_to_screen   varchar2(3)    := 'on',
-    output_id          varchar2(4000)
-  );
+  subtype t_call_param is ut_runner_helper.t_call_param;
 
-  type tt_call_params is table of t_call_param;
+  subtype tt_call_params is ut_runner_helper.tt_call_params;
 
-  type t_run_params is record(
-    ut_paths      varchar2(4000),
-    color_enabled boolean,
-    call_params   tt_call_params
-  );
+  subtype t_run_params is ut_runner_helper.t_run_params;
 
   /**
   * Run suites/tests by path
