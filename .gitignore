@@ -6,3 +6,6 @@
 .idea/
 site/
 pages/
+release/
+*.gz
+*.zip

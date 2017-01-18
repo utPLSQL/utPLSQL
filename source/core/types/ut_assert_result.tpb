@@ -59,13 +59,13 @@ create or replace type body ut_assert_result is
 
       if self.result != ut_utils.tr_success then
         if self.actual_value_string is not null or self.actual_type is not null then
-          l_actual_val_msg := '  expected (actual value): ';
+          l_actual_val_msg := '  expected this: ';
           l_actual_val := self.actual_value_string || '(' || self.actual_type || ')';
         end if;
 
-        l_expected_msg := '  '||self.matcher_name || self.additional_info;
+        l_expected_msg := '  ' || self.matcher_name || self.additional_info;
         if self.expected_value_string is not null or self.expected_type is not null then
-          l_expected_msg := l_expected_msg || ' (expected value): ';
+          l_expected_msg := l_expected_msg || ': ';
           l_expected_val := self.expected_value_string||'('||self.expected_type||')';
           if length(l_expected_msg) > length(l_actual_val_msg) then
             l_actual_val_msg := rpad(l_actual_val_msg , length(l_expected_msg));

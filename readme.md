@@ -1,7 +1,10 @@
 #utPLSQL v3<sub><sup> | Powerful PL/SQL Unit Testing Framework </sup></sub>
-[![chat](http://img.shields.io/badge/version_status-pre--alpha-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
-[![build](https://img.shields.io/travis/utPLSQL/utPLSQL/version3.svg?label=version3%20build)](https://travis-ci.org/utPLSQL/utPLSQL)
-[![license](http://img.shields.io/badge/license-apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![chat](http://img.shields.io/badge/version_status-alpha-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
+[![build](https://img.shields.io/travis/utPLSQL/utPLSQL/master.svg?label=master%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
+[![build](https://img.shields.io/travis/utPLSQL/utPLSQL/develop.svg?label=develop%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
+
+[![license](http://img.shields.io/badge/license-apache%202.0-blue.svg)]
+(https://www.apache.org/licenses/LICENSE-2.0)
 [![chat](http://img.shields.io/badge/chat-slack-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 
@@ -31,6 +34,11 @@ Primary features:
 
 Requirements:
  - Version of Oracle under [Extend Support](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf)  (Currently 11.2 and above)
+
+__Download__
+
+Published releases are available for download on the [utPLSQL GitHub Releases Page.](https://github.com/utPLSQL/utPLSQL/releases)
+
 
 __Version 2 to Version 3 Comparison__
 
