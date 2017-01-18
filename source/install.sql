@@ -48,8 +48,8 @@ whenever oserror exit failure rollback
 @@core/types/ut_reporters.tps
 @@core/types/ut_event_listener.tps
 --annoations
-@@core/annotations/ut_annotations.pks
-@@core/annotations/ut_annotations.pkb
+@@core/ut_annotations.pks
+@@core/ut_annotations.pkb
 
 --suite manager
 @@core/ut_suite_manager.pks

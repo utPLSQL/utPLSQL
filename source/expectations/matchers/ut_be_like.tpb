@@ -8,7 +8,7 @@ create or replace type body ut_be_like as
        self.additional_info := self.additional_info ||' escape '''||a_escape_char||'''';
      end if;
     end if;
-    self.name        := lower($$plsql_unit);
+    self.name        := 'be like';
     self.mask        := a_mask;
     self.escape_char := a_escape_char;
     return;

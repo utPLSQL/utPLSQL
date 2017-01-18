@@ -2,7 +2,7 @@ create or replace type body ut_be_between is
 
   member procedure init(self in out nocopy ut_be_between, a_lower_bound ut_data_value, a_upper_bound ut_data_value) is
   begin
-    self.name            := lower($$plsql_unit);
+    self.name            := 'be between';
     self.lower_bound     := a_lower_bound;
     self.upper_bound     := a_upper_bound;
     self.additional_info := 'between ' || a_lower_bound.to_string || ' and ' || a_upper_bound.to_string;
