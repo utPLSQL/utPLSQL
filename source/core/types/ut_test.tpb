@@ -43,7 +43,7 @@ create or replace type body ut_test as
       self.result := ut_utils.tr_ignore;
       ut_utils.debug_log('ut_test.execute - ignored');
       self.results_count := ut_results_counter(self.result);
-      self.end_time := current_timestamp;
+      self.end_time := self.start_time;
     else
       if self.is_valid() then
 
