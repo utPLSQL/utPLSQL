@@ -12,6 +12,7 @@ mkdir release/source
 # Copy files to various directories
 cp -r docs release/docs/markdown
 cp -r site release/docs/html 
+cp -r client_source release/client_source
 cp -r source release/source
 cp -r examples release/examples
 cp -r readme.md release/ 
