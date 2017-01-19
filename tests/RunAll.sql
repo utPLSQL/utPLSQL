@@ -135,10 +135,10 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.open.CreatesAPrivatePipe.sql
 @@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.send_clob.SendsAClobIntoPipe.sql
 
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_clob_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.RetunrsNoRowsWhenNoDataInBuffer.sql
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.send_clob.SendsAClobIntoPipe.sql
+@@lib/RunTest.sql ut_output_buffered/ut_output_buffered.get_clob_lines.ReturnsSentLines.sql
+@@lib/RunTest.sql ut_output_buffered/ut_output_buffered.get_lines.RetunrsNoRowsWhenNoDataInBuffer.sql
+@@lib/RunTest.sql ut_output_buffered/ut_output_buffered.get_lines.ReturnsSentLines.sql
+@@lib/RunTest.sql ut_output_buffered/ut_output_buffered.send_clob.SendsAClobIntoPipe.sql
 
 @@lib/RunTest.sql ut_expectations/greater_or_equal.sql
 @@lib/RunTest.sql ut_expectations/greater_than.sql

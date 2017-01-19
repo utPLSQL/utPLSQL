@@ -1,8 +1,8 @@
-PROMPT ut_output_dbms_output.get_lines Returns no rows if noting was sent
+PROMPT ut_output_buffered.get_lines Returns no rows if noting was sent
 
 declare
   l_rows         integer;
-  l_output       ut_output_dbms_output := ut_output_dbms_output();
+  l_output       ut_output_buffered := ut_output_buffered();
 begin
   select count(1) into l_rows from table( l_output.get_lines('dummy output id') );
   if l_rows = 0 then

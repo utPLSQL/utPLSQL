@@ -1,7 +1,7 @@
-PROMPT ut_output_dbms_output.gt_lines Returns lines that have been sent to the output
+PROMPT ut_output_buffered.gt_lines Returns lines that have been sent to the output
 
 declare
-  l_output   ut_output_dbms_output := ut_output_dbms_output();
+  l_output   ut_output_buffered := ut_output_buffered();
   l_expected varchar2(4000) := 'a test line';
 begin
   --Act - open the pipe

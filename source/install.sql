@@ -31,7 +31,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_assert_results.tps
 @@core/types/ut_results_counter.tps
 @@core/types/ut_output.tps
-@@core/types/ut_output_dbms_output.tps
+@@core/types/ut_output_buffered.tps
 @@core/types/ut_output_stream.tps
 @@core/ut_output_pipe_helper.pks
 @@core/types/ut_output_dbms_pipe.tps
@@ -69,7 +69,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_event_listener.tpb
 @@core/types/ut_assert_result.tpb
 @@core/types/ut_output.tpb
-@@core/types/ut_output_dbms_output.tpb
+@@core/types/ut_output_buffered.tpb
 @@core/types/ut_output_stream.tpb
 @@core/ut_output_pipe_helper.pkb
 @@core/types/ut_output_dbms_pipe.tpb

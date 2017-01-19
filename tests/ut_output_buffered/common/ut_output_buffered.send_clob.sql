@@ -3,7 +3,7 @@ declare
   l_max_varchar2_len integer := 32767;
   l_loops            integer := floor(l_expected_length / l_max_varchar2_len);
   l_string           varchar2(32767);
-  l_output           ut_output_dbms_output := ut_output_dbms_output();
+  l_output           ut_output_buffered := ut_output_buffered();
   l_lob clob;
 begin
   dbms_lob.createtemporary(l_lob, true);

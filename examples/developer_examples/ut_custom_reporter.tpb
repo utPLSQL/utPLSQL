@@ -1,6 +1,6 @@
 create or replace type body ut_custom_reporter is
 
-  constructor function ut_custom_reporter(a_tab_size integer default 4, a_output ut_output default ut_output_dbms_output() ) return self as result is
+  constructor function ut_custom_reporter(a_tab_size integer default 4, a_output ut_output default ut_output_buffered() ) return self as result is
   begin
     self.name     := $$plsql_unit;
     self.lvl      := 0;

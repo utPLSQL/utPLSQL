@@ -169,7 +169,7 @@ drop package ut_output_pipe_helper;
 
 drop type ut_output_stream;
 
-drop type ut_output_dbms_output;
+drop type ut_output_buffered;
 
 drop type ut_output;
 

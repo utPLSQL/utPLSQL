@@ -1,7 +1,7 @@
-PROMPT ut_output_dbms_output.get_clob_lines Returns lines that have been sent to the output
+PROMPT ut_output_buffered.get_clob_lines Returns lines that have been sent to the output
 
 declare
-  l_output   ut_output_dbms_output := ut_output_dbms_output();
+  l_output   ut_output_buffered := ut_output_buffered();
   l_expected clob;
 begin
   l_expected := lpad('a',32767,'a');
