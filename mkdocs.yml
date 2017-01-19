@@ -6,6 +6,7 @@ site_description: utPLSQL Documenation Powerful Unit Testing Framework for Oracl
 copyright: Copyright &copy; 2016 - utPLSQL Team
 repo_url: https://github.com/utplsql/utplsql/
 theme: mkdocs
+use_directory_urls: false
 strict: true
 
 pages:
