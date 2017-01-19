@@ -1,5 +1,5 @@
 --Shows how to create a test suite with the default reporter which is dbms_output
---No tables are used for this.   
+--No tables are used for this.
 --Suite Management packages are when developed will make this easier.
 --Clear Screen
 Set Serveroutput On Size Unlimited format truncated
@@ -12,6 +12,7 @@ set echo off
 
 PROMPT Runs test report using composite reporter
 declare
+  l_run         ut_run;
   suite         ut_logical_suite;
   listener      ut_event_listener;
 begin
@@ -35,8 +36,9 @@ begin
   );
 
   -- provide a reporter to process results
+  l_run := ut_run(ut_suite_items(suite));
   listener := ut_event_listener(ut_reporters(ut_documentation_reporter, ut_teamcity_reporter));
-  suite.do_execute(listener);
+  l_run.do_execute(listener);
 end;
 /
 
