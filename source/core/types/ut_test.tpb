@@ -36,18 +36,16 @@ create or replace type body ut_test as
 
     ut_utils.debug_log('ut_test.execute');
 
+    a_listener.fire_before_event(ut_utils.gc_test,self);
+    self.start_time := current_timestamp;
+
     if self.get_ignore_flag() then
       self.result := ut_utils.tr_ignore;
       ut_utils.debug_log('ut_test.execute - ignored');
-      self.start_time := current_timestamp;
-      self.end_time := current_timestamp;
+      self.results_count := ut_results_counter(self.result);
+      self.end_time := self.start_time;
     else
-
-      a_listener.fire_before_event(ut_utils.gc_test,self);
-
       if self.is_valid() then
-
-        self.start_time := current_timestamp;
 
         l_savepoint := self.create_savepoint_if_needed();
 
@@ -67,9 +65,8 @@ create or replace type body ut_test as
       end if;
       self.calc_execution_result();
       self.end_time := current_timestamp;
-      a_listener.fire_after_event(ut_utils.gc_test,self);
-
     end if;
+    a_listener.fire_after_event(ut_utils.gc_test,self);
     return l_completed_without_errors;
   end;
 
