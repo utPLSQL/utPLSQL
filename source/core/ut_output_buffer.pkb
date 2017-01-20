@@ -14,7 +14,7 @@ create or replace package body ut_output_buffer as
   procedure add_to_buffer(a_output_id varchar2, a_text clob) is
     l_clob clob;
   begin
-    if a_text is not null then
+    if a_text is not null and dbms_lob.getlength(a_text)>0 then
       if not g_outputs.exists(a_output_id) then
         dbms_lob.createtemporary(l_clob, true);
         g_outputs(a_output_id) := l_clob;
