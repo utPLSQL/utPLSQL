@@ -23,6 +23,8 @@ whenever oserror exit failure rollback
 @@core/ut_metadata.pks
 @@core/ut_utils.pkb
 @@core/ut_metadata.pkb
+@@reporters/ut_ansiconsole_helper.pks
+@@reporters/ut_ansiconsole_helper.pkb
 
 --core types
 @@core/types/ut_assert_result.tps
@@ -73,8 +75,10 @@ whenever oserror exit failure rollback
 @@core/types/ut_output_dbms_pipe.tpb
 @@core/types/ut_reporter_base.tpb
 @@core/types/ut_executable.tpb
+@@core/types/ut_console_reporter_base.tps
+@@core/types/ut_console_reporter_base.tpb
 
---expecations and matchers
+--expectations and matchers
 @@expectations/data_values/ut_data_value.tps
 @@expectations/data_values/ut_data_value_anydata.tps
 @@expectations/data_values/ut_data_value_blob.tps
@@ -165,6 +169,8 @@ whenever oserror exit failure rollback
 @@reporters/ut_documentation_reporter.tpb
 
 --test runner
+@@core/ut_runner_helper.pks
+@@core/ut_runner_helper.pkb
 @@api/ut_runner.pks
 @@api/ut_runner.pkb
 

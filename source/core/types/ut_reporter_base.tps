@@ -5,6 +5,7 @@ create or replace type ut_reporter_base force authid current_user as object
   constructor function ut_reporter_base(self in out nocopy ut_reporter_base, a_output ut_output default ut_output_dbms_output()) return self as result,
 
   member procedure print_text(self in out nocopy ut_reporter_base, a_text varchar2),
+
   member procedure print_clob(self in out nocopy ut_reporter_base, a_text clob),
 
   -- run hooks
