@@ -82,12 +82,6 @@ create or replace type body ut_assert_result is
       add_text_line(l_result, '  error: '||ut_utils.indent_lines( self.error_message, length('  error: ') ) );
     end if;
 
-    if l_result is not null and self.caller_info is not null then
-      add_text_line(l_result, self.caller_info);
-    end if;
-    if length(l_result) > 0 then
-      add_text_line(l_result,'  '||chr(10));
-    end if;
     return l_result;
   end;
 

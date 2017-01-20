@@ -20,7 +20,7 @@ create or replace type body ut_xunit_reporter is
     begin
       self.print_text(
           '<testcase classname="'||get_path(a_test.path, a_test.name)||'" ' ||
-          ' assertions="'||a_test.results.count||'"' ||
+          ' assertions="'||coalesce(cardinality(a_test.results),0)||'"' ||
           self.get_common_item_attributes(a_test) ||
           ' status="'||ut_utils.test_result_to_char(a_test.result)||'"' ||
           '>'
