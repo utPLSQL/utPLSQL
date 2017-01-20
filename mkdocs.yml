@@ -6,6 +6,7 @@ site_description: utPLSQL Documenation Powerful Unit Testing Framework for Oracl
 copyright: Copyright &copy; 2016 - utPLSQL Team
 repo_url: https://github.com/utplsql/utplsql/
 theme: mkdocs
+use_directory_urls: false
 strict: true
 
 pages:
@@ -14,7 +15,7 @@ pages:
        - Installation: userguide/install.md
        - Getting Started: userguide/getting-started.md
        - Annotations: userguide/annotations.md
-       - Assertions: userguide/assertions.md
+       - Expectations: userguide/expectations.md
        - Testing Best Pracitces: userguide/best-practices.md
        - Upgrade utPLSQL : userguide/upgrade.md
   - About:

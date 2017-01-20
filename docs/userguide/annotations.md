@@ -5,8 +5,15 @@ The annotation list is based on moder testing framework such as jUnit 5, RSpec.
 
 Annotations allow to configure test infrastructure in a declarative way without anything stored in tables or config files. The framework runner scans the schema for all the suitable annotated packages, automatically configures suites, forms hierarchy from then and executes them.
 
-# Example of annotated package
-```
+Annotations are case-insensitive. But it is recommended to use the lower-case standard as described in the documentation.
+
+Annotation on procedure level must be placed directly before the procedure name.
+
+Annotation `-- %suite` should be placed at the beginning of package specification. It is not required but highly recommended as a practice.
+
+# Example of annotated test package
+
+```sql
 create or replace package test_pkg is
 
   -- %suite(Name of suite)
@@ -51,14 +58,14 @@ create or replace package test_pkg is
 end test_pkg;
 ```
 
-#Annotations meaning
+#Annotations description
 
-| Annotation |Level| Describtion |
+| Annotation |Level| Description |
 | --- | --- | --- |
 | `%suite(<description>)` | Package | Marks package to be a suite of tests This way all testing packages might be found in a schema. Optional schema discription can by provided, similar to `%displayname` annotation. |
-| `%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarcies. |
-| `%displayname(<description>)` | Package/procedure | Human-familiar describtion of the suite/test. Syntax is based on jUnit annotation: `%displayname(Name of the suite/test)` |
-| `%test(<description>)` | Procedure | Denotes that a method is a test method.  Optional test discription can by provided, similar to `%displayname` annotation. |
+| `%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
+| `%displayname(<description>)` | Package/procedure | Human-familiar description of the suite/test. Syntax is based on jUnit annotation: `%displayname(Name of the suite/test)` |
+| `%test(<description>)` | Procedure | Denotes that a method is a test method.  Optional test description can by provided, similar to `%displayname` annotation. |
 | `%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the current suite. |
 | `%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the current suite. |
 | `%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` method in the current suite. |
