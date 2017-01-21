@@ -5,7 +5,7 @@
   Current limit of script parameters is 39
 
 Scrip invocation:
-  ut_run.sql user/password@database [-p=(ut_path|ut_paths)] [-f=format [-o=output] [-s] ...]
+  ut_run.sql user/password@database [-p=(ut_path|ut_paths)] [-c] [-f=format [-o=output] [-s] ...]
 
 Parameters:
   user         - username to connect as
@@ -34,6 +34,7 @@ Parameters:
                  If not defined, then output will be displayed on screen, even if the parameter -s is not specified.
                  If more than one -o parameter is specified for one -f parameter, the last one is taken into consideration.
   -s           - Forces putting output to to screen for a given -f parameter.
+  -c           - If specified, enables printing of test results in colors as defined by ANSICONSOLE standards
 
   Parameters -f, -o, -s are correlated. That is parameters -o and -s are defining outputs for -f.
   Examples of invocation using sqlplus from command line:
@@ -102,14 +103,13 @@ end;
 spool off
 set define &
 
-
 @@set_run_params.sql.tmp
-
 
 spool run_in_backgroung.sql.tmp
 declare
   l_output_type varchar2(256) := ut_runner.get_streamed_output_type_name();
   l_run_params  ut_runner.t_run_params :=  ut_runner.get_run_params();
+  l_color_enabled varchar2(5) := case when l_run_params.color_enabled then 'true' else 'false' end;
   procedure p(a_text varchar2) is
   begin
     dbms_output.put_line(a_text);
@@ -124,12 +124,14 @@ begin
   p(  '  v_reporter       ut_reporter_base;');
   p(  '  v_reporters_list ut_reporters := ut_reporters();');
   p(  'begin');
-  for i in 1 .. cardinality(l_run_params.call_params) loop
-    p('  v_reporter := '||l_run_params.call_params(i).ut_reporter_name||'('||l_output_type||'());');
-    p('  v_reporter.output.output_id := '''||l_run_params.call_params(i).output_id||''';');
-    p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
-  end loop;
-  p(  '  ut_runner.run( ut_varchar2_list('||l_run_params.ut_paths||'), v_reporters_list );');
+  if l_run_params.call_params is not null then
+    for i in 1 .. l_run_params.call_params.count loop
+      p('  v_reporter := '||l_run_params.call_params(i).ut_reporter_name||'('||l_output_type||'());');
+      p('  v_reporter.output.output_id := '''||l_run_params.call_params(i).output_id||''';');
+      p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
+    end loop;
+  end if;
+  p(  '  ut_runner.run( ut_varchar2_list('||l_run_params.ut_paths||'), v_reporters_list, a_color_console => '||l_color_enabled||' );');
   p(  'end;');
   p(  '/');
   p(  'spool off');
@@ -150,13 +152,15 @@ declare
 begin
   p('declare l_date date := sysdate; begin loop exit when l_date < sysdate; end loop; end;');
   p('/');
-  for i in 1 .. cardinality(l_run_params.call_params) loop
-    p('set termout '||l_run_params.call_params(i).output_to_screen);
-    l_need_spool := (l_run_params.call_params(i).output_file_name is not null);
-    p(case when l_need_spool then 'spool '||l_run_params.call_params(i).output_file_name||chr(10) end||
-      'select * from table( '||l_output_type||'().get_lines('''||l_run_params.call_params(i).output_id||''') );'||
-      case when l_need_spool then chr(10)||'spool off' end);
-  end loop;
+  if l_run_params.call_params is not null then
+    for i in 1 .. l_run_params.call_params.count loop
+      p('set termout '||l_run_params.call_params(i).output_to_screen);
+      l_need_spool := (l_run_params.call_params(i).output_file_name is not null);
+      p(case when l_need_spool then 'spool '||l_run_params.call_params(i).output_file_name||chr(10) end||
+        'select * from table( '||l_output_type||'().get_lines('''||l_run_params.call_params(i).output_id||''') );'||
+        case when l_need_spool then chr(10)||'spool off' end);
+    end loop;
+  end if;
 end;
 /
 

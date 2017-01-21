@@ -102,7 +102,7 @@ create or replace package body ut_suite_manager is
           a_path                  => l_suite_path,  --a patch for this suite (excluding the package name of current suite)
           a_description           => l_suite_name,
           a_rollback_type         => l_suite_rollback,
-          a_ignore_flag           => l_annotation_data.package_annotations.exists('disable'),
+          a_ignore_flag           => l_annotation_data.package_annotations.exists('disabled'),
           a_before_all_proc_name  => l_suite_setup_proc,
           a_after_all_proc_name   => l_suite_teardown_proc,
           a_before_each_proc_name => l_default_setup_proc,
@@ -156,7 +156,7 @@ create or replace package body ut_suite_manager is
                 a_description   => l_displayname,
                 a_path          => l_suite.path || '.' || l_proc_name,
                 a_rollback_type => l_rollback_type,
-                a_ignore_flag   => l_proc_annotations.exists('disable'),
+                a_ignore_flag   => l_proc_annotations.exists('disabled'),
                 a_before_test_proc_name => l_setup_procedure,
                 a_after_test_proc_name  => l_teardown_procedure
             );

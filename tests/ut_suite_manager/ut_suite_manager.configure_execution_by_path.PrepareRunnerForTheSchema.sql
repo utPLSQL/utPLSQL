@@ -31,7 +31,7 @@ begin
         ut.expect(l_test2_suite.items.count).to_equal(2);
       when 'tests2' then          
         ut.expect(l_test1_suite.name).to_equal('test_package_3');
-        ut.expect(l_test1_suite.items.count).to_equal(2);
+        ut.expect(l_test1_suite.items.count).to_equal(3);
     end case;
   
   end loop;

@@ -2,9 +2,8 @@
 Create all necessary grant for the user who owns test packages and want to execute utPLSQL framework
 */
 
-prompt Granting user
 set echo off
-set feedback off
+set feedback on
 set heading off
 set verify off
 
@@ -30,6 +29,9 @@ grant execute on ut_runner to public;
 grant execute on ut_teamcity_reporter to public;
 grant execute on ut_documentation_reporter to public;
 grant execute on ut_reporters to public;
+grant execute on ut_varchar2_list to public;
+grant execute on ut_reporter_base to public;
+grant execute on ut_output_dbms_pipe to public;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
@@ -50,3 +52,6 @@ create public synonym ut_runner for ut_runner;
 create public synonym ut_teamcity_reporter for ut_teamcity_reporter;
 create public synonym ut_documentation_reporter for ut_documentation_reporter;
 create public synonym ut_reporters for ut_reporters;
+create public synonym ut_varchar2_list for ut_varchar2_list;
+create public synonym ut_reporter_base for ut_reporter_base;
+create public synonym ut_output_dbms_pipe for ut_output_dbms_pipe;

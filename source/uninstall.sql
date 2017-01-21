@@ -51,6 +51,8 @@ drop package ut_teamcity_reporter_helper;
 
 drop package ut_runner;
 
+drop package ut_runner_helper;
+
 drop package ut_suite_manager;
 
 drop package ut;
@@ -143,6 +145,8 @@ drop package ut_annotations;
 
 drop package ut_metadata;
 
+drop package ut_ansiconsole_helper;
+
 drop package ut_utils;
 
 drop type ut_documentation_reporter;
@@ -164,6 +168,8 @@ drop type ut_suite ;
 drop type ut_logical_suite;
 
 drop type ut_test;
+
+drop type ut_console_reporter_base;
 
 drop type ut_executable;
 

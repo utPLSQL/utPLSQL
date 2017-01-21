@@ -32,11 +32,14 @@ create or replace type body ut_documentation_reporter is
   begin
     l_message := coalesce( a_test.description, a_test.name );
     --if test failed, then add it to the failures list, print failure with number
-    if a_test.result > ut_utils.tr_success then
+    if a_test.result = ut_utils.tr_ignore then
+      self.print_yellow_text(l_message || ' (IGNORED)');
+    elsif a_test.result = ut_utils.tr_success then
+      self.print_green_text(l_message);
+    elsif a_test.result > ut_utils.tr_success then
       failed_test_running_count := failed_test_running_count + 1;
-      l_message := l_message || ' (FAILED - '||failed_test_running_count||')';
+      self.print_red_text(l_message || ' (FAILED - '||failed_test_running_count||')');
     end if;
-    self.print_text( l_message );
   end;
 
   overriding member procedure after_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_logical_suite) as
@@ -48,13 +51,15 @@ create or replace type body ut_documentation_reporter is
   end;
 
   overriding member procedure after_calling_run(self in out nocopy ut_documentation_reporter, a_run in ut_run) as
+    l_summary_text varchar2(4000);
     procedure print_failure_for_assert(a_assert ut_assert_result) is
       l_lines ut_varchar2_list;
     begin
       l_lines := a_assert.get_result_lines();
       for i in 1 .. l_lines.count loop
-        self.print_text(l_lines(i));
+        self.print_red_text(l_lines(i));
       end loop;
+      self.print_cyan_text(a_assert.caller_info);
     end;
 
     procedure print_failures_for_test(a_test ut_test, a_failure_no in out nocopy integer) is
@@ -98,14 +103,18 @@ create or replace type body ut_documentation_reporter is
   begin
     print_failures_details(a_run);
     self.print_text( 'Finished in '||a_run.execution_time||' seconds' );
-    self.print_text(
+    l_summary_text :=
       a_run.results_count.total_count || ' tests, '||a_run.results_count.failure_count||' failure' ||
       -- failure or plural failures
       case when a_run.results_count.failure_count != 1 then 's' end ||
       case
         when a_run.results_count.ignored_count > 0 then ', '||a_run.results_count.ignored_count||' ignored'
-      end
-    );
+      end;
+    if a_run.results_count.failure_count > 0 then
+      self.print_red_text(l_summary_text);
+    else
+      self.print_green_text(l_summary_text);
+    end if;
     self.print_text(' ');
     (self as ut_reporter_base).after_calling_run(a_run);
   end;
