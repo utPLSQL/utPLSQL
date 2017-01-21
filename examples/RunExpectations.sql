@@ -11,7 +11,7 @@ set echo off
 @@demo_expectations.pck
 
 begin
-  ut_runner.run();
+  ut.run();
 end;
 /
 

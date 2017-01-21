@@ -23,10 +23,6 @@ whenever oserror exit failure rollback
 @@core/ut_metadata.pks
 @@core/ut_utils.pkb
 @@core/ut_metadata.pkb
-@@core/ut_output_buffer_tmp.sql
-@@core/ut_output_buffer_id_seq.sql
-@@core/ut_output_buffer.pks
-@@core/ut_output_buffer.pkb
 @@reporters/ut_ansiconsole_helper.pks
 @@reporters/ut_ansiconsole_helper.pkb
 
@@ -46,6 +42,14 @@ whenever oserror exit failure rollback
 @@core/types/ut_reporter_base.tps
 @@core/types/ut_reporters.tps
 @@core/types/ut_event_listener.tps
+
+--output buffer table
+@@core/ut_output_buffer_tmp.sql
+@@core/ut_message_id_seq.sql
+--output buffer api
+@@core/ut_output_buffer.pks
+@@core/ut_output_buffer.pkb
+
 --annoations
 @@core/ut_annotations.pks
 @@core/ut_annotations.pkb
@@ -155,19 +159,21 @@ whenever oserror exit failure rollback
 @@expectations/ut_expectation_varchar2.tpb
 @@expectations/ut_expectation_yminterval.tpb
 
---expectations interface
-@@api/ut.pks
-@@api/ut.pkb
-
+--core reporter
 @@reporters/ut_documentation_reporter.tps
 @@reporters/ut_documentation_reporter.tpb
 
---test runner
 @@core/ut_runner_helper.pks
 @@core/ut_runner_helper.pkb
+--plugin interface API for running utPLSQL
 @@api/ut_runner.pks
 @@api/ut_runner.pkb
 
+--developer interface for expectations and running utPLSQL
+@@api/ut.pks
+@@api/ut.pkb
+
+--additional reporters
 @@reporters/ut_teamcity_reporter.tps
 @@reporters/ut_teamcity_reporter_helper.pks
 @@reporters/ut_teamcity_reporter_helper.pkb

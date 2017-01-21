@@ -171,7 +171,7 @@ drop package ut_output_buffer;
 
 drop table ut_output_buffer_tmp;
 
-drop sequence ut_output_buffer_id_seq;
+drop sequence ut_message_id_seq;
 
 drop type ut_results_counter;
 

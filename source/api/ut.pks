@@ -25,8 +25,16 @@ create or replace package ut authid current_user as
   function expect(a_actual in yminterval_unconstrained, a_message varchar2 := null) return ut_expectation_yminterval;
 
   function expect(a_actual in dsinterval_unconstrained, a_message varchar2 := null) return ut_expectation_dsinterval;
-  
+
   procedure fail(a_message in varchar2);
+
+  function run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false) return ut_varchar2_list pipelined;
+
+  function run(a_path varchar2 := null, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false) return ut_varchar2_list pipelined;
+
+  procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false);
+
+  procedure run(a_path varchar2 := null, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false);
 
 end ut;
 /

@@ -5,7 +5,7 @@ set echo off
 create or replace package demo_doc_reporter1 is
   -- %suite
   -- %displayname(Demo of documentation reporter)
-  
+
   -- %test
   -- %displayname(A passing test sample)
   procedure passing_test;
@@ -50,7 +50,7 @@ end;
 create or replace package demo_doc_reporter2 is
   -- %suite
   -- %displayname(A suite package without body)
-  
+
   -- %test
   -- %displayname(A test)
   procedure test1;
@@ -61,7 +61,7 @@ end;
 
 create or replace package suite_package_without_name is
   -- %suite
-  
+
   -- %test
   -- %displayname(A passing test sample)
   procedure passing_test1;
@@ -83,7 +83,7 @@ end;
 /
 
 begin
-  ut_runner.run();
+  ut.run();
 end;
 /
 

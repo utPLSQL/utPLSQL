@@ -1,9 +1,10 @@
 create or replace type ut_reporter_base force authid current_user as object
 (
-  self_type    varchar2(250 char),
-  reporter_id  varchar2(250),
+  self_type    varchar2(250),
+  reporter_id  raw(32),
+  start_date   date,
   final member procedure init(self in out nocopy ut_reporter_base, a_self_type varchar2),
-  final member function get_reporter_id(self in out nocopy ut_reporter_base) return varchar2,
+  final member function get_reporter_id(self in out nocopy ut_reporter_base) return raw,
 
   member procedure print_text(self in out nocopy ut_reporter_base, a_text varchar2),
 
