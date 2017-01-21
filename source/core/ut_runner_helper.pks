@@ -4,7 +4,7 @@ create or replace package ut_runner_helper authid definer is
     ut_reporter_name   varchar2(4000) := 'ut_documentation_reporter',
     output_file_name   varchar2(4000),
     output_to_screen   varchar2(3)    := 'on',
-    output_id          varchar2(4000)
+    reporter_id        raw(32)
   );
 
   type tt_call_params is table of t_call_param;

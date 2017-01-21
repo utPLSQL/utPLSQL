@@ -1,11 +1,11 @@
 --Arrange
 declare
   l_result integer;
-
+  l_reporter ut_reporter_base := ut_documentation_reporter();
 begin
   delete from ut_output_buffer_tmp;
   --Act
-  ut_output_buffer.send_line('a_reporter_id',null);
+  ut_output_buffer.send_line(l_reporter,null);
 
   select count(1) into l_result from ut_output_buffer_tmp;
 

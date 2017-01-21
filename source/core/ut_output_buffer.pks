@@ -1,7 +1,7 @@
 create or replace package ut_output_buffer authid definer is
 
-  gc_max_wait_sec             naturaln := 60 * 60 * 4; -- 4 hours
-  gc_buffer_retention_sec     naturaln := 60 * 60 * 24; -- 24 hours
+  gc_max_wait_sec             constant naturaln := 60 * 60 * 4; -- 4 hours
+  gc_buffer_retention_sec     constant naturaln := 60 * 60 * 24; -- 24 hours
 
   procedure send_line(a_reporter ut_reporter_base, a_text varchar2);
 

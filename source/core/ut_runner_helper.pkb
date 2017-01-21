@@ -63,8 +63,7 @@ create or replace package body ut_runner_helper is
   procedure setup_reporting_output_ids(a_call_params in out nocopy tt_call_params) is
   begin
     for i in 1 .. cardinality(a_call_params) loop
-      execute immediate 'begin :l_output_id := '||get_streamed_output_type_name()||'().generate_output_id(); end;'
-      using out a_call_params(i).output_id;
+      a_call_params(i).reporter_id := sys_guid();
     end loop;
   end;
 

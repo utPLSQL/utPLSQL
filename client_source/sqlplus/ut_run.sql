@@ -121,7 +121,6 @@ set define &
 
 spool run_in_backgroung.sql.tmp
 declare
-  l_output_type varchar2(256) := ut_runner.get_streamed_output_type_name();
   l_run_params  ut_runner.t_run_params :=  ut_runner.get_run_params();
   l_color_enabled varchar2(5) := case when l_run_params.color_enabled then 'true' else 'false' end;
   procedure p(a_text varchar2) is
@@ -140,8 +139,8 @@ begin
   p(  'begin');
   if l_run_params.call_params is not null then
     for i in 1 .. l_run_params.call_params.count loop
-      p('  v_reporter := '||l_run_params.call_params(i).ut_reporter_name||'('||l_output_type||'());');
-      p('  v_reporter.output.output_id := '''||l_run_params.call_params(i).output_id||''';');
+      p('  v_reporter := '||l_run_params.call_params(i).ut_reporter_name||'();');
+      p('  v_reporter.reporter_id := '''||l_run_params.call_params(i).reporter_id||''';');
       p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
     end loop;
   end if;
@@ -156,7 +155,6 @@ spool off
 
 spool gather_data_from_outputs.sql.tmp
 declare
-  l_output_type varchar2(256) := ut_runner.get_streamed_output_type_name();
   l_run_params  ut_runner.t_run_params := ut_runner.get_run_params();
   l_need_spool  boolean;
   procedure p(a_text varchar2) is
@@ -171,7 +169,7 @@ begin
       p('set termout '||l_run_params.call_params(i).output_to_screen);
       l_need_spool := (l_run_params.call_params(i).output_file_name is not null);
       p(case when l_need_spool then 'spool '||l_run_params.call_params(i).output_file_name||chr(10) end||
-        'select * from table( '||l_output_type||'().get_lines('''||l_run_params.call_params(i).output_id||''') );'||
+        'select * from table( ut_output_buffer.get_lines('''||l_run_params.call_params(i).reporter_id||''') );'||
         case when l_need_spool then chr(10)||'spool off' end);
     end loop;
   end if;

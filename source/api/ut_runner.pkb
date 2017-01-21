@@ -5,6 +5,8 @@ create or replace package body ut_runner is
     l_listener      ut_event_listener;
     l_current_suite ut_logical_suite;
   begin
+    ut_output_buffer.cleanup_buffer();
+
     ut_console_reporter_base.set_color_enabled(a_color_console);
     if a_reporters is null or a_reporters.count = 0 then
       l_listener := ut_event_listener(ut_reporters(ut_documentation_reporter()));
@@ -13,13 +15,6 @@ create or replace package body ut_runner is
     end if;
     l_items_to_run := ut_run( ut_suite_manager.configure_execution_by_path(a_paths) );
     l_items_to_run.do_execute(l_listener);
-  exception
-    when others then
-      dbms_output.put_line(dbms_utility.format_error_backtrace());
-      dbms_output.put_line(dbms_utility.format_error_stack());
-      --need to use dynamic sql here, so that even if DBMS_PIPE is not used, we will try to run it.
-
-      raise;
   end;
 
   procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false) is
