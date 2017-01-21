@@ -202,7 +202,7 @@ column error_count noprint new_value error_count
 prompt Validating installation
 select name, type, sequence, line, position, text, count(1) over() error_count
   from all_errors
- where owner = '&&ut3_owner'
+ where owner = upper('&&ut3_owner')
    and name not like 'BIN$%'  --not recycled
    and (name = 'UT' or name like 'UT\_%' escape '\')
    -- errors only. ignore warnings

@@ -24,7 +24,7 @@ The installation user/schema must have the following Oracle system permissions d
   
 In addition it must be granted execute to the following system packages.
 
-  - DBMS_PIPE  
+  - DBMS_LOCK  
   
 # Installation Procedure
 
