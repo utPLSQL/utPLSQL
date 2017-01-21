@@ -15,7 +15,7 @@ create or replace package test_betwnstr as
   procedure null_string;
 
   -- %test(Demo of a disabled test)
-  -- %disable
+  -- %disabled
   procedure disabled_test;
 
 end;

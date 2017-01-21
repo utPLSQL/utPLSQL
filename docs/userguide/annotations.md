@@ -38,7 +38,7 @@ create or replace package test_pkg is
 
   -- %test
   -- %displayname(Name of test3)
-  -- %disable
+  -- %disabled
   procedure test3;
   
   -- %test(Name of test4)
@@ -73,4 +73,4 @@ end test_pkg;
 | `%beforetest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed before the annotated `%test` procedure. |
 | `%aftertest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed after the annotated `%test` procedure. |
 | `%rollback(<type>)` | Package/procedure | Configure transaction control behaviour (type). Supported values: `auto`(default) - rollback to savepoint (before the test/suite setup) is issued after each test/suite teardown; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
-| `%disable` | Package/procedure | Used to disable a suite or a test |
+| `%disabled` | Package/procedure | Used to disable a suite or a test |
