@@ -1,9 +1,8 @@
 create or replace type body ut_documentation_reporter is
 
-  constructor function ut_documentation_reporter(self in out nocopy ut_documentation_reporter, a_output ut_output default ut_output_dbms_output()) return self as result is
+  constructor function ut_documentation_reporter(self in out nocopy ut_documentation_reporter) return self as result is
   begin
-    self.name                      := $$plsql_unit;
-    self.output                    := a_output;
+    self.init($$plsql_unit);
     self.lvl                       := 0;
     self.failed_test_running_count := 0;
     return;

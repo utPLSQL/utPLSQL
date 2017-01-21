@@ -69,6 +69,10 @@ set longchunksize 30000
 set verify off
 set heading off
 
+
+-------------------------------------------------
+-- Making SQLPlus parameters options
+-------------------------------------------------
 set define off
 spool make_input_params_optional.sql.tmp
 declare
@@ -88,6 +92,16 @@ set define &
 
 
 --prepare executor scripts
+
+-------------------------------------------------
+-- Defining reporter objects
+-------------------------------------------------
+
+
+-------------------------------------------------
+-- Preparing for execution (in background)
+-------------------------------------------------
+
 
 set define off
 spool set_run_params.sql.tmp

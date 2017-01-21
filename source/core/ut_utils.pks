@@ -48,22 +48,23 @@ create or replace package ut_utils authid definer is
   ex_invalid_path_format exception;
   gc_invalid_path_format constant pls_integer := -20202;
   pragma exception_init(ex_invalid_path_format, -20202);
-  
+
   ex_suite_package_not_found exception;
   gc_suite_package_not_found constant pls_integer := -20204;
   pragma exception_init(ex_suite_package_not_found, -20204);
-  
+
   -- Reporting event time not supported
   ex_invalid_rep_event_time exception;
   gc_invalid_rep_event_time constant pls_integer := -20210;
   pragma exception_init(ex_invalid_rep_event_time, -20210);
-  
+
   -- Reporting event name not supported
   ex_invalid_rep_event_name exception;
   gc_invalid_rep_event_name constant pls_integer := -20211;
   pragma exception_init(ex_invalid_rep_event_name, -20211);
 
 
+  gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
   gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
   gc_more_data_string         constant varchar2(5) := '[...]';

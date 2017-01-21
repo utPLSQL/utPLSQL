@@ -2,7 +2,6 @@ var test_result number
 exec :test_result := null;
 
 prompt Executing test: &1
---exec dbms_output.put_line(lpad('-',60,'-'));
 exec :test_start_time := dbms_utility.get_time;
 @@&1
 
@@ -11,8 +10,7 @@ declare
 begin
   case
      when :test_result = ut_utils.tr_success then
-       dbms_output.put_line('  Success'||l_duration_str);
-       :successes_count := :successes_count + 1;
+        :successes_count := :successes_count + 1;
      else
        dbms_output.put_line('  Failure'||l_duration_str);
        :failures_count := :failures_count + 1;
@@ -26,4 +24,3 @@ begin
 end;
 /
 
-prompt

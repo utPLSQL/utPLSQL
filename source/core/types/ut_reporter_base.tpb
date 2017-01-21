@@ -1,26 +1,26 @@
 create or replace type body ut_reporter_base is
 
-  constructor function ut_reporter_base(self in out nocopy ut_reporter_base, a_output ut_output default ut_output_dbms_output()) return self as result is
+  final member procedure init(self in out nocopy ut_reporter_base, a_self_type varchar2) is
   begin
-    self.output := a_output;
-    self.name := 'Null reporter';
+    self.self_type   := a_self_type;
+    self.reporter_id := self.self_type||'-'||userenv('sessionid')||'-'||ut_utils.to_string(cast(current_timestamp as timestamp));
     return;
+  end;
+
+  final member function get_reporter_id(self in out nocopy ut_reporter_base) return varchar2 is
+  begin
+    return self.reporter_id;
   end;
 
   member procedure print_text(self in out nocopy ut_reporter_base, a_text varchar2) is
   begin
-    self.output.send_line(a_text);
-  end;
-
-  member procedure print_clob(self in out nocopy ut_reporter_base, a_text clob) is
-  begin
-    self.output.send_clob(a_text);
+    ut_output_buffer.send_line(self.reporter_id,a_text);
   end;
 
   -- run hooks
   member procedure before_calling_run(self in out nocopy ut_reporter_base, a_run in ut_run) is
   begin
-    self.output.open();
+    null;
   end;
 
   -- suite hooks
@@ -112,7 +112,7 @@ create or replace type body ut_reporter_base is
   -- run hooks continued
   member procedure after_calling_run (self in out nocopy ut_reporter_base, a_run in ut_run) is
   begin
-    self.output.close();
+    ut_output_buffer.close(self.reporter_id);
   end;
 end;
 /
