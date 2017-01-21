@@ -18,7 +18,6 @@ whenever oserror exit failure rollback
 
 --common utilities
 @@core/types/ut_varchar2_list.tps
-@@core/types/ut_clob_list.tps
 @@core/ut_utils.pks
 @@core/ut_metadata.pks
 @@core/ut_utils.pkb
@@ -163,8 +162,6 @@ whenever oserror exit failure rollback
 @@reporters/ut_documentation_reporter.tps
 @@reporters/ut_documentation_reporter.tpb
 
-@@core/ut_runner_helper.pks
-@@core/ut_runner_helper.pkb
 --plugin interface API for running utPLSQL
 @@api/ut_runner.pks
 @@api/ut_runner.pkb

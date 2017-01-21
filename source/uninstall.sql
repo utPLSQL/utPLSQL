@@ -37,8 +37,6 @@ drop package ut_teamcity_reporter_helper;
 
 drop package ut_runner;
 
-drop package ut_runner_helper;
-
 drop package ut_suite_manager;
 
 drop package ut;
@@ -180,8 +178,6 @@ drop type ut_assert_results;
 drop type ut_assert_result;
 
 drop type ut_varchar2_list;
-
-drop type ut_clob_list;
 
 begin
   for syn in (

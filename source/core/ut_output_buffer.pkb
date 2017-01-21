@@ -26,11 +26,21 @@ create or replace package body ut_output_buffer is
     commit;
   end;
 
+  procedure close(a_reporters ut_reporters) is
+    pragma autonomous_transaction;
+  begin
+    if a_reporters is not null then
+      forall i in 1 .. a_reporters.count
+        insert into ut_output_buffer_tmp(start_date, reporter_id, message_id, is_finished)
+        values (a_reporters(i).start_date, a_reporters(i).reporter_id, ut_message_id_seq.nextval, 1);
+    end if;
+    commit;
+  end;
+
   function get_lines(a_reporter_id varchar2, a_timeout_sec naturaln := gc_max_wait_sec) return ut_varchar2_list pipelined is
     pragma autonomous_transaction;
     l_results        ut_varchar2_list;
     l_wait_wait_time number(10,1) := 0;
-    c_sleep_time     number(1,1)  := 0.1; --sleep for 100 ms between checks
     l_finished       boolean := false;
   begin
     loop
@@ -42,8 +52,8 @@ create or replace package body ut_output_buffer is
 
       --nothing fetched from output, wait and try again
       if l_results.count = 0 then
-        dbms_lock.sleep(c_sleep_time);
-        l_wait_wait_time := l_wait_wait_time + c_sleep_time;
+        dbms_lock.sleep(gc_sleep_time);
+        l_wait_wait_time := l_wait_wait_time + gc_sleep_time;
       else
         commit;
         for i in 1 .. l_results.count loop
@@ -80,12 +90,6 @@ create or replace package body ut_output_buffer is
       exit when l_lines%notfound;
     end loop;
     close l_lines;
-  end;
-
-  procedure purge(a_reporters ut_reporters) is
-  begin
-    delete from ut_output_buffer_tmp t
-     where t.reporter_id in (select r.reporter_id from table(a_reporters) r);
   end;
 
   procedure cleanup_buffer(a_retention_time_sec naturaln := gc_buffer_retention_sec) is
