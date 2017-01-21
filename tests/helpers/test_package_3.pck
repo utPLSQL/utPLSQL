@@ -22,6 +22,10 @@ create or replace package test_package_3 is
   procedure test2_setup;
 
   procedure test2_teardown;
+  
+  --%test
+  --%disabled
+  procedure disabled_test;
 
 end test_package_3;
 /
@@ -63,6 +67,11 @@ create or replace package body test_package_3 is
   begin
     gv_var_1      := gv_var_1_temp;
     gv_var_1_temp := null;
+  end;
+  
+  procedure disabled_test is
+  begin
+    null;
   end;
 
 end test_package_3;
