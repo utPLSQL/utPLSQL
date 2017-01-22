@@ -15,15 +15,16 @@ create or replace type body ut_match as
   end;
 
   overriding member function run_matcher(self in out nocopy ut_match, a_actual ut_data_value) return boolean is
+    l_result boolean;
   begin
-    return
-      case
-        when a_actual is of (ut_data_value_varchar2)
-        then regexp_like(treat(a_actual as ut_data_value_varchar2).data_value, pattern, modifiers)
-        when a_actual is of (ut_data_value_clob)
-        then regexp_like(treat(a_actual as ut_data_value_clob).data_value, pattern, modifiers)
-        else (self as ut_matcher).run_matcher(a_actual)
-      end;
+    if a_actual is of (ut_data_value_varchar2) then
+      l_result := regexp_like(treat(a_actual as ut_data_value_varchar2).data_value, pattern, modifiers);
+    elsif a_actual is of (ut_data_value_clob) then
+      l_result := regexp_like(treat(a_actual as ut_data_value_clob).data_value, pattern, modifiers);
+    else 
+      l_result := (self as ut_matcher).run_matcher(a_actual);
+    end if;
+    return l_result;
   end;
 
 end;
