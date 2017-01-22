@@ -1,6 +1,0 @@
-create table ut_coverage_templates(
-  file_name varchar2(250),
-  file_content clob,
-  is_static    varchar2(1),
-  constraint ut_coverage_templates_pk primary key(file_name)
-);

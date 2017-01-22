@@ -181,15 +181,9 @@ whenever oserror exit failure rollback
 @@reporters/ut_xunit_reporter.tps
 @@reporters/ut_xunit_reporter.tpb
 
-@@coverage/ut_coverage_templates.tbl
 @@coverage/proftab_temp_tables.sql
 @@coverage/ut_coverage.pks
 @@coverage/ut_coverage.pkb
-@@coverage/resources/load-coverage.css.sql
-@@coverage/resources/load-jquery.min.js.sql
-@@coverage/resources/load-jquery.tablesorter.min.js.sql
-@@coverage/resources/load-rcov.js.sql
-@@coverage/resources/load-index.html.sql
 
 @@reporters/ut_coverage_reporter.tps
 @@reporters/ut_coverage_report_html_helper.pks

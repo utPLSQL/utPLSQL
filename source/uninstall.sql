@@ -45,8 +45,6 @@ drop table plsql_profiler_runs cascade constraints;
 
 drop sequence plsql_profiler_runnumber;
 
-drop table ut_coverage_templates;
-
 drop package ut_teamcity_reporter_helper;
 
 drop package ut_runner;
