@@ -2,7 +2,7 @@ create or replace type ut_documentation_reporter force under ut_console_reporter
 (
   lvl                       integer,
   failed_test_running_count integer,
-  constructor function ut_documentation_reporter(self in out nocopy ut_documentation_reporter, a_output ut_output default ut_output_dbms_output()) return self as result,
+  constructor function ut_documentation_reporter(self in out nocopy ut_documentation_reporter, a_output ut_output default ut_output_buffered()) return self as result,
   member function tab(self in ut_documentation_reporter) return varchar2,
 
   overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2),

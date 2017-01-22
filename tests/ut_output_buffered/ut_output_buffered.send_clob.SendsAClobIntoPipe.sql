@@ -1,8 +1,8 @@
-PROMPT ut_output_dbms_output.send_clob Sends a clob Into Pipe in a separate session and recieves it back cut into 4000 char pieces
+PROMPT ut_output_buffered.send_clob Sends a clob Into Pipe in a separate session and recieves it back cut into 4000 char pieces
 
 declare
   l_message_lenght integer := 98765;
-  l_output      ut_output_dbms_output := ut_output_dbms_output();
+  l_output      ut_output_buffered := ut_output_buffered();
   l_text_lenght  integer;
   l_chunk_lenght integer;
 begin
@@ -12,7 +12,6 @@ begin
     l_max_varchar2_len integer := 32767;
     l_loops            integer := floor(l_expected_length / l_max_varchar2_len);
     l_string           varchar2(32767);
-    l_output           ut_output_dbms_output := ut_output_dbms_output();
     l_lob clob;
   begin
     dbms_lob.createtemporary(l_lob, true);
@@ -31,7 +30,7 @@ begin
   --Act - get clob as lines from dbms_output
   select sum(nvl(length(column_value),0)), max(length(column_value))
     into l_text_lenght, l_chunk_lenght
-    from table( l_output.get_lines(NULL) );
+    from table( l_output.get_lines(l_output.output_id) );
   --Assert - check that the length of text recieved is same as lenght of text sent
   if l_text_lenght = l_message_lenght and l_chunk_lenght = 4000 then
     :test_result := ut_utils.tr_success;

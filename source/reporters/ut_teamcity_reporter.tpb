@@ -1,6 +1,6 @@
 create or replace type body ut_teamcity_reporter is
 
-  constructor function ut_teamcity_reporter(a_output ut_output default ut_output_dbms_output()) return self as result is
+  constructor function ut_teamcity_reporter(a_output ut_output default ut_output_buffered()) return self as result is
   begin
     self.name   := $$plsql_unit;
     self.output := a_output;
@@ -26,11 +26,11 @@ create or replace type body ut_teamcity_reporter is
   overriding member procedure before_calling_test(self in out nocopy ut_teamcity_reporter, a_test in ut_test) is
     l_test_full_name varchar2(4000);
   begin
-    
+
     l_test_full_name := lower(a_test.item.owner_name)||'.'||lower(a_test.item.object_name)||'.'||lower(a_test.item.procedure_name);
-    
+
     self.print_text(ut_teamcity_reporter_helper.test_started(a_test_name => l_test_full_name));
-  
+
   end;
 
   overriding member procedure after_calling_test(self in out nocopy ut_teamcity_reporter, a_test in ut_test) is
@@ -39,7 +39,7 @@ create or replace type body ut_teamcity_reporter is
   begin
 --    l_test_full_name := self.suite_names_stack(self.suite_names_stack.last) || ':' ||
 --                        nvl(replace(a_test.description, '.'), a_test.name);
-    l_test_full_name := lower(a_test.item.owner_name)||'.'||lower(a_test.item.object_name)||'.'||lower(a_test.item.procedure_name);                        
+    l_test_full_name := lower(a_test.item.owner_name)||'.'||lower(a_test.item.object_name)||'.'||lower(a_test.item.procedure_name);
 
     if a_test.result = ut_utils.tr_ignore then
       self.print_text(ut_teamcity_reporter_helper.test_ignored(l_test_full_name));
@@ -69,7 +69,7 @@ create or replace type body ut_teamcity_reporter is
       self.print_text(ut_teamcity_reporter_helper.test_finished(l_test_full_name, trunc(a_test.execution_time * 1e3)));
 
     end if;
-    
+
   end;
 
 end;

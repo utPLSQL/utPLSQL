@@ -1,7 +1,7 @@
-PROMPT ut_output_dbms_output.get_clob_lines Returns lines that have been sent to the output
+PROMPT ut_output_buffered.get_clob_lines Returns lines that have been sent to the output
 
 declare
-  l_output   ut_output_dbms_output := ut_output_dbms_output();
+  l_output   ut_output_buffered := ut_output_buffered();
   l_expected clob;
 begin
   l_expected := lpad('a',32767,'a');
@@ -9,7 +9,7 @@ begin
   l_output.send_clob(l_expected);
   l_output.send_clob(l_expected);
   --Assert - check that pipe exists
-  for i in (select column_value as result from table( l_output.get_clob_lines(null) )) loop
+  for i in (select column_value as result from table( l_output.get_clob_lines(l_output.output_id) )) loop
     if i.result = l_expected then
       :test_result := ut_utils.tr_success;
     else

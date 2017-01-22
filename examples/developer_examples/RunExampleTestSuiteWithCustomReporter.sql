@@ -1,5 +1,5 @@
 --Shows how to create a test suite with the default reporter which is dbms_output
---No tables are used for this.   
+--No tables are used for this.
 --Suite Management packages are when developed will make this easier.
 --Clear Screen
 --http://stackoverflow.com/questions/2584492/how-to-prevent-dbms-output-put-line-from-trimming-leading-whitespace
@@ -16,8 +16,9 @@ set echo off
 declare
   suite         ut_logical_suite;
   listener      ut_event_listener;
+  l_run         ut_run;
 begin
-  -- Install ut_custom_reporter first from example folder	
+  -- Install ut_custom_reporter first from example folder
 
   suite := ut_logical_suite(a_object_owner=>null, a_object_name => 'ut_exampletest', a_name => null, a_description => 'Test Suite Name',a_path => null);
 
@@ -38,9 +39,10 @@ begin
           a_after_test_proc_name  => 'TEARDOWN')
   );
 
-  -- provide a reporter to process results tabbing each hierarcy level by tab_size
+  -- provide a reporter to process results tabbing each hierarchy level by tab_size
+  l_run := ut_run(ut_suite_items(suite));
   listener := ut_event_listener(ut_reporters(ut_custom_reporter(a_tab_size => 2)));
-  suite.do_execute(listener);
+  l_run.do_execute(listener);
 end;
 /
 

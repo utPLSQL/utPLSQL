@@ -1,6 +1,6 @@
 create or replace type body ut_reporter_base is
 
-  constructor function ut_reporter_base(self in out nocopy ut_reporter_base, a_output ut_output default ut_output_dbms_output()) return self as result is
+  constructor function ut_reporter_base(self in out nocopy ut_reporter_base, a_output ut_output default ut_output_buffered()) return self as result is
   begin
     self.output := a_output;
     self.name := 'Null reporter';

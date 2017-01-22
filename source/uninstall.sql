@@ -129,6 +129,8 @@ drop type ut_data_value;
 
 drop package ut_annotations;
 
+drop package ut_output_buffer;
+
 drop package ut_metadata;
 
 drop package ut_ansiconsole_helper;
@@ -173,7 +175,7 @@ drop package ut_output_pipe_helper;
 
 drop type ut_output_stream;
 
-drop type ut_output_dbms_output;
+drop type ut_output_buffered;
 
 drop type ut_output;
 

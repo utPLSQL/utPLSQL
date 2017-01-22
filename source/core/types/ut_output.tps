@@ -1,5 +1,5 @@
 create or replace type ut_output as object (
-  self_type varchar2(128),
+  self_type   varchar2(128),
   output_id   varchar2(128),
   final member function generate_output_id return varchar2,
   not instantiable member procedure open(self in out nocopy ut_output),
