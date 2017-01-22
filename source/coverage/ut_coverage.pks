@@ -19,6 +19,7 @@ create or replace package ut_coverage is
     covered_lines   binary_integer := 0,
     uncovered_lines binary_integer := 0,
     total_lines     binary_integer := 0,
+    executions      number(38,0) := 0,
     lines           tt_lines
   );
   -- coverage information indexed by object name
@@ -27,6 +28,7 @@ create or replace package ut_coverage is
     covered_lines   binary_integer := 0,
     uncovered_lines binary_integer := 0,
     total_lines     binary_integer := 0,
+    executions      number(38,0) := 0,
     units           tt_program_units
   );
   -- coverage information for schema indexed by schema name
@@ -37,6 +39,8 @@ create or replace package ut_coverage is
     covered_lines   binary_integer := 0,
     uncovered_lines binary_integer := 0,
     total_lines     binary_integer := 0,
+    executions      number(38,0)   := 0,
+    objects         binary_integer := 0,
     schemes         tt_schemes
   );
 

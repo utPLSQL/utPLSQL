@@ -94,11 +94,15 @@ create or replace package body ut_coverage is
       end if;
       if not l_result.schemes(l_data(i).unit_owner).units.exists(l_data(i).unit_name) then
         l_result.schemes(l_data(i).unit_owner).units(l_data(i).unit_name) := l_new_unit;
+        l_result.objects := l_result.objects + 1;
       end if;
       if l_line.covered then
         l_result.covered_lines := l_result.covered_lines + 1;
         l_result.schemes(l_data(i).unit_owner).covered_lines := l_result.schemes(l_data(i).unit_owner).covered_lines + 1;
         l_result.schemes(l_data(i).unit_owner).units(l_data(i).unit_name).covered_lines := l_result.schemes(l_data(i).unit_owner).units(l_data(i).unit_name).covered_lines + 1;
+        l_result.executions := l_result.executions + l_line.executions;
+        l_result.schemes(l_data(i).unit_owner).executions := l_result.schemes(l_data(i).unit_owner).executions + l_line.executions;
+        l_result.schemes(l_data(i).unit_owner).units(l_data(i).unit_name).executions := l_result.schemes(l_data(i).unit_owner).units(l_data(i).unit_name).executions + l_line.executions;
       elsif not l_line.covered then
         l_result.uncovered_lines := l_result.uncovered_lines + 1;
         l_result.schemes(l_data(i).unit_owner).uncovered_lines := l_result.schemes(l_data(i).unit_owner).uncovered_lines + 1;
