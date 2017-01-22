@@ -58,7 +58,7 @@ create or replace package body ut_coverage is
            case when
               regexp_instr(
                 s.text,
-                '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(constructor|member)?\s*(procedure|function)|end\s*;)', 1, 1, 0, 'i'
+                '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(constructor|member)?\s*(procedure|function)|begin|end\s*;)', 1, 1, 0, 'i'
               ) = 0 then d.total_occur
            end
       bulk collect into l_data
