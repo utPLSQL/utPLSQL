@@ -1,9 +1,12 @@
+set trimspool on
 set echo off
 set feedback off
 set verify off
 Clear Screen
-set linesize 5000
+set linesize 32767
 set pagesize 0
+set long 200000000
+set longchunksize 1000000
 set serveroutput on size unlimited format truncated
 @@lib/RunVars.sql
 
@@ -20,6 +23,7 @@ create table ut$test_table (val varchar2(1));
 @@helpers/test_package_2.pck
 
 --Tests to invoke
+exec ut_coverage.profiler_start();
 
 @@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsTrue.sql
@@ -151,6 +155,28 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_expectations/timestamp_not_between.sql
 @@lib/RunTest.sql ut_expectations/timestamp_tz_between.sql
 @@lib/RunTest.sql ut_expectations/timestamp_tz_not_between.sql
+
+exec ut_coverage.profiler_stop();
+
+set define off
+--remove previous coverage run data
+--try running on windows
+--$ rmdir /s /q coverage & mkdir coverage & mkdir coverage\assets & xcopy /E lib\coverage\assets coverage\assets\
+$ rmdir /s /q coverage & mkdir coverage & xcopy /E ..\client_source\sqlplus\lib\coverage\assets coverage\assets\ & xcopy /E ..\client_source\sqlplus\lib\coverage\public coverage\assets\
+--try running on linus/unix
+! rm -rf coverage ; mkdir coverage ; cp -R ../client_source/sqlplus/lib/coverage/assets coverage/assets ; cp -R ../client_source/sqlplus/lib/coverage/public coverage/assets
+
+set define &
+begin
+  ut_coverage_report_html_helper.init(ut_coverage.get_coverage_data(1));
+end;
+/
+
+set termout off
+set feedback off
+spool coverage/index.html
+  select ut_coverage_report_html_helper.get_index() from dual;
+spool off
 
 --Global cleanup
 drop package ut_example_tests;
