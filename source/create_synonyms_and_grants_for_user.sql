@@ -32,7 +32,6 @@ grant execute on ut_documentation_reporter to &ut3_user;
 grant execute on ut_reporters to &ut3_user;
 grant execute on ut_varchar2_list to &ut3_user;
 grant execute on ut_reporter_base to &ut3_user;
-grant execute on ut_output_dbms_pipe to &ut3_user;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to user &&ut3_user
 
@@ -55,4 +54,3 @@ create or replace synonym &ut3_user .ut_documentation_reporter for ut_documentat
 create or replace synonym &ut3_user .ut_reporters for ut_reporters;
 create or replace synonym &ut3_user .ut_varchar2_list for ut_varchar2_list;
 create or replace synonym &ut3_user .ut_reporter_base for ut_reporter_base;
-create or replace synonym &ut3_user .ut_output_dbms_pipe for ut_output_dbms_pipe;

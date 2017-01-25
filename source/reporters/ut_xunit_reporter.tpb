@@ -1,9 +1,8 @@
 create or replace type body ut_xunit_reporter is
 
-  constructor function ut_xunit_reporter(a_output ut_output default ut_output_dbms_output()) return self as result is
+  constructor function ut_xunit_reporter(self in out nocopy ut_xunit_reporter) return self as result is
   begin
-    self.name   := $$plsql_unit;
-    self.output := a_output;
+    self.init($$plsql_unit);
     return;
   end;
 
@@ -17,6 +16,7 @@ create or replace type body ut_xunit_reporter is
     end;
 
     procedure print_test_elements(a_test ut_test) is
+      l_lines ut_varchar2_list;
     begin
       self.print_text(
           '<testcase classname="'||get_path(a_test.path, a_test.name)||'" ' ||
@@ -33,8 +33,11 @@ create or replace type body ut_xunit_reporter is
         self.print_text('<failure>');
         self.print_text( '<![CDATA[');
         for i in 1 .. a_test.results.count loop
-          self.print_text( a_test.results(i).get_result_clob);
-        end loop;
+          l_lines := a_test.results(i).get_result_lines();
+          for i in 1 .. l_lines.count loop
+            self.print_text(l_lines(i));
+          end loop;
+         end loop;
         self.print_text(']]>');
         self.print_text('</failure>');
       end if;

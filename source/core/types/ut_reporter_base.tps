@@ -1,12 +1,12 @@
 create or replace type ut_reporter_base force authid current_user as object
 (
-  name   varchar2(250 char),
-  output ut_output,
-  constructor function ut_reporter_base(self in out nocopy ut_reporter_base, a_output ut_output default ut_output_dbms_output()) return self as result,
+  self_type    varchar2(250),
+  reporter_id  raw(32),
+  start_date   date,
+  final member procedure init(self in out nocopy ut_reporter_base, a_self_type varchar2),
+  final member function get_reporter_id(self in out nocopy ut_reporter_base) return raw,
 
   member procedure print_text(self in out nocopy ut_reporter_base, a_text varchar2),
-
-  member procedure print_clob(self in out nocopy ut_reporter_base, a_text clob),
 
   -- run hooks
   member procedure before_calling_run(self in out nocopy ut_reporter_base, a_run in ut_run),

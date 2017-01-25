@@ -6,7 +6,7 @@ set echo off
 @@test_pkg2.pck
 
 begin
-  ut_runner.run();
+  ut.run();
 end;
 /
 

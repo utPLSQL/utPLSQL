@@ -5,6 +5,8 @@ create or replace package body ut_runner is
     l_listener      ut_event_listener;
     l_current_suite ut_logical_suite;
   begin
+    ut_output_buffer.cleanup_buffer();
+
     ut_console_reporter_base.set_color_enabled(a_color_console);
     if a_reporters is null or a_reporters.count = 0 then
       l_listener := ut_event_listener(ut_reporters(ut_documentation_reporter()));
@@ -13,19 +15,8 @@ create or replace package body ut_runner is
     end if;
     l_items_to_run := ut_run( ut_suite_manager.configure_execution_by_path(a_paths) );
     l_items_to_run.do_execute(l_listener);
-  exception
-    when others then
-      dbms_output.put_line(dbms_utility.format_error_backtrace());
-      dbms_output.put_line(dbms_utility.format_error_stack());
-      --need to use dynamic sql here, so that even if DBMS_PIPE is not used, we will try to run it.
-      execute immediate
-        'begin ' ||
-        '  ut_output_pipe_helper.purge;' ||
-        'exception' ||
-        '  when others then' ||
-        '    null;' ||
-        'end;';
-      raise;
+
+    ut_output_buffer.close(l_listener.reporters);
   end;
 
   procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false) is
@@ -43,21 +34,6 @@ create or replace package body ut_runner is
   begin
     run(ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema'))), a_reporters, a_color_console);
   end run;
-
-  procedure set_run_params(a_params ut_varchar2_list) is
-  begin
-    ut_runner_helper.set_run_params(a_params);
-  end set_run_params;
-
-  function get_run_params return t_run_params is
-  begin
-    return ut_runner_helper.get_run_params();
-  end;
-
-  function get_streamed_output_type_name return varchar2 is
-  begin
-    return ut_runner_helper.get_streamed_output_type_name();
-  end;
 
 end ut_runner;
 /
