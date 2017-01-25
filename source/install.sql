@@ -181,14 +181,14 @@ whenever oserror exit failure rollback
 @@reporters/ut_xunit_reporter.tps
 @@reporters/ut_xunit_reporter.tpb
 
-@@coverage/proftab_temp_tables.sql
-@@coverage/ut_coverage.pks
-@@coverage/ut_coverage.pkb
+@@core/coverage/proftab_temp_tables.sql
+@@core/coverage/ut_coverage.pks
+@@core/coverage/ut_coverage.pkb
 
-@@reporters/ut_coverage_reporter.tps
+@@reporters/ut_coverage_html_reporter.tps
 @@reporters/ut_coverage_report_html_helper.pks
 @@reporters/ut_coverage_report_html_helper.pkb
-@@reporters/ut_coverage_reporter.tpb
+@@reporters/ut_coverage_html_reporter.tpb
 
 @@api/be_between.syn
 @@api/be_false.syn

@@ -1,4 +1,4 @@
-create or replace package ut_coverage is
+create or replace package ut_coverage authid definer is
 
   subtype t_schema_name is varchar2(250);
   subtype t_object_name is varchar2(250);
@@ -26,14 +26,25 @@ create or replace package ut_coverage is
     objects         tt_program_units
   );
 
-  function profiler_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) ) return binary_integer;
-  procedure profiler_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) );
-  procedure profiler_flush;
-  procedure profiler_pause;
-  procedure profiler_resume;
-  procedure profiler_stop;
+  function  get_coverage_id return integer;
 
-  function get_coverage_data(a_run_id integer) return t_coverage;
+  function  coverage_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) ) return binary_integer;
+  procedure coverage_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) );
+
+  /*
+  * Start coverage in develop mode, where all internal calls to utPLSQL itself are also included
+  */
+  procedure coverage_start_develop(a_run_comment varchar2 := ut_utils.to_string(systimestamp) );
+
+  procedure coverage_stop;
+
+  procedure coverage_pause;
+
+  procedure coverage_resume;
+
+  procedure coverage_flush;
+
+  function get_coverage_data(a_coverage_id integer := null) return t_coverage;
 
 end;
 /

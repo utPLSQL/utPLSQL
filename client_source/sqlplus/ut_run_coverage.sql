@@ -20,7 +20,7 @@ $ rmdir /s /q coverage & mkdir coverage & xcopy /E lib\coverage\assets coverage\
 
 
 
-exec ut_runner.run(user||'.test_betwnstr', ut_reporters(ut_coverage_reporter()));
+exec ut_runner.run(user||'.test_betwnstr', ut_reporters(ut_coverage_html_reporter()));
 commit;
 begin
   ut_coverage_report_html_helper.init(ut_coverage.get_coverage_data(1));

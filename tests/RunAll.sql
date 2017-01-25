@@ -23,7 +23,8 @@ create table ut$test_table (val varchar2(1));
 @@helpers/test_package_2.pck
 
 --Tests to invoke
-exec ut_coverage.profiler_start();
+--exec ut_coverage.coverage_start();
+exec ut_coverage.coverage_start_develop();
 
 @@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsTrue.sql
@@ -156,7 +157,7 @@ exec ut_coverage.profiler_start();
 @@lib/RunTest.sql ut_expectations/timestamp_tz_between.sql
 @@lib/RunTest.sql ut_expectations/timestamp_tz_not_between.sql
 
-exec ut_coverage.profiler_stop();
+exec ut_coverage.coverage_stop();
 
 set define off
 --remove previous coverage run data
