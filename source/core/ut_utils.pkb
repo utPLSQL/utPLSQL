@@ -6,23 +6,32 @@ create or replace package body ut_utils is
   end;
 
   function test_result_to_char(a_test_result integer) return varchar2 as
+    l_result varchar2(20);
   begin
-    return case a_test_result
-                  when tr_success then tr_success_char
-                  when tr_failure then tr_failure_char
-                  when tr_error   then tr_error_char
-                  when tr_ignore   then tr_ignore_char
-                  else 'Unknown(' || coalesce(to_char(a_test_result),'NULL') || ')'
-                end;
+    if a_test_result = tr_success then
+      l_result := tr_success_char;
+    elsif a_test_result = tr_failure then
+      l_result := tr_failure_char;
+    elsif a_test_result = tr_error then
+      l_result := tr_error_char;
+    elsif a_test_result = tr_ignore then
+      l_result := tr_ignore_char;
+    else
+      l_result := 'Unknown(' || coalesce(to_char(a_test_result),'NULL') || ')';
+    end if ;
+    return l_result;
   end test_result_to_char;
 
 
   function to_test_result(a_test boolean) return integer is
+    l_result integer;
   begin
-    return case a_test
-             when true then tr_success
-             else tr_failure
-           end;
+    if a_test then
+      l_result := tr_success;
+    else
+      l_result := tr_failure;
+    end if;
+    return l_result;
   end;
 
   function gen_savepoint_name return varchar2 is
@@ -50,7 +59,7 @@ create or replace package body ut_utils is
       null;
     $end
   end;
-  
+
   procedure debug_log(a_message clob) is
     l_varchars ut_varchar2_list;
   begin
@@ -66,35 +75,44 @@ create or replace package body ut_utils is
 
   function to_string(a_value varchar2) return varchar2 is
     l_len integer := coalesce(length(a_value),0);
+    l_result varchar2(32767);
   begin
-    return
-      case
-        when l_len = 0 then gc_null_string
-        when l_len <= gc_max_input_string_length then quote_string(a_value)
-        else quote_string(substr(a_value,1,gc_overflow_substr_len)) || gc_more_data_string
-      end;
+    if l_len = 0 then
+      l_result := gc_null_string;
+    elsif l_len <= gc_max_input_string_length then
+      l_result := quote_string(a_value);
+    else
+      l_result := quote_string(substr(a_value,1,gc_overflow_substr_len)) || gc_more_data_string;
+    end if ;
+    return l_result;
   end;
 
   function to_string(a_value clob) return varchar2 is
     l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
+    l_result varchar2(32767);
   begin
-    return
-      case
-        when l_len = 0 then gc_null_string
-        when l_len <= gc_max_input_string_length then quote_string(a_value)
-        else quote_string(dbms_lob.substr(a_value, gc_overflow_substr_len)) || gc_more_data_string
-      end;
+    if l_len = 0 then
+      l_result := gc_null_string;
+    elsif l_len <= gc_max_input_string_length then
+      l_result := quote_string(a_value);
+    else
+      l_result := quote_string(dbms_lob.substr(a_value, gc_overflow_substr_len)) || gc_more_data_string;
+    end if;
+    return l_result;
   end;
 
   function to_string(a_value blob) return varchar2 is
     l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
+    l_result varchar2(32767);
   begin
-    return
-      case
-        when l_len = 0 then gc_null_string
-        when l_len <= gc_max_input_string_length then quote_string(rawtohex(a_value))
-        else to_string( rawtohex(dbms_lob.substr(a_value, gc_overflow_substr_len)) )
-      end;
+    if l_len = 0 then
+      l_result := gc_null_string;
+    elsif l_len <= gc_max_input_string_length then
+      l_result := quote_string(rawtohex(a_value));
+    else
+      l_result := to_string( rawtohex(dbms_lob.substr(a_value, gc_overflow_substr_len)) );
+    end if ;
+    return l_result;
   end;
 
   function to_string(a_value boolean) return varchar2 is
