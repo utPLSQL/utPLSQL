@@ -179,13 +179,7 @@ create or replace package body ut_coverage_report_html_helper is
   <table class="file_list">
     <thead>
       <tr>
-        <th>File</th>
-        <th>% covered</th>
-        <th>Lines</th>
-        <th>Relevant Lines</th>
-        <th>Lines covered</th>
-        <th>Lines missed</th>
-        <th>Avg. Hits / Line</th>
+        <th>File</th><th>% covered</th><th>Lines</th><th>Relevant Lines</th><th>Lines covered</th><th>Lines missed</th><th>Avg. Hits / Line</th>
       </tr>
     </thead>
     <tbody>';
@@ -195,16 +189,16 @@ create or replace package body ut_coverage_report_html_helper is
       exit when l_unit is null;
       l_unit_coverage := a_coverage.objects(l_unit);
       l_coverage_pct := coverage_pct(l_unit_coverage.covered_lines, l_unit_coverage.uncovered_lines);
-      l_file_part := '
-      <tr>
-        <td class="strong">'||link_to_source_file(l_unit)||'</td>
-        <td class="'||coverage_css_class(l_coverage_pct)||' strong">'||l_coverage_pct||' %</td>
-        <td>'||l_unit_coverage.lines.count||'</td>
-        <td>'||(l_unit_coverage.covered_lines+l_unit_coverage.uncovered_lines)||'</td>
-        <td>'||l_unit_coverage.covered_lines||'</td>
-        <td>'||l_unit_coverage.uncovered_lines||'</td>
-        <td>'||executions_per_line(l_unit_coverage.executions, l_unit_coverage.uncovered_lines + l_unit_coverage.covered_lines)||'</td>
-      </tr>';
+      l_file_part :=
+       '<tr>' ||
+       '<td class="strong">'||link_to_source_file(l_unit)||'</td>' ||
+       '<td class="'||coverage_css_class(l_coverage_pct)||' strong">'||l_coverage_pct||' %</td>' ||
+       '<td>'||l_unit_coverage.lines.count||'</td>' ||
+       '<td>'||(l_unit_coverage.covered_lines+l_unit_coverage.uncovered_lines)||'</td>' ||
+       '<td>'||l_unit_coverage.covered_lines||'</td>' ||
+       '<td>'||l_unit_coverage.uncovered_lines||'</td>' ||
+       '<td>'||executions_per_line(l_unit_coverage.executions, l_unit_coverage.uncovered_lines + l_unit_coverage.covered_lines)||'</td>' ||
+       '</tr>';
       dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);
       l_unit := a_coverage.objects.next(l_unit);
     end loop;
