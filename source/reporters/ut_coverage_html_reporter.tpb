@@ -17,7 +17,7 @@ create or replace type body ut_coverage_html_reporter is
     l_report_lines ut_varchar2_list;
   begin
     ut_coverage.coverage_stop();
-    ut_coverage_report_html_helper.init(ut_coverage.get_coverage_data(1));
+    ut_coverage_report_html_helper.init(ut_coverage.get_coverage_data());
     l_report_lines := ut_utils.clob_to_table(ut_coverage_report_html_helper.get_index());
 
     for i in 1 .. l_report_lines.count loop
