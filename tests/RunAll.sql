@@ -22,8 +22,8 @@ create table ut$test_table (val varchar2(1));
 @@helpers/test_package_1.pck
 @@helpers/test_package_2.pck
 
---Tests to invoke
---exec ut_coverage.coverage_start();
+--Start coverage in develop mode (coverage for utPLSQL framework)
+--Regular coverage excludes the framework
 exec ut_coverage.coverage_start_develop();
 
 @@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
@@ -169,7 +169,7 @@ $ rmdir /s /q coverage & mkdir coverage & xcopy /E ..\client_source\sqlplus\lib\
 
 set define &
 begin
-  ut_coverage_report_html_helper.init(ut_coverage.get_coverage_data(1));
+  ut_coverage_report_html_helper.init(ut_coverage.get_coverage_data());
 end;
 /
 

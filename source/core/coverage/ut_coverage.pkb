@@ -77,30 +77,24 @@ create or replace package body ut_coverage is
 
     -- TODO - add inclusive and exclusive filtering
     -- TODO - resolve source code access issues when gathering data for other users
-    select lower(s.owner||'.'||s.name) as name, s.line as line_number,
+    select lower(u.unit_owner||'.'||u.unit_name) as name, d.line# as line_number,
            --filtering out false - negatives reported by profiler (zero executions while it should be ignored).
            case when
               regexp_instr(
-                s.text,
+                ut_metadata.get_source_definition_line(u.unit_owner, u.unit_name, d.line#),
                 '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(constructor|member)?\s*(procedure|function)|begin|end\s*;)', 1, 1, 0, 'i'
               ) = 0 then d.total_occur
            end
       bulk collect into l_data
-      from all_source s
-      join plsql_profiler_units u
-        on s.owner = u.unit_owner
-       and s.name  = u.unit_name
-       and s.type  = u.unit_type
-      left join plsql_profiler_data d
+      from plsql_profiler_units u
+      join plsql_profiler_data d
         on u.runid = d.runid
        and u.unit_number = d.unit_number
-       and d.line# = s.line
-     where 1 = 1
-       and u.runid = l_coverage_id
-       and s.type not in ('PACKAGE', 'TYPE')
+     where u.runid = l_coverage_id
+       and u.unit_type not in ('PACKAGE SPEC', 'TYPE SPEC')
        --Exclude calls to utPLSQL framework
-       and not exists( select 1 from table(l_utplsql_obj_list) l where s.name = l.column_value and s.owner = l_utplsql_obj_owner)
-     order by u.unit_owner, u.unit_name, s.line;
+       and not exists( select 1 from table(l_utplsql_obj_list) l where u.unit_name = l.column_value and u.unit_owner = l_utplsql_obj_owner)
+     order by u.unit_owner, u.unit_name, d.line#;
 
     for i in 1 .. l_data.count loop
 

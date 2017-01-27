@@ -59,6 +59,11 @@ whenever oserror exit failure rollback
 @@core/ut_assert_processor.pks
 @@core/ut_assert_processor.pkb
 
+--gathering coverage
+@@core/coverage/proftab_temp_tables.sql
+@@core/coverage/ut_coverage.pks
+@@core/coverage/ut_coverage.pkb
+
 --core type bodies
 @@core/types/ut_results_counter.tpb
 @@core/types/ut_suite_item.tpb
@@ -181,9 +186,6 @@ whenever oserror exit failure rollback
 @@reporters/ut_xunit_reporter.tps
 @@reporters/ut_xunit_reporter.tpb
 
-@@core/coverage/proftab_temp_tables.sql
-@@core/coverage/ut_coverage.pks
-@@core/coverage/ut_coverage.pkb
 
 @@reporters/ut_coverage_html_reporter.tps
 @@reporters/ut_coverage_report_html_helper.pks

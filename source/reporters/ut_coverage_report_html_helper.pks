@@ -1,4 +1,4 @@
-create or replace package ut_coverage_report_html_helper is
+create or replace package ut_coverage_report_html_helper authid current_user is
 
   procedure init(a_coverage_data ut_coverage.t_coverage);
 

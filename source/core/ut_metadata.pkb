@@ -1,42 +1,6 @@
 create or replace package body ut_metadata as
 
   ------------------------------
-  --private definitions
-  g_source_view varchar2(32);
-
-  function get_source_view return varchar2 is
-  begin
-    if g_source_view is null then
-      declare
-        l_cursor sys_refcursor;
-        l_object_does_not_exist exception;
-        pragma exception_init (l_object_does_not_exist, -942);
-      begin
-        g_source_view := 'dba_source';
-        open l_cursor for 'select 1 from '||g_source_view ||' where rownum = 1';
-        close l_cursor;
-      exception
-        when l_object_does_not_exist then
-          g_source_view := 'all_source';
-      end;
-    end if;
-    return g_source_view;
-  end;
-
-  function get_package_spec_source_cursor(a_owner varchar2 := null, a_object varchar2 := null) return sys_refcursor is
-    l_cur sys_refcursor;
-    function get_query return varchar2 is
-    begin
-      return 'select t.text from ' || get_source_view() ||
-              ' t where t.owner = :a_owner and t.name = :a_object_name and t.type = ''PACKAGE'' order by t.line';
-    end;
-  begin
-    open l_cur for get_query
-      using a_owner, a_object;
-    return l_cur;
-  end;
-
-  ------------------------------
   --public definitions
 
   procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2) is
@@ -89,7 +53,7 @@ create or replace package body ut_metadata as
     l_package_name := a_package_name;
 
     do_resolve(l_schema, l_package_name, l_procedure_name);
-    
+
     select count(decode(status, 'VALID', 1, null)) / count(*)
       into l_cnt
       from all_objects
@@ -117,7 +81,7 @@ create or replace package body ut_metadata as
     l_procedure_name := a_procedure_name;
 
     do_resolve(l_schema, l_package_name, l_procedure_name);
-    
+
     select count(*)
       into l_cnt
       from all_procedures
@@ -140,9 +104,9 @@ create or replace package body ut_metadata as
       l_lines := sys.dbms_preprocessor.get_post_processed_source(object_type => 'PACKAGE',
                                                                  schema_name => a_owner,
                                                                  object_name => a_object_name);
-                                                                 
+
       sys.dbms_lob.createtemporary(lob_loc => l_source, cache => true);
-      
+
       for i in 1..l_lines.count loop
         sys.dbms_lob.writeappend(l_source, length(l_lines(i)), l_lines(i));
       end loop;
@@ -156,14 +120,13 @@ create or replace package body ut_metadata as
     l_cursor sys_refcursor;
   begin
     open l_cursor for
-      'select text from ' || get_source_view() || q'[
-          where owner = :a_owner and name = :a_object_name and line = :a_line_no
-             -- skip the declarations, consider only definitions
-            and type != 'PACKAGE' ]'
-       using a_owner, a_object_name, a_line_no;
+      select text from all_source s
+       where s.owner = a_owner and s.name = a_object_name and s.line = a_line_no
+          -- skip the declarations, consider only definitions
+         and s.type not in ('PACKAGE','TYPE');
      fetch l_cursor into l_line;
      close l_cursor;
-    return '"'||ltrim(rtrim( lower( l_line ), chr(10) ))||'"';
+    return ltrim(rtrim( lower( l_line ), chr(10) ));
   exception
     when no_data_found then
       return null;
