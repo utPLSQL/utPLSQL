@@ -8,17 +8,6 @@ create or replace package body ut_coverage is
     return g_coverage_id;
   end;
 
-  function get_utplsql_objects_list return ut_varchar2_list is
-    l_result ut_varchar2_list;
-  begin
-    select distinct object_name
-      bulk collect into l_result
-      from user_objects
-     where object_name = 'UT' or object_name like 'UT\_%' escape '\'
-       and object_type <> 'SYNONYM';
-    return l_result;
-  end;
-
   function coverage_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) ) return binary_integer is
   begin
     dbms_profiler.start_profiler(run_comment => a_run_comment, run_number => g_coverage_id);
@@ -83,7 +72,7 @@ create or replace package body ut_coverage is
   begin
 
     if not g_develop_mode then
-      l_utplsql_obj_list := get_utplsql_objects_list();
+      l_utplsql_obj_list := ut_utils.get_utplsql_objects_list();
     end if;
 
     -- TODO - add inclusive and exclusive filtering
@@ -107,11 +96,11 @@ create or replace package body ut_coverage is
        and u.unit_number = d.unit_number
        and d.line# = s.line
      where 1 = 1
-       and u.runid = g_coverage_id
+       and u.runid = l_coverage_id
        and s.type not in ('PACKAGE', 'TYPE')
        --Exclude calls to utPLSQL framework
        and not exists( select 1 from table(l_utplsql_obj_list) l where s.name = l.column_value and s.owner = l_utplsql_obj_owner)
-     order by u.unit_owner, u.unit_name, d.line#;
+     order by u.unit_owner, u.unit_name, s.line;
 
     for i in 1 .. l_data.count loop
 

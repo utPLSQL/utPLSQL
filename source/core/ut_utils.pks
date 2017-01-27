@@ -48,16 +48,16 @@ create or replace package ut_utils authid definer is
   ex_invalid_path_format exception;
   gc_invalid_path_format constant pls_integer := -20202;
   pragma exception_init(ex_invalid_path_format, -20202);
-  
+
   ex_suite_package_not_found exception;
   gc_suite_package_not_found constant pls_integer := -20204;
   pragma exception_init(ex_suite_package_not_found, -20204);
-  
+
   -- Reporting event time not supported
   ex_invalid_rep_event_time exception;
   gc_invalid_rep_event_time constant pls_integer := -20210;
   pragma exception_init(ex_invalid_rep_event_time, -20210);
-  
+
   -- Reporting event name not supported
   ex_invalid_rep_event_name exception;
   gc_invalid_rep_event_name constant pls_integer := -20211;
@@ -175,6 +175,12 @@ create or replace package ut_utils authid definer is
   * Returns a text indented with spaces except the first line.
   */
   function indent_lines(a_text varchar2, a_indent_size integer) return varchar2;
+
+
+  /*
+  * Returns a list of object that are part of utPLSQL framework
+  */
+  function get_utplsql_objects_list return ut_varchar2_list;
 
 end ut_utils;
 /
