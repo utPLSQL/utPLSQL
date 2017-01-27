@@ -5,6 +5,4 @@ create or replace type ut_coverage_html_reporter force under ut_reporter_base
   overriding member procedure before_calling_run(self in out nocopy ut_coverage_html_reporter, a_run ut_run),
   overriding member procedure after_calling_run(self in out nocopy ut_coverage_html_reporter, a_run in ut_run)
 )
--- $if $$ut_trace $then
--- $end
 /
