@@ -55,8 +55,6 @@ drop package ut_teamcity_reporter_helper;
 
 drop package ut_runner;
 
-drop package ut_runner_helper;
-
 drop package ut_suite_manager;
 
 drop package ut;
@@ -185,15 +183,11 @@ drop type ut_event_listener_base;
 
 drop type ut_suite_item_base;
 
-drop type ut_output_dbms_pipe;
+drop package ut_output_buffer;
 
-drop package ut_output_pipe_helper;
+drop table ut_output_buffer_tmp;
 
-drop type ut_output_stream;
-
-drop type ut_output_dbms_output;
-
-drop type ut_output;
+drop sequence ut_message_id_seq;
 
 drop type ut_results_counter;
 
@@ -206,8 +200,6 @@ drop type ut_object_names;
 drop type ut_object_name;
 
 drop type ut_varchar2_list;
-
-drop type ut_clob_list;
 
 begin
   for syn in (

@@ -31,15 +31,20 @@ create or replace type body ut_results_counter as
   end;
 
   member function result_status return integer is
+    l_result integer;
   begin
-    return
-      case
-      when self.errored_count > 0 then ut_utils.tr_error
-      when self.failure_count > 0 then ut_utils.tr_failure
-      when self.success_count > 0 then ut_utils.tr_success
-      when self.ignored_count > 0 then ut_utils.tr_ignore
-      else ut_utils.tr_error
-    end;
+    if self.errored_count > 0 then
+      l_result := ut_utils.tr_error;
+    elsif self.failure_count > 0 then
+      l_result := ut_utils.tr_failure;
+    elsif self.success_count > 0 then
+      l_result := ut_utils.tr_success;
+    elsif self.ignored_count > 0 then
+      l_result := ut_utils.tr_ignore;
+    else
+      l_result := ut_utils.tr_error;
+    end if;
+    return l_result;
   end;
 
 end;

@@ -13,7 +13,7 @@ create user &ut3_user identified by &ut3_password default tablespace &ut3_tables
 
 grant create session, create sequence, create procedure, create type, create table, create synonym to &ut3_user;
 
-grant execute on dbms_pipe to &ut3_user;
+grant execute on dbms_lock to &ut3_user;
 
 grant alter session to &ut3_user;
 

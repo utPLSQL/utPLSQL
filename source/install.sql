@@ -18,7 +18,6 @@ whenever oserror exit failure rollback
 
 --common utilities
 @@core/types/ut_varchar2_list.tps
-@@core/types/ut_clob_list.tps
 @@core/types/ut_object_name.tps
 @@core/types/ut_object_name.tpb
 @@core/types/ut_object_names.tps
@@ -33,11 +32,6 @@ whenever oserror exit failure rollback
 @@core/types/ut_assert_result.tps
 @@core/types/ut_assert_results.tps
 @@core/types/ut_results_counter.tps
-@@core/types/ut_output.tps
-@@core/types/ut_output_dbms_output.tps
-@@core/types/ut_output_stream.tps
-@@core/ut_output_pipe_helper.pks
-@@core/types/ut_output_dbms_pipe.tps
 @@core/types/ut_suite_item_base.tps
 @@core/types/ut_event_listener_base.tps
 @@core/types/ut_suite_item.tps
@@ -50,6 +44,14 @@ whenever oserror exit failure rollback
 @@core/types/ut_reporter_base.tps
 @@core/types/ut_reporters.tps
 @@core/types/ut_event_listener.tps
+
+--output buffer table
+@@core/ut_output_buffer_tmp.sql
+@@core/ut_message_id_seq.sql
+--output buffer api
+@@core/ut_output_buffer.pks
+@@core/ut_output_buffer.pkb
+
 --annoations
 @@core/ut_annotations.pks
 @@core/ut_annotations.pkb
@@ -80,11 +82,6 @@ whenever oserror exit failure rollback
 @@core/types/ut_run.tpb
 @@core/types/ut_event_listener.tpb
 @@core/types/ut_assert_result.tpb
-@@core/types/ut_output.tpb
-@@core/types/ut_output_dbms_output.tpb
-@@core/types/ut_output_stream.tpb
-@@core/ut_output_pipe_helper.pkb
-@@core/types/ut_output_dbms_pipe.tpb
 @@core/types/ut_reporter_base.tpb
 @@core/types/ut_executable.tpb
 @@core/types/ut_console_reporter_base.tps
@@ -173,19 +170,19 @@ whenever oserror exit failure rollback
 @@expectations/ut_expectation_varchar2.tpb
 @@expectations/ut_expectation_yminterval.tpb
 
---expectations interface
-@@api/ut.pks
-@@api/ut.pkb
-
+--core reporter
 @@reporters/ut_documentation_reporter.tps
 @@reporters/ut_documentation_reporter.tpb
 
---test runner
-@@core/ut_runner_helper.pks
-@@core/ut_runner_helper.pkb
+--plugin interface API for running utPLSQL
 @@api/ut_runner.pks
 @@api/ut_runner.pkb
 
+--developer interface for expectations and running utPLSQL
+@@api/ut.pks
+@@api/ut.pkb
+
+--additional reporters
 @@reporters/ut_teamcity_reporter.tps
 @@reporters/ut_teamcity_reporter_helper.pks
 @@reporters/ut_teamcity_reporter_helper.pkb
@@ -220,7 +217,7 @@ column error_count noprint new_value error_count
 prompt Validating installation
 select name, type, sequence, line, position, text, count(1) over() error_count
   from all_errors
- where owner = '&&ut3_owner'
+ where owner = upper('&&ut3_owner')
    and name not like 'BIN$%'  --not recycled
    and (name = 'UT' or name like 'UT\_%' escape '\')
    -- errors only. ignore warnings

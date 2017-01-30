@@ -133,18 +133,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageProcedureByPath.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPath.sql
 
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.close.TimesOutAfterAGivenPeriodOfTimeAndRemovesPipe.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_clob_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_lines.TimesOutAfterAGivenPeriodOfTime.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.open.CreatesAPrivatePipe.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.send_clob.SendsAClobIntoPipe.sql
-
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_clob_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.RetunrsNoRowsWhenNoDataInBuffer.sql
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.send_clob.SendsAClobIntoPipe.sql
-
 @@lib/RunTest.sql ut_expectations/greater_or_equal.sql
 @@lib/RunTest.sql ut_expectations/greater_than.sql
 @@lib/RunTest.sql ut_expectations/less_or_equal.sql
@@ -156,6 +144,11 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/timestamp_not_between.sql
 @@lib/RunTest.sql ut_expectations/timestamp_tz_between.sql
 @@lib/RunTest.sql ut_expectations/timestamp_tz_not_between.sql
+
+@@lib/RunTest.sql ut_output_buffer/get_lines.RecievesALineFromBufferTableAndDeletes.sql
+@@lib/RunTest.sql ut_output_buffer/send_line.DoesNotSendLineIfNullReporterIdGiven.sql
+@@lib/RunTest.sql ut_output_buffer/send_line.DoesNotSendLineIfNullTextGiven.sql
+@@lib/RunTest.sql ut_output_buffer/send_line.SendsALineIntoBufferTable.sql
 
 --Finally
 @@lib/RunSummary

@@ -1,11 +1,5 @@
 create or replace package ut_runner authid current_user is
 
-  subtype t_call_param is ut_runner_helper.t_call_param;
-
-  subtype tt_call_params is ut_runner_helper.tt_call_params;
-
-  subtype t_run_params is ut_runner_helper.t_run_params;
-
   /**
   * Run suites/tests by path
   * Accepts value of the following formats:
@@ -29,17 +23,6 @@ create or replace package ut_runner authid current_user is
 
   -- TODO - implementation to be changed
   procedure run(a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false);
-
-
-
-  ----------------------------
-  -- Client-side executor helper procedures and functions.
-
-  procedure set_run_params(a_params ut_varchar2_list);
-
-  function get_run_params return t_run_params;
-
-  function get_streamed_output_type_name return varchar2;
 
 end ut_runner;
 /

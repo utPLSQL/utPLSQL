@@ -64,6 +64,7 @@ create or replace package ut_utils authid definer is
   pragma exception_init(ex_invalid_rep_event_name, -20211);
 
 
+  gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
   gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
   gc_more_data_string         constant varchar2(5) := '[...]';

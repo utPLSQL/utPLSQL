@@ -4,7 +4,7 @@
 
 set serveroutput on size unlimited format truncated
 
-exec ut_runner.run(user||'.test_award_bonus');
+exec ut.run(user||'.test_award_bonus');
 
 drop package test_award_bonus;
 drop procedure award_bonus;

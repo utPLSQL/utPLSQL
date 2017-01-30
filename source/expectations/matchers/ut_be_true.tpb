@@ -7,13 +7,14 @@ create or replace type body ut_be_true as
   end;
 
   overriding member function run_matcher(self in out nocopy ut_be_true, a_actual ut_data_value) return boolean is
+    l_result boolean;
   begin
-    return
-      case
-        when a_actual is of (ut_data_value_boolean)
-        then ut_utils.int_to_boolean( treat(a_actual as ut_data_value_boolean).data_value)
-        else (self as ut_matcher).run_matcher(a_actual)
-      end;
+    if a_actual is of (ut_data_value_boolean) then 
+      l_result := ut_utils.int_to_boolean( treat(a_actual as ut_data_value_boolean).data_value);
+    else 
+      l_result := (self as ut_matcher).run_matcher(a_actual);
+    end if;
+    return l_result;
   end;
 
 end;

@@ -1,9 +1,8 @@
 create or replace type body ut_coverage_html_reporter is
 
-  constructor function ut_coverage_html_reporter(self in out nocopy ut_coverage_html_reporter, a_output ut_output default ut_output_dbms_output()) return self as result is
+  constructor function ut_coverage_html_reporter(self in out nocopy ut_coverage_html_reporter) return self as result is
   begin
-    self.name               := $$plsql_unit;
-    self.output             := a_output;
+    self.init($$plsql_unit);
     return;
   end;
 
