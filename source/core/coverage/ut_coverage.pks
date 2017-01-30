@@ -30,13 +30,13 @@ create or replace package ut_coverage authid current_user is
 
   function  get_coverage_id return integer;
 
-  function  coverage_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) ) return binary_integer;
-  procedure coverage_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) );
+  function  coverage_start(a_schema_names ut_varchar2_list := ut_varchar2_list(sys_context('userenv','current_schema'))) return integer;
+  procedure coverage_start(a_schema_names ut_varchar2_list := ut_varchar2_list(sys_context('userenv','current_schema')));
 
   /*
   * Start coverage in develop mode, where all internal calls to utPLSQL itself are also included
   */
-  procedure coverage_start_develop(a_run_comment varchar2 := ut_utils.to_string(systimestamp) );
+  procedure coverage_start_develop;
 
   procedure coverage_stop;
 

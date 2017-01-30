@@ -13,23 +13,23 @@ create or replace package body ut_coverage_helper is
     return g_develop_mode;
   end;
 
-  function coverage_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) ) return binary_integer is
+  function coverage_start(a_run_comment varchar2) return integer is
   begin
     dbms_profiler.start_profiler(run_comment => a_run_comment, run_number => g_coverage_id);
     coverage_pause();
     return g_coverage_id;
   end;
 
-  procedure coverage_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) ) is
+  procedure coverage_start(a_run_comment varchar2) is
     l_run_number  binary_integer;
   begin
     l_run_number := coverage_start(a_run_comment);
   end;
 
-  procedure coverage_start_develop(a_run_comment varchar2 := ut_utils.to_string(systimestamp) ) is
+  procedure coverage_start_develop is
   begin
     g_develop_mode := true;
-    coverage_start(a_run_comment);
+    coverage_start('utPLSQL Code coverage run in development MODE'||ut_utils.to_string(systimestamp));
   end;
 
   procedure coverage_flush is

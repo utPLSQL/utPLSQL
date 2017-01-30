@@ -3,13 +3,13 @@ create or replace package ut_coverage_helper authid definer is
   function  get_coverage_id return integer;
   function  is_develop_mode return boolean;
 
-  function  coverage_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) ) return binary_integer;
-  procedure coverage_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) );
+  function  coverage_start(a_run_comment varchar2) return integer;
+  procedure coverage_start(a_run_comment varchar2);
 
   /*
   * Start coverage in develop mode, where all internal calls to utPLSQL itself are also included
   */
-  procedure coverage_start_develop(a_run_comment varchar2 := ut_utils.to_string(systimestamp) );
+  procedure coverage_start_develop;
 
   procedure coverage_stop;
 

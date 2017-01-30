@@ -8,8 +8,9 @@ set longchunksize 1000000
 
 set serveroutput on size unlimited format truncated
 
+set feedback off
 spool index.html
-exec ut_runner.run(user||'.test_betwnstr', ut_coverage_html_reporter());
+exec ut.run(user||'.test_betwnstr', ut_coverage_html_reporter());
 spool off
 set define off
 --remove previous coverage run data

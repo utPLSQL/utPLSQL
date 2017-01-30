@@ -1,25 +1,39 @@
 create or replace package body ut_coverage is
 
   g_skipped_objects ut_object_names;
+  g_schema_names ut_varchar2_list;
 
   function get_coverage_id return integer is
   begin
     return ut_coverage_helper.get_coverage_id;
   end;
 
-  function coverage_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) ) return binary_integer is
+  procedure set_schema_names(a_schema_names ut_varchar2_list) is
   begin
-    return ut_coverage_helper.coverage_start(a_run_comment);
+    g_skipped_objects := ut_object_names();
+    if a_schema_names is not null and a_schema_names.count>0 then
+      g_schema_names := a_schema_names;
+    else
+      g_schema_names := ut_varchar2_list(sys_context('userenv','current_schema'));
+    end if;
   end;
 
-  procedure coverage_start(a_run_comment varchar2 := ut_utils.to_string(systimestamp) ) is
+  function coverage_start(a_schema_names ut_varchar2_list := ut_varchar2_list(sys_context('userenv','current_schema'))) return integer is
   begin
-    ut_coverage_helper.coverage_start(a_run_comment);
+    set_schema_names(a_schema_names);
+    return ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp));
   end;
 
-  procedure coverage_start_develop(a_run_comment varchar2 := ut_utils.to_string(systimestamp) ) is
+  procedure coverage_start(a_schema_names ut_varchar2_list := ut_varchar2_list(sys_context('userenv','current_schema'))) is
+    l_coverage_id integer;
   begin
-    ut_coverage_helper.coverage_start_develop(a_run_comment);
+    l_coverage_id := coverage_start(a_schema_names);
+  end;
+
+  procedure coverage_start_develop is
+  begin
+    set_schema_names(null);
+    ut_coverage_helper.coverage_start_develop();
   end;
 
   procedure coverage_flush is
@@ -67,7 +81,7 @@ create or replace package body ut_coverage is
   begin
 
     if not ut_coverage_helper.is_develop_mode() then
-      l_skipped_objects := ut_utils.get_utplsql_objects_list() multiset union g_skipped_objects;
+      l_skipped_objects := ut_utils.get_utplsql_objects_list() multiset union set(g_skipped_objects);
     end if;
 
     -- TODO - add inclusive and exclusive filtering
@@ -91,9 +105,9 @@ create or replace package body ut_coverage is
        and s.type  = u.type
        and s.line  = nvl(u.line_number, s.line)
      where s.type not in ('PACKAGE', 'TYPE')
-       and s.owner = 'UT3'
+       and s.owner in (select t.column_value from table(g_schema_names) t)
        --Exclude calls to utPLSQL framework and Unit Test packages
-       and not exists(select 1 from table(l_skipped_objects) l where s.name = l.name and s.owner = l.owner)
+       and not exists(select 1 from table(l_skipped_objects) l where s.owner = l.owner AND s.name = l.name)
      order by s.owner, s.name, s.line;
 
     for i in 1 .. l_data.count loop
