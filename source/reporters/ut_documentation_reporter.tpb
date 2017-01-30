@@ -59,15 +59,15 @@ create or replace type body ut_documentation_reporter is
         self.print_red_text(l_lines(i));
       end loop;
       self.print_cyan_text(a_assert.caller_info);
+      self.print_text(' ');
     end;
 
     procedure print_failures_for_test(a_test ut_test, a_failure_no in out nocopy integer) is
     begin
       if a_test.result > ut_utils.tr_success then
         a_failure_no := a_failure_no + 1;
-        self.print_text(lpad(a_failure_no,  4,' ')||') '||coalesce( a_test.name, a_test.item.form_name ));
+        self.print_text(lpad(a_failure_no, length(failed_test_running_count)+2,' ')||') '||nvl( a_test.name, a_test.item.form_name ));
         self.lvl := self.lvl + 3;
-        self.print_text('Failures/Errors:');
         for j in 1 .. a_test.results.count loop
           print_failure_for_assert(a_test.results(j));
         end loop;
@@ -89,7 +89,7 @@ create or replace type body ut_documentation_reporter is
     procedure print_failures_details(a_run in ut_run) is
       l_failure_no integer := 0;
     begin
-      if a_run.results_count.failure_count > 0 then
+      if a_run.results_count.failure_count > 0 or a_run.results_count.errored_count > 0 then
 
         self.print_text( 'Failures:' );
         self.print_text( ' ' );
@@ -103,12 +103,10 @@ create or replace type body ut_documentation_reporter is
     print_failures_details(a_run);
     self.print_text( 'Finished in '||a_run.execution_time||' seconds' );
     l_summary_text :=
-      a_run.results_count.total_count || ' tests, '||a_run.results_count.failure_count||' failure' ||
-      -- failure or plural failures
-      case when a_run.results_count.failure_count != 1 then 's' end ||
-      case
-        when a_run.results_count.ignored_count > 0 then ', '||a_run.results_count.ignored_count||' ignored'
-      end;
+      a_run.results_count.total_count || ' tests, '
+      ||a_run.results_count.failure_count||' failed, '
+      ||a_run.results_count.errored_count||' errored, '
+      ||a_run.results_count.ignored_count||' ignored';
     if a_run.results_count.failure_count > 0 then
       self.print_red_text(l_summary_text);
     else
