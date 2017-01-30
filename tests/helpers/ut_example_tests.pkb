@@ -19,6 +19,12 @@ as
     g_char := 'a';
     ut.expect(1,'Test 1 Should Pass').to_equal(1);
  end;
+ 
+ procedure ut_commit_test 
+ is
+ begin
+   commit;
+ end;
 
 end;
 /
