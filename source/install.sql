@@ -19,6 +19,9 @@ whenever oserror exit failure rollback
 --common utilities
 @@core/types/ut_varchar2_list.tps
 @@core/types/ut_clob_list.tps
+@@core/types/ut_object_name.tps
+@@core/types/ut_object_name.tpb
+@@core/types/ut_object_names.tps
 @@core/ut_utils.pks
 @@core/ut_metadata.pks
 @@core/ut_utils.pkb
@@ -61,7 +64,11 @@ whenever oserror exit failure rollback
 
 --gathering coverage
 @@core/coverage/proftab_temp_tables.sql
-@@core/coverage/ut_coverage.pks
+@@core/coverage/ut_coverage_row.tps
+@@core/coverage/ut_coverage_rows.tps
+@@core/coverage/ut_coverage_helper.pks
+@@core/coverage/ut_coverage_helper.pkb
+@core/coverage/ut_coverage.pks
 @@core/coverage/ut_coverage.pkb
 
 --core type bodies

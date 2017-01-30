@@ -157,13 +157,16 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/timestamp_tz_between.sql
 @@lib/RunTest.sql ut_expectations/timestamp_tz_not_between.sql
 
+--Finally
+@@lib/RunSummary
+
 exec ut_coverage.coverage_stop();
 
 set define off
 --remove previous coverage run data
 --try running on windows
 --$ rmdir /s /q coverage & mkdir coverage & mkdir coverage\assets & xcopy /E lib\coverage\assets coverage\assets\
-$ rmdir /s /q coverage & mkdir coverage & xcopy /E ..\client_source\sqlplus\lib\coverage\assets coverage\assets\ & xcopy /E ..\client_source\sqlplus\lib\coverage\public coverage\assets\
+$ rmdir /s /q coverage  > nul 2>&1 & mkdir coverage  > nul 2>&1 & xcopy /E ..\client_source\sqlplus\lib\coverage\assets coverage\assets\  > nul 2>&1 & xcopy /E ..\client_source\sqlplus\lib\coverage\public coverage\assets\  > nul 2>&1
 --try running on linus/unix
 ! rm -rf coverage ; mkdir coverage ; cp -R ../client_source/sqlplus/lib/coverage/assets coverage/assets ; cp -R ../client_source/sqlplus/lib/coverage/public coverage/assets
 

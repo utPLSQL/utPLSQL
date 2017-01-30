@@ -34,6 +34,9 @@ grant execute on ut_varchar2_list to public;
 grant execute on ut_reporter_base to public;
 grant execute on ut_output_dbms_pipe to public;
 grant execute on ut_coverage to public;
+grant execute on ut_coverage_helper to public;
+grant execute on ut_coverage_row to public;
+grant execute on ut_coverage_rows to public;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
@@ -59,3 +62,6 @@ create public synonym ut_varchar2_list for ut_varchar2_list;
 create public synonym ut_reporter_base for ut_reporter_base;
 create public synonym ut_output_dbms_pipe for ut_output_dbms_pipe;
 create public synonym ut_coverage for ut_coverage;
+create public synonym ut_coverage_helper for ut_coverage_helper;
+create public synonym ut_coverage_row for ut_coverage_row;
+create public synonym ut_coverage_rows for ut_coverage_rows;

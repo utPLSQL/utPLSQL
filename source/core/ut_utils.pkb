@@ -247,14 +247,14 @@ create or replace package body ut_utils is
     return replace( a_text, chr(10), chr(10) || lpad( ' ', a_indent_size ) );
   end;
 
-  function get_utplsql_objects_list return ut_varchar2_list is
-    l_result ut_varchar2_list;
+  function get_utplsql_objects_list return ut_object_names is
+    l_result ut_object_names;
   begin
-    select distinct object_name
+    select distinct ut_object_name(sys_context('userenv','current_user'), o.object_name)
       bulk collect into l_result
-      from user_objects
-     where object_name = 'UT' or object_name like 'UT\_%' escape '\'
-       and object_type <> 'SYNONYM';
+      from user_objects o
+     where o.object_name = 'UT' or object_name like 'UT\_%' escape '\'
+       and o.object_type <> 'SYNONYM';
     return l_result;
   end;
 

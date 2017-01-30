@@ -89,6 +89,7 @@ create or replace type body ut_executable is
 
       ut_metadata.do_resolve(a_owner => l_owner, a_object => l_object_name, a_procedure_name => l_procedure_name);
 
+--      ut_coverage.skip_coverage_for(ut_object_name(upper(l_owner), upper(l_object_name)));
       l_statement :=
       'declare' || chr(10) ||
       '  l_error_stack varchar2(32767);' || chr(10) ||

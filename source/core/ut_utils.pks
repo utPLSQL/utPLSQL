@@ -180,7 +180,7 @@ create or replace package ut_utils authid definer is
   /*
   * Returns a list of object that are part of utPLSQL framework
   */
-  function get_utplsql_objects_list return ut_varchar2_list;
+  function get_utplsql_objects_list return ut_object_names;
 
 end ut_utils;
 /

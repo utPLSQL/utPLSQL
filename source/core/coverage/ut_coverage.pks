@@ -1,6 +1,7 @@
-create or replace package ut_coverage authid definer is
+create or replace package ut_coverage authid current_user is
 
-  subtype t_schema_name is varchar2(250);
+  -- total run coverage information
+  subtype t_full_name   is varchar2(500);
   subtype t_object_name is varchar2(250);
 
   subtype t_line_executions is binary_integer;
@@ -14,8 +15,9 @@ create or replace package ut_coverage authid definer is
     executions      number(38,0) := 0,
     lines           tt_lines
   );
+
   -- coverage information indexed by full object name (schema.object)
-  type tt_program_units is table of t_unit_coverage index by t_object_name;
+  type tt_program_units is table of t_unit_coverage index by t_full_name;
 
   -- total run coverage information
   type t_coverage is record(
@@ -43,6 +45,8 @@ create or replace package ut_coverage authid definer is
   procedure coverage_resume;
 
   procedure coverage_flush;
+
+  procedure skip_coverage_for(a_object ut_object_name);
 
   function get_coverage_data(a_coverage_id integer := null) return t_coverage;
 
