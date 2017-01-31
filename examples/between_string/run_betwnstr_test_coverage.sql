@@ -12,12 +12,18 @@ set feedback off
 spool index.html
 exec ut.run(user||'.test_betwnstr', ut_coverage_html_reporter());
 spool off
+
+--Below lines do the following:
+-- - remove previous coverage data,
+-- - create coverage directory,
+-- - populate assets for coverage html report
 set define off
---remove previous coverage run data
+set termout off
 --try running on windows
-$ rmdir /s /q coverage > nul 2>&1 & mkdir coverage > nul 2>&1 & xcopy /E ..\..\client_source\sqlplus\lib\coverage\assets coverage\assets\ > nul 2>&1 & xcopy /E ..\..\client_source\sqlplus\lib\coverage\public coverage\assets\ > nul 2>&1 & move index.html coverage/ > nul 2>&1
+$ rmdir /s /q coverage & mkdir coverage & xcopy /E ..\..\client_source\sqlplus\lib\coverage\assets coverage\assets\ & xcopy /E ..\..\client_source\sqlplus\lib\coverage\public coverage\assets\ & move index.html coverage/
 --try running on linus/unix
 ! rm -rf coverage ; mkdir coverage ; cp -R ../../client_source/sqlplus/lib/coverage/assets coverage/assets ; cp -R ../../client_source/sqlplus/lib/coverage/public coverage/assets ;  mv index.html coverage/
+set termout on
 
 drop package test_betwnstr;
 drop function betwnstr;

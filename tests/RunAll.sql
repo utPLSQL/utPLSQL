@@ -155,13 +155,16 @@ exec ut_coverage.coverage_start_develop();
 
 exec ut_coverage.coverage_stop();
 
+--Below lines do the following:
+-- - remove previous coverage data,
+-- - create coverage directory,
+-- - populate assets for coverage html report
 set define off
---remove previous coverage run data
---try running on windows
---$ rmdir /s /q coverage & mkdir coverage & mkdir coverage\assets & xcopy /E lib\coverage\assets coverage\assets\
-$ rmdir /s /q coverage  > nul 2>&1 & mkdir coverage  > nul 2>&1 & xcopy /E ..\client_source\sqlplus\lib\coverage\assets coverage\assets\  > nul 2>&1 & xcopy /E ..\client_source\sqlplus\lib\coverage\public coverage\assets\  > nul 2>&1
+set termout off
+$ rmdir /s /q coverage & mkdir coverage & xcopy /E ..\client_source\sqlplus\lib\coverage\assets coverage\assets\ & xcopy /E ..\client_source\sqlplus\lib\coverage\public coverage\assets\
 --try running on linus/unix
 ! rm -rf coverage ; mkdir coverage ; cp -R ../client_source/sqlplus/lib/coverage/assets coverage/assets ; cp -R ../client_source/sqlplus/lib/coverage/public coverage/assets
+set termout on
 
 set define &
 begin
