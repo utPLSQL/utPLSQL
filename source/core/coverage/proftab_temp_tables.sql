@@ -1,4 +1,4 @@
-create table plsql_profiler_runs
+create global temporary table plsql_profiler_runs
 (
   runid           number primary key,  -- unique run identifier,
                                        -- from plsql_profiler_runnumber
@@ -11,12 +11,12 @@ create table plsql_profiler_runs
   run_system_info varchar2(2047),      -- currently unused
   run_comment1    varchar2(2047),      -- additional comment
   spare1          varchar2(256)        -- unused
-);
+) on commit preserve rows;
 
 comment on table plsql_profiler_runs is
         'Run-specific information for the PL/SQL profiler';
 
-create table plsql_profiler_units
+create global temporary table plsql_profiler_units
 (
   runid              number,
   unit_number        number,           -- internally generated library unit #
@@ -31,12 +31,12 @@ create table plsql_profiler_units
   spare2             number,           -- unused
   --
   primary key (runid, unit_number)
-);
+) on commit preserve rows;
 
 comment on table plsql_profiler_units is
         'Information about each library unit in a run';
 
-create table plsql_profiler_data
+create global temporary table plsql_profiler_data
 (
   runid           number,           -- unique (generated) run identifier
   unit_number     number,           -- internally generated library unit #
@@ -51,7 +51,7 @@ create table plsql_profiler_data
   spare4          number,           -- unused
   --
   primary key (runid, unit_number, line#)
-);
+) on commit preserve rows;
 
 comment on table plsql_profiler_data is
         'Accumulated data from all profiler runs';
