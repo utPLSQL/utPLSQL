@@ -77,9 +77,9 @@ end test_pkg;
 | `%disabled` | Package/procedure | Used to disable a suite or a test |
 
 # Suitepath concept
-It is very likely that the application for which you are going to introduce tests consists of many different packages or procedures/functions. Usually procedures can be logically grouped inside a package, there also might be several logical groups of procedure in a single package or even packages themselves might relate to a common mudule.
+It is very likely that the application for which you are going to introduce tests consists of many different packages or procedures/functions. Usually procedures can be logically grouped inside a package, there also might be several logical groups of procedure in a single package or even packages themselves might relate to a common module.
 
-Lets say you have a complex insurance application the operates with policies, claims and payments. The payment module contains several packages for payment recognition, charging, planning etc. The payment recognition module among others contains a complex `recognize_payment` procedure that associates recieved money to the policies.
+Lets say you have a complex insurance application the operates with policies, claims and payments. The payment module contains several packages for payment recognition, charging, planning etc. The payment recognition module among others contains a complex `recognize_payment` procedure that associates received money to the policies.
 
 If you want to create tests for your application it is recommended to structure your tests similarly to the logical structure of you application. So you end up with something like:
 * Integration tests
@@ -133,4 +133,4 @@ From the report you understand that some bug appeared in the payments module, th
 
 A `suitepath` is formed by valid sqlnames separated by dots. The depth of the suites path is not limited. The fully qualified path to a test is formed by `<user>:[<suitepath>.]<test package>.<test procedure>`.
 
-You can also use `suitepath` to define the starting poing of tests to execute. If you want to run only payments tests of the `FOO` schema then you gen execute `ut_runner.run('foo:payments');` and all suites that have `payments` in their `%suitepath`s will be executed. This way you can filter the execution up to a single test. Only tests/suites which are children of the defined path are executed and all the parents `beforeall`, `beforeeach`, `aftereach`, `afterall` elements. So all the preparation and cleanup is performed as if you execute all the tests of the schema.
+You can also use `suitepath` to define the starting going of tests to execute. If you want to run only payments tests of the `FOO` schema then you gen execute `ut_runner.run('foo:payments');` and all suites that have `payments` in their `%suitepath`s will be executed. This way you can filter the execution up to a single test. Only tests/suites which are children of the defined path are executed and all the parents `beforeall`, `beforeeach`, `aftereach`, `afterall` elements. So all the preparation and cleanup is performed as if you execute all the tests of the schema.
