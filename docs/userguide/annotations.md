@@ -127,9 +127,24 @@ create or replace package test_payment_set_off as
 end test_payment_set_off;
 ```
 
-When you execute tests for your application, the framework constructs test suitу for each test package. Then in combines suites into grouping suites by the `%suitepath` annotation value so that the fully qualifier path to the `recognize_by_num` procedure is `USER:payments.test_payment_recognition.test_recognize_by_num`. If any of its expectations fails then the test is marked as failed, but also the `test_payment_recognition` suite, the parent `payments` suite suite and the whole run.
-From the report you understand that some bug appeared in the payments module, the payments recognition submodule is causing the failure as `recognize_by_num` has an error. As the time goes on you can see the most fragile modules of you application and plan refactoring activities.
+When you execute tests for your application, the framework constructs test suite for each test package. Then in combines suites into grouping suites by the `%suitepath` annotation value so that the fully qualified path to the `recognize_by_num` procedure is `USER:payments.test_payment_recognition.test_recognize_by_num`. If any of its expectations fails then the test is marked as failed, also the `test_payment_recognition` suite, the parent suite `payments` and the whole run is marked as failed.
+The test report indicates which expectation has failed on the payments module. The payments recognition submodule is causing the failure as `recognize_by_num` has is not meeting the expectations of the test. Grouping tests into modules and submodules using the `%suitepath` annotation allows you to logically organize your projects flat structure of packages int functional groups. 
+
+Additional advantage of such grouping is the fact that every element level of the grouping can be an actual unit test package containing module level common setup for all of the submodules. So in addition to the packages mentioned above you could have following package.
+```sql
+create or replace package payments as
+
+  -- %suite(Payments)
+
+  -- %beforeall
+  procedure set_common_payments_data;
+
+  -- %afterall
+  procedure reset_common_paymnets_data;
+
+end payments;
+```
 
 A `%suitepath` is formed by valid sqlnames separated by dots. The depth of the suites path is not limited. The fully qualified path to a test is formed by `<user>:[<suitepath>.]<test package>.<test procedure>`.
 
-You can also use `%suitepath` to define the starting going of tests to execute. If you want to run only payments tests of the `FOO` schema then you gen execute `ut_runner.run('foo:payments');` and all suites that have `payments` in their `%suitepath`s will be executed. This way you can filter the execution up to a single test. Only tests/suites which are children of the defined path are executed and all the parents `%beforeall`, `%beforeeach`, `%aftereach`, `%afterall` elements. So all the preparation and cleanup is performed as if you execute all the tests of the schema.
+You can also use `%suitepath` to define the starting going of tests to execute. If you want to run only payments tests of the `FOO` schema then you gen execute `ut.run('foo:payments');` and all suites that have `payments` in their `%suitepath`s will be executed. This way you can filter the execution up to a single test. Only tests/suites which are children of the defined path are executed and all the parents `%beforeall`, `%beforeeach`, `%aftereach`, `%afterall` elements. So all the preparation and cleanup is performed as if you execute all the tests of the schema.
