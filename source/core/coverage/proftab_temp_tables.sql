@@ -4,7 +4,7 @@ create global temporary table plsql_profiler_runs
                                        -- from plsql_profiler_runnumber
   related_run     number,              -- runid of related run (for client/
                                        --     server correlation)
-  run_owner       varchar2(32),        -- user who started run
+  run_owner       varchar2(4000),        -- user who started run
   run_date        date,                -- start time of run
   run_comment     varchar2(2047),      -- user provided comment for this run
   run_total_time  number,              -- elapsed time for this run
@@ -20,9 +20,9 @@ create global temporary table plsql_profiler_units
 (
   runid              number,
   unit_number        number,           -- internally generated library unit #
-  unit_type          varchar2(32),     -- library unit type
-  unit_owner         varchar2(32),     -- library unit owner name
-  unit_name          varchar2(32),     -- library unit name
+  unit_type          varchar2(4000),   -- library unit type
+  unit_owner         varchar2(4000),   -- library unit owner name
+  unit_name          varchar2(4000),   -- library unit name
   -- timestamp on library unit, can be used to detect changes to
   -- unit between runs
   unit_timestamp     date,

@@ -29,7 +29,7 @@ create or replace package body ut_coverage_helper is
   procedure coverage_start_develop is
   begin
     g_develop_mode := true;
-    coverage_start('utPLSQL Code coverage run in development MODE'||ut_utils.to_string(systimestamp));
+    coverage_start('utPLSQL Code coverage run in development MODE '||ut_utils.to_string(systimestamp));
   end;
 
   procedure coverage_flush is

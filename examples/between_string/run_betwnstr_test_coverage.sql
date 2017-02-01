@@ -9,8 +9,9 @@ set longchunksize 1000000
 set serveroutput on size unlimited format truncated
 
 set feedback off
+set termout  off
 spool index.html
-exec ut.run(user||'.test_betwnstr', ut_coverage_html_reporter());
+exec ut.run(user||'.test_betwnstr', ut_coverage_html_reporter('Demo of between string function tests'));
 spool off
 
 --Below lines do the following:

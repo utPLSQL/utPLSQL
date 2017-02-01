@@ -162,9 +162,9 @@ set termout off
 -- - remove previous coverage data,
 -- - create coverage directory,
 -- - populate assets for coverage html report
-$ rmdir /s /q coverage > nul 2>&1 & mkdir coverage > nul 2>&1 & xcopy /E ..\client_source\sqlplus\lib\coverage\assets coverage\assets\ > nul 2>&1 & xcopy /E ..\client_source\sqlplus\lib\coverage\public coverage\assets\ > nul 2>&1
+$ rmdir /s /q coverage > nul 2>&1 & mkdir coverage > nul 2>&1 & xcopy /E ..\client_source\sqlplus\lib\coverage\public coverage\assets\ > nul 2>&1
 --try running on linus/unix
-! rm -rf coverage &>/dev/null ; mkdir coverage &>/dev/null ; cp -R ../client_source/sqlplus/lib/coverage/assets coverage/assets &>/dev/null ; cp -R ../client_source/sqlplus/lib/coverage/public coverage/assets &>/dev/null
+! rm -rf coverage &>/dev/null ; mkdir coverage &>/dev/null ; cp -R ../client_source/sqlplus/lib/coverage/public coverage/assets &>/dev/null
 
 set termout on
 prompt Gathering coverage data

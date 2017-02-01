@@ -13,22 +13,23 @@ set heading off
 set define off
 --remove previous coverage run data
 --try running on windows
---$ rmdir /s /q coverage & mkdir coverage & mkdir coverage\assets & xcopy /E lib\coverage\assets coverage\assets\
-$ rmdir /s /q coverage & mkdir coverage & xcopy /E lib\coverage\assets coverage\assets\ & xcopy /E lib\coverage\public coverage\assets\
+$ rmdir /s /q coverage > nul 2>&1 & mkdir coverage > nul 2>&1 & xcopy /E lib\coverage\public coverage\assets\ > nul 2>&1
 --try running on linus/unix
-! rm -rf coverage ; mkdir coverage ; cp -R lib/coverage/assets coverage/assets
+! rm -rf coverage &>/dev/null ; mkdir coverage &>/dev/null ; cp -R lib/coverage/public coverage/assets &>/dev/null
 
 
+var reporter_id varchar2(32);
 
-exec ut_runner.run(user||'.test_betwnstr', ut_reporters(ut_coverage_html_reporter()));
-commit;
+declare
+  l_reporter ut_coverage_html_reporter := ut_coverage_html_reporter();
 begin
-  ut_coverage_report_html_helper.init(ut_coverage.get_coverage_data(1));
+  :reporter_id := l_reporter.reporter_id;
+  ut_runner.run(user, ut_reporters(l_reporter));
 end;
 /
 
 spool coverage/index.html
-  select ut_coverage_report_html_helper.get_index() from dual;
+ select * from table( ut_output_buffer.get_lines(:reporter_id) );
 spool off
 
 exit

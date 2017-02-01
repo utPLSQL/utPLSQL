@@ -85,7 +85,7 @@ create or replace package body ut_coverage is
     end if;
 
     -- TODO - add inclusive and exclusive filtering
-    select ut3.ut_coverage_row(
+    select ut_coverage_row(
              lower(s.owner||'.'||s.name),
              s.owner, s.name, s.type, s.line,
            --filtering out false - negatives reported by profiler (zero executions while it should be ignored).
@@ -99,7 +99,7 @@ create or replace package body ut_coverage is
       bulk collect into l_data
       from all_source s
       --need to use owner privileges here
-      left join table( ut3.ut_coverage_helper.get_raw_coverage_data() ) u
+      left join table( ut_coverage_helper.get_raw_coverage_data() ) u
         on s.owner = u.owner
        and s.name  = u.name
        and s.type  = u.type
