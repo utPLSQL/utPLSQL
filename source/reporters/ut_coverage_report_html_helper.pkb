@@ -98,10 +98,8 @@ create or replace package body ut_coverage_report_html_helper is
         else
           l_file_part :='
             <li class="'||line_status(a_coverage_unit.lines(line_no))||'" data-hits="'||(a_coverage_unit.lines(line_no))||'" data-linenumber="'||(line_no)||'">'||
-            case when a_coverage_unit.lines.exists(line_no) then
-              case when a_coverage_unit.lines(line_no) > 0 then '
-                <span class="hits">'||(a_coverage_unit.lines(line_no))||'</span>'
-              end
+            case when a_coverage_unit.lines(line_no) > 0 then '
+              <span class="hits">'||(a_coverage_unit.lines(line_no))||'</span>'
             end||'
               <code class="sql">' || (dbms_xmlgen.convert(a_source_code(line_no))) || '</code></li>';
         dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);
