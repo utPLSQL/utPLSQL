@@ -69,7 +69,9 @@ create or replace type body ut_documentation_reporter is
         self.print_text(lpad(a_failure_no, length(failed_test_running_count)+2,' ')||') '||nvl( a_test.name, a_test.item.form_name ));
         self.lvl := self.lvl + 3;
         for j in 1 .. a_test.results.count loop
-          print_failure_for_assert(a_test.results(j));
+          if a_test.results(j).result > ut_utils.tr_success then
+            print_failure_for_assert(a_test.results(j));
+          end if;
         end loop;
         lvl := lvl - 3;
       end if;
