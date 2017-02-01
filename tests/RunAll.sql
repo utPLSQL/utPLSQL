@@ -155,27 +155,35 @@ exec ut_coverage.coverage_start_develop();
 
 exec ut_coverage.coverage_stop();
 
+set define off
+prompt Preparing coverage html support files
+set termout off
 --Below lines do the following:
 -- - remove previous coverage data,
 -- - create coverage directory,
 -- - populate assets for coverage html report
-set define off
-set termout off
 $ rmdir /s /q coverage > nul 2>&1 & mkdir coverage > nul 2>&1 & xcopy /E ..\client_source\sqlplus\lib\coverage\assets coverage\assets\ > nul 2>&1 & xcopy /E ..\client_source\sqlplus\lib\coverage\public coverage\assets\ > nul 2>&1
 --try running on linus/unix
 ! rm -rf coverage &>/dev/null ; mkdir coverage &>/dev/null ; cp -R ../client_source/sqlplus/lib/coverage/assets coverage/assets &>/dev/null ; cp -R ../client_source/sqlplus/lib/coverage/public coverage/assets &>/dev/null
+
 set termout on
+prompt Gathering coverage data
 
 set define &
+var reporter_id varchar2(32);
+declare
+  l_reporter ut_coverage_html_reporter := ut_coverage_html_reporter('utPLSQL v3 Unit Tests');
 begin
-  ut_coverage_report_html_helper.init(ut_coverage.get_coverage_data());
+  :reporter_id := l_reporter.reporter_id;
+  l_reporter.after_calling_run(ut_run(ut_suite_items()));
 end;
 /
 
+prompt Spooling coverage html
 set termout off
 set feedback off
 spool coverage/index.html
-  select ut_coverage_report_html_helper.get_index() from dual;
+exec ut_output_buffer.lines_to_dbms_output(:reporter_id);
 spool off
 
 --Global cleanup
@@ -188,7 +196,5 @@ drop package test_package_1;
 drop package test_package_2;
 drop package test_package_3;
 
---Finally
-@@lib/RunSummary
 --can be used by CI to check for tests status
 exit :failures_count

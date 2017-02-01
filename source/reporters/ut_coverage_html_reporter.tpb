@@ -1,9 +1,10 @@
 create or replace type body ut_coverage_html_reporter is
 
-  constructor function ut_coverage_html_reporter(self in out nocopy ut_coverage_html_reporter, a_schema_names ut_varchar2_list := ut_varchar2_list(sys_context('userenv','current_schema'))) return self as result is
+  constructor function ut_coverage_html_reporter(self in out nocopy ut_coverage_html_reporter, a_project_name varchar2 := null, a_schema_names ut_varchar2_list := ut_varchar2_list(sys_context('userenv','current_schema'))) return self as result is
   begin
     self.init($$plsql_unit);
     self.schema_names := a_schema_names;
+    self.project_name := a_project_name;
     return;
   end;
 
@@ -17,9 +18,8 @@ create or replace type body ut_coverage_html_reporter is
     l_report_lines ut_varchar2_list;
   begin
     ut_coverage.coverage_stop();
-    ut_coverage_report_html_helper.init(ut_coverage.get_coverage_data());
-    l_report_lines := ut_utils.clob_to_table(ut_coverage_report_html_helper.get_index());
 
+    l_report_lines := ut_utils.clob_to_table(ut_coverage_report_html_helper.get_index( ut_coverage.get_coverage_data(), self.project_name ));
     for i in 1 .. l_report_lines.count loop
       self.print_text( l_report_lines(i) );
     end loop;

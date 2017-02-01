@@ -89,13 +89,11 @@ create or replace type body ut_executable is
 
       ut_metadata.do_resolve(a_owner => l_owner, a_object => l_object_name, a_procedure_name => l_procedure_name);
 
-      ut_coverage.skip_coverage_for(ut_object_name(upper(l_owner), upper(l_object_name)));
       l_statement :=
       'declare' || chr(10) ||
       '  l_error_stack varchar2(32767);' || chr(10) ||
       '  l_error_backtrace varchar2(32767);' || chr(10) ||
       'begin' || chr(10) ||
-      '  ut_coverage.coverage_resume();' || chr(10) ||
       '  begin' || chr(10) ||
       '    ' || ut_metadata.form_name(l_owner, l_object_name, l_procedure_name) || ';' || chr(10) ||
       '  exception' || chr(10) ||
@@ -109,8 +107,6 @@ create or replace type body ut_executable is
       '  end;' || chr(10) ||
       '  :a_error_stack := l_error_stack;' || chr(10) ||
       '  :a_error_backtrace := l_error_backtrace;' || chr(10) ||
-      '  ut_coverage.coverage_pause();' || chr(10) ||
-      '  ut_coverage.coverage_flush();' || chr(10) ||
       'end;';
 
       ut_utils.debug_log('ut_executable.do_execute l_statement: ' || l_statement);

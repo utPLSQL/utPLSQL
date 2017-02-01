@@ -43,6 +43,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_run.tps
 @@core/types/ut_reporter_base.tps
 @@core/types/ut_reporters.tps
+@@core/types/ut_coverage_reporter_base.tps
 @@core/types/ut_event_listener.tps
 
 --output buffer table
@@ -83,6 +84,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_event_listener.tpb
 @@core/types/ut_assert_result.tpb
 @@core/types/ut_reporter_base.tpb
+@@core/types/ut_coverage_reporter_base.tpb
 @@core/types/ut_executable.tpb
 @@core/types/ut_console_reporter_base.tps
 @@core/types/ut_console_reporter_base.tpb
