@@ -53,7 +53,7 @@ create or replace package body ut_coverage is
 
   procedure coverage_stop is
   begin
-    ut_coverage_helper.coverage_resume();
+    ut_coverage_helper.coverage_stop();
   end;
 
   procedure skip_coverage_for(a_object ut_object_name) is
