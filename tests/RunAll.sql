@@ -154,6 +154,18 @@ exec ut_coverage.coverage_start_develop();
 --Finally
 @@lib/RunSummary
 
+--Global cleanup
+--removing objects that should not be part of coverage report
+drop package ut_example_tests;
+drop procedure check_annotation_parsing;
+drop package ut_transaction_control;
+drop table ut$test_table;
+drop type department$;
+drop package test_package_1;
+drop package test_package_2;
+drop package test_package_3;
+
+prompt Flushing coverage data into temp tables
 exec ut_coverage.coverage_stop();
 
 set define off
@@ -186,19 +198,10 @@ set termout off
 set feedback off
 set arraysize 50
 spool coverage/index.html
---exec ut_output_buffer.lines_to_dbms_output(:reporter_id);
-select * from table( ut_output_buffer.get_lines(:reporter_id) );
+exec ut_output_buffer.lines_to_dbms_output(:reporter_id);
+--select * from table( ut_output_buffer.get_lines(:reporter_id) );
 spool off
 
---Global cleanup
-drop package ut_example_tests;
-drop procedure check_annotation_parsing;
-drop package ut_transaction_control;
-drop table ut$test_table;
-drop type department$;
-drop package test_package_1;
-drop package test_package_2;
-drop package test_package_3;
 
 --can be used by CI to check for tests status
 exit :failures_count
