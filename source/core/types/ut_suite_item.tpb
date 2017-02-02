@@ -36,10 +36,15 @@ create or replace type body ut_suite_item as
   end;
 
   member procedure rollback_to_savepoint(self in ut_suite_item, a_savepoint varchar2) is
+    ex_savepoint_not_exists exception;
+    pragma exception_init(ex_savepoint_not_exists, -1086);
   begin
     if self.rollback_type = ut_utils.gc_rollback_auto and a_savepoint is not null then
       execute immediate 'rollback to ' || a_savepoint;
     end if;
+  exception
+    when ex_savepoint_not_exists then
+      null;
   end;
 
   member function execution_time return number is

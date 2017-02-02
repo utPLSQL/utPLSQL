@@ -95,6 +95,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_test/ut_test.TeardownExecutedAfterTest.sql
 @@lib/RunTest.sql ut_test/ut_test.TeardownProcedureNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.TeardownProcedureNameNull.sql
+@@lib/RunTest.sql ut_test/ut_test.IgnoreTollbackToSavepointException.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.IgnoreFlagSkipSuite.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Auto.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.AutoOnFailure.sql
