@@ -1,5 +1,9 @@
 create or replace package ut_coverage_helper authid definer is
 
+  --table of line calls indexed by line number
+  -- table is sparse!!!
+  type unit_line_calls is table of number(38,0) index by binary_integer;
+
   function  get_coverage_id return integer;
   function  is_develop_mode return boolean;
 
@@ -19,7 +23,6 @@ create or replace package ut_coverage_helper authid definer is
 
   procedure coverage_flush;
 
-  function get_raw_coverage_data return ut_coverage_rows pipelined;
-
+  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return unit_line_calls;
 end;
 /

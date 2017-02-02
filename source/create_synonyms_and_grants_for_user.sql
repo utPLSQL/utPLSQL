@@ -36,8 +36,7 @@ grant execute on ut_varchar2_list to &ut3_user;
 grant execute on ut_reporter_base to &ut3_user;
 grant execute on ut_coverage to &ut3_user;
 grant execute on ut_coverage_helper to &ut3_user;
-grant execute on ut_coverage_row to &ut3_user;
-grant execute on ut_coverage_rows to &ut3_user;
+grant insert, delete, select on ut_coverage_sources_tmp to &ut3_user;
 grant execute on ut_output_buffer to &ut3_user;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to user &&ut3_user
@@ -65,6 +64,5 @@ create or replace synonym &ut3_user .ut_varchar2_list for ut_varchar2_list;
 create or replace synonym &ut3_user .ut_reporter_base for ut_reporter_base;
 create or replace synonym &ut3_user .ut_coverage for ut_coverage;
 create or replace synonym &ut3_user .ut_coverage_helper for ut_coverage_helper;
-create or replace synonym &ut3_user .ut_coverage_row for ut_coverage_row;
-create or replace synonym &ut3_user .ut_coverage_rows for ut_coverage_rows;
+create or replace synonym &ut3_user .ut_coverage_sources_tmp for ut_coverage_sources_tmp;
 create or replace synonym &ut3_user .ut_output_buffer for ut_output_buffer;

@@ -15,6 +15,10 @@ create or replace package body ut_coverage_helper is
 
   function coverage_start(a_run_comment varchar2) return integer is
   begin
+    --those are Global Temporary tables for profiler usage only
+    delete from plsql_profiler_data;
+    delete from plsql_profiler_units;
+    delete from plsql_profiler_runs;
     dbms_profiler.start_profiler(run_comment => a_run_comment, run_number => g_coverage_id);
     coverage_pause();
     return g_coverage_id;
@@ -58,36 +62,30 @@ create or replace package body ut_coverage_helper is
     l_return_code := dbms_profiler.stop_profiler();
   end;
 
-  function get_raw_coverage_data return ut_coverage_rows pipelined is
-
-    l_results           ut_coverage_rows;
-
-    cursor l_coverage_data(a_coverage_id integer) is
-      select ut_coverage_row(
-                lower(u.unit_owner||'.'||u.unit_name),
-                u.unit_owner, u.unit_name, u.unit_type,
-                d.line#, d.total_occur)
+  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return unit_line_calls is
+    type coverage_row is record (
+      line  binary_integer,
+      calls number(38,0)
+    );
+    type coverage_rows is table of coverage_row;
+    l_tmp_data coverage_rows;
+    l_results  unit_line_calls;
+  begin
+      select d.line#, d.total_occur
+      bulk collect into l_tmp_data
         from plsql_profiler_units u
         join plsql_profiler_data d
           on u.runid = d.runid
          and u.unit_number = d.unit_number
        where u.runid = g_coverage_id
+         and u.unit_owner = a_object_owner
+         and u.unit_name = a_object_name
          --exclude specification
          and u.unit_type not in ('PACKAGE SPEC', 'TYPE SPEC', 'ANONYMOUS BLOCK');
-  begin
-    open l_coverage_data( get_coverage_id());
-    loop
-      fetch l_coverage_data bulk collect into l_results limit 1000;
-      for i in 1 .. l_results.count loop
-        pipe row (l_results(i));
-      end loop;
-
-      exit when l_coverage_data%notfound;
+    for i in 1 .. l_tmp_data.count loop
+      l_results(l_tmp_data(i).line) := l_tmp_data(i).calls;
     end loop;
-    close l_coverage_data;
-
-    return;
+    return l_results;
   end;
-
 end;
 /

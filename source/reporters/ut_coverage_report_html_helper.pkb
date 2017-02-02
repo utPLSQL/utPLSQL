@@ -87,14 +87,16 @@ create or replace package body ut_coverage_report_html_helper is
       '<div class="source_table" id="'||object_id(a_object_full_name)||'"><div class="header"> <h3>'||a_object_full_name||'</h3>' ||
       '<h4><span class="'||coverage_css_class(l_coverage_pct)||'">'||l_coverage_pct||' %</span> covered</h4>' ||
       '<div> <b>'||(a_coverage_unit.covered_lines+a_coverage_unit.uncovered_lines)||'</b> relevant lines. ' ||
-      '<span class="green"><b>'||a_coverage_unit.covered_lines||'</b> lines covered</span> and' ||
-      '<span class="red"><b>'||a_coverage_unit.uncovered_lines||'</b> lines missed.</span></div></div>' ||
+      '<span class="green"><b>'||a_coverage_unit.covered_lines||'</b> lines covered</span> and ' ||
+      '<span class="red"><b>'||a_coverage_unit.uncovered_lines||'</b> lines missed</span></div></div>' ||
       '<pre><ol>';
       dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);
 
       for line_no in 1 .. a_source_code.count loop
         if not a_coverage_unit.lines.exists(line_no) then
-          dbms_output.put_line('line:['||line_no||'] not found.');
+          l_file_part :='
+            <li class="'||line_status(null)||'" data-hits="" data-linenumber="'||line_no||'">
+            <code class="sql">' || (dbms_xmlgen.convert(a_source_code(line_no))) || '</code></li>';
         else
           l_file_part :='
             <li class="'||line_status(a_coverage_unit.lines(line_no))||'" data-hits="'||(a_coverage_unit.lines(line_no))||'" data-linenumber="'||(line_no)||'">'||
@@ -102,8 +104,8 @@ create or replace package body ut_coverage_report_html_helper is
               <span class="hits">'||(a_coverage_unit.lines(line_no))||'</span>'
             end||'
               <code class="sql">' || (dbms_xmlgen.convert(a_source_code(line_no))) || '</code></li>';
-        dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);
         end if;
+        dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);
       end loop;
 
       l_file_part := '</ol></pre></div>';
@@ -113,10 +115,9 @@ create or replace package body ut_coverage_report_html_helper is
   begin
     select rtrim(s.text,chr(10)) text
       bulk collect into l_source_code
-      from all_source s
+      from ut_coverage_sources_tmp s
      where s.owner = l_object_owner
        and s.name = l_object_name
-       and s.type not in ('PACKAGE','TYPE')
      order by s.line;
     dbms_lob.createtemporary(l_result,true);
     l_result := build_details_file_content(a_unit_name, l_source_code, a_unit_coverage);
@@ -161,7 +162,7 @@ create or replace package body ut_coverage_report_html_helper is
        '<tr>' ||
        '<td class="strong">'||link_to_source_file(l_unit)||'</td>' ||
        '<td class="'||coverage_css_class(l_coverage_pct)||' strong">'||l_coverage_pct||' %</td>' ||
-       '<td>'||l_unit_coverage.lines.count||'</td>' ||
+       '<td>'||l_unit_coverage.total_lines||'</td>' ||
        '<td>'||(l_unit_coverage.covered_lines+l_unit_coverage.uncovered_lines)||'</td>' ||
        '<td>'||l_unit_coverage.covered_lines||'</td>' ||
        '<td>'||l_unit_coverage.uncovered_lines||'</td>' ||

@@ -65,7 +65,7 @@ create or replace package body ut_coverage is
       g_skipped_objects(g_skipped_objects.last) := a_object;
   end;
 
-  function get_coverage_data(a_coverage_id integer := null) return t_coverage is
+  function get_coverage_data return t_coverage is
 
     type t_coverage_row is record(
       name          varchar2(500),
@@ -73,60 +73,96 @@ create or replace package body ut_coverage is
       total_occur   number(38,0)
     );
     type tt_coverage_rows is table of t_coverage_row;
-
-    l_data             ut_coverage_rows;
+    l_line_calls       ut_coverage_helper.unit_line_calls;
     l_result           t_coverage;
     l_new_unit         t_unit_coverage;
     l_skipped_objects  ut_object_names := ut_object_names();
+
+    type t_source_lines is table of binary_integer;
+    l_source_lines     t_source_lines;
+    line_no            binary_integer;
   begin
 
     if not ut_coverage_helper.is_develop_mode() then
       l_skipped_objects := ut_utils.get_utplsql_objects_list() multiset union set(g_skipped_objects);
     end if;
 
-    -- TODO - add inclusive and exclusive filtering
-    select ut_coverage_row(
-             lower(s.owner||'.'||s.name),
-             s.owner, s.name, s.type, s.line,
-           --filtering out false - negatives reported by profiler (zero executions while it should be ignored).
-           case when
-              regexp_instr(
-                s.text,
-                '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(constructor|member)?\s*(procedure|function)|begin|end\s*;)', 1, 1, 0, 'i'
-              ) = 0 then u.total_occur
-           end
-          )
-      bulk collect into l_data
+    --prepare global temp table with sources
+    delete from ut_coverage_sources_tmp;
+
+    insert into ut_coverage_sources_tmp(owner,name,line,text)
+    select s.owner,s.name,s.line,s.text
       from all_source s
-      --need to use owner privileges here
-      left join table( ut_coverage_helper.get_raw_coverage_data() ) u
-        on s.owner = u.owner
-       and s.name  = u.name
-       and s.type  = u.type
-       and s.line  = nvl(u.line_number, s.line)
      where s.type not in ('PACKAGE', 'TYPE')
        and s.owner in (select t.column_value from table(g_schema_names) t)
        --Exclude calls to utPLSQL framework and Unit Test packages
-       and not exists(select 1 from table(l_skipped_objects) l where s.owner = l.owner AND s.name = l.name)
-     order by s.owner, s.name, s.line;
+    --   and not exists(select 1 from table(l_skipped_objects) l where s.owner = l.owner AND s.name = l.name)
+    ;
 
-    for i in 1 .. l_data.count loop
+    for src_object in (
+      select o.owner, o.object_name, o.object_type, lower(o.owner||'.'||o.object_name) full_name, c.lines_count
+      from all_objects o
+      join (select max(c.line) lines_count, c.owner, c.name
+        from ut_coverage_sources_tmp c
+        group by c.owner, c.name) c
+        on o.owner = c.owner and o.object_name = c.name
+      where o.object_type not in ('PACKAGE', 'TYPE')
+      and o.owner in ( select t.column_value from table (g_schema_names) t)
+        --Exclude calls to utPLSQL framework and Unit Test packages
+      and not exists ( select 1 from table (l_skipped_objects) l where o.owner = l.owner and o.object_name = l.name)
+    ) loop
 
-      if not l_result.objects.exists(l_data(i).full_name) then
-        l_result.objects(l_data(i).full_name) := l_new_unit;
+      --get coverage data
+      l_line_calls := ut_coverage_helper.get_raw_coverage_data( src_object.owner, src_object.object_name );
+
+      --if there is coverage, we need to filter out the garbage (badly indicated data from dbms_profiler)
+      if l_line_calls.count > 0 then
+        --get source lines to skip
+        select line
+          bulk collect into l_source_lines
+          from ut_coverage_sources_tmp c
+         where c.owner = src_object.owner
+           and c.name = src_object.object_name
+           and regexp_instr(
+                  c.text,
+                  '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(constructor|member)?\s*(procedure|function)|begin|end\s*;)', 1, 1, 0, 'i'
+                ) != 0;
+        --remove lines that should not be indicted as meaningful
+        for i in 1 .. l_source_lines.count loop
+          l_line_calls.delete(l_source_lines(i));
+        end loop;
       end if;
-      if l_data(i).total_occur > 0 then
-        l_result.covered_lines := l_result.covered_lines + 1;
-        l_result.executions := l_result.executions + l_data(i).total_occur;
-        l_result.objects(l_data(i).full_name).covered_lines := l_result.objects(l_data(i).full_name).covered_lines + 1;
-        l_result.objects(l_data(i).full_name).executions := l_result.objects(l_data(i).full_name).executions + l_data(i).total_occur;
-      elsif l_data(i).total_occur = 0 then
-        l_result.uncovered_lines := l_result.uncovered_lines + 1;
-        l_result.objects(l_data(i).full_name).uncovered_lines := l_result.objects(l_data(i).full_name).uncovered_lines + 1;
+
+      if not l_result.objects.exists(src_object.full_name) then
+        l_result.objects(src_object.full_name) := l_new_unit;
       end if;
-      l_result.total_lines := l_result.total_lines + 1;
-      l_result.objects(l_data(i).full_name).total_lines := l_result.objects(l_data(i).full_name).total_lines + 1;
-      l_result.objects(l_data(i).full_name).lines(l_data(i).line_number) := l_data(i).total_occur;
+      l_result.total_lines := l_result.total_lines + src_object.lines_count;
+      l_result.objects(src_object.full_name).total_lines := src_object.lines_count;
+      --map to results
+      line_no := l_line_calls.first;
+      if line_no is null then
+        l_result.uncovered_lines := l_result.uncovered_lines + src_object.lines_count;
+        l_result.objects(src_object.full_name).uncovered_lines := src_object.lines_count;
+      else
+        loop
+          exit when line_no is null;
+
+          if l_line_calls(line_no) > 0 then
+            l_result.covered_lines := l_result.covered_lines + 1;
+            l_result.executions := l_result.executions + l_line_calls(line_no);
+            l_result.objects(src_object.full_name).covered_lines := l_result.objects(src_object.full_name).covered_lines + 1;
+            l_result.objects(src_object.full_name).executions := l_result.objects(src_object.full_name).executions + l_line_calls(line_no);
+          elsif l_line_calls(line_no) = 0 then
+            l_result.uncovered_lines := l_result.uncovered_lines + 1;
+            l_result.objects(src_object.full_name).uncovered_lines := l_result.objects(src_object.full_name).uncovered_lines + 1;
+          end if;
+          l_result.objects(src_object.full_name).lines(line_no) := l_line_calls(line_no);
+
+          line_no := l_line_calls.next(line_no);
+        end loop;
+      end if;
+
+
     end loop;
     return l_result;
   end;

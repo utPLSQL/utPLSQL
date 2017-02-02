@@ -48,7 +48,7 @@ create or replace package ut_coverage authid current_user is
 
   procedure skip_coverage_for(a_object ut_object_name);
 
-  function get_coverage_data(a_coverage_id integer := null) return t_coverage;
+  function get_coverage_data return t_coverage;
 
 end;
 /

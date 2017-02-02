@@ -67,8 +67,7 @@ whenever oserror exit failure rollback
 
 --gathering coverage
 @@core/coverage/proftab_temp_tables.sql
-@@core/coverage/ut_coverage_row.tps
-@@core/coverage/ut_coverage_rows.tps
+@@core/coverage/ut_coverage_sources_tmp.sql
 @@core/coverage/ut_coverage_helper.pks
 @@core/coverage/ut_coverage_helper.pkb
 @core/coverage/ut_coverage.pks

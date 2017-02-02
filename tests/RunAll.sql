@@ -167,6 +167,7 @@ $ rmdir /s /q coverage > nul 2>&1 & mkdir coverage > nul 2>&1 & xcopy /E ..\clie
 ! rm -rf coverage &>/dev/null ; mkdir coverage &>/dev/null ; cp -R ../client_source/sqlplus/lib/coverage/public coverage/assets &>/dev/null
 
 set termout on
+set timing on
 prompt Gathering coverage data
 
 set define &
@@ -182,8 +183,10 @@ end;
 prompt Spooling coverage html
 set termout off
 set feedback off
+set arraysize 50
 spool coverage/index.html
-exec ut_output_buffer.lines_to_dbms_output(:reporter_id);
+--exec ut_output_buffer.lines_to_dbms_output(:reporter_id);
+select * from table( ut_output_buffer.get_lines(:reporter_id) );
 spool off
 
 --Global cleanup
