@@ -276,5 +276,5 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
-end;
+end ut_utils;
 /

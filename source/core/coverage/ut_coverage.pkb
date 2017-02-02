@@ -125,7 +125,7 @@ create or replace package body ut_coverage is
            and c.name = src_object.object_name
            and regexp_instr(
                   c.text,
-                  '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(constructor|member)?\s*(procedure|function)|begin|end\s*;)', 1, 1, 0, 'i'
+                  '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(constructor|member)?\s*(procedure|function)|package(\s+body)|begin|end(\s+\S+)?\s*;)', 1, 1, 0, 'i'
                 ) != 0;
         --remove lines that should not be indicted as meaningful
         for i in 1 .. l_source_lines.count loop
