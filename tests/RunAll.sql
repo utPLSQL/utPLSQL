@@ -168,22 +168,9 @@ drop package test_package_3;
 prompt Flushing coverage data into temp tables
 exec ut_coverage.coverage_stop();
 
-set define off
-prompt Preparing coverage html support files
-set termout off
---Below lines do the following:
--- - remove previous coverage data,
--- - create coverage directory,
--- - populate assets for coverage html report
-$ rmdir /s /q coverage > nul 2>&1 & mkdir coverage > nul 2>&1 & xcopy /E ..\client_source\sqlplus\lib\coverage\public coverage\assets\ > nul 2>&1
---try running on linus/unix
-! rm -rf coverage &>/dev/null ; mkdir coverage &>/dev/null ; cp -R ../client_source/sqlplus/lib/coverage/public coverage/assets &>/dev/null
-
-set termout on
 set timing on
-prompt Gathering coverage data
+prompt Generating coverage data to reporter outputs
 
-set define &
 var reporter_id varchar2(32);
 declare
   l_reporter ut_coverage_html_reporter := ut_coverage_html_reporter('utPLSQL v3 Unit Tests');
@@ -193,13 +180,16 @@ begin
 end;
 /
 
-prompt Spooling coverage html
+prompt Spooling outcomes to coverage.html
 set termout off
 set feedback off
 set arraysize 50
-spool coverage/index.html
-exec ut_output_buffer.lines_to_dbms_output(:reporter_id);
---select * from table( ut_output_buffer.get_lines(:reporter_id) );
+spool coverage.html
+--getting data by putting into dbms_output
+  exec ut_output_buffer.lines_to_dbms_output(:reporter_id);
+
+--getting data by select statement
+  --select * from table( ut_output_buffer.get_lines(:reporter_id) );
 spool off
 
 
