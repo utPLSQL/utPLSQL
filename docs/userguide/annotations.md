@@ -147,4 +147,4 @@ end payments;
 A `%suitepath` can be provided in tree ways:
 * schema - execute all test in the schema
 * [schema]:suite1[.suite2][.suite3]... - execute all tests in all suites from suite1[.suite2][.suite3] path. If schema is not provided, then current schema is used. Example: `:all.rooms_tests`.
-* [schema.]package[.procedure] - execute all tests in the test package provided. The whole hierarchy of suites in the schema is build before, all before/after hooks of partn suites for th provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator`.
+* [schema.]package[.procedure] - execute all tests in the test package provided. The whole hierarchy of suites in the schema is build before, all before/after hooks of partn suites for th provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator` or simply `test_contact.test_last_name_validator` if `tests` is the current schema.
