@@ -346,7 +346,7 @@ create or replace package body ut_suite_manager is
     else
       for i in 1 .. a_paths.count loop
         l_path := a_paths(i);
-        if l_path is null or not (regexp_like(l_path, '^\w+(\.\w+){0,2}$') or regexp_like(l_path, '^\w+:\w+(\.\w+)*$')) then
+        if l_path is null or not (regexp_like(l_path, '^\w+(\.\w+){0,2}$') or regexp_like(l_path, '^(\w+)?:\w+(\.\w+)*$')) then
           raise_application_error(ut_utils.gc_invalid_path_format, 'Invalid path format: ' || nvl(l_path, 'NULL'));
         end if;
       end loop;
@@ -363,6 +363,7 @@ create or replace package body ut_suite_manager is
     l_suite_path      varchar2(4000);
     l_root_suite_name varchar2(4000);
     l_objects_to_run  ut_suite_items;
+    c_current_schema  constant all_tables.owner%type := sys_context('USERENV','CURRENT_SCHEMA');
 
     function clean_paths(a_paths ut_varchar2_list) return ut_varchar2_list is
       l_paths_temp ut_varchar2_list := ut_varchar2_list();
@@ -416,6 +417,18 @@ create or replace package body ut_suite_manager is
       end if;
     end skip_by_path;
 
+    function package_exists_in_cur_schema(p_package_name varchar2) return boolean is
+      l_cnt number;
+    begin
+      select count(*)
+        into l_cnt
+        from all_objects t
+       where t.object_name = upper(p_package_name)
+         and t.object_type = 'PACKAGE'
+         and t.owner = c_current_schema;
+      return l_cnt > 0;
+    end package_exists_in_cur_schema;
+
   begin
     l_paths := clean_paths(a_paths);
 
@@ -426,9 +439,33 @@ create or replace package body ut_suite_manager is
     -- to be improved later
     for i in 1 .. l_paths.count loop
       l_path   := l_paths(i);
-      l_schema := regexp_substr(l_path, '^(\w+)(\.|:|$)', 1, 1, null, 1);
 
-      l_schema := sys.dbms_assert.schema_name(upper(l_schema));
+      if regexp_like(l_path, '^(\w+)?:') then
+        l_schema := regexp_substr(l_path, '^(\w+)?:',subexpression => 1);
+        -- transform ":path1[.path2]" to "schema:path1[.path2]"
+        if l_schema is not null then
+          l_schema := sys.dbms_assert.schema_name(upper(l_schema));
+        else
+          l_path   := c_current_schema || l_path;
+          l_schema := c_current_schema;
+        end if;
+      else
+        -- When path is one of: schema or schema.package[.object] or package[.object]
+        -- transform it back to schema[.package[.object]]
+        begin
+          l_schema := regexp_substr(l_path, '^\w+');
+          l_schema := sys.dbms_assert.schema_name(upper(l_schema));
+        exception
+          when sys.dbms_assert.invalid_schema_name then
+            if package_exists_in_cur_schema(l_schema) then
+              l_path := c_current_schema || '.' || l_path;
+              l_schema := c_current_schema;
+            else
+              raise;
+            end if;
+        end;
+
+      end if;
 
       l_schema_suites := get_schema_suites(upper(l_schema));
 
