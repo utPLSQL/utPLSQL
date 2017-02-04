@@ -17,6 +17,10 @@ create or replace package body ut_runner is
     l_items_to_run.do_execute(l_listener);
 
     ut_output_buffer.close(l_listener.reporters);
+  exception
+    when others then
+      ut_output_buffer.close(l_listener.reporters);
+      raise;
   end;
 
   procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false) is
