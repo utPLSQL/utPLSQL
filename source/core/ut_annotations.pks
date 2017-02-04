@@ -1,5 +1,22 @@
 create or replace package ut_annotations authid current_user as
   /*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
+
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
+
+  /*
     package: ut_annotations
 
     Responsible for parsing and accessing utplsql annotations.
@@ -40,7 +57,7 @@ create or replace package ut_annotations authid current_user as
     a list of tt_annotations index by the procedure name
   */
   type tt_procedure_annotations is record(name t_procedure_name, annotations tt_annotations);
-  
+
   type tt_procedure_list is table of tt_procedure_annotations index by pls_integer;
 
   /*
@@ -51,7 +68,7 @@ create or replace package ut_annotations authid current_user as
   type typ_annotated_package is record(
      procedure_annotations  tt_procedure_list
     ,package_annotations    tt_annotations);
-    
+
   /*
     INTERNAL USE ONLY
   */
