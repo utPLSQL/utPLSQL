@@ -1,9 +1,9 @@
 create or replace type ut_suite_item under ut_suite_item_base (
   /*
-  utPLSQL - Version X.X.X.X 
+  utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
 
-  Licensed under the Apache License, Version 2.0 (the "License");
+  Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 

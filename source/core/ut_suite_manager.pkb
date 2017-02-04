@@ -1,9 +1,9 @@
 create or replace package body ut_suite_manager is
   /*
-  utPLSQL - Version X.X.X.X 
+  utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
 
-  Licensed under the Apache License, Version 2.0 (the "License");
+  Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 
@@ -68,7 +68,7 @@ create or replace package body ut_suite_manager is
     l_annotation_data := ut_annotations.get_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
 
     if l_annotation_data.package_annotations.exists('suite') then
-      
+
       if l_annotation_data.package_annotations.exists('displayname') then
         l_suite_name         := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('displayname'), 1);
       elsif l_annotation_data.package_annotations('suite').count>0 then
@@ -144,7 +144,7 @@ create or replace package body ut_suite_manager is
             if l_proc_annotations.exists('aftertest') then
               l_teardown_procedure := ut_annotations.get_annotation_param(l_proc_annotations('aftertest'), 1);
             end if;
-            
+
             if l_proc_annotations.exists('displayname') then
               l_displayname := ut_annotations.get_annotation_param(l_proc_annotations('displayname'), 1);
             elsif l_proc_annotations('test').count>0 then
@@ -207,7 +207,7 @@ create or replace package body ut_suite_manager is
     l_root_suite ut_logical_suite;
 
     l_schema_suites tt_schema_suites;
-    
+
     procedure put(a_root_suite in out nocopy ut_logical_suite, a_path varchar2, a_suite ut_logical_suite, a_parent_path varchar2 default null) is
       l_temp_root varchar2(4000 char);
       l_path      varchar2(4000 char);
@@ -329,7 +329,7 @@ create or replace package body ut_suite_manager is
       ut_utils.debug_log('Rescanning schema ' || a_schema_name);
       config_schema(a_schema_name);
     end if;
-    
+
     if g_schema_suites.exists(a_schema_name) then
       return g_schema_suites(a_schema_name).schema_suites;
     else
@@ -427,7 +427,7 @@ create or replace package body ut_suite_manager is
     for i in 1 .. l_paths.count loop
       l_path   := l_paths(i);
       l_schema := regexp_substr(l_path, '^(\w+)(\.|:|$)', 1, 1, null, 1);
-      
+
       l_schema := sys.dbms_assert.schema_name(upper(l_schema));
 
       l_schema_suites := get_schema_suites(upper(l_schema));
@@ -452,11 +452,11 @@ create or replace package body ut_suite_manager is
             l_procedure_name := regexp_substr(l_path, '^\w+\.(\w+)(\.(\w+))?$', subexpression => 3);
 
             l_temp_suite := config_package(l_schema, l_package_name);
-            
+
             if l_temp_suite is null then
               raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||l_schema||'.'||l_package_name|| ' not found');
             end if;
-            
+
             l_path       := rtrim(l_schema || ':' || l_temp_suite.path || '.' || l_procedure_name, '.');
           end;
         end if;

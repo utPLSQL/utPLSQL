@@ -1,9 +1,9 @@
 create or replace type body ut_data_value_anydata as
   /*
-  utPLSQL - Version X.X.X.X 
+  utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
 
-  Licensed under the Apache License, Version 2.0 (the "License");
+  Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 
@@ -39,7 +39,7 @@ create or replace type body ut_data_value_anydata as
       --XMLTYPE doesn't like the null beeing passed to ANYDATA so we need to check if anydata holds null Object/collection
       l_anydata_accessor :=
         case when self.data_value.gettype(l_type) = sys.dbms_types.typecode_object then 'getObject' else 'getCollection' end;
-        
+
         l_sql := '
         declare
           l_data '||self.data_value.gettypename()||';

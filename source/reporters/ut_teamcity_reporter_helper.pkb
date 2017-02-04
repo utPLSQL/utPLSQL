@@ -1,9 +1,9 @@
 create or replace package body ut_teamcity_reporter_helper is
   /*
-  utPLSQL - Version X.X.X.X 
+  utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
 
-  Licensed under the Apache License, Version 2.0 (the "License");
+  Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 
@@ -31,7 +31,7 @@ create or replace package body ut_teamcity_reporter_helper is
   begin
     l_message := '##teamcity[' || a_command || ' timestamp=''' ||
                  regexp_replace(to_char(systimestamp, 'YYYY-MM-DD"T"HH24:MI:ss.FFTZHTZM'), '(\.\d{3})\d+(\+)', '\1\2') || '''';
-  
+
     l_index := a_props.first;
     while l_index is not null loop
       if a_props(l_index) is not null then
@@ -115,12 +115,12 @@ create or replace package body ut_teamcity_reporter_helper is
     l_props('message') := a_msg;
     l_props('details') := a_details;
     l_props('flowId') := a_flow_id;
-    
+
     if a_actual is not null and a_expected is not null then
       l_props('actual') := a_actual;
       l_props('expected') := a_expected;
     end if;
-    
+
     return message('testFailed', l_props);
   end;
   function test_std_out(a_test_name varchar2, a_out in varchar2, a_flow_id in varchar2 default null) return varchar2 is

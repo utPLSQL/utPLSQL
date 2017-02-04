@@ -1,9 +1,9 @@
 create or replace package ut_suite_manager authid current_user is
   /*
-  utPLSQL - Version X.X.X.X 
+  utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
 
-  Licensed under the Apache License, Version 2.0 (the "License");
+  Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 
@@ -19,7 +19,7 @@ create or replace package ut_suite_manager authid current_user is
   function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_logical_suite;
 
   procedure config_schema(a_owner_name varchar2);
-  
+
   --INTERNAL USE
   function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items;
 

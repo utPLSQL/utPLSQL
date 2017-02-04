@@ -1,9 +1,9 @@
 create or replace package ut_metadata authid current_user as
   /*
-  utPLSQL - Version X.X.X.X 
+  utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
 
-  Licensed under the Apache License, Version 2.0 (the "License");
+  Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 
@@ -15,35 +15,35 @@ create or replace package ut_metadata authid current_user as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  
+
   /*
     package: ut_metadata
-  
+
     Common place for all code that reads from the system tables.
-  
+
   */
 
   /*
     function: form_name
-      
+
     forms correct object/subprogram name to call as owner.object[.subprogram]
-    
+
   */
   function form_name(a_owner_name varchar2, a_object varchar2, a_subprogram varchar2 default null) return varchar2;
 
   /*
     function: package_valid
-  
+
     check if package exists and is VALID.
-  
+
   */
   function package_valid(a_owner_name varchar2, a_package_name in varchar2) return boolean;
 
   /*
     function: procedure_exists
-  
+
     check if package exists and is VALID and contains the given procedure.
-  
+
   */
   function procedure_exists(a_owner_name varchar2, a_package_name in varchar2, a_procedure_name in varchar2)
     return boolean;
@@ -58,9 +58,9 @@ create or replace package ut_metadata authid current_user as
 
   /*
     procedure: do_resolve
-    
-    resolves [owner.]object[.procedure] using dbms_utility.name_resolve and returnes resolved parts 
-    
+
+    resolves [owner.]object[.procedure] using dbms_utility.name_resolve and returnes resolved parts
+
   */
   procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2, a_procedure_name in out nocopy varchar2);
 

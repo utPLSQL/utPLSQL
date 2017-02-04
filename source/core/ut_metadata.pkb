@@ -1,9 +1,9 @@
 create or replace package body ut_metadata as
   /*
-  utPLSQL - Version X.X.X.X 
+  utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
 
-  Licensed under the Apache License, Version 2.0 (the "License");
+  Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 
@@ -105,7 +105,7 @@ create or replace package body ut_metadata as
     l_package_name := a_package_name;
 
     do_resolve(l_schema, l_package_name, l_procedure_name);
-    
+
     select count(decode(status, 'VALID', 1, null)) / count(*)
       into l_cnt
       from all_objects
@@ -133,7 +133,7 @@ create or replace package body ut_metadata as
     l_procedure_name := a_procedure_name;
 
     do_resolve(l_schema, l_package_name, l_procedure_name);
-    
+
     select count(*)
       into l_cnt
       from all_procedures
@@ -156,9 +156,9 @@ create or replace package body ut_metadata as
       l_lines := sys.dbms_preprocessor.get_post_processed_source(object_type => 'PACKAGE',
                                                                  schema_name => a_owner,
                                                                  object_name => a_object_name);
-                                                                 
+
       sys.dbms_lob.createtemporary(lob_loc => l_source, cache => true);
-      
+
       for i in 1..l_lines.count loop
         sys.dbms_lob.writeappend(l_source, length(l_lines(i)), l_lines(i));
       end loop;

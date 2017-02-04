@@ -1,9 +1,9 @@
 create or replace type body ut_match as
   /*
-  utPLSQL - Version X.X.X.X 
+  utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
 
-  Licensed under the Apache License, Version 2.0 (the "License");
+  Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 
@@ -37,7 +37,7 @@ create or replace type body ut_match as
       l_result := regexp_like(treat(a_actual as ut_data_value_varchar2).data_value, pattern, modifiers);
     elsif a_actual is of (ut_data_value_clob) then
       l_result := regexp_like(treat(a_actual as ut_data_value_clob).data_value, pattern, modifiers);
-    else 
+    else
       l_result := (self as ut_matcher).run_matcher(a_actual);
     end if;
     return l_result;

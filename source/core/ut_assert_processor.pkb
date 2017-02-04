@@ -1,9 +1,9 @@
 create or replace package body ut_assert_processor as
   /*
-  utPLSQL - Version X.X.X.X 
+  utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
 
-  Licensed under the Apache License, Version 2.0 (the "License");
+  Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
 
@@ -91,7 +91,7 @@ create or replace package body ut_assert_processor as
     pragma exception_init(insuf_privs, -1031);
   begin
     g_session_params := get_session_parameters();
- 
+
     begin
       execute immediate q'[alter session set events '19119 trace name context forever, level 0x8']';
     exception
