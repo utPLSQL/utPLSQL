@@ -24,6 +24,12 @@ create or replace type body ut_suite_item as
   begin
     return ut_utils.int_to_boolean(self.ignore_flag);
   end;
+  
+  final member procedure do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is
+    l_completed_without_errors boolean;
+  begin
+    l_completed_without_errors := self.do_execute(a_listener);
+  end;  
 
   member function create_savepoint_if_needed return varchar2 is
     l_savepoint varchar2(30);

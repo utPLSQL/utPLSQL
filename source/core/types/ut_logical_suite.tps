@@ -15,7 +15,6 @@ create or replace type ut_logical_suite force under ut_suite_item (
   member function item_index(a_name varchar2) return pls_integer,
   member procedure add_item(self in out nocopy ut_logical_suite, a_item ut_suite_item),
   overriding member function  do_execute(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base) return boolean,
-  overriding member procedure do_execute(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base),
   overriding member procedure calc_execution_result(self in out nocopy ut_logical_suite)
 ) not final
 /

@@ -23,12 +23,6 @@ create or replace type body ut_test as
     return l_is_valid;
   end;
 
-  overriding member procedure do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base) is
-    l_completed_without_errors boolean;
-  begin
-    l_completed_without_errors := self.do_execute(a_listener);
-  end;
-
   overriding member function do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_completed_without_errors boolean;
     l_savepoint                varchar2(30);

@@ -11,7 +11,7 @@ create or replace type ut_suite_item under ut_suite_item_base (
   member function execution_time return number,
 
   not instantiable member function  do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean,
-  not instantiable member procedure do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base),
+  final member procedure do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base),
   not instantiable member procedure calc_execution_result(self in out nocopy ut_suite_item)
 
 )
