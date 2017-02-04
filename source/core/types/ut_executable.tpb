@@ -98,12 +98,12 @@ create or replace type body ut_executable is
       '    ' || ut_metadata.form_name(l_owner, l_object_name, l_procedure_name) || ';' || chr(10) ||
       '  exception' || chr(10) ||
       '    when others then ' || chr(10) ||
-      '      --raise on ORA-04068: existing state of packages has been discarded to avoid unrecoverable session exception' || chr(10) ||
-      '      if sqlcode = -04068 then' || chr(10) ||
-      '        raise;' || chr(10) ||
-      '      end if;' || chr(10) ||
       '      l_error_stack := dbms_utility.format_error_stack;' || chr(10) ||
       '      l_error_backtrace := dbms_utility.format_error_backtrace;' || chr(10) ||
+      '      --raise on ORA-04068, ORA-04061: existing state of packages has been discarded to avoid unrecoverable session exception' || chr(10) ||
+      '      if l_error_stack like ''%ORA-04068%'' or l_error_stack like ''%ORA-04061%'' then' || chr(10) ||
+      '        raise;' || chr(10) ||
+      '      end if;' || chr(10) ||
       '  end;' || chr(10) ||
       '  :a_error_stack := l_error_stack;' || chr(10) ||
       '  :a_error_backtrace := l_error_backtrace;' || chr(10) ||
