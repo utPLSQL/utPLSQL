@@ -10,7 +10,6 @@ create or replace package body ut_coverage is
 
   procedure set_schema_names(a_schema_names ut_varchar2_list) is
   begin
-    g_skipped_objects := ut_object_names();
     if a_schema_names is not null and a_schema_names.count>0 then
       g_schema_names := a_schema_names;
     else
@@ -18,20 +17,21 @@ create or replace package body ut_coverage is
     end if;
   end;
 
-  function coverage_start(a_schema_names ut_varchar2_list := ut_varchar2_list(sys_context('userenv','current_schema'))) return integer is
+  function coverage_start return integer is
   begin
-    set_schema_names(a_schema_names);
+    g_skipped_objects := ut_object_names();
     return ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp));
   end;
 
-  procedure coverage_start(a_schema_names ut_varchar2_list := ut_varchar2_list(sys_context('userenv','current_schema'))) is
+  procedure coverage_start is
     l_coverage_id integer;
   begin
-    l_coverage_id := coverage_start(a_schema_names);
+    l_coverage_id := coverage_start;
   end;
 
   procedure coverage_start_develop is
   begin
+    g_skipped_objects := ut_object_names();
     set_schema_names(null);
     ut_coverage_helper.coverage_start_develop();
   end;
@@ -65,7 +65,7 @@ create or replace package body ut_coverage is
       g_skipped_objects(g_skipped_objects.last) := a_object;
   end;
 
-  function get_coverage_data return t_coverage is
+  function get_coverage_data(a_schema_names ut_varchar2_list) return t_coverage is
 
     type t_coverage_row is record(
       name          varchar2(500),
@@ -81,8 +81,10 @@ create or replace package body ut_coverage is
     type t_source_lines is table of binary_integer;
     l_source_lines     t_source_lines;
     line_no            binary_integer;
+    l_schema_names     ut_varchar2_list;
   begin
 
+    l_schema_names := nvl(a_schema_names,ut_varchar2_list(sys_context('userenv','current_schema')));
     if not ut_coverage_helper.is_develop_mode() then
       l_skipped_objects := ut_utils.get_utplsql_objects_list() multiset union set(g_skipped_objects);
     end if;

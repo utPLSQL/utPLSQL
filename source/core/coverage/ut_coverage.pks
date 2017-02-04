@@ -30,8 +30,8 @@ create or replace package ut_coverage authid current_user is
 
   function  get_coverage_id return integer;
 
-  function  coverage_start(a_schema_names ut_varchar2_list := ut_varchar2_list(sys_context('userenv','current_schema'))) return integer;
-  procedure coverage_start(a_schema_names ut_varchar2_list := ut_varchar2_list(sys_context('userenv','current_schema')));
+  function  coverage_start return integer;
+  procedure coverage_start;
 
   /*
   * Start coverage in develop mode, where all internal calls to utPLSQL itself are also included
@@ -48,7 +48,7 @@ create or replace package ut_coverage authid current_user is
 
   procedure skip_coverage_for(a_object ut_object_name);
 
-  function get_coverage_data return t_coverage;
+  function get_coverage_data(a_schema_names ut_varchar2_list) return t_coverage;
 
 end;
 /
