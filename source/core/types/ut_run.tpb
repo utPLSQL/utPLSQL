@@ -32,6 +32,9 @@ create or replace type body ut_run as
     a_listener.fire_before_event(ut_utils.gc_run, self);
 
     self.start_time := current_timestamp;
+    
+    -- clear anything that might stay in the session's cache
+    ut_assert_processor.clear_asserts;
 
     for i in 1 .. self.items.count loop
       l_completed_without_errors := self.items(i).do_execute(a_listener);
