@@ -144,7 +144,7 @@ create or replace package payments as
 
 end payments;
 ```
-
-A `%suitepath` is formed by valid sqlnames separated by dots. The depth of the suites path is not limited. The fully qualified path to a test is formed by `<user>:[<suitepath>.]<test package>.<test procedure>`.
-
-You can also use `%suitepath` to define the starting going of tests to execute. If you want to run only payments tests of the `FOO` schema then you gen execute `ut.run('foo:payments');` and all suites that have `payments` in their `%suitepath`s will be executed. This way you can filter the execution up to a single test. Only tests/suites which are children of the defined path are executed and all the parents `%beforeall`, `%beforeeach`, `%aftereach`, `%afterall` elements. So all the preparation and cleanup is performed as if you execute all the tests of the schema.
+A `%suitepath` can be provided in tree ways:
+* schema - execute all test in the schema
+* [schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests in all suites from suite1[.suite2][.suite3]...[.procedure] path. If schema is not provided, then current schema is used. Example: `:all.rooms_tests`.
+* [schema.]package[.procedure] - execute all tests in the test package provided. The whole hierarchy of suites in the schema is build before, all before/after hooks of partn suites for th provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator` or simply `test_contact.test_last_name_validator` if `tests` is the current schema.
