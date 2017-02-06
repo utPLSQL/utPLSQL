@@ -92,11 +92,18 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_output_buffer/send_line.DoesNotSendLineIfNullTextGiven.sql
 @@lib/RunTest.sql ut_output_buffer/send_line.SendsALineIntoBufferTable.sql
 
-@@lib/RunTest.sql ut_run/ut_run.with_no_params_executes_all_from_current_schema.sql
-@@lib/RunTest.sql ut_run/ut_run.with_schema_name_executes_all_from_given_schema.sql
-@@lib/RunTest.sql ut_run/ut_run.with_package_name_executes_all_from_given_package.sql
---@@lib/RunTest.sql ut_run/ut_run.with_package_name_executes_all_from_given_package_only.sql --TODO this one doesn't work at the moment
-@@lib/RunTest.sql ut_run/ut_run.with_package_path_executes_all_from_given_path.sql
+@@lib/RunTest.sql ut_run/ut_run.function.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
+@@lib/RunTest.sql ut_run/ut_run.function.WithNoParams.ExecutesAllFromCurrentSchema.sql
+@@lib/RunTest.sql ut_run/ut_run.function.WithPackageName.ExecutesAllFromGivenPackage.sql
+--@@lib/RunTest.sql ut_run/ut_run.function.WithPackageName.ExecutesAllFromGivenPackageOnly.sql --TODO this one doesn't work at the moment
+@@lib/RunTest.sql ut_run/ut_run.function.WithSchemaName.ExecutesAllFromGivenSchema.sql
+@@lib/RunTest.sql ut_run/ut_run.function.WithSuitePath.ExecutesAllFromGivenPath.sql
+@@lib/RunTest.sql ut_run/ut_run.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
+@@lib/RunTest.sql ut_run/ut_run.WithNoParams.ExecutesAllFromCurrentSchema.sql
+@@lib/RunTest.sql ut_run/ut_run.WithPackageName.ExecutesAllFromGivenPackage.sql
+--@@lib/RunTest.sql ut_run/ut_run.WithPackageName.ExecutesAllFromGivenPackageOnly.sql --TODO this one doesn't work at the moment
+@@lib/RunTest.sql ut_run/ut_run.WithSchemaName.ExecutesAllFromGivenSchema.sql
+@@lib/RunTest.sql ut_run/ut_run.WithSuitePath.ExecutesAllFromGivenPath.sql
 
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheSchema.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPath.sql
