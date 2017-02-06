@@ -1,45 +1,51 @@
 # Annotations
 
 Annotations provide a way to configure tests and suites in a declarative way similar to modern OOP languages.
+The annotation list is based on moder testing framework such as jUnit 5, RSpec.
 
-# Example
-Let's say we have the test package like this:
+Annotations allow to configure test infrastructure in a declarative way without anything stored in tables or config files. The framework runner scans the schema for all the suitable annotated packages, automatically configures suites, forms hierarchy from then and executes them.
+
+# Example of annotated package
 ```
 create or replace package test_pkg is
 
   -- %suite(Name of suite)
-  -- %suitepackage(all.globaltests)
-  -- %suitetype(critical)
+  -- %suitepath(all.globaltests)
 
-  -- %suitesetup
+  -- %beforeall
   procedure globalsetup;
 
-  -- %suiteteardown
+  -- %afterall
   procedure global_teardown;
 
   /* Such comments are allowed */
 
-  -- %test(Name of test1)
-  -- %testtype(smoke)
+  -- %test
+  -- %displayname(Name of test1)
   procedure test1;
 
   -- %test(Name of test2)
-  -- %testsetup(setup_test1)
-  -- %testteardown(teardown_test1)
+  -- %beforetest(setup_test1)
+  -- %aftertest(teardown_test1)
   procedure test2;
 
-  -- %test(Name of test3)
-  -- %testtype(smoke)
+  -- %test
+  -- %displayname(Name of test3)
+  -- %disable
   procedure test3;
+  
+  -- %test(Name of test4)
+  -- %rollback(manual)
+  procedure test4;
 
   procedure setup_test1;
 
   procedure teardown_test1;
 
-  -- %setup
+  -- %beforeeach
   procedure setup;
 
-  -- %teardown
+  -- %aftereach
   procedure teardown;
 
 end test_pkg;
@@ -47,19 +53,17 @@ end test_pkg;
 
 #Annotations meaning
 
-Annotation | Meaning
------------- | -------------
-%suite | Marks package to be a suite with it procedures as tests. This way all testing packages might be found in the schema. Parameter of the annotation is the Suite name
-%suitepackage | Similar to java package. The example suite should be put as an element of the "globaltests" suite which is an element of the "all" suite. This allows one to execute "glovaltests" suite which would recursively run all the child suites including this one.
-%suitetype | The way for suite to have something like a type. One might collect suites based on the subject of tests (a system module for example). There might be critical tests to run every time and more covering but slow tests. This technique allows to configure something like "fast" testing.
-%setup | Marks procedure as a default setup procedure for the suite.
-%teardown | Marks procedure as a default teardown procedure for the suite.
-%test | Marks procedure as a test. Parameter is a name of the test
-%testtype | Another way to tag tests to filter afterwards
-%testsetup | Marks that special setup procedure has to be run before the test instead of the default one
-%testteardown | Marks that special teardown procedure has to be run before the test instead of the default one
-%suitesetup | Procedure with executes once at the beginning of the suite and doesn't executes before each test
-%suiteteardown | Procedure with executes once after the execution of the last test in the suite.
-
-Annotations allow us to configure test infrastructure in a declarative way without anything stored in tables or config files. Suite manager would scan the schema for all the suitable packages, automatically configure suites and execute them. This can be simplified to the situation when you just ran suite manager over a schema for the defined types of tests and reporters and everything goes automatically. This is going to be convenient to be executed from CI tools using standard reporting formats.
-
+| Annotation |Level| Describtion |
+| --- | --- | --- |
+| `%suite(<description>)` | Package | Marks package to be a suite of tests This way all testing packages might be found in a schema. Optional schema discription can by provided, similar to `%displayname` annotation. |
+| `%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarcies. |
+| `%displayname(<description>)` | Package/procedure | Human-familiar describtion of the suite/test. Syntax is based on jUnit annotation: `%displayname(Name of the suite/test)` |
+| `%test(<description>)` | Procedure | Denotes that a method is a test method.  Optional test discription can by provided, similar to `%displayname` annotation. |
+| `%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the current suite. |
+| `%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the current suite. |
+| `%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` method in the current suite. |
+| `%aftereach` | Procedure | Denotes that the annotated procedure should be executed after each `%test` method in the current suite. |
+| `%beforetest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed before the annotated `%test` procedure. |
+| `%aftertest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed after the annotated `%test` procedure. |
+| `%rollback(<type>)` | Package/procedure | Configure transaction control behaviour (type). Supported values: `auto`(default) - rollback to savepoint (before the test/suite setup) is issued after each test/suite teardown; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
+| `%disable` | Package/procedure | Used to disable a suite or a test |

@@ -24,15 +24,15 @@ create or replace package body ut_utils is
              else tr_failure
            end;
   end;
-  
+
   function gen_savepoint_name return varchar2 is
   begin
     return 'ut_'||to_char(systimestamp,'yymmddhh24mmssff');
   end;
-  
+
   /*
    Procedure: validate_rollback_type
-   
+
    Validates passed value against supported rollback types
   */
   procedure validate_rollback_type(a_rollback_type number) is
@@ -50,7 +50,19 @@ create or replace package body ut_utils is
       null;
     $end
   end;
-
+  
+  procedure debug_log(a_message clob) is
+    l_varchars ut_varchar2_list;
+  begin
+    $if $$ut_trace $then
+      l_varchars := clob_to_table(a_message);
+      for i in 1..l_varchars.count loop
+        dbms_output.put_line(l_varchars(i));
+      end loop;
+    $else
+      null;
+    $end
+  end;
 
   function to_string(a_value varchar2) return varchar2 is
     l_len integer := coalesce(length(a_value),0);
@@ -114,13 +126,13 @@ create or replace package body ut_utils is
   begin
     return coalesce(to_char(a_value,gc_timestamp_format), gc_null_string);
   end;
-  
+
   function to_string(a_value yminterval_unconstrained) return varchar2 IS
   begin
     return coalesce(to_char(a_value), gc_null_string);
   end;
 
-  function to_string(a_value dsinterval_unconstrained) return varchar2 IS 
+  function to_string(a_value dsinterval_unconstrained) return varchar2 IS
   begin
     return coalesce(to_char(a_value), gc_null_string);
   end;

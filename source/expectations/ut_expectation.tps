@@ -1,8 +1,8 @@
-create or replace type ut_expectation as object
+create or replace type ut_expectation authid current_user as object
 (
   actual_data         ut_data_value,
   message             varchar2(4000 char),
-  final member procedure add_assert_result( self in ut_expectation, a_assert_result boolean, a_assert_name varchar2,
+  final member procedure add_assert_result( self in ut_expectation, a_assert_result boolean, a_matcher_name varchar2,
   a_assert_info varchar2, a_error_message varchar2, a_expected_value_string in varchar2 := null, a_expected_data_type varchar2 := null),
   final member procedure to_(self in ut_expectation, a_matcher ut_matcher),
   final member procedure not_to(self in ut_expectation, a_matcher ut_matcher),

@@ -1,18 +1,19 @@
-create or replace package TEST_PKG1 is
+create or replace package test_pkg1 is
 
   /*
   This is the correct annotation
   */
-  -- %suite(Name of suite on test_pkg1)
-  -- %suitepackage(all.globaltests)
+  -- %suite
+  -- %displayname(Name of suite on test_pkg1)
+  -- %suitepath(all.globaltests)
 
-  /* 
+  /*
   Such comments are skipped
-  
+
   test name
   %test1
   %test2(name=123)
-    %test3(name2=123,tete=123) 
+    %test3(name2=123,tete=123)
   %test4(name2=123,tete)
   */
   /*
@@ -21,34 +22,37 @@ create or replace package TEST_PKG1 is
   */
   --test name
   --%test1
-  --%test2(name=123)
-  ----  %test3(name2=123,tete=123) 
+  --%test2
+  --%displayname(name=123)
+  ----  %test3(name2=123,tete=123)
   ---- asd %test4(name2=123,tete)
   --  t3 t4
   procedure foo;
 
-  -- %test(Name of test1)
-  -- %testsetup(setup_test1)
-  -- %testteardown(teardown_test1)
+  -- %test
+  -- %displayname(Name of test1)
+  -- %beforetest(setup_test1)
+  -- %aftertest(teardown_test1)
   procedure test1;
 
-  -- %test(Name of test2)
+  -- %test
+  -- %displayname(Name of test2)
   procedure test2;
 
-  -- %suitesetup
+  -- %beforeall
   procedure global_setup;
 
   procedure setup_test1;
 
   procedure teardown_test1;
 
-  -- %setup
+  -- %beforeeach
   procedure def_setup;
 
-  -- %teardown
+  -- %aftereach
   procedure def_teardown;
 
-  --%suiteteardown
+  --%afterall
   procedure global_teardown;
 
 end;
@@ -66,7 +70,6 @@ create or replace package body test_pkg1 is
   procedure test1 is
   begin
     ut.expect(g_val1,'1 equals 1 check').to_equal(1);
-    ut_assert.are_equal(a_msg => '1 equals 1 check', a_expected => 1, a_actual => g_val1);
   end;
 
   procedure test2 is

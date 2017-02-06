@@ -107,9 +107,6 @@ create or replace package body ut_output_pipe_helper is
 
   -- - remove pipes associated with buffers that are not yet deleted
   -- - delete all the buffers
-  -- TODO - The purge procedure needs to be called by top level program (ut_runner)
-  --  in the EXCEPTION WHEN OTHERS block before raising back,
-  --  so that it tries to remove pipes on any exception before raising back to caller
   procedure purge is
     l_output_id           t_output_id;
   begin
@@ -137,8 +134,8 @@ create or replace package body ut_output_pipe_helper is
   procedure buffer_and_send(a_output_id t_output_id, a_message_type integer, a_text t_pipe_item:= null) is
     l_is_successful boolean;
   begin
-      buffer(a_output_id, a_message_type, a_text);
-      l_is_successful := send_from_buffer(a_output_id);
+    buffer(a_output_id, a_message_type, a_text);
+    l_is_successful := send_from_buffer(a_output_id);
   end;
   ---public
 

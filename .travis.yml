@@ -15,11 +15,14 @@ env:
     - DATABASE_NAME=XE
     - ORA_SDTZ='Europe/London' #Needed as a client parameter
     - TZ='Europe/London'       #Needed as a DB Server parameter
-    - UT3_USER=ut3
-    - UT3_PASSWORD=ut3
-    - UT3_TABLESPACE=users
+    - UT3_OWNER=ut3
+    - UT3_OWNER_PASSWORD=ut3
+    - UT3_OWNER_TABLESPACE=users
+    - UT3_USER=ut3_user
+    - UT3_USER_PASSWORD=ut3
+    - UT3_USER_TABLESPACE=users
       # Target Branch and Directory for Deployment of Docs
-    - PAGES_TARGET_BRANCH="gh-pages"   
+    - PAGES_TARGET_BRANCH="gh-pages"
     - PAGES_VERSION_BASE="version3"
 
 addons:
@@ -31,8 +34,8 @@ addons:
       - unzip
 
 
-cache: 
-  directories: 
+cache:
+  directories:
     - .cache
     - $HOME/.cache
 
@@ -43,18 +46,35 @@ before_install:
   - test -f "$ORACLE_ZIP_DIR"/$(basename $ORACLE_FILE) || bash .travis/oracle/download.sh
 
 install:
-  - sudo pip install -r .travis/python_req.txt 
+  - sudo pip install -r .travis/python_req.txt
   - bash .travis/oracle/install.sh
-  
+
 script:
+  - bash .travis/create_utplsql_owner.sh
   - bash .travis/create_utplsql_user.sh
   - bash .travis/install_libraries.sh
   - bash .travis/install.sh
-  - bash .travis/run_examples.sh
-  - bash .travis/run_test.sh
-  - bash .travis/build_docs.sh
-  - bash .travis/push_docs_to_gh_pages.sh
+  - bash .travis/grant_user.sh
+  - bash .travis/run_examples_as_owner.sh
+  - bash .travis/run_test_as_owner.sh
+  - bash .travis/run_examples_as_user.sh
+  - bash .travis/create_release.sh
+#  - bash .travis/run_test_as_user.sh
+#  - bash .travis/build_docs.sh
+#  - bash .travis/push_docs_to_gh_pages.sh
+
+deploy:
+  provider: releases
+  api_key: $github_api_token
+  file: 
+     - utPLSQL$TRAVIS_TAG.zip
+     - utPLSQL$TRAVIS_TAG.tar.gz
+  skip_cleanup: true
+  on:
+     repo: utPLSQL/utPLSQL
+     tags: true
 
 notifications:
   slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
+
 

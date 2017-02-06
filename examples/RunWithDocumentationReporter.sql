@@ -3,16 +3,21 @@ set linesize 10000
 set echo off
 
 create or replace package demo_doc_reporter1 is
-  -- %suite(Demo of documentation reporter)
-  -- %test(A passing test sample)
+  -- %suite
+  -- %displayname(Demo of documentation reporter)
+  
+  -- %test
+  -- %displayname(A passing test sample)
   procedure passing_test;
   -- %test
   procedure test_without_name;
-  -- %test(A failing test exsample)
+  -- %test
+  -- %displayname(A failing test exsample)
   procedure failing_test;
   -- %test
   procedure failing_no_name;
-  -- %test(repoting exception)
+  -- %test
+  -- %displayname(repoting exception)
   procedure failing_exception_raised;
 end;
 /
@@ -43,19 +48,25 @@ end;
 /
 
 create or replace package demo_doc_reporter2 is
-  -- %suite(A suite pacakge without body)
-  -- %test(A test)
-  procedure passing_test1;
+  -- %suite
+  -- %displayname(A suite package without body)
+  
   -- %test
-  procedure passing_test2;
+  -- %displayname(A test)
+  procedure test1;
+  -- %test
+  procedure test2;
 end;
 /
 
 create or replace package suite_package_without_name is
   -- %suite
-  -- %test(A passing test sample)
+  
+  -- %test
+  -- %displayname(A passing test sample)
   procedure passing_test1;
-  -- %test(A passing test sample)
+  -- %test
+  -- %displayname(A passing test sample)
   procedure passing_test2;
 end;
 /
@@ -72,7 +83,7 @@ end;
 /
 
 begin
-  ut.run(user, ut_documentation_reporter());
+  ut_runner.run();
 end;
 /
 

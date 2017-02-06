@@ -1,59 +1,74 @@
 create or replace package demo_expectations is
 
-  -- %suite(Demoing asserts)
+  -- %suite
+  -- %displayname(Demoing asserts)
 
-  -- %test(demo of expectations with nulls)
+  -- %test
+  -- %displayname(demo of expectations with nulls)
   procedure demo_nulls_on_expectations;
 
-  -- %test(demo of failure for to_equal expectation on value mismatch)
+  -- %test
+  -- %displayname(demo of failure for to_equal expectation on value mismatch)
   procedure demo_to_equal_failure;
 
-  -- %test(demo of failure for to_equal expectation on data type mismatch)
+  -- %test
+  -- %displayname(demo of failure for to_equal expectation on data type mismatch)
   procedure demo_to_equal_failure_types;
 
-  -- %test(demo of success for to_equal expectation)
+  -- %test
+  -- %displayname(demo of success for to_equal expectation)
   procedure demo_to_equal_success;
 
-  -- %test(demo of failure for to_be_true and to_be_false expectation)
+  -- %test
+  -- %displayname(demo of failure for to_be_true and to_be_false expectation)
   procedure demo_to_be_true_false_failure;
 
-  -- %test(demo of success for to_be_true and to_be_false expectation)
+  -- %test
+  -- %displayname(demo of success for to_be_true and to_be_false expectation)
   procedure demo_to_be_true_false_success;
 
-  -- %test(demo of failure for to_be_null expectation )
+  -- %test
+  -- %displayname(demo of failure for to_be_null expectation )
   procedure demo_to_be_null_failure;
 
-  -- %test(demo of failure for to_be_null expectation )
+  -- %test
+  -- %displayname(demo of failure for to_be_null expectation )
   procedure demo_to_be_null_success;
 
-  -- %test(demo of success for to_be_not_null expectation )
+  -- %test
+  -- %displayname(demo of success for to_be_not_null expectation )
   procedure demo_to_be_not_null_failure;
 
-  -- %test(demo of success for to_be_not_null expectation)
+  -- %test
+  -- %displayname(demo of success for to_be_not_null expectation)
   procedure demo_to_be_not_null_success;
 
-  -- %test(demo of failure for to_match expectation)
+  -- %test
+  -- %displayname(demo of failure for to_match expectation)
   procedure demo_to_match_failure;
 
-  -- %test(demo of success for to_match expectation)
+  -- %test
+  -- %displayname(demo of success for to_match expectation)
   procedure demo_to_match_success;
 
-  -- %test(demo of failure for to_be_like expectation)
+  -- %test
+  -- %displayname(demo of failure for to_be_like expectation)
   procedure demo_to_be_like_failure;
 
-  -- %test(demo of success for to_be_like expectation)
+  -- %test
+  -- %displayname(demo of success for to_be_like expectation)
   procedure demo_to_be_like_success;
 
-  -- %test(demo of failure for not_to expectations)
+  -- %test
+  -- %displayname(demo of failure for not_to expectations)
   procedure demo_not_to_failure;
 
-  -- %test(demo of success for not_to expectations)
+  -- %test
+  -- %displayname(demo of success for not_to expectations)
   procedure demo_not_to_success;
 
 end;
 /
-
-
 create or replace package body demo_expectations is
 
   procedure demo_nulls_on_expectations is
@@ -69,25 +84,11 @@ create or replace package body demo_expectations is
     ut.expect( to_char(null), 'this should fail' ).to_( equal( to_char(null) ) );
     ut.expect( to_char(null), 'this should fail' ).not_to( equal( to_char(null) ) );
 
-    --fails on nulls not beeig equal
-    ut_assert_processor.nulls_are_equal(false);
-    ut.expect( to_char(null), 'fails when global null_are_equal=false' ).to_( equal(to_char(null) ) );
-    ut_assert_processor.nulls_are_equal( true );
-    ut.expect( to_char(null), 'fails when local null_are_equal=false' ).to_( equal(to_char(null), a_nulls_are_equal => false ) );
-
-    --succeeds when nulls are considered equal
-    ut_assert_processor.nulls_are_equal(false);
-    ut.expect( to_char(null) , 'succeeds when local null_are_equal=true' ).to_( equal( to_char(null), a_nulls_are_equal => true ) );
-    ut_assert_processor.nulls_are_equal( true );
-    ut.expect( to_char(null), 'succeeds when global null_are_equal=true' ).to_( equal( to_char(null) ) );
-
     --fails as null is not comparable with not null
     ut.expect( to_char(null), 'fails on null = not null' ).to_( equal( 'a text' ) );
     ut.expect( 'a text', 'fails on not null = null' ).to_( equal( to_char(null) ) );
     ut.expect( to_char(null), 'fails on null <> not null' ).not_to( equal( 'a text' ) );
     ut.expect( 'a text', 'fails on not null <> null' ).not_to( equal( to_char(null) ) );
-    ut.expect( to_char(null), 'fails on null <> not null, with a_nulls_are_equal => true' ).not_to( equal( 'a text', a_nulls_are_equal => true ) );
-    ut.expect( 'a text', 'fails on not null <> null, with a_nulls_are_equal => false' ).not_to( equal( to_char(null), a_nulls_are_equal => false ) );
 
     ut.expect( to_char(null), 'fails on null like ''text''' ).to_( be_like( 'a text' ) );
     ut.expect( to_char(null), 'fails on null not like ''text''' ).not_to( be_like( 'a text' ) );
@@ -515,10 +516,10 @@ create or replace package body demo_expectations is
     ut.expect( 'stephen_' ).to_be_like('_tephen\_', '\'); --escape wildcards with '\'
     ut.expect( 'Hi, I am Stephen' ).to_( be_like('%Stephen') );
     ut.expect( 'stephen_' ).to_( be_like('_tephen^_', '^')); --escape wildcards with '^'
-    ut.expect( l_clob ).to_be_like('a%a_TE%');
-    ut.expect( l_clob ).to_be_like('a%a_TE%\_', '\'); --escape wildcards with '\'
-    ut.expect( l_clob ).to_( be_like('a%a_TE%') );
-    ut.expect( l_clob ).to_( be_like('a%a_TE%\_', '\') ); --escape wildcards with '\'
+    ut.expect( l_clob ).to_be_like('%a%S_EP%');
+    ut.expect( l_clob ).to_be_like('%a%S_EP%\_', '\'); --escape wildcards with '\'
+    ut.expect( l_clob ).to_( be_like('%a%S_EP%') );
+    ut.expect( l_clob ).to_( be_like('%a%S_EP%\_', '\') ); --escape wildcards with '\'
   end;
 
   procedure demo_not_to_failure is
@@ -542,10 +543,9 @@ create or replace package body demo_expectations is
     ut.expect( to_char(null) ).not_to( be_not_null() );
     ut.expect( true ).not_to( be_false );
     ut.expect( false ).not_to( be_true );
-    ut.expect( cast(null as boolean) ).not_to( be_false );
-    ut.expect( cast(null as boolean) ).not_to( be_true );
+    ut.expect(sysdate).not_to( be_between(sysdate+1,sysdate+2) );
     ut.expect( 1 ).not_to( equal( 2 ) );
-    ut.expect( to_char(null) ).not_to( equal( to_char(null), a_nulls_are_equal=> false ) );
+    ut.expect( 'asd' ).not_to( be_like('z%q') );
   end;
 
 end;

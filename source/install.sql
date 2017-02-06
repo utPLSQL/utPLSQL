@@ -2,9 +2,15 @@ prompt Installing utplsql framework
 
 set serveroutput on size unlimited
 set timing off
-set define off
+set verify off
+set define &
 
-ALTER SESSION SET PLSQL_WARNINGS = 'ENABLE:ALL', 'DISABLE:(6000,6001,6003,6010, 7206)';
+spool install.log
+
+define ut3_owner = &1
+alter session set current_schema = &&ut3_owner;
+alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(6000,6001,6003,6010, 7206)';
+set define off
 
 
 whenever sqlerror exit failure rollback
@@ -19,26 +25,29 @@ whenever oserror exit failure rollback
 @@core/ut_metadata.pkb
 
 --core types
-@@core/types/ut_object.tps
-@@core/types/ut_objects_list.tps
-@@core/types/ut_composite_object.tps
-@@core/types/ut_executable.tps
 @@core/types/ut_assert_result.tps
-@@core/types/ut_assert_list.tps
+@@core/types/ut_assert_results.tps
+@@core/types/ut_results_counter.tps
 @@core/types/ut_output.tps
 @@core/types/ut_output_dbms_output.tps
 @@core/types/ut_output_stream.tps
 @@core/ut_output_pipe_helper.pks
 @@core/types/ut_output_dbms_pipe.tps
-@@core/types/ut_reporter.tps
-@@core/types/ut_reporters_list.tps
-@@core/types/ut_composite_reporter.tps
-@@core/types/ut_test_object.tps
+@@core/types/ut_suite_item_base.tps
+@@core/types/ut_event_listener_base.tps
+@@core/types/ut_suite_item.tps
+@@core/types/ut_suite_items.tps
+@@core/types/ut_executable.tps
 @@core/types/ut_test.tps
-@@core/types/ut_test_suite.tps
+@@core/types/ut_logical_suite.tps
+@@core/types/ut_suite.tps
+@@core/types/ut_run.tps
+@@core/types/ut_reporter_base.tps
+@@core/types/ut_reporters.tps
+@@core/types/ut_event_listener.tps
 --annoations
-@@core/annotations/ut_annotations.pks
-@@core/annotations/ut_annotations.pkb
+@@core/ut_annotations.pks
+@@core/ut_annotations.pkb
 
 --suite manager
 @@core/ut_suite_manager.pks
@@ -49,20 +58,21 @@ whenever oserror exit failure rollback
 @@core/ut_assert_processor.pkb
 
 --core type bodies
+@@core/types/ut_results_counter.tpb
+@@core/types/ut_suite_item.tpb
+@@core/types/ut_test.tpb
+@@core/types/ut_logical_suite.tpb
+@@core/types/ut_suite.tpb
+@@core/types/ut_run.tpb
+@@core/types/ut_event_listener.tpb
 @@core/types/ut_assert_result.tpb
 @@core/types/ut_output.tpb
 @@core/types/ut_output_dbms_output.tpb
 @@core/types/ut_output_stream.tpb
 @@core/ut_output_pipe_helper.pkb
 @@core/types/ut_output_dbms_pipe.tpb
-@@core/types/ut_reporter.tpb
-@@core/types/ut_object.tpb
-@@core/types/ut_composite_object.tpb
-@@core/types/ut_test_object.tpb
-@@core/types/ut_test.tpb
-@@core/types/ut_test_suite.tpb
+@@core/types/ut_reporter_base.tpb
 @@core/types/ut_executable.tpb
-@@core/types/ut_composite_reporter.tpb
 
 --expecations and matchers
 @@expectations/data_values/ut_data_value.tps
@@ -80,18 +90,18 @@ whenever oserror exit failure rollback
 @@expectations/data_values/ut_data_value_varchar2.tps
 @@expectations/data_values/ut_data_value_yminterval.tps
 @@expectations/matchers/ut_matcher.tps
-@@expectations/matchers/be_false.tps
-@@expectations/matchers/be_greater_or_equal.tps
-@@expectations/matchers/be_greater_than.tps
-@@expectations/matchers/be_less_or_equal.tps
-@@expectations/matchers/be_less_than.tps
-@@expectations/matchers/be_like.tps
-@@expectations/matchers/be_not_null.tps
-@@expectations/matchers/be_null.tps
-@@expectations/matchers/be_true.tps
-@@expectations/matchers/equal.tps
-@@expectations/matchers/be_between.tps
-@@expectations/matchers/match.tps
+@@expectations/matchers/ut_be_false.tps
+@@expectations/matchers/ut_be_greater_or_equal.tps
+@@expectations/matchers/ut_be_greater_than.tps
+@@expectations/matchers/ut_be_less_or_equal.tps
+@@expectations/matchers/ut_be_less_than.tps
+@@expectations/matchers/ut_be_like.tps
+@@expectations/matchers/ut_be_not_null.tps
+@@expectations/matchers/ut_be_null.tps
+@@expectations/matchers/ut_be_true.tps
+@@expectations/matchers/ut_equal.tps
+@@expectations/matchers/ut_be_between.tps
+@@expectations/matchers/ut_match.tps
 @@expectations/ut_expectation.tps
 @@expectations/ut_expectation_anydata.tps
 @@expectations/ut_expectation_blob.tps
@@ -120,18 +130,18 @@ whenever oserror exit failure rollback
 @@expectations/data_values/ut_data_value_varchar2.tpb
 @@expectations/data_values/ut_data_value_yminterval.tpb
 @@expectations/matchers/ut_matcher.tpb
-@@expectations/matchers/be_false.tpb
-@@expectations/matchers/be_greater_or_equal.tpb
-@@expectations/matchers/be_greater_than.tpb
-@@expectations/matchers/be_less_or_equal.tpb
-@@expectations/matchers/be_less_than.tpb
-@@expectations/matchers/be_like.tpb
-@@expectations/matchers/be_not_null.tpb
-@@expectations/matchers/be_null.tpb
-@@expectations/matchers/be_true.tpb
-@@expectations/matchers/equal.tpb
-@@expectations/matchers/be_between.tpb
-@@expectations/matchers/match.tpb
+@@expectations/matchers/ut_be_false.tpb
+@@expectations/matchers/ut_be_greater_or_equal.tpb
+@@expectations/matchers/ut_be_greater_than.tpb
+@@expectations/matchers/ut_be_less_or_equal.tpb
+@@expectations/matchers/ut_be_less_than.tpb
+@@expectations/matchers/ut_be_like.tpb
+@@expectations/matchers/ut_be_not_null.tpb
+@@expectations/matchers/ut_be_null.tpb
+@@expectations/matchers/ut_be_true.tpb
+@@expectations/matchers/ut_equal.tpb
+@@expectations/matchers/ut_be_between.tpb
+@@expectations/matchers/ut_match.tpb
 @@expectations/ut_expectation.tpb
 @@expectations/ut_expectation_anydata.tpb
 @@expectations/ut_expectation_blob.tpb
@@ -148,45 +158,58 @@ whenever oserror exit failure rollback
 @@expectations/ut_expectation_yminterval.tpb
 
 --expectations interface
-@@expectations/ut.pks
-@@expectations/ut.pkb
+@@api/ut.pks
+@@api/ut.pkb
+
+@@reporters/ut_documentation_reporter.tps
+@@reporters/ut_documentation_reporter.tpb
+
+--test runner
+@@api/ut_runner.pks
+@@api/ut_runner.pkb
 
 @@reporters/ut_teamcity_reporter.tps
 @@reporters/ut_teamcity_reporter_helper.pks
 @@reporters/ut_teamcity_reporter_helper.pkb
 @@reporters/ut_teamcity_reporter.tpb
-@@reporters/ut_documentation_reporter.tps
-@@reporters/ut_documentation_reporter.tpb
+@@reporters/ut_xunit_reporter.tps
+@@reporters/ut_xunit_reporter.tpb
 
-@@legacy/ut_assert.pks
-@@legacy/ut_assert.pkb
-
+@@api/be_between.syn
+@@api/be_false.syn
+@@api/be_greater_or_equal.syn
+@@api/be_greater_than.syn
+@@api/be_less_or_equal.syn
+@@api/be_less_than.syn
+@@api/be_like.syn
+@@api/be_not_null.syn
+@@api/be_null.syn
+@@api/be_true.syn
+@@api/equal.syn
+@@api/match.syn
 
 
 set linesize 200
+set define &
 column text format a100
+column error_count noprint new_value error_count
 prompt Validating installation
--- erors only. ignore warnings
-select name, type, sequence, line, position, text
- from user_errors
-where name not like 'BIN$%'  --not recycled
-and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH','BE_BETWEEN')) -- utplsql objects
-and attribute = 'ERROR'
+select name, type, sequence, line, position, text, count(1) over() error_count
+  from all_errors
+ where owner = '&&ut3_owner'
+   and name not like 'BIN$%'  --not recycled
+   and (name = 'UT' or name like 'UT\_%' escape '\')
+   -- errors only. ignore warnings
+   and attribute = 'ERROR'
 /
 
-declare
-  l_cnt integer;
 begin
-  select count(1)
-    into l_cnt
-    from user_errors
-	where name not like 'BIN$%'
-    and (name like 'UT%' or name in ('BE_FALSE','BE_LIKE','BE_NOT_NULL','BE_NULL','BE_TRUE','EQUAL','MATCH','BE_BETWEEN'))
-    and attribute = 'ERROR';
-  if l_cnt > 0 then
+  if to_number('&&error_count') > 0 then
     raise_application_error(-20000, 'Not all sources were successfully installed.');
   end if;
 end;
 /
+
+spool off
 
 exit success

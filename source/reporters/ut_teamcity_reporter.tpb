@@ -7,94 +7,70 @@ create or replace type body ut_teamcity_reporter is
     return;
   end;
 
-  overriding member procedure before_suite(self in out nocopy ut_teamcity_reporter, a_suite in ut_object) is
-    l_test_object ut_test_object := treat(a_suite as ut_test_object);
+  overriding member procedure before_calling_suite(self in out nocopy ut_teamcity_reporter, a_suite in ut_logical_suite) is
   begin
     self.print_text(
       ut_teamcity_reporter_helper.test_suite_started(
-        a_suite_name => coalesce(replace(l_test_object.name, '.')
-        ,l_test_object.object_name))
+        a_suite_name => nvl(replace(trim(a_suite.description), '.'),a_suite.name))
       );
-  end before_suite;
+  end;
 
-  overriding member procedure after_suite(self in out nocopy ut_teamcity_reporter, a_suite in ut_object) is
-    l_test_object ut_test_object := treat(a_suite as ut_test_object);
+  overriding member procedure after_calling_suite(self in out nocopy ut_teamcity_reporter, a_suite in ut_logical_suite) is
   begin
     self.print_text(
       ut_teamcity_reporter_helper.test_suite_finished(
-        a_suite_name => coalesce(replace(l_test_object.name, '.')
-        ,l_test_object.object_name))
+        a_suite_name => nvl(replace(trim(a_suite.description), '.'),a_suite.name))
       );
-  end after_suite;
+  end;
 
-  overriding member procedure before_suite_item(self in out nocopy ut_teamcity_reporter, a_suite in ut_object, a_item_index pls_integer) is
-    l_suite          ut_test_suite;
-    l_item           ut_test_object;
-    l_test           ut_test;
+  overriding member procedure before_calling_test(self in out nocopy ut_teamcity_reporter, a_test in ut_test) is
     l_test_full_name varchar2(4000);
   begin
-    l_suite := treat(a_suite as ut_test_suite);
-    l_item  := treat(l_suite.items(a_item_index) as ut_test_object);
+    
+    l_test_full_name := lower(a_test.item.owner_name)||'.'||lower(a_test.item.object_name)||'.'||lower(a_test.item.procedure_name);
+    
+    self.print_text(ut_teamcity_reporter_helper.test_started(a_test_name => l_test_full_name));
   
-    if l_item is of(ut_test) then
-      l_test           := treat(l_item as ut_test);
-      l_test_full_name := nvl(replace(l_suite.name, '.'), l_suite.object_name) || ':' ||
-                          nvl(replace(l_test.name, '.'), l_test.object_name);
-      self.print_text(ut_teamcity_reporter_helper.test_started(a_test_name => l_test_full_name));
-    end if;
-  
-  end before_suite_item;
+  end;
 
-  overriding member procedure after_suite_item(self in out nocopy ut_teamcity_reporter, a_suite in ut_object, a_item_index pls_integer) is
-    l_suite            ut_test_suite;
-    l_item             ut_test_object;
-    l_test             ut_test;
-    l_index            pls_integer;
+  overriding member procedure after_calling_test(self in out nocopy ut_teamcity_reporter, a_test in ut_test) is
     l_assert           ut_assert_result;
     l_test_full_name   varchar2(4000);
-    l_assert_full_name varchar2(4000);
   begin
-    l_suite := treat(a_suite as ut_test_suite);
-    l_item  := treat(l_suite.items(a_item_index) as ut_test_object);
-  
-    if l_item is of(ut_test) then
-    
-      l_test := treat(l_item as ut_test);
-    
-      l_test_full_name := nvl(replace(l_suite.name, '.'), l_suite.object_name) || ':' ||
-                          nvl(replace(l_item.name, '.'), l_test.object_name);
-    
-      if l_test.result = ut_utils.tr_ignore then
-        self.print_text(ut_teamcity_reporter_helper.test_ignored(l_test_full_name));
-      else
-      
-        if l_test.items is not null and l_test.items.count > 0 then
-          for i in 1 .. l_test.items.count loop
-          
-            l_assert := treat(l_test.items(i) as ut_assert_result);
-          
-            if nvl(l_assert.result, ut_utils.tr_error) != ut_utils.tr_success then
-              self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
-                                                                  ,a_msg       => l_assert.message
-                                                                  ,a_expected  => l_assert.expected_value_string
-                                                                  ,a_actual    => l_assert.actual_value_string));
-              exit;
-            end if;
-          
-          end loop;
-        elsif l_test.result = ut_utils.tr_failure then
-          self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name, a_msg => 'Test failed'));
-        elsif l_test.result = ut_utils.tr_error then
-          self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name, a_msg => 'Error occured'));
-        end if;
-      
-        self.print_text(ut_teamcity_reporter_helper.test_finished(l_test_full_name
-                                                  ,a_test_duration_milisec => trunc(l_test.execution_time * 1e3)));
-      
+--    l_test_full_name := self.suite_names_stack(self.suite_names_stack.last) || ':' ||
+--                        nvl(replace(a_test.description, '.'), a_test.name);
+    l_test_full_name := lower(a_test.item.owner_name)||'.'||lower(a_test.item.object_name)||'.'||lower(a_test.item.procedure_name);                        
+
+    if a_test.result = ut_utils.tr_ignore then
+      self.print_text(ut_teamcity_reporter_helper.test_ignored(l_test_full_name));
+    else
+
+      if a_test.results is not null and a_test.results.count > 0 then
+        for i in 1 .. a_test.results.count loop
+
+          l_assert := a_test.results(i);
+
+          if l_assert.result > ut_utils.tr_success then
+            self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
+                                                                   ,a_msg       => l_assert.message
+                                                                   ,a_expected  => l_assert.expected_value_string
+                                                                   ,a_actual    => l_assert.actual_value_string));
+            -- Teamcity supports only a single failure message
+            exit;
+          end if;
+
+        end loop;
+      elsif a_test.result = ut_utils.tr_failure then
+        self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name, a_msg => 'Test failed'));
+      elsif a_test.result = ut_utils.tr_error then
+        self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name, a_msg => 'Error occured'));
       end if;
-    
+
+      self.print_text(ut_teamcity_reporter_helper.test_finished(l_test_full_name, trunc(a_test.execution_time * 1e3)));
+
     end if;
-  end after_suite_item;
+    
+  end;
 
 end;
 /

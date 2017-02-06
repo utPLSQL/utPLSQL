@@ -1,11 +1,11 @@
 --Arrange
 declare
-  l_value timestamp with local time zone := to_timestamp_tz('1997-01-31 09:26:50.12 +02:00','YYYY-MM-DD HH24.MI.SSXFF TZR');
-  l_value_lower timestamp with local time zone := to_timestamp_tz('1997-01-31 09:26:50.12 +03:00','YYYY-MM-DD HH24.MI.SSXFF TZR');
-  l_value_upper timestamp with local time zone := to_timestamp_tz('1997-01-31 09:26:50.12 +01:00','YYYY-MM-DD HH24.MI.SSXFF TZR');
+  l_value timestamp with local time zone := to_timestamp_tz('1997-01-31 09:26:50.12 +02:00','YYYY-MM-DD HH24.MI.SS.FF TZR');
+  l_value_lower timestamp with local time zone := to_timestamp_tz('1997-01-31 09:26:50.12 +03:00','YYYY-MM-DD HH24.MI.SS.FF TZR');
+  l_value_upper timestamp with local time zone := to_timestamp_tz('1997-01-31 09:26:50.12 +01:00','YYYY-MM-DD HH24.MI.SS.FF TZR');
 
   l_result integer;
-  l_asserts_results ut_objects_list;
+  l_asserts_results ut_assert_results;
 begin
   --Act
   ut.expect(l_value).to_(be_between(l_value_lower,l_value_upper));
