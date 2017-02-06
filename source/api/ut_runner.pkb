@@ -1,5 +1,22 @@
 create or replace package body ut_runner is
 
+  /*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
+
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
+
   procedure run(a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false) is
     l_items_to_run  ut_run;
     l_listener      ut_event_listener;
@@ -17,6 +34,10 @@ create or replace package body ut_runner is
     l_items_to_run.do_execute(l_listener);
 
     ut_output_buffer.close(l_listener.reporters);
+  exception
+    when others then
+      ut_output_buffer.close(l_listener.reporters);
+      raise;
   end;
 
   procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false) is
