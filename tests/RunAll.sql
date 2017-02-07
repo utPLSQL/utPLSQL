@@ -18,6 +18,7 @@ set serveroutput on size unlimited format truncated
 create table ut$test_table (val varchar2(1));
 @@helpers/ut_transaction_control.pck
 @@helpers/department.tps
+@@helpers/department1.tps
 @@helpers/test_package_3.pck
 @@helpers/test_package_1.pck
 @@helpers/test_package_2.pck
@@ -57,7 +58,11 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsFalse.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesSuccessWhenExpessionIsTrue.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenBothObjectsAreNullButDifferentType.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentData.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenOneOfObjectsIsNull.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothAnydataAreNull.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothObjectsAreNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.PutsObjectStrucureIntoAssert.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesFailureForDifferentValues.sql
@@ -187,6 +192,7 @@ drop procedure check_annotation_parsing;
 drop package ut_transaction_control;
 drop table ut$test_table;
 drop type department$;
+drop type department1$;
 drop package test_package_1;
 drop package test_package_2;
 drop package test_package_3;

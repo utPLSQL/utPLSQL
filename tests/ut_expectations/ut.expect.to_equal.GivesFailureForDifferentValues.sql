@@ -7,3 +7,5 @@
 @@lib/RunTest.sql "ut_expectations/common/ut.expect.to_equal.scalar.common.sql 'timestamp with local time zone' 'systimestamp' 'systimestamp' 'ut_utils.tr_failure'"
 @@lib/RunTest.sql "ut_expectations/common/ut.expect.to_equal.scalar.common.sql 'timestamp with time zone' 'systimestamp' 'systimestamp' 'ut_utils.tr_failure'"
 @@lib/RunTest.sql "ut_expectations/common/ut.expect.to_equal.scalar.common.sql 'varchar2(4000)' '''Abc''' '''abc''' 'ut_utils.tr_failure'"
+@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_equal.scalar.common.sql 'interval day to second' '''2 01:00:00''' '''2 01:00:01'''"
+@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_equal.scalar.common.sql 'interval year to month' '''1-1''' '''1-2'''"
