@@ -94,6 +94,22 @@ create or replace package body ut is
     rollback;
   end;
 
+  function run(a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console integer := 0) return ut_varchar2_list pipelined is
+    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
+    l_paths     ut_varchar2_list := ut_varchar2_list(sys_context('userenv', 'current_schema'));
+    l_lines     sys_refcursor;
+    l_line      varchar2(4000);
+  begin
+    run_autonomous(l_paths, a_reporter, a_color_console );
+    l_lines := ut_output_buffer.get_lines_cursor(l_reporter.reporter_id);
+    loop
+      fetch l_lines into l_line;
+      exit when l_lines%notfound;
+      pipe row(l_line);
+    end loop;
+    close l_lines;
+  end;
+
   function run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console integer := 0) return ut_varchar2_list pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
     l_lines     sys_refcursor;
@@ -109,7 +125,7 @@ create or replace package body ut is
     close l_lines;
   end;
 
-  function run(a_path varchar2 := null, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console integer := 0) return ut_varchar2_list pipelined is
+  function run(a_path varchar2, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console integer := 0) return ut_varchar2_list pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
     l_paths     ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
     l_lines     sys_refcursor;
@@ -125,6 +141,11 @@ create or replace package body ut is
     close l_lines;
   end;
 
+  procedure run(a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false) is
+  begin
+    ut.run(ut_varchar2_list(sys_context('userenv', 'current_schema')), a_reporter, a_color_console);
+  end;
+
   procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false) is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
   begin
@@ -132,7 +153,7 @@ create or replace package body ut is
     ut_output_buffer.lines_to_dbms_output(l_reporter.reporter_id);
   end;
 
-  procedure run(a_path varchar2 := null, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false) is
+  procedure run(a_path varchar2, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false) is
     l_paths  ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
   begin
     ut.run(l_paths, a_reporter, a_color_console);
