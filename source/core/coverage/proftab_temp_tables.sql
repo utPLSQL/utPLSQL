@@ -1,5 +1,17 @@
-create global temporary table plsql_profiler_runs
-(
+create global temporary table plsql_profiler_runs(
+  /*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
   runid           number primary key,  -- unique run identifier,
                                        -- from plsql_profiler_runnumber
   related_run     number,              -- runid of related run (for client/
@@ -16,8 +28,20 @@ create global temporary table plsql_profiler_runs
 comment on table plsql_profiler_runs is
         'Run-specific information for the PL/SQL profiler';
 
-create global temporary table plsql_profiler_units
-(
+create global temporary table plsql_profiler_units(
+  /*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
   runid              number,
   unit_number        number,           -- internally generated library unit #
   unit_type          varchar2(4000),   -- library unit type
@@ -36,8 +60,20 @@ create global temporary table plsql_profiler_units
 comment on table plsql_profiler_units is
         'Information about each library unit in a run';
 
-create global temporary table plsql_profiler_data
-(
+create global temporary table plsql_profiler_data(
+  /*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+      http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
   runid           number,           -- unique (generated) run identifier
   unit_number     number,           -- internally generated library unit #
   line#           number not null,  -- line number in unit
