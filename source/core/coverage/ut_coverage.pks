@@ -50,5 +50,7 @@ create or replace package ut_coverage authid current_user is
 
   function get_coverage_data(a_schema_names ut_varchar2_list) return t_coverage;
 
+  function get_schema_names_from_run(a_run ut_run) return ut_varchar2_list;
+
 end;
 /

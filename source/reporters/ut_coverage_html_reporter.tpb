@@ -15,11 +15,15 @@ create or replace type body ut_coverage_html_reporter is
   end;
 
   overriding member procedure after_calling_run(self in out nocopy ut_coverage_html_reporter, a_run in ut_run) as
-    l_report_lines ut_varchar2_list;
+    l_report_lines  ut_varchar2_list;
+    l_coverage_data ut_coverage.t_coverage;
+    l_schema_names  ut_varchar2_list;
   begin
     ut_coverage.coverage_stop();
-    --TODO - find schema names used in the run
-    l_report_lines := ut_utils.clob_to_table(ut_coverage_report_html_helper.get_index( ut_coverage.get_coverage_data(self.schema_names), self.project_name ));
+    l_schema_names := nvl(self.schema_names, ut_coverage.get_schema_names_from_run(a_run));
+    l_coverage_data := ut_coverage.get_coverage_data(l_schema_names);
+
+    l_report_lines := ut_utils.clob_to_table(ut_coverage_report_html_helper.get_index( l_coverage_data, self.project_name ));
     for i in 1 .. l_report_lines.count loop
       self.print_text( l_report_lines(i) );
     end loop;

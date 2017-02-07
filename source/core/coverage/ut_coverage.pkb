@@ -1,20 +1,10 @@
 create or replace package body ut_coverage is
 
   g_skipped_objects ut_object_names;
-  g_schema_names ut_varchar2_list;
 
   function get_coverage_id return integer is
   begin
     return ut_coverage_helper.get_coverage_id;
-  end;
-
-  procedure set_schema_names(a_schema_names ut_varchar2_list) is
-  begin
-    if a_schema_names is not null and a_schema_names.count>0 then
-      g_schema_names := a_schema_names;
-    else
-      g_schema_names := ut_varchar2_list(sys_context('userenv','current_schema'));
-    end if;
   end;
 
   function coverage_start return integer is
@@ -32,7 +22,6 @@ create or replace package body ut_coverage is
   procedure coverage_start_develop is
   begin
     g_skipped_objects := ut_object_names();
-    set_schema_names(null);
     ut_coverage_helper.coverage_start_develop();
   end;
 
@@ -67,6 +56,8 @@ create or replace package body ut_coverage is
 
   function get_coverage_data(a_schema_names ut_varchar2_list) return t_coverage is
 
+    pragma autonomous_transaction;
+
     type t_coverage_row is record(
       name          varchar2(500),
       line_number   integer,
@@ -96,7 +87,7 @@ create or replace package body ut_coverage is
     select s.owner,s.name,s.line,s.text
       from all_source s
      where s.type not in ('PACKAGE', 'TYPE')
-       and s.owner in (select t.column_value from table(g_schema_names) t)
+       and s.owner in (select t.column_value from table(l_schema_names) t)
        --Exclude calls to utPLSQL framework and Unit Test packages
     --   and not exists(select 1 from table(l_skipped_objects) l where s.owner = l.owner AND s.name = l.name)
     ;
@@ -109,7 +100,7 @@ create or replace package body ut_coverage is
         group by c.owner, c.name) c
         on o.owner = c.owner and o.object_name = c.name
       where o.object_type not in ('PACKAGE', 'TYPE')
-      and o.owner in ( select t.column_value from table (g_schema_names) t)
+      and o.owner in ( select t.column_value from table (l_schema_names) t)
         --Exclude calls to utPLSQL framework and Unit Test packages
       and not exists ( select 1 from table (l_skipped_objects) l where o.owner = l.owner and o.object_name = l.name)
     ) loop
@@ -166,8 +157,50 @@ create or replace package body ut_coverage is
 
 
     end loop;
+
+    commit;
+    return l_result;
+  end get_coverage_data;
+
+  function get_schema_names_from_run(a_run ut_run) return ut_varchar2_list is
+    type t_schema_names is table of boolean index by varchar2(500);
+    l_schema_names t_schema_names;
+    l_result ut_varchar2_list;
+
+    l_schema_name varchar2(500);
+
+    procedure get_suite_item_schema_names(a_suite_item ut_logical_suite, a_schema_names in out nocopy t_schema_names) is
+    begin
+      if a_suite_item is of (ut_suite) then
+        a_schema_names(a_suite_item.object_owner) := true;
+      elsif a_suite_item.items is not null then
+        for i in 1 .. a_suite_item.items.count loop
+          if a_suite_item is of (ut_logical_suite) then
+            get_suite_item_schema_names(treat( a_suite_item.items(i) as ut_logical_suite), a_schema_names);
+          end if;
+        end loop;
+      end if;
+    end;
+
+  begin
+    if a_run is not null and a_run.items is not null then
+      for i in 1 .. a_run.items.count loop
+        if a_run.items(i) is of (ut_logical_suite) then
+          get_suite_item_schema_names(treat( a_run.items(i) as ut_logical_suite), l_schema_names);
+        end if;
+      end loop;
+    end if;
+    if l_schema_names.count > 0 then
+      l_result := ut_varchar2_list();
+      l_schema_name := l_schema_names.first;
+      loop
+        exit when l_schema_name is null;
+        l_result.extend;
+        l_result(l_result.last) := l_schema_name;
+        l_schema_name := l_schema_names.next(l_schema_name);
+      end loop;
+    end if;
     return l_result;
   end;
-
 end;
 /
