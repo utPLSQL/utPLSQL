@@ -36,7 +36,7 @@ create or replace type body ut_coverage_html_reporter is
     l_schema_names  ut_varchar2_list;
   begin
     ut_coverage.coverage_stop();
-    l_schema_names := nvl(self.schema_names, ut_coverage.get_schema_names_from_run(a_run));
+    l_schema_names := coalesce(self.schema_names, ut_coverage.get_schema_names_from_run(a_run), ut_varchar2_list(sys_context('userenv','current_schema')));
     l_coverage_data := ut_coverage.get_coverage_data(l_schema_names);
 
     l_report_lines := ut_utils.clob_to_table(ut_coverage_report_html_helper.get_index( l_coverage_data, self.project_name ));

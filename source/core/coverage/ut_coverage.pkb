@@ -88,10 +88,8 @@ create or replace package body ut_coverage is
     type t_source_lines is table of binary_integer;
     l_source_lines     t_source_lines;
     line_no            binary_integer;
-    l_schema_names     ut_varchar2_list;
   begin
 
-    l_schema_names := nvl(a_schema_names,ut_varchar2_list(sys_context('userenv','current_schema')));
     if not ut_coverage_helper.is_develop_mode() then
       l_skipped_objects := ut_utils.get_utplsql_objects_list() multiset union set(g_skipped_objects);
     end if;
@@ -103,7 +101,7 @@ create or replace package body ut_coverage is
     select s.owner,s.name,s.line,s.text
       from all_source s
      where s.type not in ('PACKAGE', 'TYPE')
-       and s.owner in (select t.column_value from table(l_schema_names) t)
+       and s.owner in (select t.column_value from table(a_schema_names) t)
        --Exclude calls to utPLSQL framework and Unit Test packages
     --   and not exists(select 1 from table(l_skipped_objects) l where s.owner = l.owner AND s.name = l.name)
     ;
@@ -116,7 +114,7 @@ create or replace package body ut_coverage is
         group by c.owner, c.name) c
         on o.owner = c.owner and o.object_name = c.name
       where o.object_type not in ('PACKAGE', 'TYPE')
-      and o.owner in ( select t.column_value from table (l_schema_names) t)
+      and o.owner in ( select t.column_value from table (a_schema_names) t)
         --Exclude calls to utPLSQL framework and Unit Test packages
       and not exists ( select 1 from table (l_skipped_objects) l where o.owner = l.owner and o.object_name = l.name)
     ) loop
