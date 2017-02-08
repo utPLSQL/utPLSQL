@@ -31,6 +31,8 @@ drop synonym match;
 
 drop synonym be_false;
 
+drop synonym be_empty;
+
 drop synonym be_greater_or_equal;
 
 drop synonym be_greater_than;
@@ -102,6 +104,8 @@ drop type ut_be_not_null;
 drop type ut_be_like;
 
 drop type ut_be_greater_or_equal;
+
+drop type ut_be_empty;
 
 drop type ut_be_greater_than;
 

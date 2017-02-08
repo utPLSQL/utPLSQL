@@ -45,6 +45,8 @@ create or replace type ut_data_value_refcursor under ut_data_value(
 
   overriding member function is_null return boolean,
 
-  overriding member function to_string return varchar2
+  overriding member function to_string return varchar2,
+
+  member function is_empty return boolean
 )
 /

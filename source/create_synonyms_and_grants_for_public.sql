@@ -28,6 +28,7 @@ alter session set current_schema = &&ut3_owner;
 prompt Granting privileges on UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
 grant execute on ut_be_between to public;
+grant execute on ut_be_empty to public;
 grant execute on ut_be_false to public;
 grant execute on ut_be_greater_or_equal to public;
 grant execute on ut_be_greater_than to public;
@@ -51,6 +52,7 @@ grant execute on ut_reporter_base to public;
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
 create public synonym be_between for ut_be_between;
+create public synonym be_empty for ut_be_empty;
 create public synonym be_false for ut_be_false;
 create public synonym be_greater_or_equal for ut_be_greater_or_equal;
 create public synonym be_greater_than for ut_be_greater_than;
