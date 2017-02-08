@@ -43,12 +43,21 @@ create or replace type body ut_suite  as
     return l_is_valid;
   end;
 
-  overriding member function do_execute(self in out nocopy ut_suite , a_listener in out nocopy ut_event_listener_base) return boolean is
+  overriding member function do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_suite_savepoint varchar2(30);
     l_item_savepoint  varchar2(30);
     l_completed_without_errors boolean;
+    l_suite_step_without_errors boolean;
+    
+    procedure do_fail(a_prefix varchar2) is
+      l_results ut_assert_results := ut_assert_processor.get_asserts_results();
+    begin
+      for i in 1..self.items.count loop
+        self.items(i).fail(a_listener, a_prefix||l_results(1).error_message);
+      end loop;
+    end;
   begin
-    ut_utils.debug_log('ut_suite .execute');
+    ut_utils.debug_log('ut_suite.execute');
     a_listener.fire_before_event(ut_utils.gc_suite,self);
     
     self.start_time := current_timestamp;    
@@ -64,48 +73,53 @@ create or replace type body ut_suite  as
         l_suite_savepoint := self.create_savepoint_if_needed();
 
         --includes listener calls for before and after actions
-        l_completed_without_errors := self.before_all.do_execute(self, a_listener);
+        l_suite_step_without_errors := self.before_all.do_execute(self, a_listener);
 
-        if l_completed_without_errors then
+        if l_suite_step_without_errors then
           for i in 1 .. self.items.count loop
             l_completed_without_errors := true;
 
             --savepoint
             l_item_savepoint := self.items(i).create_savepoint_if_needed();
             --before each
-            if l_completed_without_errors then
-              --includes listener calls for before and after actions
-              l_completed_without_errors := self.before_each.do_execute(self, a_listener);
-            end if;
+            --includes listener calls for before and after actions
+            l_completed_without_errors := self.before_each.do_execute(self, a_listener);
 
             -- execute the item (test or suite)
             if l_completed_without_errors then
               l_completed_without_errors := self.items(i).do_execute(a_listener);
+              
+              --after each
+              --includes listener calls for before and after actions
+              -- run afteeach even if a test raised an exception
+              l_completed_without_errors := self.after_each.do_execute(self, a_listener);
+
+              if not l_completed_without_errors then
+                self.items(i).fail(a_listener, 'Aftereach procedure failed:'||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
+              end if;
+
+            else
+              self.items(i).fail(a_listener, 'Beforeach procedure failed:'||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
             end if;
 
-            --after each
-            if l_completed_without_errors then
-              --includes listener calls for before and after actions
-              l_completed_without_errors := self.after_each.do_execute(self, a_listener);
-            end if;
             --rollback to savepoint
             self.items(i).rollback_to_savepoint(l_item_savepoint);
 
   --          exit when not l_completed_without_errors;
           end loop;
-        end if;
-
-        if l_completed_without_errors then
-          l_completed_without_errors := self.after_all.do_execute(self, a_listener);
+          
+          l_suite_step_without_errors := self.after_all.do_execute(self, a_listener);
+          if not l_suite_step_without_errors then
+            do_fail('Afterall procedure failed: '||chr(10));
+          end if;
+        else
+          do_fail('Beforeall procedure failed: '||chr(10));
         end if;
 
         self.rollback_to_savepoint(l_suite_savepoint);
+        
       else
-        for i in 1..self.items.count loop
-          if self.items(i) is of(ut_test) then
-            l_completed_without_errors := self.items(i).do_execute(a_listener);
-          end if;
-        end loop;
+        do_fail(null);
       end if;
 
       self.calc_execution_result();

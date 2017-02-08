@@ -274,6 +274,7 @@ create or replace package body ut_suite_manager is
                       ,t.object_name
                   from all_objects t
                  where t.owner = a_owner_name
+                   and t.status = 'VALID' -- scan only valid specifications
                    and t.object_type in ('PACKAGE')) loop
       -- parse the source of the package
       l_suite := config_package(rec.owner, rec.object_name);

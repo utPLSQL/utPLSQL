@@ -64,6 +64,23 @@ create or replace type body ut_run as
 
     self.result := l_result;
   end;
+  
+  overriding member procedure fail(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base, a_failure_msg varchar2) is
+  begin
+    ut_utils.debug_log('ut_run.fail');
+
+    a_listener.fire_before_event(ut_utils.gc_run, self);
+    self.start_time := current_timestamp;
+
+    for i in 1 .. self.items.count loop
+      self.items(i).fail(a_listener, a_failure_msg);
+    end loop;
+    
+    self.calc_execution_result();
+    self.end_time := self.start_time;
+
+    a_listener.fire_after_event(ut_utils.gc_run, self);
+  end;
 
 end;
 /
