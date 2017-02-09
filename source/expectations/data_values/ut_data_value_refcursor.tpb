@@ -61,7 +61,7 @@ create or replace type body ut_data_value_refcursor as
     if self.data_value is not null then
       ut_assert_processor.set_xml_nls_params();
       dbms_xmlgen.restartQuery(self.data_value);
-      dbms_xmlgen.setMaxRows(self.data_value, 100);
+      dbms_xmlgen.setMaxRows(self.data_value, 1);
       l_result := dbms_xmlgen.getxml(self.data_value);
       
       if l_result is null then  
