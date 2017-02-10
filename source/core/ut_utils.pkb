@@ -281,5 +281,16 @@ create or replace package body ut_utils is
     return replace( a_text, chr(10), chr(10) || lpad( ' ', a_indent_size ) );
   end;
 
-end;
+  function get_utplsql_objects_list return ut_object_names is
+    l_result ut_object_names;
+  begin
+    select distinct ut_object_name(sys_context('userenv','current_user'), o.object_name)
+      bulk collect into l_result
+      from user_objects o
+     where o.object_name = 'UT' or object_name like 'UT\_%' escape '\'
+       and o.object_type <> 'SYNONYM';
+    return l_result;
+  end;
+
+end ut_utils;
 /

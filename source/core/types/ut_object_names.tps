@@ -1,4 +1,4 @@
-create or replace type ut_event_listener_base authid current_user as object(
+create or replace type ut_object_names as
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,9 +15,5 @@ create or replace type ut_event_listener_base authid current_user as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  name varchar2(250),
-  member procedure fire_before_event(self in out nocopy ut_event_listener_base, a_event_name varchar2, a_item ut_suite_item_base),
-  member procedure fire_after_event(self in out nocopy ut_event_listener_base, a_event_name varchar2, a_item ut_suite_item_base),
-  member procedure fire_event(self in out nocopy ut_event_listener_base, a_event_timing varchar2, a_event_name varchar2, a_item ut_suite_item_base)
-) not final not instantiable
+  table of ut_object_name
 /

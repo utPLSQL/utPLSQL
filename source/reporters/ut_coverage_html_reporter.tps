@@ -1,4 +1,4 @@
-create or replace type ut_event_listener_base authid current_user as object(
+create or replace type ut_coverage_html_reporter force under ut_coverage_reporter_base(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,9 +15,11 @@ create or replace type ut_event_listener_base authid current_user as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  name varchar2(250),
-  member procedure fire_before_event(self in out nocopy ut_event_listener_base, a_event_name varchar2, a_item ut_suite_item_base),
-  member procedure fire_after_event(self in out nocopy ut_event_listener_base, a_event_name varchar2, a_item ut_suite_item_base),
-  member procedure fire_event(self in out nocopy ut_event_listener_base, a_event_timing varchar2, a_event_name varchar2, a_item ut_suite_item_base)
-) not final not instantiable
+  coverage_id integer,
+  schema_names ut_varchar2_list,
+  project_name varchar2(4000),
+  constructor function ut_coverage_html_reporter(self in out nocopy ut_coverage_html_reporter, a_project_name varchar2 := null, a_schema_names ut_varchar2_list := null) return self as result,
+  overriding member procedure before_calling_run(self in out nocopy ut_coverage_html_reporter, a_run ut_run),
+  overriding member procedure after_calling_run(self in out nocopy ut_coverage_html_reporter, a_run in ut_run)
+)
 /

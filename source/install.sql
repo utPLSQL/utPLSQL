@@ -34,6 +34,9 @@ whenever oserror exit failure rollback
 
 --common utilities
 @@core/types/ut_varchar2_list.tps
+@@core/types/ut_object_name.tps
+@@core/types/ut_object_name.tpb
+@@core/types/ut_object_names.tps
 @@core/ut_utils.pks
 @@core/ut_metadata.pks
 @@core/ut_utils.pkb
@@ -56,6 +59,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_run.tps
 @@core/types/ut_reporter_base.tps
 @@core/types/ut_reporters.tps
+@@core/types/ut_coverage_reporter_base.tps
 @@core/types/ut_event_listener.tps
 
 --output buffer table
@@ -77,6 +81,14 @@ whenever oserror exit failure rollback
 @@core/ut_assert_processor.pks
 @@core/ut_assert_processor.pkb
 
+--gathering coverage
+@@core/coverage/proftab_temp_tables.sql
+@@core/coverage/ut_coverage_sources_tmp.sql
+@@core/coverage/ut_coverage_helper.pks
+@@core/coverage/ut_coverage_helper.pkb
+@core/coverage/ut_coverage.pks
+@@core/coverage/ut_coverage.pkb
+
 --core type bodies
 @@core/types/ut_results_counter.tpb
 @@core/types/ut_suite_item.tpb
@@ -87,6 +99,7 @@ whenever oserror exit failure rollback
 @@core/types/ut_event_listener.tpb
 @@core/types/ut_assert_result.tpb
 @@core/types/ut_reporter_base.tpb
+@@core/types/ut_coverage_reporter_base.tpb
 @@core/types/ut_executable.tpb
 @@core/types/ut_console_reporter_base.tps
 @@core/types/ut_console_reporter_base.tpb
@@ -193,6 +206,12 @@ whenever oserror exit failure rollback
 @@reporters/ut_teamcity_reporter.tpb
 @@reporters/ut_xunit_reporter.tps
 @@reporters/ut_xunit_reporter.tpb
+
+
+@@reporters/ut_coverage_html_reporter.tps
+@@reporters/ut_coverage_report_html_helper.pks
+@@reporters/ut_coverage_report_html_helper.pkb
+@@reporters/ut_coverage_html_reporter.tpb
 
 @@api/be_between.syn
 @@api/be_false.syn
