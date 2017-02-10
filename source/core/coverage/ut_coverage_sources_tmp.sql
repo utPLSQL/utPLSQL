@@ -15,6 +15,10 @@ create global temporary table ut_coverage_sources_tmp(
   owner varchar2(250),
   name  varchar2(250),
   line  number(38,0),
+  to_be_skipped varchar2(1),
   text varchar2(4000),
-  constraint ut_coverage_sources_tmp primary key (owner,name,line)
+  constraint ut_coverage_sources_tmp_pk primary key (owner,name,line)
 ) on commit preserve rows;
+
+create unique index ut_coverage_sources_tmp_uk on ut_coverage_sources_tmp (owner,name,to_be_skipped, line);
+

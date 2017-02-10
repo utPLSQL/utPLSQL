@@ -197,10 +197,10 @@ drop package test_package_1;
 drop package test_package_2;
 drop package test_package_3;
 
+set timing on
 prompt Flushing coverage data into temp tables
 exec ut_coverage.coverage_stop();
 
-set timing on
 prompt Generating coverage data to reporter outputs
 
 var reporter_id varchar2(32);

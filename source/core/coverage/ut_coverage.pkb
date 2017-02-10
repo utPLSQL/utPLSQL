@@ -97,46 +97,49 @@ create or replace package body ut_coverage is
     --prepare global temp table with sources
     delete from ut_coverage_sources_tmp;
 
-    insert into ut_coverage_sources_tmp(owner,name,line,text)
-    select s.owner,s.name,s.line,s.text
+    insert into ut_coverage_sources_tmp(owner,name,line,text, to_be_skipped)
+    select s.owner,s.name,s.line,s.text,
+           case
+             when
+               -- to avoid execution of regexp_like on every line
+               -- first do a rough check for existence of search pattern keyword
+               (lower(s.text) like '%procedure%'
+                or lower(s.text) like '%function%'
+                or lower(s.text) like '%begin%'
+                or lower(s.text) like '%end%'
+                or lower(s.text) like '%package%'
+               ) and
+               regexp_like(
+                  s.text,
+                  '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(constructor|member)?\s*(procedure|function)|package(\s+body)|begin|end(\s+\S+)?\s*;)', 'i'
+               )
+              then 'Y'
+           end as to_be_skipped
       from all_source s
      where s.type not in ('PACKAGE', 'TYPE')
        and s.owner in (select t.column_value from table(a_schema_names) t)
        --Exclude calls to utPLSQL framework and Unit Test packages
-    --   and not exists(select 1 from table(l_skipped_objects) l where s.owner = l.owner AND s.name = l.name)
-    ;
+       and not exists(select 1 from table(l_skipped_objects) l where s.owner = l.owner AND s.name = l.name);
 
     for src_object in (
-      select o.owner, o.object_name, o.object_type, lower(o.owner||'.'||o.object_name) full_name, c.lines_count
-      from all_objects o
-      join (select max(c.line) lines_count, c.owner, c.name
-        from ut_coverage_sources_tmp c
-        group by c.owner, c.name) c
-        on o.owner = c.owner and o.object_name = c.name
-      where o.object_type not in ('PACKAGE', 'TYPE')
-      and o.owner in ( select t.column_value from table (a_schema_names) t)
-        --Exclude calls to utPLSQL framework and Unit Test packages
-      and not exists ( select 1 from table (l_skipped_objects) l where o.owner = l.owner and o.object_name = l.name)
+      select o.owner, o.name, lower(o.owner||'.'||o.name) full_name, max(o.line) lines_count,
+             cast(
+               collect(decode(to_be_skipped, 'Y', to_char(line))) as ut_varchar2_list
+             ) to_be_skipped_list
+        from ut_coverage_sources_tmp o
+       group by o.owner, o.name
     ) loop
 
       --get coverage data
-      l_line_calls := ut_coverage_helper.get_raw_coverage_data( src_object.owner, src_object.object_name );
+      l_line_calls := ut_coverage_helper.get_raw_coverage_data( src_object.owner, src_object.name );
 
       --if there is coverage, we need to filter out the garbage (badly indicated data from dbms_profiler)
       if l_line_calls.count > 0 then
-        --get source lines to skip
-        select line
-          bulk collect into l_source_lines
-          from ut_coverage_sources_tmp c
-         where c.owner = src_object.owner
-           and c.name = src_object.object_name
-           and regexp_instr(
-                  c.text,
-                  '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(constructor|member)?\s*(procedure|function)|package(\s+body)|begin|end(\s+\S+)?\s*;)', 1, 1, 0, 'i'
-                ) != 0;
         --remove lines that should not be indicted as meaningful
-        for i in 1 .. l_source_lines.count loop
-          l_line_calls.delete(l_source_lines(i));
+        for i in 1 .. src_object.to_be_skipped_list.count loop
+          if src_object.to_be_skipped_list(i) is not null then
+            l_line_calls.delete(src_object.to_be_skipped_list(i));
+          end if;
         end loop;
       end if;
 
