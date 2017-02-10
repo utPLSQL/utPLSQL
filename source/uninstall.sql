@@ -51,6 +51,24 @@ drop synonym be_true;
 
 drop synonym equal;
 
+drop package ut_coverage_report_html_helper;
+
+drop type ut_coverage_html_reporter;
+
+drop package ut_coverage;
+
+drop package ut_coverage_helper;
+
+drop table plsql_profiler_data cascade constraints;
+
+drop table plsql_profiler_units cascade constraints;
+
+drop table plsql_profiler_runs cascade constraints;
+
+drop table ut_coverage_sources_tmp;
+
+drop sequence plsql_profiler_runnumber;
+
 drop package ut_teamcity_reporter_helper;
 
 drop package ut_runner;
@@ -161,6 +179,8 @@ drop type ut_xunit_reporter;
 
 drop type ut_event_listener;
 
+drop type ut_coverage_reporter_base;
+
 drop type ut_reporters;
 
 drop type ut_reporter_base force;
@@ -198,6 +218,10 @@ drop type ut_results_counter;
 drop type ut_assert_results;
 
 drop type ut_assert_result;
+
+drop type ut_object_names;
+
+drop type ut_object_name;
 
 drop type ut_varchar2_list;
 

@@ -1,9 +1,12 @@
+set trimspool on
 set echo off
 set feedback off
 set verify off
 Clear Screen
-set linesize 5000
+set linesize 32767
 set pagesize 0
+set long 200000000
+set longchunksize 1000000
 set serveroutput on size unlimited format truncated
 @@lib/RunVars.sql
 
@@ -15,11 +18,14 @@ set serveroutput on size unlimited format truncated
 create table ut$test_table (val varchar2(1));
 @@helpers/ut_transaction_control.pck
 @@helpers/department.tps
+@@helpers/department1.tps
 @@helpers/test_package_3.pck
 @@helpers/test_package_1.pck
 @@helpers/test_package_2.pck
 
---Tests to invoke
+--Start coverage in develop mode (coverage for utPLSQL framework)
+--Regular coverage excludes the framework
+exec ut_coverage.coverage_start_develop();
 
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationNotBeforeProcedure.sql
@@ -52,7 +58,11 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsFalse.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesSuccessWhenExpessionIsTrue.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenBothObjectsAreNullButDifferentType.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentData.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenOneOfObjectsIsNull.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothAnydataAreNull.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothObjectsAreNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.PutsObjectStrucureIntoAssert.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesFailureForDifferentValues.sql
@@ -192,17 +202,48 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 
 
+--Finally
+@@lib/RunSummary
+
 --Global cleanup
+--removing objects that should not be part of coverage report
 drop package ut_example_tests;
 drop procedure check_annotation_parsing;
 drop package ut_transaction_control;
 drop table ut$test_table;
 drop type department$;
+drop type department1$;
 drop package test_package_1;
 drop package test_package_2;
 drop package test_package_3;
 
---Finally
-@@lib/RunSummary
+set timing on
+prompt Flushing coverage data into temp tables
+exec ut_coverage.coverage_stop();
+
+prompt Generating coverage data to reporter outputs
+
+var reporter_id varchar2(32);
+declare
+  l_reporter ut_coverage_html_reporter := ut_coverage_html_reporter('utPLSQL v3 Unit Tests');
+begin
+  :reporter_id := l_reporter.reporter_id;
+  l_reporter.after_calling_run(ut_run(ut_suite_items()));
+end;
+/
+
+prompt Spooling outcomes to coverage.html
+set termout off
+set feedback off
+set arraysize 50
+spool coverage.html
+--getting data by putting into dbms_output
+  exec ut_output_buffer.lines_to_dbms_output(:reporter_id);
+
+--getting data by select statement
+  --select * from table( ut_output_buffer.get_lines(:reporter_id) );
+spool off
+
+
 --can be used by CI to check for tests status
 exit :failures_count

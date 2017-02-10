@@ -1,23 +1,24 @@
-create or replace type ut_event_listener_base authid current_user as object(
+create global temporary table ut_coverage_sources_tmp(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
-
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-
       http://www.apache.org/licenses/LICENSE-2.0
-
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  name varchar2(250),
-  member procedure fire_before_event(self in out nocopy ut_event_listener_base, a_event_name varchar2, a_item ut_suite_item_base),
-  member procedure fire_after_event(self in out nocopy ut_event_listener_base, a_event_name varchar2, a_item ut_suite_item_base),
-  member procedure fire_event(self in out nocopy ut_event_listener_base, a_event_timing varchar2, a_event_name varchar2, a_item ut_suite_item_base)
-) not final not instantiable
-/
+  owner varchar2(250),
+  name  varchar2(250),
+  line  number(38,0),
+  to_be_skipped varchar2(1),
+  text varchar2(4000),
+  constraint ut_coverage_sources_tmp_pk primary key (owner,name,line)
+) on commit preserve rows;
+
+create unique index ut_coverage_sources_tmp_uk on ut_coverage_sources_tmp (owner,name,to_be_skipped, line);
+
