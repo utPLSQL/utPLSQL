@@ -29,6 +29,7 @@ prompt Granting privileges on UTPLSQL objects in &&ut3_owner schema to user &&ut
 alter session set current_schema = &&ut3_owner;
 
 grant execute on ut_be_between to &ut3_user;
+grant execute on ut_be_empty to &ut3_user;
 grant execute on ut_be_false to &ut3_user;
 grant execute on ut_be_greater_or_equal to &ut3_user;
 grant execute on ut_be_greater_than to &ut3_user;
@@ -52,6 +53,7 @@ grant execute on ut_reporter_base to &ut3_user;
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to user &&ut3_user
 
 create or replace synonym &ut3_user .be_between for be_between;
+create or replace synonym &ut3_user .be_empty for be_empty;
 create or replace synonym &ut3_user .be_false for be_false;
 create or replace synonym &ut3_user .be_greater_or_equal for be_greater_or_equal;
 create or replace synonym &ut3_user .be_greater_than for be_greater_than;
