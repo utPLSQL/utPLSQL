@@ -63,11 +63,11 @@ create or replace type body ut_test as
         l_completed_without_errors := self.before_test.do_execute(self, a_listener);
 
         if l_completed_without_errors then
-          l_completed_without_errors := self.item.do_execute(self, a_listener);
-        end if;
-
-        if l_completed_without_errors then
-          l_completed_without_errors := self.after_test.do_execute(self, a_listener);
+          -- execute the test
+          self.item.do_execute(self, a_listener);
+          
+          -- perform cleanup regardless of the test failure
+          self.after_test.do_execute(self, a_listener);
         end if;
 
         self.rollback_to_savepoint(l_savepoint);

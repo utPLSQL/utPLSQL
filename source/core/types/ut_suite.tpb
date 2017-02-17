@@ -95,7 +95,8 @@ create or replace type body ut_suite  as
               l_completed_without_errors := self.after_each.do_execute(self, a_listener);
 
               if not l_completed_without_errors then
-                self.items(i).fail(a_listener, 'Aftereach procedure failed:'||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
+                a_listener.save_warning(self,'Aftereach procedure failed:'||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
+                --self.items(i).fail(a_listener, 'Aftereach procedure failed:'||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
               end if;
 
             else
@@ -110,7 +111,7 @@ create or replace type body ut_suite  as
           
           l_suite_step_without_errors := self.after_all.do_execute(self, a_listener);
           if not l_suite_step_without_errors then
-            do_fail('Afterall procedure failed: '||chr(10));
+            a_listener.save_warning(self, 'Afterall procedure failed: '||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
           end if;
         else
           do_fail('Beforeall procedure failed: '||chr(10));

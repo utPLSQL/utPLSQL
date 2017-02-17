@@ -116,15 +116,29 @@ create or replace type body ut_documentation_reporter is
         end loop;
       end if;
     end;
+    
+    procedure print_warnings is
+    begin
+      if self.warnings is not null and self.warnings.count>0 then
+        self.print_text( 'Warnings:' );
+        self.print_text( ' ' );
+        for i in 1 .. self.warnings.count loop
+          self.print_text(self.warnings(i));
+          self.print_text(' ');
+        end loop;
+      end if;
+    end;
 
   begin
     print_failures_details(a_run);
+    print_warnings();
     self.print_text( 'Finished in '||a_run.execution_time||' seconds' );
     l_summary_text :=
       a_run.results_count.total_count || ' tests, '
       ||a_run.results_count.failure_count||' failed, '
       ||a_run.results_count.errored_count||' errored, '
-      ||a_run.results_count.ignored_count||' ignored';
+      ||a_run.results_count.ignored_count||' ignored.'||
+      case when self.warnings.count>0 then ' '||self.warnings.count||' warning(s)' end;
     if a_run.results_count.failure_count > 0 then
       self.print_red_text(l_summary_text);
     else
