@@ -124,6 +124,7 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageProcedureByPathCurUser.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPath.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPathCurUser.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.DoesntFindTheSuiteWhenPackageSpecIsInvalid.sql
 
 @@lib/RunTest.sql ut_test/ut_test.IgnoreFlagSkipTest.sql
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameInvalid.sql
@@ -145,7 +146,15 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_test/ut_test.TeardownProcedureNameNull.sql
 @@lib/RunTest.sql ut_test/ut_test.IgnoreTollbackToSavepointException.sql
 
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsATestWhenAfterTestFails.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsATestWhenBeforeTestFails.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenBeforeAllFails.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenBeforeEachFails.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenPackageHasInvalidBody.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenPackageHasNoBody.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.IgnoreFlagSkipSuite.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ReportsWarningsATestWhenAfterAllFails.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ReportsWarningsATestWhenAfterEachFails.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Auto.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.AutoOnFailure.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Manual.sql

@@ -509,7 +509,7 @@ create or replace package body ut_suite_manager is
           l_suite := l_schema_suites(l_root_suite_name);
         exception
           when no_data_found then
-            raise_application_error(-20203, 'Suite ' || l_root_suite_name || ' not found');
+            raise_application_error(-20203, 'Suite ' || l_root_suite_name || ' does not exist or is invalid');
         end;
 
         skip_by_path(l_suite, regexp_substr(l_suite_path, '\.(.+)', subexpression => 1));
