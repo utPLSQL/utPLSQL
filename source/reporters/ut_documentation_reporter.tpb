@@ -67,6 +67,7 @@ create or replace type body ut_documentation_reporter is
 
   overriding member procedure after_calling_run(self in out nocopy ut_documentation_reporter, a_run in ut_run) as
     l_summary_text varchar2(4000);
+    l_warnings ut_varchar2_list := ut_varchar2_list();
     procedure print_failure_for_assert(a_assert ut_assert_result) is
       l_lines ut_varchar2_list;
     begin
@@ -117,13 +118,31 @@ create or replace type body ut_documentation_reporter is
       end if;
     end;
     
-    procedure print_warnings is
+    procedure print_warnings is     
+      procedure gather_warnings(a_item ut_suite_item) is
+        l_suite ut_logical_suite;
+      begin
+        --process warnings of child items first
+        if a_item is of(ut_logical_suite) then
+          l_suite := treat(a_item as ut_logical_suite);
+          for item_ind in 1..l_suite.items.count loop
+            gather_warnings(l_suite.items(item_ind));
+          end loop;
+        end if;
+        
+        --then process self warnings
+        for warn_ind in 1..a_item.warnings.count loop
+          l_warnings.extend;
+          l_warnings(l_warnings.last) := a_item.warnings(warn_ind);
+        end loop;
+      end;
     begin
-      if self.warnings is not null and self.warnings.count>0 then
+      
+      if l_warnings.count>0 then
         self.print_text( 'Warnings:' );
         self.print_text( ' ' );
-        for i in 1 .. self.warnings.count loop
-          self.print_text(self.warnings(i));
+        for i in 1 .. l_warnings.count loop
+          self.print_text(l_warnings(i));
           self.print_text(' ');
         end loop;
       end if;
@@ -138,7 +157,7 @@ create or replace type body ut_documentation_reporter is
       ||a_run.results_count.failure_count||' failed, '
       ||a_run.results_count.errored_count||' errored, '
       ||a_run.results_count.ignored_count||' ignored.'||
-      case when self.warnings.count>0 then ' '||self.warnings.count||' warning(s)' end;
+      case when l_warnings.count>0 then ' '||l_warnings.count||' warning(s)' end;
     if a_run.results_count.failure_count > 0 then
       self.print_red_text(l_summary_text);
     else

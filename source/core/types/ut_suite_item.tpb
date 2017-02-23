@@ -29,6 +29,7 @@ create or replace type body ut_suite_item as
     self.rollback_type := a_rollback_type;
     self.ignore_flag := ut_utils.boolean_to_int(a_ignore_flag);
     self.results_count := ut_results_counter();
+    self.warnings := ut_varchar2_list();
   end;
 
   member procedure set_ignore_flag(self in out nocopy ut_suite_item, a_ignore_flag boolean) is
@@ -72,6 +73,13 @@ create or replace type body ut_suite_item as
   member function execution_time return number is
   begin
     return ut_utils.time_diff(start_time, end_time);
+  end;
+  
+  member procedure put_warning(self in out nocopy ut_suite_item, a_message varchar2) is
+  begin
+    self.warnings.extend;
+    self.warnings(self.warnings.last) := a_message;
+    self.results_count.increase_warning_count;
   end;
 
 end;

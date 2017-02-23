@@ -5,10 +5,25 @@ create or replace package test_remove_rooms_by_name as
 
   -- %beforeall
   procedure setup_rooms;
+  
+  -- %beforeeach
+  procedure setup_the_room;
+  
+  -- %aftereach
+  procedure clean_the_room;
+  
+  -- %afterall
+  procedure clean_rooms;
 
   -- %test
   -- %displayname(Removes a room without content in it)
   procedure remove_empty_room;
+
+  -- %beforetest(remove_empty_room)
+  procedure setup_test_room;    
+  
+  -- %aftertest(remove_empty_room)
+  procedure clean_test_room;  
 
   -- %test
   -- %displayname(Does not remove room when it has content)
@@ -24,6 +39,7 @@ create or replace package body test_remove_rooms_by_name as
 
   procedure setup_rooms is
   begin
+    
     insert all
       into rooms values(1, 'Dining Room')
       into rooms values(2, 'Living Room')
@@ -44,6 +60,22 @@ create or replace package body test_remove_rooms_by_name as
       into room_contents values(9, 3, 'Whiteboard')
     select 1 from dual;
   end;
+  
+  -- %beforeeach
+  procedure setup_the_room is begin null end;
+  
+  -- %aftereach
+  procedure clean_the_room is begin null end;
+  
+  -- %afterall
+  procedure clean_rooms is begin null end;
+  
+  -- %beforetest(remove_empty_room)
+  procedure setup_test_room is begin null end;
+  
+  -- %aftertest(remove_empty_room)
+  procedure clean_test_room is begin null end;
+
 
   procedure remove_empty_room is
     l_rooms_not_named_b sys_refcursor;

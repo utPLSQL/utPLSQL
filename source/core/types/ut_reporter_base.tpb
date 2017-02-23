@@ -21,7 +21,6 @@ create or replace type body ut_reporter_base is
     self.self_type   := a_self_type;
     self.reporter_id := sys_guid();
     self.start_date  := sysdate();
-    self.warnings    := ut_varchar2_list();
     return;
   end;
 
@@ -132,11 +131,6 @@ create or replace type body ut_reporter_base is
   begin
     ut_output_buffer.close(self);
   end;
-  
-  member procedure save_warning(self in out nocopy ut_reporter_base, a_item ut_suite_item_base, a_message varchar2) is
-  begin
-    self.warnings.extend;
-    self.warnings(self.warnings.last) := a_message;
-  end;
+
 end;
 /

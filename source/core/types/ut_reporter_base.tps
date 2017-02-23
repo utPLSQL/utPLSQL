@@ -1,4 +1,4 @@
-create or replace type ut_reporter_base force authid current_user as object(
+create or replace type ut_reporter_base authid current_user as object(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -18,7 +18,6 @@ create or replace type ut_reporter_base force authid current_user as object(
   self_type    varchar2(250),
   reporter_id  raw(32),
   start_date   date,
-  warnings     ut_varchar2_list,
   final member procedure init(self in out nocopy ut_reporter_base, a_self_type varchar2),
   final member function get_reporter_id(self in out nocopy ut_reporter_base) return raw,
 
@@ -60,9 +59,7 @@ create or replace type ut_reporter_base force authid current_user as object(
   member procedure after_calling_suite(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
 
   -- run hooks continued
-  member procedure after_calling_run (self in out nocopy ut_reporter_base, a_run in ut_run),
-  
-  member procedure save_warning(self in out nocopy ut_reporter_base, a_item ut_suite_item_base, a_message varchar2)
+  member procedure after_calling_run (self in out nocopy ut_reporter_base, a_run in ut_run)
 
 )
 not final not instantiable

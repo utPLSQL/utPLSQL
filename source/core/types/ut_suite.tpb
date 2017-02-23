@@ -81,6 +81,7 @@ create or replace type body ut_suite  as
 
             --savepoint
             l_item_savepoint := self.items(i).create_savepoint_if_needed();
+            
             --before each
             --includes listener calls for before and after actions
             l_completed_without_errors := self.before_each.do_execute(self, a_listener);
@@ -88,30 +89,26 @@ create or replace type body ut_suite  as
             -- execute the item (test or suite)
             if l_completed_without_errors then
               l_completed_without_errors := self.items(i).do_execute(a_listener);
-              
-              --after each
-              --includes listener calls for before and after actions
-              -- run afteeach even if a test raised an exception
-              l_completed_without_errors := self.after_each.do_execute(self, a_listener);
-
-              if not l_completed_without_errors then
-                a_listener.save_warning(self,'Aftereach procedure failed:'||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
-                --self.items(i).fail(a_listener, 'Aftereach procedure failed:'||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
-              end if;
-
             else
               self.items(i).fail(a_listener, 'Beforeach procedure failed:'||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
+            end if;
+            
+            --after each
+            --includes listener calls for before and after actions
+            --run afteeach even if a test raised an exception
+            l_completed_without_errors := self.after_each.do_execute(self, a_listener);
+            if not l_completed_without_errors then
+              self.put_warning('Aftereach procedure failed:'||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
             end if;
 
             --rollback to savepoint
             self.items(i).rollback_to_savepoint(l_item_savepoint);
 
-  --          exit when not l_completed_without_errors;
           end loop;
           
           l_suite_step_without_errors := self.after_all.do_execute(self, a_listener);
           if not l_suite_step_without_errors then
-            a_listener.save_warning(self, 'Afterall procedure failed: '||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
+            self.put_warning('Afterall procedure failed: '||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
           end if;
         else
           do_fail('Beforeall procedure failed: '||chr(10));

@@ -89,13 +89,6 @@ create or replace type body ut_event_listener is
     end loop;
 
   end fire_event;
-  
-  overriding member procedure save_warning(self in out nocopy ut_event_listener, a_item ut_suite_item_base, a_message varchar2) is
-  begin
-    for i in 1..self.reporters.count loop
-      self.reporters(i).save_warning(a_item, a_message);
-    end loop;
-  end;
 
 end;
 /

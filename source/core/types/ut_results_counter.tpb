@@ -17,10 +17,11 @@ create or replace type body ut_results_counter as
   */
   constructor function ut_results_counter(self in out nocopy ut_results_counter) return self as result is
   begin
-    self.ignored_count := 0;
-    self.success_count := 0;
-    self.failure_count := 0;
-    self.errored_count := 0;
+    self.ignored_count  := 0;
+    self.success_count  := 0;
+    self.failure_count  := 0;
+    self.errored_count  := 0;
+    self.warnings_count := 0;
     return;
   end;
 
@@ -39,10 +40,17 @@ create or replace type body ut_results_counter as
     self.success_count  := self.success_count + a_item.success_count;
     self.failure_count  := self.failure_count + a_item.failure_count;
     self.errored_count  := self.errored_count + a_item.errored_count;
+    self.warnings_count := self.warnings_count + a_item.warnings_count;
+  end;
+  
+  member procedure increase_warning_count(self in out nocopy ut_results_counter) is
+  begin
+    self.warnings_count := self.warnings_count + 1;
   end;
 
   member function total_count return integer is
   begin
+    --skip warnings here
     return self.ignored_count + self.success_count + self.failure_count + self.errored_count;
   end;
 

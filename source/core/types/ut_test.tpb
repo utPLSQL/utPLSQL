@@ -65,10 +65,10 @@ create or replace type body ut_test as
         if l_completed_without_errors then
           -- execute the test
           self.item.do_execute(self, a_listener);
-          
-          -- perform cleanup regardless of the test failure
-          self.after_test.do_execute(self, a_listener);
         end if;
+        
+        -- perform cleanup regardless of the test failure
+        self.after_test.do_execute(self, a_listener);
 
         self.rollback_to_savepoint(l_savepoint);
 
