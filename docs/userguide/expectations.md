@@ -27,6 +27,7 @@ Matcher is defining the comparison operation to be performed on expected and act
 - `be_greater_or_equal`
 - `be_false`
 - `be_between`
+- `be_empty`
 
 ## match
 Allows regexp_like validations to be executed against the following datatypes:

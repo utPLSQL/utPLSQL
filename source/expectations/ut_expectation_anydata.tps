@@ -15,6 +15,7 @@ create or replace type ut_expectation_anydata under ut_expectation(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  overriding member procedure to_equal(self in ut_expectation_anydata, a_expected anydata, a_nulls_are_equal boolean := null)
+  overriding member procedure to_equal(self in ut_expectation_anydata, a_expected anydata, a_nulls_are_equal boolean := null),
+  member procedure to_be_empty(self in ut_expectation_anydata)
 )
 /

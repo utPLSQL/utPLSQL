@@ -1,4 +1,4 @@
-create or replace type ut_expectation_refcursor under ut_expectation(
+create or replace type ut_be_empty under ut_matcher(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,7 +15,8 @@ create or replace type ut_expectation_refcursor under ut_expectation(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  overriding member procedure to_equal(self in ut_expectation_refcursor, a_expected sys_refcursor, a_nulls_are_equal boolean := null),
-  member procedure to_be_empty(self in ut_expectation_refcursor)  
+  member procedure init(self in out nocopy ut_be_empty),
+  constructor function ut_be_empty(self in out nocopy ut_be_empty) return self as result,
+  overriding member function run_matcher(self in out nocopy ut_be_empty, a_actual ut_data_value) return boolean
 )
 /

@@ -20,6 +20,11 @@ create or replace type body ut_expectation_refcursor as
     ut_utils.debug_log('ut_expectation_refcursor.to_equal(self in ut_expectation_refcursor, a_expected sys_refcursor, a_nulls_are_equal boolean := null)');
     self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
-
+  
+  member procedure to_be_empty(self in ut_expectation_refcursor) is
+  begin
+    ut_utils.debug_log('ut_expectation_refcursor.to_be_empty(self in ut_expectation_refcursor)');
+    self.to_( ut_be_empty() );
+  end;
 end;
 /

@@ -78,6 +78,8 @@ create table ut$test_table (val varchar2(1));
 @@ut_matchers/greater_than.sql
 @@ut_matchers/less_or_equal.sql
 @@ut_matchers/less_than.sql
+@@ut_matchers/be_empty.sql
+
 @@lib/RunTest.sql ut_matchers/timestamp_between.sql
 @@lib/RunTest.sql ut_matchers/timestamp_ltz_between.sql
 @@lib/RunTest.sql ut_matchers/timestamp_ltz_not_between.sql
@@ -171,6 +173,7 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigNumber.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigVarchar2.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
+
 
 --Global cleanup
 drop package ut_example_tests;
