@@ -17,12 +17,12 @@ create or replace package test_remove_rooms_by_name as
 
   -- %test
   -- %displayname(Removes a room without content in it)
-  procedure remove_empty_room;
-
   -- %beforetest(remove_empty_room)
+  -- %aftertest(remove_empty_room)
+  procedure remove_empty_room;
+  
   procedure setup_test_room;    
   
-  -- %aftertest(remove_empty_room)
   procedure clean_test_room;  
 
   -- %test
@@ -62,25 +62,28 @@ create or replace package body test_remove_rooms_by_name as
   end;
   
   -- %beforeeach
-  procedure setup_the_room is begin null end;
+  procedure setup_the_room is begin null; end;
   
   -- %aftereach
-  procedure clean_the_room is begin null end;
+  procedure clean_the_room is begin null;  end;
   
   -- %afterall
-  procedure clean_rooms is begin null end;
+  procedure clean_rooms is begin null; 
+   end;
   
   -- %beforetest(remove_empty_room)
-  procedure setup_test_room is begin null end;
+  procedure setup_test_room is begin null; 
+  raise_application_error(-20001,'Test exception');  end;
   
   -- %aftertest(remove_empty_room)
-  procedure clean_test_room is begin null end;
+  procedure clean_test_room is begin null; end;
 
 
   procedure remove_empty_room is
     l_rooms_not_named_b sys_refcursor;
     l_remaining_rooms   sys_refcursor;
   begin
+    
     open l_rooms_not_named_b for select * from rooms where name not like 'B%';
 
     remove_rooms_by_name('B%');
