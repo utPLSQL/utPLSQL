@@ -134,7 +134,7 @@ create or replace type body ut_documentation_reporter is
         if a_item.warnings is not null and a_item.warnings.count > 0 then
           for warn_ind in 1..a_item.warnings.count loop
             l_warnings.extend;
-            l_warnings(l_warnings.last) := '  '||l_warnings.last||') '||a_item.path||': '||
+            l_warnings(l_warnings.last) := '  '||l_warnings.last||') '||a_item.path||' - '||
             regexp_replace(a_item.warnings(warn_ind),'('||chr(10)||'|'||chr(13)||')','\1       ');
           end loop;
         end if;
