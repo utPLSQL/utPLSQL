@@ -84,6 +84,7 @@ Keeping the transactions uncommitted allows your changes to be isolated and the 
 If however you're in situation, where the code you are testing, is using transaction control (like ETL code is usually doing), then your tests should not use the default rollback(auto)
 You should make sure that thr entire suitepath all the way to the root is using manual transaction control in that case.
 
+In some cases it is needed to perform DDL in setup/teardown. It is recommended to move such DDL statements to a procedure with pragma autonomous_transaction to eliminate implicit commit of the main session.
 
 # Suitepath concept
 It is very likely that the application for which you are going to introduce tests consists of many different packages or procedures/functions. Usually procedures can be logically grouped inside a package, there also might be several logical groups of procedure in a single package or even packages themselves might relate to a common module.
