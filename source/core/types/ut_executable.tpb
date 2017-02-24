@@ -69,13 +69,13 @@ create or replace type body ut_executable is
     return ut_metadata.form_name(owner_name, object_name, procedure_name);
   end;
 
-  member procedure do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is
+  member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is
     l_completed_without_errors  boolean;
   begin
     l_completed_without_errors := self.do_execute(a_item, a_listener);
   end do_execute;
 
-	member function do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean is
+	member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_statement      varchar2(4000);
     l_status         number;
     l_cursor_number  number;
@@ -83,8 +83,6 @@ create or replace type body ut_executable is
     l_object_name    varchar2(200) := self.object_name;
     l_procedure_name varchar2(200) := self.procedure_name;
 
-    l_error_stack     varchar2(32767);
-    l_error_backtrace varchar2(32767);
     l_completed_without_errors boolean := true;
 
     function process_errors_from_call(a_error_stack varchar2, a_error_backtrace varchar2) return boolean is
@@ -98,6 +96,25 @@ create or replace type body ut_executable is
         return true;
       end if;
     end;
+    
+    procedure save_dbms_output is
+      l_status number;
+      l_line varchar2(32767);
+    begin
+      dbms_lob.createtemporary(self.serveroutput, true, dur => dbms_lob.session);
+      
+      loop
+        dbms_output.get_line(line => l_line, status => l_status);
+        exit when l_status = 1;
+        
+        dbms_lob.writeappend(lob_loc => self.serveroutput,
+                             amount  => length(l_line),
+                             buffer  => l_line);
+        dbms_lob.writeappend(lob_loc => self.serveroutput,
+                             amount  => 1,
+                             buffer  => chr(10));
+      end loop;
+    end save_dbms_output;
   begin
     if self.is_defined() then
       --listener - before call to executable
@@ -129,15 +146,17 @@ create or replace type body ut_executable is
 
       l_cursor_number := dbms_sql.open_cursor;
       dbms_sql.parse(l_cursor_number, statement => l_statement, language_flag => dbms_sql.native);
-      dbms_sql.bind_variable(l_cursor_number, 'a_error_stack', l_error_stack, 32767);
-      dbms_sql.bind_variable(l_cursor_number, 'a_error_backtrace', l_error_backtrace, 32767);
+      dbms_sql.bind_variable(l_cursor_number, 'a_error_stack', to_char(null), 32767);
+      dbms_sql.bind_variable(l_cursor_number, 'a_error_backtrace', to_char(null), 32767);
 
       l_status := dbms_sql.execute(l_cursor_number);
-      dbms_sql.variable_value(l_cursor_number, 'a_error_stack', l_error_stack);
-      dbms_sql.variable_value(l_cursor_number, 'a_error_backtrace', l_error_backtrace);
+      dbms_sql.variable_value(l_cursor_number, 'a_error_stack', self.error_stack);
+      dbms_sql.variable_value(l_cursor_number, 'a_error_backtrace', self.error_backtrace);
       dbms_sql.close_cursor(l_cursor_number);
+      
+      save_dbms_output;
 
-      l_completed_without_errors := process_errors_from_call(l_error_stack, l_error_backtrace);
+      l_completed_without_errors := process_errors_from_call(self.error_stack, self.error_backtrace);
 
       a_listener.fire_after_event(self.associated_event_name, a_item);
       --listener - after call to executable
