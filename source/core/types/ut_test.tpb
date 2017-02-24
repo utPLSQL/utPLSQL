@@ -39,12 +39,6 @@ create or replace type body ut_test as
     return l_is_valid;
   end;
 
-  overriding member procedure do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base) is
-    l_completed_without_errors boolean;
-  begin
-    l_completed_without_errors := self.do_execute(a_listener);
-  end;
-
   overriding member function do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_completed_without_errors boolean;
     l_savepoint                varchar2(30);
@@ -69,12 +63,12 @@ create or replace type body ut_test as
         l_completed_without_errors := self.before_test.do_execute(self, a_listener);
 
         if l_completed_without_errors then
-          l_completed_without_errors := self.item.do_execute(self, a_listener);
-        end if;
+          -- execute the test
+          self.item.do_execute(self, a_listener);
 
-        if l_completed_without_errors then
-          l_completed_without_errors := self.after_test.do_execute(self, a_listener);
         end if;
+        -- perform cleanup regardless of the test or setup failure
+        self.after_test.do_execute(self, a_listener);
 
         self.rollback_to_savepoint(l_savepoint);
 
@@ -93,6 +87,18 @@ create or replace type body ut_test as
     self.results := ut_assert_processor.get_asserts_results();
     self.results_count := ut_results_counter(self.result);
   end;
+
+  overriding member procedure fail(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base, a_failure_msg varchar2) is
+  begin
+    ut_utils.debug_log('ut_test.fail');
+    a_listener.fire_before_event(ut_utils.gc_test, self);
+    self.start_time := current_timestamp;
+    ut_assert_processor.report_error(a_failure_msg);
+    self.calc_execution_result();
+    self.end_time := self.start_time;
+    a_listener.fire_after_event(ut_utils.gc_test, self);
+  end;
+
 
 end;
 /

@@ -88,7 +88,7 @@ create or replace type body ut_event_listener is
       end if;
     end loop;
 
-  end;
+  end fire_event;
 
 end;
 /

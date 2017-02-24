@@ -53,7 +53,8 @@ create or replace type ut_suite_item_base authid current_user as object (
   --execution result fields
   start_time    timestamp with time zone,
   end_time      timestamp with time zone,
-  result        integer(1)
+  result        integer(1),
+  warnings      ut_varchar2_list
 
 )
 not final not instantiable

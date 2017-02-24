@@ -131,5 +131,6 @@ create or replace type body ut_reporter_base is
   begin
     ut_output_buffer.close(self);
   end;
+
 end;
 /

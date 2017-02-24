@@ -1,4 +1,4 @@
-create or replace type ut_reporter_base force authid current_user as object(
+create or replace type ut_reporter_base authid current_user as object(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project

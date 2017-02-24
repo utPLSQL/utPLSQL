@@ -72,8 +72,19 @@ end test_pkg;
 | `%aftereach` | Procedure | Denotes that the annotated procedure should be executed after each `%test` method in the current suite. |
 | `%beforetest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed before the annotated `%test` procedure. |
 | `%aftertest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed after the annotated `%test` procedure. |
-| `%rollback(<type>)` | Package/procedure | Configure transaction control behaviour (type). Supported values: `auto`(default) - rollback to savepoint (before the test/suite setup) is issued after each test/suite teardown; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
+| `%rollback(<type>)` | Package/procedure | Configure transaction control behaviour (type). Supported values: `auto`(default) - A savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
 | `%disabled` | Package/procedure | Used to disable a suite or a test |
+
+# Using automatic rollbacks in tests
+By default, every test is isolated from other tests using savepoint.
+This solution is suitable for use-cases, where the code that is getting tested as well as the unit tests themselves do not use transaction control commands (commit/rollback).
+In general, your unit tests should not use transaction control as long as the core you are testing is not using it too.
+Keeping the transactions uncommitted allows your changes to be isolated and the execution of tests is not impacting others that might be using a shared (integration) development database.
+
+If however you're in situation, where the code you are testing, is using transaction control (like ETL code is usually doing), then your tests should not use the default rollback(auto)
+You should make sure that thr entire suitepath all the way to the root is using manual transaction control in that case.
+
+In some cases it is needed to perform DDL in setup/teardown. It is recommended to move such DDL statements to a procedure with pragma autonomous_transaction to eliminate implicit commit of the main session.
 
 # Suitepath concept
 It is very likely that the application for which you are going to introduce tests consists of many different packages or procedures/functions. Usually procedures can be logically grouped inside a package, there also might be several logical groups of procedure in a single package or even packages themselves might relate to a common module.
@@ -148,3 +159,4 @@ A `%suitepath` can be provided in tree ways:
 * schema - execute all test in the schema
 * [schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests in all suites from suite1[.suite2][.suite3]...[.procedure] path. If schema is not provided, then current schema is used. Example: `:all.rooms_tests`.
 * [schema.]package[.procedure] - execute all tests in the test package provided. The whole hierarchy of suites in the schema is build before, all before/after hooks of partn suites for th provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator` or simply `test_contact.test_last_name_validator` if `tests` is the current schema.
+

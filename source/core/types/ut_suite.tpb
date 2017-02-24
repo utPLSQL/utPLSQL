@@ -43,67 +43,88 @@ create or replace type body ut_suite  as
     return l_is_valid;
   end;
 
-  overriding member function do_execute(self in out nocopy ut_suite , a_listener in out nocopy ut_event_listener_base) return boolean is
+  overriding member function do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_suite_savepoint varchar2(30);
     l_item_savepoint  varchar2(30);
     l_completed_without_errors boolean;
+    l_suite_step_without_errors boolean;
+    
+    procedure do_fail(a_prefix varchar2) is
+      l_results ut_assert_results := ut_assert_processor.get_asserts_results();
+    begin
+      for i in 1..self.items.count loop
+        self.items(i).fail(a_listener, a_prefix||l_results(1).error_message);
+      end loop;
+    end;
   begin
-    ut_utils.debug_log('ut_suite .execute');
+    ut_utils.debug_log('ut_suite.execute');
+    a_listener.fire_before_event(ut_utils.gc_suite,self);
+    
+    self.start_time := current_timestamp;    
 
     if self.get_ignore_flag() then
       self.result := ut_utils.tr_ignore;
+      self.end_time := self.start_time;
       ut_utils.debug_log('ut_suite .execute - ignored');
     else
-      a_listener.fire_before_event(ut_utils.gc_suite,self);
+      
+      if self.is_valid() then
 
-      self.start_time := current_timestamp;
+        l_suite_savepoint := self.create_savepoint_if_needed();
 
-      l_suite_savepoint := self.create_savepoint_if_needed();
+        --includes listener calls for before and after actions
+        l_suite_step_without_errors := self.before_all.do_execute(self, a_listener);
 
-      --includes listener calls for before and after actions
-      l_completed_without_errors := self.before_all.do_execute(self, a_listener);
+        if l_suite_step_without_errors then
+          for i in 1 .. self.items.count loop
+            l_completed_without_errors := true;
 
-      if l_completed_without_errors then
-        for i in 1 .. self.items.count loop
-          l_completed_without_errors := true;
-
-          --savepoint
-          l_item_savepoint := self.items(i).create_savepoint_if_needed();
-          --before each
-          if l_completed_without_errors then
+            --savepoint
+            l_item_savepoint := self.items(i).create_savepoint_if_needed();
+            
+            --before each
             --includes listener calls for before and after actions
             l_completed_without_errors := self.before_each.do_execute(self, a_listener);
-          end if;
 
-          -- execute the item (test or suite)
-          if l_completed_without_errors then
-            l_completed_without_errors := self.items(i).do_execute(a_listener);
-          end if;
-
-          --after each
-          if l_completed_without_errors then
+            -- execute the item (test or suite)
+            if l_completed_without_errors then
+              l_completed_without_errors := self.items(i).do_execute(a_listener);
+            else
+              self.items(i).fail(a_listener, 'Beforeach procedure failed:'||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
+            end if;
+            
+            --after each
             --includes listener calls for before and after actions
+            --run afteeach even if a test raised an exception
             l_completed_without_errors := self.after_each.do_execute(self, a_listener);
+            if not l_completed_without_errors then
+              self.put_warning('Aftereach procedure failed:'||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
+            end if;
+
+            --rollback to savepoint
+            self.items(i).rollback_to_savepoint(l_item_savepoint);
+
+          end loop;
+          
+          l_suite_step_without_errors := self.after_all.do_execute(self, a_listener);
+          if not l_suite_step_without_errors then
+            self.put_warning('Afterall procedure failed: '||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
           end if;
-          --rollback to savepoint
-          self.items(i).rollback_to_savepoint(l_item_savepoint);
+        else
+          do_fail('Beforeall procedure failed: '||chr(10));
+        end if;
 
---          exit when not l_completed_without_errors;
-        end loop;
-      end if;
-
-      if l_completed_without_errors then
-        l_completed_without_errors := self.after_all.do_execute(self, a_listener);
+        self.rollback_to_savepoint(l_suite_savepoint);
+        
+      else
+        do_fail(null);
       end if;
 
       self.calc_execution_result();
-
-      self.rollback_to_savepoint(l_suite_savepoint);
-
       self.end_time := current_timestamp;
 
-      a_listener.fire_after_event(ut_utils.gc_suite,self);
     end if;
+    a_listener.fire_after_event(ut_utils.gc_suite,self);
 
     return l_completed_without_errors;
   end;
