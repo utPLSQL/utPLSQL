@@ -37,6 +37,8 @@ whenever oserror exit failure rollback
 @@core/types/ut_object_name.tps
 @@core/types/ut_object_name.tpb
 @@core/types/ut_object_names.tps
+@@core/types/ut_key_value_pair.tps
+@@core/types/ut_key_value_pairs.tps
 @@core/ut_utils.pks
 @@core/ut_metadata.pks
 @@core/ut_utils.pkb
@@ -86,6 +88,8 @@ whenever oserror exit failure rollback
 @@core/coverage/ut_coverage_sources_tmp.sql
 @@core/coverage/ut_coverage_helper.pks
 @@core/coverage/ut_coverage_helper.pkb
+@@core/coverage/ut_coverage_file_mapping.tps
+@@core/coverage/ut_coverage_file_mappings.tps
 @core/coverage/ut_coverage.pks
 @@core/coverage/ut_coverage.pkb
 

@@ -25,6 +25,8 @@ create or replace package ut_coverage authid current_user is
   type tt_lines is table of t_line_executions index by binary_integer;
   --unit coverage information record
   type t_unit_coverage is record (
+    owner           varchar2(128),
+    name            varchar2(128),
     covered_lines   binary_integer := 0,
     uncovered_lines binary_integer := 0,
     total_lines     binary_integer := 0,
@@ -42,6 +44,33 @@ create or replace package ut_coverage authid current_user is
     total_lines     binary_integer := 0,
     executions      number(38,0)   := 0,
     objects         tt_program_units
+  );
+
+  function default_file_to_obj_type_map return ut_key_value_pairs;
+
+  function build_file_mappings(
+    a_file_paths                  ut_varchar2_list,
+    a_file_to_object_type_mapping ut_key_value_pairs,
+    a_regex_pattern               varchar2,
+    a_object_owner_subexpression  positive,
+    a_object_name_subexpression   positive,
+    a_object_type_subexpression   positive
+  ) return ut_coverage_file_mappings;
+
+  function get_include_schema_names return ut_varchar2_list;
+
+  procedure set_include_schema_names(a_schema_names ut_varchar2_list);
+
+  procedure init(
+    a_schema_names        ut_varchar2_list,
+    a_include_object_list ut_varchar2_list,
+    a_exclude_object_list ut_varchar2_list
+  );
+
+  procedure init(
+    a_file_mappings       ut_coverage_file_mappings,
+    a_include_object_list ut_varchar2_list,
+    a_exclude_object_list ut_varchar2_list
   );
 
   function  get_coverage_id return integer;
@@ -62,11 +91,9 @@ create or replace package ut_coverage authid current_user is
 
   procedure coverage_flush;
 
-  procedure skip_coverage_for(a_object ut_object_name);
+  procedure skip_coverage_for(a_owner varchar2, a_name varchar2);
 
-  function get_coverage_data(a_schema_names ut_varchar2_list) return t_coverage;
-
-  function get_schema_names_from_run(a_run ut_run) return ut_varchar2_list;
+  function get_coverage_data return t_coverage;
 
 end;
 /

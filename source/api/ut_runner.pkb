@@ -30,7 +30,7 @@ create or replace package body ut_runner is
     else
       l_listener := ut_event_listener(a_reporters);
     end if;
-    l_items_to_run := ut_run( ut_suite_manager.configure_execution_by_path(a_paths) );
+    l_items_to_run := ut_run( ut_suite_manager.configure_execution_by_path(a_paths), a_paths );
     l_items_to_run.do_execute(l_listener);
 
     ut_output_buffer.close(l_listener.reporters);

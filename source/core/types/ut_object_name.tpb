@@ -15,6 +15,21 @@ create or replace type body ut_object_name as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  constructor function ut_object_name(self in out nocopy ut_object_name, owner varchar2, name varchar2) return self as result is
+  begin
+    self.owner := upper(owner);
+    self.name := upper(name);
+    return;
+  end;
+
+  constructor function ut_object_name(self in out nocopy ut_object_name, a_unit_name varchar2) return self as result is
+  begin
+    self.owner := upper(regexp_substr(a_unit_name,'[^\.]+', 1, 1));
+    self.name  := upper(regexp_substr(a_unit_name,'[^\.]+', 1, 2));
+    return;
+  end;
+
+
   map member function identity return varchar2 is
   begin
     return owner||'.'||name;

@@ -12,6 +12,7 @@ create global temporary table ut_coverage_sources_tmp(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  full_name varchar2(4000),
   owner varchar2(250),
   name  varchar2(250),
   line  number(38,0),

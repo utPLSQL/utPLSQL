@@ -87,14 +87,12 @@ create or replace package body ut_coverage_report_html_helper is
     return '<a href="#'||object_id(a_object_full_name)||'" class="src_link" title="'||a_object_full_name||'">'||a_object_full_name||'</a>';
   end;
 
-  function get_details_file_content(a_unit_name varchar2, a_unit_coverage ut_coverage.t_unit_coverage) return clob is
+  function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a_unit_coverage ut_coverage.t_unit_coverage) return clob is
     type tt_source_data is table of varchar2(32767);
     l_source_code   tt_source_data;
-    l_object_owner  varchar2(250) := upper(regexp_substr(a_unit_name,'[^\.]+', 1, 1));
-    l_object_name   varchar2(250) := upper(regexp_substr(a_unit_name,'[^\.]+', 1, 2));
     l_result        clob;
 
-    function build_details_file_content( a_object_full_name varchar2, a_source_code tt_source_data, a_coverage_unit ut_coverage.t_unit_coverage ) return clob is
+    function build_details_file_content(a_object_id varchar2, a_object_full_name varchar2, a_source_code tt_source_data, a_coverage_unit ut_coverage.t_unit_coverage ) return clob is
       l_file_part    varchar2(32767);
       l_result       clob;
       l_coverage_pct number(5,2);
@@ -102,7 +100,7 @@ create or replace package body ut_coverage_report_html_helper is
       dbms_lob.createtemporary(l_result, true);
       l_coverage_pct := coverage_pct(a_coverage_unit.covered_lines, a_coverage_unit.uncovered_lines);
       l_file_part :=
-      '<div class="source_table" id="'||object_id(a_object_full_name)||'"><div class="header"> <h3>'||a_object_full_name||'</h3>' ||
+      '<div class="source_table" id="'||a_object_id||'"><div class="header"> <h3>'||a_object_full_name||'</h3>' ||
       '<h4><span class="'||coverage_css_class(l_coverage_pct)||'">'||l_coverage_pct||' %</span> covered</h4>' ||
       '<div> <b>'||(a_coverage_unit.covered_lines+a_coverage_unit.uncovered_lines)||'</b> relevant lines. ' ||
       '<span class="green"><b>'||a_coverage_unit.covered_lines||'</b> lines covered</span> and ' ||
@@ -134,11 +132,11 @@ create or replace package body ut_coverage_report_html_helper is
     select rtrim(s.text,chr(10)) text
       bulk collect into l_source_code
       from ut_coverage_sources_tmp s
-     where s.owner = l_object_owner
-       and s.name = l_object_name
+     where s.owner = a_unit.owner
+       and s.name = a_unit.name
      order by s.line;
     dbms_lob.createtemporary(l_result,true);
-    l_result := build_details_file_content(a_unit_name, l_source_code, a_unit_coverage);
+    l_result := build_details_file_content(a_object_id, a_unit.identity, l_source_code, a_unit_coverage);
     return l_result;
   end;
 
@@ -243,7 +241,7 @@ create or replace package body ut_coverage_report_html_helper is
     l_unit := a_coverage_data.objects.first;
     loop
       exit when l_unit is null;
-      dbms_lob.append(l_result, get_details_file_content(l_unit, a_coverage_data.objects(l_unit)));
+      dbms_lob.append(l_result, get_details_file_content(object_id(l_unit), ut_object_name(a_coverage_data.objects(l_unit).owner, a_coverage_data.objects(l_unit).name), a_coverage_data.objects(l_unit)));
       l_unit := a_coverage_data.objects.next(l_unit);
     end loop;
 

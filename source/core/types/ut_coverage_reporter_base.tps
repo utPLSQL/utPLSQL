@@ -15,6 +15,9 @@ create or replace type ut_coverage_reporter_base under ut_reporter_base(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  coverage_id                 integer,
+
+  overriding final member procedure before_calling_run(self in out nocopy ut_coverage_reporter_base, a_run ut_run),
   overriding final member procedure before_calling_before_all(self in out nocopy ut_coverage_reporter_base, a_suite in ut_logical_suite),
   overriding final member procedure after_calling_before_all (self in out nocopy ut_coverage_reporter_base, a_suite in ut_logical_suite),
 

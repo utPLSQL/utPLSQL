@@ -16,28 +16,57 @@ create or replace type body ut_coverage_html_reporter is
   limitations under the License.
   */
 
-  constructor function ut_coverage_html_reporter(self in out nocopy ut_coverage_html_reporter, a_project_name varchar2 := null, a_schema_names ut_varchar2_list := null) return self as result is
+  constructor function ut_coverage_html_reporter(
+    self in out nocopy ut_coverage_html_reporter, a_project_name varchar2 := null,
+    a_schema_names ut_varchar2_list := null,
+    a_include_object_list ut_varchar2_list := null, a_exclude_object_list ut_varchar2_list := null
+  ) return self as result is
   begin
     self.init($$plsql_unit);
-    self.schema_names := a_schema_names;
+    ut_coverage.init(a_schema_names, a_include_object_list, a_exclude_object_list);
     self.project_name := a_project_name;
     return;
   end;
 
-  overriding member procedure before_calling_run(self in out nocopy ut_coverage_html_reporter, a_run ut_run) as
+  constructor function ut_coverage_html_reporter(
+    self in out nocopy ut_coverage_html_reporter, a_project_name varchar2 := null,
+    a_file_paths ut_varchar2_list,
+    a_regex_pattern varchar2 := '.*(\\|\/)(\w+)\.(\w{3})',
+    a_object_owner_subexpression positive := null, a_object_name_subexpression positive := 2, a_object_type_subexpression positive := 3,
+    a_file_to_object_type_mapping ut_key_value_pairs := null,
+    a_include_object_list ut_varchar2_list := null, a_exclude_object_list ut_varchar2_list := null
+  ) return self as result is
+    l_mappings ut_coverage_file_mappings;
   begin
-    (self as ut_reporter_base).before_calling_run(a_run);
-    coverage_id := ut_coverage.coverage_start();
+    l_mappings := ut_coverage.build_file_mappings(
+      a_file_paths, a_file_to_object_type_mapping, a_regex_pattern,
+      a_object_owner_subexpression, a_object_name_subexpression, a_object_type_subexpression
+    );
+    self.init($$plsql_unit);
+    ut_coverage.init(l_mappings, a_include_object_list, a_exclude_object_list);
+    self.project_name := a_project_name;
+    return;
+  end;
+
+  constructor function ut_coverage_html_reporter(
+    self in out nocopy ut_coverage_html_reporter, a_project_name varchar2 := null,
+    a_file_mappings       ut_coverage_file_mappings,
+    a_include_object_list ut_varchar2_list := null, a_exclude_object_list ut_varchar2_list := null
+  ) return self as result is
+  begin
+    self.init($$plsql_unit);
+    ut_coverage.init(a_file_mappings, a_include_object_list, a_exclude_object_list);
+    self.project_name := a_project_name;
+    return;
   end;
 
   overriding member procedure after_calling_run(self in out nocopy ut_coverage_html_reporter, a_run in ut_run) as
     l_report_lines  ut_varchar2_list;
     l_coverage_data ut_coverage.t_coverage;
-    l_schema_names  ut_varchar2_list;
   begin
     ut_coverage.coverage_stop();
-    l_schema_names := coalesce(self.schema_names, ut_coverage.get_schema_names_from_run(a_run), ut_varchar2_list(sys_context('userenv','current_schema')));
-    l_coverage_data := ut_coverage.get_coverage_data(l_schema_names);
+
+    l_coverage_data := ut_coverage.get_coverage_data();
 
     l_report_lines := ut_utils.clob_to_table(ut_coverage_report_html_helper.get_index( l_coverage_data, self.project_name ));
     for i in 1 .. l_report_lines.count loop

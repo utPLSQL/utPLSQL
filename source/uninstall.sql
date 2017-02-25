@@ -57,6 +57,10 @@ drop type ut_coverage_html_reporter;
 
 drop package ut_coverage;
 
+drop type ut_coverage_file_mappings;
+
+drop type ut_coverage_file_mapping;
+
 drop package ut_coverage_helper;
 
 drop table plsql_profiler_data cascade constraints;
@@ -218,6 +222,10 @@ drop type ut_results_counter;
 drop type ut_assert_results;
 
 drop type ut_assert_result;
+
+drop type ut_key_value_pairs;
+
+drop type ut_key_value_pair;
 
 drop type ut_object_names;
 

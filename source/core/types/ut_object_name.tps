@@ -17,6 +17,8 @@ create or replace type ut_object_name as object (
   */
   owner    varchar2(128),
   name     varchar2(128),
+  constructor function ut_object_name(self in out nocopy ut_object_name, owner varchar2, name varchar2) return self as result ,
+  constructor function ut_object_name(self in out nocopy ut_object_name, a_unit_name varchar2) return self as result ,
   map member function identity return varchar2
 ) final
 /
