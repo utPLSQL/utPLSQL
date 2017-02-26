@@ -21,47 +21,6 @@ create table ut$test_table (val varchar2(1));
 
 --Tests to invoke
 
-@@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesFailureWhenExpessionIsTrue.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_false.GivesSuccessWhenExpessionIsFalse.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_like.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_not_null.GivesFailureWhenActualIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_not_null.GivesSuccessWhenActualIsNotNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_null.anydata.GivesSuccessWhenAnydataIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_null.anydata.GivesSuccessWhenObjectPassedIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_null.GivesFailureWhenActualIsNotNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_null.GivesSuccessWhenActualIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_null.refcursor.GivesSuccessWhenCursorIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_true.GivesFailureWhenExpessionIsFalse.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_true.GivesFailureWhenExpessionIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_true.GivesSuccessWhenExpessionIsTrue.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentData.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.anydata.PutsObjectStrucureIntoAssert.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.cursor.GivesFailureForDifferentValues.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.cursor.GivesSuccessForEqualValues.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.cursor.ReturnsCursorDataForFailure.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesFailureForDifferentDataTypes.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesFailureForDifferentValues.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesFailureWhenActualIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesFailureWhenBothValuesAreNullAndArgumentAreNullEqualIsFalse.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesFailureWhenBothValuesAreNullAndConfigurationAreNullEqualIsFalse.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesFailureWhenExpectedIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesSuccessForEqualValues.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesSuccessWhenBothValuesAreNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.GivesSuccessWhenBothValuesAreNullAndArgumentAreNullEqualIsTrue.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.PutsNullIntoStringValueWhenActualIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.PutsNullIntoStringValueWhenExpectedIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_equal.with_text.GivesTheProvidedTextAsMessage.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureForDifferentValues.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesTrueForCorrectValues.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_between.with_text.GivesTheProvidedTextAsMessage.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureWhenActualIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureWhenBothActualAndExpectedRangeIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesFailureWhenExpectedRangeIsNull.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_be_between.GivesSuccessWhenDifferentTypes.sql
-@@lib/RunTest.sql asssertions/ut.expect.to_match.sql
-@@lib/RunTest.sql asssertions/ut_assert_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationNotBeforeProcedure.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseComplexPackage.sql
@@ -71,7 +30,102 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationMultilineDeclare.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithKeyValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithMultilineComment.sql
+
+@@ut_expectations/ut.expect.to_be_between.GivesFailureForDifferentValues.sql
+@@ut_expectations/ut.expect.to_be_between.GivesFailureWhenActualIsNull.sql
+@@ut_expectations/ut.expect.to_be_between.GivesFailureWhenBothActualAndExpectedRangeIsNull.sql
+@@ut_expectations/ut.expect.to_be_between.GivesFailureWhenExpectedRangeIsNull.sql
+@@ut_expectations/ut.expect.to_be_between.GivesSuccessWhenDifferentTypes.sql
+@@ut_expectations/ut.expect.to_be_between.GivesTrueForCorrectValues.sql
+@@ut_expectations/ut.expect.to_be_between.with_text.GivesTheProvidedTextAsMessage.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsTrue.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesSuccessWhenExpessionIsFalse.sql
+@@ut_expectations/ut.expect.to_be_like.sql
+@@ut_expectations/ut.expect.to_be_not_null.GivesFailureWhenActualIsNull.sql
+@@ut_expectations/ut.expect.to_be_not_null.GivesSuccessWhenActualIsNotNull.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenAnydataIsNull.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenObjectPassedIsNull.sql
+@@ut_expectations/ut.expect.to_be_null.GivesFailureWhenActualIsNotNull.sql
+@@ut_expectations/ut.expect.to_be_null.GivesSuccessWhenActualIsNull.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.refcursor.GivesSuccessWhenCursorIsNull.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsFalse.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNull.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesSuccessWhenExpessionIsTrue.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentData.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.PutsObjectStrucureIntoAssert.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesFailureForDifferentValues.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValues.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ReturnsCursorDataForFailure.sql
+@@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentDataTypes.sql
+@@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentValues.sql
+@@ut_expectations/ut.expect.to_equal.GivesFailureWhenActualIsNull.sql
+@@ut_expectations/ut.expect.to_equal.GivesFailureWhenBothValuesAreNullAndArgumentAreNullEqualIsFalse.sql
+@@ut_expectations/ut.expect.to_equal.GivesFailureWhenBothValuesAreNullAndConfigurationAreNullEqualIsFalse.sql
+@@ut_expectations/ut.expect.to_equal.GivesFailureWhenExpectedIsNull.sql
+@@ut_expectations/ut.expect.to_equal.GivesSuccessForEqualValues.sql
+@@ut_expectations/ut.expect.to_equal.GivesSuccessWhenBothValuesAreNull.sql
+@@ut_expectations/ut.expect.to_equal.GivesSuccessWhenBothValuesAreNullAndArgumentAreNullEqualIsTrue.sql
+@@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenActualIsNull.sql
+@@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenExpectedIsNull.sql
+@@ut_expectations/ut.expect.to_equal.with_text.GivesTheProvidedTextAsMessage.sql
+@@ut_expectations/ut.expect.to_match.sql
+@@lib/RunTest.sql ut_expectations/ut_assert_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
+
+@@ut_matchers/be_between.sql
+@@ut_matchers/greater_or_equal.sql
+@@ut_matchers/greater_than.sql
+@@ut_matchers/less_or_equal.sql
+@@ut_matchers/less_than.sql
+@@ut_matchers/be_empty.sql
+
+@@lib/RunTest.sql ut_matchers/timestamp_between.sql
+@@lib/RunTest.sql ut_matchers/timestamp_ltz_between.sql
+@@lib/RunTest.sql ut_matchers/timestamp_ltz_not_between.sql
+@@lib/RunTest.sql ut_matchers/timestamp_not_between.sql
+@@lib/RunTest.sql ut_matchers/timestamp_tz_between.sql
+@@lib/RunTest.sql ut_matchers/timestamp_tz_not_between.sql
+
 @@lib/RunTest.sql ut_metadata/ut_metadata.form_name.TrimStandaloneProgramName.sql
+
+@@lib/RunTest.sql ut_output_buffer/get_lines.RecievesALineFromBufferTableAndDeletes.sql
+@@lib/RunTest.sql ut_output_buffer/send_line.DoesNotSendLineIfNullReporterIdGiven.sql
+@@lib/RunTest.sql ut_output_buffer/send_line.DoesNotSendLineIfNullTextGiven.sql
+@@lib/RunTest.sql ut_output_buffer/send_line.SendsALineIntoBufferTable.sql
+
+@@lib/RunTest.sql ut_run/ut_run.function.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
+@@lib/RunTest.sql ut_run/ut_run.function.WithNoParams.ExecutesAllFromCurrentSchema.sql
+@@lib/RunTest.sql ut_run/ut_run.function.WithPackageName.ExecutesAllFromGivenPackage.sql
+--@@lib/RunTest.sql ut_run/ut_run.function.WithPackageName.ExecutesAllFromGivenPackageOnly.sql --TODO this one doesn't work at the moment
+@@lib/RunTest.sql ut_run/ut_run.function.WithSchemaName.ExecutesAllFromGivenSchema.sql
+@@lib/RunTest.sql ut_run/ut_run.function.WithSuitePath.ExecutesAllFromGivenPath.sql
+@@lib/RunTest.sql ut_run/ut_run.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
+@@lib/RunTest.sql ut_run/ut_run.WithNoParams.ExecutesAllFromCurrentSchema.sql
+@@lib/RunTest.sql ut_run/ut_run.WithPackageName.ExecutesAllFromGivenPackage.sql
+--@@lib/RunTest.sql ut_run/ut_run.WithPackageName.ExecutesAllFromGivenPackageOnly.sql --TODO this one doesn't work at the moment
+@@lib/RunTest.sql ut_run/ut_run.WithSchemaName.ExecutesAllFromGivenSchema.sql
+@@lib/RunTest.sql ut_run/ut_run.WithSuitePath.ExecutesAllFromGivenPath.sql
+
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheSchema.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPathCurUser.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByPathCurUser.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByPathCurUser.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByName.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByNameCurUser.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByName.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByNameCurUser.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByName.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByNameCurUser.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageProcedureByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageProcedureByPathCurUser.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPathCurUser.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.DoesntFindTheSuiteWhenPackageSpecIsInvalid.sql
+
 @@lib/RunTest.sql ut_test/ut_test.IgnoreFlagSkipTest.sql
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameNull.sql
@@ -90,11 +144,23 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_test/ut_test.TeardownExecutedAfterTest.sql
 @@lib/RunTest.sql ut_test/ut_test.TeardownProcedureNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.TeardownProcedureNameNull.sql
+@@lib/RunTest.sql ut_test/ut_test.IgnoreTollbackToSavepointException.sql
+
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsATestWhenAfterTestFails.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsATestWhenBeforeTestFails.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenBeforeAllFails.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenBeforeEachFails.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenPackageHasInvalidBody.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenPackageHasNoBody.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.IgnoreFlagSkipSuite.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ReportsWarningsATestWhenAfterAllFails.sql
+@@lib/RunTest.sql ut_test_suite/ut_test_suite.ReportsWarningsATestWhenAfterEachFails.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Auto.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.AutoOnFailure.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Manual.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.ManualOnFailure.sql
+
+@@ut_utils/ut_utils.clob_to_table.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithInvalidValues.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithNullValue.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.Success.sql
@@ -116,41 +182,7 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigNumber.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigVarchar2.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
-@@ut_utils/ut_utils.clob_to_table.sql
 
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheSchema.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPath.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByPath.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByPath.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByName.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByName.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByName.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageProcedureByPath.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPath.sql
-
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.close.TimesOutAfterAGivenPeriodOfTimeAndRemovesPipe.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_clob_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.get_lines.TimesOutAfterAGivenPeriodOfTime.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.open.CreatesAPrivatePipe.sql
-@@lib/RunTest.sql ut_output_dbms_pipe/ut_output_dbms_pipe.send_clob.SendsAClobIntoPipe.sql
-
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_clob_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.RetunrsNoRowsWhenNoDataInBuffer.sql
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.get_lines.ReturnsSentLines.sql
-@@lib/RunTest.sql ut_output_dbms_output/ut_output_dbms_output.send_clob.SendsAClobIntoPipe.sql
-
-@@lib/RunTest.sql ut_expectations/greater_or_equal.sql
-@@lib/RunTest.sql ut_expectations/greater_than.sql
-@@lib/RunTest.sql ut_expectations/less_or_equal.sql
-@@lib/RunTest.sql ut_expectations/less_than.sql
-@@lib/RunTest.sql ut_expectations/be_between.sql
-@@lib/RunTest.sql ut_expectations/timestamp_between.sql
-@@lib/RunTest.sql ut_expectations/timestamp_ltz_between.sql
-@@lib/RunTest.sql ut_expectations/timestamp_ltz_not_between.sql
-@@lib/RunTest.sql ut_expectations/timestamp_not_between.sql
-@@lib/RunTest.sql ut_expectations/timestamp_tz_between.sql
-@@lib/RunTest.sql ut_expectations/timestamp_tz_not_between.sql
 
 --Global cleanup
 drop package ut_example_tests;

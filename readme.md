@@ -2,25 +2,38 @@
 [![chat](http://img.shields.io/badge/version_status-alpha-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/master.svg?label=master%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/develop.svg?label=develop%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
+[![sonar](https://sonarqube.com/api/badges/measure?key=utPLSQL%3AutPLSQL&metric=complexity)](https://sonarqube.com/dashboard/index?id=utPLSQL%3AutPLSQL)
+[![sonar](https://sonarqube.com/api/badges/measure?key=utPLSQL%3AutPLSQL&metric=ncloc)](https://sonarqube.com/dashboard/index?id=utPLSQL%3AutPLSQL)
 
-[![license](http://img.shields.io/badge/license-apache%202.0-blue.svg)]
-(https://www.apache.org/licenses/LICENSE-2.0)
+[![license](http://img.shields.io/badge/license-apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![chat](http://img.shields.io/badge/chat-slack-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
-
 ----------
-Version 3 is a complete rewrite of utPLSQL from scratch.  [Version 2](https://github.com/utPLSQL/utPLSQL/tree/version2) still supports older versions of Oracle that are no longer available.   This has lead to difficult to maintain code.  Yet many developers wanted to take it to the next level.  The community that had developed on GitHub, decided that a new internal architecture was needed, from that version 3 was born.  Currently version 3 is not complete and is not ready for a production environment as the API is not stable and changing.   However it is quickly taking shape.  We welcome new developers to join our community and help utPLSQL grow.
+utPLSQL version 3 is a complete rewrite of utPLSQL v2 from scratch.
+Version 2 still supports older versions of Oracle that are no longer available. 
+The community that had developed on GitHub, decided that a new internal architecture was needed, from that version 3 was born.  
 
-Primary Goals:
- - Easier to maintain 
-  - Only supports versions of Oracle under [Extend Support](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf)  (Currently 11.2, and 12.1)
-  - API is documented in the code where possible.
- - Robust and vibrant assertion library.
- - Support for Code Coverage
- - Extensible API
- - Published upgrade/conversion path from version 2.
- - Easily called from current PL/SQL development tools
- - More permissive License to allow vendors easier ability to integrate utPLSQL. 
+We welcome new developers to join our community and contribute to the utPLSQL project.
+
+Primary features:
+ - Support for all basic scalar data-types
+ - Support for User Defined Object Types and Collections
+ - Support for native cursors both strong and weak
+ - Data-type aware testing
+ - [Annotations](docs/userguide/annotations.md) based test definitions 
+ - Extensible [matchers](docs/userguide/expectations.md)
+ - Extensible reporting formats
+ - Extensible output providers
+ - Support for multi-reporting
+ - Code coverage reporting (with different formats)
+ - Runtime reporting of test execution progress
+ - Well-defined API
+ - Easy to call from current PL/SQL development tools
+ - More permissive License to allow vendors to integrate utPLSQL without violation of license 
+ - Published upgrade/conversion path from version 2 ( TODO )
+
+Requirements:
+ - Version of Oracle under [Extend Support](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf)  (Currently 11.2 and above)
 
 __Download__
 
@@ -89,84 +102,103 @@ sqlplus admin/admins_password@xe @@install_headless.sql
 
 For detailed instructions on other install options see the [Install Guide](docs/userguide/install.md)
 
-# Annotations
+# Example test package
 
-Annotations provide a way to configure tests and suites in a declarative way similar to modern OOP languages.
-The annotation list is based on moder testing framework such as jUnit 5, RSpec.
+The below test package is a fully-functional Unit Test package for testing a function `betwnstr`.
+Package specification is annotated with special comments ([annotations](docs/userguide/annotations.md)).
+Annotations define that a package is a unit test suite, they also allow defining a description for the suite as well as the test itself.
+Package body consists of procedures containing unit test code. To validate [an expectation](docs/userguide/expectations.md) in test, use `ut.expect( actual_data ).to_( ... )` syntax.
 
-Annotations allow to configure test infrastructure in a declarative way without anything stored in tables or config files. The framework runner scans the schema for all the suitable annotated packages, automatically configures suites, forms hierarchy from then and executes them.
 
-# Example of annotated package
+```sql
+create or replace package test_between_string as
+
+  -- %suite(Between string function)
+
+  -- %test(Returns substring from start position to end position)
+  procedure normal_case;
+
+  -- %test(Returns substring when start position is zero)
+  procedure zero_start_position;
+
+  -- %test(Returns string until end if end position is greater than string length)
+  procedure big_end_position;
+
+  -- %test(Returns null for null input string value)
+  procedure null_string;
+end;
+/
+
+create or replace package body test_between_string as
+
+  procedure normal_case is
+  begin
+    ut.expect( betwnstr( '1234567', 2, 5 ) ).to_equal('2345') );
+  end;
+
+  procedure zero_start_position is
+  begin
+    ut.expect( betwnstr( '1234567', 0, 5 ) ).to_( equal('12345') );
+  end;
+
+  procedure big_end_position is
+  begin
+    ut.expect( betwnstr( '1234567', 0, 500 ) ).to_( equal('1234567') );
+  end;
+
+  procedure null_string is
+  begin
+    ut.expect( betwnstr( null, 2, 5 ) ).to_( be_null );
+  end;
+
+end;
+/
 ```
-create or replace package test_pkg is
 
-  -- %suite(Name of suite)
-  -- %suitepath(all.globaltests)
 
-  -- %beforeall
-  procedure globalsetup;
+# Running tests
 
-  -- %afterall
-  procedure global_teardown;
+To execute using IDE ()TOAD/SQLDeveloper/PLSQLDeveloper/other) just run the following.
+```sql
+begin
+  ut_runner.run();
+end;
+/
+```
+Will run all the suites in the current schema and provide documentation report using dbms_output
 
-  /* Such comments are allowed */
+```
+Between string function
+  Returns substring from start position to end position
+  Returns substring when start position is zero
+  Returns string until end if end position is greater than string length
+  Returns null for null input string value
 
-  -- %test
-  -- %displayname(Name of test1)
-  procedure test1;
-
-  -- %test(Name of test2)
-  -- %beforetest(setup_test1)
-  -- %aftertest(teardown_test1)
-  procedure test2;
-
-  -- %test
-  -- %displayname(Name of test3)
-  -- %disable
-  procedure test3;
-  
-  -- %test(Name of test4)
-  -- %rollback(manual)
-  procedure test4;
-
-  procedure setup_test1;
-
-  procedure teardown_test1;
-
-  -- %beforeeach
-  procedure setup;
-
-  -- %aftereach
-  procedure teardown;
-
-end test_pkg;
+Finished in .036027 seconds
+4 tests, 0 failures
 ```
 
-#Annotations meaning
+To execute your tests from command line, you will need a oracle sql client like SQLPlus or [SQLcl](http://www.oracle.com/technetwork/developer-tools/sqlcl/overview/index.html)
+You may benefit from using the [ut_run.sql](client_source/sqlplus/ut_run.sql) to execute your tests if you want to achieve one of the following:
+* see the progress of test execution for long-running tests
+* have output to screen with one output format (text) and at the same time have output to file in other format (xunit)
 
-| Annotation |Level| Describtion |
-| --- | --- | --- |
-| `%suite(<description>)` | Package | Marks package to be a suite of tests This way all testing packages might be found in a schema. Optional schema discription can by provided, similar to `%displayname` annotation. |
-| `%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarcies. |
-| `%displayname(<description>)` | Package/procedure | Human-familiar describtion of the suite/test. Syntax is based on jUnit annotation: `%displayname(Name of the suite/test)` |
-| `%test(<description>)` | Procedure | Denotes that a method is a test method.  Optional test discription can by provided, similar to `%displayname` annotation. |
-| `%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the current suite. |
-| `%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the current suite. |
-| `%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` method in the current suite. |
-| `%aftereach` | Procedure | Denotes that the annotated procedure should be executed after each `%test` method in the current suite. |
-| `%beforetest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed before the annotated `%test` procedure. |
-| `%aftertest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed after the annotated `%test` procedure. |
-| `%rollback(<type>)` | Package/procedure | Configure transaction control behaviour (type). Supported values: `auto`(default) - rollback to savepoint (before the test/suite setup) is issued after each test/suite teardown; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
-| `%disable` | Package/procedure | Used to disable a suite or a test |
+Example:
+```
+c:\my_work\>sqlplus /nolog @ut_run hr/hr@xe 
+```
+Will run all the suites in the current schema (hr) and provide documentation report into screen.
+Invoking this script will show the progress after each test.
 
 
 __Primary Directories__
 
 * .travis - contains files needed for travis-ci integration
+* client_source - Sources to be used on the client-side. Developer workstation or CI platform to run the tests.
+* development - Set of useful scripts and utilities for development and debugging of utPLSQL 
 * docs - Markdown version of the documentation 
 * examples - contains example unit tests.
-* source - contains the code utPLSQL
-* lib - 3rd party libraries that are required for source. 
+* source - contains the installation code for utPLSQL
 * tests - contains the tests written to test utPLSQL
 
 

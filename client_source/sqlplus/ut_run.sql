@@ -1,3 +1,20 @@
+/*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
+
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
 /**
   This script is designed to allow invocation of UTPLSQL with multiple reporters.
   It allows saving of outcomes into multiple output files.
@@ -5,7 +22,7 @@
   Current limit of script parameters is 39
 
 Scrip invocation:
-  ut_run.sql user/password@database [-p=(ut_path|ut_paths)] [-f=format [-o=output] [-s] ...]
+  ut_run.sql user/password@database [-p=(ut_path|ut_paths)] [-c] [-f=format [-o=output] [-s] ...]
 
 Parameters:
   user         - username to connect as
@@ -34,6 +51,7 @@ Parameters:
                  If not defined, then output will be displayed on screen, even if the parameter -s is not specified.
                  If more than one -o parameter is specified for one -f parameter, the last one is taken into consideration.
   -s           - Forces putting output to to screen for a given -f parameter.
+  -c           - If specified, enables printing of test results in colors as defined by ANSICONSOLE standards
 
   Parameters -f, -o, -s are correlated. That is parameters -o and -s are defining outputs for -f.
   Examples of invocation using sqlplus from command line:
@@ -68,52 +86,171 @@ set longchunksize 30000
 set verify off
 set heading off
 
+
+
+column param_list new_value param_list noprint;
+/*
+* Prepare script to make SQLPlus parameters optional and pass parameters call to param_list variable
+*/
 set define off
-spool make_input_params_optional.sql.tmp
+spool define_params_variable.sql.tmp
 declare
   l_sql_columns varchar2(4000);
+  l_params      varchar2(4000);
 begin
   for i in 1 .. 100 loop
     dbms_output.put_line('column '||i||' new_value '||i);
     l_sql_columns := l_sql_columns ||'null as "'||i||'",';
+    l_params := l_params || '''''&&'||i||''''',';
   end loop;
   dbms_output.put_line('select '||rtrim(l_sql_columns, ',') ||' from dual where rownum = 0;');
+  dbms_output.put_line('select '''||rtrim(l_params, ',')||''' as param_list from dual;' );
 end;
 /
 spool off
 set define &
 
-@@make_input_params_optional.sql.tmp
+/*
+* Make SQLPlus parameters optional and pass parameters call to param_list variable
+*/
+@@define_params_variable.sql.tmp
 
-
---prepare executor scripts
-
-set define off
-spool set_run_params.sql.tmp
+var l_paths          varchar2(4000);
+var l_color_enabled  varchar2(5);
+var l_run_params_cur refcursor;
+var l_out_params_cur refcursor;
+/*
+* Parse parameters and returning as variables
+*/
 declare
-  l_params      varchar2(4000);
+
+  type t_call_param is record (
+    ut_reporter_name   varchar2(4000) := 'ut_documentation_reporter',
+    output_file_name   varchar2(4000),
+    output_to_screen   varchar2(3)    := 'on',
+    reporter_id        varchar2(250)
+  );
+
+  type tt_call_params is table of t_call_param;
+
+  l_input_params ut_varchar2_list := ut_varchar2_list(&&param_list);
+  l_call_params  tt_call_params;
+
+  l_run_cursor_sql varchar2(32767);
+  l_out_cursor_sql varchar2(32767);
+
+  function parse_reporting_params(a_params ut_varchar2_list) return tt_call_params is
+    l_default_call_param  t_call_param;
+    l_call_params         tt_call_params := tt_call_params();
+    l_force_out_to_screen boolean;
+  begin
+    for param in(
+      with
+        param_vals as(
+          select regexp_substr(column_value,'-([fos])\=?(.*)',1,1,'c',1) param_type,
+                 regexp_substr(column_value,'-([fos])\=(.*)',1,1,'c',2) param_value
+          from table(a_params)
+          where column_value is not null)
+      select param_type, param_value
+      from param_vals
+      where param_type is not null
+    ) loop
+      if param.param_type = 'f' or l_call_params.last is null then
+        l_call_params.extend;
+        l_call_params(l_call_params.last) := l_default_call_param;
+        if param.param_type = 'f' then
+          l_call_params(l_call_params.last).ut_reporter_name := dbms_assert.simple_sql_name(param.param_value);
+        end if;
+        l_force_out_to_screen := false;
+      end if;
+      if param.param_type = 'o' then
+        l_call_params(l_call_params.last).output_file_name := param.param_value;
+        if not l_force_out_to_screen then
+          l_call_params(l_call_params.last).output_to_screen := 'off';
+        end if;
+      elsif param.param_type = 's' then
+        l_call_params(l_call_params.last).output_to_screen := 'on';
+        l_force_out_to_screen := true;
+      end if;
+    end loop;
+    if l_call_params.count = 0 then
+      l_call_params.extend;
+      l_call_params(1) := l_default_call_param;
+    end if;
+    for i in 1 .. cardinality(l_call_params) loop
+      l_call_params(i).reporter_id := sys_guid();
+    end loop;
+    return l_call_params;
+  end;
+
+  function parse_paths_param(a_params ut_varchar2_list) return varchar2 is
+    l_paths varchar2(4000);
+  begin
+    begin
+      select ''''||replace(ut_paths,',',''',''')||''''
+        into l_paths
+        from (select regexp_substr(column_value,'-p\=(.*)',1,1,'c',1) as ut_paths from table(a_params) )
+       where ut_paths is not null;
+    exception
+      when no_data_found then
+        l_paths := 'user';
+      when too_many_rows then
+        raise_application_error(-20000, 'Parameter "-p=ut_path(s)" defined more than once. Only one "-p=ut_path(s)" parameter can be used.');
+    end;
+    return l_paths;
+  end;
+
+  function parse_color_enabled(a_params ut_varchar2_list) return varchar2 is
+  begin
+    for i in 1 .. cardinality(a_params) loop
+      if a_params(i) = '-c' then
+        return 'true';
+      end if;
+    end loop;
+    return 'false';
+  end;
+
 begin
-  for i in 1 .. 100 loop
-    l_params := l_params || '''&&'||i||''',';
+  l_call_params := parse_reporting_params(l_input_params);
+  for i in l_call_params.first .. l_call_params.last loop
+    l_run_cursor_sql :=
+      l_run_cursor_sql ||
+      'select '''||l_call_params(i).reporter_id||''' as reporter_id,' ||
+      ' '''||l_call_params(i).ut_reporter_name||''' as reporter_name' ||
+      ' from dual';
+    l_out_cursor_sql :=
+      l_out_cursor_sql ||
+      'select '''||l_call_params(i).reporter_id||''' as reporter_id,' ||
+      ' '''||l_call_params(i).output_to_screen||''' as output_to_screen,' ||
+      ' '''||l_call_params(i).output_file_name||''' as output_file_name' ||
+      ' from dual';
+    if i < l_call_params.last then
+      l_run_cursor_sql := l_run_cursor_sql || ' union all ';
+      l_out_cursor_sql := l_out_cursor_sql || ' union all ';
+    end if;
   end loop;
-  dbms_output.put_line('exec ut_runner.set_run_params(ut_varchar2_list('||rtrim(l_params, ',')||'));' );
+
+  :l_paths := parse_paths_param(l_input_params);
+  :l_color_enabled := parse_color_enabled(l_input_params);
+
+  if l_run_cursor_sql is not null then
+    open :l_run_params_cur for l_run_cursor_sql;
+  end if;
+  if l_out_cursor_sql is not null then
+    open :l_out_params_cur for l_out_cursor_sql;
+  end if;
 end;
 /
-spool off
-set define &
 
 
-@@set_run_params.sql.tmp
-
-
+/*
+* Generate runner script
+*/
 spool run_in_backgroung.sql.tmp
 declare
-  l_output_type varchar2(256) := ut_runner.get_streamed_output_type_name();
-  l_run_params  ut_runner.t_run_params :=  ut_runner.get_run_params();
-  procedure p(a_text varchar2) is
-  begin
-    dbms_output.put_line(a_text);
-  end;
+  l_reporter_id   varchar2(250);
+  l_reporter_name varchar2(250);
+  procedure p(a_text varchar2) is begin dbms_output.put_line(a_text); end;
 begin
   p(  'set serveroutput on size unlimited format truncated');
   p(  'set trimspool on');
@@ -124,12 +261,17 @@ begin
   p(  '  v_reporter       ut_reporter_base;');
   p(  '  v_reporters_list ut_reporters := ut_reporters();');
   p(  'begin');
-  for i in 1 .. cardinality(l_run_params.call_params) loop
-    p('  v_reporter := '||l_run_params.call_params(i).ut_reporter_name||'('||l_output_type||'());');
-    p('  v_reporter.output.output_id := '''||l_run_params.call_params(i).output_id||''';');
-    p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
-  end loop;
-  p(  '  ut_runner.run( ut_varchar2_list('||l_run_params.ut_paths||'), v_reporters_list );');
+  if :l_run_params_cur%isopen then
+    loop
+      fetch :l_run_params_cur into l_reporter_id, l_reporter_name;
+      exit when :l_run_params_cur%notfound;
+        p('  v_reporter := '||l_reporter_name||'();');
+        p('  v_reporter.reporter_id := '''||l_reporter_id||''';');
+        p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
+    end loop;
+  end if;
+  close :l_run_params_cur;
+  p(  '  ut_runner.run( ut_varchar2_list('||:l_paths||'), v_reporters_list, a_color_console => '||:l_color_enabled||' );');
   p(  'end;');
   p(  '/');
   p(  'spool off');
@@ -138,30 +280,40 @@ end;
 /
 spool off
 
+/*
+* Generate output retrieval script
+*/
 spool gather_data_from_outputs.sql.tmp
 declare
-  l_output_type varchar2(256) := ut_runner.get_streamed_output_type_name();
-  l_run_params  ut_runner.t_run_params := ut_runner.get_run_params();
+  l_reporter_id      varchar2(250);
+  l_output_file_name varchar2(250);
+  l_output_to_screen varchar2(250);
   l_need_spool  boolean;
-  procedure p(a_text varchar2) is
-  begin
-    dbms_output.put_line(a_text);
-  end;
+  procedure p(a_text varchar2) is begin dbms_output.put_line(a_text); end;
 begin
-  p('declare l_date date := sysdate; begin loop exit when l_date < sysdate; end loop; end;');
-  p('/');
-  for i in 1 .. cardinality(l_run_params.call_params) loop
-    p('set termout '||l_run_params.call_params(i).output_to_screen);
-    l_need_spool := (l_run_params.call_params(i).output_file_name is not null);
-    p(case when l_need_spool then 'spool '||l_run_params.call_params(i).output_file_name||chr(10) end||
-      'select * from table( '||l_output_type||'().get_lines('''||l_run_params.call_params(i).output_id||''') );'||
-      case when l_need_spool then chr(10)||'spool off' end);
-  end loop;
+  if :l_out_params_cur%isopen then
+    loop
+      fetch :l_out_params_cur into l_reporter_id, l_output_to_screen, l_output_file_name;
+      exit when :l_out_params_cur%notfound;
+      l_need_spool := (l_output_file_name is not null);
+      p(   'set termout '||l_output_to_screen);
+      if l_need_spool then
+        p( 'spool '||l_output_file_name);
+      end if;
+      p(   'select * from table( ut_output_buffer.get_lines('''||l_reporter_id||''') );');
+      if l_need_spool then
+        p('spool off');
+      end if;
+    end loop;
+  end if;
 end;
 /
-
 spool off
-set termout off
+
+
+/*
+* Execute runner script in background process
+*/
 set define #
 --try running on windows
 $ start sqlplus ##1 @run_in_backgroung.sql.tmp
@@ -169,16 +321,22 @@ $ start sqlplus ##1 @run_in_backgroung.sql.tmp
 ! sqlplus ##1 @run_in_backgroung.sql.tmp &
 set define &
 set termout on
+
+
 --make sure we fetch row by row to indicate the progress
 set arraysize 1
+/*
+* Gather outputs from reporters one by one while runner script executes.
+*/
 @gather_data_from_outputs.sql.tmp
 
 set termout off
---cleanup temporary sql files
+/*
+* cleanup temporary sql files
+*/
 --try running on windows
 $ del *.sql.tmp
 --try running on linus/unix
 ! rm *.sql.tmp
-set termout on
 
 exit

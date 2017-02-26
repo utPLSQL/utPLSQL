@@ -1,4 +1,20 @@
 create or replace type body ut_suite_item as
+  /*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
+
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
 
   member procedure init(
     self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2,
@@ -13,6 +29,7 @@ create or replace type body ut_suite_item as
     self.rollback_type := a_rollback_type;
     self.ignore_flag := ut_utils.boolean_to_int(a_ignore_flag);
     self.results_count := ut_results_counter();
+    self.warnings := ut_varchar2_list();
   end;
 
   member procedure set_ignore_flag(self in out nocopy ut_suite_item, a_ignore_flag boolean) is
@@ -24,6 +41,12 @@ create or replace type body ut_suite_item as
   begin
     return ut_utils.int_to_boolean(self.ignore_flag);
   end;
+  
+  final member procedure do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is
+    l_completed_without_errors boolean;
+  begin
+    l_completed_without_errors := self.do_execute(a_listener);
+  end;  
 
   member function create_savepoint_if_needed return varchar2 is
     l_savepoint varchar2(30);
@@ -36,15 +59,27 @@ create or replace type body ut_suite_item as
   end;
 
   member procedure rollback_to_savepoint(self in ut_suite_item, a_savepoint varchar2) is
+    ex_savepoint_not_exists exception;
+    pragma exception_init(ex_savepoint_not_exists, -1086);
   begin
     if self.rollback_type = ut_utils.gc_rollback_auto and a_savepoint is not null then
       execute immediate 'rollback to ' || a_savepoint;
     end if;
+  exception
+    when ex_savepoint_not_exists then
+      null;
   end;
 
   member function execution_time return number is
   begin
     return ut_utils.time_diff(start_time, end_time);
+  end;
+  
+  member procedure put_warning(self in out nocopy ut_suite_item, a_message varchar2) is
+  begin
+    self.warnings.extend;
+    self.warnings(self.warnings.last) := a_message;
+    self.results_count.increase_warning_count;
   end;
 
 end;

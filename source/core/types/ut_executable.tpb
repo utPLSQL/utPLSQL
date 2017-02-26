@@ -1,4 +1,20 @@
 create or replace type body ut_executable is
+  /*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
+
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
 
   constructor function ut_executable(
     self in out nocopy ut_executable, a_context ut_suite_item,
@@ -98,12 +114,12 @@ create or replace type body ut_executable is
       '    ' || ut_metadata.form_name(l_owner, l_object_name, l_procedure_name) || ';' || chr(10) ||
       '  exception' || chr(10) ||
       '    when others then ' || chr(10) ||
-      '      --raise on ORA-04068: existing state of packages has been discarded to avoid unrecoverable session exception' || chr(10) ||
-      '      if sqlcode = -04068 then' || chr(10) ||
-      '        raise;' || chr(10) ||
-      '      end if;' || chr(10) ||
       '      l_error_stack := dbms_utility.format_error_stack;' || chr(10) ||
       '      l_error_backtrace := dbms_utility.format_error_backtrace;' || chr(10) ||
+      '      --raise on ORA-04068, ORA-04061: existing state of packages has been discarded to avoid unrecoverable session exception' || chr(10) ||
+      '      if l_error_stack like ''%ORA-04068%'' or l_error_stack like ''%ORA-04061%'' then' || chr(10) ||
+      '        raise;' || chr(10) ||
+      '      end if;' || chr(10) ||
       '  end;' || chr(10) ||
       '  :a_error_stack := l_error_stack;' || chr(10) ||
       '  :a_error_backtrace := l_error_backtrace;' || chr(10) ||

@@ -1,4 +1,20 @@
 create or replace package ut_utils authid definer is
+  /*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
+
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
 
   /*
     Package: ut_utils
@@ -48,22 +64,23 @@ create or replace package ut_utils authid definer is
   ex_invalid_path_format exception;
   gc_invalid_path_format constant pls_integer := -20202;
   pragma exception_init(ex_invalid_path_format, -20202);
-  
+
   ex_suite_package_not_found exception;
   gc_suite_package_not_found constant pls_integer := -20204;
   pragma exception_init(ex_suite_package_not_found, -20204);
-  
+
   -- Reporting event time not supported
   ex_invalid_rep_event_time exception;
   gc_invalid_rep_event_time constant pls_integer := -20210;
   pragma exception_init(ex_invalid_rep_event_time, -20210);
-  
+
   -- Reporting event name not supported
   ex_invalid_rep_event_name exception;
   gc_invalid_rep_event_name constant pls_integer := -20211;
   pragma exception_init(ex_invalid_rep_event_name, -20211);
 
 
+  gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
   gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
   gc_more_data_string         constant varchar2(5) := '[...]';

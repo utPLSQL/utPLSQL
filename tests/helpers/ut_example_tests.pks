@@ -5,5 +5,6 @@ as
  procedure setup;
  procedure teardown;
  procedure ut_passing_test;
+ procedure ut_commit_test;
 end;
 /

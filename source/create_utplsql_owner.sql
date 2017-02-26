@@ -1,3 +1,19 @@
+/*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
+
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
 whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 set echo off
@@ -11,9 +27,9 @@ define ut3_tablespace = &3
 
 create user &ut3_user identified by &ut3_password default tablespace &ut3_tablespace quota unlimited on &ut3_tablespace;
 
-grant create session, create procedure, create type, create table, create synonym to &ut3_user;
+grant create session, create sequence, create procedure, create type, create table, create synonym to &ut3_user;
 
-grant execute on dbms_pipe to &ut3_user;
+grant execute on dbms_lock to &ut3_user;
 
 grant alter session to &ut3_user;
 

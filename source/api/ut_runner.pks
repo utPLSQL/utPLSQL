@@ -1,18 +1,21 @@
 create or replace package ut_runner authid current_user is
 
-  type t_call_param is record (
-    ut_reporter_name   varchar2(4000) := 'ut_documentation_reporter',
-    output_file_name   varchar2(4000),
-    output_to_screen   varchar2(3)    := 'on',
-    output_id          varchar2(4000)
-  );
+  /*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
 
-  type tt_call_params is table of t_call_param;
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-  type t_run_params is record(
-    ut_paths    varchar2(4000),
-    call_params tt_call_params
-  );
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
 
   /**
   * Run suites/tests by path
@@ -28,26 +31,15 @@ create or replace package ut_runner authid current_user is
   *                       parent setup/teardown procedures
   */
 
-  procedure run(a_path varchar2 := null, a_reporter ut_reporter_base := ut_documentation_reporter());
+  procedure run(a_path varchar2 := null, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false);
 
-  procedure run(a_path varchar2, a_reporters ut_reporters);
-
-  -- TODO - implementation to be changed
-  procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter());
+  procedure run(a_path varchar2, a_reporters ut_reporters, a_color_console boolean := false);
 
   -- TODO - implementation to be changed
-  procedure run(a_paths ut_varchar2_list, a_reporters ut_reporters);
+  procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false);
 
-
-
-  ----------------------------
-  -- Client-side executor helper procedures and functions.
-
-  procedure set_run_params(a_params ut_varchar2_list);
-
-  function get_run_params return t_run_params;
-
-  function get_streamed_output_type_name return varchar2;
+  -- TODO - implementation to be changed
+  procedure run(a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false);
 
 end ut_runner;
 /

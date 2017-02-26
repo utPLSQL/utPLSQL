@@ -1,4 +1,20 @@
 create or replace type body ut_run as
+  /*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
+
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
 
   constructor function ut_run( self in out nocopy ut_run, a_items ut_suite_items ) return self as result is
   begin
@@ -6,12 +22,6 @@ create or replace type body ut_run as
     self.items := a_items;
     self.results_count := ut_results_counter();
     return;
-  end;
-
-  overriding member procedure do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base) is
-    l_completed_without_errors boolean;
-  begin
-    l_completed_without_errors := self.do_execute(a_listener);
   end;
 
   overriding member function do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base) return boolean is
@@ -22,6 +32,9 @@ create or replace type body ut_run as
     a_listener.fire_before_event(ut_utils.gc_run, self);
 
     self.start_time := current_timestamp;
+    
+    -- clear anything that might stay in the session's cache
+    ut_assert_processor.clear_asserts;
 
     for i in 1 .. self.items.count loop
       l_completed_without_errors := self.items(i).do_execute(a_listener);
@@ -50,6 +63,23 @@ create or replace type body ut_run as
     end if;
 
     self.result := l_result;
+  end;
+  
+  overriding member procedure fail(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base, a_failure_msg varchar2) is
+  begin
+    ut_utils.debug_log('ut_run.fail');
+
+    a_listener.fire_before_event(ut_utils.gc_run, self);
+    self.start_time := current_timestamp;
+
+    for i in 1 .. self.items.count loop
+      self.items(i).fail(a_listener, a_failure_msg);
+    end loop;
+    
+    self.calc_execution_result();
+    self.end_time := self.start_time;
+
+    a_listener.fire_after_event(ut_utils.gc_run, self);
   end;
 
 end;

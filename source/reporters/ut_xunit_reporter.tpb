@@ -1,9 +1,24 @@
 create or replace type body ut_xunit_reporter is
+  /*
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
 
-  constructor function ut_xunit_reporter(a_output ut_output default ut_output_dbms_output()) return self as result is
+  Licensed under the Apache License, Version 2.0 (the "License"):
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  */
+
+  constructor function ut_xunit_reporter(self in out nocopy ut_xunit_reporter) return self as result is
   begin
-    self.name   := $$plsql_unit;
-    self.output := a_output;
+    self.init($$plsql_unit);
     return;
   end;
 
@@ -17,10 +32,11 @@ create or replace type body ut_xunit_reporter is
     end;
 
     procedure print_test_elements(a_test ut_test) is
+      l_lines ut_varchar2_list;
     begin
       self.print_text(
           '<testcase classname="'||get_path(a_test.path, a_test.name)||'" ' ||
-          ' assertions="'||a_test.results.count||'"' ||
+          ' assertions="'||coalesce(cardinality(a_test.results),0)||'"' ||
           self.get_common_item_attributes(a_test) ||
           ' status="'||ut_utils.test_result_to_char(a_test.result)||'"' ||
           '>'
@@ -33,8 +49,11 @@ create or replace type body ut_xunit_reporter is
         self.print_text('<failure>');
         self.print_text( '<![CDATA[');
         for i in 1 .. a_test.results.count loop
-          self.print_text( a_test.results(i).get_result_clob);
-        end loop;
+          l_lines := a_test.results(i).get_result_lines();
+          for i in 1 .. l_lines.count loop
+            self.print_text(l_lines(i));
+          end loop;
+         end loop;
         self.print_text(']]>');
         self.print_text('</failure>');
       end if;

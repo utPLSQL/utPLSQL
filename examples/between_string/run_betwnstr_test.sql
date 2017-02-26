@@ -3,7 +3,7 @@
 
 set serveroutput on size unlimited format truncated
 
-exec ut_runner.run(user||'.test_betwnstr');
+exec ut.run(user||'.test_betwnstr');
 
 drop package test_betwnstr;
 drop function betwnstr;
