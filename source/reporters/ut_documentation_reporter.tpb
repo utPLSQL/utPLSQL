@@ -44,6 +44,17 @@ create or replace type body ut_documentation_reporter is
 
   overriding member procedure after_calling_test(self in out nocopy ut_documentation_reporter, a_test ut_test) as
     l_message varchar2(4000);
+    
+    procedure print_output(a_exectable ut_executable) is
+      l_lines ut_varchar2_list;
+    begin
+      if a_exectable is not null and a_exectable.is_defined and a_exectable.serveroutput is not null and dbms_lob.getlength(a_exectable.serveroutput) > 0 then
+        l_lines := ut_utils.clob_to_table(a_exectable.serveroutput);
+        for i in 1..l_lines.count loop
+          self.print_text(l_lines(i));
+        end loop;
+      end if;
+    end;
   begin
     l_message := coalesce( a_test.description, a_test.name );
     --if test failed, then add it to the failures list, print failure with number
@@ -55,6 +66,11 @@ create or replace type body ut_documentation_reporter is
       failed_test_running_count := failed_test_running_count + 1;
       self.print_red_text(l_message || ' (FAILED - '||failed_test_running_count||')');
     end if;
+    print_output(a_test.before_each);
+    print_output(a_test.before_test);
+    print_output(a_test.item);
+    print_output(a_test.after_test);
+    print_output(a_test.after_each);
   end;
 
   overriding member procedure after_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_logical_suite) as
