@@ -17,9 +17,11 @@ create or replace type body ut_coverage_html_reporter is
   */
 
   constructor function ut_coverage_html_reporter(
-    self in out nocopy ut_coverage_html_reporter, a_project_name varchar2 := null,
+    self in out nocopy ut_coverage_html_reporter,
+    a_project_name varchar2 := null,
     a_schema_names ut_varchar2_list := null,
-    a_include_object_list ut_varchar2_list := null, a_exclude_object_list ut_varchar2_list := null
+    a_include_object_list ut_varchar2_list := null,
+    a_exclude_object_list ut_varchar2_list := null
   ) return self as result is
   begin
     self.init($$plsql_unit);
@@ -29,17 +31,22 @@ create or replace type body ut_coverage_html_reporter is
   end;
 
   constructor function ut_coverage_html_reporter(
-    self in out nocopy ut_coverage_html_reporter, a_project_name varchar2 := null,
+    self in out nocopy ut_coverage_html_reporter,
+    a_project_name varchar2 := null,
+    a_object_owner varchar2 := null,
     a_file_paths ut_varchar2_list,
-    a_regex_pattern varchar2 := '.*(\\|\/)(\w+)\.(\w{3})',
-    a_object_owner_subexpression positive := null, a_object_name_subexpression positive := 2, a_object_type_subexpression positive := 3,
-    a_file_to_object_type_mapping ut_key_value_pairs := null,
-    a_include_object_list ut_varchar2_list := null, a_exclude_object_list ut_varchar2_list := null
+    a_regex_pattern varchar2,
+    a_object_owner_subexpression positive,
+    a_object_name_subexpression positive,
+    a_object_type_subexpression positive,
+    a_file_to_object_type_mapping ut_key_value_pairs,
+    a_include_object_list ut_varchar2_list := null,
+    a_exclude_object_list ut_varchar2_list := null
   ) return self as result is
     l_mappings ut_coverage_file_mappings;
   begin
     l_mappings := ut_coverage.build_file_mappings(
-      a_file_paths, a_file_to_object_type_mapping, a_regex_pattern,
+      a_object_owner, a_file_paths, a_file_to_object_type_mapping, a_regex_pattern,
       a_object_owner_subexpression, a_object_name_subexpression, a_object_type_subexpression
     );
     self.init($$plsql_unit);
@@ -49,9 +56,28 @@ create or replace type body ut_coverage_html_reporter is
   end;
 
   constructor function ut_coverage_html_reporter(
-    self in out nocopy ut_coverage_html_reporter, a_project_name varchar2 := null,
+    self in out nocopy ut_coverage_html_reporter,
+    a_project_name varchar2 := null,
+    a_object_owner varchar2 := null,
+    a_file_paths ut_varchar2_list,
+    a_include_object_list ut_varchar2_list := null,
+    a_exclude_object_list ut_varchar2_list := null
+  ) return self as result is
+    l_mappings ut_coverage_file_mappings;
+  begin
+    l_mappings := ut_coverage.build_file_mappings( a_object_owner, a_file_paths );
+    self.init($$plsql_unit);
+    ut_coverage.init(l_mappings, a_include_object_list, a_exclude_object_list);
+    self.project_name := a_project_name;
+    return;
+  end;
+
+  constructor function ut_coverage_html_reporter(
+    self in out nocopy ut_coverage_html_reporter,
+    a_project_name varchar2 := null,
     a_file_mappings       ut_coverage_file_mappings,
-    a_include_object_list ut_varchar2_list := null, a_exclude_object_list ut_varchar2_list := null
+    a_include_object_list ut_varchar2_list := null,
+    a_exclude_object_list ut_varchar2_list := null
   ) return self as result is
   begin
     self.init($$plsql_unit);

@@ -20,7 +20,7 @@ create or replace package body ut_suite_manager is
   type t_schema_cache is record(
      schema_suites tt_schema_suites
     ,changed_at    date);
-  type tt_schema_suites_list is table of t_schema_cache index by varchar2(32 char);
+  type tt_schema_suites_list is table of t_schema_cache index by varchar2(128 char);
 
   g_schema_suites tt_schema_suites_list;
 
@@ -335,6 +335,27 @@ create or replace package body ut_suite_manager is
       return cast(null as tt_schema_suites);
     end if;
   end get_schema_suites;
+
+  function get_schema_ut_packages(a_schema_names ut_varchar2_list) return ut_object_names is
+    l_schema_ut_packages ut_object_names := ut_object_names();
+    l_schema_suites      tt_schema_suites;
+    l_iter               varchar2(4000);
+  begin
+    if a_schema_names is not null then
+      for i in 1 .. a_schema_names.count loop
+        l_schema_suites := get_schema_suites(a_schema_names(i));
+        l_iter := l_schema_suites.first;
+        while l_iter is not null loop
+          l_schema_ut_packages.extend;
+          l_schema_ut_packages(l_schema_ut_packages.last) := ut_object_name(l_schema_suites(l_iter).object_owner, l_schema_suites(l_iter).object_name);
+          l_iter := l_schema_suites.next(l_iter);
+        end loop;
+      end loop;
+--      l_schema_ut_packages := set(l_schema_ut_packages);
+    end if;
+
+    return l_schema_ut_packages;
+  end;
 
   -- Validate all paths are correctly formatted
   procedure validate_paths(a_paths in ut_varchar2_list) is

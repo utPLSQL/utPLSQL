@@ -45,6 +45,9 @@ create or replace package body ut_coverage is
   function default_file_to_obj_type_map return ut_key_value_pairs is
   begin
     return ut_key_value_pairs(
+        ut_key_value_pair('fnc', 'FUNCTION'),
+        ut_key_value_pair('prc', 'PROCEDURE'),
+        ut_key_value_pair('trg', 'TRIGGER'),
         ut_key_value_pair('tpb', 'TYPE BODY'),
         ut_key_value_pair('pkb', 'PACKAGE BODY'),
         ut_key_value_pair('trg', 'TRIGGER')
@@ -52,8 +55,13 @@ create or replace package body ut_coverage is
   end;
 
   function build_file_mappings(
-    a_file_paths ut_varchar2_list, a_file_to_object_type_mapping ut_key_value_pairs,
-    a_regex_pattern varchar2, a_object_owner_subexpression positive, a_object_name_subexpression positive, a_object_type_subexpression positive
+    a_object_owner                varchar2,
+    a_file_paths                  ut_varchar2_list,
+    a_file_to_object_type_mapping ut_key_value_pairs := default_file_to_obj_type_map(),
+    a_regex_pattern               varchar2 := gc_file_mapping_regex,
+    a_object_owner_subexpression  positive := gc_regex_owner_subexpression,
+    a_object_name_subexpression   positive := gc_regex_name_subexpression,
+    a_object_type_subexpression   positive := gc_regex_type_subexpression
   ) return ut_coverage_file_mappings is
     type tt_key_values is table of varchar2(4000) index by varchar2(4000);
     l_key_values tt_key_values;
@@ -61,26 +69,24 @@ create or replace package body ut_coverage is
     l_mapping    ut_coverage_file_mapping;
     l_object_type_key varchar2(4000);
     l_object_type     varchar2(4000);
-    l_file_to_object_type_mapping ut_key_value_pairs;
   begin
-    l_file_to_object_type_mapping := nvl(a_file_to_object_type_mapping, default_file_to_obj_type_map());
-    for i in 1 .. l_file_to_object_type_mapping.count loop
-      l_key_values(upper(l_file_to_object_type_mapping(i).key)) := l_file_to_object_type_mapping(i).value;
+    for i in 1 .. a_file_to_object_type_mapping.count loop
+      l_key_values(upper(a_file_to_object_type_mapping(i).key)) := a_file_to_object_type_mapping(i).value;
     end loop;
     if a_file_paths is not null then
       l_mappings := ut_coverage_file_mappings();
       for i in 1 .. a_file_paths.count loop
         l_object_type_key := upper(regexp_substr(a_file_paths(i), a_regex_pattern,1,1,'i',a_object_type_subexpression));
         if l_key_values.exists(l_object_type_key) then
-          l_object_type := l_key_values(l_object_type_key);
+          l_object_type := upper(l_key_values(l_object_type_key));
         else
           l_object_type := null;
         end if;
         l_mapping := ut_coverage_file_mapping(
           file_name => a_file_paths(i),
-          object_owner => nvl(
+          object_owner => coalesce(
             upper(regexp_substr(a_file_paths(i), a_regex_pattern, 1, 1, 'i', a_object_owner_subexpression))
-            , sys_context('USERENV', 'CURRENT_SCHEMA')
+            , a_object_owner, sys_context('USERENV', 'CURRENT_SCHEMA')
           ),
           object_name => upper(regexp_substr(a_file_paths(i), a_regex_pattern, 1, 1, 'i', a_object_name_subexpression)),
           object_type => l_object_type
@@ -167,13 +173,9 @@ create or replace package body ut_coverage is
     ut_coverage_helper.coverage_stop();
   end;
 
-  procedure skip_coverage_for(a_owner varchar2, a_name varchar2) is
+  procedure skip_coverage_for(a_ut_objects ut_object_names) is
   begin
-    if g_skipped_objects is null then
-      g_skipped_objects := ut_object_names();
-    end if;
-    g_skipped_objects.extend;
-    g_skipped_objects(g_skipped_objects.last) := ut_object_name(a_owner, a_name);
+    g_skipped_objects := a_ut_objects;
   end;
 
   function get_coverage_data return t_coverage is
@@ -254,7 +256,7 @@ create or replace package body ut_coverage is
              end as to_be_skipped
         from all_source s
        where s.type not in ('PACKAGE', 'TYPE')
-         and  s.owner in (select t.column_value from table(l_schema_names) t)
+         and  s.owner in (select upper(t.column_value) from table(l_schema_names) t)
          and (g_include_list is null or (s.owner, s.name) in (select il.owner, il.name from table(g_include_list) il ) )
          and (s.owner, s.name) not in (select el.owner, el.name from table(g_exclude_list) el)
          --Exclude calls to utPLSQL framework and Unit Test packages
