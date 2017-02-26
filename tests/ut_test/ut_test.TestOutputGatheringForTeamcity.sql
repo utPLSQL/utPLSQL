@@ -61,7 +61,7 @@ declare
   l_output            clob;
 begin
   --act
-  ut.run('ut_output_tests');
+  ut.run('ut_output_tests',ut_teamcity_reporter);
 
   --assert
   dbms_output.get_lines( l_output_data, l_num_lines);
@@ -69,8 +69,7 @@ begin
   for i in 1 .. l_num_lines loop
     dbms_lob.append(l_output,l_output_data(i));
   end loop;
-  
-  if l_output like '%<!beforeeach!>%<!beforetest!>%<!thetest!>%<!aftertest!>%<!aftereach!>%1 tests, 0 failed, 0 errored%' then
+  if l_output like '%##teamcity[testStarted%<!beforeeach!>%<!beforetest!>%<!thetest!>%<!aftertest!>%<!aftereach!>%##teamcity[testFinished%' then
     :test_result := ut_utils.tr_success;
   end if;
 

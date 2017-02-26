@@ -66,6 +66,8 @@ create or replace type body ut_documentation_reporter is
       failed_test_running_count := failed_test_running_count + 1;
       self.print_red_text(l_message || ' (FAILED - '||failed_test_running_count||')');
     end if;
+    
+    -- reproduce the output from before/after procedures and the test
     print_output(a_test.before_each);
     print_output(a_test.before_test);
     print_output(a_test.item);
