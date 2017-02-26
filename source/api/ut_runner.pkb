@@ -37,6 +37,8 @@ create or replace package body ut_runner is
   exception
     when others then
       ut_output_buffer.close(l_listener.reporters);
+      dbms_output.put_line(dbms_utility.format_error_backtrace);
+      dbms_output.put_line(dbms_utility.format_error_stack);
       raise;
   end;
 
