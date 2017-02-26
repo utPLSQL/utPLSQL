@@ -19,6 +19,7 @@ The installation user/schema must have the following Oracle system permissions d
   - CREATE PROCEDURE
   - CREATE TYPE
   - CREATE TABLE
+  - CREATE VIEW
   - CREATE SYNONYM
   - ALTER SESSION
   
