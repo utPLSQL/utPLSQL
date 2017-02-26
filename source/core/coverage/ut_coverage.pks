@@ -22,7 +22,7 @@ create or replace package ut_coverage authid current_user is
   gc_regex_type_subexpression  constant positive := 5;
 
   -- total run coverage information
-  subtype t_full_name   is varchar2(500);
+  subtype t_full_name   is varchar2(4000);
   subtype t_object_name is varchar2(250);
 
   subtype t_line_executions is binary_integer;

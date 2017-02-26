@@ -51,6 +51,10 @@ drop synonym be_true;
 
 drop synonym equal;
 
+drop type ut_coverage_json_reporter;
+
+drop type ut_coverage_xml_reporter;
+
 drop package ut_coverage_report_html_helper;
 
 drop type ut_coverage_html_reporter;

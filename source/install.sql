@@ -218,6 +218,10 @@ whenever oserror exit failure rollback
 @@reporters/ut_coverage_report_html_helper.pks
 @@reporters/ut_coverage_report_html_helper.pkb
 @@reporters/ut_coverage_html_reporter.tpb
+@@reporters/ut_coverage_xml_reporter.tps
+@@reporters/ut_coverage_xml_reporter.tpb
+@@reporters/ut_coverage_json_reporter.tps
+@@reporters/ut_coverage_json_reporter.tpb
 
 @@api/be_between.syn
 @@api/be_empty.syn

@@ -203,7 +203,7 @@ create or replace package body ut_coverage_report_html_helper is
     l_coverage_pct         number(5,2);
     l_time_str             varchar2(50);
     l_using                varchar2(1000);
-    l_unit                 ut_coverage.t_object_name;
+    l_unit                 ut_coverage.t_full_name;
   begin
     l_coverage_pct := coverage_pct(a_coverage_data.covered_lines, a_coverage_data.uncovered_lines);
     l_time_str := ut_utils.to_string(sysdate);

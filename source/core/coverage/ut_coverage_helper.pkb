@@ -30,6 +30,7 @@ create or replace package body ut_coverage_helper is
   end;
 
   function coverage_start(a_run_comment varchar2) return integer is
+    pragma autonomous_transaction;
   begin
     --those are Global Temporary tables for profiler usage only
     delete from plsql_profiler_data;
@@ -37,6 +38,7 @@ create or replace package body ut_coverage_helper is
     delete from plsql_profiler_runs;
     dbms_profiler.start_profiler(run_comment => a_run_comment, run_number => g_coverage_id);
     coverage_pause();
+    commit;
     return g_coverage_id;
   end;
 
