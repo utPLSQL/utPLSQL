@@ -44,7 +44,7 @@ create or replace type body ut_teamcity_reporter is
 
     l_test_full_name := lower(a_test.item.owner_name)||'.'||lower(a_test.item.object_name)||'.'||lower(a_test.item.procedure_name);
 
-    self.print_text(ut_teamcity_reporter_helper.test_started(a_test_name => l_test_full_name));
+    self.print_text(ut_teamcity_reporter_helper.test_started(a_test_name => l_test_full_name,a_capture_standard_output => true));
 
   end;
 

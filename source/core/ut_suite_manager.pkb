@@ -120,9 +120,7 @@ create or replace package body ut_suite_manager is
           a_rollback_type         => l_suite_rollback,
           a_ignore_flag           => l_annotation_data.package_annotations.exists('disabled'),
           a_before_all_proc_name  => l_suite_setup_proc,
-          a_after_all_proc_name   => l_suite_teardown_proc,
-          a_before_each_proc_name => l_default_setup_proc,
-          a_after_each_proc_name  => l_default_teardown_proc
+          a_after_all_proc_name   => l_suite_teardown_proc
       );
 
 
@@ -174,7 +172,9 @@ create or replace package body ut_suite_manager is
                 a_rollback_type => l_rollback_type,
                 a_ignore_flag   => l_proc_annotations.exists('disabled'),
                 a_before_test_proc_name => l_setup_procedure,
-                a_after_test_proc_name  => l_teardown_procedure
+                a_after_test_proc_name  => l_teardown_procedure,
+                a_before_each_proc_name => l_default_setup_proc,
+                a_after_each_proc_name  => l_default_teardown_proc
             );
 
             l_suite.add_item(l_test);
@@ -418,13 +418,13 @@ create or replace package body ut_suite_manager is
       end if;
     end skip_by_path;
 
-    function package_exists_in_cur_schema(p_package_name varchar2) return boolean is
+    function package_exists_in_cur_schema(a_package_name varchar2) return boolean is
       l_cnt number;
     begin
       select count(*)
         into l_cnt
         from all_objects t
-       where t.object_name = upper(p_package_name)
+       where t.object_name = upper(a_package_name)
          and t.object_type = 'PACKAGE'
          and t.owner = c_current_schema;
       return l_cnt > 0;
