@@ -55,11 +55,11 @@ create or replace type body ut_reporter_base is
     null;
   end;
 
-  member procedure before_calling_before_each(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
+  member procedure before_calling_before_each(self in out nocopy ut_reporter_base, a_suite in ut_test) is
   begin
     null;
   end;
-  member procedure after_calling_before_each (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
+  member procedure after_calling_before_each (self in out nocopy ut_reporter_base, a_suite in ut_test) is
   begin
     null;
   end;
@@ -103,11 +103,11 @@ create or replace type body ut_reporter_base is
   end;
 
   --suite hooks continued
-  member procedure before_calling_after_each(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
+  member procedure before_calling_after_each(self in out nocopy ut_reporter_base, a_suite in ut_test) is
   begin
     null;
   end;
-  member procedure after_calling_after_each (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
+  member procedure after_calling_after_each (self in out nocopy ut_reporter_base, a_suite in ut_test) is
   begin
     null;
   end;

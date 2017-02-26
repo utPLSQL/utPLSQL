@@ -32,8 +32,8 @@ create or replace type ut_reporter_base authid current_user as object(
   member procedure before_calling_before_all(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
   member procedure after_calling_before_all (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
 
-  member procedure before_calling_before_each(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
-  member procedure after_calling_before_each (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
+  member procedure before_calling_before_each(self in out nocopy ut_reporter_base, a_suite in ut_test),
+  member procedure after_calling_before_each (self in out nocopy ut_reporter_base, a_suite in ut_test),
 
   -- test hooks
   member procedure before_calling_test(self in out nocopy ut_reporter_base, a_test in ut_test),
@@ -50,8 +50,8 @@ create or replace type ut_reporter_base authid current_user as object(
   member procedure after_calling_test(self in out nocopy ut_reporter_base, a_test in ut_test),
 
   --suite hooks continued
-  member procedure before_calling_after_each(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
-  member procedure after_calling_after_each (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
+  member procedure before_calling_after_each(self in out nocopy ut_reporter_base, a_suite in ut_test),
+  member procedure after_calling_after_each (self in out nocopy ut_reporter_base, a_suite in ut_test),
 
   member procedure before_calling_after_all(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
   member procedure after_calling_after_all (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
