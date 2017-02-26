@@ -187,7 +187,9 @@ drop type ut_suite_item_base;
 
 drop package ut_output_buffer;
 
-drop table ut_output_buffer_tmp;
+drop view ut_output_buffer_tmp;
+
+drop table ut_output_buffer_tmp$;
 
 drop sequence ut_message_id_seq;
 
