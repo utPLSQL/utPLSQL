@@ -1,4 +1,4 @@
-create table ut_output_buffer_tmp(
+create table ut_output_buffer_tmp$(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -27,4 +27,37 @@ create table ut_output_buffer_tmp(
 ) nologging nomonitoring initrans 100
 ;
 
-create index ut_output_buffer_tmp_i on ut_output_buffer_tmp(start_date) initrans 100 nologging;
+create index ut_output_buffer_tmp_i on ut_output_buffer_tmp$(start_date) initrans 100 nologging;
+
+-- This is needed to be EBR ready as editioning view can only be created by edition enabled user
+declare
+  ex_nonedition_user exception;
+  ex_view_doesnt_exist exception;
+  pragma exception_init(ex_nonedition_user,-42314);
+  pragma exception_init(ex_view_doesnt_exist,-942);
+begin
+  begin
+    execute immediate 'drop view ut_output_buffer_tmp';
+  exception
+    when ex_view_doesnt_exist then
+      null;
+  end;
+  
+  execute immediate 'create or replace editioning view ut_output_buffer_tmp as
+select reporter_id
+      ,message_id
+      ,text
+      ,is_finished
+      ,start_date
+  from ut_output_buffer_tmp$';
+exception 
+  when ex_nonedition_user then
+    execute immediate 'create or replace view ut_output_buffer_tmp as
+select reporter_id
+      ,message_id
+      ,text
+      ,is_finished
+      ,start_date
+  from ut_output_buffer_tmp$';
+end;
+/
