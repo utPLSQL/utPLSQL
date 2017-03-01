@@ -67,6 +67,7 @@ create or replace type body ut_documentation_reporter is
 
   overriding member procedure after_calling_run(self in out nocopy ut_documentation_reporter, a_run in ut_run) as
     l_summary_text varchar2(4000);
+    l_warnings ut_varchar2_list := ut_varchar2_list();
     procedure print_failure_for_assert(a_assert ut_assert_result) is
       l_lines ut_varchar2_list;
     begin
@@ -116,15 +117,55 @@ create or replace type body ut_documentation_reporter is
         end loop;
       end if;
     end;
+    
+    procedure print_warnings(a_run in ut_run) is     
+      procedure gather_warnings(a_item ut_suite_item) is
+        l_suite ut_logical_suite;
+      begin
+        --process warnings of child items first
+        if a_item is of(ut_logical_suite) then
+          l_suite := treat(a_item as ut_logical_suite);
+          for item_ind in 1..l_suite.items.count loop
+            gather_warnings(l_suite.items(item_ind));
+          end loop;
+        end if;
+        
+        --then process self warnings
+        if a_item.warnings is not null and a_item.warnings.count > 0 then
+          for warn_ind in 1..a_item.warnings.count loop
+            l_warnings.extend;
+            l_warnings(l_warnings.last) := '  '||l_warnings.last||') '||a_item.path||' - '||
+            regexp_replace(a_item.warnings(warn_ind),'('||chr(10)||'|'||chr(13)||')','\1       ');
+          end loop;
+        end if;
+      end;
+    begin
+      if a_run.items is not null and a_run.items.count >0 then
+        for run_item in 1..a_run.items.count loop
+          gather_warnings(a_run.items(run_item));
+        end loop;
+      end if;
+      
+      if l_warnings.count>0 then
+        self.print_text( 'Warnings:' );
+        self.print_text( ' ' );
+        for i in 1 .. l_warnings.count loop
+          self.print_text(l_warnings(i));
+          self.print_text(' ');
+        end loop;
+      end if;
+    end;
 
   begin
     print_failures_details(a_run);
+    print_warnings(a_run);
     self.print_text( 'Finished in '||a_run.execution_time||' seconds' );
     l_summary_text :=
       a_run.results_count.total_count || ' tests, '
       ||a_run.results_count.failure_count||' failed, '
       ||a_run.results_count.errored_count||' errored, '
-      ||a_run.results_count.ignored_count||' ignored';
+      ||a_run.results_count.ignored_count||' ignored.'||
+      case when l_warnings.count>0 then ' '||l_warnings.count||' warning(s)' end;
     if a_run.results_count.failure_count > 0 then
       self.print_red_text(l_summary_text);
     else

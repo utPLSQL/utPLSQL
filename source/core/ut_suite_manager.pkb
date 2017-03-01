@@ -274,6 +274,7 @@ create or replace package body ut_suite_manager is
                       ,t.object_name
                   from all_objects t
                  where t.owner = a_owner_name
+                   and t.status = 'VALID' -- scan only valid specifications
                    and t.object_type in ('PACKAGE')) loop
       -- parse the source of the package
       l_suite := config_package(rec.owner, rec.object_name);
@@ -508,7 +509,7 @@ create or replace package body ut_suite_manager is
           l_suite := l_schema_suites(l_root_suite_name);
         exception
           when no_data_found then
-            raise_application_error(-20203, 'Suite ' || l_root_suite_name || ' not found');
+            raise_application_error(-20203, 'Suite ' || l_root_suite_name || ' does not exist or is invalid');
         end;
 
         skip_by_path(l_suite, regexp_substr(l_suite_path, '\.(.+)', subexpression => 1));

@@ -111,9 +111,11 @@ create or replace package body ut_output_buffer is
   procedure cleanup_buffer(a_retention_time_sec naturaln := gc_buffer_retention_sec) is
     l_retention_days number := a_retention_time_sec / (60 * 60 * 24);
     l_max_retention_date date := sysdate - l_retention_days;
+    pragma autonomous_transaction; -- the cleanup should initiate transaction
   begin
     delete from ut_output_buffer_tmp t
      where t.start_date <= l_max_retention_date;
+    commit;
   end;
 
 end;
