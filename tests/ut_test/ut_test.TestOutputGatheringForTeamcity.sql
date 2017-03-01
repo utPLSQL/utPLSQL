@@ -17,39 +17,53 @@ as
  
  procedure aftertest;
  
+ --%beforeall
+ procedure beforeall;
+ --%afterall 
+ procedure afterall;
+ 
 end;
 /
 
 create or replace package body ut_output_tests
 as
 
- procedure beforetest as
+ procedure beforetest is
  begin
    dbms_output.put_line('<!beforetest!>');
  end;
 
  procedure aftertest
- as
+ is
  begin
    dbms_output.put_line('<!aftertest!>');
  end;
  
- procedure beforeeach as
+ procedure beforeeach is
  begin
    dbms_output.put_line('<!beforeeach!>');
  end;
 
- procedure aftereach
- as
+ procedure aftereach is
  begin
    dbms_output.put_line('<!aftereach!>');
  end;
 
  procedure ut_passing_test
- as
+ is
  begin
    dbms_output.put_line('<!thetest!>');
    ut.expect(1,'Test 1 Should Pass').to_equal(1);
+ end;
+ 
+ procedure beforeall is
+ begin
+   dbms_output.put_line('<!beforeall!>');
+ end;
+
+ procedure afterall is
+ begin
+   dbms_output.put_line('<!afterall!>');
  end;
 
 end;

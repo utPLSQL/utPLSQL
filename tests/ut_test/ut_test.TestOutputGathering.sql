@@ -17,6 +17,11 @@ as
  
  procedure aftertest;
  
+ --%beforeall
+ procedure beforeall;
+ --%afterall 
+ procedure afterall;
+ 
 end;
 /
 
@@ -51,6 +56,16 @@ as
    dbms_output.put_line('<!thetest!>');
    ut.expect(1,'Test 1 Should Pass').to_equal(1);
  end;
+ 
+ procedure beforeall is
+ begin
+   dbms_output.put_line('<!beforeall!>');
+ end;
+
+ procedure afterall is
+ begin
+   dbms_output.put_line('<!afterall!>');
+ end;
 
 end;
 /
@@ -70,7 +85,7 @@ begin
     dbms_lob.append(l_output,l_output_data(i));
   end loop;
   
-  if l_output like '%<!beforeeach!>%<!beforetest!>%<!thetest!>%<!aftertest!>%<!aftereach!>%1 tests, 0 failed, 0 errored%' then
+  if l_output like '%<!beforeall!>%<!beforeeach!>%<!beforetest!>%<!thetest!>%<!aftertest!>%<!aftereach!>%<!afterall!>%1 tests, 0 failed, 0 errored%' then
     :test_result := ut_utils.tr_success;
   end if;
 
