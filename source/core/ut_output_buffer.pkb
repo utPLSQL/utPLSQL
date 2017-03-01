@@ -102,8 +102,8 @@ create or replace package body ut_output_buffer is
     l_lines := ut_output_buffer.get_lines_cursor(a_reporter_id, a_timeout_sec);
     loop
       fetch l_lines into l_line;
-      dbms_output.put_line(l_line);
       exit when l_lines%notfound;
+      dbms_output.put_line(l_line);
     end loop;
     close l_lines;
   end;

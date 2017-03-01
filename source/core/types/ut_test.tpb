@@ -18,14 +18,18 @@ create or replace type body ut_test as
 
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_description varchar2 := null,
-    a_path varchar2 := null, a_rollback_type integer := null, a_ignore_flag boolean := false, a_before_test_proc_name varchar2 := null, a_after_test_proc_name varchar2 := null
+    a_path varchar2 := null, a_rollback_type integer := null, a_ignore_flag boolean := false, 
+    a_before_each_proc_name varchar2 := null, a_before_test_proc_name varchar2 := null,
+    a_after_test_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
     self.init(a_object_owner, a_object_name, a_name, a_description, a_path, a_rollback_type, a_ignore_flag);
+    self.before_each := ut_executable(self, a_before_each_proc_name, ut_utils.gc_before_each);
     self.before_test := ut_executable(self, a_before_test_proc_name, ut_utils.gc_before_test);
     self.item := ut_executable(self, a_name, ut_utils.gc_test_execute);
     self.after_test := ut_executable(self, a_after_test_proc_name, ut_utils.gc_after_test);
+    self.after_each := ut_executable(self, a_after_each_proc_name, ut_utils.gc_after_each);
     return;
   end;
 
@@ -33,9 +37,11 @@ create or replace type body ut_test as
     l_is_valid boolean;
   begin
     l_is_valid :=
+      ( not self.before_each.is_defined() or self.before_each.is_valid() ) and
       ( not self.before_test.is_defined() or self.before_test.is_valid() ) and
       ( self.item.is_valid()  ) and
-      ( not self.after_test.is_defined() or self.after_test.is_valid() );
+      ( not self.after_test.is_defined() or self.after_test.is_valid() ) and
+      ( not self.after_each.is_defined() or self.after_each.is_valid() );
     return l_is_valid;
   end;
 
@@ -60,19 +66,24 @@ create or replace type body ut_test as
         l_savepoint := self.create_savepoint_if_needed();
 
         --includes listener calls for before and after actions
-        l_completed_without_errors := self.before_test.do_execute(self, a_listener);
-
+        l_completed_without_errors := self.before_each.do_execute(self, a_listener);
+        
         if l_completed_without_errors then
-          -- execute the test
-          self.item.do_execute(self, a_listener);
+          l_completed_without_errors := self.before_test.do_execute(self, a_listener);
 
+          if l_completed_without_errors then
+            -- execute the test
+            self.item.do_execute(self, a_listener);
+
+          end if;
+          -- perform cleanup regardless of the test or setup failure
+          self.after_test.do_execute(self, a_listener);
         end if;
-        -- perform cleanup regardless of the test or setup failure
-        self.after_test.do_execute(self, a_listener);
-
+        
+        self.after_each.do_execute(self, a_listener);
         self.rollback_to_savepoint(l_savepoint);
-
       end if;
+      
       self.calc_execution_result();
       self.end_time := current_timestamp;
     end if;

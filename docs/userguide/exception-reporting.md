@@ -13,7 +13,7 @@ Test execution can fail for different reasons. The failures on different excepti
 * A test package that is raising an exception in `%beforetest` - the `%test` is reported as failed  with exception, `%test` is not executed. The `%aftertest`, `%aftereach` and `%afterall` blocks are getting executed to allow cleanup of whatever was done in `%before...` blocks
 * A test package that is raising an exception in `%test` - the `%test` is reported as failed with exception. The execution of other blocks continues normally
 * A test package that is raising an exception in `%aftertest` - the `%test` is reported as failed with exception. The execution of other blocks continues normally
-* A test package that is raising an exception in `%aftereach` - all blocks of the package are executed, as ehe `%aftereach` is a closing block for an individual test. Exception in `%aftereach` is not affecting test results. For every failed execution of `%aftereach` a warning with exception stacktrace is displayed in the summary
+* A test package that is raising an exception in `%aftereach` - each `%test` is reported as failed with exception.
 * A test package that is raising an exception in `%afterall` - all blocks of  the package are executed, as the `%afterall` is the last step of package execution. Exception in `%afterall` is not affecting test results. A warning with exception stacktrace is displayed in the summary
 
 
@@ -77,29 +77,32 @@ Finished in ,045523 seconds
 Example of reporting with exception thrown in `%aftereach`:
 ```
 Remove rooms by name
-  Removes a room without content in it
-  Does not remove room when it has content
-  Raises exception when null room name given
+  Removes a room without content in it (FAILED - 1)
+  Does not remove room when it has content (FAILED - 2)
+  Raises exception when null room name given (FAILED - 3)
  
-Warnings:
+Failures:
  
-  1) test_remove_rooms_by_name - Aftereach procedure failed:
-       ORA-20001: Test exception
-       ORA-06512: at "UT3.TEST_REMOVE_ROOMS_BY_NAME", line 31
-       ORA-06512: at line 6
- 
-  2) test_remove_rooms_by_name - Aftereach procedure failed:
-       ORA-20001: Test exception
-       ORA-06512: at "UT3.TEST_REMOVE_ROOMS_BY_NAME", line 31
-       ORA-06512: at line 6
- 
-  3) test_remove_rooms_by_name - Aftereach procedure failed:
-       ORA-20001: Test exception
-       ORA-06512: at "UT3.TEST_REMOVE_ROOMS_BY_NAME", line 31
-       ORA-06512: at line 6
- 
-Finished in ,05071 seconds
-3 tests, 0 failed, 0 errored, 0 ignored. 3 warning(s)
+  1) remove_empty_room
+        
+        error: ORA-20001: Test exception
+               ORA-06512: at "UT3.TEST_REMOVE_ROOMS_BY_NAME", line 31
+               ORA-06512: at line 6
+       
+  2) room_with_content
+        
+        error: ORA-20001: Test exception
+               ORA-06512: at "UT3.TEST_REMOVE_ROOMS_BY_NAME", line 31
+               ORA-06512: at line 6
+       
+  3) null_room_name
+        
+        error: ORA-20001: Test exception
+               ORA-06512: at "UT3.TEST_REMOVE_ROOMS_BY_NAME", line 31
+               ORA-06512: at line 6
+       
+Finished in ,034863 seconds
+3 tests, 0 failed, 3 errored, 0 ignored.
 ```
 
 Example of reporting with exception thrown in `%afterall`:

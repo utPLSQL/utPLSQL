@@ -145,6 +145,14 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_test/ut_test.TeardownProcedureNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.TeardownProcedureNameNull.sql
 @@lib/RunTest.sql ut_test/ut_test.IgnoreTollbackToSavepointException.sql
+@@lib/RunTest.sql ut_test/ut_test.AfterEachExecuted.sql
+@@lib/RunTest.sql ut_test/ut_test.AfterEachProcedureNameInvalid.sql
+@@lib/RunTest.sql ut_test/ut_test.AfterEachProcedureNameNull.sql
+@@lib/RunTest.sql ut_test/ut_test.BeforeEachExecuted.sql
+@@lib/RunTest.sql ut_test/ut_test.BeforeEachProcedureNameInvalid.sql
+@@lib/RunTest.sql ut_test/ut_test.BeforeEachProcedureNameNull.sql
+@@lib/RunTest.sql ut_test/ut_test.TestOutputGathering.sql
+@@lib/RunTest.sql ut_test/ut_test.TestOutputGatheringForTeamcity.sql
 
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsATestWhenAfterTestFails.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsATestWhenBeforeTestFails.sql

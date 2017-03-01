@@ -25,7 +25,7 @@ begin
   dbms_output.get_lines( l_output_data, l_num_lines);
   if failing_after_each.gv_glob_val = 2 then
     for i in 1 .. l_num_lines loop
-      if l_output_data(i) like '%2 tests, 2 failed, 0 errored% 2 warning%' then
+      if l_output_data(i) like '%2 tests, 0 failed, 2 errored%' then
         :test_result := ut_utils.tr_success;
       end if;
     end loop;
