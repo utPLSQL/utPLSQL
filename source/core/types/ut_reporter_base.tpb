@@ -24,11 +24,6 @@ create or replace type body ut_reporter_base is
     return;
   end;
 
-  final member function get_reporter_id(self in out nocopy ut_reporter_base) return raw is
-  begin
-    return self.reporter_id;
-  end;
-
   member procedure print_text(self in out nocopy ut_reporter_base, a_text varchar2) is
   begin
     ut_output_buffer.send_line(self,a_text);

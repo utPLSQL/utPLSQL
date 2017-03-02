@@ -20,6 +20,8 @@ create or replace package ut_suite_manager authid current_user is
 
   procedure config_schema(a_owner_name varchar2);
 
+  function get_schema_ut_packages(a_schema_names ut_varchar2_list) return ut_object_names;
+
   --INTERNAL USE
   function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items;
 

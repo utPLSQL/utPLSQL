@@ -193,5 +193,11 @@ create or replace package ut_utils authid definer is
   */
   function indent_lines(a_text varchar2, a_indent_size integer) return varchar2;
 
+
+  /*
+  * Returns a list of object that are part of utPLSQL framework
+  */
+  function get_utplsql_objects_list return ut_object_names;
+
 end ut_utils;
 /

@@ -1,6 +1,20 @@
 sudo: required
 language: python
 
+addons:
+  apt:
+    packages:
+    #packages required for oracle
+      - bc
+      - rpm
+      - unzip
+      #Java8 required for sonar
+      - oracle-java8-installer
+      - oracle-java8-set-default
+  sonarqube:
+    token:
+      secure: AmQdR1Fm0tvA9Ees1wz1RqnUl49lZrGdhWCkx7SnIzz+/1Lm2L9aH/e4bL60wIqkJ+AK8tJ1YX4L2B+i7/t5dBSH9Nj8JgbJFwHMqHdMCmaqKpvT5eJRzhbgr0kccm8ECHWTWBL+mIyXXYUm4f/tuRnnngfZS/bxtUpFUDvotcEybuuGUvKSbmc6ew5tfBuX79G/lXbFBceO6EQStoi8SeIHDkgeX/BoQQin0BFVMcsuWKPuQ5P5B19KfxubEk6tiHLZffoaF1q+RbsFcwpr4nyXHiusTRdtLmHb5DvlSQsy15qaakJP6AA073sGjnKxcGiGvP48HbC07tQmtBiZY2Ybkqj9i4aRq0hzX/VXRuZOV/rQARjItS4MKTmD9gET9XkYzc/P8VxSGRFT97guF3f6qtPzcGCu3TbFQpgeP+mgcePLvDl5j/AL+tZAAwSj3mPhEGncr5j+QkcLhl+mM5TymNeJn828qb8I7+mSdqbmPwytc//hwJLeqFJDX2GGnXZD4VkMZDvUO6gq2bQXy0hLgdI7uIQpIzIUlAGoYG6MK4SuHxnx+ZNwsW/nrMGVCJrK67Ii/R++Fg4et5QshTaTbkcQ3Deroady/pnGwlD5FR59LYpjqOVQ+4ey2bf92eGx0j0NWCz+CfirKSXd3o1hESSqamyi8KtOqkqiLEg=
+
 env:
   global:
     - ORACLE_COOKIE=sqldev
@@ -10,6 +24,7 @@ env:
     - ORACLE_BASE=/u01/app/oracle
     - LD_LIBRARY_PATH=$ORACLE_HOME/lib
     - PATH=$PATH:$ORACLE_HOME/jdbc/lib:$ORACLE_HOME/bin
+    - JAVA_HOME=/usr/lib/jvm/java-8-oracle/jre
     - DATABASE_VERSION=11.2.0.2
     - ORACLE_SID=XE
     - DATABASE_NAME=XE
@@ -24,17 +39,6 @@ env:
       # Target Branch and Directory for Deployment of Docs
     - PAGES_TARGET_BRANCH="gh-pages"
     - PAGES_VERSION_BASE="version3"
-
-addons:
-  apt:
-    packages:
-    #packages required for oracle
-      - bc
-      - rpm
-      - unzip
-  sonarqube:
-    token:
-      secure: AmQdR1Fm0tvA9Ees1wz1RqnUl49lZrGdhWCkx7SnIzz+/1Lm2L9aH/e4bL60wIqkJ+AK8tJ1YX4L2B+i7/t5dBSH9Nj8JgbJFwHMqHdMCmaqKpvT5eJRzhbgr0kccm8ECHWTWBL+mIyXXYUm4f/tuRnnngfZS/bxtUpFUDvotcEybuuGUvKSbmc6ew5tfBuX79G/lXbFBceO6EQStoi8SeIHDkgeX/BoQQin0BFVMcsuWKPuQ5P5B19KfxubEk6tiHLZffoaF1q+RbsFcwpr4nyXHiusTRdtLmHb5DvlSQsy15qaakJP6AA073sGjnKxcGiGvP48HbC07tQmtBiZY2Ybkqj9i4aRq0hzX/VXRuZOV/rQARjItS4MKTmD9gET9XkYzc/P8VxSGRFT97guF3f6qtPzcGCu3TbFQpgeP+mgcePLvDl5j/AL+tZAAwSj3mPhEGncr5j+QkcLhl+mM5TymNeJn828qb8I7+mSdqbmPwytc//hwJLeqFJDX2GGnXZD4VkMZDvUO6gq2bQXy0hLgdI7uIQpIzIUlAGoYG6MK4SuHxnx+ZNwsW/nrMGVCJrK67Ii/R++Fg4et5QshTaTbkcQ3Deroady/pnGwlD5FR59LYpjqOVQ+4ey2bf92eGx0j0NWCz+CfirKSXd3o1hESSqamyi8KtOqkqiLEg=
 
 cache:
   directories:
@@ -64,6 +68,7 @@ script:
 #  - bash .travis/run_test_as_user.sh
 #  - bash .travis/build_docs.sh
 #  - bash .travis/push_docs_to_gh_pages.sh
+  - sonar-scanner
 
 deploy:
   provider: releases

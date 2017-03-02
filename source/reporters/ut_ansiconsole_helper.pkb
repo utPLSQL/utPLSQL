@@ -29,11 +29,6 @@ create or replace package body ut_ansiconsole_helper as
     g_enabled := a_enabled;
   end;
 
-  function color_enabled return boolean is
-  begin
-    return g_enabled;
-  end;
-
   function add_color(a_text varchar2, a_color varchar2 := c_reset) return varchar2 is
   begin
     if g_enabled then

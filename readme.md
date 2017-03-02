@@ -158,10 +158,10 @@ end;
 
 # Running tests
 
-To execute using IDE ()TOAD/SQLDeveloper/PLSQLDeveloper/other) just run the following.
+To execute using development IDE (TOAD/SQLDeveloper/PLSQLDeveloper/other) just run the following.
 ```sql
 begin
-  ut_runner.run();
+  ut.run();
 end;
 /
 ```

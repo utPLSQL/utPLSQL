@@ -23,11 +23,12 @@ create or replace package body ut_output_buffer is
     if a_reporter is not null and a_reporter.reporter_id is not null and a_reporter.start_date is not null and a_text is not null then
       if length(a_text) > ut_utils.gc_max_storage_varchar2_len then
         l_text_list := ut_utils.clob_to_table(a_text, ut_utils.gc_max_storage_varchar2_len);
-        forall i in 1 .. l_text_list.count
-          insert into ut_output_buffer_tmp(start_date, reporter_id, message_id, text)
-          values (a_reporter.start_date, a_reporter.reporter_id, ut_message_id_seq.nextval, l_text_list(i));
+        insert /*+ append */
+          into ut_output_buffer_tmp(start_date, reporter_id, message_id, text)
+        select a_reporter.start_date, a_reporter.reporter_id, ut_message_id_seq.nextval, t.column_value
+          from table(l_text_list) t;
       else
-        insert into ut_output_buffer_tmp(start_date, reporter_id, message_id, text)
+        insert /*+ append */ into ut_output_buffer_tmp(start_date, reporter_id, message_id, text)
         values (a_reporter.start_date, a_reporter.reporter_id, ut_message_id_seq.nextval, a_text);
       end if;
       commit;
@@ -37,7 +38,7 @@ create or replace package body ut_output_buffer is
   procedure close(a_reporter ut_reporter_base) is
     pragma autonomous_transaction;
   begin
-    insert into ut_output_buffer_tmp(start_date, reporter_id, message_id, is_finished)
+    insert /*+ append */ into ut_output_buffer_tmp(start_date, reporter_id, message_id, is_finished)
     values (a_reporter.start_date, a_reporter.reporter_id, ut_message_id_seq.nextval, 1);
     commit;
   end;
@@ -47,7 +48,7 @@ create or replace package body ut_output_buffer is
   begin
     if a_reporters is not null then
       forall i in 1 .. a_reporters.count
-        insert into ut_output_buffer_tmp(start_date, reporter_id, message_id, is_finished)
+        insert /*+ append */ into ut_output_buffer_tmp(start_date, reporter_id, message_id, is_finished)
         values (a_reporters(i).start_date, a_reporters(i).reporter_id, ut_message_id_seq.nextval, 1);
     end if;
     commit;

@@ -45,9 +45,20 @@ grant execute on ut_runner to public;
 grant execute on ut_teamcity_reporter to public;
 grant execute on ut_xunit_reporter to public;
 grant execute on ut_documentation_reporter to public;
+grant execute on ut_coverage_html_reporter to public;
+grant execute on ut_coverage_xml_reporter to public;
+grant execute on ut_coverage_json_reporter to public;
 grant execute on ut_reporters to public;
 grant execute on ut_varchar2_list to public;
 grant execute on ut_reporter_base to public;
+grant execute on ut_coverage to public;
+grant execute on ut_coverage_helper to public;
+grant insert, delete, select on ut_coverage_sources_tmp to public;
+grant execute on ut_output_buffer to public;
+grant execute on ut_coverage_file_mappings to public;
+grant execute on ut_coverage_file_mapping to public;
+grant execute on ut_key_value_pairs to public;
+grant execute on ut_key_value_pair to public;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
@@ -69,6 +80,17 @@ create public synonym ut_runner for ut_runner;
 create public synonym ut_teamcity_reporter for ut_teamcity_reporter;
 create public synonym ut_xunit_reporter for ut_xunit_reporter;
 create public synonym ut_documentation_reporter for ut_documentation_reporter;
+create public synonym ut_coverage_html_reporter for ut_coverage_html_reporter;
+create public synonym ut_coverage_xml_reporter for ut_coverage_xml_reporter;
+create public synonym ut_coverage_json_reporter for ut_coverage_json_reporter;
 create public synonym ut_reporters for ut_reporters;
 create public synonym ut_varchar2_list for ut_varchar2_list;
 create public synonym ut_reporter_base for ut_reporter_base;
+create public synonym ut_coverage for ut_coverage;
+create public synonym ut_coverage_helper for ut_coverage_helper;
+create public synonym ut_coverage_sources_tmp for ut_coverage_sources_tmp;
+create public synonym ut_output_buffer for ut_output_buffer;
+create public synonym ut_coverage_file_mappings for ut_coverage_file_mappings;
+create public synonym ut_coverage_file_mapping for ut_coverage_file_mapping;
+create public synonym ut_key_value_pairs for ut_key_value_pairs;
+create public synonym ut_key_value_pair for ut_key_value_pair;
