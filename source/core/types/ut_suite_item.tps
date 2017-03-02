@@ -1,4 +1,4 @@
-create or replace type ut_suite_item force under ut_suite_item_base (
+create or replace type ut_suite_item under ut_suite_item_base (
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project

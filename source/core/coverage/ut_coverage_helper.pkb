@@ -17,47 +17,31 @@ create or replace package body ut_coverage_helper is
   */
 
   g_coverage_id integer;
-  g_develop_mode boolean := false;
-
-  function get_coverage_id return integer is
-  begin
-    return g_coverage_id;
-  end;
+  g_develop_mode boolean;
 
   function  is_develop_mode return boolean is
   begin
     return g_develop_mode;
   end;
 
-  function coverage_start(a_run_comment varchar2) return integer is
-    pragma autonomous_transaction;
+  procedure coverage_start_internal(a_run_comment varchar2)  is
   begin
-    --those are Global Temporary tables for profiler usage only
-    delete from plsql_profiler_data;
-    delete from plsql_profiler_units;
-    delete from plsql_profiler_runs;
     dbms_profiler.start_profiler(run_comment => a_run_comment, run_number => g_coverage_id);
     coverage_pause();
-    commit;
-    return g_coverage_id;
   end;
 
   procedure coverage_start(a_run_comment varchar2) is
-    l_run_number  binary_integer;
   begin
-    l_run_number := coverage_start(a_run_comment);
+    if g_develop_mode is null then
+      g_develop_mode := false;
+      coverage_start_internal(a_run_comment);
+    end if;
   end;
 
   procedure coverage_start_develop is
   begin
     g_develop_mode := true;
-    coverage_start('utPLSQL Code coverage run in development MODE '||ut_utils.to_string(systimestamp));
-  end;
-
-  procedure coverage_flush is
-    l_return_code binary_integer;
-  begin
-    l_return_code := dbms_profiler.flush_data();
+    coverage_start_internal('utPLSQL Code coverage run in development MODE '||ut_utils.to_string(systimestamp));
   end;
 
   procedure coverage_pause is
@@ -75,6 +59,14 @@ create or replace package body ut_coverage_helper is
   end;
 
   procedure coverage_stop is
+    l_return_code binary_integer;
+  begin
+    if not g_develop_mode then
+      l_return_code := dbms_profiler.stop_profiler();
+    end if;
+  end;
+
+  procedure coverage_stop_develop is
     l_return_code binary_integer;
   begin
     l_return_code := dbms_profiler.stop_profiler();

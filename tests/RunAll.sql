@@ -26,6 +26,7 @@ create table ut$test_table (val varchar2(1));
 --Start coverage in develop mode (coverage for utPLSQL framework)
 --Regular coverage excludes the framework
 exec ut_coverage.coverage_start_develop();
+@@lib/mystats/mystats start
 
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationNotBeforeProcedure.sql
@@ -218,14 +219,11 @@ drop package test_package_2;
 drop package test_package_3;
 
 set timing on
-prompt Flushing coverage data into temp tables
-exec ut_coverage.coverage_stop();
-
 prompt Generating coverage data to reporter outputs
 
 var html_reporter_id varchar2(32);
-var xml_reporter_id  varchar2(32);
-var json_reporter_id varchar2(32);
+var sonar_reporter_id  varchar2(32);
+var coveralls_reporter_id varchar2(32);
 declare
   l_reporter  ut_reporter_base;
   l_file_list ut_varchar2_list;
@@ -412,8 +410,10 @@ begin
     'source/reporters/ut_coverage_html_reporter.tps',
     'source/reporters/ut_coverage_report_html_helper.pkb',
     'source/reporters/ut_coverage_report_html_helper.pks',
-    'source/reporters/ut_coverage_xml_reporter.tpb',
-    'source/reporters/ut_coverage_xml_reporter.tps',
+    'source/reporters/ut_coveralls_reporter.tpb',
+    'source/reporters/ut_coveralls_reporter.tps',
+    'source/reporters/ut_coverage_sonar_reporter.tpb',
+    'source/reporters/ut_coverage_sonar_reporter.tps',
     'source/reporters/ut_documentation_reporter.tpb',
     'source/reporters/ut_documentation_reporter.tps',
     'source/reporters/ut_teamcity_reporter.tpb',
@@ -423,16 +423,32 @@ begin
     'source/reporters/ut_xunit_reporter.tpb',
     'source/reporters/ut_xunit_reporter.tps');
 
+  --run for the first time to gather coverage and timings on reporters too
   l_reporter := ut_coverage_html_reporter( a_project_name => 'utPLSQL v3', a_file_paths => l_file_list );
   :html_reporter_id := l_reporter.reporter_id;
   l_reporter.after_calling_run(ut_run(ut_suite_items()));
 
-  l_reporter := ut_coverage_xml_reporter( a_file_paths => l_file_list );
-  :xml_reporter_id := l_reporter.reporter_id;
+  l_reporter := ut_coverage_sonar_reporter( a_file_paths => l_file_list );
+  :sonar_reporter_id := l_reporter.reporter_id;
   l_reporter.after_calling_run(ut_run(ut_suite_items()));
 
-  l_reporter := ut_coverage_json_reporter( a_file_paths => l_file_list );
-  :json_reporter_id := l_reporter.reporter_id;
+  l_reporter := ut_coveralls_reporter( a_file_paths => l_file_list );
+  :coveralls_reporter_id := l_reporter.reporter_id;
+  l_reporter.after_calling_run(ut_run(ut_suite_items()));
+
+  ut_coverage.coverage_stop_develop();
+
+  --run for the second time to get the coverage report
+  l_reporter := ut_coverage_html_reporter( a_project_name => 'utPLSQL v3', a_file_paths => l_file_list );
+  :html_reporter_id := l_reporter.reporter_id;
+  l_reporter.after_calling_run(ut_run(ut_suite_items()));
+
+  l_reporter := ut_coverage_sonar_reporter( a_file_paths => l_file_list );
+  :sonar_reporter_id := l_reporter.reporter_id;
+  l_reporter.after_calling_run(ut_run(ut_suite_items()));
+
+  l_reporter := ut_coveralls_reporter( a_file_paths => l_file_list );
+  :coveralls_reporter_id := l_reporter.reporter_id;
   l_reporter.after_calling_run(ut_run(ut_suite_items()));
 end;
 /
@@ -443,26 +459,24 @@ set termout off
 set feedback off
 set arraysize 50
 spool coverage.xml
-exec ut_output_buffer.lines_to_dbms_output(:xml_reporter_id);
+exec ut_output_buffer.lines_to_dbms_output(:sonar_reporter_id);
 spool off
 
 set termout on
 prompt Spooling outcomes to coverage.json
 set termout off
-set feedback off
-set arraysize 50
 spool coverage.json
-select * from table(ut_output_buffer.get_lines(:json_reporter_id));
+select * from table(ut_output_buffer.get_lines(:coveralls_reporter_id));
 spool off
 
 set termout on
 prompt Spooling outcomes to coverage.html
 set termout off
-set feedback off
-set arraysize 50
 spool coverage.html
 exec ut_output_buffer.lines_to_dbms_output(:html_reporter_id);
 spool off
+
+@@lib/mystats/mystats stop t=1000
 
 --can be used by CI to check for tests status
 exit :failures_count

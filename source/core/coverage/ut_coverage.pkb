@@ -16,17 +16,17 @@ create or replace package body ut_coverage is
   limitations under the License.
   */
 
-  g_skipped_objects ut_object_names;
-  g_schema_names    ut_varchar2_list;
-  g_include_list    ut_object_names;
-  g_exclude_list    ut_object_names;
-  g_file_mappings   ut_coverage_file_mappings;
+  g_unit_test_packages ut_object_names;
+  g_schema_names       ut_varchar2_list;
+  g_include_list       ut_object_names;
+  g_exclude_list       ut_object_names;
+  g_file_mappings      ut_coverage_file_mappings;
 
 
   /**
    * Private functions
    */
-  function to_ut_object_list( a_names ut_varchar2_list) return ut_object_names is
+  function to_ut_object_list(a_names ut_varchar2_list) return ut_object_names is
     l_result ut_object_names;
   begin
     if a_names is not null then
@@ -39,6 +39,59 @@ create or replace package body ut_coverage is
     return l_result;
   end;
 
+  function get_sources_query return varchar2 is
+    l_result varchar2(32767);
+  begin
+    l_result := 'insert /*+ append */ into ut_coverage_sources_tmp(full_name,owner,name,line,text, to_be_skipped)';
+    if g_file_mappings is not null then
+      l_result := 'insert /*+ append */ into ut_coverage_sources_tmp(full_name,owner,name,line,text, to_be_skipped)
+      select f.file_name, s.owner,s.name,s.line,s.text,';
+    else
+      l_result := 'insert /*+ append */ into ut_coverage_sources_tmp(full_name,owner,name,line,text, to_be_skipped)
+      select lower(s.owner||''.''||s.name) as file_name, s.owner,s.name,s.line,s.text,';
+    end if;
+    l_result := l_result || q'[
+             case
+               when
+                 -- to avoid execution of regexp_like on every line
+                 -- first do a rough check for existence of search pattern keyword
+                 (lower(s.text) like '%procedure%'
+                  or lower(s.text) like '%function%'
+                  or lower(s.text) like '%begin%'
+                  or lower(s.text) like '%end%'
+                  or lower(s.text) like '%package%'
+                 ) and
+                 regexp_like(
+                    s.text,
+                    '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(static|constructor|member)?\s*(procedure|function)|package(\s+body)|begin|end(\s+\S+)?\s*;)', 'i'
+                 )
+                then 'Y'
+             end as to_be_skipped
+        from all_source s]';
+    if g_file_mappings is not null then
+      l_result := l_result || '
+        join table(:g_file_mappings) f
+          on s.name  = f.object_name
+         and s.type  = f.object_type
+         and s.owner = f.object_owner
+       where 1 = 1';
+    else
+      l_result := l_result || '
+       where s.owner in (select upper(t.column_value) from table(:l_schema_names) t)';
+    end if;
+    l_result := l_result || q'[
+         and s.type not in ('PACKAGE', 'TYPE')
+         --Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
+         and (s.owner, s.name) not in (select el.owner, el.name from table(:l_skipped_objects) el)]';
+    if g_include_list is null then
+      l_result := l_result || '
+         and :g_include_list is null';
+    else
+      l_result := l_result || '
+         and (s.owner, s.name) in (select il.owner, il.name from table(:g_include_list) il)';
+    end if;
+    return l_result;
+  end;
   /**
   * Public functions
   */
@@ -50,6 +103,7 @@ create or replace package body ut_coverage is
         ut_key_value_pair('trg', 'TRIGGER'),
         ut_key_value_pair('tpb', 'TYPE BODY'),
         ut_key_value_pair('pkb', 'PACKAGE BODY'),
+        ut_key_value_pair('bdy', 'PACKAGE BODY'),
         ut_key_value_pair('trg', 'TRIGGER')
     );
   end;
@@ -69,11 +123,19 @@ create or replace package body ut_coverage is
     l_mapping    ut_coverage_file_mapping;
     l_object_type_key varchar2(4000);
     l_object_type     varchar2(4000);
+    function to_hash_table(a_key_value_tab ut_key_value_pairs) return tt_key_values is
+      l_result tt_key_values;
+    begin
+      if a_key_value_tab is not null then
+        for i in 1 .. a_key_value_tab.count loop
+          l_result(upper(a_key_value_tab(i).key)) := a_key_value_tab(i).value;
+        end loop;
+      end if;
+      return l_result;
+    end;
   begin
-    for i in 1 .. a_file_to_object_type_mapping.count loop
-      l_key_values(upper(a_file_to_object_type_mapping(i).key)) := a_file_to_object_type_mapping(i).value;
-    end loop;
     if a_file_paths is not null then
+      l_key_values := to_hash_table(a_file_to_object_type_mapping);
       l_mappings := ut_coverage_file_mappings();
       for i in 1 .. a_file_paths.count loop
         l_object_type_key := upper(regexp_substr(a_file_paths(i), a_regex_pattern,1,1,'i',a_object_type_subexpression));
@@ -96,11 +158,6 @@ create or replace package body ut_coverage is
       end loop;
     end if;
     return l_mappings;
-  end;
-
-  function get_coverage_id return integer is
-  begin
-    return ut_coverage_helper.get_coverage_id;
   end;
 
   function get_include_schema_names return ut_varchar2_list is
@@ -135,27 +192,16 @@ create or replace package body ut_coverage is
     g_file_mappings := a_file_mappings;
   end;
 
-  function coverage_start return integer is
-  begin
-    g_skipped_objects := ut_object_names();
-    return ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp));
-  end;
-
   procedure coverage_start is
-    l_coverage_id integer;
   begin
-    l_coverage_id := coverage_start();
+    g_unit_test_packages := ut_object_names();
+    ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp));
   end;
 
   procedure coverage_start_develop is
   begin
-    g_skipped_objects := ut_object_names();
+    g_unit_test_packages := ut_object_names();
     ut_coverage_helper.coverage_start_develop();
-  end;
-
-  procedure coverage_flush is
-  begin
-    ut_coverage_helper.coverage_flush();
   end;
 
   procedure coverage_pause is
@@ -173,9 +219,14 @@ create or replace package body ut_coverage is
     ut_coverage_helper.coverage_stop();
   end;
 
-  procedure skip_coverage_for(a_ut_objects ut_object_names) is
+  procedure coverage_stop_develop is
   begin
-    g_skipped_objects := a_ut_objects;
+    ut_coverage_helper.coverage_stop_develop();
+  end;
+
+  procedure set_unit_test_packages_to_skip(a_ut_objects ut_object_names) is
+  begin
+    g_unit_test_packages := a_ut_objects;
   end;
 
   function get_coverage_data return t_coverage is
@@ -197,71 +248,22 @@ create or replace package body ut_coverage is
     l_source_lines     t_source_lines;
     line_no            binary_integer;
     l_schema_names     ut_varchar2_list := coalesce(g_schema_names,ut_varchar2_list(sys_context('USERENV','CURRENT_SCHEMA')));
+    l_query            varchar2(32767);
   begin
 
     if not ut_coverage_helper.is_develop_mode() then
-      l_skipped_objects := ut_utils.get_utplsql_objects_list() multiset union set(g_skipped_objects);
+      --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
+      l_skipped_objects := ut_utils.get_utplsql_objects_list() multiset union all g_unit_test_packages multiset union all g_exclude_list;
     end if;
 
     --prepare global temp table with sources
     delete from ut_coverage_sources_tmp;
-
     if g_file_mappings is not null then
-      insert into ut_coverage_sources_tmp(full_name,owner,name,line,text, to_be_skipped)
-      select f.file_name, s.owner,s.name,s.line,s.text,
-             case
-               when
-                 -- to avoid execution of regexp_like on every line
-                 -- first do a rough check for existence of search pattern keyword
-                 (lower(s.text) like '%procedure%'
-                  or lower(s.text) like '%function%'
-                  or lower(s.text) like '%begin%'
-                  or lower(s.text) like '%end%'
-                  or lower(s.text) like '%package%'
-                 ) and
-                 regexp_like(
-                    s.text,
-                    '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(static|constructor|member)?\s*(procedure|function)|package(\s+body)|begin|end(\s+\S+)?\s*;)', 'i'
-                 )
-                then 'Y'
-             end as to_be_skipped
-        from all_source s
-        join table(g_file_mappings) f
-          on s.name  = f.object_name
-         and s.type  = f.object_type
-         and s.owner = f.object_owner
-       where s.type not in ('PACKAGE', 'TYPE')
-         and (g_include_list is null or (s.owner, s.name) in (select il.owner, il.name from table(g_include_list) il))
-         and (s.owner, s.name) not in (select el.owner, el.name from table(g_exclude_list) el)
-         --Exclude calls to utPLSQL framework and Unit Test packages
-         and (s.owner, s.name) not in (select so.owner, so.name from table(l_skipped_objects) so);
+      execute immediate get_sources_query() using g_file_mappings, l_skipped_objects, g_include_list;
     else
-      insert into ut_coverage_sources_tmp(full_name,owner,name,line,text, to_be_skipped)
-      select lower(s.owner||'.'||s.name), s.owner,s.name,s.line,s.text,
-             case
-               when
-                 -- to avoid execution of regexp_like on every line
-                 -- first do a rough check for existence of search pattern keyword
-                 (lower(s.text) like '%procedure%'
-                  or lower(s.text) like '%function%'
-                  or lower(s.text) like '%begin%'
-                  or lower(s.text) like '%end%'
-                  or lower(s.text) like '%package%'
-                 ) and
-                 regexp_like(
-                    s.text,
-                    '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(static|constructor|member)?\s*(procedure|function)|package(\s+body)|begin|end(\s+\S+)?\s*;)', 'i'
-                 )
-                then 'Y'
-             end as to_be_skipped
-        from all_source s
-       where s.type not in ('PACKAGE', 'TYPE')
-         and  s.owner in (select upper(t.column_value) from table(l_schema_names) t)
-         and (g_include_list is null or (s.owner, s.name) in (select il.owner, il.name from table(g_include_list) il ) )
-         and (s.owner, s.name) not in (select el.owner, el.name from table(g_exclude_list) el)
-         --Exclude calls to utPLSQL framework and Unit Test packages
-         and (s.owner, s.name) not in (select so.owner, so.name from table(l_skipped_objects) so);
+      execute immediate get_sources_query() using l_schema_names, l_skipped_objects, g_include_list;
     end if;
+    commit;
 
     for src_object in (
       select o.owner, o.name, o.full_name, max(o.line) lines_count,

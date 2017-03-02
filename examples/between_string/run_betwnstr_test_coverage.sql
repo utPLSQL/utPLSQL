@@ -11,7 +11,7 @@ set serveroutput on size unlimited format truncated
 set feedback off
 set termout  off
 spool coverage.html
-exec ut.run(user, ut_coverage_html_reporter('Demo of between string function tests'));
+exec ut.run(user, ut_coverage_html_reporter(a_project_name=>'Demo of between string function tests', a_include_object_list=>ut_varchar2_list('ut3.betwnstr')));
 spool off
 
 

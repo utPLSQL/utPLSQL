@@ -3,6 +3,8 @@ utPLSQL comes with build-in coverage reporting engine. The code coverage reporti
 * package bodies
 * type bodies
 * triggers
+* stored procedures
+* stored functions
 
 Note:
 
@@ -11,8 +13,8 @@ Note:
 To obtain information about code coverage of your Unit Tests, all you need to do is run your unit tests with one of build-in code coverage reporters.
 Following code coverage reporters are supplied with utPLSQL:
 * `ut_coverage_html_reporter` - generates a HTML coverage report providing summary and detailed information on code coverage. The html reporter is based on open-source [simplecov-html](https://github.com/colszowka/simplecov-html) reporter for Ruby. It includes source code of the code that was covered (if possible)  
-* `ut_coverage_json_reporter` - generates a JSON coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by cloud services like [coveralls](https://coveralls.io) 
-* `ut_coverage_xml_reporter`  - generates a JSON coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by local services like [sonarqube](https://about.sonarqube.com/)
+* `ut_coveralls_reporter` - generates a JSON coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by cloud services like [coveralls](https://coveralls.io) 
+* `ut_coverage_sonar_reporter`  - generates a JSON coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by local services like [sonarqube](https://about.sonarqube.com/)
 
 ##Security model
 Code coverage is using DBMS_PROFILER to gather information about execution of code under test and therefore follows the [DBMS_PROFILER's Security Model](https://docs.oracle.com/database/121/ARPLS/d_profil.htm#ARPLS67465)
@@ -28,7 +30,9 @@ If the code that is testes is complied as NATIVE, the code coverage will not be 
 
 ##Running unite tests with coverage
 Using code coverage functionality is as easy as using any other [reporter](reporters.md) for utPLSQL project. All you need to do is run your tests from your preferred SQL tool and save the outcomes of reporter to a file.
-All you need to do, is pass the constructor of the reporter to your `ut.run` 
+All you need to do, is pass the constructor of the reporter to your `ut.run`
+
+Example:
 ```sql
 begin
   ut.run(ut_coverage_html_reporter());
@@ -105,7 +109,7 @@ end;
 Executes test `test_award_bonus` in schema `ut3_user` and gather coverage for that execution on `award_bonus` object from schema `usr`. The exclude list is of no relevance as it is not overlapping with include list.
 
 ###Working with projects and project files
-Both `sonar` and `coveralls` are utilities that are more project-oriented than database-centric. The report statistics and coverage for project files in version control system.
+Both `sonar` and `coveralls` are utilities that are more project-oriented than database-centric. They report statistics and coverage for project files in version control system.
 Nowadays, most of database projects are moving away from database-centric approach towards project/product-centric approach.
 Coverage reporting of utPLSQL allows you to perform code coverage analysis for your project files.
 This feature is supported by all build-in coverage reporting formats.
@@ -141,11 +145,12 @@ begin
   );
 end;
 ```
+
 Executes all tests in schema `usr` and reports coverage for that execution on procedure `award_bonus` and function `betwnstr`. The coverage report is mapped-back to file-system object names with paths.
 
 **Reporting using regex file mapping rule**
 If file names and paths in your project follow a well established naming conventions, 
-then you can you can use the predefined rule for mapping file names to object names or you can define your own rule and pass it to the coverage reporter at runtime.
+then you can use the predefined rule for mapping file names to object names or you can define your own rule and pass it to the coverage reporter at runtime.
 
 Example of running with predefined regex mapping rule.
 ```sql
@@ -172,11 +177,14 @@ The predefined file extension to object type mappings
 | -------------- | ----------- | 
 | tpb | type body | 
 | pkb | package body | 
+| bdy | package body | 
 | trg | trigger | 
 | fnc | function | 
 | prc | procedure | 
 
-Below are examples of filename forms taht will be mapped correctly using predefined rules.
+Since package specification and type specifications are not considered by coverage, the file extensions for those objects  are not included in the mapping.
+
+Examples of filename paths that will be mapped correctly using predefined rules.
 * `[...]directory[/subdirectory[/...]]/object_name.(tpb|pkb|trg|fnc|prc)`
 * `[...]directory[/subdirectory[/...]]/schema_name.object_name.(tpb|pkb|trg|fnc|prc)`
 * `[...]directory[\subdirectory[\...]]\object_name.(tpb|pkb|trg|fnc|prc)`

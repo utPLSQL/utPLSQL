@@ -51,9 +51,9 @@ drop synonym be_true;
 
 drop synonym equal;
 
-drop type ut_coverage_json_reporter;
+drop type ut_coveralls_reporter;
 
-drop type ut_coverage_xml_reporter;
+drop type ut_coverage_sonar_reporter;
 
 drop package ut_coverage_report_html_helper;
 
@@ -67,17 +67,11 @@ drop type ut_coverage_file_mapping;
 
 drop package ut_coverage_helper;
 
-drop view plsql_profiler_data;
+drop table plsql_profiler_data cascade constraints;
 
-drop view plsql_profiler_units;
+drop table plsql_profiler_units cascade constraints;
 
-drop view plsql_profiler_runs;
-
-drop table plsql_profiler_data$ cascade constraints;
-
-drop table plsql_profiler_units$ cascade constraints;
-
-drop table plsql_profiler_runs$ cascade constraints;
+drop table plsql_profiler_runs cascade constraints;
 
 drop view ut_coverage_sources_tmp;
 

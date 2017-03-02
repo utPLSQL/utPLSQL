@@ -32,8 +32,9 @@ create or replace package body ut_coverage_report_html_helper is
   gc_assets_path         constant varchar2(200) := 'https://jgebal.github.io/utPLSQL-coverage-html/assets/';
 
   function coverage_css_class(a_covered_pct number) return varchar2 is
+    l_result varchar2(10);
   begin
-    return
+    l_result :=
       case
         when a_covered_pct > gc_green_coverage_pct then
            gc_green_css
@@ -42,16 +43,19 @@ create or replace package body ut_coverage_report_html_helper is
         else
            gc_red_css
       end;
+    return l_result;
   end;
 
   function line_status(a_executions binary_integer) return varchar2 is
+    l_result varchar2(10);
   begin
-    return
+    l_result :=
       case
         when a_executions > 0 then gc_covered
         when a_executions = 0 then gc_missed
         else gc_ignored
       end;
+    return l_result;
   end;
 
   function executions_per_line(a_executions number, a_lines integer) return integer is
@@ -60,8 +64,9 @@ create or replace package body ut_coverage_report_html_helper is
   end;
 
   function line_hits_css_class(a_line_hist number) return varchar2 is
+    l_result varchar2(10);
   begin
-    return
+    l_result :=
       case
         when a_line_hist > 1 then
            gc_green_css
@@ -70,6 +75,7 @@ create or replace package body ut_coverage_report_html_helper is
         else
            gc_red_css
       end;
+    return l_result;
   end;
 
   function coverage_pct(a_covered_lines integer, a_uncovered_lines integer) return number is

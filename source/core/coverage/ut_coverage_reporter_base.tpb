@@ -20,11 +20,11 @@ create or replace type body ut_coverage_reporter_base is
     l_schema_names ut_varchar2_list := a_run.get_run_schemes();
   begin
     (self as ut_reporter_base).before_calling_run(a_run);
-    self.coverage_id := ut_coverage.coverage_start();
+    ut_coverage.coverage_start();
     -- if no schema names were defined for the run, then set them from schema names of tests that are to be executed
     if ut_coverage.get_include_schema_names() is null then
       ut_coverage.set_include_schema_names(l_schema_names);
-      ut_coverage.skip_coverage_for(ut_suite_manager.get_schema_ut_packages(l_schema_names));
+      ut_coverage.set_unit_test_packages_to_skip(ut_suite_manager.get_schema_ut_packages(l_schema_names));
     end if;
   end;
 
@@ -35,7 +35,6 @@ create or replace type body ut_coverage_reporter_base is
   overriding final member procedure after_calling_before_all (self in out nocopy ut_coverage_reporter_base, a_suite in ut_logical_suite) is
   begin
       ut_coverage.coverage_pause();
-      ut_coverage.coverage_flush();
   end;
 
   overriding final member procedure before_calling_before_each(self in out nocopy ut_coverage_reporter_base, a_suite in ut_logical_suite) is
@@ -45,7 +44,6 @@ create or replace type body ut_coverage_reporter_base is
   overriding final member procedure after_calling_before_each (self in out nocopy ut_coverage_reporter_base, a_suite in ut_logical_suite) is
   begin
       ut_coverage.coverage_pause();
-      ut_coverage.coverage_flush();
   end;
 
   overriding final member procedure before_calling_before_test(self in out nocopy ut_coverage_reporter_base, a_test in ut_test) is
@@ -55,7 +53,6 @@ create or replace type body ut_coverage_reporter_base is
   overriding final member procedure after_calling_before_test (self in out nocopy ut_coverage_reporter_base, a_test in ut_test) is
   begin
       ut_coverage.coverage_pause();
-      ut_coverage.coverage_flush();
   end;
 
   overriding final member procedure before_calling_test_execute(self in out nocopy ut_coverage_reporter_base, a_test in ut_test) is
@@ -65,7 +62,6 @@ create or replace type body ut_coverage_reporter_base is
   overriding final member procedure after_calling_test_execute (self in out nocopy ut_coverage_reporter_base, a_test in ut_test) is
   begin
       ut_coverage.coverage_pause();
-      ut_coverage.coverage_flush();
   end;
 
   overriding final member procedure before_calling_after_test(self in out nocopy ut_coverage_reporter_base, a_test in ut_test) is
@@ -75,7 +71,6 @@ create or replace type body ut_coverage_reporter_base is
   overriding final member procedure after_calling_after_test (self in out nocopy ut_coverage_reporter_base, a_test in ut_test) is
   begin
       ut_coverage.coverage_pause();
-      ut_coverage.coverage_flush();
   end;
 
   overriding final member procedure before_calling_after_each(self in out nocopy ut_coverage_reporter_base, a_suite in ut_logical_suite) is
@@ -85,7 +80,6 @@ create or replace type body ut_coverage_reporter_base is
   overriding final member procedure after_calling_after_each (self in out nocopy ut_coverage_reporter_base, a_suite in ut_logical_suite) is
   begin
       ut_coverage.coverage_pause();
-      ut_coverage.coverage_flush();
   end;
 
   overriding final member procedure before_calling_after_all(self in out nocopy ut_coverage_reporter_base, a_suite in ut_logical_suite) is
@@ -95,7 +89,6 @@ create or replace type body ut_coverage_reporter_base is
   overriding final member procedure after_calling_after_all (self in out nocopy ut_coverage_reporter_base, a_suite in ut_logical_suite) is
   begin
       ut_coverage.coverage_pause();
-      ut_coverage.coverage_flush();
   end;
 
 end;

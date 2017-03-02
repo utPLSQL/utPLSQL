@@ -1,4 +1,4 @@
-create or replace type body ut_coverage_xml_reporter is
+create or replace type body ut_coverage_sonar_reporter is
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -16,8 +16,8 @@ create or replace type body ut_coverage_xml_reporter is
   limitations under the License.
   */
 
-  constructor function ut_coverage_xml_reporter(
-    self in out nocopy ut_coverage_xml_reporter,
+  constructor function ut_coverage_sonar_reporter(
+    self in out nocopy ut_coverage_sonar_reporter,
     a_schema_names ut_varchar2_list := null,
     a_include_object_list ut_varchar2_list := null,
     a_exclude_object_list ut_varchar2_list := null
@@ -28,8 +28,8 @@ create or replace type body ut_coverage_xml_reporter is
     return;
   end;
 
-  constructor function ut_coverage_xml_reporter(
-    self in out nocopy ut_coverage_xml_reporter,
+  constructor function ut_coverage_sonar_reporter(
+    self in out nocopy ut_coverage_sonar_reporter,
     a_object_owner varchar2 := null,
     a_file_paths ut_varchar2_list,
     a_regex_pattern varchar2,
@@ -51,8 +51,8 @@ create or replace type body ut_coverage_xml_reporter is
     return;
   end;
 
-  constructor function ut_coverage_xml_reporter(
-    self in out nocopy ut_coverage_xml_reporter,
+  constructor function ut_coverage_sonar_reporter(
+    self in out nocopy ut_coverage_sonar_reporter,
     a_object_owner varchar2 := null,
     a_file_paths ut_varchar2_list,
     a_include_object_list ut_varchar2_list := null,
@@ -66,8 +66,8 @@ create or replace type body ut_coverage_xml_reporter is
     return;
   end;
 
-  constructor function ut_coverage_xml_reporter(
-    self in out nocopy ut_coverage_xml_reporter,
+  constructor function ut_coverage_sonar_reporter(
+    self in out nocopy ut_coverage_sonar_reporter,
     a_file_mappings       ut_coverage_file_mappings,
     a_include_object_list ut_varchar2_list := null,
     a_exclude_object_list ut_varchar2_list := null
@@ -78,7 +78,7 @@ create or replace type body ut_coverage_xml_reporter is
     return;
   end;
 
-  overriding member procedure after_calling_run(self in out nocopy ut_coverage_xml_reporter, a_run in ut_run) as
+  overriding member procedure after_calling_run(self in out nocopy ut_coverage_sonar_reporter, a_run in ut_run) as
     l_report_lines  ut_varchar2_list;
     l_coverage_data ut_coverage.t_coverage;
     function get_lines_xml(a_unit_coverage ut_coverage.t_unit_coverage) return clob is

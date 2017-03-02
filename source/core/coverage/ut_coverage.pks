@@ -79,9 +79,6 @@ create or replace package ut_coverage authid current_user is
     a_exclude_object_list ut_varchar2_list
   );
 
-  function  get_coverage_id return integer;
-
-  function  coverage_start return integer;
   procedure coverage_start;
 
   /*
@@ -91,13 +88,13 @@ create or replace package ut_coverage authid current_user is
 
   procedure coverage_stop;
 
+  procedure coverage_stop_develop;
+
   procedure coverage_pause;
 
   procedure coverage_resume;
 
-  procedure coverage_flush;
-
-  procedure skip_coverage_for(a_ut_objects ut_object_names);
+  procedure set_unit_test_packages_to_skip(a_ut_objects ut_object_names);
 
   function get_coverage_data return t_coverage;
 
