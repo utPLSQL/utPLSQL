@@ -1,5 +1,3 @@
-whenever sqlerror continue
-
 create table plsql_profiler_runs
 (
   runid           number primary key,  -- unique run identifier,
@@ -61,4 +59,3 @@ comment on table plsql_profiler_data is
 
 create sequence plsql_profiler_runnumber start with 1 nocache;
 
-whenever sqlerror exit failure rollback

@@ -67,17 +67,9 @@ drop type ut_coverage_file_mapping;
 
 drop package ut_coverage_helper;
 
-drop table plsql_profiler_data cascade constraints;
-
-drop table plsql_profiler_units cascade constraints;
-
-drop table plsql_profiler_runs cascade constraints;
-
 drop view ut_coverage_sources_tmp;
 
 drop table ut_coverage_sources_tmp$;
-
-drop sequence plsql_profiler_runnumber;
 
 drop package ut_teamcity_reporter_helper;
 
