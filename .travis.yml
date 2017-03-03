@@ -58,17 +58,18 @@ install:
 script:
   - bash .travis/create_utplsql_owner.sh
   - bash .travis/create_utplsql_user.sh
-  - bash .travis/install_libraries.sh
   - bash .travis/install.sh
   - bash .travis/grant_user.sh
   - bash .travis/run_examples_as_owner.sh
   - bash .travis/run_test_as_owner.sh
   - bash .travis/run_examples_as_user.sh
-  - bash .travis/create_release.sh
-#  - bash .travis/run_test_as_user.sh
-#  - bash .travis/build_docs.sh
 #  - bash .travis/push_docs_to_gh_pages.sh
+#moved to before_deploy step
+#  - bash .travis/create_release.sh
   - sonar-scanner
+
+before_deploy:
+  - bash .travis/create_release.sh
 
 deploy:
   provider: releases
@@ -78,7 +79,7 @@ deploy:
      - utPLSQL$TRAVIS_TAG.tar.gz
   skip_cleanup: true
   on:
-     repo: utPLSQL/utPLSQL
+     repo: jgebal/utPLSQL
      tags: true
 
 notifications:
