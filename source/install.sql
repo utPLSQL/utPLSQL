@@ -83,7 +83,7 @@ whenever oserror exit failure rollback
 @@core/ut_assert_processor.pkb
 
 --gathering coverage
-@@core/coverage/proftab.sql
+@@core/coverage/install_profiler_tables.sql
 @@core/coverage/ut_coverage_sources_tmp.sql
 @@core/coverage/ut_coverage_helper.pks
 @@core/coverage/ut_coverage_helper.pkb
