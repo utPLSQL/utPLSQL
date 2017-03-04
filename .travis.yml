@@ -79,7 +79,7 @@ deploy:
      - utPLSQL$TRAVIS_TAG.tar.gz
   skip_cleanup: true
   on:
-     repo: jgebal/utPLSQL
+     repo: utPLSQL/utPLSQL
      tags: true
 
 notifications:
