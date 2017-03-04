@@ -5,7 +5,7 @@ const md5File = require('md5-file')
 //var repo_token = process.env.COVERALLS_REPO_TOKEN;
 //process.stdout.write("token" + process.env.COVERALLS_REPO_TOKEN);
 
-if (process.env.COVERALLS_REPO_TOKEN) {
+//if (process.env.COVERALLS_REPO_TOKEN) {
 
 
 	fs.readFile('../tests/coverage.json',function (err,data) {  
@@ -37,7 +37,7 @@ if (process.env.COVERALLS_REPO_TOKEN) {
 		
 
 	});
-} 
-else {
-	throw "COVERALLS_REPO_TOKEN variable is not defined";
-}
+//} 
+//else {
+//	throw "COVERALLS_REPO_TOKEN variable is not defined";
+//}
