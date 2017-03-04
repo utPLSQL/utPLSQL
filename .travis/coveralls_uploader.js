@@ -38,5 +38,5 @@ if (process.env.COVERALLS_REPO_TOKEN) {
 	});
 } 
 else {
-	throw new UserException("COVERALLS_REPO_TOKEN variable is not defined");
+	throw "COVERALLS_REPO_TOKEN variable is not defined";
 }
