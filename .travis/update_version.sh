@@ -2,7 +2,7 @@
 version=$TRAVIS_TAG
 build_number=$TRAVIS_BUILD_NUMBER
 version_placeholder='(utPLSQL - Version )X.X.X.X'
-sources_directory='../source'
+sources_directory='source'
 function build_version_no(){
     version=$1
     build_number=$2
