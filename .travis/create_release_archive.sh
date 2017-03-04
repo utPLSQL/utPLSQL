@@ -26,8 +26,7 @@ cd release
 zip -r -q ../utPLSQL.zip *
 tar -zcf ../utPLSQL.tar.gz *
 #Name of archive will match tag name for a release.
-if [ -n "$TRAVIS_TAG" ]; then
 cd ..
-cp utPLSQL.zip utPLSQL$TRAVIS_TAG.zip
-cp utPLSQL.tar.gz utPLSQL$TRAVIS_TAG.tar.gz
-fi
+mv utPLSQL.zip utPLSQL${UTPLSQL_FULL_VERSION}.zip
+mv utPLSQL.tar.gz utPLSQL${UTPLSQL_FULL_VERSION}.tar.gz
+

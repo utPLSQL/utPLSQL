@@ -17,28 +17,41 @@ addons:
 
 env:
   global:
+    #Needed to install Oracle
     - ORACLE_COOKIE=sqldev
     - ORACLE_FILE=oracle11g/xe/oracle-xe-11.2.0-1.0.x86_64.rpm.zip
+    #Needed to run and access Oracle db
     - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
     - NLS_LANG=AMERICAN_AMERICA.AL32UTF8
     - ORACLE_BASE=/u01/app/oracle
     - LD_LIBRARY_PATH=$ORACLE_HOME/lib
     - PATH=$PATH:$ORACLE_HOME/jdbc/lib:$ORACLE_HOME/bin
-    - JAVA_HOME=/usr/lib/jvm/java-8-oracle/jre
     - DATABASE_VERSION=11.2.0.2
     - ORACLE_SID=XE
     - DATABASE_NAME=XE
     - ORA_SDTZ='Europe/London' #Needed as a client parameter
     - TZ='Europe/London'       #Needed as a DB Server parameter
+    #Needed for Sonar integration - as it runs on Java8
+    - JAVA_HOME=/usr/lib/jvm/java-8-oracle/jre
+    #utPLSQL install user
     - UT3_OWNER=ut3
     - UT3_OWNER_PASSWORD=ut3
     - UT3_OWNER_TABLESPACE=users
+    #utPLSQL another user - for testing utPLSQL runability from other schema
     - UT3_USER=ut3_user
     - UT3_USER_PASSWORD=ut3
     - UT3_USER_TABLESPACE=users
-      # Target Branch and Directory for Deployment of Docs
+    # Target Branch and Directory for Deployment of Docs
     - PAGES_TARGET_BRANCH="gh-pages"
     - PAGES_VERSION_BASE="version3"
+
+    #Needed for project builds
+    - UTPLSQL_VERSION_FILE="VERSION"
+    - UTPLSQL_VERSION="${TRAVIS_TAG:-`cat ${UTPLSQL_VERSION_FILE}`}"
+    - UTPLSQL_BUILD_NO="${TRAVIS_BUILD_NUMBER:-0}"
+    - UTPLSQL_VERSION_PLACEHOLDER='(utPLSQL - Version )X.X.X.X'
+    - UTPLSQL_SOURCES_DIR='source'
+    - UTPLSQL_FULL_VERSION="`. .travis/get_full_project_version.sh`"
 
 cache:
   directories:
@@ -56,21 +69,19 @@ install:
   - bash .travis/oracle/install.sh
 
 before_script:
-  - bash .travis/update_version.sh
-  
+  - bash .travis/update_project_version.sh
+
 script:
   - bash .travis/create_utplsql_owner.sh
   - bash .travis/create_utplsql_user.sh
   - bash .travis/install.sh
   - bash .travis/grant_user.sh
   - bash .travis/run_examples_as_owner.sh
-  - bash .travis/run_test_as_owner.sh
   - bash .travis/run_examples_as_user.sh
+  - bash .travis/run_test_as_owner.sh
 #  - bash .travis/push_docs_to_gh_pages.sh
-#moved to before_deploy step
-#  - bash .travis/create_release.sh
   - sonar-scanner
-  - bash .travis/coveralls_uploader.sh  
+  - bash .travis/coveralls_uploader.sh
 
 before_deploy:
   - bash .travis/create_release.sh
@@ -79,12 +90,11 @@ deploy:
   provider: releases
   api_key: $github_api_token
   file:
-     - utPLSQL$TRAVIS_TAG.zip
-     - utPLSQL$TRAVIS_TAG.tar.gz
+     - utPLSQL${UTPLSQL_FULL_VERSION}.zip
+     - utPLSQL${UTPLSQL_FULL_VERSION}.tar.gz
   skip_cleanup: true
   on:
      repo: utPLSQL/utPLSQL
      tags: true
-
 notifications:
   slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
