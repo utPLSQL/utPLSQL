@@ -4,6 +4,8 @@
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/develop.svg?label=develop%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
 [![sonar](https://sonarqube.com/api/badges/measure?key=utPLSQL%3AutPLSQL&metric=complexity)](https://sonarqube.com/dashboard/index?id=utPLSQL%3AutPLSQL)
 [![sonar](https://sonarqube.com/api/badges/measure?key=utPLSQL%3AutPLSQL&metric=ncloc)](https://sonarqube.com/dashboard/index?id=utPLSQL%3AutPLSQL)
+[![Coverage Status](https://coveralls.io/repos/github/utPLSQL/utPLSQL/badge.svg?branch=master)](https://coveralls.io/github/utPLSQL/utPLSQL?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/utPLSQL/utPLSQL/badge.svg?branch=develop)](https://coveralls.io/github/utPLSQL/utPLSQL?branch=develop)
 
 [![license](http://img.shields.io/badge/license-apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![chat](http://img.shields.io/badge/chat-slack-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)

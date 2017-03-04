@@ -69,6 +69,7 @@ script:
 #  - bash .travis/build_docs.sh
 #  - bash .travis/push_docs_to_gh_pages.sh
   - sonar-scanner
+  - bash .travis/coveralls_uploader.sh  
 
 deploy:
   provider: releases
