@@ -55,6 +55,9 @@ install:
   - sudo pip install -r .travis/python_req.txt
   - bash .travis/oracle/install.sh
 
+before_script:
+  - bash .travis/update_version.sh
+  
 script:
   - bash .travis/create_utplsql_owner.sh
   - bash .travis/create_utplsql_user.sh
