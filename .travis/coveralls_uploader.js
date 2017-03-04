@@ -3,6 +3,8 @@ var request = require('request');
 const md5File = require('md5-file')
 
 var repo_token = process.env.COVERALLS_REPO_TOKEN;
+process.stdout.write("token");
+process.stdout.write(process.env.COVERALLS_REPO_TOKEN);
 
 if (process.env.COVERALLS_REPO_TOKEN) {
 
