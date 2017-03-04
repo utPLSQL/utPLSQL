@@ -67,6 +67,7 @@ script:
 #moved to before_deploy step
 #  - bash .travis/create_release.sh
   - sonar-scanner
+  - bash .travis/coveralls_uploader.sh  
 
 before_deploy:
   - bash .travis/create_release.sh

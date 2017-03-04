@@ -82,8 +82,12 @@ whenever oserror exit failure rollback
 @@core/ut_assert_processor.pks
 @@core/ut_assert_processor.pkb
 
---gathering coverage
+--installing profiler tabs if they dont exist
+whenever sqlerror continue
 @@core/coverage/proftab.sql
+whenever sqlerror exit failure rollback
+
+--gathering coverage
 @@core/coverage/ut_coverage_sources_tmp.sql
 @@core/coverage/ut_coverage_helper.pks
 @@core/coverage/ut_coverage_helper.pkb
