@@ -45,20 +45,22 @@ env:
     - PAGES_TARGET_BRANCH="gh-pages"
     - PAGES_VERSION_BASE="version3"
 
-    #Needed for project builds
-    - UTPLSQL_VERSION_FILE="VERSION"
-    - UTPLSQL_VERSION="${TRAVIS_TAG:-`cat ${UTPLSQL_VERSION_FILE}`}"
+    #Environment for building a release
+    # File containing new version number
+    - CURRENT_BRANCH=${TRAVIS_BRANCH}
+    - UTPLSQL_REPO="utPLSQL/utPLSQL"
     - UTPLSQL_BUILD_NO="${TRAVIS_BUILD_NUMBER:-0}"
-    - UTPLSQL_VERSION_PLACEHOLDER='(utPLSQL - Version )X.X.X.X'
+    - UTPLSQL_VERSION_PLACEHOLDER='utPLSQL - Version'
+    - UTPLSQL_VERSION="`. .travis/get_project_version.sh`"
     - UTPLSQL_SOURCES_DIR='source'
-    - UTPLSQL_FULL_VERSION="`. .travis/get_full_project_version.sh`"
-
+    - UTPLSQL_BUILD_USER_NAME="Travis CI"
 cache:
   directories:
     - .cache
     - $HOME/.cache
 
 before_install:
+  - bash .travis/update_project_version.sh
 # On trusty, download the zip file into a cachable directory
   - test "$DIST" = precise || export ORACLE_ZIP_DIR=$HOME/.cache
 # If the zip file already exists, do not download it again
@@ -67,15 +69,12 @@ before_install:
 install:
   - sudo pip install -r .travis/python_req.txt
   - bash .travis/oracle/install.sh
-
-before_script:
-  - bash .travis/update_project_version.sh
-
-script:
   - bash .travis/create_utplsql_owner.sh
   - bash .travis/create_utplsql_user.sh
   - bash .travis/install.sh
   - bash .travis/grant_user.sh
+
+script:
   - bash .travis/run_examples_as_owner.sh
   - bash .travis/run_examples_as_user.sh
   - bash .travis/run_test_as_owner.sh
@@ -84,17 +83,19 @@ script:
   - bash .travis/coveralls_uploader.sh
 
 before_deploy:
-  - bash .travis/create_release.sh
+  - bash .travis/build_docs.sh
+  - bash .travis/build_release_archive.sh
 
 deploy:
   provider: releases
   api_key: $github_api_token
   file:
-     - utPLSQL${UTPLSQL_FULL_VERSION}.zip
-     - utPLSQL${UTPLSQL_FULL_VERSION}.tar.gz
+     - release/utPLSQL${UTPLSQL_VERSION}.zip
+     - release/utPLSQL${UTPLSQL_VERSION}.tar.gz
   skip_cleanup: true
   on:
-     repo: utPLSQL/utPLSQL
+     repo: ${UTPLSQL_REPO}
      tags: true
+
 notifications:
   slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB

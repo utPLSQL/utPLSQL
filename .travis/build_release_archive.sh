@@ -26,7 +26,6 @@ cd release
 zip -r -q ../utPLSQL.zip *
 tar -zcf ../utPLSQL.tar.gz *
 #Name of archive will match tag name for a release.
-cd ..
-mv utPLSQL.zip utPLSQL${UTPLSQL_FULL_VERSION}.zip
-mv utPLSQL.tar.gz utPLSQL${UTPLSQL_FULL_VERSION}.tar.gz
+mv ../utPLSQL.zip utPLSQL${UTPLSQL_VERSION}.zip
+mv ../utPLSQL.tar.gz utPLSQL${UTPLSQL_VERSION}.tar.gz
 
