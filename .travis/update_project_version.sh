@@ -6,3 +6,4 @@ find ${UTPLSQL_SOURCES_DIR} -type f -name '*' -exec sed -i -r "s/${UTPLSQL_VERSI
 
 echo Source files updated with version tag: $UTPLSQL_FULL_VERSION
 
+echo "sonar.projectVersion=${UTPLSQL_FULL_VERSION}" >> sonar-project.properties
