@@ -21,12 +21,14 @@ create or replace type body ut_coverage_html_reporter is
     a_project_name varchar2 := null,
     a_schema_names ut_varchar2_list := null,
     a_include_object_list ut_varchar2_list := null,
-    a_exclude_object_list ut_varchar2_list := null
+    a_exclude_object_list ut_varchar2_list := null,
+    a_html_report_assets_path varchar2 := null
   ) return self as result is
   begin
     self.init($$plsql_unit);
     ut_coverage.init(a_schema_names, a_include_object_list, a_exclude_object_list);
     self.project_name := a_project_name;
+    assets_path := nvl(a_html_report_assets_path, ut_coverage_report_html_helper.get_default_html_assets_path());
     return;
   end;
 
@@ -41,7 +43,8 @@ create or replace type body ut_coverage_html_reporter is
     a_object_type_subexpression positive,
     a_file_to_object_type_mapping ut_key_value_pairs,
     a_include_object_list ut_varchar2_list := null,
-    a_exclude_object_list ut_varchar2_list := null
+    a_exclude_object_list ut_varchar2_list := null,
+    a_html_report_assets_path varchar2 := null
   ) return self as result is
     l_mappings ut_coverage_file_mappings;
   begin
@@ -52,6 +55,7 @@ create or replace type body ut_coverage_html_reporter is
     self.init($$plsql_unit);
     ut_coverage.init(l_mappings, a_include_object_list, a_exclude_object_list);
     self.project_name := a_project_name;
+    assets_path := nvl(a_html_report_assets_path, ut_coverage_report_html_helper.get_default_html_assets_path());
     return;
   end;
 
@@ -61,7 +65,8 @@ create or replace type body ut_coverage_html_reporter is
     a_object_owner varchar2 := null,
     a_file_paths ut_varchar2_list,
     a_include_object_list ut_varchar2_list := null,
-    a_exclude_object_list ut_varchar2_list := null
+    a_exclude_object_list ut_varchar2_list := null,
+    a_html_report_assets_path varchar2 := null
   ) return self as result is
     l_mappings ut_coverage_file_mappings;
   begin
@@ -69,6 +74,7 @@ create or replace type body ut_coverage_html_reporter is
     self.init($$plsql_unit);
     ut_coverage.init(l_mappings, a_include_object_list, a_exclude_object_list);
     self.project_name := a_project_name;
+    assets_path := nvl(a_html_report_assets_path, ut_coverage_report_html_helper.get_default_html_assets_path());
     return;
   end;
 
@@ -77,12 +83,14 @@ create or replace type body ut_coverage_html_reporter is
     a_project_name varchar2 := null,
     a_file_mappings       ut_coverage_file_mappings,
     a_include_object_list ut_varchar2_list := null,
-    a_exclude_object_list ut_varchar2_list := null
+    a_exclude_object_list ut_varchar2_list := null,
+    a_html_report_assets_path varchar2 := null
   ) return self as result is
   begin
     self.init($$plsql_unit);
     ut_coverage.init(a_file_mappings, a_include_object_list, a_exclude_object_list);
     self.project_name := a_project_name;
+    assets_path := nvl(a_html_report_assets_path, ut_coverage_report_html_helper.get_default_html_assets_path());
     return;
   end;
 

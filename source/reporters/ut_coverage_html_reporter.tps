@@ -16,12 +16,14 @@ create or replace type ut_coverage_html_reporter under ut_coverage_reporter_base
   limitations under the License.
   */
   project_name  varchar2(4000),
+  assets_path   varchar2(4000),
   constructor function ut_coverage_html_reporter(
     self in out nocopy ut_coverage_html_reporter,
     a_project_name varchar2 := null,
     a_schema_names ut_varchar2_list := null,
     a_include_object_list ut_varchar2_list := null,
-    a_exclude_object_list ut_varchar2_list := null
+    a_exclude_object_list ut_varchar2_list := null,
+    a_html_report_assets_path varchar2 := null
   ) return self as result,
 
   constructor function ut_coverage_html_reporter(
@@ -35,7 +37,8 @@ create or replace type ut_coverage_html_reporter under ut_coverage_reporter_base
     a_object_type_subexpression positive,
     a_file_to_object_type_mapping ut_key_value_pairs,
     a_include_object_list ut_varchar2_list := null,
-    a_exclude_object_list ut_varchar2_list := null
+    a_exclude_object_list ut_varchar2_list := null,
+    a_html_report_assets_path varchar2 := null
   ) return self as result,
 
   constructor function ut_coverage_html_reporter(
@@ -44,7 +47,8 @@ create or replace type ut_coverage_html_reporter under ut_coverage_reporter_base
     a_object_owner varchar2 := null,
     a_file_paths ut_varchar2_list,
     a_include_object_list ut_varchar2_list := null,
-    a_exclude_object_list ut_varchar2_list := null
+    a_exclude_object_list ut_varchar2_list := null,
+    a_html_report_assets_path varchar2 := null
   ) return self as result,
 
   constructor function ut_coverage_html_reporter(
@@ -52,7 +56,8 @@ create or replace type ut_coverage_html_reporter under ut_coverage_reporter_base
     a_project_name varchar2 := null,
     a_file_mappings       ut_coverage_file_mappings,
     a_include_object_list ut_varchar2_list := null,
-    a_exclude_object_list ut_varchar2_list := null
+    a_exclude_object_list ut_varchar2_list := null,
+    a_html_report_assets_path varchar2 := null
   ) return self as result,
 
   overriding member procedure after_calling_run(self in out nocopy ut_coverage_html_reporter, a_run in ut_run)
