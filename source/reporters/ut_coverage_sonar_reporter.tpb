@@ -84,13 +84,15 @@ create or replace type body ut_coverage_sonar_reporter is
     function get_lines_xml(a_unit_coverage ut_coverage.t_unit_coverage) return clob is
       l_file_part    varchar2(32767);
       l_result       clob;
-      c_no_lines     constant varchar2(30) := '<lineToCover/>'||chr(10);
       l_line_no      binary_integer;
     begin
       dbms_lob.createtemporary(l_result, true);
       l_line_no := a_unit_coverage.lines.first;
       if l_line_no is null then
-        dbms_lob.writeappend(l_result, length(c_no_lines), c_no_lines);
+        for i in 1 .. a_unit_coverage.total_lines loop
+          l_file_part := '<lineToCover lineNumber="'||i||'" covered="false"/>'||chr(10);
+          dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);
+        end loop;
       else
         while l_line_no is not null loop
           l_file_part :=
