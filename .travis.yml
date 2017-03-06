@@ -16,7 +16,7 @@ addons:
       secure: ${SONAR_TOKEN}
     branches:
       - develop
-      - testing_sonar
+      - master
 env:
   global:
     - ORACLE_COOKIE=sqldev
