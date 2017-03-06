@@ -93,7 +93,13 @@ create or replace type body ut_coveralls_reporter is
       dbms_lob.writeappend(l_result, length(c_coverage_header), c_coverage_header);
 
       l_last_line_no := a_unit_coverage.lines.last;
-      if l_last_line_no is not null then
+      if l_last_line_no is null then
+        l_last_line_no := a_unit_coverage.total_lines - 1;
+        for i in 1 .. l_last_line_no loop
+          dbms_lob.writeappend(l_result, 2, '0,');
+        end loop;
+        dbms_lob.writeappend(l_result, 1, '0');
+      else
         for line_no in 1 .. l_last_line_no loop
           l_file_part :=
             case
