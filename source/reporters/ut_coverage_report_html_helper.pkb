@@ -28,7 +28,12 @@ create or replace package body ut_coverage_report_html_helper is
   gc_ignored             constant varchar2(7) := 'never';
   gc_covered             constant varchar2(7) := 'covered';
 
-  gc_assets_path         constant varchar2(200) := 'https://jgebal.github.io/utPLSQL-coverage-html/assets/';
+
+  function get_default_html_assets_path return varchar2 deterministic is
+    c_assets_path constant varchar2(200) := 'https://utplsql.github.io/utPLSQL-coverage-html/assets/';
+  begin
+    return c_assets_path;
+  end;
 
   function coverage_css_class(a_covered_pct number) return varchar2 is
     l_result varchar2(10);
@@ -200,7 +205,7 @@ create or replace package body ut_coverage_report_html_helper is
   /*
   * public definitions
   */
-  function get_index(a_coverage_data ut_coverage.t_coverage, a_project_name varchar2 := null, a_command_line varchar2 := null) return clob is
+  function get_index(a_coverage_data ut_coverage.t_coverage, a_assets_path varchar2, a_project_name varchar2 := null, a_command_line varchar2 := null) return clob is
 
     l_file_part            varchar2(32767);
     l_result               clob;
@@ -221,12 +226,12 @@ create or replace package body ut_coverage_report_html_helper is
     '<!DOCTYPE html><html xmlns=''http://www.w3.org/1999/xhtml''><head>' ||
     '<title>'||l_title||'</title>' ||
     '<meta http-equiv="content-type" content="text/html; charset=utf-8" />' ||
-    '<script src='''||gc_assets_path||'application.js'' type=''text/javascript''></script>' ||
-    '<link href='''||gc_assets_path||'application.css'' media=''screen, projection, print'' rel=''stylesheet'' type=''text/css''>' ||
-    '<link rel="shortcut icon" type="image/png" href="'||gc_assets_path||'favicon_'||coverage_css_class(l_coverage_pct)||'.png" />' ||
-    '<link rel="icon" type="image/png" href="'||gc_assets_path||'favicon_'||coverage_css_class(l_coverage_pct)||'.png" />' ||
+    '<script src='''||a_assets_path||'application.js'' type=''text/javascript''></script>' ||
+    '<link href='''||a_assets_path||'application.css'' media=''screen, projection, print'' rel=''stylesheet'' type=''text/css''>' ||
+    '<link rel="shortcut icon" type="image/png" href="'||a_assets_path||'favicon_'||coverage_css_class(l_coverage_pct)||'.png" />' ||
+    '<link rel="icon" type="image/png" href="'||a_assets_path||'favicon_'||coverage_css_class(l_coverage_pct)||'.png" />' ||
     '</head>' ||
-    '<body><div id="loading"><img src="'||gc_assets_path||'loading.gif" alt="loading"/></div>' ||
+    '<body><div id="loading"><img src="'||a_assets_path||'loading.gif" alt="loading"/></div>' ||
     '<div id="wrapper" style="display:none;">' ||
     '<div class="timestamp">Generated <abbr class="timeago" title="'||l_time_str||'">'||l_time_str||'</abbr></div>' ||
     '<ul class="group_tabs"></ul>' ||
