@@ -12,4 +12,4 @@ cd source
 sqlplus admin/admins_password@xe @@install_headless.sql  
 ```
 
-For detailed instructions on other install options see the [Install Guide](../docs/userguide/install.md)
+For detailed instructions on other install options see the [Install Guide](../docs/md/userguide/install.md)

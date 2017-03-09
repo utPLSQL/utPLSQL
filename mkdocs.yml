@@ -4,8 +4,10 @@
 site_name: utPLSQL
 site_description: utPLSQL Documenation Powerful Unit Testing Framework for Oracle PL/SQL
 copyright: Copyright &copy; 2016 - utPLSQL Team
-repo_url: https://github.com/utplsql/utplsql/
+repo_url: https://github.com/utPLSQL/utPLSQL
 theme: mkdocs
+site_dir: docs/html
+docs_dir: docs/md
 use_directory_urls: false
 strict: true
 
@@ -16,9 +18,16 @@ pages:
        - Getting Started: userguide/getting-started.md
        - Annotations: userguide/annotations.md
        - Expectations: userguide/expectations.md
-       - Testing Best Pracitces: userguide/best-practices.md
-       - Upgrade utPLSQL : userguide/upgrade.md
+       - Running unit tests: userguide/running-unit-tests.md
+       - Testing best pracitces: userguide/best-practices.md
+       - Upgrade utPLSQL: userguide/upgrade.md
+  - Reporting:
+       - Using reporters: userguide/reporters.md
+       - Reporting errors: userguide/exception-reporting.md
+       - Code coverage: userguide/coverage.md
   - About:
        - Project Details: about/project-details.md
        - License: about/license.md
        - Support: about/support.md
+       - Authors: about/authors.md
+       - Contributing: about/CONTRIBUTING.md
