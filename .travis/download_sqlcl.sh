@@ -6,5 +6,5 @@ if [ ! -d $HOME/.cache/sqlcl ]; then
     sh download.sh -p sqlcl
     unzip -q sqlcl-4.2.0.16.355.0402-no-jre.zip
     rm -f sqlcl-4.2.0.16.355.0402-no-jre.zip
-    bash mv sqlcl $HOME/.cache/
+    mv sqlcl $HOME/.cache/
 fi;
