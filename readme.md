@@ -24,8 +24,8 @@ Primary features:
  - Support for User Defined Object Types and Collections
  - Support for native cursors both strong and weak
  - Data-type aware testing
- - [Annotations](docs/userguide/annotations.md) based test definitions 
- - Extensible [matchers](docs/userguide/expectations.md)
+ - [Annotations](docs/md/userguide/annotations.md) based test definitions 
+ - Extensible [matchers](docs/md/userguide/expectations.md)
  - Extensible reporting formats
  - Extensible output providers
  - Support for multi-reporting
@@ -43,6 +43,7 @@ __Download__
 
 Published releases are available for download on the [utPLSQL GitHub Releases Page.](https://github.com/utPLSQL/utPLSQL/releases)
 
+[__Authors__](docs/md/about/authors.md)
 
 __Version 2 to Version 3 Comparison__
 
@@ -104,14 +105,14 @@ cd source
 sqlplus admin/admins_password@xe @@install_headless.sql  
 ```
 
-For detailed instructions on other install options see the [Install Guide](docs/userguide/install.md)
+For detailed instructions on other install options see the [Install Guide](docs/md/userguide/install.md)
 
 # Example test package
 
 The below test package is a fully-functional Unit Test package for testing a function `betwnstr`.
-Package specification is annotated with special comments ([annotations](docs/userguide/annotations.md)).
+Package specification is annotated with special comments ([annotations](docs/md/userguide/annotations.md)).
 Annotations define that a package is a unit test suite, they also allow defining a description for the suite as well as the test itself.
-Package body consists of procedures containing unit test code. To validate [an expectation](docs/userguide/expectations.md) in test, use `ut.expect( actual_data ).to_( ... )` syntax.
+Package body consists of procedures containing unit test code. To validate [an expectation](docs/md/userguide/expectations.md) in test, use `ut.expect( actual_data ).to_( ... )` syntax.
 
 
 ```sql
@@ -194,19 +195,16 @@ c:\my_work\>sqlplus /nolog @ut_run hr/hr@xe
 Will run all the suites in the current schema (hr) and provide documentation report into screen.
 Invoking this script will show the progress after each test.
 
+# Contributing to the project
 
-__Primary Directories__
+Community help on is always appreciated, if your interested in helping please read our [guide to contributing](docs/md/about/CONTRIBUTING.md)
+
+__Project Directories__
 
 * .travis - contains files needed for travis-ci integration
 * client_source - Sources to be used on the client-side. Developer workstation or CI platform to run the tests.
 * development - Set of useful scripts and utilities for development and debugging of utPLSQL 
-* docs - Markdown version of the documentation 
+* docs/md - Markdown version of the documentation 
 * examples - contains example unit tests.
 * source - contains the installation code for utPLSQL
-* tests - contains the tests written to test utPLSQL
-
-
-
-
- 
-
+* tests - contains the tests for utPLSQL framework
