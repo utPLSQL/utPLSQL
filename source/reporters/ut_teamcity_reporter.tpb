@@ -51,6 +51,7 @@ create or replace type body ut_teamcity_reporter is
   overriding member procedure after_calling_test(self in out nocopy ut_teamcity_reporter, a_test in ut_test) is
     l_assert         ut_assert_result;
     l_test_full_name varchar2(4000);
+    l_std_err_msg    varchar2(32767);
     procedure print_output(a_exectable ut_executable) is
       l_lines ut_varchar2_list;
     begin
@@ -80,19 +81,32 @@ create or replace type body ut_teamcity_reporter is
       print_output(a_test.after_each);
     
       if a_test.result = ut_utils.tr_error then
+        if a_test.before_each.error_backtrace is not null then
+          l_std_err_msg := l_std_err_msg || 'Before each:' || chr(10) || a_test.before_each.error_backtrace || chr(10);
+        end if;
+      
+        if a_test.before_test.error_backtrace is not null then
+          l_std_err_msg := l_std_err_msg || 'Before test:' || chr(10) || a_test.before_test.error_backtrace || chr(10);
+        end if;
+      
+        if a_test.item.error_backtrace is not null then
+          l_std_err_msg := l_std_err_msg || 'Test:' || chr(10) || a_test.item.error_backtrace || chr(10);
+        end if;
+      
+        if a_test.after_test.error_backtrace is not null then
+          l_std_err_msg := l_std_err_msg || 'After test:' || chr(10) || a_test.after_test.error_backtrace || chr(10);
+        end if;
+      
+        if a_test.after_each.error_backtrace is not null then
+          l_std_err_msg := l_std_err_msg || 'After each:' || chr(10) || a_test.after_each.error_backtrace || chr(10);
+        end if;
+      
         self.print_text(ut_teamcity_reporter_helper.test_std_err(a_test_name => l_test_full_name
-                                                                ,a_out       => coalesce(a_test.before_each.error_backtrace
-                                                                                        ,a_test.before_test.error_backtrace
-                                                                                        ,a_test.item.error_backtrace
-                                                                                        ,a_test.after_test.error_backtrace
-                                                                                        ,a_test.after_each.error_backtrace)));
+                                                                ,a_out       => trim(l_std_err_msg)));
         self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
-                                                               ,a_msg       => 'Test failed with an exception'
-                                                               ,a_details   => coalesce(a_test.before_each.error_stack
-                                                                                       ,a_test.before_test.error_stack
-                                                                                       ,a_test.item.error_stack
-                                                                                       ,a_test.after_test.error_stack
-                                                                                       ,a_test.after_each.error_stack)));
+                                                               ,a_msg       => 'Error occured'
+                                                               ,a_details   => trim(l_std_err_msg) || a_test.results(1)
+                                                                              .message));
       elsif a_test.results is not null and a_test.results.count > 0 then
         for i in 1 .. a_test.results.count loop
         
@@ -119,9 +133,6 @@ create or replace type body ut_teamcity_reporter is
       elsif a_test.result = ut_utils.tr_failure then
         self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
                                                                ,a_msg       => 'Test failed'));
-      elsif a_test.result = ut_utils.tr_error then
-        self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
-                                                               ,a_msg       => 'Error occured'));
       end if;
     
       self.print_text(ut_teamcity_reporter_helper.test_finished(l_test_full_name, trunc(a_test.execution_time * 1e3)));
