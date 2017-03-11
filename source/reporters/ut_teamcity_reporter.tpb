@@ -82,23 +82,23 @@ create or replace type body ut_teamcity_reporter is
     
       if a_test.result = ut_utils.tr_error then
         if a_test.before_each.error_backtrace is not null then
-          l_std_err_msg := l_std_err_msg || 'Before each:' || chr(10) || a_test.before_each.error_backtrace || chr(10);
+          l_std_err_msg := l_std_err_msg || 'Before each exception:' || chr(10) || a_test.before_each.error_backtrace || chr(10);
         end if;
       
         if a_test.before_test.error_backtrace is not null then
-          l_std_err_msg := l_std_err_msg || 'Before test:' || chr(10) || a_test.before_test.error_backtrace || chr(10);
+          l_std_err_msg := l_std_err_msg || 'Before test exception:' || chr(10) || a_test.before_test.error_backtrace || chr(10);
         end if;
       
         if a_test.item.error_backtrace is not null then
-          l_std_err_msg := l_std_err_msg || 'Test:' || chr(10) || a_test.item.error_backtrace || chr(10);
+          l_std_err_msg := l_std_err_msg || 'Test exception:' || chr(10) || a_test.item.error_backtrace || chr(10);
         end if;
       
         if a_test.after_test.error_backtrace is not null then
-          l_std_err_msg := l_std_err_msg || 'After test:' || chr(10) || a_test.after_test.error_backtrace || chr(10);
+          l_std_err_msg := l_std_err_msg || 'After test exception:' || chr(10) || a_test.after_test.error_backtrace || chr(10);
         end if;
       
         if a_test.after_each.error_backtrace is not null then
-          l_std_err_msg := l_std_err_msg || 'After each:' || chr(10) || a_test.after_each.error_backtrace || chr(10);
+          l_std_err_msg := l_std_err_msg || 'After each exception:' || chr(10) || a_test.after_each.error_backtrace || chr(10);
         end if;
       
         self.print_text(ut_teamcity_reporter_helper.test_std_err(a_test_name => l_test_full_name
