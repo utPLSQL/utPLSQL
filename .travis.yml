@@ -25,6 +25,7 @@ env:
     - PAGES_TARGET_BRANCH="gh-pages"
     - PAGES_VERSION_BASE="version3"
     - SQLCLI=$HOME/.cache/sqlcl/bin/sql
+    - CONTAINER_IP=""
 
 addons:
   apt:
@@ -61,6 +62,7 @@ script:
   - docker run -d --name oracle-12c-r1-se -p 1521:1521 -p 5500:5500 viniciusam/oracle-12c-r1-se
   - docker logs -f oracle-12c-r1-se | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
   - docker exec oracle-12c-r1-se ./setPassword.sh oracle
+  - CONTAINER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' oracle-12c-r1-se)
   - bash .travis/create_utplsql_owner.sh
   - bash .travis/create_utplsql_user.sh
   - bash .travis/install_libraries.sh
