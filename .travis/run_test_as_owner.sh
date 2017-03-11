@@ -3,4 +3,4 @@
 set -ev
 
 cd tests
-"$ORACLE_HOME/bin/sqlplus" $UT3_OWNER/$UT3_OWNER_PASSWORD @RunAll.sql
+"$SQLCLI" $UT3_OWNER/$UT3_OWNER_PASSWORD @RunAll.sql

@@ -24,6 +24,8 @@ env:
       # Target Branch and Directory for Deployment of Docs
     - PAGES_TARGET_BRANCH="gh-pages"
     - PAGES_VERSION_BASE="version3"
+    - SQLCL_FILE=sqlcl-4.2.0.16.355.0402-no-jre.zip
+    - SQLCLI=$HOME/.cache/sqlcl/bin/sql
 
 addons:
   apt:
@@ -32,7 +34,10 @@ addons:
       - bc
       - rpm
       - unzip
+      - oracle-java8-set-default
 
+services:
+  - docker
 
 cache:
   directories:
@@ -40,16 +45,23 @@ cache:
     - $HOME/.cache
 
 before_install:
+  - npm install -g phantomjs-prebuilt casperjs
+  - bash .travis/download_sqlcl.sh
+  - docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"
+  - docker pull viniciusam/oracle-12c-r1-se
 # On trusty, download the zip file into a cachable directory
-  - test "$DIST" = precise || export ORACLE_ZIP_DIR=$HOME/.cache
+  #- test "$DIST" = precise || export ORACLE_ZIP_DIR=$HOME/.cache
 # If the zip file already exists, do not download it again
-  - test -f "$ORACLE_ZIP_DIR"/$(basename $ORACLE_FILE) || bash .travis/oracle/download.sh
+  #- test -f "$ORACLE_ZIP_DIR"/$(basename $ORACLE_FILE) || bash .travis/oracle/download.sh
 
 install:
   - sudo pip install -r .travis/python_req.txt
-  - bash .travis/oracle/install.sh
+  #- bash .travis/oracle/install.sh
 
 script:
+  - docker run -d --name oracle-12c-r1-se -p 1521:1521 -p 5500:5500 viniciusam/oracle-12c-r1-se
+  - docker logs -f oracle-12c-r1-se | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
+  - docker exec oracle-12c-r1-se ./setPassword.sh oracle
   - bash .travis/create_utplsql_owner.sh
   - bash .travis/create_utplsql_user.sh
   - bash .travis/install_libraries.sh
@@ -63,18 +75,18 @@ script:
 #  - bash .travis/build_docs.sh
 #  - bash .travis/push_docs_to_gh_pages.sh
 
-deploy:
-  provider: releases
-  api_key: $github_api_token
-  file: 
-     - utPLSQL$TRAVIS_TAG.zip
-     - utPLSQL$TRAVIS_TAG.tar.gz
-  skip_cleanup: true
-  on:
-     repo: utPLSQL/utPLSQL
-     tags: true
+# deploy:
+#   provider: releases
+#   api_key: $github_api_token
+#   file: 
+#      - utPLSQL$TRAVIS_TAG.zip
+#      - utPLSQL$TRAVIS_TAG.tar.gz
+#   skip_cleanup: true
+#   on:
+#      repo: utPLSQL/utPLSQL
+#      tags: true
 
-notifications:
-  slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
+# notifications:
+#   slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
 
 
