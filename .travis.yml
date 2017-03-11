@@ -26,6 +26,7 @@ env:
     - PAGES_VERSION_BASE="version3"
     - SQLCLI=$HOME/.cache/sqlcl/bin/sql
     - CONTAINER_IP=""
+    - CONNECTION_STR=""
 
 addons:
   apt:
@@ -63,6 +64,13 @@ script:
   - docker logs -f oracle-12c-r1-se | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
   - docker exec oracle-12c-r1-se ./setPassword.sh oracle
   - CONTAINER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' oracle-12c-r1-se)
+  - CONNECTION_STR="$CONTAINER_IP:1521/ORCLPDB1"
+  # TODO:
+  # create oracle user
+  # run the image using a volume owned by oracle user
+  # save oradata to cache
+  # run tests
+  # next time get oradata from cache
   - bash .travis/create_utplsql_owner.sh
   - bash .travis/create_utplsql_user.sh
   - bash .travis/install_libraries.sh
