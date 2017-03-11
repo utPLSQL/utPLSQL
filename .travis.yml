@@ -24,7 +24,6 @@ env:
       # Target Branch and Directory for Deployment of Docs
     - PAGES_TARGET_BRANCH="gh-pages"
     - PAGES_VERSION_BASE="version3"
-    - SQLCL_FILE=sqlcl-4.2.0.16.355.0402-no-jre.zip
     - SQLCLI=$HOME/.cache/sqlcl/bin/sql
 
 addons:

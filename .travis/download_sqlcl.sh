@@ -4,7 +4,8 @@ set -e
 cd .travis
 if [ ! -d $HOME/.cache/sqlcl ]; then
     sh download.sh -p sqlcl
-    unzip -q $SQLCL_FILE
-    bash mv sqlcl $HOME/.cache
-    rm -f $SQLCL_FILE
+    ls -la
+    unzip -q sqlcl-4.2.0.16.355.0402-no-jre.zip
+    rm -f sqlcl-4.2.0.16.355.0402-no-jre.zip
+    bash mv sqlcl $HOME/.cache/
 fi;
