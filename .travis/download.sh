@@ -5,7 +5,7 @@ PRODUCT=""
 
 # Call the casperjs script to return the download url.
 # Then download the file using curl.
-function downloadFile {
+downloadFile() {
     downloadUrl=$(exec casperjs download.js $ORACLE_OTN_USER $ORACLE_OTN_PASSWORD $1 $2)
     echo "DownloadURL: $downloadUrl"
     curl $downloadUrl -o $3
