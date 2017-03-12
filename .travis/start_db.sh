@@ -2,7 +2,7 @@
 set -e
 
 # Create the dir to host oracledata and check if it is present on cache.
-mkdir -p $HOME/$ORACLE_VERSION && chmod -R 775 $HOME/$ORACLE_VERSION
+mkdir -p $HOME/$ORACLE_VERSION && chmod -R 777 $HOME/$ORACLE_VERSION
 if [ -f $HOME/$ORACLE_VERSION.tar.gz ]; then
     tar -zxf $HOME/$ORACLE_VERSION.tar.gz -C $HOME/$ORACLE_VERSION
 fi
