@@ -17,15 +17,18 @@ utPLSQL version 3 is a complete rewrite of utPLSQL v2 from scratch.
 Version 2 still supports older versions of Oracle that are no longer available. 
 The community that had developed on GitHub, decided that a new internal architecture was needed, from that version 3 was born.  
 
-We welcome new developers to join our community and contribute to the utPLSQL project.
+# Introduction
+utPLSQL is a Unit Testing framework for Oracle PL/SQL and SQL. 
+The framework follows industry standards and best patterns of modern Unit Testing frameworks like [JUnit](http://junit.org/junit4/) and [RSpec](http://rspec.info/)
 
-Primary features:
- - Support for all basic scalar data-types
+
+# Primary features
+ - Support for all basic scalar data-types except ROWID and RAW
  - Support for User Defined Object Types and Collections
  - Support for native cursors both strong and weak
- - Data-type aware testing
- - [Annotations](docs/userguide/annotations.md) based test definitions 
- - Extensible [matchers](docs/userguide/expectations.md)
+ - Data-type aware testing - number 1 is not equal to string '1'
+ - [Annotations](docs/userguide/annotations.md) are used to define and configure tests
+ - Extensible [expectations](docs/userguide/expectations.md)
  - Extensible reporting formats
  - Extensible output providers
  - Support for multi-reporting
@@ -42,6 +45,15 @@ Requirements:
 __Download__
 
 Published releases are available for download on the [utPLSQL GitHub Releases Page.](https://github.com/utPLSQL/utPLSQL/releases)
+
+# Contributing to the project
+
+We welcome new developers to join our community and contribute to the utPLSQL project.
+If you are interested in helping please read our [guide to contributing](docs/about/CONTRIBUTING.md)
+The best place to start is to read the documentation and get familiar existing with code base.
+A [slack chat](https://utplsql.slack.com/) is the place to go isf you want to talk with team members.
+To sign up to the chat use [this link](http://utplsql-slack-invite.herokuapp.com/)
+
 
 [__Authors__](docs/about/authors.md)
 
@@ -194,10 +206,6 @@ c:\my_work\>sqlplus /nolog @ut_run hr/hr@xe
 ```
 Will run all the suites in the current schema (hr) and provide documentation report into screen.
 Invoking this script will show the progress after each test.
-
-# Contributing to the project
-
-Community help on is always appreciated, if your interested in helping please read our [guide to contributing](docs/about/CONTRIBUTING.md)
 
 __Project Directories__
 
