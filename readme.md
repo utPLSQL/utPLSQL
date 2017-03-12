@@ -43,6 +43,7 @@ __Download__
 
 Published releases are available for download on the [utPLSQL GitHub Releases Page.](https://github.com/utPLSQL/utPLSQL/releases)
 
+[__Authors__](docs/about/authors.md)
 
 __Version 2 to Version 3 Comparison__
 
@@ -194,19 +195,16 @@ c:\my_work\>sqlplus /nolog @ut_run hr/hr@xe
 Will run all the suites in the current schema (hr) and provide documentation report into screen.
 Invoking this script will show the progress after each test.
 
+# Contributing to the project
 
-__Primary Directories__
+Community help on is always appreciated, if your interested in helping please read our [guide to contributing](docs/about/CONTRIBUTING.md)
+
+__Project Directories__
 
 * .travis - contains files needed for travis-ci integration
 * client_source - Sources to be used on the client-side. Developer workstation or CI platform to run the tests.
 * development - Set of useful scripts and utilities for development and debugging of utPLSQL 
-* docs - Markdown version of the documentation 
+* docs/md - Markdown version of the documentation 
 * examples - contains example unit tests.
 * source - contains the installation code for utPLSQL
-* tests - contains the tests written to test utPLSQL
-
-
-
-
- 
-
+* tests - contains the tests for utPLSQL framework
