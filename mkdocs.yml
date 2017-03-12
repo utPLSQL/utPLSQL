@@ -17,6 +17,7 @@ pages:
        - Annotations: userguide/annotations.md
        - Expectations: userguide/expectations.md
        - Running unit tests: userguide/running-unit-tests.md
+       - Using the ut_run script: userguide/ut_run-script.md
        - Testing best pracitces: userguide/best-practices.md
        - Upgrade utPLSQL: userguide/upgrade.md
   - Reporting:
