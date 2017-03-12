@@ -3,9 +3,9 @@ set -e
 
 # Create the dir to host oracledata and check if it is present on cache.
 mkdir -p $HOME/$ORACLE_VERSION && chmod -R 777 $HOME/$ORACLE_VERSION
-if [ -f $HOME/$ORACLE_VERSION.tar.gz ]; then
+if [ -f $CACHE_DIR/$ORACLE_VERSION.tar.gz ]; then
     echo "Restoring database from cache..."
-    sudo tar -zxf $HOME/$ORACLE_VERSION.tar.gz -C $HOME/$ORACLE_VERSION
+    sudo tar -zxf $CACHE_DIR/$ORACLE_VERSION.tar.gz -C $HOME/$ORACLE_VERSION
 fi
 
 # Oracle 12c R1 SE
@@ -25,7 +25,7 @@ if [ $ORACLE_VERSION = $ORACLE_11gR2XE ]; then
 fi
 
 # Save the oracledata dir to cache.
-if [ ! -f $HOME/$ORACLE_VERSION.tar.gz ]; then
+if [ ! -f $CACHE_DIR/$ORACLE_VERSION.tar.gz ]; then
     echo "Saving database to cache..."
     docker pause $ORACLE_VERSION
     sudo tar -zcf $CACHE_DIR/$ORACLE_VERSION.tar.gz $HOME/$ORACLE_VERSION
