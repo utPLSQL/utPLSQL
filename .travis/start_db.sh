@@ -21,7 +21,7 @@ fi
 # Oracle 11g R2 XE
 if [ $ORACLE_VERSION = $ORACLE_11gR2XE ]; then
     docker login -u "$DOCKER_11gR2XE_USER" -p "$DOCKER_11gR2XE_PASS"
-    docker run --name $ORACLE_VERSION --shm-size=1g -p 1521:1521 -v $HOME/$ORACLE_VERSION:/u01/app/oracle/oradata vavellar/oracle-11g-r2-xe
+    docker run -d --name $ORACLE_VERSION --shm-size=1g -p 1521:1521 -v $HOME/$ORACLE_VERSION:/u01/app/oracle/oradata vavellar/oracle-11g-r2-xe
     docker logs -f $ORACLE_VERSION | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
     docker exec $ORACLE_VERSION ./setPassword.sh $ORACLE_PWD
 
