@@ -69,8 +69,8 @@ install:
 
 script:
   - CONTAINER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $ORACLE_VERSION)
-  - test $ORACLE_VERSION = $ORACLE_12cR1SE || CONNECTION_STR="$CONTAINER_IP:1521/ORCLPDB1"
-  - test $ORACLE_VERSION = $ORACLE_11gR2XE || CONNECTION_STR="$CONTAINER_IP:1521/XE"
+  - test $ORACLE_VERSION = $ORACLE_12cR1SE && CONNECTION_STR="$CONTAINER_IP:1521/ORCLPDB1"
+  - test $ORACLE_VERSION = $ORACLE_11gR2XE && CONNECTION_STR="$CONTAINER_IP:1521/XE"
   - bash .travis/create_utplsql_owner.sh
   - bash .travis/create_utplsql_user.sh
   - bash .travis/install_libraries.sh
