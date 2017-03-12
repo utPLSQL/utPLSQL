@@ -1,11 +1,12 @@
 #!/bin/bash
-set -e
+set -ev
 
 SQLCL_FILE=sqlcl-4.2.0.16.355.0402-no-jre.zip
+cd .travis
 
 # Download if not present on cache dir.
 if [ ! -f $CACHE_DIR/$SQLCL_FILE ]; then
-    sh .travis/download.sh -p sqlcl
+    sh download.sh -p sqlcl
     mv $SQLCL_FILE $CACHE_DIR
 fi;
 
