@@ -36,9 +36,9 @@ create or replace type body ut_xunit_reporter is
       l_lines ut_varchar2_list;
     begin
       self.print_text('<testcase classname="' || get_path(a_test.path, a_test.name) || '" ' || ' assertions="' ||
-                      coalesce(cardinality(a_test.results), 0) || '"' || self.get_common_item_attributes(a_test) ||
-                      case when a_test.result != ut_utils.tr_success then' status="'||ut_utils.test_result_to_char(a_test.result)||'"' end ||
-                      '>');
+                      coalesce(cardinality(a_test.results), 0) || '"' || self.get_common_item_attributes(a_test) || case when
+                      a_test.result != ut_utils.tr_success then
+                      ' status="' || ut_utils.test_result_to_char(a_test.result) || '"' end || '>');
       if a_test.result = ut_utils.tr_ignore then
         self.print_text('<skipped/>');
       end if;
@@ -78,6 +78,7 @@ create or replace type body ut_xunit_reporter is
     procedure print_suite_elements(a_suite ut_logical_suite, a_suite_id in out nocopy integer) is
       l_tests_count integer := a_suite.results_count.ignored_count + a_suite.results_count.success_count +
                                a_suite.results_count.failure_count + a_suite.results_count.errored_count;
+      l_suite       ut_suite;
     begin
       a_suite_id := a_suite_id + 1;
       self.print_text('<testsuite tests="' || l_tests_count || '"' || ' id="' || a_suite_id || '"' || ' package="' ||
@@ -86,6 +87,28 @@ create or replace type body ut_xunit_reporter is
       --    TODO - decide if to use 'skipped' or 'disabled'
       --    <system-out/>
       --    <system-err/>
+      if a_suite is of(ut_suite) then
+        l_suite := treat(l_suite as ut_suite);
+      
+        if l_suite.before_all.serveroutput is not null or l_suite.after_all.serveroutput is not null then
+          self.print_text('<system-out>');
+          self.print_text('<![CDATA[');
+          self.print_text(trim(l_suite.before_all.serveroutput) ||
+                          trim(chr(10) || chr(10) || l_suite.after_all.serveroutput));
+          self.print_text(']]>');
+          self.print_text('</system-out>');
+        end if;
+      
+        if l_suite.before_all.error_stack is not null or l_suite.after_all.error_stack is not null then
+          self.print_text('<system-err>');
+          self.print_text('<![CDATA[');
+          self.print_text(trim(l_suite.before_all.error_stack) ||
+                          trim(chr(10) || chr(10) || l_suite.after_all.error_stack));
+          self.print_text(']]>');
+          self.print_text('</system-err>');
+        end if;
+      end if;
+    
       for i in 1 .. a_suite.items.count loop
         if a_suite.items(i) is of(ut_test) then
           print_test_elements(treat(a_suite.items(i) as ut_test));
