@@ -13,9 +13,6 @@ if [ $ORACLE_VERSION = $ORACLE_12cR1SE ]; then
     docker run -d --name $ORACLE_VERSION -p 1521:1521 -v $HOME/$ORACLE_VERSION:/opt/oracle/oradata viniciusam/oracle-12c-r1-se
     docker logs -f $ORACLE_VERSION | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
     docker exec $ORACLE_VERSION ./setPassword.sh $ORACLE_PWD
-
-    export CONTAINER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $ORACLE_VERSION)
-    export CONNECTION_STR="$CONTAINER_IP:1521/ORCLPDB1"
 fi
 
 # Oracle 11g R2 XE
@@ -24,9 +21,6 @@ if [ $ORACLE_VERSION = $ORACLE_11gR2XE ]; then
     docker run -d --name $ORACLE_VERSION --shm-size=1g -p 1521:1521 -v $HOME/$ORACLE_VERSION:/u01/app/oracle/oradata vavellar/oracle-11g-r2-xe
     docker logs -f $ORACLE_VERSION | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
     docker exec $ORACLE_VERSION ./setPassword.sh $ORACLE_PWD
-
-    export CONTAINER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $ORACLE_VERSION)
-    export CONNECTION_STR="$CONTAINER_IP:1521/XE"
 fi
 
 # Save the oracledata dir to cache.
