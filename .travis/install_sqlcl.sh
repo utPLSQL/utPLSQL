@@ -11,8 +11,7 @@ if [ ! -f $CACHE_DIR/$SQLCL_FILE ]; then
 fi;
 
 # Install sqlcl.
-unzip -q $CACHE_DIR/$SQLCL_FILE -d /usr/share
-ln -s /usr/share/sqlcl/bin/sql /usr/bin/sql
+unzip -q $CACHE_DIR/$SQLCL_FILE -d $HOME
 
 # Check if it is installed correctly.
-sql -v
+$SQLCLI -v

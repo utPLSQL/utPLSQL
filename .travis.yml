@@ -26,8 +26,8 @@ env:
     - PAGES_VERSION_BASE="version3"
     - CACHE_DIR=$HOME/.cache
     # Database Env
-    - SQLCLI=sql
-    - ORACLE_PWD=oracle
+    - SQLCLI="$HOME/sqlcl/bin/sql"
+    - ORACLE_PWD="oracle"
     - CONTAINER_IP=""
     - CONNECTION_STR=""
     - ORACLE_12cR1SE="12c-r1-se"
