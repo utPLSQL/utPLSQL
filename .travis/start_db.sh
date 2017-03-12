@@ -25,5 +25,6 @@ fi
 
 # Save the oracledata dir to cache.
 if [ ! -f $HOME/$ORACLE_VERSION.tar.gz ]; then
+    chmod -R 777 $HOME/$ORACLE_VERSION
     tar -zcf $CACHE_DIR/$ORACLE_VERSION.tar.gz $HOME/$ORACLE_VERSION
 fi
