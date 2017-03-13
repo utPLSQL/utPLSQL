@@ -8,10 +8,11 @@ if [ -f $CACHE_DIR/$ORACLE_VERSION.tar.gz ]; then
     sudo tar -zxf $CACHE_DIR/$ORACLE_VERSION.tar.gz -C $HOME/$ORACLE_VERSION
 fi
 
-sudo groupadd -g 500 dba
-sudo useradd -u 500 -d /home/oracle -g dba -m oracle
-echo oracle:oracle | sudo chpasswd
-sudo chown -R oracle:dba $HOME/$ORACLE_VERSION
+sudo chmod -R 777 $HOME/$ORACLE_VERSION
+# sudo groupadd -g 500 dba
+# sudo useradd -u 500 -d /home/oracle -g dba -m oracle
+# echo oracle:oracle | sudo chpasswd
+# sudo chown -R oracle:dba $HOME/$ORACLE_VERSION
 
 # Oracle 12c R1 SE
 if [ $ORACLE_VERSION = $ORACLE_12cR1SE ]; then
