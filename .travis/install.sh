@@ -13,4 +13,4 @@ cd development
 "$SQLCLI" $UT3_OWNER/$UT3_OWNER_PASSWORD@//$CONNECTION_STR @utplsql_style_check.sql
 
 #enable plsql debug
-"$SQLCLI" $UT3_OWNER/$UT3_OWNER_PASSWORD@//$CONNECTION_STR @ut_debug_enable.sql
+#"$SQLCLI" $UT3_OWNER/$UT3_OWNER_PASSWORD@//$CONNECTION_STR @ut_debug_enable.sql
