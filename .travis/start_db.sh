@@ -9,7 +9,7 @@ if [ -f $CACHE_DIR/$ORACLE_VERSION.tar.gz ]; then
 fi
 
 sudo groupadd -g 500 dba
-sudo useradd  -u 500 -d /home/oracle -g dba -m
+sudo useradd -u 500 -d /home/oracle -g dba -m oracle
 sudo echo oracle:oracle | chpasswd
 sudo chown -R oracle:dba $HOME/$ORACLE_VERSION
 
