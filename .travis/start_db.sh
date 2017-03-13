@@ -33,8 +33,8 @@ fi
 # Save the oracledata dir to cache.
 if [ ! -f $CACHE_DIR/$ORACLE_VERSION.tar.gz ]; then
     echo "Saving database to cache..."
-    docker stop $ORACLE_VERSION
+    #docker stop $ORACLE_VERSION
     sudo tar -zcf $CACHE_DIR/$ORACLE_VERSION.tar.gz $HOME/$ORACLE_VERSION
-    docker start $ORACLE_VERSION
-    docker logs -f $ORACLE_VERSION | grep -m 2 "DATABASE IS READY TO USE!" --line-buffered
+    #docker start $ORACLE_VERSION
+    #docker logs -f $ORACLE_VERSION | grep -m 2 "DATABASE IS READY TO USE!" --line-buffered
 fi
