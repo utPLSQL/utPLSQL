@@ -253,7 +253,9 @@ create or replace package body ut_coverage is
 
     if not ut_coverage_helper.is_develop_mode() then
       --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
-      l_skipped_objects := ut_utils.get_utplsql_objects_list() multiset union all g_unit_test_packages multiset union all g_exclude_list;
+      l_skipped_objects := ut_utils.get_utplsql_objects_list()
+                           multiset union all g_unit_test_packages
+                           multiset union all coalesce(g_exclude_list, ut_object_names());
     end if;
 
     --prepare global temp table with sources
