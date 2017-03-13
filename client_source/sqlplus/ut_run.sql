@@ -143,20 +143,23 @@ declare
   function is_reporter(a_reporter_name varchar2) return varchar2 is
     l_reporter_name varchar2(4000);
     l_dummy         integer;
-    e_invalid_reporter exception;
-    pragma exception_init (e_invalid_reporter,-44002);
+    l_owner         varchar2(4000);
+    e_invalid_object   exception;
+    e_not_a_reporter   exception;
+    pragma exception_init (e_invalid_object,-44002);
+    pragma exception_init (e_not_a_reporter,-6550);
   begin
-    l_reporter_name := dbms_assert.simple_sql_name(a_reporter_name);
-    select 1
-      into l_dummy
-      from all_types
-     where connect_by_isleaf = 1
-       and type_name = 'UT_REPORTER_BASE'
-     connect by type_name = prior supertype_name
-     start with type_name = upper(l_reporter_name);
+    l_reporter_name := upper(dbms_assert.simple_sql_name(a_reporter_name));
+    -- a report is a valid reporter if it can be assigned as element of ut_reporters collection
+    execute immediate
+     'declare
+        r ut_reporters;
+      begin
+        r := ut_reporters('||l_reporter_name||'());
+      end;';
     return l_reporter_name;
   exception
-    when no_data_found or e_invalid_reporter then
+    when e_not_a_reporter or e_invalid_object then
       raise_application_error(-20000, 'Invalid reporter name specified: '||a_reporter_name);
   end;
 
