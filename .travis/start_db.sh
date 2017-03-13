@@ -6,6 +6,7 @@ mkdir -p $HOME/$ORACLE_VERSION && chmod -R 777 $HOME/$ORACLE_VERSION
 if [ -f $CACHE_DIR/$ORACLE_VERSION.tar.gz ]; then
     echo "Restoring database from cache..."
     sudo tar -zxf $CACHE_DIR/$ORACLE_VERSION.tar.gz -C $HOME/$ORACLE_VERSION
+    sudo chmod -R 777 $HOME/$ORACLE_VERSION
 fi
 
 # Oracle 12c R1 SE
