@@ -23,7 +23,7 @@ The `ut_documentation_reporter` doesn't accept any arguments.
 
 Example outputs from documentation reporter.
 
-![doc_reporter_outputs](images/documentation_reporter.png)
+![doc_reporter_outputs](../images/documentation_reporter.png)
 
 The documentation report provides the following information.
 - Test suite name or test package name  (nested with suitepath if suitepath is used)
@@ -46,7 +46,7 @@ To invoke tests with documentation reporter in color mode use one of following c
 
 Example outputs from documentation reporter.
 
-![doc_reporter_outputs](images/documentation_reporter_color.png)
+![doc_reporter_outputs](../images/documentation_reporter_color.png)
 
 
 #XUnit reporter
@@ -62,11 +62,11 @@ The `ut_xunit_reporter` doesn't accept any arguments.
 
 Example of xunit report integrated with [Jenkins CI](https://jenkins.io/)
 
-![xunit_reporter_outputs](images/xunit_reporter_jenkins.png)
+![xunit_reporter_outputs](../images/xunit_reporter_jenkins.png)
 
 Example of failure report details
  
-![xunit_reporter_outputs](images/xunit_reporter_jenkins_errors.png)
+![xunit_reporter_outputs](../images/xunit_reporter_jenkins_errors.png)
 
 
 #Teamcity reporter
@@ -82,11 +82,11 @@ The `ut_teamcity_reporter` doesn't accept any arguments.
 
 Example of unit test report from Teamcity CI server.
 
-![xunit_reporter_outputs](images/teamcity_report_example.png)
+![xunit_reporter_outputs](../images/teamcity_report_example.png)
 
 Example of failure report details
  
-![xunit_reporter_outputs](images/teamcity_report_example_errors.png)
+![xunit_reporter_outputs](../images/teamcity_report_example_errors.png)
 
 
 # Coverage reporters
