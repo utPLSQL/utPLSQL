@@ -46,7 +46,7 @@ create or replace type body ut_xunit_reporter is
       if a_test.result = ut_utils.tr_error then
         self.print_text('<error>');
         self.print_text('<![CDATA[');
-        self.print_text(ut_utils.table_to_clob(a_test.get_error_stack_traces()));
+        self.print_clob(ut_utils.table_to_clob(a_test.get_error_stack_traces()));
         self.print_text(']]>');
         self.print_text('</error>');
       elsif a_test.result > ut_utils.tr_success then
@@ -66,10 +66,7 @@ create or replace type body ut_xunit_reporter is
       if l_output is not null then
         self.print_text('<system-out>');
         self.print_text('<![CDATA[');
-        l_lines := ut_utils.clob_to_table(l_output);
-        for i in 1 .. l_lines.count loop
-          self.print_text(l_lines(i));
-        end loop;
+        self.print_clob(l_output);
         self.print_text(']]>');
         self.print_text('</system-out>');
       end if;
@@ -80,7 +77,6 @@ create or replace type body ut_xunit_reporter is
       l_tests_count integer := a_suite.results_count.ignored_count + a_suite.results_count.success_count +
                                a_suite.results_count.failure_count + a_suite.results_count.errored_count;
       l_suite       ut_suite;
-      l_lines ut_varchar2_list;
     begin
       a_suite_id := a_suite_id + 1;
       self.print_text('<testsuite tests="' || l_tests_count || '"' || ' id="' || a_suite_id || '"' || ' package="' ||
@@ -91,14 +87,8 @@ create or replace type body ut_xunit_reporter is
         if l_suite.before_all.serveroutput is not null or l_suite.after_all.serveroutput is not null then
           self.print_text('<system-out>');
           self.print_text('<![CDATA[');
-          l_lines := ut_utils.clob_to_table(l_suite.before_all.serveroutput);
-          for i in 1 .. l_lines.count loop
-            self.print_text(l_lines(i));
-          end loop;
-          l_lines := ut_utils.clob_to_table(l_suite.after_all.serveroutput);
-          for i in 1 .. l_lines.count loop
-            self.print_text(l_lines(i));
-          end loop;
+          self.print_clob(l_suite.before_all.serveroutput);
+          self.print_clob(l_suite.after_all.serveroutput);
           self.print_text(']]>');
           self.print_text('</system-out>');
         end if;

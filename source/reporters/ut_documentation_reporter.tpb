@@ -62,17 +62,17 @@ create or replace type body ut_documentation_reporter is
     end if;
 
     -- reproduce the output from before/after procedures and the test
-    self.print_output(a_test.get_serveroutputs);
+    self.print_clob(a_test.get_serveroutputs);
   end;
 
   overriding member procedure after_calling_before_all(self in out nocopy ut_documentation_reporter, a_suite in ut_logical_suite) is
   begin
-    self.print_output(treat(a_suite as ut_suite).before_all.serveroutput);
+    self.print_clob(treat(a_suite as ut_suite).before_all.serveroutput);
   end;
 
   overriding member procedure after_calling_after_all(self in out nocopy ut_documentation_reporter, a_suite in ut_logical_suite) is
   begin
-    self.print_output(treat(a_suite as ut_suite).after_all.serveroutput);
+    self.print_clob(treat(a_suite as ut_suite).after_all.serveroutput);
   end;
 
   overriding member procedure after_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_logical_suite) as
