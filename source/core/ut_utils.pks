@@ -198,6 +198,14 @@ create or replace package ut_utils authid definer is
   * Returns a list of object that are part of utPLSQL framework
   */
   function get_utplsql_objects_list return ut_object_names;
+  
+  /*
+  * Append a line to the end of ut_varchar2_lst
+  */
+  procedure append_to_varchar2_list(a_list in out nocopy ut_varchar2_list, a_line varchar2);
+  
+  procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob);
+  procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data varchar2);
 
 end ut_utils;
 /

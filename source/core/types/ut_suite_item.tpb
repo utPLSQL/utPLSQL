@@ -82,36 +82,5 @@ create or replace type body ut_suite_item as
     self.results_count.increase_warning_count;
   end;
 
-  not final member function get_error_stack_traces return ut_varchar2_list is
-  begin
-    return ut_varchar2_list();
-  end;
-
-  final member procedure add_stack_trace(self in ut_suite_item, a_stack_traces in out nocopy ut_varchar2_list, a_stack_trace varchar2) is
-  begin
-    if a_stack_trace is not null then
-      if a_stack_traces is null then
-        a_stack_traces := ut_varchar2_list();
-      end if;
-      a_stack_traces.extend;
-      a_stack_traces(a_stack_traces.last) := a_stack_trace;
-    end if;
-  end;
-
-  not final member function get_serveroutputs return clob is
-  begin
-    return null;
-  end;
-
-  final member procedure add_serveroutput(self in ut_suite_item, a_serveroutputs in out nocopy clob, a_serveroutput clob) is
-  begin
-    if a_serveroutput is not null and dbms_lob.getlength(a_serveroutput) > 0 then
-      if a_serveroutputs is null then
-        dbms_lob.createtemporary(a_serveroutputs, true);
-      end if;
-      dbms_lob.append(a_serveroutputs, a_serveroutput);
-    end if;
-  end;
-
 end;
 /

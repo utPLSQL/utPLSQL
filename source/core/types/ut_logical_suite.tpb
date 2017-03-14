@@ -114,6 +114,16 @@ create or replace type body ut_logical_suite as
     self.end_time := self.start_time;
     a_listener.fire_after_event(ut_utils.gc_suite, self);
   end;
+  
+  overriding member function get_error_stack_traces return ut_varchar2_list is
+  begin
+    return ut_varchar2_list();
+  end;
+  
+  overriding member function get_serveroutputs return clob is
+  begin
+    return null;
+  end;
 
 end;
 /

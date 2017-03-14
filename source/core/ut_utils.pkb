@@ -184,7 +184,6 @@ create or replace package body ut_utils is
 
   function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_varchar2_list is
     l_offset                 integer := 1;
-    l_length                 integer;
     l_delimiter_position     integer;
     l_skip_leading_delimiter boolean := coalesce(a_skip_leading_delimiter = 'Y',false);
     l_result                 ut_varchar2_list := ut_varchar2_list();
@@ -195,7 +194,7 @@ create or replace package body ut_utils is
     if a_delimiter is null then
       return ut_varchar2_list(a_string);
     end if;
-    l_length := length(a_string);
+
     loop
       l_delimiter_position := instr(a_string, a_delimiter, l_offset);
       if not (l_delimiter_position = 1 and l_skip_leading_delimiter) then
@@ -259,10 +258,8 @@ create or replace package body ut_utils is
     l_result          clob;
     l_text_table_rows integer := coalesce(cardinality(a_text_table),0);
   begin
-
-    dbms_lob.createtemporary(l_result, true);
     for i in 1 .. l_text_table_rows loop
-      dbms_lob.writeappend(l_result, length(a_text_table(i)), a_text_table(i));
+      append_to_clob(l_result, a_text_table(i));
     end loop;
     return l_result;
   end;
@@ -290,6 +287,36 @@ create or replace package body ut_utils is
      where o.object_name = 'UT' or object_name like 'UT\_%' escape '\'
        and o.object_type <> 'SYNONYM';
     return l_result;
+  end;
+  
+  procedure append_to_varchar2_list(a_list in out nocopy ut_varchar2_list, a_line varchar2) is
+  begin
+    if a_line is not null then
+      if a_list is null then
+        a_list := ut_varchar2_list();
+      end if;
+      a_list.extend;
+      a_list(a_list.last) := a_line;
+    end if;
+  end append_to_varchar2_list;
+  
+  procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob) is
+  begin
+    if a_new_data is not null and dbms_lob.getlength(a_new_data) > 0 then
+      if a_src_clob is null then
+        dbms_lob.createtemporary(a_src_clob, true);
+      end if;
+      dbms_lob.append(a_src_clob, a_new_data);
+    end if;
+  end;
+  procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data varchar2) is
+  begin
+    if a_new_data is not null then
+      if a_src_clob is null then
+        dbms_lob.createtemporary(a_src_clob, true);
+      end if;
+      dbms_lob.writeappend(a_src_clob, length(a_new_data), a_new_data);
+    end if;
   end;
 
 end ut_utils;

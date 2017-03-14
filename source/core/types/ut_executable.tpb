@@ -134,7 +134,7 @@ create or replace type body ut_executable is
 
       save_dbms_output;
 
-      l_completed_without_errors := (self.error_stack||self.error_backtrace is null);
+      l_completed_without_errors := (self.error_stack||self.error_backtrace) is null;
 
       a_listener.fire_after_event(self.associated_event_name, a_item);
       --listener - after call to executable
@@ -144,7 +144,7 @@ create or replace type body ut_executable is
 
   member function get_error_stack_trace return varchar2 is
   begin
-    return rtrim(self.error_stack||self.error_backtrace, chr(10));
+    return rtrim(self.error_stack||'Backtrace:'||chr(10)||self.error_backtrace, chr(10));
   end;
 end;
 /

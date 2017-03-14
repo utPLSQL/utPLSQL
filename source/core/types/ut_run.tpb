@@ -118,5 +118,17 @@ create or replace type body ut_run as
     return l_schemes;
 
   end;
+  
+  overriding member function get_error_stack_traces return ut_varchar2_list is
+  begin
+    return ut_varchar2_list();
+  end;
+  
+  overriding member function get_serveroutputs return clob is
+  begin
+    return null;
+  end;
+
+  
 end;
 /

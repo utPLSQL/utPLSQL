@@ -100,16 +100,16 @@ create or replace type body ut_suite  as
   overriding member function get_error_stack_traces(self ut_suite) return ut_varchar2_list is
     l_stack_traces ut_varchar2_list := ut_varchar2_list();
   begin
-    self.add_stack_trace(l_stack_traces, self.before_all.get_error_stack_trace());
-    self.add_stack_trace(l_stack_traces, self.after_all.get_error_stack_trace());
+    ut_utils.append_to_varchar2_list(l_stack_traces, self.before_all.get_error_stack_trace());
+    ut_utils.append_to_varchar2_list(l_stack_traces, self.after_all.get_error_stack_trace());
     return l_stack_traces;
   end;
 
   overriding member function get_serveroutputs return clob is
     l_outputs clob;
   begin
-    self.add_serveroutput(l_outputs, self.before_all.serveroutput );
-    self.add_serveroutput(l_outputs, self.after_all.serveroutput );
+    ut_utils.append_to_clob(l_outputs, self.before_all.serveroutput );
+    ut_utils.append_to_clob(l_outputs, self.after_all.serveroutput );
     return l_outputs;
   end;
 
