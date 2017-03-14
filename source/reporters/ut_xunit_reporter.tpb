@@ -2,13 +2,13 @@ create or replace type body ut_xunit_reporter is
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
-  
+
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-  
+
       http://www.apache.org/licenses/LICENSE-2.0
-  
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,14 +26,15 @@ create or replace type body ut_xunit_reporter is
     l_suite_id    integer := 0;
     l_tests_count integer := a_run.results_count.ignored_count + a_run.results_count.success_count +
                              a_run.results_count.failure_count + a_run.results_count.errored_count;
-  
+
     function get_path(a_path_with_name varchar2, a_name varchar2) return varchar2 is
     begin
       return substr(a_path_with_name, 1, instr(a_path_with_name, '.' || a_name) - 1);
     end;
-  
+
     procedure print_test_elements(a_test ut_test) is
       l_lines ut_varchar2_list;
+      l_output clob;
     begin
       self.print_text('<testcase classname="' || get_path(a_test.path, a_test.name) || '" ' || ' assertions="' ||
                       coalesce(cardinality(a_test.results), 0) || '"' || self.get_common_item_attributes(a_test) || case when
@@ -42,20 +43,13 @@ create or replace type body ut_xunit_reporter is
       if a_test.result = ut_utils.tr_ignore then
         self.print_text('<skipped/>');
       end if;
-      /*
       if a_test.result = ut_utils.tr_error then
         self.print_text('<error>');
         self.print_text('<![CDATA[');
-        self.print_text(coalesce(a_test.before_each.error_stack
-                                ,a_test.before_test.error_stack
-                                ,a_test.item.error_stack
-                                ,a_test.after_test.error_stack
-                                ,a_test.after_each.error_stack));
+        self.print_text(ut_utils.table_to_clob(a_test.get_error_stack_traces()));
         self.print_text(']]>');
         self.print_text('</error>');
-      
-      els*/
-      if a_test.result > ut_utils.tr_success then
+      elsif a_test.result > ut_utils.tr_success then
         self.print_text('<failure>');
         self.print_text('<![CDATA[');
         for i in 1 .. a_test.results.count loop
@@ -67,48 +61,57 @@ create or replace type body ut_xunit_reporter is
         self.print_text(']]>');
         self.print_text('</failure>');
       end if;
-      --    TODO - separate failure messages, error messages, and dbms_output results from tests execution
-      --    TODO - decide if to use 'skipped' or 'disabled'
-      --    <error message="" type=""/>
-      --    <system-out/>
-      --    <system-err/>
+      -- TODO - decide if we need/want to use the <system-err/> tag too
+      l_output := a_test.get_serveroutputs();
+      if l_output is not null then
+        self.print_text('<system-out>');
+        self.print_text('<![CDATA[');
+        l_lines := ut_utils.clob_to_table(l_output);
+        for i in 1 .. l_lines.count loop
+          self.print_text(l_lines(i));
+        end loop;
+        self.print_text(']]>');
+        self.print_text('</system-out>');
+      end if;
       self.print_text('</testcase>');
     end;
-  
+
     procedure print_suite_elements(a_suite ut_logical_suite, a_suite_id in out nocopy integer) is
       l_tests_count integer := a_suite.results_count.ignored_count + a_suite.results_count.success_count +
                                a_suite.results_count.failure_count + a_suite.results_count.errored_count;
       l_suite       ut_suite;
+      l_lines ut_varchar2_list;
     begin
       a_suite_id := a_suite_id + 1;
       self.print_text('<testsuite tests="' || l_tests_count || '"' || ' id="' || a_suite_id || '"' || ' package="' ||
                       a_suite.path || '" ' || self.get_common_item_attributes(a_suite) || '>');
-      --    TODO - separate failure messages, error messages, and dbms_output results from tests execution
-      --    TODO - decide if to use 'skipped' or 'disabled'
-      --    <system-out/>
-      --    <system-err/>
       if a_suite is of(ut_suite) then
         l_suite := treat(l_suite as ut_suite);
-      
+
         if l_suite.before_all.serveroutput is not null or l_suite.after_all.serveroutput is not null then
           self.print_text('<system-out>');
           self.print_text('<![CDATA[');
-          self.print_text(trim(l_suite.before_all.serveroutput) ||
-                          trim(chr(10) || chr(10) || l_suite.after_all.serveroutput));
+          l_lines := ut_utils.clob_to_table(l_suite.before_all.serveroutput);
+          for i in 1 .. l_lines.count loop
+            self.print_text(l_lines(i));
+          end loop;
+          l_lines := ut_utils.clob_to_table(l_suite.after_all.serveroutput);
+          for i in 1 .. l_lines.count loop
+            self.print_text(l_lines(i));
+          end loop;
           self.print_text(']]>');
           self.print_text('</system-out>');
         end if;
-      
+
         if l_suite.before_all.error_stack is not null or l_suite.after_all.error_stack is not null then
           self.print_text('<system-err>');
           self.print_text('<![CDATA[');
-          self.print_text(trim(l_suite.before_all.error_stack) ||
-                          trim(chr(10) || chr(10) || l_suite.after_all.error_stack));
+          self.print_text(trim(l_suite.before_all.error_stack) || trim(chr(10) || chr(10) || l_suite.after_all.error_stack));
           self.print_text(']]>');
           self.print_text('</system-err>');
         end if;
       end if;
-    
+
       for i in 1 .. a_suite.items.count loop
         if a_suite.items(i) is of(ut_test) then
           print_test_elements(treat(a_suite.items(i) as ut_test));

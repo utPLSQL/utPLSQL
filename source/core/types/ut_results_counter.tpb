@@ -31,6 +31,7 @@ create or replace type body ut_results_counter as
     self.success_count := case when a_status = ut_utils.tr_success then 1 else 0 end;
     self.failure_count := case when a_status = ut_utils.tr_failure then 1 else 0 end;
     self.errored_count := case when a_status = ut_utils.tr_error then 1 else 0 end;
+    self.warnings_count := 0;
     return;
   end;
 

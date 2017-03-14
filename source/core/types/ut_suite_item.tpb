@@ -41,12 +41,12 @@ create or replace type body ut_suite_item as
   begin
     return ut_utils.int_to_boolean(self.ignore_flag);
   end;
-  
+
   final member procedure do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is
     l_completed_without_errors boolean;
   begin
     l_completed_without_errors := self.do_execute(a_listener);
-  end;  
+  end;
 
   member function create_savepoint_if_needed return varchar2 is
     l_savepoint varchar2(30);
@@ -74,12 +74,43 @@ create or replace type body ut_suite_item as
   begin
     return ut_utils.time_diff(start_time, end_time);
   end;
-  
+
   member procedure put_warning(self in out nocopy ut_suite_item, a_message varchar2) is
   begin
     self.warnings.extend;
     self.warnings(self.warnings.last) := a_message;
     self.results_count.increase_warning_count;
+  end;
+
+  not final member function get_error_stack_traces return ut_varchar2_list is
+  begin
+    return ut_varchar2_list();
+  end;
+
+  final member procedure add_stack_trace(self in ut_suite_item, a_stack_traces in out nocopy ut_varchar2_list, a_stack_trace varchar2) is
+  begin
+    if a_stack_trace is not null then
+      if a_stack_traces is null then
+        a_stack_traces := ut_varchar2_list();
+      end if;
+      a_stack_traces.extend;
+      a_stack_traces(a_stack_traces.last) := a_stack_trace;
+    end if;
+  end;
+
+  not final member function get_serveroutputs return clob is
+  begin
+    return null;
+  end;
+
+  final member procedure add_serveroutput(self in ut_suite_item, a_serveroutputs in out nocopy clob, a_serveroutput clob) is
+  begin
+    if a_serveroutput is not null and dbms_lob.getlength(a_serveroutput) > 0 then
+      if a_serveroutputs is null then
+        dbms_lob.createtemporary(a_serveroutputs, true);
+      end if;
+      dbms_lob.append(a_serveroutputs, a_serveroutput);
+    end if;
   end;
 
 end;

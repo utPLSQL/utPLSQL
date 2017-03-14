@@ -29,6 +29,17 @@ create or replace type body ut_reporter_base is
     ut_output_buffer.send_line(self,a_text);
   end;
 
+  member procedure print_output(self in out nocopy ut_reporter_base, a_output clob) is
+    l_lines ut_varchar2_list;
+  begin
+    if a_output is not null and dbms_lob.getlength(a_output) > 0 then
+      l_lines := ut_utils.clob_to_table(a_output);
+      for i in 1 .. l_lines.count loop
+        self.print_text(l_lines(i));
+      end loop;
+    end if;
+  end;
+
   -- run hooks
   member procedure before_calling_run(self in out nocopy ut_reporter_base, a_run in ut_run) is
   begin

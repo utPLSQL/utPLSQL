@@ -30,7 +30,7 @@ create or replace type body ut_suite  as
     return;
   end;
 
-  overriding member function is_valid return boolean is
+  overriding member function is_valid(self in out nocopy ut_suite) return boolean is
     l_is_valid boolean;
   begin
     l_is_valid :=
@@ -44,11 +44,10 @@ create or replace type body ut_suite  as
     l_item_savepoint  varchar2(30);
     l_suite_step_without_errors boolean;
 
-    procedure do_fail(a_prefix varchar2) is
-      l_results ut_assert_results := ut_assert_processor.get_asserts_results();
+    procedure propagate_error(a_error_stack_trace varchar2) is
     begin
       for i in 1..self.items.count loop
-        self.items(i).fail(a_listener, a_prefix||l_results(1).error_message);
+        self.items(i).mark_as_errored(a_listener, a_error_stack_trace);
       end loop;
     end;
   begin
@@ -75,18 +74,18 @@ create or replace type body ut_suite  as
             self.items(i).do_execute(a_listener);
           end loop;
         else
-          do_fail('Beforeall procedure failed: '||chr(10));
+          propagate_error(self.before_all.get_error_stack_trace());
         end if;
 
         l_suite_step_without_errors := self.after_all.do_execute(self, a_listener);
         if not l_suite_step_without_errors then
-          self.put_warning('Afterall procedure failed: '||chr(10)||ut_assert_processor.get_asserts_results()(1).error_message);
+          self.put_warning(self.after_all.get_error_stack_trace());
         end if;
 
         self.rollback_to_savepoint(l_suite_savepoint);
 
       else
-        do_fail(null);
+        propagate_error(ut_utils.table_to_clob(self.get_error_stack_traces()));
       end if;
 
       self.calc_execution_result();
@@ -96,6 +95,22 @@ create or replace type body ut_suite  as
     a_listener.fire_after_event(ut_utils.gc_suite,self);
 
     return l_suite_step_without_errors;
+  end;
+
+  overriding member function get_error_stack_traces(self ut_suite) return ut_varchar2_list is
+    l_stack_traces ut_varchar2_list := ut_varchar2_list();
+  begin
+    self.add_stack_trace(l_stack_traces, self.before_all.get_error_stack_trace());
+    self.add_stack_trace(l_stack_traces, self.after_all.get_error_stack_trace());
+    return l_stack_traces;
+  end;
+
+  overriding member function get_serveroutputs return clob is
+    l_outputs clob;
+  begin
+    self.add_serveroutput(l_outputs, self.before_all.serveroutput );
+    self.add_serveroutput(l_outputs, self.after_all.serveroutput );
+    return l_outputs;
   end;
 
 end;

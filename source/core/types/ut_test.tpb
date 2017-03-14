@@ -18,7 +18,7 @@ create or replace type body ut_test as
 
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_description varchar2 := null,
-    a_path varchar2 := null, a_rollback_type integer := null, a_ignore_flag boolean := false, 
+    a_path varchar2 := null, a_rollback_type integer := null, a_ignore_flag boolean := false,
     a_before_each_proc_name varchar2 := null, a_before_test_proc_name varchar2 := null,
     a_after_test_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null
   ) return self as result is
@@ -33,7 +33,7 @@ create or replace type body ut_test as
     return;
   end;
 
-  member function is_valid return boolean is
+  member function is_valid(self in out nocopy ut_test) return boolean is
     l_is_valid boolean;
   begin
     l_is_valid :=
@@ -67,7 +67,7 @@ create or replace type body ut_test as
 
         --includes listener calls for before and after actions
         l_completed_without_errors := self.before_each.do_execute(self, a_listener);
-        
+
         if l_completed_without_errors then
           l_completed_without_errors := self.before_test.do_execute(self, a_listener);
 
@@ -79,11 +79,11 @@ create or replace type body ut_test as
           -- perform cleanup regardless of the test or setup failure
           self.after_test.do_execute(self, a_listener);
         end if;
-        
+
         self.after_each.do_execute(self, a_listener);
         self.rollback_to_savepoint(l_savepoint);
       end if;
-      
+
       self.calc_execution_result();
       self.end_time := current_timestamp;
     end if;
@@ -93,23 +93,47 @@ create or replace type body ut_test as
 
   overriding member procedure calc_execution_result(self in out nocopy ut_test) is
   begin
-    self.result := ut_assert_processor.get_aggregate_asserts_result();
+    if self.get_error_stack_traces().count = 0 then
+      self.result := ut_assert_processor.get_aggregate_asserts_result();
+    else
+      self.result := ut_utils.tr_error;
+    end if;
     --expectation results need to be part of test results
     self.results := ut_assert_processor.get_asserts_results();
     self.results_count := ut_results_counter(self.result);
   end;
 
-  overriding member procedure fail(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base, a_failure_msg varchar2) is
+  overriding member procedure mark_as_errored(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base, a_error_stack_trace varchar2) is
   begin
     ut_utils.debug_log('ut_test.fail');
     a_listener.fire_before_event(ut_utils.gc_test, self);
     self.start_time := current_timestamp;
-    ut_assert_processor.report_error(a_failure_msg);
+    self.parent_error_stack_trace := a_error_stack_trace;
     self.calc_execution_result();
     self.end_time := self.start_time;
     a_listener.fire_after_event(ut_utils.gc_test, self);
   end;
 
-
+  overriding member function get_error_stack_traces(self ut_test) return ut_varchar2_list is
+    l_stack_traces ut_varchar2_list := ut_varchar2_list();
+  begin
+    self.add_stack_trace(l_stack_traces, self.parent_error_stack_trace);
+    self.add_stack_trace(l_stack_traces, self.before_each.get_error_stack_trace());
+    self.add_stack_trace(l_stack_traces, self.before_test.get_error_stack_trace());
+    self.add_stack_trace(l_stack_traces, self.item.get_error_stack_trace());
+    self.add_stack_trace(l_stack_traces, self.after_test.get_error_stack_trace());
+    self.add_stack_trace(l_stack_traces, self.after_each.get_error_stack_trace());
+    return l_stack_traces;
+  end;
+  overriding member function get_serveroutputs return clob is
+    l_outputs clob;
+  begin
+    self.add_serveroutput(l_outputs, self.before_each.serveroutput );
+    self.add_serveroutput(l_outputs, self.before_test.serveroutput );
+    self.add_serveroutput(l_outputs, self.item.serveroutput );
+    self.add_serveroutput(l_outputs, self.after_test.serveroutput );
+    self.add_serveroutput(l_outputs, self.after_each.serveroutput );
+    return l_outputs;
+  end;
 end;
 /

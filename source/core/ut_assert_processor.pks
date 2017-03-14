@@ -32,7 +32,7 @@ create or replace package ut_assert_processor authid current_user as
 
   procedure add_assert_result(a_assert_result ut_assert_result);
 
-  procedure report_error(a_message in varchar2);
+  procedure report_failure(a_message in varchar2);
 
   procedure set_xml_nls_params;
 

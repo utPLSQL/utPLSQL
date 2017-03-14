@@ -26,7 +26,7 @@ create or replace type body ut_logical_suite as
     return;
   end;
 
-  member function is_valid return boolean is
+  member function is_valid(self in out nocopy ut_logical_suite) return boolean is
   begin
     return true;
   end;
@@ -58,9 +58,9 @@ create or replace type body ut_logical_suite as
     l_completed_without_errors boolean;
   begin
     ut_utils.debug_log('ut_logical_suite.execute');
-    
-    a_listener.fire_before_event(ut_utils.gc_suite,self);   
-    self.start_time := current_timestamp; 
+
+    a_listener.fire_before_event(ut_utils.gc_suite,self);
+    self.start_time := current_timestamp;
 
     if self.get_ignore_flag() then
       self.result := ut_utils.tr_ignore;
@@ -79,7 +79,7 @@ create or replace type body ut_logical_suite as
       self.end_time := current_timestamp;
 
     end if;
-    
+
     a_listener.fire_after_event(ut_utils.gc_suite,self);
 
     return l_completed_without_errors;
@@ -100,20 +100,20 @@ create or replace type body ut_logical_suite as
 
       self.result := l_result;
   end;
-  
-  overriding member procedure fail(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base, a_failure_msg varchar2) is
+
+  overriding member procedure mark_as_errored(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base, a_error_stack_trace varchar2) is
   begin
     ut_utils.debug_log('ut_logical_suite.fail');
     a_listener.fire_before_event(ut_utils.gc_suite, self);
     self.start_time := current_timestamp;
     for i in 1 .. self.items.count loop
       -- execute the item (test or suite)
-      self.items(i).fail(a_listener,a_failure_msg);
+      self.items(i).mark_as_errored(a_listener, a_error_stack_trace);
     end loop;
     self.calc_execution_result();
     self.end_time := self.start_time;
     a_listener.fire_after_event(ut_utils.gc_suite, self);
-  end;  
+  end;
 
 end;
 /
