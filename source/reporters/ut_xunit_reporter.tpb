@@ -82,7 +82,7 @@ create or replace type body ut_xunit_reporter is
       self.print_text('<testsuite tests="' || l_tests_count || '"' || ' id="' || a_suite_id || '"' || ' package="' ||
                       a_suite.path || '" ' || self.get_common_item_attributes(a_suite) || '>');
       if a_suite is of(ut_suite) then
-        l_suite := treat(l_suite as ut_suite);
+        l_suite := treat(a_suite as ut_suite);
 
         if l_suite.before_all.serveroutput is not null or l_suite.after_all.serveroutput is not null then
           self.print_text('<system-out>');
