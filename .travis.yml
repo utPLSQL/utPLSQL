@@ -55,21 +55,21 @@ script:
   - bash .travis/run_examples_as_owner.sh
   - bash .travis/run_test_as_owner.sh
   - bash .travis/run_examples_as_user.sh
-  # - bash .travis/create_release.sh
+  - bash .travis/create_release.sh
 #  - bash .travis/run_test_as_user.sh
 #  - bash .travis/build_docs.sh
 #  - bash .travis/push_docs_to_gh_pages.sh
 
-# deploy:
-#   provider: releases
-#   api_key: $github_api_token
-#   file: 
-#      - utPLSQL$TRAVIS_TAG.zip
-#      - utPLSQL$TRAVIS_TAG.tar.gz
-#   skip_cleanup: true
-#   on:
-#      repo: utPLSQL/utPLSQL
-#      tags: true
+deploy:
+  provider: releases
+  api_key: $github_api_token
+  file: 
+     - utPLSQL$TRAVIS_TAG.zip
+     - utPLSQL$TRAVIS_TAG.tar.gz
+  skip_cleanup: true
+  on:
+     repo: utPLSQL/utPLSQL
+     tags: true
 
-# notifications:
-#   slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
+notifications:
+  slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
