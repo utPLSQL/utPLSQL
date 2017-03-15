@@ -27,8 +27,10 @@ create or replace type ut_suite_item under ut_suite_item_base (
   member function execution_time return number,
 
   not instantiable member function  do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean,
-  not instantiable member procedure do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base),
-  not instantiable member procedure calc_execution_result(self in out nocopy ut_suite_item)
+  final member procedure do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base),
+  not instantiable member procedure calc_execution_result(self in out nocopy ut_suite_item),
+  not instantiable member procedure fail(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base, a_failure_msg varchar2),
+  member procedure put_warning(self in out nocopy ut_suite_item, a_message varchar2)
 
 )
 not final not instantiable

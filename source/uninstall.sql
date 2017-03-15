@@ -51,6 +51,26 @@ drop synonym be_true;
 
 drop synonym equal;
 
+drop type ut_coveralls_reporter;
+
+drop type ut_coverage_sonar_reporter;
+
+drop package ut_coverage_report_html_helper;
+
+drop type ut_coverage_html_reporter;
+
+drop package ut_coverage;
+
+drop type ut_coverage_file_mappings;
+
+drop type ut_coverage_file_mapping;
+
+drop package ut_coverage_helper;
+
+drop view ut_coverage_sources_tmp;
+
+drop table ut_coverage_sources_tmp$;
+
 drop package ut_teamcity_reporter_helper;
 
 drop package ut_runner;
@@ -161,6 +181,8 @@ drop type ut_xunit_reporter;
 
 drop type ut_event_listener;
 
+drop type ut_coverage_reporter_base;
+
 drop type ut_reporters;
 
 drop type ut_reporter_base force;
@@ -187,7 +209,9 @@ drop type ut_suite_item_base;
 
 drop package ut_output_buffer;
 
-drop table ut_output_buffer_tmp;
+drop view ut_output_buffer_tmp;
+
+drop table ut_output_buffer_tmp$;
 
 drop sequence ut_message_id_seq;
 
@@ -196,6 +220,14 @@ drop type ut_results_counter;
 drop type ut_assert_results;
 
 drop type ut_assert_result;
+
+drop type ut_key_value_pairs;
+
+drop type ut_key_value_pair;
+
+drop type ut_object_names;
+
+drop type ut_object_name;
 
 drop type ut_varchar2_list;
 

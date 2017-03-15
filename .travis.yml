@@ -1,6 +1,23 @@
 sudo: false
 language: python
 
+addons:
+  apt:
+    packages:
+      - unzip
+      # Java8 Required for Sonar and SQLCL
+      - oracle-java8-installer
+      - oracle-java8-set-default
+  sonarqube:
+    token:
+      secure: ${SONAR_TOKEN}
+    branches:
+      - develop
+      - master
+
+services:
+  - docker
+
 env:
   global:
     - UT3_OWNER=ut3
@@ -23,15 +40,6 @@ env:
   matrix:
     - ORACLE_VERSION=$ORACLE_12cR1SE
     - ORACLE_VERSION=$ORACLE_11gR2XE
-
-addons:
-  apt:
-    packages:
-      - unzip
-      - oracle-java8-set-default
-
-services:
-  - docker
 
 cache:
   directories:
@@ -59,11 +67,13 @@ script:
 #  - bash .travis/run_test_as_user.sh
 #  - bash .travis/build_docs.sh
 #  - bash .travis/push_docs_to_gh_pages.sh
+  - sonar-scanner
+  - bash .travis/coveralls_uploader.sh
 
 deploy:
   provider: releases
   api_key: $github_api_token
-  file: 
+  file:
      - utPLSQL$TRAVIS_TAG.zip
      - utPLSQL$TRAVIS_TAG.tar.gz
   skip_cleanup: true

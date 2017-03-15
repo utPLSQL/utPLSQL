@@ -1,13 +1,17 @@
 #utPLSQL v3<sub><sup> | Powerful PL/SQL Unit Testing Framework </sup></sub>
-[![chat](http://img.shields.io/badge/version_status-alpha-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
+[![latest-pre-release](https://img.shields.io/github/tag/utPLSQL/utPLSQL.svg?label=pre-release)](https://github.com/utPLSQL/utPLSQL/releases)
+[![latest-release](https://img.shields.io/github/release/utPLSQL/utPLSQL.svg)](https://github.com/utPLSQL/utPLSQL/releases)
+
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/master.svg?label=master%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/develop.svg?label=develop%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
+[![sonar](https://sonarqube.com/api/badges/measure?key=utPLSQL%3AutPLSQL&metric=complexity)](https://sonarqube.com/dashboard/index?id=utPLSQL%3AutPLSQL)
+[![sonar](https://sonarqube.com/api/badges/measure?key=utPLSQL%3AutPLSQL&metric=ncloc)](https://sonarqube.com/dashboard/index?id=utPLSQL%3AutPLSQL)
+[![sonar coverage](https://sonarqube.com/api/badges/measure?key=utPLSQL%3AutPLSQL&metric=coverage)](https://sonarqube.com/dashboard/index?id=utPLSQL%3AutPLSQL)
+[![Develop branch coverage](https://coveralls.io/repos/github/utPLSQL/utPLSQL/badge.svg?branch=develop)](https://coveralls.io/github/utPLSQL/utPLSQL?branch=develop)
 
-[![license](http://img.shields.io/badge/license-apache%202.0-blue.svg)]
-(https://www.apache.org/licenses/LICENSE-2.0)
-[![chat](http://img.shields.io/badge/chat-slack-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
+[![license](http://img.shields.io/badge/license-apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![chat](http://img.shields.io/badge/slack-team--chat-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
-
 ----------
 utPLSQL version 3 is a complete rewrite of utPLSQL v2 from scratch.
 Version 2 still supports older versions of Oracle that are no longer available. 
@@ -158,10 +162,10 @@ end;
 
 # Running tests
 
-To execute using IDE ()TOAD/SQLDeveloper/PLSQLDeveloper/other) just run the following.
+To execute using development IDE (TOAD/SQLDeveloper/PLSQLDeveloper/other) just run the following.
 ```sql
 begin
-  ut_runner.run();
+  ut.run();
 end;
 /
 ```

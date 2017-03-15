@@ -71,8 +71,6 @@ Parameters:
 whenever sqlerror exit failure
 whenever oserror exit failure
 conn &1
-whenever sqlerror continue
-whenever oserror continue
 
 set serveroutput on size unlimited format truncated
 set trimspool on
@@ -115,13 +113,16 @@ set define &
 */
 @@define_params_variable.sql.tmp
 
+
+
 var l_paths          varchar2(4000);
 var l_color_enabled  varchar2(5);
 var l_run_params_cur refcursor;
 var l_out_params_cur refcursor;
 /*
-* Parse parameters and returning as variables
+* Parse parameters and return them as variables
 */
+set termout on
 declare
 
   type t_call_param is record (
@@ -138,6 +139,29 @@ declare
 
   l_run_cursor_sql varchar2(32767);
   l_out_cursor_sql varchar2(32767);
+
+  function is_reporter(a_reporter_name varchar2) return varchar2 is
+    l_reporter_name varchar2(4000);
+    l_dummy         integer;
+    l_owner         varchar2(4000);
+    e_invalid_object   exception;
+    e_not_a_reporter   exception;
+    pragma exception_init (e_invalid_object,-44002);
+    pragma exception_init (e_not_a_reporter,-6550);
+  begin
+    l_reporter_name := upper(dbms_assert.simple_sql_name(a_reporter_name));
+    -- a report is a valid reporter if it can be assigned as element of ut_reporters collection
+    execute immediate
+     'declare
+        r ut_reporters;
+      begin
+        r := ut_reporters('||l_reporter_name||'());
+      end;';
+    return l_reporter_name;
+  exception
+    when e_not_a_reporter or e_invalid_object then
+      raise_application_error(-20000, 'Invalid reporter name specified: '||a_reporter_name);
+  end;
 
   function parse_reporting_params(a_params ut_varchar2_list) return tt_call_params is
     l_default_call_param  t_call_param;
@@ -159,7 +183,7 @@ declare
         l_call_params.extend;
         l_call_params(l_call_params.last) := l_default_call_param;
         if param.param_type = 'f' then
-          l_call_params(l_call_params.last).ut_reporter_name := dbms_assert.simple_sql_name(param.param_value);
+          l_call_params(l_call_params.last).ut_reporter_name := is_reporter(param.param_value);
         end if;
         l_force_out_to_screen := false;
       end if;
@@ -241,7 +265,7 @@ begin
   end if;
 end;
 /
-
+set termout off
 
 /*
 * Generate runner script
@@ -316,7 +340,7 @@ spool off
 */
 set define #
 --try running on windows
-$ start sqlplus ##1 @run_in_backgroung.sql.tmp
+$ start /min sqlplus ##1 @run_in_backgroung.sql.tmp
 --try running on linus/unix
 ! sqlplus ##1 @run_in_backgroung.sql.tmp &
 set define &

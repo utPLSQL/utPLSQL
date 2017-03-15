@@ -1,4 +1,4 @@
-create or replace type ut_executable force authid current_user as object(
+create or replace type ut_executable authid current_user as object(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -22,16 +22,19 @@ create or replace type ut_executable force authid current_user as object(
   owner_name            varchar2(250 char),
   object_name           varchar2(250 char),
   procedure_name        varchar2(250 char),
+  error_backtrace       varchar2(4000),
+  error_stack           varchar2(4000),
+  serveroutput          clob,
 	constructor function ut_executable( self in out nocopy ut_executable, a_context ut_suite_item, a_procedure_name varchar2, a_associated_event_name varchar2) return self as result,
   member function is_valid return boolean,
   member function is_defined return boolean,
   member function form_name return varchar2,
-  member procedure do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base),
+  member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base),
   /**
   * executes the defines executable
   * returns true if executed without exceptions
   * returns false if exceptions were raised
   */
-  member function do_execute(self in ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean
+  member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean
 ) final
 /

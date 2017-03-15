@@ -16,12 +16,17 @@ create or replace package ut_ansiconsole_helper as
   limitations under the License.
   */
   procedure color_enabled(a_enabled boolean);
-  function color_enabled return boolean;
+
   function red(a_text varchar2) return varchar2;
+
   function green(a_text varchar2) return varchar2;
+
   function yellow(a_text varchar2) return varchar2;
+
   function blue(a_text varchar2) return varchar2;
+
   function magenta(a_text varchar2) return varchar2;
+
   function cyan(a_text varchar2) return varchar2;
 end;
 /

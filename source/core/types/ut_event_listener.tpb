@@ -43,7 +43,7 @@ create or replace type body ut_event_listener is
         elsif a_event_name = ut_utils.gc_before_all then
           self.reporters(i).before_calling_before_all(treat(a_item as ut_logical_suite));
         elsif a_event_name = ut_utils.gc_before_each then
-          self.reporters(i).before_calling_before_each(treat(a_item as ut_logical_suite));
+          self.reporters(i).before_calling_before_each(treat(a_item as ut_test));
         elsif a_event_name = ut_utils.gc_test then
           self.reporters(i).before_calling_test(treat(a_item as ut_test));
         elsif a_event_name = ut_utils.gc_before_test then
@@ -53,7 +53,7 @@ create or replace type body ut_event_listener is
         elsif a_event_name = ut_utils.gc_after_test then
           self.reporters(i).before_calling_after_test(treat(a_item as ut_test));
         elsif a_event_name = ut_utils.gc_after_each then
-          self.reporters(i).before_calling_after_each(treat(a_item as ut_logical_suite));
+          self.reporters(i).before_calling_after_each(treat(a_item as ut_test));
         elsif a_event_name = ut_utils.gc_after_all then
           self.reporters(i).before_calling_after_all(treat(a_item as ut_logical_suite));
         else
@@ -67,7 +67,7 @@ create or replace type body ut_event_listener is
         elsif a_event_name = ut_utils.gc_before_all then
           self.reporters(i).after_calling_before_all(treat(a_item as ut_logical_suite));
         elsif a_event_name = ut_utils.gc_before_each then
-          self.reporters(i).after_calling_before_each(treat(a_item as ut_logical_suite));
+          self.reporters(i).after_calling_before_each(treat(a_item as ut_test));
         elsif a_event_name = ut_utils.gc_test then
           self.reporters(i).after_calling_test(treat(a_item as ut_test));
         elsif a_event_name = ut_utils.gc_before_test then
@@ -77,7 +77,7 @@ create or replace type body ut_event_listener is
         elsif a_event_name = ut_utils.gc_after_test then
           self.reporters(i).after_calling_after_test(treat(a_item as ut_test));
         elsif a_event_name = ut_utils.gc_after_each then
-          self.reporters(i).after_calling_after_each(treat(a_item as ut_logical_suite));
+          self.reporters(i).after_calling_after_each(treat(a_item as ut_test));
         elsif a_event_name = ut_utils.gc_after_all then
           self.reporters(i).after_calling_after_all(treat(a_item as ut_logical_suite));
         else
@@ -88,7 +88,7 @@ create or replace type body ut_event_listener is
       end if;
     end loop;
 
-  end;
+  end fire_event;
 
 end;
 /
