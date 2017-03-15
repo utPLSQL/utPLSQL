@@ -1,4 +1,5 @@
-sudo: required
+dist: trusty
+sudo: false
 language: python
 
 env:
@@ -61,7 +62,7 @@ cache:
   #- test -f "$ORACLE_ZIP_DIR"/$(basename $ORACLE_FILE) || bash .travis/oracle/download.sh
 
 install:
-  - sudo pip install -r .travis/python_req.txt
+  - pip install -r .travis/python_req.txt
   - npm install -g phantomjs-prebuilt casperjs
   - bash .travis/install_sqlcl.sh
   - bash .travis/start_db.sh
