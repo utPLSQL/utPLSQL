@@ -144,7 +144,7 @@ create or replace type body ut_executable is
 
   member function get_error_stack_trace return varchar2 is
   begin
-    return rtrim(self.error_stack||'Backtrace:'||chr(10)||self.error_backtrace, chr(10));
+    return rtrim(self.error_stack||self.error_backtrace, chr(10));
   end;
 end;
 /
