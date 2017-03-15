@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ev
+set -e
 
 SQLCL_FILE=sqlcl-4.2.0.16.355.0402-no-jre.zip
 cd .travis

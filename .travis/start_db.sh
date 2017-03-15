@@ -7,7 +7,7 @@ if [ $ORACLE_VERSION = $ORACLE_12cR1SE ]; then
     docker pull viniciusam/oracle-12c-r1-se
     docker run -d --name $ORACLE_VERSION -p 1521:1521 viniciusam/oracle-12c-r1-se
     docker logs -f $ORACLE_VERSION | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
-    docker exec $ORACLE_VERSION ./createPDB.sh
+    docker exec $ORACLE_VERSION ./createPDB.sh ORCLPDB1
 fi
 
 # Oracle 11g R2 XE
