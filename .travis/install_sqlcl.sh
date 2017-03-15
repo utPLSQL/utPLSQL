@@ -4,6 +4,8 @@ set -ev
 SQLCL_FILE=sqlcl-4.2.0.16.355.0402-no-jre.zip
 cd .travis
 
+begin=$(date +"%s")
+
 # Download if not present on cache dir.
 if [ ! -f $CACHE_DIR/$SQLCL_FILE ]; then
     sh download.sh -p sqlcl
@@ -12,6 +14,10 @@ fi;
 
 # Install sqlcl.
 unzip -q $CACHE_DIR/$SQLCL_FILE -d $HOME
+
+end=$(date +"%s")
+diff=$(($end-$begin))
+echo "$(($diff / 60)) minutes and $(($diff % 60)) to download and install SQLCL."
 
 # Check if it is installed correctly.
 $SQLCLI -v

@@ -18,17 +18,50 @@ set -e
 if [ $ORACLE_VERSION = $ORACLE_12cR1SE ]; then
     docker login -u "$DOCKER_12cR1SE_USER" -p "$DOCKER_12cR1SE_PASS"
     # docker run -d --name $ORACLE_VERSION -p 1521:1521 -v $HOME/$ORACLE_VERSION:/opt/oracle/oradata viniciusam/oracle-12c-r1-se
+
+    begin=$(date +"%s")
+    docker pull viniciusam/oracle-12c-r1-se
+    end=$(date +"%s")
+    diff=$(($end-$begin))
+    echo "$(($diff / 60)) minutes and $(($diff % 60)) to pull the image."
+
+    docker images
+
+    begin=$(date +"%s")
     docker run -d --name $ORACLE_VERSION -p 1521:1521 viniciusam/oracle-12c-r1-se
+    end=$(date +"%s")
+    diff=$(($end-$begin))
+    echo "$(($diff / 60)) minutes and $(($diff % 60)) to run the image."
+
     docker logs -f $ORACLE_VERSION | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
     # docker exec $ORACLE_VERSION ./setPassword.sh $ORACLE_PWD
+
+    begin=$(date +"%s")
     docker exec $ORACLE_VERSION ./createPDB.sh
+    end=$(date +"%s")
+    diff=$(($end-$begin))
+    echo "$(($diff / 60)) minutes and $(($diff % 60)) to create the PDB."
 fi
 
 # Oracle 11g R2 XE
 if [ $ORACLE_VERSION = $ORACLE_11gR2XE ]; then
     docker login -u "$DOCKER_11gR2XE_USER" -p "$DOCKER_11gR2XE_PASS"
     # docker run -d --name $ORACLE_VERSION --shm-size=1g -p 1521:1521 -v $HOME/$ORACLE_VERSION:/u01/app/oracle/oradata vavellar/oracle-11g-r2-xe
+
+    begin=$(date +"%s")
+    docker pull vavellar/oracle-11g-r2-xe
+    end=$(date +"%s")
+    diff=$(($end-$begin))
+    echo "$(($diff / 60)) minutes and $(($diff % 60)) to pull the image."
+
+    docker images
+
+    begin=$(date +"%s")
     docker run -d --name $ORACLE_VERSION --shm-size=1g -p 1521:1521 vavellar/oracle-11g-r2-xe
+    end=$(date +"%s")
+    diff=$(($end-$begin))
+    echo "$(($diff / 60)) minutes and $(($diff % 60)) to run the image."
+    
     docker logs -f $ORACLE_VERSION | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
     docker exec $ORACLE_VERSION ./setPassword.sh $ORACLE_PWD
 fi
