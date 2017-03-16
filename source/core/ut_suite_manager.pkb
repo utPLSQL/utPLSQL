@@ -118,7 +118,7 @@ create or replace package body ut_suite_manager is
           a_path                  => l_suite_path,  --a patch for this suite (excluding the package name of current suite)
           a_description           => l_suite_name,
           a_rollback_type         => l_suite_rollback,
-          a_ignore_flag           => l_annotation_data.package_annotations.exists('disabled'),
+          a_disabled_flag         => l_annotation_data.package_annotations.exists('disabled'),
           a_before_all_proc_name  => l_suite_setup_proc,
           a_after_all_proc_name   => l_suite_teardown_proc
       );
@@ -138,17 +138,17 @@ create or replace package body ut_suite_manager is
             if l_proc_annotations.exists('beforetest') then
               l_beforetest_procedure := ut_annotations.get_annotation_param(l_proc_annotations('beforetest'), 1);
             end if;
-          
+
             if l_proc_annotations.exists('aftertest') then
               l_aftertest_procedure := ut_annotations.get_annotation_param(l_proc_annotations('aftertest'), 1);
             end if;
-          
+
             if l_proc_annotations.exists('displayname') then
               l_displayname := ut_annotations.get_annotation_param(l_proc_annotations('displayname'), 1);
             elsif l_proc_annotations('test').count > 0 then
               l_displayname := ut_annotations.get_annotation_param(l_proc_annotations('test'), 1);
             end if;
-          
+
             if l_proc_annotations.exists('rollback') then
               l_rollback_annotation := ut_annotations.get_annotation_param(l_proc_annotations('rollback'), 1);
               l_rollback_type       := case lower(l_rollback_annotation)
@@ -162,19 +162,19 @@ create or replace package body ut_suite_manager is
                                           l_suite_rollback
                                        end;
             end if;
-          
+
             l_test := ut_test(a_object_owner          => l_owner_name
                              ,a_object_name           => l_object_name
                              ,a_name                  => l_proc_name
                              ,a_description           => l_displayname
                              ,a_path                  => l_suite.path || '.' || l_proc_name
                              ,a_rollback_type         => l_rollback_type
-                             ,a_ignore_flag           => l_proc_annotations.exists('disabled')
+                             ,a_disabled_flag         => l_proc_annotations.exists('disabled')
                              ,a_before_test_proc_name => l_beforetest_procedure
                              ,a_after_test_proc_name  => l_aftertest_procedure
                              ,a_before_each_proc_name => l_default_setup_proc
                              ,a_after_each_proc_name  => l_default_teardown_proc);
-          
+
             l_suite.add_item(l_test);
           end;
         end if;
@@ -405,7 +405,7 @@ create or replace package body ut_suite_manager is
       l_item_name   varchar2(32767);
 
     begin
-      a_suite.set_ignore_flag(false);
+      a_suite.set_disabled_flag(false);
 
       if a_path is not null and a_suite is not null and a_suite is of (ut_logical_suite) then
         l_suite := treat(a_suite as ut_logical_suite);

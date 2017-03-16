@@ -58,8 +58,8 @@ create or replace type body ut_teamcity_reporter is
     l_test_full_name := lower(a_test.item.owner_name) || '.' || lower(a_test.item.object_name) || '.' ||
                         lower(a_test.item.procedure_name);
 
-    if a_test.result = ut_utils.tr_ignore then
-      self.print_text(ut_teamcity_reporter_helper.test_ignored(l_test_full_name));
+    if a_test.result = ut_utils.tr_disabled then
+      self.print_text(ut_teamcity_reporter_helper.test_disabled(l_test_full_name));
     else
 
       self.print_clob(a_test.get_serveroutputs());

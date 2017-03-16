@@ -15,10 +15,10 @@ create or replace type ut_results_counter as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  ignored_count integer,
-  success_count integer,
-  failure_count integer,
-  errored_count integer,
+  disabled_count integer,
+  success_count  integer,
+  failure_count  integer,
+  errored_count  integer,
   warnings_count integer,
   constructor function ut_results_counter(self in out nocopy ut_results_counter) return self as result,
   constructor function ut_results_counter(self in out nocopy ut_results_counter, a_status integer) return self as result,

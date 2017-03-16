@@ -47,7 +47,7 @@ create or replace type ut_test under ut_suite_item (
   parent_error_stack_trace varchar2(4000),
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_description varchar2 := null,
-    a_path varchar2 := null, a_rollback_type integer := null, a_ignore_flag boolean := false,
+    a_path varchar2 := null, a_rollback_type integer := null, a_disabled_flag boolean := false,
     a_before_each_proc_name varchar2 := null, a_before_test_proc_name varchar2 := null,
     a_after_test_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null
   ) return self as result,

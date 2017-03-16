@@ -36,12 +36,12 @@ create or replace package ut_utils authid definer is
   gc_after_all               constant varchar2(12) := 'after_all';
 
   /* Constants: Test Results */
-  tr_ignore                  constant number(1) := 0; -- test/suite was ignored
+  tr_disabled                  constant number(1) := 0; -- test/suite was disabled
   tr_success                 constant number(1) := 1; -- test passed
   tr_failure                 constant number(1) := 2; -- one or more asserts failed
   tr_error                   constant number(1) := 3; -- exception was raised
 
-  tr_ignore_char             constant varchar2(6) := 'Ignore'; -- test/suite was ignored
+  tr_disabled_char           constant varchar2(6) := 'Disabled'; -- test/suite was disabled
   tr_success_char            constant varchar2(7) := 'Success'; -- test passed
   tr_failure_char            constant varchar2(7) := 'Failure'; -- one or more asserts failed
   tr_error_char              constant varchar2(5) := 'Error'; -- exception was raised
@@ -198,12 +198,12 @@ create or replace package ut_utils authid definer is
   * Returns a list of object that are part of utPLSQL framework
   */
   function get_utplsql_objects_list return ut_object_names;
-  
+
   /*
   * Append a line to the end of ut_varchar2_lst
   */
   procedure append_to_varchar2_list(a_list in out nocopy ut_varchar2_list, a_line varchar2);
-  
+
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob);
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data varchar2);
 

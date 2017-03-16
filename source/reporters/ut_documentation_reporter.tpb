@@ -52,7 +52,7 @@ create or replace type body ut_documentation_reporter is
   begin
     l_message := coalesce(a_test.description, a_test.name);
     --if test failed, then add it to the failures list, print failure with number
-    if a_test.result = ut_utils.tr_ignore then
+    if a_test.result = ut_utils.tr_disabled then
       self.print_yellow_text(l_message || ' (IGNORED)');
     elsif a_test.result = ut_utils.tr_success then
       self.print_green_text(l_message);
@@ -180,7 +180,7 @@ create or replace type body ut_documentation_reporter is
     l_summary_text :=
       a_run.results_count.total_count || ' tests, '
       || a_run.results_count.failure_count || ' failed, ' || a_run.results_count.errored_count || ' errored, '
-      || a_run.results_count.ignored_count ||' ignored, ' || a_run.results_count.warnings_count || ' warning(s)';
+      || a_run.results_count.disabled_count ||' disabled, ' || a_run.results_count.warnings_count || ' warning(s)';
     if a_run.results_count.failure_count + a_run.results_count.errored_count + a_run.results_count.warnings_count > 0 then
       self.print_red_text(l_summary_text);
     else

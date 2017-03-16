@@ -30,8 +30,8 @@ create or replace package body ut_utils is
       l_result := tr_failure_char;
     elsif a_test_result = tr_error then
       l_result := tr_error_char;
-    elsif a_test_result = tr_ignore then
-      l_result := tr_ignore_char;
+    elsif a_test_result = tr_disabled then
+      l_result := tr_disabled_char;
     else
       l_result := 'Unknown(' || coalesce(to_char(a_test_result),'NULL') || ')';
     end if ;
@@ -288,7 +288,7 @@ create or replace package body ut_utils is
        and o.object_type <> 'SYNONYM';
     return l_result;
   end;
-  
+
   procedure append_to_varchar2_list(a_list in out nocopy ut_varchar2_list, a_line varchar2) is
   begin
     if a_line is not null then
@@ -299,7 +299,7 @@ create or replace package body ut_utils is
       a_list(a_list.last) := a_line;
     end if;
   end append_to_varchar2_list;
-  
+
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob) is
   begin
     if a_new_data is not null and dbms_lob.getlength(a_new_data) > 0 then

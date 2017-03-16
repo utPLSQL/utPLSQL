@@ -101,7 +101,7 @@ create or replace package body ut_teamcity_reporter_helper is
     return message('testFinished', l_props);
   end;
 
-  function test_ignored(a_test_name varchar2, a_flow_id varchar2 default null) return varchar2 is
+  function test_disabled(a_test_name varchar2, a_flow_id varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('name') := a_test_name;

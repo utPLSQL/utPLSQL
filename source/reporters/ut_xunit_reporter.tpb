@@ -24,7 +24,7 @@ create or replace type body ut_xunit_reporter is
 
   overriding member procedure after_calling_run(self in out nocopy ut_xunit_reporter, a_run in ut_run) is
     l_suite_id    integer := 0;
-    l_tests_count integer := a_run.results_count.ignored_count + a_run.results_count.success_count +
+    l_tests_count integer := a_run.results_count.disabled_count + a_run.results_count.success_count +
                              a_run.results_count.failure_count + a_run.results_count.errored_count;
 
     function get_path(a_path_with_name varchar2, a_name varchar2) return varchar2 is
@@ -40,7 +40,7 @@ create or replace type body ut_xunit_reporter is
                       coalesce(cardinality(a_test.results), 0) || '"' || self.get_common_item_attributes(a_test) || case when
                       a_test.result != ut_utils.tr_success then
                       ' status="' || ut_utils.test_result_to_char(a_test.result) || '"' end || '>');
-      if a_test.result = ut_utils.tr_ignore then
+      if a_test.result = ut_utils.tr_disabled then
         self.print_text('<skipped/>');
       end if;
       if a_test.result = ut_utils.tr_error then
@@ -74,7 +74,7 @@ create or replace type body ut_xunit_reporter is
     end;
 
     procedure print_suite_elements(a_suite ut_logical_suite, a_suite_id in out nocopy integer) is
-      l_tests_count integer := a_suite.results_count.ignored_count + a_suite.results_count.success_count +
+      l_tests_count integer := a_suite.results_count.disabled_count + a_suite.results_count.success_count +
                                a_suite.results_count.failure_count + a_suite.results_count.errored_count;
       l_suite       ut_suite;
     begin
@@ -123,7 +123,7 @@ create or replace type body ut_xunit_reporter is
 
   member function get_common_item_attributes(a_item ut_suite_item) return varchar2 is
   begin
-    return ' skipped="' || a_item.results_count.ignored_count || '" error="' || a_item.results_count.errored_count || '"' || ' failure="' || a_item.results_count.failure_count || '" name="' || a_item.description || '"' || ' time="' || a_item.execution_time() || '" ';
+    return ' skipped="' || a_item.results_count.disabled_count || '" error="' || a_item.results_count.errored_count || '"' || ' failure="' || a_item.results_count.failure_count || '" name="' || a_item.description || '"' || ' time="' || a_item.execution_time() || '" ';
   end;
 
 end;

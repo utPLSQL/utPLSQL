@@ -28,7 +28,7 @@ create or replace type ut_suite  under ut_logical_suite (
   after_all    ut_executable,
   constructor function ut_suite (
     self in out nocopy ut_suite , a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_path varchar2, a_description varchar2 := null,
-    a_rollback_type integer := null, a_ignore_flag boolean := false, a_before_all_proc_name varchar2 := null,
+    a_rollback_type integer := null, a_disabled_flag boolean := false, a_before_all_proc_name varchar2 := null,
     a_after_all_proc_name varchar2 := null
   ) return self as result,
   overriding member function is_valid(self in out nocopy ut_suite) return boolean,

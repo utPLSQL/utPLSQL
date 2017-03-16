@@ -18,13 +18,13 @@ create or replace type body ut_test as
 
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_description varchar2 := null,
-    a_path varchar2 := null, a_rollback_type integer := null, a_ignore_flag boolean := false,
+    a_path varchar2 := null, a_rollback_type integer := null, a_disabled_flag boolean := false,
     a_before_each_proc_name varchar2 := null, a_before_test_proc_name varchar2 := null,
     a_after_test_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
-    self.init(a_object_owner, a_object_name, a_name, a_description, a_path, a_rollback_type, a_ignore_flag);
+    self.init(a_object_owner, a_object_name, a_name, a_description, a_path, a_rollback_type, a_disabled_flag);
     self.before_each := ut_executable(self, a_before_each_proc_name, ut_utils.gc_before_each);
     self.before_test := ut_executable(self, a_before_test_proc_name, ut_utils.gc_before_test);
     self.item := ut_executable(self, a_name, ut_utils.gc_test_execute);
@@ -55,9 +55,9 @@ create or replace type body ut_test as
     a_listener.fire_before_event(ut_utils.gc_test,self);
     self.start_time := current_timestamp;
 
-    if self.get_ignore_flag() then
-      self.result := ut_utils.tr_ignore;
-      ut_utils.debug_log('ut_test.execute - ignored');
+    if self.get_disabled_flag() then
+      self.result := ut_utils.tr_disabled;
+      ut_utils.debug_log('ut_test.execute - disabled');
       self.results_count := ut_results_counter(self.result);
       self.end_time := self.start_time;
     else
