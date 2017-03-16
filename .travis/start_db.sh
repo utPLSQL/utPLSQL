@@ -2,7 +2,7 @@
 set -e
 
 # Oracle 12c R1 SE
-if [ $ORACLE_VERSION = $ORACLE_12cR1SE ]; then
+if [ "$ORACLE_VERSION" == "$ORACLE_12cR1SE" ]; then
     docker login -u "$DOCKER_12cR1SE_USER" -p "$DOCKER_12cR1SE_PASS"
     docker pull viniciusam/oracle-12c-r1-se
     docker run -d --name $ORACLE_VERSION -p 1521:1521 viniciusam/oracle-12c-r1-se
@@ -11,7 +11,7 @@ if [ $ORACLE_VERSION = $ORACLE_12cR1SE ]; then
 fi
 
 # Oracle 11g R2 XE
-if [ $ORACLE_VERSION = $ORACLE_11gR2XE ]; then
+if [ "$ORACLE_VERSION" == "$ORACLE_11gR2XE" ]; then
     docker login -u "$DOCKER_11gR2XE_USER" -p "$DOCKER_11gR2XE_PASS"
     docker pull vavellar/oracle-11g-r2-xe
     docker run -d --name $ORACLE_VERSION --shm-size=1g -p 1521:1521 vavellar/oracle-11g-r2-xe    
