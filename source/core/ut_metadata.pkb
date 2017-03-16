@@ -121,10 +121,8 @@ create or replace package body ut_metadata as
                                                                  schema_name => a_owner,
                                                                  object_name => a_object_name);
 
-      sys.dbms_lob.createtemporary(lob_loc => l_source, cache => true);
-
       for i in 1..l_lines.count loop
-        sys.dbms_lob.writeappend(l_source, length(l_lines(i)), l_lines(i));
+        ut_utils.append_to_clob(l_source, l_lines(i));
       end loop;
 
     end;

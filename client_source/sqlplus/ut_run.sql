@@ -111,7 +111,7 @@ set define &
 /*
 * Make SQLPlus parameters optional and pass parameters call to param_list variable
 */
-@@define_params_variable.sql.tmp
+@define_params_variable.sql.tmp
 
 
 
@@ -293,8 +293,8 @@ begin
         p('  v_reporter.reporter_id := '''||l_reporter_id||''';');
         p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
     end loop;
+    close :l_run_params_cur;
   end if;
-  close :l_run_params_cur;
   p(  '  ut_runner.run( ut_varchar2_list('||:l_paths||'), v_reporters_list, a_color_console => '||:l_color_enabled||' );');
   p(  'end;');
   p(  '/');
