@@ -6,7 +6,7 @@ cd .travis
 
 # Download if not present on cache dir.
 if [ ! -f $CACHE_DIR/$SQLCL_FILE ]; then
-    sh download.sh -p sqlcl
+    bash download.sh -p sqlcl
     mv $SQLCL_FILE $CACHE_DIR
 fi;
 
