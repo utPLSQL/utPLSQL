@@ -36,12 +36,12 @@ create or replace package ut_utils authid definer is
   gc_after_all               constant varchar2(12) := 'after_all';
 
   /* Constants: Test Results */
-  tr_disabled                  constant number(1) := 0; -- test/suite was disabled
+  tr_disabled                constant number(1) := 0; -- test/suite was disabled
   tr_success                 constant number(1) := 1; -- test passed
   tr_failure                 constant number(1) := 2; -- one or more asserts failed
   tr_error                   constant number(1) := 3; -- exception was raised
 
-  tr_disabled_char           constant varchar2(6) := 'Disabled'; -- test/suite was disabled
+  tr_disabled_char           constant varchar2(8) := 'Disabled'; -- test/suite was disabled
   tr_success_char            constant varchar2(7) := 'Success'; -- test passed
   tr_failure_char            constant varchar2(7) := 'Failure'; -- one or more asserts failed
   tr_error_char              constant varchar2(5) := 'Error'; -- exception was raised
