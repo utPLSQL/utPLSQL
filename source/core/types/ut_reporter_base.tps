@@ -22,6 +22,8 @@ create or replace type ut_reporter_base authid current_user as object(
 
   member procedure print_text(self in out nocopy ut_reporter_base, a_text varchar2),
 
+  member procedure print_clob(self in out nocopy ut_reporter_base, a_clob clob),
+
   -- run hooks
   member procedure before_calling_run(self in out nocopy ut_reporter_base, a_run in ut_run),
 

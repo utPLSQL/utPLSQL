@@ -18,7 +18,7 @@ create or replace type body ut_suite_item as
 
   member procedure init(
     self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2,
-    a_description varchar2, a_path varchar2, a_rollback_type integer, a_ignore_flag boolean
+    a_description varchar2, a_path varchar2, a_rollback_type integer, a_disabled_flag boolean
   ) is
   begin
     self.object_owner := a_object_owner;
@@ -27,26 +27,26 @@ create or replace type body ut_suite_item as
     self.description := a_description;
     self.path := nvl(lower(trim(a_path)), self.object_name);
     self.rollback_type := a_rollback_type;
-    self.ignore_flag := ut_utils.boolean_to_int(a_ignore_flag);
+    self.disabled_flag := ut_utils.boolean_to_int(a_disabled_flag);
     self.results_count := ut_results_counter();
     self.warnings := ut_varchar2_list();
   end;
 
-  member procedure set_ignore_flag(self in out nocopy ut_suite_item, a_ignore_flag boolean) is
+  member procedure set_disabled_flag(self in out nocopy ut_suite_item, a_disabled_flag boolean) is
   begin
-    self.ignore_flag := ut_utils.boolean_to_int(a_ignore_flag);
+    self.disabled_flag := ut_utils.boolean_to_int(a_disabled_flag);
   end;
 
-  member function get_ignore_flag return boolean is
+  member function get_disabled_flag return boolean is
   begin
-    return ut_utils.int_to_boolean(self.ignore_flag);
+    return ut_utils.int_to_boolean(self.disabled_flag);
   end;
-  
+
   final member procedure do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is
     l_completed_without_errors boolean;
   begin
     l_completed_without_errors := self.do_execute(a_listener);
-  end;  
+  end;
 
   member function create_savepoint_if_needed return varchar2 is
     l_savepoint varchar2(30);
@@ -74,7 +74,7 @@ create or replace type body ut_suite_item as
   begin
     return ut_utils.time_diff(start_time, end_time);
   end;
-  
+
   member procedure put_warning(self in out nocopy ut_suite_item, a_message varchar2) is
   begin
     self.warnings.extend;
