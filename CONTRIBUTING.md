@@ -30,7 +30,7 @@ Changes are welcome from all members of the Community.
 * Snake case will be used.   This separates keywords in names with underscores.  `execute_test`
 * All names will be lower case.
 * Prefixes:
-	* Arguments to procedures and functions will start with `a_` an Example would be procedure `is_valid(a_owner_name varchar2(30));`
+	* Arguments to procedures and functions will start with `a_` an Example would be procedure `is_valid(a_owner_name varchar2);`
 	* Object types and packages will start with `ut_`
 	* Local variables `l_`
 	* Global variables `g_`
