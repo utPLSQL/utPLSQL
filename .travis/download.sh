@@ -60,8 +60,8 @@ fi
 
 if [ "$PRODUCT" == "sqlcl" ]; then
     agreementUrl="http://www.oracle.com/technetwork/developer-tools/sqlcl/downloads/index.html"
-    downloadUrl="http://download.oracle.com/otn/java/sqldeveloper/sqlcl-4.2.0.16.355.0402-no-jre.zip"
-    outputFile=sqlcl-4.2.0.16.355.0402-no-jre.zip
+    downloadUrl="http://download.oracle.com/otn/java/sqldeveloper/sqlcl-4.2.0.17.073.1038-no-jre.zip"
+    outputFile=sqlcl-4.2.0.17.073.1038-no-jre.zip
     downloadFile $agreementUrl $downloadUrl $outputFile
     exit 0
 fi
