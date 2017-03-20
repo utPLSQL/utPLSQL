@@ -47,9 +47,9 @@ create or replace type ut_suite_item_base authid current_user as object (
   */
   rollback_type integer(1),
   /**
-  * Indicates if the test is to be ignored by execution
+  * Indicates if the test is to be disabled by execution
   */
-  ignore_flag   integer(1),
+  disabled_flag integer(1),
   --execution result fields
   start_time    timestamp with time zone,
   end_time      timestamp with time zone,

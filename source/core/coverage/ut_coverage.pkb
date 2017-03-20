@@ -39,57 +39,85 @@ create or replace package body ut_coverage is
     return l_result;
   end;
 
+  -- The source query has two important transformations done in it.
+  -- the flag: to_be_skipped ='Y' is set for a line of code that is badly reported by DBMS_PROFILER as executed 0 times.
+  -- This includes lines that are:
+  --   - PACKAGE, PROCEDURE, FUNCTION definition line,
+  --   - BEGIN, END  of a block
+  -- Another transformation is adjustment of line number for TRIGGER body.
+  -- DBMS_PROFILER is reporting line numbers for triggers not as defined in DBA_SOURCE, its usign line numbers as defined in DBA_TRIGGERS
+  -- the DBA_TRIGGERS does not contain the trigger specification lines, only lines that define the trigger body.
+  -- the query adjusts the line numbers for triggers by finding first occurrence of begin|declare|compound in the trigger body line.
+  -- The subquery is optimized by:
+  -- - COALESCE function -> it will execute only for TRIGGERS
+  -- - scalar subquery cache -> it will only execute once for one trigger source code.
   function get_sources_query return varchar2 is
     l_result varchar2(32767);
+    l_full_name varchar2(100);
   begin
-    l_result := 'insert /*+ append */ into ut_coverage_sources_tmp(full_name,owner,name,line,text, to_be_skipped)';
     if g_file_mappings is not null then
-      l_result := 'insert /*+ append */ into ut_coverage_sources_tmp(full_name,owner,name,line,text, to_be_skipped)
-      select f.file_name, s.owner,s.name,s.line,s.text,';
+      l_full_name := 'f.file_name';
     else
-      l_result := 'insert /*+ append */ into ut_coverage_sources_tmp(full_name,owner,name,line,text, to_be_skipped)
-      select lower(s.owner||''.''||s.name) as file_name, s.owner,s.name,s.line,s.text,';
+      l_full_name := 'lower(s.owner||''.''||s.name)';
     end if;
-    l_result := l_result || q'[
-             case
-               when
-                 -- to avoid execution of regexp_like on every line
-                 -- first do a rough check for existence of search pattern keyword
-                 (lower(s.text) like '%procedure%'
-                  or lower(s.text) like '%function%'
-                  or lower(s.text) like '%begin%'
-                  or lower(s.text) like '%end%'
-                  or lower(s.text) like '%package%'
-                 ) and
-                 regexp_like(
-                    s.text,
-                    '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(static|constructor|member)?\s*(procedure|function)|package(\s+body)|begin|end(\s+\S+)?\s*;)', 'i'
-                 )
-                then 'Y'
-             end as to_be_skipped
-        from all_source s]';
+    l_result := '
+      insert /*+ append */ into ut_coverage_sources_tmp(full_name,owner,name,line,text, to_be_skipped)
+      select *
+        from (
+          select '||l_full_name||q'[,
+                 s.owner,
+                 s.name,
+                 s.line -
+                 coalesce(
+                   case when type!='TRIGGER' then 0 end,
+                   (select min(t.line) - 1
+                      from dba_source t
+                     where t.owner = s.owner and t.type = s.type and t.name = s.name
+                       and regexp_like( t.text, '\w*(begin|declare|compound).*','i'))
+                 ) as line,
+                 s.text,
+                 case
+                   when
+                     -- to avoid execution of regexp_like on every line
+                     -- first do a rough check for existence of search pattern keyword
+                     (lower(s.text) like '%procedure%'
+                      or lower(s.text) like '%function%'
+                      or lower(s.text) like '%begin%'
+                      or lower(s.text) like '%end%'
+                      or lower(s.text) like '%package%'
+                     ) and
+                     regexp_like(
+                        s.text,
+                        '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(static|constructor|member)?\s*(procedure|function)|package(\s+body)|begin|end(\s+\S+)?\s*;)', 'i'
+                     )
+                    then 'Y'
+                 end as to_be_skipped
+            from all_source s]';
     if g_file_mappings is not null then
       l_result := l_result || '
-        join table(:g_file_mappings) f
-          on s.name  = f.object_name
-         and s.type  = f.object_type
-         and s.owner = f.object_owner
-       where 1 = 1';
+            join table(:g_file_mappings) f
+              on s.name  = f.object_name
+             and s.type  = f.object_type
+             and s.owner = f.object_owner
+           where 1 = 1';
     else
       l_result := l_result || '
-       where s.owner in (select upper(t.column_value) from table(:l_schema_names) t)';
+           where s.owner in (select upper(t.column_value) from table(:l_schema_names) t)';
     end if;
     l_result := l_result || q'[
-         and s.type not in ('PACKAGE', 'TYPE')
-         --Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
-         and (s.owner, s.name) not in (select el.owner, el.name from table(:l_skipped_objects) el)]';
+             and s.type not in ('PACKAGE', 'TYPE')
+             --Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
+             and (s.owner, s.name) not in (select el.owner, el.name from table(:l_skipped_objects) el)]';
     if g_include_list is null then
       l_result := l_result || '
-         and :g_include_list is null';
+             and :g_include_list is null';
     else
       l_result := l_result || '
-         and (s.owner, s.name) in (select il.owner, il.name from table(:g_include_list) il)';
+             and (s.owner, s.name) in (select il.owner, il.name from table(:g_include_list) il)';
     end if;
+      l_result := l_result || '
+             )
+       where line > 0';
     return l_result;
   end;
   /**

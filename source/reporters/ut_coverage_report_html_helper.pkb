@@ -26,7 +26,7 @@ create or replace package body ut_coverage_report_html_helper is
 
   gc_missed              constant varchar2(7) := 'missed';
   gc_skipped             constant varchar2(7) := 'skipped';
-  gc_ignored             constant varchar2(7) := 'never';
+  gc_disabled            constant varchar2(7) := 'never';
   gc_covered             constant varchar2(7) := 'covered';
 
 
@@ -58,7 +58,7 @@ create or replace package body ut_coverage_report_html_helper is
       case
         when a_executions > 0 then gc_covered
         when a_executions = 0 then gc_missed
-        else gc_ignored
+        else gc_disabled
       end;
     return l_result;
   end;

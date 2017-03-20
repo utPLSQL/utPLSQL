@@ -62,12 +62,9 @@ create or replace type body ut_assert_result is
       if a_clob is not null and l_text is not null then
         l_text := chr(10) || l_text;
       end if;
-      if l_text is not null then
-        dbms_lob.writeappend(a_clob, length(l_text), l_text);
-      end if;
+      ut_utils.append_to_clob(a_clob, l_text);
     end;
   begin
-    dbms_lob.createtemporary(l_result, true);
     if self.result != ut_utils.tr_success or self.error_message is not null then
       if self.message is not null then
         add_text_line(l_result, '  expectation description: ', self.message);
