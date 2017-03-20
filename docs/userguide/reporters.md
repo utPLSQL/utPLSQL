@@ -71,8 +71,8 @@ Example of failure report details
 
 #Teamcity reporter
 
-[Teamcity](https://www.jetbrains.com/teamcity/) is a CI server by Jetbrains. The CI has it's own format of reporting that allows tracking of progress of a CI step/task as it executes.
-The format developed by Jetbrains is supported by utPLSQL with `ut_teamcity_reporter`.
+[Teamcity](https://www.jetbrains.com/teamcity/) is a CI server by Jetbrains. It supports XUnit reporting and additionally has it's own format of reporting that allows tracking of progress of a CI step/task as it executes.
+The TeamCity format developed by Jetbrains is supported by utPLSQL with `ut_teamcity_reporter`.
 
 Invocation of tests with Teamcity reporter.  
 
