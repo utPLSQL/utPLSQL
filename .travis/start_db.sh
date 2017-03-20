@@ -1,20 +1,26 @@
 #!/bin/bash
 set -e
 
+DOCKER_BASE_TAG="viniciusam/oracledb"
+
+# Private Repo Login
+if [ ! -f $CACHE_DIR/config.json ]; then
+    docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
+    cp $HOME/.docker/config.json $CACHE_DIR/.docker/config.json
+else
+    cp $CACHE_DIR/.docker/config.json $HOME/.docker/config.json
+fi
+
 # Oracle 12c R1 SE
 if [ "$ORACLE_VERSION" == "$ORACLE_12cR1SE" ]; then
-    docker login -u "$DOCKER_12cR1SE_USER" -p "$DOCKER_12cR1SE_PASS"
-    docker pull viniciusam/oracle-12c-r1-se
-    docker run -d --name $ORACLE_VERSION -p 1521:1521 viniciusam/oracle-12c-r1-se
+    docker pull $DOCKER_BASE_TAG:$ORACLE_12cR1SE
+    docker run -d --name $ORACLE_VERSION -p 1521:1521 $DOCKER_BASE_TAG:$ORACLE_12cR1SE
     docker logs -f $ORACLE_VERSION | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
-    docker exec $ORACLE_VERSION ./createPDB.sh ORCLPDB1
 fi
 
 # Oracle 11g R2 XE
 if [ "$ORACLE_VERSION" == "$ORACLE_11gR2XE" ]; then
-    docker login -u "$DOCKER_11gR2XE_USER" -p "$DOCKER_11gR2XE_PASS"
-    docker pull vavellar/oracle-11g-r2-xe
-    docker run -d --name $ORACLE_VERSION --shm-size=1g -p 1521:1521 vavellar/oracle-11g-r2-xe    
+    docker pull $DOCKER_BASE_TAG:$ORACLE_11gR2XE
+    docker run -d --name $ORACLE_VERSION --shm-size=1g -p 1521:1521 $DOCKER_BASE_TAG:$ORACLE_11gR2XE
     docker logs -f $ORACLE_VERSION | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
-    docker exec $ORACLE_VERSION ./setPassword.sh $ORACLE_PWD
 fi

@@ -35,8 +35,8 @@ env:
     - ORACLE_PWD="oracle"
     - CONTAINER_IP=""
     - CONNECTION_STR=""
-    - ORACLE_12cR1SE="12c-r1-se"
-    - ORACLE_11gR2XE="11g-r2-xe"
+    - ORACLE_12cR1SE="12c-se-r1"
+    - ORACLE_11gR2XE="11g-xe-r2"
   matrix:
     - ORACLE_VERSION=$ORACLE_12cR1SE
     - ORACLE_VERSION=$ORACLE_11gR2XE
