@@ -8,6 +8,8 @@ cd .travis
 if [ ! -f $CACHE_DIR/$SQLCL_FILE ]; then
     bash download.sh -p sqlcl
     mv $SQLCL_FILE $CACHE_DIR
+else
+    echo "Installing sqlcl from cache..."
 fi;
 
 # Install sqlcl.
