@@ -23,7 +23,7 @@ create or replace type ut_suite_item force under ut_suite_item_base (
   member procedure set_disabled_flag(self in out nocopy ut_suite_item, a_disabled_flag boolean),
   member function get_disabled_flag return boolean,
   member function create_savepoint_if_needed return varchar2,
-  member procedure rollback_to_savepoint(self in ut_suite_item, a_savepoint varchar2),
+  member procedure rollback_to_savepoint(self in out nocopy ut_suite_item, a_savepoint varchar2),
   member function execution_time return number,
 
   not instantiable member function  do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean,

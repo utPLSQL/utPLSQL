@@ -58,7 +58,7 @@ create or replace type body ut_suite_item as
     return l_savepoint;
   end;
 
-  member procedure rollback_to_savepoint(self in ut_suite_item, a_savepoint varchar2) is
+  member procedure rollback_to_savepoint(self in out nocopy ut_suite_item, a_savepoint varchar2) is
     ex_savepoint_not_exists exception;
     pragma exception_init(ex_savepoint_not_exists, -1086);
   begin
@@ -67,7 +67,7 @@ create or replace type body ut_suite_item as
     end if;
   exception
     when ex_savepoint_not_exists then
-      null;
+      put_warning('Savepoint not established. Implicit commit might have occured.');
   end;
 
   member function execution_time return number is
