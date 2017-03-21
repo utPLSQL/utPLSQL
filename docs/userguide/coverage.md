@@ -44,11 +44,11 @@ The `ut_coverage_html_reporter` will produce a interactive HTML report. You may 
 
 The report provides a summary information with list of source code that was expected to be covered.
 
-![Coverage Summary page](images/coverage_html_summary.png)
+![Coverage Summary page](../images/coverage_html_summary.png)
 
 The report allow to navigate to every source and inspect line by line coverage.
 
-![Coverage Details page](images/coverage_html_details.png)
+![Coverage Details page](../images/coverage_html_details.png)
 
 
 ##Coverage reporting options

@@ -25,7 +25,12 @@ The installation user/schema must have the following Oracle system permissions d
   
 In addition it must be granted execute to the following system packages.
 
-  - DBMS_LOCK  
+  - DBMS_LOCK
+    
+The utPLSQL is using Oracle [DBMS_PROFILER tables](https://docs.oracle.com/cd/E18283_01/appdev.112/e16760/d_profil.htm#i999476). The tables will be created in the installation schema if they do not exist.
+The uninstall process however will not drop those tables, as they can potentially be shared and reused for profiling PLSQL code.
+It is up to DBA to maintain the storage of the profiler tables.
+
   
 # Installation Procedure
 
