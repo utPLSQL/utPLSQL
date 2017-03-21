@@ -4,11 +4,8 @@ language: python
 addons:
   apt:
     packages:
-    #packages required for oracle
-      - bc
-      - rpm
       - unzip
-      #Java8 required for sonar
+      # Java8 Required for Sonar and SQLCL
       - oracle-java8-installer
       - oracle-java8-set-default
   sonarqube:
@@ -17,47 +14,47 @@ addons:
     branches:
       - develop
       - master
+
+services:
+  - docker
+
 env:
   global:
-    - ORACLE_COOKIE=sqldev
-    - ORACLE_FILE=oracle11g/xe/oracle-xe-11.2.0-1.0.x86_64.rpm.zip
-    - ORACLE_HOME=/u01/app/oracle/product/11.2.0/xe
-    - NLS_LANG=AMERICAN_AMERICA.AL32UTF8
-    - ORACLE_BASE=/u01/app/oracle
-    - LD_LIBRARY_PATH=$ORACLE_HOME/lib
-    - PATH=$PATH:$ORACLE_HOME/jdbc/lib:$ORACLE_HOME/bin
-    - JAVA_HOME=/usr/lib/jvm/java-8-oracle/jre
-    - DATABASE_VERSION=11.2.0.2
-    - ORACLE_SID=XE
-    - DATABASE_NAME=XE
-    - ORA_SDTZ='Europe/London' #Needed as a client parameter
-    - TZ='Europe/London'       #Needed as a DB Server parameter
     - UT3_OWNER=ut3
     - UT3_OWNER_PASSWORD=ut3
     - UT3_OWNER_TABLESPACE=users
     - UT3_USER=ut3_user
     - UT3_USER_PASSWORD=ut3
     - UT3_USER_TABLESPACE=users
-      # Target Branch and Directory for Deployment of Docs
+    # Target Branch and Directory for Deployment of Docs
     - PAGES_TARGET_BRANCH="gh-pages"
     - PAGES_VERSION_BASE="version3"
+    - CACHE_DIR=$HOME/.cache
+    # Database Env
+    - SQLCLI="$HOME/sqlcl/bin/sql"
+    - ORACLE_PWD="oracle"
+    - CONTAINER_IP=""
+    - CONNECTION_STR=""
+    - ORACLE_12cR1SE="12c-se-r1"
+    - ORACLE_11gR2XE="11g-xe-r2"
+  matrix:
+    - ORACLE_VERSION=$ORACLE_12cR1SE
+    - ORACLE_VERSION=$ORACLE_11gR2XE
 
 cache:
   directories:
-    - .cache
-    - $HOME/.cache
-
-before_install:
-# On trusty, download the zip file into a cachable directory
-  - test "$DIST" = precise || export ORACLE_ZIP_DIR=$HOME/.cache
-# If the zip file already exists, do not download it again
-  - test -f "$ORACLE_ZIP_DIR"/$(basename $ORACLE_FILE) || bash .travis/oracle/download.sh
+    - $CACHE_DIR
 
 install:
-  - sudo pip install -r .travis/python_req.txt
-  - bash .travis/oracle/install.sh
+  - pip install -r .travis/python_req.txt
+  - npm install -g phantomjs-prebuilt casperjs
+  - bash .travis/install_sqlcl.sh
+  - bash .travis/start_db.sh
 
 script:
+  - CONTAINER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $ORACLE_VERSION)
+  - test $ORACLE_VERSION = $ORACLE_12cR1SE && CONNECTION_STR="$CONTAINER_IP:1521/ORCLPDB1" || true
+  - test $ORACLE_VERSION = $ORACLE_11gR2XE && CONNECTION_STR="$CONTAINER_IP:1521/XE" || true
   - bash .travis/create_utplsql_owner.sh
   - bash .travis/create_utplsql_user.sh
   - bash .travis/install_libraries.sh
