@@ -3,7 +3,7 @@ as
  --%suite
   
  --%test
- procedure tt
+ procedure tt;
  
 end;
 /
