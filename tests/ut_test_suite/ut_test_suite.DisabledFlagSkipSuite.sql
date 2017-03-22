@@ -1,4 +1,4 @@
-PROMPT Ignore whole suite by ignore flag
+PROMPT Disable whole suite by disabled flag
 
 --Arrange
 declare
@@ -16,7 +16,7 @@ begin
   l_test := ut_test(a_object_name => 'ut_transaction_control',a_name => 'test', a_rollback_type => ut_utils.gc_rollback_auto);
   l_suite := ut_suite (a_description => 'Suite name', a_name => 'UT_TRANSACTION_CONTROL', a_object_name => 'UT_TRANSACTION_CONTROL', a_rollback_type => ut_utils.gc_rollback_auto,a_path => 'ut_transaction_control');
   l_suite.add_item(l_test);
-  l_suite.set_ignore_flag(true);
+  l_suite.set_disabled_flag(true);
 
 --Act
   l_suite.do_execute(l_listener);

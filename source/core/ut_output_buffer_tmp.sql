@@ -35,6 +35,7 @@ declare
   ex_view_doesnt_exist exception;
   pragma exception_init(ex_nonedition_user,-42314);
   pragma exception_init(ex_view_doesnt_exist,-942);
+  v_view_source varchar2(32767);
 begin
   begin
     execute immediate 'drop view ut_output_buffer_tmp';
@@ -42,8 +43,7 @@ begin
     when ex_view_doesnt_exist then
       null;
   end;
-  
-  execute immediate 'create or replace editioning view ut_output_buffer_tmp as
+  v_view_source := ' ut_output_buffer_tmp as
 /*
 utPLSQL - Version X.X.X.X
 Copyright 2016 - 2017 utPLSQL Project
@@ -63,27 +63,10 @@ select reporter_id
       ,is_finished
       ,start_date
   from ut_output_buffer_tmp$';
-exception 
+
+  execute immediate 'create or replace editioning view '||v_view_source;
+exception
   when ex_nonedition_user then
-    execute immediate 'create or replace view ut_output_buffer_tmp as
-/*
-utPLSQL - Version X.X.X.X
-Copyright 2016 - 2017 utPLSQL Project
-Licensed under the Apache License, Version 2.0 (the "License"):
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-select reporter_id
-      ,message_id
-      ,text
-      ,is_finished
-      ,start_date
-  from ut_output_buffer_tmp$';
+    execute immediate 'create or replace view '||v_view_source;
 end;
 /

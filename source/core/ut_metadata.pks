@@ -75,7 +75,7 @@ create or replace package ut_metadata authid current_user as
   /*
     function: get_source_definition_line
 
-    return the text of the souce line for a given object, excludes package spec
+    return the text of the source line for a given object, excludes package spec and type spec
   */
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2;
 

@@ -1,27 +1,34 @@
 #utPLSQL v3<sub><sup> | Powerful PL/SQL Unit Testing Framework </sup></sub>
-[![chat](http://img.shields.io/badge/version_status-alpha-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
+[![latest-pre-release](https://img.shields.io/github/tag/utPLSQL/utPLSQL.svg?label=pre-release)](https://github.com/utPLSQL/utPLSQL/releases)
+[![latest-release](https://img.shields.io/github/release/utPLSQL/utPLSQL.svg)](https://github.com/utPLSQL/utPLSQL/releases)
+
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/master.svg?label=master%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/develop.svg?label=develop%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
 [![sonar](https://sonarqube.com/api/badges/measure?key=utPLSQL%3AutPLSQL&metric=complexity)](https://sonarqube.com/dashboard/index?id=utPLSQL%3AutPLSQL)
 [![sonar](https://sonarqube.com/api/badges/measure?key=utPLSQL%3AutPLSQL&metric=ncloc)](https://sonarqube.com/dashboard/index?id=utPLSQL%3AutPLSQL)
+[![sonar coverage](https://sonarqube.com/api/badges/measure?key=utPLSQL%3AutPLSQL&metric=coverage)](https://sonarqube.com/dashboard/index?id=utPLSQL%3AutPLSQL)
+[![Develop branch coverage](https://coveralls.io/repos/github/utPLSQL/utPLSQL/badge.svg?branch=develop)](https://coveralls.io/github/utPLSQL/utPLSQL?branch=develop)
 
 [![license](http://img.shields.io/badge/license-apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![chat](http://img.shields.io/badge/chat-slack-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
+[![chat](http://img.shields.io/badge/slack-team--chat-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 ----------
 utPLSQL version 3 is a complete rewrite of utPLSQL v2 from scratch.
 Version 2 still supports older versions of Oracle that are no longer available. 
 The community that had developed on GitHub, decided that a new internal architecture was needed, from that version 3 was born.  
 
-We welcome new developers to join our community and contribute to the utPLSQL project.
+# Introduction
+utPLSQL is a Unit Testing framework for Oracle PL/SQL and SQL. 
+The framework follows industry standards and best patterns of modern Unit Testing frameworks like [JUnit](http://junit.org/junit4/) and [RSpec](http://rspec.info/)
 
-Primary features:
- - Support for all basic scalar data-types
+
+# Primary features
+ - Support for all basic scalar data-types except ROWID and RAW
  - Support for User Defined Object Types and Collections
  - Support for native cursors both strong and weak
- - Data-type aware testing
- - [Annotations](docs/userguide/annotations.md) based test definitions 
- - Extensible [matchers](docs/userguide/expectations.md)
+ - Data-type aware testing - number 1 is not equal to string '1'
+ - [Annotations](docs/userguide/annotations.md) are used to define and configure tests
+ - Extensible [expectations](docs/userguide/expectations.md)
  - Extensible reporting formats
  - Extensible output providers
  - Support for multi-reporting
@@ -39,6 +46,16 @@ __Download__
 
 Published releases are available for download on the [utPLSQL GitHub Releases Page.](https://github.com/utPLSQL/utPLSQL/releases)
 
+# Contributing to the project
+
+We welcome new developers to join our community and contribute to the utPLSQL project.
+If you are interested in helping please read our [guide to contributing](docs/about/CONTRIBUTING.md)
+The best place to start is to read the documentation and get familiar existing with code base.
+A [slack chat](https://utplsql.slack.com/) is the place to go isf you want to talk with team members.
+To sign up to the chat use [this link](http://utplsql-slack-invite.herokuapp.com/)
+
+
+[__Authors__](docs/about/authors.md)
 
 __Version 2 to Version 3 Comparison__
 
@@ -158,10 +175,10 @@ end;
 
 # Running tests
 
-To execute using IDE ()TOAD/SQLDeveloper/PLSQLDeveloper/other) just run the following.
+To execute using development IDE (TOAD/SQLDeveloper/PLSQLDeveloper/other) just run the following.
 ```sql
 begin
-  ut_runner.run();
+  ut.run();
 end;
 /
 ```
@@ -190,19 +207,12 @@ c:\my_work\>sqlplus /nolog @ut_run hr/hr@xe
 Will run all the suites in the current schema (hr) and provide documentation report into screen.
 Invoking this script will show the progress after each test.
 
-
-__Primary Directories__
+__Project Directories__
 
 * .travis - contains files needed for travis-ci integration
 * client_source - Sources to be used on the client-side. Developer workstation or CI platform to run the tests.
 * development - Set of useful scripts and utilities for development and debugging of utPLSQL 
-* docs - Markdown version of the documentation 
+* docs/md - Markdown version of the documentation 
 * examples - contains example unit tests.
 * source - contains the installation code for utPLSQL
-* tests - contains the tests written to test utPLSQL
-
-
-
-
- 
-
+* tests - contains the tests for utPLSQL framework

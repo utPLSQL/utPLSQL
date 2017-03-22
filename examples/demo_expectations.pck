@@ -32,11 +32,11 @@ create or replace package demo_expectations is
   procedure demo_to_be_null_failure;
 
   -- %test
-  -- %displayname(demo of failure for to_be_null expectation )
+  -- %displayname(demo of success for to_be_null expectation )
   procedure demo_to_be_null_success;
 
   -- %test
-  -- %displayname(demo of success for to_be_not_null expectation )
+  -- %displayname(demo of failure for to_be_not_null expectation )
   procedure demo_to_be_not_null_failure;
 
   -- %test

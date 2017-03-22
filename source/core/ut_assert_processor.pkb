@@ -69,9 +69,9 @@ create or replace package body ut_assert_processor as
     g_asserts_called(g_asserts_called.last) := a_assert_result;
   end;
 
-  procedure report_error(a_message in varchar2) is
+  procedure report_failure(a_message in varchar2) is
   begin
-    add_assert_result(ut_assert_result(ut_utils.tr_error, a_message));
+    add_assert_result(ut_assert_result(ut_utils.tr_failure, a_message));
   end;
 
   function get_session_parameters return tt_nls_params is

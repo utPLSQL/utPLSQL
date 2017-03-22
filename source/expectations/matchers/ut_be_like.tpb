@@ -28,7 +28,7 @@ create or replace type body ut_be_like as
     self.mask        := a_mask;
     self.escape_char := a_escape_char;
     return;
-  end;
+  end ut_be_like;
 
   overriding member function run_matcher(self in out nocopy ut_be_like, a_actual ut_data_value) return boolean is
     l_value  clob;
@@ -50,7 +50,7 @@ create or replace type body ut_be_like as
       l_result := (self as ut_matcher).run_matcher(a_actual);
     end if;
     return l_result;
-  end;
+  end run_matcher;
 
 end;
 /
