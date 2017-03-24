@@ -6,6 +6,7 @@ cd .travis
 
 # Download if not present on cache dir.
 if [ ! -f $CACHE_DIR/$SQLCL_FILE ]; then
+    npm install -g phantomjs-prebuilt casperjs
     bash download.sh -p sqlcl
     mv $SQLCL_FILE $CACHE_DIR
 else
