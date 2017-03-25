@@ -19,7 +19,6 @@ services:
   - docker
 
 env:
-  # a build matrix for a version
   global:
     - UT3_OWNER=ut3
     - UT3_OWNER_PASSWORD=ut3
