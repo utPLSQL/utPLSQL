@@ -22,10 +22,9 @@ env:
   global:
     - UT3_OWNER=ut3
     - UT3_OWNER_PASSWORD=ut3
-    - UT3_OWNER_TABLESPACE=users
     - UT3_USER=ut3_user
     - UT3_USER_PASSWORD=ut3
-    - UT3_USER_TABLESPACE=users
+    - UT3_TABLESPACE=users
     # Target Branch and Directory for Deployment of Docs
     - PAGES_TARGET_BRANCH="gh-pages"
     - PAGES_VERSION_BASE="version3"
@@ -33,37 +32,25 @@ env:
     # Database Env
     - SQLCLI="$HOME/sqlcl/bin/sql"
     - ORACLE_PWD="oracle"
-    - CONTAINER_IP=""
-    - CONNECTION_STR=""
-    - ORACLE_12cR1SE="12c-se-r1"
-    - ORACLE_11gR2XE="11g-xe-r2"
   matrix:
-    - ORACLE_VERSION=$ORACLE_12cR1SE
-    - ORACLE_VERSION=$ORACLE_11gR2XE
+    - ORACLE_VERSION="12c-se-r1" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1'
+    - ORACLE_VERSION="11g-xe-r2" CONNECTION_STR='127.0.0.1:1521/XE'        DOCKER_OPTIONS='--shm-size=1g'
+
 
 cache:
+  pip: true
   directories:
     - $CACHE_DIR
+    - node_modules
 
 install:
-  - pip install -r .travis/python_req.txt
-  - npm install -g phantomjs-prebuilt casperjs
+  - pip install mkdocs
   - bash .travis/install_sqlcl.sh
   - bash .travis/start_db.sh
 
 script:
-  - CONTAINER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $ORACLE_VERSION)
-  - test $ORACLE_VERSION = $ORACLE_12cR1SE && CONNECTION_STR="$CONTAINER_IP:1521/ORCLPDB1" || true
-  - test $ORACLE_VERSION = $ORACLE_11gR2XE && CONNECTION_STR="$CONTAINER_IP:1521/XE" || true
-  - bash .travis/create_utplsql_owner.sh
-  - bash .travis/create_utplsql_user.sh
-  - bash .travis/install_libraries.sh
   - bash .travis/install.sh
-  - bash .travis/grant_user.sh
-  - bash .travis/run_examples_as_owner.sh
-  - bash .travis/run_test_as_owner.sh
-  - bash .travis/run_examples_as_user.sh
-  - bash .travis/create_release.sh
+  - bash .travis/run_examples_and_tests.sh
 #  - bash .travis/run_test_as_user.sh
 #  - bash .travis/build_docs.sh
 #  - bash .travis/push_docs_to_gh_pages.sh

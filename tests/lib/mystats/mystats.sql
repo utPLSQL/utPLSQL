@@ -2,105 +2,105 @@
 -- ----------------------------------------------------------------------------------------------
 --
 -- Utility:         MyStats
---                  
+--
 -- Script:          mystats.sql
---                  
+--
 -- Version:         2.01
---                  
+--
 -- Author:          Adrian Billington
 --                  www.oracle-developer.net
---                  (c) oracle-developer.net 
---                  
+--                  (c) oracle-developer.net
+--
 -- Description:     A free-standing SQL*Plus script to output the resource consumption of a unit or
---                  units of work as recorded in v$mystat, v$latch and v$sess_time_model. 
+--                  units of work as recorded in v$mystat, v$latch and v$sess_time_model.
 --                  Based on Jonathan Lewis's SNAP_MY_STATS package but as a standalone script (i.e.
 --                  no database objects need to be created.
---                  
+--
 --                  Key Differences
 --                  ---------------
---                  
+--
 --                     a) This is a SQL*Plus script that requires no objects to be created;
---                  
+--
 --                     b) This includes latch statistics and makes use of Tom
 --                        Kyte's RUNSTATS method for distinguising between stats
 --                        and latches;
---                  
+--
 --                     c) This includes advanced reporting options (see Usage and Examples
 --                        sections below for details);
---                  
+--
 --                     d) This includes a session time model report;
---                  
+--
 --                     e) This requires at least version 10.1 to run because it
 --                        makes use of collection methods such as MEMBER OF and
 --                        reports on V$SESS_TIME_MODEL statistics.
---                  
+--
 -- Configuration:   Edit the c_ms_rmcmd variable in the Constants section at the start of this
 --                  script to use the correct file deletion command for your SQL*Plus client
 --                  platform. It is defaulted to a Windows "del" command, so you will need to
 --                  change it if you are using a Linux/Unix SQL*Plus client.
---                  
+--
 --                  Reason: To make this run in standalone mode, a couple of temporary files
 --                  are written to your current directory. These files are automatically
 --                  removed on completion of this script.
---                  
+--
 -- Usage:           @mystats start
 --                  --<do some work>--
 --                  @mystats stop [optional reporting parameter]
---                  
+--
 --                  Optional reporting parameter formats:
---                  
+--
 --                  Short Format      Long Format Equivalent
 --                  ---------------   ----------------------
 --                  t=<number>        threshold=<number>
 --                  l=<string>        like=<string>
 --                  n=<string list>   names=<string list>
---                  
+--
 --                  Use double-quotes when the strings contain spaces.
---                  
+--
 -- Examples:        1. Output all statistics
 --                  -------------------------------------------------------------
 --                  @mystats start
 --                  --<do some work>--
 --                  @mystats stop
---                  
+--
 --                  2. Output statistics with delta values >= 1,000
---                  -------------------------------------------------------------   
+--                  -------------------------------------------------------------
 --                  @mystats start
 --                  --<do some work>--
 --                  @mystats stop t=1000
---                  
+--
 --                  3. Output statistics for "redo size" and "user commits" only
 --                  -------------------------------------------------------------
 --                  @mystats start
 --                  --<do some work>--
 --                  @mystats stop "n=redo size, user commits"
---                  
---                  4. Output statistics for those containing the word 'memory' 
+--
+--                  4. Output statistics for those containing the word 'memory'
 --                  -------------------------------------------------------------
 --                  @mystats start
 --                  --<do some work>--
 --                  @mystats stop l=memory
---                  
+--
 -- Notes:           1. See http://www.jlcomp.demon.co.uk/snapshot.html for original
 --                     version.
---                  
+--
 --                  2. As described in Configuration above, this script writes and removes
 --                     a couple of temporary files during execution.
 --
 --                  3. A PL/SQL package version of MyStats is also available.
---                  
+--
 -- Disclaimer:      http://www.oracle-developer.net/disclaimer.php
 --
 -- ----------------------------------------------------------------------------------------------
 
-set define on autoprint off 
+set define on autoprint off
 set serveroutput on format wrapped
 
 -- Constants...
 -- -----------------------------------------------------------------------
 define c_ms_version = 2.01
-define c_ms_rmcmd   = "del"  --Windows
---define c_ms_rmcmd = "rm"   --Unix/Linux
+--define c_ms_rmcmd   = "del"  --Windows
+define c_ms_rmcmd = "rm"   --Unix/Linux
 define c_ms_init    = "_ms_init.sql"
 define c_ms_clear   = "_ms_teardown.sql"
 
@@ -114,7 +114,7 @@ col 2 new_value 2
 
 select null as "1"
 ,      null as "2"
-from   dual 
+from   dual
 where  1=2;
 
 
@@ -236,7 +236,7 @@ declare
                           union all
                           select 'LATCH'
                           ,      name
-                          ,      gets 
+                          ,      gets
                           from   v$latch
                           union all
                           select 'TIME'
@@ -342,7 +342,7 @@ declare
                   order  by
                          abs(diff) )
       loop
-         dbms_output.put_line(rpad(r.type,8) || rpad(r.name,64) || 
+         dbms_output.put_line(rpad(r.type,8) || rpad(r.name,64) ||
                               lpad(to_char(r.diff,'999,999,999,999'),18));
       end loop;
 
@@ -376,7 +376,7 @@ begin
       ms_snap(g_snaps.snap2);
       ms_report(g_times, g_snaps);
    else
-      raise_application_error( -20000, 
+      raise_application_error( -20000,
                               'Incorrect parameter at position 1 '||
                               '[used="&v_ms_snap"; valid="start" or "stop"]',
                               false );

@@ -50,7 +50,7 @@ select i.name, i.type, i.object_name, i.object_type, i.usage, i.line, i.col, cou
 ;
 
 
-exec  :errcnt := nvl('&errcnt_a',0) + nvl('&errcnt_l',0) + nvl('&errcnt_c',0); 
+exec  :errcnt := nvl('&errcnt_a',0) + nvl('&errcnt_l',0) + nvl('&errcnt_c',0);
 
 --quit :errcnt
-exit success
+-- exit success

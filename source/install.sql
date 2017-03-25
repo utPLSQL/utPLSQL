@@ -17,6 +17,7 @@
 prompt Installing utplsql framework
 
 set serveroutput on size unlimited
+set feedback on
 set timing off
 set verify off
 set define &
@@ -264,5 +265,3 @@ end;
 /
 
 spool off
-
-exit success
