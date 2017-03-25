@@ -89,8 +89,8 @@ create or replace type body ut_teamcity_reporter is
                                                                 ,a_out       => trim(l_std_err_msg)));
         self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
                                                                ,a_msg       => 'Error occured'
-                                                               ,a_details   => trim(l_std_err_msg) || a_test.results(1)
-                                                                              .message));
+                                                               ,a_details   => trim(l_std_err_msg) || case when a_test.results is not null and a_test.results.count>0 then a_test.results(1)
+                                                                              .message end));
       elsif a_test.results is not null and a_test.results.count > 0 then
         for i in 1 .. a_test.results.count loop
 
