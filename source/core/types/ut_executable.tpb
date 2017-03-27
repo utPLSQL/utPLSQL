@@ -84,10 +84,13 @@ create or replace type body ut_executable is
       loop
         dbms_output.get_line(line => l_line, status => l_status);
         exit when l_status = 1;
-
-        dbms_lob.writeappend(lob_loc => self.serveroutput,
-                             amount  => length(l_line),
-                             buffer  => l_line);
+       
+       if l_line is not null then
+            dbms_lob.writeappend(lob_loc => self.serveroutput,
+                                 amount  => length(l_line),
+                                 buffer  => l_line);
+        end if;                                   
+        
         dbms_lob.writeappend(lob_loc => self.serveroutput,
                              amount  => 1,
                              buffer  => chr(10));
