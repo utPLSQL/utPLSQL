@@ -35,7 +35,7 @@ env:
   matrix:
     - ORACLE_VERSION="12c-se-r1" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1'
     - ORACLE_VERSION="11g-xe-r2" CONNECTION_STR='127.0.0.1:1521/XE'        DOCKER_OPTIONS='--shm-size=1g'
-    - ORACLE_VERSION="12c-se2-r2-v2" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1'
+    - ORACLE_VERSION="12c-se2-r2-v2" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' $DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
 
 cache:
   pip: true

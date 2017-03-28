@@ -12,13 +12,8 @@ else
     mkdir -p $HOME/.docker && cp $CACHE_DIR/.docker/config.json $HOME/.docker/
 fi
 
-
-if [ "$ORACLE_VERSION" == "12c-se2-r2" ]; then
 mkdir -p /dev/pdbs
-docker pull $DOCKER_BASE_TAG:$ORACLE_VERSION
-docker run -d --name $ORACLE_VERSION $DOCKER_OPTIONS -p 1521:1521 -v /dev/pdbs:/opt/oracle/oradata/pdbs $DOCKER_BASE_TAG:$ORACLE_VERSION
-else
+
 docker pull $DOCKER_BASE_TAG:$ORACLE_VERSION
 docker run -d --name $ORACLE_VERSION $DOCKER_OPTIONS -p 1521:1521 $DOCKER_BASE_TAG:$ORACLE_VERSION
-fi
 docker logs -f $ORACLE_VERSION | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
