@@ -46,6 +46,7 @@ cache:
 install:
   - pip install mkdocs
   - bash .travis/install_sqlcl.sh
+  - dh -f
   - bash .travis/start_db.sh
 
 script:
