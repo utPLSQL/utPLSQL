@@ -74,7 +74,7 @@ create or replace type body ut_equal as
     return;
   end;
 
-  constructor function ut_equal(self in out nocopy ut_equal, a_expected sys_refcursor, a_exclude ut_varchar2_list := null, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected sys_refcursor, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null) return self as result is
     i integer;
   begin
     i := a_exclude.first;
