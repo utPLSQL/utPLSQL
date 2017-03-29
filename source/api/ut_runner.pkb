@@ -17,6 +17,11 @@ create or replace package body ut_runner is
   limitations under the License.
   */
 
+  function version return varchar2 is
+  begin
+    return ut_utils.gc_version;
+  end;
+
   procedure run(a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false) is
     l_items_to_run  ut_run;
     l_listener      ut_event_listener;

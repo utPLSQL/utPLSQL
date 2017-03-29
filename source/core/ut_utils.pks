@@ -22,6 +22,7 @@ create or replace package ut_utils authid definer is
 
   */
 
+  gc_version                 constant varchar2(50) := 'utPLSQL - Version X.X.X.X';
 
   /* Constants: Event names */
   gc_run                     constant varchar2(12) := 'run';

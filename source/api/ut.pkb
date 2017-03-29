@@ -17,6 +17,11 @@ create or replace package body ut is
   limitations under the License.
   */
 
+  function version return varchar2 is
+  begin
+    return ut_utils.gc_version;
+  end;
+
   function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_anydata is
   begin
     return ut_expectation_anydata(ut_data_value_anydata(a_actual), a_message);
