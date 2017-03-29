@@ -17,6 +17,11 @@ create or replace package body ut is
   limitations under the License.
   */
 
+  function version return varchar2 is
+  begin
+    return ut_utils.gc_version;
+  end;
+
   function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_anydata is
   begin
     return ut_expectation_anydata(ut_data_value_anydata(a_actual), a_message);
@@ -84,7 +89,7 @@ create or replace package body ut is
 
   procedure fail(a_message in varchar2) is
   begin
-    ut_assert_processor.report_error(a_message);
+    ut_assert_processor.report_failure(a_message);
   end;
 
   procedure run_autonomous(a_paths ut_varchar2_list, a_reporter ut_reporter_base, a_color_console integer) is

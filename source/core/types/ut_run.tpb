@@ -16,18 +16,13 @@ create or replace type body ut_run as
   limitations under the License.
   */
 
-  constructor function ut_run( self in out nocopy ut_run, a_items ut_suite_items ) return self as result is
+  constructor function ut_run(self in out nocopy ut_run, a_items ut_suite_items, a_run_paths ut_varchar2_list := null) return self as result is
   begin
+    self.run_paths := a_run_paths;
     self.self_type := $$plsql_unit;
     self.items := a_items;
     self.results_count := ut_results_counter();
     return;
-  end;
-
-  overriding member procedure do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base) is
-    l_completed_without_errors boolean;
-  begin
-    l_completed_without_errors := self.do_execute(a_listener);
   end;
 
   overriding member function do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base) return boolean is
@@ -38,6 +33,9 @@ create or replace type body ut_run as
     a_listener.fire_before_event(ut_utils.gc_run, self);
 
     self.start_time := current_timestamp;
+
+    -- clear anything that might stay in the session's cache
+    ut_assert_processor.clear_asserts;
 
     for i in 1 .. self.items.count loop
       l_completed_without_errors := self.items(i).do_execute(a_listener);
@@ -68,5 +66,69 @@ create or replace type body ut_run as
     self.result := l_result;
   end;
 
+  overriding member procedure mark_as_errored(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base, a_error_stack_trace varchar2) is
+  begin
+    ut_utils.debug_log('ut_run.fail');
+
+    a_listener.fire_before_event(ut_utils.gc_run, self);
+    self.start_time := current_timestamp;
+
+    for i in 1 .. self.items.count loop
+      self.items(i).mark_as_errored(a_listener, a_error_stack_trace);
+    end loop;
+
+    self.calc_execution_result();
+    self.end_time := self.start_time;
+
+    a_listener.fire_after_event(ut_utils.gc_run, self);
+  end;
+
+  member function get_run_schemes return ut_varchar2_list is
+    l_schema          varchar2(128);
+    c_current_schema  constant varchar2(128) := sys_context('USERENV','CURRENT_SCHEMA');
+    l_path            varchar2(32767);
+    l_schemes         ut_varchar2_list;
+  begin
+    if run_paths is not null then
+      l_schemes := ut_varchar2_list();
+      for i in 1 .. self.run_paths.count loop
+        l_path := self.run_paths(i);
+        if regexp_like(l_path, '^(\w+)?:') then
+          l_schema := regexp_substr(l_path, '^(\w+)?:',subexpression => 1);
+          if l_schema is not null then
+            l_schema := sys.dbms_assert.schema_name(upper(l_schema));
+          else
+            l_schema := c_current_schema;
+          end if;
+        else
+          begin
+            l_schema := sys.dbms_assert.schema_name(upper(regexp_substr(l_path, '^\w+')));
+          exception
+            when sys.dbms_assert.invalid_schema_name then
+              l_schema := c_current_schema;
+          end;
+
+        end if;
+        l_schemes.extend;
+        l_schemes(l_schemes.last) := l_schema;
+      end loop;
+    else
+      l_schemes := ut_varchar2_list(c_current_schema);
+    end if;
+    return l_schemes;
+
+  end;
+  
+  overriding member function get_error_stack_traces return ut_varchar2_list is
+  begin
+    return ut_varchar2_list();
+  end;
+  
+  overriding member function get_serveroutputs return clob is
+  begin
+    return null;
+  end;
+
+  
 end;
 /

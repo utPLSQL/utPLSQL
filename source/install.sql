@@ -17,6 +17,7 @@
 prompt Installing utplsql framework
 
 set serveroutput on size unlimited
+set feedback on
 set timing off
 set verify off
 set define &
@@ -34,6 +35,11 @@ whenever oserror exit failure rollback
 
 --common utilities
 @@core/types/ut_varchar2_list.tps
+@@core/types/ut_object_name.tps
+@@core/types/ut_object_name.tpb
+@@core/types/ut_object_names.tps
+@@core/types/ut_key_value_pair.tps
+@@core/types/ut_key_value_pairs.tps
 @@core/ut_utils.pks
 @@core/ut_metadata.pks
 @@core/ut_utils.pkb
@@ -77,6 +83,22 @@ whenever oserror exit failure rollback
 @@core/ut_assert_processor.pks
 @@core/ut_assert_processor.pkb
 
+--installing profiler tabs if they dont exist
+whenever sqlerror continue
+@@core/coverage/proftab.sql
+whenever sqlerror exit failure rollback
+
+--gathering coverage
+@@core/coverage/ut_coverage_sources_tmp.sql
+@@core/coverage/ut_coverage_helper.pks
+@@core/coverage/ut_coverage_helper.pkb
+@@core/coverage/ut_coverage_file_mapping.tps
+@@core/coverage/ut_coverage_file_mappings.tps
+@@core/coverage/ut_coverage.pks
+@@core/coverage/ut_coverage.pkb
+@@core/coverage/ut_coverage_reporter_base.tps
+@@core/coverage/ut_coverage_reporter_base.tpb
+
 --core type bodies
 @@core/types/ut_results_counter.tpb
 @@core/types/ut_suite_item.tpb
@@ -118,8 +140,8 @@ whenever oserror exit failure rollback
 @@expectations/matchers/ut_be_true.tps
 @@expectations/matchers/ut_equal.tps
 @@expectations/matchers/ut_be_between.tps
-@@expectations/matchers/ut_be_within.tps
 @@expectations/matchers/ut_be_empty.tps
+@@expectations/matchers/ut_be_within.tps
 @@expectations/matchers/ut_match.tps
 @@expectations/ut_expectation.tps
 @@expectations/ut_expectation_anydata.tps
@@ -160,8 +182,8 @@ whenever oserror exit failure rollback
 @@expectations/matchers/ut_be_true.tpb
 @@expectations/matchers/ut_equal.tpb
 @@expectations/matchers/ut_be_between.tpb
-@@expectations/matchers/ut_be_within.tpb
 @@expectations/matchers/ut_be_empty.tpb
+@@expectations/matchers/ut_be_within.tpb
 @@expectations/matchers/ut_match.tpb
 @@expectations/ut_expectation.tpb
 @@expectations/ut_expectation_anydata.tpb
@@ -198,8 +220,18 @@ whenever oserror exit failure rollback
 @@reporters/ut_xunit_reporter.tps
 @@reporters/ut_xunit_reporter.tpb
 
-@@api/be_within.syn
+
+@@reporters/ut_coverage_html_reporter.tps
+@@reporters/ut_coverage_report_html_helper.pks
+@@reporters/ut_coverage_report_html_helper.pkb
+@@reporters/ut_coverage_html_reporter.tpb
+@@reporters/ut_coverage_sonar_reporter.tps
+@@reporters/ut_coverage_sonar_reporter.tpb
+@@reporters/ut_coveralls_reporter.tps
+@@reporters/ut_coveralls_reporter.tpb
+
 @@api/be_between.syn
+@@api/be_within.syn
 @@api/be_empty.syn
 @@api/be_false.syn
 @@api/be_greater_or_equal.syn
@@ -236,5 +268,3 @@ end;
 /
 
 spool off
-
-exit success

@@ -24,14 +24,20 @@ create or replace type body ut_reporter_base is
     return;
   end;
 
-  final member function get_reporter_id(self in out nocopy ut_reporter_base) return raw is
-  begin
-    return self.reporter_id;
-  end;
-
   member procedure print_text(self in out nocopy ut_reporter_base, a_text varchar2) is
   begin
     ut_output_buffer.send_line(self,a_text);
+  end;
+
+  member procedure print_clob(self in out nocopy ut_reporter_base, a_clob clob) is
+    l_lines ut_varchar2_list;
+  begin
+    if a_clob is not null and dbms_lob.getlength(a_clob) > 0 then
+      l_lines := ut_utils.clob_to_table(a_clob);
+      for i in 1 .. l_lines.count loop
+        self.print_text(l_lines(i));
+      end loop;
+    end if;
   end;
 
   -- run hooks
@@ -55,11 +61,11 @@ create or replace type body ut_reporter_base is
     null;
   end;
 
-  member procedure before_calling_before_each(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
+  member procedure before_calling_before_each(self in out nocopy ut_reporter_base, a_suite in ut_test) is
   begin
     null;
   end;
-  member procedure after_calling_before_each (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
+  member procedure after_calling_before_each (self in out nocopy ut_reporter_base, a_suite in ut_test) is
   begin
     null;
   end;
@@ -103,11 +109,11 @@ create or replace type body ut_reporter_base is
   end;
 
   --suite hooks continued
-  member procedure before_calling_after_each(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
+  member procedure before_calling_after_each(self in out nocopy ut_reporter_base, a_suite in ut_test) is
   begin
     null;
   end;
-  member procedure after_calling_after_each (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite) is
+  member procedure after_calling_after_each (self in out nocopy ut_reporter_base, a_suite in ut_test) is
   begin
     null;
   end;
@@ -131,5 +137,6 @@ create or replace type body ut_reporter_base is
   begin
     ut_output_buffer.close(self);
   end;
+
 end;
 /

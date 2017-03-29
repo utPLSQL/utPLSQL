@@ -8,8 +8,7 @@
 
 utPLSQL is hosted on [hosted on GitHub](https://github.com/utPLSQL/utPLSQL) and open source project.
 
-Community help on this project is always appreciated, if your interested in helping please read our [guide to contributing](https://github.com/utPLSQL/utPLSQL/blob/master/CONTRIBUTING.md)
+Community help on this project is always appreciated, if your interested in helping please read our [guide to contributing](CONTRIBUTING.md)
 
 
 
- 

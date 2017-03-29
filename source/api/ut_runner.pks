@@ -17,6 +17,8 @@ create or replace package ut_runner authid current_user is
   limitations under the License.
   */
 
+  function version return varchar2;
+
   /**
   * Run suites/tests by path
   * Accepts value of the following formats:

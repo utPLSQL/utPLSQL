@@ -21,7 +21,7 @@ create or replace package body ut_teamcity_reporter_helper is
 
   function escape_value(a_value in varchar2) return varchar2 is
   begin
-    return regexp_replace(a_value, '(''|"|' || chr(13) || '|' || chr(10) || '|[|])', '|\1');
+    return translate(regexp_replace(a_value, '(''|"|[|]|' || chr(13) || '|' || chr(10) || ')', '|\1'),chr(13)||chr(10),'nr');
   end;
 
   function message(a_command in varchar2, a_props t_props default cast(null as t_props)) return varchar2 is
@@ -30,7 +30,7 @@ create or replace package body ut_teamcity_reporter_helper is
     l_value   varchar2(32767);
   begin
     l_message := '##teamcity[' || a_command || ' timestamp=''' ||
-                 regexp_replace(to_char(systimestamp, 'YYYY-MM-DD"T"HH24:MI:ss.FFTZHTZM'), '(\.\d{3})\d+(\+)', '\1\2') || '''';
+                 regexp_replace(to_char(systimestamp, 'YYYY-MM-DD"T"HH24:MI:ss.FF3TZHTZM'), '(\.\d{3})\d+(\+)', '\1\2') || '''';
 
     l_index := a_props.first;
     while l_index is not null loop
@@ -101,7 +101,7 @@ create or replace package body ut_teamcity_reporter_helper is
     return message('testFinished', l_props);
   end;
 
-  function test_ignored(a_test_name varchar2, a_flow_id varchar2 default null) return varchar2 is
+  function test_disabled(a_test_name varchar2, a_flow_id varchar2 default null) return varchar2 is
     l_props t_props;
   begin
     l_props('name') := a_test_name;
