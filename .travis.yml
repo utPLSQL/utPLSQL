@@ -25,6 +25,15 @@ env:
     - UT3_USER=ut3_user
     - UT3_USER_PASSWORD=ut3
     - UT3_TABLESPACE=users
+    # Environment for building a release
+    - CURRENT_BRANCH=${TRAVIS_BRANCH}
+    - UTPLSQL_REPO="utPLSQL/utPLSQL"
+    - UTPLSQL_BUILD_NO="${TRAVIS_BUILD_NUMBER:-0}"
+    - UTPLSQL_VERSION_PLACEHOLDER='utPLSQL - Version'
+    - UTPLSQL_VERSION=$(. .travis/get_project_version.sh)
+    - UTPLSQL_BUILD_VERSION=$(. .travis/get_project_build_version.sh)
+    - UTPLSQL_SOURCES_DIR='source'
+    - UTPLSQL_BUILD_USER_NAME="Travis CI"
     # Target Branch and Directory for Deployment of Docs
     - PAGES_TARGET_BRANCH="gh-pages"
     - PAGES_VERSION_BASE="version3"
@@ -48,27 +57,39 @@ install:
   - bash .travis/install_sqlcl.sh
   - sudo mkdir -p /dev/pdbs
   - sudo chmod -R 777 /dev/pdbs
-  - bash .travis/start_db.sh
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/start_db.sh; fi
+
+before_script:
+  #The update_project_version is done before deployment to validate that the change of project files does not break installation
+  - bash .travis/update_project_version.sh
+  - git config --global user.email "builds@travis-ci.com"
+  - git config --global user.name "${UTPLSQL_BUILD_USER_NAME}"
+  - git remote rm origin
+  - git remote add origin https://${github_api_token}@github.com/${UTPLSQL_REPO}
 
 script:
-  - bash .travis/install.sh
-  - bash .travis/run_examples_and_tests.sh
-#  - bash .travis/run_test_as_user.sh
-#  - bash .travis/build_docs.sh
-#  - bash .travis/push_docs_to_gh_pages.sh
-  - sonar-scanner
-  - bash .travis/coveralls_uploader.sh
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install.sh; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_examples_and_tests.sh; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then sonar-scanner; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/coveralls_uploader.sh; fi
+  - bash .travis/build_docs.sh
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/push_release_version.sh; fi
+
+before_deploy:
+  - bash .travis/build_release_archive.sh
 
 deploy:
   provider: releases
   api_key: $github_api_token
   file:
-     - utPLSQL$TRAVIS_TAG.zip
-     - utPLSQL$TRAVIS_TAG.tar.gz
+     - utPLSQL${UTPLSQL_BUILD_VERSION}.zip
+     - utPLSQL${UTPLSQL_BUILD_VERSION}.tar.gz
   skip_cleanup: true
   on:
-     repo: utPLSQL/utPLSQL
+     repo: ${UTPLSQL_REPO}
      tags: true
+     # when building from a release tag, use only first job "#xxx.1" to publish artifacts
+     condition: "${TRAVIS_JOB_NUMBER} =~ \\.1$"
 
 notifications:
   slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
