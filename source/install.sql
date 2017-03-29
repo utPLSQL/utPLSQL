@@ -118,6 +118,7 @@ whenever oserror exit failure rollback
 @@expectations/matchers/ut_be_true.tps
 @@expectations/matchers/ut_equal.tps
 @@expectations/matchers/ut_be_between.tps
+@@expectations/matchers/ut_be_within.tps
 @@expectations/matchers/ut_be_empty.tps
 @@expectations/matchers/ut_match.tps
 @@expectations/ut_expectation.tps
@@ -159,6 +160,7 @@ whenever oserror exit failure rollback
 @@expectations/matchers/ut_be_true.tpb
 @@expectations/matchers/ut_equal.tpb
 @@expectations/matchers/ut_be_between.tpb
+@@expectations/matchers/ut_be_within.tpb
 @@expectations/matchers/ut_be_empty.tpb
 @@expectations/matchers/ut_match.tpb
 @@expectations/ut_expectation.tpb
@@ -196,6 +198,7 @@ whenever oserror exit failure rollback
 @@reporters/ut_xunit_reporter.tps
 @@reporters/ut_xunit_reporter.tpb
 
+@@api/be_within.syn
 @@api/be_between.syn
 @@api/be_empty.syn
 @@api/be_false.syn
