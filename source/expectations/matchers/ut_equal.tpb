@@ -65,8 +65,26 @@ create or replace type body ut_equal as
     return;
   end;
 
-  constructor function ut_equal(self in out nocopy ut_equal, a_expected sys_refcursor, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected sys_refcursor, a_exclude varchar2 := null, a_nulls_are_equal boolean := null) return self as result is
   begin
+    if a_exclude is not null then
+      self.exclude_xpath := '//'||replace(a_exclude,',','|//');
+    end if;
+    init(ut_data_value_refcursor(a_expected), a_nulls_are_equal);
+    return;
+  end;
+
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected sys_refcursor, a_exclude ut_varchar2_list := null, a_nulls_are_equal boolean := null) return self as result is
+    i integer;
+  begin
+    i := a_exclude.first;
+    while i is not null loop
+      if a_exclude(i) is not null then
+        self.exclude_xpath := self.exclude_xpath || '//'||a_exclude(i)||'|';
+      end if;
+      i := a_exclude.next(i);
+    end loop;
+    self.exclude_xpath := rtrim(self.exclude_xpath,',|');
     init(ut_data_value_refcursor(a_expected), a_nulls_are_equal);
     return;
   end;
@@ -109,6 +127,23 @@ create or replace type body ut_equal as
 
   overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean is
     l_result boolean;
+    procedure setup_xml_context(a_xml_context number) is
+    begin
+      dbms_xmlgen.setMaxRows(a_xml_context, 1000);
+      dbms_xmlgen.setnullhandling(a_xml_context, dbms_xmlgen.empty_tag);
+    end;
+
+    function get_xml_chunk(a_xml_ctx number, a_xml out xmltype) return integer is
+    begin
+      if self.exclude_xpath is not null then
+      select deletexml( dbms_xmlgen.getxmltype(a_xml_ctx), self.exclude_xpath )
+        into a_xml
+        from dual;
+      else
+        a_xml := dbms_xmlgen.getxmltype(a_xml_ctx);
+      end if;
+      return dbms_xmlgen.getnumrowsprocessed(a_xml_ctx);
+    end;
   begin
     if self.expected is of (ut_data_value_anydata) and a_actual is of (ut_data_value_anydata)
       --anydata can hold many different data types
@@ -166,15 +201,27 @@ create or replace type body ut_equal as
       end;
     elsif self.expected is of (ut_data_value_refcursor) and a_actual is of (ut_data_value_refcursor) then
       declare
-        l_expected ut_data_value_refcursor := treat(self.expected as ut_data_value_refcursor);
-        l_actual   ut_data_value_refcursor := treat(a_actual as ut_data_value_refcursor);
+        l_expected      ut_data_value_refcursor := treat(self.expected as ut_data_value_refcursor);
+        l_actual        ut_data_value_refcursor := treat(a_actual as ut_data_value_refcursor);
+        l_expected_xml  xmltype;
+        l_actual_xml    xmltype;
+        l_expected_rows integer;
+        l_actual_rows   integer;
       begin
         if l_expected.data_value is not null and l_actual.data_value is not null then
-          --fetch 1M rows max
-          dbms_xmlgen.setMaxRows(l_expected.data_value, 1000000);
-          dbms_xmlgen.setMaxRows(l_actual.data_value, 1000000);
           ut_assert_processor.set_xml_nls_params();
-          l_result := dbms_lob.compare( dbms_xmlgen.getxml(l_expected.data_value), dbms_xmlgen.getxml(l_actual.data_value) ) = 0;
+          setup_xml_context(l_expected.data_value);
+          setup_xml_context(l_actual.data_value);
+          loop
+            l_expected_rows := get_xml_chunk(l_expected.data_value, l_expected_xml);
+            l_actual_rows := get_xml_chunk(l_actual.data_value, l_actual_xml);
+
+            l_result := l_expected_rows = l_actual_rows;
+            if l_expected_rows > 0 and l_actual_rows > 0 then
+              l_result := dbms_lob.compare( l_expected_xml.getclobval(), l_actual_xml.getclobval() ) = 0;
+            end if;
+            exit when l_result != true or l_expected_rows = 0 or l_actual_rows = 0;
+          end loop;
           ut_assert_processor.reset_nls_params();
         else
           l_result := equal_with_nulls( null, a_actual);

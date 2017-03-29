@@ -66,8 +66,12 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothObjectsAreNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.PutsObjectStrucureIntoAssert.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnNameListIsCaseSensitive.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnNamesAreCaseSensitive.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesFailureForDifferentValues.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValues.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValuesWithExcludedColumnList.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValuesWithExcludedColumns.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ReturnsCursorDataForFailure.sql
 @@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentDataTypes.sql
 @@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentValues.sql

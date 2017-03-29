@@ -33,79 +33,85 @@ create or replace type body ut_expectation as
   member procedure to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected blob, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected blob, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected boolean, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected boolean, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected clob, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected clob, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected date, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected date, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected number, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected number, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
-  member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_nulls_are_equal boolean := null) is
+  member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude varchar2 := null, a_nulls_are_equal boolean := null) is
   begin
-    ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected sys_refcursor, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude varchar2 := null, a_nulls_are_equal boolean := null)');
+    self.to_( ut_equal(a_expected, a_exclude, a_nulls_are_equal) );
+  end;
+
+  member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude ut_varchar2_list := null, a_nulls_are_equal boolean := null) is
+  begin
+    ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude ut_varchar2_list := null, a_nulls_are_equal boolean := null)');
+    self.to_( ut_equal(a_expected, a_exclude, a_nulls_are_equal) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected varchar2, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected varchar2, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null)');
-    self.to_( ut_equal(a_expected) );
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
   final member procedure to_(self in ut_expectation, a_matcher ut_matcher) is
