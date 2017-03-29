@@ -22,10 +22,18 @@ env:
   global:
     - UT3_OWNER=ut3
     - UT3_OWNER_PASSWORD=ut3
-    - UT3_OWNER_TABLESPACE=users
     - UT3_USER=ut3_user
     - UT3_USER_PASSWORD=ut3
-    - UT3_USER_TABLESPACE=users
+    - UT3_TABLESPACE=users
+    # Environment for building a release
+    - CURRENT_BRANCH=${TRAVIS_BRANCH}
+    - UTPLSQL_REPO="utPLSQL/utPLSQL"
+    - UTPLSQL_BUILD_NO="${TRAVIS_BUILD_NUMBER:-0}"
+    - UTPLSQL_VERSION_PLACEHOLDER='utPLSQL - Version'
+    - UTPLSQL_VERSION=$(. .travis/get_project_version.sh)
+    - UTPLSQL_BUILD_VERSION=$(. .travis/get_project_build_version.sh)
+    - UTPLSQL_SOURCES_DIR='source'
+    - UTPLSQL_BUILD_USER_NAME="Travis CI"
     # Target Branch and Directory for Deployment of Docs
     - PAGES_TARGET_BRANCH="gh-pages"
     - PAGES_VERSION_BASE="version3"
@@ -33,53 +41,55 @@ env:
     # Database Env
     - SQLCLI="$HOME/sqlcl/bin/sql"
     - ORACLE_PWD="oracle"
-    - CONTAINER_IP=""
-    - CONNECTION_STR=""
-    - ORACLE_12cR1SE="12c-se-r1"
-    - ORACLE_11gR2XE="11g-xe-r2"
   matrix:
-    - ORACLE_VERSION=$ORACLE_12cR1SE
-    - ORACLE_VERSION=$ORACLE_11gR2XE
+    - ORACLE_VERSION="12c-se-r1" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1'
+    - ORACLE_VERSION="11g-xe-r2" CONNECTION_STR='127.0.0.1:1521/XE'        DOCKER_OPTIONS='--shm-size=1g'
+    - ORACLE_VERSION="12c-se2-r2-v2" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
 
 cache:
+  pip: true
   directories:
     - $CACHE_DIR
+    - node_modules
 
 install:
-  - pip install -r .travis/python_req.txt
-  - npm install -g phantomjs-prebuilt casperjs
+  - pip install mkdocs
   - bash .travis/install_sqlcl.sh
-  - bash .travis/start_db.sh
+  - sudo mkdir -p /dev/pdbs
+  - sudo chmod -R 777 /dev/pdbs
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/start_db.sh; fi
+
+before_script:
+  #The update_project_version is done before deployment to validate that the change of project files does not break installation
+  - bash .travis/update_project_version.sh
+  - git config --global user.email "builds@travis-ci.com"
+  - git config --global user.name "${UTPLSQL_BUILD_USER_NAME}"
+  - git remote rm origin
+  - git remote add origin https://${github_api_token}@github.com/${UTPLSQL_REPO}
 
 script:
-  - CONTAINER_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $ORACLE_VERSION)
-  - test $ORACLE_VERSION = $ORACLE_12cR1SE && CONNECTION_STR="$CONTAINER_IP:1521/ORCLPDB1" || true
-  - test $ORACLE_VERSION = $ORACLE_11gR2XE && CONNECTION_STR="$CONTAINER_IP:1521/XE" || true
-  - bash .travis/create_utplsql_owner.sh
-  - bash .travis/create_utplsql_user.sh
-  - bash .travis/install_libraries.sh
-  - bash .travis/install.sh
-  - bash .travis/grant_user.sh
-  - bash .travis/run_examples_as_owner.sh
-  - bash .travis/run_test_as_owner.sh
-  - bash .travis/run_examples_as_user.sh
-  - bash .travis/create_release.sh
-#  - bash .travis/run_test_as_user.sh
-#  - bash .travis/build_docs.sh
-#  - bash .travis/push_docs_to_gh_pages.sh
-  - sonar-scanner
-  - bash .travis/coveralls_uploader.sh
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install.sh; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_examples_and_tests.sh; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then sonar-scanner; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/coveralls_uploader.sh; fi
+  - bash .travis/build_docs.sh
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/push_release_version.sh; fi
+
+before_deploy:
+  - bash .travis/build_release_archive.sh
 
 deploy:
   provider: releases
   api_key: $github_api_token
   file:
-     - utPLSQL$TRAVIS_TAG.zip
-     - utPLSQL$TRAVIS_TAG.tar.gz
+     - utPLSQL${UTPLSQL_BUILD_VERSION}.zip
+     - utPLSQL${UTPLSQL_BUILD_VERSION}.tar.gz
   skip_cleanup: true
   on:
-     repo: utPLSQL/utPLSQL
+     repo: ${UTPLSQL_REPO}
      tags: true
+     # when building from a release tag, use only first job "#xxx.1" to publish artifacts
+     condition: "${TRAVIS_JOB_NUMBER} =~ \\.1$"
 
 notifications:
   slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB

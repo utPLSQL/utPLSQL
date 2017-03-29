@@ -10,3 +10,4 @@ pages/
 release/
 *.gz
 *.zip
+node_modules/
