@@ -100,14 +100,10 @@ create or replace type body ut_be_within AS
       declare
         l_expected ut_data_value_timestamp_tz := treat(self.expected as ut_data_value_timestamp_tz);
         l_actual   ut_data_value_timestamp_tz := treat(a_actual as ut_data_value_timestamp_tz);
-        l_lower timestamp with time zone;
-        l_upper timestamp with time zone;
       begin
         -- time zone information in timestamps with time zone variables is lost when used in arithmetic operations
-        -- they are implictly converted to date type
-        l_lower := to_timestamp_tz(to_char(l_expected.data_value+(self.pct/100),'yyyy-mm-dd hh24.mi.ss')||'.00 +'||lpad(extract(timezone_hour from l_expected.data_value),2,'0')||':'||lpad(extract(timezone_minute from l_expected.data_value),2,'0'),'yyyy-mm-dd hh24.mi.ss.ff tzr');
-        l_upper := to_timestamp_tz(to_char(l_expected.data_value-(self.pct/100),'yyyy-mm-dd hh24.mi.ss')||'.00 +'||lpad(extract(timezone_hour from l_expected.data_value),2,'0')||':'||lpad(extract(timezone_minute from l_expected.data_value),2,'0'),'yyyy-mm-dd hh24.mi.ss.ff tzr');
-        l_result := l_actual.data_value between l_lower and l_upper;
+        -- they are implicitly converted to date type
+        l_result := sys_extract_utc(l_actual.data_value) between sys_extract_utc(l_expected.data_value)-(self.pct/100) and sys_extract_utc(l_expected.data_value)+(self.pct/100);
       end;
     elsif self.expected is of (ut_data_value_yminterval) and a_actual is of (ut_data_value_yminterval) then
       declare
