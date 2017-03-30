@@ -7,7 +7,7 @@ declare
   l_asserts_results ut_assert_results;
 begin
   --Act
-  ut.expect(l_value).to_(be_within(1,l_value_upper));
+  ut.expect(l_value_upper).to_(be_within(1,l_value));
   l_asserts_results := ut_assert_processor.get_asserts_results();
   l_result := l_asserts_results(l_asserts_results.last).result;
   --Assert
