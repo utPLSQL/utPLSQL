@@ -8,5 +8,4 @@ mkdocs build --clean --strict
 mkdir docs/markdown
 mv -t docs/markdown/ docs/about docs/images docs/userguide docs/index.md
 mkdir docs/html
-cp -r site docs/html
-
+cp -r -v site/* docs/html
