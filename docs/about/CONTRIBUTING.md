@@ -58,7 +58,7 @@ The build steps are simple if you already have some experience using Docker. You
 > If you are new to Docker, you can start by reading the [Getting Started With Docker](https://docs.docker.com/engine/getstarted/) docs.
 
 ### Build Notes ###
-* You may not forget to comment out the VOLUME line. This step is required, because VOLUMES are not saved using `docker commit` command.
+* You need to comment out the VOLUME line. This step is required, because volumes are not saved when using `docker commit` command.
 
 * When the build proccess is complete, you will run the container to install the database. Once everything is set up and you see the message "DATABASE IS READY!", you may change the password and stop the running container. After the container is stopped, you can safely commit the container.
 
@@ -71,7 +71,7 @@ Travis will use your Docker Hub credentials to pull the private images, and the 
 
 Variable | Description
 ---------|------------
-**DOCKER_USER** **DOCKER_PASSWORD** | _Your Docker Hub website credentials. They will be used to pull the private database images._
+**DOCKER_USER**<br />**DOCKER_PASSWORD** | _Your Docker Hub website credentials. They will be used to pull the private database images._
 
 ### SQLCL ###
 
@@ -79,7 +79,7 @@ Our build configurarion uses SQLCL to run the scripts, and you need to configure
 
 Variable | Description
 ---------|------------
-**ORACLE_OTN_USER ORACLE_OTN_PASSWORD** | _Your Oracle website credentials. They will be used to download SQLCL._
+**ORACLE_OTN_USER<br />ORACLE_OTN_PASSWORD** | _Your Oracle website credentials. They will be used to download SQLCL._
 
 
 ## New to GIT ##
