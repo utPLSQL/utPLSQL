@@ -105,7 +105,7 @@ create or replace package body ut_coverage is
            where s.owner in (select upper(t.column_value) from table(:l_schema_names) t)';
     end if;
     l_result := l_result || q'[
-             and s.type not in ('PACKAGE', 'TYPE')
+             and s.type not in ('PACKAGE', 'TYPE', 'JAVA SOURCE')
              --Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
              and (s.owner, s.name) not in (select el.owner, el.name from table(:l_skipped_objects) el)]';
     if g_include_list is null then
