@@ -40,7 +40,7 @@ end;
 /
 ```
 Executes all unit tests in current schema, gather information about code coverage and output the html text into DBMS_OUTPUT.
-The `ut_coverage_html_reporter` will produce a interactive HTML report. You may see a sample of code coverage for utPLSQL project [here](https://jgebal.github.io/utPLSQL-coverage-html/)
+The `ut_coverage_html_reporter` will produce a interactive HTML report. You may see a sample of code coverage for utPLSQL project [here](https://utplsql.github.io/utPLSQL-coverage-html/)
 
 The report provides a summary information with list of source code that was expected to be covered.
 
