@@ -44,6 +44,8 @@ Parameters:
                    -f=ut_xunit_reporter
                      A XUnit xml format (as defined at: http://stackoverflow.com/a/9691131 and at https://gist.github.com/kuzuha/232902acab1344d6b578)
                      Usually used  by Continuous Integration servers like Jenkins/Hudson or Teamcity to display test results.
+                   -f=ut_coverage_html_reporter
+                     TODO
                  If no -f option is provided, the ut_documentation_reporter will be used.
 
   -o=output    - file name to save the output provided by the reporter.
@@ -117,6 +119,8 @@ set define &
 
 var l_paths          varchar2(4000);
 var l_color_enabled  varchar2(5);
+var l_project_path   varchar2(4000);
+var l_file_list      clob;
 var l_run_params_cur refcursor;
 var l_out_params_cur refcursor;
 /*
@@ -234,6 +238,23 @@ declare
     return 'false';
   end;
 
+  function parse_project_path_param(a_params ut_varchar2_list) return varchar2 is
+    l_path varchar2(4000);
+  begin
+    begin
+      select project_path
+        into l_path
+        from (select regexp_substr(column_value,'-project\=(.*)',1,1,'c',1) as project_path from table(a_params) )
+       where project_path is not null;
+    exception
+      when no_data_found then
+        l_path := '.';
+      when too_many_rows then
+        raise_application_error(-20000, 'Parameter "-project=project_path" defined more than once. Only one "-project=project_path" parameter can be used.');
+    end;
+    return l_path;
+  end;
+
 begin
   l_call_params := parse_reporting_params(l_input_params);
   for i in l_call_params.first .. l_call_params.last loop
@@ -257,6 +278,8 @@ begin
   :l_paths := parse_paths_param(l_input_params);
   :l_color_enabled := parse_color_enabled(l_input_params);
 
+  :l_project_path := parse_project_path_param(l_input_params);
+
   if l_run_cursor_sql is not null then
     open :l_run_params_cur for l_run_cursor_sql;
   end if;
@@ -267,10 +290,25 @@ end;
 /
 set termout off
 
+
+/**
+ * Generate project files path list
+ */
+spool project_path.tmp
+begin
+  dbms_output.put_line(:l_project_path);
+end;
+/
+spool off
+
+$ file_list.bat
+@project_file_list.sql.tmp
+
+
 /*
 * Generate runner script
 */
-spool run_in_backgroung.sql.tmp
+spool run_in_background.sql.tmp
 declare
   l_reporter_id   varchar2(250);
   l_reporter_name varchar2(250);
@@ -289,7 +327,11 @@ begin
     loop
       fetch :l_run_params_cur into l_reporter_id, l_reporter_name;
       exit when :l_run_params_cur%notfound;
-        p('  v_reporter := '||l_reporter_name||'();');
+        if l_reporter_name = 'UT_COVERAGE_HTML_REPORTER' then
+          p('  v_reporter := '||l_reporter_name||'( a_file_paths => '||:l_file_list||' );');
+        else
+          p('  v_reporter := '||l_reporter_name||'();');
+        end if;
         p('  v_reporter.reporter_id := '''||l_reporter_id||''';');
         p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
     end loop;
@@ -340,9 +382,9 @@ spool off
 */
 set define #
 --try running on windows
-$ start /min sqlplus ##1 @run_in_backgroung.sql.tmp
+$ start /min sqlplus ##1 @run_in_background.sql.tmp
 --try running on linus/unix
-! sqlplus ##1 @run_in_backgroung.sql.tmp &
+! sqlplus ##1 @run_in_background.sql.tmp &
 set define &
 set termout on
 
@@ -359,8 +401,8 @@ set termout off
 * cleanup temporary sql files
 */
 --try running on windows
-$ del *.sql.tmp
+$ del *.tmp
 --try running on linus/unix
-! rm *.sql.tmp
+! rm *.tmp
 
 exit
