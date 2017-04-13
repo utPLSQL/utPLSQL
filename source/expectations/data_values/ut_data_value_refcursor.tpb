@@ -101,6 +101,7 @@ create or replace type body ut_data_value_refcursor as
         close a_value;
       end if;
       dbms_xmlgen.closeContext(l_ctx);
+      rollback;
       raise;
   end;
 

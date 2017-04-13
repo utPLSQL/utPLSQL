@@ -80,7 +80,6 @@ create or replace type body ut_data_value_anydata as
       ut_expectation_processor.set_xml_nls_params();
       select xmlserialize(content xmltype(self.data_value) indent) into l_clob from dual;
       l_result := ut_utils.to_string( l_clob, null );
-      dbms_output.put_line(l_result);
       ut_expectation_processor.reset_nls_params();
     end if;
     return self.format_multi_line( l_result );

@@ -68,6 +68,7 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValues.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValuesWithExcludedColumnList.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValuesWithExcludedColumns.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ReportsTheExceptionWhenAnExceptionInCursorIsCaught.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ReturnsCursorDataForFailure.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.SupportsSQLandPLSQLdatatypes.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.UsesDefaultNLSSettingsForDatesFormatting.sql
@@ -206,6 +207,8 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigNumber.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigVarchar2.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
+@@lib/RunTest.sql ut_teamcity_reporter/ut_teamcity_reporter.BuildsTeamcityCompatibleReport.sql
+@@lib/RunTest.sql ut_xunit_reporter/ut_xunit_reporter.BuildsXUnitCompatibleReport.sql
 
 --Finally
 @@lib/RunSummary
