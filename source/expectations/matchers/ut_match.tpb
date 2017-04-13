@@ -18,13 +18,7 @@ create or replace type body ut_match as
 
   constructor function ut_match(self in out nocopy ut_match, a_pattern in varchar2, a_modifiers in varchar2 default null) return self as result is
   begin
-    if a_pattern is not null then
-     self.additional_info := 'pattern '''||a_pattern||'''';
-     if a_modifiers is not null then
-       self.additional_info := self.additional_info ||', modifiers '''||a_modifiers||'''';
-     end if;
-    end if;
-    self.name      := 'match';
+    self.self_type := $$plsql_unit;
     self.pattern   := a_pattern;
     self.modifiers := a_modifiers;
     return;
@@ -41,6 +35,20 @@ create or replace type body ut_match as
       l_result := (self as ut_matcher).run_matcher(a_actual);
     end if;
     return l_result;
+  end;
+
+  overriding member function failure_message(a_actual ut_data_value) return varchar2 is
+  begin
+    return (self as ut_matcher).failure_message(a_actual)
+                || ut_data_value_varchar2(self.pattern).to_string_report(self.modifiers is not null, false)
+                || case when self.modifiers is not null then ', modifiers ''' || self.modifiers ||'''' end;
+  end;
+
+  overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2 is
+  begin
+    return (self as ut_matcher).failure_message_when_negated(a_actual)
+                || ut_data_value_varchar2(self.pattern).to_string_report(self.modifiers is not null, false)
+                || case when self.modifiers is not null then ', modifiers ''' || self.modifiers ||'''' end;
   end;
 
 end;

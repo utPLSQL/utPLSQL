@@ -17,8 +17,8 @@ create or replace type body ut_be_empty as
   */
 
   member procedure init(self in out nocopy ut_be_empty) is
-  begin    
-    self.name := 'be_empty';    
+  begin
+    self.self_type := $$plsql_unit;
   end;
 
   constructor function ut_be_empty(self in out nocopy ut_be_empty) return self as result is
@@ -51,16 +51,14 @@ create or replace type body ut_be_empty as
           if a_actual.is_null() then
             l_result := false;
           else
-            ut_assert_processor.set_xml_nls_params();
+            ut_expectation_processor.set_xml_nls_params();
             l_type_name := l_actual.data_value.gettypename();
             l_type_name := substr(l_type_name, instr(l_type_name, '.') + 1);
             l_result    := xmltype(l_actual.data_value).getclobval() = '<' || l_type_name || '/>';
-            ut_assert_processor.reset_nls_params();
+            ut_expectation_processor.reset_nls_params();
           end if;
         else
-          ut_utils.debug_log('Failure - ut_be_empty.run_matcher can only be used with collections and cursors');
-          self.error_message := 'The matcher can only be used with collections and cursors';
-          l_result           := null;
+          l_result := (self as ut_matcher).run_matcher(a_actual);
         end if;
       end;
     else

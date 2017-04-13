@@ -2,7 +2,8 @@
 
 set serveroutput on size unlimited format truncated
 
-exec ut.run(user||'.demo_equal_matcher');
+-- exec ut.run(user||'.demo_equal_matcher');
+exec ut.run(user||'.demo_equal_matcher', a_color_console=>true);
 
 drop package demo_equal_matcher;
 drop type demo_departments;

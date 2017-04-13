@@ -59,6 +59,7 @@ grant execute on ut_coverage_file_mappings to public;
 grant execute on ut_coverage_file_mapping to public;
 grant execute on ut_key_value_pairs to public;
 grant execute on ut_key_value_pair to public;
+grant select, insert, delete on ut_cursor_data to public;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
@@ -94,3 +95,4 @@ create public synonym ut_coverage_file_mappings for ut_coverage_file_mappings;
 create public synonym ut_coverage_file_mapping for ut_coverage_file_mapping;
 create public synonym ut_key_value_pairs for ut_key_value_pairs;
 create public synonym ut_key_value_pair for ut_key_value_pair;
+create public synonym ut_cursor_data for ut_cursor_data;

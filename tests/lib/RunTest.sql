@@ -19,8 +19,8 @@ end;
 /
 
 begin
-  ut_assert_processor.clear_asserts;
-  ut_assert_processor.clear_asserts;
+  ut_expectation_processor.clear_asserts;
+  ut_expectation_processor.clear_asserts;
 end;
 /
 

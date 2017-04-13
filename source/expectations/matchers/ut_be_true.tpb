@@ -18,7 +18,7 @@ create or replace type body ut_be_true as
 
   constructor function ut_be_true(self in out nocopy ut_be_true) return self as result is
   begin
-    self.name := 'be true';
+    self.self_type := $$plsql_unit;
     return;
   end;
 

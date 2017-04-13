@@ -11,7 +11,7 @@ set echo off
 @@demo_expectations.pck
 
 begin
-  ut.run();
+  ut.run(a_color_console=>true);
 end;
 /
 

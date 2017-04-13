@@ -14,7 +14,7 @@ declare
   suite         ut_logical_suite;
   listener      ut_event_listener := ut_event_listener(ut_reporters());
   test_item     ut_test;
-  assert        ut_assert_result;
+  assert        ut_expectation_result;
 begin
   suite := ut_logical_suite(a_object_owner=>null, a_object_name => 'ut_exampletest', a_name => null, a_description => 'Test Suite Name',a_path => null);
 
@@ -46,7 +46,7 @@ begin
     dbms_output.put_line('Assert Results:');
     for i in test_item.results.first .. test_item.results.last loop
 			assert := test_item.results(i);
-      dbms_output.put_line(i || ' - result: ' || ut_utils.test_result_to_char(assert.result));
+      dbms_output.put_line(i || ' - result: ' || ut_utils.test_result_to_char(assert.status));
       dbms_output.put_line(i || ' - Message: ' || assert.message);
     end loop;
   end loop;

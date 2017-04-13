@@ -19,7 +19,8 @@ create or replace type body ut_data_value_anydata as
   constructor function ut_data_value_anydata(self in out nocopy ut_data_value_anydata, a_value anydata) return self as result is
   begin
     self.data_value := a_value;
-    self.data_type  := case when a_value is not null then lower(a_value.gettypename) else 'none' end;
+    self.self_type  := $$plsql_unit;
+    self.data_type  := case when a_value is not null then lower(a_value.gettypename) else 'undefined' end;
     return;
   end;
 
@@ -35,8 +36,8 @@ create or replace type body ut_data_value_anydata as
     if self.data_value is null then
       l_is_null := true;
     --check if typename is a schema based object
-    elsif self.data_value.gettypename like '%.%' then
-      --XMLTYPE doesn't like the null beeing passed to ANYDATA so we need to check if anydata holds null Object/collection
+    elsif self.data_type like '%.%' then
+      --XMLTYPE doesn't like the null being passed to ANYDATA so we need to check if anydata holds null Object/collection
       l_anydata_accessor :=
         case when self.data_value.gettype(l_type) = sys.dbms_types.typecode_object then 'getObject' else 'getCollection' end;
 
@@ -76,12 +77,42 @@ create or replace type body ut_data_value_anydata as
     if self.is_null() then
       l_result := ut_utils.to_string( to_char(null) );
     else
-      ut_assert_processor.set_xml_nls_params();
+      ut_expectation_processor.set_xml_nls_params();
       select xmlserialize(content xmltype(self.data_value) indent) into l_clob from dual;
-      l_result := ut_utils.to_string( l_clob );
-      ut_assert_processor.reset_nls_params();
+      l_result := ut_utils.to_string( l_clob, null );
+      dbms_output.put_line(l_result);
+      ut_expectation_processor.reset_nls_params();
+    end if;
+    return self.format_multi_line( l_result );
+  end;
+
+  overriding member function compare_implementation(a_other ut_data_value) return integer is
+    l_self_data  xmltype;
+    l_other_data xmltype;
+    l_other  ut_data_value_anydata;
+    l_result integer;
+  begin
+    if a_other is of (ut_data_value_anydata) then
+      l_other := treat(a_other as ut_data_value_anydata);
+      --needed for 11g xe as it fails on constructing XMLTYPE from null ANYDATA
+      if not self.is_null() and not l_other.is_null() then
+        ut_expectation_processor.set_xml_nls_params();
+        l_self_data := xmltype.createxml(self.data_value);
+        l_other_data := xmltype.createxml(l_other.data_value);
+        ut_expectation_processor.reset_nls_params();
+        if l_self_data is not null and l_other_data is not null then
+          l_result := dbms_lob.compare( l_self_data.getclobval(), l_other_data.getclobval() );
+        end if;
+      end if;
+    else
+      raise value_error;
     end if;
     return l_result;
+  end;
+
+  overriding member function is_multi_line return boolean is
+  begin
+    return not self.is_null();
   end;
 
 end;

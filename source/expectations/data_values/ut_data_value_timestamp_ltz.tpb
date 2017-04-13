@@ -19,6 +19,7 @@ create or replace type body ut_data_value_timestamp_ltz as
   constructor function ut_data_value_timestamp_ltz(self in out nocopy ut_data_value_timestamp_ltz, a_value timestamp_ltz_unconstrained) return self as result is
   begin
     self.data_value := a_value;
+    self.self_type  := $$plsql_unit;
     self.data_type := 'timestamp with local time zone';
     return;
   end;
@@ -31,6 +32,24 @@ create or replace type body ut_data_value_timestamp_ltz as
   overriding member function to_string return varchar2 is
   begin
     return ut_utils.to_string(self.data_value);
+  end;
+
+  overriding member function compare_implementation(a_other ut_data_value) return integer is
+    l_result integer;
+    l_other  ut_data_value_timestamp_ltz;
+  begin
+    if a_other is of (ut_data_value_timestamp_ltz) then
+      l_other  := treat(a_other as ut_data_value_timestamp_ltz);
+      l_result :=
+        case
+          when self.data_value = l_other.data_value then 0
+          when self.data_value > l_other.data_value then 1
+          when self.data_value < l_other.data_value then -1
+        end;
+    else
+      raise value_error;
+    end if;
+    return l_result;
   end;
 
 end;
