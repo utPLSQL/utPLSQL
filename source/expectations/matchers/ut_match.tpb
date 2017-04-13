@@ -38,17 +38,27 @@ create or replace type body ut_match as
   end;
 
   overriding member function failure_message(a_actual ut_data_value) return varchar2 is
+    l_result varchar2(32767);
   begin
-    return (self as ut_matcher).failure_message(a_actual)
-                || ut_data_value_varchar2(self.pattern).to_string_report(self.modifiers is not null, false)
-                || case when self.modifiers is not null then ', modifiers ''' || self.modifiers ||'''' end;
+    l_result := (self as ut_matcher).failure_message(a_actual);
+    if self.modifiers is not null then
+      l_result := l_result || ': '|| ut_data_value_varchar2(self.pattern).to_string_report(true, false) || ', modifiers ''' || self.modifiers ||'''';
+    else
+      l_result := l_result || ': '|| ut_data_value_varchar2(self.pattern).to_string_report(false, false);
+    end if;
+    return l_result;
   end;
 
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2 is
+    l_result varchar2(32767);
   begin
-    return (self as ut_matcher).failure_message_when_negated(a_actual)
-                || ut_data_value_varchar2(self.pattern).to_string_report(self.modifiers is not null, false)
-                || case when self.modifiers is not null then ', modifiers ''' || self.modifiers ||'''' end;
+    l_result := (self as ut_matcher).failure_message_when_negated(a_actual);
+    if self.modifiers is not null then
+      l_result := l_result || ': '|| ut_data_value_varchar2(self.pattern).to_string_report(true, false) || ', modifiers ''' || self.modifiers ||'''';
+    else
+      l_result := l_result || ': '|| ut_data_value_varchar2(self.pattern).to_string_report(false, false);
+    end if;
+    return l_result;
   end;
 
 end;

@@ -61,7 +61,9 @@ create or replace package body ut_coverage_helper is
   procedure coverage_stop is
     l_return_code binary_integer;
   begin
-    if not g_develop_mode then
+    if g_develop_mode then
+      l_return_code := dbms_profiler.flush_data();
+    else
       l_return_code := dbms_profiler.stop_profiler();
     end if;
   end;

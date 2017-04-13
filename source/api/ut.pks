@@ -33,20 +33,6 @@ create or replace package ut authid current_user as
 
   function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_expectation_refcursor;
 
-  /*
-    Helper procedure to set NLS session parameter for date processing in refcursor.
-    It needs to be called before refcursor is open in order to have DATE data type data in refcursor
-     properly transformed into XML format as a date-time element.
-    If the function is not called before opening a cursor to be compared, the DATE data is compared using default NLS setting for date.
-  */
-  procedure set_nls;
-
-  /*
-    Helper procedure to reset NLS session parameter to it's original state.
-    It needs to be called after refcursor is open in order restore the original session state and keep the NLS date setting at default.
-  */
-  procedure reset_nls;
-
   function expect(a_actual in timestamp_unconstrained, a_message varchar2 := null) return ut_expectation_timestamp;
 
   function expect(a_actual in timestamp_ltz_unconstrained, a_message varchar2 := null) return ut_expectation_timestamp_ltz;
@@ -72,6 +58,20 @@ create or replace package ut authid current_user as
   procedure run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false);
 
   procedure run(a_path varchar2, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console boolean := false);
+
+  /*
+    Helper procedure to set NLS session parameter for date processing in refcursor.
+    It needs to be called before refcursor is open in order to have DATE data type data in refcursor
+     properly transformed into XML format as a date-time element.
+    If the function is not called before opening a cursor to be compared, the DATE data is compared using default NLS setting for date.
+  */
+  procedure set_nls;
+
+  /*
+    Helper procedure to reset NLS session parameter to it's original state.
+    It needs to be called after refcursor is open in order restore the original session state and keep the NLS date setting at default.
+  */
+  procedure reset_nls;
 
 end ut;
 /

@@ -2,6 +2,15 @@ create or replace package test_demo_package is
 
   --%suite
 
+  --%beforeeach
+  procedure beforeeach;
+  --%aftereach
+  procedure aftereach;
+  --%beforeall
+  procedure beforeall;
+  --%afterall
+  procedure afterall;
+
   --%test(A passing test)
   procedure success_test;
 
@@ -19,6 +28,11 @@ end;
 /
 
 create or replace package body test_demo_package is
+
+  procedure beforeeach is begin null; end;
+  procedure aftereach is begin null; end;
+  procedure beforeall is begin null; end;
+  procedure afterall is begin null; end;
 
   procedure success_test is
   begin

@@ -6,7 +6,7 @@ declare
 begin
   --Act
   l_var := &&2;
-  ut.expect(anydata.&&3(l_var)).to_(be_empty());
+  ut.expect(anydata.&&3(l_var)).to_be_empty();
   l_asserts_results := ut_expectation_processor.get_asserts_results();
   l_result := l_asserts_results(l_asserts_results.last).status;
    --Assert

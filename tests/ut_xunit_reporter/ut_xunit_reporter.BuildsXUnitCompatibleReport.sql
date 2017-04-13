@@ -15,7 +15,7 @@ begin
     l_clob
   ).to_( be_like(
 '<testsuites tests="4" skipped="1" error="1" failure="1" name="" time="%" >' ||
-    '<testsuite tests="4" id="1" package="test_demo_package"  skipped="1" error="1" failure="1" name="" time="%" >' ||
+    '<testsuite tests="4" id="1" package="test_demo_package"  skipped="1" error="1" failure="1" name="" time="%" >%' ||
         '<testcase classname="test_demo_package"  assertions="1" skipped="0" error="0" failure="0" name="A passing test" time="%" ></testcase>' ||
         '<testcase classname="test_demo_package"  assertions="1" skipped="0" error="0" failure="1" name="A failing test" time="%"  status="Failure">' ||
             '<failure><![CDATA[Actual: ''0A'' (blob) was expected to equal: ''0B'' (blob) ]]></failure></testcase>' ||

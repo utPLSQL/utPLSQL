@@ -45,22 +45,6 @@ create or replace package body ut_teamcity_reporter_helper is
 
   end message;
 
-  function block_opened(a_name varchar2, a_flow_id varchar2 default null) return varchar2 is
-    l_props t_props;
-  begin
-    l_props('name') := a_name;
-    l_props('flowId') := a_flow_id;
-    return message('blockOpened', l_props);
-  end;
-
-  function block_closed(a_name varchar2, a_flow_id varchar2 default null) return varchar2 is
-    l_props t_props;
-  begin
-    l_props('name') := a_name;
-    l_props('flowId') := a_flow_id;
-    return message('blockClosed', l_props);
-  end;
-
   function test_suite_started(a_suite_name varchar2, a_flow_id varchar2 default null) return varchar2 is
     l_props t_props;
   begin

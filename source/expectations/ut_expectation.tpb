@@ -101,32 +101,28 @@ create or replace type body ut_expectation as
 
   final member procedure to_(self in ut_expectation, a_matcher ut_matcher) is
     l_assert_result boolean;
-    l_matcher   ut_matcher := a_matcher;
+    l_matcher       ut_matcher := a_matcher;
+    l_message       varchar2(32767);
   begin
     ut_utils.debug_log('ut_expectation.to_(self in ut_expectation, a_matcher ut_matcher)');
 
     l_assert_result := l_matcher.run_matcher( self.actual_data );
-    ut_expectation_processor.add_assert_result(
-      ut_expectation_result( ut_utils.to_test_result( coalesce( l_assert_result, false ) ), self.description,
-                        coalesce( l_matcher.error_message( self.actual_data ),
-                                  l_matcher.failure_message( self.actual_data ) )
-      )
-    );
+    l_assert_result := coalesce(l_assert_result,false);
+    l_message := coalesce( l_matcher.error_message( self.actual_data ), l_matcher.failure_message( self.actual_data ) );
+    ut_expectation_processor.add_assert_result( ut_expectation_result( ut_utils.to_test_result( l_assert_result ), self.description, l_message ) );
   end;
 
   final member procedure not_to(self in ut_expectation, a_matcher ut_matcher) is
     l_assert_result boolean;
-    l_matcher   ut_matcher := a_matcher;
+    l_matcher       ut_matcher := a_matcher;
+    l_message       varchar2(32767);
   begin
     ut_utils.debug_log('ut_expectation.not_to(self in ut_expectation, a_matcher ut_matcher)');
 
     l_assert_result := l_matcher.run_matcher_negated( self.actual_data );
-    ut_expectation_processor.add_assert_result(
-      ut_expectation_result( ut_utils.to_test_result( coalesce( l_assert_result, false ) ), self.description,
-                        coalesce( l_matcher.error_message( self.actual_data ),
-                                  l_matcher.failure_message_when_negated( self.actual_data ) )
-      )
-    );
+    l_assert_result := coalesce(l_assert_result,false);
+    l_message := coalesce( l_matcher.error_message( self.actual_data ), l_matcher.failure_message_when_negated( self.actual_data ) );
+    ut_expectation_processor.add_assert_result( ut_expectation_result( ut_utils.to_test_result( l_assert_result ), self.description, l_message ) );
   end;
 
   final member procedure to_be_null(self in ut_expectation) is

@@ -16,9 +16,6 @@ create or replace package ut_teamcity_reporter_helper is
   limitations under the License.
   */
 
-  function block_opened(a_name varchar2, a_flow_id varchar2 default null) return varchar2;
-  function block_closed(a_name varchar2, a_flow_id varchar2 default null) return varchar2;
-
   function test_suite_started(a_suite_name varchar2, a_flow_id varchar2 default null) return varchar2;
   function test_suite_finished(a_suite_name varchar2, a_flow_id varchar2 default null) return varchar2;
 

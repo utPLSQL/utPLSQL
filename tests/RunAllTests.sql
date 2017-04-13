@@ -209,7 +209,7 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 @@lib/RunTest.sql ut_teamcity_reporter/ut_teamcity_reporter.BuildsTeamcityCompatibleReport.sql
 @@lib/RunTest.sql ut_xunit_reporter/ut_xunit_reporter.BuildsXUnitCompatibleReport.sql
-
+@@lib/RunTest.sql ut_coverage_sonar_reporter/ut_coverage_sonar_reporter.BuildsSonarCoverageReport.sql
 --Finally
 @@lib/RunSummary
 

@@ -7,7 +7,7 @@ declare
   l_asserts_results ut_expectation_results;
 begin
 --Act
-  ut.expect(l_value1).to_(be_between(l_value_lower,l_value_upper));
+  ut.expect(l_value1).to_be_between(l_value_lower,l_value_upper);
   l_asserts_results := ut_expectation_processor.get_asserts_results();
   l_result := l_asserts_results(l_asserts_results.last).status;
 --Assert
