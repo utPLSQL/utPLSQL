@@ -21,8 +21,8 @@ begin
 '##teamcity[testFailed timestamp=''%'' details=''Actual: |''0A|'' (blob) was expected to equal: |''0B|'' (blob) '' name=''ut3.test_demo_package.failing_test'']' ||
 '##teamcity[testFinished timestamp=''%'' duration=''%'' name=''ut3.test_demo_package.failing_test'']' ||
 '##teamcity[testStarted timestamp=''%'' captureStandardOutput=''true'' name=''ut3.test_demo_package.erroring_test'']' ||
-'##teamcity[testStdErr timestamp=''%'' name=''ut3.test_demo_package.erroring_test'' out=''Test exception:|rORA-06512: at |"UT3.TEST_DEMO_PACKAGE|", line 15|rORA-06512: at line 6|r|r'']' ||
-'##teamcity[testFailed timestamp=''%'' details=''Test exception:|rORA-06512: at |"UT3.TEST_DEMO_PACKAGE|", line 15|rORA-06512: at line 6|r|r'' message=''Error occured'' name=''ut3.test_demo_package.erroring_test'']' ||
+'##teamcity[testStdErr timestamp=''%'' name=''ut3.test_demo_package.erroring_test'' out=''Test exception:%'']' ||
+'##teamcity[testFailed timestamp=''%'' details=''Test exception:%'' message=''Error occured'' name=''ut3.test_demo_package.erroring_test'']' ||
 '##teamcity[testFinished timestamp=''%'' duration=''%'' name=''ut3.test_demo_package.erroring_test'']' ||
 '##teamcity[testStarted timestamp=''%'' captureStandardOutput=''true'' name=''ut3.test_demo_package.disabled_test'']' ||
 '##teamcity[testIgnored timestamp=''%'' name=''ut3.test_demo_package.disabled_test'']' ||

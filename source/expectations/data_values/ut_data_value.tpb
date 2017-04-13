@@ -35,10 +35,16 @@ create or replace type body ut_data_value as
   end;
 
   final member function to_string_report(a_add_new_line_for_multi_line boolean := false, a_with_type_name boolean := true) return varchar2 is
+    l_result varchar2(32767);
   begin
-    return ut_utils.indent_lines( self.to_string() )
-           || case when a_with_type_name then ' ('||self.data_type||') ' end
-           || case when self.is_multi_line() and a_add_new_line_for_multi_line then chr(10) end;
+    l_result := ut_utils.indent_lines( self.to_string() );
+    if a_with_type_name then
+      l_result := l_result ||' ('||self.data_type||') ';
+    end if;
+    if self.is_multi_line and a_add_new_line_for_multi_line then
+      l_result := l_result || chr(10);
+    end if;
+    return l_result;
   end;
 end;
 /

@@ -38,27 +38,26 @@ create or replace package body ut_coverage_report_html_helper is
   function coverage_css_class(a_covered_pct number) return varchar2 is
     l_result varchar2(10);
   begin
-    l_result :=
-      case
-        when a_covered_pct > gc_green_coverage_pct then
-           gc_green_css
-        when a_covered_pct > gc_yellow_coverage_pct then
-           gc_yellow_css
-        else
-           gc_red_css
-      end;
+    if a_covered_pct > gc_green_coverage_pct then
+      l_result := gc_green_css;
+    elsif a_covered_pct > gc_yellow_coverage_pct then
+      l_result := gc_yellow_css;
+    else
+      l_result := gc_red_css;
+    end if;
     return l_result;
   end;
 
   function line_status(a_executions binary_integer) return varchar2 is
     l_result varchar2(10);
   begin
-    l_result :=
-      case
-        when a_executions > 0 then gc_covered
-        when a_executions = 0 then gc_missed
-        else gc_disabled
-      end;
+    if a_executions > 0 then
+      l_result := gc_covered;
+    elsif a_executions = 0 then
+      l_result := gc_missed;
+    else
+      l_result := gc_disabled;
+    end if;
     return l_result;
   end;
 
@@ -70,15 +69,13 @@ create or replace package body ut_coverage_report_html_helper is
   function line_hits_css_class(a_line_hist number) return varchar2 is
     l_result varchar2(10);
   begin
-    l_result :=
-      case
-        when a_line_hist > 1 then
-           gc_green_css
-        when a_line_hist = 1 then
-           gc_yellow_css
-        else
-           gc_red_css
-      end;
+    if a_line_hist > 1 then
+       l_result := gc_green_css;
+    elsif a_line_hist = 1 then
+       l_result := gc_yellow_css;
+    else
+       l_result := gc_red_css;
+    end if;
     return l_result;
   end;
 
@@ -125,10 +122,12 @@ create or replace package body ut_coverage_report_html_helper is
             <code class="sql">' || (dbms_xmlgen.convert(a_source_code(line_no))) || '</code></li>';
         else
           l_file_part :='
-            <li class="'||line_status(a_coverage_unit.lines(line_no))||'" data-hits="'||(a_coverage_unit.lines(line_no))||'" data-linenumber="'||(line_no)||'">'||
-            case when a_coverage_unit.lines(line_no) > 0 then '
-              <span class="hits">'||(a_coverage_unit.lines(line_no))||'</span>'
-            end||'
+            <li class="'||line_status(a_coverage_unit.lines(line_no))||'" data-hits="'||(a_coverage_unit.lines(line_no))||'" data-linenumber="'||(line_no)||'">';
+          if a_coverage_unit.lines(line_no) > 0 then
+            l_file_part := l_file_part || '
+              <span class="hits">'||(a_coverage_unit.lines(line_no))||'</span>';
+          end if;
+          l_file_part := l_file_part || '
               <code class="sql">' || (dbms_xmlgen.convert(a_source_code(line_no))) || '</code></li>';
         end if;
         dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);

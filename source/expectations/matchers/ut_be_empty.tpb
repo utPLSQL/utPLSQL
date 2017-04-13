@@ -34,10 +34,8 @@ create or replace type body ut_be_empty as
       declare
         l_actual ut_data_value_refcursor := treat(a_actual as ut_data_value_refcursor);
       begin
-        if l_actual.data_value is not null then
+        if not l_actual.is_null then
           l_result := l_actual.is_empty;
-        else
-          l_result := false;
         end if;
       end;
     elsif a_actual is of(ut_data_value_anydata) then
@@ -48,9 +46,7 @@ create or replace type body ut_be_empty as
       begin
         if l_actual.data_value.gettype(l_type) in
            (dbms_types.typecode_varray, dbms_types.typecode_table, dbms_types.typecode_namedcollection) then
-          if a_actual.is_null() then
-            l_result := false;
-          else
+          if not a_actual.is_null() then
             ut_expectation_processor.set_xml_nls_params();
             l_type_name := l_actual.data_value.gettypename();
             l_type_name := substr(l_type_name, instr(l_type_name, '.') + 1);

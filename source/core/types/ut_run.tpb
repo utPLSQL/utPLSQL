@@ -68,19 +68,21 @@ create or replace type body ut_run as
 
   overriding member procedure mark_as_errored(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base, a_error_stack_trace varchar2) is
   begin
-    ut_utils.debug_log('ut_run.fail');
-
-    a_listener.fire_before_event(ut_utils.gc_run, self);
-    self.start_time := current_timestamp;
-
-    for i in 1 .. self.items.count loop
-      self.items(i).mark_as_errored(a_listener, a_error_stack_trace);
-    end loop;
-
-    self.calc_execution_result();
-    self.end_time := self.start_time;
-
-    a_listener.fire_after_event(ut_utils.gc_run, self);
+    null;
+-- -- this code is never used used
+--     ut_utils.debug_log('ut_run.fail');
+-- 
+--     a_listener.fire_before_event(ut_utils.gc_run, self);
+--     self.start_time := current_timestamp;
+-- 
+--     for i in 1 .. self.items.count loop
+--       self.items(i).mark_as_errored(a_listener, a_error_stack_trace);
+--     end loop;
+-- 
+--     self.calc_execution_result();
+--     self.end_time := self.start_time;
+-- 
+--     a_listener.fire_after_event(ut_utils.gc_run, self);
   end;
 
   member function get_run_schemes return ut_varchar2_list is

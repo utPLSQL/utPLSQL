@@ -20,7 +20,7 @@ begin
         '<testcase classname="test_demo_package"  assertions="1" skipped="0" error="0" failure="1" name="A failing test" time="%"  status="Failure">' ||
             '<failure><![CDATA[Actual: ''0A'' (blob) was expected to equal: ''0B'' (blob) ]]></failure></testcase>' ||
         '<testcase classname="test_demo_package"  assertions="0" skipped="0" error="1" failure="0" name="A test raising exception" time="%"  status="Error">' ||
-            '<error><![CDATA[ORA-01476: divisor is equal to zeroORA-06512: at "UT3.TEST_DEMO_PACKAGE", line 15ORA-06512: at line 6]]></error>' ||
+            '<error><![CDATA[ORA-01476%]]></error>' ||
         '</testcase>' ||
         '<testcase classname="test_demo_package"  assertions="0" skipped="1" error="0" failure="0" name="A disabled test" time="0"  status="Disabled">' ||
             '<skipped/>' ||

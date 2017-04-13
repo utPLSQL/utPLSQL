@@ -40,12 +40,13 @@ create or replace type body ut_data_value_timestamp_tz as
   begin
     if a_other is of (ut_data_value_timestamp_tz) then
       l_other  := treat(a_other as ut_data_value_timestamp_tz);
-      l_result :=
-        case
-          when self.data_value = l_other.data_value then 0
-          when self.data_value > l_other.data_value then 1
-          when self.data_value < l_other.data_value then -1
-        end;
+      if self.data_value = l_other.data_value then
+        l_result := 0;
+      elsif self.data_value > l_other.data_value then
+        l_result := 1;
+      elsif self.data_value < l_other.data_value then
+        l_result := -1;
+      end if;
     else
       raise value_error;
     end if;
