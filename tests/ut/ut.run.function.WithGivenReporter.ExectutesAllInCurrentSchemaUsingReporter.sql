@@ -4,7 +4,7 @@ declare
 begin
   --act
   select * bulk collect into l_output_data
-    from table(ut.run(ut_teamcity_reporter()));
+    from table(ut.run(ut_varchar2_list(user),ut_teamcity_reporter()));
 
   for i in 1 .. l_output_data.count loop
     if  l_output_data(i) like '%Finished %''test\_package\_1''%' escape '\'
