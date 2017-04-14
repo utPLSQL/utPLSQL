@@ -22,6 +22,7 @@ create table ut$test_table (val varchar2(1));
 @@helpers/test_package_3.pck
 @@helpers/test_package_1.pck
 @@helpers/test_package_2.pck
+@@helpers/utplsql_test_reporter.typ
 
 --Start coverage in develop mode (coverage for utPLSQL framework)
 --Regular coverage excludes the framework
@@ -105,6 +106,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_output_buffer/send_line.DoesNotSendLineIfNullTextGiven.sql
 @@lib/RunTest.sql ut_output_buffer/send_line.SendsALineIntoBufferTable.sql
 
+@@lib/RunTest.sql ut_run/ut.run.FailsToExecuteAnInvalidPackageBody.sql
 @@lib/RunTest.sql ut_run/ut_run.function.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
 @@lib/RunTest.sql ut_run/ut_run.function.WithNoParams.ExecutesAllFromCurrentSchema.sql
 @@lib/RunTest.sql ut_run/ut_run.function.WithPackageName.ExecutesAllFromGivenPackage.sql
@@ -136,6 +138,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPath.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPathCurUser.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.DoesntFindTheSuiteWhenPackageSpecIsInvalid.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.IncludesInvalidPackageBodiesInTheRun.sql
 
 @@lib/RunTest.sql ut_test/ut_test.DisabledFlagSkipTest.sql
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameInvalid.sql
@@ -219,6 +222,7 @@ drop type department1$;
 drop package test_package_1;
 drop package test_package_2;
 drop package test_package_3;
+drop type utplsql_test_reporter;
 
 set timing on
 prompt Generating coverage data to reporter outputs
