@@ -124,15 +124,15 @@ create or replace package body ut_teamcity_reporter_helper is
     return message('testStdErr', l_props);
   end;
 
-  function custom_message(a_text in varchar2, a_status in varchar2, a_error_deatils in varchar2 default null, a_flow_id in varchar2 default null) return varchar2 is
-    l_props t_props;
-  begin
-    l_props('text') := a_text;
-    l_props('status') := a_status;
-    l_props('errorDetails') := a_error_deatils;
-    l_props('flowId') := a_flow_id;
-    return message('message', l_props);
-  end;
+--   function custom_message(a_text in varchar2, a_status in varchar2, a_error_deatils in varchar2 default null, a_flow_id in varchar2 default null) return varchar2 is
+--     l_props t_props;
+--   begin
+--     l_props('text') := a_text;
+--     l_props('status') := a_status;
+--     l_props('errorDetails') := a_error_deatils;
+--     l_props('flowId') := a_flow_id;
+--     return message('message', l_props);
+--   end;
 
 end ut_teamcity_reporter_helper;
 /
