@@ -107,14 +107,14 @@ create or replace package body ut_teamcity_reporter_helper is
 
     return message('testFailed', l_props);
   end;
-  function test_std_out(a_test_name varchar2, a_out in varchar2, a_flow_id in varchar2 default null) return varchar2 is
-    l_props t_props;
-  begin
-    l_props('name') := a_test_name;
-    l_props('out') := a_out;
-    l_props('flowId') := a_flow_id;
-    return message('testStdOut', l_props);
-  end;
+--   function test_std_out(a_test_name varchar2, a_out in varchar2, a_flow_id in varchar2 default null) return varchar2 is
+--     l_props t_props;
+--   begin
+--     l_props('name') := a_test_name;
+--     l_props('out') := a_out;
+--     l_props('flowId') := a_flow_id;
+--     return message('testStdOut', l_props);
+--   end;
   function test_std_err(a_test_name varchar2, a_out in varchar2, a_flow_id in varchar2 default null) return varchar2 is
     l_props t_props;
   begin
