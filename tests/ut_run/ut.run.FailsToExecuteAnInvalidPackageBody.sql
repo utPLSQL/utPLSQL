@@ -31,5 +31,5 @@ end;
 /
 
 set termout off
-drop table test_dependency_table;
+drop package test_dependencies;
 set termout on
