@@ -31,7 +31,7 @@ create or replace type body ut_equal as
 
   constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result is
   begin
-    init(ut_data_value_anydata(a_expected), a_nulls_are_equal);
+    init(ut_data_value_anydata.get_instance(a_expected), a_nulls_are_equal);
     return;
   end;
 

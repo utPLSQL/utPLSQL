@@ -1,4 +1,4 @@
-create or replace type ut_data_value_anydata under ut_data_value(
+create or replace type ut_data_value_collection under ut_data_value_anydata(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,11 +15,11 @@ create or replace type ut_data_value_anydata under ut_data_value(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  data_value anydata,
-  constructor function ut_data_value_anydata(self in out nocopy ut_data_value_anydata) return self as result,
+  constructor function ut_data_value_collection(self in out nocopy ut_data_value_collection, a_value anydata) return self as result,
   overriding member function is_null return boolean,
+  member function is_empty return boolean,
   overriding member function to_string return varchar2,
-  overriding member function compare_implementation( a_other ut_data_value ) return integer,
-  static function get_instance(a_data_value anydata) return ut_data_value_anydata
-) not final
+  overriding member function is_multi_line return boolean,
+  overriding member function compare_implementation(a_other ut_data_value) return integer
+)
 /

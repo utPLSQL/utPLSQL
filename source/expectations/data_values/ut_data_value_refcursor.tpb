@@ -57,8 +57,8 @@ create or replace type body ut_data_value_refcursor as
     self.self_type  := $$plsql_unit;
     self.data_value := sys_guid();
     self.data_type := 'refcursor';
-    self.row_count := 0;
     if a_value is not null and a_value%isopen then
+      self.row_count := 0;
       -- We use DBMS_XMLGEN in order to:
       -- 1) be able to process data in bulks (set of rows)
       -- 2) be able to influence the ROWSET/ROW tags

@@ -116,6 +116,8 @@ whenever sqlerror exit failure rollback
 --expectations and matchers
 @@expectations/data_values/ut_data_value.tps
 @@expectations/data_values/ut_data_value_anydata.tps
+@@expectations/data_values/ut_data_value_collection.tps
+@@expectations/data_values/ut_data_value_object.tps
 @@expectations/data_values/ut_data_value_blob.tps
 @@expectations/data_values/ut_data_value_boolean.tps
 @@expectations/data_values/ut_data_value_clob.tps
@@ -159,6 +161,8 @@ whenever sqlerror exit failure rollback
 @@expectations/data_values/ut_cursor_data.sql
 @@expectations/data_values/ut_data_value.tpb
 @@expectations/data_values/ut_data_value_anydata.tpb
+@@expectations/data_values/ut_data_value_collection.tpb
+@@expectations/data_values/ut_data_value_object.tpb
 @@expectations/data_values/ut_data_value_blob.tpb
 @@expectations/data_values/ut_data_value_boolean.tpb
 @@expectations/data_values/ut_data_value_clob.tpb

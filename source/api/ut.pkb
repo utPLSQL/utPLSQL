@@ -26,7 +26,7 @@ create or replace package body ut is
 
   function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_anydata is
   begin
-    return ut_expectation_anydata(ut_data_value_anydata(a_actual), a_message);
+    return ut_expectation_anydata(ut_data_value_anydata.get_instance(a_actual), a_message);
   end;
 
   function expect(a_actual in blob, a_message varchar2 := null) return ut_expectation_blob is
