@@ -35,6 +35,7 @@ whenever oserror exit failure rollback
 
 --common utilities
 @@core/types/ut_varchar2_list.tps
+@@core/types/ut_varchar2_rows.tps
 @@core/types/ut_object_name.tps
 @@core/types/ut_object_name.tpb
 @@core/types/ut_object_names.tps
