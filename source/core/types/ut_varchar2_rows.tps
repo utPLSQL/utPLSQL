@@ -15,5 +15,5 @@ create or replace type ut_varchar2_rows as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  table of varchar2(4000)
+  table of varchar2(4000 byte)
 /
