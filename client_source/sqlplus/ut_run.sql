@@ -292,16 +292,18 @@ set termout off
 
 
 /**
- * Generate project files path list
+ * Convert project path to substitution variable
  */
-spool project_path.tmp
-begin
-  dbms_output.put_line(:l_project_path);
-end;
-/
-spool off
+column project_path new_value project_path noprint;
+select :l_project_path as project_path from dual;
 
-$ file_list.bat
+$ file_list.bat "&&project_path"
+--! file_list.sh "&&project_path"
+undef project_path
+
+/*
+ * Generate the project file list, saving it into the l_file_list bind variable
+ */
 @project_file_list.sql.tmp
 
 
@@ -327,7 +329,7 @@ begin
     loop
       fetch :l_run_params_cur into l_reporter_id, l_reporter_name;
       exit when :l_run_params_cur%notfound;
-        if l_reporter_name = 'UT_COVERAGE_HTML_REPORTER' then
+        if lower(l_reporter_name) = 'ut_coverage_html_reporter' then
           p('  v_reporter := '||l_reporter_name||'( a_file_paths => '||:l_file_list||' );');
         else
           p('  v_reporter := '||l_reporter_name||'();');
@@ -401,8 +403,8 @@ set termout off
 * cleanup temporary sql files
 */
 --try running on windows
-$ del *.tmp
+$ del *.sql.tmp
 --try running on linus/unix
-! rm *.tmp
+! rm *.sql.tmp
 
 exit
