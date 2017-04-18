@@ -22,6 +22,7 @@ create table ut$test_table (val varchar2(1));
 @@helpers/test_package_3.pck
 @@helpers/test_package_1.pck
 @@helpers/test_package_2.pck
+@@helpers/utplsql_test_reporter.typ
 
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationNotBeforeProcedure.sql
@@ -107,6 +108,7 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_output_buffer/send_line.SendsALineIntoBufferTable.sql
 
 @@lib/RunTest.sql ut/ut.reset_nls.RestoresOriginalNLSDateFormatForSession.sql
+@@lib/RunTest.sql ut/ut.run.FailsToExecuteAnInvalidPackageBody.sql
 @@lib/RunTest.sql ut/ut.run.function.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
 @@lib/RunTest.sql ut/ut.run.function.WithNoParams.ExecutesAllFromCurrentSchema.sql
 @@lib/RunTest.sql ut/ut.run.function.WithPackageName.ExecutesAllFromGivenPackage.sql
@@ -140,6 +142,8 @@ create table ut$test_table (val varchar2(1));
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPath.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPathCurUser.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.DoesntFindTheSuiteWhenPackageSpecIsInvalid.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.IncludesInvalidPackageBodiesInTheRun.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.CacheInvalidaesOnPackageDrop.sql
 
 @@lib/RunTest.sql ut_test/ut_test.DisabledFlagSkipTest.sql
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameInvalid.sql
@@ -224,3 +228,4 @@ drop type department1$;
 drop package test_package_1;
 drop package test_package_2;
 drop package test_package_3;
+drop type utplsql_test_reporter;
