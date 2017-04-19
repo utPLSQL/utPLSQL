@@ -1,4 +1,4 @@
-PROMPT Checks that rollback exception doesn't make run to fail
+PROMPT Checks that rollback exception does not make run to fail
 
 --Arrange
 declare

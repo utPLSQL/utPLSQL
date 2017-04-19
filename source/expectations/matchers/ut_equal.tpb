@@ -18,15 +18,15 @@ create or replace type body ut_equal as
 
   member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean) is
   begin
-    self.nulls_are_equal_flag := ut_utils.boolean_to_int( coalesce(a_nulls_are_equal, ut_assert_processor.nulls_are_equal()) );
+    self.nulls_are_equal_flag := ut_utils.boolean_to_int( coalesce(a_nulls_are_equal, ut_expectation_processor.nulls_are_equal()) );
     self.name := 'equal';
     self.expected := a_expected;
   end;
 
-  member function equal_with_nulls(a_assert_result boolean, a_actual ut_data_value) return boolean is
+  member function equal_with_nulls(a_expectation_result boolean, a_actual ut_data_value) return boolean is
   begin
-    ut_utils.debug_log('ut_equal.equal_with_nulls :' || ut_utils.to_test_result(a_assert_result) || ':');
-    return ( a_assert_result or ( self.expected.is_null() and a_actual.is_null() and ut_utils.int_to_boolean( nulls_are_equal_flag ) ) );
+    ut_utils.debug_log('ut_equal.equal_with_nulls :' || ut_utils.to_test_result(a_expectation_result) || ':');
+    return ( a_expectation_result or ( self.expected.is_null() and a_actual.is_null() and ut_utils.int_to_boolean( nulls_are_equal_flag ) ) );
   end;
 
   constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result is
@@ -117,7 +117,7 @@ create or replace type body ut_equal as
         l_expected ut_data_value_anydata := treat(self.expected as ut_data_value_anydata);
         l_actual   ut_data_value_anydata := treat(a_actual as ut_data_value_anydata);
       begin
-        ut_assert_processor.set_xml_nls_params();
+        ut_expectation_processor.set_xml_nls_params();
         --XMLTYPE doesn't like the null being passed from anydata or object types, so we need to check if anydata holds null Object/collection
         --This is why equal_with_nulls cannot be used here
         if ut_utils.int_to_boolean( nulls_are_equal_flag ) and self.expected.is_null() and a_actual.is_null() then
@@ -127,7 +127,7 @@ create or replace type body ut_equal as
         else
           l_result := xmltype(l_expected.data_value).getclobval() = xmltype(l_actual.data_value).getclobval();
         end if;
-        ut_assert_processor.reset_nls_params();
+        ut_expectation_processor.reset_nls_params();
       end;
     elsif self.expected is of (ut_data_value_blob) and a_actual is of (ut_data_value_blob) then
       declare
@@ -173,9 +173,9 @@ create or replace type body ut_equal as
           --fetch 1M rows max
           dbms_xmlgen.setMaxRows(l_expected.data_value, 1000000);
           dbms_xmlgen.setMaxRows(l_actual.data_value, 1000000);
-          ut_assert_processor.set_xml_nls_params();
+          ut_expectation_processor.set_xml_nls_params();
           l_result := dbms_lob.compare( dbms_xmlgen.getxml(l_expected.data_value), dbms_xmlgen.getxml(l_actual.data_value) ) = 0;
-          ut_assert_processor.reset_nls_params();
+          ut_expectation_processor.reset_nls_params();
         else
           l_result := equal_with_nulls( null, a_actual);
         end if;

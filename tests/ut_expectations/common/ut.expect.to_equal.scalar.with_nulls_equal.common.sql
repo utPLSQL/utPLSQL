@@ -8,7 +8,7 @@ declare
 begin
 --Act
   ut.expect(l_actual).to_equal(l_expected, l_nulls_are_equal);
-  l_result := ut_assert_processor.get_aggregate_asserts_result();
+  l_result := ut_expectation_processor.get_status();
 --Assert
   if nvl(:test_result, ut_utils.tr_success) = ut_utils.tr_success and l_result = l_expected_result then
     :test_result := ut_utils.tr_success;

@@ -107,7 +107,7 @@ drop type ut_expectation_anydata;
 
 drop type ut_expectation;
 
-drop package ut_assert_processor;
+drop package ut_expectation_processor;
 
 drop type ut_match;
 
@@ -217,9 +217,9 @@ drop sequence ut_message_id_seq;
 
 drop type ut_results_counter;
 
-drop type ut_assert_results;
+drop type ut_expectation_results;
 
-drop type ut_assert_result;
+drop type ut_expectation_result;
 
 drop type ut_key_value_pairs;
 

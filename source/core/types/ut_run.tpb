@@ -35,7 +35,7 @@ create or replace type body ut_run as
     self.start_time := current_timestamp;
 
     -- clear anything that might stay in the session's cache
-    ut_assert_processor.clear_asserts;
+    ut_expectation_processor.clear_expectations;
 
     for i in 1 .. self.items.count loop
       l_completed_without_errors := self.items(i).do_execute(a_listener);
@@ -118,17 +118,17 @@ create or replace type body ut_run as
     return l_schemes;
 
   end;
-  
+
   overriding member function get_error_stack_traces return ut_varchar2_list is
   begin
     return ut_varchar2_list();
   end;
-  
+
   overriding member function get_serveroutputs return clob is
   begin
     return null;
   end;
 
-  
+
 end;
 /
