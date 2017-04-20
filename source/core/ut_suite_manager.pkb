@@ -15,7 +15,7 @@ create or replace package body ut_suite_manager is
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  
+
   type t_schema_info is record (changed_at date, obj_cnt integer);
 
   type tt_schema_suites is table of ut_logical_suite index by varchar2(4000 char);
@@ -63,11 +63,17 @@ create or replace package body ut_suite_manager is
 
     l_suite_rollback            integer;
     l_suite_rollback_annotation varchar2(4000);
-
+    e_insufficient_priv         exception;
+    pragma exception_init(e_insufficient_priv,-01031);
   begin
     l_owner_name  := a_owner_name;
     l_object_name := a_object_name;
-    ut_metadata.do_resolve(a_owner => l_owner_name, a_object => l_object_name);
+    begin
+      ut_metadata.do_resolve(a_owner => l_owner_name, a_object => l_object_name);
+    exception
+      when e_insufficient_priv then
+      return null;
+    end;
     l_annotation_data := ut_annotations.get_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
 
     if l_annotation_data.package_annotations.exists('suite') then
