@@ -99,7 +99,7 @@ create or replace package body ut is
     rollback;
   end;
 
-  function run(a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console integer := 0) return ut_varchar2_list pipelined is
+  function run(a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console integer := 0) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
     l_paths     ut_varchar2_list := ut_varchar2_list(sys_context('userenv', 'current_schema'));
     l_lines     sys_refcursor;
@@ -115,7 +115,7 @@ create or replace package body ut is
     close l_lines;
   end;
 
-  function run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console integer := 0) return ut_varchar2_list pipelined is
+  function run(a_paths ut_varchar2_list, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console integer := 0) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
     l_lines     sys_refcursor;
     l_line      varchar2(4000);
@@ -130,7 +130,7 @@ create or replace package body ut is
     close l_lines;
   end;
 
-  function run(a_path varchar2, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console integer := 0) return ut_varchar2_list pipelined is
+  function run(a_path varchar2, a_reporter ut_reporter_base := ut_documentation_reporter(), a_color_console integer := 0) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
     l_paths     ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
     l_lines     sys_refcursor;

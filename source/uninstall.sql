@@ -231,6 +231,8 @@ drop type ut_object_name;
 
 drop type ut_varchar2_list;
 
+drop type ut_varchar2_rows;
+
 begin
   for syn in (
     select
