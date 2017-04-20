@@ -12,3 +12,6 @@
 
 @@lib/RunTest.sql "ut_matchers/common/ut.expect.common.other.be_empty.sql 'ut_data_value_number' 'ut_data_value_number(1)' 'ConvertObject' 'ut_utils.tr_failure'"
 @@lib/RunTest.sql "ut_matchers/common/ut.expect.common.other.not_be_empty.sql 'ut_data_value_varchar2' 'NULL' 'ConvertObject' 'ut_utils.tr_failure'"
+
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.refcursor.null.be_empty.sql 'to_' 'ut_utils.tr_failure'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.refcursor.null.be_empty.sql 'not_to' 'ut_utils.tr_failure'"

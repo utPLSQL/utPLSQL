@@ -46,12 +46,12 @@ create or replace package body test_package_1 is
 
   procedure test1 is
   begin
-    ut.expect(gv_var_1).to_equal(1);
+    ut.expect(gv_var_1,'Some expectation').to_equal(1);
   end;
 
   procedure test2 is
   begin
-    ut.expect(gv_var_1).to_equal(2);
+    ut.expect(gv_var_1,'Some expectation').to_equal(2);
   end;
 
   procedure test2_setup is

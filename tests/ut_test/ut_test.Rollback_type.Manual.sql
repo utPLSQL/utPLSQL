@@ -20,12 +20,12 @@ begin
 --Act
   l_suite.do_execute(l_listener);
 
-  ut_assert_processor.clear_asserts;
+  ut_expectation_processor.clear_asserts;
 
 --Assert
   ut.expect(ut_transaction_control.count_rows('t')).to_( be_greater_than(0) );
 
-  if ut_assert_processor.get_aggregate_asserts_result = ut_utils.tr_success then
+  if ut_expectation_processor.get_aggregate_asserts_result = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;
   end if;
 

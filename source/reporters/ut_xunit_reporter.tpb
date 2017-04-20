@@ -87,8 +87,7 @@ create or replace type body ut_xunit_reporter is
         if l_suite.before_all.serveroutput is not null or l_suite.after_all.serveroutput is not null then
           self.print_text('<system-out>');
           self.print_text('<![CDATA[');
-          self.print_clob(l_suite.before_all.serveroutput);
-          self.print_clob(l_suite.after_all.serveroutput);
+          self.print_clob(l_suite.get_serveroutputs());
           self.print_text(']]>');
           self.print_text('</system-out>');
         end if;

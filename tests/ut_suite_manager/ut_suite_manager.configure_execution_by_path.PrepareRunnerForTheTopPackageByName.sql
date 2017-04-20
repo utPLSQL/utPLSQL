@@ -45,15 +45,15 @@ begin
   ut.expect(l_test2_suite.items.count).to_equal(2);
 
 
-  if ut_assert_processor.get_aggregate_asserts_result = ut_utils.tr_success then
+  if ut_expectation_processor.get_aggregate_asserts_result = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;
   else
     declare
-      l_results ut_assert_results;
+      l_results ut_expectation_results;
     begin
-      l_results := ut_assert_processor.get_asserts_results;
+      l_results := ut_expectation_processor.get_asserts_results;
       for i in 1..l_results.count loop
-        if l_results(i).result > ut_utils.tr_success then
+        if l_results(i).status > ut_utils.tr_success then
           dbms_output.put_line(l_results(i).get_result_clob);
         end if;
       end loop;

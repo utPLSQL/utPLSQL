@@ -27,6 +27,12 @@ create or replace package body ut_suite_manager is
 
   g_schema_suites tt_schema_suites_list;
 
+  procedure invalidate_cache is
+  begin
+    g_schema_suites.delete;
+  end;
+
+
   function trim_path(a_path varchar2, a_part varchar2) return varchar2 is
   begin
     return substr(a_path, nvl(length(a_part), 0) + 1);

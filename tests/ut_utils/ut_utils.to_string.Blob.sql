@@ -1,4 +1,4 @@
-PROMPT Returns a blob converted to varchar and eclosed in quotes
+PROMPT Returns a blob converted to varchar
 
 --Arrange
 declare

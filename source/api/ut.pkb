@@ -17,6 +17,8 @@ create or replace package body ut is
   limitations under the License.
   */
 
+  g_nls_date_format varchar2(100);
+
   function version return varchar2 is
   begin
     return ut_utils.gc_version;
@@ -24,7 +26,7 @@ create or replace package body ut is
 
   function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_anydata is
   begin
-    return ut_expectation_anydata(ut_data_value_anydata(a_actual), a_message);
+    return ut_expectation_anydata(ut_data_value_anydata.get_instance(a_actual), a_message);
   end;
 
   function expect(a_actual in blob, a_message varchar2 := null) return ut_expectation_blob is
@@ -89,7 +91,7 @@ create or replace package body ut is
 
   procedure fail(a_message in varchar2) is
   begin
-    ut_assert_processor.report_failure(a_message);
+    ut_expectation_processor.report_failure(a_message);
   end;
 
   procedure run_autonomous(a_paths ut_varchar2_list, a_reporter ut_reporter_base, a_color_console integer) is
@@ -162,6 +164,25 @@ create or replace package body ut is
     l_paths  ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
   begin
     ut.run(l_paths, a_reporter, a_color_console);
+  end;
+
+  procedure set_nls is
+  begin
+    if g_nls_date_format is null then
+      select nsp.value
+       into g_nls_date_format
+       from nls_session_parameters nsp
+      where parameter = 'NLS_DATE_FORMAT';
+    end if;
+    execute immediate 'alter session set nls_date_format = '''||ut_utils.gc_date_format||'''';
+  end;
+
+  procedure reset_nls is
+  begin
+    if g_nls_date_format is not null then
+      execute immediate 'alter session set nls_date_format = '''||g_nls_date_format||'''';
+    end if;
+    g_nls_date_format := null;
   end;
 
 end ut;

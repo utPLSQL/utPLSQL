@@ -49,8 +49,8 @@ whenever oserror exit failure rollback
 @@reporters/ut_ansiconsole_helper.pkb
 
 --core types
-@@core/types/ut_assert_result.tps
-@@core/types/ut_assert_results.tps
+@@core/types/ut_expectation_result.tps
+@@core/types/ut_expectation_results.tps
 @@core/types/ut_results_counter.tps
 @@core/types/ut_suite_item_base.tps
 @@core/types/ut_event_listener_base.tps
@@ -81,8 +81,8 @@ whenever oserror exit failure rollback
 @@core/ut_suite_manager.pkb
 
 --assertios execution state interface
-@@core/ut_assert_processor.pks
-@@core/ut_assert_processor.pkb
+@@core/ut_expectation_processor.pks
+@@core/ut_expectation_processor.pkb
 
 --installing profiler tabs if they dont exist
 whenever sqlerror continue
@@ -108,7 +108,7 @@ whenever sqlerror exit failure rollback
 @@core/types/ut_suite.tpb
 @@core/types/ut_run.tpb
 @@core/types/ut_event_listener.tpb
-@@core/types/ut_assert_result.tpb
+@@core/types/ut_expectation_result.tpb
 @@core/types/ut_reporter_base.tpb
 @@core/types/ut_executable.tpb
 @@core/types/ut_console_reporter_base.tps
@@ -117,6 +117,8 @@ whenever sqlerror exit failure rollback
 --expectations and matchers
 @@expectations/data_values/ut_data_value.tps
 @@expectations/data_values/ut_data_value_anydata.tps
+@@expectations/data_values/ut_data_value_collection.tps
+@@expectations/data_values/ut_data_value_object.tps
 @@expectations/data_values/ut_data_value_blob.tps
 @@expectations/data_values/ut_data_value_boolean.tps
 @@expectations/data_values/ut_data_value_clob.tps
@@ -157,7 +159,11 @@ whenever sqlerror exit failure rollback
 @@expectations/ut_expectation_timestamp_tz.tps
 @@expectations/ut_expectation_varchar2.tps
 @@expectations/ut_expectation_yminterval.tps
+@@expectations/data_values/ut_cursor_data.sql
+@@expectations/data_values/ut_data_value.tpb
 @@expectations/data_values/ut_data_value_anydata.tpb
+@@expectations/data_values/ut_data_value_collection.tpb
+@@expectations/data_values/ut_data_value_object.tpb
 @@expectations/data_values/ut_data_value_blob.tpb
 @@expectations/data_values/ut_data_value_boolean.tpb
 @@expectations/data_values/ut_data_value_clob.tpb
