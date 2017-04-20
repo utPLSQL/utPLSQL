@@ -54,9 +54,9 @@ create or replace package body ut_output_buffer is
     commit;
   end;
 
-  function get_lines(a_reporter_id varchar2, a_timeout_sec naturaln := gc_max_wait_sec) return ut_varchar2_list pipelined is
+  function get_lines(a_reporter_id varchar2, a_timeout_sec naturaln := gc_max_wait_sec) return ut_varchar2_rows pipelined is
     pragma autonomous_transaction;
-    l_results        ut_varchar2_list;
+    l_results        ut_varchar2_rows;
     l_wait_wait_time number(10,1) := 0;
     l_finished       boolean := false;
   begin
