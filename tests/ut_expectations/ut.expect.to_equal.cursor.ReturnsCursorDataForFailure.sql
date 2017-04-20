@@ -12,7 +12,7 @@ begin
   open l_expected for select * from user_objects where rownum <=3;
   ut.expect(l_actual).to_equal(l_expected);
 
-  l_result := treat( ut_expectation_processor.get_expectations_results()(1) as ut_expectation_result );
+  l_result := ut_expectation_processor.get_expectations_results()(1);
   l_expected_string := l_result.expected_value_string;
   l_actual_string := l_result.actual_value_string;
 --Assert

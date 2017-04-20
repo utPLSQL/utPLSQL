@@ -8,7 +8,7 @@ declare
 begin
 --Act
   ut.expect( anydata.convertObject(l_actual) ).to_equal( anydata.convertObject(l_expected) );
-  l_expectation_result := treat(ut_expectation_processor.get_expectations_results()(1) as ut_expectation_result);
+  l_expectation_result := ut_expectation_processor.get_expectations_results()(1);
 
 --Assert
   if l_expectation_result.expected_value_string like  '''<DEPARTMENT%>
