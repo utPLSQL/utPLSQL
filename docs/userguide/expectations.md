@@ -148,14 +148,33 @@ This matcher is designed to capture changes of data-type, so that if you expect 
 Usage:
 ```sql
 declare
-  x ref_cursor;
-  y ref_cursor;
+  x sys_refcursor;
+  y sys_refcursor;
 begin
   ut.expect( 'a dog' ).to_( equal( 'a dog' ) );
   ut.expect( a_actual => y ).to_( equal( a_expected => x, a_nulls_are_equal => true ) );
 end;
 ```
 The `a_nulls_are_equal` parameter decides on the behavior of `null=null` comparison (**this comparison by default is true!**)
+
+The `equal` matcher accepts additional parameter `a_exclude varchar2` or `a_exclude ut_varchar2_list`, when used to compare `cursor` data. 
+Those parameters allow passing a list of column names to exclude from data comparison. The list can be a comma separated `varchar2` list or a `ut_varchar2_list` collection.
+The column names accepted by parameter are **case sensitive** and cannot be quoted.
+If `a_exclude` parameter is not specified, all columns are included. 
+If a column to be excluded does not exist, the column cannot be excluded and it's name is simply ignored.
+It is useful when testing cursors containing data that is beyond our control (like default or trigger/procedure generated sysdate values on columns).
+
+```sql
+declare
+  x sys_refcursor;
+  y sys_refcursor;
+begin
+  open x for select 'text' ignore_me, d.* from user_tables d;
+  open y for select sysdate "BadDate", d.* from user_tables d;
+  ut.expect( a_actual => y ).to_( equal( a_expected => x, a_exclude => 'IGNORE_ME,BadDate' ) );
+end;
+```
+
 
 The `anydata` data type is used to compare user defined object and collections.
   
