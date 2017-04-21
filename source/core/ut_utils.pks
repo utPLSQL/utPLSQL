@@ -187,6 +187,9 @@ create or replace package ut_utils authid definer is
 
   function table_to_clob(a_text_table ut_varchar2_list) return clob;
 
+  /*
+    Returns time difference in seconds (with miliseconds) between given timestamps
+  */
   function time_diff(a_start_time timestamp with time zone, a_end_time timestamp with time zone) return number;
 
   /*

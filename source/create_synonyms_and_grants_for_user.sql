@@ -61,6 +61,7 @@ grant execute on ut_coverage_file_mappings to &ut3_user;
 grant execute on ut_coverage_file_mapping to &ut3_user;
 grant execute on ut_key_value_pairs to &ut3_user;
 grant execute on ut_key_value_pair to &ut3_user;
+grant execute on ut_sonar_test_reporter to &ut3_user;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to user &&ut3_user
 
@@ -97,3 +98,4 @@ create or replace synonym &ut3_user .ut_coverage_file_mappings for ut_coverage_f
 create or replace synonym &ut3_user .ut_coverage_file_mapping for ut_coverage_file_mapping;
 create or replace synonym &ut3_user .ut_key_value_pairs for ut_key_value_pairs;
 create or replace synonym &ut3_user .ut_key_value_pair for ut_key_value_pair;
+create or replace synonym &ut3_user .ut_sonar_test_reporter for ut_sonar_test_reporter;

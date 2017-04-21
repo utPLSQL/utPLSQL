@@ -424,6 +424,8 @@ begin
     'source/reporters/ut_coverage_sonar_reporter.tps',
     'source/reporters/ut_documentation_reporter.tpb',
     'source/reporters/ut_documentation_reporter.tps',
+    'source/reporters/ut_sonar_test_reporter.tpb',
+    'source/reporters/ut_sonar_test_reporter.tps',
     'source/reporters/ut_teamcity_reporter.tpb',
     'source/reporters/ut_teamcity_reporter.tps',
     'source/reporters/ut_teamcity_reporter_helper.pkb',
