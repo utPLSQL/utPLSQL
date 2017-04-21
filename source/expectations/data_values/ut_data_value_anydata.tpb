@@ -76,10 +76,10 @@ create or replace type body ut_data_value_anydata as
     if self.is_null() then
       l_result := ut_utils.to_string( to_char(null) );
     else
-      ut_assert_processor.set_xml_nls_params();
+      ut_expectation_processor.set_xml_nls_params();
       select xmlserialize(content xmltype(self.data_value) indent) into l_clob from dual;
       l_result := ut_utils.to_string( l_clob );
-      ut_assert_processor.reset_nls_params();
+      ut_expectation_processor.reset_nls_params();
     end if;
     return l_result;
   end;

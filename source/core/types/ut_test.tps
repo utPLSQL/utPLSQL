@@ -40,10 +40,10 @@ create or replace type ut_test under ut_suite_item (
   */
   after_each ut_executable,
   /**
-  * The list of assert results as well as database errors encountered while invoking
+  * The list of expectation results as well as database errors encountered while invoking
   * The test procedure and the before_test/after_test blocks
   */
-  results     ut_assert_results,
+  results     ut_expectation_results,
   parent_error_stack_trace varchar2(4000),
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_description varchar2 := null,

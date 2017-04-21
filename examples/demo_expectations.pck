@@ -1,7 +1,7 @@
 create or replace package demo_expectations is
 
   -- %suite
-  -- %displayname(Demoing asserts)
+  -- %displayname(Demoing expectations)
 
   -- %test
   -- %displayname(demo of expectations with nulls)

@@ -1,4 +1,4 @@
-create or replace package ut_assert_processor authid current_user as
+create or replace package ut_expectation_processor authid current_user as
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -24,13 +24,13 @@ create or replace package ut_assert_processor authid current_user as
 
   procedure nulls_are_equal(a_setting boolean_not_null);
 
-  function get_aggregate_asserts_result return integer;
+  function get_status return integer;
 
-  procedure clear_asserts;
+  procedure clear_expectations;
 
-  function get_asserts_results return ut_assert_results;
+  function get_expectations_results return ut_expectation_results;
 
-  procedure add_assert_result(a_assert_result ut_assert_result);
+  procedure add_expectation_result(a_expectation_result ut_expectation_result);
 
   procedure report_failure(a_message in varchar2);
 

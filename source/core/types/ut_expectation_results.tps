@@ -1,4 +1,4 @@
-create or replace type ut_assert_results as
+create or replace type ut_expectation_results as
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,5 +15,5 @@ create or replace type ut_assert_results as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  table of ut_assert_result
+  table of ut_expectation_result
 /
