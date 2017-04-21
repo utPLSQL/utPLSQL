@@ -85,6 +85,13 @@ The following tools that support the SQL*Plus commands can be used to run the in
   - [SQLcl](http://www.oracle.com/technetwork/developer-tools/sqlcl/overview/index.html)
   - [Oracle SQL Developer](http://www.oracle.com/technetwork/developer-tools/sql-developer/overview/index.html)
  
+# Additional requirements
+
+In order to use Code Coverage functionality of utPLSQL users executing the tests must have the CREATE privilege on the PLSQL code that the coverage is gathered on.
+This is a requirement of [DBMS_PROFILER package](https://docs.oracle.com/cd/E18283_01/appdev.112/e16760/d_profil.htm#i999476).
+
+In practice, user running tests for PLSQL code that he does not own, needs to have CREATE ANY PROCEDURE/CREATE ANY TRIGGER privileges.
+Running code coverage on objects that the user does not own will not produce any coverage information without those privileges.
 
 # Uninstalling utPLSQL
 
