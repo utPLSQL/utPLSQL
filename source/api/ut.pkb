@@ -89,7 +89,7 @@ create or replace package body ut is
 
   procedure fail(a_message in varchar2) is
   begin
-    ut_assert_processor.report_failure(a_message);
+    ut_expectation_processor.report_failure(a_message);
   end;
 
   procedure run_autonomous(a_paths ut_varchar2_list, a_reporter ut_reporter_base, a_color_console integer) is

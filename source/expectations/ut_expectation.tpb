@@ -15,16 +15,16 @@ create or replace type body ut_expectation as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  final member procedure add_assert_result( self in ut_expectation,  a_assert_result boolean, a_matcher_name varchar2,
-    a_assert_info varchar2, a_error_message varchar2, a_expected_value_string in varchar2 := null, a_expected_data_type varchar2 := null
+  final member procedure add_expectation_result( self in ut_expectation,  a_expectation_result boolean, a_matcher_name varchar2,
+    a_expectation_info varchar2, a_error_message varchar2, a_expected_value_string in varchar2 := null, a_expected_data_type varchar2 := null
   ) is
-    l_assert_info varchar2(4000);
+    l_expectation_info varchar2(4000);
   begin
-    l_assert_info := case when a_assert_info is not null then ' '||a_assert_info end;
-    ut_utils.debug_log('ut_expectation.add_assert_result :' || ut_utils.to_test_result(a_assert_result) || ':' || message);
-    ut_assert_processor.add_assert_result(
-      ut_assert_result(
-        a_matcher_name, l_assert_info, a_error_message, ut_utils.to_test_result(coalesce(a_assert_result,false)),
+    l_expectation_info := case when a_expectation_info is not null then ' '||a_expectation_info end;
+    ut_utils.debug_log('ut_expectation.add_expectation_result :' || ut_utils.to_test_result(a_expectation_result) || ':' || message);
+    ut_expectation_processor.add_expectation_result(
+      ut_expectation_result(
+        a_matcher_name, l_expectation_info, a_error_message, ut_utils.to_test_result(coalesce(a_expectation_result,false)),
         a_expected_data_type, self.actual_data.data_type, a_expected_value_string, self.actual_data.to_string(), self.message
       )
     );
@@ -109,36 +109,36 @@ create or replace type body ut_expectation as
   end;
 
   final member procedure to_(self in ut_expectation, a_matcher ut_matcher) is
-    l_assert_result boolean;
+    l_expectation_result boolean;
     l_matcher_name   varchar2(4000);
     l_matcher   ut_matcher := a_matcher;
   begin
     ut_utils.debug_log('ut_expectation.to_(self in ut_expectation, a_matcher ut_matcher)');
 
-    l_assert_result := l_matcher.run_matcher( self.actual_data );
+    l_expectation_result := l_matcher.run_matcher( self.actual_data );
     l_matcher_name   := 'to '||l_matcher.name;
     if l_matcher.expected is not null then
-      add_assert_result( l_assert_result, l_matcher_name, l_matcher.additional_info, l_matcher.error_message
+      add_expectation_result( l_expectation_result, l_matcher_name, l_matcher.additional_info, l_matcher.error_message
         , l_matcher.expected.to_string(), l_matcher.expected.data_type );
     else
-      add_assert_result( l_assert_result, l_matcher_name, l_matcher.additional_info, l_matcher.error_message );
+      add_expectation_result( l_expectation_result, l_matcher_name, l_matcher.additional_info, l_matcher.error_message );
     end if;
   end;
 
   final member procedure not_to(self in ut_expectation, a_matcher ut_matcher) is
-    l_assert_result boolean;
+    l_expectation_result boolean;
     l_matcher_name   varchar2(4000);
     l_matcher   ut_matcher := a_matcher;
   begin
     ut_utils.debug_log('ut_expectation.not_to(self in ut_expectation, a_matcher ut_matcher)');
 
-    l_assert_result := not l_matcher.run_matcher( self.actual_data );
+    l_expectation_result := not l_matcher.run_matcher( self.actual_data );
     l_matcher_name   := 'not to '||l_matcher.name;
     if l_matcher.expected is not null then
-      add_assert_result( l_assert_result, l_matcher_name, l_matcher.additional_info, l_matcher.error_message
+      add_expectation_result( l_expectation_result, l_matcher_name, l_matcher.additional_info, l_matcher.error_message
         , l_matcher.expected.to_string(), l_matcher.expected.data_type );
     else
-      add_assert_result( l_assert_result, l_matcher_name, l_matcher.additional_info, l_matcher.error_message );
+      add_expectation_result( l_expectation_result, l_matcher_name, l_matcher.additional_info, l_matcher.error_message );
     end if;
   end;
 

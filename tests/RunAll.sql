@@ -66,7 +66,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothAnydataAreNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothObjectsAreNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.PutsObjectStrucureIntoAssert.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.PutsObjectStrucureIntoResult.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesFailureForDifferentValues.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValues.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ReturnsCursorDataForFailure.sql
@@ -83,7 +83,7 @@ exec ut_coverage.coverage_start_develop();
 @@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenExpectedIsNull.sql
 @@ut_expectations/ut.expect.to_equal.with_text.GivesTheProvidedTextAsMessage.sql
 @@ut_expectations/ut.expect.to_match.sql
-@@lib/RunTest.sql ut_expectations/ut_assert_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
+@@lib/RunTest.sql ut_expectations/ut_expectation_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
 
 @@ut_matchers/be_between.sql
 @@ut_matchers/greater_or_equal.sql
@@ -272,8 +272,8 @@ begin
     'source/core/types',
     'source/core/ut_annotations.pkb',
     'source/core/ut_annotations.pks',
-    'source/core/ut_assert_processor.pkb',
-    'source/core/ut_assert_processor.pks',
+    'source/core/ut_expectation_processor.pkb',
+    'source/core/ut_expectation_processor.pks',
     'source/core/ut_message_id_seq.sql',
     'source/core/ut_metadata.pkb',
     'source/core/ut_metadata.pks',
@@ -294,9 +294,9 @@ begin
     'source/core/coverage/ut_coverage_sources_tmp.sql',
     'source/core/coverage/ut_coverage_reporter_base.tpb',
     'source/core/coverage/ut_coverage_reporter_base.tps',
-    'source/core/types/ut_assert_result.tpb',
-    'source/core/types/ut_assert_result.tps',
-    'source/core/types/ut_assert_results.tps',
+    'source/core/types/ut_expectation_result.tpb',
+    'source/core/types/ut_expectation_result.tps',
+    'source/core/types/ut_expectation_results.tps',
     'source/core/types/ut_console_reporter_base.tpb',
     'source/core/types/ut_console_reporter_base.tps',
     'source/core/types/ut_event_listener.tpb',

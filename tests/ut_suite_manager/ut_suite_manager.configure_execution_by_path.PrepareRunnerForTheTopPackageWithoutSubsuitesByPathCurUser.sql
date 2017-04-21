@@ -32,7 +32,7 @@ begin
   ut.expect(l_test3.name).to_equal('disabled_test');
   ut.expect(l_test3.disabled_flag).to_equal(1);
 
-  if ut_assert_processor.get_aggregate_asserts_result = ut_utils.tr_success then
+  if ut_expectation_processor.get_status = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;
   end if;
 

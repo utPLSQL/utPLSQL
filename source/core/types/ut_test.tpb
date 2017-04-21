@@ -94,12 +94,12 @@ create or replace type body ut_test as
   overriding member procedure calc_execution_result(self in out nocopy ut_test) is
   begin
     if self.get_error_stack_traces().count = 0 then
-      self.result := ut_assert_processor.get_aggregate_asserts_result();
+      self.result := ut_expectation_processor.get_status();
     else
       self.result := ut_utils.tr_error;
     end if;
     --expectation results need to be part of test results
-    self.results := ut_assert_processor.get_asserts_results();
+    self.results := ut_expectation_processor.get_expectations_results();
     self.results_count := ut_results_counter(self.result);
   end;
 

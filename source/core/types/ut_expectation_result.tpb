@@ -1,4 +1,4 @@
-create or replace type body ut_assert_result is
+create or replace type body ut_expectation_result is
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -16,16 +16,16 @@ create or replace type body ut_assert_result is
   limitations under the License.
   */
 
-  constructor function ut_assert_result(self in out nocopy ut_assert_result, a_result integer, a_error_message varchar2)
+  constructor function ut_expectation_result(self in out nocopy ut_expectation_result, a_result integer, a_error_message varchar2)
     return self as result is
   begin
     self.result        := a_result;
     self.error_message := a_error_message;
-    self.caller_info   := ut_assert_processor.who_called_expectation();
+    self.caller_info   := ut_expectation_processor.who_called_expectation();
     return;
   end;
 
-  constructor function ut_assert_result(self in out nocopy ut_assert_result, a_name varchar2, a_additional_info varchar2, a_error_message varchar2, a_result integer, a_expected_type varchar2, a_actual_type varchar2,
+  constructor function ut_expectation_result(self in out nocopy ut_expectation_result, a_name varchar2, a_additional_info varchar2, a_error_message varchar2, a_result integer, a_expected_type varchar2, a_actual_type varchar2,
     a_expected_value_string varchar2, a_actual_value_string varchar2, a_message varchar2 default null)
     return self as result is
   begin
@@ -39,12 +39,12 @@ create or replace type body ut_assert_result is
     self.expected_value_string := a_expected_value_string;
     self.actual_value_string   := a_actual_value_string;
     if a_result = ut_utils.tr_failure then
-      self.caller_info           := ut_assert_processor.who_called_expectation();
+      self.caller_info           := ut_expectation_processor.who_called_expectation();
     end if;
     return;
   end;
 
-  member function get_result_clob(self in ut_assert_result) return clob is
+  member function get_result_clob(self in ut_expectation_result) return clob is
     l_result clob;
     l_actual_val_msg  varchar2(1000);
     l_actual_val      varchar2(32767);
@@ -98,7 +98,7 @@ create or replace type body ut_assert_result is
     return l_result;
   end;
 
-  member function get_result_lines(self in ut_assert_result) return ut_varchar2_list is
+  member function get_result_lines(self in ut_expectation_result) return ut_varchar2_list is
   begin
     return ut_utils.clob_to_table(get_result_clob(), 4000 );
   end;
