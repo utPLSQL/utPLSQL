@@ -1,27 +1,27 @@
 create or replace package ut_output_tests
 as
  --%suite
-  
+
  --%beforeeach
  procedure beforeeach;
- 
+
  --%aftereach
  procedure aftereach;
- 
+
  --%test
  --%beforetest(beforetest)
  --%aftertest(aftertest)
  procedure ut_passing_test;
- 
+
  procedure beforetest;
- 
+
  procedure aftertest;
- 
+
  --%beforeall
  procedure beforeall;
- --%afterall 
+ --%afterall
  procedure afterall;
- 
+
 end;
 /
 
@@ -38,7 +38,7 @@ as
  begin
    dbms_output.put_line('<!aftertest!>');
  end;
- 
+
  procedure beforeeach is
  begin
    dbms_output.put_line('<!beforeeach!>');
@@ -55,7 +55,7 @@ as
    dbms_output.put_line('<!thetest!>');
    ut.expect(1,'Test 1 Should Pass').to_equal(1);
  end;
- 
+
  procedure beforeall is
  begin
    dbms_output.put_line('<!beforeall!>');
@@ -70,28 +70,24 @@ end;
 /
 
 declare
-  l_output_data       dbms_output.chararr;
-  l_num_lines         integer := 100000;
+  l_output_data       ut_varchar2_list;
   l_output            clob;
 begin
   --act
-  ut.run('ut_output_tests',ut_teamcity_reporter);
+  select *
+  bulk collect into l_output_data
+  from table(ut.run('ut_output_tests',ut_sonar_test_reporter(a_file_paths=>ut_varchar2_list('tests/ut_reporter/ut_output_tests.pkb'))));
+
+  l_output := ut_utils.table_to_clob(l_output_data);
 
   --assert
-  dbms_output.get_lines( l_output_data, l_num_lines);
-  dbms_lob.createtemporary(l_output,true);
-  for i in 1 .. l_num_lines loop
-    dbms_lob.append(l_output,l_output_data(i));
-  end loop;
-  if l_output like '%##teamcity[testStarted%<!beforeeach!>%<!beforetest!>%<!thetest!>%<!aftertest!>%<!aftereach!>%##teamcity[testFinished%' then
+  if l_output like '<testExecutions version="1">' ||
+                   '<file path="tests/ut_reporter/ut_output_tests.pkb">' ||
+                   '<testCase name="ut_passing_test" duration="%" >' ||
+                   '</testCase></file></testExecutions>' then
     :test_result := ut_utils.tr_success;
-  end if;
-
-  if :test_result != ut_utils.tr_success or :test_result is null then
-    for i in 1 .. l_num_lines loop
-      dbms_output.put_line(l_output_data(i));
-    end loop;
-    dbms_output.put_line('Failed: Wrong output');
+  else
+    dbms_output.put_line(l_output);
   end if;
 end;
 /

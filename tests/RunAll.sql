@@ -106,6 +106,9 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_output_buffer/send_line.DoesNotSendLineIfNullTextGiven.sql
 @@lib/RunTest.sql ut_output_buffer/send_line.SendsALineIntoBufferTable.sql
 
+@@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.ProducesExpectedOutputs.sql
+@@lib/RunTest.sql ut_reporters/ut_teamcity_reporter.ProducesExpectedOutputs.sql
+
 @@lib/RunTest.sql ut_run/ut.run.FailsToExecuteAnInvalidPackageBody.sql
 @@lib/RunTest.sql ut_run/ut_run.function.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
 @@lib/RunTest.sql ut_run/ut_run.function.WithNoParams.ExecutesAllFromCurrentSchema.sql
@@ -168,7 +171,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_test/ut_test.BeforeEachProcedureNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.BeforeEachProcedureNameNull.sql
 @@lib/RunTest.sql ut_test/ut_test.TestOutputGathering.sql
-@@lib/RunTest.sql ut_test/ut_test.TestOutputGatheringForTeamcity.sql
 @@lib/RunTest.sql ut_test/ut_test.TestOutputGatheringWhenEmpty.sql
 @@lib/RunTest.sql ut_test/ut_test.ReportWarningOnRollbackFailed.sql
 
