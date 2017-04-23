@@ -121,7 +121,7 @@ For detailed instructions on other install options see the [Install Guide](docs/
 
 # Example unit test packages
 
-The below test package is a fully-functional Unit Test package for testing a `betwnstr` function.
+The below test package is a fully-functional Unit Test package for testing a [`betwnstr` function](examples/between_string/betwnstr.sql).
 Package specification is [annotated](docs/userguide/annotations.md) with special comments.
 Annotations define that a package is a unit test suite, they also allow defining a description for the suite as well as the test itself.
 Package body consists of procedures containing unit test code. To validate [an expectation](docs/userguide/expectations.md) in test, use `ut.expect( actual_data ).to_( ... )` syntax.
