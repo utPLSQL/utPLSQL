@@ -55,6 +55,7 @@ exec ut_coverage.coverage_start_develop();
 @@ut_expectations/ut.expect.to_be_not_null.GivesFailureWhenActualIsNull.sql
 @@ut_expectations/ut.expect.to_be_not_null.GivesSuccessWhenActualIsNotNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenAnydataIsNull.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenCollectionPassedIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenObjectPassedIsNull.sql
 @@ut_expectations/ut.expect.to_be_null.GivesFailureWhenActualIsNotNull.sql
 @@ut_expectations/ut.expect.to_be_null.GivesSuccessWhenActualIsNull.sql
@@ -64,13 +65,25 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesSuccessWhenExpessionIsTrue.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenBothObjectsAreNullButDifferentType.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentData.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentObjects.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingObejctToCollection.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenOneOfObjectsIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothAnydataAreNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothObjectsAreNull.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameCollections.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.PutsObjectStrucureIntoResult.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ComparesDateAndTimeWhenSetNlsIsUsed.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnNameListIsCaseSensitive.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnNamesAreCaseSensitive.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesFailureForDifferentValues.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValues.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValuesWithExcludedColumnList.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValuesWithExcludedColumns.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ReportsTheExceptionWhenAnExceptionInCursorIsCaught.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ReturnsCursorDataForFailure.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.SupportsSQLandPLSQLdatatypes.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.UsesDefaultNLSSettingsForDatesFormatting.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ReturnsCursorDataForFailure.sql
 @@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentDataTypes.sql
 @@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentValues.sql
@@ -85,6 +98,7 @@ exec ut_coverage.coverage_start_develop();
 @@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenExpectedIsNull.sql
 @@ut_expectations/ut.expect.to_equal.with_text.GivesTheProvidedTextAsMessage.sql
 @@ut_expectations/ut.expect.to_match.sql
+@@lib/RunTest.sql ut_expectations/ut_data_value_object.compare.Gives0WhenComparingIdenticalObjects.sql
 @@lib/RunTest.sql ut_expectations/ut_expectation_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
 
 @@ut_matchers/be_between.sql
@@ -108,9 +122,12 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_output_buffer/send_line.DoesNotSendLineIfNullTextGiven.sql
 @@lib/RunTest.sql ut_output_buffer/send_line.SendsALineIntoBufferTable.sql
 
+@@lib/RunTest.sql ut_reporters/ut_coverage_sonar_reporter.AcceptsFileMapping.sql
+@@lib/RunTest.sql ut_reporters/ut_coverage_sonar_reporter.BuildsSonarCoverageReport.sql
 @@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.AcceptsFileMapping.sql
 @@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.ProducesExpectedOutputs.sql
 @@lib/RunTest.sql ut_reporters/ut_teamcity_reporter.ProducesExpectedOutputs.sql
+@@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ProducesExpectedOutputs.sql
 
 @@lib/RunTest.sql ut_run/ut.run.FailsToExecuteAnInvalidPackageBody.sql
 @@lib/RunTest.sql ut_run/ut_run.function.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
@@ -373,12 +390,16 @@ begin
     'source/expectations/data_values/ut_data_value_boolean.tps',
     'source/expectations/data_values/ut_data_value_clob.tpb',
     'source/expectations/data_values/ut_data_value_clob.tps',
+    'source/expectations/data_values/ut_data_value_collection.tpb',
+    'source/expectations/data_values/ut_data_value_collection.tps',
     'source/expectations/data_values/ut_data_value_date.tpb',
     'source/expectations/data_values/ut_data_value_date.tps',
     'source/expectations/data_values/ut_data_value_dsinterval.tpb',
     'source/expectations/data_values/ut_data_value_dsinterval.tps',
     'source/expectations/data_values/ut_data_value_number.tpb',
     'source/expectations/data_values/ut_data_value_number.tps',
+    'source/expectations/data_values/ut_data_value_object.tpb',
+    'source/expectations/data_values/ut_data_value_object.tps',
     'source/expectations/data_values/ut_data_value_refcursor.tpb',
     'source/expectations/data_values/ut_data_value_refcursor.tps',
     'source/expectations/data_values/ut_data_value_timestamp.tpb',

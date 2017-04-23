@@ -111,11 +111,11 @@ create or replace package ut_utils authid definer is
   procedure debug_log(a_message varchar2);
   procedure debug_log(a_message clob);
 
-  function to_string(a_value varchar2) return varchar2;
+  function to_string(a_value varchar2, a_qoute_char varchar2 := '''') return varchar2;
 
-  function to_string(a_value clob) return varchar2;
+  function to_string(a_value clob, a_qoute_char varchar2 := '''') return varchar2;
 
-  function to_string(a_value blob) return varchar2;
+  function to_string(a_value blob, a_qoute_char varchar2 := '''') return varchar2;
 
   function to_string(a_value boolean) return varchar2;
 
@@ -195,7 +195,7 @@ create or replace package ut_utils authid definer is
   /*
   * Returns a text indented with spaces except the first line.
   */
-  function indent_lines(a_text varchar2, a_indent_size integer) return varchar2;
+  function indent_lines(a_text varchar2, a_indent_size integer := 4, a_include_first_line boolean := false) return varchar2;
 
 
   /*

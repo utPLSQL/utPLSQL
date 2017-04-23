@@ -5,7 +5,7 @@ declare
   l_result    integer;
 begin
 --Act
-  ut.expect( l_actual ).to_( be_like(l_pattern, l_escape_char) );
+  ut.expect( l_actual ).to_be_like(l_pattern, l_escape_char);
   l_result := ut_expectation_processor.get_status();
 --Assert
   if l_result = &5 then

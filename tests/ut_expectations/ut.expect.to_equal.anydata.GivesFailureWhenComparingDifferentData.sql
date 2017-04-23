@@ -1,4 +1,3 @@
-PROMPT Gives a success when comparing equal oracle objects
 --Arrange
 declare
   l_expected department$ := department$('HR');

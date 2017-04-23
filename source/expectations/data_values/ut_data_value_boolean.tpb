@@ -19,6 +19,7 @@ create or replace type body ut_data_value_boolean as
   constructor function ut_data_value_boolean(self in out nocopy ut_data_value_boolean, a_value boolean) return self as result is
   begin
     self.data_value := ut_utils.boolean_to_int(a_value);
+    self.self_type  := $$plsql_unit;
     self.data_type := 'boolean';
     return;
   end;
@@ -31,6 +32,25 @@ create or replace type body ut_data_value_boolean as
   overriding member function to_string return varchar2 is
   begin
     return ut_utils.to_string(ut_utils.int_to_boolean(self.data_value));
+  end;
+
+  overriding member function compare_implementation(a_other ut_data_value) return integer is
+    l_other  ut_data_value_boolean;
+    l_result integer;
+  begin
+    if a_other is of (ut_data_value_boolean) then
+      l_other := treat(a_other as ut_data_value_boolean);
+      if self.data_value = l_other.data_value then
+        l_result := 0;
+      elsif self.data_value > l_other.data_value then
+        l_result := 1;
+      elsif self.data_value < l_other.data_value then
+        l_result := -1;
+      end if;
+    else
+      raise value_error;
+    end if;
+    return l_result;
   end;
 
 end;
