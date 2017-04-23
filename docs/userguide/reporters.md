@@ -89,6 +89,22 @@ Example of failure report details
 ![xunit_reporter_outputs](../images/teamcity_report_example_errors.png)
 
 
+# Sonar test reporter
+If you are using [SonarQube](https://about.sonarqube.com/) to do static code analysis for you PLSQL projects, your code analysis can benefit from code coverage and test results.
+utPLSQL provides two reporters to for SonarQube:
+- `ut_sonar_test_reporter` - provides an XML output of each test executed per each project test file (package) 
+- `ut_coverage_sonar_reporter` - provides XML output of code coverage per each project source file 
+
+`ut_sonar_test_reporter` needs to be called with a list of paths to test files (packages).
+The paths to files can be relative to the project root directory (recommended) or be absolute. 
+
+`ut_coverage_sonar_reporter` needs to be called with a list of paths to source files for your project.
+The paths to files can be relative to the project root directory (recommended) or be absolute.
+
+Providing invalid paths or paths to non-existing files will result in failure when publishing test results/coverage results to sonar server.
+
+For details on how to invoke reporter with paths, see the **Coverage reporters** section.
+
 # Coverage reporters
 
 utPLSQL comes with a set of build-in coverage reporters. Have a look into the [coverage documentation](coverage.md) to learn more about them.

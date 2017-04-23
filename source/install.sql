@@ -218,7 +218,8 @@ whenever sqlerror exit failure rollback
 @@reporters/ut_teamcity_reporter.tpb
 @@reporters/ut_xunit_reporter.tps
 @@reporters/ut_xunit_reporter.tpb
-
+@@reporters/ut_sonar_test_reporter.tps
+@@reporters/ut_sonar_test_reporter.tpb
 
 @@reporters/ut_coverage_html_reporter.tps
 @@reporters/ut_coverage_report_html_helper.pks
