@@ -23,6 +23,8 @@ create table ut$test_table (val varchar2(1));
 @@helpers/test_package_1.pck
 @@helpers/test_package_2.pck
 @@helpers/utplsql_test_reporter.typ
+@@helpers/test_reporters.pks
+@@helpers/test_reporters.pkb
 
 --Start coverage in develop mode (coverage for utPLSQL framework)
 --Regular coverage excludes the framework
@@ -106,6 +108,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_output_buffer/send_line.DoesNotSendLineIfNullTextGiven.sql
 @@lib/RunTest.sql ut_output_buffer/send_line.SendsALineIntoBufferTable.sql
 
+@@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.AcceptsFileMapping.sql
 @@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.ProducesExpectedOutputs.sql
 @@lib/RunTest.sql ut_reporters/ut_teamcity_reporter.ProducesExpectedOutputs.sql
 
@@ -189,6 +192,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.ManualOnFailure.sql
 
 @@ut_utils/ut_utils.clob_to_table.sql
+@@ut_utils/ut_utils.table_to_clob.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithInvalidValues.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithNullValue.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.Success.sql
@@ -227,6 +231,7 @@ drop package test_package_1;
 drop package test_package_2;
 drop package test_package_3;
 drop type utplsql_test_reporter;
+drop package test_reporters;
 
 set timing on
 prompt Generating coverage data to reporter outputs
@@ -451,9 +456,9 @@ begin
   ut_coverage.coverage_stop_develop();
 
   --run for the second time to get the coverage report
---   l_reporter := ut_coverage_html_reporter( a_project_name => 'utPLSQL v3', a_file_paths => l_file_list );
---   :html_reporter_id := l_reporter.reporter_id;
---   l_reporter.after_calling_run(ut_run(ut_suite_items()));
+  l_reporter := ut_coverage_html_reporter( a_project_name => 'utPLSQL v3', a_file_paths => l_file_list );
+  :html_reporter_id := l_reporter.reporter_id;
+  l_reporter.after_calling_run(ut_run(ut_suite_items()));
 
   l_reporter := ut_coverage_sonar_reporter( a_file_paths => l_file_list );
   :sonar_reporter_id := l_reporter.reporter_id;
@@ -481,12 +486,12 @@ spool coverage.json
 select * from table(ut_output_buffer.get_lines(:coveralls_reporter_id));
 spool off
 
--- set termout on
--- prompt Spooling outcomes to coverage.html
--- set termout off
--- spool coverage.html
--- exec ut_output_buffer.lines_to_dbms_output(:html_reporter_id);
--- spool off
+set termout on
+prompt Spooling outcomes to coverage.html
+set termout off
+spool coverage.html
+exec ut_output_buffer.lines_to_dbms_output(:html_reporter_id);
+spool off
 
 @@lib/mystats/mystats stop t=1000
 
