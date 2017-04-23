@@ -11,7 +11,7 @@ sqlplus admin/admins_password@xe @@install_headless.sql
 ```
 
 
-#Recommended Schema
+# Recommended Schema
 It is recommended to install utPLSQL in it's own schema. You are free to choose any name for this schema.
 
 The installation user/schema must have the following Oracle system permissions during the installation.

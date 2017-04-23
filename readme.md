@@ -119,13 +119,12 @@ sqlplus admin/admins_password@xe @@install_headless.sql
 
 For detailed instructions on other install options see the [Install Guide](docs/userguide/install.md)
 
-# Example test package
+# Example unit test packages
 
-The below test package is a fully-functional Unit Test package for testing a function `betwnstr`.
-Package specification is annotated with special comments ([annotations](docs/userguide/annotations.md)).
+The below test package is a fully-functional Unit Test package for testing a `betwnstr` function.
+Package specification is [annotated](docs/userguide/annotations.md) with special comments.
 Annotations define that a package is a unit test suite, they also allow defining a description for the suite as well as the test itself.
 Package body consists of procedures containing unit test code. To validate [an expectation](docs/userguide/expectations.md) in test, use `ut.expect( actual_data ).to_( ... )` syntax.
-
 
 ```sql
 create or replace package test_between_string as
@@ -150,7 +149,7 @@ create or replace package body test_between_string as
 
   procedure normal_case is
   begin
-    ut.expect( betwnstr( '1234567', 2, 5 ) ).to_equal('2345') );
+    ut.expect( betwnstr( '1234567', 2, 5 ) ).to_( equal('2345') );
   end;
 
   procedure zero_start_position is
@@ -172,6 +171,13 @@ end;
 /
 ```
 
+Have a look st the structure of our [demo project](https://github.com/utPLSQL/utPLSQL-demo-project/)
+The project is installing few example packages from the [source directory](https://github.com/utPLSQL/utPLSQL-demo-project/tree/develop/source),
+installing the test packages from [test directory](https://github.com/utPLSQL/utPLSQL-demo-project/tree/develop/test)
+and finally executing all the tests using [Travis CI](https://travis-ci.org/utPLSQL/utPLSQL-demo-project).
+The [test results](https://sonarqube.com/component_measures/metric/tests/list?id=utPLSQL%3AutPLSQL-demo-project)
+ together with [code coverage](https://sonarqube.com/component_measures/metric/coverage/list?id=utPLSQL%3AutPLSQL-demo-project)
+ are published to the [projects Sonar page](https://sonarqube.com/dashboard?id=utPLSQL%3AutPLSQL-demo-project) after every successful build.  
 
 # Running tests
 
