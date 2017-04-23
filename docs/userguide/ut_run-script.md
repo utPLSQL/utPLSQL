@@ -3,10 +3,10 @@ It allows saving of outcomes into multiple output files.
 It also facilitates displaying on screen unit test results while the execution is still ongoing.
 Current limit of script parameters is 39
 
-#Scrip invocation
+# Scrip invocation
   ut_run.sql user/password@database [-p=(ut_path|ut_paths)] [-c] [-f=format [-o=output] [-s] ...]
 
-#Parameters
+# Parameters
 ```
   user         - username to connect as
   password     - password of the user

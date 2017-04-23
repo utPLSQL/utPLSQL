@@ -1,6 +1,6 @@
 utPLSQL provides the following reporting formats.
 
-#Documentation reporter
+# Documentation reporter
 
 The `ut_documentation_reporter` is the default reporting format used by the framework.
 It provides a human readable test results.
@@ -34,7 +34,7 @@ The documentation report provides the following information.
 - Summary with total number of tests, number of tests with status and timing for the execution 
 
 
-##Color output from documentation reporter
+## Color output from documentation reporter
 
 When invoking tests with documentation reporter and your command line supports ANSICONSOLE (default on Unix), you can obtain the coloured outputs from the documentation reporter.
 
@@ -49,7 +49,7 @@ Example outputs from documentation reporter.
 ![doc_reporter_outputs](../images/documentation_reporter_color.png)
 
 
-#XUnit reporter
+# XUnit reporter
 
 Most of continuous integration servers (like Jenkins) are capable of consuming unit test execution results in [XUnit/JUnit](https://en.wikipedia.org/wiki/XUnit) format.
 The `ut_xunit_reporter` is producing outcomes as XUnit-compatible XML unit test report, that can be used by CI servers to display their custom reports and provide metrics (like tests execution trends).
@@ -69,7 +69,7 @@ Example of failure report details
 ![xunit_reporter_outputs](../images/xunit_reporter_jenkins_errors.png)
 
 
-#Teamcity reporter
+# Teamcity reporter
 
 [Teamcity](https://www.jetbrains.com/teamcity/) is a CI server by Jetbrains. It supports XUnit reporting and additionally has it's own format of reporting that allows tracking of progress of a CI step/task as it executes.
 The TeamCity format developed by Jetbrains is supported by utPLSQL with `ut_teamcity_reporter`.
