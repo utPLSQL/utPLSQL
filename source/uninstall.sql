@@ -59,6 +59,8 @@ drop package ut_coverage_report_html_helper;
 
 drop type ut_coverage_html_reporter;
 
+drop type ut_sonar_test_reporter;
+
 drop package ut_coverage;
 
 drop type ut_coverage_file_mappings;

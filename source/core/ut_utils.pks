@@ -185,8 +185,11 @@ create or replace package ut_utils authid definer is
   */
   function clob_to_table(a_clob clob, a_max_amount integer := 32767, a_delimiter varchar2:= chr(10)) return ut_varchar2_list;
 
-  function table_to_clob(a_text_table ut_varchar2_list) return clob;
+  function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob;
 
+  /*
+    Returns time difference in seconds (with miliseconds) between given timestamps
+  */
   function time_diff(a_start_time timestamp with time zone, a_end_time timestamp with time zone) return number;
 
   /*
