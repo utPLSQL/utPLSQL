@@ -101,18 +101,14 @@ create or replace type body ut_coveralls_reporter is
         dbms_lob.writeappend(l_result, 1, '0');
       else
         for line_no in 1 .. l_last_line_no loop
-          l_file_part :=
-            case
-              when a_unit_coverage.lines.exists(line_no) then
-                to_char(a_unit_coverage.lines(line_no))
+          if a_unit_coverage.lines.exists(line_no) then
+            l_file_part := to_char(a_unit_coverage.lines(line_no));
               else
-                c_null
-            end
-            ||
-            case
-              when line_no < l_last_line_no then
-                ','
-              end;
+            l_file_part := c_null;
+          end if;
+          if line_no < l_last_line_no then
+            l_file_part := l_file_part ||',';
+          end if;
           dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);
         end loop;
       end if;

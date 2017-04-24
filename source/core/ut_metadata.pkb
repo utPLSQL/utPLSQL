@@ -140,7 +140,7 @@ create or replace package body ut_metadata as
          and s.type not in ('PACKAGE','TYPE');
      fetch l_cursor into l_line;
      close l_cursor;
-    return ltrim(rtrim( lower( l_line ), chr(10) ));
+    return ltrim(rtrim( l_line, chr(10) ));
   exception
     when no_data_found then
       return null;
