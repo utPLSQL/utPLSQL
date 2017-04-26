@@ -75,7 +75,7 @@ create or replace package body ut_metadata as
       from all_objects
      where owner = l_schema
        and object_name = l_package_name
-       and object_type in ('PACKAGE', 'PACKAGE BODY');
+       and object_type in ('PACKAGE');
 
     -- expect both package and body to be valid
     return l_cnt = 1;

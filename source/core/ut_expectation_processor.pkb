@@ -1,4 +1,4 @@
-create or replace package body ut_assert_processor as
+create or replace package body ut_expectation_processor as
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -20,7 +20,7 @@ create or replace package body ut_assert_processor as
 
   g_session_params tt_nls_params;
 
-  g_asserts_called ut_assert_results := ut_assert_results();
+  g_expectations_called ut_expectation_results := ut_expectation_results();
 
   g_nulls_are_equal boolean_not_null := gc_default_nulls_are_equal;
 
@@ -34,44 +34,43 @@ create or replace package body ut_assert_processor as
     g_nulls_are_equal := a_setting;
   end;
 
-  function get_aggregate_asserts_result return integer is
+  function get_status return integer is
     l_result integer := ut_utils.tr_success;
   begin
-    ut_utils.debug_log('ut_assert_processor.get_aggregate_asserts_result');
+    ut_utils.debug_log('ut_expectation_processor.get_status');
 
-    for i in 1 .. g_asserts_called.count loop
-      l_result := greatest(l_result, g_asserts_called(i).result);
+    for i in 1 .. g_expectations_called.count loop
+      l_result := greatest(l_result, g_expectations_called(i).result);
       exit when l_result = ut_utils.tr_error;
     end loop;
     return l_result;
+  end get_status;
 
-  end get_aggregate_asserts_result;
-
-  procedure clear_asserts is
+  procedure clear_expectations is
   begin
-    ut_utils.debug_log('ut_assert_processor.clear_asserts');
-    g_asserts_called.delete;
+    ut_utils.debug_log('ut_expectation_processor.clear_expectations');
+    g_expectations_called.delete;
   end;
 
-  function get_asserts_results return ut_assert_results is
-    l_asserts_results ut_assert_results := ut_assert_results();
+  function get_expectations_results return ut_expectation_results is
+    l_expectations_results ut_expectation_results := ut_expectation_results();
   begin
-    ut_utils.debug_log('ut_assert_processor.get_asserts_results: .count='||g_asserts_called.count);
-    l_asserts_results := g_asserts_called;
-    clear_asserts();
-    return l_asserts_results;
-  end get_asserts_results;
+    ut_utils.debug_log('ut_expectation_processor.get_expectations_results: .count='||g_expectations_called.count);
+    l_expectations_results := g_expectations_called;
+    clear_expectations();
+    return l_expectations_results;
+  end get_expectations_results;
 
-  procedure add_assert_result(a_assert_result ut_assert_result) is
+  procedure add_expectation_result(a_expectation_result ut_expectation_result) is
   begin
-    ut_utils.debug_log('ut_assert_processor.add_assert_result');
-    g_asserts_called.extend;
-    g_asserts_called(g_asserts_called.last) := a_assert_result;
+    ut_utils.debug_log('ut_expectation_processor.add_expectation_result');
+    g_expectations_called.extend;
+    g_expectations_called(g_expectations_called.last) := a_expectation_result;
   end;
 
   procedure report_failure(a_message in varchar2) is
   begin
-    add_assert_result(ut_assert_result(ut_utils.tr_failure, a_message));
+    add_expectation_result(ut_expectation_result(ut_utils.tr_failure, a_message));
   end;
 
   function get_session_parameters return tt_nls_params is

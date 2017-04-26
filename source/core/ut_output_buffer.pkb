@@ -54,28 +54,33 @@ create or replace package body ut_output_buffer is
     commit;
   end;
 
-  function get_lines(a_reporter_id varchar2, a_timeout_sec naturaln := gc_max_wait_sec) return ut_varchar2_list pipelined is
-    pragma autonomous_transaction;
-    l_results        ut_varchar2_list;
+  function get_lines(a_reporter_id varchar2, a_timeout_sec naturaln := gc_max_wait_sec) return ut_varchar2_rows pipelined is
+    l_buffer_data    ut_varchar2_rows;
     l_wait_wait_time number(10,1) := 0;
     l_finished       boolean := false;
-  begin
-    loop
+    function get_data_from_buffer return ut_varchar2_rows is
+      l_results        ut_varchar2_rows;
+      pragma autonomous_transaction;
+    begin
       delete from (
         select *
           from ut_output_buffer_tmp where reporter_id = a_reporter_id order by message_id
         )
       returning text bulk collect into l_results;
-
+      commit;
+      return l_results;
+    end;
+  begin
+    loop
+      l_buffer_data := get_data_from_buffer();
       --nothing fetched from output, wait and try again
-      if l_results.count = 0 then
+      if l_buffer_data.count = 0 then
         dbms_lock.sleep(gc_sleep_time);
         l_wait_wait_time := l_wait_wait_time + gc_sleep_time;
       else
-        commit;
-        for i in 1 .. l_results.count loop
-          if l_results(i) is not null then
-            pipe row(l_results(i));
+        for i in 1 .. l_buffer_data.count loop
+          if l_buffer_data(i) is not null then
+            pipe row(l_buffer_data(i));
           else
             l_finished := true;
             exit;

@@ -51,6 +51,7 @@ grant execute on ut_coverage_sonar_reporter to &ut3_user;
 grant execute on ut_coveralls_reporter to &ut3_user;
 grant execute on ut_reporters to &ut3_user;
 grant execute on ut_varchar2_list to &ut3_user;
+grant execute on ut_varchar2_rows to &ut3_user;
 grant execute on ut_reporter_base to &ut3_user;
 grant execute on ut_coverage to &ut3_user;
 grant execute on ut_coverage_helper to &ut3_user;
@@ -60,6 +61,7 @@ grant execute on ut_coverage_file_mappings to &ut3_user;
 grant execute on ut_coverage_file_mapping to &ut3_user;
 grant execute on ut_key_value_pairs to &ut3_user;
 grant execute on ut_key_value_pair to &ut3_user;
+grant execute on ut_sonar_test_reporter to &ut3_user;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to user &&ut3_user
 
@@ -86,6 +88,7 @@ create or replace synonym &ut3_user .ut_coverage_sonar_reporter for ut_coverage_
 create or replace synonym &ut3_user .ut_coveralls_reporter for ut_coveralls_reporter;
 create or replace synonym &ut3_user .ut_reporters for ut_reporters;
 create or replace synonym &ut3_user .ut_varchar2_list for ut_varchar2_list;
+create or replace synonym &ut3_user .ut_varchar2_rows for ut_varchar2_rows;
 create or replace synonym &ut3_user .ut_reporter_base for ut_reporter_base;
 create or replace synonym &ut3_user .ut_coverage for ut_coverage;
 create or replace synonym &ut3_user .ut_coverage_helper for ut_coverage_helper;
@@ -95,3 +98,4 @@ create or replace synonym &ut3_user .ut_coverage_file_mappings for ut_coverage_f
 create or replace synonym &ut3_user .ut_coverage_file_mapping for ut_coverage_file_mapping;
 create or replace synonym &ut3_user .ut_key_value_pairs for ut_key_value_pairs;
 create or replace synonym &ut3_user .ut_key_value_pair for ut_key_value_pair;
+create or replace synonym &ut3_user .ut_sonar_test_reporter for ut_sonar_test_reporter;

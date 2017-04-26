@@ -1,6 +1,6 @@
 utPLSQL provides the following reporting formats.
 
-#Documentation reporter
+# Documentation reporter
 
 The `ut_documentation_reporter` is the default reporting format used by the framework.
 It provides a human readable test results.
@@ -34,7 +34,7 @@ The documentation report provides the following information.
 - Summary with total number of tests, number of tests with status and timing for the execution 
 
 
-##Color output from documentation reporter
+## Color output from documentation reporter
 
 When invoking tests with documentation reporter and your command line supports ANSICONSOLE (default on Unix), you can obtain the coloured outputs from the documentation reporter.
 
@@ -49,7 +49,7 @@ Example outputs from documentation reporter.
 ![doc_reporter_outputs](../images/documentation_reporter_color.png)
 
 
-#XUnit reporter
+# XUnit reporter
 
 Most of continuous integration servers (like Jenkins) are capable of consuming unit test execution results in [XUnit/JUnit](https://en.wikipedia.org/wiki/XUnit) format.
 The `ut_xunit_reporter` is producing outcomes as XUnit-compatible XML unit test report, that can be used by CI servers to display their custom reports and provide metrics (like tests execution trends).
@@ -69,7 +69,7 @@ Example of failure report details
 ![xunit_reporter_outputs](../images/xunit_reporter_jenkins_errors.png)
 
 
-#Teamcity reporter
+# Teamcity reporter
 
 [Teamcity](https://www.jetbrains.com/teamcity/) is a CI server by Jetbrains. It supports XUnit reporting and additionally has it's own format of reporting that allows tracking of progress of a CI step/task as it executes.
 The TeamCity format developed by Jetbrains is supported by utPLSQL with `ut_teamcity_reporter`.
@@ -88,6 +88,22 @@ Example of failure report details
  
 ![xunit_reporter_outputs](../images/teamcity_report_example_errors.png)
 
+
+# Sonar test reporter
+If you are using [SonarQube](https://about.sonarqube.com/) to do static code analysis for you PLSQL projects, your code analysis can benefit from code coverage and test results.
+utPLSQL provides two reporters to for SonarQube:
+- `ut_sonar_test_reporter` - provides an XML output of each test executed per each project test file (package) 
+- `ut_coverage_sonar_reporter` - provides XML output of code coverage per each project source file 
+
+`ut_sonar_test_reporter` needs to be called with a list of paths to test files (packages).
+The paths to files can be relative to the project root directory (recommended) or be absolute. 
+
+`ut_coverage_sonar_reporter` needs to be called with a list of paths to source files for your project.
+The paths to files can be relative to the project root directory (recommended) or be absolute.
+
+Providing invalid paths or paths to non-existing files will result in failure when publishing test results/coverage results to sonar server.
+
+For details on how to invoke reporter with paths, see the **Coverage reporters** section.
 
 # Coverage reporters
 

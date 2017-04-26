@@ -16,7 +16,7 @@ Following code coverage reporters are supplied with utPLSQL:
 * `ut_coveralls_reporter` - generates a JSON coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by cloud services like [coveralls](https://coveralls.io) 
 * `ut_coverage_sonar_reporter`  - generates a JSON coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by local services like [sonarqube](https://about.sonarqube.com/)
 
-##Security model
+## Security model
 Code coverage is using DBMS_PROFILER to gather information about execution of code under test and therefore follows the [DBMS_PROFILER's Security Model](https://docs.oracle.com/database/121/ARPLS/d_profil.htm#ARPLS67465)
 In order to be able to gather coverage information, user executing unit tests needs to be either:
 * Owner of the code that is tested
@@ -28,7 +28,7 @@ If you have `execute` privilege on the code that are tested, but do not have `cr
 If you have `execute` privilege only on the unit tests, but do not have `execute` privilege on the code that is tested, the code will not be reported by coverage - as if it did not exist in the database.
 If the code that is testes is complied as NATIVE, the code coverage will not be reported as well.
 
-##Running unite tests with coverage
+## Running unite tests with coverage
 Using code coverage functionality is as easy as using any other [reporter](reporters.md) for utPLSQL project. All you need to do is run your tests from your preferred SQL tool and save the outcomes of reporter to a file.
 All you need to do, is pass the constructor of the reporter to your `ut.run`
 
@@ -51,13 +51,13 @@ The report allow to navigate to every source and inspect line by line coverage.
 ![Coverage Details page](../images/coverage_html_details.png)
 
 
-##Coverage reporting options
+## Coverage reporting options
 By default the database schema/schemes containing the tests that were executed during the run, are fully reported by coverage reporter.
 All valid unit tests are excluded from the report regardless if they were invoked or not. This way the coverage report is not affected by presence of tests and contains only the tested code.
 
 The default behavior of coverage reporters can be altered, depending on your needs.
 
-###Including/excluding objects in coverage reports
+### Including/excluding objects in coverage reports
 The most basic options are the include/exclude objects lists.
 You may specify both include and exclude objects lists to specify which objects are to be included in the report and which are to be excluded.
 Both of those options are meant to be used to narrow down the scope of unit test runs, that is broad by default.
@@ -76,7 +76,7 @@ Executes test `test_award_bonus` and gather on all objects in schema `ut3_user` 
 
 You can also combine the parameters and both will be applied.
  
-###Defining different schema name(s)
+### Defining different schema names
 In some architectures, you might end up in a situation, where your unit tests exist in a different schema than the tested code.
 This is not the default or recommended approach but is supporter by utPLSQL.
 In such scenarios, you would probably have a separate database schema to hold unit tests and a separate schema/schemes to hold the tested code.
@@ -108,7 +108,7 @@ end;
 ```
 Executes test `test_award_bonus` in schema `ut3_user` and gather coverage for that execution on `award_bonus` object from schema `usr`. The exclude list is of no relevance as it is not overlapping with include list.
 
-###Working with projects and project files
+### Working with projects and project files
 Both `sonar` and `coveralls` are utilities that are more project-oriented than database-centric. They report statistics and coverage for project files in version control system.
 Nowadays, most of database projects are moving away from database-centric approach towards project/product-centric approach.
 Coverage reporting of utPLSQL allows you to perform code coverage analysis for your project files.

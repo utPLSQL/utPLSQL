@@ -35,6 +35,7 @@ whenever oserror exit failure rollback
 
 --common utilities
 @@core/types/ut_varchar2_list.tps
+@@core/types/ut_varchar2_rows.tps
 @@core/types/ut_object_name.tps
 @@core/types/ut_object_name.tpb
 @@core/types/ut_object_names.tps
@@ -48,8 +49,8 @@ whenever oserror exit failure rollback
 @@reporters/ut_ansiconsole_helper.pkb
 
 --core types
-@@core/types/ut_assert_result.tps
-@@core/types/ut_assert_results.tps
+@@core/types/ut_expectation_result.tps
+@@core/types/ut_expectation_results.tps
 @@core/types/ut_results_counter.tps
 @@core/types/ut_suite_item_base.tps
 @@core/types/ut_event_listener_base.tps
@@ -79,9 +80,9 @@ whenever oserror exit failure rollback
 @@core/ut_suite_manager.pks
 @@core/ut_suite_manager.pkb
 
---assertios execution state interface
-@@core/ut_assert_processor.pks
-@@core/ut_assert_processor.pkb
+--expectationios execution state interface
+@@core/ut_expectation_processor.pks
+@@core/ut_expectation_processor.pkb
 
 --installing profiler tabs if they dont exist
 whenever sqlerror continue
@@ -107,7 +108,7 @@ whenever sqlerror exit failure rollback
 @@core/types/ut_suite.tpb
 @@core/types/ut_run.tpb
 @@core/types/ut_event_listener.tpb
-@@core/types/ut_assert_result.tpb
+@@core/types/ut_expectation_result.tpb
 @@core/types/ut_reporter_base.tpb
 @@core/types/ut_executable.tpb
 @@core/types/ut_console_reporter_base.tps
@@ -217,7 +218,8 @@ whenever sqlerror exit failure rollback
 @@reporters/ut_teamcity_reporter.tpb
 @@reporters/ut_xunit_reporter.tps
 @@reporters/ut_xunit_reporter.tpb
-
+@@reporters/ut_sonar_test_reporter.tps
+@@reporters/ut_sonar_test_reporter.tpb
 
 @@reporters/ut_coverage_html_reporter.tps
 @@reporters/ut_coverage_report_html_helper.pks

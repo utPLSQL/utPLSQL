@@ -39,12 +39,12 @@ create or replace package ut_utils authid definer is
   /* Constants: Test Results */
   tr_disabled                constant number(1) := 0; -- test/suite was disabled
   tr_success                 constant number(1) := 1; -- test passed
-  tr_failure                 constant number(1) := 2; -- one or more asserts failed
+  tr_failure                 constant number(1) := 2; -- one or more expectations failed
   tr_error                   constant number(1) := 3; -- exception was raised
 
   tr_disabled_char           constant varchar2(8) := 'Disabled'; -- test/suite was disabled
   tr_success_char            constant varchar2(7) := 'Success'; -- test passed
-  tr_failure_char            constant varchar2(7) := 'Failure'; -- one or more asserts failed
+  tr_failure_char            constant varchar2(7) := 'Failure'; -- one or more expectations failed
   tr_error_char              constant varchar2(5) := 'Error'; -- exception was raised
 
   /*
@@ -185,8 +185,11 @@ create or replace package ut_utils authid definer is
   */
   function clob_to_table(a_clob clob, a_max_amount integer := 32767, a_delimiter varchar2:= chr(10)) return ut_varchar2_list;
 
-  function table_to_clob(a_text_table ut_varchar2_list) return clob;
+  function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob;
 
+  /*
+    Returns time difference in seconds (with miliseconds) between given timestamps
+  */
   function time_diff(a_start_time timestamp with time zone, a_end_time timestamp with time zone) return number;
 
   /*

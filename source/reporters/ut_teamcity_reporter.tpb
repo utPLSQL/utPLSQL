@@ -49,7 +49,7 @@ create or replace type body ut_teamcity_reporter is
   end;
 
   overriding member procedure after_calling_test(self in out nocopy ut_teamcity_reporter, a_test in ut_test) is
-    l_assert         ut_assert_result;
+    l_expectation    ut_expectation_result;
     l_test_full_name varchar2(4000);
     l_std_err_msg    varchar2(32767);
   begin
@@ -94,20 +94,20 @@ create or replace type body ut_teamcity_reporter is
       elsif a_test.results is not null and a_test.results.count > 0 then
         for i in 1 .. a_test.results.count loop
 
-          l_assert := a_test.results(i);
+          l_expectation := a_test.results(i);
 
-          if l_assert.result > ut_utils.tr_success then
+          if l_expectation.result > ut_utils.tr_success then
             self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
-                                                                   ,a_msg       => l_assert.message
+                                                                   ,a_msg       => l_expectation.message
                                                                    ,a_expected  => case
-                                                                                     when l_assert.matcher_name in
+                                                                                     when l_expectation.matcher_name in
                                                                                           ('equal', 'be false', 'be true') then
-                                                                                      l_assert.expected_value_string
+                                                                                      l_expectation.expected_value_string
                                                                                    end
                                                                    ,a_actual    => case
-                                                                                     when l_assert.matcher_name in
+                                                                                     when l_expectation.matcher_name in
                                                                                           ('equal', 'be false', 'be true') then
-                                                                                      l_assert.actual_value_string
+                                                                                      l_expectation.actual_value_string
                                                                                    end));
             -- Teamcity supports only a single failure message
             exit;

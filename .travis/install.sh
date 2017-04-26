@@ -9,8 +9,6 @@ set feedback off
 set verify off
 
 @../source/create_utplsql_owner.sql $UT3_OWNER $UT3_OWNER_PASSWORD $UT3_TABLESPACE
---only needed to run unit tests for utplsql v3, not required to run utplsql v3 itself
-grant select any dictionary to $UT3_OWNER;
 
 @../source/create_utplsql_owner.sql $UT3_USER $UT3_USER_PASSWORD $UT3_TABLESPACE
 cd ..

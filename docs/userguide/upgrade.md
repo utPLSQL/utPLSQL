@@ -1,3 +1,3 @@
-#How to upgrade from prior versions
+# How to upgrade from prior versions
 
 TODO: Finish this documentation.

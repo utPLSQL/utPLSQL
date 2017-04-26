@@ -26,7 +26,7 @@ create or replace package ut_output_buffer authid definer is
 
   procedure close(a_reporters ut_reporters);
 
-  function get_lines(a_reporter_id varchar2, a_timeout_sec naturaln := gc_max_wait_sec) return ut_varchar2_list pipelined;
+  function get_lines(a_reporter_id varchar2, a_timeout_sec naturaln := gc_max_wait_sec) return ut_varchar2_rows pipelined;
 
   function get_lines_cursor(a_reporter_id varchar2, a_timeout_sec naturaln := gc_max_wait_sec) return sys_refcursor;
 

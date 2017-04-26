@@ -50,6 +50,7 @@ grant execute on ut_coverage_sonar_reporter to public;
 grant execute on ut_coveralls_reporter to public;
 grant execute on ut_reporters to public;
 grant execute on ut_varchar2_list to public;
+grant execute on ut_varchar2_rows to public;
 grant execute on ut_reporter_base to public;
 grant execute on ut_coverage to public;
 grant execute on ut_coverage_helper to public;
@@ -59,6 +60,7 @@ grant execute on ut_coverage_file_mappings to public;
 grant execute on ut_coverage_file_mapping to public;
 grant execute on ut_key_value_pairs to public;
 grant execute on ut_key_value_pair to public;
+grant execute on ut_sonar_test_reporter to public;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
@@ -85,6 +87,7 @@ create public synonym ut_coverage_sonar_reporter for ut_coverage_sonar_reporter;
 create public synonym ut_coveralls_reporter for ut_coveralls_reporter;
 create public synonym ut_reporters for ut_reporters;
 create public synonym ut_varchar2_list for ut_varchar2_list;
+create public synonym ut_varchar2_rows for ut_varchar2_rows;
 create public synonym ut_reporter_base for ut_reporter_base;
 create public synonym ut_coverage for ut_coverage;
 create public synonym ut_coverage_helper for ut_coverage_helper;
@@ -94,3 +97,4 @@ create public synonym ut_coverage_file_mappings for ut_coverage_file_mappings;
 create public synonym ut_coverage_file_mapping for ut_coverage_file_mapping;
 create public synonym ut_key_value_pairs for ut_key_value_pairs;
 create public synonym ut_key_value_pair for ut_key_value_pair;
+create public synonym ut_sonar_test_reporter for ut_sonar_test_reporter;

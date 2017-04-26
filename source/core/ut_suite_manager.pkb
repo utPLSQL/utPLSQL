@@ -16,10 +16,13 @@ create or replace package body ut_suite_manager is
   limitations under the License.
   */
 
+  type t_schema_info is record (changed_at date, obj_cnt integer);
+
   type tt_schema_suites is table of ut_logical_suite index by varchar2(4000 char);
   type t_schema_cache is record(
      schema_suites tt_schema_suites
-    ,changed_at    date);
+    ,changed_at    date
+    ,obj_cnt integer);
   type tt_schema_suites_list is table of t_schema_cache index by varchar2(128 char);
 
   g_schema_suites tt_schema_suites_list;
@@ -29,15 +32,15 @@ create or replace package body ut_suite_manager is
     return substr(a_path, nvl(length(a_part), 0) + 1);
   end;
 
-  function get_schema_max_ddl(a_owner_name varchar2) return date is
-    l_date date;
+  function get_schema_info(a_owner_name varchar2) return t_schema_info is
+    l_info t_schema_info;
   begin
-    select nvl(max(t.last_ddl_time), date '4999-12-31')
-      into l_date
+    select nvl(max(t.last_ddl_time), date '4999-12-31'), count(*)
+      into l_info
       from all_objects t
      where t.owner = a_owner_name
        and t.object_type in ('PACKAGE');
-    return l_date;
+    return l_info;
   end;
 
   function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_logical_suite is
@@ -60,11 +63,17 @@ create or replace package body ut_suite_manager is
 
     l_suite_rollback            integer;
     l_suite_rollback_annotation varchar2(4000);
-
+    e_insufficient_priv         exception;
+    pragma exception_init(e_insufficient_priv,-01031);
   begin
     l_owner_name  := a_owner_name;
     l_object_name := a_object_name;
-    ut_metadata.do_resolve(a_owner => l_owner_name, a_object => l_object_name);
+    begin
+      ut_metadata.do_resolve(a_owner => l_owner_name, a_object => l_object_name);
+    exception
+      when e_insufficient_priv then
+      return null;
+    end;
     l_annotation_data := ut_annotations.get_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
 
     if l_annotation_data.package_annotations.exists('suite') then
@@ -185,11 +194,12 @@ create or replace package body ut_suite_manager is
 
   end config_package;
 
-  procedure update_cache(a_owner_name varchar2, a_schema_suites tt_schema_suites) is
+  procedure update_cache(a_owner_name varchar2, a_schema_suites tt_schema_suites, a_total_obj_cnt integer) is
   begin
     if a_schema_suites.count > 0 then
       g_schema_suites(a_owner_name).schema_suites := a_schema_suites;
       g_schema_suites(a_owner_name).changed_at := sysdate;
+      g_schema_suites(a_owner_name).obj_cnt := a_total_obj_cnt;
     elsif g_schema_suites.exists(a_owner_name) then
       g_schema_suites.delete(a_owner_name);
     end if;
@@ -307,7 +317,7 @@ create or replace package body ut_suite_manager is
     end loop;
 
     -- Caching
-    update_cache(a_owner_name, l_schema_suites);
+    update_cache(a_owner_name, l_schema_suites, get_schema_info(a_owner_name).obj_cnt );
 
     -- printing results for debugging purpose
     $if $$ut_trace $then
@@ -321,10 +331,13 @@ create or replace package body ut_suite_manager is
   end config_schema;
 
   function get_schema_suites(a_schema_name in varchar2) return tt_schema_suites is
+    l_schema_info t_schema_info;
   begin
     -- Currently cache invalidation on DDL is not implemented so schema is rescaned each time
+    l_schema_info := get_schema_info(a_schema_name);
     if not g_schema_suites.exists(a_schema_name) or g_schema_suites(a_schema_name)
-      .changed_at <= get_schema_max_ddl(a_schema_name) then
+      .changed_at <= l_schema_info.changed_at
+      or g_schema_suites(a_schema_name).obj_cnt != l_schema_info.obj_cnt then
       ut_utils.debug_log('Rescanning schema ' || a_schema_name);
       config_schema(a_schema_name);
     end if;

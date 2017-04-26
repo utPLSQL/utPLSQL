@@ -45,32 +45,32 @@ create or replace type body ut_data_value_refcursor as
     l_result clob;
   begin
     if self.data_value is not null then
-      ut_assert_processor.set_xml_nls_params();
+      ut_expectation_processor.set_xml_nls_params();
       dbms_xmlgen.restartQuery(self.data_value);
       dbms_xmlgen.setMaxRows(self.data_value, 100);
       l_result := dbms_xmlgen.getxml(self.data_value);
-      ut_assert_processor.reset_nls_params();
+      ut_expectation_processor.reset_nls_params();
     end if;
     return ut_utils.to_string(l_result);
   end;
-  
-  member function is_empty return boolean is  
+
+  member function is_empty return boolean is
     l_is_empty boolean := FALSE;
     l_result CLOB;
   begin
     if self.data_value is not null then
-      ut_assert_processor.set_xml_nls_params();
+      ut_expectation_processor.set_xml_nls_params();
       dbms_xmlgen.restartQuery(self.data_value);
       dbms_xmlgen.setMaxRows(self.data_value, 1);
       l_result := dbms_xmlgen.getxml(self.data_value);
-      
-      if l_result is null then  
+
+      if l_result is null then
         l_is_empty := true;
       end if;
-      
-      ut_assert_processor.reset_nls_params();
+
+      ut_expectation_processor.reset_nls_params();
     end if;
-    return l_is_empty;    
+    return l_is_empty;
   end;
 end;
 /
