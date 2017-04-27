@@ -1,23 +1,24 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-REM Get the full project path.
-pushd %__CD__%
-cd %1
+set pathParam=%1
+
+REM Trick to get the full path from relative one.
+set currentDir=%__CD__%
+cd %pathParam%
 set projectPath=%__CD__%
-popd
+cd %currentDir%
 
-REM Filenames
-set fileSQL=project_file_list.sql.tmp
+set sqlFile=project_file_list.sql.tmp
 
-REM Create the script to assing file paths to a ut_varchar2_list.
-echo begin>%fileSQL%
-echo   :l_file_list := q'[ut_varchar2_list(>>%fileSQL%
+REM Assign project filenames to the l_file_list bind variable.
+echo begin>%sqlFile%
+echo   :l_file_list := q'[ut_varchar2_list(>>%sqlFile%
 for /f "tokens=* delims= " %%a in ('dir %projectPath%\* /B /S') do (
     set "filePath=%%a"
     set filePath=!filePath:%projectPath%=!
-    echo ^      '!filePath!^',>>%fileSQL%
+    echo ^      '!filePath!^',>>%sqlFile%
 )
-echo       null)]';>>%fileSQL%
-echo end;>>%fileSQL%
-echo />>%fileSQL%
+echo       null)]';>>%sqlFile%
+echo end;>>%sqlFile%
+echo />>%sqlFile%

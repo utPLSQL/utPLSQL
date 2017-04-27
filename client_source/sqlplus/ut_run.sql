@@ -297,8 +297,10 @@ set termout off
 column project_path new_value project_path noprint;
 select :l_project_path as project_path from dual;
 
+--try running on windows
 $ file_list.bat "&&project_path"
---! file_list.sh "&&project_path"
+--try running on linux/unix
+! file_list.sh "&&project_path"
 undef project_path
 
 /*
@@ -348,6 +350,7 @@ end;
 /
 spool off
 
+
 /*
 * Generate output retrieval script
 */
@@ -385,7 +388,7 @@ spool off
 set define #
 --try running on windows
 $ start /min sqlplus ##1 @run_in_background.sql.tmp
---try running on linus/unix
+--try running on linux/unix
 ! sqlplus ##1 @run_in_background.sql.tmp &
 set define &
 set termout on
@@ -404,7 +407,7 @@ set termout off
 */
 --try running on windows
 $ del *.sql.tmp
---try running on linus/unix
+--try running on linux/unix
 ! rm *.sql.tmp
 
 exit
