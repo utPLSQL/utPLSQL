@@ -95,8 +95,8 @@ column param_list new_value param_list noprint;
 /*
 * Prepare script to make SQLPlus parameters optional and pass parameters call to param_list variable
 */
-set define off
-spool define_params_variable.sql.tmp
+set define #
+spool ##client_path/define_params_variable.sql.tmp
 declare
   l_sql_columns varchar2(4000);
   l_params      varchar2(4000);
@@ -117,7 +117,7 @@ set define &
 /*
 * Make SQLPlus parameters optional and pass parameters call to param_list variable
 */
-@define_params_variable.sql.tmp
+@&&client_path/define_params_variable.sql.tmp
 
 
 var l_paths          varchar2(4000);
@@ -252,7 +252,7 @@ declare
        where source_path is not null;
     exception
       when no_data_found then
-        l_path := '.';
+        l_path := '-';
       when too_many_rows then
         raise_application_error(-20000, 'Parameter "-source_path=source_path" defined more than once. Only one "-source_path=source_path" parameter can be used.');
     end;
@@ -269,7 +269,7 @@ declare
        where test_path is not null;
     exception
       when no_data_found then
-        l_path := '.';
+        l_path := '-';
       when too_many_rows then
         raise_application_error(-20000, 'Parameter "-test_path=test_path" defined more than once. Only one "-test_path=test_path" parameter can be used.');
     end;
@@ -312,6 +312,7 @@ end;
 /
 set termout off
 
+
 /**
  * Convert paths to substitution variable
  */
@@ -321,9 +322,9 @@ column test_path new_value test_path noprint;
 select :l_test_path as test_path from dual;
 
 --try running on windows
-$ &&client_path\file_list.bat "&&project_path" "&&source_path" "&&test_path"
+$ &&client_path\file_list.bat "&&client_path" "&&project_path" "&&source_path" "&&test_path"
 --try running on linux/unix
-! &&client_path/file_list.sh "&&project_path" "&&source_path" "&&test_path"
+! &&client_path/file_list.sh "&&client_path" "&&project_path" "&&source_path" "&&test_path"
 undef source_path
 undef test_path
 
@@ -331,13 +332,13 @@ undef test_path
 /*
  * Generate the project file list, saving it into the l_file_list bind variable
  */
-@project_file_list.sql.tmp
+@&&client_path/project_file_list.sql.tmp
 
 
 /*
 * Generate runner script
 */
-spool run_in_background.sql.tmp
+spool &&client_path/run_in_background.sql.tmp
 declare
   l_reporter_id   varchar2(250);
   l_reporter_name varchar2(250);
@@ -379,7 +380,7 @@ spool off
 /*
 * Generate output retrieval script
 */
-spool gather_data_from_outputs.sql.tmp
+spool &&client_path/gather_data_from_outputs.sql.tmp
 declare
   l_reporter_id      varchar2(250);
   l_output_file_name varchar2(250);
@@ -412,9 +413,9 @@ spool off
 */
 set define #
 --try running on windows
-$ start /min sqlplus ##conn_str @run_in_background.sql.tmp
+$ start /min sqlplus ##conn_str @##client_path/run_in_background.sql.tmp
 --try running on linux/unix
-! sqlplus ##conn_str @run_in_background.sql.tmp &
+! sqlplus ##conn_str @##client_path/run_in_background.sql.tmp &
 set define &
 set termout on
 
@@ -424,15 +425,15 @@ set arraysize 1
 /*
 * Gather outputs from reporters one by one while runner script executes.
 */
-@gather_data_from_outputs.sql.tmp
+@&&client_path/gather_data_from_outputs.sql.tmp
 
 set termout off
 /*
 * cleanup temporary sql files
 */
 --try running on windows
-$ del *.sql.tmp
+$ del &&client_path\*.sql.tmp
 --try running on linux/unix
-! rm *.sql.tmp
+! rm &&client_path/*.sql.tmp
 
 exit

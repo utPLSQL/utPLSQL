@@ -1,11 +1,19 @@
 @echo off
 setlocal EnableDelayedExpansion
 
+cd %1
+set clientPath=%__CD__%
+cd %2
 set projectPath=%__CD__%
-set sourcePath=%2
-set testPath=%3
+set sourcePath=%3
+set testPath=%4
 
-set sqlFile=project_file_list.sql.tmp
+set sqlFile=%clientPath%\project_file_list.sql.tmp
+
+if %sourcePath%=="-" (
+    echo null;>%sqlFile%
+    exit 0
+)
 
 REM Assign project filenames to the l_file_list bind variable.
 echo begin>%sqlFile%
