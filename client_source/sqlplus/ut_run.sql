@@ -44,7 +44,7 @@ Parameters:
                    -f=ut_xunit_reporter
                      A XUnit xml format (as defined at: http://stackoverflow.com/a/9691131 and at https://gist.github.com/kuzuha/232902acab1344d6b578)
                      Usually used  by Continuous Integration servers like Jenkins/Hudson or Teamcity to display test results.
-                   -f=ut_coverage_html_reporter
+                   -f=ut_coveralls_reporter
                      TODO
                  If no -f option is provided, the ut_documentation_reporter will be used.
 
@@ -72,7 +72,12 @@ Parameters:
 
 whenever sqlerror exit failure
 whenever oserror exit failure
-conn &1
+
+define client_path=&1
+define project_path=&2
+define conn_str=&3
+
+conn &conn_str
 
 set serveroutput on size unlimited format truncated
 set trimspool on
@@ -85,8 +90,6 @@ set long 30000
 set longchunksize 30000
 set verify off
 set heading off
-
-
 
 column param_list new_value param_list noprint;
 /*
@@ -110,16 +113,17 @@ end;
 spool off
 set define &
 
+
 /*
 * Make SQLPlus parameters optional and pass parameters call to param_list variable
 */
 @define_params_variable.sql.tmp
 
 
-
 var l_paths          varchar2(4000);
 var l_color_enabled  varchar2(5);
-var l_project_path   varchar2(4000);
+var l_source_path    varchar2(4000);
+var l_test_path      varchar2(4000);
 var l_file_list      clob;
 var l_run_params_cur refcursor;
 var l_out_params_cur refcursor;
@@ -238,19 +242,36 @@ declare
     return 'false';
   end;
 
-  function parse_project_path_param(a_params ut_varchar2_list) return varchar2 is
+  function parse_source_path_param(a_params ut_varchar2_list) return varchar2 is
     l_path varchar2(4000);
   begin
     begin
-      select project_path
+      select source_path
         into l_path
-        from (select regexp_substr(column_value,'-project\=(.*)',1,1,'c',1) as project_path from table(a_params) )
-       where project_path is not null;
+        from (select regexp_substr(column_value,'-source_path\=(.*)',1,1,'c',1) as source_path from table(a_params) )
+       where source_path is not null;
     exception
       when no_data_found then
         l_path := '.';
       when too_many_rows then
-        raise_application_error(-20000, 'Parameter "-project=project_path" defined more than once. Only one "-project=project_path" parameter can be used.');
+        raise_application_error(-20000, 'Parameter "-source_path=source_path" defined more than once. Only one "-source_path=source_path" parameter can be used.');
+    end;
+    return l_path;
+  end;
+
+  function parse_test_path_param(a_params ut_varchar2_list) return varchar2 is
+    l_path varchar2(4000);
+  begin
+    begin
+      select test_path
+        into l_path
+        from (select regexp_substr(column_value,'-test_path\=(.*)',1,1,'c',1) as test_path from table(a_params) )
+       where test_path is not null;
+    exception
+      when no_data_found then
+        l_path := '.';
+      when too_many_rows then
+        raise_application_error(-20000, 'Parameter "-test_path=test_path" defined more than once. Only one "-test_path=test_path" parameter can be used.');
     end;
     return l_path;
   end;
@@ -278,7 +299,8 @@ begin
   :l_paths := parse_paths_param(l_input_params);
   :l_color_enabled := parse_color_enabled(l_input_params);
 
-  :l_project_path := parse_project_path_param(l_input_params);
+  :l_source_path := parse_source_path_param(l_input_params);
+  :l_test_path := parse_test_path_param(l_input_params);
 
   if l_run_cursor_sql is not null then
     open :l_run_params_cur for l_run_cursor_sql;
@@ -290,18 +312,21 @@ end;
 /
 set termout off
 
-
 /**
- * Convert project path to substitution variable
+ * Convert paths to substitution variable
  */
-column project_path new_value project_path noprint;
-select :l_project_path as project_path from dual;
+column source_path new_value source_path noprint;
+select :l_source_path as source_path from dual;
+column test_path new_value test_path noprint;
+select :l_test_path as test_path from dual;
 
 --try running on windows
-$ file_list.bat "&&project_path"
+$ &&client_path\file_list.bat "&&project_path" "&&source_path" "&&test_path"
 --try running on linux/unix
-! file_list.sh "&&project_path"
-undef project_path
+! &&client_path/file_list.sh "&&project_path" "&&source_path" "&&test_path"
+undef source_path
+undef test_path
+
 
 /*
  * Generate the project file list, saving it into the l_file_list bind variable
@@ -331,7 +356,7 @@ begin
     loop
       fetch :l_run_params_cur into l_reporter_id, l_reporter_name;
       exit when :l_run_params_cur%notfound;
-        if lower(l_reporter_name) = 'ut_coverage_html_reporter' then
+        if lower(l_reporter_name) = 'ut_coveralls_reporter' then
           p('  v_reporter := '||l_reporter_name||'( a_file_paths => '||:l_file_list||' );');
         else
           p('  v_reporter := '||l_reporter_name||'();');
@@ -387,9 +412,9 @@ spool off
 */
 set define #
 --try running on windows
-$ start /min sqlplus ##1 @run_in_background.sql.tmp
+$ start /min sqlplus ##conn_str @run_in_background.sql.tmp
 --try running on linux/unix
-! sqlplus ##1 @run_in_background.sql.tmp &
+! sqlplus ##conn_str @run_in_background.sql.tmp &
 set define &
 set termout on
 
