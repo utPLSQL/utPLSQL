@@ -1,4 +1,3 @@
-PROMPT Gives a success when comparing null oracle objects of different type
 --Arrange
 declare
   l_expected department$ := department$('IT');

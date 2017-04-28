@@ -40,7 +40,7 @@ create or replace package body ut_expectation_processor as
     ut_utils.debug_log('ut_expectation_processor.get_status');
 
     for i in 1 .. g_expectations_called.count loop
-      l_result := greatest(l_result, g_expectations_called(i).result);
+      l_result := greatest(l_result, g_expectations_called(i).status);
       exit when l_result = ut_utils.tr_error;
     end loop;
     return l_result;
@@ -70,7 +70,7 @@ create or replace package body ut_expectation_processor as
 
   procedure report_failure(a_message in varchar2) is
   begin
-    add_expectation_result(ut_expectation_result(ut_utils.tr_failure, a_message));
+    add_expectation_result(ut_expectation_result(ut_utils.tr_failure, null, a_message));
   end;
 
   function get_session_parameters return tt_nls_params is

@@ -6,4 +6,3 @@
 @@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_like.common.sql 'varchar2(100)' '''Stephen_King''' 'Stephe\__%' '\' 'ut_utils.tr_failure'"
 @@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_like.common.sql 'clob' 'rpad(''a'',32767,''a'')||''Stephen_King''' 'a%Ste_en%' '' 'ut_utils.tr_failure'"
 @@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_like.common.sql 'clob' 'rpad(''a'',32767,''a'')||''Stephen_King''' 'a%Stephe\__%' '\' 'ut_utils.tr_failure'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_like.common.sql 'number' '12345' 'a%Stephe\__%' '\' 'ut_utils.tr_failure'"

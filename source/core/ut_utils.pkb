@@ -16,9 +16,9 @@ create or replace package body ut_utils is
   limitations under the License.
   */
 
-  function quote_string(a_value varchar2) return varchar2 is
+  function surround_with(a_value varchar2, a_quote_char varchar2) return varchar2 is
   begin
-    return case when a_value is not null then ''''||a_value||'''' else gc_null_string end;
+    return case when a_quote_char is not null then a_quote_char||a_value||a_quote_char else a_value end;
   end;
 
   function test_result_to_char(a_test_result integer) return varchar2 as
@@ -89,42 +89,42 @@ create or replace package body ut_utils is
     $end
   end;
 
-  function to_string(a_value varchar2) return varchar2 is
+  function to_string(a_value varchar2, a_qoute_char varchar2 := '''') return varchar2 is
     l_len integer := coalesce(length(a_value),0);
     l_result varchar2(32767);
   begin
     if l_len = 0 then
       l_result := gc_null_string;
     elsif l_len <= gc_max_input_string_length then
-      l_result := quote_string(a_value);
+      l_result := surround_with(a_value, a_qoute_char);
     else
-      l_result := quote_string(substr(a_value,1,gc_overflow_substr_len)) || gc_more_data_string;
+      l_result := surround_with(substr(a_value,1,gc_overflow_substr_len),a_qoute_char) || gc_more_data_string;
     end if ;
     return l_result;
   end;
 
-  function to_string(a_value clob) return varchar2 is
+  function to_string(a_value clob, a_qoute_char varchar2 := '''') return varchar2 is
     l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
     l_result varchar2(32767);
   begin
     if l_len = 0 then
       l_result := gc_null_string;
     elsif l_len <= gc_max_input_string_length then
-      l_result := quote_string(a_value);
+      l_result := surround_with(a_value,a_qoute_char);
     else
-      l_result := quote_string(dbms_lob.substr(a_value, gc_overflow_substr_len)) || gc_more_data_string;
+      l_result := surround_with(dbms_lob.substr(a_value, gc_overflow_substr_len),a_qoute_char) || gc_more_data_string;
     end if;
     return l_result;
   end;
 
-  function to_string(a_value blob) return varchar2 is
+  function to_string(a_value blob, a_qoute_char varchar2 := '''') return varchar2 is
     l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
     l_result varchar2(32767);
   begin
     if l_len = 0 then
       l_result := gc_null_string;
     elsif l_len <= gc_max_input_string_length then
-      l_result := quote_string(rawtohex(a_value));
+      l_result := surround_with(rawtohex(a_value),a_qoute_char);
     else
       l_result := to_string( rawtohex(dbms_lob.substr(a_value, gc_overflow_substr_len)) );
     end if ;
@@ -277,9 +277,13 @@ create or replace package body ut_utils is
       extract(second from(a_end_time - a_start_time));
   end;
 
-  function indent_lines(a_text varchar2, a_indent_size integer) return varchar2 is
+  function indent_lines(a_text varchar2, a_indent_size integer := 4, a_include_first_line boolean := false) return varchar2 is
   begin
-    return replace( a_text, chr(10), chr(10) || lpad( ' ', a_indent_size ) );
+    if a_include_first_line then
+      return rtrim(lpad( ' ', a_indent_size ) || replace( a_text, chr(10), chr(10) || lpad( ' ', a_indent_size ) ));
+    else
+      return rtrim(replace( a_text, chr(10), chr(10) || lpad( ' ', a_indent_size ) ));
+    end if;
   end;
 
   function get_utplsql_objects_list return ut_object_names is
@@ -313,6 +317,7 @@ create or replace package body ut_utils is
       dbms_lob.append(a_src_clob, a_new_data);
     end if;
   end;
+
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data varchar2) is
   begin
     if a_new_data is not null then

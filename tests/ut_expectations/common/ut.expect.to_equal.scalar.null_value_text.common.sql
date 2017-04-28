@@ -8,10 +8,10 @@ begin
   ut.expect(l_actual).to_equal(l_expected);
   l_result :=  ut_expectation_processor.get_expectations_results()(1);
 --Assert
-  if nvl(:test_result, ut_utils.tr_success) = ut_utils.tr_success and l_result.&4 = 'NULL' then
+  if nvl(:test_result, ut_utils.tr_success) = ut_utils.tr_success and l_result.get_result_clob like '&&4' then
     :test_result := ut_utils.tr_success;
   else
-    dbms_output.put_line('expected: &4 to be NULL, but got '''||l_result.&4||'''' );
+    dbms_output.put_line('expected text like ''&&4'', but got '''||l_result.get_result_clob||'''' );
   end if;
 end;
 /

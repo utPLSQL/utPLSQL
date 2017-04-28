@@ -107,7 +107,7 @@ create or replace type body ut_documentation_reporter is
         self.print_red_text(ut_utils.table_to_clob(a_test.get_error_stack_traces()));
 
         for j in 1 .. a_test.results.count loop
-          if a_test.results(j).result > ut_utils.tr_success then
+          if a_test.results(j).status > ut_utils.tr_success then
             print_failure_for_expectation(a_test.results(j));
           end if;
         end loop;
