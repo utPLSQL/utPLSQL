@@ -20,12 +20,12 @@ echo "begin" > $sqlFile
 echo "  null;" >> $sqlFile
 
 if [ ! "$sourcePath" == "-" ]; then
-    echo "  :l_file_list := q'[ut_varchar2_list(" >> $sqlFile
+    echo "  :l_source_files := q'[ut_varchar2_list(" >> $sqlFile
     fileList $sourcePath
 fi
 
 if [ ! "$testPath" == "-" ]; then
-    echo "  :l_file_list := q'[ut_varchar2_list(" >> $sqlFile
+    echo "  :l_test_files := q'[ut_varchar2_list(" >> $sqlFile
     fileList $testPath
 fi
 
