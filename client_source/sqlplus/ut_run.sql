@@ -44,7 +44,13 @@ Parameters:
                    -f=ut_xunit_reporter
                      A XUnit xml format (as defined at: http://stackoverflow.com/a/9691131 and at https://gist.github.com/kuzuha/232902acab1344d6b578)
                      Usually used  by Continuous Integration servers like Jenkins/Hudson or Teamcity to display test results.
+                   -f=ut_coverage_html_reporter
+                     TODO
                    -f=ut_coveralls_reporter
+                     TODO
+                   -f=ut_coverage_sonar_reporter
+                     TODO
+                   -f=ut_sonar_test_reporter
                      TODO
                  If no -f option is provided, the ut_documentation_reporter will be used.
 
@@ -124,7 +130,8 @@ var l_paths          varchar2(4000);
 var l_color_enabled  varchar2(5);
 var l_source_path    varchar2(4000);
 var l_test_path      varchar2(4000);
-var l_file_list      clob;
+var l_source_files   clob;
+var l_test_files     clob;
 var l_run_params_cur refcursor;
 var l_out_params_cur refcursor;
 /*
@@ -330,7 +337,7 @@ undef test_path
 
 
 /*
- * Generate the project file list, saving it into the l_file_list bind variable
+ * Generate the project source and tests files, saving it into the l_source_files and l_test_files bind variables
  */
 @&&client_path/project_file_list.sql.tmp
 
@@ -357,8 +364,10 @@ begin
     loop
       fetch :l_run_params_cur into l_reporter_id, l_reporter_name;
       exit when :l_run_params_cur%notfound;
-        if lower(l_reporter_name) = 'ut_coveralls_reporter' then
-          p('  v_reporter := '||l_reporter_name||'( a_file_paths => '||:l_file_list||' );');
+        if lower(l_reporter_name) in ('ut_coveralls_reporter', 'ut_coverage_sonar_reporter') then
+          p('  v_reporter := '||l_reporter_name||'( a_file_paths => '||:l_source_files||' );');
+        elsif lower(l_reporter_name) = ('ut_sonar_test_reporter') then
+          p('  v_reporter := '||l_reporter_name||'( a_file_paths => '||:l_test_files||' );');
         else
           p('  v_reporter := '||l_reporter_name||'();');
         end if;
