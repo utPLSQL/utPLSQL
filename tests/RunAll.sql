@@ -107,6 +107,7 @@ exec ut_coverage.coverage_start_develop();
 @@ut_matchers/less_or_equal.sql
 @@ut_matchers/less_than.sql
 @@ut_matchers/be_empty.sql
+@@ut_matchers/be_within.sql
 
 @@lib/RunTest.sql ut_matchers/timestamp_between.sql
 @@lib/RunTest.sql ut_matchers/timestamp_ltz_between.sql
@@ -114,6 +115,13 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_matchers/timestamp_not_between.sql
 @@lib/RunTest.sql ut_matchers/timestamp_tz_between.sql
 @@lib/RunTest.sql ut_matchers/timestamp_tz_not_between.sql
+
+@@lib/RunTest.sql ut_matchers/timestamp_be_within.sql
+@@lib/RunTest.sql ut_matchers/timestamp_ltz_be_within.sql
+@@lib/RunTest.sql ut_matchers/timestamp_ltz_not_be_within.sql
+@@lib/RunTest.sql ut_matchers/timestamp_not_be_within.sql
+@@lib/RunTest.sql ut_matchers/timestamp_tz_be_within.sql
+@@lib/RunTest.sql ut_matchers/timestamp_tz_not_be_within.sql
 
 @@lib/RunTest.sql ut_metadata/ut_metadata.form_name.TrimStandaloneProgramName.sql
 

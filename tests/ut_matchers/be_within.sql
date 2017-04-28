@@ -1,0 +1,20 @@
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'number' '1.23' '1.23456789' '1' 'ut_utils.tr_success'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'number' '1.254723' '1.2423' '1' 'ut_utils.tr_success'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'number' '1.254724' '1.2423' '1' 'ut_utils.tr_failure'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'number' '1.229877' '1.2423' '1' 'ut_utils.tr_success'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'number' '1.229876' '1.2423' '1' 'ut_utils.tr_failure'"
+
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'date' 'to_date(''01/01/2001 12:14:24'',''dd/mm/yyyy hh24:mi:ss'')' 'to_date(''01/01/2001 12:00:00'',''dd/mm/yyyy hh24:mi:ss'')' '1' 'ut_utils.tr_success'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'date' 'to_date(''01/01/2001 11:45:36'',''dd/mm/yyyy hh24:mi:ss'')' 'to_date(''01/01/2001 12:00:00'',''dd/mm/yyyy hh24:mi:ss'')' '1' 'ut_utils.tr_success'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'date' 'to_date(''01/01/2001 12:14:25'',''dd/mm/yyyy hh24:mi:ss'')' 'to_date(''01/01/2001 12:00:00'',''dd/mm/yyyy hh24:mi:ss'')' '1' 'ut_utils.tr_failure'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'date' 'to_date(''01/01/2001 11:45:35'',''dd/mm/yyyy hh24:mi:ss'')' 'to_date(''01/01/2001 12:00:00'',''dd/mm/yyyy hh24:mi:ss'')' '1' 'ut_utils.tr_failure'"
+
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'interval year to month' '''1-7''' '''1-0''' '50' 'ut_utils.tr_failure'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'interval year to month' '''1-6''' '''1-0''' '50' 'ut_utils.tr_success'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'interval year to month' '''0-6''' '''1-0''' '50' 'ut_utils.tr_success'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'interval year to month' '''0-5''' '''1-0''' '50' 'ut_utils.tr_failure'"
+
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'interval day to second' '''1 12:00:00''' '''2 00:00:00''' '50' 'ut_utils.tr_success'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'interval day to second' '''2 12:00:00''' '''2 00:00:00''' '50' 'ut_utils.tr_success'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'interval day to second' '''2 13:00:00''' '''2 00:00:00''' '50' 'ut_utils.tr_failure'"
+@@lib/RunTest.sql "ut_matchers/common/ut.expect.common.be_within.sql 'interval day to second' '''1 11:00:00''' '''2 00:00:00''' '50' 'ut_utils.tr_failure'"
