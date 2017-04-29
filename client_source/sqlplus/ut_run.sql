@@ -130,8 +130,8 @@ var l_paths          varchar2(4000);
 var l_color_enabled  varchar2(5);
 var l_source_path    varchar2(4000);
 var l_test_path      varchar2(4000);
-var l_source_files   clob;
-var l_test_files     clob;
+var l_source_files   refcursor;
+var l_test_files     refcursor;
 var l_run_params_cur refcursor;
 var l_out_params_cur refcursor;
 /*
@@ -186,8 +186,8 @@ declare
     for param in(
       with
         param_vals as(
-          select regexp_substr(column_value,'-([fos])\=?(.*)',1,1,'c',1) param_type,
-                 regexp_substr(column_value,'-([fos])\=(.*)',1,1,'c',2) param_value
+          select regexp_substr(column_value,'-([a-z_]+)\=?(.*)',1,1,'c',1) param_type,
+                 regexp_substr(column_value,'-([a-z_]+)\=?(.*)',1,1,'c',2) param_value
           from table(a_params)
           where column_value is not null)
       select param_type, param_value
@@ -349,6 +349,7 @@ spool &&client_path/run_in_background.sql.tmp
 declare
   l_reporter_id   varchar2(250);
   l_reporter_name varchar2(250);
+  l_file_path     varchar2(32767);
   procedure p(a_text varchar2) is begin dbms_output.put_line(a_text); end;
 begin
   p(  'set serveroutput on size unlimited format truncated');
@@ -364,10 +365,22 @@ begin
     loop
       fetch :l_run_params_cur into l_reporter_id, l_reporter_name;
       exit when :l_run_params_cur%notfound;
-        if lower(l_reporter_name) in ('ut_coveralls_reporter', 'ut_coverage_sonar_reporter') then
-          p('  v_reporter := '||l_reporter_name||'( a_file_paths => '||:l_source_files||' );');
+        if lower(l_reporter_name) in ('ut_coveralls_reporter', 'ut_coverage_sonar_reporter', 'ut_coverage_html_reporter') then
+          p('  v_reporter := '||l_reporter_name||'( a_file_paths => ut_varchar2_list(');
+          loop
+            fetch :l_source_files into l_file_path;
+            exit when :l_source_files%notfound or l_file_path is null;
+            p('      '''||l_file_path||''',');
+          end loop;
+            p('      null));');
         elsif lower(l_reporter_name) = ('ut_sonar_test_reporter') then
-          p('  v_reporter := '||l_reporter_name||'( a_file_paths => '||:l_test_files||' );');
+          p('  v_reporter := '||l_reporter_name||'( a_file_paths => ut_varchar2_list(');
+          loop
+            fetch :l_test_files into l_file_path;
+            exit when :l_test_files%notfound or l_file_path is null;
+            p('      '''||l_file_path||''',');
+          end loop;
+            p('      null));');
         else
           p('  v_reporter := '||l_reporter_name||'();');
         end if;

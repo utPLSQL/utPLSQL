@@ -15,12 +15,12 @@ echo begin>%sqlFile%
 echo ^  null;>>%sqlFile%
 
 if not %sourcePath% == "-" (
-    echo   :l_source_files := q'[ut_varchar2_list(>>%sqlFile%
+    echo   open :l_source_files for select * from table(ut_varchar2_list(>>%sqlFile%
     call :FileList %sourcePath%
 )
 
 if not %testPath% == "-" (
-    echo   :l_test_files := q'[ut_varchar2_list(>>%sqlFile%
+    echo   open :l_test_files for select * from table(ut_varchar2_list(>>%sqlFile%
     call :FileList %testPath%
 )
 
@@ -30,9 +30,9 @@ echo />>%sqlFile%
 goto :eof
 
 :FileList
-for /f "tokens=* delims= " %%a in ('dir %projectPath%\%1\* /B /S') do (
+for /f "tokens=* delims= " %%a in ('dir %projectPath%\%1\* /B /S /A:-D') do (
     set "filePath=%%a"
     set filePath=!filePath:%projectPath%=!
     echo ^      '!filePath!^',>>%sqlFile%
 )
-echo       null)]';>>%sqlFile%
+echo       null));>>%sqlFile%

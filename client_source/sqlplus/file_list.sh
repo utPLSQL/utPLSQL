@@ -13,7 +13,7 @@ function fileList {
     for f in $(find $projectPath/$1/* -type f | sed "s|$projectPath/||"); do
         echo "      '$f'," >> $sqlFile
     done
-    echo "      null)]';" >> $sqlFile
+    echo "      null));" >> $sqlFile
 }
 
 echo "begin" > $sqlFile
