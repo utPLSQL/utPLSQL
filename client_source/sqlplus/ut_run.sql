@@ -45,11 +45,15 @@ Parameters:
                      A XUnit xml format (as defined at: http://stackoverflow.com/a/9691131 and at https://gist.github.com/kuzuha/232902acab1344d6b578)
                      Usually used  by Continuous Integration servers like Jenkins/Hudson or Teamcity to display test results.
                    -f=ut_coverage_html_reporter
-                     TODO
+                     Generates a HTML coverage report providing summary and detailed information on code coverage.
+                     The html reporter is based on open-source simplecov-html reporter for Ruby.
+                     It includes source code of the code that was covered (if possible).
                    -f=ut_coveralls_reporter
-                     TODO
+                     Generates a JSON coverage report providing detailed information on code coverage with line numbers.
+                     This coverage report is designed to be consumed by cloud services like https://coveralls.io/.
                    -f=ut_coverage_sonar_reporter
-                     TODO
+                     Generates a JSON coverage report providing detailed information on code coverage with line numbers.
+                     This coverage report is designed to be consumed by local services like https://about.sonarqube.com/.
                    -f=ut_sonar_test_reporter
                      TODO
                  If no -f option is provided, the ut_documentation_reporter will be used.
