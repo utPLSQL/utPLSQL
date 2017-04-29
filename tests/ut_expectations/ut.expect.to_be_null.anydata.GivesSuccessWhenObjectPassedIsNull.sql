@@ -1,4 +1,3 @@
-PROMPT Gives a success when object passed to anydata is null
 --Arrange
 declare
   l_expected department$;

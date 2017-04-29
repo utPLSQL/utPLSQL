@@ -15,55 +15,29 @@ create or replace type ut_expectation_result as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+
   /*
-  * name of the matcher that was used to check the expectation
+  * The expectation result status
   */
-  matcher_name varchar2(250 char),
+  status          integer(1),
   /*
-  * The expectation result
+  * User description provided with the expectation
   */
-  result integer(1),
+  description     varchar2(32767),
   /*
   * Additional information about the expression used by matcher
   * Used for complex matcher: like, between, ut_match etc.
   */
-  additional_info       varchar2(4000 char),
-  /*
-  * Data type name for the expected value
-  */
-  expected_type         varchar2(250  char),
-  /*
-  * Data type name for the actual value
-  */
-  actual_type           varchar2(250  char),
-  /*
-  * String representation of expected value
-  */
-  expected_value_string varchar2(4000 char),
-  /*
-  * String representation of actual value
-  */
-  actual_value_string   varchar2(4000 char),
-  /*
-  * User message (description) provided with the expectation
-  */
-  message               varchar2(4000 char),
-  /*
-  * Error message that was captured.
-  */
-  error_message         varchar2(4000 char),
+  message         varchar2(32767),
   /*
   * The information about the line of code that invoked the expectation
   */
-  caller_info           varchar2(4000 char),
-  constructor function ut_expectation_result(self in out nocopy ut_expectation_result, a_result integer, a_error_message varchar2)
-    return self as result,
-  constructor function ut_expectation_result(self in out nocopy ut_expectation_result, a_name varchar2, a_additional_info varchar2, a_error_message varchar2,
-    a_result integer, a_expected_type varchar2, a_actual_type varchar2,
-    a_expected_value_string varchar2, a_actual_value_string varchar2, a_message varchar2 default null)
+  caller_info     varchar2(32767),
+  constructor function ut_expectation_result(self in out nocopy ut_expectation_result, a_status integer, a_description varchar2, a_message clob)
     return self as result,
   member function get_result_clob(self in ut_expectation_result) return clob,
-  member function get_result_lines(self in ut_expectation_result) return ut_varchar2_list
+  member function get_result_lines(self in ut_expectation_result) return ut_varchar2_list,
+  member function result return integer
 )
 not final
 /

@@ -163,9 +163,15 @@ drop type ut_data_value_boolean;
 
 drop type ut_data_value_blob;
 
+drop type ut_data_value_object;
+
+drop type ut_data_value_collection;
+
 drop type ut_data_value_anydata;
 
 drop type ut_data_value;
+
+drop table ut_cursor_data;
 
 drop package ut_annotations;
 

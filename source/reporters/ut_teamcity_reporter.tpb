@@ -96,19 +96,10 @@ create or replace type body ut_teamcity_reporter is
 
           l_expectation := a_test.results(i);
 
-          if l_expectation.result > ut_utils.tr_success then
+          if l_expectation.status > ut_utils.tr_success then
             self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
-                                                                   ,a_msg       => l_expectation.message
-                                                                   ,a_expected  => case
-                                                                                     when l_expectation.matcher_name in
-                                                                                          ('equal', 'be false', 'be true') then
-                                                                                      l_expectation.expected_value_string
-                                                                                   end
-                                                                   ,a_actual    => case
-                                                                                     when l_expectation.matcher_name in
-                                                                                          ('equal', 'be false', 'be true') then
-                                                                                      l_expectation.actual_value_string
-                                                                                   end));
+                                                                   ,a_msg       => l_expectation.description
+                                                                   ,a_details   => l_expectation.message ));
             -- Teamcity supports only a single failure message
             exit;
           end if;

@@ -5,7 +5,7 @@ declare
   l_value_upper &&1 := &&4;
 begin
 --Act
-  ut.expect(l_value1).to_(be_between(l_value_lower,l_value_upper));
+  ut.expect(l_value1).to_be_between(l_value_lower,l_value_upper);
 --Assert
   if ut_expectation_processor.get_status = &&5 then
     :test_result := ut_utils.tr_success;

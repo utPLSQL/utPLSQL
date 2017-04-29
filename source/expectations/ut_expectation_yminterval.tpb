@@ -20,5 +20,12 @@ create or replace type body ut_expectation_yminterval as
     ut_utils.debug_log('ut_expectation_yminterval.to_equal(self in ut_expectation, a_expected yminterval_unconstrained)');
     self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
+
+  member procedure to_be_between(self in ut_expectation_yminterval, a_lower_bound yminterval_unconstrained, a_upper_bound yminterval_unconstrained) is
+  begin
+    ut_utils.debug_log('ut_expectation_yminterval.to_be_between(self in ut_expectation_yminterval, a_lower_bound dsinterval_unconstrained, a_upper_bound dsinterval_unconstrained)');
+    self.to_( ut_be_between(a_lower_bound,a_upper_bound) );
+  end;
+
 end;
 /

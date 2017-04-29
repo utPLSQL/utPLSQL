@@ -12,6 +12,7 @@ create or replace package test_package_3 is
   procedure global_teardown;
 
   --%test
+  --%rollback(auto)
   procedure test1;
 
   --%test
@@ -22,7 +23,7 @@ create or replace package test_package_3 is
   procedure test2_setup;
 
   procedure test2_teardown;
-  
+
   --%test
   --%disabled
   procedure disabled_test;
@@ -68,7 +69,7 @@ create or replace package body test_package_3 is
     gv_var_1      := gv_var_1_temp;
     gv_var_1_temp := null;
   end;
-  
+
   procedure disabled_test is
   begin
     null;

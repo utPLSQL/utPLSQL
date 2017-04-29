@@ -9,7 +9,8 @@ set feedback off
 set verify off
 
 @../source/create_utplsql_owner.sql $UT3_OWNER $UT3_OWNER_PASSWORD $UT3_TABLESPACE
-
+--needed for Mystats script to work
+grant select any dictionary to $UT3_OWNER;
 @../source/create_utplsql_owner.sql $UT3_USER $UT3_USER_PASSWORD $UT3_TABLESPACE
 cd ..
 

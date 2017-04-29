@@ -18,6 +18,7 @@ create or replace type ut_data_value_timestamp_ltz under ut_data_value(
   data_value timestamp(9) with local time zone,
   constructor function ut_data_value_timestamp_ltz(self in out nocopy ut_data_value_timestamp_ltz, a_value timestamp_ltz_unconstrained) return self as result,
   overriding member function is_null return boolean,
-  overriding member function to_string return varchar2
+  overriding member function to_string return varchar2,
+  overriding member function compare_implementation(a_other ut_data_value) return integer
 )
 /

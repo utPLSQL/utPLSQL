@@ -4,7 +4,7 @@ declare
 begin
   --Act
   l_var := &&2;
-  ut.expect(anydata.&&3(l_var)).to_(be_empty());
+  ut.expect(anydata.&&3(l_var)).to_be_empty();
    --Assert
   if ut_expectation_processor.get_status = &&4 then
     :test_result := ut_utils.tr_success;
