@@ -1,33 +1,42 @@
 #!/bin/bash
 set -e
 
-# Using cd to remove the " from paths.
-clientPath=$1
-projectPath=$2
-sourcePath=$3
-testPath=$4
+clientPath=${1%/}
+projectPath=${2%/}
+scanPath=$3
+outFileName=$4
+sqlParamName=$5
 
-sqlFile=$clientPath/project_file_list.sql.tmp
+# All parameters are required.
+invalidArgs=0
+[ -z "$clientPath"   ] && invalidArgs=1
+[ -z "$projectPath"  ] && invalidArgs=1
+[ -z "$scanPath"     ] && invalidArgs=1
+[ -z "$outFileName"  ] && invalidArgs=1
+[ -z "$sqlParamName" ] && invalidArgs=1
 
-function fileList {
-    for f in $(find $projectPath/$1/* -type f | sed "s|$projectPath/||"); do
-        echo "      '$f'," >> $sqlFile
-    done
-    echo "      null));" >> $sqlFile
-}
-
-echo "begin" > $sqlFile
-echo "  null;" >> $sqlFile
-
-if [ ! "$sourcePath" == "-" ]; then
-    echo "  :l_source_files := q'[ut_varchar2_list(" >> $sqlFile
-    fileList $sourcePath
+if [ $invalidArgs -eq 1 ]; then
+    echo Usage: ut_run.sh "client_path" "project_path" "scan_path" "out_file_name" "sql_param_name"
+    exit 1
 fi
 
-if [ ! "$testPath" == "-" ]; then
-    echo "  :l_test_files := q'[ut_varchar2_list(" >> $sqlFile
-    fileList $testPath
+fullOutPath="$clientPath/$outFileName"
+fullScanPath="$projectPath/$scanPath"
+
+# If scan path was -, bypass the file list generation.
+if [ "$scanPath" == "-" ]; then
+    echo "begin" > $fullOutPath
+    echo "  open :$sqlParamName for select null from dual;" >> $fullOutPath
+    echo "end;" >> $fullOutPath
+    echo "/" >> $fullOutPath
+    exit 0
 fi
 
-echo "end;" >> $sqlFile
-echo "/" >> $sqlFile
+echo "begin" > $fullOutPath
+echo "  open :$sqlParamName for select * from table(ut_varchar2_list(" >> $fullOutPath
+for f in $(find $fullScanPath/* -type f | sed "s|$projectPath/||"); do
+    echo "      '$f'," >> $fullOutPath
+done
+echo "      null));" >> $fullOutPath
+echo "end;" >> $fullOutPath
+echo "/" >> $fullOutPath

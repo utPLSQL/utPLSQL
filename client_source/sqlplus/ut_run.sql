@@ -333,17 +333,20 @@ column test_path new_value test_path noprint;
 select :l_test_path as test_path from dual;
 
 --try running on windows
-$ &&client_path\file_list.bat "&&client_path" "&&project_path" "&&source_path" "&&test_path"
+$ &&client_path\file_list.bat "&&client_path" "&&project_path" "&&source_path" "source_file_list.sql.tmp" "l_source_files"
+$ &&client_path\file_list.bat "&&client_path" "&&project_path" "&&test_path" "test_file_list.sql.tmp" "l_test_files"
 --try running on linux/unix
-! &&client_path/file_list.sh "&&client_path" "&&project_path" "&&source_path" "&&test_path"
+! &&client_path/file_list.sh "&&client_path" "&&project_path" "&&source_path" "source_file_list.sql.tmp" "l_source_files"
+! &&client_path/file_list.sh "&&client_path" "&&project_path" "&&test_path" "test_file_list.sql.tmp" "l_test_files"
+
 undef source_path
 undef test_path
-
 
 /*
  * Generate the project source and tests files, saving it into the l_source_files and l_test_files bind variables
  */
-@&&client_path/project_file_list.sql.tmp
+@&&client_path/source_file_list.sql.tmp
+@&&client_path/test_file_list.sql.tmp
 
 
 /*
