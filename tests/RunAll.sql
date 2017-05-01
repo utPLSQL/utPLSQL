@@ -40,6 +40,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationMultilineDeclare.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithKeyValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithMultilineComment.sql
+@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.GetAnnotationsFromWrappedPackage.sql
 
 @@ut_expectations/ut.expect.to_be_between.GivesFailureForDifferentValues.sql
 @@ut_expectations/ut.expect.to_be_between.GivesFailureWhenActualIsNull.sql
