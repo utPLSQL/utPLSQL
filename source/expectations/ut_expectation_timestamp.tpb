@@ -26,6 +26,30 @@ create or replace type body ut_expectation_timestamp as
     ut_utils.debug_log('ut_expectation_timestamp.to_be_between(self in ut_expectation_timestamp, a_lower_bound timestamp_unconstrained, a_upper_bound timestamp_unconstrained)');
     self.to_( ut_be_between(a_lower_bound, a_upper_bound) );
   end;
+  
+  member procedure to_be_greater_or_equal(self in ut_expectation_timestamp, a_expected timestamp_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation_timestamp.to_be_greater_or_equal(self in ut_expectation_timestamp, a_expected timestamp_unconstrained)');
+    self.to_( ut_be_greater_or_equal (a_expected) );
+  end;
+  
+  member procedure to_be_greater_than(self in ut_expectation_timestamp, a_expected timestamp_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation_timestamp.to_be_greater_than(self in ut_expectation_timestamp, a_expected timestamp_unconstrained)');
+    self.to_( ut_be_greater_than (a_expected) );
+  end;  
+  
+  member procedure to_be_less_or_equal(self in ut_expectation_timestamp, a_expected timestamp_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation_timestamp.to_be_less_or_equal(self in ut_expectation_timestamp, a_expected timestamp_unconstrained)');
+    self.to_( ut_be_less_or_equal (a_expected) );
+  end;
+  
+  member procedure to_be_less_than(self in ut_expectation_timestamp, a_expected timestamp_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation_timestamp.to_be_less_than(self in ut_expectation_timestamp, a_expected timestamp_unconstrained)');
+    self.to_( ut_be_less_than (a_expected) );
+  end;
 
 end;
 /
