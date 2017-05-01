@@ -1,26 +1,12 @@
-CREATE or replace PACKAGE tst_wrapped_pck wrapped 
-a000000
-369
-abcd
-abcd
-abcd
-abcd
-abcd
-abcd
-abcd
-abcd
-abcd
-abcd
-abcd
-abcd
-abcd
-abcd
-abcd
-9
-a9 c6
-BFZG852xhrH+ZghWHu3GpsAjsYwwgwFtmJ7hfy/pO3MYPpTk1jvUXeLLSBs48Y66RPOZmSwO
-tdAK4wIZubhyoYqfNPukcsRhJHrcsdmQU6c7MJt96TjbQty7bG3LvKuFVGWjizd5GkTmJ7dk
-Ktg41QYvCqco0ZidUx+EE+yoSt2ucz1rQYcomGbMx3gS4Xj7Vm8=
+begin
+  DBMS_DDL.CREATE_WRAPPED(
+q'[
+CREATE OR REPLACE PACKAGE tst_wrapped_pck IS
+  PROCEDURE dummy;
+END;
+]'
+  );
+end;
 /
 
 declare
