@@ -2,6 +2,7 @@ create or replace package test_package_3 is
 
   --%suite
   --%suitepath(tests2)
+  --%rollback(auto)
 
   gv_glob_val number;
 
