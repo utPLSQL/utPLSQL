@@ -136,6 +136,210 @@ create or replace type body ut_expectation as
     ut_utils.debug_log('ut_expectation.to_be_not_null');
     self.to_( ut_be_not_null() );
   end;
+  
+  member procedure to_be_empty(self in ut_expectation) is
+  begin
+    ut_utils.debug_log('ut_expectation.to_be_empty(self in ut_expectation)');
+    self.to_( ut_be_empty () );
+  end;
+  
+  member procedure to_be_between(self in ut_expectation, a_lower_bound date, a_upper_bound date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_between(self in ut_expectation, a_lower_bound date, a_upper_bound date)');
+    self.to_( ut_be_between (a_lower_bound, a_upper_bound) );
+  end;
+  member procedure to_be_between(self in ut_expectation, a_lower_bound number, a_upper_bound number) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_between(self in ut_expectation, a_lower_bound number, a_upper_bound number)');
+    self.to_( ut_be_between (a_lower_bound, a_upper_bound) );
+  end;
+  member procedure to_be_between(self in ut_expectation, a_lower_bound varchar2, a_upper_bound varchar2) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_between(self in ut_expectation, a_lower_bound varchar2, a_upper_bound varchar2)');
+    self.to_( ut_be_between (a_lower_bound, a_upper_bound) );
+  end;
+  member procedure to_be_between(self in ut_expectation, a_lower_bound timestamp_unconstrained, a_upper_bound timestamp_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_between(self in ut_expectation, a_lower_bound timestamp_unconstrained, a_upper_bound timestamp_unconstrained)');
+    self.to_( ut_be_between (a_lower_bound, a_upper_bound) );
+  end;
+  member procedure to_be_between(self in ut_expectation, a_lower_bound timestamp_tz_unconstrained, a_upper_bound timestamp_tz_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_between(self in ut_expectation, a_lower_bound timestamp_tz_unconstrained, a_upper_bound timestamp_tz_unconstrained)');
+    self.to_( ut_be_between (a_lower_bound, a_upper_bound) );
+  end;
+  member procedure to_be_between(self in ut_expectation, a_lower_bound timestamp_ltz_unconstrained, a_upper_bound timestamp_ltz_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_between(self in ut_expectation, a_lower_bound timestamp_ltz_unconstrained, a_upper_bound timestamp_ltz_unconstrained)');
+    self.to_( ut_be_between (a_lower_bound, a_upper_bound) );
+  end;
+  member procedure to_be_between(self in ut_expectation, a_lower_bound yminterval_unconstrained, a_upper_bound yminterval_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_between(self in ut_expectation, a_lower_bound yminterval_unconstrained, a_upper_bound yminterval_unconstrained)');
+    self.to_( ut_be_between (a_lower_bound, a_upper_bound) );
+  end;
+  member procedure to_be_between(self in ut_expectation, a_lower_bound dsinterval_unconstrained, a_upper_bound dsinterval_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_between(self in ut_expectation, a_lower_bound dsinterval_unconstrained, a_upper_bound dsinterval_unconstrained)');
+    self.to_( ut_be_between (a_lower_bound, a_upper_bound) );
+  end;
+  
+  
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_or_equal(self in ut_expectation, a_expected date)');
+    self.to_( ut_be_greater_or_equal (a_expected) );
+  end;
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected number) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_or_equal(self in ut_expectation, a_expected number)');
+    self.to_( ut_be_greater_or_equal (a_expected) );
+  end;
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected timestamp_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_or_equal(self in ut_expectation, a_expected timestamp_unconstrained)');
+    self.to_( ut_be_greater_or_equal (a_expected) );
+  end;
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected timestamp_tz_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_or_equal(self in ut_expectation, a_expected timestamp_tz_unconstrained)');
+    self.to_( ut_be_greater_or_equal (a_expected) );
+  end;
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_or_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained)');
+    self.to_( ut_be_greater_or_equal (a_expected) );
+  end;
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected yminterval_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_or_equal(self in ut_expectation, a_expected yminterval_unconstrained)');
+    self.to_( ut_be_greater_or_equal (a_expected) );
+  end;
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected dsinterval_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_or_equal(self in ut_expectation, a_expected dsinterval_unconstrained)');
+    self.to_( ut_be_greater_or_equal (a_expected) );
+  end;
+  
+  member procedure to_be_greater_than(self in ut_expectation, a_expected date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_than(self in ut_expectation, a_expected date)');
+    self.to_( ut_be_greater_than (a_expected) );
+  end;
+  member procedure to_be_greater_than(self in ut_expectation, a_expected number) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_than(self in ut_expectation, a_expected number)');
+    self.to_( ut_be_greater_than (a_expected) );
+  end;
+  member procedure to_be_greater_than(self in ut_expectation, a_expected timestamp_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_than(self in ut_expectation, a_expected timestamp_unconstrained)');
+    self.to_( ut_be_greater_than (a_expected) );
+  end;
+  member procedure to_be_greater_than(self in ut_expectation, a_expected timestamp_tz_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_than(self in ut_expectation, a_expected timestamp_tz_unconstrained)');
+    self.to_( ut_be_greater_than (a_expected) );
+  end;
+  member procedure to_be_greater_than(self in ut_expectation, a_expected timestamp_ltz_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_than(self in ut_expectation, a_expected timestamp_ltz_unconstrained)');
+    self.to_( ut_be_greater_than (a_expected) );
+  end;
+  member procedure to_be_greater_than(self in ut_expectation, a_expected yminterval_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_than(self in ut_expectation, a_expected yminterval_unconstrained)');
+    self.to_( ut_be_greater_than (a_expected) );
+  end;
+  member procedure to_be_greater_than(self in ut_expectation, a_expected dsinterval_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_greater_than(self in ut_expectation, a_expected dsinterval_unconstrained)');
+    self.to_( ut_be_greater_than (a_expected) );
+  end;
+  
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_or_equal(self in ut_expectation, a_expected date)');
+    self.to_( ut_be_less_or_equal (a_expected) );
+  end;
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected number) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_or_equal(self in ut_expectation, a_expected number)');
+    self.to_( ut_be_less_or_equal (a_expected) );
+  end;
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected timestamp_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_or_equal(self in ut_expectation, a_expected timestamp_unconstrained)');
+    self.to_( ut_be_less_or_equal (a_expected) );
+  end;
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected timestamp_tz_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_or_equal(self in ut_expectation, a_expected timestamp_tz_unconstrained)');
+    self.to_( ut_be_less_or_equal (a_expected) );
+  end;
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_or_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained)');
+    self.to_( ut_be_less_or_equal (a_expected) );
+  end;
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected yminterval_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_or_equal(self in ut_expectation, a_expected yminterval_unconstrained)');
+    self.to_( ut_be_less_or_equal (a_expected) );
+  end;
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected dsinterval_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_or_equal(self in ut_expectation, a_expected dsinterval_unconstrained)');
+    self.to_( ut_be_less_or_equal (a_expected) );
+  end;
+  
+  member procedure to_be_less_than(self in ut_expectation, a_expected date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_than(self in ut_expectation, a_expected date');
+    self.to_( ut_be_less_than (a_expected) );
+  end;
+  member procedure to_be_less_than(self in ut_expectation, a_expected number) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_than(self in ut_expectation, a_expected number');
+    self.to_( ut_be_less_than (a_expected) );
+  end;
+  member procedure to_be_less_than(self in ut_expectation, a_expected timestamp_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_than(self in ut_expectation, a_expected timestamp_unconstrained)');
+    self.to_( ut_be_less_than (a_expected) );
+  end;
+  member procedure to_be_less_than(self in ut_expectation, a_expected timestamp_tz_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_than(self in ut_expectation, a_expected timestamp_tz_unconstrained)');
+    self.to_( ut_be_less_than (a_expected) );
+  end;
+  member procedure to_be_less_than(self in ut_expectation, a_expected timestamp_ltz_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_than(self in ut_expectation, a_expected timestamp_ltz_unconstrained)');
+    self.to_( ut_be_less_than (a_expected) );
+  end;
+  member procedure to_be_less_than(self in ut_expectation, a_expected yminterval_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_than(self in ut_expectation, a_expected yminterval_unconstrained)');
+    self.to_( ut_be_less_than (a_expected) );
+  end;
+  member procedure to_be_less_than(self in ut_expectation, a_expected dsinterval_unconstrained) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_less_than(self in ut_expectation, a_expected dsinterval_unconstrained)');
+    self.to_( ut_be_less_than (a_expected) );
+  end;
+  
+  member procedure to_be_like(self in ut_expectation, a_mask in varchar2, a_escape_char in varchar2 := null) is 
+  begin 
+    ut_utils.debug_log('ut_expectation.to_be_like(self in ut_expectation, a_mask in varchar2, a_escape_char in varchar2 := null)');
+    self.to_( ut_be_like (a_mask,a_escape_char) );
+  end;
+  
+  member procedure to_match(self in ut_expectation, a_pattern in varchar2, a_modifiers in varchar2 default null) is
+  begin 
+    ut_utils.debug_log('ut_expectation.to_match(self in ut_expectation, a_pattern in varchar2, a_modifiers in varchar2 default null)');
+    self.to_( ut_match (a_pattern,a_modifiers) );
+  end;
 
 end;
 /
