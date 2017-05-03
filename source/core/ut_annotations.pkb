@@ -337,12 +337,19 @@ create or replace package body ut_annotations as
 
   function get_package_annotations(a_owner_name varchar2, a_name varchar2) return typ_annotated_package is
     l_source clob;
+    ex_package_is_wrapped exception;
+    pragma exception_init(ex_package_is_wrapped, -24241);
   begin
 
     -- TODO: Add cache of annotations. Cache invalidation should be based on DDL timestamp.
     -- Cache garbage collection should be executed once in a while to remove annotations cache for packages that were dropped.
-
-    l_source := ut_metadata.get_package_spec_source(a_owner_name, a_name);
+    
+    begin
+      l_source := ut_metadata.get_package_spec_source(a_owner_name, a_name);
+    exception
+      when ex_package_is_wrapped then
+        null;
+    end;
 
     if l_source is null or sys.dbms_lob.getlength(l_source)=0 then
       return null;
