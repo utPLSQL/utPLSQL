@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+clientDir="$(dirname "$(readlink -f "$0")")"
+projectDir="$(pwd)"
+
+if [ ! "$clientDir" == "${clientDir/ /}" ]; then
+    echo "Error: ut_run script path cannot have spaces."
+    exit 1
+fi
+
+if [ "$@" == "" ]; then
+    echo "Usage: ut_run user/password@database [options...]"
+    exit 1
+fi
+
+sqlplus /nolog @"$clientDir/ut_run.sql" "$clientDir" "$projectDir" "$@"

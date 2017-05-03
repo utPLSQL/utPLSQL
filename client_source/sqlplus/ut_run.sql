@@ -55,7 +55,8 @@ Parameters:
                      Generates a JSON coverage report providing detailed information on code coverage with line numbers.
                      This coverage report is designed to be consumed by local services like https://about.sonarqube.com/.
                    -f=ut_sonar_test_reporter
-                     TODO
+                     Generates a JSON report providing detailed information on test specifications.
+                     This report is designed to be consumed by local services like https://about.sonarqube.com/.
                  If no -f option is provided, the ut_documentation_reporter will be used.
 
   -o=output    - file name to save the output provided by the reporter.
@@ -63,6 +64,8 @@ Parameters:
                  If not defined, then output will be displayed on screen, even if the parameter -s is not specified.
                  If more than one -o parameter is specified for one -f parameter, the last one is taken into consideration.
   -s           - Forces putting output to to screen for a given -f parameter.
+  -source_path=path - Source files path to be used by coverage reporters.
+  -test_path=path - Test files path to be used by coverage reporters.
   -c           - If specified, enables printing of test results in colors as defined by ANSICONSOLE standards
 
   Parameters -f, -o, -s are correlated. That is parameters -o and -s are defining outputs for -f.
@@ -83,9 +86,9 @@ Parameters:
 whenever sqlerror exit failure
 whenever oserror exit failure
 
-define client_path=&1
-define project_path=&2
-define conn_str=&3
+define client_path="&1"
+define project_path="&2"
+define conn_str="&3"
 
 conn &conn_str
 
@@ -333,11 +336,11 @@ column test_path new_value test_path noprint;
 select :l_test_path as test_path from dual;
 
 --try running on windows
-$ &&client_path\file_list.bat "&&client_path" "&&project_path" "&&source_path" "source_file_list.sql.tmp" "l_source_files"
-$ &&client_path\file_list.bat "&&client_path" "&&project_path" "&&test_path" "test_file_list.sql.tmp" "l_test_files"
+$ "&&client_path\file_list.bat" "&&client_path" "&&project_path" "&&source_path" "source_file_list.sql.tmp" "l_source_files"
+$ "&&client_path\file_list.bat" "&&client_path" "&&project_path" "&&test_path" "test_file_list.sql.tmp" "l_test_files"
 --try running on linux/unix
-! &&client_path/file_list.sh "&&client_path" "&&project_path" "&&source_path" "source_file_list.sql.tmp" "l_source_files"
-! &&client_path/file_list.sh "&&client_path" "&&project_path" "&&test_path" "test_file_list.sql.tmp" "l_test_files"
+! "&&client_path/file_list" "&&client_path" "&&project_path" "&&source_path" "source_file_list.sql.tmp" "l_source_files"
+! "&&client_path/file_list" "&&client_path" "&&project_path" "&&test_path" "test_file_list.sql.tmp" "l_test_files"
 
 undef source_path
 undef test_path
