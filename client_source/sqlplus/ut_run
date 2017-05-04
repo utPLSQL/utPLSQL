@@ -9,7 +9,7 @@ if [ ! "$clientDir" == "${clientDir/ /}" ]; then
     exit 1
 fi
 
-if [ "$@" == "" ]; then
+if [ -z "$@" ]; then
     echo "Usage: ut_run user/password@database [options...]"
     exit 1
 fi

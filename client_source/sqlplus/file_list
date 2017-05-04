@@ -23,7 +23,7 @@ fi
 fullOutPath="$clientPath/$outFileName"
 fullScanPath="$projectPath/$scanPath"
 
-# If scan path was -, bypass the file list generation.
+# If scan path is "-", bypass the file list generation.
 if [ "$scanPath" == "-" ]; then
     echo "begin" > $fullOutPath
     echo "  open :$sqlParamName for select null from dual;" >> $fullOutPath
