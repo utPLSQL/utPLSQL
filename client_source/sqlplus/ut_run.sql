@@ -253,36 +253,19 @@ declare
     return 'false';
   end;
 
-  function parse_source_path_param(a_params ut_varchar2_list) return varchar2 is
+  function parse_path_param(a_params ut_varchar2_list, a_param_name varchar2) return varchar2 is
     l_path varchar2(4000);
   begin
     begin
-      select source_path
+      select param_value
         into l_path
-        from (select regexp_substr(column_value,'-source_path\=(.*)',1,1,'c',1) as source_path from table(a_params) )
-       where source_path is not null;
+        from (select regexp_substr(column_value,'-'||a_param_name||'\=(.*)',1,1,'c',1) as param_value from table(a_params) )
+       where param_value is not null;
     exception
       when no_data_found then
         l_path := '-';
       when too_many_rows then
-        raise_application_error(-20000, 'Parameter "-source_path=source_path" defined more than once. Only one "-source_path=source_path" parameter can be used.');
-    end;
-    return l_path;
-  end;
-
-  function parse_test_path_param(a_params ut_varchar2_list) return varchar2 is
-    l_path varchar2(4000);
-  begin
-    begin
-      select test_path
-        into l_path
-        from (select regexp_substr(column_value,'-test_path\=(.*)',1,1,'c',1) as test_path from table(a_params) )
-       where test_path is not null;
-    exception
-      when no_data_found then
-        l_path := '-';
-      when too_many_rows then
-        raise_application_error(-20000, 'Parameter "-test_path=test_path" defined more than once. Only one "-test_path=test_path" parameter can be used.');
+        raise_application_error(-20000, 'Parameter "-'||a_param_name||'='||a_param_name||'" defined more than once. Only one "-'||a_param_name||'='||a_param_name||'" parameter can be used.');
     end;
     return l_path;
   end;
@@ -310,8 +293,8 @@ begin
   :l_paths := parse_paths_param(l_input_params);
   :l_color_enabled := parse_color_enabled(l_input_params);
 
-  :l_source_path := parse_source_path_param(l_input_params);
-  :l_test_path := parse_test_path_param(l_input_params);
+  :l_source_path := parse_path_param(l_input_params,'source_path');
+  :l_test_path := parse_path_param(l_input_params,'test_path');
 
   if l_run_cursor_sql is not null then
     open :l_run_params_cur for l_run_cursor_sql;
