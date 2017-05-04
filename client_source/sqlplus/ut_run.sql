@@ -189,17 +189,14 @@ declare
     l_default_call_param  t_call_param;
     l_call_params         tt_call_params := tt_call_params();
     l_force_out_to_screen boolean;
+    l_param_regex         varchar2(20) := '^-([fos])(\=(.*))?$';
   begin
     for param in(
-      with
-        param_vals as(
-          select regexp_substr(column_value,'-([a-z_]+)\=?(.*)',1,1,'c',1) param_type,
-                 regexp_substr(column_value,'-([a-z_]+)\=?(.*)',1,1,'c',2) param_value
-          from table(a_params)
-          where column_value is not null)
-      select param_type, param_value
-      from param_vals
-      where param_type is not null
+      select regexp_substr(column_value,l_param_regex,1,1,'c',1) param_type,
+             regexp_substr(column_value,l_param_regex,1,1,'c',3) param_value
+      from table(a_params)
+      where column_value is not null
+        and regexp_like(column_value,l_param_regex)
     ) loop
       if param.param_type = 'f' or l_call_params.last is null then
         l_call_params.extend;
