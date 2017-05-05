@@ -6,7 +6,7 @@ To do that we use concept of expectation and a matcher to perform the check on t
 Example of unit test procedure body with a single expectation.
 ```sql
 begin
-  ut.expect( 'the tested value' ).to_( equal('the expected value') );
+  ut.expect( 'the tested value' ).to_equal('the expected value');
 end;
 ```
 
@@ -17,6 +17,12 @@ Pseudo-code:
 ```sql
   ut.expect( a_actual {data-type} ).to_( {matcher} );
   ut.expect( a_actual {data-type} ).not_to( {matcher} );
+```
+
+Most of the matchers have shortcuts like:
+```sql
+  ut.expect( a_actual {data-type} ).to_{matcher};
+  ut.expect( a_actual {data-type} ).not_to{matcher};
 ```
 
 
@@ -42,8 +48,8 @@ Validates that the actual value is between the lower and upper bound.
 Example:
 ```sql
 begin
-  ut.expect( a_actual => 3 ).to_( be_between( a_lower_bound => 1, a_upper_bound => 3 ) );
-  ut.expect( 3 ).to_( be_between( 1, 3 ) );
+  ut.expect( a_actual => 3 ).to_be_between( a_lower_bound => 1, a_upper_bound => 3 );
+  ut.expect( 3 ).to_be_between( 1, 3 );
 end;
 ```
 
@@ -56,7 +62,7 @@ procedure test_if_cursor_is_empty is
   l_cursor sys_refcursor;
 begin
   open l_cursor for select * from dual where 1 = 0;
-  ut.expect( l_cursor ).to_( be_empty() );
+  ut.expect( l_cursor ).to_be_empty();
 end;
 ```
 
@@ -68,7 +74,7 @@ Unary matcher that validates if the provided value is false.
 Usage:
 ```sql
 begin
-  ut.expect( ( 1 = 0 ) ).to_( be_false() );
+  ut.expect( ( 1 = 0 ) ).to_be_false();
 end;
 ```
 
@@ -78,7 +84,7 @@ Allows to check if the actual value is greater or equal than the expected.
 Usage:
 ```sql
 begin
-  ut.expect( sysdate ).to_( be_greater_or_equal( sysdate - 1 ) );
+  ut.expect( sysdate ).to_be_greater_or_equal( sysdate - 1 );
 end;
 ```
 
@@ -88,7 +94,7 @@ Allows to check if the actual value is greater than the expected.
 Usage:
 ```sql
 begin
-  ut.expect( 2 ).to_( be_greater_than( 1 ) );
+  ut.expect( 2 ).to_be_greater_than( 1 );
 end;
 ```
 
@@ -98,7 +104,7 @@ Allows to check if the actual value is less or equal than the expected.
 Usage:
 ```sql
 begin
-  ut.expect( 3 ).to_( be_less_or_equal( 3 ) );
+  ut.expect( 3 ).to_be_less_or_equal( 3 );
 end;
 ```
 
@@ -108,7 +114,7 @@ Allows to check if the actual value is less than the expected.
 Usage:
 ```sql
 begin
-  ut.expect( 3 ).to_( be_less_than( 2 ) );
+  ut.expect( 3 ).to_be_less_than( 2 );
 end;
 ```
 
@@ -119,8 +125,8 @@ Validates that the actual value is like the expected expression.
 Usage:
 ```sql
 begin
-  ut.expect( 'Lorem_impsum' ).to_( be_like( a_mask => '%rem\_%', a_escape_char => '\' ) );
-  ut.expect( 'Lorem_impsum' ).to_( be_like( '%rem\_%', '\' ) );
+  ut.expect( 'Lorem_impsum' ).to_be_like( a_mask => '%rem\_%', a_escape_char => '\' );
+  ut.expect( 'Lorem_impsum' ).to_be_like( '%rem\_%', '\' );
 end;
 ```
 
@@ -133,7 +139,7 @@ Unary matcher that validates if the actual value is not null.
 Usage:
 ```sql
 begin 
-  ut.expect( to_clob('ABC') ).to_( be_not_null() );
+  ut.expect( to_clob('ABC') ).to_be_not_null();
 end;
 ```
 
@@ -143,7 +149,7 @@ Unary matcher that validates if the actual value is null.
 Usage:
 ```sql
 begin
-  ut.expect( cast(null as varchar2(100)) ).to_( be_null() );
+  ut.expect( cast(null as varchar2(100)) ).to_be_null();
 end;
 ```
 
@@ -154,7 +160,7 @@ Unary matcher that validates if the provided value is false.
 Usage:
 ```sql
 begin 
-  ut.expect( ( 1 = 1 ) ).to_( be_true() );
+  ut.expect( ( 1 = 1 ) ).to_be_true();
 end;
 ```
 
@@ -171,11 +177,13 @@ procedure check_if_cursors_are_equal is
   x sys_refcursor;
   y sys_refcursor;
 begin
-  ut.expect( 'a dog' ).to_( equal( 'a dog' ) );
-  ut.expect( a_actual => y ).to_( equal( a_expected => x, a_nulls_are_equal => true ) );
+  ut.expect( 'a dog' ).to_equal( 'a dog' );
+  ut.expect( a_actual => y ).to_equal( a_expected => x, a_nulls_are_equal => true );
 end;
 ```
 The `a_nulls_are_equal` parameter decides on the behavior of `null=null` comparison (**this comparison by default is true!**)
+
+There are no shortcuts for `not_to_equal`, so use `not_to (equal(...))`
 
 ### Comparing cursors
 
@@ -193,7 +201,7 @@ procedure test_cursors_skip_columns is
 begin
   open x for select 'text' ignore_me, d.* from user_tables d;
   open y for select sysdate "ADate", d.* from user_tables d;
-  ut.expect( a_actual => y ).to_( equal( a_expected => x, a_exclude => 'IGNORE_ME,ADate' ) );
+  ut.expect( a_actual => y ).to_equal( a_expected => x, a_exclude => 'IGNORE_ME,ADate' );
 end;
 ```
 
@@ -261,7 +269,7 @@ create or replace package body test_get_events is
     l_actual := get_events(gc_event_date-1, gc_event_date+1);
     ut.reset_nls();
 
-    ut.expect(l_actual).to_( equal(l_expected) );                        
+    ut.expect(l_actual).to_equal(l_expected);                        
     ut.expect(l_actual).not_to( equal(l_expected_bad_date) );                        
   end;
 
@@ -309,7 +317,7 @@ create or replace package body demo_dept as
   begin
     v_expected := department('HR');
     v_actual   := department('IT');
-    ut.expect( anydata.convertObject(v_expected) ).to_( equal( anydata.convertObject(v_actual) ) );
+    ut.expect( anydata.convertObject(v_expected) ).to_equal( anydata.convertObject(v_actual) );
   end;
   
   procedure test_department is
@@ -318,7 +326,7 @@ create or replace package body demo_dept as
   begin
     v_expected := departments(department('HR'));
     v_actual   := departments(department('IT'));
-    ut.expect( anydata.convertCollection(v_expected) ).to_( equal( anydata.convertCollection(v_actual) ) );
+    ut.expect( anydata.convertCollection(v_expected) ).to_equal( anydata.convertCollection(v_actual) );
   end;
 
 end;
@@ -333,8 +341,8 @@ Validates that the actual value is matching the expected regular expression.
 Usage:
 ```sql
 begin 
-  ut.expect( a_actual => '123-456-ABcd' ).to_( match( a_pattern => '\d{3}-\d{3}-[a-z]', a_modifiers => 'i' ) );
-  ut.expect( 'some value' ).to_( match( '^some.*' ) );
+  ut.expect( a_actual => '123-456-ABcd' ).to_match( a_pattern => '\d{3}-\d{3}-[a-z]', a_modifiers => 'i' );
+  ut.expect( 'some value' ).to_match( '^some.*' );
 end;
 ```
 
@@ -370,7 +378,8 @@ Expectations provide a very convenient way to check for a negative of the expect
 Syntax of check for matcher evaluating to true:
 ```sql
 begin 
-  ut.expect( a_actual {data-type} ).to_( {matcher} );
+  ut.expect( a_actual {data-type} ).to_{matcher};
+  ut.expect( a_actual {data-type} ).to_{ (matcher} );
 end;
 ```
 
@@ -378,6 +387,7 @@ Syntax of check for matcher evaluating to false:
 ```sql
 begin 
   ut.expect( a_actual {data-type} ).not_to( {matcher} );
+  ut.expect( a_actual {data-type} ).not_to_{matcher};
 end;
 ```
 
@@ -386,7 +396,7 @@ If a matcher evaluated to NULL, then both `to_` and `not_to` will cause the expe
 Example:
 ```sql
 begin
-  ut.expect( null ).to_( be_true() );
+  ut.expect( null ).to_be_true();
   ut.expect( null ).not_to( be_true() );
 end;
 ```

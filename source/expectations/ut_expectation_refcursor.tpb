@@ -26,5 +26,11 @@ create or replace type body ut_expectation_refcursor as
     ut_utils.debug_log('ut_expectation_refcursor.to_be_empty(self in ut_expectation_refcursor)');
     self.to_( ut_be_empty() );
   end;
+  
+  member procedure not_to_be_empty(self in ut_expectation_refcursor) is
+  begin
+    ut_utils.debug_log('ut_expectation_refcursor.not_to_be_empty(self in ut_expectation_refcursor)');
+    self.not_to( ut_be_empty() );
+  end;
 end;
 /

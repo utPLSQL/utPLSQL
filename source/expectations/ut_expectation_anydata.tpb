@@ -26,6 +26,13 @@ create or replace type body ut_expectation_anydata as
     ut_utils.debug_log('ut_expectation_anydata.to_be_empty(self in ut_expectation_anydata)');
     self.to_( ut_be_empty() );
   end;
+  
+  member procedure not_to_be_empty(self in ut_expectation_anydata) is
+  begin
+    ut_utils.debug_log('ut_expectation_anydata.not_to_be_empty(self in ut_expectation_anydata)');
+    self.not_to( ut_be_empty() );
+  end;
+  
 
 end;
 /

@@ -38,6 +38,24 @@ create or replace type body ut_expectation_varchar2 as
     ut_utils.debug_log('ut_expectation_varchar2.to_match(self in ut_expectation, a_pattern in varchar2, a_modifiers in varchar2 default null)');
     self.to_( ut_match(a_pattern, a_modifiers) );
   end;
+  
+  member procedure not_to_be_between(self in ut_expectation_varchar2, a_lower_bound varchar2, a_upper_bound varchar2) is
+  begin
+    ut_utils.debug_log('ut_expectation_varchar2.not_to_be_between(self in ut_expectation_varchar2, a_lower_bound varchar2, a_upper_bound varchar2)');
+    self.not_to( ut_be_between(a_lower_bound,a_upper_bound) );
+  end;
+
+  member procedure not_to_be_like(self in ut_expectation_varchar2, a_mask in varchar2, a_escape_char in varchar2 := null) is
+  begin
+    ut_utils.debug_log('ut_expectation_varchar2.not_to_be_like(self in ut_expectation, a_mask in varchar2, a_escape_char in varchar2 default null)');
+    self.not_to( ut_be_like(a_mask, a_escape_char) );
+  end;
+
+  member procedure not_to_match(self in ut_expectation_varchar2, a_pattern in varchar2, a_modifiers in varchar2 default null) is
+  begin
+    ut_utils.debug_log('ut_expectation_varchar2.not_to_match(self in ut_expectation, a_pattern in varchar2, a_modifiers in varchar2 default null)');
+    self.not_to( ut_match(a_pattern, a_modifiers) );
+  end;
 
 end;
 /

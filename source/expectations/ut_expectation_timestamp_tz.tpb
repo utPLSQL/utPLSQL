@@ -47,6 +47,12 @@ create or replace type body ut_expectation_timestamp_tz as
     ut_utils.debug_log('ut_expectation_timestamp_tz.to_be_less_than(self in ut_expectation_timestamp_tz, a_expected timestamp_tz_unconstrained)');
     self.to_( ut_be_less_than (a_expected) );
   end;  
+  
+  member procedure not_to_be_between(self in ut_expectation_timestamp_tz, a_lower_bound timestamp_tz_unconstrained, a_upper_bound timestamp_tz_unconstrained) is
+  begin
+    ut_utils.debug_log('ut_expectation_timestamp_tz.not_to_be_between(self in ut_expectation_timestamp_tz, a_lower_bound timestamp_tz_unconstrained, a_upper_bound timestamp_tz_unconstrained)');
+    self.not_to( ut_be_between(a_lower_bound, a_upper_bound) );
+  end;
 
 end;
 /

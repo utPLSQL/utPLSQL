@@ -47,12 +47,12 @@ create or replace package body test_award_bonus as
       select salary as new_salary
         from employees_test where employee_id = gc_test_employee;
 
-    ut.expect( results ).to_( equal( expected ) );
+    ut.expect( results ).to_equal( expected );
 
     open results for
       select * from employees_test where employee_id != gc_test_employee;
 
-    ut.expect( results ).to_( equal( not_affected ) );
+    ut.expect( results ).to_equal( not_affected );
   end;
 
   procedure fail_on_null_bonus is

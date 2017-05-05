@@ -20,6 +20,8 @@ create or replace type ut_expectation_dsinterval under ut_expectation(
   member procedure to_be_greater_or_equal(self in ut_expectation_dsinterval, a_expected dsinterval_unconstrained),
   member procedure to_be_greater_than(self in ut_expectation_dsinterval, a_expected dsinterval_unconstrained),
   member procedure to_be_less_or_equal(self in ut_expectation_dsinterval, a_expected dsinterval_unconstrained),
-  member procedure to_be_less_than(self in ut_expectation_dsinterval, a_expected dsinterval_unconstrained)
+  member procedure to_be_less_than(self in ut_expectation_dsinterval, a_expected dsinterval_unconstrained),
+  
+  member procedure not_to_be_between(self in ut_expectation_dsinterval, a_lower_bound dsinterval_unconstrained, a_upper_bound dsinterval_unconstrained)
 )
 /

@@ -54,7 +54,7 @@ create or replace package body test_remove_rooms_by_name as
     remove_rooms_by_name('B%');
 
     open l_remaining_rooms for select * from rooms;
-    ut.expect( l_remaining_rooms ).to_(equal(l_rooms_not_named_b));
+    ut.expect( l_remaining_rooms ).to_equal(l_rooms_not_named_b);
   end;
 
   procedure room_with_content is
@@ -65,15 +65,15 @@ create or replace package body test_remove_rooms_by_name as
 
     begin
       remove_rooms_by_name('Living Room');
-      ut.expect( sqlcode ).to_( equal(-2292) );
+      ut.expect( sqlcode ).to_equal(-2292);
     exception
       when others then
-        ut.expect( sqlcode ).to_( equal(-2292) );
+        ut.expect( sqlcode ).to_equal(-2292);
     end;
 
     open l_remaining_rooms for select * from rooms;
 
-    ut.expect( l_remaining_rooms ).to_( equal( l_rooms ) );
+    ut.expect( l_remaining_rooms ).to_equal( l_rooms );
   end;
 
   procedure null_room_name is
@@ -84,15 +84,15 @@ create or replace package body test_remove_rooms_by_name as
 
     begin
       remove_rooms_by_name(NULL);
-      ut.expect( sqlcode ).to_( equal(-6501) );
+      ut.expect( sqlcode ).to_equal(-6501);
     exception
       when others then
-        ut.expect( sqlcode ).to_( equal(-6501) );
+        ut.expect( sqlcode ).to_equal(-6501);
     end;
 
     open l_remaining_rooms for select * from rooms;
 
-    ut.expect( l_remaining_rooms ).to_( equal( l_rooms ) );
+    ut.expect( l_remaining_rooms ).to_equal( l_rooms );
   end;
 
 end;
