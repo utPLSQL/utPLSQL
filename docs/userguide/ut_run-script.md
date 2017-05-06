@@ -25,31 +25,31 @@ You need to run the `ut_run.bat` or `ut_run` script from your project's root dir
   -f=format         - A reporter to be used for reporting.
                     Available options:
                       -f=ut_documentation_reporter
-                        A textual pretty-print of unit test results (usually   use for console output)
+                        A textual pretty-print of unit test results (usually use for console output)
                       -f=ut_teamcity_reporter
-                        A teamcity Unit Test reporter, that can be used to    visualize progress of test execution as the job    progresses.
+                        A teamcity Unit Test reporter, that can be used to visualize progress of test execution as the job    progresses.
                       -f=ut_xunit_reporter
-                        A XUnit xml format (as defined at:    http://stackoverflow.com/a/9691131 and at    https://gist.github.com/kuzuha/232902acab1344d6b578)
-                        Usually used  by Continuous Integration servers like   Jenkins/Hudson or Teamcity to display test results.
+                        A XUnit xml format (as defined at: http://stackoverflow.com/a/9691131 and at https://gist.github.com/kuzuha/232902acab1344d6b578)
+                        Usually used  by Continuous Integration servers like Jenkins/Hudson or Teamcity to display test results.
                       -f=ut_coverage_html_reporter
-                        Generates a HTML coverage report providing summary    and detailed information on code coverage.
+                        Generates a HTML coverage report providing summary and detailed information on code coverage.
                         The html reporter is based on open-source    simplecov-html reporter for Ruby.
-                        It includes source code of the code that was covered   (if possible).
+                        It includes source code of the code that was covered (if possible).
                       -f=ut_coveralls_reporter
-                        Generates a JSON coverage report providing detailed    information on code coverage with line numbers.
-                        This coverage report is designed to be consumed by    cloud services like https://coveralls.io/.
+                        Generates a JSON coverage report providing detailed information on code coverage with line numbers.
+                        This coverage report is designed to be consumed by cloud services like [Coveralls](https://coveralls.io/).
                       -f=ut_coverage_sonar_reporter
-                        Generates a JSON coverage report providing detailed    information on code coverage with line numbers.
-                        This coverage report is designed to be consumed by    local services like https://about.sonarqube.com/.
+                        Generates a JSON coverage report providing detailed information on code coverage with line numbers.
+                        This report is designed to be consumed by [SonarQube](https://about.sonarqube.com/) to report code coverage.
                       -f=ut_sonar_test_reporter
-                        Generates a JSON report providing detailed     information on test specifications.
-                        This report is designed to be consumed by local     services like https://about.sonarqube.com/.
+                        Generates a JSON report providing detailed information on test specifications.
+                        This report is designed to be consumed by [SonarQube](https://about.sonarqube.com/) to report code coverage.
                     If no -f option is provided, the ut_documentation_reporter will be used.
 
   -o=output         - file name to save the output provided by the reporter.
-                      If defined, the output is not displayed on screen by default.      This can be changed with the -s parameter.
-                      If not defined, then output will be displayed on screen, even      if the parameter -s is not specified.
-                      If more than one -o parameter is specified for one -f      parameter, the last one is taken into consideration.
+                      If defined, the output is not displayed on screen by default. This can be changed with the -s parameter.
+                      If not defined, then output will be displayed on screen, even if the parameter -s is not specified.
+                      If more than one -o parameter is specified for one -f parameter, the last one is taken into consideration.
   -s                - Forces putting output to to screen for a given -f parameter.
   -source_path=path - Source files path to be used by coverage reporters. The path need to be relative to the priject root directory.
   -test_path=path   - Test files path to be used by coverage reporters. The path need to be relative to the priject root directory.
@@ -60,9 +60,9 @@ You need to run the `ut_run.bat` or `ut_run` script from your project's root dir
 
 Parameters -f, -o, -s are correlated. That is parameters -o and -s are defining outputs for -f.
 
-Examples of invocation using sqlplus from command line:
+Examples of invocation from command line:
 
-`ut_run @ut_run hr/hr@xe -p=hr_test -f=ut_documentation_reporter -o=run.log -s -f=ut_coverage_html_reporter -o=coverage.html -source_path=source`
+`ut_run hr/hr@xe -p=hr_test -f=ut_documentation_reporter -o=run.log -s -f=ut_coverage_html_reporter -o=coverage.html -source_path=source`
 
 All Unit tests from schema/package "hr_test" will be be invoked with two reporters:
   - ut_documentation_reporter - will output to screen and save output to file "run.log"

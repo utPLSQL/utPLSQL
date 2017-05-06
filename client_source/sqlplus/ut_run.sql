@@ -22,9 +22,11 @@
   Current limit of script parameters is 39
 
 Scrip invocation:
-  ut_run.sql user/password@database [-p=(ut_path|ut_paths)] [-c] [-f=format [-o=output] [-s] ...]
+  ut_run.sql "client_Path" "project_path" user/password@database [-p=(ut_path|ut_paths)] [-c] [-f=format [-o=output] [-s] ...] [-source_path=path] [-test_path=path]
 
 Parameters:
+  client_path  - The path where this script is installed. Will be used to find auxiliary scripts and to save temp files.
+  project_path - The path from where this script is being called.
   user         - username to connect as
   password     - password of the user
   database     - database to connect to
@@ -53,10 +55,10 @@ Parameters:
                      This coverage report is designed to be consumed by cloud services like https://coveralls.io/.
                    -f=ut_coverage_sonar_reporter
                      Generates a JSON coverage report providing detailed information on code coverage with line numbers.
-                     This coverage report is designed to be consumed by local services like https://about.sonarqube.com/.
+                     This report is designed to be consumed by SonarQube to report code coverage.
                    -f=ut_sonar_test_reporter
                      Generates a JSON report providing detailed information on test specifications.
-                     This report is designed to be consumed by local services like https://about.sonarqube.com/.
+                     This report is designed to be consumed by SonarQube to report test files.
                  If no -f option is provided, the ut_documentation_reporter will be used.
 
   -o=output    - file name to save the output provided by the reporter.
@@ -68,18 +70,21 @@ Parameters:
   -test_path=path - Test files path to be used by coverage reporters.
   -c           - If specified, enables printing of test results in colors as defined by ANSICONSOLE standards
 
+  To make coverage reporters work source_path and/or test_path cannot be empty, and ut_run need to be executed from your project's path.
+
   Parameters -f, -o, -s are correlated. That is parameters -o and -s are defining outputs for -f.
+
   Examples of invocation using sqlplus from command line:
 
-    sqlplus /nolog @ut_run hr/hr@xe -p=hr_test -f=ut_documentation_reporter -o=run.log -s -f=ut_teamcity_reporter -o=teamcity.xml
+    sqlplus /nolog @ut_run ~/ut_run_path ~/project/source hr/hr@xe -p=hr_test -f=ut_documentation_reporter -o=run.log -s -f=ut_coverage_html_reporter -o=coverage.html -source_path=source
 
-      All Unit tests from schema "hr_test" will be be invoked with two reporters:
-      - ut_documentation_reporter - will output to screen and save it's output to file "run.log"
-      - ut_teamcity_reporter - will save it's output to file "teamcity.xml"
+      All Unit tests from schema/package "hr_test" will be be invoked with two reporters:
+        - ut_documentation_reporter - will output to screen and save it's output to file "run.log"
+        - ut_coverage_html_reporter - will read file structure from source folder, and save it's output to file "coverage.html"
 
     sqlplus /nolog @ut_run hr/hr@xe
 
-      All Unit tests from schema "hr" will be be invoked with ut_documentation_reporter as a format and the results will be printed to screen
+      All Unit tests from schema "hr" will be be invoked with ut_documentation_reporter as a format and the results will be printed to screen.
 
  */
 
