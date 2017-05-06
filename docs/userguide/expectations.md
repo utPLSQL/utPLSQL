@@ -7,6 +7,7 @@ Example of unit test procedure body with a single expectation.
 ```sql
 begin
   ut.expect( 'the tested value' ).to_equal('the expected value');
+  ut.expect( 'the tested value' ).to_( equal('the expected value') );
 end;
 ```
 
@@ -19,12 +20,11 @@ Pseudo-code:
   ut.expect( a_actual {data-type} ).not_to( {matcher} );
 ```
 
-Most of the matchers have shortcuts like:
+All matchers have shortcuts like:
 ```sql
   ut.expect( a_actual {data-type} ).to_{matcher};
   ut.expect( a_actual {data-type} ).not_to{matcher};
 ```
-
 
 # Matchers
 utPLSQL provides following matchers to perform checks on the expected and actual values.  
@@ -183,8 +183,6 @@ end;
 ```
 The `a_nulls_are_equal` parameter decides on the behavior of `null=null` comparison (**this comparison by default is true!**)
 
-There are no shortcuts for `not_to_equal`, so use `not_to (equal(...))`
-
 ### Comparing cursors
 
 The `equal` matcher accepts additional parameter `a_exclude varchar2` or `a_exclude ut_varchar2_list`, when used to compare `cursor` data. 
@@ -270,7 +268,7 @@ create or replace package body test_get_events is
     ut.reset_nls();
 
     ut.expect(l_actual).to_equal(l_expected);                        
-    ut.expect(l_actual).not_to( equal(l_expected_bad_date) );                        
+    ut.expect(l_actual).not_to_equal(l_expected_bad_date);
   end;
 
 end;
@@ -385,9 +383,9 @@ end;
 
 Syntax of check for matcher evaluating to false:
 ```sql
-begin 
-  ut.expect( a_actual {data-type} ).not_to( {matcher} );
+begin
   ut.expect( a_actual {data-type} ).not_to_{matcher};
+  ut.expect( a_actual {data-type} ).not_to( {matcher} );
 end;
 ```
 
