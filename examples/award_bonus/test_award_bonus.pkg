@@ -58,10 +58,10 @@ create or replace package body test_award_bonus as
   procedure fail_on_null_bonus is
   begin
     award_bonus(emp_id => gc_test_employee, sales_amt => null);
-    ut.expect( sqlcode ).not_to( equal( 0 ) );
+    ut.expect( sqlcode ).not_to_equal( 0 );
   exception
     when others then
-      ut.expect( sqlcode ).not_to( equal( 0 ) );
+      ut.expect( sqlcode ).not_to_equal( 0 );
   end;
 
   procedure add_employee( emp_id number, comm_pct number, sal number ) is

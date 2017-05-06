@@ -22,6 +22,7 @@ create or replace type ut_expectation_date under ut_expectation(
   member procedure to_be_less_or_equal(self in ut_expectation_date, a_expected date),
   member procedure to_be_less_than(self in ut_expectation_date, a_expected date),
   
+  overriding member procedure not_to_equal(self in ut_expectation_date, a_expected date, a_nulls_are_equal boolean := null),
   member procedure not_to_be_between(self in ut_expectation_date, a_lower_bound date, a_upper_bound date)
 )
 /

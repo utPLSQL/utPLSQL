@@ -48,6 +48,12 @@ create or replace type body ut_expectation_yminterval as
     self.to_( ut_be_less_than (a_expected) );
   end;
   
+  overriding member procedure not_to_equal(self in ut_expectation_yminterval, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null) is
+  begin
+    ut_utils.debug_log('ut_expectation_yminterval.not_to_equal(self in ut_expectation, a_expected yminterval_unconstrained)');
+    self.not_to( ut_equal(a_expected, a_nulls_are_equal) );
+  end;
+  
   member procedure not_to_be_between(self in ut_expectation_yminterval, a_lower_bound yminterval_unconstrained, a_upper_bound yminterval_unconstrained) is
   begin
     ut_utils.debug_log('ut_expectation_yminterval.not_to_be_between(self in ut_expectation_yminterval, a_lower_bound dsinterval_unconstrained, a_upper_bound dsinterval_unconstrained)');

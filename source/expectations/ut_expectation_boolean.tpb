@@ -32,6 +32,12 @@ create or replace type body ut_expectation_boolean as
     ut_utils.debug_log('ut_expectation_boolean.to_be_false(self in ut_expectation_boolean)');
     self.to_( ut_be_false() );
   end;
+  
+  overriding member procedure not_to_equal(self in ut_expectation_boolean, a_expected boolean, a_nulls_are_equal boolean := null) is
+  begin
+    ut_utils.debug_log('ut_expectation_boolean.not_to_equal(self in ut_expectation_boolean, a_expected boolean, a_nulls_are_equal boolean := null)');
+    self.not_to( ut_equal(a_expected, a_nulls_are_equal) );
+  end;
 
 end;
 /

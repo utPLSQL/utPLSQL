@@ -546,6 +546,12 @@ create or replace package body demo_expectations is
     ut.expect(sysdate).not_to( be_between(sysdate+1,sysdate+2) );
     ut.expect( 1 ).not_to( equal( 2 ) );
     ut.expect( 'asd' ).not_to( be_like('z%q') );
+    
+    ut.expect( sysdate ).not_to_be_null();
+    ut.expect( to_char(null) ).not_to_be_not_null();
+    ut.expect(sysdate).not_to_be_between(sysdate+1,sysdate+2);
+    ut.expect( 1 ).not_to_equal( 2 );
+    ut.expect( 'asd' ).not_to_be_like('z%q');
   end;
 
 end;
