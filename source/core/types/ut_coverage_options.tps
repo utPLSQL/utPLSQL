@@ -1,4 +1,4 @@
-create or replace type ut_coverage_sonar_reporter under ut_coverage_reporter_base(
+create or replace type ut_coverage_options as object (
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -16,14 +16,9 @@ create or replace type ut_coverage_sonar_reporter under ut_coverage_reporter_bas
   limitations under the License.
   */
 
-  /**
-  * Builds a coverage XML report that follows rules described in
-  * https://docs.sonarqube.org/display/SONAR/Generic+Test+Data
-  */
-  constructor function ut_coverage_sonar_reporter(
-    self in out nocopy ut_coverage_sonar_reporter
-  ) return self as result,
-
-  overriding member procedure after_calling_run(self in out nocopy ut_coverage_sonar_reporter, a_run in ut_run)
+  schema_names     ut_varchar2_list,
+  exclude_objects  ut_object_names,
+  include_objects  ut_object_names,
+  file_mappings    ut_file_mappings
 )
 /

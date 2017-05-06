@@ -16,11 +16,6 @@ create or replace package ut_coverage authid current_user is
   limitations under the License.
   */
 
-  gc_file_mapping_regex        constant varchar2(100) := '.*(\\|\/)((\w+)\.)?(\w+)\.(\w{3})';
-  gc_regex_owner_subexpression constant positive := 3;
-  gc_regex_name_subexpression  constant positive := 4;
-  gc_regex_type_subexpression  constant positive := 5;
-
   -- total run coverage information
   subtype t_full_name   is varchar2(4000);
   subtype t_object_name is varchar2(250);
@@ -51,34 +46,6 @@ create or replace package ut_coverage authid current_user is
     objects         tt_program_units
   );
 
-  function default_file_to_obj_type_map return ut_key_value_pairs;
-
-  function build_file_mappings(
-    a_object_owner                varchar2,
-    a_file_paths                  ut_varchar2_list,
-    a_file_to_object_type_mapping ut_key_value_pairs := default_file_to_obj_type_map(),
-    a_regex_pattern               varchar2 := gc_file_mapping_regex,
-    a_object_owner_subexpression  positive := gc_regex_owner_subexpression,
-    a_object_name_subexpression   positive := gc_regex_name_subexpression,
-    a_object_type_subexpression   positive := gc_regex_type_subexpression
-  ) return ut_coverage_file_mappings;
-
-  function get_include_schema_names return ut_varchar2_list;
-
-  procedure set_include_schema_names(a_schema_names ut_varchar2_list);
-
-  procedure init(
-    a_schema_names        ut_varchar2_list,
-    a_include_object_list ut_varchar2_list,
-    a_exclude_object_list ut_varchar2_list
-  );
-
-  procedure init(
-    a_file_mappings       ut_coverage_file_mappings,
-    a_include_object_list ut_varchar2_list,
-    a_exclude_object_list ut_varchar2_list
-  );
-
   procedure coverage_start;
 
   /*
@@ -94,9 +61,7 @@ create or replace package ut_coverage authid current_user is
 
   procedure coverage_resume;
 
-  procedure set_unit_test_packages_to_skip(a_ut_objects ut_object_names);
-
-  function get_coverage_data return t_coverage;
+  function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage;
 
 end;
 /
