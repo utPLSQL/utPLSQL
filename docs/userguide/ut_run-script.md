@@ -1,9 +1,11 @@
 The `ut_run.bat` and `ut_run` scripts are designed to allow invocation of utPLSQL with multiple reporters.
 It allows saving of outcomes into multiple output files.
 It also facilitates displaying on screen unit test results while the execution is still ongoing.
-Current limit of script parameters is 39
+Current limit of script parameters is 39.
 
 The easiest way to use it, is by adding the client_source/sqlplus folder on your PATH.
+
+You need to run the `ut_run.bat` or `ut_run` script from your project's root directory for the Sonar and Coveralls reports to be valid.   
 
 # Script Invocation
   ut_run user/password@database [-p=(ut_path|ut_paths)] [-c] [-f=format [-o=output] [-s] ...] [-source_path=path] [-test_path=path]
@@ -49,8 +51,8 @@ The easiest way to use it, is by adding the client_source/sqlplus folder on your
                       If not defined, then output will be displayed on screen, even      if the parameter -s is not specified.
                       If more than one -o parameter is specified for one -f      parameter, the last one is taken into consideration.
   -s                - Forces putting output to to screen for a given -f parameter.
-  -source_path=path - Source files path to be used by coverage reporters.
-  -test_path=path   - Test files path to be used by coverage reporters.
+  -source_path=path - Source files path to be used by coverage reporters. The path need to be relative to the priject root directory.
+  -test_path=path   - Test files path to be used by coverage reporters. The path need to be relative to the priject root directory.
   -c                - If specified, enables printing of test results in colors as defined by ANSICONSOLE standards
 ```
 
@@ -60,11 +62,11 @@ Parameters -f, -o, -s are correlated. That is parameters -o and -s are defining 
 
 Examples of invocation using sqlplus from command line:
 
-`ut_run @ut_run hr/hr@xe -p=hr_test -f=ut_documentation_reporter -o=run.log -s -f=ut_html_reporter -o=coverage.html -source_path=source`
+`ut_run @ut_run hr/hr@xe -p=hr_test -f=ut_documentation_reporter -o=run.log -s -f=ut_coverage_html_reporter -o=coverage.html -source_path=source`
 
 All Unit tests from schema/package "hr_test" will be be invoked with two reporters:
-  - ut_documentation_reporter - will output to screen and save it's output to file "run.log"
-  - ut_html_reporter - will read file structure from source folder, and save it's output to file "coverage.html"
+  - ut_documentation_reporter - will output to screen and save output to file "run.log"
+  - ut_coverage_html_reporter - will report on database objects that are mapping to file structure from "source" folder, and save output to file "coverage.html"
 
 `ut_run hr/hr@xe`
 
