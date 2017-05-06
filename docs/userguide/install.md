@@ -1,3 +1,27 @@
+# Downloading latest version of utPLSQL
+
+It is quite easy to download latest version of utPLSQL from github on Unix machines.
+Here is a little snippet that can be handy for downloading latest version.  
+```bash
+#!/bin/bash
+# Get the url to latest release "zip" file
+UTPLSQL_DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
+# Extract file name from the URL 
+UTPLSQL_DOWNLOAD_FILE="${UTPLSQL_DOWNLOAD_URL##*/}"
+# Extract the output directory from URL
+UTPLSQL_DIR="${UTPLSQL_DOWNLOAD_FILE%.*}"
+# Download the latest utPLSQL release "zip" file
+curl -LOk "${UTPLSQL_DOWNLOAD_URL}"
+# Extract downloaded "zip" file
+unzip -q "${UTPLSQL_DOWNLOAD_FILE}"
+```
+
+You may download with a one-liner if that is more convenient.
+```bash
+#!/bin/bash
+curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g') 
+```
+
 # Installation
 
 To simply install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql`.
