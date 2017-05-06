@@ -23,6 +23,10 @@ create or replace type ut_expectation_timestamp under ut_expectation(
   member procedure to_be_less_than(self in ut_expectation_timestamp, a_expected timestamp_unconstrained),
   
   overriding member procedure not_to_equal(self in ut_expectation_timestamp, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null),
-  member procedure not_to_be_between(self in ut_expectation_timestamp, a_lower_bound timestamp_unconstrained, a_upper_bound timestamp_unconstrained)
+  member procedure not_to_be_between(self in ut_expectation_timestamp, a_lower_bound timestamp_unconstrained, a_upper_bound timestamp_unconstrained),
+  member procedure not_to_be_greater_or_equal(self in ut_expectation_timestamp, a_expected timestamp_unconstrained),
+  member procedure not_to_be_greater_than(self in ut_expectation_timestamp, a_expected timestamp_unconstrained),
+  member procedure not_to_be_less_or_equal(self in ut_expectation_timestamp, a_expected timestamp_unconstrained),
+  member procedure not_to_be_less_than(self in ut_expectation_timestamp, a_expected timestamp_unconstrained)
 )
 /

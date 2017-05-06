@@ -23,6 +23,10 @@ create or replace type ut_expectation_yminterval under ut_expectation(
   member procedure to_be_less_than(self in ut_expectation_yminterval, a_expected yminterval_unconstrained),
   
   overriding member procedure not_to_equal(self in ut_expectation_yminterval, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null),
-  member procedure not_to_be_between(self in ut_expectation_yminterval, a_lower_bound yminterval_unconstrained, a_upper_bound yminterval_unconstrained)
+  member procedure not_to_be_between(self in ut_expectation_yminterval, a_lower_bound yminterval_unconstrained, a_upper_bound yminterval_unconstrained),
+  member procedure not_to_be_greater_or_equal(self in ut_expectation_yminterval, a_expected yminterval_unconstrained),
+  member procedure not_to_be_greater_than(self in ut_expectation_yminterval, a_expected yminterval_unconstrained),  
+  member procedure not_to_be_less_or_equal(self in ut_expectation_yminterval, a_expected yminterval_unconstrained),
+  member procedure not_to_be_less_than(self in ut_expectation_yminterval, a_expected yminterval_unconstrained)
 )
 /
