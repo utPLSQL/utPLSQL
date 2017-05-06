@@ -49,6 +49,7 @@ exec ut_coverage.coverage_start_develop();
 @@ut_expectations/ut.expect.to_be_between.GivesSuccessWhenDifferentTypes.sql
 @@ut_expectations/ut.expect.to_be_between.GivesTrueForCorrectValues.sql
 @@ut_expectations/ut.expect.to_be_between.with_text.GivesTheProvidedTextAsMessage.sql
+@@ut_expectations/ut.expect.not_to_be_between.GivesTrueForCorrectValues.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsTrue.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesSuccessWhenExpessionIsFalse.sql
@@ -98,6 +99,8 @@ exec ut_coverage.coverage_start_develop();
 @@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenActualIsNull.sql
 @@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenExpectedIsNull.sql
 @@ut_expectations/ut.expect.to_equal.with_text.GivesTheProvidedTextAsMessage.sql
+@@ut_expectations/ut.expect.not_to_equal.GivesFailureForEqualValues.sql
+@@ut_expectations/ut.expect.not_to_equal.GivesSuccessForDifferentValues.sql
 @@ut_expectations/ut.expect.to_match.sql
 @@lib/RunTest.sql ut_expectations/ut_data_value_object.compare.Gives0WhenComparingIdenticalObjects.sql
 @@lib/RunTest.sql ut_expectations/ut_expectation_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
