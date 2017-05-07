@@ -5,7 +5,7 @@ declare
   l_result    integer;
 begin
 --Act
-  ut.expect( l_actual ).to_match(l_pattern, l_modifiers);
+  ut.expect( l_actual ).&&6.to_match(l_pattern, l_modifiers);
   l_result := ut_expectation_processor.get_status();
 --Assert
   if l_result = &5 then

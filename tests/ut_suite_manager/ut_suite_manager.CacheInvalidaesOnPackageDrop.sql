@@ -16,19 +16,22 @@ end;
 set termout on
 
 declare
-  l_objects_to_run ut_suite_items;
-  test_result number;
+  l_test_report ut_varchar2_list;
 begin
-  ut.run(USER||'.tst_package_to_be_dropped');
+  select * bulk collect into l_test_report from table(ut.run(USER||'.tst_package_to_be_dropped'));
 end;
 /
 
+set termout off
 drop package tst_package_to_be_dropped
 /
+set termout on
 
+declare
+  l_test_report ut_varchar2_list;
 begin
   begin
-    ut.run(user || '.tst_package_to_be_dropped');
+    select * bulk collect into l_test_report from table(ut.run(user || '.tst_package_to_be_dropped'));
   exception
     when others then
       if sqlerrm like '%tst_package_to_be_dropped%does not exist%' then

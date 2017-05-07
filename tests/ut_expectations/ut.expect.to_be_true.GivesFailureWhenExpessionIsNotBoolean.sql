@@ -1,11 +1,10 @@
+PROMPT Gives a failre when expression evaluates to a boolean false
 --Arrange
 declare
-  l_actual   &&1 := &&3;
-  l_expected &&2 := &&4;
   l_result   integer;
 begin
 --Act
-  ut.expect(l_actual).&&5.to_equal(l_expected);
+  ut.expect( 1 ).to_( be_true() );
   l_result :=  ut_expectation_processor.get_status();
 --Assert
   if nvl(:test_result, ut_utils.tr_success) = ut_utils.tr_success and l_result = ut_utils.tr_failure then
@@ -15,3 +14,7 @@ begin
   end if;
 end;
 /
+
+
+
+

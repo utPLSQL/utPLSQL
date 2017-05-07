@@ -1,8 +1,0 @@
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.not_to_be_between.scalar.common.sql 'date' 'sysdate+2' 'sysdate-1' 'sysdate+1' 'ut_utils.tr_success'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.not_to_be_between.scalar.common.sql 'number' '0.8' '0.3' '0.5' 'ut_utils.tr_success'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.not_to_be_between.scalar.common.sql 'varchar2(50)' '''d''' '''a''' '''c''' 'ut_utils.tr_success'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.not_to_be_between.scalar.common.sql 'timestamp' 'systimestamp+1' 'systimestamp-1' 'systimestamp' 'ut_utils.tr_success'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.not_to_be_between.scalar.common.sql 'timestamp with local time zone' 'systimestamp+1' 'systimestamp-1' 'systimestamp' 'ut_utils.tr_success'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.not_to_be_between.scalar.common.sql 'timestamp with time zone' 'systimestamp+1' 'systimestamp-1' 'systimestamp' 'ut_utils.tr_success'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.not_to_be_between.scalar.common.sql 'interval day to second' '''4 01:00:00''' '''2 01:00:00''' '''3 01:00:00''' 'ut_utils.tr_success'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.not_to_be_between.scalar.common.sql 'interval year to month' '''5-1''' '''1-1''' '''2-1''' 'ut_utils.tr_success'"

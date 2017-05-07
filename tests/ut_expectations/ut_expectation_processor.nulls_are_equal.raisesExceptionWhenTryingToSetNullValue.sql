@@ -1,5 +1,3 @@
-PROMPT raises exception when trying to set null value
-
 declare
   e_numeric_or_value_error exception;
   pragma exception_init(e_numeric_or_value_error, -6502);

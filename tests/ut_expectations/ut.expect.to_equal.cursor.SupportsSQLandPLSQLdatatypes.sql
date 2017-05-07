@@ -1,3 +1,4 @@
+set termout off
 create or replace package ut_equal_sys_refcursor_tests is
   --%suite(ut_equal on sys_refcursor data)
   --%suitepath(org.utplsql.test.expectations.equal.refcursor)
@@ -84,15 +85,19 @@ create or replace package body ut_equal_sys_refcursor_tests is
 
 end;
 /
-
+set termout on
 declare
   l_result_reporter ut_reporter_base := ut_documentation_reporter();
   l_status_reporter ut_reporter_base := utplsql_test_reporter();
 begin
   ut_runner.run(':org.utplsql.test', ut_reporters(l_result_reporter, l_status_reporter));
-  ut_output_buffer.lines_to_dbms_output(l_result_reporter.reporter_id);
   select * into :test_result from table(ut_output_buffer.get_lines(l_status_reporter.reporter_id));
+  if :test_result != ut_utils.tr_success then
+    ut_output_buffer.lines_to_dbms_output(l_result_reporter.reporter_id);
+  end if;
 end;
 /
 
+set termout off
 drop package ut_equal_sys_refcursor_tests;
+set termout on
