@@ -16,6 +16,17 @@ create or replace type ut_expectation_timestamp_ltz under ut_expectation(
   limitations under the License.
   */
   overriding member procedure to_equal(self in ut_expectation_timestamp_ltz, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null),
-  member procedure to_be_between(self in ut_expectation_timestamp_ltz, a_lower_bound timestamp_ltz_unconstrained, a_upper_bound timestamp_ltz_unconstrained)
+  member procedure to_be_between(self in ut_expectation_timestamp_ltz, a_lower_bound timestamp_ltz_unconstrained, a_upper_bound timestamp_ltz_unconstrained),
+  member procedure to_be_greater_or_equal(self in ut_expectation_timestamp_ltz, a_expected timestamp_ltz_unconstrained),
+  member procedure to_be_greater_than(self in ut_expectation_timestamp_ltz, a_expected timestamp_ltz_unconstrained),
+  member procedure to_be_less_or_equal(self in ut_expectation_timestamp_ltz, a_expected timestamp_ltz_unconstrained),
+  member procedure to_be_less_than(self in ut_expectation_timestamp_ltz, a_expected timestamp_ltz_unconstrained),
+  
+  overriding member procedure not_to_equal(self in ut_expectation_timestamp_ltz, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null),
+  member procedure not_to_be_between(self in ut_expectation_timestamp_ltz, a_lower_bound timestamp_ltz_unconstrained, a_upper_bound timestamp_ltz_unconstrained),
+  member procedure not_to_be_greater_or_equal(self in ut_expectation_timestamp_ltz, a_expected timestamp_ltz_unconstrained),
+  member procedure not_to_be_greater_than(self in ut_expectation_timestamp_ltz, a_expected timestamp_ltz_unconstrained),
+  member procedure not_to_be_less_or_equal(self in ut_expectation_timestamp_ltz, a_expected timestamp_ltz_unconstrained),
+  member procedure not_to_be_less_than(self in ut_expectation_timestamp_ltz, a_expected timestamp_ltz_unconstrained)
 )
 /

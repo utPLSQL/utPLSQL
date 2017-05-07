@@ -26,6 +26,66 @@ create or replace type body ut_expectation_date as
     ut_utils.debug_log('ut_expectation_date.to_be_between(self in ut_expectation_date, a_lower_bound date, a_upper_bound date)');
     self.to_( ut_be_between(a_lower_bound,a_upper_bound) );
   end;
+  
+  member procedure to_be_greater_or_equal(self in ut_expectation_date, a_expected date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation_date.to_be_greater_or_equal(self in ut_expectation_date, a_expected date)');
+    self.to_( ut_be_greater_or_equal (a_expected) );
+  end;
+
+  member procedure to_be_greater_than(self in ut_expectation_date, a_expected date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation_date.to_be_greater_than(self in ut_expectation_date, a_expected date)');
+    self.to_( ut_be_greater_than (a_expected) );
+  end;
+  
+  member procedure to_be_less_or_equal(self in ut_expectation_date, a_expected date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation_date.to_be_less_or_equal(self in ut_expectation_date, a_expected date)');
+    self.to_( ut_be_less_or_equal (a_expected) );
+  end;
+  
+  member procedure to_be_less_than(self in ut_expectation_date, a_expected date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation_date.to_be_less_than(self in ut_expectation_date, a_expected date');
+    self.to_( ut_be_less_than (a_expected) );
+  end;
+  
+  overriding member procedure not_to_equal(self in ut_expectation_date, a_expected date, a_nulls_are_equal boolean := null) is
+  begin
+    ut_utils.debug_log('ut_expectation_date.not_to_equal(self in ut_expectation, a_expected date, a_nulls_are_equal boolean := null)');
+    self.not_to( ut_equal(a_expected, a_nulls_are_equal) );
+  end;
+  
+  member procedure not_to_be_between(self in ut_expectation_date, a_lower_bound date, a_upper_bound date) is
+  begin
+    ut_utils.debug_log('ut_expectation_date.not_to_be_between(self in ut_expectation_date, a_lower_bound date, a_upper_bound date)');
+    self.not_to( ut_be_between(a_lower_bound,a_upper_bound) );
+  end;
+  
+  member procedure not_to_be_greater_or_equal(self in ut_expectation_date, a_expected date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation_date.not_to_be_greater_or_equal(self in ut_expectation_date, a_expected date)');
+    self.not_to(  ut_be_greater_or_equal (a_expected) );
+  end;
+
+  member procedure not_to_be_greater_than(self in ut_expectation_date, a_expected date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation_date.not_to_be_greater_than(self in ut_expectation_date, a_expected date)');
+    self.not_to(  ut_be_greater_than (a_expected) );
+  end;
+  
+  member procedure not_to_be_less_or_equal(self in ut_expectation_date, a_expected date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation_date.not_to_be_less_or_equal(self in ut_expectation_date, a_expected date)');
+    self.not_to(  ut_be_less_or_equal (a_expected) );
+  end;
+  
+  member procedure not_to_be_less_than(self in ut_expectation_date, a_expected date) is 
+  begin 
+    ut_utils.debug_log('ut_expectation_date.not_to_be_less_than(self in ut_expectation_date, a_expected date');
+    self.not_to(  ut_be_less_than (a_expected) );
+  end;
 
 end;
 /

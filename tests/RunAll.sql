@@ -42,17 +42,11 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithKeyValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithMultilineComment.sql
 
-@@ut_expectations/ut.expect.to_be_between.GivesFailureForDifferentValues.sql
-@@ut_expectations/ut.expect.to_be_between.GivesFailureWhenActualIsNull.sql
-@@ut_expectations/ut.expect.to_be_between.GivesFailureWhenBothActualAndExpectedRangeIsNull.sql
-@@ut_expectations/ut.expect.to_be_between.GivesFailureWhenExpectedRangeIsNull.sql
-@@ut_expectations/ut.expect.to_be_between.GivesSuccessWhenDifferentTypes.sql
-@@ut_expectations/ut.expect.to_be_between.GivesTrueForCorrectValues.sql
-@@ut_expectations/ut.expect.to_be_between.with_text.GivesTheProvidedTextAsMessage.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsTrue.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesSuccessWhenExpessionIsFalse.sql
-@@ut_expectations/ut.expect.to_be_like.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_like.FailsForUnsupportedDatatype.sql
 @@ut_expectations/ut.expect.to_be_not_null.GivesFailureWhenActualIsNull.sql
 @@ut_expectations/ut.expect.to_be_not_null.GivesSuccessWhenActualIsNotNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenAnydataIsNull.sql
@@ -62,6 +56,7 @@ exec ut_coverage.coverage_start_develop();
 @@ut_expectations/ut.expect.to_be_null.GivesSuccessWhenActualIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.refcursor.GivesSuccessWhenCursorIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsFalse.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesSuccessWhenExpessionIsTrue.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenBothObjectsAreNullButDifferentType.sql
@@ -98,16 +93,21 @@ exec ut_coverage.coverage_start_develop();
 @@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenActualIsNull.sql
 @@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenExpectedIsNull.sql
 @@ut_expectations/ut.expect.to_equal.with_text.GivesTheProvidedTextAsMessage.sql
-@@ut_expectations/ut.expect.to_match.sql
+@@ut_expectations/ut.expect.not_to_equal.GivesFailureForDifferentDataTypes.sql
+@@ut_expectations/ut.expect.not_to_equal.GivesFailureForEqualValues.sql
+@@ut_expectations/ut.expect.not_to_equal.GivesSuccessForDifferentValues.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_match.FailsForUnsupportedDatatype.sql
 @@lib/RunTest.sql ut_expectations/ut_data_value_object.compare.Gives0WhenComparingIdenticalObjects.sql
 @@lib/RunTest.sql ut_expectations/ut_expectation_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
 
 @@ut_matchers/be_between.sql
+@@ut_matchers/be_empty.sql
+@@ut_matchers/be_like.sql
 @@ut_matchers/greater_or_equal.sql
 @@ut_matchers/greater_than.sql
 @@ut_matchers/less_or_equal.sql
 @@ut_matchers/less_than.sql
-@@ut_matchers/be_empty.sql
+@@ut_matchers/match.sql
 
 @@lib/RunTest.sql ut_matchers/timestamp_between.sql
 @@lib/RunTest.sql ut_matchers/timestamp_ltz_between.sql

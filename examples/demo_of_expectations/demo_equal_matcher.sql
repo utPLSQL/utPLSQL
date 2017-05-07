@@ -63,7 +63,7 @@ create or replace package body demo_equal_matcher as
     l_expected := demo_department('Sales');
     --get the actual data
     l_actual   := demo_department('Sales');
-    ut.expect(anydata.convertObject(l_actual)).to_(equal(anydata.convertObject(l_expected))
+    ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected)
     );
   end;
 
@@ -75,7 +75,7 @@ create or replace package body demo_equal_matcher as
     l_expected := demo_department('Sales');
     --get the actual data
     -- nothing done
-    ut.expect(anydata.convertObject(l_actual)).to_(equal(anydata.convertObject(l_expected))
+    ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected)
     );
   end;
 
@@ -84,24 +84,21 @@ create or replace package body demo_equal_matcher as
     l_actual   demo_department;
   begin
     l_actual   := demo_department('Sales');
-    ut.expect(anydata.convertObject(l_actual)).to_(equal(anydata.convertObject(l_expected))
-    );
+    ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected));
   end;
 
   procedure object_compare_null_both_ok is
     l_expected demo_department;
     l_actual   demo_department;
   begin
-    ut.expect(anydata.convertObject(l_actual)).to_(equal(anydata.convertObject(l_expected))
-    );
+    ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected));
   end;
 
   procedure object_compare_null_both_fail is
     l_expected demo_department;
     l_actual   demo_department;
   begin
-    ut.expect(anydata.convertObject(l_actual)).to_(equal(anydata.convertObject(l_expected),false)
-    );
+    ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected),false);
   end;
 
 
@@ -113,8 +110,7 @@ create or replace package body demo_equal_matcher as
     l_expected := demo_department('Sales');
     --get the actual data
     l_actual   := demo_department('HR');
-    ut.expect(anydata.convertObject(l_actual)).to_(equal(anydata.convertObject(l_expected))
-      );
+    ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected));
   end;
 
   procedure object_compare_different_type is
@@ -125,8 +121,7 @@ create or replace package body demo_equal_matcher as
     l_expected := demo_department('Sales');
     --get the actual data
     l_actual   := demo_department_new('Sales');
-    ut.expect(anydata.convertObject(l_actual)).to_(equal(anydata.convertObject(l_expected))
-    );
+    ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected));
   end;
 
 end;

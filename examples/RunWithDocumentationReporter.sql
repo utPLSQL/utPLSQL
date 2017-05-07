@@ -28,16 +28,16 @@ create or replace package body demo_doc_reporter1 is
 
   procedure test_without_name is
   begin
-    ut.expect(1).to_(equal(1));
+    ut.expect(1).to_equal(1);
   end;
 
   procedure failing_test is
   begin
-    ut.expect(1).to_(equal(2));
+    ut.expect(1).to_equal(2);
   end;
   procedure failing_no_name is
   begin
-    ut.expect(sysdate).to_(equal(to_char(sysdate)));
+    ut.expect(sysdate).to_equal(to_char(sysdate));
   end;
   procedure failing_exception_raised is
     l_date date;
@@ -77,7 +77,7 @@ create or replace package body suite_package_without_name is
 
   procedure passing_test2 is
   begin
-    ut.expect(1).to_(equal(1));
+    ut.expect(1).to_equal(1);
   end;
 end;
 /

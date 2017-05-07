@@ -12,7 +12,7 @@ begin
   open l_expected for select l_date-l_second some_date from dual;
   ut.reset_nls;
 
-  ut.expect(l_actual).not_to( equal(l_expected));
+  ut.expect(l_actual).not_to_equal(l_expected);
 
   l_result :=  ut_expectation_processor.get_status();
 --Assert

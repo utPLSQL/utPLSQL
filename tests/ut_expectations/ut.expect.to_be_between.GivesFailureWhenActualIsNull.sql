@@ -1,5 +1,0 @@
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_between.scalar.common.sql 'date' 'NULL' 'sysdate-1' 'sysdate' 'ut_utils.tr_failure'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_between.scalar.common.sql 'number' 'NULL' '0' '1' 'ut_utils.tr_failure'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_between.scalar.common.sql 'timestamp' 'NULL' 'systimestamp-1' 'systimestamp' 'ut_utils.tr_failure'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_between.scalar.common.sql 'timestamp with local time zone' 'NULL' 'systimestamp-1' 'systimestamp' 'ut_utils.tr_failure'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_between.scalar.common.sql 'timestamp with time zone' 'NULL' 'systimestamp-1' 'systimestamp' 'ut_utils.tr_failure'"
