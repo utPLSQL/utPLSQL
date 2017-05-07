@@ -1,11 +1,11 @@
-PROMPT Reports error when unit test package for a test is in invalid state
-
+set termout off
 --Arrange
 create or replace package invalid_package is
 		 v_variable non_existing_type;
 		 procedure ut_exampletest;
 end;
 /
+set termout on
 
 declare
 	simple_test ut_test := ut_test(a_object_name => 'invalid_package', a_name => 'ut_exampletest');
@@ -22,5 +22,7 @@ begin
 end;
 /
 
+set termout off
 --Cleanup
 drop package invalid_package;
+set termout off

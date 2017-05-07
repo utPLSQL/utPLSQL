@@ -4,7 +4,7 @@ declare
   l_value2 &&1 := &&3;
 begin
 --Act
-  ut.expect(l_value1).to_(be_less_than(l_value2));
+  ut.expect(l_value1).&&5.to_be_less_than(l_value2);
 --Assert
   if ut_expectation_processor.get_status = &&4 then
     :test_result := ut_utils.tr_success;

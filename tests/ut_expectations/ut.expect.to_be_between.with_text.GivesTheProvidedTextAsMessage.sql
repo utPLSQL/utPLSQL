@@ -1,5 +1,0 @@
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_between.scalar.with_message.common.sql 'date' 'sysdate' 'sysdate-1' 'sysdate+1'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_between.scalar.with_message.common.sql 'number' '0.4' '0.3' '0.5'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_between.scalar.with_message.common.sql 'timestamp' 'systimestamp' 'systimestamp-1' 'systimestamp'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_between.scalar.with_message.common.sql 'timestamp with local time zone' 'systimestamp' 'systimestamp-1' 'systimestamp'"
-@@lib/RunTest.sql "ut_expectations/common/ut.expect.to_be_between.scalar.with_message.common.sql 'timestamp with time zone' 'systimestamp' 'systimestamp-1' 'systimestamp'"

@@ -75,10 +75,16 @@ create or replace type body ut_be_between is
   end;
 
   overriding member function run_matcher(self in out nocopy ut_be_between, a_actual ut_data_value) return boolean is
+    l_lower_result boolean;
+    l_upper_result boolean;
     l_result boolean;
   begin
     if self.lower_bound.data_type = a_actual.data_type then
-      l_result := a_actual >= self.lower_bound and a_actual <= self.upper_bound;
+      l_lower_result := a_actual >= self.lower_bound;
+      l_upper_result := a_actual <= self.upper_bound;
+      if l_lower_result is not null and l_upper_result is not null then
+        l_result := l_lower_result and l_upper_result;
+      end if;
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
     end if;

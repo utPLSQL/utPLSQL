@@ -1,6 +1,7 @@
 create or replace package test_package_1 is
 
   --%suite
+  --%displayname(test_package_1)
   --%suitepath(tests)
 
   gv_glob_val number;
