@@ -57,45 +57,52 @@ To sign up to the chat use [this link](http://utplsql-slack-invite.herokuapp.com
 
 __Version 2 to Version 3 Comparison__
 
-The following table is a work in progress right now, and **will** change.   If you have great idea that you would like to see in version 3 please create an [issue on GitHub](https://github.com/utPLSQL/utPLSQL/issues) or discuss it with us in the [Slack chat rooms](http://utplsql-slack-invite.herokuapp.com/).  
+If you have great feature in mind, that you would like to see in utPLSQL v3 please create an [issue on GitHub](https://github.com/utPLSQL/utPLSQL/issues) or discuss it with us in the [Slack chat rooms](http://utplsql-slack-invite.herokuapp.com/).  
 
 
-| Feature                   | Version 2     | Version 3              |
-| ------------------------- | ------------- | ---------------------- |
-| Easy to install           | Yes           | Yes                    |
-| Documentation             | Yes           | Sparse - in progress   |
-| License                   | GPL v2        | Apache 2.0             |
-| **Tests Creation**        |               |                        |
-| Declarative test configuration coupled with the source code | No | Yes - Annotations<sup>1</sup>|
-| Tests as Packages         | Yes           | Yes                    |
-| Multiple Tests in a single Package | Yes  |  Yes                   |
-| Different Setup/Teardown <br/> For Each Test in a Single Package | No  | Yes |
-| Suite Definition Storage  | Tables        | Package - Annotations<sup>1</sup>  |
-| Multiple Suites           | Yes           | Yes                    |
-| Suites can contain Suites | No            | Yes                    |
-| Automatic Test detection  | No            | Yes - Annotations<sup>1</sup>      |
-| Require Prefix on Test packages   | Yes   | No                     |
-| Require Prefix on Test procedures | Yes   | No                     |
-| Auto Compilation of Tests | Yes           | No (Let us know if you use this) | 
-| Assertion Library         | 30 Assertions<sup>2</sup> | Still under development |
-| Custom Record Assertions	| requires generated code through **utRecEq** Package | On Roadmap  | 
-| Test Skeleton Generation  | Yes           | On Roadmap             |
-| **Test Execution<sup>3</sup>** |          |                        |
-| Single Test Execution     |  Yes          | Yes                    | 
-| Test Suite Execution      |  Yes          | Yes                    |
-| Subset of Suite Execution |  No           | Yes                    |
-| Multiple Suite Execution  |  No           | Yes                    |
-| Code Coverage             |  No           | On Roadmap             |
-| Framework Transaction Control  | No       | Yes - Optional         | 
-| **Test Output**           |               |                        |
-| Multiple Output Reporters can be used during test execution | No | Yes |
-| DBMS_OUTPUT               | Yes           | Yes (format changed)   |
-| Stored in Table           | Yes           | On Roadmap             |
-| XUnit XML Format          | No            | Yes                    |
-| HTML Format               | Yes           | On Roadmap             |
-| File                      | Yes           | On Roadmap             |
-| Realtime test execution results | No       | Yes             |
-| Custom Output reporter    | Yes           | Yes                    |
+| Feature                                | Version 2              | Version 3              |
+| -------------------------------------- | ---------------------- | ---------------------- |
+| Easy to install                        | Yes                    | Yes                    |
+| Documentation                          | Yes                    | Yes                    |
+| License                                | GPL v2                 | Apache 2.0             |
+| **Tests Creation**                     |                        |                        |
+| Declarative test configuration         | No                     | Yes - Annotations<sup>1</sup>|
+| Tests as Packages                      | Yes                    | Yes                    |
+| Multiple Tests in a single Package     | Yes                    | Yes                    |
+| Optional Setup/Teardown                | No                     | Yes                    |
+| Different Setup/Teardown <br/> For Each Test in a Single Package| No  | Yes - Annotations<sup>1</sup> |
+| Suite Definition Storage               | Tables                 | Package - Annotations<sup>1</sup> |
+| Multiple Suites                        | Yes                    | Yes                    |
+| Suites can contain Suites              | No                     | Yes                    |
+| Automatic Test detection               | No                     | Yes - Annotations<sup>1</sup>|
+| Unconstrained naming of Test packages  | No - prefixes          | Yes - name not relevant|
+| Require Prefix on Test procedures      | No - prefixes          | Yes - name not relevant|
+| Auto Compilation of Tests              | Yes                    | No (Let us know if you use this) | 
+| Assertion Library                      | 30 assertions<sup>2</sup> | 26 matchers (13 + 13 megated) |
+| Extendable assertions                  | No                     | Yes - custom matchers  |
+| PLSQL Record Assertions	             | generated code through **utRecEq** Package | [possible on Oracle 12c](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1) using [cursor matchers](docs/userguide/expectations.md#comparing-cursors)| 
+| Test Skeleton Generation               | Yes                    | On Roadmap             |
+| **Test Execution<sup>3</sup>**         |                        |                        |
+| Single Test Package Execution          |  Yes                   | Yes                    | 
+| Single Test Procedure Execution        |  No                    | Yes                    | 
+| Test Suite Execution                   |  Yes                   | Yes                    |
+| Subset of Suite Execution              |  No                    | Yes                    |
+| Multiple Suite Execution               |  No                    | Yes                    |
+| Organizing Suites into hierarchies     |  No                    | Yes                    |
+| **Code Coverage Reporting**            |  No                    | Yes                    |
+| Html Coverage Report                   |  No                    | Yes                    |
+| Sonar XML Coverage Report              |  No                    | Yes                    |
+| Coveralls Json Coverage Report         |  No                    | Yes                    |
+| Framework Transaction Control          |  No                    | Yes - Annotations<sup>1</sup> | 
+| **Test Output**                        |                        |                        |
+| Real-time test execution progress reporting | No                | Yes                    |
+| Multiple Output Reporters can be used during test execution | No| Yes                    |
+| DBMS_OUTPUT                            | Yes                    | Yes (clean formatting) |
+| File                                   | Yes (to db server only)| Yes (on client side)   |
+| Stored in Table                        | Yes                    | No (can be added as custom reporter)
+| XUnit format support                   | No                     | Yes                    |
+| HTML Format                            | Yes                    | No                     |
+| Custom Output reporter                 | Yes-needs configuration| Yes - no config needed |
 
 <sup>1</sup> Annotations are specially formatted comments in your package specification.  This enables *declarative* test configuration that is coupled with the source code.   See Documentation for more details. 
 
