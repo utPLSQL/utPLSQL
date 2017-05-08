@@ -232,6 +232,13 @@ begin
 end;
 ```
 
+### Using cursors to compare PLSQL records on Oracle 12c
+
+There is a great article by Tim Hall on [using the TABLE Operator with Locally Defined Types in PL/SQL](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1).
+If you are on Oracle 12c, you can benefit from this feature to make comparison of PLSQL records and tables super-simple in utPLSQL.
+You can use the feature described in article to convert PLSQL records and collection types to cursors. Complex cursor data can then be compared in utPLQL.  
+
+
 ### Comparing cursor data containing DATE fields 
 
 **Important note**
