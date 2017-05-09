@@ -1,10 +1,15 @@
 #!/bin/sh
 set -e
 
+# Not forget to convert line endings to Unix.
+# http://linuxcommand.org/man_pages/dos2unix1.html
+# sed -i 's/\r//' ut_run
+# sed -i 's/\r//' file_list
+
 clientDir="$(dirname "$(readlink -f "$0")")"
 projectDir="$(pwd)"
 
-if [ ! "$clientDir" == "${clientDir/ /}" ]; then
+if [ "$clientDir" != "${clientDir% *}" ]; then
     echo "Error: ut_run script path cannot have spaces."
     exit 1
 fi
