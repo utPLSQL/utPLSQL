@@ -86,12 +86,12 @@ In this situation you need to provide list of schema names that the tested code 
 
 Example:
 ```sql
-exec ut.run('ut3_user.test_award_bonus', ut_coverage_html_reporter(), a_schema_names=>ut_varchar2_list('usr'));
+exec ut.run('ut3_user.test_award_bonus', ut_coverage_html_reporter(), a_coverage_schemes=>ut_varchar2_list('usr'));
 ```
 Executes test `test_award_bonus` in schema `ut3_user` and gather coverage for that execution on all non `unit-test` objects from schema `usr`.
 
 You can combine schema names with include/exclude parameters and all will be applied.
-The `a_schema_names` parameter takes precedence however, so if include list contains objects from other schemes, that will not be considered.  
+The `a_coverage_schemes` parameter takes precedence however, so if include list contains objects from other schemes, that will not be considered.  
  
 Example:
 ```sql
@@ -99,7 +99,7 @@ begin
   ut.run(
     'ut3_user.test_award_bonus', 
     ut_coverage_html_reporter(),
-    a_schema_names => ut_varchar2_list('usr'), 
+    a_coverage_schemes => ut_varchar2_list('usr'), 
     a_exclude_objects => ut_varchar2_list('usr.betwnstr'),
     a_include_objects => ut_varchar2_list('usr.award_bonus')
   );
@@ -126,7 +126,7 @@ begin
   ut.run(
     'usr', 
     ut_coverage_html_reporter(),
-    a_project_file_mappings => 
+    a_source_file_mappings => 
       ut_coverage_file_mappings(
         ut_coverage_file_mapping(
           file_name    => 'sources/hr/award_bonus.prc',
@@ -157,7 +157,7 @@ begin
   ut.run(
     'usr', 
     ut_coverage_html_reporter(),
-    a_project_files => ut_varchar2_list('sources/hr/award_bonus.prc','sources/hr/betwnstr.fnc')
+    a_source_files => ut_varchar2_list('sources/hr/award_bonus.prc','sources/hr/betwnstr.fnc')
   );
 end;
 ```
@@ -189,19 +189,6 @@ Examples of filename paths that will be mapped correctly using predefined rules.
 * `[...]directory[\subdirectory[\...]]\schema_name.object_name.(tpb|pkb|trg|fnc|prc)`
 
 If file names in your project structure are not prefixed with schema name (like above), the coverage report will look for objects to match the file names in the `current schema` of the connection that was used to execute tests with coverage.
-If for whatever reasons you use a user and current schema that is different then schem that holds your project code, you should use `a_schema_name` parameter to inform coverage reporter about database schema to be used for object lookup.
-
-Example:
-```sql
-begin
-  ut.run(
-    'usr', 
-    ut_coverage_html_reporter(),
-    a_schema_names => ut_varchar2_list('hr'),
-    a_file_paths  => ut_varchar2_list('sources/hr/award_bonus.prc','sources/hr/betwnstr.fnc')
-  );
-end;
-```
 
 If your project structure is different, you may define your own mapping rule using regex.
 

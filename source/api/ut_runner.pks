@@ -35,51 +35,51 @@ create or replace package ut_runner authid current_user is
 
   procedure run(
     a_path varchar2 := null, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_schema_names ut_varchar2_list := null, a_project_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
+    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   );
 
   procedure run(
     a_path varchar2 := null, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_schema_names ut_varchar2_list := null, a_project_files ut_varchar2_list, a_test_files ut_varchar2_list,
+    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   );
 
   procedure run(
     a_path varchar2, a_reporters ut_reporters, a_color_console boolean := false,
-    a_schema_names ut_varchar2_list := null, a_project_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
+    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   );
 
   procedure run(
     a_path varchar2, a_reporters ut_reporters, a_color_console boolean := false,
-    a_schema_names ut_varchar2_list := null, a_project_files ut_varchar2_list, a_test_files ut_varchar2_list,
+    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   );
 
   -- TODO - implementation to be changed
   procedure run(
     a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_schema_names ut_varchar2_list := null, a_project_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
+    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   );
 
   procedure run(
     a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_schema_names ut_varchar2_list := null, a_project_files ut_varchar2_list, a_test_files ut_varchar2_list,
+    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   );
 
   -- TODO - implementation to be changed
   procedure run(
     a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false,
-    a_schema_names ut_varchar2_list := null, a_project_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
+    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   );
 
   procedure run(
     a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false,
-    a_schema_names ut_varchar2_list := null, a_project_files ut_varchar2_list, a_test_files ut_varchar2_list,
+    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   );
 

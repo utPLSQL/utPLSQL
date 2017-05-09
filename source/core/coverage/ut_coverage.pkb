@@ -16,22 +16,6 @@ create or replace package body ut_coverage is
   limitations under the License.
   */
 
-  /**
-   * Private functions
-   */
-  function to_ut_object_list(a_names ut_varchar2_list) return ut_object_names is
-    l_result ut_object_names;
-  begin
-    if a_names is not null then
-      l_result := ut_object_names();
-      for i in 1 .. a_names.count loop
-        l_result.extend;
-        l_result(l_result.last) := ut_object_name(a_names(i));
-      end loop;
-    end if;
-    return l_result;
-  end;
-
   -- The source query has two important transformations done in it.
   -- the flag: to_be_skipped ='Y' is set for a line of code that is badly reported by DBMS_PROFILER as executed 0 times.
   -- This includes lines that are:
