@@ -15,7 +15,7 @@ begin
   --act
   select *
   bulk collect into l_output_data
-  from table(ut.run('test_reporters',ut_sonar_test_reporter(a_file_paths=>ut_varchar2_list('tests/helpers/test_reporters.pkb'))));
+  from table(ut.run('test_reporters',ut_sonar_test_reporter(),a_source_files=> null, a_test_files=>ut_varchar2_list('tests/helpers/test_reporters.pkb')));
 
   l_output := ut_utils.table_to_clob(l_output_data);
 

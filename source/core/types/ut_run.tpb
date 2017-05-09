@@ -16,12 +16,30 @@ create or replace type body ut_run as
   limitations under the License.
   */
 
-  constructor function ut_run(self in out nocopy ut_run, a_items ut_suite_items, a_run_paths ut_varchar2_list := null) return self as result is
+  constructor function ut_run(
+    self in out nocopy ut_run, a_items ut_suite_items, a_run_paths ut_varchar2_list := null,
+    a_coverage_options ut_coverage_options := null, a_test_file_mappings ut_file_mappings := null
+  ) return self as result is
+    l_run_schemes ut_varchar2_list;
   begin
     self.run_paths := a_run_paths;
     self.self_type := $$plsql_unit;
     self.items := a_items;
     self.results_count := ut_results_counter();
+    self.coverage_options := a_coverage_options;
+    self.test_file_mappings := coalesce(a_test_file_mappings, ut_file_mappings());
+    if self.coverage_options is not null then
+      l_run_schemes := get_run_schemes();
+      coverage_options.schema_names := l_run_schemes;
+      if coverage_options.exclude_objects is not null then
+        coverage_options.exclude_objects :=
+          coverage_options.exclude_objects
+          multiset union all
+          ut_suite_manager.get_schema_ut_packages(l_run_schemes);
+      else
+        coverage_options.exclude_objects := ut_suite_manager.get_schema_ut_packages(l_run_schemes);
+      end if;
+    end if;
     return;
   end;
 

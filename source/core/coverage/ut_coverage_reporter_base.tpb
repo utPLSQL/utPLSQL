@@ -21,11 +21,6 @@ create or replace type body ut_coverage_reporter_base is
   begin
     (self as ut_reporter_base).before_calling_run(a_run);
     ut_coverage.coverage_start();
-    -- if no schema names were defined for the run, then set them from schema names of tests that are to be executed
-    if ut_coverage.get_include_schema_names() is null then
-      ut_coverage.set_include_schema_names(l_schema_names);
-      ut_coverage.set_unit_test_packages_to_skip(ut_suite_manager.get_schema_ut_packages(l_schema_names));
-    end if;
   end;
 
   overriding final member procedure before_calling_before_all(self in out nocopy ut_coverage_reporter_base, a_suite in ut_logical_suite) is

@@ -15,30 +15,11 @@ create or replace type ut_sonar_test_reporter under ut_reporter_base(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  file_mappings ut_coverage_file_mappings,
+  file_mappings ut_file_mappings,
 
   constructor function ut_sonar_test_reporter(
-    self in out nocopy ut_sonar_test_reporter,
-    a_object_owner varchar2 := null,
-    a_file_paths ut_varchar2_list,
-    a_regex_pattern varchar2,
-    a_object_owner_subexpression positive,
-    a_object_name_subexpression positive,
-    a_object_type_subexpression positive,
-    a_file_to_object_type_mapping ut_key_value_pairs
+    self in out nocopy ut_sonar_test_reporter
   ) return self as result,
-
-  constructor function ut_sonar_test_reporter(
-    self in out nocopy ut_sonar_test_reporter,
-    a_object_owner varchar2 := null,
-    a_file_paths ut_varchar2_list
-  ) return self as result,
-
-  constructor function ut_sonar_test_reporter(
-    self in out nocopy ut_sonar_test_reporter,
-    a_file_mappings       ut_coverage_file_mappings
-  ) return self as result,
-
 
   overriding member procedure before_calling_run(self in out nocopy ut_sonar_test_reporter, a_run in ut_run),
   overriding member procedure before_calling_suite(self in out nocopy ut_sonar_test_reporter, a_suite ut_logical_suite),

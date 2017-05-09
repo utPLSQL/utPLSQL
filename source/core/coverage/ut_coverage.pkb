@@ -16,29 +16,6 @@ create or replace package body ut_coverage is
   limitations under the License.
   */
 
-  g_unit_test_packages ut_object_names;
-  g_schema_names       ut_varchar2_list;
-  g_include_list       ut_object_names;
-  g_exclude_list       ut_object_names;
-  g_file_mappings      ut_coverage_file_mappings;
-
-
-  /**
-   * Private functions
-   */
-  function to_ut_object_list(a_names ut_varchar2_list) return ut_object_names is
-    l_result ut_object_names;
-  begin
-    if a_names is not null then
-      l_result := ut_object_names();
-      for i in 1 .. a_names.count loop
-        l_result.extend;
-        l_result(l_result.last) := ut_object_name(a_names(i));
-      end loop;
-    end if;
-    return l_result;
-  end;
-
   -- The source query has two important transformations done in it.
   -- the flag: to_be_skipped ='Y' is set for a line of code that is badly reported by DBMS_PROFILER as executed 0 times.
   -- This includes lines that are:
@@ -51,11 +28,11 @@ create or replace package body ut_coverage is
   -- The subquery is optimized by:
   -- - COALESCE function -> it will execute only for TRIGGERS
   -- - scalar subquery cache -> it will only execute once for one trigger source code.
-  function populate_sources_tmp_table return varchar2 is
+  function populate_sources_tmp_table(a_coverage_options ut_coverage_options) return varchar2 is
     l_result varchar2(32767);
     l_full_name varchar2(100);
   begin
-    if g_file_mappings is not null then
+    if a_coverage_options.file_mappings is not null then
       l_full_name := 'f.file_name';
     else
       l_full_name := 'lower(s.owner||''.''||s.name)';
@@ -93,9 +70,9 @@ create or replace package body ut_coverage is
                     then 'Y'
                  end as to_be_skipped
             from all_source s]';
-    if g_file_mappings is not null then
+    if a_coverage_options.file_mappings is not null then
       l_result := l_result || '
-            join table(:g_file_mappings) f
+            join table(:file_mappings) f
               on s.name  = f.object_name
              and s.type  = f.object_type
              and s.owner = f.object_owner
@@ -108,127 +85,29 @@ create or replace package body ut_coverage is
              and s.type not in ('PACKAGE', 'TYPE', 'JAVA SOURCE')
              --Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
              and (s.owner, s.name) not in (select el.owner, el.name from table(:l_skipped_objects) el)]';
-    if g_include_list is null then
+    if a_coverage_options.include_objects is null then
       l_result := l_result || '
-             and :g_include_list is null';
+             and :include_objects is null';
     else
       l_result := l_result || '
-             and (s.owner, s.name) in (select il.owner, il.name from table(:g_include_list) il)';
+             and (s.owner, s.name) in (select il.owner, il.name from table(:include_objects) il)';
     end if;
       l_result := l_result || '
              )
        where line > 0';
     return l_result;
   end;
+
   /**
   * Public functions
   */
-  function default_file_to_obj_type_map return ut_key_value_pairs is
-  begin
-    return ut_key_value_pairs(
-        ut_key_value_pair('fnc', 'FUNCTION'),
-        ut_key_value_pair('prc', 'PROCEDURE'),
-        ut_key_value_pair('trg', 'TRIGGER'),
-        ut_key_value_pair('tpb', 'TYPE BODY'),
-        ut_key_value_pair('pkb', 'PACKAGE BODY'),
-        ut_key_value_pair('bdy', 'PACKAGE BODY'),
-        ut_key_value_pair('trg', 'TRIGGER')
-    );
-  end;
-
-  function build_file_mappings(
-    a_object_owner                varchar2,
-    a_file_paths                  ut_varchar2_list,
-    a_file_to_object_type_mapping ut_key_value_pairs := default_file_to_obj_type_map(),
-    a_regex_pattern               varchar2 := gc_file_mapping_regex,
-    a_object_owner_subexpression  positive := gc_regex_owner_subexpression,
-    a_object_name_subexpression   positive := gc_regex_name_subexpression,
-    a_object_type_subexpression   positive := gc_regex_type_subexpression
-  ) return ut_coverage_file_mappings is
-    type tt_key_values is table of varchar2(4000) index by varchar2(4000);
-    l_key_values tt_key_values;
-    l_mappings   ut_coverage_file_mappings;
-    l_mapping    ut_coverage_file_mapping;
-    l_object_type_key varchar2(4000);
-    l_object_type     varchar2(4000);
-    function to_hash_table(a_key_value_tab ut_key_value_pairs) return tt_key_values is
-      l_result tt_key_values;
-    begin
-      if a_key_value_tab is not null then
-        for i in 1 .. a_key_value_tab.count loop
-          l_result(upper(a_key_value_tab(i).key)) := a_key_value_tab(i).value;
-        end loop;
-      end if;
-      return l_result;
-    end;
-  begin
-    if a_file_paths is not null then
-      l_key_values := to_hash_table(a_file_to_object_type_mapping);
-      l_mappings := ut_coverage_file_mappings();
-      for i in 1 .. a_file_paths.count loop
-        l_object_type_key := upper(regexp_substr(a_file_paths(i), a_regex_pattern,1,1,'i',a_object_type_subexpression));
-        if l_key_values.exists(l_object_type_key) then
-          l_object_type := upper(l_key_values(l_object_type_key));
-        else
-          l_object_type := null;
-        end if;
-        l_mapping := ut_coverage_file_mapping(
-          file_name => a_file_paths(i),
-          object_owner => coalesce(
-            upper(regexp_substr(a_file_paths(i), a_regex_pattern, 1, 1, 'i', a_object_owner_subexpression))
-            , a_object_owner, sys_context('USERENV', 'CURRENT_SCHEMA')
-          ),
-          object_name => upper(regexp_substr(a_file_paths(i), a_regex_pattern, 1, 1, 'i', a_object_name_subexpression)),
-          object_type => l_object_type
-        );
-        l_mappings.extend();
-        l_mappings(l_mappings.last) := l_mapping;
-      end loop;
-    end if;
-    return l_mappings;
-  end;
-
-  function get_include_schema_names return ut_varchar2_list is
-  begin
-    return g_schema_names;
-  end;
-
-  procedure set_include_schema_names(a_schema_names ut_varchar2_list) is
-  begin
-    g_schema_names  := a_schema_names;
-  end;
-
-  procedure init(
-    a_schema_names        ut_varchar2_list,
-    a_include_object_list ut_varchar2_list,
-    a_exclude_object_list ut_varchar2_list
-  ) is
-  begin
-    g_schema_names  := a_schema_names;
-    g_include_list  := to_ut_object_list(a_include_object_list);
-    g_exclude_list  := to_ut_object_list(a_exclude_object_list);
-  end;
-
-  procedure init(
-    a_file_mappings       ut_coverage_file_mappings,
-    a_include_object_list ut_varchar2_list,
-    a_exclude_object_list ut_varchar2_list
-  ) is
-  begin
-    g_include_list  := to_ut_object_list(a_include_object_list);
-    g_exclude_list  := to_ut_object_list(a_exclude_object_list);
-    g_file_mappings := a_file_mappings;
-  end;
-
   procedure coverage_start is
   begin
-    g_unit_test_packages := ut_object_names();
     ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp));
   end;
 
   procedure coverage_start_develop is
   begin
-    g_unit_test_packages := ut_object_names();
     ut_coverage_helper.coverage_start_develop();
   end;
 
@@ -252,12 +131,7 @@ create or replace package body ut_coverage is
     ut_coverage_helper.coverage_stop_develop();
   end;
 
-  procedure set_unit_test_packages_to_skip(a_ut_objects ut_object_names) is
-  begin
-    g_unit_test_packages := a_ut_objects;
-  end;
-
-  function get_coverage_data return t_coverage is
+  function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
 
     pragma autonomous_transaction;
 
@@ -275,23 +149,22 @@ create or replace package body ut_coverage is
     type t_source_lines is table of binary_integer;
     l_source_lines     t_source_lines;
     line_no            binary_integer;
-    l_schema_names     ut_varchar2_list := coalesce(g_schema_names,ut_varchar2_list(sys_context('USERENV','CURRENT_SCHEMA')));
+    l_schema_names     ut_varchar2_list;
     l_query            varchar2(32767);
   begin
+    l_schema_names := coalesce(a_coverage_options.schema_names, ut_varchar2_list(sys_context('USERENV','CURRENT_SCHEMA')));
 
     if not ut_coverage_helper.is_develop_mode() then
       --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
-      l_skipped_objects := ut_utils.get_utplsql_objects_list()
-                           multiset union all g_unit_test_packages
-                           multiset union all coalesce(g_exclude_list, ut_object_names());
+      l_skipped_objects := ut_utils.get_utplsql_objects_list() multiset union all coalesce(a_coverage_options.exclude_objects, ut_object_names());
     end if;
 
     --prepare global temp table with sources
     delete from ut_coverage_sources_tmp;
-    if g_file_mappings is not null then
-      execute immediate populate_sources_tmp_table() using g_file_mappings, l_skipped_objects, g_include_list;
+    if a_coverage_options.file_mappings is not null then
+      execute immediate populate_sources_tmp_table(a_coverage_options) using a_coverage_options.file_mappings, l_skipped_objects, a_coverage_options.include_objects;
     else
-      execute immediate populate_sources_tmp_table() using l_schema_names, l_skipped_objects, g_include_list;
+      execute immediate populate_sources_tmp_table(a_coverage_options) using l_schema_names, l_skipped_objects, a_coverage_options.include_objects;
     end if;
     commit;
 
