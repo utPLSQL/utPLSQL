@@ -355,36 +355,41 @@ begin
   p(  'declare');
   p(  '  v_reporter       ut_reporter_base;');
   p(  '  v_reporters_list ut_reporters := ut_reporters();');
+  p(  '  v_source_files   ut_varchar2_list;');
+  p(  '  v_test_files     ut_varchar2_list;');
   p(  'begin');
   if :l_run_params_cur%isopen then
     loop
       fetch :l_run_params_cur into l_reporter_id, l_reporter_name;
-      exit when :l_run_params_cur%notfound;
-        if lower(l_reporter_name) in ('ut_coveralls_reporter', 'ut_coverage_sonar_reporter', 'ut_coverage_html_reporter') then
-          p('  v_reporter := '||l_reporter_name||'( a_file_paths => ut_varchar2_list(');
-          loop
-            fetch :l_source_files into l_file_path;
-            exit when :l_source_files%notfound or l_file_path is null;
-            p('      '''||l_file_path||''',');
-          end loop;
-            p('      null));');
-        elsif lower(l_reporter_name) = ('ut_sonar_test_reporter') then
-          p('  v_reporter := '||l_reporter_name||'( a_file_paths => ut_varchar2_list(');
-          loop
-            fetch :l_test_files into l_file_path;
-            exit when :l_test_files%notfound or l_file_path is null;
-            p('      '''||l_file_path||''',');
-          end loop;
-            p('      null));');
-        else
-          p('  v_reporter := '||l_reporter_name||'();');
-        end if;
+      exit when :l_run_params_cur%notfound;        
+        p('  v_reporter := '||l_reporter_name||'();');
         p('  v_reporter.reporter_id := '''||l_reporter_id||''';');
         p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
     end loop;
-    close :l_run_params_cur;
+  close :l_run_params_cur;
   end if;
-  p(  '  ut_runner.run( ut_varchar2_list('||:l_paths||'), v_reporters_list, a_color_console => '||:l_color_enabled||' );');
+
+  p('  v_source_files := ut_varchar2_list(');
+  loop
+    fetch :l_source_files into l_file_path;
+    exit when :l_source_files%notfound or l_file_path is null;
+    p('      '''||l_file_path||''',');
+  end loop;
+  p('      null);');
+
+  p('  v_test_files := ut_varchar2_list(');
+  loop
+    fetch :l_test_files into l_file_path;
+    exit when :l_test_files%notfound or l_file_path is null;
+    p('      '''||l_file_path||''',');
+  end loop;
+  p('      null);');
+
+  p(  '  ut_runner.run( a_paths => ut_varchar2_list('||:l_paths||'),');
+  p(  '                 a_reporters => v_reporters_list,');
+  p(  '                 a_source_files => v_source_files,');
+  p(  '                 a_test_files => v_test_files,');
+  p(  '                 a_color_console => '||:l_color_enabled||' );');
   p(  'end;');
   p(  '/');
   p(  'spool off');
