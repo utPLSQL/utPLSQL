@@ -63,10 +63,6 @@ drop type ut_sonar_test_reporter;
 
 drop package ut_coverage;
 
-drop type ut_coverage_file_mappings;
-
-drop type ut_coverage_file_mapping;
-
 drop package ut_coverage_helper;
 
 drop view ut_coverage_sources_tmp;
@@ -175,6 +171,8 @@ drop table ut_cursor_data;
 
 drop package ut_annotations;
 
+drop package ut_file_mapper;
+
 drop package ut_metadata;
 
 drop package ut_ansiconsole_helper;
@@ -197,7 +195,13 @@ drop type ut_reporter_base force;
 
 drop type ut_run;
 
-drop type ut_suite ;
+drop type ut_coverage_options;
+
+drop type ut_file_mappings;
+
+drop type ut_file_mapping;
+
+drop type ut_suite;
 
 drop type ut_logical_suite;
 

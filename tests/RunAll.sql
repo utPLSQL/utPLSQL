@@ -258,10 +258,11 @@ var html_reporter_id varchar2(32);
 var sonar_reporter_id  varchar2(32);
 var coveralls_reporter_id varchar2(32);
 declare
-  l_reporter  ut_reporter_base;
-  l_file_list ut_varchar2_list;
+  l_reporter          ut_reporter_base;
+  l_project_file_list ut_varchar2_list;
+  l_test_run          ut_run;
 begin
-  l_file_list := ut_varchar2_list(
+  l_project_file_list := ut_varchar2_list(
     'source/api',
     'source/core',
     'source/create_synonyms_and_grants_for_public.sql',
@@ -299,6 +300,8 @@ begin
     'source/core/ut_annotations.pks',
     'source/core/ut_expectation_processor.pkb',
     'source/core/ut_expectation_processor.pks',
+    'source/core/ut_file_mapper.pkb',
+    'source/core/ut_file_mapper.pks',
     'source/core/ut_message_id_seq.sql',
     'source/core/ut_metadata.pkb',
     'source/core/ut_metadata.pks',
@@ -312,23 +315,24 @@ begin
     'source/core/coverage/proftab.sql',
     'source/core/coverage/ut_coverage.pkb',
     'source/core/coverage/ut_coverage.pks',
-    'source/core/coverage/ut_coverage_file_mapping.tps',
-    'source/core/coverage/ut_coverage_file_mappings.tps',
     'source/core/coverage/ut_coverage_helper.pkb',
     'source/core/coverage/ut_coverage_helper.pks',
     'source/core/coverage/ut_coverage_sources_tmp.sql',
     'source/core/coverage/ut_coverage_reporter_base.tpb',
     'source/core/coverage/ut_coverage_reporter_base.tps',
-    'source/core/types/ut_expectation_result.tpb',
-    'source/core/types/ut_expectation_result.tps',
-    'source/core/types/ut_expectation_results.tps',
     'source/core/types/ut_console_reporter_base.tpb',
     'source/core/types/ut_console_reporter_base.tps',
+    'source/core/types/ut_coverage_options.tps',
     'source/core/types/ut_event_listener.tpb',
     'source/core/types/ut_event_listener.tps',
     'source/core/types/ut_event_listener_base.tps',
     'source/core/types/ut_executable.tpb',
     'source/core/types/ut_executable.tps',
+    'source/core/types/ut_expectation_result.tpb',
+    'source/core/types/ut_expectation_result.tps',
+    'source/core/types/ut_expectation_results.tps',
+    'source/core/coverage/ut_file_mapping.tps',
+    'source/core/coverage/ut_file_mappings.tps',
     'source/core/types/ut_key_value_pair.tps',
     'source/core/types/ut_key_value_pairs.tps',
     'source/core/types/ut_logical_suite.tpb',
@@ -462,33 +466,35 @@ begin
     'source/reporters/ut_xunit_reporter.tpb',
     'source/reporters/ut_xunit_reporter.tps');
 
+  l_test_run := ut_run(ut_suite_items(), null, ut_coverage_options(null,null,null,ut_file_mapper.build_file_mappings( user,l_project_file_list)));
+
   --run for the first time to gather coverage and timings on reporters too
-  l_reporter := ut_coverage_html_reporter( a_project_name => 'utPLSQL v3', a_file_paths => l_file_list );
+  l_reporter := ut_coverage_html_reporter(a_project_name => 'utPLSQL v3');
   :html_reporter_id := l_reporter.reporter_id;
-  l_reporter.after_calling_run(ut_run(ut_suite_items()));
+  l_reporter.after_calling_run(l_test_run);
 
-  l_reporter := ut_coverage_sonar_reporter( a_file_paths => l_file_list );
+  l_reporter := ut_coverage_sonar_reporter();
   :sonar_reporter_id := l_reporter.reporter_id;
-  l_reporter.after_calling_run(ut_run(ut_suite_items()));
+  l_reporter.after_calling_run(l_test_run);
 
-  l_reporter := ut_coveralls_reporter( a_file_paths => l_file_list );
+  l_reporter := ut_coveralls_reporter();
   :coveralls_reporter_id := l_reporter.reporter_id;
-  l_reporter.after_calling_run(ut_run(ut_suite_items()));
+  l_reporter.after_calling_run(l_test_run);
 
   ut_coverage.coverage_stop_develop();
 
   --run for the second time to get the coverage report
-  l_reporter := ut_coverage_html_reporter( a_project_name => 'utPLSQL v3', a_file_paths => l_file_list );
+  l_reporter := ut_coverage_html_reporter(a_project_name => 'utPLSQL v3');
   :html_reporter_id := l_reporter.reporter_id;
-  l_reporter.after_calling_run(ut_run(ut_suite_items()));
+  l_reporter.after_calling_run(l_test_run);
 
-  l_reporter := ut_coverage_sonar_reporter( a_file_paths => l_file_list );
+  l_reporter := ut_coverage_sonar_reporter();
   :sonar_reporter_id := l_reporter.reporter_id;
-  l_reporter.after_calling_run(ut_run(ut_suite_items()));
+  l_reporter.after_calling_run(l_test_run);
 
-  l_reporter := ut_coveralls_reporter( a_file_paths => l_file_list );
+  l_reporter := ut_coveralls_reporter();
   :coveralls_reporter_id := l_reporter.reporter_id;
-  l_reporter.after_calling_run(ut_run(ut_suite_items()));
+  l_reporter.after_calling_run(l_test_run);
 end;
 /
 

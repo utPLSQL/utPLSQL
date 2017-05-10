@@ -9,8 +9,9 @@ begin
   from table(
     ut.run(
       'test_reporters',
-      ut_coverage_sonar_reporter(
-        ut_coverage.build_file_mappings( user, ut_varchar2_list('tests/helpers/test_reporters.pkb'))
+      ut_coverage_sonar_reporter(),
+      a_source_file_mappings => ut_file_mapper.build_file_mappings( user, ut_varchar2_list(
+        'tests/helpers/test_reporters.pkb' )
       )
     )
   );

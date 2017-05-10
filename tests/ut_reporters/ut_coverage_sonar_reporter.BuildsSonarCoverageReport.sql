@@ -6,7 +6,7 @@ begin
   l_expected := '<coverage version="1">%</coverage>';
   select *
     bulk collect into l_results
-    from table(ut.run('test_reporters',ut_coverage_sonar_reporter(a_include_object_list => ut_varchar2_list('test_reporters'))));
+    from table(ut.run('test_reporters',ut_coverage_sonar_reporter(), a_include_objects => ut_varchar2_list('test_reporters')));
   l_clob := ut_utils.table_to_clob(l_results);
 
   if l_clob like l_expected then
