@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 # Not forget to convert line endings to Unix.
@@ -14,7 +14,7 @@ if [ "$clientDir" != "${clientDir% *}" ]; then
     exit 1
 fi
 
-if [ -z "$@" ]; then
+if [[ "$#" -eq 0 ]] ; then
     echo "Usage: ut_run user/password@database [options...]"
     exit 1
 fi
