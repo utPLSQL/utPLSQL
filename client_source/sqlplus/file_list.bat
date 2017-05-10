@@ -36,13 +36,14 @@ if "%scanPath%" == "-" (
     exit /b 0
 )
 
-echo begin>%fullOutPath%
-echo ^  open :%sqlParamName% for select * from table(ut_varchar2_list(>>%fullOutPath%
+echo declare>%fullOutPath%
+echo ^    l_list ut_varchar2_list := ut_varchar2_list();>>%fullOutPath%
+echo begin>>%fullOutPath%
 for /f "tokens=* delims= " %%a in ('dir %fullScanPath%\* /B /S /A:-D') do (
     set "filePath=%%a"
     set filePath=!filePath:%projectPath%\=!
-    echo ^      '!filePath!^',>>%fullOutPath%
+    echo ^    l_list.extend; l_list^(l_list.last^) := '!filePath!^';>>%fullOutPath%
 )
-echo ^      null));>>%fullOutPath%
+echo ^    open :%sqlParamName% for select * from table(l_list);>>%fullOutPath%
 echo end;>>%fullOutPath%
 echo />>%fullOutPath%

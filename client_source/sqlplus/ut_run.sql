@@ -347,17 +347,17 @@ declare
   l_file_path     varchar2(32767);
   procedure p(a_text varchar2) is begin dbms_output.put_line(a_text); end;
 begin
-  p(  'set serveroutput on size unlimited format truncated');
-  p(  'set trimspool on');
-  p(  'set pagesize 0');
-  p(  'set linesize 4000');
-  p(  'spool ut_run.dbms_output.log');
-  p(  'declare');
-  p(  '  v_reporter       ut_reporter_base;');
-  p(  '  v_reporters_list ut_reporters := ut_reporters();');
-  p(  '  v_source_files   ut_varchar2_list;');
-  p(  '  v_test_files     ut_varchar2_list;');
-  p(  'begin');
+  p('set serveroutput on size unlimited format truncated');
+  p('set trimspool on');
+  p('set pagesize 0');
+  p('set linesize 4000');
+  p('spool ut_run.dbms_output.log');
+  p('declare');
+  p('  v_reporter       ut_reporter_base;');
+  p('  v_reporters_list ut_reporters := ut_reporters();');
+  p('  v_source_files   ut_varchar2_list := ut_varchar2_list();');
+  p('  v_test_files     ut_varchar2_list := ut_varchar2_list();');
+  p('begin');
   if :l_run_params_cur%isopen then
     loop
       fetch :l_run_params_cur into l_reporter_id, l_reporter_name;
@@ -369,31 +369,28 @@ begin
   close :l_run_params_cur;
   end if;
 
-  p('  v_source_files := ut_varchar2_list(');
   loop
     fetch :l_source_files into l_file_path;
     exit when :l_source_files%notfound or l_file_path is null;
-    p('      '''||l_file_path||''',');
+    p('  v_source_files.extend; v_source_files(v_source_files.last) := '''||l_file_path||''';');
   end loop;
-  p('      null);');
 
-  p('  v_test_files := ut_varchar2_list(');
   loop
     fetch :l_test_files into l_file_path;
     exit when :l_test_files%notfound or l_file_path is null;
-    p('      '''||l_file_path||''',');
+    p('  v_source_files.extend; v_source_files(v_source_files.last) := '''||l_file_path||''';');
   end loop;
-  p('      null);');
 
-  p(  '  ut_runner.run( a_paths => ut_varchar2_list('||:l_paths||'),');
-  p(  '                 a_reporters => v_reporters_list,');
-  p(  '                 a_source_files => v_source_files,');
-  p(  '                 a_test_files => v_test_files,');
-  p(  '                 a_color_console => '||:l_color_enabled||' );');
-  p(  'end;');
-  p(  '/');
-  p(  'spool off');
-  p(  'exit');
+  p('  ut_runner.run( ');
+  p('      a_paths => ut_varchar2_list('||:l_paths||'),');
+  p('      a_reporters => v_reporters_list,');
+  p('      a_source_files => v_source_files,');
+  p('      a_test_files => v_test_files,');
+  p('      a_color_console => '||:l_color_enabled||' );');
+  p('end;');
+  p('/');
+  p('spool off');
+  p('exit');
 end;
 /
 spool off
