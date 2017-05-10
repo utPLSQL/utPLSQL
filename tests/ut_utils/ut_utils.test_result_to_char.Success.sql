@@ -1,5 +1,3 @@
-PROMPT Converts success test result integer value into char
-
 --Arrange
 declare
   l_expected varchar2(20) := ut_utils.tr_success_char;

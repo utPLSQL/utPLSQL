@@ -1,5 +1,3 @@
-PROMPT Returns a varchar2 eclosed in quotes
-
 --Arrange
 declare
   l_value    varchar2(20) := 'A test char';

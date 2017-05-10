@@ -1,5 +1,3 @@
-PROMPT Returns a 'NULL' as a string representation of null date
-
 --Arrange
 declare
   l_expected varchar2(100) := 'NULL';

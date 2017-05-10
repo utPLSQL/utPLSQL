@@ -1,5 +1,3 @@
-PROMPT Trims long Clob to max lenght and appends '[...]' at the end of string;
-
 --Arrange
 declare
   l_value    clob := lpad('A test char',32767,'1')||lpad('1',32767,'1');
