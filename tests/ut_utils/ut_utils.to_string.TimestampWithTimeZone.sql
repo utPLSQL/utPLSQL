@@ -1,5 +1,3 @@
-PROMPT Returns a full string representation of a timestamp with maximum precission
-
 --Arrange
 declare
   l_value    timestamp(9) with time zone := to_timestamp_tz('2016-12-31 23:59:59.123456789 -8:00', 'yyyy-mm-dd hh24:mi:ss.ff tzh:tzm');

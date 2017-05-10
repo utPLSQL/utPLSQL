@@ -136,7 +136,19 @@ create or replace type body ut_expectation as
     ut_utils.debug_log('ut_expectation.to_be_not_null');
     self.to_( ut_be_not_null() );
   end;
-  
+
+  final member procedure not_to_be_null(self in ut_expectation) is
+  begin
+    ut_utils.debug_log('ut_expectation.to_be_null');
+    self.not_to( ut_be_null() );
+  end;
+
+  final member procedure not_to_be_not_null(self in ut_expectation) is
+  begin
+    ut_utils.debug_log('ut_expectation.to_be_not_null');
+    self.not_to( ut_be_not_null() );
+  end;
+
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null) is
   begin
     ut_utils.debug_log('ut_expectation.not_to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null)');

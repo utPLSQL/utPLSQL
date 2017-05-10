@@ -1,5 +1,3 @@
-PROMPT Returns a full string representation of a very big number
-
 --Arrange
 declare
   l_value    number := 1234567890123456789012345678901234567890;

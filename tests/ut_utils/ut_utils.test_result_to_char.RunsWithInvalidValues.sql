@@ -1,5 +1,3 @@
-PROMPT Returns Unknown for invalid test result integer value
-
 --Arrange
 declare
   l_expected varchar2(20) := 'Unknown(-1)';

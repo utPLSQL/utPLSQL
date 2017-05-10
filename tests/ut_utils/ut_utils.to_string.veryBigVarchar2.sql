@@ -1,5 +1,3 @@
-PROMPT Trims long varchars to max lenght and appends '[...]' at the end of string;
-
 --Arrange
 declare
   l_value    varchar2(32767) := lpad('A test char',32767,'1');
