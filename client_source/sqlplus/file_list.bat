@@ -1,24 +1,24 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-set clientPath=%~1
-set projectPath=%~2
-set scanPath=%~3
-set outFileName=%~4
-set sqlParamName=%~5
-
-REM All parameters are required.
+REM All parameters are required. This way, users can't pass empty string as parameter.
 set invalidArgs=0
-if "%clientPath%"   == "" set invalidArgs=1
-if "%projectPath%"  == "" set invalidArgs=1
-if "%scanPath%"     == "" set invalidArgs=1
-if "%outFileName%"  == "" set invalidArgs=1
-if "%sqlParamName%" == "" set invalidArgs=1
+if "%1" == "" set invalidArgs=1
+if "%2" == "" set invalidArgs=1
+if "%3" == "" set invalidArgs=1
+if "%4" == "" set invalidArgs=1
+if "%5" == "" set invalidArgs=1
 
 if %invalidArgs% == 1 (
     echo Usage: ut_run.bat "client_path" "project_path" "scan_path" "out_file_name" "sql_param_name"
     exit /b 1
 )
+
+set clientPath=%~1
+set projectPath=%~2
+set scanPath=%~3
+set outFileName=%~4
+set sqlParamName=%~5
 
 REM Remove trailing slashes.
 if %clientPath:~-1%==\  set clientPath=%clientPath:~0,-1%

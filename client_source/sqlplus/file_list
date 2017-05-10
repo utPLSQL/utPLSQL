@@ -1,24 +1,24 @@
 #!/bin/bash
 set -e
 
-clientPath=${1%/}
-projectPath=${2%/}
-scanPath=$3
-outFileName=$4
-sqlParamName=$5
-
-# All parameters are required.
+# All parameters are required. This way, users can't pass empty string as parameter.
 invalidArgs=0
-[ -z "$clientPath"   ] && invalidArgs=1
-[ -z "$projectPath"  ] && invalidArgs=1
-[ -z "$scanPath"     ] && invalidArgs=1
-[ -z "$outFileName"  ] && invalidArgs=1
-[ -z "$sqlParamName" ] && invalidArgs=1
+[ -z "$1" ] && invalidArgs=1
+[ -z "$2" ] && invalidArgs=1
+[ -z "$3" ] && invalidArgs=1
+[ -z "$4" ] && invalidArgs=1
+[ -z "$5" ] && invalidArgs=1
 
 if [ $invalidArgs -eq 1 ]; then
     echo Usage: ut_run.sh "client_path" "project_path" "scan_path" "out_file_name" "sql_param_name"
     exit 1
 fi
+
+clientPath=${1%/}
+projectPath=${2%/}
+scanPath=$3
+outFileName=$4
+sqlParamName=$5
 
 fullOutPath="$clientPath/$outFileName"
 fullScanPath="$projectPath/$scanPath"
