@@ -1,5 +1,3 @@
-PROMPT Returns a clob eclosed in quotes
-
 --Arrange
 declare
   l_value    clob := 'A test char';

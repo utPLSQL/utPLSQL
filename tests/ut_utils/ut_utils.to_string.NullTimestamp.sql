@@ -1,5 +1,3 @@
-PROMPT Returns a 'NULL' as a string representation of null timestamp
-
 --Arrange
 declare
   l_expected varchar2(100) := 'NULL';

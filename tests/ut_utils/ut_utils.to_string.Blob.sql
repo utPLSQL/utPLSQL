@@ -1,5 +1,3 @@
-PROMPT Returns a blob converted to varchar and eclosed in quotes
-
 --Arrange
 declare
   l_text     varchar2(32767) := 'A test char';
