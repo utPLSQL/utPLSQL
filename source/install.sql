@@ -115,6 +115,7 @@ whenever sqlerror exit failure rollback
 @@core/types/ut_event_listener.tpb
 @@core/types/ut_expectation_result.tpb
 @@core/types/ut_reporter_base.tpb
+@@core/types/ut_file_mapping.tpb
 @@core/types/ut_executable.tpb
 @@core/types/ut_console_reporter_base.tps
 @@core/types/ut_console_reporter_base.tpb
