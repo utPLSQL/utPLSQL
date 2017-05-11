@@ -378,7 +378,7 @@ begin
   loop
     fetch :l_test_files into l_file_path;
     exit when :l_test_files%notfound or l_file_path is null;
-    p('  v_source_files.extend; v_source_files(v_source_files.last) := '''||l_file_path||''';');
+    p('  v_test_files.extend; v_test_files(v_test_files.last) := '''||l_file_path||''';');
   end loop;
 
   p('  ut_runner.run( ');
