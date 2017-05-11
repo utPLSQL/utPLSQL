@@ -7,37 +7,34 @@ invalidArgs=0
 [ -z "$2" ] && invalidArgs=1
 [ -z "$3" ] && invalidArgs=1
 [ -z "$4" ] && invalidArgs=1
-[ -z "$5" ] && invalidArgs=1
 
 if [ $invalidArgs -eq 1 ]; then
-    echo Usage: ut_run.sh "client_path" "project_path" "scan_path" "out_file_name" "sql_param_name"
+    echo Usage: ut_run.sh "project_path" "scan_path" "sql_param_name" "output_file"
     exit 1
 fi
 
-clientPath=${1%/}
-projectPath=${2%/}
-scanPath=$3
-outFileName=$4
-sqlParamName=$5
+# Remove trailing slashes.
+projectPath=${1%/}
+scanPath=$2
+sqlParamName=$3
+outputFile=$4
 
-fullOutPath="$clientPath/$outFileName"
 fullScanPath="$projectPath/$scanPath"
 
-# If scan path is "-", bypass the file list generation.
-if [ "$scanPath" = "-" ]; then
-    echo "begin" > $fullOutPath
-    echo "  open :$sqlParamName for select null from dual;" >> $fullOutPath
-    echo "end;" >> $fullOutPath
-    echo "/" >> $fullOutPath
+if [ ! -d "$fullScanPath" ]; then
+    echo "begin" > $outputFile
+    echo "  open :$sqlParamName for select null from dual;" >> $outputFile
+    echo "end;" >> $outputFile
+    echo "/" >> $outputFile
     exit 0
 fi
 
-echo "declare" > $fullOutPath
-echo "    l_list ut_varchar2_list := ut_varchar2_list();" >> $fullOutPath
-echo "begin" >> $fullOutPath
+echo "declare" > $outputFile
+echo "    l_list ut_varchar2_list := ut_varchar2_list();" >> $outputFile
+echo "begin" >> $outputFile
 for f in $(find $fullScanPath/* -type f | sed "s|$projectPath/||"); do
-    echo "    l_list.extend; l_list(l_list.last) := '$f';" >> $fullOutPath
+    echo "    l_list.extend; l_list(l_list.last) := '$f';" >> $outputFile
 done
-echo "    open :$sqlParamName for select * from table(l_list);" >> $fullOutPath
-echo "end;" >> $fullOutPath
-echo "/" >> $fullOutPath
+echo "    open :$sqlParamName for select * from table(l_list);" >> $outputFile
+echo "end;" >> $outputFile
+echo "/" >> $outputFile
