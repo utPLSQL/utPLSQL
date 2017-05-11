@@ -1,5 +1,3 @@
-PROMPT Converts Null test result integer value into 'Unknown(NULL)' text
-
 --Arrange
 declare
   l_expected varchar2(20) := 'Unknown(NULL)';

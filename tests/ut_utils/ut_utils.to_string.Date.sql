@@ -1,5 +1,3 @@
-PROMPT Returns a full string representation of a date
-
 --Arrange
 declare
   l_value    date := to_date('2016-12-31 23:59:59', 'yyyy-mm-dd hh24:mi:ss');

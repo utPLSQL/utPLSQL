@@ -21,6 +21,8 @@ create or replace type ut_expectation authid current_user as object(
   final member procedure not_to(self in ut_expectation, a_matcher ut_matcher),
   final member procedure to_be_null(self in ut_expectation),
   final member procedure to_be_not_null(self in ut_expectation),
+  final member procedure not_to_be_null(self in ut_expectation),
+  final member procedure not_to_be_not_null(self in ut_expectation),
 
   -- this is done to provide strong type comparison. other comporators should be implemented in the type-specific classes
   member procedure to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null),
@@ -37,7 +39,7 @@ create or replace type ut_expectation authid current_user as object(
   member procedure to_equal(self in ut_expectation, a_expected varchar2, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null),
-  
+
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected blob, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected boolean, a_nulls_are_equal boolean := null),

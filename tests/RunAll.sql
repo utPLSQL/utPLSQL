@@ -42,6 +42,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithKeyValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithMultilineComment.sql
 
+@@ut_expectations/ut.expect.not_to_be_null.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsTrue.sql
@@ -52,8 +53,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenAnydataIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenCollectionPassedIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenObjectPassedIsNull.sql
-@@ut_expectations/ut.expect.to_be_null.GivesFailureWhenActualIsNotNull.sql
-@@ut_expectations/ut.expect.to_be_null.GivesSuccessWhenActualIsNull.sql
+@@ut_expectations/ut.expect.to_be_null.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.refcursor.GivesSuccessWhenCursorIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsFalse.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNotBoolean.sql
@@ -130,19 +130,26 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_reporters/ut_teamcity_reporter.ProducesExpectedOutputs.sql
 @@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ProducesExpectedOutputs.sql
 
-@@lib/RunTest.sql ut_run/ut.run.FailsToExecuteAnInvalidPackageBody.sql
-@@lib/RunTest.sql ut_run/ut_run.function.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
-@@lib/RunTest.sql ut_run/ut_run.function.WithNoParams.ExecutesAllFromCurrentSchema.sql
-@@lib/RunTest.sql ut_run/ut_run.function.WithPackageName.ExecutesAllFromGivenPackage.sql
---@@lib/RunTest.sql ut_run/ut_run.function.WithPackageName.ExecutesAllFromGivenPackageOnly.sql --TODO this one doesn't work at the moment
-@@lib/RunTest.sql ut_run/ut_run.function.WithSchemaName.ExecutesAllFromGivenSchema.sql
-@@lib/RunTest.sql ut_run/ut_run.function.WithSuitePath.ExecutesAllFromGivenPath.sql
-@@lib/RunTest.sql ut_run/ut_run.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
-@@lib/RunTest.sql ut_run/ut_run.WithNoParams.ExecutesAllFromCurrentSchema.sql
-@@lib/RunTest.sql ut_run/ut_run.WithPackageName.ExecutesAllFromGivenPackage.sql
---@@lib/RunTest.sql ut_run/ut_run.WithPackageName.ExecutesAllFromGivenPackageOnly.sql --TODO this one doesn't work at the moment
-@@lib/RunTest.sql ut_run/ut_run.WithSchemaName.ExecutesAllFromGivenSchema.sql
-@@lib/RunTest.sql ut_run/ut_run.WithSuitePath.ExecutesAllFromGivenPath.sql
+@@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileList.sql
+@@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileListWithSutePaths.sql
+@@lib/RunTest.sql ut/ut.run.AcceptsSutePaths.sql
+@@lib/RunTest.sql ut/ut.run.FailsToExecuteAnInvalidPackageBody.sql
+@@lib/RunTest.sql ut/ut.run.function.AcceptsCoverageFileList.sql
+@@lib/RunTest.sql ut/ut.run.function.AcceptsCoverageFileListWithSutePaths.sql
+@@lib/RunTest.sql ut/ut.run.function.AcceptsSutePaths.sql
+@@lib/RunTest.sql ut/ut.run.function.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
+@@lib/RunTest.sql ut/ut.run.function.WithNoParams.ExecutesAllFromCurrentSchema.sql
+@@lib/RunTest.sql ut/ut.run.function.WithPackageName.ExecutesAllFromGivenPackage.sql
+--@@lib/RunTest.sql ut.run/ut.run.function.WithPackageName.ExecutesAllFromGivenPackageOnly.sql --TODO this one doesn't work at the moment
+@@lib/RunTest.sql ut/ut.run.function.WithSchemaName.ExecutesAllFromGivenSchema.sql
+@@lib/RunTest.sql ut/ut.run.function.WithSuitePath.ExecutesAllFromGivenPath.sql
+@@lib/RunTest.sql ut/ut.run.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
+@@lib/RunTest.sql ut/ut.run.WithNoParams.ExecutesAllFromCurrentSchema.sql
+@@lib/RunTest.sql ut/ut.run.WithPackageName.ExecutesAllFromGivenPackage.sql
+--@@lib/RunTest.sql ut.run/ut.run.WithPackageName.ExecutesAllFromGivenPackageOnly.sql --TODO this one doesn't work at the moment
+@@lib/RunTest.sql ut/ut.run.WithSchemaName.ExecutesAllFromGivenSchema.sql
+@@lib/RunTest.sql ut/ut.run.WithSuitePath.ExecutesAllFromGivenPath.sql
+@@lib/RunTest.sql ut/ut.version.sql
 
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheSchema.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPath.sql
