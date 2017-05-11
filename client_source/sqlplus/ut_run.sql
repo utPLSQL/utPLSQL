@@ -299,7 +299,7 @@ begin
   :l_color_enabled := parse_color_enabled(l_input_params);
 
   :l_source_path := parse_path_param(l_input_params,'source_path','source');
-  :l_test_path := parse_path_param(l_input_params,'test_path','tests');
+  :l_test_path := parse_path_param(l_input_params,'test_path','test');
 
   if l_run_cursor_sql is not null then
     open :l_run_params_cur for l_run_cursor_sql;
