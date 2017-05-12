@@ -1,5 +1,5 @@
 declare
-  l_expected varchar2(100) := 'utPLSQL - Version %.%.%.%';
+  l_expected varchar2(100) := 'utPLSQL - Version %.%.%';
 begin
 --Assert
   if ut.version() like l_expected  then
