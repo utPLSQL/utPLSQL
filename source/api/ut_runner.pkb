@@ -71,9 +71,9 @@ create or replace package body ut_runner is
       schema_names    => a_coverage_schemes,
       exclude_objects => to_ut_object_list(a_exclude_objects),
       include_objects => to_ut_object_list(a_include_objects),
-      file_mappings   => a_source_file_mappings
+      file_mappings   => set(a_source_file_mappings)
     );
-    l_items_to_run := ut_run( ut_suite_manager.configure_execution_by_path(a_paths), a_paths, l_coverage_options, a_test_file_mappings );
+    l_items_to_run := ut_run( ut_suite_manager.configure_execution_by_path(a_paths), a_paths, l_coverage_options, set(a_test_file_mappings) );
     l_items_to_run.do_execute(l_listener);
 
     cleanup_temp_tables;
