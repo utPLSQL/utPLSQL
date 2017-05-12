@@ -22,9 +22,11 @@
   Current limit of script parameters is 39
 
 Scrip invocation:
-  ut_run.sql user/password@database [-p=(ut_path|ut_paths)] [-c] [-f=format [-o=output] [-s] ...]
+  ut_run.sql "client_Path" "project_path" user/password@database [-p=(ut_path|ut_paths)] [-c] [-f=format [-o=output] [-s] ...] [-source_path=path] [-test_path=path]
 
 Parameters:
+  client_path  - The path where this script is installed. Will be used to find auxiliary scripts and to save temp files.
+  project_path - The path from where this script is being called.
   user         - username to connect as
   password     - password of the user
   database     - database to connect to
@@ -44,6 +46,19 @@ Parameters:
                    -f=ut_xunit_reporter
                      A XUnit xml format (as defined at: http://stackoverflow.com/a/9691131 and at https://gist.github.com/kuzuha/232902acab1344d6b578)
                      Usually used  by Continuous Integration servers like Jenkins/Hudson or Teamcity to display test results.
+                   -f=ut_coverage_html_reporter
+                     Generates a HTML coverage report providing summary and detailed information on code coverage.
+                     The html reporter is based on open-source simplecov-html reporter for Ruby.
+                     It includes source code of the code that was covered (if possible).
+                   -f=ut_coveralls_reporter
+                     Generates a JSON coverage report providing detailed information on code coverage with line numbers.
+                     This coverage report is designed to be consumed by cloud services like https://coveralls.io/.
+                   -f=ut_coverage_sonar_reporter
+                     Generates a JSON coverage report providing detailed information on code coverage with line numbers.
+                     This report is designed to be consumed by SonarQube to report code coverage.
+                   -f=ut_sonar_test_reporter
+                     Generates a JSON report providing detailed information on test specifications.
+                     This report is designed to be consumed by SonarQube to report test files.
                  If no -f option is provided, the ut_documentation_reporter will be used.
 
   -o=output    - file name to save the output provided by the reporter.
@@ -51,26 +66,36 @@ Parameters:
                  If not defined, then output will be displayed on screen, even if the parameter -s is not specified.
                  If more than one -o parameter is specified for one -f parameter, the last one is taken into consideration.
   -s           - Forces putting output to to screen for a given -f parameter.
+  -source_path=path - Source files path to be used by coverage reporters.
+  -test_path=path - Test files path to be used by coverage reporters.
   -c           - If specified, enables printing of test results in colors as defined by ANSICONSOLE standards
 
+  To make coverage reporters work source_path and/or test_path cannot be empty, and ut_run need to be executed from your project's path.
+
   Parameters -f, -o, -s are correlated. That is parameters -o and -s are defining outputs for -f.
+
   Examples of invocation using sqlplus from command line:
 
-    sqlplus /nolog @ut_run hr/hr@xe -p=hr_test -f=ut_documentation_reporter -o=run.log -s -f=ut_teamcity_reporter -o=teamcity.xml
+    sqlplus /nolog @ut_run ~/ut_run_path ~/project/source hr/hr@xe -p=hr_test -f=ut_documentation_reporter -o=run.log -s -f=ut_coverage_html_reporter -o=coverage.html -source_path=source
 
-      All Unit tests from schema "hr_test" will be be invoked with two reporters:
-      - ut_documentation_reporter - will output to screen and save it's output to file "run.log"
-      - ut_teamcity_reporter - will save it's output to file "teamcity.xml"
+      All Unit tests from schema/package "hr_test" will be be invoked with two reporters:
+        - ut_documentation_reporter - will output to screen and save it's output to file "run.log"
+        - ut_coverage_html_reporter - will read file structure from source folder, and save it's output to file "coverage.html"
 
     sqlplus /nolog @ut_run hr/hr@xe
 
-      All Unit tests from schema "hr" will be be invoked with ut_documentation_reporter as a format and the results will be printed to screen
+      All Unit tests from schema "hr" will be be invoked with ut_documentation_reporter as a format and the results will be printed to screen.
 
  */
 
 whenever sqlerror exit failure
 whenever oserror exit failure
-conn &1
+
+define client_path="&1"
+define project_path="&2"
+define conn_str="&3"
+
+conn &conn_str
 
 set serveroutput on size unlimited format truncated
 set trimspool on
@@ -84,14 +109,12 @@ set longchunksize 30000
 set verify off
 set heading off
 
-
-
 column param_list new_value param_list noprint;
 /*
 * Prepare script to make SQLPlus parameters optional and pass parameters call to param_list variable
 */
-set define off
-spool define_params_variable.sql.tmp
+set define #
+spool ##client_path/define_params_variable.sql.tmp
 declare
   l_sql_columns varchar2(4000);
   l_params      varchar2(4000);
@@ -108,15 +131,19 @@ end;
 spool off
 set define &
 
+
 /*
 * Make SQLPlus parameters optional and pass parameters call to param_list variable
 */
-@define_params_variable.sql.tmp
-
+@&&client_path/define_params_variable.sql.tmp
 
 
 var l_paths          varchar2(4000);
 var l_color_enabled  varchar2(5);
+var l_source_path    varchar2(4000);
+var l_test_path      varchar2(4000);
+var l_source_files   refcursor;
+var l_test_files     refcursor;
 var l_run_params_cur refcursor;
 var l_out_params_cur refcursor;
 /*
@@ -167,17 +194,14 @@ declare
     l_default_call_param  t_call_param;
     l_call_params         tt_call_params := tt_call_params();
     l_force_out_to_screen boolean;
+    l_param_regex         varchar2(20) := '^-([fos])(\=(.*))?$';
   begin
     for param in(
-      with
-        param_vals as(
-          select regexp_substr(column_value,'-([fos])\=?(.*)',1,1,'c',1) param_type,
-                 regexp_substr(column_value,'-([fos])\=(.*)',1,1,'c',2) param_value
-          from table(a_params)
-          where column_value is not null)
-      select param_type, param_value
-      from param_vals
-      where param_type is not null
+      select regexp_substr(column_value,l_param_regex,1,1,'c',1) param_type,
+             regexp_substr(column_value,l_param_regex,1,1,'c',3) param_value
+      from table(a_params)
+      where column_value is not null
+        and regexp_like(column_value,l_param_regex)
     ) loop
       if param.param_type = 'f' or l_call_params.last is null then
         l_call_params.extend;
@@ -234,6 +258,23 @@ declare
     return 'false';
   end;
 
+  function parse_path_param(a_params ut_varchar2_list, a_param_name varchar2, a_default_value varchar2) return varchar2 is
+    l_path varchar2(4000);
+  begin
+    begin
+      select param_value
+        into l_path
+        from (select regexp_substr(column_value,'-'||a_param_name||'\=(.*)',1,1,'c',1) as param_value from table(a_params) )
+       where param_value is not null;
+    exception
+      when no_data_found then
+        l_path := a_default_value;
+      when too_many_rows then
+        raise_application_error(-20000, 'Parameter "-'||a_param_name||'='||a_param_name||'" defined more than once. Only one "-'||a_param_name||'='||a_param_name||'" parameter can be used.');
+    end;
+    return l_path;
+  end;
+
 begin
   l_call_params := parse_reporting_params(l_input_params);
   for i in l_call_params.first .. l_call_params.last loop
@@ -257,6 +298,9 @@ begin
   :l_paths := parse_paths_param(l_input_params);
   :l_color_enabled := parse_color_enabled(l_input_params);
 
+  :l_source_path := parse_path_param(l_input_params,'source_path','source');
+  :l_test_path := parse_path_param(l_input_params,'test_path','test');
+
   if l_run_cursor_sql is not null then
     open :l_run_params_cur for l_run_cursor_sql;
   end if;
@@ -267,47 +311,95 @@ end;
 /
 set termout off
 
+
+/**
+ * Convert paths to substitution variable
+ */
+column source_path new_value source_path noprint;
+select :l_source_path as source_path from dual;
+column test_path new_value test_path noprint;
+select :l_test_path as test_path from dual;
+
+--try running on windows
+$ "&&client_path\file_list.bat" "&&project_path" "&&source_path" "l_source_files" "&&client_path\source_file_list.sql.tmp"
+$ "&&client_path\file_list.bat" "&&project_path" "&&test_path" "l_test_files" "&&client_path\test_file_list.sql.tmp"
+--try running on linux/unix
+! "&&client_path/file_list" "&&project_path" "&&source_path" "l_source_files" "&&client_path/source_file_list.sql.tmp"
+! "&&client_path/file_list" "&&project_path" "&&test_path" "l_test_files" "&&client_path/test_file_list.sql.tmp"
+
+undef source_path
+undef test_path
+
+/*
+ * Generate the project source and tests files, saving it into the l_source_files and l_test_files bind variables
+ */
+@&&client_path/source_file_list.sql.tmp
+@&&client_path/test_file_list.sql.tmp
+
+
 /*
 * Generate runner script
 */
-spool run_in_backgroung.sql.tmp
+spool &&client_path/run_in_background.sql.tmp
 declare
   l_reporter_id   varchar2(250);
   l_reporter_name varchar2(250);
+  l_file_path     varchar2(32767);
   procedure p(a_text varchar2) is begin dbms_output.put_line(a_text); end;
 begin
-  p(  'set serveroutput on size unlimited format truncated');
-  p(  'set trimspool on');
-  p(  'set pagesize 0');
-  p(  'set linesize 4000');
-  p(  'spool ut_run.dbms_output.log');
-  p(  'declare');
-  p(  '  v_reporter       ut_reporter_base;');
-  p(  '  v_reporters_list ut_reporters := ut_reporters();');
-  p(  'begin');
+  p('set serveroutput on size unlimited format truncated');
+  p('set trimspool on');
+  p('set pagesize 0');
+  p('set linesize 4000');
+  p('spool ut_run.dbms_output.log');
+  p('declare');
+  p('  v_reporter       ut_reporter_base;');
+  p('  v_reporters_list ut_reporters := ut_reporters();');
+  p('  v_source_files   ut_varchar2_list := ut_varchar2_list();');
+  p('  v_test_files     ut_varchar2_list := ut_varchar2_list();');
+  p('begin');
   if :l_run_params_cur%isopen then
     loop
       fetch :l_run_params_cur into l_reporter_id, l_reporter_name;
-      exit when :l_run_params_cur%notfound;
+      exit when :l_run_params_cur%notfound;        
         p('  v_reporter := '||l_reporter_name||'();');
         p('  v_reporter.reporter_id := '''||l_reporter_id||''';');
         p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');
     end loop;
-    close :l_run_params_cur;
+  close :l_run_params_cur;
   end if;
-  p(  '  ut_runner.run( ut_varchar2_list('||:l_paths||'), v_reporters_list, a_color_console => '||:l_color_enabled||' );');
-  p(  'end;');
-  p(  '/');
-  p(  'spool off');
-  p(  'exit');
+
+  loop
+    fetch :l_source_files into l_file_path;
+    exit when :l_source_files%notfound or l_file_path is null;
+    p('  v_source_files.extend; v_source_files(v_source_files.last) := '''||l_file_path||''';');
+  end loop;
+
+  loop
+    fetch :l_test_files into l_file_path;
+    exit when :l_test_files%notfound or l_file_path is null;
+    p('  v_test_files.extend; v_test_files(v_test_files.last) := '''||l_file_path||''';');
+  end loop;
+
+  p('  ut_runner.run( ');
+  p('      a_paths => ut_varchar2_list('||:l_paths||'),');
+  p('      a_reporters => v_reporters_list,');
+  p('      a_source_files => v_source_files,');
+  p('      a_test_files => v_test_files,');
+  p('      a_color_console => '||:l_color_enabled||' );');
+  p('end;');
+  p('/');
+  p('spool off');
+  p('exit');
 end;
 /
 spool off
 
+
 /*
 * Generate output retrieval script
 */
-spool gather_data_from_outputs.sql.tmp
+spool &&client_path/gather_data_from_outputs.sql.tmp
 declare
   l_reporter_id      varchar2(250);
   l_output_file_name varchar2(250);
@@ -340,9 +432,9 @@ spool off
 */
 set define #
 --try running on windows
-$ start /min sqlplus ##1 @run_in_backgroung.sql.tmp
---try running on linus/unix
-! sqlplus ##1 @run_in_backgroung.sql.tmp &
+$ start /min sqlplus ##conn_str @##client_path/run_in_background.sql.tmp
+--try running on linux/unix
+! sqlplus ##conn_str @##client_path/run_in_background.sql.tmp &
 set define &
 set termout on
 
@@ -352,15 +444,15 @@ set arraysize 1
 /*
 * Gather outputs from reporters one by one while runner script executes.
 */
-@gather_data_from_outputs.sql.tmp
+@&&client_path/gather_data_from_outputs.sql.tmp
 
 set termout off
 /*
 * cleanup temporary sql files
 */
 --try running on windows
-$ del *.sql.tmp
---try running on linus/unix
-! rm *.sql.tmp
+$ del &&client_path\*.sql.tmp
+--try running on linux/unix
+! rm &&client_path/*.sql.tmp
 
 exit
