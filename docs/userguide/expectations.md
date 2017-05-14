@@ -1,12 +1,11 @@
 # Concepts 
 
 Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
-To do that we use concept of expectation and a matcher to perform the check on the data.
+To achieve that, we use a combination of expectation and matcher to perform the check on the data.
 
-Example of unit test procedure body with a single expectation.
+Example of unit test procedure body.
 ```sql
 begin
-  ut.expect( 'the tested value' ).to_equal('the expected value');
   ut.expect( 'the tested value' ).to_( equal('the expected value') );
 end;
 ```
@@ -15,19 +14,20 @@ Expectation is a set of the expected value(s), actual values(s) and the matcher(
 
 Matcher is defining the comparison operation to be performed on expected and actual values.
 Pseudo-code:
-```sql
+```
   ut.expect( a_actual {data-type} ).to_( {matcher} );
   ut.expect( a_actual {data-type} ).not_to( {matcher} );
 ```
 
 All matchers have shortcuts like:
-```sql
+```
   ut.expect( a_actual {data-type} ).to_{matcher};
   ut.expect( a_actual {data-type} ).not_to_{matcher};
 ```
 
 # Matchers
 utPLSQL provides following matchers to perform checks on the expected and actual values.  
+
 - `be_between`
 - `be_empty`
 - `be_false`
@@ -140,11 +140,11 @@ Validates that the actual value is like the expected expression.
 Usage:
 ```sql
 begin
-  ut.expect( 'Lorem_impsum' ).to_be_like( a_mask => '%rem\_%', a_escape_char => '\' );
-  ut.expect( 'Lorem_impsum' ).to_be_like( '%rem\_%', '\' );
+  ut.expect( 'Lorem_impsum' ).to_be_like( a_mask => '%rem#_%', a_escape_char => '#' );
+  ut.expect( 'Lorem_impsum' ).to_be_like( '%rem#_%', '#' );
   --or 
-  ut.expect( 'Lorem_impsum' ).to_( be_like( a_mask => '%rem\_%', a_escape_char => '\' ) );
-  ut.expect( 'Lorem_impsum' ).to_( be_like( '%rem\_%', '\' ) );
+  ut.expect( 'Lorem_impsum' ).to_( be_like( a_mask => '%rem#_%', a_escape_char => '#' ) );
+  ut.expect( 'Lorem_impsum' ).to_( be_like( '%rem#_%', '#' ) );
 end;
 ```
 
@@ -199,9 +199,9 @@ This matcher is designed to capture changes of data-type, so that if you expect 
 
 Usage:
 ```sql
-procedure check_if_cursors_are_equal is
-  x sys_refcursor;
-  y sys_refcursor;
+declare
+  x varchar2(100);
+  y varchar2(100);
 begin
   ut.expect( 'a dog' ).to_equal( 'a dog' );
   ut.expect( a_actual => y ).to_equal( a_expected => x, a_nulls_are_equal => true );
@@ -242,6 +242,7 @@ You can use the feature described in article to convert PLSQL records and collec
 ### Comparing cursor data containing DATE fields 
 
 **Important note**
+
 utPLSQL uses XMLType internally to represent rows of the cursor data. This is by far most flexible and allows comparison of cursors containing LONG, CLOB, BLOB, user defined types and even nested cursors.
 Due to the way Oracle handles DATE data type when converting from cursor data to XML, utPLSQL has no control over the DATE formatting.
 The NLS_DATE_FORMAT setting from the moment the cursor was opened decides ont the formatting of dates used for cursor data comparison.
@@ -324,7 +325,7 @@ drop package test_get_events;
 
 The `anydata` data type is used to compare user defined object and collections.
   
-Example usage of anydata to compare user defined types.
+Example:
 ```sql
 create type department as object(name varchar2(30));
 /
@@ -409,8 +410,8 @@ Below matrix illustrates the data types supported by different matchers.
 
 
 
-# Negating the matcher
-Expectations provide a very convenient way to check for a negative of the expectation.
+# Negating a matcher
+Expectations provide a very convenient way to perform a check on negated matcher.
 
 Syntax of check for matcher evaluating to true:
 ```sql
@@ -437,7 +438,5 @@ begin
   ut.expect( null ).not_to( be_true() );
 end;
 ```
-
 Since NULL is neither true not it is not true, both expectations will report failure. 
-
 

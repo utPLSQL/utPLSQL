@@ -36,7 +36,7 @@ The documentation report provides the following information.
 
 ## Color output from documentation reporter
 
-When invoking tests with documentation reporter and your command line supports ANSICONSOLE (default on Unix), you can obtain the coloured outputs from the documentation reporter.
+When invoking tests with documentation reporter and your command line supports ANSICONSOLE (default on Unix) [available for Windows](http://adoxa.altervista.org/ansicon/), you can obtain the coloured outputs from the documentation reporter.
 
 To invoke tests with documentation reporter in color mode use one of following calls.  
 

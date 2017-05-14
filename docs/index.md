@@ -39,18 +39,19 @@ Check out the sections on [annotations](userguide/annotations.md) and [expectati
 
 
 # Command line 
-The `ut_run.sql` script is a powerful thing - it can provide output from the tests on the fly.
-You can also use it to have coloured output from the test, and if you try to test code that was dropper, all of unit tests related to that code will fail.
+The `ut_run` (for linux/unix) and `ut_run.bat` (for windows) are simple yet powerful.
+They can provide output from the tests on the fly. 
 
-![colors_and_failures](images/running_from_command_line.gif)
+You can also use it to have coloured outputs.
 
 Look into [ut_run.sql script options](userguide/ut_run-script.md) to see more.
 
 # Coverage
-If you want to have code coverage gathered on your code , it's best to use `ut_run.sql` to execute your tests with multiple reporters and have both test execution report as well as coverage report saved to a file.
+If you want to have code coverage gathered on your code , it's best to use `ut_run` to execute your tests with multiple reporters and have both test execution report as well as coverage report saved to a file.
+
 Check out the [coverage documentation](userguide/coverage.md) for options of coverage reporting
 
-![coverage](images/running_with_coverage_line.gif)
+
 
     
 
