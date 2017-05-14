@@ -6,9 +6,10 @@
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 
 
-utPLSQL is hosted on [hosted on GitHub](https://github.com/utPLSQL/utPLSQL) and open source project.
+utPLSQL is open source project [hosted on GitHub](https://github.com/utPLSQL/utPLSQL).
 
-Community help on this project is always appreciated, if your interested in helping please read our [guide to contributing](CONTRIBUTING.md)
+Contributions, help and constructive feedback is always appreciated.
+If you are interested in helping please read our [guide to contributing](CONTRIBUTING.md)
 
 
 
