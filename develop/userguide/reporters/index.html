@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Using reporters - utPLSQL</title>
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+	
+	<script src="../../js/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="../../index.html">utPLSQL</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                    <li >
+                        <a href="../../index.html">Home</a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">User Guide <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li >
+    <a href="../install/index.html">Installation</a>
+</li>
+                            
+<li >
+    <a href="../getting-started/index.html">Getting Started</a>
+</li>
+                            
+<li >
+    <a href="../annotations/index.html">Annotations</a>
+</li>
+                            
+<li >
+    <a href="../expectations/index.html">Expectations</a>
+</li>
+                            
+<li >
+    <a href="../running-unit-tests/index.html">Running unit tests</a>
+</li>
+                            
+<li >
+    <a href="../ut_run-script/index.html">Using the ut_run script</a>
+</li>
+                            
+<li >
+    <a href="../best-practices/index.html">Testing best pracitces</a>
+</li>
+                            
+<li >
+    <a href="../upgrade/index.html">Upgrade utPLSQL</a>
+</li>
+                        </ul>
+                    </li>
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reporting <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li class="active">
+    <a href="index.html">Using reporters</a>
+</li>
+                            
+<li >
+    <a href="../exception-reporting/index.html">Reporting errors</a>
+</li>
+                            
+<li >
+    <a href="../coverage/index.html">Code coverage</a>
+</li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li >
+    <a href="../../about/project-details/index.html">Project Details</a>
+</li>
+                            
+<li >
+    <a href="../../about/license/index.html">License</a>
+</li>
+                            
+<li >
+    <a href="../../about/support/index.html">Support</a>
+</li>
+                            
+<li >
+    <a href="../../about/authors/index.html">Authors</a>
+</li>
+                            
+<li >
+    <a href="../../about/CONTRIBUTING/index.html">Contributing</a>
+</li>
+                        </ul>
+                    </li>
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                    <li >
+                        <a rel="next" href="../upgrade/index.html">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../exception-reporting/index.html">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/utPLSQL/utPLSQL">
+                                <i class="fa fa-github"></i>GitHub
+                        </a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#documentation-reporter">Documentation reporter</a></li>
+            <li><a href="#color-output-from-documentation-reporter">Color output from documentation reporter</a></li>
+        <li class="main "><a href="#xunit-reporter">XUnit reporter</a></li>
+        <li class="main "><a href="#teamcity-reporter">Teamcity reporter</a></li>
+        <li class="main "><a href="#sonar-test-reporter">Sonar test reporter</a></li>
+        <li class="main "><a href="#coverage-reporters">Coverage reporters</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<p>utPLSQL provides the following reporting formats.</p>
+<h1 id="documentation-reporter">Documentation reporter</h1>
+<p>The <code>ut_documentation_reporter</code> is the default reporting format used by the framework.
+It provides a human readable test results.</p>
+<p>To invoke tests with documentation reporter use one of following calls from sql console (SQLPlus)  </p>
+<p><code>exec ut.run();</code></p>
+<p><code>exec ut.run(ut_documentation_reporter());</code></p>
+<p>You may also invoke unit tests directly from command line by calling.</p>
+<p><code>sqlplus /nolog @ut_run %user%/%pass%@%dbsid%</code></p>
+<p>Invoking tests from command line tool <code>ut_run.sql</code> allows you to track progress of test execution.
+In that case, the documentation reporter will provide information about each test that was executed as soon as it's execution finishes.
+For more details on using the <code>ut_run.sql</code> script look into <a href="../ut_run-script/index.html">ut_run.sql</a> documentation.</p>
+<p>The <code>ut_documentation_reporter</code> doesn't accept any arguments.</p>
+<p>Example outputs from documentation reporter.</p>
+<p><img alt="doc_reporter_outputs" src="../../images/documentation_reporter.png" /></p>
+<p>The documentation report provides the following information.
+- Test suite name or test package name  (nested with suitepath if suitepath is used)
+- Test description name or test procedure name
+- Information about test failing <code>(FAILED - n)</code> 
+- Information about disabled test <code>(IGNORED)</code> 
+- List of all errors and failures
+- Summary with total number of tests, number of tests with status and timing for the execution </p>
+<h2 id="color-output-from-documentation-reporter">Color output from documentation reporter</h2>
+<p>When invoking tests with documentation reporter and your command line supports ANSICONSOLE (default on Unix), you can obtain the coloured outputs from the documentation reporter.</p>
+<p>To invoke tests with documentation reporter in color mode use one of following calls.  </p>
+<p><code>exec ut.run(a_color_console=&gt;true);</code></p>
+<p><code>exec ut.run(ut_documentation_reporter(), a_color_console=&gt;true);</code></p>
+<p>Example outputs from documentation reporter.</p>
+<p><img alt="doc_reporter_outputs" src="../../images/documentation_reporter_color.png" /></p>
+<h1 id="xunit-reporter">XUnit reporter</h1>
+<p>Most of continuous integration servers (like Jenkins) are capable of consuming unit test execution results in <a href="https://en.wikipedia.org/wiki/XUnit">XUnit/JUnit</a> format.
+The <code>ut_xunit_reporter</code> is producing outcomes as XUnit-compatible XML unit test report, that can be used by CI servers to display their custom reports and provide metrics (like tests execution trends).</p>
+<p>Invocation of tests with XUnit reporter.  </p>
+<p><code>exec ut.run(ut_xunit_reporter());</code></p>
+<p>The <code>ut_xunit_reporter</code> doesn't accept any arguments.</p>
+<p>Example of xunit report integrated with <a href="https://jenkins.io/">Jenkins CI</a></p>
+<p><img alt="xunit_reporter_outputs" src="../../images/xunit_reporter_jenkins.png" /></p>
+<p>Example of failure report details</p>
+<p><img alt="xunit_reporter_outputs" src="../../images/xunit_reporter_jenkins_errors.png" /></p>
+<h1 id="teamcity-reporter">Teamcity reporter</h1>
+<p><a href="https://www.jetbrains.com/teamcity/">Teamcity</a> is a CI server by Jetbrains. It supports XUnit reporting and additionally has it's own format of reporting that allows tracking of progress of a CI step/task as it executes.
+The TeamCity format developed by Jetbrains is supported by utPLSQL with <code>ut_teamcity_reporter</code>.</p>
+<p>Invocation of tests with Teamcity reporter.  </p>
+<p><code>exec ut.run(ut_teamcity_reporter());</code></p>
+<p>The <code>ut_teamcity_reporter</code> doesn't accept any arguments.</p>
+<p>Example of unit test report from Teamcity CI server.</p>
+<p><img alt="xunit_reporter_outputs" src="../../images/teamcity_report_example.png" /></p>
+<p>Example of failure report details</p>
+<p><img alt="xunit_reporter_outputs" src="../../images/teamcity_report_example_errors.png" /></p>
+<h1 id="sonar-test-reporter">Sonar test reporter</h1>
+<p>If you are using <a href="https://about.sonarqube.com/">SonarQube</a> to do static code analysis for you PLSQL projects, your code analysis can benefit from code coverage and test results.
+utPLSQL provides two reporters to for SonarQube:
+- <code>ut_sonar_test_reporter</code> - provides an XML output of each test executed per each project test file (package) 
+- <code>ut_coverage_sonar_reporter</code> - provides XML output of code coverage per each project source file </p>
+<p><code>ut_sonar_test_reporter</code> needs to be called with a list of paths to test files (packages).
+The paths to files can be relative to the project root directory (recommended) or be absolute. </p>
+<p><code>ut_coverage_sonar_reporter</code> needs to be called with a list of paths to source files for your project.
+The paths to files can be relative to the project root directory (recommended) or be absolute.</p>
+<p>Providing invalid paths or paths to non-existing files will result in failure when publishing test results/coverage results to sonar server.</p>
+<p>For details on how to invoke reporter with paths, see the <strong>Coverage reporters</strong> section.</p>
+<h1 id="coverage-reporters">Coverage reporters</h1>
+<p>utPLSQL comes with a set of build-in coverage reporters. Have a look into the <a href="../coverage/index.html">coverage documentation</a> to learn more about them.</p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+                <p>Copyright &copy; 2016 - 2017 utPLSQL Team</p>
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>var base_url = '../..';</script>
+        <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+        <script src="../../js/base.js"></script><div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
