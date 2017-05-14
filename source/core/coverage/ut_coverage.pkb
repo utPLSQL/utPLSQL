@@ -32,7 +32,7 @@ create or replace package body ut_coverage is
     l_result varchar2(32767);
     l_full_name varchar2(100);
   begin
-    if a_coverage_options.file_mappings is not null then
+    if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
       l_full_name := 'f.file_name';
     else
       l_full_name := 'lower(s.owner||''.''||s.name)';
@@ -70,7 +70,7 @@ create or replace package body ut_coverage is
                     then 'Y'
                  end as to_be_skipped
             from all_source s]';
-    if a_coverage_options.file_mappings is not null then
+    if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
       l_result := l_result || '
             join table(:file_mappings) f
               on s.name  = f.object_name
@@ -161,7 +161,7 @@ create or replace package body ut_coverage is
 
     --prepare global temp table with sources
     delete from ut_coverage_sources_tmp;
-    if a_coverage_options.file_mappings is not null then
+    if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
       execute immediate populate_sources_tmp_table(a_coverage_options) using a_coverage_options.file_mappings, l_skipped_objects, a_coverage_options.include_objects;
     else
       execute immediate populate_sources_tmp_table(a_coverage_options) using l_schema_names, l_skipped_objects, a_coverage_options.include_objects;
