@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+
+<!-- WARNING! This file is generated. -->
+<!-- To alter documentation, edit files in src directory -->
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <title>Use Non-Default Prefix</title>
+   <link rel="stylesheet" href="utplsql.css" type="text/css" />
+   <meta name="keywords" content="utPLSQL, PL\SQL, Unit Testing, Framework, Oracle" />
+   <meta name="description" content="Unit Testing PL\SQL" />
+   <meta name="title" content="Use Non-Default Prefix" />
+   <meta name="author" content="Steven Feuerstein, Chris Rimmer, Patrick Barel and the utPLSQL Project" />
+   <meta name="copyright" content="(C) 2000-2005, 2014-2016 Steven Feuerstein, Chris Rimmer, Patrick Barel and the utPLSQL Project" />
+</head>
+<body>
+   <div class="purple_bar"><a href="index.html"><img src="utplsql.jpg" alt="utPLSQL logo" /></a></div>
+   <p>[ <a href="index.html">Home</a>
+ | <a href="started.html">Getting Started</a>
+ | <a href="buildpack.html">Build Test Packages</a>
+ | <a href="examples.html">Examples</a>
+ | <a href="userguide.html">User Guide</a>
+ | <a href="release.html">Release Notes</a>
+ | <a href="map.html">Document Map</a> ]</p>
+   <p><a href="samepack.html">&lt; Previous Section: Put Test Code in Same Package</a> | <a href="suite.html">Next Section: Create and Run a Test Suite &gt;</a></p>
+<!-- Begin utPLSQL Body -->
+<!-- $Id$ -->
+   <h1>Use Non-Default Prefix</h1>
+
+   <p>
+      The default prefix for utPLSQL is "ut_", but you don't have to use that
+      prefix. There are some situations where you absolutely will not want to
+      use the default prefix. Suppose, for example, that you have written a package
+      with ten procedures, each of which <i>already</i> have "ut_" as a prefix
+      (it might stand for "Unified Technologies" or "Underside Treatment: or...well,
+      you get the picture).
+   </p>
+   
+   <p>
+      Since this prefix is not hard-coded into utPLSQL, you can very easily
+      specify your own prefix. You can do this when you run a test, as in:
+   </p>
+
+<pre>
+SQL&gt; utPLSQL.test ('te_employee', prefix_in =&gt; 'test_');
+</pre>
+
+   <p>You can also specify a prefix when you add a package to a test suite, as in:</p>
+   
+<pre>
+SQL&gt; utPackage.add ('mysuite', 'mypackage' prefix_in =&gt; 'test_');
+</pre>
+
+   <p>
+      Of course, when you specify a non-default prefix, you must also build your
+      test package using that prefix. If you plan to generate a starting point
+      for your package with utGen, be sure to specify your prefix at that point,
+      as in:
+   </p>
+   
+<pre>
+SQL&gt; utGen.testpkg('mypackage' prefix_in =&gt; 'test_');
+</pre>
+
+   <p>
+      For an example of a package with a non-default prefix, check out test_te_employee.pks
+      and test_te_employee.pkb (Both to be found in the Examples directory of the utPLSQL distribution).
+   </p>
+
+<!-- End utPLSQL Body -->
+   <p><a href="samepack.html">&lt; Previous Section: Put Test Code in Same Package</a> | <a href="suite.html">Next Section: Create and Run a Test Suite &gt;</a></p>
+
+   <div class="purple_bar"><a href="index.html"><img src="utplsql.jpg" alt="utPLSQL logo" /></a></div>
+
+   <p>
+      <a href="http://validator.w3.org/check?uri=referer">
+         <img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0 Strict" height="31" width="88" />
+      </a>
+   </p>
+
+   <p class="copyright">Copyright &copy; 2000-2005, 2014-2016 <a href="mailto:steven@stevenfeuerstein.com">Steven Feuerstein</a>, <a href="mailto:c@24.org.uk">Chris Rimmer</a>, <a href="mailto:pbarel@vda.nl">Patrick Barel</a> and the utPLSQL Project. All rights reserved</p>
+</body>
+</html>

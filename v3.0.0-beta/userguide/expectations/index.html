@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Expectations - utPLSQL</title>
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+	
+	<script src="../../js/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="../../index.html">utPLSQL</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                    <li >
+                        <a href="../../index.html">Home</a>
+                    </li>
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">User Guide <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li >
+    <a href="../install/index.html">Installation</a>
+</li>
+                            
+<li >
+    <a href="../getting-started/index.html">Getting Started</a>
+</li>
+                            
+<li >
+    <a href="../annotations/index.html">Annotations</a>
+</li>
+                            
+<li class="active">
+    <a href="index.html">Expectations</a>
+</li>
+                            
+<li >
+    <a href="../running-unit-tests/index.html">Running unit tests</a>
+</li>
+                            
+<li >
+    <a href="../ut_run-script/index.html">Using the ut_run script</a>
+</li>
+                            
+<li >
+    <a href="../best-practices/index.html">Testing best pracitces</a>
+</li>
+                            
+<li >
+    <a href="../upgrade/index.html">Upgrade utPLSQL</a>
+</li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reporting <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li >
+    <a href="../reporters/index.html">Using reporters</a>
+</li>
+                            
+<li >
+    <a href="../exception-reporting/index.html">Reporting errors</a>
+</li>
+                            
+<li >
+    <a href="../coverage/index.html">Code coverage</a>
+</li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li >
+    <a href="../../about/project-details/index.html">Project Details</a>
+</li>
+                            
+<li >
+    <a href="../../about/license/index.html">License</a>
+</li>
+                            
+<li >
+    <a href="../../about/support/index.html">Support</a>
+</li>
+                            
+<li >
+    <a href="../../about/authors/index.html">Authors</a>
+</li>
+                            
+<li >
+    <a href="../../about/CONTRIBUTING/index.html">Contributing</a>
+</li>
+                        </ul>
+                    </li>
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                    <li >
+                        <a rel="next" href="../annotations/index.html">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../running-unit-tests/index.html">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/utPLSQL/utPLSQL">
+                                <i class="fa fa-github"></i>GitHub
+                        </a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#concepts">Concepts</a></li>
+        <li class="main "><a href="#matchers">Matchers</a></li>
+            <li><a href="#be_between">be_between</a></li>
+            <li><a href="#be_empty">be_empty</a></li>
+            <li><a href="#be_false">be_false</a></li>
+            <li><a href="#be_greater_or_equal">be_greater_or_equal</a></li>
+            <li><a href="#be_greater_than">be_greater_than</a></li>
+            <li><a href="#be_less_or_equal">be_less_or_equal</a></li>
+            <li><a href="#be_less_than">be_less_than</a></li>
+            <li><a href="#be_like">be_like</a></li>
+            <li><a href="#be_not_null">be_not_null</a></li>
+            <li><a href="#be_null">be_null</a></li>
+            <li><a href="#be_true">be_true</a></li>
+            <li><a href="#equal">equal</a></li>
+            <li><a href="#match">match</a></li>
+        <li class="main "><a href="#supported-data-types">Supported data types</a></li>
+        <li class="main "><a href="#negating-the-matcher">Negating the matcher</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="concepts">Concepts</h1>
+<p>Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
+To do that we use concept of expectation and a matcher to perform the check on the data.</p>
+<p>It's best to give an example to get an idea what is what</p>
+<pre><code class="sql">begin
+  ut.expect( 'the tested value' ).to_( equal('the expected value') );
+end;
+</code></pre>
+
+<p>Expectation is a set of the expected value(s), actual values(s) and the matcher(s) to run on those values.</p>
+<p>Matcher is defining the comparison operation to be performed on expected and actual values.
+Pseudo-code:</p>
+<pre><code class="sql">  ut.expect( a_actual {data-type} ).to_( {matcher} );
+  ut.expect( a_actual {data-type} ).not_to( {matcher} );
+</code></pre>
+
+<h1 id="matchers">Matchers</h1>
+<p>utPLSQL provides following matchers to perform checks on the expected and actual values.<br />
+- <code>be_between</code>
+- <code>be_empty</code>
+- <code>be_false</code>
+- <code>be_greater_than</code>
+- <code>be_greater_or_equal</code>
+- <code>be_less_or_equal</code>
+- <code>be_less_than</code>
+- <code>be_like</code>
+- <code>be_not_null</code>
+- <code>be_null</code>
+- <code>be_true</code>
+- <code>equal</code>
+- <code>match</code></p>
+<h2 id="be_between">be_between</h2>
+<p>Validates that the actual value is between the lower and upper bound.</p>
+<p>Example:</p>
+<pre><code class="sql">  exec ut.expect( a_actual =&gt; 3 ).to_( be_between( a_lower_bound =&gt; 1, a_upper_bound =&gt; 3 ) );
+  exec ut.expect( 3 ).to_( be_between( 1, 3 ) );
+</code></pre>
+
+<h2 id="be_empty">be_empty</h2>
+<p>Unary matcher that validates if the provided data-set is empty.</p>
+<p>Usage:</p>
+<pre><code class="sql">declare
+  l_cursor sys_refcursor;
+begin
+  open l_cursor for select * from dual where 1 = 0;
+  ut.expect( l_cursor ).to_( be_empty() );
+end;
+</code></pre>
+
+<p>When used with anydata, it is only valid for collection data types.</p>
+<h2 id="be_false">be_false</h2>
+<p>Unary matcher that validates if the provided value is false.</p>
+<p>Usage:</p>
+<pre><code class="sql">  exec ut.expect( ( 1 = 0 ) ).to_( be_false() );
+</code></pre>
+
+<h2 id="be_greater_or_equal">be_greater_or_equal</h2>
+<p>Allows to check if the actual value is greater or equal than the expected.</p>
+<p>Usage:</p>
+<pre><code class="sql">  exec ut.expect( sysdate ).to_( be_greater_or_equal( sysdate - 1 ) );
+</code></pre>
+
+<h2 id="be_greater_than">be_greater_than</h2>
+<p>Allows to check if the actual value is greater than the expected.</p>
+<p>Usage:</p>
+<pre><code class="sql">  exec ut.expect( 2 ).to_( be_greater_than( 1 ) );
+</code></pre>
+
+<h2 id="be_less_or_equal">be_less_or_equal</h2>
+<p>Allows to check if the actual value is less or equal than the expected.</p>
+<p>Usage:</p>
+<pre><code class="sql">  exec ut.expect( 3 ).to_( be_less_or_equal( 3 ) );
+</code></pre>
+
+<h2 id="be_less_than">be_less_than</h2>
+<p>Allows to check if the actual value is less than the expected.</p>
+<p>Usage:</p>
+<pre><code class="sql">  exec ut.expect( 3 ).to_( be_less_than( 2 ) );
+</code></pre>
+
+<h2 id="be_like">be_like</h2>
+<p>Validates that the actual value is like the expected expression.</p>
+<p>Usage:</p>
+<pre><code class="sql">  exec ut.expect( 'Lorem_impsum' ).to_( be_like( a_mask =&gt; '%rem\_%', a_escape_char =&gt; '\' ) );
+  exec ut.expect( 'Lorem_impsum' ).to_( be_like( '%rem\_%', '\' ) );
+</code></pre>
+
+<p>Parameters <code>a_mask</code> and <code>a_escape_char</code> represent a valid parameters of the <a href="https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF52142">Oracle like function</a></p>
+<h2 id="be_not_null">be_not_null</h2>
+<p>Unary matcher that validates if the actual value is not null.</p>
+<p>Usage:</p>
+<pre><code class="sql">  exec ut.expect( to_clob('ABC') ).to_( be_not_null() );
+</code></pre>
+
+<h2 id="be_null">be_null</h2>
+<p>Unary matcher that validates if the actual value is null.</p>
+<p>Usage:</p>
+<pre><code class="sql">  exec ut.expect( cast(null as varchar2(100)) ).to_( be_null() );
+</code></pre>
+
+<h2 id="be_true">be_true</h2>
+<p>Unary matcher that validates if the provided value is false.
+- <code>boolean</code></p>
+<p>Usage:</p>
+<pre><code class="sql">  exec ut.expect( ( 1 = 1 ) ).to_( be_true() );
+</code></pre>
+
+<h2 id="equal">equal</h2>
+<p>The equal matcher is a very restrictive matcher. It only returns true, if compared data-types.
+That means, that comparing varchar2 to a number will fail even if the varchar2 contains the same number.
+This matcher is designed to capture changes of data-type, so that if you expect your variable to be number and is now something else,
+ the test will fail and give you early indication of potential problem.</p>
+<p>Usage:</p>
+<pre><code class="sql">declare
+  x ref_cursor;
+  y ref_cursor;
+begin
+  ut.expect( 'a dog' ).to_( equal( 'a dog' ) );
+  ut.expect( a_actual =&gt; y ).to_( equal( a_expected =&gt; x, a_nulls_are_equal =&gt; true ) );
+end;
+</code></pre>
+
+<p>The <code>a_nulls_are_equal</code> parameter decides on the behavior of <code>null=null</code> comparison (<strong>this comparison by default is true!</strong>)</p>
+<p>The <code>anydata</code> data type is used to compare user defined object and collections.</p>
+<p>Example usage of anydata to compare user defined types.</p>
+<pre><code class="sql">create type department as object(name varchar2(30));
+/
+create or replace package demo_dept as 
+  -- %suite(demo)
+
+  --%test(demo_dept)
+  procedure test_department; 
+end;
+/
+
+create or replace package body demo_dept as 
+  procedure test_department is
+    v_expected department;
+    v_actual   department;
+  begin
+    v_expected := department('HR');
+    ut.expect( anydata.convertObject(v_expected) ).to_( equal( anydata.convertObject(v_actual) ) );
+  end;
+end;
+/
+</code></pre>
+
+<p>This test will fail as the <code>v_acutal</code> is not equal <code>v_expected</code>. </p>
+<h2 id="match">match</h2>
+<p>Validates that the actual value is matching the expected regular expression.</p>
+<p>Usage:</p>
+<pre><code class="sql">  exec ut.expect( a_actual =&gt; '123-456-ABcd' ).to_( match( a_pattern =&gt; '\d{3}-\d{3}-[a-z]', a_modifiers =&gt; 'i' ) );
+  exec ut.expect( 'some value' ).to_( match( '^some.*' ) );
+</code></pre>
+
+<p>Parameters <code>a_pattern</code> and <code>a_modifiers</code> represent a valid regexp pattern accepted by <a href="https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501">Oracle regexp_like function</a></p>
+<h1 id="supported-data-types">Supported data types</h1>
+<p>Below matrix illustrates the data types supported by different matchers.</p>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="center">be_between</th>
+<th align="center">be_empty</th>
+<th align="center">be_false</th>
+<th align="center">be_greater_than</th>
+<th align="center">be_greater_or_equal</th>
+<th align="center">be_less_or_equal</th>
+<th align="center">be_less_than</th>
+<th align="center">be_like</th>
+<th align="center">be_not_null</th>
+<th align="center">be_null</th>
+<th align="center">be_true</th>
+<th align="center">equal</th>
+<th align="center">match</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">anydata</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">blob</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">boolean</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">clob</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+</tr>
+<tr>
+<td align="left">date</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">number</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">refcursor</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">timestamp</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">timestamp with timezone</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">timestamp with local timezone</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">varchar2</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+</tr>
+<tr>
+<td align="left">interval year to month</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="left">interval day to second</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center">X</td>
+<td align="center"></td>
+<td align="center">X</td>
+<td align="center"></td>
+</tr>
+</tbody>
+</table>
+<h1 id="negating-the-matcher">Negating the matcher</h1>
+<p>Expectations provide a very convenient way to check for a negative of the expectation.</p>
+<p>Syntax of check for matcher evaluating to true:</p>
+<pre><code class="sql">  exec ut.expect( a_actual {data-type} ).to_( {matcher} );
+</code></pre>
+
+<p>Syntax of check for matcher evaluating to false:</p>
+<pre><code class="sql">  exec ut.expect( a_actual {data-type} ).not_to( {matcher} );
+</code></pre>
+
+<p>If a matcher evaluated to NULL, then both <code>to_</code> and <code>not_to</code> will cause the expectation to report failure.</p>
+<p>Example:</p>
+<pre><code class="sql">begin
+  ut.expect( null ).to_( be_true() );
+  ut.expect( null ).not_to( be_true() );
+end;
+</code></pre>
+
+<p>Since NULL is neither true not it is not true, both expectations will report failure. </p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+                <p>Copyright &copy; 2016 - 2017 utPLSQL Team</p>
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>var base_url = '../..';</script>
+        <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+        <script src="../../js/base.js"></script><div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Installation - utPLSQL</title>
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+	
+	<script src="../../js/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="../..">utPLSQL</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                    <li >
+                        <a href="../..">Home</a>
+                    </li>
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">User Guide <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li class="active">
+    <a href="./">Installation</a>
+</li>
+                            
+<li >
+    <a href="../getting-started/">Getting Started</a>
+</li>
+                            
+<li >
+    <a href="../annotations/">Annotations</a>
+</li>
+                            
+<li >
+    <a href="../assertions/">Assertions</a>
+</li>
+                            
+<li >
+    <a href="../best-practices/">Testing Best Pracitces</a>
+</li>
+                            
+<li >
+    <a href="../upgrade/">Upgrade utPLSQL</a>
+</li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li >
+    <a href="../../about/project-details/">Project Details</a>
+</li>
+                            
+<li >
+    <a href="../../about/license/">License</a>
+</li>
+                            
+<li >
+    <a href="../../about/support/">Support</a>
+</li>
+                        </ul>
+                    </li>
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                    <li >
+                        <a rel="next" href="../..">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../getting-started/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/utplsql/utplsql/">
+                                <i class="fa fa-github"></i>GitHub
+                        </a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#installation">Installation</a></li>
+        <li class="main "><a href="#recommended-schema">Recommended Schema</a></li>
+        <li class="main "><a href="#installation-procedure">Installation Procedure</a></li>
+            <li><a href="#creating-schema-for-utplsql">Creating schema for utPLSQL</a></li>
+            <li><a href="#installing-utplsql">Installing utPLSQL</a></li>
+            <li><a href="#allowing-other-users-to-access-utplsql-framework">Allowing other users to access utPLSQL framework</a></li>
+        <li class="main "><a href="#uninstalling-utplsql">Uninstalling utPLSQL</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h1 id="installation">Installation</h1>
+<p>To simply install the utPLSQL into a new database schema and grant it to public, execute the script <code>install_headless.sql</code>.</p>
+<p>This will create a new user <code>UT3</code> with password <code>UT3</code>, grant all needed privileges to that user and create PUBLIC synonyms needed to sue the utPLSQL framework.</p>
+<p>Example invocation of the script from command line:</p>
+<pre><code class="bash">cd source
+sqlplus admin/admins_password@xe @@install_headless.sql  
+</code></pre>
+
+<h1 id="recommended-schema">Recommended Schema</h1>
+<p>It is recommended to install utPLSQL in it's own schema. You are free to choose any name for this schema.</p>
+<p>The installation user/schema must have the following Oracle system permissions during the installation.
+  - CREATE SESSION
+  - CREATE PROCEDURE
+  - CREATE TYPE
+  - CREATE TABLE
+  - CREATE SYNONYM
+  - ALTER SESSION</p>
+<p>In addition it must be granted execute to the following system packages.</p>
+<ul>
+<li>DBMS_PIPE  </li>
+</ul>
+<h1 id="installation-procedure">Installation Procedure</h1>
+<h3 id="creating-schema-for-utplsql">Creating schema for utPLSQL</h3>
+<p>To create the utPLSQL schema and grant all the needed privileges execute script <code>create_utplsql_owner.sql</code> from the <code>source</code> directory with parameters:
+- <code>user name</code> - the name of the user that will own of utPLSQL object
+- <code>password</code>  - the password to be set for that user
+- <code>tablespace name</code> - the tablespace name to hold data created during test execution</p>
+<p>Example invocation of the script from command line:</p>
+<pre><code class="bash">cd source
+sqlplus admin/admins_password@xe @@create_utPLSQL_owner.sql ut3 ut3 users  
+</code></pre>
+
+<h3 id="installing-utplsql">Installing utPLSQL</h3>
+<p>To install the utPLSQL sources into your database run the <code>/source/install.sql</code> script and provide the <code>schema name</code> where utPLSQL is to be installed<br />
+You need to install the utPLSQL sources into a already existing database schema.
+You may install it from any account that has sufficient privileges to create objects in other users schema.
+You may also choose to install it directly into the schema owning the package.  </p>
+<p>Example invocation of the script from command line:</p>
+<pre><code class="bash">cd source
+sqlplus admin/admins_password@xe @@install.sql ut3  
+</code></pre>
+
+<h3 id="allowing-other-users-to-access-utplsql-framework">Allowing other users to access utPLSQL framework</h3>
+<p>In order to allow other users to access utPLSQL, synonyms must be created and grants need to be added.
+You have two options:
+- use public grants and synonyms, to allow any user to access the framework
+- use synonyms and grants for individual users to limit the access the the framework</p>
+<p>To grant utPLSQL to public execute the script <code>source/create_synonyms_and_grants_for_public.sql</code> and provide the provide <code>schema name</code> where utPLSQL is installed </p>
+<p>Example invocation of the script from command line:</p>
+<pre><code class="bash">cd source
+sqlplus admin/admins_password@xe @@create_synonyms_and_grants_for_public.sql ut3  
+</code></pre>
+
+<p>To grant utPLSQL to individual user execute the script <code>source/create_synonyms_and_grants_for_user.sql</code> and provide provide the <code>schema name</code> where utPLSQL is installed and <code>user name</code> to be granted</p>
+<p>Example invocation of the script from command line:</p>
+<pre><code class="bash">cd source
+sqlplus admin/admins_password@xe @@create_synonyms_and_grants_for_user.sql ut3 hr  
+</code></pre>
+
+<p>The following tools that support the SQL<em>Plus commands can be used to run the installation script
+  - SQL</em>Plus
+  - <a href="http://www.oracle.com/technetwork/developer-tools/sqlcl/overview/index.html">SQLcl</a>
+  - <a href="http://www.oracle.com/technetwork/developer-tools/sql-developer/overview/index.html">Oracle SQL Developer</a></p>
+<h1 id="uninstalling-utplsql">Uninstalling utPLSQL</h1>
+<p>To uninstall run <code>/source/uninstall.sql</code> and provide the provide <code>schema name</code> where utPLSQL is installed.</p>
+<p>The uninstall script will remove all the objects installed by the install script.
+Additionally, all the public and private synonyms pointing to the objects in utPLSQL schema will be removed.</p>
+<p>If you have you have extended any utPLSQL types such as a custom reporter, these will need to be dropped before the uninstall, otherwise the uninstall script might fail.</p>
+<p>In order for the uninstall to be successful, you need to use the uninstall script, that was provided wht the exact version that was installed on your database.</p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+                <p>Copyright &copy; 2016 - utPLSQL Team</p>
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>var base_url = '../..';</script>
+        <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+        <script src="../../js/base.js"></script><div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

@@ -1,0 +1,1430 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+
+<!-- WARNING! This file is generated. -->
+<!-- To alter documentation, edit files in src directory -->
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+   <title>utAssert Package</title>
+   <link rel="stylesheet" href="utplsql.css" type="text/css" />
+   <meta name="keywords" content="utPLSQL, PL\SQL, Unit Testing, Framework, Oracle" />
+   <meta name="description" content="Unit Testing PL\SQL" />
+   <meta name="title" content="utAssert Package" />
+   <meta name="author" content="Steven Feuerstein, Chris Rimmer, Patrick Barel and the utPLSQL Project" />
+   <meta name="copyright" content="(C) 2000-2005, 2014-2016 Steven Feuerstein, Chris Rimmer, Patrick Barel and the utPLSQL Project" />
+</head>
+<body>
+   <div class="purple_bar"><a href="index.html"><img src="utplsql.jpg" alt="utPLSQL logo" /></a></div>
+   <p>[ <a href="index.html">Home</a>
+ | <a href="started.html">Getting Started</a>
+ | <a href="buildpack.html">Build Test Packages</a>
+ | <a href="examples.html">Examples</a>
+ | <a href="userguide.html">User Guide</a>
+ | <a href="release.html">Release Notes</a>
+ | <a href="map.html">Document Map</a> ]</p>
+   <p><a href="utresult.html">&lt; Previous Section: utResult Package</a> | <a href="utgen.html">Next Section: utGen Package &gt;</a></p>
+<!-- Begin utPLSQL Body -->
+ <!-- $Id$ --> 
+   <h1> utAssert Package</h1>
+  
+   <p>This package contains the following procedures and functions: </p>
+  
+   <table cellspacing="5">
+      <tr>
+         <td><a href="#utassert.this">utAssert.this</a></td>
+         <td><a href="#utassert.this">Generic "Assert This" Procedure</a></td>
+      </tr>
+      <tr>
+         <td>
+            <a href="#utassert.isnull">utAssert.isnull</a>
+            <a href="#utassert.isnull">utAssert.isnotnull</a>
+         </td>
+         <td><a href="#utassert.isnull">Check for NULL and NOT NULL values</a></td>
+      </tr>
+      <tr>
+         <td><a href="#utassert.eq">utAssert.eq</a></td>
+         <td><a href="#utassert.eq">Check Equality of Scalar Values</a></td>
+      </tr>
+      <tr>
+         <td><a href="#utassert.eqtable">utAssert.eqtable</a></td>
+         <td><a href="#utassert.eqtable">Check Equality of Database Tables</a></td>
+      </tr>
+      <tr>
+         <td><a href="#utassert.eqtabcount">utAssert.eqtabcount</a></td>
+         <td><a href="#utassert.eqtabcount">Check Equality of Table Counts</a></td>
+      </tr>
+      <tr>
+         <td><a href="#eqquery">utAssert.eqquery</a></td>
+         <td><a href="#eqquery">Check Equality of Queries</a></td>
+      </tr>
+      <tr>
+         <td><a href="#eqqueryvalue">utAssert.eqqueryvalue</a></td>
+         <td><a href="#eqqueryvalue">Check Equality of Query against single value</a></td>
+      </tr>
+      <tr>
+         <td><a href="#utassert.eqfile">utAssert.eqfile</a></td>
+         <td><a href="#utassert.eqfile">Check Equality of Files</a></td>
+      </tr>
+      <tr>
+         <td><a href="#utassert.eqpipe">utAssert.eqpipe</a></td>
+         <td><a href="#utassert.eqpipe">Check Equality of Database Pipes</a></td>
+      </tr>
+      <tr>
+         <td>
+            <a href="#utassert.eqcoll">utAssert.eqcoll</a>
+            <a href="#utassert.eqcoll">utAssert.eqcollapi</a>
+         </td>
+         <td><a href="#utassert.eqcoll">Check Equality of Collections</a></td>
+      </tr>
+      <tr>
+         <td><a href="#throws">utAssert.throws</a></td>
+         <td><a href="#throws">Check a procedure or function throws an exception</a></td>
+      </tr>
+      <tr>
+         <td>
+            <a href="#previous">utAssert.previous_passed
+            utAssert.previous_failed</a>
+         </td>
+         <td>
+            <a href="#previous">Check if the previous assertion
+            passed or failed</a>
+         </td>
+      </tr>
+      <tr>
+         <td><a href="#eqoutput">utAssert.eqoutput</a></td>
+         <td><a href="#eqoutput">Check Equality of DBMS_OUTPUT Collections</a></td>
+      </tr>
+      <tr>
+         <td>
+            <a href="#object">utAssert.objexists</a>
+            <a href="#object">utAssert.objnotexists</a>
+         </td>
+         <td><a href="#object">Check for existence of database objects</a></td>
+      </tr>
+      <tr>
+         <td><a href="#eq_refc_query">utAssert.eq_refc_query</a></td>
+         <td><a href="#eq_refc_query">Check Equality of RefCursor and Query</a></td>
+      </tr>
+      <tr>
+         <td><a href="#eq_refc_table">utAssert.eq_refc_table</a></td>
+         <td><a href="#eq_refc_table">Check Equality of RefCursor and Database Table</a></td>
+      </tr>
+   </table>
+   <p>
+      The utAssert package provides a set of assertion routines ("assert that
+      the following condition is true") that you will use to register the outcome
+      of a test case. You must call a utAssert assertion program after (or containing)
+      a test case so that the results of that test can be recorded and then reported.
+      See <a href="buildpack.html">Build Test Packages</a> for many examples and
+      more details on this process. Here is a very simple example, though, to give
+      you an idea of the code you would write:  
+   </p>
+
+<pre>
+PROCEDURE ut_BETWNSTR IS
+BEGIN
+   utAssert.eq (
+      'Typical valid usage',
+      BETWNSTR(
+         STRING_IN =&gt; 'abcdefg',
+         START_IN =&gt; 3,
+         END_IN =&gt; 5
+      ),
+      'cde'
+   );
+END;
+</pre>
+   <p>
+      utAssert offers a wide (and ever expanding) set of assertion programs that
+      allow you to efficiently (a) test the outcome of your unit test and (b) report
+      the results of that test to utPLSQL. You should review <a href="#utassert-common">
+      Common Assertion Parameters and Behavior</a> before using any specific assertion
+      program. It is also possible to <a href="#utassert-BYOA">build your own assertion
+      routine.</a>  Note: all utAssert assertions are defined in the ut_assertion
+      table, as well as actually coded in the utAssert package.
+   </p>
+
+   <h2> <a name="utassert-common"></a>Common Assertion Parameters and Behavior</h2>
+  
+   <p>
+      Each type of assertion routine accepts different kinds of data, but there
+      are lots of similarities between the assertions, as well.  Here is an explanation
+      of the common assertion parameters:  
+   </p>
+
+   <table cellpadding="0" border="1" width="714" cellspacing="0">
+      <tr>
+         <td valign="top"> msg_in </td>
+            <td valign="top">
+               A message to be displayed if the assertion
+               fails. This is the first argument and is mandatory, because the tests need
+               to be self documenting. 
+            </td>
+      </tr>
+      <tr>
+         <td valign="top"> check_this_in </td>
+         <td valign="top">
+            The value to be checked.. If a Boolean expression,
+            this will usually include the invocation of the method being tested, resulting
+            in a single line of code for the entire test case. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> against_this_in </td>
+         <td valign="top"> 
+            For assert_eq, the assertion routine will
+            check the check_this_in value against the against_this_in value. This parameter
+            should be the certifiably correct value. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> null_ok_in </td>
+            <td valign="top"> 
+               TRUE if a NULL value should be interpreted
+               as a successful test, FALSE if NULL indicates failure. 
+            </td>
+      </tr>
+      <tr>
+         <td valign="top"> raise_exc_in </td>
+         <td valign="top"> 
+            TRUE if it is OK for the assertion routine
+            to allow an exception to be propagated out unhandled. 
+         </td>
+      </tr>
+   </table>
+  
+   <h2> <a name="utassert.this"></a>Generic "Assert This" Assertion Procedure</h2>
+  
+   <p>
+      This most generic assertion program simply says "assert this" and passes
+      a Boolean expression. It is used by all the other assertion routines, which
+      <i>construct</i> a Boolean expression from their specific values and logic. 
+   </p>
+ 
+<pre>
+   PROCEDURE utAssert.this (
+      msg_in        IN VARCHAR2,
+      check_this_in IN BOOLEAN,
+      null_ok_in    IN BOOLEAN := FALSE,
+      raise_exc_in  IN BOOLEAN := FALSE
+   );
+</pre>
+
+   <p>
+      Use utAssert.this when you have a Boolean expression that you want to check,
+      as in:
+   </p>
+
+<pre>
+BEGIN
+   ...
+   utAssert.this (
+      'Boolean function result',
+      is_valid_account (my_account)
+   );
+</pre>
+
+   <p>
+      You can also use this assertion to register a failure, most usually in
+      an exception section, as in:
+   </p>
+   
+<pre>
+EXCEPTION
+   WHEN OTHERS
+   THEN
+      utAssert.this (
+         SQLERRM,
+         FALSE
+      );
+</pre>
+
+   <p>
+      Generally, you should avoid utAssert.this and instead use a specialized
+      assertion routine, documented below. Most of the assertions give you the
+      ability check for equality (of scalars, such as strings, or more complex
+      data structures like tables, pipes and files): does the data generated by
+      my code match the expected value(s)?  
+   </p>
+
+   <h2> <a name="utassert.isnull"></a>Check for NULL and NOT NULL Values</h2>
+  
+   <p>
+      You can check to see if a value is NULL or is NOT NULL with the following
+      assertions:
+   </p>
+   
+<pre>
+PROCEDURE utAssert.isnotnull (
+   msg_in        IN VARCHAR2,
+   check_this_in IN VARCHAR2,
+   null_ok_in    IN BOOLEAN := FALSE,
+   raise_exc_in  IN BOOLEAN := FALSE
+);
+
+PROCEDURE utAssert.isnull (
+   msg_in        IN VARCHAR2,
+   check_this_in IN VARCHAR2,
+   null_ok_in    IN BOOLEAN := FALSE,
+   raise_exc_in  IN BOOLEAN := FALSE
+);
+
+PROCEDURE utAssert.isnotnull (
+   msg_in        IN VARCHAR2,
+   check_this_in IN BOOLEAN,
+   null_ok_in    IN BOOLEAN := FALSE,
+   raise_exc_in  IN BOOLEAN := FALSE
+);
+
+PROCEDURE utAssert.isnull (
+   msg_in        IN VARCHAR2,
+   check_this_in IN BOOLEAN,
+   null_ok_in    IN BOOLEAN := FALSE,
+   raise_exc_in  IN BOOLEAN := FALSE
+);
+</pre>
+
+   <p>
+      Use these assertions when you simply want to check if a scalar expression
+      (string, date, number and Boolean are supported) is NULL or NOT NULL, as
+      in:
+   </p>
+   
+<pre>
+BEGIN
+   ...
+   utAssert.isNULL (
+      'Should be nothing left',
+      TRANSLATE (digits_in_string, 'A1234567890', 'A')
+   );
+</pre>
+  
+   <h2> <a name="utassert.eq"></a>Check Equality of Scalar Values</h2>
+   <p>
+      If you need to compare two dates or two strings or two numbers or two Booleans, 
+      use the utAssert.eq assertion program.  
+   </p>
+   
+   <p>Here is the header for the scalar equality check assertion:</p>
+
+<pre>
+PROCEDURE utAssert.eq (
+   msg_in          IN VARCHAR2,
+   check_this_in   IN VARCHAR2|BOOLEAN|DATE|NUMBER,
+   against_this_in IN VARCHAR2|BOOLEAN|DATE|NUMBER,
+   null_ok_in      IN BOOLEAN := FALSE,
+   raise_exc_in    IN BOOLEAN := FALSE
+);
+</pre>
+
+   <p>
+      If the two values are equal, your code gets a green light. Otherwise, utAssert
+      writes the test results to the utResult package, resulting in a red light
+      for the test.  If NULL values are considered value for this test, pass TRUE
+      for null_ok_in. If you want the assertion to raise an exception on failure
+      and stop the test from proceeding, pass TRUE for raise_exc_in.  Here is an
+      example of using the utAssert.eq program:
+   </p>
+   
+<pre>   
+   PROCEDURE ut_emp_dept_lookuprowcount
+   IS
+      l_rowcount1 PLS_INTEGER;
+      l_rowcount2 PLS_INTEGER;
+      BEGIN
+         -- Run baseline code.
+         SELECT COUNT (*)
+         INTO l_rowcount1
+         FROM employee
+         WHERE department_id = 30;
+         
+         -- Compare to program call:
+         l_rowcount2 := te_employee.emp_dept_lookuprowcount (30);
+         
+         -- Test results
+         utassert.eq (
+            'Successful EMP_DEPT_LOOKUPROWCOUNT',
+            l_rowcount2,
+            l_rowcount1
+         );
+      END;
+</pre>
+
+   <h2> <a name="utassert.eqtable"></a>Check Equality of DatabaseTables</h2>
+  
+   <p>
+      If your test performs DML operations (update, insert or delete), you will
+      need to check your results in a database table. You could do this by querying
+      the results into local variables and then calling utAssert.eq to check those
+      values against your expected data. That can be a very laborious process,
+      so utAssert offers the eqtable and equerry assertion routines to streamline
+      the process.  Both these procedures use the MINUS SQL operator to essentially
+      "subtract" the contents of one table (query) from the other. If anything
+      is left, then the two tables (queries) are not the same and the test is given
+      a red light. As you can probably see, the structure of the two tables (queries)
+      must be identical for this assertion to work properly.  The utAssert.eqtable
+      allows you to compare the contents of your data table (changed by your code)
+      against another table, which you can preset with the data you expect to see
+      after the test. Here is the header for eqtable:
+   </p>
+   
+<pre>
+PROCEDURE utAssert.eqtable (
+   msg_in           IN VARCHAR2,
+   check_this_in    IN VARCHAR2,
+   against_this_in  IN VARCHAR2,
+   check_where_in   IN VARCHAR2 := NULL,
+   against_where_in IN VARCHAR2 := NULL,
+   raise_exc_in     IN BOOLEAN := FALSE
+);
+</pre>
+
+   <p>
+      where check_this_in and against_this_in are the names of tables or views.
+      You can supply an optional WHERE clause to restrict the rows you wish to
+      compare. Here is an example that calls eqTable twice, to test two different
+      conditions.
+   </p>
+   
+<pre>
+PROCEDURE ut_del1
+IS
+   fdbk PLS_INTEGER;
+BEGIN
+   /* Delete that finds now rows. */
+
+   EXECUTE IMMEDIATE '
+   DELETE FROM ut_DEL1
+   WHERE employee_id = -1
+   ';
+   te_employee.del (-1, rowcount_out =&gt; fdbk);
+
+   -- Test results
+   utassert.eqtable ('Delete rows', 'EMPLOYEE', 'ut_DEL1');
+
+   /* Successful delete */
+
+   EXECUTE IMMEDIATE '
+   DELETE FROM ut_DEL1
+   WHERE employee_id between 7800 and 7899
+   ';
+      
+   FOR rec IN (SELECT *
+                 FROM employee
+                WHERE employee_id BETWEEN 7800 AND 7899)
+   LOOP
+      te_employee.del (
+         rec.employee_id,
+         rowcount_out =&gt; fdbk
+      );
+   END LOOP;
+   
+   -- Test results
+   utassert.eqtable ('Delete rows', 'EMPLOYEE', 'ut_DEL1');
+   ROLLBACK;
+EXCEPTION
+   WHEN OTHERS
+   THEN
+      utassert.this (
+         'DEL1 exception ' || SQLERRM,
+         SQLCODE = 0
+      );
+END;
+</pre>
+  
+   <h2> <a name="utassert.eqtabcount"></a>Check Equality of Table Counts</h2>
+   
+   <p>
+      If your tests simply produce the right number of rows in a table but not 
+      a fixed set of values, you will not be able to use <a href="#utassert.eqtable">
+      utAssert.eqtable</a> above.  However, utAssert.eqtabcount allows you to simply
+      test that the numbers of rows are equal.  The declaration of the procedure
+      is as follows:
+   </p>
+   
+<pre>
+PROCEDURE utAssert.eqtabcount (
+   msg_in           IN VARCHAR2,
+   check_this_in    IN VARCHAR2,
+   against_this_in  IN VARCHAR2,
+   check_where_in   IN VARCHAR2 := NULL,
+   against_where_in IN VARCHAR2 := NULL,
+   raise_exc_in     IN BOOLEAN := FALSE
+);
+</pre>
+
+   <p>
+      where check_this_in and against_this_in are the names of tables or views.
+      As in utAssert.eqtable, you can supply an optional WHERE clause to restrict
+      the rows you wish to compare. The following test will compare the number
+      of rows in the CD_COLLECTION and UT_TEST_5_1 tables where the given condition
+      holds: 
+   </p>
+   
+<pre>
+utassert.eqtabcount('Test 5.1: Insert new rows',
+                    'CD_COLLECTION',
+                    'UT_TEST_5_1',
+                    'ARTIST = ''The Fall''',
+                    'ARTIST = ''The Fall''');
+</pre>
+   
+   <h2> <a name="eqquery"></a>Asserting Query Equality</h2>
+  
+   <p>
+      The utAssert.eqquery allows you to compare the data returned by two queries
+      (strings that are contained in the check_this_in and against_this_in parameters).
+      In this case, you specify the full SELECT statements for each query as the
+      parameters. By using equery, you may be able to avoid constructing a separate
+      table with preset data.
+   </p>
+   
+<pre>
+PROCEDURE utAssert.eqquery (
+   msg_in          IN VARCHAR2,
+   check_this_in   IN VARCHAR2,
+   against_this_in IN VARCHAR2,
+   raise_exc_in    IN BOOLEAN := FALSE
+);
+</pre>
+
+   <p>
+      If you want the assertion to raise an exception on failure and stop the
+      test from proceeding, pass TRUE for raise_exc_in.  Here is an example of
+      using eqQuery:  
+   </p>
+   
+<pre>
+PROCEDURE ut_upd1
+IS
+BEGIN
+   /* Update 3 columns by ID */
+   EXECUTE IMMEDIATE '
+   UPDATE ut_UPD1 SET
+      FIRST_NAME = ''SILLY'',
+      HIRE_DATE = trunc (SYSDATE+100),
+      COMMISSION = 5000
+    WHERE
+       EMPLOYEE_ID = 7600
+   ';
+   te_employee.upd (
+      7600,
+      first_name_in =&gt; 'SILLY',
+      commission_in =&gt; 5000,
+      hire_date_in =&gt; TRUNC (SYSDATE + 100),
+      rowcount_out =&gt; fdbk
+   );
+   -- Test results (audit fields are different so do a query)
+   utassert.eqquery (
+      'Update three columns',
+      'select first_name, commission, hire_date from EMPLOYEE',
+      'select first_name, commission, hire_date from ut_upd1'
+   );
+   ROLLBACK;
+END;
+</pre>
+  
+   <h2> <a name="eqqueryvalue"></a>Check Query Equality against a Single Value</h2>
+   <p>
+      Often we will wish to test the result of a query against a single value rather
+      than another query as in <a href="#eqquery">utAssert.eqquery</a> above. 
+      It is possible to get around this problem by using a trivial query of the
+      form:
+   </p>
+   
+<pre>
+SELECT <i>fixed_value</i>
+FROM DUAL;
+</pre>
+
+   <p>
+      Unfortunately, if the query returns multiple values or the wrong value we
+      will only be told that the test has failed with no details.  This is where
+      utAssert.eqqueryvalue comes to the rescue.  The procedure is declared as
+      follows:
+   </p>
+   
+<pre>
+PROCEDURE utAssert.eqqueryvalue (
+   msg_in           IN VARCHAR2,
+   check_query_in   IN VARCHAR2,
+   against_value_in IN VARCHAR2|NUMBER|DATE,
+   raise_exc_in     IN BOOLEAN := FALSE
+);
+</pre>
+
+   <p>
+      Where check_query_in is the query in question and against_value_in is the 
+      value to check it against.  If the query returns more than one value, the
+      resulting error message will tell you this.  Similarly, if the query returns
+      the wrong value, the message will state the expected and obtained values.
+      The following call compares the maximum value found in a table against a
+      given number value:
+   </p>
+   
+<pre>
+utAssert.eqqueryvalue('Maximum value test',
+                      'SELECT MAX(MEMORY)
+                       FROM COMPUTERS
+                       WHERE OS IN (''Linux'', ''Unix'')',
+                       256);
+</pre>
+
+   <p>
+      Obviously this should only return a single value, but if it returns something 
+      other than 256, we'll know about it. 
+   </p>
+
+   <h2> <a name="utassert.eqfile"></a>Check Equality of Files</h2>
+  
+   <p>
+      Many programs generate output to operating system files; alternatively,
+      you might write data to a file simply to test results. Use the eqfile assertion
+      for either of these scenarios. This procedure uses PL/SQL's UTL_FILE package
+      to compare the contents of two different files.  Note: If you have not used
+      UTL_FILE in the past, you must <a href="admin.html#UTL_FILE">configure</a>
+      it before it can be used -- by utPLSQL or by your own code. UTL_FILE must
+      be allowed accss to either or both of the directories you specify (this involves
+      setting the utl_file_dir database parameter).
+   </p>
+   
+<pre>
+PROCEDURE utAssert.eqfile (
+   msg_in IN VARCHAR2,
+   check_this_in IN VARCHAR2,
+   check_this_dir_in IN VARCHAR2,
+   against_this_in IN VARCHAR2,
+   against_this_dir_in IN VARCHAR2 := NULL,
+   raise_exc_in IN BOOLEAN := FALSE
+);
+</pre>
+
+   <p>
+      If you want the assertion to raise an exception on failure and stop the
+      test from proceeding, pass TRUE for raise_exc_in.  You must specify the directory
+      containing the "check this" file; if you do not specify a directory for the
+      "against this" file, the "check this" directory will be used.  Here is an
+      example of using eqFile (see ut_DEPARTMENT2file.pkg in the Examples directory
+      for the full implementation):
+   </p>
+   
+<pre>
+PROCEDURE ut_DEPARTMENT2FILE IS
+BEGIN
+   DEPARTMENT2FILE (
+      LOC =&gt; 'c:\temp',
+      FILE =&gt; 'department.dat',
+      DELIM =&gt; '***'
+    );
+
+   utAssert.eqfile (
+      'Test of DEPARTMENT2FILE',
+      'department.dat',
+      'c:\temp',
+      'department.tst',
+      'c:\temp'
+      );      
+END ut_DEPARTMENT2FILE;
+</pre>
+  
+   <h2> <a name="utassert.eqpipe"></a>Check Equality of Database Pipes</h2>
+   <p>
+      Database pipes offer a handy mechanism for passing data between different
+      sessions connected to the RDBMS. It is important to know that pipes are being
+      filled properly; use the eqpipe to check this condition.  With the eqpipe
+      procedure, you compare the contents of two different pipes.
+   </p>
+   
+<pre>
+PROCEDURE utAssert.eqpipe (
+   msg_in          IN VARCHAR2,
+   check_this_in   IN VARCHAR2,
+   against_this_in IN VARCHAR2,
+   raise_exc_in    IN BOOLEAN := FALSE
+);
+</pre>
+
+   <p>
+      If you want the assertion to raise an exception on failure and stop the
+      test from proceeding, pass TRUE for raise_exc_in.  To check the contents
+      of a pipe based on the execution of code, you will need to populate a pipe
+      against which to test equality. The employee_pipe.pkg file in the Examples
+      directory contains a demonstration of the kind of code you might write to
+      do this.  This package contains all of the unit test code within the same
+      package. Here is my unit test program, which relies on the utAssert.eqpipe
+      program:
+   </p>
+   
+<pre>
+PROCEDURE ut_fillpipe IS
+   stat PLS_INTEGER;
+BEGIN
+   emptypipe ('emps');
+   emptypipe ('emps2');
+   
+   fillpipe ('emps');
+   
+   /* Direct filling of pipe. */
+   
+   FOR rec IN (SELECT *
+                 FROM employee)
+   LOOP
+      DBMS_PIPE.RESET_BUFFER;
+      DBMS_PIPE.PACK_MESSAGE (rec.EMPLOYEE_ID);
+      DBMS_PIPE.PACK_MESSAGE (rec.LAST_NAME);
+      DBMS_PIPE.PACK_MESSAGE (rec.FIRST_NAME);
+      DBMS_PIPE.PACK_MESSAGE (rec.MIDDLE_INITIAL);
+      DBMS_PIPE.PACK_MESSAGE (rec.JOB_ID);
+      DBMS_PIPE.PACK_MESSAGE (rec.MANAGER_ID);
+      DBMS_PIPE.PACK_MESSAGE (rec.HIRE_DATE);
+      DBMS_PIPE.PACK_MESSAGE (rec.SALARY);
+      DBMS_PIPE.PACK_MESSAGE (rec.COMMISSION);
+      DBMS_PIPE.PACK_MESSAGE (rec.DEPARTMENT_ID);
+      DBMS_PIPE.PACK_MESSAGE (rec.CHANGED_BY);
+      DBMS_PIPE.PACK_MESSAGE (rec.CHANGED_ON);
+
+      stat := DBMS_PIPE.SEND_MESSAGE ('emps2', 0);
+   END LOOP;
+   
+<b>   /* Compare the two */
+   utassert.eqpipe (
+      'Two employee pipes', 'emps', 'emps2');
+</b>      
+END ut_fillpipe;
+</pre>
+
+   <p>
+      Since I have stored my unit test logic with my source code package, I would
+      run my test as follows:
+   </p>
+   
+<pre>
+SQL&gt; exec utplsql.test ('employee_pipe', samepackage_in=&gt;TRUE)
+FAILURE: "employee_pipe"
+fillpipe: Pipes equal? Compared "emps" against "emps2"
+</pre>
+  
+   <h2> <a name="utassert.eqcoll"></a>Check Equality of Collections</h2>
+  
+   <p>
+      Collections are as close as you come to arrays in PL/SQL. They are very
+      useful for managing lists of information, but can be difficult to debug and
+      maintain.  With the eqcoll and eqcollAPI procedures, you can compare the
+      contents of two different arrays. Use the eqColl procedure when you want
+      to compare two collections that are defined in the specification of a package.
+      Use the eqCollAPI procedure when you want to compare two collections that
+      are defined in the body of a package, with programs defined in the specification
+      (an API) to access and manipulate the collections.  The collection equality
+      check headers are:
+   </p>
+   
+<pre>
+   /* Direct access to collections */
+   PROCEDURE utAssert.eqcoll (
+      msg_in IN VARCHAR2,
+      check_this_in IN VARCHAR2, /* pkg1.coll */
+      against_this_in IN VARCHAR2, /* pkg2.coll */
+      eqfunc_in IN VARCHAR2 := NULL,
+      check_startrow_in IN PLS_INTEGER := NULL,
+      check_endrow_in IN PLS_INTEGER := NULL,
+      against_startrow_in IN PLS_INTEGER := NULL,
+      against_endrow_in IN PLS_INTEGER := NULL,
+      match_rownum_in IN BOOLEAN := FALSE,
+      null_ok_in IN BOOLEAN := TRUE,
+      raise_exc_in IN BOOLEAN := FALSE
+   );
+  
+   /* API based access to collections */
+   PROCEDURE utAssert.eqcollapi (
+      msg_in IN VARCHAR2,
+      check_this_pkg_in IN VARCHAR2,
+      against_this_pkg_in IN VARCHAR2,
+      eqfunc_in IN VARCHAR2 := NULL,
+      countfunc_in IN VARCHAR2 := 'COUNT',
+      firstrowfunc_in IN VARCHAR2 := 'FIRST',
+      lastrowfunc_in IN VARCHAR2 := 'LAST',
+      nextrowfunc_in IN VARCHAR2 := 'NEXT',
+      getvalfunc_in IN VARCHAR2 := 'NTHVAL',
+      check_startrow_in IN PLS_INTEGER := NULL,
+      check_endrow_in IN PLS_INTEGER := NULL,
+      against_startrow_in IN PLS_INTEGER := NULL,
+      against_endrow_in IN PLS_INTEGER := NULL,
+      match_rownum_in IN BOOLEAN := FALSE,
+      null_ok_in IN BOOLEAN := TRUE,
+      raise_exc_in IN BOOLEAN := FALSE
+   );
+</pre>
+
+   <p>where the eqcoll-specific parameters are as follows:</p>
+   
+   <table cellpadding="0" border="1" cellspacing="0">
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> msg_in </td>
+         <td valign="top"> The message to be displayed if the test failes </td>
+      </tr>
+      <tr>
+         <td valign="top"> check_this_in </td>
+         <td valign="top"> 
+            The name of the collection to be checked.
+            Format: package.collection. In other words, the collection must be defined
+            in a package specification. Use eqCollAPI (and check_this_pkg_in) if you
+            want to hide the declaration of your collection in your package body (recommended). 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> against_this_in </td>
+         <td valign="top"> 
+            The name of the collection to be checked
+            against. Format: package.collection. In other words, the collection must
+            be defined in a package specification. Use eqCollAPI (and check_this_pkg_in)
+            if you want to hide the declaration of your collection in your package body
+            (recommended). 
+         </td>
+      </tr>
+   </table>
+   
+   <p>and the eqcollAPI-specific parameters are as follows: </p>
+  
+   <table cellpadding="0" border="1" cellspacing="0">
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> msg_in </td>
+         <td valign="top"> The message to be displayed if the test failes</td>
+      </tr>
+      <tr>
+         <td valign="top"> check_this_pkg_in </td>
+         <td valign="top"> 
+            The name of the package that contains the
+            collection to be checked. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> against_this_pkg_in </td>
+         <td valign="top"> 
+            The name of the package that contains the
+            collection to be checked against. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> countfunc_in </td>
+         <td valign="top"> 
+            The name of the function in the package that
+            returns the number of rows defined in the collection. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> firstrowfunc_in </td>
+         <td valign="top"> 
+            The name of the function in the package that
+            returns the first defined row in the collection. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> lastrowfunc_in </td>
+         <td valign="top"> 
+            The name of the function in the package that
+            returns the last defined row in the collection. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> nextrowfunc_in </td>
+         <td valign="top"> 
+            The name of the function in the package that
+            returns the next defined row in the collection from the specified row. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> getvalfunc_in </td>
+         <td valign="top"> 
+            The name of the function in the package that
+            returns the contents of the specified row. 
+         </td>
+      </tr>
+   </table>
+   
+   <p>The parameters common to both eqColl and eqCollAPI are as follows </p>
+  
+   <table cellpadding="0" border="1" cellspacing="0">
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> eqfunc_in </td>
+         <td valign="top"> 
+            The function used to determine if the contents
+            of each row of the two collections are the same. If you pass NULL for this 
+            argument, then a standard equality check will be used. This is fine for scalar
+            values, but will not work, for example, with tables of records. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> check_startrow_in </td>
+         <td valign="top"> 
+            The starting row in the check collection
+            for comparison. If NULL, then first row is used. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> check_endrow_in </td>
+         <td valign="top"> 
+            The ending row in the check collection for
+            comparison. If NULL, then last row is used. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> against_startrow_in </td>
+         <td valign="top"> 
+            The starting row in the against collection
+            for comparison. If NULL, then first row is used. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> against_endrow_in </td>
+         <td valign="top"> 
+            The ending row in the against collection
+            for comparison. If NULL, then last row is used. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> match_rownum_in </td>
+         <td valign="top"> 
+            Pass TRUE if you want to make sure that the
+            same row numbers are used in each collection. If FALSE, then the row numbers 
+            can be different, but the contents of each corresponding row must be the same. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> null_ok_in </td>
+         <td valign="top"> 
+            Pass TRUE if the assertion routine should
+            consider two NULL collections to be equal. 
+         </td>
+      </tr>
+      <tr>
+         <td valign="top"> raise_exc_in </td>
+         <td valign="top"> 
+            If you want the assertion to raise an exception 
+            on failure and stop the test from proceeding, pass TRUE for raise_exc_in. 
+         </td>
+      </tr>
+   </table>
+   
+   <p>
+      Here is an example of a script that uses utAssert.eqColl (taken from filepath1.pkg
+      in the Examples directory):
+   </p>
+   
+<pre>
+PROCEDURE ut_setpath
+IS
+BEGIN
+   /* Populate base collection */
+   ut_dirs.DELETE;
+   ut_dirs.EXTEND(2);
+   ut_dirs(1) := 'c:\temp';
+   ut_dirs(2) := 'e:\demo';
+   
+   /* Call setpath to do the work */
+   setpath ('c:\temp;e:\demo');
+   
+   utAssert.eqColl (
+      'Valid double entry',
+      'fileio.dirs',
+      'fileio.ut_dirs'
+      );
+END;
+</pre>
+
+   <h2> <a name="throws"></a>Checking a Procedure or Function throws an exception</h2>
+
+   <p>
+      Sometimes we design a procedure or function to throw an exception under certain
+      circumstances.  This is something we'd like to be able to test for.  Obviously
+      this is not particularly easy due to the way exceptions propagate through
+      the call stack.  If we simply call the procedure in our test code, the exception
+      will have no chance of being caught within the utAssert package!  Therefore,
+      we need to pass the tested call in to the package as a string.  The procedure
+      utAssert.throws allows us to do this:
+   </p>
+   
+<pre>
+PROCEDURE throws (
+      msg_in VARCHAR2,
+      check_call_in IN VARCHAR2,
+      against_exc_in IN VARCHAR2|NUMBER
+   );
+</pre>
+   <p>
+      Where check_call_in is the call to be made, complete with parameters and 
+      terminating semicolon.  The argument against_exc_in is the exception we expect
+      to be thrown.  This can be specified either as a named exception, or a SQLCODE
+      value. 
+   </p>
+   <p>The following example shows both usages:</p>
+   
+<pre>
+/* Test the Except Function */
+PROCEDURE ut_except
+IS
+BEGIN
+
+   /* Call the procedure with a negative number */
+   /* We expect a NO_DATA_FOUND exception       */
+   utAssert.throws('Negative Number',
+      'Except(-1);',
+      'NO_DATA_FOUND'
+   );
+   
+   /* Call the procedure with zero and a string    */
+   /* over 2 in length - We expect a SQLCODE of -1 */  
+   utAssert.throws('Zero and String',
+      'Except(0, ''Hello'');',
+      -1
+     );
+END;
+</pre>
+  
+   <p>
+      Note how we have to quote the string parameters to the call and terminate
+      the string with a semicolon.
+   </p>
+   
+   <h2><a name="previous"></a>Check if the Previous Assertion Passed or Failed</h2>
+
+   <p>
+      Sometimes, a procedure may have a large number of effects that need to be
+      tested. For example, it might insert and update data in a series of
+      tables. To test all of these changes, it will be necessary to make
+      a series of calls to utAssert. This can have the effect that if the
+      procedure is not behaving as expected, then the user is presented with a
+      screenful of errors. To avoid this and just present them with a single
+      error, the functions previous_passed and previous_failed can be used.
+      These return a BOOLEAN argument giving the success or failure of the previously
+      called assertion.
+   </p>
+
+   <p>The following example gives a demonstration:</p>
+
+<pre>
+/* Test the BookTrips Procedure */
+PROCEDURE ut_bookTrips
+IS 
+BEGIN
+
+  /* Call the procedure */
+  Vacation.bookTrips(5, 'Rio de Janeiro');
+  
+  /* Did it insert 5 rows into TRIPS table */
+  utAssert.eqqueryvalue('Insert 5 rows',
+    'SELECT COUNT(*)
+    FROM TRIPS
+    WHERE CITY = ''Rio de Janeiro''',
+    5);
+    
+  /* If that worked, look in more detail */
+  IF utAssert.previous_passed THEN
+    
+    /* Do they all have today's date? */
+    utAssert.eqqueryvalue('All with todays date',
+      'SELECT COUNT(*)
+       FROM TRIPS
+       WHERE CITY = ''Rio de Janeiro'''
+       AND TRUNC(CREATED) = TRUNC(SYSDATE)',
+       5);
+     
+    /* Do they all have a hotel specified? */
+    utAssert.eqqueryvalue('Hotel Specfied',
+      'SELECT COUNT(*)
+       FROM TRIPS T, HOTELS H
+       WHERE T.CITY = ''Rio de Janeiro'''
+       AND T.HOTEL = H.ID',
+       5);
+     
+ END IF;
+   
+END;
+</pre>
+
+   <h2> <a name="eqoutput">Comparing output from DBMS_OUTPUT</a></h2>
+
+   <p>
+      To complement the <a href="utoutput.html">utOutput</a> package, these
+      assertions allow you to easily compare collections of the type
+      DBMS_OUTPUT.CHARARR.  Unlike the <a href="#utassert.eqcoll">eqcoll and
+      eqcollapi</a> assertions, this allows the comparison of locally defined
+      collections.  The procedures are declared as follows:
+   </p>
+
+<pre>
+PROCEDURE eqoutput (
+   msg_in                IN   VARCHAR2,
+   check_this_in         IN   DBMS_OUTPUT.CHARARR,
+   against_this_in       IN   DBMS_OUTPUT.CHARARR,
+   ignore_case_in        IN   BOOLEAN := FALSE,
+   ignore_whitespace_in  IN   BOOLEAN := FALSE,
+   null_ok_in            IN   BOOLEAN := TRUE,
+   raise_exc_in          IN   BOOLEAN := FALSE
+);
+
+PROCEDURE eqoutput (
+   msg_in                IN   VARCHAR2,
+   check_this_in         IN   DBMS_OUTPUT.CHARARR,
+   against_this_in       IN   VARCHAR2,
+   line_delimiter_in     IN   CHAR := NULL,
+   ignore_case_in        IN   BOOLEAN := FALSE,
+   ignore_whitespace_in  IN   BOOLEAN := FALSE,
+   null_ok_in            IN   BOOLEAN := TRUE,
+   raise_exc_in          IN   BOOLEAN := FALSE
+);
+</pre>
+
+   <p>
+      The first version simply compares two collections, whereas the second compares a collection against a delimited string.  The delimiter
+      can be specified by the line_delimiter_in parameter.  If NULL is passed in (which is the default) then the lines are delimited by carriage returns.
+      Thus to test a collection mybuff which should look like:
+   </p>
+
+<pre>
+   mybuff(0) := 'Zidane';
+   mybuff(1) := 'Ronaldo';
+   mybuff(2) := 'Kahn';
+</pre>
+
+   <p>we could pass in parameters:</p>
+
+<pre>
+   check_this_in =&gt; 'Zidane|Ronaldo|Kahn';
+   line_delimiter_in =&gt; '|';
+</pre>
+
+   <p>or:</p>
+
+<pre>
+   check_this_in =&gt; 
+'Zidane
+Ronaldo
+Kahn';
+   line_delimiter_in =&gt; NULL;
+</pre>
+
+   <p>There are also the following flags to modify the way that the line-by-line comparisons are carried out:</p>
+
+   <ul>
+      <li>ignore_case_in - this specifies that case should be ignored when comparing lines.</li>
+      <li>ignore_whitespace_in - this specifies that whitespace differences should be ignored when comparing lines.</li>
+   </ul>
+
+   <p>
+      Finally, note that only the text itself is compared.  These assertions do
+      not care about how the records within the collections are numbered.
+   </p>
+
+   <h2> <a name="object">Check for Existence of Database Objects</a></h2>
+
+   <p> 
+      The following assertions (created by Raji) check that a named database
+      object exists or does not exist:
+   </p>
+   
+<pre>
+PROCEDURE objExists (
+   msg_in            IN   VARCHAR2,
+   check_this_in     IN   VARCHAR2,
+   null_ok_in        IN   BOOLEAN := FALSE,
+   raise_exc_in      IN   BOOLEAN := FALSE
+);
+
+PROCEDURE objnotExists (
+   msg_in            IN   VARCHAR2,
+   check_this_in     IN   VARCHAR2,
+   null_ok_in        IN   BOOLEAN := FALSE,
+   raise_exc_in      IN   BOOLEAN := FALSE
+);
+</pre>
+
+   <p>
+      In both cases, the check_this_in parameter gives the name of the object to
+      check for.  So passing 'MYTHING' will check if the MYTHING object exists.  This
+      is assumed to be in the current schema.  To check for objects in a schema other
+      than the current one, simply add the name of the schema, separated by a dot.
+      So passing 'ANOTHER.THATTHING' will check for the existence of the THATTHING
+      object in the ANOTHER schema.
+   </p> 
+
+   <h2> <a name="eq_refc_query"></a>Check Equality of RefCursor and Query</h2>
+  
+   <p>
+      If you have a procedure or function that returns a REF CURSOR type you 
+      often would like to compare the data of the REF CURSOR against a query (if 
+      your REF CURSOR returns a complete table you can use 
+      <a href="#eq_refc_table">utAssert.eq_refc_table</a> below). In this case, 
+      you specify the REF CURSOR of the procedure or function and the full 
+      SELECT statement as parameters. By using eq_refc_query, you may be able to 
+      avoid the huge workload of constructing separate tables with preset data.
+   </p>
+   
+   <p>
+      Before calling the comparison you have to specifiy the parameters of the procedure or function you are going to use. 
+      This is done with the procedures utPLSQL_Util.reg_In_Param, utPLSQL_Util.reg_InOut_Param or utPLSQL_Util.reg_Out_Param. 
+      The details of the parameters are built up in a variable of type utplsql_util.utplsql_params, which is then passed into eq_refc_query.
+   </p>
+
+<pre>
+PROCEDURE utPLSQL_Util.reg_In_Param (
+   par_pos            PLS_INTEGER,
+   par_val            VARCHAR2 | NUMBER | DATE,
+   params    IN OUT   utplsql_util.utplsql_params );
+
+PROCEDURE utPLSQL_Util.reg_InOut_Param (
+   par_pos            PLS_INTEGER,
+   par_val            VARCHAR2 | NUMBER | DATE,
+   params    IN OUT   utplsql_util.utplsql_params );
+
+PROCEDURE utPLSQL_Util.reg_Out_Param (
+   par_pos            PLS_INTEGER,
+   par_type           VARCHAR2,
+   params    IN OUT   utplsql_util.utplsql_params );
+</pre>
+
+   <p>
+      Having specified all the parameters for the procedure or function 
+      returning the REF CURSOR, the comparison can be started.
+   </p>
+
+<pre>
+PROCEDURE utAssert.eq_refc_query (
+   p_msg_nm          IN   VARCHAR2,
+   proc_name         IN   VARCHAR2,
+   params            IN   utplsql_util.utplsql_params,
+   cursor_position   IN   PLS_INTEGER,
+   qry               IN   VARCHAR2 );
+</pre>
+
+   <p>where the reg_In_Param, reg_InOut_Param and reg_Out_Param-specific parameters are as follows:</p>
+
+   <table cellpadding="0" border="1" cellspacing="0">
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> par_pos </td>
+         <td valign="top"> Defines the parameter position beginning with 1, or 0 specifying the return value</td>
+      </tr>
+      <tr>
+         <td valign="top"> par_type </td>
+         <td valign="top"> Specifies the data type of the return value and must be one out of 'NUMBER', 'VARCHAR', 'CHAR' or 'REFCURSOR'</td>
+      </tr>
+      <tr>
+         <td valign="top"> params </td>
+         <td valign="top"> The local variable to keep the values that is used as a parameter for eq_refc_query</td>
+      </tr>
+   </table>
+
+   <p>and the eq_refc_query-specific parameters are as follows:</p>
+
+   <table cellpadding="0" border="1" cellspacing="0">
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> p_msg_nm </td>
+         <td valign="top"> The message to be displayed if the test fails</td>
+      </tr>
+      <tr>
+         <td valign="top"> proc_name </td>
+         <td valign="top"> Specifies the procedure or function that delivers the REF CURSOR</td>
+      </tr>
+      <tr>
+         <td valign="top"> params </td>
+         <td valign="top"> The parameter setting for the procedure or function</td>
+      </tr>
+      <tr>
+         <td valign="top"> cursor_position </td>
+         <td valign="top"> Position of the REF CURSOR parameter to be checked, beginning with 1, or 0 to specify the return value of a function</td>
+      </tr>
+      <tr>
+         <td valign="top"> qry </td>
+         <td valign="top"> The SELECT statement to be checked against</td>
+      </tr>
+   </table>
+
+   <p>Finally, note that only the record itself is compared. These assertions do not care about how the records within the cursor are numbered.</p>
+
+
+   <h2> <a name="eq_refc_table"></a>Check Equality of RefCursor and Database Table</h2>
+
+   <p>
+      If you have a procedure or function that returns a REF CURSOR type that represents a complete table or view you 
+      often would like to compare the data of this REF CURSOR against the table or view 
+      (if your REF CURSOR doesn't return a complete table or view you can use <a href="#eq_refc_query">utAssert.eq_refc_query</a> above). 
+      In this case, you specify the REF CURSOR of the procedure or function and the table or view name as parameters. 
+      By using eq_refc_table, you may be able to avoid the huge workload of constructing separate tables with preset data.
+   </p>
+
+   <p>
+      Before calling the comparison you have to specifiy the parameters of the procedure or function you are going to use. 
+      This is done with the procedures utPLSQL_Util.reg_In_Param, utPLSQL_Util.reg_InOut_Param or utPLSQL_Util.reg_Out_Param. 
+      The details of the parameters are built up in a variable of type utplsql_util.utplsql_params, which is then passed into eq_refc_query.
+   </p>
+
+<pre>
+PROCEDURE utPLSQL_Util.reg_In_Param (
+   par_pos            PLS_INTEGER,
+   par_val            VARCHAR2 | NUMBER | DATE,
+   params    IN OUT   utplsql_util.utplsql_params );
+
+PROCEDURE utPLSQL_Util.reg_InOut_Param (
+   par_pos            PLS_INTEGER,
+   par_val            VARCHAR2 | NUMBER | DATE,
+   params    IN OUT   utplsql_util.utplsql_params );
+
+PROCEDURE utPLSQL_Util.reg_Out_Param (
+   par_pos            PLS_INTEGER,
+   par_type           VARCHAR2,
+   params    IN OUT   utplsql_util.utplsql_params );
+</pre>
+
+   <p>Having specified all the parameters for the procedure or function returning the REF CURSOR, the comparison can be started.</p>
+
+<pre>
+PROCEDURE utAssert.eq_refc_table (
+   p_msg_nm          IN   VARCHAR2,
+   proc_name         IN   VARCHAR2,
+   params            IN   utplsql_util.utplsql_params,
+   cursor_position   IN   PLS_INTEGER,
+   table_name        IN   VARCHAR2 );
+</pre>
+
+   <p>where the reg_In_Param, reg_InOut_Param and reg_Out_Param-specific parameters are as follows:</p>
+   
+   <table cellpadding="0" border="1" cellspacing="0">
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> par_pos </td>
+         <td valign="top"> Defines the parameter position beginning with 1, or 0 specifying the return value</td>
+      </tr>
+      <tr>
+         <td valign="top"> par_type </td>
+         <td valign="top"> Specifies the data type of the return value and must be one out of 'NUMBER', 'VARCHAR', 'CHAR' or 'REFCURSOR'</td>
+      </tr>
+      <tr>
+         <td valign="top"> params </td>
+         <td valign="top"> The local variable to keep the values that is used as a parameter for eq_refc_query</td>
+      </tr>
+   </table>
+
+   <p>and the eq_refc_query-specific parameters are as follows:  </p>
+
+   <table cellpadding="0" border="1" cellspacing="0">
+      <tr>
+         <td><b>Parameter</b></td>
+         <td><b>Description</b></td>
+      </tr>
+      <tr>
+         <td valign="top"> p_msg_nm </td>
+         <td valign="top"> The message to be displayed if the test fails</td>
+      </tr>
+      <tr>
+         <td valign="top"> proc_name </td>
+         <td valign="top"> Specifies the procedure or function that delivers the REF CURSOR</td>
+      </tr>
+      <tr>
+         <td valign="top"> params </td>
+         <td valign="top"> The parameter setting for the procedure or function</td>
+      </tr>
+      <tr>
+         <td valign="top"> cursor_position </td>
+         <td valign="top"> Position of the REF CURSOR parameter to be checked, beginning with 1, or 0 to specify the return value of a function</td>
+      </tr>
+      <tr>
+         <td valign="top"> table_name </td>
+         <td valign="top"> The name of the table name or view to be checked against</td>
+      </tr>
+   </table>
+
+   <p>Finally, note that only the record itself is compared. These assertions do not care about how the records within the cursor are numbered.</p>
+
+   <h2> <a name="utassert-BYOA"></a>Building Your Own Assertion</h2>
+  
+   <p>
+      You may want to build assertion routines that fit your specific needs.
+      If PL/SQL supported inheritance, you could extend the utAssert assertion
+      routines and then customize them through polymorphism. Lacking this feature,
+      however, you will write your own procedures that follow the same steps as
+      the pre-build assertions.  In order to integrate the results of your assertion 
+      test into the utResult package, you will want to mimic the utAssert.this procedure.
+      Here is its current implementation (Release 1.3.2); check the body of the
+      utAssert package for any changes.
+   </p>
+   
+<pre>
+PROCEDURE this (
+   msg_in        IN VARCHAR2,
+   check_this_in IN BOOLEAN,
+   null_ok_in    IN BOOLEAN := FALSE,
+   raise_exc_in  IN BOOLEAN := FALSE,
+   register_in   IN BOOLEAN := TRUE
+   )
+IS
+BEGIN
+   IF    NOT check_this_in
+      OR (    check_this_in IS NULL
+          AND NOT null_ok_in)
+   THEN
+      IF register_in
+      THEN
+         -- Registers the results in the utResult databank.
+         utresult.report (msg_in);
+      ELSE
+         utreport.pl (msg_in); -- used to be utplsql.pl (msg_in) (PBA 20050621)
+      END IF;
+      
+      IF showing_results AND register_in
+      THEN
+         -- Show the results of the test more recently run.
+         utresult.showlast;
+      END IF;
+
+      IF raise_exc_in
+      THEN
+         RAISE test_failure;
+      END IF;
+   END IF;
+END;
+</pre>
+
+   <p>
+      The most important statement to include in your assertion routine is the
+      call to utResult.report, which will log the results of the test.  
+   </p>
+<!-- End utPLSQL Body -->
+   <p><a href="utresult.html">&lt; Previous Section: utResult Package</a> | <a href="utgen.html">Next Section: utGen Package &gt;</a></p>
+
+   <div class="purple_bar"><a href="index.html"><img src="utplsql.jpg" alt="utPLSQL logo" /></a></div>
+
+   <p>
+      <a href="http://validator.w3.org/check?uri=referer">
+         <img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0 Strict" height="31" width="88" />
+      </a>
+   </p>
+
+   <p class="copyright">Copyright &copy; 2000-2005, 2014-2016 <a href="mailto:steven@stevenfeuerstein.com">Steven Feuerstein</a>, <a href="mailto:c@24.org.uk">Chris Rimmer</a>, <a href="mailto:pbarel@vda.nl">Patrick Barel</a> and the utPLSQL Project. All rights reserved</p>
+</body>
+</html>
