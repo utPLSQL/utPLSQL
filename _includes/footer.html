@@ -1,0 +1,29 @@
+<footer class="site-footer">
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      
+      <div class="footer-col footer-col-1">
+        <ul class="social-media-list">
+          {% if site.github_username %}
+          <li>
+            {% include icon-github.html username=site.github_username %}
+          </li>
+          {% endif %}
+
+          {% if site.twitter_username %}
+          <li>
+            {% include icon-twitter.html username=site.twitter_username %}
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-3">
+        <p>{{ site.description }}</p>
+      </div>
+    </div>
+    Copyright &copy; 2016 - {{ 'now' | date: "%Y" }} utPLSQL Project
+
+</footer>
