@@ -160,19 +160,27 @@ A `%suitepath` can be provided in tree ways:
 
 # Using automatic rollbacks in tests
 
-By default, every test is isolated using savepoint.
+By default, changes performed by every setup, cleanup and test procedure is isolated using savepoint.
 This solution is suitable for use-cases, where the code that is getting tested as well as the unit tests themselves do not use transaction control (commit/rollback) or DDL commands.
+
 In general, your unit tests should not use transaction control as long as the code you are testing is not using it too.
 Keeping the transactions uncommitted allows your changes to be isolated and the execution of tests is not impacting others that might be using a shared development database.
 
 If you are in situation, where the code you are testing, is using transaction control (common case with ETL code), then your tests probably should not use the default automatic transaction control.
 In that case use the annotation `-- %rollback(manual)` on the suite level to disable automatic transaction control for entire suite.
-If you are using nested suites, you need to make sure that thr entire suite all the way to the root is using manual transaction control.
+If you are using nested suites, you need to make sure that the entire suite all the way to the root is using manual transaction control.
+
+It is possible with utPLSQL to change the transaction control on individual suites or tests that are part of complex suite.
+It is strongly recommended not to have mixed transaction control in suite.
+Mixed transaction control settings will not work properly when your suites are using shared setup/cleanup with beforeall, afterall, beforeeach or aftereach annotations.
+Your suite will most probably fail with error or warning on execution. Some of the automatic rollbacks will most probably fail to execute depending on the configuration you have.
 
 In some cases it is needed to perform DDL as part of setup or cleanup for the tests. 
-It is recommended to move such DDL statements to a procedure with `pragma autonomous_transaction` to eliminate implicit commit of the main session.
+It is recommended to move such DDL statements to a procedure with `pragma autonomous_transaction` to eliminate implicit commit in the main session that is executing all your tests.
 Doing so, allows your test to use automatic transaction control of the framework and release you from the burden of manual cleanup of data that was created or modified by test execution.
 
+When you are running test of code that is performing an explicit or implicit commit, you may set the test procedure to run in autonomous transaction with `pragma autonomous_transaction`.
+Keep in mind, that when your tests runs in autonomous transaction it will not see the data prepared in setup procedure unless the setup procedure committed the changes. 
 
 # Order of execution
 

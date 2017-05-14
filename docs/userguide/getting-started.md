@@ -31,7 +31,7 @@ end;
 /
 ```
 
-Execute all tests: `select * from table(ut.run());`
+Execute all tests: `begin ut.run(); end;`
 
 Test results:
 ```
@@ -55,7 +55,7 @@ end;
 /
 ```
 
-Execute test package: `select * from table(ut.run('test_betwnstr'));`
+Execute test package: `begin ut.run('test_betwnstr'); end;`
 
 Test results:
 ```
@@ -88,7 +88,7 @@ end;
 /
 ```
 
-Execute test package: `select * from table(ut.run('test_betwnstr'));`
+Execute test package: `begin ut.run('test_betwnstr'); end;`
 
 Test results:
 ```
@@ -121,7 +121,7 @@ end;
 /
 ```
 
-Execute test package: `select * from table(ut.run('test_betwnstr'));`
+Execute test package: `begin ut.run('test_betwnstr'); end;`
 
 Test results:
 ```
@@ -154,7 +154,7 @@ end;
 /
 ```
 
-Execute test package: `select * from table(ut.run('test_betwnstr'));`
+Execute test package: `begin ut.run('test_betwnstr'); end;`
 
 Test results:
 ```
@@ -228,7 +228,7 @@ end;
 /
 ```
 
-Execute test package: `select * from table(ut.run('test_betwnstr'));`
+Execute test package: `begin ut.run('test_betwnstr'); end;`
 
 Test results:
 ```
@@ -265,7 +265,7 @@ end;
 /
 ```
 
-Execute test package: `select * from table(ut.run('test_betwnstr'));`
+Execute test package: `begin ut.run('test_betwnstr'); end;`
 
 Test results:
 ```
