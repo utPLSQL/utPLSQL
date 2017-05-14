@@ -34,16 +34,13 @@ env:
     - UTPLSQL_BUILD_VERSION=$(. .travis/get_project_build_version.sh)
     - UTPLSQL_SOURCES_DIR='source'
     - UTPLSQL_BUILD_USER_NAME="Travis CI"
-    # Target Branch and Directory for Deployment of Docs
-    - PAGES_TARGET_BRANCH="gh-pages"
-    - PAGES_VERSION_BASE="version3"
     - CACHE_DIR=$HOME/.cache
     # Database Env
     - SQLCLI="$HOME/sqlcl/bin/sql"
     - ORACLE_PWD="oracle"
   matrix:
-    - ORACLE_VERSION="12c-se-r1" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1'
-    - ORACLE_VERSION="11g-xe-r2" CONNECTION_STR='127.0.0.1:1521/XE'        DOCKER_OPTIONS='--shm-size=1g'
+    - ORACLE_VERSION="11g-xe-r2"     CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
+    - ORACLE_VERSION="12c-se-r1"     CONNECTION_STR='127.0.0.1:1521/ORCLPDB1'
     - ORACLE_VERSION="12c-se2-r2-v2" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
 
 cache:
@@ -74,6 +71,7 @@ script:
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/coveralls_uploader.sh; fi
   - bash .travis/build_docs.sh
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/push_release_version.sh; fi
+  - bash .travis/push_docs_to_gh_pages.sh
 
 before_deploy:
   - bash .travis/build_release_archive.sh
