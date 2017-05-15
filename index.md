@@ -1,3 +1,6 @@
+---
+layout: default
+---
 # Documentation
 <!-- Auto generated in .travis/push_docs_to_gh_pages.sh -->
 

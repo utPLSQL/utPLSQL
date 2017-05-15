@@ -12,7 +12,7 @@ email:
 description: > # this means to ignore newlines until "baseurl:"
   utPLSQL <br/>
   Unit Testing Framework for Oracle PL/SQL.
-baseurl: "/utPLSQL" # the subpath of your site, e.g. /blog
+baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://utPLSQL.github.com" # the base hostname & protocol for your site
 twitter_username: utplsql
 github_username:  utplsql
