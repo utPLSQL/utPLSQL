@@ -1,6 +1,7 @@
 
 ### Version 3 Major Contributors 
-Listed Alphabetically 
+
+**Listed Alphabetically** 
 
 | Name          | GitHub account  
 | ------------  | --------------
@@ -9,7 +10,8 @@ Listed Alphabetically
 | Pavel  Kaplya | [Pazus](https://github.com/Pazus)
 | Robert Love   | [rlove](https://github.com/rlove)
 
-### Special thanks to prior major contributors.
+
+### Special thanks to prior major contributors
 
 - Steven Feuerstein - Original Author
 - Chris Rimmer

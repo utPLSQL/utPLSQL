@@ -6,24 +6,23 @@ invalidArgs=0
 [ -z "$1" ] && invalidArgs=1
 [ -z "$2" ] && invalidArgs=1
 [ -z "$3" ] && invalidArgs=1
-[ -z "$4" ] && invalidArgs=1
 
 if [ $invalidArgs -eq 1 ]; then
-    echo Usage: ut_run.sh "project_path" "scan_path" "sql_param_name" "output_file"
+    echo Usage: ut_run.sh "project_path" "sql_param_name" "output_file" "scan_path"
     exit 1
 fi
 
 # Remove trailing slashes.
 projectPath=${1%/}
-scanPath=$2
-sqlParamName=$3
-outputFile=$4
+sqlParamName=$2
+outputFile=$3
+scanPath=$4
 
 fullScanPath="$projectPath/$scanPath"
 
-if [ ! -d "$fullScanPath" ]; then
+if [ ! -d "$fullScanPath" ] || [ -z "$4" ]; then
     echo "begin" > $outputFile
-    echo "  open :$sqlParamName for select null from dual;" >> $outputFile
+    echo "  open :$sqlParamName for select null from dual where 1= 0;" >> $outputFile
     echo "end;" >> $outputFile
     echo "/" >> $outputFile
     exit 0

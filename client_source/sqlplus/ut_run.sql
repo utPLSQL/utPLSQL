@@ -231,7 +231,7 @@ declare
     return l_call_params;
   end;
 
-  function parse_paths_param(a_params ut_varchar2_list) return varchar2 is
+  function parse_suite_paths_param(a_params ut_varchar2_list) return varchar2 is
     l_paths varchar2(4000);
   begin
     begin
@@ -258,7 +258,7 @@ declare
     return 'false';
   end;
 
-  function parse_path_param(a_params ut_varchar2_list, a_param_name varchar2, a_default_value varchar2) return varchar2 is
+  function parse_source_files_path_param(a_params ut_varchar2_list, a_param_name varchar2) return varchar2 is
     l_path varchar2(4000);
   begin
     begin
@@ -268,7 +268,7 @@ declare
        where param_value is not null;
     exception
       when no_data_found then
-        l_path := a_default_value;
+        null;
       when too_many_rows then
         raise_application_error(-20000, 'Parameter "-'||a_param_name||'='||a_param_name||'" defined more than once. Only one "-'||a_param_name||'='||a_param_name||'" parameter can be used.');
     end;
@@ -295,11 +295,11 @@ begin
     end if;
   end loop;
 
-  :l_paths := parse_paths_param(l_input_params);
+  :l_paths := parse_suite_paths_param(l_input_params);
   :l_color_enabled := parse_color_enabled(l_input_params);
 
-  :l_source_path := parse_path_param(l_input_params,'source_path','source');
-  :l_test_path := parse_path_param(l_input_params,'test_path','test');
+  :l_source_path := parse_source_files_path_param(l_input_params,'source_path');
+  :l_test_path := parse_source_files_path_param(l_input_params,'test_path');
 
   if l_run_cursor_sql is not null then
     open :l_run_params_cur for l_run_cursor_sql;
@@ -307,6 +307,7 @@ begin
   if l_out_cursor_sql is not null then
     open :l_out_params_cur for l_out_cursor_sql;
   end if;
+  dbms_output.put_line(:l_source_path);
 end;
 /
 set termout off
@@ -321,11 +322,11 @@ column test_path new_value test_path noprint;
 select :l_test_path as test_path from dual;
 
 --try running on windows
-$ "&&client_path\file_list.bat" "&&project_path" "&&source_path" "l_source_files" "&&client_path\source_file_list.sql.tmp"
-$ "&&client_path\file_list.bat" "&&project_path" "&&test_path" "l_test_files" "&&client_path\test_file_list.sql.tmp"
+$ "&&client_path\file_list.bat" "&&project_path" "l_source_files" "&&client_path\source_file_list.sql.tmp" "&&source_path"
+$ "&&client_path\file_list.bat" "&&project_path" "l_test_files" "&&client_path\test_file_list.sql.tmp" "&&test_path"
 --try running on linux/unix
-! "&&client_path/file_list" "&&project_path" "&&source_path" "l_source_files" "&&client_path/source_file_list.sql.tmp"
-! "&&client_path/file_list" "&&project_path" "&&test_path" "l_test_files" "&&client_path/test_file_list.sql.tmp"
+! "&&client_path/file_list" "&&project_path" "l_source_files" "&&client_path/source_file_list.sql.tmp" "&&source_path"
+! "&&client_path/file_list" "&&project_path" "l_test_files" "&&client_path/test_file_list.sql.tmp" "&&test_path"
 
 undef source_path
 undef test_path
@@ -361,7 +362,7 @@ begin
   if :l_run_params_cur%isopen then
     loop
       fetch :l_run_params_cur into l_reporter_id, l_reporter_name;
-      exit when :l_run_params_cur%notfound;        
+      exit when :l_run_params_cur%notfound;
         p('  v_reporter := '||l_reporter_name||'();');
         p('  v_reporter.reporter_id := '''||l_reporter_id||''';');
         p('  v_reporters_list.extend; v_reporters_list(v_reporters_list.last) := v_reporter;');

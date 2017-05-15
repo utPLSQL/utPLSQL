@@ -1,4 +1,6 @@
+# Running tests
 utPLSQL framework provides two main entry points to run unit tests from within database: 
+
 - `ut.run` procedures and functions
 - `ut_runner.run` procedures
 
@@ -15,14 +17,15 @@ The **functions** can only be used in SELECT statements. They execute specified 
 
 ## ut.run procedures
 
-Examples:
+Below examples illustrate different ways and options to invoke ut.run procedures.
+
 ```sql
 alter session set current_schema=hr;
 begin
   ut.run();
 end;
 ```
-Execute all tests in current schema (_HR_).
+Executes all tests in current schema (_HR_).
 
 
 ```sql
@@ -30,7 +33,7 @@ begin
   ut.run('HR');
 end;
 ```
-Execute all tests in specified schema (_HR_).
+Executes all tests in specified schema (_HR_).
 
 
 ```sql
@@ -39,8 +42,8 @@ begin
 end;
 ```
 
-Execute all tests from all packages that are on the _COM.MY_ORG.MY_PROJECT_ suitepath.
-Check the [annotations documentation](annotations.md) to find out about suitepaths and how they can be used to group test packages.
+Executes all tests from all packages that are on the _com.my_org.my_project_ suitepath.
+Check the [annotations documentation](annotations.md) to find out about suitepaths and how they can be used to organize test packages for your project.
 
 
 ```sql
@@ -48,7 +51,7 @@ begin
   ut.run('hr.test_apply_bonus');
 end;
 ```
-Execute all tests from package _HR.TEST_APPLY_BONUS_. 
+Executes all tests from package _hr.test_apply_bonus_. 
 
 
 ```sql
@@ -56,7 +59,7 @@ begin
   ut.run('hr.test_apply_bonus.bonus_cannot_be_negative');
 end;
 ```
-Execute single test procedure _HR.TEST_APPLY_BONUS.BONUS_CANNOT_BE_NEGATIVE_.
+Executes single test procedure _hr.test_apply_bonus.bonus_cannot_be_negative_.
 
 
 ```sql
@@ -64,11 +67,13 @@ begin
   ut.run(ut_varcahr2_list('hr.test_apply_bonus','cust'));
 end;
 ```
-Execute all tests from package _HR.TEST_APPLY_BONUS_ and all tests from schema _CUST_.
+Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_.
+
 Using a list of items to execute allows you to execute a fine-grained set of tests.
 
 
 **Note:**
+
 `ut_documentation_reporter` is default reporter for all API's defined for running unit tests.
 
 The `ut.run` procedures and functions accept `a_reporter` attribute that defines the reporter to be used in the run.
@@ -79,14 +84,16 @@ begin
   ut.run('hr.test_apply_bonus', ut_xunit_reporter());
 end;
 ```
-Execute all tests from package _HR.TEST_APPLY_BONUS_ and provide outputs to DBMS_OUTPUT using the XUnit reporter. 
+Executes all tests from package _HR.TEST_APPLY_BONUS_ and provide outputs to DBMS_OUTPUT using the XUnit reporter. 
 
 
 For details on build-in reporters look at [reporters documentation](reporters.md).
 
 ## ut.run functions
 
-The `ut.run` functions provide exactly the same functionality as the procedures. You may use the same sets of parameters with both functions and procedures. The only difference is the output of the results.
+The `ut.run` functions provide exactly the same functionality as the `ut.run` procedures. 
+You may use the same sets of parameters with both functions and procedures. 
+The only difference is the output of the results.
 Functions provide outputs as pipelined stream and therefore need to be executed as select statements.
 
 Example.
@@ -94,7 +101,7 @@ Example.
 select * from table(ut.run('hr.test_apply_bonus', ut_xunit_reporter()));
 ```
 
-# ut_runner.run
+# ut_runner.run procedures
 
 The `ut_runner` provides API for integrating utPLSQL with other products. Maven, Jenkins, SQL Develper, PL/SQL Developer, TOAD and others can leverage this API to call utPLSQL.
 
@@ -109,4 +116,4 @@ The concept is pretty simple.
 - as a separate thread, start the `ut_runner.run` and pass reporters with previously defined output_id's
 - for each reporter start a separate thread and read outputs from `ut_output_buffer.get_lines` table function by providing the output_id defined in the main thread.
 
-`ut_runner.run` is internally used by the [`ut_run.sql` script](ut_run-script.md) which is a utility for running tests with multiple reporters and provides parameters to save reporters results into individual files on the local file system.  
+`ut_runner.run` is internally used by the [`ut_run` scripts](ut_run-script.md).  
