@@ -71,11 +71,14 @@ if [[ "${TRAVIS_JOB_NUMBER}" =~ \.1$ ]]; then
     now=$(date +"%d %b %Y - %r")
     export latest=" - [Latest development version](develop/) - Created $now"
     if [ ! -f index.md ]; then
+      echo "---" >>index.md
+      echo "layout: default" >>index.md
+      echo "---" >>index.md
+      echo "<!-- Auto generated from .travis/push_docs_to_gh_pages.sh -->" >>index.md
       echo "# Documentation versions" >>index.md
-      echo "<!-- Auto generated from .travis/push_docs_to_gh_pages.sh -->" >index.md
       echo "" >>index.md
-      echo "- 4th line placeholder see below" >>index.md
-      echo "- 5th line placeholder see below" >>index.md
+      echo "" >>index.md #- 7th line - placeholder for latest release doc
+      echo "" >>index.md #- 8th line - placeholder for develop branch doc
       echo "" >>index.md
       echo "## Released Version Doc History" >>index.md
       echo "" >>index.md
@@ -83,10 +86,10 @@ if [[ "${TRAVIS_JOB_NUMBER}" =~ \.1$ ]]; then
     #If build running on a TAG - it's a new release - need to add it to documentation
     if [ -n "${TRAVIS_TAG}" ]; then
       latest_release=" - [${TRAVIS_TAG} documentation](${UTPLSQL_VERSION}/) - Created $now"
-      sed -i '5s@.*@'"Latest release ${latest_release}"'@'  index.md
+      sed -i '7s@.*@'"Latest release ${latest_release}"'@'  index.md
     fi
     #replace 4th line in log
-    sed -i '5s@.*@'"${latest}"'@'  index.md
+    sed -i '8s@.*@'"${latest}"'@'  index.md
     #Add and Commit the changes back to pages repo.
     git add .
     git commit -m "Deploy to gh-pages branch: base commit ${SHA}"
