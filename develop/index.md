@@ -23,7 +23,12 @@ The framework follows industry standards and best patterns of modern Unit Testin
        - [Support](about/support.md)
        - [Authors](about/authors.md)
        - [Contributing](about/CONTRIBUTING.md)
+       
+# Demo project
 
+Have a look at our [demo project](https://github.com/utPLSQL/utPLSQL-demo-project/).
+
+It uses [Travis CI](https://travis-ci.org/utPLSQL/utPLSQL-demo-project) to build on every commit, runs all tests, publishes test results and code coverage to [SonarQube](https://sonarqube.com/dashboard?id=utPLSQL%3AutPLSQL-demo-project%3Adevelop).
 
 # Three steps
 With just three simple steps you can define and run your unit tests for PLSQL code.
