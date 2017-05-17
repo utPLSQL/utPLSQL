@@ -9,7 +9,6 @@ The framework follows industry standards and best patterns of modern Unit Testin
        - [Annotations](userguide/annotations.md)
        - [Expectations](userguide/expectations.md)
        - [Running unit tests](userguide/running-unit-tests.md)
-       - [Using the ut_run script](userguide/ut_run-script.md)
        - [Testing best pracitces](userguide/best-practices.md)
        - [Upgrade utPLSQL](userguide/upgrade.md)
   - Reporting
@@ -31,6 +30,7 @@ Have a look at our [demo project](https://github.com/utPLSQL/utPLSQL-demo-projec
 It uses [Travis CI](https://travis-ci.org/utPLSQL/utPLSQL-demo-project) to build on every commit, runs all tests, publishes test results and code coverage to [SonarQube](https://sonarqube.com/dashboard?id=utPLSQL%3AutPLSQL-demo-project%3Adevelop).
 
 # Three steps
+
 With just three simple steps you can define and run your unit tests for PLSQL code.
  
 1. Install the utPLSQL framework 
@@ -44,15 +44,17 @@ Here is how you can simply create tested code, unit tests and execute the tests 
 Check out the sections on [annotations](userguide/annotations.md) and [expectations](userguide/expectations.md) to see how to define your tests.  
 
 
-# Command line 
+# Command line
+ 
 The `ut_run` (for linux/unix) and `ut_run.bat` (for windows) are simple yet powerful.
 They can provide output from the tests on the fly. 
 
 You can also use it to have coloured outputs.
 
-Look into [ut_run.sql script options](userguide/ut_run-script.md) to see more.
+Look into [utPLSQL-sql-cli](https://github.com/utPLSQL/utPLSQL-sql-cli) project to see more.
 
 # Coverage
+
 If you want to have code coverage gathered on your code , it's best to use `ut_run` to execute your tests with multiple reporters and have both test execution report as well as coverage report saved to a file.
 
 Check out the [coverage documentation](userguide/coverage.md) for options of coverage reporting
