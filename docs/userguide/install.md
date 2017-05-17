@@ -24,15 +24,17 @@ curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/
 
 # Headless installation
 
-To simply install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql`.
+To simply install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql` as SYSDBA.
 
-This will create a new user `UT3` with password `XNtxj8eEgA6X6b6f`, grant all needed privileges to that user and create PUBLIC synonyms needed to sue the utPLSQL framework.
+This will create a new user `UT3` with password `XNtxj8eEgA6X6b6f`, grant all needed privileges to that user and create PUBLIC synonyms needed to use the utPLSQL framework.
 
 Example invocation of the script from command line:
 ```bash
 cd source
-sqlplus admin/admins_password@xe @@install_headless.sql  
+sqlplus sys/sys_pass@db as sysdba @@install_headless.sql  
 ```
+
+SYSDBA is needed to grant access to DBMS_LOCK.
 
 
 # Recommended Schema
@@ -69,7 +71,7 @@ To create the utPLSQL schema and grant all the needed privileges execute script 
 Example invocation:
 ```bash
 cd source
-sqlplus admin/admins_password@database @create_utPLSQL_owner.sql ut3 ut3 users  
+sqlplus sys/sys_password@database as sysdba @create_utPLSQL_owner.sql ut3 ut3 users  
 ```
 
 ### Installing utPLSQL
