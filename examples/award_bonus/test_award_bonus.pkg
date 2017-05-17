@@ -4,7 +4,7 @@ create or replace package test_award_bonus as
   -- %displayname(Award bonus)
 
   -- %test
-  -- %displayname(Sets new salary as pct commision * sales amount)
+  -- %displayname(Sets new salary as pct commission * sales amount)
   -- %beforetest(add_test_employee)
   procedure update_employee_salary;
 
