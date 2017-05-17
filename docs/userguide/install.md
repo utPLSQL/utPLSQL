@@ -26,7 +26,7 @@ curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/
 
 To simply install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql`.
 
-This will create a new user `UT3` with password `XNtxj8eEgA6X6b6f`, grant all needed privileges to that user and create PUBLIC synonyms needed to sue the utPLSQL framework.
+This will create a new user `UT3` with password `XNtxj8eEgA6X6b6f`, grant all needed privileges to that user and create PUBLIC synonyms needed to use the utPLSQL framework.
 
 Example invocation of the script from command line:
 ```bash
