@@ -25,13 +25,13 @@ set define &
 spool install.log
 
 define ut3_owner = &1
+whenever sqlerror exit failure rollback
+whenever oserror exit failure rollback
+
 alter session set current_schema = &&ut3_owner;
 alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(6000,6001,6003,6010, 7206)';
 set define off
 
-
-whenever sqlerror exit failure rollback
-whenever oserror exit failure rollback
 
 --common utilities
 @@core/types/ut_varchar2_list.tps

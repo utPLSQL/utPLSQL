@@ -1,15 +1,9 @@
-# utPLSQL sources 
+  utPLSQL - Version X.X.X.X
+  Copyright 2016 - 2017 utPLSQL Project
+-----------------------------------------------------
 
-The sources to be installed on the database.
+Sources for utPLSQL to be installed on the database.
 
-To simply install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql`.
+To find out on different options to do the install read through detailed documentation for particular version look into documentation at https://utplsql.github.io/utPLSQL/
 
-This will create a new user `UT3` with password `UT3`, grant all needed privileges to that user and create PUBLIC synonyms needed tu sue the utPLSQL framework.
-
-Example invocation of the script from command line:
-```bash
-cd source
-sqlplus admin/admins_password@xe @@install_headless.sql  
-```
-
-For detailed instructions on other install options see the [Install Guide](../docs/userguide/install.md)
+The install guide for latest development version can be found here: https://utplsql.github.io/utPLSQL/develop/userguide/install.html  
