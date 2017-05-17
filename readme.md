@@ -34,23 +34,6 @@ The framework follows industry standards and best patterns of modern Unit Testin
 - flexible and simple test invocation
 - multi-reporting from test-run from [command line](docs/userguide/ut_run-script.md)
 
-# Primary features
- - Support for all basic scalar data-types except ROWID and RAW
- - Support for User Defined Object Types and Collections
- - Support for native cursors both strong and weak
- - Data-type aware testing - number 1 is not equal to string '1'
- - [Annotations](docs/userguide/annotations.md) are used to define and configure tests
- - Extensible [expectations](docs/userguide/expectations.md)
- - Extensible reporting formats
- - Extensible output providers
- - Support for multi-reporting
- - Code coverage reporting (with different formats)
- - Runtime reporting of test execution progress
- - Well-defined API
- - Easy to call from current PL/SQL development tools
- - More permissive License to allow vendors to integrate utPLSQL without violation of license 
- - Published upgrade/conversion path from version 2 ( TODO )
-
 Requirements:
  - Version of Oracle under [extended support](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf) (Currently 11.2 and above)
 
@@ -61,6 +44,8 @@ Published releases are available for download on the [utPLSQL GitHub Releases Pa
 # Documentation
 
 Full documentation of the project is automatically published on [utPLSQL github pages](https://utplsql.github.io/utPLSQL/)
+
+[Cheat-sheet](https://www.cheatography.com/jgebal/cheat-sheets/utplsql-v3/#downloads)
 
 # Contributing to the project
 
