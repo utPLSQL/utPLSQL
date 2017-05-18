@@ -1,12 +1,30 @@
 # Running tests
+
 utPLSQL framework provides two main entry points to run unit tests from within database: 
 
 - `ut.run` procedures and functions
 - `ut_runner.run` procedures
 
 Those two entry points differ in purpose and behavior.
+Most of the times, you will want to use `ut.run` as the `ut_runner` is designed for API integration and does not output the results to the screen directly.
+
+# utPLSQL-sql-cli
+
+If you are thinking about running you tests from a command line or from a CI server like Jenkins/Temcity the best way is to use the [utPLSQL-sql-cli](https://github.com/utPLSQL/utPLSQL-sql-cli)
+You may download the latest release of the command line client automatically by using the below command (Unix).
+
+```bash
+#!/bin/bash
+# Get the url to latest release "zip" file
+DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL-sql-cli/releases/latest | awk '/zipball_url/ { print $2 }' | sed -r 's/"|,//g')
+# Download the latest release "zip" file
+curl -Lk "${DOWNLOAD_URL}" -o utplsql-sql-cli.zip
+# Extract downloaded "zip" file
+unzip -q utplsql-sql-cli.zip
+```
 
 # ut.run
+
 Package `ut` contains overloaded procedures and functions `run`.
 The `run` API is designed to be called directly by developer, when using IDE/SQL console to execute unit tests.
 The main benefit of using this API is it's simplicity.
@@ -115,5 +133,4 @@ The concept is pretty simple.
 - in the main thread (session), define the reporters to be used. Each reporter has it's output_id and so you need to extract and store those output_id's.
 - as a separate thread, start the `ut_runner.run` and pass reporters with previously defined output_id's
 - for each reporter start a separate thread and read outputs from `ut_output_buffer.get_lines` table function by providing the output_id defined in the main thread.
-
-`ut_runner.run` is internally used by the [`ut_run` scripts](ut_run-script.md).  
+  

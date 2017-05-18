@@ -32,7 +32,7 @@ The framework follows industry standards and best patterns of modern Unit Testin
 - Integration with SonarQube, Coveralls, Jenkins and Teamcity with [reporters](docs/userguide/reporters.md)
 - plugin architecture for reporters and matchers
 - flexible and simple test invocation
-- multi-reporting from test-run from [command line](docs/userguide/ut_run-script.md)
+- multi-reporting from test-run from [command line](https://github.com/utPLSQL/utPLSQL-sql-cli)
 
 Requirements:
  - Version of Oracle under [extended support](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf) (Currently 11.2 and above)
@@ -210,16 +210,10 @@ Finished in .036027 seconds
 ```
 
 To execute your tests from command line, you will need a oracle sql client like SQLPlus or [SQLcl](http://www.oracle.com/technetwork/developer-tools/sqlcl/overview/index.html)
-You may benefit from using the [ut_run.sql](client_source/sqlplus/ut_run.sql) to execute your tests if you want to achieve one of the following:
+
+You may benefit from using the [ut_run](https://github.com/utPLSQL/utPLSQL-sql-cli) script to execute your tests if you want to achieve one of the following:
 * see the progress of test execution for long-running tests
 * have output to screen with one output format (text) and at the same time have output to file in other format (xunit)
-
-Example:
-```
-c:\my_work\>sqlplus /nolog @ut_run hr/hr@xe 
-```
-Will run all the suites in the current schema (hr) and provide documentation report into screen.
-Invoking this script will show the progress after each test.
 
 __Project Directories__
 
