@@ -29,6 +29,7 @@ create or replace type body ut_run as
     self.coverage_options := a_coverage_options;
     self.test_file_mappings := coalesce(a_test_file_mappings, ut_file_mappings());
     if self.coverage_options is not null then
+	  l_run_schemes := get_run_schemes();
       l_run_schemes := coalesce(coverage_options.schema_names, l_run_schemes);
       coverage_options.schema_names := l_run_schemes;
       if coverage_options.exclude_objects is not null then
