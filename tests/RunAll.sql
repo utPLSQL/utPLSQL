@@ -25,6 +25,7 @@ create table ut$test_table (val varchar2(1));
 @@helpers/utplsql_test_reporter.typ
 @@helpers/test_reporters.pks
 @@helpers/test_reporters.pkb
+@@helpers/html_coverage_test.pck
 @@helpers/test_reporters_1.pks
 @@helpers/test_reporters_1.pkb
 
