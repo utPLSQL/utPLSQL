@@ -25,11 +25,15 @@ create table ut$test_table (val varchar2(1));
 @@helpers/utplsql_test_reporter.typ
 @@helpers/test_reporters.pks
 @@helpers/test_reporters.pkb
+@@helpers/html_coverage_test.pck
+@@helpers/test_reporters_1.pks
+@@helpers/test_reporters_1.pkb
 
 --Start coverage in develop mode (coverage for utPLSQL framework)
 --Regular coverage excludes the framework
 exec ut_coverage.coverage_start_develop();
 @@lib/mystats/mystats start
+
 
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.IgnoreWrappedPackageAndDoesNotRaiseException.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
@@ -130,6 +134,8 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.ProducesExpectedOutputs.sql
 @@lib/RunTest.sql ut_reporters/ut_teamcity_reporter.ProducesExpectedOutputs.sql
 @@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ProducesExpectedOutputs.sql
+@@lib/RunTest.sql ut_reporters/ut_html_reporter.UserOverrideSchemaCoverage.sql
+@@lib/RunTest.sql ut_reporters/ut_html_reporter.DefaultSchemaCoverage.sql
 
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileList.sql
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileListWithSutePaths.sql

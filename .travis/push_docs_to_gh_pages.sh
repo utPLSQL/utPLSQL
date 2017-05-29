@@ -20,7 +20,7 @@ LATEST_DOCS_BRANCH="develop"
 # Since we are running job matrix, only thie first job slave will need to do the work
 if [[ "${TRAVIS_JOB_NUMBER}" =~ \.1$ ]]; then
   # We don't want a pull request automatically updating the repository
-  if [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "${CURRENT_BRANCH}" == "${LATEST_DOCS_BRANCH}" ]; then
+  if [ "$TRAVIS_PULL_REQUEST" == "false" ] && { [ "${CURRENT_BRANCH}" == "${LATEST_DOCS_BRANCH}" ] || [ -n "${TRAVIS_TAG}" ]; }; then
 
     # ENV Variable checks are to help with configuration troubleshooting, they silently exit with unique message.
     # Anyone one of them not set can be used to turn off this functionality.

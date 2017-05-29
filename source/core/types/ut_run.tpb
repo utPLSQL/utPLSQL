@@ -20,7 +20,7 @@ create or replace type body ut_run as
     self in out nocopy ut_run, a_items ut_suite_items, a_run_paths ut_varchar2_list := null,
     a_coverage_options ut_coverage_options := null, a_test_file_mappings ut_file_mappings := null
   ) return self as result is
-    l_run_schemes ut_varchar2_list;
+    l_coverage_schema_names ut_varchar2_list;
   begin
     self.run_paths := a_run_paths;
     self.self_type := $$plsql_unit;
@@ -29,15 +29,15 @@ create or replace type body ut_run as
     self.coverage_options := a_coverage_options;
     self.test_file_mappings := coalesce(a_test_file_mappings, ut_file_mappings());
     if self.coverage_options is not null then
-      l_run_schemes := get_run_schemes();
-      coverage_options.schema_names := l_run_schemes;
+      l_coverage_schema_names := coalesce(coverage_options.schema_names, get_run_schemes());
+      coverage_options.schema_names := l_coverage_schema_names;
       if coverage_options.exclude_objects is not null then
         coverage_options.exclude_objects :=
           coverage_options.exclude_objects
           multiset union all
-          ut_suite_manager.get_schema_ut_packages(l_run_schemes);
+          ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names);
       else
-        coverage_options.exclude_objects := ut_suite_manager.get_schema_ut_packages(l_run_schemes);
+        coverage_options.exclude_objects := ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names);
       end if;
     end if;
     return;
