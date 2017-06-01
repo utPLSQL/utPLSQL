@@ -5,7 +5,7 @@ Here is a little snippet that can be handy for downloading latest version.
 ```bash
 #!/bin/bash
 # Get the url to latest release "zip" file
-DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
+UTPLSQL_DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
 # Download the latest release "zip" file
 curl -Lk "${UTPLSQL_DOWNLOAD_URL}" -o utPLSQL.zip
 # Extract downloaded "zip" file
