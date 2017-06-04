@@ -30,48 +30,14 @@ create or replace package body ut_annotations as
   c_rgexp_identifier            constant varchar2(50) := '[a-z][a-z0-9#_$]*';
   c_annotation_block_pattern    constant varchar2(200) := '(({COMMENT#.+}'||chr(10)||')+)( |'||chr(09)||')*(procedure|function)\s+(' ||
                                                            c_rgexp_identifier || ')';
-  c_annotation_pattern          constant varchar2(50) := gc_annotation_qualifier || c_rgexp_identifier || '(\(.*?\))?';
+  c_annotation_pattern          constant varchar2(50) := gc_annotation_qualifier || c_rgexp_identifier || '(\(.*?\)$)?';
 
 
   function delete_multiline_comments(a_source in clob) return clob is
   begin
-
-/*    l_tmp_clob := regexp_replace(srcstr   => a_source
-                                ,pattern  => c_multiline_comment_pattern
-                                ,modifier => 'n');
-    l_tmp_clob := regexp_replace(srcstr   => l_tmp_clob
-                                ,pattern => c_nonannotat_comment_pattern
-                                ,modifier => 'm');
-
---  performance is too low when deleting spaces as it leads to lots of writes
---    l_tmp_clob := regexp_replace(srcstr   => l_tmp_cl0ob
---                                ,pattern => '(( |'||chr(09)||')*'|| chr(10)||'){3,}'
---                                ,replacestr => chr(10)||chr(10));
-    return  l_tmp_clob;
-*/
   return  regexp_replace(srcstr   => a_source
                          ,pattern  => c_multiline_comment_pattern
                          ,modifier => 'n');
-
-   --this is not fast enough as the regexp parten is more complicated
-   /*
-   return regexp_replace(srcstr   => a_source
-                                ,pattern  => '('||c_multiline_comment_pattern
-                                              ||'|'||c_nonannotat_comment_pattern||')'
-                                ,modifier => 'mn');
-   */
-
-    /*
-    return regexp_replace(
-            srcstr => regexp_replace(srcstr => regexp_replace(srcstr   => a_source
-                                                             ,pattern  => c_multiline_comment_pattern
-                                                             ,modifier => 'n')
-                                    ,pattern => c_nonannotat_comment_pattern, modifier => 'm')
-            ,pattern    => '((procedure|function)\s+' || c_rgexp_identifier || ')[^;]*'
-            ,replacestr => '\1'
-            ,modifier   => 'mn'
-          );
-    */
   end;
 
   function get_annotations(a_source varchar2, a_comments tt_comment_list) return tt_annotations is
@@ -111,7 +77,7 @@ create or replace package body ut_annotations as
                                                       ,'%(' || c_rgexp_identifier || ')'
                                                       ,modifier => 'i'
                                                       ,subexpression => 1));
-        l_annotation_params_str := trim(regexp_substr(l_annotation_str, '\((.*?)\)', subexpression => 1));
+        l_annotation_params_str := trim(regexp_substr(l_annotation_str, '\((.*?)\)$', subexpression => 1));
 
         if l_annotation_params_str is not null then
 
@@ -343,7 +309,7 @@ create or replace package body ut_annotations as
 
     -- TODO: Add cache of annotations. Cache invalidation should be based on DDL timestamp.
     -- Cache garbage collection should be executed once in a while to remove annotations cache for packages that were dropped.
-    
+
     begin
       l_source := ut_metadata.get_package_spec_source(a_owner_name, a_name);
     exception
