@@ -3,29 +3,13 @@ declare
   l_output            varchar2(32767);
   l_expected          varchar2(32767);
 begin
-  l_expected := q'[%<!beforeall!>
-%passing_test
-%<!beforeeach!>
-%<!beforetest!>
-%<!passing test!>
-%<!aftertest!>
-%<!aftereach!>
-%a test with failing assertion (FAILED - 1)
-%<!beforeeach!>
-%<!failing test!>
-%<!aftereach!>
-%a test raising unhandled exception (FAILED - 2)
-%<!beforeeach!>
-%<!erroring test!>
-%<!aftereach!>
-%a disabled test (IGNORED)
-%<!afterall!>
+  l_expected := q'[%
 %Failures:%
-%1)%failing_test
-%"Fails as values are different"
-%Actual: 1 (number) was expected to equal: 2 (number) 
-%at "%.TEST_REPORTERS%", line% 
-%2)%erroring_test
+%1)%failing_test%
+%"Fails as values are different"%
+%Actual: 1 (number) was expected to equal: 2 (number)%
+%at "%.TEST_REPORTERS%", line%
+%2)%erroring_test%
 %ORA-06502%
 %ORA-06512%
 Finished %
