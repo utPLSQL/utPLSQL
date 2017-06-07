@@ -22,9 +22,9 @@ set feedback on
 set heading off
 set verify off
 
-prompt Granting privileges on UTPLSQL objects in &&ut3_owner schema to PUBLIC
-
 define ut3_owner = &1
+
+prompt Granting privileges on UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
 whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
