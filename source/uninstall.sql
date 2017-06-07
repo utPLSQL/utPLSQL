@@ -133,6 +133,8 @@ drop type ut_be_less_than;
 
 drop type ut_be_false;
 
+drop type ut_matcher_bi_operand;
+
 drop type ut_matcher;
 
 drop type ut_data_value_yminterval;
