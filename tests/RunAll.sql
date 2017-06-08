@@ -458,6 +458,8 @@ begin
     'source/expectations/matchers/ut_match.tps',
     'source/expectations/matchers/ut_matcher.tpb',
     'source/expectations/matchers/ut_matcher.tps',
+    'source/expectations/matchers/ut_matcher_bi_operand.tpb',
+    'source/expectations/matchers/ut_matcher_bi_operand.tps',
     'source/reporters/ut_ansiconsole_helper.pkb',
     'source/reporters/ut_ansiconsole_helper.pks',
     'source/reporters/ut_coverage_html_reporter.tpb',
