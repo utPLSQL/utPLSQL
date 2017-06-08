@@ -79,19 +79,17 @@ create or replace package body ut_suite_manager is
     if l_annotation_data.package_annotations.exists('suite') then
 
       if l_annotation_data.package_annotations.exists('displayname') then
-        l_suite_name         := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('displayname'), 1);
-      elsif l_annotation_data.package_annotations('suite').count>0 then
-        l_suite_name         := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('suite'), 1);
+        l_suite_name         := l_annotation_data.package_annotations('displayname').text;
+      else
+        l_suite_name         := l_annotation_data.package_annotations('suite').text;
       end if;
 
       if l_annotation_data.package_annotations.exists('suitepath') then
-        l_suite_path := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('suitepath'), 1) || '.' ||
-                        lower(l_object_name);
+        l_suite_path := l_annotation_data.package_annotations('suitepath').text || '.' || lower(l_object_name);
       end if;
 
       if l_annotation_data.package_annotations.exists('rollback') then
-        l_suite_rollback_annotation := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('rollback')
-                                                                          ,1);
+        l_suite_rollback_annotation := l_annotation_data.package_annotations('rollback').text;
         l_suite_rollback            := case lower(l_suite_rollback_annotation)
                                          when 'manual' then
                                           ut_utils.gc_rollback_manual
@@ -145,21 +143,21 @@ create or replace package body ut_suite_manager is
             l_displayname          varchar2(4000);
           begin
             if l_proc_annotations.exists('beforetest') then
-              l_beforetest_procedure := ut_annotations.get_annotation_param(l_proc_annotations('beforetest'), 1);
+              l_beforetest_procedure := l_proc_annotations('beforetest').text;
             end if;
 
             if l_proc_annotations.exists('aftertest') then
-              l_aftertest_procedure := ut_annotations.get_annotation_param(l_proc_annotations('aftertest'), 1);
+              l_aftertest_procedure := l_proc_annotations('aftertest').text;
             end if;
 
             if l_proc_annotations.exists('displayname') then
-              l_displayname := ut_annotations.get_annotation_param(l_proc_annotations('displayname'), 1);
-            elsif l_proc_annotations('test').count > 0 then
-              l_displayname := ut_annotations.get_annotation_param(l_proc_annotations('test'), 1);
+              l_displayname := l_proc_annotations('displayname').text;
+            else
+              l_displayname := l_proc_annotations('test').text;
             end if;
 
             if l_proc_annotations.exists('rollback') then
-              l_rollback_annotation := ut_annotations.get_annotation_param(l_proc_annotations('rollback'), 1);
+              l_rollback_annotation := l_proc_annotations('rollback').text;
               l_rollback_type       := case lower(l_rollback_annotation)
                                          when 'manual' then
                                           ut_utils.gc_rollback_manual
