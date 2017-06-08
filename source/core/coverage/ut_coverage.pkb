@@ -50,7 +50,7 @@ create or replace package body ut_coverage is
                    (select min(t.line) - 1
                       from all_source t
                      where t.owner = s.owner and t.type = s.type and t.name = s.name
-                       and regexp_like( t.text, '\w*(begin|declare|compound).*','i'))
+                       and regexp_like( t.text, '[A-Za-z0-9$#_]*(begin|declare|compound).*','i'))
                  ) as line,
                  s.text,
                  case

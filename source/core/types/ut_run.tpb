@@ -111,8 +111,8 @@ create or replace type body ut_run as
       l_schemes := ut_varchar2_list();
       for i in 1 .. self.run_paths.count loop
         l_path := self.run_paths(i);
-        if regexp_like(l_path, '^(\w+)?:') then
-          l_schema := regexp_substr(l_path, '^(\w+)?:',subexpression => 1);
+        if regexp_like(l_path, '^([A-Za-z0-9$#_]+)?:') then
+          l_schema := regexp_substr(l_path, '^([A-Za-z0-9$#_]+)?:',subexpression => 1);
           if l_schema is not null then
             l_schema := sys.dbms_assert.schema_name(upper(l_schema));
           else
@@ -120,7 +120,7 @@ create or replace type body ut_run as
           end if;
         else
           begin
-            l_schema := sys.dbms_assert.schema_name(upper(regexp_substr(l_path, '^\w+')));
+            l_schema := sys.dbms_assert.schema_name(upper(regexp_substr(l_path, '^[A-Za-z0-9$#_]+')));
           exception
             when sys.dbms_assert.invalid_schema_name then
               l_schema := c_current_schema;
