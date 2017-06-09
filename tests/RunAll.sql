@@ -34,7 +34,6 @@ create table ut$test_table (val varchar2(1));
 exec ut_coverage.coverage_start_develop();
 @@lib/mystats/mystats start
 
-
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.IgnoreWrappedPackageAndDoesNotRaiseException.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationNotBeforeProcedure.sql
@@ -228,6 +227,7 @@ exec ut_coverage.coverage_start_develop();
 
 @@ut_utils/ut_utils.clob_to_table.sql
 @@ut_utils/ut_utils.table_to_clob.sql
+@@lib/RunTest.sql ut_utils/ut_utils.append_to_clob.worksWithMultiByteChars.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithInvalidValues.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithNullValue.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.Success.sql
