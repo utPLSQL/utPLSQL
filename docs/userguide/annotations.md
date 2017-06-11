@@ -17,9 +17,9 @@ Procedure annotations are defined right before the procedure they reference, no 
 
 If a package specification contains `%suite` annotation, it is treated as a test package and processed by the framework.
 
-Some annotations accept parameters like `%suite`, `%test` `%displayname`. The parameters for annotations need to be placed in brackets. Values for parameters should be provided without any quotation marks.
+Some annotations accept parameters like `%suite`, `%test` and `%displayname`. The parameters for annotations need to be placed in brackets. Values for parameters should be provided without any quotation marks.
 
-# <a name="example"></a>Example of annotated test package
+# <a name="example"></a>Example of an annotated test package
 
 ```sql
 create or replace package test_pkg is
@@ -87,9 +87,9 @@ end test_pkg;
 
 It is very likely that the application for which you are going to introduce tests consists of many different packages or procedures/functions. Usually procedures can be logically grouped inside a package, there also might be several logical groups of procedure in a single package or even packages themselves might relate to a common module.
 
-Lets say you have a complex insurance application the operates with policies, claims and payments. The payment module contains several packages for payment recognition, charging, planning etc. The payment recognition module among others contains a complex `recognize_payment` procedure that associates received money to the policies.
+Let's say you have a complex insurance application that deals with policies, claims and payments. The payment module contains several packages for payment recognition, charging, planning etc. The payment recognition module among others contains a complex `recognize_payment` procedure that associates received money to the policies.
 
-If you want to create tests for your application it is recommended to structure your tests similarly to the logical structure of you application. So you end up with something like:
+If you want to create tests for your application it is recommended to structure your tests similarly to the logical structure of your application. So you end up with something like:
 * Integration tests
   *   Policy tests
   *   Claim tests
@@ -98,7 +98,7 @@ If you want to create tests for your application it is recommended to structure 
     * Payments set off
     * Payouts 
     
-The `%suitepath` annotation is used for such grouping. Even though test packages are defined in a flat structure the `%suitepath` is used by the framework to form a hierarchical structure of them. Your payments recognition test package might look like:
+The `%suitepath` annotation is used for such grouping. Even though test packages are defined in a flat structure the `%suitepath` is used by the framework to form them into a hierarchical structure. Your payments recognition test package might look like:
 
 ```sql
 create or replace package test_payment_recognition as
@@ -136,10 +136,10 @@ create or replace package test_payment_set_off as
 end test_payment_set_off;
 ```
 
-When you execute tests for your application, the framework constructs test suite for each test package. Then in combines suites into grouping suites by the `%suitepath` annotation value so that the fully qualified path to the `recognize_by_num` procedure is `USER:payments.test_payment_recognition.test_recognize_by_num`. If any of its expectations fails then the test is marked as failed, also the `test_payment_recognition` suite, the parent suite `payments` and the whole run is marked as failed.
-The test report indicates which expectation has failed on the payments module. The payments recognition submodule is causing the failure as `recognize_by_num` has is not meeting the expectations of the test. Grouping tests into modules and submodules using the `%suitepath` annotation allows you to logically organize your projects flat structure of packages int functional groups. 
+When you execute tests for your application, the framework constructs a test suite for each test package. Then it combines suites into grouping suites by the `%suitepath` annotation value so that the fully qualified path to the `recognize_by_num` procedure is `USER:payments.test_payment_recognition.test_recognize_by_num`. If any of its expectations fails then the test is marked as failed, also the `test_payment_recognition` suite, the parent suite `payments` and the whole run is marked as failed.
+The test report indicates which expectation has failed on the payments module. The payments recognition submodule is causing the failure as `recognize_by_num` has not met the expectations of the test. Grouping tests into modules and submodules using the `%suitepath` annotation allows you to logically organize your project's flat structure of packages into functional groups. 
 
-Additional advantage of such grouping is the fact that every element level of the grouping can be an actual unit test package containing module level common setup for all of the submodules. So in addition to the packages mentioned above you could have following package.
+An additional advantage of such grouping is the fact that every element level of the grouping can be an actual unit test package containing a common module level setup for all of the submodules. So in addition to the packages mentioned above you could have the following package.
 ```sql
 create or replace package payments as
 
@@ -153,38 +153,38 @@ create or replace package payments as
 
 end payments;
 ```
-A `%suitepath` can be provided in tree ways:
-* schema - execute all test in the schema
-* [schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests in all suites from suite1[.suite2][.suite3]...[.procedure] path. If schema is not provided, then current schema is used. Example: `:all.rooms_tests`.
-* [schema.]package[.procedure] - execute all tests in the test package provided. The whole hierarchy of suites in the schema is build before, all before/after hooks of partn suites for th provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator` or simply `test_contact.test_last_name_validator` if `tests` is the current schema.
+A `%suitepath` can be provided in three ways:
+* schema - execute all tests in the schema
+* [schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests in all suites from suite1[.suite2][.suite3]...[.procedure] path. If schema is not provided, then the current schema is used. Example: `:all.rooms_tests`
+* [schema.]package[.procedure] - execute all tests in the specified test package. The whole hierarchy of suites in the schema is built before all before/after hooks or part suites for the provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator` or simply `test_contact.test_last_name_validator` if `tests` is the current schema.
 
 # Using automatic rollbacks in tests
 
-By default, changes performed by every setup, cleanup and test procedure is isolated using savepoint.
-This solution is suitable for use-cases, where the code that is getting tested as well as the unit tests themselves do not use transaction control (commit/rollback) or DDL commands.
+By default, changes performed by every setup, cleanup and test procedure are isolated by savepoints.
+This solution is suitable for use-cases where the code that is getting tested as well as the unit tests themselves do not use transaction control (commit/rollback) or DDL commands.
 
 In general, your unit tests should not use transaction control as long as the code you are testing is not using it too.
-Keeping the transactions uncommitted allows your changes to be isolated and the execution of tests is not impacting others that might be using a shared development database.
+Keeping the transactions uncommitted allows your changes to be isolated and the execution of tests does not impact others who might be using a shared development database.
 
-If you are in situation, where the code you are testing, is using transaction control (common case with ETL code), then your tests probably should not use the default automatic transaction control.
-In that case use the annotation `-- %rollback(manual)` on the suite level to disable automatic transaction control for entire suite.
+If you are in a situation where the code you are testing uses transaction control (common case with ETL code), then your tests probably should not use the default automatic transaction control.
+In that case use the annotation `-- %rollback(manual)` on the suite level to disable automatic transaction control for the entire suite.
 If you are using nested suites, you need to make sure that the entire suite all the way to the root is using manual transaction control.
 
 It is possible with utPLSQL to change the transaction control on individual suites or tests that are part of complex suite.
-It is strongly recommended not to have mixed transaction control in suite.
+It is strongly recommended not to have mixed transaction control in a suite.
 Mixed transaction control settings will not work properly when your suites are using shared setup/cleanup with beforeall, afterall, beforeeach or aftereach annotations.
-Your suite will most probably fail with error or warning on execution. Some of the automatic rollbacks will most probably fail to execute depending on the configuration you have.
+Your suite will most likely fail with error or warning on execution. Some of the automatic rollbacks will probably fail to execute depending on the configuration you have.
 
-In some cases it is needed to perform DDL as part of setup or cleanup for the tests. 
-It is recommended to move such DDL statements to a procedure with `pragma autonomous_transaction` to eliminate implicit commit in the main session that is executing all your tests.
-Doing so, allows your test to use automatic transaction control of the framework and release you from the burden of manual cleanup of data that was created or modified by test execution.
+In some cases it is necessary to perform DDL as part of setup or cleanup for the tests. 
+It is recommended to move such DDL statements to a procedure with `pragma autonomous_transaction` to eliminate implicit commits in the main session that is executing all your tests.
+Doing so allows your tests to use the framework's automatic transaction control and releases you from the burden of manual cleanup of data that was created or modified by test execution.
 
-When you are running test of code that is performing an explicit or implicit commit, you may set the test procedure to run in autonomous transaction with `pragma autonomous_transaction`.
-Keep in mind, that when your tests runs in autonomous transaction it will not see the data prepared in setup procedure unless the setup procedure committed the changes. 
+When you are testing code that performs explicit or implicit commits, you may set the test procedure to run as an autonomous transaction with `pragma autonomous_transaction`.
+Keep in mind that when your tests runs in autonomous transaction it will not see the data prepared in setup procedure unless the setup procedure committed the changes. 
 
 # Order of execution
 
-When processing the test suite `test_pkg` defined in [Example of annotated test package](#example), the execution will be done in the following order.
+When processing the test suite `test_pkg` defined in [Example of annotated test package](#example), the order of execution will be as follows.
 
 ```
   create a savepoint 'beforeall'
