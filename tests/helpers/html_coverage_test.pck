@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE ut3_user.html_coverage_test IS
+CREATE OR REPLACE PACKAGE ut3$user#.html_coverage_test IS
 
    -- Author  : LUW07
    -- Created : 23/05/2017 09:37:29
@@ -8,7 +8,7 @@ CREATE OR REPLACE PACKAGE ut3_user.html_coverage_test IS
    PROCEDURE run_if_statment(o_result OUT NUMBER);
 END HTML_COVERAGE_TEST;
 /
-CREATE OR REPLACE PACKAGE BODY ut3_user.html_coverage_test IS
+CREATE OR REPLACE PACKAGE BODY ut3$user#.html_coverage_test IS
 
    -- Private type declarations
    PROCEDURE run_if_statment(o_result OUT NUMBER) IS

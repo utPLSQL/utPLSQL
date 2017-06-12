@@ -17,7 +17,7 @@ END;';
 
 --Assert
   l_ann_param.val := 'Name of suite (including some brackets) and some more text';
-  l_expected.package_annotations('suite')(1) := l_ann_param;
+  l_expected.package_annotations('suite').params(1) := l_ann_param;
 
   check_annotation_parsing(l_expected, l_parsing_result);
 

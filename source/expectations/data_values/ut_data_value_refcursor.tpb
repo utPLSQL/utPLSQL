@@ -129,7 +129,7 @@ create or replace type body ut_data_value_refcursor as
     for i in 1 .. l_results.count loop
       dbms_lob.append(l_result,l_results(i));
       if i < l_results.count then
-        dbms_lob.writeappend(l_result,1,chr(10));
+        ut_utils.append_to_clob(l_result,chr(10));
       end if;
     end loop;
 
