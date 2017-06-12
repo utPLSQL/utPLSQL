@@ -48,6 +48,7 @@ create or replace package body ut_annotations as
     l_annotation_params_str varchar2(32767);
     l_annotation_name       varchar2(1000);
     l_annotation_params     tt_annotation_params;
+    l_annotation            t_annotation;
     l_annotations_list      tt_annotations;
   begin
     -- loop while there are unprocessed comment blocks
@@ -102,8 +103,9 @@ create or replace package body ut_annotations as
             end;
           end loop;
         end if;
-
-        l_annotations_list(l_annotation_name) := l_annotation_params;
+        l_annotation.text := l_annotation_params_str;
+        l_annotation.params := l_annotation_params;
+        l_annotations_list(l_annotation_name) := l_annotation;
       end if;
       l_loop_index := l_loop_index + 1;
     end loop;
@@ -324,14 +326,14 @@ create or replace package body ut_annotations as
     end if;
   end;
 
-  function get_annotation_param(a_param_list tt_annotation_params, a_def_index pls_integer) return varchar2 is
-    l_result varchar2(32767);
-  begin
-    if a_param_list.exists(a_def_index) then
-      l_result := a_param_list(a_def_index).val;
-    end if;
-    return l_result;
-  end get_annotation_param;
+--   function get_annotation_param(a_param_list tt_annotation_params, a_def_index pls_integer) return varchar2 is
+--     l_result varchar2(32767);
+--   begin
+--     if a_param_list.exists(a_def_index) then
+--       l_result := a_param_list(a_def_index).val;
+--     end if;
+--     return l_result;
+--   end get_annotation_param;
 
 end ut_annotations;
 /

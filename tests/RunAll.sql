@@ -156,6 +156,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut/ut.run.WithSuitePath.ExecutesAllFromGivenPath.sql
 @@lib/RunTest.sql ut/ut.version.sql
 
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.AllowsDescriptionsWithComma.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheSchema.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPath.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPathCurUser.sql
