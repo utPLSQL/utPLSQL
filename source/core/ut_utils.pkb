@@ -324,7 +324,7 @@ create or replace package body ut_utils is
       if a_src_clob is null then
         dbms_lob.createtemporary(a_src_clob, true);
       end if;
-      dbms_lob.writeappend(a_src_clob, length(a_new_data), a_new_data);
+      dbms_lob.writeappend(a_src_clob, dbms_lob.getlength(a_new_data), a_new_data);
     end if;
   end;
 
