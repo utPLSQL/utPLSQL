@@ -13,7 +13,7 @@
 ----------
 utPLSQL version 3 is a complete rewrite of utPLSQL v2 from scratch.
 Version 2 still supports older versions of Oracle that are no longer available. 
-The community that had developed on GitHub, decided that a new internal architecture was needed, from that version 3 was born.  
+The community that had developed on GitHub decided that a new internal architecture was needed, from that version 3 was born.  
 
 # Introduction
 utPLSQL is a Unit Testing framework for Oracle PL/SQL and SQL. 
@@ -51,8 +51,8 @@ Full documentation of the project is automatically published on [utPLSQL github 
 
 We welcome new developers to join our community and contribute to the utPLSQL project.
 If you are interested in helping please read our [guide to contributing](docs/about/CONTRIBUTING.md)
-The best place to start is to read the documentation and get familiar existing with code base.
-A [slack chat](https://utplsql.slack.com/) is the place to go isf you want to talk with team members.
+The best place to start is to read the documentation and get familiar with the existing code base.
+A [slack chat](https://utplsql.slack.com/) is the place to go if you want to talk with team members.
 To sign up to the chat use [this link](http://utplsql-slack-invite.herokuapp.com/)
 
 
@@ -60,7 +60,7 @@ To sign up to the chat use [this link](http://utplsql-slack-invite.herokuapp.com
 
 __Version 2 to Version 3 Comparison__
 
-If you have great feature in mind, that you would like to see in utPLSQL v3 please create an [issue on GitHub](https://github.com/utPLSQL/utPLSQL/issues) or discuss it with us in the [Slack chat rooms](http://utplsql-slack-invite.herokuapp.com/).  
+If you have a great feature in mind, that you would like to see in utPLSQL v3 please create an [issue on GitHub](https://github.com/utPLSQL/utPLSQL/issues) or discuss it with us in the [Slack chat rooms](http://utplsql-slack-invite.herokuapp.com/).  
 
 
 | Feature                                | Version 2              | Version 3              |
@@ -81,7 +81,7 @@ If you have great feature in mind, that you would like to see in utPLSQL v3 plea
 | Unconstrained naming of Test packages  | No - prefixes          | Yes - name not relevant|
 | Require Prefix on Test procedures      | No - prefixes          | Yes - name not relevant|
 | Auto Compilation of Tests              | Yes                    | No (Let us know if you use this) | 
-| Assertion Library                      | 30 assertions<sup>2</sup> | 26 matchers (13 + 13 megated) |
+| Assertion Library                      | 30 assertions<sup>2</sup> | 26 matchers (13 + 13 negated) |
 | Extendable assertions                  | No                     | Yes - custom matchers  |
 | PLSQL Record Assertions	             | generated code through **utRecEq** Package | [possible on Oracle 12c](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1) using [cursor matchers](docs/userguide/expectations.md#comparing-cursors)| 
 | Test Skeleton Generation               | Yes                    | On Roadmap             |
@@ -111,13 +111,13 @@ If you have great feature in mind, that you would like to see in utPLSQL v3 plea
 
 <sup>2</sup> **utAssert2** package - Contains 59 Assertions - 2 Not implemented = 57, 28 are duplicated only change on outcome_in parameter 57-28 = 29, **utPipe** package - Contains 1 Assertion 29 + 1 = 30
 
-<sup>3</sup> Test execution comparison is in a single call so the results are combined.   We know it was always possible group in any way with multiple calls.  But that may not be desired under CI system where you want a single JUnit XML Output.
+<sup>3</sup> Test execution comparison is in a single call so the results are combined.   We know it was always possible to group in any way with multiple calls.  But that may not be desired under a CI system where you want a single JUnit XML Output.
 
 # Installation
 
 To simply install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql`.
 
-This will create a new user `UT3` with password `UT3`, grant all needed privileges to that user and create PUBLIC synonyms needed tu sue the utPLSQL framework.
+This will create a new user `UT3` with password `UT3`, grant all required privileges to that user and create PUBLIC synonyms needed to use the utPLSQL framework.
 
 Example invocation of the script from command line:
 ```bash
@@ -130,9 +130,9 @@ For detailed instructions on other install options see the [Install Guide](docs/
 # Example unit test packages
 
 The below test package is a fully-functional Unit Test package for testing a [`betwnstr` function](examples/between_string/betwnstr.sql).
-Package specification is [annotated](docs/userguide/annotations.md) with special comments.
-Annotations define that a package is a unit test suite, they also allow defining a description for the suite as well as the test itself.
-Package body consists of procedures containing unit test code. To validate [an expectation](docs/userguide/expectations.md) in test, use `ut.expect( actual_data ).to_( ... )` syntax.
+The package specification is [annotated](docs/userguide/annotations.md) with special comments.
+The annotations define that a package is a unit test suite, they also allow defining a description for the suite as well as the test itself.
+The package body consists of procedures containing unit test code. To validate [an expectation](docs/userguide/expectations.md) in test, use `ut.expect( actual_data ).to_( ... )` syntax.
 
 ```sql
 create or replace package test_between_string as

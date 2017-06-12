@@ -1,6 +1,6 @@
 ## How to contribute ##
 
-The following are the guidelines, everyone should use to contribute to utPLSQL.  
+The following are the guidelines everyone should use to contribute to utPLSQL.  
 Changes are welcome from all members of the Community. 
 
 ## Getting Started ##
