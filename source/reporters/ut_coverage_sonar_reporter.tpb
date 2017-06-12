@@ -38,7 +38,7 @@ create or replace type body ut_coverage_sonar_reporter is
       if l_line_no is null then
         for i in 1 .. a_unit_coverage.total_lines loop
           l_file_part := '<lineToCover lineNumber="'||i||'" covered="false"/>'||chr(10);
-          dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);
+          ut_utils.append_to_clob(l_result, l_file_part);
         end loop;
       else
         while l_line_no is not null loop
@@ -49,7 +49,7 @@ create or replace type body ut_coverage_sonar_reporter is
               else
                 '<lineToCover lineNumber="'||l_line_no||'" covered="true"/>'||chr(10)
             end;
-          dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);
+          ut_utils.append_to_clob(l_result, l_file_part);
           l_line_no := a_unit_coverage.lines.next(l_line_no);
         end loop;
       end if;
@@ -67,19 +67,19 @@ create or replace type body ut_coverage_sonar_reporter is
       begin
       dbms_lob.createtemporary(l_result,true);
 
-      dbms_lob.writeappend(l_result, length(c_coverage_header), c_coverage_header);
+      ut_utils.append_to_clob(l_result, c_coverage_header);
       l_unit := a_coverage_data.objects.first;
       while l_unit is not null loop
         l_file_part := '<file path="'||l_unit||'">'||chr(10);
-        dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);
+        ut_utils.append_to_clob(l_result, l_file_part);
 
         dbms_lob.append(l_result,get_lines_xml(a_coverage_data.objects(l_unit)));
 
-        dbms_lob.writeappend(l_result, length(c_file_footer), c_file_footer);
+        ut_utils.append_to_clob(l_result, c_file_footer);
 
         l_unit := a_coverage_data.objects.next(l_unit);
       end loop;
-      dbms_lob.writeappend(l_result, length(c_coverage_footer), c_coverage_footer);
+      ut_utils.append_to_clob(l_result, c_coverage_footer);
       return l_result;
     end;
   begin
