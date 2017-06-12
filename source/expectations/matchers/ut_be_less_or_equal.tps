@@ -1,4 +1,4 @@
-create or replace type ut_be_less_or_equal under ut_matcher_bi_operand(
+create or replace type ut_be_less_or_equal under ut_comparison_matcher(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project

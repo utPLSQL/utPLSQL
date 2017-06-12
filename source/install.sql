@@ -139,7 +139,7 @@ whenever sqlerror exit failure rollback
 @@expectations/data_values/ut_data_value_varchar2.tps
 @@expectations/data_values/ut_data_value_yminterval.tps
 @@expectations/matchers/ut_matcher.tps
-@@expectations/matchers/ut_matcher_bi_operand.tps
+@@expectations/matchers/ut_comparison_matcher.tps
 @@expectations/matchers/ut_be_false.tps
 @@expectations/matchers/ut_be_greater_or_equal.tps
 @@expectations/matchers/ut_be_greater_than.tps
@@ -184,7 +184,7 @@ whenever sqlerror exit failure rollback
 @@expectations/data_values/ut_data_value_varchar2.tpb
 @@expectations/data_values/ut_data_value_yminterval.tpb
 @@expectations/matchers/ut_matcher.tpb
-@@expectations/matchers/ut_matcher_bi_operand.tpb
+@@expectations/matchers/ut_comparison_matcher.tpb
 @@expectations/matchers/ut_be_false.tpb
 @@expectations/matchers/ut_be_greater_or_equal.tpb
 @@expectations/matchers/ut_be_greater_than.tpb

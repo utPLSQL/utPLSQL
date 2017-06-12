@@ -1,4 +1,4 @@
-create or replace type body ut_matcher_bi_operand as
+create or replace type body ut_comparison_matcher as
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project

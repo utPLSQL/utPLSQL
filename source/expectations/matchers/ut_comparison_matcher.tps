@@ -1,4 +1,4 @@
-create or replace type ut_matcher_bi_operand under ut_matcher(
+create or replace type ut_comparison_matcher under ut_matcher(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
