@@ -4,8 +4,8 @@ layout: default
 <!-- Auto generated in .travis/push_docs_to_gh_pages.sh -->
 # Documentation
 
- - [Latest release v3.0.0 documentation](v3.0.0/) - Created 18 May 2017 - 06:52:00 PM
- - [Latest development version](develop/) - Created 12 Jun 2017 - 07:00:33 AM
+Latest release  - [v3.0.1 documentation](v3.0.1/) - Created 14 Jun 2017 - 08:00:05 PM
+ - [Latest development version](develop/) - Created 14 Jun 2017 - 08:00:05 PM
 
 ## Documentation release history
 
