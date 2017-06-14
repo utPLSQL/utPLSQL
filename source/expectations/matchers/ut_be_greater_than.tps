@@ -1,4 +1,4 @@
-create or replace type ut_be_greater_than under ut_matcher(
+create or replace type ut_be_greater_than under ut_comparison_matcher(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,7 +15,6 @@ create or replace type ut_be_greater_than under ut_matcher(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  expected        ut_data_value,
   member procedure init(self in out nocopy ut_be_greater_than, a_expected ut_data_value),
   constructor function ut_be_greater_than(self in out nocopy ut_be_greater_than, a_expected date) return self as result,
   constructor function ut_be_greater_than(self in out nocopy ut_be_greater_than, a_expected number) return self as result,

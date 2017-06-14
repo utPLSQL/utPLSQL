@@ -36,15 +36,15 @@ create or replace type body ut_coveralls_reporter is
       c_null            constant varchar2(4) := 'null';
     begin
       dbms_lob.createtemporary(l_result, true);
-      dbms_lob.writeappend(l_result, length(c_coverage_header), c_coverage_header);
+      ut_utils.append_to_clob(l_result, c_coverage_header);
 
       l_last_line_no := a_unit_coverage.lines.last;
       if l_last_line_no is null then
         l_last_line_no := a_unit_coverage.total_lines - 1;
         for i in 1 .. l_last_line_no loop
-          dbms_lob.writeappend(l_result, 2, '0,');
+          ut_utils.append_to_clob(l_result, '0,');
         end loop;
-        dbms_lob.writeappend(l_result, 1, '0');
+        ut_utils.append_to_clob(l_result, '0');
       else
         for line_no in 1 .. l_last_line_no loop
           if a_unit_coverage.lines.exists(line_no) then
@@ -55,10 +55,10 @@ create or replace type body ut_coveralls_reporter is
           if line_no < l_last_line_no then
             l_file_part := l_file_part ||',';
           end if;
-          dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);
+          ut_utils.append_to_clob(l_result, l_file_part);
         end loop;
       end if;
-      dbms_lob.writeappend(l_result, 1, ']');
+      ut_utils.append_to_clob(l_result, ']');
       return l_result;
     end;
 
@@ -73,22 +73,22 @@ create or replace type body ut_coveralls_reporter is
       begin
       dbms_lob.createtemporary(l_result,true);
 
-      dbms_lob.writeappend(l_result, length(c_coverage_header), c_coverage_header);
+      ut_utils.append_to_clob(l_result, c_coverage_header);
       l_unit := a_coverage_data.objects.first;
       while l_unit is not null loop
         l_file_part := '{ "name": "'||l_unit||'",'||chr(10);
-        dbms_lob.writeappend(l_result, length(l_file_part), l_file_part);
+        ut_utils.append_to_clob(l_result, l_file_part);
 
         dbms_lob.append(l_result,get_lines_json(a_coverage_data.objects(l_unit)));
 
-        dbms_lob.writeappend(l_result, 1, '}');
+        ut_utils.append_to_clob(l_result, '}');
 
         l_unit := a_coverage_data.objects.next(l_unit);
         if l_unit is not null then
-          dbms_lob.writeappend(l_result, 2, ','||chr(10));
+          ut_utils.append_to_clob(l_result, ','||chr(10));
         end if;
       end loop;
-      dbms_lob.writeappend(l_result, length(c_coverage_footer), c_coverage_footer);
+      ut_utils.append_to_clob(l_result, c_coverage_footer);
       return l_result;
     end;
   begin

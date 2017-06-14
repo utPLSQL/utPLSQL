@@ -20,7 +20,7 @@ create or replace type body ut_run as
     self in out nocopy ut_run, a_items ut_suite_items, a_run_paths ut_varchar2_list := null,
     a_coverage_options ut_coverage_options := null, a_test_file_mappings ut_file_mappings := null
   ) return self as result is
-    l_run_schemes ut_varchar2_list;
+    l_coverage_schema_names ut_varchar2_list;
   begin
     self.run_paths := a_run_paths;
     self.self_type := $$plsql_unit;
@@ -29,15 +29,15 @@ create or replace type body ut_run as
     self.coverage_options := a_coverage_options;
     self.test_file_mappings := coalesce(a_test_file_mappings, ut_file_mappings());
     if self.coverage_options is not null then
-      l_run_schemes := get_run_schemes();
-      coverage_options.schema_names := l_run_schemes;
+      l_coverage_schema_names := coalesce(coverage_options.schema_names, get_run_schemes());
+      coverage_options.schema_names := l_coverage_schema_names;
       if coverage_options.exclude_objects is not null then
         coverage_options.exclude_objects :=
           coverage_options.exclude_objects
           multiset union all
-          ut_suite_manager.get_schema_ut_packages(l_run_schemes);
+          ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names);
       else
-        coverage_options.exclude_objects := ut_suite_manager.get_schema_ut_packages(l_run_schemes);
+        coverage_options.exclude_objects := ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names);
       end if;
     end if;
     return;
@@ -111,8 +111,8 @@ create or replace type body ut_run as
       l_schemes := ut_varchar2_list();
       for i in 1 .. self.run_paths.count loop
         l_path := self.run_paths(i);
-        if regexp_like(l_path, '^(\w+)?:') then
-          l_schema := regexp_substr(l_path, '^(\w+)?:',subexpression => 1);
+        if regexp_like(l_path, '^([A-Za-z0-9$#_]+)?:') then
+          l_schema := regexp_substr(l_path, '^([A-Za-z0-9$#_]+)?:',subexpression => 1);
           if l_schema is not null then
             l_schema := sys.dbms_assert.schema_name(upper(l_schema));
           else
@@ -120,7 +120,7 @@ create or replace type body ut_run as
           end if;
         else
           begin
-            l_schema := sys.dbms_assert.schema_name(upper(regexp_substr(l_path, '^\w+')));
+            l_schema := sys.dbms_assert.schema_name(upper(regexp_substr(l_path, '^[A-Za-z0-9$#_]+')));
           exception
             when sys.dbms_assert.invalid_schema_name then
               l_schema := c_current_schema;

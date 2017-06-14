@@ -79,19 +79,17 @@ create or replace package body ut_suite_manager is
     if l_annotation_data.package_annotations.exists('suite') then
 
       if l_annotation_data.package_annotations.exists('displayname') then
-        l_suite_name         := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('displayname'), 1);
-      elsif l_annotation_data.package_annotations('suite').count>0 then
-        l_suite_name         := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('suite'), 1);
+        l_suite_name         := l_annotation_data.package_annotations('displayname').text;
+      else
+        l_suite_name         := l_annotation_data.package_annotations('suite').text;
       end if;
 
       if l_annotation_data.package_annotations.exists('suitepath') then
-        l_suite_path := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('suitepath'), 1) || '.' ||
-                        lower(l_object_name);
+        l_suite_path := l_annotation_data.package_annotations('suitepath').text || '.' || lower(l_object_name);
       end if;
 
       if l_annotation_data.package_annotations.exists('rollback') then
-        l_suite_rollback_annotation := ut_annotations.get_annotation_param(l_annotation_data.package_annotations('rollback')
-                                                                          ,1);
+        l_suite_rollback_annotation := l_annotation_data.package_annotations('rollback').text;
         l_suite_rollback            := case lower(l_suite_rollback_annotation)
                                          when 'manual' then
                                           ut_utils.gc_rollback_manual
@@ -145,21 +143,21 @@ create or replace package body ut_suite_manager is
             l_displayname          varchar2(4000);
           begin
             if l_proc_annotations.exists('beforetest') then
-              l_beforetest_procedure := ut_annotations.get_annotation_param(l_proc_annotations('beforetest'), 1);
+              l_beforetest_procedure := l_proc_annotations('beforetest').text;
             end if;
 
             if l_proc_annotations.exists('aftertest') then
-              l_aftertest_procedure := ut_annotations.get_annotation_param(l_proc_annotations('aftertest'), 1);
+              l_aftertest_procedure := l_proc_annotations('aftertest').text;
             end if;
 
             if l_proc_annotations.exists('displayname') then
-              l_displayname := ut_annotations.get_annotation_param(l_proc_annotations('displayname'), 1);
-            elsif l_proc_annotations('test').count > 0 then
-              l_displayname := ut_annotations.get_annotation_param(l_proc_annotations('test'), 1);
+              l_displayname := l_proc_annotations('displayname').text;
+            else
+              l_displayname := l_proc_annotations('test').text;
             end if;
 
             if l_proc_annotations.exists('rollback') then
-              l_rollback_annotation := ut_annotations.get_annotation_param(l_proc_annotations('rollback'), 1);
+              l_rollback_annotation := l_proc_annotations('rollback').text;
               l_rollback_type       := case lower(l_rollback_annotation)
                                          when 'manual' then
                                           ut_utils.gc_rollback_manual
@@ -379,7 +377,7 @@ create or replace package body ut_suite_manager is
     else
       for i in 1 .. a_paths.count loop
         l_path := a_paths(i);
-        if l_path is null or not (regexp_like(l_path, '^\w+(\.\w+){0,2}$') or regexp_like(l_path, '^(\w+)?:\w+(\.\w+)*$')) then
+        if l_path is null or not (regexp_like(l_path, '^[A-Za-z0-9$#_]+(\.[A-Za-z0-9$#_]+){0,2}$') or regexp_like(l_path, '^([A-Za-z0-9$#_]+)?:[A-Za-z0-9$#_]+(\.[A-Za-z0-9$#_]+)*$')) then
           raise_application_error(ut_utils.gc_invalid_path_format, 'Invalid path format: ' || nvl(l_path, 'NULL'));
         end if;
       end loop;
@@ -410,7 +408,7 @@ create or replace package body ut_suite_manager is
     end clean_paths;
 
     procedure skip_by_path(a_suite in out nocopy ut_suite_item, a_path varchar2) is
-      c_root        constant varchar2(32767) := regexp_substr(a_path, '\w+');
+      c_root        constant varchar2(32767) := replace(regexp_substr(a_path, '[A-Za-z0-9$#_]+'), '$', '\$');
       c_rest_path   constant varchar2(32767) := regexp_substr(a_path, '\.(.+)', subexpression => 1);
       l_suite       ut_logical_suite;
       l_item        ut_suite_item;
@@ -428,7 +426,7 @@ create or replace package body ut_suite_manager is
           l_item := l_suite.items(i);
 
           l_item_name := l_item.name;
-          --l_item_name := regexp_substr(l_item_name,'\w+$'); -- temporary fix. seems like suite have suitepath in object_name
+          --l_item_name := regexp_substr(l_item_name,'[A-Za-z0-9$#_]+$'); -- temporary fix. seems like suite have suitepath in object_name
           if regexp_like(l_item_name, c_root, modifier => 'i') then
 
             skip_by_path(l_item, c_rest_path);
@@ -473,8 +471,8 @@ create or replace package body ut_suite_manager is
     for i in 1 .. l_paths.count loop
       l_path   := l_paths(i);
 
-      if regexp_like(l_path, '^(\w+)?:') then
-        l_schema := regexp_substr(l_path, '^(\w+)?:',subexpression => 1);
+      if regexp_like(l_path, '^([A-Za-z0-9$#_]+)?:') then
+        l_schema := regexp_substr(l_path, '^([A-Za-z0-9$#_]+)?:',subexpression => 1);
         -- transform ":path1[.path2]" to "schema:path1[.path2]"
         if l_schema is not null then
           l_schema := sys.dbms_assert.schema_name(upper(l_schema));
@@ -486,7 +484,7 @@ create or replace package body ut_suite_manager is
         -- When path is one of: schema or schema.package[.object] or package[.object]
         -- transform it back to schema[.package[.object]]
         begin
-          l_schema := regexp_substr(l_path, '^\w+');
+          l_schema := regexp_substr(l_path, '^[A-Za-z0-9$#_]+');
           l_schema := sys.dbms_assert.schema_name(upper(l_schema));
         exception
           when sys.dbms_assert.invalid_schema_name then
@@ -502,7 +500,7 @@ create or replace package body ut_suite_manager is
 
       l_schema_suites := get_schema_suites(upper(l_schema));
 
-      if regexp_like(l_path, '^\w+$') then
+      if regexp_like(l_path, '^[A-Za-z0-9$#_]+$') then
         -- run whole schema
         l_index := l_schema_suites.first;
         while l_index is not null loop
@@ -512,14 +510,14 @@ create or replace package body ut_suite_manager is
         end loop;
       else
         -- convert SCHEMA.PACKAGE.PROCEDURE syntax to fully qualified path
-        if regexp_like(l_path, '^\w+(\.\w+){1,2}$') then
+        if regexp_like(l_path, '^[A-Za-z0-9$#_]+(\.[A-Za-z0-9$#_]+){1,2}$') then
           declare
             l_temp_suite     ut_logical_suite;
             l_package_name   varchar2(4000);
             l_procedure_name varchar2(4000);
           begin
-            l_package_name   := regexp_substr(l_path, '^\w+\.(\w+)(\.(\w+))?$', subexpression => 1);
-            l_procedure_name := regexp_substr(l_path, '^\w+\.(\w+)(\.(\w+))?$', subexpression => 3);
+            l_package_name   := regexp_substr(l_path, '^[A-Za-z0-9$#_]+\.([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?$', subexpression => 1);
+            l_procedure_name := regexp_substr(l_path, '^[A-Za-z0-9$#_]+\.([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?$', subexpression => 3);
 
             l_temp_suite := config_package(l_schema, l_package_name);
 
@@ -535,7 +533,7 @@ create or replace package body ut_suite_manager is
         -- by this time it's the only format left
         -- schema:suite.suite.suite
         l_suite_path      := regexp_substr(l_path, ':(.+)', subexpression => 1);
-        l_root_suite_name := regexp_substr(l_suite_path, '^\w+');
+        l_root_suite_name := regexp_substr(l_suite_path, '^[A-Za-z0-9$#_]+');
 
         begin
           l_suite := l_schema_suites(l_root_suite_name);

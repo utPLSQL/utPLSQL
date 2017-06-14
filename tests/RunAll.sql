@@ -25,6 +25,9 @@ create table ut$test_table (val varchar2(1));
 @@helpers/utplsql_test_reporter.typ
 @@helpers/test_reporters.pks
 @@helpers/test_reporters.pkb
+@@helpers/html_coverage_test.pck
+@@helpers/test_reporters_1.pks
+@@helpers/test_reporters_1.pkb
 
 --Start coverage in develop mode (coverage for utPLSQL framework)
 --Regular coverage excludes the framework
@@ -34,14 +37,13 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.IgnoreWrappedPackageAndDoesNotRaiseException.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationNotBeforeProcedure.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseComplexPackage.sql
+@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationParamsWithBrackets.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageAndProcedureLevelAnnotations.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotation.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationAccessibleBy.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationMultilineDeclare.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithKeyValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithMultilineComment.sql
-
 @@ut_expectations/ut.expect.not_to_be_null.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
@@ -125,10 +127,13 @@ exec ut_coverage.coverage_start_develop();
 
 @@lib/RunTest.sql ut_reporters/ut_coverage_sonar_reporter.AcceptsFileMapping.sql
 @@lib/RunTest.sql ut_reporters/ut_coverage_sonar_reporter.BuildsSonarCoverageReport.sql
+@@lib/RunTest.sql ut_reporters/ut_documentation_reporter.providesCorrectLineFromStacktrace.sql
 @@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.AcceptsFileMapping.sql
 @@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.ProducesExpectedOutputs.sql
 @@lib/RunTest.sql ut_reporters/ut_teamcity_reporter.ProducesExpectedOutputs.sql
 @@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ProducesExpectedOutputs.sql
+@@lib/RunTest.sql ut_reporters/ut_html_reporter.UserOverrideSchemaCoverage.sql
+@@lib/RunTest.sql ut_reporters/ut_html_reporter.DefaultSchemaCoverage.sql
 
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileList.sql
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileListWithSutePaths.sql
@@ -151,6 +156,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut/ut.run.WithSuitePath.ExecutesAllFromGivenPath.sql
 @@lib/RunTest.sql ut/ut.version.sql
 
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.AllowsDescriptionsWithComma.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheSchema.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPath.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPathCurUser.sql
@@ -171,6 +177,10 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.DoesntFindTheSuiteWhenPackageSpecIsInvalid.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.IncludesInvalidPackageBodiesInTheRun.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.CacheInvalidaesOnPackageDrop.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.PackageWithDollarSign.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.TestWithDollarSign.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.PackageWithHash.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.TestWithHashSign.sql
 
 
 @@lib/RunTest.sql ut_test/ut_test.DisabledFlagSkipTest.sql
@@ -218,6 +228,7 @@ exec ut_coverage.coverage_start_develop();
 
 @@ut_utils/ut_utils.clob_to_table.sql
 @@ut_utils/ut_utils.table_to_clob.sql
+@@lib/RunTest.sql ut_utils/ut_utils.append_to_clob.worksWithMultiByteChars.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithInvalidValues.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithNullValue.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.Success.sql
@@ -452,6 +463,8 @@ begin
     'source/expectations/matchers/ut_match.tps',
     'source/expectations/matchers/ut_matcher.tpb',
     'source/expectations/matchers/ut_matcher.tps',
+    'source/expectations/matchers/ut_comparison_matcher.tpb',
+    'source/expectations/matchers/ut_comparison_matcher.tps',
     'source/reporters/ut_ansiconsole_helper.pkb',
     'source/reporters/ut_ansiconsole_helper.pks',
     'source/reporters/ut_coverage_html_reporter.tpb',

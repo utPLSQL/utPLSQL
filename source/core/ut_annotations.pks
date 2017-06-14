@@ -46,11 +46,16 @@ create or replace package ut_annotations authid current_user as
   */
   type tt_annotation_params is table of typ_annotation_param index by pls_integer;
 
+  type t_annotation is record(
+    text   varchar2(4000),
+    params tt_annotation_params
+  );
+
   /*
     type: tt_annotations
     a list of tt_annotation_params index by the annotation name
   */
-  type tt_annotations is table of tt_annotation_params index by t_annotation_name;
+  type tt_annotations is table of t_annotation index by t_annotation_name;
 
   /*
     type: tt_procedure_annotations
@@ -87,7 +92,7 @@ create or replace package ut_annotations authid current_user as
 
     get annotation parameter on a specified index position
   */
-  function get_annotation_param(a_param_list tt_annotation_params, a_def_index pls_integer) return varchar2;
+--   function get_annotation_param(a_param_list tt_annotation_params, a_def_index pls_integer) return varchar2;
 
 end ut_annotations;
 /

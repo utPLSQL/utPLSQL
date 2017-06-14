@@ -31,7 +31,7 @@ create or replace procedure check_annotation_parsing(a_expected ut_annotations.t
 
         ut.expect(a_actual.exists(l_ind),('['||a_msg||']Check annotation exists')).to_be_true;
         if a_actual.exists(l_ind) then
-          check_annotation_params(a_msg||'.'||l_ind,a_expected(l_ind),a_actual(l_ind));
+          check_annotation_params(a_msg||'.'||l_ind,a_expected(l_ind).params,a_actual(l_ind).params);
         end if;
         l_ind := a_expected.next(l_ind);
       end loop;
