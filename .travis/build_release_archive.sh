@@ -14,5 +14,6 @@ git commit -m "tmp commit for building a release archive"
 
 git archive --prefix=utPLSQL/ -o utPLSQL.zip    --format=zip    HEAD
 git archive --prefix=utPLSQL/ -o utPLSQL.tar.gz --format=tar.gz HEAD
-
+md5sum utPLSQL.zip  --tag > utPLSQL.zip.md5
+md5sum utPLSQL.tar.gz  --tag > utPLSQL.tar.gz.md5
 
