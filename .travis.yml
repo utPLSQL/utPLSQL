@@ -80,8 +80,10 @@ deploy:
   provider: releases
   api_key: $github_api_token
   file:
-     - utPLSQL${UTPLSQL_BUILD_VERSION}.zip
-     - utPLSQL${UTPLSQL_BUILD_VERSION}.tar.gz
+     - utPLSQL.zip
+     - utPLSQL.tar.gz
+     - utPLSQL.zip.md5
+     - utPLSQL.tar.gz.md5
   skip_cleanup: true
   on:
      repo: ${UTPLSQL_REPO}
