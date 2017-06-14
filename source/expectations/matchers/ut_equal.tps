@@ -1,4 +1,4 @@
-create or replace type ut_equal under ut_matcher(
+create or replace type ut_equal under ut_comparison_matcher(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,7 +15,6 @@ create or replace type ut_equal under ut_matcher(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  expected             ut_data_value,
   nulls_are_equal_flag number(1,0),
   member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean),
   member function equal_with_nulls( self in ut_equal, a_assert_result boolean, a_actual ut_data_value) return boolean,
