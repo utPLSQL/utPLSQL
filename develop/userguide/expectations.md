@@ -3,7 +3,7 @@
 Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
 To achieve that, we use a combination of expectation and matcher to perform the check on the data.
 
-Example of unit test procedure body.
+Example of a unit test procedure body.
 ```sql
 begin
   ut.expect( 'the tested value' ).to_( equal('the expected value') );
@@ -12,7 +12,7 @@ end;
 
 Expectation is a set of the expected value(s), actual values(s) and the matcher(s) to run on those values.
 
-Matcher is defining the comparison operation to be performed on expected and actual values.
+Matcher defines the comparison operation to be performed on expected and actual values.
 Pseudo-code:
 ```
   ut.expect( a_actual {data-type} ).to_( {matcher} );
@@ -26,7 +26,7 @@ All matchers have shortcuts like:
 ```
 
 # Matchers
-utPLSQL provides following matchers to perform checks on the expected and actual values.  
+utPLSQL provides the following matchers to perform checks on the expected and actual values.  
 
 - `be_between`
 - `be_empty`
@@ -57,7 +57,7 @@ end;
 ```
 
 ## be_empty
-Unary matcher that validates if the provided data-set is empty.
+Unary matcher that validates if the provided dataset is empty.
 
 Usage:
 ```sql
@@ -86,7 +86,7 @@ end;
 ```
 
 ## be_greater_or_equal
-Allows to check if the actual value is greater or equal than the expected.
+Checks if the actual value is greater or equal than the expected.
 
 Usage:
 ```sql
@@ -98,7 +98,7 @@ end;
 ```
 
 ## be_greater_than
-Allows to check if the actual value is greater than the expected.
+Checks if the actual value is greater than the expected.
 
 Usage:
 ```sql
@@ -110,7 +110,7 @@ end;
 ```
 
 ## be_less_or_equal
-Allows to check if the actual value is less or equal than the expected.
+Checks if the actual value is less or equal than the expected.
 
 Usage:
 ```sql
@@ -122,7 +122,7 @@ end;
 ```
 
 ## be_less_than
-Allows to check if the actual value is less than the expected.
+Checks if the actual value is less than the expected.
 
 Usage:
 ```sql
@@ -148,7 +148,7 @@ begin
 end;
 ```
 
-Parameters `a_mask` and `a_escape_char` represent a valid parameters of the [Oracle like function](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF52142)
+Parameters `a_mask` and `a_escape_char` represent valid parameters of the [Oracle LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF52142)
 
 
 ## be_not_null
@@ -178,7 +178,7 @@ end;
 ```
 
 ## be_true
-Unary matcher that validates if the provided value is false.
+Unary matcher that validates if the provided value is true.
 - `boolean`
 
 Usage:
@@ -192,10 +192,9 @@ end;
 
 ## equal
 
-The equal matcher is a very restrictive matcher. It only returns true, if compared data-types are the same.
-That means, that comparing varchar2 to a number will fail even if the varchar2 contains the same number.
-This matcher is designed to capture changes of data-type, so that if you expect your variable to be number and is now something else,
- the test will fail and give you early indication of potential problem.
+The equal matcher is a very restrictive matcher. It only returns true if the compared data-types are the same.
+That means that comparing varchar2 to a number will fail even if the varchar2 contains the same number.
+This matcher is designed to capture changes of data-type, so that if you expect your variable to be a number and it is now some other type, the test will fail and give you early indication of a potential problem.
 
 Usage:
 ```sql
@@ -210,16 +209,17 @@ begin
   ut.expect( a_actual => y ).to_( equal( a_expected => x, a_nulls_are_equal => true ) );
 end;
 ```
-The `a_nulls_are_equal` parameter decides on the behavior of `null=null` comparison (**this comparison by default is true!**)
+The `a_nulls_are_equal` parameter controls the behavior of a `null=null` comparison (**this comparison by default is true!**)
 
 ### Comparing cursors
 
-The `equal` matcher accepts additional parameter `a_exclude varchar2` or `a_exclude ut_varchar2_list`, when used to compare `cursor` data. 
-Those parameters allow passing a list of column names to exclude from data comparison. The list can be a comma separated `varchar2` list or a `ut_varchar2_list` collection.
-The column names accepted by parameter are **case sensitive** and cannot be quoted.
-If `a_exclude` parameter is not specified, all columns are included. 
+The `equal` matcher accepts an additional parameter `a_exclude varchar2` or `a_exclude ut_varchar2_list`, when used to compare `cursor` data. 
+
+These parameters enable a list of column names to be passed for exclusion from the data comparison. The list can be a comma separated `varchar2` list or a `ut_varchar2_list` collection.
+The column names accepted by the parameter are **case sensitive** and cannot be quoted.
+If the `a_exclude` parameter is not specified, all columns are included. 
 If a column to be excluded does not exist, the column cannot be excluded and it's name is simply ignored.
-It is useful when testing cursors containing data that is beyond our control (like default or trigger/procedure generated sysdate values on columns).
+This is useful when testing cursors containing data that is beyond our control (like default or trigger/procedure generated sysdate values on columns).
 
 ```sql
 procedure test_cursors_skip_columns is
@@ -236,22 +236,22 @@ end;
 
 There is a great article by Tim Hall on [using the TABLE Operator with Locally Defined Types in PL/SQL](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1).
 If you are on Oracle 12c, you can benefit from this feature to make comparison of PLSQL records and tables super-simple in utPLSQL.
-You can use the feature described in article to convert PLSQL records and collection types to cursors. Complex cursor data can then be compared in utPLQL.  
+You can use the feature described in the article to convert PLSQL records and collection types to cursors. Complex cursor data can then be compared in utPLQL.  
 
 
 ### Comparing cursor data containing DATE fields 
 
 **Important note**
 
-utPLSQL uses XMLType internally to represent rows of the cursor data. This is by far most flexible and allows comparison of cursors containing LONG, CLOB, BLOB, user defined types and even nested cursors.
+utPLSQL uses XMLType internally to represent rows of the cursor data. This is by far the most flexible method and allows comparison of cursors containing LONG, CLOB, BLOB, user defined types and even nested cursors.
 Due to the way Oracle handles DATE data type when converting from cursor data to XML, utPLSQL has no control over the DATE formatting.
-The NLS_DATE_FORMAT setting from the moment the cursor was opened decides ont the formatting of dates used for cursor data comparison.
-By default, Oracle NLS_DATE_FORMAT is timeless, so data of DATE datatype, will be compared ignoring the time part of it.
+The NLS_DATE_FORMAT setting from the moment the cursor was opened determines the formatting of dates used for cursor data comparison.
+By default, Oracle NLS_DATE_FORMAT is timeless, so data of DATE datatype, will be compared ignoring the time component.
 
 You should use procedures `ut.set_nls`, `ut.reset_nls` around cursors that you want to compare in your tests.
-This way, the DATE data in cursors will get properly formatted for comparison using date-time format.
+This way, the DATE data in cursors will be properly formatted for comparison using date-time format.
 
-The example below makes use of `ut.set_nls`, `ut.reset_nls`, so that date in `l_expected` and `l_actual` is compared using date-time formatting.  
+The example below makes use of `ut.set_nls`, `ut.reset_nls`, so that the date in `l_expected` and `l_actual` is compared using date-time formatting.  
 ```sql
 create table events (
   description varchar2(4000),
@@ -323,7 +323,7 @@ drop package test_get_events;
 
 ### Comparing user defined types and collections
 
-The `anydata` data type is used to compare user defined object and collections.
+The `anydata` data type is used to compare user defined objects and collections.
   
 Example:
 ```sql
@@ -368,7 +368,7 @@ end;
 /
 ```
 
-This test will fail as the `v_acutal` is not equal `v_expected`. 
+This test will fail as `v_actual` is not equal `v_expected`. 
 
 ## match
 Validates that the actual value is matching the expected regular expression.
@@ -384,13 +384,13 @@ begin
 end;
 ```
 
-Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle regexp_like function](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501)
+Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle REGEXP_LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501)
 
 
 
 # Supported data types
 
-Below matrix illustrates the data types supported by different matchers.
+The matrix below illustrates the data types supported by different matchers.
 
 |                               | be_between | be_empty | be_false | be_greater_than | be_greater_or_equal | be_less_or_equal | be_less_than | be_like | be_not_null | be_null | be_true | equal | match |
 |:------------------------------|:----------:|:--------:|:--------:|:---------------:|:-------------------:|:----------------:|:------------:|:-------:|:-----------:|:-------:|:-------:|:-----:|:-----:|
@@ -411,9 +411,9 @@ Below matrix illustrates the data types supported by different matchers.
 
 
 # Negating a matcher
-Expectations provide a very convenient way to perform a check on negated matcher.
+Expectations provide a very convenient way to perform a check on a negated matcher.
 
-Syntax of check for matcher evaluating to true:
+Syntax to check for matcher evaluating to true:
 ```sql
 begin 
   ut.expect( a_actual {data-type} ).to_{matcher};
@@ -421,7 +421,7 @@ begin
 end;
 ```
 
-Syntax of check for matcher evaluating to false:
+Syntax to check for matcher evaluating to false:
 ```sql
 begin
   ut.expect( a_actual {data-type} ).not_to_{matcher};
@@ -438,5 +438,5 @@ begin
   ut.expect( null ).not_to( be_true() );
 end;
 ```
-Since NULL is neither true not it is not true, both expectations will report failure. 
+Since NULL is neither *true* nor *not true*, both expectations will report failure.
 
