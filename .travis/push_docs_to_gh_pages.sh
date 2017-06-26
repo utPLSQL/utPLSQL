@@ -85,8 +85,10 @@ if [[ "${TRAVIS_JOB_NUMBER}" =~ \.1$ ]]; then
     fi
     #If build running on a TAG - it's a new release - need to add it to documentation
     if [ -n "${TRAVIS_TAG}" ]; then
-      latest_release=" - [${TRAVIS_TAG} documentation](${UTPLSQL_VERSION}/) - Created $now"
-      sed -i '7s@.*@'"Latest release ${latest_release}"'@'  index.md
+      latest_release=" [${TRAVIS_TAG} documentation](${UTPLSQL_VERSION}/) - Created $now"
+      sed -i '7s@.*@'" - Latest release: ${latest_release}"'@'  index.md
+      #add entry to the end of file - ## Released Version Doc History
+      echo "- ${latest_release}">>index.md
     fi
     #replace 4th line in log
     sed -i '8s@.*@'"${latest}"'@'  index.md
