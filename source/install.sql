@@ -14,23 +14,20 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-prompt Installing utplsql framework
 
-set serveroutput on size unlimited
-set feedback on
-set timing off
-set verify off
-set define &
+@@define_ut3_owner_param.sql
 
 spool install.log
 
-define ut3_owner = &1
+prompt &&line_separator
+prompt Installing utPLSQL v3 framework
+prompt &&line_separator
+
 whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
-set serveroutput on size unlimited format truncated
 
-set feedback off
 prompt Switching current schema to &&ut3_owner
+prompt &&line_separator
 alter session set current_schema = &&ut3_owner;
 alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6003,6009,6010,7206)';
 --set define off
@@ -89,8 +86,11 @@ alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6
 @@install_component.sql 'core/ut_expectation_processor.pks'
 @@install_component.sql 'core/ut_expectation_processor.pkb'
 
---installing profiler tabs if they dont exist
+prompt Installing PLSQL profiler objects into &&ut3_owner schema
+prompt You will see "ORA-00955" errors if they already exist
+prompt &&line_separator
 whenever sqlerror continue
+set feedback on
 @@core/coverage/proftab.sql
 whenever sqlerror exit failure rollback
 
@@ -266,13 +266,16 @@ column text format a100
 column error_count noprint new_value error_count
 
 prompt Validating installation
-select name, type, sequence, line, position, text, count(1) over() error_count
+prompt &&line_separator
+set heading on
+select type, name, sequence, line, position, text, count(1) over() error_count
   from all_errors
  where owner = upper('&&ut3_owner')
    and name not like 'BIN$%'  --not recycled
    and (name = 'UT' or name like 'UT\_%' escape '\')
    -- errors only. ignore warnings
    and attribute = 'ERROR'
+ order by name, type, sequence
 /
 
 begin
@@ -280,7 +283,7 @@ begin
     raise_application_error(-20000, 'Not all sources were successfully installed.');
   else
     dbms_output.put_line('Installation completed successfully');
-    dbms_output.put_line('--------------------------------------------------------------');
+    dbms_output.put_line('&&line_separator');
   end if;
 end;
 /

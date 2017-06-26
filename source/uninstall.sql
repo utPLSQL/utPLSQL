@@ -14,15 +14,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-prompt Uninstalling UTPLSQL v3 framework
-set serveroutput on size unlimited format truncated
-set verify off
+@@define_ut3_owner_param.sql
+
 set feedback on
-set define on
 
 spool uninstall.log
 
-define ut3_owner = &1
+prompt &&line_separator
+prompt Uninstalling UTPLSQL v3 framework
+prompt &&line_separator
 
 alter session set current_schema = &&ut3_owner;
 set echo on
@@ -250,17 +250,22 @@ drop type ut_varchar2_rows force;
 
 set echo off
 set feedback off
+declare
+  i integer := 0;
 begin
+  dbms_output.put_line('Dropping synonyms pointing to non-existing objects in schema '||upper('&&ut3_owner'));
   for syn in (
     select
       case when owner = 'PUBLIC'
         then 'public synonym '
         else 'synonym ' || owner || '.' end || synonym_name as syn_name,
       table_owner||'.'||table_name as for_object
-    from all_synonyms
+    from all_synonyms s
     where table_owner = upper('&&ut3_owner') and table_owner != owner
+      and not exists (select 1 from all_objects o where o.owner = s.table_owner and o.object_name = s.table_name)
   )
   loop
+    i := i + 1;
     begin
       execute immediate 'drop '||syn.syn_name;
       dbms_output.put_line('Dropped '||syn.syn_name||' for object '||syn.for_object);
@@ -269,12 +274,14 @@ begin
         dbms_output.put_line('FAILED to drop '||syn.syn_name||' for object '||syn.for_object);
     end;
   end loop;
+  dbms_output.put_line('&&line_separator');
+  dbms_output.put_line(i||' synonyms dropped');
 end;
 /
 begin
-    dbms_output.put_line('--------------------------------------------------------------');
-    dbms_output.put_line('Uninstall complete');
-    dbms_output.put_line('--------------------------------------------------------------');
+  dbms_output.put_line('&&line_separator');
+  dbms_output.put_line('Uninstall complete');
+  dbms_output.put_line('&&line_separator');
 end;
 /
 
