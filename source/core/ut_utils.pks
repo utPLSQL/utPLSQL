@@ -171,20 +171,20 @@ create or replace package ut_utils authid definer is
      Parameters:
           a_clob - the text to be split.
           a_delimiter - the delimiter character or string (default chr(10) )
-          a_max_amount - the maximum length of returned string (default 24575)
+          a_max_amount - the maximum length of returned string (default 8191)
 
      Returns:
         ut_varchar2_list - table of string
 
    Splits a given string into table of string by delimiter.
-   Default value of a_max_amount is 24575 because of code can contains multibyte character.
+   Default value of a_max_amount is 8191 because of code can contains multibyte character. 
    The delimiter gets removed.
    If null passed as any of the parameters, empty table is returned.
    If split text is longer than a_max_amount it gets split into pieces of a_max_amount.
    If no text between delimiters found then an empty row is returned, example:
      string_to_table( 'a,,b', ',' ) gives table ut_varchar2_list( 'a', null, 'b' );
   */
-  function clob_to_table(a_clob clob, a_max_amount integer := 24575, a_delimiter varchar2:= chr(10)) return ut_varchar2_list;
+  function clob_to_table(a_clob clob, a_max_amount integer := 8191, a_delimiter varchar2:= chr(10)) return ut_varchar2_list;
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob;
 
