@@ -211,7 +211,7 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
-  function clob_to_table(a_clob clob, a_max_amount integer := 32767, a_delimiter varchar2:= chr(10)) return ut_varchar2_list is
+  function clob_to_table(a_clob clob, a_max_amount integer := 24575, a_delimiter varchar2:= chr(10)) return ut_varchar2_list is
     l_offset         integer := 1;
     l_length         integer := dbms_lob.getlength(a_clob);
     l_amount         integer;
