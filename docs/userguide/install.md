@@ -1,7 +1,10 @@
 # Downloading latest version of utPLSQL
 
-It is quite easy to download latest version of utPLSQL from github on Unix machines.
-Here is a little snippet that can be handy for downloading latest version.  
+It is quite easy to download latest version of utPLSQL from github on both Unix/Linux as well as Windows machines.
+Below are little snippets that can be handy for downloading latest version.  
+
+## Unix/Linux
+
 ```bash
 #!/bin/bash
 # Get the url to latest release "zip" file
@@ -16,6 +19,35 @@ You may download with a one-liner if that is more convenient.
 ```bash
 #!/bin/bash
 curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g') 
+```
+
+##Windows
+
+To run the script on windows you will need [PowerShell 3.0](https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/02/weekend-scripter-install-powershell-3-0-on-windows-7/) or above. 
+You will also need .NET 4.0 Framework or above.
+
+```batch
+$archiveName = 'utPLSQL.zip'
+$latestRepo = Invoke-WebRequest https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest
+$repo = $latestRepo.Content | Convertfrom-Json
+
+$urlList = $repo.assets.browser_download_url
+
+Add-Type -assembly "system.io.compression.filesystem"
+
+foreach ($i in $urlList) {
+
+   $fileName = $i.substring($i.LastIndexOf("/") + 1)
+
+   if ( $fileName.substring($fileName.LastIndexOf(".") + 1) -eq 'zip' ) {
+      Invoke-WebRequest $i -OutFile $archiveName
+      $fileLocation = Get-ChildItem | where {$_.Name -eq $archiveName}
+
+      if ($fileLocation) {
+         [io.compression.zipfile]::ExtractToDirectory($($fileLocation.FullName),$($fileLocation.DirectoryName))   
+      }
+   }
+}
 ```
 
 # Headless installation
