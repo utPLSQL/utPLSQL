@@ -2,13 +2,13 @@ create or replace type body ut_suite_item as
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
-
+  
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-
+  
       http://www.apache.org/licenses/LICENSE-2.0
-
+  
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,20 +16,17 @@ create or replace type body ut_suite_item as
   limitations under the License.
   */
 
-  member procedure init(
-    self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2,
-    a_description varchar2, a_path varchar2, a_rollback_type integer, a_disabled_flag boolean
-  ) is
+  member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_description varchar2, a_path varchar2, a_rollback_type integer, a_disabled_flag boolean) is
   begin
-    self.object_owner := a_object_owner;
-    self.object_name := lower(trim(a_object_name));
-    self.name := lower(trim(a_name));
-    self.description := a_description;
-    self.path := nvl(lower(trim(a_path)), self.object_name);
+    self.object_owner  := a_object_owner;
+    self.object_name   := lower(trim(a_object_name));
+    self.name          := lower(trim(a_name));
+    self.description   := a_description;
+    self.path          := nvl(lower(trim(a_path)), self.object_name);
     self.rollback_type := a_rollback_type;
     self.disabled_flag := ut_utils.boolean_to_int(a_disabled_flag);
     self.results_count := ut_results_counter();
-    self.warnings := ut_varchar2_list();
+    self.warnings      := ut_varchar2_list();
   end;
 
   member procedure set_disabled_flag(self in out nocopy ut_suite_item, a_disabled_flag boolean) is
@@ -67,7 +64,11 @@ create or replace type body ut_suite_item as
     end if;
   exception
     when ex_savepoint_not_exists then
-      put_warning('Savepoint not established. Implicit commit might have occured.');
+      put_warning('Unable to perform automatic rollback after ' || case self_type when 'UT_TEST' then 'test' when
+                  'UT_LOGICAL_SUITE' then 'test suite' when 'UT_SUITE' then 'test suite'
+                  end || ': ' || self.path || '
+An implicit or explicit commit/rollback occurred.
+Use the %rollback(manual) annotation or remove commits/rollback/ddl statements that are causing the issue.');
   end;
 
   member function execution_time return number is

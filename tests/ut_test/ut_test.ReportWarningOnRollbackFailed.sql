@@ -34,7 +34,9 @@ begin
     dbms_lob.append(l_output,l_output_data(i));
   end loop;
   
-  if l_output like '%Warnings:%Savepoint not established. Implicit commit might have occured.%0 disabled, 1 warning(s)%' then
+  if l_output like '%Warnings:%Unable to perform automatic rollback after test suite: UT_OUTPUT_TEST_ROLLBACK%
+An implicit or explicit commit/rollback occurred.%
+Use the %rollback(manual) annotation or remove commits/rollback/ddl statements that are causing the issue.%0 disabled, 1 warning(s)%' then
     :test_result := ut_utils.tr_success;
   end if;
 
