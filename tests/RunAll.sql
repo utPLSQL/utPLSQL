@@ -134,6 +134,8 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ProducesExpectedOutputs.sql
 @@lib/RunTest.sql ut_reporters/ut_html_reporter.UserOverrideSchemaCoverage.sql
 @@lib/RunTest.sql ut_reporters/ut_html_reporter.DefaultSchemaCoverage.sql
+@@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ReportOnSuiteWithoutDesc.sql
+@@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ReportOnTestWithoutDesc.sql
 
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileList.sql
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileListWithSutePaths.sql
