@@ -25,8 +25,8 @@ declare
   l_expected          varchar2(32767);
 begin
   l_expected := q'[tst_doc_reporter_timing
-%test1 (%sec)
-%test2 (%sec) (FAILED - 1)
+%test1 [%sec]
+%test2 [%sec] (FAILED - 1)
 %Failures:%
 Finished in % seconds
 2 tests, 1 failed, 0 errored, 0 disabled, 0 warning(s)]';

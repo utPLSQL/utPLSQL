@@ -50,7 +50,7 @@ create or replace type body ut_documentation_reporter is
     l_message varchar2(4000);
 
   begin
-    l_message := coalesce(a_test.description, a_test.name)||' ('||round(a_test.execution_time,3)||' sec)';
+    l_message := coalesce(a_test.description, a_test.name)||' ['||round(a_test.execution_time,3)||' sec]';
     --if test failed, then add it to the failures list, print failure with number
     if a_test.result = ut_utils.tr_disabled then
       self.print_yellow_text(l_message || ' (IGNORED)');
