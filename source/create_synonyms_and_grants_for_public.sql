@@ -17,12 +17,12 @@
 Create all necessary grant for the user who owns test packages and want to execute utPLSQL framework
 */
 
+@@define_ut3_owner_param.sql
+
 set echo off
 set feedback on
 set heading off
 set verify off
-
-define ut3_owner = &1
 
 prompt Granting privileges on UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
