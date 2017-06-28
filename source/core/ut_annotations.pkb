@@ -30,7 +30,7 @@ create or replace package body ut_annotations as
   c_rgexp_identifier            constant varchar2(50) := '[a-z][a-z0-9#_$]*';
   c_annotation_block_pattern    constant varchar2(200) := '(({COMMENT#.+}'||chr(10)||')+)( |'||chr(09)||')*(procedure|function)\s+(' ||
                                                            c_rgexp_identifier || ')';
-  c_annotation_pattern          constant varchar2(50) := gc_annotation_qualifier || c_rgexp_identifier || '(\(.*?\)$)?';
+  c_annotation_pattern          constant varchar2(50) := gc_annotation_qualifier || c_rgexp_identifier || '[ '||chr(9)||']*(\(.*?\)$)?';
 
 
   function delete_multiline_comments(a_source in clob) return clob is
