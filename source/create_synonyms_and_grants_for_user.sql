@@ -17,13 +17,32 @@
 Create all necessary grant for the user who owns test packages and want to execute utPLSQL framework
 */
 
+@@define_ut3_owner_param.sql
+
+column 2 new_value 2 noprint
+select null as "2" from dual where 1=0;
+spool params.sql.tmp
+select
+  case
+    when '&&2' is null then q'[ACCEPT ut3_user CHAR PROMPT 'Provide schema name where synonyms for the utPLSQL v3 should be created ']'
+    else 'define ut3_user=&&2'
+  end
+from dual;
+spool off
+set termout on
+@params.sql.tmp
+set termout off
+/* cleanup temporary sql files */
+--try running on windows
+$ del params.sql.tmp
+--try running on linux/unix
+! rm params.sql.tmp
+set termout on
+
 set echo off
 set feedback on
 set heading off
 set verify off
-
-define ut3_owner       = &1
-define ut3_user        = &2
 
 prompt Granting privileges on UTPLSQL objects in &&ut3_owner schema to user &&ut3_user
 
