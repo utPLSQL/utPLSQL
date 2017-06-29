@@ -14,17 +14,18 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-prompt Uninstalling UTPLSQL v3 framework
-set serveroutput on size unlimited format truncated
-set verify off
-set define &
+@@define_ut3_owner_param.sql
+
+set feedback on
 
 spool uninstall.log
 
-define ut3_owner = &1
+prompt &&line_separator
+prompt Uninstalling UTPLSQL v3 framework
+prompt &&line_separator
 
 alter session set current_schema = &&ut3_owner;
-
+set echo on
 drop synonym be_between;
 
 drop synonym match;
@@ -51,15 +52,15 @@ drop synonym be_true;
 
 drop synonym equal;
 
-drop type ut_coveralls_reporter;
+drop type ut_coveralls_reporter force;
 
-drop type ut_coverage_sonar_reporter;
+drop type ut_coverage_sonar_reporter force;
 
 drop package ut_coverage_report_html_helper;
 
-drop type ut_coverage_html_reporter;
+drop type ut_coverage_html_reporter force;
 
-drop type ut_sonar_test_reporter;
+drop type ut_sonar_test_reporter force;
 
 drop package ut_coverage;
 
@@ -77,97 +78,97 @@ drop package ut_suite_manager;
 
 drop package ut;
 
-drop type ut_expectation_yminterval;
+drop type ut_expectation_yminterval force;
 
-drop type ut_expectation_varchar2;
+drop type ut_expectation_varchar2 force;
 
-drop type ut_expectation_timestamp_tz;
+drop type ut_expectation_timestamp_tz force;
 
-drop type ut_expectation_timestamp_ltz;
+drop type ut_expectation_timestamp_ltz force;
 
-drop type ut_expectation_timestamp;
+drop type ut_expectation_timestamp force;
 
-drop type ut_expectation_refcursor;
+drop type ut_expectation_refcursor force;
 
-drop type ut_expectation_number;
+drop type ut_expectation_number force;
 
-drop type ut_expectation_dsinterval;
+drop type ut_expectation_dsinterval force;
 
-drop type ut_expectation_date;
+drop type ut_expectation_date force;
 
-drop type ut_expectation_clob;
+drop type ut_expectation_clob force;
 
-drop type ut_expectation_boolean;
+drop type ut_expectation_boolean force;
 
-drop type ut_expectation_blob;
+drop type ut_expectation_blob force;
 
-drop type ut_expectation_anydata;
+drop type ut_expectation_anydata force;
 
-drop type ut_expectation;
+drop type ut_expectation force;
 
 drop package ut_expectation_processor;
 
-drop type ut_match;
+drop type ut_match force;
 
-drop type ut_be_between;
+drop type ut_be_between force;
 
-drop type ut_equal;
+drop type ut_equal force;
 
-drop type ut_be_true;
+drop type ut_be_true force;
 
-drop type ut_be_null;
+drop type ut_be_null force;
 
-drop type ut_be_not_null;
+drop type ut_be_not_null force;
 
-drop type ut_be_like;
+drop type ut_be_like force;
 
-drop type ut_be_greater_or_equal;
+drop type ut_be_greater_or_equal force;
 
-drop type ut_be_empty;
+drop type ut_be_empty force;
 
-drop type ut_be_greater_than;
+drop type ut_be_greater_than force;
 
-drop type ut_be_less_or_equal;
+drop type ut_be_less_or_equal force;
 
-drop type ut_be_less_than;
+drop type ut_be_less_than force;
 
-drop type ut_be_false;
+drop type ut_be_false force;
 
-drop type ut_comparison_matcher;
+drop type ut_comparison_matcher force;
 
-drop type ut_matcher;
+drop type ut_matcher force;
 
-drop type ut_data_value_yminterval;
+drop type ut_data_value_yminterval force;
 
-drop type ut_data_value_varchar2;
+drop type ut_data_value_varchar2 force;
 
-drop type ut_data_value_timestamp_tz;
+drop type ut_data_value_timestamp_tz force;
 
-drop type ut_data_value_timestamp_ltz;
+drop type ut_data_value_timestamp_ltz force;
 
-drop type ut_data_value_timestamp;
+drop type ut_data_value_timestamp force;
 
-drop type ut_data_value_number;
+drop type ut_data_value_number force;
 
-drop type ut_data_value_refcursor;
+drop type ut_data_value_refcursor force;
 
-drop type ut_data_value_dsinterval;
+drop type ut_data_value_dsinterval force;
 
-drop type ut_data_value_date;
+drop type ut_data_value_date force;
 
-drop type ut_data_value_clob;
+drop type ut_data_value_clob force;
 
-drop type ut_data_value_boolean;
+drop type ut_data_value_boolean force;
 
-drop type ut_data_value_blob;
+drop type ut_data_value_blob force;
 
-drop type ut_data_value_object;
+drop type ut_data_value_object force;
 
-drop type ut_data_value_collection;
+drop type ut_data_value_collection force;
 
-drop type ut_data_value_anydata;
+drop type ut_data_value_anydata force;
 
-drop type ut_data_value;
+drop type ut_data_value force;
 
 drop table ut_cursor_data;
 
@@ -181,45 +182,45 @@ drop package ut_ansiconsole_helper;
 
 drop package ut_utils;
 
-drop type ut_documentation_reporter;
+drop type ut_documentation_reporter force;
 
-drop type ut_teamcity_reporter;
+drop type ut_teamcity_reporter force;
 
-drop type ut_xunit_reporter;
+drop type ut_xunit_reporter force;
 
-drop type ut_event_listener;
+drop type ut_event_listener force;
 
-drop type ut_coverage_reporter_base;
+drop type ut_coverage_reporter_base force;
 
-drop type ut_reporters;
+drop type ut_reporters force;
 
 drop type ut_reporter_base force;
 
-drop type ut_run;
+drop type ut_run force;
 
-drop type ut_coverage_options;
+drop type ut_coverage_options force;
 
-drop type ut_file_mappings;
+drop type ut_file_mappings force;
 
-drop type ut_file_mapping;
+drop type ut_file_mapping force;
 
-drop type ut_suite;
+drop type ut_suite force;
 
-drop type ut_logical_suite;
+drop type ut_logical_suite force;
 
-drop type ut_test;
+drop type ut_test force;
 
-drop type ut_console_reporter_base;
+drop type ut_console_reporter_base force;
 
-drop type ut_executable;
+drop type ut_executable force;
 
-drop type ut_suite_items;
+drop type ut_suite_items force;
 
-drop type ut_suite_item;
+drop type ut_suite_item force;
 
-drop type ut_event_listener_base;
+drop type ut_event_listener_base force;
 
-drop type ut_suite_item_base;
+drop type ut_suite_item_base force;
 
 drop package ut_output_buffer;
 
@@ -229,35 +230,42 @@ drop table ut_output_buffer_tmp$;
 
 drop sequence ut_message_id_seq;
 
-drop type ut_results_counter;
+drop type ut_results_counter force;
 
-drop type ut_expectation_results;
+drop type ut_expectation_results force;
 
-drop type ut_expectation_result;
+drop type ut_expectation_result force;
 
-drop type ut_key_value_pairs;
+drop type ut_key_value_pairs force;
 
-drop type ut_key_value_pair;
+drop type ut_key_value_pair force;
 
-drop type ut_object_names;
+drop type ut_object_names force;
 
-drop type ut_object_name;
+drop type ut_object_name force;
 
-drop type ut_varchar2_list;
+drop type ut_varchar2_list force;
 
-drop type ut_varchar2_rows;
+drop type ut_varchar2_rows force;
 
+set echo off
+set feedback off
+declare
+  i integer := 0;
 begin
+  dbms_output.put_line('Dropping synonyms pointing to non-existing objects in schema '||upper('&&ut3_owner'));
   for syn in (
     select
       case when owner = 'PUBLIC'
         then 'public synonym '
         else 'synonym ' || owner || '.' end || synonym_name as syn_name,
       table_owner||'.'||table_name as for_object
-    from all_synonyms
+    from all_synonyms s
     where table_owner = upper('&&ut3_owner') and table_owner != owner
+      and not exists (select 1 from all_objects o where o.owner = s.table_owner and o.object_name = s.table_name)
   )
   loop
+    i := i + 1;
     begin
       execute immediate 'drop '||syn.syn_name;
       dbms_output.put_line('Dropped '||syn.syn_name||' for object '||syn.for_object);
@@ -266,6 +274,14 @@ begin
         dbms_output.put_line('FAILED to drop '||syn.syn_name||' for object '||syn.for_object);
     end;
   end loop;
+  dbms_output.put_line('&&line_separator');
+  dbms_output.put_line(i||' synonyms dropped');
+end;
+/
+begin
+  dbms_output.put_line('&&line_separator');
+  dbms_output.put_line('Uninstall complete');
+  dbms_output.put_line('&&line_separator');
 end;
 /
 
