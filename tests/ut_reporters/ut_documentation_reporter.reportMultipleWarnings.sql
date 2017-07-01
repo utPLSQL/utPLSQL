@@ -39,7 +39,7 @@ begin
   --act
   select *
   bulk collect into l_output_data
-  from table(ut.run(ut_varchar2_list('tst_documrep_mult_warn','tst_documrep_mult_warn2'),ut_xunit_reporter()));
+  from table(ut.run(ut_varchar2_list('tst_documrep_mult_warn','tst_documrep_mult_warn2'),ut_documentation_reporter()));
 
   l_output := ut_utils.table_to_clob(l_output_data);
 
