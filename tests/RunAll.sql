@@ -101,6 +101,8 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_match.FailsForUnsupportedDatatype.sql
 @@lib/RunTest.sql ut_expectations/ut_data_value_object.compare.Gives0WhenComparingIdenticalObjects.sql
 @@lib/RunTest.sql ut_expectations/ut_expectation_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
+@@lib/RunTest.sql ut_expectations/ut_expectation_processor.stackOnFailedTest.sql
+@@lib/RunTest.sql ut_expectations/ut_expectation_processor.stackOnUtFail.sql
 
 @@ut_matchers/be_between.sql
 @@ut_matchers/be_empty.sql
