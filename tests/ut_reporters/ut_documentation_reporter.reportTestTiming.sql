@@ -34,7 +34,7 @@ Finished in % seconds
   --act
   select *
   bulk collect into l_output_data
-  from table(ut.run('tst_doc_reporter_timing',ut_xunit_reporter()));
+  from table(ut.run('tst_doc_reporter_timing',ut_documentation_reporter()));
 
   l_output := ut_utils.table_to_clob(l_output_data);
 
