@@ -29,7 +29,7 @@ begin
 %test2 [%sec] (FAILED - 1)
 %Failures:%
 Finished in % seconds
-2 tests, 1 failed, 0 errored, 0 disabled, 0 warning(s)]';
+2 tests, 1 failed, 0 errored, 0 disabled, 0 warning(s)%]';
 
   --act
   select *
