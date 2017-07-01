@@ -21,8 +21,6 @@ END;';
   l_parsing_result := ut_annotations.parse_package_annotations(l_source);
 
 --Assert
-  l_ann_param := null;
-  l_ann_param.val := 'Name of suite';
   l_expected.package_annotations('suite').params := cast( null as ut_annotations.tt_annotation_params);
 
   l_ann_param := null;

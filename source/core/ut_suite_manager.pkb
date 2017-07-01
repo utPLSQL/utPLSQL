@@ -84,7 +84,7 @@ create or replace package body ut_suite_manager is
         l_suite_name         := l_annotation_data.package_annotations('suite').text;
       end if;
 
-      if l_annotation_data.package_annotations.exists('suitepath') and trim(l_annotation_data.package_annotations('suitepath').text) is not null then
+      if l_annotation_data.package_annotations.exists('suitepath') and l_annotation_data.package_annotations('suitepath').text is not null then
         l_suite_path := l_annotation_data.package_annotations('suitepath').text || '.' || lower(l_object_name);
       end if;
 
