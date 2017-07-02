@@ -136,6 +136,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_reporters/ut_html_reporter.DefaultSchemaCoverage.sql
 @@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ReportOnSuiteWithoutDesc.sql
 @@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ReportOnTestWithoutDesc.sql
+@@lib/RunTest.sql ut_reporters/ut_documentation_reporter.reportTestTiming.sql
 
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileList.sql
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileListWithSutePaths.sql
@@ -229,7 +230,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.ManualOnFailure.sql
 
 @@ut_utils/ut_utils.clob_to_table.sql
-@@ut_utils/ut_utils.clob_to_table_multibyte.sql
 @@ut_utils/ut_utils.table_to_clob.sql
 @@lib/RunTest.sql ut_utils/ut_utils.append_to_clob.worksWithMultiByteChars.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithInvalidValues.sql
