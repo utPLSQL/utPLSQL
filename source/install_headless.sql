@@ -14,7 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-define ut3_user       = ut3
+define ut3_owner      = ut3
 define ut3_password   = XNtxj8eEgA6X6b6f
 define ut3_tablespace = users
 
