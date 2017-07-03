@@ -127,14 +127,14 @@ begin
     'usr', 
     ut_coverage_html_reporter(),
     a_source_file_mappings => 
-      ut_coverage_file_mappings(
-        ut_coverage_file_mapping(
+      ut_file_mappings(
+        ut_file_mapping(
           file_name    => 'sources/hr/award_bonus.prc',
           object_owner => 'USR',
           object_name  => 'AWARD_BONUS',
           object_type  => 'PROCEDURE'                        
         ),
-        ut_coverage_file_mapping(
+        ut_file_mapping(
           file_name    => 'sources/hr/betwnstr.fnc',
           object_owner => 'USR',
           object_name  => 'BETWNSTR',
