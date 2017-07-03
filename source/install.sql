@@ -87,12 +87,7 @@ alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6
 @@install_component.sql 'core/ut_expectation_processor.pkb'
 
 prompt Installing PLSQL profiler objects into &&ut3_owner schema
---prompt You will see "ORA-00955" errors if they already exist
---prompt &&line_separator
---whenever sqlerror continue
---set feedback on
 @@core/coverage/proftab.sql
---whenever sqlerror exit failure rollback
 
 @@install_component.sql 'core/ut_file_mapper.pks'
 @@install_component.sql 'core/ut_file_mapper.pkb'
