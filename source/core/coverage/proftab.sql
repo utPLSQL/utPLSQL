@@ -33,7 +33,7 @@ begin
   select count(*) into l_tab_exist from 
   (select table_name from all_tables where table_name = 'PLSQL_PROFILER_UNITS' and owner = sys_context('USERENV','CURRENT_SCHEMA')
    union all
-   select synonym_name from user_synonyms where synonym_name = 'PLSQL_PROFILER_UNITS' and owner = sys_context('USERENV','CURRENT_SCHEMA'));
+   select synonym_name from all_synonyms where synonym_name = 'PLSQL_PROFILER_UNITS' and owner = sys_context('USERENV','CURRENT_SCHEMA'));
   if l_tab_exist = 0 then
     execute immediate q'[create table plsql_profiler_units
 (
@@ -64,7 +64,7 @@ begin
   select count(*) into l_tab_exist from 
   (select table_name from all_tables where table_name = 'PLSQL_PROFILER_DATA' and owner = sys_context('USERENV','CURRENT_SCHEMA')
    union all
-   select synonym_name from user_synonyms where synonym_name = 'PLSQL_PROFILER_DATA' and owner = sys_context('USERENV','CURRENT_SCHEMA'));
+   select synonym_name from all_synonyms where synonym_name = 'PLSQL_PROFILER_DATA' and owner = sys_context('USERENV','CURRENT_SCHEMA'));
   if l_tab_exist = 0 then
     execute immediate q'[create table plsql_profiler_data
 (
@@ -96,7 +96,7 @@ begin
   select count(*) into l_seq_exist from 
   (select sequence_name from all_sequences where sequence_name = 'PLSQL_PROFILER_RUNNUMBER' and sequence_owner = sys_context('USERENV','CURRENT_SCHEMA')
    union all
-   select synonym_name from user_synonyms where synonym_name = 'PLSQL_PROFILER_RUNNUMBER' and owner = sys_context('USERENV','CURRENT_SCHEMA'));
+   select synonym_name from all_synonyms where synonym_name = 'PLSQL_PROFILER_RUNNUMBER' and owner = sys_context('USERENV','CURRENT_SCHEMA'));
   if l_seq_exist = 0 then
     execute immediate q'[create sequence plsql_profiler_runnumber start with 1 nocache]';
     dbms_output.put_line('Sequence PLSQL_PROFILER_RUNNUMBER created');
