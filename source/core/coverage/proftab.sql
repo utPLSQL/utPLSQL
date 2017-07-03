@@ -1,4 +1,9 @@
-create table plsql_profiler_runs
+declare
+  l_tab_exist number;
+begin
+  select count(*) into l_tab_exist from user_tables where table_name = 'PLSQL_PROFILER_RUNS';
+  if l_tab_exist = 0 then
+    execute immediate q'[create table plsql_profiler_runs
 (
   runid           number primary key,  -- unique run identifier,
                                        -- from plsql_profiler_runnumber
@@ -11,12 +16,20 @@ create table plsql_profiler_runs
   run_system_info varchar2(2047),      -- currently unused
   run_comment1    varchar2(2047),      -- additional comment
   spare1          varchar2(256)        -- unused
-);
+)]';
+    execute immediate q'[comment on table plsql_profiler_runs is
+        'Run-specific information for the PL/SQL profiler']';
+    dbms_output.put_line('PLSQL_PROFILER_RUNS table created');
+  end if;
+end;
+/
 
-comment on table plsql_profiler_runs is
-        'Run-specific information for the PL/SQL profiler';
-
-create table plsql_profiler_units
+declare
+  l_tab_exist number;
+begin
+  select count(*) into l_tab_exist from user_tables where table_name = 'PLSQL_PROFILER_UNITS';
+  if l_tab_exist = 0 then
+    execute immediate q'[create table plsql_profiler_units
 (
   runid              number references plsql_profiler_runs,
   unit_number        number,           -- internally generated library unit #
@@ -31,12 +44,20 @@ create table plsql_profiler_units
   spare2             number,           -- unused
   --
   primary key (runid, unit_number)
-);
+)]';
+    execute immediate q'[comment on table plsql_profiler_units is
+        'Information about each library unit in a run']';
+    dbms_output.put_line('PLSQL_PROFILER_UNITS table created');
+  end if;
+end;
+/
 
-comment on table plsql_profiler_units is
-        'Information about each library unit in a run';
-
-create table plsql_profiler_data
+declare
+  l_tab_exist number;
+begin
+  select count(*) into l_tab_exist from user_tables where table_name = 'PLSQL_PROFILER_DATA';
+  if l_tab_exist = 0 then
+    execute immediate q'[create table plsql_profiler_data
 (
   runid           number,           -- unique (generated) run identifier
   unit_number     number,           -- internally generated library unit #
@@ -52,10 +73,22 @@ create table plsql_profiler_data
   --
   primary key (runid, unit_number, line#),
   foreign key (runid, unit_number) references plsql_profiler_units
-);
+)]';
+    execute immediate q'[comment on table plsql_profiler_data is
+        'Accumulated data from all profiler runs']';
+    dbms_output.put_line('PLSQL_PROFILER_DATA table created');
+  end if;
+end;
+/
 
-comment on table plsql_profiler_data is
-        'Accumulated data from all profiler runs';
-
-create sequence plsql_profiler_runnumber start with 1 nocache;
+declare
+  l_seq_exist number;
+begin
+  select count(*) into l_seq_exist from user_sequences where sequence_name = 'PLSQL_PROFILER_RUNNUMBER';
+  if l_seq_exist = 0 then
+    execute immediate q'[create sequence plsql_profiler_runnumber start with 1 nocache]';
+    dbms_output.put_line('Sequence PLSQL_PROFILER_RUNNUMBER created');
+  end if;
+end;
+/
 
