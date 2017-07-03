@@ -1,7 +1,10 @@
 declare
   l_tab_exist number;
 begin
-  select count(*) into l_tab_exist from user_tables where table_name = 'PLSQL_PROFILER_RUNS';
+  select count(*) into l_tab_exist from 
+  (select table_name from all_tables where table_name = 'PLSQL_PROFILER_RUNS' and owner in (user,'PUBLIC')
+   union all
+   select synonym_name from user_synonyms where synonym_name = 'PLSQL_PROFILER_RUNS');
   if l_tab_exist = 0 then
     execute immediate q'[create table plsql_profiler_runs
 (
@@ -27,7 +30,10 @@ end;
 declare
   l_tab_exist number;
 begin
-  select count(*) into l_tab_exist from user_tables where table_name = 'PLSQL_PROFILER_UNITS';
+  select count(*) into l_tab_exist from 
+  (select table_name from all_tables where table_name = 'PLSQL_PROFILER_UNITS' and owner in (user,'PUBLIC')
+   union all
+   select synonym_name from user_synonyms where synonym_name = 'PLSQL_PROFILER_UNITS');
   if l_tab_exist = 0 then
     execute immediate q'[create table plsql_profiler_units
 (
@@ -55,7 +61,10 @@ end;
 declare
   l_tab_exist number;
 begin
-  select count(*) into l_tab_exist from user_tables where table_name = 'PLSQL_PROFILER_DATA';
+  select count(*) into l_tab_exist from 
+  (select table_name from all_tables where table_name = 'PLSQL_PROFILER_DATA' and owner in (user,'PUBLIC');
+   union all
+   select synonym_name from user_synonyms where synonym_name = 'PLSQL_PROFILER_DATA');
   if l_tab_exist = 0 then
     execute immediate q'[create table plsql_profiler_data
 (
@@ -84,7 +93,10 @@ end;
 declare
   l_seq_exist number;
 begin
-  select count(*) into l_seq_exist from user_sequences where sequence_name = 'PLSQL_PROFILER_RUNNUMBER';
+  select count(*) into l_seq_exist from 
+  (select sequence_name from all_sequences where sequence_name = 'PLSQL_PROFILER_RUNNUMBER' and sequence_owner in (user,'PUBLIC');
+   union all
+   select synonym_name from user_synonyms where synonym_name = 'PLSQL_PROFILER_RUNNUMBER');
   if l_seq_exist = 0 then
     execute immediate q'[create sequence plsql_profiler_runnumber start with 1 nocache]';
     dbms_output.put_line('Sequence PLSQL_PROFILER_RUNNUMBER created');
