@@ -132,7 +132,6 @@ create or replace package body ut_expectation_processor as
     c_expectation_search_pattern constant varchar2(500) := 
     '(.*\.(UT_EXPECTATION[A-Z0-9#_$]*|UT|UTASSERT2?)(\.[A-Z0-9#_$]+)?\s+)+(.*)';
   begin
-    dbms_output.put_line(c_call_stack);
     l_caller_stack_line    := regexp_substr( c_call_stack, c_expectation_search_pattern, 1, 1, 'm', 4);
     l_line_no              := to_number( regexp_substr(l_caller_stack_line,'0x[0-9a-f]+\s+(\d+)',subexpression => 1) );
     l_caller_type_and_name    := trim(regexp_substr(l_caller_stack_line,'0x[0-9a-f]+\s+\d+\s+(.+)',subexpression => 1));
