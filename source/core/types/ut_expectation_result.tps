@@ -1,4 +1,4 @@
-create or replace type ut_expectation_result as object(
+create or replace type ut_expectation_result authid current_user as object(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
