@@ -130,7 +130,7 @@ create or replace package body ut_expectation_processor as
     -- in 12.2 format_call_stack reportes not only package name, but also the procedure name
     -- when 11g and 12c reports only package name
     c_expectation_search_pattern constant varchar2(500) := 
-    '(^.*\.(UT_EXPECTATION[A-Z0-9#_$]*|UT|UTASSERT2?)(\.[A-Z0-9#_$]+)?$\s)+(.*)';
+    '(.*\.(UT_EXPECTATION[A-Z0-9#_$]*|UT|UTASSERT2?)(\.[A-Z0-9#_$]+)?\s+)+(.*)';
   begin
     dbms_output.put_line(c_call_stack);
     l_caller_stack_line    := regexp_substr( c_call_stack, c_expectation_search_pattern, 1, 1, 'm', 4);
