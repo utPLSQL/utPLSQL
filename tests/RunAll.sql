@@ -44,6 +44,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationMultilineDeclare.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithKeyValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithMultilineComment.sql
+@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.spaceBeforeAnnotationParams.sql
 @@ut_expectations/ut.expect.not_to_be_null.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
@@ -187,6 +188,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.TestWithDollarSign.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.PackageWithHash.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.TestWithHashSign.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.emptySuitePath.sql
 
 
 @@lib/RunTest.sql ut_test/ut_test.DisabledFlagSkipTest.sql
