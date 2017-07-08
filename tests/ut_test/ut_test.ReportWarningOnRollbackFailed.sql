@@ -34,7 +34,7 @@ begin
     dbms_lob.append(l_output,l_output_data(i));
   end loop;
   
-  if l_output like '%Warnings:%Unable to perform automatic rollback after test suite: UT_OUTPUT_TEST_ROLLBACK%
+  if l_output like '%Warnings:%Unable to perform automatic rollback after test suite: ut_output_test_rollback%
 An implicit or explicit commit/rollback occurred.%
 Use the %rollback(manual) annotation or remove commits/rollback/ddl statements that are causing the issue.%0 disabled, 1 warning(s)%' then
     :test_result := ut_utils.tr_success;
