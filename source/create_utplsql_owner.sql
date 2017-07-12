@@ -25,6 +25,8 @@ define ut3_user       = &1
 define ut3_password   = &2
 define ut3_tablespace = &3
 
+prompt Creating utPLSQL user &&ut3_user
+
 create user &ut3_user identified by &ut3_password default tablespace &ut3_tablespace quota unlimited on &ut3_tablespace;
 
 grant create session, create sequence, create procedure, create type, create table, create view, create synonym to &ut3_user;
