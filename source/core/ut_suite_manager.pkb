@@ -351,18 +351,34 @@ create or replace package body ut_suite_manager is
     l_schema_ut_packages ut_object_names := ut_object_names();
     l_schema_suites      tt_schema_suites;
     l_iter               varchar2(4000);
+    procedure populate_suite_ut_packages(a_suite ut_logical_suite, a_packages in out nocopy ut_object_names) is
+      l_sub_suite ut_logical_suite;
+    begin
+      if a_packages is null then
+        a_packages := ut_object_names();
+      end if;
+      if a_suite is of (ut_suite) then
+        a_packages.extend;
+        a_packages(a_packages.last) := ut_object_name(a_suite.object_owner, a_suite.object_name);
+      end if;
+      for i in 1 .. a_suite.items.count loop
+        if a_suite.items(i) is of (ut_logical_suite) then
+          l_sub_suite := treat(a_suite.items(i) as ut_logical_suite);
+          populate_suite_ut_packages(l_sub_suite, a_packages);
+        end if;
+      end loop;
+    end;
   begin
     if a_schema_names is not null then
       for i in 1 .. a_schema_names.count loop
         l_schema_suites := get_schema_suites(a_schema_names(i));
         l_iter := l_schema_suites.first;
         while l_iter is not null loop
-          l_schema_ut_packages.extend;
-          l_schema_ut_packages(l_schema_ut_packages.last) := ut_object_name(l_schema_suites(l_iter).object_owner, l_schema_suites(l_iter).object_name);
+          populate_suite_ut_packages(l_schema_suites(l_iter), l_schema_ut_packages);
           l_iter := l_schema_suites.next(l_iter);
         end loop;
       end loop;
---      l_schema_ut_packages := set(l_schema_ut_packages);
+      l_schema_ut_packages := set(l_schema_ut_packages);
     end if;
 
     return l_schema_ut_packages;
