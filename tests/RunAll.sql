@@ -10,6 +10,10 @@ set longchunksize 1000000
 set serveroutput on size unlimited format truncated
 @@lib/RunVars.sql
 
+@@lib/mystats/mystats start
+
+spool RunAll.log
+
 --Global setup
 @@helpers/ut_example_tests.pks
 @@helpers/ut_example_tests.pkb
@@ -32,7 +36,6 @@ create table ut$test_table (val varchar2(1));
 --Start coverage in develop mode (coverage for utPLSQL framework)
 --Regular coverage excludes the framework
 exec ut_coverage.coverage_start_develop();
-@@lib/mystats/mystats start
 
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.IgnoreWrappedPackageAndDoesNotRaiseException.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
@@ -263,6 +266,8 @@ exec ut_coverage.coverage_start_develop();
 --Finally
 @@lib/RunSummary
 
+spool off
+
 --Global cleanup
 --removing objects that should not be part of coverage report
 drop package ut_example_tests;
@@ -276,6 +281,7 @@ drop package test_package_2;
 drop package test_package_3;
 drop type utplsql_test_reporter;
 drop package test_reporters;
+drop package ut3$user#.html_coverage_test;
 
 set timing on
 prompt Generating coverage data to reporter outputs
