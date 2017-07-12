@@ -182,13 +182,14 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPath.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPathCurUser.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.DoesntFindTheSuiteWhenPackageSpecIsInvalid.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.emptySuitePath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.get_schema_ut_packages.IncludesPackagesWithSutePath.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.IncludesInvalidPackageBodiesInTheRun.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.CacheInvalidaesOnPackageDrop.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.PackageWithDollarSign.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.TestWithDollarSign.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.PackageWithHash.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.TestWithDollarSign.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.TestWithHashSign.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.emptySuitePath.sql
 
 
 @@lib/RunTest.sql ut_test/ut_test.DisabledFlagSkipTest.sql
@@ -259,7 +260,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigVarchar2.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.get_schema_ut_packages.IncludesPackagesWithSutePath.sql
 --Finally
 @@lib/RunSummary
 

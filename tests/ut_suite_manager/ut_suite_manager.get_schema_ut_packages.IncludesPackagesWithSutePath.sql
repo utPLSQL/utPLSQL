@@ -1,9 +1,9 @@
--- set termout off
--- create or replace package tests as
---   procedure dummy;
--- end;
--- /
--- set termout on
+set termout off
+create or replace package tests as
+  procedure dummy;
+end;
+/
+set termout on
 
 declare
   l_expected ut_object_names;
@@ -26,8 +26,8 @@ begin
 end;
 /
 
--- set termout off
--- drop package tests
--- /
--- set termout on
---
+set termout off
+drop package tests
+/
+set termout on
+
