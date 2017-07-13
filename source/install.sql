@@ -20,7 +20,7 @@
 spool install.log
 
 prompt &&line_separator
-prompt Installing utPLSQL v3 framework
+prompt Installing utPLSQL v3 framework into &&ut3_owner schema
 prompt &&line_separator
 
 whenever sqlerror exit failure rollback
