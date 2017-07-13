@@ -176,7 +176,7 @@ create or replace package body ut_suite_manager is
                              ,a_description           => l_displayname
                              ,a_path                  => l_suite.path || '.' || l_proc_name
                              ,a_rollback_type         => l_rollback_type
-                             ,a_disabled_flag         => l_proc_annotations.exists('disabled')
+                             ,a_disabled_flag         => l_annotation_data.package_annotations.exists('disabled') or l_proc_annotations.exists('disabled')
                              ,a_before_test_proc_name => l_beforetest_procedure
                              ,a_after_test_proc_name  => l_aftertest_procedure
                              ,a_before_each_proc_name => l_default_setup_proc
@@ -416,8 +416,6 @@ create or replace package body ut_suite_manager is
       l_item_name   varchar2(32767);
 
     begin
-      a_suite.set_disabled_flag(false);
-
       if a_path is not null and a_suite is not null and a_suite is of (ut_logical_suite) then
         l_suite := treat(a_suite as ut_logical_suite);
 

@@ -1,34 +1,44 @@
-PROMPT Disable whole suite by disabled flag
-
 --Arrange
+create or replace package test_disabled_suite as
+  --%suite
+  --%disabled
+  gv_glob_val number := 0;
+  --%beforeall
+  procedure before_all;
+  --%test
+  procedure test1;
+  --%test
+  procedure test2;
+end;
+/
+
 declare
-  l_suite ut_logical_suite;
-  l_test ut_test;
-  l_parsing_result ut_annotations.typ_annotated_package;
-  l_expected ut_annotations.typ_annotated_package;
-  l_ann_param ut_annotations.typ_annotation_param;
-  l_cnt number;
-  l_listener ut_event_listener := ut_event_listener(ut_reporters());
+  l_lines    ut_varchar2_list;
+  l_results  clob;
 begin
-
-  delete from ut$test_table;
-
-  l_test := ut_test(a_object_name => 'ut_transaction_control',a_name => 'test', a_rollback_type => ut_utils.gc_rollback_auto);
-  l_suite := ut_suite (a_description => 'Suite name', a_name => 'UT_TRANSACTION_CONTROL', a_object_name => 'UT_TRANSACTION_CONTROL', a_rollback_type => ut_utils.gc_rollback_auto,a_path => 'ut_transaction_control');
-  l_suite.add_item(l_test);
-  l_suite.set_disabled_flag(true);
-
 --Act
-  l_suite.do_execute(l_listener);
+  select * bulk collect into l_lines from table(ut.run('test_disabled_suite'));
 
-  ut_expectation_processor.clear_expectations;
+  l_results := ut_utils.table_to_clob(l_lines);
 
 --Assert
-  ut.expect(ut_transaction_control.count_rows('t')).to_equal(0);
+  ut.expect(l_results).to_be_like('%test1 [0 sec] (IGNORED)%');
+  ut.expect(l_results).to_be_like('%test2 [0 sec] (IGNORED)%');
+  ut.expect(l_results).to_be_like('%2 tests, 0 failed, 0 errored, 2 disabled, 0 warning(s)%');
 
   if ut_expectation_processor.get_status = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;
+  else
+    dbms_output.put_line(
+      xmltype(
+        anydata.convertcollection(
+          ut_expectation_processor.get_expectations_results()
+        )
+      ).getclobval()
+    );
   end if;
-
 end;
+/
+
+drop package test_disabled_suite
 /
