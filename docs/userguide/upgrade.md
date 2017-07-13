@@ -1,5 +1,7 @@
-# How to upgrade from prior versions
+# Upgrading from version 2
 
-utPLSQL v3 is a total rewrite of the previous version. There is no automated way to migrate tests from version 2.x to version 3.
-There are plans to build a mapping/bridging solution that would allow running v2 tests using v3 framework.
+utPLSQL v3 is a total rewrite of the framework.
+To make utPLSQL v2 packages run on v3 framework you need to install and execute migration utility.
+See the [utPLSQL-v2-v3-migration](https://github.com/utPLSQL/utPLSQL-v2-v3-migration) project for details on how to install and execute the migration.
+
 
