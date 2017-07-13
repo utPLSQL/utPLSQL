@@ -2,13 +2,13 @@ create or replace type body ut_suite_item as
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
-  
+
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-  
+
       http://www.apache.org/licenses/LICENSE-2.0
-  
+
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,6 +27,7 @@ create or replace type body ut_suite_item as
     self.disabled_flag := ut_utils.boolean_to_int(a_disabled_flag);
     self.results_count := ut_results_counter();
     self.warnings      := ut_varchar2_list();
+    self.transaction_invalidators := ut_varchar2_list();
   end;
 
   member procedure set_disabled_flag(self in out nocopy ut_suite_item, a_disabled_flag boolean) is
@@ -64,11 +65,13 @@ create or replace type body ut_suite_item as
     end if;
   exception
     when ex_savepoint_not_exists then
-      put_warning('Unable to perform automatic rollback after ' || case self_type when 'UT_TEST' then 'test' when
-                  'UT_LOGICAL_SUITE' then 'test suite' when 'UT_SUITE' then 'test suite'
-                  end || ': ' || self.path || '
-An implicit or explicit commit/rollback occurred.
-Use the %rollback(manual) annotation or remove commits/rollback/ddl statements that are causing the issue.');
+      put_warning(
+        'Unable to perform automatic rollback after test'
+        || case when self_type like '%SUITE' then ' suite' end || '. '
+        ||'An implicit or explicit commit/rollback occurred in procedures:'||chr(10)
+        ||lower(ut_utils.indent_lines(ut_utils.table_to_clob(self.get_transaction_invalidators()), 2, true))||chr(10)
+        ||'Use the "--%rollback(manual)" annotation or remove commit/rollback/ddl statements that are causing the issue.'
+      );
   end;
 
   member function execution_time return number is
@@ -81,6 +84,17 @@ Use the %rollback(manual) annotation or remove commits/rollback/ddl statements t
     self.warnings.extend;
     self.warnings(self.warnings.last) := a_message;
     self.results_count.increase_warning_count;
+  end;
+
+  member function get_transaction_invalidators return ut_varchar2_list is
+  begin
+    return transaction_invalidators;
+  end;
+
+  final member procedure add_transaction_invalidator(a_object_name varchar2) is
+  begin
+    transaction_invalidators.extend();
+    transaction_invalidators(transaction_invalidators.last) := a_object_name;
   end;
 
 end;
