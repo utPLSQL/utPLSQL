@@ -57,8 +57,9 @@ create or replace type body ut_suite  as
     self.start_time := current_timestamp;
 
     if self.get_disabled_flag() then
-      self.result := ut_utils.tr_disabled;
-      self.end_time := self.start_time;
+      for i in 1 .. self.items.count loop
+        self.items(i).do_execute(a_listener);
+      end loop;
       ut_utils.debug_log('ut_suite.execute - disabled');
     else
 
@@ -87,11 +88,9 @@ create or replace type body ut_suite  as
       else
         propagate_error(ut_utils.table_to_clob(self.get_error_stack_traces()));
       end if;
-
-      self.calc_execution_result();
-      self.end_time := current_timestamp;
-
     end if;
+    self.calc_execution_result();
+    self.end_time := current_timestamp;
     a_listener.fire_after_event(ut_utils.gc_suite,self);
 
     return l_suite_step_without_errors;
