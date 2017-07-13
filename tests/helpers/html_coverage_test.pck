@@ -1,25 +1,25 @@
-CREATE OR REPLACE PACKAGE ut3$user#.html_coverage_test IS
+create or replace package ut3$user#.html_coverage_test is
 
    -- Author  : LUW07
    -- Created : 23/05/2017 09:37:29
    -- Purpose : Supporting html coverage procedure
 
    -- Public type declarations
-   PROCEDURE run_if_statment(o_result OUT NUMBER);
-END HTML_COVERAGE_TEST;
+   procedure run_if_statment(o_result out number);
+end html_coverage_test;
 /
-CREATE OR REPLACE PACKAGE BODY ut3$user#.html_coverage_test IS
+create or replace package body ut3$user#.html_coverage_test is
 
    -- Private type declarations
-   PROCEDURE run_if_statment(o_result OUT NUMBER) IS
-      l_testedvalue NUMBER := 1;
-      l_success     NUMBER := 0;
-   BEGIN
-      IF l_testedvalue = 1 THEN
+   procedure run_if_statment(o_result out number) is
+      l_testedvalue number := 1;
+      l_success     number := 0;
+   begin
+      if l_testedvalue = 1 then
          l_success := 1;
-      END IF;
-      
+      end if;
+
       o_result := l_success;
-   END run_if_statment;
-END HTML_COVERAGE_TEST;
+   end run_if_statment;
+end html_coverage_test;
 /
