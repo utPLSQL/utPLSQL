@@ -49,9 +49,7 @@ begin
         ut3.ut_output_test_rollback.aa
         ut3.ut_output_test_rollback.be
         ut3.ut_output_test_rollback.ae
-        ut3.ut_output_test_rollback.be
         ut3.ut_output_test_rollback.t_manual
-        ut3.ut_output_test_rollback.ae
       Use the "--%rollback(manual)" annotation or remove commit/rollback/ddl statements that are causing the issue.
 %
 Finished in % seconds

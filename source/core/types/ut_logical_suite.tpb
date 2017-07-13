@@ -123,7 +123,9 @@ create or replace type body ut_logical_suite as
     for i in 1 .. self.items.count loop
       l_child_results := self.items(i).get_transaction_invalidators();
       for j in 1 .. l_child_results.count loop
-        l_result.extend; l_result(l_result.last) := l_child_results(j);
+        if l_child_results(j) not member of l_result then
+          l_result.extend; l_result(l_result.last) := l_child_results(j);
+        end if;
       end loop;
     end loop;
     return l_result;

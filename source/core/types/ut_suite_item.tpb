@@ -93,8 +93,10 @@ create or replace type body ut_suite_item as
 
   final member procedure add_transaction_invalidator(a_object_name varchar2) is
   begin
-    transaction_invalidators.extend();
-    transaction_invalidators(transaction_invalidators.last) := a_object_name;
+    if a_object_name not member of transaction_invalidators then
+      transaction_invalidators.extend();
+      transaction_invalidators(transaction_invalidators.last) := a_object_name;
+    end if;
   end;
 
 end;
