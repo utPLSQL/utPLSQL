@@ -29,9 +29,20 @@ begin
   l_results := ut_utils.table_to_clob(l_lines);
 
   --assert
-  if l_results like '%Warnings:%Unable to perform automatic rollback after test suite: ut_output_test_rollback%
-An implicit or explicit commit/rollback occurred.%
-Use the %rollback(manual) annotation or remove commits/rollback/ddl statements that are causing the issue.%0 disabled, 1 warning(s)%' then
+  if l_results like q'[%Warnings:
+%
+  1) ut_output_test_rollback.tt
+      Unable to perform automatic rollback after test. An implicit or explicit commit/rollback occurred in procedures:
+        ut3.ut_output_test_rollback.tt
+      Use the "--%rollback(manual)" annotation or remove commit/rollback/ddl statements that are causing the issue.
+%
+  2) ut_output_test_rollback
+      Unable to perform automatic rollback after test suite. An implicit or explicit commit/rollback occurred in procedures:
+        ut3.ut_output_test_rollback.tt
+      Use the "--%rollback(manual)" annotation or remove commit/rollback/ddl statements that are causing the issue.
+%
+Finished in % seconds
+1 tests, 0 failed, 0 errored, 0 disabled, 2 warning(s)%]' then
     :test_result := ut_utils.tr_success;
   else
     for i in 1 .. l_lines.count loop
