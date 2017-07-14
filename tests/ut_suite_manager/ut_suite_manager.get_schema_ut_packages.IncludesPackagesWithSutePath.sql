@@ -16,7 +16,7 @@ begin
     ut_object_name(user,'TEST_REPORTERS_1'),
     ut_object_name(user,'TEST_REPORTERS')
   );
-  l_actual := ut_suite_manager.get_schema_ut_packages(ut_varchar2_list(user));
+  l_actual := ut_suite_manager.get_schema_ut_packages(ut_varchar2_rows(user));
   if l_actual = l_expected then
     :test_result := ut_utils.tr_success;
   else

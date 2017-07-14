@@ -96,7 +96,7 @@ create or replace package body ut is
 
   procedure run_autonomous(
     a_paths ut_varchar2_list, a_reporter ut_reporter_base, a_color_console integer,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings, a_test_file_mappings ut_file_mappings,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_file_mappings ut_file_mappings, a_test_file_mappings ut_file_mappings,
     a_include_objects ut_varchar2_list, a_exclude_objects ut_varchar2_list
   ) is
     pragma autonomous_transaction;
@@ -110,7 +110,7 @@ create or replace package body ut is
 
   procedure run_autonomous(
     a_paths ut_varchar2_list, a_reporter ut_reporter_base, a_color_console integer,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list, a_exclude_objects ut_varchar2_list
   ) is
     pragma autonomous_transaction;
@@ -124,7 +124,7 @@ create or replace package body ut is
 
   function run(
     a_reporter ut_reporter_base := null, a_color_console integer := 0,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
@@ -147,7 +147,7 @@ create or replace package body ut is
 
   function run(
     a_reporter ut_reporter_base := null, a_color_console integer := 0,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
@@ -170,7 +170,7 @@ create or replace package body ut is
 
   function run(
     a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console integer := 0,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
@@ -192,7 +192,7 @@ create or replace package body ut is
 
   function run(
     a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console integer := 0,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
@@ -214,7 +214,7 @@ create or replace package body ut is
 
   function run(
     a_path varchar2, a_reporter ut_reporter_base := null, a_color_console integer := 0,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
@@ -237,7 +237,7 @@ create or replace package body ut is
 
   function run(
     a_path varchar2, a_reporter ut_reporter_base := null, a_color_console integer := 0,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
@@ -260,7 +260,7 @@ create or replace package body ut is
 
   procedure run(
     a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   ) is
   begin
@@ -272,7 +272,7 @@ create or replace package body ut is
 
   procedure run(
     a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   ) is
   begin
@@ -284,7 +284,7 @@ create or replace package body ut is
 
   procedure run(
     a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   ) is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
@@ -298,7 +298,7 @@ create or replace package body ut is
 
   procedure run(
     a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   ) is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
@@ -312,7 +312,7 @@ create or replace package body ut is
 
   procedure run(
     a_path varchar2, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   ) is
     l_paths  ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
@@ -325,7 +325,7 @@ create or replace package body ut is
 
   procedure run(
     a_path varchar2, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
+    a_coverage_schemes ut_varchar2_rows := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   ) is
     l_paths  ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
