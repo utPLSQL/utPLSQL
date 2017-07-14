@@ -122,10 +122,5 @@ create or replace type body ut_reporter_base is
     null;
   end;
 
-  member procedure finalize(self in out nocopy ut_reporter_base) is
-  begin
-    null;
-  end;
-
 end;
 /

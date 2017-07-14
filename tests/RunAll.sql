@@ -50,6 +50,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.spaceBeforeAnnotationParams.sql
 @@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTrace.sql
 @@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTraceWith0x.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.not_to_equal.anydata.GivesFailureWhenComparingTheSameData.sql
 @@ut_expectations/ut.expect.not_to_be_null.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
@@ -150,6 +151,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileList.sql
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileListWithSutePaths.sql
 @@lib/RunTest.sql ut/ut.run.AcceptsSutePaths.sql
+@@lib/RunTest.sql ut/ut.run.ExecutesSuccesfullyAnEmptySuite.sql
 @@lib/RunTest.sql ut/ut.run.FailsToExecuteAnInvalidPackageBody.sql
 @@lib/RunTest.sql ut/ut.run.function.AcceptsCoverageFileList.sql
 @@lib/RunTest.sql ut/ut.run.function.AcceptsCoverageFileListWithSutePaths.sql

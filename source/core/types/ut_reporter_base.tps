@@ -57,7 +57,7 @@ create or replace type ut_reporter_base authid current_user as object(
 
   -- run hooks continued
   member procedure after_calling_run (self in out nocopy ut_reporter_base, a_run in ut_run),
-  member procedure finalize(self in out nocopy ut_reporter_base)
+  not instantiable member procedure finalize(self in out nocopy ut_reporter_base)
 
 )
 not final not instantiable

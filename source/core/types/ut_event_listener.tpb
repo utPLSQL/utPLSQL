@@ -56,8 +56,6 @@ create or replace type body ut_event_listener is
           self.reporters(i).before_calling_after_each(treat(a_item as ut_test));
         elsif a_event_name = ut_utils.gc_after_all then
           self.reporters(i).before_calling_after_all(treat(a_item as ut_logical_suite));
-        else
-          raise_application_error(ut_utils.gc_invalid_rep_event_name,'Invalid reporting event name - '|| nvl(a_event_name,'NULL'));
         end if;
       elsif a_event_timing = 'after' then
         if a_event_name =  ut_utils.gc_run then
@@ -80,13 +78,7 @@ create or replace type body ut_event_listener is
           self.reporters(i).after_calling_after_each(treat(a_item as ut_test));
         elsif a_event_name = ut_utils.gc_after_all then
           self.reporters(i).after_calling_after_all(treat(a_item as ut_logical_suite));
-        else
-          raise_application_error(ut_utils.gc_invalid_rep_event_name,'Invalid reporting event name - '|| nvl(a_event_name,'NULL'));
         end if;
-      elsif a_event_timing = ut_utils.gc_finalize then
-          self.reporters(i).finalize();
-      else
-        raise_application_error(ut_utils.gc_invalid_rep_event_time,'Invalid reporting event time - '|| nvl(a_event_timing,'NULL'));
       end if;
     end loop;
 
@@ -97,8 +89,6 @@ create or replace type body ut_event_listener is
     for i in 1..self.reporters.count loop
       if a_event_name = ut_utils.gc_finalize then
         self.reporters(i).finalize();
-      else
-        raise_application_error(ut_utils.gc_invalid_rep_event_time,'Invalid reporting event name - '|| nvl(a_event_name,'NULL'));
       end if;
     end loop;
   end fire_event;
