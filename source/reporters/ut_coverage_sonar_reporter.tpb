@@ -86,8 +86,6 @@ create or replace type body ut_coverage_sonar_reporter is
     l_coverage_data := ut_coverage.get_coverage_data(a_run.coverage_options);
 
     self.print_clob( get_coverage_xml( l_coverage_data ) );
-
-    (self as ut_reporter_base).after_calling_run(a_run);
   end;
 
 end;

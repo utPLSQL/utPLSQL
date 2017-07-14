@@ -65,7 +65,6 @@ create or replace package body ut_runner is
     l_listener      ut_event_listener;
   begin
     begin
-      ut_output_buffer.cleanup_buffer();
       ut_utils.save_dbms_output_to_cache();
 
       ut_console_reporter_base.set_color_enabled(a_color_console);
@@ -86,14 +85,13 @@ create or replace package body ut_runner is
       l_items_to_run.do_execute(l_listener);
 
       ut_utils.cleanup_temp_tables;
-      ut_output_buffer.close(l_listener.reporters);
       ut_metadata.reset_source_definition_cache;
       ut_utils.read_cache_to_dbms_output();
       exception
       when others then
         ut_utils.cleanup_temp_tables;
-        ut_output_buffer.close(l_listener.reporters);
         ut_metadata.reset_source_definition_cache;
+        l_listener.fire_on_event(ut_utils.gc_finalize);
         ut_utils.read_cache_to_dbms_output();
         dbms_output.put_line(dbms_utility.format_error_backtrace);
         dbms_output.put_line(dbms_utility.format_error_stack);

@@ -7,7 +7,9 @@ declare
   l_wait_seconds integer := 1;
 begin
   --Act
-  select count(1) into l_dummy from table( l_output.get_lines( a_initial_timeout => l_wait_seconds, a_timeout_sec => 0 ));
+  l_output.send_line(lpad('a text',4000,',a text'));
+
+  select count(*) into l_dummy from table( l_output.get_lines( a_initial_timeout => 0, a_timeout_sec => l_wait_seconds ));
   l_result := round(extract(second from (systimestamp - l_start_time)));
 
   --Assert

@@ -136,13 +136,15 @@ create or replace package body ut is
       l_paths, l_reporter, a_color_console,
       a_coverage_schemes, a_source_file_mappings, a_test_file_mappings, a_include_objects, a_exclude_objects
     );
-    l_lines := ut_output_buffer.get_lines_cursor(l_reporter.reporter_id);
-    loop
-      fetch l_lines into l_line;
-      exit when l_lines%notfound;
-      pipe row(l_line);
-    end loop;
-    close l_lines;
+    if l_reporter is of (ut_output_reporter_base) then
+      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      loop
+        fetch l_lines into l_line;
+        exit when l_lines%notfound;
+        pipe row(l_line);
+      end loop;
+      close l_lines;
+    end if;
   end;
 
   function run(
@@ -159,13 +161,15 @@ create or replace package body ut is
       l_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_files, a_test_files,
       a_include_objects, a_exclude_objects
     );
-    l_lines := ut_output_buffer.get_lines_cursor(l_reporter.reporter_id);
-    loop
-      fetch l_lines into l_line;
-      exit when l_lines%notfound;
-      pipe row(l_line);
-    end loop;
-    close l_lines;
+    if l_reporter is of (ut_output_reporter_base) then
+      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      loop
+        fetch l_lines into l_line;
+        exit when l_lines%notfound;
+        pipe row(l_line);
+      end loop;
+      close l_lines;
+    end if;
   end;
 
   function run(
@@ -181,13 +185,15 @@ create or replace package body ut is
       a_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_file_mappings, a_test_file_mappings,
       a_include_objects, a_exclude_objects
     );
-    l_lines := ut_output_buffer.get_lines_cursor(l_reporter.reporter_id);
-    loop
-      fetch l_lines into l_line;
-      exit when l_lines%notfound;
-      pipe row(l_line);
-    end loop;
-    close l_lines;
+    if l_reporter is of (ut_output_reporter_base) then
+      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      loop
+        fetch l_lines into l_line;
+        exit when l_lines%notfound;
+        pipe row(l_line);
+      end loop;
+      close l_lines;
+    end if;
   end;
 
   function run(
@@ -203,13 +209,15 @@ create or replace package body ut is
       a_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_files, a_test_files,
       a_include_objects, a_exclude_objects
     );
-    l_lines := ut_output_buffer.get_lines_cursor(l_reporter.reporter_id);
-    loop
-      fetch l_lines into l_line;
-      exit when l_lines%notfound;
-      pipe row(l_line);
-    end loop;
-    close l_lines;
+    if l_reporter is of (ut_output_reporter_base) then
+      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      loop
+        fetch l_lines into l_line;
+        exit when l_lines%notfound;
+        pipe row(l_line);
+      end loop;
+      close l_lines;
+    end if;
   end;
 
   function run(
@@ -226,13 +234,15 @@ create or replace package body ut is
       l_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_file_mappings, a_test_file_mappings,
       a_include_objects, a_exclude_objects
     );
-    l_lines := ut_output_buffer.get_lines_cursor(l_reporter.reporter_id);
-    loop
-      fetch l_lines into l_line;
-      exit when l_lines%notfound;
-      pipe row(l_line);
-    end loop;
-    close l_lines;
+    if l_reporter is of (ut_output_reporter_base) then
+      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      loop
+        fetch l_lines into l_line;
+        exit when l_lines%notfound;
+        pipe row(l_line);
+      end loop;
+      close l_lines;
+    end if;
   end;
 
   function run(
@@ -249,13 +259,15 @@ create or replace package body ut is
       l_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_files, a_test_files,
       a_include_objects, a_exclude_objects
     );
-    l_lines := ut_output_buffer.get_lines_cursor(l_reporter.reporter_id);
-    loop
-      fetch l_lines into l_line;
-      exit when l_lines%notfound;
-      pipe row(l_line);
-    end loop;
-    close l_lines;
+    if l_reporter is of (ut_output_reporter_base) then
+      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      loop
+        fetch l_lines into l_line;
+        exit when l_lines%notfound;
+        pipe row(l_line);
+      end loop;
+      close l_lines;
+    end if;
   end;
 
   procedure run(
@@ -293,7 +305,9 @@ create or replace package body ut is
       a_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_file_mappings, a_test_file_mappings,
       a_include_objects, a_exclude_objects
     );
-    ut_output_buffer.lines_to_dbms_output(l_reporter.reporter_id);
+    if l_reporter is of (ut_output_reporter_base) then
+      treat(l_reporter as ut_output_reporter_base).lines_to_dbms_output();
+    end if;
   end;
 
   procedure run(
@@ -307,7 +321,9 @@ create or replace package body ut is
       a_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_files, a_test_files,
       a_include_objects, a_exclude_objects
     );
-    ut_output_buffer.lines_to_dbms_output(l_reporter.reporter_id);
+    if l_reporter is of (ut_output_reporter_base) then
+      treat(l_reporter as ut_output_reporter_base).lines_to_dbms_output();
+    end if;
   end;
 
   procedure run(

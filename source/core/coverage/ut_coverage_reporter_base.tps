@@ -1,4 +1,4 @@
-create or replace type ut_coverage_reporter_base under ut_reporter_base(
+create or replace type ut_coverage_reporter_base under ut_output_reporter_base(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project

@@ -70,12 +70,17 @@ alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6
 @@install_component.sql 'core/types/ut_reporters.tps'
 @@install_component.sql 'core/types/ut_event_listener.tps'
 
+--output buffer base api
+@@install_component.sql 'core/output_buffers/ut_output_buffer_base.tps'
 --output buffer table
-@@install_component.sql 'core/ut_output_buffer_tmp.sql'
-@@install_component.sql 'core/ut_message_id_seq.sql'
---output buffer api
-@@install_component.sql 'core/ut_output_buffer.pks'
-@@install_component.sql 'core/ut_output_buffer.pkb'
+@@install_component.sql 'core/output_buffers/ut_output_buffer_info_tmp.sql'
+@@install_component.sql 'core/output_buffers/ut_output_buffer_tmp.sql'
+@@install_component.sql 'core/output_buffers/ut_message_id_seq.sql'
+--output buffer table api
+@@install_component.sql 'core/output_buffers/ut_output_table_buffer.tps'
+@@install_component.sql 'core/output_buffers/ut_output_table_buffer.tpb'
+
+@@install_component.sql 'core/types/ut_output_reporter_base.tps'
 
 --annoations
 @@install_component.sql 'core/ut_annotations.pks'
@@ -115,6 +120,7 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'core/types/ut_event_listener.tpb'
 @@install_component.sql 'core/types/ut_expectation_result.tpb'
 @@install_component.sql 'core/types/ut_reporter_base.tpb'
+@@install_component.sql 'core/types/ut_output_reporter_base.tpb'
 @@install_component.sql 'core/types/ut_file_mapping.tpb'
 @@install_component.sql 'core/types/ut_executable.tpb'
 @@install_component.sql 'core/types/ut_console_reporter_base.tps'

@@ -16,7 +16,8 @@ declare
   suite1        ut_logical_suite;
   suite2        ut_logical_suite;
   suite_complex ut_logical_suite;
-  listener      ut_event_listener;
+  l_reporter    ut_output_reporter_base;
+  l_listener    ut_event_listener;
   l_run         ut_run;
 begin
   suite1 := ut_logical_suite(a_object_owner=>null, a_object_name => null, a_name => null, a_description => 'Test Suite 1', a_path => null);
@@ -44,10 +45,11 @@ begin
   suite_complex.items := ut_suite_items(suite1, suite2);
 
   -- provide a reporter to process results
-  listener := ut_event_listener(ut_reporters(ut_custom_reporter(a_tab_size => 2)));
+  l_reporter := ut_custom_reporter(a_tab_size => 2);
+  l_listener := ut_event_listener(ut_reporters(l_reporter));
   l_run := ut_run(ut_suite_items(suite_complex));
-  l_run.do_execute(listener);
-  ut_output_buffer.lines_to_dbms_output(listener.reporters(1).reporter_id,0);
+  l_run.do_execute(l_listener);
+  l_reporter.lines_to_dbms_output();
 end;
 /
 
