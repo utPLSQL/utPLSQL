@@ -177,7 +177,7 @@ create or replace package ut_utils authid definer is
         ut_varchar2_list - table of string
 
    Splits a given string into table of string by delimiter.
-   Default value of a_max_amount is 8191 because of code can contains multibyte character. 
+   Default value of a_max_amount is 8191 because of code can contains multibyte character.
    The delimiter gets removed.
    If null passed as any of the parameters, empty table is returned.
    If split text is longer than a_max_amount it gets split into pieces of a_max_amount.
@@ -211,6 +211,10 @@ create or replace package ut_utils authid definer is
 
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob);
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data varchar2);
+
+  function to_xpath(a_list varchar2) return varchar2;
+
+  function to_xpath(a_list ut_varchar2_list) return varchar2;
 
 end ut_utils;
 /

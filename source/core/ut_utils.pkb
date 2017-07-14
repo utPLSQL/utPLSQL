@@ -328,5 +328,33 @@ create or replace package body ut_utils is
     end if;
   end;
 
+  function to_xpath(a_list varchar2) return varchar2 is
+    l_xpath varchar2(32767) := a_list;
+  begin
+    if l_xpath not like '/%' then
+      l_xpath := '//'||replace(l_xpath,',','|//');
+    end if;
+    return l_xpath;
+  end;
+
+  function to_xpath(a_list ut_varchar2_list) return varchar2 is
+    l_xpath varchar2(32767);
+    i integer;
+  begin
+    i := a_list.first;
+    while i is not null loop
+      if a_list(i) is not null then
+        if a_list(i) not like '/%' then
+          l_xpath := l_xpath || '//'||a_list(i)||'|';
+        else
+          l_xpath := l_xpath ||a_list(i)||'|';
+        end if;
+      end if;
+      i := a_list.next(i);
+    end loop;
+    l_xpath := rtrim(l_xpath,',|');
+    return l_xpath;
+  end;
+
 end ut_utils;
 /

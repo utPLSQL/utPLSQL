@@ -25,7 +25,8 @@ create or replace type ut_expectation authid current_user as object(
   final member procedure not_to_be_not_null(self in ut_expectation),
 
   -- this is done to provide strong type comparison. other comporators should be implemented in the type-specific classes
-  member procedure to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2 := null, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected anydata, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected blob, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected boolean, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected clob, a_nulls_are_equal boolean := null),
@@ -40,7 +41,8 @@ create or replace type ut_expectation authid current_user as object(
   member procedure to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null),
 
-  member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null),
+  member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2 := null, a_nulls_are_equal boolean := null),
+  member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected blob, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected boolean, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected clob, a_nulls_are_equal boolean := null),

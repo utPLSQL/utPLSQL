@@ -24,24 +24,14 @@ create or replace type body ut_data_value_refcursor as
 
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor, a_exclude varchar2 ) return self as result is
   begin
-    if a_exclude is not null then
-      self.exclude_xpath := '//'||replace(a_exclude,',','|//');
-    end if;
+    self.exclude_xpath := ut_utils.to_xpath(a_exclude);
     init(a_value);
     return;
   end;
 
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor, a_exclude ut_varchar2_list ) return self as result is
-    i integer;
   begin
-    i := a_exclude.first;
-    while i is not null loop
-      if a_exclude(i) is not null then
-        self.exclude_xpath := self.exclude_xpath || '//'||a_exclude(i)||'|';
-      end if;
-      i := a_exclude.next(i);
-    end loop;
-    self.exclude_xpath := rtrim(self.exclude_xpath,',|');
+    self.exclude_xpath := ut_utils.to_xpath(a_exclude);
     init(a_value);
     return;
   end;
@@ -146,15 +136,17 @@ create or replace type body ut_data_value_refcursor as
   overriding member function compare_implementation(a_other ut_data_value) return integer is
     l_result integer;
     l_other  ut_data_value_refcursor;
+    l_xpath  varchar2(32767);
   begin
+    l_xpath := coalesce(self.exclude_xpath, l_other.exclude_xpath);
     if a_other is of (ut_data_value_refcursor) then
       l_other  := treat(a_other as ut_data_value_refcursor);
       select count(1)
         into l_result
-        from (select case when coalesce(self.exclude_xpath, l_other.exclude_xpath) is not null then deletexml( ucd.row_data, coalesce(self.exclude_xpath, l_other.exclude_xpath) ) else ucd.row_data end as row_data,
+        from (select case when l_xpath is not null then deletexml( ucd.row_data, l_xpath ) else ucd.row_data end as row_data,
                      ucd.row_no
                 from ut_cursor_data ucd where ucd.cursor_data_guid = self.data_value) exp
-        full outer join (select case when coalesce(self.exclude_xpath, l_other.exclude_xpath) is not null then deletexml( ucd.row_data, coalesce(self.exclude_xpath, l_other.exclude_xpath) ) else ucd.row_data end as row_data,
+        full outer join (select case when l_xpath is not null then deletexml( ucd.row_data, l_xpath ) else ucd.row_data end as row_data,
                                 ucd.row_no
                            from ut_cursor_data ucd where ucd.cursor_data_guid = l_other.data_value) act
          on (exp.row_no = act.row_no)

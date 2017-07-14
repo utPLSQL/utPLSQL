@@ -1,15 +1,15 @@
-PROMPT Exclude column names are case sensitive
 --Arrange
 declare
-  l_actual   SYS_REFCURSOR;
-  l_expected SYS_REFCURSOR;
+  l_actual   ut_key_value_pair;
+  l_expected ut_key_value_pair;
   l_result   integer;
   l_results_details ut_expectation_results;
 begin
 --Act
-  open l_actual   for select 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual;
-  open l_expected for select 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual;
-  ut.expect(l_actual).to_equal(l_expected, a_exclude=>'A_COLUMN,Some_Col');
+  l_actual   := ut_key_value_pair(key=>'A',value=>'1');
+  l_expected := ut_key_value_pair(key=>'A',value=>'0');
+
+  ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected), a_exclude=>'VALUE');
   l_result :=  ut_expectation_processor.get_status();
   l_results_details := ut_expectation_processor.get_expectations_results();
 --Assert
