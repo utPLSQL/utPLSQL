@@ -120,30 +120,28 @@ create or replace package body ut_expectation_processor as
 
   end;
 
-  function who_called_expectation return varchar2 is
-    c_call_stack                 constant varchar2(32767) := dbms_utility.format_call_stack();
+  function who_called_expectation(a_call_stack varchar2) return varchar2 is
     l_caller_stack_line          varchar2(4000);
-    l_caller_type_and_name       varchar2(4000);
     l_line_no                    integer;
     l_owner                      varchar2(1000);
-    l_object_name                varchar2(1000);   
+    l_object_name                varchar2(1000);
+    l_result                     varchar2(4000);
     -- in 12.2 format_call_stack reportes not only package name, but also the procedure name
     -- when 11g and 12c reports only package name
-    c_expectation_search_pattern constant varchar2(500) := 
+    c_expectation_search_pattern constant varchar2(500) :=
     '(.*\.(UT_EXPECTATION[A-Z0-9#_$]*|UT|UTASSERT2?)(\.[A-Z0-9#_$]+)?\s+)+(.*)';
   begin
-    l_caller_stack_line    := regexp_substr( c_call_stack, c_expectation_search_pattern, 1, 1, 'm', 4);
-    l_line_no              := to_number( regexp_substr(l_caller_stack_line,'0x[0-9a-f]+\s+(\d+)',subexpression => 1) );
-    l_caller_type_and_name    := trim(regexp_substr(l_caller_stack_line,'0x[0-9a-f]+\s+\d+\s+(.+)',subexpression => 1));
+    l_caller_stack_line    := regexp_substr( a_call_stack, c_expectation_search_pattern, 1, 1, 'm', 4);
     if l_caller_stack_line like '%.%' then
+      l_line_no     := to_number( regexp_substr(l_caller_stack_line,'(0x)?[0-9a-f]+\s+(\d+)',subexpression => 2) );
       l_owner       := regexp_substr(l_caller_stack_line,'([A-Za-z0-9$#_]+)\.([A-Za-z0-9$#_]|\.)+',subexpression => 1);
       l_object_name := regexp_substr(l_caller_stack_line,'([A-Za-z0-9$#_]+)\.(([A-Za-z0-9$#_]|\.)+)',subexpression => 2);
+      if l_owner is not null and l_object_name is not null and l_line_no is not null then
+        l_result := 'at "' || l_owner || '.' || l_object_name || '", line '|| l_line_no || ' '
+                    || ut_metadata.get_source_definition_line(l_owner, l_object_name, l_line_no);
+      end if;
     end if;
-    return
-      case when l_owner is not null and l_object_name is not null and l_line_no is not null then
-        'at "' || l_owner || '.' || l_object_name || '", line '|| l_line_no || ' ' ||
-          ut_metadata.get_source_definition_line(l_owner, l_object_name, l_line_no)
-      end;
+    return l_result;
   end;
 end;
 /
