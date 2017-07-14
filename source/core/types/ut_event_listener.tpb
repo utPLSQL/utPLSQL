@@ -83,11 +83,24 @@ create or replace type body ut_event_listener is
         else
           raise_application_error(ut_utils.gc_invalid_rep_event_name,'Invalid reporting event name - '|| nvl(a_event_name,'NULL'));
         end if;
+      elsif a_event_timing = ut_utils.gc_finalize then
+          self.reporters(i).finalize();
       else
         raise_application_error(ut_utils.gc_invalid_rep_event_time,'Invalid reporting event time - '|| nvl(a_event_timing,'NULL'));
       end if;
     end loop;
 
+  end fire_event;
+
+  overriding member procedure fire_event(self in out nocopy ut_event_listener, a_event_name varchar2) is
+  begin
+    for i in 1..self.reporters.count loop
+      if a_event_name = ut_utils.gc_finalize then
+        self.reporters(i).finalize();
+      else
+        raise_application_error(ut_utils.gc_invalid_rep_event_time,'Invalid reporting event name - '|| nvl(a_event_name,'NULL'));
+      end if;
+    end loop;
   end fire_event;
 
 end;

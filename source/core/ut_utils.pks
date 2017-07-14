@@ -35,6 +35,7 @@ create or replace package ut_utils authid definer is
   gc_after_test              constant varchar2(10) := 'after_test';
   gc_after_each              constant varchar2(12) := 'after_each';
   gc_after_all               constant varchar2(12) := 'after_all';
+  gc_finalize                constant varchar2(12) := 'finalize';
 
   /* Constants: Test Results */
   tr_disabled                constant number(1) := 0; -- test/suite was disabled
@@ -177,7 +178,7 @@ create or replace package ut_utils authid definer is
         ut_varchar2_list - table of string
 
    Splits a given string into table of string by delimiter.
-   Default value of a_max_amount is 8191 because of code can contains multibyte character. 
+   Default value of a_max_amount is 8191 because of code can contains multibyte character.
    The delimiter gets removed.
    If null passed as any of the parameters, empty table is returned.
    If split text is longer than a_max_amount it gets split into pieces of a_max_amount.

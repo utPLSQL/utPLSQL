@@ -59,8 +59,6 @@ create or replace package body ut_runner is
     l_listener      ut_event_listener;
     l_coverage_options ut_coverage_options;
   begin
-    ut_output_buffer.cleanup_buffer();
-
     ut_console_reporter_base.set_color_enabled(a_color_console);
     if a_reporters is null or a_reporters.count = 0 then
       l_listener := ut_event_listener(ut_reporters(ut_documentation_reporter()));
@@ -77,11 +75,10 @@ create or replace package body ut_runner is
     l_items_to_run.do_execute(l_listener);
 
     cleanup_temp_tables;
-    ut_output_buffer.close(l_listener.reporters);
   exception
     when others then
       cleanup_temp_tables;
-      ut_output_buffer.close(l_listener.reporters);
+      l_listener.fire_event(ut_utils.gc_finalize);
       dbms_output.put_line(dbms_utility.format_error_backtrace);
       dbms_output.put_line(dbms_utility.format_error_stack);
       raise;

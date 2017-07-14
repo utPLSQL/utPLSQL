@@ -35,7 +35,7 @@ create or replace type body ut_documentation_reporter is
     if a_text is not null then
       l_lines := ut_utils.string_to_table(a_text);
       for i in 1 .. l_lines.count loop
-        (self as ut_reporter_base).print_text(tab || l_lines(i));
+        (self as ut_output_reporter_base).print_text(tab || l_lines(i));
       end loop;
     end if;
   end;
@@ -88,7 +88,7 @@ create or replace type body ut_documentation_reporter is
     l_warning_index pls_integer := 0;
     -- make all warning indexes uniformly indented
     c_warnings_lpad constant integer := length(to_char(a_run.results_count.warnings_count));
-    
+
     procedure print_failure_for_expectation(a_expectation ut_expectation_result) is
       l_lines ut_varchar2_list;
     begin
@@ -182,7 +182,7 @@ create or replace type body ut_documentation_reporter is
     print_failures_details(a_run);
     print_warnings(a_run);
     self.print_text('Finished in ' || a_run.execution_time || ' seconds');
-    
+
     l_summary_text :=
       a_run.results_count.total_count || ' tests, '
       || a_run.results_count.failure_count || ' failed, ' || a_run.results_count.errored_count || ' errored, '
@@ -193,7 +193,6 @@ create or replace type body ut_documentation_reporter is
       self.print_green_text(l_summary_text);
     end if;
     self.print_text(' ');
-    (self as ut_reporter_base).after_calling_run(a_run);
   end;
 
 end;

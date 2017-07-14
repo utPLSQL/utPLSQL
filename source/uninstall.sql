@@ -190,6 +190,8 @@ drop type ut_xunit_reporter force;
 
 drop type ut_event_listener force;
 
+drop type ut_output_reporter_base force;
+
 drop type ut_coverage_reporter_base force;
 
 drop type ut_reporters force;

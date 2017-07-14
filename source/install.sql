@@ -74,6 +74,8 @@ alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6
 @@install_component.sql 'core/ut_output_buffer.pks'
 @@install_component.sql 'core/ut_output_buffer.pkb'
 
+@@install_component.sql 'core/types/ut_output_reporter_base.tps'
+
 --annoations
 @@install_component.sql 'core/ut_annotations.pks'
 @@install_component.sql 'core/ut_annotations.pkb'
@@ -112,6 +114,7 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'core/types/ut_event_listener.tpb'
 @@install_component.sql 'core/types/ut_expectation_result.tpb'
 @@install_component.sql 'core/types/ut_reporter_base.tpb'
+@@install_component.sql 'core/types/ut_output_reporter_base.tpb'
 @@install_component.sql 'core/types/ut_file_mapping.tpb'
 @@install_component.sql 'core/types/ut_executable.tpb'
 @@install_component.sql 'core/types/ut_console_reporter_base.tps'
