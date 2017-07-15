@@ -20,7 +20,7 @@ create or replace type body ut_run as
     self in out nocopy ut_run, a_items ut_suite_items, a_run_paths ut_varchar2_list := null,
     a_coverage_options ut_coverage_options := null, a_test_file_mappings ut_file_mappings := null
   ) return self as result is
-    l_coverage_schema_names ut_varchar2_list;
+    l_coverage_schema_names ut_varchar2_rows;
   begin
     self.run_paths := a_run_paths;
     self.self_type := $$plsql_unit;
@@ -101,14 +101,14 @@ create or replace type body ut_run as
     a_listener.fire_after_event(ut_utils.gc_run, self);
   end;
 
-  member function get_run_schemes return ut_varchar2_list is
+  member function get_run_schemes return ut_varchar2_rows is
     l_schema          varchar2(128);
     c_current_schema  constant varchar2(128) := sys_context('USERENV','CURRENT_SCHEMA');
     l_path            varchar2(32767);
-    l_schemes         ut_varchar2_list;
+    l_schemes         ut_varchar2_rows;
   begin
     if run_paths is not null then
-      l_schemes := ut_varchar2_list();
+      l_schemes := ut_varchar2_rows();
       for i in 1 .. self.run_paths.count loop
         l_path := self.run_paths(i);
         if regexp_like(l_path, '^([A-Za-z0-9$#_]+)?:') then
@@ -131,7 +131,7 @@ create or replace type body ut_run as
         l_schemes(l_schemes.last) := l_schema;
       end loop;
     else
-      l_schemes := ut_varchar2_list(c_current_schema);
+      l_schemes := ut_varchar2_rows(c_current_schema);
     end if;
     return l_schemes;
 
