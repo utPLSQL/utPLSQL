@@ -16,13 +16,6 @@ create or replace type body ut_data_value_anydata as
   limitations under the License.
   */
 
-  constructor function ut_data_value_anydata(self in out nocopy ut_data_value_anydata) return self as result is
-  begin
-    self.self_type  := $$plsql_unit;
-    self.data_type  := 'undefined';
-    return;
-  end;
-
   overriding member function is_null return boolean is
   begin
     return true;
@@ -81,7 +74,7 @@ create or replace type body ut_data_value_anydata as
   end;
 
   static function get_instance(a_data_value anydata) return ut_data_value_anydata is
-    l_result    ut_data_value_anydata := ut_data_value_anydata();
+    l_result    ut_data_value_anydata := ut_data_value_object(null);
     l_type      anytype;
     l_type_code integer;
   begin
@@ -99,7 +92,7 @@ create or replace type body ut_data_value_anydata as
   end;
 
   static function get_instance(a_data_value anydata, a_exclude varchar2) return ut_data_value_anydata is
-    l_result    ut_data_value_anydata := ut_data_value_anydata();
+    l_result    ut_data_value_anydata;
   begin
     l_result := ut_data_value_anydata.get_instance(a_data_value);
     l_result.exclude_xpath := ut_utils.to_xpath(a_exclude);
@@ -107,7 +100,7 @@ create or replace type body ut_data_value_anydata as
   end;
 
   static function get_instance(a_data_value anydata, a_exclude ut_varchar2_list) return ut_data_value_anydata is
-    l_result    ut_data_value_anydata := ut_data_value_anydata();
+    l_result    ut_data_value_anydata;
   begin
     l_result := ut_data_value_anydata.get_instance(a_data_value);
     l_result.exclude_xpath := ut_utils.to_xpath(a_exclude);

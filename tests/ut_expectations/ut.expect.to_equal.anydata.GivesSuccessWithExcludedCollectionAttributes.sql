@@ -9,7 +9,7 @@ begin
   l_actual   := ut_key_value_pairs(ut_key_value_pair(key=>'A',value=>'1'), ut_key_value_pair(key=>'B',value=>'2'));
   l_expected := ut_key_value_pairs(ut_key_value_pair(key=>'A',value=>'0'), ut_key_value_pair(key=>'B',value=>'1'));
 
-  ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected), a_exclude=>'VALUE');
+  ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected), a_exclude=>ut_varchar2_list('VALUE'));
   l_result :=  ut_expectation_processor.get_status();
   l_results_details := ut_expectation_processor.get_expectations_results();
 --Assert
