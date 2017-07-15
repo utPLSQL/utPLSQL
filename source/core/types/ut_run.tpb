@@ -17,29 +17,33 @@ create or replace type body ut_run as
   */
 
   constructor function ut_run(
-    self in out nocopy ut_run, a_items ut_suite_items, a_run_paths ut_varchar2_list := null,
-    a_coverage_options ut_coverage_options := null, a_test_file_mappings ut_file_mappings := null
+    self in out nocopy ut_run,
+    a_items                 ut_suite_items,
+    a_run_paths             ut_varchar2_list := null,
+    a_schema_names          ut_varchar2_rows := null,
+    a_exclude_objects       ut_object_names := null,
+    a_include_objects       ut_object_names := null,
+    a_project_file_mappings ut_file_mappings := null,
+    a_test_file_mappings    ut_file_mappings := null
   ) return self as result is
-    l_coverage_schema_names ut_varchar2_list;
+    l_coverage_schema_names ut_varchar2_rows;
+    l_coverage_options ut_coverage_options;
+    l_exclude_objects  ut_object_names;
   begin
+    l_coverage_schema_names := coalesce(a_schema_names, get_run_schemes());
+    l_exclude_objects  := coalesce(a_exclude_objects,ut_object_names());
+
     self.run_paths := a_run_paths;
     self.self_type := $$plsql_unit;
     self.items := a_items;
     self.results_count := ut_results_counter();
-    self.coverage_options := a_coverage_options;
     self.test_file_mappings := coalesce(a_test_file_mappings, ut_file_mappings());
-    if self.coverage_options is not null then
-      l_coverage_schema_names := coalesce(coverage_options.schema_names, get_run_schemes());
-      coverage_options.schema_names := l_coverage_schema_names;
-      if coverage_options.exclude_objects is not null then
-        coverage_options.exclude_objects :=
-          coverage_options.exclude_objects
-          multiset union all
-          ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names);
-      else
-        coverage_options.exclude_objects := ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names);
-      end if;
-    end if;
+    self.coverage_options := ut_coverage_options(
+      l_coverage_schema_names,
+      l_exclude_objects multiset union all ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names),
+      a_include_objects,
+      a_project_file_mappings
+    );
     return;
   end;
 
@@ -101,14 +105,14 @@ create or replace type body ut_run as
     a_listener.fire_after_event(ut_utils.gc_run, self);
   end;
 
-  member function get_run_schemes return ut_varchar2_list is
+  member function get_run_schemes return ut_varchar2_rows is
     l_schema          varchar2(128);
     c_current_schema  constant varchar2(128) := sys_context('USERENV','CURRENT_SCHEMA');
     l_path            varchar2(32767);
-    l_schemes         ut_varchar2_list;
+    l_schemes         ut_varchar2_rows;
   begin
     if run_paths is not null then
-      l_schemes := ut_varchar2_list();
+      l_schemes := ut_varchar2_rows();
       for i in 1 .. self.run_paths.count loop
         l_path := self.run_paths(i);
         if regexp_like(l_path, '^([A-Za-z0-9$#_]+)?:') then
@@ -131,7 +135,7 @@ create or replace type body ut_run as
         l_schemes(l_schemes.last) := l_schema;
       end loop;
     else
-      l_schemes := ut_varchar2_list(c_current_schema);
+      l_schemes := ut_varchar2_rows(c_current_schema);
     end if;
     return l_schemes;
 
