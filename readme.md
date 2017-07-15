@@ -1,13 +1,13 @@
 # utPLSQL v3<sub><sup> | Powerful PL/SQL Unit Testing Framework </sup></sub>
 
 [![latest-release](https://img.shields.io/github/release/utPLSQL/utPLSQL.svg)](https://github.com/utPLSQL/utPLSQL/releases)
-[![license](http://img.shields.io/badge/license-apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![license](https://img.shields.io/github/license/utPLSQL/utPLSQL.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![chat](http://img.shields.io/badge/slack-team--chat-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/master.svg?label=master%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/develop.svg?label=develop%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
-[![sonar](https://sonarqube.com/api/badges/gate?key=utPLSQL%3AutPLSQL%3Adevelop)](https://sonarqube.com/dashboard/index?id=utPLSQL%3AutPLSQL%3Adevelop)
+[![sonar](https://sonarcloud.io/api/badges/gate?key=utPLSQL%3AutPLSQL%3Adevelop)](https://sonarcloud.io/dashboard/index?id=utPLSQL%3AutPLSQL%3Adevelop)
 [![Coveralls coverage](https://coveralls.io/repos/github/utPLSQL/utPLSQL/badge.svg?branch=develop)](https://coveralls.io/github/utPLSQL/utPLSQL?branch=develop)
 
 ----------
@@ -47,87 +47,48 @@ Full documentation of the project is automatically published on [utPLSQL github 
 
 [Cheat-sheet](https://www.cheatography.com/jgebal/cheat-sheets/utplsql-v3/#downloads)
 
-# Contributing to the project
-
-We welcome new developers to join our community and contribute to the utPLSQL project.
-If you are interested in helping please read our [guide to contributing](docs/about/CONTRIBUTING.md)
-The best place to start is to read the documentation and get familiar with the existing code base.
-A [slack chat](https://utplsql.slack.com/) is the place to go if you want to talk with team members.
-To sign up to the chat use [this link](http://utplsql-slack-invite.herokuapp.com/)
-
-
-[__Authors__](docs/about/authors.md)
-
-__Version 2 to Version 3 Comparison__
-
-If you have a great feature in mind, that you would like to see in utPLSQL v3 please create an [issue on GitHub](https://github.com/utPLSQL/utPLSQL/issues) or discuss it with us in the [Slack chat rooms](http://utplsql-slack-invite.herokuapp.com/).  
-
-
-| Feature                                | Version 2              | Version 3              |
-| -------------------------------------- | ---------------------- | ---------------------- |
-| Easy to install                        | Yes                    | Yes                    |
-| Documentation                          | Yes                    | Yes                    |
-| License                                | GPL v2                 | Apache 2.0             |
-| **Tests Creation**                     |                        |                        |
-| Declarative test configuration         | No                     | Yes - Annotations<sup>1</sup>|
-| Tests as Packages                      | Yes                    | Yes                    |
-| Multiple Tests in a single Package     | Yes                    | Yes                    |
-| Optional Setup/Teardown                | No                     | Yes                    |
-| Different Setup/Teardown <br/> For Each Test in a Single Package| No  | Yes - Annotations<sup>1</sup> |
-| Suite Definition Storage               | Tables                 | Package - Annotations<sup>1</sup> |
-| Multiple Suites                        | Yes                    | Yes                    |
-| Suites can contain Suites              | No                     | Yes                    |
-| Automatic Test detection               | No                     | Yes - Annotations<sup>1</sup>|
-| Unconstrained naming of Test packages  | No - prefixes          | Yes - name not relevant|
-| Require Prefix on Test procedures      | No - prefixes          | Yes - name not relevant|
-| Auto Compilation of Tests              | Yes                    | No (Let us know if you use this) | 
-| Assertion Library                      | 30 assertions<sup>2</sup> | 26 matchers (13 + 13 negated) |
-| Extendable assertions                  | No                     | Yes - custom matchers  |
-| PLSQL Record Assertions	             | generated code through **utRecEq** Package | [possible on Oracle 12c](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1) using [cursor matchers](docs/userguide/expectations.md#comparing-cursors)| 
-| Test Skeleton Generation               | Yes                    | On Roadmap             |
-| **Test Execution<sup>3</sup>**         |                        |                        |
-| Single Test Package Execution          |  Yes                   | Yes                    | 
-| Single Test Procedure Execution        |  No                    | Yes                    | 
-| Test Suite Execution                   |  Yes                   | Yes                    |
-| Subset of Suite Execution              |  No                    | Yes                    |
-| Multiple Suite Execution               |  No                    | Yes                    |
-| Organizing Suites into hierarchies     |  No                    | Yes                    |
-| **Code Coverage Reporting**            |  No                    | Yes                    |
-| Html Coverage Report                   |  No                    | Yes                    |
-| Sonar XML Coverage Report              |  No                    | Yes                    |
-| Coveralls Json Coverage Report         |  No                    | Yes                    |
-| Framework Transaction Control          |  No                    | Yes - Annotations<sup>1</sup> | 
-| **Test Output**                        |                        |                        |
-| Real-time test execution progress reporting | No                | Yes                    |
-| Multiple Output Reporters can be used during test execution | No| Yes                    |
-| DBMS_OUTPUT                            | Yes                    | Yes (clean formatting) |
-| File                                   | Yes (to db server only)| Yes (on client side)   |
-| Stored in Table                        | Yes                    | No (can be added as custom reporter)
-| XUnit format support                   | No                     | Yes                    |
-| HTML Format                            | Yes                    | No                     |
-| Custom Output reporter                 | Yes-needs configuration| Yes - no config needed |
-
-<sup>1</sup> Annotations are specially formatted comments in your package specification.  This enables *declarative* test configuration that is coupled with the source code.   See Documentation for more details. 
-
-<sup>2</sup> **utAssert2** package - Contains 59 Assertions - 2 Not implemented = 57, 28 are duplicated only change on outcome_in parameter 57-28 = 29, **utPipe** package - Contains 1 Assertion 29 + 1 = 30
-
-<sup>3</sup> Test execution comparison is in a single call so the results are combined.   We know it was always possible to group in any way with multiple calls.  But that may not be desired under a CI system where you want a single JUnit XML Output.
-
 # Installation
 
-To simply install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql`.
-
-This will create a new user `UT3` with password `UT3`, grant all required privileges to that user and create PUBLIC synonyms needed to use the utPLSQL framework.
-
-Example invocation of the script from command line:
-```bash
-cd source
-sqlplus admin/admins_password@xe @@install_headless.sql  
-```
+To install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql`.
+This will create a new user `UT3`, grant all required privileges to that user and create PUBLIC synonyms needed.
 
 For detailed instructions on other install options see the [Install Guide](docs/userguide/install.md)
 
+
+# Running tests
+
+To execute using development IDE (TOAD/SQLDeveloper/PLSQLDeveloper/other) use one of following commands.
+```sql
+begin
+  ut.run();
+end;
+/
+```
+```sql
+exec  ut.run();
+```
+```sql
+select * from table(ut.run());
+```
+
+The above commands will run all the suites in the current schema and provide report to dbms_output or as a select statement.
+
+# Command lien clients
+
+To have more control over how the tests are invoked, use one of the utPLSQL command line clients: [utPLSQL-sql-cli](https://github.com/utPLSQL/utPLSQL-sql-cli) or [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli).
+
+To use `utPLSQL-sql-cli` you will need to have SQLPlus installed. `utPLSQL-cli` is Java project, so no additional software is needed. 
+
+Amongst many benefits they provide ability to:
+* see the progress of test execution for long-running tests - real-time reporting
+* use many reporting formats simultaneously and save reports to files (publish)
+* map your project source files and test files into database objects 
+
+
 # Example unit test packages
+
+**For examples of using Continuous Integration Server & SonarCloud with utPLSQL see the [utPLSQL demo project](https://github.com/utPLSQL/utPLSQL-demo-project/).**
+
 
 The below test package is a fully-functional Unit Test package for testing a [`betwnstr` function](examples/between_string/betwnstr.sql).
 The package specification is [annotated](docs/userguide/annotations.md) with special comments.
@@ -179,25 +140,7 @@ end;
 /
 ```
 
-Have a look at the [utPLSQL demo project](https://github.com/utPLSQL/utPLSQL-demo-project/).
-The project is installing few example packages from the [source directory](https://github.com/utPLSQL/utPLSQL-demo-project/tree/develop/source),
-installing the test packages from [test directory](https://github.com/utPLSQL/utPLSQL-demo-project/tree/develop/test)
-and finally executing all the tests using [Travis CI](https://travis-ci.org/utPLSQL/utPLSQL-demo-project).
-The [test results](https://sonarqube.com/component_measures/metric/tests/list?id=utPLSQL%3AutPLSQL-demo-project)
- together with [code coverage](https://sonarqube.com/component_measures/metric/coverage/list?id=utPLSQL%3AutPLSQL-demo-project)
- are published to the [projects Sonar page](https://sonarqube.com/dashboard?id=utPLSQL%3AutPLSQL-demo-project) after every successful build.  
-
-# Running tests
-
-To execute using development IDE (TOAD/SQLDeveloper/PLSQLDeveloper/other) just run the following.
-```sql
-begin
-  ut.run();
-end;
-/
-```
-Will run all the suites in the current schema and provide documentation report using dbms_output
-
+Outputs from running the above tests
 ```
 Between string function
   Returns substring from start position to end position
@@ -209,12 +152,77 @@ Finished in .036027 seconds
 4 tests, 0 failures
 ```
 
-To execute your tests from command line, you will need a oracle sql client like SQLPlus or [SQLcl](http://www.oracle.com/technetwork/developer-tools/sqlcl/overview/index.html)
 
-You may benefit from using the [ut_run](https://github.com/utPLSQL/utPLSQL-sql-cli) script to execute your tests if you want to achieve one of the following:
-* see the progress of test execution for long-running tests
-* have output to screen with one output format (text) and at the same time have output to file in other format (xunit)
+# Contributing to the project
 
+We welcome new developers to join our community and contribute to the utPLSQL project.
+If you are interested in helping please read our [guide to contributing](docs/about/CONTRIBUTING.md)
+The best place to start is to read the documentation and get familiar with the existing code base.
+A [slack chat](https://utplsql.slack.com/) is the place to go if you want to talk with team members.
+To sign up to the chat use [this link](http://utplsql-slack-invite.herokuapp.com/)
+
+
+----------
+[__Authors__](docs/about/authors.md)
+
+----------
+__Version 2 to Version 3 Comparison__
+
+If you have a great feature in mind, that you would like to see in utPLSQL v3 please create an [issue on GitHub](https://github.com/utPLSQL/utPLSQL/issues) or discuss it with us in the [Slack chat rooms](http://utplsql-slack-invite.herokuapp.com/).  
+
+
+| Feature                                | Version 2              | Version 3              |
+| -------------------------------------- | ---------------------- | ---------------------- |
+| Easy to install                        | Yes                    | Yes                    |
+| Documentation                          | Yes                    | Yes                    |
+| License                                | GPL v2                 | Apache 2.0             |
+| **Tests Creation**                     |                        |                        |
+| Declarative test configuration         | No                     | Yes - Annotations<sup>1</sup>|
+| Tests as Packages                      | Yes                    | Yes                    |
+| Multiple Tests in a single Package     | Yes                    | Yes                    |
+| Optional Setup/Teardown                | No                     | Yes                    |
+| Different Setup/Teardown <br/> For Each Test in a Single Package| No  | Yes - Annotations<sup>1</sup> |
+| Suite Definition Storage               | Tables                 | Package - Annotations<sup>1</sup> |
+| Multiple Suites                        | Yes                    | Yes                    |
+| Suites can contain Suites              | No                     | Yes                    |
+| Automatic Test detection               | No                     | Yes - Annotations<sup>1</sup>|
+| Unconstrained naming of Test packages  | No - prefixes          | Yes - name not relevant|
+| Require Prefix on Test procedures      | No - prefixes          | Yes - name not relevant|
+| Auto Compilation of Tests              | Yes                    | No (Let us know if you use this) | 
+| Assertion Library                      | 30 assertions<sup>2</sup> | 26 matchers (13 + 13 negated) |
+| Extendable assertions                  | No                     | Yes - custom matchers  |
+| PLSQL Record Assertions	             | generated code through **utRecEq** Package | [possible on Oracle 12c](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1) using [cursor matchers](docs/userguide/expectations.md#comparing-cursors)| 
+| Test Skeleton Generation               | Yes                    | No (Let us know if you use this) |
+| **Test Execution<sup>3</sup>**         |                        |                        |
+| Single Test Package Execution          |  Yes                   | Yes                    | 
+| Single Test Procedure Execution        |  No                    | Yes                    | 
+| Test Suite Execution                   |  Yes                   | Yes                    |
+| Subset of Suite Execution              |  No                    | Yes                    |
+| Multiple Suite Execution               |  No                    | Yes                    |
+| Organizing Suites into hierarchies     |  No                    | Yes                    |
+| **Code Coverage Reporting**            |  No                    | Yes                    |
+| Html Coverage Report                   |  No                    | Yes                    |
+| Sonar XML Coverage Report              |  No                    | Yes                    |
+| Coveralls Json Coverage Report         |  No                    | Yes                    |
+| Framework Transaction Control          |  No                    | Yes - Annotations<sup>1</sup> | 
+| **Test Output**                        |                        |                        |
+| Real-time test execution progress reporting | No                | Yes                    |
+| Multiple Output Reporters can be used during test execution | No| Yes                    |
+| DBMS_OUTPUT                            | Yes                    | Yes (clean formatting) |
+| File                                   | Yes (to db server only)| Yes (on client side)   |
+| Stored in Table                        | Yes                    | No (can be added as custom reporter) |
+| XUnit format support                   | No                     | Yes                    |
+| HTML Format                            | Yes                    | No                     |
+| Custom Output reporter                 | Yes-needs configuration| Yes - no config needed |
+
+<sup>1</sup> Annotations are specially formatted comments in your package specification.  This enables *declarative* test configuration that is coupled with the source code.   See Documentation for more details. 
+
+<sup>2</sup> **utAssert2** package - Contains 59 Assertions - 2 Not implemented = 57, 28 are duplicated only change on outcome_in parameter 57-28 = 29, **utPipe** package - Contains 1 Assertion 29 + 1 = 30
+
+<sup>3</sup> Test execution comparison is in a single call so the results are combined.   We know it was always possible to group in any way with multiple calls.  But that may not be desired under a CI system where you want a single JUnit XML Output.
+
+
+----------
 __Project Directories__
 
 * .travis - contains files needed for travis-ci integration

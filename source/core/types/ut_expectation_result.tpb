@@ -23,7 +23,7 @@ create or replace type body ut_expectation_result is
     self.description     := a_description;
     self.message := a_message;
     if self.status = ut_utils.tr_failure then
-      self.caller_info   := ut_expectation_processor.who_called_expectation();
+      self.caller_info   := ut_expectation_processor.who_called_expectation(dbms_utility.format_call_stack());
     end if;
     return;
   end;
