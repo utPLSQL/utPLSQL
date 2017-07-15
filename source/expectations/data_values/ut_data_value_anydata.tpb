@@ -43,7 +43,9 @@ create or replace type body ut_data_value_anydata as
     l_result integer;
     procedure exclude_xpaths(a_xml in out nocopy xmltype, a_xpath varchar2) is
     begin
-      select case when a_xpath is not null then deletexml( a_xml, a_xpath ) else a_xml end into a_xml from dual;
+      if a_xpath is not null then
+        select deletexml( a_xml, a_xpath ) into a_xml from dual;
+      end if;
     end;
   begin
     if a_other is of (ut_data_value_anydata) then
@@ -53,6 +55,12 @@ create or replace type body ut_data_value_anydata as
         ut_expectation_processor.set_xml_nls_params();
         l_self_data := xmltype.createxml(self.data_value);
         l_other_data := xmltype.createxml(l_other.data_value);
+        --We use `order member function compare` to do data comparison.
+        --Therefore, in the `ut_equals` matcher, comparison is done by simply checking
+        --   `l_result := equal_with_nulls((self.expected = a_actual), a_actual)`
+        --We cannot guarantee that we will always use `expected = actual ` and not `actual = expected`.
+        --We should expect the same behaviour regardless of that is the order.
+        -- This is why we need to coalesce `exclude_xpath` though at most one of them will always be populated
         exclude_xpaths(l_self_data, coalesce(self.exclude_xpath, l_other.exclude_xpath));
         exclude_xpaths(l_other_data, coalesce(self.exclude_xpath, l_other.exclude_xpath));
         ut_expectation_processor.reset_nls_params();
