@@ -328,5 +328,18 @@ create or replace package body ut_utils is
     end if;
   end;
 
+  function convert_collection(a_collection ut_varchar2_list) return ut_varchar2_rows is
+    l_result ut_varchar2_rows;
+  begin
+    if a_collection is not null then
+      l_result := ut_varchar2_rows();
+      for i in 1 .. a_collection.count loop
+        l_result.extend();
+        l_result(i) := substr(a_collection(i),1,gc_max_storage_varchar2_len);
+      end loop;
+    end if;
+    return l_result;
+  end;
+
 end ut_utils;
 /

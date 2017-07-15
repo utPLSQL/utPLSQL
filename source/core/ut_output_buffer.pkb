@@ -17,12 +17,12 @@ create or replace package body ut_output_buffer is
   */
 
   procedure send_line(a_reporter ut_reporter_base, a_text varchar2) is
-    l_text_list  ut_varchar2_list;
+    l_text_list  ut_varchar2_rows;
     pragma autonomous_transaction;
   begin
     if a_reporter is not null and a_reporter.reporter_id is not null and a_reporter.start_date is not null and a_text is not null then
       if length(a_text) > ut_utils.gc_max_storage_varchar2_len then
-        l_text_list := ut_utils.clob_to_table(a_text, ut_utils.gc_max_storage_varchar2_len);
+        l_text_list := ut_utils.convert_collection(ut_utils.clob_to_table(a_text, ut_utils.gc_max_storage_varchar2_len));
         insert /*+ append */
           into ut_output_buffer_tmp(start_date, reporter_id, message_id, text)
         select a_reporter.start_date, a_reporter.reporter_id, ut_message_id_seq.nextval, t.column_value

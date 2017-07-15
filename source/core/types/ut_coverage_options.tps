@@ -16,7 +16,7 @@ create or replace type ut_coverage_options as object (
   limitations under the License.
   */
 
-  schema_names     ut_varchar2_list,
+  schema_names     ut_varchar2_rows,
   exclude_objects  ut_object_names,
   include_objects  ut_object_names,
   file_mappings    ut_file_mappings
