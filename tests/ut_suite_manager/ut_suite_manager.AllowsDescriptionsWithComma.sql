@@ -60,3 +60,8 @@ begin
   end loop;
 end;
 /
+
+set termout off
+drop package tst_package_to_be_dropped
+/
+set termout on

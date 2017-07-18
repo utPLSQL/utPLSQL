@@ -122,7 +122,7 @@ create or replace type body ut_xunit_reporter is
 
   member function get_common_item_attributes(a_item ut_suite_item) return varchar2 is
   begin
-    return ' skipped="' || a_item.results_count.disabled_count || '" error="' || a_item.results_count.errored_count || '"' || ' failure="' || a_item.results_count.failure_count || '" name="' || a_item.description || '"' || ' time="' || a_item.execution_time() || '" ';
+    return ' skipped="' || a_item.results_count.disabled_count || '" error="' || a_item.results_count.errored_count || '"' || ' failure="' || a_item.results_count.failure_count || '" name="' || nvl(a_item.description, a_item.name) || '"' || ' time="' || a_item.execution_time() || '" ';
   end;
 
 end;

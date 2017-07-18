@@ -1,13 +1,13 @@
 # Getting started with TDD and utPLSQL
 
-utPLSQL is designed in a way that allows you follow 
+utPLSQL is designed in a way that allows you to follow 
 [Test Driven Development (TDD)](https://en.wikipedia.org/wiki/Test-driven_development) software development process.
 
 Below is an example of building a simple function with TDD.
 
-# Gather requirement
+# Gather requirements
 
-We have a requirement to build a function that will return a substring  of a string that is passed to the function.
+We have a requirement to build a function that will return a substring of a string that is passed to the function.
 
 The function should accept three parameters:
 
@@ -41,7 +41,7 @@ Finished in .451423 seconds
 0 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
-## Define specification for test
+## Define specification for the test
 
 ```sql
 create or replace package test_betwnstr as
@@ -72,7 +72,7 @@ Finished in .509673 seconds
 1 tests, 0 failed, 1 errored, 0 disabled, 0 warning(s)
 ```
 
-Well our test is failing as package specification requires body.
+Well our test is failing as the package specification requires a body.
 
 ## Define body of first test
 
@@ -105,10 +105,10 @@ Finished in .415851 seconds
 1 tests, 0 failed, 1 errored, 0 disabled, 0 warning(s)
 ```
 
-Our test is failing, as the test suite package body is invalid.
+Our test is failing as the test suite package body is invalid.
 Looks like we need to define the function we want to test.
 
-# Implement code to fulfill requirement
+# Implement code to fulfill the requirement
 
 ## Define tested function 
 
@@ -138,12 +138,12 @@ Finished in .375178 seconds
 1 tests, 1 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
-So now we see that our test works but the function does not return expected results.
-Let us fix this and continue form here.
+So now we see that our test works but the function does not return the expected results.
+Let us fix this and continue from here.
 
 ## Fix the tested function
 
-The function returned string one character short, so we need to add 1 to the substr parameter.
+The function returned a string one character short, so we need to add 1 to the substr parameter.
 
 ```sql
 create or replace function betwnstr( a_string varchar2, a_start_pos integer, a_end_pos integer ) return varchar2 
@@ -169,15 +169,15 @@ So our test is now passing, great!
 
 # Refactor
 
-Once our tests are passing, we can safely refactor (restructure) the code as we have safety harness 
-in place to assure that after the restructuring and cleanup of the code, everything is still working.
+Once our tests are passing, we can safely refactor (restructure) the code as we have a safety harness 
+in place to ensure that after the restructuring and cleanup of the code, everything is still working.
 
-One thing worth mentioning is that refactoring of tests is as important as refactoring of code. Maintainability of both is similarly important.
+One thing worth mentioning is that refactoring of tests is as important as refactoring of code. Maintainability of both is equally important.
 
 # Further requirements
 
-It seems like our work is done. We have function that returns a substring from start position to end position.
-As we move, through process of adding tests, it's very important to think about edge cases.
+It seems like our work is done. We have a function that returns a substring from start position to end position.
+As we move through the process of adding tests, it's very important to think about edge cases.
 
 Here is a list of edge cases for our function:
 
@@ -190,12 +190,12 @@ Here is a list of edge cases for our function:
 - start position is negative
 - end position is negative
 
-We should define expected behavior for each of edge cases.
-Once defined we can start implementing tests for those behaviors and adjust tested function to meet requirements specified in tests.
+We should define expected behavior for each of these edge cases.
+Once defined we can start implementing tests for those behaviors and adjust the tested function to meet the requirements specified in the tests.
 
 ## Add test for additional requirement
 
-New requirement was added: 
+A new requirement was added: 
   Start position zero - should be treated as start position one
 
 ```sql
@@ -248,9 +248,9 @@ Finished in .232584 seconds
 
 Looks like our function does not work as expected for zero start position.
 
-## Implementing requirement
+## Implementing the requirement
 
-Lets fix our function so that the new requirement is met
+Let's fix our function so that the new requirement is met
 
 ```sql
 create or replace function betwnstr( a_string varchar2, a_start_pos integer, a_end_pos integer ) return varchar2 
@@ -281,11 +281,11 @@ Great! We have made some visible progress.
 
 ## Refactoring
 
-When all tests are passing we can proceed with safe cleanup of our code.
+When all tests are passing we can proceed with a safe cleanup of our code.
 
 The function works well, but we use the `return` twice, which is not the best coding practice.
 
-Alternative implementation could be cleaner.
+An alternative implementation could be cleaner.
 ```sql
 create or replace function betwnstr( a_string varchar2, a_start_pos integer, a_end_pos integer ) return varchar2
 is

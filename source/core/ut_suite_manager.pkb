@@ -84,20 +84,17 @@ create or replace package body ut_suite_manager is
         l_suite_name         := l_annotation_data.package_annotations('suite').text;
       end if;
 
-      if l_annotation_data.package_annotations.exists('suitepath') then
+      if l_annotation_data.package_annotations.exists('suitepath') and l_annotation_data.package_annotations('suitepath').text is not null then
         l_suite_path := l_annotation_data.package_annotations('suitepath').text || '.' || lower(l_object_name);
       end if;
 
       if l_annotation_data.package_annotations.exists('rollback') then
         l_suite_rollback_annotation := l_annotation_data.package_annotations('rollback').text;
-        l_suite_rollback            := case lower(l_suite_rollback_annotation)
-                                         when 'manual' then
-                                          ut_utils.gc_rollback_manual
-                                         when 'auto' then
-                                          ut_utils.gc_rollback_auto
-                                         else
-                                          ut_utils.gc_rollback_auto
-                                       end;
+        if lower(l_suite_rollback_annotation) = 'manual' then
+          l_suite_rollback := ut_utils.gc_rollback_manual;
+        else
+          l_suite_rollback := ut_utils.gc_rollback_auto;
+        end if;
       else
         l_suite_rollback := ut_utils.gc_rollback_auto;
       end if;
@@ -158,16 +155,13 @@ create or replace package body ut_suite_manager is
 
             if l_proc_annotations.exists('rollback') then
               l_rollback_annotation := l_proc_annotations('rollback').text;
-              l_rollback_type       := case lower(l_rollback_annotation)
-                                         when 'manual' then
-                                          ut_utils.gc_rollback_manual
-                                         when 'auto' then
-                                          ut_utils.gc_rollback_auto
-                                       --when 'on-error' then
-                                       --  ut_utils.gc_rollback_on_error
-                                         else
-                                          l_suite_rollback
-                                       end;
+              if lower(l_rollback_annotation) = 'manual' then
+                l_rollback_type := ut_utils.gc_rollback_manual;
+              elsif lower(l_rollback_annotation) = 'auto' then
+                l_rollback_type := ut_utils.gc_rollback_auto;
+              else
+                l_rollback_type := l_suite_rollback;
+              end if;
             end if;
 
             l_test := ut_test(a_object_owner          => l_owner_name
@@ -176,7 +170,7 @@ create or replace package body ut_suite_manager is
                              ,a_description           => l_displayname
                              ,a_path                  => l_suite.path || '.' || l_proc_name
                              ,a_rollback_type         => l_rollback_type
-                             ,a_disabled_flag         => l_proc_annotations.exists('disabled')
+                             ,a_disabled_flag         => l_annotation_data.package_annotations.exists('disabled') or l_proc_annotations.exists('disabled')
                              ,a_before_test_proc_name => l_beforetest_procedure
                              ,a_after_test_proc_name  => l_aftertest_procedure
                              ,a_before_each_proc_name => l_default_setup_proc
@@ -333,9 +327,8 @@ create or replace package body ut_suite_manager is
   begin
     -- Currently cache invalidation on DDL is not implemented so schema is rescaned each time
     l_schema_info := get_schema_info(a_schema_name);
-    if not g_schema_suites.exists(a_schema_name) or g_schema_suites(a_schema_name)
-      .changed_at <= l_schema_info.changed_at
-      or g_schema_suites(a_schema_name).obj_cnt != l_schema_info.obj_cnt then
+    if not g_schema_suites.exists(a_schema_name) or g_schema_suites(a_schema_name).changed_at <= l_schema_info.changed_at or
+       g_schema_suites(a_schema_name).obj_cnt != l_schema_info.obj_cnt then
       ut_utils.debug_log('Rescanning schema ' || a_schema_name);
       config_schema(a_schema_name);
     end if;
@@ -347,22 +340,35 @@ create or replace package body ut_suite_manager is
     end if;
   end get_schema_suites;
 
-  function get_schema_ut_packages(a_schema_names ut_varchar2_list) return ut_object_names is
+  function get_schema_ut_packages(a_schema_names ut_varchar2_rows) return ut_object_names is
     l_schema_ut_packages ut_object_names := ut_object_names();
     l_schema_suites      tt_schema_suites;
     l_iter               varchar2(4000);
+    procedure populate_suite_ut_packages(a_suite ut_logical_suite, a_packages in out nocopy ut_object_names) is
+      l_sub_suite ut_logical_suite;
+    begin
+      if a_suite is of (ut_suite) then
+        a_packages.extend;
+        a_packages(a_packages.last) := ut_object_name(a_suite.object_owner, a_suite.object_name);
+      end if;
+      for i in 1 .. a_suite.items.count loop
+        if a_suite.items(i) is of (ut_logical_suite) then
+          l_sub_suite := treat(a_suite.items(i) as ut_logical_suite);
+          populate_suite_ut_packages(l_sub_suite, a_packages);
+        end if;
+      end loop;
+    end;
   begin
     if a_schema_names is not null then
       for i in 1 .. a_schema_names.count loop
         l_schema_suites := get_schema_suites(a_schema_names(i));
         l_iter := l_schema_suites.first;
         while l_iter is not null loop
-          l_schema_ut_packages.extend;
-          l_schema_ut_packages(l_schema_ut_packages.last) := ut_object_name(l_schema_suites(l_iter).object_owner, l_schema_suites(l_iter).object_name);
+          populate_suite_ut_packages(l_schema_suites(l_iter), l_schema_ut_packages);
           l_iter := l_schema_suites.next(l_iter);
         end loop;
       end loop;
---      l_schema_ut_packages := set(l_schema_ut_packages);
+      l_schema_ut_packages := set(l_schema_ut_packages);
     end if;
 
     return l_schema_ut_packages;
@@ -416,8 +422,6 @@ create or replace package body ut_suite_manager is
       l_item_name   varchar2(32767);
 
     begin
-      a_suite.set_disabled_flag(false);
-
       if a_path is not null and a_suite is not null and a_suite is of (ut_logical_suite) then
         l_suite := treat(a_suite as ut_logical_suite);
 

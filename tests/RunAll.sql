@@ -10,6 +10,10 @@ set longchunksize 1000000
 set serveroutput on size unlimited format truncated
 @@lib/RunVars.sql
 
+@@lib/mystats/mystats start
+
+spool RunAll.log
+
 --Global setup
 @@helpers/ut_example_tests.pks
 @@helpers/ut_example_tests.pkb
@@ -32,7 +36,6 @@ create table ut$test_table (val varchar2(1));
 --Start coverage in develop mode (coverage for utPLSQL framework)
 --Regular coverage excludes the framework
 exec ut_coverage.coverage_start_develop();
-@@lib/mystats/mystats start
 
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.IgnoreWrappedPackageAndDoesNotRaiseException.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
@@ -44,6 +47,9 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationMultilineDeclare.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithKeyValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithMultilineComment.sql
+@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.spaceBeforeAnnotationParams.sql
+@@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTrace.sql
+@@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTraceWith0x.sql
 @@ut_expectations/ut.expect.not_to_be_null.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
@@ -101,6 +107,8 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_match.FailsForUnsupportedDatatype.sql
 @@lib/RunTest.sql ut_expectations/ut_data_value_object.compare.Gives0WhenComparingIdenticalObjects.sql
 @@lib/RunTest.sql ut_expectations/ut_expectation_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
+@@lib/RunTest.sql ut_expectations/ut_expectation_processor.stackOnFailedTest.sql
+@@lib/RunTest.sql ut_expectations/ut_expectation_processor.stackOnUtFail.sql
 
 @@ut_matchers/be_between.sql
 @@ut_matchers/be_empty.sql
@@ -134,6 +142,10 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ProducesExpectedOutputs.sql
 @@lib/RunTest.sql ut_reporters/ut_html_reporter.UserOverrideSchemaCoverage.sql
 @@lib/RunTest.sql ut_reporters/ut_html_reporter.DefaultSchemaCoverage.sql
+@@lib/RunTest.sql ut_reporters/ut_documentation_reporter.reportMultipleWarnings.sql
+@@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ReportOnSuiteWithoutDesc.sql
+@@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ReportOnTestWithoutDesc.sql
+@@lib/RunTest.sql ut_reporters/ut_documentation_reporter.reportTestTiming.sql
 
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileList.sql
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileListWithSutePaths.sql
@@ -175,11 +187,13 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPath.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPathCurUser.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.DoesntFindTheSuiteWhenPackageSpecIsInvalid.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.emptySuitePath.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.get_schema_ut_packages.IncludesPackagesWithSutePath.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.IncludesInvalidPackageBodiesInTheRun.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.CacheInvalidaesOnPackageDrop.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.PackageWithDollarSign.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.TestWithDollarSign.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.PackageWithHash.sql
+@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.TestWithDollarSign.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.TestWithHashSign.sql
 
 
@@ -251,9 +265,10 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigVarchar2.sql
 @@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 
-
 --Finally
 @@lib/RunSummary
+
+spool off
 
 --Global cleanup
 --removing objects that should not be part of coverage report
@@ -268,6 +283,7 @@ drop package test_package_2;
 drop package test_package_3;
 drop type utplsql_test_reporter;
 drop package test_reporters;
+drop package ut3$user#.html_coverage_test;
 
 set timing on
 prompt Generating coverage data to reporter outputs
@@ -486,7 +502,7 @@ begin
     'source/reporters/ut_xunit_reporter.tpb',
     'source/reporters/ut_xunit_reporter.tps');
 
-  l_test_run := ut_run(ut_suite_items(), null, ut_coverage_options(null,null,null,ut_file_mapper.build_file_mappings( user,l_project_file_list)));
+  l_test_run := ut_run(a_items => ut_suite_items(), a_project_file_mappings => ut_file_mapper.build_file_mappings( user,l_project_file_list));
 
   --run for the first time to gather coverage and timings on reporters too
   l_reporter := ut_coverage_html_reporter(a_project_name => 'utPLSQL v3');

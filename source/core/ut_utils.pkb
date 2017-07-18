@@ -211,7 +211,7 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
-  function clob_to_table(a_clob clob, a_max_amount integer := 32767, a_delimiter varchar2:= chr(10)) return ut_varchar2_list is
+  function clob_to_table(a_clob clob, a_max_amount integer := 8191, a_delimiter varchar2:= chr(10)) return ut_varchar2_list is
     l_offset         integer := 1;
     l_length         integer := dbms_lob.getlength(a_clob);
     l_amount         integer;
@@ -326,6 +326,19 @@ create or replace package body ut_utils is
       end if;
       dbms_lob.writeappend(a_src_clob, dbms_lob.getlength(a_new_data), a_new_data);
     end if;
+  end;
+
+  function convert_collection(a_collection ut_varchar2_list) return ut_varchar2_rows is
+    l_result ut_varchar2_rows;
+  begin
+    if a_collection is not null then
+      l_result := ut_varchar2_rows();
+      for i in 1 .. a_collection.count loop
+        l_result.extend();
+        l_result(i) := substr(a_collection(i),1,gc_max_storage_varchar2_len);
+      end loop;
+    end if;
+    return l_result;
   end;
 
 end ut_utils;

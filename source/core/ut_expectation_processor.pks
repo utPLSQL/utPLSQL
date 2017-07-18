@@ -44,7 +44,7 @@ create or replace package ut_expectation_processor authid current_user as
   -- if found, it returns a text:
   --   at: owner.name:line "source code line text"
   -- The text is to be consumed by expectation result
-  function who_called_expectation return varchar2;
+  function who_called_expectation(a_call_stack varchar2) return varchar2;
 
 end;
 /
