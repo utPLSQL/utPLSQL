@@ -17,7 +17,6 @@ create or replace type body ut_coverage_reporter_base is
   */
 
   overriding final member procedure before_calling_run(self in out nocopy ut_coverage_reporter_base, a_run ut_run) as
-    l_schema_names ut_varchar2_list := a_run.get_run_schemes();
   begin
     (self as ut_reporter_base).before_calling_run(a_run);
     ut_coverage.coverage_start();

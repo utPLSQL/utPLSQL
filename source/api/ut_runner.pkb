@@ -57,7 +57,6 @@ create or replace package body ut_runner is
   ) is
     l_items_to_run  ut_run;
     l_listener      ut_event_listener;
-    l_coverage_options ut_coverage_options;
   begin
     ut_console_reporter_base.set_color_enabled(a_color_console);
     if a_reporters is null or a_reporters.count = 0 then
@@ -65,13 +64,15 @@ create or replace package body ut_runner is
     else
       l_listener := ut_event_listener(a_reporters);
     end if;
-    l_coverage_options := ut_coverage_options(
-      schema_names    => a_coverage_schemes,
-      exclude_objects => to_ut_object_list(a_exclude_objects),
-      include_objects => to_ut_object_list(a_include_objects),
-      file_mappings   => set(a_source_file_mappings)
+    l_items_to_run := ut_run(
+      ut_suite_manager.configure_execution_by_path(a_paths),
+      a_paths,
+      ut_utils.convert_collection(a_coverage_schemes),
+      to_ut_object_list(a_exclude_objects),
+      to_ut_object_list(a_include_objects),
+      set(a_source_file_mappings),
+      set(a_test_file_mappings)
     );
-    l_items_to_run := ut_run( ut_suite_manager.configure_execution_by_path(a_paths), a_paths, l_coverage_options, set(a_test_file_mappings) );
     l_items_to_run.do_execute(l_listener);
 
     cleanup_temp_tables;

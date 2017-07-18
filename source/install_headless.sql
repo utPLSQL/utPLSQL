@@ -37,3 +37,5 @@ select coalesce('&&1','UT3') ut3_owner,
 @@create_utplsql_owner.sql &&ut3_owner &&ut3_password &&ut3_tablespace
 @@install.sql &&ut3_owner
 @@create_synonyms_and_grants_for_public.sql &&ut3_owner
+
+exit
