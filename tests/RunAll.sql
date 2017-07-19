@@ -502,7 +502,7 @@ begin
     'source/reporters/ut_xunit_reporter.tpb',
     'source/reporters/ut_xunit_reporter.tps');
 
-  l_test_run := ut_run(ut_suite_items(), null, ut_coverage_options(null,null,null,ut_file_mapper.build_file_mappings( user,l_project_file_list)));
+  l_test_run := ut_run(a_items => ut_suite_items(), a_project_file_mappings => ut_file_mapper.build_file_mappings( user,l_project_file_list));
 
   --run for the first time to gather coverage and timings on reporters too
   l_reporter := ut_coverage_html_reporter(a_project_name => 'utPLSQL v3');

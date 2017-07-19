@@ -340,7 +340,7 @@ create or replace package body ut_suite_manager is
     end if;
   end get_schema_suites;
 
-  function get_schema_ut_packages(a_schema_names ut_varchar2_list) return ut_object_names is
+  function get_schema_ut_packages(a_schema_names ut_varchar2_rows) return ut_object_names is
     l_schema_ut_packages ut_object_names := ut_object_names();
     l_schema_suites      tt_schema_suites;
     l_iter               varchar2(4000);

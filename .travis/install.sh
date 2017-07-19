@@ -8,12 +8,11 @@ pwd
 set feedback off
 set verify off
 
---@../source/create_utplsql_owner.sql $UT3_OWNER $UT3_OWNER_PASSWORD $UT3_TABLESPACE
-@../source/install_headless.sql
+@../source/install_headless.sql $UT3_OWNER $UT3_OWNER_PASSWORD
+SQL
 
+"$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
 set feedback on
---change the deafult password
-alter user $UT3_OWNER identified by $UT3_OWNER_PASSWORD;
 --needed for Mystats script to work
 grant select any dictionary to $UT3_OWNER;
 --Needed for testing a coverage outside ut3_owner.
