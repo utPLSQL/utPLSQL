@@ -91,7 +91,7 @@ create or replace type body ut_suite_item as
     return transaction_invalidators;
   end;
 
-  final member procedure add_transaction_invalidator(a_object_name varchar2) is
+  member procedure add_transaction_invalidator(a_object_name varchar2) is
   begin
     if a_object_name not member of transaction_invalidators then
       transaction_invalidators.extend();
