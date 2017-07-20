@@ -75,6 +75,7 @@ create or replace type body ut_executable is
 
     l_completed_without_errors boolean := true;
     l_start_transaction_id     varchar2(250);
+    l_end_transaction_id     varchar2(250);
     procedure save_dbms_output is
       l_status number;
       l_line varchar2(32767);
@@ -139,7 +140,8 @@ create or replace type body ut_executable is
       --listener - after call to executable
       a_listener.fire_after_event(self.associated_event_name, a_item);
 
-      if l_start_transaction_id != dbms_transaction.local_transaction_id(true) then
+      l_end_transaction_id := dbms_transaction.local_transaction_id();
+      if l_start_transaction_id != l_end_transaction_id or l_end_transaction_id is null then
         a_item.add_transaction_invalidator(self.form_name());
       end if;
     end if;
