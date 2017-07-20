@@ -78,7 +78,7 @@ create or replace package body ut_annotations as
                                                       ,'%(' || c_rgexp_identifier || ')'
                                                       ,modifier => 'i'
                                                       ,subexpression => 1));
-        l_annotation_params_str := trim(regexp_substr(l_annotation_str, '\((.*?)\)$', subexpression => 1));
+        l_annotation_params_str := trim(regexp_substr(l_annotation_str, '\((.*?)\)\s*$', subexpression => 1));
 
         if l_annotation_params_str is not null then
 

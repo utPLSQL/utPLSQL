@@ -25,14 +25,12 @@ create or replace type body ut_results_counter as
     return;
   end;
 
-  constructor function ut_results_counter(self in out nocopy ut_results_counter, a_status integer) return self as result is
+  member procedure set_counter_values(self in out nocopy ut_results_counter, a_status integer) is
   begin
     self.disabled_count := case when a_status = ut_utils.tr_disabled then 1 else 0 end;
     self.success_count  := case when a_status = ut_utils.tr_success then 1 else 0 end;
     self.failure_count  := case when a_status = ut_utils.tr_failure then 1 else 0 end;
     self.errored_count  := case when a_status = ut_utils.tr_error then 1 else 0 end;
-    self.warnings_count := 0;
-    return;
   end;
 
   member procedure sum_counter_values(self in out nocopy ut_results_counter, a_item ut_results_counter) is
