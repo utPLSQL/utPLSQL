@@ -79,6 +79,11 @@ create or replace package ut_utils authid definer is
   ex_invalid_rep_event_name exception;
   gc_invalid_rep_event_name constant pls_integer := -20211;
   pragma exception_init(ex_invalid_rep_event_name, -20211);
+  
+  -- Any of tests failed
+  ex_some_tests_failed exception;
+  gc_some_tests_failed constant pls_integer := -20213;
+  pragma exception_init(ex_some_tests_failed, -20213);
 
 
   gc_max_storage_varchar2_len constant integer := 4000;
