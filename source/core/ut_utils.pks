@@ -80,6 +80,11 @@ create or replace package ut_utils authid definer is
   gc_invalid_rep_event_name constant pls_integer := -20211;
   pragma exception_init(ex_invalid_rep_event_name, -20211);
 
+  -- Any of tests failed
+  ex_some_tests_failed exception;
+  gc_some_tests_failed constant pls_integer := -20213;
+  pragma exception_init(ex_some_tests_failed, -20213);
+
 
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
@@ -211,6 +216,8 @@ create or replace package ut_utils authid definer is
 
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob);
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data varchar2);
+
+  function convert_collection(a_collection ut_varchar2_list) return ut_varchar2_rows;
 
   function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2;
 

@@ -149,10 +149,10 @@ create or replace package body ut_coverage is
     type t_source_lines is table of binary_integer;
     l_source_lines     t_source_lines;
     line_no            binary_integer;
-    l_schema_names     ut_varchar2_list;
+    l_schema_names     ut_varchar2_rows;
     l_query            varchar2(32767);
   begin
-    l_schema_names := coalesce(a_coverage_options.schema_names, ut_varchar2_list(sys_context('USERENV','CURRENT_SCHEMA')));
+    l_schema_names := coalesce(a_coverage_options.schema_names, ut_varchar2_rows(sys_context('USERENV','CURRENT_SCHEMA')));
 
     if not ut_coverage_helper.is_develop_mode() then
       --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
