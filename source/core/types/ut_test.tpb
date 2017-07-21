@@ -58,7 +58,7 @@ create or replace type body ut_test as
     if self.get_disabled_flag() then
       self.result := ut_utils.tr_disabled;
       ut_utils.debug_log('ut_test.execute - disabled');
-      self.results_count := ut_results_counter(self.result);
+      self.results_count.set_counter_values(self.result);
       self.end_time := self.start_time;
     else
       if self.is_valid() then
@@ -100,7 +100,7 @@ create or replace type body ut_test as
     end if;
     --expectation results need to be part of test results
     self.results := ut_expectation_processor.get_expectations_results();
-    self.results_count := ut_results_counter(self.result);
+    self.results_count.set_counter_values(self.result);
   end;
 
   overriding member procedure mark_as_errored(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base, a_error_stack_trace varchar2) is

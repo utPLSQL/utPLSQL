@@ -115,5 +115,21 @@ create or replace type body ut_logical_suite as
     return null;
   end;
 
+  overriding member function get_transaction_invalidators return ut_varchar2_list is
+    l_result ut_varchar2_list;
+    l_child_results ut_varchar2_list;
+  begin
+    l_result := self.transaction_invalidators;
+    for i in 1 .. self.items.count loop
+      l_child_results := self.items(i).get_transaction_invalidators();
+      for j in 1 .. l_child_results.count loop
+        if l_child_results(j) not member of l_result then
+          l_result.extend; l_result(l_result.last) := l_child_results(j);
+        end if;
+      end loop;
+    end loop;
+    return l_result;
+  end;
+
 end;
 /
