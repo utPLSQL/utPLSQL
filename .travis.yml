@@ -39,6 +39,8 @@ env:
     # Database Env
     - SQLCLI="$HOME/sqlcl/bin/sql"
     - ORACLE_PWD="oracle"
+    #utPLSQL released version directory
+    - UTPLSQL_DIR="utPLSQL"
   matrix:
     - ORACLE_VERSION="11g-xe-r2"     CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
     - ORACLE_VERSION="12c-se2-r1-v2" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
@@ -50,7 +52,12 @@ cache:
     - $CACHE_DIR
     - node_modules
 
+before_install:
+  # download latest utPLSQL release
+  - curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
+
 install:
+  - unzip utPLSQL.zip
   - pip install mkdocs
   - bash .travis/install_sqlcl.sh
   - sudo mkdir -p /dev/pdbs
@@ -68,6 +75,7 @@ before_script:
 
 script:
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install.sh; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install_utplsql_release.sh; fi
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_examples_and_tests.sh; fi
   - if [ "${TRAVIS_TAG}" = "" ] && [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ]; then sonar-scanner; fi
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/coveralls_uploader.sh; fi
