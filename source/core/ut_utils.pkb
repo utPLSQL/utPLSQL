@@ -341,5 +341,13 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  procedure cleanup_temp_tables is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'truncate table ut_cursor_data';
+    execute immediate 'truncate table ut_coverage_sources_tmp$';
+    commit;
+  end;
+
 end ut_utils;
 /

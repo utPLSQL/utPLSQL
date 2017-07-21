@@ -17,10 +17,12 @@ create or replace package ut_coverage_helper authid definer is
   */
 
   --table of line calls indexed by line number
-  -- table is sparse!!!
+  --!!! this table is sparse!!!
   type unit_line_calls is table of number(38,0) index by binary_integer;
 
   function  is_develop_mode return boolean;
+
+  function is_started return boolean;
 
   procedure coverage_start(a_run_comment varchar2);
 

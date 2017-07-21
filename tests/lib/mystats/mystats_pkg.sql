@@ -13,10 +13,10 @@ create or replace package mystats_pkg authid current_user as
    ||
    || Author:      Adrian Billington
    ||              www.oracle-developer.net
-   ||              (c) oracle-developer.net 
+   ||              (c) oracle-developer.net
    ||
    || Description: PL/SQL-only version of Jonathan Lewis's SNAP_MY_STATS package.
-   ||              This package is used to output the resource usage as recorded 
+   ||              This package is used to output the resource usage as recorded
    ||              in V$MYSTAT and V$LATCH.
    ||
    ||              Key Differences
@@ -50,7 +50,7 @@ create or replace package mystats_pkg authid current_user as
    ||              exec mystats_pkg.ms_stop;
    ||
    ||              2. Output statistics with delta values >= 1,000
-   ||              -------------------------------------------------------------   
+   ||              -------------------------------------------------------------
    ||              exec mystats_pkg.ms_start;
    ||              --<do some work>--
    ||              exec mystats_pkg.ms_stop(1000);
@@ -61,21 +61,21 @@ create or replace package mystats_pkg authid current_user as
    ||              --<do some work>--
    ||              exec mystats_pkg.ms_stop(mystats_pkg.statname_ntt('redo size', 'user commits'));
    ||
-   ||              4. Output statistics for those containing the word 'memory' 
+   ||              4. Output statistics for those containing the word 'memory'
    ||              -----------------------------------------------------------
    ||              exec mystats_pkg.ms_start;
    ||              --<do some work>--
    ||              exec mystats_pkg.ms_stop('memory');
    ||
    || Notes:       1. Serveroutput must be on (and set higher than default);
-   || 
+   ||
    ||              2. See http://www.jlcomp.demon.co.uk/snapshot.html for original
    ||                 version.
    ||
-   ||              3. A free-standing, SQL*Plus-script version of MyStats is also 
+   ||              3. A free-standing, SQL*Plus-script version of MyStats is also
    ||                 available. The script version works without creating any
    ||                 database objects.
-   ||              
+   ||
    || Disclaimer:  http://www.oracle-developer.net/disclaimer.php
    ||
    || ----------------------------------------------------------------------------
@@ -183,7 +183,7 @@ create or replace package body mystats_pkg as
                           union all
                           select 'LATCH'
                           ,      name
-                          ,      gets 
+                          ,      gets
                           from   v$latch
                           union all
                           select 'TIME'
@@ -221,7 +221,7 @@ create or replace package body mystats_pkg as
 
       /*
       || Downside of using associative arrays is that we have to sort
-      || the output. So here's a couple of types and a variable to enable us 
+      || the output. So here's a couple of types and a variable to enable us
       || to do that...
       */
       type aat_mystats_output is table of st_output
@@ -315,13 +315,13 @@ create or replace package body mystats_pkg as
          v_value := ga_mystats(c_run2)(v_name).value - ga_mystats(c_run1)(v_name).value;
 
          /*
-         || If it's greater than the threshold or a statistic we are interested in, 
+         || If it's greater than the threshold or a statistic we are interested in,
          || then output it. The downside of using purely associative arrays is that
          || we don't have any easy way of sorting. So we have to do it ourselves...
          */
          if (p_threshold is not null and abs(v_value) >= p_threshold)
          or (p_statnames is not empty and v_name member of p_statnames)
-         or (p_statname_like is not null and v_name like '%'||p_statname_like||'%') 
+         or (p_statname_like is not null and v_name like '%'||p_statname_like||'%')
          then
             /*
             || Fix for bug 1713403. If redo goes over 2Gb then it is reported as a negative
@@ -334,7 +334,7 @@ create or replace package body mystats_pkg as
                sort(v_type, v_name, v_value);
             end if;
          end if;
-         
+
          /*
          || Next statname please...
          */
@@ -402,7 +402,7 @@ create or replace package body mystats_pkg as
             then ms_report(p_statnames => p_statnames);
             when p_statname_like is not null
             then ms_report(p_statname_like => p_statname_like);
-            else ms_report; 
+            else ms_report;
          end case;
          ms_reset;
       else
@@ -438,5 +438,5 @@ create or replace package body mystats_pkg as
 end mystats_pkg;
 /
 
-create or replace public synonym mystats_pkg for mystats_pkg;
-grant execute on mystats_pkg to public;
+-- create or replace public synonym mystats_pkg for mystats_pkg;
+-- grant execute on mystats_pkg to public;
