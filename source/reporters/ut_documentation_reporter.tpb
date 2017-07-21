@@ -144,14 +144,17 @@ create or replace type body ut_documentation_reporter is
       end if;
     end;
 
-    procedure print_item_warnings(a_item in ut_logical_suite) is
-      l_suite ut_logical_suite;
+    procedure print_item_warnings(a_item in ut_suite_item) is
+      l_items ut_suite_items;
     begin
-      for i in 1 .. a_item.items.count loop
-        if a_item.items(i) is of(ut_logical_suite) then
-          print_item_warnings(treat(a_item.items(i) as ut_logical_suite));
-        end if;
-      end loop;
+      if a_item is of (ut_logical_suite) then
+        l_items := treat(a_item as ut_logical_suite).items;
+        for i in 1 .. l_items.count loop
+          if l_items(i) is of(ut_suite_item) then
+            print_item_warnings(l_items(i));
+          end if;
+        end loop;
+      end if;
 
       if a_item.warnings is not null and a_item.warnings.count > 0 then
         for i in 1 .. a_item.warnings.count loop
@@ -166,14 +169,13 @@ create or replace type body ut_documentation_reporter is
     end;
 
     procedure print_warnings(a_run in ut_run) is
-      l_suite ut_logical_suite;
     begin
       if a_run.results_count.warnings_count > 0 then
         self.print_text(' ');
         self.print_text('Warnings:');
         self.print_text(' ');
         for i in 1 .. a_run.items.count loop
-          print_item_warnings(treat(a_run.items(i) as ut_logical_suite));
+          print_item_warnings(treat(a_run.items(i) as ut_suite_item));
         end loop;
       end if;
     end;

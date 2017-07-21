@@ -8,7 +8,8 @@ addons:
       # Java8 Required for Sonar and SQLCL
       - oracle-java8-installer
       - oracle-java8-set-default
-  sonarqube:
+  sonarcloud:
+    organization: utplsql
     token:
       secure: ${SONAR_TOKEN}
     branches:
@@ -40,7 +41,7 @@ env:
     - ORACLE_PWD="oracle"
   matrix:
     - ORACLE_VERSION="11g-xe-r2"     CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
-    - ORACLE_VERSION="12c-se2-r1-v2" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs" 
+    - ORACLE_VERSION="12c-se2-r1-v2" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
     - ORACLE_VERSION="12c-se-r2-v4" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
 
 cache:

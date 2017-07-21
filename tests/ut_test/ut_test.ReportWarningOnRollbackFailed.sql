@@ -1,10 +1,10 @@
 create or replace package ut_output_test_rollback
 as
  --%suite
-  
+
  --%test
  procedure tt;
- 
+
 end;
 /
 
@@ -20,27 +20,33 @@ end;
 /
 
 declare
-  l_output_data       dbms_output.chararr;
-  l_num_lines         integer := 100000;
-  l_output            clob;
+  l_lines    ut_varchar2_list;
+  l_results  clob;
 begin
   --act
-  ut.run('ut_output_test_rollback');
+  select * bulk collect into l_lines from table(ut.run('ut_output_test_rollback'));
+
+  l_results := ut_utils.table_to_clob(l_lines);
 
   --assert
-  dbms_output.get_lines( l_output_data, l_num_lines);
-  dbms_lob.createtemporary(l_output,true);
-  for i in 1 .. l_num_lines loop
-    dbms_lob.append(l_output,l_output_data(i));
-  end loop;
-  
-  if l_output like '%Warnings:%Savepoint not established. Implicit commit might have occured.%0 disabled, 1 warning(s)%' then
+  if l_results like q'[%Warnings:
+%
+  1) ut_output_test_rollback.tt
+      Unable to perform automatic rollback after test. An implicit or explicit commit/rollback occurred in procedures:
+        ut3.ut_output_test_rollback.tt
+      Use the "--%rollback(manual)" annotation or remove commit/rollback/ddl statements that are causing the issue.
+%
+  2) ut_output_test_rollback
+      Unable to perform automatic rollback after test suite. An implicit or explicit commit/rollback occurred in procedures:
+        ut3.ut_output_test_rollback.tt
+      Use the "--%rollback(manual)" annotation or remove commit/rollback/ddl statements that are causing the issue.
+%
+Finished in % seconds
+1 tests, 0 failed, 0 errored, 0 disabled, 2 warning(s)%]' then
     :test_result := ut_utils.tr_success;
-  end if;
-
-  if :test_result != ut_utils.tr_success or :test_result is null then
-    for i in 1 .. l_num_lines loop
-      dbms_output.put_line(l_output_data(i));
+  else
+    for i in 1 .. l_lines.count loop
+      dbms_output.put_line(l_lines(i));
     end loop;
     dbms_output.put_line('Failed: Wrong output');
   end if;

@@ -66,15 +66,16 @@ create or replace type body ut_executable is
   end do_execute;
 
 	member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean is
-    l_statement      varchar2(4000);
-    l_status         number;
-    l_cursor_number  number;
-    l_owner          varchar2(200) := self.owner_name;
-    l_object_name    varchar2(200) := self.object_name;
-    l_procedure_name varchar2(200) := self.procedure_name;
+    l_statement                varchar2(4000);
+    l_status                   number;
+    l_cursor_number            number;
+    l_owner                    varchar2(200) := self.owner_name;
+    l_object_name              varchar2(200) := self.object_name;
+    l_procedure_name           varchar2(200) := self.procedure_name;
 
     l_completed_without_errors boolean := true;
-
+    l_start_transaction_id     varchar2(250);
+    l_end_transaction_id     varchar2(250);
     procedure save_dbms_output is
       l_status number;
       l_line varchar2(32767);
@@ -94,6 +95,7 @@ create or replace type body ut_executable is
     end save_dbms_output;
   begin
     if self.is_defined() then
+      l_start_transaction_id := dbms_transaction.local_transaction_id(true);
       --listener - before call to executable
       a_listener.fire_before_event(self.associated_event_name, a_item);
 
@@ -135,9 +137,15 @@ create or replace type body ut_executable is
 
       l_completed_without_errors := (self.error_stack||self.error_backtrace) is null;
 
-      a_listener.fire_after_event(self.associated_event_name, a_item);
       --listener - after call to executable
+      a_listener.fire_after_event(self.associated_event_name, a_item);
+
+      l_end_transaction_id := dbms_transaction.local_transaction_id();
+      if l_start_transaction_id != l_end_transaction_id or l_end_transaction_id is null then
+        a_item.add_transaction_invalidator(self.form_name());
+      end if;
     end if;
+
     return l_completed_without_errors;
   end do_execute;
 
