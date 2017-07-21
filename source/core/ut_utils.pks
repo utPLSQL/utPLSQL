@@ -212,9 +212,9 @@ create or replace package ut_utils authid definer is
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob);
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data varchar2);
 
-  function to_xpath(a_list varchar2) return varchar2;
+  function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2;
 
-  function to_xpath(a_list ut_varchar2_list) return varchar2;
+  function to_xpath(a_list ut_varchar2_list, a_ancestors varchar2 := '/*/') return varchar2;
 
 end ut_utils;
 /

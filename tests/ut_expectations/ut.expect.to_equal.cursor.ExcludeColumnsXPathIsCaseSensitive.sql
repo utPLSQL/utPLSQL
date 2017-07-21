@@ -1,4 +1,3 @@
-PROMPT Exclude column names are case sensitive
 --Arrange
 declare
   l_actual   SYS_REFCURSOR;

@@ -81,7 +81,7 @@ create or replace type body ut_data_value_anydata as
     self.data_type  := case when a_value is not null then lower(a_value.gettypename) else 'undefined' end;
   end;
 
-  static function get_instance(a_data_value anydata) return ut_data_value_anydata is
+  static function get_instance(a_data_value anydata, a_exclude varchar2 := null) return ut_data_value_anydata is
     l_result    ut_data_value_anydata := ut_data_value_object(null);
     l_type      anytype;
     l_type_code integer;
@@ -90,8 +90,10 @@ create or replace type body ut_data_value_anydata as
       l_type_code := a_data_value.gettype(l_type);
       if l_type_code = dbms_types.typecode_object then
         l_result := ut_data_value_object(a_data_value);
+        l_result.exclude_xpath := ut_utils.to_xpath(a_exclude);
       elsif l_type_code in (dbms_types.typecode_table, dbms_types.typecode_varray, dbms_types.typecode_namedcollection) then
         l_result := ut_data_value_collection(a_data_value);
+        l_result.exclude_xpath := ut_utils.to_xpath(a_exclude,'/*/*/');
       else
         raise_application_error(-20000, 'Data type '||a_data_value.gettypename||' in ANYDATA is not supported by utPLSQL');
       end if;
@@ -99,19 +101,12 @@ create or replace type body ut_data_value_anydata as
     return l_result;
   end;
 
-  static function get_instance(a_data_value anydata, a_exclude varchar2) return ut_data_value_anydata is
-    l_result    ut_data_value_anydata;
-  begin
-    l_result := ut_data_value_anydata.get_instance(a_data_value);
-    l_result.exclude_xpath := ut_utils.to_xpath(a_exclude);
-    return l_result;
-  end;
-
   static function get_instance(a_data_value anydata, a_exclude ut_varchar2_list) return ut_data_value_anydata is
     l_result    ut_data_value_anydata;
+    l_exclude   varchar2(32767);
   begin
-    l_result := ut_data_value_anydata.get_instance(a_data_value);
-    l_result.exclude_xpath := ut_utils.to_xpath(a_exclude);
+    l_exclude := substr(ut_utils.table_to_clob(a_exclude, ','), 1, 32767);
+    l_result := ut_data_value_anydata.get_instance(a_data_value, l_exclude );
     return l_result;
   end;
 
