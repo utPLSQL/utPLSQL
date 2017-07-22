@@ -236,7 +236,6 @@ create or replace package body ut_coverage is
 
     end loop;
 
-    commit;
     return l_result;
   end get_coverage_data;
 
