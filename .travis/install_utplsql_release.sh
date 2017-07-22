@@ -1,11 +1,13 @@
 #!/bin/bash
 
-RELEASE_VERSION_SCHEMA=UT3_LATEST_RELEASE
 set -ev
 
 cd $UTPLSQL_DIR/source
 
-"$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
+"$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<SQL
+set serveroutput on
+set linesize 200
+set trimspool on
 declare
   i integer := 0;
 begin
@@ -29,14 +31,14 @@ begin
         dbms_output.put_line('FAILED to drop '||syn.syn_name||' for object '||syn.for_object);
     end;
   end loop;
-  dbms_output.put_line('&&line_separator');
   dbms_output.put_line(i||' synonyms dropped');
 end;
 /
 SQL
-"$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA @install_headless.sql ${RELEASE_VERSION_SCHEMA}
+
+"$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA @install_headless.sql ${UT3_RELEASE_VERSION_SCHEMA}
 
 "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<SQL
-grant select any dictionary to ${RELEASE_VERSION_SCHEMA};
+grant select any dictionary to ${UT3_RELEASE_VERSION_SCHEMA};
 exit
 SQL
