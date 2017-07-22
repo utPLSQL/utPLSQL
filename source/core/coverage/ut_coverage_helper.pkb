@@ -17,8 +17,8 @@ create or replace package body ut_coverage_helper is
   */
 
   g_coverage_id  integer;
-  g_develop_mode boolean := false;
-  g_is_started   boolean := false;
+  g_develop_mode boolean not null := false;
+  g_is_started   boolean not null := false;
 
   function is_develop_mode return boolean is
   begin

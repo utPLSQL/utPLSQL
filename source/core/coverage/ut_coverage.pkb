@@ -128,16 +128,12 @@ create or replace package body ut_coverage is
   */
   procedure coverage_start is
   begin
-    if not ut_coverage_helper.is_started() then
-      ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp));
-    end if;
+    ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp));
   end;
 
   procedure coverage_start_develop is
   begin
-    if not ut_coverage_helper.is_started() then
-      ut_coverage_helper.coverage_start_develop();
-    end if;
+    ut_coverage_helper.coverage_start_develop();
   end;
 
   procedure coverage_pause is
