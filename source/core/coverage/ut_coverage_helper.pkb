@@ -91,7 +91,13 @@ create or replace package body ut_coverage_helper is
     l_tmp_data coverage_rows;
     l_results  unit_line_calls;
   begin
-      select d.line#, d.total_occur
+      select d.line#,
+        -- This transformation addresses two issues:
+        -- 1. dbms_profiler shows multiple unit_number for single code unit;
+        --    to address this, we take a sum od all units by name
+        -- 2. some lines show 0 total_occur while they were executed (time > 0)
+        --    in this case we show 1 to indicate that there was execution even if we don't know how many there were
+        case when sum(d.total_occur) = 0 and sum(d.total_time) > 0 then 1 else sum(d.total_occur) end total_occur
       bulk collect into l_tmp_data
         from plsql_profiler_units u
         join plsql_profiler_data d
@@ -101,7 +107,8 @@ create or replace package body ut_coverage_helper is
          and u.unit_owner = a_object_owner
          and u.unit_name = a_object_name
          --exclude specification
-         and u.unit_type not in ('PACKAGE SPEC', 'TYPE SPEC', 'ANONYMOUS BLOCK');
+         and u.unit_type not in ('PACKAGE SPEC', 'TYPE SPEC', 'ANONYMOUS BLOCK')
+       group by d.line#;
     for i in 1 .. l_tmp_data.count loop
       l_results(l_tmp_data(i).line) := l_tmp_data(i).calls;
     end loop;
