@@ -63,6 +63,7 @@ create or replace package body ut_metadata as
     l_schema         varchar2(200);
     l_package_name   varchar2(200);
     l_procedure_name varchar2(200);
+    l_view_name      varchar2(200) := get_dba_view('dba_objects');
   begin
 
     l_schema       := a_owner_name;
@@ -70,12 +71,12 @@ create or replace package body ut_metadata as
 
     do_resolve(l_schema, l_package_name, l_procedure_name);
 
-    select count(decode(status, 'VALID', 1, null)) / count(*)
-      into l_cnt
-      from all_objects
-     where owner = l_schema
-       and object_name = l_package_name
-       and object_type in ('PACKAGE');
+    execute immediate q'[select count(decode(status, 'VALID', 1, null)) / count(*)
+      from ]'||l_view_name||q'[
+     where owner = :l_schema
+       and object_name = :l_package_name
+       and object_type in ('PACKAGE')]'
+    into l_cnt using l_schema, l_package_name;
 
     -- expect both package and body to be valid
     return l_cnt = 1;
@@ -90,6 +91,7 @@ create or replace package body ut_metadata as
     l_schema         varchar2(200);
     l_package_name   varchar2(200);
     l_procedure_name varchar2(200);
+    l_view_name      varchar2(200) := get_dba_view('dba_procedures');
   begin
 
     l_schema         := a_owner_name;
@@ -98,12 +100,10 @@ create or replace package body ut_metadata as
 
     do_resolve(l_schema, l_package_name, l_procedure_name);
 
-    select count(*)
-      into l_cnt
-      from all_procedures
-     where owner = l_schema
-       and object_name = l_package_name
-       and procedure_name = l_procedure_name;
+    execute immediate
+      'select count(*) from '||l_view_name
+      ||' where owner = :l_schema and object_name = :l_package_name and procedure_name = :l_procedure_name'
+    into l_cnt using l_schema, l_package_name, l_procedure_name;
 
     --expect one method only for the package with that name.
     return l_cnt = 1;
@@ -132,12 +132,12 @@ create or replace package body ut_metadata as
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
     l_line varchar2(4000);
     l_cursor sys_refcursor;
+    l_view_name varchar2(128) := get_dba_view('dba_source');
   begin
-    open l_cursor for
-      select text from all_source s
-       where s.owner = a_owner and s.name = a_object_name and s.line = a_line_no
+    open l_cursor for 'select text from '||l_view_name||q'[ s
+       where s.owner = :a_owner and s.name = :a_object_name and s.line = :a_line_no
           -- skip the declarations, consider only definitions
-         and s.type not in ('PACKAGE','TYPE');
+         and s.type not in ('PACKAGE','TYPE')]' using a_owner, a_object_name, a_line_no;
      fetch l_cursor into l_line;
      close l_cursor;
     return ltrim(rtrim( l_line, chr(10) ));
@@ -146,5 +146,16 @@ create or replace package body ut_metadata as
       return null;
   end;
 
+  function get_dba_view(a_view_name varchar2) return varchar2 is
+    l_invalid_object_name exception;
+    l_result              varchar2(128) := lower(a_view_name);
+    pragma exception_init(l_invalid_object_name,-44002);
+  begin
+    l_result := dbms_assert.sql_object_name(l_result);
+    return l_result;
+  exception
+    when l_invalid_object_name then
+      return replace(l_result,'dba_','all_');
+  end;
 end;
 /
