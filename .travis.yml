@@ -26,6 +26,8 @@ env:
     - UT3_RELEASE_VERSION_SCHEMA=UT3_LATEST_RELEASE
     - UT3_USER="UT3\$USER#"
     - UT3_USER_PASSWORD=ut3
+    - UT3_TESTER=ut3_tester
+    - UT3_TESTER_PASSWORD=UT3
     - UT3_TABLESPACE=users
     # Environment for building a release
     - CURRENT_BRANCH=${TRAVIS_BRANCH}
@@ -78,6 +80,7 @@ script:
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install.sh; fi
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install_utplsql_release.sh; fi
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_examples_and_tests.sh; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash tests/install_and_run_tests.sh; fi
   - if [ "${TRAVIS_TAG}" = "" ] && [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ]; then sonar-scanner; fi
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/coveralls_uploader.sh; fi
   - bash .travis/build_docs.sh
