@@ -25,21 +25,21 @@ create or replace package ut_file_mapper authid current_user is
 
   function build_file_mappings(
     a_file_paths                  ut_varchar2_list,
-    a_file_to_object_type_mapping ut_key_value_pairs := default_file_to_obj_type_map(),
-    a_regex_pattern               varchar2 := gc_file_mapping_regex,
-    a_object_owner_subexpression  positive := gc_regex_owner_subexpression,
-    a_object_name_subexpression   positive := gc_regex_name_subexpression,
-    a_object_type_subexpression   positive := gc_regex_type_subexpression
+    a_file_to_object_type_mapping ut_key_value_pairs := null,
+    a_regex_pattern               varchar2 := null,
+    a_object_owner_subexpression  positive := null,
+    a_object_name_subexpression   positive := null,
+    a_object_type_subexpression   positive := null
   ) return ut_file_mappings;
 
   function build_file_mappings(
     a_object_owner                varchar2,
     a_file_paths                  ut_varchar2_list,
-    a_file_to_object_type_mapping ut_key_value_pairs := default_file_to_obj_type_map(),
-    a_regex_pattern               varchar2 := gc_file_mapping_regex,
-    a_object_owner_subexpression  positive := gc_regex_owner_subexpression,
-    a_object_name_subexpression   positive := gc_regex_name_subexpression,
-    a_object_type_subexpression   positive := gc_regex_type_subexpression
+    a_file_to_object_type_mapping ut_key_value_pairs := null,
+    a_regex_pattern               varchar2 := null,
+    a_object_owner_subexpression  positive := null,
+    a_object_name_subexpression   positive := null,
+    a_object_type_subexpression   positive := null
   ) return ut_file_mappings;
 
 
