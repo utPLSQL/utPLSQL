@@ -25,11 +25,6 @@ create or replace package body ut_coverage_helper is
     return g_develop_mode;
   end;
 
-  function is_started return boolean is
-  begin
-    return g_is_started;
-  end;
-
   procedure coverage_start_internal(a_run_comment varchar2)  is
   begin
     dbms_profiler.start_profiler(run_comment => a_run_comment, run_number => g_coverage_id);

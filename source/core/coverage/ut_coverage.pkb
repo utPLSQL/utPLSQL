@@ -172,7 +172,7 @@ create or replace package body ut_coverage is
     end if;
 
     --prepare global temp table with sources
-    if ut_coverage_helper.is_develop_mode() or not is_tmp_table_populated() then
+    if not is_tmp_table_populated() or ut_coverage_helper.is_develop_mode() then
       populate_tmp_table(a_coverage_options, l_skipped_objects);
     end if;
 
