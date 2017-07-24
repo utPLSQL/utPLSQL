@@ -29,9 +29,14 @@ create or replace type body ut_equal as
     return ( a_assert_result or ( self.expected.is_null() and a_actual.is_null() and ut_utils.int_to_boolean( nulls_are_equal_flag ) ) );
   end;
 
-  constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result is
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_exclude varchar2 := null, a_nulls_are_equal boolean := null) return self as result is
   begin
-    init(ut_data_value_anydata.get_instance(a_expected), a_nulls_are_equal);
+    init(ut_data_value_anydata.get_instance(a_expected, a_exclude), a_nulls_are_equal);
+    return;
+  end;
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null) return self as result is
+  begin
+    init(ut_data_value_anydata.get_instance(a_expected, a_exclude), a_nulls_are_equal);
     return;
   end;
 

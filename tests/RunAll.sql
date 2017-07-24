@@ -67,6 +67,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesSuccessWhenExpessionIsTrue.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.ExcludeColumnsXPathFailsOnInvalidXPath.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenBothObjectsAreNullButDifferentType.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentData.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentObjects.sql
@@ -77,9 +78,15 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameCollections.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.PutsObjectStrucureIntoResult.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedCollectionAttributes.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedCollectionAttributesXPath.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedObjectAttributes.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedObjectAttributesXPath.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ComparesDateAndTimeWhenSetNlsIsUsed.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnNameListIsCaseSensitive.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnNamesAreCaseSensitive.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnsXPathFailsOnInvalidXPath.sql
+@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnsXPathIsCaseSensitive.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesFailureForDifferentValues.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValues.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValuesWithExcludedColumnList.sql
