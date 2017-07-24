@@ -211,24 +211,55 @@ end;
 ```
 The `a_nulls_are_equal` parameter controls the behavior of a `null=null` comparison (**this comparison by default is true!**)
 
-### Comparing cursors
+### Excluding columns and attributes from comparison 
 
-The `equal` matcher accepts an additional parameter `a_exclude varchar2` or `a_exclude ut_varchar2_list`, when used to compare `cursor` data. 
+The `equal` matcher accepts an additional parameter `a_exclude` when used to compare data of `cursor`, `object` or `table type`. 
 
-These parameters enable a list of column names to be passed for exclusion from the data comparison. The list can be a comma separated `varchar2` list or a `ut_varchar2_list` collection.
-The column names accepted by the parameter are **case sensitive** and cannot be quoted.
-If the `a_exclude` parameter is not specified, all columns are included. 
-If a column to be excluded does not exist, the column cannot be excluded and it's name is simply ignored.
-This is useful when testing cursors containing data that is beyond our control (like default or trigger/procedure generated sysdate values on columns).
+This parameter can take three forms:
+1. A `varchar2` containing comma separated names of columns/attributes to exclude
+2. A `varchar2` containing **XPath** expression that lists items to be excluded
+3. A `ut_varchar2_list` containing list of columns/attributes to exclude
+ 
+The column/attribute names are **case sensitive** and cannot be quoted.
+If the `a_exclude` parameter is not specified, whole cursor/object/table type is compared. 
+If a column/attribute to be excluded does not exist it is simply ignored (no error).
+
+This is useful when testing elements data that cannot be determined or set up by the tests (like `sysdate` populated by default on audit columns).
 
 ```sql
 procedure test_cursors_skip_columns is
-  x sys_refcursor;
-  y sys_refcursor;
+  l_expected sys_refcursor;
+  l_actual sys_refcursor;
 begin
-  open x for select 'text' ignore_me, d.* from user_tables d;
-  open y for select sysdate "ADate", d.* from user_tables d;
-  ut.expect( a_actual => y ).to_equal( a_expected => x, a_exclude => 'IGNORE_ME,ADate' );
+  open l_expected for select 'text' ignore_me, d.* from user_tables d;
+  open l_actual for select sysdate "ADate", d.* from user_tables d;
+  ut.expect( l_actual ).to_equal( l_expected, a_exclude => 'IGNORE_ME,ADate' );
+end;
+```
+
+```sql
+create or replace type employee as object(
+ first_name varchar2(50),
+ last_name  varchar2(50),
+ hire_date  date,
+ created_at timestamp,
+ created_by varchar2(30),
+ modified_at timestamp,
+ modified_by varchar2(50)
+);
+
+procedure test_object_skip_columns is
+  l_expected employee;
+  l_actual employee;
+begin
+  l_expected := employee('John'||rownum, 'Doe', sysdate, systimestamp, 'me', systimestamp, 'me');
+  -- the actual should normally be returned by the tested code.
+  l_actual   := employee('John'||rownum, 'Doe', sysdate, systimestamp, 'me', systimestamp, 'me');
+  
+  -- test the data excluding attributes specified by XPath
+  ut.expect( anydata.convertObject(l_actual) ).to_equal( 
+    anydata.convertObject(l_expected), a_exclude => '/EMPLOYEE/CREATED_AT|/EMPLOYEE/MODIFIED_AT' 
+  );
 end;
 ```
 

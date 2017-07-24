@@ -17,8 +17,6 @@ create or replace type ut_data_value_object under ut_data_value_anydata(
   */
   constructor function ut_data_value_object(self in out nocopy ut_data_value_object, a_value anydata) return self as result,
   overriding member function is_null return boolean,
-  overriding member function to_string return varchar2,
-  overriding member function is_multi_line return boolean,
-  overriding member function compare_implementation(a_other ut_data_value) return integer
+  overriding member function is_multi_line return boolean
 )
 /
