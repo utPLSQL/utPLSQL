@@ -341,5 +341,31 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2 is
+    l_xpath varchar2(32767) := a_list;
+  begin
+    if l_xpath not like '/%' then
+      l_xpath := to_xpath( clob_to_table(a_clob=>a_list, a_delimiter=>','), a_ancestors);
+    end if;
+    return l_xpath;
+  end;
+
+  function to_xpath(a_list ut_varchar2_list, a_ancestors varchar2 := '/*/') return varchar2 is
+    l_xpath varchar2(32767);
+    l_item  varchar2(32767);
+    i integer;
+  begin
+    i := a_list.first;
+    while i is not null loop
+      l_item := trim(a_list(i));
+      if l_item is not null then
+        l_xpath := l_xpath || a_ancestors ||a_list(i)||'|';
+      end if;
+      i := a_list.next(i);
+    end loop;
+    l_xpath := rtrim(l_xpath,',|');
+    return l_xpath;
+  end;
+
 end ut_utils;
 /
