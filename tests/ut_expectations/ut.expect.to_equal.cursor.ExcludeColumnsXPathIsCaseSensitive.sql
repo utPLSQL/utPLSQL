@@ -1,4 +1,3 @@
-PROMPT Exclude column names are case sensitive
 --Arrange
 declare
   l_actual   SYS_REFCURSOR;
@@ -9,7 +8,7 @@ begin
 --Act
   open l_actual   for select 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual;
   open l_expected for select 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual;
-  ut.expect(l_actual).to_equal(l_expected, a_exclude=>'A_COLUMN,Some_Col');
+  ut.expect(l_actual).to_equal(l_expected, a_exclude=>'/ROW/A_COLUMN|/ROW/Some_Col');
   l_result :=  ut_expectation_processor.get_status();
   l_results_details := ut_expectation_processor.get_expectations_results();
 --Assert

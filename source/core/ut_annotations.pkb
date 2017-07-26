@@ -27,10 +27,10 @@ create or replace package body ut_annotations as
   --c_nonannotat_comment_pattern  constant varchar2(30) := '^( |'||chr(09)||')*--+ *[^'||gc_annotation_qualifier||']*?$';
   c_comment_replacer_patter     constant varchar2(50) := '{COMMENT#%N%}';
   c_comment_replacer_regex_ptrn constant varchar2(25) := '{COMMENT#(\d+)}';
-  c_rgexp_identifier            constant varchar2(50) := '[a-z][a-z0-9#_$]*';
+  c_regexp_identifier           constant varchar2(50) := '[a-z][a-z0-9#_$]*';
   c_annotation_block_pattern    constant varchar2(200) := '(({COMMENT#.+}'||chr(10)||')+)( |'||chr(09)||')*(procedure|function)\s+(' ||
-                                                           c_rgexp_identifier || ')';
-  c_annotation_pattern          constant varchar2(50) := gc_annotation_qualifier || c_rgexp_identifier || '[ '||chr(9)||']*(\(.*?\)\s*?$)?';
+                                                           c_regexp_identifier || ')';
+  c_annotation_pattern          constant varchar2(50) := gc_annotation_qualifier || c_regexp_identifier || '[ '||chr(9)||']*(\(.*?\)\s*?$)?';
 
 
   function delete_multiline_comments(a_source in clob) return clob is
@@ -75,7 +75,7 @@ create or replace package body ut_annotations as
 
         -- get the annotation name and it's parameters if present
         l_annotation_name       := lower(regexp_substr(l_annotation_str
-                                                      ,'%(' || c_rgexp_identifier || ')'
+                                                      ,'%(' || c_regexp_identifier || ')'
                                                       ,modifier => 'i'
                                                       ,subexpression => 1));
         l_annotation_params_str := trim(regexp_substr(l_annotation_str, '\((.*?)\)\s*$', subexpression => 1));
@@ -94,7 +94,7 @@ create or replace package body ut_annotations as
                                           ,subexpression => 1);
 
               l_param_item.key   := regexp_substr(srcstr        => l_param_str
-                                                 ,pattern       => '(' || c_rgexp_identifier || ')\s*='
+                                                 ,pattern       => '(' || c_regexp_identifier || ')\s*='
                                                  ,modifier      => 'i'
                                                  ,subexpression => 1);
               l_param_item.val := trim(regexp_substr(l_param_str, '(.+?=)?(.*$)', subexpression => 2));
