@@ -198,7 +198,7 @@ When processing the test suite `test_pkg` defined in [Example of annotated test 
     
     create savepoint 'beforeeach'
       execute test_setup
-      execute setup_anotrher_test
+      execute setup_another_test
       execute another_test
       execute cleanup_another_test
       execute test_cleanup
