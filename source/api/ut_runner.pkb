@@ -43,13 +43,6 @@ create or replace package body ut_runner is
     return ut_utils.gc_version;
   end;
 
-  procedure cleanup_temp_tables is
-    pragma autonomous_transaction;
-  begin
-    delete from ut_cursor_data where 1 = 1;
-    commit;
-  end;
-
   procedure run(
     a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false,
     a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
@@ -78,11 +71,11 @@ create or replace package body ut_runner is
       );
       l_items_to_run.do_execute(l_listener);
 
-      cleanup_temp_tables;
+      ut_utils.cleanup_temp_tables;
       ut_output_buffer.close(l_listener.reporters);
     exception
       when others then
-        cleanup_temp_tables;
+        ut_utils.cleanup_temp_tables;
         ut_output_buffer.close(l_listener.reporters);
         dbms_output.put_line(dbms_utility.format_error_backtrace);
         dbms_output.put_line(dbms_utility.format_error_stack);

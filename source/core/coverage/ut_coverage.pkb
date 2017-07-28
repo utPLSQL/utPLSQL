@@ -28,7 +28,7 @@ create or replace package body ut_coverage is
   -- The subquery is optimized by:
   -- - COALESCE function -> it will execute only for TRIGGERS
   -- - scalar subquery cache -> it will only execute once for one trigger source code.
-  function populate_sources_tmp_table(a_coverage_options ut_coverage_options) return varchar2 is
+  function get_populate_sources_tmp_sql(a_coverage_options ut_coverage_options) return varchar2 is
     l_result varchar2(32767);
     l_full_name varchar2(100);
   begin
@@ -98,6 +98,31 @@ create or replace package body ut_coverage is
     return l_result;
   end;
 
+  function is_tmp_table_populated return boolean is
+    l_result integer;
+  begin
+    select 1 into l_result from ut_coverage_sources_tmp where rownum = 1;
+    return (l_result = 1);
+  exception
+    when no_data_found then
+      return false;
+  end;
+
+  procedure populate_tmp_table(a_coverage_options ut_coverage_options, a_skipped_objects ut_object_names) is
+    pragma autonomous_transaction;
+    l_schema_names     ut_varchar2_rows;
+  begin
+    delete from ut_coverage_sources_tmp;
+    l_schema_names := coalesce(a_coverage_options.schema_names, ut_varchar2_rows(sys_context('USERENV','CURRENT_SCHEMA')));
+    if a_coverage_options.file_mappings is not empty then
+      execute immediate get_populate_sources_tmp_sql(a_coverage_options) using a_coverage_options.file_mappings, a_skipped_objects, a_coverage_options.include_objects;
+    else
+      execute immediate get_populate_sources_tmp_sql(a_coverage_options) using l_schema_names, a_skipped_objects, a_coverage_options.include_objects;
+    end if;
+    commit;
+  end;
+
+
   /**
   * Public functions
   */
@@ -132,27 +157,14 @@ create or replace package body ut_coverage is
   end;
 
   function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
-
-    pragma autonomous_transaction;
-
-    type t_coverage_row is record(
-      name          varchar2(500),
-      line_number   integer,
-      total_occur   number(38,0)
-    );
-    type tt_coverage_rows is table of t_coverage_row;
     l_line_calls       ut_coverage_helper.unit_line_calls;
     l_result           t_coverage;
     l_new_unit         t_unit_coverage;
     l_skipped_objects  ut_object_names := ut_object_names();
 
     type t_source_lines is table of binary_integer;
-    l_source_lines     t_source_lines;
     line_no            binary_integer;
-    l_schema_names     ut_varchar2_rows;
-    l_query            varchar2(32767);
   begin
-    l_schema_names := coalesce(a_coverage_options.schema_names, ut_varchar2_rows(sys_context('USERENV','CURRENT_SCHEMA')));
 
     if not ut_coverage_helper.is_develop_mode() then
       --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
@@ -160,13 +172,9 @@ create or replace package body ut_coverage is
     end if;
 
     --prepare global temp table with sources
-    delete from ut_coverage_sources_tmp;
-    if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
-      execute immediate populate_sources_tmp_table(a_coverage_options) using a_coverage_options.file_mappings, l_skipped_objects, a_coverage_options.include_objects;
-    else
-      execute immediate populate_sources_tmp_table(a_coverage_options) using l_schema_names, l_skipped_objects, a_coverage_options.include_objects;
+    if not is_tmp_table_populated() or ut_coverage_helper.is_develop_mode() then
+      populate_tmp_table(a_coverage_options, l_skipped_objects);
     end if;
-    commit;
 
     for src_object in (
       select o.owner, o.name, o.full_name, max(o.line) lines_count,
@@ -224,7 +232,6 @@ create or replace package body ut_coverage is
 
     end loop;
 
-    commit;
     return l_result;
   end get_coverage_data;
 
