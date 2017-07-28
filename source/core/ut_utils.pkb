@@ -340,6 +340,11 @@ create or replace package body ut_utils is
     end if;
     return l_result;
   end;
+  
+  procedure set_action(a_test_name in varchar2) is
+  begin
+    dbms_application_info.set_module('utPLSQL', a_test_name);
+  end;
 
   function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2 is
     l_xpath varchar2(32767) := a_list;
