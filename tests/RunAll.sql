@@ -10,7 +10,8 @@ set longchunksize 1000000
 set serveroutput on size unlimited format truncated
 @@lib/RunVars.sql
 
-@@lib/mystats/mystats start
+@@lib/mystats/mystats_pkg.sql
+exec mystats_pkg.ms_start;
 
 spool RunAll.log
 
@@ -572,7 +573,9 @@ spool coverage.html
 exec ut_output_buffer.lines_to_dbms_output(:html_reporter_id);
 spool off
 
-@@lib/mystats/mystats stop t=1000
+spool stats.log
+exec mystats_pkg.ms_stop(1000);
+spool off
 
 --can be used by CI to check for tests status
 exit :failures_count

@@ -224,5 +224,7 @@ create or replace package ut_utils authid definer is
 
   function to_xpath(a_list ut_varchar2_list, a_ancestors varchar2 := '/*/') return varchar2;
 
+  procedure cleanup_temp_tables;
+
 end ut_utils;
 /

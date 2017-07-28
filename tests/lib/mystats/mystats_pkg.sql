@@ -13,10 +13,10 @@ create or replace package mystats_pkg authid current_user as
    ||
    || Author:      Adrian Billington
    ||              www.oracle-developer.net
-   ||              (c) oracle-developer.net 
+   ||              (c) oracle-developer.net
    ||
    || Description: PL/SQL-only version of Jonathan Lewis's SNAP_MY_STATS package.
-   ||              This package is used to output the resource usage as recorded 
+   ||              This package is used to output the resource usage as recorded
    ||              in V$MYSTAT and V$LATCH.
    ||
    ||              Key Differences
@@ -49,7 +49,7 @@ create or replace package mystats_pkg authid current_user as
    ||
    ||                  Optional statistics types are selected during calls to the MS_START procedure
    ||                  and are all included by default:
-   ||                  
+   ||
    ||                     1. Statistics (V$SESSTAT)
    ||                     2. Latches    (V$LATCH)
    ||                     3. Time Model (V$SESS_TIME_MODEL)
@@ -71,7 +71,7 @@ create or replace package mystats_pkg authid current_user as
    ||              exec mystats_pkg.ms_stop;
    ||
    ||              2. Output statistics with delta values >= 1,000
-   ||              -------------------------------------------------------------   
+   ||              -------------------------------------------------------------
    ||              exec mystats_pkg.ms_start;
    ||              --<do some work>--
    ||              exec mystats_pkg.ms_stop(p_threshold=>1000);
@@ -82,7 +82,7 @@ create or replace package mystats_pkg authid current_user as
    ||              --<do some work>--
    ||              exec mystats_pkg.ms_stop(p_statnames=>mystats_pkg.statname_ntt('redo size', 'user commits'));
    ||
-   ||              4. Output statistics for those containing the word 'memory' 
+   ||              4. Output statistics for those containing the word 'memory'
    ||              -----------------------------------------------------------
    ||              exec mystats_pkg.ms_start;
    ||              --<do some work>--
@@ -107,14 +107,14 @@ create or replace package mystats_pkg authid current_user as
    ||              exec mystats_pkg.ms_stop(p_statname_like=>'parallel');
    ||
    || Notes:       1. Serveroutput must be on (and set higher than default);
-   || 
+   ||
    ||              2. See http://www.jlcomp.demon.co.uk/snapshot.html for original
    ||                 version.
    ||
-   ||              3. A free-standing, SQL*Plus-script version of MyStats is also 
+   ||              3. A free-standing, SQL*Plus-script version of MyStats is also
    ||                 available. The script version works without creating any
    ||                 database objects.
-   ||              
+   ||
    || Disclaimer:  http://www.oracle-developer.net/disclaimer.php
    ||
    || ----------------------------------------------------------------------------
@@ -256,7 +256,7 @@ create or replace package body mystats_pkg as
                           union all
                           select 'LATCH'
                           ,      name
-                          ,      gets 
+                          ,      gets
                           from   v$latch
                           where  :g_include_latches = 'Y'
                           union all
@@ -271,7 +271,7 @@ create or replace package body mystats_pkg as
                           ,      value
                           from   v$sess_time_model
                           where  sid = sys_context('userenv','sid')
-                          and    :g_include_time_model = 'Y']' 
+                          and    :g_include_time_model = 'Y']'
                    using g_include_statistics, g_include_latches, g_include_time_model, g_include_time_model;
       fetch rc_stat bulk collect into aa_stats;
       close rc_stat;
@@ -298,7 +298,7 @@ create or replace package body mystats_pkg as
       v_value   st_statvalue; --<-- snapshot value for a statistic
 
       -- Downside of using associative arrays is that we have to sort
-      -- the output. So here's a couple of types and a variable to enable us 
+      -- the output. So here's a couple of types and a variable to enable us
       -- to do that...
       -- -------------------------------------------------------------------
       type aat_mystats_output is table of st_output
@@ -383,14 +383,13 @@ create or replace package body mystats_pkg as
          -- -----------------------------------------------
          v_value := ga_mystats(c_run2)(v_name).value - ga_mystats(c_run1)(v_name).value;
 
-         -- If it's greater than the threshold or a statistic we are interested in, 
+         -- If it's greater than the threshold or a statistic we are interested in,
          -- then output it. The downside of using purely associative arrays is that
          -- we don't have any easy way of sorting. So we have to do it ourselves...
          -- -----------------------------------------------------------------------
          if (p_threshold is not null and abs(v_value) >= p_threshold)
          or (p_statnames is not empty and v_name member of p_statnames)
-         or (p_statname_like is not null and v_name like '%'||p_statname_like||'%')
-         or (p_statname_regexp is not null and regexp_like(v_name, p_statname_regexp, 'i'))
+         or (p_statname_like is not null and v_name like '%'||p_statname_like||'%') or (p_statname_regexp is not null and regexp_like(v_name, p_statname_regexp, 'i'))
          then
             -- Fix for bug 1713403. If redo goes over 2Gb then it is reported as a negative
             -- number. Recommended workaround (prior to fix in 10g) is to use redo blocks written
@@ -402,7 +401,8 @@ create or replace package body mystats_pkg as
                sort(v_type, v_name, v_value);
             end if;
          end if;
-         
+
+
          -- Next statname please...
          -- -----------------------
          v_name := ga_mystats(c_run1).next(v_name);
@@ -468,7 +468,7 @@ create or replace package body mystats_pkg as
       g_start_time         := null;
       g_end_time           := null;
       g_include_statistics := null;
-      g_include_latches    := null; 
+      g_include_latches    := null;
       g_include_time_model := null;
    end ms_reset;
 
@@ -499,7 +499,7 @@ create or replace package body mystats_pkg as
             then ms_report(p_statname_like => p_statname_like);
             when p_statname_regexp is not null
             then ms_report(p_statname_regexp => p_statname_regexp);
-            else ms_report; 
+            else ms_report;
          end case;
          ms_reset;
       else
@@ -541,5 +541,5 @@ create or replace package body mystats_pkg as
 end mystats_pkg;
 /
 
-create or replace public synonym mystats_pkg for mystats_pkg;
-grant execute on mystats_pkg to public;
+-- create or replace public synonym mystats_pkg for mystats_pkg;
+-- grant execute on mystats_pkg to public;
