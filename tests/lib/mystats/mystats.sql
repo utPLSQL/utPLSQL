@@ -2,105 +2,143 @@
 -- ----------------------------------------------------------------------------------------------
 --
 -- Utility:         MyStats
---
+--                  
 -- Script:          mystats.sql
---
--- Version:         2.01
---
+--                  
+-- Version:         3.0
+--                  
 -- Author:          Adrian Billington
 --                  www.oracle-developer.net
---                  (c) oracle-developer.net
---
+--                  (c) oracle-developer.net 
+--                  
 -- Description:     A free-standing SQL*Plus script to output the resource consumption of a unit or
---                  units of work as recorded in v$mystat, v$latch and v$sess_time_model.
+--                  units of work as recorded in v$mystat, v$latch and v$sess_time_model. 
 --                  Based on Jonathan Lewis's SNAP_MY_STATS package but as a standalone script (i.e.
---                  no database objects need to be created.
---
+--                  no database objects need to be created).
+--                  
 --                  Key Differences
 --                  ---------------
---
+--                  
 --                     a) This is a SQL*Plus script that requires no objects to be created;
---
+--                  
 --                     b) This includes latch statistics and makes use of Tom
 --                        Kyte's RUNSTATS method for distinguising between stats
 --                        and latches;
---
+--                  
 --                     c) This includes advanced reporting options (see Usage and Examples
 --                        sections below for details);
---
+--                  
 --                     d) This includes a session time model report;
---
+--                  
 --                     e) This requires at least version 10.1 to run because it
 --                        makes use of collection methods such as MEMBER OF and
 --                        reports on V$SESS_TIME_MODEL statistics.
---
+--                  
 -- Configuration:   Edit the c_ms_rmcmd variable in the Constants section at the start of this
 --                  script to use the correct file deletion command for your SQL*Plus client
 --                  platform. It is defaulted to a Windows "del" command, so you will need to
 --                  change it if you are using a Linux/Unix SQL*Plus client.
---
+--                  
 --                  Reason: To make this run in standalone mode, a couple of temporary files
 --                  are written to your current directory. These files are automatically
 --                  removed on completion of this script.
---
--- Usage:           @mystats start
+--                  
+-- Usage:           @mystats start [optional statistics type(s)]
 --                  --<do some work>--
 --                  @mystats stop [optional reporting parameter]
+--                  
+--                  Optional statistics types format:
+--
+--                  Short Format            Long Format Equivalent
+--                  ----------------------- ----------------------
+--                  s=[csv]                 stattypes=[csv]
+--                  
+--                  Statistics types values for the csv list are as follows:
+--
+--                  Statistics Type Short Format Long Format Equivalent
+--                  --------------- ------------ ----------------------
+--                  Statistic       s            statistic
+--                  Latch           l            latch
+--                  Time Model      t            time
+--                  All (default)   a            all
 --
 --                  Optional reporting parameter formats:
---
---                  Short Format      Long Format Equivalent
---                  ---------------   ----------------------
---                  t=<number>        threshold=<number>
---                  l=<string>        like=<string>
---                  n=<string list>   names=<string list>
---
---                  Use double-quotes when the strings contain spaces.
---
+--                  
+--                  Short Format            Long Format Equivalent
+--                  ----------------------- ----------------------
+--                  t=<number>              threshold=<number>
+--                  l=<string>              like=<string>
+--                  n=<string list>         names=<string list>
+--                  r=<regular expression>  regexp=<regular expression>
+--                  
+--                  Use double-quotes when the strings contain spaces, 
+--                  e.g. "option=value with space"
+--                  
 -- Examples:        1. Output all statistics
 --                  -------------------------------------------------------------
 --                  @mystats start
 --                  --<do some work>--
 --                  @mystats stop
---
+--                  
 --                  2. Output statistics with delta values >= 1,000
---                  -------------------------------------------------------------
+--                  -------------------------------------------------------------   
 --                  @mystats start
 --                  --<do some work>--
 --                  @mystats stop t=1000
---
+--                  
 --                  3. Output statistics for "redo size" and "user commits" only
 --                  -------------------------------------------------------------
 --                  @mystats start
 --                  --<do some work>--
 --                  @mystats stop "n=redo size, user commits"
---
---                  4. Output statistics for those containing the word 'memory'
+--                  
+--                  4. Output statistics for those containing the word 'memory' 
 --                  -------------------------------------------------------------
 --                  @mystats start
 --                  --<do some work>--
 --                  @mystats stop l=memory
 --
+--                  5. Output statistics for those with I/O, IO, i/o or io in the name
+--                  ------------------------------------------------------------------
+--                  @mystats start
+--                  --<do some work>--
+--                  @mystats stop r=I/?O\s
+--
+--                  6. Capture and output statistics and time model only
+--                  -------------------------------------------------------------
+--                  @mystats start s=s,t
+--                  --<do some work>--
+--                  @mystats stop
+--
+--                  7. Output statistics only for those containing 'parallel'
+--                  -------------------------------------------------------------
+--                  @mystats start s=s
+--                  --<do some work>--
+--                  @mystats stop l=parallel
+--                  
 -- Notes:           1. See http://www.jlcomp.demon.co.uk/snapshot.html for original
 --                     version.
---
+--                  
 --                  2. As described in Configuration above, this script writes and removes
 --                     a couple of temporary files during execution.
 --
---                  3. A PL/SQL package version of MyStats is also available.
+--                  3. A PL/SQL package version of MyStats (v3.0) is also available.
 --
+--                  4. Thanks to Martin Bach for the idea to provide a regexp reporting filter
+--                     option and some example code.
+--                  
 -- Disclaimer:      http://www.oracle-developer.net/disclaimer.php
 --
 -- ----------------------------------------------------------------------------------------------
 
-set define on autoprint off
+set define on autoprint off 
 set serveroutput on format wrapped
 
 -- Constants...
 -- -----------------------------------------------------------------------
-define c_ms_version = 2.01
---define c_ms_rmcmd   = "del"  --Windows
-define c_ms_rmcmd = "rm"   --Unix/Linux
+define c_ms_version = 3.0
+define c_ms_rmcmd   = "del"  --Windows
+--define c_ms_rmcmd = "rm"   --Unix/Linux
 define c_ms_init    = "_ms_init.sql"
 define c_ms_clear   = "_ms_teardown.sql"
 
@@ -114,7 +152,7 @@ col 2 new_value 2
 
 select null as "1"
 ,      null as "2"
-from   dual
+from   dual 
 where  1=2;
 
 
@@ -149,10 +187,14 @@ host &c_ms_rmcmd "&c_ms_init"
 
 -- Parse the options...
 -- -----------------------------------------------------------------------
-column threshold noprint new_value v_ms_threshold
-column namelist  noprint new_value v_ms_name_list
-column namelike  noprint new_value v_ms_name_like
-column ms_option noprint new_value v_ms_option
+column threshold    noprint new_value v_ms_threshold
+column namelist     noprint new_value v_ms_name_list
+column namelike     noprint new_value v_ms_name_like
+column regexplike   noprint new_value v_ms_name_regexp
+column stattypes    noprint new_value v_ms_stattypes
+column ms_option    noprint new_value v_ms_option
+column start_option noprint new_value v_ms_start_option
+column stop_option  noprint new_value v_ms_stop_option
 
 select case
          when o in ('threshold','t')
@@ -161,7 +203,11 @@ select case
          then 2
          when o in ('like','l')
          then 3
-         else 4
+         when o in ('regex','r')
+         then 4
+         when o in ('stattype','s')
+         then 5
+         else 0
        end as ms_option
 ,      case
          when o in ('threshold','t')
@@ -178,10 +224,41 @@ select case
          then '''%' || v || '%'''
          else 'null'
        end as namelike
+,      case
+         when o in ('regexp','r')
+         then '''' || v || ''''
+         else 'null'
+       end as regexplike
+&v_ms_if_start ,      case
+&v_ms_if_start          when o in ('stattype','s')
+&v_ms_if_start          then regexp_replace(v, ' *, *', ',')
+&v_ms_if_start          when o is null
+&v_ms_if_start          then 'all'
+&v_ms_if_start        end as stattypes
+&v_ms_if_start , p as start_option
+,      p as stop_option
 from  (
         select trim(regexp_substr(lower('&p_ms_option'), '[^=]+')) as o
         ,      trim(regexp_substr('&p_ms_option', '[^=]+', 1, 2))  as v
+        ,      '&p_ms_option'                                      as p
         from   dual
+      );
+
+
+-- Stattypes include/exclude section...
+-- -----------------------------------------------------------------------
+column snap            noprint
+column include_stats   noprint new_value v_ms_include_statistics
+column include_latches noprint new_value v_ms_include_latches
+column include_time    noprint new_value v_ms_include_time_model
+
+select snap
+&v_ms_if_start , case when regexp_like('&v_ms_stattypes', '(^|,)(s|statistic|a|all)(,|$)') then 'Y' else 'N' end as include_stats
+&v_ms_if_start , case when regexp_like('&v_ms_stattypes', '(^|,)(l|latch|a|all)(,|$)') then 'Y' else 'N' end     as include_latches
+&v_ms_if_start , case when regexp_like('&v_ms_stattypes', '(^|,)(t|time|a|all)(,|$)') then 'Y' else 'N' end      as include_time
+from  (
+         select rtrim(lower('&p_ms_snap'),';') as snap
+         from   dual
       );
 
 
@@ -216,10 +293,17 @@ declare
 
    -- Utility info...
    -- -------------------------------------------------------------------------
+   procedure ms_options is
+   begin
+      dbms_output.put_line('- Statistics types : ' || nvl('&v_ms_start_option', 'all'));
+      dbms_output.put_line('- Reporting filter : ' || nvl('&v_ms_stop_option', 'none'));
+   end ms_options;
+
    procedure ms_info is
    begin
       dbms_output.put_line('- MyStats v&c_ms_version by Adrian Billington (http://www.oracle-developer.net)');
-      dbms_output.put_line('- Based on the SNAP_MY_STATS utility by Jonathan Lewis');
+      dbms_output.put_line('- Original version based on the SNAP_MY_STATS utility by Jonathan Lewis');
+      dbms_output.new_line();
    end ms_info;
 
    -- Snapshot procedure...
@@ -233,17 +317,20 @@ declare
                           from   v$statname a
                           ,      v$mystat   b
                           where  a.statistic# = b.statistic#
+                          and    '&v_ms_include_statistics' = 'Y'
                           union all
                           select 'LATCH'
                           ,      name
-                          ,      gets
+                          ,      gets 
                           from   v$latch
+                          where  '&v_ms_include_latches' = 'Y'
                           union all
                           select 'TIME'
                           ,      stat_name
                           ,      value
                           from   v$sess_time_model
-                          where  sid = sys_context('userenv','sid')]'
+                          where  sid = sys_context('userenv','sid')
+                          and    '&v_ms_include_time_model' = 'Y']'
                  ) into p_stats
       from   dual;
    end ms_snap;
@@ -338,17 +425,23 @@ declare
                   where (&v_ms_option = 1 and abs(diff) >= &v_ms_threshold)
                   or    (&v_ms_option = 2 and name in (&v_ms_name_list))
                   or    (&v_ms_option = 3 and name like &v_ms_name_like)
-                  or     &v_ms_option = 4
+                  or    (&v_ms_option = 4 and regexp_like(name, &v_ms_name_regexp, 'i'))
+                  or     &v_ms_option = 0
                   order  by
                          abs(diff) )
       loop
-         dbms_output.put_line(rpad(r.type,8) || rpad(r.name,64) ||
+         dbms_output.put_line(rpad(r.type,8) || rpad(r.name,64) || 
                               lpad(to_char(r.diff,'999,999,999,999'),18));
       end loop;
 
+      -- Options...
+      -- ----------
+      sh('3. Options Used', false);
+      ms_options;
+
       -- About...
       -- -------
-      sh('3. About', false);
+      sh('4. About', false);
       ms_info;
 
       nl;
@@ -376,7 +469,7 @@ begin
       ms_snap(g_snaps.snap2);
       ms_report(g_times, g_snaps);
    else
-      raise_application_error( -20000,
+      raise_application_error( -20000, 
                               'Incorrect parameter at position 1 '||
                               '[used="&v_ms_snap"; valid="start" or "stop"]',
                               false );
@@ -392,6 +485,12 @@ spool "&c_ms_clear" replace
 prompt &v_ms_if_stop undefine bv_ms_start
 prompt &v_ms_if_stop undefine bv_ms_ela_start
 prompt &v_ms_if_stop undefine bv_ms_cpu_start
+prompt &v_ms_if_stop undefine v_ms_stattypes
+prompt &v_ms_if_stop undefine v_ms_include_statistics
+prompt &v_ms_if_stop undefine v_ms_include_latches
+prompt &v_ms_if_stop undefine v_ms_include_time_model
+prompt &v_ms_if_stop undefine v_ms_start_option
+prompt &v_ms_if_stop undefine v_ms_stop_option
 spool off
 @"&c_ms_clear"
 host &c_ms_rmcmd "&c_ms_clear"
@@ -408,6 +507,7 @@ undefine v_ms_if_start
 undefine v_ms_threshold
 undefine v_ms_name_list
 undefine v_ms_name_like
+undefine v_ms_name_regexp
 undefine v_ms_option
 undefine c_ms_version
 set termout on
