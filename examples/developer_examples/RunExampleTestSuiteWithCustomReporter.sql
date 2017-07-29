@@ -15,7 +15,8 @@ set echo off
 
 declare
   suite         ut_logical_suite;
-  listener      ut_event_listener;
+  l_reporter    ut_output_reporter_base;
+  l_listener    ut_event_listener;
   l_run         ut_run;
 begin
   -- Install ut_custom_reporter first from example folder
@@ -40,10 +41,11 @@ begin
   );
 
   -- provide a reporter to process results tabbing each hierarcy level by tab_size
-  listener := ut_event_listener(ut_reporters(ut_custom_reporter(a_tab_size => 2)));
+  l_reporter := ut_custom_reporter(a_tab_size => 2);
+  l_listener := ut_event_listener(ut_reporters(l_reporter));
   l_run := ut_run(ut_suite_items(suite));
-  l_run.do_execute(listener);
-  ut_output_buffer.lines_to_dbms_output(listener.reporters(1).reporter_id,0);
+  l_run.do_execute(l_listener);
+  l_reporter.lines_to_dbms_output(0,0);
 end;
 /
 

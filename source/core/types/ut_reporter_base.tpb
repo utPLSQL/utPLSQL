@@ -19,9 +19,18 @@ create or replace type body ut_reporter_base is
   final member procedure init(self in out nocopy ut_reporter_base, a_self_type varchar2) is
   begin
     self.self_type   := a_self_type;
-    self.reporter_id := sys_guid();
-    self.start_date  := sysdate();
+    self.id          := sys_guid();
     return;
+  end;
+
+  member procedure reporter_id(self in out nocopy ut_reporter_base, a_reporter_id raw) is
+  begin
+    self.id := a_reporter_id;
+  end;
+
+  member function reporter_id return raw is
+  begin
+    return self.id;
   end;
 
   -- run hooks
