@@ -17,7 +17,7 @@ create or replace type ut_output_reporter_base under ut_reporter_base(
   */
   output_buffer ut_output_buffer_base,
   member procedure init(self in out nocopy ut_output_reporter_base, a_self_type varchar2, a_output_buffer ut_output_buffer_base := null),
-  overriding member procedure reporter_id(self in out nocopy ut_output_reporter_base, a_reporter_id raw),
+  overriding member procedure set_reporter_id(self in out nocopy ut_output_reporter_base, a_reporter_id raw),
   member procedure print_text(self in out nocopy ut_output_reporter_base, a_text varchar2),
 
   member procedure print_clob(self in out nocopy ut_output_reporter_base, a_clob clob),

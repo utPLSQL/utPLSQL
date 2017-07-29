@@ -543,17 +543,17 @@ begin
   l_reporter := ut_coverage_html_reporter(a_project_name => 'utPLSQL v3');
   l_reporter.after_calling_run(l_test_run);
   l_reporter.finalize();
-  :html_reporter_id := l_reporter.reporter_id;
+  :html_reporter_id := l_reporter.get_reporter_id;
 
   l_reporter := ut_coverage_sonar_reporter();
   l_reporter.after_calling_run(l_test_run);
   l_reporter.finalize();
-  :sonar_reporter_id := l_reporter.reporter_id;
+  :sonar_reporter_id := l_reporter.get_reporter_id;
 
   l_reporter := ut_coveralls_reporter();
   l_reporter.after_calling_run(l_test_run);
   l_reporter.finalize();
-  :coveralls_reporter_id := l_reporter.reporter_id;
+  :coveralls_reporter_id := l_reporter.get_reporter_id;
 end;
 /
 
@@ -566,7 +566,7 @@ spool coverage.xml
 declare
   l_reporter ut_output_reporter_base := ut_coverage_sonar_reporter();
 begin
-  l_reporter.reporter_id(:sonar_reporter_id);
+  l_reporter.set_reporter_id(:sonar_reporter_id);
   l_reporter.lines_to_dbms_output(a_initial_timeout=>1, a_timeout_sec=>1);
 end;
 /
@@ -579,7 +579,7 @@ spool coverage.json
 declare
   l_reporter ut_output_reporter_base := ut_coveralls_reporter();
 begin
-  l_reporter.reporter_id(:coveralls_reporter_id);
+  l_reporter.set_reporter_id(:coveralls_reporter_id);
   l_reporter.lines_to_dbms_output(a_initial_timeout=>1, a_timeout_sec=>1);
 end;
 /
@@ -592,7 +592,7 @@ spool coverage.html
 declare
   l_reporter ut_output_reporter_base := ut_coverage_html_reporter();
 begin
-  l_reporter.reporter_id(:html_reporter_id);
+  l_reporter.set_reporter_id(:html_reporter_id);
   l_reporter.lines_to_dbms_output(a_initial_timeout=>1, a_timeout_sec=>1);
 end;
 /

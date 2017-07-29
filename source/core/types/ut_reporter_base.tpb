@@ -23,12 +23,12 @@ create or replace type body ut_reporter_base is
     return;
   end;
 
-  member procedure reporter_id(self in out nocopy ut_reporter_base, a_reporter_id raw) is
+  member procedure set_reporter_id(self in out nocopy ut_reporter_base, a_reporter_id raw) is
   begin
     self.id := a_reporter_id;
   end;
 
-  member function reporter_id return raw is
+  member function get_reporter_id return raw is
   begin
     return self.id;
   end;

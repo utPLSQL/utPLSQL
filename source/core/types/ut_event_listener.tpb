@@ -24,15 +24,15 @@ create or replace type body ut_event_listener is
 
   overriding member procedure fire_before_event(self in out nocopy ut_event_listener, a_event_name varchar2, a_item ut_suite_item_base) is
   begin
-    self.fire_event('before', a_event_name, a_item);
+    self.fire_on_event('before', a_event_name, a_item);
   end;
 
   overriding member procedure fire_after_event(self in out nocopy ut_event_listener, a_event_name varchar2, a_item ut_suite_item_base) is
   begin
-    self.fire_event('after', a_event_name, a_item);
+    self.fire_on_event('after', a_event_name, a_item);
   end;
 
-  overriding member procedure fire_event(self in out nocopy ut_event_listener, a_event_timing varchar2, a_event_name varchar2, a_item ut_suite_item_base) is
+  overriding member procedure fire_on_event(self in out nocopy ut_event_listener, a_event_timing varchar2, a_event_name varchar2, a_item ut_suite_item_base) is
   begin
     for i in 1..self.reporters.count loop
       if a_event_timing = 'before' then
@@ -82,16 +82,16 @@ create or replace type body ut_event_listener is
       end if;
     end loop;
 
-  end fire_event;
+  end fire_on_event;
 
-  overriding member procedure fire_event(self in out nocopy ut_event_listener, a_event_name varchar2) is
+  overriding member procedure fire_on_event(self in out nocopy ut_event_listener, a_event_name varchar2) is
   begin
     for i in 1..self.reporters.count loop
       if a_event_name = ut_utils.gc_finalize then
         self.reporters(i).finalize();
       end if;
     end loop;
-  end fire_event;
+  end fire_on_event;
 
 end;
 /

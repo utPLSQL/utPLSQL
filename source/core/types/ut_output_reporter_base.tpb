@@ -20,10 +20,10 @@ create or replace type body ut_output_reporter_base is
   begin
     (self as ut_reporter_base).init(a_self_type);
     self.output_buffer := coalesce(a_output_buffer, ut_output_table_buffer());
-    self.reporter_id(self.output_buffer.output_id);
+    self.set_reporter_id(self.output_buffer.output_id);
   end;
 
-  overriding member procedure reporter_id(self in out nocopy ut_output_reporter_base, a_reporter_id raw) is
+  overriding member procedure set_reporter_id(self in out nocopy ut_output_reporter_base, a_reporter_id raw) is
   begin
     self.id := a_reporter_id;
     self.output_buffer.output_id := a_reporter_id;
