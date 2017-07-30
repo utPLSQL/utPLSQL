@@ -30,6 +30,6 @@ set feedback off
 
 set feedback on
 --Needed for testing coverage outside of main UT3 schema.
-grant create any procedure, drop any procedure, execute any procedure, execute any type to $UT3_TESTER;
+grant create any procedure, drop any procedure, execute any procedure, execute any type, select any table, delete any table to $UT3_TESTER;
 exit
 SQL
