@@ -341,9 +341,14 @@ create or replace package body ut_utils is
     return l_result;
   end;
   
-  procedure set_action(a_test_name in varchar2) is
+  procedure set_action(a_text in varchar2) is
   begin
-    dbms_application_info.set_module('utPLSQL', a_test_name);
+    dbms_application_info.set_module('utPLSQL', a_text);
+  end;
+  
+  procedure set_client_info(a_text in varchar2) is
+  begin
+    dbms_application_info.set_client_info(a_text);
   end;
 
   function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2 is

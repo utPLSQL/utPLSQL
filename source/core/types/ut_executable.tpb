@@ -76,6 +76,7 @@ create or replace type body ut_executable is
     l_completed_without_errors boolean := true;
     l_start_transaction_id     varchar2(250);
     l_end_transaction_id     varchar2(250);
+    l_client_info            varchar2(200);
     procedure save_dbms_output is
       l_status number;
       l_line varchar2(32767);
@@ -96,6 +97,21 @@ create or replace type body ut_executable is
   begin
     if self.is_defined() then
       l_start_transaction_id := dbms_transaction.local_transaction_id(true);
+      
+      l_client_info := case
+                         when a_item is of(ut_test) then
+                          'Test: '
+                         else
+                          'Suite: '
+                       end || a_item.name || case
+                         when self.associated_event_name = ut_utils.gc_test_execute then
+                          null
+                         else
+                          ' (' || self.associated_event_name || ')'
+                       end;
+      -- report to application_info
+      ut_utils.set_client_info(l_client_info);
+      
       --listener - before call to executable
       a_listener.fire_before_event(self.associated_event_name, a_item);
 
@@ -144,6 +160,7 @@ create or replace type body ut_executable is
       if l_start_transaction_id != l_end_transaction_id or l_end_transaction_id is null then
         a_item.add_transaction_invalidator(self.form_name());
       end if;
+      ut_utils.set_client_info(null);
     end if;
 
     return l_completed_without_errors;

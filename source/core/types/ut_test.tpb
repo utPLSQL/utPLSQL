@@ -54,9 +54,6 @@ create or replace type body ut_test as
 
     a_listener.fire_before_event(ut_utils.gc_test,self);
     self.start_time := current_timestamp;
-    
-    -- report to application_info
-    ut_utils.set_action(self.object_owner||'.'||self.object_name||'.'||self.name);
 
     if self.get_disabled_flag() then
       self.result := ut_utils.tr_disabled;

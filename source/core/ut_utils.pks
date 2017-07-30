@@ -222,7 +222,12 @@ create or replace package ut_utils authid definer is
   /**
   * Set session's action and module using dbms_application_info
   */
-  procedure set_action(a_test_name in varchar2);
+  procedure set_action(a_text in varchar2);
+  
+  /**
+  * Set session's client info using dbms_application_info
+  */
+  procedure set_client_info(a_text in varchar2);
 
   function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2;
 
