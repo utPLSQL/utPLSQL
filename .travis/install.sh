@@ -26,14 +26,10 @@ SQL
 #Create additional users
 "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
 set feedback off
-@create_utplsql_owner.sql $UT3_USER $UT3_USER_PASSWORD $UT3_TABLESPACE
 @create_utplsql_owner.sql $UT3_TESTER $UT3_TESTER_PASSWORD $UT3_TABLESPACE
-exit
-SQL
 
-"$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
 set feedback on
 --Needed for testing coverage outside of main UT3 schema.
-grant create any procedure, drop any procedure, execute any procedure to $UT3_TESTER;
+grant create any procedure, drop any procedure, execute any procedure, execute any type to $UT3_TESTER;
 exit
 SQL
