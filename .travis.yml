@@ -43,12 +43,14 @@ env:
     # Database Env
     - SQLCLI="$HOME/sqlcl/bin/sql"
     - ORACLE_PWD="oracle"
+    - UT3_DOCKER_REPO="utplsqlv3/oracledb"
+    - DOCKHER_HUB_REPO="${DOCKER_BASE_TAG:-$UT3_DOCKER_REPO}"
     #utPLSQL released version directory
     - UTPLSQL_DIR="utPLSQL"
   matrix:
-    - ORACLE_VERSION="11g-xe-r2"     CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
-    - ORACLE_VERSION="12c-se2-r1-v2" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
-    - ORACLE_VERSION="12c-se-r2-v4" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
+    - ORACLE_VERSION="${DOCKER_TAG_11G:-11g-r2-xe}"  CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
+    - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2}" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
+    - ORACLE_VERSION="${DOCKER_TAG_12C2:-12c-r2-se2}" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
 
 cache:
   pip: true
