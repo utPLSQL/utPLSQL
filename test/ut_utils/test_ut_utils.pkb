@@ -128,5 +128,3 @@ create or replace package body test_ut_utils as
 
 end;
 /
-
-show errors

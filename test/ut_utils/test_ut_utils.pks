@@ -1,7 +1,7 @@
 create or replace package test_ut_utils as
 
   --%suite(Testing common utility package: ut_utils)
-  --%suitepath(org.utplsql.utplsql.ut_utils)
+  --%suitepath(utplsql.core)
 
   --%context(clob_to_table)
 
