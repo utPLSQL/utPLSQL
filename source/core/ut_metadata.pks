@@ -79,5 +79,12 @@ create or replace package ut_metadata authid current_user as
   */
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2;
 
+  /*
+    function: get_dba_view
+
+    return the dba_xxx view name if it is accessible or all_xxx view otherwise
+  */
+  function get_dba_view(a_view_name varchar2) return varchar2;
+
 end ut_metadata;
 /
