@@ -116,19 +116,20 @@ create or replace package body ut_metadata as
   end;
 
   function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob is
-    l_lines   sys.dbms_preprocessor.source_lines_t;
-    l_source  clob;
+    l_lines     sys.dbms_preprocessor.source_lines_t;
+    l_cursor    sys_refcursor;
+    l_source    clob;
+    l_view_name varchar2(128) := get_dba_view('dba_source');
   begin
-    begin
-      l_lines := sys.dbms_preprocessor.get_post_processed_source(object_type => 'PACKAGE',
-                                                                 schema_name => a_owner,
-                                                                 object_name => a_object_name);
-
-      for i in 1..l_lines.count loop
-        ut_utils.append_to_clob(l_source, l_lines(i));
-      end loop;
-
-    end;
+    open l_cursor for 'select text from '||l_view_name||q'[ s
+       where s.owner = :a_owner and s.name = :a_object_name and s.type = 'PACKAGE'
+      order by s.line]' using upper(a_owner), upper(a_object_name);
+     fetch l_cursor bulk collect into l_lines;
+     -- we fetch the source explicitly as dbms_preprocessor is very sow on 12.1 and 12.2 when grabbing the sources.
+     l_lines := sys.dbms_preprocessor.get_post_processed_source(l_lines);
+     for i in 1..l_lines.count loop
+       ut_utils.append_to_clob(l_source, l_lines(i));
+     end loop;
     return l_source;
   end;
 
