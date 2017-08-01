@@ -17,17 +17,15 @@ create table ut_output_buffer_tmp$(
   * It is used however as a temporary table with multiple writers.
   * This is why it has very high initrans and has nologging
   */
-  reporter_id    raw(32) not null,
+  output_id      raw(32) not null,
   message_id     number(38,0) not null,
   text           varchar2(4000),
   is_finished    number(1,0) default 0 not null,
-  start_date     date not null,
-  constraint ut_output_buffer_tmp_pk primary key(start_date, reporter_id, message_id),
-  constraint ut_output_buffer_tmp_ck check(is_finished = 0 and text is not null or is_finished = 1 and text is null)
-) nologging nomonitoring initrans 100
+  constraint ut_output_buffer_tmp_pk primary key(output_id, message_id),
+  constraint ut_output_buffer_tmp_ck check(is_finished = 0 and text is not null or is_finished = 1 and text is null),
+  constraint ut_output_buffer_fk1 foreign key (output_id) references ut_output_buffer_info_tmp$(output_id)
+) organization index overflow nologging initrans 50
 ;
-
-create index ut_output_buffer_tmp_i on ut_output_buffer_tmp$(start_date) initrans 100 nologging;
 
 -- This is needed to be EBR ready as editioning view can only be created by edition enabled user
 declare
@@ -57,11 +55,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-select reporter_id
+select output_id
       ,message_id
       ,text
       ,is_finished
-      ,start_date
   from ut_output_buffer_tmp$';
 
   execute immediate 'create or replace editioning view '||v_view_source;
