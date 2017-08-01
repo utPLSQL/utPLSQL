@@ -16,6 +16,9 @@ create or replace package body ut_metadata as
   limitations under the License.
   */
 
+  type t_cache is table of all_source.text%type;
+  g_source_cache t_cache;
+  g_cached_object varchar2(500);
   ------------------------------
   --public definitions
 
@@ -63,6 +66,7 @@ create or replace package body ut_metadata as
     l_schema         varchar2(200);
     l_package_name   varchar2(200);
     l_procedure_name varchar2(200);
+    l_view_name      varchar2(200) := get_dba_view('dba_objects');
   begin
 
     l_schema       := a_owner_name;
@@ -70,12 +74,12 @@ create or replace package body ut_metadata as
 
     do_resolve(l_schema, l_package_name, l_procedure_name);
 
-    select count(decode(status, 'VALID', 1, null)) / count(*)
-      into l_cnt
-      from all_objects
-     where owner = l_schema
-       and object_name = l_package_name
-       and object_type in ('PACKAGE');
+    execute immediate q'[select count(decode(status, 'VALID', 1, null)) / count(*)
+      from ]'||l_view_name||q'[
+     where owner = :l_schema
+       and object_name = :l_package_name
+       and object_type in ('PACKAGE')]'
+    into l_cnt using l_schema, l_package_name;
 
     -- expect both package and body to be valid
     return l_cnt = 1;
@@ -90,6 +94,7 @@ create or replace package body ut_metadata as
     l_schema         varchar2(200);
     l_package_name   varchar2(200);
     l_procedure_name varchar2(200);
+    l_view_name      varchar2(200) := get_dba_view('dba_procedures');
   begin
 
     l_schema         := a_owner_name;
@@ -98,12 +103,10 @@ create or replace package body ut_metadata as
 
     do_resolve(l_schema, l_package_name, l_procedure_name);
 
-    select count(*)
-      into l_cnt
-      from all_procedures
-     where owner = l_schema
-       and object_name = l_package_name
-       and procedure_name = l_procedure_name;
+    execute immediate
+      'select count(*) from '||l_view_name
+      ||' where owner = :l_schema and object_name = :l_package_name and procedure_name = :l_procedure_name'
+    into l_cnt using l_schema, l_package_name, l_procedure_name;
 
     --expect one method only for the package with that name.
     return l_cnt = 1;
@@ -113,38 +116,59 @@ create or replace package body ut_metadata as
   end;
 
   function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob is
-    l_lines   sys.dbms_preprocessor.source_lines_t;
-    l_source  clob;
+    l_lines     sys.dbms_preprocessor.source_lines_t;
+    l_cursor    sys_refcursor;
+    l_source    clob;
+    l_view_name varchar2(128) := get_dba_view('dba_source');
   begin
-    begin
-      l_lines := sys.dbms_preprocessor.get_post_processed_source(object_type => 'PACKAGE',
-                                                                 schema_name => a_owner,
-                                                                 object_name => a_object_name);
-
-      for i in 1..l_lines.count loop
-        ut_utils.append_to_clob(l_source, l_lines(i));
-      end loop;
-
-    end;
+    open l_cursor for 'select text from '||l_view_name||q'[ s
+       where s.owner = :a_owner and s.name = :a_object_name and s.type = 'PACKAGE'
+      order by s.line]' using upper(a_owner), upper(a_object_name);
+     fetch l_cursor bulk collect into l_lines;
+     -- we fetch the source explicitly as dbms_preprocessor is very sow on 12.1 and 12.2 when grabbing the sources.
+     l_lines := sys.dbms_preprocessor.get_post_processed_source(l_lines);
+     for i in 1..l_lines.count loop
+       ut_utils.append_to_clob(l_source, l_lines(i));
+     end loop;
     return l_source;
   end;
 
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
-    l_line varchar2(4000);
     l_cursor sys_refcursor;
+    l_view_name varchar2(128) := get_dba_view('dba_source');
+    l_line all_source.text%type;
+    c_key  constant varchar2(500) := a_owner || '.' || a_object_name;
   begin
-    open l_cursor for
-      select text from all_source s
-       where s.owner = a_owner and s.name = a_object_name and s.line = a_line_no
-          -- skip the declarations, consider only definitions
-         and s.type not in ('PACKAGE','TYPE');
-     fetch l_cursor into l_line;
-     close l_cursor;
-    return ltrim(rtrim( l_line, chr(10) ));
-  exception
-    when no_data_found then
-      return null;
+    if not nvl(c_key = g_cached_object, false) then
+      g_cached_object := c_key;
+      execute immediate
+      'select trim(text) text
+        from '||l_view_name||q'[ s
+       where s.owner = :a_owner
+         and s.name = :a_object_name
+         /*skip the declarations, consider only definitions*/
+         and s.type not in ('PACKAGE', 'TYPE')
+       order by line]'
+      bulk collect into g_source_cache
+      using a_owner, a_object_name;
+    end if;
+
+    if g_source_cache.exists(a_line_no) then
+      l_line := g_source_cache(a_line_no);
+    end if;
+    return l_line;
   end;
 
+  function get_dba_view(a_view_name varchar2) return varchar2 is
+    l_invalid_object_name exception;
+    l_result              varchar2(128) := lower(a_view_name);
+    pragma exception_init(l_invalid_object_name,-44002);
+  begin
+    l_result := dbms_assert.sql_object_name(l_result);
+    return l_result;
+  exception
+    when l_invalid_object_name then
+      return replace(l_result,'dba_','all_');
+  end;
 end;
 /
