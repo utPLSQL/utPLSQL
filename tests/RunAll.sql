@@ -48,7 +48,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationMultilineDeclare.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithKeyValue.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithMultilineComment.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.spaceBeforeAnnotationParams.SQL
+@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.spaceBeforeAnnotationParams.sql
 @@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationWithWindowsNewline.sql
 @@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTrace.sql
 @@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTraceWith0x.sql
