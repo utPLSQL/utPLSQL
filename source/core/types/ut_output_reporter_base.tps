@@ -16,8 +16,11 @@ create or replace type ut_output_reporter_base under ut_reporter_base(
   limitations under the License.
   */
   output_buffer ut_output_buffer_base,
+  constructor function ut_output_reporter_base(self in out nocopy ut_output_reporter_base) return self as result,
   member procedure init(self in out nocopy ut_output_reporter_base, a_self_type varchar2, a_output_buffer ut_output_buffer_base := null),
   overriding member procedure set_reporter_id(self in out nocopy ut_output_reporter_base, a_reporter_id raw),
+  overriding member procedure before_calling_run(self in out nocopy ut_output_reporter_base, a_run in ut_run),
+  
   member procedure print_text(self in out nocopy ut_output_reporter_base, a_text varchar2),
 
   member procedure print_clob(self in out nocopy ut_output_reporter_base, a_clob clob),

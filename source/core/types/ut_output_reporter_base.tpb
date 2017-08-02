@@ -16,6 +16,11 @@ create or replace type body ut_output_reporter_base is
   limitations under the License.
   */
 
+  constructor function ut_output_reporter_base(self in out nocopy ut_output_reporter_base) return self as result is
+  begin
+    return;
+  end;
+
   member procedure init(self in out nocopy ut_output_reporter_base, a_self_type varchar2, a_output_buffer ut_output_buffer_base := null) is
   begin
     (self as ut_reporter_base).init(a_self_type);
@@ -27,6 +32,15 @@ create or replace type body ut_output_reporter_base is
   begin
     self.id := a_reporter_id;
     self.output_buffer.output_id := a_reporter_id;
+  end;
+
+  overriding member procedure before_calling_run(self in out nocopy ut_output_reporter_base, a_run in ut_run) is
+    l_output_table_buffer ut_output_table_buffer;
+  begin
+    (self as ut_reporter_base).before_calling_run(a_run);
+    l_output_table_buffer := treat(self.output_buffer as ut_output_table_buffer);
+    l_output_table_buffer.cleanup_buffer();
+    l_output_table_buffer.init();
   end;
 
   member procedure print_text(self in out nocopy ut_output_reporter_base, a_text varchar2) is

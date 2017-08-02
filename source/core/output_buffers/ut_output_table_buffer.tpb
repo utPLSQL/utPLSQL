@@ -16,21 +16,27 @@ create or replace type body ut_output_table_buffer is
   limitations under the License.
   */
 
-  constructor function ut_output_table_buffer(self in out nocopy ut_output_table_buffer) return self as result is
+  constructor function ut_output_table_buffer(self in out nocopy ut_output_table_buffer, a_output_id raw := null) return self as result is
   begin
-    init(sys_guid());
-    cleanup_buffer();
+    self.output_id := coalesce(a_output_id, sys_guid());
+    self.start_date := sysdate;
     return;
   end;
 
-  overriding member procedure init(self in out nocopy ut_output_table_buffer, a_output_id raw) is
+  overriding member procedure init(self in out nocopy ut_output_table_buffer) is
     pragma autonomous_transaction;
   begin
     delete from ut_output_buffer_tmp where output_id = self.output_id;
     delete from ut_output_buffer_info_tmp where output_id = self.output_id;
-    self.output_id := a_output_id;
-    self.start_date := sysdate;
     insert into ut_output_buffer_info_tmp(output_id, start_date) values (self.output_id, self.start_date);
+    commit;
+  end;
+
+  overriding member procedure close(self in ut_output_table_buffer) is
+    pragma autonomous_transaction;
+  begin
+    insert into ut_output_buffer_tmp(output_id, message_id, is_finished)
+    values (self.output_id, ut_message_id_seq.nextval, 1);
     commit;
   end;
 
@@ -51,14 +57,6 @@ create or replace type body ut_output_table_buffer is
       end if;
       commit;
     end if;
-  end;
-
-  overriding member procedure close(self in ut_output_table_buffer) is
-    pragma autonomous_transaction;
-  begin
-    insert into ut_output_buffer_tmp(output_id, message_id, is_finished)
-    values (self.output_id, ut_message_id_seq.nextval, 1);
-    commit;
   end;
 
   overriding member function get_lines(a_initial_timeout natural := null, a_timeout_sec natural := null) return ut_varchar2_rows pipelined is
