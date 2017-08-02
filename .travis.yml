@@ -85,10 +85,10 @@ before_script:
 script:
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install.sh; fi
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install_utplsql_release.sh; fi
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash test/install_and_run_tests.sh; fi
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/create_additional_grants_for_old_tests.sh; fi
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_examples.sh; fi
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_old_tests.sh; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash test/install_and_run_tests.sh; fi
   - if [ "${TRAVIS_TAG}" = "" ] && [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ]; then sonar-scanner; fi
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/coveralls_uploader.sh; fi
   - bash .travis/build_docs.sh
