@@ -31,6 +31,7 @@ create or replace package body ut_coverage is
   function get_populate_sources_tmp_sql(a_coverage_options ut_coverage_options) return varchar2 is
     l_result varchar2(32767);
     l_full_name varchar2(100);
+    l_view_name      varchar2(200) := ut_metadata.get_dba_view('dba_source');
   begin
     if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
       l_full_name := 'f.file_name';
@@ -48,7 +49,7 @@ create or replace package body ut_coverage is
                  coalesce(
                    case when type!='TRIGGER' then 0 end,
                    (select min(t.line) - 1
-                      from all_source t
+                      from ]'||l_view_name||q'[ t
                      where t.owner = s.owner and t.type = s.type and t.name = s.name
                        and regexp_like( t.text, '[A-Za-z0-9$#_]*(begin|declare|compound).*','i'))
                  ) as line,
@@ -69,7 +70,7 @@ create or replace package body ut_coverage is
                      )
                     then 'Y'
                  end as to_be_skipped
-            from all_source s]';
+            from ]'||l_view_name||q'[ s]';
     if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
       l_result := l_result || '
             join table(:file_mappings) f
