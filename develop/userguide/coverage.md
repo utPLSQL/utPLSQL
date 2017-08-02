@@ -13,8 +13,8 @@ Note:
 To obtain information about code coverage of your Unit Tests, all you need to do is run your unit tests with one of build-in code coverage reporters.
 Following code coverage reporters are supplied with utPLSQL:
 * `ut_coverage_html_reporter` - generates a HTML coverage report providing summary and detailed information on code coverage. The html reporter is based on open-source [simplecov-html](https://github.com/colszowka/simplecov-html) reporter for Ruby. It includes source code of the code that was covered (if possible)  
-* `ut_coveralls_reporter` - generates a JSON coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by cloud services like [coveralls](https://coveralls.io) 
-* `ut_coverage_sonar_reporter`  - generates a JSON coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by local services like [sonarqube](https://about.sonarqube.com/)
+* `ut_coveralls_reporter` - generates a [Coveralls compatible JSON](https://coveralls.zendesk.com/hc/en-us/articles/201774865-API-Introduction) coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by cloud services like [coveralls](https://coveralls.io) 
+* `ut_coverage_sonar_reporter`  - generates a [Sonar Compatible XML](https://docs.sonarqube.org/display/SONAR/Generic+Test+Data) coverage report providing detailed information on code coverage with line numbers. This coverage report is designed to be consumed by services like [sonarqube/sonarcloud](https://about.sonarcloud.io/)
 
 ## Security model
 Code coverage is using DBMS_PROFILER to gather information about execution of code under test and therefore follows the [DBMS_PROFILER's Security Model](https://docs.oracle.com/database/121/ARPLS/d_profil.htm#ARPLS67465)
