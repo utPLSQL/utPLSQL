@@ -33,15 +33,17 @@ create or replace type body ut_sonar_test_reporter is
   overriding member procedure before_calling_suite(self in out nocopy ut_sonar_test_reporter, a_suite ut_logical_suite) is
     l_file_name varchar2(4000);
   begin
-    for i in 1 .. self.file_mappings.count loop
-      if upper(self.file_mappings(i).object_name) = upper(a_suite.object_name)
-        and upper(self.file_mappings(i).object_owner) = upper(a_suite.object_owner) then
-        l_file_name := self.file_mappings(i).file_name;
-        exit;
-      end if;
-    end loop;
-    l_file_name := coalesce(l_file_name, a_suite.path);
-    self.print_text('<file path="'||l_file_name||'">');
+    if a_suite is of (ut_suite) then
+      for i in 1 .. self.file_mappings.count loop
+        if upper(self.file_mappings(i).object_name) = upper(a_suite.object_name)
+          and upper(self.file_mappings(i).object_owner) = upper(a_suite.object_owner) then
+          l_file_name := self.file_mappings(i).file_name;
+          exit;
+        end if;
+      end loop;
+      l_file_name := coalesce(l_file_name, a_suite.path);
+      self.print_text('<file path="'||l_file_name||'">');
+    end if;
   end;
 
   overriding member procedure after_calling_test(self in out nocopy ut_sonar_test_reporter, a_test ut_test) is
@@ -74,7 +76,9 @@ create or replace type body ut_sonar_test_reporter is
 
   overriding member procedure after_calling_suite(self in out nocopy ut_sonar_test_reporter, a_suite ut_logical_suite) is
   begin
-    self.print_text('</file>');
+    if a_suite is of (ut_suite) then
+      self.print_text('</file>');
+    end if;
   end;
 
   overriding member procedure after_calling_run(self in out nocopy ut_sonar_test_reporter, a_run in ut_run) is
