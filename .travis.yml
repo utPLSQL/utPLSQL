@@ -11,7 +11,7 @@ addons:
   sonarcloud:
     organization: utplsql
     token:
-      secure: ${SONAR_TOKEN}
+      secure: "6hnlzFrP1e6SCwtq1mcJc+zG43AK0bhFMRDiojMEzdg+euDnckgQNBnuxHaLNYvc+fmlr3vqKS3fmz+YsBsKpa9BNso1qa0G/P+5Bq3i/PgFkNoJKsZ951EygpRHTBAjSLMi42wFqTNKLnAkcITHj30gcEJMjlO+T50ksHTiczF6vX64TmaHiYwmmnUYr8OElzMUSGDn2jcrFkmeb/hPHzsbn1fMioxXOW7oK5U9XJddjuPFKsyM69RO08"
     branches:
       - develop
       - master
