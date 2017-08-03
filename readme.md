@@ -73,7 +73,7 @@ select * from table(ut.run());
 
 The above commands will run all the suites in the current schema and provide report to dbms_output or as a select statement.
 
-# Command lien clients
+# Command line clients
 
 To have more control over how the tests are invoked, use one of the utPLSQL command line clients: [utPLSQL-sql-cli](https://github.com/utPLSQL/utPLSQL-sql-cli) or [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli).
 
