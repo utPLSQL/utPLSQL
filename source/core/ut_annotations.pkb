@@ -68,7 +68,7 @@ create or replace package body ut_annotations as
       l_comment := a_comments(l_comment_index);
 
       -- strip everything except the annotation itself (spaces and others)
-      l_annotation_str := regexp_substr(trim(translate(l_comment, chr(10)||chr(13), ' ')), c_annotation_pattern, 1, 1, modifier => 'i');
+      l_annotation_str := regexp_substr(l_comment, c_annotation_pattern, 1, 1, modifier => 'i');
       if l_annotation_str is not null then
 
         l_annotation_params.delete;
