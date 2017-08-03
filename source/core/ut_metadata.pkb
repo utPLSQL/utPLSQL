@@ -128,7 +128,7 @@ create or replace package body ut_metadata as
      -- we fetch the source explicitly as dbms_preprocessor is very sow on 12.1 and 12.2 when grabbing the sources.
      l_lines := sys.dbms_preprocessor.get_post_processed_source(l_lines);
      for i in 1..l_lines.count loop
-       ut_utils.append_to_clob(l_source, l_lines(i));
+       ut_utils.append_to_clob(l_source, replace(l_lines(i), chr(13)||chr(10), chr(10)));
      end loop;
     return l_source;
   end;
