@@ -4,23 +4,31 @@ declare
   l_expected          varchar2(32767);
 begin
   l_expected := q'[<testsuites tests="4" skipped="1" error="1" failure="1" name="%" time="%" >
-<testsuite tests="4" id="1" package="test_reporters"  skipped="1" error="1" failure="1" name="%" time="%" >
+<testsuite tests="4" id="1" package="org"  skipped="1" error="1" failure="1" name="org" time="%" >
+<testsuite tests="4" id="2" package="org.utplsql"  skipped="1" error="1" failure="1" name="utplsql" time="%" >
+<testsuite tests="4" id="3" package="org.utplsql.utplsql"  skipped="1" error="1" failure="1" name="utplsql" time="%" >
+<testsuite tests="4" id="4" package="org.utplsql.utplsql.test"  skipped="1" error="1" failure="1" name="test" time="%" >
+<testsuite tests="4" id="5" package="org.utplsql.utplsql.test.test_reporters"  skipped="1" error="1" failure="1" name="%" time="%" >
 <system-out>%<!beforeall!>%<!afterall!>%</system-out>
-<testcase classname="test_reporters"  assertions="1" skipped="0" error="0" failure="0" name="%" time="%" >
+<testcase classname="org.utplsql.utplsql.test.test_reporters"  assertions="1" skipped="0" error="0" failure="0" name="%" time="%" >
 <system-out>%<!beforeeach!>%<!beforetest!>%<!passing test!>%<!aftertest!>%<!aftereach!>%</system-out>
 </testcase>
-<testcase classname="test_reporters"  assertions="1" skipped="0" error="0" failure="1" name="%" time="%"  status="Failure">
+<testcase classname="org.utplsql.utplsql.test.test_reporters"  assertions="1" skipped="0" error="0" failure="1" name="%" time="%"  status="Failure">
 <failure>%"Fails as values are different"
 Actual: 1 (number) was expected to equal: 2 (number)%</failure>
 <system-out>%</system-out>
 </testcase>
-<testcase classname="test_reporters"  assertions="0" skipped="0" error="1" failure="0" name="%" time="%"  status="Error">
+<testcase classname="org.utplsql.utplsql.test.test_reporters"  assertions="0" skipped="0" error="1" failure="0" name="%" time="%"  status="Error">
 <error>%ORA-06502:%</error>
 <system-out>%</system-out>
 </testcase>
-<testcase classname="test_reporters"  assertions="0" skipped="1" error="0" failure="0" name="%" time="0"  status="Disabled">
+<testcase classname="org.utplsql.utplsql.test.test_reporters"  assertions="0" skipped="1" error="0" failure="0" name="%" time="0"  status="Disabled">
 <skipped/>
 </testcase>
+</testsuite>
+</testsuite>
+</testsuite>
+</testsuite>
 </testsuite>
 </testsuites>]';
 
