@@ -5,6 +5,7 @@
 @ut_output_buffer/test_output_buffer.pks
 
 @ut_utils/test_ut_utils.pkb
+show errors
 @ut_annotations/test_annotations.pkb
 @ut_matchers/test_matchers.pkb
 @ut_output_buffer/test_output_buffer.pkb
