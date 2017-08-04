@@ -4,6 +4,9 @@ declare
   l_expected          varchar2(32767);
 begin
   l_expected := q'[<testExecutions version="1">
+<file path="tests/helpers/test_reporters_1.pkb">
+<testCase name="diffrentowner_test" duration="%" >%</testCase>
+</file>
 <file path="tests/helpers/test_reporters.pkb">
 <testCase name="passing_test" duration="%" >%</testCase>
 <testCase name="failing_test" duration="%" >%<failure message="some expectations have failed">%</failure>%</testCase>
@@ -19,7 +22,7 @@ begin
     ut.run(
       'test_reporters',
       ut_sonar_test_reporter(),
-      a_test_file_mappings => ut_file_mapper.build_file_mappings( user, ut_varchar2_list('tests/helpers/test_reporters.pkb'))
+      a_test_file_mappings => ut_file_mapper.build_file_mappings( user, ut_varchar2_list('tests/helpers/test_reporters.pkb', 'tests/helpers/test_reporters_1.pkb'))
     )
   );
 
