@@ -26,7 +26,7 @@ create or replace package test_matchers is
   --%test
   procedure test_be_nonempty_collection;
   --%test
-  --%disabled
+
   procedure test_be_empty_others;
   
   --%test
