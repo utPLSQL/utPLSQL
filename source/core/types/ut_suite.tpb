@@ -41,7 +41,6 @@ create or replace type body ut_suite  as
 
   overriding member function do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_suite_savepoint varchar2(30);
-    l_item_savepoint  varchar2(30);
     l_suite_step_without_errors boolean;
 
     procedure propagate_error(a_error_stack_trace varchar2) is
@@ -53,7 +52,7 @@ create or replace type body ut_suite  as
   begin
     ut_utils.debug_log('ut_suite.execute');
     
-    ut_utils.set_action('Suite: '||self.object_name);
+    ut_utils.set_action(self.object_name);
     
     a_listener.fire_before_event(ut_utils.gc_suite,self);
 

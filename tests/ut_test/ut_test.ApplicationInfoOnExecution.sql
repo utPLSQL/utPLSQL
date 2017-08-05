@@ -24,7 +24,7 @@ as
  procedure after_test;
  
  --%aftereach
- procedure after_each;
+ procedure aftereach;
  
  --%afterall
  procedure afterall;
@@ -47,8 +47,8 @@ as
    dbms_application_info.read_module(module_name => l_module_name, action_name => l_action_name);
    dbms_application_info.read_client_info(l_client_info);
    ut.expect(l_module_name).to_equal('utPLSQL');
-   ut.expect(l_action_name).to_be_like('Suite: ut_output_tests');
-   ut.expect(l_client_info).to_be_like('Test: the_test');
+   ut.expect(l_action_name).to_be_like('ut_output_tests');
+   ut.expect(l_client_info).to_be_like('the_test');
  end;
  
  procedure beforeall is 
@@ -70,7 +70,7 @@ as
    dbms_application_info.read_client_info(gv_after_test_client_info);
  end;
  
- procedure after_each is 
+ procedure aftereach is 
  begin 
    dbms_application_info.read_client_info(gv_after_each_client_info);
  end;
@@ -101,32 +101,32 @@ begin
   end loop;
   
   execute immediate 'begin :i := ut_output_tests.gv_before_all_client_info; end;' using out l_client_info;
-  if not nvl(l_client_info = 'Suite: ut_output_tests (before_all)', false) then
+  if not nvl(l_client_info = 'beforeall', false) then
     dbms_output.put_line('Wrong before all text: '||l_client_info);
     l_result := false;
   end if;
   execute immediate 'begin :i := ut_output_tests.gv_before_each_client_info; end;' using out  l_client_info;
-  if not nvl(l_client_info = 'Test: the_test (before_each)', false) then
+  if not nvl(l_client_info = 'beforeeach', false) then
     dbms_output.put_line('Wrong before each text: '||l_client_info);
     l_result := false;
   end if;
   execute immediate 'begin :i := ut_output_tests.gv_before_test_client_info; end;' using out  l_client_info;
-  if not nvl(l_client_info = 'Test: the_test (before_test)', false) then
+  if not nvl(l_client_info = 'before_test', false) then
     dbms_output.put_line('Wrong before test text: '||l_client_info);
     l_result := false;
   end if;
   execute immediate 'begin :i := ut_output_tests.gv_after_test_client_info; end;' using out  l_client_info;
-  if not nvl(l_client_info = 'Test: the_test (after_test)', false) then
+  if not nvl(l_client_info = 'after_test', false) then
     dbms_output.put_line('Wrong after test text: '||l_client_info);
     l_result := false;
   end if;
   execute immediate 'begin :i := ut_output_tests.gv_after_each_client_info; end;' using out  l_client_info;
-  if not nvl(l_client_info = 'Test: the_test (after_each)', false) then
+  if not nvl(l_client_info = 'aftereach', false) then
     dbms_output.put_line('Wrong after each text: '||l_client_info);
     l_result := false;
   end if;
   execute immediate 'begin :i := ut_output_tests.gv_after_all_client_info; end;' using out  l_client_info;
-  if not nvl(l_client_info = 'Suite: ut_output_tests (after_all)', false) then
+  if not nvl(l_client_info = 'afterall', false) then
     dbms_output.put_line('Wrong after all text: '||l_client_info);
     l_result := false;
   end if;
