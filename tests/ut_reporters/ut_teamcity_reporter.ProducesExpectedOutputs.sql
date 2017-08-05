@@ -4,9 +4,9 @@ declare
   l_expected          varchar2(32767);
 begin
   l_expected := q'{%##teamcity[testSuiteStarted timestamp='%' name='org']
-%##teamcity[testSuiteStarted timestamp='%' name='utplsql']
-%##teamcity[testSuiteStarted timestamp='%' name='utplsql']
-%##teamcity[testSuiteStarted timestamp='%' name='test']
+%##teamcity[testSuiteStarted timestamp='%' name='org.utplsql']
+%##teamcity[testSuiteStarted timestamp='%' name='org.utplsql.utplsql']
+%##teamcity[testSuiteStarted timestamp='%' name='org.utplsql.utplsql.test']
 %##teamcity[testSuiteStarted timestamp='%' name='A suite for testing different outcomes from reporters']
 %##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3.test_reporters.passing_test']
 <!beforeeach!>
@@ -31,9 +31,9 @@ begin
 %##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3.test_reporters.disabled_test']
 %##teamcity[testIgnored timestamp='%' name='ut3.test_reporters.disabled_test']
 %##teamcity[testSuiteFinished timestamp='%' name='A suite for testing different outcomes from reporters']
-%##teamcity[testSuiteFinished timestamp='%' name='test']
-%##teamcity[testSuiteFinished timestamp='%' name='utplsql']
-%##teamcity[testSuiteFinished timestamp='%' name='utplsql']
+%##teamcity[testSuiteFinished timestamp='%' name='org.utplsql.utplsql.test']
+%##teamcity[testSuiteFinished timestamp='%' name='org.utplsql.utplsql']
+%##teamcity[testSuiteFinished timestamp='%' name='org.utplsql']
 %##teamcity[testSuiteFinished timestamp='%' name='org']}';
   --act
   select *
