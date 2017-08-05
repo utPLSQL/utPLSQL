@@ -96,6 +96,10 @@ create or replace type body ut_executable is
   begin
     if self.is_defined() then
       l_start_transaction_id := dbms_transaction.local_transaction_id(true);
+      
+      -- report to application_info
+      ut_utils.set_client_info(self.procedure_name);
+      
       --listener - before call to executable
       a_listener.fire_before_event(self.associated_event_name, a_item);
 
@@ -144,6 +148,7 @@ create or replace type body ut_executable is
       if l_start_transaction_id != l_end_transaction_id or l_end_transaction_id is null then
         a_item.add_transaction_invalidator(self.form_name());
       end if;
+      ut_utils.set_client_info(null);
     end if;
 
     return l_completed_without_errors;
