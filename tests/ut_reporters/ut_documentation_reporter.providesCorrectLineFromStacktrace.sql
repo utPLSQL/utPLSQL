@@ -13,7 +13,7 @@ begin
 %ORA-06502%
 %ORA-06512%
 Finished %
-4 tests, 1 failed, 1 errored%]';
+5 tests, 1 failed, 1 errored%]';
 
   --act
   select *

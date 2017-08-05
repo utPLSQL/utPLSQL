@@ -7,9 +7,9 @@ begin
     from table(ut.run(ut_varchar2_list('test_package_1','test_package_3'),ut_teamcity_reporter()));
 
   for i in 1 .. l_output_data.count loop
-    if  l_output_data(i) like '%Finished %''test\_package\_1''%' escape '\'
-    or l_output_data(i) like '%Finished %''test_package_2''%'
-    or l_output_data(i) like '%Finished %''test_package_3''%' then
+    if  l_output_data(i) like '%Finished %''%test\_package\_1''%' escape '\'
+    or l_output_data(i) like '%Finished %''%test_package_2''%'
+    or l_output_data(i) like '%Finished %''%test_package_3''%' then
       l_packages_executed := l_packages_executed + 1;
     end if;
   end loop;
