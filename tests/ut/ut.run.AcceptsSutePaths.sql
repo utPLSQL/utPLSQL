@@ -8,9 +8,9 @@ begin
   dbms_output.get_lines( l_output_data, l_num_lines);
 
   for i in 1 .. l_num_lines loop
-    if  l_output_data(i) like '%Finished %''test\_package\_1''%' escape '\'
-    or l_output_data(i) like '%Finished %''test_package_2''%'
-    or l_output_data(i) like '%Finished %''test_package_3''%' then
+    if  l_output_data(i) like '%Finished %''%test\_package\_1''%' escape '\'
+    or l_output_data(i) like '%Finished %''%test_package_2''%'
+    or l_output_data(i) like '%Finished %''%test_package_3''%' then
       l_packages_executed := l_packages_executed + 1;
     end if;
   end loop;
