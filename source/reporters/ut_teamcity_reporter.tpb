@@ -24,16 +24,20 @@ create or replace type body ut_teamcity_reporter is
 
   overriding member procedure before_calling_suite(self in out nocopy ut_teamcity_reporter, a_suite in ut_logical_suite) is
   begin
-    self.print_text(ut_teamcity_reporter_helper.test_suite_started(a_suite_name => nvl(replace(trim(a_suite.description)
-                                                                                              ,'.')
-                                                                                      ,a_suite.name)));
+    self.print_text(
+      ut_teamcity_reporter_helper.test_suite_started(
+        a_suite_name => nvl(replace(trim(a_suite.description),'.'),a_suite.path)
+      )
+    );
   end;
 
   overriding member procedure after_calling_suite(self in out nocopy ut_teamcity_reporter, a_suite in ut_logical_suite) is
   begin
-    self.print_text(ut_teamcity_reporter_helper.test_suite_finished(a_suite_name => nvl(replace(trim(a_suite.description)
-                                                                                               ,'.')
-                                                                                       ,a_suite.name)));
+    self.print_text(
+      ut_teamcity_reporter_helper.test_suite_finished(
+        a_suite_name => nvl(replace(trim(a_suite.description),'.'),a_suite.path)
+      )
+    );
   end;
 
   overriding member procedure before_calling_test(self in out nocopy ut_teamcity_reporter, a_test in ut_test) is
@@ -43,8 +47,12 @@ create or replace type body ut_teamcity_reporter is
     l_test_full_name := lower(a_test.item.owner_name) || '.' || lower(a_test.item.object_name) || '.' ||
                         lower(a_test.item.procedure_name);
 
-    self.print_text(ut_teamcity_reporter_helper.test_started(a_test_name               => l_test_full_name
-                                                            ,a_capture_standard_output => true));
+    self.print_text(
+      ut_teamcity_reporter_helper.test_started(
+        a_test_name => l_test_full_name,
+        a_capture_standard_output => true
+      )
+    );
 
   end;
 
@@ -53,8 +61,6 @@ create or replace type body ut_teamcity_reporter is
     l_test_full_name varchar2(4000);
     l_std_err_msg    varchar2(32767);
   begin
-    --    l_test_full_name := self.suite_names_stack(self.suite_names_stack.last) || ':' ||
-    --                        nvl(replace(a_test.description, '.'), a_test.name);
     l_test_full_name := lower(a_test.item.owner_name) || '.' || lower(a_test.item.object_name) || '.' ||
                         lower(a_test.item.procedure_name);
 

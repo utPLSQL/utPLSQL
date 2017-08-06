@@ -237,6 +237,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_test/ut_test.TestOutputGathering.sql
 @@lib/RunTest.sql ut_test/ut_test.TestOutputGatheringWhenEmpty.sql
 @@lib/RunTest.sql ut_test/ut_test.ReportWarningOnRollbackFailed.sql
+@@lib/RunTest.sql ut_test/ut_test.ApplicationInfoOnExecution.sql
 
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsATestWhenAfterTestFails.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsATestWhenBeforeTestFails.sql

@@ -4,6 +4,9 @@ declare
   l_expected          varchar2(32767);
 begin
   l_expected := q'[<testExecutions version="1">
+<file path="tests/helpers/test_reporters_1.pkb">
+<testCase name="diffrentowner_test" duration="%" >%</testCase>
+</file>
 <file path="tests/helpers/test_reporters.pkb">
 <testCase name="passing_test" duration="%" >%</testCase>
 <testCase name="failing_test" duration="%" >%<failure message="some expectations have failed">%</failure>%</testCase>
@@ -15,7 +18,7 @@ begin
   --act
   select *
   bulk collect into l_output_data
-  from table(ut.run('test_reporters',ut_sonar_test_reporter(),a_source_files=> null, a_test_files=>ut_varchar2_list('tests/helpers/test_reporters.pkb')));
+  from table(ut.run('test_reporters',ut_sonar_test_reporter(),a_source_files=> null, a_test_files=>ut_varchar2_list('tests/helpers/test_reporters.pkb', 'tests/helpers/test_reporters_1.pkb')));
 
   l_output := ut_utils.table_to_clob(l_output_data);
 

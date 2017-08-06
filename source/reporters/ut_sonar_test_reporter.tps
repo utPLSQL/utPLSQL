@@ -15,16 +15,11 @@ create or replace type ut_sonar_test_reporter under ut_output_reporter_base(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  file_mappings ut_file_mappings,
 
   constructor function ut_sonar_test_reporter(
     self in out nocopy ut_sonar_test_reporter
   ) return self as result,
 
-  overriding member procedure before_calling_run(self in out nocopy ut_sonar_test_reporter, a_run in ut_run),
-  overriding member procedure before_calling_suite(self in out nocopy ut_sonar_test_reporter, a_suite ut_logical_suite),
-  overriding member procedure after_calling_test(self in out nocopy ut_sonar_test_reporter, a_test ut_test),
-  overriding member procedure after_calling_suite(self in out nocopy ut_sonar_test_reporter, a_suite ut_logical_suite),
   overriding member procedure after_calling_run(self in out nocopy ut_sonar_test_reporter, a_run in ut_run)
 )
 not final
