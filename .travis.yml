@@ -69,7 +69,7 @@ before_install:
   #- curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
   - git clone --depth=1 --branch=develop https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
   # download utPLSQL-cli develop
-  - curl -Lk -o utPLSQL-cli.zip https://bintray.com/viniciusam/utPLSQL-cli/download_file?file_path=utPLSQL-cli-develop-201706191645.zip
+  - curl -Lk -o utPLSQL-cli.zip https://bintray.com/viniciusam/utPLSQL-cli/download_file?file_path=utPLSQL-cli-develop-201708052039.zip
 
 install:
   #- unzip utPLSQL.zip
