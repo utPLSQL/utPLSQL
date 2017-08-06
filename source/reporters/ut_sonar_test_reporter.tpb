@@ -32,7 +32,8 @@ create or replace type body ut_sonar_test_reporter is
       if a_file_mappings is not null then
         for i in 1 .. a_file_mappings.count loop
           if upper(a_file_mappings(i).object_name) = upper(a_suite.object_name)
-            and upper(a_file_mappings(i).object_owner) = upper(a_suite.object_owner) then
+            and upper(a_file_mappings(i).object_owner) = upper(a_suite.object_owner) 
+            and a_file_mappings(i).object_type = 'PACKAGE BODY' then
             l_file_name := a_file_mappings(i).file_name;
             exit;
           end if;
