@@ -199,35 +199,38 @@ create or replace package body ut_coverage is
         end loop;
       end if;
 
-      if not l_result.objects.exists(src_object.full_name) then
-        l_result.objects(src_object.full_name) := l_new_unit;
-        l_result.objects(src_object.full_name).owner := src_object.owner;
-        l_result.objects(src_object.full_name).name  := src_object.name;
-      end if;
-      l_result.total_lines := l_result.total_lines + src_object.lines_count;
-      l_result.objects(src_object.full_name).total_lines := src_object.lines_count;
-      --map to results
-      line_no := l_line_calls.first;
-      if line_no is null then
-        l_result.uncovered_lines := l_result.uncovered_lines + src_object.lines_count;
-        l_result.objects(src_object.full_name).uncovered_lines := src_object.lines_count;
-      else
-        loop
-          exit when line_no is null;
+      --if there are no file mappings or object was actually captured by profiler
+      if a_coverage_options.file_mappings is null or l_line_calls.count > 0 then
+        if not l_result.objects.exists(src_object.full_name) then
+          l_result.objects(src_object.full_name) := l_new_unit;
+          l_result.objects(src_object.full_name).owner := src_object.owner;
+          l_result.objects(src_object.full_name).name  := src_object.name;
+        end if;
+        l_result.total_lines := l_result.total_lines + src_object.lines_count;
+        l_result.objects(src_object.full_name).total_lines := src_object.lines_count;
+        --map to results
+        line_no := l_line_calls.first;
+        if line_no is null then
+          l_result.uncovered_lines := l_result.uncovered_lines + src_object.lines_count;
+          l_result.objects(src_object.full_name).uncovered_lines := src_object.lines_count;
+        else
+          loop
+            exit when line_no is null;
 
-          if l_line_calls(line_no) > 0 then
-            l_result.covered_lines := l_result.covered_lines + 1;
-            l_result.executions := l_result.executions + l_line_calls(line_no);
-            l_result.objects(src_object.full_name).covered_lines := l_result.objects(src_object.full_name).covered_lines + 1;
-            l_result.objects(src_object.full_name).executions := l_result.objects(src_object.full_name).executions + l_line_calls(line_no);
-          elsif l_line_calls(line_no) = 0 then
-            l_result.uncovered_lines := l_result.uncovered_lines + 1;
-            l_result.objects(src_object.full_name).uncovered_lines := l_result.objects(src_object.full_name).uncovered_lines + 1;
-          end if;
-          l_result.objects(src_object.full_name).lines(line_no) := l_line_calls(line_no);
+            if l_line_calls(line_no) > 0 then
+              l_result.covered_lines := l_result.covered_lines + 1;
+              l_result.executions := l_result.executions + l_line_calls(line_no);
+              l_result.objects(src_object.full_name).covered_lines := l_result.objects(src_object.full_name).covered_lines + 1;
+              l_result.objects(src_object.full_name).executions := l_result.objects(src_object.full_name).executions + l_line_calls(line_no);
+            elsif l_line_calls(line_no) = 0 then
+              l_result.uncovered_lines := l_result.uncovered_lines + 1;
+              l_result.objects(src_object.full_name).uncovered_lines := l_result.objects(src_object.full_name).uncovered_lines + 1;
+            end if;
+            l_result.objects(src_object.full_name).lines(line_no) := l_line_calls(line_no);
 
-          line_no := l_line_calls.next(line_no);
-        end loop;
+            line_no := l_line_calls.next(line_no);
+          end loop;
+        end if;
       end if;
 
 
