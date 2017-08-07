@@ -12,12 +12,13 @@ utPLSQL-cli/bin/utplsql run ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@${CONNECTION_ST
 -test_path=test -c \
 -f=ut_documentation_reporter  -o=test_results.log -s \
 -f=ut_coverage_sonar_reporter -o=coverage.xml \
+-f=ut_coveralls_reporter      -o=coverage.json \
 -f=ut_sonar_test_reporter     -o=test_results.xml
 
 status_line_regex="^[0-9]+ tests, ([0-9]+) failed, ([0-9]+) errored.*"
 
-cat coverage.xml
-cat test_results.xml
+#cat coverage.xml
+#cat test_results.xml
 
 RC=$(cat test_results.log | grep -E "${status_line_regex}" | sed -re "s/${status_line_regex}/\1\2/")
 
