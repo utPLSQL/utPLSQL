@@ -9,7 +9,7 @@ if (process.env.COVERALLS_URL_BASE) {
 	url = 'https://coveralls.io/api/v1/jobs';
 }
 
-fs.readFile('../tests/coverage.json',function (err,data) {  
+fs.readFile('../old_tests/coverage.json',function (err,data) {
 	if (err) {
 		return console.log(err);
 	}
@@ -19,13 +19,13 @@ fs.readFile('../tests/coverage.json',function (err,data) {
 	if (process.env.COVERALLS_REPO_TOKEN) {
 		req.repo_token = process.env.COVERALLS_REPO_TOKEN;
 	}
-	
+
 	for (var i in req.source_files) {
 		req.source_files[i].source_digest = md5File.sync("../" + req.source_files[i].name);
 	}
 
 	var requestStr = JSON.stringify(req);
-	
+
 	request.post({url : url, form : { json:requestStr}}, function(err, response, body){process.stdout.write(body);});
 
 });
