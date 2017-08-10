@@ -70,7 +70,7 @@ create or replace type body ut_data_value_refcursor as
         l_xml := dbms_xmlgen.getxmltype(l_ctx);
 
         insert into ut_cursor_data(cursor_data_guid, row_no, row_data)
-        select self.data_value, rownum, value(a) from table( xmlsequence( extract(l_xml,'ROWSET/*') ) ) a;
+        select self.data_value, self.row_count + rownum, value(a) from table( xmlsequence( extract(l_xml,'ROWSET/*') ) ) a;
 
         exit when sql%rowcount = 0;
 
