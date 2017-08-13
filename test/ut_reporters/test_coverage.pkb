@@ -5,7 +5,7 @@ create or replace package body test_coverage is
   function get_mock_run_id return integer is
     v_result integer;
   begin
-    select min(runid) - 1 into v_result
+    select nvl(min(runid),0) - 1 into v_result
       from ut3.plsql_profiler_runs;
     return v_result;
   end;
