@@ -109,5 +109,13 @@ create or replace package body ut_coverage_helper is
     end loop;
     return l_results;
   end;
+
+  procedure mock_coverage_id(a_coverage_id integer) is
+  begin
+    if g_develop_mode and g_is_started then
+      g_coverage_id := a_coverage_id;
+    end if;
+  end;
+
 end;
 /

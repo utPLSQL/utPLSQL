@@ -16,6 +16,8 @@ create or replace package body ut_coverage is
   limitations under the License.
   */
 
+  type t_source_lines is table of binary_integer;
+
   -- The source query has two important transformations done in it.
   -- the flag: to_be_skipped ='Y' is set for a line of code that is badly reported by DBMS_PROFILER as executed 0 times.
   -- This includes lines that are:
@@ -157,13 +159,25 @@ create or replace package body ut_coverage is
     ut_coverage_helper.coverage_stop_develop();
   end;
 
+  function get_lines_to_skip(a_object_owner varchar2, a_object_name varchar2) return t_source_lines is
+    l_result    t_source_lines;
+  begin
+    select line
+      bulk collect into l_result
+      from ut_coverage_sources_tmp o
+     where to_be_skipped = 'Y'
+       and o.owner = a_object_owner
+       and o.name = a_object_name;
+
+    return l_result;
+  end;
+
   function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
     l_line_calls       ut_coverage_helper.unit_line_calls;
     l_result           t_coverage;
     l_new_unit         t_unit_coverage;
     l_skipped_objects  ut_object_names := ut_object_names();
-
-    type t_source_lines is table of binary_integer;
+    l_lines_to_skip    t_source_lines;
     line_no            binary_integer;
   begin
 
@@ -178,13 +192,12 @@ create or replace package body ut_coverage is
     end if;
 
     for src_object in (
-      select o.owner, o.name, o.full_name, max(o.line) lines_count,
-             cast(
-               collect(decode(to_be_skipped, 'Y', to_char(line))) as ut_varchar2_list
-             ) to_be_skipped_list
+      select o.owner, o.name, o.full_name, max(o.line) lines_count
         from ut_coverage_sources_tmp o
        group by o.owner, o.name, o.full_name
     ) loop
+
+      l_lines_to_skip := get_lines_to_skip( src_object.owner, src_object.name );
 
       --get coverage data
       l_line_calls := ut_coverage_helper.get_raw_coverage_data( src_object.owner, src_object.name );
@@ -192,10 +205,8 @@ create or replace package body ut_coverage is
       --if there is coverage, we need to filter out the garbage (badly indicated data from dbms_profiler)
       if l_line_calls.count > 0 then
         --remove lines that should not be indicted as meaningful
-        for i in 1 .. src_object.to_be_skipped_list.count loop
-          if src_object.to_be_skipped_list(i) is not null then
-            l_line_calls.delete(src_object.to_be_skipped_list(i));
-          end if;
+        for i in 1 .. l_lines_to_skip.count loop
+          l_line_calls.delete(l_lines_to_skip(i));
         end loop;
       end if;
 
