@@ -20,6 +20,8 @@ create or replace type body ut_output_table_buffer is
   begin
     self.output_id := coalesce(a_output_id, sys_guid());
     self.start_date := sysdate;
+    self.init();
+    self.cleanup_buffer();
     return;
   end;
 
@@ -63,10 +65,13 @@ create or replace type body ut_output_table_buffer is
     l_buffer_data        ut_varchar2_rows;
     l_already_waited_for number(10,2) := 0;
     l_finished           boolean := false;
-    lc_init_wait_sec     constant naturaln := coalesce(a_initial_timeout, 60 * 1); -- 1 minute
-    lc_max_wait_sec      constant naturaln := coalesce(a_timeout_sec, 60 * 60 * 4); -- 4 hours
+    lc_init_wait_sec     constant naturaln := coalesce(a_initial_timeout, 60 ); -- 1 minute
+    lc_max_wait_sec      constant naturaln := coalesce(a_timeout_sec, 60 * 60); -- 1 hour
     l_wait_for           integer := lc_init_wait_sec;
-    lc_sleep_time        constant number(1,1) := 0.1; --sleep for 100 ms between checks
+    lc_short_sleep_time  constant number(1,1) := 0.1; --sleep for 100 ms between checks
+    lc_long_sleep_time   constant number(1) := 1;     --sleep for 1 s when waiting long
+    lc_long_wait_time    constant number(1) := 1;     --waiting more than 1 sec
+    l_sleep_time         number(2,1) := lc_short_sleep_time;
     function get_data_from_buffer return ut_varchar2_rows is
       l_results        ut_varchar2_rows;
       pragma autonomous_transaction;
@@ -85,10 +90,17 @@ create or replace type body ut_output_table_buffer is
       l_buffer_data := get_data_from_buffer();
       --nothing fetched from output, wait and try again
       if l_buffer_data.count = 0 then
-        dbms_lock.sleep(lc_sleep_time);
-        l_already_waited_for := l_already_waited_for + lc_sleep_time;
+        dbms_lock.sleep(l_sleep_time);
+        l_already_waited_for := l_already_waited_for + l_sleep_time;
+        if l_already_waited_for > lc_long_wait_time then
+          l_sleep_time := lc_long_sleep_time;
+        end if;
       else
+        --reset wait time
+        -- we wait lc_max_wait_sec for new message
         l_wait_for := lc_max_wait_sec;
+        l_already_waited_for := 0;
+        l_sleep_time := lc_short_sleep_time;
         for i in 1 .. l_buffer_data.count loop
           if l_buffer_data(i) is not null then
             pipe row(l_buffer_data(i));
@@ -129,7 +141,7 @@ create or replace type body ut_output_table_buffer is
     gc_buffer_retention_sec  constant naturaln := coalesce(a_retention_time_sec, 60 * 60 * 24); -- 24 hours
     l_retention_days         number := gc_buffer_retention_sec / (60 * 60 * 24);
     l_max_retention_date     date := sysdate - l_retention_days;
-    pragma autonomous_transaction; -- the cleanup should initiate transaction
+    pragma autonomous_transaction;
   begin
     delete from ut_output_buffer_tmp t
      where t.output_id
