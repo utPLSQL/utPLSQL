@@ -95,11 +95,10 @@ create or replace package body ut_coverage_report_html_helper is
   end;
 
   function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a_unit_coverage ut_coverage.t_unit_coverage) return clob is
-    type tt_source_data is table of varchar2(32767);
-    l_source_code   tt_source_data;
+    l_source_code   ut_varchar2_list;
     l_result        clob;
 
-    function build_details_file_content(a_object_id varchar2, a_object_full_name varchar2, a_source_code tt_source_data, a_coverage_unit ut_coverage.t_unit_coverage ) return clob is
+    function build_details_file_content(a_object_id varchar2, a_object_full_name varchar2, a_source_code ut_varchar2_list, a_coverage_unit ut_coverage.t_unit_coverage ) return clob is
       l_file_part    varchar2(32767);
       l_result       clob;
       l_coverage_pct number(5,2);
@@ -138,12 +137,7 @@ create or replace package body ut_coverage_report_html_helper is
       return l_result;
     end;
   begin
-    select rtrim(s.text,chr(10)) text
-      bulk collect into l_source_code
-      from ut_coverage_sources_tmp s
-     where s.owner = a_unit.owner
-       and s.name = a_unit.name
-     order by s.line;
+    l_source_code := ut_coverage_helper.get_tmp_table_object_lines(a_unit.owner, a_unit.name);
     dbms_lob.createtemporary(l_result,true);
     l_result := build_details_file_content(a_object_id, a_unit.identity, l_source_code, a_unit_coverage);
     return l_result;

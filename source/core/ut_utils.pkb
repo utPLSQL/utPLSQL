@@ -340,12 +340,12 @@ create or replace package body ut_utils is
     end if;
     return l_result;
   end;
-  
+
   procedure set_action(a_text in varchar2) is
   begin
     dbms_application_info.set_module('utPLSQL', a_text);
   end;
-  
+
   procedure set_client_info(a_text in varchar2) is
   begin
     dbms_application_info.set_client_info(a_text);
@@ -381,7 +381,6 @@ create or replace package body ut_utils is
     pragma autonomous_transaction;
   begin
     execute immediate 'truncate table ut_cursor_data';
-    execute immediate 'truncate table ut_coverage_sources_tmp$';
     commit;
   end;
 

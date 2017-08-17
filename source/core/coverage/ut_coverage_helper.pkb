@@ -77,14 +77,14 @@ create or replace package body ut_coverage_helper is
     dbms_profiler.stop_profiler();
   end;
 
-  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return unit_line_calls is
+  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return t_unit_line_calls is
     type coverage_row is record (
       line  binary_integer,
       calls number(38,0)
     );
     type coverage_rows is table of coverage_row;
     l_tmp_data coverage_rows;
-    l_results  unit_line_calls;
+    l_results  t_unit_line_calls;
   begin
       select d.line#,
         -- This transformation addresses two issues:
@@ -112,9 +112,62 @@ create or replace package body ut_coverage_helper is
 
   procedure mock_coverage_id(a_coverage_id integer) is
   begin
-    if g_develop_mode and g_is_started then
-      g_coverage_id := a_coverage_id;
-    end if;
+    g_develop_mode := true;
+    g_is_started := true;
+    g_coverage_id := a_coverage_id;
+  end;
+
+  procedure insert_into_tmp_table(a_data t_coverage_sources_tmp_rows) is
+  begin
+    forall i in 1 .. a_data.count
+      insert into ut_coverage_sources_tmp
+             (full_name,owner,name,line,text, to_be_skipped)
+       values(a_data(i).full_name,a_data(i).owner,a_data(i).name,a_data(i).line,a_data(i).text,a_data(i).to_be_skipped);
+  end;
+
+  procedure cleanup_tmp_table is
+    pragma autonomous_transaction;
+  begin
+    null;
+    execute immediate 'truncate table ut_coverage_sources_tmp$';
+    commit;
+  end;
+
+  function is_tmp_table_populated return boolean is
+    l_result integer;
+  begin
+    select 1 into l_result from ut_coverage_sources_tmp where rownum = 1;
+    return (l_result = 1);
+  exception
+    when no_data_found then
+      return false;
+  end;
+
+  function get_tmp_table_objects_cursor return t_tmp_table_objects_crsr is
+    l_result t_tmp_table_objects_crsr;
+  begin
+    open l_result for
+      select o.owner, o.name, o.full_name, max(o.line) lines_count,
+             cast(
+               collect(decode(to_be_skipped, 'Y', to_char(line))) as ut_varchar2_list
+             ) to_be_skipped_list
+        from ut_coverage_sources_tmp o
+       group by o.owner, o.name, o.full_name;
+
+    return l_result;
+  end;
+
+  function get_tmp_table_object_lines(a_owner varchar2, a_object_name varchar2) return ut_varchar2_list is
+    l_result ut_varchar2_list;
+  begin
+    select rtrim(s.text,chr(10)) text
+      bulk collect into l_result
+      from ut_coverage_sources_tmp s
+     where s.owner = a_owner
+       and s.name = a_object_name
+     order by s.line;
+
+    return l_result;
   end;
 
 end;

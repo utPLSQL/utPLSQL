@@ -79,7 +79,6 @@ grant execute on &&ut3_owner..ut_reporter_base to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_options to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_helper to &ut3_user;
-grant insert, delete, select on &&ut3_owner..ut_coverage_sources_tmp to &ut3_user;
 grant execute on &&ut3_owner..ut_output_buffer to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mappings to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mapping to &ut3_user;
@@ -119,7 +118,6 @@ create or replace synonym &ut3_user..ut_reporter_base for &&ut3_owner..ut_report
 create or replace synonym &ut3_user..ut_coverage for &&ut3_owner..ut_coverage;
 create or replace synonym &ut3_user..ut_coverage_options for &&ut3_owner..ut_coverage_options;
 create or replace synonym &ut3_user..ut_coverage_helper for &&ut3_owner..ut_coverage_helper;
-create or replace synonym &ut3_user..ut_coverage_sources_tmp for &&ut3_owner..ut_coverage_sources_tmp;
 create or replace synonym &ut3_user..ut_output_buffer for &&ut3_owner..ut_output_buffer;
 create or replace synonym &ut3_user..ut_file_mappings for &&ut3_owner..ut_file_mappings;
 create or replace synonym &ut3_user..ut_file_mapping for &&ut3_owner..ut_file_mapping;
