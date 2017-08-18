@@ -24,7 +24,7 @@ create or replace package ut_annotations authid current_user as
   */
 
   subtype t_annotation_name is varchar2(1000);
-  subtype t_procedure_name  is varchar2(30);
+  subtype t_procedure_name  is varchar2(250);
 
   /*
     type: typ_annotation_param
