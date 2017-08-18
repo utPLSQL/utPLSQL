@@ -117,7 +117,6 @@ create or replace type body ut_xunit_reporter is
       print_suite_elements(treat(a_run.items(i) as ut_logical_suite), l_suite_id);
     end loop;
     self.print_text('</testsuites>');
-    (self as ut_reporter_base).after_calling_run(a_run);
   end;
 
   member function get_common_item_attributes(a_item ut_suite_item) return varchar2 is

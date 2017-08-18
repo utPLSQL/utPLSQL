@@ -35,7 +35,7 @@ create or replace type body ut_documentation_reporter is
     if a_text is not null then
       l_lines := ut_utils.string_to_table(a_text);
       for i in 1 .. l_lines.count loop
-        (self as ut_reporter_base).print_text(tab || l_lines(i));
+        (self as ut_output_reporter_base).print_text(tab || l_lines(i));
       end loop;
     end if;
   end;
@@ -195,7 +195,6 @@ create or replace type body ut_documentation_reporter is
       self.print_green_text(l_summary_text);
     end if;
     self.print_text(' ');
-    (self as ut_reporter_base).after_calling_run(a_run);
   end;
 
 end;

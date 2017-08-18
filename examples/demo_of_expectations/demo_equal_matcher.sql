@@ -98,7 +98,7 @@ create or replace package body demo_equal_matcher as
     l_expected demo_department;
     l_actual   demo_department;
   begin
-    ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected),false);
+    ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected),a_nulls_are_equal=>false);
   end;
 
 

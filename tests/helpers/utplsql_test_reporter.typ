@@ -1,4 +1,4 @@
-create or replace type utplsql_test_reporter under ut_reporter_base(
+create or replace type utplsql_test_reporter under ut_output_reporter_base(
   constructor function utplsql_test_reporter(self in out nocopy utplsql_test_reporter) return self as result,
   overriding member procedure after_calling_run(self in out nocopy utplsql_test_reporter, a_run in ut_run)
 )
