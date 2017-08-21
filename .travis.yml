@@ -15,7 +15,6 @@ addons:
     branches:
       - develop
       - master
-      - feature/using_released_to_test_develop
 
 services:
   - docker
