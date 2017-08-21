@@ -20,6 +20,14 @@ create or replace package ut_runner authid current_user is
   function version return varchar2;
 
   /**
+  * Check if version is compatible with another version (by default the current framework version)
+  * Version is compatible if:
+  * a_current.major = a_requested.major
+  * a_requested.minor < a_current.minor or a_requested.minor = a_current.minor and a_requested.bugfix <= a_current.bugfix
+  */
+  function version_compatibility_check( a_requested varchar2, a_current varchar2 := null ) return boolean;
+
+  /**
   * Run suites/tests by path
   * Accepts value of the following formats:
   * schema - executes all suites in the schema

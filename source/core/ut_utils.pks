@@ -96,6 +96,15 @@ create or replace package ut_utils authid definer is
   gc_timestamp_format         constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff';
   gc_timestamp_tz_format      constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff tzh:tzm';
   gc_null_string              constant varchar2(4) := 'NULL';
+
+  type t_version is record(
+    major  positive,
+    minor  positive,
+    bugfix positive,
+    build  positive
+  );
+
+
   /*
      Function: test_result_to_char
         returns a string representation of a test_result.
@@ -234,6 +243,14 @@ create or replace package ut_utils authid definer is
   function to_xpath(a_list ut_varchar2_list, a_ancestors varchar2 := '/*/') return varchar2;
 
   procedure cleanup_temp_tables;
+
+  /**
+  * Converts version string into version record
+  *
+  * @param p_version_no - string representation of version in format vX.X.X.X where X is a positive integer
+  * @return t_version record with up to four positive numbers containing version
+  */
+  function to_version(p_version_no varchar2) return t_version;
 
 end ut_utils;
 /

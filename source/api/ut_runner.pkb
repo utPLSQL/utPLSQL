@@ -43,6 +43,19 @@ create or replace package body ut_runner is
     return ut_utils.gc_version;
   end;
 
+  function version_compatibility_check( a_requested varchar2, a_current varchar2 := null ) return boolean is
+    l_result boolean := false;
+    l_requested ut_utils.t_version := ut_utils.to_version(a_requested);
+    l_current ut_utils.t_version := ut_utils.to_version(coalesce(a_current,version()));
+  begin
+    if l_requested.major = l_current.major
+       and (l_requested.minor < l_current.minor
+            or l_requested.minor = l_current.minor and l_requested.bugfix <= l_current.bugfix) then
+      l_result := true;
+    end if;
+    return l_result;
+  end;
+
   procedure run(
     a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false,
     a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
