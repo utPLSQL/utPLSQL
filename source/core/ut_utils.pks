@@ -22,7 +22,7 @@ create or replace package ut_utils authid definer is
 
   */
 
-  gc_version                 constant varchar2(50) := 'utPLSQL - Version X.X.X.X';
+  gc_version                 constant varchar2(50) := 'X.X.X.X';
 
   /* Constants: Event names */
   gc_run                     constant varchar2(12) := 'run';
@@ -218,12 +218,12 @@ create or replace package ut_utils authid definer is
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data varchar2);
 
   function convert_collection(a_collection ut_varchar2_list) return ut_varchar2_rows;
-  
+
   /**
   * Set session's action and module using dbms_application_info
   */
   procedure set_action(a_text in varchar2);
-  
+
   /**
   * Set session's client info using dbms_application_info
   */

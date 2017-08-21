@@ -3,7 +3,7 @@
 echo Current branch is "${CURRENT_BRANCH}"
 
 echo Update version in project source files
-find ${UTPLSQL_SOURCES_DIR} -type f -name '*' -exec sed -i -r "s/(${UTPLSQL_VERSION_PLACEHOLDER} )[^']*(')?/\1${UTPLSQL_BUILD_VERSION}\2/" {} \;
+find ${UTPLSQL_SOURCES_DIR} -type f -name '*' -exec sed -i -r "s/${UTPLSQL_VERSION_PATTERN}/${UTPLSQL_BUILD_VERSION}/" {} \;
 echo Source files updated with version tag: ${UTPLSQL_BUILD_VERSION}
 
 echo Update of sonar-project.properties sonar.projectVersion
