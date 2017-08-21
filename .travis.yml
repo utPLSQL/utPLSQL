@@ -15,6 +15,7 @@ addons:
     branches:
       - develop
       - master
+      - feature/using_released_to_test_develop
 
 services:
   - docker
@@ -23,8 +24,11 @@ env:
   global:
     - UT3_OWNER=ut3
     - UT3_OWNER_PASSWORD=ut3
+    - UT3_RELEASE_VERSION_SCHEMA=UT3_LATEST_RELEASE
     - UT3_USER="UT3\$USER#"
     - UT3_USER_PASSWORD=ut3
+    - UT3_TESTER=ut3_tester
+    - UT3_TESTER_PASSWORD=ut3
     - UT3_TABLESPACE=users
     # Environment for building a release
     - CURRENT_BRANCH=${TRAVIS_BRANCH}
@@ -41,6 +45,8 @@ env:
     - ORACLE_PWD="oracle"
     - UT3_DOCKER_REPO="utplsqlv3/oracledb"
     - DOCKHER_HUB_REPO="${DOCKER_BASE_TAG:-$UT3_DOCKER_REPO}"
+    #utPLSQL released version directory
+    - UTPLSQL_DIR="utPLSQL"
   matrix:
     - ORACLE_VERSION="${DOCKER_TAG_11G:-11g-r2-xe}"  CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
     - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2}" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
@@ -52,7 +58,22 @@ cache:
     - $CACHE_DIR
     - node_modules
 
+before_install:
+  #The update_project_version is done before deployment to validate that the change of project files does not break installation
+  - bash .travis/update_project_version.sh
+  - git config --global user.email "builds@travis-ci.com"
+  - git config --global user.name "${UTPLSQL_BUILD_USER_NAME}"
+  - git remote rm origin
+  - git remote add origin https://${github_api_token}@github.com/${UTPLSQL_REPO}
+  # download latest utPLSQL release
+  #- curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
+  - git clone --depth=1 --branch=develop https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
+  # download utPLSQL-cli develop
+  - curl -Lk -o utPLSQL-cli.zip https://bintray.com/viniciusam/utPLSQL-cli/download_file?file_path=utPLSQL-cli-develop-test3.zip
+
 install:
+  #- unzip utPLSQL.zip
+  - unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
   - pip install mkdocs
   - bash .travis/install_sqlcl.sh
   - sudo mkdir -p /dev/pdbs
@@ -61,16 +82,14 @@ install:
   - df -h
 
 before_script:
-  #The update_project_version is done before deployment to validate that the change of project files does not break installation
-  - bash .travis/update_project_version.sh
-  - git config --global user.email "builds@travis-ci.com"
-  - git config --global user.name "${UTPLSQL_BUILD_USER_NAME}"
-  - git remote rm origin
-  - git remote add origin https://${github_api_token}@github.com/${UTPLSQL_REPO}
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install.sh; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install_utplsql_release.sh; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/create_additional_grants_for_old_tests.sh; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_examples.sh; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_old_tests.sh; fi
 
 script:
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install.sh; fi
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_examples_and_tests.sh; fi
+  - if [ "${TRAVIS_TAG}" = "" ]; then bash test/install_and_run_tests.sh; fi
   - if [ "${TRAVIS_TAG}" = "" ] && [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then sonar-scanner; fi
   - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/coveralls_uploader.sh; fi
   - bash .travis/build_docs.sh

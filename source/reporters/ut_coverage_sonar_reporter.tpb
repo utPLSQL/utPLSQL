@@ -42,13 +42,11 @@ create or replace type body ut_coverage_sonar_reporter is
         end loop;
       else
         while l_line_no is not null loop
-          l_file_part :=
-            case a_unit_coverage.lines(l_line_no)
-              when 0 then
-                '<lineToCover lineNumber="'||l_line_no||'" covered="false"/>'||chr(10)
-              else
-                '<lineToCover lineNumber="'||l_line_no||'" covered="true"/>'||chr(10)
-            end;
+          if a_unit_coverage.lines(l_line_no) = 0 then
+            l_file_part := '<lineToCover lineNumber="'||l_line_no||'" covered="false"/>'||chr(10);
+          else
+            l_file_part := '<lineToCover lineNumber="'||l_line_no||'" covered="true"/>'||chr(10);
+          end if;
           ut_utils.append_to_clob(l_result, l_file_part);
           l_line_no := a_unit_coverage.lines.next(l_line_no);
         end loop;
