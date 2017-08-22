@@ -82,7 +82,6 @@ create or replace type body ut_data_value_refcursor as
       end if;
       dbms_xmlgen.closeContext(l_ctx);
     end if;
-    commit;
   exception
     when others then
       ut_expectation_processor.reset_nls_params();
@@ -90,7 +89,6 @@ create or replace type body ut_data_value_refcursor as
         close a_value;
       end if;
       dbms_xmlgen.closeContext(l_ctx);
-      rollback;
       raise;
   end;
 
