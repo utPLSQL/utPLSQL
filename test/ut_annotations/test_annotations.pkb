@@ -513,9 +513,9 @@ END;';
   procedure test_windows_newline
   as
     l_source clob;
-    l_parsing_result ut_annotations.typ_annotated_package;
-    l_expected ut_annotations.typ_annotated_package;
-    l_ann_param ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotations.typ_annotated_package;
+    l_expected ut3.ut_annotations.typ_annotated_package;
+    l_ann_param ut3.ut_annotations.typ_annotation_param;
   begin
     l_source := 'PACKAGE test_tt AS
         -- %suite
@@ -524,12 +524,12 @@ END;';
       END;';
 
     --Act
-    l_parsing_result := ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
 
     --Assert
     l_ann_param := null;
     l_ann_param.val := 'Name of suite';
-    l_expected.package_annotations('suite').params := cast( null as ut_annotations.tt_annotation_params);
+    l_expected.package_annotations('suite').params := cast( null as ut3.ut_annotations.tt_annotation_params);
     l_expected.package_annotations('displayname').params(1) := l_ann_param;
   
     l_ann_param := null;
@@ -542,9 +542,9 @@ END;';
   procedure test_annot_very_long_name
   as
     l_source clob;
-    l_parsing_result ut_annotations.typ_annotated_package;
-    l_expected ut_annotations.typ_annotated_package;
-    l_ann_param ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotations.typ_annotated_package;
+    l_expected ut3.ut_annotations.typ_annotated_package;
+    l_ann_param ut3.ut_annotations.typ_annotation_param;
   begin
     l_source := 'PACKAGE test_tt AS
       -- %suite
@@ -556,12 +556,12 @@ END;';
     END;';
     
     --Act
-    l_parsing_result := ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
     
     --Assert
     l_ann_param := null;
     l_ann_param.val := 'Name of suite';
-    l_expected.package_annotations('suite').params := cast( null as ut_annotations.tt_annotation_params);
+    l_expected.package_annotations('suite').params := cast( null as ut3.ut_annotations.tt_annotation_params);
     l_expected.package_annotations('displayname').params(1) := l_ann_param;
     
     l_ann_param := null;
@@ -569,7 +569,7 @@ END;';
     l_expected.package_annotations('suitepath').params(1) := l_ann_param;
   
     l_expected.procedure_annotations(1).name := 'very_long_procedure_name_valid_for_oracle_12_so_utplsql_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_ditit';
-    l_expected.procedure_annotations(1).annotations('test').params := cast( null as ut_annotations.tt_annotation_params);
+    l_expected.procedure_annotations(1).annotations('test').params := cast( null as ut3.ut_annotations.tt_annotation_params);
   
     check_annotation_parsing(l_expected, l_parsing_result);
   end;
