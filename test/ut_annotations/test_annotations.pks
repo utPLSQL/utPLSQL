@@ -36,5 +36,11 @@ create or replace package test_annotations is
   --%test(Test space before annotation params)
   procedure test_space_Before_Annot_Params;
 
+  -- %test(Test annotations with windows newline)
+  procedure test_windows_newline;
+
+  -- %test(Test annotation function with very long name)
+  procedure test_annot_very_long_name;
+
 end test_annotations;
 /
