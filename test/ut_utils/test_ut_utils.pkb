@@ -284,14 +284,19 @@ end;';
   end;
 
   procedure test_to_version is
-    l_version ut3.ut_utils.t_version;
+    l_actual        ut3.ut_utils.t_version;
   begin
-    l_version := ut3.ut_utils.to_version();
+    l_actual := ut3.ut_utils.to_version(ut3.ut_utils.gc_version);
     if ut3.ut_utils.gc_version != 'X.X.X.X' then
-      ut.expect(l_version.major).to_be_not_null;
-      ut.expect(l_version.minor).to_be_not_null;
-      ut.expect(l_version.bugfix).to_be_not_null;
-      ut.expect(l_version.build).to_be_not_null;
+      ut.expect(l_actual.major).to_be_not_null;
+      ut.expect(l_actual.minor).to_be_not_null;
+      ut.expect(l_actual.bugfix).to_be_not_null;
+      ut.expect(l_actual.build).to_be_not_null;
+    else
+      ut.expect(l_actual.major).to_be_null;
+      ut.expect(l_actual.minor).to_be_null;
+      ut.expect(l_actual.bugfix).to_be_null;
+      ut.expect(l_actual.build).to_be_null;
     end if;
   end;
 
