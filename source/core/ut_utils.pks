@@ -98,10 +98,10 @@ create or replace package ut_utils authid definer is
   gc_null_string              constant varchar2(4) := 'NULL';
 
   type t_version is record(
-    major  positive,
-    minor  positive,
-    bugfix positive,
-    build  positive
+    major  natural,
+    minor  natural,
+    bugfix natural,
+    build  natural
   );
 
 

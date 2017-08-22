@@ -386,14 +386,14 @@ create or replace package body ut_utils is
 
   function to_version(p_version_no varchar2) return t_version is
     l_result t_version;
-    c_version_part_regex varchar2(20) := '([0-9]+)';
+    c_version_part_regex varchar2(20) := '[0-9]+';
   begin
 
-    if regexp_like(p_version_no,'v?([0-9]+(\.|$)){4}') then
-      l_result.major  := regexp_substr(p_version_no, c_version_part_regex, 1, 1, subexpression => 1);
-      l_result.minor  := regexp_substr(p_version_no, c_version_part_regex, 1, 2, subexpression => 1);
-      l_result.bugfix := regexp_substr(p_version_no, c_version_part_regex, 1, 3, subexpression => 1);
-      l_result.build  := regexp_substr(p_version_no, c_version_part_regex, 1, 4, subexpression => 1);
+    if regexp_like(p_version_no,'v?([0-9]+(\.|$)){3,4}') then
+      l_result.major  := regexp_substr(p_version_no, c_version_part_regex, 1, 1);
+      l_result.minor  := regexp_substr(p_version_no, c_version_part_regex, 1, 2);
+      l_result.bugfix := regexp_substr(p_version_no, c_version_part_regex, 1, 3);
+      l_result.build  := regexp_substr(p_version_no, c_version_part_regex, 1, 4);
     end if;
     return l_result;
   end;
