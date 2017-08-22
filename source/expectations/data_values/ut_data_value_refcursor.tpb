@@ -41,7 +41,6 @@ create or replace type body ut_data_value_refcursor as
     l_xml                 xmltype;
     c_bulk_rows  constant integer := 1000;
     l_current_date_format varchar2(4000);
-    pragma autonomous_transaction;
   begin
     self.is_cursor_null := ut_utils.boolean_to_int(a_value is null);
     self.self_type  := $$plsql_unit;
