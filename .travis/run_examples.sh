@@ -9,9 +9,6 @@ whenever oserror exit failure rollback
 cd examples
 @RunAllExamplesAsTests.sql
 
-conn $UT3_USER/$UT3_USER_PASSWORD@//$CONNECTION_STR
-@RunUserExamples.sql
-
 exit
 
 SQL
