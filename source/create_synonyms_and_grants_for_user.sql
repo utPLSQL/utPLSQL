@@ -108,6 +108,7 @@ create or replace synonym &ut3_user..ut_runner for &&ut3_owner..ut_runner;
 create or replace synonym &ut3_user..ut_teamcity_reporter for &&ut3_owner..ut_teamcity_reporter;
 create or replace synonym &ut3_user..ut_xunit_reporter for &&ut3_owner..ut_xunit_reporter;
 create or replace synonym &ut3_user..ut_documentation_reporter for &&ut3_owner..ut_documentation_reporter;
+create or replace synonym &ut3_user..ut_ansiconsole_helper for &&ut3_owner..ut_ansiconsole_helper;
 create or replace synonym &ut3_user..ut_coverage_html_reporter for &&ut3_owner..ut_coverage_html_reporter;
 create or replace synonym &ut3_user..ut_coverage_sonar_reporter for &&ut3_owner..ut_coverage_sonar_reporter;
 create or replace synonym &ut3_user..ut_coveralls_reporter for &&ut3_owner..ut_coveralls_reporter;
