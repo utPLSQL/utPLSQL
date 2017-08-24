@@ -88,7 +88,6 @@ create public synonym ut_runner for &&ut3_owner..ut_runner;
 create public synonym ut_teamcity_reporter for &&ut3_owner..ut_teamcity_reporter;
 create public synonym ut_xunit_reporter for &&ut3_owner..ut_xunit_reporter;
 create public synonym ut_documentation_reporter for &&ut3_owner..ut_documentation_reporter;
-create public synonym ut_ansiconsole_helper for &&ut3_owner..ut_ansiconsole_helper;
 create public synonym ut_coverage_html_reporter for &&ut3_owner..ut_coverage_html_reporter;
 create public synonym ut_coverage_sonar_reporter for &&ut3_owner..ut_coverage_sonar_reporter;
 create public synonym ut_coveralls_reporter for &&ut3_owner..ut_coveralls_reporter;
