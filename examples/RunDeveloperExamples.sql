@@ -4,7 +4,7 @@ set echo off
 set feedback off
 set linesize 1000
 
-exec ut_documentation_reporter.set_color_enabled(true);
+exec ut_ansiconsole_helper.color_enabled(true);
 --developer examples
 prompt RunExampleComplexSuiteWithCustomReporter
 @@developer_examples/RunExampleComplexSuiteWithCustomReporter.sql
