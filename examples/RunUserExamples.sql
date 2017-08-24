@@ -1,12 +1,11 @@
 PROMPT Run user examples
-Clear Screen
---set echo off
---set feedback off
+set echo off
+set feedback off
 set linesize 1000
 
 prompt Common examples from web
 
-exec ut_documentation_reporter.set_color_enabled(true);
+exec ut_ansiconsole_helper.color_enabled(true);
 @@award_bonus/run_award_bonus_test.sql
 
 @@between_string/run_betwnstr_test.sql
