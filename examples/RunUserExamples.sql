@@ -5,6 +5,12 @@ set linesize 1000
 
 prompt Common examples from web
 
+set pagesize 0
+column owner format a30
+column synonym_name format a30
+column table_owner format a30
+select owner, synonym_name, table_owner from all_synonyms where synonym_name like 'UT%';
+
 exec ut_ansiconsole_helper.color_enabled(true);
 @@award_bonus/run_award_bonus_test.sql
 
