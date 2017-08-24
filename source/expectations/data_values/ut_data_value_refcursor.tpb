@@ -41,7 +41,6 @@ create or replace type body ut_data_value_refcursor as
     l_xml                 xmltype;
     c_bulk_rows  constant integer := 1000;
     l_current_date_format varchar2(4000);
-    pragma autonomous_transaction;
   begin
     self.is_cursor_null := ut_utils.boolean_to_int(a_value is null);
     self.self_type  := $$plsql_unit;
@@ -83,7 +82,6 @@ create or replace type body ut_data_value_refcursor as
       end if;
       dbms_xmlgen.closeContext(l_ctx);
     end if;
-    commit;
   exception
     when others then
       ut_expectation_processor.reset_nls_params();
@@ -91,7 +89,6 @@ create or replace type body ut_data_value_refcursor as
         close a_value;
       end if;
       dbms_xmlgen.closeContext(l_ctx);
-      rollback;
       raise;
   end;
 
