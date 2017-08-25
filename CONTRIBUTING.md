@@ -119,6 +119,11 @@ Reinstalling utPLSQL development in `ut3` schema (call from your base repo direc
 development/refresh.sh
 ```
 
+## Modules ##
+
+![utPLSQL V3 Modules](development/utPSLQLv3-modules.png)
+
+
 ## Build Environment ##
 
 We are using private docker images to test utPLSQL for our Travis CI builds. The following versions of Oracle Database are being used.
