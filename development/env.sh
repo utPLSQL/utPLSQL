@@ -12,5 +12,5 @@ export UTPLSQL_DIR="utPLSQL_latest_release"
 export SQLCLI=sql # For sqlcl client
 #export SQLCLI=sqlplus # For sqlplus client
 export CONNECTION_STR=127.0.0.1:1521/xe # Adjust the connect string
-export ORACLE_PWD=oracle
+export ORACLE_PWD=oracle # Adjust your local SYS password
 
