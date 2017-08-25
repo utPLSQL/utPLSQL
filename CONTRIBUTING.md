@@ -76,13 +76,23 @@ unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli && rm utPLSQL-cli.zip
 
 ```
 
+Now adjust the file ``development/env.sh`` to match your local needs.
+You might have to adjust the following lines:
+
+````bash
+export SQLCLI=sql # For sqlcl client
+#export SQLCLI=sqlplus # For sqlplus client
+export CONNECTION_STR=127.0.0.1:1521/xe # Adjust the connect string
+export ORACLE_PWD=oracle # Adjust your local SYS password
+````
+
 Refreshing your local repo.
 ```bash
 # fetch all remote repositories
 git fetch --all
 
 # remove sub-direcotry containing master branch shallow copy
-rm -rf utPLSQL/*
+rm -rf utPLSQL
 # clone utPLSQL master branch from upstream into utPLSQL sub-directory of your project
 git clone --depth=1 --branch=master https://github.com/utPLSQL/utPLSQL.git
 
@@ -94,50 +104,19 @@ unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli && rm utPLSQL-cli.zip
 
 ```
 
-Cleanup of utPLSQL installation.
-```sql
-drop user ut3 cascade;
-drop user ut3_latest_release cascade;
-drop user ut3_tester cascade;
-drop user ut3$user# cascade;
-
-begin
-  for i in (
-    select decode(owner,'PUBLIC','drop public synonym "','drop synonym "'||owner||'"."')|| synonym_name ||'"' drop_orphaned_synonym from dba_synonyms a
-     where not exists (select null from dba_objects b where a.table_name=b.object_name and a.table_owner=b.owner )
-  ) loop
-    execute immediate i.drop_orphaned_synonym;
-  end loop;
-end;
-/
+Cleanup of utPLSQL installation (call from your base repo directory).
+```bash
+development/cleanup.sh
 ```
 
-Install utPLSQL for development
+Install utPLSQL for development (call from your base repo directory)
 ```bash
-export UT3_OWNER=ut3
-export UT3_OWNER_PASSWORD=ut3
-export UT3_RELEASE_VERSION_SCHEMA=ut3_latest_release
-export UT3_TESTER=ut3_tester
-export UT3_TESTER_PASSWORD=ut3
-export UT3_TABLESPACE=users
-export UT3_USER="UT3\$USER#"
-export UT3_USER_PASSWORD=ut3
-export SQLCLI=sql
-export CONNECTION_STR=127.0.0.1:1521/orcl
-export ORACLE_PWD=oracle
-
-.travis/install.sh
-.travis/install_utplsql_release.sh
-.travis/create_additional_grants_for_old_tests.sh
+development/install.sh
 ```
 
-Reinstalling utPLSQL development in `ut3` schema.
+Reinstalling utPLSQL development in `ut3` schema (call from your base repo directory).
 ```bash
-cd source
-sqlplus sys/oracle@orcl as sysdba <<-SQL
-@uninstall ut3
-@install ut3
-SQL
+development/refresh.sh
 ```
 
 ## Build Environment ##
