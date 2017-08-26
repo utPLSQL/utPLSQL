@@ -1,13 +1,13 @@
-## How to contribute ##
+# How to contribute
 
 The following are the guidelines everyone should use to contribute to utPLSQL.  
 Changes are welcome from all members of the Community. 
 
-## Getting Started ##
+# Getting Started
 
 1. Create a [GitHub Account](https://github.com/join).
-2. Fork the utPLSQL Repository and setup your local Repository.
-     * Each of the steps below are detailed in the [how to Fork](https://help.github.com/articles/fork-a-repo) article!
+2. Fork the utPLSQL Repository and setup your local Repository. _See [how to Fork](https://help.github.com/articles/fork-a-repo) article_
+     * Each of the steps below are detailed in **Get started with development** section. 
      * Clone your Fork to your local machine.
      * Configure "upstream" remote to the [utPLSQL repository](https://github.com/utPLSQL/utPLSQL.git).
 3. For each change you want to make:
@@ -22,7 +22,7 @@ Changes are welcome from all members of the Community.
      * Submit a [Pull Request](https://help.github.com/articles/using-pull-requests) into develop branch.
      * Note: local and remote branches can be deleted after pull request has been merged.
 
-## Coding Standards ##
+# Coding Standards
 
 * We use snake case for all identifiers in PLSQL code. This separates keywords in names with underscores.  `execute_test`
 * All code is lower case.
@@ -37,7 +37,7 @@ Changes are welcome from all members of the Community.
 * varchar2 lengths are set in characters not bytes 
 
 
-## Configuring local environment ##
+# Configuring local environment
 
 Your local environment can be of any flavor (Unix/Linux/Windows/Mac). 
 At minimum you need to have Oracle database 11.2 XE accessible for the project and SYS account access to install and develop utPLSQL.
@@ -50,11 +50,14 @@ We use four different database accounts (users) for development process.
 
 
 
-### To get started with development, follow the below steps.
+## Get started with development
+
+To get started with development, follow the below steps.
 
 _If you're using Windows, run the shell scripts using `GIT bash` - Windows-based bash command line._
 
-**Clone your fork of utPLSQL git repository** 
+### Clone your fork of utPLSQL git repository 
+
 ```bash
 # clone your fork of utPLSQL
 git clone https://github.com/your account/utPLSQL.git utPLSQL
@@ -68,7 +71,7 @@ git remote add upstream https://github.com/utPLSQL/utPLSQL.git
 git fetch --all
 ```
 
-**Prepare environment script**
+### Prepare environment script
 
 Copy the environment variables template `development/template.env.sh` to `development/env.sh` 
 ```bash
@@ -84,19 +87,22 @@ export CONNECTION_STR=127.0.0.1:1521/xe # Adjust the connect string
 export ORACLE_PWD=oracle # Adjust your local SYS password
 ```
 
-**Download utPLSQL release sources and utplsq-cli**
+### Download utPLSQL release sources and utplsq-cli
 
-_The below script is fetching latest release version from utPLSQL repository. Latest release version is used for self-testing._
+The below script is fetching latest release version from utPLSQL repository. Latest release version is used for self-testing.
 ```bash
 development/refresh_sources.sh
 ```
 
-**Setup local database for utPLSQL development**
+### Setup local database for utPLSQL development
+
 ```bash
 development/install.sh
 ```
 
-That's it! You now have the following:
+### That's it
+
+You now have the following:
 - sources from `develop` branch of your fork of utPLSQL repository in `utPLSQL/ut3_latest_release` directory
 - sources from `master` branch of utPLSQL/utPLSQL repository in `utPLSQL/ut3_latest_release` directory
 - binaries of `utplsql-cli` in `utPLSQL/utPLSQL-cli` directory
@@ -106,19 +112,52 @@ That's it! You now have the following:
 
 At any time, if you need to refresh your database, the below scripts might be helpful. 
 
-### Cleanup of utPLSQL installation in local database
+## Running unit tests
+
+Currently we use two forms of unit tests in our CI build:
+- sql scripts as unit tests in the `old_tests` directory
+- utPLSQL v3 unit tests in the `test` directory
+
+Before you push any changes and create a pull request to the utPLSQL project repository, make sure that all of the tests are executing successfully in your local environment.
+
+Every new functionality needs to be documented by unit tests that cover both happy-path scenarios as well as edge-cases and exception paths.
+
+> **Important notice:**
+> We do our best to keep utPLSQL covered with unit tests.
+> Lack of sufficient unit testing is a perfect reason for PR to be rejected.
+
+To suite of legacy unit tests execute:
+```bash
+development/env.sh
+old_tests/runAll.sh
+```
+To run a full suite of unit tests execute:
+```bash
+development/env.sh
+test/install_and_run_tests.sh
+```
+
+You can review the results of tests as well as see information about code coverage in `./old_tests/coverage.html, ./coverage.html` files.
+
+
+## Cleanup of utPLSQL installation in local database
+
 ```bash
 development/cleanup.sh
 ```
 
-### Reinstalling utPLSQL development in `ut3` schema
+## Reinstalling utPLSQL development in `ut3` schema
+
 ```bash
 development/refresh_ut3.sh
 ```
 
-Whenever a new version of utPLSQL or a new version of utPLSQL-cli is available, use `development/refresh_sources.sh` to refresh files in your local project folders.  
+## Refreshing after release
 
-## Modules ##
+Whenever a new version of utPLSQL or a new version of utPLSQL-cli is available, use `development/refresh_sources.sh` to refresh files in your local project folders.
+ 
+
+## Modules
 
 Below diagram gives a high-level overview of utPLSQL v3 modules and their dependencies.
 Dependencies to `ut_util` are not shown as most of modules are depending on it.
@@ -126,7 +165,7 @@ Dependencies to `ut_util` are not shown as most of modules are depending on it.
 ![utPLSQL V3 Modules](development/utPSLQLv3-modules.png)
 
 
-## Build Environment ##
+## Build Environment
 
 We are using private docker images to test utPLSQL for our Travis CI builds. The following versions of Oracle Database are being used.
 
@@ -143,7 +182,7 @@ The build steps are simple if you already have some experience using Docker. You
 
 > If you are new to Docker, you can start by reading the [Getting Started With Docker](https://docs.docker.com/engine/getstarted/) docs.
 
-### Docker Build Notes ###
+### Docker Build Notes
 
 * You need to comment out the VOLUME line. This step is required, because volumes are not saved when using `docker commit` command.
 * When the build process is complete, you will run the container to install the database. Once everything is set up and you see the message "DATABASE IS READY!", you may change the password and stop the running container. After the container is stopped, you can safely commit the container.
@@ -158,7 +197,7 @@ Variable | Description
 ---------|------------
 **DOCKER_USER**<br />**DOCKER_PASSWORD** | _Your Docker Hub website credentials. They will be used to pull the private database images._
 
-### SQLCL ###
+### SQLCL
 
 Our build configuration uses SQLCL to run the scripts, and you need to configure a few additional secure environment variables. After the first build, the downloaded file will be cached.
 
@@ -167,7 +206,7 @@ Variable | Description
 **ORACLE_OTN_USER<br />ORACLE_OTN_PASSWORD** | _Your Oracle website credentials. They will be used to download SQLCL._
 
 
-## New to GIT ##
+## New to GIT
 
 If you are new to GIT here are some links to help you with understanding how it works.    
 
