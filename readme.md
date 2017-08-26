@@ -156,7 +156,7 @@ Finished in .036027 seconds
 # Contributing to the project
 
 We welcome new developers to join our community and contribute to the utPLSQL project.
-If you are interested in helping please read our [guide to contributing](docs/about/CONTRIBUTING.md)
+If you are interested in helping please read our [guide to contributing](CONTRIBUTING.md)
 The best place to start is to read the documentation and get familiar with the existing code base.
 A [slack chat](https://utplsql.slack.com/) is the place to go if you want to talk with team members.
 To sign up to the chat use [this link](http://utplsql-slack-invite.herokuapp.com/)
