@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-cd $(git rev-parse --show-cdup)
+#goto git root directory
+git rev-parse && cd "$(git rev-parse --show-cdup)"
 
-development/env.sh
+. development/env.sh
 
 cd source
 

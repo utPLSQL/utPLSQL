@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-cd $(git rev-parse --show-cdup)
 
-development/env.sh
+#goto git root directory
+git rev-parse && cd "$(git rev-parse --show-cdup)"
+
+. development/env.sh
 
 "${SQLCLI}" sys/${ORACLE_PWD}@//${CONNECTION_STR} AS SYSDBA <<-SQL
 drop user ${UT3_OWNER} cascade;

@@ -50,76 +50,78 @@ We use four different database accounts (users) for development process.
 
 
 
-Snippet to get you started with development.
- 
-_If you're using Windows, you can run below scripts using `GIT bash` - Windows-based Unix-like command line._
+### To get started with development, follow the below steps.
 
+_If you're using Windows, run the shell scripts using `GIT bash` - Windows-based bash command line._
+
+**Clone your fork of utPLSQL git repository** 
 ```bash
 # clone your fork of utPLSQL
 git clone https://github.com/your account/utPLSQL.git utPLSQL
 
 cd utPLSQL
 
-# add main porject repo as upstream
+# add main project repo as upstream
 git remote add upstream https://github.com/utPLSQL/utPLSQL.git
 
 # fetch all remote repositories
 git fetch --all
-
-# clone utPLSQL master branch from upstream into utPLSQL sub-directory of your project
-git clone --depth=1 --branch=master https://github.com/utPLSQL/utPLSQL.git utPLSQL_latest_release
-
-# download beta version of utPLSQL-cli
-curl -Lk -o utPLSQL-cli.zip https://bintray.com/viniciusam/utPLSQL-cli/download_file?file_path=utPLSQL-cli-develop-test3.zip
-# unzip utPLSQL-cli and remove the zip file
-unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli && rm utPLSQL-cli.zip 
-
 ```
 
-Now copy the file `development/template.env.sh` to `development/env.sh` and adjust variables to match your local needs.
-You might have to adjust the following lines:
+**Prepare environment script**
 
-````bash
+Copy the environment variables template `development/template.env.sh` to `development/env.sh` 
+```bash
+cp development/template.env.sh development/env.sh
+chmod u+w development/env.sh
+```
+
+You might have to adjust the following lines in `development/env.sh`:
+```bash
 export SQLCLI=sql # For sqlcl client
 #export SQLCLI=sqlplus # For sqlplus client
 export CONNECTION_STR=127.0.0.1:1521/xe # Adjust the connect string
 export ORACLE_PWD=oracle # Adjust your local SYS password
-````
-
-Refreshing your local repo.
-```bash
-# fetch all remote repositories
-git fetch --all
-
-# remove sub-direcotry containing master branch shallow copy
-rm -rf utPLSQL
-# clone utPLSQL master branch from upstream into utPLSQL sub-directory of your project
-git clone --depth=1 --branch=master https://github.com/utPLSQL/utPLSQL.git
-
-rm -rf utPLSQL-cli/*
-# download beta version of utPLSQL-cli
-curl -Lk -o utPLSQL-cli.zip https://bintray.com/viniciusam/utPLSQL-cli/download_file?file_path=utPLSQL-cli-develop-test3.zip
-# unzip utPLSQL-cli and remove the zip file
-unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli && rm utPLSQL-cli.zip 
-
 ```
 
-Cleanup of utPLSQL installation (call from your base repo directory).
+**Download utPLSQL release sources and utplsq-cli**
+
+_The below script is fetching latest release version from utPLSQL repository. Latest release version is used for self-testing._
 ```bash
-development/cleanup.sh
+development/refresh_sources.sh
 ```
 
-Install utPLSQL for development (call from your base repo directory)
+**Setup local database for utPLSQL development**
 ```bash
 development/install.sh
 ```
 
-Reinstalling utPLSQL development in `ut3` schema (call from your base repo directory).
+That's it! You now have the following:
+- sources from `develop` branch of your fork of utPLSQL repository in `utPLSQL/ut3_latest_release` directory
+- sources from `master` branch of utPLSQL/utPLSQL repository in `utPLSQL/ut3_latest_release` directory
+- binaries of `utplsql-cli` in `utPLSQL/utPLSQL-cli` directory
+- database users created
+- utPLSQL develop version deployed to `ut3` schema
+- utPLSQL released version deployed to `ut3_latest_release`
+
+At any time, if you need to refresh your database, the below scripts might be helpful. 
+
+### Cleanup of utPLSQL installation in local database
 ```bash
-development/refresh.sh
+development/cleanup.sh
 ```
 
+### Reinstalling utPLSQL development in `ut3` schema
+```bash
+development/refresh_ut3.sh
+```
+
+Whenever a new version of utPLSQL or a new version of utPLSQL-cli is available, use `development/refresh_sources.sh` to refresh files in your local project folders.  
+
 ## Modules ##
+
+Below diagram gives a high-level overview of utPLSQL v3 modules and their dependencies.
+Dependencies to `ut_util` are not shown as most of modules are depending on it.
 
 ![utPLSQL V3 Modules](development/utPSLQLv3-modules.png)
 
