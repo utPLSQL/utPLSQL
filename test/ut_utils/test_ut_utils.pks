@@ -53,9 +53,6 @@ create or replace package test_ut_utils is
   --%disabled(We cannot run this test successfully on 12.1 until we change NLSCHARACTERSET from US7ASCII to AL32UTF8)
   procedure test_clob_to_table_multibyte;
 
-  --%test(to_version uses framework version by default)
-  procedure test_to_version;
-
   --%test(to_version splits version string into individual version components)
   procedure test_to_version_split;
 

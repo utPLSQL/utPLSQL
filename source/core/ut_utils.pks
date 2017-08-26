@@ -85,6 +85,10 @@ create or replace package ut_utils authid definer is
   gc_some_tests_failed constant pls_integer := -20213;
   pragma exception_init(ex_some_tests_failed, -20213);
 
+  -- Any of tests failed
+  ex_invalid_version_no exception;
+  gc_invalid_version_no constant pls_integer := -20214;
+  pragma exception_init(ex_invalid_version_no, -20214);
 
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
@@ -247,10 +251,11 @@ create or replace package ut_utils authid definer is
   /**
   * Converts version string into version record
   *
-  * @param p_version_no - string representation of version in format vX.X.X.X where X is a positive integer
-  * @return t_version record with up to four positive numbers containing version
+  * @param    a_version_no string representation of version in format vX.X.X.X where X is a positive integer
+  * @return   t_version    record with up to four positive numbers containing version
+  * @throws   20010        if passed version string is not matching version pattern
   */
-  function to_version(p_version_no varchar2) return t_version;
+  function to_version(a_version_no varchar2) return t_version;
 
 end ut_utils;
 /
