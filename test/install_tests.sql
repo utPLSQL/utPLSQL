@@ -8,6 +8,7 @@
 @@ut_reporters/test_coverage.pks
 @@ut_reporters/test_coverage_sonar_reporter.pks
 @@ut_reporters/test_coveralls_reporter.pks
+@ut_expectations/test_expectations_cursor.pks
 @@ut_runner/test_ut_runner.pks
 
 @core.pkb
@@ -19,6 +20,7 @@
 @@ut_reporters/test_coverage.pkb
 @@ut_reporters/test_coverage_sonar_reporter.pkb
 @@ut_reporters/test_coveralls_reporter.pkb
+@ut_expectations/test_expectations_cursor.pkb
 @@ut_runner/test_ut_runner.pkb
 
 show errors
