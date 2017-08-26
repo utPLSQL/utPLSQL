@@ -132,6 +132,13 @@ create or replace package test_suite_manager is
   --%test
   --%disabled
   --procedure IncludesPackagesWithSutePath;
+  
+  --%test
+  --%beforetest(setup_pck_with_same_path)
+  --%aftertest(clean_pck_with_same_path)  
+  procedure test_pck_with_same_path;
+  procedure setup_pck_with_same_path;
+  procedure clean_pck_with_same_path;
 
 end test_suite_manager;
 /
