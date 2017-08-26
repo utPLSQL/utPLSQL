@@ -76,7 +76,7 @@ unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli && rm utPLSQL-cli.zip
 
 ```
 
-Now adjust the file ``development/env.sh`` to match your local needs.
+Now copy the file `development/template.env.sh` to `development/env.sh` and adjust variables to match your local needs.
 You might have to adjust the following lines:
 
 ````bash
