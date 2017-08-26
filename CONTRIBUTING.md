@@ -67,7 +67,7 @@ git remote add upstream https://github.com/utPLSQL/utPLSQL.git
 git fetch --all
 
 # clone utPLSQL master branch from upstream into utPLSQL sub-directory of your project
-git clone --depth=1 --branch=master https://github.com/utPLSQL/utPLSQL.git
+git clone --depth=1 --branch=master https://github.com/utPLSQL/utPLSQL.git utPLSQL_latest_release
 
 # download beta version of utPLSQL-cli
 curl -Lk -o utPLSQL-cli.zip https://bintray.com/viniciusam/utPLSQL-cli/download_file?file_path=utPLSQL-cli-develop-test3.zip
