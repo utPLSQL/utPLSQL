@@ -424,14 +424,11 @@ create or replace package body ut_suite_manager is
     end clean_paths;
 
     procedure skip_by_path(a_suite in out nocopy ut_suite_item, a_path varchar2) is
-      --c_root        constant varchar2(32767) := replace(regexp_substr(a_path, '[A-Za-z0-9$#_]+'), '$', '\$');
       c_root        constant varchar2(32767) := upper(regexp_substr(a_path, '[A-Za-z0-9$#_]+'));
       c_rest_path   constant varchar2(32767) := regexp_substr(a_path, '\.(.+)', subexpression => 1);
       l_suite       ut_logical_suite;
       l_item        ut_suite_item;
       l_items       ut_suite_items := ut_suite_items();
-      l_item_name   varchar2(32767);
-
     begin
       if a_path is not null and a_suite is not null and a_suite is of (ut_logical_suite) then
         l_suite := treat(a_suite as ut_logical_suite);
@@ -440,9 +437,7 @@ create or replace package body ut_suite_manager is
 
           l_item := l_suite.items(i);
 
-          l_item_name := l_item.name;
-          --l_item_name := regexp_substr(l_item_name,'[A-Za-z0-9$#_]+$'); -- temporary fix. seems like suite have suitepath in object_name
-          if upper(l_item_name) = c_root then
+          if upper(l_item.name) = c_root then
 
             skip_by_path(l_item, c_rest_path);
             l_items.extend;
