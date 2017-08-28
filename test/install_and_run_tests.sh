@@ -14,7 +14,7 @@ utPLSQL-cli/bin/utplsql run ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@${CONNECTION_ST
 -test_path=test -c \
 -f=ut_documentation_reporter  -o=test_results.log -s \
 -f=ut_coverage_sonar_reporter -o=coverage.xml \
--f=ut_coverage_html_reporter -o=coverage.html \
+-f=ut_coverage_html_reporter  -o=coverage.html \
 -f=ut_coveralls_reporter      -o=coverage.json \
 -f=ut_sonar_test_reporter     -o=test_results.xml
 

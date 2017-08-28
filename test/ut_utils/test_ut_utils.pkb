@@ -283,5 +283,16 @@ end;';
     ut.expect(l_result(1)).to_equal(l_expected(1));
   end;
 
+  procedure test_to_version_split is
+    l_version ut3.ut_utils.t_version;
+  begin
+    l_version := ut3.ut_utils.to_version('v034.0.0456.0333');
+    ut.expect(l_version.major).to_equal(34);
+    ut.expect(l_version.minor).to_equal(0);
+    ut.expect(l_version.bugfix).to_equal(456);
+    ut.expect(l_version.build).to_equal(333);
+  end;
+
+
 end test_ut_utils;
 /
