@@ -1208,5 +1208,61 @@ end test_package_3;]';
     execute immediate 'drop package test_package_3';
   end;
   
+  procedure test_pck_with_same_path is
+    l_objects_to_run ut3.ut_suite_items;
+    l_suite1 ut3.ut_logical_suite;
+    l_suite2 ut3.ut_logical_suite;
+    l_suite3 ut3.ut_suite;
+  begin
+    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(':test1.test2$.test_package_same_1'));
+    
+    --Assert
+    ut.expect(l_objects_to_run.count).to_equal(1);
+
+    l_suite1 := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    ut.expect(l_suite1.name).to_equal('test1');
+    ut.expect(l_suite1.items.count).to_equal(1);    
+    
+    l_suite2 := treat(l_suite1.items(1) as ut3.ut_logical_suite);
+    ut.expect(l_suite2.name).to_equal('test2$');    
+    ut.expect(l_suite2.items.count).to_equal(1); 
+    
+    l_suite3 := treat(l_suite2.items(1) as ut3.ut_suite);
+    ut.expect(l_suite3.name).to_equal('test_package_same_1');    
+  end;
+  
+  procedure setup_pck_with_same_path is
+    pragma autonomous_transaction;    
+  begin
+    execute immediate 'create or replace package test_package_same_1 as
+  --%suite
+  --%suitepath(test1.test2$)
+
+  --%test
+  procedure test1;
+end;';
+    execute immediate 'create or replace package body test_package_same_1 as
+  procedure test1 is begin null; end;
+end;';
+    execute immediate 'create or replace package test_package_same_1_a as
+  --%suite
+  --%suitepath(test1.test2$)
+
+  --%test
+  procedure test1;
+end;';
+    execute immediate 'create or replace package body test_package_same_1_a as
+  procedure test1 is begin null; end;
+end;';
+  end;
+  
+  procedure clean_pck_with_same_path is
+    pragma autonomous_transaction;    
+  begin
+    execute immediate 'drop package test_package_same_1';
+    execute immediate 'drop package test_package_same_1_a';
+    null;
+  end;
+  
 end test_suite_manager;
 /
