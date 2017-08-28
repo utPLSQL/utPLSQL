@@ -253,7 +253,7 @@ create or replace package ut_utils authid definer is
   *
   * @param    a_version_no string representation of version in format vX.X.X.X where X is a positive integer
   * @return   t_version    record with up to four positive numbers containing version
-  * @throws   20010        if passed version string is not matching version pattern
+  * @throws   20214        if passed version string is not matching version pattern
   */
   function to_version(a_version_no varchar2) return t_version;
 
