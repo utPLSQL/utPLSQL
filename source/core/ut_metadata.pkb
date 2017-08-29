@@ -159,6 +159,12 @@ create or replace package body ut_metadata as
     return l_line;
   end;
 
+  procedure reset_source_definition_cache is
+  begin
+    g_source_cache := null;
+    g_cached_object := null;
+  end;
+
   function get_dba_view(a_view_name varchar2) return varchar2 is
     l_invalid_object_name exception;
     l_result              varchar2(128) := lower(a_view_name);
@@ -170,5 +176,6 @@ create or replace package body ut_metadata as
     when l_invalid_object_name then
       return replace(l_result,'dba_','all_');
   end;
+
 end;
 /
