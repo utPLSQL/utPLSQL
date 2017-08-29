@@ -49,8 +49,8 @@ create or replace package body ut_runner is
     l_current ut_utils.t_version := ut_utils.to_version(coalesce(a_current,version()));
   begin
     if l_requested.major = l_current.major
-       and (l_requested.minor < l_current.minor
-            or l_requested.minor = l_current.minor and l_requested.bugfix <= l_current.bugfix) then
+       and (l_requested.minor < l_current.minor or l_requested.minor is null
+            or l_requested.minor = l_current.minor and (l_requested.bugfix <= l_current.bugfix or l_requested.bugfix is null)) then
       l_result := true;
     end if;
     return ut_utils.boolean_to_int(l_result);
@@ -86,10 +86,12 @@ create or replace package body ut_runner is
 
       ut_utils.cleanup_temp_tables;
       ut_output_buffer.close(l_listener.reporters);
-    exception
+      ut_metadata.reset_source_definition_cache;
+      exception
       when others then
         ut_utils.cleanup_temp_tables;
         ut_output_buffer.close(l_listener.reporters);
+        ut_metadata.reset_source_definition_cache;
         dbms_output.put_line(dbms_utility.format_error_backtrace);
         dbms_output.put_line(dbms_utility.format_error_stack);
         raise;

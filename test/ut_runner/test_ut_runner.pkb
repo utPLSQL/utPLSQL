@@ -41,5 +41,61 @@ create or replace package body test_ut_runner is
     throws('v3.0.0.0','bad_ver');
   end;
 
+  procedure create_test_spec
+  as
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package test_cache as
+    --%suite
+
+    --%test
+    procedure failing_test;
+end;
+]';
+  end;
+
+  procedure create_test_body(a_number integer)
+  as
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'create or replace package body test_cache as
+    procedure failing_test is
+    begin
+      ut3.ut.expect('||a_number||').to_be_null;
+    end;
+end;';
+  end;
+
+  procedure drop_test_package
+  as
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package test_cache';
+  end;
+
+  procedure run_reset_package_body_cache is
+    l_results   ut3.ut_varchar2_list;
+    l_expected  clob;
+    l_actual    clob;
+  begin
+    --Arrange
+    create_test_spec();
+    create_test_body(0);
+    select *
+      bulk collect into l_results
+      from table(ut3.ut.run('test_cache'));
+
+    --Act
+    create_test_body(1);
+    select *
+      bulk collect into l_results
+      from table(ut3.ut.run('test_cache'));
+    --Assert
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    l_expected := '%ut3.ut.expect(1).to_be_null;%';
+    ut.expect(l_actual).to_be_like(l_expected);
+    drop_test_package();
+  end;
+
 end;
 /
