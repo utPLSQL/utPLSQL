@@ -27,6 +27,7 @@ whenever oserror exit failure rollback
 
 set linesize 200
 set define on
+set verify off
 column text format a100
 column error_count noprint new_value error_count
 
