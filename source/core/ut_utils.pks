@@ -22,7 +22,7 @@ create or replace package ut_utils authid definer is
 
   */
 
-  gc_version                 constant varchar2(50) := 'utPLSQL - Version X.X.X.X';
+  gc_version                 constant varchar2(50) := 'X.X.X.X';
 
   /* Constants: Event names */
   gc_run                     constant varchar2(12) := 'run';
@@ -80,6 +80,15 @@ create or replace package ut_utils authid definer is
   gc_invalid_rep_event_name constant pls_integer := -20211;
   pragma exception_init(ex_invalid_rep_event_name, -20211);
 
+  -- Any of tests failed
+  ex_some_tests_failed exception;
+  gc_some_tests_failed constant pls_integer := -20213;
+  pragma exception_init(ex_some_tests_failed, -20213);
+
+  -- Any of tests failed
+  ex_invalid_version_no exception;
+  gc_invalid_version_no constant pls_integer := -20214;
+  pragma exception_init(ex_invalid_version_no, -20214);
 
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
@@ -91,6 +100,15 @@ create or replace package ut_utils authid definer is
   gc_timestamp_format         constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff';
   gc_timestamp_tz_format      constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff tzh:tzm';
   gc_null_string              constant varchar2(4) := 'NULL';
+
+  type t_version is record(
+    major  natural,
+    minor  natural,
+    bugfix natural,
+    build  natural
+  );
+
+
   /*
      Function: test_result_to_char
         returns a string representation of a test_result.
@@ -213,6 +231,31 @@ create or replace package ut_utils authid definer is
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data varchar2);
 
   function convert_collection(a_collection ut_varchar2_list) return ut_varchar2_rows;
+
+  /**
+  * Set session's action and module using dbms_application_info
+  */
+  procedure set_action(a_text in varchar2);
+
+  /**
+  * Set session's client info using dbms_application_info
+  */
+  procedure set_client_info(a_text in varchar2);
+
+  function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2;
+
+  function to_xpath(a_list ut_varchar2_list, a_ancestors varchar2 := '/*/') return varchar2;
+
+  procedure cleanup_temp_tables;
+
+  /**
+  * Converts version string into version record
+  *
+  * @param    a_version_no string representation of version in format vX.X.X.X where X is a positive integer
+  * @return   t_version    record with up to four positive numbers containing version
+  * @throws   20214        if passed version string is not matching version pattern
+  */
+  function to_version(a_version_no varchar2) return t_version;
 
 end ut_utils;
 /

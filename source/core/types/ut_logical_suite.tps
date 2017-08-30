@@ -33,7 +33,8 @@ create or replace type ut_logical_suite under ut_suite_item (
   overriding member function  do_execute(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base) return boolean,
   overriding member procedure calc_execution_result(self in out nocopy ut_logical_suite),
   overriding member procedure mark_as_errored(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base, a_error_stack_trace varchar2),
-  overriding member function get_error_stack_traces return ut_varchar2_list,  
-  overriding member function get_serveroutputs return clob
+  overriding member function get_error_stack_traces return ut_varchar2_list,
+  overriding member function get_serveroutputs return clob,
+  overriding member function get_transaction_invalidators return ut_varchar2_list
 ) not final
 /

@@ -34,12 +34,14 @@ create or replace package body ut_suite_manager is
 
   function get_schema_info(a_owner_name varchar2) return t_schema_info is
     l_info t_schema_info;
+    l_view_name      varchar2(200) := ut_metadata.get_dba_view('all_objects');
   begin
+    execute immediate q'[
     select nvl(max(t.last_ddl_time), date '4999-12-31'), count(*)
-      into l_info
-      from all_objects t
-     where t.owner = a_owner_name
-       and t.object_type in ('PACKAGE');
+      from ]'||l_view_name||q'[ t
+     where t.owner = :a_owner_name
+       and t.object_type in ('PACKAGE')]'
+    into l_info using a_owner_name;
     return l_info;
   end;
 
@@ -206,6 +208,15 @@ create or replace package body ut_suite_manager is
     l_root       varchar2(4000 char);
     l_root_suite ut_logical_suite;
 
+    type t_object_name is record(
+      owner all_objects.owner%type,
+      object_name all_objects.object_name%type
+    );
+    type t_object_names is table of t_object_name;
+
+    l_object_names t_object_names;
+    l_view_name      varchar2(200) := ut_metadata.get_dba_view('dba_objects');
+
     l_schema_suites tt_schema_suites;
 
     procedure put(a_root_suite in out nocopy ut_logical_suite, a_path varchar2, a_suite ut_logical_suite, a_parent_path varchar2 default null) is
@@ -270,14 +281,13 @@ create or replace package body ut_suite_manager is
 
   begin
     -- form the single-dimension list of suites constructed from parsed packages
-    for rec in (select t.owner
-                      ,t.object_name
-                  from all_objects t
-                 where t.owner = a_owner_name
-                   and t.status = 'VALID' -- scan only valid specifications
-                   and t.object_type in ('PACKAGE')) loop
+    execute immediate
+      'select t.owner, t.object_name from '||l_view_name||' t '
+      ||q'[ where t.owner = :a_owner_name and t.status = 'VALID' and t.object_type in ('PACKAGE')]'
+      bulk collect into l_object_names using a_owner_name;
+    for i in 1 .. cardinality(l_object_names) loop
       -- parse the source of the package
-      l_suite := config_package(rec.owner, rec.object_name);
+      l_suite := config_package(l_object_names(i).owner, l_object_names(i).object_name);
 
       if l_suite is not null then
         l_all_suites(l_suite.path) := l_suite;
@@ -414,13 +424,11 @@ create or replace package body ut_suite_manager is
     end clean_paths;
 
     procedure skip_by_path(a_suite in out nocopy ut_suite_item, a_path varchar2) is
-      c_root        constant varchar2(32767) := replace(regexp_substr(a_path, '[A-Za-z0-9$#_]+'), '$', '\$');
+      c_root        constant varchar2(32767) := upper(regexp_substr(a_path, '[A-Za-z0-9$#_]+'));
       c_rest_path   constant varchar2(32767) := regexp_substr(a_path, '\.(.+)', subexpression => 1);
       l_suite       ut_logical_suite;
       l_item        ut_suite_item;
       l_items       ut_suite_items := ut_suite_items();
-      l_item_name   varchar2(32767);
-
     begin
       if a_path is not null and a_suite is not null and a_suite is of (ut_logical_suite) then
         l_suite := treat(a_suite as ut_logical_suite);
@@ -429,9 +437,7 @@ create or replace package body ut_suite_manager is
 
           l_item := l_suite.items(i);
 
-          l_item_name := l_item.name;
-          --l_item_name := regexp_substr(l_item_name,'[A-Za-z0-9$#_]+$'); -- temporary fix. seems like suite have suitepath in object_name
-          if regexp_like(l_item_name, c_root, modifier => 'i') then
+          if upper(l_item.name) = c_root then
 
             skip_by_path(l_item, c_rest_path);
             l_items.extend;

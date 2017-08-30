@@ -16,6 +16,8 @@ create or replace package body ut_coverage is
   limitations under the License.
   */
 
+  type t_source_lines is table of binary_integer;
+
   -- The source query has two important transformations done in it.
   -- the flag: to_be_skipped ='Y' is set for a line of code that is badly reported by DBMS_PROFILER as executed 0 times.
   -- This includes lines that are:
@@ -28,9 +30,10 @@ create or replace package body ut_coverage is
   -- The subquery is optimized by:
   -- - COALESCE function -> it will execute only for TRIGGERS
   -- - scalar subquery cache -> it will only execute once for one trigger source code.
-  function populate_sources_tmp_table(a_coverage_options ut_coverage_options) return varchar2 is
+  function get_cov_sources_sql(a_coverage_options ut_coverage_options) return varchar2 is
     l_result varchar2(32767);
     l_full_name varchar2(100);
+    l_view_name      varchar2(200) := ut_metadata.get_dba_view('dba_source');
   begin
     if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
       l_full_name := 'f.file_name';
@@ -38,17 +41,16 @@ create or replace package body ut_coverage is
       l_full_name := 'lower(s.owner||''.''||s.name)';
     end if;
     l_result := '
-      insert /*+ append */ into ut_coverage_sources_tmp(full_name,owner,name,line,text, to_be_skipped)
-      select *
+      select full_name, owner, name, line, to_be_skipped, text
         from (
-          select '||l_full_name||q'[,
+          select '||l_full_name||q'[ as full_name,
                  s.owner,
                  s.name,
                  s.line -
                  coalesce(
                    case when type!='TRIGGER' then 0 end,
                    (select min(t.line) - 1
-                      from all_source t
+                      from ]'||l_view_name||q'[ t
                      where t.owner = s.owner and t.type = s.type and t.name = s.name
                        and regexp_like( t.text, '[A-Za-z0-9$#_]*(begin|declare|compound).*','i'))
                  ) as line,
@@ -69,7 +71,7 @@ create or replace package body ut_coverage is
                      )
                     then 'Y'
                  end as to_be_skipped
-            from all_source s]';
+            from ]'||l_view_name||q'[ s]';
     if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
       l_result := l_result || '
             join table(:file_mappings) f
@@ -97,6 +99,51 @@ create or replace package body ut_coverage is
        where line > 0';
     return l_result;
   end;
+
+  function get_cov_sources_cursor(a_coverage_options ut_coverage_options) return sys_refcursor is
+    l_cursor        sys_refcursor;
+    l_skip_objects  ut_object_names;
+    l_schema_names  ut_varchar2_rows;
+    l_sql           varchar2(32767);
+  begin
+    l_schema_names := coalesce(a_coverage_options.schema_names, ut_varchar2_rows(sys_context('USERENV','CURRENT_SCHEMA')));
+    if not ut_coverage_helper.is_develop_mode() then
+      --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
+      l_skip_objects := ut_utils.get_utplsql_objects_list() multiset union all coalesce(a_coverage_options.exclude_objects, ut_object_names());
+    end if;
+    l_sql := get_cov_sources_sql(a_coverage_options);
+    if a_coverage_options.file_mappings is not empty then
+      open l_cursor for l_sql using a_coverage_options.file_mappings, l_skip_objects, a_coverage_options.include_objects;
+    else
+      open l_cursor for l_sql using l_schema_names, l_skip_objects, a_coverage_options.include_objects;
+    end if;
+    return l_cursor;
+  end;
+
+  procedure populate_tmp_table(a_coverage_options ut_coverage_options) is
+    pragma autonomous_transaction;
+    l_cov_sources_crsr sys_refcursor;
+    l_cov_sources_data ut_coverage_helper.t_coverage_sources_tmp_rows;
+  begin
+
+    if not ut_coverage_helper.is_tmp_table_populated() or ut_coverage_helper.is_develop_mode() then
+      ut_coverage_helper.cleanup_tmp_table();
+
+      l_cov_sources_crsr := get_cov_sources_cursor(a_coverage_options);
+
+      loop
+        fetch l_cov_sources_crsr bulk collect into l_cov_sources_data limit 1000;
+
+        ut_coverage_helper.insert_into_tmp_table(l_cov_sources_data);
+
+        exit when l_cov_sources_crsr%notfound;
+      end loop;
+
+      close l_cov_sources_crsr;
+    end if;
+    commit;
+  end;
+
 
   /**
   * Public functions
@@ -132,99 +179,79 @@ create or replace package body ut_coverage is
   end;
 
   function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
-
-    pragma autonomous_transaction;
-
-    type t_coverage_row is record(
-      name          varchar2(500),
-      line_number   integer,
-      total_occur   number(38,0)
-    );
-    type tt_coverage_rows is table of t_coverage_row;
-    l_line_calls       ut_coverage_helper.unit_line_calls;
-    l_result           t_coverage;
-    l_new_unit         t_unit_coverage;
-    l_skipped_objects  ut_object_names := ut_object_names();
-
-    type t_source_lines is table of binary_integer;
-    l_source_lines     t_source_lines;
-    line_no            binary_integer;
-    l_schema_names     ut_varchar2_rows;
-    l_query            varchar2(32767);
+    l_line_calls          ut_coverage_helper.t_unit_line_calls;
+    l_result              t_coverage;
+    l_new_unit            t_unit_coverage;
+    line_no               binary_integer;
+    l_source_objects_crsr ut_coverage_helper.t_tmp_table_objects_crsr;
+    l_source_object       ut_coverage_helper.t_tmp_table_object;
   begin
-    l_schema_names := coalesce(a_coverage_options.schema_names, ut_varchar2_rows(sys_context('USERENV','CURRENT_SCHEMA')));
-
-    if not ut_coverage_helper.is_develop_mode() then
-      --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
-      l_skipped_objects := ut_utils.get_utplsql_objects_list() multiset union all coalesce(a_coverage_options.exclude_objects, ut_object_names());
-    end if;
 
     --prepare global temp table with sources
-    delete from ut_coverage_sources_tmp;
-    if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
-      execute immediate populate_sources_tmp_table(a_coverage_options) using a_coverage_options.file_mappings, l_skipped_objects, a_coverage_options.include_objects;
-    else
-      execute immediate populate_sources_tmp_table(a_coverage_options) using l_schema_names, l_skipped_objects, a_coverage_options.include_objects;
-    end if;
-    commit;
+    populate_tmp_table(a_coverage_options);
 
-    for src_object in (
-      select o.owner, o.name, o.full_name, max(o.line) lines_count,
-             cast(
-               collect(decode(to_be_skipped, 'Y', to_char(line))) as ut_varchar2_list
-             ) to_be_skipped_list
-        from ut_coverage_sources_tmp o
-       group by o.owner, o.name, o.full_name
-    ) loop
+    l_source_objects_crsr := ut_coverage_helper.get_tmp_table_objects_cursor();
+    loop
+      fetch l_source_objects_crsr into l_source_object;
+      exit when l_source_objects_crsr%notfound;
 
       --get coverage data
-      l_line_calls := ut_coverage_helper.get_raw_coverage_data( src_object.owner, src_object.name );
+      l_line_calls := ut_coverage_helper.get_raw_coverage_data( l_source_object.owner, l_source_object.name );
 
       --if there is coverage, we need to filter out the garbage (badly indicated data from dbms_profiler)
       if l_line_calls.count > 0 then
         --remove lines that should not be indicted as meaningful
-        for i in 1 .. src_object.to_be_skipped_list.count loop
-          if src_object.to_be_skipped_list(i) is not null then
-            l_line_calls.delete(src_object.to_be_skipped_list(i));
+        for i in 1 .. l_source_object.to_be_skipped_list.count loop
+          if l_source_object.to_be_skipped_list(i) is not null then
+            l_line_calls.delete(l_source_object.to_be_skipped_list(i));
           end if;
         end loop;
       end if;
 
-      if not l_result.objects.exists(src_object.full_name) then
-        l_result.objects(src_object.full_name) := l_new_unit;
-        l_result.objects(src_object.full_name).owner := src_object.owner;
-        l_result.objects(src_object.full_name).name  := src_object.name;
+      --if there are no file mappings or object was actually captured by profiler
+      if a_coverage_options.file_mappings is null or l_line_calls.count > 0 then
+
+        --populate total stats
+        l_result.total_lines := l_result.total_lines + l_source_object.lines_count;
+
+        --populate object level coverage stats
+        if not l_result.objects.exists(l_source_object.full_name) then
+          l_result.objects(l_source_object.full_name) := l_new_unit;
+          l_result.objects(l_source_object.full_name).owner := l_source_object.owner;
+          l_result.objects(l_source_object.full_name).name  := l_source_object.name;
+          l_result.objects(l_source_object.full_name).total_lines := l_source_object.lines_count;
+        end if;
+        --map to results
+        line_no := l_line_calls.first;
+        if line_no is null then
+          l_result.uncovered_lines := l_result.uncovered_lines + l_source_object.lines_count;
+          l_result.objects(l_source_object.full_name).uncovered_lines := l_source_object.lines_count;
+        else
+          loop
+            exit when line_no is null;
+
+            if l_line_calls(line_no) > 0 then
+              --total stats
+              l_result.covered_lines := l_result.covered_lines + 1;
+              l_result.executions := l_result.executions + l_line_calls(line_no);
+              --object level stats
+              l_result.objects(l_source_object.full_name).covered_lines := l_result.objects(l_source_object.full_name).covered_lines + 1;
+              l_result.objects(l_source_object.full_name).executions := l_result.objects(l_source_object.full_name).executions + l_line_calls(line_no);
+            elsif l_line_calls(line_no) = 0 then
+              l_result.uncovered_lines := l_result.uncovered_lines + 1;
+              l_result.objects(l_source_object.full_name).uncovered_lines := l_result.objects(l_source_object.full_name).uncovered_lines + 1;
+            end if;
+            l_result.objects(l_source_object.full_name).lines(line_no) := l_line_calls(line_no);
+
+            line_no := l_line_calls.next(line_no);
+          end loop;
+        end if;
       end if;
-      l_result.total_lines := l_result.total_lines + src_object.lines_count;
-      l_result.objects(src_object.full_name).total_lines := src_object.lines_count;
-      --map to results
-      line_no := l_line_calls.first;
-      if line_no is null then
-        l_result.uncovered_lines := l_result.uncovered_lines + src_object.lines_count;
-        l_result.objects(src_object.full_name).uncovered_lines := src_object.lines_count;
-      else
-        loop
-          exit when line_no is null;
-
-          if l_line_calls(line_no) > 0 then
-            l_result.covered_lines := l_result.covered_lines + 1;
-            l_result.executions := l_result.executions + l_line_calls(line_no);
-            l_result.objects(src_object.full_name).covered_lines := l_result.objects(src_object.full_name).covered_lines + 1;
-            l_result.objects(src_object.full_name).executions := l_result.objects(src_object.full_name).executions + l_line_calls(line_no);
-          elsif l_line_calls(line_no) = 0 then
-            l_result.uncovered_lines := l_result.uncovered_lines + 1;
-            l_result.objects(src_object.full_name).uncovered_lines := l_result.objects(src_object.full_name).uncovered_lines + 1;
-          end if;
-          l_result.objects(src_object.full_name).lines(line_no) := l_line_calls(line_no);
-
-          line_no := l_line_calls.next(line_no);
-        end loop;
-      end if;
-
 
     end loop;
 
-    commit;
+    close l_source_objects_crsr;
+
     return l_result;
   end get_coverage_data;
 

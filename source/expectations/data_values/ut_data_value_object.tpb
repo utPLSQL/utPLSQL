@@ -18,9 +18,7 @@ create or replace type body ut_data_value_object as
 
   constructor function ut_data_value_object(self in out nocopy ut_data_value_object, a_value anydata) return self as result is
   begin
-    self.data_value := a_value;
-    self.self_type  := $$plsql_unit;
-    self.data_type  := case when a_value is not null then lower(a_value.gettypename) else 'undefined' end;
+    self.init(a_value, $$plsql_unit);
     return;
   end;
 
@@ -62,45 +60,6 @@ create or replace type body ut_data_value_object as
       l_is_null := ut_utils.int_to_boolean(l_data_is_null);
     end if;
     return l_is_null;
-  end;
-
-  overriding member function to_string return varchar2 is
-    l_result varchar2(32767);
-    l_clob   clob;
-  begin
-    if self.is_null() then
-      l_result := ut_utils.to_string( to_char(null) );
-    else
-      ut_expectation_processor.set_xml_nls_params();
-      select xmlserialize(content xmltype(self.data_value) indent) into l_clob from dual;
-      l_result := ut_utils.to_string( l_clob, null );
-      ut_expectation_processor.reset_nls_params();
-    end if;
-    return self.format_multi_line( l_result );
-  end;
-
-  overriding member function compare_implementation(a_other ut_data_value) return integer is
-    l_self_data  xmltype;
-    l_other_data xmltype;
-    l_other  ut_data_value_object;
-    l_result integer;
-  begin
-    if a_other is of (ut_data_value_object) then
-      l_other := treat(a_other as ut_data_value_object);
-      --needed for 11g xe as it fails on constructing XMLTYPE from null ANYDATA
-      if not self.is_null() and not l_other.is_null() then
-        ut_expectation_processor.set_xml_nls_params();
-        l_self_data := xmltype.createxml(self.data_value);
-        l_other_data := xmltype.createxml(l_other.data_value);
-        ut_expectation_processor.reset_nls_params();
-        if l_self_data is not null and l_other_data is not null then
-          l_result := dbms_lob.compare( l_self_data.getclobval(), l_other_data.getclobval() );
-        end if;
-      end if;
-    else
-      raise value_error;
-    end if;
-    return l_result;
   end;
 
   overriding member function is_multi_line return boolean is

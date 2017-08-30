@@ -341,5 +341,61 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  procedure set_action(a_text in varchar2) is
+  begin
+    dbms_application_info.set_module('utPLSQL', a_text);
+  end;
+
+  procedure set_client_info(a_text in varchar2) is
+  begin
+    dbms_application_info.set_client_info(a_text);
+  end;
+
+  function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2 is
+    l_xpath varchar2(32767) := a_list;
+  begin
+    if l_xpath not like '/%' then
+      l_xpath := to_xpath( clob_to_table(a_clob=>a_list, a_delimiter=>','), a_ancestors);
+    end if;
+    return l_xpath;
+  end;
+
+  function to_xpath(a_list ut_varchar2_list, a_ancestors varchar2 := '/*/') return varchar2 is
+    l_xpath varchar2(32767);
+    l_item  varchar2(32767);
+    i integer;
+  begin
+    i := a_list.first;
+    while i is not null loop
+      l_item := trim(a_list(i));
+      if l_item is not null then
+        l_xpath := l_xpath || a_ancestors ||a_list(i)||'|';
+      end if;
+      i := a_list.next(i);
+    end loop;
+    l_xpath := rtrim(l_xpath,',|');
+    return l_xpath;
+  end;
+
+  procedure cleanup_temp_tables is
+  begin
+    execute immediate 'delete from ut_cursor_data';
+  end;
+
+  function to_version(a_version_no varchar2) return t_version is
+    l_result t_version;
+    c_version_part_regex varchar2(20) := '[0-9]+';
+  begin
+
+    if regexp_like(a_version_no,'v?([0-9]+(\.|$)){1,4}') then
+      l_result.major  := regexp_substr(a_version_no, c_version_part_regex, 1, 1);
+      l_result.minor  := regexp_substr(a_version_no, c_version_part_regex, 1, 2);
+      l_result.bugfix := regexp_substr(a_version_no, c_version_part_regex, 1, 3);
+      l_result.build  := regexp_substr(a_version_no, c_version_part_regex, 1, 4);
+    else
+      raise_application_error(gc_invalid_version_no, 'Version string "'||a_version_no||'" is not a valid version');
+    end if;
+    return l_result;
+  end;
 end ut_utils;
 /

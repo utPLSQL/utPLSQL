@@ -82,7 +82,7 @@ Executes single test procedure _hr.test_apply_bonus.bonus_cannot_be_negative_.
 
 ```sql
 begin
-  ut.run(ut_varcahr2_list('hr.test_apply_bonus','cust'));
+  ut.run(ut_varchar2_list('hr.test_apply_bonus','cust'));
 end;
 ```
 Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_.

@@ -1,16 +1,16 @@
 #!/bin/bash
 
-cd "$(dirname "$(readlink -f "$0")")"
+cd source
 set -ev
 #install core of utplsql
 "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
-pwd
 set feedback off
 set verify off
 
-@../source/install_headless.sql $UT3_OWNER $UT3_OWNER_PASSWORD
+@install_headless.sql $UT3_OWNER $UT3_OWNER_PASSWORD
 SQL
 
+#additional privileges to run scripted tests
 "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
 set feedback on
 --needed for Mystats script to work
@@ -18,24 +18,18 @@ grant select any dictionary to $UT3_OWNER;
 --Needed for testing a coverage outside ut3_owner.
 grant create any procedure, drop any procedure, execute any procedure to $UT3_OWNER;
 
-set feedback off
-@../source/create_utplsql_owner.sql $UT3_USER $UT3_USER_PASSWORD $UT3_TABLESPACE
-
-cd ..
-
---enable plsql debug
---cd development
---@ut_debug_enable.sql
---cd ..
-
---cd source
---@install.sql $UT3_OWNER
---@create_synonyms_and_grants_for_user.sql $UT3_OWNER $UT3_USER
---cd ..
-
-cd development
 conn $UT3_OWNER/$UT3_OWNER_PASSWORD@//$CONNECTION_STR
-@utplsql_style_check.sql
+@../development/utplsql_style_check.sql
+exit
+SQL
 
+#Create additional users
+"$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
+set feedback off
+@create_utplsql_owner.sql $UT3_TESTER $UT3_TESTER_PASSWORD $UT3_TABLESPACE
+
+set feedback on
+--Needed for testing coverage outside of main UT3 schema.
+grant create any procedure, drop any procedure, execute any procedure, create any type, drop any type, execute any type, under any type, select any table, update any table, insert any table, delete any table, create any table, drop any table, alter any table, select any dictionary to $UT3_TESTER;
 exit
 SQL

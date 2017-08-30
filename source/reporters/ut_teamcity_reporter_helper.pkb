@@ -45,22 +45,6 @@ create or replace package body ut_teamcity_reporter_helper is
 
   end message;
 
---   function block_opened(a_name varchar2, a_flow_id varchar2 default null) return varchar2 is
---     l_props t_props;
---   begin
---     l_props('name') := a_name;
---     l_props('flowId') := a_flow_id;
---     return message('blockOpened', l_props);
---   end;
---
---   function block_closed(a_name varchar2, a_flow_id varchar2 default null) return varchar2 is
---     l_props t_props;
---   begin
---     l_props('name') := a_name;
---     l_props('flowId') := a_flow_id;
---     return message('blockClosed', l_props);
---   end;
---
   function test_suite_started(a_suite_name varchar2, a_flow_id varchar2 default null) return varchar2 is
     l_props t_props;
   begin
@@ -123,14 +107,7 @@ create or replace package body ut_teamcity_reporter_helper is
 
     return message('testFailed', l_props);
   end;
---   function test_std_out(a_test_name varchar2, a_out in varchar2, a_flow_id in varchar2 default null) return varchar2 is
---     l_props t_props;
---   begin
---     l_props('name') := a_test_name;
---     l_props('out') := a_out;
---     l_props('flowId') := a_flow_id;
---     return message('testStdOut', l_props);
---   end;
+
   function test_std_err(a_test_name varchar2, a_out in varchar2, a_flow_id in varchar2 default null) return varchar2 is
     l_props t_props;
   begin
@@ -139,16 +116,6 @@ create or replace package body ut_teamcity_reporter_helper is
     l_props('flowId') := a_flow_id;
     return message('testStdErr', l_props);
   end;
-
---   function custom_message(a_text in varchar2, a_status in varchar2, a_error_deatils in varchar2 default null, a_flow_id in varchar2 default null) return varchar2 is
---     l_props t_props;
---   begin
---     l_props('text') := a_text;
---     l_props('status') := a_status;
---     l_props('errorDetails') := a_error_deatils;
---     l_props('flowId') := a_flow_id;
---     return message('message', l_props);
---   end;
 
 end ut_teamcity_reporter_helper;
 /

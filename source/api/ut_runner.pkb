@@ -43,88 +43,101 @@ create or replace package body ut_runner is
     return ut_utils.gc_version;
   end;
 
-  procedure cleanup_temp_tables is
-    pragma autonomous_transaction;
+  function version_compatibility_check( a_requested varchar2, a_current varchar2 := null ) return integer is
+    l_result boolean := false;
+    l_requested ut_utils.t_version := ut_utils.to_version(a_requested);
+    l_current ut_utils.t_version := ut_utils.to_version(coalesce(a_current,version()));
   begin
-    delete from ut_cursor_data where 1 = 1;
-    commit;
+    if l_requested.major = l_current.major
+       and (l_requested.minor < l_current.minor or l_requested.minor is null
+            or l_requested.minor = l_current.minor and (l_requested.bugfix <= l_current.bugfix or l_requested.bugfix is null)) then
+      l_result := true;
+    end if;
+    return ut_utils.boolean_to_int(l_result);
   end;
 
   procedure run(
     a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false,
     a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
   ) is
     l_items_to_run  ut_run;
     l_listener      ut_event_listener;
   begin
-    ut_output_buffer.cleanup_buffer();
+    begin
+      ut_output_buffer.cleanup_buffer();
 
-    ut_console_reporter_base.set_color_enabled(a_color_console);
-    if a_reporters is null or a_reporters.count = 0 then
-      l_listener := ut_event_listener(ut_reporters(ut_documentation_reporter()));
-    else
-      l_listener := ut_event_listener(a_reporters);
-    end if;
-    l_items_to_run := ut_run(
-      ut_suite_manager.configure_execution_by_path(a_paths),
-      a_paths,
-      ut_utils.convert_collection(a_coverage_schemes),
-      to_ut_object_list(a_exclude_objects),
-      to_ut_object_list(a_include_objects),
-      set(a_source_file_mappings),
-      set(a_test_file_mappings)
-    );
-    l_items_to_run.do_execute(l_listener);
+      ut_console_reporter_base.set_color_enabled(a_color_console);
+      if a_reporters is null or a_reporters.count = 0 then
+        l_listener := ut_event_listener(ut_reporters(ut_documentation_reporter()));
+      else
+        l_listener := ut_event_listener(a_reporters);
+      end if;
+      l_items_to_run := ut_run(
+        ut_suite_manager.configure_execution_by_path(a_paths),
+        a_paths,
+        ut_utils.convert_collection(a_coverage_schemes),
+        to_ut_object_list(a_exclude_objects),
+        to_ut_object_list(a_include_objects),
+        set(a_source_file_mappings),
+        set(a_test_file_mappings)
+      );
+      l_items_to_run.do_execute(l_listener);
 
-    cleanup_temp_tables;
-    ut_output_buffer.close(l_listener.reporters);
-  exception
-    when others then
-      cleanup_temp_tables;
+      ut_utils.cleanup_temp_tables;
       ut_output_buffer.close(l_listener.reporters);
-      dbms_output.put_line(dbms_utility.format_error_backtrace);
-      dbms_output.put_line(dbms_utility.format_error_stack);
-      raise;
+      ut_metadata.reset_source_definition_cache;
+      exception
+      when others then
+        ut_utils.cleanup_temp_tables;
+        ut_output_buffer.close(l_listener.reporters);
+        ut_metadata.reset_source_definition_cache;
+        dbms_output.put_line(dbms_utility.format_error_backtrace);
+        dbms_output.put_line(dbms_utility.format_error_stack);
+        raise;
+    end;
+    if a_fail_on_errors and l_items_to_run.result in (ut_utils.tr_failure, ut_utils.tr_error) then
+      raise_application_error(ut_utils.gc_some_tests_failed, 'Some tests failed');
+    end if;
   end;
 
   procedure run(
     a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false,
     a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
   ) is
   begin
     run(
       a_paths, a_reporters, a_color_console, a_coverage_schemes,
       ut_file_mapper.build_file_mappings(a_source_files),
       ut_file_mapper.build_file_mappings(a_test_files),
-      a_include_objects, a_exclude_objects
+      a_include_objects, a_exclude_objects, a_fail_on_errors
     );
   end;
 
   procedure run(
     a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console boolean := false,
     a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
   ) is
   begin
     run(
       a_paths, ut_reporters(coalesce(a_reporter,ut_documentation_reporter())),
       a_color_console, a_coverage_schemes, a_source_file_mappings, a_test_file_mappings,
-      a_include_objects, a_exclude_objects
+      a_include_objects, a_exclude_objects, a_fail_on_errors
     );
   end;
 
   procedure run(
     a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console boolean := false,
     a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
   ) is
   begin
     run(
       a_paths, ut_reporters(coalesce(a_reporter,ut_documentation_reporter())),
       a_color_console, a_coverage_schemes, a_source_files, a_test_files,
-      a_include_objects, a_exclude_objects
+      a_include_objects, a_exclude_objects, a_fail_on_errors
     );
   end;
 
@@ -132,52 +145,52 @@ create or replace package body ut_runner is
   procedure run(
     a_path in varchar2, a_reporter ut_reporter_base := null, a_color_console boolean := false,
     a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
   ) is
   begin
     run(
       ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema'))),
       a_reporter, a_color_console, a_coverage_schemes, a_source_file_mappings, a_test_file_mappings,
-      a_include_objects, a_exclude_objects
+      a_include_objects, a_exclude_objects, a_fail_on_errors
     );
   end run;
 
   procedure run(
     a_path in varchar2, a_reporter ut_reporter_base := null, a_color_console boolean := false,
     a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
   ) is
   begin
     run(
       ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema'))),
       a_reporter, a_color_console, a_coverage_schemes, a_source_files, a_test_files,
-      a_include_objects, a_exclude_objects
+      a_include_objects, a_exclude_objects, a_fail_on_errors
     );
   end run;
 
   procedure run(
     a_path in varchar2, a_reporters in ut_reporters, a_color_console boolean := false,
     a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
   ) is
   begin
     run(
       ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema'))),
       a_reporters, a_color_console, a_coverage_schemes, a_source_file_mappings, a_test_file_mappings,
-      a_include_objects, a_exclude_objects
+      a_include_objects, a_exclude_objects, a_fail_on_errors
     );
   end run;
 
   procedure run(
     a_path in varchar2, a_reporters in ut_reporters, a_color_console boolean := false,
     a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
   ) is
   begin
     run(
       ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema'))),
       a_reporters, a_color_console, a_coverage_schemes, a_source_files, a_test_files,
-      a_include_objects, a_exclude_objects
+      a_include_objects, a_exclude_objects, a_fail_on_errors
     );
   end run;
 

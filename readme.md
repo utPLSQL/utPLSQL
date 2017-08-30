@@ -73,7 +73,7 @@ select * from table(ut.run());
 
 The above commands will run all the suites in the current schema and provide report to dbms_output or as a select statement.
 
-# Command lien clients
+# Command line clients
 
 To have more control over how the tests are invoked, use one of the utPLSQL command line clients: [utPLSQL-sql-cli](https://github.com/utPLSQL/utPLSQL-sql-cli) or [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli).
 
@@ -156,7 +156,7 @@ Finished in .036027 seconds
 # Contributing to the project
 
 We welcome new developers to join our community and contribute to the utPLSQL project.
-If you are interested in helping please read our [guide to contributing](docs/about/CONTRIBUTING.md)
+If you are interested in helping please read our [guide to contributing](CONTRIBUTING.md)
 The best place to start is to read the documentation and get familiar with the existing code base.
 A [slack chat](https://utplsql.slack.com/) is the place to go if you want to talk with team members.
 To sign up to the chat use [this link](http://utplsql-slack-invite.herokuapp.com/)
