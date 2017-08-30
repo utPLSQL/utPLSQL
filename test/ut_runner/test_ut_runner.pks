@@ -15,8 +15,8 @@ create or replace package test_ut_runner is
   --%test(version_compatibility_check raises exception when invalid version passed)
   procedure version_comp_check_exception;
 
-  --%test(version_compatibility_check raises exception when invalid version passed)
-  procedure version_comp_check_exception;
+  --%test(run resets cache of package body after every run)
+  procedure run_reset_package_body_cache;
 
 end;
 /

@@ -79,6 +79,9 @@ create or replace package ut_metadata authid current_user as
   */
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2;
 
+
+  procedure reset_source_definition_cache;
+
   /*
     function: get_dba_view
 
