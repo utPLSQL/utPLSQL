@@ -6,17 +6,18 @@ To achieve that, we use a combination of expectation and matcher to perform the 
 Example of a unit test procedure body.
 ```sql
 begin
-  ut.expect( 'the tested value' ).to_( equal('the expected value') );
+  ut.expect( 'the tested value', 'optional custom failure message' ).to_( equal('the expected value') );
 end;
 ```
 
 Expectation is a set of the expected value(s), actual values(s) and the matcher(s) to run on those values.
+You can also add a custom failure message for an expectation.
 
 Matcher defines the comparison operation to be performed on expected and actual values.
 Pseudo-code:
 ```
-  ut.expect( a_actual {data-type} ).to_( {matcher} );
-  ut.expect( a_actual {data-type} ).not_to( {matcher} );
+  ut.expect( a_actual {data-type} [, a_message {varchar2}] ).to_( {matcher} );
+  ut.expect( a_actual {data-type} [, a_message {varchar2}] ).not_to( {matcher} );
 ```
 
 All matchers have shortcuts like:
@@ -24,6 +25,62 @@ All matchers have shortcuts like:
   ut.expect( a_actual {data-type} ).to_{matcher};
   ut.expect( a_actual {data-type} ).not_to_{matcher};
 ```
+
+## Providing a custom failure message
+Expectations allow you to provide a custom error message as second argument:
+````sql
+-- Pseudocode
+ut.expect( a_actual {data-type}, a_message {varchar2} ).to_{matcher};
+-- Example
+ut.expect( 'supercat', 'checked superhero-animal was not a dog' ).to_( equal('superdog') );
+````
+The message is added to the normal failure message returned by the matcher.
+
+This is not only useful to give more detailed and specific information about a test, but also if you have some kind of dynamic tests.
+
+### Dynamic tests example
+You have a bunch of tables and an archive-functionality for them and you want to test if the things you put into live-tables are removed from live-tables and present in archive-tables:
+
+````sql
+procedure test_data_existance( i_tableName varchar2 ) 
+  as
+    v_count_real integer;
+    v_count_archive integer;
+  begin
+    
+    execute immediate 'select count(*) from ' || i_tablename || '' into v_count_real;
+    execute immediate 'select count(*) from ' || i_tablename || '_archive' into v_count_archive;
+
+    ut.expect( v_count_archive, 'failure checking entry-count of ' || i_tablename || '_archive' ).to_( equal(1) );
+    ut.expect( v_count_real, 'failure checking entry-count of ' || i_tablename ).to_( equal(0) );
+
+  end;
+
+ procedure test_archive_data
+  as
+  begin
+    -- Arrange
+   -- insert several data into real-tables here
+
+    -- Act
+    package_to_test.archive_data();
+
+    -- Assert
+    test_data_existance('TABLE_A');
+    test_data_existance('TABLE_B');
+    test_data_existance('TABLE_C');
+    test_data_existance('TABLE_D');
+end;
+````
+A failed output will look like this:
+````
+Failures:
+ 
+  1) test_archive_data
+      "failure checking entry-count of TABLE_A_archive"
+      Actual: 2 (number) was expected to equal: 1 (number) 
+      at "UT_TEST_PACKAGE.TEST_DATA_EXISTANCE", line 12 ut.expect( v_count_archive, 'failure checking entry-count of ' || i_tablename || '_archive' ).to_( equal(1) );
+````
 
 # Matchers
 utPLSQL provides the following matchers to perform checks on the expected and actual values.  
@@ -471,55 +528,4 @@ end;
 ```
 Since NULL is neither *true* nor *not true*, both expectations will report failure.
 
-# Provide a custom error message
-Expectations allow you to provide a custom error message as second argument:
-````sql
-ut.expect( a_actual {data-type}, 'custom error message if expectation fails' ).to_{matcher};
-````
-The message is added to the normal error message returned by the matcher.
 
-This is not only useful to give more detailed and specific information about a test, but also if you have some kind of dynamic tests.
-
-## Dynamic tests example
-You have a bunch of tables and an archive-functionality for them and you want to test if the things you put into live-tables are removed from live-tables and present in archive-tables:
-
-````sql
-procedure test_data_existance( i_tableName varchar2 ) 
-  as
-    v_count_real integer;
-    v_count_archive integer;
-  begin
-    
-    execute immediate 'select count(*) from ' || i_tablename || '' into v_count_real;
-    execute immediate 'select count(*) from ' || i_tablename || '_archive' into v_count_archive;
-
-    ut.expect( v_count_archive, 'error checking entry-count of ' || i_tablename || '_archive' ).to_( equal(1) );
-    ut.expect( v_count_real, 'error checking entry-count of ' || i_tablename ).to_( equal(0) );
-
-  end;
-
- procedure test_archive_data
-  as
-  begin
-    -- Arrange
-   -- insert several data into real-tables here
-
-    -- Act
-    package_to_test.archive_data();
-
-    -- Assert
-    test_data_existance('TABLE_A');
-    test_data_existance('TABLE_B');
-    test_data_existance('TABLE_C');
-    test_data_existance('TABLE_D');
-end;
-````
-A failed output will look like this:
-````
-Failures:
- 
-  1) test_archive_data
-      "error checking entry-count of TABLE_A_archive"
-      Actual: 2 (number) was expected to equal: 1 (number) 
-      at "UT_TEST_PACKAGE.TEST_DATA_EXISTANCE", line 12 ut.expect( v_count_archive, 'error checking entry-count of ' || i_tablename || '_archive' ).to_( equal(1) );
-````
