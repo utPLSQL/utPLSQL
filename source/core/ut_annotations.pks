@@ -47,8 +47,7 @@ create or replace package ut_annotations authid current_user as
   type tt_annotation_params is table of typ_annotation_param index by pls_integer;
 
   type t_annotation is record(
-    text   varchar2(4000),
-    params tt_annotation_params
+    text   varchar2(4000)
   );
 
   /*
@@ -93,6 +92,13 @@ create or replace package ut_annotations authid current_user as
     get annotation parameter on a specified index position
   */
 --   function get_annotation_param(a_param_list tt_annotation_params, a_def_index pls_integer) return varchar2;
+
+  /*
+    function: parse_annotation_params
+
+    parses annotation parameters from annotation text string
+  */
+  function parse_annotation_params(a_annotation_text varchar2) return tt_annotation_params;
 
 end ut_annotations;
 /
