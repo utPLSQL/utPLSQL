@@ -75,6 +75,8 @@ alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6
 @@install_component.sql 'core/ut_output_buffer.pkb'
 
 --annoations
+@@install_component.sql 'core/annotations/ut_annotation.tps'
+@@install_component.sql 'core/annotations/ut_annotations.tps'
 @@install_component.sql 'core/annotations/ut_annotation_parser.pks'
 @@install_component.sql 'core/annotations/ut_annotation_parser.pkb'
 

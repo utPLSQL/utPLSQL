@@ -46,52 +46,18 @@ create or replace package ut_annotation_parser authid current_user as
   */
   type tt_annotation_params is table of typ_annotation_param index by pls_integer;
 
-  type t_annotation is record(
-    text   varchar2(4000)
-  );
-
-  /*
-    type: tt_annotations
-    a list of tt_annotation_params index by the annotation name
-  */
-  type tt_annotations is table of t_annotation index by t_annotation_name;
-
-  /*
-    type: tt_procedure_annotations
-    a list of tt_annotations index by the procedure name
-  */
-  type tt_procedure_annotations is record(name t_procedure_name, annotations tt_annotations);
-
-  type tt_procedure_list is table of tt_procedure_annotations index by pls_integer;
-
-  /*
-    type: typ_annotated_package
-    a structure containing a list of package level annotations and a list of procedure level annotations
-
-  */
-  type typ_annotated_package is record(
-     procedure_annotations  tt_procedure_list
-    ,package_annotations    tt_annotations);
-
   /*
     INTERNAL USE ONLY
   */
-  function parse_package_annotations(a_source clob) return typ_annotated_package;
+  function parse_package_annotations(a_source clob) return ut_annotations;
 
   /*
     function: get_package_annotations
 
     get annotations for specified package specification and return its annotated schema
   */
-  function get_package_annotations(a_owner_name varchar2, a_name varchar2) return typ_annotated_package;
+  function get_package_annotations(a_owner_name varchar2, a_name varchar2) return ut_annotations;
 
-
-  /*
-    function: get_annotation_param
-
-    get annotation parameter on a specified index position
-  */
---   function get_annotation_param(a_param_list tt_annotation_params, a_def_index pls_integer) return varchar2;
 
   /*
     function: parse_annotation_params

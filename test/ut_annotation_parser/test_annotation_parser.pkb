@@ -1,63 +1,9 @@
 create or replace package body test_annotation_parser is
 
-  procedure check_annotation_parsing(a_expected ut3.ut_annotation_parser.typ_annotated_package, a_parsing_result ut3.ut_annotation_parser.typ_annotated_package) is
-
-    procedure check_annotations(a_msg varchar2, a_expected ut3.ut_annotation_parser.tt_annotations, a_actual ut3.ut_annotation_parser.tt_annotations) is
-      l_ind varchar2(500);
-    begin
-      ut.expect(a_actual.count, '[' || a_msg || ']Check number of annotations parsed').to_equal(a_expected.count);
-
-      if a_expected.count = a_actual.count and a_expected.count > 0 then
-        l_ind := a_expected.first;
-        while l_ind is not null loop
-
-          ut.expect(a_actual.exists(l_ind), ('[' || a_msg || ']Check annotation exists')).to_be_true;
-          if a_actual.exists(l_ind) then
-            ut.expect(a_actual(l_ind).text, ('[' || a_msg || ']Check annotation text')).to_equal(a_expected(l_ind).text);
---             check_annotation_params(a_msg || '.' || l_ind, a_expected(l_ind).params, a_actual(l_ind).params);
-          end if;
-          l_ind := a_expected.next(l_ind);
-        end loop;
-      end if;
-    end;
-
-    procedure check_procedures(a_msg varchar2, a_expected ut3.ut_annotation_parser.tt_procedure_list, a_actual ut3.ut_annotation_parser.tt_procedure_list) is
-      l_found boolean := false;
-      l_index pls_integer;
-    begin
-      ut.expect(a_actual.count, '[' || a_msg || ']Check number of procedures parsed').to_equal(a_expected.count);
-
-      if a_expected.count = a_actual.count and a_expected.count > 0 then
-        for i in 1 .. a_expected.count loop
-          l_found := false;
-          l_index := null;
-          for j in 1 .. a_actual.count loop
-            if a_expected(i).name = a_actual(j).name then
-              l_found := true;
-              l_index := j;
-              exit;
-            end if;
-          end loop;
-
-          ut.expect(l_found, '[' || a_msg || ']Check procedure exists').to_be_true;
-          if l_found then
-            check_annotations(a_msg || '.' || a_expected(i).name
-                             ,a_expected(i).annotations
-                             ,a_actual(l_index).annotations);
-          end if;
-        end loop;
-      end if;
-    end;
-  begin
-    check_annotations('PACKAGE', a_expected.package_annotations, a_parsing_result.package_annotations);
-    check_procedures('PROCEDURES', a_expected.procedure_annotations, a_parsing_result.procedure_annotations);
-  end check_annotation_parsing;
-
   procedure test1 is
-    l_source         clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
-    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
+    l_source   clob;
+    l_actual   ut3.ut_annotations;
+    l_expected ut3.ut_annotations;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -72,27 +18,24 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
-    l_expected.package_annotations('suite').text := null;
-    l_expected.package_annotations('displayname').text := 'Name of suite';
 
-    l_expected.package_annotations('suitepath').text := 'all.globaltests';
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation(1,'suite',null, null),
+      ut3.ut_annotation(2,'displayname','Name of suite',null),
+      ut3.ut_annotation(3,'suitepath','all.globaltests',null),
+      ut3.ut_annotation(5,'ann2','some_value','foo')
+    );
 
-    l_expected.procedure_annotations(1).annotations('ann2').text := 'some_value';
-    l_expected.procedure_annotations(1).name := 'foo';
-
-    check_annotation_parsing(l_expected, l_parsing_result);
-
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
   end;
 
   procedure test2 is
-    l_source         clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
-    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
-
+    l_source    clob;
+    l_actual    ut3.ut_annotations;
+    l_expected  ut3.ut_annotations;
   begin
     l_source := 'PACKAGE test_tt AS
     -- %suite
@@ -106,23 +49,23 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
-    l_expected.package_annotations('suite').text := null;
-    l_expected.package_annotations('displayname').text := 'Name of suite';
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite', null, null ),
+      ut3.ut_annotation( 2, 'displayname', 'Name of suite', null ),
+      ut3.ut_annotation( 3, 'suitepath', 'all.globaltests', null )
+    );
 
-    l_expected.package_annotations('suitepath').text := 'all.globaltests';
-
-    check_annotation_parsing(l_expected, l_parsing_result);
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
 
   end;
 
   procedure test3 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
-    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
+    l_actual         ut3.ut_annotations;
+    l_expected       ut3.ut_annotations;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -152,32 +95,26 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
-    l_expected.package_annotations('suite').text := null;
-    l_expected.package_annotations('displayname').text := 'Name of suite';
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite', null, null ),
+      ut3.ut_annotation( 2, 'displayname', 'Name of suite', null ),
+      ut3.ut_annotation( 3, 'suitepath', 'all.globaltests', null ),
+      ut3.ut_annotation( 4, 'test', null, 'foo' ),
+      ut3.ut_annotation( 5, 'beforeeach', null,'foo2' ),
+      ut3.ut_annotation( 6, 'beforeeach', 'key=testval','foo3' )
+    );
 
-    l_expected.package_annotations('suitepath').text := 'all.globaltests';
-
-    l_expected.procedure_annotations(1).name := 'foo';
-    l_expected.procedure_annotations(1).annotations('test').text := null;
-
-    l_expected.procedure_annotations(2).name := 'foo2';
-    l_expected.procedure_annotations(2).annotations('beforeeach').text := null;
-
-    l_expected.procedure_annotations(3).name := 'foo3';
-    l_expected.procedure_annotations(3).annotations('beforeeach').text := 'key=testval';
-
-    check_annotation_parsing(l_expected, l_parsing_result);
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
 
   end;
 
   procedure test4 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
-    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
+    l_actual         ut3.ut_annotations;
+    l_expected       ut3.ut_annotations;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -190,25 +127,23 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
-    l_expected.package_annotations('suite').text := null;
-    l_expected.package_annotations('displayname').text := 'Name of suite';
-    l_expected.package_annotations('suitepath').text := 'all.globaltests';
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite', null, null ),
+      ut3.ut_annotation( 2, 'displayname', 'Name of suite', null ),
+      ut3.ut_annotation( 3, 'suitepath', 'all.globaltests', null ),
+      ut3.ut_annotation( 4, 'test', null, 'foo' )
+    );
 
-    l_expected.procedure_annotations(1).name := 'foo';
-    l_expected.procedure_annotations(1).annotations('test').text := null;
-
-    check_annotation_parsing(l_expected, l_parsing_result);
-
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
   end;
 
   procedure test5 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
-    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
+    l_actual         ut3.ut_annotations;
+    l_expected       ut3.ut_annotations;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -220,22 +155,23 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
-    l_expected.package_annotations('suite').text := null;
-    l_expected.package_annotations('displayname').text := 'Name of suite';
-    l_expected.package_annotations('suitepath').text := 'all.globaltests';
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite', null, null ),
+      ut3.ut_annotation( 2, 'displayname', 'Name of suite', null ),
+      ut3.ut_annotation( 3, 'suitepath', 'all.globaltests', null )
+    );
 
-    check_annotation_parsing(l_expected, l_parsing_result);
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
 
   end;
 
   procedure test6 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
-    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
+    l_actual         ut3.ut_annotations;
+    l_expected       ut3.ut_annotations;
 
   begin
     l_source := 'PACKAGE test_tt accessible by (foo) AS
@@ -247,22 +183,23 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
-    l_expected.package_annotations('suite').text := null;
-    l_expected.package_annotations('displayname').text := 'Name of suite';
-    l_expected.package_annotations('suitepath').text := 'all.globaltests';
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite', null, null ),
+      ut3.ut_annotation( 2, 'displayname', 'Name of suite', null ),
+      ut3.ut_annotation( 3, 'suitepath', 'all.globaltests', null )
+    );
 
-    check_annotation_parsing(l_expected, l_parsing_result);
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
 
   end;
 
   procedure test7 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
-    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
+    l_actual         ut3.ut_annotations;
+    l_expected       ut3.ut_annotations;
 
   begin
     l_source := 'PACKAGE test_tt
@@ -277,22 +214,23 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
-    l_expected.package_annotations('suite').text := null;
-    l_expected.package_annotations('displayname').text := 'Name of suite';
-    l_expected.package_annotations('suitepath').text := 'all.globaltests';
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite', null, null ),
+      ut3.ut_annotation( 2, 'displayname', 'Name of suite', null ),
+      ut3.ut_annotation( 3, 'suitepath', 'all.globaltests', null )
+    );
 
-    check_annotation_parsing(l_expected, l_parsing_result);
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
 
   end;
 
   procedure test8 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
-    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
+    l_actual         ut3.ut_annotations;
+    l_expected       ut3.ut_annotations;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -304,22 +242,23 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
-    l_expected.package_annotations('suite').text := null;
-    l_expected.package_annotations('displayname').text := 'name = Name of suite';
-    l_expected.package_annotations('suitepath').text := 'key=all.globaltests,key2=foo';
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite', null, null ),
+      ut3.ut_annotation( 2, 'displayname', 'name = Name of suite', null ),
+      ut3.ut_annotation( 3, 'suitepath', 'key=all.globaltests,key2=foo', null )
+    );
 
-    check_annotation_parsing(l_expected, l_parsing_result);
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
 
   end;
 
   procedure test9 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
-    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
+    l_actual         ut3.ut_annotations;
+    l_expected       ut3.ut_annotations;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -335,25 +274,27 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
-    l_expected.package_annotations('suite').text := null;
-    l_expected.package_annotations('displayname').text := 'Name of suite';
-    l_expected.package_annotations('suitepath').text := 'all.globaltests';
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite', null, null ),
+      ut3.ut_annotation( 2, 'displayname', 'Name of suite', null ),
+      ut3.ut_annotation( 3, 'suitepath', 'all.globaltests', null )
+    );
 
-    check_annotation_parsing(l_expected, l_parsing_result);
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
 
   end;
 
   procedure ignore_wrapped_package is
-    l_pck_annotation ut3.ut_annotation_parser.typ_annotated_package;
+    l_actual ut3.ut_annotations;
     pragma autonomous_transaction;
   begin
 
-    l_pck_annotation := ut3.ut_annotation_parser.get_package_annotations(user, 'TST_WRAPPED_PCK');
-    ut.expect(l_pck_annotation.procedure_annotations.count).to_equal(0);
-    ut.expect(l_pck_annotation.package_annotations.count).to_equal(0);
+    l_actual := ut3.ut_annotation_parser.get_package_annotations(user, 'TST_WRAPPED_PCK');
+
+    ut.expect(l_actual.count).to_equal(0);
 
   end;
 
@@ -381,8 +322,8 @@ END;
   procedure brackets_in_desc is
 
     l_source         clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
+    l_actual         ut3.ut_annotations;
+    l_expected       ut3.ut_annotations;
     l_ann_param      ut3.ut_annotation_parser.typ_annotation_param := null;
     --l_results        ut_expectation_results;
   begin
@@ -391,18 +332,20 @@ END;
 END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
-    l_expected.package_annotations('suite').text := 'Name of suite (including some brackets) and some more text';
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite', 'Name of suite (including some brackets) and some more text', null )
+    );
 
-    check_annotation_parsing(l_expected, l_parsing_result);
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
   end;
 
   procedure test_space_Before_Annot_Params is
     l_source clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected ut3.ut_annotation_parser.typ_annotated_package;
+    l_actual         ut3.ut_annotations;
+    l_expected ut3.ut_annotations;
     l_ann_param ut3.ut_annotation_parser.typ_annotation_param;
 
   begin
@@ -418,21 +361,22 @@ END;';
 END;';
 
   --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
   --Assert
-    l_expected.package_annotations('suite').text := null;
-    l_expected.package_annotations('suitepath').text := 'all.globaltests';
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite', null, null ),
+      ut3.ut_annotation( 2, 'suitepath', 'all.globaltests', null )
+    );
 
-    check_annotation_parsing(l_expected, l_parsing_result);
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
   end;
 
   procedure test_windows_newline
   as
-    l_source clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected ut3.ut_annotation_parser.typ_annotated_package;
-    l_ann_param ut3.ut_annotation_parser.typ_annotation_param;
+    l_source    clob;
+    l_actual    ut3.ut_annotations;
+    l_expected  ut3.ut_annotations;
   begin
     l_source := 'PACKAGE test_tt AS
         -- %suite
@@ -441,20 +385,23 @@ END;';
       END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
-    l_expected.package_annotations('suite').text := null;
-    l_expected.package_annotations('displayname').text := 'Name of suite';
-    l_expected.package_annotations('suitepath').text := 'all.globaltests';
-    check_annotation_parsing(l_expected, l_parsing_result);
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite', null, null ),
+      ut3.ut_annotation( 2, 'displayname', 'Name of suite', null ),
+      ut3.ut_annotation( 3, 'suitepath', 'all.globaltests', null )
+    );
+
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
   end;
 
   procedure test_annot_very_long_name
   as
     l_source clob;
-    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
-    l_expected ut3.ut_annotation_parser.typ_annotated_package;
+    l_actual         ut3.ut_annotations;
+    l_expected ut3.ut_annotations;
     l_ann_param ut3.ut_annotation_parser.typ_annotation_param;
   begin
     l_source := 'PACKAGE test_tt AS
@@ -467,16 +414,17 @@ END;';
     END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
-    l_expected.package_annotations('suite').text := null;
-    l_expected.package_annotations('displayname').text := 'Name of suite';
-    l_expected.package_annotations('suitepath').text := 'all.globaltests';
-    l_expected.procedure_annotations(1).name := 'very_long_procedure_name_valid_for_oracle_12_so_utplsql_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_ditit';
-    l_expected.procedure_annotations(1).annotations('test').text := null;
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite', null, null ),
+      ut3.ut_annotation( 2, 'displayname', 'Name of suite', null ),
+      ut3.ut_annotation( 3, 'suitepath', 'all.globaltests', null ),
+      ut3.ut_annotation( 4, 'test', null, 'very_long_procedure_name_valid_for_oracle_12_so_utplsql_should_allow_it_definitely_well_still_not_reached_128_but_wait_we_ditit' )
+    );
 
-    check_annotation_parsing(l_expected, l_parsing_result);
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
   end;
 
 

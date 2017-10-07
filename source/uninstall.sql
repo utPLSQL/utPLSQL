@@ -174,6 +174,10 @@ drop table ut_cursor_data;
 
 drop package ut_annotation_parser;
 
+drop type ut_annotation force;
+
+drop type ut_annotations force;
+
 drop package ut_file_mapper;
 
 drop package ut_metadata;
