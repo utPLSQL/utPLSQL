@@ -1,4 +1,4 @@
-create or replace package body ut_annotations as
+create or replace package body ut_annotation_parser as
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -338,5 +338,5 @@ create or replace package body ut_annotations as
     return l_annotation_params;
   end;
 
-end ut_annotations;
+end ut_annotation_parser;
 /

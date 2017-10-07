@@ -1,8 +1,8 @@
-create or replace package body test_annotations is
+create or replace package body test_annotation_parser is
 
-  procedure check_annotation_parsing(a_expected ut3.ut_annotations.typ_annotated_package, a_parsing_result ut3.ut_annotations.typ_annotated_package) is
+  procedure check_annotation_parsing(a_expected ut3.ut_annotation_parser.typ_annotated_package, a_parsing_result ut3.ut_annotation_parser.typ_annotated_package) is
 
-    procedure check_annotations(a_msg varchar2, a_expected ut3.ut_annotations.tt_annotations, a_actual ut3.ut_annotations.tt_annotations) is
+    procedure check_annotations(a_msg varchar2, a_expected ut3.ut_annotation_parser.tt_annotations, a_actual ut3.ut_annotation_parser.tt_annotations) is
       l_ind varchar2(500);
     begin
       ut.expect(a_actual.count, '[' || a_msg || ']Check number of annotations parsed').to_equal(a_expected.count);
@@ -21,7 +21,7 @@ create or replace package body test_annotations is
       end if;
     end;
 
-    procedure check_procedures(a_msg varchar2, a_expected ut3.ut_annotations.tt_procedure_list, a_actual ut3.ut_annotations.tt_procedure_list) is
+    procedure check_procedures(a_msg varchar2, a_expected ut3.ut_annotation_parser.tt_procedure_list, a_actual ut3.ut_annotation_parser.tt_procedure_list) is
       l_found boolean := false;
       l_index pls_integer;
     begin
@@ -55,9 +55,9 @@ create or replace package body test_annotations is
 
   procedure test1 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected       ut3.ut_annotations.typ_annotated_package;
-    l_ann_param      ut3.ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -72,7 +72,7 @@ create or replace package body test_annotations is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
     l_expected.package_annotations('suite').text := null;
@@ -89,9 +89,9 @@ create or replace package body test_annotations is
 
   procedure test2 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected       ut3.ut_annotations.typ_annotated_package;
-    l_ann_param      ut3.ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -106,7 +106,7 @@ create or replace package body test_annotations is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
     l_expected.package_annotations('suite').text := null;
@@ -120,9 +120,9 @@ create or replace package body test_annotations is
 
   procedure test3 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected       ut3.ut_annotations.typ_annotated_package;
-    l_ann_param      ut3.ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -152,7 +152,7 @@ create or replace package body test_annotations is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
     l_expected.package_annotations('suite').text := null;
@@ -175,9 +175,9 @@ create or replace package body test_annotations is
 
   procedure test4 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected       ut3.ut_annotations.typ_annotated_package;
-    l_ann_param      ut3.ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -190,7 +190,7 @@ create or replace package body test_annotations is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
     l_expected.package_annotations('suite').text := null;
@@ -206,9 +206,9 @@ create or replace package body test_annotations is
 
   procedure test5 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected       ut3.ut_annotations.typ_annotated_package;
-    l_ann_param      ut3.ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -220,7 +220,7 @@ create or replace package body test_annotations is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
     l_expected.package_annotations('suite').text := null;
@@ -233,9 +233,9 @@ create or replace package body test_annotations is
 
   procedure test6 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected       ut3.ut_annotations.typ_annotated_package;
-    l_ann_param      ut3.ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
 
   begin
     l_source := 'PACKAGE test_tt accessible by (foo) AS
@@ -247,7 +247,7 @@ create or replace package body test_annotations is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
     l_expected.package_annotations('suite').text := null;
@@ -260,9 +260,9 @@ create or replace package body test_annotations is
 
   procedure test7 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected       ut3.ut_annotations.typ_annotated_package;
-    l_ann_param      ut3.ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
 
   begin
     l_source := 'PACKAGE test_tt
@@ -277,7 +277,7 @@ create or replace package body test_annotations is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
     l_expected.package_annotations('suite').text := null;
@@ -290,9 +290,9 @@ create or replace package body test_annotations is
 
   procedure test8 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected       ut3.ut_annotations.typ_annotated_package;
-    l_ann_param      ut3.ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -304,7 +304,7 @@ create or replace package body test_annotations is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
     l_expected.package_annotations('suite').text := null;
@@ -317,9 +317,9 @@ create or replace package body test_annotations is
 
   procedure test9 is
     l_source         clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected       ut3.ut_annotations.typ_annotated_package;
-    l_ann_param      ut3.ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -335,7 +335,7 @@ create or replace package body test_annotations is
   END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
     l_expected.package_annotations('suite').text := null;
@@ -347,11 +347,11 @@ create or replace package body test_annotations is
   end;
 
   procedure ignore_wrapped_package is
-    l_pck_annotation ut3.ut_annotations.typ_annotated_package;
+    l_pck_annotation ut3.ut_annotation_parser.typ_annotated_package;
     pragma autonomous_transaction;
   begin
 
-    l_pck_annotation := ut3.ut_annotations.get_package_annotations(user, 'TST_WRAPPED_PCK');
+    l_pck_annotation := ut3.ut_annotation_parser.get_package_annotations(user, 'TST_WRAPPED_PCK');
     ut.expect(l_pck_annotation.procedure_annotations.count).to_equal(0);
     ut.expect(l_pck_annotation.package_annotations.count).to_equal(0);
 
@@ -381,9 +381,9 @@ END;
   procedure brackets_in_desc is
 
     l_source         clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected       ut3.ut_annotations.typ_annotated_package;
-    l_ann_param      ut3.ut_annotations.typ_annotation_param := null;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected       ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param := null;
     --l_results        ut_expectation_results;
   begin
     l_source := 'PACKAGE test_tt AS
@@ -391,7 +391,7 @@ END;
 END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
     l_expected.package_annotations('suite').text := 'Name of suite (including some brackets) and some more text';
@@ -401,9 +401,9 @@ END;';
 
   procedure test_space_Before_Annot_Params is
     l_source clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected ut3.ut_annotations.typ_annotated_package;
-    l_ann_param ut3.ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param ut3.ut_annotation_parser.typ_annotation_param;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -418,7 +418,7 @@ END;';
 END;';
 
   --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
   --Assert
     l_expected.package_annotations('suite').text := null;
@@ -430,9 +430,9 @@ END;';
   procedure test_windows_newline
   as
     l_source clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected ut3.ut_annotations.typ_annotated_package;
-    l_ann_param ut3.ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param ut3.ut_annotation_parser.typ_annotation_param;
   begin
     l_source := 'PACKAGE test_tt AS
         -- %suite
@@ -441,7 +441,7 @@ END;';
       END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
     l_expected.package_annotations('suite').text := null;
@@ -453,9 +453,9 @@ END;';
   procedure test_annot_very_long_name
   as
     l_source clob;
-    l_parsing_result ut3.ut_annotations.typ_annotated_package;
-    l_expected ut3.ut_annotations.typ_annotated_package;
-    l_ann_param ut3.ut_annotations.typ_annotation_param;
+    l_parsing_result ut3.ut_annotation_parser.typ_annotated_package;
+    l_expected ut3.ut_annotation_parser.typ_annotated_package;
+    l_ann_param ut3.ut_annotation_parser.typ_annotation_param;
   begin
     l_source := 'PACKAGE test_tt AS
       -- %suite
@@ -467,7 +467,7 @@ END;';
     END;';
 
     --Act
-    l_parsing_result := ut3.ut_annotations.parse_package_annotations(l_source);
+    l_parsing_result := ut3.ut_annotation_parser.parse_package_annotations(l_source);
 
     --Assert
     l_expected.package_annotations('suite').text := null;
@@ -480,5 +480,5 @@ END;';
   end;
 
 
-end test_annotations;
+end test_annotation_parser;
 /

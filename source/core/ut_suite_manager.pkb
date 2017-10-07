@@ -46,10 +46,10 @@ create or replace package body ut_suite_manager is
   end;
 
   function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_logical_suite is
-    l_annotation_data    ut_annotations.typ_annotated_package;
-    l_suite_name         ut_annotations.t_annotation_name;
+    l_annotation_data    ut_annotation_parser.typ_annotated_package;
+    l_suite_name         ut_annotation_parser.t_annotation_name;
     l_test               ut_test;
-    l_proc_annotations   ut_annotations.tt_annotations;
+    l_proc_annotations   ut_annotation_parser.tt_annotations;
 
     l_default_setup_proc    varchar2(250 char);
     l_default_teardown_proc varchar2(250 char);
@@ -57,7 +57,7 @@ create or replace package body ut_suite_manager is
     l_suite_teardown_proc   varchar2(250 char);
     l_suite_path            varchar2(4000 char);
 
-    l_proc_name ut_annotations.t_procedure_name;
+    l_proc_name ut_annotation_parser.t_procedure_name;
 
     l_owner_name  varchar2(250 char);
     l_object_name varchar2(250 char);
@@ -76,7 +76,7 @@ create or replace package body ut_suite_manager is
       when e_insufficient_priv then
       return null;
     end;
-    l_annotation_data := ut_annotations.get_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
+    l_annotation_data := ut_annotation_parser.get_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
 
     if l_annotation_data.package_annotations.exists('suite') then
 

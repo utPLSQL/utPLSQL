@@ -1,4 +1,4 @@
-create or replace package ut_annotations authid current_user as
+create or replace package ut_annotation_parser authid current_user as
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -17,7 +17,7 @@ create or replace package ut_annotations authid current_user as
   */
 
   /*
-    package: ut_annotations
+    package: ut_annotation_parser
 
     Responsible for parsing and accessing utplsql annotations.
 
@@ -100,5 +100,5 @@ create or replace package ut_annotations authid current_user as
   */
   function parse_annotation_params(a_annotation_text varchar2) return tt_annotation_params;
 
-end ut_annotations;
+end ut_annotation_parser;
 /
