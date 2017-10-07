@@ -18,7 +18,6 @@ spool RunAll.log
 --Global setup
 @@helpers/ut_example_tests.pks
 @@helpers/ut_example_tests.pkb
-@@helpers/check_annotation_parsing.prc
 --@@helpers/cre_tab_ut_test_table.sql
 create table ut$test_table (val varchar2(1));
 @@helpers/ut_transaction_control.pck
@@ -271,7 +270,6 @@ spool off
 --Global cleanup
 --removing objects that should not be part of coverage report
 drop package ut_example_tests;
-drop procedure check_annotation_parsing;
 drop package ut_transaction_control;
 drop table ut$test_table;
 drop type department$;
@@ -328,8 +326,8 @@ begin
     'source/api/ut_runner.pks',
     'source/core/coverage',
     'source/core/types',
-    'source/core/ut_annotation_parser.pkb',
-    'source/core/ut_annotation_parser.pks',
+    'source/core/annotations/ut_annotation_parser.pkb',
+    'source/core/annotations/ut_annotation_parser.pks',
     'source/core/ut_expectation_processor.pkb',
     'source/core/ut_expectation_processor.pks',
     'source/core/ut_file_mapper.pkb',
