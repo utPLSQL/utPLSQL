@@ -46,10 +46,24 @@ create or replace package ut_annotation_parser authid current_user as
   */
   type tt_annotation_params is table of typ_annotation_param index by pls_integer;
 
+  type t_object_source is record(
+    owner      varchar2(250),
+    name       varchar2(250),
+    type       varchar2(50),
+    cache_id   integer,
+    lines      ut_varchar2_rows
+  );
+
+  type t_object_sources_cur is ref cursor return t_object_source;
+
   /*
     INTERNAL USE ONLY
   */
   function parse_package_annotations(a_source clob) return ut_annotations;
+
+  function parse_annotations(a_cursor t_object_sources_cur) return ut_annotated_objects pipelined;
+
+  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2) return ut_annotated_objects pipelined;
 
   /*
     function: get_package_annotations
@@ -57,6 +71,8 @@ create or replace package ut_annotation_parser authid current_user as
     get annotations for specified package specification and return its annotated schema
   */
   function get_package_annotations(a_owner_name varchar2, a_name varchar2) return ut_annotations;
+
+  function get_post_processed_source(a_source_lines ut_varchar2_rows) return clob;
 
 
   /*

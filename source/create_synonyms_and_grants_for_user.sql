@@ -87,6 +87,14 @@ grant execute on &&ut3_owner..ut_key_value_pairs to &ut3_user;
 grant execute on &&ut3_owner..ut_key_value_pair to &ut3_user;
 grant select, insert, delete on &&ut3_owner..ut_cursor_data to &ut3_user;
 grant execute on &&ut3_owner..ut_sonar_test_reporter to &ut3_user;
+grant execute on &&ut3_owner..ut_annotations to &ut3_user;
+grant execute on &&ut3_owner..ut_annotation to &ut3_user;
+grant execute on &&ut3_owner..ut_annotated_object to &ut3_user;
+grant execute on &&ut3_owner..ut_annotated_objects to &ut3_user;
+grant select on &&ut3_owner..ut_annotation_cache_info to &ut3_user;
+grant select on &&ut3_owner..ut_annotation_cache to &ut3_user;
+grant execute on &&ut3_owner..ut_annotation_cache_manager to &ut3_user;
+grant execute on &&ut3_owner..ut_annotation_parser to &ut3_user;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to user &&ut3_user
 

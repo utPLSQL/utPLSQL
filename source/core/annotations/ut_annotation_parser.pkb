@@ -230,15 +230,138 @@ create or replace package body ut_annotation_parser as
       from table(l_annotations) x
      order by x.position;
 
-    -- printing out parsed structure for debugging
-    $if $$ut_trace $then
-      print_parse_results(l_result);
-    $end
+--     -- printing out parsed structure for debugging
+--     $if $$ut_trace $then
+--       print_parse_results(l_result);
+--     $end
     return l_result;
   end parse_package_annotations;
 
-  ------------------------------
+  function get_post_processed_source(a_source_lines ut_varchar2_rows) return clob is
+    l_lines       sys.dbms_preprocessor.source_lines_t;
+    l_source      clob;
+  begin
+    --convert to preprocessor lines
+    for i in 1 .. a_source_lines.count loop
+      l_lines(i) := a_source_lines(i);
+    end loop;
+    --get post-processed source
+    l_lines := sys.dbms_preprocessor.get_post_processed_source(l_lines);
+    --convert to clob
+    for i in 1..l_lines.count loop
+      ut_utils.append_to_clob(l_source, replace(l_lines(i), chr(13)||chr(10), chr(10)));
+    end loop;
+    return l_source;
+  end;
+
+  ------------------------------------------------------------
   --public definitions
+  ------------------------------------------------------------
+
+  function parse_annotations(a_cursor t_object_sources_cur) return ut_annotated_objects pipelined is
+    l_rec         t_object_source;
+    l_source      clob;
+    l_annotations ut_annotations;
+    l_result      ut_annotated_object;
+    ex_package_is_wrapped exception;
+    pragma exception_init(ex_package_is_wrapped, -24241);
+
+  begin
+    if not a_cursor% isopen then
+      return;
+    end if;
+    loop
+
+      fetch a_cursor into l_rec;
+      exit when a_cursor%notfound;
+      begin
+        --convert to post-processed source clob
+        l_source := get_post_processed_source(l_rec.lines);
+        --parse annotations
+        l_annotations := parse_package_annotations(l_source);
+        dbms_lob.freetemporary(l_source);
+      exception
+        when ex_package_is_wrapped then
+        null;
+      end;
+      --convert to query results
+      l_result := ut_annotated_object( l_rec.owner, l_rec.name, l_rec.type, l_annotations);
+
+      ut_annotation_cache_manager.update_cache(l_result, l_rec.cache_id);
+      if l_annotations is not empty then
+        pipe row (l_result);
+      end if;
+    end loop;
+    close a_cursor;
+    return;
+  end;
+
+
+  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2) return ut_annotated_objects pipelined is
+    l_objects_view   varchar2(200) := ut_metadata.get_dba_view('dba_objects');
+    l_sources_view   varchar2(200) := ut_metadata.get_dba_view('dba_source');
+    l_obj            ut_annotated_object;
+    l_current_schema varchar2(250) := ut_utils.ut_owner;
+    l_cursor         sys_refcursor;
+    l_cursor_sql     varchar2(32767);
+  begin
+    l_cursor_sql :=
+      q'[with object_cache_info
+        as (select /*+ cardinality(i 10000) */ o.owner as object_owner, o.object_name, o.object_type, i.cache_id,
+                   case when o.last_ddl_time < i.parse_time then 'N' else 'Y' end as cache_stale
+              from ]'||l_objects_view||q'[ o
+              left join ]'||l_current_schema||q'[.ut_annotation_cache_info i
+                on o.owner = i.object_owner  and o.object_name = i.object_name and o.object_type = i.object_type
+             where o.object_type = :a_object_type and o.status = 'VALID' and o.owner = :a_object_owner
+           ),
+           obj_info_with_source
+        as (select /*+ cardinality(o 10000) */o.object_owner, o.object_name, o.object_type, o.cache_stale, o.cache_id, s.line, s.text
+              from object_cache_info o
+              left join ]'||l_sources_view||q'[ s
+                on s.name  = o.object_name
+               and s.type  = :a_object_type
+               and s.owner = :a_object_owner
+               and o.cache_stale = 'Y'
+           ),
+           obj_info_source_grouped
+        as (select o.object_owner, o.object_name, o.object_type, o.cache_stale, o.cache_id,
+                   cast(collect(o.text order by o.line) as ]'||l_current_schema||q'[.ut_varchar2_rows) as texts
+              from obj_info_with_source o
+             group by o.object_owner, o.object_type, o.object_name, o.cache_stale, cache_id
+             order by o.object_owner, o.object_type, o.object_name
+          )
+      select obj
+        from (
+          select ]'||l_current_schema||q'[.ut_annotated_object(o.object_owner, o.object_name, o.object_type,
+                 cast(collect(
+                       ]'||l_current_schema||q'[.ut_annotation(c.annotation_position, c.annotation_name, c.annotation_text, c.subobject_name) order by c.annotation_position )
+                      as ]'||l_current_schema||q'[.ut_annotations)
+                 ) as obj
+            from obj_info_source_grouped o
+            join ]'||l_current_schema||q'[.ut_annotation_cache c
+              on o.cache_id = c.cache_id
+           where o.cache_stale = 'N'
+           group by o.object_owner, o.object_name, o.object_type
+          union all
+          -- this query needs to be executed as last part of the union
+          -- as it is updating the cache_stale flag in an autonomous transaction
+          select value(c) as obj
+            from table(
+              ]'||l_current_schema||q'[.ut_annotation_parser.parse_annotations(
+                cursor(select o.object_owner, o.object_name, o.object_type, o.cache_id, o.texts from obj_info_source_grouped o where o.cache_stale = 'Y')
+              )
+            ) c
+        ) a
+      order by a.obj.object_owner, a.obj.object_type, a.obj.object_name]';
+    open l_cursor for l_cursor_sql using a_object_type, a_object_owner, a_object_type, a_object_owner;
+    loop
+      fetch l_cursor into l_obj;
+      exit when l_cursor%notfound;
+      pipe row (l_obj);
+    end loop;
+    close l_cursor;
+    return;
+  end;
 
   function get_package_annotations(a_owner_name varchar2, a_name varchar2) return ut_annotations is
     l_source clob;

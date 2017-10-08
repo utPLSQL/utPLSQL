@@ -16,9 +16,10 @@ create or replace package ut_suite_manager authid current_user is
   limitations under the License.
   */
 
-  function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_logical_suite;
+  --builds individual suites from a cursor of objects and their annotations
+  function build_suites(a_cursor sys_refcursor) return ut_suite_items pipelined;
 
-  procedure config_schema(a_owner_name varchar2);
+--   procedure config_schema(a_owner_name varchar2);
 
   function get_schema_ut_packages(a_schema_names ut_varchar2_rows) return ut_object_names;
 

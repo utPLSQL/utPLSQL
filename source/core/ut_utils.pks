@@ -257,5 +257,7 @@ create or replace package ut_utils authid definer is
   */
   function to_version(a_version_no varchar2) return t_version;
 
+  function ut_owner return varchar2;
+
 end ut_utils;
 /

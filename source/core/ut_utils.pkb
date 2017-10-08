@@ -397,5 +397,11 @@ create or replace package body ut_utils is
     end if;
     return l_result;
   end;
+
+  function ut_owner return varchar2 is
+  begin
+    return sys_context('userenv','current_schema');
+  end;
+
 end ut_utils;
 /
