@@ -78,8 +78,6 @@ create or replace package body ut_suite_manager is
     l_rollback_type        integer;
     l_displayname          varchar2(4000);
 
-    e_insufficient_priv         exception;
-    pragma exception_init(e_insufficient_priv,-01031);
   begin
     l_suite_rollback := ut_utils.gc_rollback_auto;
     for i in 1 .. a_object.annotations.count loop
@@ -184,6 +182,30 @@ create or replace package body ut_suite_manager is
     return l_suite;
 
   end config_package;
+
+  function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_logical_suite is
+    l_owner_name       varchar2(250 char);
+    l_object_name      varchar2(250 char);
+    l_cursor           sys_refcursor;
+    l_annotated_object ut_annotated_object;
+    e_insufficient_priv         exception;
+    pragma exception_init(e_insufficient_priv,-01031);
+  begin
+    l_owner_name  := a_owner_name;
+    l_object_name := a_object_name;
+    begin
+      ut_metadata.do_resolve(a_owner => l_owner_name, a_object => l_object_name);
+    exception
+      when e_insufficient_priv then
+      return null;
+    end;
+
+    open l_cursor for select value(x) from table (ut3.ut_annotation_parser.get_annotated_objects(l_owner_name, 'PACKAGE', l_object_name))x;
+    fetch l_cursor into l_annotated_object;
+    close l_cursor;
+    return config_package(l_annotated_object);
+
+  end;
 
   function build_suites(a_cursor sys_refcursor) return ut_suite_items pipelined is
     l_object ut_annotated_object;

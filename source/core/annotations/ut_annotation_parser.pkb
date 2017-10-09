@@ -297,14 +297,20 @@ create or replace package body ut_annotation_parser as
   end;
 
 
-  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2) return ut_annotated_objects pipelined is
+  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_object_name varchar2 := null) return ut_annotated_objects pipelined is
     l_objects_view   varchar2(200) := ut_metadata.get_dba_view('dba_objects');
     l_sources_view   varchar2(200) := ut_metadata.get_dba_view('dba_source');
     l_obj            ut_annotated_object;
     l_current_schema varchar2(250) := ut_utils.ut_owner;
     l_cursor         sys_refcursor;
     l_cursor_sql     varchar2(32767);
+    l_object_filter  varchar2(32767);
   begin
+    if a_object_name is not null then
+      l_object_filter  := 'and o.object_name = :a_object_name';
+    else
+      l_object_filter  := 'and :a_object_name is null';
+    end if;
     l_cursor_sql :=
       q'[with object_cache_info
         as (select /*+ cardinality(i 10000) */ o.owner as object_owner, o.object_name, o.object_type, i.cache_id,
@@ -312,7 +318,8 @@ create or replace package body ut_annotation_parser as
               from ]'||l_objects_view||q'[ o
               left join ]'||l_current_schema||q'[.ut_annotation_cache_info i
                 on o.owner = i.object_owner  and o.object_name = i.object_name and o.object_type = i.object_type
-             where o.object_type = :a_object_type and o.status = 'VALID' and o.owner = :a_object_owner
+             where o.object_type = :a_object_type and o.owner = :a_object_owner ]'||l_object_filter||q'[
+               and o.status = 'VALID'
            ),
            obj_info_with_source
         as (select /*+ cardinality(o 10000) */o.object_owner, o.object_name, o.object_type, o.cache_stale, o.cache_id, s.line, s.text
@@ -321,6 +328,7 @@ create or replace package body ut_annotation_parser as
                 on s.name  = o.object_name
                and s.type  = :a_object_type
                and s.owner = :a_object_owner
+               ]'||l_object_filter||q'[
                and o.cache_stale = 'Y'
            ),
            obj_info_source_grouped
@@ -353,7 +361,7 @@ create or replace package body ut_annotation_parser as
             ) c
         ) a
       order by a.obj.object_owner, a.obj.object_type, a.obj.object_name]';
-    open l_cursor for l_cursor_sql using a_object_type, a_object_owner, a_object_type, a_object_owner;
+    open l_cursor for l_cursor_sql using a_object_type, a_object_owner, a_object_name, a_object_type, a_object_owner, a_object_name;
     loop
       fetch l_cursor into l_obj;
       exit when l_cursor%notfound;

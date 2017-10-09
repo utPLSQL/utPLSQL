@@ -63,7 +63,7 @@ create or replace package ut_annotation_parser authid current_user as
 
   function parse_annotations(a_cursor t_object_sources_cur) return ut_annotated_objects pipelined;
 
-  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2) return ut_annotated_objects pipelined;
+  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_object_name varchar2 := null) return ut_annotated_objects pipelined;
 
   /*
     function: get_package_annotations
