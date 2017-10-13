@@ -18,7 +18,7 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_actual := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
     --Assert
 
@@ -49,7 +49,7 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_actual := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
     --Assert
     l_expected := ut3.ut_annotations(
@@ -95,7 +95,7 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
     --Assert
     l_expected := ut3.ut_annotations(
@@ -127,7 +127,7 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
     --Assert
     l_expected := ut3.ut_annotations(
@@ -155,7 +155,7 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
     --Assert
     l_expected := ut3.ut_annotations(
@@ -183,7 +183,7 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
     --Assert
     l_expected := ut3.ut_annotations(
@@ -214,7 +214,7 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
     --Assert
     l_expected := ut3.ut_annotations(
@@ -242,7 +242,7 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
     --Assert
     l_expected := ut3.ut_annotations(
@@ -274,7 +274,7 @@ create or replace package body test_annotation_parser is
   END;';
 
     --Act
-    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
     --Assert
     l_expected := ut3.ut_annotations(
@@ -288,14 +288,16 @@ create or replace package body test_annotation_parser is
   end;
 
   procedure ignore_wrapped_package is
-    l_actual ut3.ut_annotations;
-    pragma autonomous_transaction;
+    l_cursor sys_refcursor;
   begin
-
-    l_actual := ut3.ut_annotation_parser.get_package_annotations(user, 'TST_WRAPPED_PCK');
-
-    ut.expect(l_actual.count).to_equal(0);
-
+    --Act
+    open l_cursor for
+      select *
+        from table(
+               ut3.ut_annotation_parser.get_annotated_objects(user, 'PACKAGE','TST_WRAPPED_PCK')
+            );
+    --Assert
+    ut.expect(l_cursor).to_be_empty();
   end;
 
   procedure cre_wrapped_pck is
@@ -324,15 +326,13 @@ END;
     l_source         clob;
     l_actual         ut3.ut_annotations;
     l_expected       ut3.ut_annotations;
-    l_ann_param      ut3.ut_annotation_parser.typ_annotation_param := null;
-    --l_results        ut_expectation_results;
   begin
     l_source := 'PACKAGE test_tt AS
   -- %suite(Name of suite (including some brackets) and some more text)
 END;';
 
     --Act
-    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
     --Assert
     l_expected := ut3.ut_annotations(
@@ -346,7 +346,6 @@ END;';
     l_source clob;
     l_actual         ut3.ut_annotations;
     l_expected ut3.ut_annotations;
-    l_ann_param ut3.ut_annotation_parser.typ_annotation_param;
 
   begin
     l_source := 'PACKAGE test_tt AS
@@ -361,7 +360,7 @@ END;';
 END;';
 
   --Act
-    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
   --Assert
     l_expected := ut3.ut_annotations(
@@ -385,7 +384,7 @@ END;';
       END;';
 
     --Act
-    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
     --Assert
     l_expected := ut3.ut_annotations(
@@ -402,7 +401,6 @@ END;';
     l_source clob;
     l_actual         ut3.ut_annotations;
     l_expected ut3.ut_annotations;
-    l_ann_param ut3.ut_annotation_parser.typ_annotation_param;
   begin
     l_source := 'PACKAGE test_tt AS
       -- %suite
@@ -414,7 +412,7 @@ END;';
     END;';
 
     --Act
-    l_actual         := ut3.ut_annotation_parser.parse_package_annotations(l_source);
+    l_actual         := ut3.ut_annotation_parser.parse_object_annotations(l_source);
 
     --Assert
     l_expected := ut3.ut_annotations(

@@ -328,6 +328,8 @@ begin
     'source/core/types',
     'source/core/annotations/ut_annotation_parser.pkb',
     'source/core/annotations/ut_annotation_parser.pks',
+    'source/core/annotations/ut_annotation_cache_manager.pkb',
+    'source/core/annotations/ut_annotation_cache_manager.pks',
     'source/core/ut_expectation_processor.pkb',
     'source/core/ut_expectation_processor.pks',
     'source/core/ut_file_mapper.pkb',

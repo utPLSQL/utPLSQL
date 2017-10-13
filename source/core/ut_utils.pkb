@@ -378,8 +378,10 @@ create or replace package body ut_utils is
   end;
 
   procedure cleanup_temp_tables is
+    pragma autonomous_transaction;
   begin
     execute immediate 'delete from ut_cursor_data';
+    commit;
   end;
 
   function to_version(a_version_no varchar2) return t_version is
@@ -401,6 +403,11 @@ create or replace package body ut_utils is
   function ut_owner return varchar2 is
   begin
     return sys_context('userenv','current_schema');
+  end;
+
+  function scale_cardinality(a_cardinality natural) return natural is
+  begin
+    return nvl(trunc(power(10,(floor(log(10,a_cardinality))+1))/3),0);
   end;
 
 end ut_utils;

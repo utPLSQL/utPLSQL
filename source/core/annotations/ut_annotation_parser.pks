@@ -16,71 +16,27 @@ create or replace package ut_annotation_parser authid current_user as
   limitations under the License.
   */
 
-  /*
-    package: ut_annotation_parser
+  /**
+   * Reads database source code, parses it and returns annotations
+   */
 
-    Responsible for parsing and accessing utplsql annotations.
+  /**
+   * Parses source code and converts it to annotations
+   *
+   * @param a_source clob containing source code to be parsed
+   * @return array containing annotations
+   */
+  function parse_object_annotations(a_source clob) return ut_annotations;
 
-  */
-
-  subtype t_annotation_name is varchar2(1000);
-  subtype t_procedure_name  is varchar2(250);
-
-  /*
-    type: typ_annotation_param
-
-    a key/value pair of annotation parameters
-
-    example:
-      --%test(name=A name of the test)
-    will be stored as:
-      typ_annotation_param( key=> 'name', value=>'A name of the test' )
-  */
-  type typ_annotation_param is record(
-     key   varchar2(255)
-    ,val   varchar2(4000));
-
-  /*
-    type: typ_annotation_param
-    a list of typ_annotation_param
-  */
-  type tt_annotation_params is table of typ_annotation_param index by pls_integer;
-
-  type t_object_source is record(
-    owner      varchar2(250),
-    name       varchar2(250),
-    type       varchar2(50),
-    cache_id   integer,
-    lines      ut_varchar2_rows
-  );
-
-  type t_object_sources_cur is ref cursor return t_object_source;
-
-  /*
-    INTERNAL USE ONLY
-  */
-  function parse_package_annotations(a_source clob) return ut_annotations;
-
-  function parse_annotations(a_cursor t_object_sources_cur) return ut_annotated_objects pipelined;
-
+  /**
+   * Parses an object or all objects of a specified type for database schema.
+   * Pesults are returned in a form of a pipelined function.
+   * @param a_object_owner schema name to be parsed
+   * @param a_object_type type of object to be parsed
+   * @param a_object_name name of object to be parsed - optional
+   * @return array containing annotated objects along with annotations for each object (nested)
+   */
   function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_object_name varchar2 := null) return ut_annotated_objects pipelined;
-
-  /*
-    function: get_package_annotations
-
-    get annotations for specified package specification and return its annotated schema
-  */
-  function get_package_annotations(a_owner_name varchar2, a_name varchar2) return ut_annotations;
-
-  function get_post_processed_source(a_source_lines ut_varchar2_rows) return clob;
-
-
-  /*
-    function: parse_annotation_params
-
-    parses annotation parameters from annotation text string
-  */
-  function parse_annotation_params(a_annotation_text varchar2) return tt_annotation_params;
 
 end ut_annotation_parser;
 /

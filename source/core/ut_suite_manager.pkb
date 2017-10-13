@@ -52,13 +52,13 @@ create or replace package body ut_suite_manager is
     return l_info;
   end;
 
-  function config_package(a_object ut_annotated_object) return ut_logical_suite is
+  function create_suite(a_object ut_annotated_object) return ut_logical_suite is
     l_is_suite           boolean := false;
     l_is_test            boolean := false;
     l_suite_disabled     boolean := false;
     l_test_disabled      boolean := false;
     l_suite_items        ut_suite_items := ut_suite_items();
-    l_suite_name         ut_annotation_parser.t_annotation_name;
+    l_suite_name         varchar2(4000);
 
     l_default_setup_proc    varchar2(250 char);
     l_default_teardown_proc varchar2(250 char);
@@ -66,7 +66,7 @@ create or replace package body ut_suite_manager is
     l_suite_teardown_proc   varchar2(250 char);
     l_suite_path            varchar2(4000 char);
 
-    l_proc_name   ut_annotation_parser.t_procedure_name;
+    l_proc_name             varchar2(250 char);
 
     l_suite       ut_logical_suite;
     l_test        ut_test;
@@ -181,43 +181,7 @@ create or replace package body ut_suite_manager is
 
     return l_suite;
 
-  end config_package;
-
-  function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_logical_suite is
-    l_owner_name       varchar2(250 char);
-    l_object_name      varchar2(250 char);
-    l_cursor           sys_refcursor;
-    l_annotated_object ut_annotated_object;
-    e_insufficient_priv         exception;
-    pragma exception_init(e_insufficient_priv,-01031);
-  begin
-    l_owner_name  := a_owner_name;
-    l_object_name := a_object_name;
-    begin
-      ut_metadata.do_resolve(a_owner => l_owner_name, a_object => l_object_name);
-    exception
-      when e_insufficient_priv then
-      return null;
-    end;
-
-    open l_cursor for select value(x) from table (ut3.ut_annotation_parser.get_annotated_objects(l_owner_name, 'PACKAGE', l_object_name))x;
-    fetch l_cursor into l_annotated_object;
-    close l_cursor;
-    return config_package(l_annotated_object);
-
-  end;
-
-  function build_suites(a_cursor sys_refcursor) return ut_suite_items pipelined is
-    l_object ut_annotated_object;
-  begin
-    loop
-      fetch a_cursor into l_object;
-      exit when a_cursor%notfound;
-      pipe row (config_package(l_object));
-    end loop;
-    close a_cursor;
-    return;
-  end;
+  end create_suite;
 
   procedure update_cache(a_owner_name varchar2, a_schema_suites tt_schema_suites, a_total_obj_cnt integer) is
   begin
@@ -231,13 +195,13 @@ create or replace package body ut_suite_manager is
   end;
 
   procedure config_schema(a_owner_name varchar2) is
-    l_suite      ut_logical_suite;
-
-    l_all_suites tt_schema_suites;
-    l_ind        varchar2(4000 char);
-    l_path       varchar2(4000 char);
-    l_root       varchar2(4000 char);
-    l_root_suite ut_logical_suite;
+    l_suite             ut_logical_suite;
+    l_annotated_objects ut_annotated_objects;
+    l_all_suites        tt_schema_suites;
+    l_ind               varchar2(4000 char);
+    l_path              varchar2(4000 char);
+    l_root              varchar2(4000 char);
+    l_root_suite        ut_logical_suite;
 
     type t_object_name is record(
       owner all_objects.owner%type,
@@ -292,38 +256,38 @@ create or replace package body ut_suite_manager is
       end if;
     end;
 
-    $if $$ut_trace $then
-    procedure print(a_item ut_suite_item, a_pad pls_integer) is
-      l_suite ut_logical_suite;
-      l_pad   varchar2(1000) := lpad(' ', a_pad, ' ');
-    begin
-      if a_item is of (ut_logical_suite) then
-        dbms_output.put_line(l_pad || 'Suite: ' || a_item.name || '(' || a_item.path || ')');
-        dbms_output.put_line(l_pad || 'Items: ');
-        l_suite := treat(a_item as ut_logical_suite);
-        for i in 1 .. l_suite.items.count loop
-          print(l_suite.items(i), a_pad + 2);
-        end loop;
-      else
-        dbms_output.put_line(l_pad || 'Test: ' || a_item.name || '(' || a_item.path || ')' );
-      end if;
-    end print;
-    $end
+--     $if $$ut_trace $then
+--     procedure print(a_item ut_suite_item, a_pad pls_integer) is
+--       l_suite ut_logical_suite;
+--       l_pad   varchar2(1000) := lpad(' ', a_pad, ' ');
+--     begin
+--       if a_item is of (ut_logical_suite) then
+--         dbms_output.put_line(l_pad || 'Suite: ' || a_item.name || '(' || a_item.path || ')');
+--         dbms_output.put_line(l_pad || 'Items: ');
+--         l_suite := treat(a_item as ut_logical_suite);
+--         for i in 1 .. l_suite.items.count loop
+--           print(l_suite.items(i), a_pad + 2);
+--         end loop;
+--       else
+--         dbms_output.put_line(l_pad || 'Test: ' || a_item.name || '(' || a_item.path || ')' );
+--       end if;
+--     end print;
+--     $end
 
   begin
     g_schema_object_path_map.delete(a_owner_name);
     -- form the single-dimension list of suites constructed from parsed packages
-    for i in (
-      select treat(value(t) as ut3.ut_logical_suite) suite
-        from table(
-          ut3.ut_suite_manager.build_suites(
-            cursor( select value(x) from table (ut3.ut_annotation_parser.get_annotated_objects(a_owner_name, 'PACKAGE'))x )
-          )
-        ) t
-    ) loop
-      if i.suite is not null then
-        l_all_suites(i.suite.path) := i.suite;
-        g_schema_object_path_map(a_owner_name)(i.suite.object_name) := i.suite.path;
+    execute immediate
+      q'[select value(x)
+          from table(
+            ]'||ut_utils.ut_owner||q'[.ut_annotation_parser.get_annotated_objects(:a_owner_name, 'PACKAGE')
+          )x ]'
+    bulk collect into l_annotated_objects using a_owner_name;
+    for i in 1 .. l_annotated_objects.count loop
+      l_suite := create_suite(l_annotated_objects(i));
+      if l_suite is not null then
+        l_all_suites(l_suite.path) := l_suite;
+        g_schema_object_path_map(a_owner_name)(l_suite.object_name) := l_suite.path;
       end if;
     end loop;
 
@@ -561,7 +525,7 @@ create or replace package body ut_suite_manager is
             l_package_name   := regexp_substr(l_path, '^[A-Za-z0-9$#_]+\.([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?$', subexpression => 1);
             l_procedure_name := regexp_substr(l_path, '^[A-Za-z0-9$#_]+\.([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?$', subexpression => 3);
 
-            if not g_schema_object_path_map(l_schema).exists(l_package_name) then
+            if g_schema_object_path_map.exists(l_schema) and not g_schema_object_path_map(l_schema).exists(l_package_name) then
               raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||l_schema||'.'||l_package_name|| ' not found');
             end if;
             l_path       := rtrim(l_schema || ':' || g_schema_object_path_map(l_schema)(l_package_name) || '.' || l_procedure_name, '.');
