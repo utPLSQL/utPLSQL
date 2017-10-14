@@ -8,7 +8,7 @@ set echo off
 declare
   l_suites ut_suite_items;
 begin
-  l_suites := ut_suite_manager.configure_execution_by_path(USER||'.TST_PKG_HUGE');
+  l_suites := ut_suite_manager.configure_execution_by_path(ut_varchar2_list(USER||'.TST_PKG_HUGE'));
 end;
 /
 

@@ -326,6 +326,8 @@ begin
     'source/api/ut_runner.pks',
     'source/core/coverage',
     'source/core/types',
+    'source/core/annotations/ut_annotation_manager.pkb',
+    'source/core/annotations/ut_annotation_manager.pks',
     'source/core/annotations/ut_annotation_parser.pkb',
     'source/core/annotations/ut_annotation_parser.pks',
     'source/core/annotations/ut_annotation_cache_manager.pkb',

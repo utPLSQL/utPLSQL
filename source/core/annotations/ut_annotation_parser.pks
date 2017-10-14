@@ -17,26 +17,28 @@ create or replace package ut_annotation_parser authid current_user as
   */
 
   /**
-   * Reads database source code, parses it and returns annotations
+   * Parses the source passed as input parameter and returns annotations
    */
 
   /**
+   * Runs the source lines through dbms_preprocessor to remove lines that were not compiled (conditional compilation)
+   * Parses the processed source code and converts it to annotations
+   *
+   * @param a_source_lines ordered lines of source code to be parsed
+   * @return array containing annotations
+   */
+  function parse_object_annotations(a_source_lines dbms_preprocessor.source_lines_t) return ut_annotations;
+
+
+  /**
+   *
+   * @private
    * Parses source code and converts it to annotations
    *
-   * @param a_source clob containing source code to be parsed
+   * @param a_source_lines ordered lines of source code to be parsed
    * @return array containing annotations
    */
   function parse_object_annotations(a_source clob) return ut_annotations;
-
-  /**
-   * Parses an object or all objects of a specified type for database schema.
-   * Pesults are returned in a form of a pipelined function.
-   * @param a_object_owner schema name to be parsed
-   * @param a_object_type type of object to be parsed
-   * @param a_object_name name of object to be parsed - optional
-   * @return array containing annotated objects along with annotations for each object (nested)
-   */
-  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_object_name varchar2 := null) return ut_annotated_objects pipelined;
 
 end ut_annotation_parser;
 /

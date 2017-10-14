@@ -280,7 +280,7 @@ create or replace package body ut_suite_manager is
     execute immediate
       q'[select value(x)
           from table(
-            ]'||ut_utils.ut_owner||q'[.ut_annotation_parser.get_annotated_objects(:a_owner_name, 'PACKAGE')
+            ]'||ut_utils.ut_owner||q'[.ut_annotation_manager.get_annotated_objects(:a_owner_name, 'PACKAGE')
           )x ]'
     bulk collect into l_annotated_objects using a_owner_name;
     for i in 1 .. l_annotated_objects.count loop

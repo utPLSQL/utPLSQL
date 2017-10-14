@@ -1,45 +1,38 @@
 create or replace package test_annotation_parser is
 
-  --%suite(annotations)
+  --%suite(ut_annotation_parser)
   --%suitepath(utplsql.core)
 
-  --%test(Parse procedure level annotations with annotations mixed with comments)
-  procedure test1;
-  --%test(Parse package level annotations with annotations "in the air")
-  procedure test2;
-  --%test(Parse complex package)
-  procedure test3;
-  --%test(Parse package level annotations)
-  procedure test4;
-  --%test(Parse package level annotations)
-  procedure test5;
-  --%test(Parse package level annotations Accessible by)
-  procedure test6;
-  --%test(Parse package level annotations with multiline declaration)
-  procedure test7;
-  --%test(Parse package level annotations)
-  procedure test8;
-  --%test(Parse package level annotations with multiline comment)
-  procedure test9;
+  --%test(Ignores procedure level annotations if mixed with comments)
+  procedure test_proc_comments;
+  --%test(Ignores floating annotations between procedures and package)
+  procedure ignore_floating_annotations;
+  --%test(Parses complex annotations on procedures and functions)
+  procedure parse_complex_with_functions;
+  --%test(Parses package annotations without any procedure annotations)
+  procedure no_procedure_annotation;
+  --%test(Parses package level annotations with Accessible by)
+  procedure parse_accessible_by;
+  --%test(Parses package level annotations with multiline declaration)
+  procedure complex_package_declaration;
+  --%test(Parses complex text in annotation)
+  procedure complex_text;
+  --%test(Ignores content of multi-line comments)
+  procedure ignore_annotations_in_comments;
 
-  --%test(Ignore Wrapped Package And Does Not Raise Exception)
-  --%beforetest(cre_wrapped_pck)
-  --%aftertest(drop_wrapped_pck)
+  --%test(Ignores wrapped package and does not raise exception)
   procedure ignore_wrapped_package;
 
-  procedure cre_wrapped_pck;
-  procedure drop_wrapped_pck;
-
-  --%test(Parse package level annotations with annotation params containing brackets)
+  --%test(Parses package level annotations with annotation params containing brackets)
   procedure brackets_in_desc;
 
-  --%test(Test space before annotation params)
-  procedure test_space_Before_Annot_Params;
+  --%test(Parses annotation text even with spaces before brackets)
+  procedure test_space_before_annot_params;
 
-  -- %test(Test annotations with windows newline)
+  -- %test(Parses source-code with Windows-style newline)
   procedure test_windows_newline;
 
-  -- %test(Test annotation function with very long name)
+  -- %test(Parses annotations with very long object names)
   procedure test_annot_very_long_name;
 
 end test_annotation_parser;
