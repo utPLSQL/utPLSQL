@@ -249,7 +249,6 @@ create or replace package body ut_annotation_parser as
         for i in 1..l_processed_lines.count loop
           ut_utils.append_to_clob(l_source, replace(l_processed_lines(i), chr(13)||chr(10), chr(10)));
         end loop;
-        dbms_output.put_line(l_source);
         --parse annotations
         l_annotations := parse_object_annotations(l_source);
         dbms_lob.freetemporary(l_source);
