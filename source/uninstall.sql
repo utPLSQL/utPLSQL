@@ -78,32 +78,6 @@ drop package ut_suite_manager;
 
 drop package ut;
 
-drop type ut_expectation_yminterval force;
-
-drop type ut_expectation_varchar2 force;
-
-drop type ut_expectation_timestamp_tz force;
-
-drop type ut_expectation_timestamp_ltz force;
-
-drop type ut_expectation_timestamp force;
-
-drop type ut_expectation_refcursor force;
-
-drop type ut_expectation_number force;
-
-drop type ut_expectation_dsinterval force;
-
-drop type ut_expectation_date force;
-
-drop type ut_expectation_clob force;
-
-drop type ut_expectation_boolean force;
-
-drop type ut_expectation_blob force;
-
-drop type ut_expectation_anydata force;
-
 drop type ut_expectation force;
 
 drop package ut_expectation_processor;
