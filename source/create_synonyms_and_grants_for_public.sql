@@ -69,6 +69,7 @@ grant select, insert, delete on &&ut3_owner..ut_cursor_data to public;
 grant execute on &&ut3_owner..ut_sonar_test_reporter to public;
 grant execute on &&ut3_owner..ut_annotations to public;
 grant execute on &&ut3_owner..ut_annotation to public;
+grant execute on &&ut3_owner..ut_annotation_manager to public;
 grant execute on &&ut3_owner..ut_annotated_object to public;
 grant execute on &&ut3_owner..ut_annotated_objects to public;
 grant select on &&ut3_owner..ut_annotation_cache_info to public;
