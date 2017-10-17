@@ -33,6 +33,12 @@ create or replace package body ut_runner is
     return l_result;
   end;
 
+  procedure finish_run(a_reporters ut_reporters) is
+  begin
+    ut_utils.cleanup_temp_tables;
+    ut_output_buffer.close(a_reporters);
+    ut_metadata.reset_source_definition_cache;
+  end;
 
 
   /**
@@ -61,8 +67,8 @@ create or replace package body ut_runner is
     a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
   ) is
-    l_items_to_run  ut_run;
-    l_listener      ut_event_listener;
+    l_items_to_run ut_run;
+    l_listener     ut_event_listener;
   begin
     begin
       ut_output_buffer.cleanup_buffer();
@@ -84,14 +90,10 @@ create or replace package body ut_runner is
       );
       l_items_to_run.do_execute(l_listener);
 
-      ut_utils.cleanup_temp_tables;
-      ut_output_buffer.close(l_listener.reporters);
-      ut_metadata.reset_source_definition_cache;
-      exception
+      finish_run(l_listener.reporters);
+    exception
       when others then
-        ut_utils.cleanup_temp_tables;
-        ut_output_buffer.close(l_listener.reporters);
-        ut_metadata.reset_source_definition_cache;
+        finish_run(l_listener.reporters);
         dbms_output.put_line(dbms_utility.format_error_backtrace);
         dbms_output.put_line(dbms_utility.format_error_stack);
         raise;
