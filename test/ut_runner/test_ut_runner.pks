@@ -18,5 +18,8 @@ create or replace package test_ut_runner is
   --%test(run resets cache of package body after every run)
   procedure run_reset_package_body_cache;
 
+  --%test(does not consume dbms_output from before the run)
+  procedure run_keep_dbms_output_buffer;
+
 end;
 /
