@@ -245,6 +245,21 @@ create or replace package ut_utils authid definer is
 
 
   /**
+  * Saves data from dbms_output buffer into a global temporary table (cache)
+  *   used to store dbms_output buffer captured before the run
+  *
+  */
+  procedure save_dbms_output_to_cache;
+
+  /**
+  * Reads data from global temporary table (cache) abd puts it back into dbms_output
+  *   used to recover dbms_output buffer data after a run is complete
+  *
+  */
+  procedure read_cache_to_dbms_output;
+
+
+  /**
    * Function is used to reference to utPLSQL owned objects in dynamic sql statements executed from packages with invoker rights
    *
    * @return the name of the utPSQL schema owner
