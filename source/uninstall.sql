@@ -78,6 +78,8 @@ drop package ut_suite_manager;
 
 drop package ut;
 
+drop table ut_dbms_output_cache;
+
 drop type ut_expectation force;
 
 drop package ut_expectation_processor;
