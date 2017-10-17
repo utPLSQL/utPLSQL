@@ -132,5 +132,33 @@ end;';
     drop_test_package();
   end;
 
+  procedure run_keep_dbms_output_buffer is
+    l_expected         dbmsoutput_linesarray;
+    l_actual           dbmsoutput_linesarray;
+    l_lines            number := 100;
+  begin
+    --Arrange
+    create_test_spec();
+    create_test_body(0);
+    l_expected := dbmsoutput_linesarray(
+        'A text placed into DBMS_OUTPUT',
+        'Another line',
+        lpad('A very long line',10000,'a')
+    );
+    dbms_output.enable;
+    dbms_output.put_line(l_expected(1));
+    dbms_output.put_line(l_expected(2));
+    dbms_output.put_line(l_expected(3));
+    --Act
+    ut3.ut.run('test_cache');
+
+    --Assert
+    dbms_output.get_lines(lines => l_actual, numlines => l_lines);
+    for i in 1 .. l_expected.count loop
+      ut.expect(l_actual(i)).to_equal(l_expected(i));
+    end loop;
+    drop_test_package();
+  end;
+
 end;
 /

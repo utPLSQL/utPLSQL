@@ -38,6 +38,7 @@ create or replace package body ut_runner is
     ut_utils.cleanup_temp_tables;
     ut_output_buffer.close(a_reporters);
     ut_metadata.reset_source_definition_cache;
+    ut_utils.read_cache_to_dbms_output();
   end;
 
 
@@ -72,6 +73,7 @@ create or replace package body ut_runner is
   begin
     begin
       ut_output_buffer.cleanup_buffer();
+      ut_utils.save_dbms_output_to_cache();
 
       ut_console_reporter_base.set_color_enabled(a_color_console);
       if a_reporters is null or a_reporters.count = 0 then
