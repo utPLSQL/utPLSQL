@@ -24,69 +24,69 @@ create or replace package body ut is
     return ut_runner.version();
   end;
 
-  function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_anydata is
+  function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_anydata(ut_data_value_anydata.get_instance(a_actual), a_message);
+    return ut_expectation(ut_data_value_anydata.get_instance(a_actual), a_message);
   end;
 
-  function expect(a_actual in blob, a_message varchar2 := null) return ut_expectation_blob is
+  function expect(a_actual in blob, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_blob(ut_data_value_blob(a_actual), a_message);
+    return ut_expectation(ut_data_value_blob(a_actual), a_message);
   end;
 
-  function expect(a_actual in boolean, a_message varchar2 := null) return ut_expectation_boolean is
+  function expect(a_actual in boolean, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_boolean(ut_data_value_boolean(a_actual), a_message);
+    return ut_expectation(ut_data_value_boolean(a_actual), a_message);
   end;
 
-  function expect(a_actual in clob, a_message varchar2 := null) return ut_expectation_clob is
+  function expect(a_actual in clob, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_clob(ut_data_value_clob(a_actual), a_message);
+    return ut_expectation(ut_data_value_clob(a_actual), a_message);
   end;
 
-  function expect(a_actual in date, a_message varchar2 := null) return ut_expectation_date is
+  function expect(a_actual in date, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_date(ut_data_value_date(a_actual), a_message);
+    return ut_expectation(ut_data_value_date(a_actual), a_message);
   end;
 
-  function expect(a_actual in number, a_message varchar2 := null) return ut_expectation_number is
+  function expect(a_actual in number, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_number(ut_data_value_number(a_actual), a_message);
+    return ut_expectation(ut_data_value_number(a_actual), a_message);
   end;
 
-  function expect(a_actual in timestamp_unconstrained, a_message varchar2 := null) return ut_expectation_timestamp is
+  function expect(a_actual in timestamp_unconstrained, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_timestamp(ut_data_value_timestamp(a_actual), a_message);
+    return ut_expectation(ut_data_value_timestamp(a_actual), a_message);
   end;
 
-  function expect(a_actual in timestamp_ltz_unconstrained, a_message varchar2 := null) return ut_expectation_timestamp_ltz is
+  function expect(a_actual in timestamp_ltz_unconstrained, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_timestamp_ltz(ut_data_value_timestamp_ltz(a_actual), a_message);
+    return ut_expectation(ut_data_value_timestamp_ltz(a_actual), a_message);
   end;
 
-  function expect(a_actual in timestamp_tz_unconstrained, a_message varchar2 := null) return ut_expectation_timestamp_tz is
+  function expect(a_actual in timestamp_tz_unconstrained, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_timestamp_tz(ut_data_value_timestamp_tz(a_actual), a_message);
+    return ut_expectation(ut_data_value_timestamp_tz(a_actual), a_message);
   end;
 
-  function expect(a_actual in varchar2, a_message varchar2 := null) return ut_expectation_varchar2 is
+  function expect(a_actual in varchar2, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_varchar2(ut_data_value_varchar2(a_actual), a_message);
+    return ut_expectation(ut_data_value_varchar2(a_actual), a_message);
   end;
 
-  function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_expectation_refcursor is
+  function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_refcursor(ut_data_value_refcursor(a_actual), a_message);
+    return ut_expectation(ut_data_value_refcursor(a_actual), a_message);
   end;
 
-  function expect(a_actual in yminterval_unconstrained, a_message varchar2 := null) return ut_expectation_yminterval is
+  function expect(a_actual in yminterval_unconstrained, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_yminterval(ut_data_value_yminterval(a_actual), a_message);
+    return ut_expectation(ut_data_value_yminterval(a_actual), a_message);
   end;
 
-  function expect(a_actual in dsinterval_unconstrained, a_message varchar2 := null) return ut_expectation_dsinterval is
+  function expect(a_actual in dsinterval_unconstrained, a_message varchar2 := null) return ut_expectation is
   begin
-    return ut_expectation_dsinterval(ut_data_value_dsinterval(a_actual), a_message);
+    return ut_expectation(ut_data_value_dsinterval(a_actual), a_message);
   end;
 
   procedure fail(a_message in varchar2) is
@@ -259,6 +259,34 @@ create or replace package body ut is
   end;
 
   procedure run(
+    a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console boolean := false,
+    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
+    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+  ) is
+    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
+  begin
+    run_autonomous(
+      a_paths, l_reporter, ut_utils.boolean_to_int(a_color_console), a_coverage_schemes, a_source_file_mappings, a_test_file_mappings,
+      a_include_objects, a_exclude_objects
+    );
+    ut_output_buffer.lines_to_dbms_output(l_reporter.reporter_id);
+  end;
+
+  procedure run(
+    a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console boolean := false,
+    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
+    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+  ) is
+    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
+  begin
+    run_autonomous(
+      a_paths, l_reporter, ut_utils.boolean_to_int(a_color_console), a_coverage_schemes, a_source_files, a_test_files,
+      a_include_objects, a_exclude_objects
+    );
+    ut_output_buffer.lines_to_dbms_output(l_reporter.reporter_id);
+  end;
+
+  procedure run(
     a_reporter ut_reporter_base := null, a_color_console boolean := false,
     a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
@@ -280,34 +308,6 @@ create or replace package body ut is
       ut_varchar2_list(sys_context('userenv', 'current_schema')), a_reporter, a_color_console,
       a_coverage_schemes, a_source_files, a_test_files, a_include_objects, a_exclude_objects
     );
-  end;
-
-  procedure run(
-    a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
-  ) is
-    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
-  begin
-    ut_runner.run(
-      a_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_file_mappings, a_test_file_mappings,
-      a_include_objects, a_exclude_objects
-    );
-    ut_output_buffer.lines_to_dbms_output(l_reporter.reporter_id);
-  end;
-
-  procedure run(
-    a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
-  ) is
-    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
-  begin
-    ut_runner.run(
-      a_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_files, a_test_files,
-      a_include_objects, a_exclude_objects
-    );
-    ut_output_buffer.lines_to_dbms_output(l_reporter.reporter_id);
   end;
 
   procedure run(
