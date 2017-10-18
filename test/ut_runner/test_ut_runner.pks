@@ -1,7 +1,14 @@
 create or replace package test_ut_runner is
 
   --%suite(ut_runner)
-  --%suitepath(utplsql.core)
+  --%suitepath(utplsql)
+  --%rollback(manual)
+
+  --%test(transaction stays open after the run if it was opened before the run)
+  procedure keep_an_open_transaction;
+
+  --%test(closes open transactions if no transaction was open before run)
+  procedure close_newly_opened_transaction;
 
   --%test(version_compatibility_check compares major, minor and bugfix number)
   procedure version_comp_check_compare;
