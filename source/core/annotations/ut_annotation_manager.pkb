@@ -34,7 +34,7 @@ create or replace package body ut_annotation_manager as
                     cache_id => i.cache_id
                   )
            from ]'||l_objects_view||q'[ o
-           left join ut3.ut_annotation_cache_info i
+           left join ]'||l_ut_owner||q'[.ut_annotation_cache_info i
              on o.owner = i.object_owner and o.object_name = i.object_name and o.object_type = i.object_type
           where o.owner = :a_object_owner
             and o.object_type = :a_object_type
