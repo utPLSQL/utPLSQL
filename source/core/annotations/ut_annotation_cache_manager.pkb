@@ -53,7 +53,7 @@ create or replace package body ut_annotation_cache_manager as
   end;
 
 
-  procedure cleanup_cache(a_objects ut_annotation_cached_objects) is
+  procedure cleanup_cache(a_objects ut_annotation_objs_cache_info) is
     pragma autonomous_transaction;
   begin
 
@@ -79,7 +79,7 @@ create or replace package body ut_annotation_cache_manager as
     commit;
   end;
 
-  function get_annotations_for_objects(a_cached_objects ut_annotation_cached_objects) return sys_refcursor is
+  function get_annotations_for_objects(a_cached_objects ut_annotation_objs_cache_info) return sys_refcursor is
     l_results     sys_refcursor;
   begin
     open l_results for
@@ -94,9 +94,34 @@ create or replace package body ut_annotation_cache_manager as
                )
              )
         from table(a_cached_objects) o
-        join ut_annotation_cache c on o.cache_id = c.cache_id
+        join ut_annotation_cache_info i
+          on o.object_owner = i.object_owner and o.object_name = i.object_name and o.object_type = i.object_type
+        join ut_annotation_cache c on i.cache_id = c.cache_id
        group by o.object_owner, o.object_name, o.object_type;
     return l_results;
   end;
+
+  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2) is
+    pragma autonomous_transaction;
+  begin
+    execute immediate '
+      delete from ut_annotation_cache c
+       where c.cache_id
+          in (select i.cache_id
+                from ut_annotation_cache_info i
+               where 1 = 1
+                 and '||case when a_object_owner is null then ':a_object_owner is null' else 'object_owner = :a_object_owner' end || '
+                 and '||case when a_object_type is null then ':a_object_type is null' else 'object_type = :a_object_type' end || '
+             )'
+    using a_object_owner, a_object_type;
+    execute immediate '
+      delete from ut_annotation_cache_info i
+       where 1 = 1
+         and '||case when a_object_owner is null then ':a_object_owner is null' else 'object_owner = :a_object_owner' end || '
+         and '||case when a_object_type is null then ':a_object_type is null' else 'object_type = :a_object_type' end
+    using a_object_owner, a_object_type;
+    commit;
+  end;
+
 end ut_annotation_cache_manager;
 /

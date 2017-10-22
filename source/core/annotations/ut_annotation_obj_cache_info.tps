@@ -1,4 +1,4 @@
-create type ut_annotation_cached_object as object(
+create type ut_annotation_obj_cache_info as object(
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -18,7 +18,6 @@ create type ut_annotation_cached_object as object(
     object_owner   varchar2(250),
     object_name    varchar2(250),
     object_type    varchar2(250),
-    needs_refresh  varchar2(1),
-    cache_id       number(20,0)
+    needs_refresh  varchar2(1)
   )
 /

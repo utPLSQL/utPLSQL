@@ -1,4 +1,4 @@
-create type ut_annotation_cached_objects as
+create type ut_annotation_objs_cache_info as
   /*
   utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,5 +15,5 @@ create type ut_annotation_cached_objects as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-table of ut_annotation_cached_object
+table of ut_annotation_obj_cache_info
 /

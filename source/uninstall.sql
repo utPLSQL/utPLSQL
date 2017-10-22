@@ -160,9 +160,9 @@ drop table ut_annotation_cache_info cascade constraints;
 
 drop sequence ut_annotation_cache_seq;
 
-drop type ut_annotation_cached_objects force;
+drop type ut_annotation_objs_cache_info force;
 
-drop type ut_annotation_cached_object force;
+drop type ut_annotation_obj_cache_info force;
 
 drop type ut_annotated_objects force;
 

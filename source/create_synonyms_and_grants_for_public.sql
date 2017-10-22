@@ -76,8 +76,8 @@ grant select on &&ut3_owner..ut_annotation_cache_info to public;
 grant select on &&ut3_owner..ut_annotation_cache to public;
 grant execute on &&ut3_owner..ut_annotation_cache_manager to public;
 grant execute on &&ut3_owner..ut_annotation_parser to public;
-grant execute on &&ut3_owner..ut_annotation_cached_objects to public;
-grant execute on &&ut3_owner..ut_annotation_cached_object to public;
+grant execute on &&ut3_owner..ut_annotation_objs_cache_info to public;
+grant execute on &&ut3_owner..ut_annotation_obj_cache_info to public;
 
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC

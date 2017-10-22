@@ -16,11 +16,38 @@ create or replace package ut_annotation_cache_manager authid definer as
   limitations under the License.
   */
 
+  /**
+   * Populates cache with information about object and it's annotations
+   * Cache information for individual object is modified by this code
+   * We do not pass a collection here to avoid excessive memory usage
+   * when dealing with large number of objects
+   *
+   * @param a_object a `ut_annotated_object` containing object name, type, owner and `ut_annotations`
+   */
   procedure update_cache(a_object ut_annotated_object);
 
-  function get_annotations_for_objects(a_cached_objects ut_annotation_cached_objects) return sys_refcursor;
+  /**
+   * Returns a ref_cursor containing `ut_annotated_object` as result
+   * Range of data returned is limited by the input collection o cache object info
+   *
+   * @param a_cached_objects a `ut_annotation_objs_cache_info` list with information about objects to get from cache
+   */
+  function get_annotations_for_objects(a_cached_objects ut_annotation_objs_cache_info) return sys_refcursor;
 
-  procedure cleanup_cache(a_objects ut_annotation_cached_objects);
+  /**
+   * Removes cached information about annotations for objects on the list and updates parse_time in cache info table.
+   *
+   * @param a_objects a `ut_annotation_objs_cache_info` list with information about objects to remove from cache
+   */
+  procedure cleanup_cache(a_objects ut_annotation_objs_cache_info);
+
+  /**
+   * Removes cached information about annotations for objects of specified type and specified owner
+   *
+   * @param a_object_owner owner of objects to purge annotations for
+   * @param a_object_type type of objects to purge annotations for
+   */
+  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2);
 
 end;
 /
