@@ -37,6 +37,10 @@ create or replace package demo_equal_matcher as
     procedure object_compare_null_both_ok;
 
     -- %test
+    -- %displayname(Gives failure when comparing null actual to a null expected, setting null equal to false)
+    procedure object_compare_null_both_fail;
+
+    -- %test
     -- %displayname(Gives failure when comparing identical objects containing different data)
     procedure object_compare_different_data;
 
@@ -89,6 +93,14 @@ create or replace package body demo_equal_matcher as
   begin
     ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected));
   end;
+
+  procedure object_compare_null_both_fail is
+    l_expected demo_department;
+    l_actual   demo_department;
+  begin
+    ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected),a_nulls_are_equal => false);
+  end;
+
 
   procedure object_compare_different_data is
     l_expected demo_department;
