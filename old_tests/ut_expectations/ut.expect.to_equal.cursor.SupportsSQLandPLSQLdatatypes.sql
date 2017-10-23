@@ -90,7 +90,7 @@ declare
   l_result_reporter ut_reporter_base := ut_documentation_reporter();
   l_status_reporter ut_reporter_base := utplsql_test_reporter();
 begin
-  ut_runner.run(':org.utplsql.test', ut_reporters(l_result_reporter, l_status_reporter));
+  ut_runner.run(ut_varchar2_list(':org.utplsql.test'), ut_reporters(l_result_reporter, l_status_reporter));
   select * into :test_result from table(ut_output_buffer.get_lines(l_status_reporter.reporter_id));
   if :test_result != ut_utils.tr_success then
     ut_output_buffer.lines_to_dbms_output(l_result_reporter.reporter_id);
