@@ -62,7 +62,9 @@ create or replace package body ut_annotation_cache_manager as
         in (select i.cache_id
               from ut_annotation_cache_info i
               join table (a_objects) o
-             using (object_name, object_type, object_owner)
+                on o.object_name = i.object_name
+               and o.object_type = i.object_type
+               and o.object_owner = i.object_owner
            );
 
     merge into ut_annotation_cache_info i

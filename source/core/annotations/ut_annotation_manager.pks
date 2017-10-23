@@ -42,5 +42,13 @@ create or replace package ut_annotation_manager authid current_user as
    */
   procedure rebuild_annotation_cache(a_object_owner varchar2, a_object_type varchar2);
 
+  /**
+   * Removes cached information about annotations for objects of specified type and specified owner
+   *
+   * @param a_object_owner owner of objects to purge annotations for
+   * @param a_object_type type of objects to purge annotations for
+   */
+  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2);
+
 end ut_annotation_manager;
 /

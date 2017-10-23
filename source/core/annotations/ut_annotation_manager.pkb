@@ -208,5 +208,10 @@ create or replace package body ut_annotation_manager as
 
   end;
 
+  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2) is
+  begin
+    ut_annotation_cache_manager.purge_cache(a_object_owner, a_object_type);
+  end;
+
 end ut_annotation_manager;
 /
