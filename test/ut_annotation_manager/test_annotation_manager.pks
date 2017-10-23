@@ -42,13 +42,5 @@ create or replace package test_annotation_manager is
   --%beforetest(create_dummy_test_package)
   procedure no_data_for_dropped_object;
 
-  procedure setup_cache;
-  procedure cleanup_cache;
-
-  --%test(Purges cache for a given schema and object type)
-  --%beforetest(setup_cache)
-  --%aftertest(cleanup_cache)
-  procedure test_purge_schema_type;
-
 end test_annotation_manager;
 /
