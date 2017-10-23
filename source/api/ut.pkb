@@ -102,7 +102,8 @@ create or replace package body ut is
     pragma autonomous_transaction;
   begin
     ut_runner.run(
-      a_paths, a_reporter, ut_utils.int_to_boolean(a_color_console), a_coverage_schemes,
+      a_paths, ut_reporters(coalesce(a_reporter,ut_documentation_reporter())),
+      ut_utils.int_to_boolean(a_color_console), a_coverage_schemes,
       a_source_file_mappings, a_test_file_mappings, a_include_objects, a_exclude_objects
     );
     rollback;
@@ -116,7 +117,8 @@ create or replace package body ut is
     pragma autonomous_transaction;
   begin
     ut_runner.run(
-      a_paths, a_reporter, ut_utils.int_to_boolean(a_color_console), a_coverage_schemes,
+      a_paths, ut_reporters(coalesce(a_reporter,ut_documentation_reporter())),
+      ut_utils.int_to_boolean(a_color_console), a_coverage_schemes,
       a_source_files, a_test_files, a_include_objects, a_exclude_objects
     );
     rollback;
