@@ -94,14 +94,14 @@ create or replace type body ut_teamcity_reporter is
                                                                 ,a_out       => trim(l_std_err_msg)));
         self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
                                                                ,a_msg       => 'Error occured'
-                                                               ,a_details   => trim(l_std_err_msg) || case when a_test.results is not null and a_test.results.count>0 then a_test.results(1)
+                                                               ,a_details   => trim(l_std_err_msg) || case when a_test.failed_expectations is not null and a_test.failed_expectations.count>0 then a_test.failed_expectations(1)
                                                                               .message end));
-      elsif a_test.results is not null and a_test.results.count > 0 then
+      elsif a_test.failed_expectations is not null and a_test.failed_expectations.count > 0 then
         -- Teamcity supports only a single failure message
 
         self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
-                                                               ,a_msg       => a_test.results(a_test.results.first).description
-                                                               ,a_details   => a_test.results(a_test.results.first).message ));
+                                                               ,a_msg       => a_test.failed_expectations(a_test.failed_expectations.first).description
+                                                               ,a_details   => a_test.failed_expectations(a_test.failed_expectations.first).message ));
       elsif a_test.result = ut_utils.tr_failure then
         self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
                                                                ,a_msg       => 'Test failed'));

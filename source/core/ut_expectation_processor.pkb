@@ -57,20 +57,20 @@ create or replace package body ut_expectation_processor as
     return g_expectations_called.count;
   end;
 
-  function get_expectations_results return ut_expectation_results is
+  function get_failed_expectations return ut_expectation_results is
     l_expectations_results ut_expectation_results := ut_expectation_results();
   begin
-    ut_utils.debug_log('ut_expectation_processor.get_expectations_results: g_expectations_called.count='||g_expectations_called.count);
+    ut_utils.debug_log('ut_expectation_processor.get_failed_expectations: g_expectations_called.count='||g_expectations_called.count);
     for i in 1 .. g_expectations_called.count loop
       if g_expectations_called(i).status > ut_utils.tr_success then
         l_expectations_results.extend;
         l_expectations_results(l_expectations_results.last) := g_expectations_called(i);
       end if;
     end loop;
-    ut_utils.debug_log('ut_expectation_processor.get_expectations_results: l_expectations_results.count='||g_expectations_called.count);
+    ut_utils.debug_log('ut_expectation_processor.get_failed_expectations: l_expectations_results.count='||g_expectations_called.count);
     clear_expectations();
     return l_expectations_results;
-  end get_expectations_results;
+  end get_failed_expectations;
 
   procedure add_expectation_result(a_expectation_result ut_expectation_result) is
   begin

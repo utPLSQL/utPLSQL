@@ -24,7 +24,7 @@ END;';
   if ut_expectation_processor.get_status = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;
   else
-    l_results := ut_expectation_processor.get_expectations_results();
+    l_results := ut_expectation_processor.get_failed_expectations();
     for i in 1 .. l_results.count loop
       dbms_output.put_line(l_results(i).message);
     end loop;

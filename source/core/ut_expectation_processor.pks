@@ -30,7 +30,7 @@ create or replace package ut_expectation_processor authid current_user as
 
   function get_expectations_count return integer;
 
-  function get_expectations_results return ut_expectation_results;
+  function get_failed_expectations return ut_expectation_results;
 
   procedure add_expectation_result(a_expectation_result ut_expectation_result);
 

@@ -110,8 +110,8 @@ create or replace type body ut_documentation_reporter is
 
         self.print_red_text(ut_utils.table_to_clob(a_test.get_error_stack_traces()));
 
-        for j in 1 .. a_test.results.count loop
-          print_failure_for_expectation(a_test.results(j));
+        for j in 1 .. a_test.failed_expectations.count loop
+          print_failure_for_expectation(a_test.failed_expectations(j));
         end loop;
 
         self.lvl := self.lvl - 3;

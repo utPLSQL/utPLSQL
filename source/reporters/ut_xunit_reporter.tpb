@@ -52,12 +52,12 @@ create or replace type body ut_xunit_reporter is
       elsif a_test.result > ut_utils.tr_success then
         self.print_text('<failure>');
         self.print_text('<![CDATA[');
-        for i in 1 .. a_test.results.count loop
-          l_lines := a_test.results(i).get_result_lines();
+        for i in 1 .. a_test.failed_expectations.count loop
+          l_lines := a_test.failed_expectations(i).get_result_lines();
           for j in 1 .. l_lines.count loop
             self.print_text(l_lines(j));
           end loop;
-          self.print_text(a_test.results(i).caller_info);
+          self.print_text(a_test.failed_expectations(i).caller_info);
         end loop;
         self.print_text(']]>');
         self.print_text('</failure>');

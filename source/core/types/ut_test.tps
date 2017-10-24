@@ -43,7 +43,7 @@ create or replace type ut_test under ut_suite_item (
   * The list of failed expectation results as well as database errors encountered while invoking
   * The test procedure and the before_test/after_test blocks
   */
-  results ut_expectation_results,
+  failed_expectations ut_expectation_results,
   /**
   * The count of all expectations executed in the test
   */

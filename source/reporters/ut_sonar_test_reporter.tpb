@@ -57,8 +57,8 @@ create or replace type body ut_sonar_test_reporter is
       elsif a_test.result > ut_utils.tr_success then
         self.print_text('<failure message="some expectations have failed">');
         self.print_text('<![CDATA[');
-        for i in 1 .. a_test.results.count loop
-          l_lines := a_test.results(i).get_result_lines();
+        for i in 1 .. a_test.failed_expectations.count loop
+          l_lines := a_test.failed_expectations(i).get_result_lines();
           for i in 1 .. l_lines.count loop
             self.print_text(l_lines(i));
           end loop;
