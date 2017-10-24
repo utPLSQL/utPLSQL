@@ -52,6 +52,11 @@ create or replace package body ut_expectation_processor as
     g_expectations_called.delete;
   end;
 
+  function get_expectations_count return integer is
+  begin
+    return g_expectations_called.count;
+  end;
+
   function get_expectations_results return ut_expectation_results is
     l_expectations_results ut_expectation_results := ut_expectation_results();
   begin

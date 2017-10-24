@@ -28,6 +28,8 @@ create or replace package ut_expectation_processor authid current_user as
 
   procedure clear_expectations;
 
+  function get_expectations_count return integer;
+
   function get_expectations_results return ut_expectation_results;
 
   procedure add_expectation_result(a_expectation_result ut_expectation_result);

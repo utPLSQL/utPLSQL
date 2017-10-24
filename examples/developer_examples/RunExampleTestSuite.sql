@@ -44,7 +44,7 @@ begin
     dbms_output.put_line('Test:' || test_item.item.form_name);
     dbms_output.put_line('Result: ' || ut_utils.test_result_to_char(test_item.result));
     dbms_output.put_line('expectation Results:');
-    for i in test_item.results.first .. test_item.results.last loop
+    for i in 1 .. test_item.results.count loop
 			expectation := test_item.results(i);
       dbms_output.put_line(i || ' - result: ' || ut_utils.test_result_to_char(expectation.result));
       dbms_output.put_line(i || ' - Message: ' || expectation.message);
