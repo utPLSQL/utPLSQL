@@ -56,7 +56,7 @@ create or replace package body test_xunit_reporter as
       from table(ut3.ut.run('check_xunit_reporting',ut3.ut_xunit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
-    ut.expect(l_actual).to_be_like('%at "%.CHECK_XUNIT_REPORTING", line %');
+    ut.expect(l_actual).to_be_like('%at "%.CHECK_XUNIT_REPORTING%", line %');
   end;
 
   procedure remove_test_package is
