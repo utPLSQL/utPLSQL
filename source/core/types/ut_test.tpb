@@ -99,7 +99,8 @@ create or replace type body ut_test as
       self.result := ut_utils.tr_error;
     end if;
     --expectation results need to be part of test results
-    self.results := ut_expectation_processor.get_expectations_results();
+    self.expectations_count := ut_expectation_processor.get_expectations_count();
+    self.failed_expectations := ut_expectation_processor.get_failed_expectations();
     self.results_count.set_counter_values(self.result);
   end;
 

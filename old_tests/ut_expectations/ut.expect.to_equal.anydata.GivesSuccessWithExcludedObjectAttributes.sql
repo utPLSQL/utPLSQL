@@ -11,7 +11,7 @@ begin
 
   ut.expect(anydata.convertObject(l_actual)).to_equal(anydata.convertObject(l_expected), a_exclude=>'VALUE');
   l_result :=  ut_expectation_processor.get_status();
-  l_results_details := ut_expectation_processor.get_expectations_results();
+  l_results_details := ut_expectation_processor.get_failed_expectations();
 --Assert
   if nvl(:test_result, ut_utils.tr_success) = ut_utils.tr_success and l_result = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;
