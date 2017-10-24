@@ -32,7 +32,7 @@ begin
     dbms_output.put_line(
       xmltype(
         anydata.convertcollection(
-          ut_expectation_processor.get_expectations_results()
+          ut_expectation_processor.get_failed_expectations()
         )
       ).getclobval()
     );
