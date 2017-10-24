@@ -45,7 +45,7 @@ create or replace type body ut_sonar_test_reporter is
     procedure print_test_results(a_test ut_test) is
       l_lines ut_varchar2_list;
     begin
-      self.print_text('<testCase name="'||a_test.name||'" duration="'||round(a_test.execution_time()*1000,0)||'" >');
+      self.print_text('<testCase name="'||dbms_xmlgen.convert(a_test.name)||'" duration="'||round(a_test.execution_time()*1000,0)||'" >');
       if a_test.result = ut_utils.tr_disabled then
         self.print_text('<skipped message="skipped"/>');
       elsif a_test.result = ut_utils.tr_error then
@@ -77,7 +77,7 @@ create or replace type body ut_sonar_test_reporter is
         end if;
       end loop;
       if a_suite is of(ut_suite) then
-        self.print_text('<file path="'||map_package_to_file(treat(a_suite as ut_suite), a_file_mappings)||'">');
+        self.print_text('<file path="'||dbms_xmlgen.convert(map_package_to_file(treat(a_suite as ut_suite), a_file_mappings))||'">');
 
         for i in 1 .. a_suite.items.count loop
           if a_suite.items(i) is of(ut_test) then

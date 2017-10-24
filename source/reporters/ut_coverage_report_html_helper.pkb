@@ -106,7 +106,7 @@ create or replace package body ut_coverage_report_html_helper is
       dbms_lob.createtemporary(l_result, true);
       l_coverage_pct := coverage_pct(a_coverage_unit.covered_lines, a_coverage_unit.uncovered_lines);
       l_file_part :=
-      '<div class="source_table" id="'||a_object_id||'"><div class="header"> <h3>'||a_object_full_name||'</h3>' ||
+      '<div class="source_table" id="'||a_object_id||'"><div class="header"> <h3>'||dbms_xmlgen.convert(a_object_full_name)||'</h3>' ||
       '<h4><span class="'||coverage_css_class(l_coverage_pct)||'">'||l_coverage_pct||' %</span> covered</h4>' ||
       '<div> <b>'||(a_coverage_unit.covered_lines+a_coverage_unit.uncovered_lines)||'</b> relevant lines. ' ||
       '<span class="green"><b>'||a_coverage_unit.covered_lines||'</b> lines covered</span> and ' ||
@@ -179,7 +179,7 @@ create or replace package body ut_coverage_report_html_helper is
       l_file_part :=
        chr(10)||
        '<tr>' ||
-       '<td class="strong">'||link_to_source_file(l_unit)||'</td>' ||
+       '<td class="strong">'||link_to_source_file(dbms_xmlgen.convert(l_unit))||'</td>' ||
        '<td class="'||coverage_css_class(l_coverage_pct)||' strong">'||l_coverage_pct||' %</td>' ||
        '<td>'||l_unit_coverage.total_lines||'</td>' ||
        '<td>'||(l_unit_coverage.covered_lines+l_unit_coverage.uncovered_lines)||'</td>' ||

@@ -1,7 +1,6 @@
 create or replace package body test_coverage_sonar_reporter is
 
   procedure report_on_file is
-    v_run_id    integer;
     l_results   ut3.ut_varchar2_list;
     l_expected  clob;
     l_actual    clob;

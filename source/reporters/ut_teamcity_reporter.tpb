@@ -57,7 +57,6 @@ create or replace type body ut_teamcity_reporter is
   end;
 
   overriding member procedure after_calling_test(self in out nocopy ut_teamcity_reporter, a_test in ut_test) is
-    l_expectation    ut_expectation_result;
     l_test_full_name varchar2(4000);
     l_std_err_msg    varchar2(32767);
   begin
@@ -98,19 +97,11 @@ create or replace type body ut_teamcity_reporter is
                                                                ,a_details   => trim(l_std_err_msg) || case when a_test.results is not null and a_test.results.count>0 then a_test.results(1)
                                                                               .message end));
       elsif a_test.results is not null and a_test.results.count > 0 then
-        for i in 1 .. a_test.results.count loop
+        -- Teamcity supports only a single failure message
 
-          l_expectation := a_test.results(i);
-
-          if l_expectation.status > ut_utils.tr_success then
-            self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
-                                                                   ,a_msg       => l_expectation.description
-                                                                   ,a_details   => l_expectation.message ));
-            -- Teamcity supports only a single failure message
-            exit;
-          end if;
-
-        end loop;
+        self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
+                                                               ,a_msg       => a_test.results(a_test.results.first).description
+                                                               ,a_details   => a_test.results(a_test.results.first).message ));
       elsif a_test.result = ut_utils.tr_failure then
         self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
                                                                ,a_msg       => 'Test failed'));
