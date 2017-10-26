@@ -9,7 +9,8 @@
 utPLSQL is open source project [hosted on GitHub](https://github.com/utPLSQL/utPLSQL).
 
 Contributions, help and constructive feedback is always appreciated.
-If you are interested in helping please read our [guide to contributing](https://github.com/utPLSQL/utPLSQL/CONTRIBUTING.md)
+
+If you are interested in helping please read our [contributing guide](https://github.com/utPLSQL/utPLSQL/blob/develop/CONTRIBUTING.md)
 
 
 
