@@ -27,6 +27,13 @@ create or replace package body ut_suite_manager is
 
   g_schema_suites tt_schema_suites_list;
 
+  type t_object_suite_path is table of varchar2(4000) index by varchar2(4000 char);
+  type t_schema_suite_paths is table of t_object_suite_path index by varchar2(250);
+
+  g_schema_object_path_map t_schema_suite_paths;
+
+  ------------------
+
   function trim_path(a_path varchar2, a_part varchar2) return varchar2 is
   begin
     return substr(a_path, nvl(length(a_part), 0) + 1);
@@ -34,7 +41,7 @@ create or replace package body ut_suite_manager is
 
   function get_schema_info(a_owner_name varchar2) return t_schema_info is
     l_info t_schema_info;
-    l_view_name      varchar2(200) := ut_metadata.get_dba_view('all_objects');
+    l_view_name      varchar2(200) := ut_metadata.get_dba_view('dba_objects');
   begin
     execute immediate q'[
     select nvl(max(t.last_ddl_time), date '4999-12-31'), count(*)
@@ -45,11 +52,13 @@ create or replace package body ut_suite_manager is
     return l_info;
   end;
 
-  function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_logical_suite is
-    l_annotation_data    ut_annotations.typ_annotated_package;
-    l_suite_name         ut_annotations.t_annotation_name;
-    l_test               ut_test;
-    l_proc_annotations   ut_annotations.tt_annotations;
+  function create_suite(a_object ut_annotated_object) return ut_logical_suite is
+    l_is_suite           boolean := false;
+    l_is_test            boolean := false;
+    l_suite_disabled     boolean := false;
+    l_test_disabled      boolean := false;
+    l_suite_items        ut_suite_items := ut_suite_items();
+    l_suite_name         varchar2(4000);
 
     l_default_setup_proc    varchar2(250 char);
     l_default_teardown_proc varchar2(250 char);
@@ -57,136 +66,122 @@ create or replace package body ut_suite_manager is
     l_suite_teardown_proc   varchar2(250 char);
     l_suite_path            varchar2(4000 char);
 
-    l_proc_name ut_annotations.t_procedure_name;
+    l_proc_name             varchar2(250 char);
 
-    l_owner_name  varchar2(250 char);
-    l_object_name varchar2(250 char);
     l_suite       ut_logical_suite;
+    l_test        ut_test;
 
     l_suite_rollback            integer;
-    l_suite_rollback_annotation varchar2(4000);
-    e_insufficient_priv         exception;
-    pragma exception_init(e_insufficient_priv,-01031);
+
+    l_beforetest_procedure varchar2(250 char);
+    l_aftertest_procedure  varchar2(250 char);
+    l_rollback_type        integer;
+    l_displayname          varchar2(4000);
+
   begin
-    l_owner_name  := a_owner_name;
-    l_object_name := a_object_name;
-    begin
-      ut_metadata.do_resolve(a_owner => l_owner_name, a_object => l_object_name);
-    exception
-      when e_insufficient_priv then
-      return null;
-    end;
-    l_annotation_data := ut_annotations.get_package_annotations(a_owner_name => l_owner_name, a_name => l_object_name);
+    l_suite_rollback := ut_utils.gc_rollback_auto;
+    for i in 1 .. a_object.annotations.count loop
 
-    if l_annotation_data.package_annotations.exists('suite') then
+      if a_object.annotations(i).subobject_name is null then
 
-      if l_annotation_data.package_annotations.exists('displayname') then
-        l_suite_name         := l_annotation_data.package_annotations('displayname').text;
-      else
-        l_suite_name         := l_annotation_data.package_annotations('suite').text;
-      end if;
-
-      if l_annotation_data.package_annotations.exists('suitepath') and l_annotation_data.package_annotations('suitepath').text is not null then
-        l_suite_path := l_annotation_data.package_annotations('suitepath').text || '.' || lower(l_object_name);
-      end if;
-
-      if l_annotation_data.package_annotations.exists('rollback') then
-        l_suite_rollback_annotation := l_annotation_data.package_annotations('rollback').text;
-        if lower(l_suite_rollback_annotation) = 'manual' then
-          l_suite_rollback := ut_utils.gc_rollback_manual;
-        else
-          l_suite_rollback := ut_utils.gc_rollback_auto;
+        if a_object.annotations(i).name in ('suite','displayname') then
+          l_suite_name := a_object.annotations(i).text;
+          if a_object.annotations(i).name = 'suite' then
+            l_is_suite := true;
+          end if;
+        elsif a_object.annotations(i).name = 'disabled' then
+          l_suite_disabled := true;
+        elsif a_object.annotations(i).name = 'suitepath' and  a_object.annotations(i).text is not null then
+          l_suite_path := a_object.annotations(i).text || '.' || lower(a_object.object_name);
+        elsif a_object.annotations(i).name = 'rollback' then
+          if lower(a_object.annotations(i).text) = 'manual' then
+            l_suite_rollback := ut_utils.gc_rollback_manual;
+          else
+            l_suite_rollback := ut_utils.gc_rollback_auto;
+          end if;
         end if;
-      else
-        l_suite_rollback := ut_utils.gc_rollback_auto;
-      end if;
 
-      for i in 1 .. l_annotation_data.procedure_annotations.count loop
-        exit when l_default_setup_proc is not null and l_default_teardown_proc is not null and l_suite_setup_proc is not null and l_suite_teardown_proc is not null;
-        l_proc_name        := l_annotation_data.procedure_annotations(i).name;
-        l_proc_annotations := l_annotation_data.procedure_annotations(i).annotations;
+      elsif l_is_suite then
 
-        if l_proc_annotations.exists('beforeeach') and l_default_setup_proc is null then
+        l_proc_name := a_object.annotations(i).subobject_name;
+
+        if a_object.annotations(i).name = 'beforeeach' and l_default_setup_proc is null then
           l_default_setup_proc := l_proc_name;
-        elsif l_proc_annotations.exists('aftereach') and l_default_teardown_proc is null then
+        elsif a_object.annotations(i).name = 'aftereach' and l_default_teardown_proc is null then
           l_default_teardown_proc := l_proc_name;
-        elsif l_proc_annotations.exists('beforeall') and l_suite_setup_proc is null then
+        elsif a_object.annotations(i).name = 'beforeall' and l_suite_setup_proc is null then
           l_suite_setup_proc := l_proc_name;
-        elsif l_proc_annotations.exists('afterall') and l_suite_teardown_proc is null then
+        elsif a_object.annotations(i).name = 'afterall' and l_suite_teardown_proc is null then
           l_suite_teardown_proc := l_proc_name;
+
+
+        elsif a_object.annotations(i).name = 'disabled' then
+          l_test_disabled := true;
+        elsif a_object.annotations(i).name = 'beforetest' then
+          l_beforetest_procedure := a_object.annotations(i).text;
+        elsif a_object.annotations(i).name = 'aftertest' then
+          l_aftertest_procedure := a_object.annotations(i).text;
+        elsif a_object.annotations(i).name in ('displayname','test') then
+          l_displayname := a_object.annotations(i).text;
+          if a_object.annotations(i).name = 'test' then
+            l_is_test := true;
+          end if;
+        elsif a_object.annotations(i).name = 'rollback' then
+          if lower(a_object.annotations(i).text) = 'manual' then
+            l_rollback_type := ut_utils.gc_rollback_manual;
+          elsif lower(a_object.annotations(i).text) = 'auto' then
+            l_rollback_type := ut_utils.gc_rollback_auto;
+          end if;
         end if;
 
-      end loop;
+        if l_is_test
+           and (i = a_object.annotations.count
+                or l_proc_name != nvl(a_object.annotations(i+1).subobject_name, ' ') ) then
+          l_suite_items.extend;
+          l_suite_items(l_suite_items.last) :=
+            ut_test(a_object_owner          => a_object.object_owner
+                   ,a_object_name           => a_object.object_name
+                   ,a_name                  => l_proc_name
+                   ,a_description           => l_displayname
+                   ,a_rollback_type         => coalesce(l_rollback_type, l_suite_rollback)
+                   ,a_disabled_flag         => l_suite_disabled or l_test_disabled
+                   ,a_before_test_proc_name => l_beforetest_procedure
+                   ,a_after_test_proc_name  => l_aftertest_procedure);
+
+          l_is_test := false;
+          l_test_disabled := false;
+          l_aftertest_procedure  := null;
+          l_beforetest_procedure := null;
+          l_rollback_type        := null;
+        end if;
+
+      end if;
+    end loop;
+
+    if l_is_suite then
       l_suite := ut_suite (
-          a_object_owner          => l_owner_name,
-          a_object_name           => l_object_name,
-          a_name                  => l_object_name, --this could be different for sub-suite (context)
+          a_object_owner          => a_object.object_owner,
+          a_object_name           => a_object.object_name,
+          a_name                  => a_object.object_name, --this could be different for sub-suite (context)
           a_path                  => l_suite_path,  --a patch for this suite (excluding the package name of current suite)
           a_description           => l_suite_name,
           a_rollback_type         => l_suite_rollback,
-          a_disabled_flag         => l_annotation_data.package_annotations.exists('disabled'),
+          a_disabled_flag         => l_suite_disabled,
           a_before_all_proc_name  => l_suite_setup_proc,
           a_after_all_proc_name   => l_suite_teardown_proc
       );
-
-
-      for i in 1 .. l_annotation_data.procedure_annotations.count loop
-        l_proc_name        := l_annotation_data.procedure_annotations(i).name;
-        l_proc_annotations := l_annotation_data.procedure_annotations(i).annotations;
-        if l_proc_annotations.exists('test') then
-          declare
-            l_beforetest_procedure varchar2(30 char);
-            l_aftertest_procedure  varchar2(30 char);
-            l_rollback_annotation  varchar2(4000);
-            l_rollback_type        integer := l_suite_rollback;
-            l_displayname          varchar2(4000);
-          begin
-            if l_proc_annotations.exists('beforetest') then
-              l_beforetest_procedure := l_proc_annotations('beforetest').text;
-            end if;
-
-            if l_proc_annotations.exists('aftertest') then
-              l_aftertest_procedure := l_proc_annotations('aftertest').text;
-            end if;
-
-            if l_proc_annotations.exists('displayname') then
-              l_displayname := l_proc_annotations('displayname').text;
-            else
-              l_displayname := l_proc_annotations('test').text;
-            end if;
-
-            if l_proc_annotations.exists('rollback') then
-              l_rollback_annotation := l_proc_annotations('rollback').text;
-              if lower(l_rollback_annotation) = 'manual' then
-                l_rollback_type := ut_utils.gc_rollback_manual;
-              elsif lower(l_rollback_annotation) = 'auto' then
-                l_rollback_type := ut_utils.gc_rollback_auto;
-              else
-                l_rollback_type := l_suite_rollback;
-              end if;
-            end if;
-
-            l_test := ut_test(a_object_owner          => l_owner_name
-                             ,a_object_name           => l_object_name
-                             ,a_name                  => l_proc_name
-                             ,a_description           => l_displayname
-                             ,a_path                  => l_suite.path || '.' || l_proc_name
-                             ,a_rollback_type         => l_rollback_type
-                             ,a_disabled_flag         => l_annotation_data.package_annotations.exists('disabled') or l_proc_annotations.exists('disabled')
-                             ,a_before_test_proc_name => l_beforetest_procedure
-                             ,a_after_test_proc_name  => l_aftertest_procedure
-                             ,a_before_each_proc_name => l_default_setup_proc
-                             ,a_after_each_proc_name  => l_default_teardown_proc);
-
-            l_suite.add_item(l_test);
-          end;
-        end if;
-
+      for i in 1 .. l_suite_items.count loop
+        l_test := treat(l_suite_items(i) as ut_test);
+        l_test.set_beforeeach(l_default_setup_proc);
+        l_test.set_aftereach(l_default_teardown_proc);
+        l_test.path := l_suite.path  || '.' ||  l_test.name;
+        l_suite.add_item(l_test);
       end loop;
     end if;
+
     return l_suite;
 
-  end config_package;
+  end create_suite;
 
   procedure update_cache(a_owner_name varchar2, a_schema_suites tt_schema_suites, a_total_obj_cnt integer) is
   begin
@@ -200,13 +195,13 @@ create or replace package body ut_suite_manager is
   end;
 
   procedure config_schema(a_owner_name varchar2) is
-    l_suite      ut_logical_suite;
-
-    l_all_suites tt_schema_suites;
-    l_ind        varchar2(4000 char);
-    l_path       varchar2(4000 char);
-    l_root       varchar2(4000 char);
-    l_root_suite ut_logical_suite;
+    l_suite             ut_logical_suite;
+    l_annotated_objects ut_annotated_objects;
+    l_all_suites        tt_schema_suites;
+    l_ind               varchar2(4000 char);
+    l_path              varchar2(4000 char);
+    l_root              varchar2(4000 char);
+    l_root_suite        ut_logical_suite;
 
     type t_object_name is record(
       owner all_objects.owner%type,
@@ -261,40 +256,42 @@ create or replace package body ut_suite_manager is
       end if;
     end;
 
-    $if $$ut_trace $then
-    procedure print(a_item ut_suite_item, a_pad pls_integer) is
-      l_suite ut_logical_suite;
-      l_pad   varchar2(1000) := lpad(' ', a_pad, ' ');
-    begin
-      if a_item is of (ut_logical_suite) then
-        dbms_output.put_line(l_pad || 'Suite: ' || a_item.name || '(' || a_item.path || ')');
-        dbms_output.put_line(l_pad || 'Items: ');
-        l_suite := treat(a_item as ut_logical_suite);
-        for i in 1 .. l_suite.items.count loop
-          print(l_suite.items(i), a_pad + 2);
-        end loop;
-      else
-        dbms_output.put_line(l_pad || 'Test: ' || a_item.name || '(' || a_item.path || ')' );
-      end if;
-    end print;
-    $end
+--     $if $$ut_trace $then
+--     procedure print(a_item ut_suite_item, a_pad pls_integer) is
+--       l_suite ut_logical_suite;
+--       l_pad   varchar2(1000) := lpad(' ', a_pad, ' ');
+--     begin
+--       if a_item is of (ut_logical_suite) then
+--         dbms_output.put_line(l_pad || 'Suite: ' || a_item.name || '(' || a_item.path || ')');
+--         dbms_output.put_line(l_pad || 'Items: ');
+--         l_suite := treat(a_item as ut_logical_suite);
+--         for i in 1 .. l_suite.items.count loop
+--           print(l_suite.items(i), a_pad + 2);
+--         end loop;
+--       else
+--         dbms_output.put_line(l_pad || 'Test: ' || a_item.name || '(' || a_item.path || ')' );
+--       end if;
+--     end print;
+--     $end
 
   begin
+    g_schema_object_path_map.delete(a_owner_name);
     -- form the single-dimension list of suites constructed from parsed packages
     execute immediate
-      'select t.owner, t.object_name from '||l_view_name||' t '
-      ||q'[ where t.owner = :a_owner_name and t.status = 'VALID' and t.object_type in ('PACKAGE')]'
-      bulk collect into l_object_names using a_owner_name;
-    for i in 1 .. cardinality(l_object_names) loop
-      -- parse the source of the package
-      l_suite := config_package(l_object_names(i).owner, l_object_names(i).object_name);
-
+      q'[select value(x)
+          from table(
+            ]'||ut_utils.ut_owner||q'[.ut_annotation_manager.get_annotated_objects(:a_owner_name, 'PACKAGE')
+          )x ]'
+    bulk collect into l_annotated_objects using a_owner_name;
+    for i in 1 .. l_annotated_objects.count loop
+      l_suite := create_suite(l_annotated_objects(i));
       if l_suite is not null then
         l_all_suites(l_suite.path) := l_suite;
+        g_schema_object_path_map(a_owner_name)(l_suite.object_name) := l_suite.path;
       end if;
-
     end loop;
 
+    --build hierarchical structure of the suite
     l_schema_suites.delete;
 
     -- Restructure single-dimenstion list into hierarchy of suites by the value of %suitepath attribute value
@@ -480,7 +477,6 @@ create or replace package body ut_suite_manager is
     -- to be improved later
     for i in 1 .. l_paths.count loop
       l_path   := l_paths(i);
-
       if regexp_like(l_path, '^([A-Za-z0-9$#_]+)?:') then
         l_schema := regexp_substr(l_path, '^([A-Za-z0-9$#_]+)?:',subexpression => 1);
         -- transform ":path1[.path2]" to "schema:path1[.path2]"
@@ -529,13 +525,10 @@ create or replace package body ut_suite_manager is
             l_package_name   := regexp_substr(l_path, '^[A-Za-z0-9$#_]+\.([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?$', subexpression => 1);
             l_procedure_name := regexp_substr(l_path, '^[A-Za-z0-9$#_]+\.([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?$', subexpression => 3);
 
-            l_temp_suite := config_package(l_schema, l_package_name);
-
-            if l_temp_suite is null then
+            if g_schema_object_path_map.exists(l_schema) and not g_schema_object_path_map(l_schema).exists(l_package_name) then
               raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||l_schema||'.'||l_package_name|| ' not found');
             end if;
-
-            l_path       := rtrim(l_schema || ':' || l_temp_suite.path || '.' || l_procedure_name, '.');
+            l_path       := rtrim(l_schema || ':' || g_schema_object_path_map(l_schema)(l_package_name) || '.' || l_procedure_name, '.');
           end;
         end if;
 

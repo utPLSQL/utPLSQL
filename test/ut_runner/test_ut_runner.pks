@@ -28,5 +28,20 @@ create or replace package test_ut_runner is
   --%test(does not consume dbms_output from before the run)
   procedure run_keep_dbms_output_buffer;
 
+  procedure setup_cache;
+  procedure cleanup_cache;
+
+  --%test(Purges cache for a given schema and object type)
+  --%beforetest(setup_cache)
+  --%aftertest(cleanup_cache)
+  procedure test_purge_cache_schema_type;
+
+  procedure setup_cache_objects;
+
+  --%test(Rebuilds cache for a given schema and object type)
+  --%beforetest(setup_cache_objects)
+  --%aftertest(cleanup_cache)
+  procedure test_rebuild_cache_schema_type;
+
 end;
 /

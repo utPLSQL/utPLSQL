@@ -6,9 +6,9 @@ set echo off
 @@tst_pkg_huge.pks
 
 declare
-  l_suite ut_logical_suite;
+  l_suites ut_suite_items;
 begin
-  l_suite := ut_suite_manager.config_package(a_owner_name => USER,a_object_name => 'TST_PKG_HUGE');
+  l_suites := ut_suite_manager.configure_execution_by_path(ut_varchar2_list(USER||'.TST_PKG_HUGE'));
 end;
 /
 
