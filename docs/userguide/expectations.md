@@ -511,7 +511,7 @@ The call to `ut.fail` is required to make sure that the test fails, if we expect
 
 The call to `ut.expect` uses `equal` matcher to check that the exception that was raised was exactly the one we were expecting to get in particular situation.
 
-Depending on the situation you might want to check for both `sqlcode` and `sqlerrm` or even check if no changes were made in DB tables.
+Depending on the situation you will want to check for `sqlcode`, `sqlerrm`, both or perform additional expectation checks to make sure nothing was changed by the called procedure in the database.
 
 
 # Supported data types
