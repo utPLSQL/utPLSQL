@@ -78,8 +78,21 @@ alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6
 @@install_component.sql 'core/ut_output_buffer.pkb'
 
 --annoations
-@@install_component.sql 'core/ut_annotations.pks'
-@@install_component.sql 'core/ut_annotations.pkb'
+@@install_component.sql 'core/annotations/ut_annotation.tps'
+@@install_component.sql 'core/annotations/ut_annotations.tps'
+@@install_component.sql 'core/annotations/ut_annotated_object.tps'
+@@install_component.sql 'core/annotations/ut_annotated_objects.tps'
+@@install_component.sql 'core/annotations/ut_annotation_obj_cache_info.tps'
+@@install_component.sql 'core/annotations/ut_annotation_objs_cache_info.tps'
+@@install_component.sql 'core/annotations/ut_annotation_cache_seq.sql'
+@@install_component.sql 'core/annotations/ut_annotation_cache_info.sql'
+@@install_component.sql 'core/annotations/ut_annotation_cache.sql'
+@@install_component.sql 'core/annotations/ut_annotation_cache_manager.pks'
+@@install_component.sql 'core/annotations/ut_annotation_cache_manager.pkb'
+@@install_component.sql 'core/annotations/ut_annotation_parser.pks'
+@@install_component.sql 'core/annotations/ut_annotation_parser.pkb'
+@@install_component.sql 'core/annotations/ut_annotation_manager.pks'
+@@install_component.sql 'core/annotations/ut_annotation_manager.pkb'
 
 --suite manager
 @@install_component.sql 'core/ut_suite_manager.pks'

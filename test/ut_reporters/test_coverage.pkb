@@ -12,6 +12,7 @@ create or replace package body test_coverage is
 
   procedure create_dummy_coverage_package is
   begin
+    dbms_output.put_line('creating DUMMY_COVERAGE');
     execute immediate q'[create or replace package DUMMY_COVERAGE is
       procedure do_stuff;
     end;]';
@@ -29,6 +30,7 @@ create or replace package body test_coverage is
 
   procedure create_dummy_coverage_test is
   begin
+    dbms_output.put_line('creating TEST_DUMMY_COVERAGE');
     execute immediate q'[create or replace package TEST_DUMMY_COVERAGE is
       --%suite(dummy coverage test)
 
@@ -72,7 +74,9 @@ create or replace package body test_coverage is
   procedure cleanup_dummy_coverage is
     pragma autonomous_transaction;
   begin
+    dbms_output.put_line('dopping TEST_DUMMY_COVERAGE');
     execute immediate q'[drop package test_dummy_coverage]';
+    dbms_output.put_line('dopping DUMMY_COVERAGE');
     execute immediate q'[drop package dummy_coverage]';
     delete from ut3.plsql_profiler_data where runid = g_run_id;
     delete from ut3.plsql_profiler_units where runid = g_run_id;

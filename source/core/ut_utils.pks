@@ -16,11 +16,10 @@ create or replace package ut_utils authid definer is
   limitations under the License.
   */
 
-  /*
-    Package: ut_utils
-     a collection of tools used throught utplsql along with helper functions.
-
-  */
+  /**
+   * Common utilities and constants used throughout utPLSQL framework
+   *
+   */
 
   gc_version                 constant varchar2(50) := 'X.X.X.X';
 
@@ -109,17 +108,13 @@ create or replace package ut_utils authid definer is
   );
 
 
-  /*
-     Function: test_result_to_char
-        returns a string representation of a test_result.
-
-     Parameters:
-          a_test_result - <test_result>.
-
-     Returns:
-        a_test_result as string.
-
-  */
+  /**
+   * Converts test results into strings
+   *
+   * @param a_test_result numeric representation of test result
+   *
+   * @return a string representation of a test_result.
+   */
   function test_result_to_char(a_test_result integer) return varchar2;
 
   function to_test_result(a_test boolean) return integer;
@@ -127,6 +122,7 @@ create or replace package ut_utils authid definer is
   function gen_savepoint_name return varchar2;
 
   procedure debug_log(a_message varchar2);
+
   procedure debug_log(a_message clob);
 
   function to_string(a_value varchar2, a_qoute_char varchar2 := '''') return varchar2;
@@ -155,76 +151,66 @@ create or replace package ut_utils authid definer is
 
   function int_to_boolean(a_value integer) return boolean;
 
-  /*
-   Procedure: validate_rollback_type
-
-   Validates passed value against supported rollback types
-  */
+  /**
+   * Validates passed value against supported rollback types
+   */
   procedure validate_rollback_type(a_rollback_type number);
 
 
-  /*
-   Function: string_to_table
-
-     Parameters:
-          a_string - the text to be split.
-          a_delimiter - the delimiter character or string
-          a_skip_leading_delimiter - determines if the leading delimiter should be ignored, used by clob_to_table
-
-     Returns:
-        ut_varchar2_list - table of string
-
-   Splits a given string into table of string by delimiter.
-   The delimiter gets removed.
-   If null passed as any of the parameters, empty table is returned.
-   If no occurence of a_delimiter found in a_text then text is returned as a single row of the table.
-   If no text between delimiters found then an empty row is returned, example:
-     string_to_table( 'a,,b', ',' ) gives table ut_varchar2_list( 'a', null, 'b' );
-  */
+  /**
+   *
+   * Splits a given string into table of string by delimiter.
+   * The delimiter gets removed.
+   * If null passed as any of the parameters, empty table is returned.
+   * If no occurence of a_delimiter found in a_text then text is returned as a single row of the table.
+   * If no text between delimiters found then an empty row is returned, example:
+   *   string_to_table( 'a,,b', ',' ) gives table ut_varchar2_list( 'a', null, 'b' );
+   *
+   * @param a_string                 the text to be split.
+   * @param a_delimiter              the delimiter character or string
+   * @param a_skip_leading_delimiter determines if the leading delimiter should be ignored, used by clob_to_table
+   *
+   * @return table of varchar2 values
+   */
   function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_varchar2_list;
 
-  /*
-   Function: clob_to_table
-
-     Parameters:
-          a_clob - the text to be split.
-          a_delimiter - the delimiter character or string (default chr(10) )
-          a_max_amount - the maximum length of returned string (default 8191)
-
-     Returns:
-        ut_varchar2_list - table of string
-
-   Splits a given string into table of string by delimiter.
-   Default value of a_max_amount is 8191 because of code can contains multibyte character.
-   The delimiter gets removed.
-   If null passed as any of the parameters, empty table is returned.
-   If split text is longer than a_max_amount it gets split into pieces of a_max_amount.
-   If no text between delimiters found then an empty row is returned, example:
-     string_to_table( 'a,,b', ',' ) gives table ut_varchar2_list( 'a', null, 'b' );
-  */
+  /**
+   * Splits a given string into table of string by delimiter.
+   * Default value of a_max_amount is 8191 because of code can contains multibyte character.
+   * The delimiter gets removed.
+   * If null passed as any of the parameters, empty table is returned.
+   * If split text is longer than a_max_amount it gets split into pieces of a_max_amount.
+   * If no text between delimiters found then an empty row is returned, example:
+   *   string_to_table( 'a,,b', ',' ) gives table ut_varchar2_list( 'a', null, 'b' );
+   *
+   * @param a_clob       the text to be split.
+   * @param a_delimiter  the delimiter character or string (default chr(10) )
+   * @param a_max_amount the maximum length of returned string (default 8191)
+   * @return table of varchar2 values
+   */
   function clob_to_table(a_clob clob, a_max_amount integer := 8191, a_delimiter varchar2:= chr(10)) return ut_varchar2_list;
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob;
 
-  /*
-    Returns time difference in seconds (with miliseconds) between given timestamps
-  */
+  /**
+   * Returns time difference in seconds (with miliseconds) between given timestamps
+   */
   function time_diff(a_start_time timestamp with time zone, a_end_time timestamp with time zone) return number;
 
-  /*
-  * Returns a text indented with spaces except the first line.
-  */
+  /**
+   * Returns a text indented with spaces except the first line.
+   */
   function indent_lines(a_text varchar2, a_indent_size integer := 4, a_include_first_line boolean := false) return varchar2;
 
 
-  /*
-  * Returns a list of object that are part of utPLSQL framework
-  */
+  /**
+   * Returns a list of object that are part of utPLSQL framework
+   */
   function get_utplsql_objects_list return ut_object_names;
 
-  /*
-  * Append a line to the end of ut_varchar2_lst
-  */
+  /**
+   * Append a line to the end of ut_varchar2_lst
+   */
   procedure append_to_varchar2_list(a_list in out nocopy ut_varchar2_list, a_line varchar2);
 
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob);
@@ -233,13 +219,13 @@ create or replace package ut_utils authid definer is
   function convert_collection(a_collection ut_varchar2_list) return ut_varchar2_rows;
 
   /**
-  * Set session's action and module using dbms_application_info
-  */
+   * Set session's action and module using dbms_application_info
+   */
   procedure set_action(a_text in varchar2);
 
   /**
-  * Set session's client info using dbms_application_info
-  */
+   * Set session's client info using dbms_application_info
+   */
   procedure set_client_info(a_text in varchar2);
 
   function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2;
@@ -249,12 +235,12 @@ create or replace package ut_utils authid definer is
   procedure cleanup_temp_tables;
 
   /**
-  * Converts version string into version record
-  *
-  * @param    a_version_no string representation of version in format vX.X.X.X where X is a positive integer
-  * @return   t_version    record with up to four positive numbers containing version
-  * @throws   20214        if passed version string is not matching version pattern
-  */
+   * Converts version string into version record
+   *
+   * @param    a_version_no string representation of version in format vX.X.X.X where X is a positive integer
+   * @return   t_version    record with up to four positive numbers containing version
+   * @throws   20214        if passed version string is not matching version pattern
+   */
   function to_version(a_version_no varchar2) return t_version;
 
 
@@ -271,6 +257,24 @@ create or replace package ut_utils authid definer is
   *
   */
   procedure read_cache_to_dbms_output;
+
+
+  /**
+   * Function is used to reference to utPLSQL owned objects in dynamic sql statements executed from packages with invoker rights
+   *
+   * @return the name of the utPSQL schema owner
+   */
+  function ut_owner return varchar2;
+
+
+  /**
+   * Used in dynamic sql select statements to maintain balance between
+   *   number of hard-parses and optimiser accurancy for cardinality of collections
+   *
+   *
+   * @return 3, for inputs of: 1-9; 33 for input of 10 - 99; 333 for (100 - 999)
+   */
+  function scale_cardinality(a_cardinality natural) return natural;
 
 end ut_utils;
 /

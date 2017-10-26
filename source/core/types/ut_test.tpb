@@ -33,6 +33,14 @@ create or replace type body ut_test as
     return;
   end;
 
+  member procedure set_beforeeach(self in out nocopy ut_test, a_before_each_proc_name varchar2) is
+  begin
+    self.before_each := ut_executable(self, a_before_each_proc_name, ut_utils.gc_before_each);
+  end;
+  member procedure set_aftereach(self in out nocopy ut_test, a_after_each_proc_name varchar2) is
+  begin
+    self.after_each := ut_executable(self, a_after_each_proc_name, ut_utils.gc_after_each);
+  end;
   member function is_valid(self in out nocopy ut_test) return boolean is
     l_is_valid boolean;
   begin

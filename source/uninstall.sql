@@ -148,7 +148,29 @@ drop type ut_data_value force;
 
 drop table ut_cursor_data;
 
-drop package ut_annotations;
+drop package ut_annotation_manager;
+
+drop package ut_annotation_parser;
+
+drop package ut_annotation_cache_manager;
+
+drop table ut_annotation_cache cascade constraints;
+
+drop table ut_annotation_cache_info cascade constraints;
+
+drop sequence ut_annotation_cache_seq;
+
+drop type ut_annotation_objs_cache_info force;
+
+drop type ut_annotation_obj_cache_info force;
+
+drop type ut_annotated_objects force;
+
+drop type ut_annotated_object force;
+
+drop type ut_annotations force;
+
+drop type ut_annotation force;
 
 drop package ut_file_mapper;
 

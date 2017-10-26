@@ -119,5 +119,15 @@ create or replace package body ut_runner is
     );
   end;
 
+  procedure rebuild_annotation_cache(a_object_owner varchar2, a_object_type varchar2) is
+  begin
+    ut_annotation_manager.rebuild_annotation_cache(a_object_owner, a_object_type);
+  end;
+
+  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2) is
+  begin
+    ut_annotation_manager.purge_cache(a_object_owner, a_object_type);
+  end;
+
 end ut_runner;
 /
