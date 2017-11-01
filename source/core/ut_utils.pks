@@ -119,6 +119,11 @@ create or replace package ut_utils authid definer is
 
   function to_test_result(a_test boolean) return integer;
 
+  /**
+   * Generates a unique name for a savepoint
+   * Uses sys_guid, as timestamp gives only miliseconds on Windows and is not unique
+   * Issue: #506 for details on the implementation approach
+   */
   function gen_savepoint_name return varchar2;
 
   procedure debug_log(a_message varchar2);
