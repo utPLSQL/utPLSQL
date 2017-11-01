@@ -52,7 +52,7 @@ create or replace package body ut_utils is
 
   function gen_savepoint_name return varchar2 is
   begin
-    return 'ut_'||to_char(systimestamp,'yymmddhh24mmssff');
+    return '"'|| utl_raw.cast_to_varchar2(utl_encode.base64_encode(sys_guid()))||'"';
   end;
 
   /*
