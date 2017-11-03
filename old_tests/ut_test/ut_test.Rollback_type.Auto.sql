@@ -4,10 +4,6 @@ PROMPT Test auto transaction control
 declare
   l_suite ut_logical_suite;
   l_test  ut_test;
-  l_parsing_result ut_annotations.typ_annotated_package;
-  l_expected ut_annotations.typ_annotated_package;
-  l_ann_param ut_annotations.typ_annotation_param;
-  l_cnt number;
   l_listener ut_event_listener := ut_event_listener(ut_reporters());
 begin
 

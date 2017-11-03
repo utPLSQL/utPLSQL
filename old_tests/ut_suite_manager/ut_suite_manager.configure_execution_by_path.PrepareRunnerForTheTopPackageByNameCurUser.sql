@@ -51,7 +51,7 @@ begin
     declare
       l_results ut_expectation_results;
     begin
-      l_results := ut_expectation_processor.get_expectations_results;
+      l_results := ut_expectation_processor.get_failed_expectations;
       for i in 1..l_results.count loop
         if l_results(i).result > ut_utils.tr_success then
           dbms_output.put_line(l_results(i).get_result_clob);

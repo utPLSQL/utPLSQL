@@ -49,7 +49,7 @@ begin
   ut.expect(l_test.description).to_equal('A test description, though with comma, is assigned by suite_manager');
 
 
-  l_results := ut_expectation_processor.get_expectations_results();
+  l_results := ut_expectation_processor.get_failed_expectations();
 
   :test_result := ut_utils.tr_success;
   for i in 1 .. l_results.count loop

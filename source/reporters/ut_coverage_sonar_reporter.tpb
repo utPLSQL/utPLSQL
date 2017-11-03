@@ -68,7 +68,7 @@ create or replace type body ut_coverage_sonar_reporter is
       ut_utils.append_to_clob(l_result, c_coverage_header);
       l_unit := a_coverage_data.objects.first;
       while l_unit is not null loop
-        l_file_part := '<file path="'||l_unit||'">'||chr(10);
+        l_file_part := '<file path="'||dbms_xmlgen.convert(l_unit)||'">'||chr(10);
         ut_utils.append_to_clob(l_result, l_file_part);
 
         dbms_lob.append(l_result,get_lines_xml(a_coverage_data.objects(l_unit)));

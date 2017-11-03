@@ -32,6 +32,9 @@ alter session set current_schema = &&ut3_owner;
 alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6003,6009,6010,7206)';
 --set define off
 
+--dbms_output buffer cache table
+@@install_component.sql 'core/ut_dbms_output_cache.sql'
+
 --common utilities
 @@install_component.sql 'core/types/ut_varchar2_list.tps'
 @@install_component.sql 'core/types/ut_varchar2_rows.tps'
@@ -75,8 +78,21 @@ alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6
 @@install_component.sql 'core/ut_output_buffer.pkb'
 
 --annoations
-@@install_component.sql 'core/ut_annotations.pks'
-@@install_component.sql 'core/ut_annotations.pkb'
+@@install_component.sql 'core/annotations/ut_annotation.tps'
+@@install_component.sql 'core/annotations/ut_annotations.tps'
+@@install_component.sql 'core/annotations/ut_annotated_object.tps'
+@@install_component.sql 'core/annotations/ut_annotated_objects.tps'
+@@install_component.sql 'core/annotations/ut_annotation_obj_cache_info.tps'
+@@install_component.sql 'core/annotations/ut_annotation_objs_cache_info.tps'
+@@install_component.sql 'core/annotations/ut_annotation_cache_seq.sql'
+@@install_component.sql 'core/annotations/ut_annotation_cache_info.sql'
+@@install_component.sql 'core/annotations/ut_annotation_cache.sql'
+@@install_component.sql 'core/annotations/ut_annotation_cache_manager.pks'
+@@install_component.sql 'core/annotations/ut_annotation_cache_manager.pkb'
+@@install_component.sql 'core/annotations/ut_annotation_parser.pks'
+@@install_component.sql 'core/annotations/ut_annotation_parser.pkb'
+@@install_component.sql 'core/annotations/ut_annotation_manager.pks'
+@@install_component.sql 'core/annotations/ut_annotation_manager.pkb'
 
 --suite manager
 @@install_component.sql 'core/ut_suite_manager.pks'
@@ -151,19 +167,6 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_empty.tps'
 @@install_component.sql 'expectations/matchers/ut_match.tps'
 @@install_component.sql 'expectations/ut_expectation.tps'
-@@install_component.sql 'expectations/ut_expectation_anydata.tps'
-@@install_component.sql 'expectations/ut_expectation_blob.tps'
-@@install_component.sql 'expectations/ut_expectation_boolean.tps'
-@@install_component.sql 'expectations/ut_expectation_clob.tps'
-@@install_component.sql 'expectations/ut_expectation_date.tps'
-@@install_component.sql 'expectations/ut_expectation_dsinterval.tps'
-@@install_component.sql 'expectations/ut_expectation_number.tps'
-@@install_component.sql 'expectations/ut_expectation_refcursor.tps'
-@@install_component.sql 'expectations/ut_expectation_timestamp.tps'
-@@install_component.sql 'expectations/ut_expectation_timestamp_ltz.tps'
-@@install_component.sql 'expectations/ut_expectation_timestamp_tz.tps'
-@@install_component.sql 'expectations/ut_expectation_varchar2.tps'
-@@install_component.sql 'expectations/ut_expectation_yminterval.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_anydata.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_object.tpb'
@@ -196,19 +199,6 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_empty.tpb'
 @@install_component.sql 'expectations/matchers/ut_match.tpb'
 @@install_component.sql 'expectations/ut_expectation.tpb'
-@@install_component.sql 'expectations/ut_expectation_anydata.tpb'
-@@install_component.sql 'expectations/ut_expectation_blob.tpb'
-@@install_component.sql 'expectations/ut_expectation_boolean.tpb'
-@@install_component.sql 'expectations/ut_expectation_clob.tpb'
-@@install_component.sql 'expectations/ut_expectation_date.tpb'
-@@install_component.sql 'expectations/ut_expectation_dsinterval.tpb'
-@@install_component.sql 'expectations/ut_expectation_number.tpb'
-@@install_component.sql 'expectations/ut_expectation_refcursor.tpb'
-@@install_component.sql 'expectations/ut_expectation_timestamp.tpb'
-@@install_component.sql 'expectations/ut_expectation_timestamp_ltz.tpb'
-@@install_component.sql 'expectations/ut_expectation_timestamp_tz.tpb'
-@@install_component.sql 'expectations/ut_expectation_varchar2.tpb'
-@@install_component.sql 'expectations/ut_expectation_yminterval.tpb'
 
 --core reporter
 @@install_component.sql 'reporters/ut_documentation_reporter.tps'

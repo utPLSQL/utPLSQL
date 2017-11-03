@@ -7,7 +7,7 @@
 
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/master.svg?label=master%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/develop.svg?label=develop%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
-[![sonar](https://sonarcloud.io/api/badges/gate?key=utPLSQL%3AutPLSQL%3Adevelop)](https://sonarcloud.io/dashboard/index?id=utPLSQL%3AutPLSQL%3Adevelop)
+[![sonar](https://sonarcloud.io/api/badges/gate?key=utPLSQL%3Adevelop)](https://sonarcloud.io/dashboard/index?id=utPLSQL%3Adevelop)
 [![Coveralls coverage](https://coveralls.io/repos/github/utPLSQL/utPLSQL/badge.svg?branch=develop)](https://coveralls.io/github/utPLSQL/utPLSQL?branch=develop)
 
 ----------

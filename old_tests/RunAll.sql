@@ -18,7 +18,6 @@ spool RunAll.log
 --Global setup
 @@helpers/ut_example_tests.pks
 @@helpers/ut_example_tests.pkb
-@@helpers/check_annotation_parsing.prc
 --@@helpers/cre_tab_ut_test_table.sql
 create table ut$test_table (val varchar2(1));
 @@helpers/ut_transaction_control.pck
@@ -38,19 +37,6 @@ create table ut$test_table (val varchar2(1));
 --Regular coverage excludes the framework
 exec ut_coverage.coverage_start_develop();
 
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.IgnoreWrappedPackageAndDoesNotRaiseException.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationNotBeforeProcedure.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationParamsWithBrackets.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageAndProcedureLevelAnnotations.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotation.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationAccessibleBy.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationMultilineDeclare.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithKeyValue.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithMultilineComment.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.spaceBeforeAnnotationParams.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationWithWindowsNewline.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseProcedureAnnotationWithVeryLongName.sql
 @@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTrace.sql
 @@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTraceWith0x.sql
 @@ut_expectations/ut.expect.not_to_be_null.sql
@@ -284,7 +270,6 @@ spool off
 --Global cleanup
 --removing objects that should not be part of coverage report
 drop package ut_example_tests;
-drop procedure check_annotation_parsing;
 drop package ut_transaction_control;
 drop table ut$test_table;
 drop type department$;
@@ -341,8 +326,12 @@ begin
     'source/api/ut_runner.pks',
     'source/core/coverage',
     'source/core/types',
-    'source/core/ut_annotations.pkb',
-    'source/core/ut_annotations.pks',
+    'source/core/annotations/ut_annotation_manager.pkb',
+    'source/core/annotations/ut_annotation_manager.pks',
+    'source/core/annotations/ut_annotation_parser.pkb',
+    'source/core/annotations/ut_annotation_parser.pks',
+    'source/core/annotations/ut_annotation_cache_manager.pkb',
+    'source/core/annotations/ut_annotation_cache_manager.pks',
     'source/core/ut_expectation_processor.pkb',
     'source/core/ut_expectation_processor.pks',
     'source/core/ut_file_mapper.pkb',

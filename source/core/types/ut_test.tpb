@@ -33,6 +33,14 @@ create or replace type body ut_test as
     return;
   end;
 
+  member procedure set_beforeeach(self in out nocopy ut_test, a_before_each_proc_name varchar2) is
+  begin
+    self.before_each := ut_executable(self, a_before_each_proc_name, ut_utils.gc_before_each);
+  end;
+  member procedure set_aftereach(self in out nocopy ut_test, a_after_each_proc_name varchar2) is
+  begin
+    self.after_each := ut_executable(self, a_after_each_proc_name, ut_utils.gc_after_each);
+  end;
   member function is_valid(self in out nocopy ut_test) return boolean is
     l_is_valid boolean;
   begin
@@ -99,7 +107,8 @@ create or replace type body ut_test as
       self.result := ut_utils.tr_error;
     end if;
     --expectation results need to be part of test results
-    self.results := ut_expectation_processor.get_expectations_results();
+    self.expectations_count := ut_expectation_processor.get_expectations_count();
+    self.failed_expectations := ut_expectation_processor.get_failed_expectations();
     self.results_count.set_counter_values(self.result);
   end;
 

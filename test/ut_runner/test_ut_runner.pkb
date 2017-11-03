@@ -1,5 +1,117 @@
 create or replace package body test_ut_runner is
 
+  procedure setup_cache_objects is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package dummy_test_package as
+        --%suite(dummy_test_suite)
+        --%rollback(manual)
+
+        --%test(dummy_test)
+        --%beforetest(some_procedure)
+        procedure some_dummy_test_procedure;
+      end;]';
+    execute immediate q'[create or replace procedure dummy_test_procedure as
+        --%some_annotation(some_text)
+        --%rollback(manual)
+      begin
+        null;
+      end;]';
+    execute immediate q'[create or replace procedure ut3.dummy_test_procedure as
+        --%some_annotation(some_text)
+        --%rollback(manual)
+      begin
+        null;
+      end;]';
+  end;
+
+  procedure setup_cache is
+    pragma autonomous_transaction;
+  begin
+    setup_cache_objects();
+    ut3.ut_annotation_manager.rebuild_annotation_cache(user,'PACKAGE');
+    ut3.ut_annotation_manager.rebuild_annotation_cache(user,'PROCEDURE');
+    ut3.ut_annotation_manager.rebuild_annotation_cache('UT3','PROCEDURE');
+  end;
+
+  procedure cleanup_cache is
+    pragma autonomous_transaction;
+  begin
+    delete from ut3.ut_annotation_cache_info
+     where object_type = 'PROCEDURE' and object_owner in ('UT3',user)
+        or object_type = 'PACKAGE' and object_owner = user and object_name = 'DUMMY_TEST_PACKAGE';
+    execute immediate q'[drop package dummy_test_package]';
+    execute immediate q'[drop procedure dummy_test_procedure]';
+    execute immediate q'[drop procedure ut3.dummy_test_procedure]';
+  end;
+
+  procedure create_test_spec
+  as
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package test_cache as
+    --%suite
+
+    --%test
+    procedure failing_test;
+end;
+]';
+  end;
+
+  procedure create_test_body(a_number integer)
+  as
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'create or replace package body test_cache as
+    procedure failing_test is
+    begin
+      ut3.ut.expect('||a_number||').to_be_null;
+    end;
+end;';
+  end;
+
+  procedure drop_test_package
+  as
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package test_cache';
+  end;
+
+
+
+  procedure keep_an_open_transaction is
+    l_expected    varchar2(300);
+    l_output_data dbms_output.chararr;
+    l_num_lines   integer := 100000;
+  begin
+    --Arrange
+    create_test_spec();
+    create_test_body(0);
+    l_expected := dbms_transaction.local_transaction_id(true);
+    --Act
+    ut3.ut.run('test_cache');
+    dbms_output.get_lines( l_output_data, l_num_lines);
+    --Assert
+    ut.expect(dbms_transaction.local_transaction_id()).to_equal(l_expected);
+    drop_test_package();
+  end;
+
+  procedure close_newly_opened_transaction is
+    l_output_data dbms_output.chararr;
+    l_num_lines   integer := 100000;
+  begin
+    --Arrange
+    create_test_spec();
+    create_test_body(0);
+    rollback;
+    --Act
+    ut3.ut.run('test_cache');
+    dbms_output.get_lines( l_output_data, l_num_lines);
+    --Assert
+    ut.expect(dbms_transaction.local_transaction_id()).to_be_null();
+    drop_test_package();
+  end;
+
   procedure version_comp_check_compare is
   begin
     ut.expect( ut3.ut_runner.version_compatibility_check('v3.0.0.0','v3.0.0.0') ).to_equal(1);
@@ -41,38 +153,6 @@ create or replace package body test_ut_runner is
     throws('v3.0.0.0','bad_ver');
   end;
 
-  procedure create_test_spec
-  as
-    pragma autonomous_transaction;
-  begin
-    execute immediate q'[create or replace package test_cache as
-    --%suite
-
-    --%test
-    procedure failing_test;
-end;
-]';
-  end;
-
-  procedure create_test_body(a_number integer)
-  as
-    pragma autonomous_transaction;
-  begin
-    execute immediate 'create or replace package body test_cache as
-    procedure failing_test is
-    begin
-      ut3.ut.expect('||a_number||').to_be_null;
-    end;
-end;';
-  end;
-
-  procedure drop_test_package
-  as
-    pragma autonomous_transaction;
-  begin
-    execute immediate 'drop package test_cache';
-  end;
-
   procedure run_reset_package_body_cache is
     l_results   ut3.ut_varchar2_list;
     l_expected  clob;
@@ -95,6 +175,87 @@ end;';
     l_expected := '%ut3.ut.expect(1).to_be_null;%';
     ut.expect(l_actual).to_be_like(l_expected);
     drop_test_package();
+  end;
+
+  procedure run_keep_dbms_output_buffer is
+    l_expected         dbmsoutput_linesarray;
+    l_actual           dbmsoutput_linesarray;
+    l_lines            number := 100;
+  begin
+    --Arrange
+    create_test_spec();
+    create_test_body(0);
+    l_expected := dbmsoutput_linesarray(
+        'A text placed into DBMS_OUTPUT',
+        'Another line',
+        lpad('A very long line',10000,'a')
+    );
+    dbms_output.enable;
+    dbms_output.put_line(l_expected(1));
+    dbms_output.put_line(l_expected(2));
+    dbms_output.put_line(l_expected(3));
+    --Act
+    ut3.ut.run('test_cache');
+
+    --Assert
+    dbms_output.get_lines(lines => l_actual, numlines => l_lines);
+    for i in 1 .. l_expected.count loop
+      ut.expect(l_actual(i)).to_equal(l_expected(i));
+    end loop;
+    drop_test_package();
+  end;
+
+  procedure test_purge_cache_schema_type is
+    l_actual sys_refcursor;
+  begin
+
+    open l_actual for
+      select * from ut3.ut_annotation_cache_info
+       where object_owner = user and object_type = 'PROCEDURE';
+    ut.expect(l_actual).not_to_be_empty();
+
+    --Act
+    ut3.ut_runner.purge_cache(user,'PROCEDURE');
+
+    --Assert
+    open l_actual for
+      select * from ut3.ut_annotation_cache_info
+       where object_owner = user and object_type = 'PROCEDURE';
+    --Cache purged for object owner/type
+    ut.expect(l_actual).to_be_empty();
+    open l_actual for
+      select * from ut3.ut_annotation_cache_info
+       where object_owner = user and object_type = 'PACKAGE';
+    --Cache not purged for other types
+    ut.expect(l_actual).not_to_be_empty();
+    open l_actual for
+      select * from ut3.ut_annotation_cache_info
+       where object_owner = 'UT3' and object_type = 'PROCEDURE';
+    --Cache not purged for other owners
+    ut.expect(l_actual).not_to_be_empty();
+
+  end;
+
+  procedure test_rebuild_cache_schema_type is
+    l_actual integer;
+  begin
+    --Act
+    ut3.ut_annotation_manager.rebuild_annotation_cache(user,'PACKAGE');
+    --Assert
+    select count(1) into l_actual
+      from ut3.ut_annotation_cache_info i
+      join ut3.ut_annotation_cache c on c.cache_id = i.cache_id
+     where object_owner = user and object_type = 'PACKAGE' and object_name = 'DUMMY_TEST_PACKAGE';
+    --Rebuild cache for user/packages
+    ut.expect(l_actual).to_equal(4);
+
+    select count(1) into l_actual
+      from ut3.ut_annotation_cache_info i
+      join ut3.ut_annotation_cache c on c.cache_id = i.cache_id
+     where object_owner = 'UT3' and object_type = 'PROCEDURE';
+
+    --Did not rebuild cache for ut3/procedures
+    ut.expect(l_actual).to_equal(0);
   end;
 
 end;

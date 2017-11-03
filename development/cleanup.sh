@@ -15,9 +15,10 @@ drop user ${UT3_USER} cascade;
 begin
   for i in (
     select decode(owner,'PUBLIC','drop public synonym "','drop synonym "'||owner||'"."')|| synonym_name ||'"' drop_orphaned_synonym from dba_synonyms a
-     where not exists (select null from dba_objects b where a.table_name=b.object_name and a.table_owner=b.owner )
-       and a.table_owner <> 'SYS'
+     where not exists (select 1 from dba_objects b where (a.table_name=b.object_name and a.table_owner=b.owner or b.owner='SYS' and a.table_owner=b.object_name) )
+       and a.table_owner not in ('SYS','SYSTEM')
   ) loop
+    dbms_output.put_line(i.drop_orphaned_synonym);
     execute immediate i.drop_orphaned_synonym;
   end loop;
 end;

@@ -2,6 +2,7 @@ create or replace package test_reporters
 as
   --%suite(A suite for testing different outcomes from reporters)
   --%suitepath(org.utplsql.utplsql.test)
+
   --%beforeall
   procedure beforeall;
 

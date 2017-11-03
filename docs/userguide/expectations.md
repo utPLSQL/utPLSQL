@@ -6,17 +6,18 @@ To achieve that, we use a combination of expectation and matcher to perform the 
 Example of a unit test procedure body.
 ```sql
 begin
-  ut.expect( 'the tested value' ).to_( equal('the expected value') );
+  ut.expect( 'the tested value', 'optional custom failure message' ).to_( equal('the expected value') );
 end;
 ```
 
 Expectation is a set of the expected value(s), actual values(s) and the matcher(s) to run on those values.
+You can also add a custom failure message for an expectation.
 
 Matcher defines the comparison operation to be performed on expected and actual values.
 Pseudo-code:
 ```
-  ut.expect( a_actual {data-type} ).to_( {matcher} );
-  ut.expect( a_actual {data-type} ).not_to( {matcher} );
+  ut.expect( a_actual {data-type} [, a_message {varchar2}] ).to_( {matcher} );
+  ut.expect( a_actual {data-type} [, a_message {varchar2}] ).not_to( {matcher} );
 ```
 
 All matchers have shortcuts like:
@@ -24,6 +25,62 @@ All matchers have shortcuts like:
   ut.expect( a_actual {data-type} ).to_{matcher};
   ut.expect( a_actual {data-type} ).not_to_{matcher};
 ```
+
+## Providing a custom failure message
+Expectations allow you to provide a custom error message as second argument:
+````sql
+-- Pseudocode
+ut.expect( a_actual {data-type}, a_message {varchar2} ).to_{matcher};
+-- Example
+ut.expect( 'supercat', 'checked superhero-animal was not a dog' ).to_( equal('superdog') );
+````
+The message is added to the normal failure message returned by the matcher.
+
+This is not only useful to give more detailed and specific information about a test, but also if you have some kind of dynamic tests.
+
+### Dynamic tests example
+You have a bunch of tables and an archive-functionality for them and you want to test if the things you put into live-tables are removed from live-tables and present in archive-tables:
+
+````sql
+procedure test_data_existance( i_tableName varchar2 ) 
+  as
+    v_count_real integer;
+    v_count_archive integer;
+  begin
+    
+    execute immediate 'select count(*) from ' || i_tablename || '' into v_count_real;
+    execute immediate 'select count(*) from ' || i_tablename || '_archive' into v_count_archive;
+
+    ut.expect( v_count_archive, 'failure checking entry-count of ' || i_tablename || '_archive' ).to_( equal(1) );
+    ut.expect( v_count_real, 'failure checking entry-count of ' || i_tablename ).to_( equal(0) );
+
+  end;
+
+ procedure test_archive_data
+  as
+  begin
+    -- Arrange
+   -- insert several data into real-tables here
+
+    -- Act
+    package_to_test.archive_data();
+
+    -- Assert
+    test_data_existance('TABLE_A');
+    test_data_existance('TABLE_B');
+    test_data_existance('TABLE_C');
+    test_data_existance('TABLE_D');
+end;
+````
+A failed output will look like this:
+````
+Failures:
+ 
+  1) test_archive_data
+      "failure checking entry-count of TABLE_A_archive"
+      Actual: 2 (number) was expected to equal: 1 (number) 
+      at "UT_TEST_PACKAGE.TEST_DATA_EXISTANCE", line 12 ut.expect( v_count_archive, 'failure checking entry-count of ' || i_tablename || '_archive' ).to_( equal(1) );
+````
 
 # Matchers
 utPLSQL provides the following matchers to perform checks on the expected and actual values.  
@@ -189,6 +246,22 @@ begin
   ut.expect( ( 1 = 1 ) ).to_( be_true() );
 end;
 ```
+
+## match
+Validates that the actual value is matching the expected regular expression.
+
+Usage:
+```sql
+begin 
+  ut.expect( a_actual => '123-456-ABcd' ).to_match( a_pattern => '\d{3}-\d{3}-[a-z]', a_modifiers => 'i' );
+  ut.expect( 'some value' ).to_match( '^some.*' );
+  --or 
+  ut.expect( a_actual => '123-456-ABcd' ).to_( match( a_pattern => '\d{3}-\d{3}-[a-z]', a_modifiers => 'i' ) );
+  ut.expect( 'some value' ).to_( match( '^some.*' ) );
+end;
+```
+
+Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle REGEXP_LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501)
 
 ## equal
 
@@ -401,22 +474,44 @@ end;
 
 This test will fail as `v_actual` is not equal `v_expected`. 
 
-## match
-Validates that the actual value is matching the expected regular expression.
+# Expecting exceptions
 
-Usage:
+Below example illustrates how to write test to check for expected exceptions (thrown by tested code).
+
 ```sql
-begin 
-  ut.expect( a_actual => '123-456-ABcd' ).to_match( a_pattern => '\d{3}-\d{3}-[a-z]', a_modifiers => 'i' );
-  ut.expect( 'some value' ).to_match( '^some.*' );
-  --or 
-  ut.expect( a_actual => '123-456-ABcd' ).to_( match( a_pattern => '\d{3}-\d{3}-[a-z]', a_modifiers => 'i' ) );
-  ut.expect( 'some value' ).to_( match( '^some.*' ) );
+create or replace procedure divide(p_a number, p_b number) is 
+begin
+  return p_a / p_b; 
 end;
+/
+
+create or replace package test_divide is 
+  --%suite(Divide functionality)
+  
+  --%test(Raises exception when divisor is zero)
+  procedure divide_raises_zero_divisor;
+end;
+/
+create or replace package body test_divide is 
+  procedure divide_raises_zero_divisor is
+    l_my_number number;
+  begin
+    l_my_number := divide(1,0); -- PLSQL call throwing ORA-01476 exception
+    ut.fail('Expected exception but nothing was raised');
+  exception
+    when others then
+      ut.expect( sqlcode ).to_equal( -1476 );
+      ut.expect( sqlerrm ).to_match( 'equal to zero' );
+  end;
+end;
+/
 ```
 
-Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle REGEXP_LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501)
+The call to `ut.fail` is required to make sure that the test fails, if we expect an exception, but the tested code does not throw any.
 
+The call to `ut.expect` uses `equal` matcher to check that the exception that was raised was exactly the one we were expecting to get in particular situation.
+
+Depending on the situation you will want to check for `sqlcode`, `sqlerrm`, both or perform additional expectation checks to make sure nothing was changed by the called procedure in the database.
 
 
 # Supported data types
@@ -470,4 +565,5 @@ begin
 end;
 ```
 Since NULL is neither *true* nor *not true*, both expectations will report failure.
+
 

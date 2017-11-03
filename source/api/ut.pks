@@ -19,31 +19,31 @@ create or replace package ut authid current_user as
 
   function version return varchar2;
 
-  function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_anydata;
+  function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation;
 
-  function expect(a_actual in blob, a_message varchar2 := null) return ut_expectation_blob;
+  function expect(a_actual in blob, a_message varchar2 := null) return ut_expectation;
 
-  function expect(a_actual in boolean, a_message varchar2 := null) return ut_expectation_boolean;
+  function expect(a_actual in boolean, a_message varchar2 := null) return ut_expectation;
 
-  function expect(a_actual in clob, a_message varchar2 := null) return ut_expectation_clob;
+  function expect(a_actual in clob, a_message varchar2 := null) return ut_expectation;
 
-  function expect(a_actual in date, a_message varchar2 := null) return ut_expectation_date;
+  function expect(a_actual in date, a_message varchar2 := null) return ut_expectation;
 
-  function expect(a_actual in number, a_message varchar2 := null) return ut_expectation_number;
+  function expect(a_actual in number, a_message varchar2 := null) return ut_expectation;
 
-  function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_expectation_refcursor;
+  function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_expectation;
 
-  function expect(a_actual in timestamp_unconstrained, a_message varchar2 := null) return ut_expectation_timestamp;
+  function expect(a_actual in timestamp_unconstrained, a_message varchar2 := null) return ut_expectation;
 
-  function expect(a_actual in timestamp_ltz_unconstrained, a_message varchar2 := null) return ut_expectation_timestamp_ltz;
+  function expect(a_actual in timestamp_ltz_unconstrained, a_message varchar2 := null) return ut_expectation;
 
-  function expect(a_actual in timestamp_tz_unconstrained, a_message varchar2 := null) return ut_expectation_timestamp_tz;
+  function expect(a_actual in timestamp_tz_unconstrained, a_message varchar2 := null) return ut_expectation;
 
-  function expect(a_actual in varchar2, a_message varchar2 := null) return ut_expectation_varchar2;
+  function expect(a_actual in varchar2, a_message varchar2 := null) return ut_expectation;
 
-  function expect(a_actual in yminterval_unconstrained, a_message varchar2 := null) return ut_expectation_yminterval;
+  function expect(a_actual in yminterval_unconstrained, a_message varchar2 := null) return ut_expectation;
 
-  function expect(a_actual in dsinterval_unconstrained, a_message varchar2 := null) return ut_expectation_dsinterval;
+  function expect(a_actual in dsinterval_unconstrained, a_message varchar2 := null) return ut_expectation;
 
   procedure fail(a_message in varchar2);
 
@@ -119,18 +119,18 @@ create or replace package ut authid current_user as
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
   );
 
-  /*
-    Helper procedure to set NLS session parameter for date processing in refcursor.
-    It needs to be called before refcursor is open in order to have DATE data type data in refcursor
-     properly transformed into XML format as a date-time element.
-    If the function is not called before opening a cursor to be compared, the DATE data is compared using default NLS setting for date.
-  */
+  /**
+   * Helper procedure to set NLS session parameter for date processing in refcursor.
+   * It needs to be called before refcursor is open in order to have DATE data type data in refcursor
+   *  properly transformed into XML format as a date-time element.
+   * If the function is not called before opening a cursor to be compared, the DATE data is compared using default NLS setting for date.
+   */
   procedure set_nls;
 
-  /*
-    Helper procedure to reset NLS session parameter to it's original state.
-    It needs to be called after refcursor is open in order restore the original session state and keep the NLS date setting at default.
-  */
+  /**
+   * Helper procedure to reset NLS session parameter to it's original state.
+   * It needs to be called after refcursor is open in order restore the original session state and keep the NLS date setting at default.
+   */
   procedure reset_nls;
 
 end ut;
