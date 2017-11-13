@@ -119,7 +119,9 @@ create or replace package body ut is
     ut_runner.run(
       a_paths, ut_reporters(coalesce(a_reporter,ut_documentation_reporter())),
       ut_utils.int_to_boolean(a_color_console), a_coverage_schemes,
-      a_source_files, a_test_files, a_include_objects, a_exclude_objects
+      ut_file_mapper.build_file_mappings(a_source_files),
+      ut_file_mapper.build_file_mappings(a_test_files),
+      a_include_objects, a_exclude_objects
     );
     rollback;
   end;

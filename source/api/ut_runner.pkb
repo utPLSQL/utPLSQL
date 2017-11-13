@@ -105,20 +105,6 @@ create or replace package body ut_runner is
     end if;
   end;
 
-  procedure run(
-    a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
-  ) is
-  begin
-    run(
-      a_paths, a_reporters, a_color_console, a_coverage_schemes,
-      ut_file_mapper.build_file_mappings(a_source_files),
-      ut_file_mapper.build_file_mappings(a_test_files),
-      a_include_objects, a_exclude_objects, a_fail_on_errors
-    );
-  end;
-
   procedure rebuild_annotation_cache(a_object_owner varchar2, a_object_type varchar2) is
   begin
     ut_annotation_manager.rebuild_annotation_cache(a_object_owner, a_object_type);
