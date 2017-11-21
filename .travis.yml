@@ -115,4 +115,8 @@ deploy:
      condition: "${TRAVIS_JOB_NUMBER} =~ \\.1$"
 
 notifications:
-  slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
+  slack:
+    rooms:
+      - secure: "nemt9n2y5sVCAKqa/s7JDQ8AcM59Xu/XbH/RkMOXvPgc+KtR8lBtVD1LkvJ5BaQhqgjuDT7DNt/uisQJ7k6a2OsrVFbnkypZ1hCvntOBpJyoSpD/YL1X8a9GbGojuJcph0BX76KN21LaOVdyOfY0TSlw53XiYWS8iL5HtjpWCbIwHL1SJ8JT8mhdT4hDoUWZjcZ4s4bLH6BQm4un/bMQOmB4sDoCeg4CllJwxgkswVF7OHpOFjgPetvUp7ps8b/Rj8en6zCj9drb0SVbXFgumo2Wd1bC3HHZB8MAZU0kuEV5VgUdum6EelUL5yfB72hssNQA0+CaT3HjBFkTlqWYJmjC4/xyGN3sseiW82T9FDY0g0GAGayNRW+QSiTQ1hbJEcAnNe0GrBUdRsgXdI6COd76YP5VxzRSF6H7niLfgCZdKbIivKUd1o+wBhuyJmqCFIkRWmT38tMGJqJAzbY1jq5gQXbb6E7gt+KdTjlSjcnJYf7XI7zqm+BRr+fbA0ixfXHvfqOBgZN6g08y9nPlDnIjtSF2NSdrj2zqYQAtKuWSOD1bnTyfDJyrtK7OLffZcMYD5Bcss4c8op8tP7MGTjt1S046SJocboh6H4c/nTokpoMRsWs6MKRdebl8C2RObGf5FebSOJg+oh2ZYS5Z/G9GshiY2BD/81+Hc4Miacc="
+    on_success: change
+    on_failure: always
