@@ -7,7 +7,7 @@ create or replace package body test_coverage_sonar_reporter is
   begin
     --Arrange
     l_expected := '<coverage version="1">
-<file path="test/dummy_coverage.pkb">
+<file path="test/ut3.dummy_coverage.pkb">
 <lineToCover lineNumber="4" covered="true"/>
 <lineToCover lineNumber="5" covered="false"/>
 <lineToCover lineNumber="7" covered="true"/>
@@ -18,9 +18,9 @@ create or replace package body test_coverage_sonar_reporter is
       bulk collect into l_results
       from table(
         ut3.ut.run(
-          a_path => 'test_dummy_coverage',
+          a_path => 'ut3.test_dummy_coverage',
           a_reporter=> ut3.ut_coverage_sonar_reporter( ),
-          a_source_files => ut3.ut_varchar2_list( 'test/dummy_coverage.pkb' ),
+          a_source_files => ut3.ut_varchar2_list( 'test/ut3.dummy_coverage.pkb' ),
           a_test_files => ut3.ut_varchar2_list( )
         )
       );
