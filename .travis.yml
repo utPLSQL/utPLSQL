@@ -47,6 +47,9 @@ env:
     #utPLSQL released version directory
     - UTPLSQL_DIR="utPLSQL_latest_release"
     - UTPLSQL_CLI_FILE="utPLSQL-cli.zip"
+    # Maven
+    - MAVEN_HOME=/usr/local/maven
+    - MAVEN_CFG=$HOME/.m2
   matrix:
     - ORACLE_VERSION="${DOCKER_TAG_11G:-11g-r2-xe}"  CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
     - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2}" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
@@ -57,6 +60,7 @@ cache:
   directories:
     - $CACHE_DIR
     - node_modules
+    - $MAVEN_CFG
 
 before_install:
   #The update_project_version is done before deployment to validate that the change of project files does not break installation
