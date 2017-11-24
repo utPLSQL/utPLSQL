@@ -1,5 +1,7 @@
 #!/bin/bash
 set -ev
+cp .travis/settings.xml $MAVEN_CFG/settings.xml
+
 cd $(dirname $(readlink -f $0))
 
 # Download wagon-http recommended by Oracle.
@@ -12,3 +14,5 @@ else
     echo "Using cached wagon-http..."
     sudo cp $CACHE_DIR/wagon-http-2.8-shaded.jar $MAVEN_HOME/lib/ext/
 fi
+
+mvn dependency:copy-dependencies -DoutputDirectory=../utPLSQL-cli/lib

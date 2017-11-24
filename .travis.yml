@@ -46,7 +46,7 @@ env:
     - DOCKHER_HUB_REPO="${DOCKER_BASE_TAG:-$UT3_DOCKER_REPO}"
     #utPLSQL released version directory
     - UTPLSQL_DIR="utPLSQL_latest_release"
-    - UTPLSQL_CLI_FILE="utPLSQL-cli.zip"
+    - UTPLSQL_CLI_VERSION="3.0.4"
     # Maven
     - MAVEN_HOME=/usr/local/maven
     - MAVEN_CFG=$HOME/.m2
@@ -72,16 +72,14 @@ before_install:
   # download latest utPLSQL release
   #- curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
   - git clone --depth=1 --branch=${SELFTESTING_BRANCH:-master} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
-  # download utPLSQL-cli develop
-  - curl -Lk -o utPLSQL-cli.zip https://github.com/utPLSQL/utPLSQL-cli/releases/download/v3.0.4/${UTPLSQL_CLI_FILE}
+  # download latest utPLSQL-cli release
+  - curl -Lk -o utPLSQL-cli.zip https://github.com/utPLSQL/utPLSQL-cli/releases/download/v${UTPLSQL_CLI_VERSION}/utPLSQL-cli.zip
 
 install:
   #- unzip utPLSQL.zip
   - unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
-  - cp .travis/settings.xml $MAVEN_CFG/settings.xml
-  # Install maven wagon
+  # Get ojdbc via maven
   - bash .travis/maven_cfg.sh
-  - mvn dependency:copy-dependencies -DoutputDirectory=utPLSQL-cli/lib
   - pip install mkdocs
   - bash .travis/install_sqlcl.sh
   - sudo mkdir -p /dev/pdbs
