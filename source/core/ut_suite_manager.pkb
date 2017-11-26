@@ -223,32 +223,32 @@ create or replace package body ut_suite_manager is
     --were iterating in reverse order of the index by path table
     -- so the first paths will be the leafs of hierarchy and next will their parents
     l_suite_path  := l_suites_by_path.last;
-    dbms_output.put_line('Input suites to process = '||l_suites_by_path.count||', owner = '||a_owner_name);
+    ut_utils.debug_log('Input suites to process = '||l_suites_by_path.count||', owner = '||a_owner_name);
 
     while l_suite_path is not null loop
       l_parent_path := substr( l_suite_path, 1, instr(l_suite_path,'.',-1)-1);
-      dbms_output.put_line('Processing l_suite_path = "'||l_suite_path||'", l_parent_path = "'||l_parent_path||'"');
+      ut_utils.debug_log('Processing l_suite_path = "'||l_suite_path||'", l_parent_path = "'||l_parent_path||'"');
       --no parent => I'm a root element
       if l_parent_path is null then
-        dbms_output.put_line('  suite "'||l_suite_path||'" is a root element - adding to return list.');
+        ut_utils.debug_log('  suite "'||l_suite_path||'" is a root element - adding to return list.');
         l_result(l_suite_path) := l_suites_by_path(l_suite_path);
       -- not a root suite - need to add it to a parent suite
       else
         --parent does not exist and needs to be added
         if not l_suites_by_path.exists(l_parent_path) then
           l_name  := substr( l_parent_path, instr(l_parent_path,'.',-1)+1);
-          dbms_output.put_line('  Parent suite "'||l_parent_path||'" not found in the list - Adding suite "'||l_name||'"');
+          ut_utils.debug_log('  Parent suite "'||l_parent_path||'" not found in the list - Adding suite "'||l_name||'"');
           l_suites_by_path(l_parent_path) :=
             ut_logical_suite(a_object_owner => a_owner_name, a_object_name => l_name, a_name => l_name, a_path => l_parent_path );
         else
-          dbms_output.put_line('  Parent suite "'||l_parent_path||'" found in list of suites');
+          ut_utils.debug_log('  Parent suite "'||l_parent_path||'" found in list of suites');
         end if;
-        dbms_output.put_line('  adding suite "'||l_suite_path||'" to "'||l_parent_path||'" items');
+        ut_utils.debug_log('  adding suite "'||l_suite_path||'" to "'||l_parent_path||'" items');
         l_suites_by_path(l_parent_path).add_item( l_suites_by_path(l_suite_path) );
       end if;
       l_suite_path := l_suites_by_path.prior(l_suite_path);
     end loop;
-    dbms_output.put_line(l_result.count||' root suites created.');
+    ut_utils.debug_log(l_result.count||' root suites created.');
     return l_result;
   end;
 
