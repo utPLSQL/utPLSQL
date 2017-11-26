@@ -16,7 +16,6 @@ create or replace package body test_suite_manager is
     l_all_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
 
     for i in 1..l_all_objects_to_run.count loop
-      dbms_output.put_line(l_all_objects_to_run(i).name);
       if l_all_objects_to_run(i).name in ('tests', 'tests2') then
         l_objects_to_run.extend;
         l_objects_to_run(l_objects_to_run.last) := l_all_objects_to_run(i);
