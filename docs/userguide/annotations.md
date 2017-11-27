@@ -158,10 +158,10 @@ A `%suitepath` can be provided in three ways:
 * [schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests in all suites from suite1[.suite2][.suite3]...[.procedure] path. If schema is not provided, then the current schema is used. Example: `:all.rooms_tests`
 * [schema.]package[.procedure] - execute all tests in the specified test package. The whole hierarchy of suites in the schema is built before all before/after hooks or part suites for the provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator` or simply `test_contact.test_last_name_validator` if `tests` is the current schema.
 
-# Using automatic rollbacks in tests
+# Using automatic rollback in tests
 
 By default, changes performed by every setup, cleanup and test procedure are isolated by savepoints.
-This solution is suitable for use-cases where the code that is getting tested as well as the unit tests themselves do not use transaction control (commit/rollback) or DDL commands.
+This solution is suitable for use-cases where the code that is being tested as well as the unit tests themselves do not use transaction control (commit/rollback) or DDL commands.
 
 In general, your unit tests should not use transaction control as long as the code you are testing is not using it too.
 Keeping the transactions uncommitted allows your changes to be isolated and the execution of tests does not impact others who might be using a shared development database.
@@ -180,7 +180,7 @@ It is recommended to move such DDL statements to a procedure with `pragma autono
 Doing so allows your tests to use the framework's automatic transaction control and releases you from the burden of manual cleanup of data that was created or modified by test execution.
 
 When you are testing code that performs explicit or implicit commits, you may set the test procedure to run as an autonomous transaction with `pragma autonomous_transaction`.
-Keep in mind that when your tests runs in autonomous transaction it will not see the data prepared in setup procedure unless the setup procedure committed the changes.
+Keep in mind that when your test runs as autonomous transaction it will not see the data prepared in a setup procedure unless the setup procedure committed the changes.
 
 # Order of execution
 
@@ -217,23 +217,21 @@ When processing the test suite `test_pkg` defined in [Example of annotated test 
 
 # Annotation cache
 
-utPLSQL needs to scan sources of package specifications to identify and parse annotations.
-To improve framework startup time, specially when dealing with database users owning large amount of packages the framework has build-in persistent cache for annotations.
+utPLSQL needs to scan the source of package specifications to identify and parse annotations.
+To improve framework startup time, especially when dealing with database users owning large amounts of packages, the framework has a built-in persistent cache for annotations.
 
-Cache is checked for staleness and refreshed automatically on every run.
-The initial startup of utPLSQL for a schema will take longer than consecutive executions.
+The annotation cache is checked for staleness and refreshed automatically on every run. The initial startup of utPLSQL for a schema will take longer than consecutive executions.
 
-If you're in situation, where your database is controlled via CI/CD server and gets refreshed/wiped before each run of your tests, 
-consider building upfront and creating the snapshot of our database after the cache was refreshed.
+If you are in a situation where your database is controlled via CI/CD server and is refreshed/wiped before each run of your tests, consider building the annotation cache upfront and taking a snapshot of the database after the cache has been refreshed.
 
-To build annotation cache without actually invoking any tests, call `ut_runner.rebuild_annotation_cache(a_object_owner, a_object_type)` sql block for every unit test owner that you want to have annotations cache prebuilt.
-
+To build the annotation cache without actually invoking any tests, call `ut_runner.rebuild_annotation_cache(a_object_owner, a_object_type)` for every unit test owner for which you want to have the annotation cache prebuilt.
 Example:
 ```sql
 exec ut_runner.rebuild_annotation_cache('HR', 'PACKAGE');
 ```
 
-To purge annotations cache call: 
+To purge the annotation cache call `ut_runner.purge_cache(a_object_owner, a_object_type)`.
+Example:
 ```sql
 exec ut_runner.purge_cache('HR', 'PACKAGE');
 ```
