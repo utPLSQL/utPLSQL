@@ -61,7 +61,7 @@ The script accepts three optional parameters that define:
 Example invocation of the script from command line:
 ```bash
 cd source
-sqlplus sys/sys_pass@db as sysdba @@install_headless.sql  
+sqlplus sys/sys_pass@db as sysdba @install_headless.sql  
 ```
 
 Invoking script with parameters:
@@ -98,7 +98,7 @@ It is up to DBA to maintain the storage of the profiler tables.
 # Manual installation procedure
 
 ### Creating schema for utPLSQL
-To create the utPLSQL schema and grant all the needed privileges execute script `create_utplsql_owner.sql` from the `source` directory with parameters:
+To create the utPLSQL schema and grant all the required privileges execute script `create_utplsql_owner.sql` from the `source` directory with parameters:
 
   - `user name` - the name of the user that will own of utPLSQL object
   - `password`  - the password to be set for that user
@@ -121,8 +121,8 @@ cd source
 sqlplus admin/admins_password@database @install.sql ut3  
 ```
 
-### Allowing other users to access utPLSQL framework
-In order to allow other users to access utPLSQL, synonyms must be created and grants need to be added.
+### Allowing other users to access the utPLSQL framework
+In order to allow other users to access utPLSQL, synonyms must be created and privileges granted.
 You have two options:
 
   - use grants and synonyms to public, to allow all users to access the framework
@@ -135,7 +135,7 @@ Example invocation:
 cd source
 sqlplus admin/admins_password@database @create_synonyms_and_grants_for_public.sql ut3  
 ```
-To grant utPLSQL to individual user execute script `source/create_synonyms_and_grants_for_user.sql`, provide `schema_name` where utPLSQL is installed and `user_name` to grant access for.
+To grant utPLSQL to an individual user, execute script `source/create_synonyms_and_grants_for_user.sql`, provide `schema_name` where utPLSQL is installed and `user_name` to grant access for.
 
 Example invocation:
 ```bash
@@ -151,7 +151,7 @@ The following tools that support the SQL*Plus commands can be used to run the in
  
 # Additional requirements
 
-In order to use Code Coverage functionality of utPLSQL, users executing the tests must have the CREATE privilege on the PLSQL code that the coverage is gathered on.
+In order to use the Code Coverage functionality of utPLSQL, users executing the tests must have the CREATE privilege on the PLSQL code that the coverage is gathered on.
 This is a requirement of [DBMS_PROFILER package](https://docs.oracle.com/cd/E18283_01/appdev.112/e16760/d_profil.htm#i999476).
 
 In practice, user running tests for PLSQL code that he does not own, needs to have CREATE ANY PROCEDURE/CREATE ANY TRIGGER privileges.
@@ -159,23 +159,31 @@ Running code coverage on objects that the user does not own will **not produce a
 
 # Uninstalling utPLSQL
 
-To uninstall run `/source/uninstall.sql` and provide `schema_name` where utPLSQL is installed.
+To uninstall run `uninstall.sql` and provide `schema_name` where utPLSQL is installed.
+
+Example invocation:
+```bash
+cd source
+sqlplus admin/admins_password@database @uninstall.sql ut3
+```
 
 The uninstall script will remove all the objects installed by the install script.
-Additionally, all the public and private synonyms pointing to the objects in utPLSQL schema will be removed.
+Additionally, all the public and private synonyms pointing to the objects in the utPLSQL schema will be removed.
 
-If you have you have extended any utPLSQL types such as a custom reporter, these will need to be dropped before the uninstall, otherwise the uninstall script might fail.
+If you have extended any utPLSQL types such as a custom reporter, these will need to be dropped before the uninstall, otherwise the uninstall script might fail.
 
-In order for the uninstall to be successful, you need to use the uninstall script, that was provided whit the exact version that was installed on your database.
-The uninstall script provided with version 3.0.1 will probably not work, if you want to remove version 3.0.0 from your database.
+The uninstall script does not drop the schema.
+
+In order for the uninstall to be successful, you need to use the uninstall script that was provided with the exact utPLSQL version installed on your database.
+i.e. the uninstall script provided with version 3.0.1 will probably not work if you want to remove version 3.0.0 from your database.
 
 # Version upgrade
 
-Currently, the only way to upgrade version of utPLSQL v3.0.0 and above is to remove the previous version and install new version
+Currently, the only way to upgrade version of utPLSQL v3.0.0 and above is to remove the previous version and install the new version.
 
 # Working with utPLSQL v2
 
 If you are using utPLSQL v2, you can still install utPLSQL v3.
-The only requirement is that utPLSQL v3 needs to be installed in different schema than utPLSQL v2.
+The only requirement is that utPLSQL v3 needs to be installed in a different schema than utPLSQL v2.
 
 utPLSQL v3 and utPLSQL v2 do not collide on public synonym names. 
