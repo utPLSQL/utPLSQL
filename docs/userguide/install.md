@@ -1,7 +1,6 @@
 # Downloading latest version of utPLSQL
 
-It is quite easy to download latest version of utPLSQL from github on both Unix/Linux as well as Windows machines.
-Below are little snippets that can be handy for downloading latest version.  
+To download latest version of utPLSQL from github on both Unix/Linux as well as Windows machines use the below smippets.
 
 ## Unix/Linux
 
@@ -52,9 +51,12 @@ foreach ($i in $urlList) {
 
 # Headless installation
 
-To simply install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql` as SYSDBA.
+To install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql` as SYSDBA.
 
-This will create a new user `UT3` with password `XNtxj8eEgA6X6b6f`, grant all needed privileges to that user and create PUBLIC synonyms needed to use the utPLSQL framework.
+The script accepts three optional parameters that define:
+- username to create as owner of utPLSQL (default `ut3`)  
+- password for owner of utPLSQL (default `XNtxj8eEgA6X6b6f`)
+- tablespace to use for storage of profiler data (default `users`)  
 
 Example invocation of the script from command line:
 ```bash
@@ -62,32 +64,38 @@ cd source
 sqlplus sys/sys_pass@db as sysdba @install_headless.sql  
 ```
 
-SYSDBA is needed to grant access to DBMS_LOCK.
+Invoking script with parameters:
+```bash
+cd source
+sqlplus sys/sys_pass@db as sysdba @@install_headless.sql utp3 my_verySecret_password utp3_tablespace   
+```
+
+The script needs to be executed by SYSDBA, in order to grant access to DBMS_LOCK system package.
 
 
 # Recommended Schema
-It is recommended to install utPLSQL in it's own schema. You are free to choose any name for this schema.
+It is highly recommended to install utPLSQL in it's own schema. You are free to choose any name for this schema.
+Installing uPLSQL into shared schema is really not recommended as you loose isolation of framework.
 
-The installation user/schema must have the following Oracle system permissions during the installation.
+If the installation and utPLSQL owner user is one and the same, the user must have the following Oracle system permissions before you can proceed with the installation.
 
   - CREATE SESSION
   - CREATE PROCEDURE
   - CREATE TYPE
   - CREATE TABLE
+  - CREATE SEQUENCE
   - CREATE VIEW
   - CREATE SYNONYM
   - ALTER SESSION
   
-In addition it must be granted execute to the following system packages.
-
-  - DBMS_LOCK
+In addition the user must be granted the execute privilege on `DBMS_LOCK` package.
     
 utPLSQL is using [DBMS_PROFILER tables](https://docs.oracle.com/cd/E18283_01/appdev.112/e16760/d_profil.htm#i999476) for code coverage. The tables required by DBMS_PROFILER will be created in the installation schema unless they already exist.
 The uninstall process will **not** drop profiler tables, as they can potentially be shared and reused for profiling PLSQL code.
 
 It is up to DBA to maintain the storage of the profiler tables.
-  
-# Installation Procedure
+
+# Manual installation procedure
 
 ### Creating schema for utPLSQL
 To create the utPLSQL schema and grant all the required privileges execute script `create_utplsql_owner.sql` from the `source` directory with parameters:

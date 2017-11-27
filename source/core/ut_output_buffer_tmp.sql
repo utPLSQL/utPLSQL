@@ -22,7 +22,7 @@ create table ut_output_buffer_tmp$(
   text           varchar2(4000),
   is_finished    number(1,0) default 0 not null,
   start_date     date not null,
-  constraint ut_output_buffer_tmp_pk primary key(start_date, reporter_id, message_id),
+  constraint ut_output_buffer_tmp_pk primary key(reporter_id, message_id),
   constraint ut_output_buffer_tmp_ck check(is_finished = 0 and text is not null or is_finished = 1 and text is null)
 ) nologging nomonitoring initrans 100
 ;

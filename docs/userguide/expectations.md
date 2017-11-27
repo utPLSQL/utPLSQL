@@ -247,6 +247,22 @@ begin
 end;
 ```
 
+## match
+Validates that the actual value is matching the expected regular expression.
+
+Usage:
+```sql
+begin 
+  ut.expect( a_actual => '123-456-ABcd' ).to_match( a_pattern => '\d{3}-\d{3}-[a-z]', a_modifiers => 'i' );
+  ut.expect( 'some value' ).to_match( '^some.*' );
+  --or 
+  ut.expect( a_actual => '123-456-ABcd' ).to_( match( a_pattern => '\d{3}-\d{3}-[a-z]', a_modifiers => 'i' ) );
+  ut.expect( 'some value' ).to_( match( '^some.*' ) );
+end;
+```
+
+Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle REGEXP_LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501)
+
 ## equal
 
 The equal matcher is a very restrictive matcher. It only returns true if the compared data-types are the same.
@@ -458,22 +474,44 @@ end;
 
 This test will fail as `v_actual` is not equal `v_expected`. 
 
-## match
-Validates that the actual value is matching the expected regular expression.
+# Expecting exceptions
 
-Usage:
+Below example illustrates how to write test to check for expected exceptions (thrown by tested code).
+
 ```sql
-begin 
-  ut.expect( a_actual => '123-456-ABcd' ).to_match( a_pattern => '\d{3}-\d{3}-[a-z]', a_modifiers => 'i' );
-  ut.expect( 'some value' ).to_match( '^some.*' );
-  --or 
-  ut.expect( a_actual => '123-456-ABcd' ).to_( match( a_pattern => '\d{3}-\d{3}-[a-z]', a_modifiers => 'i' ) );
-  ut.expect( 'some value' ).to_( match( '^some.*' ) );
+create or replace procedure divide(p_a number, p_b number) is 
+begin
+  return p_a / p_b; 
 end;
+/
+
+create or replace package test_divide is 
+  --%suite(Divide functionality)
+  
+  --%test(Raises exception when divisor is zero)
+  procedure divide_raises_zero_divisor;
+end;
+/
+create or replace package body test_divide is 
+  procedure divide_raises_zero_divisor is
+    l_my_number number;
+  begin
+    l_my_number := divide(1,0); -- PLSQL call throwing ORA-01476 exception
+    ut.fail('Expected exception but nothing was raised');
+  exception
+    when others then
+      ut.expect( sqlcode ).to_equal( -1476 );
+      ut.expect( sqlerrm ).to_match( 'equal to zero' );
+  end;
+end;
+/
 ```
 
-Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle REGEXP_LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501)
+The call to `ut.fail` is required to make sure that the test fails, if we expect an exception, but the tested code does not throw any.
 
+The call to `ut.expect` uses `equal` matcher to check that the exception that was raised was exactly the one we were expecting to get in particular situation.
+
+Depending on the situation you will want to check for `sqlcode`, `sqlerrm`, both or perform additional expectation checks to make sure nothing was changed by the called procedure in the database.
 
 
 # Supported data types

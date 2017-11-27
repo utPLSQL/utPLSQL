@@ -46,7 +46,10 @@ env:
     - DOCKHER_HUB_REPO="${DOCKER_BASE_TAG:-$UT3_DOCKER_REPO}"
     #utPLSQL released version directory
     - UTPLSQL_DIR="utPLSQL_latest_release"
-    - UTPLSQL_CLI_FILE="utPLSQL-cli-develop-test3.zip"
+    - UTPLSQL_CLI_VERSION="3.0.4"
+    # Maven
+    - MAVEN_HOME=/usr/local/maven
+    - MAVEN_CFG=$HOME/.m2
   matrix:
     - ORACLE_VERSION="${DOCKER_TAG_11G:-11g-r2-xe}"  CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
     - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2}" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
@@ -57,6 +60,7 @@ cache:
   directories:
     - $CACHE_DIR
     - node_modules
+    - $MAVEN_CFG
 
 before_install:
   #The update_project_version is done before deployment to validate that the change of project files does not break installation
@@ -68,12 +72,14 @@ before_install:
   # download latest utPLSQL release
   #- curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
   - git clone --depth=1 --branch=${SELFTESTING_BRANCH:-master} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
-  # download utPLSQL-cli develop
-  - curl -Lk -o utPLSQL-cli.zip https://bintray.com/viniciusam/utPLSQL-cli/download_file?file_path=${UTPLSQL_CLI_FILE}
+  # download latest utPLSQL-cli release
+  - curl -Lk -o utPLSQL-cli.zip https://github.com/utPLSQL/utPLSQL-cli/releases/download/v${UTPLSQL_CLI_VERSION}/utPLSQL-cli.zip
 
 install:
   #- unzip utPLSQL.zip
   - unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
+  # Get ojdbc via maven
+  - bash .travis/maven_cfg.sh
   - pip install mkdocs
   - bash .travis/install_sqlcl.sh
   - sudo mkdir -p /dev/pdbs
@@ -115,4 +121,8 @@ deploy:
      condition: "${TRAVIS_JOB_NUMBER} =~ \\.1$"
 
 notifications:
-  slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
+  slack:
+    rooms:
+      - secure: "nemt9n2y5sVCAKqa/s7JDQ8AcM59Xu/XbH/RkMOXvPgc+KtR8lBtVD1LkvJ5BaQhqgjuDT7DNt/uisQJ7k6a2OsrVFbnkypZ1hCvntOBpJyoSpD/YL1X8a9GbGojuJcph0BX76KN21LaOVdyOfY0TSlw53XiYWS8iL5HtjpWCbIwHL1SJ8JT8mhdT4hDoUWZjcZ4s4bLH6BQm4un/bMQOmB4sDoCeg4CllJwxgkswVF7OHpOFjgPetvUp7ps8b/Rj8en6zCj9drb0SVbXFgumo2Wd1bC3HHZB8MAZU0kuEV5VgUdum6EelUL5yfB72hssNQA0+CaT3HjBFkTlqWYJmjC4/xyGN3sseiW82T9FDY0g0GAGayNRW+QSiTQ1hbJEcAnNe0GrBUdRsgXdI6COd76YP5VxzRSF6H7niLfgCZdKbIivKUd1o+wBhuyJmqCFIkRWmT38tMGJqJAzbY1jq5gQXbb6E7gt+KdTjlSjcnJYf7XI7zqm+BRr+fbA0ixfXHvfqOBgZN6g08y9nPlDnIjtSF2NSdrj2zqYQAtKuWSOD1bnTyfDJyrtK7OLffZcMYD5Bcss4c8op8tP7MGTjt1S046SJocboh6H4c/nTokpoMRsWs6MKRdebl8C2RObGf5FebSOJg+oh2ZYS5Z/G9GshiY2BD/81+Hc4Miacc="
+    on_success: change
+    on_failure: always

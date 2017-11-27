@@ -8,7 +8,7 @@ declare
 begin
 --Act
   ut.expect( anydata.convertObject(l_actual) ).to_equal( anydata.convertObject(l_expected) );
-  l_assert_result := treat(ut_expectation_processor.get_expectations_results()(1) as ut_expectation_result);
+  l_assert_result := treat(ut_expectation_processor.get_failed_expectations()(1) as ut_expectation_result);
 
 --Assert
   if l_assert_result.message like  q'[Actual:%

@@ -16,13 +16,27 @@ create or replace package ut_suite_manager authid current_user is
   limitations under the License.
   */
 
-  function config_package(a_owner_name varchar2, a_object_name varchar2) return ut_logical_suite;
+  /**
+   * Reads database source code, parses it and returns annotations
+   */
 
-  procedure config_schema(a_owner_name varchar2);
-
+  /**
+   * @private
+   *
+   * Returns a list of Unit Test packages that exist in a given database schema
+   *
+   * @param a_schema_names list of schemas to return the information for
+   * @return array containing unit test schema and object names
+   */
   function get_schema_ut_packages(a_schema_names ut_varchar2_rows) return ut_object_names;
 
-  --INTERNAL USE
+  /**
+   * Builds a hierarchical suites based on given suite-paths
+   *
+   * @param a_paths list of suite-paths or procedure names or package names or schema names
+   * @return array containing root suites-ready to be executed
+   *
+   */
   function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items;
 
 end ut_suite_manager;

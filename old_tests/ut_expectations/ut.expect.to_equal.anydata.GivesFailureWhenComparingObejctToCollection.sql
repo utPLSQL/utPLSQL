@@ -12,7 +12,7 @@ begin
   if l_result = ut_utils.tr_failure then
     :test_result := ut_utils.tr_success;
   else
-    dbms_output.put_line( substr(ut_expectation_processor.get_expectations_results()(1).get_result_clob(),1,32767) );
+    dbms_output.put_line( substr(ut_expectation_processor.get_failed_expectations()(1).get_result_clob(),1,32767) );
   end if;
 end;
 /

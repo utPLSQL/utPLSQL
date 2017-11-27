@@ -214,3 +214,26 @@ When processing the test suite `test_pkg` defined in [Example of annotated test 
   rollback to savepoint 'beforeall'
 
 ```
+
+# Annotation cache
+
+utPLSQL needs to scan sources of package specifications to identify and parse annotations.
+To improve framework startup time, specially when dealing with database users owning large amount of packages the framework has build-in persistent cache for annotations.
+
+Cache is checked for staleness and refreshed automatically on every run.
+The initial startup of utPLSQL for a schema will take longer than consecutive executions.
+
+If you're in situation, where your database is controlled via CI/CD server and gets refreshed/wiped before each run of your tests, 
+consider building upfront and creating the snapshot of our database after the cache was refreshed.
+
+To build annotation cache without actually invoking any tests, call `ut_runner.rebuild_annotation_cache(a_object_owner, a_object_type)` sql block for every unit test owner that you want to have annotations cache prebuilt.
+
+Example:
+```sql
+exec ut_runner.rebuild_annotation_cache('HR', 'PACKAGE');
+```
+
+To purge annotations cache call: 
+```sql
+exec ut_runner.purge_cache('HR', 'PACKAGE');
+```
