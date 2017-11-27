@@ -26,13 +26,14 @@ create or replace package body test_annotation_parser is
       ut3.ut_annotation(1,'suite',null, null),
       ut3.ut_annotation(2,'displayname','Name of suite',null),
       ut3.ut_annotation(3,'suitepath','all.globaltests',null),
+      ut3.ut_annotation(4,'ann1','Name of suite',null),
       ut3.ut_annotation(5,'ann2','some_value','foo')
     );
 
     ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
   end;
 
-  procedure ignore_floating_annotations is
+  procedure include_floating_annotations is
     l_source    clob;
     l_actual    ut3.ut_annotations;
     l_expected  ut3.ut_annotations;
@@ -63,7 +64,11 @@ create or replace package body test_annotation_parser is
       ut3.ut_annotation( 1, 'suite', null, null ),
       ut3.ut_annotation( 2, 'displayname', 'Name of suite', null ),
       ut3.ut_annotation( 3, 'suitepath', 'all.globaltests', null ),
+      ut3.ut_annotation( 4, 'ann1', 'Name of suite', null ),
+      ut3.ut_annotation( 5, 'ann2', 'all.globaltests', null ),
       ut3.ut_annotation( 6, 'test', null, 'foo'),
+      ut3.ut_annotation( 7, 'ann3', 'Name of suite', null ),
+      ut3.ut_annotation( 8, 'ann4', 'all.globaltests', null ),
       ut3.ut_annotation( 9, 'test', null, 'bar')
     );
 
