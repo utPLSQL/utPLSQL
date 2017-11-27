@@ -1,21 +1,21 @@
 # Annotations
 
 Annotations are used to configure tests and suites in a declarative way similar to modern OOP languages. This way, test configuration is stored along with the test logic inside the test package.
-No configuration files or tables are needed. The annotations names are based on popular testing frameworks such as jUnit.
-The framework runner searches for all the suitable annotated packages, automatically configures suites, forms suites hierarchy, executes it and reports results in specified formats.
+No configuration files or tables are needed. The annotation names are based on popular testing frameworks such as jUnit.
+The framework runner searches for all the suitable annotated packages, automatically configures suites, forms the suite hierarchy, executes it and reports results in specified formats.
 
-Annotations are interpreted only in package specification and are case-insensitive. It is recommended however, to use the lower-case annotations as described in documentation.
+Annotations are interpreted only in the package specification and are case-insensitive. It is recommended however, to use  lower-case annotations as described in this documentation.
 
-There are two places where annotations may appear: 
+There are two places where annotations may appear:
 
-- at the beginning of the package specification (`%suite`, `%suitepath` etc)
-- right before a procedure (`%test`, `%beforeall`, `%beforeeach` etc). 
+- at the beginning of the package specification (`%suite`, `%suitepath` etc.)
+- right before a procedure (`%test`, `%beforeall`, `%beforeeach` etc.)
 
-Package level annotations need to be separated by at least one empty line from the underlying procedure annotations. 
+Package level annotations need to be separated by at least one empty line from the underlying procedure annotations.
 
 Procedure annotations are defined right before the procedure they reference, no empty lines are allowed.
 
-If a package specification contains `%suite` annotation, it is treated as a test package and processed by the framework.
+If a package specification contains the `%suite` annotation, it is treated as a test package and is processed by the framework.
 
 Some annotations accept parameters like `%suite`, `%test` and `%displayname`. The parameters for annotations need to be placed in brackets. Values for parameters should be provided without any quotation marks.
 
@@ -48,7 +48,7 @@ create or replace package test_pkg is
   -- %displayname(Name of test)
   -- %disabled
   procedure disabled_test;
-  
+
   -- %test(Name of test)
   -- %rollback(manual)
   procedure no_transaction_control_test;
@@ -72,7 +72,7 @@ end test_pkg;
 | --- | --- | --- |
 | `%suite(<description>)` | Package | Mandatory. Marks package as a test suite. Optional suite description can be provided (see `displayname`). |
 | `%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
-| `%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a suite/test. `%displayname(Name of the suite/test)`. The annotation is provided for flexibility and convenience only. It has exactly the same meaning as `<descriotion>` in `test` and `suite` annotations. If description is provided using both `suite`/`test` and `displayname`, then the one defined as last takes precedence. |
+| `%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a suite/test. `%displayname(Name of the suite/test)`. The annotation is provided for flexibility and convenience only. It has exactly the same meaning as `<description>` in `test` and `suite` annotations. If description is provided using both `suite`/`test` and `displayname`, then the one defined as last takes precedence. |
 | `%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can by provided (see `displayname`). |
 | `%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
 | `%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
@@ -80,7 +80,7 @@ end test_pkg;
 | `%aftereach` | Procedure | Denotes that the annotated procedure should be executed after each `%test` procedure in the suite. |
 | `%beforetest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed before the annotated `%test` procedure. |
 | `%aftertest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed after the annotated `%test` procedure. |
-| `%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - A savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
+| `%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
 | `%disabled` | Package/procedure | Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run. |
 
 # Suitepath concept
@@ -94,10 +94,10 @@ If you want to create tests for your application it is recommended to structure 
   *   Policy tests
   *   Claim tests
   *   Payment tests
-    * Payments recognition 
+    * Payments recognition
     * Payments set off
-    * Payouts 
-    
+    * Payouts
+
 The `%suitepath` annotation is used for such grouping. Even though test packages are defined in a flat structure the `%suitepath` is used by the framework to form them into a hierarchical structure. Your payments recognition test package might look like:
 
 ```sql
@@ -137,7 +137,7 @@ end test_payment_set_off;
 ```
 
 When you execute tests for your application, the framework constructs a test suite for each test package. Then it combines suites into grouping suites by the `%suitepath` annotation value so that the fully qualified path to the `recognize_by_num` procedure is `USER:payments.test_payment_recognition.test_recognize_by_num`. If any of its expectations fails then the test is marked as failed, also the `test_payment_recognition` suite, the parent suite `payments` and the whole run is marked as failed.
-The test report indicates which expectation has failed on the payments module. The payments recognition submodule is causing the failure as `recognize_by_num` has not met the expectations of the test. Grouping tests into modules and submodules using the `%suitepath` annotation allows you to logically organize your project's flat structure of packages into functional groups. 
+The test report indicates which expectation has failed on the payments module. The payments recognition submodule is causing the failure as `recognize_by_num` has not met the expectations of the test. Grouping tests into modules and submodules using the `%suitepath` annotation allows you to logically organize your project's flat structure of packages into functional groups.
 
 An additional advantage of such grouping is the fact that every element level of the grouping can be an actual unit test package containing a common module level setup for all of the submodules. So in addition to the packages mentioned above you could have the following package.
 ```sql
@@ -175,12 +175,12 @@ It is strongly recommended not to have mixed transaction control in a suite.
 Mixed transaction control settings will not work properly when your suites are using shared setup/cleanup with beforeall, afterall, beforeeach or aftereach annotations.
 Your suite will most likely fail with error or warning on execution. Some of the automatic rollbacks will probably fail to execute depending on the configuration you have.
 
-In some cases it is necessary to perform DDL as part of setup or cleanup for the tests. 
+In some cases it is necessary to perform DDL as part of setup or cleanup for the tests.
 It is recommended to move such DDL statements to a procedure with `pragma autonomous_transaction` to eliminate implicit commits in the main session that is executing all your tests.
 Doing so allows your tests to use the framework's automatic transaction control and releases you from the burden of manual cleanup of data that was created or modified by test execution.
 
 When you are testing code that performs explicit or implicit commits, you may set the test procedure to run as an autonomous transaction with `pragma autonomous_transaction`.
-Keep in mind that when your tests runs in autonomous transaction it will not see the data prepared in setup procedure unless the setup procedure committed the changes. 
+Keep in mind that when your tests runs in autonomous transaction it will not see the data prepared in setup procedure unless the setup procedure committed the changes.
 
 # Order of execution
 
@@ -189,13 +189,13 @@ When processing the test suite `test_pkg` defined in [Example of annotated test 
 ```
   create a savepoint 'beforeall'
     execute global_setup
-    
+
     create savepoint 'beforeeach'
       execute test_setup
       execute some_test
       execute test_cleanup
     rollback to savepoint 'beforeeach'
-    
+
     create savepoint 'beforeeach'
       execute test_setup
       execute setup_another_test
@@ -203,9 +203,9 @@ When processing the test suite `test_pkg` defined in [Example of annotated test 
       execute cleanup_another_test
       execute test_cleanup
     rollback to savepoint 'beforeeach'
-    
+
     mark disabled_test as disabled
-    
+
     execute test_setup
     execute no_transaction_control_test
     execute test_cleanup    
