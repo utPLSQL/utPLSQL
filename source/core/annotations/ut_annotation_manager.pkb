@@ -79,7 +79,7 @@ create or replace package body ut_annotation_manager as
          where s.type = :a_object_type
            and s.owner = :a_object_owner
            and s.name
-            in (select /*+ cardinality( x ]'||l_card||q'[ )*/
+            in (select /*+ cardinality( t ]'||l_card||q'[ )*/
                        x.name
                   from table(:a_objects_to_refresh) t
                   join ]'||l_sources_view||q'[ x

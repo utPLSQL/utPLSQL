@@ -3,10 +3,10 @@ create or replace package test_annotation_parser is
   --%suite(ut_annotation_parser)
   --%suitepath(utplsql.core)
 
-  --%test(Ignores procedure level annotations if mixed with comments)
+  --%test(Treats procedure level annotations as package level, if mixed with comments)
   procedure test_proc_comments;
-  --%test(Ignores floating annotations between procedures and package)
-  procedure ignore_floating_annotations;
+  --%test(Includes floating annotations between procedures and package)
+  procedure include_floating_annotations;
   --%test(Parses complex annotations on procedures and functions)
   procedure parse_complex_with_functions;
   --%test(Parses package annotations without any procedure annotations)
