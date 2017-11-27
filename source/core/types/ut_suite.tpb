@@ -1,6 +1,6 @@
 create or replace type body ut_suite  as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -51,9 +51,9 @@ create or replace type body ut_suite  as
     end;
   begin
     ut_utils.debug_log('ut_suite.execute');
-    
+
     ut_utils.set_action(self.object_name);
-    
+
     a_listener.fire_before_event(ut_utils.gc_suite,self);
 
     self.start_time := current_timestamp;
@@ -94,7 +94,7 @@ create or replace type body ut_suite  as
     self.calc_execution_result();
     self.end_time := current_timestamp;
     a_listener.fire_after_event(ut_utils.gc_suite,self);
-    
+
     ut_utils.set_action(null);
 
     return l_suite_step_without_errors;
