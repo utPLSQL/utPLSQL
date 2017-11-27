@@ -159,5 +159,19 @@ create or replace package body ut_metadata as
       return replace(l_result,'dba_','all_');
   end;
 
+  function package_exists_in_cur_schema(a_object_name varchar2) return boolean is
+    l_cnt            number;
+    c_current_schema constant all_tables.owner%type := sys_context('USERENV','CURRENT_SCHEMA');
+  begin
+    select count(*)
+      into l_cnt
+      from all_objects t
+     where t.object_name = a_object_name
+       and t.object_type = 'PACKAGE'
+       and t.owner = c_current_schema;
+    return l_cnt > 0;
+  end;
+
+
 end;
 /
