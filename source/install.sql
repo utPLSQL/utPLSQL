@@ -135,6 +135,7 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 
 --expectations and matchers
 @@install_component.sql 'expectations/data_values/ut_cursor_data.sql'
+@@install_component.sql 'expectations/data_values/ut_cursor_data_diff.sql'
 @@install_component.sql 'expectations/data_values/ut_data_value.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_anydata.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_collection.tps'

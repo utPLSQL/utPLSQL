@@ -106,12 +106,12 @@ create or replace type body ut_data_value_refcursor as
     l_result_string varchar2(32767);
   begin
     dbms_lob.createtemporary(l_result,true);
-    --return first 100 rows
+    --return rows which were previously marked as different
     select xmlserialize( content ucd.row_data no indent)
       bulk collect into l_results
       from ut_cursor_data ucd
      where ucd.cursor_data_guid = self.data_value
-       and ucd.row_no <= c_max_rows;
+        and ucd.row_no in (select row_no from ut_cursor_data_diff ucdc);
 
     for i in 1 .. l_results.count loop
       dbms_lob.append(l_result,l_results(i));
@@ -138,8 +138,8 @@ create or replace type body ut_data_value_refcursor as
     l_xpath := coalesce(self.exclude_xpath, l_other.exclude_xpath);
     if a_other is of (ut_data_value_refcursor) then
       l_other  := treat(a_other as ut_data_value_refcursor);
-      select count(1)
-        into l_result
+      insert into ut_cursor_data_diff ( row_no )
+      select nvl(exp.row_no, act.row_no)
         from (select case when l_xpath is not null then deletexml( ucd.row_data, l_xpath ) else ucd.row_data end as row_data,
                      ucd.row_no
                 from ut_cursor_data ucd where ucd.cursor_data_guid = self.data_value) exp
@@ -147,8 +147,8 @@ create or replace type body ut_data_value_refcursor as
                                 ucd.row_no
                            from ut_cursor_data ucd where ucd.cursor_data_guid = l_other.data_value) act
          on (exp.row_no = act.row_no)
-       where nvl(dbms_lob.compare(xmlserialize( content exp.row_data no indent), xmlserialize( content act.row_data no indent)),1) != 0
-         and rownum <= 1;
+       where nvl(dbms_lob.compare(xmlserialize( content exp.row_data no indent), xmlserialize( content act.row_data no indent)),1) != 0;
+      select count(1) into l_result from ut_cursor_data_comp where rownum <= 1;
     else
       raise value_error;
     end if;

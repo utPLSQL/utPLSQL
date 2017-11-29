@@ -381,6 +381,7 @@ create or replace package body ut_utils is
     pragma autonomous_transaction;
   begin
     execute immediate 'delete from ut_cursor_data';
+    execute immediate 'delete from ut_cursor_data_diff';
     commit;
   end;
 
