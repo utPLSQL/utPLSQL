@@ -1,6 +1,6 @@
 create or replace package ut_utils authid definer is
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'X.X.X.X';
+  gc_version                 constant varchar2(50) := 'v3.0.4.1372';
 
   /* Constants: Event names */
   gc_run                     constant varchar2(12) := 'run';

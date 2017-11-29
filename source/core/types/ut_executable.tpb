@@ -1,6 +1,6 @@
 create or replace type body ut_executable is
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -96,10 +96,10 @@ create or replace type body ut_executable is
   begin
     if self.is_defined() then
       l_start_transaction_id := dbms_transaction.local_transaction_id(true);
-      
+
       -- report to application_info
       ut_utils.set_client_info(self.procedure_name);
-      
+
       --listener - before call to executable
       a_listener.fire_before_event(self.associated_event_name, a_item);
 

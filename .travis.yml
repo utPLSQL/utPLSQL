@@ -33,7 +33,7 @@ env:
     - CURRENT_BRANCH=${TRAVIS_BRANCH}
     - UTPLSQL_REPO="utPLSQL/utPLSQL"
     - UTPLSQL_BUILD_NO="${TRAVIS_BUILD_NUMBER:-0}"
-    - UTPLSQL_VERSION_PATTERN='v?([0-9X]+\.){3}[0-9X]+'
+    - UTPLSQL_VERSION_PATTERN="v?([0-9]+\.){3}[0-9]+[^']*"
     - UTPLSQL_VERSION=$(. .travis/get_project_version.sh)
     - UTPLSQL_BUILD_VERSION=$(. .travis/get_project_build_version.sh)
     - UTPLSQL_SOURCES_DIR='source'
@@ -84,22 +84,22 @@ install:
   - bash .travis/install_sqlcl.sh
   - sudo mkdir -p /dev/pdbs
   - sudo chmod -R 777 /dev/pdbs
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/start_db.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/start_db.sh; fi
   - df -h
 
 before_script:
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install.sh; fi
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install_utplsql_release.sh; fi
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/create_additional_grants_for_old_tests.sh; fi
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_examples.sh; fi
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_old_tests.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/install.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/install_utplsql_release.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/create_additional_grants_for_old_tests.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/run_examples.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/run_old_tests.sh; fi
 
 script:
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash test/install_and_run_tests.sh; fi
-  - if [ "${TRAVIS_TAG}" = "" ] && [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then sonar-scanner; fi
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/coveralls_uploader.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash test/install_and_run_tests.sh; fi
+  - if [[ ! $TRAVIS_TAG ]] && [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then sonar-scanner; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/coveralls_uploader.sh; fi
   - bash .travis/build_docs.sh
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/push_release_version.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/push_release_version.sh; fi
   - bash .travis/push_docs_to_gh_pages.sh
 
 before_deploy:
