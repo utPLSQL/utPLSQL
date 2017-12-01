@@ -102,19 +102,27 @@ create or replace type body ut_data_value_refcursor as
   overriding member function to_string return varchar2 is
     type t_clob_tab is table of clob;
     l_results       t_clob_tab;
-    c_max_rows      constant integer := 10;
+    c_max_rows      constant integer := 50;
     l_result        clob;
     l_result_xml    xmltype;
     l_result_string varchar2(32767);
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
+    l_diff_row_count integer;
   begin
     dbms_lob.createtemporary(l_result,true);
+    -- First tell how many rows are different
+    execute immediate 'select count(*) from ' || l_ut_owner || '.ut_cursor_data_diff' into l_diff_row_count;
+
+    ut_utils.append_to_clob(l_result,'Rows: ' || to_char(self.ROW_COUNT) 
+      || ', different: ' || to_char(l_diff_row_count) || chr(10));
+
     --return rows which were previously marked as different
     execute immediate 'select xmlserialize( content ucd.row_data no indent)
                         from ' || l_ut_owner || '.ut_cursor_data ucd
                        where ucd.cursor_data_guid = :self_guid
-                          and ucd.row_no in (select row_no from ' || l_ut_owner || '.ut_cursor_data_diff ucdc)'
-      bulk collect into l_results using in self.data_value;
+                          and ucd.row_no in (select row_no from ' || l_ut_owner || '.ut_cursor_data_diff ucdc)
+                          and rownum <= :max_rows'
+      bulk collect into l_results using in self.data_value, c_max_rows;
 
     for i in 1 .. l_results.count loop
       dbms_lob.append(l_result,l_results(i));
@@ -142,7 +150,8 @@ create or replace type body ut_data_value_refcursor as
     l_xpath := coalesce(self.exclude_xpath, l_other.exclude_xpath);
     if a_other is of (ut_data_value_refcursor) then
       l_other  := treat(a_other as ut_data_value_refcursor);
-      
+
+      -- Find differences
       execute immediate 'insert into ' || l_ut_owner || '.ut_cursor_data_diff ( row_no )
                           select nvl(exp.row_no, act.row_no)
                             from (select case when :l_xpath is not null then deletexml( ucd.row_data, :l_xpath ) else ucd.row_data end as row_data,
