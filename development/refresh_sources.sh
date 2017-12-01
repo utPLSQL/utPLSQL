@@ -11,8 +11,8 @@ rm -rf ${UTPLSQL_DIR:-utPLSQL_latest_release}
 git clone --depth=1 --branch=${SELFTESTING_BRANCH:-master} https://github.com/utPLSQL/utPLSQL.git ${UTPLSQL_DIR:-utPLSQL_latest_release}
 
 rm -rf utPLSQL-cli/*
-# download beta version of utPLSQL-cli
-curl -Lk -o utPLSQL-cli.zip https://bintray.com/viniciusam/utPLSQL-cli/download_file?file_path=${UTPLSQL_CLI_FILE}
+# download latest release version of utPLSQL-cli
+curl -Lk -o utPLSQL-cli.zip https://github.com/utPLSQL/utPLSQL-cli/releases/download/v${UTPLSQL_CLI_VERSION}/utPLSQL-cli.zip
 # unzip utPLSQL-cli and remove the zip file
 unzip utPLSQL-cli.zip && chmod u+x utPLSQL-cli/bin/utplsql && rm utPLSQL-cli.zip
 
