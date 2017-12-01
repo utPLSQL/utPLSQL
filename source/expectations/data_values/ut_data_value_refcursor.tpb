@@ -154,7 +154,12 @@ create or replace type body ut_data_value_refcursor as
                              on (exp.row_no = act.row_no)
                            where nvl(dbms_lob.compare(xmlserialize( content exp.row_data no indent), xmlserialize( content act.row_data no indent)),1) != 0' 
         using in l_xpath, l_xpath, self.DATA_VALUE, l_xpath, l_xpath, l_other.DATA_VALUE;
-      execute immediate 'select count(1) from ' || l_ut_owner || '.ut_cursor_data_diff where rownum <= 1' into l_result;
+      
+      if ( sql%rowcount > 0 ) then
+        l_result := 1;
+      else
+        l_result := 1;
+      end if;
     else
       raise value_error;
     end if;
