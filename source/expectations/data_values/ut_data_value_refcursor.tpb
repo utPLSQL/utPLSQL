@@ -41,6 +41,7 @@ create or replace type body ut_data_value_refcursor as
     l_xml                 xmltype;
     c_bulk_rows  constant integer := 1000;
     l_current_date_format varchar2(4000);
+    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
   begin
     self.is_cursor_null := ut_utils.boolean_to_int(a_value is null);
     self.self_type  := $$plsql_unit;
@@ -68,8 +69,9 @@ create or replace type body ut_data_value_refcursor as
       loop
         l_xml := dbms_xmlgen.getxmltype(l_ctx);
 
-        insert into ut_cursor_data(cursor_data_guid, row_no, row_data)
-        select self.data_value, self.row_count + rownum, value(a) from table( xmlsequence( extract(l_xml,'ROWSET/*') ) ) a;
+        execute immediate 'insert into ' || l_ut_owner || '.ut_cursor_data(cursor_data_guid, row_no, row_data)
+                            select :self_guid, :self_row_count + rownum, value(a) from table( xmlsequence( extract(:l_xml,''ROWSET/*'') ) ) a'
+          using in self.data_value, self.row_count, l_xml;
 
         exit when sql%rowcount = 0;
 
@@ -104,14 +106,15 @@ create or replace type body ut_data_value_refcursor as
     l_result        clob;
     l_result_xml    xmltype;
     l_result_string varchar2(32767);
+    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
   begin
     dbms_lob.createtemporary(l_result,true);
     --return rows which were previously marked as different
-    select xmlserialize( content ucd.row_data no indent)
-      bulk collect into l_results
-      from ut_cursor_data ucd
-     where ucd.cursor_data_guid = self.data_value
-        and ucd.row_no in (select row_no from ut_cursor_data_diff ucdc);
+    execute immediate 'select xmlserialize( content ucd.row_data no indent)
+                        from ' || l_ut_owner || '.ut_cursor_data ucd
+                       where ucd.cursor_data_guid = :self_guid
+                          and ucd.row_no in (select row_no from ' || l_ut_owner || '.ut_cursor_data_diff ucdc)'
+      bulk collect into l_results using in self.data_value;
 
     for i in 1 .. l_results.count loop
       dbms_lob.append(l_result,l_results(i));
@@ -134,21 +137,24 @@ create or replace type body ut_data_value_refcursor as
     l_result integer;
     l_other  ut_data_value_refcursor;
     l_xpath  varchar2(32767);
+    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
   begin
     l_xpath := coalesce(self.exclude_xpath, l_other.exclude_xpath);
     if a_other is of (ut_data_value_refcursor) then
       l_other  := treat(a_other as ut_data_value_refcursor);
-      insert into ut_cursor_data_diff ( row_no )
-      select nvl(exp.row_no, act.row_no)
-        from (select case when l_xpath is not null then deletexml( ucd.row_data, l_xpath ) else ucd.row_data end as row_data,
-                     ucd.row_no
-                from ut_cursor_data ucd where ucd.cursor_data_guid = self.data_value) exp
-        full outer join (select case when l_xpath is not null then deletexml( ucd.row_data, l_xpath ) else ucd.row_data end as row_data,
-                                ucd.row_no
-                           from ut_cursor_data ucd where ucd.cursor_data_guid = l_other.data_value) act
-         on (exp.row_no = act.row_no)
-       where nvl(dbms_lob.compare(xmlserialize( content exp.row_data no indent), xmlserialize( content act.row_data no indent)),1) != 0;
-      select count(1) into l_result from ut_cursor_data_comp where rownum <= 1;
+      
+      execute immediate 'insert into ' || l_ut_owner || '.ut_cursor_data_diff ( row_no )
+                          select nvl(exp.row_no, act.row_no)
+                            from (select case when :l_xpath is not null then deletexml( ucd.row_data, :l_xpath ) else ucd.row_data end as row_data,
+                                         ucd.row_no
+                                    from ' || l_ut_owner || '.ut_cursor_data ucd where ucd.cursor_data_guid = :self_guid) exp
+                            full outer join (select case when :l_xpath is not null then deletexml( ucd.row_data, :l_xpath ) else ucd.row_data end as row_data,
+                                                    ucd.row_no
+                                               from ' || l_ut_owner || '.ut_cursor_data ucd where ucd.cursor_data_guid = :l_other_guid) act
+                             on (exp.row_no = act.row_no)
+                           where nvl(dbms_lob.compare(xmlserialize( content exp.row_data no indent), xmlserialize( content act.row_data no indent)),1) != 0' 
+        using in l_xpath, l_xpath, self.DATA_VALUE, l_xpath, l_xpath, l_other.DATA_VALUE;
+      execute immediate 'select count(1) from ' || l_ut_owner || '.ut_cursor_data_diff where rownum <= 1' into l_result;
     else
       raise value_error;
     end if;
