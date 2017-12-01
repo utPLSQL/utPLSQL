@@ -93,6 +93,8 @@ The below script is fetching latest release version from utPLSQL repository. Lat
 ```bash
 development/refresh_sources.sh
 ```
+> **Important notice:**
+> You'll have to provide the ojdbc.jar in the folder utPLSQL-cli/lib manually due to Oracle licensing restrictions.
 
 ### Setup local database for utPLSQL development
 
