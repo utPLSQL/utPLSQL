@@ -16,10 +16,12 @@ create or replace package body ut_suite_manager is
   limitations under the License.
   */
 
+  subtype tt_schema_suites is ut_suite_builder.tt_schema_suites;
+  subtype t_object_suite_path is ut_suite_builder.t_object_suite_path;
+  subtype t_schema_suites_info is ut_suite_builder.t_schema_suites_info;
+
   type t_schema_info is record (changed_at date, obj_cnt integer);
 
-  type tt_schema_suites is table of ut_logical_suite index by varchar2(4000 char);
-  type t_object_suite_path is table of varchar2(4000) index by varchar2(4000 char);
   type t_schema_cache is record(
      schema_suites tt_schema_suites
     ,changed_at    date
@@ -30,10 +32,6 @@ create or replace package body ut_suite_manager is
 
   g_schema_suites tt_schema_suites_list;
 
-  type t_schema_suites_info is record (
-    schema_suites tt_schema_suites,
-    suite_paths   t_object_suite_path
-  );
 
   type t_schema_paths is table of ut_varchar2_list index by varchar2(4000 char);
 
@@ -51,137 +49,6 @@ create or replace package body ut_suite_manager is
     into l_info using a_owner_name;
     return l_info;
   end;
-
-  function create_suite(a_object ut_annotated_object) return ut_logical_suite is
-    l_is_suite           boolean := false;
-    l_is_test            boolean := false;
-    l_suite_disabled     boolean := false;
-    l_test_disabled      boolean := false;
-    l_suite_items        ut_suite_items := ut_suite_items();
-    l_suite_name         varchar2(4000);
-
-    l_default_setup_proc    varchar2(250 char);
-    l_default_teardown_proc varchar2(250 char);
-    l_suite_setup_proc      varchar2(250 char);
-    l_suite_teardown_proc   varchar2(250 char);
-    l_suite_path            varchar2(4000 char);
-
-    l_proc_name             varchar2(250 char);
-
-    l_suite       ut_logical_suite;
-    l_test        ut_test;
-
-    l_suite_rollback            integer;
-
-    l_beforetest_procedure varchar2(250 char);
-    l_aftertest_procedure  varchar2(250 char);
-    l_rollback_type        integer;
-    l_displayname          varchar2(4000);
-
-  begin
-    l_suite_rollback := ut_utils.gc_rollback_auto;
-    for i in 1 .. a_object.annotations.count loop
-
-      if a_object.annotations(i).subobject_name is null then
-
-        if a_object.annotations(i).name in ('suite','displayname') then
-          l_suite_name := a_object.annotations(i).text;
-          if a_object.annotations(i).name = 'suite' then
-            l_is_suite := true;
-          end if;
-        elsif a_object.annotations(i).name = 'disabled' then
-          l_suite_disabled := true;
-        elsif a_object.annotations(i).name = 'suitepath' and  a_object.annotations(i).text is not null then
-          l_suite_path := a_object.annotations(i).text || '.' || lower(a_object.object_name);
-        elsif a_object.annotations(i).name = 'rollback' then
-          if lower(a_object.annotations(i).text) = 'manual' then
-            l_suite_rollback := ut_utils.gc_rollback_manual;
-          else
-            l_suite_rollback := ut_utils.gc_rollback_auto;
-          end if;
-        end if;
-
-      elsif l_is_suite then
-
-        l_proc_name := a_object.annotations(i).subobject_name;
-
-        if a_object.annotations(i).name = 'beforeeach' and l_default_setup_proc is null then
-          l_default_setup_proc := l_proc_name;
-        elsif a_object.annotations(i).name = 'aftereach' and l_default_teardown_proc is null then
-          l_default_teardown_proc := l_proc_name;
-        elsif a_object.annotations(i).name = 'beforeall' and l_suite_setup_proc is null then
-          l_suite_setup_proc := l_proc_name;
-        elsif a_object.annotations(i).name = 'afterall' and l_suite_teardown_proc is null then
-          l_suite_teardown_proc := l_proc_name;
-
-
-        elsif a_object.annotations(i).name = 'disabled' then
-          l_test_disabled := true;
-        elsif a_object.annotations(i).name = 'beforetest' then
-          l_beforetest_procedure := a_object.annotations(i).text;
-        elsif a_object.annotations(i).name = 'aftertest' then
-          l_aftertest_procedure := a_object.annotations(i).text;
-        elsif a_object.annotations(i).name in ('displayname','test') then
-          l_displayname := a_object.annotations(i).text;
-          if a_object.annotations(i).name = 'test' then
-            l_is_test := true;
-          end if;
-        elsif a_object.annotations(i).name = 'rollback' then
-          if lower(a_object.annotations(i).text) = 'manual' then
-            l_rollback_type := ut_utils.gc_rollback_manual;
-          elsif lower(a_object.annotations(i).text) = 'auto' then
-            l_rollback_type := ut_utils.gc_rollback_auto;
-          end if;
-        end if;
-
-        if l_is_test
-           and (i = a_object.annotations.count
-                or l_proc_name != nvl(a_object.annotations(i+1).subobject_name, ' ') ) then
-          l_suite_items.extend;
-          l_suite_items(l_suite_items.last) :=
-            ut_test(a_object_owner          => a_object.object_owner
-                   ,a_object_name           => a_object.object_name
-                   ,a_name                  => l_proc_name
-                   ,a_description           => l_displayname
-                   ,a_rollback_type         => coalesce(l_rollback_type, l_suite_rollback)
-                   ,a_disabled_flag         => l_suite_disabled or l_test_disabled
-                   ,a_before_test_proc_name => l_beforetest_procedure
-                   ,a_after_test_proc_name  => l_aftertest_procedure);
-
-          l_is_test := false;
-          l_test_disabled := false;
-          l_aftertest_procedure  := null;
-          l_beforetest_procedure := null;
-          l_rollback_type        := null;
-        end if;
-
-      end if;
-    end loop;
-
-    if l_is_suite then
-      l_suite := ut_suite (
-          a_object_owner          => a_object.object_owner,
-          a_object_name           => a_object.object_name,
-          a_name                  => a_object.object_name, --this could be different for sub-suite (context)
-          a_path                  => l_suite_path,  --a patch for this suite (excluding the package name of current suite)
-          a_description           => l_suite_name,
-          a_rollback_type         => l_suite_rollback,
-          a_disabled_flag         => l_suite_disabled,
-          a_before_all_proc_name  => l_suite_setup_proc,
-          a_after_all_proc_name   => l_suite_teardown_proc
-      );
-      for i in 1 .. l_suite_items.count loop
-        l_test := treat(l_suite_items(i) as ut_test);
-        l_test.set_beforeeach(l_default_setup_proc);
-        l_test.set_aftereach(l_default_teardown_proc);
-        l_test.path := l_suite.path  || '.' ||  l_test.name;
-        l_suite.add_item(l_test);
-      end loop;
-    end if;
-
-    return l_suite;
-
-  end create_suite;
 
   procedure update_cache(a_owner_name varchar2, a_suites_info t_schema_suites_info, a_total_obj_cnt integer) is
   begin
@@ -212,84 +79,13 @@ create or replace package body ut_suite_manager is
     return l_result;
   end;
 
-  function build_suites_hierarchy(a_suites_by_path tt_schema_suites, a_owner_name varchar2) return tt_schema_suites is
-    l_result            tt_schema_suites;
-    l_suite_path        varchar2(4000 char);
-    l_parent_path       varchar2(4000 char);
-    l_name              varchar2(4000 char);
-    l_suites_by_path    tt_schema_suites;
-  begin
-    l_suites_by_path := a_suites_by_path;
-    --were iterating in reverse order of the index by path table
-    -- so the first paths will be the leafs of hierarchy and next will their parents
-    l_suite_path  := l_suites_by_path.last;
-    ut_utils.debug_log('Input suites to process = '||l_suites_by_path.count||', owner = '||a_owner_name);
-
-    while l_suite_path is not null loop
-      l_parent_path := substr( l_suite_path, 1, instr(l_suite_path,'.',-1)-1);
-      ut_utils.debug_log('Processing l_suite_path = "'||l_suite_path||'", l_parent_path = "'||l_parent_path||'"');
-      --no parent => I'm a root element
-      if l_parent_path is null then
-        ut_utils.debug_log('  suite "'||l_suite_path||'" is a root element - adding to return list.');
-        l_result(l_suite_path) := l_suites_by_path(l_suite_path);
-      -- not a root suite - need to add it to a parent suite
-      else
-        --parent does not exist and needs to be added
-        if not l_suites_by_path.exists(l_parent_path) then
-          l_name  := substr( l_parent_path, instr(l_parent_path,'.',-1)+1);
-          ut_utils.debug_log('  Parent suite "'||l_parent_path||'" not found in the list - Adding suite "'||l_name||'"');
-          l_suites_by_path(l_parent_path) :=
-            ut_logical_suite(a_object_owner => a_owner_name, a_object_name => l_name, a_name => l_name, a_path => l_parent_path );
-        else
-          ut_utils.debug_log('  Parent suite "'||l_parent_path||'" found in list of suites');
-        end if;
-        ut_utils.debug_log('  adding suite "'||l_suite_path||'" to "'||l_parent_path||'" items');
-        l_suites_by_path(l_parent_path).add_item( l_suites_by_path(l_suite_path) );
-      end if;
-      l_suite_path := l_suites_by_path.prior(l_suite_path);
-    end loop;
-    ut_utils.debug_log(l_result.count||' root suites created.');
-    return l_result;
-  end;
-
-  function build_schema_suites(a_owner_name varchar2) return t_schema_suites_info is
-    l_suite             ut_logical_suite;
-    l_annotated_objects ut_annotated_objects;
-    l_all_suites        tt_schema_suites;
-    l_schema_suites     tt_schema_suites;
-    l_result            t_schema_suites_info;
-
-  begin
-    -- form the single-dimension list of suites constructed from parsed packages
-    execute immediate
-      q'[select value(x)
-          from table(
-            ]'||ut_utils.ut_owner||q'[.ut_annotation_manager.get_annotated_objects(:a_owner_name, 'PACKAGE')
-          )x ]'
-    bulk collect into l_annotated_objects using a_owner_name;
-    for i in 1 .. l_annotated_objects.count loop
-      l_suite := create_suite(l_annotated_objects(i));
-      if l_suite is not null then
-        l_all_suites(l_suite.path) := l_suite;
-        l_result.suite_paths(l_suite.object_name) := l_suite.path;
-      end if;
-    end loop;
-
-    --build hierarchical structure of the suite
-    -- Restructure single-dimenstion list into hierarchy of suites by the value of %suitepath attribute value
-    l_result.schema_suites := build_suites_hierarchy(l_all_suites, a_owner_name);
-
-    return l_result;
-
-  end;
-
   function get_schema_suites(a_schema_name in varchar2) return t_schema_suites_info is
     l_result      t_schema_suites_info;
   begin
     -- Currently cache invalidation on DDL is not implemented so schema is rescaned each time
     if not cache_valid(a_schema_name) then
       ut_utils.debug_log('Rescanning schema ' || a_schema_name);
-      l_result := build_schema_suites(a_schema_name);
+      l_result := ut_suite_builder.build_schema_suites(a_schema_name);
       update_cache(a_schema_name, l_result, get_schema_info(a_schema_name).obj_cnt );
     end if;
 
