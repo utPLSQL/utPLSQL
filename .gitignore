@@ -15,3 +15,4 @@ node_modules/
 utPLSQL_latest_release/
 utPLSQL-cli/
 development/env.sh
+*.log
