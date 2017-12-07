@@ -43,7 +43,10 @@ create or replace package body ut_suite_builder is
     l_aftertest_procedure   varchar2(250 char);
     l_rollback_type         integer;
     l_displayname           varchar2(4000);
-
+    function is_last_annotation_for_proc(a_annotations ut_annotations, a_index binary_integer) return boolean is
+    begin
+      return a_index = a_annotations.count or a_annotations(a_index).subobject_name != nvl(a_annotations(a_index+1).subobject_name, ' ');
+    end;
   begin
     l_suite_rollback := ut_utils.gc_rollback_auto;
     for i in 1 .. a_object.annotations.count loop
@@ -100,9 +103,7 @@ create or replace package body ut_suite_builder is
           end if;
         end if;
 
-        if l_is_test
-           and (i = a_object.annotations.count
-                or l_proc_name != nvl(a_object.annotations(i+1).subobject_name, ' ') ) then
+        if l_is_test and is_last_annotation_for_proc(a_object.annotations, i) then
           l_suite_items.extend;
           l_suite_items(l_suite_items.last) :=
             ut_test(a_object_owner          => a_object.object_owner
@@ -110,7 +111,7 @@ create or replace package body ut_suite_builder is
                    ,a_name                  => l_proc_name
                    ,a_description           => l_displayname
                    ,a_rollback_type         => coalesce(l_rollback_type, l_suite_rollback)
-                   ,a_disabled_flag         => l_suite_disabled or l_test_disabled
+                   ,a_disabled_flag         => l_test_disabled
                    ,a_before_test_proc_name => l_beforetest_procedure
                    ,a_after_test_proc_name  => l_aftertest_procedure);
 
