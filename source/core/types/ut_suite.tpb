@@ -54,17 +54,11 @@ create or replace type body ut_suite  as
 
     ut_utils.set_action(self.object_name);
 
-    a_listener.fire_before_event(ut_utils.gc_suite,self);
-
-    self.start_time := current_timestamp;
-
     if self.get_disabled_flag() then
-      for i in 1 .. self.items.count loop
-        self.items(i).do_execute(a_listener);
-      end loop;
-      ut_utils.debug_log('ut_suite.execute - disabled');
+      self.mark_as_skipped(a_listener);
     else
-
+      a_listener.fire_before_event(ut_utils.gc_suite,self);
+      self.start_time := current_timestamp;
       if self.is_valid() then
 
         l_suite_savepoint := self.create_savepoint_if_needed();
@@ -90,10 +84,10 @@ create or replace type body ut_suite  as
       else
         propagate_error(ut_utils.table_to_clob(self.get_error_stack_traces()));
       end if;
+      self.calc_execution_result();
+      self.end_time := current_timestamp;
+      a_listener.fire_after_event(ut_utils.gc_suite,self);
     end if;
-    self.calc_execution_result();
-    self.end_time := current_timestamp;
-    a_listener.fire_after_event(ut_utils.gc_suite,self);
 
     ut_utils.set_action(null);
 

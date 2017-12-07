@@ -1261,7 +1261,47 @@ end;';
   begin
     execute immediate 'drop package test_package_same_1';
     execute immediate 'drop package test_package_same_1_a';
-    null;
+  end;
+
+  procedure setup_disabled_pck is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package test_disabled_floating as
+  --%suite
+
+  --%test
+  procedure test1;
+
+  --%disabled
+
+  --%test
+  procedure test2;
+
+end;]';
+  end;
+
+  procedure clean_disabled_pck is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package test_disabled_floating';
+  end;
+
+  procedure disable_suite_floating_annot is
+    l_objects_to_run ut3.ut_suite_items;
+    l_suite          ut3.ut_suite;
+  begin
+    --Arrange
+    setup_disabled_pck;
+    --Act
+    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('test_disabled_floating'));
+
+    --Assert
+    ut.expect(l_objects_to_run.count).to_equal(1);
+    l_suite := treat(l_objects_to_run(1) as ut3.ut_suite);
+    ut.expect(l_suite.name).to_equal('test_disabled_floating');
+    ut.expect(l_suite.get_disabled_flag()).to_be_true();
+
+    clean_disabled_pck;
   end;
 
 end test_suite_manager;
