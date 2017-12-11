@@ -20,7 +20,7 @@ You may download with a one-liner if that is more convenient.
 curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g') 
 ```
 
-##Windows
+## Windows
 
 To run the script on windows you will need [PowerShell 3.0](https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/02/weekend-scripter-install-powershell-3-0-on-windows-7/) or above. 
 You will also need .NET 4.0 Framework or above.
