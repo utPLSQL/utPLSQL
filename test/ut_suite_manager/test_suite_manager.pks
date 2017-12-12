@@ -129,16 +129,15 @@ create or replace package test_suite_manager is
   procedure setup_empty_suite_path;
   procedure clean_empty_suite_path;
 
-  --%test
-  --%disabled
-  --procedure IncludesPackagesWithSutePath;
-  
   --%test(only the defined in suitepath suite/test is executed if multiple similarly named test suites exist in the context differed only by comment)
   --%beforetest(setup_pck_with_same_path)
-  --%aftertest(clean_pck_with_same_path)  
+  --%aftertest(clean_pck_with_same_path)
   procedure test_pck_with_same_path;
   procedure setup_pck_with_same_path;
   procedure clean_pck_with_same_path;
+
+  --%test(Whole suite gets disabled with floating annotation)
+  procedure disable_suite_floating_annot;
 
 end test_suite_manager;
 /

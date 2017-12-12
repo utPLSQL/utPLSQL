@@ -52,6 +52,18 @@ create or replace type body ut_logical_suite as
     self.items(self.items.last) := a_item;
   end;
 
+  overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base) is
+  begin
+    a_listener.fire_before_event(ut_utils.gc_suite,self);
+    self.start_time := current_timestamp;
+    for i in 1 .. self.items.count loop
+      self.items(i).mark_as_skipped(a_listener);
+    end loop;
+    self.end_time := self.start_time;
+    a_listener.fire_after_event(ut_utils.gc_suite,self);
+    self.calc_execution_result();
+  end;
+
   overriding member function do_execute(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_suite_savepoint varchar2(30);
     l_item_savepoint  varchar2(30);

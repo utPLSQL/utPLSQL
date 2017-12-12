@@ -58,6 +58,7 @@ create or replace type ut_test under ut_suite_item (
   member function is_valid(self in out nocopy ut_test) return boolean,
   member procedure set_beforeeach(self in out nocopy ut_test, a_before_each_proc_name varchar2),
   member procedure set_aftereach(self in out nocopy ut_test, a_after_each_proc_name varchar2),
+  overriding member procedure mark_as_skipped(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base),
   overriding member function do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base) return boolean,
   overriding member procedure calc_execution_result(self in out nocopy ut_test),
   overriding member procedure mark_as_errored(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base, a_error_stack_trace varchar2),

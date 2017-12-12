@@ -94,6 +94,9 @@ alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6
 @@install_component.sql 'core/annotations/ut_annotation_manager.pks'
 @@install_component.sql 'core/annotations/ut_annotation_manager.pkb'
 
+--suite builder
+@@install_component.sql 'core/ut_suite_builder.pks'
+@@install_component.sql 'core/ut_suite_builder.pkb'
 --suite manager
 @@install_component.sql 'core/ut_suite_manager.pks'
 @@install_component.sql 'core/ut_suite_manager.pkb'
