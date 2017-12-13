@@ -1,6 +1,6 @@
 create or replace package ut_coverage authid current_user is
   /*
-  utPLSQL - Version 3
+  utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -19,19 +19,29 @@ create or replace package ut_coverage authid current_user is
   -- total run coverage information
   subtype t_full_name   is varchar2(4000);
   subtype t_object_name is varchar2(250);
-
+  
+  type t_line_execution is record
+  (
+  execution binary_integer,
+  partcove binary_integer
+  );
+  
   subtype t_line_executions is binary_integer;
   -- line coverage information indexed by line no.
-  type tt_lines is table of t_line_executions index by binary_integer;
+  type tt_lines is table of t_line_execution index by binary_integer;
   --unit coverage information record
   type t_unit_coverage is record (
-    owner           varchar2(128),
-    name            varchar2(128),
-    covered_lines   binary_integer := 0,
-    uncovered_lines binary_integer := 0,
-    total_lines     binary_integer := 0,
-    executions      number(38,0) := 0,
-    lines           tt_lines
+    owner             varchar2(128),
+    name              varchar2(128),
+    covered_lines     binary_integer := 0,
+    uncovered_lines   binary_integer := 0,
+    partcovered_lines binary_integer := 0,
+    total_blocks      binary_integer default null,
+    covered_blocks    binary_integer default null,
+    uncovered_blocks  binary_integer default null,
+    total_lines       binary_integer := 0,
+    executions        number(38,0) := 0,
+    lines             tt_lines
   );
 
   -- coverage information indexed by full object name (schema.object)
@@ -39,11 +49,15 @@ create or replace package ut_coverage authid current_user is
 
   -- total run coverage information
   type t_coverage is record(
-    covered_lines   binary_integer := 0,
-    uncovered_lines binary_integer := 0,
-    total_lines     binary_integer := 0,
-    executions      number(38,0)   := 0,
-    objects         tt_program_units
+    covered_lines     binary_integer := 0,
+    uncovered_lines   binary_integer := 0,
+    partcovered_lines binary_integer := 0,
+    total_lines       binary_integer default null,
+    total_blocks      binary_integer default null,
+    covered_blocks    binary_integer default null,
+    uncovered_blocks  binary_integer default null,
+    executions        number(38,0)   := 0,
+    objects           tt_program_units
   );
 
   procedure coverage_start;
