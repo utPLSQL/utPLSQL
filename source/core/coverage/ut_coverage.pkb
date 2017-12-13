@@ -1,6 +1,6 @@
 create or replace package body ut_coverage is
   /*
-  utPLSQL - Version 3
+  utPLSQL - Version X.X.X.X
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -94,7 +94,9 @@ create or replace package body ut_coverage is
        where line > 0]';
     return l_result;
   end;
-
+  
+  --' /*Not mess formatter*/
+  
   function get_cov_sources_cursor(a_coverage_options ut_coverage_options) return sys_refcursor is
     l_cursor        sys_refcursor;
     l_skip_objects  ut_object_names;
@@ -238,7 +240,7 @@ create or replace package body ut_coverage is
               l_result.uncovered_lines := l_result.uncovered_lines + 1;
               l_result.objects(l_source_object.full_name).uncovered_lines := l_result.objects(l_source_object.full_name).uncovered_lines + 1;
             end if;
-            l_result.objects(l_source_object.full_name).lines(line_no) := l_line_calls(line_no);
+            l_result.objects(l_source_object.full_name).lines(line_no).execution := l_line_calls(line_no);
 
             line_no := l_line_calls.next(line_no);
           end loop;
