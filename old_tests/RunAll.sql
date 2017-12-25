@@ -192,7 +192,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.TestWithHashSign.sql
 
 
-@@lib/RunTest.sql ut_test/ut_test.DisabledFlagSkipTest.sql
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameNull.sql
 @@lib/RunTest.sql ut_test/ut_test.PackageInInvalidState.sql
@@ -222,15 +221,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_test/ut_test.ReportWarningOnRollbackFailed.sql
 @@lib/RunTest.sql ut_test/ut_test.ApplicationInfoOnExecution.sql
 
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsATestWhenAfterTestFails.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsATestWhenBeforeTestFails.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenBeforeAllFails.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenBeforeEachFails.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenPackageHasInvalidBody.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenPackageHasNoBody.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.DisabledFlagSkipSuite.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ReportsWarningsATestWhenAfterAllFails.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ReportsWarningsATestWhenAfterEachFails.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Auto.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.AutoOnFailure.sql
 @@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Manual.sql

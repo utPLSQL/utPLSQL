@@ -1,8 +1,46 @@
 create or replace package body test_ut_suite is
 
-  procedure drop_test_package is
+  procedure create_test_packages is
+  begin
+    test_ut_test.execute_autonomous(
+      q'[create or replace package failing_no_body as
+          --%suite
+          gv_glob_val number := 0;
+          --%beforeall
+          procedure before_all;
+          --%test
+          procedure test1;
+          --%test
+          procedure test2;
+        end;]');
+    test_ut_test.execute_autonomous(
+      q'[create or replace package failing_bad_body as
+          --%suite
+          gv_glob_val number := 0;
+          --%beforeall
+          procedure before_all;
+          --%test
+          procedure test1;
+          --%test
+          procedure test2;
+        end;]');
+    begin
+      test_ut_test.execute_autonomous(
+        q'[create or replace package body failing_bad_body as
+           begin
+             null;
+           end;]');
+    exception
+      when others then
+        null;
+    end;
+  end;
+
+  procedure drop_test_packages is
   begin
     test_ut_test.execute_autonomous('drop package ut_test_pkg');
+    test_ut_test.execute_autonomous('drop package failing_no_body');
+    test_ut_test.execute_autonomous('drop package failing_bad_body');
   end;
 
   procedure disabled_suite is
@@ -11,16 +49,16 @@ create or replace package body test_ut_suite is
     --Arrange
     test_ut_test.execute_autonomous(
       q'[create or replace package ut_test_pkg as
-        --%suite
-        --%disabled
-        gv_glob_val number := 0;
-        --%beforeall
-        procedure before_all;
-        --%test
-        procedure test1;
-        --%test
-        procedure test2;
-      end;]');
+          --%suite
+          --%disabled
+          gv_glob_val number := 0;
+          --%beforeall
+          procedure before_all;
+          --%test
+          procedure test1;
+          --%test
+          procedure test2;
+        end;]');
     --Act
     l_results := test_ut_test.run_test('ut_test_pkg');
     --Assert
@@ -90,5 +128,24 @@ create or replace package body test_ut_suite is
     ut.expect(l_results).to_be_like('%2 tests, 0 failed, 0 errored, 0 disabled, 1 warning(s)%');
     ut.expect(test_ut_test.get_value('ut_test_pkg.gv_glob_val')).to_equal(2);
   end;
+
+  procedure package_without_body is
+    l_results  clob;
+  begin
+    --Act
+    l_results := test_ut_test.run_test('failing_no_body');
+    --Assert
+    ut.expect(l_results).to_be_like('%2 tests, 0 failed, 2 errored%');
+  end;
+
+  procedure package_with_invalid_body is
+    l_results  clob;
+  begin
+    --Act
+    l_results := test_ut_test.run_test('failing_bad_body');
+    --Assert
+    ut.expect(l_results).to_be_like('%2 tests, 0 failed, 2 errored%');
+  end;
+
 end;
 /
