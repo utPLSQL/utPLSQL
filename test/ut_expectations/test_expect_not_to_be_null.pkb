@@ -1,4 +1,4 @@
-create or replace package body test_expec_not_to_be_null
+create or replace package body test_expect_not_to_be_null
 is
 
     procedure execute_expectation(a_data_type in varchar2,
@@ -24,7 +24,7 @@ is
         execute_expectation(a_data_type, a_data_value);
 
         --assert - check that expectation was executed successfully
-        ut3_latest_release.ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+        ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
 
         -- cleanup
         ut3.ut_expectation_processor.clear_expectations();
@@ -37,7 +37,7 @@ is
         execute_expectation(a_data_type, a_data_value);
 
         --assert - check that expectation was a failure
-        ut3_latest_release.ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+        ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
 
         -- cleanup
         ut3.ut_expectation_processor.clear_expectations();
@@ -172,4 +172,4 @@ is
         test_failure_expectacion('varchar2(4000)', 'null');
     end;
 
-end test_expec_not_to_be_null;
+end test_expect_not_to_be_null;
