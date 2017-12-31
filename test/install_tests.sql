@@ -3,7 +3,7 @@ whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
 --Install helpers
-@helpers/ut$test_table.sql
+@helpers/ut_test_table.sql
 @helpers/ut_example_tests.pks
 @helpers/ut_example_tests.pkb
 @helpers/ut_without_body.pks
