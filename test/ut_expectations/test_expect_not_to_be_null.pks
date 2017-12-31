@@ -63,3 +63,4 @@ is
     --%test(Gives failure with null varchar2)
     procedure null_varchar2;
 end test_expect_not_to_be_null;
+/
