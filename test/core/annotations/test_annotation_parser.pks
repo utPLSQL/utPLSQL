@@ -1,7 +1,7 @@
 create or replace package test_annotation_parser is
 
   --%suite(ut_annotation_parser)
-  --%suitepath(utplsql.core)
+  --%suitepath(utplsql.core.annotations)
 
   --%test(Treats procedure level annotations as package level, if mixed with comments)
   procedure test_proc_comments;

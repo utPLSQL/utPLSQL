@@ -3,10 +3,8 @@ create or replace package test_ut_suite is
   --%suite(ut_suite)
   --%suitepath(utplsql.core)
 
-  --%beforeall
-  procedure create_test_packages;
-  --%afterall
-  procedure drop_test_packages;
+  --%beforeeach
+  procedure cleanup_package_state;
 
   --%test(Disabled flag skips tests execution in suite)
   procedure disabled_suite;
@@ -22,6 +20,18 @@ create or replace package test_ut_suite is
 
   --%test(Fails all tests in package when package body is invalid)
   procedure package_with_invalid_body;
+
+  --%test(Performs automatic rollback after a suite)
+  procedure rollback_auto;
+
+  --%test(Performs automatic rollback after a suite even if test fails)
+  procedure rollback_auto_on_failure;
+
+  --%test(rollback(manual) - disables automatic rollback after a suite)
+  procedure rollback_manual;
+
+  --%test(rollback(manual) - disables automatic rollback after a suite even if test fails)
+  procedure rollback_manual_on_failure;
 
 end;
 /

@@ -1,7 +1,7 @@
 create or replace package test_annotation_manager is
 
   --%suite(ut_annotation_manager)
-  --%suitepath(utplsql.core.annoations)
+  --%suitepath(utplsql.core.annotations)
 
   --%aftereach
   procedure cleanup_annotation_cache;

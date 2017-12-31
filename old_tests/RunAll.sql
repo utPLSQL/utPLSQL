@@ -20,7 +20,6 @@ spool RunAll.log
 @@helpers/ut_example_tests.pkb
 --@@helpers/cre_tab_ut_test_table.sql
 create table ut$test_table (val varchar2(1));
-@@helpers/ut_transaction_control.pck
 @@helpers/department.tps
 @@helpers/department1.tps
 @@helpers/test_package_3.pck
@@ -199,10 +198,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_test/ut_test.PackageNameNull.sql
 @@lib/RunTest.sql ut_test/ut_test.ProcedureNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.ProcedureNameNull.sql
-@@lib/RunTest.sql ut_test/ut_test.Rollback_type.Auto.sql
-@@lib/RunTest.sql ut_test/ut_test.Rollback_type.AutoOnFailure.sql
-@@lib/RunTest.sql ut_test/ut_test.Rollback_type.Manual.sql
-@@lib/RunTest.sql ut_test/ut_test.Rollback_type.ManualOnFailure.sql
 @@lib/RunTest.sql ut_test/ut_test.SetupExecutedBeforeTest.sql
 @@lib/RunTest.sql ut_test/ut_test.SetupProcedureNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.SetupProcedureNameNull.sql
@@ -220,11 +215,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_test/ut_test.TestOutputGatheringWhenEmpty.sql
 @@lib/RunTest.sql ut_test/ut_test.ReportWarningOnRollbackFailed.sql
 @@lib/RunTest.sql ut_test/ut_test.ApplicationInfoOnExecution.sql
-
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Auto.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.AutoOnFailure.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Manual.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.ManualOnFailure.sql
 
 @@ut_utils/ut_utils.clob_to_table.sql
 @@ut_utils/ut_utils.table_to_clob.sql
@@ -259,7 +249,6 @@ spool off
 --Global cleanup
 --removing objects that should not be part of coverage report
 drop package ut_example_tests;
-drop package ut_transaction_control;
 drop table ut$test_table;
 drop type department$;
 drop type department1$;

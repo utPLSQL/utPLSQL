@@ -3,14 +3,8 @@ create or replace package test_ut_test is
   --%suite(ut_test)
   --%suitepath(utplsql.core)
 
-  procedure execute_autonomous(a_sql varchar2);
-
-  function run_test(a_path varchar2) return clob;
-
-  function get_value(a_variable varchar2) return integer;
-
-  --%afterall
-  procedure drop_test_package;
+  --%beforeeach
+  procedure cleanup_package_state;
 
   --%test(Disabled flag for a test skips the tests execution in suite)
   procedure disabled_test;
