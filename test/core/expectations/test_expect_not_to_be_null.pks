@@ -3,37 +3,37 @@ is
     --%suite(expectations - not_to_be_null)
     --%suitepath(utplsql.core.expectations.not_to_be_null)
 
-    --%test(Gives succes for not null blob)
+    --%test(Gives success for not null blob)
     procedure blob_not_null;
 
-    --%test(Gives succes for blob with length 0)
+    --%test(Gives success for blob with length 0)
     procedure blob_0_lengt;
 
-    --%test(Gives succes for not null boolean)
+    --%test(Gives success for not null boolean)
     procedure boolean_not_null;
 
-    --%test(Gives succes for not null clob)
+    --%test(Gives success for not null clob)
     procedure clob_not_null;
 
-    --%test(Gives succes for clob with length 0)
+    --%test(Gives success for clob with length 0)
     procedure clob_0_lengt;
 
-    --%test(Gives succes for not null date)
+    --%test(Gives success for not null date)
     procedure date_not_null;
 
-    --%test(Gives succes for not null number)
+    --%test(Gives success for not null number)
     procedure number_not_null;
 
-    --%test(Gives succes for not null timestamp)
+    --%test(Gives success for not null timestamp)
     procedure timestamp_not_null;
 
-    --%test(Gives succes for not null timestamp with local time zone)
+    --%test(Gives success for not null timestamp with local time zone)
     procedure timestamp_with_ltz_not_null;
 
-    --%test(Gives succes for not null timestamp with time zone)
+    --%test(Gives success for not null timestamp with time zone)
     procedure timestamp_with_tz_not_null;
 
-    --%test(Gives succes for not null varchar2)
+    --%test(Gives success for not null varchar2)
     procedure varchar2_not_null;
 
     --%test(Gives failure with null blob)
