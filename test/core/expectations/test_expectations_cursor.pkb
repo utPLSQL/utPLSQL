@@ -17,21 +17,6 @@ create or replace package body test_expectations_cursor is
     execute immediate 'drop table gtt_test_table';
   end;
 
-  /** Just returns a pre-made expected object
-  */
-  function get_expected_obj return t_test_table
-  as
-    l_expected_obj t_test_table;
-  begin
-    
-    l_expected_obj(1).my_num := 1;
-    l_expected_obj(1).my_string := 'This is my test string';
-    l_expected_obj(1).my_clob := 'This is an even longer test clob';
-    l_expected_obj(1).my_date := to_date('1984-09-05', 'YYYY-MM-DD');
-
-    return l_expected_obj;
-  end;
-
   procedure test_cursor_w_temp_table
   as
     pragma autonomous_transaction;
@@ -60,18 +45,24 @@ create or replace package body test_expectations_cursor is
 
   procedure test_cursor_success
   as
-    l_expected_obj t_test_table;
-    l_actual_obj t_test_table;
     l_expected sys_refcursor;
     l_actual sys_refcursor;
   begin
     
     -- Arrange
-    l_expected_obj := get_expected_obj();
-    l_actual_obj := get_expected_obj();
+    open l_expected for
+    select 1 as my_num,
+           'This is my test string' as my_string,
+           to_clob('This is an even longer test clob') as my_clob,
+           to_date('1984-09-05', 'YYYY-MM-DD') as my_date
+    from dual;
 
-    open l_expected for select * from table(l_expected_obj);
-    open l_actual for select * from table(l_actual_obj);
+    open l_actual for
+    select 1 as my_num,
+           'This is my test string' as my_string,
+           to_clob('This is an even longer test clob') as my_clob,
+           to_date('1984-09-05', 'YYYY-MM-DD') as my_date
+    from dual;
 
     --Act - execute the expectation on cursor opened on GTT
     ut3.ut.expect( l_actual ).to_equal( l_expected );
@@ -84,18 +75,15 @@ create or replace package body test_expectations_cursor is
 
   end;
 
-  --%test(Test cursor comparison success when both empty)
   procedure test_cursor_success_on_empty
   as
-    l_expected_obj t_test_table;
-    l_actual_obj t_test_table;
     l_expected sys_refcursor;
     l_actual sys_refcursor;
   begin
     
     -- Arrange
-    open l_expected for select * from table(l_expected_obj);
-    open l_actual for select * from table(l_actual_obj);
+    open l_expected for select * from dual where 1=0;
+    open l_actual for select * from dual where 1=0;
 
     --Act - execute the expectation on cursor opened on GTT
     ut3.ut.expect( l_actual ).to_equal( l_expected );
@@ -111,20 +99,14 @@ create or replace package body test_expectations_cursor is
   --%test(Test cursor comparison fails on different content)
   procedure test_cursor_fail_on_difference
   as
-    l_expected_obj t_test_table;
-    l_actual_obj t_test_table;
     l_expected sys_refcursor;
     l_actual sys_refcursor;
   begin
     
     -- Arrange
-    l_expected_obj := get_expected_obj();
-    l_actual_obj := get_expected_obj();
-    l_actual_obj(1).my_clob := 'Another totally different story';
+    open l_expected for select to_clob('This is an even longer test clob') as my_clob from dual;
+    open l_actual for select to_clob('Another totally different story') as my_clob from dual;
 
-    open l_expected for select * from table(l_expected_obj);
-    open l_actual for select * from table(l_actual_obj);
-      
     --Act - execute the expectation on cursor opened on GTT
     ut3.ut.expect( l_actual ).to_equal( l_expected );
 
@@ -136,22 +118,16 @@ create or replace package body test_expectations_cursor is
 
   end;
 
-  procedure test_cursor_fail_on_expected_missing
+  procedure fail_on_expected_missing
   as
-    l_expected_obj t_test_table;
-    l_actual_obj t_test_table;
     l_expected sys_refcursor;
     l_actual sys_refcursor;
   begin
     
     -- Arrange
-    l_expected_obj := get_expected_obj();
-    l_actual_obj := get_expected_obj();
-    l_actual_obj(2).my_num := 2;
+    open l_expected for select 1 as my_num from dual;
+    open l_actual   for select 1 as my_num from dual union all select 1 as my_num from dual;
 
-    open l_expected for select * from table(l_expected_obj);
-    open l_actual for select * from table(l_actual_obj);
-      
     --Act - execute the expectation on cursor opened on GTT
     ut3.ut.expect( l_actual ).to_equal( l_expected );
 
@@ -163,22 +139,16 @@ create or replace package body test_expectations_cursor is
 
   end;
 
-  procedure test_cursor_fail_on_actual_missing
+  procedure fail_on_actual_missing
   as
-    l_expected_obj t_test_table;
-    l_actual_obj t_test_table;
     l_expected sys_refcursor;
     l_actual sys_refcursor;
   begin
     
     -- Arrange
-    l_expected_obj := get_expected_obj();
-    l_expected_obj(2).my_num := 2;
-    l_actual_obj := get_expected_obj();
+    open l_expected for select 1 as my_num from dual union all select 1 as my_num from dual;
+    open l_actual   for select 1 as my_num from dual;
 
-    open l_expected for select * from table(l_expected_obj);
-    open l_actual for select * from table(l_actual_obj);
-      
     --Act - execute the expectation on cursor opened on GTT
     ut3.ut.expect( l_actual ).to_equal( l_expected );
 

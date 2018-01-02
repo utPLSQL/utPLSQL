@@ -103,6 +103,7 @@ create or replace type body ut_data_value_refcursor as
     type t_clob_tab is table of clob;
     l_results       t_clob_tab;
     c_max_rows      constant integer := 50;
+    c_pad_depth     constant integer := 5;
     l_result        clob;
     l_result_xml    xmltype;
     l_result_string varchar2(32767);
@@ -113,16 +114,15 @@ create or replace type body ut_data_value_refcursor as
     -- First tell how many rows are different
     execute immediate 'select count(*) from ' || l_ut_owner || '.ut_cursor_data_diff' into l_diff_row_count;
 
-    ut_utils.append_to_clob(l_result,'Rows: ' || to_char(self.ROW_COUNT) 
-      || ', different: ' || to_char(l_diff_row_count) || chr(10));
+    ut_utils.append_to_clob(l_result,'(rows: ' || to_char(self.row_count)|| ', mismatched: ' || to_char(l_diff_row_count) ||')'|| chr(10));
 
     --return rows which were previously marked as different
-    execute immediate 'select xmlserialize( content ucd.row_data no indent)
-                        from ' || l_ut_owner || '.ut_cursor_data ucd
+    execute immediate q'[select 'row_no: '||rpad( ucd.row_no, :c_pad_depth )||' '||xmlserialize( content ucd.row_data no indent)
+                        from ]' || l_ut_owner || '.ut_cursor_data ucd
                        where ucd.cursor_data_guid = :self_guid
                           and ucd.row_no in (select row_no from ' || l_ut_owner || '.ut_cursor_data_diff ucdc)
                           and rownum <= :max_rows'
-      bulk collect into l_results using in self.data_value, c_max_rows;
+      bulk collect into l_results using c_pad_depth, self.data_value, c_max_rows;
 
     for i in 1 .. l_results.count loop
       dbms_lob.append(l_result,l_results(i));
@@ -167,7 +167,7 @@ create or replace type body ut_data_value_refcursor as
       if ( sql%rowcount > 0 ) then
         l_result := 1;
       else
-        l_result := 1;
+        l_result := 0;
       end if;
     else
       raise value_error;

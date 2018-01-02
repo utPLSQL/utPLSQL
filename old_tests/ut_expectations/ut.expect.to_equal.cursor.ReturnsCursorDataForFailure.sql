@@ -1,4 +1,4 @@
-PROMPT Gives a success when comparing values of different cursors
+PROMPT Returns differing rows when compared cursor data is different
 --Arrange
 declare
   l_actual   sys_refcursor;
@@ -14,13 +14,11 @@ begin
 --Assert
   if nvl(:test_result, ut_utils.tr_success) = ut_utils.tr_success
      and l_result.message like q'[Actual:%
-    <ROW>%</ROW>
-    <ROW>%</ROW>
+    (rows: 2, mismatched: 1)
  (refcursor)%
 was expected to equal:%
-    <ROW>%</ROW>
-    <ROW>%</ROW>
-    <ROW>%</ROW>
+    (rows: 3, mismatched: 1)
+    row_no: 3     <ROW>%</ROW>
  (refcursor)%]' then
     :test_result := ut_utils.tr_success;
   else
