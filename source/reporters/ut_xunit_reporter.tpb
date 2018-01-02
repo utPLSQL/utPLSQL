@@ -37,7 +37,7 @@ create or replace type body ut_xunit_reporter is
       l_output clob;
     begin
       self.print_text('<testcase classname="' || dbms_xmlgen.convert(get_path(a_test.path, a_test.name)) || '" ' || ' assertions="' ||
-                      nvl(a_test.expectations_count,0) || '"' || self.get_common_item_attributes(a_test) || case when
+                      nvl(a_test.all_expectations.count,0) || '"' || self.get_common_item_attributes(a_test) || case when
                       a_test.result != ut_utils.tr_success then
                       ' status="' || ut_utils.test_result_to_char(a_test.result) || '"' end || '>');
       if a_test.result = ut_utils.tr_disabled then

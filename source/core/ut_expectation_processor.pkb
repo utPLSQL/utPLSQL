@@ -52,10 +52,11 @@ create or replace package body ut_expectation_processor as
     g_expectations_called.delete;
   end;
 
-  function get_expectations_count return integer is
+  function get_all_expectations return ut_expectation_results is
   begin
-    return g_expectations_called.count;
-  end;
+    ut_utils.debug_log('ut_expectation_processor.get_all_expectations: g_expectations_called.count='||g_expectations_called.count);
+    return g_expectations_called;
+  end get_all_expectations;
 
   function get_failed_expectations return ut_expectation_results is
     l_expectations_results ut_expectation_results := ut_expectation_results();
@@ -68,7 +69,6 @@ create or replace package body ut_expectation_processor as
       end if;
     end loop;
     ut_utils.debug_log('ut_expectation_processor.get_failed_expectations: l_expectations_results.count='||g_expectations_called.count);
-    clear_expectations();
     return l_expectations_results;
   end get_failed_expectations;
 
