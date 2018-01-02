@@ -53,6 +53,17 @@ create or replace type body ut_test as
     return l_is_valid;
   end;
 
+  overriding member procedure mark_as_skipped(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base) is
+  begin
+    a_listener.fire_before_event(ut_utils.gc_test,self);
+    self.start_time := current_timestamp;
+    self.result := ut_utils.tr_disabled;
+    ut_utils.debug_log('ut_test.execute - disabled');
+    self.results_count.set_counter_values(self.result);
+    self.end_time := self.start_time;
+    a_listener.fire_after_event(ut_utils.gc_test,self);
+  end;
+
   overriding member function do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_completed_without_errors boolean;
     l_savepoint                varchar2(30);
@@ -60,15 +71,11 @@ create or replace type body ut_test as
 
     ut_utils.debug_log('ut_test.execute');
 
-    a_listener.fire_before_event(ut_utils.gc_test,self);
-    self.start_time := current_timestamp;
-
     if self.get_disabled_flag() then
-      self.result := ut_utils.tr_disabled;
-      ut_utils.debug_log('ut_test.execute - disabled');
-      self.results_count.set_counter_values(self.result);
-      self.end_time := self.start_time;
+      mark_as_skipped(a_listener);
     else
+      a_listener.fire_before_event(ut_utils.gc_test,self);
+      self.start_time := current_timestamp;
       if self.is_valid() then
 
         l_savepoint := self.create_savepoint_if_needed();
@@ -94,8 +101,8 @@ create or replace type body ut_test as
 
       self.calc_execution_result();
       self.end_time := current_timestamp;
+      a_listener.fire_after_event(ut_utils.gc_test,self);
     end if;
-    a_listener.fire_after_event(ut_utils.gc_test,self);
     return l_completed_without_errors;
   end;
 

@@ -76,6 +76,8 @@ drop package ut_runner;
 
 drop package ut_suite_manager;
 
+drop package ut_suite_builder;
+
 drop package ut;
 
 drop table ut_dbms_output_cache;
