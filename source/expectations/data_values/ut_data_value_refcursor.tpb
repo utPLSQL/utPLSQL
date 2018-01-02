@@ -150,7 +150,6 @@ create or replace type body ut_data_value_refcursor as
     l_xpath := coalesce(self.exclude_xpath, l_other.exclude_xpath);
     if a_other is of (ut_data_value_refcursor) then
       l_other  := treat(a_other as ut_data_value_refcursor);
-
       -- Find differences
       execute immediate 'insert into ' || l_ut_owner || '.ut_cursor_data_diff ( row_no )
                           select nvl(exp.row_no, act.row_no)
@@ -164,10 +163,11 @@ create or replace type body ut_data_value_refcursor as
                            where nvl(dbms_lob.compare(xmlserialize( content exp.row_data no indent), xmlserialize( content act.row_data no indent)),1) != 0' 
         using in l_xpath, l_xpath, self.DATA_VALUE, l_xpath, l_xpath, l_other.DATA_VALUE;
       
-      if ( sql%rowcount > 0 ) then
-        l_result := 1;
-      else
+      --result is OK only if both are same
+      if sql%rowcount = 0 and self.row_count = l_other.row_count then
         l_result := 0;
+      else
+        l_result := 1;
       end if;
     else
       raise value_error;
