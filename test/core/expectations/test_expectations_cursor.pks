@@ -35,5 +35,32 @@ create or replace package test_expectations_cursor is
   --%test(Returns failure when more rows exist in expected)
   procedure fail_on_actual_missing;
 
+  --%test(Returns failure when different column name is used in cursors)
+  procedure fail_on_different_column_name;
+
+  --%test(Returns failure when different column ordering is used in cursors)
+  procedure fail_on_different_column_order;
+
+  --%test(Returns failure when different row ordering is used in cursors)
+  procedure fail_on_different_row_order;
+
+  --%test(Ignores time part of date when NLS is not set)
+  procedure ignore_time_part_of_date;
+
+  --%test(Compares time part of date when NLS is set)
+  procedure include_time_in_date_with_nls;
+
+  --%test(List of columns to exclude is case sensitive)
+  procedure exclude_Columns_as_list;
+
+  --%test(Columns to exclude are case sensitive)
+  procedure excludes_columns_as_csv;
+
+  --%test(Exclude columns fails on invalid XPath)
+  procedure exclude_columns_xpath_invalid;
+
+  --%test(Exclude columns by XPath is case sensitive)
+  procedure exclude_columns_xpath;
+
 end;
 /
