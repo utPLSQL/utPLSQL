@@ -40,14 +40,20 @@ create or replace type ut_test under ut_suite_item (
   */
   after_each ut_executable,
   /**
-  * The list of failed expectation results as well as database errors encountered while invoking
-  * The test procedure and the before_test/after_test blocks
+  * The list of all expectations results as well as database errors encountered while invoking
+  * the test procedure and the before_test/after_test blocks
+  */
+  all_expectations    ut_expectation_results,
+
+  /**
+  * The list of failed expectations results as well as database errors encountered while invoking
+  * the test procedure and the before_test/after_test blocks
   */
   failed_expectations ut_expectation_results,
   /**
-  * The count of all expectations executed in the test
+  * Holds information about error stacktrace from parent execution (suite)
+  * Will get populated on exceptions in before-all calls
   */
-  expectations_count integer,
   parent_error_stack_trace varchar2(4000),
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_description varchar2 := null,
