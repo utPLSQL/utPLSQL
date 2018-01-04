@@ -28,7 +28,7 @@ create or replace package ut_expectation_processor authid current_user as
 
   procedure clear_expectations;
 
-  function get_expectations_count return integer;
+  function get_all_expectations return ut_expectation_results;
 
   function get_failed_expectations return ut_expectation_results;
 

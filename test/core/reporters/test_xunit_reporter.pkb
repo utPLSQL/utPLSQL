@@ -8,12 +8,30 @@ create or replace package body test_xunit_reporter as
 
       --%test(A test with <tag>)
       procedure test_do_stuff;
+      
     end;]';
     execute immediate q'[create or replace package body check_xunit_reporting is
       procedure test_do_stuff is
       begin
         ut3.ut.expect(1).to_equal(1);
         ut3.ut.expect(1).to_equal(2);
+      end;
+
+    end;]';
+    
+    execute immediate q'[create or replace package check_xunit_rep_suitepath is
+      --%suitepath(core)
+      --%suite(check_xunit_rep_suitepath)
+      --%displayname(Check XUNIT Get path for suitepath)
+            
+      --%test(check_xunit_rep_suitepath)
+      --%displayname(Check XUNIT Get path for suitepath)
+      procedure check_xunit_rep_suitepath;
+    end;]';
+    execute immediate q'[create or replace package body check_xunit_rep_suitepath is
+      procedure check_xunit_rep_suitepath is
+      begin
+        ut3.ut.expect(1).to_equal(1);
       end;
     end;]';
   end;
@@ -59,10 +77,36 @@ create or replace package body test_xunit_reporter as
     ut.expect(l_actual).to_be_like('%at "%.CHECK_XUNIT_REPORTING%", line %');
   end;
 
+  procedure check_classname_suite is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;    
+  begin
+    --Act
+    select *
+      bulk collect into l_results
+      from table(ut3.ut.run('check_xunit_reporting',ut3.ut_xunit_reporter()));
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    --Assert
+    ut.expect(l_actual).to_be_like('%testcase classname="check_xunit_reporting"%');   
+  end;
+
+  procedure check_classname_suitepath is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;    
+  begin
+    --Act
+    select *
+      bulk collect into l_results
+      from table(ut3.ut.run('check_xunit_rep_suitepath',ut3.ut_xunit_reporter()));
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    --Assert
+    ut.expect(l_actual).to_be_like('%testcase classname="core.check_xunit_rep_suitepath"%');   
+  end;
   procedure remove_test_package is
     pragma autonomous_transaction;
   begin
     execute immediate 'drop package check_xunit_reporting';
+    execute immediate 'drop package check_xunit_rep_suitepath';
   end;
 end;
 /
