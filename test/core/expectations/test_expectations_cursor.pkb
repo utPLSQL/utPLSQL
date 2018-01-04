@@ -90,7 +90,7 @@ create or replace package body test_expectations_cursor is
     ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
   end;
 
-  procedure success_on_null
+  procedure success_on_both_null
   as
     l_expected sys_refcursor;
     l_actual   sys_refcursor;
@@ -101,6 +101,100 @@ create or replace package body test_expectations_cursor is
     ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
   end;
 
+  procedure success_is_null
+  as
+    l_actual   sys_refcursor;
+  begin
+    --Act
+    ut3.ut.expect( l_actual ).to_be_null();
+    ut3.ut.expect( l_actual ).not_to_be_not_null();
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
+  procedure success_is_not_null
+  as
+    l_actual   sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select * from dual;
+    --Act
+    ut3.ut.expect( l_actual ).not_to_be_null();
+    ut3.ut.expect( l_actual ).to_be_not_null();
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
+  procedure success_is_empty
+  as
+    l_actual   sys_refcursor;
+  begin
+  --Arrange
+    open l_actual for select * from dual where 0=1;
+    --Act
+    ut3.ut.expect( l_actual ).to_be_empty();
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
+  procedure success_is_not_empty
+  as
+    l_actual   sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select * from dual;
+    --Act
+    ut3.ut.expect( l_actual ).not_to_be_empty();
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
+  procedure failure_is_null
+  as
+    l_actual   sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select * from dual;
+    --Act
+    ut3.ut.expect( l_actual ).to_be_null();
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+  end;
+
+  procedure failure_is_not_null
+  as
+    l_actual   sys_refcursor;
+  begin
+    --Act
+    ut3.ut.expect( l_actual ).not_to_be_null();
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+  end;
+
+  procedure failure_is_empty
+  as
+    l_actual   sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select * from dual;
+    --Act
+    ut3.ut.expect( l_actual ).to_be_empty();
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+  end;
+
+  procedure failure_is_not_empty
+  as
+    l_actual   sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select * from dual where 0=1;
+    --Act
+    ut3.ut.expect( l_actual ).not_to_be_empty();
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+  end;
+
   procedure fail_null_vs_empty
   as
     l_expected sys_refcursor;
@@ -109,9 +203,9 @@ create or replace package body test_expectations_cursor is
     --Arrange
     open l_expected for select * from dual where 1=0;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3.ut.expect( l_actual ).not_to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
   end;
 
   procedure fail_on_difference
@@ -199,23 +293,6 @@ procedure fail_on_different_column_order
     ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
   end;
 
-  procedure ignore_time_part_of_date
-  as
-    l_expected sys_refcursor;
-    l_actual   sys_refcursor;
-    l_date     date   := sysdate;
-    l_second   number := 1/24/60/60;
-  begin
-    --Arrange
-    ut.reset_nls;
-    open l_actual for select l_date as some_date from dual;
-    open l_expected for select l_date-l_second some_date from dual;
-    --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
-    --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
-  end;
-
   procedure include_time_in_date_with_nls
   as
     l_expected sys_refcursor;
@@ -232,6 +309,20 @@ procedure fail_on_different_column_order
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+  end;
+
+  procedure uses_default_nls_for_date
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select sysdate as some_date from dual;
+    open l_expected for select to_char(sysdate) some_date from dual;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
   end;
 
   procedure exclude_columns_as_list
@@ -440,6 +531,21 @@ was expected to equal:%
       when others then
       ut.expect(sqlcode).to_equal(l_error_code);
     end;
+  end;
+
+  procedure compares_over_1000_rows
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select object_name from all_objects where rownum <=1100;
+    open l_expected for select object_name from all_objects where rownum <=1100;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
   end;
 
 end;
