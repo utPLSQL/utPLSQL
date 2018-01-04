@@ -62,5 +62,30 @@ create or replace package test_expectations_cursor is
   --%test(Exclude columns by XPath is case sensitive)
   procedure exclude_columns_xpath;
 
+  --%test(Reports data-diff on expectation failure)
+  procedure data_diff_on_failure;
+
+
+  procedure prepare_table;
+  procedure cleanup_table;
+
+  --%test(Compares cursor on table to cursor on plsql data)
+  --%beforetest(prepare_table)
+  --%aftertest(cleanup_table)
+  procedure compares_sql_and_plsql_types;
+
+    --%test(Closes the cursor after use)
+  procedure closes_cursor_after_use;
+
+  --%test(Closes the cursor after use when exception was raised)
+  procedure closes_cursor_after_use_on_err;
+
+  --%test(Reports exception when cursor raises exception)
+  procedure reports_on_exception_in_cursor;
+
+  --%test(Reports exception when cursor is closed)
+  --%disabled
+  procedure reports_on_closed_cursor;
+
 end;
 /
