@@ -29,7 +29,7 @@ create or replace type body ut_xunit_reporter is
 
     function get_path(a_path_with_name varchar2, a_name varchar2) return varchar2 is
     begin
-      return substr(a_path_with_name, 1, instr(a_path_with_name, '.' || a_name) - 1);
+      return regexp_substr(a_path_with_name, '(.*)\.' ||a_name||'$',subexpression=>1);
     end;
 
     procedure print_test_elements(a_test ut_test) is

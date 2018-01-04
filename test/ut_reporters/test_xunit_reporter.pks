@@ -15,6 +15,12 @@ create or replace package test_xunit_reporter as
   --%test(Reports failed line of test)
   procedure reports_failed_line;
 
+  --%test(Check that classname is returned correct suite)
+  procedure check_classname_suite;
+
+  --%test(Check that classname is returned correct suitepath)
+  procedure check_classname_suitepath;
+
   --%afterall
   procedure remove_test_package;
 end;
