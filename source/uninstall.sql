@@ -150,6 +150,8 @@ drop type ut_data_value force;
 
 drop table ut_cursor_data;
 
+drop table ut_cursor_data_diff;
+
 drop package ut_annotation_manager;
 
 drop package ut_annotation_parser;

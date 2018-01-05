@@ -49,7 +49,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenCollectionPassedIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenObjectPassedIsNull.sql
 @@ut_expectations/ut.expect.to_be_null.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.refcursor.GivesSuccessWhenCursorIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsFalse.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNull.sql
@@ -69,20 +68,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedCollectionAttributesXPath.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedObjectAttributes.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedObjectAttributesXPath.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ComparesDateAndTimeWhenSetNlsIsUsed.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnNameListIsCaseSensitive.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnNamesAreCaseSensitive.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnsXPathFailsOnInvalidXPath.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnsXPathIsCaseSensitive.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesFailureForDifferentValues.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValues.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValuesWithExcludedColumnList.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValuesWithExcludedColumns.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ReportsTheExceptionWhenAnExceptionInCursorIsCaught.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ReturnsCursorDataForFailure.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.SupportsSQLandPLSQLdatatypes.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.UsesDefaultNLSSettingsForDatesFormatting.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.worksOnLargeDatasets.sql
 @@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentDataTypes.sql
 @@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentValues.sql
 @@ut_expectations/ut.expect.to_equal.GivesFailureWhenActualIsNull.sql

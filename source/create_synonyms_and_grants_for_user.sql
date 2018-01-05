@@ -86,6 +86,7 @@ grant execute on &&ut3_owner..ut_file_mapper to &ut3_user;
 grant execute on &&ut3_owner..ut_key_value_pairs to &ut3_user;
 grant execute on &&ut3_owner..ut_key_value_pair to &ut3_user;
 grant select, insert, delete on &&ut3_owner..ut_cursor_data to &ut3_user;
+grant select, insert, delete on &&ut3_owner..ut_cursor_data_diff to &ut3_user;
 grant execute on &&ut3_owner..ut_sonar_test_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_annotations to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation to &ut3_user;
@@ -136,4 +137,5 @@ create or replace synonym &ut3_user..ut_file_mapper for &&ut3_owner..ut_file_map
 create or replace synonym &ut3_user..ut_key_value_pairs for &&ut3_owner..ut_key_value_pairs;
 create or replace synonym &ut3_user..ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
 create or replace synonym &ut3_user..ut_cursor_data for &&ut3_owner..ut_cursor_data;
+create or replace synonym &ut3_user..ut_cursor_data_diff for &&ut3_owner..ut_cursor_data_diff;
 create or replace synonym &ut3_user..ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
