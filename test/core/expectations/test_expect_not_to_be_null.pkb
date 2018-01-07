@@ -1,175 +1,152 @@
 create or replace package body test_expect_not_to_be_null
 is
-
-    procedure execute_expectation(a_data_type in varchar2,
-                                    a_data_value in varchar2)
-    is
-        l_execute varchar2(32000);
-    begin
-         -- arrange
-        l_execute := '  declare
-                            l_expected '||a_data_type||' := '||a_data_value||';
-                        begin
-                            --act - execute the expectation
-                            ut3.ut.expect(l_expected).not_to_be_null();
-                        end;';
-
-        execute immediate l_execute;
-    end;
-
-    procedure test_success_expectacion(a_data_type in varchar2,
-                                    a_data_value in varchar2)
-    is
-    begin
-        execute_expectation(a_data_type, a_data_value);
-
-        --assert - check that expectation was executed successfully
-        ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
-
-        -- cleanup
-        ut3.ut_expectation_processor.clear_expectations();
-    end;
-
-    procedure test_failure_expectacion(a_data_type in varchar2,
-                                    a_data_value in varchar2)
-    is
-    begin
-        execute_expectation(a_data_type, a_data_value);
-
-        --assert - check that expectation was a failure
-        ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
-
-        -- cleanup
-        ut3.ut_expectation_processor.clear_expectations();
-    end;
-
     procedure blob_not_null
     is
     begin
-        test_success_expectacion('blob', 'to_blob(''abc'')');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'blob', 'to_blob(''abc'')');
+        expectations_helpers.test_success_expectacion;
     end;
 
     procedure blob_0_lengt
     is
     begin
-        test_success_expectacion('blob', 'empty_blob()');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'blob', 'empty_blob()');
+        expectations_helpers.test_success_expectacion;
     end;
 
     procedure boolean_not_null
     is
     begin
-        test_success_expectacion('boolean', 'true');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'boolean', 'true');
+        expectations_helpers.test_success_expectacion;
     end;
 
     procedure clob_not_null
     is
     begin
-        test_success_expectacion('clob', 'to_clob(''abc'')');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'clob', 'to_clob(''abc'')');
+        expectations_helpers.test_success_expectacion;
     end;
 
 
     procedure clob_0_lengt
     is
     begin
-        test_success_expectacion('clob', 'empty_clob()');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'clob', 'empty_clob()');
+        expectations_helpers.test_success_expectacion;
     end;
 
     procedure date_not_null
     is
     begin
-        test_success_expectacion('date', 'sysdate');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'date', 'sysdate');
+        expectations_helpers.test_success_expectacion;
     end;
 
     procedure number_not_null
     is
     begin
-        test_success_expectacion('number', '1234');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'number', '1234');
+        expectations_helpers.test_success_expectacion;
     end;
 
     procedure timestamp_not_null
     is
     begin
-        test_success_expectacion('timestamp', 'systimestamp');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'timestamp', 'systimestamp');
+        expectations_helpers.test_success_expectacion;
     end;
 
     procedure timestamp_with_ltz_not_null
     is
     begin
-        test_success_expectacion('timestamp with local time zone', 'systimestamp');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'timestamp with local time zone', 'systimestamp');
+        expectations_helpers.test_success_expectacion;
     end;
 
     procedure timestamp_with_tz_not_null
     is
     begin
-        test_success_expectacion('timestamp with time zone', 'systimestamp');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'timestamp with time zone', 'systimestamp');
+        expectations_helpers.test_success_expectacion;
     end;
 
     procedure varchar2_not_null
     is
     begin
-        test_success_expectacion('varchar2(4000)', '''abc''');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'varchar2(4000)', '''abc''');
+        expectations_helpers.test_success_expectacion;
     end;
 
     procedure null_blob
     is
     begin
-        test_failure_expectacion('blob', 'null');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'blob', 'null');
+        expectations_helpers.test_failure_expectacion;
     end;
 
 
     procedure null_boolean
     is
     begin
-        test_failure_expectacion('boolean', 'null');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'boolean', 'null');
+        expectations_helpers.test_failure_expectacion;
     end;
 
 
     procedure null_clob
     is
     begin
-        test_failure_expectacion('clob', 'null');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'clob', 'null');
+        expectations_helpers.test_failure_expectacion;
     end;
 
 
     procedure null_date
     is
     begin
-        test_failure_expectacion('date', 'null');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'date', 'null');
+        expectations_helpers.test_failure_expectacion;
     end;
 
 
     procedure null_number
     is
     begin
-        test_failure_expectacion('number', 'null');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'number', 'null');
+        expectations_helpers.test_failure_expectacion;
     end;
 
 
     procedure null_timestamp
     is
     begin
-        test_failure_expectacion('timestamp', 'null');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'timestamp', 'null');
+        expectations_helpers.test_failure_expectacion;
     end;
 
 
     procedure null_timestamp_with_ltz
     is
     begin
-        test_failure_expectacion('timestamp with local time zone', 'null');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'timestamp with local time zone', 'null');
+        expectations_helpers.test_failure_expectacion;
     end;
 
 
     procedure null_timestamp_with_tz
     is
     begin
-        test_failure_expectacion('timestamp with time zone', 'null');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'timestamp with time zone', 'null');
+        expectations_helpers.test_failure_expectacion;
     end;
 
 
     procedure null_varchar2
     is
     begin
-        test_failure_expectacion('varchar2(4000)', 'null');
+        expectations_helpers.execute_unary_expectation('not_to_be_null', 'varchar2(4000)', 'null');
+        expectations_helpers.test_failure_expectacion;
     end;
 
 end test_expect_not_to_be_null;
