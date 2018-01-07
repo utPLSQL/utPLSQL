@@ -3,6 +3,9 @@ is
     --%suite(expectations - not_to_be_null)
     --%suitepath(utplsql.core.expectations.unary)
 
+    --%aftereach
+    procedure cleanup_expectations;
+
     --%test(Gives success for not null blob)
     procedure blob_not_null;
 
