@@ -1,7 +1,10 @@
 create or replace package test_expect_not_to_be_null
 is
     --%suite(expectations - not_to_be_null)
-    --%suitepath(utplsql.core.expectations.not_to_be_null)
+    --%suitepath(utplsql.core.expectations.unary)
+
+    --%aftereach
+    procedure cleanup_expectations;
 
     --%test(Gives success for not null blob)
     procedure blob_not_null;

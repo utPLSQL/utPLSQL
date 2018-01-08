@@ -9,6 +9,8 @@ whenever oserror exit failure rollback
 @@helpers/ut_without_body.pks
 @@helpers/ut_with_invalid_body.pks
 @@helpers/ut_with_invalid_body.pkb
+@@helpers/expectations_helpers.pks
+@@helpers/expectations_helpers.pkb
 
 --Install tests
 @@core.pks
