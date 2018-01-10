@@ -6,6 +6,12 @@ is
     --%aftereach
     procedure cleanup_expectations;
 
+    --%beforeall
+    procedure create_types;
+
+    --%afterall
+    procedure drop_types;
+
     --%test(Gives success for not null blob)
     procedure blob_not_null;
 
@@ -39,6 +45,15 @@ is
     --%test(Gives success for not null varchar2)
     procedure varchar2_not_null;
 
+    --%test(Gives success for initialized object within anydata)
+    procedure initialized_object;
+
+    --%test(Gives success for initialized nested table within anydata)
+    procedure initialized_nested_table;
+
+    --%test(Gives success for initialized varray within anydata)
+    procedure initialized_varray;
+
     --%test(Gives failure with null blob)
     procedure null_blob;
 
@@ -65,5 +80,18 @@ is
 
     --%test(Gives failure with null varchar2)
     procedure null_varchar2;
+
+    --%test(Gives failure with null anydata)
+    procedure null_anydata;
+
+    --%test(Gives failure with uninitialized object within anydata)
+    procedure uninit_object_in_anydata;
+
+    --%test(Gives failure with uninitialized nested table within anydata)
+    procedure uninit_nested_table_in_anydata;
+
+    --%test(Gives failure with uninitialized varray within anydata)
+    procedure uninit_varray_in_anydata;
+
 end test_expect_not_to_be_null;
 /
