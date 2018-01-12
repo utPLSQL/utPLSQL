@@ -25,6 +25,7 @@ whenever oserror exit failure rollback
 @@core/reporters/test_xunit_reporter.pks
 @@core/expectations/test_expectations_cursor.pks
 @@core/expectations/test_expect_not_to_be_null.pks
+@@core/expectations/test_expect_to_be_not_null.pks
 @@test_ut_runner.pks
 @@core/annotations/test_annotation_manager.pks
 @@core/test_ut_suite.pks
@@ -42,6 +43,7 @@ whenever oserror exit failure rollback
 @@core/reporters/test_xunit_reporter.pkb
 @@core/expectations/test_expectations_cursor.pkb
 @@core/expectations/test_expect_not_to_be_null.pkb
+@@core/expectations/test_expect_to_be_not_null.pkb
 @@test_ut_runner.pkb
 @@core/annotations/test_annotation_manager.pkb
 @@core/test_ut_suite.pkb
