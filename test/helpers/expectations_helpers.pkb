@@ -17,6 +17,20 @@ is
         return l_execute;
     end;
 
+    function unary_expectation_object_block(a_matcher_name in varchar2,
+                                            a_object_name in varchar2,
+                                            a_object_value in varchar2,
+                                            a_object_type in varchar2)
+            return varchar2
+    is
+    begin
+        return 'DECLARE
+                    l_object '||a_object_name||' := '||a_object_value||';
+                BEGIN
+                    ut3.ut.expect(anydata.convert'||a_object_type||'(l_object)).'||a_matcher_name||'();
+                END;';
+    end;
+
     function binary_expectation_block(a_matcher_name in varchar2,
                                         a_data_type_1 in varchar2,
                                         a_data_value_1 in varchar2,

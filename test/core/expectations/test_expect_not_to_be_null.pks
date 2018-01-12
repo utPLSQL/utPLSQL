@@ -16,7 +16,7 @@ is
     procedure blob_not_null;
 
     --%test(Gives success for blob with length 0)
-    procedure blob_0_lengt;
+    procedure blob_0_length;
 
     --%test(Gives success for not null boolean)
     procedure boolean_not_null;
@@ -25,7 +25,7 @@ is
     procedure clob_not_null;
 
     --%test(Gives success for clob with length 0)
-    procedure clob_0_lengt;
+    procedure clob_0_length;
 
     --%test(Gives success for not null date)
     procedure date_not_null;

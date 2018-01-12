@@ -28,18 +28,6 @@ is
         execute immediate 'drop type '||gc_varray_name;
     end;
 
-    function anydata_expectation_block(a_object_name in varchar2, a_object_value in varchar2,
-                                        a_object_type in varchar2)
-            return varchar2
-    is
-    begin
-        return 'DECLARE
-                    l_object '||a_object_name||' := '||a_object_value||';
-                BEGIN
-                    ut3.ut.expect(anydata.convert'||a_object_type||'(l_object)).not_to_be_null();
-                END;';
-    end;
-
     procedure blob_not_null
     is
     begin
@@ -49,7 +37,7 @@ is
         ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
     end;
 
-    procedure blob_0_lengt
+    procedure blob_0_length
     is
     begin
         --Act
@@ -77,7 +65,7 @@ is
     end;
 
 
-    procedure clob_0_lengt
+    procedure clob_0_length
     is
     begin
         --Act
@@ -140,20 +128,12 @@ is
         ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
     end;
 
-    procedure null_blob
-    is
-    begin
-        --Act
-        execute immediate expectations_helpers.unary_expectation_block('not_to_be_null', 'blob', 'null');
-        --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
-    end;
-
     procedure initialized_object
     is
     begin
         --Act
-        execute immediate anydata_expectation_block(gc_object_name, gc_object_name||'(1)', 'object');
+        execute immediate expectations_helpers.unary_expectation_object_block('not_to_be_null', gc_object_name,
+                                                                                gc_object_name||'(1)', 'object');
         --Assert
         ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
     end;
@@ -162,7 +142,8 @@ is
     is
     begin
         --Act
-        execute immediate anydata_expectation_block(gc_nested_table_name, gc_nested_table_name||'()', 'collection');
+        execute immediate expectations_helpers.unary_expectation_object_block('not_to_be_null', gc_nested_table_name,
+                                                                                gc_nested_table_name||'()', 'collection');
         --Assert
         ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
     end;
@@ -171,9 +152,19 @@ is
     is
     begin
         --Act
-        execute immediate anydata_expectation_block(gc_varray_name, gc_varray_name||'()', 'collection');
+        execute immediate expectations_helpers.unary_expectation_object_block('not_to_be_null', gc_varray_name,
+                                                                                gc_varray_name||'()', 'collection');
         --Assert
         ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    end;
+
+    procedure null_blob
+    is
+    begin
+        --Act
+        execute immediate expectations_helpers.unary_expectation_block('not_to_be_null', 'blob', 'null');
+        --Assert
+        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
     end;
 
     procedure null_boolean
@@ -268,7 +259,8 @@ is
     is
     begin
         --Act
-        execute immediate anydata_expectation_block(gc_object_name, 'null', 'object');
+        execute immediate expectations_helpers.unary_expectation_object_block('not_to_be_null', gc_object_name,
+                                                                                'null', 'object');
         --Assert
         ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
     end;
@@ -277,7 +269,8 @@ is
     is
     begin
         --Act
-        execute immediate anydata_expectation_block(gc_nested_table_name, 'null', 'collection');
+        execute immediate expectations_helpers.unary_expectation_object_block('not_to_be_null', gc_nested_table_name,
+                                                                                'null', 'collection');
         --Assert
         ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
     end;
@@ -286,7 +279,8 @@ is
     is
     begin
         --Act
-        execute immediate anydata_expectation_block(gc_varray_name, 'null', 'collection');
+        execute immediate expectations_helpers.unary_expectation_object_block('not_to_be_null', gc_varray_name,
+                                                                                'null', 'collection');
         --Assert
         ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
     end;
