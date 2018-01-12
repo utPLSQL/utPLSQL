@@ -37,7 +37,7 @@ is
         ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
     end;
 
-    procedure blob_0_lengt
+    procedure blob_0_length
     is
     begin
         --Act
@@ -65,7 +65,7 @@ is
     end;
 
 
-    procedure clob_0_lengt
+    procedure clob_0_length
     is
     begin
         --Act
