@@ -90,12 +90,10 @@ create or replace type body ut_data_value_refcursor as
         elsif not a_value%isopen then
             raise cursor_not_open;
         end if;
-    else
-        null;
     end if;
   exception
     when cursor_not_open then
-        raise_application_error(-20000, 'Cursor is not open');
+        raise_application_error(-20155, 'Cursor is not open');
     when others then
       ut_expectation_processor.reset_nls_params();
       if a_value%isopen then
