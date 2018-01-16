@@ -42,49 +42,58 @@ create or replace type body ut_data_value_refcursor as
     c_bulk_rows  constant integer := 1000;
     l_current_date_format varchar2(4000);
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
+    cursor_not_open exception;
   begin
     self.is_cursor_null := ut_utils.boolean_to_int(a_value is null);
     self.self_type  := $$plsql_unit;
     self.data_value := sys_guid();
     self.data_type := 'refcursor';
-    if a_value is not null and a_value%isopen then
-      self.row_count := 0;
-      -- We use DBMS_XMLGEN in order to:
-      -- 1) be able to process data in bulks (set of rows)
-      -- 2) be able to influence the ROWSET/ROW tags
-      -- 3) be able to influence the way NULL values are handled (empty TAG)
-      -- 4) be able to influence the way TIMESTAMP is formatted.
-      -- Due to Oracle feature/bug, it is not possible to change the DATE formatting of cursor data
-      -- AFTER the cursor was opened.
-      -- The only solution for this is to change NLS settings before opening the cursor.
-      --
-      -- This would work fine if we could use DBMS_XMLGEN.restartQuery.
-      --  The restartQuery fails however if PLSQL variables of TIMESTAMP/INTERVAL or CLOB/BLOB are used.
 
-      ut_expectation_processor.set_xml_nls_params();
-      l_ctx := dbms_xmlgen.newContext(a_value);
-      dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
-      dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);
+    if a_value is not null then
+        if a_value%isopen then
+          self.row_count := 0;
+          -- We use DBMS_XMLGEN in order to:
+          -- 1) be able to process data in bulks (set of rows)
+          -- 2) be able to influence the ROWSET/ROW tags
+          -- 3) be able to influence the way NULL values are handled (empty TAG)
+          -- 4) be able to influence the way TIMESTAMP is formatted.
+          -- Due to Oracle feature/bug, it is not possible to change the DATE formatting of cursor data
+          -- AFTER the cursor was opened.
+          -- The only solution for this is to change NLS settings before opening the cursor.
+          --
+          -- This would work fine if we could use DBMS_XMLGEN.restartQuery.
+          --  The restartQuery fails however if PLSQL variables of TIMESTAMP/INTERVAL or CLOB/BLOB are used.
 
-      loop
-        l_xml := dbms_xmlgen.getxmltype(l_ctx);
+          ut_expectation_processor.set_xml_nls_params();
+          l_ctx := dbms_xmlgen.newContext(a_value);
+          dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
+          dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);
 
-        execute immediate 'insert into ' || l_ut_owner || '.ut_cursor_data(cursor_data_guid, row_no, row_data)
-                            select :self_guid, :self_row_count + rownum, value(a) from table( xmlsequence( extract(:l_xml,''ROWSET/*'') ) ) a'
-          using in self.data_value, self.row_count, l_xml;
+          loop
+            l_xml := dbms_xmlgen.getxmltype(l_ctx);
 
-        exit when sql%rowcount = 0;
+            execute immediate 'insert into ' || l_ut_owner || '.ut_cursor_data(cursor_data_guid, row_no, row_data)
+                                select :self_guid, :self_row_count + rownum, value(a) from table( xmlsequence( extract(:l_xml,''ROWSET/*'') ) ) a'
+              using in self.data_value, self.row_count, l_xml;
 
-        self.row_count := self.row_count + sql%rowcount;
-      end loop;
+            exit when sql%rowcount = 0;
 
-      ut_expectation_processor.reset_nls_params();
-      if a_value%isopen then
-        close a_value;
-      end if;
-      dbms_xmlgen.closeContext(l_ctx);
+            self.row_count := self.row_count + sql%rowcount;
+          end loop;
+
+          ut_expectation_processor.reset_nls_params();
+          if a_value%isopen then
+            close a_value;
+          end if;
+          dbms_xmlgen.closeContext(l_ctx);
+
+        elsif not a_value%isopen then
+            raise cursor_not_open;
+        end if;
     end if;
   exception
+    when cursor_not_open then
+        raise_application_error(-20155, 'Cursor is not open');
     when others then
       ut_expectation_processor.reset_nls_params();
       if a_value%isopen then
@@ -160,9 +169,9 @@ create or replace type body ut_data_value_refcursor as
                                                     ucd.row_no
                                                from ' || l_ut_owner || '.ut_cursor_data ucd where ucd.cursor_data_guid = :l_other_guid) act
                              on (exp.row_no = act.row_no)
-                           where nvl(dbms_lob.compare(xmlserialize( content exp.row_data no indent), xmlserialize( content act.row_data no indent)),1) != 0' 
+                           where nvl(dbms_lob.compare(xmlserialize( content exp.row_data no indent), xmlserialize( content act.row_data no indent)),1) != 0'
         using in l_xpath, l_xpath, self.DATA_VALUE, l_xpath, l_xpath, l_other.DATA_VALUE;
-      
+
       --result is OK only if both are same
       if sql%rowcount = 0 and self.row_count = l_other.row_count then
         l_result := 0;

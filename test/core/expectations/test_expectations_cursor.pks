@@ -23,11 +23,17 @@ create or replace package test_expectations_cursor is
   --%test(Gives success when both cursors are null)
   procedure success_on_both_null;
 
-  --%test(Gives success on is_null if cursor is null)
-  procedure success_is_null;
+  --%test(Gives success on to_be_null if cursor is null)
+  procedure success_to_be_null;
 
-  --%test(Gives success on is_not_null if cursor is not null)
-  procedure success_is_not_null;
+  --%test(Gives succes on not_to_be_not_null if cursor is null)
+  procedure success_not_to_be_not_null;
+
+  --%test(Gives success on not_to_be_null if cursor is not null)
+  procedure success_not_to_be_null;
+
+  --%test(Gives success on to_be_not_null if cursor is not null)
+  procedure success_to_be_not_null;
 
   --%test(Gives success on is_empty if cursor is empty)
   procedure success_is_empty;
@@ -107,9 +113,8 @@ create or replace package test_expectations_cursor is
   --%test(Reports exception when cursor raises exception)
   procedure reports_on_exception_in_cursor;
 
-  --%test(Reports exception when cursor is closed)
-  --%disabled
-  procedure reports_on_closed_cursor;
+   --%test(Reports an exception when cursor is closed)
+  procedure exception_when_closed_cursor;
 
   --%test(Compares cursors with more than 1000 rows)
   procedure compares_over_1000_rows;

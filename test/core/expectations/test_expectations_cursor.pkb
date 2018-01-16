@@ -101,25 +101,45 @@ create or replace package body test_expectations_cursor is
     ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
   end;
 
-  procedure success_is_null
+  procedure success_to_be_null
   as
     l_actual   sys_refcursor;
   begin
     --Act
     ut3.ut.expect( l_actual ).to_be_null();
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
+  procedure success_not_to_be_not_null
+  as
+    l_actual   sys_refcursor;
+  begin
+    --Act
     ut3.ut.expect( l_actual ).not_to_be_not_null();
     --Assert
     ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
   end;
 
-  procedure success_is_not_null
+  procedure success_not_to_be_null
   as
     l_actual   sys_refcursor;
   begin
     --Arrange
     open l_actual for select * from dual;
     --Act
-    ut3.ut.expect( l_actual ).not_to_be_null();
+    ut3.ut.expect( l_actual ).to_be_not_null();
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
+  procedure success_to_be_not_null
+  as
+    l_actual   sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select * from dual;
+    --Act
     ut3.ut.expect( l_actual ).to_be_not_null();
     --Assert
     ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
@@ -331,7 +351,7 @@ procedure fail_on_different_column_order
     l_expected sys_refcursor;
   begin
     --Arrange
-    open l_actual   for select a.*, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from all_objects a where rownum < 4;
+    open l_actual for select a.*, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from all_objects a where rownum < 4;
     open l_expected for select a.*, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from all_objects a where rownum < 4;
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
@@ -515,22 +535,20 @@ was expected to equal:%
     end;
   end;
 
-  procedure reports_on_closed_cursor
-  as
-    l_actual     sys_refcursor;
-    l_error_code integer := -19202; --Error occurred in XML processing
+  procedure exception_when_closed_cursor
+  is
+    l_actual sys_refcursor;
+    l_error_code constant integer := -20155;
   begin
-    --Act
-    open l_actual for select 1 as value from dual connect by level < 10;
+    --Arrange
+    open l_actual for select * from dual;
     close l_actual;
-    begin
-      ut3.ut.expect(l_actual).to_be_empty();
-      --Assert
-      ut.fail('Expected '||l_error_code||' but nothing was raised');
-      exception
-      when others then
-      ut.expect(sqlcode).to_equal(l_error_code);
-    end;
+    --Act
+    ut3.ut.expect( l_actual ).not_to_be_null;
+  exception
+    when others then
+        --Assert
+        ut.expect(sqlcode).to_equal(l_error_code);
   end;
 
   procedure compares_over_1000_rows
