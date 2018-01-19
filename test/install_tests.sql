@@ -11,6 +11,9 @@ whenever oserror exit failure rollback
 @@helpers/ut_with_invalid_body.pkb
 @@helpers/expectations_helpers.pks
 @@helpers/expectations_helpers.pkb
+@@helpers/other_dummy_object.tps
+@@helpers/test_dummy_object.tps
+@@helpers/test_dummy_object_list.tps
 
 --Install tests
 @@core.pks
@@ -24,6 +27,7 @@ whenever oserror exit failure rollback
 @@core/reporters/test_coverage/test_coveralls_reporter.pks
 @@core/reporters/test_xunit_reporter.pks
 @@core/expectations/test_expectations_cursor.pks
+@@core/expectations/test_expectation_anydata.pks
 @@core/expectations/test_expect_not_to_be_null.pks
 @@core/expectations/test_expect_to_be_not_null.pks
 @@core/expectations/test_expect_to_be_null.pks
@@ -43,6 +47,7 @@ whenever oserror exit failure rollback
 @@core/reporters/test_coverage/test_coveralls_reporter.pkb
 @@core/reporters/test_xunit_reporter.pkb
 @@core/expectations/test_expectations_cursor.pkb
+@@core/expectations/test_expectation_anydata.pkb
 @@core/expectations/test_expect_not_to_be_null.pkb
 @@core/expectations/test_expect_to_be_not_null.pkb
 @@core/expectations/test_expect_to_be_null.pkb

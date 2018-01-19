@@ -275,7 +275,7 @@ create or replace package body test_expectations_cursor is
     l_expected sys_refcursor;
     l_actual   sys_refcursor;
   begin
-  --Arrange
+    --Arrange
     open l_expected for select 1 as col_1 from dual;
     open l_actual   for select 1 as col_2 from dual;
     --Act
@@ -285,7 +285,7 @@ create or replace package body test_expectations_cursor is
   end;
 
 
-procedure fail_on_different_column_order
+  procedure fail_on_different_column_order
   as
     l_expected sys_refcursor;
     l_actual   sys_refcursor;
@@ -351,22 +351,22 @@ procedure fail_on_different_column_order
     l_expected sys_refcursor;
   begin
     --Arrange
-    open l_actual for select a.*, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from all_objects a where rownum < 4;
-    open l_expected for select a.*, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from all_objects a where rownum < 4;
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
     --Assert
     ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
   end;
 
-  procedure excludes_columns_as_csv
+  procedure exclude_columns_as_csv
   as
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
   begin
     --Arrange
-    open l_actual   for select a.*, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from all_objects a where rownum < 4;
-    open l_expected for select a.*, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from all_objects a where rownum < 4;
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'A_COLUMN,Some_Col');
     --Assert
@@ -380,19 +380,18 @@ procedure fail_on_different_column_order
     l_error_code integer := -31011; --xpath_error
   begin
     --Arrange
-    open l_actual   for select a.*, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from all_objects a where rownum < 4;
-    open l_expected for select a.*, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from all_objects a where rownum < 4;
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
     begin
       --Act
       ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'/ROW/A_COLUMN,//Some_Col');
       --Assert
       ut.fail('Expected '||l_error_code||' but nothing was raised');
-    exception
+      exception
       when others then
-        ut.expect(sqlcode).to_equal(l_error_code);
+      ut.expect(sqlcode).to_equal(l_error_code);
     end;
   end;
-
 
   procedure exclude_columns_xpath
   as
@@ -408,6 +407,123 @@ procedure fail_on_different_column_order
     ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
   end;
 
+  procedure exclude_ignores_invalid_column
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'c' as A_COLUMN from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'd' as A_COLUMN from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3.ut_varchar2_list('A_COLUMN','non_existing_column'));
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
+  procedure include_columns_as_list
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>ut3.ut_varchar2_list('RN','A_Column','SOME_COL'));
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
+  procedure include_columns_as_csv
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>'RN,A_Column,SOME_COL');
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
+  procedure include_columns_xpath_invalid
+  as
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
+    begin
+      --Act
+      ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>'/ROW/RN,//A_Column,//SOME_COL');
+      --Assert
+      ut.fail('Expected exception but nothing was raised');
+    exception
+      when others then
+        ut.expect(sqlcode).to_be_between(-31013,-31011);
+    end;
+  end;
+
+  procedure include_columns_xpath
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>'/ROW/RN|//A_Column|//SOME_COL');
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
+  procedure include_ignores_invalid_column
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'c' as A_COLUMN from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'd' as A_COLUMN from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>ut3.ut_varchar2_list('RN','non_existing_column'));
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
+  procedure include_exclude_col_csv_xpath
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>'/ROW/RN|//Some_Col', a_exclude=>'Some_Col');
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
+  procedure include_exclude_columns_list
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>ut3.ut_varchar2_list('RN','A_Column','A_COLUMN'), a_exclude => ut3.ut_varchar2_list('A_COLUMN'));
+    --Assert
+    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+  end;
+
   procedure data_diff_on_failure
   as
     l_actual   sys_refcursor;
@@ -416,7 +532,7 @@ procedure fail_on_different_column_order
     l_expected_message varchar2(32767);
   begin
     --Arrange
-    open l_actual for select rownum rn from dual connect by level <=2;
+    open l_actual   for select rownum rn from dual connect by level <=2;
     open l_expected for select rownum rn from dual connect by level <=3;
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);

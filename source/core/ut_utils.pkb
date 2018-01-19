@@ -365,15 +365,17 @@ create or replace package body ut_utils is
     l_item  varchar2(32767);
     i integer;
   begin
-    i := a_list.first;
-    while i is not null loop
-      l_item := trim(a_list(i));
-      if l_item is not null then
-        l_xpath := l_xpath || a_ancestors ||a_list(i)||'|';
-      end if;
-      i := a_list.next(i);
-    end loop;
-    l_xpath := rtrim(l_xpath,',|');
+    if a_list is not null then
+      i := a_list.first;
+      while i is not null loop
+        l_item := trim(a_list(i));
+        if l_item is not null then
+          l_xpath := l_xpath || a_ancestors ||a_list(i)||'|';
+        end if;
+        i := a_list.next(i);
+      end loop;
+      l_xpath := rtrim(l_xpath,',|');
+    end if;
     return l_xpath;
   end;
 

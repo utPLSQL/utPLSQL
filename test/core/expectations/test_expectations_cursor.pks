@@ -81,10 +81,10 @@ create or replace package test_expectations_cursor is
   procedure uses_default_nls_for_date;
 
   --%test(List of columns to exclude is case sensitive)
-  procedure exclude_Columns_as_list;
+  procedure exclude_columns_as_list;
 
-  --%test(Columns to exclude are case sensitive)
-  procedure excludes_columns_as_csv;
+  --%test(Comma separated list of columns to exclude is case sensitive)
+  procedure exclude_columns_as_csv;
 
   --%test(Exclude columns fails on invalid XPath)
   procedure exclude_columns_xpath_invalid;
@@ -92,9 +92,32 @@ create or replace package test_expectations_cursor is
   --%test(Exclude columns by XPath is case sensitive)
   procedure exclude_columns_xpath;
 
+  --%test(Excludes existing columns when some of columns on exclude are not valid column names)
+  procedure exclude_ignores_invalid_column;
+
+  --%test(List of columns to include is case sensitive)
+  procedure include_columns_as_list;
+
+  --%test(Comma separated list of columns to include is case sensitive)
+  procedure include_columns_as_csv;
+
+  --%test(Include columns fails on invalid XPath)
+  procedure include_columns_xpath_invalid;
+
+  --%test(Include columns by XPath is case sensitive)
+  procedure include_columns_xpath;
+
+  --%test(Includes existing columns when some of columns on exclude are not valid column names)
+  procedure include_ignores_invalid_column;
+
+  --%test(Includes only columns that are not excluded using combination of CSV and XPath)
+  procedure include_exclude_col_csv_xpath;
+
+  --%test(Includes only columns that are not on exclude list)
+  procedure include_exclude_columns_list;
+
   --%test(Reports data-diff on expectation failure)
   procedure data_diff_on_failure;
-
 
   procedure prepare_table;
   procedure cleanup_table;
