@@ -1,4 +1,4 @@
-create or replace type body ut_documentation_reporter is
+create or replace type body     ut_documentation_reporter is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
