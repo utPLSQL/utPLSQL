@@ -50,5 +50,12 @@ is
 
         return l_execute;
     end;
+
+    function get_failed_expect_as_anydata
+        return anydata
+    is
+    begin
+        return anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations());
+    end;
 end expectations_helpers;
 /

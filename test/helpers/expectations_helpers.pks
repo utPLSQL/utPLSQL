@@ -17,5 +17,8 @@ is
                                         a_data_type_2 in varchar2,
                                         a_data_value_2 in varchar2)
         return varchar2;
+
+    function get_failed_expect_as_anydata
+        return anydata;
 end expectations_helpers;
 /

@@ -34,7 +34,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'blob', 'null');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
     procedure null_boolean
@@ -43,7 +43,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'boolean', 'null');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
 
@@ -53,7 +53,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'clob', 'null');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
 
@@ -63,7 +63,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'date', 'null');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
 
@@ -73,7 +73,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'number', 'null');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
 
@@ -83,7 +83,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'timestamp', 'null');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
 
@@ -93,7 +93,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'timestamp with local time zone', 'null');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
 
@@ -103,7 +103,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'timestamp with time zone', 'null');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
 
@@ -113,7 +113,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'varchar2(4000)', 'null');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
     procedure null_anydata
@@ -122,7 +122,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'anydata', 'null');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
     procedure uninit_object_in_anydata
@@ -132,7 +132,7 @@ is
         execute immediate expectations_helpers.unary_expectation_object_block('to_be_null', gc_object_name,
                                                                                 'null', 'object');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
     procedure uninit_nested_table_in_anydata
@@ -142,7 +142,7 @@ is
         execute immediate expectations_helpers.unary_expectation_object_block('to_be_null', gc_nested_table_name,
                                                                                 'null', 'collection');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
     procedure uninit_varray_in_anydata
@@ -152,7 +152,7 @@ is
         execute immediate expectations_helpers.unary_expectation_object_block('to_be_null', gc_varray_name,
                                                                                 'null', 'collection');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).to_be_empty();
     end;
 
     procedure blob_not_null
@@ -161,7 +161,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'blob', 'to_blob(''abc'')');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
     procedure blob_0_length
@@ -170,7 +170,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'blob', 'empty_blob()');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
     procedure boolean_not_null
@@ -179,7 +179,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'boolean', 'true');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
     procedure clob_not_null
@@ -188,7 +188,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'clob', 'to_clob(''abc'')');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
 
@@ -198,7 +198,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'clob', 'empty_clob()');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
     procedure date_not_null
@@ -207,7 +207,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'date', 'sysdate');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
     procedure number_not_null
@@ -216,7 +216,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'number', '1234');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
     procedure timestamp_not_null
@@ -225,7 +225,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'timestamp', 'systimestamp');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
     procedure timestamp_with_ltz_not_null
@@ -234,7 +234,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'timestamp with local time zone', 'systimestamp');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
     procedure timestamp_with_tz_not_null
@@ -243,7 +243,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'timestamp with time zone', 'systimestamp');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
     procedure varchar2_not_null
@@ -252,7 +252,7 @@ is
         --Act
         execute immediate expectations_helpers.unary_expectation_block('to_be_null', 'varchar2(4000)', '''abc''');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
     procedure initialized_object
@@ -262,7 +262,7 @@ is
         execute immediate expectations_helpers.unary_expectation_object_block('to_be_null', gc_object_name,
                                                                                 gc_object_name||'(1)', 'object');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
     procedure initialized_nested_table
@@ -272,7 +272,7 @@ is
         execute immediate expectations_helpers.unary_expectation_object_block('to_be_null', gc_nested_table_name,
                                                                                 gc_nested_table_name||'()', 'collection');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
     procedure initialized_varray
@@ -282,7 +282,7 @@ is
         execute immediate expectations_helpers.unary_expectation_object_block('to_be_null', gc_varray_name,
                                                                                 gc_varray_name||'()', 'collection');
         --Assert
-        ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+        ut.expect(expectations_helpers.get_failed_expect_as_anydata()).not_to_be_empty();
     end;
 
 end test_expect_to_be_null;
