@@ -357,10 +357,11 @@ create or replace package body test_expectation_anydata is
   begin
     --Arrange
     g_test_expected := anydata.convertObject( test_dummy_object(1, 'A', '0') );
-    g_test_actual   := anydata.convertObject( test_dummy_object(1, null, '0') );
+    g_test_actual   := anydata.convertObject( test_dummy_object(1, 'B', '0') );
     l_expected := q'[%Actual:%
     <TEST_DUMMY_OBJECT>
       <ID>1</ID>
+      <name>B</name>
       <Value>0</Value>
     </TEST_DUMMY_OBJECT>%
 was expected to equal:%
