@@ -1,6 +1,6 @@
-create or replace package test_expect_not_to_be_null
+create or replace package test_expect_to_be_not_null
 is
-    --%suite(expectations - not_to_be_null)
+    --%suite(to_be_not_null)
     --%suitepath(utplsql.core.expectations.unary)
 
     --%aftereach
@@ -93,5 +93,5 @@ is
     --%test(Gives failure with uninitialized varray within anydata)
     procedure uninit_varray_in_anydata;
 
-end test_expect_not_to_be_null;
+end test_expect_to_be_not_null;
 /

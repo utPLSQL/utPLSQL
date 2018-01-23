@@ -1,7 +1,7 @@
 create or replace package test_expectation_anydata is
 
-  --%suite(expectations - equal on anydata)
-  --%suitepath(utplsql.core.expectations)
+  --%suite(equal on anydata)
+  --%suitepath(utplsql.core.expectations.compound_data)
 
   --%aftereach
   procedure cleanup;

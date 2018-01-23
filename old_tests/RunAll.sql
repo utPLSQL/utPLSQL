@@ -72,12 +72,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut_expectation_processor.stackOnUtFail.sql
 
 @@ut_matchers/be_between.sql
-@@ut_matchers/be_empty.sql
 @@ut_matchers/be_like.sql
-@@ut_matchers/greater_or_equal.sql
-@@ut_matchers/greater_than.sql
-@@ut_matchers/less_or_equal.sql
-@@ut_matchers/less_than.sql
 @@ut_matchers/match.sql
 
 @@lib/RunTest.sql ut_matchers/timestamp_between.sql

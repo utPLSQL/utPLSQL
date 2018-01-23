@@ -13,7 +13,7 @@ create or replace package body test_expectations_cursor is
 
   procedure cleanup_expectations is
   begin
-    ut3.ut_expectation_processor.clear_expectations();
+    expectations.cleanup_expectations( );
   end;
 
   procedure setup_temp_table_test
@@ -46,7 +46,7 @@ create or replace package body test_expectations_cursor is
     --Act - execute the expectation on cursor opened on GTT
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
     --Cleanup
     rollback;
   end;
@@ -73,7 +73,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure success_on_empty
@@ -87,7 +87,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure success_on_both_null
@@ -98,7 +98,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure success_to_be_null
@@ -108,7 +108,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_be_null();
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure success_not_to_be_not_null
@@ -118,7 +118,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).not_to_be_not_null();
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure success_not_to_be_null
@@ -130,7 +130,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_be_not_null();
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure success_to_be_not_null
@@ -142,7 +142,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_be_not_null();
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure success_is_empty
@@ -154,7 +154,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_be_empty();
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure success_is_not_empty
@@ -166,7 +166,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).not_to_be_empty();
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure failure_is_null
@@ -178,7 +178,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_be_null();
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure failure_is_not_null
@@ -188,7 +188,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).not_to_be_null();
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure failure_is_empty
@@ -200,7 +200,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_be_empty();
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure failure_is_not_empty
@@ -212,7 +212,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).not_to_be_empty();
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure fail_null_vs_empty
@@ -225,7 +225,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).not_to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure fail_on_difference
@@ -239,7 +239,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure fail_on_expected_missing
@@ -253,7 +253,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure fail_on_actual_missing
@@ -267,7 +267,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure fail_on_different_column_name
@@ -281,7 +281,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
 
@@ -296,7 +296,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure fail_on_different_row_order
@@ -310,7 +310,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure include_time_in_date_with_nls
@@ -328,7 +328,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_failure);
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure uses_default_nls_for_date
@@ -342,7 +342,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure exclude_columns_as_list
@@ -356,7 +356,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure exclude_columns_as_csv
@@ -370,7 +370,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'A_COLUMN,Some_Col');
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure exclude_columns_xpath_invalid
@@ -404,7 +404,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'/ROW/A_COLUMN|/ROW/Some_Col');
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure exclude_ignores_invalid_column
@@ -418,7 +418,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3.ut_varchar2_list('A_COLUMN','non_existing_column'));
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure include_columns_as_list
@@ -432,7 +432,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>ut3.ut_varchar2_list('RN','A_Column','SOME_COL'));
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure include_columns_as_csv
@@ -446,7 +446,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>'RN,A_Column,SOME_COL');
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure include_columns_xpath_invalid
@@ -479,7 +479,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>'/ROW/RN|//A_Column|//SOME_COL');
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure include_ignores_invalid_column
@@ -493,7 +493,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>ut3.ut_varchar2_list('RN','non_existing_column'));
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure include_exclude_col_csv_xpath
@@ -507,7 +507,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>'/ROW/RN|//Some_Col', a_exclude=>'Some_Col');
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure include_exclude_columns_list
@@ -521,7 +521,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_include=>ut3.ut_varchar2_list('RN','A_Column','A_COLUMN'), a_exclude => ut3.ut_varchar2_list('A_COLUMN'));
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure data_diff_on_failure
@@ -602,7 +602,7 @@ was expected to equal:%
     --Act
     ut3.ut.expect(l_expected).to_equal(l_actual);
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure closes_cursor_after_use
@@ -679,7 +679,7 @@ was expected to equal:%
     ut3.ut.expect(l_actual).to_equal(l_expected);
 
     --Assert
-    ut.expect(ut3.ut_expectation_processor.get_status()).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
 end;

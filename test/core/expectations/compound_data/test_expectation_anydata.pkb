@@ -5,7 +5,7 @@ create or replace package body test_expectation_anydata is
 
   procedure cleanup_expectations is
   begin
-    ut3.ut_expectation_processor.clear_expectations();
+    expectations.cleanup_expectations( );
   end;
 
   procedure cleanup is
@@ -23,7 +23,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure fail_on_different_type is
@@ -34,7 +34,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure fail_on_different_object_data is
@@ -45,7 +45,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).not_to_equal( g_test_expected );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure fail_on_one_object_null is
@@ -56,7 +56,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure fail_on_collection_vs_object is
@@ -67,7 +67,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure fail_on_null_vs_empty_coll is
@@ -79,7 +79,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
   
   procedure fail_on_one_collection_null is
@@ -91,7 +91,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure fail_on_one_collection_empty is
@@ -102,7 +102,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure fail_on_different_coll_data is
@@ -114,7 +114,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   --%test(Gives success when both anydata are NULL)
@@ -125,7 +125,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( l_null_anydata ).to_equal( l_null_anydata );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure success_on_both_object_null is
@@ -136,7 +136,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( l_anydata ).to_equal( l_anydata );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure success_on_both_coll_null is
@@ -147,7 +147,7 @@ create or replace package body test_expectation_anydata is
       --Act
       ut3.ut.expect( l_anydata ).to_equal( l_anydata );
       --Assert
-      ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+      ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure success_on_same_coll_data is
@@ -158,7 +158,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure fail_on_coll_different_order is
@@ -171,7 +171,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).not_to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
   procedure success_on_same_object_data is
@@ -182,7 +182,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure exclude_attributes_as_list is
@@ -195,7 +195,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_list );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure exclude_attributes_as_csv is
@@ -208,7 +208,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_xpath );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure exclude_attrib_xpath_invalid is
@@ -237,7 +237,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_xpath );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure exclude_ignores_invalid_attrib is
@@ -250,7 +250,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_exclude );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure include_attributes_as_list is
@@ -263,7 +263,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_include=> l_list );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure include_attributes_as_csv is
@@ -276,7 +276,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_include=> l_xpath );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure include_attrib_xpath_invalid is
@@ -305,7 +305,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_include=> l_xpath );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure include_ignores_invalid_attrib is
@@ -318,7 +318,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_include=> l_include );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure include_exclude_attributes_csv is
@@ -333,7 +333,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_include=> l_include , a_exclude=> l_exclude );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure include_exclude_attrib_list is
@@ -348,7 +348,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_include=> l_include , a_exclude=> l_exclude );
     --Assert
-    ut.expect(anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations())).to_be_empty();
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
   procedure reports_object_structure is
