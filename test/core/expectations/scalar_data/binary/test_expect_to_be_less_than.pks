@@ -1,7 +1,7 @@
 create or replace package test_expect_to_be_less_than is
 
   --%suite((not)to_be_less_than)
-  --%suitepath(utplsql.core.expectations.binary)
+  --%suitepath(utplsql.core.expectations.scalar_data.binary)
 
   --%aftereach
   procedure cleanup_expectations;

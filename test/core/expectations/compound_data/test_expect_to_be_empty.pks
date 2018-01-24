@@ -1,7 +1,7 @@
 create or replace package test_expect_to_be_empty is
 
   --%suite((not)to_be_empty)
-  --%suitepath(utplsql.core.expectations.unary)
+  --%suitepath(utplsql.core.expectations.compound_data)
 
   --%aftereach
   procedure cleanup_expectations;

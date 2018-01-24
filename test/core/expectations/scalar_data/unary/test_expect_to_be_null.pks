@@ -1,7 +1,7 @@
 create or replace package test_expect_to_be_null
 is
     --%suite(to_be_null)
-    --%suitepath(utplsql.core.expectations.unary)
+    --%suitepath(utplsql.core.expectations.scalar_data.unary)
 
     --%aftereach
     procedure cleanup_expectations;

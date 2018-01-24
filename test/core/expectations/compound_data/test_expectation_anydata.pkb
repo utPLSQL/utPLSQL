@@ -199,14 +199,14 @@ create or replace package body test_expectation_anydata is
   end;
 
   procedure exclude_attributes_as_csv is
-    l_xpath          varchar2(100);
+    l_list varchar2(100);
   begin
     --Arrange
-    l_xpath := 'Value,ID';
+    l_list := 'Value,ID';
     g_test_expected := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( test_dummy_object(id=>2, "name"=>'A',"Value"=>'1') );
     --Act
-    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_xpath );
+    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_list );
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;

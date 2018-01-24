@@ -49,7 +49,6 @@ create or replace package body test_expect_to_be_empty is
     ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
-
   procedure success_be_empty_collection is
     l_actual anydata;
   begin

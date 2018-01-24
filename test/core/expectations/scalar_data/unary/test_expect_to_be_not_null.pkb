@@ -9,8 +9,7 @@ is
     expectations.cleanup_expectations();
   end;
 
-  procedure create_types
-  is
+  procedure create_types is
     pragma autonomous_transaction;
   begin
     execute immediate 'create type '||gc_object_name||' is object (dummy number)';
@@ -18,8 +17,7 @@ is
     execute immediate 'create type '||gc_varray_name||' is varray(1) of number';
   end;
 
-  procedure drop_types
-  is
+  procedure drop_types is
     pragma autonomous_transaction;
   begin
     execute immediate 'drop type '||gc_object_name;
@@ -27,8 +25,7 @@ is
     execute immediate 'drop type '||gc_varray_name;
   end;
 
-  procedure blob_not_null
-  is
+  procedure blob_not_null is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'blob', 'to_blob(''abc'')');
@@ -36,8 +33,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure blob_0_length
-  is
+  procedure blob_0_length is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'blob', 'empty_blob()');
@@ -45,8 +41,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure boolean_not_null
-  is
+  procedure boolean_not_null is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'boolean', 'true');
@@ -54,8 +49,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure clob_not_null
-  is
+  procedure clob_not_null is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'clob', 'to_clob(''abc'')');
@@ -63,9 +57,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-
-  procedure clob_0_length
-  is
+  procedure clob_0_length is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'clob', 'empty_clob()');
@@ -73,8 +65,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure date_not_null
-  is
+  procedure date_not_null is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'date', 'sysdate');
@@ -82,8 +73,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure number_not_null
-  is
+  procedure number_not_null is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'number', '1234');
@@ -91,8 +81,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure timestamp_not_null
-  is
+  procedure timestamp_not_null is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'timestamp', 'systimestamp');
@@ -100,8 +89,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure timestamp_with_ltz_not_null
-  is
+  procedure timestamp_with_ltz_not_null is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'timestamp with local time zone', 'systimestamp');
@@ -109,8 +97,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure timestamp_with_tz_not_null
-  is
+  procedure timestamp_with_tz_not_null is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'timestamp with time zone', 'systimestamp');
@@ -118,8 +105,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure varchar2_not_null
-  is
+  procedure varchar2_not_null is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'varchar2(4000)', '''abc''');
@@ -127,8 +113,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure initialized_object
-  is
+  procedure initialized_object is
   begin
     --Act
     execute immediate expectations.unary_expectation_object_block(
@@ -138,8 +123,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure initialized_nested_table
-  is
+  procedure initialized_nested_table is
   begin
     --Act
     execute immediate expectations.unary_expectation_object_block(
@@ -149,8 +133,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure initialized_varray
-  is
+  procedure initialized_varray is
   begin
     --Act
     execute immediate expectations.unary_expectation_object_block(
@@ -160,8 +143,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure null_blob
-  is
+  procedure null_blob is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'blob', 'null');
@@ -169,8 +151,7 @@ is
     ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
-  procedure null_boolean
-  is
+  procedure null_boolean is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'boolean', 'null');
@@ -179,8 +160,7 @@ is
   end;
 
 
-  procedure null_clob
-  is
+  procedure null_clob is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'clob', 'null');
@@ -189,8 +169,7 @@ is
   end;
 
 
-  procedure null_date
-  is
+  procedure null_date is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'date', 'null');
@@ -199,8 +178,7 @@ is
   end;
 
 
-  procedure null_number
-  is
+  procedure null_number is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'number', 'null');
@@ -209,8 +187,7 @@ is
   end;
 
 
-  procedure null_timestamp
-  is
+  procedure null_timestamp is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'timestamp', 'null');
@@ -219,8 +196,7 @@ is
   end;
 
 
-  procedure null_timestamp_with_ltz
-  is
+  procedure null_timestamp_with_ltz is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'timestamp with local time zone', 'null');
@@ -229,8 +205,7 @@ is
   end;
 
 
-  procedure null_timestamp_with_tz
-  is
+  procedure null_timestamp_with_tz is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'timestamp with time zone', 'null');
@@ -239,8 +214,7 @@ is
   end;
 
 
-  procedure null_varchar2
-  is
+  procedure null_varchar2 is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'varchar2(4000)', 'null');
@@ -248,8 +222,7 @@ is
     ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
-  procedure null_anydata
-  is
+  procedure null_anydata is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'anydata', 'null');
@@ -257,8 +230,7 @@ is
     ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
-  procedure uninit_object_in_anydata
-  is
+  procedure uninit_object_in_anydata is
   begin
     --Act
     execute immediate expectations.unary_expectation_object_block(
@@ -268,8 +240,7 @@ is
     ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
-  procedure uninit_nested_table_in_anydata
-  is
+  procedure uninit_nested_table_in_anydata is
   begin
     --Act
     execute immediate expectations.unary_expectation_object_block(
@@ -279,8 +250,7 @@ is
     ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
-  procedure uninit_varray_in_anydata
-  is
+  procedure uninit_varray_in_anydata is
   begin
     --Act
     execute immediate expectations.unary_expectation_object_block(

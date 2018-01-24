@@ -1,7 +1,7 @@
-create or replace package test_be_greater_than is
+create or replace package test_be_greater_or_equal is
 
-  --%suite((not)to_be_greater_than)
-  --%suitepath(utplsql.core.expectations.binary)
+  --%suite((not)to_be_greater_or_equal)
+  --%suitepath(utplsql.core.expectations.scalar_data.binary)
 
   --%aftereach
   procedure cleanup_expectations;
@@ -27,25 +27,25 @@ create or replace package test_be_greater_than is
   --%test(Gives success when actual timestamp with local time zone is greater than expected)
   procedure actual_timestamp_ltz_greater;
 
-  --%test(Gives failure when actual date is equal expected)
+  --%test(Gives success when actual date is equal expected)
   procedure actual_date_equal;
 
-  --%test(Gives failure when actual number is equal expected)
+  --%test(Gives success when actual number is equal expected)
   procedure actual_number_equal;
 
-  --%test(Gives failure when actual interval year to month is equal expected)
+  --%test(Gives success when actual interval year to month is equal expected)
   procedure actual_interval_ym_equal;
 
-  --%test(Gives failure when actual interval day to second is equal expected)
+  --%test(Gives success when actual interval day to second is equal expected)
   procedure actual_interval_ds_equal;
 
-  --%test(Gives failure when actual timestamp is equal expected)
+  --%test(Gives success when actual timestamp is equal expected)
   procedure actual_timestamp_equal;
 
-  --%test(Gives failure when actual timestamp with time zone is equal expected)
+  --%test(Gives success when actual timestamp with time zone is equal expected)
   procedure actual_timestamp_tz_equal;
 
-  --%test(Gives failure when actual timestamp with local time zone is equal expected)
+  --%test(Gives success when actual timestamp with local time zone is equal expected)
   procedure actual_timestamp_ltz_equal;
 
   --%test(Gives failure when actual date is less than expected)

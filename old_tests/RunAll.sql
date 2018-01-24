@@ -50,19 +50,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesSuccessWhenExpessionIsTrue.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentDataTypes.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentValues.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureWhenActualIsNull.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureWhenBothValuesAreNullAndArgumentAreNullEqualIsFalse.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureWhenBothValuesAreNullAndConfigurationAreNullEqualIsFalse.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureWhenExpectedIsNull.sql
-@@ut_expectations/ut.expect.to_equal.GivesSuccessForEqualValues.sql
-@@ut_expectations/ut.expect.to_equal.GivesSuccessWhenBothValuesAreNull.sql
-@@ut_expectations/ut.expect.to_equal.GivesSuccessWhenBothValuesAreNullAndArgumentAreNullEqualIsTrue.sql
-@@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenActualIsNull.sql
-@@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenExpectedIsNull.sql
-@@ut_expectations/ut.expect.to_equal.with_text.GivesTheProvidedTextAsMessage.sql
-@@ut_expectations/ut.expect.not_to_equal.GivesFailureForDifferentDataTypes.sql
 @@ut_expectations/ut.expect.not_to_equal.GivesFailureForEqualValues.sql
 @@ut_expectations/ut.expect.not_to_equal.GivesSuccessForDifferentValues.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_match.FailsForUnsupportedDatatype.sql
