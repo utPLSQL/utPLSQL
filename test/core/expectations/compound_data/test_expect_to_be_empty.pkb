@@ -27,6 +27,27 @@ create or replace package body test_expect_to_be_empty is
     ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
+  procedure fail_be_empty_cursor_report is
+    l_cursor sys_refcursor;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_cursor for select * from dual;
+    --Act
+    ut3.ut.expect(l_cursor).to_be_empty;
+
+    l_expected_message := q'[Actual:%
+    row count: 1%
+    <ROW><DUMMY>X</DUMMY></ROW>%
+ (refcursor)%
+was expected to be empty%%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
   procedure success_not_be_empty_cursor is
     l_cursor sys_refcursor;
   begin

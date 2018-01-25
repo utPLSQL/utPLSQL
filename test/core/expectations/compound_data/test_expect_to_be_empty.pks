@@ -12,6 +12,9 @@ create or replace package test_expect_to_be_empty is
   --%test(Gives failure for a non empty cursor)
   procedure fail_be_empty_cursor;
 
+  --%test(Reports the content of cursor when cursor is not empty)
+  procedure fail_be_empty_cursor_report;
+
   --%test(Negated - Gives success for a non empty cursor)
   procedure success_not_be_empty_cursor;
 
