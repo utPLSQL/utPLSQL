@@ -83,16 +83,15 @@ create or replace package body ut_suite_manager is
     l_result      t_schema_suites_info;
   begin
     -- Currently cache invalidation on DDL is not implemented so schema is rescaned each time
-    if not cache_valid(a_schema_name) then
+    if cache_valid(a_schema_name) then
+      l_result.schema_suites := g_schema_suites(a_schema_name).schema_suites;
+      l_result.suite_paths := g_schema_suites(a_schema_name).suite_paths;
+    else
       ut_utils.debug_log('Rescanning schema ' || a_schema_name);
       l_result := ut_suite_builder.build_schema_suites(a_schema_name);
       update_cache(a_schema_name, l_result, get_schema_info(a_schema_name).obj_cnt );
     end if;
 
-    if g_schema_suites.exists(a_schema_name) then
-      l_result.schema_suites := g_schema_suites(a_schema_name).schema_suites;
-      l_result.suite_paths := g_schema_suites(a_schema_name).suite_paths;
-    end if;
     return l_result;
   end get_schema_suites;
 
