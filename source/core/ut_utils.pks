@@ -107,6 +107,7 @@ create or replace package ut_utils authid definer is
     build  natural
   );
 
+  type t_clob_tab is table of clob;
 
   /**
    * Converts test results into strings
@@ -196,6 +197,8 @@ create or replace package ut_utils authid definer is
   function clob_to_table(a_clob clob, a_max_amount integer := 8191, a_delimiter varchar2:= chr(10)) return ut_varchar2_list;
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob;
+
+  procedure append_to_clob(a_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2 := chr(10));
 
   /**
    * Returns time difference in seconds (with miliseconds) between given timestamps

@@ -145,7 +145,11 @@ create or replace type body ut_equal as
   overriding member function failure_message(a_actual ut_data_value) return varchar2 is
     l_result varchar2(32767);
   begin
-    return (self as ut_matcher).failure_message(a_actual) || ': '|| expected.to_string_report();
+    l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
+    if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
+      l_result := l_result || chr(10) ||'diff: ' || expected.diff(a_actual);
+    end if;
+    return l_result;
   end;
 
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2 is

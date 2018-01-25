@@ -268,6 +268,14 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  procedure append_to_clob(a_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2:= chr(10)) is
+  begin
+    for i in 1 .. a_clob_table.count loop
+      append_to_clob(a_clob,a_delimiter);
+      dbms_lob.append(a_clob,a_clob_table(i));
+    end loop;
+  end;
+
   function time_diff(a_start_time timestamp with time zone, a_end_time timestamp with time zone) return number is
   begin
     return
@@ -380,11 +388,9 @@ create or replace package body ut_utils is
   end;
 
   procedure cleanup_temp_tables is
-    pragma autonomous_transaction;
   begin
-    execute immediate 'delete from ut_cursor_data';
-    execute immediate 'delete from ut_cursor_data_diff';
-    commit;
+    execute immediate 'delete from ut_data_set_tmp';
+    execute immediate 'delete from ut_data_set_diff_tmp';
   end;
 
   function to_version(a_version_no varchar2) return t_version is

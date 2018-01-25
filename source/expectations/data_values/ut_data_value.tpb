@@ -20,6 +20,16 @@ create or replace type body ut_data_value as
     return compare_implementation(a_other);
   end;
 
+  member function is_diffable return boolean is
+  begin
+    return false;
+  end;
+
+  member function diff( a_other ut_data_value ) return varchar2 is
+  begin
+    return null;
+  end;
+
   member function is_multi_line return boolean is
   begin
     return false;

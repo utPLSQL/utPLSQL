@@ -1,4 +1,4 @@
-create global temporary table ut_cursor_data_diff(
+create global temporary table ut_data_set_diff_tmp(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -12,6 +12,7 @@ create global temporary table ut_cursor_data_diff(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  row_no           integer,
-  constraint ut_cursor_data_diff_pk primary key(row_no)
+  diff_id    raw(16),
+  item_no    integer,
+  constraint ut_data_set_diff_tmp_pk primary key(diff_id,item_no)
 ) on commit preserve rows;

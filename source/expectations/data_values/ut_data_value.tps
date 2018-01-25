@@ -23,6 +23,8 @@ create or replace type ut_data_value authid current_user as object (
   final member function format_multi_line( a_string varchar2) return varchar2,
   final member function to_string_report(a_add_new_line_for_multi_line boolean := false, a_with_type_name boolean := true) return varchar2,
   order member function compare( a_other ut_data_value ) return integer,
+  member function is_diffable return boolean,
+  member function diff( a_other ut_data_value ) return varchar2,
   not instantiable member function compare_implementation( a_other ut_data_value ) return integer
 ) not final not instantiable
 /

@@ -1,4 +1,4 @@
-create global temporary table ut_cursor_data(
+create global temporary table ut_data_set_tmp(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -12,8 +12,8 @@ create global temporary table ut_cursor_data(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  cursor_data_guid raw(16),
-  row_no           integer,
-  row_data         xmltype,
-  constraint ut_cursor_data_pk primary key(cursor_data_guid, row_no)
+  data_set_guid    raw(16),
+  item_no          integer,
+  item_data        xmltype,
+  constraint ut_data_set_tmp_pk primary key(data_set_guid, item_no)
 ) on commit preserve rows;
