@@ -39,6 +39,11 @@ create or replace type body ut_data_value_refcursor as
     return;
   end;
 
+  overriding member function get_object_info return varchar2 is
+  begin
+    return self.data_type||' [ count = '||self.row_count||' ]';
+  end;
+
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) is
     l_ctx                 number;
     l_xml                 xmltype;
@@ -126,12 +131,11 @@ create or replace type body ut_data_value_refcursor as
            and ucd.item_no <= :max_rows'
       bulk collect into l_results using self.data_set_guid, c_max_rows;
 
-    ut_utils.append_to_clob(l_result,'row count: '||row_count);
     ut_utils.append_to_clob(l_result,l_results);
 
     l_result_string := ut_utils.to_string(l_result,null);
     dbms_lob.freetemporary(l_result);
-    return self.format_multi_line( l_result_string );
+    return l_result_string;
   end;
 
   overriding member function is_diffable return boolean is
@@ -167,7 +171,7 @@ create or replace type body ut_data_value_refcursor as
                           and rownum <= :max_rows'
       bulk collect into l_results using c_pad_depth, self.data_set_guid, l_diff_id, c_max_rows;
 
-    ut_utils.append_to_clob(l_result,'(count: ' || to_char(l_diff_row_count) ||')');
+    ut_utils.append_to_clob(l_result,'[ count = ' || to_char(l_diff_row_count) ||' ]' || chr(10));
     ut_utils.append_to_clob(l_result,l_results);
 
     l_result_string := ut_utils.to_string(l_result,null);

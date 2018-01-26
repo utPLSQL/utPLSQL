@@ -37,10 +37,8 @@ create or replace package body test_expect_to_be_empty is
     --Act
     ut3.ut.expect(l_cursor).to_be_empty;
 
-    l_expected_message := q'[Actual:%
-    row count: 1%
+    l_expected_message := q'[Actual: (refcursor [ count = 1 ])%
     <ROW><DUMMY>X</DUMMY></ROW>%
- (refcursor)%
 was expected to be empty%%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
 

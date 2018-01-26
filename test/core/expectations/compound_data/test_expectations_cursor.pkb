@@ -537,18 +537,14 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
 
-    l_expected_message := q'[Actual:%
-    row count: 2%
+    l_expected_message := q'[Actual: (refcursor [ count = 2 ])
     <ROW><RN>1</RN></ROW>%
     <ROW><RN>2</RN></ROW>%
- (refcursor)%
-was expected to equal:%
-    row count: 3%
+was expected to equal: (refcursor [ count = 3 ])
     <ROW><RN>1</RN></ROW>%
     <ROW><RN>2</RN></ROW>%
     <ROW><RN>3</RN></ROW>%
- (refcursor)%
-diff: (count: 1)%
+diff: [ count = 1 ]%
 row_no: 3     <ROW><RN>3</RN></ROW>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert

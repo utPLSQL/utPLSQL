@@ -386,7 +386,7 @@ was expected to equal:%
     --Arrange
     g_test_expected := anydata.convertCollection( test_dummy_object_list(l_obj) );
     g_test_actual   := anydata.convertCollection( test_dummy_object_list(l_obj, l_obj) );
-    l_expected := q'[%Actual:%
+    l_expected := q'[%Actual:%[ count = % ])
     <TEST_DUMMY_OBJECT_LIST>
       <TEST_DUMMY_OBJECT>
         <ID>1</ID>
@@ -399,7 +399,7 @@ was expected to equal:%
         <Value>0</Value>
       </TEST_DUMMY_OBJECT>
     </TEST_DUMMY_OBJECT_LIST>%
-was expected to equal:%
+was expected to equal:%[ count = % ])
     <TEST_DUMMY_OBJECT_LIST>
       <TEST_DUMMY_OBJECT>
         <ID>1</ID>

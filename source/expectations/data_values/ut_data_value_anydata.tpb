@@ -16,11 +16,6 @@ create or replace type body ut_data_value_anydata as
   limitations under the License.
   */
 
-  overriding member function is_null return boolean is
-  begin
-    return true;
-  end;
-
   overriding member function to_string return varchar2 is
     l_result varchar2(32767);
     l_clob   clob;
@@ -33,7 +28,7 @@ create or replace type body ut_data_value_anydata as
       l_result := ut_utils.to_string( l_clob, null );
       ut_expectation_processor.reset_nls_params();
     end if;
-    return self.format_multi_line( l_result );
+    return l_result;
   end;
 
   overriding member function compare_implementation(a_other ut_data_value) return integer is
@@ -77,11 +72,26 @@ create or replace type body ut_data_value_anydata as
     return l_result;
   end;
 
-  final member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata, a_self_type varchar2) is
+  final member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata, a_data_object_type varchar2) is
   begin
     self.data_value := a_value;
-    self.self_type  := a_self_type;
     self.data_type  := case when a_value is not null then lower(a_value.gettypename) else 'undefined' end;
+    if data_value is not null then
+      execute immediate '
+        declare
+          l_data '||self.data_value.gettypename()||';
+          l_value anydata := :a_value;
+          l_status integer;
+        begin
+          l_status := l_value.get'||a_data_object_type||'(l_data);
+          :l_data_is_null := case when l_data is null then 1 else 0 end;
+        end;' using in self.data_value, out self.data_value_is_null;
+    end if;
+  end;
+
+  overriding member function is_null return boolean is
+  begin
+    return self.data_value is null or ut_utils.int_to_boolean(self.data_value_is_null);
   end;
 
   static function get_instance(a_data_value anydata, a_exclude varchar2 := null, a_include varchar2 := null) return ut_data_value_anydata is

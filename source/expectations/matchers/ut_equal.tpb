@@ -147,7 +147,7 @@ create or replace type body ut_equal as
   begin
     l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
-      l_result := l_result || chr(10) ||'diff: ' || expected.diff(a_actual);
+      l_result := l_result || chr(10) || 'diff: ' || expected.diff(a_actual);
     end if;
     return l_result;
   end;

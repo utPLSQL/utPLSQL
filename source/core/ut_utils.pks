@@ -198,8 +198,6 @@ create or replace package ut_utils authid definer is
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob;
 
-  procedure append_to_clob(a_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2 := chr(10));
-
   /**
    * Returns time difference in seconds (with miliseconds) between given timestamps
    */
@@ -221,7 +219,10 @@ create or replace package ut_utils authid definer is
    */
   procedure append_to_varchar2_list(a_list in out nocopy ut_varchar2_list, a_line varchar2);
 
+  procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2 := chr(10));
+
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob);
+
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data varchar2);
 
   function convert_collection(a_collection ut_varchar2_list) return ut_varchar2_rows;
