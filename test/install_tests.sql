@@ -29,6 +29,7 @@ whenever oserror exit failure rollback
 @@core/expectations/test_expect_to_be_null.pks
 @@test_ut_runner.pks
 @@core/annotations/test_annotation_manager.pks
+@@core/annotations/test_annot_throws_exception.pks
 @@core/test_ut_suite.pks
 @@core/test_ut_test.pks
 
@@ -48,6 +49,7 @@ whenever oserror exit failure rollback
 @@core/expectations/test_expect_to_be_null.pkb
 @@test_ut_runner.pkb
 @@core/annotations/test_annotation_manager.pkb
+@@core/annotations/test_annot_throws_exception.pkb
 @@core/test_ut_suite.pkb
 @@core/test_ut_test.pkb
 
