@@ -14,3 +14,4 @@ is
     --%test(Gives failure when the raised exception is different that the annotated one)
     procedure throws_diff_annotated_except;
 end;
+/
