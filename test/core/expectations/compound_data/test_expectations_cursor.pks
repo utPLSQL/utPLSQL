@@ -86,6 +86,15 @@ create or replace package test_expectations_cursor is
   --%test(Comma separated list of columns to exclude is case sensitive)
   procedure exclude_columns_as_csv;
 
+  --%test(Raises warning when using old syntax of exclude)
+  procedure exclude_columns_as_csv_warn;
+
+  --%test(Excludes list of mixed columns and XPath)
+  procedure exclude_columns_as_mixed_list;
+
+  --%test(Excludes comma separated list of mixed columns and XPath)
+  procedure exclude_columns_as_mix_csv_lst;
+
   --%test(Exclude columns fails on invalid XPath)
   procedure exclude_columns_xpath_invalid;
 

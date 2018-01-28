@@ -32,10 +32,16 @@ create or replace type body ut_data_value_anydata as
   end;
 
   overriding member function compare_implementation(a_other ut_data_value) return integer is
+  begin
+    return compare_implementation( a_other, null, null);
+  end;
+
+  member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer is
     l_self_data  xmltype;
     l_other_data xmltype;
     l_other  ut_data_value_anydata;
     l_result integer;
+    l_ancestors varchar2(20);
     procedure filter_by_xpaths(a_xml in out nocopy xmltype, a_exclude varchar2, a_include varchar2) is
     begin
       if a_exclude is not null then
@@ -50,17 +56,16 @@ create or replace type body ut_data_value_anydata as
       l_other := treat(a_other as ut_data_value_anydata);
       --needed for 11g xe as it fails on constructing XMLTYPE from null ANYDATA
       if not self.is_null() and not l_other.is_null() then
+        if self is of (ut_data_value_object) then
+          l_ancestors := '/*/';
+        else
+          l_ancestors := '/*/*/';
+        end if;
         ut_expectation_processor.set_xml_nls_params();
         l_self_data := xmltype.createxml(self.data_value);
         l_other_data := xmltype.createxml(l_other.data_value);
-        --We use `order member function compare` to do data comparison.
-        --Therefore, in the `ut_equals` matcher, comparison is done by simply checking
-        --   `l_result := equal_with_nulls((self.expected = a_actual), a_actual)`
-        --We cannot guarantee that we will always use `expected = actual ` and not `actual = expected`.
-        --We should expect the same behaviour regardless of that is the order.
-        -- This is why we need to coalesce `exclude_xpath` though at most one of them will always be populated
-        filter_by_xpaths(l_self_data, coalesce(self.exclude_xpath, l_other.exclude_xpath), coalesce(self.include_xpath, l_other.include_xpath));
-        filter_by_xpaths(l_other_data, coalesce(self.exclude_xpath, l_other.exclude_xpath), coalesce(self.include_xpath, l_other.include_xpath));
+        filter_by_xpaths(l_self_data, a_exclude_xpath, a_include_xpath);
+        filter_by_xpaths(l_other_data, a_exclude_xpath, a_include_xpath);
         ut_expectation_processor.reset_nls_params();
         if l_self_data is not null and l_other_data is not null then
           l_result := dbms_lob.compare( l_self_data.getclobval(), l_other_data.getclobval() );
@@ -94,10 +99,9 @@ create or replace type body ut_data_value_anydata as
     return self.data_value is null or ut_utils.int_to_boolean(self.data_value_is_null);
   end;
 
-  static function get_instance(a_data_value anydata, a_exclude varchar2 := null, a_include varchar2 := null) return ut_data_value_anydata is
+  static function get_instance(a_data_value anydata) return ut_data_value_anydata is
     l_result    ut_data_value_anydata := ut_data_value_object(null);
     l_type      anytype;
-    l_ancestors varchar2(20) := '/*/';
     l_type_code integer;
   begin
     if a_data_value is not null then
@@ -107,25 +111,11 @@ create or replace type body ut_data_value_anydata as
           l_result := ut_data_value_object(a_data_value);
         else
           l_result := ut_data_value_collection(a_data_value);
-          l_ancestors := '/*/*/';
         end if;
-        l_result.exclude_xpath := ut_utils.to_xpath( a_exclude, l_ancestors );
-        l_result.include_xpath := ut_utils.to_xpath( a_include, l_ancestors );
       else
         raise_application_error(-20000, 'Data type '||a_data_value.gettypename||' in ANYDATA is not supported by utPLSQL');
       end if;
     end if;
-    return l_result;
-  end;
-
-  static function get_instance(a_data_value anydata, a_exclude ut_varchar2_list, a_include ut_varchar2_list) return ut_data_value_anydata is
-    l_result    ut_data_value_anydata;
-    l_exclude   varchar2(32767);
-    l_include   varchar2(32767);
-  begin
-    l_exclude := substr(ut_utils.table_to_clob(a_exclude, ','), 1, 32767);
-    l_include := substr(ut_utils.table_to_clob(a_include, ','), 1, 32767);
-    l_result  := ut_data_value_anydata.get_instance(a_data_value, l_exclude, l_include );
     return l_result;
   end;
 

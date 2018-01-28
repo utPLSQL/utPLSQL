@@ -16,25 +16,8 @@ create or replace type body ut_data_value_refcursor as
   limitations under the License.
   */
 
-  constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor, a_exclude varchar2 := null, a_include varchar2 := null ) return self as result is
+  constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) return self as result is
   begin
-    self.exclude_xpath := ut_utils.to_xpath(a_exclude);
-    self.include_xpath := ut_utils.to_xpath(a_include);
-    init(a_value);
-    return;
-  end;
-
-  constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor, a_exclude ut_varchar2_list ) return self as result is
-  begin
-    self.exclude_xpath := ut_utils.to_xpath(a_exclude);
-    init(a_value);
-    return;
-  end;
-
-  constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor, a_exclude ut_varchar2_list := null, a_include ut_varchar2_list ) return self as result is
-  begin
-    self.exclude_xpath := ut_utils.to_xpath(a_exclude);
-    self.include_xpath := ut_utils.to_xpath(a_include);
     init(a_value);
     return;
   end;
@@ -185,26 +168,27 @@ create or replace type body ut_data_value_refcursor as
   end;
 
   overriding member function compare_implementation(a_other ut_data_value) return integer is
+  begin
+    return compare_implementation( a_other, null, null);
+  end;
+
+  member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer is
     l_result        integer;
     l_other         ut_data_value_refcursor;
-    l_exclude_xpath varchar2(32767);
-    l_include_xpath varchar2(32767);
     l_ut_owner      varchar2(250) := ut_utils.ut_owner;
     l_column_filter varchar2(32767);
     l_diff_id       raw(16);
   begin
-    l_exclude_xpath := coalesce(self.exclude_xpath, l_other.exclude_xpath);
-    l_include_xpath := coalesce(self.include_xpath, l_other.include_xpath);
     -- this SQL statement is constructed in a way that we always get the same number and ordering of substitution variables
     -- That is, we always get: l_exclude_xpath, l_include_xpath
     --   regardless if the variables are NULL (not to be used) or NOT NULL and will be used for filtering
-    if l_exclude_xpath is null and l_include_xpath is null then
+    if a_exclude_xpath is null and a_include_xpath is null then
       l_column_filter := ':l_exclude_xpath as l_exclude_xpath, :l_include_xpath as l_include_xpath, ucd.item_data as item_data';
-    elsif l_exclude_xpath is not null and l_include_xpath is null then
+    elsif a_exclude_xpath is not null and a_include_xpath is null then
       l_column_filter := 'deletexml( ucd.item_data, :l_exclude_xpath ) as item_data, :l_include_xpath as l_include_xpath';
-    elsif l_exclude_xpath is null and l_include_xpath is not null then
+    elsif a_exclude_xpath is null and a_include_xpath is not null then
       l_column_filter := ':l_exclude_xpath as l_exclude_xpath, extract( ucd.item_data, :l_include_xpath ) as item_data';
-    elsif l_exclude_xpath is not null and l_include_xpath is not null then
+    elsif a_exclude_xpath is not null and a_include_xpath is not null then
       l_column_filter := 'extract( deletexml( ucd.item_data, :l_exclude_xpath ), :l_include_xpath ) as item_data';
     end if;
     if not a_other is of (ut_data_value_refcursor) then
@@ -223,7 +207,7 @@ create or replace type body ut_data_value_refcursor as
                                   from ' || l_ut_owner || '.ut_data_set_tmp ucd where ucd.data_set_guid = :l_other_guid) act
                             on exp.item_no = act.item_no
                          where nvl(dbms_lob.compare(xmlserialize( content exp.item_data no indent), xmlserialize( content act.item_data no indent)),1) != 0'
-      using in l_diff_id, l_exclude_xpath, l_include_xpath, self.data_set_guid, l_exclude_xpath, l_include_xpath, l_other.data_set_guid;
+      using in l_diff_id, a_exclude_xpath, a_include_xpath, self.data_set_guid, a_exclude_xpath, a_include_xpath, l_other.data_set_guid;
 
     --result is OK only if both are same
     if sql%rowcount = 0 and self.row_count = l_other.row_count then

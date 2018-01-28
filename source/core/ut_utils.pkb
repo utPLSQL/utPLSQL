@@ -297,18 +297,18 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
-  procedure append_to_varchar2_list(a_list in out nocopy ut_varchar2_list, a_line varchar2) is
+  procedure append_to_list(a_list in out nocopy ut_varchar2_list, a_item varchar2) is
   begin
-    if a_line is not null then
+    if a_item is not null then
       if a_list is null then
         a_list := ut_varchar2_list();
       end if;
       a_list.extend;
-      a_list(a_list.last) := a_line;
+      a_list(a_list.last) := a_item;
     end if;
-  end append_to_varchar2_list;
+  end append_to_list;
 
-  procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2:= chr(10)) is
+procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2:= chr(10)) is
   begin
     if a_clob_table is not null and cardinality(a_clob_table) > 0 then
       if a_src_clob is null then
@@ -369,9 +369,7 @@ create or replace package body ut_utils is
   function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2 is
     l_xpath varchar2(32767) := a_list;
   begin
-    if l_xpath not like '/%' then
-      l_xpath := to_xpath( clob_to_table(a_clob=>a_list, a_delimiter=>','), a_ancestors);
-    end if;
+    l_xpath := to_xpath( clob_to_table(a_clob=>a_list, a_delimiter=>','), a_ancestors);
     return l_xpath;
   end;
 
@@ -385,7 +383,13 @@ create or replace package body ut_utils is
       while i is not null loop
         l_item := trim(a_list(i));
         if l_item is not null then
-          l_xpath := l_xpath || a_ancestors ||a_list(i)||'|';
+          if l_item like '%,%' then
+            l_xpath := l_xpath || to_xpath( l_item, a_ancestors ) || '|';
+          elsif l_item like '/%' then
+            l_xpath := l_xpath || l_item || '|';
+          else
+            l_xpath := l_xpath || a_ancestors || l_item || '|';
+          end if;
         end if;
         i := a_list.next(i);
       end loop;

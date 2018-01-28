@@ -215,9 +215,9 @@ create or replace package ut_utils authid definer is
   function get_utplsql_objects_list return ut_object_names;
 
   /**
-   * Append a line to the end of ut_varchar2_lst
+   * Append a item to the end of ut_varchar2_list
    */
-  procedure append_to_varchar2_list(a_list in out nocopy ut_varchar2_list, a_line varchar2);
+  procedure append_to_list(a_list in out nocopy ut_varchar2_list, a_item varchar2);
 
   procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2 := chr(10));
 
