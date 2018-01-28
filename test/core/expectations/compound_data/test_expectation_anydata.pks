@@ -93,5 +93,23 @@ create or replace package test_expectation_anydata is
   --%test(Gives information about collections content in report)
   procedure reports_collection_structre;
 
+  --%test(Adds a warning when using depreciated syntax to_equal( a_expected anydata, a_exclude varchar2 ))
+  procedure deprec_to_equal_excl_varch;
+
+  --%test(Adds a warning when using depreciated syntax to_equal( a_expected anydata, a_exclude ut_varchar2_list ))
+  procedure deprec_to_equal_excl_list;
+
+  --%test(Adds a warning when using depreciated syntax not_to_equal( a_expected anydata, a_exclude varchar2 ))
+  procedure deprec_not_to_equal_excl_varch;
+
+  --%test(Adds a warning when using depreciated syntax not_to_equal( a_expected anydata, a_exclude ut_varchar2_list ))
+  procedure deprec_not_to_equal_excl_list;
+
+  --%test(Adds a warning when using depreciated syntax to_( equal( a_expected anydata, a_exclude varchar2 ) ))
+  procedure deprec_equal_excl_varch;
+
+  --%test(Adds a warning when using depreciated syntax to_( equal( a_expected anydata, a_exclude ut_varchar2_list )) )
+  procedure deprec_equal_excl_list;
+
 end;
 /

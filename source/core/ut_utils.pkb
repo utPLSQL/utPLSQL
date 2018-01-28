@@ -480,6 +480,13 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     return nvl(trunc(power(10,(floor(log(10,a_cardinality))+1))/3),0);
   end;
 
+  function build_depreciation_warning(a_old_syntax varchar2, a_new_syntax varchar2) return varchar2 is
+  begin
+    return 'The syntax: "'||a_old_syntax||'" is depreciated.' ||chr(10)||
+           'Please use the new syntax: "'||a_new_syntax||'".' ||chr(10)||
+           'The depreciated syntax will not be supported in future releases.';
+  end;
+
   function to_xml_number_format(a_value number) return varchar2 is
   begin
     return to_char(a_value, gc_number_format, 'NLS_NUMERIC_CHARACTERS=''. ''');

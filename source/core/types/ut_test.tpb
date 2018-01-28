@@ -120,7 +120,7 @@ create or replace type body ut_test as
     --expectation results need to be part of test results
     self.all_expectations    := ut_expectation_processor.get_all_expectations();
     self.failed_expectations := ut_expectation_processor.get_failed_expectations();
-    self.warnings := ut_expectation_processor.get_warnings();
+    self.warnings := self.warnings multiset union all ut_expectation_processor.get_warnings();
     ut_expectation_processor.clear_expectations();
     self.results_count.set_counter_values(self.result);
   end;

@@ -414,5 +414,64 @@ was expected to equal:%[ count = % ])
     ut.expect(l_actual).to_be_like(l_expected);
   end;
 
+  function get_anydata return anydata is
+  begin
+    return anydata.convertObject( test_dummy_object(1, 'B', '0') );
+  end;
+
+  procedure deprec_to_equal_excl_varch is
+  begin
+    --Act
+    ut3.ut.expect(get_anydata()).to_equal(get_anydata(), a_exclude => 'A_COLUMN,Some_Col');
+    --Assert
+    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+  end;
+
+  procedure deprec_to_equal_excl_list is
+  begin
+    --Act
+    ut3.ut.expect(get_anydata()).to_equal(get_anydata(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
+    --Assert
+    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+  end;
+
+  procedure deprec_not_to_equal_excl_varch is
+  begin
+    --Act
+    ut3.ut.expect(get_anydata()).not_to_equal(get_anydata(), a_exclude => 'A_COLUMN,Some_Col');
+    --Assert
+    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+  end;
+
+  procedure deprec_not_to_equal_excl_list is
+  begin
+    --Act
+    ut3.ut.expect(get_anydata()).not_to_equal(get_anydata(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
+    --Assert
+    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+  end;
+
+  procedure deprec_equal_excl_varch is
+  begin
+    --Act
+    ut3.ut.expect(get_anydata()).to_(ut3.equal(get_anydata(), a_exclude => 'A_COLUMN,Some_Col'));
+    --Assert
+    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+  end;
+
+  procedure deprec_equal_excl_list is
+  begin
+    --Act
+    ut3.ut.expect(get_anydata()).to_(ut3.equal(get_anydata(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col')));
+    --Assert
+    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+  end;
+
 end;
 /

@@ -86,9 +86,6 @@ create or replace package test_expectations_cursor is
   --%test(Comma separated list of columns to exclude is case sensitive)
   procedure exclude_columns_as_csv;
 
-  --%test(Raises warning when using old syntax of exclude)
-  procedure exclude_columns_as_csv_warn;
-
   --%test(Excludes list of mixed columns and XPath)
   procedure exclude_columns_as_mixed_list;
 
@@ -150,6 +147,24 @@ create or replace package test_expectations_cursor is
 
   --%test(Compares cursors with more than 1000 rows)
   procedure compares_over_1000_rows;
+
+  --%test(Adds a warning when using depreciated syntax to_equal( a_expected sys_refcursor, a_exclude varchar2 ))
+  procedure deprec_to_equal_excl_varch;
+
+  --%test(Adds a warning when using depreciated syntax to_equal( a_expected sys_refcursor, a_exclude ut_varchar2_list ))
+  procedure deprec_to_equal_excl_list;
+
+  --%test(Adds a warning when using depreciated syntax not_to_equal( a_expected sys_refcursor, a_exclude varchar2 ))
+  procedure deprec_not_to_equal_excl_varch;
+
+  --%test(Adds a warning when using depreciated syntax not_to_equal( a_expected sys_refcursor, a_exclude ut_varchar2_list ))
+  procedure deprec_not_to_equal_excl_list;
+
+  --%test(Adds a warning when using depreciated syntax to_( equal( a_expected sys_refcursor, a_exclude varchar2 ) ))
+  procedure deprec_equal_excl_varch;
+
+  --%test(Adds a warning when using depreciated syntax to_( equal( a_expected sys_refcursor, a_exclude ut_varchar2_list )) )
+  procedure deprec_equal_excl_list;
 
 end;
 /

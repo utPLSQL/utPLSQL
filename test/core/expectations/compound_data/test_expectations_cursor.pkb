@@ -373,23 +373,7 @@ create or replace package body test_expectations_cursor is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure exclude_columns_as_csv_warn
-  as
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-  --Arrange
-    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
-    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
-    --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'A_COLUMN,Some_Col');
-    --Assert
-    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
-    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('%DEPRECIATED%');
-  end;
-
-
-procedure exclude_columns_as_mixed_list is
+  procedure exclude_columns_as_mixed_list is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
   begin
@@ -724,6 +708,67 @@ row_no: 3     <ROW><RN>3</RN></ROW>%]';
 
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  function get_cursor return sys_refcursor is
+    l_cursor sys_refcursor;
+  begin
+    open l_cursor for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
+    return l_cursor;
+  end;
+
+  procedure deprec_to_equal_excl_varch is
+  begin
+    --Act
+    ut3.ut.expect(get_cursor()).to_equal(get_cursor(), a_exclude => 'A_COLUMN,Some_Col');
+    --Assert
+    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+  end;
+
+  procedure deprec_to_equal_excl_list is
+  begin
+    --Act
+    ut3.ut.expect(get_cursor()).to_equal(get_cursor(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
+    --Assert
+    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+  end;
+
+  procedure deprec_not_to_equal_excl_varch is
+  begin
+    --Act
+    ut3.ut.expect(get_cursor()).not_to_equal(get_cursor(), a_exclude => 'A_COLUMN,Some_Col');
+    --Assert
+    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+  end;
+
+  procedure deprec_not_to_equal_excl_list is
+  begin
+    --Act
+    ut3.ut.expect(get_cursor()).not_to_equal(get_cursor(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
+    --Assert
+    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+  end;
+
+  procedure deprec_equal_excl_varch is
+  begin
+    --Act
+    ut3.ut.expect(get_cursor()).to_(ut3.equal(get_cursor(), a_exclude => 'A_COLUMN,Some_Col'));
+    --Assert
+    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+  end;
+
+  procedure deprec_equal_excl_list is
+  begin
+    --Act
+    ut3.ut.expect(get_cursor()).to_(ut3.equal(get_cursor(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col')));
+    --Assert
+    ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
   end;
 
 end;

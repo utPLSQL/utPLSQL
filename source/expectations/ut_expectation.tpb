@@ -97,17 +97,23 @@ create or replace type body ut_expectation as
 
   member procedure to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2, a_nulls_are_equal boolean := null) is
   begin
-    ut_expectation_processor.add_warning('The syntax: "to_equal( a_expected, a_exclude)" is DEPRECATED.' ||chr(10)||
-                                         'Please use the new syntax: "to_equal( a_expected).exclude( a_items )".' ||chr(10)||
-                                         'The DEPRECIATED syntax will not be supported in future releases.');
+    ut_expectation_processor.add_warning(
+        ut_utils.build_depreciation_warning(
+            'to_equal( a_expected anydata, a_exclude varchar2 )',
+            'to_equal( a_expected anydata ).exclude( a_exclude varchar2 )'
+        )
+    );
     self.to_( ut_equal(a_expected, a_nulls_are_equal).exclude(a_exclude) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected anydata, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null) is
   begin
-    ut_expectation_processor.add_warning('The syntax: "to_equal( a_expected, a_exclude)" is DEPRECATED.' ||chr(10)||
-                                         'Please use the new syntax: "to_equal( a_expected).exclude( a_items )".' ||chr(10)||
-                                         'The DEPRECIATED syntax will not be supported in future releases.');
+    ut_expectation_processor.add_warning(
+        ut_utils.build_depreciation_warning(
+            'to_equal( a_expected anydata, a_exclude ut_varchar2_list )',
+            'to_equal( a_expected anydata ).exclude( a_exclude ut_varchar2_list )'
+        )
+    );
     self.to_( ut_equal(a_expected, a_nulls_are_equal).exclude(a_exclude) );
   end;
 
@@ -143,17 +149,23 @@ create or replace type body ut_expectation as
 
   member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude varchar2, a_nulls_are_equal boolean := null) is
   begin
-    ut_expectation_processor.add_warning('The syntax: "to_equal( a_expected, a_exclude)" is DEPRECATED.' ||chr(10)||
-                                         'Please use the new syntax: "to_equal( a_expected).exclude( a_items )".' ||chr(10)||
-                                         'The DEPRECIATED syntax will not be supported in future releases.');
+    ut_expectation_processor.add_warning(
+        ut_utils.build_depreciation_warning(
+            'to_equal( a_expected sys_refcursor, a_exclude varchar2 )',
+            'to_equal( a_expected sys_refcursor ).exclude( a_exclude varchar2 )'
+        )
+    );
     self.to_( ut_equal(a_expected, a_nulls_are_equal).exclude(a_exclude) );
   end;
 
   member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null) is
   begin
-    ut_expectation_processor.add_warning('The syntax: "to_equal( a_expected, a_exclude)" is DEPRECATED.' ||chr(10)||
-                                         'Please use the new syntax: "to_equal( a_expected).exclude( a_items )".' ||chr(10)||
-                                         'The DEPRECIATED syntax will not be supported in future releases.');
+    ut_expectation_processor.add_warning(
+        ut_utils.build_depreciation_warning(
+            'to_equal( a_expected sys_refcursor, a_exclude ut_varchar2_list )',
+            'to_equal( a_expected sys_refcursor ).exclude( a_exclude ut_varchar2_list )'
+        )
+    );
     self.to_( ut_equal(a_expected, a_nulls_are_equal).exclude(a_exclude) );
   end;
 
@@ -195,17 +207,23 @@ create or replace type body ut_expectation as
 
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2, a_nulls_are_equal boolean := null) is
   begin
-    ut_expectation_processor.add_warning('The syntax: "not_to_equal( a_expected, a_exclude)" is DEPRECATED.' ||chr(10)||
-                                         'Please use the new syntax: "not_to_equal( a_expected).exclude( a_items )".' ||chr(10)||
-                                         'The DEPRECIATED syntax will not be supported in future releases.');
+    ut_expectation_processor.add_warning(
+        ut_utils.build_depreciation_warning(
+            'not_to_equal( a_expected anydata, a_exclude varchar2 )',
+            'not_to_equal( a_expected anydata ).exclude( a_exclude varchar2 )'
+        )
+    );
     self.not_to( ut_equal(a_expected, a_nulls_are_equal).exclude(a_exclude) );
   end;
 
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null) is
   begin
-    ut_expectation_processor.add_warning('The syntax: "not_to_equal( a_expected, a_exclude)" is DEPRECATED.' ||chr(10)||
-                                         'Please use the new syntax: "not_to_equal( a_expected).exclude( a_items )".' ||chr(10)||
-                                         'The DEPRECIATED syntax will not be supported in future releases.');
+    ut_expectation_processor.add_warning(
+        ut_utils.build_depreciation_warning(
+            'not_to_equal( a_expected anydata, a_exclude ut_varchar2_list )',
+            'not_to_equal( a_expected anydata ).exclude( a_exclude ut_varchar2_list )'
+        )
+    );
     self.not_to( ut_equal(a_expected, a_nulls_are_equal).exclude(a_exclude) );
   end;
 
@@ -241,17 +259,23 @@ create or replace type body ut_expectation as
 
   member procedure not_to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude varchar2, a_nulls_are_equal boolean := null) is
   begin
-    ut_expectation_processor.add_warning('The syntax: "not_to_equal( a_expected, a_exclude)" is DEPRECATED.' ||chr(10)||
-                                         'Please use the new syntax: "not_to_equal( a_expected).exclude( a_items )".' ||chr(10)||
-                                         'The DEPRECIATED syntax will not be supported in future releases.');
+    ut_expectation_processor.add_warning(
+        ut_utils.build_depreciation_warning(
+            'not_to_equal( a_expected sys_refcursor, a_exclude varchar2 )',
+            'not_to_equal( a_expected sys_refcursor ).exclude( a_exclude varchar2 )'
+        )
+    );
     self.not_to( ut_equal(a_expected, a_nulls_are_equal).exclude(a_exclude) );
   end;
 
   member procedure not_to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null) is
   begin
-    ut_expectation_processor.add_warning('The syntax: "not_to_equal( a_expected, a_exclude)" is DEPRECATED.' ||chr(10)||
-                                         'Please use the new syntax: "not_to_equal( a_expected).exclude( a_items )".' ||chr(10)||
-                                         'The DEPRECIATED syntax will not be supported in future releases.');
+    ut_expectation_processor.add_warning(
+        ut_utils.build_depreciation_warning(
+            'not_to_equal( a_expected sys_refcursor, a_exclude ut_varchar2_list )',
+            'not_to_equal( a_expected sys_refcursor ).exclude( a_exclude ut_varchar2_list )'
+        )
+    );
     self.not_to( ut_equal(a_expected, a_nulls_are_equal).exclude(a_exclude) );
   end;
 

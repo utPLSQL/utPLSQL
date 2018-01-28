@@ -38,10 +38,14 @@ create or replace type body ut_equal as
   end;
 
   constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_exclude varchar2, a_nulls_are_equal boolean := null) return self as result is
+    l_depreciated integer;
   begin
-    ut_expectation_processor.add_warning('The syntax: "equal( a_expected, a_exclude)" is DEPRECATED.' ||chr(10)||
-                                         'Please use the new syntax: "equal( a_expected).exclude( a_items )".' ||chr(10)||
-                                         'The DEPRECIATED syntax will not be supported in future releases.');
+    ut_expectation_processor.add_warning(
+      ut_utils.build_depreciation_warning(
+        'equal( a_expected anydata, a_exclude varchar2 )',
+        'equal( a_expected anydata ).exclude( a_exclude varchar2 )'
+      )
+    );
     init(ut_data_value_anydata.get_instance(a_expected), a_nulls_are_equal);
     exclude_list := ut_varchar2_list(a_exclude);
     return;
@@ -49,9 +53,12 @@ create or replace type body ut_equal as
 
   constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null) return self as result is
   begin
-    ut_expectation_processor.add_warning('The syntax: "equal( a_expected, a_exclude)" is DEPRECATED.' ||chr(10)||
-                                         'Please use the new syntax: "equal( a_expected).exclude( a_items )".' ||chr(10)||
-                                         'The DEPRECIATED syntax will not be supported in future releases.');
+    ut_expectation_processor.add_warning(
+        ut_utils.build_depreciation_warning(
+            'equal( a_expected anydata, a_exclude ut_varchar2_list )',
+            'equal( a_expected anydata ).exclude( a_exclude ut_varchar2_list )'
+        )
+    );
     init(ut_data_value_anydata.get_instance(a_expected), a_nulls_are_equal);
     exclude_list := coalesce(a_exclude, ut_varchar2_list());
     return;
@@ -95,9 +102,12 @@ create or replace type body ut_equal as
 
   constructor function ut_equal(self in out nocopy ut_equal, a_expected sys_refcursor, a_exclude varchar2, a_nulls_are_equal boolean := null) return self as result is
   begin
-    ut_expectation_processor.add_warning('The syntax: "equal( a_expected, a_exclude)" is DEPRECATED.' ||chr(10)||
-                                         'Please use the new syntax: "equal( a_expected).exclude( a_items )".' ||chr(10)||
-                                         'The DEPRECIATED syntax will not be supported in future releases.');
+    ut_expectation_processor.add_warning(
+        ut_utils.build_depreciation_warning(
+            'equal( a_expected sys_refcursor, a_exclude varchar2 )',
+            'equal( a_expected sys_refcursor ).exclude( a_exclude varchar2 )'
+        )
+    );
     init(ut_data_value_refcursor(a_expected), a_nulls_are_equal);
     exclude_list := ut_varchar2_list(a_exclude);
     return;
@@ -105,9 +115,12 @@ create or replace type body ut_equal as
 
   constructor function ut_equal(self in out nocopy ut_equal, a_expected sys_refcursor, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null) return self as result is
   begin
-    ut_expectation_processor.add_warning('The syntax: "equal( a_expected, a_exclude)" is DEPRECATED.' ||chr(10)||
-                                         'Please use the new syntax: "equal( a_expected).exclude( a_items )".' ||chr(10)||
-                                         'The DEPRECIATED syntax will not be supported in future releases.');
+    ut_expectation_processor.add_warning(
+        ut_utils.build_depreciation_warning(
+            'equal( a_expected sys_refcursor, a_exclude ut_varchar2_list )',
+            'equal( a_expected sys_refcursor ).exclude( a_exclude ut_varchar2_list )'
+        )
+    );
     init(ut_data_value_refcursor(a_expected), a_nulls_are_equal);
     exclude_list := coalesce(a_exclude, ut_varchar2_list());
     return;
