@@ -89,12 +89,12 @@ create or replace type body ut_sonar_test_reporter is
     end;
 
   begin
-    self.print_text('<testExecutions version="1">');
+    self.print_text('<unitTest version="1">');
     for i in 1 .. a_run.items.count loop
       print_suite_results(treat(a_run.items(i) as ut_logical_suite), a_run.test_file_mappings);
     end loop;
 
-    self.print_text('</testExecutions>');
+    self.print_text('</unitTest>');
   end;
 
 end;
