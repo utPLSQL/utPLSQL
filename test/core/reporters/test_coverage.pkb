@@ -11,8 +11,8 @@ create or replace package body test_coverage is
   end;
 
   procedure create_dummy_coverage_package is
+    pragma autonomous_transaction;
   begin
-    dbms_output.put_line('creating UT3.DUMMY_COVERAGE');
     execute immediate q'[create or replace package UT3.DUMMY_COVERAGE is
       procedure do_stuff;
     end;]';
@@ -29,10 +29,11 @@ create or replace package body test_coverage is
   end;
 
   procedure create_dummy_coverage_test is
+    pragma autonomous_transaction;
   begin
-    dbms_output.put_line('creating UT3.TEST_DUMMY_COVERAGE');
     execute immediate q'[create or replace package UT3.TEST_DUMMY_COVERAGE is
       --%suite(dummy coverage test)
+      --%suitepath(coverage_testing)
 
       --%test
       procedure test_do_stuff;
@@ -44,6 +45,45 @@ create or replace package body test_coverage is
       end;
     end;]';
   end;
+
+  procedure create_dummy_coverage_test_1 is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package UT3.DUMMY_COVERAGE_1 is
+      procedure do_stuff;
+    end;]';
+    execute immediate q'[create or replace package body UT3.DUMMY_COVERAGE_1 is
+      procedure do_stuff is
+      begin
+        if 1 = 2 then
+          dbms_output.put_line('should not get here');
+        else
+          dbms_output.put_line('should get here');
+        end if;
+      end;
+    end;]';
+    execute immediate q'[create or replace package UT3.TEST_DUMMY_COVERAGE_1 is
+      --%suite(dummy coverage test 1)
+      --%suitepath(coverage_testing)
+
+      --%test
+      procedure test_do_stuff;
+    end;]';
+    execute immediate q'[create or replace package body UT3.TEST_DUMMY_COVERAGE_1 is
+      procedure test_do_stuff is
+      begin
+        dummy_coverage_1.do_stuff;
+      end;
+    end;]';
+  end;
+
+  procedure drop_dummy_coverage_test_1 is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[drop package UT3.DUMMY_COVERAGE_1]';
+    execute immediate q'[drop package UT3.TEST_DUMMY_COVERAGE_1]';
+  end;
+
 
   procedure mock_coverage_data(a_run_id integer) is
     c_unit_id   constant integer := 1;
@@ -74,10 +114,8 @@ create or replace package body test_coverage is
   procedure cleanup_dummy_coverage is
     pragma autonomous_transaction;
   begin
-    dbms_output.put_line('dopping UT3.TEST_DUMMY_COVERAGE');
-    execute immediate q'[drop package ut3.test_dummy_coverage]';
-    dbms_output.put_line('dopping UT3.DUMMY_COVERAGE');
-    execute immediate q'[drop package ut3.dummy_coverage]';
+    begin execute immediate q'[drop package ut3.test_dummy_coverage]'; exception when others then null; end;
+    begin execute immediate q'[drop package ut3.dummy_coverage]'; exception when others then null; end;
     delete from ut3.plsql_profiler_data where runid = g_run_id;
     delete from ut3.plsql_profiler_units where runid = g_run_id;
     delete from ut3.plsql_profiler_runs where runid = g_run_id;
@@ -152,6 +190,41 @@ create or replace package body test_coverage is
     --Assert
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     ut.expect(l_actual).to_be_like(l_expected);
+  end;
+
+  procedure coverage_tmp_data_refresh is
+    l_actual    clob;
+    l_results   ut3.ut_varchar2_list;
+  begin
+    --Arrange
+    select *
+    bulk collect into l_results
+    from table(
+      ut3.ut.run(
+          a_path => 'ut3:coverage_testing',
+          a_reporter=> ut3.ut_coverage_sonar_reporter( ),
+          a_include_objects => ut3.ut_varchar2_list( 'ut3.dummy_coverage' )
+      )
+    );
+    cleanup_dummy_coverage();
+    create_dummy_coverage_test_1;
+
+    --Act
+    select *
+    bulk collect into l_results
+    from table(
+      ut3.ut.run(
+          a_path => 'ut3:coverage_testing',
+          a_reporter=> ut3.ut_coverage_sonar_reporter( ),
+          a_include_objects => ut3.ut_varchar2_list( 'ut3.dummy_coverage' )
+      )
+    );
+
+    --Assert
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_equal(to_clob('<coverage version="1">
+</coverage>'));
+    drop_dummy_coverage_test_1;
   end;
 
 end;
