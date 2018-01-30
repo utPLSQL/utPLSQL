@@ -39,6 +39,7 @@ create or replace package body ut_runner is
     ut_output_buffer.close(a_reporters);
     ut_metadata.reset_source_definition_cache;
     ut_utils.read_cache_to_dbms_output();
+    ut_coverage_helper.cleanup_tmp_table();
   end;
 
 
