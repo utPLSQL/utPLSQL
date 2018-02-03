@@ -87,7 +87,28 @@ create or replace package body test_xunit_reporter as
       from table(ut3.ut.run('check_xunit_reporting',ut3.ut_xunit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
-    ut.expect(l_actual).to_be_like('%testcase classname="check_xunit_reporting"%');   
+    ut.expect(l_actual).to_be_like('%testcase classname="check_xunit_reporting"%');
+  end;
+
+  procedure check_nls_number_formatting is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+    l_nls_numeric_characters varchar2(30);
+  begin
+    --Arrange
+    select nsp.value into l_nls_numeric_characters
+    from nls_session_parameters nsp
+    where parameter = 'NLS_NUMERIC_CHARACTERS';
+    execute immediate q'[alter session set NLS_NUMERIC_CHARACTERS=', ']';
+    --Act
+    select *
+    bulk collect into l_results
+    from table(ut3.ut.run('check_xunit_reporting', ut3.ut_xunit_reporter()));
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    --Assert
+    ut.expect(l_actual).to_match('time="[0-9]*\.[0-9]{6}"');
+    --Cleanup
+    execute immediate 'alter session set NLS_NUMERIC_CHARACTERS='''||l_nls_numeric_characters||'''';
   end;
 
   procedure check_classname_suitepath is
