@@ -1,7 +1,7 @@
 create or replace package test_ut_runner is
 
   --%suite(ut_runner)
-  --%suitepath(utplsql)
+  --%suitepath(utplsql.api)
   --%rollback(manual)
 
   --%test(transaction stays open after the run if it was opened before the run)
@@ -42,6 +42,11 @@ create or replace package test_ut_runner is
   --%beforetest(setup_cache_objects)
   --%aftertest(cleanup_cache)
   procedure test_rebuild_cache_schema_type;
+
+  --%test(get_unit_tests_info returns a cursor containing records for a newly created test)
+  --%beforetest(setup_cache_objects)
+  --%aftertest(cleanup_cache)
+  procedure test_get_unit_tests_info;
 
 end;
 /

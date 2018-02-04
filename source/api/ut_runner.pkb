@@ -106,14 +106,31 @@ create or replace package body ut_runner is
     end if;
   end;
 
-  procedure rebuild_annotation_cache(a_object_owner varchar2, a_object_type varchar2) is
+  procedure rebuild_annotation_cache(a_object_owner varchar2, a_object_type varchar2 := null) is
   begin
-    ut_annotation_manager.rebuild_annotation_cache(a_object_owner, a_object_type);
+    ut_annotation_manager.rebuild_annotation_cache(a_object_owner, coalesce(a_object_type,'PACKAGE'));
   end;
 
-  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2) is
+  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2 := null) is
   begin
-    ut_annotation_manager.purge_cache(a_object_owner, a_object_type);
+    ut_annotation_manager.purge_cache(a_object_owner, coalesce(a_object_type,'PACKAGE'));
+  end;
+
+  function get_unit_tests_info(a_owner varchar2, a_package_name varchar2 := null) return sys_refcursor is
+    l_result   sys_refcursor;
+    l_filter   varchar2(100);
+    l_ut_owner varchar2(250) := ut_utils.ut_owner;
+  begin
+    l_filter := case when a_package_name is null then 'is null' else '= o.object_name' end;
+    open l_result for
+      'select o.object_owner owner, o.object_name as package_name, upper(a.subobject_name) as procedure_name,' ||
+      '       a.name annotation, a.text annotation_text' ||
+      '  from table('||l_ut_owner||'.ut_annotation_manager.get_annotated_objects(:a_owner, ''PACKAGE'')) o,' ||
+      '       table(o.annotations) a' ||
+      ' where exists (select 1 from table(o.annotations) s where s.name=''suite'') ' ||
+      '  and :a_package_name ' || l_filter
+    using a_owner, a_package_name;
+    return l_result;
   end;
 
 end ut_runner;

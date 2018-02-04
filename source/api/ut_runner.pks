@@ -62,23 +62,32 @@ create or replace package ut_runner authid current_user is
   );
 
   /**
-   * Rebuilds annotation cache for a specified schema and object type.
-   *  The procedure is called internally by `get_annotated_objects` function.
-   *  It can be used to speedup initial execution of utPLSQL on a given schema
-   *   if it is executed before any call is made to `ut.run` or `ut_runner.run` procedure.
-   *
-   * @param a_object_owner owner of objects to get annotations for
-   * @param a_object_type type of objects to get annotations for
-   */
-  procedure rebuild_annotation_cache(a_object_owner varchar2, a_object_type varchar2);
+  * Rebuilds annotation cache for a specified schema and object type.
+  *  It can be used to speedup execution of utPLSQL on a given schema
+  *   if it is executed before initial call made to `ut.run` or `ut_runner.run` procedure.
+  *
+  * @param a_object_owner owner of objects to get annotations for
+  * @param a_object_type  optional type of objects to get annotations for (defaults to 'PACKAGE')
+  */
+  procedure rebuild_annotation_cache(a_object_owner varchar2, a_object_type varchar2 := null);
 
   /**
-   * Removes cached information about annotations for objects of specified type and specified owner
-   *
-   * @param a_object_owner owner of objects to purge annotations for
-   * @param a_object_type type of objects to purge annotations for
-   */
-  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2);
+  * Removes cached information about annotations for objects of specified type and specified owner
+  *
+  * @param a_object_owner owner of objects to purge annotations for
+  * @param a_object_type  optional type of objects to purge annotations for (defaults to 'PACKAGE')
+  */
+  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2 := null);
+
+
+  /**
+  * Returns a ref_cursor containing information about unit tests package(s) for given owner
+  *
+  * @param   a_owner        owner of unit tests to retrieve
+  * @param   a_package_name optional name of unit test package to retrieve, if NULLm all unit test packages are returned
+  * @return  sys_refcursor  columns: OWNER, PACKAGE_NAME, PROCEDURE_NAME, ANNOTATION, ANNOTATION_TEXT
+  */
+  function get_unit_tests_info(a_owner varchar2, a_package_name varchar2 := null) return sys_refcursor;
 
 end ut_runner;
 /
