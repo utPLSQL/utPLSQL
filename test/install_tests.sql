@@ -37,7 +37,12 @@ whenever oserror exit failure rollback
 @@core/expectations/scalar_data/unary/test_expect_to_be_not_null.pks
 @@core/expectations/scalar_data/unary/test_expect_to_be_null.pks
 @@core/expectations/scalar_data/unary/test_expect_to_be_true_false.pks
-@@test_ut_runner.pks
+@@api/test_ut_runner.pks
+@@core/expectations/test_expectations_cursor.pks
+@@core/expectations/test_expect_not_to_be_null.pks
+@@core/expectations/test_expect_to_be_not_null.pks
+@@core/expectations/test_expect_to_be_null.pks
+@@api/test_ut_runner.pks
 @@core/annotations/test_annotation_manager.pks
 @@core/test_ut_suite.pks
 @@core/test_ut_test.pks
@@ -65,7 +70,7 @@ whenever oserror exit failure rollback
 @@core/expectations/scalar_data/unary/test_expect_to_be_not_null.pkb
 @@core/expectations/scalar_data/unary/test_expect_to_be_null.pkb
 @@core/expectations/scalar_data/unary/test_expect_to_be_true_false.pkb
-@@test_ut_runner.pkb
+@@api/test_ut_runner.pkb
 @@core/annotations/test_annotation_manager.pkb
 @@core/test_ut_suite.pkb
 @@core/test_ut_test.pkb
