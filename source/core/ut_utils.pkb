@@ -451,7 +451,6 @@ create or replace package body ut_utils is
     commit;
   end;
 
-
   function ut_owner return varchar2 is
   begin
     return sys_context('userenv','current_schema');
@@ -460,6 +459,11 @@ create or replace package body ut_utils is
   function scale_cardinality(a_cardinality natural) return natural is
   begin
     return nvl(trunc(power(10,(floor(log(10,a_cardinality))+1))/3),0);
+  end;
+
+  function to_xml_number_format(a_value number) return varchar2 is
+  begin
+    return to_char(a_value, gc_number_format, 'NLS_NUMERIC_CHARACTERS=''. ''');
   end;
 
 end ut_utils;

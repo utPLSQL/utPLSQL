@@ -21,6 +21,9 @@ create or replace package test_xunit_reporter as
   --%test(Check that classname is returned correct suitepath)
   procedure check_classname_suitepath;
 
+  --%test(Reports duration according to XML specification for numbers)
+  procedure check_nls_number_formatting;
+
   --%afterall
   procedure remove_test_package;
 end;

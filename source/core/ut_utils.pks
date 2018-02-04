@@ -281,5 +281,11 @@ create or replace package ut_utils authid definer is
    */
   function scale_cardinality(a_cardinality natural) return natural;
 
+  /**
+  * Returns number as string. The value is represented as decimal according to XML standard:
+  * https://www.w3.org/TR/xmlschema-2/#decimal
+  */
+  function to_xml_number_format(a_value number) return varchar2;
+
 end ut_utils;
 /
