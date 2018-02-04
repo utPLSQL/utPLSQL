@@ -80,14 +80,25 @@ create or replace package ut_runner authid current_user is
   procedure purge_cache(a_object_owner varchar2, a_object_type varchar2 := null);
 
 
+  type t_annotation_rec is record (
+    package_owner   varchar2(250),
+    package_name    varchar2(250),
+    procedure_name  varchar2(250),
+    annotation_pos  number(5,0),
+    annotation_name varchar2(1000),
+    annotation_text varchar2(4000)
+  );
+  type tt_annotations is table of t_annotation_rec;
+
   /**
-  * Returns a ref_cursor containing information about unit tests package(s) for given owner
+  * Returns a pipelined collection containing information about unit tests package/packages for a given owner
   *
   * @param   a_owner        owner of unit tests to retrieve
   * @param   a_package_name optional name of unit test package to retrieve, if NULLm all unit test packages are returned
-  * @return  sys_refcursor  columns: OWNER, PACKAGE_NAME, PROCEDURE_NAME, ANNOTATION, ANNOTATION_TEXT
+  * @return  tt_annotations table of records
   */
-  function get_unit_tests_info(a_owner varchar2, a_package_name varchar2 := null) return sys_refcursor;
+  function get_unit_test_info(a_owner varchar2, a_package_name varchar2 := null) return tt_annotations pipelined;
+
 
 end ut_runner;
 /

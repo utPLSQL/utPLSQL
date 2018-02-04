@@ -258,19 +258,20 @@ end;';
     ut.expect(l_actual).to_equal(0);
   end;
 
-  procedure test_get_unit_tests_info is
+  procedure test_get_unit_test_info is
     l_expected sys_refcursor;
     l_actual   sys_refcursor;
   begin
     --Arrange
     open l_expected for
-      select 'UT3_TESTER' owner, 'DUMMY_TEST_PACKAGE' package_name,
-             to_char(null) procedure_name, 'suite' annotation, 'dummy_test_suite' annotation_text from dual union all
-      select 'UT3_TESTER', 'DUMMY_TEST_PACKAGE', to_char(null), 'rollback', 'manual' from dual union all
-      select 'UT3_TESTER', 'DUMMY_TEST_PACKAGE', 'SOME_DUMMY_TEST_PROCEDURE', 'test', 'dummy_test' from dual union all
-      select 'UT3_TESTER', 'DUMMY_TEST_PACKAGE', 'SOME_DUMMY_TEST_PROCEDURE', 'beforetest', 'some_procedure' from dual;
+      select 'UT3_TESTER'  package_owner, 'DUMMY_TEST_PACKAGE' package_name,
+             to_char(null) procedure_name, 1 annotation_pos, 'suite' annotation_name, 'dummy_test_suite' annotation_text
+        from dual union all
+      select 'UT3_TESTER', 'DUMMY_TEST_PACKAGE', to_char(null),               2, 'rollback', 'manual' from dual union all
+      select 'UT3_TESTER', 'DUMMY_TEST_PACKAGE', 'SOME_DUMMY_TEST_PROCEDURE', 3, 'test', 'dummy_test' from dual union all
+      select 'UT3_TESTER', 'DUMMY_TEST_PACKAGE', 'SOME_DUMMY_TEST_PROCEDURE', 4, 'beforetest', 'some_procedure' from dual;
     --Act
-    l_actual := ut3.ut_runner.get_unit_tests_info('UT3_TESTER','DUMMY_TEST_PACKAGE');
+    open l_actual for select * from table(ut3.ut_runner.get_unit_test_info('UT3_TESTER','DUMMY_TEST_PACKAGE'));
     --Assert
     ut.expect(l_actual).to_equal(l_expected);
   end;

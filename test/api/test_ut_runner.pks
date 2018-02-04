@@ -46,7 +46,7 @@ create or replace package test_ut_runner is
   --%test(get_unit_tests_info returns a cursor containing records for a newly created test)
   --%beforetest(setup_cache_objects)
   --%aftertest(cleanup_cache)
-  procedure test_get_unit_tests_info;
+  procedure test_get_unit_test_info;
 
 end;
 /
