@@ -17,6 +17,7 @@ create or replace type ut_expectation authid current_user as object(
   */
   actual_data         ut_data_value,
   description         varchar2(4000 char),
+
   --base matcher executors
   member procedure to_(self in ut_expectation, a_matcher ut_matcher),
   member procedure not_to(self in ut_expectation, a_matcher ut_matcher),
@@ -36,14 +37,16 @@ create or replace type ut_expectation authid current_user as object(
   member procedure not_to_be_empty(self in ut_expectation),
 
   -- this is done to provide strong type comparison. other comporators should be implemented in the type-specific classes
-  member procedure to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2 := null, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected anydata, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected blob, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected boolean, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected clob, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected date, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected number, a_nulls_are_equal boolean := null),
-  member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude varchar2 := null, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude varchar2, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null),
@@ -52,14 +55,16 @@ create or replace type ut_expectation authid current_user as object(
   member procedure to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null),
 
-  member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2 := null, a_nulls_are_equal boolean := null),
+  member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null),
+  member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected blob, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected boolean, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected clob, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected date, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected number, a_nulls_are_equal boolean := null),
-  member procedure not_to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude varchar2 := null, a_nulls_are_equal boolean := null),
+  member procedure not_to_equal(self in ut_expectation, a_expected sys_refcursor, a_nulls_are_equal boolean := null),
+  member procedure not_to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude varchar2, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null),
@@ -67,8 +72,6 @@ create or replace type ut_expectation authid current_user as object(
   member procedure not_to_equal(self in ut_expectation, a_expected varchar2, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null),
-
-
 
   member procedure to_be_like(self in ut_expectation, a_mask in varchar2, a_escape_char in varchar2 := null),
 
@@ -160,5 +163,5 @@ create or replace type ut_expectation authid current_user as object(
   member procedure not_to_be_less_than(self in ut_expectation, a_expected timestamp_tz_unconstrained),
   member procedure not_to_be_less_than(self in ut_expectation, a_expected yminterval_unconstrained)
 )
-final
+not final
 /

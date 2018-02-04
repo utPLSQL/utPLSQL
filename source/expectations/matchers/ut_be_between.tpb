@@ -95,14 +95,14 @@ create or replace type body ut_be_between is
   begin
     return (self as ut_matcher).failure_message(a_actual)
            || ': '|| self.lower_bound.to_string_report(true,false)
-           || ' and ' || self.upper_bound.to_string_report(a_with_type_name => false);
+           || ' and ' || self.upper_bound.to_string_report(a_with_object_info => false);
   end;
 
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2 is
   begin
     return (self as ut_matcher).failure_message_when_negated(a_actual)
            || ': '|| self.lower_bound.to_string_report(true,false)
-           || ' and ' || self.upper_bound.to_string_report(a_with_type_name => false);
+           || ' and ' || self.upper_bound.to_string_report(a_with_object_info => false);
   end;
 
 end;

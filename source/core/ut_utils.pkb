@@ -297,16 +297,31 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
-  procedure append_to_varchar2_list(a_list in out nocopy ut_varchar2_list, a_line varchar2) is
+  procedure append_to_list(a_list in out nocopy ut_varchar2_list, a_item varchar2) is
   begin
-    if a_line is not null then
+    if a_item is not null then
       if a_list is null then
         a_list := ut_varchar2_list();
       end if;
       a_list.extend;
-      a_list(a_list.last) := a_line;
+      a_list(a_list.last) := a_item;
     end if;
-  end append_to_varchar2_list;
+  end append_to_list;
+
+procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2:= chr(10)) is
+  begin
+    if a_clob_table is not null and cardinality(a_clob_table) > 0 then
+      if a_src_clob is null then
+        dbms_lob.createtemporary(a_src_clob, true);
+      end if;
+      for i in 1 .. a_clob_table.count loop
+        dbms_lob.append(a_src_clob,a_clob_table(i));
+        if i < a_clob_table.count then
+          append_to_clob(a_src_clob,a_delimiter);
+        end if;
+      end loop;
+    end if;
+  end;
 
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob) is
   begin
@@ -354,9 +369,7 @@ create or replace package body ut_utils is
   function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2 is
     l_xpath varchar2(32767) := a_list;
   begin
-    if l_xpath not like '/%' then
-      l_xpath := to_xpath( clob_to_table(a_clob=>a_list, a_delimiter=>','), a_ancestors);
-    end if;
+    l_xpath := to_xpath( clob_to_table(a_clob=>a_list, a_delimiter=>','), a_ancestors);
     return l_xpath;
   end;
 
@@ -365,24 +378,30 @@ create or replace package body ut_utils is
     l_item  varchar2(32767);
     i integer;
   begin
-    i := a_list.first;
-    while i is not null loop
-      l_item := trim(a_list(i));
-      if l_item is not null then
-        l_xpath := l_xpath || a_ancestors ||a_list(i)||'|';
-      end if;
-      i := a_list.next(i);
-    end loop;
-    l_xpath := rtrim(l_xpath,',|');
+    if a_list is not null then
+      i := a_list.first;
+      while i is not null loop
+        l_item := trim(a_list(i));
+        if l_item is not null then
+          if l_item like '%,%' then
+            l_xpath := l_xpath || to_xpath( l_item, a_ancestors ) || '|';
+          elsif l_item like '/%' then
+            l_xpath := l_xpath || l_item || '|';
+          else
+            l_xpath := l_xpath || a_ancestors || l_item || '|';
+          end if;
+        end if;
+        i := a_list.next(i);
+      end loop;
+      l_xpath := rtrim(l_xpath,',|');
+    end if;
     return l_xpath;
   end;
 
   procedure cleanup_temp_tables is
-    pragma autonomous_transaction;
   begin
-    execute immediate 'delete from ut_cursor_data';
-    execute immediate 'delete from ut_cursor_data_diff';
-    commit;
+    execute immediate 'delete from ut_data_set_tmp';
+    execute immediate 'delete from ut_data_set_diff_tmp';
   end;
 
   function to_version(a_version_no varchar2) return t_version is
@@ -459,6 +478,13 @@ create or replace package body ut_utils is
   function scale_cardinality(a_cardinality natural) return natural is
   begin
     return nvl(trunc(power(10,(floor(log(10,a_cardinality))+1))/3),0);
+  end;
+
+  function build_depreciation_warning(a_old_syntax varchar2, a_new_syntax varchar2) return varchar2 is
+  begin
+    return 'The syntax: "'||a_old_syntax||'" is depreciated.' ||chr(10)||
+           'Please use the new syntax: "'||a_new_syntax||'".' ||chr(10)||
+           'The depreciated syntax will not be supported in future releases.';
   end;
 
   function to_xml_number_format(a_value number) return varchar2 is

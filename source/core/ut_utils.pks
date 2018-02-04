@@ -107,6 +107,7 @@ create or replace package ut_utils authid definer is
     build  natural
   );
 
+  type t_clob_tab is table of clob;
 
   /**
    * Converts test results into strings
@@ -214,11 +215,14 @@ create or replace package ut_utils authid definer is
   function get_utplsql_objects_list return ut_object_names;
 
   /**
-   * Append a line to the end of ut_varchar2_lst
+   * Append a item to the end of ut_varchar2_list
    */
-  procedure append_to_varchar2_list(a_list in out nocopy ut_varchar2_list, a_line varchar2);
+  procedure append_to_list(a_list in out nocopy ut_varchar2_list, a_item varchar2);
+
+  procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2 := chr(10));
 
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob);
+
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data varchar2);
 
   function convert_collection(a_collection ut_varchar2_list) return ut_varchar2_rows;
@@ -280,6 +284,8 @@ create or replace package ut_utils authid definer is
    * @return 3, for inputs of: 1-9; 33 for input of 10 - 99; 333 for (100 - 999)
    */
   function scale_cardinality(a_cardinality natural) return natural;
+
+  function build_depreciation_warning(a_old_syntax varchar2, a_new_syntax varchar2) return varchar2;
 
   /**
   * Returns number as string. The value is represented as decimal according to XML standard:

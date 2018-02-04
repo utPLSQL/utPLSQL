@@ -31,7 +31,7 @@ create or replace type body ut_data_value_blob as
 
   overriding member function to_string return varchar2 is
   begin
-    return self.format_multi_line( ut_utils.to_string(self.data_value) );
+    return ut_utils.to_string(self.data_value);
   end;
 
   overriding member function compare_implementation(a_other ut_data_value) return integer is

@@ -22,6 +22,8 @@ create or replace package body ut_expectation_processor as
 
   g_expectations_called ut_expectation_results := ut_expectation_results();
 
+  g_warnings ut_varchar2_list := ut_varchar2_list();
+
   g_nulls_are_equal boolean_not_null := gc_default_nulls_are_equal;
 
   function nulls_are_equal return boolean is
@@ -50,6 +52,7 @@ create or replace package body ut_expectation_processor as
   begin
     ut_utils.debug_log('ut_expectation_processor.clear_expectations');
     g_expectations_called.delete;
+    g_warnings.delete;
   end;
 
   function get_all_expectations return ut_expectation_results is
@@ -156,5 +159,17 @@ create or replace package body ut_expectation_processor as
     end if;
     return l_result;
   end;
+
+  procedure add_warning(a_messsage varchar2) is
+  begin
+    g_warnings.extend;
+    g_warnings(g_warnings.last) := a_messsage;
+  end;
+
+  function get_warnings return ut_varchar2_list is
+  begin
+    return g_warnings;
+  end;
+
 end;
 /

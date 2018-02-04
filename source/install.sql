@@ -137,8 +137,8 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'core/types/ut_console_reporter_base.tpb'
 
 --expectations and matchers
-@@install_component.sql 'expectations/data_values/ut_cursor_data.sql'
-@@install_component.sql 'expectations/data_values/ut_cursor_data_diff.sql'
+@@install_component.sql 'expectations/data_values/ut_data_set_tmp.sql'
+@@install_component.sql 'expectations/data_values/ut_data_set_diff_tmp.sql'
 @@install_component.sql 'expectations/data_values/ut_data_value.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_anydata.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_collection.tps'
@@ -171,6 +171,7 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_empty.tps'
 @@install_component.sql 'expectations/matchers/ut_match.tps'
 @@install_component.sql 'expectations/ut_expectation.tps'
+@@install_component.sql 'expectations/ut_expectation_compound.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_anydata.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_object.tpb'
@@ -203,6 +204,7 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_empty.tpb'
 @@install_component.sql 'expectations/matchers/ut_match.tpb'
 @@install_component.sql 'expectations/ut_expectation.tpb'
+@@install_component.sql 'expectations/ut_expectation_compound.tpb'
 
 --core reporter
 @@install_component.sql 'reporters/ut_documentation_reporter.tps'

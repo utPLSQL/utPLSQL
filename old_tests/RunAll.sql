@@ -50,34 +50,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesSuccessWhenExpessionIsTrue.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.ExcludeColumnsXPathFailsOnInvalidXPath.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenBothObjectsAreNullButDifferentType.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentData.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentObjects.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingObejctToCollection.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenOneOfObjectsIsNull.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothAnydataAreNull.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothObjectsAreNull.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameCollections.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.PutsObjectStrucureIntoResult.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedCollectionAttributes.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedCollectionAttributesXPath.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedObjectAttributes.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedObjectAttributesXPath.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentDataTypes.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentValues.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureWhenActualIsNull.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureWhenBothValuesAreNullAndArgumentAreNullEqualIsFalse.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureWhenBothValuesAreNullAndConfigurationAreNullEqualIsFalse.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureWhenExpectedIsNull.sql
-@@ut_expectations/ut.expect.to_equal.GivesSuccessForEqualValues.sql
-@@ut_expectations/ut.expect.to_equal.GivesSuccessWhenBothValuesAreNull.sql
-@@ut_expectations/ut.expect.to_equal.GivesSuccessWhenBothValuesAreNullAndArgumentAreNullEqualIsTrue.sql
-@@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenActualIsNull.sql
-@@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenExpectedIsNull.sql
-@@ut_expectations/ut.expect.to_equal.with_text.GivesTheProvidedTextAsMessage.sql
-@@ut_expectations/ut.expect.not_to_equal.GivesFailureForDifferentDataTypes.sql
 @@ut_expectations/ut.expect.not_to_equal.GivesFailureForEqualValues.sql
 @@ut_expectations/ut.expect.not_to_equal.GivesSuccessForDifferentValues.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_match.FailsForUnsupportedDatatype.sql
@@ -87,12 +59,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut_expectation_processor.stackOnUtFail.sql
 
 @@ut_matchers/be_between.sql
-@@ut_matchers/be_empty.sql
 @@ut_matchers/be_like.sql
-@@ut_matchers/greater_or_equal.sql
-@@ut_matchers/greater_than.sql
-@@ut_matchers/less_or_equal.sql
-@@ut_matchers/less_than.sql
 @@ut_matchers/match.sql
 
 @@lib/RunTest.sql ut_matchers/timestamp_between.sql

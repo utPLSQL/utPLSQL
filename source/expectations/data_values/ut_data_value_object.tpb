@@ -18,48 +18,9 @@ create or replace type body ut_data_value_object as
 
   constructor function ut_data_value_object(self in out nocopy ut_data_value_object, a_value anydata) return self as result is
   begin
-    self.init(a_value, $$plsql_unit);
+    self.self_type  := $$plsql_unit;
+    self.init(a_value, 'object');
     return;
-  end;
-
-  overriding member function is_null return boolean is
-    l_is_null       boolean;
-    l_data_is_null  pls_integer;
-    l_sql           varchar2(32767);
-    l_cursor        number;
-    l_status        number;
-  begin
-    if self.data_value is null then
-      l_is_null := true;
-    --check if typename is a schema based object
-    else
-      --XMLTYPE doesn't like the null being passed to ANYDATA so we need to check if anydata holds null Object/collection
-      l_sql := '
-        declare
-          l_data '||self.data_value.gettypename()||';
-          l_value anydata := :a_value;
-          x integer;
-        begin
-          x := l_value.getObject(l_data);
-          :l_data_is_null := case when l_data is null then 1 else 0 end;
-        end;';
-      l_cursor := sys.dbms_sql.open_cursor();
-      sys.dbms_sql.parse(l_cursor, l_sql, dbms_sql.native);
-      sys.dbms_sql.bind_variable(l_cursor,'a_value',self.data_value);
-      sys.dbms_sql.bind_variable(l_cursor,'l_data_is_null',l_data_is_null);
-      begin
-        l_status := sys.dbms_sql.execute(l_cursor);
-        sys.dbms_sql.variable_value(l_cursor,'l_data_is_null',l_data_is_null);
-        sys.dbms_sql.close_cursor(l_cursor);
-      exception when others then
-        if sys.dbms_sql.is_open(l_cursor) then
-          sys.dbms_sql.close_cursor(l_cursor);
-        end if;
-        raise;
-      end;
-      l_is_null := ut_utils.int_to_boolean(l_data_is_null);
-    end if;
-    return l_is_null;
   end;
 
   overriding member function is_multi_line return boolean is
