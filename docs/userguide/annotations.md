@@ -224,13 +224,13 @@ The annotation cache is checked for staleness and refreshed automatically on eve
 
 If you are in a situation where your database is controlled via CI/CD server and is refreshed/wiped before each run of your tests, consider building the annotation cache upfront and taking a snapshot of the database after the cache has been refreshed.
 
-To build the annotation cache without actually invoking any tests, call `ut_runner.rebuild_annotation_cache(a_object_owner, a_object_type)` for every unit test owner for which you want to have the annotation cache prebuilt.
+To build the annotation cache without actually invoking any tests, call `ut_runner.rebuild_annotation_cache(a_object_owner)` for every unit test owner for which you want to have the annotation cache prebuilt.
 Example:
 ```sql
-exec ut_runner.rebuild_annotation_cache('HR', 'PACKAGE');
+exec ut_runner.rebuild_annotation_cache('HR');
 ```
 
-To purge the annotation cache call `ut_runner.purge_cache(a_object_owner, a_object_type)`.
+To purge the annotation cache call `ut_runner.purge_cache(a_object_owner)`.
 Example:
 ```sql
 exec ut_runner.purge_cache('HR', 'PACKAGE');

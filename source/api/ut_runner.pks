@@ -62,23 +62,43 @@ create or replace package ut_runner authid current_user is
   );
 
   /**
-   * Rebuilds annotation cache for a specified schema and object type.
-   *  The procedure is called internally by `get_annotated_objects` function.
-   *  It can be used to speedup initial execution of utPLSQL on a given schema
-   *   if it is executed before any call is made to `ut.run` or `ut_runner.run` procedure.
-   *
-   * @param a_object_owner owner of objects to get annotations for
-   * @param a_object_type type of objects to get annotations for
-   */
-  procedure rebuild_annotation_cache(a_object_owner varchar2, a_object_type varchar2);
+  * Rebuilds annotation cache for a specified schema and object type.
+  *  It can be used to speedup execution of utPLSQL on a given schema
+  *   if it is executed before initial call made to `ut.run` or `ut_runner.run` procedure.
+  *
+  * @param a_object_owner owner of objects to get annotations for
+  * @param a_object_type  optional type of objects to get annotations for (defaults to 'PACKAGE')
+  */
+  procedure rebuild_annotation_cache(a_object_owner varchar2, a_object_type varchar2 := null);
 
   /**
-   * Removes cached information about annotations for objects of specified type and specified owner
-   *
-   * @param a_object_owner owner of objects to purge annotations for
-   * @param a_object_type type of objects to purge annotations for
-   */
-  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2);
+  * Removes cached information about annotations for objects of specified type and specified owner
+  *
+  * @param a_object_owner owner of objects to purge annotations for
+  * @param a_object_type  optional type of objects to purge annotations for (defaults to 'PACKAGE')
+  */
+  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2 := null);
+
+
+  type t_annotation_rec is record (
+    package_owner   varchar2(250),
+    package_name    varchar2(250),
+    procedure_name  varchar2(250),
+    annotation_pos  number(5,0),
+    annotation_name varchar2(1000),
+    annotation_text varchar2(4000)
+  );
+  type tt_annotations is table of t_annotation_rec;
+
+  /**
+  * Returns a pipelined collection containing information about unit tests package/packages for a given owner
+  *
+  * @param   a_owner        owner of unit tests to retrieve
+  * @param   a_package_name optional name of unit test package to retrieve, if NULLm all unit test packages are returned
+  * @return  tt_annotations table of records
+  */
+  function get_unit_test_info(a_owner varchar2, a_package_name varchar2 := null) return tt_annotations pipelined;
+
 
 end ut_runner;
 /
