@@ -15,8 +15,12 @@ whenever oserror exit failure rollback
 
 --Install tests
 @@core.pks
+@@api/test_ut_runner.pks
 @@core/test_ut_utils.pks
+@@core/test_ut_suite.pks
+@@core/test_ut_test.pks
 @@core/annotations/test_annotation_parser.pks
+@@core/annotations/test_annotation_manager.pks
 @@core/expectations/test_matchers.pks
 @@core/test_output_buffer.pks
 @@core/test_suite_manager.pks
@@ -37,19 +41,14 @@ whenever oserror exit failure rollback
 @@core/expectations/scalar_data/unary/test_expect_to_be_not_null.pks
 @@core/expectations/scalar_data/unary/test_expect_to_be_null.pks
 @@core/expectations/scalar_data/unary/test_expect_to_be_true_false.pks
-@@api/test_ut_runner.pks
-@@core/expectations/test_expectations_cursor.pks
-@@core/expectations/test_expect_not_to_be_null.pks
-@@core/expectations/test_expect_to_be_not_null.pks
-@@core/expectations/test_expect_to_be_null.pks
-@@api/test_ut_runner.pks
-@@core/annotations/test_annotation_manager.pks
-@@core/test_ut_suite.pks
-@@core/test_ut_test.pks
 
 @@core.pkb
+@@api/test_ut_runner.pkb
 @@core/test_ut_utils.pkb
+@@core/test_ut_suite.pkb
+@@core/test_ut_test.pkb
 @@core/annotations/test_annotation_parser.pkb
+@@core/annotations/test_annotation_manager.pkb
 @@core/expectations/test_matchers.pkb
 @@core/test_output_buffer.pkb
 @@core/test_suite_manager.pkb
@@ -70,10 +69,6 @@ whenever oserror exit failure rollback
 @@core/expectations/scalar_data/unary/test_expect_to_be_not_null.pkb
 @@core/expectations/scalar_data/unary/test_expect_to_be_null.pkb
 @@core/expectations/scalar_data/unary/test_expect_to_be_true_false.pkb
-@@api/test_ut_runner.pkb
-@@core/annotations/test_annotation_manager.pkb
-@@core/test_ut_suite.pkb
-@@core/test_ut_test.pkb
 
 set linesize 200
 set define on
