@@ -136,6 +136,7 @@ utPLSQL provides the following matchers to perform checks on the expected and ac
 - `be_null`
 - `be_true`
 - `equal`
+- `have_count`
 - `match`
 
 ## be_between
@@ -285,6 +286,23 @@ begin
   ut.expect( ( 1 = 1 ) ).to_be_true();
   --or 
   ut.expect( ( 1 = 1 ) ).to_( be_true() );
+end;
+```
+
+## have_count
+Unary matcher that validates if the provided dataset count is equal to expected value.
+
+Can be used with `refcursor` or `table type`
+
+Usage:
+```sql
+procedure test_if_cursor_is_empty is
+  l_cursor sys_refcursor;
+begin
+  open l_cursor for select * from dual connect by level <=10;
+  ut.expect( l_cursor ).to_have_count(10);
+  --or
+  ut.expect( l_cursor ).to_( have_count(10) );
 end;
 ```
 
@@ -649,21 +667,21 @@ Since NULL is neither *true* nor *false*, both expectations will report failure.
 
 The matrix below illustrates the data types supported by different matchers.
 
-|                               | be_between | be_empty | be_false | be_greater_than | be_greater_or_equal | be_less_or_equal | be_less_than | be_like | be_not_null | be_null | be_true | equal | match |
-|:------------------------------|:----------:|:--------:|:--------:|:---------------:|:-------------------:|:----------------:|:------------:|:-------:|:-----------:|:-------:|:-------:|:-----:|:-----:|
-| anydata( collection, object ) |            |    X     |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |       |
-| blob                          |            |          |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |       |
-| boolean                       |            |          |    X     |                 |                     |                  |              |         |     X       |   X     |    X    |   X   |       |
-| clob                          |            |          |          |                 |                     |                  |              |   X     |     X       |   X     |         |   X   |   X   |
-| date                          |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |       |
-| number                        |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |       |
-| refcursor                     |            |    X     |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |       |
-| timestamp                     |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |       |
-| timestamp with timezone       |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |       |
-| timestamp with local timezone |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |       |
-| varchar2                      |    X       |          |          |                 |                     |                  |              |   X     |     X       |   X     |         |   X   |   X   |
-| interval year to month        |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |       |
-| interval day to second        |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |       |
+|                               | be_between | be_empty | be_false | be_greater_than | be_greater_or_equal | be_less_or_equal | be_less_than | be_like | be_not_null | be_null | be_true | equal | have_count | match |
+|:------------------------------|:----------:|:--------:|:--------:|:---------------:|:-------------------:|:----------------:|:------------:|:-------:|:-----------:|:-------:|:-------:|:-----:|:----------:|:-----:|
+| anydata( collection, object ) |            |    X     |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |      X     |       |
+| blob                          |            |          |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |            |       |
+| boolean                       |            |          |    X     |                 |                     |                  |              |         |     X       |   X     |    X    |   X   |            |       |
+| clob                          |            |          |          |                 |                     |                  |              |   X     |     X       |   X     |         |   X   |            |   X   |
+| date                          |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
+| number                        |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
+| refcursor                     |            |    X     |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |      X     |       |
+| timestamp                     |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
+| timestamp with timezone       |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
+| timestamp with local timezone |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
+| varchar2                      |    X       |          |          |                 |                     |                  |              |   X     |     X       |   X     |         |   X   |            |   X   |
+| interval year to month        |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
+| interval day to second        |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
 
 
 
