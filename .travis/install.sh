@@ -7,6 +7,7 @@ set -ev
 set feedback off
 set verify off
 
+alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6003,6009,6010,7206)';
 @install_headless.sql $UT3_OWNER $UT3_OWNER_PASSWORD
 SQL
 
