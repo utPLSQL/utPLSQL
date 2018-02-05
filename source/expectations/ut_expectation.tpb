@@ -79,17 +79,6 @@ create or replace type body ut_expectation as
     self.not_to( ut_be_false() );
   end;
 
-  member procedure to_be_empty(self in ut_expectation) is
-  begin
-    self.to_( ut_be_empty() );
-  end;
-
-  member procedure not_to_be_empty(self in ut_expectation) is
-  begin
-    self.not_to( ut_be_empty() );
-  end;
-
-
   member procedure to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null) is
   begin
     self.to_( ut_equal(a_expected, a_nulls_are_equal) );

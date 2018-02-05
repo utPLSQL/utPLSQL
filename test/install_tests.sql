@@ -35,6 +35,7 @@ whenever oserror exit failure rollback
 @@core/expectations/scalar_data/binary/test_equal.pks
 @@core/expectations/scalar_data/binary/test_expect_to_be_less_than.pks
 @@core/expectations/compound_data/test_expect_to_be_empty.pks
+@@core/expectations/compound_data/test_expect_to_have_count.pks
 @@core/expectations/compound_data/test_expectations_cursor.pks
 @@core/expectations/compound_data/test_expectation_anydata.pks
 @@core/expectations/scalar_data/unary/test_expect_not_to_be_null.pks
@@ -63,6 +64,7 @@ whenever oserror exit failure rollback
 @@core/expectations/scalar_data/binary/test_equal.pkb
 @@core/expectations/scalar_data/binary/test_expect_to_be_less_than.pkb
 @@core/expectations/compound_data/test_expect_to_be_empty.pkb
+@@core/expectations/compound_data/test_expect_to_have_count.pkb
 @@core/expectations/compound_data/test_expectations_cursor.pkb
 @@core/expectations/compound_data/test_expectation_anydata.pkb
 @@core/expectations/scalar_data/unary/test_expect_not_to_be_null.pkb
