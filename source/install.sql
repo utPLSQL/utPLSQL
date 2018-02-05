@@ -167,6 +167,7 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_null.tps'
 @@install_component.sql 'expectations/matchers/ut_be_true.tps'
 @@install_component.sql 'expectations/matchers/ut_equal.tps'
+@@install_component.sql 'expectations/matchers/ut_have_count.tps'
 @@install_component.sql 'expectations/matchers/ut_be_between.tps'
 @@install_component.sql 'expectations/matchers/ut_be_empty.tps'
 @@install_component.sql 'expectations/matchers/ut_match.tps'
@@ -200,6 +201,7 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_null.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_true.tpb'
 @@install_component.sql 'expectations/matchers/ut_equal.tpb'
+@@install_component.sql 'expectations/matchers/ut_have_count.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_between.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_empty.tpb'
 @@install_component.sql 'expectations/matchers/ut_match.tpb'
@@ -249,6 +251,7 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'api/be_null.syn'
 @@install_component.sql 'api/be_true.syn'
 @@install_component.sql 'api/equal.syn'
+@@install_component.sql 'api/have_count.syn'
 @@install_component.sql 'api/match.syn'
 
 set linesize 200
