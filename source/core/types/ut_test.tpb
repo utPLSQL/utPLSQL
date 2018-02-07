@@ -141,12 +141,12 @@ create or replace type body ut_test as
   overriding member function get_error_stack_traces(self ut_test) return ut_varchar2_list is
     l_stack_traces ut_varchar2_list := ut_varchar2_list();
   begin
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.parent_error_stack_trace);
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.before_each.get_error_stack_trace());
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.before_test.get_error_stack_trace());
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.item.get_error_stack_trace());
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.after_test.get_error_stack_trace());
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.after_each.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.parent_error_stack_trace);
+    ut_utils.append_to_list(l_stack_traces, self.before_each.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.before_test.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.item.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.after_test.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.after_each.get_error_stack_trace());
     return l_stack_traces;
   end;
   overriding member function get_serveroutputs return clob is
