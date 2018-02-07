@@ -97,8 +97,8 @@ create or replace type body ut_suite  as
   overriding member function get_error_stack_traces(self ut_suite) return ut_varchar2_list is
     l_stack_traces ut_varchar2_list := ut_varchar2_list();
   begin
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.before_all.get_error_stack_trace());
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.after_all.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.before_all.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.after_all.get_error_stack_trace());
     return l_stack_traces;
   end;
 

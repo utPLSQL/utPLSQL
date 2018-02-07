@@ -8,6 +8,7 @@ The framework follows industry standards and best patterns of modern Unit Testin
        - [Getting Started](userguide/getting-started.md)
        - [Annotations](userguide/annotations.md)
        - [Expectations](userguide/expectations.md)
+       - [Advanced data comparison](userguide/advanced_data_comparison.md)
        - [Running unit tests](userguide/running-unit-tests.md)
        - [Testing best pracitces](userguide/best-practices.md)
        - [Upgrade utPLSQL](userguide/upgrade.md)

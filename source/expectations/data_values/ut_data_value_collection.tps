@@ -15,8 +15,11 @@ create or replace type ut_data_value_collection under ut_data_value_anydata(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+
+  elements_count integer,
+
   constructor function ut_data_value_collection(self in out nocopy ut_data_value_collection, a_value anydata) return self as result,
-  overriding member function is_null return boolean,
+  overriding member function get_object_info return varchar2,
   member function is_empty return boolean,
   overriding member function is_multi_line return boolean
 )

@@ -48,5 +48,9 @@ create or replace package ut_expectation_processor authid current_user as
   -- The text is to be consumed by expectation result
   function who_called_expectation(a_call_stack varchar2) return varchar2;
 
+  procedure add_warning(a_messsage varchar2);
+
+  function get_warnings return ut_varchar2_list;
+
 end;
 /

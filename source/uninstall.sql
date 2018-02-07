@@ -82,6 +82,8 @@ drop package ut;
 
 drop table ut_dbms_output_cache;
 
+drop type ut_expectation_compound force;
+
 drop type ut_expectation force;
 
 drop package ut_expectation_processor;
@@ -148,9 +150,9 @@ drop type ut_data_value_anydata force;
 
 drop type ut_data_value force;
 
-drop table ut_cursor_data;
+drop table ut_data_set_tmp;
 
-drop table ut_cursor_data_diff;
+drop table ut_data_set_diff_tmp;
 
 drop package ut_annotation_manager;
 

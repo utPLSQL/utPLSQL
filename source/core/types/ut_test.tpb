@@ -122,6 +122,7 @@ create or replace type body ut_test as
     --expectation results need to be part of test results
     self.all_expectations    := ut_expectation_processor.get_all_expectations();
     self.failed_expectations := ut_expectation_processor.get_failed_expectations();
+    self.warnings := self.warnings multiset union all ut_expectation_processor.get_warnings();
     ut_expectation_processor.clear_expectations();
     self.results_count.set_counter_values(self.result);
   end;
@@ -140,12 +141,12 @@ create or replace type body ut_test as
   overriding member function get_error_stack_traces(self ut_test) return ut_varchar2_list is
     l_stack_traces ut_varchar2_list := ut_varchar2_list();
   begin
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.parent_error_stack_trace);
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.before_each.get_error_stack_trace());
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.before_test.get_error_stack_trace());
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.item.get_error_stack_trace());
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.after_test.get_error_stack_trace());
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.after_each.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.parent_error_stack_trace);
+    ut_utils.append_to_list(l_stack_traces, self.before_each.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.before_test.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.item.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.after_test.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.after_each.get_error_stack_trace());
     return l_stack_traces;
   end;
   overriding member function get_serveroutputs return clob is
