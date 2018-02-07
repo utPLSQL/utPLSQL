@@ -11,16 +11,6 @@ To invoke tests with documentation reporter use one of following calls from sql 
 
 `exec ut.run(ut_documentation_reporter());`
 
-You may also invoke unit tests directly from command line by calling.
-
-`ut_run user/pass@dbsid`
-
-Invoking tests from command line tool `ut_run` allows you to track progress of test execution.
-In that case, the documentation reporter will provide information about each test that was executed as soon as it's execution finishes.
-For more details on using the `ut_run` script look into [utPLSQL-sql-cli](https://github.com/utPLSQL/utPLSQL-sql-cli) project.
-
-The `ut_documentation_reporter` doesn't accept any arguments.
-
 Example outputs from documentation reporter.
 
 ![doc_reporter_outputs](../images/documentation_reporter.png)

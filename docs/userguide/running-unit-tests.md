@@ -8,19 +8,25 @@ The utPLSQL framework provides two main entry points to run unit tests from with
 These two entry points differ in purpose and behavior.
 Most of the time you will want to use `ut.run` as `ut_runner` is designed for API integration and does not output the results to the screen directly.
 
-# utPLSQL-sql-cli
+# Running from CI servers and command line
 
-If you are considering running your tests from a command line or from a CI server like Jenkins/Teamcity, the best way is to use the [utPLSQL-sql-cli](https://github.com/utPLSQL/utPLSQL-sql-cli).
-You may download the latest release of the command line client automatically using the command below (Unix).
+The best way to run your tests from CI server or command line is to use the [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli) command line client.
+
+Amongst many benefits it provides ability to:
+* see the progress of test execution for long-running tests - real-time reporting
+* use many reporting formats simultaneously and save reports to files (publish)
+* map your project source files and test files into database objects 
+
+You may download the latest release of the command line client from [here](https://github.com/utPLSQL/utPLSQL-cli/releases/latest) or do it automatically using the command below (Unix).
 
 ```bash
 #!/bin/bash
 # Get the url to latest release "zip" file
-DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL-sql-cli/releases/latest | awk '/zipball_url/ { print $2 }' | sed -r 's/"|,//g')
+DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL-cli/releases/latest | awk '/zipball_url/ { print $2 }' | sed -r 's/"|,//g')
 # Download the latest release "zip" file
-curl -Lk "${DOWNLOAD_URL}" -o utplsql-sql-cli.zip
+curl -Lk "${DOWNLOAD_URL}" -o utplsql-cli.zip
 # Extract downloaded "zip" file
-unzip -q utplsql-sql-cli.zip
+unzip -q utplsql-cli.zip
 ```
 
 # ut.run
