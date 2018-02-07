@@ -29,15 +29,13 @@ create or replace type ut_executable authid current_user as object(
   member function is_valid(self in out nocopy ut_executable) return boolean,
   member function is_defined return boolean,
   member function form_name return varchar2,
-  member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base,
-                              a_expected_error_codes in varchar2 := null),
+  member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base),
   /**
   * executes the defines executable
   * returns true if executed without exceptions
   * returns false if exceptions were raised
   */
-  member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base,
-                              a_expected_error_codes in varchar2 := null) return boolean,
+  member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean,
   member function get_error_stack_trace return varchar2
-) final
+) not final
 /

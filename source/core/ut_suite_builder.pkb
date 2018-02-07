@@ -42,13 +42,25 @@ create or replace package body ut_suite_builder is
     l_beforetest_procedure  varchar2(250 char);
     l_aftertest_procedure   varchar2(250 char);
 
-    l_expected_error_codes  varchar2(4000);
+    l_expected_error_codes  ut_varchar2_list;
 
     l_rollback_type         integer;
     l_displayname           varchar2(4000);
     function is_last_annotation_for_proc(a_annotations ut_annotations, a_index binary_integer) return boolean is
     begin
       return a_index = a_annotations.count or a_annotations(a_index).subobject_name != nvl(a_annotations(a_index+1).subobject_name, ' ');
+    end;
+
+    function exception_numbers_list(a_exception_numbers in varchar2) return ut_varchar2_list is
+      l_exception_number_list ut_varchar2_list;
+      l_regexp_for_excep_nums varchar2(30) := '^-?[[:digit:]]{1,5}$';
+    begin
+      /*the a_expected_error_codes is converted to a ut_varchar2_list after that is trimmed and filtered to left only valid exception numbers*/
+      l_exception_number_list := ut_utils.string_to_table(a_exception_numbers, ',', 'Y');
+      l_exception_number_list := ut_utils.trim_list_elements(l_exception_number_list, '[:space:]');
+      l_exception_number_list := ut_utils.filter_list(l_exception_number_list, l_regexp_for_excep_nums);
+
+      return l_exception_number_list;
     end;
   begin
     l_suite_rollback := ut_utils.gc_rollback_auto;
@@ -91,7 +103,7 @@ create or replace package body ut_suite_builder is
         elsif a_object.annotations(i).name = 'aftertest' then
           l_aftertest_procedure := a_object.annotations(i).text;
         elsif a_object.annotations(i).name = 'throws' then
-          l_expected_error_codes := a_object.annotations(i).text;
+          l_expected_error_codes := exception_numbers_list(a_object.annotations(i).text);
         elsif a_object.annotations(i).name in ('displayname','test') then
           l_displayname := a_object.annotations(i).text;
           if a_object.annotations(i).name = 'test' then

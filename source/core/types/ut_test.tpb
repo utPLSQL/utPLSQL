@@ -21,14 +21,14 @@ create or replace type body ut_test as
     a_path varchar2 := null, a_rollback_type integer := null, a_disabled_flag boolean := false,
     a_before_each_proc_name varchar2 := null, a_before_test_proc_name varchar2 := null,
     a_after_test_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null,
-    a_expected_error_codes varchar2 := null
+    a_expected_error_codes ut_varchar2_list := null
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
     self.init(a_object_owner, a_object_name, a_name, a_description, a_path, a_rollback_type, a_disabled_flag);
     self.before_each := ut_executable(self, a_before_each_proc_name, ut_utils.gc_before_each);
     self.before_test := ut_executable(self, a_before_test_proc_name, ut_utils.gc_before_test);
-    self.item := ut_executable(self, a_name, ut_utils.gc_test_execute);
+    self.item := ut_executable_test(self, a_name, ut_utils.gc_test_execute);
     self.after_test := ut_executable(self, a_after_test_proc_name, ut_utils.gc_after_test);
     self.after_each := ut_executable(self, a_after_each_proc_name, ut_utils.gc_after_each);
     self.all_expectations    := ut_expectation_results();
@@ -141,12 +141,12 @@ create or replace type body ut_test as
   overriding member function get_error_stack_traces(self ut_test) return ut_varchar2_list is
     l_stack_traces ut_varchar2_list := ut_varchar2_list();
   begin
-    ut_utils.append_to_list(l_stack_traces, self.parent_error_stack_trace);
-    ut_utils.append_to_list(l_stack_traces, self.before_each.get_error_stack_trace());
-    ut_utils.append_to_list(l_stack_traces, self.before_test.get_error_stack_trace());
-    ut_utils.append_to_list(l_stack_traces, self.item.get_error_stack_trace());
-    ut_utils.append_to_list(l_stack_traces, self.after_test.get_error_stack_trace());
-    ut_utils.append_to_list(l_stack_traces, self.after_each.get_error_stack_trace());
+    ut_utils.append_to_varchar2_list(l_stack_traces, self.parent_error_stack_trace);
+    ut_utils.append_to_varchar2_list(l_stack_traces, self.before_each.get_error_stack_trace());
+    ut_utils.append_to_varchar2_list(l_stack_traces, self.before_test.get_error_stack_trace());
+    ut_utils.append_to_varchar2_list(l_stack_traces, self.item.get_error_stack_trace());
+    ut_utils.append_to_varchar2_list(l_stack_traces, self.after_test.get_error_stack_trace());
+    ut_utils.append_to_varchar2_list(l_stack_traces, self.after_each.get_error_stack_trace());
     return l_stack_traces;
   end;
   overriding member function get_serveroutputs return clob is

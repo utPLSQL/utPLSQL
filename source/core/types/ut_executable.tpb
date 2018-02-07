@@ -25,7 +25,6 @@ create or replace type body ut_executable is
     self.owner_name := a_context.object_owner;
     self.object_name := a_context.object_name;
     self.procedure_name := a_procedure_name;
-    --self.expected_error_codes := treat(a_context as ut_test).expected_error_codes;
     return;
   end;
 
@@ -60,27 +59,23 @@ create or replace type body ut_executable is
     return ut_metadata.form_name(owner_name, object_name, procedure_name);
   end;
 
-  member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base,
-                              a_expected_error_codes in varchar2 := null) is
+  member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is
     l_completed_without_errors  boolean;
   begin
-    l_completed_without_errors := self.do_execute(a_item, a_listener, a_expected_error_codes);
+    l_completed_without_errors := self.do_execute(a_item, a_listener);
   end do_execute;
 
-	member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base,
-                              a_expected_error_codes in varchar2 := null) return boolean is
+	member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_statement                varchar2(4000);
     l_status                   number;
     l_cursor_number            number;
     l_owner                    varchar2(200) := self.owner_name;
     l_object_name              varchar2(200) := self.object_name;
     l_procedure_name           varchar2(200) := self.procedure_name;
-    l_expected_except_message  varchar2(4000);
 
     l_completed_without_errors boolean := true;
     l_start_transaction_id     varchar2(250);
-    l_end_transaction_id       varchar2(250);
-
+    l_end_transaction_id     varchar2(250);
     procedure save_dbms_output is
       l_status number;
       l_line varchar2(32767);
@@ -98,25 +93,6 @@ create or replace type body ut_executable is
         dbms_lob.writeappend(self.serveroutput,1,chr(10));
       end loop;
     end save_dbms_output;
-
-    function build_failed_expec_errnum(a_error_stack in varchar2, a_expected_error_codes in varchar) return varchar is
-      l_actual_error_no integer;
-      l_fail_message varchar2(4000);
-    begin
-      if a_error_stack is null then
-        l_fail_message := 'Expected exceptions '||a_expected_error_codes||' but nothing was raised.';
-      else
-        l_actual_error_no := regexp_substr(a_error_stack, '^ORA(-[0-9]+)',subexpression=>1);
-
-        if a_expected_error_codes = l_actual_error_no then
-          l_fail_message := null;
-        else
-          l_fail_message := 'Expected exceptions '''||a_expected_error_codes||''' got '''||l_actual_error_no||'''.';
-        end if;
-      end if;
-
-      return l_fail_message;
-    end;
   begin
     if self.is_defined() then
       l_start_transaction_id := dbms_transaction.local_transaction_id(true);
@@ -162,20 +138,6 @@ create or replace type body ut_executable is
       dbms_sql.close_cursor(l_cursor_number);
 
       save_dbms_output;
-
-
-      if a_expected_error_codes is not null then
-        l_expected_except_message := build_failed_expec_errnum(self.error_stack, a_expected_error_codes);
-
-        if l_expected_except_message is not null then
-          ut_expectation_processor.add_expectation_result(
-            ut_expectation_result(ut_utils.tr_failure, null, l_owner||'.'||l_object_name||'.'||l_procedure_name||' '||l_expected_except_message, false)
-          );
-        end if;
-
-        self.error_stack := null;
-        self.error_backtrace := null;
-      end if;
 
       l_completed_without_errors := (self.error_stack||self.error_backtrace) is null;
 

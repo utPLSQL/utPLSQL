@@ -58,6 +58,7 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_suite_item.tps'
 @@install_component.sql 'core/types/ut_suite_items.tps'
 @@install_component.sql 'core/types/ut_executable.tps'
+@@install_component.sql 'core/types/ut_executable_test.tps'
 @@install_component.sql 'core/types/ut_test.tps'
 @@install_component.sql 'core/types/ut_logical_suite.tps'
 @@install_component.sql 'core/types/ut_suite.tps'
@@ -132,6 +133,7 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'core/types/ut_reporter_base.tpb'
 @@install_component.sql 'core/types/ut_file_mapping.tpb'
 @@install_component.sql 'core/types/ut_executable.tpb'
+@@install_component.sql 'core/types/ut_executable_test.tpb'
 @@install_component.sql 'core/types/ut_console_reporter_base.tps'
 @@install_component.sql 'core/types/ut_console_reporter_base.tpb'
 

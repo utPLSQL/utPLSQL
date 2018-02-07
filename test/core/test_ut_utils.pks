@@ -56,6 +56,10 @@ create or replace package test_ut_utils is
   --%test(to_version splits version string into individual version components)
   procedure test_to_version_split;
 
+  --%test(Trims the elements of a collection)
+  procedure test_trim_list_elements;
 
+  --%test(Filters the collection's elements)
+  procedure test_filter_list;
 end test_ut_utils;
 /

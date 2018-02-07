@@ -293,6 +293,26 @@ end;';
     ut.expect(l_version.build).to_equal(333);
   end;
 
+  procedure test_trim_list_elements
+  is
+    l_list_to_be_equal ut3.ut_varchar2_list := ut3.ut_varchar2_list('hello', 'world', 'okay');
+    l_list ut3.ut_varchar2_list := ut3.ut_varchar2_list(' hello  ', chr(9)||'world ', 'okay');
+  begin
+    --Act
+    l_list := ut3.ut_utils.trim_list_elements(l_list, '[:space:]');
+    --Assert
+    ut.expect(anydata.convertcollection(l_list)).to_equal(anydata.convertcollection(l_list_to_be_equal));
+  end;
 
+  procedure test_filter_list
+  is
+    l_list_to_be_equal ut3.ut_varchar2_list := ut3.ut_varchar2_list('-12458', '8956', '789');
+    l_list ut3.ut_varchar2_list := ut3.ut_varchar2_list('-12458', '8956', 'okay', null,'458963', '789');
+  begin
+    --Act
+    l_list := ut3.ut_utils.filter_list(l_list, '^-?[[:digit:]]{1,5}$');
+    --Assert
+    ut.expect(anydata.convertcollection(l_list)).to_equal(anydata.convertcollection(l_list_to_be_equal));
+  end;
 end test_ut_utils;
 /
