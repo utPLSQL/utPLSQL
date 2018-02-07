@@ -76,3 +76,4 @@ create or replace type body ut_executable_test as
     return l_completed_without_errors;
   end;
 end;
+/

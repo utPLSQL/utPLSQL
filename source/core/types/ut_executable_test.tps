@@ -21,3 +21,4 @@ create or replace type ut_executable_test authid current_user under ut_executabl
   member function do_execute(self in out nocopy ut_executable_test, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base,
                               a_expected_error_codes in ut_varchar2_list := null) return boolean
 ) final;
+/
