@@ -45,13 +45,16 @@ Check out the sections on [annotations](userguide/annotations.md) and [expectati
 
 
 # Command line
- 
-The `ut_run` (for linux/unix) and `ut_run.bat` (for windows) are simple yet powerful.
-They can provide output from the tests on the fly. 
 
-You can also use it to have coloured outputs.
+You can use the utPLSQL command line client [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli) to run tests without the need for Oracle Client or any IDE like SQLDeveloper/TOAD etc.
 
-Look into [utPLSQL-sql-cli](https://github.com/utPLSQL/utPLSQL-sql-cli) project to see more.
+Amongst many benefits they provide ability to:
+* see the progress of test execution for long-running tests - real-time reporting
+* use many reporting formats simultaneously and save reports to files (publish)
+* map your project source files and test files into database objects 
+
+Just download the [latest client](https://github.com/utPLSQL/utPLSQL-cli/releases/latest), download Oracle jdbc driver you are good to go.
+See [project readme](https://github.com/utPLSQL/utPLSQL-cli/blob/develop/README.md) for details.  
 
 # Coverage
 
