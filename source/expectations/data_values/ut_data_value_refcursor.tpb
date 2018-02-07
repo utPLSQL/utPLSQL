@@ -39,7 +39,7 @@ create or replace type body ut_data_value_refcursor as
     self.self_type  := $$plsql_unit;
     self.data_set_guid := sys_guid();
     self.data_type := 'refcursor';
-
+    self.columns_info := ut_refcursor_descriptor.get_columns_info(a_value);
     if a_value is not null then
         if a_value%isopen then
           self.row_count := 0;
