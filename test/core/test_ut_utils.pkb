@@ -270,7 +270,7 @@ end;';
     l_varchar2_byte_limit integer := 32767;
     l_workaround_byte_limit integer := 8191;
     l_singlebyte_string_max_size varchar2(32767 char) := rpad('x',l_varchar2_byte_limit,'x');
-    l_twobyte_character char(1 char) := 'üòÅ';
+    l_twobyte_character char(1 char) := 'üò?';
     l_clob_multibyte clob := l_twobyte_character||l_singlebyte_string_max_size; --here we have 32769(2+32767) bytes and 32768 chars
     l_expected ut3.ut_varchar2_list := ut3.ut_varchar2_list();
     l_result   ut3.ut_varchar2_list;
@@ -299,11 +299,31 @@ end;';
     l_list ut3.ut_varchar2_list := ut3.ut_varchar2_list(' hello  ', chr(9)||'world ', 'okay');
   begin
     --Act
-    l_list := ut3.ut_utils.trim_list_elements(l_list, '[:space:]');
+    l_list := ut3.ut_utils.trim_list_elements(l_list);
     --Assert
     ut.expect(anydata.convertcollection(l_list)).to_equal(anydata.convertcollection(l_list_to_be_equal));
   end;
-
+  
+  procedure trim_list_elemts_null_collect
+  is
+    l_list_to_be_null ut3.ut_varchar2_list;
+  begin
+    --Act
+    l_list_to_be_null := ut3.ut_utils.trim_list_elements(l_list_to_be_null);
+    --Assert
+    ut.expect(anydata.convertcollection(l_list_to_be_null)).to_be_null;
+  end;
+  
+  procedure trim_list_elemts_empty_collect
+  is
+    l_list_to_be_empty ut3.ut_varchar2_list := ut3.ut_varchar2_list();
+  begin
+    --Act
+    l_list_to_be_empty := ut3.ut_utils.trim_list_elements(l_list_to_be_empty);
+    --Assert
+    ut.expect(anydata.convertcollection(l_list_to_be_empty)).to_be_empty;
+  end;
+  
   procedure test_filter_list
   is
     l_list_to_be_equal ut3.ut_varchar2_list := ut3.ut_varchar2_list('-12458', '8956', '789');
@@ -313,6 +333,26 @@ end;';
     l_list := ut3.ut_utils.filter_list(l_list, '^-?[[:digit:]]{1,5}$');
     --Assert
     ut.expect(anydata.convertcollection(l_list)).to_equal(anydata.convertcollection(l_list_to_be_equal));
+  end;
+  
+  procedure filter_list_null_collection
+  is
+    l_list_to_be_null ut3.ut_varchar2_list;
+  begin
+    --Act
+    l_list_to_be_null := ut3.ut_utils.filter_list(l_list_to_be_null, '^-?[[:digit:]]{1,5}$');
+    --Assert
+    ut.expect(anydata.convertcollection(l_list_to_be_null)).to_be_null;
+  end;
+  
+  procedure filter_list_empty_collection
+  is
+    l_list_to_be_empty ut3.ut_varchar2_list := ut3.ut_varchar2_list();
+  begin
+    --Act
+    l_list_to_be_empty := ut3.ut_utils.filter_list(l_list_to_be_empty, '^-?[[:digit:]]{1,5}$');
+    --Assert
+    ut.expect(anydata.convertcollection(l_list_to_be_empty)).to_be_empty;
   end;
 end test_ut_utils;
 /

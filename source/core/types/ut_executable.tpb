@@ -69,13 +69,10 @@ create or replace type body ut_executable is
     l_statement                varchar2(4000);
     l_status                   number;
     l_cursor_number            number;
-    l_owner                    varchar2(200) := self.owner_name;
-    l_object_name              varchar2(200) := self.object_name;
-    l_procedure_name           varchar2(200) := self.procedure_name;
-
     l_completed_without_errors boolean := true;
     l_start_transaction_id     varchar2(250);
     l_end_transaction_id     varchar2(250);
+    
     procedure save_dbms_output is
       l_status number;
       l_line varchar2(32767);
@@ -103,7 +100,7 @@ create or replace type body ut_executable is
       --listener - before call to executable
       a_listener.fire_before_event(self.associated_event_name, a_item);
 
-      ut_metadata.do_resolve(a_owner => l_owner, a_object => l_object_name, a_procedure_name => l_procedure_name);
+      ut_metadata.do_resolve(a_owner => self.owner_name, a_object => self.object_name, a_procedure_name => self.procedure_name);
 
       l_statement :=
       'declare' || chr(10) ||
@@ -111,7 +108,7 @@ create or replace type body ut_executable is
       '  l_error_backtrace varchar2(32767);' || chr(10) ||
       'begin' || chr(10) ||
       '  begin' || chr(10) ||
-      '    ' || ut_metadata.form_name(l_owner, l_object_name, l_procedure_name) || ';' || chr(10) ||
+      '    ' || ut_metadata.form_name(self.owner_name, self.object_name, self.procedure_name) || ';' || chr(10) ||
       '  exception' || chr(10) ||
       '    when others then ' || chr(10) ||
       '      l_error_stack := dbms_utility.format_error_stack;' || chr(10) ||

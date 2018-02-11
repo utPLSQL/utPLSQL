@@ -190,7 +190,6 @@ end;';
         'Another line',
         lpad('A very long line',10000,'a')
     );
-    dbms_output.enable;
     dbms_output.put_line(l_expected(1));
     dbms_output.put_line(l_expected(2));
     dbms_output.put_line(l_expected(3));

@@ -57,7 +57,7 @@ create or replace package body ut_suite_builder is
     begin
       /*the a_expected_error_codes is converted to a ut_varchar2_list after that is trimmed and filtered to left only valid exception numbers*/
       l_exception_number_list := ut_utils.string_to_table(a_exception_numbers, ',', 'Y');
-      l_exception_number_list := ut_utils.trim_list_elements(l_exception_number_list, '[:space:]');
+      l_exception_number_list := ut_utils.trim_list_elements(l_exception_number_list);
       l_exception_number_list := ut_utils.filter_list(l_exception_number_list, l_regexp_for_excep_nums);
 
       return l_exception_number_list;
