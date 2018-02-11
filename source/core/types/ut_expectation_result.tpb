@@ -16,9 +16,10 @@ create or replace type body ut_expectation_result is
   limitations under the License.
   */
 
-  constructor function ut_expectation_result(self in out nocopy ut_expectation_result, a_status integer, a_description varchar2, a_message clob,
-                                             a_include_caller_info boolean := true)
-    return self as result is
+  constructor function ut_expectation_result(
+    self in out nocopy ut_expectation_result, a_status integer, 
+    a_description varchar2, a_message clob, a_include_caller_info boolean := true
+  ) return self as result is
   begin
     self.status          := a_status;
     self.description     := a_description;
