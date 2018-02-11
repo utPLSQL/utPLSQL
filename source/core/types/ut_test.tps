@@ -28,7 +28,7 @@ create or replace type ut_test under ut_suite_item (
   /**
   * The Test procedure to be executed
   */
-  item        ut_executable,
+  item        ut_executable_test,
   /**
   * The procedure to be invoked after invoking the test
   * Procedure exists within the same package as the test itself
@@ -55,11 +55,16 @@ create or replace type ut_test under ut_suite_item (
   * Will get populated on exceptions in before-all calls
   */
   parent_error_stack_trace varchar2(4000),
+  /**
+  *Holds the expected error codes list when the user use the annotation throws
+  */
+  expected_error_codes  ut_varchar2_list,
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_description varchar2 := null,
     a_path varchar2 := null, a_rollback_type integer := null, a_disabled_flag boolean := false,
     a_before_each_proc_name varchar2 := null, a_before_test_proc_name varchar2 := null,
-    a_after_test_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null
+    a_after_test_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null,
+    a_expected_error_codes ut_varchar2_list := null
   ) return self as result,
   member function is_valid(self in out nocopy ut_test) return boolean,
   member procedure set_beforeeach(self in out nocopy ut_test, a_before_each_proc_name varchar2),
