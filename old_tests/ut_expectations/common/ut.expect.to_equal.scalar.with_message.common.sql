@@ -7,7 +7,7 @@ declare
 begin
 --Act
   ut.expect(l_actual, l_test_description ).to_equal( l_expected);
-  l_results :=  ut_expectation_processor.get_expectations_results();
+  l_results :=  ut_expectation_processor.get_failed_expectations();
 --Assert
   if nvl(:test_result, ut_utils.tr_success) = ut_utils.tr_success
      and treat(l_results(1) as ut_expectation_result).description like '' || l_test_description || '' then

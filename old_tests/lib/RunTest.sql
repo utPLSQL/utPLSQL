@@ -21,8 +21,10 @@ begin
 end;
 /
 
+rollback;
 begin
   ut_expectation_processor.clear_expectations;
+  ut_utils.cleanup_temp_tables;                                            
 end;
 /
 

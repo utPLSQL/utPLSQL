@@ -1,6 +1,6 @@
 create or replace type body ut_xunit_reporter is
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -29,15 +29,15 @@ create or replace type body ut_xunit_reporter is
 
     function get_path(a_path_with_name varchar2, a_name varchar2) return varchar2 is
     begin
-      return substr(a_path_with_name, 1, instr(a_path_with_name, '.' || a_name) - 1);
+      return regexp_substr(a_path_with_name, '(.*)\.' ||a_name||'$',subexpression=>1);
     end;
 
     procedure print_test_elements(a_test ut_test) is
       l_lines ut_varchar2_list;
       l_output clob;
     begin
-      self.print_text('<testcase classname="' || get_path(a_test.path, a_test.name) || '" ' || ' assertions="' ||
-                      coalesce(cardinality(a_test.results), 0) || '"' || self.get_common_item_attributes(a_test) || case when
+      self.print_text('<testcase classname="' || dbms_xmlgen.convert(get_path(a_test.path, a_test.name)) || '" ' || ' assertions="' ||
+                      nvl(a_test.all_expectations.count,0) || '"' || self.get_common_item_attributes(a_test) || case when
                       a_test.result != ut_utils.tr_success then
                       ' status="' || ut_utils.test_result_to_char(a_test.result) || '"' end || '>');
       if a_test.result = ut_utils.tr_disabled then
@@ -52,11 +52,12 @@ create or replace type body ut_xunit_reporter is
       elsif a_test.result > ut_utils.tr_success then
         self.print_text('<failure>');
         self.print_text('<![CDATA[');
-        for i in 1 .. a_test.results.count loop
-          l_lines := a_test.results(i).get_result_lines();
-          for i in 1 .. l_lines.count loop
-            self.print_text(l_lines(i));
+        for i in 1 .. a_test.failed_expectations.count loop
+          l_lines := a_test.failed_expectations(i).get_result_lines();
+          for j in 1 .. l_lines.count loop
+            self.print_text(l_lines(j));
           end loop;
+          self.print_text(a_test.failed_expectations(i).caller_info);
         end loop;
         self.print_text(']]>');
         self.print_text('</failure>');
@@ -80,7 +81,7 @@ create or replace type body ut_xunit_reporter is
     begin
       a_suite_id := a_suite_id + 1;
       self.print_text('<testsuite tests="' || l_tests_count || '"' || ' id="' || a_suite_id || '"' || ' package="' ||
-                      a_suite.path || '" ' || self.get_common_item_attributes(a_suite) || '>');
+                      dbms_xmlgen.convert(a_suite.path) || '" ' || self.get_common_item_attributes(a_suite) || '>');
       if a_suite is of(ut_suite) then
         l_suite := treat(a_suite as ut_suite);
 
@@ -121,7 +122,11 @@ create or replace type body ut_xunit_reporter is
 
   member function get_common_item_attributes(a_item ut_suite_item) return varchar2 is
   begin
-    return ' skipped="' || a_item.results_count.disabled_count || '" error="' || a_item.results_count.errored_count || '"' || ' failure="' || a_item.results_count.failure_count || '" name="' || nvl(a_item.description, a_item.name) || '"' || ' time="' || a_item.execution_time() || '" ';
+    return ' skipped="' || a_item.results_count.disabled_count
+           || '" error="' || a_item.results_count.errored_count
+           || '" failure="' || a_item.results_count.failure_count
+           || '" name="' || dbms_xmlgen.convert(nvl(a_item.description, a_item.name))
+           || '" time="' || ut_utils.to_xml_number_format(a_item.execution_time()) || '" ';
   end;
 
 end;

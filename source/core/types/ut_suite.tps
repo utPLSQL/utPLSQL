@@ -1,6 +1,6 @@
 create or replace type ut_suite  under ut_logical_suite (
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -32,9 +32,6 @@ create or replace type ut_suite  under ut_logical_suite (
     a_after_all_proc_name varchar2 := null
   ) return self as result,
   overriding member function is_valid(self in out nocopy ut_suite) return boolean,
-  /**
-  * Finds the item in the suite by it's name and returns the item index
-  */
   overriding member function do_execute(self in out nocopy ut_suite , a_listener in out nocopy ut_event_listener_base) return boolean,
   overriding member function get_error_stack_traces(self ut_suite) return ut_varchar2_list,
   overriding member function get_serveroutputs return clob

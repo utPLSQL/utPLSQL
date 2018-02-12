@@ -1,5 +1,5 @@
 /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -76,35 +76,13 @@ drop package ut_runner;
 
 drop package ut_suite_manager;
 
+drop package ut_suite_builder;
+
 drop package ut;
 
 drop table ut_dbms_output_cache;
 
-drop type ut_expectation_yminterval force;
-
-drop type ut_expectation_varchar2 force;
-
-drop type ut_expectation_timestamp_tz force;
-
-drop type ut_expectation_timestamp_ltz force;
-
-drop type ut_expectation_timestamp force;
-
-drop type ut_expectation_refcursor force;
-
-drop type ut_expectation_number force;
-
-drop type ut_expectation_dsinterval force;
-
-drop type ut_expectation_date force;
-
-drop type ut_expectation_clob force;
-
-drop type ut_expectation_boolean force;
-
-drop type ut_expectation_blob force;
-
-drop type ut_expectation_anydata force;
+drop type ut_expectation_compound force;
 
 drop type ut_expectation force;
 
@@ -172,9 +150,33 @@ drop type ut_data_value_anydata force;
 
 drop type ut_data_value force;
 
-drop table ut_cursor_data;
+drop table ut_data_set_tmp;
 
-drop package ut_annotations;
+drop table ut_data_set_diff_tmp;
+
+drop package ut_annotation_manager;
+
+drop package ut_annotation_parser;
+
+drop package ut_annotation_cache_manager;
+
+drop table ut_annotation_cache cascade constraints;
+
+drop table ut_annotation_cache_info cascade constraints;
+
+drop sequence ut_annotation_cache_seq;
+
+drop type ut_annotation_objs_cache_info force;
+
+drop type ut_annotation_obj_cache_info force;
+
+drop type ut_annotated_objects force;
+
+drop type ut_annotated_object force;
+
+drop type ut_annotations force;
+
+drop type ut_annotation force;
 
 drop package ut_file_mapper;
 

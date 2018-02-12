@@ -1,6 +1,6 @@
 create or replace package ut_expectation_processor authid current_user as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -28,7 +28,9 @@ create or replace package ut_expectation_processor authid current_user as
 
   procedure clear_expectations;
 
-  function get_expectations_results return ut_expectation_results;
+  function get_all_expectations return ut_expectation_results;
+
+  function get_failed_expectations return ut_expectation_results;
 
   procedure add_expectation_result(a_expectation_result ut_expectation_result);
 
@@ -45,6 +47,10 @@ create or replace package ut_expectation_processor authid current_user as
   --   at: owner.name:line "source code line text"
   -- The text is to be consumed by expectation result
   function who_called_expectation(a_call_stack varchar2) return varchar2;
+
+  procedure add_warning(a_messsage varchar2);
+
+  function get_warnings return ut_varchar2_list;
 
 end;
 /

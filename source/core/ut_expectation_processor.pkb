@@ -1,6 +1,6 @@
 create or replace package body ut_expectation_processor as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -21,6 +21,8 @@ create or replace package body ut_expectation_processor as
   g_session_params tt_nls_params;
 
   g_expectations_called ut_expectation_results := ut_expectation_results();
+
+  g_warnings ut_varchar2_list := ut_varchar2_list();
 
   g_nulls_are_equal boolean_not_null := gc_default_nulls_are_equal;
 
@@ -50,16 +52,28 @@ create or replace package body ut_expectation_processor as
   begin
     ut_utils.debug_log('ut_expectation_processor.clear_expectations');
     g_expectations_called.delete;
+    g_warnings.delete;
   end;
 
-  function get_expectations_results return ut_expectation_results is
+  function get_all_expectations return ut_expectation_results is
+  begin
+    ut_utils.debug_log('ut_expectation_processor.get_all_expectations: g_expectations_called.count='||g_expectations_called.count);
+    return g_expectations_called;
+  end get_all_expectations;
+
+  function get_failed_expectations return ut_expectation_results is
     l_expectations_results ut_expectation_results := ut_expectation_results();
   begin
-    ut_utils.debug_log('ut_expectation_processor.get_expectations_results: .count='||g_expectations_called.count);
-    l_expectations_results := g_expectations_called;
-    clear_expectations();
+    ut_utils.debug_log('ut_expectation_processor.get_failed_expectations: g_expectations_called.count='||g_expectations_called.count);
+    for i in 1 .. g_expectations_called.count loop
+      if g_expectations_called(i).status > ut_utils.tr_success then
+        l_expectations_results.extend;
+        l_expectations_results(l_expectations_results.last) := g_expectations_called(i);
+      end if;
+    end loop;
+    ut_utils.debug_log('ut_expectation_processor.get_failed_expectations: l_expectations_results.count='||g_expectations_called.count);
     return l_expectations_results;
-  end get_expectations_results;
+  end get_failed_expectations;
 
   procedure add_expectation_result(a_expectation_result ut_expectation_result) is
   begin
@@ -145,5 +159,17 @@ create or replace package body ut_expectation_processor as
     end if;
     return l_result;
   end;
+
+  procedure add_warning(a_messsage varchar2) is
+  begin
+    g_warnings.extend;
+    g_warnings(g_warnings.last) := a_messsage;
+  end;
+
+  function get_warnings return ut_varchar2_list is
+  begin
+    return g_warnings;
+  end;
+
 end;
 /

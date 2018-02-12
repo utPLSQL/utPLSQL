@@ -1,6 +1,6 @@
 create or replace type body ut_logical_suite as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -31,25 +31,22 @@ create or replace type body ut_logical_suite as
     return true;
   end;
 
-  member function item_index(a_name varchar2) return pls_integer is
-    l_item_index   pls_integer := self.items.first;
-    c_lowered_name constant varchar2(4000 char) := lower(trim(a_name));
-    l_result       pls_integer;
-  begin
-    while l_item_index is not null loop
-      if self.items(l_item_index).name = c_lowered_name then
-        l_result := l_item_index;
-        exit;
-      end if;
-      l_item_index := self.items.next(l_item_index);
-    end loop;
-    return l_result;
-  end item_index;
-
   member procedure add_item(self in out nocopy ut_logical_suite, a_item ut_suite_item) is
   begin
     self.items.extend;
     self.items(self.items.last) := a_item;
+  end;
+
+  overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base) is
+  begin
+    a_listener.fire_before_event(ut_utils.gc_suite,self);
+    self.start_time := current_timestamp;
+    for i in 1 .. self.items.count loop
+      self.items(i).mark_as_skipped(a_listener);
+    end loop;
+    self.end_time := self.start_time;
+    a_listener.fire_after_event(ut_utils.gc_suite,self);
+    self.calc_execution_result();
   end;
 
   overriding member function do_execute(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base) return boolean is

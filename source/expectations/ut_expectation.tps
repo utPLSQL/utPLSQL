@@ -1,6 +1,6 @@
 create or replace type ut_expectation authid current_user as object(
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -17,22 +17,33 @@ create or replace type ut_expectation authid current_user as object(
   */
   actual_data         ut_data_value,
   description         varchar2(4000 char),
-  final member procedure to_(self in ut_expectation, a_matcher ut_matcher),
-  final member procedure not_to(self in ut_expectation, a_matcher ut_matcher),
-  final member procedure to_be_null(self in ut_expectation),
-  final member procedure to_be_not_null(self in ut_expectation),
-  final member procedure not_to_be_null(self in ut_expectation),
-  final member procedure not_to_be_not_null(self in ut_expectation),
+
+  --base matcher executors
+  member procedure to_(self in ut_expectation, a_matcher ut_matcher),
+  member procedure not_to(self in ut_expectation, a_matcher ut_matcher),
+
+  --shortcuts
+  member procedure to_be_null(self in ut_expectation),
+  member procedure to_be_not_null(self in ut_expectation),
+  member procedure not_to_be_null(self in ut_expectation),
+  member procedure not_to_be_not_null(self in ut_expectation),
+
+  member procedure to_be_true(self in ut_expectation),
+  member procedure to_be_false(self in ut_expectation),
+  member procedure not_to_be_true(self in ut_expectation),
+  member procedure not_to_be_false(self in ut_expectation),
 
   -- this is done to provide strong type comparison. other comporators should be implemented in the type-specific classes
-  member procedure to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2 := null, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected anydata, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected blob, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected boolean, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected clob, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected date, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected number, a_nulls_are_equal boolean := null),
-  member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude varchar2 := null, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude varchar2, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null),
@@ -41,21 +52,113 @@ create or replace type ut_expectation authid current_user as object(
   member procedure to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null),
 
-  member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2 := null, a_nulls_are_equal boolean := null),
+  member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null),
+  member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected blob, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected boolean, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected clob, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected date, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected number, a_nulls_are_equal boolean := null),
-  member procedure not_to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude varchar2 := null, a_nulls_are_equal boolean := null),
+  member procedure not_to_equal(self in ut_expectation, a_expected sys_refcursor, a_nulls_are_equal boolean := null),
+  member procedure not_to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude varchar2, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected sys_refcursor, a_exclude ut_varchar2_list, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected timestamp_unconstrained, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected timestamp_tz_unconstrained, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected varchar2, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null),
-  member procedure not_to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null)
+  member procedure not_to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null),
+
+  member procedure to_be_like(self in ut_expectation, a_mask in varchar2, a_escape_char in varchar2 := null),
+
+  member procedure to_match(self in ut_expectation, a_pattern in varchar2, a_modifiers in varchar2 := null),
+
+  member procedure not_to_be_like(self in ut_expectation, a_mask in varchar2, a_escape_char in varchar2 := null),
+
+  member procedure not_to_match(self in ut_expectation, a_pattern in varchar2, a_modifiers in varchar2 := null),
+
+  member procedure to_be_between(self in ut_expectation, a_lower_bound date, a_upper_bound date),
+  member procedure to_be_between(self in ut_expectation, a_lower_bound dsinterval_unconstrained, a_upper_bound dsinterval_unconstrained),
+  member procedure to_be_between(self in ut_expectation, a_lower_bound number, a_upper_bound number),
+  member procedure to_be_between(self in ut_expectation, a_lower_bound timestamp_unconstrained, a_upper_bound timestamp_unconstrained),
+  member procedure to_be_between(self in ut_expectation, a_lower_bound timestamp_ltz_unconstrained, a_upper_bound timestamp_ltz_unconstrained),
+  member procedure to_be_between(self in ut_expectation, a_lower_bound timestamp_tz_unconstrained, a_upper_bound timestamp_tz_unconstrained),
+  member procedure to_be_between(self in ut_expectation, a_lower_bound varchar2, a_upper_bound varchar2),
+  member procedure to_be_between(self in ut_expectation, a_lower_bound yminterval_unconstrained, a_upper_bound yminterval_unconstrained),
+
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected date),
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected dsinterval_unconstrained),
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected number),
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected timestamp_unconstrained),
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained),
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected timestamp_tz_unconstrained),
+  member procedure to_be_greater_or_equal(self in ut_expectation, a_expected yminterval_unconstrained),
+
+  member procedure to_be_greater_than(self in ut_expectation, a_expected date),
+  member procedure to_be_greater_than(self in ut_expectation, a_expected dsinterval_unconstrained),
+  member procedure to_be_greater_than(self in ut_expectation, a_expected number),
+  member procedure to_be_greater_than(self in ut_expectation, a_expected timestamp_unconstrained),
+  member procedure to_be_greater_than(self in ut_expectation, a_expected timestamp_ltz_unconstrained),
+  member procedure to_be_greater_than(self in ut_expectation, a_expected timestamp_tz_unconstrained),
+  member procedure to_be_greater_than(self in ut_expectation, a_expected yminterval_unconstrained),
+
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected date),
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected dsinterval_unconstrained),
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected number),
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected timestamp_unconstrained),
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained),
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected timestamp_tz_unconstrained),
+  member procedure to_be_less_or_equal(self in ut_expectation, a_expected yminterval_unconstrained),
+
+  member procedure to_be_less_than(self in ut_expectation, a_expected date),
+  member procedure to_be_less_than(self in ut_expectation, a_expected dsinterval_unconstrained),
+  member procedure to_be_less_than(self in ut_expectation, a_expected number),
+  member procedure to_be_less_than(self in ut_expectation, a_expected timestamp_unconstrained),
+  member procedure to_be_less_than(self in ut_expectation, a_expected timestamp_ltz_unconstrained),
+  member procedure to_be_less_than(self in ut_expectation, a_expected timestamp_tz_unconstrained),
+  member procedure to_be_less_than(self in ut_expectation, a_expected yminterval_unconstrained),
+
+  member procedure not_to_be_between(self in ut_expectation, a_lower_bound date, a_upper_bound date),
+  member procedure not_to_be_between(self in ut_expectation, a_lower_bound dsinterval_unconstrained, a_upper_bound dsinterval_unconstrained),
+  member procedure not_to_be_between(self in ut_expectation, a_lower_bound number, a_upper_bound number),
+  member procedure not_to_be_between(self in ut_expectation, a_lower_bound timestamp_unconstrained, a_upper_bound timestamp_unconstrained),
+  member procedure not_to_be_between(self in ut_expectation, a_lower_bound timestamp_ltz_unconstrained, a_upper_bound timestamp_ltz_unconstrained),
+  member procedure not_to_be_between(self in ut_expectation, a_lower_bound timestamp_tz_unconstrained, a_upper_bound timestamp_tz_unconstrained),
+  member procedure not_to_be_between(self in ut_expectation, a_lower_bound varchar2, a_upper_bound varchar2),
+  member procedure not_to_be_between(self in ut_expectation, a_lower_bound yminterval_unconstrained, a_upper_bound yminterval_unconstrained),
+
+  member procedure not_to_be_greater_or_equal(self in ut_expectation, a_expected date),
+  member procedure not_to_be_greater_or_equal(self in ut_expectation, a_expected dsinterval_unconstrained),
+  member procedure not_to_be_greater_or_equal(self in ut_expectation, a_expected number),
+  member procedure not_to_be_greater_or_equal(self in ut_expectation, a_expected timestamp_unconstrained),
+  member procedure not_to_be_greater_or_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained),
+  member procedure not_to_be_greater_or_equal(self in ut_expectation, a_expected timestamp_tz_unconstrained),
+  member procedure not_to_be_greater_or_equal(self in ut_expectation, a_expected yminterval_unconstrained),
+
+  member procedure not_to_be_greater_than(self in ut_expectation, a_expected date),
+  member procedure not_to_be_greater_than(self in ut_expectation, a_expected dsinterval_unconstrained),
+  member procedure not_to_be_greater_than(self in ut_expectation, a_expected number),
+  member procedure not_to_be_greater_than(self in ut_expectation, a_expected timestamp_unconstrained),
+  member procedure not_to_be_greater_than(self in ut_expectation, a_expected timestamp_ltz_unconstrained),
+  member procedure not_to_be_greater_than(self in ut_expectation, a_expected timestamp_tz_unconstrained),
+  member procedure not_to_be_greater_than(self in ut_expectation, a_expected yminterval_unconstrained),
+
+  member procedure not_to_be_less_or_equal(self in ut_expectation, a_expected date),
+  member procedure not_to_be_less_or_equal(self in ut_expectation, a_expected dsinterval_unconstrained),
+  member procedure not_to_be_less_or_equal(self in ut_expectation, a_expected number),
+  member procedure not_to_be_less_or_equal(self in ut_expectation, a_expected timestamp_unconstrained),
+  member procedure not_to_be_less_or_equal(self in ut_expectation, a_expected timestamp_ltz_unconstrained),
+  member procedure not_to_be_less_or_equal(self in ut_expectation, a_expected timestamp_tz_unconstrained),
+  member procedure not_to_be_less_or_equal(self in ut_expectation, a_expected yminterval_unconstrained),
+
+  member procedure not_to_be_less_than(self in ut_expectation, a_expected date),
+  member procedure not_to_be_less_than(self in ut_expectation, a_expected dsinterval_unconstrained),
+  member procedure not_to_be_less_than(self in ut_expectation, a_expected number),
+  member procedure not_to_be_less_than(self in ut_expectation, a_expected timestamp_unconstrained),
+  member procedure not_to_be_less_than(self in ut_expectation, a_expected timestamp_ltz_unconstrained),
+  member procedure not_to_be_less_than(self in ut_expectation, a_expected timestamp_tz_unconstrained),
+  member procedure not_to_be_less_than(self in ut_expectation, a_expected yminterval_unconstrained)
 )
-not final not instantiable
+not final
 /

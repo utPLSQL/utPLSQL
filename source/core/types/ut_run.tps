@@ -1,6 +1,6 @@
 create or replace type ut_run under ut_suite_item (
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -33,6 +33,7 @@ create or replace type ut_run under ut_suite_item (
     a_project_file_mappings ut_file_mappings := null,
     a_test_file_mappings    ut_file_mappings := null
   ) return self as result,
+  overriding member procedure mark_as_skipped(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base),
   overriding member function  do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base) return boolean,
   overriding member procedure calc_execution_result(self in out nocopy ut_run),
   overriding member procedure mark_as_errored(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base, a_error_stack_trace varchar2),

@@ -1,6 +1,6 @@
 create or replace package body ut_metadata as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -115,24 +115,6 @@ create or replace package body ut_metadata as
       return false;
   end;
 
-  function get_package_spec_source(a_owner varchar2, a_object_name varchar2) return clob is
-    l_lines     sys.dbms_preprocessor.source_lines_t;
-    l_cursor    sys_refcursor;
-    l_source    clob;
-    l_view_name varchar2(128) := get_dba_view('dba_source');
-  begin
-    open l_cursor for 'select text from '||l_view_name||q'[ s
-       where s.owner = :a_owner and s.name = :a_object_name and s.type = 'PACKAGE'
-      order by s.line]' using upper(a_owner), upper(a_object_name);
-     fetch l_cursor bulk collect into l_lines;
-     -- we fetch the source explicitly as dbms_preprocessor is very sow on 12.1 and 12.2 when grabbing the sources.
-     l_lines := sys.dbms_preprocessor.get_post_processed_source(l_lines);
-     for i in 1..l_lines.count loop
-       ut_utils.append_to_clob(l_source, replace(l_lines(i), chr(13)||chr(10), chr(10)));
-     end loop;
-    return l_source;
-  end;
-
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
     l_cursor sys_refcursor;
     l_view_name varchar2(128) := get_dba_view('dba_source');
@@ -165,9 +147,9 @@ create or replace package body ut_metadata as
     g_cached_object := null;
   end;
 
-  function get_dba_view(a_view_name varchar2) return varchar2 is
+  function get_dba_view(a_dba_view_name varchar2) return varchar2 is
     l_invalid_object_name exception;
-    l_result              varchar2(128) := lower(a_view_name);
+    l_result              varchar2(128) := lower(a_dba_view_name);
     pragma exception_init(l_invalid_object_name,-44002);
   begin
     l_result := dbms_assert.sql_object_name(l_result);
@@ -176,6 +158,20 @@ create or replace package body ut_metadata as
     when l_invalid_object_name then
       return replace(l_result,'dba_','all_');
   end;
+
+  function package_exists_in_cur_schema(a_object_name varchar2) return boolean is
+    l_cnt            number;
+    c_current_schema constant all_tables.owner%type := sys_context('USERENV','CURRENT_SCHEMA');
+  begin
+    select count(*)
+      into l_cnt
+      from all_objects t
+     where t.object_name = a_object_name
+       and t.object_type = 'PACKAGE'
+       and t.owner = c_current_schema;
+    return l_cnt > 0;
+  end;
+
 
 end;
 /

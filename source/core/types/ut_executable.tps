@@ -1,6 +1,6 @@
 create or replace type ut_executable authid current_user as object(
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -37,5 +37,5 @@ create or replace type ut_executable authid current_user as object(
   */
   member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean,
   member function get_error_stack_trace return varchar2
-) final
+) not final
 /

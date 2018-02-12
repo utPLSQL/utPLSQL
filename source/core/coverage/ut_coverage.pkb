@@ -1,6 +1,6 @@
 create or replace package body ut_coverage is
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -67,18 +67,21 @@ create or replace package body ut_coverage is
                      ) and
                      regexp_like(
                         s.text,
-                        '^\s*(((not)?\s*(overriding|final|instantiable)\s*)*(static|constructor|member)?\s*(procedure|function)|package(\s+body)|begin|end(\s+\S+)?\s*;)', 'i'
+                        '^([\t ]*(((not)?\s*(overriding|final|instantiable)[\t ]*)*(static|constructor|member)?[\t ]*(procedure|function)|package([\t ]+body)|begin|end([\t ]+\S+)*[ \t]*;))', 'i'
                      )
                     then 'Y'
                  end as to_be_skipped
             from ]'||l_view_name||q'[ s]';
-    if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
+    if a_coverage_options.file_mappings is not empty then
       l_result := l_result || '
             join table(:file_mappings) f
               on s.name  = f.object_name
              and s.type  = f.object_type
              and s.owner = f.object_owner
            where 1 = 1';
+    elsif a_coverage_options.include_objects is not empty then
+      l_result := l_result || '
+           where (s.owner, s.name) in (select il.owner, il.name from table(:include_objects) il)';
     else
       l_result := l_result || '
            where s.owner in (select upper(t.column_value) from table(:l_schema_names) t)';
@@ -86,17 +89,9 @@ create or replace package body ut_coverage is
     l_result := l_result || q'[
              and s.type not in ('PACKAGE', 'TYPE', 'JAVA SOURCE')
              --Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
-             and (s.owner, s.name) not in (select el.owner, el.name from table(:l_skipped_objects) el)]';
-    if a_coverage_options.include_objects is null then
-      l_result := l_result || '
-             and :include_objects is null';
-    else
-      l_result := l_result || '
-             and (s.owner, s.name) in (select il.owner, il.name from table(:include_objects) il)';
-    end if;
-      l_result := l_result || '
+             and (s.owner, s.name) not in (select el.owner, el.name from table(:l_skipped_objects) el)
              )
-       where line > 0';
+       where line > 0]';
     return l_result;
   end;
 
@@ -113,9 +108,11 @@ create or replace package body ut_coverage is
     end if;
     l_sql := get_cov_sources_sql(a_coverage_options);
     if a_coverage_options.file_mappings is not empty then
-      open l_cursor for l_sql using a_coverage_options.file_mappings, l_skip_objects, a_coverage_options.include_objects;
+      open l_cursor for l_sql using a_coverage_options.file_mappings, l_skip_objects;
+    elsif a_coverage_options.include_objects is not empty then
+      open l_cursor for l_sql using a_coverage_options.include_objects, l_skip_objects;
     else
-      open l_cursor for l_sql using l_schema_names, l_skip_objects, a_coverage_options.include_objects;
+      open l_cursor for l_sql using l_schema_names, l_skip_objects;
     end if;
     return l_cursor;
   end;

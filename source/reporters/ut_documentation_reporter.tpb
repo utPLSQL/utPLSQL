@@ -1,6 +1,6 @@
 create or replace type body ut_documentation_reporter is
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -53,7 +53,7 @@ create or replace type body ut_documentation_reporter is
     l_message := coalesce(a_test.description, a_test.name)||' ['||round(a_test.execution_time,3)||' sec]';
     --if test failed, then add it to the failures list, print failure with number
     if a_test.result = ut_utils.tr_disabled then
-      self.print_yellow_text(l_message || ' (IGNORED)');
+      self.print_yellow_text(l_message || ' (DISABLED)');
     elsif a_test.result = ut_utils.tr_success then
       self.print_green_text(l_message);
     elsif a_test.result > ut_utils.tr_success then
@@ -110,10 +110,8 @@ create or replace type body ut_documentation_reporter is
 
         self.print_red_text(ut_utils.table_to_clob(a_test.get_error_stack_traces()));
 
-        for j in 1 .. a_test.results.count loop
-          if a_test.results(j).status > ut_utils.tr_success then
-            print_failure_for_expectation(a_test.results(j));
-          end if;
+        for j in 1 .. a_test.failed_expectations.count loop
+          print_failure_for_expectation(a_test.failed_expectations(j));
         end loop;
 
         self.lvl := self.lvl - 3;
@@ -195,6 +193,7 @@ create or replace type body ut_documentation_reporter is
       self.print_green_text(l_summary_text);
     end if;
     self.print_text(' ');
+    (self as ut_reporter_base).after_calling_run(a_run);
   end;
 
 end;

@@ -33,7 +33,7 @@ env:
     - CURRENT_BRANCH=${TRAVIS_BRANCH}
     - UTPLSQL_REPO="utPLSQL/utPLSQL"
     - UTPLSQL_BUILD_NO="${TRAVIS_BUILD_NUMBER:-0}"
-    - UTPLSQL_VERSION_PATTERN='v?([0-9X]+\.){3}[0-9X]+'
+    - UTPLSQL_VERSION_PATTERN="v?([0-9]+\.){3}[0-9]+[^']*"
     - UTPLSQL_VERSION=$(. .travis/get_project_version.sh)
     - UTPLSQL_BUILD_VERSION=$(. .travis/get_project_build_version.sh)
     - UTPLSQL_SOURCES_DIR='source'
@@ -46,7 +46,10 @@ env:
     - DOCKHER_HUB_REPO="${DOCKER_BASE_TAG:-$UT3_DOCKER_REPO}"
     #utPLSQL released version directory
     - UTPLSQL_DIR="utPLSQL_latest_release"
-    - UTPLSQL_CLI_FILE="utPLSQL-cli-develop-test3.zip"
+    - UTPLSQL_CLI_VERSION="3.0.4"
+    # Maven
+    - MAVEN_HOME=/usr/local/maven
+    - MAVEN_CFG=$HOME/.m2
   matrix:
     - ORACLE_VERSION="${DOCKER_TAG_11G:-11g-r2-xe}"  CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
     - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2}" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
@@ -57,6 +60,7 @@ cache:
   directories:
     - $CACHE_DIR
     - node_modules
+    - $MAVEN_CFG
 
 before_install:
   #The update_project_version is done before deployment to validate that the change of project files does not break installation
@@ -68,32 +72,34 @@ before_install:
   # download latest utPLSQL release
   #- curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
   - git clone --depth=1 --branch=${SELFTESTING_BRANCH:-master} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
-  # download utPLSQL-cli develop
-  - curl -Lk -o utPLSQL-cli.zip https://bintray.com/viniciusam/utPLSQL-cli/download_file?file_path=${UTPLSQL_CLI_FILE}
+  # download latest utPLSQL-cli release
+  - curl -Lk -o utPLSQL-cli.zip https://github.com/utPLSQL/utPLSQL-cli/releases/download/v${UTPLSQL_CLI_VERSION}/utPLSQL-cli.zip
 
 install:
   #- unzip utPLSQL.zip
   - unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
+  # Get ojdbc via maven
+  - bash .travis/maven_cfg.sh
   - pip install mkdocs
   - bash .travis/install_sqlcl.sh
   - sudo mkdir -p /dev/pdbs
   - sudo chmod -R 777 /dev/pdbs
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/start_db.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/start_db.sh; fi
   - df -h
 
 before_script:
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install.sh; fi
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/install_utplsql_release.sh; fi
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/create_additional_grants_for_old_tests.sh; fi
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_examples.sh; fi
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/run_old_tests.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/install.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/install_utplsql_release.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/create_additional_grants_for_old_tests.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/run_examples.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/run_old_tests.sh; fi
 
 script:
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash test/install_and_run_tests.sh; fi
-  - if [ "${TRAVIS_TAG}" = "" ] && [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then sonar-scanner; fi
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/coveralls_uploader.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash test/install_and_run_tests.sh; fi
+  - if [[ ! $TRAVIS_TAG ]] && [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then sonar-scanner; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/coveralls_uploader.sh; fi
   - bash .travis/build_docs.sh
-  - if [ "${TRAVIS_TAG}" = "" ]; then bash .travis/push_release_version.sh; fi
+  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/push_release_version.sh; fi
   - bash .travis/push_docs_to_gh_pages.sh
 
 before_deploy:
@@ -115,4 +121,8 @@ deploy:
      condition: "${TRAVIS_JOB_NUMBER} =~ \\.1$"
 
 notifications:
-  slack: utplsql:oiMuXO95TvKeAUENuDt4cPrB
+  slack:
+    rooms:
+      - secure: "nemt9n2y5sVCAKqa/s7JDQ8AcM59Xu/XbH/RkMOXvPgc+KtR8lBtVD1LkvJ5BaQhqgjuDT7DNt/uisQJ7k6a2OsrVFbnkypZ1hCvntOBpJyoSpD/YL1X8a9GbGojuJcph0BX76KN21LaOVdyOfY0TSlw53XiYWS8iL5HtjpWCbIwHL1SJ8JT8mhdT4hDoUWZjcZ4s4bLH6BQm4un/bMQOmB4sDoCeg4CllJwxgkswVF7OHpOFjgPetvUp7ps8b/Rj8en6zCj9drb0SVbXFgumo2Wd1bC3HHZB8MAZU0kuEV5VgUdum6EelUL5yfB72hssNQA0+CaT3HjBFkTlqWYJmjC4/xyGN3sseiW82T9FDY0g0GAGayNRW+QSiTQ1hbJEcAnNe0GrBUdRsgXdI6COd76YP5VxzRSF6H7niLfgCZdKbIivKUd1o+wBhuyJmqCFIkRWmT38tMGJqJAzbY1jq5gQXbb6E7gt+KdTjlSjcnJYf7XI7zqm+BRr+fbA0ixfXHvfqOBgZN6g08y9nPlDnIjtSF2NSdrj2zqYQAtKuWSOD1bnTyfDJyrtK7OLffZcMYD5Bcss4c8op8tP7MGTjt1S046SJocboh6H4c/nTokpoMRsWs6MKRdebl8C2RObGf5FebSOJg+oh2ZYS5Z/G9GshiY2BD/81+Hc4Miacc="
+    on_success: change
+    on_failure: always

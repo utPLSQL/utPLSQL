@@ -1,6 +1,6 @@
 create or replace type body ut_suite  as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -51,20 +51,14 @@ create or replace type body ut_suite  as
     end;
   begin
     ut_utils.debug_log('ut_suite.execute');
-    
-    ut_utils.set_action(self.object_name);
-    
-    a_listener.fire_before_event(ut_utils.gc_suite,self);
 
-    self.start_time := current_timestamp;
+    ut_utils.set_action(self.object_name);
 
     if self.get_disabled_flag() then
-      for i in 1 .. self.items.count loop
-        self.items(i).do_execute(a_listener);
-      end loop;
-      ut_utils.debug_log('ut_suite.execute - disabled');
+      self.mark_as_skipped(a_listener);
     else
-
+      a_listener.fire_before_event(ut_utils.gc_suite,self);
+      self.start_time := current_timestamp;
       if self.is_valid() then
 
         l_suite_savepoint := self.create_savepoint_if_needed();
@@ -90,11 +84,11 @@ create or replace type body ut_suite  as
       else
         propagate_error(ut_utils.table_to_clob(self.get_error_stack_traces()));
       end if;
+      self.calc_execution_result();
+      self.end_time := current_timestamp;
+      a_listener.fire_after_event(ut_utils.gc_suite,self);
     end if;
-    self.calc_execution_result();
-    self.end_time := current_timestamp;
-    a_listener.fire_after_event(ut_utils.gc_suite,self);
-    
+
     ut_utils.set_action(null);
 
     return l_suite_step_without_errors;
@@ -103,8 +97,8 @@ create or replace type body ut_suite  as
   overriding member function get_error_stack_traces(self ut_suite) return ut_varchar2_list is
     l_stack_traces ut_varchar2_list := ut_varchar2_list();
   begin
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.before_all.get_error_stack_trace());
-    ut_utils.append_to_varchar2_list(l_stack_traces, self.after_all.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.before_all.get_error_stack_trace());
+    ut_utils.append_to_list(l_stack_traces, self.after_all.get_error_stack_trace());
     return l_stack_traces;
   end;
 

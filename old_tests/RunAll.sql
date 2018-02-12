@@ -18,10 +18,8 @@ spool RunAll.log
 --Global setup
 @@helpers/ut_example_tests.pks
 @@helpers/ut_example_tests.pkb
-@@helpers/check_annotation_parsing.prc
 --@@helpers/cre_tab_ut_test_table.sql
 create table ut$test_table (val varchar2(1));
-@@helpers/ut_transaction_control.pck
 @@helpers/department.tps
 @@helpers/department1.tps
 @@helpers/test_package_3.pck
@@ -38,81 +36,20 @@ create table ut$test_table (val varchar2(1));
 --Regular coverage excludes the framework
 exec ut_coverage.coverage_start_develop();
 
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.IgnoreWrappedPackageAndDoesNotRaiseException.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationMixedWithWrongBeforeProcedure.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationNotBeforeProcedure.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationParamsWithBrackets.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageAndProcedureLevelAnnotations.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotation.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationAccessibleBy.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationMultilineDeclare.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithKeyValue.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParsePackageLevelAnnotationWithMultilineComment.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.spaceBeforeAnnotationParams.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseAnnotationWithWindowsNewline.sql
-@@lib/RunTest.sql ut_annotations/ut_annotations.parse_package_annotations.ParseProcedureAnnotationWithVeryLongName.sql
 @@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTrace.sql
 @@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTraceWith0x.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.not_to_equal.anydata.GivesFailureWhenComparingTheSameData.sql
-@@ut_expectations/ut.expect.not_to_be_null.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsTrue.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesSuccessWhenExpessionIsFalse.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_like.FailsForUnsupportedDatatype.sql
-@@ut_expectations/ut.expect.to_be_not_null.GivesFailureWhenActualIsNull.sql
-@@ut_expectations/ut.expect.to_be_not_null.GivesSuccessWhenActualIsNotNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenAnydataIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenCollectionPassedIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenObjectPassedIsNull.sql
-@@ut_expectations/ut.expect.to_be_null.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.refcursor.GivesSuccessWhenCursorIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsFalse.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNotBoolean.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNull.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesSuccessWhenExpessionIsTrue.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.ExcludeColumnsXPathFailsOnInvalidXPath.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenBothObjectsAreNullButDifferentType.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentData.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingDifferentObjects.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenComparingObejctToCollection.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesFailureWhenOneOfObjectsIsNull.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothAnydataAreNull.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenBothObjectsAreNull.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameCollections.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWhenComparingTheSameData.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.PutsObjectStrucureIntoResult.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedCollectionAttributes.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedCollectionAttributesXPath.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedObjectAttributes.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.anydata.GivesSuccessWithExcludedObjectAttributesXPath.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ComparesDateAndTimeWhenSetNlsIsUsed.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnNameListIsCaseSensitive.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnNamesAreCaseSensitive.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnsXPathFailsOnInvalidXPath.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ExcludeColumnsXPathIsCaseSensitive.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesFailureForDifferentValues.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValues.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValuesWithExcludedColumnList.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.GivesSuccessForEqualValuesWithExcludedColumns.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ReportsTheExceptionWhenAnExceptionInCursorIsCaught.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.ReturnsCursorDataForFailure.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.SupportsSQLandPLSQLdatatypes.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.UsesDefaultNLSSettingsForDatesFormatting.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_equal.cursor.worksOnLargeDatasets.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentDataTypes.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureForDifferentValues.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureWhenActualIsNull.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureWhenBothValuesAreNullAndArgumentAreNullEqualIsFalse.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureWhenBothValuesAreNullAndConfigurationAreNullEqualIsFalse.sql
-@@ut_expectations/ut.expect.to_equal.GivesFailureWhenExpectedIsNull.sql
-@@ut_expectations/ut.expect.to_equal.GivesSuccessForEqualValues.sql
-@@ut_expectations/ut.expect.to_equal.GivesSuccessWhenBothValuesAreNull.sql
-@@ut_expectations/ut.expect.to_equal.GivesSuccessWhenBothValuesAreNullAndArgumentAreNullEqualIsTrue.sql
-@@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenActualIsNull.sql
-@@ut_expectations/ut.expect.to_equal.PutsNullIntoStringValueWhenExpectedIsNull.sql
-@@ut_expectations/ut.expect.to_equal.with_text.GivesTheProvidedTextAsMessage.sql
-@@ut_expectations/ut.expect.not_to_equal.GivesFailureForDifferentDataTypes.sql
 @@ut_expectations/ut.expect.not_to_equal.GivesFailureForEqualValues.sql
 @@ut_expectations/ut.expect.not_to_equal.GivesSuccessForDifferentValues.sql
 @@lib/RunTest.sql ut_expectations/ut.expect.to_match.FailsForUnsupportedDatatype.sql
@@ -122,12 +59,7 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_expectations/ut_expectation_processor.stackOnUtFail.sql
 
 @@ut_matchers/be_between.sql
-@@ut_matchers/be_empty.sql
 @@ut_matchers/be_like.sql
-@@ut_matchers/greater_or_equal.sql
-@@ut_matchers/greater_than.sql
-@@ut_matchers/less_or_equal.sql
-@@ut_matchers/less_than.sql
 @@ut_matchers/match.sql
 
 @@lib/RunTest.sql ut_matchers/timestamp_between.sql
@@ -210,7 +142,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.TestWithHashSign.sql
 
 
-@@lib/RunTest.sql ut_test/ut_test.DisabledFlagSkipTest.sql
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.OwnerNameNull.sql
 @@lib/RunTest.sql ut_test/ut_test.PackageInInvalidState.sql
@@ -218,10 +149,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_test/ut_test.PackageNameNull.sql
 @@lib/RunTest.sql ut_test/ut_test.ProcedureNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.ProcedureNameNull.sql
-@@lib/RunTest.sql ut_test/ut_test.Rollback_type.Auto.sql
-@@lib/RunTest.sql ut_test/ut_test.Rollback_type.AutoOnFailure.sql
-@@lib/RunTest.sql ut_test/ut_test.Rollback_type.Manual.sql
-@@lib/RunTest.sql ut_test/ut_test.Rollback_type.ManualOnFailure.sql
 @@lib/RunTest.sql ut_test/ut_test.SetupExecutedBeforeTest.sql
 @@lib/RunTest.sql ut_test/ut_test.SetupProcedureNameInvalid.sql
 @@lib/RunTest.sql ut_test/ut_test.SetupProcedureNameNull.sql
@@ -239,20 +166,6 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_test/ut_test.TestOutputGatheringWhenEmpty.sql
 @@lib/RunTest.sql ut_test/ut_test.ReportWarningOnRollbackFailed.sql
 @@lib/RunTest.sql ut_test/ut_test.ApplicationInfoOnExecution.sql
-
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsATestWhenAfterTestFails.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsATestWhenBeforeTestFails.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenBeforeAllFails.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenBeforeEachFails.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenPackageHasInvalidBody.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ErrorsEachTestWhenPackageHasNoBody.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.DisabledFlagSkipSuite.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ReportsWarningsATestWhenAfterAllFails.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.ReportsWarningsATestWhenAfterEachFails.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Auto.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.AutoOnFailure.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.Manual.sql
-@@lib/RunTest.sql ut_test_suite/ut_test_suite.Rollback_type.ManualOnFailure.sql
 
 @@ut_utils/ut_utils.clob_to_table.sql
 @@ut_utils/ut_utils.table_to_clob.sql
@@ -287,8 +200,6 @@ spool off
 --Global cleanup
 --removing objects that should not be part of coverage report
 drop package ut_example_tests;
-drop procedure check_annotation_parsing;
-drop package ut_transaction_control;
 drop table ut$test_table;
 drop type department$;
 drop type department1$;
@@ -316,12 +227,12 @@ begin
     'source/create_synonyms_and_grants_for_public.sql',
     'source/create_synonyms_and_grants_for_user.sql',
     'source/create_utplsql_owner.sql',
-    'source/define_ut3_owner_param.sql',
     'source/expectations',
     'source/install.log',
     'source/install.sql',
-    'source/install_component.sql',
     'source/install_headless.sql',
+    'source/license.txt',
+    'source/readme.md',
     'source/reporters',
     'source/uninstall.log',
     'source/uninstall.sql',
@@ -345,8 +256,12 @@ begin
     'source/core/coverage',
     'source/core/output_buffers',
     'source/core/types',
-    'source/core/ut_annotations.pkb',
-    'source/core/ut_annotations.pks',
+    'source/core/annotations/ut_annotation_manager.pkb',
+    'source/core/annotations/ut_annotation_manager.pks',
+    'source/core/annotations/ut_annotation_parser.pkb',
+    'source/core/annotations/ut_annotation_parser.pks',
+    'source/core/annotations/ut_annotation_cache_manager.pkb',
+    'source/core/annotations/ut_annotation_cache_manager.pks',
     'source/core/ut_expectation_processor.pkb',
     'source/core/ut_expectation_processor.pks',
     'source/core/ut_file_mapper.pkb',
@@ -362,9 +277,9 @@ begin
     'source/core/coverage/ut_coverage.pks',
     'source/core/coverage/ut_coverage_helper.pkb',
     'source/core/coverage/ut_coverage_helper.pks',
+    'source/core/coverage/ut_coverage_sources_tmp.sql',
     'source/core/coverage/ut_coverage_reporter_base.tpb',
     'source/core/coverage/ut_coverage_reporter_base.tps',
-    'source/core/coverage/ut_coverage_sources_tmp.sql',
     'source/core/output_buffers/ut_message_id_seq.sql',
     'source/core/output_buffers/ut_output_buffer_base.tps',
     'source/core/output_buffers/ut_output_buffer_info_tmp.sql',
@@ -496,24 +411,24 @@ begin
     'source/expectations/matchers/ut_be_null.tps',
     'source/expectations/matchers/ut_be_true.tpb',
     'source/expectations/matchers/ut_be_true.tps',
-    'source/expectations/matchers/ut_comparison_matcher.tpb',
-    'source/expectations/matchers/ut_comparison_matcher.tps',
     'source/expectations/matchers/ut_equal.tpb',
     'source/expectations/matchers/ut_equal.tps',
     'source/expectations/matchers/ut_match.tpb',
     'source/expectations/matchers/ut_match.tps',
     'source/expectations/matchers/ut_matcher.tpb',
     'source/expectations/matchers/ut_matcher.tps',
+    'source/expectations/matchers/ut_comparison_matcher.tpb',
+    'source/expectations/matchers/ut_comparison_matcher.tps',
     'source/reporters/ut_ansiconsole_helper.pkb',
     'source/reporters/ut_ansiconsole_helper.pks',
     'source/reporters/ut_coverage_html_reporter.tpb',
     'source/reporters/ut_coverage_html_reporter.tps',
     'source/reporters/ut_coverage_report_html_helper.pkb',
     'source/reporters/ut_coverage_report_html_helper.pks',
-    'source/reporters/ut_coverage_sonar_reporter.tpb',
-    'source/reporters/ut_coverage_sonar_reporter.tps',
     'source/reporters/ut_coveralls_reporter.tpb',
     'source/reporters/ut_coveralls_reporter.tps',
+    'source/reporters/ut_coverage_sonar_reporter.tpb',
+    'source/reporters/ut_coverage_sonar_reporter.tps',
     'source/reporters/ut_documentation_reporter.tpb',
     'source/reporters/ut_documentation_reporter.tps',
     'source/reporters/ut_sonar_test_reporter.tpb',

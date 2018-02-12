@@ -1,6 +1,6 @@
 create or replace type ut_be_greater_or_equal under ut_comparison_matcher(
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):

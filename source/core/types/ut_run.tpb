@@ -1,6 +1,6 @@
 create or replace type body ut_run as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -47,13 +47,17 @@ create or replace type body ut_run as
     return;
   end;
 
+  overriding member procedure mark_as_skipped(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base) is
+  begin
+    null;
+  end;
+
   overriding member function do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base) return boolean is
     l_completed_without_errors boolean;
   begin
     ut_utils.debug_log('ut_run.execute');
 
     a_listener.fire_before_event(ut_utils.gc_run, self);
-
     self.start_time := current_timestamp;
 
     -- clear anything that might stay in the session's cache

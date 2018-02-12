@@ -1,6 +1,6 @@
 create or replace type body ut_expectation_result is
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -16,13 +16,15 @@ create or replace type body ut_expectation_result is
   limitations under the License.
   */
 
-  constructor function ut_expectation_result(self in out nocopy ut_expectation_result, a_status integer, a_description varchar2, a_message clob)
-    return self as result is
+  constructor function ut_expectation_result(
+    self in out nocopy ut_expectation_result, a_status integer, 
+    a_description varchar2, a_message clob, a_include_caller_info boolean := true
+  ) return self as result is
   begin
     self.status          := a_status;
     self.description     := a_description;
     self.message := a_message;
-    if self.status = ut_utils.tr_failure then
+    if self.status = ut_utils.tr_failure and a_include_caller_info then
       self.caller_info   := ut_expectation_processor.who_called_expectation(dbms_utility.format_call_stack());
     end if;
     return;

@@ -1,6 +1,6 @@
 create or replace type body ut_data_value_varchar2 as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -31,7 +31,7 @@ create or replace type body ut_data_value_varchar2 as
 
   overriding member function to_string return varchar2 is
   begin
-    return self.format_multi_line( ut_utils.to_string(self.data_value) );
+    return ut_utils.to_string(self.data_value);
   end;
 
   overriding member function compare_implementation(a_other ut_data_value) return integer is

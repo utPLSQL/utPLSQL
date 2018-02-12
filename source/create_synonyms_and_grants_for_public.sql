@@ -1,5 +1,5 @@
 /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -43,6 +43,7 @@ grant execute on &&ut3_owner..ut_be_not_null to public;
 grant execute on &&ut3_owner..ut_be_null to public;
 grant execute on &&ut3_owner..ut_be_true to public;
 grant execute on &&ut3_owner..ut_equal to public;
+grant execute on &&ut3_owner..ut_have_count to public;
 grant execute on &&ut3_owner..ut_match to public;
 grant execute on &&ut3_owner..ut to public;
 grant execute on &&ut3_owner..ut_runner to public;
@@ -66,8 +67,21 @@ grant execute on &&ut3_owner..ut_file_mapping to public;
 grant execute on &&ut3_owner..ut_file_mapper to public;
 grant execute on &&ut3_owner..ut_key_value_pairs to public;
 grant execute on &&ut3_owner..ut_key_value_pair to public;
-grant select, insert, delete on &&ut3_owner..ut_cursor_data to public;
+grant select, insert, delete on &&ut3_owner..ut_data_set_tmp to public;
+grant select, insert, delete on &&ut3_owner..ut_data_set_diff_tmp to public;
 grant execute on &&ut3_owner..ut_sonar_test_reporter to public;
+grant execute on &&ut3_owner..ut_annotations to public;
+grant execute on &&ut3_owner..ut_annotation to public;
+grant execute on &&ut3_owner..ut_annotation_manager to public;
+grant execute on &&ut3_owner..ut_annotated_object to public;
+grant execute on &&ut3_owner..ut_annotated_objects to public;
+grant select on &&ut3_owner..ut_annotation_cache_info to public;
+grant select on &&ut3_owner..ut_annotation_cache to public;
+grant execute on &&ut3_owner..ut_annotation_cache_manager to public;
+grant execute on &&ut3_owner..ut_annotation_parser to public;
+grant execute on &&ut3_owner..ut_annotation_objs_cache_info to public;
+grant execute on &&ut3_owner..ut_annotation_obj_cache_info to public;
+
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
@@ -83,6 +97,7 @@ create public synonym be_not_null for &&ut3_owner..ut_be_not_null;
 create public synonym be_null for &&ut3_owner..ut_be_null;
 create public synonym be_true for &&ut3_owner..ut_be_true;
 create public synonym equal for &&ut3_owner..ut_equal;
+create public synonym have_count for &&ut3_owner..have_count;
 create public synonym match for &&ut3_owner..ut_match;
 create public synonym ut for &&ut3_owner..ut;
 create public synonym ut_runner for &&ut3_owner..ut_runner;
@@ -106,5 +121,6 @@ create public synonym ut_file_mapping for &&ut3_owner..ut_file_mapping;
 create public synonym ut_file_mapper for &&ut3_owner..ut_file_mapper;
 create public synonym ut_key_value_pairs for &&ut3_owner..ut_key_value_pairs;
 create public synonym ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
-create public synonym ut_cursor_data for &&ut3_owner..ut_cursor_data;
+create public synonym ut_data_set_tmp for &&ut3_owner..ut_data_set_tmp;
+create public synonym ut_data_set_diff_tmp for &&ut3_owner..ut_data_set_diff_tmp;
 create public synonym ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;

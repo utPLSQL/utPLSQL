@@ -7,7 +7,7 @@
 
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/master.svg?label=master%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/develop.svg?label=develop%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
-[![sonar](https://sonarcloud.io/api/badges/gate?key=utPLSQL%3AutPLSQL%3Adevelop)](https://sonarcloud.io/dashboard/index?id=utPLSQL%3AutPLSQL%3Adevelop)
+[![sonar](https://sonarcloud.io/api/badges/gate?key=utPLSQL%3Adevelop)](https://sonarcloud.io/dashboard/index?id=utPLSQL%3Adevelop)
 [![Coveralls coverage](https://coveralls.io/repos/github/utPLSQL/utPLSQL/badge.svg?branch=develop)](https://coveralls.io/github/utPLSQL/utPLSQL?branch=develop)
 
 ----------
@@ -32,7 +32,7 @@ The framework follows industry standards and best patterns of modern Unit Testin
 - Integration with SonarQube, Coveralls, Jenkins and Teamcity with [reporters](docs/userguide/reporters.md)
 - plugin architecture for reporters and matchers
 - flexible and simple test invocation
-- multi-reporting from test-run from [command line](https://github.com/utPLSQL/utPLSQL-sql-cli)
+- multi-reporting from test-run from [command line](https://github.com/utPLSQL/utPLSQL-cli)
 
 Requirements:
  - Version of Oracle under [extended support](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf) (Currently 11.2 and above)
@@ -73,16 +73,17 @@ select * from table(ut.run());
 
 The above commands will run all the suites in the current schema and provide report to dbms_output or as a select statement.
 
-# Command line clients
+# Command line client
 
-To have more control over how the tests are invoked, use one of the utPLSQL command line clients: [utPLSQL-sql-cli](https://github.com/utPLSQL/utPLSQL-sql-cli) or [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli).
+You can use the utPLSQL command line client [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli) to run tests without the need for Oracle Client or any IDE like SQLDeveloper/TOAD etc.
 
-To use `utPLSQL-sql-cli` you will need to have SQLPlus installed. `utPLSQL-cli` is Java project, so no additional software is needed. 
-
-Amongst many benefits they provide ability to:
+Amongst many benefits it provides ability to:
 * see the progress of test execution for long-running tests - real-time reporting
 * use many reporting formats simultaneously and save reports to files (publish)
 * map your project source files and test files into database objects 
+
+Just download the [latest client](https://github.com/utPLSQL/utPLSQL-cli/releases/latest), download Oracle jdbc driver you are good to go.
+See [project readme](https://github.com/utPLSQL/utPLSQL-cli/blob/develop/README.md) for details.  
 
 
 # Example unit test packages
