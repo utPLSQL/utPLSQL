@@ -33,11 +33,10 @@ create or replace package body ut_runner is
     return l_result;
   end;
 
-  procedure finish_run(a_reporters ut_reporters) is
+  procedure finish_run(l_listener ut_event_listener) is
   begin
     ut_utils.cleanup_temp_tables;
-    -- TODO: Not needed anymore?
-    ut_output_buffer.close(a_reporters);
+    l_listener.fire_on_event(ut_utils.gc_finalize);
     ut_metadata.reset_source_definition_cache;
     ut_utils.read_cache_to_dbms_output();
     ut_coverage_helper.cleanup_tmp_table();
@@ -93,11 +92,10 @@ create or replace package body ut_runner is
       );
       l_items_to_run.do_execute(l_listener);
 
-      finish_run(l_listener.reporters);
+      finish_run(l_listener);
     exception
       when others then
-        finish_run(l_listener.reporters);
-        l_listener.fire_on_event(ut_utils.gc_finalize);
+        finish_run(l_listener);
         dbms_output.put_line(dbms_utility.format_error_backtrace);
         dbms_output.put_line(dbms_utility.format_error_stack);
         raise;
