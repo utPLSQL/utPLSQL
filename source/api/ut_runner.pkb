@@ -33,7 +33,7 @@ create or replace package body ut_runner is
     return l_result;
   end;
 
-  procedure finish_run(l_listener ut_event_listener) is
+  procedure finish_run(l_listener in out ut_event_listener) is
   begin
     ut_utils.cleanup_temp_tables;
     l_listener.fire_on_event(ut_utils.gc_finalize);

@@ -75,6 +75,7 @@ alter session set current_schema = &&ut3_owner;
 --output buffer table
 @@install_component.sql 'core/output_buffers/ut_output_buffer_info_tmp.sql'
 @@install_component.sql 'core/output_buffers/ut_output_buffer_tmp.sql'
+@@install_component.sql 'core/output_buffers/ut_message_id_seq.sql'
 --output buffer table api
 @@install_component.sql 'core/output_buffers/ut_output_table_buffer.tps'
 @@install_component.sql 'core/output_buffers/ut_output_table_buffer.tpb'
