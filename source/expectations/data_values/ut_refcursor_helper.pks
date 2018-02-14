@@ -1,4 +1,4 @@
-create or replace package ut_refcursor_descriptor is
+create or replace package ut_refcursor_helper is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,7 +15,13 @@ create or replace package ut_refcursor_descriptor is
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  function get_columns_info(a_cursor in out nocopy sys_refcursor) return ut_key_value_pairs;
+
+  function get_columns_info(a_cursor in out nocopy sys_refcursor) return xmltype;
+
+  function get_columns_filter(
+    a_exclude_xpath varchar2, a_include_xpath varchar2,
+    a_table_alias varchar2 := 'ucd', a_column_alias varchar2 := 'item_data'
+  ) return varchar2;
 
 end;
 /

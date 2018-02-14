@@ -28,21 +28,22 @@ create or replace type body ut_data_value_refcursor as
   end;
 
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) is
+    c_bulk_rows  constant integer := 1000;
+    l_cursor     sys_refcursor := a_value;
     l_ctx                 number;
     l_xml                 xmltype;
-    c_bulk_rows  constant integer := 1000;
     l_current_date_format varchar2(4000);
-    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
-    cursor_not_open exception;
+    l_ut_owner            varchar2(250) := ut_utils.ut_owner;
+    cursor_not_open       exception;
   begin
     self.is_cursor_null := ut_utils.boolean_to_int(a_value is null);
     self.self_type  := $$plsql_unit;
     self.data_set_guid := sys_guid();
     self.data_type := 'refcursor';
-    self.columns_info := ut_refcursor_descriptor.get_columns_info(a_value);
-    if a_value is not null then
-        if a_value%isopen then
-          self.row_count := 0;
+    if l_cursor is not null then
+        if l_cursor%isopen then
+          self.columns_info  := ut_refcursor_helper.get_columns_info(l_cursor);
+          self.row_count     := 0;
           -- We use DBMS_XMLGEN in order to:
           -- 1) be able to process data in bulks (set of rows)
           -- 2) be able to influence the ROWSET/ROW tags
@@ -56,15 +57,17 @@ create or replace type body ut_data_value_refcursor as
           --  The restartQuery fails however if PLSQL variables of TIMESTAMP/INTERVAL or CLOB/BLOB are used.
 
           ut_expectation_processor.set_xml_nls_params();
-          l_ctx := dbms_xmlgen.newContext(a_value);
+          l_ctx := dbms_xmlgen.newContext(l_cursor);
           dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
           dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);
 
           loop
             l_xml := dbms_xmlgen.getxmltype(l_ctx);
 
-            execute immediate 'insert into ' || l_ut_owner || '.ut_data_set_tmp(data_set_guid, item_no, item_data)
-                                select :self_guid, :self_row_count + rownum, value(a) from table( xmlsequence( extract(:l_xml,''ROWSET/*'') ) ) a'
+            execute immediate
+              'insert into ' || l_ut_owner || '.ut_data_set_tmp(data_set_guid, item_no, item_data) ' ||
+              'select :self_guid, :self_row_count + rownum, value(a) ' ||
+              '  from table( xmlsequence( extract(:l_xml,''ROWSET/*'') ) ) a'
               using in self.data_set_guid, self.row_count, l_xml;
 
             exit when sql%rowcount = 0;
@@ -73,12 +76,12 @@ create or replace type body ut_data_value_refcursor as
           end loop;
 
           ut_expectation_processor.reset_nls_params();
-          if a_value%isopen then
-            close a_value;
+          if l_cursor%isopen then
+            close l_cursor;
           end if;
           dbms_xmlgen.closeContext(l_ctx);
 
-        elsif not a_value%isopen then
+        elsif not l_cursor%isopen then
             raise cursor_not_open;
         end if;
     end if;
@@ -87,8 +90,8 @@ create or replace type body ut_data_value_refcursor as
         raise_application_error(-20155, 'Cursor is not open');
     when others then
       ut_expectation_processor.reset_nls_params();
-      if a_value%isopen then
-        close a_value;
+      if l_cursor%isopen then
+        close l_cursor;
       end if;
       dbms_xmlgen.closeContext(l_ctx);
       raise;
@@ -105,19 +108,25 @@ create or replace type body ut_data_value_refcursor as
     l_result        clob;
     l_result_string varchar2(32767);
   begin
-    dbms_lob.createtemporary(l_result,true);
-    --return first 10 rows
-    execute immediate '
-        select xmlserialize( content ucd.item_data no indent)
-          from '|| ut_utils.ut_owner ||'.ut_data_set_tmp ucd
-         where ucd.data_set_guid = :data_set_guid
-           and ucd.item_no <= :max_rows'
-      bulk collect into l_results using self.data_set_guid, c_max_rows;
+    if not self.is_null() then
+      dbms_lob.createtemporary(l_result,true);
+      ut_utils.append_to_clob(l_result,'Data-types:'||chr(10));
+      ut_utils.append_to_clob(l_result,self.columns_info.getclobval());
 
-    ut_utils.append_to_clob(l_result,l_results);
+      ut_utils.append_to_clob(l_result,chr(10)||'Data:'||chr(10));
+      --return first c_max_rows rows
+      execute immediate '
+          select xmlserialize( content ucd.item_data no indent)
+            from '|| ut_utils.ut_owner ||'.ut_data_set_tmp ucd
+           where ucd.data_set_guid = :data_set_guid
+             and ucd.item_no <= :max_rows'
+        bulk collect into l_results using self.data_set_guid, c_max_rows;
 
-    l_result_string := ut_utils.to_string(l_result,null);
-    dbms_lob.freetemporary(l_result);
+      ut_utils.append_to_clob(l_result,l_results);
+
+      l_result_string := ut_utils.to_string(l_result,null);
+      dbms_lob.freetemporary(l_result);
+    end if;
     return l_result_string;
   end;
 
@@ -173,30 +182,41 @@ create or replace type body ut_data_value_refcursor as
   end;
 
   member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer is
-    l_result        integer;
-    l_other         ut_data_value_refcursor;
-    l_ut_owner      varchar2(250) := ut_utils.ut_owner;
-    l_column_filter varchar2(32767);
-    l_diff_id       raw(16);
+    l_result          integer := 0;
+    l_other           ut_data_value_refcursor;
+    l_ut_owner        varchar2(250) := ut_utils.ut_owner;
+    l_column_filter   varchar2(32767);
+    l_diff_id         raw(16);
+    function columns_hash(
+      a_data_value_cursor ut_data_value_refcursor, a_exclude_xpath varchar2, a_include_xpath varchar2
+    ) return raw is
+      l_cols_hash  raw(32);
+    begin
+      if not a_data_value_cursor.is_null then
+        execute immediate
+        q'[select dbms_crypto.hash(replace(x.item_data.getclobval(),'>CHAR<','>VARCHAR2<'),3) ]' ||
+        '  from ( select '||ut_refcursor_helper.get_columns_filter(a_exclude_xpath, a_include_xpath)||
+        '           from (select :columns_info as item_data from dual ) ucd' ||
+        '  ) x'
+        into l_cols_hash using a_exclude_xpath, a_include_xpath, a_data_value_cursor.columns_info;
+      end if;
+      return l_cols_hash;
+    end;
   begin
-    -- this SQL statement is constructed in a way that we always get the same number and ordering of substitution variables
-    -- That is, we always get: l_exclude_xpath, l_include_xpath
-    --   regardless if the variables are NULL (not to be used) or NOT NULL and will be used for filtering
-    if a_exclude_xpath is null and a_include_xpath is null then
-      l_column_filter := ':l_exclude_xpath as l_exclude_xpath, :l_include_xpath as l_include_xpath, ucd.item_data as item_data';
-    elsif a_exclude_xpath is not null and a_include_xpath is null then
-      l_column_filter := 'deletexml( ucd.item_data, :l_exclude_xpath ) as item_data, :l_include_xpath as l_include_xpath';
-    elsif a_exclude_xpath is null and a_include_xpath is not null then
-      l_column_filter := ':l_exclude_xpath as l_exclude_xpath, extract( ucd.item_data, :l_include_xpath ) as item_data';
-    elsif a_exclude_xpath is not null and a_include_xpath is not null then
-      l_column_filter := 'extract( deletexml( ucd.item_data, :l_exclude_xpath ), :l_include_xpath ) as item_data';
-    end if;
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
     end if;
 
     l_other   := treat(a_other as ut_data_value_refcursor);
+
+    --if column names/types are not equal - build a diff of column names and types
+    if columns_hash( self, a_exclude_xpath, a_include_xpath )
+       != columns_hash( l_other, a_exclude_xpath, a_include_xpath )
+    then
+      l_result := 1;
+    end if;
     l_diff_id := dbms_crypto.hash(self.data_set_guid||l_other.data_set_guid,2);
+    l_column_filter := ut_refcursor_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
     -- Find differences
     execute immediate 'insert into ' || l_ut_owner || '.ut_data_set_diff_tmp ( diff_id, item_no )
                         select :diff_id, nvl(exp.item_no, act.item_no)
@@ -210,7 +230,7 @@ create or replace type body ut_data_value_refcursor as
       using in l_diff_id, a_exclude_xpath, a_include_xpath, self.data_set_guid, a_exclude_xpath, a_include_xpath, l_other.data_set_guid;
 
     --result is OK only if both are same
-    if sql%rowcount = 0 and self.row_count = l_other.row_count then
+    if sql%rowcount = 0 and self.row_count = l_other.row_count and l_result = 0 then
       l_result := 0;
     else
       l_result := 1;

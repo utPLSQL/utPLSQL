@@ -38,7 +38,7 @@ create or replace type ut_data_value_refcursor under ut_data_value(
   /**
   * Holds information about column names and column data-types
   */
-  columns_info  ut_key_value_pairs,
+  columns_info       xmltype,
 
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) return self as result,
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor),

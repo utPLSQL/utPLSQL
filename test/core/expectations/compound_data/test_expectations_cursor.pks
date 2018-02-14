@@ -122,8 +122,26 @@ create or replace package test_expectations_cursor is
   --%test(Includes only columns that are not on exclude list)
   procedure include_exclude_columns_list;
 
-  --%test(Reports data-diff on expectation failure)
-  procedure data_diff_on_failure;
+  --%test(Reports data-diff on rows mismatch)
+  procedure data_diff_on_rows_mismatch;
+
+  --%test(Char and varcahr2 datta-types are equal)
+  procedure char_and_varchar2_col_is_equal;
+
+  --%test(Reports column diff on cusror with different column data-type)
+  procedure column_diff_on_data_type_diff;
+
+  --%test(Reports column diff on cusror with different column name)
+  --%disabled
+  procedure column_diff_on_col_name_diff;
+
+  --%test(Reports only mismatched columns on column value mismatch)
+  --%disabled
+  procedure data_diff_on_col_data_mismatch;
+
+  --%test(Reports data diff and column diff when both are different)
+  --%disabled
+  procedure column_and_data_diff;
 
   procedure prepare_table;
   procedure cleanup_table;

@@ -1,4 +1,4 @@
-create or replace package body ut_refcursor_descriptor is
+create or replace package body ut_refcursor_helper is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -40,19 +40,47 @@ create or replace package body ut_refcursor_descriptor is
       return l_result;
     end;
 
-  function get_columns_info(a_cursor in out nocopy sys_refcursor) return ut_key_value_pairs is
-    l_cursor_number integer;
+  function get_columns_info(a_cursor in out nocopy sys_refcursor) return xmltype is
+    l_cursor_number  integer;
     l_columns_count  pls_integer;
     l_columns_desc   dbms_sql.desc_tab3;
+    l_result         xmltype;
+    l_columns_tab    ut_key_value_pairs;
     begin
       if a_cursor is null or not a_cursor%isopen then
-        return ut_key_value_pairs();
+        return null;
       end if;
       l_cursor_number := dbms_sql.to_cursor_number( a_cursor );
       dbms_sql.describe_columns3( l_cursor_number, l_columns_count, l_columns_desc );
       a_cursor := dbms_sql.to_refcursor( l_cursor_number );
-      return get_columns_info( l_columns_desc, l_columns_count);
+      l_columns_tab := get_columns_info( l_columns_desc, l_columns_count);
+
+      select XMLELEMENT("ROW", xmlagg(xmlelement(evalname key, value))) into l_result from table(l_columns_tab );
+
+      return l_result;
     end;
+
+  function get_columns_filter(
+    a_exclude_xpath varchar2, a_include_xpath varchar2,
+    a_table_alias varchar2 := 'ucd', a_column_alias varchar2 := 'item_data'
+  ) return varchar2 is
+    l_filter varchar2(32767);
+    l_source_column varchar2(500) := a_table_alias||'.'||a_column_alias;
+  begin
+    -- this SQL statement is constructed in a way that we always get the same number and ordering of substitution variables
+    -- That is, we always get: l_exclude_xpath, l_include_xpath
+    --   regardless if the variables are NULL (not to be used) or NOT NULL and will be used for filtering
+    if a_exclude_xpath is null and a_include_xpath is null then
+      l_filter := ':l_exclude_xpath, :l_include_xpath, '||l_source_column||' as '||a_column_alias;
+    elsif a_exclude_xpath is not null and a_include_xpath is null then
+      l_filter := 'deletexml( '||l_source_column||', :l_exclude_xpath ) as '||a_column_alias||', :l_include_xpath';
+    elsif a_exclude_xpath is null and a_include_xpath is not null then
+      l_filter := ':l_exclude_xpath, extract( '||l_source_column||', :l_include_xpath ) as '||a_column_alias;
+    elsif a_exclude_xpath is not null and a_include_xpath is not null then
+      l_filter := 'extract( deletexml( '||l_source_column||', :l_exclude_xpath ), :l_include_xpath ) as '||a_column_alias;
+    end if;
+    return l_filter;
+  end;
 
 begin
   g_type_name_map( dbms_sql.binary_bouble_type )           := 'BINARY_DOUBLE';
