@@ -21,14 +21,11 @@ create table ut_output_buffer_tmp$(
   message_id     number(38,0) not null,
   text           varchar2(4000),
   is_finished    number(1,0) default 0 not null,
-  start_date     date not null,
   constraint ut_output_buffer_tmp_pk primary key(output_id, message_id),
   constraint ut_output_buffer_tmp_ck check(is_finished = 0 and text is not null or is_finished = 1 and text is null),
   constraint ut_output_buffer_fk1 foreign key (output_id) references ut_output_buffer_info_tmp$(output_id)
 ) organization index overflow nologging initrans 100
 ;
-
-create index ut_output_buffer_tmp_i on ut_output_buffer_tmp$(start_date) initrans 100 nologging;
 
 -- This is needed to be EBR ready as editioning view can only be created by edition enabled user
 declare
@@ -62,7 +59,6 @@ select output_id
       ,message_id
       ,text
       ,is_finished
-      ,start_date
   from ut_output_buffer_tmp$';
 
   execute immediate 'create or replace editioning view '||v_view_source;

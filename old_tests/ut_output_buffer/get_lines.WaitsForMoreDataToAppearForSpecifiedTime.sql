@@ -18,7 +18,7 @@ begin
   if ut_expectation_processor.get_status = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;
   else
-    dbms_output.put_line(ut_expectation_processor.get_expectations_results()(1).get_result_clob);
+    dbms_output.put_line(ut_expectation_processor.get_failed_expectations()(1).get_result_clob);
   end if;
 end;
 /
