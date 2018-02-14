@@ -56,6 +56,8 @@ To get started with development, follow the below steps.
 
 _If you're using Windows, run the shell scripts using `GIT bash` - Windows-based bash command line._
 
+**Caution**: If you are using jetBrains DataGrip, don't use the ingegrated console to run the shell scripts (not even with GIT bash configured). It might disconnect from oracle randomly during script-run.
+
 ### Clone your fork of utPLSQL git repository
 
 ```bash
