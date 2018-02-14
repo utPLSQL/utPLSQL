@@ -1,6 +1,6 @@
 create table ut_output_buffer_info_tmp$(
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ begin
   end;
   v_view_source := ' ut_output_buffer_info_tmp as
 /*
-utPLSQL - Version X.X.X.X
+utPLSQL - Version 3
 Copyright 2016 - 2017 utPLSQL Project
 Licensed under the Apache License, Version 2.0 (the "License"):
 you may not use this file except in compliance with the License.
