@@ -109,9 +109,9 @@ create or replace type body ut_data_value_refcursor as
     l_result_string varchar2(32767);
   begin
     if not self.is_null() then
-      dbms_lob.createtemporary(l_result,true);
-      ut_utils.append_to_clob(l_result,'Data-types:'||chr(10));
-      ut_utils.append_to_clob(l_result,self.columns_info.getclobval());
+      dbms_lob.createtemporary(l_result, true);
+      ut_utils.append_to_clob(l_result, 'Data-types:'||chr(10));
+      ut_utils.append_to_clob(l_result, self.columns_info.getclobval());
 
       ut_utils.append_to_clob(l_result,chr(10)||'Data:'||chr(10));
       --return first c_max_rows rows
@@ -187,6 +187,21 @@ create or replace type body ut_data_value_refcursor as
     l_ut_owner        varchar2(250) := ut_utils.ut_owner;
     l_column_filter   varchar2(32767);
     l_diff_id         raw(16);
+    --the XML stylesheet is applied on XML representation of data to exclude column names from comparison
+    --column names and data-types are compared separately
+    l_xml_data_fmt    constant xmltype := xmltype(
+        q'[<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+          <xsl:strip-space elements="*" />
+          <xsl:template match="/child::*">
+              <xsl:for-each select="child::node()">
+                  <xsl:choose>
+                      <xsl:when test="*[*]"><xsl:copy-of select="node()"/></xsl:when>
+                      <xsl:when test="position()=last()"><xsl:value-of select="normalize-space(.)"/><xsl:text>&#xD;</xsl:text></xsl:when>
+                      <xsl:otherwise><xsl:value-of select="normalize-space(.)"/>,</xsl:otherwise>
+                  </xsl:choose>
+              </xsl:for-each>
+          </xsl:template>
+          </xsl:stylesheet>]');
     function columns_hash(
       a_data_value_cursor ut_data_value_refcursor, a_exclude_xpath varchar2, a_include_xpath varchar2
     ) return raw is
@@ -225,9 +240,16 @@ create or replace type body ut_data_value_refcursor as
                           full outer join
                                (select '||l_column_filter||', ucd.item_no
                                   from ' || l_ut_owner || '.ut_data_set_tmp ucd where ucd.data_set_guid = :l_other_guid) act
-                            on exp.item_no = act.item_no
-                         where nvl(dbms_lob.compare(xmlserialize( content exp.item_data no indent), xmlserialize( content act.item_data no indent)),1) != 0'
-      using in l_diff_id, a_exclude_xpath, a_include_xpath, self.data_set_guid, a_exclude_xpath, a_include_xpath, l_other.data_set_guid;
+                            on exp.item_no = act.item_no '||
+--                         'where nvl(dbms_lob.compare(xmlserialize( content exp.item_data no indent), xmlserialize( content act.item_data no indent)),1) != 0'
+--       using in l_diff_id, a_exclude_xpath, a_include_xpath, self.data_set_guid, a_exclude_xpath, a_include_xpath, l_other.data_set_guid;
+                        'where nvl( dbms_lob.compare(' ||
+                                     '  xmltransform(exp.item_data, :l_xml_data_fmt).getclobval()' ||
+                                     ', xmltransform(act.item_data, :l_xml_data_fmt).getclobval())' ||
+                                 ',1' ||
+                                 ') != 0'
+      using in l_diff_id, a_exclude_xpath, a_include_xpath, self.data_set_guid,
+         a_exclude_xpath, a_include_xpath, l_other.data_set_guid, l_xml_data_fmt, l_xml_data_fmt;
 
     --result is OK only if both are same
     if sql%rowcount = 0 and self.row_count = l_other.row_count and l_result = 0 then
