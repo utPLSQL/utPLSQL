@@ -580,8 +580,9 @@ was expected to equal: (refcursor [ count = 3 ])
     <ROW><RN>1</RN></ROW>%
     <ROW><RN>2</RN></ROW>%
     <ROW><RN>3</RN></ROW>%
-diff: [ count = 1 ]%
-row_no: 3     <ROW><RN>3</RN></ROW>%]';
+diff:%
+Rows: [ diff count = 1 ]%
+Row No. 3     <ROW><RN>3</RN></ROW>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -601,7 +602,6 @@ row_no: 3     <ROW><RN>3</RN></ROW>%]';
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  --%test(Reports column diff on cusror with different column data-type)
   procedure column_diff_on_data_type_diff is
     l_actual           sys_refcursor;
     l_expected         sys_refcursor;
@@ -626,11 +626,10 @@ was expected to equal: (refcursor [ count = 2 ])
     Data:
     <ROW><RN>1</RN><ANOTHER_RN>1</ANOTHER_RN></ROW>%
     <ROW><RN>2</RN><ANOTHER_RN>2</ANOTHER_RN></ROW>%
-    <ROW><RN>3</RN><ANOTHER_RN>3</ANOTHER_RN></ROW>%
-diff:
-Columns:
-+<RN>VARCHAR2</RN>
--<RN>NUMBER</RN>%]';
+diff:%
+Columns:%
++Col No. 1     <RN>VARCHAR2</RN>%
+-Col No. 1     <RN>NUMBER</RN>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -638,11 +637,39 @@ Columns:
 
   --%test(Reports column diff on cusror with different column name)
   procedure column_diff_on_col_name_diff is
+    l_actual           sys_refcursor;
+    l_expected         sys_refcursor;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
   begin
-    null;
+    --Arrange
+    open l_actual   for select rownum rn, rownum bad_column_name      from dual connect by level <=2;
+    open l_expected for select rownum rn, rownum expected_column_name from dual connect by level <=2;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+
+    l_expected_message := q'[Actual: (refcursor [ count = 2 ])
+    Data-types:
+    <ROW><RN>NUMBER</RN><BAD_COLUMN_NAME>NUMBER</BAD_COLUMN_NAME></ROW>
+    Data:
+    <ROW><RN>1</RN><BAD_COLUMN_NAME>1</BAD_COLUMN_NAME></ROW>%
+    <ROW><RN>2</RN><BAD_COLUMN_NAME>2</BAD_COLUMN_NAME></ROW>%
+was expected to equal: (refcursor [ count = 2 ])
+    Data-types:
+    <ROW><RN>NUMBER</RN><EXPECTED_COLUMN_NAME>NUMBER</EXPECTED_COLUMN_NAME></ROW>
+    Data:
+    <ROW><RN>1</RN><EXPECTED_COLUMN_NAME>1</EXPECTED_COLUMN_NAME></ROW>%
+    <ROW><RN>2</RN><EXPECTED_COLUMN_NAME>2</EXPECTED_COLUMN_NAME></ROW>%
+diff:%
+Columns:%
++Col No. 2     <BAD_COLUMN_NAME>NUMBER</BAD_COLUMN_NAME>%
+-Col No. 2     <EXPECTED_COLUMN_NAME>NUMBER</EXPECTED_COLUMN_NAME>%]';
+      l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+      --Assert
+      ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
-  --%test(Reports only mismatched columns on column value mismatch)
+  --%test(Reports only mismatched columns on column data mismatch)
   procedure data_diff_on_col_data_mismatch is
   begin
     null;

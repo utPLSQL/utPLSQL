@@ -132,10 +132,9 @@ create or replace package test_expectations_cursor is
   procedure column_diff_on_data_type_diff;
 
   --%test(Reports column diff on cusror with different column name)
-  --%disabled
   procedure column_diff_on_col_name_diff;
 
-  --%test(Reports only mismatched columns on column value mismatch)
+  --%test(Reports only mismatched columns on column data mismatch)
   --%disabled
   procedure data_diff_on_col_data_mismatch;
 

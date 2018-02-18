@@ -135,7 +135,7 @@ create or replace type body ut_data_value_refcursor as
     return true;
   end;
 
-  overriding member function diff( a_other ut_data_value ) return varchar2 is
+  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return varchar2 is
     c_max_rows       constant integer := 50;
     c_pad_depth      constant integer := 5;
     l_results        ut_utils.t_clob_tab;
@@ -145,26 +145,66 @@ create or replace type body ut_data_value_refcursor as
     l_diff_row_count integer;
     l_other          ut_data_value_refcursor;
     l_diff_id        raw(16);
+    l_sql            varchar2(32767);
   begin
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
     end if;
     l_other   := treat(a_other as ut_data_value_refcursor);
-    l_diff_id := dbms_crypto.hash(self.data_set_guid||l_other.data_set_guid,2);
+
     dbms_lob.createtemporary(l_result,true);
+
+    if not self.is_null and not l_other.is_null then
+      l_sql :=
+        'with ' ||
+        '  self_cols as (' ||
+        '    select r.column_value.getstringval() col, rownum rn ' ||
+        '      from ( select '||ut_refcursor_helper.get_columns_filter(a_exclude_xpath, a_include_xpath)||
+        '               from ( select :columns_info as item_data from dual ) ucd' ||
+        '           ) s, ' ||
+        '           table( xmlsequence(extract(s.item_data,''/ROW/*'')) ) r' ||
+        '  ),'||
+        '  other_cols as (' ||
+        '    select r.column_value.getstringval() col, rownum rn ' ||
+        '      from ( select '||ut_refcursor_helper.get_columns_filter(a_exclude_xpath, a_include_xpath)||
+        '               from (select :columns_info as item_data from dual ) ucd' ||
+        '           ) s, ' ||
+        '           table( xmlsequence(extract(s.item_data,''/ROW/*'')) ) r' ||
+        '  ) ' ||
+        q'[select case when e.rn is null then '+' else '-' end
+                  ||'Col No. '||rpad( nvl(a.rn,e.rn), :c_pad_depth)
+                  ||' '||nvl(e.col, a.col)]' ||
+        '  from self_cols e' ||
+        '   full outer join other_cols a ' ||
+        '     on a.rn = e.rn and a.col = e.col' ||
+        '  where a.rn is null or e.rn is null' ||
+        '  order by NVL(a.rn,e.rn), a.rn';
+      execute immediate l_sql bulk collect into l_results
+       using a_exclude_xpath, a_include_xpath, self.columns_info,
+             a_exclude_xpath, a_include_xpath, l_other.columns_info, c_pad_depth;
+
+      if l_results.count > 0 then
+        ut_utils.append_to_clob(l_result,chr(10) || 'Columns:' || chr(10));
+        ut_utils.append_to_clob(l_result,l_results);
+      end if;
+    end if;
+
+    l_diff_id := dbms_crypto.hash(self.data_set_guid||l_other.data_set_guid,2);
     -- First tell how many rows are different
     execute immediate 'select count(*) from ' || l_ut_owner || '.ut_data_set_diff_tmp where diff_id = :diff_id' into l_diff_row_count using l_diff_id;
 
-    --return rows which were previously marked as different
-    execute immediate q'[select 'row_no: '||rpad( ucd.item_no, :c_pad_depth )||' '||xmlserialize( content ucd.item_data no indent)
-                        from ]' || l_ut_owner || '.ut_data_set_tmp ucd
-                       where ucd.data_set_guid = :self_guid
-                          and ucd.item_no in (select item_no from ' || l_ut_owner || '.ut_data_set_diff_tmp ucdc where diff_id = :diff_id)
-                          and rownum <= :max_rows'
+    if l_diff_row_count > 0  then
+      --return rows which were previously marked as different
+      execute immediate
+        q'[select 'Row No. '||rpad( ucd.item_no, :c_pad_depth )||' '||xmlserialize( content ucd.item_data no indent)
+             from ]' || l_ut_owner || '.ut_data_set_tmp ucd
+            where ucd.data_set_guid = :self_guid
+              and ucd.item_no in (select item_no from ' || l_ut_owner || '.ut_data_set_diff_tmp ucdc where diff_id = :diff_id)
+              and rownum <= :max_rows'
       bulk collect into l_results using c_pad_depth, self.data_set_guid, l_diff_id, c_max_rows;
-
-    ut_utils.append_to_clob(l_result,'[ count = ' || to_char(l_diff_row_count) ||' ]' || chr(10));
-    ut_utils.append_to_clob(l_result,l_results);
+      ut_utils.append_to_clob(l_result,chr(10) || 'Rows: [ diff count = ' || to_char(l_diff_row_count) ||' ]' || chr(10));
+      ut_utils.append_to_clob(l_result,l_results);
+    end if;
 
     l_result_string := ut_utils.to_string(l_result,null);
     dbms_lob.freetemporary(l_result);
