@@ -562,7 +562,7 @@ create or replace package body test_expectations_cursor is
     l_expected_message varchar2(32767);
   begin
     --Arrange
-    open l_actual   for select rownum rn from dual connect by level <=2;
+    open l_actual   for select 1 rn from dual union all select 6 rn from dual;
     open l_expected for select rownum rn from dual connect by level <=3;
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
@@ -572,7 +572,7 @@ create or replace package body test_expectations_cursor is
     <ROW><RN>NUMBER</RN></ROW>
     Data:
     <ROW><RN>1</RN></ROW>%
-    <ROW><RN>2</RN></ROW>%
+    <ROW><RN>6</RN></ROW>%
 was expected to equal: (refcursor [ count = 3 ])
     Data-types:
     <ROW><RN>NUMBER</RN></ROW>
@@ -581,8 +581,10 @@ was expected to equal: (refcursor [ count = 3 ])
     <ROW><RN>2</RN></ROW>%
     <ROW><RN>3</RN></ROW>%
 diff:%
-Rows: [ diff count = 1 ]%
-Row No. 3     <ROW><RN>3</RN></ROW>%]';
+Rows: [ diff count = 2 ]%
++Row No. 2    <RN>6</RN>%
+-Row No. 2    <RN>2</RN>%
+-Row No. 3    <RN>3</RN>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);

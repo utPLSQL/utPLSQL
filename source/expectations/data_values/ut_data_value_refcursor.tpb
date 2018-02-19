@@ -136,7 +136,7 @@ create or replace type body ut_data_value_refcursor as
   end;
 
   overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return varchar2 is
-    c_max_rows       constant integer := 50;
+    c_max_rows       constant integer := 20;
     c_pad_depth      constant integer := 5;
     l_results        ut_utils.t_clob_tab;
     l_result         clob;
@@ -145,6 +145,7 @@ create or replace type body ut_data_value_refcursor as
     l_diff_row_count integer;
     l_other          ut_data_value_refcursor;
     l_diff_id        raw(16);
+    l_column_filter   varchar2(32767);
     l_sql            varchar2(32767);
   begin
     if not a_other is of (ut_data_value_refcursor) then
@@ -154,19 +155,20 @@ create or replace type body ut_data_value_refcursor as
 
     dbms_lob.createtemporary(l_result,true);
 
+    l_column_filter := ut_refcursor_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
     if not self.is_null and not l_other.is_null then
       l_sql :=
         'with ' ||
         '  self_cols as (' ||
         '    select r.column_value.getstringval() col, rownum rn ' ||
-        '      from ( select '||ut_refcursor_helper.get_columns_filter(a_exclude_xpath, a_include_xpath)||
+        '      from ( select '||l_column_filter||
         '               from ( select :columns_info as item_data from dual ) ucd' ||
         '           ) s, ' ||
         '           table( xmlsequence(extract(s.item_data,''/ROW/*'')) ) r' ||
         '  ),'||
         '  other_cols as (' ||
         '    select r.column_value.getstringval() col, rownum rn ' ||
-        '      from ( select '||ut_refcursor_helper.get_columns_filter(a_exclude_xpath, a_include_xpath)||
+        '      from ( select '||l_column_filter||
         '               from (select :columns_info as item_data from dual ) ucd' ||
         '           ) s, ' ||
         '           table( xmlsequence(extract(s.item_data,''/ROW/*'')) ) r' ||
@@ -195,13 +197,43 @@ create or replace type body ut_data_value_refcursor as
 
     if l_diff_row_count > 0  then
       --return rows which were previously marked as different
-      execute immediate
-        q'[select 'Row No. '||rpad( ucd.item_no, :c_pad_depth )||' '||xmlserialize( content ucd.item_data no indent)
-             from ]' || l_ut_owner || '.ut_data_set_tmp ucd
-            where ucd.data_set_guid = :self_guid
-              and ucd.item_no in (select item_no from ' || l_ut_owner || '.ut_data_set_diff_tmp ucdc where diff_id = :diff_id)
-              and rownum <= :max_rows'
-      bulk collect into l_results using c_pad_depth, self.data_set_guid, l_diff_id, c_max_rows;
+      l_sql :=
+       q'[with diff_info as (select item_no from ]' || l_ut_owner || q'[.ut_data_set_diff_tmp ucdc where diff_id = :diff_guid and rownum <= :max_rows)
+          select ind||'Row No. '||rpad( rn, :c_pad_depth)||xmlserialize(content data_item no indent) diff
+            from (select nvl(exp.rn, act.rn) rn,
+                         xmlagg(exp.col order by exp.col_no) exp_item,
+                         xmlagg(act.col order by act.col_no) act_item
+                    from (select r.item_no as rn, rownum col_no, s.column_value col,
+                                 extract(s.column_value,'/*/text()|/*/*').getclobval() col_val
+                            from (select ]'||l_column_filter||q'[, ucd.item_no
+                                    from ]' || l_ut_owner || q'[.ut_data_set_tmp ucd
+                                   where ucd.data_set_guid = :self_guid
+                                     and ucd.item_no in (select i.item_no from diff_info i)
+                                 ) r,
+                                 table( xmlsequence( extract(r.item_data,'ROW/*') ) ) s
+                         ) exp
+                    full outer join (
+                          select item_no as rn, rownum col_no, s.column_value col,
+                                 extract(s.column_value,'/*/text()|/*/*').getclobval() col_val
+                            from (select ]'||l_column_filter||q'[, ucd.item_no
+                                    from ]' || l_ut_owner || q'[.ut_data_set_tmp ucd
+                                   where ucd.data_set_guid = :other_guid
+                                     and ucd.item_no in (select i.item_no from diff_info i)
+                                 ) r,
+                                 table( xmlsequence( extract(r.item_data,'ROW/*') ) ) s
+                         ) act
+                      on (exp.rn = act.rn and exp.col_no = act.col_no)
+                   where (exp.rn is null and act.rn is not null or exp.rn is not null and act.rn is null)
+                      or nvl(dbms_lob.compare(exp.col_val, act.col_val),1) != 0 and (exp.col_val is not null or act.col_val is not null)
+                   group by nvl(exp.rn, act.rn)
+                  )
+          unpivot (data_item for ind in (exp_item as '-', act_item as '+'))
+          order by rn, ind]';
+      execute immediate l_sql
+        bulk collect into l_results
+        using l_diff_id, c_max_rows, c_pad_depth,
+          a_exclude_xpath, a_include_xpath, self.data_set_guid,
+          a_exclude_xpath, a_include_xpath, l_other.data_set_guid;
       ut_utils.append_to_clob(l_result,chr(10) || 'Rows: [ diff count = ' || to_char(l_diff_row_count) ||' ]' || chr(10));
       ut_utils.append_to_clob(l_result,l_results);
     end if;
