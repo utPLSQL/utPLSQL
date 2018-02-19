@@ -313,9 +313,8 @@ create or replace type body ut_data_value_refcursor as
                                (select '||l_column_filter||', ucd.item_no
                                   from ' || l_ut_owner || '.ut_data_set_tmp ucd where ucd.data_set_guid = :l_other_guid) act
                             on exp.item_no = act.item_no '||
---                         'where nvl(dbms_lob.compare(xmlserialize( content exp.item_data no indent), xmlserialize( content act.item_data no indent)),1) != 0'
---       using in l_diff_id, a_exclude_xpath, a_include_xpath, self.data_set_guid, a_exclude_xpath, a_include_xpath, l_other.data_set_guid;
                         'where nvl( dbms_lob.compare(' ||
+                                     /*the xmltransform removes column names and leaves column data to be compared only*/
                                      '  xmltransform(exp.item_data, :l_xml_data_fmt).getclobval()' ||
                                      ', xmltransform(act.item_data, :l_xml_data_fmt).getclobval())' ||
                                  ',1' ||
