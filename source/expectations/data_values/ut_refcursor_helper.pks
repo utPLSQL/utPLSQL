@@ -1,4 +1,4 @@
-create or replace package ut_refcursor_helper is
+create or replace package ut_refcursor_helper authid definer is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -16,12 +16,41 @@ create or replace package ut_refcursor_helper is
   limitations under the License.
   */
 
+  type t_column_diffs is record(
+    diff_type     varchar2(1),
+    expected_name varchar2(250),
+    expected_type varchar2(250),
+    expected_pos  integer,
+    actual_name   varchar2(250),
+    actual_type   varchar2(250),
+    actual_pos    integer
+  );
+
+  type tt_column_diffs is table of t_column_diffs;
+
+  type t_row_diffs is record(
+    rn            integer,
+    diff_type     varchar2(250),
+    diffed_row    clob
+  );
+
+  type tt_row_diffs is table of t_row_diffs;
+
   function get_columns_info(a_cursor in out nocopy sys_refcursor) return xmltype;
 
   function get_columns_filter(
     a_exclude_xpath varchar2, a_include_xpath varchar2,
     a_table_alias varchar2 := 'ucd', a_column_alias varchar2 := 'item_data'
   ) return varchar2;
+
+  function get_columns_diff(
+    a_expected xmltype, a_actual xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2
+  ) return tt_column_diffs;
+
+  function get_rows_diff(
+    a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
+    a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2
+  ) return tt_row_diffs;
 
 end;
 /

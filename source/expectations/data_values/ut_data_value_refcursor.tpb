@@ -137,104 +137,74 @@ create or replace type body ut_data_value_refcursor as
 
   overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return varchar2 is
     c_max_rows       constant integer := 20;
-    c_pad_depth      constant integer := 5;
     l_results        ut_utils.t_clob_tab;
     l_result         clob;
     l_result_string  varchar2(32767);
     l_ut_owner       varchar2(250) := ut_utils.ut_owner;
     l_diff_row_count integer;
-    l_other          ut_data_value_refcursor;
+    l_actual         ut_data_value_refcursor;
     l_diff_id        raw(16);
-    l_column_filter   varchar2(32767);
-    l_sql            varchar2(32767);
+    l_column_diffs   ut_refcursor_helper.tt_column_diffs;
+    l_row_diffs      ut_refcursor_helper.tt_row_diffs;
+    l_exclude_list   ut_varchar2_list := ut_varchar2_list();
+    l_exclude_xpath  varchar2(32767);
   begin
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
     end if;
-    l_other   := treat(a_other as ut_data_value_refcursor);
+    l_actual := treat(a_other as ut_data_value_refcursor);
 
     dbms_lob.createtemporary(l_result,true);
 
-    l_column_filter := ut_refcursor_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
-    if not self.is_null and not l_other.is_null then
-      l_sql :=
-        'with ' ||
-        '  self_cols as (' ||
-        '    select r.column_value.getstringval() col, rownum rn ' ||
-        '      from ( select '||l_column_filter||
-        '               from ( select :columns_info as item_data from dual ) ucd' ||
-        '           ) s, ' ||
-        '           table( xmlsequence(extract(s.item_data,''/ROW/*'')) ) r' ||
-        '  ),'||
-        '  other_cols as (' ||
-        '    select r.column_value.getstringval() col, rownum rn ' ||
-        '      from ( select '||l_column_filter||
-        '               from (select :columns_info as item_data from dual ) ucd' ||
-        '           ) s, ' ||
-        '           table( xmlsequence(extract(s.item_data,''/ROW/*'')) ) r' ||
-        '  ) ' ||
-        q'[select case when e.rn is null then '+' else '-' end
-                  ||'Col No. '||rpad( nvl(a.rn,e.rn), :c_pad_depth)
-                  ||' '||nvl(e.col, a.col)]' ||
-        '  from self_cols e' ||
-        '   full outer join other_cols a ' ||
-        '     on a.rn = e.rn and a.col = e.col' ||
-        '  where a.rn is null or e.rn is null' ||
-        '  order by NVL(a.rn,e.rn), a.rn';
-      execute immediate l_sql bulk collect into l_results
-       using a_exclude_xpath, a_include_xpath, self.columns_info,
-             a_exclude_xpath, a_include_xpath, l_other.columns_info, c_pad_depth;
+    if not self.is_null and not l_actual.is_null then
+
+      l_column_diffs := ut_refcursor_helper.get_columns_diff(self.columns_info, l_actual.columns_info, a_exclude_xpath, a_include_xpath);
+
+      select case diff_type
+             when '-' then '  Column <'||expected_name||'> [data-type: '||expected_type||'] is missing. Expected column position: '||expected_pos||'.'
+             when '+' then '  Column <'||actual_name||'> [position: '||actual_pos||', data-type: '||actual_type||'] is not expected in results.'
+             when 't' then '  Column <'||actual_name||'> data-type is invalid. Expected: '||expected_type||', actual: '||actual_type||'.'
+             when 'p' then '  Column <'||actual_name||'> is misplaced. Expected position: '||expected_pos||', actual position: '||actual_pos||'.'
+             end diff_msg
+        bulk collect into l_results
+        from table(l_column_diffs)
+       order by expected_pos, actual_pos;
 
       if l_results.count > 0 then
         ut_utils.append_to_clob(l_result,chr(10) || 'Columns:' || chr(10));
         ut_utils.append_to_clob(l_result,l_results);
       end if;
+
+      select coalesce(expected_name,actual_name)
+        bulk collect into l_exclude_list
+        from table(l_column_diffs)
+      where diff_type in ('-','+');
+    end if;
+    l_exclude_xpath := ut_utils.to_xpath(l_exclude_list);
+    if a_exclude_xpath is not null then
+      l_exclude_xpath := l_exclude_xpath || a_exclude_xpath;
     end if;
 
-    l_diff_id := dbms_crypto.hash(self.data_set_guid||l_other.data_set_guid,2);
+    l_diff_id := dbms_crypto.hash(self.data_set_guid||l_actual.data_set_guid,2);
     -- First tell how many rows are different
     execute immediate 'select count(*) from ' || l_ut_owner || '.ut_data_set_diff_tmp where diff_id = :diff_id' into l_diff_row_count using l_diff_id;
 
     if l_diff_row_count > 0  then
-      --return rows which were previously marked as different
-      l_sql :=
-       q'[with diff_info as (select item_no from ]' || l_ut_owner || q'[.ut_data_set_diff_tmp ucdc where diff_id = :diff_guid and rownum <= :max_rows)
-          select ind||'Row No. '||rpad( rn, :c_pad_depth)||xmlserialize(content data_item no indent) diff
-            from (select nvl(exp.rn, act.rn) rn,
-                         xmlagg(exp.col order by exp.col_no) exp_item,
-                         xmlagg(act.col order by act.col_no) act_item
-                    from (select r.item_no as rn, rownum col_no, s.column_value col,
-                                 extract(s.column_value,'/*/text()|/*/*').getclobval() col_val
-                            from (select ]'||l_column_filter||q'[, ucd.item_no
-                                    from ]' || l_ut_owner || q'[.ut_data_set_tmp ucd
-                                   where ucd.data_set_guid = :self_guid
-                                     and ucd.item_no in (select i.item_no from diff_info i)
-                                 ) r,
-                                 table( xmlsequence( extract(r.item_data,'ROW/*') ) ) s
-                         ) exp
-                    full outer join (
-                          select item_no as rn, rownum col_no, s.column_value col,
-                                 extract(s.column_value,'/*/text()|/*/*').getclobval() col_val
-                            from (select ]'||l_column_filter||q'[, ucd.item_no
-                                    from ]' || l_ut_owner || q'[.ut_data_set_tmp ucd
-                                   where ucd.data_set_guid = :other_guid
-                                     and ucd.item_no in (select i.item_no from diff_info i)
-                                 ) r,
-                                 table( xmlsequence( extract(r.item_data,'ROW/*') ) ) s
-                         ) act
-                      on (exp.rn = act.rn and exp.col_no = act.col_no)
-                   where (exp.rn is null and act.rn is not null or exp.rn is not null and act.rn is null)
-                      or nvl(dbms_lob.compare(exp.col_val, act.col_val),1) != 0 and (exp.col_val is not null or act.col_val is not null)
-                   group by nvl(exp.rn, act.rn)
-                  )
-          unpivot (data_item for ind in (exp_item as '-', act_item as '+'))
-          order by rn, ind]';
-      execute immediate l_sql
+      l_row_diffs := ut_refcursor_helper.get_rows_diff(
+          self.data_set_guid, l_actual.data_set_guid, l_diff_id,
+          c_max_rows, l_exclude_xpath, a_include_xpath
+      );
+
+      select '  Row No. '||rn||' - '||rpad(diff_type,10)||diffed_row diff
         bulk collect into l_results
-        using l_diff_id, c_max_rows, c_pad_depth,
-          a_exclude_xpath, a_include_xpath, self.data_set_guid,
-          a_exclude_xpath, a_include_xpath, l_other.data_set_guid;
-      ut_utils.append_to_clob(l_result,chr(10) || 'Rows: [ diff count = ' || to_char(l_diff_row_count) ||' ]' || chr(10));
+        from table(l_row_diffs)
+       order by rn, diff_type;
+      
+      if l_results.count = 0 then
+        ut_utils.append_to_clob(l_result,chr(10) || 'Rows:'||chr(10)||'  All rows are different as the columns are not matching.');
+      else
+        ut_utils.append_to_clob(l_result,chr(10) || 'Rows: [ diff count = ' || to_char(l_diff_row_count) ||' ]' || chr(10));
+      end if;
       ut_utils.append_to_clob(l_result,l_results);
     end if;
 

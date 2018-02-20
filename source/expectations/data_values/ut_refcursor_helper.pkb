@@ -82,6 +82,126 @@ create or replace package body ut_refcursor_helper is
     return l_filter;
   end;
 
+  function get_columns_diff(
+    a_expected xmltype, a_actual xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2
+  ) return tt_column_diffs is
+    l_column_filter  varchar2(32767);
+    l_sql            varchar2(32767);
+    l_results        tt_column_diffs;
+  begin
+    l_column_filter := ut_refcursor_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
+    l_sql := q'[
+      with
+        expected_cols as ( select :a_expected as item_data from dual ),
+        actual_cols as ( select :a_actual as item_data from dual ),
+        expected_cols_info as (
+            select rownum expected_pos,
+                   r.column_value.getrootelement() expected_name,
+                   extractvalue(r.column_value,'/*') expected_type
+            from ( select ]'||l_column_filter||q'[ from expected_cols ucd ) s,
+              table( xmlsequence(extract(s.item_data,'/*/*')) ) r
+        ),
+        actual_cols_info as (
+            select rownum actual_pos,
+                   r.column_value.getrootelement() actual_name,
+                   extractvalue(r.column_value,'/*') actual_type
+            from ( select ]'||l_column_filter||q'[ from actual_cols ucd ) s,
+              table( xmlsequence(extract(s.item_data,'/*/*')) ) r
+        ),
+        joined_cols as (
+         select e.*, a.*,
+                row_number() over(partition by case when actual_pos + expected_pos is not null then 1 end order by actual_pos) a_pos_nn,
+                row_number() over(partition by case when actual_pos + expected_pos is not null then 1 end order by expected_pos) e_pos_nn
+           from expected_cols_info e
+           full outer join actual_cols_info a on e.expected_name = a.actual_name
+      )
+      select case
+               when expected_pos is null and actual_pos is not null then '+'
+               when expected_pos is not null and actual_pos is null then '-'
+               when actual_type != expected_type then 't'
+               else 'p'
+             end as diff_type,
+             expected_name, expected_type, expected_pos,
+             actual_name, actual_type, actual_pos
+        from joined_cols
+       where actual_pos is null or expected_pos is null or actual_type != expected_type or a_pos_nn != e_pos_nn
+       order by expected_pos, actual_pos]';
+    execute immediate l_sql
+      bulk collect into l_results
+      using a_expected, a_actual, a_exclude_xpath, a_include_xpath, a_exclude_xpath, a_include_xpath;
+    return l_results;
+  end;
+
+  function get_rows_diff(
+    a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
+    a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2
+  ) return tt_row_diffs is
+    l_column_filter varchar2(32767);
+    l_results       tt_row_diffs;
+  begin
+    l_column_filter := get_columns_filter(a_exclude_xpath, a_include_xpath);
+    execute immediate q'[
+      with
+        diff_info as (select item_no from ut_data_set_diff_tmp ucdc where diff_id = :diff_guid and rownum <= :max_rows)
+      select *
+        from (select rn, diff_type, xmlserialize(content data_item no indent) diffed_row
+                from (select nvl(exp.rn, act.rn) rn,
+                             xmlagg(exp.col order by exp.col_no) exp_item,
+                             xmlagg(act.col order by act.col_no) act_item
+                        from (select r.item_no as rn, rownum col_no, s.column_value col,
+                                     s.column_value.getRootElement() col_name,
+                                     s.column_value.getclobval() col_val
+                                from (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
+                                        from ut_data_set_tmp ucd
+                                       where ucd.data_set_guid = :self_guid
+                                         and ucd.item_no in (select i.item_no from diff_info i)
+                                    ) r,
+                                     table( xmlsequence( extract(r.item_data,'/*/*') ) ) s
+                             ) exp
+                        join (
+                              select item_no as rn, rownum col_no, s.column_value col,
+                                     s.column_value.getRootElement() col_name,
+                                     s.column_value.getclobval() col_val
+                                from (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
+                                        from ut_data_set_tmp ucd
+                                       where ucd.data_set_guid = :other_guid
+                                         and ucd.item_no in (select i.item_no from diff_info i)
+                                    ) r,
+                                     table( xmlsequence( extract(r.item_data,'/*/*') ) ) s
+                              ) act
+                          on exp.rn = act.rn and exp.col_name = act.col_name
+                       where dbms_lob.compare(exp.col_val, act.col_val) != 0
+                       group by exp.rn, act.rn
+                     )
+              unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
+             )
+      union all
+      select nvl(exp.item_no, act.item_no) rn,
+             case when exp.item_no is null then 'Extra:' else 'Missing:' end as diff_type,
+             xmlserialize(content nvl(exp.item_data, act.item_data) no indent) diffed_row
+        from (select ucd.item_no, extract(ucd.item_data,'/*/*') item_data
+                from ut_data_set_tmp ucd
+               where ucd.data_set_guid = :self_guid
+                 and ucd.item_no in (select i.item_no from diff_info i)
+             ) exp
+        full outer join (
+              select ucd.item_no, extract(ucd.item_data,'/*/*') item_data
+                from ut_data_set_tmp ucd
+               where ucd.data_set_guid = :other_guid
+                 and ucd.item_no in (select i.item_no from diff_info i)
+
+             )act
+          on exp.item_no = act.item_no
+       where exp.item_no is null or act.item_no is null
+]'
+    bulk collect into l_results
+    using a_diff_id, a_max_rows,
+    a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
+    a_exclude_xpath, a_include_xpath, a_actual_dataset_guid,
+    a_expected_dataset_guid, a_actual_dataset_guid;
+    return l_results;
+  end;
+
 begin
   g_type_name_map( dbms_sql.binary_bouble_type )           := 'BINARY_DOUBLE';
   g_type_name_map( dbms_sql.bfile_type )                   := 'BFILE';

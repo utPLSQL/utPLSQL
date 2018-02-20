@@ -125,21 +125,22 @@ create or replace package test_expectations_cursor is
   --%test(Reports data-diff on rows mismatch)
   procedure data_diff_on_rows_mismatch;
 
-  --%test(Char and varcahr2 datta-types are equal)
+  --%test(Char and varchar2 data-types are equal)
   procedure char_and_varchar2_col_is_equal;
 
-  --%test(Reports column diff on cusror with different column data-type)
+  --%test(Reports column diff on cursor with different column data-type)
   procedure column_diff_on_data_type_diff;
 
-  --%test(Reports column diff on cusror with different column name)
+  --%test(Reports column diff on cursor with different column name)
   procedure column_diff_on_col_name_diff;
 
+  --%test(Reports column diff on cursor with different column positions)
+  procedure column_diff_on_col_position;
+
   --%test(Reports only mismatched columns on column data mismatch)
-  --%disabled
   procedure data_diff_on_col_data_mismatch;
 
   --%test(Reports data diff and column diff when both are different)
-  --%disabled
   procedure column_and_data_diff;
 
   procedure prepare_table;
