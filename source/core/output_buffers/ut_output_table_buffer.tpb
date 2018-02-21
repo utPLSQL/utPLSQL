@@ -27,10 +27,14 @@ create or replace type body ut_output_table_buffer is
 
   overriding member procedure init(self in out nocopy ut_output_table_buffer) is
     pragma autonomous_transaction;
+    l_exists int;
   begin
-    delete from ut_output_buffer_tmp where output_id = self.output_id;
-    delete from ut_output_buffer_info_tmp where output_id = self.output_id;
-    insert into ut_output_buffer_info_tmp(output_id, start_date) values (self.output_id, self.start_date);
+    select count(*) into l_exists from ut_output_buffer_info_tmp where output_id = self.output_id;
+    if ( l_exists > 0 ) then
+      update ut_output_buffer_info_tmp set start_date = self.start_date where output_id = self.output_id;
+    else
+      insert into ut_output_buffer_info_tmp(output_id, start_date) values (self.output_id, self.start_date);
+    end if;
     commit;
   end;
 
