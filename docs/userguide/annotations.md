@@ -37,6 +37,7 @@ create or replace package test_pkg is
 
   -- %test
   -- %displayname(Name of a test)
+  -- %throws(-20145,-20146,-20189,-20563)
   procedure some_test;
 
   -- %test(Name of another test)
@@ -74,6 +75,7 @@ end test_pkg;
 | `%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
 | `%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a suite/test. `%displayname(Name of the suite/test)`. The annotation is provided for flexibility and convenience only. It has exactly the same meaning as `<description>` in `test` and `suite` annotations. If description is provided using both `suite`/`test` and `displayname`, then the one defined as last takes precedence. |
 | `%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can by provided (see `displayname`). |
+| `%throws(<exception_number>)`| Test Procedure | Denotes that the annotated test procedure must throws one of the exception numbers written. If there are no valid number the annotation is ignored. Only applies to test procedures. |
 | `%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
 | `%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
 | `%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` procedure in the suite. |
@@ -234,4 +236,74 @@ To purge the annotation cache call `ut_runner.purge_cache(a_object_owner)`.
 Example:
 ```sql
 exec ut_runner.purge_cache('HR', 'PACKAGE');
+```
+
+# Throws annotation
+
+utPLSQL uses the `%throws` annotation to allow the user to delimit which exception numbers a test must throws.
+
+If `%throws` is specified for one test and nothing is raise or a different exception than the annotated one is thrown, the test is marked as failed.
+
+The framework discards the bad arguments, `--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)` it converts that to this `--%throws(-20496)`.
+If the arguments is empty `--%throws()`,`--%throws`, or only no valid arguments are provided `--%throws(abe, 723pf)` the annotation is ignored.
+
+Example how to use the annotation:
+
+```
+create or replace package example_pgk as
+
+  -- %suite(Example Throws Annotation)
+
+  -%test(Throws one of the listed exceptions)
+  --%throws(-20145,-20146, -20189 ,-20563)
+  procedure raised_one_listed_exception;
+
+  --%test(Throws diff exception)
+  --%throws(-20144)
+  procedure raised_diff_exception;
+
+  --%test(Givess failure when a exception is expected and nothing is thrown)
+  --%throws(-20459, -20136, -20145)
+  procedure nothing_thrown;
+
+end;  
+```
+
+```
+create package body annotated_package_with_throws is
+  procedure raised_one_listed_exception is
+  begin
+      raise_application_error(-20189, 'Test error');
+  end;
+
+  procedure raised_diff_exception is
+  begin
+      raise_application_error(-20143, 'Test error');
+  end;
+
+  procedure nothing_thrown is
+  begin
+      null;
+  end;
+end;
+```
+
+The test results are:
+
+```
+Example Throws Annotation
+  Throws one of the listed exceptions [.011 sec]
+  Throws diff exception [.011 sec] (FAILED - 1)
+  Givess failure when a exception is expected and nothing is thrown [.014 sec] (FAILED - 2)
+
+Failures:
+
+  1) raised_diff_exception
+      UT3.annotated_package_with_throws.raised_diff_exception Actual: -20143 was expected to be one of (-20144)
+
+  2) nothing_thrown
+      UT3.annotated_package_with_throws.nothing_thrown Expected one of exceptions (-20459,-20136,-20145) but nothing was raised.
+
+Finished in .040591 seconds
+3 tests, 2 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
