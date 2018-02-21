@@ -193,6 +193,7 @@ create or replace package body ut_refcursor_helper is
              )act
           on exp.item_no = act.item_no
        where exp.item_no is null or act.item_no is null
+      order by 1, 2
 ]'
     bulk collect into l_results
     using a_diff_id, a_max_rows,

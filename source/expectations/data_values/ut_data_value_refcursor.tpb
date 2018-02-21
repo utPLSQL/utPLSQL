@@ -136,18 +136,51 @@ create or replace type body ut_data_value_refcursor as
   end;
 
   overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return varchar2 is
-    c_max_rows       constant integer := 20;
-    l_results        ut_utils.t_clob_tab;
-    l_result         clob;
-    l_result_string  varchar2(32767);
-    l_ut_owner       varchar2(250) := ut_utils.ut_owner;
-    l_diff_row_count integer;
-    l_actual         ut_data_value_refcursor;
-    l_diff_id        raw(16);
-    l_column_diffs   ut_refcursor_helper.tt_column_diffs;
-    l_row_diffs      ut_refcursor_helper.tt_row_diffs;
-    l_exclude_list   ut_varchar2_list := ut_varchar2_list();
-    l_exclude_xpath  varchar2(32767);
+    c_max_rows          constant integer := 20;
+    l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
+    l_result            clob;
+    l_result_string     varchar2(32767);
+    l_ut_owner          varchar2(250) := ut_utils.ut_owner;
+    l_diff_row_count    integer;
+    l_actual            ut_data_value_refcursor;
+    l_diff_id           raw(16);
+    l_column_diffs      ut_refcursor_helper.tt_column_diffs := ut_refcursor_helper.tt_column_diffs();
+    l_row_diffs         ut_refcursor_helper.tt_row_diffs;
+    l_exclude_xpath     varchar2(32767);
+    function get_col_diff_text(a_col ut_refcursor_helper.t_column_diffs) return varchar2 is
+    begin
+      return
+        case a_col.diff_type
+          when '-' then
+            '  Column <'||a_col.expected_name||'> [data-type: '||a_col.expected_type||'] is missing. Expected column position: '||a_col.expected_pos||'.'
+          when '+' then
+            '  Column <'||a_col.actual_name||'> [position: '||a_col.actual_pos||', data-type: '||a_col.actual_type||'] is not expected in results.'
+          when 't' then
+            '  Column <'||a_col.actual_name||'> data-type is invalid. Expected: '||a_col.expected_type||',' ||' actual: '||a_col.actual_type||'.'
+          when 'p' then
+            '  Column <'||a_col.actual_name||'> is misplaced. Expected position: '||a_col.expected_pos||',' ||' actual position: '||a_col.actual_pos||'.'
+        end;
+    end;
+    function add_incomparable_cols_to_xpath(
+      a_column_diffs ut_refcursor_helper.tt_column_diffs, a_exclude_xpath varchar2
+    ) return varchar2 is
+      l_incomparable_cols ut_varchar2_list := ut_varchar2_list();
+      l_result            varchar2(32767);
+    begin
+      for i in 1 .. a_column_diffs.count loop
+        if a_column_diffs(i).diff_type in ('-','+') then
+          l_incomparable_cols.extend;
+          l_incomparable_cols(l_incomparable_cols.last) := coalesce(a_column_diffs(i).expected_name,a_column_diffs(i).actual_name);
+        end if;
+      end loop;
+      l_result := ut_utils.to_xpath(l_incomparable_cols);
+      if a_exclude_xpath is not null and l_result is not null then
+        l_result := l_result ||'|'||a_exclude_xpath;
+      else
+        l_result := coalesce(a_exclude_xpath, l_result);
+      end if;
+      return l_result;
+    end;
   begin
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
@@ -157,33 +190,21 @@ create or replace type body ut_data_value_refcursor as
     dbms_lob.createtemporary(l_result,true);
 
     if not self.is_null and not l_actual.is_null then
-
       l_column_diffs := ut_refcursor_helper.get_columns_diff(self.columns_info, l_actual.columns_info, a_exclude_xpath, a_include_xpath);
 
-      select case diff_type
-             when '-' then '  Column <'||expected_name||'> [data-type: '||expected_type||'] is missing. Expected column position: '||expected_pos||'.'
-             when '+' then '  Column <'||actual_name||'> [position: '||actual_pos||', data-type: '||actual_type||'] is not expected in results.'
-             when 't' then '  Column <'||actual_name||'> data-type is invalid. Expected: '||expected_type||', actual: '||actual_type||'.'
-             when 'p' then '  Column <'||actual_name||'> is misplaced. Expected position: '||expected_pos||', actual position: '||actual_pos||'.'
-             end diff_msg
-        bulk collect into l_results
-        from table(l_column_diffs)
-       order by expected_pos, actual_pos;
-
-      if l_results.count > 0 then
+      if l_column_diffs.count > 0 then
         ut_utils.append_to_clob(l_result,chr(10) || 'Columns:' || chr(10));
-        ut_utils.append_to_clob(l_result,l_results);
       end if;
 
-      select coalesce(expected_name,actual_name)
-        bulk collect into l_exclude_list
-        from table(l_column_diffs)
-      where diff_type in ('-','+');
+      for i in 1 .. l_column_diffs.count loop
+        l_results.extend;
+        l_results(l_results.last) := get_col_diff_text(l_column_diffs(i));
+      end loop;
+      ut_utils.append_to_clob(l_result, l_results);
+      l_results.delete;
     end if;
-    l_exclude_xpath := ut_utils.to_xpath(l_exclude_list);
-    if a_exclude_xpath is not null then
-      l_exclude_xpath := l_exclude_xpath || a_exclude_xpath;
-    end if;
+
+    l_exclude_xpath := add_incomparable_cols_to_xpath(l_column_diffs, a_exclude_xpath);
 
     l_diff_id := dbms_crypto.hash(self.data_set_guid||l_actual.data_set_guid,2);
     -- First tell how many rows are different
@@ -191,20 +212,18 @@ create or replace type body ut_data_value_refcursor as
 
     if l_diff_row_count > 0  then
       l_row_diffs := ut_refcursor_helper.get_rows_diff(
-          self.data_set_guid, l_actual.data_set_guid, l_diff_id,
-          c_max_rows, l_exclude_xpath, a_include_xpath
+          self.data_set_guid, l_actual.data_set_guid, l_diff_id, c_max_rows, l_exclude_xpath, a_include_xpath
       );
 
-      select '  Row No. '||rn||' - '||rpad(diff_type,10)||diffed_row diff
-        bulk collect into l_results
-        from table(l_row_diffs)
-       order by rn, diff_type;
-      
-      if l_results.count = 0 then
+      if l_row_diffs.count = 0 then
         ut_utils.append_to_clob(l_result,chr(10) || 'Rows:'||chr(10)||'  All rows are different as the columns are not matching.');
       else
         ut_utils.append_to_clob(l_result,chr(10) || 'Rows: [ diff count = ' || to_char(l_diff_row_count) ||' ]' || chr(10));
       end if;
+      for i in 1 .. l_row_diffs.count loop
+        l_results.extend;
+        l_results(l_results.last) := '  Row No. '||l_row_diffs(i).rn||' - '||rpad(l_row_diffs(i).diff_type,10)||l_row_diffs(i).diffed_row;
+      end loop;
       ut_utils.append_to_clob(l_result,l_results);
     end if;
 
