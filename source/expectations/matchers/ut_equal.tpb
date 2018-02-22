@@ -221,9 +221,12 @@ create or replace type body ut_equal as
   overriding member function failure_message(a_actual ut_data_value) return varchar2 is
     l_result varchar2(32767);
   begin
-    l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
-      l_result := l_result || chr(10) || 'Diff:' || expected.diff(a_actual, get_exclude_xpath(), get_include_xpath());
+      l_result :=
+        'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
+        || chr(10) || 'Diff:' || expected.diff(a_actual, get_exclude_xpath(), get_include_xpath());
+    else
+      l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     end if;
     return l_result;
   end;

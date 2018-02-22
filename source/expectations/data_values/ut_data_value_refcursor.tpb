@@ -140,6 +140,7 @@ create or replace type body ut_data_value_refcursor as
     l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
     l_result            clob;
     l_result_string     varchar2(32767);
+    l_message           varchar2(32767);
     l_ut_owner          varchar2(250) := ut_utils.ut_owner;
     l_diff_row_count    integer;
     l_actual            ut_data_value_refcursor;
@@ -215,11 +216,13 @@ create or replace type body ut_data_value_refcursor as
           self.data_set_guid, l_actual.data_set_guid, l_diff_id, c_max_rows, l_exclude_xpath, a_include_xpath
       );
 
-      if l_row_diffs.count = 0 then
-        ut_utils.append_to_clob(l_result,chr(10) || 'Rows:'||chr(10)||'  All rows are different as the columns are not matching.');
-      else
-        ut_utils.append_to_clob(l_result,chr(10) || 'Rows: [ diff count = ' || to_char(l_diff_row_count) ||' ]' || chr(10));
-      end if;
+      l_message := chr(10)
+        ||'Rows: [ ' || l_diff_row_count ||' differences'
+        ||  case when  l_diff_row_count > c_max_rows and l_row_diffs.count > 0 then ', showing first '||c_max_rows end
+        ||' ]' || chr(10)
+        || case when l_row_diffs.count = 0
+           then '  All rows are different as the columns are not matching.' end;
+      ut_utils.append_to_clob( l_result, l_message );
       for i in 1 .. l_row_diffs.count loop
         l_results.extend;
         l_results(l_results.last) := '  Row No. '||l_row_diffs(i).rn||' - '||rpad(l_row_diffs(i).diff_type,10)||l_row_diffs(i).diffed_row;

@@ -140,6 +140,9 @@ create or replace package test_expectations_cursor is
   --%test(Reports only mismatched columns on column data mismatch)
   procedure data_diff_on_col_data_mismatch;
 
+  --%test(Reports only first 20 rows of diff and gives a full diff count)
+  procedure data_diff_on_20_rows_only;
+
   --%test(Reports data diff and column diff when both are different)
   procedure column_and_data_diff;
 
