@@ -248,6 +248,8 @@ drop type ut_object_names force;
 
 drop type ut_object_name force;
 
+drop type ut_integer_list force;
+
 drop type ut_varchar2_list force;
 
 drop type ut_varchar2_rows force;

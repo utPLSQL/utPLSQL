@@ -76,6 +76,7 @@ grant execute on &&ut3_owner..ut_coveralls_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_reporters to &ut3_user;
 grant execute on &&ut3_owner..ut_varchar2_list to &ut3_user;
 grant execute on &&ut3_owner..ut_varchar2_rows to &ut3_user;
+grant execute on &&ut3_owner..ut_integer_list to &ut3_user;
 grant execute on &&ut3_owner..ut_reporter_base to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_options to &ut3_user;
@@ -128,6 +129,7 @@ create or replace synonym &ut3_user..ut_coveralls_reporter for &&ut3_owner..ut_c
 create or replace synonym &ut3_user..ut_reporters for &&ut3_owner..ut_reporters;
 create or replace synonym &ut3_user..ut_varchar2_list for &&ut3_owner..ut_varchar2_list;
 create or replace synonym &ut3_user..ut_varchar2_rows for &&ut3_owner..ut_varchar2_rows;
+create or replace synonym &ut3_user..ut_integer_list for &&ut3_owner..ut_integer_list;
 create or replace synonym &ut3_user..ut_reporter_base for &&ut3_owner..ut_reporter_base;
 create or replace synonym &ut3_user..ut_coverage for &&ut3_owner..ut_coverage;
 create or replace synonym &ut3_user..ut_coverage_options for &&ut3_owner..ut_coverage_options;

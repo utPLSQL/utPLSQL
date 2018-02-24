@@ -1,25 +1,30 @@
 create or replace package body test_annot_throws_exception
 is
-  g_tests_results ut3.ut_varchar2_list;
-  
-  procedure recolect_tests_results is
+  g_tests_results clob;
+
+  procedure recollect_tests_results is
     pragma autonomous_transaction;
 
-    l_package_spec VARCHAR2(32737);
-    l_package_body VARCHAR2(32737);
-    l_drop_statment VARCHAR2(32737);
+    l_package_spec  varchar2(32737);
+    l_package_body  varchar2(32737);
+    l_drop_statment varchar2(32737);
+    l_test_results  ut3.ut_varchar2_list;
   begin
     l_package_spec := '
         create package annotated_package_with_throws is
             --%suite(Dummy package to test annotation throws)
 
-            --%test(Throws same annoted exception)
+            --%test(Throws same annotated exception)
             --%throws(-20145)
             procedure raised_same_exception;
 
             --%test(Throws one of the listed exceptions)
             --%throws(-20145,-20146, -20189 ,-20563)
             procedure raised_one_listed_exception;
+
+            --%test(Leading zero is ignored in exception list)
+            --%throws(-01476)
+            procedure leading_0_exception_no;
 
             --%test(Throws diff exception)
             --%throws(-20144)
@@ -29,11 +34,11 @@ is
             --%throws()
             procedure empty_throws;
 
-            --%test(Ignores when only bad parameters are passed1)
+            --%test(Ignores annotation and fails when exception was thrown)
             --%throws(hello,784#,0-=234,,u1234)
             procedure bad_paramters_with_except;
 
-            --%test(Ignores when only bad parameters are passed, the test does not raise a exception and it shows successful test)
+            --%test(Ignores annotation and succeeds when no exception thrown)
             --%throws(hello,784#,0-=234,,u1234)
             procedure bad_paramters_without_except;
 
@@ -57,6 +62,12 @@ is
             procedure raised_one_listed_exception is
             begin
                 raise_application_error(-20189, ''Test error'');
+            end;
+
+            procedure leading_0_exception_no is
+                x integer;
+            begin
+                x := 1 / 0;
             end;
 
             procedure raised_diff_exception is
@@ -93,115 +104,67 @@ is
 
     execute immediate l_package_spec;
     execute immediate l_package_body;
-    
-    select * bulk collect into g_tests_results from table(ut3.ut.run(('annotated_package_with_throws')));
-    
+
+    select * bulk collect into l_test_results from table(ut3.ut.run(('annotated_package_with_throws')));
+
+    g_tests_results := ut3.ut_utils.table_to_clob(l_test_results);
+
     l_drop_statment := 'drop package annotated_package_with_throws';
     execute immediate l_drop_statment;
   end;
-  
-  function test_result(a_test_results in ut3.ut_varchar2_list, a_procedure_name in varchar2) return varchar2 
-  is 
-    l_test_result varchar2(200);
-    l_index integer;
-    l_regexp_failure varchar2(200) := '^[ ]*[0-9]+\) '||a_procedure_name||'$';
-    l_regexp_errored varchar2(200) := '^[ ]*ORA-[0-9]*:';
-  begin
-    if a_test_results is not null then
-      l_index :=  a_test_results.first;
-      
-      while(l_index is not null) loop
-        if regexp_like(a_test_results(l_index), l_regexp_failure) then
-          if regexp_like(a_test_results(l_index + 1), l_regexp_errored) then
-            l_test_result := 'ERRORED';  
-            exit;
-          else
-            l_test_result := 'FAILED';
-            exit;
-          end if;
-        end if;
-        
-        l_index := a_test_results.next(l_index);
-      end loop;
-      -- if nothing was found it returns SUCCESSFUL
-      if l_test_result is null then
-        l_test_result := 'SUCCESSFUL';  
-      end if;
-    end if;
-    
-    return l_test_result;
-  end;
 
   procedure throws_same_annotated_except is
-    l_result VARCHAR2(32737);
   begin
-    --Act
-    l_result := test_result(g_tests_results, 'raised_same_exception');
-    --Assert
-    ut.expect(l_result).to_equal('SUCCESSFUL');
+    ut.expect(g_tests_results).to_match('^\s*Throws same annotated exception \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('raised_same_exception');
   end;
 
   procedure throws_one_of_annotated_excpt is
-    l_result VARCHAR2(32737);
   begin
-    --Act
-    l_result := test_result(g_tests_results, 'raised_one_listed_exception');
-    --Assert
-    ut.expect(l_result).to_equal('SUCCESSFUL');
+    ut.expect(g_tests_results).to_match('^\s*Throws one of the listed exceptions \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('raised_one_listed_exception');
+  end;
+
+  procedure throws_with_leading_zero is
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Leading zero is ignored in exception list \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('leading_0_exception_no');
   end;
 
   procedure throws_diff_annotated_except is
-    l_result VARCHAR2(32737);
   begin
-    --Act
-    l_result := test_result(g_tests_results, 'raised_diff_exception');
-    --Assert
-    ut.expect(l_result).to_equal('FAILED');
+    ut.expect(g_tests_results).to_match('^\s*Throws diff exception \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('raised_diff_exception\s+Actual: -20143 was expected to equal: -20144\s+ORA-20143: Test error\s+ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
   end;
 
   procedure throws_empty is
-    l_result VARCHAR2(32737);
   begin
-    --Act
-    l_result := test_result(g_tests_results, 'empty_throws');
-    --Assert
-    ut.expect(l_result).to_equal('ERRORED');
+    ut.expect(g_tests_results).to_match('^\s*Throws empty \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('empty_throws\s*ORA-20143: Test error\s*ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
   end;
 
   procedure bad_paramters_with_except is
-    l_result VARCHAR2(32737);
   begin
-    --Act
-    l_result := test_result(g_tests_results, 'bad_paramters_with_except');
-    --Assert
-    ut.expect(l_result).to_equal('ERRORED');
+    ut.expect(g_tests_results).to_match('^\s*Ignores annotation and fails when exception was thrown \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('bad_paramters_with_except\s*ORA-20143: Test error\s*ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
   end;
 
   procedure bad_paramters_without_except is
-    l_result VARCHAR2(32737);
   begin
-    --Act
-    l_result := test_result(g_tests_results, 'bad_paramters_without_except');
-    --Assert
-    ut.expect(l_result).to_equal('SUCCESSFUL');
+    ut.expect(g_tests_results).to_match('^\s*Ignores annotation and succeeds when no exception thrown \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('bad_paramters_without_except');
   end;
 
   procedure one_valid_exception_number is
-    l_result VARCHAR2(32737);
   begin
-    --Act
-    l_result := test_result(g_tests_results, 'one_valid_exception_number');
-    --Assert
-    ut.expect(l_result).to_equal('SUCCESSFUL');
+    ut.expect(g_tests_results).to_match('^\s*Detects a valid exception number within many invalid ones \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('one_valid_exception_number');
   end;
 
   procedure nothing_thrown is
-    l_result VARCHAR2(32737);
   begin
-    --Act
-    l_result := test_result(g_tests_results, 'nothing_thrown');
-    --Assert
-    ut.expect(l_result).to_equal('FAILED');
+    ut.expect(g_tests_results).to_match('^\s*Givess failure when a exception is expected and nothing is thrown \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('nothing_thrown\s*Expected one of exceptions \(-20459, -20136, -20145\) but nothing was raised.');
   end;
 end;
 /

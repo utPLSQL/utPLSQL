@@ -198,6 +198,8 @@ create or replace package ut_utils authid definer is
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob;
 
+  function table_to_clob(a_integer_table ut_integer_list, a_delimiter varchar2:= chr(10)) return clob;
+
   /**
    * Returns time difference in seconds (with miliseconds) between given timestamps
    */
