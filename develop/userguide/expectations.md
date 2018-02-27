@@ -84,42 +84,51 @@ Failures:
 
 # Expecting exceptions
 
-Below example illustrates how to write test to check for expected exceptions (thrown by tested code).
+Testing is not limited to checking for happy-path scenarios. When writing tests, you often want to check that in specific scenarios, an exception is thrown.
 
+Use the `--%throws` annotation, to test for expected exceptions 
+
+Example:
 ```sql
-create or replace procedure divide(p_a number, p_b number) is 
+create or replace function divide(x varchar2, y varchar2) return number is
 begin
-  return p_a / p_b; 
+  return x/y;
 end;
 /
 
-create or replace package test_divide is 
-  --%suite(Divide functionality)
-  
-  --%test(Raises exception when divisor is zero)
-  procedure divide_raises_zero_divisor;
-end;
+create or replace package test_divide as
+  --%suite(Divide function)
+
+  --%test(Return divided numbers)
+  procedure divides_numbers;
+
+  --%test(Throws divisor equal)
+  --%throws(-01476)
+  procedure raises_divisor_exception;
+end;  
 /
-create or replace package body test_divide is 
-  procedure divide_raises_zero_divisor is
-    l_my_number number;
+
+create or replace package body test_divide is
+
+  procedure divides_numbers is
   begin
-    l_my_number := divide(1,0); -- PLSQL call throwing ORA-01476 exception
-    ut.fail('Expected exception but nothing was raised');
-  exception
-    when others then
-      ut.expect( sqlcode ).to_equal( -1476 );
-      ut.expect( sqlerrm ).to_match( 'equal to zero' );
+    ut3.ut.expect(divide(6,2)).to_equal(3);
   end;
+  
+  procedure raises_divisor_exception is
+    x integer;
+  begin
+    x := divide(6,0);
+  end;
+
 end;
 /
+
+exec ut3.ut.run('test_divide');
 ```
 
-The call to `ut.fail` is required to make sure that the test fails, if we expect an exception, but the tested code does not throw any.
+For details see documentation of the [`--%throws` annotation.](annotations.md#throws-annotation)  
 
-The call to `ut.expect` uses `equal` matcher to check that the exception that was raised was exactly the one we were expecting to get in particular situation.
-
-Depending on the situation you will want to check for `sqlcode`, `sqlerrm`, both or perform additional expectation checks to make sure nothing was changed by the called procedure in the database.
 
 # Matchers
 utPLSQL provides the following matchers to perform checks on the expected and actual values.  
