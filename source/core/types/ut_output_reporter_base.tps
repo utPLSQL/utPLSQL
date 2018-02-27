@@ -18,6 +18,7 @@ create or replace type ut_output_reporter_base under ut_reporter_base(
   output_buffer ut_output_buffer_base,
   constructor function ut_output_reporter_base(self in out nocopy ut_output_reporter_base) return self as result,
   member procedure init(self in out nocopy ut_output_reporter_base, a_self_type varchar2, a_output_buffer ut_output_buffer_base := null),
+  overriding member function has_output return int,
   overriding member procedure set_reporter_id(self in out nocopy ut_output_reporter_base, a_reporter_id raw),
   overriding member procedure before_calling_run(self in out nocopy ut_output_reporter_base, a_run in ut_run),
   
