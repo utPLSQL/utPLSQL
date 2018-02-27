@@ -255,14 +255,28 @@ create or replace package body ut_utils is
   end;
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob is
-    l_result          clob;
-    l_text_table_rows integer := coalesce(cardinality(a_text_table),0);
+    l_result     clob;
+    l_table_rows integer := coalesce(cardinality(a_text_table),0);
   begin
-    for i in 1 .. l_text_table_rows loop
-      if i < l_text_table_rows then
+    for i in 1 .. l_table_rows loop
+      if i < l_table_rows then
         append_to_clob(l_result, a_text_table(i)||a_delimiter);
       else
         append_to_clob(l_result, a_text_table(i));
+      end if;
+    end loop;
+    return l_result;
+  end;
+
+  function table_to_clob(a_integer_table ut_integer_list, a_delimiter varchar2:= chr(10)) return clob is
+    l_result     clob;
+    l_table_rows integer := coalesce(cardinality(a_integer_table),0);
+  begin
+    for i in 1 .. l_table_rows loop
+      if i < l_table_rows then
+        append_to_clob(l_result, a_integer_table(i)||a_delimiter);
+      else
+        append_to_clob(l_result, a_integer_table(i));
       end if;
     end loop;
     return l_result;

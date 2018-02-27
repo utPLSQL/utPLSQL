@@ -37,6 +37,7 @@ alter session set current_schema = &&ut3_owner;
 --common utilities
 @@install_component.sql 'core/types/ut_varchar2_list.tps'
 @@install_component.sql 'core/types/ut_varchar2_rows.tps'
+@@install_component.sql 'core/types/ut_integer_list.tps'
 @@install_component.sql 'core/types/ut_object_name.tps'
 @@install_component.sql 'core/types/ut_object_name.tpb'
 @@install_component.sql 'core/types/ut_object_names.tps'
