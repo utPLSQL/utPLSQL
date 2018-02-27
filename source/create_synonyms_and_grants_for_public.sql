@@ -103,6 +103,7 @@ create public synonym ut_documentation_reporter for &&ut3_owner..ut_documentatio
 create public synonym ut_coverage_html_reporter for &&ut3_owner..ut_coverage_html_reporter;
 create public synonym ut_coverage_sonar_reporter for &&ut3_owner..ut_coverage_sonar_reporter;
 create public synonym ut_coveralls_reporter for &&ut3_owner..ut_coveralls_reporter;
+create public synonym ut_coverage_cob_reporter for &&ut3_owner..ut_coverage_cob_reporter;
 create public synonym ut_reporters for &&ut3_owner..ut_reporters;
 create public synonym ut_varchar2_list for &&ut3_owner..ut_varchar2_list;
 create public synonym ut_varchar2_rows for &&ut3_owner..ut_varchar2_rows;
