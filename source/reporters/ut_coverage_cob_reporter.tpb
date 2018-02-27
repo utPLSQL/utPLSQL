@@ -69,13 +69,22 @@ create or replace type body ut_coverage_cob_reporter is
       c_package_footer  constant varchar2(30) := '</package>'||chr(10);
       c_class_footer  constant varchar2(30) := '</class>'||chr(10);
       c_lines_footer  constant varchar2(30) := '</lines>'||chr(10);
+      l_epoch         varchar2(50);
       begin
+      
+      select 
+      (sysdate - to_date('01-01-1970 00:00:00', 'dd-mm-yyyy hh24:mi:ss')) * 24 * 60 * 60 
+      into l_epoch
+      from dual;
+
+
+      
       dbms_lob.createtemporary(l_result,true);
 
       ut_utils.append_to_clob(l_result, c_coverage_def);
       
       --write header
-      l_file_part:= '<coverage line-rate="0" branch-rate="0.0" lines-covered="'||a_coverage_data.covered_lines||'" lines-valid="'||TO_CHAR(a_coverage_data.covered_lines + a_coverage_data.uncovered_lines)||'" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="1403301904999">';
+      l_file_part:= '<coverage line-rate="0" branch-rate="0.0" lines-covered="'||a_coverage_data.covered_lines||'" lines-valid="'||TO_CHAR(a_coverage_data.covered_lines + a_coverage_data.uncovered_lines)||'" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="'||l_epoch||'">';
       ut_utils.append_to_clob(l_result, l_file_part);
       
       
