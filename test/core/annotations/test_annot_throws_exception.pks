@@ -1,17 +1,20 @@
 create or replace package test_annot_throws_exception
 is
-  --%suite(annotations- throws)
+  --%suite(annotations - throws)
   --%suitepath(utplsql.core.annotations)
     
   --%beforeall
-  procedure recolect_tests_results;
+  procedure recollect_tests_results;
   
   --%test(Gives success when annotated number exception is thrown)
   procedure throws_same_annotated_except;
-  
-  --%test(Gives succes when one of the annotated number exceptions is thrown)
+
+  --%test(Gives success when one of the annotated number exceptions is thrown)
   procedure throws_one_of_annotated_excpt;
-  
+
+  --%test(Gives success when annotated number exceptions has leading zero)
+  procedure throws_with_leading_zero;
+
   --%test(Gives failure when the raised exception is different that the annotated one)
   procedure throws_diff_annotated_except;
   

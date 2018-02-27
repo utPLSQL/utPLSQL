@@ -21,7 +21,7 @@ create or replace type body ut_test as
     a_path varchar2 := null, a_rollback_type integer := null, a_disabled_flag boolean := false,
     a_before_each_proc_name varchar2 := null, a_before_test_proc_name varchar2 := null,
     a_after_test_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null,
-    a_expected_error_codes ut_varchar2_list := null
+    a_expected_error_codes ut_integer_list := null
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;

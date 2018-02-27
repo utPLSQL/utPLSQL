@@ -4,63 +4,101 @@ Annotations are used to configure tests and suites in a declarative way similar 
 No configuration files or tables are needed. The annotation names are based on popular testing frameworks such as jUnit.
 The framework runner searches for all the suitable annotated packages, automatically configures suites, forms the suite hierarchy, executes it and reports results in specified formats.
 
-Annotations are interpreted only in the package specification and are case-insensitive. It is recommended however, to use  lower-case annotations as described in this documentation.
+Annotations are interpreted only in the package specification and are case-insensitive. We strongly recommend using lower-case annotations as described in this documentation.
 
-There are two places where annotations may appear:
+There are two locations where annotations can be placed:
+- Package level annotations can be placed at the very top of the package specification (`--%suite`, `--%suitepath` etc.)
+- Procedure level annotations can be placed right before a procedure (`--%test`, `--%beforeall`, `--%beforeeach` etc.)
 
-- at the beginning of the package specification (`%suite`, `%suitepath` etc.)
-- right before a procedure (`%test`, `%beforeall`, `%beforeeach` etc.)
+If procedure level annotation is not placed right before procedure, it is not considered an annotation for procedure.
+
+Example of invalid procedure level annotations 
+```sql
+create or replace package test_pkg is
+
+  --%suite(Name of suite)
+
+  --%test
+  -- this single-line comment makes the TEST annotation no longer associated with the procedure  
+  procedure first_test;
+
+  --%test
+  --procedure some_test; /* This TEST annotation is not associated with any procedure*/
+
+  --%test(Name of another test)
+  procedure another_test;
+
+  --%test
+  /**
+  * this multi-line comment makes the TEST annotation no longer associated with the procedure  
+  */
+  procedure yet_another_test;
+end test_pkg;
+```
+Procedure annotations are defined right before the procedure they reference, no empty lines are allowed, no comment lines can exist between annotation and the procedure.
+
 
 Package level annotations need to be separated by at least one empty line from the underlying procedure annotations.
 
-Procedure annotations are defined right before the procedure they reference, no empty lines are allowed.
+Example of invalid package level annotation. 
+```sql
+create or replace package test_pkg is
+  --%suite(Name of suite)
+  --%test
+  procedure first_test;
+end test_pkg;
+```
 
-If a package specification contains the `%suite` annotation, it is treated as a test package and is processed by the framework.
+If a package specification contains the `--%suite` annotation, it is treated as a test package and is processed by the framework.
 
-Some annotations accept parameters like `%suite`, `%test` and `%displayname`. The parameters for annotations need to be placed in brackets. Values for parameters should be provided without any quotation marks.
+Some annotations accept parameters like `--%suite`, `--%test` and `--%displayname`. The parameters for annotations need to be placed in brackets.
+Values for parameters should be provided without any quotation marks.
+If the parameters are placed without brackets or with incomplete brackets, they will be ignored.
+Example: `--%suite(The name of suite without closing bracket`
 
 # <a name="example"></a>Example of an annotated test package
 
 ```sql
 create or replace package test_pkg is
 
-  -- %suite(Name of suite)
-  -- %suitepath(all.globaltests)
+  --%suite(Name of suite)
+  --%suitepath(all.globaltests)
 
-  -- %beforeall
+  --%beforeall
   procedure global_setup;
 
-  -- %afterall
+  --%afterall
   procedure global_cleanup;
 
   /* Such comments are allowed */
 
-  -- %test
-  -- %displayname(Name of a test)
+  --%test
+  --%displayname(Name of a test)
+  --%throws(-20145,-20146,-20189,-20563)
   procedure some_test;
 
-  -- %test(Name of another test)
-  -- %beforetest(setup_another_test)
-  -- %aftertest(cleanup_another_test)
+  --%test(Name of another test)
+  --%beforetest(setup_another_test)
+  --%aftertest(cleanup_another_test)
   procedure another_test;
 
-  -- %test
-  -- %displayname(Name of test)
-  -- %disabled
+  --%test
+  --%displayname(Name of test)
+  --%disabled
   procedure disabled_test;
 
-  -- %test(Name of test)
-  -- %rollback(manual)
+  --%test(Name of test)
+  --%rollback(manual)
   procedure no_transaction_control_test;
 
   procedure setup_another_test;
 
   procedure cleanup_another_test;
 
-  -- %beforeeach
+  --%beforeeach
   procedure test_setup;
 
-  -- %aftereach
+  --%aftereach
   procedure test_cleanup;
 
 end test_pkg;
@@ -74,6 +112,7 @@ end test_pkg;
 | `%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
 | `%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a suite/test. `%displayname(Name of the suite/test)`. The annotation is provided for flexibility and convenience only. It has exactly the same meaning as `<description>` in `test` and `suite` annotations. If description is provided using both `suite`/`test` and `displayname`, then the one defined as last takes precedence. |
 | `%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can by provided (see `displayname`). |
+| `%throws(<exception_number>[,<exception_number>[,...]])`| Procedure | Denotes that the annotated procedure must throw one of the exception numbers provided. If no valid numbers were provided as annotation parameters the annotation is ignored. Applicable to test procedures only. |
 | `%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
 | `%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
 | `%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` procedure in the suite. |
@@ -103,17 +142,17 @@ The `%suitepath` annotation is used for such grouping. Even though test packages
 ```sql
 create or replace package test_payment_recognition as
 
-  -- %suite(Payment recognition tests)
-  -- %suitepath(payments)
+  --%suite(Payment recognition tests)
+  --%suitepath(payments)
 
-  -- %test(Recognize payment by policy number)
+  --%test(Recognize payment by policy number)
   procedure test_recognize_by_num;
 
-  -- %test
-  -- %displayname(Recognize payment by payment purpose)
+  --%test
+  --%displayname(Recognize payment by payment purpose)
   procedure test_recognize_by_purpose;
 
-  -- %test(Recognize payment by customer)
+  --%test(Recognize payment by customer)
   procedure test_recognize_by_customer;
 
 end test_payment_recognition;
@@ -123,14 +162,14 @@ And payments set off test package:
 ```sql
 create or replace package test_payment_set_off as
 
-  -- %suite(Payment set off tests)
-  -- %suitepath(payments)
+  --%suite(Payment set off tests)
+  --%suitepath(payments)
 
-  -- %test(Set off creation test)
+  --%test(Set off creation test)
   procedure test_create_set_off;
 
-  -- %test
-  -- %displayname(Set off annulation test)
+  --%test
+  --%displayname(Set off annulation test)
   procedure test_annulate_set_off;
 
 end test_payment_set_off;
@@ -143,12 +182,12 @@ An additional advantage of such grouping is the fact that every element level of
 ```sql
 create or replace package payments as
 
-  -- %suite(Payments)
+  --%suite(Payments)
 
-  -- %beforeall
+  --%beforeall
   procedure set_common_payments_data;
 
-  -- %afterall
+  --%afterall
   procedure reset_common_paymnets_data;
 
 end payments;
@@ -167,7 +206,7 @@ In general, your unit tests should not use transaction control as long as the co
 Keeping the transactions uncommitted allows your changes to be isolated and the execution of tests does not impact others who might be using a shared development database.
 
 If you are in a situation where the code you are testing uses transaction control (common case with ETL code), then your tests probably should not use the default automatic transaction control.
-In that case use the annotation `-- %rollback(manual)` on the suite level to disable automatic transaction control for the entire suite.
+In that case use the annotation `--%rollback(manual)` on the suite level to disable automatic transaction control for the entire suite.
 If you are using nested suites, you need to make sure that the entire suite all the way to the root is using manual transaction control.
 
 It is possible with utPLSQL to change the transaction control on individual suites or tests that are part of complex suite.
@@ -234,4 +273,92 @@ To purge the annotation cache call `ut_runner.purge_cache(a_object_owner)`.
 Example:
 ```sql
 exec ut_runner.purge_cache('HR', 'PACKAGE');
+```
+
+# Throws annotation
+
+The `--%throws` annotation allows you to specify a list of exception numbers that can be expected from a test.
+
+If `--%throws(-20001,-20002)` is specified and no exception is raised or the exception raised is not on the list of provided exception numbers, the test is marked as failed.
+
+The framework ignores bad arguments. `--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)` will be interpreted as `--%throws(-20496)`.
+The annotation is ignored, when no valid arguments are provided `--%throws()`,`--%throws`, `--%throws(abe, 723pf)`.
+
+Example:
+```sql
+create or replace package example_pgk as
+
+  --%suite(Example Throws Annotation)
+
+  --%test(Throws one of the listed exceptions)
+  --%throws(-20145,-20146, -20189 ,-20563)
+  procedure raised_one_listed_exception;
+
+  --%test(Throws different exception than expected)
+  --%throws(-20144)
+  procedure raised_different_exception;
+
+  --%test(Throws different exception than listed)
+  --%throws(-20144,-00001,-20145)
+  procedure raised_unlisted_exception;
+
+  --%test(Gives failure when an exception is expected and nothing is thrown)
+  --%throws(-20459, -20136, -20145)
+  procedure nothing_thrown;
+
+end;  
+/
+create or replace package body example_pgk is
+  procedure raised_one_listed_exception is
+  begin
+      raise_application_error(-20189, 'Test error');
+  end;
+
+  procedure raised_different_exception is
+  begin
+      raise_application_error(-20143, 'Test error');
+  end;
+
+  procedure raised_unlisted_exception is
+  begin
+      raise_application_error(-20143, 'Test error');
+  end;
+
+  procedure nothing_thrown is
+  begin
+      ut.expect(1).to_equal(1);
+  end;
+end;
+/
+        
+exec ut.run('example_pgk');
+```
+
+Running the test will give report:
+```
+Example Throws Annotation
+  Throws one of the listed exceptions [.018 sec]
+  Throws different exception than expected [.008 sec] (FAILED - 1)
+  Throws different exception than listed [.007 sec] (FAILED - 2)
+  Gives failure when an exception is expected and nothing is thrown [.002 sec] (FAILED - 3)
+ 
+Failures:
+ 
+  1) raised_different_exception
+      Actual: -20143 was expected to equal: -20144
+      ORA-20143: Test error
+      ORA-06512: at "UT3.EXAMPLE_PGK", line 9
+      ORA-06512: at line 6
+       
+  2) raised_unlisted_exception
+      Actual: -20143 was expected to be one of: (-20144, -1, -20145)
+      ORA-20143: Test error
+      ORA-06512: at "UT3.EXAMPLE_PGK", line 14
+      ORA-06512: at line 6
+       
+  3) nothing_thrown
+      Expected one of exceptions (-20459, -20136, -20145) but nothing was raised.
+       
+Finished in .038692 seconds
+4 tests, 3 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
