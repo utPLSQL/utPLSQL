@@ -28,11 +28,6 @@ create or replace type body ut_output_reporter_base is
     self.set_reporter_id(self.output_buffer.output_id);
   end;
 
-  overriding member function has_output return int is
-  begin
-    return 1;
-  end;
-
   overriding member procedure set_reporter_id(self in out nocopy ut_output_reporter_base, a_reporter_id raw) is
   begin
     self.id := a_reporter_id;

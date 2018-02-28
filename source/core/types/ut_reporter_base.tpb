@@ -33,11 +33,6 @@ create or replace type body ut_reporter_base is
     return self.id;
   end;
 
-  member function has_output return int is
-  begin
-    return 0;
-  end;
-
   -- run hooks
   member procedure before_calling_run(self in out nocopy ut_reporter_base, a_run in ut_run) is
   begin
