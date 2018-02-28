@@ -1,4 +1,4 @@
-create or replace package ut_refcursor_helper authid definer is
+create or replace package ut_compound_data_helper authid definer is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project

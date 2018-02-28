@@ -16,87 +16,42 @@ create or replace type body ut_data_value_anydata as
   limitations under the License.
   */
 
-  overriding member function to_string return varchar2 is
-    l_result varchar2(32767);
-    l_clob   clob;
+  final member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata, a_data_object_type varchar2, a_extract_path varchar2) is
+    l_query    sys_refcursor;
+    l_ctx      number;
+    l_ut_owner varchar2(250) := ut_utils.ut_owner;
   begin
-    if self.is_null() then
-      l_result := ut_utils.to_string( to_char(null) );
-    else
-      ut_expectation_processor.set_xml_nls_params();
-      select xmlserialize(content xmltype(self.data_value) indent) into l_clob from dual;
-      l_result := ut_utils.to_string( l_clob, null );
-      ut_expectation_processor.reset_nls_params();
-    end if;
-    return l_result;
-  end;
-
-  overriding member function compare_implementation(a_other ut_data_value) return integer is
-  begin
-    return compare_implementation( a_other, null, null);
-  end;
-
-  member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer is
-    l_self_data  xmltype;
-    l_other_data xmltype;
-    l_other  ut_data_value_anydata;
-    l_result integer;
-    l_ancestors varchar2(20);
-    procedure filter_by_xpaths(a_xml in out nocopy xmltype, a_exclude varchar2, a_include varchar2) is
-    begin
-      if a_exclude is not null then
-        select deletexml( a_xml, a_exclude ) into a_xml from dual;
-      end if;
-      if a_include is not null then
-        select extract( a_xml, a_include ) into a_xml from dual;
-      end if;
-    end;
-  begin
-    if a_other is of (ut_data_value_anydata) then
-      l_other := treat(a_other as ut_data_value_anydata);
-      --needed for 11g xe as it fails on constructing XMLTYPE from null ANYDATA
-      if not self.is_null() and not l_other.is_null() then
-        if self is of (ut_data_value_object) then
-          l_ancestors := '/*/';
-        else
-          l_ancestors := '/*/*/';
-        end if;
-        ut_expectation_processor.set_xml_nls_params();
-        l_self_data := xmltype.createxml(self.data_value);
-        l_other_data := xmltype.createxml(l_other.data_value);
-        filter_by_xpaths(l_self_data, a_exclude_xpath, a_include_xpath);
-        filter_by_xpaths(l_other_data, a_exclude_xpath, a_include_xpath);
-        ut_expectation_processor.reset_nls_params();
-        if l_self_data is not null and l_other_data is not null then
-          l_result := dbms_lob.compare( l_self_data.getclobval(), l_other_data.getclobval() );
-        end if;
-      end if;
-    else
-      raise value_error;
-    end if;
-    return l_result;
-  end;
-
-  final member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata, a_data_object_type varchar2) is
-  begin
-    self.data_value := a_value;
     self.data_type  := case when a_value is not null then lower(a_value.gettypename) else 'undefined' end;
-    if data_value is not null then
+    self.data_id    := sys_guid();
+    if a_value is not null then
       execute immediate '
         declare
-          l_data '||self.data_value.gettypename()||';
+          l_data '||self.data_type||';
           l_value anydata := :a_value;
           l_status integer;
         begin
           l_status := l_value.get'||a_data_object_type||'(l_data);
           :l_data_is_null := case when l_data is null then 1 else 0 end;
-        end;' using in self.data_value, out self.data_value_is_null;
+        end;' using in a_value, out self.is_data_null;
+    else
+      self.is_data_null := 1;
     end if;
-  end;
-
-  overriding member function is_null return boolean is
-  begin
-    return self.data_value is null or ut_utils.int_to_boolean(self.data_value_is_null);
+    if not self.is_null() then
+      open l_query for select a_value val from dual;
+      ut_expectation_processor.set_xml_nls_params();
+      l_ctx := sys.dbms_xmlgen.newcontext( l_query );
+      dbms_xmlgen.setrowtag(l_ctx, '');
+      dbms_xmlgen.setrowsettag(l_ctx, '');
+      dbms_xmlgen.setnullhandling(l_ctx,2);
+      execute immediate
+      'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
+      'select :self_guid, rownum, value(a) ' ||
+      '  from table( xmlsequence( extract(:l_xml, :xpath ) ) ) a'
+      using in self.data_id, dbms_xmlgen.getXMLtype(l_ctx), a_extract_path;
+      self.elements_count := sql%rowcount;
+      dbms_xmlgen.closecontext (l_ctx);
+      ut_expectation_processor.reset_nls_params();
+    end if;
   end;
 
   static function get_instance(a_data_value anydata) return ut_data_value_anydata is

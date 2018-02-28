@@ -1,4 +1,4 @@
-create or replace type ut_data_value_anydata under ut_data_value(
+create or replace type ut_data_value_anydata under ut_compound_data_value(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -16,14 +16,7 @@ create or replace type ut_data_value_anydata under ut_data_value(
   limitations under the License.
   */
 
-  data_value anydata,
-
-  data_value_is_null integer,
-  overriding member function to_string return varchar2,
-  overriding member function compare_implementation(a_other ut_data_value) return integer,
-  member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer,
-  final member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata, a_data_object_type varchar2),
-  overriding member function is_null return boolean,
+  final member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata, a_data_object_type varchar2, a_extract_path varchar2),
   static function get_instance(a_data_value anydata) return ut_data_value_anydata
 ) not final not instantiable
 /

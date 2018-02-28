@@ -400,8 +400,8 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
 
   procedure cleanup_temp_tables is
   begin
-    execute immediate 'delete from ut_data_set_tmp';
-    execute immediate 'delete from ut_data_set_diff_tmp';
+    execute immediate 'delete from ut_compound_data_tmp';
+    execute immediate 'delete from ut_compound_data_diff_tmp';
   end;
 
   function to_version(a_version_no varchar2) return t_version is

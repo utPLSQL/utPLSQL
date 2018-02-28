@@ -473,5 +473,73 @@ was expected to equal:%[ count = % ])
     ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
   end;
 
+  --%test(Reports only mismatched columns on column data mismatch)
+  procedure data_diff_on_atr_data_mismatch is
+    l_actual           test_dummy_object_list;
+    l_expected         test_dummy_object_list;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=2;
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2
+     order by rownum desc;
+    --Act
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+
+    l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
+Diff:
+Rows: [ 2 differences ]
+  Row No. 1 - Actual:   <BAD_COL>-1</BAD_COL>
+  Row No. 1 - Expected: <BAD_COL>1</BAD_COL>
+  Row No. 2 - Actual:   <BAD_COL>-2</BAD_COL>
+  Row No. 2 - Expected: <BAD_COL>2</BAD_COL>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure data_diff_on_20_rows_only is
+    l_actual           test_dummy_object_list;
+    l_expected         test_dummy_object_list;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=100;
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=110
+     order by rownum desc;
+    --Act
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+
+    l_expected_message := q'[Actual: refcursor [ count = 100 ] was expected to equal: refcursor [ count = 110 ]
+Diff:
+Rows: [ 60 differences, showing first 20 ]
+  Row No. 2 - Actual:   <BAD_COL>-2</BAD_COL>
+  Row No. 2 - Expected: <BAD_COL>2</BAD_COL>
+  Row No. 4 - Actual:   <BAD_COL>-4</BAD_COL>
+  Row No. 4 - Expected: <BAD_COL>4</BAD_COL>
+  Row No. 6 - Actual:   <BAD_COL>-6</BAD_COL>
+  Row No. 6 - Expected: <BAD_COL>6</BAD_COL>
+  Row No. 8 - Actual:   <BAD_COL>-8</BAD_COL>
+  Row No. 8 - Expected: <BAD_COL>8</BAD_COL>
+  %
+  Row No. 38 - Actual:   <BAD_COL>-38</BAD_COL>
+  Row No. 38 - Expected: <BAD_COL>38</BAD_COL>
+  Row No. 40 - Actual:   <BAD_COL>-40</BAD_COL>
+  Row No. 40 - Expected: <BAD_COL>40</BAD_COL>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
 end;
 /

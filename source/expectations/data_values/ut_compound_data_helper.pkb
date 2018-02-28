@@ -1,4 +1,4 @@
-create or replace package body ut_refcursor_helper is
+create or replace package body ut_compound_data_helper is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -89,7 +89,7 @@ create or replace package body ut_refcursor_helper is
     l_sql            varchar2(32767);
     l_results        tt_column_diffs;
   begin
-    l_column_filter := ut_refcursor_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
+    l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
     l_sql := q'[
       with
         expected_cols as ( select :a_expected as item_data from dual ),
@@ -142,7 +142,7 @@ create or replace package body ut_refcursor_helper is
     l_column_filter := get_columns_filter(a_exclude_xpath, a_include_xpath);
     execute immediate q'[
       with
-        diff_info as (select item_no from ut_data_set_diff_tmp ucdc where diff_id = :diff_guid and rownum <= :max_rows)
+        diff_info as (select item_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid and rownum <= :max_rows)
       select *
         from (select rn, diff_type, xmlserialize(content data_item no indent) diffed_row
                 from (select nvl(exp.rn, act.rn) rn,
@@ -152,8 +152,8 @@ create or replace package body ut_refcursor_helper is
                                      s.column_value.getRootElement() col_name,
                                      s.column_value.getclobval() col_val
                                 from (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
-                                        from ut_data_set_tmp ucd
-                                       where ucd.data_set_guid = :self_guid
+                                        from ut_compound_data_tmp ucd
+                                       where ucd.data_id = :self_guid
                                          and ucd.item_no in (select i.item_no from diff_info i)
                                     ) r,
                                      table( xmlsequence( extract(r.item_data,'/*/*') ) ) s
@@ -163,8 +163,8 @@ create or replace package body ut_refcursor_helper is
                                      s.column_value.getRootElement() col_name,
                                      s.column_value.getclobval() col_val
                                 from (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
-                                        from ut_data_set_tmp ucd
-                                       where ucd.data_set_guid = :other_guid
+                                        from ut_compound_data_tmp ucd
+                                       where ucd.data_id = :other_guid
                                          and ucd.item_no in (select i.item_no from diff_info i)
                                     ) r,
                                      table( xmlsequence( extract(r.item_data,'/*/*') ) ) s
@@ -180,14 +180,14 @@ create or replace package body ut_refcursor_helper is
              case when exp.item_no is null then 'Extra:' else 'Missing:' end as diff_type,
              xmlserialize(content nvl(exp.item_data, act.item_data) no indent) diffed_row
         from (select ucd.item_no, extract(ucd.item_data,'/*/*') item_data
-                from ut_data_set_tmp ucd
-               where ucd.data_set_guid = :self_guid
+                from ut_compound_data_tmp ucd
+               where ucd.data_id = :self_guid
                  and ucd.item_no in (select i.item_no from diff_info i)
              ) exp
         full outer join (
               select ucd.item_no, extract(ucd.item_data,'/*/*') item_data
-                from ut_data_set_tmp ucd
-               where ucd.data_set_guid = :other_guid
+                from ut_compound_data_tmp ucd
+               where ucd.data_id = :other_guid
                  and ucd.item_no in (select i.item_no from diff_info i)
 
              )act

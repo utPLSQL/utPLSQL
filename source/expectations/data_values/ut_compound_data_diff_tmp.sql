@@ -1,4 +1,4 @@
-create global temporary table ut_data_set_diff_tmp(
+create global temporary table ut_compound_data_diff_tmp(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -14,5 +14,5 @@ create global temporary table ut_data_set_diff_tmp(
   */
   diff_id    raw(16),
   item_no    integer,
-  constraint ut_data_set_diff_tmp_pk primary key(diff_id,item_no)
+  constraint ut_compound_data_diff_tmp_pk primary key(diff_id,item_no)
 ) on commit preserve rows;

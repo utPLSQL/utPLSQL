@@ -137,7 +137,7 @@ create or replace package test_expectations_cursor is
   --%test(Reports column diff on cursor with different column positions)
   procedure column_diff_on_col_position;
 
-  --%test(Reports only mismatched columns on column data mismatch)
+  --%test(Reports only mismatched columns on row data mismatch)
   procedure data_diff_on_col_data_mismatch;
 
   --%test(Reports only first 20 rows of diff and gives a full diff count)

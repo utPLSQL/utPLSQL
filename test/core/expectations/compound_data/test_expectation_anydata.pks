@@ -111,5 +111,11 @@ create or replace package test_expectation_anydata is
   --%test(Adds a warning when using depreciated syntax to_( equal( a_expected anydata, a_exclude ut_varchar2_list )) )
   procedure deprec_equal_excl_list;
 
+  --%test(Reports only mismatched attributes on row data mismatch)
+  procedure data_diff_on_atr_data_mismatch;
+
+  --%test(Reports only first 20 rows of diff and gives a full diff count)
+  procedure data_diff_on_20_rows_only;
+
 end;
 /
