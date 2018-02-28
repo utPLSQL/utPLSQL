@@ -292,7 +292,7 @@ create or replace package body test_expectation_anydata is
     ut.fail('Expected exception -31011 but nothing was raised');
   exception
     when others then
-      ut.expect(sqlcode).to_equal(-31011);
+      ut.expect(sqlcode).to_be_between(-31013,-31011);
   end;
 
   procedure include_attributes_xpath is
