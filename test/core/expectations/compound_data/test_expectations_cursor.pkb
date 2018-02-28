@@ -695,9 +695,10 @@ Rows: [ 2 differences ]
     --Arrange
     open l_actual for
       select rownum
-            * case when mod(rownum,2) = 0 then -1 else 1 end bad_col
+            * case when mod(rownum,2) = 0 then -1 else 1 end bad_col,
+            rownum good_col
        from dual connect by level <=100;
-    open l_expected for select rownum bad_col from dual connect by level <=110;
+    open l_expected for select rownum bad_col, rownum good_col from dual connect by level <=110;
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
 
@@ -729,6 +730,7 @@ Rows: [ 60 differences, showing first 20 ]
     l_expected_message varchar2(32767);
   begin
     --Arrange
+    ut3.ut.set_nls();
     open l_actual   for
       select 10 id, 'Norris' last_name, 'Chuck' first_name, systimestamp as create_tmstmp, user as created_by from dual union all
       select 20 id, 'Skywalker' last_name, 'Luke' first_name, systimestamp as create_tmstmp, user as created_by from dual union all
@@ -740,6 +742,7 @@ Rows: [ 60 differences, showing first 20 ]
       select 31 id, 'Teddy' first_name, 'Bear' last_name, sysdate as birth_date from dual union all
       select 40 id, 'Brandon' first_name, 'Lee' last_name, sysdate as birth_date from dual union all
       select 50 id, 'Mona' first_name, 'Lisa' last_name, date '1550-01-01' as birth_date from dual;
+    ut3.ut.reset_nls();
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
     l_expected_message := q'[%Actual: refcursor [ count = 4 ] was expected to equal: refcursor [ count = 5 ]

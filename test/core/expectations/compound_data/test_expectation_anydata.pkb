@@ -351,25 +351,18 @@ create or replace package body test_expectation_anydata is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure reports_object_structure is
+  procedure reports_diff_attribute is
     l_expected varchar2(32767);
     l_actual   varchar2(32767);
   begin
     --Arrange
     g_test_expected := anydata.convertObject( test_dummy_object(1, 'A', '0') );
     g_test_actual   := anydata.convertObject( test_dummy_object(1, 'B', '0') );
-    l_expected := q'[%Actual:%
-    <TEST_DUMMY_OBJECT>
-      <ID>1</ID>
-      <name>B</name>
-      <Value>0</Value>
-    </TEST_DUMMY_OBJECT>%
-was expected to equal:%
-    <TEST_DUMMY_OBJECT>
-      <ID>1</ID>
-      <name>A</name>
-      <Value>0</Value>
-    </TEST_DUMMY_OBJECT>%]';
+    l_expected := q'[Actual: ut3_tester.test_dummy_object was expected to equal: ut3_tester.test_dummy_object
+Diff:
+Rows: [ 1 differences ]
+  Row No. 1 - Actual:   <name>B</name>
+  Row No. 1 - Expected: <name>A</name>]';
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
@@ -378,7 +371,7 @@ was expected to equal:%
   end;
 
 
-  procedure reports_collection_structre is
+  procedure reports_diff_structure is
     l_obj      test_dummy_object := test_dummy_object(1, 'A', '0');
     l_expected varchar2(32767);
     l_actual   varchar2(32767);
@@ -386,27 +379,10 @@ was expected to equal:%
     --Arrange
     g_test_expected := anydata.convertCollection( test_dummy_object_list(l_obj) );
     g_test_actual   := anydata.convertCollection( test_dummy_object_list(l_obj, l_obj) );
-    l_expected := q'[%Actual:%[ count = % ])
-    <TEST_DUMMY_OBJECT_LIST>
-      <TEST_DUMMY_OBJECT>
-        <ID>1</ID>
-        <name>A</name>
-        <Value>0</Value>
-      </TEST_DUMMY_OBJECT>
-      <TEST_DUMMY_OBJECT>
-        <ID>1</ID>
-        <name>A</name>
-        <Value>0</Value>
-      </TEST_DUMMY_OBJECT>
-    </TEST_DUMMY_OBJECT_LIST>%
-was expected to equal:%[ count = % ])
-    <TEST_DUMMY_OBJECT_LIST>
-      <TEST_DUMMY_OBJECT>
-        <ID>1</ID>
-        <name>A</name>
-        <Value>0</Value>
-      </TEST_DUMMY_OBJECT>
-    </TEST_DUMMY_OBJECT_LIST>%]';
+    l_expected := q'[Actual: ut3_tester.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester.test_dummy_object_list [ count = 1 ]
+Diff:
+Rows: [ 1 differences ]
+  Row No. 2 - Extra:    <ID>1</ID><name>A</name><Value>0</Value>]';
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
@@ -491,13 +467,13 @@ was expected to equal:%[ count = % ])
     --Act
     ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
 
-    l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
+    l_expected_message := q'[Actual: ut3_tester.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester.test_dummy_object_list [ count = 2 ]
 Diff:
 Rows: [ 2 differences ]
-  Row No. 1 - Actual:   <BAD_COL>-1</BAD_COL>
-  Row No. 1 - Expected: <BAD_COL>1</BAD_COL>
-  Row No. 2 - Actual:   <BAD_COL>-2</BAD_COL>
-  Row No. 2 - Expected: <BAD_COL>2</BAD_COL>]';
+  Row No. 1 - Actual:   <ID>1</ID><name>Something 1</name><Value>1</Value>
+  Row No. 1 - Expected: <ID>2</ID><name>Something 2</name><Value>2</Value>
+  Row No. 2 - Actual:   <ID>2</ID><name>Something 2</name><Value>2</Value>
+  Row No. 2 - Expected: <ID>1</ID><name>Something 1</name><Value>1</Value>]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -510,32 +486,29 @@ Rows: [ 2 differences ]
     l_expected_message varchar2(32767);
   begin
     --Arrange
-    select test_dummy_object( rownum, 'Something '||rownum, rownum)
-      bulk collect into l_actual
-      from dual connect by level <=100;
+    select test_dummy_object( rn, 'Something '||rn, rn1)
+       bulk collect into l_actual
+       from (select rownum * case when mod(rownum,2) = 0 then -1 else 1 end rn,
+                    rownum * case when mod(rownum,4) = 0 then -1 else 1 end rn1
+               from dual connect by level <=100);
     select test_dummy_object( rownum, 'Something '||rownum, rownum)
       bulk collect into l_expected
-      from dual connect by level <=110
-     order by rownum desc;
+      from dual connect by level <=110;
     --Act
     ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
 
-    l_expected_message := q'[Actual: refcursor [ count = 100 ] was expected to equal: refcursor [ count = 110 ]
+    l_expected_message := q'[Actual: ut3_tester.test_dummy_object_list [ count = 100 ] was expected to equal: ut3_tester.test_dummy_object_list [ count = 110 ]
 Diff:
 Rows: [ 60 differences, showing first 20 ]
-  Row No. 2 - Actual:   <BAD_COL>-2</BAD_COL>
-  Row No. 2 - Expected: <BAD_COL>2</BAD_COL>
-  Row No. 4 - Actual:   <BAD_COL>-4</BAD_COL>
-  Row No. 4 - Expected: <BAD_COL>4</BAD_COL>
-  Row No. 6 - Actual:   <BAD_COL>-6</BAD_COL>
-  Row No. 6 - Expected: <BAD_COL>6</BAD_COL>
-  Row No. 8 - Actual:   <BAD_COL>-8</BAD_COL>
-  Row No. 8 - Expected: <BAD_COL>8</BAD_COL>
+  Row No. 2 - Actual:   <ID>-2</ID><name>Something -2</name>
+  Row No. 2 - Expected: <ID>2</ID><name>Something 2</name>
+  Row No. 4 - Actual:   <ID>-4</ID><name>Something -4</name><Value>-4</Value>
+  Row No. 4 - Expected: <ID>4</ID><name>Something 4</name><Value>4</Value>
   %
-  Row No. 38 - Actual:   <BAD_COL>-38</BAD_COL>
-  Row No. 38 - Expected: <BAD_COL>38</BAD_COL>
-  Row No. 40 - Actual:   <BAD_COL>-40</BAD_COL>
-  Row No. 40 - Expected: <BAD_COL>40</BAD_COL>]';
+  Row No. 38 - Actual:   <ID>-38</ID><name>Something -38</name>
+  Row No. 38 - Expected: <ID>38</ID><name>Something 38</name>
+  Row No. 40 - Actual:   <ID>-40</ID><name>Something -40</name><Value>-40</Value>
+  Row No. 40 - Expected: <ID>40</ID><name>Something 40</name><Value>40</Value>]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
