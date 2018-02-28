@@ -141,5 +141,22 @@ create or replace package body ut_runner is
     return;
   end;
 
+  function is_output_reporter( a_reporter_name varchar2 ) return varchar is
+    l_result varchar2(1);
+    l_reporter_name varchar2(32) := regexp_replace(a_reporter_name, '[^a-zA-Z0-9_]', '');
+    l_owner  varchar2(128) := ut_utils.ut_owner();
+  begin
+    execute immediate '
+    select
+      case
+        when '||l_reporter_name||'() is of ('||l_owner||'.ut_output_reporter_base) then ''Y''
+        when '||l_reporter_name||'() is of ('||l_owner||'.ut_reporter_base) then ''N''
+      end
+    from dual' into l_result;
+    return l_result;
+  exception when others then
+    return null;
+  end;
+
 end ut_runner;
 /
