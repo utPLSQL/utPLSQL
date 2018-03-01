@@ -5,7 +5,7 @@ layout: default
 # Documentation
 
  - Latest release:  [v3.0.4 documentation](v3.0.4/) - Created 03 Nov 2017 - 11:36:29 AM
- - [Latest development version](develop/) - Created 27 Feb 2018 - 12:13:26 AM
+ - [Latest development version](develop/) - Created 01 Mar 2018 - 11:59:57 PM
 
 ## Documentation release history
 
