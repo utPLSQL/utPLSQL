@@ -329,7 +329,7 @@ The matcher will also fail when comparing a `timestamp` to a `timestamp with tim
 The matcher enables detection data-type changes. 
 If you expect your variable to be a number and it is now some other type, the test will fail and give you early indication of a potential problem.
 
-To keep it simple, the `equal` will only succeed if you compare apples to apples.
+To keep it simple, the `equal` matcher will only succeed if you compare apples to apples.
 
 Example usage
 ```sql
@@ -406,8 +406,9 @@ create or replace package body test_animals_getter is
 end;
 ```
 
-**Comparing NULLs is by default!**
+**Comparing NULLs is by default a success!**
 The `a_nulls_are_equal` parameter controls the behavior of a `null = null` comparison.
+To change the behavior of `NULL = NULL` comparison pass the `a_nulls_are_equal => false` to the `equal` matcher.  
 
 
 ## Comparing objects, cursors, collections of data 
@@ -418,9 +419,9 @@ utPLSQL is capable of comparing compound data-types including:
 - nested table/varray types
 
 ### Notes on comparison of compound data
-- Compound data can contain elements of any data-type. This includes blob, clob, object type, nested table, varray or nested-cursor.   
+- Compound data can contain elements of any data-type. This includes blob, clob, object type, nested table, varray or even a nested-cursor within a cursor.   
 - Cursors, nested table and varray types are compared as **ordered lists of elements**. If order of elements differ, expectation will fail.   
-- Comparison of compound data does not currently support data-type check on attribute/column level. This might be changed in the future.
+- Comparison of compound data is data-type aware. So a column `ID NUMBER` in a cursor is not the same as `ID VARCHAR2(100)`, even if they both hold the same numeric values.
 - Comparison of cursor columns containing `DATE` will only compare date part **and ignore time** by default. See [Comparing cursor data containing DATE fields](#comparing-cursor-data-containing-date-fields) to check how to enable date-time comparison in cursors.
 - To compare nested table/varray type you need to convert it to `anydata` by using `anydata.convertCollection()`  
 - To compare object type you need to convert it to `anydata` by using `anydata.convertObject()`  
@@ -436,44 +437,138 @@ utPLSQL offers advanced data-comparison options, for comparing compound data-typ
 
 For details on available options and how to use them, read the [advanced data comparison](advanced_data_comparison.md) guide.   
 
+### Diff functionality for compound data-types 
 
-### Compound data comparison examples
+When comparing compound data, utPLSQL will determine diff between expected and actual data.
+The diff includes:
+- differences in column names, column positions and column data-type for cursor data
+- only data in columns/rows that differ
 
-Cursor comparison. 
+The diff aims to make it easier to identify what is not expected in the actual data.
+
+Consider the following expected cursor data
+
+| ID (NUMBER)|  FIRST_NAME (VARCHAR2) |  LAST_NAME (VARCHAR2)  | SALARY (NUMBER) |
+|:----------:|:----------------------:|:----------------------:|:---------------:|
+|   1        |            JACK        |        SPARROW         |          10000  |
+|   2        |            LUKE        |        SKYWALKER       |           1000  |
+|   3        |            TONY        |        STARK           |        1000000  |
+
+And the actual cursor data: 
+
+| *GENDER (VARCHAR2)* | FIRST_NAME (VARCHAR2) | LAST_NAME (VARCHAR2) | SALARY *(VARCHAR2)* | *ID* (NUMBER) |
+|:-------------------:|:---------------------:|:--------------------:|:-------------------:|:-------------:|
+|            M        |           JACK        |        SPARROW       |       *25000*       |   1           |
+|            M        |           TONY        |        STARK         |      1000000        |   3           |
+|           *F*       |          *JESSICA*    |       *JONES**       |        *2345*       |  *4*          |
+|            M        |           LUKE        |        SKYWALKER     |         1000        |   2           |
+
+
+When considering the data-sets as ordered, there are following following differences:
+- column ID is misplaced (should be first column but is last)
+- column SALARY has data-type VARCHAR2 but should be NUMBER
+- column GENDER exists in actual but not in the expected (it ir an Extra column)
+- data in column SALARY for row number 1 in actual is not matching expected 
+- row number 2 in actual (ID=3) is not matching expected 
+- row number 3 in actual (ID=4) is not matching expected
+- row number 4 in actual (ID=2) is not expected in results (Extra row in actual)  
+
+utPLSQL will report all of the above differences in a readable format to help you identify what is not correct in compared data-set.
+
+Below example illustrates, how utPLSQL will report such differences.  
 ```sql
-create or replace function get_user_tables return sys_refcursor is
-  l_result sys_refcursor;
-begin
-  open l_result for select d.* from user_tables d;
-  return l_result;
+create or replace package test_cursor_compare as
+  --%suite
+   
+  --%test
+  procedure do_test;
 end;
 /
 
-create or replace package test_cursor_example is
-  --%suite(example)
-  
-  --%test(compare cursors)
-  procedure test_cursors;
-end;
-/    
-create or replace package body test_cursor_example is    
-  procedure test_cursors is
+create or replace package body test_cursor_compare as
+  procedure do_test is
+    l_actual   sys_refcursor;
     l_expected sys_refcursor;
   begin
-    --Arrange
-    open l_expected for select d.* from user_tables d;
-    --Act/Assert
-    ut.expect( get_user_tables() ).to_equal( l_expected );
+    open l_expected for
+      select 1 as ID, 'JACK' as FIRST_NAME, 'SPARROW' AS LAST_NAME, 10000 AS SALARY
+        from dual union all
+      select 2 as ID, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 1000 AS SALARY
+        from dual union all
+      select 3 as ID, 'TONY' as FIRST_NAME, 'STARK' AS LAST_NAME, 100000 AS SALARY
+        from dual;
+    open l_actual for
+      select 'M' AS GENDER, 'JACK' as FIRST_NAME, 'SPARROW' AS LAST_NAME, 1 as ID, '25000' AS SALARY
+        from dual union all
+      select 'M' AS GENDER, 'TONY' as FIRST_NAME, 'STARK' AS LAST_NAME, 3 as ID, '100000' AS SALARY
+        from dual union all
+      select 'F' AS GENDER, 'JESSICA' as FIRST_NAME, 'JONES' AS LAST_NAME, 4 as ID, '2345' AS SALARY
+        from dual union all
+      select 'M' AS GENDER, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 2 as ID, '1000' AS SALARY
+        from dual;
+    ut.expect(l_actual).to_equal(l_expected);
   end;
 end;
 /
-begin
-  ut.run('test_cursor_example');
-end;
-/
-drop package test_cursor_example;
-drop function get_user_tables;
 ```
+
+When the test package is executed using: 
+
+```sql
+set serverout on
+exec ut.run('test_cursor_compare');
+```
+We get the following report:
+```
+test_cursor_compare
+  do_test [.052 sec] (FAILED - 1)
+ 
+Failures:
+ 
+  1) do_test
+      Actual: refcursor [ count = 4 ] was expected to equal: refcursor [ count = 3 ]
+      Diff:
+      Columns:
+        Column <ID> is misplaced. Expected position: 1, actual position: 4.
+        Column <SALARY> data-type is invalid. Expected: NUMBER, actual: VARCHAR2.
+        Column <GENDER> [position: 1, data-type: CHAR] is not expected in results.
+      Rows: [ 4 differences ]
+        Row No. 1 - Actual:   <SALARY>25000</SALARY>
+        Row No. 1 - Expected: <SALARY>10000</SALARY>
+        Row No. 2 - Actual:   <FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><ID>3</ID><SALARY>100000</SALARY>
+        Row No. 2 - Expected: <ID>2</ID><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><SALARY>1000</SALARY>
+        Row No. 3 - Actual:   <FIRST_NAME>JESSICA</FIRST_NAME><LAST_NAME>JONES</LAST_NAME><ID>4</ID><SALARY>2345</SALARY>
+        Row No. 3 - Expected: <ID>3</ID><FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><SALARY>100000</SALARY>
+        Row No. 4 - Extra:    <GENDER>M</GENDER><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><ID>2</ID><SALARY>1000</SALARY>
+      at "UT3.TEST_CURSOR_COMPARE", line 22 ut.expect(l_actual).to_equal(l_expected);
+      
+       
+Finished in .053553 seconds
+1 tests, 1 failed, 0 errored, 0 disabled, 0 warning(s)
+```
+
+utPLSQL identifies and reports on columns:
+- column misplacement
+- column data-type mismatch
+- extra/missing columns
+
+When comparing rows utPLSQL:
+- reports only mismatched columns, when rows match
+- reports columns existing in both data-sets when whole row is not matching
+- reports whole extra (not expected) row from actual, when actual has extra rows 
+- reports whole missing (expected) row from expected, when expected has extra rows 
+
+
+### Object and collection data-type comparison examples
+
+When comparing object type to object type or collection to collection, utPLSQL will check:
+- if data-types match
+- id data in the compared objects/collections are the same.
+
+The diff functionality for objects and collections is similar to diff on cursors.
+When diffing objects/collections however, utPLSQL will not check attribute names and data-types.
+
+Below examples demonstrate how to compare object and collection data-types. 
 
 Object type comparison.
 ```sql
