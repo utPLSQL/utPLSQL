@@ -41,11 +41,29 @@ create or replace package body ut_suite_builder is
 
     l_beforetest_procedure  varchar2(250 char);
     l_aftertest_procedure   varchar2(250 char);
+
+    l_expected_error_codes  ut_integer_list;
+
     l_rollback_type         integer;
     l_displayname           varchar2(4000);
     function is_last_annotation_for_proc(a_annotations ut_annotations, a_index binary_integer) return boolean is
     begin
       return a_index = a_annotations.count or a_annotations(a_index).subobject_name != nvl(a_annotations(a_index+1).subobject_name, ' ');
+    end;
+
+    function build_exception_numbers_list(a_annotation_text in varchar2) return ut_integer_list is
+      l_throws_list           ut_varchar2_list;
+      l_exception_number_list ut_integer_list := ut_integer_list();
+      l_regexp_for_excep_nums varchar2(30) := '^-?[[:digit:]]{1,5}$';
+    begin
+      /*the a_expected_error_codes is converted to a ut_varchar2_list after that is trimmed and filtered to left only valid exception numbers*/
+      l_throws_list := ut_utils.string_to_table(a_annotation_text, ',', 'Y');
+      l_throws_list := ut_utils.filter_list( ut_utils.trim_list_elements(l_throws_list), l_regexp_for_excep_nums);
+      l_exception_number_list.extend(l_throws_list.count);
+      for i in 1 .. l_throws_list.count loop
+        l_exception_number_list(i) := l_throws_list(i);
+      end loop;
+      return l_exception_number_list;
     end;
   begin
     l_suite_rollback := ut_utils.gc_rollback_auto;
@@ -71,7 +89,6 @@ create or replace package body ut_suite_builder is
         end if;
 
       elsif l_is_suite then
-
         l_proc_name := a_object.annotations(i).subobject_name;
 
         if a_object.annotations(i).name = 'beforeeach' and l_default_setup_proc is null then
@@ -82,14 +99,14 @@ create or replace package body ut_suite_builder is
           l_suite_setup_proc := l_proc_name;
         elsif a_object.annotations(i).name = 'afterall' and l_suite_teardown_proc is null then
           l_suite_teardown_proc := l_proc_name;
-
-
         elsif a_object.annotations(i).name = 'disabled' then
           l_test_disabled := true;
         elsif a_object.annotations(i).name = 'beforetest' then
           l_beforetest_procedure := a_object.annotations(i).text;
         elsif a_object.annotations(i).name = 'aftertest' then
           l_aftertest_procedure := a_object.annotations(i).text;
+        elsif a_object.annotations(i).name = 'throws' then
+          l_expected_error_codes := build_exception_numbers_list(a_object.annotations(i).text);
         elsif a_object.annotations(i).name in ('displayname','test') then
           l_displayname := a_object.annotations(i).text;
           if a_object.annotations(i).name = 'test' then
@@ -113,13 +130,15 @@ create or replace package body ut_suite_builder is
                    ,a_rollback_type         => coalesce(l_rollback_type, l_suite_rollback)
                    ,a_disabled_flag         => l_test_disabled
                    ,a_before_test_proc_name => l_beforetest_procedure
-                   ,a_after_test_proc_name  => l_aftertest_procedure);
+                   ,a_after_test_proc_name  => l_aftertest_procedure
+                   ,a_expected_error_codes  => l_expected_error_codes);
 
           l_is_test := false;
           l_test_disabled := false;
           l_aftertest_procedure  := null;
           l_beforetest_procedure := null;
           l_rollback_type        := null;
+          l_expected_error_codes := null;
         end if;
 
       end if;

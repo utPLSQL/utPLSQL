@@ -37,6 +37,7 @@ alter session set current_schema = &&ut3_owner;
 --common utilities
 @@install_component.sql 'core/types/ut_varchar2_list.tps'
 @@install_component.sql 'core/types/ut_varchar2_rows.tps'
+@@install_component.sql 'core/types/ut_integer_list.tps'
 @@install_component.sql 'core/types/ut_object_name.tps'
 @@install_component.sql 'core/types/ut_object_name.tpb'
 @@install_component.sql 'core/types/ut_object_names.tps'
@@ -58,6 +59,7 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_suite_item.tps'
 @@install_component.sql 'core/types/ut_suite_items.tps'
 @@install_component.sql 'core/types/ut_executable.tps'
+@@install_component.sql 'core/types/ut_executable_test.tps'
 @@install_component.sql 'core/types/ut_test.tps'
 @@install_component.sql 'core/types/ut_logical_suite.tps'
 @@install_component.sql 'core/types/ut_suite.tps'
@@ -132,6 +134,7 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'core/types/ut_reporter_base.tpb'
 @@install_component.sql 'core/types/ut_file_mapping.tpb'
 @@install_component.sql 'core/types/ut_executable.tpb'
+@@install_component.sql 'core/types/ut_executable_test.tpb'
 @@install_component.sql 'core/types/ut_console_reporter_base.tps'
 @@install_component.sql 'core/types/ut_console_reporter_base.tpb'
 
@@ -241,6 +244,8 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'reporters/ut_coverage_sonar_reporter.tpb'
 @@install_component.sql 'reporters/ut_coveralls_reporter.tps'
 @@install_component.sql 'reporters/ut_coveralls_reporter.tpb'
+@@install_component.sql 'reporters/ut_coverage_cobertura_reporter.tps'
+@@install_component.sql 'reporters/ut_coverage_cobertura_reporter.tpb'
 
 @@install_component.sql 'api/be_between.syn'
 @@install_component.sql 'api/be_empty.syn'

@@ -56,6 +56,8 @@ drop type ut_coveralls_reporter force;
 
 drop type ut_coverage_sonar_reporter force;
 
+drop type ut_coverage_cobertura_reporter force;
+
 drop package ut_coverage_report_html_helper;
 
 drop type ut_coverage_html_reporter force;
@@ -248,6 +250,8 @@ drop type ut_object_names force;
 
 drop type ut_object_name force;
 
+drop type ut_integer_list force;
+
 drop type ut_varchar2_list force;
 
 drop type ut_varchar2_rows force;
@@ -290,3 +294,5 @@ end;
 /
 
 spool off
+
+exit;

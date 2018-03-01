@@ -27,6 +27,7 @@ whenever oserror exit failure rollback
 @@core/reporters/test_coverage.pks
 @@core/reporters/test_coverage/test_coverage_sonar_reporter.pks
 @@core/reporters/test_coverage/test_coveralls_reporter.pks
+@@core/reporters/test_coverage/test_cov_cobertura_reporter.pks
 @@core/reporters/test_xunit_reporter.pks
 @@core/expectations.pks
 @@core/expectations/scalar_data/binary/test_be_greater_or_equal.pks
@@ -42,6 +43,7 @@ whenever oserror exit failure rollback
 @@core/expectations/scalar_data/unary/test_expect_to_be_not_null.pks
 @@core/expectations/scalar_data/unary/test_expect_to_be_null.pks
 @@core/expectations/scalar_data/unary/test_expect_to_be_true_false.pks
+@@core/annotations/test_annot_throws_exception.pks
 
 @@core.pkb
 @@api/test_ut_runner.pkb
@@ -56,6 +58,7 @@ whenever oserror exit failure rollback
 @@core/reporters/test_coverage.pkb
 @@core/reporters/test_coverage/test_coverage_sonar_reporter.pkb
 @@core/reporters/test_coverage/test_coveralls_reporter.pkb
+@@core/reporters/test_coverage/test_cov_cobertura_reporter.pkb
 @@core/reporters/test_xunit_reporter.pkb
 @@core/expectations.pkb
 @@core/expectations/scalar_data/binary/test_be_greater_or_equal.pkb
@@ -71,6 +74,7 @@ whenever oserror exit failure rollback
 @@core/expectations/scalar_data/unary/test_expect_to_be_not_null.pkb
 @@core/expectations/scalar_data/unary/test_expect_to_be_null.pkb
 @@core/expectations/scalar_data/unary/test_expect_to_be_true_false.pkb
+@@core/annotations/test_annot_throws_exception.pkb
 
 set linesize 200
 set define on
@@ -100,4 +104,4 @@ begin
 end;
 /
 
-exit
+exit;

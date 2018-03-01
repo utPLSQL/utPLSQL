@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.0.4.1573-develop';
+  gc_version                 constant varchar2(50) := 'v3.0.4.1610-develop';
 
   /* Constants: Event names */
   gc_run                     constant varchar2(12) := 'run';
@@ -198,6 +198,8 @@ create or replace package ut_utils authid definer is
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob;
 
+  function table_to_clob(a_integer_table ut_integer_list, a_delimiter varchar2:= chr(10)) return clob;
+
   /**
    * Returns time difference in seconds (with miliseconds) between given timestamps
    */
@@ -292,6 +294,12 @@ create or replace package ut_utils authid definer is
   * https://www.w3.org/TR/xmlschema-2/#decimal
   */
   function to_xml_number_format(a_value number) return varchar2;
+
+  /*It takes a collection of type ut_varchar2_list and it trims the characters passed as arguments for every element*/
+  function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list;
+
+  /*It takes a collection of type ut_varchar2_list and it only returns the elements which meets the regular expression*/
+  function filter_list(a_list IN ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list;
 
 end ut_utils;
 /

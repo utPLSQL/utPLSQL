@@ -2,19 +2,19 @@
 
 The utPLSQL is responsible for handling exceptions wherever they occur in the test run. utPLSQL is trapping most of the exceptions so that the test execution is not affected by individual tests or test packages throwing an exception.
 The framework provides a full stacktrace for every exception that was thrown. The stacktrace is clean and does not include any utPLSQL library calls in it.
-To achieve rerunability, the ORA-04068, ORA-04061 exceptions are not handled and test execution will be interrupted if such exception is encountered. This is because of how Oracle behaves on those exceptions.
+To achieve rerunability, the package state invalidation exceptions (ORA-04068, ORA-04061) are not handled and test execution will be interrupted if such exceptions are encountered. This is because of how Oracle behaves on those exceptions.
 
 Test execution can fail for different reasons. The failures on different exceptions are handled as follows:
-* A test package without body - each `%test` is reported as failed with exception, nothing is executed
-* A test package with _invalid body_ - each `%test` is reported as failed with exception, nothing is executed
+* A test package without body - each `--%test` is reported as failed with exception, nothing is executed
+* A test package with _invalid body_ - each `--%test` is reported as failed with exception, nothing is executed
 * A test package with _invalid spec_ - package is not considered a valid unit test package and is excluded from execution. When trying to run a test package with invalid spec explicitly, exception is raised. Only valid specifications are parsed for annotations 
-* A test package that is raising an exception in `%beforeall` - each `%test` is reported as failed with exception, `%test`, `%beforeeach`, `%beforetest`, `%aftertest` and `%aftereach` are not executed. `%afterall` is executed to allow cleanup of whatever was done in `%beforeall`
-* A test package that is raising an exception in `%beforeeach` - each `%test` is reported as failed with exception, `%test`, `%beforetest` and `%aftertest` is not executed. The `%aftereach` and `%afterall` blocks are getting executed to allow cleanup of whatever was done in `%before...` blocks
-* A test package that is raising an exception in `%beforetest` - the `%test` is reported as failed  with exception, `%test` is not executed. The `%aftertest`, `%aftereach` and `%afterall` blocks are getting executed to allow cleanup of whatever was done in `%before...` blocks
-* A test package that is raising an exception in `%test` - the `%test` is reported as failed with exception. The execution of other blocks continues normally
-* A test package that is raising an exception in `%aftertest` - the `%test` is reported as failed with exception. The execution of other blocks continues normally
-* A test package that is raising an exception in `%aftereach` - each `%test` is reported as failed with exception.
-* A test package that is raising an exception in `%afterall` - all blocks of  the package are executed, as the `%afterall` is the last step of package execution. Exception in `%afterall` is not affecting test results. A warning with exception stacktrace is displayed in the summary
+* A test package that is raising an exception in `--%beforeall` - each `--%test` is reported as failed with exception, `--%test`, `--%beforeeach`, `--%beforetest`, `--%aftertest` and `--%aftereach` are not executed. `--%afterall` is executed to allow cleanup of whatever was done in `--%beforeall`
+* A test package that is raising an exception in `--%beforeeach` - each `--%test` is reported as failed with exception, `--%test`, `--%beforetest` and `--%aftertest` is not executed. The `--%aftereach` and `--%afterall` blocks are getting executed to allow cleanup of whatever was done in `--%before...` blocks
+* A test package that is raising an exception in `--%beforetest` - the `--%test` is reported as failed  with exception, `--%test` is not executed. The `--%aftertest`, `--%aftereach` and `--%afterall` blocks are getting executed to allow cleanup of whatever was done in `--%before...` blocks
+* A test package that is raising an exception in `--%test` - the `--%test` is reported as failed with exception. The execution of other blocks continues normally
+* A test package that is raising an exception in `--%aftertest` - the `--%test` is reported as failed with exception. The execution of other blocks continues normally
+* A test package that is raising an exception in `--%aftereach` - each `--%test` is reported as failed with exception.
+* A test package that is raising an exception in `--%afterall` - all blocks of  the package are executed, as the `--%afterall` is the last step of package execution. Exception in `--%afterall` is not affecting test results. A warning with exception stacktrace is displayed in the summary
 
 
 Example of reporting with exception thrown in `%beforetest`:

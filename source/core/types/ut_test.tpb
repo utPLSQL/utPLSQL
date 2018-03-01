@@ -20,18 +20,20 @@ create or replace type body ut_test as
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_description varchar2 := null,
     a_path varchar2 := null, a_rollback_type integer := null, a_disabled_flag boolean := false,
     a_before_each_proc_name varchar2 := null, a_before_test_proc_name varchar2 := null,
-    a_after_test_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null
+    a_after_test_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null,
+    a_expected_error_codes ut_integer_list := null
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
     self.init(a_object_owner, a_object_name, a_name, a_description, a_path, a_rollback_type, a_disabled_flag);
     self.before_each := ut_executable(self, a_before_each_proc_name, ut_utils.gc_before_each);
     self.before_test := ut_executable(self, a_before_test_proc_name, ut_utils.gc_before_test);
-    self.item := ut_executable(self, a_name, ut_utils.gc_test_execute);
+    self.item := ut_executable_test(self, a_name, ut_utils.gc_test_execute);
     self.after_test := ut_executable(self, a_after_test_proc_name, ut_utils.gc_after_test);
     self.after_each := ut_executable(self, a_after_each_proc_name, ut_utils.gc_after_each);
     self.all_expectations    := ut_expectation_results();
     self.failed_expectations := ut_expectation_results();
+    self.expected_error_codes := a_expected_error_codes;
     return;
   end;
 
@@ -92,7 +94,7 @@ create or replace type body ut_test as
 
           if l_completed_without_errors then
             -- execute the test
-            self.item.do_execute(self, a_listener);
+            self.item.do_execute(self, a_listener, self.expected_error_codes);
 
           end if;
           -- perform cleanup regardless of the test or setup failure
