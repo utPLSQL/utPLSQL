@@ -1,4 +1,4 @@
-create or replace package body test_coverage_cob_reporter is
+create or replace package body test_cov_cobertura_reporter is
 
   procedure report_on_file is
     l_results   ut3.ut_varchar2_list;
@@ -14,7 +14,7 @@ create or replace package body test_coverage_cob_reporter is
 </sources>
 <packages>
 <package name="test/ut3.dummy_coverage.pkb" line-rate="0.0" branch-rate="0.0" complexity="0.0">
-<class name="test/ut3.dummy_coverage.pkb" filename="test/ut3.dummy_coverage.pkb" line-rate="0.0" branch-rate="0.0" complexity="0.0">
+<class name="ut3.dummy_coverage" filename="test/ut3.dummy_coverage.pkb" line-rate="0.0" branch-rate="0.0" complexity="0.0">
 <lines>
 <line number="4" hits="1" branch="false"/>
 <line number="5" hits="0" branch="false"/>
@@ -30,7 +30,7 @@ create or replace package body test_coverage_cob_reporter is
       from table(
         ut3.ut.run(
           a_path => 'ut3.test_dummy_coverage',
-          a_reporter=> ut3.ut_coverage_cob_reporter( ),
+          a_reporter=> ut3.ut_coverage_cobertura_reporter( ),
           a_source_files => ut3.ut_varchar2_list( 'test/ut3.dummy_coverage.pkb' ),
           a_test_files => ut3.ut_varchar2_list( )
         )

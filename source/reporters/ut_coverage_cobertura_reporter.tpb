@@ -1,6 +1,6 @@
-create or replace type body ut_coverage_cob_reporter is
+create or replace type body ut_coverage_cobertura_reporter is
   /*
-  utPLSQL - Version v3.0.4.1372
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -16,8 +16,8 @@ create or replace type body ut_coverage_cob_reporter is
   limitations under the License.
   */
 
-  constructor function ut_coverage_cob_reporter(
-    self in out nocopy ut_coverage_cob_reporter
+  constructor function ut_coverage_cobertura_reporter(
+    self in out nocopy ut_coverage_cobertura_reporter
   ) return self as result is
   begin
     self.init($$plsql_unit);
@@ -25,7 +25,7 @@ create or replace type body ut_coverage_cob_reporter is
   end;
 
 
-  overriding member procedure after_calling_run(self in out nocopy ut_coverage_cob_reporter, a_run in ut_run) as
+  overriding member procedure after_calling_run(self in out nocopy ut_coverage_cobertura_reporter, a_run in ut_run) as
     l_report_lines  ut_varchar2_list;
     l_coverage_data ut_coverage.t_coverage;
     
@@ -61,6 +61,7 @@ create or replace type body ut_coverage_cob_reporter is
       l_file_part            varchar2(32767);
       l_result               clob;
       l_unit                 ut_coverage.t_full_name;
+      l_obj_name             ut_coverage.t_object_name;
       c_coverage_def constant varchar2(200) := '<?xml version="1.0"?>'||CHR(10)||'<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">'||chr(10);
       c_file_footer     constant varchar2(30) := '</file>'||chr(10);
       c_coverage_footer constant varchar2(30) := '</coverage>';
@@ -69,16 +70,9 @@ create or replace type body ut_coverage_cob_reporter is
       c_package_footer  constant varchar2(30) := '</package>'||chr(10);
       c_class_footer  constant varchar2(30) := '</class>'||chr(10);
       c_lines_footer  constant varchar2(30) := '</lines>'||chr(10);
-      l_epoch         varchar2(50);
+      l_epoch         varchar2(50) := (sysdate - to_date('01-01-1970 00:00:00', 'dd-mm-yyyy hh24:mi:ss')) * 24 * 60 * 60;
       begin
-      
-      select 
-      (sysdate - to_date('01-01-1970 00:00:00', 'dd-mm-yyyy hh24:mi:ss')) * 24 * 60 * 60 
-      into l_epoch
-      from dual;
-
-
-      
+   
       dbms_lob.createtemporary(l_result,true);
 
       ut_utils.append_to_clob(l_result, c_coverage_def);
@@ -106,10 +100,11 @@ create or replace type body ut_coverage_cob_reporter is
       ut_utils.append_to_clob(l_result, l_file_part);
                  
       while l_unit is not null loop
-        l_file_part := '<package name="'||dbms_xmlgen.convert(l_unit)||'" line-rate="0.0" branch-rate="0.0" complexity="0.0">'||CHR(10);
+        l_obj_name := a_coverage_data.objects(l_unit).name;
+        l_file_part := '<package name="'||dbms_xmlgen.convert(l_obj_name)||'" line-rate="0.0" branch-rate="0.0" complexity="0.0">'||CHR(10);
         ut_utils.append_to_clob(l_result, l_file_part);
         
-        l_file_part := '<class name="'||dbms_xmlgen.convert(l_unit)||'" filename="'||dbms_xmlgen.convert(l_unit)||'" line-rate="0.0" branch-rate="0.0" complexity="0.0">'||CHR(10);
+        l_file_part := '<class name="'||dbms_xmlgen.convert(l_obj_name)||'" filename="'||dbms_xmlgen.convert(l_unit)||'" line-rate="0.0" branch-rate="0.0" complexity="0.0">'||CHR(10);
         ut_utils.append_to_clob(l_result, l_file_part);
         
         l_file_part := '<lines>'||CHR(10);

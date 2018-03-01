@@ -73,6 +73,7 @@ grant execute on &&ut3_owner..ut_documentation_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_html_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_sonar_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_coveralls_reporter to &ut3_user;
+grant execute on &&ut3_owner..ut_coverage_cobertura_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_reporters to &ut3_user;
 grant execute on &&ut3_owner..ut_varchar2_list to &ut3_user;
 grant execute on &&ut3_owner..ut_varchar2_rows to &ut3_user;
@@ -126,7 +127,7 @@ create or replace synonym &ut3_user..ut_documentation_reporter for &&ut3_owner..
 create or replace synonym &ut3_user..ut_coverage_html_reporter for &&ut3_owner..ut_coverage_html_reporter;
 create or replace synonym &ut3_user..ut_coverage_sonar_reporter for &&ut3_owner..ut_coverage_sonar_reporter;
 create or replace synonym &ut3_user..ut_coveralls_reporter for &&ut3_owner..ut_coveralls_reporter;
-create or replace synonym &ut3_user..ut_coverage_cob_reporter for &&ut3_owner..ut_coverage_cob_reporter;
+create or replace synonym &ut3_user..ut_coverage_cobertura_reporter for &&ut3_owner..ut_coverage_cobertura_reporter;
 create or replace synonym &ut3_user..ut_reporters for &&ut3_owner..ut_reporters;
 create or replace synonym &ut3_user..ut_varchar2_list for &&ut3_owner..ut_varchar2_list;
 create or replace synonym &ut3_user..ut_varchar2_rows for &&ut3_owner..ut_varchar2_rows;

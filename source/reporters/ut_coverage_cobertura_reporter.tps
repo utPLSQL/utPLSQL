@@ -1,6 +1,6 @@
-create or replace type ut_coverage_cob_reporter under ut_coverage_reporter_base(
+create or replace type ut_coverage_cobertura_reporter under ut_coverage_reporter_base(
   /*
-  utPLSQL - Version v3.0.4.1372
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -16,10 +16,11 @@ create or replace type ut_coverage_cob_reporter under ut_coverage_reporter_base(
   limitations under the License.
   */
 
-  constructor function ut_coverage_cob_reporter(
-    self in out nocopy ut_coverage_cob_reporter
+  constructor function ut_coverage_cobertura_reporter(
+    self in out nocopy ut_coverage_cobertura_reporter
   ) return self as result,
 
-  overriding member procedure after_calling_run(self in out nocopy ut_coverage_cob_reporter, a_run in ut_run)
+  overriding member procedure after_calling_run(self in out nocopy ut_coverage_cobertura_reporter, a_run in ut_run)
 )
 /
+

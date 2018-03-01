@@ -27,7 +27,7 @@ whenever oserror exit failure rollback
 @@core/reporters/test_coverage.pks
 @@core/reporters/test_coverage/test_coverage_sonar_reporter.pks
 @@core/reporters/test_coverage/test_coveralls_reporter.pks
-@@core/reporters/test_coverage/test_coverage_cob_reporter.pks
+@@core/reporters/test_coverage/test_cov_cobertura_reporter.pks
 @@core/reporters/test_xunit_reporter.pks
 @@core/expectations.pks
 @@core/expectations/scalar_data/binary/test_be_greater_or_equal.pks
@@ -58,7 +58,7 @@ whenever oserror exit failure rollback
 @@core/reporters/test_coverage.pkb
 @@core/reporters/test_coverage/test_coverage_sonar_reporter.pkb
 @@core/reporters/test_coverage/test_coveralls_reporter.pkb
-@@core/reporters/test_coverage/test_coverage_cob_reporter.pkb
+@@core/reporters/test_coverage/test_cov_cobertura_reporter.pkb
 @@core/reporters/test_xunit_reporter.pkb
 @@core/expectations.pkb
 @@core/expectations/scalar_data/binary/test_be_greater_or_equal.pkb
@@ -104,4 +104,4 @@ begin
 end;
 /
 
-exit
+exit;

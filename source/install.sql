@@ -240,8 +240,8 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'reporters/ut_coverage_sonar_reporter.tpb'
 @@install_component.sql 'reporters/ut_coveralls_reporter.tps'
 @@install_component.sql 'reporters/ut_coveralls_reporter.tpb'
-@@install_component.sql 'reporters/ut_coverage_cob_reporter.tps'
-@@install_component.sql 'reporters/ut_coverage_cob_reporter.tpb'
+@@install_component.sql 'reporters/ut_coverage_cobertura_reporter.tps'
+@@install_component.sql 'reporters/ut_coverage_cobertura_reporter.tpb'
 
 @@install_component.sql 'api/be_between.syn'
 @@install_component.sql 'api/be_empty.syn'

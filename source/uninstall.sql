@@ -1,5 +1,5 @@
 /*
-  utPLSQL - Version v3.0.4.1372
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -56,7 +56,7 @@ drop type ut_coveralls_reporter force;
 
 drop type ut_coverage_sonar_reporter force;
 
-drop type ut_coverage_cob_reporter force;
+drop type ut_coverage_cobertura_reporter force;
 
 drop package ut_coverage_report_html_helper;
 
