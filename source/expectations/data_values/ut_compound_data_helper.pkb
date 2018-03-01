@@ -95,18 +95,26 @@ create or replace package body ut_compound_data_helper is
         expected_cols as ( select :a_expected as item_data from dual ),
         actual_cols as ( select :a_actual as item_data from dual ),
         expected_cols_info as (
-            select rownum expected_pos,
-                   r.column_value.getrootelement() expected_name,
-                   extractvalue(r.column_value,'/*') expected_type
-            from ( select ]'||l_column_filter||q'[ from expected_cols ucd ) s,
-              table( xmlsequence(extract(s.item_data,'/*/*')) ) r
+          select e.*,
+                 replace(expected_type,'VARCHAR2','CHAR') expected_type_compare
+            from (
+              select rownum expected_pos,
+                     r.column_value.getrootelement() expected_name,
+                     extractvalue(r.column_value,'/*') expected_type
+              from ( select ]'||l_column_filter||q'[ from expected_cols ucd ) s,
+                table( xmlsequence(extract(s.item_data,'/*/*')) ) r
+            ) e
         ),
         actual_cols_info as (
-            select rownum actual_pos,
-                   r.column_value.getrootelement() actual_name,
-                   extractvalue(r.column_value,'/*') actual_type
-            from ( select ]'||l_column_filter||q'[ from actual_cols ucd ) s,
-              table( xmlsequence(extract(s.item_data,'/*/*')) ) r
+          select a.*,
+                 replace(actual_type,'VARCHAR2','CHAR') actual_type_compare
+            from (
+              select rownum actual_pos,
+                     r.column_value.getrootelement() actual_name,
+                     extractvalue(r.column_value,'/*') actual_type
+              from ( select ]'||l_column_filter||q'[ from actual_cols ucd ) s,
+                table( xmlsequence(extract(s.item_data,'/*/*')) ) r
+            ) a
         ),
         joined_cols as (
          select e.*, a.*,
@@ -118,13 +126,18 @@ create or replace package body ut_compound_data_helper is
       select case
                when expected_pos is null and actual_pos is not null then '+'
                when expected_pos is not null and actual_pos is null then '-'
-               when actual_type != expected_type then 't'
+               when expected_type_compare != actual_type_compare then 't'
                else 'p'
              end as diff_type,
              expected_name, expected_type, expected_pos,
              actual_name, actual_type, actual_pos
         from joined_cols
-       where actual_pos is null or expected_pos is null or actual_type != expected_type or a_pos_nn != e_pos_nn
+             --column is unexpected (extra) or missing
+       where actual_pos is null or expected_pos is null
+          --column type is not matching (except CHAR/VARCHAR2)
+          or actual_type_compare != expected_type_compare
+          --column position is not matching (both when excluded extra/missing columns as well as when they are included)
+          or (a_pos_nn != e_pos_nn and expected_pos != actual_pos)
        order by expected_pos, actual_pos]';
     execute immediate l_sql
       bulk collect into l_results
