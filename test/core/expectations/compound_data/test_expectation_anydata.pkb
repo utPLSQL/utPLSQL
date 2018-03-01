@@ -357,11 +357,11 @@ create or replace package body test_expectation_anydata is
   begin
     --Arrange
     g_test_expected := anydata.convertObject( test_dummy_object(1, 'A', '0') );
-    g_test_actual   := anydata.convertObject( test_dummy_object(1, 'B', '0') );
+    g_test_actual   := anydata.convertObject( test_dummy_object(1, NULL, '0') );
     l_expected := q'[Actual: ut3_tester.test_dummy_object was expected to equal: ut3_tester.test_dummy_object
 Diff:
 Rows: [ 1 differences ]
-  Row No. 1 - Actual:   <name>B</name>
+  Row No. 1 - Actual:   <name/>
   Row No. 1 - Expected: <name>A</name>]';
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
