@@ -456,11 +456,11 @@ Consider the following expected cursor data
 
 And the actual cursor data: 
 
-| *GENDER (VARCHAR2)* | FIRST_NAME (VARCHAR2) | LAST_NAME (VARCHAR2) | SALARY *(VARCHAR2)* | *ID* (NUMBER) |
+|~~GENDER (VARCHAR2)~~| FIRST_NAME (VARCHAR2) | LAST_NAME (VARCHAR2) | SALARY *(VARCHAR2)* | *ID* (NUMBER) |
 |:-------------------:|:---------------------:|:--------------------:|:-------------------:|:-------------:|
-|            M        |           JACK        |        SPARROW       |       *25000*       |   1           |
+|            M        |           JACK        |        SPARROW       |      **25000**      |   1           |
 |            M        |           TONY        |        STARK         |      1000000        |   3           |
-|           *F*       |          *JESSICA*    |       *JONES**       |        *2345*       |  *4*          |
+|          **F**      |         **JESSICA**   |      **JONES**       |       **2345**      | **4**         |
 |            M        |           LUKE        |        SKYWALKER     |         1000        |   2           |
 
 
