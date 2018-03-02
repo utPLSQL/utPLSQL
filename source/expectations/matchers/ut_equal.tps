@@ -49,6 +49,8 @@ create or replace type ut_equal under ut_comparison_matcher(
   member function include(a_items ut_varchar2_list) return ut_equal,
   member function exclude(a_items varchar2) return ut_equal,
   member function exclude(a_items ut_varchar2_list) return ut_equal,
+  member function get_include_xpath return varchar2,
+  member function get_exclude_xpath return varchar2,
   overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean,
   overriding member function failure_message(a_actual ut_data_value) return varchar2,
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2

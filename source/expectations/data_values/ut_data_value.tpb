@@ -25,7 +25,7 @@ create or replace type body ut_data_value as
     return false;
   end;
 
-  member function diff( a_other ut_data_value ) return varchar2 is
+  member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return varchar2 is
   begin
     return null;
   end;

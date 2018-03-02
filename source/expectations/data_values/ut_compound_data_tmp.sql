@@ -1,4 +1,4 @@
-create global temporary table ut_data_set_tmp(
+create global temporary table ut_compound_data_tmp(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -12,8 +12,8 @@ create global temporary table ut_data_set_tmp(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  data_set_guid    raw(16),
+  data_id raw(16),
   item_no          integer,
   item_data        xmltype,
-  constraint ut_data_set_tmp_pk primary key(data_set_guid, item_no)
+  constraint ut_compound_data_tmp_pk primary key(data_id, item_no)
 ) on commit preserve rows;

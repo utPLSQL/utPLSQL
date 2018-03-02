@@ -122,8 +122,29 @@ create or replace package test_expectations_cursor is
   --%test(Includes only columns that are not on exclude list)
   procedure include_exclude_columns_list;
 
-  --%test(Reports data-diff on expectation failure)
-  procedure data_diff_on_failure;
+  --%test(Reports data-diff on rows mismatch)
+  procedure data_diff_on_rows_mismatch;
+
+  --%test(Char and varchar2 data-types are equal)
+  procedure char_and_varchar2_col_is_equal;
+
+  --%test(Reports column diff on cursor with different column data-type)
+  procedure column_diff_on_data_type_diff;
+
+  --%test(Reports column diff on cursor with different column name)
+  procedure column_diff_on_col_name_diff;
+
+  --%test(Reports column diff on cursor with different column positions)
+  procedure column_diff_on_col_position;
+
+  --%test(Reports only mismatched columns on row data mismatch)
+  procedure data_diff_on_col_data_mismatch;
+
+  --%test(Reports only first 20 rows of diff and gives a full diff count)
+  procedure data_diff_on_20_rows_only;
+
+  --%test(Reports data diff and column diff when both are different)
+  procedure column_and_data_diff;
 
   procedure prepare_table;
   procedure cleanup_table;
@@ -165,6 +186,8 @@ create or replace package test_expectations_cursor is
 
   --%test(Adds a warning when using depreciated syntax to_( equal( a_expected sys_refcursor, a_exclude ut_varchar2_list )) )
   procedure deprec_equal_excl_list;
+
+  --%test(Reports column name differences if found)
 
 end;
 /

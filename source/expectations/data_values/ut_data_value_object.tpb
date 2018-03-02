@@ -19,8 +19,13 @@ create or replace type body ut_data_value_object as
   constructor function ut_data_value_object(self in out nocopy ut_data_value_object, a_value anydata) return self as result is
   begin
     self.self_type  := $$plsql_unit;
-    self.init(a_value, 'object');
+    self.init(a_value, 'object', '/*/*');
     return;
+  end;
+
+  overriding member function get_object_info return varchar2 is
+  begin
+    return self.data_type;
   end;
 
   overriding member function is_multi_line return boolean is

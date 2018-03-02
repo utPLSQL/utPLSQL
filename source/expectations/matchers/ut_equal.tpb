@@ -190,18 +190,24 @@ create or replace type body ut_equal as
     return l_result;
   end;
 
-overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean is
+  member function get_include_xpath return varchar2 is
+  begin
+    return ut_utils.to_xpath( coalesce(include_list, ut_varchar2_list()) );
+  end;
+
+  member function get_exclude_xpath return varchar2 is
+  begin
+    return ut_utils.to_xpath( coalesce(exclude_list, ut_varchar2_list()) );
+  end;
+
+  overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean is
     l_result boolean;
-    l_exclude_xpath varchar2(32767);
-    l_include_xpath varchar2(32767);
   begin
     if self.expected.data_type = a_actual.data_type then
-      l_exclude_xpath := ut_utils.to_xpath( coalesce(exclude_list, ut_varchar2_list()) );
-      l_include_xpath := ut_utils.to_xpath( coalesce(include_list, ut_varchar2_list()) );
       if self.expected is of (ut_data_value_anydata) then
-        l_result := 0 = treat(self.expected as ut_data_value_anydata).compare_implementation(a_actual, l_exclude_xpath, l_include_xpath);
+        l_result := 0 = treat(self.expected as ut_data_value_anydata).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath());
       elsif self.expected is of (ut_data_value_refcursor) then
-        l_result := 0 = treat(self.expected as ut_data_value_refcursor).compare_implementation(a_actual, l_exclude_xpath, l_include_xpath);
+        l_result := 0 = treat(self.expected as ut_data_value_refcursor).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath());
       else
         l_result := equal_with_nulls((self.expected = a_actual), a_actual);
       end if;
@@ -215,9 +221,12 @@ overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_
   overriding member function failure_message(a_actual ut_data_value) return varchar2 is
     l_result varchar2(32767);
   begin
-    l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
-      l_result := l_result || chr(10) || 'diff: ' || expected.diff(a_actual);
+      l_result :=
+        'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
+        || chr(10) || 'Diff:' || expected.diff(a_actual, get_exclude_xpath(), get_include_xpath());
+    else
+      l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     end if;
     return l_result;
   end;
