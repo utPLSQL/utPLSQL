@@ -99,16 +99,17 @@ create or replace package ut_runner authid current_user is
   */
   function get_unit_test_info(a_owner varchar2, a_package_name varchar2 := null) return tt_annotations pipelined;
 
-  /** Checks whether a reporter is an output reporter or not
-  * If reporter is of ut_output_reporter_base, returns 'Y'
-  * If reporter is of ut_reporter_base, returns 'N'
-  * Otherwise returns NULL
-  *
-  * @param a_reporter_name Name of the reporter to check
-  * @return Y, N or NULL
-   */
-  function is_output_reporter( a_reporter_name varchar2 ) return varchar;
+  type t_reporter_rec is record (
+    reporter_object_name  varchar2(250),
+    is_output_reporter        varchar2(1) --Y/N flag
+  );
+  type tt_reporters_info is table of t_reporter_rec ;
 
+  /** Returns a list of available reporters. Gives information about whether a reporter is an output reporter or not
+  *
+  * @return tt_reporters_info
+   */
+  function get_reporters_list return tt_reporters_info pipelined;
 
 end ut_runner;
 /

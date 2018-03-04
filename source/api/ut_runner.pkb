@@ -141,22 +141,38 @@ create or replace package body ut_runner is
     return;
   end;
 
-  function is_output_reporter( a_reporter_name varchar2 ) return varchar is
-    l_result varchar2(1);
-    l_reporter_name varchar2(32) := regexp_replace(a_reporter_name, '[^a-zA-Z0-9_]', '');
+  function get_reporters_list return tt_reporters_info pipelined
+  AS
+    l_cursor      sys_refcursor;
     l_owner  varchar2(128) := ut_utils.ut_owner();
-  begin
-    execute immediate '
-    select
-      case
-        when '||l_reporter_name||'() is of ('||l_owner||'.ut_output_reporter_base) then ''Y''
-        when '||l_reporter_name||'() is of ('||l_owner||'.ut_reporter_base) then ''N''
-      end
-    from dual' into l_result;
-    return l_result;
-  exception when others then
-    return null;
-  end;
+    l_results     tt_reporters_info;
+    c_bulk_limit  constant integer := 10;
+    begin
+      open l_cursor for 'SELECT
+          owner || ''.'' || type_name,
+          CASE
+                  WHEN sys_connect_by_path(owner
+                  || ''.''
+                  || type_name,'','') LIKE ''%' || l_owner || '''
+                  || ''.UT_OUTPUT_REPORTER_BASE%'' THEN ''Y''
+                  ELSE ''N''
+              END
+          is_output_reporter
+      FROM dba_types t
+      WHERE instantiable = ''YES''
+      CONNECT BY supertype_name = PRIOR type_name AND supertype_owner = PRIOR owner
+        START WITH type_name = ''UT_REPORTER_BASE'' AND owner = '''|| l_owner || '''';
+      loop
+        fetch l_cursor bulk collect into l_results limit c_bulk_limit;
+        for i in 1 .. l_results.count loop
+          pipe row (l_results(i));
+        end loop;
+        exit when l_cursor%notfound;
+      end loop;
+      close l_cursor;
+    end;
+
+
 
 end ut_runner;
 /
