@@ -16,18 +16,15 @@ create or replace type body ut_suite_item as
   limitations under the License.
   */
 
-  member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_description varchar2, a_path varchar2, a_rollback_type integer, a_disabled_flag boolean) is
+  member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2) is
   begin
     self.object_owner  := a_object_owner;
     self.object_name   := lower(trim(a_object_name));
     self.name          := lower(trim(a_name));
-    self.description   := a_description;
-    self.path          := nvl(lower(trim(a_path)), self.object_name);
-    self.rollback_type := a_rollback_type;
-    self.disabled_flag := ut_utils.boolean_to_int(a_disabled_flag);
     self.results_count := ut_results_counter();
     self.warnings      := ut_varchar2_list();
     self.transaction_invalidators := ut_varchar2_list();
+    self.disabled_flag := ut_utils.boolean_to_int(false);
   end;
 
   member procedure set_disabled_flag(self in out nocopy ut_suite_item, a_disabled_flag boolean) is
@@ -38,6 +35,11 @@ create or replace type body ut_suite_item as
   member function get_disabled_flag return boolean is
   begin
     return ut_utils.int_to_boolean(self.disabled_flag);
+  end;
+
+  member procedure set_default_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer) is
+  begin
+    self.rollback_type := coalesce(self.rollback_type, a_rollback_type);
   end;
 
   final member procedure do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is

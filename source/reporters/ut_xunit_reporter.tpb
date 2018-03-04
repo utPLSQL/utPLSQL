@@ -78,6 +78,8 @@ create or replace type body ut_xunit_reporter is
       l_tests_count integer := a_suite.results_count.disabled_count + a_suite.results_count.success_count +
                                a_suite.results_count.failure_count + a_suite.results_count.errored_count;
       l_suite       ut_suite;
+      l_data        clob;
+      l_errors      ut_varchar2_list;
     begin
       a_suite_id := a_suite_id + 1;
       self.print_text('<testsuite tests="' || l_tests_count || '"' || ' id="' || a_suite_id || '"' || ' package="' ||
@@ -85,18 +87,20 @@ create or replace type body ut_xunit_reporter is
       if a_suite is of(ut_suite) then
         l_suite := treat(a_suite as ut_suite);
 
-        if l_suite.before_all.serveroutput is not null or l_suite.after_all.serveroutput is not null then
+        l_data := l_suite.get_serveroutputs();
+        if l_data is not null and l_data != empty_clob() then
           self.print_text('<system-out>');
           self.print_text('<![CDATA[');
-          self.print_clob(l_suite.get_serveroutputs());
+          self.print_clob(l_data);
           self.print_text(']]>');
           self.print_text('</system-out>');
         end if;
 
-        if l_suite.before_all.error_stack is not null or l_suite.after_all.error_stack is not null then
+        l_errors := l_suite.get_error_stack_traces();
+        if l_data is not null and l_data != empty_clob() then
           self.print_text('<system-err>');
           self.print_text('<![CDATA[');
-          self.print_text(trim(l_suite.before_all.error_stack) || trim(chr(10) || chr(10) || l_suite.after_all.error_stack));
+          self.print_clob(ut_utils.table_to_clob(l_errors));
           self.print_text(']]>');
           self.print_text('</system-err>');
         end if;

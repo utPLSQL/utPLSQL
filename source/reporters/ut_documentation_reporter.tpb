@@ -66,13 +66,25 @@ create or replace type body ut_documentation_reporter is
   end;
 
   overriding member procedure after_calling_before_all(self in out nocopy ut_documentation_reporter, a_suite in ut_logical_suite) is
+    l_list    ut_executables;
   begin
-    self.print_clob(treat(a_suite as ut_suite).before_all.serveroutput);
+    l_list := treat(a_suite as ut_suite).before_all_list;
+    for i in 1 .. l_list.count loop
+      if l_list(i).serveroutput is not null and l_list(i).serveroutput != empty_clob() then
+        self.print_clob(l_list(i).serveroutput);
+      end if;
+    end loop;
   end;
 
   overriding member procedure after_calling_after_all(self in out nocopy ut_documentation_reporter, a_suite in ut_logical_suite) is
+    l_list    ut_executables;
   begin
-    self.print_clob(treat(a_suite as ut_suite).after_all.serveroutput);
+    l_list := treat(a_suite as ut_suite).after_all_list;
+    for i in 1 .. l_list.count loop
+      if l_list(i).serveroutput is not null and l_list(i).serveroutput != empty_clob() then
+        self.print_clob(l_list(i).serveroutput);
+      end if;
+    end loop;
   end;
 
   overriding member procedure after_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_logical_suite) as

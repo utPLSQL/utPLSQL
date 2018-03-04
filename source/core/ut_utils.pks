@@ -24,23 +24,25 @@ create or replace package ut_utils authid definer is
   gc_version                 constant varchar2(50) := 'v3.1.0.1688-develop';
 
   /* Constants: Event names */
-  gc_run                     constant varchar2(12) := 'run';
-  gc_suite                   constant varchar2(12) := 'suite';
-  gc_before_all              constant varchar2(12) := 'before_all';
-  gc_before_each             constant varchar2(12) := 'before_each';
-  gc_before_test             constant varchar2(12) := 'before_test';
-  gc_test                    constant varchar2(12) := 'test';
-  gc_test_execute            constant varchar2(12) := 'test_execute';
-  gc_after_test              constant varchar2(10) := 'after_test';
-  gc_after_each              constant varchar2(12) := 'after_each';
-  gc_after_all               constant varchar2(12) := 'after_all';
-  gc_finalize                constant varchar2(12) := 'finalize';
+  subtype t_event_name       is varchar2(12);
+  gc_run                     constant t_event_name := 'run';
+  gc_suite                   constant t_event_name := 'suite';
+  gc_before_all              constant t_event_name := 'before_all';
+  gc_before_each             constant t_event_name := 'before_each';
+  gc_before_test             constant t_event_name := 'before_test';
+  gc_test                    constant t_event_name := 'test';
+  gc_test_execute            constant t_event_name := 'test_execute';
+  gc_after_test              constant t_event_name := 'after_test';
+  gc_after_each              constant t_event_name := 'after_each';
+  gc_after_all               constant t_event_name := 'after_all';
+  gc_finalize                constant t_event_name := 'finalize';
 
   /* Constants: Test Results */
-  tr_disabled                constant number(1) := 0; -- test/suite was disabled
-  tr_success                 constant number(1) := 1; -- test passed
-  tr_failure                 constant number(1) := 2; -- one or more expectations failed
-  tr_error                   constant number(1) := 3; -- exception was raised
+  subtype t_test_result   is binary_integer range 0 .. 3;
+  tr_disabled                constant t_test_result := 0; -- test/suite was disabled
+  tr_success                 constant t_test_result := 1; -- test passed
+  tr_failure                 constant t_test_result := 2; -- one or more expectations failed
+  tr_error                   constant t_test_result := 3; -- exception was raised
 
   tr_disabled_char           constant varchar2(8) := 'Disabled'; -- test/suite was disabled
   tr_success_char            constant varchar2(7) := 'Success'; -- test passed
@@ -50,9 +52,9 @@ create or replace package ut_utils authid definer is
   /*
     Constants: Rollback type for ut_test_object
   */
-  gc_rollback_auto           constant number(1) := 0; -- rollback after each test and suite
-  gc_rollback_manual         constant number(1) := 1; -- leave transaction control manual
-  --gc_rollback_on_error       constant number(1) := 2; -- rollback tests only on error
+  subtype t_rollback_type is binary_integer range 0 .. 1;
+  gc_rollback_auto           constant t_rollback_type := 0; -- rollback after each test and suite
+  gc_rollback_manual         constant t_rollback_type := 1; -- leave transaction control manual
 
   ex_unsupported_rollback_type exception;
   gc_unsupported_rollback_type constant pls_integer := -20200;

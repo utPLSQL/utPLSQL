@@ -38,7 +38,7 @@ create or replace package body test_suite_manager is
           l_test2_suite := treat(l_test1_suite.items(3) as ut3.ut_logical_suite);
 
           ut.expect(l_test2_suite.name).to_equal('test_package_2');
-          ut.expect(l_test2_suite.items.count).to_equal(2);
+          ut.expect(l_test2_suite.items.count).to_equal(3);
         when 'tests2' then
           ut.expect(l_test1_suite.name).to_equal('test_package_3');
           ut.expect(l_test1_suite.items.count).to_equal(3);
@@ -72,7 +72,7 @@ create or replace package body test_suite_manager is
     l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.items.count).to_equal(2);
+    ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
   procedure test_top2_bt_name_cur_user is
@@ -99,7 +99,7 @@ create or replace package body test_suite_manager is
     l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.items.count).to_equal(2);
+    ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
   procedure test_by_path_to_subsuite is
@@ -126,7 +126,7 @@ create or replace package body test_suite_manager is
     l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.items.count).to_equal(2);
+    ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
   procedure test_by_path_to_subsuite_cu is
@@ -153,7 +153,7 @@ create or replace package body test_suite_manager is
     l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.items.count).to_equal(2);
+    ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
    procedure test_subsute_proc_by_path is
@@ -185,8 +185,8 @@ create or replace package body test_suite_manager is
 
     l_test_proc := treat(l_test2_suite.items(1) as ut3.ut_test);
     ut.expect(l_test_proc.name).to_equal('test2');
-    ut.expect(l_test_proc.before_test is not null).to_be_true;
-    ut.expect(l_test_proc.after_test is not null).to_be_true;
+    ut.expect(l_test_proc.before_test_list.count).to_be_greater_than(0);
+    ut.expect(l_test_proc.after_test_list.count).to_be_greater_than(0);
 
   end;
 
@@ -219,8 +219,8 @@ create or replace package body test_suite_manager is
 
     l_test_proc := treat(l_test2_suite.items(1) as ut3.ut_test);
     ut.expect(l_test_proc.name).to_equal('test2');
-    ut.expect(l_test_proc.before_test is not null).to_be_true;
-    ut.expect(l_test_proc.after_test is not null).to_be_true;
+    ut.expect(l_test_proc.before_test_list.count).to_be_greater_than(0);
+    ut.expect(l_test_proc.after_test_list.count).to_be_greater_than(0);
   end;
 
   procedure test_top_pack_by_name is
@@ -247,24 +247,24 @@ create or replace package body test_suite_manager is
 
     ut.expect(l_test1_suite.items(1).name).to_equal('test1');
     ut.expect(l_test1_suite.items(1).description).to_equal('Test1 from test package 1');
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).before_test.is_defined).to_be_false;
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).after_test.is_defined).to_be_false;
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).before_each.is_defined).to_be_true;
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).DISABLED_FLAG).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).before_test_list.count).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).after_test_list.count).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).before_each_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).disabled_flag).to_equal(0);
 
     ut.expect(l_test1_suite.items(2).name).to_equal('test2');
     ut.expect(l_test1_suite.items(2).description).to_equal('Test2 from test package 1');
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_test.is_defined).to_be_true;
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).after_test.is_defined).to_be_true;
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_each.is_defined).to_be_true;
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).DISABLED_FLAG).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_test_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).after_test_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_each_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).disabled_flag).to_equal(0);
 
     -- temporary behavior.
     -- decided that when executed by package, not path, only that package has to execute
     l_test2_suite :=  treat(l_test1_suite.items(3) as ut3.ut_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.items.count).to_equal(2);
+    ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
   procedure test_top_pack_by_name_cu is
@@ -291,24 +291,24 @@ create or replace package body test_suite_manager is
 
     ut.expect(l_test1_suite.items(1).name).to_equal('test1');
     ut.expect(l_test1_suite.items(1).description).to_equal('Test1 from test package 1');
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).before_test.is_defined).to_be_false;
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).after_test.is_defined).to_be_false;
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).before_each.is_defined).to_be_true;
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).DISABLED_FLAG).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).before_test_list.count).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).after_test_list.count).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).before_each_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).disabled_flag).to_equal(0);
 
     ut.expect(l_test1_suite.items(2).name).to_equal('test2');
     ut.expect(l_test1_suite.items(2).description).to_equal('Test2 from test package 1');
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_test.is_defined).to_be_true;
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).after_test.is_defined).to_be_true;
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_each.is_defined).to_be_true;
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).DISABLED_FLAG).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_test_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).after_test_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_each_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).disabled_flag).to_equal(0);
 
     -- temporary behavior.
     -- decided that when executed by package, not path, only that package has to execute
     l_test2_suite :=  treat(l_test1_suite.items(3) as ut3.ut_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.items.count).to_equal(2);
+    ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
   procedure test_top_pack_by_path is
@@ -335,7 +335,7 @@ create or replace package body test_suite_manager is
     l_test2_suite :=  treat(l_test1_suite.items(3) as ut3.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.items.count).to_equal(2);
+    ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
   procedure test_top_pack_by_path_cu is
@@ -362,7 +362,7 @@ create or replace package body test_suite_manager is
     l_test2_suite :=  treat(l_test1_suite.items(3) as ut3.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.items.count).to_equal(2);
+    ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
   procedure test_top_pck_proc_by_path is
@@ -391,8 +391,8 @@ create or replace package body test_suite_manager is
 
     ut.expect(l_test_proc.name).to_equal('test2');
     ut.expect(l_test_proc.description).to_equal('Test2 from test package 1');
-    ut.expect(l_test_proc.before_test is not null).to_be_true;
-    ut.expect(l_test_proc.after_test is not null).to_be_true;
+    ut.expect(l_test_proc.before_test_list.count).to_be_greater_than(0);
+    ut.expect(l_test_proc.after_test_list.count).to_be_greater_than(0);
   end;
 
   procedure test_top_pck_proc_by_path_cu is
@@ -421,8 +421,8 @@ create or replace package body test_suite_manager is
 
     ut.expect(l_test_proc.name).to_equal('test2');
     ut.expect(l_test_proc.description).to_equal('Test2 from test package 1');
-    ut.expect(l_test_proc.before_test is not null).to_be_true;
-    ut.expect(l_test_proc.after_test is not null).to_be_true;
+    ut.expect(l_test_proc.before_test_list.count).to_be_greater_than(0);
+    ut.expect(l_test_proc.after_test_list.count).to_be_greater_than(0);
   end;
 
   procedure test_top_pkc_proc_by_name is
@@ -449,8 +449,8 @@ create or replace package body test_suite_manager is
 
     l_test_proc := treat(l_test1_suite.items(1) as ut3.ut_test);
     ut.expect(l_test_proc.name).to_equal('test2');
-    ut.expect(l_test_proc.before_test is not null).to_be_true;
-    ut.expect(l_test_proc.after_test is not null).to_be_true;
+    ut.expect(l_test_proc.before_test_list.count).to_be_greater_than(0);
+    ut.expect(l_test_proc.after_test_list.count).to_be_greater_than(0);
   end;
 
   procedure test_top_pkc_proc_by_name_cu is
@@ -477,8 +477,8 @@ create or replace package body test_suite_manager is
 
     l_test_proc := treat(l_test1_suite.items(1) as ut3.ut_test);
     ut.expect(l_test_proc.name).to_equal('test2');
-    ut.expect(l_test_proc.before_test is not null).to_be_true;
-    ut.expect(l_test_proc.after_test is not null).to_be_true;
+    ut.expect(l_test_proc.before_test_list.count).to_be_greater_than(0);
+    ut.expect(l_test_proc.after_test_list.count).to_be_greater_than(0);
   end;
 
   procedure test_top_pkc_nosub_by_name is
@@ -1077,6 +1077,20 @@ end test_package_1;]';
 
   procedure test2_teardown;
 
+  --%context(some_context)
+  --%displayname(first context)
+
+  --%beforeall
+  procedure context_setup;
+
+  --%test(Test in a context)
+  procedure context_test;
+
+  --%afterall
+  procedure context_teardown;
+
+  --%endcontext
+
 end test_package_2;]';
 execute immediate q'[create or replace package body test_package_2 is
 
@@ -1115,6 +1129,21 @@ execute immediate q'[create or replace package body test_package_2 is
   procedure test2_teardown is
   begin
     gv_var_1      := gv_var_1_temp;
+    gv_var_1_temp := null;
+  end;
+
+  procedure context_setup is
+  begin
+    gv_var_1_temp := gv_var_1 || 'a';
+  end;
+
+  procedure context_test is
+  begin
+    ut.expect(gv_var_1_temp, 'Some expectation').to_equal('na');
+  end;
+
+  procedure context_teardown is
+  begin
     gv_var_1_temp := null;
   end;
 

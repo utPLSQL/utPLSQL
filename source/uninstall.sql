@@ -220,6 +220,10 @@ drop type ut_test force;
 
 drop type ut_console_reporter_base force;
 
+drop type ut_executable_test force;
+
+drop type ut_executables force;
+
 drop type ut_executable force;
 
 drop type ut_suite_items force;

@@ -17,11 +17,13 @@ create or replace type body ut_logical_suite as
   */
 
   constructor function ut_logical_suite(
-    self in out nocopy ut_logical_suite,a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_description varchar2 := null, a_path varchar2
+    self in out nocopy ut_logical_suite,a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_path varchar2
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
-    self.init(a_object_owner, a_object_name, a_name, a_description, a_path, ut_utils.gc_rollback_auto, false);
+    self.init(a_object_owner, a_object_name, a_name);
+    self.path := a_path;
+    self.disabled_flag := ut_utils.boolean_to_int(false);
     self.items := ut_suite_items();
     return;
   end;
@@ -47,6 +49,14 @@ create or replace type body ut_logical_suite as
     self.end_time := self.start_time;
     a_listener.fire_after_event(ut_utils.gc_suite,self);
     self.calc_execution_result();
+  end;
+
+  overriding member procedure set_default_rollback_type(self in out nocopy ut_logical_suite, a_rollback_type integer) is
+  begin
+    self.rollback_type := coalesce(self.rollback_type, a_rollback_type);
+    for i in 1 .. self.items.count loop
+      self.items(i).set_default_rollback_type(a_rollback_type);
+    end loop;
   end;
 
   overriding member function do_execute(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base) return boolean is

@@ -17,45 +17,38 @@ create or replace type body ut_test as
   */
 
   constructor function ut_test(
-    self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2, a_description varchar2 := null,
-    a_path varchar2 := null, a_rollback_type integer := null, a_disabled_flag boolean := false,
-    a_before_each_proc_name varchar2 := null, a_before_test_proc_name varchar2 := null,
-    a_after_test_proc_name varchar2 := null, a_after_each_proc_name varchar2 := null,
+    self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2,
     a_expected_error_codes ut_integer_list := null
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
-    self.init(a_object_owner, a_object_name, a_name, a_description, a_path, a_rollback_type, a_disabled_flag);
-    self.before_each := ut_executable(self, a_before_each_proc_name, ut_utils.gc_before_each);
-    self.before_test := ut_executable(self, a_before_test_proc_name, ut_utils.gc_before_test);
+    self.init(a_object_owner, a_object_name, a_name);
     self.item := ut_executable_test(self, a_name, ut_utils.gc_test_execute);
-    self.after_test := ut_executable(self, a_after_test_proc_name, ut_utils.gc_after_test);
-    self.after_each := ut_executable(self, a_after_each_proc_name, ut_utils.gc_after_each);
-    self.all_expectations    := ut_expectation_results();
-    self.failed_expectations := ut_expectation_results();
+    self.before_each_list     := ut_executables();
+    self.before_test_list     := ut_executables();
+    self.after_test_list      := ut_executables();
+    self.after_each_list      := ut_executables();
+    self.all_expectations     := ut_expectation_results();
+    self.failed_expectations  := ut_expectation_results();
     self.expected_error_codes := a_expected_error_codes;
     return;
   end;
 
-  member procedure set_beforeeach(self in out nocopy ut_test, a_before_each_proc_name varchar2) is
-  begin
-    self.before_each := ut_executable(self, a_before_each_proc_name, ut_utils.gc_before_each);
-  end;
-
-  member procedure set_aftereach(self in out nocopy ut_test, a_after_each_proc_name varchar2) is
-  begin
-    self.after_each := ut_executable(self, a_after_each_proc_name, ut_utils.gc_after_each);
-  end;
-
   member function is_valid(self in out nocopy ut_test) return boolean is
-    l_is_valid boolean;
+    l_is_valid boolean := true;
   begin
-    l_is_valid :=
-      ( not self.before_each.is_defined() or self.before_each.is_valid() ) and
-      ( not self.before_test.is_defined() or self.before_test.is_valid() ) and
-      ( self.item.is_valid()  ) and
-      ( not self.after_test.is_defined() or self.after_test.is_valid() ) and
-      ( not self.after_each.is_defined() or self.after_each.is_valid() );
+    for i in 1 .. before_each_list.count loop
+      l_is_valid := self.before_each_list(i).is_valid() and l_is_valid;
+    end loop;
+    for i in 1 .. after_each_list.count loop
+      l_is_valid := self.after_each_list(i).is_valid() and l_is_valid;
+    end loop;
+    for i in 1 .. before_test_list.count loop
+      l_is_valid := self.before_test_list(i).is_valid() and l_is_valid;
+    end loop;
+    for i in 1 .. after_test_list.count loop
+      l_is_valid := self.after_test_list(i).is_valid() and l_is_valid;
+    end loop;
     return l_is_valid;
   end;
 
@@ -71,8 +64,8 @@ create or replace type body ut_test as
   end;
 
   overriding member function do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base) return boolean is
-    l_completed_without_errors boolean;
-    l_savepoint                varchar2(30);
+    l_no_errors boolean;
+    l_savepoint varchar2(30);
   begin
 
     ut_utils.debug_log('ut_test.execute');
@@ -87,21 +80,32 @@ create or replace type body ut_test as
         l_savepoint := self.create_savepoint_if_needed();
 
         --includes listener calls for before and after actions
-        l_completed_without_errors := self.before_each.do_execute(self, a_listener);
+        l_no_errors := true;
+        for i in 1 .. self.before_each_list.count loop
+          l_no_errors := self.before_each_list(i).do_execute(self, a_listener);
+          exit when not l_no_errors;
+        end loop;
 
-        if l_completed_without_errors then
-          l_completed_without_errors := self.before_test.do_execute(self, a_listener);
+        if l_no_errors then
+          for i in 1 .. self.before_test_list.count loop
+            l_no_errors := self.before_test_list(i).do_execute(self, a_listener);
+            exit when not l_no_errors;
+          end loop;
 
-          if l_completed_without_errors then
+          if l_no_errors then
             -- execute the test
             self.item.do_execute(self, a_listener, self.expected_error_codes);
 
           end if;
           -- perform cleanup regardless of the test or setup failure
-          self.after_test.do_execute(self, a_listener);
+          for i in 1 .. self.after_test_list.count loop
+            self.after_test_list(i).do_execute(self, a_listener);
+          end loop;
         end if;
 
-        self.after_each.do_execute(self, a_listener);
+        for i in 1 .. self.after_each_list.count loop
+          self.after_each_list(i).do_execute(self, a_listener);
+        end loop;
         self.rollback_to_savepoint(l_savepoint);
       end if;
 
@@ -109,7 +113,7 @@ create or replace type body ut_test as
       self.end_time := current_timestamp;
       a_listener.fire_after_event(ut_utils.gc_test,self);
     end if;
-    return l_completed_without_errors;
+    return l_no_errors;
   end;
 
   overriding member procedure calc_execution_result(self in out nocopy ut_test) is
@@ -145,21 +149,37 @@ create or replace type body ut_test as
     l_stack_traces ut_varchar2_list := ut_varchar2_list();
   begin
     ut_utils.append_to_list(l_stack_traces, self.parent_error_stack_trace);
-    ut_utils.append_to_list(l_stack_traces, self.before_each.get_error_stack_trace());
-    ut_utils.append_to_list(l_stack_traces, self.before_test.get_error_stack_trace());
+    for i in 1 .. before_each_list.count loop
+      ut_utils.append_to_list(l_stack_traces, self.before_each_list(i).get_error_stack_trace());
+    end loop;
+    for i in 1 .. before_test_list.count loop
+      ut_utils.append_to_list(l_stack_traces, self.before_test_list(i).get_error_stack_trace());
+    end loop;
     ut_utils.append_to_list(l_stack_traces, self.item.get_error_stack_trace());
-    ut_utils.append_to_list(l_stack_traces, self.after_test.get_error_stack_trace());
-    ut_utils.append_to_list(l_stack_traces, self.after_each.get_error_stack_trace());
+    for i in 1 .. after_test_list.count loop
+      ut_utils.append_to_list(l_stack_traces, self.after_test_list(i).get_error_stack_trace());
+    end loop;
+    for i in 1 .. after_each_list.count loop
+      ut_utils.append_to_list(l_stack_traces, self.after_each_list(i).get_error_stack_trace());
+    end loop;
     return l_stack_traces;
   end;
   overriding member function get_serveroutputs return clob is
     l_outputs clob;
   begin
-    ut_utils.append_to_clob(l_outputs, self.before_each.serveroutput );
-    ut_utils.append_to_clob(l_outputs, self.before_test.serveroutput );
+    for i in 1 .. before_each_list.count loop
+      ut_utils.append_to_clob(l_outputs, self.before_each_list(i).serveroutput);
+    end loop;
+    for i in 1 .. before_test_list.count loop
+      ut_utils.append_to_clob(l_outputs, self.before_test_list(i).serveroutput);
+    end loop;
     ut_utils.append_to_clob(l_outputs, self.item.serveroutput );
-    ut_utils.append_to_clob(l_outputs, self.after_test.serveroutput );
-    ut_utils.append_to_clob(l_outputs, self.after_each.serveroutput );
+    for i in 1 .. after_test_list.count loop
+      ut_utils.append_to_clob(l_outputs, self.after_test_list(i).serveroutput);
+    end loop;
+    for i in 1 .. after_each_list.count loop
+      ut_utils.append_to_clob(l_outputs, self.after_each_list(i).serveroutput);
+    end loop;
     return l_outputs;
   end;
 end;

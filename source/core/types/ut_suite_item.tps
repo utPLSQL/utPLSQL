@@ -18,12 +18,11 @@ create or replace type ut_suite_item force under ut_suite_item_base (
 
   results_count ut_results_counter,
   transaction_invalidators ut_varchar2_list,
-  member procedure init(
-    self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2,
-    a_description varchar2, a_path varchar2, a_rollback_type integer, a_disabled_flag boolean),
+  member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2),
   member procedure set_disabled_flag(self in out nocopy ut_suite_item, a_disabled_flag boolean),
   member function get_disabled_flag return boolean,
   not instantiable member procedure mark_as_skipped(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base),
+  member procedure set_default_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer),
   member function create_savepoint_if_needed return varchar2,
   member procedure rollback_to_savepoint(self in out nocopy ut_suite_item, a_savepoint varchar2),
   member function get_transaction_invalidators return ut_varchar2_list,

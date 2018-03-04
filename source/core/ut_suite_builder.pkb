@@ -16,157 +16,314 @@ create or replace package body ut_suite_builder is
   limitations under the License.
   */
 
-  ------------------
+  subtype t_annotation_text     is varchar2(4000);
+  subtype t_annotation_name     is varchar2(4000);
+  subtype t_procedure_name      is varchar2(500);
+  subtype t_annotation_position is binary_integer;
 
-  function create_suite(a_object ut_annotated_object) return ut_logical_suite is
-    l_is_suite              boolean := false;
-    l_is_test               boolean := false;
-    l_suite_disabled        boolean := false;
-    l_test_disabled         boolean := false;
-    l_suite_items           ut_suite_items := ut_suite_items();
-    l_suite_name            varchar2(4000);
+  type tt_annotations is table of t_annotation_text index by t_annotation_name;
 
-    l_default_setup_proc    varchar2(250 char);
-    l_default_teardown_proc varchar2(250 char);
-    l_suite_setup_proc      varchar2(250 char);
-    l_suite_teardown_proc   varchar2(250 char);
-    l_suite_path            varchar2(4000 char);
+  type t_package_annotation is record(
+    text                  varchar2(4000),
+    name                  varchar2(4000),
+    procedure_name        varchar2(500),
+    procedure_annotations tt_annotations
+  );
 
-    l_proc_name             varchar2(250 char);
+  type tt_package_annotations is table of t_package_annotation index by t_annotation_position;
+  type t_package_annotations_info is record(
+    owner         t_procedure_name,
+    name          t_procedure_name,
+    annotations   tt_package_annotations
+  );
 
-    l_suite                 ut_logical_suite;
-    l_test                  ut_test;
+  type tt_positions           is table of boolean index by t_annotation_position;
+  type tt_annotations_index   is table of tt_positions index by t_annotation_name;
 
-    l_suite_rollback        integer;
-
-    l_beforetest_procedure  varchar2(250 char);
-    l_aftertest_procedure   varchar2(250 char);
-
-    l_expected_error_codes  ut_integer_list;
-
-    l_rollback_type         integer;
-    l_displayname           varchar2(4000);
-    function is_last_annotation_for_proc(a_annotations ut_annotations, a_index binary_integer) return boolean is
-    begin
-      return a_index = a_annotations.count or a_annotations(a_index).subobject_name != nvl(a_annotations(a_index+1).subobject_name, ' ');
-    end;
-
-    function build_exception_numbers_list(a_annotation_text in varchar2) return ut_integer_list is
-      l_throws_list           ut_varchar2_list;
-      l_exception_number_list ut_integer_list := ut_integer_list();
-      l_regexp_for_excep_nums varchar2(30) := '^-?[[:digit:]]{1,5}$';
-    begin
-      /*the a_expected_error_codes is converted to a ut_varchar2_list after that is trimmed and filtered to left only valid exception numbers*/
-      l_throws_list := ut_utils.string_to_table(a_annotation_text, ',', 'Y');
-      l_throws_list := ut_utils.filter_list( ut_utils.trim_list_elements(l_throws_list), l_regexp_for_excep_nums);
-      l_exception_number_list.extend(l_throws_list.count);
-      for i in 1 .. l_throws_list.count loop
-        l_exception_number_list(i) := l_throws_list(i);
-      end loop;
-      return l_exception_number_list;
-    end;
+  function is_last_annotation_for_proc(a_annotations ut_annotations, a_index binary_integer) return boolean is
   begin
-    l_suite_rollback := ut_utils.gc_rollback_auto;
-    for i in 1 .. a_object.annotations.count loop
+    return a_index = a_annotations.count or a_annotations(a_index).subobject_name != nvl(a_annotations(a_index+1).subobject_name, ' ');
+  end;
 
-      if a_object.annotations(i).subobject_name is null then
+  function get_procedure_annotations(a_annotations ut_annotations, a_index binary_integer) return tt_annotations is
+    l_result tt_annotations;
+    i        binary_integer := a_index;
+  begin
+    loop
+      l_result(a_annotations(i).name) := a_annotations(i).text;
+      exit when is_last_annotation_for_proc(a_annotations, i);
+      i := a_annotations.next(i);
+    end loop;
+    return l_result;
+  end;
 
-        if a_object.annotations(i).name in ('suite','displayname') then
-          l_suite_name := a_object.annotations(i).text;
-          if a_object.annotations(i).name = 'suite' then
-            l_is_suite := true;
-          end if;
-        elsif a_object.annotations(i).name = 'disabled' then
-          l_suite_disabled := true;
-        elsif a_object.annotations(i).name = 'suitepath' and  a_object.annotations(i).text is not null then
-          l_suite_path := a_object.annotations(i).text || '.' || lower(a_object.object_name);
-        elsif a_object.annotations(i).name = 'rollback' then
-          if lower(a_object.annotations(i).text) = 'manual' then
-            l_suite_rollback := ut_utils.gc_rollback_manual;
-          else
-            l_suite_rollback := ut_utils.gc_rollback_auto;
-          end if;
-        end if;
+  function convert_object_annotations(a_object ut_annotated_object) return t_package_annotations_info is
+    l_result        t_package_annotations_info;
+    l_annotation_no binary_integer;
+  begin
+    l_result.owner := a_object.object_owner;
+    l_result.name  := a_object.object_name;
+    l_annotation_no := a_object.annotations.first;
+    while l_annotation_no is not null loop
+      if a_object.annotations(l_annotation_no).subobject_name is null then
+        l_result.annotations(l_annotation_no).name := a_object.annotations(l_annotation_no).name;
+        l_result.annotations(l_annotation_no).text := a_object.annotations(l_annotation_no).text;
+      else
+        l_result.annotations(l_annotation_no).procedure_name        := a_object.annotations(l_annotation_no).subobject_name;
+        l_result.annotations(l_annotation_no).procedure_annotations := get_procedure_annotations(a_object.annotations, l_annotation_no);
+        l_annotation_no := l_annotation_no + l_result.annotations(l_annotation_no).procedure_annotations.count - 1;
+      end if;
+      l_annotation_no := a_object.annotations.next(l_annotation_no);
+    end loop;
+    return l_result;
+  end;
 
-      elsif l_is_suite then
-        l_proc_name := a_object.annotations(i).subobject_name;
+  function build_annotation_index(a_annotations tt_package_annotations) return tt_annotations_index is
+    l_result tt_annotations_index;
+    i binary_integer;
+  begin
+    i := a_annotations.first;
+    while i is not null loop
+      if a_annotations(i).name is not null then
+        l_result(a_annotations(i).name)(i) := true;
+      end if;
+      i := a_annotations.next(i);
+    end loop;
+    return l_result;
+  end;
 
-        if a_object.annotations(i).name = 'beforeeach' and l_default_setup_proc is null then
-          l_default_setup_proc := l_proc_name;
-        elsif a_object.annotations(i).name = 'aftereach' and l_default_teardown_proc is null then
-          l_default_teardown_proc := l_proc_name;
-        elsif a_object.annotations(i).name = 'beforeall' and l_suite_setup_proc is null then
-          l_suite_setup_proc := l_proc_name;
-        elsif a_object.annotations(i).name = 'afterall' and l_suite_teardown_proc is null then
-          l_suite_teardown_proc := l_proc_name;
-        elsif a_object.annotations(i).name = 'disabled' then
-          l_test_disabled := true;
-        elsif a_object.annotations(i).name = 'beforetest' then
-          l_beforetest_procedure := a_object.annotations(i).text;
-        elsif a_object.annotations(i).name = 'aftertest' then
-          l_aftertest_procedure := a_object.annotations(i).text;
-        elsif a_object.annotations(i).name = 'throws' then
-          l_expected_error_codes := build_exception_numbers_list(a_object.annotations(i).text);
-        elsif a_object.annotations(i).name in ('displayname','test') then
-          l_displayname := a_object.annotations(i).text;
-          if a_object.annotations(i).name = 'test' then
-            l_is_test := true;
-          end if;
-        elsif a_object.annotations(i).name = 'rollback' then
-          if lower(a_object.annotations(i).text) = 'manual' then
-            l_rollback_type := ut_utils.gc_rollback_manual;
-          elsif lower(a_object.annotations(i).text) = 'auto' then
-            l_rollback_type := ut_utils.gc_rollback_auto;
-          end if;
-        end if;
+  procedure delete_from_annotation_index(
+    a_index in out nocopy tt_annotations_index,
+    a_start_pos t_annotation_position,
+    a_end_pos t_annotation_position
+  ) is
+    i t_annotation_name;
+  begin
+    i :=  a_index.first;
+    while i is not null loop
+      a_index(i).delete(a_start_pos, a_end_pos);
+      if a_index(i).count = 0 then
+        a_index.delete(i);
+      end if;
+      i := a_index.next(i);
+    end loop;
+  end;
 
-        if l_is_test and is_last_annotation_for_proc(a_object.annotations, i) then
-          l_suite_items.extend;
-          l_suite_items(l_suite_items.last) :=
-            ut_test(a_object_owner          => a_object.object_owner
-                   ,a_object_name           => a_object.object_name
-                   ,a_name                  => l_proc_name
-                   ,a_description           => l_displayname
-                   ,a_rollback_type         => coalesce(l_rollback_type, l_suite_rollback)
-                   ,a_disabled_flag         => l_test_disabled
-                   ,a_before_test_proc_name => l_beforetest_procedure
-                   ,a_after_test_proc_name  => l_aftertest_procedure
-                   ,a_expected_error_codes  => l_expected_error_codes);
+  function get_rollback_type(a_rollback_type_name varchar2) return ut_utils.t_rollback_type is
+    l_rollback_type ut_utils.t_rollback_type;
+  begin
+    l_rollback_type :=
+      case lower(a_rollback_type_name)
+        when 'manual' then ut_utils.gc_rollback_manual
+        when 'auto' then ut_utils.gc_rollback_auto
+        --TODO - if invalid or no rollback type text specified - give a warning
+        else ut_utils.gc_rollback_auto
+      end;
+     return l_rollback_type;
+  end;
 
-          l_is_test := false;
-          l_test_disabled := false;
-          l_aftertest_procedure  := null;
-          l_beforetest_procedure := null;
-          l_rollback_type        := null;
-          l_expected_error_codes := null;
-        end if;
+  function build_exception_numbers_list(a_annotation_text in varchar2) return ut_integer_list is
+    l_throws_list           ut_varchar2_list;
+    l_exception_number_list ut_integer_list := ut_integer_list();
+    l_regexp_for_excep_nums varchar2(30) := '^-?[[:digit:]]{1,5}$';
+  begin
+    /*the a_expected_error_codes is converted to a ut_varchar2_list after that is trimmed and filtered to left only valid exception numbers*/
+    l_throws_list := ut_utils.string_to_table(a_annotation_text, ',', 'Y');
+    l_throws_list := ut_utils.filter_list( ut_utils.trim_list_elements(l_throws_list), l_regexp_for_excep_nums);
+    l_exception_number_list.extend(l_throws_list.count);
+    for i in 1 .. l_throws_list.count loop
+      l_exception_number_list(i) := l_throws_list(i);
+    end loop;
+    return l_exception_number_list;
+  end;
 
+  procedure add_to_list(
+    a_executables in out nocopy ut_executables,
+    a_procedure_name varchar2,
+    a_event_name ut_utils.t_event_name,
+    a_suite_item ut_suite_item
+  ) is
+    begin
+      if a_executables is null then
+        a_executables := ut_executables();
+      end if;
+      a_executables.extend;
+      a_executables(a_executables.last) := ut_executable(a_suite_item, a_procedure_name, a_event_name);
+  end;
+
+  procedure warning_on_extra_annotations(
+    a_suite in out nocopy ut_suite_item,
+    a_procedure_info t_package_annotation,
+    a_for_annotation varchar2
+  ) is
+    l_annotation_name t_annotation_name;
+    l_warning         varchar2(32767);
+  begin
+    l_annotation_name := a_procedure_info.procedure_annotations.first;
+    while l_annotation_name is not null loop
+      l_annotation_name := a_procedure_info.procedure_annotations.next(l_annotation_name);
+      if l_annotation_name != a_for_annotation then
+        l_warning := l_warning ||'"--%'|| l_annotation_name || '", ';
       end if;
     end loop;
+    if l_warning is not null then
+      a_suite.put_warning(
+          'Annotations: '||rtrim(l_warning,', ')||' were ignored for procedure "'||a_procedure_info.procedure_name||'".' ||
+          ' Those annotations cannot be used with annotation:"'||a_for_annotation||'"');
+    end if;
+  end;
 
-    if l_is_suite then
-      l_suite := ut_suite (
-          a_object_owner          => a_object.object_owner,
-          a_object_name           => a_object.object_name,
-          a_name                  => a_object.object_name, --this could be different for sub-suite (context)
-          a_path                  => l_suite_path,  --a patch for this suite (excluding the package name of current suite)
-          a_description           => l_suite_name,
-          a_rollback_type         => l_suite_rollback,
-          a_disabled_flag         => l_suite_disabled,
-          a_before_all_proc_name  => l_suite_setup_proc,
-          a_after_all_proc_name   => l_suite_teardown_proc
-      );
-      for i in 1 .. l_suite_items.count loop
-        l_test := treat(l_suite_items(i) as ut_test);
-        l_test.set_beforeeach(l_default_setup_proc);
-        l_test.set_aftereach(l_default_teardown_proc);
-        l_test.path := l_suite.path  || '.' ||  l_test.name;
-        l_suite.add_item(l_test);
-      end loop;
+  procedure add_test(
+    a_suite in out nocopy ut_suite,
+    a_procedure_name varchar2,
+    a_annotations    tt_annotations
+  ) is
+    l_test ut_test;
+  begin
+    l_test := ut_test(a_suite.object_owner, a_suite.object_name, a_procedure_name);
+
+    if a_annotations.exists('displayname') then
+      l_test.description := a_annotations('displayname');
+    end if;
+    l_test.description := coalesce(l_test.description,a_annotations('test'));
+    l_test.path := a_suite.path ||'.'||a_procedure_name;
+
+    if a_annotations.exists('rollback') then
+      l_test.rollback_type := get_rollback_type(a_annotations('rollback'));
     end if;
 
-    return l_suite;
+    if a_annotations.exists('beforetest') then
+      add_to_list( l_test.before_test_list, a_annotations('beforetest'), ut_utils.gc_before_test, l_test );
+    end if;
+    if a_annotations.exists('aftertest') then
+      add_to_list( l_test.after_test_list, a_annotations('aftertest'), ut_utils.gc_after_test, l_test );
+    end if;
+    if a_annotations.exists('throws') then
+      l_test.expected_error_codes := build_exception_numbers_list(a_annotations('throws'));
+    end if;
+    l_test.disabled_flag := ut_utils.boolean_to_int(a_annotations.exists('disabled'));
 
+    a_suite.add_item(l_test);
+  end;
+
+  procedure update_before_after_list(
+    a_suite in out nocopy ut_logical_suite,
+    a_before_each_list ut_executables,
+    a_after_each_list ut_executables
+  ) is
+    l_test ut_test;
+  begin
+    for i in 1 .. a_suite.items.count loop
+      if a_suite.items(i) is of (ut_test) then
+        l_test := treat( a_suite.items(i) as ut_test);
+        l_test.before_each_list := a_before_each_list;
+        l_test.after_each_list := a_after_each_list;
+        a_suite.items(i) := l_test;
+      end if;
+    end loop;
+  end;
+
+  procedure add_procedures_from_annot(
+    l_annotations tt_package_annotations,
+    l_suite in out nocopy ut_suite,
+    l_before_each_list out ut_executables,
+    l_after_each_list out ut_executables
+  ) is
+    l_position t_annotation_position;
+  begin
+    l_before_each_list := ut_executables();
+    l_after_each_list := ut_executables();
+    l_position := l_annotations.first;
+    while l_position is not null loop
+      if l_annotations(l_position).procedure_name is not null then
+        if l_annotations(l_position).procedure_annotations.exists('beforeeach') then
+          add_to_list( l_before_each_list, l_annotations(l_position).procedure_name, ut_utils.gc_before_each, l_suite );
+          warning_on_extra_annotations(l_suite, l_annotations(l_position), 'beforeeach');
+        elsif l_annotations(l_position).procedure_annotations.exists('aftereach') then
+          add_to_list( l_after_each_list, l_annotations(l_position).procedure_name, ut_utils.gc_after_each, l_suite );
+          warning_on_extra_annotations(l_suite, l_annotations(l_position), 'aftereach');
+        elsif l_annotations(l_position).procedure_annotations.exists('beforeall') then
+          add_to_list( l_suite.before_all_list, l_annotations(l_position).procedure_name, ut_utils.gc_before_all, l_suite );
+          warning_on_extra_annotations(l_suite, l_annotations(l_position), 'beforeall');
+        elsif l_annotations(l_position).procedure_annotations.exists('afterall') then
+          add_to_list( l_suite.after_all_list, l_annotations(l_position).procedure_name, ut_utils.gc_after_all, l_suite );
+          warning_on_extra_annotations(l_suite, l_annotations(l_position), 'afterall');
+        elsif l_annotations(l_position).procedure_annotations.exists('test') then
+          add_test( l_suite, l_annotations(l_position).procedure_name, l_annotations(l_position).procedure_annotations);
+        end if;
+      end if;
+      l_position := l_annotations.next(l_position);
+    end loop;
+  end;
+
+  function build_suite(a_package t_package_annotations_info) return ut_logical_suite is
+    l_package_ann_index  tt_annotations_index;
+    l_annotations        tt_package_annotations;
+    l_suite              ut_suite;
+    l_before_each_list   ut_executables;
+    l_after_each_list    ut_executables;
+    l_rollback_type      ut_utils.t_rollback_type;
+    l_annotation_text    varchar2(32767);
+  begin
+    l_annotations         := a_package.annotations;
+    l_package_ann_index   := build_annotation_index(l_annotations);
+    if l_package_ann_index.exists('suite') then
+      --create an incomplete suite
+      l_suite := ut_suite(a_package.owner, a_package.name);
+
+      l_suite.description := l_annotations(l_package_ann_index('suite').first).text;
+      --TODO - check that there is only one `suite` annotation defined - if not -> warning
+      --if l_package_ann_index('suite').count > 1 then ... end if;
+
+      if l_package_ann_index.exists('context') then
+        if l_package_ann_index.exists('endcontext') then
+--           add_suite_context(
+--               l_suite,
+--               l_package_ann_index('context').first,
+--               l_package_ann_index('endcontext').first
+--           );
+          l_annotations.delete(l_package_ann_index('context').first, l_package_ann_index('endcontext').first);
+          delete_from_annotation_index(l_package_ann_index, l_package_ann_index('context').first, l_package_ann_index('endcontext').first);
+        -- else TODO - add warning about context without endcontext
+        end if;
+      end if;
+
+      if l_package_ann_index.exists('suitepath') then
+        --TODO - check that there is only one `suitepath` annotation defined - if not -> warning
+        --TODO - check that the `suitepath` annotation has text in it - if not -> warning
+        --TODO - check that text of `suitepath` annotation is of valid format - if not -> warning
+        l_annotation_text := l_annotations(l_package_ann_index('suitepath').first).text;
+        if l_annotation_text is not null then
+          l_suite.path := trim(l_annotations(l_package_ann_index('suitepath').first).text)||'.'||a_package.name;
+        end if;
+      end if;
+      l_suite.path := lower(coalesce(l_suite.path, a_package.name));
+
+      if l_package_ann_index.exists('displayname') then
+        --TODO - check that there is only one `displayname` annotation defined - if not -> warning
+        l_suite.description  := l_annotations(l_package_ann_index('displayname').first).text;
+      end if;
+
+      if l_package_ann_index.exists('rollback') then
+        l_rollback_type := get_rollback_type(l_annotations(l_package_ann_index('rollback').first).text);
+      end if;
+
+      l_suite.disabled_flag := ut_utils.boolean_to_int(l_package_ann_index.exists('disabled'));
+
+      --process procedure annotations for suite
+      add_procedures_from_annot(l_annotations, l_suite, l_before_each_list, l_after_each_list);
+
+      l_suite.set_default_rollback_type(coalesce(l_rollback_type, ut_utils.gc_rollback_auto));
+    end if;
+
+    update_before_after_list(l_suite, l_before_each_list, l_after_each_list);
+
+    return l_suite;
+  end;
+
+  function create_suite(a_object ut_annotated_object) return ut_logical_suite is
+  begin
+    return build_suite(convert_object_annotations(a_object));
   end create_suite;
 
   function build_suites_hierarchy(a_suites_by_path tt_schema_suites) return tt_schema_suites is

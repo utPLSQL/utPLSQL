@@ -70,25 +70,33 @@ create or replace type body ut_teamcity_reporter is
       self.print_clob(a_test.get_serveroutputs());
 
       if a_test.result = ut_utils.tr_error then
-        if a_test.before_each.error_backtrace is not null then
-          l_std_err_msg := l_std_err_msg || 'Before each exception:' || chr(10) || a_test.before_each.error_backtrace || chr(10);
-        end if;
+        for i in 1 .. a_test.before_each_list.count loop
+          if a_test.before_each_list(i).error_backtrace is not null then
+            l_std_err_msg := l_std_err_msg || 'Before each exception:' || chr(10) || a_test.before_each_list(i).error_backtrace || chr(10);
+          end if;
+        end loop;
 
-        if a_test.before_test.error_backtrace is not null then
-          l_std_err_msg := l_std_err_msg || 'Before test exception:' || chr(10) || a_test.before_test.error_backtrace || chr(10);
-        end if;
+        for i in 1 .. a_test.before_test_list.count loop
+          if a_test.before_test_list(i).error_backtrace is not null then
+            l_std_err_msg := l_std_err_msg || 'Before test exception:' || chr(10) || a_test.before_test_list(i).error_backtrace || chr(10);
+          end if;
+        end loop;
 
         if a_test.item.error_backtrace is not null then
           l_std_err_msg := l_std_err_msg || 'Test exception:' || chr(10) || a_test.item.error_backtrace || chr(10);
         end if;
 
-        if a_test.after_test.error_backtrace is not null then
-          l_std_err_msg := l_std_err_msg || 'After test exception:' || chr(10) || a_test.after_test.error_backtrace || chr(10);
-        end if;
+        for i in 1 .. a_test.after_test_list.count loop
+          if a_test.after_test_list(i).error_backtrace is not null then
+            l_std_err_msg := l_std_err_msg || 'After test exception:' || chr(10) || a_test.after_test_list(i).error_backtrace || chr(10);
+          end if;
+        end loop;
 
-        if a_test.after_each.error_backtrace is not null then
-          l_std_err_msg := l_std_err_msg || 'After each exception:' || chr(10) || a_test.after_each.error_backtrace || chr(10);
-        end if;
+        for i in 1 .. a_test.after_each_list.count loop
+          if a_test.after_each_list(i).error_backtrace is not null then
+            l_std_err_msg := l_std_err_msg || 'After each exception:' || chr(10) || a_test.after_each_list(i).error_backtrace || chr(10);
+          end if;
+        end loop;
 
         self.print_text(ut_teamcity_reporter_helper.test_std_err(a_test_name => l_test_full_name
                                                                 ,a_out       => trim(l_std_err_msg)));
