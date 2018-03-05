@@ -275,5 +275,25 @@ end;';
     ut.expect(l_actual).to_equal(l_expected);
   end;
 
+  procedure test_get_reporters_list is
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+    l_owner  varchar2(128) := ut_utils.ut_owner();
+  begin
+    --Arrange
+    open l_expected for
+      select l_owner || '.UT_COVERAGE_HTML_REPORTER' reporter_object_name, 'Y' is_output_reporter from dual union all
+      select l_owner || '.UT_COVERAGE_SONAR_REPORTER', 'Y' from dual union all
+      select l_owner || '.UT_COVERALLS_REPORTER', 'Y' from dual union all
+      select l_owner || '.UT_DOCUMENTATION_REPORTER', 'Y' from dual union all
+      select l_owner || '.UT_SONAR_TEST_REPORTER', 'Y' from dual union all
+      select l_owner || '.UT_TEAMCITY_REPORTER', 'Y' from dual union all
+      select l_owner || '.UT_XUNIT_REPORTER', 'Y' from dual;
+    --Act
+    open l_actual for select * from table(ut3.ut_runner.GET_REPORTERS_LIST()) order by 1;
+    --Assert
+    ut.expect(l_actual).to_equal(l_expected);
+  end;
+
 end;
 /
