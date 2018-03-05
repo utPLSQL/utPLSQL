@@ -56,6 +56,8 @@ drop type ut_coveralls_reporter force;
 
 drop type ut_coverage_sonar_reporter force;
 
+drop type ut_coverage_cobertura_reporter force;
+
 drop package ut_coverage_report_html_helper;
 
 drop type ut_coverage_html_reporter force;
@@ -150,9 +152,9 @@ drop type ut_data_value_anydata force;
 
 drop type ut_data_value force;
 
-drop table ut_data_set_tmp;
+drop table ut_compound_data_tmp;
 
-drop table ut_data_set_diff_tmp;
+drop table ut_compound_data_diff_tmp;
 
 drop package ut_annotation_manager;
 
@@ -300,3 +302,5 @@ end;
 /
 
 spool off
+
+exit;

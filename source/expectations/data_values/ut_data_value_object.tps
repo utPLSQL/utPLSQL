@@ -16,6 +16,7 @@ create or replace type ut_data_value_object under ut_data_value_anydata(
   limitations under the License.
   */
   constructor function ut_data_value_object(self in out nocopy ut_data_value_object, a_value anydata) return self as result,
+  overriding member function get_object_info return varchar2,
   overriding member function is_multi_line return boolean
 )
 /

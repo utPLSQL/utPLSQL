@@ -40,8 +40,12 @@ create or replace package body test_expectations_cursor is
     l_actual   sys_refcursor;
   begin
     -- Arrange
-    execute immediate 'insert into gtt_test_table ( value ) values ( ''Test-entry'' )';
-    open l_expected for select 'Test-entry' as value from dual;
+    execute immediate 'insert into gtt_test_table ( value ) ' ||
+                      'select  ''Test-entry'' from dual union all ' ||
+                      'select  ''Other test entry'' from dual';
+    open l_expected for
+      select 'Test-entry' as value from dual union all
+      select 'Other test entry' as value from dual;
     open l_actual for 'select * from gtt_test_table';
     --Act - execute the expectation on cursor opened on GTT
     ut3.ut.expect( l_actual ).to_equal( l_expected );
@@ -337,8 +341,8 @@ create or replace package body test_expectations_cursor is
     l_expected sys_refcursor;
   begin
     --Arrange
-    open l_actual for select sysdate as some_date from dual;
-    open l_expected for select to_char(sysdate) some_date from dual;
+    open l_actual   for select sysdate as some_date from dual;
+    open l_expected for select to_date(to_char(sysdate)) as some_date from dual;
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
     --Assert
@@ -550,28 +554,216 @@ create or replace package body test_expectations_cursor is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure data_diff_on_failure
+  procedure data_diff_on_rows_mismatch
   as
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
+    l_actual           sys_refcursor;
+    l_expected         sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
     --Arrange
-    open l_actual   for select rownum rn from dual connect by level <=2;
+    open l_actual   for select 1 rn from dual union all select 6 rn from dual;
     open l_expected for select rownum rn from dual connect by level <=3;
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
 
-    l_expected_message := q'[Actual: (refcursor [ count = 2 ])
-    <ROW><RN>1</RN></ROW>%
-    <ROW><RN>2</RN></ROW>%
-was expected to equal: (refcursor [ count = 3 ])
-    <ROW><RN>1</RN></ROW>%
-    <ROW><RN>2</RN></ROW>%
-    <ROW><RN>3</RN></ROW>%
-diff: [ count = 1 ]%
-row_no: 3     <ROW><RN>3</RN></ROW>%]';
+    l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 3 ]
+Diff:
+Rows: [ 2 differences ]
+  Row No. 2 - Actual:   <RN>6</RN>
+  Row No. 2 - Expected: <RN>2</RN>
+  Row No. 3 - Missing:  <RN>3</RN>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure char_and_varchar2_col_is_equal is
+    l_expected         sys_refcursor;
+    l_actual           sys_refcursor;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select cast('a' as char(1))      a_column, 1 as id from dual;
+    open l_expected for select cast('a' as varchar2(10)) a_column          from dual;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+    l_expected_message := q'[Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
+Diff:
+Columns:
+  Column <ID> [position: 2, data-type: NUMBER] is not expected in results.
+Rows: [ 1 differences ]
+  All rows are different as the columns are not matching.]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure column_diff_on_data_type_diff is
+    l_actual           sys_refcursor;
+    l_expected         sys_refcursor;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select to_char(rownum) rn, rownum another_rn from dual connect by level <=2;
+    open l_expected for select rownum rn,          rownum another_rn from dual connect by level <=2;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+
+    l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
+Diff:
+Columns:
+  Column <RN> data-type is invalid. Expected: NUMBER, actual: VARCHAR2.]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure column_diff_on_col_name_diff is
+    l_actual           sys_refcursor;
+    l_expected         sys_refcursor;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select rownum rn, rownum bad_column_name      from dual connect by level <=2;
+    open l_expected for select rownum rn, rownum expected_column_name from dual connect by level <=2;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+
+    l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
+Diff:
+Columns:%
+  Column <EXPECTED_COLUMN_NAME> [data-type: NUMBER] is missing. Expected column position: 2.%
+  Column <BAD_COLUMN_NAME> [position: 2, data-type: NUMBER] is not expected in results.%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  --%test(Reports column diff on cusror with different column positions)
+  procedure column_diff_on_col_position is
+    l_actual           sys_refcursor;
+    l_expected         sys_refcursor;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select rownum+1 col_1, rownum+2 col_2, rownum+3 col_3, rownum+4 col_4 from dual connect by level <=2;
+    open l_expected for select rownum+1 col_1, rownum+4 col_4, rownum+2 col_2, rownum+3 col_3 from dual connect by level <=2;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+
+    l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
+Diff:
+Columns:
+  Column <COL_4> is misplaced. Expected position: 2, actual position: 4.
+  Column <COL_2> is misplaced. Expected position: 3, actual position: 2.
+  Column <COL_3> is misplaced. Expected position: 4, actual position: 3.
+Rows: [ 2 differences ]
+  All rows are different as the columns are not matching.]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+
+  --%test(Reports only mismatched columns on column data mismatch)
+  procedure data_diff_on_col_data_mismatch is
+    l_actual           sys_refcursor;
+    l_expected         sys_refcursor;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select rownum good_col, -rownum bad_col from dual connect by level <=2;
+    open l_expected for select rownum good_col,  rownum bad_col from dual connect by level <=2;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+
+    l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
+Diff:
+Rows: [ 2 differences ]
+  Row No. 1 - Actual:   <BAD_COL>-1</BAD_COL>
+  Row No. 1 - Expected: <BAD_COL>1</BAD_COL>
+  Row No. 2 - Actual:   <BAD_COL>-2</BAD_COL>
+  Row No. 2 - Expected: <BAD_COL>2</BAD_COL>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure data_diff_on_20_rows_only is
+    l_actual           sys_refcursor;
+    l_expected         sys_refcursor;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual for
+      select rownum
+            * case when mod(rownum,2) = 0 then -1 else 1 end bad_col,
+            rownum good_col
+       from dual connect by level <=100;
+    open l_expected for select rownum bad_col, rownum good_col from dual connect by level <=110;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+
+    l_expected_message := q'[Actual: refcursor [ count = 100 ] was expected to equal: refcursor [ count = 110 ]
+Diff:
+Rows: [ 60 differences, showing first 20 ]
+  Row No. 2 - Actual:   <BAD_COL>-2</BAD_COL>
+  Row No. 2 - Expected: <BAD_COL>2</BAD_COL>
+  Row No. 4 - Actual:   <BAD_COL>-4</BAD_COL>
+  Row No. 4 - Expected: <BAD_COL>4</BAD_COL>
+  Row No. 6 - Actual:   <BAD_COL>-6</BAD_COL>
+  Row No. 6 - Expected: <BAD_COL>6</BAD_COL>
+  Row No. 8 - Actual:   <BAD_COL>-8</BAD_COL>
+  Row No. 8 - Expected: <BAD_COL>8</BAD_COL>
+  %
+  Row No. 38 - Actual:   <BAD_COL>-38</BAD_COL>
+  Row No. 38 - Expected: <BAD_COL>38</BAD_COL>
+  Row No. 40 - Actual:   <BAD_COL>-40</BAD_COL>
+  Row No. 40 - Expected: <BAD_COL>40</BAD_COL>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure column_and_data_diff is
+    l_actual           sys_refcursor;
+    l_expected         sys_refcursor;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_expected for
+      select 1 as ID, 'JACK' as FIRST_NAME, 'SPARROW' AS LAST_NAME, 10000 AS SALARY from dual union all
+      select 2 as ID, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 1000 AS SALARY from dual union all
+      select 3 as ID, 'TONY' as FIRST_NAME, 'STARK' AS LAST_NAME, 100000 AS SALARY from dual;
+    open l_actual for
+      select 'M' AS GENDER, 'JACK' as FIRST_NAME, 'SPARROW' AS LAST_NAME, 1 as ID, '25000' AS SALARY from dual union all
+      select 'M' AS GENDER, 'TONY' as FIRST_NAME, 'STARK' AS LAST_NAME, 3 as ID, '100000' AS SALARY from dual union all
+      select 'F' AS GENDER, 'JESSICA' as FIRST_NAME, 'JONES' AS LAST_NAME, 4 as ID, '2345' AS SALARY from dual union all
+      select 'M' AS GENDER, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 2 as ID, '1000' AS SALARY from dual;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+    l_expected_message := q'[Actual: refcursor [ count = 4 ] was expected to equal: refcursor [ count = 3 ]
+Diff:
+Columns:
+  Column <ID> is misplaced. Expected position: 1, actual position: 4.
+  Column <SALARY> data-type is invalid. Expected: NUMBER, actual: VARCHAR2.
+  Column <GENDER> [position: 1, data-type: CHAR] is not expected in results.
+Rows: [ 4 differences ]
+  Row No. 1 - Actual:   <SALARY>25000</SALARY>
+  Row No. 1 - Expected: <SALARY>10000</SALARY>
+  Row No. 2 - Actual:   <FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><ID>3</ID><SALARY>100000</SALARY>
+  Row No. 2 - Expected: <ID>2</ID><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><SALARY>1000</SALARY>
+  Row No. 3 - Actual:   <FIRST_NAME>JESSICA</FIRST_NAME><LAST_NAME>JONES</LAST_NAME><ID>4</ID><SALARY>2345</SALARY>
+  Row No. 3 - Expected: <ID>3</ID><FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><SALARY>100000</SALARY>
+  Row No. 4 - Extra:    <GENDER>M</GENDER><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><ID>2</ID><SALARY>1000</SALARY>]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);

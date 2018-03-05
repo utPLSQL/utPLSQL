@@ -19,7 +19,7 @@ create or replace type body ut_data_value_collection as
   constructor function ut_data_value_collection(self in out nocopy ut_data_value_collection, a_value anydata) return self as result is
   begin
     self.self_type  := $$plsql_unit;
-    self.init(a_value, 'collection');
+    self.init(a_value, 'collection', '/*/*/*');
     if a_value is not null then
       execute immediate '
         declare
@@ -31,24 +31,9 @@ create or replace type body ut_data_value_collection as
           if l_data is not null then
             :l_count := l_data.count;
           end if;
-        end;' using in self.data_value, out self.elements_count;
+        end;' using in a_value, out self.elements_count;
     end if;
     return;
-  end;
-
-  overriding member function get_object_info return varchar2 is
-  begin
-    return self.data_type||' [ count = '||self.elements_count||' ]';
-  end;
-
-  member function is_empty return boolean is
-  begin
-    if not self.is_null() then
-      return xmltype(self.data_value).getclobval()
-             = '<' || substr(self.data_value.gettypename, instr(self.data_value.gettypename, '.') + 1) || '/>';
-    else
-      return null;
-    end if;
   end;
 
   overriding member function is_multi_line return boolean is

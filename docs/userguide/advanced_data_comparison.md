@@ -98,6 +98,7 @@ When using XPath expression, keep in mind the following:
 - object type attributes are nested under `<OBJECTY_TYPE>` element
 - nested table and varray items type attributes are nested under `<ARRAY><OBJECTY_TYPE>` elements
 
+Example of a valid XPath parameter to include columns: `RN`, `A_Column`, `SOME_COL` in data comparison. 
 ```sql
 procedure include_columns_as_xpath is
     l_actual   sys_refcursor;

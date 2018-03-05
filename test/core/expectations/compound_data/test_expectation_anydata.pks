@@ -87,11 +87,11 @@ create or replace package test_expectation_anydata is
   --%test(Includes only attributes that are not on exclude list)
   procedure include_exclude_attrib_list;
 
-  --%test(Gives information about objects content in report)
-  procedure reports_object_structure;
+  --%test(Reports diff on incorrect attributes of an object type)
+  procedure reports_diff_attribute;
 
-  --%test(Gives information about collections content in report)
-  procedure reports_collection_structre;
+  --%test(Reports diff on incorrect rows and attributes of a collection type)
+  procedure reports_diff_structure;
 
   --%test(Adds a warning when using depreciated syntax to_equal( a_expected anydata, a_exclude varchar2 ))
   procedure deprec_to_equal_excl_varch;
@@ -110,6 +110,12 @@ create or replace package test_expectation_anydata is
 
   --%test(Adds a warning when using depreciated syntax to_( equal( a_expected anydata, a_exclude ut_varchar2_list )) )
   procedure deprec_equal_excl_list;
+
+  --%test(Reports only mismatched attributes on row data mismatch)
+  procedure data_diff_on_atr_data_mismatch;
+
+  --%test(Reports only first 20 rows of diff and gives a full diff count)
+  procedure data_diff_on_20_rows_only;
 
 end;
 /
