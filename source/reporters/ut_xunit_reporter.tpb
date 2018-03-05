@@ -129,5 +129,10 @@ create or replace type body ut_xunit_reporter is
            || '" time="' || ut_utils.to_xml_number_format(a_item.execution_time()) || '" ';
   end;
 
+  overriding member function get_description return varchar2 as
+  begin
+    return 'Used for reporting test results with CI servers like Jenkins/Hudson/Teamcity.';
+  end;
+
 end;
 /

@@ -23,7 +23,9 @@ create or replace type ut_xunit_reporter under ut_output_reporter_base(
   constructor function ut_xunit_reporter(self in out nocopy ut_xunit_reporter) return self as result,
 
   overriding member procedure after_calling_run(self in out nocopy ut_xunit_reporter, a_run in ut_run),
-  member function get_common_item_attributes(a_item ut_suite_item) return varchar2
+  member function get_common_item_attributes(a_item ut_suite_item) return varchar2,
+
+  overriding member function get_description return varchar2
 )
 not final
 /

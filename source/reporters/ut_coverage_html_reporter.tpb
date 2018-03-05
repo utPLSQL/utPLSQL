@@ -39,5 +39,13 @@ create or replace type body ut_coverage_html_reporter is
     self.print_clob( ut_coverage_report_html_helper.get_index( l_coverage_data, self.assets_path, self.project_name ) );
   end;
 
+
+  overriding member function get_description return varchar2 as
+  begin
+    return 'Generates a HTML coverage report with summary and line by line information on code coverage.' || chr(10) ||
+           'Based on open-source simplecov-html coverage reporter for Ruby.' || chr(10) ||
+           'Includes source code in the report.';
+  end;
+
 end;
 /

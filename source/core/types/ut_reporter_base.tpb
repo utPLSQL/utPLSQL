@@ -33,6 +33,11 @@ create or replace type body ut_reporter_base is
     return self.id;
   end;
 
+  member function get_description return varchar2 is
+  begin
+    return 'No description available';
+  end;
+
   -- run hooks
   member procedure before_calling_run(self in out nocopy ut_reporter_base, a_run in ut_run) is
   begin

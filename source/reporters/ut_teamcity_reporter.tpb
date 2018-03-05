@@ -113,5 +113,10 @@ create or replace type body ut_teamcity_reporter is
 
   end;
 
+  overriding member function get_description return varchar2 as
+  begin
+    return 'For reporting live progress of test execution with Teamcity CI.';
+  end;
+
 end;
 /

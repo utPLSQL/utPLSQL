@@ -97,5 +97,11 @@ create or replace type body ut_sonar_test_reporter is
     self.print_text('</testExecutions>');
   end;
 
+  overriding member function get_description return varchar2 as
+  begin
+    return 'Generates a JSON report providing detailed information on test execution.' || chr(10) ||
+           'Designed for [SonarQube](https://about.sonarqube.com/) to report test execution.';
+  end;
+
 end;
 /

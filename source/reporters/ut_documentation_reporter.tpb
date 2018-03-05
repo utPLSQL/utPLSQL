@@ -196,5 +196,10 @@ create or replace type body ut_documentation_reporter is
     (self as ut_reporter_base).after_calling_run(a_run);
   end;
 
+  overriding member function get_description return varchar2 as
+  begin
+    return 'A textual pretty-print of unit test results (usually use for console output)';
+  end;
+
 end;
 /

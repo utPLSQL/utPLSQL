@@ -99,5 +99,11 @@ create or replace type body ut_coveralls_reporter is
     self.print_clob( get_coverage_json( l_coverage_data ) );
   end;
 
+  overriding member function get_description return varchar2 as
+  begin
+    return 'Generates a JSON coverage report providing information on code coverage with line numbers.' || chr(10) ||
+           'Designed for [Coveralls](https://coveralls.io/).';
+  end;
+
 end;
 /

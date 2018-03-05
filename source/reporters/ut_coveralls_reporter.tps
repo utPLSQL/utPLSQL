@@ -24,6 +24,8 @@ create or replace type ut_coveralls_reporter under ut_coverage_reporter_base(
     self in out nocopy ut_coveralls_reporter
   ) return self as result,
 
-  overriding member procedure after_calling_run(self in out nocopy ut_coveralls_reporter, a_run in ut_run)
+  overriding member procedure after_calling_run(self in out nocopy ut_coveralls_reporter, a_run in ut_run),
+
+  overriding member function get_description return varchar2
 )
 /

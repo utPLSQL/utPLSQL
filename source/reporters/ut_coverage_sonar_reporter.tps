@@ -24,6 +24,8 @@ create or replace type ut_coverage_sonar_reporter under ut_coverage_reporter_bas
     self in out nocopy ut_coverage_sonar_reporter
   ) return self as result,
 
-  overriding member procedure after_calling_run(self in out nocopy ut_coverage_sonar_reporter, a_run in ut_run)
+  overriding member procedure after_calling_run(self in out nocopy ut_coverage_sonar_reporter, a_run in ut_run),
+
+  overriding member function get_description return varchar2
 )
 /

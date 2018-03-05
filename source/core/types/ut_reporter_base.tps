@@ -20,6 +20,7 @@ create or replace type ut_reporter_base authid current_user as object(
   final member procedure init(self in out nocopy ut_reporter_base, a_self_type varchar2),
   member procedure set_reporter_id(self in out nocopy ut_reporter_base, a_reporter_id raw),
   member function  get_reporter_id return raw,
+  member function  get_description return varchar2,
 
   -- run hooks
   member procedure before_calling_run(self in out nocopy ut_reporter_base, a_run in ut_run),
