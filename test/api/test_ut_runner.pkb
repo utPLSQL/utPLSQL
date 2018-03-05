@@ -281,7 +281,8 @@ end;';
   begin
     --Arrange
     open l_expected for
-      select 'UT3.UT_COVERAGE_HTML_REPORTER' reporter_object_name, 'Y' is_output_reporter from dual union all
+      select 'UT3.UT_COVERAGE_COBERTURA_REPORTER' reporter_object_name, 'Y' is_output_reporter from dual union all
+      select 'UT3.UT_COVERAGE_HTML_REPORTER', 'Y' from dual union all
       select 'UT3.UT_COVERAGE_SONAR_REPORTER', 'Y' from dual union all
       select 'UT3.UT_COVERALLS_REPORTER', 'Y' from dual union all
       select 'UT3.UT_DOCUMENTATION_REPORTER', 'Y' from dual union all
