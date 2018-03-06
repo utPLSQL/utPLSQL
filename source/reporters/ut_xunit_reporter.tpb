@@ -131,7 +131,7 @@ create or replace type body ut_xunit_reporter is
 
   overriding member function get_description return varchar2 as
   begin
-    return 'Used for reporting test results with CI servers like Jenkins/Hudson/Teamcity.';
+    return 'Provides outcomes in a format conforming with JUnit 4 and above as defined in: https://gist.github.com/kuzuha/232902acab1344d6b578';
   end;
 
 end;

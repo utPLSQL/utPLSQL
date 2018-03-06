@@ -102,7 +102,8 @@ create or replace type body ut_coveralls_reporter is
   overriding member function get_description return varchar2 as
   begin
     return 'Generates a JSON coverage report providing information on code coverage with line numbers.' || chr(10) ||
-           'Designed for [Coveralls](https://coveralls.io/).';
+           'Designed for [Coveralls](https://coveralls.io/).' || chr(10) ||
+           'JSON format conforms with specification: https://docs.coveralls.io/api-introduction';
   end;
 
 end;

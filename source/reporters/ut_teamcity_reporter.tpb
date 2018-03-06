@@ -115,7 +115,8 @@ create or replace type body ut_teamcity_reporter is
 
   overriding member function get_description return varchar2 as
   begin
-    return 'For reporting live progress of test execution with Teamcity CI.';
+    return 'Provides the TeamCity (a CI server by jetbrains) reporting-format that allows tracking of progress of a CI step/task as it executes.' || chr(10) ||
+           'https://confluence.jetbrains.com/display/TCD9/Build+Script+Interaction+with+TeamCity';
   end;
 
 end;
