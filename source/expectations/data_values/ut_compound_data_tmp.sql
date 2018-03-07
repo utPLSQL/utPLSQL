@@ -12,7 +12,7 @@ create global temporary table ut_compound_data_tmp(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  data_id raw(16),
+  data_id          raw(32),
   item_no          integer,
   item_data        xmltype,
   constraint ut_compound_data_tmp_pk primary key(data_id, item_no)

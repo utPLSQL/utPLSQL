@@ -216,6 +216,33 @@ create or replace package body ut_compound_data_helper is
     return l_results;
   end;
 
+  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
+  begin
+    return dbms_crypto.hash(a_data, a_hash_type);
+  end;
+
+  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
+  begin
+    return dbms_crypto.hash(a_data, a_hash_type);
+  end;
+
+  function columns_hash(
+    a_data_value_cursor ut_data_value_refcursor, a_exclude_xpath varchar2, a_include_xpath varchar2,
+    a_hash_type binary_integer := dbms_crypto.hash_sh1
+  ) return t_hash is
+    l_cols_hash t_hash;
+  begin
+    if not a_data_value_cursor.is_null then
+      execute immediate
+      q'[select dbms_crypto.hash(replace(x.item_data.getclobval(),'>CHAR<','>VARCHAR2<'),]'||a_hash_type||') ' ||
+      '  from ( select '||get_columns_filter(a_exclude_xpath, a_include_xpath)||
+      '           from (select :columns_info as item_data from dual ) ucd' ||
+      '  ) x'
+      into l_cols_hash using a_exclude_xpath, a_include_xpath, a_data_value_cursor.columns_info;
+    end if;
+    return l_cols_hash;
+  end;
+
 begin
   g_type_name_map( dbms_sql.binary_bouble_type )           := 'BINARY_DOUBLE';
   g_type_name_map( dbms_sql.bfile_type )                   := 'BFILE';

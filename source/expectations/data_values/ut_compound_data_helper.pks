@@ -52,5 +52,14 @@ create or replace package ut_compound_data_helper authid definer is
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2
   ) return tt_row_diffs;
 
+  subtype t_hash  is raw(128);
+
+  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1)  return t_hash;
+  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash;
+  function columns_hash(
+    a_data_value_cursor ut_data_value_refcursor, a_exclude_xpath varchar2, a_include_xpath varchar2,
+    a_hash_type binary_integer := dbms_crypto.hash_sh1
+  ) return t_hash;
+
 end;
 /
