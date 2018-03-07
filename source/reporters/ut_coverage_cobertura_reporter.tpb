@@ -133,5 +133,13 @@ create or replace type body ut_coverage_cobertura_reporter is
     (self as ut_reporter_base).after_calling_run(a_run);
   end;
 
+ overriding member function get_description return varchar2 as
+ begin
+   return 'Generates a Cobertura coverage report providing information on code coverage with line numbers.' || chr(10) ||
+          'Designed for Jenkins and TFS to report coverage. ' || chr(10) ||
+          'Cobertura Document Type Definition can be found: http://cobertura.sourceforge.net/xml/coverage-04.dtd.'|| chr(10) ||
+          'Sample file: https://github.com/leobalter/testing-examples/blob/master/solutions/3/report/cobertura-coverage.xml.';
+ end;
+
 end;
 /
