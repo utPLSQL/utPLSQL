@@ -89,7 +89,7 @@ create or replace type body ut_compound_data_value as
     l_ut_owner          varchar2(250) := ut_utils.ut_owner;
     l_diff_row_count    integer;
     l_actual            ut_compound_data_value;
-    l_diff_id           raw(16);
+    l_diff_id           ut_compound_data_helper.t_hash;
     l_row_diffs         ut_compound_data_helper.tt_row_diffs;
   begin
     if not a_other is of (ut_compound_data_value) then
@@ -100,7 +100,7 @@ create or replace type body ut_compound_data_value as
     dbms_lob.createtemporary(l_result,true);
 
     --diff rows and row elements
-    l_diff_id := dbms_crypto.hash(self.data_id||l_actual.data_id,2);
+    l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_actual.data_id);
     -- First tell how many rows are different
     execute immediate 'select count(*) from ' || l_ut_owner || '.ut_compound_data_diff_tmp where diff_id = :diff_id' into l_diff_row_count using l_diff_id;
 
@@ -128,7 +128,7 @@ create or replace type body ut_compound_data_value as
     l_other           ut_compound_data_value;
     l_ut_owner        varchar2(250) := ut_utils.ut_owner;
     l_column_filter   varchar2(32767);
-    l_diff_id         raw(16);
+    l_diff_id         ut_compound_data_helper.t_hash;
     l_result          integer;
     --the XML stylesheet is applied on XML representation of data to exclude column names from comparison
     --column names and data-types are compared separately
@@ -152,7 +152,7 @@ create or replace type body ut_compound_data_value as
 
     l_other   := treat(a_other as ut_compound_data_value);
 
-    l_diff_id := dbms_crypto.hash(self.data_id||l_other.data_id,2);
+    l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
     l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
     -- Find differences
     execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id, item_no )

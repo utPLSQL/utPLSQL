@@ -12,7 +12,7 @@ create global temporary table ut_compound_data_diff_tmp(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  diff_id    raw(16),
+  diff_id    raw(128),
   item_no    integer,
   constraint ut_compound_data_diff_tmp_pk primary key(diff_id,item_no)
 ) on commit preserve rows;

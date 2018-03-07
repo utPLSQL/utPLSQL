@@ -186,21 +186,6 @@ create or replace type body ut_data_value_refcursor as
   overriding member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer is
     l_result          integer := 0;
     l_other           ut_data_value_refcursor;
-    function columns_hash(
-      a_data_value_cursor ut_data_value_refcursor, a_exclude_xpath varchar2, a_include_xpath varchar2
-    ) return raw is
-      l_cols_hash  raw(32);
-    begin
-      if not a_data_value_cursor.is_null then
-        execute immediate
-        q'[select dbms_crypto.hash(replace(x.item_data.getclobval(),'>CHAR<','>VARCHAR2<'),3) ]' ||
-        '  from ( select '||ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath)||
-        '           from (select :columns_info as item_data from dual ) ucd' ||
-        '  ) x'
-        into l_cols_hash using a_exclude_xpath, a_include_xpath, a_data_value_cursor.columns_info;
-      end if;
-      return l_cols_hash;
-    end;
   begin
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
@@ -209,7 +194,9 @@ create or replace type body ut_data_value_refcursor as
     l_other   := treat(a_other as ut_data_value_refcursor);
 
     --if column names/types are not equal - build a diff of column names and types
-    if columns_hash( self, a_exclude_xpath, a_include_xpath ) != columns_hash( l_other, a_exclude_xpath, a_include_xpath ) then
+    if ut_compound_data_helper.columns_hash( self, a_exclude_xpath, a_include_xpath )
+       != ut_compound_data_helper.columns_hash( l_other, a_exclude_xpath, a_include_xpath )
+    then
       l_result := 1;
     end if;
     l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath);
