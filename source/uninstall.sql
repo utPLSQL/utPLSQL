@@ -196,6 +196,8 @@ drop type ut_xunit_reporter force;
 
 drop type ut_event_listener force;
 
+drop type ut_output_reporter_base force;
+
 drop type ut_coverage_reporter_base force;
 
 drop type ut_reporters force;
@@ -228,11 +230,17 @@ drop type ut_event_listener_base force;
 
 drop type ut_suite_item_base force;
 
-drop package ut_output_buffer;
+drop type ut_output_table_buffer force;
+
+drop type ut_output_buffer_base force;
 
 drop view ut_output_buffer_tmp;
 
 drop table ut_output_buffer_tmp$;
+
+drop view ut_output_buffer_info_tmp;
+
+drop table ut_output_buffer_info_tmp$;
 
 drop sequence ut_message_id_seq;
 

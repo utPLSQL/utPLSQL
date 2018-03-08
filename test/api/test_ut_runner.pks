@@ -48,5 +48,10 @@ create or replace package test_ut_runner is
   --%aftertest(cleanup_cache)
   procedure test_get_unit_test_info;
 
+  --%test(get_reporters_list returns a cursor containing all built-in reporters and information about output-reporter)
+  --%beforetest(setup_cache_objects)
+  --%aftertest(cleanup_cache)
+  procedure test_get_reporters_list;
+
 end;
 /

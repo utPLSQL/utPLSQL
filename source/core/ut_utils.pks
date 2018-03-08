@@ -34,6 +34,7 @@ create or replace package ut_utils authid definer is
   gc_after_test              constant varchar2(10) := 'after_test';
   gc_after_each              constant varchar2(12) := 'after_each';
   gc_after_all               constant varchar2(12) := 'after_all';
+  gc_finalize                constant varchar2(12) := 'finalize';
 
   /* Constants: Test Results */
   tr_disabled                constant number(1) := 0; -- test/suite was disabled

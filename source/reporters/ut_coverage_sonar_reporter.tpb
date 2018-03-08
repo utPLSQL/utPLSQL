@@ -86,8 +86,13 @@ create or replace type body ut_coverage_sonar_reporter is
     l_coverage_data := ut_coverage.get_coverage_data(a_run.coverage_options);
 
     self.print_clob( get_coverage_xml( l_coverage_data ) );
+  end;
 
-    (self as ut_reporter_base).after_calling_run(a_run);
+  overriding member function get_description return varchar2 as
+  begin
+    return 'Generates a JSON coverage report providing information on code coverage with line numbers.' || chr(10) ||
+           'Designed for [SonarQube](https://about.sonarqube.com/) to report coverage.' || chr(10) ||
+           'JSON format returned conforms with the Sonar specification: https://docs.sonarqube.org/display/SONAR/Generic+Test+Data';
   end;
 
 end;

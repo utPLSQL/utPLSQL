@@ -118,7 +118,6 @@ create or replace type body ut_xunit_reporter is
       print_suite_elements(treat(a_run.items(i) as ut_logical_suite), l_suite_id);
     end loop;
     self.print_text('</testsuites>');
-    (self as ut_reporter_base).after_calling_run(a_run);
   end;
 
   member function get_common_item_attributes(a_item ut_suite_item) return varchar2 is
@@ -128,6 +127,11 @@ create or replace type body ut_xunit_reporter is
            || '" failure="' || a_item.results_count.failure_count
            || '" name="' || dbms_xmlgen.convert(nvl(a_item.description, a_item.name))
            || '" time="' || ut_utils.to_xml_number_format(a_item.execution_time()) || '" ';
+  end;
+
+  overriding member function get_description return varchar2 as
+  begin
+    return 'Provides outcomes in a format conforming with JUnit 4 and above as defined in: https://gist.github.com/kuzuha/232902acab1344d6b578';
   end;
 
 end;

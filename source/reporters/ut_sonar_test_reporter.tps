@@ -1,4 +1,4 @@
-create or replace type ut_sonar_test_reporter under ut_reporter_base(
+create or replace type ut_sonar_test_reporter under ut_output_reporter_base(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -20,7 +20,9 @@ create or replace type ut_sonar_test_reporter under ut_reporter_base(
     self in out nocopy ut_sonar_test_reporter
   ) return self as result,
 
-  overriding member procedure after_calling_run(self in out nocopy ut_sonar_test_reporter, a_run in ut_run)
+  overriding member procedure after_calling_run(self in out nocopy ut_sonar_test_reporter, a_run in ut_run),
+
+  overriding member function get_description return varchar2
 )
 not final
 /

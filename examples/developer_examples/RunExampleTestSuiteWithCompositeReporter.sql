@@ -12,9 +12,11 @@ set echo off
 
 PROMPT Runs test report using composite reporter
 declare
-  suite         ut_logical_suite;
-  listener      ut_event_listener;
-  l_run         ut_run;
+  suite          ut_logical_suite;
+  l_doc_reporter ut_output_reporter_base := ut_documentation_reporter();
+  l_tc_reporter  ut_output_reporter_base := ut_teamcity_reporter();
+  l_listener    ut_event_listener := ut_event_listener(ut_reporters(l_doc_reporter, l_tc_reporter));
+  l_run          ut_run;
 begin
   suite := ut_logical_suite(a_object_owner=>null, a_object_name => 'ut_exampletest', a_name => null, a_description => 'Test Suite Name',a_path => null);
 
@@ -36,11 +38,10 @@ begin
   );
 
   -- provide a reporter to process results
-  listener := ut_event_listener(ut_reporters(ut_documentation_reporter, ut_teamcity_reporter));
   l_run := ut_run(ut_suite_items(suite));
-  l_run.do_execute(listener);
-  ut_output_buffer.lines_to_dbms_output(listener.reporters(1).reporter_id,0);
-  ut_output_buffer.lines_to_dbms_output(listener.reporters(2).reporter_id,0);
+  l_run.do_execute(l_listener);
+  l_doc_reporter.lines_to_dbms_output(0,0);
+  l_tc_reporter.lines_to_dbms_output(0,0);
 end;
 /
 

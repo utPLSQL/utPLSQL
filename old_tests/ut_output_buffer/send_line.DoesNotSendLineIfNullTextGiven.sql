@@ -1,14 +1,15 @@
 --Arrange
 declare
   l_result integer;
-  l_reporter ut_reporter_base := ut_documentation_reporter();
+  l_output   ut_output_buffer_base := ut_output_table_buffer();
 begin
   delete from ut_output_buffer_tmp;
   --Act
-  ut_output_buffer.send_line(l_reporter,null);
+  l_output.send_line(null);
 
   select count(1) into l_result from ut_output_buffer_tmp;
 
+  --Assert
   ut.expect(l_result).to_equal(0);
   if ut_expectation_processor.get_status = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;

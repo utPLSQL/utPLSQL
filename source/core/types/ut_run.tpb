@@ -72,6 +72,7 @@ create or replace type body ut_run as
     self.end_time := current_timestamp;
 
     a_listener.fire_after_event(ut_utils.gc_run, self);
+    a_listener.fire_on_event(ut_utils.gc_finalize);
 
     return l_completed_without_errors;
   end;

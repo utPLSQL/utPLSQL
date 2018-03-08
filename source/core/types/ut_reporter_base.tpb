@@ -19,25 +19,23 @@ create or replace type body ut_reporter_base is
   final member procedure init(self in out nocopy ut_reporter_base, a_self_type varchar2) is
   begin
     self.self_type   := a_self_type;
-    self.reporter_id := sys_guid();
-    self.start_date  := sysdate();
+    self.id          := sys_guid();
     return;
   end;
 
-  member procedure print_text(self in out nocopy ut_reporter_base, a_text varchar2) is
+  member procedure set_reporter_id(self in out nocopy ut_reporter_base, a_reporter_id raw) is
   begin
-    ut_output_buffer.send_line(self,a_text);
+    self.id := a_reporter_id;
   end;
 
-  member procedure print_clob(self in out nocopy ut_reporter_base, a_clob clob) is
-    l_lines ut_varchar2_list;
+  member function get_reporter_id return raw is
   begin
-    if a_clob is not null and dbms_lob.getlength(a_clob) > 0 then
-      l_lines := ut_utils.clob_to_table(a_clob);
-      for i in 1 .. l_lines.count loop
-        self.print_text(l_lines(i));
-      end loop;
-    end if;
+    return self.id;
+  end;
+
+  member function get_description return varchar2 is
+  begin
+    return 'No description available';
   end;
 
   -- run hooks
@@ -135,7 +133,7 @@ create or replace type body ut_reporter_base is
   -- run hooks continued
   member procedure after_calling_run (self in out nocopy ut_reporter_base, a_run in ut_run) is
   begin
-    ut_output_buffer.close(self);
+    null;
   end;
 
 end;

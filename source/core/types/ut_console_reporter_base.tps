@@ -1,4 +1,4 @@
-create or replace type ut_console_reporter_base under ut_reporter_base(
+create or replace type ut_console_reporter_base under ut_output_reporter_base(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project

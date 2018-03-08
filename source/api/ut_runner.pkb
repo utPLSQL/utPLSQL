@@ -33,10 +33,10 @@ create or replace package body ut_runner is
     return l_result;
   end;
 
-  procedure finish_run(a_reporters ut_reporters) is
+  procedure finish_run(l_listener in out ut_event_listener) is
   begin
     ut_utils.cleanup_temp_tables;
-    ut_output_buffer.close(a_reporters);
+    l_listener.fire_on_event(ut_utils.gc_finalize);
     ut_metadata.reset_source_definition_cache;
     ut_utils.read_cache_to_dbms_output();
     ut_coverage_helper.cleanup_tmp_table();
@@ -73,7 +73,6 @@ create or replace package body ut_runner is
     l_listener     ut_event_listener;
   begin
     begin
-      ut_output_buffer.cleanup_buffer();
       ut_utils.save_dbms_output_to_cache();
 
       ut_console_reporter_base.set_color_enabled(a_color_console);
@@ -93,10 +92,10 @@ create or replace package body ut_runner is
       );
       l_items_to_run.do_execute(l_listener);
 
-      finish_run(l_listener.reporters);
+      finish_run(l_listener);
     exception
       when others then
-        finish_run(l_listener.reporters);
+        finish_run(l_listener);
         dbms_output.put_line(dbms_utility.format_error_backtrace);
         dbms_output.put_line(dbms_utility.format_error_stack);
         raise;
@@ -141,6 +140,39 @@ create or replace package body ut_runner is
     close l_cursor;
     return;
   end;
+
+  function get_reporters_list return tt_reporters_info pipelined
+  AS
+    l_cursor      sys_refcursor;
+    l_owner  varchar2(128) := ut_utils.ut_owner();
+    l_results     tt_reporters_info;
+    c_bulk_limit  constant integer := 10;
+    begin
+      open l_cursor for 'SELECT
+          owner || ''.'' || type_name,
+          CASE
+                  WHEN sys_connect_by_path(owner
+                  || ''.''
+                  || type_name,'','') LIKE ''%' || l_owner || '''
+                  || ''.UT_OUTPUT_REPORTER_BASE%'' THEN ''Y''
+                  ELSE ''N''
+              END
+          is_output_reporter
+      FROM dba_types t
+      WHERE instantiable = ''YES''
+      CONNECT BY supertype_name = PRIOR type_name AND supertype_owner = PRIOR owner
+        START WITH type_name = ''UT_REPORTER_BASE'' AND owner = '''|| l_owner || '''';
+      loop
+        fetch l_cursor bulk collect into l_results limit c_bulk_limit;
+        for i in 1 .. l_results.count loop
+          pipe row (l_results(i));
+        end loop;
+        exit when l_cursor%notfound;
+      end loop;
+      close l_cursor;
+    end;
+
+
 
 end ut_runner;
 /

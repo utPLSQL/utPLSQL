@@ -6,9 +6,6 @@ create or replace package test_output_buffer is
   --%test(Recieves a line from buffer table and deletes)
   procedure test_recieve;
   
-  --%test(Does not send line if null reporter id given)
-  procedure test_doesnt_send_on_null_id;
-  
   --%test(Does not send line if null text given)
   procedure test_doesnt_send_on_null_text;
   

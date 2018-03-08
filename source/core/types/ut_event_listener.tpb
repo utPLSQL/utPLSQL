@@ -24,15 +24,15 @@ create or replace type body ut_event_listener is
 
   overriding member procedure fire_before_event(self in out nocopy ut_event_listener, a_event_name varchar2, a_item ut_suite_item_base) is
   begin
-    self.fire_event('before', a_event_name, a_item);
+    self.fire_on_event('before', a_event_name, a_item);
   end;
 
   overriding member procedure fire_after_event(self in out nocopy ut_event_listener, a_event_name varchar2, a_item ut_suite_item_base) is
   begin
-    self.fire_event('after', a_event_name, a_item);
+    self.fire_on_event('after', a_event_name, a_item);
   end;
 
-  overriding member procedure fire_event(self in out nocopy ut_event_listener, a_event_timing varchar2, a_event_name varchar2, a_item ut_suite_item_base) is
+  overriding member procedure fire_on_event(self in out nocopy ut_event_listener, a_event_timing varchar2, a_event_name varchar2, a_item ut_suite_item_base) is
   begin
     for i in 1..self.reporters.count loop
       if a_event_timing = 'before' then
@@ -56,8 +56,6 @@ create or replace type body ut_event_listener is
           self.reporters(i).before_calling_after_each(treat(a_item as ut_test));
         elsif a_event_name = ut_utils.gc_after_all then
           self.reporters(i).before_calling_after_all(treat(a_item as ut_logical_suite));
-        else
-          raise_application_error(ut_utils.gc_invalid_rep_event_name,'Invalid reporting event name - '|| nvl(a_event_name,'NULL'));
         end if;
       elsif a_event_timing = 'after' then
         if a_event_name =  ut_utils.gc_run then
@@ -80,15 +78,20 @@ create or replace type body ut_event_listener is
           self.reporters(i).after_calling_after_each(treat(a_item as ut_test));
         elsif a_event_name = ut_utils.gc_after_all then
           self.reporters(i).after_calling_after_all(treat(a_item as ut_logical_suite));
-        else
-          raise_application_error(ut_utils.gc_invalid_rep_event_name,'Invalid reporting event name - '|| nvl(a_event_name,'NULL'));
         end if;
-      else
-        raise_application_error(ut_utils.gc_invalid_rep_event_time,'Invalid reporting event time - '|| nvl(a_event_timing,'NULL'));
       end if;
     end loop;
 
-  end fire_event;
+  end fire_on_event;
+
+  overriding member procedure fire_on_event(self in out nocopy ut_event_listener, a_event_name varchar2) is
+  begin
+    for i in 1..self.reporters.count loop
+      if a_event_name = ut_utils.gc_finalize then
+        self.reporters(i).finalize();
+      end if;
+    end loop;
+  end fire_on_event;
 
 end;
 /
