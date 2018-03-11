@@ -27,9 +27,14 @@ create or replace package body ut_coverage_helper is
 
   procedure coverage_start_internal(a_run_comment varchar2)  is
   begin
-    dbms_profiler.start_profiler(run_comment => a_run_comment, run_number => g_coverage_id);
+    -- Make it dynamic to allow for block coverage.
+    if ut_coverage.get_coverage_type = 'block' then
+       null;
+    else
+       dbms_profiler.start_profiler(run_comment => a_run_comment, run_number => g_coverage_id);
+       coverage_pause();
+    end if;
     g_is_started := true;
-    coverage_pause();
   end;
 
   procedure coverage_start(a_run_comment varchar2) is
@@ -52,21 +57,33 @@ create or replace package body ut_coverage_helper is
     l_return_code binary_integer;
   begin
     if not g_develop_mode then
-      l_return_code := dbms_profiler.pause_profiler();
+      if ut_coverage.get_coverage_type = 'block' then
+         null;
+      else
+         l_return_code := dbms_profiler.pause_profiler();
+      end if;
     end if;
   end;
 
   procedure coverage_resume is
     l_return_code binary_integer;
   begin
-    l_return_code := dbms_profiler.resume_profiler();
+    if ut_coverage.get_coverage_type = 'block' then
+       null;
+    else
+       l_return_code := dbms_profiler.resume_profiler();
+    end if;
   end;
 
   procedure coverage_stop is
   begin
     if not g_develop_mode then
       g_is_started := false;
-      dbms_profiler.stop_profiler();
+      if ut_coverage.get_coverage_type = 'block' then
+         null;
+      else
+         dbms_profiler.stop_profiler();
+      end if;
     end if;
   end;
 
@@ -74,10 +91,14 @@ create or replace package body ut_coverage_helper is
   begin
     g_develop_mode := false;
     g_is_started := false;
-    dbms_profiler.stop_profiler();
+    if ut_coverage.get_coverage_type = 'block' then
+       null;
+    else
+       dbms_profiler.stop_profiler();
+   end if;
   end;
 
-  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return t_unit_line_calls is
+  function get_raw_coverage_data_profiler(a_object_owner varchar2, a_object_name varchar2) return t_unit_line_calls is
     type coverage_row is record (
       line  binary_integer,
       calls number(38,0)

@@ -43,7 +43,7 @@ create or replace type body ut_coverage_cobertura_reporter is
         end loop;
       else
         while l_line_no is not null loop
-          if a_unit_coverage.lines(l_line_no) = 0 then
+          if a_unit_coverage.lines(l_line_no).executions = 0 then
             l_file_part := '<line number="'||l_line_no||'" hits="0" branch="false"/>'||chr(10);
           else
             l_file_part := '<line number="'||l_line_no||'" hits="1" branch="false"/>'||chr(10);

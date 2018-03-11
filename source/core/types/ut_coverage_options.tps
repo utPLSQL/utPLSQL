@@ -19,6 +19,7 @@ create or replace type ut_coverage_options as object (
   schema_names     ut_varchar2_rows,
   exclude_objects  ut_object_names,
   include_objects  ut_object_names,
-  file_mappings    ut_file_mappings
+  file_mappings    ut_file_mappings,
+  coverage_type    varchar2(32)
 )
 /

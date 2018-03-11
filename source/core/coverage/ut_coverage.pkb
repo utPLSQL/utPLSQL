@@ -16,8 +16,19 @@ create or replace package body ut_coverage is
   limitations under the License.
   */
 
+  
   type t_source_lines is table of binary_integer;
 
+  procedure set_coverage_type(a_coverage_type in varchar2) is
+  begin
+    g_coverage_type := a_coverage_type;
+  end;
+
+  function get_coverage_type return varchar2 is
+  begin
+    return g_coverage_type;
+  end;
+  
   -- The source query has two important transformations done in it.
   -- the flag: to_be_skipped ='Y' is set for a line of code that is badly reported by DBMS_PROFILER as executed 0 times.
   -- This includes lines that are:
@@ -175,7 +186,7 @@ create or replace package body ut_coverage is
     ut_coverage_helper.coverage_stop_develop();
   end;
 
-  function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
+  function get_coverage_data_profiler(a_coverage_options ut_coverage_options) return t_coverage is
     l_line_calls          ut_coverage_helper.t_unit_line_calls;
     l_result              t_coverage;
     l_new_unit            t_unit_coverage;
@@ -193,7 +204,7 @@ create or replace package body ut_coverage is
       exit when l_source_objects_crsr%notfound;
 
       --get coverage data
-      l_line_calls := ut_coverage_helper.get_raw_coverage_data( l_source_object.owner, l_source_object.name );
+      l_line_calls := ut_coverage_helper.get_raw_coverage_data_profiler( l_source_object.owner, l_source_object.name );
 
       --if there is coverage, we need to filter out the garbage (badly indicated data from dbms_profiler)
       if l_line_calls.count > 0 then
@@ -238,7 +249,7 @@ create or replace package body ut_coverage is
               l_result.uncovered_lines := l_result.uncovered_lines + 1;
               l_result.objects(l_source_object.full_name).uncovered_lines := l_result.objects(l_source_object.full_name).uncovered_lines + 1;
             end if;
-            l_result.objects(l_source_object.full_name).lines(line_no) := l_line_calls(line_no);
+            l_result.objects(l_source_object.full_name).lines(line_no).executions := l_line_calls(line_no);
 
             line_no := l_line_calls.next(line_no);
           end loop;
@@ -250,7 +261,18 @@ create or replace package body ut_coverage is
     close l_source_objects_crsr;
 
     return l_result;
-  end get_coverage_data;
+  end get_coverage_data_profiler;
 
+  function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
+  begin
+    
+    if get_coverage_type = 'block' then
+      null;
+      --return get_coverage_data_block(a_coverage_options => a_coverage_options);
+    else
+      return get_coverage_data_profiler(a_coverage_options => a_coverage_options);
+    end if;
+  end get_coverage_data;  
+  
 end;
 /
