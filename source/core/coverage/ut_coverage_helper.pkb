@@ -29,7 +29,7 @@ create or replace package body ut_coverage_helper is
   begin
     -- Make it dynamic to allow for block coverage.
     if ut_coverage.get_coverage_type = 'block' then
-       null;
+       g_coverage_id := dbms_plsql_code_coverage.start_coverage(run_comment => a_run_comment);
     else
        dbms_profiler.start_profiler(run_comment => a_run_comment, run_number => g_coverage_id);
        coverage_pause();
@@ -80,7 +80,7 @@ create or replace package body ut_coverage_helper is
     if not g_develop_mode then
       g_is_started := false;
       if ut_coverage.get_coverage_type = 'block' then
-         null;
+         dbms_plsql_code_coverage.stop_coverage;
       else
          dbms_profiler.stop_profiler();
       end if;
@@ -126,7 +126,45 @@ create or replace package body ut_coverage_helper is
          and u.unit_type not in ('PACKAGE SPEC', 'TYPE SPEC', 'ANONYMOUS BLOCK')
        group by d.line#;
     for i in 1 .. l_tmp_data.count loop
-      l_results(l_tmp_data(i).line) := l_tmp_data(i).calls;
+      l_results(l_tmp_data(i).line).calls := l_tmp_data(i).calls;
+    end loop;
+    return l_results;
+  end;
+
+  function get_raw_coverage_data_block(a_object_owner varchar2, a_object_name varchar2) return t_unit_line_calls is
+    type coverage_row is record(
+       line           binary_integer
+      ,blocks         binary_integer
+      ,covered_blocks binary_integer);
+    type coverage_rows is table of coverage_row;
+    l_tmp_data coverage_rows;
+    l_results  t_unit_line_calls;
+  
+  begin
+    select ccb.line
+          ,count(ccb.block) totalblocks
+          ,sum(ccb.covered) as coveredblocks bulk collect
+      into l_tmp_data
+      from dbmspcc_units ccu
+      left outer join dbmspcc_blocks ccb
+        on ccu.run_id = ccb.run_id
+       and ccu.object_id = ccb.object_id
+     where ccu.owner = a_object_owner
+       and ccu.name = a_object_name
+       and ccu.run_id = g_coverage_id
+     group by ccb.line
+     order by 1;
+  
+    for i in 1 .. l_tmp_data.count loop
+      l_results(l_tmp_data(i).line).blocks := l_tmp_data(i).blocks;
+      l_results(l_tmp_data(i).line).covered_blocks := l_tmp_data(i).covered_blocks;
+      l_results(l_tmp_data(i).line).partcovered := case
+                                                     when (l_tmp_data(i).covered_blocks > 0) and
+                                                          (l_tmp_data(i).blocks > l_tmp_data(i).covered_blocks) then
+                                                      1
+                                                     else
+                                                      0
+                                                   end;
     end loop;
     return l_results;
   end;

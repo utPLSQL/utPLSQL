@@ -18,7 +18,15 @@ create or replace package ut_coverage_helper authid definer is
 
   --table of line calls indexed by line number
   --!!! this table is sparse!!!
-  type t_unit_line_calls is table of number(38,0) index by binary_integer;
+  --type t_unit_line_calls is table of number(38,0) index by binary_integer;
+
+  type t_unit_line_call is record(
+     blocks         binary_integer default 0
+    ,covered_blocks binary_integer default 0
+    ,partcovered    binary_integer default 0
+    ,calls          binary_integer default 0);
+
+  type t_unit_line_calls is table of t_unit_line_call index by binary_integer;
 
   type t_coverage_sources_tmp_row is record (
     full_name      ut_coverage_sources_tmp.full_name%type,
@@ -59,6 +67,8 @@ create or replace package ut_coverage_helper authid definer is
   procedure coverage_resume;
 
   function get_raw_coverage_data_profiler(a_object_owner varchar2, a_object_name varchar2) return t_unit_line_calls;
+
+  function get_raw_coverage_data_block(a_object_owner varchar2, a_object_name varchar2) return t_unit_line_calls;
 
   /***
   * Allows overwriting of private global variable g_coverage_id

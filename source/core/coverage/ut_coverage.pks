@@ -63,12 +63,12 @@ create or replace package ut_coverage authid current_user is
 
   function get_coverage_type return varchar2;
   
-  procedure coverage_start;
+  procedure coverage_start(a_coverage_options ut_coverage_options default null);
 
   /*
   * Start coverage in develop mode, where all internal calls to utPLSQL itself are also included
   */
-  procedure coverage_start_develop;
+  procedure coverage_start_develop(a_coverage_options ut_coverage_options default null);
 
   procedure coverage_stop;
 
