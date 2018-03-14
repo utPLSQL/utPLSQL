@@ -35,17 +35,28 @@ create or replace package body ut_coverage_helper is
   
   type t_block_rows is table of t_block_row;
 
+  procedure set_coverage_type(a_coverage_type in varchar2) is
+  begin
+    g_coverage_type := a_coverage_type;
+  end;
+
+  function get_coverage_type return varchar2 is
+  begin
+    return g_coverage_type;
+  end;
+
   function is_develop_mode return boolean is
   begin
     return g_develop_mode;
   end;
 
-  procedure coverage_start_internal(a_run_comment varchar2)  is
+  procedure coverage_start_internal(a_run_comment varchar2,a_coverage_type in varchar2)  is
   --l_start_block varchar2(32767):= 'call dbms_plsql_code_coverage.start_coverage(run_comment => :a_run_comment)
   --                               into :g_coverage_id';
   begin
+    set_coverage_type(a_coverage_type);
     -- Make it dynamic to allow for block coverage.
-    if ut_coverage.get_coverage_type = 'block' then
+    if get_coverage_type = 'block' then
        --execute immediate l_start_block USING IN a_run_comment, OUT g_coverage_id;
        g_coverage_id := dbms_plsql_code_coverage.start_coverage(run_comment => a_run_comment);
     else
@@ -55,19 +66,19 @@ create or replace package body ut_coverage_helper is
     g_is_started := true;
   end;
 
-  procedure coverage_start(a_run_comment varchar2) is
+  procedure coverage_start(a_run_comment varchar2,a_coverage_type in varchar2) is
   begin
     if not g_is_started then
       g_develop_mode := false;
-      coverage_start_internal(a_run_comment);
+      coverage_start_internal(a_run_comment,a_coverage_type);
     end if;
   end;
 
-  procedure coverage_start_develop is
+  procedure coverage_start_develop(a_coverage_type in varchar2) is
   begin
     if not g_is_started then
       g_develop_mode := true;
-      coverage_start_internal('utPLSQL Code coverage run in development MODE '||ut_utils.to_string(systimestamp));
+      coverage_start_internal('utPLSQL Code coverage run in development MODE '||ut_utils.to_string(systimestamp),a_coverage_type);
     end if;
   end;
 
@@ -75,7 +86,7 @@ create or replace package body ut_coverage_helper is
     l_return_code binary_integer;
   begin
     if not g_develop_mode then
-      if ut_coverage.get_coverage_type = 'block' then
+      if get_coverage_type = 'block' then
          null;
       else
          l_return_code := dbms_profiler.pause_profiler();
@@ -86,7 +97,7 @@ create or replace package body ut_coverage_helper is
   procedure coverage_resume is
     l_return_code binary_integer;
   begin
-    if ut_coverage.get_coverage_type = 'block' then
+    if get_coverage_type = 'block' then
        null;
     else
        l_return_code := dbms_profiler.resume_profiler();
@@ -97,7 +108,7 @@ create or replace package body ut_coverage_helper is
   begin
     if not g_develop_mode then
       g_is_started := false;
-      if ut_coverage.get_coverage_type = 'block' then
+      if get_coverage_type = 'block' then
          dbms_plsql_code_coverage.stop_coverage;
       else
          dbms_profiler.stop_profiler();
@@ -109,7 +120,7 @@ create or replace package body ut_coverage_helper is
   begin
     g_develop_mode := false;
     g_is_started := false;
-    if ut_coverage.get_coverage_type = 'block' then
+    if get_coverage_type = 'block' then
        null;
     else
        dbms_profiler.stop_profiler();

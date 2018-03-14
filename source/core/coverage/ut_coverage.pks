@@ -58,10 +58,6 @@ create or replace package ut_coverage authid current_user is
     ,uncovered_blocks  binary_integer default null
     ,executions        number(38, 0) := 0
     ,objects           tt_program_units);
-
-  g_coverage_type varchar2(32);
-
-  function get_coverage_type return varchar2;
   
   procedure coverage_start(a_coverage_options ut_coverage_options default null);
 
