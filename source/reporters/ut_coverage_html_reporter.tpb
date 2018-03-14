@@ -36,7 +36,7 @@ create or replace type body ut_coverage_html_reporter is
 
     l_coverage_data := ut_coverage.get_coverage_data(a_run.coverage_options);
 
-    self.print_clob( ut_coverage_report_html_helper.get_index( l_coverage_data, self.assets_path, self.project_name ) );
+    self.print_clob( ut_coverage_report_html_helper.get_index( a_coverage_data => l_coverage_data,a_assets_path => self.assets_path, a_project_name=> self.project_name, a_coverage_type => a_run.coverage_options.coverage_type ) );
   end;
 
 

@@ -15,7 +15,7 @@ create or replace type body ut_run as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-
+  
   constructor function ut_run(
     self in out nocopy ut_run,
     a_items                 ut_suite_items,
@@ -24,15 +24,18 @@ create or replace type body ut_run as
     a_exclude_objects       ut_object_names := null,
     a_include_objects       ut_object_names := null,
     a_project_file_mappings ut_file_mappings := null,
-    a_test_file_mappings    ut_file_mappings := null
+    a_test_file_mappings    ut_file_mappings := null,
+    a_coverage_type         varchar2 := null
   ) return self as result is
     l_coverage_schema_names ut_varchar2_rows;
     l_coverage_options ut_coverage_options;
     l_exclude_objects  ut_object_names;
+    l_coverage_type varchar2(32);
   begin
     l_coverage_schema_names := coalesce(a_schema_names, get_run_schemes());
     l_exclude_objects  := coalesce(a_exclude_objects,ut_object_names());
-
+    l_coverage_type    := coalesce(a_coverage_type,'proftab');
+    
     self.run_paths := a_run_paths;
     self.self_type := $$plsql_unit;
     self.items := a_items;
@@ -42,7 +45,8 @@ create or replace type body ut_run as
       l_coverage_schema_names,
       l_exclude_objects multiset union all ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names),
       a_include_objects,
-      a_project_file_mappings
+      a_project_file_mappings,
+      l_coverage_type
     );
     return;
   end;

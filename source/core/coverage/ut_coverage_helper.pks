@@ -16,9 +16,24 @@ create or replace package ut_coverage_helper authid definer is
   limitations under the License.
   */
 
+
+  g_coverage_type varchar2(32);
+
+  function get_coverage_type return varchar2;
+  
+  procedure set_coverage_type(a_coverage_type in varchar2);
+  
   --table of line calls indexed by line number
   --!!! this table is sparse!!!
-  type t_unit_line_calls is table of number(38,0) index by binary_integer;
+  --type t_unit_line_calls is table of number(38,0) index by binary_integer;
+
+  type t_unit_line_call is record(
+     blocks         binary_integer default 0
+    ,covered_blocks binary_integer default 0
+    ,partcovered    binary_integer default 0
+    ,calls          binary_integer default 0);
+
+  type t_unit_line_calls is table of t_unit_line_call index by binary_integer;
 
   type t_coverage_sources_tmp_row is record (
     full_name      ut_coverage_sources_tmp.full_name%type,
@@ -43,12 +58,12 @@ create or replace package ut_coverage_helper authid definer is
 
   function  is_develop_mode return boolean;
 
-  procedure coverage_start(a_run_comment varchar2);
+  procedure coverage_start(a_run_comment in varchar2,a_coverage_type in varchar2);
 
   /*
   * Start coverage in develop mode, where all internal calls to utPLSQL itself are also included
   */
-  procedure coverage_start_develop;
+  procedure coverage_start_develop(a_coverage_type in varchar2);
 
   procedure coverage_stop;
 
@@ -58,7 +73,9 @@ create or replace package ut_coverage_helper authid definer is
 
   procedure coverage_resume;
 
-  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return t_unit_line_calls;
+  function get_raw_coverage_data_profiler(a_object_owner varchar2, a_object_name varchar2) return t_unit_line_calls;
+
+  function get_raw_coverage_data_block(a_object_owner varchar2, a_object_name varchar2) return t_unit_line_calls;
 
   /***
   * Allows overwriting of private global variable g_coverage_id

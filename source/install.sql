@@ -114,6 +114,12 @@ alter session set current_schema = &&ut3_owner;
 prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@core/coverage/proftab.sql
 
+prompt Installing PLSQL profiler objects into &&ut3_owner schema
+@@core/coverage/proftab.sql
+
+prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
+@@core/coverage/dbms_plssqlcode.sql
+
 @@install_component.sql 'core/ut_file_mapper.pks'
 @@install_component.sql 'core/ut_file_mapper.pkb'
 

@@ -19,7 +19,7 @@ create or replace type body ut_coverage_reporter_base is
   overriding final member procedure before_calling_run(self in out nocopy ut_coverage_reporter_base, a_run ut_run) as
   begin
     (self as ut_output_reporter_base).before_calling_run(a_run);
-    ut_coverage.coverage_start();
+    ut_coverage.coverage_start(a_coverage_options => a_run.coverage_options);
   end;
 
   overriding final member procedure before_calling_before_all(self in out nocopy ut_coverage_reporter_base, a_suite in ut_logical_suite) is

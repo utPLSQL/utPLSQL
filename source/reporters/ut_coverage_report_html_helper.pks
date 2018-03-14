@@ -17,7 +17,7 @@ create or replace package ut_coverage_report_html_helper authid current_user is
   */
   function get_default_html_assets_path return varchar2 deterministic;
 
-  function get_index(a_coverage_data ut_coverage.t_coverage, a_assets_path varchar2, a_project_name varchar2 := null, a_command_line varchar2 := null) return clob;
+  function get_index(a_coverage_data ut_coverage.t_coverage, a_assets_path varchar2, a_project_name varchar2 := null, a_command_line varchar2 := null, a_coverage_type varchar2 := null) return clob;
 
 end;
 /

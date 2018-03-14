@@ -16,6 +16,7 @@ create or replace package body ut_coverage is
   limitations under the License.
   */
 
+  
   type t_source_lines is table of binary_integer;
 
   -- The source query has two important transformations done in it.
@@ -145,14 +146,16 @@ create or replace package body ut_coverage is
   /**
   * Public functions
   */
-  procedure coverage_start is
+  procedure coverage_start(a_coverage_options ut_coverage_options default null) is
+    l_coverage_type varchar2(10) := coalesce(a_coverage_options.coverage_type, 'proftab');
   begin
-    ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp));
+    ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp),l_coverage_type);
   end;
 
-  procedure coverage_start_develop is
+  procedure coverage_start_develop(a_coverage_options ut_coverage_options default null) is
+    l_coverage_type varchar2(10) := coalesce(a_coverage_options.coverage_type, 'proftab');
   begin
-    ut_coverage_helper.coverage_start_develop();
+    ut_coverage_helper.coverage_start_develop(l_coverage_type);
   end;
 
   procedure coverage_pause is
@@ -175,7 +178,7 @@ create or replace package body ut_coverage is
     ut_coverage_helper.coverage_stop_develop();
   end;
 
-  function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
+  function get_coverage_data_profiler(a_coverage_options ut_coverage_options) return t_coverage is
     l_line_calls          ut_coverage_helper.t_unit_line_calls;
     l_result              t_coverage;
     l_new_unit            t_unit_coverage;
@@ -193,7 +196,7 @@ create or replace package body ut_coverage is
       exit when l_source_objects_crsr%notfound;
 
       --get coverage data
-      l_line_calls := ut_coverage_helper.get_raw_coverage_data( l_source_object.owner, l_source_object.name );
+      l_line_calls := ut_coverage_helper.get_raw_coverage_data_profiler( l_source_object.owner, l_source_object.name );
 
       --if there is coverage, we need to filter out the garbage (badly indicated data from dbms_profiler)
       if l_line_calls.count > 0 then
@@ -227,18 +230,18 @@ create or replace package body ut_coverage is
           loop
             exit when line_no is null;
 
-            if l_line_calls(line_no) > 0 then
+            if l_line_calls(line_no).calls > 0 then
               --total stats
               l_result.covered_lines := l_result.covered_lines + 1;
-              l_result.executions := l_result.executions + l_line_calls(line_no);
+              l_result.executions := l_result.executions + l_line_calls(line_no).calls;
               --object level stats
               l_result.objects(l_source_object.full_name).covered_lines := l_result.objects(l_source_object.full_name).covered_lines + 1;
-              l_result.objects(l_source_object.full_name).executions := l_result.objects(l_source_object.full_name).executions + l_line_calls(line_no);
-            elsif l_line_calls(line_no) = 0 then
+              l_result.objects(l_source_object.full_name).executions := l_result.objects(l_source_object.full_name).executions + l_line_calls(line_no).calls;
+            elsif l_line_calls(line_no).calls = 0 then
               l_result.uncovered_lines := l_result.uncovered_lines + 1;
               l_result.objects(l_source_object.full_name).uncovered_lines := l_result.objects(l_source_object.full_name).uncovered_lines + 1;
             end if;
-            l_result.objects(l_source_object.full_name).lines(line_no) := l_line_calls(line_no);
+            l_result.objects(l_source_object.full_name).lines(line_no).executions := l_line_calls(line_no).calls;
 
             line_no := l_line_calls.next(line_no);
           end loop;
@@ -250,7 +253,151 @@ create or replace package body ut_coverage is
     close l_source_objects_crsr;
 
     return l_result;
-  end get_coverage_data;
+  end get_coverage_data_profiler;
 
+  function get_coverage_data_block(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage is
+    l_line_calls          ut_coverage_helper.t_unit_line_calls;
+    l_result              ut_coverage.t_coverage;
+    l_new_unit            ut_coverage.t_unit_coverage;
+    line_no               binary_integer;
+    l_source_objects_crsr ut_coverage_helper.t_tmp_table_objects_crsr;
+    l_source_object       ut_coverage_helper.t_tmp_table_object;
+  begin
+    --prepare global temp table with sources
+    populate_tmp_table(a_coverage_options);
+    
+    l_source_objects_crsr := ut_coverage_helper.get_tmp_table_objects_cursor();
+    loop
+      fetch l_source_objects_crsr
+        into l_source_object;
+      exit when l_source_objects_crsr%notfound;
+    
+      --get coverage data
+      l_line_calls := ut_coverage_helper.get_raw_coverage_data_block(l_source_object.owner, l_source_object.name);
+    
+      --if there is coverage, we need to filter out the garbage (badly indicated data)
+      if l_line_calls.count > 0 then
+        --remove lines that should not be indicted as meaningful
+        for i in 1 .. l_source_object.to_be_skipped_list.count loop
+          if l_source_object.to_be_skipped_list(i) is not null then
+            l_line_calls.delete(l_source_object.to_be_skipped_list(i));
+          end if;
+        end loop;
+      end if;
+    
+      --if there are no file mappings or object was actually captured by profiler
+      if a_coverage_options.file_mappings is null or l_line_calls.count > 0 then
+      
+        --populate total stats
+        l_result.total_lines := l_result.total_lines + l_source_object.lines_count;
+      
+        --populate object level coverage stats
+        if not l_result.objects.exists(l_source_object.full_name) then
+          l_result.objects(l_source_object.full_name) := l_new_unit;
+          l_result.objects(l_source_object.full_name).owner := l_source_object.owner;
+          l_result.objects(l_source_object.full_name).name := l_source_object.name;
+          l_result.objects(l_source_object.full_name).total_lines := l_source_object.lines_count;
+        end if;
+        --map to results
+        line_no := l_line_calls.first;
+        if line_no is null then
+          l_result.uncovered_lines := l_result.uncovered_lines + l_source_object.lines_count;
+          l_result.objects(l_source_object.full_name).uncovered_lines := l_source_object.lines_count;
+        else
+          loop
+            exit when line_no is null;
+          
+            --turn the block coverage into a line coverage format to allow for reading.
+            --whenever the linst is a part covered treat that line as a hit and execution but only part covered
+          
+            --total stats        
+            --Get total blocks ,blocks covered, blocks not covered this will be used for PCT calc
+            l_result.total_blocks     := nvl(l_result.total_blocks, 0) + l_line_calls(line_no).blocks;
+            l_result.covered_blocks   := nvl(l_result.covered_blocks, 0) + l_line_calls(line_no).covered_blocks;
+            l_result.uncovered_blocks := nvl(l_result.uncovered_blocks, 0) +
+                                         (l_line_calls(line_no).blocks - l_line_calls(line_no).covered_blocks);
+          
+            --If line is partially covered add as part line cover and covered for line reporter
+            if l_line_calls(line_no).partcovered = 1 then
+              l_result.partcovered_lines := l_result.partcovered_lines + 1;
+            end if;
+          
+            if l_line_calls(line_no).covered_blocks > 0 then
+              l_result.covered_lines := l_result.covered_lines + 1;
+            end if;
+          
+            -- Use nvl as be default is null and screw the calcs
+            --Increase total blocks
+            l_result.objects(l_source_object.full_name).lines(line_no).no_blocks := l_line_calls(line_no).blocks;
+            l_result.objects(l_source_object.full_name).lines(line_no).covered_blocks := l_line_calls(line_no).covered_blocks;
+            l_result.objects(l_source_object.full_name).total_blocks := nvl(l_result.objects(l_source_object.full_name)
+                                                                            .total_blocks
+                                                                           ,0) + l_line_calls(line_no).blocks;
+          
+            --Total uncovered blocks is a line blocks minus covered blocsk
+            l_result.objects(l_source_object.full_name).uncovered_blocks := nvl(l_result.objects(l_source_object.full_name)
+                                                                                .uncovered_blocks
+                                                                               ,0) +
+                                                                            (l_line_calls(line_no).blocks - l_line_calls(line_no)
+                                                                             .covered_blocks);
+          
+            --If we have any covered blocks in line
+            if l_line_calls(line_no).covered_blocks > 0 then            
+              --If any block is covered then we have a hit on that line
+              l_result.executions := l_result.executions + 1;
+              --object level stats
+              --If its part covered then mark it else treat as full cov
+              if l_line_calls(line_no).partcovered = 1 then
+                l_result.objects(l_source_object.full_name).partcovered_lines := l_result.objects(l_source_object.full_name)
+                                                                                 .partcovered_lines + 1;
+              end if;
+              l_result.objects(l_source_object.full_name).covered_lines := l_result.objects(l_source_object.full_name)
+                                                                             .covered_lines + 1;
+                         
+              --How many blocks we covered
+              l_result.objects(l_source_object.full_name).covered_blocks := nvl(l_result.objects(l_source_object.full_name)
+                                                                                .covered_blocks
+                                                                               ,0) + l_line_calls(line_no)
+                                                                           .covered_blocks;
+            
+              --Object line executions
+              l_result.objects(l_source_object.full_name).executions := nvl(l_result.objects(l_source_object.full_name)
+                                                                            .executions
+                                                                           ,0) + 1;
+            
+              l_result.objects(l_source_object.full_name).lines(line_no).executions := 1;
+            
+              --Whenever there is no covered block treat as uncovered (query returns only lines where the blocks are in code so we
+              --dont have a false results here when there is no blocks
+            elsif l_line_calls(line_no).covered_blocks = 0 then
+              l_result.uncovered_lines := l_result.uncovered_lines + 1;
+              l_result.objects(l_source_object.full_name).uncovered_lines := l_result.objects(l_source_object.full_name)
+                                                                             .uncovered_lines + 1;
+              l_result.objects(l_source_object.full_name).lines(line_no).executions := 0;
+            end if;
+            --increase part covered counter (+ 1/0)
+            l_result.objects(l_source_object.full_name).lines(line_no).partcove := l_line_calls(line_no).partcovered;
+            line_no := l_line_calls.next(line_no);
+          end loop;
+        end if;
+      end if;
+    
+    end loop;
+  
+    close l_source_objects_crsr;
+  
+    return l_result;
+  end get_coverage_data_block;
+
+  function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
+  begin
+    
+    if a_coverage_options.coverage_type = 'block' then
+      return get_coverage_data_block(a_coverage_options => a_coverage_options);
+    else
+      return get_coverage_data_profiler(a_coverage_options => a_coverage_options);
+    end if;
+  end get_coverage_data;  
+  
 end;
 /
