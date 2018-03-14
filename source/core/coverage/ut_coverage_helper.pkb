@@ -51,14 +51,14 @@ create or replace package body ut_coverage_helper is
   end;
 
   procedure coverage_start_internal(a_run_comment varchar2,a_coverage_type in varchar2)  is
-  --l_start_block varchar2(32767):= 'call dbms_plsql_code_coverage.start_coverage(run_comment => :a_run_comment)
-  --                               into :g_coverage_id';
+  l_start_block varchar2(32767):= 'call dbms_plsql_code_coverage.start_coverage(run_comment => :a_run_comment)
+                                   into :g_coverage_id';
   begin
     set_coverage_type(a_coverage_type);
     -- Make it dynamic to allow for block coverage.
     if get_coverage_type = 'block' then
-       --execute immediate l_start_block USING IN a_run_comment, OUT g_coverage_id;
-       g_coverage_id := dbms_plsql_code_coverage.start_coverage(run_comment => a_run_comment);
+       execute immediate l_start_block USING IN a_run_comment, OUT g_coverage_id;
+       --g_coverage_id := dbms_plsql_code_coverage.start_coverage(run_comment => a_run_comment);
     else
        dbms_profiler.start_profiler(run_comment => a_run_comment, run_number => g_coverage_id);
        coverage_pause();
@@ -105,11 +105,12 @@ create or replace package body ut_coverage_helper is
   end;
 
   procedure coverage_stop is
+  l_stop_block varchar2(100) := 'call dbms_plsql_code_coverage.stop_coverage()';
   begin
     if not g_develop_mode then
       g_is_started := false;
       if get_coverage_type = 'block' then
-         dbms_plsql_code_coverage.stop_coverage;
+         execute immediate l_stop_block;
       else
          dbms_profiler.stop_profiler();
       end if;

@@ -29,7 +29,7 @@ If you have `execute` privilege on the code that are tested, but do not have `cr
 If you have `execute` privilege only on the unit tests, but do not have `execute` privilege on the code that is tested, the code will not be reported by coverage - as if it did not exist in the database.
 If the code that is testes is complied as NATIVE, the code coverage will not be reported as well.
 
-## Running unite tests with coverage
+## Running unit tests with coverage
 Using code coverage functionality is as easy as using any other [reporter](reporters.md) for utPLSQL project. All you need to do is run your tests from your preferred SQL tool and save the outcomes of reporter to a file.
 All you need to do, is pass the constructor of the reporter to your `ut.run`
 
@@ -40,6 +40,8 @@ begin
 end;
 /
 ```
+
+
 Executes all unit tests in current schema, gather information about code coverage and output the html text into DBMS_OUTPUT.
 The `ut_coverage_html_reporter` will produce a interactive HTML report. You may see a sample of code coverage for utPLSQL project [here](https://utplsql.github.io/utPLSQL-coverage-html/)
 
@@ -51,6 +53,20 @@ The report allow to navigate to every source and inspect line by line coverage.
 
 ![Coverage Details page](../images/coverage_html_details.png)
 
+
+#### Oracle 12.2 block coverage.
+In Oracle 12.2 new functionality was released which supports native [block coverage](https://docs.oracle.com/en/database/oracle/oracle-database/12.2/arpls/DBMS_PLSQL_CODE_COVERAGE.html#GUID-55A9E502-9EC2-4118-B292-DC79E6DC465E).
+This has been enabled in utPLSQL code coverage as a separate option. It can be invoked by passing a argument a_coverage_type with value 'block'. By default profiler option is enabled ('proftab').
+
+Example:
+```sql
+begin
+  ut.run(ut_coverage_html_reporter(),a_coverage_type => 'block');
+end;
+/
+```
+
+In this mode html reporter will show additionally number of lines that been partially covered and highlight them in orange. Number of blocks in code, blocks covered and missed.
 
 ## Coverage reporting options
 By default the database schema/schemes containing the tests that were executed during the run, are fully reported by coverage reporter.
