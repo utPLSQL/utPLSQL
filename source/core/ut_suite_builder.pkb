@@ -21,36 +21,51 @@ create or replace package body ut_suite_builder is
   subtype t_procedure_name      is varchar2(500);
   subtype t_annotation_position is binary_integer;
 
-  type tt_annotations is table of t_annotation_text index by t_annotation_name;
 
-  type t_package_annotation is record(
+  --list of annotation texts for a given annotation indexed by annotation position:
+  --This would hold: ('some', 'other') for a single annotation name recurring in a single procedure example
+  --  --%beforetest(some)
+  --  --%beforetest(other)
+  --  --%test(some test with two before test procedures)
+  --  procedure some_test ...
+  -- when you'd like to have two beforetest procedures executed in a single test
+  type tt_annotation_texts is table of t_annotation_text index by t_annotation_position;
+
+  type tt_annotations_by_name is table of tt_annotation_texts index by t_annotation_name;
+
+  type t_object_annotation is record(
     text                  varchar2(4000),
     name                  varchar2(4000),
     procedure_name        varchar2(500),
-    procedure_annotations tt_annotations
+    procedure_annotations tt_annotations_by_name
   );
 
-  type tt_package_annotations is table of t_package_annotation index by t_annotation_position;
+  --holds a list of package level annotations indexed (order) by position.
+  type tt_object_annotations is table of t_object_annotation index by t_annotation_position;
+
+  --holds all annotations for object
   type t_package_annotations_info is record(
     owner         t_procedure_name,
     name          t_procedure_name,
-    annotations   tt_package_annotations
+    annotations   tt_object_annotations
   );
 
-  type tt_positions           is table of boolean index by t_annotation_position;
-  type tt_annotations_index   is table of tt_positions index by t_annotation_name;
+  --list of all package level annotation positions for a given annotaion name
+  type tt_package_annot_positions is table of boolean index by t_annotation_position;
+  --index used to lookup package level annotations by package-level annotation name
+  type tt_annotations_index   is table of tt_package_annot_positions index by t_annotation_name;
 
   function is_last_annotation_for_proc(a_annotations ut_annotations, a_index binary_integer) return boolean is
   begin
     return a_index = a_annotations.count or a_annotations(a_index).subobject_name != nvl(a_annotations(a_index+1).subobject_name, ' ');
   end;
 
-  function get_procedure_annotations(a_annotations ut_annotations, a_index binary_integer) return tt_annotations is
-    l_result tt_annotations;
+  function get_procedure_annotations(a_annotations ut_annotations, a_index binary_integer) return tt_annotations_by_name is
+    l_result tt_annotations_by_name;
     i        binary_integer := a_index;
   begin
     loop
-      l_result(a_annotations(i).name) := a_annotations(i).text;
+      l_result(a_annotations(i).name)(i) := a_annotations(i).text;
       exit when is_last_annotation_for_proc(a_annotations, i);
       i := a_annotations.next(i);
     end loop;
@@ -71,14 +86,16 @@ create or replace package body ut_suite_builder is
       else
         l_result.annotations(l_annotation_no).procedure_name        := a_object.annotations(l_annotation_no).subobject_name;
         l_result.annotations(l_annotation_no).procedure_annotations := get_procedure_annotations(a_object.annotations, l_annotation_no);
-        l_annotation_no := l_annotation_no + l_result.annotations(l_annotation_no).procedure_annotations.count - 1;
+        if l_result.annotations(l_annotation_no).procedure_annotations.count > 0 then
+          l_annotation_no := l_annotation_no + l_result.annotations(l_annotation_no).procedure_annotations.count - 1;
+        end if;
       end if;
       l_annotation_no := a_object.annotations.next(l_annotation_no);
     end loop;
     return l_result;
   end;
 
-  function build_annotation_index(a_annotations tt_package_annotations) return tt_annotations_index is
+  function build_annotation_index(a_annotations tt_object_annotations ) return tt_annotations_index is
     l_result tt_annotations_index;
     i binary_integer;
   begin
@@ -137,6 +154,20 @@ create or replace package body ut_suite_builder is
     return l_exception_number_list;
   end;
 
+  procedure add_to_throws_numbers_list(
+    a_list in out nocopy ut_integer_list,
+    a_throws_ann_text tt_annotation_texts
+  ) is
+    l_annotation_pos binary_integer;
+  begin
+    a_list := ut_integer_list();
+    l_annotation_pos := a_throws_ann_text.first;
+    while l_annotation_pos is not null loop
+      a_list := a_list multiset union build_exception_numbers_list( a_throws_ann_text(l_annotation_pos));
+      l_annotation_pos := a_throws_ann_text.next(l_annotation_pos);
+    end loop;
+  end;
+
   procedure add_to_list(
     a_executables in out nocopy ut_executables,
     a_procedure_name varchar2,
@@ -151,9 +182,24 @@ create or replace package body ut_suite_builder is
       a_executables(a_executables.last) := ut_executable(a_suite_item, a_procedure_name, a_event_name);
   end;
 
+  procedure add_to_list(
+    a_executables in out nocopy ut_executables,
+    a_annotation_texts tt_annotation_texts,
+    a_event_name       ut_utils.t_event_name,
+    a_suite_item       ut_suite_item
+  ) is
+    l_annotation_pos   binary_integer;
+    begin
+      l_annotation_pos := a_annotation_texts.first;
+      while l_annotation_pos is not null loop
+        add_to_list(a_executables, a_annotation_texts(l_annotation_pos), a_event_name, a_suite_item );
+        l_annotation_pos := a_annotation_texts.next( l_annotation_pos);
+      end loop;
+    end;
+
   procedure warning_on_extra_annotations(
     a_suite in out nocopy ut_suite_item,
-    a_procedure_info t_package_annotation,
+    a_procedure_info t_object_annotation,
     a_for_annotation varchar2
   ) is
     l_annotation_name t_annotation_name;
@@ -176,20 +222,26 @@ create or replace package body ut_suite_builder is
   procedure add_test(
     a_suite in out nocopy ut_suite,
     a_procedure_name varchar2,
-    a_annotations    tt_annotations
+    a_annotations    tt_annotations_by_name
   ) is
-    l_test ut_test;
+    l_test             ut_test;
+    l_annotation_texts tt_annotation_texts;
+    l_annotation_pos   binary_integer;
   begin
     l_test := ut_test(a_suite.object_owner, a_suite.object_name, a_procedure_name);
 
     if a_annotations.exists('displayname') then
-      l_test.description := a_annotations('displayname');
+      l_annotation_texts := a_annotations('displayname');
+      --take the last definition if more than one was provided
+      l_test.description := l_annotation_texts(l_annotation_texts.last);
+      --TODO if more than one - warning
     end if;
-    l_test.description := coalesce(l_test.description,a_annotations('test'));
+    l_test.description := coalesce(l_test.description,a_annotations('test')(a_annotations('test').last));
     l_test.path := a_suite.path ||'.'||a_procedure_name;
 
     if a_annotations.exists('rollback') then
-      l_test.rollback_type := get_rollback_type(a_annotations('rollback'));
+      l_annotation_texts := a_annotations('rollback');
+      l_test.rollback_type := get_rollback_type(l_annotation_texts(l_annotation_texts.last));
     end if;
 
     if a_annotations.exists('beforetest') then
@@ -199,7 +251,7 @@ create or replace package body ut_suite_builder is
       add_to_list( l_test.after_test_list, a_annotations('aftertest'), ut_utils.gc_after_test, l_test );
     end if;
     if a_annotations.exists('throws') then
-      l_test.expected_error_codes := build_exception_numbers_list(a_annotations('throws'));
+      add_to_throws_numbers_list(l_test.expected_error_codes, a_annotations('throws'));
     end if;
     l_test.disabled_flag := ut_utils.boolean_to_int(a_annotations.exists('disabled'));
 
@@ -224,7 +276,7 @@ create or replace package body ut_suite_builder is
   end;
 
   procedure add_procedures_from_annot(
-    l_annotations tt_package_annotations,
+    l_annotations tt_object_annotations,
     l_suite in out nocopy ut_suite,
     l_before_each_list out ut_executables,
     l_after_each_list out ut_executables
@@ -256,9 +308,24 @@ create or replace package body ut_suite_builder is
     end loop;
   end;
 
-  function build_suite(a_package t_package_annotations_info) return ut_logical_suite is
+  procedure add_suite_context(
+    a_suite              in out nocopy ut_suite,
+    a_package_ann_index  in out nocopy tt_annotations_index,
+    a_annotations        in out nocopy tt_object_annotations
+  ) is
+  begin
+    null;
+--     while l_package_ann_index.exists('context') loop
+--       if l_package_ann_index.exists('endcontext')
+--          and l_package_ann_index.exists('endcontext').first > l_package_ann_index.exists('context').first then
+--         null;
+--       end if;
+--     end loop;
+  end;
+
+  function create_suite(a_package t_package_annotations_info) return ut_logical_suite is
     l_package_ann_index  tt_annotations_index;
-    l_annotations        tt_package_annotations;
+    l_annotations        tt_object_annotations;
     l_suite              ut_suite;
     l_before_each_list   ut_executables;
     l_after_each_list    ut_executables;
@@ -323,7 +390,7 @@ create or replace package body ut_suite_builder is
 
   function create_suite(a_object ut_annotated_object) return ut_logical_suite is
   begin
-    return build_suite(convert_object_annotations(a_object));
+    return create_suite(convert_object_annotations(a_object));
   end create_suite;
 
   function build_suites_hierarchy(a_suites_by_path tt_schema_suites) return tt_schema_suites is

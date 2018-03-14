@@ -3,6 +3,255 @@ create or replace package body test_suite_manager is
   ex_obj_doesnt_exist exception;
   pragma exception_init(ex_obj_doesnt_exist, -04043);
 
+  procedure compile_dummy_packages is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package test_package_1 is
+
+  --%suite
+  --%displayname(test_package_1)
+  --%suitepath(tests)
+
+  gv_glob_val number;
+
+  --%beforeeach
+  procedure global_setup;
+
+  --%aftereach
+  procedure global_teardown;
+
+  --%test
+  --%displayname(Test1 from test package 1)
+  procedure test1;
+
+  --%test(Test2 from test package 1)
+  --%beforetest(test2_setup)
+  --%aftertest(test2_teardown)
+  procedure test2;
+
+  procedure test2_setup;
+
+  procedure test2_teardown;
+
+end test_package_1;]';
+
+    execute immediate q'[create or replace package body test_package_1 is
+  gv_var_1 number;
+  gv_var_1_temp number;
+
+  procedure global_setup is
+  begin
+    gv_var_1    := 1;
+    gv_glob_val := 1;
+  end;
+
+  procedure global_teardown is
+  begin
+    gv_var_1    := 0;
+    gv_glob_val := 0;
+  end;
+
+  procedure test1 is
+  begin
+    ut.expect(gv_var_1, 'Some expectation').to_equal(1);
+  end;
+
+  procedure test2 is
+  begin
+    ut.expect(gv_var_1, 'Some expectation').to_equal(2);
+  end;
+
+  procedure test2_setup is
+  begin
+    gv_var_1_temp := gv_var_1;
+    gv_var_1      := 2;
+  end;
+
+  procedure test2_teardown is
+  begin
+    gv_var_1      := gv_var_1_temp;
+    gv_var_1_temp := null;
+  end;
+
+end test_package_1;]';
+
+    execute immediate q'[create or replace package test_package_2 is
+  --%suite
+  --%suitepath(tests.test_package_1)
+
+  gv_glob_val varchar2(1);
+
+  --%beforeeach
+  procedure global_setup;
+
+  --%aftereach
+  procedure global_teardown;
+
+  --%test
+  procedure test1;
+
+  --%test
+  --%beforetest(test2_setup)
+  --%aftertest(test2_teardown)
+  procedure test2;
+
+  procedure test2_setup;
+
+  procedure test2_teardown;
+
+  --%beforeall
+  procedure context_setup;
+
+  --%test(Test in a context)
+  procedure context_test;
+
+  --%afterall
+  procedure context_teardown;
+
+end test_package_2;]';
+
+    execute immediate q'[create or replace package body test_package_2 is
+  gv_var_1 varchar2(1);
+  gv_var_1_temp varchar2(1);
+
+  procedure global_setup is
+  begin
+    gv_var_1    := 'a';
+    gv_glob_val := 'z';
+  end;
+
+  procedure global_teardown is
+  begin
+    gv_var_1    := 'n';
+    gv_glob_val := 'n';
+  end;
+
+  procedure test1 is
+  begin
+    ut.expect(gv_var_1).to_equal('a');
+  end;
+
+  procedure test2 is
+  begin
+    ut.expect(gv_var_1).to_equal('b');
+  end;
+
+  procedure test2_setup is
+  begin
+    gv_var_1_temp := gv_var_1;
+    gv_var_1      := 'b';
+  end;
+
+  procedure test2_teardown is
+  begin
+    gv_var_1      := gv_var_1_temp;
+    gv_var_1_temp := null;
+  end;
+
+  procedure context_setup is
+  begin
+    gv_var_1_temp := gv_var_1 || 'a';
+  end;
+
+  procedure context_test is
+  begin
+    ut.expect(gv_var_1_temp, 'Some expectation').to_equal('na');
+  end;
+
+  procedure context_teardown is
+  begin
+    gv_var_1_temp := null;
+  end;
+
+end test_package_2;]';
+
+    execute immediate q'[create or replace package test_package_3 is
+  --%suite
+  --%suitepath(tests2)
+  --%rollback(auto)
+
+  gv_glob_val number;
+
+  --%beforeeach
+  procedure global_setup;
+
+  --%aftereach
+  procedure global_teardown;
+
+  --%test
+  --%rollback(auto)
+  procedure test1;
+
+  --%test
+  --%beforetest(test2_setup)
+  --%aftertest(test2_teardown)
+  procedure test2;
+
+  procedure test2_setup;
+
+  procedure test2_teardown;
+
+  --%test
+  --%disabled
+  procedure disabled_test;
+
+end test_package_3;]';
+
+    execute immediate q'[create or replace package body test_package_3 is
+  gv_var_1 number;
+  gv_var_1_temp number;
+
+  procedure global_setup is
+  begin
+    gv_var_1    := 1;
+    gv_glob_val := 1;
+  end;
+
+  procedure global_teardown is
+  begin
+    gv_var_1    := 0;
+    gv_glob_val := 0;
+  end;
+
+  procedure test1 is
+  begin
+    ut.expect(gv_var_1).to_equal(1);
+  end;
+
+  procedure test2 is
+  begin
+    ut.expect(gv_var_1).to_equal(2);
+  end;
+
+  procedure test2_setup is
+  begin
+    gv_var_1_temp := gv_var_1;
+    gv_var_1      := 2;
+  end;
+
+  procedure test2_teardown is
+  begin
+    gv_var_1      := gv_var_1_temp;
+    gv_var_1_temp := null;
+  end;
+
+  procedure disabled_test is
+  begin
+    null;
+  end;
+
+end test_package_3;]';
+  end;
+
+
+  procedure drop_dummy_packages is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package test_package_1';
+    execute immediate 'drop package test_package_2';
+    execute immediate 'drop package test_package_3';
+  end;
+
   procedure test_schema_run is
     c_path           constant varchar2(100) := USER;
     l_objects_to_run ut3.ut_suite_items := ut3.ut_suite_items();
@@ -976,265 +1225,6 @@ end;';
     pragma autonomous_transaction;
   begin
     execute immediate 'drop package tst_empty_suite_path';
-  end;
-
-  procedure compile_dummy_packages is
-    pragma autonomous_transaction;
-  begin
-    execute immediate q'[create or replace package test_package_1 is
-
-  --%suite
-  --%displayname(test_package_1)
-  --%suitepath(tests)
-
-  gv_glob_val number;
-
-  --%beforeeach
-  procedure global_setup;
-
-  --%aftereach
-  procedure global_teardown;
-
-  --%test
-  --%displayname(Test1 from test package 1)
-  procedure test1;
-
-  --%test(Test2 from test package 1)
-  --%beforetest(test2_setup)
-  --%aftertest(test2_teardown)
-  procedure test2;
-
-  procedure test2_setup;
-
-  procedure test2_teardown;
-
-end test_package_1;]';
-
-  execute immediate q'[create or replace package body test_package_1 is
-
-  gv_var_1 number;
-
-  gv_var_1_temp number;
-
-  procedure global_setup is
-  begin
-    gv_var_1    := 1;
-    gv_glob_val := 1;
-  end;
-
-  procedure global_teardown is
-  begin
-    gv_var_1    := 0;
-    gv_glob_val := 0;
-  end;
-
-  procedure test1 is
-  begin
-    ut.expect(gv_var_1, 'Some expectation').to_equal(1);
-  end;
-
-  procedure test2 is
-  begin
-    ut.expect(gv_var_1, 'Some expectation').to_equal(2);
-  end;
-
-  procedure test2_setup is
-  begin
-    gv_var_1_temp := gv_var_1;
-    gv_var_1      := 2;
-  end;
-
-  procedure test2_teardown is
-  begin
-    gv_var_1      := gv_var_1_temp;
-    gv_var_1_temp := null;
-  end;
-
-end test_package_1;]';
-
-    execute immediate q'[create or replace package test_package_2 is
-
-  --%suite
-  --%suitepath(tests.test_package_1)
-
-  gv_glob_val varchar2(1);
-
-  --%beforeeach
-  procedure global_setup;
-
-  --%aftereach
-  procedure global_teardown;
-
-  --%test
-  procedure test1;
-
-  --%test
-  --%beforetest(test2_setup)
-  --%aftertest(test2_teardown)
-  procedure test2;
-
-  procedure test2_setup;
-
-  procedure test2_teardown;
-
-  --%context(some_context)
-  --%displayname(first context)
-
-  --%beforeall
-  procedure context_setup;
-
-  --%test(Test in a context)
-  procedure context_test;
-
-  --%afterall
-  procedure context_teardown;
-
-  --%endcontext
-
-end test_package_2;]';
-execute immediate q'[create or replace package body test_package_2 is
-
-  gv_var_1 varchar2(1);
-
-  gv_var_1_temp varchar2(1);
-
-  procedure global_setup is
-  begin
-    gv_var_1    := 'a';
-    gv_glob_val := 'z';
-  end;
-
-  procedure global_teardown is
-  begin
-    gv_var_1    := 'n';
-    gv_glob_val := 'n';
-  end;
-
-  procedure test1 is
-  begin
-    ut.expect(gv_var_1).to_equal('a');
-  end;
-
-  procedure test2 is
-  begin
-    ut.expect(gv_var_1).to_equal('b');
-  end;
-
-  procedure test2_setup is
-  begin
-    gv_var_1_temp := gv_var_1;
-    gv_var_1      := 'b';
-  end;
-
-  procedure test2_teardown is
-  begin
-    gv_var_1      := gv_var_1_temp;
-    gv_var_1_temp := null;
-  end;
-
-  procedure context_setup is
-  begin
-    gv_var_1_temp := gv_var_1 || 'a';
-  end;
-
-  procedure context_test is
-  begin
-    ut.expect(gv_var_1_temp, 'Some expectation').to_equal('na');
-  end;
-
-  procedure context_teardown is
-  begin
-    gv_var_1_temp := null;
-  end;
-
-end test_package_2;]';
-
-    execute immediate q'[create or replace package test_package_3 is
-
-  --%suite
-  --%suitepath(tests2)
-  --%rollback(auto)
-
-  gv_glob_val number;
-
-  --%beforeeach
-  procedure global_setup;
-
-  --%aftereach
-  procedure global_teardown;
-
-  --%test
-  --%rollback(auto)
-  procedure test1;
-
-  --%test
-  --%beforetest(test2_setup)
-  --%aftertest(test2_teardown)
-  procedure test2;
-
-  procedure test2_setup;
-
-  procedure test2_teardown;
-
-  --%test
-  --%disabled
-  procedure disabled_test;
-
-end test_package_3;]';
-    execute immediate q'[create or replace package body test_package_3 is
-
-  gv_var_1 number;
-
-  gv_var_1_temp number;
-
-  procedure global_setup is
-  begin
-    gv_var_1    := 1;
-    gv_glob_val := 1;
-  end;
-
-  procedure global_teardown is
-  begin
-    gv_var_1    := 0;
-    gv_glob_val := 0;
-  end;
-
-  procedure test1 is
-  begin
-    ut.expect(gv_var_1).to_equal(1);
-  end;
-
-  procedure test2 is
-  begin
-    ut.expect(gv_var_1).to_equal(2);
-  end;
-
-  procedure test2_setup is
-  begin
-    gv_var_1_temp := gv_var_1;
-    gv_var_1      := 2;
-  end;
-
-  procedure test2_teardown is
-  begin
-    gv_var_1      := gv_var_1_temp;
-    gv_var_1_temp := null;
-  end;
-
-  procedure disabled_test is
-  begin
-    null;
-  end;
-
-end test_package_3;]';
-  end;
-
-  procedure drop_dummy_packages is
-    pragma autonomous_transaction;
-  begin
-    execute immediate 'drop package test_package_1';
-    execute immediate 'drop package test_package_2';
-    execute immediate 'drop package test_package_3';
   end;
 
   procedure test_pck_with_same_path is
