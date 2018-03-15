@@ -265,14 +265,16 @@ create or replace package body ut_suite_builder is
   ) is
     l_test ut_test;
   begin
-    for i in 1 .. a_suite.items.count loop
-      if a_suite.items(i) is of (ut_test) then
-        l_test := treat( a_suite.items(i) as ut_test);
-        l_test.before_each_list := a_before_each_list;
-        l_test.after_each_list := a_after_each_list;
-        a_suite.items(i) := l_test;
-      end if;
-    end loop;
+    if a_suite.items is not null then
+      for i in 1 .. a_suite.items.count loop
+        if a_suite.items(i) is of (ut_test) then
+          l_test := treat( a_suite.items(i) as ut_test);
+          l_test.before_each_list := a_before_each_list;
+          l_test.after_each_list := a_after_each_list;
+          a_suite.items(i) := l_test;
+        end if;
+      end loop;
+    end if;
   end;
 
   procedure add_procedures_from_annot(
