@@ -295,5 +295,57 @@ end;';
     ut.expect(l_actual).to_equal(l_expected);
   end;
 
+  procedure db_link_cleanup is
+    begin
+      begin execute immediate 'drop public database link db_loopback'; exception when others then null; end;
+      begin execute immediate 'drop package test_db_link'; exception when others then null; end;
+    end;
+
+  procedure db_link_setup is
+    begin
+      execute immediate
+      'create public database link db_loopback connect to ut3_tester identified by ut3
+        using ''(DESCRIPTION=
+                  (ADDRESS=(PROTOCOL=TCP)
+                    (HOST='||sys_context('userenv','SERVER_HOST')||')
+                    (PORT=1521)
+                  )
+                  (CONNECT_DATA=(SERVICE_NAME='||SYS_CONTEXT('USERENV', 'CON_NAME')||')))''';
+      execute immediate q'[
+    create or replace package test_db_link is
+      --%suite
+
+      --%test
+      procedure runs_with_db_link;
+    end;]';
+
+      execute immediate q'[
+    create or replace package body test_db_link is
+      procedure runs_with_db_link is
+        a_value integer;
+        begin
+          select 1 into a_value
+          from dual@db_loopback;
+          ut3.ut.expect(a_value).to_be_null();
+        end;
+    end;]';
+
+    end;
+
+  procedure raises_20213_on_fail_link is
+    l_reporter ut3.ut_documentation_reporter := ut3.ut_documentation_reporter();
+    l_lines    ut3.ut_varchar2_list;
+  begin
+    --Arrange
+    --Act
+    ut3.ut_runner.run(ut3.ut_varchar2_list('test_db_link'), ut3.ut_reporters(l_reporter), a_fail_on_errors=> true);
+    ut.fail('Expected exception but nothing was raised');
+  exception
+    when others then
+      --Assert
+      ut.expect(sqlcode).to_equal(-20213);
+      ut.expect(dbms_utility.format_error_stack||dbms_utility.format_error_backtrace).not_to_be_like('%ORA-02055%');
+  end;
+
 end;
 /

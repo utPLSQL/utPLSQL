@@ -29,6 +29,9 @@ SQL
 set feedback off
 @create_utplsql_owner.sql $UT3_TESTER $UT3_TESTER_PASSWORD $UT3_TABLESPACE
 
+--needed for testing distributed transactions
+grant create public database link to $UT3_TESTER;
+grant drop public database link to  $UT3_TESTER;
 set feedback on
 --Needed for testing coverage outside of main UT3 schema.
 grant create any procedure, drop any procedure, execute any procedure, create any type, drop any type, execute any type, under any type, select any table, update any table, insert any table, delete any table, create any table, drop any table, alter any table, select any dictionary to $UT3_TESTER;
