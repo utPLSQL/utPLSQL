@@ -302,7 +302,9 @@ end;';
     end;
 
   procedure db_link_setup is
+    l_service_name varchar2(100);
     begin
+      select global_name into l_service_name from global_name;
       execute immediate
       'create public database link db_loopback connect to ut3_tester identified by ut3
         using ''(DESCRIPTION=
@@ -310,7 +312,7 @@ end;';
                     (HOST='||sys_context('userenv','SERVER_HOST')||')
                     (PORT=1521)
                   )
-                  (CONNECT_DATA=(SERVICE_NAME='||SYS_CONTEXT('USERENV', 'CON_NAME')||')))''';
+                  (CONNECT_DATA=(SERVICE_NAME='||l_service_name||')))''';
       execute immediate q'[
     create or replace package test_db_link is
       --%suite
