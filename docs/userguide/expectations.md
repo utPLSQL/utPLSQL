@@ -448,7 +448,7 @@ For details on available options and how to use them, read the [advanced data co
 
 ### Diff functionality for compound data-types 
 
-When comparing compound data, utPLSQL will determine diff between expected and actual data.
+When comparing compound data, utPLSQL will determine the difference between the expected and the actual data.
 The diff includes:
 - differences in column names, column positions and column data-type for cursor data
 - only data in columns/rows that differ
@@ -473,16 +473,16 @@ And the actual cursor data:
 |            M        |           LUKE        |        SKYWALKER     |         1000        |   2           |
 
 
-When considering the data-sets as ordered, there are following following differences:
+The two datasets above have the following differences:
 - column ID is misplaced (should be first column but is last)
 - column SALARY has data-type VARCHAR2 but should be NUMBER
-- column GENDER exists in actual but not in the expected (it ir an Extra column)
+- column GENDER exists in actual but not in the expected (it is an Extra column)
 - data in column SALARY for row number 1 in actual is not matching expected 
 - row number 2 in actual (ID=3) is not matching expected 
 - row number 3 in actual (ID=4) is not matching expected
 - row number 4 in actual (ID=2) is not expected in results (Extra row in actual)  
 
-utPLSQL will report all of the above differences in a readable format to help you identify what is not correct in compared data-set.
+utPLSQL will report all of the above differences in a readable format to help you identify what is not correct in the compared dataset.
 
 Below example illustrates, how utPLSQL will report such differences.  
 ```sql
@@ -562,17 +562,17 @@ utPLSQL identifies and reports on columns:
 - extra/missing columns
 
 When comparing rows utPLSQL:
-- reports only mismatched columns, when rows match
+- reports only mismatched columns when rows match
 - reports columns existing in both data-sets when whole row is not matching
-- reports whole extra (not expected) row from actual, when actual has extra rows 
-- reports whole missing (expected) row from expected, when expected has extra rows 
+- reports whole extra (not expected) row from actual when actual has extra rows 
+- reports whole missing (expected) row from expected when expected has extra rows 
 
 
 ### Object and collection data-type comparison examples
 
 When comparing object type to object type or collection to collection, utPLSQL will check:
 - if data-types match
-- id data in the compared objects/collections are the same.
+- if data in the compared objects/collections are the same.
 
 The diff functionality for objects and collections is similar to diff on cursors.
 When diffing objects/collections however, utPLSQL will not check attribute names and data-types.
