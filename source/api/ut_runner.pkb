@@ -73,6 +73,7 @@ create or replace package body ut_runner is
     l_listener     ut_event_listener;
   begin
     begin
+      ut_expectation_processor.reset_invalidation_exception();
       ut_utils.save_dbms_output_to_cache();
 
       ut_console_reporter_base.set_color_enabled(a_color_console);

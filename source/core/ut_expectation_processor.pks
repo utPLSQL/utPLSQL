@@ -52,5 +52,9 @@ create or replace package ut_expectation_processor authid current_user as
 
   function get_warnings return ut_varchar2_list;
 
+  function invalidation_exception_found return boolean;
+  procedure set_invalidation_exception;
+  procedure reset_invalidation_exception;
+
 end;
 /

@@ -26,6 +26,8 @@ create or replace package body ut_expectation_processor as
 
   g_nulls_are_equal boolean_not_null := gc_default_nulls_are_equal;
 
+  g_package_invalidated boolean := false;
+
   function nulls_are_equal return boolean is
   begin
     return g_nulls_are_equal;
@@ -169,6 +171,21 @@ create or replace package body ut_expectation_processor as
   function get_warnings return ut_varchar2_list is
   begin
     return g_warnings;
+  end;
+
+  function invalidation_exception_found return boolean is
+  begin
+    return g_package_invalidated;
+  end;
+
+  procedure set_invalidation_exception is
+  begin
+    g_package_invalidated := true;
+  end;
+
+  procedure reset_invalidation_exception is
+  begin
+    g_package_invalidated := false;
   end;
 
 end;

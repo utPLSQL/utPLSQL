@@ -16,6 +16,7 @@ whenever oserror exit failure rollback
 --Install tests
 @@core.pks
 @@api/test_ut_runner.pks
+@@api/test_ut_run.pks
 @@core/test_ut_utils.pks
 @@core/test_ut_suite.pks
 @@core/test_ut_test.pks
@@ -47,6 +48,7 @@ whenever oserror exit failure rollback
 
 @@core.pkb
 @@api/test_ut_runner.pkb
+@@api/test_ut_run.pkb
 @@core/test_ut_utils.pkb
 @@core/test_ut_suite.pkb
 @@core/test_ut_test.pkb
