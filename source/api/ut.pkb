@@ -94,6 +94,16 @@ create or replace package body ut is
     ut_expectation_processor.report_failure(a_message);
   end;
 
+  procedure raise_if_packages_invalidated is
+    e_package_invalidated exception;
+    pragma exception_init (e_package_invalidated, -04068);
+  begin
+    if ut_expectation_processor.invalidation_exception_found() then
+      ut_expectation_processor.reset_invalidation_exception();
+      raise e_package_invalidated;
+    end if;
+  end;
+
   procedure run_autonomous(
     a_paths ut_varchar2_list, a_reporter ut_reporter_base, a_color_console integer,
     a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings, a_test_file_mappings ut_file_mappings,
@@ -149,6 +159,8 @@ create or replace package body ut is
       end loop;
       close l_lines;
     end if;
+    raise_if_packages_invalidated();
+    return;
   end;
 
   function run(
@@ -174,6 +186,8 @@ create or replace package body ut is
       end loop;
       close l_lines;
     end if;
+    raise_if_packages_invalidated();
+    return;
   end;
 
   function run(
@@ -198,6 +212,8 @@ create or replace package body ut is
       end loop;
       close l_lines;
     end if;
+    raise_if_packages_invalidated();
+    return;
   end;
 
   function run(
@@ -222,6 +238,8 @@ create or replace package body ut is
       end loop;
       close l_lines;
     end if;
+    raise_if_packages_invalidated();
+    return;
   end;
 
   function run(
@@ -247,6 +265,8 @@ create or replace package body ut is
       end loop;
       close l_lines;
     end if;
+    raise_if_packages_invalidated();
+    return;
   end;
 
   function run(
@@ -272,6 +292,8 @@ create or replace package body ut is
       end loop;
       close l_lines;
     end if;
+    raise_if_packages_invalidated();
+    return;
   end;
 
   procedure run(
@@ -288,6 +310,7 @@ create or replace package body ut is
     if l_reporter is of (ut_output_reporter_base) then
         treat(l_reporter as ut_output_reporter_base).lines_to_dbms_output();
     end if;
+    raise_if_packages_invalidated();
   end;
 
   procedure run(
@@ -304,6 +327,7 @@ create or replace package body ut is
     if l_reporter is of (ut_output_reporter_base) then
       treat(l_reporter as ut_output_reporter_base).lines_to_dbms_output();
     end if;
+    raise_if_packages_invalidated();
   end;
 
   procedure run(

@@ -114,9 +114,6 @@ create or replace type body ut_executable is
       '      l_error_stack := dbms_utility.format_error_stack;' || chr(10) ||
       '      l_error_backtrace := dbms_utility.format_error_backtrace;' || chr(10) ||
       '      --raise on ORA-04068, ORA-04061: existing state of packages has been discarded to avoid unrecoverable session exception' || chr(10) ||
-      '      if l_error_stack like ''%ORA-04068%'' or l_error_stack like ''%ORA-04061%'' then' || chr(10) ||
-      '        raise;' || chr(10) ||
-      '      end if;' || chr(10) ||
       '  end;' || chr(10) ||
       '  :a_error_stack := l_error_stack;' || chr(10) ||
       '  :a_error_backtrace := l_error_backtrace;' || chr(10) ||
@@ -137,7 +134,9 @@ create or replace type body ut_executable is
       save_dbms_output;
 
       l_completed_without_errors := (self.error_stack||self.error_backtrace) is null;
-
+      if self.error_stack like '%ORA-04068%' or self.error_stack like '%ORA-04061%' then
+        ut_expectation_processor.set_invalidation_exception();
+      end if;
       --listener - after call to executable
       a_listener.fire_after_event(self.associated_event_name, a_item);
 
