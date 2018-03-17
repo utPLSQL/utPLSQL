@@ -53,5 +53,13 @@ create or replace package test_ut_runner is
   --%aftertest(cleanup_cache)
   procedure test_get_reporters_list;
 
+  procedure db_link_cleanup;
+  procedure db_link_setup;
+
+  --%test(ORA-20213 is thrown with a_raise_on_failure when database link operations are used - regression)
+  --%beforetest(db_link_setup)
+  --%aftertest(db_link_cleanup)
+  procedure raises_20213_on_fail_link;
+
 end;
 /
