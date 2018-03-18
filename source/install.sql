@@ -127,10 +127,18 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 --gathering coverage
 @@install_component.sql 'core/coverage/ut_coverage_sources_tmp.sql'
 @@install_component.sql 'core/coverage/ut_coverage_helper.pks'
-@@install_component.sql 'core/coverage/ut_coverage_helper.pkb'
+@@install_component.sql 'core/coverage/ut_block_helper.pks'
+@@install_component.sql 'core/coverage/ut_proftab_helper.pks'
 @@install_component.sql 'core/coverage/ut_coverage.pks'
-@@install_component.sql 'core/coverage/ut_coverage.pkb'
+@@install_component.sql 'core/coverage/ut_coverage_block.pks'
+@@install_component.sql 'core/coverage/ut_coverage_proftab.pks'
 @@install_component.sql 'core/coverage/ut_coverage_reporter_base.tps'
+@@install_component.sql 'core/coverage/ut_coverage_helper.pkb'
+@@install_component.sql 'core/coverage/ut_block_helper.pkb'
+@@install_component.sql 'core/coverage/ut_proftab_helper.pkb'
+@@install_component.sql 'core/coverage/ut_coverage.pkb'
+@@install_component.sql 'core/coverage/ut_coverage_block.pkb'
+@@install_component.sql 'core/coverage/ut_coverage_proftab.pkb'
 @@install_component.sql 'core/coverage/ut_coverage_reporter_base.tpb'
 
 --core type bodies
