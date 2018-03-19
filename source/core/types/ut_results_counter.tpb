@@ -42,9 +42,9 @@ create or replace type body ut_results_counter as
     self.warnings_count := self.warnings_count + a_item.warnings_count;
   end;
 
-  member procedure increase_warning_count(self in out nocopy ut_results_counter) is
+  member procedure increase_warning_count(self in out nocopy ut_results_counter, a_count integer := 1) is
   begin
-    self.warnings_count := self.warnings_count + 1;
+    self.warnings_count := self.warnings_count + nvl(a_count,0);
   end;
 
   member function total_count return integer is

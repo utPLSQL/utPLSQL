@@ -168,6 +168,14 @@ create or replace package body ut_expectation_processor as
     g_warnings(g_warnings.last) := a_messsage;
   end;
 
+  procedure add_depreciation_warning(a_deprecated_syntax varchar2, a_new_syntax varchar2) is
+  begin
+    add_warning(
+      ut_utils.build_depreciation_warning( a_deprecated_syntax, a_new_syntax ) || chr(10)
+      || ut_expectation_processor.who_called_expectation(dbms_utility.format_call_stack())
+    );
+  end;
+
   function get_warnings return ut_varchar2_list is
   begin
     return g_warnings;

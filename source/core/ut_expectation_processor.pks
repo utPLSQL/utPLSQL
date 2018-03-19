@@ -50,6 +50,8 @@ create or replace package ut_expectation_processor authid current_user as
 
   procedure add_warning(a_messsage varchar2);
 
+  procedure add_depreciation_warning(a_deprecated_syntax varchar2, a_new_syntax varchar2);
+
   function get_warnings return ut_varchar2_list;
 
   function invalidation_exception_found return boolean;
