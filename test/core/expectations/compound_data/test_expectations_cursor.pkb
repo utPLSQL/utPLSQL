@@ -915,7 +915,7 @@ Rows: [ 4 differences ]
     ut3.ut.expect(get_cursor()).to_equal(get_cursor(), a_exclude => 'A_COLUMN,Some_Col');
     --Assert
     ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
-    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
   end;
 
   procedure deprec_to_equal_excl_list is
@@ -924,7 +924,7 @@ Rows: [ 4 differences ]
     ut3.ut.expect(get_cursor()).to_equal(get_cursor(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
     --Assert
     ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
-    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
   end;
 
   procedure deprec_not_to_equal_excl_varch is
@@ -933,7 +933,7 @@ Rows: [ 4 differences ]
     ut3.ut.expect(get_cursor()).not_to_equal(get_cursor(), a_exclude => 'A_COLUMN,Some_Col');
     --Assert
     ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
-    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
   end;
 
   procedure deprec_not_to_equal_excl_list is
@@ -942,7 +942,7 @@ Rows: [ 4 differences ]
     ut3.ut.expect(get_cursor()).not_to_equal(get_cursor(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
     --Assert
     ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
-    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
   end;
 
   procedure deprec_equal_excl_varch is
@@ -951,7 +951,7 @@ Rows: [ 4 differences ]
     ut3.ut.expect(get_cursor()).to_(ut3.equal(get_cursor(), a_exclude => 'A_COLUMN,Some_Col'));
     --Assert
     ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
-    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
   end;
 
   procedure deprec_equal_excl_list is
@@ -960,7 +960,7 @@ Rows: [ 4 differences ]
     ut3.ut.expect(get_cursor()).to_(ut3.equal(get_cursor(), a_exclude => ut3.ut_varchar2_list('A_COLUMN','Some_Col')));
     --Assert
     ut.expect(cardinality(ut3.ut_expectation_processor.get_warnings())).to_equal(1);
-    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is depreciated.%');
+    ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
   end;
 
 end;

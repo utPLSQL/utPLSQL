@@ -23,7 +23,7 @@ create or replace type ut_results_counter as object(
   constructor function ut_results_counter(self in out nocopy ut_results_counter) return self as result,
   member procedure set_counter_values(self in out nocopy ut_results_counter, a_status integer),
   member procedure sum_counter_values(self in out nocopy ut_results_counter, a_item ut_results_counter),
-  member procedure increase_warning_count(self in out nocopy ut_results_counter),
+  member procedure increase_warning_count(self in out nocopy ut_results_counter, a_count integer := 1),
   member function total_count return integer,
   member function result_status return integer
 )

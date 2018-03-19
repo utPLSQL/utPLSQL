@@ -113,6 +113,7 @@ create or replace type body ut_test as
   end;
 
   overriding member procedure calc_execution_result(self in out nocopy ut_test) is
+  l_warnings ut_varchar2_list;
   begin
     if self.get_error_stack_traces().count = 0 then
       self.result := ut_expectation_processor.get_status();
@@ -122,9 +123,11 @@ create or replace type body ut_test as
     --expectation results need to be part of test results
     self.all_expectations    := ut_expectation_processor.get_all_expectations();
     self.failed_expectations := ut_expectation_processor.get_failed_expectations();
-    self.warnings := self.warnings multiset union all ut_expectation_processor.get_warnings();
-    ut_expectation_processor.clear_expectations();
+    l_warnings := coalesce( ut_expectation_processor.get_warnings(), ut_varchar2_list() );
+    self.warnings := self.warnings multiset union all l_warnings;
+    self.results_count.increase_warning_count( cardinality(l_warnings) );
     self.results_count.set_counter_values(self.result);
+    ut_expectation_processor.clear_expectations();
   end;
 
   overriding member procedure mark_as_errored(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base, a_error_stack_trace varchar2) is
