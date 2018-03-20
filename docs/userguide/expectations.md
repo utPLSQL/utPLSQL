@@ -598,7 +598,7 @@ begin
 end;
 /
 create or replace package demo_dept as 
-  -- %suite(demo)
+  --%suite(demo)
 
   --%test(demo of object to object comparison)
   procedure test_department; 
@@ -635,7 +635,7 @@ begin
 end;
 /
 create or replace package demo_depts as 
-  -- %suite(demo)
+  --%suite(demo)
 
   --%test(demo of collection comparison)
   procedure test_departments; 
