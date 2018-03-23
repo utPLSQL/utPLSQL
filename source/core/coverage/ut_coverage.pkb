@@ -70,13 +70,13 @@ create or replace package body ut_coverage is
   * Public functions
   */
   procedure coverage_start(a_coverage_options ut_coverage_options default null) is
-    l_coverage_type varchar2(10) := coalesce(a_coverage_options.coverage_type, 'proftab');
+    l_coverage_type varchar2(10) := coalesce(a_coverage_options.coverage_type, c_proftab_coverage);
   begin
     ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp),l_coverage_type);
   end;
 
   procedure coverage_start_develop(a_coverage_options ut_coverage_options default null) is
-    l_coverage_type varchar2(10) := coalesce(a_coverage_options.coverage_type, 'proftab');
+    l_coverage_type varchar2(10) := coalesce(a_coverage_options.coverage_type, c_proftab_coverage);
   begin
     ut_coverage_helper.coverage_start_develop(l_coverage_type);
   end;
