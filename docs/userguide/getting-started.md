@@ -25,7 +25,7 @@ This way, we assure we don't jump ahead too much and produce code that is untest
 ```sql
 create or replace package test_betwnstr as
 
-  -- %suite(Between string function)
+  --%suite(Between string function)
 
 end;
 /
@@ -46,9 +46,9 @@ Finished in .451423 seconds
 ```sql
 create or replace package test_betwnstr as
 
-  -- %suite(Between string function)
+  --%suite(Between string function)
 
-  -- %test(Returns substring from start position to end position)
+  --%test(Returns substring from start position to end position)
   procedure basic_usage;
 
 end;
@@ -201,12 +201,12 @@ A new requirement was added:
 ```sql
 create or replace package test_betwnstr as
 
-  -- %suite(Between string function)
+  --%suite(Between string function)
 
-  -- %test(Returns substring from start position to end position)
+  --%test(Returns substring from start position to end position)
   procedure basic_usage;
 
-  -- %test(Returns substring when start position is zero)
+  --%test(Returns substring when start position is zero)
   procedure zero_start_position;
 
 end;
