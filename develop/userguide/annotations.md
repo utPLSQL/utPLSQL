@@ -108,19 +108,19 @@ end test_pkg;
 
 | Annotation |Level| Description |
 | --- | --- | --- |
-| `%suite(<description>)` | Package | Mandatory. Marks package as a test suite. Optional suite description can be provided (see `displayname`). |
-| `%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
-| `%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a suite/test. `%displayname(Name of the suite/test)`. The annotation is provided for flexibility and convenience only. It has exactly the same meaning as `<description>` in `test` and `suite` annotations. If description is provided using both `suite`/`test` and `displayname`, then the one defined as last takes precedence. |
-| `%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can by provided (see `displayname`). |
-| `%throws(<exception_number>[,<exception_number>[,...]])`| Procedure | Denotes that the annotated procedure must throw one of the exception numbers provided. If no valid numbers were provided as annotation parameters the annotation is ignored. Applicable to test procedures only. |
-| `%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
-| `%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
-| `%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` procedure in the suite. |
-| `%aftereach` | Procedure | Denotes that the annotated procedure should be executed after each `%test` procedure in the suite. |
-| `%beforetest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed before the annotated `%test` procedure. |
-| `%aftertest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed after the annotated `%test` procedure. |
-| `%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
-| `%disabled` | Package/procedure | Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run. |
+| `--%suite(<description>)` | Package | Mandatory. Marks package as a test suite. Optional suite description can be provided (see `displayname`). |
+| `--%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
+| `--%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a suite/test. `%displayname(Name of the suite/test)`. The annotation is provided for flexibility and convenience only. It has exactly the same meaning as `<description>` in `test` and `suite` annotations. If description is provided using both `suite`/`test` and `displayname`, then the one defined as last takes precedence. |
+| `--%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can by provided (see `displayname`). |
+| `--%throws(<exception_number>[,<exception_number>[,...]])`| Procedure | Denotes that the annotated procedure must throw one of the exception numbers provided. If no valid numbers were provided as annotation parameters the annotation is ignored. Applicable to test procedures only. |
+| `--%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
+| `--%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
+| `--%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` procedure in the suite. |
+| `--%aftereach` | Procedure | Denotes that the annotated procedure should be executed after each `%test` procedure in the suite. |
+| `--%beforetest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed before the annotated `%test` procedure. |
+| `--%aftertest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed after the annotated `%test` procedure. |
+| `--%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
+| `--%disabled` | Package/procedure | Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run. |
 
 # Suitepath concept
 
