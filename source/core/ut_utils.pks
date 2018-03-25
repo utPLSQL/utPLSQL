@@ -24,18 +24,35 @@ create or replace package ut_utils authid definer is
   gc_version                 constant varchar2(50) := 'v3.1.0.1688-develop';
 
   /* Constants: Event names */
-  subtype t_event_name       is varchar2(12);
-  gc_run                     constant t_event_name := 'run';
-  gc_suite                   constant t_event_name := 'suite';
-  gc_before_all              constant t_event_name := 'before_all';
-  gc_before_each             constant t_event_name := 'before_each';
-  gc_before_test             constant t_event_name := 'before_test';
-  gc_test                    constant t_event_name := 'test';
-  gc_test_execute            constant t_event_name := 'test_execute';
-  gc_after_test              constant t_event_name := 'after_test';
-  gc_after_each              constant t_event_name := 'after_each';
-  gc_after_all               constant t_event_name := 'after_all';
-  gc_finalize                constant t_event_name := 'finalize';
+  subtype t_event_name           is varchar2(30);
+  gc_before_run                  constant t_event_name := 'before_run';
+  gc_before_suite                constant t_event_name := 'before_suite';
+  gc_before_before_all           constant t_event_name := 'before_before_all';
+  gc_before_before_each          constant t_event_name := 'before_before_each';
+  gc_before_before_test          constant t_event_name := 'before_before_test';
+  gc_before_test                 constant t_event_name := 'before_test';
+  gc_before_test_execute         constant t_event_name := 'before_test_execute';
+  gc_before_after_test           constant t_event_name := 'before_after_test';
+  gc_before_after_each           constant t_event_name := 'before_after_each';
+  gc_before_after_all            constant t_event_name := 'before_after_all';
+  gc_after_run                   constant t_event_name := 'after_run';
+  gc_after_suite                 constant t_event_name := 'after_suite';
+  gc_after_before_all            constant t_event_name := 'after_before_all';
+  gc_after_before_each           constant t_event_name := 'after_before_each';
+  gc_after_before_test           constant t_event_name := 'after_before_test';
+  gc_after_test                  constant t_event_name := 'after_test';
+  gc_after_test_execute          constant t_event_name := 'after_test_execute';
+  gc_after_after_test            constant t_event_name := 'after_after_test';
+  gc_after_after_each            constant t_event_name := 'after_after_each';
+  gc_after_after_all             constant t_event_name := 'after_after_all';
+  gc_finalize                    constant t_event_name := 'finalize';
+
+  subtype t_executable_type      is varchar2(30);
+  gc_before_all                  constant t_executable_type := 'before_all';
+  gc_before_each                 constant t_executable_type := 'before_each';
+  gc_test_execute                constant t_executable_type := 'test_execute';
+  gc_after_each                  constant t_executable_type := 'after_each';
+  gc_after_all                   constant t_executable_type := 'after_all';
 
   /* Constants: Test Results */
   subtype t_test_result   is binary_integer range 0 .. 3;

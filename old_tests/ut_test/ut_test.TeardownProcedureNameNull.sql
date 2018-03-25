@@ -14,7 +14,7 @@ begin
   if ut_example_tests.g_char = 'a' then
     :test_result := ut_utils.tr_success;
   else
-    dbms_output.put_line('expected: ut_example_tests.g_char = ''a'', got: '||ut_example_tests.g_char );
+    dbms_output.put_line('expected: ut_example_tests.g_char = ''a'', got: '''||ut_example_tests.g_char||'''' );
   end if;
 end;
 /

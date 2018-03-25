@@ -67,12 +67,12 @@ create or replace type ut_reporter_base under ut_event_listener (
   /**
   * Returns the list of events that are supported by particular implementation of the reporter
   */
-  overriding final member function get_supported_events return ut_varchar2_list,
+  overriding member function get_supported_events return ut_varchar2_list,
 
   /**
   * Delegates execution of event into individual reporting procedures
   */
-  overriding final member procedure on_event( self in out nocopy ut_reporter_base, a_event_name varchar2, a_event_item ut_event_item)
+  overriding member procedure on_event( self in out nocopy ut_reporter_base, a_event_name varchar2, a_event_item ut_event_item)
 
 )
 not final not instantiable

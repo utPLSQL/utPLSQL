@@ -26,18 +26,6 @@ create or replace type body ut_suite  as
     return;
   end;
 
-  overriding member function is_valid(self in out nocopy ut_suite) return boolean is
-    l_is_valid boolean := true;
-  begin
-    for i in 1 .. before_all_list.count loop
-      l_is_valid := self.before_all_list(i).is_valid() and l_is_valid;
-    end loop;
-    for i in 1 .. after_all_list.count loop
-      l_is_valid := self.after_all_list(i).is_valid() and l_is_valid;
-    end loop;
-    return l_is_valid;
-  end;
-
   overriding member function do_execute(self in out nocopy ut_suite) return boolean is
     l_suite_savepoint varchar2(30);
     l_no_errors boolean;
@@ -56,43 +44,39 @@ create or replace type body ut_suite  as
     if self.get_disabled_flag() then
       self.mark_as_skipped();
     else
-      ut_event_manager.trigger_event(ut_event_manager.before_suite, self);
+      ut_event_manager.trigger_event(ut_utils.gc_before_suite, self);
       self.start_time := current_timestamp;
-      if self.is_valid() then
 
-        l_suite_savepoint := self.create_savepoint_if_needed();
+      l_suite_savepoint := self.create_savepoint_if_needed();
 
-        --includes listener calls for before and after actions
-        l_no_errors := true;
-        for i in 1 .. self.before_all_list.count loop
-          l_no_errors := self.before_all_list(i).do_execute(self);
-          if not l_no_errors then
-            propagate_error(self.before_all_list(i).get_error_stack_trace());
-            exit;
-          end if;
-        end loop;
-
-        if l_no_errors then
-          for i in 1 .. self.items.count loop
-            self.items(i).do_execute();
-          end loop;
+      --includes listener calls for before and after actions
+      l_no_errors := true;
+      for i in 1 .. self.before_all_list.count loop
+        l_no_errors := self.before_all_list(i).do_execute(self);
+        if not l_no_errors then
+          propagate_error(self.before_all_list(i).get_error_stack_trace());
+          exit;
         end if;
+      end loop;
 
-        for i in 1 .. after_all_list.count loop
-          l_no_errors := self.after_all_list(i).do_execute(self);
-          if not l_no_errors then
-            self.put_warning(self.after_all_list(i).get_error_stack_trace());
-          end if;
+      if l_no_errors then
+        for i in 1 .. self.items.count loop
+          self.items(i).do_execute();
         end loop;
-
-        self.rollback_to_savepoint(l_suite_savepoint);
-
-      else
-        propagate_error(ut_utils.table_to_clob(self.get_error_stack_traces()));
       end if;
+
+      for i in 1 .. after_all_list.count loop
+        l_no_errors := self.after_all_list(i).do_execute(self);
+        if not l_no_errors then
+          self.put_warning(self.after_all_list(i).get_error_stack_trace());
+        end if;
+      end loop;
+
+      self.rollback_to_savepoint(l_suite_savepoint);
+
       self.calc_execution_result();
       self.end_time := current_timestamp;
-      ut_event_manager.trigger_event(ut_event_manager.after_suite, self);
+      ut_event_manager.trigger_event(ut_utils.gc_after_suite, self);
     end if;
 
     ut_utils.set_action(null);

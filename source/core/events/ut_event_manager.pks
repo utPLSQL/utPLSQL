@@ -15,30 +15,7 @@ create or replace package ut_event_manager authid current_user as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-
-  /* Constants: Event names */
-  subtype t_event_name           is varchar2(30);
-  before_run                     constant t_event_name := 'before_run';
-  before_suite                   constant t_event_name := 'before_suite';
-  before_before_all              constant t_event_name := 'before_before_all';
-  before_before_each             constant t_event_name := 'before_before_each';
-  before_before_test             constant t_event_name := 'before_before_test';
-  before_test                    constant t_event_name := 'before_test';
-  before_test_execute            constant t_event_name := 'before_test_execute';
-  before_after_test              constant t_event_name := 'before_after_test';
-  before_after_each              constant t_event_name := 'before_after_each';
-  before_after_all               constant t_event_name := 'before_after_all';
-  after_run                      constant t_event_name := 'after_run';
-  after_suite                    constant t_event_name := 'after_suite';
-  after_before_all               constant t_event_name := 'after_before_all';
-  after_before_each              constant t_event_name := 'after_before_each';
-  after_before_test              constant t_event_name := 'after_before_test';
-  after_test                     constant t_event_name := 'after_test';
-  after_test_execute             constant t_event_name := 'after_test_execute';
-  after_after_test               constant t_event_name := 'after_after_test';
-  after_after_each               constant t_event_name := 'after_after_each';
-  after_after_all                constant t_event_name := 'after_after_all';
-  on_finalize                    constant t_event_name := 'on_finalize';
+  subtype t_event_name           is varchar2(250);
 
   procedure trigger_event( a_event_name t_event_name, a_event_object ut_event_item );
 

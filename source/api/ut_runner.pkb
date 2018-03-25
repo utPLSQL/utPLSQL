@@ -36,7 +36,7 @@ create or replace package body ut_runner is
   procedure finish_run(a_run ut_run) is
   begin
     ut_utils.cleanup_temp_tables;
-    ut_event_manager.trigger_event(ut_event_manager.on_finalize, a_run);
+    ut_event_manager.trigger_event(ut_utils.gc_finalize, a_run);
     ut_metadata.reset_source_definition_cache;
     ut_utils.read_cache_to_dbms_output();
     ut_coverage_helper.cleanup_tmp_table();

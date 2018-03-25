@@ -59,7 +59,6 @@ create or replace type ut_test under ut_suite_item (
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2,
     a_expected_error_codes ut_integer_list := null
   ) return self as result,
-  member function is_valid(self in out nocopy ut_test) return boolean,
   overriding member procedure mark_as_skipped(self in out nocopy ut_test),
   overriding member function do_execute(self in out nocopy ut_test) return boolean,
   overriding member procedure calc_execution_result(self in out nocopy ut_test),

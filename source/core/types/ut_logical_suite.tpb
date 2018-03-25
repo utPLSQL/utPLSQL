@@ -41,13 +41,13 @@ create or replace type body ut_logical_suite as
 
   overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite) is
   begin
-    ut_event_manager.trigger_event(ut_event_manager.before_suite, self);
+    ut_event_manager.trigger_event(ut_utils.gc_before_suite, self);
     self.start_time := current_timestamp;
     for i in 1 .. self.items.count loop
       self.items(i).mark_as_skipped();
     end loop;
     self.end_time := self.start_time;
-    ut_event_manager.trigger_event(ut_event_manager.after_suite, self);
+    ut_event_manager.trigger_event(ut_utils.gc_after_suite, self);
     self.calc_execution_result();
   end;
 
@@ -66,7 +66,7 @@ create or replace type body ut_logical_suite as
   begin
     ut_utils.debug_log('ut_logical_suite.execute');
 
-    ut_event_manager.trigger_event(ut_event_manager.before_suite, self);
+    ut_event_manager.trigger_event(ut_utils.gc_before_suite, self);
     self.start_time := current_timestamp;
 
     for i in 1 .. self.items.count loop
@@ -77,7 +77,7 @@ create or replace type body ut_logical_suite as
     self.calc_execution_result();
     self.end_time := current_timestamp;
 
-    ut_event_manager.trigger_event(ut_event_manager.after_suite, self);
+    ut_event_manager.trigger_event(ut_utils.gc_after_suite, self);
 
     return l_completed_without_errors;
   end;
@@ -101,7 +101,7 @@ create or replace type body ut_logical_suite as
   overriding member procedure mark_as_errored(self in out nocopy ut_logical_suite, a_error_stack_trace varchar2) is
   begin
     ut_utils.debug_log('ut_logical_suite.fail');
-    ut_event_manager.trigger_event(ut_event_manager.before_suite, self);
+    ut_event_manager.trigger_event(ut_utils.gc_before_suite, self);
     self.start_time := current_timestamp;
     for i in 1 .. self.items.count loop
       -- execute the item (test or suite)
@@ -109,7 +109,7 @@ create or replace type body ut_logical_suite as
     end loop;
     self.calc_execution_result();
     self.end_time := self.start_time;
-    ut_event_manager.trigger_event(ut_event_manager.after_suite, self);
+    ut_event_manager.trigger_event(ut_utils.gc_after_suite, self);
   end;
 
   overriding member function get_error_stack_traces return ut_varchar2_list is

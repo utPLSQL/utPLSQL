@@ -25,16 +25,16 @@ begin
 
   ut.expect(l_test1_suite.items(1).name).to_equal('test1');
   ut.expect(l_test1_suite.items(1).description).to_equal('Test1 from test package 1');
-  ut.expect(treat(l_test1_suite.items(1) as ut_test).before_test.is_defined).to_be_false;
-  ut.expect(treat(l_test1_suite.items(1) as ut_test).after_test.is_defined).to_be_false;
-  ut.expect(treat(l_test1_suite.items(1) as ut_test).before_each.is_defined).to_be_true;
+  ut.expect(treat(l_test1_suite.items(1) as ut_test).before_test_list.count()).to_equal(0);
+  ut.expect(treat(l_test1_suite.items(1) as ut_test).after_test_list.count()).to_equal(0);
+  ut.expect(treat(l_test1_suite.items(1) as ut_test).before_each_list.count()).to_equal(1);
   ut.expect(treat(l_test1_suite.items(1) as ut_test).disabled_flag).to_equal(0);
 
   ut.expect(l_test1_suite.items(2).name).to_equal('test2');
   ut.expect(l_test1_suite.items(2).description).to_equal('Test2 from test package 1');
-  ut.expect(treat(l_test1_suite.items(2) as ut_test).before_test.is_defined).to_be_true;
-  ut.expect(treat(l_test1_suite.items(2) as ut_test).after_test.is_defined).to_be_true;
-  ut.expect(treat(l_test1_suite.items(2) as ut_test).before_each.is_defined).to_be_true;
+  ut.expect(treat(l_test1_suite.items(2) as ut_test).before_test_list.count()).to_equal(1);
+  ut.expect(treat(l_test1_suite.items(2) as ut_test).after_test_list.count()).to_equal(1);
+  ut.expect(treat(l_test1_suite.items(2) as ut_test).before_each_list.count()).to_equal(1);
   ut.expect(treat(l_test1_suite.items(2) as ut_test).disabled_flag).to_equal(0);
 
   -- temporary behavior.

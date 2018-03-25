@@ -57,7 +57,7 @@ create or replace type body ut_run as
   begin
     ut_utils.debug_log('ut_run.execute');
 
-    ut_event_manager.trigger_event(ut_event_manager.before_run, self);
+    ut_event_manager.trigger_event(ut_utils.gc_before_run, self);
     self.start_time := current_timestamp;
 
     -- clear anything that might stay in the session's cache
@@ -71,8 +71,7 @@ create or replace type body ut_run as
 
     self.end_time := current_timestamp;
 
-    ut_event_manager.trigger_event(ut_event_manager.after_run, self);
-    ut_event_manager.trigger_event(ut_event_manager.on_finalize, self);
+    ut_event_manager.trigger_event(ut_utils.gc_after_run, self);
 
     return l_completed_without_errors;
   end;
@@ -97,7 +96,7 @@ create or replace type body ut_run as
   begin
     ut_utils.debug_log('ut_run.fail');
 
-    ut_event_manager.trigger_event(ut_event_manager.before_run, self);
+    ut_event_manager.trigger_event(ut_utils.gc_before_run, self);
     self.start_time := current_timestamp;
 
     for i in 1 .. self.items.count loop
@@ -107,7 +106,7 @@ create or replace type body ut_run as
     self.calc_execution_result();
     self.end_time := self.start_time;
 
-    ut_event_manager.trigger_event(ut_event_manager.after_run, self);
+    ut_event_manager.trigger_event(ut_utils.gc_after_run, self);
   end;
 
   member function get_run_schemes return ut_varchar2_rows is

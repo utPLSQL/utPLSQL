@@ -34,33 +34,15 @@ create or replace type body ut_test as
     return;
   end;
 
-  member function is_valid(self in out nocopy ut_test) return boolean is
-    l_is_valid boolean := true;
-  begin
-    for i in 1 .. before_each_list.count loop
-      l_is_valid := self.before_each_list(i).is_valid() and l_is_valid;
-    end loop;
-    for i in 1 .. after_each_list.count loop
-      l_is_valid := self.after_each_list(i).is_valid() and l_is_valid;
-    end loop;
-    for i in 1 .. before_test_list.count loop
-      l_is_valid := self.before_test_list(i).is_valid() and l_is_valid;
-    end loop;
-    for i in 1 .. after_test_list.count loop
-      l_is_valid := self.after_test_list(i).is_valid() and l_is_valid;
-    end loop;
-    return l_is_valid;
-  end;
-
   overriding member procedure mark_as_skipped(self in out nocopy ut_test) is
   begin
-    ut_event_manager.trigger_event(ut_event_manager.before_test, self);
+    ut_event_manager.trigger_event(ut_utils.gc_before_test, self);
     self.start_time := current_timestamp;
     self.result := ut_utils.tr_disabled;
     ut_utils.debug_log('ut_test.execute - disabled');
     self.results_count.set_counter_values(self.result);
     self.end_time := self.start_time;
-    ut_event_manager.trigger_event(ut_event_manager.after_test, self);
+    ut_event_manager.trigger_event(ut_utils.gc_after_test, self);
   end;
 
   overriding member function do_execute(self in out nocopy ut_test) return boolean is
@@ -73,45 +55,43 @@ create or replace type body ut_test as
     if self.get_disabled_flag() then
       mark_as_skipped();
     else
-      ut_event_manager.trigger_event(ut_event_manager.before_test, self);
+      ut_event_manager.trigger_event(ut_utils.gc_before_test, self);
       self.start_time := current_timestamp;
-      if self.is_valid() then
 
-        l_savepoint := self.create_savepoint_if_needed();
+      l_savepoint := self.create_savepoint_if_needed();
 
-        --includes listener calls for before and after actions
-        l_no_errors := true;
-        for i in 1 .. self.before_each_list.count loop
-          l_no_errors := self.before_each_list(i).do_execute(self);
+      --includes listener calls for before and after actions
+      l_no_errors := true;
+      for i in 1 .. self.before_each_list.count loop
+        l_no_errors := self.before_each_list(i).do_execute(self);
+        exit when not l_no_errors;
+      end loop;
+
+      if l_no_errors then
+        for i in 1 .. self.before_test_list.count loop
+          l_no_errors := self.before_test_list(i).do_execute(self);
           exit when not l_no_errors;
         end loop;
 
         if l_no_errors then
-          for i in 1 .. self.before_test_list.count loop
-            l_no_errors := self.before_test_list(i).do_execute(self);
-            exit when not l_no_errors;
-          end loop;
+          -- execute the test
+          self.item.do_execute(self, self.expected_error_codes);
 
-          if l_no_errors then
-            -- execute the test
-            self.item.do_execute(self, self.expected_error_codes);
-
-          end if;
-          -- perform cleanup regardless of the test or setup failure
-          for i in 1 .. self.after_test_list.count loop
-            self.after_test_list(i).do_execute(self);
-          end loop;
         end if;
-
-        for i in 1 .. self.after_each_list.count loop
-          self.after_each_list(i).do_execute(self);
+        -- perform cleanup regardless of the test or setup failure
+        for i in 1 .. self.after_test_list.count loop
+          self.after_test_list(i).do_execute(self);
         end loop;
-        self.rollback_to_savepoint(l_savepoint);
       end if;
+
+      for i in 1 .. self.after_each_list.count loop
+        self.after_each_list(i).do_execute(self);
+      end loop;
+      self.rollback_to_savepoint(l_savepoint);
 
       self.calc_execution_result();
       self.end_time := current_timestamp;
-      ut_event_manager.trigger_event(ut_event_manager.after_test, self);
+      ut_event_manager.trigger_event(ut_utils.gc_after_test, self);
     end if;
     return l_no_errors;
   end;
@@ -137,12 +117,12 @@ create or replace type body ut_test as
   overriding member procedure mark_as_errored(self in out nocopy ut_test, a_error_stack_trace varchar2) is
   begin
     ut_utils.debug_log('ut_test.fail');
-    ut_event_manager.trigger_event(ut_event_manager.before_test, self);
+    ut_event_manager.trigger_event(ut_utils.gc_before_test, self);
     self.start_time := current_timestamp;
     self.parent_error_stack_trace := a_error_stack_trace;
     self.calc_execution_result();
     self.end_time := self.start_time;
-    ut_event_manager.trigger_event(ut_event_manager.after_test, self);
+    ut_event_manager.trigger_event(ut_utils.gc_after_test, self);
   end;
 
   overriding member function get_error_stack_traces(self ut_test) return ut_varchar2_list is
