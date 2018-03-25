@@ -5,6 +5,7 @@ set -ev
 #goto git root directory
 git rev-parse && cd "$(git rev-parse --show-cdup)"
 
+
 cd test
 
 "$SQLCLI" ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@//${CONNECTION_STR} @install_tests.sql
