@@ -5,7 +5,6 @@ set -ev
 #goto git root directory
 git rev-parse && cd "$(git rev-parse --show-cdup)"
 
-. development/env.sh
 
 cd test
 
