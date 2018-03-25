@@ -15,10 +15,7 @@ create or replace package ut_coverage authid current_user is
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  
-  c_proftab_coverage constant varchar2(32) := 'proftab';
-  c_block_coverage   constant varchar2(32) := 'block';
- 
+
   -- total run coverage information
   subtype t_full_name is varchar2(4000);
   subtype t_object_name is varchar2(250);
@@ -61,8 +58,6 @@ create or replace package ut_coverage authid current_user is
     ,uncovered_blocks  binary_integer default null
     ,executions        number(38, 0) := 0
     ,objects           tt_program_units);
-  
-  procedure populate_tmp_table(a_coverage_options ut_coverage_options, a_sql in varchar2);
   
   procedure coverage_start(a_coverage_options ut_coverage_options default null);
 
