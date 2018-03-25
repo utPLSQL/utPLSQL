@@ -97,7 +97,7 @@ create or replace type body ut_xunit_reporter is
         end if;
 
         l_errors := l_suite.get_error_stack_traces();
-        if l_data is not null and l_data != empty_clob() then
+        if l_errors is not empty then
           self.print_text('<system-err>');
           self.print_text('<![CDATA[');
           self.print_clob(ut_utils.table_to_clob(l_errors));
