@@ -165,7 +165,7 @@ end;
 ## be_empty
 Unary matcher that validates if the provided dataset is empty.
 
-Can be used with `refcursor` or `table type`
+Can be used with `refcursor` or `nested table`/`varray` passed as `ANYDATA`
 
 Usage:
 ```sql
@@ -179,7 +179,16 @@ begin
 end;
 ```
 
-When used with anydata, it is only valid for collection data types.
+```sql
+procedure test_if_cursor_is_empty is
+  l_data ut_varchar2_list;
+begin
+  l_data := ut_varchar2_list();
+  ut.expect( anydata.convertCollection( l_data ) ).to_be_empty();
+  --or
+  ut.expect( anydata.convertCollection( l_data ) ).to_( be_empty() );
+end;
+```
 
 ## be_false
 Unary matcher that validates if the provided value is false.
@@ -420,7 +429,7 @@ The `a_nulls_are_equal` parameter controls the behavior of a `null = null` compa
 To change the behavior of `NULL = NULL` comparison pass the `a_nulls_are_equal => false` to the `equal` matcher.  
 
 
-## Comparing objects, cursors, collections of data 
+## Comparing cursors, object types, nested tables and varrays 
 
 utPLSQL is capable of comparing compound data-types including:
 - ref cursors 
@@ -434,7 +443,7 @@ utPLSQL is capable of comparing compound data-types including:
 - Comparison of cursor columns containing `DATE` will only compare date part **and ignore time** by default. See [Comparing cursor data containing DATE fields](#comparing-cursor-data-containing-date-fields) to check how to enable date-time comparison in cursors.
 - To compare nested table/varray type you need to convert it to `anydata` by using `anydata.convertCollection()`  
 - To compare object type you need to convert it to `anydata` by using `anydata.convertObject()`  
-- It is possible to compare PL/SQL records and nested tables/varrays/associative arrays of PL/SQL records. To compare this types of data, use cursor comparison feature of utPLSQL and TABLE operator in SQL query
+- It is possible to compare PL/SQL records, collections, varrays and associative arrays. To compare this types of data, use cursor comparison feature of utPLSQL and TABLE operator in SQL query
     - On Oracle 11g Release 2 - pipelined table functions are needed (see section [Implicit (Shadow) Types in this artcile](https://oracle-base.com/articles/misc/pipelined-table-functions))
     - On Oracle 12c and above - use [TABLE function on nested tables/varrays/associative arrays of PL/SQL records](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1) 
    
@@ -448,7 +457,7 @@ For details on available options and how to use them, read the [advanced data co
 
 ### Diff functionality for compound data-types 
 
-When comparing compound data, utPLSQL will determine diff between expected and actual data.
+When comparing compound data, utPLSQL will determine the difference between the expected and the actual data.
 The diff includes:
 - differences in column names, column positions and column data-type for cursor data
 - only data in columns/rows that differ
@@ -473,16 +482,16 @@ And the actual cursor data:
 |            M        |           LUKE        |        SKYWALKER     |         1000        |   2           |
 
 
-When considering the data-sets as ordered, there are following following differences:
+The two datasets above have the following differences:
 - column ID is misplaced (should be first column but is last)
 - column SALARY has data-type VARCHAR2 but should be NUMBER
-- column GENDER exists in actual but not in the expected (it ir an Extra column)
+- column GENDER exists in actual but not in the expected (it is an Extra column)
 - data in column SALARY for row number 1 in actual is not matching expected 
 - row number 2 in actual (ID=3) is not matching expected 
 - row number 3 in actual (ID=4) is not matching expected
 - row number 4 in actual (ID=2) is not expected in results (Extra row in actual)  
 
-utPLSQL will report all of the above differences in a readable format to help you identify what is not correct in compared data-set.
+utPLSQL will report all of the above differences in a readable format to help you identify what is not correct in the compared dataset.
 
 Below example illustrates, how utPLSQL will report such differences.  
 ```sql
@@ -562,22 +571,22 @@ utPLSQL identifies and reports on columns:
 - extra/missing columns
 
 When comparing rows utPLSQL:
-- reports only mismatched columns, when rows match
+- reports only mismatched columns when rows match
 - reports columns existing in both data-sets when whole row is not matching
-- reports whole extra (not expected) row from actual, when actual has extra rows 
-- reports whole missing (expected) row from expected, when expected has extra rows 
+- reports whole extra (not expected) row from actual when actual has extra rows 
+- reports whole missing (expected) row from expected when expected has extra rows 
 
 
-### Object and collection data-type comparison examples
+### Object and nested table data-type comparison examples
 
-When comparing object type to object type or collection to collection, utPLSQL will check:
+When comparing object type / nested table / varray, utPLSQL will check:
 - if data-types match
-- id data in the compared objects/collections are the same.
+- if data in the compared elements is the same.
 
-The diff functionality for objects and collections is similar to diff on cursors.
-When diffing objects/collections however, utPLSQL will not check attribute names and data-types.
+The diff functionality for objects / nested tables / varrays is similar to diff on cursors.
+When diffing, utPLSQL will not check name and data-type of individual attribute as the type itself defines the underlying structure.  
 
-Below examples demonstrate how to compare object and collection data-types. 
+Below examples demonstrate how to compare object and nested table data-types. 
 
 Object type comparison.
 ```sql
@@ -589,7 +598,7 @@ begin
 end;
 /
 create or replace package demo_dept as 
-  -- %suite(demo)
+  --%suite(demo)
 
   --%test(demo of object to object comparison)
   procedure test_department; 
@@ -626,7 +635,7 @@ begin
 end;
 /
 create or replace package demo_depts as 
-  -- %suite(demo)
+  --%suite(demo)
 
   --%test(demo of collection comparison)
   procedure test_departments; 
@@ -773,19 +782,21 @@ The matrix below illustrates the data types supported by different matchers.
 
 |                               | be_between | be_empty | be_false | be_greater_than | be_greater_or_equal | be_less_or_equal | be_less_than | be_like | be_not_null | be_null | be_true | equal | have_count | match |
 |:------------------------------|:----------:|:--------:|:--------:|:---------------:|:-------------------:|:----------------:|:------------:|:-------:|:-----------:|:-------:|:-------:|:-----:|:----------:|:-----:|
-| anydata( collection, object ) |            |    X     |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |      X     |       |
 | blob                          |            |          |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |            |       |
 | boolean                       |            |          |    X     |                 |                     |                  |              |         |     X       |   X     |    X    |   X   |            |       |
 | clob                          |            |          |          |                 |                     |                  |              |   X     |     X       |   X     |         |   X   |            |   X   |
 | date                          |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
 | number                        |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
-| refcursor                     |            |    X     |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |      X     |       |
 | timestamp                     |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
 | timestamp with timezone       |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
 | timestamp with local timezone |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
 | varchar2                      |    X       |          |          |                 |                     |                  |              |   X     |     X       |   X     |         |   X   |            |   X   |
 | interval year to month        |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
 | interval day to second        |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
+| refcursor                     |            |    X     |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |      X     |       |
+| nested table (as anydata)     |            |    X     |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |      X     |       |
+| varray (as anydata)           |            |    X     |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |      X     |       |
+| object (as anydata)           |            |          |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |            |       |
 
 
 

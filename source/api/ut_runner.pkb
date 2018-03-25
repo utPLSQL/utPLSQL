@@ -73,6 +73,7 @@ create or replace package body ut_runner is
     l_listener     ut_event_listener;
   begin
     begin
+      ut_expectation_processor.reset_invalidation_exception();
       ut_utils.save_dbms_output_to_cache();
 
       ut_console_reporter_base.set_color_enabled(a_color_console);
@@ -94,11 +95,13 @@ create or replace package body ut_runner is
       l_items_to_run.do_execute(l_listener);
 
       finish_run(l_listener);
+      rollback;
     exception
       when others then
         finish_run(l_listener);
         dbms_output.put_line(dbms_utility.format_error_backtrace);
         dbms_output.put_line(dbms_utility.format_error_stack);
+        rollback;
         raise;
     end;
     if a_fail_on_errors and l_items_to_run.result in (ut_utils.tr_failure, ut_utils.tr_error) then

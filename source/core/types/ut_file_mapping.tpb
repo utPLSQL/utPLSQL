@@ -17,7 +17,7 @@ create or replace type body ut_file_mapping as
   */
   map member function pk return varchar2 is
   begin
-    return file_name;
+    return object_type||' '||object_owner||'.'||object_name;
   end;
 end;
 /

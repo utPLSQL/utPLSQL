@@ -148,9 +148,7 @@ create or replace type body ut_documentation_reporter is
       if a_item is of (ut_logical_suite) then
         l_items := treat(a_item as ut_logical_suite).items;
         for i in 1 .. l_items.count loop
-          if l_items(i) is of(ut_suite_item) then
-            print_item_warnings(l_items(i));
-          end if;
+          print_item_warnings(l_items(i));
         end loop;
       end if;
 
