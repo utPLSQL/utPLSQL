@@ -59,13 +59,13 @@ create or replace type body ut_executable is
     return ut_metadata.form_name(owner_name, object_name, procedure_name);
   end;
 
-  member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is
+  member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item) is
     l_completed_without_errors  boolean;
   begin
-    l_completed_without_errors := self.do_execute(a_item, a_listener);
+    l_completed_without_errors := self.do_execute(a_item);
   end do_execute;
 
-	member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean is
+	member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item) return boolean is
     l_statement                varchar2(4000);
     l_status                   number;
     l_cursor_number            number;
@@ -98,53 +98,61 @@ create or replace type body ut_executable is
       ut_utils.set_client_info(self.procedure_name);
 
       --listener - before call to executable
-      a_listener.fire_before_event(self.associated_event_name, a_item);
+      ut_event_manager.trigger_event('before_'||self.associated_event_name, self);
 
-      ut_metadata.do_resolve(a_owner => self.owner_name, a_object => self.object_name, a_procedure_name => self.procedure_name);
+      begin
+        ut_metadata.do_resolve(a_owner => self.owner_name, a_object => self.object_name, a_procedure_name => self.procedure_name);
+      exception
+        when others then
+          self.error_stack     := dbms_utility.format_error_stack;
+          self.error_backtrace := dbms_utility.format_error_backtrace;
+          l_completed_without_errors := false;
+      end;
+      if l_completed_without_errors then
+        l_statement :=
+        'declare' || chr(10) ||
+        '  l_error_stack varchar2(32767);' || chr(10) ||
+        '  l_error_backtrace varchar2(32767);' || chr(10) ||
+        'begin' || chr(10) ||
+        '  begin' || chr(10) ||
+        '    ' || ut_metadata.form_name(self.owner_name, self.object_name, self.procedure_name) || ';' || chr(10) ||
+        '  exception' || chr(10) ||
+        '    when others then ' || chr(10) ||
+        '      l_error_stack := dbms_utility.format_error_stack;' || chr(10) ||
+        '      l_error_backtrace := dbms_utility.format_error_backtrace;' || chr(10) ||
+        '      --raise on ORA-04068, ORA-04061: existing state of packages has been discarded to avoid unrecoverable session exception' || chr(10) ||
+        '  end;' || chr(10) ||
+        '  :a_error_stack := l_error_stack;' || chr(10) ||
+        '  :a_error_backtrace := l_error_backtrace;' || chr(10) ||
+        'end;';
 
-      l_statement :=
-      'declare' || chr(10) ||
-      '  l_error_stack varchar2(32767);' || chr(10) ||
-      '  l_error_backtrace varchar2(32767);' || chr(10) ||
-      'begin' || chr(10) ||
-      '  begin' || chr(10) ||
-      '    ' || ut_metadata.form_name(self.owner_name, self.object_name, self.procedure_name) || ';' || chr(10) ||
-      '  exception' || chr(10) ||
-      '    when others then ' || chr(10) ||
-      '      l_error_stack := dbms_utility.format_error_stack;' || chr(10) ||
-      '      l_error_backtrace := dbms_utility.format_error_backtrace;' || chr(10) ||
-      '      --raise on ORA-04068, ORA-04061: existing state of packages has been discarded to avoid unrecoverable session exception' || chr(10) ||
-      '  end;' || chr(10) ||
-      '  :a_error_stack := l_error_stack;' || chr(10) ||
-      '  :a_error_backtrace := l_error_backtrace;' || chr(10) ||
-      'end;';
+        ut_utils.debug_log('ut_executable.do_execute l_statement: ' || l_statement);
 
-      ut_utils.debug_log('ut_executable.do_execute l_statement: ' || l_statement);
+        l_cursor_number := dbms_sql.open_cursor;
+        dbms_sql.parse(l_cursor_number, statement => l_statement, language_flag => dbms_sql.native);
+        dbms_sql.bind_variable(l_cursor_number, 'a_error_stack', to_char(null), 32767);
+        dbms_sql.bind_variable(l_cursor_number, 'a_error_backtrace', to_char(null), 32767);
 
-      l_cursor_number := dbms_sql.open_cursor;
-      dbms_sql.parse(l_cursor_number, statement => l_statement, language_flag => dbms_sql.native);
-      dbms_sql.bind_variable(l_cursor_number, 'a_error_stack', to_char(null), 32767);
-      dbms_sql.bind_variable(l_cursor_number, 'a_error_backtrace', to_char(null), 32767);
+        l_status := dbms_sql.execute(l_cursor_number);
+        dbms_sql.variable_value(l_cursor_number, 'a_error_stack', self.error_stack);
+        dbms_sql.variable_value(l_cursor_number, 'a_error_backtrace', self.error_backtrace);
+        dbms_sql.close_cursor(l_cursor_number);
 
-      l_status := dbms_sql.execute(l_cursor_number);
-      dbms_sql.variable_value(l_cursor_number, 'a_error_stack', self.error_stack);
-      dbms_sql.variable_value(l_cursor_number, 'a_error_backtrace', self.error_backtrace);
-      dbms_sql.close_cursor(l_cursor_number);
+        save_dbms_output;
 
-      save_dbms_output;
+        l_completed_without_errors := (self.error_stack||self.error_backtrace) is null;
+        if self.error_stack like '%ORA-04068%' or self.error_stack like '%ORA-04061%' then
+          ut_expectation_processor.set_invalidation_exception();
+        end if;
+        --listener - after call to executable
+        ut_event_manager.trigger_event('after_'||self.associated_event_name, self);
 
-      l_completed_without_errors := (self.error_stack||self.error_backtrace) is null;
-      if self.error_stack like '%ORA-04068%' or self.error_stack like '%ORA-04061%' then
-        ut_expectation_processor.set_invalidation_exception();
+        l_end_transaction_id := dbms_transaction.local_transaction_id();
+        if l_start_transaction_id != l_end_transaction_id or l_end_transaction_id is null then
+          a_item.add_transaction_invalidator(self.form_name());
+        end if;
+        ut_utils.set_client_info(null);
       end if;
-      --listener - after call to executable
-      a_listener.fire_after_event(self.associated_event_name, a_item);
-
-      l_end_transaction_id := dbms_transaction.local_transaction_id();
-      if l_start_transaction_id != l_end_transaction_id or l_end_transaction_id is null then
-        a_item.add_transaction_invalidator(self.form_name());
-      end if;
-      ut_utils.set_client_info(null);
     end if;
 
     return l_completed_without_errors;

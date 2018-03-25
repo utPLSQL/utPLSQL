@@ -1,4 +1,4 @@
-create or replace type ut_reporter_base authid current_user as object(
+create or replace type ut_reporter_base under ut_event_listener (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,7 +15,6 @@ create or replace type ut_reporter_base authid current_user as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  self_type  varchar2(250),
   id         raw(32),
   final member procedure init(self in out nocopy ut_reporter_base, a_self_type varchar2),
   member procedure set_reporter_id(self in out nocopy ut_reporter_base, a_reporter_id raw),
@@ -28,32 +27,32 @@ create or replace type ut_reporter_base authid current_user as object(
   -- suite hooks
   member procedure before_calling_suite(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
 
-  member procedure before_calling_before_all(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
-  member procedure after_calling_before_all (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
+  member procedure before_calling_before_all(self in out nocopy ut_reporter_base, a_executable in ut_executable),
+  member procedure after_calling_before_all (self in out nocopy ut_reporter_base, a_executable in ut_executable),
 
-  member procedure before_calling_before_each(self in out nocopy ut_reporter_base, a_suite in ut_test),
-  member procedure after_calling_before_each (self in out nocopy ut_reporter_base, a_suite in ut_test),
+  member procedure before_calling_before_each(self in out nocopy ut_reporter_base, a_executable in ut_executable),
+  member procedure after_calling_before_each (self in out nocopy ut_reporter_base, a_executable in ut_executable),
 
   -- test hooks
   member procedure before_calling_test(self in out nocopy ut_reporter_base, a_test in ut_test),
 
-  member procedure before_calling_before_test(self in out nocopy ut_reporter_base, a_test in ut_test),
-  member procedure after_calling_before_test (self in out nocopy ut_reporter_base, a_test in ut_test),
+  member procedure before_calling_before_test(self in out nocopy ut_reporter_base, a_executable in ut_executable),
+  member procedure after_calling_before_test (self in out nocopy ut_reporter_base, a_executable in ut_executable),
 
   member procedure before_calling_test_execute(self in out nocopy ut_reporter_base, a_test in ut_test),
   member procedure after_calling_test_execute (self in out nocopy ut_reporter_base, a_test in ut_test),
 
-  member procedure before_calling_after_test(self in out nocopy ut_reporter_base, a_test in ut_test),
-  member procedure after_calling_after_test (self in out nocopy ut_reporter_base, a_test in ut_test),
+  member procedure before_calling_after_test(self in out nocopy ut_reporter_base, a_executable in ut_executable),
+  member procedure after_calling_after_test (self in out nocopy ut_reporter_base, a_executable in ut_executable),
 
   member procedure after_calling_test(self in out nocopy ut_reporter_base, a_test in ut_test),
 
   --suite hooks continued
-  member procedure before_calling_after_each(self in out nocopy ut_reporter_base, a_suite in ut_test),
-  member procedure after_calling_after_each (self in out nocopy ut_reporter_base, a_suite in ut_test),
+  member procedure before_calling_after_each(self in out nocopy ut_reporter_base, a_executable in ut_executable),
+  member procedure after_calling_after_each (self in out nocopy ut_reporter_base, a_executable in ut_executable),
 
-  member procedure before_calling_after_all(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
-  member procedure after_calling_after_all (self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
+  member procedure before_calling_after_all(self in out nocopy ut_reporter_base, a_executable in ut_executable),
+  member procedure after_calling_after_all (self in out nocopy ut_reporter_base, a_executable in ut_executable),
 
   member procedure after_calling_suite(self in out nocopy ut_reporter_base, a_suite in ut_logical_suite),
 
@@ -63,7 +62,17 @@ create or replace type ut_reporter_base authid current_user as object(
   -- This method is executed when reporter is getting finalized
   -- it differs from after_calling_run, as it is getting called, even when the run fails
   -- This way, you may close all open outputs, files, connections etc. that need closing before the run finishes
-  not instantiable member procedure finalize(self in out nocopy ut_reporter_base)
+  not instantiable member procedure on_finalize(self in out nocopy ut_reporter_base, a_run in ut_run),
+
+  /**
+  * Returns the list of events that are supported by particular implementation of the reporter
+  */
+  overriding final member function get_supported_events return ut_varchar2_list,
+
+  /**
+  * Delegates execution of event into individual reporting procedures
+  */
+  overriding final member procedure on_event( self in out nocopy ut_reporter_base, a_event_name varchar2, a_event_item ut_event_item)
 
 )
 not final not instantiable

@@ -39,15 +39,15 @@ create or replace type body ut_logical_suite as
     self.items(self.items.last) := a_item;
   end;
 
-  overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base) is
+  overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite) is
   begin
-    a_listener.fire_before_event(ut_utils.gc_suite,self);
+    ut_event_manager.trigger_event(ut_event_manager.before_suite, self);
     self.start_time := current_timestamp;
     for i in 1 .. self.items.count loop
-      self.items(i).mark_as_skipped(a_listener);
+      self.items(i).mark_as_skipped();
     end loop;
     self.end_time := self.start_time;
-    a_listener.fire_after_event(ut_utils.gc_suite,self);
+    ut_event_manager.trigger_event(ut_event_manager.after_suite, self);
     self.calc_execution_result();
   end;
 
@@ -59,25 +59,25 @@ create or replace type body ut_logical_suite as
     end loop;
   end;
 
-  overriding member function do_execute(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base) return boolean is
+  overriding member function do_execute(self in out nocopy ut_logical_suite) return boolean is
     l_suite_savepoint varchar2(30);
     l_item_savepoint  varchar2(30);
     l_completed_without_errors boolean;
   begin
     ut_utils.debug_log('ut_logical_suite.execute');
 
-    a_listener.fire_before_event(ut_utils.gc_suite,self);
+    ut_event_manager.trigger_event(ut_event_manager.before_suite, self);
     self.start_time := current_timestamp;
 
     for i in 1 .. self.items.count loop
       -- execute the item (test or suite)
-      self.items(i).do_execute(a_listener);
+      self.items(i).do_execute();
     end loop;
 
     self.calc_execution_result();
     self.end_time := current_timestamp;
 
-    a_listener.fire_after_event(ut_utils.gc_suite,self);
+    ut_event_manager.trigger_event(ut_event_manager.after_suite, self);
 
     return l_completed_without_errors;
   end;
@@ -98,18 +98,18 @@ create or replace type body ut_logical_suite as
       self.result := l_result;
   end;
 
-  overriding member procedure mark_as_errored(self in out nocopy ut_logical_suite, a_listener in out nocopy ut_event_listener_base, a_error_stack_trace varchar2) is
+  overriding member procedure mark_as_errored(self in out nocopy ut_logical_suite, a_error_stack_trace varchar2) is
   begin
     ut_utils.debug_log('ut_logical_suite.fail');
-    a_listener.fire_before_event(ut_utils.gc_suite, self);
+    ut_event_manager.trigger_event(ut_event_manager.before_suite, self);
     self.start_time := current_timestamp;
     for i in 1 .. self.items.count loop
       -- execute the item (test or suite)
-      self.items(i).mark_as_errored(a_listener, a_error_stack_trace);
+      self.items(i).mark_as_errored(a_error_stack_trace);
     end loop;
     self.calc_execution_result();
     self.end_time := self.start_time;
-    a_listener.fire_after_event(ut_utils.gc_suite, self);
+    ut_event_manager.trigger_event(ut_event_manager.after_suite, self);
   end;
 
   overriding member function get_error_stack_traces return ut_varchar2_list is

@@ -1,4 +1,4 @@
-create or replace type ut_suite_item_base authid current_user as object (
+create or replace type ut_suite_item_base under ut_event_item (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -16,11 +16,6 @@ create or replace type ut_suite_item_base authid current_user as object (
   limitations under the License.
   */
 
-  /**
-  * Object type is a pre-declaration to be referenced by ut_event_listener_base
-  * The true abstract type is ut_suite_item
-  */
-  self_type    varchar2(250 byte),
   /**
   * owner of the database object (package)
   */

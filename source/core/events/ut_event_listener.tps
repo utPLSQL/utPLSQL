@@ -1,4 +1,4 @@
-create or replace type ut_event_listener_base authid current_user as object(
+create or replace type ut_event_listener authid definer as object (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,10 +15,21 @@ create or replace type ut_event_listener_base authid current_user as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  name varchar2(250),
-  member procedure fire_before_event(self in out nocopy ut_event_listener_base, a_event_name varchar2, a_item ut_suite_item_base),
-  member procedure fire_after_event(self in out nocopy ut_event_listener_base, a_event_name varchar2, a_item ut_suite_item_base),
-  member procedure fire_on_event(self in out nocopy ut_event_listener_base, a_event_timing varchar2, a_event_name varchar2, a_item ut_suite_item_base),
-  member procedure fire_on_event(self in out nocopy ut_event_listener_base, a_event_name varchar2)
+
+  /**
+  * Object type is a pre-declaration to be referenced by ut_event_listener_base
+  * The true abstract type is ut_suite_item
+  */
+  self_type    varchar2(250 byte),
+
+  /**
+  * Returns the list of events that are supported by particular implementation of the reporter
+  */
+  not instantiable member function get_supported_events return ut_varchar2_list,
+
+  /**
+  * Executes an action for a given event name
+  */
+  not instantiable member procedure on_event( self in out nocopy ut_event_listener, a_event_name varchar2, a_event_item ut_event_item)
 ) not final not instantiable
 /

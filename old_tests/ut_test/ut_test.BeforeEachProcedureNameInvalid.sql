@@ -3,15 +3,14 @@ PROMPT Does not execute test and reports error when test beforeeach procedure na
 --Arrange
 declare
   simple_test ut_test := ut_test(
-     a_before_each_proc_name => 'invalid setup name'
-    ,a_object_name => 'ut_example_tests'
+     a_object_name => 'ut_example_tests'
     ,a_name => 'ut_exampletest'
   );
-  listener ut_event_listener := ut_event_listener(ut_reporters());
 begin
+  simple_test.before_each_list := ut_executables(ut_executable(simple_test, 'invalid setup name', ut_utils.gc_before_each));
   ut_example_tests.g_char2 := null;
 --Act
-  simple_test.do_execute(listener);
+  simple_test.do_execute();
 --Assert
   if simple_test.result = ut_utils.tr_error and ut_example_tests.g_char2 is null then
     :test_result := ut_utils.tr_success;

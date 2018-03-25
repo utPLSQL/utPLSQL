@@ -60,10 +60,10 @@ create or replace type ut_test under ut_suite_item (
     a_expected_error_codes ut_integer_list := null
   ) return self as result,
   member function is_valid(self in out nocopy ut_test) return boolean,
-  overriding member procedure mark_as_skipped(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base),
-  overriding member function do_execute(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base) return boolean,
+  overriding member procedure mark_as_skipped(self in out nocopy ut_test),
+  overriding member function do_execute(self in out nocopy ut_test) return boolean,
   overriding member procedure calc_execution_result(self in out nocopy ut_test),
-  overriding member procedure mark_as_errored(self in out nocopy ut_test, a_listener in out nocopy ut_event_listener_base, a_error_stack_trace varchar2),
+  overriding member procedure mark_as_errored(self in out nocopy ut_test, a_error_stack_trace varchar2),
   overriding member function get_error_stack_traces(self ut_test) return ut_varchar2_list,
   overriding member function get_serveroutputs return clob
 )

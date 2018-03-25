@@ -30,8 +30,8 @@ begin
 
   l_test_proc := treat(l_test2_suite.items(1) as ut_test);
   ut.expect(l_test_proc.name).to_equal('test2');
-  ut.expect(l_test_proc.before_test is not null).to_be_true;
-  ut.expect(l_test_proc.after_test is not null).to_be_true;
+  ut.expect(l_test_proc.before_test_list.count).to_equal(1);
+  ut.expect(l_test_proc.after_test.count).to_equal(1);
 
   if ut_expectation_processor.get_status = ut_utils.tr_success then
     :test_result := ut_utils.tr_success;

@@ -38,14 +38,14 @@ create or replace type body ut_suite  as
     return l_is_valid;
   end;
 
-  overriding member function do_execute(self in out nocopy ut_suite, a_listener in out nocopy ut_event_listener_base) return boolean is
+  overriding member function do_execute(self in out nocopy ut_suite) return boolean is
     l_suite_savepoint varchar2(30);
     l_no_errors boolean;
 
     procedure propagate_error(a_error_stack_trace varchar2) is
     begin
       for i in 1..self.items.count loop
-        self.items(i).mark_as_errored(a_listener, a_error_stack_trace);
+        self.items(i).mark_as_errored(a_error_stack_trace);
       end loop;
     end;
   begin
@@ -54,9 +54,9 @@ create or replace type body ut_suite  as
     ut_utils.set_action(self.object_name);
 
     if self.get_disabled_flag() then
-      self.mark_as_skipped(a_listener);
+      self.mark_as_skipped();
     else
-      a_listener.fire_before_event(ut_utils.gc_suite,self);
+      ut_event_manager.trigger_event(ut_event_manager.before_suite, self);
       self.start_time := current_timestamp;
       if self.is_valid() then
 
@@ -65,7 +65,7 @@ create or replace type body ut_suite  as
         --includes listener calls for before and after actions
         l_no_errors := true;
         for i in 1 .. self.before_all_list.count loop
-          l_no_errors := self.before_all_list(i).do_execute(self, a_listener);
+          l_no_errors := self.before_all_list(i).do_execute(self);
           if not l_no_errors then
             propagate_error(self.before_all_list(i).get_error_stack_trace());
             exit;
@@ -74,12 +74,12 @@ create or replace type body ut_suite  as
 
         if l_no_errors then
           for i in 1 .. self.items.count loop
-            self.items(i).do_execute(a_listener);
+            self.items(i).do_execute();
           end loop;
         end if;
 
         for i in 1 .. after_all_list.count loop
-          l_no_errors := self.after_all_list(i).do_execute(self, a_listener);
+          l_no_errors := self.after_all_list(i).do_execute(self);
           if not l_no_errors then
             self.put_warning(self.after_all_list(i).get_error_stack_trace());
           end if;
@@ -92,7 +92,7 @@ create or replace type body ut_suite  as
       end if;
       self.calc_execution_result();
       self.end_time := current_timestamp;
-      a_listener.fire_after_event(ut_utils.gc_suite,self);
+      ut_event_manager.trigger_event(ut_event_manager.after_suite, self);
     end if;
 
     ut_utils.set_action(null);

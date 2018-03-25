@@ -42,10 +42,10 @@ create or replace type body ut_suite_item as
     self.rollback_type := coalesce(self.rollback_type, a_rollback_type);
   end;
 
-  final member procedure do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is
+  final member procedure do_execute(self in out nocopy ut_suite_item) is
     l_completed_without_errors boolean;
   begin
-    l_completed_without_errors := self.do_execute(a_listener);
+    l_completed_without_errors := self.do_execute();
   end;
 
   member function create_savepoint_if_needed return varchar2 is

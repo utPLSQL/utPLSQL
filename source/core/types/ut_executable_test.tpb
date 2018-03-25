@@ -12,17 +12,17 @@ create or replace type body ut_executable_test as
   end;
 
   member procedure do_execute(
-    self in out nocopy ut_executable_test, a_item in out nocopy ut_suite_item, 
-    a_listener in out nocopy ut_event_listener_base, a_expected_error_codes in ut_integer_list
+    self in out nocopy ut_executable_test, a_item in out nocopy ut_suite_item,
+    a_expected_error_codes in ut_integer_list
   ) is
     l_completed_without_errors  boolean;
   begin
-    l_completed_without_errors := self.do_execute(a_item, a_listener, a_expected_error_codes);
+    l_completed_without_errors := self.do_execute(a_item, a_expected_error_codes);
   end do_execute;
 
   member function do_execute(
-    self in out nocopy ut_executable_test, a_item in out nocopy ut_suite_item, 
-    a_listener in out nocopy ut_event_listener_base, a_expected_error_codes in ut_integer_list
+    self in out nocopy ut_executable_test, a_item in out nocopy ut_suite_item,
+    a_expected_error_codes in ut_integer_list
   ) return boolean is
     l_expected_except_message  varchar2(4000);
 
@@ -53,7 +53,7 @@ create or replace type body ut_executable_test as
     end;
   begin
     --Create a ut_executable object and call do_execute after that get the data to know the test's execution result
-    self.do_execute(a_item, a_listener);
+    self.do_execute(a_item);
 
     if a_expected_error_codes is not null and a_expected_error_codes is not empty then
       l_expected_except_message := failed_expec_errnum_message(a_expected_error_codes);
