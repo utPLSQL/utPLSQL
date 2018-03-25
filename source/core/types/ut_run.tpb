@@ -34,7 +34,7 @@ create or replace type body ut_run as
   begin
     l_coverage_schema_names := coalesce(a_schema_names, get_run_schemes());
     l_exclude_objects  := coalesce(a_exclude_objects,ut_object_names());
-    l_coverage_type    := coalesce(a_coverage_type,'proftab');
+    l_coverage_type    := coalesce(a_coverage_type,ut_coverage.c_proftab_coverage);
     
     self.run_paths := a_run_paths;
     self.self_type := $$plsql_unit;

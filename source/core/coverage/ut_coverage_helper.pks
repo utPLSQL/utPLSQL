@@ -17,12 +17,19 @@ create or replace package ut_coverage_helper authid definer is
   */
 
 
+  g_coverage_id  integer;
   g_coverage_type varchar2(32);
 
   function get_coverage_type return varchar2;
   
+  function get_coverage_id return integer;
+  
   procedure set_coverage_type(a_coverage_type in varchar2);
   
+  procedure set_coverage_status(a_started in boolean);
+  
+  procedure set_develop_mode(a_develop_mode in boolean);
+   
   --table of line calls indexed by line number
   --!!! this table is sparse!!!
   --type t_unit_line_calls is table of number(38,0) index by binary_integer;
@@ -72,10 +79,6 @@ create or replace package ut_coverage_helper authid definer is
   procedure coverage_pause;
 
   procedure coverage_resume;
-
-  function get_raw_coverage_data_profiler(a_object_owner varchar2, a_object_name varchar2) return t_unit_line_calls;
-
-  function get_raw_coverage_data_block(a_object_owner varchar2, a_object_name varchar2) return t_unit_line_calls;
 
   /***
   * Allows overwriting of private global variable g_coverage_id
