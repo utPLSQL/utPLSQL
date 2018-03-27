@@ -36,4 +36,4 @@ create or replace type ut_junit_reporter under ut_output_reporter_base(
   overriding member function get_description return varchar2
 )
 not final
-
+/
