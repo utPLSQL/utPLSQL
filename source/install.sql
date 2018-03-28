@@ -239,8 +239,8 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@install_component.sql 'reporters/ut_teamcity_reporter.tpb'
 @@install_component.sql 'reporters/ut_xunit_reporter.tps'
 @@install_component.sql 'reporters/ut_xunit_reporter.tpb'
-@@install_component.sql 'reporters/ut_junit_reporter.tps'
-@@install_component.sql 'reporters/ut_junit_reporter.tpb'
+@@install_component.sql 'reporters/ut_tfs_junit_reporter.tps'
+@@install_component.sql 'reporters/ut_tfs_junit_reporter.tpb'
 @@install_component.sql 'reporters/ut_sonar_test_reporter.tps'
 @@install_component.sql 'reporters/ut_sonar_test_reporter.tpb'
 

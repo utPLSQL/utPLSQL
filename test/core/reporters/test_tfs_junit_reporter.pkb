@@ -1,4 +1,4 @@
-create or replace package body test_junit_reporter as
+create or replace package body test_tfs_junit_reporter as
 
   procedure crate_a_test_package is
     pragma autonomous_transaction;
@@ -57,7 +57,7 @@ create or replace package body test_junit_reporter as
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_junit_reporter()));
+      from table(ut3.ut.run('check_junit_reporting',ut3.ut_tfs_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).not_to_be_like('%<tag>%');
@@ -71,7 +71,7 @@ create or replace package body test_junit_reporter as
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_junit_reporter()));
+      from table(ut3.ut.run('check_junit_reporting',ut3.ut_tfs_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).not_to_be_like('%Actual: 1 (number) was expected to equal: 1 (number)%');
@@ -85,7 +85,7 @@ create or replace package body test_junit_reporter as
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_junit_reporter()));
+      from table(ut3.ut.run('check_junit_reporting',ut3.ut_tfs_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_be_like('%at "%.CHECK_JUNIT_REPORTING%", line %');
@@ -98,7 +98,7 @@ create or replace package body test_junit_reporter as
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_junit_reporter()));
+      from table(ut3.ut.run('check_junit_reporting',ut3.ut_tfs_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_be_like('%testcase classname="check_junit_reporting"%');
@@ -111,7 +111,7 @@ create or replace package body test_junit_reporter as
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_flat_suitepath',ut3.ut_junit_reporter()));
+      from table(ut3.ut.run('check_junit_flat_suitepath',ut3.ut_tfs_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_be_like('<testsuites>
@@ -138,7 +138,7 @@ create or replace package body test_junit_reporter as
     --Act
     select *
     bulk collect into l_results
-    from table(ut3.ut.run('check_junit_reporting', ut3.ut_junit_reporter()));
+    from table(ut3.ut.run('check_junit_reporting', ut3.ut_tfs_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_match('time="[0-9]*\.[0-9]{6}"');
@@ -153,7 +153,7 @@ create or replace package body test_junit_reporter as
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_rep_suitepath',ut3.ut_junit_reporter()));
+      from table(ut3.ut.run('check_junit_rep_suitepath',ut3.ut_tfs_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_be_like('%testcase classname="core.check_junit_rep_suitepath"%');   

@@ -1,6 +1,6 @@
-create or replace package test_junit_reporter as
+create or replace package test_tfs_junit_reporter as
 
-  --%suite(ut_junit_reporter)
+  --%suite(ut_tfs_junit_reporter)
   --%suitepath(utplsql.core.reporters)
 
   --%beforeall

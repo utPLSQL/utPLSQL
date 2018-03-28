@@ -1,4 +1,4 @@
-create or replace type body ut_junit_reporter is
+create or replace type body ut_tfs_junit_reporter is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -16,18 +16,18 @@ create or replace type body ut_junit_reporter is
   limitations under the License.
   */
 
-  constructor function ut_junit_reporter(self in out nocopy ut_junit_reporter) return self as result is
+  constructor function ut_tfs_junit_reporter(self in out nocopy ut_tfs_junit_reporter) return self as result is
   begin
     self.init($$plsql_unit);
     return;
   end;
 
-  overriding member procedure after_calling_run(self in out nocopy ut_junit_reporter, a_run in ut_run) is
+  overriding member procedure after_calling_run(self in out nocopy ut_tfs_junit_reporter, a_run in ut_run) is
   begin  
      junit_version_one(a_run);
   end;
 
- member procedure junit_version_one(self in out nocopy ut_junit_reporter,a_run in ut_run) is
+ member procedure junit_version_one(self in out nocopy ut_tfs_junit_reporter,a_run in ut_run) is
     l_suite_id    integer := 0;
     l_tests_count integer := a_run.results_count.disabled_count + a_run.results_count.success_count +
                              a_run.results_count.failure_count + a_run.results_count.errored_count;
