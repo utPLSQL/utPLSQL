@@ -16,21 +16,16 @@ create or replace type ut_junit_reporter under ut_output_reporter_base(
   limitations under the License.
   */
   /**
-   * The XUnit reporter.
-   * Provides outcomes in a format conforming with JUnit4 as defined in:
-   *  https://gist.github.com/kuzuha/232902acab1344d6b578
+   * The JUnit reporter for publishing results in TFS/VSTS 
+   * Provides outcomes in a format conforming with specs as defined in:
+   *  https://docs.microsoft.com/en-us/vsts/build-release/tasks/test/publish-test-results?view=vsts
    */
-   
-   junit_version integer,
-   
+     
   constructor function ut_junit_reporter(
-   self in out nocopy ut_junit_reporter,
-   a_version in integer := 4) 
-  return self as result,
+  self in out nocopy ut_junit_reporter
+  ) return self as result,
 
   overriding member procedure after_calling_run(self in out nocopy ut_junit_reporter, a_run in ut_run),
-  
-  member procedure junit_version_four(self in out nocopy ut_junit_reporter, a_run in ut_run),
   member procedure junit_version_one(self in out nocopy ut_junit_reporter, a_run in ut_run),
 
   overriding member function get_description return varchar2

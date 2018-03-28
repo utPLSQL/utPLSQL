@@ -34,6 +34,20 @@ create or replace package body test_junit_reporter as
         ut3.ut.expect(1).to_equal(1);
       end;
     end;]';
+
+  execute immediate q'[create or replace package check_junit_flat_suitepath is
+      --%suitepath(core.check_junit_rep_suitepath)
+      --%suite(flatsuitepath)
+      
+      --%beforeall
+      procedure donuffin;
+    end;]';
+    execute immediate q'[create or replace package body check_junit_flat_suitepath is
+      procedure donuffin is
+      begin
+        null;
+      end;
+    end;]';
   end;
 
   procedure escapes_special_chars is
@@ -89,32 +103,26 @@ create or replace package body test_junit_reporter as
     --Assert
     ut.expect(l_actual).to_be_like('%testcase classname="check_junit_reporting"%');
   end;
-
-    procedure check_reporter_version_four is
+ 
+ procedure check_flatten_nested_suites is
     l_results   ut3.ut_varchar2_list;
     l_actual    clob;    
   begin
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_junit_reporter(a_version => 4)));
+      from table(ut3.ut.run('check_junit_flat_suitepath',ut3.ut_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
-    ut.expect(l_actual).to_be_like('%<testsuites tests="%" skipped="%" error="%" failure="%" name="%" time="%" >%');
-  end;
-  
-    procedure check_reporter_version_one is
-    l_results   ut3.ut_varchar2_list;
-    l_actual    clob;    
-  begin
-    --Act
-    select *
-      bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_junit_reporter(a_version => 1)));
-    l_actual := ut3.ut_utils.table_to_clob(l_results);
-    --Assert
-    ut.expect(l_actual).to_be_like('%<testsuites>%');
-    ut.expect(l_actual).to_be_like('%<testsuite tests="%" id="%" package="%"  errors="%" failures="%" name="%" time="%"  timestamp="%T%"  hostname="%" >%');
+    ut.expect(l_actual).to_be_like('<testsuites>
+<testsuite tests="0" id="1" package="core.check_junit_rep_suitepath.check_junit_flat_suitepath"  errors="0" failures="0" name="flatsuitepath" time="%"  timestamp="%"  hostname="%" >
+<properties/>
+<system-out>
+<![CDATA[
+]]>
+</system-out>
+<system-err/>
+</testsuite>%');
   end;
   
   procedure check_nls_number_formatting is
@@ -155,6 +163,7 @@ create or replace package body test_junit_reporter as
   begin
     execute immediate 'drop package check_junit_reporting';
     execute immediate 'drop package check_junit_rep_suitepath';
+    execute immediate 'drop package check_junit_flat_suitepath';
   end;
 end;
 /

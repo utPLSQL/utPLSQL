@@ -17,15 +17,12 @@ create or replace package test_junit_reporter as
 
   --%test(Check that classname is returned correct suite)
   procedure check_classname_suite;
-
-  --%test(Check that explicit parameter display correct version 4)
-  procedure check_reporter_version_four;
-  
-  --%test(Check that explicit parameter display correct version 1)
-  procedure check_reporter_version_one;
   
   --%test(Check that classname is returned correct suitepath)
   procedure check_classname_suitepath;
+
+  --%test(Check that nested suites are being flatten)
+  procedure check_flatten_nested_suites;
 
   --%test(Reports duration according to XML specification for numbers)
   procedure check_nls_number_formatting;
