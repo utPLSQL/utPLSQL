@@ -30,7 +30,6 @@ create or replace package ut_utils authid definer is
   gc_before_before_all           constant t_event_name := 'before_before_all';
   gc_before_before_each          constant t_event_name := 'before_before_each';
   gc_before_before_test          constant t_event_name := 'before_before_test';
-  gc_before_test                 constant t_event_name := 'before_test';
   gc_before_test_execute         constant t_event_name := 'before_test_execute';
   gc_before_after_test           constant t_event_name := 'before_after_test';
   gc_before_after_each           constant t_event_name := 'before_after_each';
@@ -40,7 +39,6 @@ create or replace package ut_utils authid definer is
   gc_after_before_all            constant t_event_name := 'after_before_all';
   gc_after_before_each           constant t_event_name := 'after_before_each';
   gc_after_before_test           constant t_event_name := 'after_before_test';
-  gc_after_test                  constant t_event_name := 'after_test';
   gc_after_test_execute          constant t_event_name := 'after_test_execute';
   gc_after_after_test            constant t_event_name := 'after_after_test';
   gc_after_after_each            constant t_event_name := 'after_after_each';
@@ -50,7 +48,9 @@ create or replace package ut_utils authid definer is
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'before_all';
   gc_before_each                 constant t_executable_type := 'before_each';
+  gc_before_test                 constant t_executable_type := 'before_test';
   gc_test_execute                constant t_executable_type := 'test_execute';
+  gc_after_test                  constant t_executable_type := 'after_test';
   gc_after_each                  constant t_executable_type := 'after_each';
   gc_after_all                   constant t_executable_type := 'after_all';
 
