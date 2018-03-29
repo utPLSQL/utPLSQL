@@ -33,10 +33,10 @@ create or replace package body ut_runner is
     return l_result;
   end;
 
-  procedure finish_run(l_listener in out ut_event_listener) is
+  procedure finish_run(a_listener in out ut_event_listener) is
   begin
     ut_utils.cleanup_temp_tables;
-    l_listener.fire_on_event(ut_utils.gc_finalize);
+    a_listener.fire_on_event(ut_utils.gc_finalize);
     ut_metadata.reset_source_definition_cache;
     ut_utils.read_cache_to_dbms_output();
     ut_coverage_helper.cleanup_tmp_table();
@@ -103,7 +103,7 @@ create or replace package body ut_runner is
         rollback;
         raise;
     end;
-    if a_fail_on_errors and l_items_to_run.result in (ut_utils.tr_failure, ut_utils.tr_error) then
+    if a_fail_on_errors and l_items_to_run.result in (ut_utils.gc_failure, ut_utils.gc_error) then
       raise_application_error(ut_utils.gc_some_tests_failed, 'Some tests failed');
     end if;
   end;

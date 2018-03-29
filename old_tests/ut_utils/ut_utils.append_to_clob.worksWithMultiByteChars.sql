@@ -21,15 +21,15 @@ begin
     schema_name => user,
     object_name => 'TST_CHARS'
   );
-  :test_result := ut_utils.tr_success;
+  :test_result := ut_utils.gc_success;
   for i in 1..l_lines.count loop
     l_result := null;
     ut_utils.append_to_clob(l_result, l_lines(i));
 
     --Assert
-    :test_result := coalesce(:test_result, ut_utils.tr_success);
+    :test_result := coalesce(:test_result, ut_utils.gc_success);
     if dbms_lob.getlength(l_result) != dbms_lob.getlength(l_lines(i)) then
-      :test_result := ut_utils.tr_failure;
+      :test_result := ut_utils.gc_failure;
       dbms_output.put_line('Expected: "'||l_lines(i)||'"');
       dbms_output.put_line('Actual: "'||l_result||'"');
     end if;

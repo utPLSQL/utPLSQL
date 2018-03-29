@@ -39,13 +39,13 @@ create or replace package body ut_expectation_processor as
   end;
 
   function get_status return integer is
-    l_result integer := ut_utils.tr_success;
+    l_result integer := ut_utils.gc_success;
   begin
     ut_utils.debug_log('ut_expectation_processor.get_status');
 
     for i in 1 .. g_expectations_called.count loop
       l_result := greatest(l_result, g_expectations_called(i).status);
-      exit when l_result = ut_utils.tr_error;
+      exit when l_result = ut_utils.gc_error;
     end loop;
     return l_result;
   end get_status;
@@ -68,7 +68,7 @@ create or replace package body ut_expectation_processor as
   begin
     ut_utils.debug_log('ut_expectation_processor.get_failed_expectations: g_expectations_called.count='||g_expectations_called.count);
     for i in 1 .. g_expectations_called.count loop
-      if g_expectations_called(i).status > ut_utils.tr_success then
+      if g_expectations_called(i).status > ut_utils.gc_success then
         l_expectations_results.extend;
         l_expectations_results(l_expectations_results.last) := g_expectations_called(i);
       end if;
@@ -86,7 +86,7 @@ create or replace package body ut_expectation_processor as
 
   procedure report_failure(a_message in varchar2) is
   begin
-    add_expectation_result(ut_expectation_result(ut_utils.tr_failure, null, a_message));
+    add_expectation_result(ut_expectation_result(ut_utils.gc_failure, null, a_message));
   end;
 
   function get_session_parameters return tt_nls_params is

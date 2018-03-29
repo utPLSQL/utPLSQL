@@ -60,7 +60,7 @@ create or replace type body ut_executable_test as
 
       if l_expected_except_message is not null then
         ut_expectation_processor.add_expectation_result(
-          ut_expectation_result(ut_utils.tr_failure, null, l_expected_except_message, false)
+          ut_expectation_result(ut_utils.gc_failure, null, l_expected_except_message, false)
         );
       end if;
       self.error_stack := null;

@@ -7,11 +7,11 @@ begin
   --Act
   ut.expect(l_value_tz).to_be_between(l_value_lower_tz,l_value_upper_tz);
   --Assert
-  if ut_expectation_processor.get_status = ut_utils.tr_failure then
-    :test_result := ut_utils.tr_success;
+  if ut_expectation_processor.get_status = ut_utils.gc_failure then
+    :test_result := ut_utils.gc_success;
   else
-    :test_result := ut_utils.tr_failure;
-    dbms_output.put_line('expected: '''||ut_utils.tr_failure||''', got: '''||ut_expectation_processor.get_status||'''' );
+    :test_result := ut_utils.gc_failure;
+    dbms_output.put_line('expected: '''||ut_utils.gc_failure||''', got: '''||ut_expectation_processor.get_status||'''' );
   end if;
 end;
 /

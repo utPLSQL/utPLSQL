@@ -14,7 +14,7 @@ begin
     );
 --Assert
   if l_result = 0 then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line( 'Expected comparison to give 0, got '||l_result );
   end if;

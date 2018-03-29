@@ -8,8 +8,8 @@ begin
 --Act
 	simple_test.do_execute(listener);
 --Assert
-	if simple_test.result = ut_utils.tr_success then
-    :test_result := ut_utils.tr_success;
+	if simple_test.result = ut_utils.gc_success then
+    :test_result := ut_utils.gc_success;
 	else
 		dbms_output.put_line('simple_test.result = '||ut_utils.test_result_to_char(simple_test.result));
 	end if;

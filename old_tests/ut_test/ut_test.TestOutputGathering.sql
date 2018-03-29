@@ -86,10 +86,10 @@ begin
   end loop;
   
   if l_output like '%<!beforeall!>%<!beforeeach!>%<!beforetest!>%<!thetest!>%<!aftertest!>%<!aftereach!>%<!afterall!>%1 tests, 0 failed, 0 errored%' then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   end if;
 
-  if :test_result != ut_utils.tr_success or :test_result is null then
+  if :test_result != ut_utils.gc_success or :test_result is null then
     for i in 1 .. l_num_lines loop
       dbms_output.put_line(l_output_data(i));
     end loop;

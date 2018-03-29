@@ -24,7 +24,7 @@ Finished %
 
   --assert
   if l_output like l_expected then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line('Actual:"'||l_output||'"');
   end if;
