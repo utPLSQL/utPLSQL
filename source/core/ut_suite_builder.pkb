@@ -480,8 +480,6 @@ create or replace package body ut_suite_builder is
     while l_context_pos is not null loop
       l_end_context_pos := get_endcontext_position(l_context_pos, a_package_ann_index);
       if l_end_context_pos is null then
-        a_suite.put_warning(
-          'Annotation "--%context('||a_annotations(l_context_pos).text||')" was ignored. Cannot find following "--%endcontext".');
         exit;
       end if;
 
@@ -554,7 +552,7 @@ create or replace package body ut_suite_builder is
       duplicate_annotations_warning(l_suite, l_package_ann_index, 'suite');
 
       add_suite_contexts( l_suite, l_annotations, l_package_ann_index );
-
+      --by this time all contexts were consumed and l_annotations should not have any context/endcontext annotation in it.
       warning_on_incomplete_context( l_suite, l_annotations, l_package_ann_index );
 
       populate_suite_contents( l_suite, l_annotations, l_package_ann_index );

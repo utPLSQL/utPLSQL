@@ -366,7 +366,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_LOGICAL_SUITE><SELF_TYPE>UT_SUITE</SELF_TYPE><OBJECT_OWNER>UT3_TESTER</OBJECT_OWNER>' ||
         '<OBJECT_NAME>some_package</OBJECT_NAME><NAME>some_package</NAME><DESCRIPTION>Cool</DESCRIPTION>' ||
-        '%<WARNINGS><VARCHAR2>Annotations: &quot;--%afterall&quot;, &quot;--%aftereach&quot;, &quot;--%beforeall&quot;, &quot;--%beforeeach&quot;' ||
+        '%<WARNINGS><VARCHAR2>Annotations: &quot;--\%afterall&quot;, &quot;--\%aftereach&quot;, &quot;--\%beforeall&quot;, &quot;--\%beforeeach&quot;' ||
         ' were ignored for procedure &quot;DO_STUFF&quot;.' ||
         ' Those annotations cannot be used with annotation: &quot;--%test&quot;</VARCHAR2></WARNINGS>%'||
         '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>do_stuff</NAME>' ||
@@ -374,6 +374,7 @@ create or replace package body test_suite_builder is
         '%<AFTER_EACH_LIST/>' ||
         '%<BEFORE_ALL_LIST/>' ||
         '%<AFTER_ALL_LIST/>%'
+        ,'\'
     );
   end;
 
@@ -440,7 +441,7 @@ create or replace package body test_suite_builder is
     --Assert
     ut.expect(l_actual).to_be_like(
         '%<UT_LOGICAL_SUITE>' ||
-        '%<WARNINGS><VARCHAR2>Annotation &quot;--%context(A context)&quot; was ignored. Cannot find following &quot;--%endcontext&quot;.</VARCHAR2></WARNINGS>' ||
+        '%<WARNINGS><VARCHAR2>Annotation &quot;--\%context(A context)&quot; was ignored. Cannot find following &quot;--\%endcontext&quot;.</VARCHAR2></WARNINGS>' ||
         '%<ITEMS>' ||
         '<UT_SUITE_ITEM>' ||
         '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
@@ -455,6 +456,7 @@ create or replace package body test_suite_builder is
         '%</BEFORE_ALL_LIST>' ||
         '<AFTER_ALL_LIST/>' ||
         '</UT_LOGICAL_SUITE>'
+        ,'\'
     );
   end;
 
@@ -478,7 +480,7 @@ create or replace package body test_suite_builder is
     --Assert
     ut.expect(l_actual).to_be_like(
       '%<UT_LOGICAL_SUITE>' ||
-        '%<WARNINGS><VARCHAR2>Annotation &quot;--%endcontext&quot; was ignored. Cannot find preceding &quot;--%context&quot;.</VARCHAR2></WARNINGS>' ||
+        '%<WARNINGS><VARCHAR2>Annotation &quot;--\%endcontext&quot; was ignored. Cannot find preceding &quot;--\%context&quot;.</VARCHAR2></WARNINGS>' ||
         '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
             '%<NAME>context_1</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.context_1</PATH>' ||
@@ -501,6 +503,7 @@ create or replace package body test_suite_builder is
         '%</BEFORE_ALL_LIST>' ||
         '<AFTER_ALL_LIST/>' ||
       '</UT_LOGICAL_SUITE>'
+      ,'\'
     );
   end;
 
