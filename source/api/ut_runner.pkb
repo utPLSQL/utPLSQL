@@ -113,9 +113,9 @@ create or replace package body ut_runner is
     ut_annotation_manager.rebuild_annotation_cache(a_object_owner, coalesce(a_object_type,'PACKAGE'));
   end;
 
-  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2 := null) is
+  procedure purge_cache(a_object_owner varchar2 := null, a_object_type varchar2 := null) is
   begin
-    ut_annotation_manager.purge_cache(a_object_owner, coalesce(a_object_type,'PACKAGE'));
+    ut_annotation_manager.purge_cache(a_object_owner, a_object_type);
   end;
 
   function get_unit_test_info(a_owner varchar2, a_package_name varchar2 := null) return tt_annotations pipelined is
