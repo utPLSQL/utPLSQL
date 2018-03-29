@@ -109,17 +109,17 @@ create or replace package body ut_annotation_cache_manager as
     pragma autonomous_transaction;
   begin
     if a_object_owner is null and a_object_type is null then
+      l_cache_filter := ':a_object_owner is null and :a_object_type is null';
+      l_filter := l_cache_filter;
+    else
       l_filter :=
-               case when a_object_owner is null then ':a_object_owner is null' else 'object_owner = :a_object_owner' end || '
+      case when a_object_owner is null then ':a_object_owner is null' else 'object_owner = :a_object_owner' end || '
         and '||case when a_object_type is null then ':a_object_type is null' else 'object_type = :a_object_type' end;
       l_cache_filter := ' c.cache_id
            in (select i.cache_id
                  from ut_annotation_cache_info i
                 where '|| l_filter || '
               )';
-    else
-      l_cache_filter := ':a_object_owner is null and :a_object_type is null';
-      l_filter := l_cache_filter;
     end if;
     execute immediate '
       delete from ut_annotation_cache c
