@@ -321,7 +321,6 @@ begin
     'source/core/types/ut_suite_item.tpb',
     'source/core/types/ut_suite_item.tps',
     'source/core/types/ut_suite_items.tps',
-    'source/core/types/ut_suite_item_base.tps',
     'source/core/types/ut_test.tpb',
     'source/core/types/ut_test.tps',
     'source/core/types/ut_varchar2_list.tps',

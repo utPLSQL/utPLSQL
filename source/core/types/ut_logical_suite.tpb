@@ -51,11 +51,11 @@ create or replace type body ut_logical_suite as
     self.calc_execution_result();
   end;
 
-  overriding member procedure set_default_rollback_type(self in out nocopy ut_logical_suite, a_rollback_type integer) is
+  overriding member procedure set_rollback_type(self in out nocopy ut_logical_suite, a_rollback_type integer) is
   begin
     self.rollback_type := coalesce(self.rollback_type, a_rollback_type);
     for i in 1 .. self.items.count loop
-      self.items(i).set_default_rollback_type(a_rollback_type);
+      self.items(i).set_rollback_type(self.rollback_type);
     end loop;
   end;
 

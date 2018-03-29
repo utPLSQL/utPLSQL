@@ -7,7 +7,7 @@ declare
     ,a_name => 'ut_exampletest'
   );
 begin
-  simple_test.after_each_list := ut_executables(ut_executable(simple_test, 'invalid setup name', ut_utils.gc_after_each));
+  simple_test.after_each_list := ut_executables(ut_executable(user, 'ut_example_tests', 'invalid setup name', ut_utils.gc_after_each));
   ut_example_tests.g_char := 'x';
   ut_example_tests.g_char2 := 'x';
 --Act

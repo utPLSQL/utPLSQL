@@ -12,8 +12,8 @@ create or replace package body test_ut_suite is
     l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_EXAMPLE_TESTS');
     l_suite.path := 'ut_example_tests';
     l_suite.disabled_flag := ut3.ut_utils.boolean_to_int(true);
-    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(l_suite, 'set_g_number_0', ut3.ut_utils.gc_before_all));
-    l_suite.after_all_list := ut3.ut_executables(ut3.ut_executable(l_suite, 'add_1_to_g_number', ut3.ut_utils.gc_before_all));
+    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'UT_EXAMPLE_TESTS', 'set_g_number_0', ut3.ut_utils.gc_before_all));
+    l_suite.after_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'UT_EXAMPLE_TESTS', 'add_1_to_g_number', ut3.ut_utils.gc_before_all));
     l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'add_1_to_g_number'));
     l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'add_1_to_g_number'));
     --Act
@@ -34,7 +34,7 @@ create or replace package body test_ut_suite is
     --Arrange
     l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_EXAMPLE_TESTS');
     l_suite.path := 'ut_example_tests';
-    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(l_suite, 'failing_procedure', ut3.ut_utils.gc_before_all));
+    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'UT_EXAMPLE_TESTS', 'failing_procedure', ut3.ut_utils.gc_before_all));
     l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'set_g_number_0'));
     --Act
     l_suite.do_execute();
@@ -54,7 +54,7 @@ create or replace package body test_ut_suite is
     --Arrange
     l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_EXAMPLE_TESTS');
     l_suite.path := 'ut_example_tests';
-    l_suite.after_all_list := ut3.ut_executables(ut3.ut_executable(l_suite, 'failing_procedure', ut3.ut_utils.gc_after_all));
+    l_suite.after_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'UT_EXAMPLE_TESTS', 'failing_procedure', ut3.ut_utils.gc_after_all));
 
     l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'set_g_number_0'));
     l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'add_1_to_g_number'));
@@ -101,9 +101,9 @@ create or replace package body test_ut_suite is
     execute immediate 'delete from ut$test_table';
     l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_TRANSACTION_CONTROL');
     l_suite.path := 'ut_transaction_control';
-    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(l_suite, 'setup', ut3.ut_utils.gc_before_all));
+    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'UT_TRANSACTION_CONTROL', 'setup', ut3.ut_utils.gc_before_all));
     l_suite.add_item(ut3.ut_test(a_object_owner => USER, a_object_name => 'ut_transaction_control',a_name => a_procedure_name));
-    l_suite.set_default_rollback_type(a_rollback_type);
+    l_suite.set_rollback_type(a_rollback_type);
 
     --Act
     l_suite.do_execute();

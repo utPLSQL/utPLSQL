@@ -7,7 +7,7 @@ declare
     ,a_name => 'ut_passing_test'
   );
 begin
-  simple_test.before_each_list := ut_executables(ut_executable(simple_test, '', ut_utils.gc_before_each));
+  simple_test.before_each_list := ut_executables(ut_executable(user, 'ut_example_tests', '', ut_utils.gc_before_each));
   ut_example_tests.g_number2 := null;
 --Act
   simple_test.do_execute();

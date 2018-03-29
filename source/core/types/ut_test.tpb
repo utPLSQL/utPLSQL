@@ -23,7 +23,7 @@ create or replace type body ut_test as
   begin
     self.self_type := $$plsql_unit;
     self.init(a_object_owner, a_object_name, a_name);
-    self.item := ut_executable_test(self, a_name, ut_utils.gc_test_execute);
+    self.item := ut_executable_test(a_object_owner, a_object_name, a_name, ut_utils.gc_test_execute);
     self.before_each_list     := ut_executables();
     self.before_test_list     := ut_executables();
     self.after_test_list      := ut_executables();

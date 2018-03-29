@@ -11,6 +11,7 @@ create or replace package body test_suite_manager is
   --%suite
   --%displayname(test_package_1)
   --%suitepath(tests)
+  --%rollback(manual)
 
   gv_glob_val number;
 
@@ -284,10 +285,12 @@ end test_package_3;]';
         when 'tests' then
           ut.expect(l_test1_suite.name).to_equal('test_package_1');
           ut.expect(l_test1_suite.items.count).to_equal(3);
+          ut.expect(l_test1_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
           l_test2_suite := treat(l_test1_suite.items(3) as ut3.ut_logical_suite);
 
           ut.expect(l_test2_suite.name).to_equal('test_package_2');
           ut.expect(l_test2_suite.items.count).to_equal(3);
+          ut.expect(l_test2_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
         when 'tests2' then
           ut.expect(l_test1_suite.name).to_equal('test_package_3');
           ut.expect(l_test1_suite.items.count).to_equal(3);
@@ -318,9 +321,11 @@ end test_package_3;]';
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(1);
+    ut.expect(l_test1_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
     l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
+    ut.expect(l_test2_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
     ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
@@ -345,9 +350,11 @@ end test_package_3;]';
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(1);
+    ut.expect(l_test1_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
     l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
+    ut.expect(l_test2_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
     ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
@@ -426,14 +433,17 @@ end test_package_3;]';
     l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
+    ut.expect(l_test1_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
     ut.expect(l_test1_suite.items.count).to_equal(1);
     l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
+    ut.expect(l_test2_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
     ut.expect(l_test2_suite.items.count).to_equal(1);
 
     l_test_proc := treat(l_test2_suite.items(1) as ut3.ut_test);
     ut.expect(l_test_proc.name).to_equal('test2');
+    ut.expect(l_test_proc.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
     ut.expect(l_test_proc.before_test_list.count).to_be_greater_than(0);
     ut.expect(l_test_proc.after_test_list.count).to_be_greater_than(0);
 

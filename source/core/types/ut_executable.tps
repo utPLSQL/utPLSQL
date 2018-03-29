@@ -25,7 +25,7 @@ create or replace type ut_executable under ut_event_item(
   error_backtrace       varchar2(4000),
   error_stack           varchar2(4000),
   serveroutput          clob,
-	constructor function ut_executable( self in out nocopy ut_executable, a_context ut_suite_item, a_procedure_name varchar2, a_associated_event_name varchar2) return self as result,
+	constructor function ut_executable( self in out nocopy ut_executable, a_owner varchar2, a_package varchar2, a_procedure_name varchar2, a_associated_event_name varchar2) return self as result,
   member function is_valid(self in out nocopy ut_executable) return boolean,
   member function form_name return varchar2,
   member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item),

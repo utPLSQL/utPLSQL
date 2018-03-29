@@ -230,8 +230,6 @@ drop type ut_suite_items force;
 
 drop type ut_suite_item force;
 
-drop type ut_suite_item_base force;
-
 drop type ut_output_table_buffer force;
 
 drop type ut_output_buffer_base force;

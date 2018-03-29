@@ -72,6 +72,7 @@ create or replace package ut_utils authid definer is
   subtype t_rollback_type is binary_integer range 0 .. 1;
   gc_rollback_auto           constant t_rollback_type := 0; -- rollback after each test and suite
   gc_rollback_manual         constant t_rollback_type := 1; -- leave transaction control manual
+  gc_rollback_default        constant t_rollback_type := gc_rollback_auto;
 
   ex_unsupported_rollback_type exception;
   gc_unsupported_rollback_type constant pls_integer := -20200;

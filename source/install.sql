@@ -60,7 +60,6 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_expectation_result.tps'
 @@install_component.sql 'core/types/ut_expectation_results.tps'
 @@install_component.sql 'core/types/ut_results_counter.tps'
-@@install_component.sql 'core/types/ut_suite_item_base.tps'
 @@install_component.sql 'core/types/ut_suite_item.tps'
 @@install_component.sql 'core/types/ut_suite_items.tps'
 @@install_component.sql 'core/types/ut_executable.tps'

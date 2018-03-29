@@ -37,12 +37,17 @@ create or replace type body ut_suite_item as
     return ut_utils.int_to_boolean(self.disabled_flag);
   end;
 
-  member procedure set_default_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer) is
+  member procedure set_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer) is
   begin
     self.rollback_type := coalesce(self.rollback_type, a_rollback_type);
   end;
 
-  final member procedure do_execute(self in out nocopy ut_suite_item) is
+  member function get_rollback_type return integer is
+  begin
+    return nvl(self.rollback_type, ut_utils.gc_rollback_default);
+  end;
+
+final member procedure do_execute(self in out nocopy ut_suite_item) is
     l_completed_without_errors boolean;
   begin
     l_completed_without_errors := self.do_execute();
@@ -51,7 +56,7 @@ create or replace type body ut_suite_item as
   member function create_savepoint_if_needed return varchar2 is
     l_savepoint varchar2(30);
   begin
-    if self.rollback_type = ut_utils.gc_rollback_auto then
+    if get_rollback_type() = ut_utils.gc_rollback_auto then
       l_savepoint := ut_utils.gen_savepoint_name();
       execute immediate 'savepoint ' || l_savepoint;
     end if;
@@ -62,7 +67,7 @@ create or replace type body ut_suite_item as
     ex_savepoint_not_exists exception;
     pragma exception_init(ex_savepoint_not_exists, -1086);
   begin
-    if self.rollback_type = ut_utils.gc_rollback_auto and a_savepoint is not null then
+    if get_rollback_type() = ut_utils.gc_rollback_auto and a_savepoint is not null then
       execute immediate 'rollback to ' || a_savepoint;
     end if;
   exception
