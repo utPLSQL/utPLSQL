@@ -28,6 +28,8 @@ alter session set current_schema = &&ut3_owner;
 set echo on
 drop synonym be_between;
 
+drop synonym have_count;
+
 drop synonym match;
 
 drop synonym be_false;
