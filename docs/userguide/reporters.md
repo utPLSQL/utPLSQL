@@ -95,6 +95,32 @@ Providing invalid paths or paths to non-existing files will result in failure wh
 
 For details on how to invoke reporter with paths, see the **Coverage reporters** section.
 
+# TFS / VSTS Reporter
+If you are using [TFS](https://www.visualstudio.com/tfs/) or [VSTS](https://www.visualstudio.com/team-services/) to do static code analysis for you PLSQL projects and run builds, your code analysis can benefit from code coverage and test results.
+utPLSQL provides two reporters to for TFS / VSTS:
+- `ut_tfs_junit_reporter` - provides an XML output of each test executed per each project test file (package) 
+- `ut_coverage_cobertura_reporter` - provides XML output of code coverage per each project source file 
+
+`ut_tfs_junit_reporter` needs to be called with a list of paths to test files (packages).
+The paths to files can be relative to the project root directory (recommended) or be absolute. 
+`ut_coverage_cobertura_reporter` needs to be called with a list of paths to source files for your project.
+The paths to files can be relative to the project root directory (recommended) or be absolute.
+
+Providing invalid paths or paths to non-existing files will result in failure when publishing test results/coverage results to sonar server.
+
+For details on how to invoke reporter with paths, see the **Coverage reporters** section.
+
+Example of test report from TFS CI server.
+
+Summary:
+
+![tfs_junit_reporter_outputs](../images/tfs_summary.png)
+
+Details:
+
+![tfs_junit_reporter_outputs](../images/tfs_details.png)
+
+
 # Coverage reporters
 
 utPLSQL comes with a set of build-in coverage reporters. Have a look into the [coverage documentation](coverage.md) to learn more about them.
