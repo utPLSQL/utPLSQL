@@ -26,8 +26,8 @@ create or replace package body test_suite_builder is
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
-    ut.expect(l_actual).to_be_like(
-        '%<OBJECT_OWNER>UT3_TESTER</OBJECT_OWNER><OBJECT_NAME>some_package</OBJECT_NAME><NAME>some_package</NAME><DESCRIPTION/>%'
+    ut.expect(l_actual).to_match(
+        '<OBJECT_OWNER>UT3_TESTER</OBJECT_OWNER><OBJECT_NAME>some_package</OBJECT_NAME><NAME>some_package</NAME>(<DESCRIPTION/>)?<PATH>some_package</PATH>'
     );
   end;
 
