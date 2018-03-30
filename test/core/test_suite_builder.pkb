@@ -363,17 +363,17 @@ create or replace package body test_suite_builder is
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
-    ut.expect(l_actual).to_be_like(
-        '%<UT_LOGICAL_SUITE><SELF_TYPE>UT_SUITE</SELF_TYPE><OBJECT_OWNER>UT3_TESTER</OBJECT_OWNER>' ||
+    ut.expect(l_actual).match(
+        '<UT_LOGICAL_SUITE><SELF_TYPE>UT_SUITE</SELF_TYPE><OBJECT_OWNER>UT3_TESTER</OBJECT_OWNER>' ||
         '<OBJECT_NAME>some_package</OBJECT_NAME><NAME>some_package</NAME><DESCRIPTION>Cool</DESCRIPTION>' ||
-        '%<WARNINGS><VARCHAR2>Annotations: &quot;--\%afterall&quot;, &quot;--\%aftereach&quot;, &quot;--\%beforeall&quot;, &quot;--\%beforeeach&quot;' ||
+        '.*<WARNINGS><VARCHAR2>Annotations: &quot;--%afterall&quot;, &quot;--%aftereach&quot;, &quot;--%beforeall&quot;, &quot;--%beforeeach&quot;' ||
         ' were ignored for procedure &quot;DO_STUFF&quot;.' ||
-        ' Those annotations cannot be used with annotation: &quot;--%test&quot;</VARCHAR2></WARNINGS>%'||
-        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>do_stuff</NAME>' ||
-        '%<BEFORE_EACH_LIST/>' ||
-        '%<AFTER_EACH_LIST/>' ||
-        '%<BEFORE_ALL_LIST/>' ||
-        '%<AFTER_ALL_LIST/>%'
+        ' Those annotations cannot be used with annotation: &quot;--%test&quot;</VARCHAR2></WARNINGS>'||
+        '.*<UT_SUITE_ITEM>.*<OBJECT_NAME>some_package</OBJECT_NAME>.*<NAME>do_stuff</NAME>' ||
+        '(.*<BEFORE_EACH_LIST/>)?' ||
+        '(.*<AFTER_EACH_LIST/>)?' ||
+        '(.*<BEFORE_ALL_LIST/>)?' ||
+        '(.*<AFTER_ALL_LIST/>)?'
         ,'\'
     );
   end;
