@@ -52,13 +52,25 @@ The report allow to navigate to every source and inspect line by line coverage.
 ![Coverage Details page](../images/coverage_html_details.png)
 
 
-## Coverage reporting options
-By default the database schema/schemes containing the tests that were executed during the run, are fully reported by coverage reporter.
-All valid unit tests are excluded from the report regardless if they were invoked or not. This way the coverage report is not affected by presence of tests and contains only the tested code.
+### Coverage reporting options
+
+There are two ways to gather code coverage.
+- You can gather coverage for a particular database schema/schemes
+- You can gather coverage on project files deployed to database as database objects (packages, functions, procedures ect.)
+
+Those two options are mutually exclusive and should not be mixed. Depending on the parameters you pass you will be using one option or the other.
+
+When using one of coverage reporters and no additional options are provided, coverage is gathered on a schema level.
+The database schema/schemes containing the tests that were executed during the run, will be reported by coverage reporter.
+
+All unit tests are excluded from the report regardless if they were invoked or not. 
+This way the coverage report is not affected by presence of tests and contains only the tested code.
 
 The default behavior of coverage reporters can be altered, depending on your needs.
 
-### Including/excluding objects in coverage reports
+### Coverage on schema
+
+#### Filtering objects in coverage reports
 The most basic options are the include/exclude objects lists.
 You may specify both include and exclude objects lists to specify which objects are to be included in the report and which are to be excluded.
 Both of those options are meant to be used to narrow down the scope of unit test runs, that is broad by default.
@@ -77,11 +89,11 @@ Executes test `test_award_bonus` and gather on all objects in schema `ut3_user` 
 
 You can also combine the parameters and both will be applied.
  
-### Defining different schema names
+#### Defining different schema names
 In some architectures, you might end up in a situation, where your unit tests exist in a different schema than the tested code.
 This is not the default or recommended approach but is supporter by utPLSQL.
 In such scenarios, you would probably have a separate database schema to hold unit tests and a separate schema/schemes to hold the tested code.
-Since by default, coverage reporting is done on the schema/schemes that the invoked tests are on, the code will not be included in coverage report as it is in a different schema than the invoked tests. 
+Since by default, coverage reporting is done on the schema/schemes that the invoked tests are on, the code will not be included in coverage report as it is in a different schema. 
 
 In this situation you need to provide list of schema names that the tested code is in. This option overrides the default schema names for coverage.
 
@@ -92,7 +104,7 @@ exec ut.run('ut3_user.test_award_bonus', ut_coverage_html_reporter(), a_coverage
 Executes test `test_award_bonus` in schema `ut3_user` and gather coverage for that execution on all non `unit-test` objects from schema `usr`.
 
 You can combine schema names with include/exclude parameters and all will be applied.
-The `a_coverage_schemes` parameter takes precedence however, so if include list contains objects from other schemes, that will not be considered.  
+Keep in mind that the if you use `a_include_list` the `a_coverage_schemes` will simply be ignored. 
  
 Example:
 ```sql
@@ -106,16 +118,21 @@ begin
   );
 end;
 ```
+
 Executes test `test_award_bonus` in schema `ut3_user` and gather coverage for that execution on `award_bonus` object from schema `usr`. The exclude list is of no relevance as it is not overlapping with include list.
 
-### Working with projects and project files
-Both `sonar` and `coveralls` are utilities that are more project-oriented than database-centric. They report statistics and coverage for project files in version control system.
-Nowadays, most of database projects are moving away from database-centric approach towards project/product-centric approach.
-Coverage reporting of utPLSQL allows you to perform code coverage analysis for your project files.
-This feature is supported by all build-in coverage reporting formats.
 
+### Coverage on project
+
+Both `Sonar` and `Coveralls` are utilities that are project-oriented and are not database-centric. 
+They report statistics and coverage for project files in version control system and are not aware of database at all.
+Coverage reporting of utPLSQL allows you to perform code coverage analysis for your project files.
+utPLSQL is able to map code coverage from your database code to your project files.  
+
+When using project based approach, utPLSQL will report coverage only for project-files that were successfully mapped into database objects.
+   
 When using this invocation syntax, coverage is only reported for the provided files, so using project files as input for coverage is also a way of limiting the scope of coverage analysis.
-This syntax also allows usage of `a_include_object_list` and `a_exclude_object_list` as optional parameters to filter the scope of analysis. 
+This syntax also allows usage of  `a_exclude_object_list` as optional parameters to filter the scope of analysis based on database objects. 
 
 
 **Reporting using externally provided file mapping**
@@ -158,7 +175,7 @@ begin
   ut.run(
     'usr', 
     ut_coverage_html_reporter(),
-    a_source_files => ut_varchar2_list('sources/hr/award_bonus.prc','sources/hr/betwnstr.fnc')
+    a_source_files => ut_varchar2_list('sources/hr.award_bonus.prc','sources/hr.betwnstr.fnc')
   );
 end;
 ```
