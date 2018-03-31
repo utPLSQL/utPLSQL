@@ -16,7 +16,7 @@ create or replace package ut_file_mapper authid current_user is
   limitations under the License.
   */
 
-  gc_file_mapping_regex        constant varchar2(100) := '.*/((\w+)\.)?(\w+)\.(\w{3})$';
+  gc_file_mapping_regex        constant varchar2(100) := '/((\w+)\.)?(\w+)\.(\w{3})$';
   gc_regex_owner_subexpression constant positive := 2;
   gc_regex_name_subexpression  constant positive := 3;
   gc_regex_type_subexpression  constant positive := 4;

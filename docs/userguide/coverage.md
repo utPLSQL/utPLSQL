@@ -1,12 +1,13 @@
 # Coverage
-utPLSQL comes with build-in coverage reporting engine. The code coverage reporting is based off DBMS_PROFILER package. Code coverage is gathered for the following source types:
+utPLSQL comes with build-in coverage reporting engine. The code coverage reporting is based on DBMS_PROFILER package provided with Oracle database. 
+Code coverage is gathered for the following source types:
 * package bodies
 * type bodies
 * triggers
-* stored procedures
-* stored functions
+* procedures
+* functions
 
-Note:
+**Note**
 
 > The package specifications and type specifications are explicitly excluded from code coverage analysis.This limitation is introduced to avoid false-negatives. Most of the package specifications don't contain executable code. The only exception is initialization of global constants and variables in package specification.Since, most of package specifications are not executable at all, there is no information available on the number of lines covered and those would eb reported as 0% covered, which is not desired.
 
@@ -54,86 +55,336 @@ The report allow to navigate to every source and inspect line by line coverage.
 
 ### Coverage reporting options
 
-There are two ways to gather code coverage.
-- You can gather coverage for a particular database schema/schemes
-- You can gather coverage on project files deployed to database as database objects (packages, functions, procedures ect.)
+There are two distinct ways to gather code coverage.
+- Coverage on database schema/schemes
+- Coverage on project files
 
-Those two options are mutually exclusive and should not be mixed. Depending on the parameters you pass you will be using one option or the other.
+Those two options are mutually exclusive and cannot be mixed. 
+By default, when using one of coverage reporters, coverage is gathered on schema/schemes.
 
-When using one of coverage reporters and no additional options are provided, coverage is gathered on a schema level.
+The parameters used to execute tests determine if utPLSQL will be using one approach or the other.
+
 The database schema/schemes containing the tests that were executed during the run, will be reported by coverage reporter.
 
-All unit tests are excluded from the report regardless if they were invoked or not. 
-This way the coverage report is not affected by presence of tests and contains only the tested code.
+**Note**
 
-The default behavior of coverage reporters can be altered, depending on your needs.
+> Regardless of options provided, all unit test packages are excluded from the coverage report. Coverage reports provide information only about the test**ed** code.
+
+The default behavior of coverage reporting can be altered using invocation parameters.
 
 ### Coverage on schema
 
+To simply gather coverage for all objects in your current schema execute tests with coverage reporting.
+
+```sql
+exec ut.run(ut_coverage_html_reporter());
+```
+
+**Note**
+
+> When no filters are used, the size of the coverage report will depend two factors:
+> - type of report (does the report include source-code or not)
+> - size of source-code the database schema
+>
+>Keep in mind that for large schema it will take quite some time to produce the coverage report.
+
+#### Setting coverage schema/schemes
+
+By default, coverage is gathered on schema/schemes derived from suite paths provided used to execute tests.
+This is correct, as long as your test packages and tested code share the same schema.
+
+So when you run:
+```sql
+exec ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter());
+```
+Coverage will be gathered on both `user_1` and `user_2` objects.
+
+If your tests live in a different schema than the tested code you may override the default behavior by providing explicit list of coverage schema names.
+
+In the below example, coverage will still be gathered for `user_1` and `user_2` objects, even thought we run tests located in schema `unit_test_schema`
+
+```sql
+exec ut.run('unit_test_schema', ut_coverage_html_reporter(), a_coverage_schemes => ut_varchar2_list('user_1','user_2') );
+```
+
 #### Filtering objects in coverage reports
-The most basic options are the include/exclude objects lists.
-You may specify both include and exclude objects lists to specify which objects are to be included in the report and which are to be excluded.
-Both of those options are meant to be used to narrow down the scope of unit test runs, that is broad by default.
 
-Example:
+There are two options that can be used to narrow down the scope of coverage report:
+- `a_include_objects` - list of `[object_owner.].object_name` to be included in coverage report
+- `a_exclude_objects` - list of `[object_owner.].object_name` to be excluded from coverage report
+
+You may specify both include and exclude objects lists to gein more control oner what needs to be included / excluded from coverage reprot.
+
+The object owner is optional in the object list.
+If you do not provide object owner, the include/exclude list will be considered for every schema used for coverage gathering (as described above).
+
+
+Example Limiting coverage by object name, for tested code existing in the same schema as unit tests.
 ```sql
-exec ut.run('ut3_user.test_award_bonus', ut_coverage_html_reporter(), a_include_objects=>ut_varchar2_list('ut3_user.award_bonus'));
+exec ut.run(ut_varchar2_list('user_1','user_2'), ut_coverage_html_reporter(), a_include_objects=>ut_varchar2_list('award_bonus'));
 ```
-Executes test `test_award_bonus` and gather coverage only on object `ut3_user.award_bonus`
+Executes all tests in schemes: `user_1` and `user_2`. Coverage will only be reported on objects `user_1.award_bonus`, `user_2.award_bonus`
 
-Alternatively you could run:
-```sql
-exec ut.run('ut3_user.test_award_bonus', ut_coverage_html_reporter(), a_exclude_objects=>ut_varchar2_list('ut3_user.betwnstr'));
-```
-Executes test `test_award_bonus` and gather on all objects in schema `ut3_user` except valid unit test objects and object `betwnstr` that schema.
 
-You can also combine the parameters and both will be applied.
- 
-#### Defining different schema names
-In some architectures, you might end up in a situation, where your unit tests exist in a different schema than the tested code.
-This is not the default or recommended approach but is supporter by utPLSQL.
-In such scenarios, you would probably have a separate database schema to hold unit tests and a separate schema/schemes to hold the tested code.
-Since by default, coverage reporting is done on the schema/schemes that the invoked tests are on, the code will not be included in coverage report as it is in a different schema. 
-
-In this situation you need to provide list of schema names that the tested code is in. This option overrides the default schema names for coverage.
-
-Example:
-```sql
-exec ut.run('ut3_user.test_award_bonus', ut_coverage_html_reporter(), a_coverage_schemes=>ut_varchar2_list('usr'));
-```
-Executes test `test_award_bonus` in schema `ut3_user` and gather coverage for that execution on all non `unit-test` objects from schema `usr`.
-
-You can combine schema names with include/exclude parameters and all will be applied.
-Keep in mind that the if you use `a_include_list` the `a_coverage_schemes` will simply be ignored. 
- 
-Example:
+Example: Limiting coverage by object name, for tested code existing in different schemes than unit tests.
 ```sql
 begin
   ut.run(
-    'ut3_user.test_award_bonus', 
-    ut_coverage_html_reporter(),
-    a_coverage_schemes => ut_varchar2_list('usr'), 
-    a_exclude_objects => ut_varchar2_list('usr.betwnstr'),
-    a_include_objects => ut_varchar2_list('usr.award_bonus')
+    'unit_test_schema', ut_coverage_html_reporter(),
+     a_coverage_schemes => ut_varchar2_list('user_1','user_2'), 
+     a_include_objects => ut_varchar2_list('award_bonus', 'betwnstr')
   );
 end;
 ```
+Executes all tests in schema `unit_test_schema`. Coverage will only be reported on objects `user_1.award_bonus`, `user_2.award_bonus`, `user_1.betwnstr`, `user_2.betwnstr`.
+Objects that do not exist in database but were specified in `a_include_objects` will get ignored.      
 
-Executes test `test_award_bonus` in schema `ut3_user` and gather coverage for that execution on `award_bonus` object from schema `usr`. The exclude list is of no relevance as it is not overlapping with include list.
+Example: Limiting coverage by object owner and name.
+```sql
+begin
+  ut.run(
+    'unit_test_schema', ut_coverage_html_reporter(),
+     a_include_objects => ut_varchar2_list('user_1.award_bonus','user_2.betwnstr')
+  );
+end;
+```
+Executes all tests in schema `unit_test_schema`. Coverage will only be reported on objects `user_1.award_bonus`, `user_2.betwnstr`
+
+The `a_exclude_objects` can be used in the same way as `a_include_objects`.
+
+Example: Excluding objects from coverage report by providing list of object owner/name to be excluded.
+```sql
+exec ut.run('unit_test_schema.test_award_bonus', ut_coverage_html_reporter(), a_exclude_objects=>ut_varchar2_list('ut3_user.betwnstr'));
+```
+Executes test `test_award_bonus` in schema `unit_test_schema`. Coverage will be reported on all objects in schema `ut3_user` except `betwnstr` object.
+
+**Note**
+> Filtering using `a_include_objects` and `a_exclude_objects` is only applicable when gathering coverage for schema. Those filters are not applied when reporting coverage on project files.
+ 
+**Note**
+> When running coverage on schema objects. All source-code of package bodies, functions, procedures, type-bodies and triggers that were not executed will be reported as having 0% code coverage and all source code lines will show as uncovered.
+> This is different than the behavior when gathering coverage on project files. 
+
+### Project-based Coverage
+
+utPLSQL provides reporters that produce reports consumable by external tools like `Sonar`/`SonarCloud`, `Coveralls`.
+
+Services like Sonar, Coveralls and others perform analysis based on source-code in project files.
+They are abstracted from database, schema names, packages, procedures and functions and operate on a more generic concept of project source code.
+
+To be able to effectively use reporters dedicated for those tools, utPLSQL provides functionality for mapping database object names to project files.
+
+There are few significant differences when running coverage on project files compared to running coverage on schema/schemes. 
+- Coverage is only reported on objects that were successfully mapped to project files
+- Project files (database object) that were not executed at all are not reported as fully not covered. It is up to consumer (Sonar/Coveralls) to determine if project file should be considered as 0% coverage or just ignored
+
+In order to successfully use coverage on project files, those files must be mapped to database objects.
+
+Though you can gather project-based code coverage directly using `exec ut.run(...)`, it is highly recommended to use [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli) command line client.
+
+The below examples are using utPLSQL-cli to execute tests and gather coverage information.
+
+##### File mapping using default parameters
+
+Below example illustrates directory structure supported by default parameters of utPLSQL. 
+The structure represents a multi-schema project with file-names indicating object owner. 
+```
+C:
+  \my_project
+    \sources
+      \hr.manage_employees.pks
+      \hr.manage_employees.pkb
+      \hr.employee_typ.tps
+      \hr.employee_typ.tpb
+      \hotel.manage_rooms.pks
+      \hotel.manage_rooms.pkb
+    \tests
+      \hr.test_manage_employees.pks
+      \hr.test_manage_employees.pkb
+      \hotel.test_manage_rooms.pks
+      \hotel.test_manage_rooms.pkb
+``` 
+
+By default, utPLSQL will convert file-paths into database objects using following regular expression `/((\w+)\.)?(\w+)\.(\w{3})$`
+- object owner (if it is present) is identified by expression in second bracket  
+- object name is identified by expression in third bracket
+- object type is identified by expression in second in fourth bracket
 
 
-### Coverage on project
+**Note**
+> utPLSQL will replace any '\' with '/' for the purpose of mapping files to objects. The paths shown in results will remain (contain '\' where it was present). 
+> This is done to simplify the syntax of regular expressions. Regular expression will always use '/' as a directory separator on a file path regardless if you're on Windows or Unix system.    
 
-Both `Sonar` and `Coveralls` are utilities that are project-oriented and are not database-centric. 
-They report statistics and coverage for project files in version control system and are not aware of database at all.
-Coverage reporting of utPLSQL allows you to perform code coverage analysis for your project files.
-utPLSQL is able to map code coverage from your database code to your project files.  
+```bash
+utplsql run user/pass@db_url \
+ -source_path=source -test_path=tests \
+ -f=ut_coverage_html_reporter -o=coverage.html \
+ -f=ut_sonar_test_reporter -o=test_results.xml
+```  
 
-When using project based approach, utPLSQL will report coverage only for project-files that were successfully mapped into database objects.
+Considering the above directory structure the command will:
+- run all tests for user `user`
+- map database code to project files in `sources` directory and save code coverage results into `coverage.html`
+- map test packages to project files in `tests` directory and save test results into `test_results.xml` 
+
+To better understand the default regular expression used, have a look [here](https://regex101.com/r/4qP6Aj/3).
+
+##### Using custom regular expression
+
+If your project directory structure is different, you can use additional configuration parameters to tell utPLSQL how the project files are to be mapped into database objects.  
+
+Example: Using custom regular-expression on multi-schema project with separate directories for each object owner.
+```
+C:
+  \my_project
+    \sources
+      \hr
+        \manage_employees.pks
+        \manage_employees.pkb
+        \employee_typ.tps
+        \employee_typ.tpb
+      \hotel
+        \manage_rooms.pks
+        \manage_rooms.pkb
+    \tests
+      \hr
+        \test_manage_employees.pks
+        \test_manage_employees.pkb
+      \hotel
+        \test_manage_rooms.pks
+        \test_manage_rooms.pkb
+```
+
+The below command will gather coverage and map files to database objects using custom regular expression.
+The owner/name/type subexpressions do not need to be explicitly specified if they are same as default values ( 2/3/4 ).
+We have specified them explicitly here to illustrate the syntax.
+```bash
+utplsql run user/pass@db_url \
+ -source_path=source \
+ -regex_expression="/((\w+)/)?(\w+)\.(\w{3})$" \
+ -owner_subexpression=2 \
+ -name_subexpression=3 \
+ -type_subexpression=4 \
+ -test_path=tests -regex_expression="/((\w+)/)?(\w+)\.(\w{3})$" \
+ -f=ut_coverage_html_reporter -o=coverage.html \
+ -f=ut_sonar_test_reporter -o=test_results.xml
+```  
+
+You can specify different mapping rules for source files and for test files - see [utPLSQL-cli readme](https://github.com/utPLSQL/utPLSQL-cli) for details.
+
+To better understand the regular expression used, have a look [here](https://regex101.com/r/0lk0rV/1/).
+ 
+##### Explicitly specifying object owner
+
+When dealing with projects that operate within single schema the project structure probably not indicate the owner.
+In such scenarios, you can explicitly specify the object owner for both tests and source code.
+
+Example: Single-schema project - no indication of object owner
+```
+C:
+  \my_project
+    \sources
+      \manage_employees.pks
+      \manage_employees.pkb
+    \tests
+      \test_manage_employees.pks
+      \test_manage_employees.pkb
+```
+
+The below command will gather coverage and map files to database objects.
+For the database objects mapped to `souces` directory user `hr` will be used.
+For the database objects mapped to `tests`  directory user `hr_tester` will be used. 
+```bash
+utplsql run user/pass@db_url \
+ -source_path=source -owner=hr \
+ -test_path=tests -owner=hr_tester \
+ -f=ut_coverage_html_reporter -o=coverage.html \
+ -f=ut_sonar_test_reporter -o=test_results.xml
+```  
+
+##### Custom mapping of object-types
+
+By default, when mapping project-filed to database objects, utPLSQL will identify object type by file extension.
+
+Below table represents the default mapping of file extensions to database object types.  
+| file extension | object type |
+| -------------- | ----------- | 
+| tpb | type body | 
+| pkb | package body | 
+| bdy | package body | 
+| trg | trigger | 
+| fnc | function | 
+| prc | procedure | 
+
+If your project naming convention differs and your file extensions do not match the above, or you simply name all of your files wiht `.sql` suffix, you can still use utPLSQL, but you need to provide custom mapping for object types.
+
+
+Example: Multi-schema project with separate directories for each object owner and object type
+```
+C:
+  \my_project
+    \sources
+      \hr
+        \spec
+          \manage_employees.sql
+        \body
+          \manage_employees.sql
+        \type
+          \employee_typ.sql
+        \type_body
+          \employee_typ.sql
+        \trigger
+          \employees_after_each.sql
+    \tests
+      \hr
+        \spec
+          \test_manage_employees.sql
+        \body
+          \test_manage_employees.sql
+```
+
+
+```bash
+utplsql run user/pass@db_url \
+ -source_path=source \
+ -regex_expression="/(\w+)/(\w+)/(\w+)\..{3}$" \
+ -type_mapping="body=PACKAGE BODY/type_body=TYPE BODY/trigger=TRIGGER" \
+ -owner_subexpression=1 \
+ -name_subexpression=3 \
+ -type_subexpression=2 \
+ -test_path=tests -regex_expression="/(\w+)/(\w+)/(\w+)\..{3}$" \
+ -type_mapping="body=PACKAGE BODY/type_body=TYPE BODY/trigger=TRIGGER" \
+ -owner_subexpression=1 \
+ -name_subexpression=3 \
+ -type_subexpression=2 \
+ -f=ut_coverage_html_reporter -o=coverage.html \
+ -f=ut_sonar_test_reporter -o=test_results.xml
+```
+
+The parameter `type_mapping` accepts a list of a key-value pairs representing mapping of regex subexpression to database object type.  
+
+To better understand the regular expression used, have a look [here](https://regex101.com/r/Vd97v0/1).
+
+#### Object-file mapping rules
+
+In order to allow deterministic and accurate mapping of database source-code into project files, the project directory and file structure needs to meet certain criteria.  
+- Source code is kept separate from test code (separate directories)
+- Each database (source-code) object is stored in individual file. Package/type specification is kept separate from it's body.
+- File name (file path) contains name of database object 
+- Each file-path clearly identifies object type (by file extension)
+- Each file contains representation of database object "as is". No extra commands (like `set echo off` `ALTER SESSION SET PLSQL_CCFLAGS = 'debug:TRUE';`) or blank lines are present before `CREATE TYPE`,`CREATE TYPE` etc. 
+- When project is spanning across multiple database schemes, each file-path clearly and uniformly identifies object owner
+ 
    
-When using this invocation syntax, coverage is only reported for the provided files, so using project files as input for coverage is also a way of limiting the scope of coverage analysis.
-This syntax also allows usage of  `a_exclude_object_list` as optional parameters to filter the scope of analysis based on database objects. 
+---------------------------------------------------------------------------
 
+----- TODO - continue documentation update from here
+
+----- TODO - verify examples
+
+----- TODO - update images
+
+---------------------------------------------------------------------------
 
 **Reporting using externally provided file mapping**
 One of ways to perform coverage reporting on your project files is to provide to the coverage reporter a list of file path/names along with mapping to corresponding object name and object type.
@@ -181,10 +432,10 @@ end;
 ```
 
 The predefined rule is based on the following default values for parameters:
-* `a_regex_pattern => '.*(\\|\/)((\w+)\.)?(\w+)\.(\w{3})'` 
-* `a_object_owner_subexpression => 3`
-* `a_object_name_subexpression => 4`
-* `a_object_type_subexpression => 5`
+* `a_regex_pattern => '/((\w+)\.)?(\w+)\.(\w{3})$'` 
+* `a_object_owner_subexpression => 2`
+* `a_object_name_subexpression => 3`
+* `a_object_type_subexpression => 4`
 * `a_file_to_object_type_mapping` - defined in table below
 
 The predefined file extension to object type mappings
