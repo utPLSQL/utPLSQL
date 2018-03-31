@@ -32,5 +32,9 @@ is
   
   --%test(Givess failure when a exception is expected and nothing is thrown)
   procedure nothing_thrown;
+
+  --%afterall
+  procedure drop_test_package;
+
 end;
 /
