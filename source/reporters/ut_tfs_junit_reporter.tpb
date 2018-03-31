@@ -67,14 +67,14 @@ create or replace type body ut_tfs_junit_reporter is
         e.g., an unchecked throwable; or a problem with the implementation of the test.
       */
       
-      if a_test.result = ut_utils.tr_error then
+      if a_test.result = ut_utils.gc_error then
         self.print_text('<error type="error" message="Error while executing '||a_test.name||'">');
         self.print_text('<![CDATA[');
         self.print_clob(ut_utils.table_to_clob(a_test.get_error_stack_traces()));
         self.print_text(']]>');
         self.print_text('</error>');
      -- Do not count error as failure
-      elsif a_test.result = ut_utils.tr_failure then
+      elsif a_test.result = ut_utils.gc_failure then
         self.print_text('<failure type="failure" message="Test '||a_test.name||' failed">');
         self.print_text('<![CDATA[');
         for i in 1 .. a_test.failed_expectations.count loop
