@@ -70,9 +70,9 @@ create or replace package body ut_coverage_helper is
     set_coverage_type(a_coverage_type);
     if get_coverage_type = ut_coverage.c_block_coverage then
       $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-       ut_block_helper.coverage_start(a_run_comment => a_run_comment ,a_coverage_id => g_coverage_id );
+       ut_block_coverage_helper.coverage_start(a_run_comment => a_run_comment ,a_coverage_id => g_coverage_id );
       $else
-       null;
+       raise_application_error(ut_utils.gc_invalid_coverage_type,'Invalid coverage type requested. Please validate your Oracle install');
       $end
     else
        ut_proftab_helper.coverage_start(a_run_comment => a_run_comment, a_coverage_id => g_coverage_id);
@@ -123,7 +123,7 @@ create or replace package body ut_coverage_helper is
       g_is_started := false;
       if get_coverage_type = ut_coverage.c_block_coverage then
         $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-         ut_block_helper.coverage_stop();
+         ut_block_coverage_helper.coverage_stop();
         $else
          null;
         $end
@@ -139,7 +139,7 @@ create or replace package body ut_coverage_helper is
     g_is_started := false;
     if get_coverage_type = ut_coverage.c_block_coverage then
         $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-         ut_block_helper.coverage_stop();
+         ut_block_coverage_helper.coverage_stop();
         $else
          null;
         $end
