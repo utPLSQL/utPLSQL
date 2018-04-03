@@ -90,6 +90,11 @@ create or replace package ut_utils authid definer is
   gc_invalid_version_no constant pls_integer := -20214;
   pragma exception_init(ex_invalid_version_no, -20214);
 
+  -- Invalid coverage type
+  ex_invalid_coverage_type exception;
+  gc_invalid_coverage_type constant pls_integer := -20215;
+  pragma exception_init(ex_invalid_coverage_type, -20215);
+
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
   gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
