@@ -1,4 +1,4 @@
-create or replace package body test_coverage is
+create or replace package body test_not_existing_block is
 
   g_run_id integer;
 

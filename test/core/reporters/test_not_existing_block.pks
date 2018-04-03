@@ -1,4 +1,4 @@
-create or replace package test_coverage is
+create or replace package test_not_existing_block is
 
   --%suite
   --%suitepath(utplsql.core.reporters)
