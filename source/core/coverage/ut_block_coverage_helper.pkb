@@ -1,4 +1,4 @@
-create or replace package body ut_block_helper is
+create or replace package body ut_block_coverage_helper is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project

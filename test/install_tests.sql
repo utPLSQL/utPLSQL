@@ -27,6 +27,10 @@ whenever oserror exit failure rollback
 @@core/test_suite_manager.pks
 @@core/reporters/test_coverage.pks
 set define on
+@@install_below_12_2.sql 'core/reporters/test_not_existing_block.pks'
+@@install_below_12_2.sql 'core/reporters/test_not_existing_block.pkb'
+set define off
+set define on
 @@install_above_12_1.sql 'core/reporters/test_block_coverage.pks'
 @@install_above_12_1.sql 'core/reporters/test_coverage/test_html_block_reporter.pks'
 @@install_above_12_1.sql 'core/reporters/test_coverage/test_coveralls_reporter_block.pks'

@@ -104,7 +104,7 @@ create or replace package body ut_coverage_block is
       exit when l_source_objects_crsr%notfound;
     
       --get coverage data
-      l_line_calls := ut_block_helper.get_raw_coverage_data_block(l_source_object.owner, l_source_object.name);
+      l_line_calls := ut_block_coverage_helper.get_raw_coverage_data_block(l_source_object.owner, l_source_object.name);
     
       --if there is coverage, we need to filter out the garbage (badly indicated data)
       if l_line_calls.count > 0 then
