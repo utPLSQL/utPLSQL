@@ -548,8 +548,11 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<UT_LOGICAL_SUITE>' ||
-        '%<WARNINGS><VARCHAR2>Annotation &quot;--\%context(A context)&quot; was ignored. Cannot find following &quot;--\%endcontext&quot;.</VARCHAR2></WARNINGS>' ||
+        '%<WARNINGS><VARCHAR2>Annotation &quot;--\%context(A context)&quot; was ignored. Cannot find following &quot;--\%endcontext&quot;.</VARCHAR2></WARNINGS>%'
+        ,'\'
+    );
+    ut.expect(l_actual).to_be_like(
+        '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
         '<UT_SUITE_ITEM>' ||
         '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
@@ -564,7 +567,6 @@ create or replace package body test_suite_builder is
         '%</BEFORE_ALL_LIST>' ||
         '<AFTER_ALL_LIST/>' ||
         '</UT_LOGICAL_SUITE>'
-        ,'\'
     );
   end;
 
@@ -587,8 +589,11 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-      '%<UT_LOGICAL_SUITE>' ||
-        '%<WARNINGS><VARCHAR2>Annotation &quot;--\%endcontext&quot; was ignored. Cannot find preceding &quot;--\%context&quot;.</VARCHAR2></WARNINGS>' ||
+        '%<WARNINGS><VARCHAR2>Annotation &quot;--\%endcontext&quot; was ignored. Cannot find preceding &quot;--\%context&quot;.</VARCHAR2></WARNINGS>%'
+        ,'\'
+    );
+    ut.expect(l_actual).to_be_like(
+      '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
             '%<NAME>context_1</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.context_1</PATH>' ||
@@ -611,7 +616,6 @@ create or replace package body test_suite_builder is
         '%</BEFORE_ALL_LIST>' ||
         '<AFTER_ALL_LIST/>' ||
       '</UT_LOGICAL_SUITE>'
-      ,'\'
     );
   end;
 
