@@ -38,18 +38,18 @@ create or replace type body ut_xunit_reporter is
     begin
       self.print_text('<testcase classname="' || dbms_xmlgen.convert(get_path(a_test.path, a_test.name)) || '" ' || ' assertions="' ||
                       nvl(a_test.all_expectations.count,0) || '"' || self.get_common_item_attributes(a_test) || case when
-                      a_test.result != ut_utils.tr_success then
+                      a_test.result != ut_utils.gc_success then
                       ' status="' || ut_utils.test_result_to_char(a_test.result) || '"' end || '>');
-      if a_test.result = ut_utils.tr_disabled then
+      if a_test.result = ut_utils.gc_disabled then
         self.print_text('<skipped/>');
       end if;
-      if a_test.result = ut_utils.tr_error then
+      if a_test.result = ut_utils.gc_error then
         self.print_text('<error>');
         self.print_text('<![CDATA[');
         self.print_clob(ut_utils.table_to_clob(a_test.get_error_stack_traces()));
         self.print_text(']]>');
         self.print_text('</error>');
-      elsif a_test.result > ut_utils.tr_success then
+      elsif a_test.result > ut_utils.gc_success then
         self.print_text('<failure>');
         self.print_text('<![CDATA[');
         for i in 1 .. a_test.failed_expectations.count loop

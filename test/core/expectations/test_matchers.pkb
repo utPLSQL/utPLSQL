@@ -16,7 +16,7 @@ create or replace package body test_matchers is
         ut3.ut.expect( l_actual ).'||a_prefix||'to_'||a_matcher||'( l_expected );
       end;';
     execute immediate l_statement;
-    if a_result = ut3.ut_utils.tr_success then
+    if a_result = ut3.ut_utils.gc_success then
       ut.expect(expectations.failed_expectations_data()).to_be_empty();
     else
       ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
@@ -36,7 +36,7 @@ create or replace package body test_matchers is
         ut3.ut.expect(l_actual_value).to_be_between(l_lower, l_higher);
       end;';
     execute immediate l_statement;
-    if a_result = ut3.ut_utils.tr_success then
+    if a_result = ut3.ut_utils.gc_success then
       ut.expect(expectations.failed_expectations_data()).to_be_empty();
     else
       ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
@@ -56,7 +56,7 @@ create or replace package body test_matchers is
       ut3.ut.expect(l_actual_value).'||a_not_prefix||'to_be_between(l_value1, l_value2);
     end;';
     execute immediate l_statement;
-    if a_result = ut3.ut_utils.tr_success then
+    if a_result = ut3.ut_utils.gc_success then
       ut.expect(expectations.failed_expectations_data()).to_be_empty();
     else
       ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
@@ -76,7 +76,7 @@ create or replace package body test_matchers is
         ut3.ut.expect( l_actual ).' || a_prefix ||q'[to_be_like(l_pattern, l_escape_char);
       end;]'
     using a_pattern, a_escape;
-    if a_result = ut3.ut_utils.tr_success then
+    if a_result = ut3.ut_utils.gc_success then
       ut.expect(expectations.failed_expectations_data()).to_be_empty();
     else
       ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
@@ -96,7 +96,7 @@ create or replace package body test_matchers is
         ut3.ut.expect( l_actual ).'||a_not_prefix||'to_match(l_pattern, l_modifiers);
       end;';
     execute immediate l_statement using a_pattern, a_modifiers;
-    if a_result = ut3.ut_utils.tr_success then
+    if a_result = ut3.ut_utils.gc_success then
       ut.expect(expectations.failed_expectations_data()).to_be_empty();
     else
       ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
@@ -108,126 +108,126 @@ create or replace package body test_matchers is
   begin
 
     --failure when value out of range
-    exec_be_between2('date', 'sysdate', 'sysdate-2', 'sysdate-1', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('number', '2.0', '1.99', '1.999', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('varchar2(1)', '''c''', '''a''', '''b''', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('timestamp', 'systimestamp+1', 'systimestamp-1', 'systimestamp', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('timestamp with local time zone', 'systimestamp+1', 'systimestamp-1', 'systimestamp', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('timestamp with time zone', 'systimestamp+1', 'systimestamp-1', 'systimestamp', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('interval year to month', '''2-2''', '''2-0''', '''2-1''', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('interval day to second', '''2 01:00:00''', '''2 00:59:58''', '''2 00:59:59''', ut3.ut_utils.tr_failure, '');
+    exec_be_between2('date', 'sysdate', 'sysdate-2', 'sysdate-1', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('number', '2.0', '1.99', '1.999', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('varchar2(1)', '''c''', '''a''', '''b''', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('timestamp', 'systimestamp+1', 'systimestamp-1', 'systimestamp', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('timestamp with local time zone', 'systimestamp+1', 'systimestamp-1', 'systimestamp', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('timestamp with time zone', 'systimestamp+1', 'systimestamp-1', 'systimestamp', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('interval year to month', '''2-2''', '''2-0''', '''2-1''', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('interval day to second', '''2 01:00:00''', '''2 00:59:58''', '''2 00:59:59''', ut3.ut_utils.gc_failure, '');
 
     --success when value in range
-    exec_be_between2('date', 'sysdate', 'sysdate-1', 'sysdate+1', ut3.ut_utils.tr_success, '');
-    exec_be_between2('number', '2.0', '1.99', '2.01', ut3.ut_utils.tr_success, '');
-    exec_be_between2('varchar2(1)', '''b''', '''a''', '''c''', ut3.ut_utils.tr_success, '');
-    exec_be_between2('timestamp', 'systimestamp', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.tr_success, '');
-    exec_be_between2('timestamp with local time zone', 'systimestamp', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.tr_success, '');
-    exec_be_between2('timestamp with time zone', 'systimestamp', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.tr_success, '');
-    exec_be_between2('interval year to month', '''2-1''', '''2-0''', '''2-2''', ut3.ut_utils.tr_success, '');
-    exec_be_between2('interval day to second', '''2 01:00:00''', '''2 00:59:58''', '''2 01:00:01''', ut3.ut_utils.tr_success, '');
+    exec_be_between2('date', 'sysdate', 'sysdate-1', 'sysdate+1', ut3.ut_utils.gc_success, '');
+    exec_be_between2('number', '2.0', '1.99', '2.01', ut3.ut_utils.gc_success, '');
+    exec_be_between2('varchar2(1)', '''b''', '''a''', '''c''', ut3.ut_utils.gc_success, '');
+    exec_be_between2('timestamp', 'systimestamp', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.gc_success, '');
+    exec_be_between2('timestamp with local time zone', 'systimestamp', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.gc_success, '');
+    exec_be_between2('timestamp with time zone', 'systimestamp', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.gc_success, '');
+    exec_be_between2('interval year to month', '''2-1''', '''2-0''', '''2-2''', ut3.ut_utils.gc_success, '');
+    exec_be_between2('interval day to second', '''2 01:00:00''', '''2 00:59:58''', '''2 01:00:01''', ut3.ut_utils.gc_success, '');
 
     --success when value not in range
-    exec_be_between2('date', 'sysdate', 'sysdate-2', 'sysdate-1', ut3.ut_utils.tr_success, 'not_');
-    exec_be_between2('number', '2.0', '1.99', '1.999', ut3.ut_utils.tr_success, 'not_');
-    exec_be_between2('varchar2(1)', '''c''', '''a''', '''b''', ut3.ut_utils.tr_success, 'not_');
-    exec_be_between2('timestamp', 'systimestamp+1', 'systimestamp-1', 'systimestamp', ut3.ut_utils.tr_success, 'not_');
-    exec_be_between2('timestamp with local time zone', 'systimestamp+1', 'systimestamp-1', 'systimestamp', ut3.ut_utils.tr_success, 'not_');
-    exec_be_between2('timestamp with time zone', 'systimestamp+1', 'systimestamp-1', 'systimestamp', ut3.ut_utils.tr_success, 'not_');
-    exec_be_between2('interval year to month', '''2-2''', '''2-0''', '''2-1''', ut3.ut_utils.tr_success, 'not_');
-    exec_be_between2('interval day to second', '''2 01:00:00''', '''2 00:59:58''', '''2 00:59:59''', ut3.ut_utils.tr_success, 'not_');
+    exec_be_between2('date', 'sysdate', 'sysdate-2', 'sysdate-1', ut3.ut_utils.gc_success, 'not_');
+    exec_be_between2('number', '2.0', '1.99', '1.999', ut3.ut_utils.gc_success, 'not_');
+    exec_be_between2('varchar2(1)', '''c''', '''a''', '''b''', ut3.ut_utils.gc_success, 'not_');
+    exec_be_between2('timestamp', 'systimestamp+1', 'systimestamp-1', 'systimestamp', ut3.ut_utils.gc_success, 'not_');
+    exec_be_between2('timestamp with local time zone', 'systimestamp+1', 'systimestamp-1', 'systimestamp', ut3.ut_utils.gc_success, 'not_');
+    exec_be_between2('timestamp with time zone', 'systimestamp+1', 'systimestamp-1', 'systimestamp', ut3.ut_utils.gc_success, 'not_');
+    exec_be_between2('interval year to month', '''2-2''', '''2-0''', '''2-1''', ut3.ut_utils.gc_success, 'not_');
+    exec_be_between2('interval day to second', '''2 01:00:00''', '''2 00:59:58''', '''2 00:59:59''', ut3.ut_utils.gc_success, 'not_');
 
     --failure when value not out of range
-    exec_be_between2('date', 'sysdate', 'sysdate-1', 'sysdate+1', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('number', '2.0', '1.99', '2.01', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('varchar2(1)', '''b''', '''a''', '''c''', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('timestamp', 'systimestamp', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('timestamp with local time zone', 'systimestamp', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('timestamp with time zone', 'systimestamp', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('interval year to month', '''2-1''', '''2-0''', '''2-2''', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('interval day to second', '''2 01:00:00''', '''2 00:59:58''', '''2 01:00:01''', ut3.ut_utils.tr_failure, 'not_');
+    exec_be_between2('date', 'sysdate', 'sysdate-1', 'sysdate+1', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('number', '2.0', '1.99', '2.01', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('varchar2(1)', '''b''', '''a''', '''c''', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('timestamp', 'systimestamp', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('timestamp with local time zone', 'systimestamp', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('timestamp with time zone', 'systimestamp', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('interval year to month', '''2-1''', '''2-0''', '''2-2''', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('interval day to second', '''2 01:00:00''', '''2 00:59:58''', '''2 01:00:01''', ut3.ut_utils.gc_failure, 'not_');
 
     --failure when value is null
-    exec_be_between2('date', 'null', 'sysdate-1', 'sysdate+1', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('number', 'null', '1.99', '2.01', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('varchar2(1)', 'null', '''a''', '''c''', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('timestamp', 'null', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('timestamp with local time zone', 'null', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('timestamp with time zone', 'null', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('interval year to month', 'null', '''2-0''', '''2-2''', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('interval day to second', 'null', '''2 00:59:58''', '''2 01:00:01''', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('date', 'null', 'sysdate-2', 'sysdate-1', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('number', 'null', '1.99', '1.999', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('varchar2(1)', 'null', '''a''', '''b''', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('timestamp', 'null', 'systimestamp-1', 'systimestamp', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('timestamp with local time zone', 'null', 'systimestamp-1', 'systimestamp', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('timestamp with time zone', 'null', 'systimestamp-1', 'systimestamp', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('interval year to month', 'null', '''2-0''', '''2-1''', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('interval day to second', 'null', '''2 00:59:58''', '''2 00:59:59''', ut3.ut_utils.tr_failure, 'not_');
+    exec_be_between2('date', 'null', 'sysdate-1', 'sysdate+1', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('number', 'null', '1.99', '2.01', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('varchar2(1)', 'null', '''a''', '''c''', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('timestamp', 'null', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('timestamp with local time zone', 'null', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('timestamp with time zone', 'null', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('interval year to month', 'null', '''2-0''', '''2-2''', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('interval day to second', 'null', '''2 00:59:58''', '''2 01:00:01''', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('date', 'null', 'sysdate-2', 'sysdate-1', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('number', 'null', '1.99', '1.999', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('varchar2(1)', 'null', '''a''', '''b''', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('timestamp', 'null', 'systimestamp-1', 'systimestamp', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('timestamp with local time zone', 'null', 'systimestamp-1', 'systimestamp', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('timestamp with time zone', 'null', 'systimestamp-1', 'systimestamp', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('interval year to month', 'null', '''2-0''', '''2-1''', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('interval day to second', 'null', '''2 00:59:58''', '''2 00:59:59''', ut3.ut_utils.gc_failure, 'not_');
 
     --failure when lower bound is null
-    exec_be_between2('date', 'sysdate', 'null', 'sysdate+1', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('number', '2.0', 'null', '2.01', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('varchar2(1)', '''b''', 'null', '''c''', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('timestamp', 'systimestamp', 'null', 'systimestamp+1', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('timestamp with local time zone', 'systimestamp', 'null', 'systimestamp+1', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('timestamp with time zone', 'systimestamp', 'null', 'systimestamp+1', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('interval year to month', '''2-1''', 'null', '''2-2''', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('interval day to second', '''2 01:00:00''', 'null', '''2 01:00:01''', ut3.ut_utils.tr_failure, '');
-    exec_be_between2('date', 'sysdate', 'null', 'sysdate-1', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('number', '2.0', 'null', '1.999', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('varchar2(1)', '''b''', 'null', '''b''', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('timestamp', 'systimestamp+1', 'null', 'systimestamp', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('timestamp with local time zone', 'systimestamp+1', 'null', 'systimestamp', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('timestamp with time zone', 'systimestamp+1', 'null', 'systimestamp', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('interval year to month', '''2-2''', 'null', '''2-1''', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_between2('interval day to second', '''2 01:00:00''', 'null', '''2 00:59:59''', ut3.ut_utils.tr_failure, 'not_');
+    exec_be_between2('date', 'sysdate', 'null', 'sysdate+1', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('number', '2.0', 'null', '2.01', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('varchar2(1)', '''b''', 'null', '''c''', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('timestamp', 'systimestamp', 'null', 'systimestamp+1', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('timestamp with local time zone', 'systimestamp', 'null', 'systimestamp+1', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('timestamp with time zone', 'systimestamp', 'null', 'systimestamp+1', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('interval year to month', '''2-1''', 'null', '''2-2''', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('interval day to second', '''2 01:00:00''', 'null', '''2 01:00:01''', ut3.ut_utils.gc_failure, '');
+    exec_be_between2('date', 'sysdate', 'null', 'sysdate-1', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('number', '2.0', 'null', '1.999', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('varchar2(1)', '''b''', 'null', '''b''', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('timestamp', 'systimestamp+1', 'null', 'systimestamp', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('timestamp with local time zone', 'systimestamp+1', 'null', 'systimestamp', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('timestamp with time zone', 'systimestamp+1', 'null', 'systimestamp', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('interval year to month', '''2-2''', 'null', '''2-1''', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_between2('interval day to second', '''2 01:00:00''', 'null', '''2 00:59:59''', ut3.ut_utils.gc_failure, 'not_');
   end;
 
   procedure test_match is
   begin
-    exec_match('varchar2(100)', '''Stephen''', '^Ste(v|ph)en$', '', ut3.ut_utils.tr_success, '');
-    exec_match('varchar2(100)', '''sTEPHEN''', '^Ste(v|ph)en$', 'i', ut3.ut_utils.tr_success, '');
-    exec_match('clob', 'rpad('', '',32767)||''Stephen''', 'Ste(v|ph)en$', '', ut3.ut_utils.tr_success, '');
-    exec_match('clob', 'rpad('', '',32767)||''sTEPHEN''', 'Ste(v|ph)en$', 'i', ut3.ut_utils.tr_success, '');
+    exec_match('varchar2(100)', '''Stephen''', '^Ste(v|ph)en$', '', ut3.ut_utils.gc_success, '');
+    exec_match('varchar2(100)', '''sTEPHEN''', '^Ste(v|ph)en$', 'i', ut3.ut_utils.gc_success, '');
+    exec_match('clob', 'rpad('', '',32767)||''Stephen''', 'Ste(v|ph)en$', '', ut3.ut_utils.gc_success, '');
+    exec_match('clob', 'rpad('', '',32767)||''sTEPHEN''', 'Ste(v|ph)en$', 'i', ut3.ut_utils.gc_success, '');
 
-    exec_match('varchar2(100)', '''Stephen''', '^Steven$', '', ut3.ut_utils.tr_failure, '');
-    exec_match('varchar2(100)', '''sTEPHEN''', '^Steven$', 'i', ut3.ut_utils.tr_failure, '');
-    exec_match('clob', 'to_clob(rpad('', '',32767)||''Stephen'')', '^Stephen', '', ut3.ut_utils.tr_failure, '');
-    exec_match('clob', 'to_clob(rpad('', '',32767)||''sTEPHEN'')', '^Stephen', 'i', ut3.ut_utils.tr_failure, '');
+    exec_match('varchar2(100)', '''Stephen''', '^Steven$', '', ut3.ut_utils.gc_failure, '');
+    exec_match('varchar2(100)', '''sTEPHEN''', '^Steven$', 'i', ut3.ut_utils.gc_failure, '');
+    exec_match('clob', 'to_clob(rpad('', '',32767)||''Stephen'')', '^Stephen', '', ut3.ut_utils.gc_failure, '');
+    exec_match('clob', 'to_clob(rpad('', '',32767)||''sTEPHEN'')', '^Stephen', 'i', ut3.ut_utils.gc_failure, '');
 
-    exec_match('varchar2(100)', '''Stephen''', '^Ste(v|ph)en$', '', ut3.ut_utils.tr_failure, 'not_');
-    exec_match('varchar2(100)', '''sTEPHEN''', '^Ste(v|ph)en$', 'i', ut3.ut_utils.tr_failure, 'not_');
-    exec_match('clob', 'rpad('', '',32767)||''Stephen''', 'Ste(v|ph)en$', '', ut3.ut_utils.tr_failure, 'not_');
-    exec_match('clob', 'rpad('', '',32767)||''sTEPHEN''', 'Ste(v|ph)en$', 'i', ut3.ut_utils.tr_failure, 'not_');
+    exec_match('varchar2(100)', '''Stephen''', '^Ste(v|ph)en$', '', ut3.ut_utils.gc_failure, 'not_');
+    exec_match('varchar2(100)', '''sTEPHEN''', '^Ste(v|ph)en$', 'i', ut3.ut_utils.gc_failure, 'not_');
+    exec_match('clob', 'rpad('', '',32767)||''Stephen''', 'Ste(v|ph)en$', '', ut3.ut_utils.gc_failure, 'not_');
+    exec_match('clob', 'rpad('', '',32767)||''sTEPHEN''', 'Ste(v|ph)en$', 'i', ut3.ut_utils.gc_failure, 'not_');
 
-    exec_match('varchar2(100)', '''Stephen''', '^Steven$', '', ut3.ut_utils.tr_success, 'not_');
-    exec_match('varchar2(100)', '''sTEPHEN''', '^Steven$', 'i', ut3.ut_utils.tr_success, 'not_');
-    exec_match('clob', 'to_clob(rpad('', '',32767)||''Stephen'')', '^Stephen', '', ut3.ut_utils.tr_success, 'not_');
-    exec_match('clob', 'to_clob(rpad('', '',32767)||''sTEPHEN'')', '^Stephen', 'i', ut3.ut_utils.tr_success, 'not_');
+    exec_match('varchar2(100)', '''Stephen''', '^Steven$', '', ut3.ut_utils.gc_success, 'not_');
+    exec_match('varchar2(100)', '''sTEPHEN''', '^Steven$', 'i', ut3.ut_utils.gc_success, 'not_');
+    exec_match('clob', 'to_clob(rpad('', '',32767)||''Stephen'')', '^Stephen', '', ut3.ut_utils.gc_success, 'not_');
+    exec_match('clob', 'to_clob(rpad('', '',32767)||''sTEPHEN'')', '^Stephen', 'i', ut3.ut_utils.gc_success, 'not_');
   end;
 
   procedure test_be_like is
   begin
-    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en%', '', ut3.ut_utils.tr_success, '');
-    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en\_K%', '\', ut3.ut_utils.tr_success, '');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en%', '', ut3.ut_utils.tr_success, '');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en\_K%', '\', ut3.ut_utils.tr_success, '');
+    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en%', '', ut3.ut_utils.gc_success, '');
+    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en\_K%', '\', ut3.ut_utils.gc_success, '');
+    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en%', '', ut3.ut_utils.gc_success, '');
+    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en\_K%', '\', ut3.ut_utils.gc_success, '');
 
-    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste_en%', '', ut3.ut_utils.tr_failure, '');
-    exec_be_like('varchar2(100)', '''Stephen_King''', 'Stephe\__%', '\', ut3.ut_utils.tr_failure, '');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste_en%', '', ut3.ut_utils.tr_failure, '');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Stephe\__%', '\', ut3.ut_utils.tr_failure, '');
+    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste_en%', '', ut3.ut_utils.gc_failure, '');
+    exec_be_like('varchar2(100)', '''Stephen_King''', 'Stephe\__%', '\', ut3.ut_utils.gc_failure, '');
+    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste_en%', '', ut3.ut_utils.gc_failure, '');
+    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Stephe\__%', '\', ut3.ut_utils.gc_failure, '');
 
-    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en%', '', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en\_K%', '\', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en%', '', ut3.ut_utils.tr_failure, 'not_');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en\_K%', '\', ut3.ut_utils.tr_failure, 'not_');
+    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en%', '', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en\_K%', '\', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en%', '', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en\_K%', '\', ut3.ut_utils.gc_failure, 'not_');
 
-    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste_en%', '', ut3.ut_utils.tr_success, 'not_');
-    exec_be_like('varchar2(100)', '''Stephen_King''', 'Stephe\__%', '\', ut3.ut_utils.tr_success, 'not_');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste_en%', '', ut3.ut_utils.tr_success, 'not_');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Stephe\__%', '\', ut3.ut_utils.tr_success, 'not_');
+    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste_en%', '', ut3.ut_utils.gc_success, 'not_');
+    exec_be_like('varchar2(100)', '''Stephen_King''', 'Stephe\__%', '\', ut3.ut_utils.gc_success, 'not_');
+    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste_en%', '', ut3.ut_utils.gc_success, 'not_');
+    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Stephe\__%', '\', ut3.ut_utils.gc_success, 'not_');
   end;
 
   procedure test_timestamp_between is

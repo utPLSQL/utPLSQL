@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.0.1708-develop';
+  gc_version                 constant varchar2(50) := 'v3.1.0.1752-develop';
 
   /* Constants: Event names */
   gc_run                     constant varchar2(12) := 'run';
@@ -37,15 +37,15 @@ create or replace package ut_utils authid definer is
   gc_finalize                constant varchar2(12) := 'finalize';
 
   /* Constants: Test Results */
-  tr_disabled                constant number(1) := 0; -- test/suite was disabled
-  tr_success                 constant number(1) := 1; -- test passed
-  tr_failure                 constant number(1) := 2; -- one or more expectations failed
-  tr_error                   constant number(1) := 3; -- exception was raised
+  gc_disabled                constant number(1) := 0; -- test/suite was disabled
+  gc_success                 constant number(1) := 1; -- test passed
+  gc_failure                 constant number(1) := 2; -- one or more expectations failed
+  gc_error                   constant number(1) := 3; -- exception was raised
 
-  tr_disabled_char           constant varchar2(8) := 'Disabled'; -- test/suite was disabled
-  tr_success_char            constant varchar2(7) := 'Success'; -- test passed
-  tr_failure_char            constant varchar2(7) := 'Failure'; -- one or more expectations failed
-  tr_error_char              constant varchar2(5) := 'Error'; -- exception was raised
+  gc_disabled_char           constant varchar2(8) := 'Disabled'; -- test/suite was disabled
+  gc_success_char            constant varchar2(7) := 'Success'; -- test passed
+  gc_failure_char            constant varchar2(7) := 'Failure'; -- one or more expectations failed
+  gc_error_char              constant varchar2(5) := 'Error'; -- exception was raised
 
   /*
     Constants: Rollback type for ut_test_object

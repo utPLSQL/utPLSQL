@@ -82,7 +82,7 @@ create or replace type body ut_logical_suite as
       l_result := self.results_count.result_status();
     else
       --if suite is empty then it's successful (no errors)
-      l_result := ut_utils.tr_success;
+      l_result := ut_utils.gc_success;
     end if;
 
       self.result := l_result;
