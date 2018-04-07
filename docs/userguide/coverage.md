@@ -520,12 +520,6 @@ In order to allow deterministic and accurate mapping of database source-code int
 - When project is spanning across multiple database schemes, each file-path clearly and uniformly identifies object owner
 
 
----------------------------------------------------------------------------
-
------ TODO - continue documentation update from here
-
----------------------------------------------------------------------------
-
 #### File mapping from SQL
 
 The `ut.run` command provides interface to map project into database objects when executing tests.
