@@ -46,15 +46,15 @@ create or replace type body ut_sonar_test_reporter is
       l_lines ut_varchar2_list;
     begin
       self.print_text('<testCase name="'||dbms_xmlgen.convert(a_test.name)||'" duration="'||round(a_test.execution_time()*1000,0)||'" >');
-      if a_test.result = ut_utils.tr_disabled then
+      if a_test.result = ut_utils.gc_disabled then
         self.print_text('<skipped message="skipped"/>');
-      elsif a_test.result = ut_utils.tr_error then
+      elsif a_test.result = ut_utils.gc_error then
         self.print_text('<error message="encountered errors">');
         self.print_text('<![CDATA[');
         self.print_clob(ut_utils.table_to_clob(a_test.get_error_stack_traces()));
         self.print_text(']]>');
         self.print_text('</error>');
-      elsif a_test.result > ut_utils.tr_success then
+      elsif a_test.result > ut_utils.gc_success then
         self.print_text('<failure message="some expectations have failed">');
         self.print_text('<![CDATA[');
         for i in 1 .. a_test.failed_expectations.count loop

@@ -24,14 +24,14 @@ create or replace package body ut_utils is
   function test_result_to_char(a_test_result integer) return varchar2 as
     l_result varchar2(20);
   begin
-    if a_test_result = tr_success then
-      l_result := tr_success_char;
-    elsif a_test_result = tr_failure then
-      l_result := tr_failure_char;
-    elsif a_test_result = tr_error then
-      l_result := tr_error_char;
-    elsif a_test_result = tr_disabled then
-      l_result := tr_disabled_char;
+    if a_test_result = gc_success then
+      l_result := gc_success_char;
+    elsif a_test_result = gc_failure then
+      l_result := gc_failure_char;
+    elsif a_test_result = gc_error then
+      l_result := gc_error_char;
+    elsif a_test_result = gc_disabled then
+      l_result := gc_disabled_char;
     else
       l_result := 'Unknown(' || coalesce(to_char(a_test_result),'NULL') || ')';
     end if ;
@@ -43,9 +43,9 @@ create or replace package body ut_utils is
     l_result integer;
   begin
     if a_test then
-      l_result := tr_success;
+      l_result := gc_success;
     else
-      l_result := tr_failure;
+      l_result := gc_failure;
     end if;
     return l_result;
   end;
@@ -390,12 +390,12 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
   function to_xpath(a_list ut_varchar2_list, a_ancestors varchar2 := '/*/') return varchar2 is
     l_xpath varchar2(32767);
     l_item  varchar2(32767);
-    i integer;
+    l_iter  integer;
   begin
     if a_list is not null then
-      i := a_list.first;
-      while i is not null loop
-        l_item := trim(a_list(i));
+      l_iter := a_list.first;
+      while l_iter is not null loop
+        l_item := trim(a_list(l_iter));
         if l_item is not null then
           if l_item like '%,%' then
             l_xpath := l_xpath || to_xpath( l_item, a_ancestors ) || '|';
@@ -405,7 +405,7 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
             l_xpath := l_xpath || a_ancestors || l_item || '|';
           end if;
         end if;
-        i := a_list.next(i);
+        l_iter := a_list.next(l_iter);
       end loop;
       l_xpath := rtrim(l_xpath,',|');
     end if;
@@ -419,8 +419,8 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
   end;
 
   function to_version(a_version_no varchar2) return t_version is
-    l_result t_version;
-    c_version_part_regex varchar2(20) := '[0-9]+';
+    l_result             t_version;
+    c_version_part_regex constant varchar2(20) := '[0-9]+';
   begin
 
     if regexp_like(a_version_no,'v?([0-9]+(\.|$)){1,4}') then

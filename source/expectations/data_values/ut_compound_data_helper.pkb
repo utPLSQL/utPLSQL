@@ -30,12 +30,12 @@ create or replace package body ut_compound_data_helper is
       return l_result;
     end;
 
-  function get_columns_info(l_columns_tab dbms_sql.desc_tab3, l_columns_count integer) return ut_key_value_pairs is
+  function get_columns_info(a_columns_tab dbms_sql.desc_tab3, a_columns_count integer) return ut_key_value_pairs is
     l_result ut_key_value_pairs := ut_key_value_pairs();
     begin
-      for i in 1 .. l_columns_count loop
+      for i in 1 .. a_columns_count loop
         l_result.extend;
-        l_result(l_result.last) := ut_key_value_pair(l_columns_tab(i).col_name, get_column_type(l_columns_tab(i)));
+        l_result(l_result.last) := ut_key_value_pair(a_columns_tab(i).col_name, get_column_type(a_columns_tab(i)));
       end loop;
       return l_result;
     end;

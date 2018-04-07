@@ -16,7 +16,7 @@ begin
   end loop;
 
   if l_packages_executed = 2 then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   else
     for i in 1 .. l_num_lines loop
       dbms_output.put_line(l_output_data(i));

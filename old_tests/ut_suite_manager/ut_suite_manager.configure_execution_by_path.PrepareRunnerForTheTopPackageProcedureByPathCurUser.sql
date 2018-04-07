@@ -30,8 +30,8 @@ begin
   ut.expect(l_test_proc.before_test is not null).to_be_true;
   ut.expect(l_test_proc.after_test is not null).to_be_true;
 
-  if ut_expectation_processor.get_status = ut_utils.tr_success then
-    :test_result := ut_utils.tr_success;
+  if ut_expectation_processor.get_status = ut_utils.gc_success then
+    :test_result := ut_utils.gc_success;
   end if;
 
 end;

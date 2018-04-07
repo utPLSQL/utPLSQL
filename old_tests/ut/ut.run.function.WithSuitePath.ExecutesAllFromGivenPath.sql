@@ -15,7 +15,7 @@ begin
   end loop;
 
   if l_packages_executed = 2 then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   else
     for i in 1 .. l_output_data.count loop
       dbms_output.put_line(l_output_data(i));

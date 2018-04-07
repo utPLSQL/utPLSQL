@@ -43,7 +43,7 @@ begin
   l_output := ut_utils.table_to_clob(l_output_data);
   --assert
   if l_output like l_expected then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line(l_output);
   end if;
