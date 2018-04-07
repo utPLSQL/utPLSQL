@@ -81,6 +81,8 @@ grant execute on &&ut3_owner..ut_varchar2_rows to &ut3_user;
 grant execute on &&ut3_owner..ut_integer_list to &ut3_user;
 grant execute on &&ut3_owner..ut_reporter_base to &ut3_user;
 grant execute on &&ut3_owner..ut_output_reporter_base to &ut3_user;
+grant execute on &&ut3_owner..ut_coverage_reporter_base to &ut3_user;
+grant execute on &&ut3_owner..ut_console_reporter_base to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_options to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_helper to &ut3_user;
