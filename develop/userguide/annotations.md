@@ -269,7 +269,8 @@ Example:
 exec ut_runner.rebuild_annotation_cache('HR');
 ```
 
-To purge the annotation cache call `ut_runner.purge_cache(a_object_owner)`.
+To purge the annotation cache call `ut_runner.purge_cache(a_object_owner, a_object_type)`.
+Both parameters are optional and if not provided, all owners/object_types will be purged. 
 Example:
 ```sql
 exec ut_runner.purge_cache('HR', 'PACKAGE');
