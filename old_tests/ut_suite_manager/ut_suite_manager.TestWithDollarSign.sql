@@ -34,8 +34,8 @@ begin
 
   ut.expect(l_test.name).to_equal('test$1');
     
-  if ut_expectation_processor.get_status = ut_utils.tr_success then
-    :test_result := ut_utils.tr_success;
+  if ut_expectation_processor.get_status = ut_utils.gc_success then
+    :test_result := ut_utils.gc_success;
   end if;
 
 end;

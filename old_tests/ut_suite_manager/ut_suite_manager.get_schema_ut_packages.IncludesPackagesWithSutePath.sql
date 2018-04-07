@@ -18,7 +18,7 @@ begin
   );
   l_actual := ut_suite_manager.get_schema_ut_packages(ut_varchar2_rows(user));
   if l_actual = l_expected then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line('actual:'||xmltype(anydata.convertcollection(l_actual)).getclobval());
     dbms_output.put_line('expected:'||xmltype(anydata.convertcollection(l_expected)).getclobval());

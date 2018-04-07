@@ -58,7 +58,7 @@ end;]' using p_expected_list;
   begin
     ut.expect(ut3.ut_utils.test_result_to_char(-1),'test unknown').to_equal('Unknown(-1)');
     ut.expect(ut3.ut_utils.test_result_to_char(null),'test unknown').to_equal('Unknown(NULL)');
-    ut.expect(ut3.ut_utils.test_result_to_char(ut3.ut_utils.tr_success),'test unknown').to_equal(ut3.ut_utils.tr_success_char);
+    ut.expect(ut3.ut_utils.test_result_to_char(ut3.ut_utils.gc_success),'test unknown').to_equal(ut3.ut_utils.gc_success_char);
   end;
 
   procedure test_to_string_blob is
@@ -270,7 +270,7 @@ end;';
     l_varchar2_byte_limit integer := 32767;
     l_workaround_byte_limit integer := 8191;
     l_singlebyte_string_max_size varchar2(32767 char) := rpad('x',l_varchar2_byte_limit,'x');
-    l_twobyte_character char(1 char) := 'ðŸ˜?';
+    l_twobyte_character char(1 char) := 'ï¿½?';
     l_clob_multibyte clob := l_twobyte_character||l_singlebyte_string_max_size; --here we have 32769(2+32767) bytes and 32768 chars
     l_expected ut3.ut_varchar2_list := ut3.ut_varchar2_list();
     l_result   ut3.ut_varchar2_list;

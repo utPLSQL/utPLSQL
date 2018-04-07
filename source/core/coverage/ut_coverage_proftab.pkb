@@ -101,7 +101,7 @@ create or replace package body ut_coverage_proftab is
     l_line_calls          ut_coverage_helper.t_unit_line_calls;
     l_result              ut_coverage.t_coverage;
     l_new_unit            ut_coverage.t_unit_coverage;
-    line_no               binary_integer;
+    l_line_no             binary_integer;
     l_source_objects_crsr ut_coverage_helper.t_tmp_table_objects_crsr;
     l_source_object       ut_coverage_helper.t_tmp_table_object;
   begin
@@ -140,28 +140,28 @@ create or replace package body ut_coverage_proftab is
           l_result.objects(l_source_object.full_name).total_lines := l_source_object.lines_count;
         end if;
         --map to results
-        line_no := l_line_calls.first;
-        if line_no is null then
+        l_line_no := l_line_calls.first;
+        if l_line_no is null then
           l_result.uncovered_lines := l_result.uncovered_lines + l_source_object.lines_count;
           l_result.objects(l_source_object.full_name).uncovered_lines := l_source_object.lines_count;
         else
           loop
-            exit when line_no is null;
+            exit when l_line_no is null;
 
-            if l_line_calls(line_no).calls > 0 then
+            if l_line_calls(l_line_no).calls > 0 then
               --total stats
               l_result.covered_lines := l_result.covered_lines + 1;
-              l_result.executions := l_result.executions + l_line_calls(line_no).calls;
+              l_result.executions := l_result.executions + l_line_calls(l_line_no).calls;
               --object level stats
               l_result.objects(l_source_object.full_name).covered_lines := l_result.objects(l_source_object.full_name).covered_lines + 1;
-              l_result.objects(l_source_object.full_name).executions := l_result.objects(l_source_object.full_name).executions + l_line_calls(line_no).calls;
-            elsif l_line_calls(line_no).calls = 0 then
+              l_result.objects(l_source_object.full_name).executions := l_result.objects(l_source_object.full_name).executions + l_line_calls(l_line_no).calls;
+            elsif l_line_calls(l_line_no).calls = 0 then
               l_result.uncovered_lines := l_result.uncovered_lines + 1;
               l_result.objects(l_source_object.full_name).uncovered_lines := l_result.objects(l_source_object.full_name).uncovered_lines + 1;
             end if;
-            l_result.objects(l_source_object.full_name).lines(line_no).executions := l_line_calls(line_no).calls;
+            l_result.objects(l_source_object.full_name).lines(l_line_no).executions := l_line_calls(l_line_no).calls;
 
-            line_no := l_line_calls.next(line_no);
+            l_line_no := l_line_calls.next(l_line_no);
           end loop;
         end if;
       end if;

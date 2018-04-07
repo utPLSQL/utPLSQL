@@ -54,11 +54,11 @@ create or replace package body ut_proftab_helper is
   end;
 
   function proftab_results(a_object_owner varchar2, a_object_name varchar2) return t_proftab_rows is
-   c_raw_coverage sys_refcursor;
+   l_raw_coverage sys_refcursor;
    l_coverage_rows t_proftab_rows;
-   l_coverage_id integer := ut_coverage_helper.get_coverage_id(ut_coverage.c_proftab_coverage);
+   l_coverage_id integer := ut_coverage_helper.get_coverage_id(ut_coverage.gc_proftab_coverage);
   begin
-     open c_raw_coverage for q'[select d.line#,
+     open l_raw_coverage for q'[select d.line#,
         case when sum(d.total_occur) = 0 and sum(d.total_time) > 0 then 1 else sum(d.total_occur) end total_occur
         from plsql_profiler_units u
         join plsql_profiler_data d
@@ -70,9 +70,9 @@ create or replace package body ut_proftab_helper is
          and u.unit_type not in ('PACKAGE SPEC', 'TYPE SPEC', 'ANONYMOUS BLOCK')
        group by d.line#]' using l_coverage_id,a_object_owner,a_object_name;
        
-      FETCH c_raw_coverage BULK COLLECT
+      FETCH l_raw_coverage BULK COLLECT
          INTO l_coverage_rows;
-      CLOSE c_raw_coverage;
+      CLOSE l_raw_coverage;
 
       RETURN l_coverage_rows; 
   end;

@@ -37,7 +37,7 @@ begin
     l_errors := l_errors + compare_element(i, l_expected, l_result);
   end loop;
   if l_errors = 0 then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   end if;
 end;
 /

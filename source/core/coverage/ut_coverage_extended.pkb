@@ -87,7 +87,7 @@ create or replace package body ut_coverage_extended is
     l_source_objects_crsr ut_coverage_helper.t_tmp_table_objects_crsr;
     l_source_object       ut_coverage_helper.t_tmp_table_object;
     l_new_unit            ut_coverage.t_unit_coverage;
-    line_no               binary_integer;
+    l_line_no             binary_integer;
   begin
     l_result_block := ut_coverage_block.get_coverage_data_block(a_coverage_options => a_coverage_options);
     l_result_profiler:= ut_coverage_proftab.get_coverage_data_profiler(a_coverage_options => a_coverage_options);
@@ -121,34 +121,34 @@ create or replace package body ut_coverage_extended is
           l_result.objects(l_source_object.full_name).partcovered_lines := l_result_block.objects(l_source_object.full_name).partcovered_lines;       
         end if;
         
-        line_no := coalesce(l_result_block.objects(l_source_object.full_name).lines.first,
+        l_line_no := coalesce(l_result_block.objects(l_source_object.full_name).lines.first,
                             l_result_profiler.objects(l_source_object.full_name).lines.first);
         
-        if line_no is null then
+        if l_line_no is null then
           l_result.uncovered_lines := l_result.uncovered_lines + l_source_object.lines_count;
           l_result.objects(l_source_object.full_name).uncovered_lines := l_source_object.lines_count;
         else
          loop
-            exit when line_no is null;           
+            exit when l_line_no is null;           
             -- object level stats
             
             -- Failing on non existing data for block objects.Check if exists and then use it
-            l_result.objects(l_source_object.full_name).lines(line_no).executions := greatest(l_result_block.objects(l_source_object.full_name).lines(line_no).executions,
-                                                                                              l_result_profiler.objects(l_source_object.full_name).lines(line_no).executions);
-            l_result.objects(l_source_object.full_name).lines(line_no).no_blocks := NVL(l_result_block.objects(l_source_object.full_name).lines(line_no).no_blocks,0);
-            l_result.objects(l_source_object.full_name).lines(line_no).covered_blocks := NVL(l_result_block.objects(l_source_object.full_name).lines(line_no).covered_blocks,0);
-            l_result.objects(l_source_object.full_name).lines(line_no).partcove := l_result_block.objects(l_source_object.full_name).lines(line_no).partcove;                 
+            l_result.objects(l_source_object.full_name).lines(l_line_no).executions := greatest(l_result_block.objects(l_source_object.full_name).lines(l_line_no).executions,
+                                                                                              l_result_profiler.objects(l_source_object.full_name).lines(l_line_no).executions);
+            l_result.objects(l_source_object.full_name).lines(l_line_no).no_blocks := NVL(l_result_block.objects(l_source_object.full_name).lines(l_line_no).no_blocks,0);
+            l_result.objects(l_source_object.full_name).lines(l_line_no).covered_blocks := NVL(l_result_block.objects(l_source_object.full_name).lines(l_line_no).covered_blocks,0);
+            l_result.objects(l_source_object.full_name).lines(l_line_no).partcove := l_result_block.objects(l_source_object.full_name).lines(l_line_no).partcove;                 
             -- total level stats
             
             -- Recalculate total lines
-            if l_result.objects(l_source_object.full_name).lines(line_no).executions > 0 then
+            if l_result.objects(l_source_object.full_name).lines(l_line_no).executions > 0 then
              -- total level stats
-             l_result.executions := l_result.executions + l_result.objects(l_source_object.full_name).lines(line_no).executions;
+             l_result.executions := l_result.executions + l_result.objects(l_source_object.full_name).lines(l_line_no).executions;
              l_result.covered_lines := l_result.covered_lines + 1;            
              -- object level stats
             l_result.objects(l_source_object.full_name).covered_lines := l_result.objects(l_source_object.full_name)
                                                                              .uncovered_lines + 1;
-            elsif l_result.objects(l_source_object.full_name).lines(line_no).executions = 0 then
+            elsif l_result.objects(l_source_object.full_name).lines(l_line_no).executions = 0 then
              -- total level stats
              l_result.uncovered_lines := l_result.uncovered_lines + 1;
              -- object level stats
@@ -156,8 +156,8 @@ create or replace package body ut_coverage_extended is
                                                                            .uncovered_lines + 1;
             end if;
             
-            line_no := coalesce(l_result_block.objects(l_source_object.full_name).lines.next(line_no),
-                            l_result_profiler.objects(l_source_object.full_name).lines.next(line_no));
+            l_line_no := coalesce(l_result_block.objects(l_source_object.full_name).lines.next(l_line_no),
+                            l_result_profiler.objects(l_source_object.full_name).lines.next(l_line_no));
                
          end loop;
        end if;

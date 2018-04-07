@@ -13,7 +13,7 @@ begin
   simple_test.do_execute(listener);
 --Assert
   if ut_example_tests.g_char = 'a' then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line('expected: ut_example_tests.g_char = ''a'', got: '||ut_example_tests.g_char );
   end if;

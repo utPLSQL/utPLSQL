@@ -17,8 +17,8 @@ begin
    into l_result
    from table(ut.run('empty_suite',utplsql_test_reporter()));
 --Assert
-  if l_result = ut_utils.tr_error then
-    :test_result := ut_utils.tr_success;
+  if l_result = ut_utils.gc_error then
+    :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line('expected failure of ''empty_suite'' got: '''||ut_utils.test_result_to_char(l_result)||'''' );
   end if;

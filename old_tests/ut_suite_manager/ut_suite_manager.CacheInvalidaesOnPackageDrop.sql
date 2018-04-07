@@ -35,10 +35,10 @@ begin
   exception
     when others then
       if sqlerrm like '%tst_package_to_be_dropped%not found%' then
-        :test_result := ut_utils.tr_success;
+        :test_result := ut_utils.gc_success;
       end if;
   end;
-  if :test_result != ut_utils.tr_success or :test_result is null then
+  if :test_result != ut_utils.gc_success or :test_result is null then
     dbms_output.put_line('Failed: Expected exception with text like ''%tst_package_to_be_dropped%not found%'' but got:''' ||
                          sqlerrm || '''');
   end if;

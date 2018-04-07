@@ -63,7 +63,7 @@ create or replace type body ut_test as
   begin
     a_listener.fire_before_event(ut_utils.gc_test,self);
     self.start_time := current_timestamp;
-    self.result := ut_utils.tr_disabled;
+    self.result := ut_utils.gc_disabled;
     ut_utils.debug_log('ut_test.execute - disabled');
     self.results_count.set_counter_values(self.result);
     self.end_time := self.start_time;
@@ -118,7 +118,7 @@ create or replace type body ut_test as
     if self.get_error_stack_traces().count = 0 then
       self.result := ut_expectation_processor.get_status();
     else
-      self.result := ut_utils.tr_error;
+      self.result := ut_utils.gc_error;
     end if;
     --expectation results need to be part of test results
     self.all_expectations    := ut_expectation_processor.get_all_expectations();

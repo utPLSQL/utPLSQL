@@ -32,8 +32,8 @@ begin
   ut.expect(l_test3.name).to_equal('disabled_test');
   ut.expect(l_test3.disabled_flag).to_equal(1);
 
-  if ut_expectation_processor.get_status = ut_utils.tr_success then
-    :test_result := ut_utils.tr_success;
+  if ut_expectation_processor.get_status = ut_utils.gc_success then
+    :test_result := ut_utils.gc_success;
   end if;
 
 end;

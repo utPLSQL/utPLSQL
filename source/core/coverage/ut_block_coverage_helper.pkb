@@ -41,12 +41,12 @@ create or replace package body ut_block_coverage_helper is
   end;
 
  function block_results(a_object_owner varchar2, a_object_name varchar2) return t_block_rows is
-   c_raw_coverage sys_refcursor;
+   l_raw_coverage sys_refcursor;
    l_coverage_rows t_block_rows;
-   l_coverage_id integer := ut_coverage_helper.get_coverage_id(ut_coverage.c_block_coverage);
+   l_coverage_id integer := ut_coverage_helper.get_coverage_id(ut_coverage.gc_block_coverage);
   begin
           
-     open c_raw_coverage for q'[select ccb.line
+     open l_raw_coverage for q'[select ccb.line
           ,count(ccb.block) totalblocks
           ,sum(ccb.covered) 
       from dbmspcc_units ccu
@@ -59,8 +59,8 @@ create or replace package body ut_block_coverage_helper is
      group by ccb.line
      order by 1]' using l_coverage_id,a_object_owner,a_object_name;
      
-     fetch c_raw_coverage bulk collect into l_coverage_rows;
-     close c_raw_coverage;
+     fetch l_raw_coverage bulk collect into l_coverage_rows;
+     close l_raw_coverage;
 
      return l_coverage_rows; 
   end;

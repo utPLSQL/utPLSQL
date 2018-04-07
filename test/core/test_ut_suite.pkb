@@ -24,7 +24,7 @@ create or replace package body test_ut_suite is
     l_suite.do_execute(l_listener);
     --Assert
     ut.expect(ut_example_tests.g_number).to_be_null;
-    ut.expect(l_suite.result).to_equal(ut3.ut_utils.tr_disabled);
+    ut.expect(l_suite.result).to_equal(ut3.ut_utils.gc_disabled);
     ut.expect(l_suite.results_count.disabled_count).to_equal(2);
     ut.expect(l_suite.results_count.warnings_count).to_equal(0);
     ut.expect(l_suite.results_count.success_count).to_equal(0);
@@ -49,7 +49,7 @@ create or replace package body test_ut_suite is
     l_suite.do_execute(l_listener);
     --Assert
     ut.expect(ut_example_tests.g_number).to_be_null;
-    ut.expect(l_suite.result).to_equal(ut3.ut_utils.tr_error);
+    ut.expect(l_suite.result).to_equal(ut3.ut_utils.gc_error);
     ut.expect(l_suite.results_count.disabled_count).to_equal(0);
     ut.expect(l_suite.results_count.warnings_count).to_equal(0);
     ut.expect(l_suite.results_count.success_count).to_equal(0);
@@ -74,7 +74,7 @@ create or replace package body test_ut_suite is
     l_suite.do_execute(l_listener);
     --Assert
     ut.expect(ut_example_tests.g_number).to_equal(1);
-    ut.expect(l_suite.result).to_equal(ut3.ut_utils.tr_success);
+    ut.expect(l_suite.result).to_equal(ut3.ut_utils.gc_success);
     ut.expect(l_suite.results_count.disabled_count).to_equal(0);
     ut.expect(l_suite.results_count.warnings_count).to_equal(1);
     ut.expect(l_suite.results_count.success_count).to_equal(2);
@@ -97,7 +97,7 @@ create or replace package body test_ut_suite is
     --Act
     l_suite.do_execute(l_listener);
     --Assert
-    ut.expect(l_suite.result).to_equal(ut3.ut_utils.tr_error);
+    ut.expect(l_suite.result).to_equal(ut3.ut_utils.gc_error);
   end;
 
   procedure package_with_invalid_body is
@@ -115,7 +115,7 @@ create or replace package body test_ut_suite is
     --Act
     l_suite.do_execute(l_listener);
     --Assert
-    ut.expect(l_suite.result).to_equal(ut3.ut_utils.tr_error);
+    ut.expect(l_suite.result).to_equal(ut3.ut_utils.gc_error);
   end;
 
   procedure test_rollback_type(a_procedure_name varchar2, a_rollback_type integer, a_expectation ut3_latest_release.ut_matcher) is

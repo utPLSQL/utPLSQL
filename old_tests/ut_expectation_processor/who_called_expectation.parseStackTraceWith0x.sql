@@ -22,7 +22,7 @@ l_stack_trace := q'[----- PL/SQL Call Stack -----
 ]';
   l_source_line := ut_expectation_processor.WHO_CALLED_EXPECTATION(l_stack_trace);
   if l_source_line like 'at "UT3.UT_EXAMPLETEST", line 20 %' then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   end if;
 end;
 /
