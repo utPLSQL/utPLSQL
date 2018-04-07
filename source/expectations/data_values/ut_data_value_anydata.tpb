@@ -37,8 +37,8 @@ create or replace type body ut_data_value_anydata as
       self.is_data_null := 1;
     end if;
     if not self.is_null() then
-      open l_query for select a_value val from dual;
       ut_expectation_processor.set_xml_nls_params();
+      open l_query for select a_value val from dual;
       l_ctx := sys.dbms_xmlgen.newcontext( l_query );
       dbms_xmlgen.setrowtag(l_ctx, '');
       dbms_xmlgen.setrowsettag(l_ctx, '');

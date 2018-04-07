@@ -5,14 +5,26 @@ create or replace package body test_suite_builder is
     a_package_name varchar2 := 'TEST_SUITE_BUILDER_PACKAGE'
   ) return clob is
     l_suites ut3.ut_suite_builder.tt_schema_suites;
+    l_suite  ut3.ut_logical_suite;
     l_cursor sys_refcursor;
+    l_xml    xmltype;
   begin
     open l_cursor for select value(x) from table(
                ut3.ut_annotated_objects(
                    ut3.ut_annotated_object('UT3_TESTER', a_package_name, 'PACKAGE', a_annotations)
                ) ) x;
     l_suites := ut3.ut_suite_builder.build_suites(l_cursor).schema_suites;
-    return xmltype(l_suites(l_suites.first)).getClobVal();
+    l_suite  := l_suites(l_suites.first);
+
+    select deletexml(
+             xmltype(l_suite),
+             '//RESULTS_COUNT|//START_TIME|//END_TIME|//RESULT|//ASSOCIATED_EVENT_NAME' ||
+             '|//TRANSACTION_INVALIDATORS|//ERROR_BACKTRACE|//ERROR_STACK|//SERVEROUTPUT'
+           )
+      into l_xml
+      from dual;
+
+    return l_xml.getClobVal();
   end;
 
   procedure no_suite_description is
@@ -363,19 +375,19 @@ create or replace package body test_suite_builder is
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
-    ut.expect(l_actual).match(
+    ut.expect(l_actual).to_be_like(
         '<UT_LOGICAL_SUITE><SELF_TYPE>UT_SUITE</SELF_TYPE><OBJECT_OWNER>UT3_TESTER</OBJECT_OWNER>' ||
         '<OBJECT_NAME>some_package</OBJECT_NAME><NAME>some_package</NAME><DESCRIPTION>Cool</DESCRIPTION>' ||
-        '.*<WARNINGS><VARCHAR2>Annotations: &quot;--%afterall&quot;, &quot;--%aftereach&quot;, &quot;--%beforeall&quot;, &quot;--%beforeeach&quot;' ||
+        '%<WARNINGS><VARCHAR2>Annotations: &quot;--\%afterall&quot;, &quot;--\%aftereach&quot;, &quot;--\%beforeall&quot;, &quot;--\%beforeeach&quot;' ||
         ' were ignored for procedure &quot;DO_STUFF&quot;.' ||
-        ' Those annotations cannot be used with annotation: &quot;--%test&quot;</VARCHAR2></WARNINGS>'||
-        '.*<UT_SUITE_ITEM>.*<OBJECT_NAME>some_package</OBJECT_NAME>.*<NAME>do_stuff</NAME>' ||
-        '(.*<BEFORE_EACH_LIST/>)?' ||
-        '(.*<AFTER_EACH_LIST/>)?' ||
-        '(.*<BEFORE_ALL_LIST/>)?' ||
-        '(.*<AFTER_ALL_LIST/>)?'
+        ' Those annotations cannot be used with annotation: &quot;--\%test&quot;</VARCHAR2></WARNINGS>'||
+        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>do_stuff</NAME>%</UT_LOGICAL_SUITE>'
         ,'\'
     );
+    ut.expect(l_actual).not_to_be_like('%<BEFORE_EACH_LIST>%');
+    ut.expect(l_actual).not_to_be_like('%<AFTER_EACH_LIST>%');
+    ut.expect(l_actual).not_to_be_like('%<BEFORE_ALL_LIST>%');
+    ut.expect(l_actual).not_to_be_like('%<AFTER_ALL_LIST>%');
   end;
 
   procedure suite_from_context is
@@ -421,6 +433,102 @@ create or replace package body test_suite_builder is
         '<AFTER_ALL_LIST/>' ||
       '</UT_LOGICAL_SUITE>'
     );
+  end;
+
+  procedure before_after_in_context is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(2, 'test','In suite', 'suite_level_test'),
+        ut3.ut_annotation(3, 'context','A context', null),
+        ut3.ut_annotation(4, 'beforeall',null, 'context_beforeall'),
+        ut3.ut_annotation(5, 'beforeeach',null, 'context_beforeeach'),
+        ut3.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
+        ut3.ut_annotation(7, 'aftereach',null, 'context_aftereach'),
+        ut3.ut_annotation(8, 'afterall',null, 'context_afterall'),
+        ut3.ut_annotation(9, 'endcontext',null, null)
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+      '<UT_LOGICAL_SUITE>' ||
+        '%<ITEMS>' ||
+          '%<UT_SUITE_ITEM>' ||
+            '%<NAME>context_1</NAME>' ||
+            '%<ITEMS>' ||
+              '%<UT_SUITE_ITEM>' ||
+                '%<NAME>test_in_a_context</NAME>' ||
+                '%<BEFORE_EACH_LIST>%<PROCEDURE_NAME>context_beforeeach</PROCEDURE_NAME>%</BEFORE_EACH_LIST>' ||
+                '%<ITEM>%<PROCEDURE_NAME>test_in_a_context</PROCEDURE_NAME>%</ITEM>' ||
+                '%<AFTER_EACH_LIST>%<PROCEDURE_NAME>context_aftereach</PROCEDURE_NAME>%</AFTER_EACH_LIST>' ||
+              '%</UT_SUITE_ITEM>' ||
+            '%</ITEMS>' ||
+            '%<BEFORE_ALL_LIST>%<PROCEDURE_NAME>context_beforeall</PROCEDURE_NAME>%</BEFORE_ALL_LIST>' ||
+            '%<AFTER_ALL_LIST>%<PROCEDURE_NAME>context_afterall</PROCEDURE_NAME>%</AFTER_ALL_LIST>' ||
+          '%</UT_SUITE_ITEM>' ||
+          '%<UT_SUITE_ITEM>' ||
+            '%<NAME>suite_level_test</NAME>' ||
+            '%<ITEM>%<PROCEDURE_NAME>suite_level_test</PROCEDURE_NAME>%</ITEM>' ||
+          '%</UT_SUITE_ITEM>' ||
+        '%</ITEMS>' ||
+      '%</UT_LOGICAL_SUITE>'
+    );
+    ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%</ITEMS>%<BEFORE_EACH_LIST>%</ITEMS>%');
+    ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%</ITEMS>%<AFTER_EACH_LIST>%</ITEMS>%');
+    ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%</ITEMS>%</ITEMS>%<BEFORE_ALL_LIST>%');
+    ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%</ITEMS>%</ITEMS>%<AFTER_ALL_LIST>%');
+  end;
+
+  procedure before_after_out_of_context is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
+        ut3.ut_annotation(3, 'beforeeach',null, 'suite_level_beforeeach'),
+        ut3.ut_annotation(4, 'test','In suite', 'suite_level_test'),
+        ut3.ut_annotation(5, 'context','A context', null),
+        ut3.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
+        ut3.ut_annotation(7, 'endcontext',null, null),
+        ut3.ut_annotation(8, 'aftereach',null, 'suite_level_aftereach'),
+        ut3.ut_annotation(9, 'afterall',null, 'suite_level_afterall')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+      '<UT_LOGICAL_SUITE>' ||
+        '%<ITEMS>' ||
+          '%<UT_SUITE_ITEM>' ||
+            '%<NAME>context_1</NAME>' ||
+            '%<ITEMS>' ||
+              '%<UT_SUITE_ITEM>' ||
+                '%<NAME>test_in_a_context</NAME>' ||
+                '%<ITEM>%<PROCEDURE_NAME>test_in_a_context</PROCEDURE_NAME>%</ITEM>' ||
+              '%</UT_SUITE_ITEM>' ||
+            '%</ITEMS>' ||
+          '%</UT_SUITE_ITEM>' ||
+          '%<UT_SUITE_ITEM>' ||
+            '%<NAME>suite_level_test</NAME>' ||
+            '%<BEFORE_EACH_LIST>%<PROCEDURE_NAME>suite_level_beforeeach</PROCEDURE_NAME>%</BEFORE_EACH_LIST>' ||
+            '%<ITEM>%<PROCEDURE_NAME>suite_level_test</PROCEDURE_NAME>%</ITEM>' ||
+            '%<AFTER_EACH_LIST>%<PROCEDURE_NAME>suite_level_aftereach</PROCEDURE_NAME>%</AFTER_EACH_LIST>' ||
+          '%</UT_SUITE_ITEM>' ||
+        '%</ITEMS>' ||
+        '%<BEFORE_ALL_LIST>%<PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>%</BEFORE_ALL_LIST>' ||
+        '%<AFTER_ALL_LIST>%<PROCEDURE_NAME>suite_level_afterall</PROCEDURE_NAME>%</AFTER_ALL_LIST>' ||
+      '%</UT_LOGICAL_SUITE>'
+    );
+    ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%<BEFORE_EACH_LIST>%</ITEMS>%</ITEMS>%');
+    ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%<AFTER_EACH_LIST>%</ITEMS>%</ITEMS>%');
+    ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%</ITEMS>%<BEFORE_ALL_LIST>%</ITEMS>%');
+    ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%</ITEMS>%<AFTER_ALL_LIST>%</ITEMS>%');
   end;
 
   procedure context_without_endcontext is

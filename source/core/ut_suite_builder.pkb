@@ -67,12 +67,12 @@ create or replace package body ut_suite_builder is
 
   function get_procedure_annotations(a_annotations ut_annotations, a_index binary_integer) return tt_procedure_annotations is
     l_result tt_procedure_annotations;
-    i        binary_integer := a_index;
+    l_index  binary_integer := a_index;
   begin
     loop
-      l_result(a_annotations(i).name)(i) := a_annotations(i).text;
-      exit when is_last_annotation_for_proc(a_annotations, i);
-      i := a_annotations.next(i);
+      l_result(a_annotations(l_index).name)(l_index) := a_annotations(l_index).text;
+      exit when is_last_annotation_for_proc(a_annotations, l_index);
+      l_index := a_annotations.next(l_index);
     end loop;
     return l_result;
   end;
@@ -102,14 +102,14 @@ create or replace package body ut_suite_builder is
 
   function build_annotation_index(a_annotations tt_package_annotations ) return tt_annotations_index is
     l_result tt_annotations_index;
-    i binary_integer;
+    l_idx binary_integer;
   begin
-    i := a_annotations.first;
-    while i is not null loop
-      if a_annotations(i).name is not null then
-        l_result(a_annotations(i).name)(i) := true;
+    l_idx := a_annotations.first;
+    while l_idx is not null loop
+      if a_annotations(l_idx).name is not null then
+        l_result(a_annotations(l_idx).name)(l_idx) := true;
       end if;
-      i := a_annotations.next(i);
+      l_idx := a_annotations.next(l_idx);
     end loop;
     return l_result;
   end;
@@ -119,15 +119,15 @@ create or replace package body ut_suite_builder is
     a_start_pos t_annotation_position,
     a_end_pos t_annotation_position
   ) is
-    i t_annotation_name;
+    l_idx t_annotation_name;
   begin
-    i :=  a_index.first;
-    while i is not null loop
-      a_index(i).delete(a_start_pos, a_end_pos);
-      if a_index(i).count = 0 then
-        a_index.delete(i);
+    l_idx :=  a_index.first;
+    while l_idx is not null loop
+      a_index( l_idx ).delete( a_start_pos, a_end_pos);
+      if a_index( l_idx ).count = 0 then
+        a_index.delete( l_idx );
       end if;
-      i := a_index.next(i);
+      l_idx := a_index.next( l_idx );
     end loop;
   end;
 
