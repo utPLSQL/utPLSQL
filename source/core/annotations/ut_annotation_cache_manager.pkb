@@ -104,23 +104,31 @@ create or replace package body ut_annotation_cache_manager as
   end;
 
   procedure purge_cache(a_object_owner varchar2, a_object_type varchar2) is
+    l_filter       varchar2(32767);
+    l_cache_filter varchar2(32767);
     pragma autonomous_transaction;
   begin
+    if a_object_owner is null and a_object_type is null then
+      l_cache_filter := ':a_object_owner is null and :a_object_type is null';
+      l_filter := l_cache_filter;
+    else
+      l_filter :=
+      case when a_object_owner is null then ':a_object_owner is null' else 'object_owner = :a_object_owner' end || '
+        and '||case when a_object_type is null then ':a_object_type is null' else 'object_type = :a_object_type' end;
+      l_cache_filter := ' c.cache_id
+           in (select i.cache_id
+                 from ut_annotation_cache_info i
+                where '|| l_filter || '
+              )';
+    end if;
     execute immediate '
       delete from ut_annotation_cache c
-       where c.cache_id
-          in (select i.cache_id
-                from ut_annotation_cache_info i
-               where 1 = 1
-                 and '||case when a_object_owner is null then ':a_object_owner is null' else 'object_owner = :a_object_owner' end || '
-                 and '||case when a_object_type is null then ':a_object_type is null' else 'object_type = :a_object_type' end || '
-             )'
+       where '||l_cache_filter
     using a_object_owner, a_object_type;
+
     execute immediate '
       delete from ut_annotation_cache_info i
-       where 1 = 1
-         and '||case when a_object_owner is null then ':a_object_owner is null' else 'object_owner = :a_object_owner' end || '
-         and '||case when a_object_type is null then ':a_object_type is null' else 'object_type = :a_object_type' end
+       where ' || l_filter
     using a_object_owner, a_object_type;
     commit;
   end;

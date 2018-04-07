@@ -74,10 +74,10 @@ create or replace package ut_runner authid current_user is
   /**
   * Removes cached information about annotations for objects of specified type and specified owner
   *
-  * @param a_object_owner owner of objects to purge annotations for
-  * @param a_object_type  optional type of objects to purge annotations for (defaults to 'PACKAGE')
+  * @param a_object_owner  optional - owner of objects to purge annotations for. If null (default) then all schemas are purged
+  * @param a_object_type   optional - type of objects to purge annotations for. If null (default) then cache for all object types is purged
   */
-  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2 := null);
+  procedure purge_cache(a_object_owner varchar2 := null, a_object_type varchar2 := null);
 
 
   type t_annotation_rec is record (
