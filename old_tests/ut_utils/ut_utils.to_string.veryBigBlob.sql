@@ -36,7 +36,7 @@ begin
   elsif l_result not like '%'||ut_utils.gc_more_data_string then
     dbms_output.put_line('expected: l_result to match %'''||ut_utils.gc_more_data_string||', got: '||substr(l_result,-10) );
   else
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   end if;
 end;
 /

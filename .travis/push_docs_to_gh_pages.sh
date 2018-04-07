@@ -53,12 +53,16 @@ if [[ "${TRAVIS_JOB_NUMBER}" =~ \.1$ ]]; then
     mkdir -p develop
     rm -rf develop/**./* || exit 0
     cp -a ../docs/. ./develop
-    # If a Tagged Build then copy to it's own directory as well.
+    # If a Tagged Build then copy to it's own directory as well and to the 'latest' release directory
     if [ -n "$TRAVIS_TAG" ]; then
      echo "Creating ${UTPLSQL_VERSION}"
      mkdir -p ${UTPLSQL_VERSION}
      rm -rf ${UTPLSQL_VERSION}/**./* || exit 0
      cp -a ../docs/. ${UTPLSQL_VERSION}
+     echo "Populating 'latest' directory"
+     mkdir -p latest
+     rm -rf latest/**./* || exit 0
+     cp -a ../docs/. latest
     fi
     # Stage changes for commit
     git add .
@@ -69,7 +73,6 @@ if [[ "${TRAVIS_JOB_NUMBER}" =~ \.1$ ]]; then
     fi
     #Changes where detected, so we need to update the version log.
     now=$(date +"%d %b %Y - %r")
-    export latest=" - [Latest development version](develop/) - Created $now"
     if [ ! -f index.md ]; then
       echo "---" >>index.md
       echo "layout: default" >>index.md
@@ -85,13 +88,12 @@ if [[ "${TRAVIS_JOB_NUMBER}" =~ \.1$ ]]; then
     fi
     #If build running on a TAG - it's a new release - need to add it to documentation
     if [ -n "${TRAVIS_TAG}" ]; then
-      latest_release=" [${TRAVIS_TAG} documentation](${UTPLSQL_VERSION}/) - Created $now"
-      sed -i '7s@.*@'" - Latest release: ${latest_release}"'@'  index.md
-      #add entry to the end of file - ## Released Version Doc History
-      echo "- ${latest_release}">>index.md
+      sed -i '7s@.*@'" - [Latest ${TRAVIS_TAG} documentation](latest/) - Created $now"'@' index.md
+      #add entry to the top of version history (line end of file - ## Released Version Doc History
+      sed -i '12i'" - [${TRAVIS_TAG} documentation](${UTPLSQL_VERSION}/) - Created $now" index.md
     fi
     #replace 4th line in log
-    sed -i '8s@.*@'"${latest}"'@'  index.md
+    sed -i '8s@.*@'" - [Latest development version](develop/) - Created $now"'@'  index.md
     #Add and Commit the changes back to pages repo.
     git add .
     git commit -m "Deploy to gh-pages branch: base commit ${SHA}"

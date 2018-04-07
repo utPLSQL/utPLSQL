@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.0.1688-develop';
+  gc_version                 constant varchar2(50) := 'v3.1.0.1729-develop';
 
   /* Constants: Event names */
   subtype t_event_name           is varchar2(30);
@@ -56,15 +56,15 @@ create or replace package ut_utils authid definer is
 
   /* Constants: Test Results */
   subtype t_test_result   is binary_integer range 0 .. 3;
-  tr_disabled                constant t_test_result := 0; -- test/suite was disabled
-  tr_success                 constant t_test_result := 1; -- test passed
-  tr_failure                 constant t_test_result := 2; -- one or more expectations failed
-  tr_error                   constant t_test_result := 3; -- exception was raised
+  gc_disabled                constant t_test_result := 0; -- test/suite was disabled
+  gc_success                 constant t_test_result := 1; -- test passed
+  gc_failure                 constant t_test_result := 2; -- one or more expectations failed
+  gc_error                   constant t_test_result := 3; -- exception was raised
 
-  tr_disabled_char           constant varchar2(8) := 'Disabled'; -- test/suite was disabled
-  tr_success_char            constant varchar2(7) := 'Success'; -- test passed
-  tr_failure_char            constant varchar2(7) := 'Failure'; -- one or more expectations failed
-  tr_error_char              constant varchar2(5) := 'Error'; -- exception was raised
+  gc_disabled_char           constant varchar2(8) := 'Disabled'; -- test/suite was disabled
+  gc_success_char            constant varchar2(7) := 'Success'; -- test passed
+  gc_failure_char            constant varchar2(7) := 'Failure'; -- one or more expectations failed
+  gc_error_char              constant varchar2(5) := 'Error'; -- exception was raised
 
   /*
     Constants: Rollback type for ut_test_object

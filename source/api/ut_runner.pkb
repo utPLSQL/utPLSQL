@@ -105,7 +105,7 @@ create or replace package body ut_runner is
         rollback;
         raise;
     end;
-    if a_fail_on_errors and l_run.result in (ut_utils.tr_failure, ut_utils.tr_error) then
+    if a_fail_on_errors and l_run.result in (ut_utils.gc_failure, ut_utils.gc_error) then
       raise_application_error(ut_utils.gc_some_tests_failed, 'Some tests failed');
     end if;
   end;
@@ -176,8 +176,6 @@ create or replace package body ut_runner is
       end loop;
       close l_cursor;
     end;
-
-
 
 end ut_runner;
 /

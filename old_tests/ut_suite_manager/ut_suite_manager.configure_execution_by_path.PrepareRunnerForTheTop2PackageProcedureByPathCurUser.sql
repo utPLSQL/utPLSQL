@@ -33,8 +33,8 @@ begin
   ut.expect(l_test_proc.before_test_list.count).to_equal(1);
   ut.expect(l_test_proc.after_test_list.count).to_equal(1);
 
-  if ut_expectation_processor.get_status = ut_utils.tr_success then
-    :test_result := ut_utils.tr_success;
+  if ut_expectation_processor.get_status = ut_utils.gc_success then
+    :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line(q'[ut.expect(l_objects_to_run.count).to_equal(1);=]'||l_objects_to_run.count);
     dbms_output.put_line(q'[ut.expect(l_test0_suite.name).to_equal('tests');=]'||l_test0_suite.name);

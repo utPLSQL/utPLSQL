@@ -12,8 +12,8 @@ begin
 --Act
   simple_test.do_execute();
 --Assert
-  if simple_test.result = ut_utils.tr_error and ut_example_tests.g_char2 is null then
-    :test_result := ut_utils.tr_success;
+  if simple_test.result = ut_utils.gc_error and ut_example_tests.g_char2 is null then
+    :test_result := ut_utils.gc_success;
   end if;
 end;
 /

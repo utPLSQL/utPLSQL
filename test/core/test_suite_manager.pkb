@@ -1021,7 +1021,7 @@ end;';
     ut.expect(l_test_report(l_test_report.count-1)).to_be_like('1 test_, 0 failed, 0 errored, 0 disabled, 0 warning(s)');
     --execute immediate 'select * from table(ut3.ut.run(''UT3.test_dependencies'', ut3.utplsql_test_reporter()))' into l_result;
 
---    ut.expect(l_result).to_equal(ut3.ut_utils.tr_success);
+--    ut.expect(l_result).to_equal(ut3.ut_utils.gc_success);
   end;
   procedure setup_inv_pck_bodies is
     pragma autonomous_transaction;

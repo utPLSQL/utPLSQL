@@ -13,8 +13,8 @@ begin
   --Assert
   ut.expect(l_result).to_equal(l_wait_seconds);
 
-  if ut_expectation_processor.get_status = ut_utils.tr_success then
-    :test_result := ut_utils.tr_success;
+  if ut_expectation_processor.get_status = ut_utils.gc_success then
+    :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line(ut_expectation_processor.get_failed_expectations()(1).get_result_clob);
   end if;

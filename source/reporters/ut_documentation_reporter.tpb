@@ -52,11 +52,11 @@ create or replace type body ut_documentation_reporter is
   begin
     l_message := coalesce(a_test.description, a_test.name)||' ['||round(a_test.execution_time,3)||' sec]';
     --if test failed, then add it to the failures list, print failure with number
-    if a_test.result = ut_utils.tr_disabled then
+    if a_test.result = ut_utils.gc_disabled then
       self.print_yellow_text(l_message || ' (DISABLED)');
-    elsif a_test.result = ut_utils.tr_success then
+    elsif a_test.result = ut_utils.gc_success then
       self.print_green_text(l_message);
-    elsif a_test.result > ut_utils.tr_success then
+    elsif a_test.result > ut_utils.gc_success then
       failed_test_running_count := failed_test_running_count + 1;
       self.print_red_text(l_message || ' (FAILED - ' || failed_test_running_count || ')');
     end if;
@@ -106,7 +106,7 @@ create or replace type body ut_documentation_reporter is
 
     procedure print_failures_for_test(a_test ut_test, a_failure_no in out nocopy integer) is
     begin
-      if a_test.result > ut_utils.tr_success then
+      if a_test.result > ut_utils.gc_success then
         a_failure_no := a_failure_no + 1;
         self.print_text(lpad(a_failure_no, length(failed_test_running_count) + 2, ' ') || ') ' ||
                         nvl(a_test.name, a_test.item.form_name));

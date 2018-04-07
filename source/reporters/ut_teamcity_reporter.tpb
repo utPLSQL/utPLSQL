@@ -63,13 +63,13 @@ create or replace type body ut_teamcity_reporter is
     l_test_full_name := lower(a_test.item.owner_name) || '.' || lower(a_test.item.object_name) || '.' ||
                         lower(a_test.item.procedure_name);
 
-    if a_test.result = ut_utils.tr_disabled then
+    if a_test.result = ut_utils.gc_disabled then
       self.print_text(ut_teamcity_reporter_helper.test_disabled(l_test_full_name));
     else
 
       self.print_clob(a_test.get_serveroutputs());
 
-      if a_test.result = ut_utils.tr_error then
+      if a_test.result = ut_utils.gc_error then
         for i in 1 .. a_test.before_each_list.count loop
           if a_test.before_each_list(i).error_backtrace is not null then
             l_std_err_msg := l_std_err_msg || 'Before each exception:' || chr(10) || a_test.before_each_list(i).error_backtrace || chr(10);
@@ -110,7 +110,7 @@ create or replace type body ut_teamcity_reporter is
         self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
                                                                ,a_msg       => a_test.failed_expectations(a_test.failed_expectations.first).description
                                                                ,a_details   => a_test.failed_expectations(a_test.failed_expectations.first).message ));
-      elsif a_test.result = ut_utils.tr_failure then
+      elsif a_test.result = ut_utils.gc_failure then
         self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
                                                                ,a_msg       => 'Test failed'));
       end if;

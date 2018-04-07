@@ -27,10 +27,10 @@ create or replace type body ut_results_counter as
 
   member procedure set_counter_values(self in out nocopy ut_results_counter, a_status integer) is
   begin
-    self.disabled_count := case when a_status = ut_utils.tr_disabled then 1 else 0 end;
-    self.success_count  := case when a_status = ut_utils.tr_success then 1 else 0 end;
-    self.failure_count  := case when a_status = ut_utils.tr_failure then 1 else 0 end;
-    self.errored_count  := case when a_status = ut_utils.tr_error then 1 else 0 end;
+    self.disabled_count := case when a_status = ut_utils.gc_disabled then 1 else 0 end;
+    self.success_count  := case when a_status = ut_utils.gc_success then 1 else 0 end;
+    self.failure_count  := case when a_status = ut_utils.gc_failure then 1 else 0 end;
+    self.errored_count  := case when a_status = ut_utils.gc_error then 1 else 0 end;
   end;
 
   member procedure sum_counter_values(self in out nocopy ut_results_counter, a_item ut_results_counter) is
@@ -57,15 +57,15 @@ create or replace type body ut_results_counter as
     l_result integer;
   begin
     if self.errored_count > 0 then
-      l_result := ut_utils.tr_error;
+      l_result := ut_utils.gc_error;
     elsif self.failure_count > 0 then
-      l_result := ut_utils.tr_failure;
+      l_result := ut_utils.gc_failure;
     elsif self.success_count > 0 then
-      l_result := ut_utils.tr_success;
+      l_result := ut_utils.gc_success;
     elsif self.disabled_count > 0 then
-      l_result := ut_utils.tr_disabled;
+      l_result := ut_utils.gc_disabled;
     else
-      l_result := ut_utils.tr_error;
+      l_result := ut_utils.gc_error;
     end if;
     return l_result;
   end;

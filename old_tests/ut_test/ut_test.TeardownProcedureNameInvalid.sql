@@ -12,8 +12,8 @@ begin
 --Act
   simple_test.do_execute();
 --Assert
-  if ut_example_tests.g_char = 'x' and simple_test.result = ut_utils.tr_error then
-    :test_result := ut_utils.tr_success;
+  if ut_example_tests.g_char = 'x' and simple_test.result = ut_utils.gc_error then
+    :test_result := ut_utils.gc_success;
   end if;
 end;
 /
