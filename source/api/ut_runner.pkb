@@ -20,14 +20,23 @@ create or replace package body ut_runner is
   /**
    * Private functions
    */
-  function to_ut_object_list(a_names ut_varchar2_list) return ut_object_names is
-    l_result ut_object_names;
+  function to_ut_object_list(a_names ut_varchar2_list, a_schema_names ut_varchar2_rows) return ut_object_names is
+    l_result      ut_object_names;
+    l_object_name ut_object_name;
   begin
-    if a_names is not null then
+    if a_names is not empty then
       l_result := ut_object_names();
       for i in 1 .. a_names.count loop
-        l_result.extend;
-        l_result(l_result.last) := ut_object_name(a_names(i));
+        l_object_name := ut_object_name(a_names(i));
+        if l_object_name.owner is null then
+          for i in 1 .. cardinality(a_schema_names) loop
+            l_result.extend;
+            l_result(l_result.last) := ut_object_name(a_schema_names(i)||'.'||l_object_name.name);
+          end loop;
+        else
+          l_result.extend;
+          l_result(l_result.last) := l_object_name;
+        end if;
       end loop;
     end if;
     return l_result;
@@ -71,6 +80,9 @@ create or replace package body ut_runner is
   ) is
     l_items_to_run ut_run;
     l_listener     ut_event_listener;
+    l_coverage_schema_names ut_varchar2_rows;
+    l_exclude_object_names  ut_object_names := ut_object_names();
+    l_include_object_names  ut_object_names;
   begin
     begin
       ut_expectation_processor.reset_invalidation_exception();
@@ -82,12 +94,27 @@ create or replace package body ut_runner is
       else
         l_listener := ut_event_listener(a_reporters);
       end if;
+
+      if a_coverage_schemes is not empty then
+        l_coverage_schema_names := ut_utils.convert_collection(a_coverage_schemes);
+      else
+        l_coverage_schema_names := ut_suite_manager.get_schema_names(a_paths);
+      end if;
+
+      if a_exclude_objects is not empty then
+        l_exclude_object_names := to_ut_object_list(a_exclude_objects, l_coverage_schema_names);
+      end if;
+
+      l_exclude_object_names := l_exclude_object_names multiset union all ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names);
+
+      l_include_object_names := to_ut_object_list(a_include_objects, l_coverage_schema_names);
+
       l_items_to_run := ut_run(
         ut_suite_manager.configure_execution_by_path(a_paths),
         a_paths,
-        ut_utils.convert_collection(a_coverage_schemes),
-        to_ut_object_list(a_exclude_objects),
-        to_ut_object_list(a_include_objects),
+        l_coverage_schema_names,
+        l_exclude_object_names,
+        l_include_object_names,
         set(a_source_file_mappings),
         set(a_test_file_mappings)
       );
@@ -172,6 +199,8 @@ create or replace package body ut_runner is
     end loop;
     close l_cursor;
   end;
+
+
 
 end ut_runner;
 /

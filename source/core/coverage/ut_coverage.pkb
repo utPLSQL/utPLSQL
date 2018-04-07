@@ -98,10 +98,8 @@ create or replace package body ut_coverage is
   function get_cov_sources_cursor(a_coverage_options ut_coverage_options) return sys_refcursor is
     l_cursor        sys_refcursor;
     l_skip_objects  ut_object_names;
-    l_schema_names  ut_varchar2_rows;
     l_sql           varchar2(32767);
   begin
-    l_schema_names := coalesce(a_coverage_options.schema_names, ut_varchar2_rows(sys_context('USERENV','CURRENT_SCHEMA')));
     if not ut_coverage_helper.is_develop_mode() then
       --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
       l_skip_objects := ut_utils.get_utplsql_objects_list() multiset union all coalesce(a_coverage_options.exclude_objects, ut_object_names());
@@ -112,7 +110,7 @@ create or replace package body ut_coverage is
     elsif a_coverage_options.include_objects is not empty then
       open l_cursor for l_sql using a_coverage_options.include_objects, l_skip_objects;
     else
-      open l_cursor for l_sql using l_schema_names, l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.schema_names, l_skip_objects;
     end if;
     return l_cursor;
   end;

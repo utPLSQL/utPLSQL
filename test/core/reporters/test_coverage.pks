@@ -13,6 +13,9 @@ create or replace package test_coverage is
   --%test(Coverage is gathered for specified object)
   procedure coverage_for_object;
 
+  --%test(Coverage is gathered for specified object in the schema defined by run path)
+  procedure coverage_for_object_no_owner;
+
   --%test(Coverage is gathered for specified schema)
   procedure coverage_for_schema;
 
