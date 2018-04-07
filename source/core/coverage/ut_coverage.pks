@@ -18,7 +18,8 @@ create or replace package ut_coverage authid current_user is
   
   c_proftab_coverage constant varchar2(32) := 'proftab';
   c_block_coverage   constant varchar2(32) := 'block';
- 
+  c_extended_coverage   constant varchar2(32) := 'extended';
+  
   -- total run coverage information
   subtype t_full_name is varchar2(4000);
   subtype t_object_name is varchar2(250);

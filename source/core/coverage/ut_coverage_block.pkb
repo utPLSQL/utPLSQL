@@ -105,7 +105,6 @@ create or replace package body ut_coverage_block is
     
       --get coverage data
       l_line_calls := ut_block_coverage_helper.get_raw_coverage_data_block(l_source_object.owner, l_source_object.name);
-    
       --if there is coverage, we need to filter out the garbage (badly indicated data)
       if l_line_calls.count > 0 then
         --remove lines that should not be indicted as meaningful
@@ -120,7 +119,7 @@ create or replace package body ut_coverage_block is
       if a_coverage_options.file_mappings is null or l_line_calls.count > 0 then
       
         --populate total stats
-        l_result.total_lines := l_result.total_lines + l_source_object.lines_count;
+        l_result.total_lines := nvl(l_result.total_lines,0) + l_source_object.lines_count;
       
         --populate object level coverage stats
         if not l_result.objects.exists(l_source_object.full_name) then

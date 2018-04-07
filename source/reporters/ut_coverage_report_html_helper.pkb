@@ -105,13 +105,15 @@ create or replace package body ut_coverage_report_html_helper is
     return clob is
     l_result        clob;
     l_coverage_type varchar2(32) := coalesce(a_coverage_type, ut_coverage.c_proftab_coverage);
-  begin
+  begin   
     if l_coverage_type = ut_coverage.c_block_coverage then
       $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-        l_result := ut_block_report_html_helper.get_index(a_coverage_data => a_coverage_data, a_assets_path => a_assets_path,a_project_name=>a_project_name,a_command_line=> a_command_line);
+      l_result := ut_block_report_html_helper.get_index(a_coverage_data => a_coverage_data, a_assets_path => a_assets_path,a_project_name=>a_project_name,a_command_line=> a_command_line);
       $else
        l_result := null;
       $end     
+    elsif l_coverage_type = ut_coverage.c_extended_coverage then
+      l_result := ut_extended_report_html_helper.get_index(a_coverage_data => a_coverage_data, a_assets_path => a_assets_path,a_project_name=>a_project_name,a_command_line=> a_command_line);
     else
       l_result := ut_proftab_report_html_helper.get_index(a_coverage_data => a_coverage_data, a_assets_path => a_assets_path,a_project_name=>a_project_name,a_command_line=> a_command_line);
     end if;

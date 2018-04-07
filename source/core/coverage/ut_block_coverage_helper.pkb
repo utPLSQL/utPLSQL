@@ -43,8 +43,9 @@ create or replace package body ut_block_coverage_helper is
  function block_results(a_object_owner varchar2, a_object_name varchar2) return t_block_rows is
    c_raw_coverage sys_refcursor;
    l_coverage_rows t_block_rows;
-   l_coverage_id integer := ut_coverage_helper.get_coverage_id;
+   l_coverage_id integer := ut_coverage_helper.get_coverage_id(ut_coverage.c_block_coverage);
   begin
+          
      open c_raw_coverage for q'[select ccb.line
           ,count(ccb.block) totalblocks
           ,sum(ccb.covered) 
@@ -57,10 +58,10 @@ create or replace package body ut_block_coverage_helper is
        and ccu.name = :a_object_name
      group by ccb.line
      order by 1]' using l_coverage_id,a_object_owner,a_object_name;
-       
+     
      fetch c_raw_coverage bulk collect into l_coverage_rows;
      close c_raw_coverage;
-      
+
      return l_coverage_rows; 
   end;
 
@@ -70,6 +71,7 @@ create or replace package body ut_block_coverage_helper is
   
   begin
     l_tmp_data := block_results(a_object_owner => a_object_owner, a_object_name => a_object_name);
+    
     for i in 1 .. l_tmp_data.count loop
       l_results(l_tmp_data(i).line).blocks := l_tmp_data(i).blocks;
       l_results(l_tmp_data(i).line).covered_blocks := l_tmp_data(i).covered_blocks;

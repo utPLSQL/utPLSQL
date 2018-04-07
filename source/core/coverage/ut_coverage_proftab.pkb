@@ -131,8 +131,7 @@ create or replace package body ut_coverage_proftab is
       if a_coverage_options.file_mappings is null or l_line_calls.count > 0 then
 
         --populate total stats
-        l_result.total_lines := l_result.total_lines + l_source_object.lines_count;
-
+        l_result.total_lines := nvl(l_result.total_lines,0) + l_source_object.lines_count;
         --populate object level coverage stats
         if not l_result.objects.exists(l_source_object.full_name) then
           l_result.objects(l_source_object.full_name) := l_new_unit;

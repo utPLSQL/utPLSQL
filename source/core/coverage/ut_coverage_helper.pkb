@@ -55,9 +55,9 @@ create or replace package body ut_coverage_helper is
     return g_coverage_type;
   end;
   
-  function get_coverage_id return integer is
+  function get_coverage_id(a_coverage_type in varchar2) return integer is
   begin
-   return g_coverage_id;
+   return g_coverage_id(a_coverage_type);
   end;
 
   function is_develop_mode return boolean is
@@ -70,12 +70,20 @@ create or replace package body ut_coverage_helper is
     set_coverage_type(a_coverage_type);
     if get_coverage_type = ut_coverage.c_block_coverage then
       $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-       ut_block_coverage_helper.coverage_start(a_run_comment => a_run_comment ,a_coverage_id => g_coverage_id );
+       ut_block_coverage_helper.coverage_start(a_run_comment => a_run_comment ,a_coverage_id => g_coverage_id(ut_coverage.c_block_coverage) );
+      $else
+       raise_application_error(ut_utils.gc_invalid_coverage_type,'Invalid coverage type requested. Please validate your Oracle install');
+      $end
+    elsif get_coverage_type = ut_coverage.c_extended_coverage then
+      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+       ut_block_coverage_helper.coverage_start(a_run_comment => a_run_comment ,a_coverage_id => g_coverage_id(ut_coverage.c_block_coverage) );
+       ut_proftab_helper.coverage_start(a_run_comment => a_run_comment, a_coverage_id => g_coverage_id(ut_coverage.c_proftab_coverage));
+       coverage_pause();
       $else
        raise_application_error(ut_utils.gc_invalid_coverage_type,'Invalid coverage type requested. Please validate your Oracle install');
       $end
     else
-       ut_proftab_helper.coverage_start(a_run_comment => a_run_comment, a_coverage_id => g_coverage_id);
+       ut_proftab_helper.coverage_start(a_run_comment => a_run_comment, a_coverage_id => g_coverage_id(ut_coverage.c_proftab_coverage));
        coverage_pause();
     end if;
     g_is_started := true;
@@ -127,6 +135,13 @@ create or replace package body ut_coverage_helper is
         $else
          null;
         $end
+      elsif get_coverage_type = ut_coverage.c_extended_coverage then
+        $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+         ut_proftab_helper.coverage_stop();
+         ut_block_coverage_helper.coverage_stop();        
+        $else
+         null;
+        $end
       else
          ut_proftab_helper.coverage_stop();
       end if;
@@ -143,6 +158,13 @@ create or replace package body ut_coverage_helper is
         $else
          null;
         $end
+    elsif get_coverage_type = ut_coverage.c_extended_coverage then
+        $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+         ut_proftab_helper.coverage_stop();
+         ut_block_coverage_helper.coverage_stop();        
+        $else
+         null;
+        $end
     else
        ut_proftab_helper.coverage_stop();
    end if;
@@ -152,7 +174,7 @@ create or replace package body ut_coverage_helper is
   begin
     g_develop_mode := true;
     g_is_started := true;
-    g_coverage_id := a_coverage_id;
+    g_coverage_id(g_coverage_type) := a_coverage_id;
   end;
 
   procedure insert_into_tmp_table(a_data t_coverage_sources_tmp_rows) is
