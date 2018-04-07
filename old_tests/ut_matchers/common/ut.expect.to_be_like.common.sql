@@ -9,7 +9,7 @@ begin
   l_result := ut_expectation_processor.get_status();
 --Assert
   if l_result = &5 then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line('expected: '''||l_actual||''', to be like '''||l_pattern||''' escape'''||l_escape_char||'''' );
   end if;

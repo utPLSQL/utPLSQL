@@ -51,10 +51,10 @@ begin
 
   l_results := ut_expectation_processor.get_failed_expectations();
 
-  :test_result := ut_utils.tr_success;
+  :test_result := ut_utils.gc_success;
   for i in 1 .. l_results.count loop
     :test_result := greatest(:test_result, l_results(i).status);
-     if l_results(i).status != ut_utils.tr_success then
+     if l_results(i).status != ut_utils.gc_success then
       dbms_output.put_line(l_results(i).get_result_clob);
      end if;
   end loop;

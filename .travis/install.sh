@@ -21,7 +21,6 @@ grant create any procedure, drop any procedure, execute any procedure to $UT3_OW
 
 conn $UT3_OWNER/$UT3_OWNER_PASSWORD@//$CONNECTION_STR
 @../development/utplsql_style_check.sql
-exit
 SQL
 
 #Create additional users
