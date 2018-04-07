@@ -104,24 +104,24 @@ create or replace package body ut_coverage_extended is
       if l_result_block.total_lines > 0 or l_result_profiler.total_lines > 0 then
         --update total stats
         l_result.total_lines := nvl(l_result.total_lines,0) + l_source_object.lines_count;
-        l_result.total_blocks := l_result_block.total_blocks;
-        l_result.uncovered_blocks := l_result_block.uncovered_blocks;
-        l_result.covered_blocks := l_result_block.covered_blocks;
-        l_result.partcovered_lines := l_result_block.partcovered_lines;
+        l_result.total_blocks := nvl(l_result_block.total_blocks,0);
+        l_result.uncovered_blocks := nvl(l_result_block.uncovered_blocks,0);
+        l_result.covered_blocks := nvl(l_result_block.covered_blocks,0);
+        l_result.partcovered_lines := nvl(l_result_block.partcovered_lines,0);
         
         --populate object level coverage stats
         if not l_result.objects.exists(l_source_object.full_name) then
           l_result.objects(l_source_object.full_name) := l_new_unit;
           l_result.objects(l_source_object.full_name).owner := l_source_object.owner;
-          l_result.objects(l_source_object.full_name).name := l_source_object.name;
+          l_result.objects(l_source_object.full_name).name := l_source_object.name;          
           l_result.objects(l_source_object.full_name).total_lines := l_source_object.lines_count;
-          l_result.objects(l_source_object.full_name).total_blocks := l_result_block.objects(l_source_object.full_name).total_blocks;
-          l_result.objects(l_source_object.full_name).uncovered_blocks := l_result_block.objects(l_source_object.full_name).uncovered_blocks;
-          l_result.objects(l_source_object.full_name).covered_blocks := l_result_block.objects(l_source_object.full_name).covered_blocks;
-          l_result.objects(l_source_object.full_name).partcovered_lines := l_result_block.objects(l_source_object.full_name).partcovered_lines;       
+          l_result.objects(l_source_object.full_name).total_blocks := nvl(l_result_block.objects(l_source_object.full_name).total_blocks,0);
+          l_result.objects(l_source_object.full_name).uncovered_blocks := nvl(l_result_block.objects(l_source_object.full_name).uncovered_blocks,0);
+          l_result.objects(l_source_object.full_name).covered_blocks := nvl(l_result_block.objects(l_source_object.full_name).covered_blocks,0);
+          l_result.objects(l_source_object.full_name).partcovered_lines := nvl(l_result_block.objects(l_source_object.full_name).partcovered_lines,0);       
         end if;
         
-        l_line_no := coalesce(l_result_block.objects(l_source_object.full_name).lines.first,
+        l_line_no := least(l_result_block.objects(l_source_object.full_name).lines.first,
                             l_result_profiler.objects(l_source_object.full_name).lines.first);
         
         if l_line_no is null then
@@ -130,15 +130,27 @@ create or replace package body ut_coverage_extended is
         else
          loop
             exit when l_line_no is null;           
-            -- object level stats
-            
-            -- Failing on non existing data for block objects.Check if exists and then use it
-            l_result.objects(l_source_object.full_name).lines(l_line_no).executions := greatest(l_result_block.objects(l_source_object.full_name).lines(l_line_no).executions,
-                                                                                              l_result_profiler.objects(l_source_object.full_name).lines(l_line_no).executions);
-            l_result.objects(l_source_object.full_name).lines(l_line_no).no_blocks := NVL(l_result_block.objects(l_source_object.full_name).lines(l_line_no).no_blocks,0);
-            l_result.objects(l_source_object.full_name).lines(l_line_no).covered_blocks := NVL(l_result_block.objects(l_source_object.full_name).lines(l_line_no).covered_blocks,0);
-            l_result.objects(l_source_object.full_name).lines(l_line_no).partcove := l_result_block.objects(l_source_object.full_name).lines(l_line_no).partcove;                 
-            -- total level stats
+              
+            -- Set executions to zero at beginning, specific coverage will overwrite if exists.
+            l_result.objects(l_source_object.full_name).lines(l_line_no).executions := 0;
+            l_result.objects(l_source_object.full_name).lines(l_line_no).no_blocks := 0;
+            l_result.objects(l_source_object.full_name).lines(l_line_no).covered_blocks := 0;
+            l_result.objects(l_source_object.full_name).lines(l_line_no).partcove := 0;
+             
+            -- we need to check if given index exists for that coverage type or we get no data found
+            if l_result_block.objects(l_source_object.full_name).lines.exists(l_line_no) then
+             l_result.objects(l_source_object.full_name).lines(l_line_no).no_blocks := NVL(l_result_block.objects(l_source_object.full_name).lines(l_line_no).no_blocks,0);
+             l_result.objects(l_source_object.full_name).lines(l_line_no).covered_blocks := NVL(l_result_block.objects(l_source_object.full_name).lines(l_line_no).covered_blocks,0);
+             l_result.objects(l_source_object.full_name).lines(l_line_no).partcove := NVL(l_result_block.objects(l_source_object.full_name).lines(l_line_no).partcove,0);
+             --We capture block executions here, since block coverage do not capture more than 1
+             --if profiler executions exists we will use that number as profiler shows hits correctly
+             
+             l_result.objects(l_source_object.full_name).lines(l_line_no).executions := l_result_block.objects(l_source_object.full_name).lines(l_line_no).executions;
+            end if;
+           
+            if l_result_profiler.objects(l_source_object.full_name).lines.exists(l_line_no) then
+             l_result.objects(l_source_object.full_name).lines(l_line_no).executions := l_result_profiler.objects(l_source_object.full_name).lines(l_line_no).executions; 
+            end if;
             
             -- Recalculate total lines
             if l_result.objects(l_source_object.full_name).lines(l_line_no).executions > 0 then
@@ -146,8 +158,8 @@ create or replace package body ut_coverage_extended is
              l_result.executions := l_result.executions + l_result.objects(l_source_object.full_name).lines(l_line_no).executions;
              l_result.covered_lines := l_result.covered_lines + 1;            
              -- object level stats
-            l_result.objects(l_source_object.full_name).covered_lines := l_result.objects(l_source_object.full_name)
-                                                                             .uncovered_lines + 1;
+             l_result.objects(l_source_object.full_name).covered_lines := l_result.objects(l_source_object.full_name)
+                                                                             .covered_lines + 1;
             elsif l_result.objects(l_source_object.full_name).lines(l_line_no).executions = 0 then
              -- total level stats
              l_result.uncovered_lines := l_result.uncovered_lines + 1;
@@ -156,7 +168,7 @@ create or replace package body ut_coverage_extended is
                                                                            .uncovered_lines + 1;
             end if;
             
-            l_line_no := coalesce(l_result_block.objects(l_source_object.full_name).lines.next(l_line_no),
+            l_line_no := least(l_result_block.objects(l_source_object.full_name).lines.next(l_line_no),
                             l_result_profiler.objects(l_source_object.full_name).lines.next(l_line_no));
                
          end loop;

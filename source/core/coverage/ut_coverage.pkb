@@ -102,7 +102,6 @@ create or replace package body ut_coverage is
   end;
 
   function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
-    l_line_no              binary_integer;
   begin
     
     if a_coverage_options.coverage_type = gc_block_coverage then
