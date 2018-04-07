@@ -10,7 +10,7 @@ BEGIN
    l_clob := ut3.ut_utils.table_to_clob(l_results);
 
    IF l_clob LIKE l_expected THEN
-      :test_result := ut3.ut_utils.tr_success;
+      :test_result := ut3.ut_utils.gc_success;
    ELSE
       dbms_output.put_line('Failed to match to default schema');
    END IF;

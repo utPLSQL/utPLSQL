@@ -1,9 +1,11 @@
 alter session set plscope_settings= 'identifiers:all';
 set linesize 300
+set pagesize 10000
 
 --install or comple all code here
 exec dbms_utility.compile_schema(USER,compile_all => TRUE,reuse_settings => FALSE);
-
+set echo off
+set feedback off
 
 var errcnt number
 
@@ -11,8 +13,15 @@ column errcnt_a noprint new_value errcnt_a
 column errcnt_l noprint new_value errcnt_l
 column errcnt_c noprint new_value errcnt_c
 
---find parameters that donot begin with A_
-prompt parameters should start with A_
+column NAME        FORMAT A30
+column TYPE        FORMAT A18
+column OBJECT_NAME FORMAT A30
+column OBJECT_TYPE FORMAT A18
+column USAGE       FORMAT A16
+column LINE        FORMAT 99999
+column COL         FORMAT 9999
+
+PROMPT parameters that are not prefixed with "a_"
 select name, type, object_name, object_type, usage, line, col, count(*) over() errcnt_a
   from user_identifiers
  where type like 'FORMAL%' and usage = 'DECLARATION'
@@ -21,8 +30,9 @@ select name, type, object_name, object_type, usage, line, col, count(*) over() e
  order by object_name, object_type, line, col
 ;
 
-prompt variables should start with L_
---variables start with l_ or g_
+PROMPT
+PROMPT
+PROMPT variables that are not prefixed with "l_"
 select i.name, i.type, i.object_name, i.object_type, i.usage, i.line, i.col, count(*) over() errcnt_l
   from user_identifiers i
   join user_identifiers p
@@ -33,11 +43,13 @@ select i.name, i.type, i.object_name, i.object_type, i.usage, i.line, i.col, cou
    and (i.name not like 'L#_%' escape '#' and p.type in ('PROCEDURE','FUNCTION','ITERATOR')
        or i.name not like 'G#_%' escape '#' and p.type not in ('PROCEDURE','FUNCTION','ITERATOR'))
    and p.type != 'RECORD'
- order by object_name, object_type, line, col;
+ order by object_name, object_type, line, col
 ;
 
---constants start with c_ or gc_
-prompt constants should start with C_
+PROMPT
+PROMPT
+PROMPT constants that are not prefixed with with "c_"
+PROMPT global constants that are not prefixed with "gc_"
 select i.name, i.type, i.object_name, i.object_type, i.usage, i.line, i.col, count(*) over() errcnt_c
   from user_identifiers i
   join user_identifiers p
@@ -53,4 +65,4 @@ select i.name, i.type, i.object_name, i.object_type, i.usage, i.line, i.col, cou
 exec  :errcnt := nvl('&errcnt_a',0) + nvl('&errcnt_l',0) + nvl('&errcnt_c',0);
 
 --quit :errcnt
--- exit success
+exit :errcnt

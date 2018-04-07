@@ -68,7 +68,7 @@ create or replace package body ut_coverage_helper is
   procedure coverage_start_internal(a_run_comment varchar2,a_coverage_type in varchar2)  is
   begin
     set_coverage_type(a_coverage_type);
-    if get_coverage_type = ut_coverage.c_block_coverage then
+    if get_coverage_type = ut_coverage.gc_block_coverage then
       $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
        ut_block_coverage_helper.coverage_start(a_run_comment => a_run_comment ,a_coverage_id => g_coverage_id );
       $else
@@ -100,7 +100,7 @@ create or replace package body ut_coverage_helper is
   procedure coverage_pause is
   begin
     if not g_develop_mode then
-      if get_coverage_type = ut_coverage.c_block_coverage then
+      if get_coverage_type = ut_coverage.gc_block_coverage then
          null;
       else
          ut_proftab_helper.coverage_pause();
@@ -110,7 +110,7 @@ create or replace package body ut_coverage_helper is
 
   procedure coverage_resume is
   begin
-    if get_coverage_type = ut_coverage.c_block_coverage then
+    if get_coverage_type = ut_coverage.gc_block_coverage then
        null;
     else
        ut_proftab_helper.coverage_resume();
@@ -121,7 +121,7 @@ create or replace package body ut_coverage_helper is
   begin
     if not g_develop_mode then
       g_is_started := false;
-      if get_coverage_type = ut_coverage.c_block_coverage then
+      if get_coverage_type = ut_coverage.gc_block_coverage then
         $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
          ut_block_coverage_helper.coverage_stop();
         $else
@@ -137,7 +137,7 @@ create or replace package body ut_coverage_helper is
   begin
     g_develop_mode := false;
     g_is_started := false;
-    if get_coverage_type = ut_coverage.c_block_coverage then
+    if get_coverage_type = ut_coverage.gc_block_coverage then
         $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
          ut_block_coverage_helper.coverage_stop();
         $else

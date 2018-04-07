@@ -70,13 +70,13 @@ create or replace package body ut_coverage is
   * Public functions
   */
   procedure coverage_start(a_coverage_options ut_coverage_options default null) is
-    l_coverage_type varchar2(10) := coalesce(a_coverage_options.coverage_type, c_proftab_coverage);
+    l_coverage_type varchar2(10) := coalesce(a_coverage_options.coverage_type, gc_proftab_coverage);
   begin
     ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp),l_coverage_type);
   end;
 
   procedure coverage_start_develop(a_coverage_options ut_coverage_options default null) is
-    l_coverage_type varchar2(10) := coalesce(a_coverage_options.coverage_type, c_proftab_coverage);
+    l_coverage_type varchar2(10) := coalesce(a_coverage_options.coverage_type, gc_proftab_coverage);
   begin
     ut_coverage_helper.coverage_start_develop(l_coverage_type);
   end;
@@ -104,7 +104,7 @@ create or replace package body ut_coverage is
   function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
   begin
     
-    if a_coverage_options.coverage_type = c_block_coverage then
+    if a_coverage_options.coverage_type = gc_block_coverage then
       $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
        return ut_coverage_block.get_coverage_data_block(a_coverage_options => a_coverage_options);
       $else

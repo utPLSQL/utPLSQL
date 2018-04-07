@@ -90,7 +90,7 @@ create or replace package body ut_coverage_block is
     l_line_calls          ut_coverage_helper.t_unit_line_calls;
     l_result              ut_coverage.t_coverage;
     l_new_unit            ut_coverage.t_unit_coverage;
-    line_no               binary_integer;
+    l_line_no               binary_integer;
     l_source_objects_crsr ut_coverage_helper.t_tmp_table_objects_crsr;
     l_source_object       ut_coverage_helper.t_tmp_table_object;
   begin
@@ -130,55 +130,55 @@ create or replace package body ut_coverage_block is
           l_result.objects(l_source_object.full_name).total_lines := l_source_object.lines_count;
         end if;
         --map to results
-        line_no := l_line_calls.first;
-        if line_no is null then
+        l_line_no := l_line_calls.first;
+        if l_line_no is null then
           l_result.uncovered_lines := l_result.uncovered_lines + l_source_object.lines_count;
           l_result.objects(l_source_object.full_name).uncovered_lines := l_source_object.lines_count;
         else
           loop
-            exit when line_no is null;
+            exit when l_line_no is null;
           
             --turn the block coverage into a line coverage format to allow for reading.
             --whenever the linst is a part covered treat that line as a hit and execution but only part covered
           
             --total stats        
             --Get total blocks ,blocks covered, blocks not covered this will be used for PCT calc
-            l_result.total_blocks     := nvl(l_result.total_blocks, 0) + l_line_calls(line_no).blocks;
-            l_result.covered_blocks   := nvl(l_result.covered_blocks, 0) + l_line_calls(line_no).covered_blocks;
+            l_result.total_blocks     := nvl(l_result.total_blocks, 0) + l_line_calls(l_line_no).blocks;
+            l_result.covered_blocks   := nvl(l_result.covered_blocks, 0) + l_line_calls(l_line_no).covered_blocks;
             l_result.uncovered_blocks := nvl(l_result.uncovered_blocks, 0) +
-                                         (l_line_calls(line_no).blocks - l_line_calls(line_no).covered_blocks);
+                                         (l_line_calls(l_line_no).blocks - l_line_calls(l_line_no).covered_blocks);
           
             --If line is partially covered add as part line cover and covered for line reporter
-            if l_line_calls(line_no).partcovered = 1 then
+            if l_line_calls(l_line_no).partcovered = 1 then
               l_result.partcovered_lines := l_result.partcovered_lines + 1;
             end if;
           
-            if l_line_calls(line_no).covered_blocks > 0 then
+            if l_line_calls(l_line_no).covered_blocks > 0 then
               l_result.covered_lines := l_result.covered_lines + 1;
             end if;
           
             -- Use nvl as be default is null and screw the calcs
             --Increase total blocks
-            l_result.objects(l_source_object.full_name).lines(line_no).no_blocks := l_line_calls(line_no).blocks;
-            l_result.objects(l_source_object.full_name).lines(line_no).covered_blocks := l_line_calls(line_no).covered_blocks;
+            l_result.objects(l_source_object.full_name).lines(l_line_no).no_blocks := l_line_calls(l_line_no).blocks;
+            l_result.objects(l_source_object.full_name).lines(l_line_no).covered_blocks := l_line_calls(l_line_no).covered_blocks;
             l_result.objects(l_source_object.full_name).total_blocks := nvl(l_result.objects(l_source_object.full_name)
                                                                             .total_blocks
-                                                                           ,0) + l_line_calls(line_no).blocks;
+                                                                           ,0) + l_line_calls(l_line_no).blocks;
           
             --Total uncovered blocks is a line blocks minus covered blocsk
             l_result.objects(l_source_object.full_name).uncovered_blocks := nvl(l_result.objects(l_source_object.full_name)
                                                                                 .uncovered_blocks
                                                                                ,0) +
-                                                                            (l_line_calls(line_no).blocks - l_line_calls(line_no)
+                                                                            (l_line_calls(l_line_no).blocks - l_line_calls(l_line_no)
                                                                              .covered_blocks);
           
             --If we have any covered blocks in line
-            if l_line_calls(line_no).covered_blocks > 0 then            
+            if l_line_calls(l_line_no).covered_blocks > 0 then            
               --If any block is covered then we have a hit on that line
               l_result.executions := l_result.executions + 1;
               --object level stats
               --If its part covered then mark it else treat as full cov
-              if l_line_calls(line_no).partcovered = 1 then
+              if l_line_calls(l_line_no).partcovered = 1 then
                 l_result.objects(l_source_object.full_name).partcovered_lines := l_result.objects(l_source_object.full_name)
                                                                                  .partcovered_lines + 1;
               end if;
@@ -188,7 +188,7 @@ create or replace package body ut_coverage_block is
               --How many blocks we covered
               l_result.objects(l_source_object.full_name).covered_blocks := nvl(l_result.objects(l_source_object.full_name)
                                                                                 .covered_blocks
-                                                                               ,0) + l_line_calls(line_no)
+                                                                               ,0) + l_line_calls(l_line_no)
                                                                            .covered_blocks;
             
               --Object line executions
@@ -196,19 +196,19 @@ create or replace package body ut_coverage_block is
                                                                             .executions
                                                                            ,0) + 1;
             
-              l_result.objects(l_source_object.full_name).lines(line_no).executions := 1;
+              l_result.objects(l_source_object.full_name).lines(l_line_no).executions := 1;
             
               --Whenever there is no covered block treat as uncovered (query returns only lines where the blocks are in code so we
               --dont have a false results here when there is no blocks
-            elsif l_line_calls(line_no).covered_blocks = 0 then
+            elsif l_line_calls(l_line_no).covered_blocks = 0 then
               l_result.uncovered_lines := l_result.uncovered_lines + 1;
               l_result.objects(l_source_object.full_name).uncovered_lines := l_result.objects(l_source_object.full_name)
                                                                              .uncovered_lines + 1;
-              l_result.objects(l_source_object.full_name).lines(line_no).executions := 0;
+              l_result.objects(l_source_object.full_name).lines(l_line_no).executions := 0;
             end if;
             --increase part covered counter (+ 1/0)
-            l_result.objects(l_source_object.full_name).lines(line_no).partcove := l_line_calls(line_no).partcovered;
-            line_no := l_line_calls.next(line_no);
+            l_result.objects(l_source_object.full_name).lines(l_line_no).partcove := l_line_calls(l_line_no).partcovered;
+            l_line_no := l_line_calls.next(l_line_no);
           end loop;
         end if;
       end if;

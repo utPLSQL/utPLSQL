@@ -28,7 +28,7 @@ cba24bfd0        75  SCH_TEST.UT_LOGICAL_SUITE
 ]';
   l_source_line := ut_expectation_processor.WHO_CALLED_EXPECTATION(l_stack_trace);
   if l_source_line like 'at "SCH_TEST.TPKG_PRIOR_YEAR_GENERATION", line 28 %' then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   end if;
 end;
 /

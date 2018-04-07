@@ -16,8 +16,8 @@ create or replace package ut_coverage authid current_user is
   limitations under the License.
   */
   
-  c_proftab_coverage constant varchar2(32) := 'proftab';
-  c_block_coverage   constant varchar2(32) := 'block';
+  gc_proftab_coverage constant varchar2(32) := 'proftab';
+  gc_block_coverage   constant varchar2(32) := 'block';
  
   -- total run coverage information
   subtype t_full_name is varchar2(4000);

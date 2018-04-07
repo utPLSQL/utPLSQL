@@ -28,6 +28,8 @@ alter session set current_schema = &&ut3_owner;
 set echo on
 drop synonym be_between;
 
+drop synonym have_count;
+
 drop synonym match;
 
 drop synonym be_false;
@@ -193,6 +195,8 @@ drop type ut_documentation_reporter force;
 drop type ut_teamcity_reporter force;
 
 drop type ut_xunit_reporter force;
+
+drop type ut_tfs_junit_reporter force;
 
 drop type ut_event_listener force;
 

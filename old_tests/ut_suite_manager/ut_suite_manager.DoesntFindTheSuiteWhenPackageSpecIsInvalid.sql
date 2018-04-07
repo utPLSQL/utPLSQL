@@ -28,11 +28,11 @@ begin
   exception
     when others then
       if sqlerrm like '%failing_invalid_spec%' then
-        :test_result := ut_utils.tr_success;
+        :test_result := ut_utils.gc_success;
       end if;
   end;
 
-  if :test_result != ut_utils.tr_success or :test_result is null then
+  if :test_result != ut_utils.gc_success or :test_result is null then
     dbms_output.put_line('Failed: Expected exception with text like ''%failing_invalid_spec%'' but got:'''||sqlerrm||'''');
   end if;
 end;

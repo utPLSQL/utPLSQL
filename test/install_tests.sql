@@ -42,6 +42,7 @@ set define off
 @@core/reporters/test_coverage/test_cov_cobertura_reporter.pks
 @@core/reporters/test_coverage/test_html_proftab_reporter.pks
 @@core/reporters/test_xunit_reporter.pks
+@@core/reporters/test_tfs_junit_reporter.pks
 @@core/expectations.pks
 @@core/expectations/scalar_data/binary/test_be_greater_or_equal.pks
 @@core/expectations/scalar_data/binary/test_be_greater_than.pks
@@ -82,6 +83,7 @@ set define on
 @@install_above_12_1.sql 'core/reporters/test_coverage/test_cov_cobertura_rptr_blk.pkb'
 set define off
 @@core/reporters/test_xunit_reporter.pkb
+@@core/reporters/test_tfs_junit_reporter.pkb
 @@core/expectations.pkb
 @@core/expectations/scalar_data/binary/test_be_greater_or_equal.pkb
 @@core/expectations/scalar_data/binary/test_be_greater_than.pkb
