@@ -63,6 +63,8 @@ create or replace package ut_coverage authid current_user is
     ,executions        number(38, 0) := 0
     ,objects           tt_program_units);
   
+  function get_cov_sources_sql(a_coverage_options ut_coverage_options, a_skipped_lines varchar2 default 'Y') return varchar2;
+  
   procedure populate_tmp_table(a_coverage_options ut_coverage_options, a_sql in varchar2);
   
   procedure coverage_start(a_coverage_options ut_coverage_options default null);

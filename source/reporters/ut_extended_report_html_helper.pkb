@@ -20,7 +20,7 @@ create or replace package body ut_extended_report_html_helper is
     return clob is
     l_source_code   ut_varchar2_list;
     l_result        clob;
-  
+
     function build_details_file_content(a_object_id varchar2, a_object_full_name varchar2, a_source_code ut_varchar2_list, a_coverage_unit ut_coverage.t_unit_coverage)
       return clob is
       l_file_part     varchar2(32767);
@@ -30,24 +30,19 @@ create or replace package body ut_extended_report_html_helper is
       l_hits varchar2(30);
     begin
       dbms_lob.createtemporary(l_result, true);
-      l_coverage_block_pct := ut_coverage_report_html_helper.coverage_pct(a_coverage_unit.covered_blocks, a_coverage_unit.uncovered_blocks);    
-      l_coverage_pct := ut_coverage_report_html_helper.coverage_pct(a_coverage_unit.covered_lines, a_coverage_unit.uncovered_lines);
-   
-      l_file_part := '<div class="source_table" id="' || a_object_id || '"><div class="header"> <h3>' ||
+
+     l_coverage_pct := ut_coverage_report_html_helper.coverage_pct(a_coverage_unit.covered_lines, a_coverage_unit.uncovered_lines);
+
+     l_file_part := '<div class="source_table" id="' || a_object_id || '"><div class="header"> <h3>' ||
                      dbms_xmlgen.convert(a_object_full_name) || '</h3>' || '<h4><span class="' ||
                      ut_coverage_report_html_helper.coverage_css_class(l_coverage_pct) || '">' || l_coverage_pct || ' %</span> lines covered</h4>' ||
                      '<div> <b>' ||(a_coverage_unit.covered_lines + a_coverage_unit.uncovered_lines)
                         || '</b> relevant lines. ' || '<span class="green"><b>' || a_coverage_unit.covered_lines ||
-                     '</b> lines covered</span> ' || 
+                     '</b> lines covered</span> '|| 
                       '(including <span class="yellow"><b>' || a_coverage_unit.partcovered_lines ||
                       '</b> lines partially covered</span> '
                      || ') and <span class="red"><b>' || a_coverage_unit.uncovered_lines ||
-                     '</b> lines missed</span>'||'<h4><span class="' ||
-                     ut_coverage_report_html_helper.coverage_css_class(l_coverage_block_pct) || '">' || l_coverage_block_pct || ' %</span> blocks covered</h4>'||
-                     '<div><b>'|| TO_CHAR(a_coverage_unit.covered_blocks + a_coverage_unit.uncovered_blocks)||'</b> blocks in total.'||
-                     '<span class="green"><b>'||a_coverage_unit.covered_blocks||'</b> blocks covered</span> and '||
-                     '<span class="red"><b>' || a_coverage_unit.uncovered_blocks || '</b> blocks missed.</div>'
-                     ||'</div></div><pre><ol>';
+                     '</b> lines missed</span>'||'</div></div><pre><ol>';
       ut_utils.append_to_clob(l_result, l_file_part);
     
       for line_no in 1 .. a_source_code.count loop
@@ -57,8 +52,7 @@ create or replace package body ut_extended_report_html_helper is
             <code class="sql">' || (dbms_xmlgen.convert(a_source_code(line_no))) ||
                          '</code></li>';
         else
-           l_hits := to_char(a_coverage_unit.lines(line_no).covered_blocks) || chr(47)||
-                     to_char(a_coverage_unit.lines(line_no).no_blocks);
+           l_hits := to_char(a_coverage_unit.lines(line_no).executions);
                          
           l_file_part := '
             <li class="' || ut_coverage_report_html_helper.line_status(a_coverage_unit.lines(line_no)) || '" data-hits="' ||
@@ -101,7 +95,6 @@ create or replace package body ut_extended_report_html_helper is
     l_unit_coverage ut_coverage.t_unit_coverage;
     l_unit          ut_coverage.t_object_name;
   begin
-    l_coverage_block_pct := ut_coverage_report_html_helper.coverage_pct(a_coverage.covered_blocks, a_coverage.uncovered_blocks);   
     l_coverage_pct := ut_coverage_report_html_helper.coverage_pct(a_coverage.covered_lines, a_coverage.uncovered_lines);
 
     dbms_lob.createtemporary(l_result, true);
@@ -109,41 +102,36 @@ create or replace package body ut_extended_report_html_helper is
     l_file_part := '<div class="file_list_container" id="' || l_id || '">' || '<h2><span class="group_name">' || l_title ||
                    '</span>' || ' (<span class="covered_percent"><span class="' || ut_coverage_report_html_helper.coverage_css_class(l_coverage_pct) || '">' ||
                    l_coverage_pct || '%</span></span>' || ' lines covered'||
-                    ', <span class="covered_percent"><span class="' || ut_coverage_report_html_helper.coverage_css_class(l_coverage_block_pct) || '">' ||
-                   l_coverage_block_pct || '%</span></span>' || ' executed blocks covered)'
-                  ||'</h2>' || '<a name="' || l_id || '"></a>' || '<div><b>' ||
+                   ' at <span class="covered_strength">' ||
+                   '<span class="' ||ut_coverage_report_html_helper.line_hits_css_class(ut_coverage_report_html_helper.executions_per_line(a_coverage.executions
+                                                             ,a_coverage.uncovered_lines + a_coverage.covered_lines)) || '">' ||
+                      ut_coverage_report_html_helper.executions_per_line(a_coverage.executions, a_coverage.uncovered_lines + a_coverage.covered_lines)
+                     || '</span></span> hits/line)</h2>' || '<a name="' || l_id || '"></a>' || '<div><b>' ||
                       a_coverage.objects.count || '</b> files in total. </div><div>' || '<b>' || 
                       (a_coverage.uncovered_lines + a_coverage.covered_lines)
                    || '</b> relevant lines. ' || '<span class="green"><b>' || a_coverage.covered_lines ||
-                   '</b> lines covered</span>' ||
+                   '</b> lines covered</span>'||
                    ' (inlcluding <span class="yellow"><b>' || a_coverage.partcovered_lines ||
-                   '</b> lines partially covered</span>' || ') and <span class="red"><b>' || a_coverage.uncovered_lines || '</b> lines missed.</span>'||            
-                   '<div><b>'|| TO_CHAR(a_coverage.covered_blocks + a_coverage.uncovered_blocks)||'</b> exectuted blocks in total. '||
-                   '<span class="green"><b>'||a_coverage.covered_blocks||'</b> blocks covered</span> and '||
-                   '<span class="red"><b>' || a_coverage.uncovered_blocks || '</b> blocks missed.</div>'
-                   ||'<table class="file_list"><thead>' || '<tr>' ||
+                   '</b> lines partially covered</span>' || ') and <span class="red"><b>' || a_coverage.uncovered_lines || '</b> lines missed.</span>'||
+                   '<table class="file_list"><thead>' || '<tr>' ||
                    '<th>File</th><th>% covered</th><th>Lines</th><th>Relevant Lines</th><th>Lines covered</th><th>Lines missed</th><th>'
-                   ||'% blocks covered' ||'</th>' ||
+                   ||'Avg. Hits / Line </th>' ||
                    '</tr></thead><tbody>';
     ut_utils.append_to_clob(l_result, l_file_part);
     l_unit := a_coverage.objects.first;
     loop
       exit when l_unit is null;
       l_unit_coverage := a_coverage.objects(l_unit);
-      l_coverage_block_pct := ut_coverage_report_html_helper.coverage_pct(l_unit_coverage.covered_blocks, l_unit_coverage.uncovered_blocks);      
       l_coverage_pct := ut_coverage_report_html_helper.coverage_pct(l_unit_coverage.covered_lines, l_unit_coverage.uncovered_lines);
-      
-    
-      --l_coverage_pct  := coverage_pct(l_unit_coverage.covered_lines, l_unit_coverage.uncovered_lines);
-    
-      l_file_part := chr(10) || '<tr>' || '<td class="strong">' || ut_coverage_report_html_helper.link_to_source_file(dbms_xmlgen.convert(l_unit)) ||
+
+     l_file_part := chr(10) || '<tr>' || '<td class="strong">' || ut_coverage_report_html_helper.link_to_source_file(dbms_xmlgen.convert(l_unit)) ||
                      '</td>' || '<td class="' || ut_coverage_report_html_helper.coverage_css_class(l_coverage_pct) || ' strong">' || l_coverage_pct ||
-                     ' %</td>' || '<td>' || l_unit_coverage.total_lines || '</td>' || '<td>' ||
-                       (l_unit_coverage.covered_lines + l_unit_coverage.partcovered_lines + l_unit_coverage.uncovered_lines) ||
-                       '</td>' || '<td>' || l_unit_coverage.covered_lines || ' (' || l_unit_coverage.partcovered_lines || ')' ||
-                       '</td>' || '<td>' || l_unit_coverage.uncovered_lines || '</td>' || 
-                       '<td class="' || ut_coverage_report_html_helper.coverage_css_class(l_coverage_block_pct) || ' strong">' ||to_char(l_coverage_block_pct)||'%'
-                      || '</td></tr>';
+                     ' %</td>' || '<td>' || l_unit_coverage.total_lines || '</td>' || '<td>' || 
+                       (l_unit_coverage.covered_lines + l_unit_coverage.uncovered_lines) || '</td>' || '<td>' ||
+                       l_unit_coverage.covered_lines || '</td><td>' || l_unit_coverage.uncovered_lines || '</td>' || 
+                       '<td>' || to_char(ut_coverage_report_html_helper.executions_per_line(l_unit_coverage.executions
+                                        ,l_unit_coverage.uncovered_lines + l_unit_coverage.covered_lines))
+                       || '</td></tr>';
       ut_utils.append_to_clob(l_result, l_file_part);
       l_unit := a_coverage.objects.next(l_unit);
     end loop;
@@ -166,7 +154,8 @@ create or replace package body ut_extended_report_html_helper is
     l_using         varchar2(1000);
     l_unit          ut_coverage.t_full_name;
   begin
-    l_coverage_pct := ut_coverage_report_html_helper.coverage_pct(a_coverage_data.covered_blocks, a_coverage_data.uncovered_blocks);
+      l_coverage_pct := ut_coverage_report_html_helper.coverage_pct(a_coverage_data.covered_lines, a_coverage_data.uncovered_lines);
+
     l_time_str := ut_utils.to_string(sysdate);
     l_using := case
                  when a_command_line is not null then

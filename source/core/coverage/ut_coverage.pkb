@@ -19,6 +19,78 @@ create or replace package body ut_coverage is
   
   type t_source_lines is table of binary_integer;
 
+  function get_cov_sources_sql(a_coverage_options ut_coverage_options, a_skipped_lines varchar2 default 'Y') return varchar2 is
+    l_result varchar2(32767);
+    l_full_name varchar2(100);
+    l_view_name      varchar2(200) := ut_metadata.get_dba_view('dba_source');
+  begin
+    if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
+      l_full_name := 'f.file_name';
+    else
+      l_full_name := 'lower(s.owner||''.''||s.name)';
+    end if;
+    l_result := '
+      select full_name, owner, name, line, to_be_skipped, text
+        from (
+          select '||l_full_name||q'[ as full_name,
+                 s.owner,
+                 s.name,
+                 s.line -
+                 coalesce(
+                   case when type!='TRIGGER' then 0 end,
+                   (select min(t.line) - 1
+                      from ]'||l_view_name||q'[ t
+                     where t.owner = s.owner and t.type = s.type and t.name = s.name
+                       and regexp_like( t.text, '[A-Za-z0-9$#_]*(begin|declare|compound).*','i'))
+                 ) as line,
+                 s.text, ]';
+     if a_skipped_lines = 'Y' then
+      l_result := l_result ||
+                 q'[case
+                   when
+                     -- to avoid execution of regexp_like on every line
+                     -- first do a rough check for existence of search pattern keyword
+                     (lower(s.text) like '%procedure%'
+                      or lower(s.text) like '%function%'
+                      or lower(s.text) like '%begin%'
+                      or lower(s.text) like '%end%'
+                      or lower(s.text) like '%package%'
+                     ) and
+                     regexp_like(
+                        s.text,
+                        '^([\t ]*(((not)?\s*(overriding|final|instantiable)[\t ]*)*(static|constructor|member)?[\t ]*(procedure|function)|package([\t ]+body)|begin|end([\t ]+\S+)*[ \t]*;))', 'i'
+                     )
+                    then 'Y'
+                 end as to_be_skipped ]';
+    else
+      l_result := l_result || q'['N' as to_be_skipped ]';
+    end if;
+                 
+    l_result := l_result ||' from '||l_view_name||q'[ s]';
+            
+    if a_coverage_options.file_mappings is not empty then
+      l_result := l_result || '
+            join table(:file_mappings) f
+              on s.name  = f.object_name
+             and s.type  = f.object_type
+             and s.owner = f.object_owner
+           where 1 = 1';
+    elsif a_coverage_options.include_objects is not empty then
+      l_result := l_result || '
+           where (s.owner, s.name) in (select il.owner, il.name from table(:include_objects) il)';
+    else
+      l_result := l_result || '
+           where s.owner in (select upper(t.column_value) from table(:l_schema_names) t)';
+    end if;
+    l_result := l_result || q'[
+             and s.type not in ('PACKAGE', 'TYPE', 'JAVA SOURCE')
+             --Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
+             and (s.owner, s.name) not in (select el.owner, el.name from table(:l_skipped_objects) el)
+             )
+       where line > 0]';
+    return l_result;
+  end;
+
   function get_cov_sources_cursor(a_coverage_options in ut_coverage_options,a_sql in varchar2) return sys_refcursor is
     l_cursor        sys_refcursor;
     l_skip_objects  ut_object_names;

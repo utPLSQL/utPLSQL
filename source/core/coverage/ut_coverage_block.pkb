@@ -19,69 +19,6 @@ create or replace package body ut_coverage_block is
   
   type t_source_lines is table of binary_integer;
 
-  -- The source query has two important transformations done in it.
-  -- the flag: to_be_skipped ='Y' is set for a line of code that is badly reported by DBMS_PROFILER as executed 0 times.
-  -- This includes lines that are:
-  --   - PACKAGE, PROCEDURE, FUNCTION definition line,
-  --   - BEGIN, END  of a block
-  -- Another transformation is adjustment of line number for TRIGGER body.
-  -- DBMS_PROFILER is reporting line numbers for triggers not as defined in DBA_SOURCE, its usign line numbers as defined in DBA_TRIGGERS
-  -- the DBA_TRIGGERS does not contain the trigger specification lines, only lines that define the trigger body.
-  -- the query adjusts the line numbers for triggers by finding first occurrence of begin|declare|compound in the trigger body line.
-  -- The subquery is optimized by:
-  -- - COALESCE function -> it will execute only for TRIGGERS
-  -- - scalar subquery cache -> it will only execute once for one trigger source code.
-  function get_cov_sources_sql(a_coverage_options ut_coverage_options) return varchar2 is
-    l_result varchar2(32767);
-    l_full_name varchar2(100);
-    l_view_name      varchar2(200) := ut_metadata.get_dba_view('dba_source');
-  begin
-    if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
-      l_full_name := 'f.file_name';
-    else
-      l_full_name := 'lower(s.owner||''.''||s.name)';
-    end if;
-    l_result := '
-      select full_name, owner, name, line, to_be_skipped, text
-        from (
-          select '||l_full_name||q'[ as full_name,
-                 s.owner,
-                 s.name,
-                 s.line -
-                 coalesce(
-                   case when type!='TRIGGER' then 0 end,
-                   (select min(t.line) - 1
-                      from ]'||l_view_name||q'[ t
-                     where t.owner = s.owner and t.type = s.type and t.name = s.name
-                       and regexp_like( t.text, '[A-Za-z0-9$#_]*(begin|declare|compound).*','i'))
-                 ) as line,
-                 s.text, 'N' as to_be_skipped
-            from ]'||l_view_name||q'[ s]';
-            
-    if a_coverage_options.file_mappings is not empty then
-      l_result := l_result || '
-            join table(:file_mappings) f
-              on s.name  = f.object_name
-             and s.type  = f.object_type
-             and s.owner = f.object_owner
-           where 1 = 1';
-    elsif a_coverage_options.include_objects is not empty then
-      l_result := l_result || '
-           where (s.owner, s.name) in (select il.owner, il.name from table(:include_objects) il)';
-    else
-      l_result := l_result || '
-           where s.owner in (select upper(t.column_value) from table(:l_schema_names) t)';
-    end if;
-    l_result := l_result || q'[
-             and s.type not in ('PACKAGE', 'TYPE', 'JAVA SOURCE')
-             --Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
-             and (s.owner, s.name) not in (select el.owner, el.name from table(:l_skipped_objects) el)
-             )
-       where line > 0]';
-    return l_result;
-  end;
-
-
   /**
   * Public functions
   */
@@ -95,7 +32,7 @@ create or replace package body ut_coverage_block is
     l_source_object       ut_coverage_helper.t_tmp_table_object;
   begin
     --prepare global temp table with sources
-    ut_coverage.populate_tmp_table(a_coverage_options,get_cov_sources_sql(a_coverage_options));
+    ut_coverage.populate_tmp_table(a_coverage_options,ut_coverage.get_cov_sources_sql(a_coverage_options,'N'));
     
     l_source_objects_crsr := ut_coverage_helper.get_tmp_table_objects_cursor();
     loop
