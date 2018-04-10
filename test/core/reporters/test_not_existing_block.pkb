@@ -136,6 +136,7 @@ create or replace package body test_not_existing_block is
         ut3.ut.run(
           a_path => 'ut3.test_dummy_coverage',
           a_reporter=> ut3.ut_coverage_sonar_reporter( ),
+          a_coverage_type => 'block',
           a_include_objects => ut3.ut_varchar2_list( 'ut3.dummy_coverage' )
         )
       );
