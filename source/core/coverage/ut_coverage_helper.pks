@@ -18,7 +18,6 @@ create or replace package ut_coverage_helper authid definer is
 
   type g_coverage_arr is table of integer index by varchar2(30);
   g_coverage_id g_coverage_arr;
-  --g_coverage_id  integer;
   g_coverage_type varchar2(32);
   
   function get_coverage_type return varchar2;
@@ -86,6 +85,8 @@ create or replace package ut_coverage_helper authid definer is
   * Used internally, only for unit testing of the framework only
   */
   procedure mock_coverage_id(a_coverage_id integer);
+  
+  procedure mock_coverage_id(a_coverage_id g_coverage_arr);
 
   procedure insert_into_tmp_table(a_data t_coverage_sources_tmp_rows);
 

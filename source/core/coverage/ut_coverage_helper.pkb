@@ -177,6 +177,13 @@ create or replace package body ut_coverage_helper is
     g_coverage_id(g_coverage_type) := a_coverage_id;
   end;
 
+  procedure mock_coverage_id(a_coverage_id g_coverage_arr) is
+  begin
+    g_develop_mode := true;
+    g_is_started := true;
+    g_coverage_id := a_coverage_id;
+  end;
+  
   procedure insert_into_tmp_table(a_data t_coverage_sources_tmp_rows) is
   begin
     forall i in 1 .. a_data.count

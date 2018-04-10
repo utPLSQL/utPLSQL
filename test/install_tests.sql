@@ -36,6 +36,8 @@ set define on
 @@install_above_12_1.sql 'core/reporters/test_coverage/test_coveralls_reporter_block.pks'
 @@install_above_12_1.sql 'core/reporters/test_coverage/test_coverage_sonar_rprt_blk.pks'
 @@install_above_12_1.sql 'core/reporters/test_coverage/test_cov_cobertura_rptr_blk.pks'
+@@install_above_12_1.sql 'core/reporters/test_extended_coverage.pks'
+@@install_above_12_1.sql 'core/reporters/test_coverage/test_html_extended_reporter.pks'
 set define off
 @@core/reporters/test_coverage/test_coverage_sonar_reporter.pks
 @@core/reporters/test_coverage/test_coveralls_reporter.pks
@@ -81,6 +83,8 @@ set define on
 @@install_above_12_1.sql 'core/reporters/test_coverage/test_coveralls_reporter_block.pkb'
 @@install_above_12_1.sql 'core/reporters/test_coverage/test_coverage_sonar_rprt_blk.pkb'
 @@install_above_12_1.sql 'core/reporters/test_coverage/test_cov_cobertura_rptr_blk.pkb'
+@@install_above_12_1.sql 'core/reporters/test_extended_coverage.pkb'
+@@install_above_12_1.sql 'core/reporters/test_coverage/test_html_extended_reporter.pkb'
 set define off
 @@core/reporters/test_xunit_reporter.pkb
 @@core/reporters/test_tfs_junit_reporter.pkb
