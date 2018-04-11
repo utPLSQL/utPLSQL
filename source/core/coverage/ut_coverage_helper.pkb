@@ -170,11 +170,11 @@ create or replace package body ut_coverage_helper is
    end if;
   end;
 
- procedure mock_coverage_id(a_coverage_id integer) is
+ procedure mock_coverage_id(a_coverage_id integer,a_coverage_type in varchar2) is
   begin
     g_develop_mode := true;
     g_is_started := true;
-    g_coverage_id(g_coverage_type) := a_coverage_id;
+    g_coverage_id(a_coverage_type) := a_coverage_id;
   end;
 
   procedure mock_coverage_id(a_coverage_id g_coverage_arr) is

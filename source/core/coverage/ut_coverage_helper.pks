@@ -85,7 +85,7 @@ create or replace package ut_coverage_helper authid definer is
   * Allows overwriting of private global variable g_coverage_id
   * Used internally, only for unit testing of the framework only
   */
-  procedure mock_coverage_id(a_coverage_id integer);
+  procedure mock_coverage_id(a_coverage_id integer,a_coverage_type in varchar2);
   
   procedure mock_coverage_id(a_coverage_id g_coverage_arr);
 
