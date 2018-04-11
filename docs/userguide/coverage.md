@@ -67,6 +67,26 @@ end;
 
 In this mode html reporter will show additionally number of lines that been partially covered and highlight them in orange. Number of blocks in code, blocks covered and missed.
 
+#### Oracle 12.2 extended coverage with profiler and block coverage
+Using data collected from profiler and block coverage running parallel we are able to enrich information about coverage.
+For every line recorded by profiler if we have a partially covered same line in block coverage we will display that information
+presenting line as partially covered and displaying number of block and how many blocks been covered in that line.
+
+Example:
+```sql
+begin
+  ut.run(ut_coverage_html_reporter(),a_coverage_type => 'extended');
+end;
+/
+```
+
+Sample output:
+![Package Coverage Summary](../images/extended_coverage_html_summary.png)
+
+![Line Coverage Details](../images/extended_coverage_html_line.png)
+
+
+
 ### Coverage reporting options
 
 There are two distinct ways to gather code coverage:

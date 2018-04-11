@@ -28,6 +28,7 @@ create or replace package body ut_extended_report_html_helper is
       l_coverage_pct  number(5, 2);
       l_coverage_block_pct  number(5, 2);
       l_hits varchar2(30);
+      l_blocks varchar2(30);
     begin
       dbms_lob.createtemporary(l_result, true);
 
@@ -52,14 +53,36 @@ create or replace package body ut_extended_report_html_helper is
             <code class="sql">' || (dbms_xmlgen.convert(a_source_code(line_no))) ||
                          '</code></li>';
         else
-           l_hits := to_char(a_coverage_unit.lines(line_no).executions);
-                         
+          l_hits := to_char(a_coverage_unit.lines(line_no).executions);
+          if nvl(a_coverage_unit.lines(line_no).covered_blocks,0) < nvl(a_coverage_unit.lines(line_no).no_blocks,0) 
+          and nvl(a_coverage_unit.lines(line_no).partcove,0) = 1 then
+            l_blocks := to_char(a_coverage_unit.lines(line_no).covered_blocks) || chr(47)||
+                        to_char(a_coverage_unit.lines(line_no).no_blocks);  
+          else
+           l_blocks := null;
+          end if;
+           
           l_file_part := '
             <li class="' || ut_coverage_report_html_helper.line_status(a_coverage_unit.lines(line_no)) || '" data-hits="' ||
-                         dbms_xmlgen.convert(l_hits)|| '" data-linenumber="' || (line_no) || '">';
+                         dbms_xmlgen.convert(l_hits)|| '"'||
+                         case 
+                           when l_blocks is not null 
+                             then ' data-blocks="'||dbms_xmlgen.convert(l_blocks)||'"' 
+                           else 
+                             null 
+                           end
+                         ||' data-linenumber="' || (line_no) || '">';
           if a_coverage_unit.lines(line_no).executions > 0 then
             
-            l_file_part := l_file_part || '
+            l_file_part := l_file_part ||
+            case when l_blocks is not null
+              then '
+                <span class="blocks">' ||dbms_xmlgen.convert(l_blocks) ||
+                '</span>'
+              else
+                null
+              end
+            || '
               <span class="hits">' || dbms_xmlgen.convert(l_hits) ||
                            '</span>';
           end if;
