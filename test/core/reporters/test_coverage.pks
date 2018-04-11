@@ -14,6 +14,9 @@ create or replace package test_coverage is
   procedure coverage_for_object;
 
   --%test(Coverage is gathered for specified schema - default coverage type)
+  procedure coverage_for_object_no_owner;
+
+  --%test(Coverage is gathered for specified schema)
   procedure coverage_for_schema;
 
   --%test(Coverage is gathered for specified file - default coverage type)

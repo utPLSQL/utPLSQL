@@ -1,4 +1,4 @@
-create or replace package body test_html_proftab_reporter is
+create or replace package body test_html_extended_reporter is
 
   procedure report_on_file is
     l_results   ut3.ut_varchar2_list;
@@ -6,17 +6,15 @@ create or replace package body test_html_proftab_reporter is
     l_actual    clob;
   begin
     --Arrange
-    l_expected := '%<h3>UT3.DUMMY_COVERAGE</h3>%<b>3</b> relevant lines. <span class="green"><b>2</b> lines covered</span>  and <span class="red"><b>1</b> lines missed%';
+    l_expected := '%<h3>UT3.DUMMY_COVERAGE</h3>%<b>4</b> relevant lines. <span class="green"><b>3</b> lines covered</span> (including <span class="yellow"><b>1</b> lines partially covered</span> ) and <span class="red"><b>1</b> lines missed%';
     
-    --l_expected := '%<div class="header"> <h3>UT3.DUMMY_COVERAGE</h3><h4><span class="green">66%</span> lines covered</h4><div> <b>3</b> relevant lines. <span class="green"><b>2</b> lines covered</span> ) and <span class="red"><b>1</b> lines missed</span></div></div>%';
-    --Act
     select *
       bulk collect into l_results
       from table(
         ut3.ut.run(
           a_path => 'ut3.test_dummy_coverage',
           a_reporter=> ut3.ut_coverage_html_reporter(),
-          a_coverage_type => 'proftab',
+          a_coverage_type => 'extended',
           a_source_files => ut3.ut_varchar2_list( 'test/ut3.dummy_coverage.pkb' ),
           a_test_files => ut3.ut_varchar2_list( )
         )
@@ -26,5 +24,5 @@ create or replace package body test_html_proftab_reporter is
     ut.expect(l_actual).to_be_like(l_expected);
   end;
 
-end test_html_proftab_reporter;
+end test_html_extended_reporter;
 /

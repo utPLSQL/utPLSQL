@@ -18,7 +18,8 @@ create or replace package ut_coverage authid current_user is
   
   gc_proftab_coverage constant varchar2(32) := 'proftab';
   gc_block_coverage   constant varchar2(32) := 'block';
- 
+  gc_extended_coverage   constant varchar2(32) := 'extended';
+  
   -- total run coverage information
   subtype t_full_name is varchar2(4000);
   subtype t_object_name is varchar2(250);
@@ -61,6 +62,8 @@ create or replace package ut_coverage authid current_user is
     ,uncovered_blocks  binary_integer default null
     ,executions        number(38, 0) := 0
     ,objects           tt_program_units);
+  
+  function get_cov_sources_sql(a_coverage_options ut_coverage_options, a_skipped_lines varchar2 default 'Y') return varchar2;
   
   procedure populate_tmp_table(a_coverage_options ut_coverage_options, a_sql in varchar2);
   

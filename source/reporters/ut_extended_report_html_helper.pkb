@@ -1,4 +1,4 @@
-create or replace package body ut_proftab_report_html_helper is
+create or replace package body ut_extended_report_html_helper is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -38,7 +38,10 @@ create or replace package body ut_proftab_report_html_helper is
                      ut_coverage_report_html_helper.coverage_css_class(l_coverage_pct) || '">' || l_coverage_pct || ' %</span> lines covered</h4>' ||
                      '<div> <b>' ||(a_coverage_unit.covered_lines + a_coverage_unit.uncovered_lines)
                         || '</b> relevant lines. ' || '<span class="green"><b>' || a_coverage_unit.covered_lines ||
-                     '</b> lines covered</span> ' || ' and <span class="red"><b>' || a_coverage_unit.uncovered_lines ||
+                     '</b> lines covered</span> '|| 
+                      '(including <span class="yellow"><b>' || a_coverage_unit.partcovered_lines ||
+                      '</b> lines partially covered</span> '
+                     || ') and <span class="red"><b>' || a_coverage_unit.uncovered_lines ||
                      '</b> lines missed</span>'||'</div></div><pre><ol>';
       ut_utils.append_to_clob(l_result, l_file_part);
     
@@ -107,7 +110,9 @@ create or replace package body ut_proftab_report_html_helper is
                       a_coverage.objects.count || '</b> files in total. </div><div>' || '<b>' || 
                       (a_coverage.uncovered_lines + a_coverage.covered_lines)
                    || '</b> relevant lines. ' || '<span class="green"><b>' || a_coverage.covered_lines ||
-                   '</b> lines covered</span>'|| ' and <span class="red"><b>' || a_coverage.uncovered_lines || '</b> lines missed.</span>'||
+                   '</b> lines covered</span>'||
+                   ' (inlcluding <span class="yellow"><b>' || a_coverage.partcovered_lines ||
+                   '</b> lines partially covered</span>' || ') and <span class="red"><b>' || a_coverage.uncovered_lines || '</b> lines missed.</span>'||
                    '<table class="file_list"><thead>' || '<tr>' ||
                    '<th>File</th><th>% covered</th><th>Lines</th><th>Relevant Lines</th><th>Lines covered</th><th>Lines missed</th><th>'
                    ||'Avg. Hits / Line </th>' ||
