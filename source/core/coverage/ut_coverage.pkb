@@ -181,8 +181,11 @@ create or replace package body ut_coverage is
        return null;
       $end     
     elsif a_coverage_options.coverage_type = gc_extended_coverage then
-      --Collect data for block and proftab and pass to extended for modifications.
-      return ut_coverage_extended.get_extended_coverage(a_coverage_options => a_coverage_options);
+      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+       return ut_coverage_extended.get_extended_coverage(a_coverage_options => a_coverage_options);
+      $else
+       return null;
+      $end   
     else
       return ut_coverage_proftab.get_coverage_data_profiler(a_coverage_options => a_coverage_options);
     end if;
