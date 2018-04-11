@@ -26,11 +26,12 @@ create or replace package body ut_coverage_extended is
     l_object                 ut_coverage.t_full_name;
     l_line_no                binary_integer;
   begin
-    ut_coverage_helper.cleanup_tmp_table();
-    l_result_block := ut_coverage_block.get_coverage_data_block(a_coverage_options => a_coverage_options);
-    ut_coverage_helper.cleanup_tmp_table();
+    -- Get raw data for both reporters, order is important as tmp table will skip headers and dont populate 
+    -- tmp table for block again.
     l_result_profiler_enrich:= ut_coverage_proftab.get_coverage_data_profiler(a_coverage_options => a_coverage_options);
-    
+  
+    l_result_block := ut_coverage_block.get_coverage_data_block(a_coverage_options => a_coverage_options);
+  
     -- Enrich profiler results with some of the block results
     l_object := l_result_profiler_enrich.objects.first;
     while (l_object is not null)
