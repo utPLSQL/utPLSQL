@@ -129,43 +129,6 @@ create or replace package body ut_suite_manager is
     return l_schema_ut_packages;
   end;
 
-  procedure resolve_schema_names(a_paths in out nocopy ut_varchar2_list) is
-    l_schema          varchar2(4000);
-    l_object          varchar2(4000);
-    c_current_schema  constant all_tables.owner%type := sys_context('USERENV','CURRENT_SCHEMA');
-  begin
-    for i in 1 .. a_paths.count loop
-      --if path is suite-path
-      if regexp_like(a_paths(i), '^([A-Za-z0-9$#_]+)?:') then
-      --get schema name / path
-        l_schema := regexp_substr(a_paths(i), '^([A-Za-z0-9$#_]+)?:',subexpression => 1);
-        -- transform ":path1[.path2]" to "schema:path1[.path2]"
-        if l_schema is not null then
-          l_schema := sys.dbms_assert.schema_name(upper(l_schema));
-        else
-          a_paths(i)   := c_current_schema || a_paths(i);
-          l_schema := c_current_schema;
-        end if;
-      else
-        -- get schema name / object.[procedure] name
-        -- When path is one of: schema or schema.package[.object] or package[.object]
-        -- transform it back to schema[.package[.object]]
-        begin
-          l_object := regexp_substr(a_paths(i), '^[A-Za-z0-9$#_]+');
-          l_schema := sys.dbms_assert.schema_name(upper(l_object));
-        exception
-          when sys.dbms_assert.invalid_schema_name then
-            if ut_metadata.package_exists_in_cur_schema(upper(l_object)) then
-              a_paths(i) := c_current_schema || '.' || a_paths(i);
-              l_schema := c_current_schema;
-            else
-              raise;
-            end if;
-        end;
-      end if;
-    end loop;
-  end;
-
   procedure validate_paths(a_paths in ut_varchar2_list) is
     l_path varchar2(32767);
   begin
@@ -189,6 +152,64 @@ create or replace package body ut_suite_manager is
       l_paths_temp(i) := trim(lower(a_paths(i)));
     end loop;
     return l_paths_temp;
+  end;
+
+  function resolve_schema_names(a_paths in out nocopy ut_varchar2_list) return ut_varchar2_rows is
+    l_schema          varchar2(4000);
+    l_object          varchar2(4000);
+    l_schema_names    ut_varchar2_rows := ut_varchar2_rows();
+    c_current_schema  constant all_tables.owner%type := sys_context('USERENV','CURRENT_SCHEMA');
+  begin
+    a_paths := set( clean_paths(a_paths) );
+
+    validate_paths(a_paths);
+
+    for i in 1 .. a_paths.count loop
+      --if path is suite-path
+      if regexp_like(a_paths(i), '^([A-Za-z0-9$#_]+)?:') then
+      --get schema name / path
+        l_schema := regexp_substr(a_paths(i), '^([A-Za-z0-9$#_]+)?:',subexpression => 1);
+        -- transform ":path1[.path2]" to "schema:path1[.path2]"
+        if l_schema is not null then
+          l_schema := sys.dbms_assert.schema_name(upper(l_schema));
+        else
+          a_paths(i)   := c_current_schema || a_paths(i);
+          l_schema     := c_current_schema;
+        end if;
+      else
+        -- get schema name / object.[procedure] name
+        -- When path is one of: schema or schema.package[.object] or package[.object]
+        -- transform it back to schema[.package[.object]]
+        begin
+          l_object := regexp_substr(a_paths(i), '^[A-Za-z0-9$#_]+');
+          l_schema := sys.dbms_assert.schema_name(upper(l_object));
+        exception
+          when sys.dbms_assert.invalid_schema_name then
+            if ut_metadata.package_exists_in_cur_schema(upper(l_object)) then
+              a_paths(i) := c_current_schema || '.' || a_paths(i);
+              l_schema := c_current_schema;
+            else
+              raise;
+            end if;
+        end;
+      end if;
+      l_schema_names.extend;
+      l_schema_names(l_schema_names.last) := l_schema;
+    end loop;
+    return l_schema_names;
+  end;
+
+  procedure resolve_schema_names(a_paths in out nocopy ut_varchar2_list) is
+    l_schema_names    ut_varchar2_rows;
+  begin
+    l_schema_names := resolve_schema_names(a_paths);
+  end;
+
+  function get_schema_names(a_paths ut_varchar2_list) return ut_varchar2_rows is
+    l_paths ut_varchar2_list;
+  begin
+    l_paths := a_paths;
+    return resolve_schema_names(l_paths);
   end;
 
   procedure filter_suite_by_path(a_suite in out nocopy ut_suite_item, a_path varchar2) is
@@ -265,7 +286,7 @@ create or replace package body ut_suite_manager is
   end;
 
   function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items is
-    l_paths              ut_varchar2_list;
+    l_paths              ut_varchar2_list := a_paths;
     l_path               varchar2(32767);
     l_schema             varchar2(4000);
     l_suites_info        t_schema_suites_info;
@@ -274,10 +295,6 @@ create or replace package body ut_suite_manager is
     l_objects_to_run     ut_suite_items;
     l_schema_paths   t_schema_paths;
   begin
-    l_paths := set( clean_paths(a_paths) );
-
-    validate_paths(l_paths);
-
     --resolve schema names from paths and group paths by schema name
     resolve_schema_names(l_paths);
 

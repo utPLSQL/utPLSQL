@@ -67,7 +67,7 @@ sqlplus sys/sys_pass@db as sysdba @install_headless.sql
 Invoking script with parameters:
 ```bash
 cd source
-sqlplus sys/sys_pass@db as sysdba @@install_headless.sql utp3 my_verySecret_password utp3_tablespace   
+sqlplus sys/sys_pass@db as sysdba @install_headless.sql utp3 my_verySecret_password utp3_tablespace   
 ```
 
 The script needs to be executed by SYSDBA, in order to grant access to DBMS_LOCK system package.

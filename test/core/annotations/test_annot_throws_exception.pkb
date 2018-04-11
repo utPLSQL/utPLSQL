@@ -7,7 +7,6 @@ is
 
     l_package_spec  varchar2(32737);
     l_package_body  varchar2(32737);
-    l_drop_statment varchar2(32737);
     l_test_results  ut3.ut_varchar2_list;
   begin
     l_package_spec := '
@@ -108,9 +107,6 @@ is
     select * bulk collect into l_test_results from table(ut3.ut.run(('annotated_package_with_throws')));
 
     g_tests_results := ut3.ut_utils.table_to_clob(l_test_results);
-
-    l_drop_statment := 'drop package annotated_package_with_throws';
-    execute immediate l_drop_statment;
   end;
 
   procedure throws_same_annotated_except is
@@ -166,5 +162,13 @@ is
     ut.expect(g_tests_results).to_match('^\s*Givess failure when a exception is expected and nothing is thrown \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
     ut.expect(g_tests_results).to_match('nothing_thrown\s*Expected one of exceptions \(-20459, -20136, -20145\) but nothing was raised.');
   end;
+
+
+  procedure drop_test_package is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package annotated_package_with_throws';
+  end;
+
 end;
 /

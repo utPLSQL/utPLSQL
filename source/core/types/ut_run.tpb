@@ -32,8 +32,6 @@ create or replace type body ut_run as
     l_exclude_objects  ut_object_names;
     l_coverage_type varchar2(32);
   begin
-    l_coverage_schema_names := coalesce(a_schema_names, get_run_schemes());
-    l_exclude_objects  := coalesce(a_exclude_objects,ut_object_names());
     l_coverage_type    := coalesce(a_coverage_type,'proftab');
     
     self.run_paths := a_run_paths;
@@ -42,8 +40,8 @@ create or replace type body ut_run as
     self.results_count := ut_results_counter();
     self.test_file_mappings := coalesce(a_test_file_mappings, ut_file_mappings());
     self.coverage_options := ut_coverage_options(
-      l_coverage_schema_names,
-      l_exclude_objects multiset union all ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names),
+      a_schema_names,
+      a_exclude_objects,
       a_include_objects,
       a_project_file_mappings,
       l_coverage_type
@@ -112,42 +110,6 @@ create or replace type body ut_run as
     self.end_time := self.start_time;
 
     a_listener.fire_after_event(ut_utils.gc_run, self);
-  end;
-
-  member function get_run_schemes return ut_varchar2_rows is
-    l_schema          varchar2(128);
-    c_current_schema  constant varchar2(128) := sys_context('USERENV','CURRENT_SCHEMA');
-    l_path            varchar2(32767);
-    l_schemes         ut_varchar2_rows;
-  begin
-    if run_paths is not null then
-      l_schemes := ut_varchar2_rows();
-      for i in 1 .. self.run_paths.count loop
-        l_path := self.run_paths(i);
-        if regexp_like(l_path, '^([A-Za-z0-9$#_]+)?:') then
-          l_schema := regexp_substr(l_path, '^([A-Za-z0-9$#_]+)?:',subexpression => 1);
-          if l_schema is not null then
-            l_schema := sys.dbms_assert.schema_name(upper(l_schema));
-          else
-            l_schema := c_current_schema;
-          end if;
-        else
-          begin
-            l_schema := sys.dbms_assert.schema_name(upper(regexp_substr(l_path, '^[A-Za-z0-9$#_]+')));
-          exception
-            when sys.dbms_assert.invalid_schema_name then
-              l_schema := c_current_schema;
-          end;
-
-        end if;
-        l_schemes.extend;
-        l_schemes(l_schemes.last) := l_schema;
-      end loop;
-    else
-      l_schemes := ut_varchar2_rows(c_current_schema);
-    end if;
-    return l_schemes;
-
   end;
 
   overriding member function get_error_stack_traces return ut_varchar2_list is

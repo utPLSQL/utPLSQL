@@ -144,6 +144,28 @@ create or replace package body test_coverage is
     ut.expect(l_actual).to_be_like(l_expected);
   end;
 
+  procedure coverage_for_object_no_owner is
+    l_expected  clob;
+    l_actual    clob;
+    l_results   ut3.ut_varchar2_list;
+  begin
+    --Arrange
+    l_expected := '%<file path="ut3.dummy_coverage">%';
+    --Act
+    select *
+      bulk collect into l_results
+      from table(
+        ut3.ut.run(
+          a_path => 'ut3.test_dummy_coverage',
+          a_reporter=> ut3.ut_coverage_sonar_reporter( ),
+          a_include_objects => ut3.ut_varchar2_list( 'dummy_coverage' )
+        )
+      );
+    --Assert
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like(l_expected);
+  end;
+
   procedure coverage_for_schema is
     l_expected  clob;
     l_actual    clob;
