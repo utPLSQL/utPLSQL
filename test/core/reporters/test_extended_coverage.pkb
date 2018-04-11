@@ -95,8 +95,8 @@ create or replace package body test_extended_coverage is
     g_run_id(ut3.ut_coverage.gc_block_coverage) := get_mock_block_run_id();
     g_run_id(ut3.ut_coverage.gc_proftab_coverage) := get_mock_proftab_run_id();
     ut3.ut_coverage_helper.mock_coverage_id(g_run_id);
-    mock_block_coverage_data(g_run_id(ut3.ut_coverage.gc_proftab_coverage));
-    mock_profiler_coverage_data(g_run_id(ut3.ut_coverage.gc_block_coverage));
+    mock_block_coverage_data(g_run_id(ut3.ut_coverage.gc_block_coverage));
+    mock_profiler_coverage_data(g_run_id(ut3.ut_coverage.gc_proftab_coverage));
     commit;
   end;
 
