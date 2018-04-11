@@ -68,7 +68,7 @@ create or replace package body test_block_coverage is
     create_dummy_coverage_package();
     create_dummy_coverage_test();
     g_run_id := get_mock_run_id();
-    ut3.ut_coverage_helper.mock_coverage_id(g_run_id);
+    ut3.ut_coverage_helper.mock_coverage_id(g_run_id,ut3.ut_coverage.gc_block_coverage);
     mock_coverage_data(g_run_id);
     commit;
   end;
