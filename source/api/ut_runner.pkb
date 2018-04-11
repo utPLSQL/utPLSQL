@@ -150,6 +150,7 @@ create or replace package body ut_runner is
     l_owner  varchar2(128) := ut_utils.ut_owner();
     l_results     tt_reporters_info;
     c_bulk_limit  constant integer := 10;
+    l_types_view varchar2(200) := ut_metadata.get_dba_view('dba_types');
     begin
       open l_cursor for 'SELECT
           owner || ''.'' || type_name,
@@ -161,7 +162,7 @@ create or replace package body ut_runner is
                   ELSE ''N''
               END
           is_output_reporter
-      FROM dba_types t
+      FROM ' || l_types_view || ' t
       WHERE instantiable = ''YES''
       CONNECT BY supertype_name = PRIOR type_name AND supertype_owner = PRIOR owner
         START WITH type_name = ''UT_REPORTER_BASE'' AND owner = '''|| l_owner || '''';
