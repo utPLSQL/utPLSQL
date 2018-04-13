@@ -21,9 +21,9 @@ declare
   l_output            varchar2(32767);
   l_expected          varchar2(32767);
 begin
-  l_expected := q'[<testsuites tests="1" disabled="0" errors="0" failures="0" name="" time=".006307" >
-<testsuite tests="1" id="1" package="tst_package_junit_nodesc"  disabled="0" errors="0" failures="0" name="tst_package_junit_nodesc" time=".006108" >
-<testcase classname="tst_package_junit_nodesc" assertions="1" name="Test name" time=".005542" >
+  l_expected := q'[<testsuites tests="1" disabled="0" errors="0" failures="0" name="" time="%" >
+<testsuite tests="1" id="1" package="tst_package_junit_nodesc"  disabled="0" errors="0" failures="0" name="tst_package_junit_nodesc" time="%" >
+<testcase classname="tst_package_junit_nodesc" assertions="1" name="Test name" time="%" >
 <system-out/>
 <system-err/>
 </testcase>
