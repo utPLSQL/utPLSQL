@@ -1,4 +1,4 @@
-create or replace type ut_xunit_reporter under ut_output_reporter_base(
+create or replace type ut_junit_reporter under ut_output_reporter_base(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -20,11 +20,12 @@ create or replace type ut_xunit_reporter under ut_output_reporter_base(
    * Provides outcomes in a format conforming with JUnit4 as defined in:
    *  https://gist.github.com/kuzuha/232902acab1344d6b578
    */
-  constructor function ut_xunit_reporter(self in out nocopy ut_xunit_reporter) return self as result,
+  constructor function ut_junit_reporter(self in out nocopy ut_junit_reporter) return self as result,
 
-  overriding member procedure after_calling_run(self in out nocopy ut_xunit_reporter, a_run in ut_run),
-  member function get_common_item_attributes(a_item ut_suite_item) return varchar2,
-
+  overriding member procedure after_calling_run(self in out nocopy ut_junit_reporter, a_run in ut_run),
+  member function get_common_suite_attributes(a_item ut_suite_item) return varchar2,
+  member function get_common_test_attributes(a_item ut_suite_item) return varchar2,
+ 
   overriding member function get_description return varchar2
 )
 not final

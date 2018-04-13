@@ -54,6 +54,8 @@ drop synonym be_true;
 
 drop synonym equal;
 
+drop synonym ut_xunit_reporter;
+
 drop type ut_coveralls_reporter force;
 
 drop type ut_coverage_sonar_reporter force;
@@ -194,7 +196,7 @@ drop type ut_documentation_reporter force;
 
 drop type ut_teamcity_reporter force;
 
-drop type ut_xunit_reporter force;
+drop type ut_junit_reporter force;
 
 drop type ut_tfs_junit_reporter force;
 

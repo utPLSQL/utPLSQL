@@ -1,6 +1,6 @@
-create or replace package test_xunit_reporter as
+create or replace package test_junit_reporter as
 
-  --%suite(ut_xunit_reporter)
+  --%suite(ut_junit_reporter)
   --%suitepath(utplsql.core.reporters)
 
   --%beforeall
@@ -12,6 +12,9 @@ create or replace package test_xunit_reporter as
   --%test(Reports only failed expectations and exceptions)
   procedure reports_only_failed_or_errored;
 
+  --%test(Xunit Backward Compatiblity - Reports only failed expectations and exceptions)
+  procedure reports_xunit_only_fail_or_err;
+  
   --%test(Reports failed line of test)
   procedure reports_failed_line;
 
