@@ -1,5 +1,5 @@
 set termout off
-create or replace package tst_package_xunit_nodesc as
+create or replace package tst_package_junit_nodesc as
   --%suite(Suite name)
 
   --%test
@@ -10,7 +10,7 @@ create or replace package tst_package_xunit_nodesc as
 end;
 /
 
-create or replace package body tst_package_xunit_nodesc as
+create or replace package body tst_package_junit_nodesc as
   procedure test1 is begin ut.expect(1).to_equal(1); end;
   procedure test2 is begin ut.expect(1).to_equal(1); end;
 end;
@@ -24,19 +24,25 @@ declare
   l_output            varchar2(32767);
   l_expected          varchar2(32767);
 begin
-  l_expected := q'[<testsuites tests="2" skipped="0" error="0" failure="0" name="" time="%" >
-<testsuite tests="2" id="1" package="tst_package_xunit_nodesc"  skipped="0" error="0" failure="0" name="Suite name" time="%" >
-<testcase classname="tst_package_xunit_nodesc"  assertions="1" skipped="0" error="0" failure="0" name="test1" time="%" >
+  l_expected := q'[<testsuites tests="2" disabled="0" errors="0" failures="0" name="" time=".011945" >
+<testsuite tests="2" id="1" package="tst_package_junit_nodesc"  disabled="0" errors="0" failures="0" name="Suite name" time=".011724" >
+<testcase classname="tst_package_junit_nodesc" assertions="1" name="test1" time=".005558" >
+<system-out/>
+<system-err/>
 </testcase>
-<testcase classname="tst_package_xunit_nodesc"  assertions="1" skipped="0" error="0" failure="0" name="Test name" time="%" >
+<testcase classname="tst_package_junit_nodesc" assertions="1" name="Test name" time=".005361" >
+<system-out/>
+<system-err/>
 </testcase>
+<system-out/>
+<system-err/>
 </testsuite>
 </testsuites>]';
 
   --act
   select *
   bulk collect into l_output_data
-  from table(ut.run('tst_package_xunit_nodesc',ut_xunit_reporter()));
+  from table(ut.run('tst_package_junit_nodesc',ut_junit_reporter()));
 
   l_output := ut_utils.table_to_clob(l_output_data);
 
@@ -49,4 +55,4 @@ begin
 end;
 /
 
-drop package tst_package_xunit_nodesc;
+drop package tst_package_junit_nodesc;
