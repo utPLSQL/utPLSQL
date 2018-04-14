@@ -6,7 +6,7 @@ create or replace package body test_html_block_reporter is
     l_actual    clob;
   begin
     --Arrange
-    l_expected := '%<h3>UT3.DUMMY_COVERAGE</h3>%<span class="green">100 %</span> blocks covered</h4><div><b>3</b> blocks in total.<span class="green"><b>3</b> blocks covered</span> and <span class="red"><b>0</b> blocks missed.</div>%';
+    l_expected := '%<h3>UT3.DUMMY_COVERAGE</h3>%<span class="red">75 %</span> blocks covered</h4><div><b>4</b> blocks in total.<span class="green"><b>3</b> blocks covered</span> and <span class="red"><b>1</b> blocks missed.</div>%';
     --l_expected := '%<div class="header"> <h3>UT3.DUMMY_COVERAGE</h3><h4><span class="green">100 %</span> lines covered</h4><div> <b>3</b> relevant lines. <span class="green"><b>3</b> lines covered</span> (including <span class="yellow"><b>0</b> lines partially covered</span> ) and <span class="red"><b>0</b> lines missed</span><h4><span class="green">100 %</span> blocks covered</h4><div><b>3</b> blocks in total.<span class="green"><b>3</b> blocks covered</span> and <span class="red"><b>0</b> blocks missed.</div></div></div>%';
     --Act
     select *

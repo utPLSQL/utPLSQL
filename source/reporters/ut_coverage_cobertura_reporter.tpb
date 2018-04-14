@@ -33,6 +33,7 @@ create or replace type body ut_coverage_cobertura_reporter is
       l_file_part    varchar2(32767);
       l_result       clob;
       l_line_no      binary_integer;
+      l_pct          integer;
     begin
       dbms_lob.createtemporary(l_result, true);
       l_line_no := a_unit_coverage.lines.first;
@@ -46,7 +47,16 @@ create or replace type body ut_coverage_cobertura_reporter is
           if a_unit_coverage.lines(l_line_no).executions = 0 then
             l_file_part := '<line number="'||l_line_no||'" hits="0" branch="false"/>'||chr(10);
           else
-            l_file_part := '<line number="'||l_line_no||'" hits="1" branch="false"/>'||chr(10);
+            l_file_part := '<line number="'||l_line_no||'" hits="'||a_unit_coverage.lines(l_line_no).executions||'"';
+            if a_unit_coverage.lines(l_line_no).covered_blocks < a_unit_coverage.lines(l_line_no).no_blocks then
+              l_file_part := l_file_part || ' branch="true"';
+              l_pct := (a_unit_coverage.lines(l_line_no).covered_blocks/a_unit_coverage.lines(l_line_no).no_blocks)*100;
+              l_file_part := l_file_part || ' condition-coverage="'||l_pct||'%';
+              l_file_part := l_file_part || ' ('||a_unit_coverage.lines(l_line_no).covered_blocks||'/'||a_unit_coverage.lines(l_line_no).no_blocks||')"';
+            else
+              l_file_part := l_file_part || ' branch="false"';
+            end if;
+            l_file_part := l_file_part ||'/>'||chr(10);
           end if;
           ut_utils.append_to_clob(l_result, l_file_part);
           l_line_no := a_unit_coverage.lines.next(l_line_no);

@@ -1,4 +1,4 @@
-create or replace package ut_coverage_proftab authid current_user is
+create or replace package ut_coverage_helper_profiler authid definer is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -16,7 +16,15 @@ create or replace package ut_coverage_proftab authid current_user is
   limitations under the License.
   */
 
-  function get_coverage_data_profiler(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage;
+  procedure coverage_start(a_run_comment in varchar2,a_coverage_id out integer);
+
+  procedure coverage_stop;
+
+  procedure coverage_pause;
+
+  procedure coverage_resume;
+
+  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return ut_coverage_helper.t_unit_line_calls;
 
 end;
 /

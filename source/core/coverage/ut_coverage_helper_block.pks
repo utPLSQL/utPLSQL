@@ -1,4 +1,4 @@
-create or replace package ut_block_coverage_helper authid definer is
+create or replace package ut_coverage_helper_block authid definer is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -20,7 +20,7 @@ create or replace package ut_block_coverage_helper authid definer is
 
   procedure coverage_stop;
 
-  function get_raw_coverage_data_block(a_object_owner varchar2, a_object_name varchar2) return ut_coverage_helper.t_unit_line_calls;
+  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return ut_coverage_helper.t_unit_line_calls;
 
 end;
 /

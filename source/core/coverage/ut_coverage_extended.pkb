@@ -20,7 +20,7 @@ create or replace package body ut_coverage_extended is
   * Public functions
   */ 
 
-  function get_extended_coverage(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage is
+  function get_coverage_data(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage is
     l_result_block           ut_coverage.t_coverage;
     l_result_profiler_enrich ut_coverage.t_coverage;
     l_object                 ut_coverage.t_full_name;
@@ -28,9 +28,9 @@ create or replace package body ut_coverage_extended is
   begin
     -- Get raw data for both reporters, order is important as tmp table will skip headers and dont populate 
     -- tmp table for block again.
-    l_result_profiler_enrich:= ut_coverage_proftab.get_coverage_data_profiler(a_coverage_options => a_coverage_options);
+    l_result_profiler_enrich:= ut_coverage_profiler.get_coverage_data(a_coverage_options => a_coverage_options);
   
-    l_result_block := ut_coverage_block.get_coverage_data_block(a_coverage_options => a_coverage_options);
+    l_result_block := ut_coverage_block.get_coverage_data(a_coverage_options => a_coverage_options);
   
     -- Enrich profiler results with some of the block results
     l_object := l_result_profiler_enrich.objects.first;
@@ -58,7 +58,7 @@ create or replace package body ut_coverage_extended is
    
     return l_result_profiler_enrich;
 
-  end get_extended_coverage; 
+  end get_coverage_data;
   
 end;
 /

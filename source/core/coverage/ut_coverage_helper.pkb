@@ -70,20 +70,20 @@ create or replace package body ut_coverage_helper is
     set_coverage_type(a_coverage_type);
     if get_coverage_type = ut_coverage.gc_block_coverage then
       $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-       ut_block_coverage_helper.coverage_start(a_run_comment => a_run_comment ,a_coverage_id => g_coverage_id(ut_coverage.gc_block_coverage) );
+       ut_coverage_helper_block.coverage_start(a_run_comment => a_run_comment ,a_coverage_id => g_coverage_id(ut_coverage.gc_block_coverage) );
       $else
        raise_application_error(ut_utils.gc_invalid_coverage_type,'Invalid coverage type requested. Please validate your Oracle install');
       $end
     elsif get_coverage_type = ut_coverage.gc_extended_coverage then
       $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-       ut_block_coverage_helper.coverage_start(a_run_comment => a_run_comment ,a_coverage_id => g_coverage_id(ut_coverage.gc_block_coverage) );
-       ut_proftab_helper.coverage_start(a_run_comment => a_run_comment, a_coverage_id => g_coverage_id(ut_coverage.gc_proftab_coverage));
+       ut_coverage_helper_block.coverage_start(a_run_comment => a_run_comment ,a_coverage_id => g_coverage_id(ut_coverage.gc_block_coverage) );
+       ut_coverage_helper_profiler.coverage_start(a_run_comment => a_run_comment, a_coverage_id => g_coverage_id(ut_coverage.gc_proftab_coverage));
        coverage_pause();
       $else
        raise_application_error(ut_utils.gc_invalid_coverage_type,'Invalid coverage type requested. Please validate your Oracle install');
       $end
     else
-       ut_proftab_helper.coverage_start(a_run_comment => a_run_comment, a_coverage_id => g_coverage_id(ut_coverage.gc_proftab_coverage));
+       ut_coverage_helper_profiler.coverage_start(a_run_comment => a_run_comment, a_coverage_id => g_coverage_id(ut_coverage.gc_proftab_coverage));
        coverage_pause();
     end if;
     g_is_started := true;
@@ -111,7 +111,7 @@ create or replace package body ut_coverage_helper is
       if get_coverage_type = ut_coverage.gc_block_coverage then
          null;
       else
-         ut_proftab_helper.coverage_pause();
+         ut_coverage_helper_profiler.coverage_pause();
       end if;
     end if;
   end;
@@ -121,7 +121,7 @@ create or replace package body ut_coverage_helper is
     if get_coverage_type = ut_coverage.gc_block_coverage then
        null;
     else
-       ut_proftab_helper.coverage_resume();
+       ut_coverage_helper_profiler.coverage_resume();
     end if;
   end;
 
@@ -131,19 +131,19 @@ create or replace package body ut_coverage_helper is
       g_is_started := false;
       if get_coverage_type = ut_coverage.gc_block_coverage then
         $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-         ut_block_coverage_helper.coverage_stop();
+         ut_coverage_helper_block.coverage_stop();
         $else
          null;
         $end
       elsif get_coverage_type = ut_coverage.gc_extended_coverage then
         $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-         ut_proftab_helper.coverage_stop();
-         ut_block_coverage_helper.coverage_stop();        
+         ut_coverage_helper_profiler.coverage_stop();
+         ut_coverage_helper_block.coverage_stop();
         $else
          null;
         $end
       else
-         ut_proftab_helper.coverage_stop();
+         ut_coverage_helper_profiler.coverage_stop();
       end if;
     end if;
   end;
@@ -154,19 +154,19 @@ create or replace package body ut_coverage_helper is
     g_is_started := false;
     if get_coverage_type = ut_coverage.gc_block_coverage then
         $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-         ut_block_coverage_helper.coverage_stop();
+         ut_coverage_helper_block.coverage_stop();
         $else
          null;
         $end
     elsif get_coverage_type = ut_coverage.gc_extended_coverage then
         $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-         ut_proftab_helper.coverage_stop();
-         ut_block_coverage_helper.coverage_stop();        
+         ut_coverage_helper_profiler.coverage_stop();
+         ut_coverage_helper_block.coverage_stop();
         $else
          null;
         $end
     else
-       ut_proftab_helper.coverage_stop();
+       ut_coverage_helper_profiler.coverage_stop();
    end if;
   end;
 

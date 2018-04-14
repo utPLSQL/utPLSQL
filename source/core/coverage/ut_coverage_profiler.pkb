@@ -1,4 +1,4 @@
-create or replace package body ut_coverage_proftab is
+create or replace package body ut_coverage_profiler is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -19,7 +19,7 @@ create or replace package body ut_coverage_proftab is
   /**
   * Public functions
   */
-  function get_coverage_data_profiler(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage is
+  function get_coverage_data(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage is
     l_line_calls          ut_coverage_helper.t_unit_line_calls;
     l_result              ut_coverage.t_coverage;
     l_new_unit            ut_coverage.t_unit_coverage;
@@ -37,7 +37,7 @@ create or replace package body ut_coverage_proftab is
       exit when l_source_objects_crsr%notfound;
 
       --get coverage data
-      l_line_calls := ut_proftab_helper.get_raw_coverage_data_profiler( l_source_object.owner, l_source_object.name);
+      l_line_calls := ut_coverage_helper_profiler.get_raw_coverage_data( l_source_object.owner, l_source_object.name);
 
       --if there is coverage, we need to filter out the garbage (badly indicated data from dbms_profiler)
       if l_line_calls.count > 0 then
@@ -93,7 +93,7 @@ create or replace package body ut_coverage_proftab is
     close l_source_objects_crsr;
 
     return l_result;
-  end get_coverage_data_profiler;
+  end get_coverage_data;
   
 end;
 /

@@ -1,4 +1,4 @@
-create or replace package body ut_proftab_helper is
+create or replace package body ut_coverage_helper_profiler is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -77,7 +77,7 @@ create or replace package body ut_proftab_helper is
       RETURN l_coverage_rows; 
   end;
   
-  function get_raw_coverage_data_profiler(a_object_owner varchar2, a_object_name varchar2) return ut_coverage_helper.t_unit_line_calls is
+  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return ut_coverage_helper.t_unit_line_calls is
     l_tmp_data t_proftab_rows;
     l_results  ut_coverage_helper.t_unit_line_calls;  
   begin

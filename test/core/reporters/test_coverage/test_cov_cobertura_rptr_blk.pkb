@@ -16,7 +16,7 @@ create or replace package body test_cov_cobertura_rptr_blk is
 <package name="DUMMY_COVERAGE" line-rate="0.0" branch-rate="0.0" complexity="0.0">
 <class name="DUMMY_COVERAGE" filename="test/ut3.dummy_coverage.pkb" line-rate="0.0" branch-rate="0.0" complexity="0.0">
 <lines>
-<line number="4" hits="1" branch="false"/>
+<line number="4" hits="1" branch="true" condition-coverage="50% (1/2)"/>
 <line number="5" hits="1" branch="false"/>
 <line number="7" hits="1" branch="false"/>
 </lines>

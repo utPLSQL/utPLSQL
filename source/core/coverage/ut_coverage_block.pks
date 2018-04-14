@@ -16,7 +16,7 @@ create or replace package ut_coverage_block authid current_user is
   limitations under the License.
   */
   
-  function get_coverage_data_block(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage;
+  function get_coverage_data(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage;
 
 end;
 /

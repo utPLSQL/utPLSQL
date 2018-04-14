@@ -1,4 +1,4 @@
-create or replace package body ut_block_coverage_helper is
+create or replace package body ut_coverage_helper_block is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -65,7 +65,7 @@ create or replace package body ut_block_coverage_helper is
      return l_coverage_rows; 
   end;
 
-  function get_raw_coverage_data_block(a_object_owner varchar2, a_object_name varchar2) return ut_coverage_helper.t_unit_line_calls is
+  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return ut_coverage_helper.t_unit_line_calls is
     l_tmp_data t_block_rows;
     l_results  ut_coverage_helper.t_unit_line_calls;
   

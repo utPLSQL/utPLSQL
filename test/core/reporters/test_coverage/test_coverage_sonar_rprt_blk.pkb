@@ -8,9 +8,9 @@ create or replace package body test_coverage_sonar_rprt_blk is
     --Arrange
     l_expected := '<coverage version="1">
 <file path="test/ut3.dummy_coverage.pkb">
-<lineToCover lineNumber="4" covered="true"/>
-<lineToCover lineNumber="5" covered="true"/>
-<lineToCover lineNumber="7" covered="true"/>
+<lineToCover lineNumber="4" covered="true" branchesToCover="2" coveredBranches="1"/>
+<lineToCover lineNumber="5" covered="true" branchesToCover="1" coveredBranches="1"/>
+<lineToCover lineNumber="7" covered="true" branchesToCover="1" coveredBranches="1"/>
 </file>
 </coverage>';
     --Act

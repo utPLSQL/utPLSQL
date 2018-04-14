@@ -58,8 +58,9 @@ create or replace package body test_block_coverage is
 
     insert into ut3.dbmspcc_blocks ( run_id,  object_id, line,block,col,covered,not_feasible)
     select a_run_id, c_unit_id,4,1,1,1,0  from dual union all
-    select a_run_id, c_unit_id,5,2,0 ,1,0 from dual union all
-    select a_run_id, c_unit_id,7,3,1,1,0  from dual;
+    select a_run_id, c_unit_id,4,2,2,0,0  from dual union all
+    select a_run_id, c_unit_id,5,3,0,1,0  from dual union all
+    select a_run_id, c_unit_id,7,4,1,1,0  from dual;
   end;
 
   procedure setup_dummy_coverage is
@@ -90,7 +91,7 @@ create or replace package body test_block_coverage is
     l_results   ut3.ut_varchar2_list;
   begin
     --Arrange
-    l_expected := '%<file path="ut3.dummy_coverage">%';
+    l_expected := '%<file path="ut3.dummy_coverage">%<lineToCover lineNumber="4" covered="true" branchesToCover="2" coveredBranches="1"/>%';
     --Act
     select *
       bulk collect into l_results
@@ -113,8 +114,7 @@ create or replace package body test_block_coverage is
     l_results   ut3.ut_varchar2_list;
   begin
     --Arrange
-    l_expected := '<file path="ut3.%">';
-    l_expected := '%'||l_expected||'%'||l_expected||'%';
+    l_expected := '%<file path="ut3.dummy_coverage">%<lineToCover lineNumber="4" covered="true" branchesToCover="2" coveredBranches="1"/>%';
     --Act
     select *
       bulk collect into l_results
@@ -129,6 +129,7 @@ create or replace package body test_block_coverage is
     --Assert
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     ut.expect(l_actual).to_be_like(l_expected);
+    ut.expect(l_actual).to_be_like('%<file path="ut3.%">%<file path="ut3.%">%');
   end;
 
   procedure coverage_for_file is
@@ -139,7 +140,7 @@ create or replace package body test_block_coverage is
   begin
     --Arrange
     l_file_path := lower('test/ut3.dummy_coverage.pkb');
-    l_expected := '%<file path="'||l_file_path||'">%';
+    l_expected := '%<file path="'||l_file_path||'">%<lineToCover lineNumber="4" covered="true" branchesToCover="2" coveredBranches="1"/>%';
     --Act
     select *
       bulk collect into l_results
