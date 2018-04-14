@@ -26,6 +26,7 @@ whenever oserror exit failure rollback
 @@core/test_output_buffer.pks
 @@core/test_file_mapper.pks
 @@core/test_suite_manager.pks
+@@core/reporters.pks
 @@core/reporters/test_coverage.pks
 @@core/reporters/test_coverage/test_coverage_sonar_reporter.pks
 @@core/reporters/test_coverage/test_coveralls_reporter.pks
@@ -60,6 +61,7 @@ whenever oserror exit failure rollback
 @@core/test_output_buffer.pkb
 @@core/test_file_mapper.pkb
 @@core/test_suite_manager.pkb
+@@core/reporters.pkb
 @@core/reporters/test_coverage.pkb
 @@core/reporters/test_coverage/test_coverage_sonar_reporter.pkb
 @@core/reporters/test_coverage/test_coveralls_reporter.pkb

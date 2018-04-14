@@ -196,6 +196,8 @@ drop type ut_documentation_reporter force;
 
 drop type ut_teamcity_reporter force;
 
+drop type ut_xunit_reporter force;
+
 drop type ut_junit_reporter force;
 
 drop type ut_tfs_junit_reporter force;

@@ -48,6 +48,7 @@ grant execute on &&ut3_owner..ut_match to public;
 grant execute on &&ut3_owner..ut to public;
 grant execute on &&ut3_owner..ut_runner to public;
 grant execute on &&ut3_owner..ut_teamcity_reporter to public;
+grant execute on &&ut3_owner..ut_xunit_reporter to public;
 grant execute on &&ut3_owner..ut_junit_reporter to public;
 grant execute on &&ut3_owner..ut_tfs_junit_reporter to public;
 grant execute on &&ut3_owner..ut_documentation_reporter to public;
