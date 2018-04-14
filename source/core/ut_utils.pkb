@@ -616,9 +616,9 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
         end if;
 
         if l_end = 0 then
-          append_to_clob(l_result, dbms_lob.substr(a_source, l_length-l_offset, l_offset));
+          append_to_clob(l_result, substr(a_source, l_offset, l_length-l_offset));
         else
-          append_to_clob(l_result, dbms_lob.substr(a_source, l_end-l_offset, l_offset));
+          append_to_clob(l_result, substr(a_source, l_offset, l_end-l_offset));
         end if;
       end if;
       l_offset := l_end;
@@ -635,7 +635,7 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
         l_escaped_text_start := instr(a_source,q'[q']',l_offset);
       end if;
     end loop;
-    append_to_clob(l_result, dbms_lob.substr(a_source, offset=>l_end));
+    append_to_clob(l_result, substr(a_source, l_end));
     return l_result;
   end;
 

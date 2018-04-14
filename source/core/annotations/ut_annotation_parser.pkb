@@ -130,10 +130,7 @@ create or replace package body ut_annotation_parser as
       -- parse the comment block for the syntactically correct annotations and store them as an array
       add_annotations(a_annotations, l_proc_comments, a_comments, l_proc_name);
 
-      l_annot_proc_ind := regexp_instr(srcstr     => a_source
-                                      ,pattern    => ';'
-                                      ,occurrence => 1
-                                      ,position   => l_annot_proc_ind + length(l_annot_proc_block) );
+      l_annot_proc_ind := instr(a_source, ';', l_annot_proc_ind + length(l_annot_proc_block) );
     end loop;
   end add_procedure_annotations;
 
@@ -197,7 +194,7 @@ create or replace package body ut_annotation_parser as
     l_comment_index    positive;
   begin
 
-    l_source := ut_utils.replace_multiline_comments(l_source);
+     l_source := ut_utils.replace_multiline_comments(l_source);
 
     -- replace all single line comments with {COMMENT#12} element and store it's content for easier processing
     -- this call modifies l_source
