@@ -202,7 +202,7 @@ create or replace package body ut_suite_builder is
       end loop;
     end;
 
-  procedure duplicate_annotations_warning(
+  procedure warning_on_duplicate_annot(
     a_suite          in out nocopy ut_suite_item,
     a_annoations     tt_annotations_index,
     a_for_annotation varchar2
@@ -290,15 +290,20 @@ create or replace package body ut_suite_builder is
     a_before_each_list ut_executables,
     a_after_each_list ut_executables
   ) is
-    l_test ut_test;
+    l_test      ut_test;
+    l_context   ut_logical_suite;
   begin
     if a_suite.items is not null then
       for i in 1 .. a_suite.items.count loop
         if a_suite.items(i) is of (ut_test) then
           l_test := treat( a_suite.items(i) as ut_test);
-          l_test.before_each_list := a_before_each_list;
-          l_test.after_each_list := a_after_each_list;
+          l_test.before_each_list := coalesce(a_before_each_list,ut_executables()) multiset union all l_test.before_each_list;
+          l_test.after_each_list := l_test.after_each_list multiset union all coalesce(a_after_each_list,ut_executables());
           a_suite.items(i) := l_test;
+        elsif a_suite.items(i) is of (ut_logical_suite) then
+          l_context := treat(a_suite.items(i) as ut_logical_suite);
+          update_before_after_list(l_context, a_before_each_list, a_after_each_list);
+          a_suite.items(i) := l_context;
         end if;
       end loop;
     end if;
@@ -393,7 +398,7 @@ create or replace package body ut_suite_builder is
       else
         a_suite.put_warning('"--%suitepath" annotation requires a non-empty value. Annotation ignored.');
       end if;
-      duplicate_annotations_warning(a_suite, a_package_ann_index, 'suitepath');
+      warning_on_duplicate_annot(a_suite, a_package_ann_index, 'suitepath');
     end if;
     a_suite.path := lower(coalesce(a_suite.path, l_object_name));
 
@@ -404,7 +409,7 @@ create or replace package body ut_suite_builder is
       else
         a_suite.put_warning('"--%displayname" annotation requires a non-empty value. Annotation ignored.');
       end if;
-      duplicate_annotations_warning(a_suite, a_package_ann_index, 'displayname');
+      warning_on_duplicate_annot(a_suite, a_package_ann_index, 'displayname');
     end if;
 
     if a_package_ann_index.exists('rollback') then
@@ -412,7 +417,7 @@ create or replace package body ut_suite_builder is
       if l_rollback_type is null then
         a_suite.put_warning('"--%rollback" annotation requires one of values: "auto" or "manual". Annotation ignored.');
       end if;
-      duplicate_annotations_warning(a_suite, a_package_ann_index, 'rollback');
+      warning_on_duplicate_annot(a_suite, a_package_ann_index, 'rollback');
     end if;
 
     a_suite.disabled_flag := ut_utils.boolean_to_int(a_package_ann_index.exists('disabled'));
@@ -491,7 +496,7 @@ create or replace package body ut_suite_builder is
 
       l_suite.description := l_annotations(l_package_ann_index('context').first).text;
       l_suite.description := l_annotations(l_context_pos).text;
-      duplicate_annotations_warning( l_suite, l_package_ann_index, 'suite' );
+      warning_on_duplicate_annot( l_suite, l_package_ann_index, 'suite' );
 
       populate_suite_contents( l_suite, l_annotations, l_package_ann_index, 'context_'||l_context_no );
 
@@ -549,7 +554,7 @@ create or replace package body ut_suite_builder is
       l_suite := ut_suite(a_package_annotations.owner, a_package_annotations.name);
 
       l_suite.description := l_annotations(l_package_ann_index('suite').last).text;
-      duplicate_annotations_warning(l_suite, l_package_ann_index, 'suite');
+      warning_on_duplicate_annot(l_suite, l_package_ann_index, 'suite');
 
       add_suite_contexts( l_suite, l_annotations, l_package_ann_index );
       --by this time all contexts were consumed and l_annotations should not have any context/endcontext annotation in it.

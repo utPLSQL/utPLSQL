@@ -49,11 +49,11 @@ create or replace type body ut_coverage_reporter_base is
       ut_coverage.coverage_pause();
   end;
 
-  overriding final member procedure before_calling_test_execute(self in out nocopy ut_coverage_reporter_base, a_test in ut_test) is
+  overriding final member procedure before_calling_test_execute(self in out nocopy ut_coverage_reporter_base, a_executable in ut_executable) is
   begin
     ut_coverage.coverage_resume();
   end;
-  overriding final member procedure after_calling_test_execute (self in out nocopy ut_coverage_reporter_base, a_test in ut_test) is
+  overriding final member procedure after_calling_test_execute (self in out nocopy ut_coverage_reporter_base, a_executable in ut_executable) is
   begin
       ut_coverage.coverage_pause();
   end;

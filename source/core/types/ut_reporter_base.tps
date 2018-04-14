@@ -39,8 +39,8 @@ create or replace type ut_reporter_base under ut_event_listener (
   member procedure before_calling_before_test(self in out nocopy ut_reporter_base, a_executable in ut_executable),
   member procedure after_calling_before_test (self in out nocopy ut_reporter_base, a_executable in ut_executable),
 
-  member procedure before_calling_test_execute(self in out nocopy ut_reporter_base, a_test in ut_test),
-  member procedure after_calling_test_execute (self in out nocopy ut_reporter_base, a_test in ut_test),
+  member procedure before_calling_test_execute(self in out nocopy ut_reporter_base, a_executable in ut_executable),
+  member procedure after_calling_test_execute (self in out nocopy ut_reporter_base, a_executable in ut_executable),
 
   member procedure before_calling_after_test(self in out nocopy ut_reporter_base, a_executable in ut_executable),
   member procedure after_calling_after_test (self in out nocopy ut_reporter_base, a_executable in ut_executable),

@@ -83,11 +83,11 @@ create or replace type body ut_reporter_base is
     null;
   end;
 
-  member procedure before_calling_test_execute(self in out nocopy ut_reporter_base, a_test in ut_test) is
+  member procedure before_calling_test_execute(self in out nocopy ut_reporter_base, a_executable in ut_executable) is
   begin
     null;
   end;
-  member procedure after_calling_test_execute (self in out nocopy ut_reporter_base, a_test in ut_test) is
+  member procedure after_calling_test_execute (self in out nocopy ut_reporter_base, a_executable in ut_executable) is
   begin
     null;
   end;
@@ -137,16 +137,30 @@ create or replace type body ut_reporter_base is
   end;
 
   overriding member function get_supported_events return ut_varchar2_list is
-    l_events_list ut_varchar2_list;
   begin
-    select lower(replace(procedure_name,'CALLING_'))
-      bulk collect into l_events_list
-     from user_procedures
-    where object_name = upper(self_type)
-      and (procedure_name like 'BEFORE_%' or procedure_name like 'AFTER_%');
-    l_events_list.extend;
-    l_events_list(l_events_list.last) := ut_utils.gc_finalize;
-    return l_events_list;
+    return ut_varchar2_list(
+      ut_utils.gc_before_run,
+      ut_utils.gc_before_suite,
+      ut_utils.gc_before_test,
+      ut_utils.gc_before_before_all,
+      ut_utils.gc_before_before_each,
+      ut_utils.gc_before_before_test,
+      ut_utils.gc_before_test_execute,
+      ut_utils.gc_before_after_test,
+      ut_utils.gc_before_after_each,
+      ut_utils.gc_before_after_all,
+      ut_utils.gc_after_run,
+      ut_utils.gc_after_suite,
+      ut_utils.gc_after_test,
+      ut_utils.gc_after_before_all,
+      ut_utils.gc_after_before_each,
+      ut_utils.gc_after_before_test,
+      ut_utils.gc_after_test_execute,
+      ut_utils.gc_after_after_test,
+      ut_utils.gc_after_after_each,
+      ut_utils.gc_after_after_all,
+      ut_utils.gc_finalize
+    );
   end;
 
   overriding member procedure on_event( self in out nocopy ut_reporter_base, a_event_name varchar2, a_event_item ut_event_item) is
@@ -165,7 +179,7 @@ create or replace type body ut_reporter_base is
       when ut_utils.gc_before_before_test
       then self.before_calling_before_test(treat(a_event_item as ut_executable));
       when ut_utils.gc_before_test_execute
-      then self.before_calling_test_execute(treat(a_event_item as ut_test));
+      then self.before_calling_test_execute(treat(a_event_item as ut_executable));
       when ut_utils.gc_before_after_test
       then self.before_calling_after_test(treat(a_event_item as ut_executable));
       when ut_utils.gc_before_after_each
@@ -185,7 +199,7 @@ create or replace type body ut_reporter_base is
       when ut_utils.gc_after_before_test
       then self.after_calling_before_test(treat(a_event_item as ut_executable));
       when ut_utils.gc_after_test_execute
-      then self.after_calling_test_execute(treat(a_event_item as ut_test));
+      then self.after_calling_test_execute(treat(a_event_item as ut_executable));
       when ut_utils.gc_after_after_test
       then self.after_calling_after_test(treat(a_event_item as ut_executable));
       when ut_utils.gc_after_after_each

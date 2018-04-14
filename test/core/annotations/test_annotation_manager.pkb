@@ -147,14 +147,14 @@ create or replace package body test_annotation_manager is
        order by annotation_position;
 
     open l_expected for
-      select 1 as annotation_position, 'suite' as annotation_name,
+      select 2 as annotation_position, 'suite' as annotation_name,
             'dummy_test_suite' as annotation_text, '' as subobject_name
         from dual union all
-      select 2, 'rollback' , 'manual', '' as subobject_name
+      select 3, 'rollback' , 'manual', '' as subobject_name
         from dual union all
-      select 3, 'test' , 'dummy_test', 'some_dummy_test_procedure' as subobject_name
+      select 5, 'test' , 'dummy_test', 'some_dummy_test_procedure' as subobject_name
         from dual union all
-      select 4, 'beforetest' , 'some_procedure', 'some_dummy_test_procedure' as subobject_name
+      select 6, 'beforetest' , 'some_procedure', 'some_dummy_test_procedure' as subobject_name
         from dual;
 
     ut.expect(l_actual).to_equal(l_expected);
@@ -188,10 +188,10 @@ create or replace package body test_annotation_manager is
        order by annotation_position;
 
     open l_expected for
-      select 1 as annotation_position, 'suite' as annotation_name,
+      select 2 as annotation_position, 'suite' as annotation_name,
             'dummy_test_suite' as annotation_text, to_char(null) as subobject_name
         from dual union all
-      select 2, 'test' , 'dummy_test', 'some_dummy_test_procedure' as subobject_name
+      select 4, 'test' , 'dummy_test', 'some_dummy_test_procedure' as subobject_name
         from dual;
 
     ut.expect(l_actual).to_equal(l_expected);
@@ -225,14 +225,14 @@ create or replace package body test_annotation_manager is
        order by annotation_position;
 
     open l_expected for
-      select 1 as annotation_position, 'suite' as annotation_name,
+      select 2 as annotation_position, 'suite' as annotation_name,
             'dummy_test_suite' as annotation_text, '' as subobject_name
         from dual union all
-      select 2, 'rollback' , 'manual', '' as subobject_name
+      select 3, 'rollback' , 'manual', '' as subobject_name
         from dual union all
-      select 3, 'test' , 'dummy_test', 'some_dummy_test_procedure' as subobject_name
+      select 5, 'test' , 'dummy_test', 'some_dummy_test_procedure' as subobject_name
         from dual union all
-      select 4, 'beforetest' , 'some_procedure', 'some_dummy_test_procedure' as subobject_name
+      select 6, 'beforetest' , 'some_procedure', 'some_dummy_test_procedure' as subobject_name
         from dual;
 
     ut.expect(l_actual).to_equal(l_expected);

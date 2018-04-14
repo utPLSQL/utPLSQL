@@ -59,7 +59,7 @@ create or replace package test_suite_builder is
   --%test(Associates before/after all/each to tests in context only)
   procedure before_after_in_context;
 
-  --%test(Does not propagate before/after each to context)
+  --%test(Propagates beforeeach/aftereach to context)
   procedure before_after_out_of_context;
 
   --%test(Does not create context and gives warning when endcontext is missing)

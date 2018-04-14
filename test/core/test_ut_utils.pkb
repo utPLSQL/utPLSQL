@@ -354,5 +354,62 @@ end;';
     --Assert
     ut.expect(anydata.convertcollection(l_list_to_be_empty)).to_be_empty;
   end;
+
+  procedure replace_multiline_comments
+  is
+    l_source   clob;
+    l_actual   clob;
+    l_expected clob;
+  begin
+    --Arrange
+    l_source := q'[
+create or replace package dummy as
+
+  -- single line comment with disabled /* multi-line comment */
+  gv_text0 varchar2(200) := q'{/* multi-line comment
+    in escaped q'multi-line
+    string*/}';
+  gv_text1 varchar2(200) := '/* multi-line comment in a string*/';
+  gv_text2 varchar2(200) := '/* multi-line comment
+    in a multi-line
+    string*/';
+  -- ignored start of multi-line comment /*
+  -- ignored end of multi-line comment */
+  /* proper
+   multi-line comment */
+  gv_text3 varchar2(200) := 'some text'; /* multiline comment*/  --followed by single-line comment
+  /* multi-line comment in one line*/
+  gv_text4 varchar2(200) := q'{/* multi-line comment
+    in escaped q'multi-line
+    string*/}';
+end;
+]';
+  l_expected := q'[
+create or replace package dummy as
+
+  -- single line comment with disabled /* multi-line comment */
+  gv_text0 varchar2(200) := q'{/* multi-line comment
+    in escaped q'multi-line
+    string*/}';
+  gv_text1 varchar2(200) := '/* multi-line comment in a string*/';
+  gv_text2 varchar2(200) := '/* multi-line comment
+    in a multi-line
+    string*/';
+  -- ignored start of multi-line comment /*
+  -- ignored end of multi-line comment */
+  ]'||q'[
+
+  gv_text3 varchar2(200) := 'some text';   --followed by single-line comment
+  ]'||q'[
+  gv_text4 varchar2(200) := q'{/* multi-line comment
+    in escaped q'multi-line
+    string*/}';
+end;
+]';
+    --Act
+    l_actual := ut3.ut_utils.replace_multiline_comments(l_source);
+    --Assert
+    ut.expect(l_actual).to_equal(l_expected);
+  end;
 end test_ut_utils;
 /

@@ -22,7 +22,6 @@ create or replace package body ut_annotation_parser as
   type tt_comment_list is table of varchar2(32767) index by pls_integer;
 
   gc_annotation_qualifier        constant varchar2(1) := '%';
-  gc_multiline_comment_pattern   constant varchar2(50) := '/\*.*?\*/';
   gc_annot_comment_pattern       constant varchar2(30) := '^( |'||chr(09)||')*-- *('||gc_annotation_qualifier||'.*?)$'; -- chr(09) is a tab character
   gc_comment_replacer_patter     constant varchar2(50) := '{COMMENT#%N%}';
   gc_comment_replacer_regex_ptrn constant varchar2(25) := '{COMMENT#(\d+)}';
@@ -31,13 +30,6 @@ create or replace package body ut_annotation_parser as
                                                            gc_regexp_identifier || ')';
   gc_annotation_pattern          constant varchar2(50) := gc_annotation_qualifier || gc_regexp_identifier || '[ '||chr(9)||']*(\(.*?\)\s*?$)?';
 
-
-  function delete_multiline_comments(a_source in clob) return clob is
-  begin
-  return  regexp_replace(srcstr   => a_source
-                         ,pattern  => gc_multiline_comment_pattern
-                         ,modifier => 'n');
-  end;
 
   procedure add_annotation(
     a_annotations in out nocopy ut_annotations,
@@ -147,7 +139,8 @@ create or replace package body ut_annotation_parser as
 
   function extract_and_replace_comments(a_source in out nocopy clob) return tt_comment_list is
     l_comments         tt_comment_list;
-    l_comment_pos      pls_integer;
+    l_comment_pos      binary_integer;
+    l_comment_line     binary_integer;
     l_comment_replacer varchar2(50);
     l_source           clob := a_source;
   begin
@@ -165,14 +158,15 @@ create or replace package body ut_annotation_parser as
       -- position index is shifted by 1 because gc_annot_comment_pattern contains ^ as first sign
       -- but after instr index already points to the char on that line
       l_comment_pos := l_comment_pos-1;
-      l_comments(l_comments.count + 1) := trim(regexp_substr(srcstr        => a_source
+      l_comment_line := regexp_count(substr(a_source,1,l_comment_pos),chr(10),1,'m')+1;
+      l_comments(l_comment_line) := trim(regexp_substr(srcstr        => a_source
                                                             ,pattern       => gc_annot_comment_pattern
                                                             ,occurrence    => 1
                                                             ,position      => l_comment_pos
                                                             ,modifier      => 'm'
                                                             ,subexpression => 2));
 
-      l_comment_replacer := replace(gc_comment_replacer_patter, '%N%', l_comments.count);
+      l_comment_replacer := replace(gc_comment_replacer_patter, '%N%', l_comment_line);
 
       l_source    := regexp_replace(srcstr     => a_source
                                    ,pattern    => gc_annot_comment_pattern
@@ -203,7 +197,7 @@ create or replace package body ut_annotation_parser as
     l_comment_index    positive;
   begin
 
-    l_source := delete_multiline_comments(l_source);
+    l_source := ut_utils.replace_multiline_comments(l_source);
 
     -- replace all single line comments with {COMMENT#12} element and store it's content for easier processing
     -- this call modifies l_source

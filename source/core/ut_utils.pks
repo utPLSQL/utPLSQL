@@ -322,5 +322,10 @@ create or replace package ut_utils authid definer is
   /*It takes a collection of type ut_varchar2_list and it only returns the elements which meets the regular expression*/
   function filter_list(a_list IN ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list;
 
+  /**
+  * Replaces multi-line comments in given source-code with empty lines
+  */
+  function replace_multiline_comments(a_source clob) return clob;
+
 end ut_utils;
 /

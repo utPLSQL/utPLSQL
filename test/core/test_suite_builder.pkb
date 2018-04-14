@@ -510,7 +510,9 @@ create or replace package body test_suite_builder is
             '%<ITEMS>' ||
               '%<UT_SUITE_ITEM>' ||
                 '%<NAME>test_in_a_context</NAME>' ||
+                '%<BEFORE_EACH_LIST>%<PROCEDURE_NAME>suite_level_beforeeach</PROCEDURE_NAME>%</BEFORE_EACH_LIST>' ||
                 '%<ITEM>%<PROCEDURE_NAME>test_in_a_context</PROCEDURE_NAME>%</ITEM>' ||
+                '%<AFTER_EACH_LIST>%<PROCEDURE_NAME>suite_level_aftereach</PROCEDURE_NAME>%</AFTER_EACH_LIST>' ||
               '%</UT_SUITE_ITEM>' ||
             '%</ITEMS>' ||
           '%</UT_SUITE_ITEM>' ||
@@ -525,8 +527,6 @@ create or replace package body test_suite_builder is
         '%<AFTER_ALL_LIST>%<PROCEDURE_NAME>suite_level_afterall</PROCEDURE_NAME>%</AFTER_ALL_LIST>' ||
       '%</UT_LOGICAL_SUITE>'
     );
-    ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%<BEFORE_EACH_LIST>%</ITEMS>%</ITEMS>%');
-    ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%<AFTER_EACH_LIST>%</ITEMS>%</ITEMS>%');
     ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%</ITEMS>%<BEFORE_ALL_LIST>%</ITEMS>%');
     ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%</ITEMS>%<AFTER_ALL_LIST>%</ITEMS>%');
   end;
