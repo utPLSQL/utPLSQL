@@ -35,11 +35,6 @@ create or replace package body ut_coverage_helper is
   
   type t_block_rows is table of t_block_row;
 
-  procedure set_coverage_type(a_coverage_type in varchar2) is
-  begin
-    g_coverage_type := a_coverage_type;
-  end;
-
   procedure set_coverage_status(a_started in boolean) is
   begin
    g_is_started := a_started;
@@ -48,11 +43,6 @@ create or replace package body ut_coverage_helper is
   procedure set_develop_mode(a_develop_mode in boolean) is
   begin
    g_develop_mode := a_develop_mode;
-  end;
-
-  function get_coverage_type return varchar2 is
-  begin
-    return g_coverage_type;
   end;
   
   function get_coverage_id(a_coverage_type in varchar2) return integer is
@@ -65,86 +55,58 @@ create or replace package body ut_coverage_helper is
     return g_develop_mode;
   end;
 
-  procedure coverage_start_internal(a_run_comment varchar2,a_coverage_type in varchar2)  is
-  begin
-    set_coverage_type(a_coverage_type);
-    if get_coverage_type = ut_coverage.gc_block_coverage then
-      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-       ut_coverage_helper_block.coverage_start(a_run_comment => a_run_comment ,a_coverage_id => g_coverage_id(ut_coverage.gc_block_coverage) );
-      $else
-       raise_application_error(ut_utils.gc_invalid_coverage_type,'Invalid coverage type requested. Please validate your Oracle install');
-      $end
-    elsif get_coverage_type = ut_coverage.gc_extended_coverage then
-      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+  procedure coverage_start_internal(a_run_comment varchar2)  is
+  begin   
+    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
        ut_coverage_helper_block.coverage_start(a_run_comment => a_run_comment ,a_coverage_id => g_coverage_id(ut_coverage.gc_block_coverage) );
        ut_coverage_helper_profiler.coverage_start(a_run_comment => a_run_comment, a_coverage_id => g_coverage_id(ut_coverage.gc_proftab_coverage));
        coverage_pause();
-      $else
-       raise_application_error(ut_utils.gc_invalid_coverage_type,'Invalid coverage type requested. Please validate your Oracle install');
-      $end
-    else
+    $else
        ut_coverage_helper_profiler.coverage_start(a_run_comment => a_run_comment, a_coverage_id => g_coverage_id(ut_coverage.gc_proftab_coverage));
        coverage_pause();
-    end if;
+    $end
+    
     g_is_started := true;
   end;
 
-  procedure coverage_start(a_run_comment varchar2,a_coverage_type in varchar2) is
+  procedure coverage_start(a_run_comment varchar2) is
   begin
     if not g_is_started then
       g_develop_mode := false;
-      coverage_start_internal(a_run_comment,a_coverage_type);
+      coverage_start_internal(a_run_comment);
     end if;
   end;
 
-  procedure coverage_start_develop(a_coverage_type in varchar2) is
+  procedure coverage_start_develop is
   begin
     if not g_is_started then
       g_develop_mode := true;
-      coverage_start_internal('utPLSQL Code coverage run in development MODE '||ut_utils.to_string(systimestamp),a_coverage_type);
+      coverage_start_internal('utPLSQL Code coverage run in development MODE '||ut_utils.to_string(systimestamp));
     end if;
   end;
 
   procedure coverage_pause is
   begin
     if not g_develop_mode then
-      if get_coverage_type = ut_coverage.gc_block_coverage then
-         null;
-      else
-         ut_coverage_helper_profiler.coverage_pause();
-      end if;
+      ut_coverage_helper_profiler.coverage_pause();
     end if;
   end;
 
   procedure coverage_resume is
   begin
-    if get_coverage_type = ut_coverage.gc_block_coverage then
-       null;
-    else
-       ut_coverage_helper_profiler.coverage_resume();
-    end if;
+    ut_coverage_helper_profiler.coverage_resume();
   end;
 
   procedure coverage_stop is
   begin
     if not g_develop_mode then
       g_is_started := false;
-      if get_coverage_type = ut_coverage.gc_block_coverage then
-        $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-         ut_coverage_helper_block.coverage_stop();
-        $else
-         null;
-        $end
-      elsif get_coverage_type = ut_coverage.gc_extended_coverage then
-        $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-         ut_coverage_helper_profiler.coverage_stop();
-         ut_coverage_helper_block.coverage_stop();
-        $else
-         null;
-        $end
-      else
-         ut_coverage_helper_profiler.coverage_stop();
-      end if;
+      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+        ut_coverage_helper_profiler.coverage_stop();
+        ut_coverage_helper_block.coverage_stop();
+      $else
+        ut_coverage_helper_profiler.coverage_stop();
+     $end
     end if;
   end;
 
@@ -152,22 +114,13 @@ create or replace package body ut_coverage_helper is
   begin
     g_develop_mode := false;
     g_is_started := false;
-    if get_coverage_type = ut_coverage.gc_block_coverage then
-        $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-         ut_coverage_helper_block.coverage_stop();
-        $else
-         null;
-        $end
-    elsif get_coverage_type = ut_coverage.gc_extended_coverage then
-        $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-         ut_coverage_helper_profiler.coverage_stop();
-         ut_coverage_helper_block.coverage_stop();
-        $else
-         null;
-        $end
-    else
+    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+      ut_coverage_helper_profiler.coverage_stop();
+      ut_coverage_helper_block.coverage_stop();
+    $else
        ut_coverage_helper_profiler.coverage_stop();
-   end if;
+    $end
+
   end;
 
  procedure mock_coverage_id(a_coverage_id integer,a_coverage_type in varchar2) is

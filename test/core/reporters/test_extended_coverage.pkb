@@ -128,7 +128,6 @@ create or replace package body test_extended_coverage is
         ut3.ut.run(
           a_path => 'ut3.test_dummy_coverage',
           a_reporter=> ut3.ut_coverage_sonar_reporter( ),
-          a_coverage_type => 'extended',
           a_include_objects => ut3.ut_varchar2_list( 'ut3.dummy_coverage' )
         )
       );
@@ -151,7 +150,6 @@ create or replace package body test_extended_coverage is
         ut3.ut.run(
           a_path => 'ut3.test_dummy_coverage',
           a_reporter=> ut3.ut_coverage_sonar_reporter( ),
-          a_coverage_type => 'extended',
           a_coverage_schemes => ut3.ut_varchar2_list( 'ut3' )
         )
       );
@@ -177,7 +175,6 @@ create or replace package body test_extended_coverage is
         ut3.ut.run(
           a_path => 'ut3.test_dummy_coverage',
           a_reporter=> ut3.ut_coverage_sonar_reporter( ),
-          a_coverage_type => 'extended',
           a_source_files => ut3.ut_varchar2_list( l_file_path ),
           a_test_files => ut3.ut_varchar2_list( )
         )

@@ -21,15 +21,6 @@ create or replace package test_coverage is
 
   --%test(Coverage is gathered for specified file - default coverage type)
   procedure coverage_for_file;
-
-  --%test(Coverage is gathered for specified object - explicit proftab coverage)
-  procedure coverage_for_object_proftab;
-
-  --%test(Coverage is gathered for specified schema - explicit proftab coverag)
-  procedure coverage_for_schema_proftab;
-
-  --%test(Coverage is gathered for specified file - explicit proftab coverag)
-  procedure coverage_for_file_proftab;  
   
   --%test(Coverage data is not cached between runs - issue #562 )
   --%aftertest(setup_dummy_coverage)

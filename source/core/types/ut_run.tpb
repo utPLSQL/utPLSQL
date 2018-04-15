@@ -24,16 +24,12 @@ create or replace type body ut_run as
     a_exclude_objects       ut_object_names := null,
     a_include_objects       ut_object_names := null,
     a_project_file_mappings ut_file_mappings := null,
-    a_test_file_mappings    ut_file_mappings := null,
-    a_coverage_type         varchar2 := null
+    a_test_file_mappings    ut_file_mappings := null
   ) return self as result is
     l_coverage_schema_names ut_varchar2_rows;
     l_coverage_options ut_coverage_options;
     l_exclude_objects  ut_object_names;
-    l_coverage_type varchar2(32);
-  begin
-    l_coverage_type    := coalesce(a_coverage_type,'proftab');
-    
+  begin    
     self.run_paths := a_run_paths;
     self.self_type := $$plsql_unit;
     self.items := a_items;
@@ -43,8 +39,7 @@ create or replace type body ut_run as
       a_schema_names,
       a_exclude_objects,
       a_include_objects,
-      a_project_file_mappings,
-      l_coverage_type
+      a_project_file_mappings
     );
     return;
   end;

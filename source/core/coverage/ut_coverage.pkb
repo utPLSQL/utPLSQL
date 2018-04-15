@@ -140,15 +140,13 @@ create or replace package body ut_coverage is
   * Public functions
   */
   procedure coverage_start(a_coverage_options ut_coverage_options default null) is
-    l_coverage_type varchar2(10) := coalesce(a_coverage_options.coverage_type, gc_proftab_coverage);
   begin
-    ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp),l_coverage_type);
+    ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp));
   end;
 
   procedure coverage_start_develop(a_coverage_options ut_coverage_options default null) is
-    l_coverage_type varchar2(10) := coalesce(a_coverage_options.coverage_type, gc_proftab_coverage);
   begin
-    ut_coverage_helper.coverage_start_develop(l_coverage_type);
+    ut_coverage_helper.coverage_start_develop;
   end;
 
   procedure coverage_pause is
@@ -172,23 +170,53 @@ create or replace package body ut_coverage is
   end;
 
   function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
+    l_result_block           ut_coverage.t_coverage;
+    l_result_profiler_enrich ut_coverage.t_coverage;
+    l_object                 ut_coverage.t_full_name;
+    l_line_no                binary_integer;
   begin
-    
-    if a_coverage_options.coverage_type = gc_block_coverage then
-      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-      return ut_coverage_block.get_coverage_data(a_coverage_options => a_coverage_options);
-      $else
-       return null;
-      $end     
-    elsif a_coverage_options.coverage_type = gc_extended_coverage then
-      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-       return ut_coverage_extended.get_coverage_data(a_coverage_options => a_coverage_options);
-      $else
-       return null;
-      $end   
-    else
-      return ut_coverage_profiler.get_coverage_data(a_coverage_options => a_coverage_options);
-    end if;
+    -- Get raw data for both reporters, order is important as tmp table will skip headers and dont populate 
+    -- tmp table for block again.
+    l_result_profiler_enrich:= ut_coverage_profiler.get_coverage_data(a_coverage_options => a_coverage_options);
+  
+   -- If block coverage available we will use it.
+   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+    l_result_block := ut_coverage_block.get_coverage_data(a_coverage_options => a_coverage_options);
+  
+    -- Enrich profiler results with some of the block results
+    l_object := l_result_profiler_enrich.objects.first;
+    while (l_object is not null)
+     loop
+     
+      l_line_no := l_result_profiler_enrich.objects(l_object).lines.first;
+      
+      -- to avoid no data found check if we got object in profiler
+      if l_result_block.objects.exists(l_object) then
+      while (l_line_no is not null)
+       loop         
+        -- To avoid no data check for object line
+        if l_result_block.objects(l_object).lines.exists(l_line_no) then
+         -- enrich line level stats
+         l_result_profiler_enrich.objects(l_object).lines(l_line_no).partcove := l_result_block.objects(l_object).lines(l_line_no).partcove;
+         l_result_profiler_enrich.objects(l_object).lines(l_line_no).covered_blocks := l_result_block.objects(l_object).lines(l_line_no).covered_blocks;
+         l_result_profiler_enrich.objects(l_object).lines(l_line_no).no_blocks := l_result_block.objects(l_object).lines(l_line_no).no_blocks;
+         -- enrich object level stats
+         l_result_profiler_enrich.objects(l_object).partcovered_lines :=  nvl(l_result_profiler_enrich.objects(l_object).partcovered_lines,0) + l_result_block.objects(l_object).lines(l_line_no).partcove;    
+        end if;
+        --At the end go to next line
+        l_line_no := l_result_profiler_enrich.objects(l_object).lines.next(l_line_no);
+       end loop;
+       --total level stats enrich
+       l_result_profiler_enrich.partcovered_lines := nvl(l_result_profiler_enrich.partcovered_lines,0) + l_result_profiler_enrich.objects(l_object).partcovered_lines;
+      -- At the end go to next object
+     end if;
+     
+     l_object := l_result_profiler_enrich.objects.next(l_object);
+     
+     end loop;    
+    $end   
+        
+    return l_result_profiler_enrich;
   end get_coverage_data;  
   
 end;

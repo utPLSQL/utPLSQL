@@ -16,7 +16,6 @@ create or replace package body test_html_proftab_reporter is
         ut3.ut.run(
           a_path => 'ut3.test_dummy_coverage',
           a_reporter=> ut3.ut_coverage_html_reporter(),
-          a_coverage_type => 'proftab',
           a_source_files => ut3.ut_varchar2_list( 'test/ut3.dummy_coverage.pkb' ),
           a_test_files => ut3.ut_varchar2_list( )
         )

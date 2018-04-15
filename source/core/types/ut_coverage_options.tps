@@ -1,4 +1,4 @@
-create or replace type ut_coverage_options as object (
+create or replace type ut_coverage_options force as object (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -19,7 +19,6 @@ create or replace type ut_coverage_options as object (
   schema_names     ut_varchar2_rows,
   exclude_objects  ut_object_names,
   include_objects  ut_object_names,
-  file_mappings    ut_file_mappings,
-  coverage_type    varchar2(32)
+  file_mappings    ut_file_mappings
 )
 /
