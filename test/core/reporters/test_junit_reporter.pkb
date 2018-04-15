@@ -225,25 +225,22 @@ create or replace package body test_junit_reporter as
 <testsuite tests="4" id="5" package="utplsqlorg.helpers.tests.test.test_reporters"  disabled="1" errors="1" failures="1" name="test_reporters" time="%" >
 <testsuite tests="4" id="6" package="utplsqlorg.helpers.tests.test.test_reporters.test_reporters"  disabled="1" errors="1" failures="1" name="A suite for testing different outcomes from reporters" time="%" >
 <testcase classname="utplsqlorg.helpers.tests.test.test_reporters.test_reporters" assertions="1" name="passing_test" time="%" >
-<system-out/>
+<system-out>%
+</system-out>
 <system-err/>
 </testcase>
 <testcase classname="utplsqlorg.helpers.tests.test.test_reporters.test_reporters" assertions="1" name="a test with failing assertion" time="%"  status="Failure">
-<failure>
-<![CDATA[
-"Fails as values are different"%
-]]>
+<failure>%Fails as values are different%
 </failure>
-<system-out/>
+<system-out>%
+</system-out>
 <system-err/>
 </testcase>
 <testcase classname="utplsqlorg.helpers.tests.test.test_reporters.test_reporters" assertions="0" name="a test raising unhandled exception" time="%"  status="Error">
-<error>
-<![CDATA[
-ORA-06502: %
-]]>
+<error>%ORA-06502:%
 </error>
-<system-out/>
+<system-out>%
+</system-out>
 <system-err/>
 </testcase>
 <testcase classname="utplsqlorg.helpers.tests.test.test_reporters.test_reporters" assertions="0" name="a disabled test" time="0"  status="Disabled">
@@ -251,9 +248,7 @@ ORA-06502: %
 <system-out/>
 <system-err/>
 </testcase>
-<system-out>
-<![CDATA[
-]]>
+<system-out>%
 </system-out>
 <system-err/>
 </testsuite>
