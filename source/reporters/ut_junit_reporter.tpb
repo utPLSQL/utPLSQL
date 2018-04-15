@@ -48,9 +48,7 @@ create or replace type body ut_junit_reporter is
       if a_test.result = ut_utils.gc_error then
         self.print_text('<error>');
         self.print_text(c_cddata_tag_start);
-        self.print_clob(
-        replace(replace(ut_utils.table_to_clob(a_test.get_error_stack_traces()),c_cddata_tag_start,''),c_cddata_tag_end,'')
-        );
+        self.print_clob(ut_utils.table_to_clob(a_test.get_error_stack_traces()));
         self.print_text(c_cddata_tag_end);
         self.print_text('</error>');
       elsif a_test.result > ut_utils.gc_success then
@@ -61,9 +59,7 @@ create or replace type body ut_junit_reporter is
           l_lines := a_test.failed_expectations(i).get_result_lines();
           
           for j in 1 .. l_lines.count loop
-            self.print_text(
-            replace(replace(l_lines(j),c_cddata_tag_start,''),c_cddata_tag_end,'')
-            );
+            self.print_text(l_lines(j));
           end loop;
           self.print_text(a_test.failed_expectations(i).caller_info);
         end loop;
