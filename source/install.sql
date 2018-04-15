@@ -260,11 +260,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 
 @@install_component.sql 'reporters/ut_coverage_html_reporter.tps'
 @@install_component.sql 'reporters/ut_coverage_report_html_helper.pks'
-@@install_above_12_1.sql 'reporters/ut_extended_report_html_helper.pks'
-@@install_component.sql 'reporters/ut_proftab_report_html_helper.pks'
-@@install_above_12_1.sql 'reporters/ut_extended_report_html_helper.pkb'
 @@install_component.sql 'reporters/ut_coverage_report_html_helper.pkb'
-@@install_component.sql 'reporters/ut_proftab_report_html_helper.pkb'
 @@install_component.sql 'reporters/ut_coverage_html_reporter.tpb'
 @@install_component.sql 'reporters/ut_coverage_sonar_reporter.tps'
 @@install_component.sql 'reporters/ut_coverage_sonar_reporter.tpb'
