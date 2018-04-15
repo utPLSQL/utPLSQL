@@ -22,11 +22,6 @@ create or replace type body ut_xunit_reporter is
     return;
   end;
 
-  overriding member procedure after_calling_run(self in out nocopy ut_xunit_reporter, a_run in ut_run) is
-  begin
-   (self as ut_junit_reporter).after_calling_run(a_run);
-  end;
-
   overriding member function get_description return varchar2 as
   begin
     return 'Depracated reporter. Please use Junit.

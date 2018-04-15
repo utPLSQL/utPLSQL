@@ -22,8 +22,6 @@ create or replace type ut_xunit_reporter under ut_junit_reporter(
    */
   constructor function ut_xunit_reporter(self in out nocopy ut_xunit_reporter) return self as result,
 
-  overriding member procedure after_calling_run(self in out nocopy ut_xunit_reporter, a_run in ut_run),
-
   overriding member function get_description return varchar2
 )
 not final
