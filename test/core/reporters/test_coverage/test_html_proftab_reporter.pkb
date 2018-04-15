@@ -6,7 +6,7 @@ create or replace package body test_html_proftab_reporter is
     l_actual    clob;
   begin
     --Arrange
-    l_expected := '%<h3>UT3.DUMMY_COVERAGE</h3>%<b>3</b> relevant lines. <span class="green"><b>2</b> lines covered</span>  and <span class="red"><b>1</b> lines missed%';
+    l_expected := '%<h3>UT3.DUMMY_COVERAGE</h3>%<b>3</b> relevant lines. <span class="green"><b>2</b> lines covered</span> and <span class="red"><b>1</b> lines missed%';
     
     --l_expected := '%<div class="header"> <h3>UT3.DUMMY_COVERAGE</h3><h4><span class="green">66%</span> lines covered</h4><div> <b>3</b> relevant lines. <span class="green"><b>2</b> lines covered</span> ) and <span class="red"><b>1</b> lines missed</span></div></div>%';
     --Act

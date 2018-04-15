@@ -109,7 +109,7 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
     function get_block_file_attributes(a_coverage_unit ut_coverage.t_unit_coverage) return varchar2 is
       l_result varchar2(32767);
     begin
-      if (a_coverage_unit.partcovered_lines is not null) OR (a_coverage_unit.partcovered_lines > 0) then   
+      if (a_coverage_unit.partcovered_lines is not null) AND (a_coverage_unit.partcovered_lines > 0) then   
         l_result := ' (including <span class="yellow"><b>'|| a_coverage_unit.partcovered_lines ||'</b> lines partially covered</span> )';
       else
         l_result := null;
@@ -212,7 +212,7 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
     function get_block_list_attributes(a_coverage_unit ut_coverage.t_coverage) return varchar2 is
       l_result varchar2(32767);
     begin
-      if (a_coverage_unit.partcovered_lines is not null) OR (a_coverage_unit.partcovered_lines > 0) then   
+      if (a_coverage_unit.partcovered_lines is not null) AND (a_coverage_unit.partcovered_lines > 0) then   
         l_result := ' (including <span class="yellow"><b>'|| a_coverage_unit.partcovered_lines ||'</b> lines partially covered</span> )';
       else
         l_result := null;
