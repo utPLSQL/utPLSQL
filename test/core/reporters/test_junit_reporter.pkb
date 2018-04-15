@@ -150,7 +150,7 @@ create or replace package body test_junit_reporter as
     from table(ut3.ut.run('check_junit_reporting', ut3.ut_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
-    ut.expect(l_actual).to_match('time="[0-9]*\.[0-9]{6}"');
+    ut.expect(l_actual).to_match('time="[0-9]*\.[0-9]{3,6}"');
     --Cleanup
     execute immediate 'alter session set NLS_NUMERIC_CHARACTERS='''||l_nls_numeric_characters||'''';
   end;
