@@ -1,14 +1,17 @@
 # Annotations
 
 Annotations are used to configure tests and suites in a declarative way similar to modern OOP languages. This way, test configuration is stored along with the test logic inside the test package.
-No configuration files or tables are needed. The annotation names are based on popular testing frameworks such as jUnit.
+No configuration files or tables are needed. The annotation names are based on popular testing frameworks such as JUnit.
 The framework runner searches for all the suitable annotated packages, automatically configures suites, forms the suite hierarchy, executes it and reports results in specified formats.
 
 Annotations are interpreted only in the package specification and are case-insensitive. We strongly recommend using lower-case annotations as described in this documentation.
 
-There are two locations where annotations can be placed:
-- Package level annotations can be placed at the very top of the package specification (`--%suite`, `--%suitepath` etc.)
-- Procedure level annotations can be placed right before a procedure (`--%test`, `--%beforeall`, `--%beforeeach` etc.)
+There are two distinct types of annotations, identified by their location in package:
+- Procedure level annotations - placed directly before a procedure (`--%test`, `--%beforeall`, `--%beforeeach` etc.).
+- Package level annotations   - placed at any place in package except directly before procedure (`--%suite`, `--%suitepath` etc.).
+
+We strongly recommend putting package level annotations at the very top of package except for the `--%context` annotations (described below)  
+
 
 If procedure level annotation is not placed right before procedure, it is not considered an annotation for procedure.
 
@@ -35,10 +38,10 @@ create or replace package test_pkg is
   procedure yet_another_test;
 end test_pkg;
 ```
-Procedure annotations are defined right before the procedure they reference, no empty lines are allowed, no comment lines can exist between annotation and the procedure.
+Procedure level annotations must be defined right before the procedure they reference, no empty lines are allowed, no comment lines can exist between annotation and the procedure.
 
 
-Package level annotations need to be separated by at least one empty line from the underlying procedure annotations.
+Package level annotations need to be separated by at least one empty line from a procedure procedure or procedure annotation.
 
 Example of invalid package level annotation. 
 ```sql
@@ -48,42 +51,57 @@ create or replace package test_pkg is
   procedure first_test;
 end test_pkg;
 ```
+In the above example, the `--%suite` annotation is ignored, as it is in fact associated with `procedure first_test`. Association with procedure takes precedence over association with package.
 
-If a package specification contains the `--%suite` annotation, it is treated as a test package and is processed by the framework.
-
-Some annotations accept parameters like `--%suite`, `--%test` and `--%displayname`. The parameters for annotations need to be placed in brackets.
-Values for parameters should be provided without any quotation marks.
-If the parameters are placed without brackets or with incomplete brackets, they will be ignored.
-Example: `--%suite(The name of suite without closing bracket`
-
-# <a name="example"></a>Example of an annotated test package
+## Order of execution
 
 ```sql
-create or replace package test_pkg is
+create or replace package test_employee_pkg is
 
-  --%suite(Name of suite)
-  --%suitepath(all.globaltests)
+  --%suite(Employee management)
+  --%suitepath(com.my_company.hr)
+  --%rollback(auto)
 
   --%beforeall
-  procedure global_setup;
+  procedure setup_employees;
+
+  --%beforeall
+  procedure setup_departments;
 
   --%afterall
-  procedure global_cleanup;
+  procedure cleanup_log_table;
 
-  /* Such comments are allowed */
+  --%context(add_employee)
 
-  --%test
-  --%displayname(Name of a test)
-  --%throws(-20145,-20146,-20189,-20563)
-  procedure some_test;
+  --%beforeeach
+  procedure setup_for_add_employees;
 
-  --%test(Name of another test)
+  --%test(Raises exception when employee already exists)
+  --%throws(-20145)
+  procedure add_existing_employee;
+
+  --%test(Inserts employee to emp table)
+  procedure add_employee;  
+
+  --%endcontext
+
+
+  --%context(remove_employee)
+  
+  --%beforeall
+  procedure setup_for_remove_employee;
+  
+  --%test(Removed employee from emp table)
+  procedure del_employee;
+  
+  --%endcontext
+
+  --%test(Test without context)
   --%beforetest(setup_another_test)
   --%aftertest(cleanup_another_test)
-  procedure another_test;
+  procedure some_test;
 
-  --%test
-  --%displayname(Name of test)
+  --%test(Name of test)
   --%disabled
   procedure disabled_test;
 
@@ -96,15 +114,76 @@ create or replace package test_pkg is
   procedure cleanup_another_test;
 
   --%beforeeach
-  procedure test_setup;
+  procedure set_session_context;
 
   --%aftereach
-  procedure test_cleanup;
+  procedure cleanup_session_context;
 
-end test_pkg;
+end test_employee_pkg;
 ```
 
-# Supported annotations
+When processing the test suite `test_employee_pkg` defined in [Example of annotated test package](#example), the order of execution will be as follows.
+ 
+```
+  create a savepoint 'before-suite'         
+    execute setup_employees                 (--%beforeall)
+    execute setup_departments               (--%beforeall)
+
+    create a savepoint 'before-context'     
+      create savepoint 'before-test'
+          execute test_setup                (--%beforeeach)
+          execute setup_for_add_employees   (--%beforeeach from context)
+          execute add_existing_employee     (--%test)
+          execute test_cleanup              (--%aftereach)
+      rollback to savepoint 'before-test'
+      create savepoint 'before-test'        (--%suite)
+          execute test_setup                (--%beforeeach)
+          execute setup_for_add_employees   (--%beforeeach from context)
+          execute add_employee              (--%test)
+          execute test_cleanup              (--%aftereach)
+      rollback to savepoint 'before-test'      
+    rollback to savepoint 'before-context'  
+
+    create a savepoint 'before-context'
+      execute setup_for_remove_employee     (--%beforeall from context)     
+      create savepoint 'before-test'
+          execute test_setup                (--%beforeeach)
+          execute add_existing_employee     (--%test)
+          execute test_cleanup              (--%aftereach)
+      rollback to savepoint 'before-test'
+    rollback to savepoint 'before-context'  
+
+    create savepoint 'before-test'
+      execute test_setup                    (--%beforeeach)
+      execute some_test                     (--%test)
+      execute test_cleanup                  (--%aftereach)
+    rollback to savepoint 'before-test'     
+                                            
+    create savepoint 'before-test'          
+      execute test_setup                    (--%beforeeach)
+      execute setup_another_test            (--%beforetest)
+      execute another_test                  (--%test)
+      execute cleanup_another_test          (--%aftertest)
+      execute test_cleanup                  (--%beforeeach)
+    rollback to savepoint 'before-test'
+
+    mark disabled_test as disabled          (--%test --%disabled)
+
+    execute test_setup                      (--%beforeeach)
+    execute no_transaction_control_test     (--%test)
+    execute test_cleanup                    (--%aftertest)
+
+    execute global_cleanup                  (--%afterall)
+  rollback to savepoint 'before-suite'
+```
+
+**Note**
+>utPLSQL does not guarantee ordering of tests in suite. On contrary utPLSQL might give random order of tests/contexts in suite.
+>
+>Order of execution within multiple occurrences of `before`/`after` procedures is determined by the order of annotations in specific block (context/suite) of package specification.
+
+
+## Supported annotations
 
 | Annotation |Level| Description |
 | --- | --- | --- |
@@ -121,10 +200,25 @@ end test_pkg;
 | `--%aftertest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed after the annotated `%test` procedure. |
 | `--%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
 | `--%disabled` | Package/procedure | Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run. |
+| `--%context(<description>)` | Package | Denotes start of a nested context (sub-suite) in a suite package |
+| `--%endcontext` | Package | Denotes end of a nested context (sub-suite) in a suite package |
+
+
+**Note**
+>Package is considered a test-suite only when package specification contains the `--%suite` annotation at the package level.
+>
+>Some annotations like `--%suite`, `--%test` and `--%displayname` accept parameters. The parameters for annotations need to be placed in brackets.
+Values for parameters should be provided without any quotation marks.
+If the parameters are placed without brackets or with incomplete brackets, they will be ignored.
+>
+>Example: `--%suite(The name of suite without closing bracket`
 
 # Suitepath concept
 
-It is very likely that the application for which you are going to introduce tests consists of many different packages or procedures/functions. Usually procedures can be logically grouped inside a package, there also might be several logical groups of procedure in a single package or even packages themselves might relate to a common module.
+It is very likely that the application for which you are going to introduce tests consists of many different packages, procedures and functions.
+Usually procedures can be logically grouped inside a package, there also might be several logical groups of procedures in a single package and packages might be grouped into modules and modules into subject areas.
+
+As your project grows, the codebase will grow to. utPLSQL allows you to group packages into modules and modules into 
 
 Let's say you have a complex insurance application that deals with policies, claims and payments. The payment module contains several packages for payment recognition, charging, planning etc. The payment recognition module among others contains a complex `recognize_payment` procedure that associates received money to the policies.
 
@@ -135,7 +229,6 @@ If you want to create tests for your application it is recommended to structure 
   *   Payment tests
     * Payments recognition
     * Payments set off
-    * Payouts
 
 The `%suitepath` annotation is used for such grouping. Even though test packages are defined in a flat structure the `%suitepath` is used by the framework to form them into a hierarchical structure. Your payments recognition test package might look like:
 
@@ -148,8 +241,7 @@ create or replace package test_payment_recognition as
   --%test(Recognize payment by policy number)
   procedure test_recognize_by_num;
 
-  --%test
-  --%displayname(Recognize payment by payment purpose)
+  --%test(Recognize payment by payment purpose)
   procedure test_recognize_by_purpose;
 
   --%test(Recognize payment by customer)
@@ -165,12 +257,11 @@ create or replace package test_payment_set_off as
   --%suite(Payment set off tests)
   --%suitepath(payments)
 
-  --%test(Set off creation test)
+  --%test(Creates set off)
   procedure test_create_set_off;
 
-  --%test
-  --%displayname(Set off annulation test)
-  procedure test_annulate_set_off;
+  --%test(Cancels set off)
+  procedure test_cancel_set_off;
 
 end test_payment_set_off;
 ```
@@ -221,38 +312,12 @@ Doing so allows your tests to use the framework's automatic transaction control 
 When you are testing code that performs explicit or implicit commits, you may set the test procedure to run as an autonomous transaction with `pragma autonomous_transaction`.
 Keep in mind that when your test runs as autonomous transaction it will not see the data prepared in a setup procedure unless the setup procedure committed the changes.
 
-# Order of execution
-
-When processing the test suite `test_pkg` defined in [Example of annotated test package](#example), the order of execution will be as follows.
-
-```
-  create a savepoint 'beforeall'
-    execute global_setup
-
-    create savepoint 'beforeeach'
-      execute test_setup
-      execute some_test
-      execute test_cleanup
-    rollback to savepoint 'beforeeach'
-
-    create savepoint 'beforeeach'
-      execute test_setup
-      execute setup_another_test
-      execute another_test
-      execute cleanup_another_test
-      execute test_cleanup
-    rollback to savepoint 'beforeeach'
-
-    mark disabled_test as disabled
-
-    execute test_setup
-    execute no_transaction_control_test
-    execute test_cleanup    
-
-    execute global_cleanup
-  rollback to savepoint 'beforeall'
-
-```
+**Note**
+> The `--%suitepath` annotation, when used, must be provided with a value of path.
+> The path in suitepath cannot contain spaces. Dot (.) identifies individual elements of the path.
+>
+> Example: `--%suitepath(org.utplsql.core.utils)`
+>
 
 # Annotation cache
 
