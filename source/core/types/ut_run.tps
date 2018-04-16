@@ -1,4 +1,4 @@
-create or replace type ut_run under ut_suite_item (
+create or replace type ut_run force under ut_suite_item (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project

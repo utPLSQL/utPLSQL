@@ -1,4 +1,4 @@
-create or replace type ut_coverage_options force as object (
+create or replace package ut_coverage_profiler authid current_user is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -16,9 +16,7 @@ create or replace type ut_coverage_options force as object (
   limitations under the License.
   */
 
-  schema_names     ut_varchar2_rows,
-  exclude_objects  ut_object_names,
-  include_objects  ut_object_names,
-  file_mappings    ut_file_mappings
-)
+  function get_coverage_data(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage;
+
+end;
 /

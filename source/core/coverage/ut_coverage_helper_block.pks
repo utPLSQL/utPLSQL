@@ -1,4 +1,4 @@
-create or replace type ut_coverage_options force as object (
+create or replace package ut_coverage_helper_block authid definer is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -16,9 +16,11 @@ create or replace type ut_coverage_options force as object (
   limitations under the License.
   */
 
-  schema_names     ut_varchar2_rows,
-  exclude_objects  ut_object_names,
-  include_objects  ut_object_names,
-  file_mappings    ut_file_mappings
-)
+  procedure coverage_start(a_run_comment in varchar2,a_coverage_id out integer);
+
+  procedure coverage_stop;
+
+  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return ut_coverage_helper.t_unit_line_calls;
+
+end;
 /

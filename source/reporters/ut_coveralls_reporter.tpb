@@ -48,7 +48,7 @@ create or replace type body ut_coveralls_reporter is
       else
         for line_no in 1 .. l_last_line_no loop
           if a_unit_coverage.lines.exists(line_no) then
-            l_file_part := to_char(a_unit_coverage.lines(line_no));
+            l_file_part := to_char(a_unit_coverage.lines(line_no).executions);
               else
             l_file_part := c_null;
           end if;

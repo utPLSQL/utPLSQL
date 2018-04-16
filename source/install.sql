@@ -114,6 +114,12 @@ alter session set current_schema = &&ut3_owner;
 prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@core/coverage/proftab.sql
 
+prompt Installing PLSQL profiler objects into &&ut3_owner schema
+@@core/coverage/proftab.sql
+
+prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
+@@core/coverage/dbms_plssqlcode.sql
+
 @@install_component.sql 'core/ut_file_mapper.pks'
 @@install_component.sql 'core/ut_file_mapper.pkb'
 
@@ -121,10 +127,18 @@ prompt Installing PLSQL profiler objects into &&ut3_owner schema
 --gathering coverage
 @@install_component.sql 'core/coverage/ut_coverage_sources_tmp.sql'
 @@install_component.sql 'core/coverage/ut_coverage_helper.pks'
-@@install_component.sql 'core/coverage/ut_coverage_helper.pkb'
+@@install_above_12_1.sql 'core/coverage/ut_coverage_helper_block.pks'
+@@install_component.sql 'core/coverage/ut_coverage_helper_profiler.pks'
 @@install_component.sql 'core/coverage/ut_coverage.pks'
-@@install_component.sql 'core/coverage/ut_coverage.pkb'
+@@install_above_12_1.sql 'core/coverage/ut_coverage_block.pks'
+@@install_component.sql 'core/coverage/ut_coverage_profiler.pks'
 @@install_component.sql 'core/coverage/ut_coverage_reporter_base.tps'
+@@install_component.sql 'core/coverage/ut_coverage_helper.pkb'
+@@install_above_12_1.sql 'core/coverage/ut_coverage_helper_block.pkb'
+@@install_component.sql 'core/coverage/ut_coverage_helper_profiler.pkb'
+@@install_component.sql 'core/coverage/ut_coverage.pkb'
+@@install_above_12_1.sql 'core/coverage/ut_coverage_block.pkb'
+@@install_component.sql 'core/coverage/ut_coverage_profiler.pkb'
 @@install_component.sql 'core/coverage/ut_coverage_reporter_base.tpb'
 
 --core type bodies

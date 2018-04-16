@@ -28,10 +28,17 @@ whenever oserror exit failure rollback
 @@core/test_suite_manager.pks
 @@core/reporters.pks
 @@core/reporters/test_coverage.pks
+set define on
+@@install_above_12_1.sql 'core/reporters/test_extended_coverage.pks'
+@@install_above_12_1.sql 'core/reporters/test_coverage/test_html_extended_reporter.pks'
+set define off
 @@core/reporters/test_coverage/test_coverage_sonar_reporter.pks
 @@core/reporters/test_coverage/test_coveralls_reporter.pks
 @@core/reporters/test_coverage/test_cov_cobertura_reporter.pks
 @@core/reporters/test_junit_reporter.pks
+set define on
+@@install_below_12_2.sql 'core/reporters/test_coverage/test_html_proftab_reporter.pks'
+set define off
 @@core/reporters/test_tfs_junit_reporter.pks
 @@core/expectations.pks
 @@core/expectations/scalar_data/binary/test_be_greater_or_equal.pks
@@ -63,10 +70,17 @@ whenever oserror exit failure rollback
 @@core/test_suite_manager.pkb
 @@core/reporters.pkb
 @@core/reporters/test_coverage.pkb
+set define on
+@@install_above_12_1.sql 'core/reporters/test_extended_coverage.pkb'
+@@install_above_12_1.sql 'core/reporters/test_coverage/test_html_extended_reporter.pkb'
+set define off
 @@core/reporters/test_coverage/test_coverage_sonar_reporter.pkb
 @@core/reporters/test_coverage/test_coveralls_reporter.pkb
 @@core/reporters/test_coverage/test_cov_cobertura_reporter.pkb
 @@core/reporters/test_junit_reporter.pkb
+set define on
+@@install_below_12_2.sql 'core/reporters/test_coverage/test_html_proftab_reporter.pkb'
+set define off
 @@core/reporters/test_tfs_junit_reporter.pkb
 @@core/expectations.pkb
 @@core/expectations/scalar_data/binary/test_be_greater_or_equal.pkb

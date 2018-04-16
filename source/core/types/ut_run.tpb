@@ -15,7 +15,7 @@ create or replace type body ut_run as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-
+  
   constructor function ut_run(
     self in out nocopy ut_run,
     a_items                 ut_suite_items,
@@ -29,7 +29,7 @@ create or replace type body ut_run as
     l_coverage_schema_names ut_varchar2_rows;
     l_coverage_options ut_coverage_options;
     l_exclude_objects  ut_object_names;
-  begin
+  begin    
     self.run_paths := a_run_paths;
     self.self_type := $$plsql_unit;
     self.items := a_items;

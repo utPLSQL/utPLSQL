@@ -1,16 +1,16 @@
-create or replace package body test_tfs_junit_reporter as
+create or replace package body test_xunit_reporter as
 
   procedure crate_a_test_package is
     pragma autonomous_transaction;
   begin
-    execute immediate q'[create or replace package check_junit_reporting is
+    execute immediate q'[create or replace package check_xunit_reporting is
       --%suite(A suite with <tag>)
 
       --%test(A test with <tag>)
       procedure test_do_stuff;
       
     end;]';
-    execute immediate q'[create or replace package body check_junit_reporting is
+    execute immediate q'[create or replace package body check_xunit_reporting is
       procedure test_do_stuff is
       begin
         ut3.ut.expect(1).to_equal(1);
@@ -19,33 +19,19 @@ create or replace package body test_tfs_junit_reporter as
 
     end;]';
     
-    execute immediate q'[create or replace package check_junit_rep_suitepath is
+    execute immediate q'[create or replace package check_xunit_rep_suitepath is
       --%suitepath(core)
-      --%suite(check_junit_rep_suitepath)
-      --%displayname(Check JUNIT Get path for suitepath)
+      --%suite(check_xunit_rep_suitepath)
+      --%displayname(Check XUNIT Get path for suitepath)
             
-      --%test(check_junit_rep_suitepath)
-      --%displayname(Check JUNIT Get path for suitepath)
-      procedure check_junit_rep_suitepath;
+      --%test(check_xunit_rep_suitepath)
+      --%displayname(Check XUNIT Get path for suitepath)
+      procedure check_xunit_rep_suitepath;
     end;]';
-    execute immediate q'[create or replace package body check_junit_rep_suitepath is
-      procedure check_junit_rep_suitepath is
+    execute immediate q'[create or replace package body check_xunit_rep_suitepath is
+      procedure check_xunit_rep_suitepath is
       begin
         ut3.ut.expect(1).to_equal(1);
-      end;
-    end;]';
-
-  execute immediate q'[create or replace package check_junit_flat_suitepath is
-      --%suitepath(core.check_junit_rep_suitepath)
-      --%suite(flatsuitepath)
-      
-      --%beforeall
-      procedure donuffin;
-    end;]';
-    execute immediate q'[create or replace package body check_junit_flat_suitepath is
-      procedure donuffin is
-      begin
-        null;
       end;
     end;]';
   end;
@@ -57,7 +43,7 @@ create or replace package body test_tfs_junit_reporter as
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_tfs_junit_reporter()));
+      from table(ut3.ut.run('check_xunit_reporting',ut3.ut_xunit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).not_to_be_like('%<tag>%');
@@ -71,7 +57,7 @@ create or replace package body test_tfs_junit_reporter as
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_tfs_junit_reporter()));
+      from table(ut3.ut.run('check_xunit_reporting',ut3.ut_xunit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).not_to_be_like('%Actual: 1 (number) was expected to equal: 1 (number)%');
@@ -85,10 +71,10 @@ create or replace package body test_tfs_junit_reporter as
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_tfs_junit_reporter()));
+      from table(ut3.ut.run('check_xunit_reporting',ut3.ut_xunit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
-    ut.expect(l_actual).to_be_like('%at "%.CHECK_JUNIT_REPORTING%", line %');
+    ut.expect(l_actual).to_be_like('%at "%.CHECK_XUNIT_REPORTING%", line %');
   end;
 
   procedure check_classname_suite is
@@ -98,33 +84,12 @@ create or replace package body test_tfs_junit_reporter as
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_tfs_junit_reporter()));
+      from table(ut3.ut.run('check_xunit_reporting',ut3.ut_xunit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
-    ut.expect(l_actual).to_be_like('%testcase classname="check_junit_reporting"%');
+    ut.expect(l_actual).to_be_like('%testcase classname="check_xunit_reporting"%');
   end;
- 
- procedure check_flatten_nested_suites is
-    l_results   ut3.ut_varchar2_list;
-    l_actual    clob;    
-  begin
-    --Act
-    select *
-      bulk collect into l_results
-      from table(ut3.ut.run('check_junit_flat_suitepath',ut3.ut_tfs_junit_reporter()));
-    l_actual := ut3.ut_utils.table_to_clob(l_results);
-    --Assert
-    ut.expect(l_actual).to_be_like('<testsuites>
-<testsuite tests="0" id="1" package="core.check_junit_rep_suitepath.check_junit_flat_suitepath"  errors="0" failures="0" name="flatsuitepath" time="%"  timestamp="%"  hostname="%" >
-<properties/>
-<system-out>
-<![CDATA[
-]]>
-</system-out>
-<system-err/>
-</testsuite>%');
-  end;
-  
+
   procedure check_nls_number_formatting is
     l_results   ut3.ut_varchar2_list;
     l_actual    clob;
@@ -138,7 +103,7 @@ create or replace package body test_tfs_junit_reporter as
     --Act
     select *
     bulk collect into l_results
-    from table(ut3.ut.run('check_junit_reporting', ut3.ut_tfs_junit_reporter()));
+    from table(ut3.ut.run('check_xunit_reporting', ut3.ut_xunit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_match('time="[0-9]*\.[0-9]{3,6}"');
@@ -153,17 +118,16 @@ create or replace package body test_tfs_junit_reporter as
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_rep_suitepath',ut3.ut_tfs_junit_reporter()));
+      from table(ut3.ut.run('check_xunit_rep_suitepath',ut3.ut_xunit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
-    ut.expect(l_actual).to_be_like('%testcase classname="core.check_junit_rep_suitepath"%');   
+    ut.expect(l_actual).to_be_like('%testcase classname="core.check_xunit_rep_suitepath"%');   
   end;
   procedure remove_test_package is
     pragma autonomous_transaction;
   begin
-    execute immediate 'drop package check_junit_reporting';
-    execute immediate 'drop package check_junit_rep_suitepath';
-    execute immediate 'drop package check_junit_flat_suitepath';
+    execute immediate 'drop package check_xunit_reporting';
+    execute immediate 'drop package check_xunit_rep_suitepath';
   end;
 end;
 /
