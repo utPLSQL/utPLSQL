@@ -373,10 +373,12 @@ create or replace package dummy as
   gv_text2 varchar2(200) := '/* multi-line comment
     in a multi-line
     string*/';
-  -- ignored start of multi-line comment /*
-  -- ignored end of multi-line comment */
-  /* proper
-   multi-line comment */
+  -- ignored start of multi-line comment with multi-byte text � /*
+  -- ignored end of multi-line comment with multi-byte text � */
+  /*  multi-line comment
+     with
+     multi-byte characters ���
+      in it */
   gv_text3 varchar2(200) := 'some text'; /* multiline comment*/  --followed by single-line comment
   /* multi-line comment in one line*/
   gv_text4 varchar2(200) := q'{/* multi-line comment
@@ -395,9 +397,11 @@ create or replace package dummy as
   gv_text2 varchar2(200) := '/* multi-line comment
     in a multi-line
     string*/';
-  -- ignored start of multi-line comment /*
-  -- ignored end of multi-line comment */
+  -- ignored start of multi-line comment with multi-byte text � /*
+  -- ignored end of multi-line comment with multi-byte text � */
   ]'||q'[
+
+
 
   gv_text3 varchar2(200) := 'some text';   --followed by single-line comment
   ]'||q'[
