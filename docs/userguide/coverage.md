@@ -53,32 +53,11 @@ The report allow you to navigate to each source file and inspect line by line co
 ![Coverage Details page](../images/coverage_html_details.png)
 
 
-#### Oracle 12.2 block coverage.
-In Oracle 12.2 new functionality was released which supports native [block coverage](https://docs.oracle.com/en/database/oracle/oracle-database/12.2/arpls/DBMS_PLSQL_CODE_COVERAGE.html#GUID-55A9E502-9EC2-4118-B292-DC79E6DC465E).
-This has been enabled in utPLSQL code coverage as a separate option. It can be invoked by passing a argument a_coverage_type with value 'block'. By default profiler option is enabled ('proftab').
-
-Example:
-```sql
-begin
-  ut.run(ut_coverage_html_reporter(),a_coverage_type => 'block');
-end;
-/
-```
-
-In this mode html reporter will show additionally number of lines that been partially covered and highlight them in orange. Number of blocks in code, blocks covered and missed.
-
 #### Oracle 12.2 extended coverage with profiler and block coverage
 Using data collected from profiler and block coverage running parallel we are able to enrich information about coverage.
 For every line recorded by profiler if we have a partially covered same line in block coverage we will display that information
-presenting line as partially covered and displaying number of block and how many blocks been covered in that line.
+presenting line as partially covered, displaying number of block and how many blocks been covered in that line.The feature will be automatically enabled in the Oracle database version 12.2 and higher, for older versions current profiler will be used.
 
-Example:
-```sql
-begin
-  ut.run(ut_coverage_html_reporter(),a_coverage_type => 'extended');
-end;
-/
-```
 
 Sample output:
 ![Package Coverage Summary](../images/extended_coverage_html_summary.png)
