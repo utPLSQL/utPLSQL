@@ -39,24 +39,26 @@ Example outputs from documentation reporter.
 ![doc_reporter_outputs](../images/documentation_reporter_color.png)
 
 
-# XUnit reporter
+# JUnit reporter 
 
-Most of continuous integration servers (like Jenkins) are capable of consuming unit test execution results in [XUnit/JUnit](https://en.wikipedia.org/wiki/XUnit) format.
-The `ut_xunit_reporter` is producing outcomes as XUnit-compatible XML unit test report, that can be used by CI servers to display their custom reports and provide metrics (like tests execution trends).
+Most of continuous integration servers (like Jenkins) are capable of consuming unit test execution results in [JUnit](https://en.wikipedia.org/wiki/JUnit) format.
+The `ut_junit_reporter` in earlier version referred as ut_xunit_reporter is producing outcomes as JUnit-compatible XML unit test report, that can be used by CI servers to display their custom reports and provide metrics (like tests execution trends).
+Please note that in previous versions it was called ut_xunit_reporter and for backward compatibility that name still exists.
 
-Invocation of tests with XUnit reporter.  
+Invocation of tests with JUnit reporter.  
 
-`exec ut.run(ut_xunit_reporter());`
+`exec ut.run(ut_junit_reporter());`
 
-The `ut_xunit_reporter` doesn't accept any arguments.
+The `ut_junit_reporter` doesn't accept any arguments.
 
-Example of xunit report integrated with [Jenkins CI](https://jenkins.io/)
+Example of junit report integrated with [Jenkins CI](https://jenkins.io/)
 
-![xunit_reporter_outputs](../images/xunit_reporter_jenkins.png)
+![junit_reporter_outputs](../images/junit_summary.png)
 
 Example of failure report details
  
-![xunit_reporter_outputs](../images/xunit_reporter_jenkins_errors.png)
+![junit_reporter_outputs](../images/junit_errors.png)
+
 
 
 # Teamcity reporter

@@ -286,6 +286,7 @@ end;';
       select 'UT3.UT_COVERAGE_SONAR_REPORTER', 'Y' from dual union all
       select 'UT3.UT_COVERALLS_REPORTER', 'Y' from dual union all
       select 'UT3.UT_DOCUMENTATION_REPORTER', 'Y' from dual union all
+      select 'UT3.UT_JUNIT_REPORTER', 'Y' from dual union all
       select 'UT3.UT_SONAR_TEST_REPORTER', 'Y' from dual union all
       select 'UT3.UT_TEAMCITY_REPORTER', 'Y' from dual union all
       select 'UT3.UT_TFS_JUNIT_REPORTER', 'Y' from dual union all
