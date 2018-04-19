@@ -56,7 +56,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<NAME>some_package</NAME><DESCRIPTION>Another description</DESCRIPTION>%'
+        '%<NAME>some_package</NAME><DESCRIPTION>Some description</DESCRIPTION>%'
     );
   end;
 
@@ -67,8 +67,8 @@ create or replace package body test_suite_builder is
       --Arrange
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(1, 'suite',null, null),
-        ut3.ut_annotation(2, 'suitepath','dummy.utplsql.some', null),
-        ut3.ut_annotation(3, 'suitepath','org.utplsql.some', null)
+        ut3.ut_annotation(2, 'suitepath','org.utplsql.some', null),
+        ut3.ut_annotation(3, 'suitepath','dummy.utplsql.some', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -93,7 +93,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<NAME>some_package</NAME><DESCRIPTION>Newest description</DESCRIPTION>%'
+        '%<NAME>some_package</NAME><DESCRIPTION>New description</DESCRIPTION>%'
     );
   end;
 
@@ -104,8 +104,8 @@ create or replace package body test_suite_builder is
       --Arrange
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(1, 'suite',null, null),
-        ut3.ut_annotation(2, 'rollback','bad', null),
-        ut3.ut_annotation(3, 'rollback','manual', null)
+        ut3.ut_annotation(2, 'rollback','manual', null),
+        ut3.ut_annotation(3, 'rollback','bad', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -122,14 +122,14 @@ create or replace package body test_suite_builder is
       --Arrange
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(1, 'suite',null, null),
-        ut3.ut_annotation(2, 'rollback','bad', null),
-        ut3.ut_annotation(3, 'rollback','manual', null)
+        ut3.ut_annotation(2, 'rollback','manual', null),
+        ut3.ut_annotation(3, 'rollback','bad', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS>%&quot;--%rollback&quot;%</WARNINGS>%'
+        '%<WARNINGS>%&quot;--%rollback&quot;%%UT3_TESTER.SOME_PACKAGE%3%</WARNINGS>%'
     );
   end;
 
@@ -139,14 +139,14 @@ create or replace package body test_suite_builder is
   begin
       --Arrange
     l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Blah', null),
-        ut3.ut_annotation(2, 'suite','Cool', null)
+        ut3.ut_annotation(2, 'suite','Cool', null),
+        ut3.ut_annotation(8, 'suite','bad', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<DESCRIPTION>Cool</DESCRIPTION>%<WARNINGS>%&quot;--%suite&quot;%</WARNINGS>%'
+        '%<DESCRIPTION>Cool</DESCRIPTION>%<WARNINGS>%&quot;--%suite&quot;%UT3_TESTER.SOME_PACKAGE%line 8%</WARNINGS>%'
     );
   end;
 
@@ -156,15 +156,15 @@ create or replace package body test_suite_builder is
   begin
       --Arrange
     l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'suitepath','dummy.utplsql.some', null),
-        ut3.ut_annotation(3, 'suitepath','org.utplsql.some', null)
+        ut3.ut_annotation(2, 'suite','Cool', null),
+        ut3.ut_annotation(3, 'suitepath','dummy.utplsql.some', null),
+        ut3.ut_annotation(4, 'suitepath','org.utplsql.some', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS>%&quot;--%suitepath&quot;%</WARNINGS>%'
+        '%<WARNINGS>%&quot;--%suitepath&quot;%line 4%</WARNINGS>%'
     );
   end;
 
@@ -174,15 +174,15 @@ create or replace package body test_suite_builder is
   begin
       --Arrange
     l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(3, 'displayname','New description', null),
-        ut3.ut_annotation(4, 'displayname','Newest description', null)
+        ut3.ut_annotation(2, 'suite','Cool', null),
+        ut3.ut_annotation(4, 'displayname','New description', null),
+        ut3.ut_annotation(5, 'displayname','Newest description', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS>%&quot;--%displayname&quot;%</WARNINGS>%'
+        '%<WARNINGS>%&quot;--%displayname&quot;%line 5%</WARNINGS>%'
     );
   end;
 
@@ -286,11 +286,11 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(7, 'aftereach',null, 'another_after_each'),
         ut3.ut_annotation(8, 'afterall',null, 'first_after_all'),
         ut3.ut_annotation(9, 'afterall',null, 'another_after_all'),
-        ut3.ut_annotation(10, 'test','A test', 'some_test'),
-        ut3.ut_annotation(11, 'beforetest','before_test_proc', 'some_test'),
-        ut3.ut_annotation(12, 'beforetest','before_test_proc2', 'some_test'),
-        ut3.ut_annotation(13, 'aftertest','after_test_proc', 'some_test'),
-        ut3.ut_annotation(14, 'aftertest','after_test_proc2', 'some_test')
+        ut3.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
+        ut3.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
+        ut3.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
+        ut3.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -375,15 +375,11 @@ create or replace package body test_suite_builder is
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
-    ut.expect(l_actual).to_be_like(
-        '<UT_LOGICAL_SUITE><SELF_TYPE>UT_SUITE</SELF_TYPE><OBJECT_OWNER>UT3_TESTER</OBJECT_OWNER>' ||
-        '<OBJECT_NAME>some_package</OBJECT_NAME><NAME>some_package</NAME><DESCRIPTION>Cool</DESCRIPTION>' ||
-        '%<WARNINGS><VARCHAR2>Annotations: &quot;--\%afterall&quot;, &quot;--\%aftereach&quot;, &quot;--\%beforeall&quot;, &quot;--\%beforeeach&quot;' ||
-        ' were ignored for procedure &quot;DO_STUFF&quot;.' ||
-        ' Those annotations cannot be used with annotation: &quot;--\%test&quot;</VARCHAR2></WARNINGS>'||
-        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>do_stuff</NAME>%</UT_LOGICAL_SUITE>'
-        ,'\'
-    );
+    ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%beforeall&quot;%line 2%</WARNINGS>%', '\');
+    ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%beforeeach&quot;%line 3%</WARNINGS>%', '\');
+    ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%aftereach&quot;%line 4%</WARNINGS>%', '\');
+    ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%afterall&quot; cannot be used with annotation: &quot;--\%test&quot;'
+                                   ||'%at &quot;UT3_TESTER.SOME_PACKAGE.DO_STUFF&quot;, line 5%</WARNINGS>%', '\');
     ut.expect(l_actual).not_to_be_like('%<BEFORE_EACH_LIST>%');
     ut.expect(l_actual).not_to_be_like('%<AFTER_EACH_LIST>%');
     ut.expect(l_actual).not_to_be_like('%<BEFORE_ALL_LIST>%');
@@ -548,7 +544,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS><VARCHAR2>Annotation &quot;--\%context(A context)&quot; was ignored. Cannot find following &quot;--\%endcontext&quot;.</VARCHAR2></WARNINGS>%'
+        '%<WARNINGS><VARCHAR2>Annotation &quot;--\%context(A context)&quot; was ignored. Cannot find following &quot;--\%endcontext&quot;.%at &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 4</VARCHAR2></WARNINGS>%'
         ,'\'
     );
     ut.expect(l_actual).to_be_like(
@@ -589,7 +585,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS><VARCHAR2>Annotation &quot;--\%endcontext&quot; was ignored. Cannot find preceding &quot;--\%context&quot;.</VARCHAR2></WARNINGS>%'
+        '%<WARNINGS><VARCHAR2>Annotation &quot;--\%endcontext&quot; was ignored. Cannot find preceding &quot;--\%context&quot;.%at &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 9</VARCHAR2></WARNINGS>%'
         ,'\'
     );
     ut.expect(l_actual).to_be_like(

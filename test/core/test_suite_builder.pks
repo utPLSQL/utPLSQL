@@ -5,16 +5,16 @@ create or replace package test_suite_builder is
   --%test(Sets suite name from package name and leaves description empty)
   procedure no_suite_description;
 
-  --%test(Sets suite description using last --%suite annotation)
+  --%test(Sets suite description using first --%suite annotation)
   procedure suite_description_from_suite;
 
-  --%test(Sets suite path using last --%suitepath annotation)
+  --%test(Sets suite path using first --%suitepath annotation)
   procedure suitepath_from_non_empty_path;
 
-  --%test(Overrides suite description using last --%displayname annotation)
+  --%test(Overrides suite description using first --%displayname annotation)
   procedure suite_descr_from_displayname;
 
-  --%test(Sets rollback type using last --%rollback annotation)
+  --%test(Sets rollback type using first --%rollback annotation)
   procedure rollback_type_valid;
 
   --%test(Gives warning if more than one --%rollback annotation used)
