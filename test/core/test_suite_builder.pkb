@@ -168,6 +168,78 @@ create or replace package body test_suite_builder is
     );
   end;
 
+  procedure beforeall_annot_duplicated is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','Cool', null),
+        ut3.ut_annotation(8, 'beforeall', null, 'test_procedure'),
+        ut3.ut_annotation(9, 'beforeall', null, 'test_procedure')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<DESCRIPTION>Cool</DESCRIPTION>%<WARNINGS>%&quot;--%beforeall&quot;%UT3_TESTER.SOME_PACKAGE.TEST_PROCEDURE%line 9%</WARNINGS>%'
+    );
+  end;
+
+  procedure beforeeach_annot_duplicated is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','Cool', null),
+        ut3.ut_annotation(8, 'beforeeach', null, 'test_procedure'),
+        ut3.ut_annotation(9, 'beforeeach', null, 'test_procedure')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<DESCRIPTION>Cool</DESCRIPTION>%<WARNINGS>%&quot;--%beforeeach&quot;%UT3_TESTER.SOME_PACKAGE.TEST_PROCEDURE%line 9%</WARNINGS>%'
+    );
+  end;
+
+  procedure afterall_annot_duplicated is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','Cool', null),
+        ut3.ut_annotation(8, 'afterall', null, 'test_procedure'),
+        ut3.ut_annotation(9, 'afterall', null, 'test_procedure')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<DESCRIPTION>Cool</DESCRIPTION>%<WARNINGS>%&quot;--%afterall&quot;%UT3_TESTER.SOME_PACKAGE.TEST_PROCEDURE%line 9%</WARNINGS>%'
+    );
+  end;
+
+  procedure aftereach_annot_duplicated is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','Cool', null),
+        ut3.ut_annotation(8, 'aftereach', null, 'test_procedure'),
+        ut3.ut_annotation(9, 'aftereach', null, 'test_procedure')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<DESCRIPTION>Cool</DESCRIPTION>%<WARNINGS>%&quot;--%aftereach&quot;%UT3_TESTER.SOME_PACKAGE.TEST_PROCEDURE%line 9%</WARNINGS>%'
+    );
+  end;
+
   procedure suitepath_annot_duplicated is
     l_actual      clob;
     l_annotations ut3.ut_annotations;

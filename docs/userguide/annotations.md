@@ -136,10 +136,7 @@ create or replace package test_package as
 end;
 /
 create or replace package body test_package as
-  procedure some_test is
-  begin
-    null;
-  end;
+  procedure some_test is begin null; end;
 end;
 /
 ```
@@ -164,10 +161,7 @@ create or replace package test_package as
 end;
 /
 create or replace package body test_package as
-  procedure some_test is
-  begin
-    null;
-  end;
+  procedure some_test is begin null; end;
 end;
 /
 ```
@@ -194,10 +188,7 @@ create or replace package test_package as
 end;
 /
 create or replace package body test_package as
-  procedure some_test is
-  begin
-    null;
-  end;
+  procedure some_test is begin null; end;
 end;
 /
 ```
@@ -237,14 +228,10 @@ create or replace package test_package as
 end;
 /
 create or replace package body test_package as
-  procedure some_test is
-  begin
-    null;
-  end;
-  procedure other_test is
-  begin
-    null;
-  end;
+
+  procedure some_test is begin null; end;
+  
+  procedure other_test is begin null; end;
 end;
 /
 ```
@@ -275,14 +262,10 @@ create or replace package test_package as
 end;
 /
 create or replace package body test_package as
-  procedure some_test is
-  begin
-    null;
-  end;
-  procedure other_test is
-  begin
-    null;
-  end;
+  
+  procedure some_test is begin null; end;
+  
+  procedure other_test is begin null; end;
 end;
 /
 ```
@@ -324,14 +307,10 @@ create or replace package body test_package as
   begin
     dbms_output.put_line('--- SETUP_STUFF invoked ---');
   end;
-  procedure some_test is
-  begin
-    null;
-  end;
-  procedure other_test is
-  begin
-    null;
-  end;
+  
+  procedure some_test is begin null; end;
+  
+  procedure other_test is begin null; end;
 end;
 /
 ```
@@ -351,7 +330,8 @@ Finished in .012292 seconds
 
 
 When you define multiple beforeall procedures, all of them will get executed before invoking any test in package.
-Order of execution for beforeall procedures is defined by the position of the `--%beforeall` annotation in the package specification. 
+Order of execution for beforeall procedures is defined by the position of the `--%beforeall` annotation in the package specification.
+Note that procedure `another_setup` is also invoked before any test, though it's located at the end of package specification.  
  ```sql
  create or replace package test_package as
    --%suite(Tests for a package)
@@ -375,18 +355,62 @@ Order of execution for beforeall procedures is defined by the position of the `-
    begin
      dbms_output.put_line('--- ANOTHER_SETUP invoked ---');
    end;
+   
    procedure initial_setup is
    begin
      dbms_output.put_line('--- INITIAL_SETUP invoked ---');
    end;
-   procedure some_test is
+   
+   procedure some_test is begin null; end;
+   
+   procedure other_test is begin null; end;
+ end;
+ /
+```
+ 
+ ```sql
+ exec ut.run('test_package');
+ ```
+ ```
+Tests for a package
+  --- INITIAL_SETUP invoked ---
+  --- ANOTHER_SETUP invoked ---
+  Description of tesed behavior [.004 sec]
+  Description of another behavior [.004 sec]
+ 
+Finished in .016672 seconds
+2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+ ```
+
+When multiple `--%beforeall` annotations are specified for a procedure, the first annotation will be used and a warning message will appear indicating duplicate annotation.  
+When procedure is annotated as both `--%beforeall` and `--%test`, the procedure will become a test and a warning message will appear indicating invalid annotation combination.    
+```sql
+ create or replace package test_package as
+   --%suite(Tests for a package)
+ 
+   --%beforeall
+   --%beforeall
+   procedure initial_setup;
+   
+   --%test(Description of tesed behavior)
+   --%beforeall
+   procedure some_test;
+ 
+   --%test(Description of another behavior)
+   procedure other_test;
+ 
+ end;
+ /
+ create or replace package body test_package as
+
+   procedure initial_setup is
    begin
-     null;
+     dbms_output.put_line('--- INITIAL_SETUP invoked ---');
    end;
-   procedure other_test is
-   begin
-     null;
-   end;
+
+   procedure some_test is begin null; end;
+
+   procedure other_test is begin null; end;
  end;
  /
 ```

@@ -289,9 +289,6 @@ create or replace package body ut_suite_builder is
   begin
     l_test := ut_test(a_suite.object_owner, a_suite.object_name, a_procedure_name);
 
-    warning_on_duplicate_annot(a_suite, a_procedure_name, a_annotations, 'test');
---     warning_on_duplicate_annot(a_suite, a_procedure_name, a_annotations, 'displayname');
---     warning_on_duplicate_annot(a_suite, a_procedure_name, a_annotations, 'rollback');
     if a_annotations.exists('displayname') then
       l_annotation_texts := a_annotations('displayname');
       --take the last definition if more than one was provided
@@ -360,6 +357,13 @@ create or replace package body ut_suite_builder is
     a_after_each_list  in out nocopy ut_executables
   ) is
   begin
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'test');
+    --     warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'displayname');
+    --     warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'rollback');
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'beforeall');
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'beforeeach');
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'afterall');
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'aftereach');
     if a_proc_annotations.exists('test') then
       add_test( a_suite, a_procedure_name, a_proc_annotations);
 

@@ -26,6 +26,18 @@ create or replace package test_suite_builder is
   --%test(Gives warning if more than one --%test annotation used)
   procedure test_annot_duplicated;
 
+  --%test(Gives warning if more than one --%beforeall annotation used)
+  procedure beforeall_annot_duplicated;
+
+  --%test(Gives warning if more than one --%beforeeach annotation used)
+  procedure beforeeach_annot_duplicated;
+
+  --%test(Gives warning if more than one --%afterall annotation used)
+  procedure afterall_annot_duplicated;
+
+  --%test(Gives warning if more than one --%aftereach annotation used)
+  procedure aftereach_annot_duplicated;
+
   --%test(Gives warning if more than one --%suitepath annotation used)
   procedure suitepath_annot_duplicated;
 
