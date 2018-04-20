@@ -187,7 +187,11 @@ create or replace package test_expectations_cursor is
   --%test(Adds a warning when using depreciated syntax to_( equal( a_expected sys_refcursor, a_exclude ut_varchar2_list )) )
   procedure deprec_equal_excl_list;
 
-  --%test(Reports column name differences if found)
+  --%test(Reports column diff on cursor with column name implicit )
+  procedure column_diff_on_col_name_implicit;
 
+  --%test(Reports column match on cursor with column name implicit )
+  procedure column_match_on_col_name_implicit;
+   
 end;
 /

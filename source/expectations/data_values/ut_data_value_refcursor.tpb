@@ -140,7 +140,7 @@ create or replace type body ut_data_value_refcursor as
       for i in 1 .. a_column_diffs.count loop
         if a_column_diffs(i).diff_type in ('-','+') then
           l_incomparable_cols.extend;
-          l_incomparable_cols(l_incomparable_cols.last) := coalesce(a_column_diffs(i).expected_name,a_column_diffs(i).actual_name);
+          l_incomparable_cols(l_incomparable_cols.last) := ut_utils.xmlgen_escaped_string(coalesce(a_column_diffs(i).expected_name,a_column_diffs(i).actual_name));
         end if;
       end loop;
       l_result := ut_utils.to_xpath(l_incomparable_cols);

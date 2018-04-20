@@ -302,5 +302,8 @@ create or replace package ut_utils authid definer is
   /*It takes a collection of type ut_varchar2_list and it only returns the elements which meets the regular expression*/
   function filter_list(a_list IN ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list;
 
+  -- Generates XMLGEN escaped string
+  function xmlgen_escaped_string(a_string in varchar2) return varchar2;
+
 end ut_utils;
 /
