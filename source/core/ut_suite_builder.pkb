@@ -60,21 +60,21 @@ create or replace package body ut_suite_builder is
   --index used to lookup package level annotations by package-level annotation name
   type tt_annotations_index   is table of tt_package_annot_positions index by t_annotation_name;
 
-  function is_last_annotation_for_proc(a_annotations ut_annotations, a_index binary_integer) return boolean is
-  begin
-    return a_index = a_annotations.count or a_annotations(a_index).subobject_name != nvl(a_annotations(a_index+1).subobject_name, ' ');
-  end;
 
-  function get_procedure_annotations(a_annotations ut_annotations, a_index binary_integer) return tt_procedure_annotations is
+  function get_procedure_annotations(a_annotations ut_annotations, a_index in out nocopy binary_integer) return tt_procedure_annotations is
     l_result         tt_procedure_annotations;
     l_index          binary_integer := a_index;
     l_annotation_pos binary_integer;
+    function is_last_annotation_for_proc(a_annotations ut_annotations, a_index binary_integer) return boolean is
+    begin
+      return a_index = a_annotations.count or a_annotations(a_index).subobject_name != nvl(a_annotations(a_index+1).subobject_name, ' ');
+    end;
   begin
     loop
-      l_annotation_pos := a_annotations(l_index).position;
-      l_result(a_annotations(l_index).name)(l_annotation_pos) := a_annotations(l_index).text;
-      exit when is_last_annotation_for_proc(a_annotations, l_index);
-      l_index := a_annotations.next(l_index);
+      l_annotation_pos := a_annotations(a_index).position;
+      l_result(a_annotations(a_index).name)(l_annotation_pos) := a_annotations(a_index).text;
+      exit when is_last_annotation_for_proc(a_annotations, a_index);
+      a_index := a_annotations.next(a_index);
     end loop;
     return l_result;
   end;
@@ -95,9 +95,6 @@ create or replace package body ut_suite_builder is
       else
         l_result.annotations(l_annotation_pos).procedure_name        := a_object.annotations(l_annotation_no).subobject_name;
         l_result.annotations(l_annotation_pos).procedure_annotations := get_procedure_annotations(a_object.annotations, l_annotation_no);
-        if l_result.annotations(l_annotation_pos).procedure_annotations.count > 0 then
-          l_annotation_no := l_annotation_no + l_result.annotations(l_annotation_pos).procedure_annotations.count - 1;
-        end if;
       end if;
       l_annotation_no := a_object.annotations.next(l_annotation_no);
     end loop;
@@ -212,22 +209,46 @@ create or replace package body ut_suite_builder is
     a_for_annotation varchar2
   ) is
     l_annotation_name t_annotation_name;
-    line_no           binary_integer;
+    l_line_no           binary_integer;
   begin
     if a_annotations.exists(a_for_annotation) then
       if a_annotations(a_for_annotation).count > 1 then
         --start from second occurrence of annotation
-        line_no := a_annotations(a_for_annotation).next( a_annotations(a_for_annotation).first );
-        while line_no is not null loop
+        l_line_no := a_annotations(a_for_annotation).next( a_annotations(a_for_annotation).first );
+        while l_line_no is not null loop
           a_suite.put_warning(
             'Duplicate annotation "--%' || a_for_annotation || '". Annotation ignored.' || chr( 10 )
-            || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name ) || '", line ' || line_no
+            || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name ) || '", line ' || l_line_no
           );
-          line_no := a_annotations(a_for_annotation).next(line_no);
+          l_line_no := a_annotations(a_for_annotation).next( l_line_no );
         end loop;
       end if;
     end if;
   end;
+
+  procedure warning_on_duplicate_annot(
+    a_suite          in out nocopy ut_suite_item,
+    a_procedure_name  t_object_name,
+    a_annotations     tt_procedure_annotations,
+    a_for_annotation  varchar2
+  ) is
+    l_annotation_name t_annotation_name;
+    l_line_no           binary_integer;
+    begin
+      if a_annotations.exists(a_for_annotation) then
+        if a_annotations(a_for_annotation).count > 1 then
+          --start from second occurrence of annotation
+          l_line_no := a_annotations(a_for_annotation).next( a_annotations(a_for_annotation).first );
+          while l_line_no is not null loop
+            a_suite.put_warning(
+                'Duplicate annotation "--%' || a_for_annotation || '". Annotation ignored.' || chr( 10 )
+                || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name ||'.'||a_procedure_name) || '", line ' || l_line_no
+            );
+            l_line_no := a_annotations(a_for_annotation).next( l_line_no );
+          end loop;
+        end if;
+      end if;
+    end;
 
   procedure warning_on_extra_annotations(
     a_suite               in out nocopy ut_suite_item,
@@ -238,19 +259,19 @@ create or replace package body ut_suite_builder is
   ) is
     l_annotation_name t_annotation_name;
     l_warning         varchar2(32767);
-    line_no           binary_integer;
+    l_line_no           binary_integer;
   begin
     l_annotation_name := a_proc_annotations.first;
     while l_annotation_name is not null loop
       if l_annotation_name member of a_invalid_annotations then
-        line_no := a_proc_annotations(l_annotation_name).first;
-        while line_no is not null loop
+        l_line_no := a_proc_annotations(l_annotation_name).first;
+        while l_line_no is not null loop
           a_suite.put_warning(
             'Annotation "--%' || l_annotation_name || '" cannot be used with annotation: "--%' || a_for_annotation || '"'
             || chr( 10 ) || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name||'.'||a_procedure_name )
-            || '", line ' || line_no
+            || '", line ' || l_line_no
           );
-          line_no := a_proc_annotations(l_annotation_name).next(line_no);
+          l_line_no := a_proc_annotations(l_annotation_name).next(l_line_no);
         end loop;
       end if;
       l_annotation_name := a_proc_annotations.next(l_annotation_name);
@@ -268,13 +289,17 @@ create or replace package body ut_suite_builder is
   begin
     l_test := ut_test(a_suite.object_owner, a_suite.object_name, a_procedure_name);
 
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_annotations, 'test');
+--     warning_on_duplicate_annot(a_suite, a_procedure_name, a_annotations, 'displayname');
+--     warning_on_duplicate_annot(a_suite, a_procedure_name, a_annotations, 'rollback');
     if a_annotations.exists('displayname') then
       l_annotation_texts := a_annotations('displayname');
       --take the last definition if more than one was provided
       l_test.description := l_annotation_texts(l_annotation_texts.first);
       --TODO if more than one - warning
+    else
+      l_test.description := a_annotations('test')(a_annotations('test').first);
     end if;
-    l_test.description := coalesce(l_test.description,a_annotations('test')(a_annotations('test').first));
     l_test.path := a_suite.path ||'.'||a_procedure_name;
 
     if a_annotations.exists('rollback') then

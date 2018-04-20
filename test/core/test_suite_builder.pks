@@ -23,6 +23,9 @@ create or replace package test_suite_builder is
   --%test(Gives warning if more than one --%suite annotation used)
   procedure suite_annot_duplicated;
 
+  --%test(Gives warning if more than one --%test annotation used)
+  procedure test_annot_duplicated;
+
   --%test(Gives warning if more than one --%suitepath annotation used)
   procedure suitepath_annot_duplicated;
 

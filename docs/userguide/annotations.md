@@ -13,6 +13,536 @@ There are two distinct types of annotations, identified by their location in pac
 We strongly recommend putting package level annotations at the very top of package except for the `--%context` annotations (described below)  
 
 
+## Supported annotations
+
+| Annotation |Level| Description |
+| --- | --- | --- |
+| `--%suite(<description>)` | Package | Mandatory. Marks package as a test suite. Optional suite description can be provided (see `displayname`). |
+| `--%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
+| `--%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a suite/test. `%displayname(Name of the suite/test)`. The annotation is provided for flexibility and convenience only. It has exactly the same meaning as `<description>` in `test` and `suite` annotations. If description is provided using both `suite`/`test` and `displayname`, then the one defined as last takes precedence. |
+| `--%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can by provided (see `displayname`). |
+| `--%throws(<exception_number>[,<exception_number>[,...]])`| Procedure | Denotes that the annotated procedure must throw one of the exception numbers provided. If no valid numbers were provided as annotation parameters the annotation is ignored. Applicable to test procedures only. |
+| `--%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
+| `--%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
+| `--%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` procedure in the suite. |
+| `--%aftereach` | Procedure | Denotes that the annotated procedure should be executed after each `%test` procedure in the suite. |
+| `--%beforetest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed before the annotated `%test` procedure. |
+| `--%aftertest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed after the annotated `%test` procedure. |
+| `--%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
+| `--%disabled` | Package/procedure | Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run. |
+| `--%context(<description>)` | Package | Denotes start of a nested context (sub-suite) in a suite package |
+| `--%endcontext` | Package | Denotes end of a nested context (sub-suite) in a suite package |
+
+### Suite
+
+The `--%suite` annotation denotes PLSQL package as a unit test suite.
+It accepts an optional description that will be visible when running the tests.
+When description is not provided, package name is displayed on report.
+
+Suite package without description.
+```sql
+create or replace package test_package as
+  --%suite
+end;
+/
+```
+```sql
+exec ut.run('test_package');
+```
+```
+test_package
+ 
+Finished in .002415 seconds
+0 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```  
+
+Suite package with description.
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+end;
+/
+```
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+ 
+Finished in .001646 seconds
+0 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```  
+
+When multiple `--%suite` annotations are specified in package, the first annotation will be used and a warning message will appear indicating duplicate annotation.
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+  --%suite(Bad annotation)
+end;
+/
+```
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+ 
+ 
+Warnings:
+ 
+  1) test_package
+      Duplicate annotation "--%suite". Annotation ignored.
+      at "TESTS_OWNER.TEST_PACKAGE", line 3
+ 
+Finished in .003318 seconds
+0 tests, 0 failed, 0 errored, 0 disabled, 1 warning(s)
+```  
+
+When `--%suite` annotation is bound to procedure, it is ignored and results in package not getting recognized as test suite.
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+  procedure some_proc;
+end;
+/
+```
+```sql
+exec ut.run('test_package');
+```
+```
+ORA-20204: Suite package TESTS_OWNER.test_package not found
+ORA-06512: at "UT3.UT_RUNNER", line 106
+ORA-06512: at "UT3.UT", line 115
+ORA-06512: at "UT3.UT", line 306
+ORA-06512: at "UT3.UT", line 364
+ORA-06512: at line 1
+```  
+
+
+### Test
+
+The `--%suite` annotation denotes procedure withing test suite as a unit test.
+It accepts an optional description that will be reported when the test is executed.
+When description is not provided, procedure name is displayed on report.
+
+
+Test procedure without description.
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+  
+  --%test
+  procedure some_test;
+end;
+/
+create or replace package body test_package as
+  procedure some_test is
+  begin
+    null;
+  end;
+end;
+/
+```
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+  some_test [.003 sec]
+ 
+Finished in .004109 seconds
+1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```  
+
+Test procedure with description.
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+  
+  --%test(Description of tesed behavior)
+  procedure some_test;
+end;
+/
+create or replace package body test_package as
+  procedure some_test is
+  begin
+    null;
+  end;
+end;
+/
+```
+
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+  Description of tesed behavior [.005 sec]
+ 
+Finished in .006828 seconds
+1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```  
+
+When multiple `--%test` annotations are specified for a procedure, the first annotation will be used and a warning message will appear indicating duplicate annotation.
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+  
+  --%test(Description of tesed behavior)
+  --%test(Duplicate description)
+  procedure some_test;
+end;
+/
+create or replace package body test_package as
+  procedure some_test is
+  begin
+    null;
+  end;
+end;
+/
+```
+
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+  Description of tesed behavior [.007 sec]
+ 
+ 
+Warnings:
+ 
+  1) test_package
+      Duplicate annotation "--%test". Annotation ignored.
+      at "TESTS_OWNER.TEST_PACKAGE.SOME_TEST", line 5
+ 
+Finished in .008815 seconds
+1 tests, 0 failed, 0 errored, 0 disabled, 1 warning(s)
+```  
+
+### Disabled
+Marks a suite package or test procedure as disabled.
+
+Disabling suite.
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+  --%disabled
+  
+  --%test(Description of tesed behavior)
+  procedure some_test;
+
+  --%test(Description of another behavior)
+  procedure other_test;
+end;
+/
+create or replace package body test_package as
+  procedure some_test is
+  begin
+    null;
+  end;
+  procedure other_test is
+  begin
+    null;
+  end;
+end;
+/
+```
+
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+  Description of tesed behavior [0 sec] (DISABLED)
+  Description of another behavior [0 sec] (DISABLED)
+ 
+Finished in .001441 seconds
+2 tests, 0 failed, 0 errored, 2 disabled, 0 warning(s)
+```  
+
+Disabling individual test(s).
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+  
+  --%test(Description of tesed behavior)
+  procedure some_test;
+
+  --%test(Description of another behavior)
+  --%disabled
+  procedure other_test;
+end;
+/
+create or replace package body test_package as
+  procedure some_test is
+  begin
+    null;
+  end;
+  procedure other_test is
+  begin
+    null;
+  end;
+end;
+/
+```
+
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+  Description of tesed behavior [.004 sec]
+  Description of another behavior [0 sec] (DISABLED)
+ 
+Finished in .005868 seconds
+2 tests, 0 failed, 0 errored, 1 disabled, 0 warning(s)
+```
+
+### Beforeall
+
+Marks a procedure to be executed before all test procedures in a suite.
+
+Single beforeall procedure.
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+
+  --%test(Description of tesed behavior)
+  procedure some_test;
+
+  --%test(Description of another behavior)
+  procedure other_test;
+
+  --%beforeall
+  procedure setup_stuff;
+  
+end;
+/
+create or replace package body test_package as
+  procedure setup_stuff is
+  begin
+    dbms_output.put_line('--- SETUP_STUFF invoked ---');
+  end;
+  procedure some_test is
+  begin
+    null;
+  end;
+  procedure other_test is
+  begin
+    null;
+  end;
+end;
+/
+```
+
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+  --- SETUP_STUFF invoked ---
+  Description of tesed behavior [.004 sec]
+  Description of another behavior [.003 sec]
+ 
+Finished in .012292 seconds
+2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```
+
+
+When you define multiple beforeall procedures, all of them will get executed before invoking any test in package.
+Order of execution for beforeall procedures is defined by the position of the `--%beforeall` annotation in the package specification. 
+ ```sql
+ create or replace package test_package as
+   --%suite(Tests for a package)
+ 
+   --%beforeall
+   procedure initial_setup;
+   
+   --%test(Description of tesed behavior)
+   procedure some_test;
+ 
+   --%test(Description of another behavior)
+   procedure other_test;
+ 
+   --%beforeall
+   procedure another_setup;
+   
+ end;
+ /
+ create or replace package body test_package as
+   procedure another_setup is
+   begin
+     dbms_output.put_line('--- ANOTHER_SETUP invoked ---');
+   end;
+   procedure initial_setup is
+   begin
+     dbms_output.put_line('--- INITIAL_SETUP invoked ---');
+   end;
+   procedure some_test is
+   begin
+     null;
+   end;
+   procedure other_test is
+   begin
+     null;
+   end;
+ end;
+ /
+```
+ 
+ ```sql
+ exec ut.run('test_package');
+ ```
+ ```
+Tests for a package
+  --- INITIAL_SETUP invoked ---
+  --- ANOTHER_SETUP invoked ---
+  Description of tesed behavior [.004 sec]
+  Description of another behavior [.004 sec]
+ 
+Finished in .016672 seconds
+2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+ ```
+  
+
+### Afterall
+Marks a procedure to be executed after all test procedures in a suite.
+
+### Beforeeach
+
+### Aftereach
+
+### Beforetest
+
+### Aftertest
+
+### Suitepath
+
+### Context
+
+### Rollback
+
+
+
+
+**Note**
+>Package is considered a test-suite only when package specification contains the `--%suite` annotation at the package level.
+>
+>Some annotations like `--%suite`, `--%test` and `--%displayname` accept parameters. The parameters for annotations need to be placed in brackets.
+Values for parameters should be provided without any quotation marks.
+If the parameters are placed without brackets or with incomplete brackets, they will be ignored.
+>
+>Example: `--%suite(The name of suite without closing bracket`
+
+# Suitepath concept
+
+It is very likely that the application for which you are going to introduce tests consists of many different packages, procedures and functions.
+Usually procedures can be logically grouped inside a package, there also might be several logical groups of procedures in a single package and packages might be grouped into modules and modules into subject areas.
+
+As your project grows, the codebase will grow to. utPLSQL allows you to group packages into modules and modules into 
+
+Let's say you have a complex insurance application that deals with policies, claims and payments. The payment module contains several packages for payment recognition, charging, planning etc. The payment recognition module among others contains a complex `recognize_payment` procedure that associates received money to the policies.
+
+If you want to create tests for your application it is recommended to structure your tests similarly to the logical structure of your application. So you end up with something like:
+* Integration tests
+  *   Policy tests
+  *   Claim tests
+  *   Payment tests
+    * Payments recognition
+    * Payments set off
+
+The `%suitepath` annotation is used for such grouping. Even though test packages are defined in a flat structure the `%suitepath` is used by the framework to form them into a hierarchical structure. Your payments recognition test package might look like:
+
+```sql
+create or replace package test_payment_recognition as
+
+  --%suite(Payment recognition tests)
+  --%suitepath(payments)
+
+  --%test(Recognize payment by policy number)
+  procedure test_recognize_by_num;
+
+  --%test(Recognize payment by payment purpose)
+  procedure test_recognize_by_purpose;
+
+  --%test(Recognize payment by customer)
+  procedure test_recognize_by_customer;
+
+end test_payment_recognition;
+```
+
+And payments set off test package:
+```sql
+create or replace package test_payment_set_off as
+
+  --%suite(Payment set off tests)
+  --%suitepath(payments)
+
+  --%test(Creates set off)
+  procedure test_create_set_off;
+
+  --%test(Cancels set off)
+  procedure test_cancel_set_off;
+
+end test_payment_set_off;
+```
+
+When you execute tests for your application, the framework constructs a test suite for each test package. Then it combines suites into grouping suites by the `%suitepath` annotation value so that the fully qualified path to the `recognize_by_num` procedure is `USER:payments.test_payment_recognition.test_recognize_by_num`. If any of its expectations fails then the test is marked as failed, also the `test_payment_recognition` suite, the parent suite `payments` and the whole run is marked as failed.
+The test report indicates which expectation has failed on the payments module. The payments recognition submodule is causing the failure as `recognize_by_num` has not met the expectations of the test. Grouping tests into modules and submodules using the `%suitepath` annotation allows you to logically organize your project's flat structure of packages into functional groups.
+
+An additional advantage of such grouping is the fact that every element level of the grouping can be an actual unit test package containing a common module level setup for all of the submodules. So in addition to the packages mentioned above you could have the following package.
+```sql
+create or replace package payments as
+
+  --%suite(Payments)
+
+  --%beforeall
+  procedure set_common_payments_data;
+
+  --%afterall
+  procedure reset_common_paymnets_data;
+
+end payments;
+```
+A `%suitepath` can be provided in three ways:
+* schema - execute all tests in the schema
+* [schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests in all suites from suite1[.suite2][.suite3]...[.procedure] path. If schema is not provided, then the current schema is used. Example: `:all.rooms_tests`
+* [schema.]package[.procedure] - execute all tests in the specified test package. The whole hierarchy of suites in the schema is built before all before/after hooks or part suites for the provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator` or simply `test_contact.test_last_name_validator` if `tests` is the current schema.
+
+# Using automatic rollback in tests
+
+By default, changes performed by every setup, cleanup and test procedure are isolated by savepoints.
+This solution is suitable for use-cases where the code that is being tested as well as the unit tests themselves do not use transaction control (commit/rollback) or DDL commands.
+
+In general, your unit tests should not use transaction control as long as the code you are testing is not using it too.
+Keeping the transactions uncommitted allows your changes to be isolated and the execution of tests does not impact others who might be using a shared development database.
+
+If you are in a situation where the code you are testing uses transaction control (common case with ETL code), then your tests probably should not use the default automatic transaction control.
+In that case use the annotation `--%rollback(manual)` on the suite level to disable automatic transaction control for the entire suite.
+If you are using nested suites, you need to make sure that the entire suite all the way to the root is using manual transaction control.
+
+It is possible with utPLSQL to change the transaction control on individual suites or tests that are part of complex suite.
+It is strongly recommended not to have mixed transaction control in a suite.
+Mixed transaction control settings will not work properly when your suites are using shared setup/cleanup with beforeall, afterall, beforeeach or aftereach annotations.
+Your suite will most likely fail with error or warning on execution. Some of the automatic rollbacks will probably fail to execute depending on the configuration you have.
+
+In some cases it is necessary to perform DDL as part of setup or cleanup for the tests.
+It is recommended to move such DDL statements to a procedure with `pragma autonomous_transaction` to eliminate implicit commits in the main session that is executing all your tests.
+Doing so allows your tests to use the framework's automatic transaction control and releases you from the burden of manual cleanup of data that was created or modified by test execution.
+
+When you are testing code that performs explicit or implicit commits, you may set the test procedure to run as an autonomous transaction with `pragma autonomous_transaction`.
+Keep in mind that when your test runs as autonomous transaction it will not see the data prepared in a setup procedure unless the setup procedure committed the changes.
+
+**Note**
+> The `--%suitepath` annotation, when used, must be provided with a value of path.
+> The path in suitepath cannot contain spaces. Dot (.) identifies individual elements of the path.
+>
+> Example: `--%suitepath(org.utplsql.core.utils)`
+>
+
+## Invalid annotations
+
 If procedure level annotation is not placed right before procedure, it is not considered an annotation for procedure.
 
 Example of invalid procedure level annotations 
@@ -183,143 +713,7 @@ When processing the test suite `test_employee_pkg` defined in [Example of annota
 >Order of execution within multiple occurrences of `before`/`after` procedures is determined by the order of annotations in specific block (context/suite) of package specification.
 
 
-## Supported annotations
-
-| Annotation |Level| Description |
-| --- | --- | --- |
-| `--%suite(<description>)` | Package | Mandatory. Marks package as a test suite. Optional suite description can be provided (see `displayname`). |
-| `--%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
-| `--%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a suite/test. `%displayname(Name of the suite/test)`. The annotation is provided for flexibility and convenience only. It has exactly the same meaning as `<description>` in `test` and `suite` annotations. If description is provided using both `suite`/`test` and `displayname`, then the one defined as last takes precedence. |
-| `--%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can by provided (see `displayname`). |
-| `--%throws(<exception_number>[,<exception_number>[,...]])`| Procedure | Denotes that the annotated procedure must throw one of the exception numbers provided. If no valid numbers were provided as annotation parameters the annotation is ignored. Applicable to test procedures only. |
-| `--%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
-| `--%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
-| `--%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` procedure in the suite. |
-| `--%aftereach` | Procedure | Denotes that the annotated procedure should be executed after each `%test` procedure in the suite. |
-| `--%beforetest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed before the annotated `%test` procedure. |
-| `--%aftertest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed after the annotated `%test` procedure. |
-| `--%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
-| `--%disabled` | Package/procedure | Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run. |
-| `--%context(<description>)` | Package | Denotes start of a nested context (sub-suite) in a suite package |
-| `--%endcontext` | Package | Denotes end of a nested context (sub-suite) in a suite package |
-
-
-**Note**
->Package is considered a test-suite only when package specification contains the `--%suite` annotation at the package level.
->
->Some annotations like `--%suite`, `--%test` and `--%displayname` accept parameters. The parameters for annotations need to be placed in brackets.
-Values for parameters should be provided without any quotation marks.
-If the parameters are placed without brackets or with incomplete brackets, they will be ignored.
->
->Example: `--%suite(The name of suite without closing bracket`
-
-# Suitepath concept
-
-It is very likely that the application for which you are going to introduce tests consists of many different packages, procedures and functions.
-Usually procedures can be logically grouped inside a package, there also might be several logical groups of procedures in a single package and packages might be grouped into modules and modules into subject areas.
-
-As your project grows, the codebase will grow to. utPLSQL allows you to group packages into modules and modules into 
-
-Let's say you have a complex insurance application that deals with policies, claims and payments. The payment module contains several packages for payment recognition, charging, planning etc. The payment recognition module among others contains a complex `recognize_payment` procedure that associates received money to the policies.
-
-If you want to create tests for your application it is recommended to structure your tests similarly to the logical structure of your application. So you end up with something like:
-* Integration tests
-  *   Policy tests
-  *   Claim tests
-  *   Payment tests
-    * Payments recognition
-    * Payments set off
-
-The `%suitepath` annotation is used for such grouping. Even though test packages are defined in a flat structure the `%suitepath` is used by the framework to form them into a hierarchical structure. Your payments recognition test package might look like:
-
-```sql
-create or replace package test_payment_recognition as
-
-  --%suite(Payment recognition tests)
-  --%suitepath(payments)
-
-  --%test(Recognize payment by policy number)
-  procedure test_recognize_by_num;
-
-  --%test(Recognize payment by payment purpose)
-  procedure test_recognize_by_purpose;
-
-  --%test(Recognize payment by customer)
-  procedure test_recognize_by_customer;
-
-end test_payment_recognition;
-```
-
-And payments set off test package:
-```sql
-create or replace package test_payment_set_off as
-
-  --%suite(Payment set off tests)
-  --%suitepath(payments)
-
-  --%test(Creates set off)
-  procedure test_create_set_off;
-
-  --%test(Cancels set off)
-  procedure test_cancel_set_off;
-
-end test_payment_set_off;
-```
-
-When you execute tests for your application, the framework constructs a test suite for each test package. Then it combines suites into grouping suites by the `%suitepath` annotation value so that the fully qualified path to the `recognize_by_num` procedure is `USER:payments.test_payment_recognition.test_recognize_by_num`. If any of its expectations fails then the test is marked as failed, also the `test_payment_recognition` suite, the parent suite `payments` and the whole run is marked as failed.
-The test report indicates which expectation has failed on the payments module. The payments recognition submodule is causing the failure as `recognize_by_num` has not met the expectations of the test. Grouping tests into modules and submodules using the `%suitepath` annotation allows you to logically organize your project's flat structure of packages into functional groups.
-
-An additional advantage of such grouping is the fact that every element level of the grouping can be an actual unit test package containing a common module level setup for all of the submodules. So in addition to the packages mentioned above you could have the following package.
-```sql
-create or replace package payments as
-
-  --%suite(Payments)
-
-  --%beforeall
-  procedure set_common_payments_data;
-
-  --%afterall
-  procedure reset_common_paymnets_data;
-
-end payments;
-```
-A `%suitepath` can be provided in three ways:
-* schema - execute all tests in the schema
-* [schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests in all suites from suite1[.suite2][.suite3]...[.procedure] path. If schema is not provided, then the current schema is used. Example: `:all.rooms_tests`
-* [schema.]package[.procedure] - execute all tests in the specified test package. The whole hierarchy of suites in the schema is built before all before/after hooks or part suites for the provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator` or simply `test_contact.test_last_name_validator` if `tests` is the current schema.
-
-# Using automatic rollback in tests
-
-By default, changes performed by every setup, cleanup and test procedure are isolated by savepoints.
-This solution is suitable for use-cases where the code that is being tested as well as the unit tests themselves do not use transaction control (commit/rollback) or DDL commands.
-
-In general, your unit tests should not use transaction control as long as the code you are testing is not using it too.
-Keeping the transactions uncommitted allows your changes to be isolated and the execution of tests does not impact others who might be using a shared development database.
-
-If you are in a situation where the code you are testing uses transaction control (common case with ETL code), then your tests probably should not use the default automatic transaction control.
-In that case use the annotation `--%rollback(manual)` on the suite level to disable automatic transaction control for the entire suite.
-If you are using nested suites, you need to make sure that the entire suite all the way to the root is using manual transaction control.
-
-It is possible with utPLSQL to change the transaction control on individual suites or tests that are part of complex suite.
-It is strongly recommended not to have mixed transaction control in a suite.
-Mixed transaction control settings will not work properly when your suites are using shared setup/cleanup with beforeall, afterall, beforeeach or aftereach annotations.
-Your suite will most likely fail with error or warning on execution. Some of the automatic rollbacks will probably fail to execute depending on the configuration you have.
-
-In some cases it is necessary to perform DDL as part of setup or cleanup for the tests.
-It is recommended to move such DDL statements to a procedure with `pragma autonomous_transaction` to eliminate implicit commits in the main session that is executing all your tests.
-Doing so allows your tests to use the framework's automatic transaction control and releases you from the burden of manual cleanup of data that was created or modified by test execution.
-
-When you are testing code that performs explicit or implicit commits, you may set the test procedure to run as an autonomous transaction with `pragma autonomous_transaction`.
-Keep in mind that when your test runs as autonomous transaction it will not see the data prepared in a setup procedure unless the setup procedure committed the changes.
-
-**Note**
-> The `--%suitepath` annotation, when used, must be provided with a value of path.
-> The path in suitepath cannot contain spaces. Dot (.) identifies individual elements of the path.
->
-> Example: `--%suitepath(org.utplsql.core.utils)`
->
-
-# Annotation cache
+## Annotation cache
 
 utPLSQL needs to scan the source of package specifications to identify and parse annotations.
 To improve framework startup time, especially when dealing with database users owning large amounts of packages, the framework has a built-in persistent cache for annotations.
@@ -340,7 +734,7 @@ Example:
 exec ut_runner.purge_cache('HR', 'PACKAGE');
 ```
 
-# Throws annotation
+## Throws annotation
 
 The `--%throws` annotation allows you to specify a list of exception numbers that can be expected from a test.
 
