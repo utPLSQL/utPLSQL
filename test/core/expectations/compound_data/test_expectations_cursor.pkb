@@ -980,8 +980,8 @@ Diff:%
 Columns:%
   Column <ROWNUM> [data-type: NUMBER] is missing. Expected column position: 1.%
   Column <EXPECTED_COLUMN_NAME> [data-type: NUMBER] is missing. Expected column position: 2.%
-  Column <'1'> [position: 1, data-type: CHAR] is not expected in results.%
-  Column <'2'> [position: 2, data-type: CHAR] is not expected in results.%
+  Column <%1%> [position: 1, data-type: CHAR] is not expected in results.%
+  Column <%2%> [position: 2, data-type: CHAR] is not expected in results.%
 Rows: [ 2 differences ]%
   All rows are different as the columns are not matching.%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
