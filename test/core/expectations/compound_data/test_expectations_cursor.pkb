@@ -963,7 +963,7 @@ Rows: [ 4 differences ]
     ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
   end;
 
-  procedure column_diff_on_col_name_implicit is
+  procedure col_diff_on_col_name_implicit is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
     l_actual_message   varchar2(32767);
@@ -989,7 +989,7 @@ Rows: [ 2 differences ]%
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
-  procedure column_match_on_col_name_implicit is
+  procedure col_mtch_on_col_name_implicit is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
     l_actual_message   varchar2(32767);
