@@ -188,10 +188,10 @@ create or replace package test_expectations_cursor is
   procedure deprec_equal_excl_list;
 
   --%test(Reports column diff on cursor with column name implicit )
-  procedure column_diff_on_col_name_implicit;
+  procedure col_diff_on_col_name_implicit;
 
   --%test(Reports column match on cursor with column name implicit )
-  procedure column_match_on_col_name_implicit;
+  procedure col_mtch_on_col_name_implicit;
    
 end;
 /
