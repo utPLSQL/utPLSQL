@@ -544,5 +544,19 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     return l_filtered_list;
   end;
 
+  function xmlgen_escaped_string(a_string in varchar2) return varchar2 is
+    l_result varchar2(4000);
+    l_sql varchar2(32767) := q'!select q'[!'||a_string||q'!]' as "!'||a_string||'" from dual';
+  begin
+    if a_string is not null then
+      select extract(dbms_xmlgen.getxmltype(l_sql),'/*/*/*').getRootElement() 
+      into l_result
+      from dual;
+    else
+    l_result := a_string;
+    end if;
+    return l_result;
+  end;
+
 end ut_utils;
 /
