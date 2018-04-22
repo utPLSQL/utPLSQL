@@ -963,5 +963,83 @@ Rows: [ 4 differences ]
     ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
   end;
 
+  procedure col_diff_on_col_name_implicit is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select '1' , '2'      from dual connect by level <=2;
+    open l_expected for select rownum , rownum expected_column_name from dual connect by level <=2;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+
+    l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
+Diff:%
+Columns:%
+  Column <ROWNUM> [data-type: NUMBER] is missing. Expected column position: 1.%
+  Column <EXPECTED_COLUMN_NAME> [data-type: NUMBER] is missing. Expected column position: 2.%
+  Column <%1%> [position: 1, data-type: CHAR] is not expected in results.%
+  Column <%2%> [position: 2, data-type: CHAR] is not expected in results.%
+Rows: [ 2 differences ]%
+  All rows are different as the columns are not matching.%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure col_mtch_on_col_name_implicit is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select '1' , rownum  from dual connect by level <=2;
+    open l_expected for select '1' , rownum  from dual connect by level <=2;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+    
+    
+  procedure include_col_name_implicit is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a', 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a', 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
+    begin
+      --Act
+      ut3.ut.expect(l_actual).to_equal(l_expected).include(q'!/ROW/RN,'a',//SOME_COL!');
+      --Assert
+      ut.fail('Expected exception but nothing was raised');
+    exception
+      when others then
+        ut.expect(sqlcode).to_be_between(-31013,-31011);
+    end;
+  end;
+
+  procedure exclude_col_name_implicit is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a', 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a', 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
+    begin
+      --Act
+      ut3.ut.expect(l_actual).to_equal(l_expected).exclude(q'!/ROW/RN,'a',//SOME_COL!');
+      --Assert
+      ut.fail('Expected exception but nothing was raised');
+    exception
+      when others then
+        ut.expect(sqlcode).to_be_between(-31013,-31011);
+    end;
+  end;
+  
 end;
 /
