@@ -121,10 +121,16 @@ ORA-06512: at line 1
 
 ### Test
 
-The `--%suite` annotation denotes procedure withing test suite as a unit test.
+The `--%test` annotation denotes procedure withing test suite as a unit test.
 It accepts an optional description that will be reported when the test is executed.
 When description is not provided, procedure name is displayed on report.
 
+
+If `--%test` raises an unhandled exception the following will happen:
+- the test will be marked as errored and exception stack trace will be captured and reported
+- the `--%aftertest`, `--%aftereach` procedures **will be executed** for the errored test
+- the `--%afterall` procedures **will be executed**
+- test execution will continue uninterrupted for rest of the suite 
 
 Test procedure without description.
 ```sql
@@ -212,7 +218,7 @@ Finished in .008815 seconds
 ```  
 
 ### Disabled
-Marks a suite package or test procedure as disabled.
+Marks annotated suite package or test procedure as disabled.
 
 Disabling suite.
 ```sql
@@ -284,9 +290,21 @@ Finished in .005868 seconds
 
 ### Beforeall
 
-Marks a procedure to be executed before all test procedures in a suite.
+Marks annotated procedure to be executed before all test procedures in a suite.
 
-Single beforeall procedure.
+If `--%beforeall` raises an exception, suite content cannot be safely executed as the setup was not executed successfully for the suite. 
+
+If `--%beforeall` raises an exception the following will happen:
+- the `--%beforeall` procedures that follow the failed one, **will not be executed**
+- all `--%test` procedures and their `--%beforeeach`, `--%aftereach`, `--%beforetest` and `--%aftertest` procedures within suite package **will not be executed**
+- all `--%test` procedures **will be marked as failed**
+- the `--%afterall` procedures **will be executed**
+- test execution will continue uninterrupted for other suite packages 
+
+When multiple `--%beforeall` procedures are defined in a suite package, all of them will be executed before invoking any test.
+
+For multiple `--%beforeall` procedures order of execution is defined by annotation position in the package specification.
+
 ```sql
 create or replace package test_package as
   --%suite(Tests for a package)
@@ -328,10 +346,8 @@ Finished in .012292 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
-
-When you define multiple beforeall procedures, all of them will get executed before invoking any test in package.
-Order of execution for beforeall procedures is defined by the position of the `--%beforeall` annotation in the package specification.
-Note that procedure `another_setup` is also invoked before any test, though it's located at the end of package specification.  
+In the below example, procedure `another_setup` is invoked after `initial_setup`. 
+The `another_setup` still gets invoked before any test from that suite package is executed.  
  ```sql
  create or replace package test_package as
    --%suite(Tests for a package)
@@ -421,25 +437,402 @@ When procedure is annotated as both `--%beforeall` and `--%test`, the procedure 
  ```
 Tests for a package
   --- INITIAL_SETUP invoked ---
-  --- ANOTHER_SETUP invoked ---
-  Description of tesed behavior [.004 sec]
+  Description of tesed behavior [.003 sec]
   Description of another behavior [.004 sec]
  
-Finished in .016672 seconds
-2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
- ```
+ 
+Warnings:
+ 
+  1) test_package
+      Duplicate annotation "--%beforeall". Annotation ignored.
+      at "UT3_TESTER.TEST_PACKAGE.INITIAL_SETUP", line 5
+  2) test_package
+      Annotation "--%beforeall" cannot be used with annotation: "--%test"
+      at "UT3_TESTER.TEST_PACKAGE.SOME_TEST", line 9
+ 
+Finished in .012158 seconds
+2 tests, 0 failed, 0 errored, 0 disabled, 2 warning(s)
+```
   
 
 ### Afterall
-Marks a procedure to be executed after all test procedures in a suite.
+
+Marks annotated procedure to be executed after all test procedures in a suite.
+
+If `--%afterall` raises an exception the following will happen:
+- a warning will be raised, indicating that `--%afterall` procedure has failed
+- execution will continue uninterrupted for rest of the suite 
+
+If `--%afterall` raises an exception, it can have negative impact on other tests, as the environment was not cleaned-up after the tests. 
+This however doesn't have direct impact on test execution within current suite, as the tests are already complete by the time `--%afterall` is called. 
+
+When multiple `--%afterall` procedures are defined in a suite, all of them will be executed after invoking all tests from the suite.
+
+For multiple `--%afterall` procedures order of execution is defined by annotation position in the package specification.
+
+All rules defined for `--%beforeall` also apply for `--%afterall` annotation. See [beforeall](#Beforeall) for more details.
+
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+
+  --%test(Description of tesed behavior)
+  procedure some_test;
+
+  --%test(Description of another behavior)
+  procedure other_test;
+
+  --%afterall
+  procedure cleanup_stuff;
+  
+end;
+/
+create or replace package body test_package as
+  procedure cleanup_stuff is
+  begin
+    dbms_output.put_line('---CLEANUP_STUFF invoked ---');
+  end;
+  
+  procedure some_test is begin null; end;
+  
+  procedure other_test is begin null; end;
+end;
+/
+```
+
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+  Description of tesed behavior [.003 sec]
+  Description of another behavior [.005 sec]
+  ---CLEANUP_STUFF invoked ---
+ 
+Finished in .014161 seconds
+2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```
 
 ### Beforeeach
 
+Marks annotated procedure to be executed before each test procedure in a suite.
+
+The procedure annotated as `--%beforeeach` is getting executed before each test in a suite.
+That means that the procedure will be executed as many times as there are test in suite package.
+
+If a test is marked as disabled the `--%beforeeach` procedure is not invoked for that test.
+ 
+If `--%beforeeach` raises an unhandled exception the following will happen:
+- the following `--%beforeeach` as well as all `--%beforetest` for that test **will not be executed**
+- the test will be marked as errored and exception stack trace will be captured and reported
+- the `--%aftertest`, `--%aftereach` procedures **will be executed** for the errored test
+- the `--%afterall` procedures **will be executed**
+- test execution will continue uninterrupted for rest of the suite 
+
+As a rule, the `--%beforeeach` execution gets aborted if preceding `--%beforeeach` failed. 
+
+When multiple `--%beforeeach` procedures are defined in a suite, all of them will be executed before invoking each test.
+
+For multiple `--%beforeeach` procedures order of execution is defined by annotation position in the package specification.
+
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+
+  --%test(Description of tesed behavior)
+  procedure some_test;
+
+  --%test(Description of another behavior)
+  procedure other_test;
+
+  --%beforeeach
+  procedure setup_for_test;
+  
+  --%beforeall
+  procedure setup_stuff;
+end;
+/
+create or replace package body test_package as
+  procedure setup_stuff is
+  begin
+    dbms_output.put_line('---SETUP_STUFF invoked ---');
+  end;
+
+  procedure setup_for_test is
+  begin
+    dbms_output.put_line('---SETUP_FOR_TEST invoked ---');
+  end;
+  
+  procedure some_test is 
+  begin 
+    dbms_output.put_line('---SOME_TEST invoked ---');
+  end;
+  
+  procedure other_test is 
+  begin 
+    dbms_output.put_line('---OTHER_TEST invoked ---');
+  end;
+end;
+/
+```
+
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+  ---SETUP_STUFF invoked ---
+  Description of tesed behavior [.004 sec]
+  ---SETUP_FOR_TEST invoked ---
+  ---SOME_TEST invoked ---
+  Description of another behavior [.006 sec]
+  ---SETUP_FOR_TEST invoked ---
+  ---OTHER_TEST invoked ---
+ 
+Finished in .014683 seconds
+2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```
+
+
 ### Aftereach
+
+Marks annotated procedure to be executed after each test procedure in a suite.
+
+The procedure annotated as `--%aftereach` is getting executed after each test in a suite.
+That means that the procedure will be executed as many times as there are test in suite package.
+
+If a test is marked as disabled the `--%aftereach` procedure is not invoked for that test.
+ 
+If `--%aftereach` raises an unhandled exception the following will happen:
+- the test will be marked as errored and exception stack trace will be captured and reported
+- the `--%aftertest`, `--%aftereach` procedures **will be executed** for the errored test
+- the `--%afterall` procedures **will be executed**
+- test execution will continue uninterrupted for rest of the suite 
+
+When multiple `--%aftereach` procedures are defined in a suite, all of them will be executed after invoking each test.
+
+For multiple `--%aftereach` procedures order of execution is defined by the annotation position in the package specification.
+
+As a rule, the `--%aftereach` gets executed even if the associated `--%beforeeach`, `--%beforetest`, `--%test` or other `--%aftereach` procedures have raised unhandled exceptions. 
+
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+
+  --%test(Description of tesed behavior)
+  procedure some_test;
+
+  --%test(Description of another behavior)
+  procedure other_test;
+
+  --%aftereach
+  procedure cleanup_for_test;
+  
+  --%afterall
+  procedure cleanup_stuff;
+end;
+/
+create or replace package body test_package as
+  procedure cleanup_stuff is
+  begin
+    dbms_output.put_line('---CLEANUP_STUFF invoked ---');
+  end;
+
+  procedure cleanup_for_test is
+  begin
+    dbms_output.put_line('---CLEANUP_FOR_TEST invoked ---');
+  end;
+  
+  procedure some_test is 
+  begin 
+    dbms_output.put_line('---SOME_TEST invoked ---');
+  end;
+  
+  procedure other_test is 
+  begin 
+    dbms_output.put_line('---OTHER_TEST invoked ---');
+  end;
+end;
+/
+```
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+  Description of tesed behavior [.006 sec]
+  ---SOME_TEST invoked ---
+  ---CLEANUP_FOR_TEST invoked ---
+  Description of another behavior [.006 sec]
+  ---OTHER_TEST invoked ---
+  ---CLEANUP_FOR_TEST invoked ---
+  ---CLEANUP_STUFF invoked ---
+ 
+Finished in .018115 seconds
+2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```
 
 ### Beforetest
 
+Indicates a specific setup to be executed for a test. 
+Used alongside `--%test` annotation. Indicates procedure name to be executed before specific test.
+
+The `--%beforetest` procedures are executed after invoking all `--%beforeeach` for a test.
+
+If a test is marked as disabled the `--%beforetest` procedure is not invoked for that test.
+ 
+If `--%beforetest` raises an unhandled exception the following will happen:
+- the following `--%beforetest` for that test **will not be executed**
+- the test will be marked as errored and exception stack trace will be captured and reported
+- the `--%aftertest`, `--%aftereach` procedures **will be executed** for the errored test
+- the `--%afterall` procedures **will be executed**
+- test execution will continue uninterrupted for rest of the suite 
+
+When multiple `--%beforetest` procedures are defined for a test, all of them will be executed before invoking the test.
+
+For multiple `--%beforetest` procedures order of execution is defined by annotation position in the package specification.
+
+As a rule, the `--%beforetest` execution gets aborted if preceding `--%beforeeach` or `--%beforetest` failed. 
+
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+
+  --%test(Description of tesed behavior)
+  --%beforetest(setup_for_a_test)
+  --%beforetest(another_setup_for_a_test)
+  procedure some_test;
+
+  --%test(Description of another behavior)
+  --%beforetest(setup_for_a_test)
+  procedure other_test;
+
+  procedure another_setup_for_a_test;
+
+  procedure setup_for_a_test;
+  
+end;
+/
+create or replace package body test_package as
+  procedure setup_for_a_test is
+  begin
+    dbms_output.put_line('---SETUP_FOR_A_TEST invoked ---');
+  end;
+
+  procedure another_setup_for_a_test is
+  begin
+    dbms_output.put_line('---ANOTHER_SETUP_FOR_A_TEST invoked ---');
+  end;
+  
+  procedure some_test is 
+  begin 
+    dbms_output.put_line('---SOME_TEST invoked ---');
+  end;
+  
+  procedure other_test is 
+  begin 
+    dbms_output.put_line('---OTHER_TEST invoked ---');
+  end;
+end;
+/
+```
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+  Description of tesed behavior [.011 sec]
+  ---SETUP_FOR_A_TEST invoked ---
+  ---ANOTHER_SETUP_FOR_A_TEST invoked ---
+  ---SOME_TEST invoked ---
+  Description of another behavior [.005 sec]
+  ---SETUP_FOR_A_TEST invoked ---
+  ---OTHER_TEST invoked ---
+ 
+Finished in .018446 seconds
+2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```
+
+
 ### Aftertest
+
+Indicates a specific cleanup to be executed for a test. 
+Used alongside `--%test` annotation. Indicates procedure name to be executed after specific test.
+
+The `--%aftertest` procedures are executed before invoking any `--%aftereach` for a test.
+
+If a test is marked as disabled the `--%aftertest` procedure is not invoked for that test.
+ 
+If `--%aftertest` raises an unhandled exception the following will happen:
+- the test will be marked as errored and exception stack trace will be captured and reported
+- the following `--%aftertest` and all `--%aftereach` procedures **will be executed** for the errored test
+- the `--%afterall` procedures **will be executed**
+- test execution will continue uninterrupted for rest of the suite 
+
+When multiple `--%aftertest` procedures are defined for a test, all of them will be executed before invoking the test.
+
+For multiple `--%aftertest` procedures order of execution is defined by annotation position in the package specification.
+
+As a rule, the `--%aftertest` gets executed even if the associated `--%beforeeach`, `--%beforetest`, `--%test` or other `--%aftertest` procedures have raised unhandled exceptions. 
+
+```sql
+create or replace package test_package as
+  --%suite(Tests for a package)
+
+  --%test(Description of tesed behavior)
+  --%aftertest(cleanup_for_a_test)
+  --%aftertest(another_cleanup_for_a_test)
+  procedure some_test;
+
+  --%test(Description of another behavior)
+  --%aftertest(cleanup_for_a_test)
+  procedure other_test;
+
+  procedure another_cleanup_for_a_test;
+
+  procedure cleanup_for_a_test;
+  
+end;
+/
+create or replace package body test_package as
+  procedure cleanup_for_a_test is
+  begin
+    dbms_output.put_line('---CLEANUP_FOR_A_TEST invoked ---');
+  end;
+
+  procedure another_cleanup_for_a_test is
+  begin
+    dbms_output.put_line('---ANOTHER_CLEANUP_FOR_A_TEST invoked ---');
+  end;
+  
+  procedure some_test is 
+  begin 
+    dbms_output.put_line('---SOME_TEST invoked ---');
+  end;
+  
+  procedure other_test is 
+  begin 
+    dbms_output.put_line('---OTHER_TEST invoked ---');
+  end;
+end;
+/
+```
+```sql
+exec ut.run('test_package');
+```
+```
+Tests for a package
+  Description of tesed behavior [.01 sec]
+  ---SOME_TEST invoked ---
+  ---CLEANUP_FOR_A_TEST invoked ---
+  ---ANOTHER_CLEANUP_FOR_A_TEST invoked ---
+  Description of another behavior [.006 sec]
+  ---OTHER_TEST invoked ---
+  ---CLEANUP_FOR_A_TEST invoked ---
+ 
+Finished in .018691 seconds
+2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```
 
 ### Suitepath
 
