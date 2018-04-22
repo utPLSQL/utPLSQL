@@ -1004,5 +1004,42 @@ Rows: [ 2 differences ]%
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
     
+    
+  procedure include_col_name_implicit is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a', 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a', 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
+    begin
+      --Act
+      ut3.ut.expect(l_actual).to_equal(l_expected).include(q'!/ROW/RN,'a',//SOME_COL!');
+      --Assert
+      ut.fail('Expected exception but nothing was raised');
+    exception
+      when others then
+        ut.expect(sqlcode).to_be_between(-31013,-31011);
+    end;
+  end;
+
+  procedure exclude_col_name_implicit is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a', 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a', 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
+    begin
+      --Act
+      ut3.ut.expect(l_actual).to_equal(l_expected).exclude(q'!/ROW/RN,'a',//SOME_COL!');
+      --Assert
+      ut.fail('Expected exception but nothing was raised');
+    exception
+      when others then
+        ut.expect(sqlcode).to_be_between(-31013,-31011);
+    end;
+  end;
+  
 end;
 /

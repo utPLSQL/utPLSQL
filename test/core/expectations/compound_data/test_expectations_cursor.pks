@@ -192,6 +192,12 @@ create or replace package test_expectations_cursor is
 
   --%test(Reports column match on cursor with column name implicit )
   procedure col_mtch_on_col_name_implicit;
-   
+  
+  --%test( Fail on passing implicit column name as include filter )
+  procedure include_col_name_implicit;
+
+  --%test( Fail on passing implicit column name as exclude filter )
+  procedure exclude_col_name_implicit;
+  
 end;
 /

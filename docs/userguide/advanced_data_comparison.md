@@ -29,6 +29,7 @@ Each item in the comma separated list can be:
 - an attribute name of object type to be compared   
 - an attribute name of object type within a table of objects to be compared
 - an [XPath](http://zvon.org/xxl/XPathTutorial/Output/example1.html) expression representing column/attribute
+- Include and exclude option will not support implicit colum names that starts with single quota, or in fact any other special characters e.g. <, >, &
 
 Each element in `ut_varchar2_list` nested table can be an item or a comma separated list of items.
 
