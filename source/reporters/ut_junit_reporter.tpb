@@ -77,15 +77,7 @@ create or replace type body ut_junit_reporter is
       else
         self.print_text('<system-out/>');
       end if;
-      if a_test.before_test.get_error_stack_trace() is not null or a_test.after_test.get_error_stack_trace() is not null then
-        self.print_text('<system-err>');
-        self.print_text(c_cddata_tag_start);
-        self.print_text(trim(a_test.before_test.get_error_stack_trace()) || trim(chr(10) || chr(10) || a_test.after_test.get_error_stack_trace()));
-        self.print_text(c_cddata_tag_end);
-        self.print_text('</system-err>');
-      else
-        self.print_text('<system-err/>');
-      end if;
+      self.print_text('<system-err/>');
       self.print_text('</testcase>');
     end;
 
@@ -94,6 +86,8 @@ create or replace type body ut_junit_reporter is
                                a_suite.results_count.failure_count + a_suite.results_count.errored_count;
       l_suite       ut_suite;
       l_tests       ut_suite_items := ut_suite_items();
+      l_data        clob;
+      l_errors      ut_varchar2_list;
     begin
       a_suite_id := a_suite_id + 1;
       self.print_text('<testsuite tests="' || l_tests_count || '"' || ' id="' || a_suite_id || '"' || ' package="' ||
@@ -117,20 +111,22 @@ create or replace type body ut_junit_reporter is
       if a_suite is of(ut_suite) then
         l_suite := treat(a_suite as ut_suite);
 
-        if l_suite.before_all.serveroutput is not null or l_suite.after_all.serveroutput is not null then
+        l_data := l_suite.get_serveroutputs();
+        if l_data is not null and l_data != empty_clob() then
           self.print_text('<system-out>');
           self.print_text(c_cddata_tag_start);
-          self.print_clob(l_suite.get_serveroutputs());
+          self.print_clob(l_data);
           self.print_text(c_cddata_tag_end);
           self.print_text('</system-out>');
         else
           self.print_text('<system-out/>');
         end if;
 
-        if l_suite.before_all.error_stack is not null or l_suite.after_all.error_stack is not null then
+        l_errors := l_suite.get_error_stack_traces();
+        if l_errors is not empty then
           self.print_text('<system-err>');
           self.print_text(c_cddata_tag_start);
-          self.print_text(trim(l_suite.before_all.error_stack) || trim(chr(10) || chr(10) || l_suite.after_all.error_stack));
+          self.print_clob(ut_utils.table_to_clob(l_errors));
           self.print_text(c_cddata_tag_end);
           self.print_text('</system-err>');
         else
