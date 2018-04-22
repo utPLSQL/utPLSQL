@@ -39,6 +39,17 @@ The `--%suite` annotation denotes PLSQL package as a unit test suite.
 It accepts an optional description that will be visible when running the tests.
 When description is not provided, package name is displayed on report.
 
+**Note**
+>Package is considered a test-suite only when package specification contains the `--%suite` annotation at the package level.
+>
+>Some annotations like `--%suite`, `--%test` and `--%displayname` accept parameters. The parameters for annotations need to be placed in brackets.
+Values for parameters should be provided without any quotation marks.
+If the parameters are placed without brackets or with incomplete brackets, they will be ignored.
+>
+>Example: `--%suite(The name of suite without closing bracket`
+>Example: `--%suite The name of suite without brackets`
+
+
 Suite package without description.
 ```sql
 create or replace package test_package as
@@ -834,30 +845,238 @@ Finished in .018691 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
-### Suitepath
+### Rollback
 
 ### Context
 
-### Rollback
+In most of the cases, the code to be tested is consisting of PLSQL packages containing procedures and functions.
+When creating test suites, it's quite common to maintain `one to one` relationship between test suite packages and tested code.
+
+When it comes to test procedures themselves, it is best practice to have one test procedure for one tested behavior of the code that is tested.
+The relationship between test procedure and tested procedure/function will be therefore `many to one` in most of the cases.
+
+With this comes a challenge. How to group tests, related to one tested procedure, so that it is obvious that they relate to the same code.
+
+This is where utPLSQL contexts come handy. 
+
+Contexts allow for creating sub-suites within a suite package and they allow for grouping of tests that are somehow related.
+ 
+In essence, context behaves like a suite within a suite. 
+
+Context have following characteristics:
+- start with the `--%context` annotation and ends with `--%endcontext`
+- can have a name provided a parameter for example `--%context(Remove rooms by name)`
+- when no name is provided for context, the context is names `context_N` where `N` is the number of the context in suite 
+- can have their own `--%beforeall`, `--%beforeeach`, `--%afterall` and `--%aftereach` procedures
+- `--%beforeall`, `--%beforeeach`, `--%afterall` and `--%aftereach` procedures defined at suite level, propagate to context
+- test suite package can have multiple contexts in it
+- contexts cannot be nested
+ 
+
+The below example illustrates usage of `--%context` for separating tests for individual procedures of package.
+   
+Tested tables and code
+```sql
+create table rooms (
+  room_key number primary key,
+  name varchar2(100) not null
+);
+
+create table room_contents (
+  contents_key number primary key,
+  room_key     number not null,
+  name         varchar2(100) not null,
+  create_date  timestamp default current_timestamp not null,
+  constraint fk_rooms foreign key (room_key) references rooms (room_key)
+);
+
+create or replace package rooms_management is
+
+  procedure remove_rooms_by_name( a_name rooms.name%type );
+
+  procedure add_rooms_content( 
+    a_room_name    rooms.name%type,
+    a_content_name room_contents.name%type
+  );
+
+end;
+/
+
+create or replace package body rooms_management is
+  procedure remove_rooms_by_name( a_name rooms.name%type ) is
+  begin
+    if a_name is null then
+      raise program_error;
+    end if;
+    delete from rooms where name like a_name;
+  end;
+  
+  procedure add_rooms_content( 
+    a_room_name    rooms.name%type,
+    a_content_name room_contents.name%type
+  ) is
+    l_room_key     rooms.room_key%type;
+  begin
+   
+    select room_key into l_room_key 
+      from rooms where name = a_room_name;
+    
+    insert into room_contents
+          (contents_key, room_key, name)
+    select nvl(max(contents_key)+1, 1) as contents_key,
+           l_room_key,
+           a_content_name
+      from room_contents;
+  end;
+end;
+/
+```
+
+Below test suite defines:
+- `--%beforeall` outside of context, that will be executed before all tests
+- `--%context(remove_rooms_by_name)` to group tests for `remove_rooms_by_name` procedure
+- `--%context(add_rooms_content)` to group tests for `add_rooms_content` procedure
+
+```sql
+create or replace package test_rooms_management is
+
+  --%suite(Rooms management)
+  
+  --%beforeall
+  procedure setup_rooms;
+
+  
+  --%context(remove_rooms_by_name)
+  
+    --%test(Removes a room without content in it)
+    procedure remove_empty_room;
+
+    --%test(Raises exception when null room name given)
+    --%throws(-6501)
+    procedure null_room_name;  
+
+  --%endcontext
+  
+  
+  --%context(add_rooms_content)
+
+    --%test(Fails when room name is not valid)
+    --%throws(-1403)
+    procedure fails_on_room_name_invalid;
+
+    --%test(Fails when content name is null)
+    --%throws(-1400)
+    procedure fails_on_content_null;
+
+    --%test(Adds a content to existing room)
+    procedure add_content_success;
+
+  --%endcontext
+
+end;
+/
+
+create or replace package body test_rooms_management is
+
+  procedure setup_rooms is
+  begin
+    insert all
+      into rooms values(1, 'Dining Room')
+      into rooms values(2, 'Living Room')
+      into rooms values(3, 'Bathroom')
+    select 1 from dual;
+
+    insert all
+      into room_contents values(1, 1, 'Table', sysdate)
+      into room_contents values(3, 1, 'Chair', sysdate)
+      into room_contents values(4, 2, 'Sofa', sysdate)
+      into room_contents values(5, 2, 'Lamp', sysdate)
+    select 1 from dual;
+
+    dbms_output.put_line('---SETUP_ROOMS invoked ---');
+  end;
+
+  procedure remove_empty_room is
+    l_rooms_not_named_b sys_refcursor;
+    l_remaining_rooms   sys_refcursor;
+  begin
+    open l_rooms_not_named_b for select * from rooms where name not like 'B%';
+
+    remove_rooms_by_name('B%');
+
+    open l_remaining_rooms for select * from rooms;
+    ut.expect( l_remaining_rooms ).to_equal(l_rooms_not_named_b);
+  end;
+
+  procedure room_with_content is
+  begin
+    remove_rooms_by_name('Living Room');
+  end;
+
+  procedure null_room_name is
+  begin
+    remove_rooms_by_name(NULL);
+  end;
+
+  procedure fails_on_room_name_invalid is
+  begin
+    add_rooms_content('bad room name','Chair');
+  end;
+
+  procedure fails_on_content_null is
+  begin
+    --Act
+    add_rooms_content('Dining Room',null);
+    --Assert by --%throws annotation
+  end;
+
+  procedure add_content_success is
+    l_expected        room_contents.name%type;
+    l_actual          room_contents.name%type;
+  begin
+    --Arrange
+    l_expected := 'Table';
+
+    --Act
+    add_rooms_content( 'Dining Room', l_expected );
+    --Assert
+    select name into l_actual from room_contents
+     where contents_key = (select max(contents_key) from room_contents);
+
+    ut.expect( l_actual ).to_equal( l_expected );
+  end;
+
+end;
+/
+```
+
+When te tests are executed
+```sql
+exec ut.run('test_package');
+```
+The following report is displayed
+```
+Rooms management
+  ---SETUP_ROOMS invoked ---
+  remove_rooms_by_name
+    Removes a room without content in it [.015 sec]
+    Raises exception when null room name given [.002 sec]
+  add_rooms_content
+    Fails when room name is not valid [.003 sec]
+    Fails when content name is null [.003 sec]
+    Adds a content to existing room [.003 sec]
+ 
+Finished in .035261 seconds
+5 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```
 
 
-
-
-**Note**
->Package is considered a test-suite only when package specification contains the `--%suite` annotation at the package level.
->
->Some annotations like `--%suite`, `--%test` and `--%displayname` accept parameters. The parameters for annotations need to be placed in brackets.
-Values for parameters should be provided without any quotation marks.
-If the parameters are placed without brackets or with incomplete brackets, they will be ignored.
->
->Example: `--%suite(The name of suite without closing bracket`
-
-# Suitepath concept
+### Suitepath
 
 It is very likely that the application for which you are going to introduce tests consists of many different packages, procedures and functions.
 Usually procedures can be logically grouped inside a package, there also might be several logical groups of procedures in a single package and packages might be grouped into modules and modules into subject areas.
 
-As your project grows, the codebase will grow to. utPLSQL allows you to group packages into modules and modules into 
+As your project grows, the codebase will grow to. utPLSQL allows you to group packages into modules and also allows for nesting modules. 
 
 Let's say you have a complex insurance application that deals with policies, claims and payments. The payment module contains several packages for payment recognition, charging, planning etc. The payment recognition module among others contains a complex `recognize_payment` procedure that associates received money to the policies.
 
@@ -927,7 +1146,8 @@ A `%suitepath` can be provided in three ways:
 * [schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests in all suites from suite1[.suite2][.suite3]...[.procedure] path. If schema is not provided, then the current schema is used. Example: `:all.rooms_tests`
 * [schema.]package[.procedure] - execute all tests in the specified test package. The whole hierarchy of suites in the schema is built before all before/after hooks or part suites for the provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator` or simply `test_contact.test_last_name_validator` if `tests` is the current schema.
 
-# Using automatic rollback in tests
+
+### Rollback
 
 By default, changes performed by every setup, cleanup and test procedure are isolated by savepoints.
 This solution is suitable for use-cases where the code that is being tested as well as the unit tests themselves do not use transaction control (commit/rollback) or DDL commands.
@@ -958,47 +1178,94 @@ Keep in mind that when your test runs as autonomous transaction it will not see 
 > Example: `--%suitepath(org.utplsql.core.utils)`
 >
 
-## Invalid annotations
 
-If procedure level annotation is not placed right before procedure, it is not considered an annotation for procedure.
+### Throws
 
-Example of invalid procedure level annotations 
+The `--%throws` annotation allows you to specify a list of exception numbers that can be expected from a test.
+
+If `--%throws(-20001,-20002)` is specified and no exception is raised or the exception raised is not on the list of provided exception numbers, the test is marked as failed.
+
+The framework ignores bad arguments. `--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)` will be interpreted as `--%throws(-20496)`.
+The annotation is ignored, when no valid arguments are provided `--%throws()`,`--%throws`, `--%throws(abe, 723pf)`.
+
+Example:
 ```sql
-create or replace package test_pkg is
+create or replace package example_pgk as
 
-  --%suite(Name of suite)
+  --%suite(Example Throws Annotation)
 
-  --%test
-  -- this single-line comment makes the TEST annotation no longer associated with the procedure  
-  procedure first_test;
+  --%test(Throws one of the listed exceptions)
+  --%throws(-20145,-20146, -20189 ,-20563)
+  procedure raised_one_listed_exception;
 
-  --%test
-  --procedure some_test; /* This TEST annotation is not associated with any procedure*/
+  --%test(Throws different exception than expected)
+  --%throws(-20144)
+  procedure raised_different_exception;
 
-  --%test(Name of another test)
-  procedure another_test;
+  --%test(Throws different exception than listed)
+  --%throws(-20144,-00001,-20145)
+  procedure raised_unlisted_exception;
 
-  --%test
-  /**
-  * this multi-line comment makes the TEST annotation no longer associated with the procedure  
-  */
-  procedure yet_another_test;
-end test_pkg;
+  --%test(Gives failure when an exception is expected and nothing is thrown)
+  --%throws(-20459, -20136, -20145)
+  procedure nothing_thrown;
+
+end;  
+/
+create or replace package body example_pgk is
+  procedure raised_one_listed_exception is
+  begin
+      raise_application_error(-20189, 'Test error');
+  end;
+
+  procedure raised_different_exception is
+  begin
+      raise_application_error(-20143, 'Test error');
+  end;
+
+  procedure raised_unlisted_exception is
+  begin
+      raise_application_error(-20143, 'Test error');
+  end;
+
+  procedure nothing_thrown is
+  begin
+      ut.expect(1).to_equal(1);
+  end;
+end;
+/
+        
+exec ut.run('example_pgk');
 ```
-Procedure level annotations must be defined right before the procedure they reference, no empty lines are allowed, no comment lines can exist between annotation and the procedure.
 
-
-Package level annotations need to be separated by at least one empty line from a procedure procedure or procedure annotation.
-
-Example of invalid package level annotation. 
-```sql
-create or replace package test_pkg is
-  --%suite(Name of suite)
-  --%test
-  procedure first_test;
-end test_pkg;
+Running the test will give report:
 ```
-In the above example, the `--%suite` annotation is ignored, as it is in fact associated with `procedure first_test`. Association with procedure takes precedence over association with package.
+Example Throws Annotation
+  Throws one of the listed exceptions [.018 sec]
+  Throws different exception than expected [.008 sec] (FAILED - 1)
+  Throws different exception than listed [.007 sec] (FAILED - 2)
+  Gives failure when an exception is expected and nothing is thrown [.002 sec] (FAILED - 3)
+ 
+Failures:
+ 
+  1) raised_different_exception
+      Actual: -20143 was expected to equal: -20144
+      ORA-20143: Test error
+      ORA-06512: at "UT3.EXAMPLE_PGK", line 9
+      ORA-06512: at line 6
+       
+  2) raised_unlisted_exception
+      Actual: -20143 was expected to be one of: (-20144, -1, -20145)
+      ORA-20143: Test error
+      ORA-06512: at "UT3.EXAMPLE_PGK", line 14
+      ORA-06512: at line 6
+       
+  3) nothing_thrown
+      Expected one of exceptions (-20459, -20136, -20145) but nothing was raised.
+       
+Finished in .038692 seconds
+4 tests, 3 failed, 0 errored, 0 disabled, 0 warning(s)
+```
 
 ## Order of execution
 
@@ -1151,90 +1418,3 @@ Example:
 exec ut_runner.purge_cache('HR', 'PACKAGE');
 ```
 
-## Throws annotation
-
-The `--%throws` annotation allows you to specify a list of exception numbers that can be expected from a test.
-
-If `--%throws(-20001,-20002)` is specified and no exception is raised or the exception raised is not on the list of provided exception numbers, the test is marked as failed.
-
-The framework ignores bad arguments. `--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)` will be interpreted as `--%throws(-20496)`.
-The annotation is ignored, when no valid arguments are provided `--%throws()`,`--%throws`, `--%throws(abe, 723pf)`.
-
-Example:
-```sql
-create or replace package example_pgk as
-
-  --%suite(Example Throws Annotation)
-
-  --%test(Throws one of the listed exceptions)
-  --%throws(-20145,-20146, -20189 ,-20563)
-  procedure raised_one_listed_exception;
-
-  --%test(Throws different exception than expected)
-  --%throws(-20144)
-  procedure raised_different_exception;
-
-  --%test(Throws different exception than listed)
-  --%throws(-20144,-00001,-20145)
-  procedure raised_unlisted_exception;
-
-  --%test(Gives failure when an exception is expected and nothing is thrown)
-  --%throws(-20459, -20136, -20145)
-  procedure nothing_thrown;
-
-end;  
-/
-create or replace package body example_pgk is
-  procedure raised_one_listed_exception is
-  begin
-      raise_application_error(-20189, 'Test error');
-  end;
-
-  procedure raised_different_exception is
-  begin
-      raise_application_error(-20143, 'Test error');
-  end;
-
-  procedure raised_unlisted_exception is
-  begin
-      raise_application_error(-20143, 'Test error');
-  end;
-
-  procedure nothing_thrown is
-  begin
-      ut.expect(1).to_equal(1);
-  end;
-end;
-/
-        
-exec ut.run('example_pgk');
-```
-
-Running the test will give report:
-```
-Example Throws Annotation
-  Throws one of the listed exceptions [.018 sec]
-  Throws different exception than expected [.008 sec] (FAILED - 1)
-  Throws different exception than listed [.007 sec] (FAILED - 2)
-  Gives failure when an exception is expected and nothing is thrown [.002 sec] (FAILED - 3)
- 
-Failures:
- 
-  1) raised_different_exception
-      Actual: -20143 was expected to equal: -20144
-      ORA-20143: Test error
-      ORA-06512: at "UT3.EXAMPLE_PGK", line 9
-      ORA-06512: at line 6
-       
-  2) raised_unlisted_exception
-      Actual: -20143 was expected to be one of: (-20144, -1, -20145)
-      ORA-20143: Test error
-      ORA-06512: at "UT3.EXAMPLE_PGK", line 14
-      ORA-06512: at line 6
-       
-  3) nothing_thrown
-      Expected one of exceptions (-20459, -20136, -20145) but nothing was raised.
-       
-Finished in .038692 seconds
-4 tests, 3 failed, 0 errored, 0 disabled, 0 warning(s)
-```
