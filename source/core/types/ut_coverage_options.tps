@@ -1,4 +1,4 @@
-create or replace type ut_coverage_options as object (
+create or replace type ut_coverage_options force as object (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project

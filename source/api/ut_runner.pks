@@ -58,7 +58,8 @@ create or replace package ut_runner authid current_user is
   procedure run(
     a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false,
     a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
+    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, 
+    a_fail_on_errors boolean default false
   );
 
   /**
@@ -74,10 +75,10 @@ create or replace package ut_runner authid current_user is
   /**
   * Removes cached information about annotations for objects of specified type and specified owner
   *
-  * @param a_object_owner owner of objects to purge annotations for
-  * @param a_object_type  optional type of objects to purge annotations for (defaults to 'PACKAGE')
+  * @param a_object_owner  optional - owner of objects to purge annotations for. If null (default) then all schemas are purged
+  * @param a_object_type   optional - type of objects to purge annotations for. If null (default) then cache for all object types is purged
   */
-  procedure purge_cache(a_object_owner varchar2, a_object_type varchar2 := null);
+  procedure purge_cache(a_object_owner varchar2 := null, a_object_type varchar2 := null);
 
 
   type t_annotation_rec is record (

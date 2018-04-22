@@ -83,12 +83,9 @@ exec ut_coverage.coverage_start_develop();
 @@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.AcceptsFileMapping.sql
 @@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.ProducesExpectedOutputs.sql
 @@lib/RunTest.sql ut_reporters/ut_teamcity_reporter.ProducesExpectedOutputs.sql
-@@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ProducesExpectedOutputs.sql
 @@lib/RunTest.sql ut_reporters/ut_html_reporter.UserOverrideSchemaCoverage.sql
 @@lib/RunTest.sql ut_reporters/ut_html_reporter.DefaultSchemaCoverage.sql
 @@lib/RunTest.sql ut_reporters/ut_documentation_reporter.reportMultipleWarnings.sql
-@@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ReportOnSuiteWithoutDesc.sql
-@@lib/RunTest.sql ut_reporters/ut_xunit_reporter.ReportOnTestWithoutDesc.sql
 @@lib/RunTest.sql ut_reporters/ut_documentation_reporter.reportTestTiming.sql
 
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileList.sql
@@ -435,9 +432,7 @@ begin
     'source/reporters/ut_teamcity_reporter.tpb',
     'source/reporters/ut_teamcity_reporter.tps',
     'source/reporters/ut_teamcity_reporter_helper.pkb',
-    'source/reporters/ut_teamcity_reporter_helper.pks',
-    'source/reporters/ut_xunit_reporter.tpb',
-    'source/reporters/ut_xunit_reporter.tps');
+    'source/reporters/ut_teamcity_reporter_helper.pks');
 
   l_test_run := ut_run(a_items => ut_suite_items(), a_project_file_mappings => ut_file_mapper.build_file_mappings( user,l_project_file_list));
 

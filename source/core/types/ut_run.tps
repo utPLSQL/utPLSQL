@@ -37,7 +37,6 @@ create or replace type ut_run under ut_suite_item (
   overriding member function  do_execute(self in out nocopy ut_run) return boolean,
   overriding member procedure calc_execution_result(self in out nocopy ut_run),
   overriding member procedure mark_as_errored(self in out nocopy ut_run, a_error_stack_trace varchar2),
-  member function get_run_schemes return ut_varchar2_rows,
   overriding member function get_error_stack_traces return ut_varchar2_list,
   overriding member function get_serveroutputs return clob
 )

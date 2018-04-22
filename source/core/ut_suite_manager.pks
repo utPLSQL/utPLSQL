@@ -39,5 +39,11 @@ create or replace package ut_suite_manager authid current_user is
    */
   function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items;
 
+  /**
+   * Cleanup paths by removing leading/trailing whitespace and making paths lowercase
+   * Get list of schema names from execution paths.
+   */
+  function get_schema_names(a_paths ut_varchar2_list) return ut_varchar2_rows;
+
 end ut_suite_manager;
 /

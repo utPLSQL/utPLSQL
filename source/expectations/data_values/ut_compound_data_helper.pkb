@@ -55,7 +55,12 @@ create or replace package body ut_compound_data_helper is
       a_cursor := dbms_sql.to_refcursor( l_cursor_number );
       l_columns_tab := get_columns_info( l_columns_desc, l_columns_count);
 
-      select XMLELEMENT("ROW", xmlagg(xmlelement(evalname key, value))) into l_result from table(l_columns_tab );
+      select 
+        XMLELEMENT("ROW", xmlagg(xmlelement(evalname ut_utils.xmlgen_escaped_string(key),
+                                           XMLATTRIBUTES(key AS "xml_valid_name"), 
+                                           value)))
+      into l_result 
+      from table(l_columns_tab );
 
       return l_result;
     end;
@@ -89,31 +94,41 @@ create or replace package body ut_compound_data_helper is
     l_sql            varchar2(32767);
     l_results        tt_column_diffs;
   begin
-    l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
+    l_column_filter := get_columns_filter(a_exclude_xpath, a_include_xpath);
     l_sql := q'[
       with
         expected_cols as ( select :a_expected as item_data from dual ),
         actual_cols as ( select :a_actual as item_data from dual ),
-        expected_cols_info as (
+  expected_cols_info as (
           select e.*,
                  replace(expected_type,'VARCHAR2','CHAR') expected_type_compare
             from (
-              select rownum expected_pos,
-                     r.column_value.getrootelement() expected_name,
-                     extractvalue(r.column_value,'/*') expected_type
-              from ( select ]'||l_column_filter||q'[ from expected_cols ucd ) s,
-                table( xmlsequence(extract(s.item_data,'/*/*')) ) r
+                   SELECT rownum expected_pos,
+                   xt.name expected_name,
+                   xt.type expected_type
+         FROM   (select ]'||l_column_filter||q'[ from expected_cols ucd) x,
+           XMLTABLE('/ROW/*'
+             PASSING x.item_data
+             COLUMNS 
+               name     VARCHAR2(4000)  PATH '@xml_valid_name',
+               type      VARCHAR2(4000) PATH '/' 
+             ) xt
             ) e
         ),
         actual_cols_info as (
           select a.*,
                  replace(actual_type,'VARCHAR2','CHAR') actual_type_compare
             from (
-              select rownum actual_pos,
-                     r.column_value.getrootelement() actual_name,
-                     extractvalue(r.column_value,'/*') actual_type
-              from ( select ]'||l_column_filter||q'[ from actual_cols ucd ) s,
-                table( xmlsequence(extract(s.item_data,'/*/*')) ) r
+                   SELECT rownum actual_pos,
+                   xt.name actual_name,
+                   xt.type actual_type
+         FROM    (select ]'||l_column_filter||q'[ from actual_cols ucd) x,
+           XMLTABLE('/ROW/*'
+             PASSING x.item_data
+             COLUMNS 
+               name     VARCHAR2(4000)  PATH '@xml_valid_name',
+               type      VARCHAR2(4000) PATH '/' 
+             ) xt
             ) a
         ),
         joined_cols as (
@@ -152,7 +167,7 @@ create or replace package body ut_compound_data_helper is
     l_column_filter varchar2(32767);
     l_results       tt_row_diffs;
   begin
-    l_column_filter := get_columns_filter(a_exclude_xpath, a_include_xpath);
+    l_column_filter := get_columns_filter(a_exclude_xpath,a_include_xpath);
     execute immediate q'[
       with
         diff_info as (select item_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid and rownum <= :max_rows)
@@ -231,14 +246,14 @@ create or replace package body ut_compound_data_helper is
     a_hash_type binary_integer := dbms_crypto.hash_sh1
   ) return t_hash is
     l_cols_hash t_hash;
-  begin
-    if not a_data_value_cursor.is_null then
+  begin      
+    if not a_data_value_cursor.is_null then      
       execute immediate
       q'[select dbms_crypto.hash(replace(x.item_data.getclobval(),'>CHAR<','>VARCHAR2<'),]'||a_hash_type||') ' ||
       '  from ( select '||get_columns_filter(a_exclude_xpath, a_include_xpath)||
       '           from (select :columns_info as item_data from dual ) ucd' ||
       '  ) x'
-      into l_cols_hash using a_exclude_xpath, a_include_xpath, a_data_value_cursor.columns_info;
+      into l_cols_hash using a_exclude_xpath,a_include_xpath, a_data_value_cursor.columns_info;
     end if;
     return l_cols_hash;
   end;
@@ -263,5 +278,6 @@ begin
   g_type_name_map( dbms_sql.number_type )                  := 'NUMBER';
   g_type_name_map( dbms_sql.rowid_type )                   := 'ROWID';
   g_type_name_map( dbms_sql.urowid_type )                  := 'UROWID';
+  
 end;
 /
