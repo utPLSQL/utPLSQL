@@ -36,8 +36,9 @@ create or replace type ut_expectation_compound under ut_expectation(
   member function  exclude(a_items varchar2) return ut_expectation_compound,
   member function  exclude(a_items ut_varchar2_list) return ut_expectation_compound,
   member procedure exclude(self in ut_expectation_compound, a_items varchar2),
-  member procedure exclude(self in ut_expectation_compound, a_items ut_varchar2_list)
-
+  member procedure exclude(self in ut_expectation_compound, a_items ut_varchar2_list),
+  member function unordered return ut_expectation_compound,
+  member procedure unordered(self in ut_expectation_compound)
 )
 final
 /

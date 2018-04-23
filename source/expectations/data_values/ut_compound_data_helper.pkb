@@ -217,18 +217,66 @@ create or replace package body ut_compound_data_helper is
                 from ut_compound_data_tmp ucd
                where ucd.data_id = :other_guid
                  and ucd.item_no in (select i.item_no from diff_info i)
-
              )act
           on exp.item_no = act.item_no
        where exp.item_no is null or act.item_no is null
-      order by 1, 2
-]'
+      order by 1, 2]'
     bulk collect into l_results
     using a_diff_id, a_max_rows,
     a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
     a_exclude_xpath, a_include_xpath, a_actual_dataset_guid,
     a_expected_dataset_guid, a_actual_dataset_guid;
     return l_results;
+  end;
+
+  function get_rows_diff_unordered(
+    a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
+    a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2
+  ) return tt_row_diffs is
+    l_column_filter varchar2(32767);
+    l_results       tt_row_diffs;
+  begin
+    l_column_filter := get_columns_filter(a_exclude_xpath,a_include_xpath);
+    execute immediate q'[
+      select 
+          coalesce(exp.duplicate_no, act.duplicate_no) duplicate_no,
+          case when exp.row_hash is null then 'Actual:' else 'Expected:' end diffed_type,
+          case when exp.row_hash is null then 
+            xmlserialize(content act.row_data no indent) 
+          else 
+            xmlserialize(content exp.row_data no indent)
+          end diffed_row
+        from (select ucd.*, row_number() over(partition by row_hash order by row_hash) duplicate_no
+            from (select ucd.column_value row_data,
+                    dbms_crypto.hash( value(ucd).getclobval(),3) row_hash
+                  from (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
+                        from ut_compound_data_tmp ucd
+                        where ucd.data_id = :self_guid
+                       ) r,
+                  table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
+              ) ucd
+          )  exp
+      full outer join
+        (select ucd.*, row_number() over(partition by row_hash order by row_hash) duplicate_no
+         from (select ucd.column_value row_data,
+                      dbms_crypto.hash( value(ucd).getclobval(),3/*HASH_SH1*/) row_hash
+               from (select  ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
+                     from ut_compound_data_tmp ucd
+                     where ucd.data_id = :other_guid
+                     ) r,
+               table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
+               ) ucd
+       )  act
+      on  exp.row_hash = act.row_hash
+      and exp.duplicate_no = act.duplicate_no
+      where exp.row_hash is null or act.row_hash is null]'
+    bulk collect into l_results
+    using a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
+    a_exclude_xpath, a_include_xpath, a_actual_dataset_guid;
+    
+    --execute immediate 'create table test as select * from ut_compound_data_tmp';
+    return l_results;
+
   end;
 
   function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is

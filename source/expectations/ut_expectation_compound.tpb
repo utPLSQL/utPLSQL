@@ -146,6 +146,24 @@ create or replace type body ut_expectation_compound as
         self.to_( treat(matcher as ut_equal).exclude(a_items) );
       end if;
     end;
+    
+  member function unordered return ut_expectation_compound is
+    l_result ut_expectation_compound;
+  begin
+    l_result := self;
+    l_result.matcher := treat(l_result.matcher as ut_equal).unordered;
+    return l_result;
+  end;
+
+  member procedure unordered(self in ut_expectation_compound) is
+  begin
+
+    if ut_utils.int_to_boolean(negated) then
+      self.not_to( treat(matcher as ut_equal).unordered );
+    else
+      self.to_( treat(matcher as ut_equal).unordered );
+    end if;
+  end;
 
 end;
 /

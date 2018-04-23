@@ -108,7 +108,7 @@ create or replace type body ut_data_value_refcursor as
     return l_result_string;
   end;
 
-  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return varchar2 is
+  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_unordered boolean := false ) return varchar2 is
     l_result            clob;
     l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
     l_result_string     varchar2(32767);
@@ -176,8 +176,12 @@ create or replace type body ut_data_value_refcursor as
     end if;
 
     --diff rows and row elements
-    ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, l_exclude_xpath, a_include_xpath));
-
+    if a_unordered then
+      ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, l_exclude_xpath, a_include_xpath, a_unordered));
+    else
+      ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, l_exclude_xpath, a_include_xpath));
+    end if;
+    
     l_result_string := ut_utils.to_string(l_result,null);
     dbms_lob.freetemporary(l_result);
     return l_result_string;
@@ -202,6 +206,27 @@ create or replace type body ut_data_value_refcursor as
     l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath);
     return l_result;
   end;
+
+  overriding member function compare_implementation (a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_unordered boolean) return integer is
+    l_result          integer := 0;
+    l_other           ut_data_value_refcursor;
+  begin
+    if not a_other is of (ut_data_value_refcursor) then
+      raise value_error;
+    end if;
+
+    l_other   := treat(a_other as ut_data_value_refcursor);
+
+    --if column names/types are not equal - build a diff of column names and types
+    if ut_compound_data_helper.columns_hash( self, a_exclude_xpath, a_include_xpath )
+       != ut_compound_data_helper.columns_hash( l_other, a_exclude_xpath, a_include_xpath )
+    then
+      l_result := 1;
+    end if;
+    l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, a_unordered);
+    return l_result;
+  end;
+
 
 end;
 /

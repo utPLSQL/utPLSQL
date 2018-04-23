@@ -1,4 +1,4 @@
-create or replace type ut_data_value_anydata under ut_compound_data_value(
+create or replace type ut_data_value_anydata force under ut_compound_data_value(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
