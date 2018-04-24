@@ -845,8 +845,6 @@ Finished in .018691 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
-### Rollback
-
 ### Context
 
 In most of the cases, the code to be tested is consisting of PLSQL packages containing procedures and functions.
