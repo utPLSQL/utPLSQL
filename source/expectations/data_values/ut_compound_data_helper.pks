@@ -52,6 +52,12 @@ create or replace package ut_compound_data_helper authid definer is
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2
   ) return tt_row_diffs;
 
+  function get_rows_diff(
+    a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
+    a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
+    a_join_by_xpath varchar2
+  ) return tt_row_diffs;
+
   function get_rows_diff_unordered(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2

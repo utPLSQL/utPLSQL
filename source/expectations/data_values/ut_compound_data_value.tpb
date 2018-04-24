@@ -71,11 +71,17 @@ create or replace type body ut_compound_data_value as
     return l_result_string;
   end;
 
-  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_unordered boolean := false ) return varchar2 is
+  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean := false ) return varchar2 is
     l_result            clob;
   l_result_string     varchar2(32767);
   begin
-    l_result := get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_unordered);
+    if a_join_by_xpath is not null then
+      l_result := get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath);
+    elsif a_unordered then
+      l_result := get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_unordered);
+    else
+      l_result := get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath);
+    end if;
     l_result_string := ut_utils.to_string(l_result,null);
     dbms_lob.freetemporary(l_result);
     return l_result_string;
@@ -102,8 +108,8 @@ create or replace type body ut_compound_data_value as
     --diff rows and row elements
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_actual.data_id);
     -- First tell how many rows are different
-    execute immediate 'select unordered_cnt from ' || l_ut_owner || '.ut_compound_data_diff_tmp where diff_id = :diff_id' into l_diff_row_count using l_diff_id;
-
+    execute immediate 'select count(*) from ' || l_ut_owner || '.ut_compound_data_diff_tmp where diff_id = :diff_id' into l_diff_row_count using l_diff_id;
+    
     if l_diff_row_count > 0  then
         l_row_diffs := ut_compound_data_helper.get_rows_diff_unordered(
             self.data_id, l_actual.data_id, l_diff_id, c_max_rows, a_exclude_xpath, a_include_xpath
@@ -118,14 +124,14 @@ create or replace type body ut_compound_data_value as
       for i in 1 .. l_row_diffs.count loop
         l_results.extend;
         l_results(l_results.last) := 
-            '  Row Appeared '||l_row_diffs(i).rn||' - '||rpad(l_row_diffs(i).diff_type,10)||l_row_diffs(i).diffed_row;
+            rpad(l_row_diffs(i).diff_type,10)||l_row_diffs(i).diffed_row;
       end loop;
       ut_utils.append_to_clob(l_result,l_results);
     end if;
     return l_result;
   end;
 
- member function get_data_diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return clob is
+ member function get_data_diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2) return clob is
     c_max_rows          constant integer := 20;
     l_result            clob;
     l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
@@ -149,9 +155,15 @@ create or replace type body ut_compound_data_value as
     execute immediate 'select count(*) from ' || l_ut_owner || '.ut_compound_data_diff_tmp where diff_id = :diff_id' into l_diff_row_count using l_diff_id;
 
     if l_diff_row_count > 0  then
-        l_row_diffs := ut_compound_data_helper.get_rows_diff(
+        if a_join_by_xpath is not null then
+          l_row_diffs := ut_compound_data_helper.get_rows_diff(
+            self.data_id, l_actual.data_id, l_diff_id, c_max_rows, a_exclude_xpath, a_include_xpath, a_join_by_xpath
+          );       
+        else
+          l_row_diffs := ut_compound_data_helper.get_rows_diff(
             self.data_id, l_actual.data_id, l_diff_id, c_max_rows, a_exclude_xpath, a_include_xpath
-        );    
+          );
+        end if;
       l_message := chr(10)
                    ||'Rows: [ ' || l_diff_row_count ||' differences'
                    ||  case when  l_diff_row_count > c_max_rows and l_row_diffs.count > 0 then ', showing first '||c_max_rows end
@@ -224,7 +236,7 @@ create or replace type body ut_compound_data_value as
     return l_result;
   end;
 
-member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_unordered boolean ) return integer is
+  member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean ) return integer is
     l_other           ut_compound_data_value;
     l_ut_owner        varchar2(250) := ut_utils.ut_owner;
     l_column_filter   varchar2(32767);
@@ -241,16 +253,36 @@ member function compare_implementation(a_other ut_data_value, a_exclude_xpath va
 
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
     l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
-    
-    -- Find differences
-    l_row_diffs := ut_compound_data_helper.get_rows_diff_unordered(
-            self.data_id, l_other.data_id, l_diff_id, c_max_rows, a_exclude_xpath, a_include_xpath
-        );
-    
-        execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id, unordered_cnt )
-                           values (:diff_id, nvl(:unordered_cnt,0))' using l_diff_id, l_row_diffs.count;
+       
+    -- Pre generate hash minus to leave only onese that are diffrent, for example duplicates or diffrent hash
+    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,duplicate_no )
+                       select :diff_id,x.item_hash,tmp.duplicate_no
+                       from(
+                         (
+                           select item_hash,row_number() over (partition by item_hash,data_id order by 1) duplicate_no 
+                           from ut_compound_data_tmp
+                           where data_id = :self_guid
+                           minus
+                           select item_hash,row_number() over (partition by item_hash,data_id order by 1) 
+                           from ut_compound_data_tmp
+                           where data_id = :other_guid
+                        )
+                           union all
+                         (
+                           select item_hash,row_number() over (partition by item_hash,data_id order by 1) 
+                           from ut_compound_data_tmp
+                           where data_id = :other_guid
+                           minus
+                           select item_hash,row_number() over (partition by item_hash,data_id order by 1) 
+                           from ut_compound_data_tmp
+                           where data_id = :self_guid
+                        ))tmp
+                       ,ut_compound_data_tmp x
+                       where tmp.item_hash = x.item_hash'
+       using l_diff_id, self.data_id, l_other.data_id
+             ,l_other.data_id,self.data_id;
     --result is OK only if both are same
-    if l_row_diffs.count = 0 and self.elements_count = l_other.elements_count then
+    if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;
     else
       l_result := 1;

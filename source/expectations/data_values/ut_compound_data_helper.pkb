@@ -162,6 +162,79 @@ create or replace package body ut_compound_data_helper is
 
   function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
+    a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
+    a_join_by_xpath varchar2
+  ) return tt_row_diffs is
+    l_column_filter varchar2(32767);
+    l_results       tt_row_diffs;
+    l_sql varchar2(32767); -- REMOVE LATER also for unorder
+  begin
+    l_column_filter := get_columns_filter(a_exclude_xpath,a_include_xpath);
+    
+   /**
+    * Since its unordered search we cannot select max rows from diffs as we miss some comparision records
+    * We will restrict output on higher level of select
+    */
+    
+    l_sql := q'[
+      with
+        diff_info as (select item_hash from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
+      select rn,diff_type,diffed_row
+        from (select dense_rank() over (order by pk_hash) as rn, diff_type,data_item diffed_row
+                from (select nvl(exp.pk_hash, act.pk_hash) pk_hash,
+                             xmlserialize(content exp.row_data no indent)  exp_item,
+                             xmlserialize(content act.row_data no indent)  act_item
+                      from 
+                        (select ucd.*, row_number() over(partition by pk_hash order by row_hash) duplicate_no
+                          from 
+                            (select ucd.column_value row_data,
+                               dbms_crypto.hash( value(ucd).getclobval(),3) row_hash,
+                               dbms_crypto.hash( extract(value(ucd),']'|| a_join_by_xpath ||q'[').getClobVal(),3/*HASH_SH1*/) pk_hash 
+                             from 
+                               (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
+                                from ut_compound_data_tmp ucd
+                                where ucd.data_id = :self_guid
+                               and ucd.item_hash in (select i.item_hash from diff_info i)
+                               ) r,
+                               table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
+                             ) ucd
+                      )  exp
+                     join (
+                          select ucd.*, row_number() over(partition by pk_hash order by row_hash) duplicate_no
+                          from 
+                            (select ucd.column_value row_data,
+                             dbms_crypto.hash( value(ucd).getclobval(),3/*HASH_SH1*/) row_hash,
+                             dbms_crypto.hash( extract(value(ucd),']'|| a_join_by_xpath ||q'[').getClobVal(),3/*HASH_SH1*/) pk_hash 
+                             from 
+                               (select  ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
+                                from ut_compound_data_tmp ucd
+                                where ucd.data_id = :other_guid
+                                and ucd.item_hash in (select i.item_hash from diff_info i)
+                               ) r,
+                               table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
+                          ) ucd
+                      )  act
+                          on exp.pk_hash = act.pk_hash  and exp.duplicate_no = act.duplicate_no
+                       where exp.row_hash != act.row_hash
+                       or exp.row_hash is null 
+                       or act.row_hash is null
+                     )
+              unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
+             )
+             where rownum < :max_rows
+      order by 1, 2]';
+      
+    execute immediate l_sql
+    bulk collect into l_results
+    using a_diff_id,
+    a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
+    a_exclude_xpath, a_include_xpath, a_actual_dataset_guid,
+    a_max_rows;
+    return l_results;
+  end;
+
+  function get_rows_diff(
+    a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2
   ) return tt_row_diffs is
     l_column_filter varchar2(32767);
@@ -237,21 +310,36 @@ create or replace package body ut_compound_data_helper is
     l_results       tt_row_diffs;
   begin
     l_column_filter := get_columns_filter(a_exclude_xpath,a_include_xpath);
-    execute immediate q'[
-      select 
-          coalesce(exp.duplicate_no, act.duplicate_no) duplicate_no,
-          case when exp.row_hash is null then 'Actual:' else 'Expected:' end diffed_type,
-          case when exp.row_hash is null then 
-            xmlserialize(content act.row_data no indent) 
-          else 
-            xmlserialize(content exp.row_data no indent)
-          end diffed_row
-        from (select ucd.*, row_number() over(partition by row_hash order by row_hash) duplicate_no
+    
+    /**
+    * Since its unordered search we cannot select max rows from diffs as we miss some comparision records
+    * We will restrict output on higher level of select
+    */
+    execute immediate q'[with
+      diff_info as (select item_hash from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
+      select duplicate_no,
+             diffed_type,
+             diffed_row
+      from
+      (select  
+        coalesce(exp.duplicate_no,act.duplicate_no) duplicate_no,
+        case 
+          when act.row_hash is null then 
+            'miss row'  
+          else 'extra row' 
+        end diffed_type,
+        case when exp.row_hash is null then 
+          xmlserialize(content act.row_data no indent) 
+        when act.row_hash is null then
+          xmlserialize(content exp.row_data no indent) 
+        end diffed_row
+         from (select ucd.*, row_number() over(partition by row_hash order by row_hash) duplicate_no
             from (select ucd.column_value row_data,
                     dbms_crypto.hash( value(ucd).getclobval(),3) row_hash
-                  from (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
+                    from (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
                         from ut_compound_data_tmp ucd
                         where ucd.data_id = :self_guid
+                        and ucd.item_hash in (select i.item_hash from diff_info i)
                        ) r,
                   table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
               ) ucd
@@ -260,21 +348,23 @@ create or replace package body ut_compound_data_helper is
         (select ucd.*, row_number() over(partition by row_hash order by row_hash) duplicate_no
          from (select ucd.column_value row_data,
                       dbms_crypto.hash( value(ucd).getclobval(),3/*HASH_SH1*/) row_hash
-               from (select  ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
+                      from (select  ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
                      from ut_compound_data_tmp ucd
                      where ucd.data_id = :other_guid
+                     and ucd.item_hash in (select i.item_hash from diff_info i)
                      ) r,
                table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
                ) ucd
        )  act
-      on  exp.row_hash = act.row_hash
-      and exp.duplicate_no = act.duplicate_no
-      where exp.row_hash is null or act.row_hash is null]'
+      on   exp.row_hash = act.row_hash
+          and exp.duplicate_no = act.duplicate_no
+      where exp.row_hash is null or act.row_hash is null ) where rownum < :max_rows ]'
     bulk collect into l_results
-    using a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
-    a_exclude_xpath, a_include_xpath, a_actual_dataset_guid;
+    using a_diff_id,
+    a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
+    a_exclude_xpath, a_include_xpath, a_actual_dataset_guid,
+    a_max_rows;
     
-    --execute immediate 'create table test as select * from ut_compound_data_tmp';
     return l_results;
 
   end;

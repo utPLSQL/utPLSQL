@@ -165,5 +165,40 @@ create or replace type body ut_expectation_compound as
     end if;
   end;
 
+ member function join_by(a_columns varchar2) return ut_expectation_compound is
+    l_result ut_expectation_compound;
+  begin
+    l_result := self;
+    l_result.matcher := treat(l_result.matcher as ut_equal).join_by(a_columns);
+    return l_result;
+  end;
+
+  member function join_by(a_columns ut_varchar2_list) return ut_expectation_compound is
+    l_result ut_expectation_compound;
+  begin
+    l_result := self;
+    l_result.matcher := treat(l_result.matcher as ut_equal).join_by(a_columns);
+    return l_result;
+  end;
+
+  member procedure join_by(self in ut_expectation_compound, a_columns varchar2) is
+  begin
+    if ut_utils.int_to_boolean(negated) then
+      self.not_to( treat(matcher as ut_equal).join_by(a_columns) );
+    else
+      self.to_( treat(matcher as ut_equal).join_by(a_columns) );
+    end if;
+  end;
+
+  member procedure join_by(self in ut_expectation_compound, a_columns ut_varchar2_list) is
+  begin
+
+    if ut_utils.int_to_boolean(negated) then
+      self.not_to( treat(matcher as ut_equal).join_by(a_columns) );
+    else
+      self.to_( treat(matcher as ut_equal).join_by(a_columns) );
+    end if;
+  end;
+
 end;
 /

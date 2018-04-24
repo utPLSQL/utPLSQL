@@ -60,8 +60,8 @@ create or replace type body ut_data_value_refcursor as
             l_xml := dbms_xmlgen.getxmltype(l_ctx);
 
             execute immediate
-              'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
-              'select :self_guid, :self_row_count + rownum, value(a) ' ||
+              'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data, item_hash) ' ||
+              'select :self_guid, :self_row_count + rownum, value(a), dbms_crypto.hash( value(a).getclobval(),3)' ||
               '  from table( xmlsequence( extract(:l_xml,''ROWSET/*'') ) ) a'
               using in self.data_id, self.elements_count, l_xml;
 
@@ -69,7 +69,7 @@ create or replace type body ut_data_value_refcursor as
 
             self.elements_count := self.elements_count + sql%rowcount;
           end loop;
-
+          
           ut_expectation_processor.reset_nls_params();
           if l_cursor%isopen then
             close l_cursor;
@@ -108,7 +108,7 @@ create or replace type body ut_data_value_refcursor as
     return l_result_string;
   end;
 
-  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_unordered boolean := false ) return varchar2 is
+  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean := false ) return varchar2 is
     l_result            clob;
     l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
     l_result_string     varchar2(32767);
@@ -176,10 +176,12 @@ create or replace type body ut_data_value_refcursor as
     end if;
 
     --diff rows and row elements
-    if a_unordered then
+    if a_join_by_xpath is not null then
+      ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath));
+    elsif a_unordered then
       ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, l_exclude_xpath, a_include_xpath, a_unordered));
     else
-      ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, l_exclude_xpath, a_include_xpath));
+      ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, l_exclude_xpath, a_include_xpath, a_join_by_xpath));
     end if;
     
     l_result_string := ut_utils.to_string(l_result,null);
@@ -196,7 +198,6 @@ create or replace type body ut_data_value_refcursor as
     end if;
 
     l_other   := treat(a_other as ut_data_value_refcursor);
-
     --if column names/types are not equal - build a diff of column names and types
     if ut_compound_data_helper.columns_hash( self, a_exclude_xpath, a_include_xpath )
        != ut_compound_data_helper.columns_hash( l_other, a_exclude_xpath, a_include_xpath )
@@ -207,7 +208,7 @@ create or replace type body ut_data_value_refcursor as
     return l_result;
   end;
 
-  overriding member function compare_implementation (a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_unordered boolean) return integer is
+  overriding member function compare_implementation (a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean) return integer is
     l_result          integer := 0;
     l_other           ut_data_value_refcursor;
   begin
@@ -216,14 +217,13 @@ create or replace type body ut_data_value_refcursor as
     end if;
 
     l_other   := treat(a_other as ut_data_value_refcursor);
-
     --if column names/types are not equal - build a diff of column names and types
     if ut_compound_data_helper.columns_hash( self, a_exclude_xpath, a_include_xpath )
        != ut_compound_data_helper.columns_hash( l_other, a_exclude_xpath, a_include_xpath )
     then
       l_result := 1;
     end if;
-    l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, a_unordered);
+    l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath, a_unordered);
     return l_result;
   end;
 

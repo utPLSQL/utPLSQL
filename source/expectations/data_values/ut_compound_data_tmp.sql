@@ -15,5 +15,8 @@ create global temporary table ut_compound_data_tmp(
   data_id          raw(32),
   item_no          integer,
   item_data        xmltype,
-  constraint ut_compound_data_tmp_pk primary key(data_id, item_no)
+  item_hash        raw(128),
+  duplicate_no     integer
+  --constraint ut_cmp_data_tmp_item_ak unique (data_id, item_no),
+  --constraint ut_cmp_data_tmp_hash_pk unique (data_id, item_hash , duplicate_no)
 ) on commit preserve rows;

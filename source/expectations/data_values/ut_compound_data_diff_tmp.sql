@@ -14,5 +14,11 @@ create global temporary table ut_compound_data_diff_tmp(
   */
   diff_id    raw(128),
   item_no    integer,
-  constraint ut_compound_data_diff_tmp_pk primary key(diff_id,item_no)
+  item_hash  raw(128),
+  duplicate_no integer,
+  --constraint ut_compound_data_diff_tmp_uk1 unique (diff_id, item_no, item_hash, duplicate_no),
+  constraint ut_compound_data_diff_tmp_chk check(
+   item_no is not null and item_hash is null and duplicate_no is null
+   or item_no is null and item_hash is not null and duplicate_no is not null
+   )
 ) on commit preserve rows;
