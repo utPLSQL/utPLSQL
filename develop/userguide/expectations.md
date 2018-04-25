@@ -780,24 +780,23 @@ Since NULL is neither *true* nor *false*, both expectations will report failure.
 
 The matrix below illustrates the data types supported by different matchers.
 
-|                               | be_between | be_empty | be_false | be_greater_than | be_greater_or_equal | be_less_or_equal | be_less_than | be_like | be_not_null | be_null | be_true | equal | have_count | match |
-|:------------------------------|:----------:|:--------:|:--------:|:---------------:|:-------------------:|:----------------:|:------------:|:-------:|:-----------:|:-------:|:-------:|:-----:|:----------:|:-----:|
-| blob                          |            |          |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |            |       |
-| boolean                       |            |          |    X     |                 |                     |                  |              |         |     X       |   X     |    X    |   X   |            |       |
-| clob                          |            |          |          |                 |                     |                  |              |   X     |     X       |   X     |         |   X   |            |   X   |
-| date                          |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
-| number                        |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
-| timestamp                     |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
-| timestamp with timezone       |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
-| timestamp with local timezone |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
-| varchar2                      |    X       |          |          |                 |                     |                  |              |   X     |     X       |   X     |         |   X   |            |   X   |
-| interval year to month        |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
-| interval day to second        |    X       |          |          |       X         |         X           |      X           |     X        |         |     X       |   X     |         |   X   |            |       |
-| refcursor                     |            |    X     |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |      X     |       |
-| nested table (as anydata)     |            |    X     |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |      X     |       |
-| varray (as anydata)           |            |    X     |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |      X     |       |
-| object (as anydata)           |            |          |          |                 |                     |                  |              |         |     X       |   X     |         |   X   |            |       |
-
+|  Matcher              |blob |boolean|clob |date |number|timestamp|timestamp<br>with<br>timezone|timestamp<br>with<br>local<br>timezone|varchar2|interval<br>year<br>to<br>month|interval<br>day<br>to<br>second|cursor|nested<br>table<br>/ varray|object|
+|:----------------------|:---:|:-----:|:---:|:---:|:----:|:-------:|:---------------------------:|:------------------------------------:|:------:|:-----------------------------:|:-----------------------------:|:----:|:-------------------------:|:----:|
+|**be_not_null**        |  X  |   X   |  X  |  X  |  X   |    X    |             X               |                   X                  |   X    |               X               |               X               |   X  |              X            |   X  |
+|**be_null**            |  X  |   X   |  X  |  X  |  X   |    X    |             X               |                   X                  |   X    |               X               |               X               |   X  |              X            |   X  |
+|**be_false**           |     |   X   |     |     |      |         |                             |                                      |        |                               |                               |      |                           |      |
+|**be_true**            |     |   X   |     |     |      |         |                             |                                      |        |                               |                               |      |                           |      |
+|**be_greater_than**    |     |       |     |  X  |  X   |    X    |             X               |                   X                  |        |               X               |               X               |      |                           |      |
+|**be_greater_or_equal**|     |       |     |  X  |  X   |    X    |             X               |                   X                  |        |               X               |               X               |      |                           |      |
+|**be_less_or_equal**   |     |       |     |  X  |  X   |    X    |             X               |                   X                  |        |               X               |               X               |      |                           |      |
+|**be_less_than**       |     |       |     |  X  |  X   |    X    |             X               |                   X                  |        |               X               |               X               |      |                           |      |
+|**be_between**         |     |       |     |  X  |  X   |    X    |             X               |                   X                  |   X    |               X               |               X               |      |                           |      |
+|**equal**              |  X  |   X   |  X  |  X  |  X   |    X    |             X               |                   X                  |   X    |               X               |               X               |   X  |              X            |   X  |
+|**match**              |     |       |  X  |     |      |         |                             |                                      |   X    |                               |                               |      |                           |      |
+|**be_like**            |     |       |  X  |     |      |         |                             |                                      |   X    |                               |                               |      |                           |      |
+|**be_empty**           |     |       |     |     |      |         |                             |                                      |        |                               |                               |   X  |              X            |      |
+|**have_count**         |     |       |     |     |      |         |                             |                                      |        |                               |                               |   X  |              X            |      |
+                                                                                                                                                                                                                                                                                 
 
 
 
