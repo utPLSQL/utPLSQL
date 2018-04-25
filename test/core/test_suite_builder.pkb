@@ -289,7 +289,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS>%&quot;--%suitepath&quot; annotation requires a non-empty value.%</WARNINGS>%'
+        '%<WARNINGS>%&quot;--%suitepath&quot; annotation requires a non-empty parameter value.%</WARNINGS>%'
     );
   end;
 
@@ -323,7 +323,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS>%&quot;--%displayname&quot; annotation requires a non-empty value.%</WARNINGS>%'
+        '%<WARNINGS>%&quot;--%displayname&quot; annotation requires a non-empty parameter value.%</WARNINGS>%'
     );
   end;
 
@@ -340,7 +340,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS>%&quot;--%rollback&quot; annotation requires one of values:%</WARNINGS>%'
+        '%<WARNINGS>%&quot;--%rollback&quot; annotation requires one of values as parameter:%</WARNINGS>%'
     );
   end;
 
@@ -357,7 +357,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS>%&quot;--%rollback&quot; annotation requires one of values:%</WARNINGS>%'
+        '%<WARNINGS>%&quot;--%rollback&quot; annotation requires one of values as parameter: &quot;auto&quot; or &quot;manual&quot;. Annotation ignored.%</WARNINGS>%'
     );
   end;
 
@@ -468,7 +468,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%beforeall&quot;%line 2%</WARNINGS>%', '\');
     ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%beforeeach&quot;%line 3%</WARNINGS>%', '\');
     ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%aftereach&quot;%line 4%</WARNINGS>%', '\');
-    ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%afterall&quot; cannot be used with annotation: &quot;--\%test&quot;'
+    ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%afterall&quot; cannot be used with &quot;--\%test&quot;. Annotation ignored.'
                                    ||'%at &quot;UT3_TESTER.SOME_PACKAGE.DO_STUFF&quot;, line 5%</WARNINGS>%', '\');
     ut.expect(l_actual).not_to_be_like('%<BEFORE_EACH_LIST>%');
     ut.expect(l_actual).not_to_be_like('%<AFTER_EACH_LIST>%');
@@ -634,7 +634,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS><VARCHAR2>Annotation &quot;--\%context(A context)&quot; was ignored. Cannot find following &quot;--\%endcontext&quot;.%at &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 4</VARCHAR2></WARNINGS>%'
+        '%<WARNINGS><VARCHAR2>Invalid annotation &quot;--\%context&quot;. Cannot find following &quot;--\%endcontext&quot;. Annotation ignored.%at &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 4</VARCHAR2></WARNINGS>%'
         ,'\'
     );
     ut.expect(l_actual).to_be_like(
@@ -675,7 +675,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS><VARCHAR2>Annotation &quot;--\%endcontext&quot; was ignored. Cannot find preceding &quot;--\%context&quot;.%at &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 9</VARCHAR2></WARNINGS>%'
+        '%<WARNINGS><VARCHAR2>Invalid annotation &quot;--\%endcontext&quot;. Cannot find preceding &quot;--\%context&quot;. Annotation ignored.%at &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 9</VARCHAR2></WARNINGS>%'
         ,'\'
     );
     ut.expect(l_actual).to_be_like(

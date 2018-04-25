@@ -21,6 +21,23 @@ create or replace package body ut_suite_builder is
   subtype t_object_name         is varchar2(500);
   subtype t_annotation_position is binary_integer;
 
+  gc_suite                       constant t_annotation_name := 'suite';
+  gc_suitepath                   constant t_annotation_name := 'suitepath';
+  gc_test                        constant t_annotation_name := 'test';
+  gc_disabled                    constant t_annotation_name := 'disabled';
+  gc_displayname                 constant t_annotation_name := 'displayname';
+  gc_beforeall                   constant t_annotation_name := 'beforeall';
+  gc_beforeeach                  constant t_annotation_name := 'beforeeach';
+  gc_beforetest                  constant t_annotation_name := 'beforetest';
+  gc_afterall                    constant t_annotation_name := 'afterall';
+  gc_aftereach                   constant t_annotation_name := 'aftereach';
+  gc_aftertest                   constant t_annotation_name := 'aftertest';
+  gc_throws                      constant t_annotation_name := 'throws';
+  gc_rollback                    constant t_annotation_name := 'rollback';
+  gc_context                     constant t_annotation_name := 'context';
+  gc_endcontext                  constant t_annotation_name := 'endcontext';
+
+  gc_placeholder                 constant varchar2(3) := '\\%';
 
   --list of annotation texts for a given annotation indexed by annotation position:
   --This would hold: ('some', 'other') for a single annotation name recurring in a single procedure example
@@ -61,6 +78,9 @@ create or replace package body ut_suite_builder is
   type tt_annotations_index   is table of tt_package_annot_positions index by t_annotation_name;
 
 
+  -----------------------------------------------
+  --- Conversion of annotations for processing
+  -----------------------------------------------
   function get_procedure_annotations(a_annotations ut_annotations, a_index in out nocopy binary_integer) return tt_procedure_annotations is
     l_result         tt_procedure_annotations;
     l_index          binary_integer := a_index;
@@ -130,6 +150,29 @@ create or replace package body ut_suite_builder is
       end if;
       l_idx := a_index.next( l_idx );
     end loop;
+  end;
+
+  -----------------------------------------------
+  -- Processing annotations
+  -----------------------------------------------
+
+  procedure add_annotation_warning(
+    a_suite          in out nocopy ut_suite_item,
+    a_annotation     t_annotation_name,
+    a_message        varchar2,
+    a_line_no        binary_integer,
+    a_procedure_name t_object_name := null
+  ) is
+    l_object_name varchar2(1000);
+  begin
+    l_object_name := upper( a_suite.object_owner || '.' || a_suite.object_name );
+    if a_procedure_name is not null then
+      l_object_name := l_object_name || upper( '.' || a_procedure_name );
+    end if;
+    a_suite.put_warning(
+        replace(a_message,'%%%','"--%'||a_annotation||'"') || ' Annotation ignored.'
+        || chr( 10 ) || 'at "' || l_object_name || '", line ' || a_line_no
+    );
   end;
 
   function get_rollback_type(a_rollback_type_name varchar2) return ut_utils.t_rollback_type is
@@ -216,10 +259,7 @@ create or replace package body ut_suite_builder is
         --start from second occurrence of annotation
         l_line_no := a_annotations(a_for_annotation).next( a_annotations(a_for_annotation).first );
         while l_line_no is not null loop
-          a_suite.put_warning(
-            'Duplicate annotation "--%' || a_for_annotation || '". Annotation ignored.' || chr( 10 )
-            || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name ) || '", line ' || l_line_no
-          );
+          add_annotation_warning( a_suite, a_for_annotation, 'Duplicate annotation %%%.', l_line_no );
           l_line_no := a_annotations(a_for_annotation).next( l_line_no );
         end loop;
       end if;
@@ -240,17 +280,14 @@ create or replace package body ut_suite_builder is
           --start from second occurrence of annotation
           l_line_no := a_annotations(a_for_annotation).next( a_annotations(a_for_annotation).first );
           while l_line_no is not null loop
-            a_suite.put_warning(
-                'Duplicate annotation "--%' || a_for_annotation || '". Annotation ignored.' || chr( 10 )
-                || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name ||'.'||a_procedure_name) || '", line ' || l_line_no
-            );
+            add_annotation_warning( a_suite, a_for_annotation, 'Duplicate annotation %%%.', l_line_no, a_procedure_name );
             l_line_no := a_annotations(a_for_annotation).next( l_line_no );
           end loop;
         end if;
       end if;
     end;
 
-  procedure warning_on_extra_annotations(
+  procedure warning_bad_annot_combination(
     a_suite               in out nocopy ut_suite_item,
     a_procedure_name      t_object_name,
     a_proc_annotations    tt_procedure_annotations,
@@ -266,10 +303,9 @@ create or replace package body ut_suite_builder is
       if l_annotation_name member of a_invalid_annotations then
         l_line_no := a_proc_annotations(l_annotation_name).first;
         while l_line_no is not null loop
-          a_suite.put_warning(
-            'Annotation "--%' || l_annotation_name || '" cannot be used with annotation: "--%' || a_for_annotation || '"'
-            || chr( 10 ) || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name||'.'||a_procedure_name )
-            || '", line ' || l_line_no
+          add_annotation_warning(
+              a_suite, l_annotation_name, 'Annotation %%% cannot be used with "--%'|| a_for_annotation || '".',
+              l_line_no, a_procedure_name
           );
           l_line_no := a_proc_annotations(l_annotation_name).next(l_line_no);
         end loop;
@@ -289,38 +325,37 @@ create or replace package body ut_suite_builder is
   begin
     l_test := ut_test(a_suite.object_owner, a_suite.object_name, a_procedure_name);
 
-    if a_annotations.exists('displayname') then
-      l_annotation_texts := a_annotations('displayname');
+    if a_annotations.exists(gc_displayname) then
+      l_annotation_texts := a_annotations(gc_displayname);
       --take the last definition if more than one was provided
       l_test.description := l_annotation_texts(l_annotation_texts.first);
       --TODO if more than one - warning
     else
-      l_test.description := a_annotations('test')(a_annotations('test').first);
+      l_test.description := a_annotations(gc_test)(a_annotations(gc_test).first);
     end if;
     l_test.path := a_suite.path ||'.'||a_procedure_name;
 
-    if a_annotations.exists('rollback') then
-      l_annotation_texts := a_annotations('rollback');
+    if a_annotations.exists(gc_rollback) then
+      l_annotation_texts := a_annotations(gc_rollback);
       l_test.rollback_type := get_rollback_type(l_annotation_texts(l_annotation_texts.first));
       if l_test.rollback_type is null then
-        a_suite.put_warning(
-            '"--%rollback" annotation requires one of values: "auto" or "manual". Annotation ignored.'
-            || chr( 10 ) || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name||'.'||a_procedure_name )
-            || '", line ' || l_annotation_texts.first
+        add_annotation_warning(
+            a_suite, gc_rollback, 'Annotation %%% must be provided with one of values: "auto" or "manual".',
+            l_annotation_texts.first, a_procedure_name
         );
       end if;
     end if;
 
-    if a_annotations.exists('beforetest') then
-      add_all_to_list( l_test.before_test_list, l_test.object_owner, l_test.object_name, a_annotations('beforetest'), ut_utils.gc_before_test );
+    if a_annotations.exists(gc_beforetest) then
+      add_all_to_list( l_test.before_test_list, l_test.object_owner, l_test.object_name, a_annotations(gc_beforetest), ut_utils.gc_before_test );
     end if;
-    if a_annotations.exists('aftertest') then
-      add_all_to_list( l_test.after_test_list, l_test.object_owner, l_test.object_name, a_annotations('aftertest'), ut_utils.gc_after_test );
+    if a_annotations.exists(gc_aftertest) then
+      add_all_to_list( l_test.after_test_list, l_test.object_owner, l_test.object_name, a_annotations(gc_aftertest), ut_utils.gc_after_test );
     end if;
-    if a_annotations.exists('throws') then
-      add_to_throws_numbers_list(l_test.expected_error_codes, a_annotations('throws'));
+    if a_annotations.exists(gc_throws) then
+      add_to_throws_numbers_list(l_test.expected_error_codes, a_annotations(gc_throws));
     end if;
-    l_test.disabled_flag := ut_utils.boolean_to_int(a_annotations.exists('disabled'));
+    l_test.disabled_flag := ut_utils.boolean_to_int(a_annotations.exists(gc_disabled));
 
     a_suite.add_item(l_test);
   end;
@@ -357,35 +392,36 @@ create or replace package body ut_suite_builder is
     a_after_each_list  in out nocopy ut_executables
   ) is
   begin
-    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'test');
-    --     warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'displayname');
-    --     warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'rollback');
-    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'beforeall');
-    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'beforeeach');
-    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'afterall');
-    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, 'aftereach');
-    if a_proc_annotations.exists('test') then
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, gc_test);
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, gc_displayname);
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, gc_rollback);
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, gc_beforeall);
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, gc_beforeeach);
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, gc_afterall);
+    warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, gc_aftereach);
+    
+    if a_proc_annotations.exists(gc_test) then
       add_test( a_suite, a_procedure_name, a_proc_annotations);
 
-      warning_on_extra_annotations(
-        a_suite, a_procedure_name, a_proc_annotations, 'test',
-        ut_varchar2_list('beforeeach', 'aftereach', 'beforeall', 'afterall')
+      warning_bad_annot_combination(
+        a_suite, a_procedure_name, a_proc_annotations, gc_test,
+        ut_varchar2_list(gc_beforeeach, gc_aftereach, gc_beforeall, gc_afterall)
       );
 
     else
-      if a_proc_annotations.exists('beforeeach') then
+      if a_proc_annotations.exists(gc_beforeeach) then
         add_to_list( a_before_each_list, a_suite.object_owner, a_suite.object_name, a_procedure_name, ut_utils.gc_before_each );
         --TODO add warning if annotation has text - text ignored
       end if;
-      if a_proc_annotations.exists('aftereach') then
+      if a_proc_annotations.exists(gc_aftereach) then
         add_to_list( a_after_each_list, a_suite.object_owner, a_suite.object_name, a_procedure_name, ut_utils.gc_after_each );
         --TODO add warning if annotation has text - text ignored
       end if;
-      if a_proc_annotations.exists('beforeall') then
+      if a_proc_annotations.exists(gc_beforeall) then
         add_to_list( a_suite.before_all_list, a_suite.object_owner, a_suite.object_name, a_procedure_name, ut_utils.gc_before_all );
         --TODO add warning if annotation has text - text ignored
       end if;
-      if a_proc_annotations.exists('afterall') then
+      if a_proc_annotations.exists(gc_afterall) then
         add_to_list( a_suite.after_all_list, a_suite.object_owner, a_suite.object_name, a_procedure_name, ut_utils.gc_after_all );
         --TODO add warning if annotation has text - text ignored
       end if;
@@ -434,56 +470,52 @@ create or replace package body ut_suite_builder is
     else
       l_object_name := a_suite.object_name;
     end if;
-    if a_package_ann_index.exists('suitepath') then
-      l_annotation_text := trim(a_annotations(a_package_ann_index('suitepath').first).text);
+    if a_package_ann_index.exists(gc_suitepath) then
+      l_annotation_text := trim(a_annotations(a_package_ann_index(gc_suitepath).first).text);
       if l_annotation_text is not null then
         if regexp_like(l_annotation_text,'^((\w|[$#])+\.)*(\w|[$#])+$') then
           a_suite.path := l_annotation_text||'.'||l_object_name;
         else
-          a_suite.put_warning(
-              'Invalid path value in annotation "--%suitepath('||l_annotation_text||')". Annotation ignored.'
-              || chr( 10 ) || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name )
-              || '", line ' || a_package_ann_index('suitepath').first
+          add_annotation_warning(
+            a_suite, gc_suitepath||'('||l_annotation_text||')',
+            'Invalid path value in annotation %%%.', a_package_ann_index(gc_suitepath).first
           );
         end if;
       else
-        a_suite.put_warning(
-            '"--%suitepath" annotation requires a non-empty value. Annotation ignored.'
-            || chr( 10 ) || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name )
-            || '", line ' || a_package_ann_index('suitepath').first
+        add_annotation_warning(
+          a_suite, gc_suitepath, '%%% annotation requires a non-empty parameter value.',
+          a_package_ann_index(gc_suitepath).first
         );
       end if;
-      warning_on_duplicate_annot(a_suite, a_package_ann_index, 'suitepath');
+      warning_on_duplicate_annot(a_suite, a_package_ann_index, gc_suitepath);
     end if;
     a_suite.path := lower(coalesce(a_suite.path, l_object_name));
 
-    if a_package_ann_index.exists('displayname') then
-      l_annotation_text := trim(a_annotations(a_package_ann_index('displayname').first).text);
+    if a_package_ann_index.exists(gc_displayname) then
+      l_annotation_text := trim(a_annotations(a_package_ann_index(gc_displayname).first).text);
       if l_annotation_text is not null then
         a_suite.description := l_annotation_text;
       else
-        a_suite.put_warning(
-            '"--%displayname" annotation requires a non-empty value. Annotation ignored.'
-            || chr( 10 ) || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name )
-            || '", line ' || a_package_ann_index('displayname').first
+        add_annotation_warning(
+            a_suite, gc_displayname, '%%% annotation requires a non-empty parameter value.',
+            a_package_ann_index(gc_displayname).first
         );
       end if;
-      warning_on_duplicate_annot(a_suite, a_package_ann_index, 'displayname');
+      warning_on_duplicate_annot(a_suite, a_package_ann_index, gc_displayname);
     end if;
 
-    if a_package_ann_index.exists('rollback') then
-      l_rollback_type := get_rollback_type(a_annotations(a_package_ann_index('rollback').first).text);
+    if a_package_ann_index.exists(gc_rollback) then
+      l_rollback_type := get_rollback_type(a_annotations(a_package_ann_index(gc_rollback).first).text);
       if l_rollback_type is null then
-        a_suite.put_warning(
-            '"--%rollback" annotation requires one of values: "auto" or "manual". Annotation ignored.'
-            || chr( 10 ) || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name )
-            || '", line ' || a_package_ann_index('rollback').first
+        add_annotation_warning(
+            a_suite, gc_rollback, '%%% annotation requires one of values as parameter: "auto" or "manual".',
+            a_package_ann_index(gc_rollback).first
         );
       end if;
-      warning_on_duplicate_annot(a_suite, a_package_ann_index, 'rollback');
+      warning_on_duplicate_annot(a_suite, a_package_ann_index, gc_rollback);
     end if;
 
-    a_suite.disabled_flag := ut_utils.boolean_to_int(a_package_ann_index.exists('disabled'));
+    a_suite.disabled_flag := ut_utils.boolean_to_int(a_package_ann_index.exists(gc_disabled));
 
     --process procedure annotations for suite
     add_annotated_procedures(a_annotations, a_suite, l_before_each_list, l_after_each_list);
@@ -511,14 +543,13 @@ create or replace package body ut_suite_builder is
     ) return t_annotation_position is
       l_result t_annotation_position;
     begin
-      if a_package_ann_index.exists('endcontext') then
-        l_result := a_package_ann_index('endcontext').first;
+      if a_package_ann_index.exists(gc_endcontext) then
+        l_result := a_package_ann_index(gc_endcontext).first;
         while l_result <= a_context_ann_pos loop
-          --TODO add warning about endcontext before context annotation
           --remove invalid endcontext
           delete_from_annotation_index(a_package_ann_index, l_result, l_result);
           --remove the bad endcontext from index
-          l_result := a_package_ann_index('endcontext').next(l_result);
+          l_result := a_package_ann_index(gc_endcontext).next(l_result);
         end loop;
       end if;
       return l_result;
@@ -541,10 +572,10 @@ create or replace package body ut_suite_builder is
     end;
 
   begin
-    if not a_package_ann_index.exists('context') then
+    if not a_package_ann_index.exists(gc_context) then
       return;
     end if;
-    l_context_pos := a_package_ann_index('context').first;
+    l_context_pos := a_package_ann_index(gc_context).first;
     while l_context_pos is not null loop
       l_end_context_pos := get_endcontext_position(l_context_pos, a_package_ann_index);
       if l_end_context_pos is null then
@@ -555,13 +586,13 @@ create or replace package body ut_suite_builder is
       l_annotations       := get_annotations_in_context(a_annotations, l_context_pos, l_end_context_pos);
       l_package_ann_index := build_annotation_index(l_annotations);
 
-      l_suite := ut_suite(a_suite.object_owner, a_suite.object_name, 'context_'||l_context_no);
+      l_suite := ut_suite(a_suite.object_owner, a_suite.object_name, gc_context||'_'||l_context_no);
 
-      l_suite.description := l_annotations(l_package_ann_index('context').first).text;
+      l_suite.description := l_annotations(l_package_ann_index(gc_context).first).text;
       l_suite.description := l_annotations(l_context_pos).text;
-      warning_on_duplicate_annot( l_suite, l_package_ann_index, 'suite' );
+      warning_on_duplicate_annot( l_suite, l_package_ann_index, gc_suite );
 
-      populate_suite_contents( l_suite, l_annotations, l_package_ann_index, 'context_'||l_context_no );
+      populate_suite_contents( l_suite, l_annotations, l_package_ann_index, gc_context||'_'||l_context_no );
 
       a_suite.add_item(l_suite);
 
@@ -569,8 +600,8 @@ create or replace package body ut_suite_builder is
       a_annotations.delete(l_context_pos, l_end_context_pos);
       delete_from_annotation_index(a_package_ann_index, l_context_pos, l_end_context_pos);
 
-      if a_package_ann_index.exists('context') then
-        l_context_pos := a_package_ann_index('context').next(l_context_pos);
+      if a_package_ann_index.exists(gc_context) then
+        l_context_pos := a_package_ann_index(gc_context).next(l_context_pos);
       else
         l_context_pos := null;
       end if;
@@ -585,26 +616,24 @@ create or replace package body ut_suite_builder is
   ) is
     l_annotation_pos  t_annotation_position;
     begin
-      if a_package_ann_index.exists('context') then
-        l_annotation_pos := a_package_ann_index('context').first;
+      if a_package_ann_index.exists(gc_context) then
+        l_annotation_pos := a_package_ann_index(gc_context).first;
         while l_annotation_pos is not null loop
-          a_suite.put_warning(
-              'Annotation "--%context('||a_annotations(l_annotation_pos).text||')" was ignored. Cannot find following "--%endcontext".'
-              || chr( 10 ) || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name )
-              || '", line ' || a_package_ann_index('context').first
+          add_annotation_warning(
+              a_suite, gc_context, 'Invalid annotation %%%. Cannot find following "--%endcontext".',
+              l_annotation_pos
           );
-          l_annotation_pos := a_package_ann_index('context').next(l_annotation_pos);
+          l_annotation_pos := a_package_ann_index(gc_context).next(l_annotation_pos);
         end loop;
       end if;
-      if a_package_ann_index.exists('endcontext') then
-        l_annotation_pos := a_package_ann_index('endcontext').first;
+      if a_package_ann_index.exists(gc_endcontext) then
+        l_annotation_pos := a_package_ann_index(gc_endcontext).first;
         while l_annotation_pos is not null loop
-          a_suite.put_warning(
-              'Annotation "--%endcontext" was ignored. Cannot find preceding "--%context".'
-              || chr( 10 ) || 'at "' || upper( a_suite.object_owner || '.' || a_suite.object_name )
-              || '", line ' || a_package_ann_index('endcontext').first
+          add_annotation_warning(
+              a_suite, gc_endcontext, 'Invalid annotation %%%. Cannot find preceding "--%context".',
+              l_annotation_pos
           );
-          l_annotation_pos := a_package_ann_index('endcontext').next(l_annotation_pos);
+          l_annotation_pos := a_package_ann_index(gc_endcontext).next(l_annotation_pos);
         end loop;
       end if;
     end;
@@ -617,13 +646,13 @@ create or replace package body ut_suite_builder is
     l_suite              ut_suite;
   begin
     l_package_ann_index   := build_annotation_index(l_annotations);
-    if l_package_ann_index.exists('suite') then
+    if l_package_ann_index.exists(gc_suite) then
 
       --create an incomplete suite
       l_suite := ut_suite(a_package_annotations.owner, a_package_annotations.name);
 
-      l_suite.description := l_annotations(l_package_ann_index('suite').first).text;
-      warning_on_duplicate_annot(l_suite, l_package_ann_index, 'suite');
+      l_suite.description := l_annotations(l_package_ann_index(gc_suite).first).text;
+      warning_on_duplicate_annot(l_suite, l_package_ann_index, gc_suite);
 
       add_suite_contexts( l_suite, l_annotations, l_package_ann_index );
       --by this time all contexts were consumed and l_annotations should not have any context/endcontext annotation in it.
