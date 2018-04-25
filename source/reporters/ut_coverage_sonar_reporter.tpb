@@ -1,6 +1,6 @@
 create or replace type body ut_coverage_sonar_reporter is
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -42,10 +42,15 @@ create or replace type body ut_coverage_sonar_reporter is
         end loop;
       else
         while l_line_no is not null loop
-          if a_unit_coverage.lines(l_line_no) = 0 then
+          if a_unit_coverage.lines(l_line_no).executions = 0 then
             l_file_part := '<lineToCover lineNumber="'||l_line_no||'" covered="false"/>'||chr(10);
           else
-            l_file_part := '<lineToCover lineNumber="'||l_line_no||'" covered="true"/>'||chr(10);
+            l_file_part := '<lineToCover lineNumber="'||l_line_no||'" covered="true"';
+            if a_unit_coverage.lines(l_line_no).covered_blocks <= a_unit_coverage.lines(l_line_no).no_blocks then
+              l_file_part := l_file_part || ' branchesToCover="'||a_unit_coverage.lines(l_line_no).no_blocks||'"';
+              l_file_part := l_file_part || ' coveredBranches="'||a_unit_coverage.lines(l_line_no).covered_blocks||'"';
+            end if;
+            l_file_part := l_file_part ||'/>'||chr(10);
           end if;
           ut_utils.append_to_clob(l_result, l_file_part);
           l_line_no := a_unit_coverage.lines.next(l_line_no);
@@ -86,8 +91,13 @@ create or replace type body ut_coverage_sonar_reporter is
     l_coverage_data := ut_coverage.get_coverage_data(a_run.coverage_options);
 
     self.print_clob( get_coverage_xml( l_coverage_data ) );
+  end;
 
-    (self as ut_reporter_base).after_calling_run(a_run);
+  overriding member function get_description return varchar2 as
+  begin
+    return 'Generates a JSON coverage report providing information on code coverage with line numbers.' || chr(10) ||
+           'Designed for [SonarQube](https://about.sonarqube.com/) to report coverage.' || chr(10) ||
+           'JSON format returned conforms with the Sonar specification: https://docs.sonarqube.org/display/SONAR/Generic+Test+Data';
   end;
 
 end;

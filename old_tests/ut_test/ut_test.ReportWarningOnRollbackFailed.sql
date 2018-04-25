@@ -43,7 +43,7 @@ begin
 %
 Finished in % seconds
 1 tests, 0 failed, 0 errored, 0 disabled, 2 warning(s)%]' then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   else
     for i in 1 .. l_lines.count loop
       dbms_output.put_line(l_lines(i));

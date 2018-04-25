@@ -1,34 +1,22 @@
 --Arrange
 declare
-  l_result   varchar2(4000);
-  l_remaining integer;
-  l_expected varchar2(4000);
-  l_reporter ut_reporter_base := ut_documentation_reporter();
+  l_result       integer;
+  l_dummy        integer;
+  l_output       ut_output_buffer_base := ut_output_table_buffer();
+  l_start_time   timestamp := systimestamp;
+  l_wait_seconds integer := 1;
 begin
---Act
-  l_expected := lpad('a text',4000,',a text');
-  ut_output_buffer.send_line(l_reporter, l_expected);
+  --Act
+  select count(1) into l_dummy from table( l_output.get_lines( a_initial_timeout => l_wait_seconds, a_timeout_sec => 0 ));
+  l_result := round(extract(second from (systimestamp - l_start_time)));
 
-  select * into l_result from table(ut_output_buffer.get_lines(l_reporter.reporter_id,0));
+  --Assert
+  ut.expect(l_result).to_equal(l_wait_seconds);
 
-  ut.expect(l_result).to_equal(l_expected);
-
-  select count(1) into l_remaining from ut_output_buffer_tmp where reporter_id = l_reporter.reporter_id;
-
-  ut.expect(l_remaining).to_equal(0);
-
-  if ut_expectation_processor.get_status = ut_utils.tr_success then
-    :test_result := ut_utils.tr_success;
+  if ut_expectation_processor.get_status = ut_utils.gc_success then
+    :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line(ut_expectation_processor.get_failed_expectations()(1).get_result_clob);
   end if;
-
-  delete from ut_output_buffer_tmp where reporter_id = l_reporter.reporter_id;
-  commit;
-exception
-  when others then
-    delete from ut_output_buffer_tmp where reporter_id = l_reporter.reporter_id;
-    commit;
-    raise;
 end;
 /

@@ -1,6 +1,6 @@
 create or replace type body ut_data_value as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -20,29 +20,41 @@ create or replace type body ut_data_value as
     return compare_implementation(a_other);
   end;
 
+  member function is_diffable return boolean is
+  begin
+    return false;
+  end;
+
+  member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return varchar2 is
+  begin
+    return null;
+  end;
+
   member function is_multi_line return boolean is
   begin
     return false;
   end;
 
-  final member function format_multi_line( a_string varchar2) return varchar2 is
+  member function get_object_info return varchar2 is
   begin
-    if is_multi_line() then
-      return chr(10)||rtrim(a_string,chr(10))||chr(10);
-    else
-      return a_string;
-    end if;
+    return self.data_type;
   end;
 
-  final member function to_string_report(a_add_new_line_for_multi_line boolean := false, a_with_type_name boolean := true) return varchar2 is
+  final member function to_string_report(a_add_new_line_for_multi_line boolean := false, a_with_object_info boolean := true) return varchar2 is
     l_result varchar2(32767);
+    l_info   varchar2(32767);
   begin
-    l_result := ut_utils.indent_lines( self.to_string() );
-    if a_with_type_name then
-      l_result := l_result ||' ('||self.data_type||') ';
+    if a_with_object_info then
+      l_info := '('||get_object_info()||')';
     end if;
-    if self.is_multi_line and a_add_new_line_for_multi_line then
-      l_result := l_result || chr(10);
+    if self.is_multi_line() then
+      l_result :=
+        l_info || chr(10) || ut_utils.indent_lines( rtrim(self.to_string(),chr(10)), a_include_first_line =>true );
+      if a_add_new_line_for_multi_line then
+        l_result := l_result || chr(10);
+      end if;
+    else
+      l_result := self.to_string() || ' ' || l_info || ' ';
     end if;
     return l_result;
   end;

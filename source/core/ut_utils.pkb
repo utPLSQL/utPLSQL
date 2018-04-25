@@ -1,6 +1,6 @@
 create or replace package body ut_utils is
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -24,14 +24,14 @@ create or replace package body ut_utils is
   function test_result_to_char(a_test_result integer) return varchar2 as
     l_result varchar2(20);
   begin
-    if a_test_result = tr_success then
-      l_result := tr_success_char;
-    elsif a_test_result = tr_failure then
-      l_result := tr_failure_char;
-    elsif a_test_result = tr_error then
-      l_result := tr_error_char;
-    elsif a_test_result = tr_disabled then
-      l_result := tr_disabled_char;
+    if a_test_result = gc_success then
+      l_result := gc_success_char;
+    elsif a_test_result = gc_failure then
+      l_result := gc_failure_char;
+    elsif a_test_result = gc_error then
+      l_result := gc_error_char;
+    elsif a_test_result = gc_disabled then
+      l_result := gc_disabled_char;
     else
       l_result := 'Unknown(' || coalesce(to_char(a_test_result),'NULL') || ')';
     end if ;
@@ -43,9 +43,9 @@ create or replace package body ut_utils is
     l_result integer;
   begin
     if a_test then
-      l_result := tr_success;
+      l_result := gc_success;
     else
-      l_result := tr_failure;
+      l_result := gc_failure;
     end if;
     return l_result;
   end;
@@ -255,14 +255,28 @@ create or replace package body ut_utils is
   end;
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob is
-    l_result          clob;
-    l_text_table_rows integer := coalesce(cardinality(a_text_table),0);
+    l_result     clob;
+    l_table_rows integer := coalesce(cardinality(a_text_table),0);
   begin
-    for i in 1 .. l_text_table_rows loop
-      if i < l_text_table_rows then
+    for i in 1 .. l_table_rows loop
+      if i < l_table_rows then
         append_to_clob(l_result, a_text_table(i)||a_delimiter);
       else
         append_to_clob(l_result, a_text_table(i));
+      end if;
+    end loop;
+    return l_result;
+  end;
+
+  function table_to_clob(a_integer_table ut_integer_list, a_delimiter varchar2:= chr(10)) return clob is
+    l_result     clob;
+    l_table_rows integer := coalesce(cardinality(a_integer_table),0);
+  begin
+    for i in 1 .. l_table_rows loop
+      if i < l_table_rows then
+        append_to_clob(l_result, a_integer_table(i)||a_delimiter);
+      else
+        append_to_clob(l_result, a_integer_table(i));
       end if;
     end loop;
     return l_result;
@@ -297,16 +311,31 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
-  procedure append_to_varchar2_list(a_list in out nocopy ut_varchar2_list, a_line varchar2) is
+  procedure append_to_list(a_list in out nocopy ut_varchar2_list, a_item varchar2) is
   begin
-    if a_line is not null then
+    if a_item is not null then
       if a_list is null then
         a_list := ut_varchar2_list();
       end if;
       a_list.extend;
-      a_list(a_list.last) := a_line;
+      a_list(a_list.last) := a_item;
     end if;
-  end append_to_varchar2_list;
+  end append_to_list;
+
+procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2:= chr(10)) is
+  begin
+    if a_clob_table is not null and cardinality(a_clob_table) > 0 then
+      if a_src_clob is null then
+        dbms_lob.createtemporary(a_src_clob, true);
+      end if;
+      for i in 1 .. a_clob_table.count loop
+        dbms_lob.append(a_src_clob,a_clob_table(i));
+        if i < a_clob_table.count then
+          append_to_clob(a_src_clob,a_delimiter);
+        end if;
+      end loop;
+    end if;
+  end;
 
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob) is
   begin
@@ -354,39 +383,44 @@ create or replace package body ut_utils is
   function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2 is
     l_xpath varchar2(32767) := a_list;
   begin
-    if l_xpath not like '/%' then
-      l_xpath := to_xpath( clob_to_table(a_clob=>a_list, a_delimiter=>','), a_ancestors);
-    end if;
+    l_xpath := to_xpath( clob_to_table(a_clob=>a_list, a_delimiter=>','), a_ancestors);
     return l_xpath;
   end;
 
   function to_xpath(a_list ut_varchar2_list, a_ancestors varchar2 := '/*/') return varchar2 is
     l_xpath varchar2(32767);
     l_item  varchar2(32767);
-    i integer;
+    l_iter  integer;
   begin
-    i := a_list.first;
-    while i is not null loop
-      l_item := trim(a_list(i));
-      if l_item is not null then
-        l_xpath := l_xpath || a_ancestors ||a_list(i)||'|';
-      end if;
-      i := a_list.next(i);
-    end loop;
-    l_xpath := rtrim(l_xpath,',|');
+    if a_list is not null then
+      l_iter := a_list.first;
+      while l_iter is not null loop
+        l_item := trim(a_list(l_iter));
+        if l_item is not null then
+          if l_item like '%,%' then
+            l_xpath := l_xpath || to_xpath( l_item, a_ancestors ) || '|';
+          elsif l_item like '/%' then
+            l_xpath := l_xpath || l_item || '|';
+          else
+            l_xpath := l_xpath || a_ancestors || l_item || '|';
+          end if;
+        end if;
+        l_iter := a_list.next(l_iter);
+      end loop;
+      l_xpath := rtrim(l_xpath,',|');
+    end if;
     return l_xpath;
   end;
 
   procedure cleanup_temp_tables is
-    pragma autonomous_transaction;
   begin
-    execute immediate 'delete from ut_cursor_data';
-    commit;
+    execute immediate 'delete from ut_compound_data_tmp';
+    execute immediate 'delete from ut_compound_data_diff_tmp';
   end;
 
   function to_version(a_version_no varchar2) return t_version is
-    l_result t_version;
-    c_version_part_regex varchar2(20) := '[0-9]+';
+    l_result             t_version;
+    c_version_part_regex constant varchar2(20) := '[0-9]+';
   begin
 
     if regexp_like(a_version_no,'v?([0-9]+(\.|$)){1,4}') then
@@ -450,7 +484,6 @@ create or replace package body ut_utils is
     commit;
   end;
 
-
   function ut_owner return varchar2 is
   begin
     return sys_context('userenv','current_schema');
@@ -459,6 +492,163 @@ create or replace package body ut_utils is
   function scale_cardinality(a_cardinality natural) return natural is
   begin
     return nvl(trunc(power(10,(floor(log(10,a_cardinality))+1))/3),0);
+  end;
+
+  function build_depreciation_warning(a_old_syntax varchar2, a_new_syntax varchar2) return varchar2 is
+  begin
+    return 'The syntax: "'||a_old_syntax||'" is deprecated.' ||chr(10)||
+           'Please use the new syntax: "'||a_new_syntax||'".' ||chr(10)||
+           'The deprecated syntax will not be supported in future releases.';
+  end;
+
+  function to_xml_number_format(a_value number) return varchar2 is
+  begin
+    return to_char(a_value, gc_number_format, 'NLS_NUMERIC_CHARACTERS=''. ''');
+  end;
+
+  function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list is
+    l_trimmed_list ut_varchar2_list;
+    l_index integer;
+  begin
+    if a_list is not null then
+      l_trimmed_list := ut_varchar2_list();
+      l_index := a_list.first;
+
+      while (l_index is not null) loop
+        l_trimmed_list.extend;
+        l_trimmed_list(l_trimmed_list.count) := regexp_replace(a_list(l_index), '(^['||a_regexp_to_trim||']*)|(['||a_regexp_to_trim||']*$)');
+        l_index := a_list.next(l_index);
+      end loop;
+    end if;
+
+    return l_trimmed_list;
+  end;
+
+  function filter_list(a_list IN ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list is
+    l_filtered_list ut_varchar2_list;
+    l_index integer;
+  begin
+    if a_list is not null then
+      l_filtered_list := ut_varchar2_list();
+      l_index := a_list.first;
+
+      while (l_index is not null) loop
+        if regexp_like(a_list(l_index), a_regexp_filter) then
+          l_filtered_list.extend;
+          l_filtered_list(l_filtered_list.count) := a_list(l_index);
+        end if;
+        l_index := a_list.next(l_index);
+      end loop;
+    end if;
+
+    return l_filtered_list;
+  end;
+
+  function xmlgen_escaped_string(a_string in varchar2) return varchar2 is
+    l_result varchar2(4000);
+    l_sql varchar2(32767) := q'!select q'[!'||a_string||q'!]' as "!'||a_string||'" from dual';
+  begin
+    if a_string is not null then
+      select extract(dbms_xmlgen.getxmltype(l_sql),'/*/*/*').getRootElement()
+      into l_result
+      from dual;
+    else
+    l_result := a_string;
+    end if;
+    return l_result;
+  end;
+
+  function replace_multiline_comments(a_source clob) return clob is
+    l_result                  clob;
+    l_ml_comment_start        binary_integer := 1;
+    l_comment_start           binary_integer := 1;
+    l_text_start              binary_integer := 1;
+    l_escaped_text_start      binary_integer := 1;
+    l_escaped_text_end_char   varchar2(1 char);
+    l_end                     binary_integer := 1;
+    l_ml_comment              clob;
+    l_newlines_count          binary_integer;
+    l_offset                  binary_integer := 1;
+    l_length                  binary_integer := coalesce(dbms_lob.getlength(a_source), 0);
+    function is_before(a_x binary_integer, a_y binary_integer) return boolean is
+    begin
+      return a_x < a_y or a_y = 0;
+    end;
+  begin
+    l_ml_comment_start := instr(a_source,'/*');
+    l_comment_start := instr(a_source,'--');
+    l_text_start := instr(a_source,'''');
+    l_escaped_text_start := instr(a_source,q'[q']');
+    while l_offset > 0 and l_ml_comment_start > 0 loop
+
+      if l_ml_comment_start > 0 and (l_ml_comment_start < l_comment_start or l_comment_start = 0)
+        and (l_ml_comment_start < l_text_start or l_text_start = 0)and (l_ml_comment_start < l_escaped_text_start or l_escaped_text_start = 0)
+      then
+        l_end := instr(a_source,'*/',l_ml_comment_start+2);
+        append_to_clob(l_result, dbms_lob.substr(a_source, l_ml_comment_start-l_offset, l_offset));
+        if l_end > 0 then
+          l_ml_comment     := substr(a_source, l_ml_comment_start, l_end-l_ml_comment_start);
+          l_newlines_count := length( l_ml_comment ) - length( translate( l_ml_comment, 'a'||chr(10), 'a') );
+          if l_newlines_count > 0 then
+            append_to_clob(l_result, lpad( chr(10), l_newlines_count, chr(10) ) );
+          end if;
+          l_end := l_end + 2;
+        end if;
+      else
+
+        if l_comment_start > 0 and (l_comment_start < l_ml_comment_start or l_ml_comment_start = 0)
+           and (l_comment_start < l_text_start or l_text_start = 0) and (l_comment_start < l_escaped_text_start or l_escaped_text_start = 0)
+        then
+          l_end := instr(a_source,chr(10),l_comment_start+2);
+          if l_end > 0 then
+            l_end := l_end + 1;
+          end if;
+        elsif l_text_start > 0 and (l_text_start < l_ml_comment_start or l_ml_comment_start = 0)
+              and (l_text_start < l_comment_start or l_comment_start = 0) and (l_text_start < l_escaped_text_start or l_escaped_text_start = 0)
+        then
+          l_end := instr(a_source,q'[']',l_text_start+1);
+
+          --skip double quotes while searching for end of quoted text
+          while l_end > 0 and l_end = instr(a_source,q'['']',l_text_start+1) loop
+            l_end := instr(a_source,q'[']',l_end+1);
+          end loop;
+          if l_end > 0 then
+            l_end := l_end + 1;
+          end if;
+
+        elsif l_escaped_text_start > 0 and (l_escaped_text_start < l_ml_comment_start or l_ml_comment_start = 0)
+              and (l_escaped_text_start < l_comment_start or l_comment_start = 0) and (l_escaped_text_start < l_text_start or l_text_start = 0)
+        then
+          --translate char "[" from the start of quoted text  "q'[someting]'" into "]"
+          l_escaped_text_end_char := translate( substr(a_source, l_escaped_text_start + 2, 1), '[{(<', ']})>');
+          l_end := instr(a_source,l_escaped_text_end_char||'''',l_escaped_text_start + 3 );
+          if l_end > 0 then
+            l_end := l_end + 2;
+          end if;
+        end if;
+
+        if l_end = 0 then
+          append_to_clob(l_result, substr(a_source, l_offset, l_length-l_offset));
+        else
+          append_to_clob(l_result, substr(a_source, l_offset, l_end-l_offset));
+        end if;
+      end if;
+      l_offset := l_end;
+      if l_offset >= l_ml_comment_start then
+        l_ml_comment_start := instr(a_source,'/*',l_offset);
+      end if;
+      if l_offset >= l_comment_start then
+        l_comment_start := instr(a_source,'--',l_offset);
+      end if;
+      if l_offset >= l_text_start then
+        l_text_start := instr(a_source,'''',l_offset);
+      end if;
+      if l_offset >= l_escaped_text_start then
+        l_escaped_text_start := instr(a_source,q'[q']',l_offset);
+      end if;
+    end loop;
+    append_to_clob(l_result, substr(a_source, l_end));
+    return l_result;
   end;
 
 end ut_utils;

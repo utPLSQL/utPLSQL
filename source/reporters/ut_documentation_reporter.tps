@@ -1,6 +1,6 @@
 create or replace type ut_documentation_reporter under ut_console_reporter_base(
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -23,10 +23,12 @@ create or replace type ut_documentation_reporter under ut_console_reporter_base(
   overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2),
   overriding member procedure before_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_logical_suite),
   overriding member procedure after_calling_test(self in out nocopy ut_documentation_reporter, a_test ut_test),
-  overriding member procedure after_calling_after_all (self in out nocopy ut_documentation_reporter, a_suite in ut_logical_suite),
-  overriding member procedure after_calling_before_all (self in out nocopy ut_documentation_reporter, a_suite in ut_logical_suite),
+  overriding member procedure after_calling_after_all (self in out nocopy ut_documentation_reporter, a_executable in ut_executable),
+  overriding member procedure after_calling_before_all (self in out nocopy ut_documentation_reporter, a_executable in ut_executable),
   overriding member procedure after_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_logical_suite),
-  overriding member procedure after_calling_run(self in out nocopy ut_documentation_reporter, a_run in ut_run)
+  overriding member procedure after_calling_run(self in out nocopy ut_documentation_reporter, a_run in ut_run),
+
+  overriding member function get_description return varchar2
 
 )
 not final

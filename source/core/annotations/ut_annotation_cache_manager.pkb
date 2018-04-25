@@ -1,6 +1,6 @@
 create or replace package body ut_annotation_cache_manager as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -17,7 +17,7 @@ create or replace package body ut_annotation_cache_manager as
   */
 
   procedure update_cache(a_object ut_annotated_object) is
-    v_cache_id       integer;
+    l_cache_id       integer;
     l_current_schema varchar2(250) := ut_utils.ut_owner;
     pragma autonomous_transaction;
   begin
@@ -25,22 +25,22 @@ create or replace package body ut_annotation_cache_manager as
        set i.parse_time = sysdate
      where (i.object_owner, i.object_name, i.object_type)
         in ((a_object.object_owner, a_object.object_name, a_object.object_type))
-      returning cache_id into v_cache_id;
+      returning cache_id into l_cache_id;
     if sql%rowcount = 0 then
       insert into ut_annotation_cache_info
              (cache_id, object_owner, object_name, object_type, parse_time)
       values (ut_annotation_cache_seq.nextval, a_object.object_owner, a_object.object_name, a_object.object_type, sysdate)
-        returning cache_id into v_cache_id;
+        returning cache_id into l_cache_id;
     end if;
 
     delete from ut_annotation_cache c
-      where cache_id = v_cache_id;
+      where cache_id = l_cache_id;
 
     if a_object.annotations is not null and a_object.annotations.count > 0 then
 --       begin
       insert into ut_annotation_cache
              (cache_id, annotation_position, annotation_name, annotation_text, subobject_name)
-      select v_cache_id, a.position, a.name, a.text, a.subobject_name
+      select l_cache_id, a.position, a.name, a.text, a.subobject_name
         from table(a_object.annotations) a;
       --TODO - duplicate annotations found?? - should not happen, getting standalone annotations need to happen after procedure annotations were parsed
 --       exception
@@ -104,23 +104,31 @@ create or replace package body ut_annotation_cache_manager as
   end;
 
   procedure purge_cache(a_object_owner varchar2, a_object_type varchar2) is
+    l_filter       varchar2(32767);
+    l_cache_filter varchar2(32767);
     pragma autonomous_transaction;
   begin
+    if a_object_owner is null and a_object_type is null then
+      l_cache_filter := ':a_object_owner is null and :a_object_type is null';
+      l_filter := l_cache_filter;
+    else
+      l_filter :=
+      case when a_object_owner is null then ':a_object_owner is null' else 'object_owner = :a_object_owner' end || '
+        and '||case when a_object_type is null then ':a_object_type is null' else 'object_type = :a_object_type' end;
+      l_cache_filter := ' c.cache_id
+           in (select i.cache_id
+                 from ut_annotation_cache_info i
+                where '|| l_filter || '
+              )';
+    end if;
     execute immediate '
       delete from ut_annotation_cache c
-       where c.cache_id
-          in (select i.cache_id
-                from ut_annotation_cache_info i
-               where 1 = 1
-                 and '||case when a_object_owner is null then ':a_object_owner is null' else 'object_owner = :a_object_owner' end || '
-                 and '||case when a_object_type is null then ':a_object_type is null' else 'object_type = :a_object_type' end || '
-             )'
+       where '||l_cache_filter
     using a_object_owner, a_object_type;
+
     execute immediate '
       delete from ut_annotation_cache_info i
-       where 1 = 1
-         and '||case when a_object_owner is null then ':a_object_owner is null' else 'object_owner = :a_object_owner' end || '
-         and '||case when a_object_type is null then ':a_object_type is null' else 'object_type = :a_object_type' end
+       where ' || l_filter
     using a_object_owner, a_object_type;
     commit;
   end;

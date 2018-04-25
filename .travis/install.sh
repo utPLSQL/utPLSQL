@@ -7,6 +7,7 @@ set -ev
 set feedback off
 set verify off
 
+alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6003,6009,6010,7206)';
 @install_headless.sql $UT3_OWNER $UT3_OWNER_PASSWORD
 SQL
 
@@ -20,7 +21,6 @@ grant create any procedure, drop any procedure, execute any procedure to $UT3_OW
 
 conn $UT3_OWNER/$UT3_OWNER_PASSWORD@//$CONNECTION_STR
 @../development/utplsql_style_check.sql
-exit
 SQL
 
 #Create additional users
@@ -28,8 +28,13 @@ SQL
 set feedback off
 @create_utplsql_owner.sql $UT3_TESTER $UT3_TESTER_PASSWORD $UT3_TABLESPACE
 
+--needed for testing distributed transactions
+grant create public database link to $UT3_TESTER;
+grant drop public database link to  $UT3_TESTER;
 set feedback on
 --Needed for testing coverage outside of main UT3 schema.
 grant create any procedure, drop any procedure, execute any procedure, create any type, drop any type, execute any type, under any type, select any table, update any table, insert any table, delete any table, create any table, drop any table, alter any table, select any dictionary to $UT3_TESTER;
+revoke execute on dbms_crypto from $UT3_TESTER;
+grant create job to $UT3_TESTER;
 exit
 SQL

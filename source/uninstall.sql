@@ -1,5 +1,5 @@
 /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -27,6 +27,8 @@ prompt &&line_separator
 alter session set current_schema = &&ut3_owner;
 set echo on
 drop synonym be_between;
+
+drop synonym have_count;
 
 drop synonym match;
 
@@ -56,6 +58,8 @@ drop type ut_coveralls_reporter force;
 
 drop type ut_coverage_sonar_reporter force;
 
+drop type ut_coverage_cobertura_reporter force;
+
 drop package ut_coverage_report_html_helper;
 
 drop type ut_coverage_html_reporter force;
@@ -76,9 +80,13 @@ drop package ut_runner;
 
 drop package ut_suite_manager;
 
+drop package ut_suite_builder;
+
 drop package ut;
 
 drop table ut_dbms_output_cache;
+
+drop type ut_expectation_compound force;
 
 drop type ut_expectation force;
 
@@ -146,7 +154,9 @@ drop type ut_data_value_anydata force;
 
 drop type ut_data_value force;
 
-drop table ut_cursor_data;
+drop table ut_compound_data_tmp;
+
+drop table ut_compound_data_diff_tmp;
 
 drop package ut_annotation_manager;
 
@@ -186,7 +196,13 @@ drop type ut_teamcity_reporter force;
 
 drop type ut_xunit_reporter force;
 
+drop type ut_junit_reporter force;
+
+drop type ut_tfs_junit_reporter force;
+
 drop type ut_event_listener force;
+
+drop type ut_output_reporter_base force;
 
 drop type ut_coverage_reporter_base force;
 
@@ -210,21 +226,27 @@ drop type ut_test force;
 
 drop type ut_console_reporter_base force;
 
+drop type ut_executable_test force;
+
+drop type ut_executables force;
+
 drop type ut_executable force;
 
 drop type ut_suite_items force;
 
 drop type ut_suite_item force;
 
-drop type ut_event_listener_base force;
+drop type ut_output_table_buffer force;
 
-drop type ut_suite_item_base force;
-
-drop package ut_output_buffer;
+drop type ut_output_buffer_base force;
 
 drop view ut_output_buffer_tmp;
 
 drop table ut_output_buffer_tmp$;
+
+drop view ut_output_buffer_info_tmp;
+
+drop table ut_output_buffer_info_tmp$;
 
 drop sequence ut_message_id_seq;
 
@@ -234,6 +256,12 @@ drop type ut_expectation_results force;
 
 drop type ut_expectation_result force;
 
+drop package ut_event_manager;
+
+drop type ut_event_listener force;
+
+drop type ut_event_item force;
+
 drop type ut_key_value_pairs force;
 
 drop type ut_key_value_pair force;
@@ -241,6 +269,8 @@ drop type ut_key_value_pair force;
 drop type ut_object_names force;
 
 drop type ut_object_name force;
+
+drop type ut_integer_list force;
 
 drop type ut_varchar2_list force;
 
@@ -284,3 +314,5 @@ end;
 /
 
 spool off
+
+exit;

@@ -1,6 +1,6 @@
 create or replace type body ut_data_value_anydata as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -16,97 +16,61 @@ create or replace type body ut_data_value_anydata as
   limitations under the License.
   */
 
-  overriding member function is_null return boolean is
+  final member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata, a_data_object_type varchar2, a_extract_path varchar2) is
+    l_query    sys_refcursor;
+    l_ctx      number;
+    l_ut_owner varchar2(250) := ut_utils.ut_owner;
   begin
-    return true;
-  end;
-
-  overriding member function to_string return varchar2 is
-    l_result varchar2(32767);
-    l_clob   clob;
-  begin
-    if self.is_null() then
-      l_result := ut_utils.to_string( to_char(null) );
+    self.data_type  := case when a_value is not null then lower(a_value.gettypename) else 'undefined' end;
+    self.data_id    := sys_guid();
+    if a_value is not null then
+      execute immediate '
+        declare
+          l_data '||self.data_type||';
+          l_value anydata := :a_value;
+          l_status integer;
+        begin
+          l_status := l_value.get'||a_data_object_type||'(l_data);
+          :l_data_is_null := case when l_data is null then 1 else 0 end;
+        end;' using in a_value, out self.is_data_null;
     else
+      self.is_data_null := 1;
+    end if;
+    if not self.is_null() then
       ut_expectation_processor.set_xml_nls_params();
-      select xmlserialize(content xmltype(self.data_value) indent) into l_clob from dual;
-      l_result := ut_utils.to_string( l_clob, null );
+      open l_query for select a_value val from dual;
+      l_ctx := sys.dbms_xmlgen.newcontext( l_query );
+      dbms_xmlgen.setrowtag(l_ctx, '');
+      dbms_xmlgen.setrowsettag(l_ctx, '');
+      dbms_xmlgen.setnullhandling(l_ctx,2);
+      execute immediate
+      'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
+      'select :self_guid, rownum, value(a) ' ||
+      '  from table( xmlsequence( extract(:l_xml, :xpath ) ) ) a'
+      using in self.data_id, dbms_xmlgen.getXMLtype(l_ctx), a_extract_path;
+      self.elements_count := sql%rowcount;
+      dbms_xmlgen.closecontext (l_ctx);
       ut_expectation_processor.reset_nls_params();
     end if;
-    return self.format_multi_line( l_result );
   end;
 
-  overriding member function compare_implementation(a_other ut_data_value) return integer is
-    l_self_data  xmltype;
-    l_other_data xmltype;
-    l_other  ut_data_value_anydata;
-    l_result integer;
-    procedure exclude_xpaths(a_xml in out nocopy xmltype, a_xpath varchar2) is
-    begin
-      if a_xpath is not null then
-        select deletexml( a_xml, a_xpath ) into a_xml from dual;
-      end if;
-    end;
-  begin
-    if a_other is of (ut_data_value_anydata) then
-      l_other := treat(a_other as ut_data_value_anydata);
-      --needed for 11g xe as it fails on constructing XMLTYPE from null ANYDATA
-      if not self.is_null() and not l_other.is_null() then
-        ut_expectation_processor.set_xml_nls_params();
-        l_self_data := xmltype.createxml(self.data_value);
-        l_other_data := xmltype.createxml(l_other.data_value);
-        --We use `order member function compare` to do data comparison.
-        --Therefore, in the `ut_equals` matcher, comparison is done by simply checking
-        --   `l_result := equal_with_nulls((self.expected = a_actual), a_actual)`
-        --We cannot guarantee that we will always use `expected = actual ` and not `actual = expected`.
-        --We should expect the same behaviour regardless of that is the order.
-        -- This is why we need to coalesce `exclude_xpath` though at most one of them will always be populated
-        exclude_xpaths(l_self_data, coalesce(self.exclude_xpath, l_other.exclude_xpath));
-        exclude_xpaths(l_other_data, coalesce(self.exclude_xpath, l_other.exclude_xpath));
-        ut_expectation_processor.reset_nls_params();
-        if l_self_data is not null and l_other_data is not null then
-          l_result := dbms_lob.compare( l_self_data.getclobval(), l_other_data.getclobval() );
-        end if;
-      end if;
-    else
-      raise value_error;
-    end if;
-    return l_result;
-  end;
-
-  final member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata, a_self_type varchar2) is
-  begin
-    self.data_value := a_value;
-    self.self_type  := a_self_type;
-    self.data_type  := case when a_value is not null then lower(a_value.gettypename) else 'undefined' end;
-  end;
-
-  static function get_instance(a_data_value anydata, a_exclude varchar2 := null) return ut_data_value_anydata is
+  static function get_instance(a_data_value anydata) return ut_data_value_anydata is
     l_result    ut_data_value_anydata := ut_data_value_object(null);
     l_type      anytype;
     l_type_code integer;
   begin
     if a_data_value is not null then
       l_type_code := a_data_value.gettype(l_type);
-      if l_type_code = dbms_types.typecode_object then
-        l_result := ut_data_value_object(a_data_value);
-        l_result.exclude_xpath := ut_utils.to_xpath(a_exclude);
-      elsif l_type_code in (dbms_types.typecode_table, dbms_types.typecode_varray, dbms_types.typecode_namedcollection) then
-        l_result := ut_data_value_collection(a_data_value);
-        l_result.exclude_xpath := ut_utils.to_xpath(a_exclude,'/*/*/');
+      if l_type_code in (dbms_types.typecode_table, dbms_types.typecode_varray, dbms_types.typecode_namedcollection, dbms_types.typecode_object) then
+        if l_type_code = dbms_types.typecode_object then
+          l_result := ut_data_value_object(a_data_value);
+        else
+          l_result := ut_data_value_collection(a_data_value);
+        end if;
       else
         raise_application_error(-20000, 'Data type '||a_data_value.gettypename||' in ANYDATA is not supported by utPLSQL');
       end if;
     end if;
-    return l_result;
-  end;
-
-  static function get_instance(a_data_value anydata, a_exclude ut_varchar2_list) return ut_data_value_anydata is
-    l_result    ut_data_value_anydata;
-    l_exclude   varchar2(32767);
-  begin
-    l_exclude := substr(ut_utils.table_to_clob(a_exclude, ','), 1, 32767);
-    l_result := ut_data_value_anydata.get_instance(a_data_value, l_exclude );
     return l_result;
   end;
 

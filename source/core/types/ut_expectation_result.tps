@@ -1,6 +1,6 @@
 create or replace type ut_expectation_result authid current_user as object(
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -33,8 +33,10 @@ create or replace type ut_expectation_result authid current_user as object(
   * The information about the line of code that invoked the expectation
   */
   caller_info     varchar2(32767),
-  constructor function ut_expectation_result(self in out nocopy ut_expectation_result, a_status integer, a_description varchar2, a_message clob)
-    return self as result,
+  constructor function ut_expectation_result(
+    self in out nocopy ut_expectation_result, a_status integer, 
+    a_description varchar2, a_message clob, a_include_caller_info boolean := true
+  ) return self as result,
   member function get_result_clob(self in ut_expectation_result) return clob,
   member function get_result_lines(self in ut_expectation_result) return ut_varchar2_list,
   member function result return integer

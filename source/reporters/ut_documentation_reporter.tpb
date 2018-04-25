@@ -1,6 +1,6 @@
 create or replace type body ut_documentation_reporter is
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -35,7 +35,7 @@ create or replace type body ut_documentation_reporter is
     if a_text is not null then
       l_lines := ut_utils.string_to_table(a_text);
       for i in 1 .. l_lines.count loop
-        (self as ut_reporter_base).print_text(tab || l_lines(i));
+        (self as ut_output_reporter_base).print_text(tab || l_lines(i));
       end loop;
     end if;
   end;
@@ -52,11 +52,11 @@ create or replace type body ut_documentation_reporter is
   begin
     l_message := coalesce(a_test.description, a_test.name)||' ['||round(a_test.execution_time,3)||' sec]';
     --if test failed, then add it to the failures list, print failure with number
-    if a_test.result = ut_utils.tr_disabled then
-      self.print_yellow_text(l_message || ' (IGNORED)');
-    elsif a_test.result = ut_utils.tr_success then
+    if a_test.result = ut_utils.gc_disabled then
+      self.print_yellow_text(l_message || ' (DISABLED)');
+    elsif a_test.result = ut_utils.gc_success then
       self.print_green_text(l_message);
-    elsif a_test.result > ut_utils.tr_success then
+    elsif a_test.result > ut_utils.gc_success then
       failed_test_running_count := failed_test_running_count + 1;
       self.print_red_text(l_message || ' (FAILED - ' || failed_test_running_count || ')');
     end if;
@@ -65,14 +65,18 @@ create or replace type body ut_documentation_reporter is
     self.print_clob(a_test.get_serveroutputs);
   end;
 
-  overriding member procedure after_calling_before_all(self in out nocopy ut_documentation_reporter, a_suite in ut_logical_suite) is
+  overriding member procedure after_calling_before_all(self in out nocopy ut_documentation_reporter, a_executable in ut_executable) is
   begin
-    self.print_clob(treat(a_suite as ut_suite).before_all.serveroutput);
+    if a_executable.serveroutput is not null and a_executable.serveroutput != empty_clob() then
+      self.print_clob(a_executable.serveroutput);
+    end if;
   end;
 
-  overriding member procedure after_calling_after_all(self in out nocopy ut_documentation_reporter, a_suite in ut_logical_suite) is
+  overriding member procedure after_calling_after_all(self in out nocopy ut_documentation_reporter, a_executable in ut_executable) is
   begin
-    self.print_clob(treat(a_suite as ut_suite).after_all.serveroutput);
+    if a_executable.serveroutput is not null and a_executable.serveroutput != empty_clob() then
+      self.print_clob(a_executable.serveroutput);
+    end if;
   end;
 
   overriding member procedure after_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_logical_suite) as
@@ -102,7 +106,7 @@ create or replace type body ut_documentation_reporter is
 
     procedure print_failures_for_test(a_test ut_test, a_failure_no in out nocopy integer) is
     begin
-      if a_test.result > ut_utils.tr_success then
+      if a_test.result > ut_utils.gc_success then
         a_failure_no := a_failure_no + 1;
         self.print_text(lpad(a_failure_no, length(failed_test_running_count) + 2, ' ') || ') ' ||
                         nvl(a_test.name, a_test.item.form_name));
@@ -148,9 +152,7 @@ create or replace type body ut_documentation_reporter is
       if a_item is of (ut_logical_suite) then
         l_items := treat(a_item as ut_logical_suite).items;
         for i in 1 .. l_items.count loop
-          if l_items(i) is of(ut_suite_item) then
-            print_item_warnings(l_items(i));
-          end if;
+          print_item_warnings(l_items(i));
         end loop;
       end if;
 
@@ -194,6 +196,11 @@ create or replace type body ut_documentation_reporter is
     end if;
     self.print_text(' ');
     (self as ut_reporter_base).after_calling_run(a_run);
+  end;
+
+  overriding member function get_description return varchar2 as
+  begin
+    return 'A textual pretty-print of unit test results (usually use for console output)';
   end;
 
 end;

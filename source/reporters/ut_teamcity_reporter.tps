@@ -1,6 +1,6 @@
-create or replace type ut_teamcity_reporter under ut_reporter_base(
+create or replace type ut_teamcity_reporter under ut_output_reporter_base(
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -23,7 +23,9 @@ create or replace type ut_teamcity_reporter under ut_reporter_base(
 
   overriding member procedure before_calling_test(self in out nocopy ut_teamcity_reporter, a_test in ut_test),
 
-  overriding member procedure after_calling_test(self in out nocopy ut_teamcity_reporter, a_test in ut_test)
+  overriding member procedure after_calling_test(self in out nocopy ut_teamcity_reporter, a_test in ut_test),
+
+  overriding member function get_description return varchar2
 )
 not final
 /

@@ -1,6 +1,6 @@
 create or replace type ut_coverage_html_reporter under ut_coverage_reporter_base(
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -23,6 +23,8 @@ create or replace type ut_coverage_html_reporter under ut_coverage_reporter_base
     a_html_report_assets_path varchar2 := null
   ) return self as result,
 
-  overriding member procedure after_calling_run(self in out nocopy ut_coverage_html_reporter, a_run in ut_run)
+  overriding member procedure after_calling_run(self in out nocopy ut_coverage_html_reporter, a_run in ut_run),
+
+  overriding member function get_description return varchar2
 )
 /

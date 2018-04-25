@@ -10,11 +10,11 @@ begin
   l_result :=  ut_expectation_processor.get_status();
   l_message := ut_expectation_processor.get_failed_expectations()(1).get_result_clob;
 --Assert
-  if nvl(:test_result, ut_utils.tr_success) = ut_utils.tr_success and l_result = ut_utils.tr_failure
+  if nvl(:test_result, ut_utils.gc_success) = ut_utils.gc_success and l_result = ut_utils.gc_failure
     and l_message like 'Actual (%) cannot be compared to Expected (%) using matcher%' then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   else
-    dbms_output.put_line('expected: '''||ut_utils.tr_failure||''', got: '''||l_result||'''' );
+    dbms_output.put_line('expected: '''||ut_utils.gc_failure||''', got: '''||l_result||'''' );
   end if;
 end;
 /

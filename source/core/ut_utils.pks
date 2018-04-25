@@ -1,6 +1,6 @@
 create or replace package ut_utils authid definer is
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -21,37 +21,58 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'X.X.X.X';
+  gc_version                 constant varchar2(50) := 'v3.1.0.1847-develop';
 
   /* Constants: Event names */
-  gc_run                     constant varchar2(12) := 'run';
-  gc_suite                   constant varchar2(12) := 'suite';
-  gc_before_all              constant varchar2(12) := 'before_all';
-  gc_before_each             constant varchar2(12) := 'before_each';
-  gc_before_test             constant varchar2(12) := 'before_test';
-  gc_test                    constant varchar2(12) := 'test';
-  gc_test_execute            constant varchar2(12) := 'test_execute';
-  gc_after_test              constant varchar2(10) := 'after_test';
-  gc_after_each              constant varchar2(12) := 'after_each';
-  gc_after_all               constant varchar2(12) := 'after_all';
+  subtype t_event_name           is varchar2(30);
+  gc_before_run                  constant t_event_name := 'before_run';
+  gc_before_suite                constant t_event_name := 'before_suite';
+  gc_before_before_all           constant t_event_name := 'before_before_all';
+  gc_before_before_each          constant t_event_name := 'before_before_each';
+  gc_before_before_test          constant t_event_name := 'before_before_test';
+  gc_before_test_execute         constant t_event_name := 'before_test_execute';
+  gc_before_after_test           constant t_event_name := 'before_after_test';
+  gc_before_after_each           constant t_event_name := 'before_after_each';
+  gc_before_after_all            constant t_event_name := 'before_after_all';
+  gc_after_run                   constant t_event_name := 'after_run';
+  gc_after_suite                 constant t_event_name := 'after_suite';
+  gc_after_before_all            constant t_event_name := 'after_before_all';
+  gc_after_before_each           constant t_event_name := 'after_before_each';
+  gc_after_before_test           constant t_event_name := 'after_before_test';
+  gc_after_test_execute          constant t_event_name := 'after_test_execute';
+  gc_after_after_test            constant t_event_name := 'after_after_test';
+  gc_after_after_each            constant t_event_name := 'after_after_each';
+  gc_after_after_all             constant t_event_name := 'after_after_all';
+  gc_finalize                    constant t_event_name := 'finalize';
+
+  subtype t_executable_type      is varchar2(30);
+  gc_before_all                  constant t_executable_type := 'before_all';
+  gc_before_each                 constant t_executable_type := 'before_each';
+  gc_before_test                 constant t_executable_type := 'before_test';
+  gc_test_execute                constant t_executable_type := 'test_execute';
+  gc_after_test                  constant t_executable_type := 'after_test';
+  gc_after_each                  constant t_executable_type := 'after_each';
+  gc_after_all                   constant t_executable_type := 'after_all';
 
   /* Constants: Test Results */
-  tr_disabled                constant number(1) := 0; -- test/suite was disabled
-  tr_success                 constant number(1) := 1; -- test passed
-  tr_failure                 constant number(1) := 2; -- one or more expectations failed
-  tr_error                   constant number(1) := 3; -- exception was raised
+  subtype t_test_result   is binary_integer range 0 .. 3;
+  gc_disabled                constant t_test_result := 0; -- test/suite was disabled
+  gc_success                 constant t_test_result := 1; -- test passed
+  gc_failure                 constant t_test_result := 2; -- one or more expectations failed
+  gc_error                   constant t_test_result := 3; -- exception was raised
 
-  tr_disabled_char           constant varchar2(8) := 'Disabled'; -- test/suite was disabled
-  tr_success_char            constant varchar2(7) := 'Success'; -- test passed
-  tr_failure_char            constant varchar2(7) := 'Failure'; -- one or more expectations failed
-  tr_error_char              constant varchar2(5) := 'Error'; -- exception was raised
+  gc_disabled_char           constant varchar2(8) := 'Disabled'; -- test/suite was disabled
+  gc_success_char            constant varchar2(7) := 'Success'; -- test passed
+  gc_failure_char            constant varchar2(7) := 'Failure'; -- one or more expectations failed
+  gc_error_char              constant varchar2(5) := 'Error'; -- exception was raised
 
   /*
     Constants: Rollback type for ut_test_object
   */
-  gc_rollback_auto           constant number(1) := 0; -- rollback after each test and suite
-  gc_rollback_manual         constant number(1) := 1; -- leave transaction control manual
-  --gc_rollback_on_error       constant number(1) := 2; -- rollback tests only on error
+  subtype t_rollback_type is binary_integer range 0 .. 1;
+  gc_rollback_auto           constant t_rollback_type := 0; -- rollback after each test and suite
+  gc_rollback_manual         constant t_rollback_type := 1; -- leave transaction control manual
+  gc_rollback_default        constant t_rollback_type := gc_rollback_auto;
 
   ex_unsupported_rollback_type exception;
   gc_unsupported_rollback_type constant pls_integer := -20200;
@@ -107,6 +128,7 @@ create or replace package ut_utils authid definer is
     build  natural
   );
 
+  type t_clob_tab is table of clob;
 
   /**
    * Converts test results into strings
@@ -197,6 +219,8 @@ create or replace package ut_utils authid definer is
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob;
 
+  function table_to_clob(a_integer_table ut_integer_list, a_delimiter varchar2:= chr(10)) return clob;
+
   /**
    * Returns time difference in seconds (with miliseconds) between given timestamps
    */
@@ -214,11 +238,14 @@ create or replace package ut_utils authid definer is
   function get_utplsql_objects_list return ut_object_names;
 
   /**
-   * Append a line to the end of ut_varchar2_lst
+   * Append a item to the end of ut_varchar2_list
    */
-  procedure append_to_varchar2_list(a_list in out nocopy ut_varchar2_list, a_line varchar2);
+  procedure append_to_list(a_list in out nocopy ut_varchar2_list, a_item varchar2);
+
+  procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2 := chr(10));
 
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob);
+
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data varchar2);
 
   function convert_collection(a_collection ut_varchar2_list) return ut_varchar2_rows;
@@ -280,6 +307,28 @@ create or replace package ut_utils authid definer is
    * @return 3, for inputs of: 1-9; 33 for input of 10 - 99; 333 for (100 - 999)
    */
   function scale_cardinality(a_cardinality natural) return natural;
+
+  function build_depreciation_warning(a_old_syntax varchar2, a_new_syntax varchar2) return varchar2;
+
+  /**
+  * Returns number as string. The value is represented as decimal according to XML standard:
+  * https://www.w3.org/TR/xmlschema-2/#decimal
+  */
+  function to_xml_number_format(a_value number) return varchar2;
+
+  /*It takes a collection of type ut_varchar2_list and it trims the characters passed as arguments for every element*/
+  function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list;
+
+  /*It takes a collection of type ut_varchar2_list and it only returns the elements which meets the regular expression*/
+  function filter_list(a_list IN ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list;
+
+  -- Generates XMLGEN escaped string
+  function xmlgen_escaped_string(a_string in varchar2) return varchar2;
+
+  /**
+  * Replaces multi-line comments in given source-code with empty lines
+  */
+  function replace_multiline_comments(a_source clob) return clob;
 
 end ut_utils;
 /

@@ -1,6 +1,6 @@
 create or replace package body ut_file_mapper is
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -84,13 +84,15 @@ create or replace package body ut_file_mapper is
     l_object_type_key varchar2(4000);
     l_object_type     varchar2(4000);
     l_object_owner    varchar2(4000);
+    l_file_path       varchar2(32767);
   begin
     if a_file_paths is not null then
       l_key_values := to_hash_table(l_file_to_object_type_mapping);
       l_mappings := ut_file_mappings();
 
       for i in 1 .. a_file_paths.count loop
-        l_object_type_key := upper(regexp_substr(a_file_paths(i), l_regex_pattern, 1, 1, 'i', l_object_type_subexpression));
+        l_file_path := replace(a_file_paths(i),'\','/');
+        l_object_type_key := upper(regexp_substr(l_file_path, l_regex_pattern, 1, 1, 'i', l_object_type_subexpression));
         if l_key_values.exists(l_object_type_key) then
           l_object_type := upper(l_key_values(l_object_type_key));
         else
@@ -99,13 +101,13 @@ create or replace package body ut_file_mapper is
 
         l_object_owner := coalesce(
           upper(a_object_owner),
-          upper(regexp_substr(a_file_paths(i), l_regex_pattern, 1, 1, 'i', l_object_owner_subexpression)),
+          upper(regexp_substr(l_file_path, l_regex_pattern, 1, 1, 'i', l_object_owner_subexpression)),
           sys_context('USERENV', 'CURRENT_SCHEMA'));
 
         l_mapping := ut_file_mapping(
           file_name    => a_file_paths(i),
           object_owner => l_object_owner,
-          object_name  => upper(regexp_substr(a_file_paths(i), l_regex_pattern, 1, 1, 'i', l_object_name_subexpression)),
+          object_name  => upper(regexp_substr(l_file_path, l_regex_pattern, 1, 1, 'i', l_object_name_subexpression)),
           object_type  => l_object_type
         );
         l_mappings.extend();

@@ -1,6 +1,6 @@
 create or replace package body ut_metadata as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -158,6 +158,20 @@ create or replace package body ut_metadata as
     when l_invalid_object_name then
       return replace(l_result,'dba_','all_');
   end;
+
+  function package_exists_in_cur_schema(a_object_name varchar2) return boolean is
+    l_cnt            number;
+    c_current_schema constant all_tables.owner%type := sys_context('USERENV','CURRENT_SCHEMA');
+  begin
+    select count(*)
+      into l_cnt
+      from all_objects t
+     where t.object_name = a_object_name
+       and t.object_type = 'PACKAGE'
+       and t.owner = c_current_schema;
+    return l_cnt > 0;
+  end;
+
 
 end;
 /

@@ -9,7 +9,7 @@ if (process.env.COVERALLS_URL_BASE) {
 	url = 'https://coveralls.io/api/v1/jobs';
 }
 
-fs.readFile('../old_tests/coverage.json',function (err,data) {
+fs.readFile('../coverage.json',function (err,data) {
 	if (err) {
 		return console.log(err);
 	}

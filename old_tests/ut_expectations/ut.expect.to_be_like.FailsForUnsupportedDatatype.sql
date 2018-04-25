@@ -8,8 +8,8 @@ begin
   ut.expect( l_actual ).to_( be_like(l_pattern, l_escape_char) );
   l_result := ut_expectation_processor.get_status();
 --Assert
-  if l_result = ut_utils.tr_failure then
-    :test_result := ut_utils.tr_success;
+  if l_result = ut_utils.gc_failure then
+    :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line('expected: '''||l_actual||''', to be like '''||l_pattern||''' escape'''||l_escape_char||'''' );
   end if;

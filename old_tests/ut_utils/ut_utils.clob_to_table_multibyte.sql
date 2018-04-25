@@ -14,7 +14,7 @@ begin
   l_result :=  ut_utils.clob_to_table(l_clob_multibyte);
 --Assert
   if l_result(1) = l_expected(1) then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line('expected: 1st string length '||length(l_expected(1))||', got 1st string length: '||length(l_result(1)));
   end if;

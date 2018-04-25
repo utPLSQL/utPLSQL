@@ -1,6 +1,6 @@
 create or replace package ut_file_mapper authid current_user is
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -16,10 +16,10 @@ create or replace package ut_file_mapper authid current_user is
   limitations under the License.
   */
 
-  gc_file_mapping_regex        constant varchar2(100) := '.*(\\|\/)((\w+)\.)?(\w+)\.(\w{3})';
-  gc_regex_owner_subexpression constant positive := 3;
-  gc_regex_name_subexpression  constant positive := 4;
-  gc_regex_type_subexpression  constant positive := 5;
+  gc_file_mapping_regex        constant varchar2(100) := '/((\w+)\.)?(\w+)\.(\w{3})$';
+  gc_regex_owner_subexpression constant positive := 2;
+  gc_regex_name_subexpression  constant positive := 3;
+  gc_regex_type_subexpression  constant positive := 4;
 
   function default_file_to_obj_type_map return ut_key_value_pairs;
 

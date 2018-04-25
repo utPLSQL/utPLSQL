@@ -10,7 +10,7 @@ declare
   l_duration_str varchar2(300) := ', executed in: '||((dbms_utility.get_time - :test_start_time)/100)||' second(s)';
 begin
   case
-     when :test_result = ut_utils.tr_success then
+     when :test_result = ut_utils.gc_success then
         :successes_count := :successes_count + 1;
      else
        dbms_output.put_line('---------------------------------------');
@@ -21,8 +21,10 @@ begin
 end;
 /
 
+rollback;
 begin
   ut_expectation_processor.clear_expectations;
+  ut_utils.cleanup_temp_tables;                                            
 end;
 /
 

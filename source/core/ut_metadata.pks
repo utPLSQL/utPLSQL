@@ -1,6 +1,6 @@
 create or replace package ut_metadata authid current_user as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -68,6 +68,12 @@ create or replace package ut_metadata authid current_user as
    * @param a_dba_view_name the name of dba view requested
    */
   function get_dba_view(a_dba_view_name varchar2) return varchar2;
+
+  /**
+   * Returns true if given object is a package and it exists in current schema
+   * @param a_object_name the name of the object to be checked
+   */
+  function package_exists_in_cur_schema(a_object_name varchar2) return boolean;
 
 end ut_metadata;
 /

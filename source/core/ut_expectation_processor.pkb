@@ -1,6 +1,6 @@
 create or replace package body ut_expectation_processor as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -22,7 +22,11 @@ create or replace package body ut_expectation_processor as
 
   g_expectations_called ut_expectation_results := ut_expectation_results();
 
+  g_warnings ut_varchar2_list := ut_varchar2_list();
+
   g_nulls_are_equal boolean_not_null := gc_default_nulls_are_equal;
+
+  g_package_invalidated boolean := false;
 
   function nulls_are_equal return boolean is
   begin
@@ -35,13 +39,13 @@ create or replace package body ut_expectation_processor as
   end;
 
   function get_status return integer is
-    l_result integer := ut_utils.tr_success;
+    l_result integer := ut_utils.gc_success;
   begin
     ut_utils.debug_log('ut_expectation_processor.get_status');
 
     for i in 1 .. g_expectations_called.count loop
       l_result := greatest(l_result, g_expectations_called(i).status);
-      exit when l_result = ut_utils.tr_error;
+      exit when l_result = ut_utils.gc_error;
     end loop;
     return l_result;
   end get_status;
@@ -50,25 +54,26 @@ create or replace package body ut_expectation_processor as
   begin
     ut_utils.debug_log('ut_expectation_processor.clear_expectations');
     g_expectations_called.delete;
+    g_warnings.delete;
   end;
 
-  function get_expectations_count return integer is
+  function get_all_expectations return ut_expectation_results is
   begin
-    return g_expectations_called.count;
-  end;
+    ut_utils.debug_log('ut_expectation_processor.get_all_expectations: g_expectations_called.count='||g_expectations_called.count);
+    return g_expectations_called;
+  end get_all_expectations;
 
   function get_failed_expectations return ut_expectation_results is
     l_expectations_results ut_expectation_results := ut_expectation_results();
   begin
     ut_utils.debug_log('ut_expectation_processor.get_failed_expectations: g_expectations_called.count='||g_expectations_called.count);
     for i in 1 .. g_expectations_called.count loop
-      if g_expectations_called(i).status > ut_utils.tr_success then
+      if g_expectations_called(i).status > ut_utils.gc_success then
         l_expectations_results.extend;
         l_expectations_results(l_expectations_results.last) := g_expectations_called(i);
       end if;
     end loop;
     ut_utils.debug_log('ut_expectation_processor.get_failed_expectations: l_expectations_results.count='||g_expectations_called.count);
-    clear_expectations();
     return l_expectations_results;
   end get_failed_expectations;
 
@@ -81,7 +86,7 @@ create or replace package body ut_expectation_processor as
 
   procedure report_failure(a_message in varchar2) is
   begin
-    add_expectation_result(ut_expectation_result(ut_utils.tr_failure, null, a_message));
+    add_expectation_result(ut_expectation_result(ut_utils.gc_failure, null, a_message));
   end;
 
   function get_session_parameters return tt_nls_params is
@@ -156,5 +161,40 @@ create or replace package body ut_expectation_processor as
     end if;
     return l_result;
   end;
+
+  procedure add_warning(a_messsage varchar2) is
+  begin
+    g_warnings.extend;
+    g_warnings(g_warnings.last) := a_messsage;
+  end;
+
+  procedure add_depreciation_warning(a_deprecated_syntax varchar2, a_new_syntax varchar2) is
+  begin
+    add_warning(
+      ut_utils.build_depreciation_warning( a_deprecated_syntax, a_new_syntax ) || chr(10)
+      || ut_expectation_processor.who_called_expectation(dbms_utility.format_call_stack())
+    );
+  end;
+
+  function get_warnings return ut_varchar2_list is
+  begin
+    return g_warnings;
+  end;
+
+  function invalidation_exception_found return boolean is
+  begin
+    return g_package_invalidated;
+  end;
+
+  procedure set_invalidation_exception is
+  begin
+    g_package_invalidated := true;
+  end;
+
+  procedure reset_invalidation_exception is
+  begin
+    g_package_invalidated := false;
+  end;
+
 end;
 /

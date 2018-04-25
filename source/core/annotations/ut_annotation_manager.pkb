@@ -1,6 +1,6 @@
 create or replace package body ut_annotation_manager as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -79,7 +79,7 @@ create or replace package body ut_annotation_manager as
          where s.type = :a_object_type
            and s.owner = :a_object_owner
            and s.name
-            in (select /*+ cardinality( x ]'||l_card||q'[ )*/
+            in (select /*+ cardinality( t ]'||l_card||q'[ )*/
                        x.name
                   from table(:a_objects_to_refresh) t
                   join ]'||l_sources_view||q'[ x

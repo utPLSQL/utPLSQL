@@ -5,15 +5,14 @@ declare
   simple_test ut_test := ut_test(
     a_object_name         => 'ut_example_tests'
     ,a_name     => 'ut_passing_test'
-    ,a_after_test_proc_name => 'teardown'
   );
-  listener ut_event_listener := ut_event_listener(ut_reporters());
 begin
+  simple_test.after_test_list := ut_executables(ut_executable(user, 'ut_example_tests', 'teardown', ut_utils.gc_after_test));
 --Act
-  simple_test.do_execute(listener);
+  simple_test.do_execute();
 --Assert
-  if simple_test.result = ut_utils.tr_success and ut_example_tests.g_char is null then
-    :test_result := ut_utils.tr_success;
+  if simple_test.result = ut_utils.gc_success and ut_example_tests.g_char is null then
+    :test_result := ut_utils.gc_success;
   end if;
 end;
 /

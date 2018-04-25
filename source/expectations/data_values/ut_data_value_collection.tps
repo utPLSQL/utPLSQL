@@ -1,6 +1,6 @@
 create or replace type ut_data_value_collection under ut_data_value_anydata(
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -15,9 +15,8 @@ create or replace type ut_data_value_collection under ut_data_value_anydata(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+
   constructor function ut_data_value_collection(self in out nocopy ut_data_value_collection, a_value anydata) return self as result,
-  overriding member function is_null return boolean,
-  member function is_empty return boolean,
   overriding member function is_multi_line return boolean
 )
 /

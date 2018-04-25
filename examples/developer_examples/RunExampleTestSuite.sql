@@ -11,43 +11,37 @@ set echo off
 @@ut_exampletest2.pkb
 
 declare
-  suite         ut_logical_suite;
-  listener      ut_event_listener := ut_event_listener(ut_reporters());
-  test_item     ut_test;
-  expectation   ut_expectation_result;
+  l_suite         ut_logical_suite;
+  l_test          ut_test;
+  l_expectation   ut_expectation_result;
 begin
-  suite := ut_logical_suite(a_object_owner=>null, a_object_name => 'ut_exampletest', a_name => null, a_description => 'Test Suite Name',a_path => null);
+  l_suite := ut_suite(user, 'ut_exampletest');
+  l_suite.description := 'Test Suite Name';
+  l_test := ut_test(user, 'ut_exampletest','ut_exAmpletest');
+  l_test.description := 'Example test1';
+  l_test.before_test_list := ut_executables(ut_executable(user, 'ut_exampletest','Setup',ut_utils.gc_before_test));
+  l_test.after_test_list  := ut_executables(ut_executable(user, 'ut_exampletest','tEardown',ut_utils.gc_after_test));
+  l_suite.add_item(l_test);
 
-  suite.add_item(
-      ut_test(a_object_name    => 'ut_exampletest'
-      ,a_name        => 'ut_exAmpletest'
-      ,a_description           => 'Example test1'
-      ,a_before_test_proc_name => 'Setup'
-      ,a_after_test_proc_name  => 'tEardown')
-  );
+  l_test := ut_test(user, 'UT_EXAMPLETEST2','ut_exAmpletest');
+  l_test.description := 'Another example test';
+  l_test.before_test_list := ut_executables(ut_executable(user, 'UT_EXAMPLETEST2','SETUP',ut_utils.gc_before_test));
+  l_test.after_test_list  := ut_executables(ut_executable(user, 'UT_EXAMPLETEST2','TEARDOWN',ut_utils.gc_after_test));
+  l_suite.add_item(l_test);
 
-  suite.add_item(
-      ut_test(
-          a_object_name           => 'UT_EXAMPLETEST2',
-          a_name        => 'UT_EXAMPLETEST',
-          a_description           => 'Another example test',
-          a_before_test_proc_name => 'SETUP',
-          a_after_test_proc_name  => 'TEARDOWN')
-  );
-
-  suite.do_execute(listener);
+  l_suite.do_execute();
 
   -- No reporter used in this example so outputing the results manually.
-  for test_idx in suite.items.first .. suite.items.last loop
-    test_item := treat(suite.items(test_idx) as ut_test);
+  for test_idx in l_suite.items.first .. l_suite.items.last loop
+    l_test := treat(l_suite.items(test_idx) as ut_test);
     dbms_output.put_line('---------------------------------------------------');
-    dbms_output.put_line('Test:' || test_item.item.form_name);
-    dbms_output.put_line('Result: ' || ut_utils.test_result_to_char(test_item.result));
+    dbms_output.put_line('Test:' || l_test.item.form_name);
+    dbms_output.put_line('Result: ' || ut_utils.test_result_to_char(l_test.result));
     dbms_output.put_line('expectation Results:');
-    for i in 1 .. test_item.failed_expectations.count loop
-			expectation := test_item.failed_expectations(i);
-      dbms_output.put_line(i || ' - result: ' || ut_utils.test_result_to_char(expectation.result));
-      dbms_output.put_line(i || ' - Message: ' || expectation.message);
+    for i in 1 .. l_test.failed_expectations.count loop
+      l_expectation := l_test.failed_expectations(i);
+      dbms_output.put_line(i || ' - result: ' || ut_utils.test_result_to_char(l_expectation.result));
+      dbms_output.put_line(i || ' - Message: ' || l_expectation.message);
     end loop;
   end loop;
   dbms_output.put_line('---------------------------------------------------');

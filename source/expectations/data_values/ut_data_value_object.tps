@@ -1,6 +1,6 @@
 create or replace type ut_data_value_object under ut_data_value_anydata(
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -16,7 +16,7 @@ create or replace type ut_data_value_object under ut_data_value_anydata(
   limitations under the License.
   */
   constructor function ut_data_value_object(self in out nocopy ut_data_value_object, a_value anydata) return self as result,
-  overriding member function is_null return boolean,
+  overriding member function get_object_info return varchar2,
   overriding member function is_multi_line return boolean
 )
 /

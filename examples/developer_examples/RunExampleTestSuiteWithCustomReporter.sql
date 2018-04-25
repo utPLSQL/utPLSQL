@@ -14,36 +14,35 @@ set echo off
 @@ut_custom_reporter.tpb
 
 declare
-  suite         ut_logical_suite;
-  listener      ut_event_listener;
+  l_suite       ut_logical_suite;
+  l_test        ut_test;
+  l_reporter    ut_output_reporter_base;
   l_run         ut_run;
 begin
+  ut_event_manager.initialize();
   -- Install ut_custom_reporter first from example folder
 
-  suite := ut_logical_suite(a_object_owner=>null, a_object_name => 'ut_exampletest', a_name => null, a_description => 'Test Suite Name',a_path => null);
+  l_suite := ut_suite(user, 'ut_exampletest');
 
-  suite.add_item(
-      ut_test(a_object_name    => 'ut_exampletest'
-      ,a_name        => 'ut_exAmpletest'
-      ,a_description           => 'Example test1'
-      ,a_before_test_proc_name => 'Setup'
-      ,a_after_test_proc_name  => 'tEardown')
-  );
+  l_test := ut_test(user, 'ut_exampletest','ut_exAmpletest');
+  l_test.description := 'Example test1';
+  l_test.before_test_list := ut_executables(ut_executable(user, 'ut_exampletest','Setup',ut_utils.gc_before_test));
+  l_test.after_test_list  := ut_executables(ut_executable(user, 'ut_exampletest','tEardown',ut_utils.gc_after_test));
+  l_suite.add_item(l_test);
 
-  suite.add_item(
-      ut_test(
-          a_object_name           => 'UT_EXAMPLETEST2',
-          a_name        => 'UT_EXAMPLETEST',
-          a_description           => 'Another example test',
-          a_before_test_proc_name => 'SETUP',
-          a_after_test_proc_name  => 'TEARDOWN')
-  );
+  l_test := ut_test(user, 'UT_EXAMPLETEST2','ut_exAmpletest');
+  l_test.description := 'Another example test';
+  l_test.before_test_list := ut_executables(ut_executable(user, 'ut_exampletest','SETUP',ut_utils.gc_before_test));
+  l_test.after_test_list  := ut_executables(ut_executable(user, 'ut_exampletest','TEARDOWN',ut_utils.gc_after_test));
+  l_suite.add_item(l_test);
 
   -- provide a reporter to process results tabbing each hierarcy level by tab_size
-  listener := ut_event_listener(ut_reporters(ut_custom_reporter(a_tab_size => 2)));
-  l_run := ut_run(ut_suite_items(suite));
-  l_run.do_execute(listener);
-  ut_output_buffer.lines_to_dbms_output(listener.reporters(1).reporter_id,0);
+  l_reporter := ut_custom_reporter(a_tab_size => 2);
+  ut_event_manager.add_listener(l_reporter);
+  l_run := ut_run(ut_suite_items(l_suite));
+  l_run.do_execute();
+  ut_event_manager.trigger_event(ut_utils.gc_finalize, l_run);
+  l_reporter.lines_to_dbms_output(0,0);
 end;
 /
 
@@ -52,3 +51,4 @@ end;
 drop type ut_custom_reporter;
 drop package ut_exampletest;
 drop package ut_exampletest2;
+exec dbms_session.reset_package;

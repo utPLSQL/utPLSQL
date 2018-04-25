@@ -10,6 +10,8 @@
 | Pavel  Kaplya    | [Pazus](https://github.com/Pazus)
 | Robert Love      | [rlove](https://github.com/rlove)
 | Vinicius Avellar | [viniciusam](https://github.com/viniciusam/)
+| Samuel Nitsche   | [pesse](https://github.com/pesse/)
+| Lukasz Wasylow   | [lwasylow](https://github.com/lwasylow/)
 
 
 

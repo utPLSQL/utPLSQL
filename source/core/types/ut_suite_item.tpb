@@ -1,6 +1,6 @@
 create or replace type body ut_suite_item as
   /*
-  utPLSQL - Version X.X.X.X
+  utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
@@ -16,18 +16,15 @@ create or replace type body ut_suite_item as
   limitations under the License.
   */
 
-  member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_description varchar2, a_path varchar2, a_rollback_type integer, a_disabled_flag boolean) is
+  member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2) is
   begin
     self.object_owner  := a_object_owner;
     self.object_name   := lower(trim(a_object_name));
     self.name          := lower(trim(a_name));
-    self.description   := a_description;
-    self.path          := nvl(lower(trim(a_path)), self.object_name);
-    self.rollback_type := a_rollback_type;
-    self.disabled_flag := ut_utils.boolean_to_int(a_disabled_flag);
     self.results_count := ut_results_counter();
     self.warnings      := ut_varchar2_list();
     self.transaction_invalidators := ut_varchar2_list();
+    self.disabled_flag := ut_utils.boolean_to_int(false);
   end;
 
   member procedure set_disabled_flag(self in out nocopy ut_suite_item, a_disabled_flag boolean) is
@@ -40,16 +37,26 @@ create or replace type body ut_suite_item as
     return ut_utils.int_to_boolean(self.disabled_flag);
   end;
 
-  final member procedure do_execute(self in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is
+  member procedure set_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer) is
+  begin
+    self.rollback_type := coalesce(self.rollback_type, a_rollback_type);
+  end;
+
+  member function get_rollback_type return integer is
+  begin
+    return nvl(self.rollback_type, ut_utils.gc_rollback_default);
+  end;
+
+final member procedure do_execute(self in out nocopy ut_suite_item) is
     l_completed_without_errors boolean;
   begin
-    l_completed_without_errors := self.do_execute(a_listener);
+    l_completed_without_errors := self.do_execute();
   end;
 
   member function create_savepoint_if_needed return varchar2 is
     l_savepoint varchar2(30);
   begin
-    if self.rollback_type = ut_utils.gc_rollback_auto then
+    if get_rollback_type() = ut_utils.gc_rollback_auto then
       l_savepoint := ut_utils.gen_savepoint_name();
       execute immediate 'savepoint ' || l_savepoint;
     end if;
@@ -60,7 +67,7 @@ create or replace type body ut_suite_item as
     ex_savepoint_not_exists exception;
     pragma exception_init(ex_savepoint_not_exists, -1086);
   begin
-    if self.rollback_type = ut_utils.gc_rollback_auto and a_savepoint is not null then
+    if get_rollback_type() = ut_utils.gc_rollback_auto and a_savepoint is not null then
       execute immediate 'rollback to ' || a_savepoint;
     end if;
   exception

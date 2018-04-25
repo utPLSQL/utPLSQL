@@ -139,7 +139,7 @@ begin
     dbms_output.put_line('Failed: Wrong output');
   end if;
   if l_result then
-    :test_result := ut_utils.tr_success;
+    :test_result := ut_utils.gc_success;
   end if;
 end;
 /
