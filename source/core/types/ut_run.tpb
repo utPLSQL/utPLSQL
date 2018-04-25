@@ -44,32 +44,31 @@ create or replace type body ut_run as
     return;
   end;
 
-  overriding member procedure mark_as_skipped(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base) is
+  overriding member procedure mark_as_skipped(self in out nocopy ut_run) is
   begin
     null;
   end;
 
-  overriding member function do_execute(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base) return boolean is
+  overriding member function do_execute(self in out nocopy ut_run) return boolean is
     l_completed_without_errors boolean;
   begin
     ut_utils.debug_log('ut_run.execute');
 
-    a_listener.fire_before_event(ut_utils.gc_run, self);
+    ut_event_manager.trigger_event(ut_utils.gc_before_run, self);
     self.start_time := current_timestamp;
 
     -- clear anything that might stay in the session's cache
     ut_expectation_processor.clear_expectations;
 
     for i in 1 .. self.items.count loop
-      l_completed_without_errors := self.items(i).do_execute(a_listener);
+      l_completed_without_errors := self.items(i).do_execute();
     end loop;
 
     self.calc_execution_result();
 
     self.end_time := current_timestamp;
 
-    a_listener.fire_after_event(ut_utils.gc_run, self);
-    a_listener.fire_on_event(ut_utils.gc_finalize);
+    ut_event_manager.trigger_event(ut_utils.gc_after_run, self);
 
     return l_completed_without_errors;
   end;
@@ -90,21 +89,21 @@ create or replace type body ut_run as
     self.result := l_result;
   end;
 
-  overriding member procedure mark_as_errored(self in out nocopy ut_run, a_listener in out nocopy ut_event_listener_base, a_error_stack_trace varchar2) is
+  overriding member procedure mark_as_errored(self in out nocopy ut_run, a_error_stack_trace varchar2) is
   begin
     ut_utils.debug_log('ut_run.fail');
 
-    a_listener.fire_before_event(ut_utils.gc_run, self);
+    ut_event_manager.trigger_event(ut_utils.gc_before_run, self);
     self.start_time := current_timestamp;
 
     for i in 1 .. self.items.count loop
-      self.items(i).mark_as_errored(a_listener, a_error_stack_trace);
+      self.items(i).mark_as_errored(a_error_stack_trace);
     end loop;
 
     self.calc_execution_result();
     self.end_time := self.start_time;
 
-    a_listener.fire_after_event(ut_utils.gc_run, self);
+    ut_event_manager.trigger_event(ut_utils.gc_after_run, self);
   end;
 
   overriding member function get_error_stack_traces return ut_varchar2_list is

@@ -73,5 +73,9 @@ create or replace package test_ut_utils is
   
   --%test(Filter list elements with empty collection)
   procedure filter_list_empty_collection;
+
+  --%test(Replace multi-line comments with empty lines)
+  procedure replace_multiline_comments;
+
 end test_ut_utils;
 /

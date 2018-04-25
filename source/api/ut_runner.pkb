@@ -42,10 +42,10 @@ create or replace package body ut_runner is
     return l_result;
   end;
 
-  procedure finish_run(a_listener in out ut_event_listener) is
+  procedure finish_run(a_run ut_run) is
   begin
     ut_utils.cleanup_temp_tables;
-    a_listener.fire_on_event(ut_utils.gc_finalize);
+    ut_event_manager.trigger_event(ut_utils.gc_finalize, a_run);
     ut_metadata.reset_source_definition_cache;
     ut_utils.read_cache_to_dbms_output();
     ut_coverage_helper.cleanup_tmp_table();
@@ -78,21 +78,23 @@ create or replace package body ut_runner is
     a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
   ) is
-    l_items_to_run ut_run;
-    l_listener     ut_event_listener;
+    l_run                   ut_run;
     l_coverage_schema_names ut_varchar2_rows;
     l_exclude_object_names  ut_object_names := ut_object_names();
     l_include_object_names  ut_object_names;
   begin
+    ut_event_manager.initialize();
     begin
       ut_expectation_processor.reset_invalidation_exception();
       ut_utils.save_dbms_output_to_cache();
 
       ut_console_reporter_base.set_color_enabled(a_color_console);
       if a_reporters is null or a_reporters.count = 0 then
-        l_listener := ut_event_listener(ut_reporters(ut_documentation_reporter()));
+        ut_event_manager.add_listener(ut_documentation_reporter());
       else
-        l_listener := ut_event_listener(a_reporters);
+        for i in 1 .. a_reporters.count loop
+          ut_event_manager.add_listener(a_reporters(i));
+        end loop;
       end if;
 
       if a_coverage_schemes is not empty then
@@ -109,7 +111,7 @@ create or replace package body ut_runner is
 
       l_include_object_names := to_ut_object_list(a_include_objects, l_coverage_schema_names);
 
-      l_items_to_run := ut_run(
+      l_run := ut_run(
         ut_suite_manager.configure_execution_by_path(a_paths),
         a_paths,
         l_coverage_schema_names,
@@ -118,19 +120,19 @@ create or replace package body ut_runner is
         set(a_source_file_mappings),
         set(a_test_file_mappings)
       );
-      l_items_to_run.do_execute(l_listener);
+      l_run.do_execute();
 
-      finish_run(l_listener);
+      finish_run(l_run);
       rollback;
     exception
       when others then
-        finish_run(l_listener);
+        finish_run(l_run);
         dbms_output.put_line(dbms_utility.format_error_backtrace);
         dbms_output.put_line(dbms_utility.format_error_stack);
         rollback;
         raise;
     end;
-    if a_fail_on_errors and l_items_to_run.result in (ut_utils.gc_failure, ut_utils.gc_error) then
+    if a_fail_on_errors and l_run.result in (ut_utils.gc_failure, ut_utils.gc_error) then
       raise_application_error(ut_utils.gc_some_tests_failed, 'Some tests failed');
     end if;
   end;
@@ -199,8 +201,6 @@ create or replace package body ut_runner is
     end loop;
     close l_cursor;
   end;
-
-
 
 end ut_runner;
 /

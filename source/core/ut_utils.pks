@@ -24,23 +24,42 @@ create or replace package ut_utils authid definer is
   gc_version                 constant varchar2(50) := 'v3.1.0.1841-develop';
 
   /* Constants: Event names */
-  gc_run                     constant varchar2(12) := 'run';
-  gc_suite                   constant varchar2(12) := 'suite';
-  gc_before_all              constant varchar2(12) := 'before_all';
-  gc_before_each             constant varchar2(12) := 'before_each';
-  gc_before_test             constant varchar2(12) := 'before_test';
-  gc_test                    constant varchar2(12) := 'test';
-  gc_test_execute            constant varchar2(12) := 'test_execute';
-  gc_after_test              constant varchar2(10) := 'after_test';
-  gc_after_each              constant varchar2(12) := 'after_each';
-  gc_after_all               constant varchar2(12) := 'after_all';
-  gc_finalize                constant varchar2(12) := 'finalize';
+  subtype t_event_name           is varchar2(30);
+  gc_before_run                  constant t_event_name := 'before_run';
+  gc_before_suite                constant t_event_name := 'before_suite';
+  gc_before_before_all           constant t_event_name := 'before_before_all';
+  gc_before_before_each          constant t_event_name := 'before_before_each';
+  gc_before_before_test          constant t_event_name := 'before_before_test';
+  gc_before_test_execute         constant t_event_name := 'before_test_execute';
+  gc_before_after_test           constant t_event_name := 'before_after_test';
+  gc_before_after_each           constant t_event_name := 'before_after_each';
+  gc_before_after_all            constant t_event_name := 'before_after_all';
+  gc_after_run                   constant t_event_name := 'after_run';
+  gc_after_suite                 constant t_event_name := 'after_suite';
+  gc_after_before_all            constant t_event_name := 'after_before_all';
+  gc_after_before_each           constant t_event_name := 'after_before_each';
+  gc_after_before_test           constant t_event_name := 'after_before_test';
+  gc_after_test_execute          constant t_event_name := 'after_test_execute';
+  gc_after_after_test            constant t_event_name := 'after_after_test';
+  gc_after_after_each            constant t_event_name := 'after_after_each';
+  gc_after_after_all             constant t_event_name := 'after_after_all';
+  gc_finalize                    constant t_event_name := 'finalize';
+
+  subtype t_executable_type      is varchar2(30);
+  gc_before_all                  constant t_executable_type := 'before_all';
+  gc_before_each                 constant t_executable_type := 'before_each';
+  gc_before_test                 constant t_executable_type := 'before_test';
+  gc_test_execute                constant t_executable_type := 'test_execute';
+  gc_after_test                  constant t_executable_type := 'after_test';
+  gc_after_each                  constant t_executable_type := 'after_each';
+  gc_after_all                   constant t_executable_type := 'after_all';
 
   /* Constants: Test Results */
-  gc_disabled                constant number(1) := 0; -- test/suite was disabled
-  gc_success                 constant number(1) := 1; -- test passed
-  gc_failure                 constant number(1) := 2; -- one or more expectations failed
-  gc_error                   constant number(1) := 3; -- exception was raised
+  subtype t_test_result   is binary_integer range 0 .. 3;
+  gc_disabled                constant t_test_result := 0; -- test/suite was disabled
+  gc_success                 constant t_test_result := 1; -- test passed
+  gc_failure                 constant t_test_result := 2; -- one or more expectations failed
+  gc_error                   constant t_test_result := 3; -- exception was raised
 
   gc_disabled_char           constant varchar2(8) := 'Disabled'; -- test/suite was disabled
   gc_success_char            constant varchar2(7) := 'Success'; -- test passed
@@ -50,9 +69,10 @@ create or replace package ut_utils authid definer is
   /*
     Constants: Rollback type for ut_test_object
   */
-  gc_rollback_auto           constant number(1) := 0; -- rollback after each test and suite
-  gc_rollback_manual         constant number(1) := 1; -- leave transaction control manual
-  --gc_rollback_on_error       constant number(1) := 2; -- rollback tests only on error
+  subtype t_rollback_type is binary_integer range 0 .. 1;
+  gc_rollback_auto           constant t_rollback_type := 0; -- rollback after each test and suite
+  gc_rollback_manual         constant t_rollback_type := 1; -- leave transaction control manual
+  gc_rollback_default        constant t_rollback_type := gc_rollback_auto;
 
   ex_unsupported_rollback_type exception;
   gc_unsupported_rollback_type constant pls_integer := -20200;
@@ -304,6 +324,11 @@ create or replace package ut_utils authid definer is
 
   -- Generates XMLGEN escaped string
   function xmlgen_escaped_string(a_string in varchar2) return varchar2;
+
+  /**
+  * Replaces multi-line comments in given source-code with empty lines
+  */
+  function replace_multiline_comments(a_source clob) return clob;
 
 end ut_utils;
 /

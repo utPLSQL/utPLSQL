@@ -117,10 +117,7 @@ create or replace package body test_tfs_junit_reporter as
     ut.expect(l_actual).to_be_like('<testsuites>
 <testsuite tests="0" id="1" package="core.check_junit_rep_suitepath.check_junit_flat_suitepath"  errors="0" failures="0" name="flatsuitepath" time="%"  timestamp="%"  hostname="%" >
 <properties/>
-<system-out>
-<![CDATA[
-]]>
-</system-out>
+<system-out/>
 <system-err/>
 </testsuite>%');
   end;

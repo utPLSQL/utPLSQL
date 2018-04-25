@@ -318,7 +318,6 @@ begin
     'source/core/types/ut_suite_item.tpb',
     'source/core/types/ut_suite_item.tps',
     'source/core/types/ut_suite_items.tps',
-    'source/core/types/ut_suite_item_base.tps',
     'source/core/types/ut_test.tpb',
     'source/core/types/ut_test.tps',
     'source/core/types/ut_varchar2_list.tps',
@@ -440,32 +439,32 @@ begin
   --run for the first time to gather coverage and timings on reporters too
   l_reporter := ut_coverage_html_reporter(a_project_name => 'utPLSQL v3');
   l_reporter.after_calling_run(l_test_run);
-  l_reporter.finalize();
+  l_reporter.on_finalize(l_test_run);
 
   l_reporter := ut_coverage_sonar_reporter();
   l_reporter.after_calling_run(l_test_run);
-  l_reporter.finalize();
+  l_reporter.on_finalize(l_test_run);
 
   l_reporter := ut_coveralls_reporter();
   l_reporter.after_calling_run(l_test_run);
-  l_reporter.finalize();
+  l_reporter.on_finalize(l_test_run);
 
   ut_coverage.coverage_stop_develop();
 
   --run for the second time to get the coverage report
   l_reporter := ut_coverage_html_reporter(a_project_name => 'utPLSQL v3');
   l_reporter.after_calling_run(l_test_run);
-  l_reporter.finalize();
+  l_reporter.on_finalize(l_test_run);
   :html_reporter_id := l_reporter.get_reporter_id;
 
   l_reporter := ut_coverage_sonar_reporter();
   l_reporter.after_calling_run(l_test_run);
-  l_reporter.finalize();
+  l_reporter.on_finalize(l_test_run);
   :sonar_reporter_id := l_reporter.get_reporter_id;
 
   l_reporter := ut_coveralls_reporter();
   l_reporter.after_calling_run(l_test_run);
-  l_reporter.finalize();
+  l_reporter.on_finalize(l_test_run);
   :coveralls_reporter_id := l_reporter.get_reporter_id;
 end;
 /
