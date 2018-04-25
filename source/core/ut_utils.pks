@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.0.1847-develop';
+  gc_version                 constant varchar2(50) := 'v3.1.0.1850-develop';
 
   /* Constants: Event names */
   subtype t_event_name           is varchar2(30);
