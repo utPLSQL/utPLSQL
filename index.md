@@ -9,7 +9,7 @@ layout: default
 
 ## Documentation release history
 
-- [v3.1.0 documentation](v3.1.0-develop/) - Created 25 Apr 2018 - 07:56:22 AM
+- [v3.1.0 documentation](v3.1.0/) - Created 25 Apr 2018 - 07:56:22 AM
 - [v3.0.4 documentation](v3.0.4/) - Created 03 Nov 2017 - 11:36:29 AM
 - [v3.0.3 documentation](v3.0.3/) - Created 30 Aug 2017 - 08:10:20 AM
 - [v3.0.2 documentation](v3.0.2/) - Created 18 Jul 2017 - 07:42:35 PM
