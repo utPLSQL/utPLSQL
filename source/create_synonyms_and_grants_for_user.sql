@@ -113,8 +113,10 @@ begin
   execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to &ut3_user';
   execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs to &ut3_user';
   execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_units to &ut3_user';
+  $else
+  null;
   $end
-  end;
+end;
 /
 
 
@@ -169,6 +171,8 @@ begin
   execute immediate 'create or replace synonym &ut3_user..dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks';
   execute immediate 'create or replace synonym &ut3_user..dbmspcc_runs for &&ut3_owner..dbmspcc_runs';
   execute immediate 'create or replace synonym &ut3_user..dbmspcc_units for &&ut3_owner..dbmspcc_units';
+  $else
+  null;
   $end
-  end;
+end;
 /

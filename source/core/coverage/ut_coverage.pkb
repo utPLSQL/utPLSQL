@@ -157,7 +157,6 @@ create or replace package body ut_coverage is
     if not is_develop_mode() and not g_is_started then
       $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
       ut_coverage_helper_block.coverage_start( l_run_comment, g_coverage_id(gc_block_coverage) );
---      g_coverage_id(gc_block_coverage) := dbms_plsql_code_coverage.start_coverage( l_run_comment );
       $end
       ut_coverage_helper_profiler.coverage_start( l_run_comment, g_coverage_id(gc_proftab_coverage) );
       coverage_pause();

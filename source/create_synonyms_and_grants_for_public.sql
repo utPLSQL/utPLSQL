@@ -93,6 +93,8 @@ begin
   execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to public';
   execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs   to public';
   execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_units  to public';
+  $else
+  null;
   $end
 end;
 /
@@ -148,6 +150,8 @@ begin
   execute immediate 'create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks';
   execute immediate 'create public synonym dbmspcc_runs for &&ut3_owner..dbmspcc_runs';
   execute immediate 'create public synonym dbmspcc_units for &&ut3_owner..dbmspcc_units';
+  $else
+  null;
   $end
 end;
 /

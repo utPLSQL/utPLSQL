@@ -34,7 +34,8 @@ create table ut$test_table (val varchar2(1));
 
 --Start coverage in develop mode (coverage for utPLSQL framework)
 --Regular coverage excludes the framework
-exec ut_coverage.coverage_start_develop();
+exec ut_coverage.coverage_start();
+exec ut_coverage.set_develop_mode(true);
 
 @@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTrace.sql
 @@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTraceWith0x.sql
@@ -449,7 +450,8 @@ begin
   l_reporter.after_calling_run(l_test_run);
   l_reporter.on_finalize(l_test_run);
 
-  ut_coverage.coverage_stop_develop();
+  ut_coverage.set_develop_mode(false);
+  ut_coverage.coverage_stop();
 
   --run for the second time to get the coverage report
   l_reporter := ut_coverage_html_reporter(a_project_name => 'utPLSQL v3');
