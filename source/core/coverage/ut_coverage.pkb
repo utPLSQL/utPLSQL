@@ -16,10 +16,26 @@ create or replace package body ut_coverage is
   limitations under the License.
   */
 
-  
-  type t_source_lines is table of binary_integer;
+  g_coverage_id   tt_coverage_id_arr;
+  g_develop_mode  boolean not null := false;
+  g_is_started    boolean not null := false;
 
-  function get_cov_sources_sql(a_coverage_options ut_coverage_options, a_skipped_lines varchar2 default 'Y') return varchar2 is
+  procedure set_develop_mode(a_develop_mode in boolean) is
+    begin
+      g_develop_mode := a_develop_mode;
+    end;
+
+  function get_coverage_id(a_coverage_type in varchar2) return integer is
+    begin
+      return g_coverage_id(a_coverage_type);
+    end;
+
+  function is_develop_mode return boolean is
+    begin
+      return g_develop_mode;
+    end;
+
+  function get_cov_sources_sql(a_coverage_options ut_coverage_options) return varchar2 is
     l_result varchar2(32767);
     l_full_name varchar2(100);
     l_view_name      varchar2(200) := ut_metadata.get_dba_view('dba_source');
@@ -44,8 +60,7 @@ create or replace package body ut_coverage is
                        and regexp_like( t.text, '[A-Za-z0-9$#_]*(begin|declare|compound).*','i'))
                  ) as line,
                  s.text, ]';
-     if a_skipped_lines = 'Y' then
-      l_result := l_result ||
+    l_result := l_result ||
                  q'[case
                    when
                      -- to avoid execution of regexp_like on every line
@@ -62,10 +77,7 @@ create or replace package body ut_coverage is
                      )
                     then 'Y'
                  end as to_be_skipped ]';
-    else
-      l_result := l_result || q'['N' as to_be_skipped ]';
-    end if;
-                 
+
     l_result := l_result ||' from '||l_view_name||q'[ s]';
             
     if a_coverage_options.file_mappings is not empty then
@@ -96,7 +108,7 @@ create or replace package body ut_coverage is
     l_skip_objects  ut_object_names;
     l_sql           varchar2(32767);
   begin
-    if not ut_coverage_helper.is_develop_mode() then
+    if not is_develop_mode() then
       --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
       l_skip_objects := ut_utils.get_utplsql_objects_list() multiset union all coalesce(a_coverage_options.exclude_objects, ut_object_names());
     end if;
@@ -111,13 +123,13 @@ create or replace package body ut_coverage is
     return l_cursor;
   end;
 
-  procedure populate_tmp_table(a_coverage_options in ut_coverage_options,a_sql in varchar2) is
+  procedure populate_tmp_table(a_coverage_options ut_coverage_options, a_sql in varchar2) is
     pragma autonomous_transaction;
     l_cov_sources_crsr sys_refcursor;
     l_cov_sources_data ut_coverage_helper.t_coverage_sources_tmp_rows;
   begin
 
-    if not ut_coverage_helper.is_tmp_table_populated() or ut_coverage_helper.is_develop_mode() then
+    if not ut_coverage_helper.is_tmp_table_populated() or is_develop_mode() then
       ut_coverage_helper.cleanup_tmp_table();
 
       l_cov_sources_crsr := get_cov_sources_cursor(a_coverage_options,a_sql);
@@ -140,33 +152,54 @@ create or replace package body ut_coverage is
   * Public functions
   */
   procedure coverage_start(a_coverage_options ut_coverage_options default null) is
+    l_run_comment varchar2(200) := 'utPLSQL Code coverage run '||ut_utils.to_string(systimestamp);
   begin
-    ut_coverage_helper.coverage_start('utPLSQL Code coverage run '||ut_utils.to_string(systimestamp));
-  end;
-
-  procedure coverage_start_develop(a_coverage_options ut_coverage_options default null) is
-  begin
-    ut_coverage_helper.coverage_start_develop;
+    if not is_develop_mode() and not g_is_started then
+      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+      ut_coverage_helper_block.coverage_start( l_run_comment, g_coverage_id(gc_block_coverage) );
+      $end
+      ut_coverage_helper_profiler.coverage_start( l_run_comment, g_coverage_id(gc_proftab_coverage) );
+      coverage_pause();
+      g_is_started := true;
+    end if;
   end;
 
   procedure coverage_pause is
   begin
-    ut_coverage_helper.coverage_pause();
+    if not is_develop_mode() then
+      ut_coverage_helper_profiler.coverage_pause();
+    end if;
   end;
 
   procedure coverage_resume is
   begin
-    ut_coverage_helper.coverage_resume();
+    ut_coverage_helper_profiler.coverage_resume();
+  end;
+
+  procedure mock_coverage_id(a_coverage_id integer,a_coverage_type in varchar2) is
+  begin
+    g_develop_mode := true;
+    g_is_started := true;
+    g_coverage_id(a_coverage_type) := a_coverage_id;
+  end;
+
+  procedure mock_coverage_id(a_coverage_id tt_coverage_id_arr) is
+  begin
+    g_develop_mode := true;
+    g_is_started := true;
+    g_coverage_id := a_coverage_id;
   end;
 
   procedure coverage_stop is
   begin
-    ut_coverage_helper.coverage_stop();
-  end;
-
-  procedure coverage_stop_develop is
-  begin
-    ut_coverage_helper.coverage_stop_develop();
+    if not is_develop_mode() then
+      g_is_started := false;
+      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+      ut_coverage_helper_block.coverage_stop();
+      $end
+      ut_coverage_helper_profiler.coverage_stop();
+      g_is_started := false;
+    end if;
   end;
 
   function get_coverage_data(a_coverage_options ut_coverage_options) return t_coverage is
@@ -175,13 +208,16 @@ create or replace package body ut_coverage is
     l_object                 ut_coverage.t_full_name;
     l_line_no                binary_integer;
   begin
-    -- Get raw data for both reporters, order is important as tmp table will skip headers and dont populate 
+    --prepare global temp table with sources
+    populate_tmp_table(a_coverage_options, get_cov_sources_sql(a_coverage_options));
+
+    -- Get raw data for both reporters, order is important as tmp table will skip headers and dont populate
     -- tmp table for block again.
-    l_result_profiler_enrich:= ut_coverage_profiler.get_coverage_data(a_coverage_options => a_coverage_options);
+    l_result_profiler_enrich:= ut_coverage_profiler.get_coverage_data( a_coverage_options, get_coverage_id(gc_proftab_coverage) );
   
    -- If block coverage available we will use it.
    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-    l_result_block := ut_coverage_block.get_coverage_data(a_coverage_options => a_coverage_options);
+    l_result_block := ut_coverage_block.get_coverage_data( a_coverage_options, get_coverage_id(gc_block_coverage) );
   
     -- Enrich profiler results with some of the block results
     l_object := l_result_profiler_enrich.objects.first;

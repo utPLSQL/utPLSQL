@@ -108,6 +108,17 @@ grant execute on &&ut3_owner..ut_annotation_cache_manager to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation_parser to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation_objs_cache_info to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation_obj_cache_info to &ut3_user;
+begin
+  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+  execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to &ut3_user';
+  execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs to &ut3_user';
+  execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_units to &ut3_user';
+  $else
+  null;
+  $end
+end;
+/
+
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to user &&ut3_user
 
@@ -155,3 +166,13 @@ create or replace synonym &ut3_user..ut_key_value_pair for &&ut3_owner..ut_key_v
 create or replace synonym &ut3_user..ut_compound_data_tmp for &&ut3_owner..ut_cursor_data;
 create or replace synonym &ut3_user..ut_compound_data_diff_tmp for &&ut3_owner..ut_compound_data_diff_tmp;
 create or replace synonym &ut3_user..ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
+begin
+  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+  execute immediate 'create or replace synonym &ut3_user..dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks';
+  execute immediate 'create or replace synonym &ut3_user..dbmspcc_runs for &&ut3_owner..dbmspcc_runs';
+  execute immediate 'create or replace synonym &ut3_user..dbmspcc_units for &&ut3_owner..dbmspcc_units';
+  $else
+  null;
+  $end
+end;
+/
