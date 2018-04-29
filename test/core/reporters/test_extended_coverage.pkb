@@ -6,7 +6,7 @@ create or replace package body test_extended_coverage is
     v_result integer;
   begin
     select nvl(min(run_id),0) - 1 into v_result
-      from ut3.dbmspcc_runs;
+      from dbmspcc_runs;
     return v_result;
   end;
 
@@ -58,13 +58,13 @@ create or replace package body test_extended_coverage is
   procedure mock_block_coverage_data(a_run_id integer) is
     c_unit_id   constant integer := 1;
   begin
-    insert into ut3.dbmspcc_runs ( run_id, run_owner, run_timestamp, run_comment)
+    insert into dbmspcc_runs ( run_id, run_owner, run_timestamp, run_comment)
     values(a_run_id, user, sysdate, 'unit testing utPLSQL');
 
-    insert into ut3.dbmspcc_units ( run_id, object_id, type, owner, name,last_ddl_time)
+    insert into dbmspcc_units ( run_id, object_id, type, owner, name,last_ddl_time)
     values(a_run_id, c_unit_id, 'PACKAGE BODY', 'UT3', 'DUMMY_COVERAGE',sysdate);
 
-    insert into ut3.dbmspcc_blocks ( run_id,  object_id, line,block,col,covered,not_feasible)
+    insert into dbmspcc_blocks ( run_id,  object_id, line,block,col,covered,not_feasible)
     select a_run_id, c_unit_id,4,1,1,1,0  from dual union all
     select a_run_id, c_unit_id,4,2,2,0,0  from dual union all
     select a_run_id, c_unit_id,5,3,0,1,0  from dual union all
@@ -105,9 +105,9 @@ create or replace package body test_extended_coverage is
   begin
     begin execute immediate q'[drop package ut3.test_dummy_coverage]'; exception when others then null; end;
     begin execute immediate q'[drop package ut3.dummy_coverage]'; exception when others then null; end;
-    delete from ut3.dbmspcc_blocks where run_id = g_run_id(ut3.ut_coverage.gc_block_coverage);
-    delete from ut3.dbmspcc_units where run_id = g_run_id(ut3.ut_coverage.gc_block_coverage);
-    delete from ut3.dbmspcc_runs where run_id = g_run_id(ut3.ut_coverage.gc_block_coverage);
+    delete from dbmspcc_blocks where run_id = g_run_id(ut3.ut_coverage.gc_block_coverage);
+    delete from dbmspcc_units where run_id = g_run_id(ut3.ut_coverage.gc_block_coverage);
+    delete from dbmspcc_runs where run_id = g_run_id(ut3.ut_coverage.gc_block_coverage);
     delete from ut3.plsql_profiler_data where runid = g_run_id(ut3.ut_coverage.gc_proftab_coverage);
     delete from ut3.plsql_profiler_units where runid = g_run_id(ut3.ut_coverage.gc_proftab_coverage);
     delete from ut3.plsql_profiler_runs where runid = g_run_id(ut3.ut_coverage.gc_proftab_coverage);
