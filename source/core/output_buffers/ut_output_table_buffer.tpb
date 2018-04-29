@@ -69,8 +69,8 @@ create or replace type body ut_output_table_buffer is
     l_buffer_data        ut_varchar2_rows;
     l_already_waited_for number(10,2) := 0;
     l_finished           boolean := false;
-    lc_init_wait_sec     constant naturaln := coalesce(a_initial_timeout, 60 ); -- 1 minute
-    lc_max_wait_sec      constant naturaln := coalesce(a_timeout_sec, 60 * 60); -- 1 hour
+    lc_init_wait_sec     constant naturaln := coalesce(a_initial_timeout, 60 * 60 * 4 ); -- 4 hours
+    lc_max_wait_sec      constant naturaln := coalesce(a_timeout_sec, 60 * 60 * 4); -- 4 hours
     l_wait_for           integer := lc_init_wait_sec;
     lc_short_sleep_time  constant number(1,1) := 0.1; --sleep for 100 ms between checks
     lc_long_sleep_time   constant number(1) := 1;     --sleep for 1 s when waiting long

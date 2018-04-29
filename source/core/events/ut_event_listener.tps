@@ -1,4 +1,4 @@
-create or replace type ut_event_listener authid definer as object (
+create or replace type ut_event_listener authid current_user as object (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project

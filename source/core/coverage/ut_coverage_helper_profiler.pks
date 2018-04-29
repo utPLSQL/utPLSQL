@@ -24,7 +24,7 @@ create or replace package ut_coverage_helper_profiler authid definer is
 
   procedure coverage_resume;
 
-  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return ut_coverage_helper.t_unit_line_calls;
+  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2, a_coverage_id integer) return ut_coverage_helper.t_unit_line_calls;
 
 end;
 /

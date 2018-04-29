@@ -15,11 +15,13 @@ create or replace package ut_coverage authid current_user is
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  
-  gc_proftab_coverage constant varchar2(32) := 'proftab';
-  gc_block_coverage   constant varchar2(32) := 'block';
+
+  gc_proftab_coverage    constant varchar2(32) := 'proftab';
+  gc_block_coverage      constant varchar2(32) := 'block';
   gc_extended_coverage   constant varchar2(32) := 'extended';
-  
+
+  type tt_coverage_id_arr is table of integer index by varchar2(30);
+
   -- total run coverage information
   subtype t_full_name is varchar2(4000);
   subtype t_object_name is varchar2(250);
@@ -62,21 +64,24 @@ create or replace package ut_coverage authid current_user is
     ,uncovered_blocks  binary_integer default null
     ,executions        number(38, 0) := 0
     ,objects           tt_program_units);
-  
-  function get_cov_sources_sql(a_coverage_options ut_coverage_options, a_skipped_lines varchar2 default 'Y') return varchar2;
-  
-  procedure populate_tmp_table(a_coverage_options ut_coverage_options, a_sql in varchar2);
-  
+
+  function get_coverage_id(a_coverage_type in varchar2) return integer;
+
+  procedure set_develop_mode(a_develop_mode in boolean);
+
+  function is_develop_mode return boolean;
+
+  /***
+  * Allows overwriting of private global variable g_coverage_id
+  * Used internally, only for unit testing of the framework only
+  */
+  procedure mock_coverage_id(a_coverage_id integer,a_coverage_type in varchar2);
+
+  procedure mock_coverage_id(a_coverage_id tt_coverage_id_arr);
+
   procedure coverage_start(a_coverage_options ut_coverage_options default null);
 
-  /*
-  * Start coverage in develop mode, where all internal calls to utPLSQL itself are also included
-  */
-  procedure coverage_start_develop(a_coverage_options ut_coverage_options default null);
-
   procedure coverage_stop;
-
-  procedure coverage_stop_develop;
 
   procedure coverage_pause;
 
