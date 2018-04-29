@@ -58,6 +58,9 @@ Using data collected from profiler and block coverage running parallel we are ab
 For every line recorded by profiler if we have a partially covered same line in block coverage we will display that information
 presenting line as partially covered, displaying number of block and how many blocks been covered in that line.The feature will be automatically enabled in the Oracle database version 12.2 and higher, for older versions current profiler will be used.
 
+utPLSQL installation automatically creates tables needed by `dbms_plsql_code_coverage` on databases in versions above 12c Release 1.
+Due to security model of `dbms_plsql_code_coverage` package, utPLSQL grants access to those tables and creates synonyms for those tables.
+The access and synonyms will be public when using the headless installation. This approach avoids complexity of forcing every user of utPLSQL framework to create tables on their own.    
 
 Sample output:
 ![Package Coverage Summary](../images/extended_coverage_html_summary.png)

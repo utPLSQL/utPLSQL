@@ -30,23 +30,23 @@ create or replace package body ut_coverage_helper_block is
   
   type t_block_rows is table of t_block_row;
 
-  procedure coverage_start(a_run_comment varchar2,a_coverage_id out integer)  is
+  procedure coverage_start(a_run_comment varchar2, a_coverage_id out integer)  is
   begin
-   a_coverage_id := dbms_plsql_code_coverage.start_coverage(run_comment => a_run_comment);
+    a_coverage_id := dbms_plsql_code_coverage.start_coverage(run_comment => a_run_comment);
   end;
 
   procedure coverage_stop is
   begin
-   dbms_plsql_code_coverage.stop_coverage();
+    dbms_plsql_code_coverage.stop_coverage();
   end;
 
- function block_results(a_object_owner varchar2, a_object_name varchar2) return t_block_rows is
-   l_raw_coverage sys_refcursor;
-   l_coverage_rows t_block_rows;
-   l_coverage_id integer := ut_coverage_helper.get_coverage_id(ut_coverage.gc_block_coverage);
+  function block_results(a_object_owner varchar2, a_object_name varchar2, a_coverage_id integer) return t_block_rows is
+    l_raw_coverage  sys_refcursor;
+    l_coverage_rows t_block_rows;
+    l_ut3_owner     varchar2(128) := ut_utils.ut_owner();
   begin
           
-     open l_raw_coverage for q'[select ccb.line
+    open l_raw_coverage for 'select ccb.line
           ,count(ccb.block) totalblocks
           ,sum(ccb.covered) 
       from dbmspcc_units ccu
@@ -57,7 +57,7 @@ create or replace package body ut_coverage_helper_block is
        and ccu.owner = :a_object_owner
        and ccu.name = :a_object_name
      group by ccb.line
-     order by 1]' using l_coverage_id,a_object_owner,a_object_name;
+     order by 1' using a_coverage_id,a_object_owner,a_object_name;
      
      fetch l_raw_coverage bulk collect into l_coverage_rows;
      close l_raw_coverage;
@@ -65,12 +65,12 @@ create or replace package body ut_coverage_helper_block is
      return l_coverage_rows; 
   end;
 
-  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2) return ut_coverage_helper.t_unit_line_calls is
+  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2, a_coverage_id integer) return ut_coverage_helper.t_unit_line_calls is
     l_tmp_data t_block_rows;
     l_results  ut_coverage_helper.t_unit_line_calls;
   
   begin
-    l_tmp_data := block_results(a_object_owner => a_object_owner, a_object_name => a_object_name);
+    l_tmp_data := block_results(a_object_owner, a_object_name, a_coverage_id);
     
     for i in 1 .. l_tmp_data.count loop
       l_results(l_tmp_data(i).line).blocks := l_tmp_data(i).blocks;

@@ -16,17 +16,6 @@ create or replace package ut_coverage_helper authid definer is
   limitations under the License.
   */
 
-  type g_coverage_arr is table of integer index by varchar2(30);
-  
-  g_coverage_id g_coverage_arr;
-  
-
-  function get_coverage_id(a_coverage_type in varchar2) return integer;
-  
-  procedure set_coverage_status(a_started in boolean);
-  
-  procedure set_develop_mode(a_develop_mode in boolean);
-   
   --table of line calls indexed by line number
   --!!! this table is sparse!!!
   --type t_unit_line_calls is table of number(38,0) index by binary_integer;
@@ -59,31 +48,6 @@ create or replace package ut_coverage_helper authid definer is
   );
 
   type t_tmp_table_objects_crsr is ref cursor return t_tmp_table_object;
-
-  function  is_develop_mode return boolean;
-
-  procedure coverage_start(a_run_comment in varchar2);
-
-  /*
-  * Start coverage in develop mode, where all internal calls to utPLSQL itself are also included
-  */
-  procedure coverage_start_develop;
-
-  procedure coverage_stop;
-
-  procedure coverage_stop_develop;
-
-  procedure coverage_pause;
-
-  procedure coverage_resume;
-
-  /***
-  * Allows overwriting of private global variable g_coverage_id
-  * Used internally, only for unit testing of the framework only
-  */
-  procedure mock_coverage_id(a_coverage_id integer,a_coverage_type in varchar2);
-  
-  procedure mock_coverage_id(a_coverage_id g_coverage_arr);
 
   procedure insert_into_tmp_table(a_data t_coverage_sources_tmp_rows);
 
