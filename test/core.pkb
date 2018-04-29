@@ -2,7 +2,7 @@ create or replace package body core is
 
   procedure global_setup is
   begin
-    ut3.ut_coverage.coverage_start_develop();
+    ut3.ut_coverage.set_develop_mode(true);
     execute_autonomous(
       q'[create or replace package ut_transaction_control as
             function count_rows(a_val varchar2) return number;
@@ -41,11 +41,6 @@ create or replace package body core is
   procedure global_cleanup is
   begin
     execute_autonomous('drop package ut_transaction_control');
-  end;
-
-  procedure enable_develop_coverage is
-  begin
-    ut3.ut_coverage.coverage_start_develop();
   end;
 
   procedure execute_autonomous(a_sql varchar2) is

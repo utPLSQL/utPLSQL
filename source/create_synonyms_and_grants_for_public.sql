@@ -88,7 +88,14 @@ grant execute on &&ut3_owner..ut_annotation_cache_manager to public;
 grant execute on &&ut3_owner..ut_annotation_parser to public;
 grant execute on &&ut3_owner..ut_annotation_objs_cache_info to public;
 grant execute on &&ut3_owner..ut_annotation_obj_cache_info to public;
-
+begin
+  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+  execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to public';
+  execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs   to public';
+  execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_units  to public';
+  $end
+end;
+/
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
@@ -136,3 +143,11 @@ create public synonym ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
 create public synonym ut_compound_data_tmp for &&ut3_owner..ut_compound_data_tmp;
 create public synonym ut_compound_data_diff_tmp for &&ut3_owner..ut_compound_data_diff_tmp;
 create public synonym ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
+begin
+  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+  execute immediate 'create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks';
+  execute immediate 'create public synonym dbmspcc_runs for &&ut3_owner..dbmspcc_runs';
+  execute immediate 'create public synonym dbmspcc_units for &&ut3_owner..dbmspcc_units';
+  $end
+end;
+/
