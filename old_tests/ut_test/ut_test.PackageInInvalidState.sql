@@ -9,10 +9,9 @@ set termout on
 
 declare
 	simple_test ut_test := ut_test(a_object_name => 'invalid_package', a_name => 'ut_exampletest');
-	listener ut_event_listener := ut_event_listener(ut_reporters());
 begin
 --Act
-	simple_test.do_execute(listener);
+	simple_test.do_execute();
 --Assert
 	if simple_test.result = ut_utils.gc_error then
     :test_result := ut_utils.gc_success;

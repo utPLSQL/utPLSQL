@@ -1,4 +1,4 @@
-create or replace package ut_coverage_block authid current_user is
+create or replace package ut_event_manager authid current_user as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,8 +15,13 @@ create or replace package ut_coverage_block authid current_user is
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  
-  function get_coverage_data(a_coverage_options ut_coverage_options, a_coverage_id integer) return ut_coverage.t_coverage;
+  subtype t_event_name           is varchar2(250);
+
+  procedure trigger_event( a_event_name t_event_name, a_event_object ut_event_item );
+
+  procedure initialize;
+
+  procedure add_listener( a_listener ut_event_listener );
 
 end;
 /

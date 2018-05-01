@@ -30,8 +30,8 @@ begin
 
   l_test_proc := treat(l_test2_suite.items(1) as ut_test);
   ut.expect(l_test_proc.name).to_equal('test2');
-  ut.expect(l_test_proc.before_test is not null).to_be_true;
-  ut.expect(l_test_proc.after_test is not null).to_be_true;
+  ut.expect(l_test_proc.before_test_list.count).to_equal(1);
+  ut.expect(l_test_proc.after_test_list.count).to_equal(1);
 
   if ut_expectation_processor.get_status = ut_utils.gc_success then
     :test_result := ut_utils.gc_success;
@@ -44,8 +44,8 @@ begin
     dbms_output.put_line(q'[ut.expect(l_test2_suite.name).to_equal('test_package_2');=]'||l_test2_suite.name);
     dbms_output.put_line(q'[ut.expect(l_test2_suite.items.count).to_equal(1);=]'||l_test2_suite.items.count);
     dbms_output.put_line(q'[ut.expect(l_test_proc.name).to_equal('test2');=]'||l_test_proc.name);
-    dbms_output.put_line(q'[ut.expect(l_test_proc.before_test is not null).to_be_true;=]'||ut_utils.to_string(l_test_proc.before_test is not null));
-    dbms_output.put_line(q'[ut.expect(l_test_proc.after_test is not null).to_be_true;=]'||ut_utils.to_string(l_test_proc.after_test is not null));
+    dbms_output.put_line(q'[ut.expect(l_test_proc.before_test is not null).to_be_true;=]'||ut_utils.to_string(l_test_proc.before_test_list.count()));
+    dbms_output.put_line(q'[ut.expect(l_test_proc.after_test is not null).to_be_true;=]'||ut_utils.to_string(l_test_proc.after_test_list.count()));
   end if;
 
 end;

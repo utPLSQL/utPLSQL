@@ -34,7 +34,8 @@ create table ut$test_table (val varchar2(1));
 
 --Start coverage in develop mode (coverage for utPLSQL framework)
 --Regular coverage excludes the framework
-exec ut_coverage.coverage_start_develop();
+exec ut_coverage.coverage_start();
+exec ut_coverage.set_develop_mode(true);
 
 @@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTrace.sql
 @@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTraceWith0x.sql
@@ -318,7 +319,6 @@ begin
     'source/core/types/ut_suite_item.tpb',
     'source/core/types/ut_suite_item.tps',
     'source/core/types/ut_suite_items.tps',
-    'source/core/types/ut_suite_item_base.tps',
     'source/core/types/ut_test.tpb',
     'source/core/types/ut_test.tps',
     'source/core/types/ut_varchar2_list.tps',
@@ -440,32 +440,33 @@ begin
   --run for the first time to gather coverage and timings on reporters too
   l_reporter := ut_coverage_html_reporter(a_project_name => 'utPLSQL v3');
   l_reporter.after_calling_run(l_test_run);
-  l_reporter.finalize();
+  l_reporter.on_finalize(l_test_run);
 
   l_reporter := ut_coverage_sonar_reporter();
   l_reporter.after_calling_run(l_test_run);
-  l_reporter.finalize();
+  l_reporter.on_finalize(l_test_run);
 
   l_reporter := ut_coveralls_reporter();
   l_reporter.after_calling_run(l_test_run);
-  l_reporter.finalize();
+  l_reporter.on_finalize(l_test_run);
 
-  ut_coverage.coverage_stop_develop();
+  ut_coverage.set_develop_mode(false);
+  ut_coverage.coverage_stop();
 
   --run for the second time to get the coverage report
   l_reporter := ut_coverage_html_reporter(a_project_name => 'utPLSQL v3');
   l_reporter.after_calling_run(l_test_run);
-  l_reporter.finalize();
+  l_reporter.on_finalize(l_test_run);
   :html_reporter_id := l_reporter.get_reporter_id;
 
   l_reporter := ut_coverage_sonar_reporter();
   l_reporter.after_calling_run(l_test_run);
-  l_reporter.finalize();
+  l_reporter.on_finalize(l_test_run);
   :sonar_reporter_id := l_reporter.get_reporter_id;
 
   l_reporter := ut_coveralls_reporter();
   l_reporter.after_calling_run(l_test_run);
-  l_reporter.finalize();
+  l_reporter.on_finalize(l_test_run);
   :coveralls_reporter_id := l_reporter.get_reporter_id;
 end;
 /

@@ -50,15 +50,20 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pks'
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pkb'
 
+--event manager objects
+@@install_component.sql 'core/events/ut_event_item.tps'
+@@install_component.sql 'core/events/ut_event_listener.tps'
+@@install_component.sql 'core/events/ut_event_manager.pks'
+@@install_component.sql 'core/events/ut_event_manager.pkb'
+
 --core types
 @@install_component.sql 'core/types/ut_expectation_result.tps'
 @@install_component.sql 'core/types/ut_expectation_results.tps'
 @@install_component.sql 'core/types/ut_results_counter.tps'
-@@install_component.sql 'core/types/ut_suite_item_base.tps'
-@@install_component.sql 'core/types/ut_event_listener_base.tps'
 @@install_component.sql 'core/types/ut_suite_item.tps'
 @@install_component.sql 'core/types/ut_suite_items.tps'
 @@install_component.sql 'core/types/ut_executable.tps'
+@@install_component.sql 'core/types/ut_executables.tps'
 @@install_component.sql 'core/types/ut_executable_test.tps'
 @@install_component.sql 'core/types/ut_test.tps'
 @@install_component.sql 'core/types/ut_logical_suite.tps'
@@ -69,7 +74,6 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_run.tps'
 @@install_component.sql 'core/types/ut_reporter_base.tps'
 @@install_component.sql 'core/types/ut_reporters.tps'
-@@install_component.sql 'core/types/ut_event_listener.tps'
 
 --output buffer base api
 @@install_component.sql 'core/output_buffers/ut_output_buffer_base.tps'
@@ -148,7 +152,6 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'core/types/ut_logical_suite.tpb'
 @@install_component.sql 'core/types/ut_suite.tpb'
 @@install_component.sql 'core/types/ut_run.tpb'
-@@install_component.sql 'core/types/ut_event_listener.tpb'
 @@install_component.sql 'core/types/ut_expectation_result.tpb'
 @@install_component.sql 'core/types/ut_reporter_base.tpb'
 @@install_component.sql 'core/types/ut_output_reporter_base.tpb'

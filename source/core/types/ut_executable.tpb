@@ -17,20 +17,16 @@ create or replace type body ut_executable is
   */
 
   constructor function ut_executable(
-    self in out nocopy ut_executable, a_context ut_suite_item,
+    self in out nocopy ut_executable, a_owner varchar2, a_package varchar2,
     a_procedure_name varchar2, a_associated_event_name varchar2
   ) return self as result is
   begin
+    self.self_type := $$plsql_unit;
     self.associated_event_name := a_associated_event_name;
-    self.owner_name := a_context.object_owner;
-    self.object_name := a_context.object_name;
+    self.owner_name := a_owner;
+    self.object_name := a_package;
     self.procedure_name := a_procedure_name;
     return;
-  end;
-
-  member function is_defined return boolean is
-  begin
-    return self.procedure_name is not null and self.object_name is not null;
   end;
 
   member function is_valid(self in out nocopy ut_executable) return boolean is
@@ -45,7 +41,7 @@ create or replace type body ut_executable is
     elsif self.procedure_name is null then
       self.error_stack := l_message_part || 'procedure is not defined';
     elsif not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.procedure_name) then
-      self.error_stack := l_message_part || 'package missing procedure  '
+      self.error_stack := l_message_part || 'procedure does not exist  '
                           || upper(self.owner_name || '.' || self.object_name || '.' ||self.procedure_name);
     else
       l_result := true;
@@ -59,13 +55,13 @@ create or replace type body ut_executable is
     return ut_metadata.form_name(owner_name, object_name, procedure_name);
   end;
 
-  member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) is
+  member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item) is
     l_completed_without_errors  boolean;
   begin
-    l_completed_without_errors := self.do_execute(a_item, a_listener);
+    l_completed_without_errors := self.do_execute(a_item);
   end do_execute;
 
-	member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item, a_listener in out nocopy ut_event_listener_base) return boolean is
+	member function do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item) return boolean is
     l_statement                varchar2(4000);
     l_status                   number;
     l_cursor_number            number;
@@ -91,17 +87,16 @@ create or replace type body ut_executable is
       end loop;
     end save_dbms_output;
   begin
-    if self.is_defined() then
-      l_start_transaction_id := dbms_transaction.local_transaction_id(true);
+    l_start_transaction_id := dbms_transaction.local_transaction_id(true);
 
-      -- report to application_info
-      ut_utils.set_client_info(self.procedure_name);
+    -- report to application_info
+    ut_utils.set_client_info(self.procedure_name);
 
-      --listener - before call to executable
-      a_listener.fire_before_event(self.associated_event_name, a_item);
+    --listener - before call to executable
+    ut_event_manager.trigger_event('before_'||self.associated_event_name, self);
 
-      ut_metadata.do_resolve(a_owner => self.owner_name, a_object => self.object_name, a_procedure_name => self.procedure_name);
-
+    l_completed_without_errors := self.is_valid();
+    if l_completed_without_errors then
       l_statement :=
       'declare' || chr(10) ||
       '  l_error_stack varchar2(32767);' || chr(10) ||
@@ -137,15 +132,16 @@ create or replace type body ut_executable is
       if self.error_stack like '%ORA-04068%' or self.error_stack like '%ORA-04061%' then
         ut_expectation_processor.set_invalidation_exception();
       end if;
-      --listener - after call to executable
-      a_listener.fire_after_event(self.associated_event_name, a_item);
-
-      l_end_transaction_id := dbms_transaction.local_transaction_id();
-      if l_start_transaction_id != l_end_transaction_id or l_end_transaction_id is null then
-        a_item.add_transaction_invalidator(self.form_name());
-      end if;
-      ut_utils.set_client_info(null);
     end if;
+
+    --listener - after call to executable
+    ut_event_manager.trigger_event('after_'||self.associated_event_name, self);
+
+    l_end_transaction_id := dbms_transaction.local_transaction_id();
+    if l_start_transaction_id != l_end_transaction_id or l_end_transaction_id is null then
+      a_item.add_transaction_invalidator(self.form_name());
+    end if;
+    ut_utils.set_client_info(null);
 
     return l_completed_without_errors;
   end do_execute;

@@ -23,7 +23,7 @@ create or replace package body ut_coverage_block is
   * Public functions
   */
 
-  function get_coverage_data(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage is
+  function get_coverage_data(a_coverage_options ut_coverage_options, a_coverage_id integer) return ut_coverage.t_coverage is
     l_line_calls          ut_coverage_helper.t_unit_line_calls;
     l_result              ut_coverage.t_coverage;
     l_new_unit            ut_coverage.t_unit_coverage;
@@ -31,9 +31,7 @@ create or replace package body ut_coverage_block is
     l_source_objects_crsr ut_coverage_helper.t_tmp_table_objects_crsr;
     l_source_object       ut_coverage_helper.t_tmp_table_object;
   begin
-    --prepare global temp table with sources
-    ut_coverage.populate_tmp_table(a_coverage_options,ut_coverage.get_cov_sources_sql(a_coverage_options,'N'));
-    
+
     l_source_objects_crsr := ut_coverage_helper.get_tmp_table_objects_cursor();
     loop
       fetch l_source_objects_crsr
@@ -41,7 +39,7 @@ create or replace package body ut_coverage_block is
       exit when l_source_objects_crsr%notfound;
     
       --get coverage data
-      l_line_calls := ut_coverage_helper_block.get_raw_coverage_data(l_source_object.owner, l_source_object.name);
+      l_line_calls := ut_coverage_helper_block.get_raw_coverage_data(l_source_object.owner, l_source_object.name, a_coverage_id);
       --if there is coverage, we need to filter out the garbage (badly indicated data)
       if l_line_calls.count > 0 then
         --remove lines that should not be indicted as meaningful
@@ -155,6 +153,6 @@ create or replace package body ut_coverage_block is
   
     return l_result;
   end get_coverage_data;
-  
+
 end;
 /

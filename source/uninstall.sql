@@ -226,15 +226,15 @@ drop type ut_test force;
 
 drop type ut_console_reporter_base force;
 
+drop type ut_executable_test force;
+
+drop type ut_executables force;
+
 drop type ut_executable force;
 
 drop type ut_suite_items force;
 
 drop type ut_suite_item force;
-
-drop type ut_event_listener_base force;
-
-drop type ut_suite_item_base force;
 
 drop type ut_output_table_buffer force;
 
@@ -255,6 +255,12 @@ drop type ut_results_counter force;
 drop type ut_expectation_results force;
 
 drop type ut_expectation_result force;
+
+drop package ut_event_manager;
+
+drop type ut_event_listener force;
+
+drop type ut_event_item force;
 
 drop type ut_key_value_pairs force;
 

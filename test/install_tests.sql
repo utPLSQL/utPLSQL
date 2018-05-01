@@ -26,6 +26,7 @@ whenever oserror exit failure rollback
 @@core/test_output_buffer.pks
 @@core/test_file_mapper.pks
 @@core/test_suite_manager.pks
+@@core/test_suite_builder.pks
 @@core/reporters.pks
 @@core/reporters/test_coverage.pks
 set define on
@@ -68,6 +69,7 @@ set define off
 @@core/test_output_buffer.pkb
 @@core/test_file_mapper.pkb
 @@core/test_suite_manager.pkb
+@@core/test_suite_builder.pkb
 @@core/reporters.pkb
 @@core/reporters/test_coverage.pkb
 set define on

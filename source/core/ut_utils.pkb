@@ -513,7 +513,7 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     if a_list is not null then
       l_trimmed_list := ut_varchar2_list();
       l_index := a_list.first;
-  
+
       while (l_index is not null) loop
         l_trimmed_list.extend;
         l_trimmed_list(l_trimmed_list.count) := regexp_replace(a_list(l_index), '(^['||a_regexp_to_trim||']*)|(['||a_regexp_to_trim||']*$)');
@@ -531,7 +531,7 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     if a_list is not null then
       l_filtered_list := ut_varchar2_list();
       l_index := a_list.first;
-      
+
       while (l_index is not null) loop
         if regexp_like(a_list(l_index), a_regexp_filter) then
           l_filtered_list.extend;
@@ -540,7 +540,7 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
         l_index := a_list.next(l_index);
       end loop;
     end if;
-    
+
     return l_filtered_list;
   end;
 
@@ -549,12 +549,105 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     l_sql varchar2(32767) := q'!select q'[!'||a_string||q'!]' as "!'||a_string||'" from dual';
   begin
     if a_string is not null then
-      select extract(dbms_xmlgen.getxmltype(l_sql),'/*/*/*').getRootElement() 
+      select extract(dbms_xmlgen.getxmltype(l_sql),'/*/*/*').getRootElement()
       into l_result
       from dual;
     else
     l_result := a_string;
     end if;
+    return l_result;
+  end;
+
+  function replace_multiline_comments(a_source clob) return clob is
+    l_result                  clob;
+    l_ml_comment_start        binary_integer := 1;
+    l_comment_start           binary_integer := 1;
+    l_text_start              binary_integer := 1;
+    l_escaped_text_start      binary_integer := 1;
+    l_escaped_text_end_char   varchar2(1 char);
+    l_end                     binary_integer := 1;
+    l_ml_comment              clob;
+    l_newlines_count          binary_integer;
+    l_offset                  binary_integer := 1;
+    l_length                  binary_integer := coalesce(dbms_lob.getlength(a_source), 0);
+    function is_before(a_x binary_integer, a_y binary_integer) return boolean is
+    begin
+      return a_x < a_y or a_y = 0;
+    end;
+  begin
+    l_ml_comment_start := instr(a_source,'/*');
+    l_comment_start := instr(a_source,'--');
+    l_text_start := instr(a_source,'''');
+    l_escaped_text_start := instr(a_source,q'[q']');
+    while l_offset > 0 and l_ml_comment_start > 0 loop
+
+      if l_ml_comment_start > 0 and (l_ml_comment_start < l_comment_start or l_comment_start = 0)
+        and (l_ml_comment_start < l_text_start or l_text_start = 0)and (l_ml_comment_start < l_escaped_text_start or l_escaped_text_start = 0)
+      then
+        l_end := instr(a_source,'*/',l_ml_comment_start+2);
+        append_to_clob(l_result, dbms_lob.substr(a_source, l_ml_comment_start-l_offset, l_offset));
+        if l_end > 0 then
+          l_ml_comment     := substr(a_source, l_ml_comment_start, l_end-l_ml_comment_start);
+          l_newlines_count := length( l_ml_comment ) - length( translate( l_ml_comment, 'a'||chr(10), 'a') );
+          if l_newlines_count > 0 then
+            append_to_clob(l_result, lpad( chr(10), l_newlines_count, chr(10) ) );
+          end if;
+          l_end := l_end + 2;
+        end if;
+      else
+
+        if l_comment_start > 0 and (l_comment_start < l_ml_comment_start or l_ml_comment_start = 0)
+           and (l_comment_start < l_text_start or l_text_start = 0) and (l_comment_start < l_escaped_text_start or l_escaped_text_start = 0)
+        then
+          l_end := instr(a_source,chr(10),l_comment_start+2);
+          if l_end > 0 then
+            l_end := l_end + 1;
+          end if;
+        elsif l_text_start > 0 and (l_text_start < l_ml_comment_start or l_ml_comment_start = 0)
+              and (l_text_start < l_comment_start or l_comment_start = 0) and (l_text_start < l_escaped_text_start or l_escaped_text_start = 0)
+        then
+          l_end := instr(a_source,q'[']',l_text_start+1);
+
+          --skip double quotes while searching for end of quoted text
+          while l_end > 0 and l_end = instr(a_source,q'['']',l_text_start+1) loop
+            l_end := instr(a_source,q'[']',l_end+1);
+          end loop;
+          if l_end > 0 then
+            l_end := l_end + 1;
+          end if;
+
+        elsif l_escaped_text_start > 0 and (l_escaped_text_start < l_ml_comment_start or l_ml_comment_start = 0)
+              and (l_escaped_text_start < l_comment_start or l_comment_start = 0) and (l_escaped_text_start < l_text_start or l_text_start = 0)
+        then
+          --translate char "[" from the start of quoted text  "q'[someting]'" into "]"
+          l_escaped_text_end_char := translate( substr(a_source, l_escaped_text_start + 2, 1), '[{(<', ']})>');
+          l_end := instr(a_source,l_escaped_text_end_char||'''',l_escaped_text_start + 3 );
+          if l_end > 0 then
+            l_end := l_end + 2;
+          end if;
+        end if;
+
+        if l_end = 0 then
+          append_to_clob(l_result, substr(a_source, l_offset, l_length-l_offset));
+        else
+          append_to_clob(l_result, substr(a_source, l_offset, l_end-l_offset));
+        end if;
+      end if;
+      l_offset := l_end;
+      if l_offset >= l_ml_comment_start then
+        l_ml_comment_start := instr(a_source,'/*',l_offset);
+      end if;
+      if l_offset >= l_comment_start then
+        l_comment_start := instr(a_source,'--',l_offset);
+      end if;
+      if l_offset >= l_text_start then
+        l_text_start := instr(a_source,'''',l_offset);
+      end if;
+      if l_offset >= l_escaped_text_start then
+        l_escaped_text_start := instr(a_source,q'[q']',l_offset);
+      end if;
+    end loop;
+    append_to_clob(l_result, substr(a_source, l_end));
     return l_result;
   end;
 

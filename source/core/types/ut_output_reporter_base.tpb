@@ -74,7 +74,7 @@ create or replace type body ut_output_reporter_base is
     end if;
   end;
 
-  overriding final member procedure finalize(self in out nocopy ut_output_reporter_base) is
+  overriding final member procedure on_finalize(self in out nocopy ut_output_reporter_base, a_run in ut_run) is
   begin
     self.output_buffer.close();
   end;

@@ -326,6 +326,11 @@ create or replace package body ut_suite_manager is
       l_schema := l_schema_paths.next(l_schema);
     end loop;
 
+    --propagate rollback type to suite items after organizing suites into hierarchy
+    for i in 1 .. l_objects_to_run.count loop
+      l_objects_to_run(i).set_rollback_type( l_objects_to_run(i).get_rollback_type() );
+    end loop;
+
     return l_objects_to_run;
   end configure_execution_by_path;
 

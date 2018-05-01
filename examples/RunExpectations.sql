@@ -11,9 +11,11 @@ set echo off
 @@demo_expectations.pck
 
 begin
-  ut_coverage.coverage_start_develop();
+  ut_coverage.coverage_start();
+  ut_coverage.set_develop_mode(true);
   ut.run();
-  ut_coverage.coverage_stop_develop();
+  ut_coverage.set_develop_mode(false);
+  ut_coverage.coverage_stop();
 end;
 /
 
