@@ -1041,5 +1041,78 @@ Rows: [ 2 differences ]%
     end;
   end;
   
+  procedure cursor_unordered_compare_success is 
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for select username , user_id  from all_users order by username asc;
+    open l_expected for select username , user_id  from all_users order by username desc;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+  
+  procedure cursor_unordered_compare_fail is 
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+     open l_actual for select 'test1' username,-100 user_id from dual
+                       union all
+                       select 'test' username,-666 user_id from dual
+                       order by 1 asc;
+
+      open l_expected for select 'test1' username,-100 user_id from dual
+                          union all
+                          select 'test' username,-667 user_id from dual
+                          order by 1 desc;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
+    l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
+Diff:%
+Rows: [ 2 differences ]
+Missing:  <ROW><USERNAME>test</USERNAME><USER_ID>-667</USER_ID></ROW>%
+Extra:    <ROW><USERNAME>test</USERNAME><USER_ID>-666</USER_ID></ROW>%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
+  procedure cursor_joinby_compare is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for select owner, object_name,object_type from all_objects where owner = user
+    order by 1,2,3 asc;
+    open l_expected for select owner, object_name,object_type from all_objects where owner = user
+    order by 1,2,3 desc;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OWNER');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure cursor_joinby_compare_twocolumns is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for select owner, object_name,object_type from all_objects where owner = user
+    order by 1,2,3 asc;
+    open l_expected for select owner, object_name,object_type from all_objects where owner = user
+    order by 1,2,3 desc;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('OWNER,OBJECT_NAME'));
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+  
 end;
 /

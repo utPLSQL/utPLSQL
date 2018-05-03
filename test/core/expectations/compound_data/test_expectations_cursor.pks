@@ -199,5 +199,17 @@ create or replace package test_expectations_cursor is
   --%test( Fail on passing implicit column name as exclude filter )
   procedure exclude_col_name_implicit;
   
+  --%test( Compare cursors using unordered method success)
+  procedure cursor_unordered_compare_success;
+ 
+  --%test( Compare cursors using unordered method failure)
+  procedure cursor_unordered_compare_fail; 
+  
+  --%test( Compare cursors join by single key )
+  procedure cursor_joinby_compare; 
+  
+  --%test( Compare cursors join by composite key)
+  procedure cursor_joinby_compare_twocolumns; 
+  
 end;
 /

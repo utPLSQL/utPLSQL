@@ -15,7 +15,7 @@ create or replace type body ut_data_value_refcursor as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-
+        
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) return self as result is
   begin
     init(a_value);
@@ -28,8 +28,8 @@ create or replace type body ut_data_value_refcursor as
     l_ctx                 number;
     l_xml                 xmltype;
     l_current_date_format varchar2(4000);
-    l_ut_owner            varchar2(250) := ut_utils.ut_owner;
     cursor_not_open       exception;
+    l_ut_owner            varchar2(250) := ut_utils.ut_owner;
   begin
     self.is_data_null := ut_utils.boolean_to_int(a_value is null);
     self.self_type := $$plsql_unit;
@@ -58,10 +58,10 @@ create or replace type body ut_data_value_refcursor as
 
           loop
             l_xml := dbms_xmlgen.getxmltype(l_ctx);
-
-            execute immediate
+           
+           execute immediate
               'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data, item_hash) ' ||
-              'select :self_guid, :self_row_count + rownum, value(a), dbms_crypto.hash( value(a).getclobval(),3)' ||
+              'select :self_guid, :self_row_count + rownum, value(a),'||l_ut_owner||'.ut_compound_data_helper.get_hash(value(a).GetClobVal()) ' ||
               '  from table( xmlsequence( extract(:l_xml,''ROWSET/*'') ) ) a'
               using in self.data_id, self.elements_count, l_xml;
 
