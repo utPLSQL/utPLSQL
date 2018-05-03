@@ -167,68 +167,76 @@ create or replace package body ut_compound_data_helper is
   ) return tt_row_diffs is
     l_column_filter varchar2(32767);
     l_results       tt_row_diffs;
-    l_sql varchar2(32767); -- REMOVE LATER also for unorder
   begin
     l_column_filter := get_columns_filter(a_exclude_xpath,a_include_xpath);
     
    /**
     * Since its unordered search we cannot select max rows from diffs as we miss some comparision records
     * We will restrict output on higher level of select
-    */
+    **/
     
-    l_sql := q'[
-      with
-        diff_info as (select item_hash from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
+    execute immediate q'[
+      with diff_info as (select item_hash from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
       select rn,diff_type,diffed_row
-        from (select dense_rank() over (order by pk_hash) as rn, diff_type,data_item diffed_row
-                from (select nvl(exp.pk_hash, act.pk_hash) pk_hash,
-                             xmlserialize(content exp.row_data no indent)  exp_item,
-                             xmlserialize(content act.row_data no indent)  act_item
-                      from 
-                        (select ucd.*, row_number() over(partition by pk_hash order by row_hash) duplicate_no
-                          from 
-                            (select ucd.column_value row_data,
-                               dbms_crypto.hash( value(ucd).getclobval(),3) row_hash,
-                               dbms_crypto.hash( extract(value(ucd),']'|| a_join_by_xpath ||q'[').getClobVal(),3/*HASH_SH1*/) pk_hash 
-                             from 
-                               (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
-                                from ut_compound_data_tmp ucd
-                                where ucd.data_id = :self_guid
-                               and ucd.item_hash in (select i.item_hash from diff_info i)
-                               ) r,
-                               table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
-                             ) ucd
-                      )  exp
-                     join (
-                          select ucd.*, row_number() over(partition by pk_hash order by row_hash) duplicate_no
-                          from 
-                            (select ucd.column_value row_data,
-                             dbms_crypto.hash( value(ucd).getclobval(),3/*HASH_SH1*/) row_hash,
-                             dbms_crypto.hash( extract(value(ucd),']'|| a_join_by_xpath ||q'[').getClobVal(),3/*HASH_SH1*/) pk_hash 
-                             from 
-                               (select  ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
-                                from ut_compound_data_tmp ucd
-                                where ucd.data_id = :other_guid
-                                and ucd.item_hash in (select i.item_hash from diff_info i)
-                               ) r,
-                               table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
-                          ) ucd
-                      )  act
-                          on exp.pk_hash = act.pk_hash  and exp.duplicate_no = act.duplicate_no
-                       where exp.row_hash != act.row_hash
-                       or exp.row_hash is null 
-                       or act.row_hash is null
-                     )
-              unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
-             )
-             where rownum < :max_rows
-      order by 1, 2]';
-      
-    execute immediate l_sql
+      from
+        (select dense_rank() over (order by pk_hash) as rn, diff_type,data_item diffed_row
+         from
+          (select pk_hash
+           ,case when exp_item is not null and act_item is not null then exp_item else null end exp_item
+           ,case when exp_item is not null and act_item is not null then act_item else null end act_item
+           ,case when exp_item is not null and act_item is null then exp_item else null end miss_item
+           ,case when exp_item is null and act_item is not null then act_item else null end ext_item             
+           from 
+            (select nvl(exp.pk_hash, act.pk_hash) pk_hash,
+             xmlserialize(content exp.row_data no indent)  exp_item,
+             xmlserialize(content act.row_data no indent)  act_item
+             from 
+              (select ucd.*, row_number() over(partition by pk_hash order by row_hash) duplicate_no
+               from 
+                (select ucd.column_value row_data,
+                 dbms_crypto.hash( value(ucd).getclobval(),3) row_hash,
+                 dbms_crypto.hash( extract(value(ucd), :join_by_xpath ).getClobVal(),3/*HASH_SH1*/) pk_hash 
+                 from 
+                  (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
+                   from ut_compound_data_tmp ucd
+                   where ucd.data_id = :self_guid
+                   and ucd.item_hash in (select i.item_hash from diff_info i)
+                  ) r,
+                  table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
+                ) ucd
+              ) exp
+              full outer join (
+                select ucd.*, row_number() over(partition by pk_hash order by row_hash) duplicate_no
+                from 
+                 (select ucd.column_value row_data,
+                  dbms_crypto.hash( value(ucd).getclobval(),3/*HASH_SH1*/) row_hash,
+                  dbms_crypto.hash( extract(value(ucd), :join_by_xpath ).getClobVal(),3/*HASH_SH1*/) pk_hash 
+                  from 
+                   (select  ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
+                    from ut_compound_data_tmp ucd
+                    where ucd.data_id = :other_guid
+                    and ucd.item_hash in (select i.item_hash from diff_info i)
+                   ) r,
+                   table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
+                 ) ucd
+              )  act
+              on exp.pk_hash = act.pk_hash  and exp.duplicate_no = act.duplicate_no
+              where (exp.row_hash != act.row_hash and act.pk_hash = exp.pk_hash) or
+               (
+                (exp.pk_hash is null or  act.pk_hash is null) and
+                (exp.row_hash is null or act.row_hash is null)                    
+               )
+              )
+            )
+            unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:'
+                      ,miss_item as 'Missing:', ext_item as 'Extra:') )
+         )
+      where rownum <= :max_rows
+      order by 1, 2]'
     bulk collect into l_results
     using a_diff_id,
-    a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
-    a_exclude_xpath, a_include_xpath, a_actual_dataset_guid,
+    a_join_by_xpath,a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
+    a_join_by_xpath,a_exclude_xpath, a_include_xpath, a_actual_dataset_guid,
     a_max_rows;
     return l_results;
   end;
@@ -325,8 +333,8 @@ create or replace package body ut_compound_data_helper is
         coalesce(exp.duplicate_no,act.duplicate_no) duplicate_no,
         case 
           when act.row_hash is null then 
-            'miss row'  
-          else 'extra row' 
+            'Missing:'  
+          else 'Extra:' 
         end diffed_type,
         case when exp.row_hash is null then 
           xmlserialize(content act.row_data no indent) 

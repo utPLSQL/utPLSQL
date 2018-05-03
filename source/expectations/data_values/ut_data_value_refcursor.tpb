@@ -61,7 +61,7 @@ create or replace type body ut_data_value_refcursor as
 
             execute immediate
               'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data, item_hash) ' ||
-              'select :self_guid, :self_row_count + rownum, value(a), dbms_crypto.hash( value(a).getclobval(),3)' ||
+              'select :self_guid, :self_row_count + rownum, value(a), ut_compound_data_helper.get_hash(value(a).GetClobVal())' ||
               '  from table( xmlsequence( extract(:l_xml,''ROWSET/*'') ) ) a'
               using in self.data_id, self.elements_count, l_xml;
 
