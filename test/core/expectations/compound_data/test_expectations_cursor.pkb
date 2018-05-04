@@ -1041,7 +1041,7 @@ Rows: [ 2 differences ]%
     end;
   end;
   
-  procedure cursor_unordered_compare_success is 
+  procedure cursor_unorderd_compr_success is 
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
   begin
@@ -1098,7 +1098,7 @@ Extra:    <ROW><USERNAME>test</USERNAME><USER_ID>-666</USER_ID></ROW>%]';
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure cursor_joinby_compare_twocolumns is
+  procedure cursor_joinby_compare_twocols is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
   begin

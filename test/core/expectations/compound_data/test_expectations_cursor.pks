@@ -200,7 +200,7 @@ create or replace package test_expectations_cursor is
   procedure exclude_col_name_implicit;
   
   --%test( Compare cursors using unordered method success)
-  procedure cursor_unordered_compare_success;
+  procedure cursor_unorderd_compr_success;
  
   --%test( Compare cursors using unordered method failure)
   procedure cursor_unordered_compare_fail; 
@@ -209,7 +209,7 @@ create or replace package test_expectations_cursor is
   procedure cursor_joinby_compare; 
   
   --%test( Compare cursors join by composite key)
-  procedure cursor_joinby_compare_twocolumns; 
+  procedure cursor_joinby_compare_twocols; 
   
 end;
 /
