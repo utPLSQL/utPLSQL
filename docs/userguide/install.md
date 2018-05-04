@@ -135,12 +135,13 @@ Example invocation:
 cd source
 sqlplus admin/admins_password@database @create_synonyms_and_grants_for_public.sql ut3  
 ```
-To grant utPLSQL to an individual user, execute script `source/create_synonyms_and_grants_for_user.sql`, provide `schema_name` where utPLSQL is installed and `user_name` to grant access for.
+To grant utPLSQL to an individual user, execute scripts `source/create_user_grants.sql` and `source/create_user_synonyms.sql`, provide `schema_name` where utPLSQL is installed and `user_name` to grant access for.
 
 Example invocation:
 ```bash
 cd source
-sqlplus admin/admins_password@database @create_synonyms_and_grants_for_user.sql ut3 hr  
+sqlplus admin/admins_password@database @create_user_grants.sql ut3 hr
+sqlplus user/user_password@database @create_user_synonyms.sql ut3 hr
 ```
 
 The following tools that support the SQL*Plus commands can be used to run the installation script:
