@@ -23,6 +23,9 @@ Advanced data-comparison options are available for the [`equal`](expectations.md
  - `exclude(a_items varchar2)` - item or comma separated list of items to exclude
  - `include(a_items ut_varchar2_list)` - table of items to include 
  - `exclude(a_items ut_varchar2_list)` - table of items to exclude
+ - `unordered` - perform compare on unordered set of data, return only missing or actual
+ - `join_by(a_columns varchar2)` - columns or comma seperated list of columns to join two cursors by
+ - `join_by(a_columns ut_varchar2_list)` - table of columns to join two cursors by
 
 Each item in the comma separated list can be:
 - a column name of cursor to be compared
@@ -91,6 +94,27 @@ end;
 Only the columns 'RN', "A_Column" will be compared. Column 'SOME_COL' is excluded.
 
 This option can be useful in scenarios where you need to narrow-down the scope of test so that the test is only focused on very specific data.  
+
+## Join By option
+You can now join two cursors by defining a primary key or composite key that will be used to uniqely identify and compare rows. This option allows us to exactly show which rows are missing, extra and which are diffrent without ordering clause.
+
+```sql
+procedure join_by_username is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+begin
+    open l_expected for select username, user_id from all_users
+    union all
+    select 'TEST' username, -600 user_id from dual
+    order by 1 desc;
+    open l_actual   for select username, user_id from all_users
+    union all
+    select 'TEST' username, -610 user_id from dual
+    order by 1 asc;
+    ut.expect( l_actual ).to_equal( l_expected ).join_by('USERNAME');
+end;
+```
+This will show you diffrence in row 'TEST' regardless of order.
 
 ## Defining item as XPath
 When using XPath expression, keep in mind the following:

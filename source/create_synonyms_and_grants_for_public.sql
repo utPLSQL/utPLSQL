@@ -142,8 +142,6 @@ create public synonym ut_file_mapping for &&ut3_owner..ut_file_mapping;
 create public synonym ut_file_mapper for &&ut3_owner..ut_file_mapper;
 create public synonym ut_key_value_pairs for &&ut3_owner..ut_key_value_pairs;
 create public synonym ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
-create public synonym ut_compound_data_tmp for &&ut3_owner..ut_compound_data_tmp;
-create public synonym ut_compound_data_diff_tmp for &&ut3_owner..ut_compound_data_diff_tmp;
 create public synonym ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
 begin
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then

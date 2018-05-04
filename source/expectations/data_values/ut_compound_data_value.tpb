@@ -73,11 +73,9 @@ create or replace type body ut_compound_data_value as
 
   overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean := false ) return varchar2 is
     l_result            clob;
-  l_result_string     varchar2(32767);
+    l_result_string     varchar2(32767);
   begin
-    if a_join_by_xpath is not null then
-      l_result := get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath);
-    elsif a_unordered then
+    if a_unordered then
       l_result := get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_unordered);
     else
       l_result := get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath);
