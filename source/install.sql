@@ -29,7 +29,6 @@ whenever oserror exit failure rollback
 prompt Switching current schema to &&ut3_owner
 prompt &&line_separator
 alter session set current_schema = &&ut3_owner;
-alter session set PLSQL_WARNINGS='ENABLE:ALL';
 --set define off
 
 --dbms_output buffer cache table
