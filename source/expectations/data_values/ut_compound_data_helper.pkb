@@ -179,6 +179,9 @@ create or replace package body ut_compound_data_helper is
       with diff_info as (select item_hash from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
       select rn,diff_type,diffed_row
       from
+      (
+      select rn,diff_type,diffed_row
+      from
         (select dense_rank() over (order by pk_hash) as rn, diff_type,data_item diffed_row
          from
           (select pk_hash
@@ -231,8 +234,10 @@ create or replace package body ut_compound_data_helper is
             unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:'
                       ,miss_item as 'Missing:', ext_item as 'Extra:') )
          )
+      order by 1, 2
+      )
       where rownum <= :max_rows
-      order by 1, 2]'
+      ]'
     bulk collect into l_results
     using a_diff_id,
     a_join_by_xpath,a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
