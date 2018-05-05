@@ -29,6 +29,7 @@ whenever oserror exit failure rollback
 prompt Switching current schema to &&ut3_owner
 prompt &&line_separator
 alter session set current_schema = &&ut3_owner;
+alter session set PLSQL_WARNINGS='ENABLE:ALL';
 --set define off
 
 --dbms_output buffer cache table
@@ -166,7 +167,6 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_compound_data_diff_tmp.sql'
 @@install_component.sql 'expectations/data_values/ut_data_value.tps'
 @@install_component.sql 'expectations/data_values/ut_compound_data_value.tps'
-@@install_component.sql 'expectations/data_values/ut_compound_data_helper.pks'
 @@install_component.sql 'expectations/data_values/ut_data_value_anydata.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_collection.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_object.tps'
@@ -182,6 +182,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value_timestamp_ltz.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_varchar2.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_yminterval.tps'
+@@install_component.sql 'expectations/data_values/ut_compound_data_helper.pks'
 @@install_component.sql 'expectations/matchers/ut_matcher.tps'
 @@install_component.sql 'expectations/matchers/ut_comparison_matcher.tps'
 @@install_component.sql 'expectations/matchers/ut_be_false.tps'

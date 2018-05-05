@@ -258,8 +258,6 @@ drop type ut_expectation_result force;
 
 drop package ut_event_manager;
 
-drop type ut_event_listener force;
-
 drop type ut_event_item force;
 
 drop type ut_key_value_pairs force;
