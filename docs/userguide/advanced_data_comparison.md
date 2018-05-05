@@ -7,7 +7,7 @@ utPLSQL expectations incorporates advanced data comparison options when comparin
 - nested table and varray  
 
 Advanced data-comparison options are available for the [`equal`](expectations.md#equal) matcher.
- 
+
 ## Syntax
 
 ```
@@ -58,7 +58,7 @@ Columns 'ignore_me' and "ADate" will get excluded from cursor comparison.
 The cursor data is equal, when those columns are excluded.
 
 This option is useful in scenarios, when you need to exclude incomparable/unpredictable column data like CREATE_DATE of a record that is maintained by default value on a table column.
- 
+
 ## Selecting columns for data comparison
 
 Consider the following example
@@ -95,8 +95,51 @@ Only the columns 'RN', "A_Column" will be compared. Column 'SOME_COL' is exclude
 
 This option can be useful in scenarios where you need to narrow-down the scope of test so that the test is only focused on very specific data.  
 
-## Join By option
-You can now join two cursors by defining a primary key or composite key that will be used to uniqely identify and compare rows. This option allows us to exactly show which rows are missing, extra and which are diffrent without ordering clause.
+##Unordered
+
+Unordered option allows for quick comparison of two cursors without need of ordering them in any way.
+
+Result of such comparison will be limited to only information about row existing or not existing in given set without actual information about exact differences.
+
+
+
+```sql
+procedure unordered_tst is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+begin
+    open l_expected for select username, user_id from all_users
+    union all
+    select 'TEST' username, -600 user_id from dual
+    order by 1 desc;
+    open l_actual   for select username, user_id from all_users
+    union all
+    select 'TEST' username, -610 user_id from dual
+    order by 1 asc;
+    ut.expect( l_actual ).to_equal( l_expected ).unordered;
+end;
+```
+
+
+
+Above test will result in two differences of one row extra and one row missing. 
+
+
+
+```sql
+      Diff:
+      Rows: [ 2 differences ]
+      Missing:  <ROW><USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID></ROW>
+      Extra:    <ROW><USERNAME>TEST</USERNAME><USER_ID>-610</USER_ID></ROW>
+```
+
+
+
+
+
+## Join by option
+
+You can now join two cursors by defining a primary key or composite key that will be used to uniquely identify and compare rows. This option allows us to exactly show which rows are missing, extra and which are different without ordering clause.
 
 ```sql
 procedure join_by_username is
@@ -133,4 +176,4 @@ begin
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'x' SOME_COL, a.* from all_objects a where rownum < 4;
     ut.expect( l_actual ).to_equal( l_expected ).include( '/ROW/RN|/ROW/A_Column|/ROW/SOME_COL' );
 end;
-```   
+```

@@ -150,7 +150,9 @@ create or replace type body ut_compound_data_value as
     --diff rows and row elements
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_actual.data_id);
     -- First tell how many rows are different
-    execute immediate 'select count(*) from ' || l_ut_owner || '.ut_compound_data_diff_tmp where diff_id = :diff_id' into l_diff_row_count using l_diff_id;
+    execute immediate 'select count('||case when a_join_by_xpath is not null then 'distinct pk_hash' else '*' end||') from ' 
+                      || l_ut_owner || '.ut_compound_data_diff_tmp 
+                      where diff_id = :diff_id' into l_diff_row_count using l_diff_id;
 
     if l_diff_row_count > 0  then
         if a_join_by_xpath is not null then        
@@ -241,7 +243,18 @@ create or replace type body ut_compound_data_value as
     l_diff_id         ut_compound_data_helper.t_hash;
     l_result          integer;
     l_row_diffs       ut_compound_data_helper.tt_row_diffs;
-    c_max_rows          constant integer := 20;
+    c_max_rows        constant integer := 20;
+    
+    type t_fetch_pk_hash_rec is record
+    (
+    data_id          raw(32),
+    item_hash        raw(128),
+    item_data        xmltype
+    );
+    type t_fetch_pk_hash_tab is table of t_fetch_pk_hash_rec;
+    
+    l_fetch_tab t_fetch_pk_hash_tab;
+    l_pk_hash_cursor  sys_refcursor;
   begin
     if not a_other is of (ut_compound_data_value) then
       raise value_error;
@@ -252,35 +265,65 @@ create or replace type body ut_compound_data_value as
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
     l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
     
+    /**
+    * Due to incompatibility issues in XML between 11 and 12.2 and 12.1 versions we will prepopulate pk_hash upfront to
+    * avoid optimizer incorrectly rewrite and causing NULL error or ORA-600
+    **/
+    
+    if a_join_by_xpath is not null then
+      
+      open l_pk_hash_cursor for q'[select t.data_id,t.item_hash,t.item_data
+                                   from ]'|| l_ut_owner ||q'[.ut_compound_data_tmp t
+                                   ,xmltable('*'
+                                   passing t.item_data
+                                   columns 
+                                   xml_pk_hash clob path ']'|| a_join_by_xpath ||q'['
+                                   ) ucd
+                                  where data_id = :self_guid or data_id = :other_guid ]'                                 
+                                  using self.data_id, l_other.data_id;
+      fetch l_pk_hash_cursor bulk collect into l_fetch_tab;  
+      for pks in 1..l_fetch_tab.COUNT
+      loop
+        execute immediate 'update '|| l_ut_owner ||'.ut_compound_data_tmp 
+        set pk_hash = '|| l_ut_owner ||'.ut_compound_data_helper.get_hash(extract(:item_data,:join_by_xpath).GetClobVal())
+        where item_hash = :item_hash' 
+        using l_fetch_tab(pks).item_data,a_join_by_xpath , l_fetch_tab(pks).item_hash;
+      end loop;
+      
+      close l_pk_hash_cursor;
+    end if;
+    
+    
     -- Pre generate hash minus to leave only onese that are diffrent, for example duplicates or diffrent hash
-    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,duplicate_no )
-                       select :diff_id,x.item_hash,tmp.duplicate_no
+    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no )
+                       select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
                        from(
                          (
-                           select item_hash,row_number() over (partition by item_hash,data_id order by 1) duplicate_no 
-                           from  ' || l_ut_owner || '.ut_compound_data_tmp
+                           select t.item_hash,row_number() over (partition by t.item_hash,t.data_id order by 1,2) duplicate_no,
+                           pk_hash
+                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
                            where data_id = :self_guid
                            minus
-                           select item_hash,row_number() over (partition by item_hash,data_id order by 1) 
-                           from  ' || l_ut_owner || '.ut_compound_data_tmp
+                           select t.item_hash,row_number() over (partition by t.item_hash,t.data_id order by 1,2) duplicate_no,
+                           pk_hash
+                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
                            where data_id = :other_guid
-                        )
+                         )
                            union all
                          (
-                           select item_hash,row_number() over (partition by item_hash,data_id order by 1) 
-                           from  ' || l_ut_owner || '.ut_compound_data_tmp
+                           select t.item_hash,row_number() over (partition by t.item_hash,t.data_id order by 1,2) duplicate_no,
+                           pk_hash
+                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
                            where data_id = :other_guid
                            minus
-                           select item_hash,row_number() over (partition by item_hash,data_id order by 1) 
-                           from  ' || l_ut_owner || '.ut_compound_data_tmp
+                           select t.item_hash,row_number() over (partition by t.item_hash,t.data_id order by 1,2) duplicate_no,
+                           pk_hash
+                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
                            where data_id = :self_guid
-                        ))tmp
-                       , ' || l_ut_owner || '.ut_compound_data_tmp x
-                       where tmp.item_hash = x.item_hash
-                       and x.data_id in (:self_guid,:other_guid)'
-       using l_diff_id, self.data_id, l_other.data_id
-             ,l_other.data_id,self.data_id,
-             self.data_id, l_other.data_id;
+                        ))tmp'
+       using l_diff_id, 
+             self.data_id, l_other.data_id,
+             l_other.data_id,self.data_id;
     --result is OK only if both are same
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;

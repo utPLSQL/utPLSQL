@@ -176,72 +176,85 @@ create or replace package body ut_compound_data_helper is
     **/
     
     execute immediate q'[
-      with diff_info as (select item_hash from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
-      select rn,diff_type,diffed_row
-      from
+    with diff_info as (select item_hash,pk_hash from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
+      select rn,diff_type,diffed_row from
       (
-      select rn,diff_type,diffed_row
-      from
-        (select dense_rank() over (order by pk_hash) as rn, diff_type,data_item diffed_row
+      select diff_type,diffed_row, dense_rank() over (order by pk_hash) rn from
+      (
+      select diff_type,diffed_row,pk_hash from
+        (select diff_type,data_item diffed_row,pk_hash
          from
-          (select pk_hash
-           ,case when exp_item is not null and act_item is not null then exp_item else null end exp_item
-           ,case when exp_item is not null and act_item is not null then act_item else null end act_item
-           ,case when exp_item is not null and act_item is null then exp_item else null end miss_item
-           ,case when exp_item is null and act_item is not null then act_item else null end ext_item             
-           from 
-            (select nvl(exp.pk_hash, act.pk_hash) pk_hash,
+          (select nvl(exp.pk_hash, act.pk_hash) pk_hash,
              xmlserialize(content exp.row_data no indent)  exp_item,
              xmlserialize(content act.row_data no indent)  act_item
              from 
               (select ucd.*, row_number() over(partition by pk_hash order by row_hash) duplicate_no
                from 
                 (select ucd.column_value row_data,
-                 dbms_crypto.hash( value(ucd).getclobval(),3) row_hash,
-                 dbms_crypto.hash( extract(value(ucd), :join_by_xpath ).getClobVal(),3/*HASH_SH1*/) pk_hash 
+                 r.item_hash row_hash,
+                 r.pk_hash ,
+                 ucd.column_value.getRootElement() col_name,
+                 ucd.column_value.getclobval() col_val
                  from 
-                  (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
-                   from ut_compound_data_tmp ucd
+                  (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash
+                   from ut_compound_data_tmp ucd,
+                   diff_info i
                    where ucd.data_id = :self_guid
-                   and ucd.item_hash in (select i.item_hash from diff_info i)
+                   and ucd.item_hash = i.item_hash
                   ) r,
-                  table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
+                  table( xmlsequence( extract(r.item_data,'/*/*') ) ) ucd
                 ) ucd
               ) exp
-              full outer join (
+              join (
                 select ucd.*, row_number() over(partition by pk_hash order by row_hash) duplicate_no
                 from 
                  (select ucd.column_value row_data,
-                  dbms_crypto.hash( value(ucd).getclobval(),3/*HASH_SH1*/) row_hash,
-                  dbms_crypto.hash( extract(value(ucd), :join_by_xpath ).getClobVal(),3/*HASH_SH1*/) pk_hash 
+                  r.item_hash row_hash,
+                  r.pk_hash ,
+                  ucd.column_value.getRootElement() col_name,
+                  ucd.column_value.getclobval() col_val
                   from 
-                   (select  ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
-                    from ut_compound_data_tmp ucd
+                   (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash
+                    from ut_compound_data_tmp ucd,
+                    diff_info i
                     where ucd.data_id = :other_guid
-                    and ucd.item_hash in (select i.item_hash from diff_info i)
+                    and ucd.item_hash = i.item_hash
                    ) r,
-                   table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
+                   table( xmlsequence( extract(r.item_data,'/*/*') ) ) ucd
                  ) ucd
               )  act
               on exp.pk_hash = act.pk_hash  and exp.duplicate_no = act.duplicate_no
-              where (exp.row_hash != act.row_hash and act.pk_hash = exp.pk_hash) or
-               (
-                (exp.pk_hash is null or  act.pk_hash is null) and
-                (exp.row_hash is null or act.row_hash is null)                    
-               )
+             where dbms_lob.compare(exp.col_val, act.col_val) != 0
               )
-            )
-            unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:'
-                      ,miss_item as 'Missing:', ext_item as 'Extra:') )
+            unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
          )
-      order by 1, 2
-      )
-      where rownum <= :max_rows
+      union all       
+      select case when exp.pk_hash is null then 'Extra:' else 'Missing:' end as diff_type,
+             xmlserialize(content nvl(exp.item_data, act.item_data) no indent) diffed_row,
+             coalesce(exp.pk_hash,act.pk_hash) pk_hash
+        from (select extract(ucd.item_data,'/*/*') item_data,i.pk_hash
+                from ut_compound_data_tmp ucd,
+                diff_info i
+               where ucd.data_id = :self_guid
+                 and ucd.item_hash = i.item_hash
+             ) exp
+        full outer join (
+              select extract(ucd.item_data,'/*/*') item_data,i.pk_hash
+                from ut_compound_data_tmp ucd,
+                diff_info i
+               where ucd.data_id = :other_guid
+                 and ucd.item_hash = i.item_hash
+             )act
+          on exp.pk_hash = act.pk_hash
+       where exp.pk_hash is null or act.pk_hash is null
+       ) 
+       ) where  rn <= :max_rows
       ]'
     bulk collect into l_results
     using a_diff_id,
-    a_join_by_xpath,a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
-    a_join_by_xpath,a_exclude_xpath, a_include_xpath, a_actual_dataset_guid,
+    a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
+    a_exclude_xpath, a_include_xpath, a_actual_dataset_guid,
+    a_expected_dataset_guid, a_actual_dataset_guid,
     a_max_rows;
     return l_results;
   end;
@@ -266,9 +279,10 @@ create or replace package body ut_compound_data_helper is
                                      s.column_value.getRootElement() col_name,
                                      s.column_value.getclobval() col_val
                                 from (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
-                                        from ut_compound_data_tmp ucd
+                                        from ut_compound_data_tmp ucd,
+                                        diff_info i
                                        where ucd.data_id = :self_guid
-                                         and ucd.item_no in (select i.item_no from diff_info i)
+                                       and ucd.item_no = i.item_no
                                     ) r,
                                      table( xmlsequence( extract(r.item_data,'/*/*') ) ) s
                              ) exp
@@ -277,9 +291,10 @@ create or replace package body ut_compound_data_helper is
                                      s.column_value.getRootElement() col_name,
                                      s.column_value.getclobval() col_val
                                 from (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
-                                        from ut_compound_data_tmp ucd
+                                        from ut_compound_data_tmp ucd,
+                                        diff_info i
                                        where ucd.data_id = :other_guid
-                                         and ucd.item_no in (select i.item_no from diff_info i)
+                                       and ucd.item_no = i.item_no
                                     ) r,
                                      table( xmlsequence( extract(r.item_data,'/*/*') ) ) s
                               ) act
@@ -328,8 +343,9 @@ create or replace package body ut_compound_data_helper is
     * Since its unordered search we cannot select max rows from diffs as we miss some comparision records
     * We will restrict output on higher level of select
     */
+    
     execute immediate q'[with
-      diff_info as (select item_hash from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
+      diff_info as (select item_hash,duplicate_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
       select duplicate_no,
              diffed_type,
              diffed_row
@@ -346,25 +362,29 @@ create or replace package body ut_compound_data_helper is
         when act.row_hash is null then
           xmlserialize(content exp.row_data no indent) 
         end diffed_row
-         from (select ucd.*, row_number() over(partition by row_hash order by row_hash) duplicate_no
+         from (select ucd.*
             from (select ucd.column_value row_data,
-                    dbms_crypto.hash( value(ucd).getclobval(),3) row_hash
-                    from (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
-                        from ut_compound_data_tmp ucd
+                    r.item_hash row_hash,
+                    r.duplicate_no
+                    from (select ]'||l_column_filter||q'[, ucd.item_no, i.item_hash, i.duplicate_no
+                        from ut_compound_data_tmp ucd,
+                        diff_info i
                         where ucd.data_id = :self_guid
-                        and ucd.item_hash in (select i.item_hash from diff_info i)
+                        and ucd.item_hash = i.item_hash
                        ) r,
                   table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
               ) ucd
           )  exp
       full outer join
-        (select ucd.*, row_number() over(partition by row_hash order by row_hash) duplicate_no
+        (select ucd.*
          from (select ucd.column_value row_data,
-                      dbms_crypto.hash( value(ucd).getclobval(),3/*HASH_SH1*/) row_hash
-                      from (select  ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
-                     from ut_compound_data_tmp ucd
+                      r.item_hash row_hash,
+                      r.duplicate_no
+                      from (select  ]'||l_column_filter||q'[, ucd.item_no, i.item_hash, i.duplicate_no
+                     from ut_compound_data_tmp ucd,
+                     diff_info i
                      where ucd.data_id = :other_guid
-                     and ucd.item_hash in (select i.item_hash from diff_info i)
+                     and ucd.item_hash = i.item_hash
                      ) r,
                table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
                ) ucd
