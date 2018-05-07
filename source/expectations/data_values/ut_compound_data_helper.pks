@@ -31,7 +31,8 @@ create or replace package ut_compound_data_helper authid definer is
   type t_row_diffs is record(
     rn            integer,
     diff_type     varchar2(250),
-    diffed_row    clob
+    diffed_row    clob,
+    pk_value      varchar2(4000)
   );
 
   type tt_row_diffs is table of t_row_diffs;

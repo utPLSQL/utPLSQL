@@ -137,7 +137,7 @@ Above test will result in two differences of one row extra and one row missing.
 
 
 
-## Join by option
+## Join By option
 
 You can now join two cursors by defining a primary key or composite key that will be used to uniquely identify and compare rows. This option allows us to exactly show which rows are missing, extra and which are different without ordering clause.
 
@@ -157,7 +157,15 @@ begin
     ut.expect( l_actual ).to_equal( l_expected ).join_by('USERNAME');
 end;
 ```
-This will show you diffrence in row 'TEST' regardless of order.
+This will show you difference in row 'TEST' regardless of order.
+
+```sql
+      Rows: [ 1 differences ]
+        Expected: <USER_ID>-600</USER_ID> for key: TEST
+        Actual:   <USER_ID>-610</USER_ID> for key: TEST
+```
+
+**Please note that .join_by option will take longer to process due to need of parsing via primary keys.**
 
 ## Defining item as XPath
 When using XPath expression, keep in mind the following:

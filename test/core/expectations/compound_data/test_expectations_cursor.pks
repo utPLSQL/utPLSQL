@@ -211,5 +211,8 @@ create or replace package test_expectations_cursor is
   --%test( Compare cursors join by composite key)
   procedure cursor_joinby_compare_twocols; 
   
+  --%test( Compare cursors join by single key more than 1000 rows)
+  procedure cursor_joinby_compare_1000;
+  
 end;
 /

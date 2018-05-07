@@ -176,15 +176,15 @@ create or replace package body ut_compound_data_helper is
     **/
     
     execute immediate q'[
-    with diff_info as (select item_hash,pk_hash from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
-      select rn,diff_type,diffed_row from
+    with diff_info as (select item_hash,pk_hash,pk_value from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
+      select rn,diff_type,diffed_row,pk_value from
       (
-      select diff_type,diffed_row, dense_rank() over (order by pk_hash) rn from
+      select diff_type,diffed_row, dense_rank() over (order by pk_hash) rn,pk_value from
       (
-      select diff_type,diffed_row,pk_hash from
-        (select diff_type,data_item diffed_row,pk_hash
+      select diff_type,diffed_row,pk_hash,pk_value from
+        (select diff_type,data_item diffed_row,pk_hash,pk_value
          from
-          (select nvl(exp.pk_hash, act.pk_hash) pk_hash,
+          (select nvl(exp.pk_hash, act.pk_hash) pk_hash,nvl(exp.pk_value, act.pk_value) pk_value,
              xmlserialize(content exp.row_data no indent)  exp_item,
              xmlserialize(content act.row_data no indent)  act_item
              from 
@@ -193,10 +193,11 @@ create or replace package body ut_compound_data_helper is
                 (select ucd.column_value row_data,
                  r.item_hash row_hash,
                  r.pk_hash ,
+                 r.pk_value,
                  ucd.column_value.getRootElement() col_name,
                  ucd.column_value.getclobval() col_val
                  from 
-                  (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash
+                  (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash, i.pk_value
                    from ut_compound_data_tmp ucd,
                    diff_info i
                    where ucd.data_id = :self_guid
@@ -211,10 +212,11 @@ create or replace package body ut_compound_data_helper is
                  (select ucd.column_value row_data,
                   r.item_hash row_hash,
                   r.pk_hash ,
+                  r.pk_value,
                   ucd.column_value.getRootElement() col_name,
                   ucd.column_value.getclobval() col_val
                   from 
-                   (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash
+                   (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash, i.pk_value
                     from ut_compound_data_tmp ucd,
                     diff_info i
                     where ucd.data_id = :other_guid
@@ -231,7 +233,8 @@ create or replace package body ut_compound_data_helper is
       union all       
       select case when exp.pk_hash is null then 'Extra:' else 'Missing:' end as diff_type,
              xmlserialize(content nvl(exp.item_data, act.item_data) no indent) diffed_row,
-             coalesce(exp.pk_hash,act.pk_hash) pk_hash
+             coalesce(exp.pk_hash,act.pk_hash) pk_hash,
+             null pk_value
         from (select extract(ucd.item_data,'/*/*') item_data,i.pk_hash
                 from ut_compound_data_tmp ucd,
                 diff_info i
@@ -269,9 +272,12 @@ create or replace package body ut_compound_data_helper is
     l_column_filter := get_columns_filter(a_exclude_xpath,a_include_xpath);
     execute immediate q'[
       with
-        diff_info as (select item_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid and rownum <= :max_rows)
+        diff_info as ( select item_no 
+                       from 
+                         (select item_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid order by item_no asc) 
+                       where rownum <= :max_rows)
       select *
-        from (select rn, diff_type, xmlserialize(content data_item no indent) diffed_row
+        from (select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, null pk_value
                 from (select nvl(exp.rn, act.rn) rn,
                              xmlagg(exp.col order by exp.col_no) exp_item,
                              xmlagg(act.col order by act.col_no) act_item
@@ -307,7 +313,8 @@ create or replace package body ut_compound_data_helper is
       union all
       select nvl(exp.item_no, act.item_no) rn,
              case when exp.item_no is null then 'Extra:' else 'Missing:' end as diff_type,
-             xmlserialize(content nvl(exp.item_data, act.item_data) no indent) diffed_row
+             xmlserialize(content nvl(exp.item_data, act.item_data) no indent) diffed_row,
+             null pk_value
         from (select ucd.item_no, extract(ucd.item_data,'/*/*') item_data
                 from ut_compound_data_tmp ucd
                where ucd.data_id = :self_guid
@@ -348,7 +355,8 @@ create or replace package body ut_compound_data_helper is
       diff_info as (select item_hash,duplicate_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
       select duplicate_no,
              diffed_type,
-             diffed_row
+             diffed_row,
+             null pk_value
       from
       (select  
         coalesce(exp.duplicate_no,act.duplicate_no) duplicate_no,

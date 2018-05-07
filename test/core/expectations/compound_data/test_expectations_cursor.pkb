@@ -1113,6 +1113,19 @@ Extra:    <ROW><USERNAME>test</USERNAME><USER_ID>-666</USER_ID></ROW>%]';
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
-  
+ 
+  procedure cursor_joinby_compare_1000 is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for select object_name from all_objects where rownum <=1100;
+    open l_expected for select object_name from all_objects where rownum <=1100;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_NAME');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+ 
 end;
 /

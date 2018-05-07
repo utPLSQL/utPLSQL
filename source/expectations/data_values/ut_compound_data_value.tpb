@@ -139,6 +139,7 @@ create or replace type body ut_compound_data_value as
     l_actual            ut_compound_data_value;
     l_diff_id           ut_compound_data_helper.t_hash;
     l_row_diffs         ut_compound_data_helper.tt_row_diffs;
+     
   begin
     if not a_other is of (ut_compound_data_value) then
       raise value_error;
@@ -173,7 +174,11 @@ create or replace type body ut_compound_data_value as
       ut_utils.append_to_clob( l_result, l_message );
       for i in 1 .. l_row_diffs.count loop
         l_results.extend;
-        l_results(l_results.last) := '  Row No. '||l_row_diffs(i).rn||' - '||rpad(l_row_diffs(i).diff_type,10)||l_row_diffs(i).diffed_row;
+        if a_join_by_xpath is not null and l_row_diffs(i).pk_value is not null then
+          l_results(l_results.last) := '  '||rpad(l_row_diffs(i).diff_type,10)||l_row_diffs(i).diffed_row||' for key: '||l_row_diffs(i).pk_value;
+        else
+          l_results(l_results.last) := '  Row No. '||l_row_diffs(i).rn||' - '||rpad(l_row_diffs(i).diff_type,10)||l_row_diffs(i).diffed_row;
+        end if;
       end loop;
       ut_utils.append_to_clob(l_result,l_results);
     end if;
@@ -245,16 +250,28 @@ create or replace type body ut_compound_data_value as
     l_row_diffs       ut_compound_data_helper.tt_row_diffs;
     c_max_rows        constant integer := 20;
     
-    type t_fetch_pk_hash_rec is record
+    type t_pk_val_rec is record
     (
-    data_id          raw(32),
-    item_hash        raw(128),
-    item_data        xmltype
+    data_id   raw(32),
+    item_hash raw(128),
+    pk_hash   raw(128),
+    pk_value  varchar2(4000)    
     );
-    type t_fetch_pk_hash_tab is table of t_fetch_pk_hash_rec;
     
-    l_fetch_tab t_fetch_pk_hash_tab;
-    l_pk_hash_cursor  sys_refcursor;
+    type t_pk_val_tab is table of t_pk_val_rec;
+    l_pk_val_tab t_pk_val_tab;
+    
+    function get_column_xpath(a_join_by_xpath varchar2) return varchar2 is
+      l_column varchar2(32767);
+    begin
+      if a_join_by_xpath is not null then
+        l_column :=  l_ut_owner ||'.ut_compound_data_helper.get_hash(extract(t.item_data,:join_by_xpath).GetClobVal()) pk_hash ';
+      else
+        l_column := ':join_by_xpath pk_hash ';
+      end if;
+      return l_column;
+    end;
+    
   begin
     if not a_other is of (ut_compound_data_value) then
       raise value_error;
@@ -268,60 +285,78 @@ create or replace type body ut_compound_data_value as
     /**
     * Due to incompatibility issues in XML between 11 and 12.2 and 12.1 versions we will prepopulate pk_hash upfront to
     * avoid optimizer incorrectly rewrite and causing NULL error or ORA-600
-    **/
-    
-    if a_join_by_xpath is not null then
-      
-      open l_pk_hash_cursor for q'[select t.data_id,t.item_hash,t.item_data
-                                   from ]'|| l_ut_owner ||q'[.ut_compound_data_tmp t
-                                   ,xmltable('*'
-                                   passing t.item_data
-                                   columns 
-                                   xml_pk_hash clob path ']'|| a_join_by_xpath ||q'['
-                                   ) ucd
-                                  where data_id = :self_guid or data_id = :other_guid ]'                                 
-                                  using self.data_id, l_other.data_id;
-      fetch l_pk_hash_cursor bulk collect into l_fetch_tab;  
-      for pks in 1..l_fetch_tab.COUNT
-      loop
-        execute immediate 'update '|| l_ut_owner ||'.ut_compound_data_tmp 
-        set pk_hash = '|| l_ut_owner ||'.ut_compound_data_helper.get_hash(extract(:item_data,:join_by_xpath).GetClobVal())
-        where item_hash = :item_hash' 
-        using l_fetch_tab(pks).item_data,a_join_by_xpath , l_fetch_tab(pks).item_hash;
-      end loop;
-      
-      close l_pk_hash_cursor;
-    end if;
-    
-    
+    **/    
     -- Pre generate hash minus to leave only onese that are diffrent, for example duplicates or diffrent hash
-    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no )
+    /*if a_join_by_xpath is not null then
+      execute immediate q'[select
+         data_id,item_hash,pk_hash,
+         listagg(extractvalue(tcd.column_value, '/*'), '; ') within GROUP(ORDER BY item_hash) pk_value
+        from
+         (select 
+           ucd.column_value row_data,
+           ]'|| l_ut_owner ||q'[.ut_compound_data_helper.get_hash(extract(ucd.column_value,:join_xpath).GetClobVal()) pk_hash ,
+           t.item_hash,
+           t.data_id
+          from ]' || l_ut_owner || q'[.ut_compound_data_tmp t ,
+          table(xmlsequence(extract(t.item_data,'/*'))) ucd 
+          where data_id = :self_guid or data_id = :other_guid ),
+          table(xmlsequence(extract(row_data ,:join_xpath))) tcd
+          group by pk_hash,item_hash,data_id]' 
+          bulk collect into l_pk_val_tab using a_join_by_xpath,self.data_id, l_other.data_id,a_join_by_xpath;
+    
+         forall pk_vals in 1..l_pk_val_tab.COUNT
+         update ut_compound_data_tmp 
+         set pk_hash = l_pk_val_tab(pk_vals).pk_hash
+             ,pk_value = l_pk_val_tab(pk_vals).pk_value
+         where data_id = l_pk_val_tab(pk_vals).data_id 
+            and item_hash = l_pk_val_tab(pk_vals).item_hash;
+    end if;
+    */
+
+    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no)
+                       with calc_pk as
+                       ( select data_id,item_hash, '||get_column_xpath(a_join_by_xpath)||'
+                         from ' || l_ut_owner || '.ut_compound_data_tmp t
+                       )
                        select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
                        from(
                          (
                            select t.item_hash,row_number() over (partition by t.item_hash,t.data_id order by 1,2) duplicate_no,
-                           pk_hash
-                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
-                           where data_id = :self_guid
+                           pc.pk_hash
+                           from  ' || l_ut_owner || '.ut_compound_data_tmp t,
+                           calc_pk pc
+                           where t.data_id = :self_guid
+                           and   pc.data_id = t.data_id
+                           and   pc.item_hash = t.item_hash
                            minus
                            select t.item_hash,row_number() over (partition by t.item_hash,t.data_id order by 1,2) duplicate_no,
-                           pk_hash
-                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
-                           where data_id = :other_guid
+                           pc.pk_hash
+                           from  ' || l_ut_owner || '.ut_compound_data_tmp t,
+                           calc_pk pc
+                           where t.data_id = :other_guid
+                           and   pc.data_id = t.data_id
+                           and   pc.item_hash = t.item_hash
                          )
                            union all
                          (
                            select t.item_hash,row_number() over (partition by t.item_hash,t.data_id order by 1,2) duplicate_no,
-                           pk_hash
-                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
-                           where data_id = :other_guid
+                           pc.pk_hash
+                            from  ' || l_ut_owner || '.ut_compound_data_tmp t,
+                           calc_pk pc
+                           where t.data_id = :other_guid
+                           and   pc.data_id = t.data_id
+                           and   pc.item_hash = t.item_hash
                            minus
                            select t.item_hash,row_number() over (partition by t.item_hash,t.data_id order by 1,2) duplicate_no,
-                           pk_hash
-                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
-                           where data_id = :self_guid
+                           pc.pk_hash
+                           from  ' || l_ut_owner || '.ut_compound_data_tmp t,
+                           calc_pk pc
+                           where t.data_id = :self_guid
+                           and   pc.data_id = t.data_id
+                           and   pc.item_hash = t.item_hash
                         ))tmp'
-       using l_diff_id, 
+       using a_join_by_xpath,
+             l_diff_id, 
              self.data_id, l_other.data_id,
              l_other.data_id,self.data_id;
     --result is OK only if both are same
