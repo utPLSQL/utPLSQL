@@ -60,7 +60,7 @@ create or replace package body test_ut_run is
                   g_state varchar2(3) := 'abc';
                 end;]';
             end;/',
-          start_date    =>  sysdate,
+          start_date    =>  localtimestamp,
           enabled       =>  TRUE,
           auto_drop     =>  TRUE,
           comments      =>  'one-time job'
@@ -98,6 +98,7 @@ Failures:%
 
     --Act
     select * bulk collect into l_results from table(ut3.ut.run('test_stateful'));
+  
     --Assert
     ut.fail('Expected exception but nothing was raised');
   exception
