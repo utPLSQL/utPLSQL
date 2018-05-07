@@ -132,6 +132,7 @@ create or replace type body ut_compound_data_value as
     l_result          integer;
     --the XML stylesheet is applied on XML representation of data to exclude column names from comparison
     --column names and data-types are compared separately
+    --user CHR(38) instead of ampersand to eliminate define request when installing through some IDEs
     l_xml_data_fmt    constant xmltype := xmltype(
         q'[<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
           <xsl:strip-space elements="*" />
@@ -139,7 +140,7 @@ create or replace type body ut_compound_data_value as
               <xsl:for-each select="child::node()">
                   <xsl:choose>
                       <xsl:when test="*[*]"><xsl:copy-of select="node()"/></xsl:when>
-                      <xsl:when test="position()=last()"><xsl:value-of select="normalize-space(.)"/><xsl:text>&#xD;</xsl:text></xsl:when>
+                      <xsl:when test="position()=last()"><xsl:value-of select="normalize-space(.)"/><xsl:text>'||CHR(38)||'#xD;</xsl:text></xsl:when>
                       <xsl:otherwise><xsl:value-of select="normalize-space(.)"/>,</xsl:otherwise>
                   </xsl:choose>
               </xsl:for-each>
