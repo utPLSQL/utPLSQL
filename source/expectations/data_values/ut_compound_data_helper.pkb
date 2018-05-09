@@ -86,6 +86,32 @@ create or replace package body ut_compound_data_helper is
     end if;
     return l_filter;
   end;
+ 
+  /**
+  * Current get column filter shaving off ROW tag during extract, this not working well with include and XMLTABLE option
+  * so when there is extract we artificially inject removed tag
+  **/
+  function get_columns_row_filter(
+    a_exclude_xpath varchar2, a_include_xpath varchar2,
+    a_table_alias varchar2 := 'ucd', a_column_alias varchar2 := 'item_data'
+  ) return varchar2 is
+    l_filter varchar2(32767);
+    l_source_column varchar2(500) := a_table_alias||'.'||a_column_alias;
+  begin
+    -- this SQL statement is constructed in a way that we always get the same number and ordering of substitution variables
+    -- That is, we always get: l_exclude_xpath, l_include_xpath
+    --   regardless if the variables are NULL (not to be used) or NOT NULL and will be used for filtering
+    if a_exclude_xpath is null and a_include_xpath is null then
+      l_filter := ':l_exclude_xpath, :l_include_xpath, '||l_source_column||' as '||a_column_alias;
+    elsif a_exclude_xpath is not null and a_include_xpath is null then
+      l_filter := 'deletexml( '||l_source_column||', :l_exclude_xpath ) as '||a_column_alias||', :l_include_xpath';
+    elsif a_exclude_xpath is null and a_include_xpath is not null then
+      l_filter := ':l_exclude_xpath, xmlelement("ROW",extract( '||l_source_column||', :l_include_xpath )) as '||a_column_alias;
+    elsif a_exclude_xpath is not null and a_include_xpath is not null then
+      l_filter := 'xmlelement("ROW",extract( deletexml( '||l_source_column||', :l_exclude_xpath ), :l_include_xpath )) as '||a_column_alias;
+    end if;
+    return l_filter;
+  end;
 
   function get_columns_diff(
     a_expected xmltype, a_actual xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2
@@ -94,7 +120,7 @@ create or replace package body ut_compound_data_helper is
     l_sql            varchar2(32767);
     l_results        tt_column_diffs;
   begin
-    l_column_filter := get_columns_filter(a_exclude_xpath, a_include_xpath);
+    l_column_filter := get_columns_row_filter(a_exclude_xpath, a_include_xpath);
     l_sql := q'[
       with
         expected_cols as ( select :a_expected as item_data from dual ),
@@ -157,6 +183,7 @@ create or replace package body ut_compound_data_helper is
     execute immediate l_sql
       bulk collect into l_results
       using a_expected, a_actual, a_exclude_xpath, a_include_xpath, a_exclude_xpath, a_include_xpath;
+
     return l_results;
   end;
 
@@ -349,8 +376,8 @@ create or replace package body ut_compound_data_helper is
     /**
     * Since its unordered search we cannot select max rows from diffs as we miss some comparision records
     * We will restrict output on higher level of select
-    */
-    
+    */      
+
     execute immediate q'[with
       diff_info as (select item_hash,duplicate_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
       select duplicate_no,

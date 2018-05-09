@@ -60,8 +60,8 @@ create or replace type body ut_data_value_refcursor as
             l_xml := dbms_xmlgen.getxmltype(l_ctx);
            
            execute immediate
-              'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data, item_hash) ' ||
-              'select :self_guid, :self_row_count + rownum, value(a),'||l_ut_owner||'.ut_compound_data_helper.get_hash(value(a).GetClobVal()) ' ||
+              'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
+              'select :self_guid, :self_row_count + rownum, value(a) ' ||
               '  from table( xmlsequence( extract(:l_xml,''ROWSET/*'') ) ) a'
               using in self.data_id, self.elements_count, l_xml;
 

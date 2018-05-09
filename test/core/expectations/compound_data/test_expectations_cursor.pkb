@@ -1127,5 +1127,103 @@ Extra:    <ROW><USERNAME>test</USERNAME><USER_ID>-666</USER_ID></ROW>%]';
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
  
+  procedure unord_incl_cols_as_list
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).unordered;
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure joinby_incl_cols_as_list
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('SOME_COL');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure joinby_excl_cols_as_list
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('SOME_COL');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure unord_excl_cols_as_list
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN|//Some_Col')).unordered;
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+  
+  procedure excl_dif_cols_as_list
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'TEST' as A_COLUMN  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 1 as A_COLUMN  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN'));
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+  
+  procedure inlc_dif_cols_as_list
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'TEST' as A_COLUMN  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 1 as A_COLUMN  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN'));
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure inlc_exc_dif_cols_as_list
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'TEST' as A_COLUMN  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 1 as A_COLUMN  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN')).exclude(ut3.ut_varchar2_list('A_COLUMN'));
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+  
 end;
 /

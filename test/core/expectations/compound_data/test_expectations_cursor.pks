@@ -214,5 +214,26 @@ create or replace package test_expectations_cursor is
   --%test( Compare cursors join by single key more than 1000 rows)
   procedure cursor_joinby_compare_1000;
   
+  --%test(Unordered List of columns to include)
+  procedure unord_incl_cols_as_list;
+
+  --%test(Join By List of columns to include)
+  procedure joinby_incl_cols_as_list;
+
+  --%test(Unordered List of columns to exclude)
+  procedure unord_excl_cols_as_list;
+
+  --%test(Join By List of columns to exclude)
+  procedure joinby_excl_cols_as_list;
+
+  --%test(Exclude columns of diffrent type)
+  procedure excl_dif_cols_as_list;
+  
+  --%test(Include column of same type leaving diffrent type out)
+  procedure inlc_dif_cols_as_list;
+
+  --%test(Include column of same type leaving diffrent type out and exclude diffrent type)
+  procedure inlc_exc_dif_cols_as_list;
+
 end;
 /
