@@ -1114,6 +1114,144 @@ Extra:    <ROW><USERNAME>test</USERNAME><USER_ID>-666</USER_ID></ROW>%]';
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
  
+   procedure cursor_joinby_compare_nokey is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
+     
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OWNER');
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
+Diff:%
+%Unable to join sets:%
+%Unknown key to join by in expected:/*/OWNER%
+%Unknown key to join by in actual:/*/OWNER%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
+  procedure cur_joinby_comp_twocols_nokey is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
+     
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('OWNER,USER_ID'));
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
+Diff:%
+%Unable to join sets:%
+%Unknown key to join by in expected:/*/OWNER%
+%Unknown key to join by in expected:/*/USER_ID%
+%Unknown key to join by in actual:/*/OWNER%
+%Unknown key to join by in actual:/*/USER_ID%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
+  procedure cursor_joinby_compare_exkey is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
+     
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('SOME_COL').exclude('SOME_COL');
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
+Diff:%
+%Unable to join sets:%
+%Unknown key to join by in expected:/*/SOME_COL%
+%Unknown key to join by in actual:/*/SOME_COL%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
+  procedure cur_joinby_comp_twocols_exkey is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
+     
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('RN,SOME_COL')).exclude('RN');
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
+Diff:%
+%Unable to join sets:%
+%Unknown key to join by in expected:/*/RN%
+%Unknown key to join by in actual:/*/RN%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+ 
+  procedure cursor_joinby_comp_nokey_ex is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select rownum as rni, 'x' SOME_COL  from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
+     
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('RNI');
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
+Diff:%
+%Unable to join sets:%
+%Unknown key to join by in expected:/*/RNI%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
+  procedure cursor_joinby_comp_nokey_ac is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'x' SOME_COL  from dual a connect by level < 4;
+    open l_expected for select rownum as rni, 'x' SOME_COL  from dual a connect by level < 4;
+     
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('RNI');
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
+Diff:%
+%Unable to join sets:%
+%Unknown key to join by in actual:/*/RNI%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+ 
   procedure cursor_joinby_compare_1000 is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
@@ -1127,6 +1265,84 @@ Extra:    <ROW><USERNAME>test</USERNAME><USER_ID>-666</USER_ID></ROW>%]';
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
  
+  procedure cursor_joinby_compare_fail is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_expected for select username, user_id from all_users union all
+    select 'TEST' username, -600 user_id from dual order by 1 desc;
+    
+    open l_actual for select username, user_id from all_users union all
+    select 'TEST' username, -610 user_id from dual order by 1 asc;
+     
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('USERNAME');
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to equal: refcursor [ count = % ]
+%Diff:%
+%Rows: [ 1 differences ]%
+%Expected: <USER_ID>-600</USER_ID> for key: TEST%
+%Actual:   <USER_ID>-610</USER_ID> for key: TEST%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
+  procedure cursor_joinby_cmp_twocol_fail is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_expected for select username, user_id from all_users union all
+    select 'TEST' username, -600 user_id from dual order by 1 desc;
+    
+    open l_actual for select username, user_id from all_users union all
+    select 'TEST' username, -610 user_id from dual order by 1 asc;
+     
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('USERNAME,USER_ID'));
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to equal: refcursor [ count = % ]
+%Diff:%
+%Rows: [ 2 differences ]%
+%Missing:  <USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID> for key: -600:TEST%
+%Extra:    <USERNAME>TEST</USERNAME><USER_ID>-610</USER_ID> for key: -610:TEST%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
+  procedure cur_joinby_cmp_threcol_fail is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_expected for select username, user_id,'Y' is_valid from all_users union all
+    select 'TEST' username, -600 user_id,'Y' is_valid from dual order by 1 desc;
+    
+    open l_actual for select username, user_id,'Y' is_valid from all_users union all
+    select 'TEST' username, -610 user_id,'Y' is_valid from dual order by 1 asc;
+     
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('USERNAME,IS_VALID'));
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to equal: refcursor [ count = % ]
+%Diff:%
+%Rows: [ 1 differences ]%
+%Expected: <USER_ID>-600</USER_ID> for key: TEST:Y%
+%Actual:   <USER_ID>-610</USER_ID> for key: TEST:Y%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
   procedure unord_incl_cols_as_list
   as
     l_actual   sys_refcursor;

@@ -211,8 +211,35 @@ create or replace package test_expectations_cursor is
   --%test( Compare cursors join by composite key)
   procedure cursor_joinby_compare_twocols; 
   
+  --%test( Compare cursors join by single key - key doesnt exists )
+  procedure cursor_joinby_compare_nokey; 
+  
+  --%test( Compare cursors join by composite key - one part of key doesnt exists )
+  procedure cur_joinby_comp_twocols_nokey; 
+  
+  --%test( Compare cursors join by single key - key doesnt is excluded )
+  procedure cursor_joinby_compare_exkey; 
+  
+  --%test( Compare cursors join by composite key - one part of key is excluded exists )
+  procedure cur_joinby_comp_twocols_exkey; 
+  
+  --%test( Compare cursors join by single key - key doesnt exists in expected)
+  procedure cursor_joinby_comp_nokey_ex; 
+  
+  --%test( Compare cursors join by single key - key doesnt exists in actual)
+  procedure cursor_joinby_comp_nokey_ac; 
+  
   --%test( Compare cursors join by single key more than 1000 rows)
   procedure cursor_joinby_compare_1000;
+  
+  --%test( Compare two column cursors join by and fail to match )
+  procedure cursor_joinby_compare_fail;  
+ 
+  --%test( Compare two column cursors join by two columns and fail to match )
+  procedure cursor_joinby_cmp_twocol_fail;   
+ 
+  --%test( Compare three column cursors join by two columns and fail to match )
+  procedure cur_joinby_cmp_threcol_fail; 
   
   --%test(Unordered List of columns to include)
   procedure unord_incl_cols_as_list;
@@ -226,14 +253,14 @@ create or replace package test_expectations_cursor is
   --%test(Join By List of columns to exclude)
   procedure joinby_excl_cols_as_list;
 
-  --%test(Exclude columns of diffrent type)
+  --%test(Exclude columns of different type)
   procedure excl_dif_cols_as_list;
   
-  --%test(Include column of same type leaving diffrent type out)
+  --%test(Include column of same type leaving different type out)
   procedure inlc_dif_cols_as_list;
 
-  --%test(Include column of same type leaving diffrent type out and exclude diffrent type)
+  --%test(Include column of same type leaving different type out and exclude different type)
   procedure inlc_exc_dif_cols_as_list;
-
+  
 end;
 /

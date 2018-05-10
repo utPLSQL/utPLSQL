@@ -251,21 +251,6 @@ create or replace type body ut_compound_data_value as
     l_row_diffs       ut_compound_data_helper.tt_row_diffs;
     c_max_rows        constant integer := 20;
     
-    function get_pk_value(a_join_by_xpath varchar2) return varchar2 is
-      l_column varchar2(32767);
-    begin
-      /* due to possibility of key being to columns we cannot use xmlextractvalue
-         usage of xmlagg is possible however it greatly complicates code and performance is impacted.
-         xpath to be looked at or regex
-      */
-      if a_join_by_xpath is not null then
-        l_column :=  ' extract(t.item_data,:join_by_xpath).GetStringVal() pk_value ';
-      else
-        l_column := ' :join_by_xpath pk_value';
-      end if;
-      return l_column;
-    end;
-
     function get_column_pk_hash(a_join_by_xpath varchar2) return varchar2 is
       l_column varchar2(32767);
     begin
@@ -313,35 +298,35 @@ create or replace type body ut_compound_data_value as
                        using a_exclude_xpath, a_include_xpath,a_join_by_xpath,self.data_id, l_other.data_id;
     
     /* Peform minus on two sets two get diffrences that will be used later on to print results */
-    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no,pk_value)
+    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no)
                        with source_data as
                        ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
-                           pk_hash, '||get_pk_value(a_join_by_xpath)||'
+                           pk_hash
                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
                            where data_id = :self_guid or data_id = :other_guid
                         )           
-                       select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no,pk_value
+                       select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
                        from(
                          (
-                           select t.item_hash,t. duplicate_no,t.pk_hash, t.pk_value
+                           select t.item_hash,t. duplicate_no,t.pk_hash
                            from  source_data t
                            where t.data_id = :self_guid
                            minus
-                           select t.item_hash,t. duplicate_no,t.pk_hash, t.pk_value
+                           select t.item_hash,t. duplicate_no,t.pk_hash
                            from  source_data t
                            where t.data_id = :other_guid
                          )
                            union all
                          (
-                           select t.item_hash,t. duplicate_no,t.pk_hash, t.pk_value
+                           select t.item_hash,t. duplicate_no,t.pk_hash
                            from  source_data t
                            where t.data_id = :other_guid
                            minus
-                           select t.item_hash,t. duplicate_no,t.pk_hash, t.pk_value
+                           select t.item_hash,t. duplicate_no,t.pk_hash
                            from  source_data t
                            where t.data_id = :self_guid
                         ))tmp'
-       using a_join_by_xpath,self.data_id, l_other.data_id,
+       using self.data_id, l_other.data_id,
              l_diff_id, 
              self.data_id, l_other.data_id,
              l_other.data_id,self.data_id;

@@ -198,7 +198,7 @@ create or replace type body ut_data_value_refcursor as
         ut_utils.append_to_clob(l_result,chr(10) || 'Unable to join sets:' || chr(10));
         for i in 1 .. l_missing_pk.count loop
           l_results.extend;
-          ut_utils.append_to_clob(l_result, get_missing_key_message(l_missing_pk(i)));
+          ut_utils.append_to_clob(l_result, get_missing_key_message(l_missing_pk(i))|| chr(10));
         end loop;    
       end if;
     else
