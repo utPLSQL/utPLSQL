@@ -464,6 +464,48 @@ create or replace package body ut_compound_data_helper is
     return l_cols_hash;
   end;
 
+  function is_pk_exists(a_expected_cursor xmltype,a_actual_cursor xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2,a_join_by_xpath varchar2) 
+  return tt_missing_pk is
+    l_pk_xpath_tabs ut_varchar2_list := ut_varchar2_list();
+    l_column_filter  varchar2(32767);
+    l_no_missing_keys tt_missing_pk := tt_missing_pk();
+  begin
+    if a_join_by_xpath is not null then
+      l_pk_xpath_tabs := ut_utils.string_to_table(a_join_by_xpath,'|');
+      l_column_filter := get_columns_row_filter(a_exclude_xpath, a_include_xpath);
+    
+      execute immediate q'[
+      with  xpaths_tab as (select column_value  xpath from table(:xpath_tabs)),
+        expected_column_info as ( select :expected as item_data from dual ),
+        actual_column_info as ( select :actual as item_data from dual ) 
+        select xpath,diif_type from
+        (
+         (select xpath,'e' diif_type from xpaths_tab
+         minus
+         select xpath,'e' diif_type
+         from   ( select ]'||l_column_filter||q'[ from expected_column_info ucd) x
+         ,xpaths_tab
+         where xmlexists (xpaths_tab.xpath passing x.item_data)
+         )
+         union all
+         (select xpath,'a' diif_type from xpaths_tab
+         minus
+         select xpath,'a' diif_type
+         from   ( select ]'||l_column_filter||q'[ from actual_column_info ucd) x
+         ,xpaths_tab
+         where xmlexists (xpaths_tab.xpath passing x.item_data)
+         )       
+         )]' bulk collect into l_no_missing_keys 
+         using l_pk_xpath_tabs,a_expected_cursor,a_actual_cursor,
+         a_exclude_xpath, a_include_xpath,
+         a_exclude_xpath, a_include_xpath; 
+    
+    end if;
+    
+    return l_no_missing_keys;
+  end;
+ 
+
 begin
   g_type_name_map( dbms_sql.binary_bouble_type )           := 'BINARY_DOUBLE';
   g_type_name_map( dbms_sql.bfile_type )                   := 'BFILE';

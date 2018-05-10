@@ -115,7 +115,8 @@ create or replace type body ut_data_value_refcursor as
     l_actual            ut_data_value_refcursor;
     l_column_diffs      ut_compound_data_helper.tt_column_diffs := ut_compound_data_helper.tt_column_diffs();
     l_exclude_xpath     varchar2(32767) := a_exclude_xpath;
-
+    l_missing_pk        ut_compound_data_helper.tt_missing_pk := ut_compound_data_helper.tt_missing_pk();
+    
     function get_col_diff_text(a_col ut_compound_data_helper.t_column_diffs) return varchar2 is
     begin
       return
@@ -130,7 +131,18 @@ create or replace type body ut_data_value_refcursor as
             '  Column <'||a_col.actual_name||'> is misplaced. Expected position: '||a_col.expected_pos||',' ||' actual position: '||a_col.actual_pos||'.'
         end;
     end;
-
+    
+    function get_missing_key_message(a_missing_keys ut_compound_data_helper.t_missing_pk) return varchar2 is
+    begin
+     return
+       case a_missing_keys.diff_type
+         when 'a' then
+           '  Unknown key to join by in actual:'||a_missing_keys.missingxpath
+         when 'e' then
+           '  Unknown key to join by in expected:'||a_missing_keys.missingxpath
+      end; 
+    end;
+    
     function add_incomparable_cols_to_xpath(
       a_column_diffs ut_compound_data_helper.tt_column_diffs, a_exclude_xpath varchar2
     ) return varchar2 is
@@ -151,6 +163,7 @@ create or replace type body ut_data_value_refcursor as
       end if;
       return l_result;
     end;
+    
   begin
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
@@ -176,12 +189,20 @@ create or replace type body ut_data_value_refcursor as
     end if;
 
     --diff rows and row elements
-    if a_join_by_xpath is not null then
-      ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath));
-    elsif a_unordered then
-      ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, l_exclude_xpath, a_include_xpath, a_unordered));
+    if (a_join_by_xpath is not null) or not(a_unordered) then
+      -- Check if pk filter exists
+      l_missing_pk := ut_compound_data_helper.is_pk_exists(self.columns_info, l_actual.columns_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath); 
+      if l_missing_pk.count = 0 then
+        ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath));    
+      else
+        ut_utils.append_to_clob(l_result,chr(10) || 'Unable to join sets:' || chr(10));
+        for i in 1 .. l_missing_pk.count loop
+          l_results.extend;
+          ut_utils.append_to_clob(l_result, get_missing_key_message(l_missing_pk(i)));
+        end loop;    
+      end if;
     else
-      ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, l_exclude_xpath, a_include_xpath, a_join_by_xpath));
+      ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, l_exclude_xpath, a_include_xpath, a_unordered));
     end if;
     
     l_result_string := ut_utils.to_string(l_result,null);
@@ -211,19 +232,29 @@ create or replace type body ut_data_value_refcursor as
   overriding member function compare_implementation (a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean) return integer is
     l_result          integer := 0;
     l_other           ut_data_value_refcursor;
+    l_missing_pk      ut_compound_data_helper.tt_missing_pk :=  ut_compound_data_helper.tt_missing_pk();
   begin
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
     end if;
 
     l_other   := treat(a_other as ut_data_value_refcursor);
+    
+    l_missing_pk := ut_compound_data_helper.is_pk_exists(self.columns_info, l_other.columns_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath);
+    --if we join by key and key is missing fail and report error
+     if a_join_by_xpath is not null and l_missing_pk.count > 0 then 
+      l_result := 1;
+      return l_result;
+    end if;
+    
     --if column names/types are not equal - build a diff of column names and types
     if ut_compound_data_helper.columns_hash( self, a_exclude_xpath, a_include_xpath )
        != ut_compound_data_helper.columns_hash( l_other, a_exclude_xpath, a_include_xpath )
     then
       l_result := 1;
     end if;
-    l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath, a_unordered);
+    
+      l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath, a_unordered);
     return l_result;
   end;
 
