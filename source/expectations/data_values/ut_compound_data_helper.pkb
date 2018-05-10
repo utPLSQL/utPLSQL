@@ -186,7 +186,19 @@ create or replace package body ut_compound_data_helper is
 
     return l_results;
   end;
-
+  
+  function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return varchar2 is
+    l_pk_value varchar2(4000);
+  begin
+    select listagg(extractvalue(xmlelement("ROW",column_value),a_join_by_xpath),':') within group ( order by 1)
+    into l_pk_value
+    from table(xmlsequence(extract(a_item_data,'/*/*')));
+    
+    return l_pk_value;
+  exception when no_data_found then
+    return 'null ';
+  end;
+  
   function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
@@ -195,15 +207,15 @@ create or replace package body ut_compound_data_helper is
     l_column_filter varchar2(32767);
     l_results       tt_row_diffs;
   begin
-    l_column_filter := get_columns_filter(a_exclude_xpath,a_include_xpath);
+    l_column_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath);
     
    /**
     * Since its unordered search we cannot select max rows from diffs as we miss some comparision records
     * We will restrict output on higher level of select
     **/
-    
+
     execute immediate q'[
-    with diff_info as (select item_hash,pk_hash,pk_value from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
+    with diff_info as (select item_hash,pk_hash,pk_value, duplicate_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
       select rn,diff_type,diffed_row,pk_value from
       (
       select diff_type,diffed_row, dense_rank() over (order by pk_hash) rn,pk_value from
@@ -215,16 +227,17 @@ create or replace package body ut_compound_data_helper is
              xmlserialize(content exp.row_data no indent)  exp_item,
              xmlserialize(content act.row_data no indent)  act_item
              from 
-              (select ucd.*, row_number() over(partition by pk_hash order by row_hash) duplicate_no
+              (select ucd.*
                from 
                 (select ucd.column_value row_data,
                  r.item_hash row_hash,
                  r.pk_hash ,
-                 r.pk_value,
+                 r.duplicate_no,
+                 ucd.column_value.getclobval() col_val,
                  ucd.column_value.getRootElement() col_name,
-                 ucd.column_value.getclobval() col_val
+                 ut_compound_data_helper.get_pk_value(:join_xpath,r.item_data) pk_value
                  from 
-                  (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash, i.pk_value
+                  (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash, i.duplicate_no
                    from ut_compound_data_tmp ucd,
                    diff_info i
                    where ucd.data_id = :self_guid
@@ -234,16 +247,17 @@ create or replace package body ut_compound_data_helper is
                 ) ucd
               ) exp
               join (
-                select ucd.*, row_number() over(partition by pk_hash order by row_hash) duplicate_no
+                select ucd.*
                 from 
                  (select ucd.column_value row_data,
                   r.item_hash row_hash,
                   r.pk_hash ,
-                  r.pk_value,
+                  r.duplicate_no,
+                  ucd.column_value.getclobval() col_val,
                   ucd.column_value.getRootElement() col_name,
-                  ucd.column_value.getclobval() col_val
+                  ut_compound_data_helper.get_pk_value(:join_xpath,r.item_data) pk_value
                   from 
-                   (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash, i.pk_value
+                   (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash, i.duplicate_no
                     from ut_compound_data_tmp ucd,
                     diff_info i
                     where ucd.data_id = :other_guid
@@ -252,7 +266,8 @@ create or replace package body ut_compound_data_helper is
                    table( xmlsequence( extract(r.item_data,'/*/*') ) ) ucd
                  ) ucd
               )  act
-              on exp.pk_hash = act.pk_hash  and exp.duplicate_no = act.duplicate_no
+              on exp.pk_hash = act.pk_hash  and exp.col_name = act.col_name
+              and exp.duplicate_no = act.duplicate_no
              where dbms_lob.compare(exp.col_val, act.col_val) != 0
               )
             unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
@@ -261,15 +276,17 @@ create or replace package body ut_compound_data_helper is
       select case when exp.pk_hash is null then 'Extra:' else 'Missing:' end as diff_type,
              xmlserialize(content nvl(exp.item_data, act.item_data) no indent) diffed_row,
              coalesce(exp.pk_hash,act.pk_hash) pk_hash,
-             null pk_value
-        from (select extract(ucd.item_data,'/*/*') item_data,i.pk_hash
+             coalesce(exp.pk_value,act.pk_value) pk_value
+        from (select extract(ucd.item_data,'/*/*') item_data,i.pk_hash,
+                ut_compound_data_helper.get_pk_value(:join_by,item_data) pk_value
                 from ut_compound_data_tmp ucd,
                 diff_info i
                where ucd.data_id = :self_guid
                  and ucd.item_hash = i.item_hash
              ) exp
         full outer join (
-              select extract(ucd.item_data,'/*/*') item_data,i.pk_hash
+              select extract(ucd.item_data,'/*/*') item_data,i.pk_hash,
+                ut_compound_data_helper.get_pk_value(:join_by,item_data) pk_value
                 from ut_compound_data_tmp ucd,
                 diff_info i
                where ucd.data_id = :other_guid
@@ -282,10 +299,13 @@ create or replace package body ut_compound_data_helper is
       ]'
     bulk collect into l_results
     using a_diff_id,
+    a_join_by_xpath,
     a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
+    a_join_by_xpath,
     a_exclude_xpath, a_include_xpath, a_actual_dataset_guid,
-    a_expected_dataset_guid, a_actual_dataset_guid,
+    a_join_by_xpath,a_expected_dataset_guid,a_join_by_xpath, a_actual_dataset_guid,
     a_max_rows;
+        
     return l_results;
   end;
 
