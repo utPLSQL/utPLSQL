@@ -105,7 +105,7 @@ create or replace package body ut_suite_builder is
     l_annotation_pos binary_integer;
   begin
     l_result.owner := a_object.object_owner;
-    l_result.name  := a_object.object_name;
+    l_result.name  := lower(trim(a_object.object_name));
     l_annotation_no := a_object.annotations.first;
     while l_annotation_no is not null loop
       l_annotation_pos := a_object.annotations(l_annotation_no).position;
@@ -113,7 +113,7 @@ create or replace package body ut_suite_builder is
         l_result.annotations(l_annotation_pos).name := a_object.annotations(l_annotation_no).name;
         l_result.annotations(l_annotation_pos).text := a_object.annotations(l_annotation_no).text;
       else
-        l_result.annotations(l_annotation_pos).procedure_name        := a_object.annotations(l_annotation_no).subobject_name;
+        l_result.annotations(l_annotation_pos).procedure_name        := lower(trim(a_object.annotations(l_annotation_no).subobject_name));
         l_result.annotations(l_annotation_pos).procedure_annotations := get_procedure_annotations(a_object.annotations, l_annotation_no);
       end if;
       l_annotation_no := a_object.annotations.next(l_annotation_no);
