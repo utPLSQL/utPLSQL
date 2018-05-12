@@ -61,19 +61,35 @@ create or replace package body test_junit_reporter as
    execute immediate q'[create or replace package body tst_package_junit_nosuite as
     procedure test1 is begin ut.expect(1).to_equal(1); end;
   end;]';
-
   
-   execute immediate q'[create or replace package Tst_Fix_Case_Sensitive as
+  execute immediate q'[create or replace package Tst_Fix_Case_Sensitive as
       --%suite
 
       --%test(bugfix)
       procedure bUgFiX;
-   end;]';
+  end;]';
 
    execute immediate q'[create or replace package body Tst_Fix_Case_Sensitive as
     procedure bUgFiX is begin ut.expect(1).to_equal(1); end;
   end;]';  
   
+  execute immediate q'[create or replace package check_fail_escape is
+      --%suitepath(core)
+      --%suite(checkfailedescape)
+      --%displayname(Check JUNIT XML failure is escaped)
+            
+      --%test(Fail Miserably)
+      procedure fail_miserably;
+      
+    end;]';
+    
+    execute immediate q'[create or replace package body check_fail_escape is
+      procedure fail_miserably is
+      begin
+        ut3.ut.expect('test').to_equal('<![CDATA[some stuff]]>');
+      end;
+    end;]';
+
   reporters.reporters_setup;
   
   end;
@@ -279,6 +295,21 @@ create or replace package body test_junit_reporter as
     ut.expect(l_actual).to_be_like(l_expected);  
   end;
   
+  procedure check_failure_escaped is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+    --Act
+    select *
+      bulk collect into l_results
+      from table(ut3.ut.run('check_fail_escape',ut3.ut_junit_reporter()));
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    --Assert
+    ut.expect(l_actual).to_be_like('%<![CDATA[%
+Actual: &apos;test&apos; (varchar2) was expected to equal: &apos;&lt;![CDATA[some stuff]]&gt;&apos; (varchar2)%
+]]>%');
+  end;
+  
   procedure check_classname_is_populated is
     l_results   ut3.ut_varchar2_list;
     l_actual    clob;
@@ -307,6 +338,7 @@ create or replace package body test_junit_reporter as
     execute immediate 'drop package check_junit_rep_suitepath';
     execute immediate 'drop package tst_package_junit_nodesc';
     execute immediate 'drop package tst_package_junit_nosuite';
+    execute immediate 'drop package check_fail_escape';
     execute immediate 'drop package Tst_Fix_Case_Sensitive';
     reporters.reporters_cleanup;
   end;
