@@ -307,6 +307,7 @@ create or replace package body test_junit_reporter as
     execute immediate 'drop package check_junit_rep_suitepath';
     execute immediate 'drop package tst_package_junit_nodesc';
     execute immediate 'drop package tst_package_junit_nosuite';
+    execute immediate 'drop package Tst_Fix_Case_Sensitive';
     reporters.reporters_cleanup;
   end;
 end;
