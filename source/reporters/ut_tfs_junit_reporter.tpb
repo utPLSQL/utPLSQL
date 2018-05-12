@@ -76,15 +76,13 @@ create or replace type body ut_tfs_junit_reporter is
      -- Do not count error as failure
       elsif a_test.result = ut_utils.gc_failure then
         self.print_text('<failure type="failure" message="Test '||a_test.name||' failed">');
-        self.print_text('<![CDATA[');
         for i in 1 .. a_test.failed_expectations.count loop
           l_lines := a_test.failed_expectations(i).get_result_lines();
           for j in 1 .. l_lines.count loop
-            self.print_text(l_lines(j));
+            self.print_text(dbms_xmlgen.convert(l_lines(j)));
           end loop;
-          self.print_text(a_test.failed_expectations(i).caller_info);
+          self.print_text(dbms_xmlgen.convert(a_test.failed_expectations(i).caller_info));
         end loop;
-        self.print_text(']]>');
         self.print_text('</failure>');
       end if;
 
