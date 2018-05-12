@@ -29,26 +29,41 @@ create or replace type body ut_executable is
     return;
   end;
 
-  member function is_valid(self in out nocopy ut_executable) return boolean is
+  member function is_defined(self in out nocopy ut_executable) return boolean is
     l_result boolean := false;
     l_message_part varchar2(4000) := 'Call params for ' || self.associated_event_name || ' are not valid: ';
   begin
 
     if self.object_name is null then
       self.error_stack := l_message_part || 'package is not defined';
-    elsif not ut_metadata.package_valid(self.owner_name, self.object_name) then
-      self.error_stack := l_message_part || 'package does not exist or is invalid: ' ||upper(self.owner_name||'.'||self.object_name);
     elsif self.procedure_name is null then
       self.error_stack := l_message_part || 'procedure is not defined';
-    elsif not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.procedure_name) then
-      self.error_stack := l_message_part || 'procedure does not exist  '
-                          || upper(self.owner_name || '.' || self.object_name || '.' ||self.procedure_name);
     else
       l_result := true;
     end if;
 
     return l_result;
-  end is_valid;
+  end is_defined;
+
+  /**
+  * We will check if error raised because package was invalid if not we let it propagate.
+  **/
+  member function is_invalid(self in out nocopy ut_executable) return boolean is
+    l_result boolean := true;
+    l_message_part varchar2(4000) := 'Call params for ' || self.associated_event_name || ' are not valid: ';
+  begin
+
+    if not ut_metadata.package_valid(self.owner_name, self.object_name) then
+      self.error_stack := l_message_part || 'package does not exist or is invalid: ' ||upper(self.owner_name||'.'||self.object_name);
+    elsif not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.procedure_name) then
+      self.error_stack := l_message_part || 'procedure does not exist  '
+                          || upper(self.owner_name || '.' || self.object_name || '.' ||self.procedure_name);
+    else
+      l_result := false;
+    end if;
+
+    return l_result;
+  end is_invalid;
 
   member function form_name return varchar2 is
   begin
@@ -66,6 +81,7 @@ create or replace type body ut_executable is
     l_status                   number;
     l_cursor_number            number;
     l_completed_without_errors boolean := true;
+    l_failed_with_invalid_pck  boolean := true;
     l_start_transaction_id     varchar2(250);
     l_end_transaction_id     varchar2(250);
     
@@ -95,7 +111,7 @@ create or replace type body ut_executable is
     --listener - before call to executable
     ut_event_manager.trigger_event('before_'||self.associated_event_name, self);
 
-    l_completed_without_errors := self.is_valid();
+    l_completed_without_errors := self.is_defined();
     if l_completed_without_errors then
       l_statement :=
       'declare' || chr(10) ||
@@ -117,15 +133,32 @@ create or replace type body ut_executable is
       ut_utils.debug_log('ut_executable.do_execute l_statement: ' || l_statement);
 
       l_cursor_number := dbms_sql.open_cursor;
-      dbms_sql.parse(l_cursor_number, statement => l_statement, language_flag => dbms_sql.native);
-      dbms_sql.bind_variable(l_cursor_number, 'a_error_stack', to_char(null), 32767);
-      dbms_sql.bind_variable(l_cursor_number, 'a_error_backtrace', to_char(null), 32767);
 
-      l_status := dbms_sql.execute(l_cursor_number);
-      dbms_sql.variable_value(l_cursor_number, 'a_error_stack', self.error_stack);
-      dbms_sql.variable_value(l_cursor_number, 'a_error_backtrace', self.error_backtrace);
-      dbms_sql.close_cursor(l_cursor_number);
-
+      /**
+      * The code will allow to execute once we check if packages are defined
+      * If it fail with 6550 (usually invalid package) it will check if because of invalid state or missing
+      * if for any other reason we will propagate it up as we didnt expected.
+      **/
+      begin
+        dbms_sql.parse(l_cursor_number, statement => l_statement, language_flag => dbms_sql.native);
+        dbms_sql.bind_variable(l_cursor_number, 'a_error_stack', to_char(null), 32767);
+        dbms_sql.bind_variable(l_cursor_number, 'a_error_backtrace', to_char(null), 32767);
+        l_status := dbms_sql.execute(l_cursor_number);
+        dbms_sql.variable_value(l_cursor_number, 'a_error_stack', self.error_stack);
+        dbms_sql.variable_value(l_cursor_number, 'a_error_backtrace', self.error_backtrace);
+        dbms_sql.close_cursor(l_cursor_number);
+      exception 
+        when ut_utils.ex_invalid_package then
+          l_failed_with_invalid_pck := self.is_invalid();
+          dbms_sql.close_cursor(l_cursor_number);
+          if not l_failed_with_invalid_pck then 
+            raise;
+          end if;
+        when others then
+         dbms_sql.close_cursor(l_cursor_number);
+         raise;
+      end;
+      
       save_dbms_output;
 
       l_completed_without_errors := (self.error_stack||self.error_backtrace) is null;
@@ -144,6 +177,7 @@ create or replace type body ut_executable is
     ut_utils.set_client_info(null);
 
     return l_completed_without_errors;
+    
   end do_execute;
 
   member function get_error_stack_trace return varchar2 is
