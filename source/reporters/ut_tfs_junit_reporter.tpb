@@ -80,7 +80,7 @@ create or replace type body ut_tfs_junit_reporter is
         for i in 1 .. a_test.failed_expectations.count loop
           l_lines := a_test.failed_expectations(i).get_result_lines();
           for j in 1 .. l_lines.count loop
-            self.print_text(l_lines(j));
+            self.print_text(dbms_xmlgen.convert(l_lines(j)));
           end loop;
           self.print_text(a_test.failed_expectations(i).caller_info);
         end loop;
