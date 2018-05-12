@@ -187,22 +187,21 @@ create or replace type body ut_data_value_refcursor as
       ut_utils.append_to_clob(l_result, l_results);
       l_exclude_xpath := add_incomparable_cols_to_xpath(l_column_diffs, a_exclude_xpath);
     end if;
-
-    --diff rows and row elements
-    if (a_join_by_xpath is not null) or not(a_unordered) then
-      -- Check if pk filter exists
-      l_missing_pk := ut_compound_data_helper.is_pk_exists(self.columns_info, l_actual.columns_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath); 
-      if l_missing_pk.count = 0 then
-        ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath));    
-      else
+    
+    --check for missing pk 
+    if (a_join_by_xpath is not null) then
+      l_missing_pk := ut_compound_data_helper.is_pk_exists(self.columns_info, l_actual.columns_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath);
+    end if;
+    
+    --diff rows and row elements if the pk is not missing 
+    if l_missing_pk.count = 0 then
+        ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath, a_unordered));    
+    else
         ut_utils.append_to_clob(l_result,chr(10) || 'Unable to join sets:' || chr(10));
         for i in 1 .. l_missing_pk.count loop
           l_results.extend;
           ut_utils.append_to_clob(l_result, get_missing_key_message(l_missing_pk(i))|| chr(10));
         end loop;    
-      end if;
-    else
-      ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, l_exclude_xpath, a_include_xpath, a_unordered));
     end if;
     
     l_result_string := ut_utils.to_string(l_result,null);

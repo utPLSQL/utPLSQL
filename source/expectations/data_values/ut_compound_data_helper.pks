@@ -16,6 +16,10 @@ create or replace package ut_compound_data_helper authid definer is
   limitations under the License.
   */
 
+  gc_compare_join_by   constant varchar2(10):='join_by';
+  gc_compare_unordered constant varchar2(10):='unordered';
+  gc_compare_normal    constant varchar2(10):='normal';
+  
   type t_column_diffs is record(
     diff_type     varchar2(1),
     expected_name varchar2(250),
@@ -55,22 +59,14 @@ create or replace package ut_compound_data_helper authid definer is
     a_expected xmltype, a_actual xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2
   ) return tt_column_diffs;
 
-  function get_rows_diff(
-    a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
-    a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2
-  ) return tt_row_diffs;
+ function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return varchar2;
 
-  function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return varchar2;
-  
-  function get_rows_diff(
+ function compare_type(a_join_by_xpath in varchar2,a_unordered boolean) return varchar2;
+
+ function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_join_by_xpath varchar2
-  ) return tt_row_diffs;
-
-  function get_rows_diff_unordered(
-    a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
-    a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2
+    a_join_by_xpath varchar2,a_unorderdered boolean
   ) return tt_row_diffs;
 
   subtype t_hash  is raw(128);

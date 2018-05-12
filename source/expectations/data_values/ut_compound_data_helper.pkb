@@ -197,8 +197,8 @@ create or replace package body ut_compound_data_helper is
     return l_pk_value;
   exception when no_data_found then
     return 'null ';
-  end;
-  
+  end; 
+    
   function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
@@ -455,6 +455,40 @@ create or replace package body ut_compound_data_helper is
     a_max_rows;
     
     return l_results;
+
+  end;
+  
+  function compare_type(a_join_by_xpath in varchar2,a_unordered boolean) return varchar2 is
+    begin
+      case 
+        when a_join_by_xpath is not null then
+          return gc_compare_join_by;
+        when a_unordered then
+          return gc_compare_unordered;
+        else
+          return gc_compare_normal;
+        end case;
+    end; 
+  
+  function get_rows_diff(
+    a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
+    a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
+    a_join_by_xpath varchar2,a_unorderdered boolean
+  ) return tt_row_diffs is
+    l_results       tt_row_diffs;
+    l_compare_type  varchar2(10):= compare_type(a_join_by_xpath,a_unorderdered);
+  begin
+    case 
+      when l_compare_type = gc_compare_join_by then
+        return get_rows_diff(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
+                                   a_max_rows, a_exclude_xpath, a_include_xpath ,a_join_by_xpath);
+      when l_compare_type = gc_compare_unordered then 
+        return get_rows_diff_unordered(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
+                                             a_max_rows, a_exclude_xpath, a_include_xpath);
+      else
+        return get_rows_diff(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
+                                   a_max_rows, a_exclude_xpath, a_include_xpath);
+      end case;
 
   end;
 
