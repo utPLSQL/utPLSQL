@@ -242,7 +242,7 @@ drop type ut_output_buffer_base force;
 
 drop view ut_output_buffer_tmp;
 
-drop table ut_output_buffer_tmp$;
+drop table ut_output_buffer_tmp$ purge;
 
 drop view ut_output_buffer_info_tmp;
 
@@ -274,6 +274,16 @@ drop type ut_varchar2_list force;
 
 drop type ut_varchar2_rows force;
 
+drop package ut_coverage_profiler;
+
+drop package ut_compound_data_helper;
+
+drop package ut_coverage_helper_profiler;
+
+drop type ut_have_count;
+
+drop type ut_compound_data_value;
+
 set echo off
 set feedback off
 declare
@@ -304,6 +314,71 @@ begin
   dbms_output.put_line(i||' synonyms dropped');
 end;
 /
+
+declare
+  i integer := 0;
+begin
+  dbms_output.put_line('Dropping synonyms pointing to PL/SQL code coverage objects on 12.2 ' || upper('&&ut3_owner'));
+  for syn in (
+    select
+      case when owner = 'PUBLIC' then 'public synonym '
+        else 'synonym ' || owner || '.' 
+      end || synonym_name as syn_name,
+      table_owner || '.' || table_name as for_object
+    from all_synonyms s
+    where 1 = 1
+    and table_owner = upper('&&ut3_owner')
+    and synonym_name in ('DBMSPCC_BLOCKS','DBMSPCC_RUNS','DBMSPCC_UNITS')
+  )
+  loop
+    
+    begin
+
+      execute immediate 'drop '||syn.syn_name;
+      sys.dbms_output.put_line('Dropped '||syn.syn_name||' for object '||syn.for_object);
+
+      i := i + 1;
+    exception
+      when others then
+        sys.dbms_output.put_line('FAILED to drop '||syn.syn_name||' for object '||syn.for_object);
+    end;
+  end loop;
+  sys.dbms_output.put_line('&&line_separator');
+  sys.dbms_output.put_line(i||' synonyms dropped');
+end;
+/
+
+declare
+   i        integer := 0;
+begin
+   sys.dbms_output.put_line('Dropping packages created for 12.2+ ' || upper('&&ut3_owner'));
+   
+   for pkg in (select object_name, owner
+                  from all_objects
+                  where 1 = 1
+                  and owner = upper('&&ut3_owner')
+                  and object_type = 'PACKAGE'
+                  and object_name in ('UT_COVERAGE_HELPER_BLOCK','UT_COVERAGE_BLOCK'))
+   loop
+
+      begin
+         execute immediate 'drop package ' || pkg.owner || '.' || pkg.object_name;
+         
+         sys.dbms_output.put_line('Dropped '|| pkg.object_name);
+         i := i + 1;
+         
+         exception
+            when others then
+               dbms_output.put_line('FAILED to drop ' || pkg.object_name);
+      end;
+      
+   end loop;
+   
+   sys.dbms_output.put_line('&&line_separator');
+   sys.dbms_output.put_line(i || ' packages dropped');
+end;
+/
+
 begin
   dbms_output.put_line('&&line_separator');
   dbms_output.put_line('Uninstall complete');
