@@ -36,7 +36,7 @@ create or replace package test_junit_reporter as
   --%test(Report produces expected output)
   procedure reporort_produces_expected_out;
   
-  --%test( Test for bug #659)
+  --%test( Check classname is populated when procedure is mixed cased - bug #659)
   procedure check_classname_is_populated;
 
   --%afterall
