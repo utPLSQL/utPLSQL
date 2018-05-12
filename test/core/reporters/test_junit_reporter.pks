@@ -39,6 +39,9 @@ create or replace package test_junit_reporter as
   --%test( Check classname is populated when procedure is mixed cased - bug #659)
   procedure check_classname_is_populated;
 
+  --%test( Validate that fail with special char are escaped )
+  procedure check_failure_escaped;
+
   --%afterall
   procedure remove_test_package;
 end;
