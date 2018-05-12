@@ -56,14 +56,12 @@ create or replace type body ut_sonar_test_reporter is
         self.print_text('</error>');
       elsif a_test.result > ut_utils.gc_success then
         self.print_text('<failure message="some expectations have failed">');
-        self.print_text('<![CDATA[');
         for i in 1 .. a_test.failed_expectations.count loop
           l_lines := a_test.failed_expectations(i).get_result_lines();
           for i in 1 .. l_lines.count loop
             self.print_text(dbms_xmlgen.convert(l_lines(i)));
           end loop;
         end loop;
-        self.print_text(']]>');
         self.print_text('</failure>');
       end if;
       self.print_text('</testCase>');

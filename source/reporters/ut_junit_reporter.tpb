@@ -53,7 +53,6 @@ create or replace type body ut_junit_reporter is
         self.print_text('</error>');
       elsif a_test.result > ut_utils.gc_success then
         self.print_text('<failure>');
-        self.print_text(c_cddata_tag_start);
         for i in 1 .. a_test.failed_expectations.count loop
           
           l_lines := a_test.failed_expectations(i).get_result_lines();
@@ -61,9 +60,8 @@ create or replace type body ut_junit_reporter is
           for j in 1 .. l_lines.count loop
             self.print_text(dbms_xmlgen.convert(l_lines(j)));
           end loop;
-          self.print_text(a_test.failed_expectations(i).caller_info);
+          self.print_text(dbms_xmlgen.convert(a_test.failed_expectations(i).caller_info));
         end loop;
-        self.print_text(c_cddata_tag_end);
         self.print_text('</failure>');
       end if;
       -- TODO - decide if we need/want to use the <system-err/> tag too
