@@ -108,7 +108,7 @@ create or replace package body test_tfs_junit_reporter as
       from table(ut3.ut.run('check_junit_reporting',ut3.ut_tfs_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
-    ut.expect(l_actual).to_be_like('%at "%.CHECK_JUNIT_REPORTING%", line %');
+    ut.expect(l_actual).to_be_like('%at &quot;%.CHECK_JUNIT_REPORTING%&quot;, line %');
   end;
 
   procedure check_classname_suite is
@@ -173,9 +173,7 @@ create or replace package body test_tfs_junit_reporter as
       from table(ut3.ut.run('check_fail_escape',ut3.ut_tfs_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
-    ut.expect(l_actual).to_be_like('%<![CDATA[%
-Actual: &apos;test&apos; (varchar2) was expected to equal: &apos;&lt;![CDATA[some stuff]]&gt;&apos; (varchar2)%
-]]>%');
+    ut.expect(l_actual).to_be_like('%Actual: &apos;test&apos; (varchar2) was expected to equal: &apos;&lt;![CDATA[some stuff]]&gt;&apos; (varchar2)%');
   end;
 
   procedure check_classname_suitepath is
