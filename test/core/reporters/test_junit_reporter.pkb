@@ -62,6 +62,18 @@ create or replace package body test_junit_reporter as
     procedure test1 is begin ut.expect(1).to_equal(1); end;
   end;]';
 
+  
+   execute immediate q'[create or replace package Tst_Fix_Case_Sensitive as
+      --%suite
+
+      --%test(bugfix)
+      procedure bUgFiX;
+   end;]';
+
+   execute immediate q'[create or replace package body Tst_Fix_Case_Sensitive as
+    procedure bUgFiX is begin ut.expect(1).to_equal(1); end;
+  end;]';  
+  
   reporters.reporters_setup;
   
   end;
@@ -267,6 +279,27 @@ create or replace package body test_junit_reporter as
     ut.expect(l_actual).to_be_like(l_expected);  
   end;
   
+  procedure check_classname_is_populated is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+    l_expected  varchar2(32767):= q'[<testsuites tests="1" disabled="0" errors="0" failures="0" name="" time="%" >
+<testsuite tests="1" id="1" package="tst_fix_case_sensitive"  disabled="0" errors="0" failures="0" name="tst_fix_case_sensitive" time="%" >
+<testcase classname="tst_fix_case_sensitive" assertions="0" name="bugfix" time="%" >
+<system-out/>
+<system-err/>
+</testcase>
+<system-out/>
+<system-err/>
+</testsuite>
+</testsuites>]';
+  begin
+    select *
+      bulk collect into l_results
+    from table(ut3.ut.run('Tst_Fix_Case_Sensitive',ut3.ut_junit_reporter()));
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like(l_expected);  
+  end;
+  
   procedure remove_test_package is
     pragma autonomous_transaction;
   begin
@@ -274,6 +307,7 @@ create or replace package body test_junit_reporter as
     execute immediate 'drop package check_junit_rep_suitepath';
     execute immediate 'drop package tst_package_junit_nodesc';
     execute immediate 'drop package tst_package_junit_nosuite';
+    execute immediate 'drop package Tst_Fix_Case_Sensitive';
     reporters.reporters_cleanup;
   end;
 end;
