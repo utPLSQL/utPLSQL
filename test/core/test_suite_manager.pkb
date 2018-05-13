@@ -872,10 +872,9 @@ end test_package_3;]';
     l_objects_to_run ut3.ut_suite_items;
   begin
     l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('failing_invalid_spec'));
-    ut.fail('Invalid package didnt raised exception');
-  exception
-    when others then
-      ut.expect(sqlerrm).to_be_like('%failing_invalid_spec%');
+    
+    ut3.ut.expect(l_objects_to_run.count).to_be_greater_than(0);
+    ut3.ut.expect(l_objects_to_run(l_objects_to_run.first).object_name).to_equal('failing_invalid_spec');
   end;
 
   procedure compile_invalid_package is
@@ -912,6 +911,26 @@ end;]';
     execute immediate 'drop package failing_invalid_spec';
   end;
 
+  procedure test_search_nonexisting_pck is
+    l_objects_to_run ut3.ut_suite_items;
+  begin
+    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('ut3.failing_non_existing'));
+    ut.fail('Non existing package didnt raised exception');
+  exception
+    when others then
+      ut.expect(sqlerrm).to_be_like('%failing_non_existing%');
+  end;
+  
+  procedure test_search_nonexist_sch_pck is
+    l_objects_to_run ut3.ut_suite_items;
+  begin
+    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('failing_non_existing'));
+    ut.fail('Non existing package without schema didnt raised exception');
+  exception
+    when others then
+      ut.expect(sqlerrm).to_be_like('%ORA-44001: invalid schema%');
+  end;
+  
   procedure test_desc_with_comma is
     l_objects_to_run ut3.ut_suite_items;
     l_suite          ut3.ut_suite;

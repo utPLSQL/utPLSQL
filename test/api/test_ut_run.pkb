@@ -114,5 +114,107 @@ Failures:%
     execute immediate 'drop package test_stateful';
   end;
 
+  procedure run_in_invalid_state is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+    l_expected  varchar2(32767);
+  begin
+    select *
+      bulk collect into l_results
+    from table(ut3.ut.run('failing_invalid_spec'));
+    
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like('%Call params for % are not valid: package does not exist or is invalid: %FAILING_INVALID_SPEC%'); 
+    
+  end;
+
+  procedure compile_invalid_package is
+    ex_compilation_error exception;
+    pragma exception_init(ex_compilation_error,-24344);
+    pragma autonomous_transaction;
+  begin
+    begin
+      execute immediate q'[create or replace package failing_invalid_spec as
+  --%suite
+  gv_glob_val non_existing_table.id%type := 0;
+
+  --%test
+  procedure test1;
+end;]';
+    exception when ex_compilation_error then null;
+    end;
+    begin
+      execute immediate q'[create or replace package body failing_invalid_spec as
+  procedure test1 is begin ut.expect(1).to_equal(1); end;
+end;]';
+    exception when ex_compilation_error then null;
+    end;
+  end;
+  procedure drop_invalid_package is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package failing_invalid_spec';
+  end;
+
+  procedure run_and_revalidate_specs is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+    l_is_invalid number;
+  begin
+    execute immediate q'[select count(1) from all_objects o where o.owner = :object_owner and o.object_type = 'PACKAGE'
+            and o.status = 'INVALID' and o.object_name= :object_name]' into l_is_invalid
+            using user,'FAILING_INVALID_SPEC';
+
+    select *
+      bulk collect into l_results
+    from table(ut3.ut.run('failing_invalid_spec'));
+    
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(1).to_equal(l_is_invalid);
+    ut.expect(l_actual).to_be_like('%failing_invalid_spec%invalidspecs [% sec]%
+%Finished in % seconds%
+%1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
+  
+  end;
+
+  procedure generate_invalid_spec is
+    ex_compilation_error exception;
+    pragma exception_init(ex_compilation_error,-24344);
+    pragma autonomous_transaction;
+  begin
+  
+    execute immediate q'[create or replace package parent_specs as
+  c_test constant varchar2(1) := 'Y';
+end;]';
+  
+    execute immediate q'[create or replace package failing_invalid_spec as
+  --%suite
+  g_var varchar2(1) := parent_specs.c_test;
+
+  --%test(invalidspecs)
+  procedure test1;
+end;]';
+
+    execute immediate q'[create or replace package body failing_invalid_spec as
+  procedure test1 is begin ut.expect('Y').to_equal(g_var); end;
+end;]';
+    
+    -- That should invalidate test package and we can then revers
+    execute immediate q'[create or replace package parent_specs as
+  c_test_error constant varchar2(1) := 'Y';
+end;]';
+ 
+    execute immediate q'[create or replace package parent_specs as
+  c_test constant varchar2(1) := 'Y';
+end;]';     
+
+  end;
+  procedure drop_test_package is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package failing_invalid_spec';
+    execute immediate 'drop package parent_specs';
+  end;
+
 end;
 /
