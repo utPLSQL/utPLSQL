@@ -173,7 +173,7 @@ Test procedure with description.
 create or replace package test_package as
   --%suite(Tests for a package)
   
-  --%test(Description of tesed behavior)
+  --%test(Description of tested behavior)
   procedure some_test;
 end;
 /
@@ -188,7 +188,7 @@ exec ut.run('test_package');
 ```
 ```
 Tests for a package
-  Description of tesed behavior [.005 sec]
+  Description of tested behavior [.005 sec]
  
 Finished in .006828 seconds
 1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
@@ -199,7 +199,7 @@ When multiple `--%test` annotations are specified for a procedure, the first ann
 create or replace package test_package as
   --%suite(Tests for a package)
   
-  --%test(Description of tesed behavior)
+  --%test(Description of tested behavior)
   --%test(Duplicate description)
   procedure some_test;
 end;
@@ -215,7 +215,7 @@ exec ut.run('test_package');
 ```
 ```
 Tests for a package
-  Description of tesed behavior [.007 sec]
+  Description of tested behavior [.007 sec]
  
  
 Warnings:
@@ -237,7 +237,7 @@ create or replace package test_package as
   --%suite(Tests for a package)
   --%disabled
   
-  --%test(Description of tesed behavior)
+  --%test(Description of tested behavior)
   procedure some_test;
 
   --%test(Description of another behavior)
@@ -258,7 +258,7 @@ exec ut.run('test_package');
 ```
 ```
 Tests for a package
-  Description of tesed behavior [0 sec] (DISABLED)
+  Description of tested behavior [0 sec] (DISABLED)
   Description of another behavior [0 sec] (DISABLED)
  
 Finished in .001441 seconds
@@ -270,7 +270,7 @@ Disabling individual test(s).
 create or replace package test_package as
   --%suite(Tests for a package)
   
-  --%test(Description of tesed behavior)
+  --%test(Description of tested behavior)
   procedure some_test;
 
   --%test(Description of another behavior)
@@ -292,7 +292,7 @@ exec ut.run('test_package');
 ```
 ```
 Tests for a package
-  Description of tesed behavior [.004 sec]
+  Description of tested behavior [.004 sec]
   Description of another behavior [0 sec] (DISABLED)
  
 Finished in .005868 seconds
@@ -320,7 +320,7 @@ For multiple `--%beforeall` procedures order of execution is defined by annotati
 create or replace package test_package as
   --%suite(Tests for a package)
 
-  --%test(Description of tesed behavior)
+  --%test(Description of tested behavior)
   procedure some_test;
 
   --%test(Description of another behavior)
@@ -350,7 +350,7 @@ exec ut.run('test_package');
 ```
 Tests for a package
   --- SETUP_STUFF invoked ---
-  Description of tesed behavior [.004 sec]
+  Description of tested behavior [.004 sec]
   Description of another behavior [.003 sec]
  
 Finished in .012292 seconds
@@ -366,7 +366,7 @@ The `another_setup` still gets invoked before any test from that suite package i
    --%beforeall
    procedure initial_setup;
    
-   --%test(Description of tesed behavior)
+   --%test(Description of tested behavior)
    procedure some_test;
  
    --%test(Description of another behavior)
@@ -402,7 +402,7 @@ The `another_setup` still gets invoked before any test from that suite package i
 Tests for a package
   --- INITIAL_SETUP invoked ---
   --- ANOTHER_SETUP invoked ---
-  Description of tesed behavior [.004 sec]
+  Description of tested behavior [.004 sec]
   Description of another behavior [.004 sec]
  
 Finished in .016672 seconds
@@ -419,7 +419,7 @@ When procedure is annotated as both `--%beforeall` and `--%test`, the procedure 
    --%beforeall
    procedure initial_setup;
    
-   --%test(Description of tesed behavior)
+   --%test(Description of tested behavior)
    --%beforeall
    procedure some_test;
  
@@ -448,7 +448,7 @@ When procedure is annotated as both `--%beforeall` and `--%test`, the procedure 
  ```
 Tests for a package
   --- INITIAL_SETUP invoked ---
-  Description of tesed behavior [.003 sec]
+  Description of tested behavior [.003 sec]
   Description of another behavior [.004 sec]
  
  
@@ -487,7 +487,7 @@ All rules defined for `--%beforeall` also apply for `--%afterall` annotation. Se
 create or replace package test_package as
   --%suite(Tests for a package)
 
-  --%test(Description of tesed behavior)
+  --%test(Description of tested behavior)
   procedure some_test;
 
   --%test(Description of another behavior)
@@ -516,7 +516,7 @@ exec ut.run('test_package');
 ```
 ```
 Tests for a package
-  Description of tesed behavior [.003 sec]
+  Description of tested behavior [.003 sec]
   Description of another behavior [.005 sec]
   ---CLEANUP_STUFF invoked ---
  
@@ -550,7 +550,7 @@ For multiple `--%beforeeach` procedures order of execution is defined by annotat
 create or replace package test_package as
   --%suite(Tests for a package)
 
-  --%test(Description of tesed behavior)
+  --%test(Description of tested behavior)
   procedure some_test;
 
   --%test(Description of another behavior)
@@ -593,7 +593,7 @@ exec ut.run('test_package');
 ```
 Tests for a package
   ---SETUP_STUFF invoked ---
-  Description of tesed behavior [.004 sec]
+  Description of tested behavior [.004 sec]
   ---SETUP_FOR_TEST invoked ---
   ---SOME_TEST invoked ---
   Description of another behavior [.006 sec]
@@ -630,7 +630,7 @@ As a rule, the `--%aftereach` gets executed even if the associated `--%beforeeac
 create or replace package test_package as
   --%suite(Tests for a package)
 
-  --%test(Description of tesed behavior)
+  --%test(Description of tested behavior)
   procedure some_test;
 
   --%test(Description of another behavior)
@@ -671,7 +671,7 @@ exec ut.run('test_package');
 ```
 ```
 Tests for a package
-  Description of tesed behavior [.006 sec]
+  Description of tested behavior [.006 sec]
   ---SOME_TEST invoked ---
   ---CLEANUP_FOR_TEST invoked ---
   Description of another behavior [.006 sec]
@@ -709,7 +709,7 @@ As a rule, the `--%beforetest` execution gets aborted if preceding `--%beforeeac
 create or replace package test_package as
   --%suite(Tests for a package)
 
-  --%test(Description of tesed behavior)
+  --%test(Description of tested behavior)
   --%beforetest(setup_for_a_test)
   --%beforetest(another_setup_for_a_test)
   procedure some_test;
@@ -752,7 +752,7 @@ exec ut.run('test_package');
 ```
 ```
 Tests for a package
-  Description of tesed behavior [.011 sec]
+  Description of tested behavior [.011 sec]
   ---SETUP_FOR_A_TEST invoked ---
   ---ANOTHER_SETUP_FOR_A_TEST invoked ---
   ---SOME_TEST invoked ---
@@ -790,7 +790,7 @@ As a rule, the `--%aftertest` gets executed even if the associated `--%beforeeac
 create or replace package test_package as
   --%suite(Tests for a package)
 
-  --%test(Description of tesed behavior)
+  --%test(Description of tested behavior)
   --%aftertest(cleanup_for_a_test)
   --%aftertest(another_cleanup_for_a_test)
   procedure some_test;
@@ -833,7 +833,7 @@ exec ut.run('test_package');
 ```
 ```
 Tests for a package
-  Description of tesed behavior [.01 sec]
+  Description of tested behavior [.01 sec]
   ---SOME_TEST invoked ---
   ---CLEANUP_FOR_A_TEST invoked ---
   ---ANOTHER_CLEANUP_FOR_A_TEST invoked ---
