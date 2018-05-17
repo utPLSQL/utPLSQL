@@ -1,4 +1,4 @@
-create or replace type ut_key_value_pair force as object(
+create or replace type ut_key_anyval_pair force as object(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,7 +15,6 @@ create or replace type ut_key_value_pair force as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  key varchar2(4000),
-  value varchar2(4000)
-)
+  key varchar2(4000)
+) not final
 /

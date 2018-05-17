@@ -48,7 +48,7 @@ create or replace package ut_compound_data_helper authid definer is
 
   type tt_row_diffs is table of t_row_diffs;
 
-  function get_columns_info(a_cursor in out nocopy sys_refcursor) return xmltype;
+  function get_column_info_xml(a_column_details ut_key_anyval_pair) return xmltype;
 
   function get_columns_filter(
     a_exclude_xpath varchar2, a_include_xpath varchar2,

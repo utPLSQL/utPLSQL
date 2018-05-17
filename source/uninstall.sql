@@ -260,6 +260,14 @@ drop package ut_event_manager;
 
 drop type ut_event_item force;
 
+drop type ut_key_anyval_pair force;
+
+drop type ut_key_anyval_pairs force;
+
+drop type ut_key_varcharvalue_pair force;
+
+drop type ut_key_xmlvalue_pair force;
+
 drop type ut_key_value_pairs force;
 
 drop type ut_key_value_pair force;

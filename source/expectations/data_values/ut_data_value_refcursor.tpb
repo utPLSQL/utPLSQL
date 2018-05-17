@@ -37,7 +37,8 @@ create or replace type body ut_data_value_refcursor as
     self.data_type := 'refcursor';
     if l_cursor is not null then
         if l_cursor%isopen then
-          self.columns_info  := ut_compound_data_helper.get_columns_info(l_cursor);
+          self.columns_info   := ut_curr_usr_compound_helper.get_columns_info(l_cursor);
+          self.key_info       := ut_curr_usr_compound_helper.get_columns_info(l_cursor,true);
           self.elements_count     := 0;
           -- We use DBMS_XMLGEN in order to:
           -- 1) be able to process data in bulks (set of rows)
@@ -137,9 +138,9 @@ create or replace type body ut_data_value_refcursor as
      return
        case a_missing_keys.diff_type
          when 'a' then
-           '  Unknown key to join by in actual:'||a_missing_keys.missingxpath
+           '  Join key '||a_missing_keys.missingxpath||' does not exists in actual'
          when 'e' then
-           '  Unknown key to join by in expected:'||a_missing_keys.missingxpath
+           '  Join key '||a_missing_keys.missingxpath||' does not exists in expected'
       end; 
     end;
     
@@ -190,7 +191,7 @@ create or replace type body ut_data_value_refcursor as
     
     --check for missing pk 
     if (a_join_by_xpath is not null) then
-      l_missing_pk := ut_compound_data_helper.is_pk_exists(self.columns_info, l_actual.columns_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath);
+      l_missing_pk := ut_compound_data_helper.is_pk_exists(self.key_info, l_actual.key_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath);
     end if;
     
     --diff rows and row elements if the pk is not missing 
@@ -239,7 +240,7 @@ create or replace type body ut_data_value_refcursor as
 
     l_other   := treat(a_other as ut_data_value_refcursor);
     
-    l_missing_pk := ut_compound_data_helper.is_pk_exists(self.columns_info, l_other.columns_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath);
+    l_missing_pk := ut_compound_data_helper.is_pk_exists(self.key_info, l_other.key_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath);
     --if we join by key and key is missing fail and report error
      if a_join_by_xpath is not null and l_missing_pk.count > 0 then 
       l_result := 1;

@@ -26,7 +26,7 @@ create or replace package test_expectations_cursor is
   --%test(Gives success on to_be_null if cursor is null)
   procedure success_to_be_null;
 
-  --%test(Gives succes on not_to_be_not_null if cursor is null)
+  --%test(Gives success on not_to_be_not_null if cursor is null)
   procedure success_not_to_be_not_null;
 
   --%test(Gives success on not_to_be_null if cursor is not null)
@@ -261,6 +261,24 @@ create or replace package test_expectations_cursor is
 
   --%test(Include column of same type leaving different type out and exclude different type)
   procedure inlc_exc_dif_cols_as_list;
+  
+  --%test(Compare nested table type unordered)
+  procedure compare_nested_tab_col_un;
+
+  --%test(Compare nested table type join by)
+  procedure compare_nested_tab_col_jb;
+  
+  --%test(Compare nested table type unordered fail)
+  procedure comp_nest_tab_col_un_fail;
+ 
+  --%test(Compare nested table type join by fail) 
+  procedure comp_nest_tab_col_jb_fail;
+
+  --%test(Compare nested table type join by multi key) 
+  procedure comp_nest_tab_col_jb_multi;
+ 
+  --%test(Compare nested table type join by missing nested key) 
+  procedure comp_nest_tab_col_jb_nokey;
   
 end;
 /

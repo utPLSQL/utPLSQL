@@ -1130,8 +1130,8 @@ Extra:    <ROW><USERNAME>test</USERNAME><USER_ID>-666</USER_ID></ROW>%]';
  l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
 %Unable to join sets:%
-%Unknown key to join by in expected:/*/OWNER%
-%Unknown key to join by in actual:/*/OWNER%]';
+%Join key /*/OWNER does not exists in expected%
+%Join key /*/OWNER does not exists in actual%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1153,10 +1153,10 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
 %Unable to join sets:%
-%Unknown key to join by in expected:/*/OWNER%
-%Unknown key to join by in expected:/*/USER_ID%
-%Unknown key to join by in actual:/*/OWNER%
-%Unknown key to join by in actual:/*/USER_ID%]';
+%Join key /*/OWNER does not exists in expected%
+%Join key /*/USER_ID does not exists in expected%
+%Join key /*/OWNER does not exists in actual%
+%Join key /*/USER_ID does not exists in actual%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1178,8 +1178,8 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
 %Unable to join sets:%
-%Unknown key to join by in expected:/*/SOME_COL%
-%Unknown key to join by in actual:/*/SOME_COL%]';
+%Join key /*/SOME_COL does not exists in expected%
+%Join key /*/SOME_COL does not exists in actual%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1201,8 +1201,8 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
 %Unable to join sets:%
-%Unknown key to join by in expected:/*/RN%
-%Unknown key to join by in actual:/*/RN%]';
+%Join key /*/RN does not exists in expected%
+%Join key /*/RN does not exists in actual%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1224,7 +1224,7 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
 %Unable to join sets:%
-%Unknown key to join by in expected:/*/RNI%]';
+%Join key /*/RNI does not exists in expected%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1246,7 +1246,7 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
 %Unable to join sets:%
-%Unknown key to join by in actual:/*/RNI%]';
+%Join key /*/RNI does not exists in actual%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1440,6 +1440,117 @@ Diff:%
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
+    
+  procedure compare_nested_tab_col_un is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select test_dummy_object( rownum, 'Something '||rownum, rownum) as colval
+      from dual connect by level <=2 order by rownum asc;
+
+    open l_expected for select test_dummy_object( rownum, 'Something '||rownum, rownum) as colval
+      from dual connect by level <=2 order by rownum desc;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
   
+    procedure compare_nested_tab_col_jb is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select test_dummy_object( rownum, 'Something '||rownum, rownum) as colval
+      from dual connect by level <=2 order by rownum asc;
+
+    open l_expected for select test_dummy_object( rownum, 'Something '||rownum, rownum) as colval
+      from dual connect by level <=2 order by rownum desc;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('COLVAL/ID');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure comp_nest_tab_col_un_fail is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select test_dummy_object( rownum, 'Something '||rownum, rownum) as colval
+      from dual connect by level <=2 order by rownum asc;
+
+    open l_expected for select test_dummy_object( rownum, 'Somethings '||rownum, rownum) as colval
+      from dual connect by level <=3 order by rownum desc;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_not_null();
+  end;
+  
+  procedure comp_nest_tab_col_jb_fail is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select test_dummy_object( rownum, 'Something '||rownum, rownum) as colval
+      from dual connect by level <=2 order by rownum asc;
+
+    open l_expected for select test_dummy_object( rownum, 'Somethings '||rownum, rownum) as colval
+      from dual connect by level <=2 order by rownum desc;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('COLVAL/ID');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_not_null();
+  end;
+  
+  procedure comp_nest_tab_col_jb_multi is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select rownum as rn,test_dummy_object( rownum, 'Something '||rownum, rownum) as colval
+      from dual connect by level <=2 order by rownum asc;
+
+    open l_expected for select rownum as rn,test_dummy_object( rownum, 'Something '||rownum, rownum) as colval
+      from dual connect by level <=2 order by rownum desc;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('RN,COLVAL/ID'));
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+  
+  procedure comp_nest_tab_col_jb_nokey is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    --Arrange
+    open l_actual for select test_dummy_object( rownum, 'Something '||rownum, rownum) as colval
+      from dual connect by level <=2 order by rownum asc;
+
+    open l_expected for select test_dummy_object( rownum, 'Something '||rownum, rownum) as colval
+      from dual connect by level <=2 order by rownum desc;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('COLVAL/IDS');
+    --Assert
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
+Diff:%
+%Unable to join sets:%
+%Join key /*/COLVAL/IDS does not exists in expected%
+%Join key /*/COLVAL/IDS does not exists in actual%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
 end;
 /

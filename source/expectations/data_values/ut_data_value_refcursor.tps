@@ -29,7 +29,12 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
   * Holds information about column names and column data-types
   */
   columns_info       xmltype,
-
+  
+  /**
+  * Holds more detailed information regarding the pk joins
+  */
+  key_info xmltype,
+  
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) return self as result,
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor),
   overriding member function to_string return varchar2,

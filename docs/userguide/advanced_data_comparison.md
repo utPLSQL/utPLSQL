@@ -139,7 +139,9 @@ Above test will result in two differences of one row extra and one row missing.
 
 ## Join By option
 
-You can now join two cursors by defining a primary key or composite key that will be used to uniquely identify and compare rows. This option allows us to exactly show which rows are missing, extra and which are different without ordering clause.
+You can now join two cursors by defining a primary key or composite key that will be used to uniquely identify and compare rows. This option allows us to exactly show which rows are missing, extra and which are different without ordering clause. In the situation where the join key is not unique, join will partition set over rows with a same key and join on row number as well as given join key. The extra rows or missing will be presented to user as well as not matching rows. 
+
+Join by option can be used in conjunction with include or exclude options. However if any of the join keys is part of exclude set, comparison will fail and report to user that sets could not be joined on specific key  (excluded).
 
 ```sql
 procedure join_by_username is
