@@ -160,7 +160,7 @@ create or replace package body ut_compound_data_helper is
   function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return clob is
     l_pk_value clob;
   begin
-    select extract(a_item_data,a_join_by_xpath).getclobval() into l_pk_value from dual;    
+    select replace((extract(a_item_data,a_join_by_xpath).getclobval()),chr(10)) into l_pk_value from dual;    
     return l_pk_value; 
   exception when no_data_found then
     return 'null';
