@@ -163,9 +163,13 @@ This will show you difference in row 'TEST' regardless of order.
 
 ```sql
       Rows: [ 1 differences ]
-        Expected: <USER_ID>-600</USER_ID> for key: TEST
-        Actual:   <USER_ID>-610</USER_ID> for key: TEST
+        PK <USERNAME>TEST</USERNAME> - Expected: <USER_ID>-600</USER_ID>
+        PK <USERNAME>TEST</USERNAME> - Actual:   <USER_ID>-610</USER_ID>
 ```
+
+Assumption is that join by is made by column name so that what will be displayed as part of results.
+
+
 
 **Please note that .join_by option will take longer to process due to need of parsing via primary keys.**
 

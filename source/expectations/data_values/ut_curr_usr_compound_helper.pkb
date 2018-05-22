@@ -7,18 +7,18 @@ create or replace package body ut_curr_usr_compound_helper is
   
 
   function get_column_type(a_desc_rec dbms_sql.desc_rec3,a_desc_user_types boolean := false) return ut_key_anyval_pair is
+    l_data ut_data_value;
     l_result ut_key_anyval_pair;
     l_data_type varchar2(500) := 'unknown datatype';
-    begin
+    begin 
       if g_type_name_map.exists(a_desc_rec.col_type) then
-        l_result := ut_key_varcharvalue_pair(a_desc_rec.col_name,g_type_name_map(a_desc_rec.col_type));
+        l_data := ut_data_value_varchar2(g_type_name_map(a_desc_rec.col_type));
       elsif a_desc_rec.col_type = g_user_defined_type and a_desc_user_types then
-        l_result := ut_key_xmlvalue_pair(a_desc_rec.col_name,
-                    get_user_defined_type(a_desc_rec.col_schema_name,a_desc_rec.col_type_name));
+        l_data :=ut_data_value_xmltype(get_user_defined_type(a_desc_rec.col_schema_name,a_desc_rec.col_type_name));
       elsif a_desc_rec.col_schema_name is not null and a_desc_rec.col_type_name is not null then
-        l_result := ut_key_varcharvalue_pair(a_desc_rec.col_name,a_desc_rec.col_schema_name||'.'||a_desc_rec.col_type_name);
+        l_data := ut_data_value_varchar2(a_desc_rec.col_schema_name||'.'||a_desc_rec.col_type_name);
       end if;
-      return l_result;
+      return ut_key_anyval_pair(a_desc_rec.col_name,l_data);
     end;
 
   function get_columns_info(a_columns_tab dbms_sql.desc_tab3, a_columns_count integer,a_desc_user_types boolean := false) return ut_key_anyval_pairs is

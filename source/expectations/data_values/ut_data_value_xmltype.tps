@@ -1,4 +1,4 @@
-create or replace type ut_key_xmlvalue_pair under ut_key_anyval_pair (
+create or replace type ut_data_value_xmltype under ut_data_value(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
@@ -15,6 +15,10 @@ create or replace type ut_key_xmlvalue_pair under ut_key_anyval_pair (
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  value xmltype
+  data_value xmltype,
+  constructor function ut_data_value_xmltype(self in out nocopy ut_data_value_xmltype, a_value xmltype) return self as result,
+  overriding member function is_null return boolean,
+  overriding member function to_string return varchar2,
+  overriding member function compare_implementation(a_other ut_data_value) return integer
 )
 /

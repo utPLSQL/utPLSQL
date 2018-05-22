@@ -15,6 +15,7 @@ create or replace type ut_key_anyval_pair force as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  key varchar2(4000)
+  key varchar2(4000),
+  value ut_data_value
 ) not final
 /

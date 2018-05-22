@@ -262,23 +262,35 @@ create or replace package test_expectations_cursor is
   --%test(Include column of same type leaving different type out and exclude different type)
   procedure inlc_exc_dif_cols_as_list;
   
-  --%test(Compare nested table type unordered)
-  procedure compare_nested_tab_col_un;
+  --%test(Compare object type unordered)
+  procedure compare_obj_typ_col_un;
 
-  --%test(Compare nested table type join by)
-  procedure compare_nested_tab_col_jb;
+  --%test(Compare object type join by)
+  procedure compare_obj_typ_col_jb;
   
   --%test(Compare nested table type unordered fail)
-  procedure comp_nest_tab_col_un_fail;
+  procedure comp_obj_typ_col_un_fail;
  
-  --%test(Compare nested table type join by fail) 
-  procedure comp_nest_tab_col_jb_fail;
+  --%test(Compare object type join by fail) 
+  procedure comp_obj_typ_col_jb_fail;
 
-  --%test(Compare nested table type join by multi key) 
-  procedure comp_nest_tab_col_jb_multi;
+  --%test(Compare object type join by multi key) 
+  procedure comp_obj_typ_col_jb_multi;
  
-  --%test(Compare nested table type join by missing nested key) 
-  procedure comp_nest_tab_col_jb_nokey;
+  --%test(Compare object type join by missing nested key) 
+  procedure comp_obj_typ_col_jb_nokey;
+
+  --%test(Compare table type join by)
+  procedure compare_nest_tab_col_jb;  
+  
+  --%test(Compare table type join by - Failure)
+  procedure compare_nest_tab_col_jb_fail;
+
+  --%test(Compare table type join by mulitple columns)  
+  procedure compare_nest_tab_cols_jb;
+
+  --%test(Compare table type join by multiple columns- Failure)  
+  procedure compare_nest_tab_cols_jb_fail;
   
 end;
 /

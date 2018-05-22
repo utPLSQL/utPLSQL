@@ -21,15 +21,17 @@ create or replace package body ut_compound_data_helper is
   function get_column_info_xml(a_column_details ut_key_anyval_pair) return xmltype is
     l_result varchar2(4000);
     l_res xmltype;
+    l_data ut_data_value := a_column_details.value;
+    l_key varchar2(4000) := ut_utils.xmlgen_escaped_string(a_column_details.KEY);
   begin
-    l_result := '<'||ut_utils.xmlgen_escaped_string(a_column_details.KEY)||' xml_valid_name="'||ut_utils.xmlgen_escaped_string(a_column_details.KEY)||'">';
-    if a_column_details is of(ut_key_xmlvalue_pair) then
-      l_result := l_result || (treat(a_column_details as ut_key_xmlvalue_pair).value.getstringval());
+    l_result := '<'||l_key||' xml_valid_name="'||l_key||'">';
+    if l_data is of(ut_data_value_xmltype) then
+      l_result := l_result || (treat(l_data as ut_data_value_xmltype).to_string);
     else
-      l_result := l_result || ut_utils.xmlgen_escaped_string((treat(a_column_details as ut_key_varcharvalue_pair).value));
+      l_result := l_result || ut_utils.xmlgen_escaped_string((treat(l_data as ut_data_value_varchar2).data_value));
     end if;
-    l_result := l_result ||'</'||ut_utils.xmlgen_escaped_string(a_column_details.KEY)||'>';
     
+    l_result := l_result ||'</'||l_key||'>';  
     return xmltype(l_result);
   end;
   
@@ -155,16 +157,13 @@ create or replace package body ut_compound_data_helper is
     return l_results;
   end;
   
-  function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return varchar2 is
-    l_pk_value varchar2(4000);
+  function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return clob is
+    l_pk_value clob;
   begin
-    select listagg(extractvalue(xmlelement("ROW",column_value),a_join_by_xpath),':') within group ( order by 1)
-    into l_pk_value
-    from table(xmlsequence(extract(a_item_data,'/*/*')));
-    
-    return l_pk_value;
+    select extract(a_item_data,a_join_by_xpath).getclobval() into l_pk_value from dual;    
+    return l_pk_value; 
   exception when no_data_found then
-    return 'null ';
+    return 'null';
   end; 
     
   function get_rows_diff(
@@ -242,11 +241,11 @@ create or replace package body ut_compound_data_helper is
             unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
          )
       union all       
-      select case when exp.pk_hash is null then 'Extra:' else 'Missing:' end as diff_type,
+      select case when exp.pk_hash is null then 'Extra' else 'Missing' end as diff_type,
              xmlserialize(content nvl(exp.item_data, act.item_data) no indent) diffed_row,
              coalesce(exp.pk_hash,act.pk_hash) pk_hash,
              coalesce(exp.pk_value,act.pk_value) pk_value
-        from (select extract(ucd.item_data,'/*/*') item_data,i.pk_hash,
+        from (select extract(deletexml(ucd.item_data, :join_by),'/*/*') item_data,i.pk_hash,
                 ut_compound_data_helper.get_pk_value(:join_by,item_data) pk_value
                 from ut_compound_data_tmp ucd,
                 diff_info i
@@ -254,7 +253,7 @@ create or replace package body ut_compound_data_helper is
                  and ucd.item_hash = i.item_hash
              ) exp
         full outer join (
-              select extract(ucd.item_data,'/*/*') item_data,i.pk_hash,
+              select extract(deletexml(ucd.item_data, :join_by),'/*/*') item_data,i.pk_hash,
                 ut_compound_data_helper.get_pk_value(:join_by,item_data) pk_value
                 from ut_compound_data_tmp ucd,
                 diff_info i
@@ -272,7 +271,7 @@ create or replace package body ut_compound_data_helper is
     a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
     a_join_by_xpath,
     a_exclude_xpath, a_include_xpath, a_actual_dataset_guid,
-    a_join_by_xpath,a_expected_dataset_guid,a_join_by_xpath, a_actual_dataset_guid,
+    a_join_by_xpath,a_join_by_xpath,a_expected_dataset_guid,a_join_by_xpath,a_join_by_xpath, a_actual_dataset_guid,
     a_max_rows;
         
     return l_results;
@@ -502,7 +501,7 @@ create or replace package body ut_compound_data_helper is
       with  xpaths_tab as (select column_value  xpath from table(:xpath_tabs)),
         expected_column_info as ( select :expected as item_data from dual ),
         actual_column_info as ( select :actual as item_data from dual ) 
-        select xpath,diif_type from
+        select  REGEXP_SUBSTR (xpath,'[^(/\*/)](.+)$'),diif_type from
         (
          (select xpath,'e' diif_type from xpaths_tab
          minus
