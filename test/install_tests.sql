@@ -22,6 +22,8 @@ whenever oserror exit failure rollback
 @@core/test_ut_test.pks
 @@core/annotations/test_annotation_parser.pks
 @@core/annotations/test_annotation_manager.pks
+@@core/annotations/test_before_after_test_annotation.pks
+@@core/annotations/test_before_after_test_annotation.pkb
 @@core/expectations/test_matchers.pks
 @@core/test_output_buffer.pks
 @@core/test_file_mapper.pks
