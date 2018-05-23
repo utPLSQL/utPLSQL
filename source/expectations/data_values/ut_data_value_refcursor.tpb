@@ -210,29 +210,13 @@ create or replace type body ut_data_value_refcursor as
     return l_result_string;
   end;
 
-  overriding member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer is
-    l_result          integer := 0;
-    l_other           ut_data_value_refcursor;
-  begin
-    if not a_other is of (ut_data_value_refcursor) then
-      raise value_error;
-    end if;
-
-    l_other   := treat(a_other as ut_data_value_refcursor);
-    --if column names/types are not equal - build a diff of column names and types
-    if ut_compound_data_helper.columns_hash( self, a_exclude_xpath, a_include_xpath )
-       != ut_compound_data_helper.columns_hash( l_other, a_exclude_xpath, a_include_xpath )
-    then
-      l_result := 1;
-    end if;
-    l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath);
-    return l_result;
-  end;
-
   overriding member function compare_implementation (a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean) return integer is
     l_result          integer := 0;
     l_other           ut_data_value_refcursor;
-    l_missing_pk      ut_compound_data_helper.tt_missing_pk :=  ut_compound_data_helper.tt_missing_pk();
+    function is_pk_missing (a_pk_missing_tab ut_compound_data_helper.tt_missing_pk) return integer is
+    begin
+      return case when a_pk_missing_tab.count > 0 then 1 else 0 end;
+    end;
   begin
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
@@ -240,21 +224,26 @@ create or replace type body ut_data_value_refcursor as
 
     l_other   := treat(a_other as ut_data_value_refcursor);
     
-    l_missing_pk := ut_compound_data_helper.is_pk_exists(self.key_info, l_other.key_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath);
     --if we join by key and key is missing fail and report error
-     if a_join_by_xpath is not null and l_missing_pk.count > 0 then 
-      l_result := 1;
-      return l_result;
+    if a_join_by_xpath is not null then 
+      l_result := is_pk_missing(ut_compound_data_helper.is_pk_exists(self.key_info, l_other.key_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath));
     end if;
     
-    --if column names/types are not equal - build a diff of column names and types
-    if ut_compound_data_helper.columns_hash( self, a_exclude_xpath, a_include_xpath )
-       != ut_compound_data_helper.columns_hash( l_other, a_exclude_xpath, a_include_xpath )
-    then
-      l_result := 1;
+    if l_result = 0 then
+      --if column names/types are not equal - build a diff of column names and types
+      if ut_compound_data_helper.columns_hash( self, a_exclude_xpath, a_include_xpath )
+         != ut_compound_data_helper.columns_hash( l_other, a_exclude_xpath, a_include_xpath )
+      then
+        l_result := 1;
+      end if;
+    
+      if a_unordered then
+        l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath, a_unordered);
+      else
+        l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath);
+      end if;
     end if;
     
-      l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath, a_unordered);
     return l_result;
   end;
 

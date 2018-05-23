@@ -233,11 +233,7 @@ create or replace type body ut_equal as
       if self.expected is of (ut_data_value_anydata) then
         l_result := 0 = treat(self.expected as ut_data_value_anydata).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath());
       elsif self.expected is of (ut_data_value_refcursor) then
-        if get_unordered then
-          l_result := 0 = treat(self.expected as ut_data_value_refcursor).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath(), get_join_by_xpath(), get_unordered());
-        else
-          l_result := 0 = treat(self.expected as ut_data_value_refcursor).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath());
-        end if;
+        l_result := 0 = treat(self.expected as ut_data_value_refcursor).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath(), get_join_by_xpath(), get_unordered());
       else
         l_result := equal_with_nulls((self.expected = a_actual), a_actual);
       end if;

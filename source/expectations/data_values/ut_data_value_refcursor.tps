@@ -39,8 +39,6 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor),
   overriding member function to_string return varchar2,
   overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean := false ) return varchar2,
-  overriding member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer,
   overriding member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean) return integer
-
 )
 /
