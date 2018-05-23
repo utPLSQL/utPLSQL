@@ -1073,10 +1073,10 @@ Rows: [ 2 differences ]%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
     l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
-Diff:%
-Rows: [ 2 differences ]
-Missing:  <ROW><USERNAME>test</USERNAME><USER_ID>-667</USER_ID></ROW>%
-Extra:    <ROW><USERNAME>test</USERNAME><USER_ID>-666</USER_ID></ROW>%]';
+%Diff:%
+%Rows: [ 2 differences ]%
+%Extra:    <ROW><USERNAME>test</USERNAME><USER_ID>-666</USER_ID></ROW>%
+%Missing:  <ROW><USERNAME>test</USERNAME><USER_ID>-667</USER_ID></ROW>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1284,8 +1284,8 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to equal: refcursor [ count = % ]
 %Diff:%
 %Rows: [ 1 differences ]%
-%PK <USERNAME>TEST</USERNAME> - Expected:%<USER_ID>-600</USER_ID>%
-%PK <USERNAME>TEST</USERNAME> - Actual:%<USER_ID>-610</USER_ID>%]';
+%PK <USERNAME>TEST</USERNAME> - Actual:%<USER_ID>-610</USER_ID>%
+%PK <USERNAME>TEST</USERNAME> - Expected:%<USER_ID>-600</USER_ID>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1310,8 +1310,8 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to equal: refcursor [ count = % ]
 %Diff:%
 %Rows: [ 2 differences ]%
-%PK <USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID> - Missing %
-%PK <USERNAME>TEST</USERNAME><USER_ID>-610</USER_ID> - Extra %]';
+%PK <USERNAME>TEST</USERNAME><USER_ID>-610</USER_ID> - Extra%
+%PK <USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID> - Missing%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1336,8 +1336,8 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to equal: refcursor [ count = % ]
 %Diff:%
 %Rows: [ 1 differences ]%
-%PK <USERNAME>TEST</USERNAME><IS_VALID>Y</IS_VALID> - Expected:%<USER_ID>-600</USER_ID>%
-%PK <USERNAME>TEST</USERNAME><IS_VALID>Y</IS_VALID> - Actual:%<USER_ID>-610</USER_ID>%]';
+%PK <USERNAME>TEST</USERNAME><IS_VALID>Y</IS_VALID> - Actual:%<USER_ID>-610</USER_ID>%
+%PK <USERNAME>TEST</USERNAME><IS_VALID>Y</IS_VALID> - Expected:%<USER_ID>-600</USER_ID>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1493,11 +1493,11 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
 Rows: [ 5 differences ]
-Missing:  <ROW><COLVAL><ID>1</ID><name>Somethings 1</name><Value>1</Value></COLVAL></ROW>%
-Missing:  <ROW><COLVAL><ID>2</ID><name>Somethings 2</name><Value>2</Value></COLVAL></ROW>%
-Missing:  <ROW><COLVAL><ID>3</ID><name>Somethings 3</name><Value>3</Value></COLVAL></ROW>%
-Extra:    <ROW><COLVAL><ID>1</ID><name>Something 1</name><Value>1</Value></COLVAL></ROW>%
-Extra:    <ROW><COLVAL><ID>2</ID><name>Something 2</name><Value>2</Value></COLVAL></ROW>%]';
+%Extra:    <ROW><COLVAL><ID>2</ID><name>Something 2</name><Value>2</Value></COLVAL></ROW>%
+%Extra:    <ROW><COLVAL><ID>1</ID><name>Something 1</name><Value>1</Value></COLVAL></ROW>%
+%Missing:  <ROW><COLVAL><ID>1</ID><name>Somethings 1</name><Value>1</Value></COLVAL></ROW>%
+%Missing:  <ROW><COLVAL><ID>2</ID><name>Somethings 2</name><Value>2</Value></COLVAL></ROW>%
+%Missing:  <ROW><COLVAL><ID>3</ID><name>Somethings 3</name><Value>3</Value></COLVAL></ROW>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1621,10 +1621,10 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
 %Diff:%
 %Rows: [ 2 differences ]%
-%PK <KEY>1</KEY> - Expected: <VALUE>Somethings 1</VALUE>%
-%PK <KEY>1</KEY> - Actual:   <VALUE>Something 1</VALUE>%
-%PK <KEY>2</KEY> - Expected: <VALUE>Somethings 2</VALUE>%
-%PK <KEY>2</KEY> - Actual:   <VALUE>Something 2</VALUE>%]';
+%PK <KEY>%</KEY> - Actual:   <VALUE>%</VALUE>%
+%PK <KEY>%</KEY> - Expected: <VALUE>%</VALUE>%
+%PK <KEY>%</KEY> - Actual:   <VALUE>%</VALUE>%
+%PK <KEY>%</KEY> - Expected: <VALUE>%</VALUE>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1688,10 +1688,10 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
 %Diff:%
 %Rows: [ 4 differences ]%
-%PK <KEY>1</KEY><VALUE>Somethings 1</VALUE> - Missing%
-%PK <KEY>2</KEY><VALUE>Somethings 2</VALUE> - Missing%
-%PK <KEY>2</KEY><VALUE>Something 2</VALUE> - Extra%
-%PK <KEY>1</KEY><VALUE>Something 1</VALUE> - Extra%]';
+%PK <KEY>%</KEY><VALUE>%</VALUE> - Extra%
+%PK <KEY>%</KEY><VALUE>%</VALUE> - Extra%
+%PK <KEY>%</KEY><VALUE>%</VALUE> - Missing%
+%PK <KEY>%</KEY><VALUE>%</VALUE> - Missing%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
