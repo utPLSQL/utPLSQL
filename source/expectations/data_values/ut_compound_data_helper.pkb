@@ -186,14 +186,7 @@ create or replace package body ut_compound_data_helper is
     with diff_info as (select item_hash,pk_hash,duplicate_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
       select rn,diff_type,diffed_row,pk_value from
       (
-      select 
-      diff_type, diffed_row, 
-      dense_rank() over (order by case when diff_type in ('Extra','Missing') then diff_type end,
-                                  case when diff_type in ('Actual','Expected') then pk_hash end,
-                                  case when diff_type in ('Extra','Missing') then pk_hash end,
-                                  case when diff_type in ('Actual','Expected') then diff_type end) rn,
-      pk_value, pk_hash 
-      from
+      select diff_type,diffed_row, dense_rank() over (order by pk_hash) rn,pk_value from
       (
       select diff_type,diffed_row,pk_hash,pk_value from
         (select diff_type,data_item diffed_row,pk_hash,pk_value
@@ -271,7 +264,6 @@ create or replace package body ut_compound_data_helper is
        where exp.pk_hash is null or act.pk_hash is null
        ) 
        ) where  rn <= :max_rows
-       order by rn, pk_hash, diff_type
       ]'
     bulk collect into l_results
     using a_diff_id,
@@ -422,10 +414,7 @@ create or replace package body ut_compound_data_helper is
        )  act
       on   exp.row_hash = act.row_hash
           and exp.duplicate_no = act.duplicate_no
-      where exp.row_hash is null or act.row_hash is null 
-      order by diffed_type, coalesce(exp.row_hash,act.row_hash), duplicate_no
-      )
-      where rownum < :max_rows ]'
+      where exp.row_hash is null or act.row_hash is null ) where rownum < :max_rows ]'
     bulk collect into l_results
     using a_diff_id,
     a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
