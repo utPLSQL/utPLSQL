@@ -1040,6 +1040,32 @@ Rows: [ 2 differences ]%
         ut.expect(sqlcode).to_be_between(-31013,-31011);
     end;
   end;
-  
+
+  procedure compare_number_pckg_type
+  as
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+    l_expected_data t_num_tab;
+  begin
+
+    l_expected_data(1).col1 :=  2135;
+    l_expected_data(1).col4 :=  2016;
+    l_expected_data(1).col5 :=  -1;
+
+    open l_expected for select *
+      from table (l_expected_data);
+    open l_actual for select
+      1 as col1
+      ,2 as col2
+      ,3 as col3
+      ,2016 as col4
+      ,-1 as col5
+     from dual;
+
+    ut3.ut.expect(l_actual).to_equal(a_expected => l_expected);
+
+    ut.expect(expectations.failed_expectations_data()).not_to_be_null();
+  end;
+
 end;
 /
