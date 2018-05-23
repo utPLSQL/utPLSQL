@@ -210,7 +210,7 @@ create or replace package test_expectations_cursor is
      col5 number(38,0));
 
 
-  type t_num_tab is table of t_num_ec index by binary_integer;
+  type t_num_tab is table of t_num_rec index by binary_integer;
   
 end;
 /
