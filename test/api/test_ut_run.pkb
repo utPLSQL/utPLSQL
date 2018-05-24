@@ -163,15 +163,15 @@ end;]';
   begin
     execute immediate q'[select count(1) from all_objects o where o.owner = :object_owner and o.object_type = 'PACKAGE'
             and o.status = 'INVALID' and o.object_name= :object_name]' into l_is_invalid
-            using user,'FAILING_INVALID_SPEC';
+            using user,'INVALID_PCKAG_THAT_REVALIDATES';
 
     select *
       bulk collect into l_results
-    from table(ut3.ut.run('failing_invalid_spec'));
+    from table(ut3.ut.run('invalid_pckag_that_revalidates'));
     
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     ut.expect(1).to_equal(l_is_invalid);
-    ut.expect(l_actual).to_be_like('%failing_invalid_spec%invalidspecs [% sec]%
+    ut.expect(l_actual).to_be_like('%invalid_pckag_that_revalidates%invalidspecs [% sec]%
 %Finished in % seconds%
 %1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
   
@@ -187,7 +187,7 @@ end;]';
   c_test constant varchar2(1) := 'Y';
 end;]';
   
-    execute immediate q'[create or replace package failing_invalid_spec as
+    execute immediate q'[create or replace package invalid_pckag_that_revalidates as
   --%suite
   g_var varchar2(1) := parent_specs.c_test;
 
@@ -195,7 +195,7 @@ end;]';
   procedure test1;
 end;]';
 
-    execute immediate q'[create or replace package body failing_invalid_spec as
+    execute immediate q'[create or replace package body invalid_pckag_that_revalidates as
   procedure test1 is begin ut.expect('Y').to_equal(g_var); end;
 end;]';
     
@@ -212,7 +212,7 @@ end;]';
   procedure drop_test_package is
     pragma autonomous_transaction;
   begin
-    execute immediate 'drop package failing_invalid_spec';
+    execute immediate 'drop package invalid_pckag_that_revalidates';
     execute immediate 'drop package parent_specs';
   end;
 

@@ -1,4 +1,4 @@
-create or replace type ut_executable force under ut_event_item(
+create or replace type ut_executable under ut_event_item(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
