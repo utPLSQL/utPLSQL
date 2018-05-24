@@ -143,6 +143,8 @@ You can now join two cursors by defining a primary key or composite key that wil
 
 Join by option can be used in conjunction with include or exclude options. However if any of the join keys is part of exclude set, comparison will fail and report to user that sets could not be joined on specific key  (excluded).
 
+Join by options currently doesn't support nested table inside cursor.
+
 ```sql
 procedure join_by_username is
     l_actual   sys_refcursor;

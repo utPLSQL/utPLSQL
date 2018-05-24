@@ -292,5 +292,8 @@ create or replace package test_expectations_cursor is
   --%test(Compare table type join by multiple columns- Failure)  
   procedure compare_nest_tab_cols_jb_fail;
   
+  --%test(Compare table type as column join by multiple columns - PLS Failure)  
+  procedure comparet_tabtype_as_cols_jb;
+  
 end;
 /

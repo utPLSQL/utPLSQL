@@ -1696,5 +1696,40 @@ Diff:%
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;    
+  
+    procedure comparet_tabtype_as_cols_jb is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_expected_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    bulk collect into l_actual_tab
+    from dual connect by level <=2;
+ 
+    select ut3.ut_key_value_pair(rownum,'Somethings '||rownum)
+    bulk collect into l_expected_tab
+    from dual connect by level <=2;
+      
+    --Arrange
+    open l_actual for select rownum rn, l_actual_tab
+      from dual connect by level <=2;
+
+    open l_expected for select key,value
+      from table(l_expected_tab) order by 1 desc;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('RN,L_ACTUAL_TAB/KEY'));
+    ut3.ut.fail('Expected Exception');
+  exception
+    when others then
+      l_expected_message := q'[%PLS-00306: wrong number or types of arguments in call to 'CONVERTOBJECT'%]';
+      l_actual_message := SQLERRM;
+      --Assert
+      ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;    
+  
 end;
 /
