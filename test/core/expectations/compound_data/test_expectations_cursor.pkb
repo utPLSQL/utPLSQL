@@ -1697,7 +1697,7 @@ Diff:%
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;    
   
-    procedure comparet_tabtype_as_cols_jb is
+  procedure compare_tabtype_as_cols_jb is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
     l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
@@ -1714,22 +1714,278 @@ Diff:%
     from dual connect by level <=2;
       
     --Arrange
-    open l_actual for select rownum rn, l_actual_tab
+    open l_actual for select rownum rn, l_actual_tab as nested_table
       from dual connect by level <=2;
 
-    open l_expected for select key,value
-      from table(l_expected_tab) order by 1 desc;
+    open l_expected for select rownum rn, l_expected_tab as nested_table
+      from dual connect by level <=2;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('RN,L_ACTUAL_TAB/KEY'));
-    ut3.ut.fail('Expected Exception');
-  exception
-    when others then
-      l_expected_message := q'[%PLS-00306: wrong number or types of arguments in call to 'CONVERTOBJECT'%]';
-      l_actual_message := SQLERRM;
-      --Assert
-      ut.expect(l_actual_message).to_be_like(l_expected_message);
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE');
+    
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
+%Diff:%
+%Rows: [ 2 differences ]%
+%PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>1</KEY>%<VALUE>Something 1</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>2</KEY>%<VALUE>Something 2</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE> - Extra%<RN>1</RN>%
+%PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>1</KEY>%<VALUE>Something 1</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>2</KEY>%<VALUE>Something 2</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE> - Extra%<RN>2</RN>%
+%PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>1</KEY>%<VALUE>Somethings 1</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>2</KEY>%<VALUE>Somethings 2</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE> - Missing%<RN>2</RN>%
+%PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>1</KEY>%<VALUE>Somethings 1</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>2</KEY>%<VALUE>Somethings 2</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE> - Missing%<RN>1</RN>%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+
   end;    
+  
+  procedure compare_tabtype_as_cols is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_expected_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    bulk collect into l_actual_tab
+    from dual connect by level <=2 order by rownum asc;
+ 
+    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    bulk collect into l_expected_tab
+    from dual connect by level <=2 order by rownum asc;
+      
+    --Arrange
+    open l_actual for select rownum rn, l_actual_tab as nested_table
+      from dual connect by level <=2;
+
+    open l_expected for select rownum rn, l_expected_tab as nested_table
+      from dual connect by level <=2;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+      --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+    
+  end;    
+
+  procedure compare_tabtype_as_cols_coll is
+      l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_expected_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    bulk collect into l_actual_tab
+    from dual connect by level <=2;
+ 
+    select ut3.ut_key_value_pair(rownum,'Somethings '||rownum)
+    bulk collect into l_expected_tab
+    from dual connect by level <=2;
+      
+    --Arrange
+    open l_actual for select rownum rn, l_actual_tab as nested_table
+      from dual connect by level <=2;
+
+    open l_expected for select rownum rn, l_expected_tab as nested_table
+      from dual connect by level <=2;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/UT_KEY_VALUE_PAIR');
+    
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
+%Diff:
+%Unable to join sets:
+%Join key NESTED_TABLE/UT_KEY_VALUE_PAIR does not exists in expected%
+%Join key NESTED_TABLE/UT_KEY_VALUE_PAIR does not exists in actual%
+%Please make sure that your join clause is not refferring to collection element%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+
+  end;   
+
+  procedure compare_rec_colltype_as_cols is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_actual_tab ut3.ut_annotated_object;
+    l_expected_tab ut3.ut_annotated_object;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    select ut3.ut_annotated_object('TEST','TEST','TEST',
+      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
+                         ut3.ut_annotation(2,'test','test','test'))
+    )
+    into l_actual_tab from dual;
+ 
+    select ut3.ut_annotated_object('TEST','TEST','TEST',
+      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
+                         ut3.ut_annotation(2,'test','test','test'))
+    )
+    into l_expected_tab from dual;
+      
+    --Arrange
+    open l_actual for select l_actual_tab as nested_table from dual;
+
+    open l_expected for select l_expected_tab as nested_table from dual;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+
+  end; 
+  
+  procedure compare_rec_colltype_as_attr is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_actual_tab ut3.ut_annotated_object;
+    l_expected_tab ut3.ut_annotated_object;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    select ut3.ut_annotated_object('TEST','TEST','TEST',
+      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
+                         ut3.ut_annotation(2,'test','test','test'))
+    )
+    into l_actual_tab from dual;
+ 
+    select ut3.ut_annotated_object('TEST','TEST','TEST',
+      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
+                         ut3.ut_annotation(2,'test','test','test'))
+    )
+    into l_expected_tab from dual;
+      
+    --Arrange
+    open l_actual for select l_actual_tab as nested_table from dual;
+
+    open l_expected for select l_expected_tab as nested_table from dual;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/OBJECT_OWNER');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+
+  end;   
+  
+  procedure compare_collection_in_rec is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_actual_tab ut3.ut_annotated_object;
+    l_expected_tab ut3.ut_annotated_object;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    select ut3.ut_annotated_object('TEST','TEST','TEST',
+      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
+                         ut3.ut_annotation(2,'test','test','test'))
+    )
+    into l_actual_tab from dual;
+ 
+    select ut3.ut_annotated_object('TEST','TEST','TEST',
+      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
+                         ut3.ut_annotation(2,'test','test','test'))
+    )
+    into l_expected_tab from dual;
+      
+    --Arrange
+    open l_actual for select l_actual_tab as nested_table from dual;
+
+    open l_expected for select l_expected_tab as nested_table from dual;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/ANNOTATIONS');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+
+  end;   
+  
+  procedure compare_rec_coll_as_cols_fl is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_actual_tab ut3.ut_annotated_object;
+    l_expected_tab ut3.ut_annotated_object;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    select ut3.ut_annotated_object('TEST','TEST','TEST',
+      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
+                         ut3.ut_annotation(2,'test','test','test'))
+    )
+    into l_actual_tab
+    from dual;
+ 
+    select ut3.ut_annotated_object('TEST','TEST','TEST',
+      ut3.ut_annotations(ut3.ut_annotation(1,'1test','test','test'),
+                         ut3.ut_annotation(2,'test','test','test'))
+    )
+    into l_expected_tab
+    from dual;
+      
+    --Arrange
+    open l_actual for select rownum rn, l_actual_tab as nested_table
+      from dual;
+
+    open l_expected for select rownum rn, l_expected_tab as nested_table
+      from dual;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/OBJECT_OWNER');
+    
+    --Assert
+     l_expected_message := q'[%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
+%Diff:
+%Rows: [ 1 differences ]
+%PK <OBJECT_OWNER>TEST</OBJECT_OWNER> - Actual:   <NESTED_TABLE><OBJECT_OWNER>TEST</OBJECT_OWNER><OBJECT_NAME>TEST</OBJECT_NAME><OBJECT_TYPE>TEST</OBJECT_TYPE><ANNOTATIONS><UT_ANNOTATION><POSITION>1</POSITION><NAME>test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION><UT_ANNOTATION><POSITION>2</POSITION><NAME>test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION></ANNOTATIONS></NESTED_TABLE>%
+%PK <OBJECT_OWNER>TEST</OBJECT_OWNER> - Expected: <NESTED_TABLE><OBJECT_OWNER>TEST</OBJECT_OWNER><OBJECT_NAME>TEST</OBJECT_NAME><OBJECT_TYPE>TEST</OBJECT_TYPE><ANNOTATIONS><UT_ANNOTATION><POSITION>1</POSITION><NAME>1test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION><UT_ANNOTATION><POSITION>2</POSITION><NAME>test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION></ANNOTATIONS></NESTED_TABLE>%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+   --ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+  end;  
+
+  procedure compare_rec_coll_as_join is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_actual_tab ut3.ut_annotated_object;
+    l_expected_tab ut3.ut_annotated_object;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    select ut3.ut_annotated_object('TEST','TEST','TEST',
+      ut3.ut_annotations(ut3.ut_annotation(1,'1test','test','test'),
+                         ut3.ut_annotation(2,'test','test','test'))
+    )
+    into l_actual_tab from dual;
+ 
+    select ut3.ut_annotated_object('TEST','TEST','TEST',
+      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
+                         ut3.ut_annotation(2,'test','test','test'))
+    )
+    into l_expected_tab from dual;
+      
+    --Arrange
+    open l_actual for select l_actual_tab as nested_table from dual;
+
+    open l_expected for select l_expected_tab as nested_table from dual;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/ANNOTATIONS/TEXT');
+    
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]%
+%Diff:%
+%Unable to join sets:%
+%Join key NESTED_TABLE/ANNOTATIONS/TEXT does not exists in expected%
+%Join key NESTED_TABLE/ANNOTATIONS/TEXT does not exists in actual%
+%Please make sure that your join clause is not refferring to collection element%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+
+  end;  
   
 end;
 /

@@ -1,18 +1,44 @@
 create or replace package body ut_curr_usr_compound_helper is
     
   type t_type_name_map is table of varchar2(100) index by binary_integer;
-  g_type_name_map t_type_name_map;
-  g_anytype_name_map t_type_name_map;
-  g_user_defined_type pls_integer := dbms_sql.user_defined_type;
-  
+  g_type_name_map           t_type_name_map;
+  g_anytype_name_map        t_type_name_map;
+  g_anytype_collection_name t_type_name_map;
+  g_user_defined_type       pls_integer := dbms_sql.user_defined_type;
+  g_is_collection           boolean := false;
+
+  procedure set_collection_state(a_is_collection boolean) is
+  begin
+    --Make sure that we set a g_is_collection only once so we dont reset from true to false.
+    if not g_is_collection then
+      g_is_collection := a_is_collection;
+    end if;
+  end;
 
   function get_column_type(a_desc_rec dbms_sql.desc_rec3,a_desc_user_types boolean := false) return ut_key_anyval_pair is
     l_data ut_data_value;
     l_result ut_key_anyval_pair;
-    l_data_type varchar2(500) := 'unknown datatype';
+    l_data_type varchar2(500) := 'unknown datatype';  
+    
+    function is_collection (a_owner varchar2,a_type_name varchar2) return boolean is
+      l_type_view varchar2(200) := ut_metadata.get_dba_view('dba_types');
+      l_typecode varchar2(100);
+    begin
+      execute immediate 'select typecode from '||l_type_view ||' 
+      where owner = :owner and type_name = :typename'
+      into l_typecode using a_owner,a_type_name;   
+      
+      return l_typecode = 'COLLECTION';
+    end;
+    
     begin 
       if g_type_name_map.exists(a_desc_rec.col_type) then
         l_data := ut_data_value_varchar2(g_type_name_map(a_desc_rec.col_type));
+      /*If its a collection regardless is we want to describe user defined types we will return just a name
+      and capture that name */
+      elsif a_desc_rec.col_type = g_user_defined_type and is_collection(a_desc_rec.col_schema_name,a_desc_rec.col_type_name) then
+        l_data := ut_data_value_varchar2(a_desc_rec.col_schema_name||'.'||a_desc_rec.col_type_name);
+        set_collection_state(true);
       elsif a_desc_rec.col_type = g_user_defined_type and a_desc_user_types then
         l_data :=ut_data_value_xmltype(get_user_defined_type(a_desc_rec.col_schema_name,a_desc_rec.col_type_name));
       elsif a_desc_rec.col_schema_name is not null and a_desc_rec.col_type_name is not null then
@@ -47,6 +73,52 @@ create or replace package body ut_curr_usr_compound_helper is
     return l_columns_tab;
   end;
   
+  procedure get_descr_cursor(a_cursor in out nocopy sys_refcursor,a_columns_tab in out ut_key_anyval_pairs,
+    a_join_by_tab in out ut_key_anyval_pairs) is
+    l_cursor_number  integer;
+    l_columns_count  pls_integer;
+    l_columns_desc   dbms_sql.desc_tab3;
+  begin
+    if a_cursor is null or not a_cursor%isopen then
+        a_columns_tab := null;
+        a_join_by_tab := null;
+    end if;
+    l_cursor_number := dbms_sql.to_cursor_number( a_cursor );
+    dbms_sql.describe_columns3( l_cursor_number, l_columns_count, l_columns_desc );
+    a_cursor := dbms_sql.to_refcursor( l_cursor_number );
+    a_columns_tab := get_columns_info( l_columns_desc, l_columns_count,false);
+    a_join_by_tab := get_columns_info( l_columns_desc, l_columns_count,true);
+  end;
+  
+  procedure get_columns_info(a_cursor in out nocopy sys_refcursor,a_columns_info out xmltype, 
+                             a_join_by_info out xmltype, a_contains_collection out number) is
+    l_columns_info         xmltype;
+    l_join_by_info         xmltype;
+    l_result_tmp           xmltype;
+    l_columns_tab          ut_key_anyval_pairs;
+    l_join_by_tab          ut_key_anyval_pairs;
+  begin
+    
+    get_descr_cursor(a_cursor,l_columns_tab,l_join_by_tab);
+
+    for i in 1..l_columns_tab.COUNT 
+    loop
+      l_result_tmp := ut_compound_data_helper.get_column_info_xml(l_columns_tab(i));
+      select xmlconcat(l_columns_info,l_result_tmp) into l_columns_info from dual; 
+    end loop;
+    
+    for i in 1..l_join_by_tab.COUNT 
+    loop
+      l_result_tmp := ut_compound_data_helper.get_column_info_xml(l_join_by_tab(i));
+      select xmlconcat(l_join_by_info,l_result_tmp) into l_join_by_info from dual; 
+    end loop;
+    
+    select XMLELEMENT("ROW",l_columns_info ),XMLELEMENT("ROW",l_join_by_info )
+    into a_columns_info,a_join_by_info from dual;
+   
+    a_contains_collection := ut_utils.boolean_to_int(g_is_collection);
+  end;
+
   function get_columns_info(a_cursor in out nocopy sys_refcursor,a_desc_user_types boolean := false) return xmltype is
     l_result         xmltype;
     l_result_tmp     xmltype;
@@ -115,7 +187,10 @@ create or replace package body ut_curr_usr_compound_helper is
                 
      l_result.extend;
      l_result(l_result.last) := ut_key_value_pair(l_aname, g_anytype_name_map(l_attribute_typecode));
-   
+     --check for collection
+     if g_anytype_collection_name.exists(l_attribute_typecode) then
+       set_collection_state(true);
+     end if;
     end loop;
     return l_result;
   end;
@@ -126,7 +201,8 @@ create or replace package body ut_curr_usr_compound_helper is
     l_typecode pls_integer;
     l_result xmltype;
     l_columns_tab ut_key_value_pairs := ut_key_value_pairs();
-  begin      
+      
+  begin       
     execute immediate 'declare 
                          l_v '||a_owner||'.'||a_type_name||';
                        begin 
@@ -138,7 +214,7 @@ create or replace package body ut_curr_usr_compound_helper is
     
     select xmlagg(xmlelement(evalname key,value))
     into l_result from table(l_columns_tab);
-
+    
     return l_result;
   
   end;
@@ -161,6 +237,14 @@ create or replace package body ut_curr_usr_compound_helper is
   g_anytype_name_map(dbms_types.typecode_bfloat)           := 'BINARY_FLOAT';
   g_anytype_name_map(dbms_types.typecode_bdouble)          := 'BINARY_DOUBLE';
   g_anytype_name_map(dbms_types.typecode_urowid)           := 'UROWID';
+  g_anytype_name_map(dbms_types.typecode_varray)           := 'VARRRAY';
+  g_anytype_name_map(dbms_types.typecode_table)            := 'TABLE';
+  g_anytype_name_map(dbms_types.typecode_namedcollection)  := 'NAMEDCOLLECTION';  
+  
+  g_anytype_collection_name(dbms_types.typecode_varray)           := 'VARRRAY';
+  g_anytype_collection_name(dbms_types.typecode_table)            := 'TABLE';
+  g_anytype_collection_name(dbms_types.typecode_namedcollection)  := 'NAMEDCOLLECTION';
+  
   
   g_type_name_map( dbms_sql.binary_bouble_type )           := 'BINARY_DOUBLE';
   g_type_name_map( dbms_sql.bfile_type )                   := 'BFILE';
