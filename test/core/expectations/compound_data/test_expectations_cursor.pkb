@@ -1727,10 +1727,10 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
 %Diff:%
 %Rows: [ 2 differences ]%
-%PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>1</KEY>%<VALUE>Something 1</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>2</KEY>%<VALUE>Something 2</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE> - Extra%<RN>1</RN>%
-%PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>1</KEY>%<VALUE>Something 1</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>2</KEY>%<VALUE>Something 2</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE> - Extra%<RN>2</RN>%
-%PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>1</KEY>%<VALUE>Somethings 1</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>2</KEY>%<VALUE>Somethings 2</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE> - Missing%<RN>2</RN>%
-%PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>1</KEY>%<VALUE>Somethings 1</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>2</KEY>%<VALUE>Somethings 2</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE> - Missing%<RN>1</RN>%]';
+%PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE>%Extra%<RN>%</RN>%
+%PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE>%Extra%<RN>%</RN>%
+%PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE>%Missing%<RN>%</RN>%
+%PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE>%Missing%<RN>%</RN>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
