@@ -37,8 +37,11 @@ create or replace type body ut_data_value_refcursor as
     self.data_type := 'refcursor';
     if l_cursor is not null then
         if l_cursor%isopen then
-          self.columns_info   := ut_curr_usr_compound_helper.get_columns_info(l_cursor);
-          self.key_info       := ut_curr_usr_compound_helper.get_columns_info(l_cursor,true);
+          --Get some more info regarding cursor, including if it containts collection columns and what is their name
+          
+          ut_curr_usr_compound_helper.get_columns_info(l_cursor,self.columns_info,self.key_info,
+            self.contain_collection);
+          
           self.elements_count     := 0;
           -- We use DBMS_XMLGEN in order to:
           -- 1) be able to process data in bulks (set of rows)
@@ -134,14 +137,16 @@ create or replace type body ut_data_value_refcursor as
     end;
     
     function get_missing_key_message(a_missing_keys ut_compound_data_helper.t_missing_pk) return varchar2 is
+      l_message varchar2(200);
     begin
-     return
-       case a_missing_keys.diff_type
-         when 'a' then
-           '  Join key '||a_missing_keys.missingxpath||' does not exists in actual'
-         when 'e' then
-           '  Join key '||a_missing_keys.missingxpath||' does not exists in expected'
-      end; 
+      
+      if a_missing_keys.diff_type = 'a' then
+        l_message :=  '  Join key '||a_missing_keys.missingxpath||' does not exists in actual';
+      elsif a_missing_keys.diff_type = 'e' then
+        l_message :=    '  Join key '||a_missing_keys.missingxpath||' does not exists in expected';
+      end if; 
+
+     return l_message;
     end;
     
     function add_incomparable_cols_to_xpath(
@@ -202,7 +207,12 @@ create or replace type body ut_data_value_refcursor as
         for i in 1 .. l_missing_pk.count loop
           l_results.extend;
           ut_utils.append_to_clob(l_result, get_missing_key_message(l_missing_pk(i))|| chr(10));
-        end loop;    
+        end loop;
+        
+        if ut_utils.int_to_boolean(self.contain_collection) or ut_utils.int_to_boolean(l_actual.contain_collection) then
+          ut_utils.append_to_clob(l_result,'  Please make sure that your join clause is not refferring to collection element'|| chr(10));
+        end if;
+        
     end if;
     
     l_result_string := ut_utils.to_string(l_result,null);

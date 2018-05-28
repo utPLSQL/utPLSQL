@@ -292,8 +292,29 @@ create or replace package test_expectations_cursor is
   --%test(Compare table type join by multiple columns- Failure)  
   procedure compare_nest_tab_cols_jb_fail;
   
-  --%test(Compare table type as column join by multiple columns - PLS Failure)  
-  procedure comparet_tabtype_as_cols_jb;
+  --%test(Compare table type as column join by multiple columns - Cannot find match)  
+  procedure compare_tabtype_as_cols_jb;
+
+  --%test(Compare table type as column normal compare )  
+  procedure compare_tabtype_as_cols;
+  
+  --%test(Compare table type as column join on collection element )  
+  procedure compare_tabtype_as_cols_coll; 
+  
+  --%test(Compare same content on record with collections join on record) 
+  procedure compare_rec_colltype_as_cols;
+ 
+  --%test(Compare same content record with collection join on record attribute)  
+  procedure compare_rec_colltype_as_attr;
+
+  --%test(Compare same content record with collection join on whole collection)   
+  procedure compare_collection_in_rec;
+    
+  --%test(Compare diffrent content record with collection join on record attribute) 
+  procedure compare_rec_coll_as_cols_fl;
+
+  --%test(Trying to join on collection element inside record )   
+  procedure compare_rec_coll_as_join;
   
 end;
 /

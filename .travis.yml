@@ -46,7 +46,7 @@ env:
     - DOCKHER_HUB_REPO="${DOCKER_BASE_TAG:-$UT3_DOCKER_REPO}"
     #utPLSQL released version directory
     - UTPLSQL_DIR="utPLSQL_latest_release"
-    - SELFTESTING_BRANCH="develop"
+    - SELFTESTING_BRANCH=${TRAVIS_BRANCH}
     - UTPLSQL_CLI_VERSION="3.1.0"
     # Maven
     - MAVEN_HOME=/usr/local/maven

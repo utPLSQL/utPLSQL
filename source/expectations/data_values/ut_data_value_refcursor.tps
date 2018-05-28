@@ -24,7 +24,12 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
    * Determines if the cursor is null
    */
   is_cursor_null  integer,
-
+  
+  /**
+  * hold information if the cursor contains collection object
+  */
+  contain_collection number(1,0),
+  
   /**
   * Holds information about column names and column data-types
   */

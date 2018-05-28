@@ -143,8 +143,6 @@ You can now join two cursors by defining a primary key or composite key that wil
 
 Join by option can be used in conjunction with include or exclude options. However if any of the join keys is part of exclude set, comparison will fail and report to user that sets could not be joined on specific key  (excluded).
 
-Join by options currently doesn't support nested table inside cursor.
-
 ```sql
 procedure join_by_username is
     l_actual   sys_refcursor;
@@ -170,6 +168,57 @@ This will show you difference in row 'TEST' regardless of order.
 ```
 
 Assumption is that join by is made by column name so that what will be displayed as part of results.
+
+Join by options currently doesn't support nested table inside cursor comparison, however is still possible to compare a collection as a whole.
+
+Example.
+
+```sql
+ procedure compare_collection_in_rec is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_actual_tab ut3.ut_annotated_object;
+    l_expected_tab ut3.ut_annotated_object;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    select ut3.ut_annotated_object('TEST','TEST','TEST',
+      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
+                         ut3.ut_annotation(2,'test','test','test'))
+    )
+    into l_actual_tab from dual;
+ 
+    select ut3.ut_annotated_object('TEST','TEST','TEST',
+      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
+                         ut3.ut_annotation(2,'test','test','test'))
+    )
+    into l_expected_tab from dual;
+      
+    --Arrange
+    open l_actual for select l_actual_tab as nested_table from dual;
+
+    open l_expected for select l_expected_tab as nested_table from dual;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/ANNOTATIONS');
+
+  end;   
+```
+
+
+
+In case when a there is detected collection inside cursor and we cannot join key. Comparison will present a failed joins and also a message about collection being detected.
+
+```sql
+Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
+Diff:
+	Unable to join sets:
+	Join key NESTED_TABLE/ANNOTATIONS/TEXT does not exists in expected
+	Join key NESTED_TABLE/ANNOTATIONS/TEXT does not exists in actual
+	Please make sure that your join clause is not refferring to collection element
+```
+
+
 
 
 
