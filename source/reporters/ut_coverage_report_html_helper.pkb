@@ -308,7 +308,7 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
                    '</title>' || '<meta http-equiv="content-type" content="text/html; charset=utf-8" />' ||
                    '<script src=''' || a_assets_path || 'application.js'' type=''text/javascript''></script>' ||
                    '<link href=''' || a_assets_path ||
-                   'application.css'' media=''screen, projection, print'' rel=''stylesheet'' type=''text/css''>' ||
+                   'application.css'' media=''screen, projection, print'' rel=''stylesheet'' type=''text/css''/>' ||
                    '<link rel="shortcut icon" type="image/png" href="' || a_assets_path || 'favicon_' ||
                    coverage_css_class(l_coverage_pct) || '.png" />' || '<link rel="icon" type="image/png" href="' ||
                    a_assets_path || 'favicon_' || coverage_css_class(l_coverage_pct) || '.png" />' || '</head>' ||
@@ -339,7 +339,7 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
       l_unit := a_coverage_data.objects.next(l_unit);
     end loop;
   
-    l_file_part := '</div></div></body></html>';
+    l_file_part := '</div></div></div></body></html>';
   
     ut_utils.append_to_clob(l_result, l_file_part);
     return l_result;
