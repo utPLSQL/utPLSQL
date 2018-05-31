@@ -12,13 +12,13 @@ ERROR_REGEX="error:"
 
 VALIDATION_RESULTS=$(curl -H "Content-Type: text/html; charset=utf-8" --data-binary @$HTML_FILENAME "$HTML_VALIDATOR_URL?out=$VALIDATOR_OUT&filterpattern=$EXCLUSION_REGEX")
 
-ERROR_COUNT=`echo $VALIDATION_RESULTS | grep -c "$ERROR_REGEX"`
-WARNING_COUNT=`echo $VALIDATION_RESULTS | grep -c "$WARNING_REGEX"`
+ERROR_COUNT=`echo "$VALIDATION_RESULTS" | grep -c "$ERROR_REGEX"`
+WARNING_COUNT=`echo "$VALIDATION_RESULTS" | grep -c "$WARNING_REGEX"`
 
 echo "There are $ERROR_COUNT errors, $WARNING_COUNT warning  in $HTML_FILENAME"
 
 if [ $ERROR_COUNT -gt 0 ]; then
- echo $VALIDATION_RESULTS | grep "$ERROR_REGEX"
+ echo "$VALIDATION_RESULTS" | grep "$ERROR_REGEX"
  exit 1
 else
  exit 0
