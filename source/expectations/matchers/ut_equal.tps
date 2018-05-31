@@ -25,7 +25,17 @@ create or replace type ut_equal under ut_comparison_matcher(
    * Holds (list of columns/attributes) to incude when comparing compound types
    */
   include_list   ut_varchar2_list,
+  
+  /**
+   * Holds value if comparision on refcursor to be performed as unordered set
+   */
+  is_unordered   number(1,0),
 
+  /**
+   * Holds list of columns to be used as a join PK on sys_refcursor comparision
+   */
+  join_columns ut_varchar2_list,
+  
   member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean),
   member function equal_with_nulls( self in ut_equal, a_assert_result boolean, a_actual ut_data_value) return boolean,
   constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result,
@@ -49,8 +59,13 @@ create or replace type ut_equal under ut_comparison_matcher(
   member function include(a_items ut_varchar2_list) return ut_equal,
   member function exclude(a_items varchar2) return ut_equal,
   member function exclude(a_items ut_varchar2_list) return ut_equal,
+  member function unordered return ut_equal,
+  member function join_by(a_columns varchar2) return ut_equal,
+  member function join_by(a_columns ut_varchar2_list) return ut_equal,
   member function get_include_xpath return varchar2,
   member function get_exclude_xpath return varchar2,
+  member function get_unordered return boolean,
+  member function get_join_by_xpath return varchar2,
   overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean,
   overriding member function failure_message(a_actual ut_data_value) return varchar2,
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2

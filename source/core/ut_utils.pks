@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.2.1901-develop';
+  gc_version                 constant varchar2(50) := 'v3.1.2.1959-develop';
 
   /* Constants: Event names */
   subtype t_event_name           is varchar2(30);
@@ -109,6 +109,10 @@ create or replace package ut_utils authid definer is
   ex_invalid_version_no exception;
   gc_invalid_version_no constant pls_integer := -20214;
   pragma exception_init(ex_invalid_version_no, -20214);
+
+  ex_invalid_package exception;
+  gc_invalid_package constant pls_integer := -6550;
+  pragma exception_init(ex_invalid_package, -6550);
 
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;

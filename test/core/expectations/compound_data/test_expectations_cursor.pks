@@ -26,7 +26,7 @@ create or replace package test_expectations_cursor is
   --%test(Gives success on to_be_null if cursor is null)
   procedure success_to_be_null;
 
-  --%test(Gives succes on not_to_be_not_null if cursor is null)
+  --%test(Gives success on not_to_be_not_null if cursor is null)
   procedure success_not_to_be_not_null;
 
   --%test(Gives success on not_to_be_null if cursor is not null)
@@ -198,6 +198,123 @@ create or replace package test_expectations_cursor is
 
   --%test( Fail on passing implicit column name as exclude filter )
   procedure exclude_col_name_implicit;
+  
+  --%test( Compare cursors using unordered method success)
+  procedure cursor_unorderd_compr_success;
+ 
+  --%test( Compare cursors using unordered method failure)
+  procedure cursor_unordered_compare_fail; 
+  
+  --%test( Compare cursors join by single key )
+  procedure cursor_joinby_compare; 
+  
+  --%test( Compare cursors join by composite key)
+  procedure cursor_joinby_compare_twocols; 
+  
+  --%test( Compare cursors join by single key - key doesnt exists )
+  procedure cursor_joinby_compare_nokey; 
+  
+  --%test( Compare cursors join by composite key - one part of key doesnt exists )
+  procedure cur_joinby_comp_twocols_nokey; 
+  
+  --%test( Compare cursors join by single key - key doesnt is excluded )
+  procedure cursor_joinby_compare_exkey; 
+  
+  --%test( Compare cursors join by composite key - one part of key is excluded exists )
+  procedure cur_joinby_comp_twocols_exkey; 
+  
+  --%test( Compare cursors join by single key - key doesnt exists in expected)
+  procedure cursor_joinby_comp_nokey_ex; 
+  
+  --%test( Compare cursors join by single key - key doesnt exists in actual)
+  procedure cursor_joinby_comp_nokey_ac; 
+  
+  --%test( Compare cursors join by single key more than 1000 rows)
+  procedure cursor_joinby_compare_1000;
+  
+  --%test( Compare two column cursors join by and fail to match )
+  procedure cursor_joinby_compare_fail;  
+ 
+  --%test( Compare two column cursors join by two columns and fail to match )
+  procedure cursor_joinby_cmp_twocol_fail;   
+ 
+  --%test( Compare three column cursors join by two columns and fail to match )
+  procedure cur_joinby_cmp_threcol_fail; 
+  
+  --%test(Unordered List of columns to include)
+  procedure unord_incl_cols_as_list;
+
+  --%test(Join By List of columns to include)
+  procedure joinby_incl_cols_as_list;
+
+  --%test(Unordered List of columns to exclude)
+  procedure unord_excl_cols_as_list;
+
+  --%test(Join By List of columns to exclude)
+  procedure joinby_excl_cols_as_list;
+
+  --%test(Exclude columns of different type)
+  procedure excl_dif_cols_as_list;
+  
+  --%test(Include column of same type leaving different type out)
+  procedure inlc_dif_cols_as_list;
+
+  --%test(Include column of same type leaving different type out and exclude different type)
+  procedure inlc_exc_dif_cols_as_list;
+  
+  --%test(Compare object type unordered)
+  procedure compare_obj_typ_col_un;
+
+  --%test(Compare object type join by)
+  procedure compare_obj_typ_col_jb;
+  
+  --%test(Compare nested table type unordered fail)
+  procedure comp_obj_typ_col_un_fail;
+ 
+  --%test(Compare object type join by fail) 
+  procedure comp_obj_typ_col_jb_fail;
+
+  --%test(Compare object type join by multi key) 
+  procedure comp_obj_typ_col_jb_multi;
+ 
+  --%test(Compare object type join by missing nested key) 
+  procedure comp_obj_typ_col_jb_nokey;
+
+  --%test(Compare table type join by)
+  procedure compare_nest_tab_col_jb;  
+  
+  --%test(Compare table type join by - Failure)
+  procedure compare_nest_tab_col_jb_fail;
+
+  --%test(Compare table type join by mulitple columns)  
+  procedure compare_nest_tab_cols_jb;
+
+  --%test(Compare table type join by multiple columns- Failure)  
+  procedure compare_nest_tab_cols_jb_fail;
+  
+  --%test(Compare table type as column join by multiple columns - Cannot find match)  
+  procedure compare_tabtype_as_cols_jb;
+
+  --%test(Compare table type as column normal compare )  
+  procedure compare_tabtype_as_cols;
+  
+  --%test(Compare table type as column join on collection element )  
+  procedure compare_tabtype_as_cols_coll; 
+  
+  --%test(Compare same content on record with collections join on record) 
+  procedure compare_rec_colltype_as_cols;
+ 
+  --%test(Compare same content record with collection join on record attribute)  
+  procedure compare_rec_colltype_as_attr;
+
+  --%test(Compare same content record with collection join on whole collection)   
+  procedure compare_collection_in_rec;
+    
+  --%test(Compare diffrent content record with collection join on record attribute) 
+  procedure compare_rec_coll_as_cols_fl;
+
+  --%test(Trying to join on collection element inside record )   
+  procedure compare_rec_coll_as_join;
   
 end;
 /

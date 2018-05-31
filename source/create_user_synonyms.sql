@@ -95,7 +95,6 @@ create or replace synonym &ut3_user..ut_file_mapper for &&ut3_owner..ut_file_map
 create or replace synonym &ut3_user..ut_key_value_pairs for &&ut3_owner..ut_key_value_pairs;
 create or replace synonym &ut3_user..ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
 create or replace synonym &ut3_user..ut_compound_data_tmp for &&ut3_owner..ut_cursor_data;
-create or replace synonym &ut3_user..ut_compound_data_diff_tmp for &&ut3_owner..ut_compound_data_diff_tmp;
 create or replace synonym &ut3_user..ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
 begin
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then

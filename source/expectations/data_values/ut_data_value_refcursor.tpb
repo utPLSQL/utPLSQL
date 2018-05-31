@@ -15,7 +15,7 @@ create or replace type body ut_data_value_refcursor as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-
+        
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) return self as result is
   begin
     init(a_value);
@@ -28,8 +28,8 @@ create or replace type body ut_data_value_refcursor as
     l_ctx                 number;
     l_xml                 xmltype;
     l_current_date_format varchar2(4000);
-    l_ut_owner            varchar2(250) := ut_utils.ut_owner;
     cursor_not_open       exception;
+    l_ut_owner            varchar2(250) := ut_utils.ut_owner;
   begin
     self.is_data_null := ut_utils.boolean_to_int(a_value is null);
     self.self_type := $$plsql_unit;
@@ -37,7 +37,11 @@ create or replace type body ut_data_value_refcursor as
     self.data_type := 'refcursor';
     if l_cursor is not null then
         if l_cursor%isopen then
-          self.columns_info  := ut_compound_data_helper.get_columns_info(l_cursor);
+          --Get some more info regarding cursor, including if it containts collection columns and what is their name
+          
+          ut_curr_usr_compound_helper.get_columns_info(l_cursor,self.columns_info,self.key_info,
+            self.contain_collection);
+          
           self.elements_count     := 0;
           -- We use DBMS_XMLGEN in order to:
           -- 1) be able to process data in bulks (set of rows)
@@ -58,8 +62,8 @@ create or replace type body ut_data_value_refcursor as
 
           loop
             l_xml := dbms_xmlgen.getxmltype(l_ctx);
-
-            execute immediate
+           
+           execute immediate
               'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
               'select :self_guid, :self_row_count + rownum, value(a) ' ||
               '  from table( xmlsequence( extract(:l_xml,''ROWSET/*'') ) ) a'
@@ -69,7 +73,7 @@ create or replace type body ut_data_value_refcursor as
 
             self.elements_count := self.elements_count + sql%rowcount;
           end loop;
-
+          
           ut_expectation_processor.reset_nls_params();
           if l_cursor%isopen then
             close l_cursor;
@@ -108,14 +112,15 @@ create or replace type body ut_data_value_refcursor as
     return l_result_string;
   end;
 
-  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return varchar2 is
+  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean := false ) return varchar2 is
     l_result            clob;
     l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
     l_result_string     varchar2(32767);
     l_actual            ut_data_value_refcursor;
     l_column_diffs      ut_compound_data_helper.tt_column_diffs := ut_compound_data_helper.tt_column_diffs();
     l_exclude_xpath     varchar2(32767) := a_exclude_xpath;
-
+    l_missing_pk        ut_compound_data_helper.tt_missing_pk := ut_compound_data_helper.tt_missing_pk();
+    
     function get_col_diff_text(a_col ut_compound_data_helper.t_column_diffs) return varchar2 is
     begin
       return
@@ -130,7 +135,20 @@ create or replace type body ut_data_value_refcursor as
             '  Column <'||a_col.actual_name||'> is misplaced. Expected position: '||a_col.expected_pos||',' ||' actual position: '||a_col.actual_pos||'.'
         end;
     end;
+    
+    function get_missing_key_message(a_missing_keys ut_compound_data_helper.t_missing_pk) return varchar2 is
+      l_message varchar2(200);
+    begin
+      
+      if a_missing_keys.diff_type = 'a' then
+        l_message :=  '  Join key '||a_missing_keys.missingxpath||' does not exists in actual';
+      elsif a_missing_keys.diff_type = 'e' then
+        l_message :=    '  Join key '||a_missing_keys.missingxpath||' does not exists in expected';
+      end if; 
 
+     return l_message;
+    end;
+    
     function add_incomparable_cols_to_xpath(
       a_column_diffs ut_compound_data_helper.tt_column_diffs, a_exclude_xpath varchar2
     ) return varchar2 is
@@ -151,6 +169,7 @@ create or replace type body ut_data_value_refcursor as
       end if;
       return l_result;
     end;
+    
   begin
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
@@ -174,34 +193,70 @@ create or replace type body ut_data_value_refcursor as
       ut_utils.append_to_clob(l_result, l_results);
       l_exclude_xpath := add_incomparable_cols_to_xpath(l_column_diffs, a_exclude_xpath);
     end if;
-
-    --diff rows and row elements
-    ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, l_exclude_xpath, a_include_xpath));
-
+    
+    --check for missing pk 
+    if (a_join_by_xpath is not null) then
+      l_missing_pk := ut_compound_data_helper.is_pk_exists(self.key_info, l_actual.key_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath);
+    end if;
+    
+    --diff rows and row elements if the pk is not missing 
+    if l_missing_pk.count = 0 then
+        ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath, a_unordered));    
+    else
+        ut_utils.append_to_clob(l_result,chr(10) || 'Unable to join sets:' || chr(10));
+        for i in 1 .. l_missing_pk.count loop
+          l_results.extend;
+          ut_utils.append_to_clob(l_result, get_missing_key_message(l_missing_pk(i))|| chr(10));
+        end loop;
+        
+        if ut_utils.int_to_boolean(self.contain_collection) or ut_utils.int_to_boolean(l_actual.contain_collection) then
+          ut_utils.append_to_clob(l_result,'  Please make sure that your join clause is not refferring to collection element'|| chr(10));
+        end if;
+        
+    end if;
+    
     l_result_string := ut_utils.to_string(l_result,null);
     dbms_lob.freetemporary(l_result);
     return l_result_string;
   end;
 
-  overriding member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer is
+  overriding member function compare_implementation (a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean) return integer is
     l_result          integer := 0;
     l_other           ut_data_value_refcursor;
+    function is_pk_missing (a_pk_missing_tab ut_compound_data_helper.tt_missing_pk) return integer is
+    begin
+      return case when a_pk_missing_tab.count > 0 then 1 else 0 end;
+    end;
   begin
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
     end if;
 
     l_other   := treat(a_other as ut_data_value_refcursor);
-
-    --if column names/types are not equal - build a diff of column names and types
-    if ut_compound_data_helper.columns_hash( self, a_exclude_xpath, a_include_xpath )
-       != ut_compound_data_helper.columns_hash( l_other, a_exclude_xpath, a_include_xpath )
-    then
-      l_result := 1;
+    
+    --if we join by key and key is missing fail and report error
+    if a_join_by_xpath is not null then 
+      l_result := is_pk_missing(ut_compound_data_helper.is_pk_exists(self.key_info, l_other.key_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath));
     end if;
-    l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath);
+    
+    if l_result = 0 then
+      --if column names/types are not equal - build a diff of column names and types
+      if ut_compound_data_helper.columns_hash( self, a_exclude_xpath, a_include_xpath )
+         != ut_compound_data_helper.columns_hash( l_other, a_exclude_xpath, a_include_xpath )
+      then
+        l_result := 1;
+      end if;
+    
+      if a_unordered then
+        l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath, a_unordered);
+      else
+        l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath);
+      end if;
+    end if;
+    
     return l_result;
   end;
+
 
 end;
 /

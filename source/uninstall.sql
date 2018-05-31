@@ -152,6 +152,8 @@ drop type ut_data_value_collection force;
 
 drop type ut_data_value_anydata force;
 
+drop type ut_data_value_xmltype force;
+
 drop type ut_data_value force;
 
 drop table ut_compound_data_tmp;
@@ -259,6 +261,10 @@ drop type ut_expectation_result force;
 drop package ut_event_manager;
 
 drop type ut_event_item force;
+
+drop type ut_key_anyval_pair force;
+
+drop type ut_key_anyval_pairs force;
 
 drop type ut_key_value_pairs force;
 
