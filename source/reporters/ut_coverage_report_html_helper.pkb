@@ -241,7 +241,7 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
                    '<span class="' ||line_hits_css_class(executions_per_line(a_coverage.executions
                                                              ,a_coverage.uncovered_lines + a_coverage.covered_lines)) || '">' ||
                       executions_per_line(a_coverage.executions, a_coverage.uncovered_lines + a_coverage.covered_lines)
-                     || '</span></span> hits/line)</h2>' || '<a name="' || l_id || '"></a>' || '<div><b>' ||
+                     || '</span></span> hits/line)</h2>' || '<a id="a_' || l_id || '"></a>' || '<div><b>' ||
                       a_coverage.objects.count || '</b> files in total. </div><div>' || '<b>' || 
                       (a_coverage.uncovered_lines + a_coverage.covered_lines)
                    || '</b> relevant lines. ' || '<span class="green"><b>' || a_coverage.covered_lines ||
@@ -306,9 +306,9 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
     --TODO - build main file containing total run data and per schema data
     l_file_part := '<!DOCTYPE html><html xmlns=''http://www.w3.org/1999/xhtml''><head>' || '<title>' || l_title ||
                    '</title>' || '<meta http-equiv="content-type" content="text/html; charset=utf-8" />' ||
-                   '<script src=''' || a_assets_path || 'application.js'' type=''text/javascript''></script>' ||
+                   '<script src=''' || a_assets_path || 'application.js''></script>' ||
                    '<link href=''' || a_assets_path ||
-                   'application.css'' media=''screen, projection, print'' rel=''stylesheet'' type=''text/css''/>' ||
+                   'application.css'' media=''screen, print'' rel=''stylesheet'' type=''text/css''/>' ||
                    '<link rel="shortcut icon" type="image/png" href="' || a_assets_path || 'favicon_' ||
                    coverage_css_class(l_coverage_pct) || '.png" />' || '<link rel="icon" type="image/png" href="' ||
                    a_assets_path || 'favicon_' || coverage_css_class(l_coverage_pct) || '.png" />' || '</head>' ||
