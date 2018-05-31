@@ -18,6 +18,7 @@ WARNING_COUNT=`echo $VALIDATION_RESULTS | grep -c "$WARNING_REGEX"`
 echo "There are $ERROR_COUNT errors, $WARNING_COUNT warning  in $HTML_FILENAME"
 
 if [ $ERROR_COUNT -gt 0 ]; then
+ echo $VALIDATION_RESULTS | grep -c "$ERROR_REGEX"
  exit 1
 else
  exit 0
