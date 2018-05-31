@@ -15,4 +15,8 @@ create or replace package test_before_after_annotations is
   
   --%test(Beforetest with call to multi procedure where one does not exist)
   procedure beforetest_one_err_procedure;
+  
+  --%test(Test which beforetest procedures were executed)
+  procedure test_executed_beforetests;
 end;
+/
