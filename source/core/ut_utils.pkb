@@ -437,17 +437,16 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
   procedure save_dbms_output_to_cache is
     l_status number;
     l_line   varchar2(32767);
-    l_line_no integer := 1;
+    l_offset integer := 0;
     l_lines  ut_varchar2_rows := ut_varchar2_rows();
     c_lines_limit constant integer := 100;
     pragma autonomous_transaction;
 
-    procedure flush_lines is
+    procedure flush_lines(a_lines ut_varchar2_rows, a_offset integer) is
     begin
       insert into ut_dbms_output_cache (seq_no,text)
-        select rownum, column_value
-        from table(l_lines);
-      l_lines.delete;
+        select rownum+a_offset, column_value
+        from table(a_lines);
     end;
   begin
     loop
@@ -455,10 +454,12 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
       exit when l_status = 1;
       l_lines := l_lines multiset union all ut_utils.convert_collection(ut_utils.clob_to_table(l_line||chr(7),4000));
       if l_lines.count > c_lines_limit then
-        flush_lines();
+        flush_lines(l_lines, l_offset);
+        l_offset := l_offset + l_lines.count;
+        l_lines.delete;
       end if;
     end loop;
-    flush_lines();
+    flush_lines(l_lines, l_offset);
     commit;
   end;
 
