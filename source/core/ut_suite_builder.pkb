@@ -38,6 +38,10 @@ create or replace package body ut_suite_builder is
   gc_endcontext                  constant t_annotation_name := 'endcontext';
 
   gc_placeholder                 constant varchar2(3) := '\\%';
+  
+  gc_int_exception               constant varchar2(1) := 'I';
+  gc_name_exception              constant varchar2(1) := 'N';
+  gc_unk_exception               constant varchar2(1) := 'U';
 
   --list of annotation texts for a given annotation indexed by annotation position:
   --This would hold: ('some', 'other') for a single annotation name recurring in a single procedure example
@@ -192,23 +196,23 @@ create or replace package body ut_suite_builder is
       l_c varchar2(250);
       l_dblink varchar2(250);
       l_next_pos pls_integer;
-      l_exception_type varchar2(50) := 'NUMBER';
+      l_exception_type varchar2(50) := gc_int_exception;
     begin
      
       begin
-        --check if it is a number first
+        --check if it is a number first 
         dbms_utility.name_tokenize(a_exception_name, l_a, l_b, l_c, l_dblink, l_next_pos);
         --check if it is a predefined exception
         begin
           execute immediate 'begin null; exception when '||a_exception_name||' then null; end;';
-          l_exception_type := 'NAMED';
+          l_exception_type := gc_name_exception;
         exception
           when others then
             if dbms_utility.format_error_stack() like '%PLS-00485%' then
               execute immediate 'declare x positiven := -('||a_exception_name||'); begin null; end;';
-              l_exception_type := 'NUMBER';
+              l_exception_type := gc_int_exception;
             else
-              l_exception_type := 'UNKNOWN';
+              l_exception_type := gc_unk_exception;
             end if;
         end;
       exception when others then
@@ -217,31 +221,38 @@ create or replace package body ut_suite_builder is
       return l_exception_type;
    end;
 
-
-  function get_exception_number (a_exception_var in varchar2) return number is
-    l_exception_no number;
-    l_exception_type varchar2(50);
+  function get_exception_number (a_exception_var in varchar2) return integer is
+    l_exc_no   integer;
+    l_exc_type varchar2(50);
+    l_sql      varchar2(32767);
+    function remap_no_data (a_number integer) return integer is
+    begin
+      return case a_number when 100 then -1403 else a_number end; 
+    end;
   begin
-   l_exception_type := check_exception_type(a_exception_var);
-   if l_exception_type = 'NUMBER' then
-   execute immediate 'declare
-                        l_exception number;
-                      begin
-                        :l_exception := '||a_exception_var||';
-                      exception
-                        when others then
-                         :l_exception := null;
-                      end;' using in out l_exception_no;
-                      
-    elsif l_exception_type = 'NAMED' then 
-     execute immediate 'begin
-                          raise '||a_exception_var||';
-                       exception
-                         when others then
-                           :l_exception := sqlcode;
-                       end;' using in out l_exception_no;
+    l_exc_type := check_exception_type(a_exception_var); 
+   
+    if l_exc_type in (gc_int_exception,gc_name_exception) then
+   
+     execute immediate case l_exc_type 
+                       when gc_int_exception then
+                       'declare
+                          l_exception number;
+                        begin
+                          :l_exception := '||a_exception_var||'; '
+                        when gc_name_exception then
+                        'begin
+                          raise '||a_exception_var||'; '
+                        end ||
+                        'exception
+                          when others then
+                           :l_exception := '|| case l_exc_type 
+                                                 when gc_int_exception then 'null;' 
+                                                 when gc_name_exception then 'sqlcode;'
+                                               end||'
+                        end;' using in out l_exc_no;
     end if;
-    return l_exception_no;                             
+    return remap_no_data(l_exc_no);                             
   end;  
 
   function is_valid_qualified_name (a_name varchar2) return boolean is

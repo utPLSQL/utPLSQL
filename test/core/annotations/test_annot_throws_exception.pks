@@ -51,12 +51,23 @@ is
   --%test(Success resolve and match named exception defined in pragma exception init)  
   procedure named_exc_pragma;
   
-  --%test(Success resolve and match oracle named exception)  
-  --%disabled
+  --%test(Success resolve and match oracle named exception no data)  
   procedure named_exc_ora;
  
   --%test(Success resolve and match oracle named exception dup val index)  
   procedure named_exc_ora_dup_ind;
+  
+  --%test(Success map no data 100 to -1403)  
+  procedure nodata_exc_ora;  
+
+  --%test(Success for exception defined as varchar)  
+  procedure defined_varchar_exc;  
+ 
+  --%test(Non existing constant exception)  
+  procedure non_existing_const;   
+  
+  --%test(Bad exception constant)  
+  procedure bad_exc_const;     
   
   --%afterall
   procedure drop_test_package;

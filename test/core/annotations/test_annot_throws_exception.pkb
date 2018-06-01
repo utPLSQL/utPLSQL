@@ -13,6 +13,7 @@ is
     l_exception_spec := q'[
         create or replace package exc_pkg is
           c_e_single_exc constant number := -20200;
+          c_e_dummy      constant varchar2(10) := 'dummy';
           c_e_varch_exc  constant varchar2(10) := '-20201';
           c_e_list_1              number := -20202;
           c_e_list_2     constant number := -20203;
@@ -97,6 +98,22 @@ is
            --%throws(DUP_VAL_ON_INDEX)
            procedure named_exc_ora_dup_ind;
             
+           --%test(Success map no data 100 to -1403)  
+           --%throws(-1403)
+           procedure nodata_exc_ora;   
+           
+           --%test(Success for exception defined as varchar)  
+           --%throws(exc_pkg.c_e_varch_exc)
+           procedure defined_varchar_exc; 
+           
+           --%test(Non existing constant exception)  
+           --%throws(dummy.c_dummy);
+           procedure non_existing_const;  
+           
+           --%test(Bad exception constant) 
+           --%throws(exc_pkg.c_e_dummy);
+           procedure bad_exc_const;  
+           
         end;
     ';
 
@@ -186,6 +203,26 @@ is
            procedure named_exc_ora_dup_ind is
            begin
              raise DUP_VAL_ON_INDEX;
+           end;
+  
+           procedure nodata_exc_ora is
+           begin
+             raise NO_DATA_FOUND;
+           end;
+           
+           procedure defined_varchar_exc is
+           begin
+             raise_application_error(exc_pkg.c_e_varch_exc,''Test'');
+           end;
+           
+           procedure non_existing_const is
+           begin
+             raise_application_error(-20143, ''Test error'');
+           end;
+           
+           procedure bad_exc_const is
+           begin
+             raise_application_error(-20143, ''Test error'');
            end;
            
         end;
@@ -302,7 +339,31 @@ is
     ut.expect(g_tests_results).to_match('^\s*Success resolve and match oracle named exception dup val index \[[\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('named_exc_ora_dup_ind');
   end;   
-    
+  
+  procedure nodata_exc_ora is
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Success map no data 100 to -1403 \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('nodata_exc_ora');
+  end; 
+  
+  procedure defined_varchar_exc is 
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Success for exception defined as varchar \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('defined_varchar_exc');
+  end; 
+  
+  procedure non_existing_const is  
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Non existing constant exception \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('non_existing_const\s*ORA-20143: Test error\s*ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
+  end;
+ 
+  procedure bad_exc_const is
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Bad exception constant \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('bad_exc_const\s*ORA-20143: Test error\s*ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
+  end; 
+  
   procedure drop_test_package is
     pragma autonomous_transaction;
   begin
