@@ -7,8 +7,24 @@ is
 
     l_package_spec  varchar2(32737);
     l_package_body  varchar2(32737);
+    l_exception_spec varchar2(32737);
     l_test_results  ut3.ut_varchar2_list;
   begin
+    l_exception_spec := q'[
+        create or replace package exc_pkg is
+          c_e_single_exc constant number := -20200;
+          c_e_varch_exc  constant varchar2(10) := '-20201';
+          c_e_list_1              number := -20202;
+          c_e_list_2     constant number := -20203;
+          c_e_diff_exc   constant number := -20204;
+          c_e_mix_list   constant number := -20205;
+          c_e_mix_missin constant number := -20206;
+          
+          e_some_exception exception;
+          pragma exception_init(e_some_exception, -20207);
+          
+       end;]';
+    
     l_package_spec := '
         create package annotated_package_with_throws is
             --%suite(Dummy package to test annotation throws)
@@ -45,9 +61,42 @@ is
             --%throws(7894562, operaqk, -=1, -1, pow74d, posdfk3)
             procedure one_valid_exception_number;
 
-            --%test(Givess failure when a exception is expected and nothing is thrown)
+            --%test(Gives failure when a exception is expected and nothing is thrown)
             --%throws(-20459, -20136, -20145)
             procedure nothing_thrown;
+            
+           --%test(Single exception defined as a constant number in package)
+           --%throws(exc_pkg.c_e_single_exc)
+           procedure single_exc_const_pkg;
+           
+           --%test(Gives success when one of annotated exception using constant is thrown)
+           --%throws(exc_pkg.c_e_list_1,exc_pkg.c_e_list_2)
+           procedure list_of_exc_constant;
+            
+            --%test(Gives failure when the raised exception is different that the annotated one using variable)
+            --%throws(exc_pkg.c_e_diff_exc)
+            procedure fail_not_match_exc;
+            
+            --%test(Success when one of exception from mixed list of number and constant is thrown) 
+            --%throws(exc_pkg.c_e_mix_list,-20105)
+            procedure mixed_exc_list; 
+            
+            --%test(Success when match exception even if other variable on list dont exists)  
+            --%throws(exc_pkg.c_e_mix_missin,utter_rubbish)
+            procedure mixed_list_notexi;
+            
+            --%test(Success resolve and match named exception defined in pragma exception init)  
+            --%throws(exc_pkg.e_some_exception)
+            procedure named_exc_pragma;
+  
+           --%test(Success resolve and match oracle named exception)
+           --%throws(NO_DATA_FOUND)
+           procedure named_exc_ora;
+           
+           --%test(Success resolve and match oracle named exception dup val index)  
+           --%throws(DUP_VAL_ON_INDEX)
+           procedure named_exc_ora_dup_ind;
+            
         end;
     ';
 
@@ -98,12 +147,55 @@ is
             begin
                 null;
             end;
+            
+           procedure single_exc_const_pkg is
+           begin
+             raise_application_error(exc_pkg.c_e_single_exc,''Test'');
+           end;
+           
+           procedure list_of_exc_constant is
+           begin
+             raise_application_error(exc_pkg.c_e_list_1,''Test'');
+           end;
+           
+           procedure fail_not_match_exc is
+           begin
+             raise NO_DATA_FOUND;
+           end;
+           
+           procedure mixed_exc_list is
+           begin
+             raise_application_error(exc_pkg.c_e_mix_list,''Test'');
+           end;
+           
+           procedure mixed_list_notexi is
+           begin
+             raise_application_error(exc_pkg.c_e_mix_missin,''Test'');
+           end;
+ 
+           procedure named_exc_pragma is
+           begin
+             raise exc_pkg.e_some_exception;
+           end;
+  
+           procedure named_exc_ora is
+           begin
+             raise NO_DATA_FOUND;
+           end;
+           
+           procedure named_exc_ora_dup_ind is
+           begin
+             raise DUP_VAL_ON_INDEX;
+           end;
+           
         end;
     ';
 
+    execute immediate l_exception_spec;
     execute immediate l_package_spec;
     execute immediate l_package_body;
 
+    
     select * bulk collect into l_test_results from table(ut3.ut.run(('annotated_package_with_throws')));
 
     g_tests_results := ut3.ut_utils.table_to_clob(l_test_results);
@@ -159,15 +251,63 @@ is
 
   procedure nothing_thrown is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Givess failure when a exception is expected and nothing is thrown \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Gives failure when a exception is expected and nothing is thrown \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
     ut.expect(g_tests_results).to_match('nothing_thrown\s*Expected one of exceptions \(-20459, -20136, -20145\) but nothing was raised.');
   end;
 
+  procedure single_exc_const_pkg is
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Single exception defined as a constant number in package \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('single_exc_const_pkg');
+  end;
+  
+  procedure list_of_exc_constant is
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Gives success when one of annotated exception using constant is thrown \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('list_of_exc_constant');
+  end;  
 
+  procedure fail_not_match_exc is
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Gives failure when the raised exception is different that the annotated one using variable \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('fail_not_match_exc\s+Actual: -1403 was expected to equal: -20204\s+ORA-01403: no data found\s+ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
+  end;  
+
+  procedure mixed_exc_list is
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Success when one of exception from mixed list of number and constant is thrown \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('mixed_exc_list');
+  end;
+      
+  procedure mixed_list_notexi is
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Success when match exception even if other variable on list dont exists \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('mixed_list_notexi');
+  end;
+
+  procedure named_exc_pragma is
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Success resolve and match named exception defined in pragma exception init \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('mixed_list_notexi');  
+  end;
+  
+  procedure named_exc_ora is
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Success resolve and match oracle named exception \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('named_exc_ora');
+  end;  
+
+  procedure named_exc_ora_dup_ind is
+  begin
+    ut.expect(g_tests_results).to_match('^\s*Success resolve and match oracle named exception dup val index \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).not_to_match('named_exc_ora_dup_ind');
+  end;   
+    
   procedure drop_test_package is
     pragma autonomous_transaction;
   begin
     execute immediate 'drop package annotated_package_with_throws';
+    execute immediate 'drop package exc_pkg';
   end;
 
 end;

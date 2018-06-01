@@ -186,14 +186,96 @@ create or replace package body ut_suite_builder is
      return l_rollback_type;
   end;
 
+  function check_exception_type(a_exception_name in varchar2) return varchar2 is
+      l_a varchar2(250);
+      l_b varchar2(250);
+      l_c varchar2(250);
+      l_dblink varchar2(250);
+      l_next_pos pls_integer;
+      l_exception_type varchar2(50) := 'NUMBER';
+    begin
+     
+      begin
+        --check if it is a number first
+        dbms_utility.name_tokenize(a_exception_name, l_a, l_b, l_c, l_dblink, l_next_pos);
+        --check if it is a predefined exception
+        begin
+          execute immediate 'begin null; exception when '||a_exception_name||' then null; end;';
+          l_exception_type := 'NAMED';
+        exception
+          when others then
+            if dbms_utility.format_error_stack() like '%PLS-00485%' then
+              execute immediate 'declare x positiven := -('||a_exception_name||'); begin null; end;';
+              l_exception_type := 'NUMBER';
+            else
+              l_exception_type := 'UNKNOWN';
+            end if;
+        end;
+      exception when others then
+       null;
+      end;
+      return l_exception_type;
+   end;
+
+
+  function get_exception_number (a_exception_var in varchar2) return number is
+    l_exception_no number;
+    l_exception_type varchar2(50);
+  begin
+   l_exception_type := check_exception_type(a_exception_var);
+   if l_exception_type = 'NUMBER' then
+   execute immediate 'declare
+                        l_exception number;
+                      begin
+                        :l_exception := '||a_exception_var||';
+                      exception
+                        when others then
+                         :l_exception := null;
+                      end;' using in out l_exception_no;
+                      
+    elsif l_exception_type = 'NAMED' then 
+     execute immediate 'begin
+                          raise '||a_exception_var||';
+                       exception
+                         when others then
+                           :l_exception := sqlcode;
+                       end;' using in out l_exception_no;
+    end if;
+    return l_exception_no;                             
+  end;  
+
+  function is_valid_qualified_name (a_name varchar2) return boolean is
+   l_name varchar2(500);
+  begin
+    l_name:=dbms_assert.qualified_sql_name(a_name);
+    return true;
+  exception when others then
+    return false;
+  end;
+  
   function build_exception_numbers_list(a_annotation_text in varchar2) return ut_integer_list is
     l_throws_list           ut_varchar2_list;
     l_exception_number_list ut_integer_list := ut_integer_list();
     l_regexp_for_excep_nums varchar2(30) := '^-?[[:digit:]]{1,5}$';
   begin
     /*the a_expected_error_codes is converted to a ut_varchar2_list after that is trimmed and filtered to left only valid exception numbers*/
-    l_throws_list := ut_utils.string_to_table(a_annotation_text, ',', 'Y');
+    l_throws_list := ut_utils.trim_list_elements(ut_utils.string_to_table(a_annotation_text, ',', 'Y'));
+    
+    for i in 1..l_throws_list.count 
+    loop
+      /** 
+      * First check if its a valid qualified name and if so try to resolve to number
+      * If not check if it matches the ora regex number pattern.
+      */
+      if is_valid_qualified_name(l_throws_list(i)) then 
+       l_throws_list(i) := get_exception_number(l_throws_list(i));
+      else
+        l_throws_list(i) := l_throws_list(i);
+      end if;
+    end loop;
+    
     l_throws_list := ut_utils.filter_list( ut_utils.trim_list_elements(l_throws_list), l_regexp_for_excep_nums);
+
     l_exception_number_list.extend(l_throws_list.count);
     for i in 1 .. l_throws_list.count loop
       l_exception_number_list(i) := l_throws_list(i);

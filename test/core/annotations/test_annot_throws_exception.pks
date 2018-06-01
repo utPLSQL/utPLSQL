@@ -30,9 +30,34 @@ is
   --%test(Detects a valid exception number within many invalid ones)
   procedure one_valid_exception_number;
   
-  --%test(Givess failure when a exception is expected and nothing is thrown)
+  --%test(Gives failure when a exception is expected and nothing is thrown)
   procedure nothing_thrown;
 
+  --%test(Single exception defined as a constant number in package)
+  procedure single_exc_const_pkg;
+  
+  --%test(Gives success when one of annotated exception using constant is thrown)
+  procedure list_of_exc_constant;  
+
+  --%test(Gives failure when the raised exception is different that the annotated one using variable)
+  procedure fail_not_match_exc;  
+  
+  --%test(Success when one of exception from mixed list of number and constant is thrown) 
+  procedure mixed_exc_list; 
+    
+  --%test(Success when match exception even if other variable on list dont exists)  
+  procedure mixed_list_notexi;
+    
+  --%test(Success resolve and match named exception defined in pragma exception init)  
+  procedure named_exc_pragma;
+  
+  --%test(Success resolve and match oracle named exception)  
+  --%disabled
+  procedure named_exc_ora;
+ 
+  --%test(Success resolve and match oracle named exception dup val index)  
+  procedure named_exc_ora_dup_ind;
+  
   --%afterall
   procedure drop_test_package;
 
