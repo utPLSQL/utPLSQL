@@ -65,7 +65,7 @@ test_package
  
 Finished in .002415 seconds
 0 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
-```  
+```
 
 Suite package with description.
 ```sql
@@ -82,7 +82,7 @@ Tests for a package
  
 Finished in .001646 seconds
 0 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
-```  
+```
 
 When multiple `--%suite` annotations are specified in package, the first annotation will be used and a warning message will appear indicating duplicate annotation.
 ```sql
@@ -107,7 +107,7 @@ Warnings:
  
 Finished in .003318 seconds
 0 tests, 0 failed, 0 errored, 0 disabled, 1 warning(s)
-```  
+```
 
 When `--%suite` annotation is bound to procedure, it is ignored and results in package not getting recognized as test suite.
 ```sql
@@ -127,7 +127,7 @@ ORA-06512: at "UT3.UT", line 115
 ORA-06512: at "UT3.UT", line 306
 ORA-06512: at "UT3.UT", line 364
 ORA-06512: at line 1
-```  
+```
 
 
 ### Test
@@ -166,7 +166,7 @@ Tests for a package
  
 Finished in .004109 seconds
 1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
-```  
+```
 
 Test procedure with description.
 ```sql
@@ -192,7 +192,7 @@ Tests for a package
  
 Finished in .006828 seconds
 1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
-```  
+```
 
 When multiple `--%test` annotations are specified for a procedure, the first annotation will be used and a warning message will appear indicating duplicate annotation.
 ```sql
@@ -226,7 +226,7 @@ Warnings:
  
 Finished in .008815 seconds
 1 tests, 0 failed, 0 errored, 0 disabled, 1 warning(s)
-```  
+```
 
 ### Disabled
 Marks annotated suite package or test procedure as disabled.
@@ -263,7 +263,7 @@ Tests for a package
  
 Finished in .001441 seconds
 2 tests, 0 failed, 0 errored, 2 disabled, 0 warning(s)
-```  
+```
 
 Disabling individual test(s).
 ```sql
@@ -393,8 +393,8 @@ The `another_setup` still gets invoked before any test from that suite package i
    procedure other_test is begin null; end;
  end;
  /
-```
- 
+ ```
+
  ```sql
  exec ut.run('test_package');
  ```
@@ -441,7 +441,7 @@ When procedure is annotated as both `--%beforeall` and `--%test`, the procedure 
  end;
  /
 ```
- 
+
  ```sql
  exec ut.run('test_package');
  ```
@@ -463,8 +463,8 @@ Warnings:
  
 Finished in .012158 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 2 warning(s)
-```
-  
+ ```
+
 
 ### Afterall
 
@@ -532,7 +532,7 @@ The procedure annotated as `--%beforeeach` is getting executed before each test 
 That means that the procedure will be executed as many times as there are test in suite package.
 
 If a test is marked as disabled the `--%beforeeach` procedure is not invoked for that test.
- 
+
 If `--%beforeeach` raises an unhandled exception the following will happen:
 - the following `--%beforeeach` as well as all `--%beforetest` for that test **will not be executed**
 - the test will be marked as errored and exception stack trace will be captured and reported
@@ -613,7 +613,7 @@ The procedure annotated as `--%aftereach` is getting executed after each test in
 That means that the procedure will be executed as many times as there are test in suite package.
 
 If a test is marked as disabled the `--%aftereach` procedure is not invoked for that test.
- 
+
 If `--%aftereach` raises an unhandled exception the following will happen:
 - the test will be marked as errored and exception stack trace will be captured and reported
 - the `--%aftertest`, `--%aftereach` procedures **will be executed** for the errored test
@@ -691,7 +691,7 @@ Used alongside `--%test` annotation. Indicates procedure name to be executed bef
 The `--%beforetest` procedures are executed after invoking all `--%beforeeach` for a test.
 
 If a test is marked as disabled the `--%beforetest` procedure is not invoked for that test.
- 
+
 If `--%beforetest` raises an unhandled exception the following will happen:
 - the following `--%beforetest` for that test **will not be executed**
 - the test will be marked as errored and exception stack trace will be captured and reported
@@ -773,7 +773,7 @@ Used alongside `--%test` annotation. Indicates procedure name to be executed aft
 The `--%aftertest` procedures are executed before invoking any `--%aftereach` for a test.
 
 If a test is marked as disabled the `--%aftertest` procedure is not invoked for that test.
- 
+
 If `--%aftertest` raises an unhandled exception the following will happen:
 - the test will be marked as errored and exception stack trace will be captured and reported
 - the following `--%aftertest` and all `--%aftereach` procedures **will be executed** for the errored test
@@ -858,7 +858,7 @@ With this comes a challenge. How to group tests, related to one tested procedure
 This is where utPLSQL contexts come handy. 
 
 Contexts allow for creating sub-suites within a suite package and they allow for grouping of tests that are somehow related.
- 
+
 In essence, context behaves like a suite within a suite. 
 
 Context have following characteristics:
@@ -869,10 +869,10 @@ Context have following characteristics:
 - `--%beforeall`, `--%beforeeach`, `--%afterall` and `--%aftereach` procedures defined at suite level, propagate to context
 - test suite package can have multiple contexts in it
 - contexts cannot be nested
- 
+
 
 The below example illustrates usage of `--%context` for separating tests for individual procedures of package.
-   
+
 Tested tables and code
 ```sql
 create table rooms (
@@ -1179,15 +1179,30 @@ Keep in mind that when your test runs as autonomous transaction it will not see 
 
 ### Throws
 
-The `--%throws` annotation allows you to specify a list of exception numbers that can be expected from a test.
+The `--%throws` annotation allows you to specify a list of exception either by numbers or by exception type that can be expected from a test.
 
 If `--%throws(-20001,-20002)` is specified and no exception is raised or the exception raised is not on the list of provided exception numbers, the test is marked as failed.
 
 The framework ignores bad arguments. `--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)` will be interpreted as `--%throws(-20496)`.
 The annotation is ignored, when no valid arguments are provided `--%throws()`,`--%throws`, `--%throws(abe, 723pf)`.
 
+The framework allows to pass exception defined in variables for example constants in other packages or as exceptions `--%throws(exc_pkg.c_exc_variable)` 
+
+Please note that NO_DATA_FOUND is a special case and it will be translated into -1403.
+
 Example:
 ```sql
+create or replace package exc_pkg is
+  c_e_option1  constant number := -20200;
+  c_e_option2  constant varchar2(10) := '-20201';
+  c_e_option3  number := -20202;
+          
+  e_option4 exception;
+  pragma exception_init(e_option4, -20203);
+          
+end;
+/
+
 create or replace package example_pgk as
 
   --%suite(Example Throws Annotation)
@@ -1207,6 +1222,26 @@ create or replace package example_pgk as
   --%test(Gives failure when an exception is expected and nothing is thrown)
   --%throws(-20459, -20136, -20145)
   procedure nothing_thrown;
+  
+  --%test(Throws package exception option1)
+  --%throws(exc_pkg.c_e_option1)
+  procedure raised_option1_exception;
+  
+  --%test(Throws package exception option2)
+  --%throws(exc_pkg.c_e_option2)
+  procedure raised_option2_exception;
+  
+  --%test(Throws package exception option3)
+  --%throws(exc_pkg.c_e_option3)
+  procedure raised_option3_exception;
+  
+  --%test(Throws package exception option4)
+  --%throws(exc_pkg.e_option4)
+  procedure raised_option4_exception;
+  
+  --%test(Raise name exception)
+  --%throws(DUP_VAL_ON_INDEX)
+  procedure raise_named_exc;
 
 end;  
 /
@@ -1230,19 +1265,50 @@ create or replace package body example_pgk is
   begin
       ut.expect(1).to_equal(1);
   end;
+  
+  procedure raised_option1_exception is
+  begin
+      raise_application_error(exc_pkg.c_e_option1, 'Test error');
+  end;
+  
+  procedure raised_option2_exception is
+  begin
+      raise_application_error(exc_pkg.c_e_option2, 'Test error');
+  end;
+  
+  procedure raised_option3_exception is
+  begin
+      raise_application_error(exc_pkg.c_e_option3, 'Test error');
+  end;
+  
+  procedure raised_option4_exception is
+  begin
+      raise exc_pkg.e_option4;
+  end;
+  
+  procedure raise_named_exc is
+  begin
+      raise DUP_VAL_ON_INDEX;
+  end;
+  
 end;
 /
-        
+
 exec ut.run('example_pgk');
 ```
 
 Running the test will give report:
 ```
 Example Throws Annotation
-  Throws one of the listed exceptions [.018 sec]
-  Throws different exception than expected [.008 sec] (FAILED - 1)
-  Throws different exception than listed [.007 sec] (FAILED - 2)
-  Gives failure when an exception is expected and nothing is thrown [.002 sec] (FAILED - 3)
+  Throws one of the listed exceptions [.003 sec]
+  Throws different exception than expected [.003 sec] (FAILED - 1)
+  Throws different exception than listed [.004 sec] (FAILED - 2)
+  Gives failure when an exception is expected and nothing is thrown [.004 sec] (FAILED - 3)
+  Throws package exception option1 [.003 sec]
+  Throws package exception option2 [.003 sec]
+  Throws package exception option3 [.003 sec]
+  Throws package exception option4 [.003 sec]
+  Raise name exception [.003 sec]
  
 Failures:
  
@@ -1250,19 +1316,22 @@ Failures:
       Actual: -20143 was expected to equal: -20144
       ORA-20143: Test error
       ORA-06512: at "UT3.EXAMPLE_PGK", line 9
+      ORA-06512: at "UT3.EXAMPLE_PGK", line 9
       ORA-06512: at line 6
        
   2) raised_unlisted_exception
       Actual: -20143 was expected to be one of: (-20144, -1, -20145)
       ORA-20143: Test error
       ORA-06512: at "UT3.EXAMPLE_PGK", line 14
+      ORA-06512: at "UT3.EXAMPLE_PGK", line 14
       ORA-06512: at line 6
        
   3) nothing_thrown
       Expected one of exceptions (-20459, -20136, -20145) but nothing was raised.
        
-Finished in .038692 seconds
-4 tests, 3 failed, 0 errored, 0 disabled, 0 warning(s)
+Finished in .033843 seconds
+9 tests, 3 failed, 0 errored, 0 disabled, 0 warning(s)
+
 ```
 
 ## Order of execution
@@ -1335,7 +1404,7 @@ end test_employee_pkg;
 ```
 
 When processing the test suite `test_employee_pkg` defined in [Example of annotated test package](#example), the order of execution will be as follows.
- 
+
 ```
   create a savepoint 'before-suite'         
     execute setup_employees                 (--%beforeall)
