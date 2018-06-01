@@ -23,7 +23,6 @@ whenever oserror exit failure rollback
 @@core/annotations/test_annotation_parser.pks
 @@core/annotations/test_annotation_manager.pks
 @@core/annotations/test_before_after_test_annotation.pks
-@@core/annotations/test_before_after_test_annotation.pkb
 @@core/expectations/test_matchers.pks
 @@core/test_output_buffer.pks
 @@core/test_file_mapper.pks
@@ -68,6 +67,7 @@ set define off
 @@core/annotations/test_annotation_parser.pkb
 @@core/annotations/test_annotation_manager.pkb
 @@core/expectations/test_matchers.pkb
+@@core/annotations/test_before_after_test_annotation.pkb
 @@core/test_output_buffer.pkb
 @@core/test_file_mapper.pkb
 @@core/test_suite_manager.pkb
