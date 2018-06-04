@@ -83,5 +83,11 @@ create or replace package test_suite_builder is
   --%test(Gives warning if --%endcontext is missing a preceding --%context)
   procedure endcontext_without_context;
 
+  --%test(Gives warning if --%throws annotation has no value)
+  procedure throws_value_empty;
+
+  --%test(Gives warning if --%throws annotation has invalid value)
+  procedure throws_value_invalid;
+
 end;
 /

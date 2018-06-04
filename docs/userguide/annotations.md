@@ -1180,20 +1180,23 @@ Keep in mind that when your test runs as autonomous transaction it will not see 
 ### Throws
 
 The `--%throws` annotation allows you to specify a list of exceptions as one of:
-- number literals
-- variables of type exception defined in a package specification
-- variables of type number defined in a package specification
-- [predefined oracle exceptions](https://docs.oracle.com/cd/E11882_01/timesten.112/e21639/exceptions.htm#CIHFIGFE)
+- number literals - example `--%throws(-20134)`
+- variables of type exception defined in a package specification - example `--%throws(exc_pkg.c_exception_No_variable)`
+- variables of type number defined in a package specification - example `--%throws(exc_pkg.c_some_exception)`
+- [predefined oracle exceptions](https://docs.oracle.com/cd/E11882_01/timesten.112/e21639/exceptions.htm#CIHFIGFE) - example `--%throws(no_data_found)`
 
-If `--%throws(-20001,-20002)` is specified and no exception is raised or the exception raised is not on the list of provided exceptions, the test is marked as failed.
+The annotation is ignored, when no valid arguments are provided. Examples of invalid annotations `--%throws()`,`--%throws`, `--%throws(abe, 723pf)`.
 
-The framework ignores bad arguments. `--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)` will be interpreted as `--%throws(-20496)`.
-The annotation is ignored, when no valid arguments are provided `--%throws()`,`--%throws`, `--%throws(abe, 723pf)`.
+If `--%throws` annotation is specified with arguments and no exception is raised, the test is marked as failed.
 
-The framework allows to pass exception defined in variables for example constants in other packages or as exceptions `--%throws(exc_pkg.c_exc_variable)` 
+If `--%throws` annotation is specified with arguments and exception raised is not on the list of provided exceptions, the test is marked as failed.
 
-Please note that NO_DATA_FOUND is a special case and it will be translated into -1403.
+The framework will raise a warning, when `--%throws` annotation has invalid arguments or when no arguments were provided.
 
+Annotation `--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)` will be interpreted as `--%throws(-20496)`.
+ 
+Please note that `NO_DATA_FOUND` exception is a special case in Oracle. To capture it use `NO_DATA_FOUND` named exception or `-1403` exception No.
+                                                                                                        
 Example:
 ```sql
 create or replace package exc_pkg is
@@ -1212,7 +1215,7 @@ create or replace package example_pgk as
   --%suite(Example Throws Annotation)
 
   --%test(Throws one of the listed exceptions)
-  --%throws(-20145,-20146, -20189 ,-20563)
+  --%throws(-20145,bad,-20146, -20189 ,-20563)
   procedure raised_one_listed_exception;
 
   --%test(Throws different exception than expected)
@@ -1246,6 +1249,10 @@ create or replace package example_pgk as
   --%test(Raise name exception)
   --%throws(DUP_VAL_ON_INDEX)
   procedure raise_named_exc;
+
+  --%test(Invalid throws annotation)
+  --%throws
+  procedure bad_throws_annotation;
 
 end;  
 /
@@ -1295,24 +1302,29 @@ create or replace package body example_pgk is
       raise DUP_VAL_ON_INDEX;
   end;
   
+  procedure bad_throws_annotation is
+  begin
+    null;
+  end;
 end;
 /
 
-exec ut.run('example_pgk');
+exec ut3.ut.run('example_pgk');
 ```
 
 Running the test will give report:
 ```
 Example Throws Annotation
-  Throws one of the listed exceptions [.003 sec]
-  Throws different exception than expected [.003 sec] (FAILED - 1)
-  Throws different exception than listed [.004 sec] (FAILED - 2)
-  Gives failure when an exception is expected and nothing is thrown [.004 sec] (FAILED - 3)
+  Throws one of the listed exceptions [.002 sec]
+  Throws different exception than expected [.002 sec] (FAILED - 1)
+  Throws different exception than listed [.003 sec] (FAILED - 2)
+  Gives failure when an exception is expected and nothing is thrown [.002 sec] (FAILED - 3)
   Throws package exception option1 [.003 sec]
-  Throws package exception option2 [.003 sec]
-  Throws package exception option3 [.003 sec]
-  Throws package exception option4 [.003 sec]
-  Raise name exception [.003 sec]
+  Throws package exception option2 [.002 sec]
+  Throws package exception option3 [.002 sec]
+  Throws package exception option4 [.002 sec]
+  Raise name exception [.002 sec]
+  Invalid throws annotation [.002 sec]
  
 Failures:
  
@@ -1333,9 +1345,18 @@ Failures:
   3) nothing_thrown
       Expected one of exceptions (-20459, -20136, -20145) but nothing was raised.
        
-Finished in .033843 seconds
-9 tests, 3 failed, 0 errored, 0 disabled, 0 warning(s)
-
+ 
+Warnings:
+ 
+  1) example_pgk
+      Invalid parameter value "bad" for "--%throws" annotation. Parameter ignored.
+      at "UT3.EXAMPLE_PGK.RAISED_ONE_LISTED_EXCEPTION", line 6
+  2) example_pgk
+      "--%throws" annotation requires a parameter. Annotation ignored.
+      at "UT3.EXAMPLE_PGK.BAD_THROWS_ANNOTATION", line 42
+ 
+Finished in .025784 seconds
+10 tests, 3 failed, 0 errored, 0 disabled, 2 warning(s)
 ```
 
 ## Order of execution
