@@ -525,7 +525,7 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     return l_trimmed_list;
   end;
 
-  function filter_list(a_list IN ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list is
+  function filter_list(a_list in ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list is
     l_filtered_list ut_varchar2_list;
     l_index integer;
   begin

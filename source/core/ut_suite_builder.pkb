@@ -39,9 +39,8 @@ create or replace package body ut_suite_builder is
 
   gc_placeholder                 constant varchar2(3) := '\\%';
   
-  gc_int_exception               constant varchar2(1) := 'I';
-  gc_name_exception              constant varchar2(1) := 'N';
-  gc_unk_exception               constant varchar2(1) := 'U';
+  gc_integer_exception           constant varchar2(1) := 'I';
+  gc_named_exception             constant varchar2(1) := 'N';
 
   --list of annotation texts for a given annotation indexed by annotation position:
   --This would hold: ('some', 'other') for a single annotation name recurring in a single procedure example
@@ -160,7 +159,7 @@ create or replace package body ut_suite_builder is
   -- Processing annotations
   -----------------------------------------------
 
-  procedure add_annotation_warning(
+  procedure add_annotation_ignored_warning(
     a_suite          in out nocopy ut_suite_item,
     a_annotation     t_annotation_name,
     a_message        varchar2,
@@ -191,32 +190,25 @@ create or replace package body ut_suite_builder is
   end;
 
   function check_exception_type(a_exception_name in varchar2) return varchar2 is
-      l_a varchar2(250);
-      l_b varchar2(250);
-      l_c varchar2(250);
-      l_dblink varchar2(250);
-      l_next_pos pls_integer;
-      l_exception_type varchar2(50) := gc_int_exception;
+      l_exception_type varchar2(50);
     begin
-     
+      --check if it is a predefined exception
       begin
-        --check if it is a number first 
-        dbms_utility.name_tokenize(a_exception_name, l_a, l_b, l_c, l_dblink, l_next_pos);
-        --check if it is a predefined exception
-        begin
-          execute immediate 'begin null; exception when '||a_exception_name||' then null; end;';
-          l_exception_type := gc_name_exception;
-        exception
-          when others then
-            if dbms_utility.format_error_stack() like '%PLS-00485%' then
+        execute immediate 'begin null; exception when '||a_exception_name||' then null; end;';
+        l_exception_type := gc_named_exception;
+      exception
+        when others then
+          if dbms_utility.format_error_stack() like '%PLS-00485%' then
+            begin
               execute immediate 'declare x positiven := -('||a_exception_name||'); begin null; end;';
-              l_exception_type := gc_int_exception;
-            else
-              l_exception_type := gc_unk_exception;
-            end if;
-        end;
-      exception when others then
-       null;
+              l_exception_type := gc_integer_exception;
+            exception
+              when others then
+                --invalid exception number (positive)
+                --TODO add warning for this value
+                null;
+            end;
+          end if;
       end;
       return l_exception_type;
    end;
@@ -225,34 +217,34 @@ create or replace package body ut_suite_builder is
     l_exc_no   integer;
     l_exc_type varchar2(50);
     l_sql      varchar2(32767);
-    function remap_no_data (a_number integer) return integer is
+    function remap_no_data_found (a_number integer) return integer is
     begin
       return case a_number when 100 then -1403 else a_number end; 
     end;
   begin
     l_exc_type := check_exception_type(a_exception_var); 
    
-    if l_exc_type in (gc_int_exception,gc_name_exception) then
+    if l_exc_type is not null then
    
-     execute immediate case l_exc_type 
-                       when gc_int_exception then
-                       'declare
-                          l_exception number;
-                        begin
-                          :l_exception := '||a_exception_var||'; '
-                        when gc_name_exception then
-                        'begin
-                          raise '||a_exception_var||'; '
-                        end ||
-                        'exception
-                          when others then
-                           :l_exception := '|| case l_exc_type 
-                                                 when gc_int_exception then 'null;' 
-                                                 when gc_name_exception then 'sqlcode;'
-                                               end||'
-                        end;' using in out l_exc_no;
+      execute immediate
+        case l_exc_type
+          when gc_integer_exception then
+            'declare
+              l_exception number;
+            begin
+              :l_exception := '||a_exception_var||'; '
+          when gc_named_exception then
+            'begin
+              raise '||a_exception_var||';
+            exception
+              when others then
+                :l_exception := sqlcode; '
+          end ||
+            'end;'
+      using out l_exc_no;
+
     end if;
-    return remap_no_data(l_exc_no);                             
+    return remap_no_data_found(l_exc_no);
   end;  
 
   function is_valid_qualified_name (a_name varchar2) return boolean is
@@ -265,27 +257,24 @@ create or replace package body ut_suite_builder is
   end;
   
   function build_exception_numbers_list(a_annotation_text in varchar2) return ut_integer_list is
-    l_throws_list           ut_varchar2_list;
-    l_exception_number_list ut_integer_list := ut_integer_list();
-    l_regexp_for_excep_nums varchar2(30) := '^-?[[:digit:]]{1,5}$';
+    l_throws_list             ut_varchar2_list;
+    l_exception_number_list   ut_integer_list := ut_integer_list();
+    l_regexp_for_exception_no varchar2(30) := '^-?[[:digit:]]{1,5}$';
   begin
     /*the a_expected_error_codes is converted to a ut_varchar2_list after that is trimmed and filtered to left only valid exception numbers*/
     l_throws_list := ut_utils.trim_list_elements(ut_utils.string_to_table(a_annotation_text, ',', 'Y'));
     
-    for i in 1..l_throws_list.count 
+    for i in 1 .. l_throws_list.count
     loop
       /** 
-      * First check if its a valid qualified name and if so try to resolve to number
-      * If not check if it matches the ora regex number pattern.
+      * Check if its a valid qualified name and if so try to resolve name to an exception number
       */
       if is_valid_qualified_name(l_throws_list(i)) then 
        l_throws_list(i) := get_exception_number(l_throws_list(i));
-      else
-        l_throws_list(i) := l_throws_list(i);
       end if;
     end loop;
     
-    l_throws_list := ut_utils.filter_list( ut_utils.trim_list_elements(l_throws_list), l_regexp_for_excep_nums);
+    l_throws_list := ut_utils.filter_list( ut_utils.trim_list_elements(l_throws_list), l_regexp_for_exception_no);
 
     l_exception_number_list.extend(l_throws_list.count);
     for i in 1 .. l_throws_list.count loop
@@ -352,7 +341,7 @@ create or replace package body ut_suite_builder is
         --start from second occurrence of annotation
         l_line_no := a_annotations(a_for_annotation).next( a_annotations(a_for_annotation).first );
         while l_line_no is not null loop
-          add_annotation_warning( a_suite, a_for_annotation, 'Duplicate annotation %%%.', l_line_no );
+          add_annotation_ignored_warning( a_suite, a_for_annotation, 'Duplicate annotation %%%.', l_line_no );
           l_line_no := a_annotations(a_for_annotation).next( l_line_no );
         end loop;
       end if;
@@ -373,7 +362,7 @@ create or replace package body ut_suite_builder is
           --start from second occurrence of annotation
           l_line_no := a_annotations(a_for_annotation).next( a_annotations(a_for_annotation).first );
           while l_line_no is not null loop
-            add_annotation_warning( a_suite, a_for_annotation, 'Duplicate annotation %%%.', l_line_no, a_procedure_name );
+            add_annotation_ignored_warning( a_suite, a_for_annotation, 'Duplicate annotation %%%.', l_line_no, a_procedure_name );
             l_line_no := a_annotations(a_for_annotation).next( l_line_no );
           end loop;
         end if;
@@ -396,7 +385,7 @@ create or replace package body ut_suite_builder is
       if l_annotation_name member of a_invalid_annotations then
         l_line_no := a_proc_annotations(l_annotation_name).first;
         while l_line_no is not null loop
-          add_annotation_warning(
+          add_annotation_ignored_warning(
               a_suite, l_annotation_name, 'Annotation %%% cannot be used with "--%'|| a_for_annotation || '".',
               l_line_no, a_procedure_name
           );
@@ -432,7 +421,7 @@ create or replace package body ut_suite_builder is
       l_annotation_texts := a_annotations(gc_rollback);
       l_test.rollback_type := get_rollback_type(l_annotation_texts(l_annotation_texts.first));
       if l_test.rollback_type is null then
-        add_annotation_warning(
+        add_annotation_ignored_warning(
             a_suite, gc_rollback, 'Annotation %%% must be provided with one of values: "auto" or "manual".',
             l_annotation_texts.first, a_procedure_name
         );
@@ -569,13 +558,13 @@ create or replace package body ut_suite_builder is
         if regexp_like(l_annotation_text,'^((\w|[$#])+\.)*(\w|[$#])+$') then
           a_suite.path := l_annotation_text||'.'||l_object_name;
         else
-          add_annotation_warning(
+          add_annotation_ignored_warning(
             a_suite, gc_suitepath||'('||l_annotation_text||')',
             'Invalid path value in annotation %%%.', a_package_ann_index(gc_suitepath).first
           );
         end if;
       else
-        add_annotation_warning(
+        add_annotation_ignored_warning(
           a_suite, gc_suitepath, '%%% annotation requires a non-empty parameter value.',
           a_package_ann_index(gc_suitepath).first
         );
@@ -589,7 +578,7 @@ create or replace package body ut_suite_builder is
       if l_annotation_text is not null then
         a_suite.description := l_annotation_text;
       else
-        add_annotation_warning(
+        add_annotation_ignored_warning(
             a_suite, gc_displayname, '%%% annotation requires a non-empty parameter value.',
             a_package_ann_index(gc_displayname).first
         );
@@ -600,7 +589,7 @@ create or replace package body ut_suite_builder is
     if a_package_ann_index.exists(gc_rollback) then
       l_rollback_type := get_rollback_type(a_annotations(a_package_ann_index(gc_rollback).first).text);
       if l_rollback_type is null then
-        add_annotation_warning(
+        add_annotation_ignored_warning(
             a_suite, gc_rollback, '%%% annotation requires one of values as parameter: "auto" or "manual".',
             a_package_ann_index(gc_rollback).first
         );
@@ -712,7 +701,7 @@ create or replace package body ut_suite_builder is
       if a_package_ann_index.exists(gc_context) then
         l_annotation_pos := a_package_ann_index(gc_context).first;
         while l_annotation_pos is not null loop
-          add_annotation_warning(
+          add_annotation_ignored_warning(
               a_suite, gc_context, 'Invalid annotation %%%. Cannot find following "--%endcontext".',
               l_annotation_pos
           );
@@ -722,7 +711,7 @@ create or replace package body ut_suite_builder is
       if a_package_ann_index.exists(gc_endcontext) then
         l_annotation_pos := a_package_ann_index(gc_endcontext).first;
         while l_annotation_pos is not null loop
-          add_annotation_warning(
+          add_annotation_ignored_warning(
               a_suite, gc_endcontext, 'Invalid annotation %%%. Cannot find preceding "--%context".',
               l_annotation_pos
           );
