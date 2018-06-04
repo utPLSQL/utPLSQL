@@ -705,5 +705,41 @@ create or replace package body test_suite_builder is
     );
   end;
 
+  procedure throws_value_empty is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+    begin
+      --Arrange
+      l_annotations := ut3.ut_annotations(
+          ut3.ut_annotation(1, 'suite','Cool', null),
+          ut3.ut_annotation(3, 'test','A test with empty throws annotation', 'A_TEST_PROCEDURE'),
+          ut3.ut_annotation(3, 'throws',null, 'A_TEST_PROCEDURE')
+      );
+      --Act
+      l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+      --Assert
+      ut.expect(l_actual).to_be_like(
+          '%<WARNINGS>%&quot;--%throws&quot; annotation requires a parameter. Annotation ignored.%</WARNINGS>%'
+      );
+    end;
+
+  procedure throws_value_invalid is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+    begin
+      --Arrange
+      l_annotations := ut3.ut_annotations(
+          ut3.ut_annotation(1, 'suite','Cool', null),
+          ut3.ut_annotation(3, 'test','A test with invalid throws annotation', 'A_TEST_PROCEDURE'),
+          ut3.ut_annotation(3, 'throws',' -20145 , bad_variable_name ', 'A_TEST_PROCEDURE')
+      );
+      --Act
+      l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+      --Assert
+      ut.expect(l_actual).to_be_like(
+          '%<WARNINGS>%Invalid parameter value &quot;bad_variable_name&quot; for &quot;--%throws&quot; annotation. Parameter ignored.%</WARNINGS>%'
+      );
+    end;
+
 end;
 /
