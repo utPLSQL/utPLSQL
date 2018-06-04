@@ -1179,9 +1179,13 @@ Keep in mind that when your test runs as autonomous transaction it will not see 
 
 ### Throws
 
-The `--%throws` annotation allows you to specify a list of exception either by numbers or by exception type that can be expected from a test.
+The `--%throws` annotation allows you to specify a list of exceptions as one of:
+- number literals
+- variables of type exception defined in a package specification
+- variables of type number defined in a package specification
+- [predefined oracle exceptions](https://docs.oracle.com/cd/E11882_01/timesten.112/e21639/exceptions.htm#CIHFIGFE)
 
-If `--%throws(-20001,-20002)` is specified and no exception is raised or the exception raised is not on the list of provided exception numbers, the test is marked as failed.
+If `--%throws(-20001,-20002)` is specified and no exception is raised or the exception raised is not on the list of provided exceptions, the test is marked as failed.
 
 The framework ignores bad arguments. `--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)` will be interpreted as `--%throws(-20496)`.
 The annotation is ignored, when no valid arguments are provided `--%throws()`,`--%throws`, `--%throws(abe, 723pf)`.
