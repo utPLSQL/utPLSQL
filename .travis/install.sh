@@ -11,6 +11,37 @@ alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6
 @install_headless.sql $UT3_OWNER $UT3_OWNER_PASSWORD
 SQL
 
+#uninstall core of utplsql
+"$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
+set feedback off
+set verify off
+
+@uninstall_all.sql $UT3_OWNER
+declare
+  v_leftover_objects_count integer;
+begin
+  select sum(cnt)
+    into v_leftover_objects_count
+    from (select count(1) cnt from dba_objects where owner = '$UT3_OWNER'
+    union all
+    select count(1) cnt from dba_synonyms where table_owner = '$UT3_OWNER'
+    );
+  if v_leftover_objects_count > 0 then
+    raise_application_error(-20000, 'Not all objects were successfully uninstalled - leftover objects count='||v_leftover_objects_count);
+  end if;
+end;
+/
+SQL
+
+#reinstall core of utplsql
+"$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
+set feedback off
+set verify off
+
+alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6003,6009,6010,7206)';
+@install.sql $UT3_OWNER
+SQL
+
 #additional privileges to run scripted tests
 "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
 set feedback on
