@@ -28,6 +28,8 @@ alter session set current_schema = &&ut3_owner;
 
 @@uninstall_objects.sql
 
+@@uninstall_coverage_tables.sql
+
 @@uninstall_synonyms.sql
 
 begin
@@ -40,3 +42,4 @@ end;
 spool off
 
 exit;
+
