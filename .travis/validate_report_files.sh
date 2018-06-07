@@ -5,8 +5,8 @@ GL_VALID=1
 HTML_FILENAME="coverage.html"
 JUNIT_FILENAME="junit_test_results.xml"
 TFS_FILENAME="tfs_test_results.xml"
-XSD_DIR="$HOME/.travis/xsd"
-XML_JAR_DIR="$HOME/.travis/lib"
+XSD_DIR="$TRAVIS_BUILD_DIR/.travis/xsd"
+XML_JAR_DIR="$TRAVIS_BUILD_DIR/.travis/lib"
 JUNIT_XSD="$XSD_DIR/junit4.xsd"
 TFS_XSD="$XSD_DIR/junit_windy.xsd"
 
@@ -46,8 +46,8 @@ echo "PWD"
 pwd
 
 echo ""
-echo "LS $HOME"]
-ls $HOME
+echo "LS $TRAVIS_BUILD_DIR"]
+ls $TRAVIS_BUILD_DIR
 
 
 
