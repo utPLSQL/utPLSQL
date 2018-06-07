@@ -81,5 +81,7 @@ if [ $GL_VALID -ne 1 ]; then
     echo "Validation failed please see results above."
     exit 1
 else
-    exit 0
+    echo ""
+    echo "******************************"
+    echo "Validation passed. Good Job!"
 fi
