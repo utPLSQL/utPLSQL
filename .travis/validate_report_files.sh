@@ -3,12 +3,12 @@
 GL_VALID=1
 
 HTML_FILENAME="coverage.html"
+JUNIT_FILENAME="junit_test_results.xml"
+TFS_FILENAME="tfs_test_results.xml"
 XSD_DIR="xsd"
 XML_JAR_DIR="lib"
-JUNIT_FILENAME="junit_test_results.xml"
-JUNIT_XSD="xsd\junit4.xsd"
-TFS_FILENAME="tfs_test_results.xml"
-TFS_XSD="xsd\junit_windy.xsd"
+JUNIT_XSD="$$XSD_DIR/junit4.xsd"
+TFS_XSD="$XSD_DIR/junit_windy.xsd"
 
 
 #Exclude existing issue with OL nested in PRE
@@ -21,7 +21,7 @@ WARNING_REGEX="info warning:"
 ERROR_REGEX="error:"
 
 #XML Validator
-XML_VALIDATOR="lib\xml_validator.jar"
+XML_VALIDATOR="$XML_JAR_DIR/xml_validator.jar"
 
 #Validate HTML
 HTML_VALIDATION_RESULTS=$(curl -H "Content-Type: text/html; charset=utf-8" --data-binary @$HTML_FILENAME "$HTML_VALIDATOR_URL?out=$VALIDATOR_OUT&filterpattern=$EXCLUSION_REGEX")

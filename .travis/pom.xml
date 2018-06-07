@@ -27,19 +27,6 @@
       <version>12.2.0.1</version>
       <scope>compile</scope>
     </dependency>
-    <dependency>
-      <groupId>xml_validator</groupId>
-      <artifactId>xml_validator</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/xml_validator.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>com.oracle.jdbc</groupId>
-      <artifactId>orai18n</artifactId>
-      <version>12.2.0.1</version>
-      <scope>compile</scope>
-    </dependency>
   </dependencies>
 
   <repositories>
