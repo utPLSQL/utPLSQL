@@ -98,7 +98,7 @@ final member procedure do_execute(self in out nocopy ut_suite_item) is
     return transaction_invalidators;
   end;
 
-  member procedure add_transaction_invalidator(a_object_name varchar2) is
+  member procedure add_transaction_invalidator(self in out nocopy ut_suite_item, a_object_name varchar2) is
   begin
     if a_object_name not member of transaction_invalidators then
       transaction_invalidators.extend();

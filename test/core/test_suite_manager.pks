@@ -145,5 +145,11 @@ create or replace package test_suite_manager is
   --%test(Whole suite gets disabled with floating annotation)
   procedure disable_suite_floating_annot;
 
+  --%test(Prepare runner for a package procedure inside context)
+  procedure pck_proc_in_ctx_by_name;
+
+  --%test(Prepare runner for a package procedure inside context by path)
+  procedure pck_proc_in_ctx_by_path;
+
 end test_suite_manager;
 /

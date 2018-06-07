@@ -242,6 +242,32 @@ end test_package_3;]';
   end;
 
 end test_package_3;]';
+
+    execute immediate q'[create or replace package test_package_with_ctx is
+
+  --%suite(test_package_with_ctx)
+
+  gv_glob_val number;
+
+  --%context(some_context)
+  --%displayname(Some context description)
+
+  --%test
+  --%displayname(Test1 from test package 1)
+  procedure test1;
+
+  --%endcontext
+
+end test_package_with_ctx;]';
+
+    execute immediate q'[create or replace package body test_package_with_ctx is
+
+  procedure test1 is
+  begin
+    null;
+  end;
+
+end test_package_with_ctx;]';
   end;
 
 
@@ -251,6 +277,7 @@ end test_package_3;]';
     execute immediate 'drop package test_package_1';
     execute immediate 'drop package test_package_2';
     execute immediate 'drop package test_package_3';
+    execute immediate 'drop package test_package_with_ctx';
   end;
 
   procedure test_schema_run is
@@ -1351,6 +1378,60 @@ end;]';
 
     clean_disabled_pck;
   end;
+
+  procedure pck_proc_in_ctx_by_name is
+    c_path varchar2(100) := USER||'.test_package_with_ctx.test1';
+    l_objects_to_run ut3.ut_suite_items;
+
+    l_test_suite  ut3.ut_logical_suite;
+    l_ctx_suite   ut3.ut_logical_suite;
+    l_test_proc   ut3.ut_test;
+    begin
+      --Act
+      l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+
+      --Assert
+      ut.expect(l_objects_to_run.count).to_equal(1);
+
+      l_test_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+      ut.expect(l_test_suite.name).to_equal('test_package_with_ctx');
+      ut.expect(l_test_suite.items.count).to_equal(1);
+
+      l_ctx_suite := treat(l_test_suite.items(1) as ut3.ut_logical_suite);
+      ut.expect(l_ctx_suite.name).to_equal('some_context');
+      ut.expect(l_ctx_suite.description).to_equal('Some context description');
+      ut.expect(l_ctx_suite.items.count).to_equal(1);
+
+      l_test_proc := treat(l_ctx_suite.items(1) as ut3.ut_test);
+      ut.expect(l_test_proc.name).to_equal('test1');
+    end;
+
+  procedure pck_proc_in_ctx_by_path is
+    c_path varchar2(100) := USER||':test_package_with_ctx.some_context.test1';
+    l_objects_to_run ut3.ut_suite_items;
+
+    l_test_suite  ut3.ut_logical_suite;
+    l_ctx_suite   ut3.ut_logical_suite;
+    l_test_proc   ut3.ut_test;
+    begin
+      --Act
+      l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+
+      --Assert
+      ut.expect(l_objects_to_run.count).to_equal(1);
+
+      l_test_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+      ut.expect(l_test_suite.name).to_equal('test_package_with_ctx');
+      ut.expect(l_test_suite.items.count).to_equal(1);
+
+      l_ctx_suite := treat(l_test_suite.items(1) as ut3.ut_logical_suite);
+      ut.expect(l_ctx_suite.name).to_equal('some_context');
+      ut.expect(l_ctx_suite.description).to_equal('Some context description');
+      ut.expect(l_ctx_suite.items.count).to_equal(1);
+
+      l_test_proc := treat(l_ctx_suite.items(1) as ut3.ut_test);
+      ut.expect(l_test_proc.name).to_equal('test1');
+    end;
 
 end test_suite_manager;
 /
