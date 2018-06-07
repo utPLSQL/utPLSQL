@@ -36,7 +36,7 @@ function ValidateHtml {
 }
 
 function ValidateXML() {
-    echo "Validate File $1 against schema $2"
+    echo "Validate File $2 against schema $1"
     VALIDATION_RESULT=$(java -jar $XML_VALIDATOR -s $1 $2 2>&1)
         
     if [ $? -ne 0 ]; then
@@ -53,7 +53,7 @@ ValidateHtml "$HTML_FILENAME"
 
 for XMLFILE in "${!XML_FILES[@]}"; do 
     #echo "$XMLFILE" "${XML_FILES[$XMLFILE]}"; 
-    ValidateXML "$XMLFILE" "XSD_DIR/${XML_FILES[$XMLFILE]}"
+    ValidateXML "XSD_DIR/${XML_FILES[$XMLFILE]}" "$XMLFILE"
 done
 
 if [ $GL_VALID -ne 1 ]; then
