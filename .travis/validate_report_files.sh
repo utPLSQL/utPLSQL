@@ -3,10 +3,12 @@
 GL_VALID=1
 
 HTML_FILENAME="coverage.html"
+XSD_DIR="xsd"
+XML_JAR_DIR="lib"
 JUNIT_FILENAME="junit_test_results.xml"
-JUNIT_XSD="junit4.xsd"
+JUNIT_XSD="xsd\junit4.xsd"
 TFS_FILENAME="tfs_test_results.xml"
-TFS_XSD="junit_windy.xsd"
+TFS_XSD="xsd\junit_windy.xsd"
 
 
 #Exclude existing issue with OL nested in PRE
@@ -19,7 +21,7 @@ WARNING_REGEX="info warning:"
 ERROR_REGEX="error:"
 
 #XML Validator
-XML_VALIDATOR="xml_validator.jar"
+XML_VALIDATOR="lib\xml_validator.jar"
 
 #Validate HTML
 HTML_VALIDATION_RESULTS=$(curl -H "Content-Type: text/html; charset=utf-8" --data-binary @$HTML_FILENAME "$HTML_VALIDATOR_URL?out=$VALIDATOR_OUT&filterpattern=$EXCLUSION_REGEX")
@@ -39,7 +41,7 @@ fi
 
 
 #Validate XML TFS_FILENAME
-TFS_RESULT=$(java -jar $XML_VALIDATOR -s $TFS_XSD $TFS_FILENAME 2>&1)
+TFS_RESULT=$(java -jar $$XML_VALIDATOR -s $TFS_XSD $TFS_FILENAME 2>&1)
 
 if [ $? -ne 0 ]; then
     GL_VALID=0
