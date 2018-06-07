@@ -7,7 +7,7 @@ JUNIT_FILENAME="junit_test_results.xml"
 TFS_FILENAME="tfs_test_results.xml"
 XSD_DIR="xsd"
 XML_JAR_DIR="lib"
-JUNIT_XSD="$$XSD_DIR/junit4.xsd"
+JUNIT_XSD="$XSD_DIR/junit4.xsd"
 TFS_XSD="$XSD_DIR/junit_windy.xsd"
 
 
@@ -40,8 +40,22 @@ if [ "$ERROR_COUNT" -gt 0 ]; then
 fi
 
 
+
+#Debug
+echo "PWD"
+pwd
+
+echo ""
+echo "LS"
+ls
+
+echo ""
+echo "LS LIB"
+ls lib
+
+
 #Validate XML TFS_FILENAME
-TFS_RESULT=$(java -jar $$XML_VALIDATOR -s $TFS_XSD $TFS_FILENAME 2>&1)
+TFS_RESULT=$(java -jar $XML_VALIDATOR -s $TFS_XSD $TFS_FILENAME 2>&1)
 
 if [ $? -ne 0 ]; then
     GL_VALID=0
