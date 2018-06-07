@@ -53,7 +53,7 @@ ValidateHtml "$HTML_FILENAME"
 
 for XMLFILE in "${!XML_FILES[@]}"; do 
     #echo "$XMLFILE" "${XML_FILES[$XMLFILE]}"; 
-    ValidateXML "XSD_DIR/${XML_FILES[$XMLFILE]}" "$XMLFILE"
+    ValidateXML "$XSD_DIR/${XML_FILES[$XMLFILE]}" "$XMLFILE"
 done
 
 if [ $GL_VALID -ne 1 ]; then
