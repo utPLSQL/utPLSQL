@@ -42,7 +42,7 @@ create or replace type body ut_coveralls_reporter is
       if l_last_line_no is null then
         l_last_line_no := a_unit_coverage.total_lines - 1;
         for i in 1 .. l_last_line_no loop
-          ut_utils.append_to_clob(l_result, '0,');
+          ut_utils.append_to_clob(l_result, '0,'||chr(10));
         end loop;
         ut_utils.append_to_clob(l_result, '0');
       else
@@ -55,7 +55,7 @@ create or replace type body ut_coveralls_reporter is
           if line_no < l_last_line_no then
             l_file_part := l_file_part ||',';
           end if;
-          ut_utils.append_to_clob(l_result, l_file_part);
+          ut_utils.append_to_clob(l_result, l_file_part||chr(10));
         end loop;
       end if;
       ut_utils.append_to_clob(l_result, ']');
