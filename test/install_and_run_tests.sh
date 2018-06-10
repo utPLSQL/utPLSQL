@@ -20,7 +20,8 @@ utPLSQL-cli/bin/utplsql run ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@${CONNECTION_ST
 -f=ut_coverage_html_reporter  -o=coverage.html \
 -f=ut_coveralls_reporter      -o=coverage.json \
 -f=ut_sonar_test_reporter     -o=test_results.xml \
--f=ut_xunit_reporter          -o=xunit_test_results.xml \
+-f=ut_junit_reporter          -o=junit_test_results.xml \
+-f=ut_tfs_junit_reporter      -o=tfs_test_results.xml \
 -scc
 
 status_line_regex="^[0-9]+ tests, ([0-9]+) failed, ([0-9]+) errored.*"
