@@ -40,16 +40,15 @@ create or replace type body ut_coveralls_reporter is
 
       l_last_line_no := a_unit_coverage.lines.last;
       if l_last_line_no is null then
-        l_last_line_no := a_unit_coverage.total_lines - 1;
-        for i in 1 .. l_last_line_no loop
-          ut_utils.append_to_clob(l_result, '0,'||chr(10));
-        end loop;
-        ut_utils.append_to_clob(l_result, '0');
+        ut_utils.append_to_clob(
+            l_result
+            , rpad( to_clob( '0' ), ( a_unit_coverage.total_lines * 3 ) - 2, ','||chr(10)||'0' )
+        );
       else
         for line_no in 1 .. l_last_line_no loop
           if a_unit_coverage.lines.exists(line_no) then
             l_file_part := to_char(a_unit_coverage.lines(line_no).executions);
-              else
+          else
             l_file_part := c_null;
           end if;
           if line_no < l_last_line_no then
