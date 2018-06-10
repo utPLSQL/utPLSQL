@@ -42,6 +42,9 @@ create or replace package test_junit_reporter as
   --%test( Validate that fail with special char are escaped )
   procedure check_failure_escaped;
 
+  --%test(Includes XML header with encoding when encoding provided)
+  procedure check_encoding_included;
+
   --%afterall
   procedure remove_test_package;
 end;

@@ -320,6 +320,13 @@ create or replace package ut_utils authid definer is
   */
   function to_xml_number_format(a_value number) return varchar2;
 
+
+  /**
+  * Returns xml header. If a_encoding is not null, header will include encoding attribute with provided value
+  */
+  function get_xml_header(a_encoding varchar2) return varchar2;
+
+
   /*It takes a collection of type ut_varchar2_list and it trims the characters passed as arguments for every element*/
   function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list;
 

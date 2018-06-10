@@ -135,6 +135,7 @@ create or replace type body ut_junit_reporter is
     end;
   begin
     l_suite_id := 0;
+    self.print_text(ut_utils.get_xml_header(a_run.client_character_set));
     self.print_text('<testsuites tests="' || l_tests_count || '"' || self.get_common_suite_attributes(a_run) || '>');
     for i in 1 .. a_run.items.count loop
       print_suite_elements(treat(a_run.items(i) as ut_logical_suite), l_suite_id);

@@ -6,7 +6,8 @@ create or replace package body test_coverage_sonar_reporter is
     l_actual    clob;
   begin
     --Arrange
-    l_expected := '<coverage version="1">
+    l_expected := '<?xml version="1.0"?>
+<coverage version="1">
 <file path="test/ut3.dummy_coverage.pkb">
 <lineToCover lineNumber="4" covered="true"/>
 <lineToCover lineNumber="5" covered="false"/>
@@ -27,6 +28,11 @@ create or replace package body test_coverage_sonar_reporter is
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_equal(l_expected);
+  end;
+
+  procedure check_encoding_included is
+  begin
+    reporters.check_xml_encoding_included('ut3.test_dummy_coverage', ut3.ut_coverage_sonar_reporter(), 'UTF-8');
   end;
 
 end;

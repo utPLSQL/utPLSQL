@@ -134,7 +134,8 @@ create or replace package body test_tfs_junit_reporter as
       from table(ut3.ut.run('check_junit_flat_suitepath',ut3.ut_tfs_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
-    ut.expect(l_actual).to_be_like('<testsuites>
+    ut.expect(l_actual).to_be_like('<?xml version="1.0"?>
+<testsuites>
 <testsuite tests="0" id="1" package="core.check_junit_rep_suitepath.check_junit_flat_suitepath"  errors="0" failures="0" name="flatsuitepath" time="%"  timestamp="%"  hostname="%" >
 <properties/>
 <system-out/>
@@ -196,5 +197,11 @@ create or replace package body test_tfs_junit_reporter as
     execute immediate 'drop package check_junit_flat_suitepath';
     execute immediate 'drop package check_fail_escape';
   end;
+
+  procedure check_encoding_included is
+  begin
+    reporters.check_xml_encoding_included('check_fail_escape', ut3.ut_tfs_junit_reporter(), 'UTF-8');
+  end;
+
 end;
 /

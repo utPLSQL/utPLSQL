@@ -66,25 +66,27 @@ create or replace type body ut_coverage_cobertura_reporter is
     end;
     
     function get_coverage_xml(
-      a_coverage_data ut_coverage.t_coverage
+      a_coverage_data ut_coverage.t_coverage,
+      a_run ut_run
     ) return clob is
-      l_file_part            varchar2(32767);
-      l_result               clob;
-      l_unit                 ut_coverage.t_full_name;
-      l_obj_name             ut_coverage.t_object_name;
-      c_coverage_def constant varchar2(200) := '<?xml version="1.0"?>'||CHR(10)||'<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">'||chr(10);
+      l_file_part       varchar2(32767);
+      l_result          clob;
+      l_unit            ut_coverage.t_full_name;
+      l_obj_name        ut_coverage.t_object_name;
+      c_coverage_def    constant varchar2(200) := '<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">'||chr(10);
       c_file_footer     constant varchar2(30) := '</file>'||chr(10);
       c_coverage_footer constant varchar2(30) := '</coverage>';
       c_sources_footer  constant varchar2(30) := '</sources>'||chr(10);
-      c_packages_footer  constant varchar2(30) := '</packages>'||chr(10);
+      c_packages_footer constant varchar2(30) := '</packages>'||chr(10);
       c_package_footer  constant varchar2(30) := '</package>'||chr(10);
-      c_class_footer  constant varchar2(30) := '</class>'||chr(10);
-      c_lines_footer  constant varchar2(30) := '</lines>'||chr(10);
-      l_epoch         varchar2(50) := (sysdate - to_date('01-01-1970 00:00:00', 'dd-mm-yyyy hh24:mi:ss')) * 24 * 60 * 60;
+      c_class_footer    constant varchar2(30) := '</class>'||chr(10);
+      c_lines_footer    constant varchar2(30) := '</lines>'||chr(10);
+      l_epoch           varchar2(50) := (sysdate - to_date('01-01-1970 00:00:00', 'dd-mm-yyyy hh24:mi:ss')) * 24 * 60 * 60;
       begin
    
       dbms_lob.createtemporary(l_result,true);
 
+      ut_utils.append_to_clob(l_result, ut_utils.get_xml_header(a_run.client_character_set)||chr(10));
       ut_utils.append_to_clob(l_result, c_coverage_def);
       
       --write header
@@ -138,7 +140,7 @@ create or replace type body ut_coverage_cobertura_reporter is
 
     l_coverage_data := ut_coverage.get_coverage_data(a_run.coverage_options);
 
-    self.print_clob( get_coverage_xml( l_coverage_data ) );
+    self.print_clob( get_coverage_xml( l_coverage_data, a_run ) );
 
     (self as ut_reporter_base).after_calling_run(a_run);
   end;
