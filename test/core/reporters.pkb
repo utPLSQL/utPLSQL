@@ -1,6 +1,7 @@
 create or replace package body reporters is
 
   procedure create_test_helper_package is
+    pragma autonomous_transaction;
   begin
   execute immediate q'[create or replace package test_reporters
 as
@@ -119,12 +120,12 @@ end;]';
   end;
 
   procedure reporters_cleanup is
+    pragma autonomous_transaction;
   begin
     drop_test_helper_package; 
   end;
 
   procedure check_xml_encoding_included(
-    a_suite                varchar2,
     a_reporter             ut3.ut_output_reporter_base,
     a_client_character_set varchar2
   ) is
@@ -134,7 +135,7 @@ end;]';
     --Act
     select *
     bulk collect into l_results
-    from table(ut3.ut.run(a_suite, a_reporter, a_client_character_set => a_client_character_set));
+    from table(ut3.ut.run('test_reporters', a_reporter, a_client_character_set => a_client_character_set));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_be_like('<?xml version="1.0" encoding="'||lower(a_client_character_set)||'"?>%');

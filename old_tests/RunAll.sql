@@ -78,16 +78,12 @@ exec ut_coverage.set_develop_mode(true);
 @@lib/RunTest.sql ut_output_buffer/send_line.DoesNotSendLineIfNullTextGiven.sql
 @@lib/RunTest.sql ut_output_buffer/send_line.SendsALineIntoBufferTable.sql
 
-@@lib/RunTest.sql ut_reporters/ut_coverage_sonar_reporter.AcceptsFileMapping.sql
-@@lib/RunTest.sql ut_reporters/ut_coverage_sonar_reporter.BuildsSonarCoverageReport.sql
 @@lib/RunTest.sql ut_reporters/ut_documentation_reporter.providesCorrectLineFromStacktrace.sql
-@@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.AcceptsFileMapping.sql
-@@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.ProducesExpectedOutputs.sql
-@@lib/RunTest.sql ut_reporters/ut_teamcity_reporter.ProducesExpectedOutputs.sql
-@@lib/RunTest.sql ut_reporters/ut_html_reporter.UserOverrideSchemaCoverage.sql
-@@lib/RunTest.sql ut_reporters/ut_html_reporter.DefaultSchemaCoverage.sql
 @@lib/RunTest.sql ut_reporters/ut_documentation_reporter.reportMultipleWarnings.sql
 @@lib/RunTest.sql ut_reporters/ut_documentation_reporter.reportTestTiming.sql
+@@lib/RunTest.sql ut_reporters/ut_html_reporter.DefaultSchemaCoverage.sql
+@@lib/RunTest.sql ut_reporters/ut_html_reporter.UserOverrideSchemaCoverage.sql
+@@lib/RunTest.sql ut_reporters/ut_teamcity_reporter.ProducesExpectedOutputs.sql
 
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileList.sql
 @@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileListWithSutePaths.sql

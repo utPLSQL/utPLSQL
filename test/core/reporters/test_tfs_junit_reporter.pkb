@@ -200,7 +200,7 @@ create or replace package body test_tfs_junit_reporter as
 
   procedure check_encoding_included is
   begin
-    reporters.check_xml_encoding_included('check_fail_escape', ut3.ut_tfs_junit_reporter(), 'UTF-8');
+    reporters.check_xml_encoding_included(ut3.ut_tfs_junit_reporter(), 'UTF-8');
   end;
 
 end;

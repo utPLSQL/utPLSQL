@@ -90,8 +90,6 @@ create or replace package body test_junit_reporter as
       end;
     end;]';
 
-  reporters.reporters_setup;
-  
   end;
 
   procedure escapes_special_chars is
@@ -335,7 +333,7 @@ create or replace package body test_junit_reporter as
 
   procedure check_encoding_included is
   begin
-    reporters.check_xml_encoding_included('check_fail_escape', ut3.ut_junit_reporter(), 'UTF-8');
+    reporters.check_xml_encoding_included(ut3.ut_junit_reporter(), 'UTF-8');
   end;
 
   procedure remove_test_package is
@@ -347,7 +345,7 @@ create or replace package body test_junit_reporter as
     execute immediate 'drop package tst_package_junit_nosuite';
     execute immediate 'drop package check_fail_escape';
     execute immediate 'drop package Tst_Fix_Case_Sensitive';
-    reporters.reporters_cleanup;
   end;
+
 end;
 /

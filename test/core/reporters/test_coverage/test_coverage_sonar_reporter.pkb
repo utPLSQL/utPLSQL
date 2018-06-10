@@ -32,7 +32,7 @@ create or replace package body test_coverage_sonar_reporter is
 
   procedure check_encoding_included is
   begin
-    reporters.check_xml_encoding_included('ut3.test_dummy_coverage', ut3.ut_coverage_sonar_reporter(), 'UTF-8');
+    reporters.check_xml_encoding_included(ut3.ut_coverage_sonar_reporter(), 'UTF-8');
   end;
 
 end;
