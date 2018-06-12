@@ -193,6 +193,8 @@ drop type ut_file_mappings force;
 
 drop type ut_file_mapping force;
 
+drop type ut_suite_context force;
+
 drop type ut_suite force;
 
 drop type ut_logical_suite force;

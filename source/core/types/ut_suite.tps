@@ -27,10 +27,10 @@ create or replace type ut_suite  under ut_logical_suite (
   */
   after_all_list ut_executables,
   constructor function ut_suite (
-    self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2, a_suite_name varchar2 := null
+    self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2
   ) return self as result,
   overriding member function do_execute(self in out nocopy ut_suite) return boolean,
   overriding member function get_error_stack_traces(self ut_suite) return ut_varchar2_list,
   overriding member function get_serveroutputs return clob
-)
+) not final
 /

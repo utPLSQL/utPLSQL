@@ -277,8 +277,13 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
   /*
   * public definitions
   */
-  function get_index(a_coverage_data ut_coverage.t_coverage, a_assets_path varchar2, a_project_name varchar2 := null, a_command_line varchar2 := null)
-    return clob is
+  function get_index(
+    a_coverage_data ut_coverage.t_coverage,
+    a_assets_path   varchar2,
+    a_project_name  varchar2 := null,
+    a_command_line  varchar2 := null,
+    a_charset       varchar2 := null
+  ) return clob is
   
     l_file_part     varchar2(32767);
     l_result        clob;
@@ -287,8 +292,10 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
     l_time_str      varchar2(50);
     l_using         varchar2(1000);
     l_unit          ut_coverage.t_full_name;
+    l_charset       varchar2(1000);
   begin
-      l_coverage_pct := coverage_pct(a_coverage_data.covered_lines, a_coverage_data.uncovered_lines);
+    l_charset := coalesce(upper(a_charset),'UTF-8');
+    l_coverage_pct := coverage_pct(a_coverage_data.covered_lines, a_coverage_data.uncovered_lines);
 
     l_time_str := ut_utils.to_string(sysdate);
     l_using := case
@@ -305,7 +312,7 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
                end;
     --TODO - build main file containing total run data and per schema data
     l_file_part := '<!DOCTYPE html><html xmlns=''http://www.w3.org/1999/xhtml''><head>' || '<title>' || l_title ||
-                   '</title>' || '<meta http-equiv="content-type" content="text/html; charset=utf-8" />' ||
+                   '</title>' || '<meta http-equiv="content-type" content="text/html; charset='||l_charset||'" />' ||
                    '<script src=''' || a_assets_path || 'application.js''></script>' ||
                    '<link href=''' || a_assets_path ||
                    'application.css'' media=''screen, print'' rel=''stylesheet'' type=''text/css''/>' ||

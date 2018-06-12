@@ -577,8 +577,8 @@ create or replace package body ut_suite_builder is
   procedure add_annotated_procedures(
     a_annotations tt_package_annotations,
     a_suite in out nocopy ut_suite,
-    a_before_each_list out ut_executables,
-    a_after_each_list out ut_executables
+    a_before_each_list out nocopy ut_executables,
+    a_after_each_list out nocopy ut_executables
   ) is
     l_position t_annotation_position;
   begin
@@ -678,9 +678,10 @@ create or replace package body ut_suite_builder is
   ) is
     l_context_pos        t_annotation_position;
     l_end_context_pos    t_annotation_position;
-    l_package_ann_index  tt_annotations_index;
+    l_context_ann_index  tt_annotations_index;
+    l_context_name       t_object_name;
     l_annotations        tt_package_annotations;
-    l_suite              ut_suite;
+    l_context            ut_suite_context;
     l_context_no         binary_integer := 1;
 
     function get_endcontext_position(
@@ -730,17 +731,20 @@ create or replace package body ut_suite_builder is
 
       --create a sub-set of annotations to process as sub-suite (context)
       l_annotations       := get_annotations_in_context(a_annotations, l_context_pos, l_end_context_pos);
-      l_package_ann_index := build_annotation_index(l_annotations);
+      l_context_ann_index := build_annotation_index(l_annotations);
 
-      l_suite := ut_suite(a_suite.object_owner, a_suite.object_name, gc_context||'_'||l_context_no);
+      l_context_name := coalesce(
+          l_annotations( l_context_pos ).text
+          , gc_context||'_'||l_context_no
+      );
+      l_context := ut_suite_context(a_suite.object_owner, a_suite.object_name, l_context_name );
 
-      l_suite.description := l_annotations(l_package_ann_index(gc_context).first).text;
-      l_suite.description := l_annotations(l_context_pos).text;
-      warning_on_duplicate_annot( l_suite, l_package_ann_index, gc_suite );
+      l_context.description := l_annotations(l_context_pos).text;
+      warning_on_duplicate_annot( l_context, l_context_ann_index, gc_suite );
 
-      populate_suite_contents( l_suite, l_annotations, l_package_ann_index, gc_context||'_'||l_context_no );
+      populate_suite_contents( l_context, l_annotations, l_context_ann_index, l_context_name );
 
-      a_suite.add_item(l_suite);
+      a_suite.add_item(l_context);
 
       -- remove annotations within context after processing them
       a_annotations.delete(l_context_pos, l_end_context_pos);

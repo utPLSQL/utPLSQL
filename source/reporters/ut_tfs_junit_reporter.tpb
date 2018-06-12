@@ -141,6 +141,7 @@ create or replace type body ut_tfs_junit_reporter is
       
   begin
     l_suite_id := 0;
+    self.print_text(ut_utils.get_xml_header(a_run.client_character_set));
     self.print_text('<testsuites>');
     for i in 1 .. a_run.items.count loop
       print_suite_results(treat(a_run.items(i) as ut_logical_suite), l_suite_id);

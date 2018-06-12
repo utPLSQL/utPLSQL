@@ -1,4 +1,5 @@
-/*
+create or replace type ut_suite_context under ut_suite (
+  /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project
 
@@ -13,11 +14,9 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
-set heading off
-set feedback off
-exec dbms_output.put_line('Installing component '||upper(regexp_substr('&&1','\/(\w*)\.',1,1,'i',1)));
-@@&&1
-show errors
-exec dbms_output.put_line('&&line_separator');
-
+  */
+  constructor function ut_suite_context (
+    self in out nocopy ut_suite_context, a_object_owner varchar2, a_object_name varchar2, a_context_name varchar2 := null
+  ) return self as result
+)
+/
