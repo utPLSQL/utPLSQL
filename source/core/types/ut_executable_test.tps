@@ -17,7 +17,7 @@ create or replace type ut_executable_test authid current_user under ut_executabl
   */
   constructor function ut_executable_test(
     self in out nocopy ut_executable_test, a_owner varchar2, a_package varchar2,
-    a_procedure_name varchar2, a_associated_event_name varchar2
+    a_procedure_name varchar2, a_executable_type varchar2
   ) return self as result,
   
   member procedure do_execute(

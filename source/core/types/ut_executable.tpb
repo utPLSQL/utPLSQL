@@ -18,11 +18,11 @@ create or replace type body ut_executable is
 
   constructor function ut_executable(
     self in out nocopy ut_executable, a_owner varchar2, a_package varchar2,
-    a_procedure_name varchar2, a_associated_event_name varchar2
+    a_procedure_name varchar2, a_executable_type varchar2
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
-    self.associated_event_name := a_associated_event_name;
+    self.executable_type := a_executable_type;
     self.owner_name := a_owner;
     self.object_name := a_package;
     self.procedure_name := a_procedure_name;
@@ -31,7 +31,7 @@ create or replace type body ut_executable is
 
   member function is_defined(self in out nocopy ut_executable) return boolean is
     l_result boolean := false;
-    l_message_part varchar2(4000) := 'Call params for ' || self.associated_event_name || ' are not valid: ';
+    l_message_part varchar2(4000) := 'Call params for ' || self.executable_type || ' are not valid: ';
   begin
 
     if self.object_name is null then
@@ -50,7 +50,7 @@ create or replace type body ut_executable is
   **/
   member function is_invalid(self in out nocopy ut_executable) return boolean is
     l_result boolean := true;
-    l_message_part varchar2(4000) := 'Call params for ' || self.associated_event_name || ' are not valid: ';
+    l_message_part varchar2(4000) := 'Call params for ' || self.executable_type || ' are not valid: ';
   begin
 
     if not ut_metadata.package_valid(self.owner_name, self.object_name) then
@@ -109,7 +109,7 @@ create or replace type body ut_executable is
     ut_utils.set_client_info(self.procedure_name);
 
     --listener - before call to executable
-    ut_event_manager.trigger_event('before_'||self.associated_event_name, self);
+    ut_event_manager.trigger_event('before_'||self.executable_type, self);
 
     l_completed_without_errors := self.is_defined();
     if l_completed_without_errors then
@@ -168,7 +168,7 @@ create or replace type body ut_executable is
     end if;
 
     --listener - after call to executable
-    ut_event_manager.trigger_event('after_'||self.associated_event_name, self);
+    ut_event_manager.trigger_event('after_'||self.executable_type, self);
 
     l_end_transaction_id := dbms_transaction.local_transaction_id();
     if l_start_transaction_id != l_end_transaction_id or l_end_transaction_id is null then
