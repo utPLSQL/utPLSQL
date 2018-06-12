@@ -96,13 +96,13 @@ create or replace type body ut_compound_data_value as
     
     function get_diff_message (a_row_diff ut_compound_data_helper.t_row_diffs,a_compare_type varchar2) return varchar2 is
     begin
-        if a_compare_type = ut_compound_data_helper.gc_compare_join_by and a_row_diff.pk_value is not null then
-          return  '  PK '||a_row_diff.pk_value||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
-        elsif a_compare_type = ut_compound_data_helper.gc_compare_join_by or a_compare_type = ut_compound_data_helper.gc_compare_normal then
-          return '  Row No. '||a_row_diff.rn||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
-        elsif a_compare_type = ut_compound_data_helper.gc_compare_unordered then
-          return rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
-        end if;
+      if a_compare_type = ut_compound_data_helper.gc_compare_join_by and a_row_diff.pk_value is not null then
+        return  '  PK '||a_row_diff.pk_value||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
+      elsif a_compare_type = ut_compound_data_helper.gc_compare_join_by or a_compare_type = ut_compound_data_helper.gc_compare_normal then
+        return '  Row No. '||a_row_diff.rn||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
+      elsif a_compare_type = ut_compound_data_helper.gc_compare_unordered then
+        return rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
+      end if;
     end;
     
   begin

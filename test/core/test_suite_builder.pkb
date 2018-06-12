@@ -485,8 +485,9 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(1, 'suite','Cool', null),
         ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
         ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(4, 'context','A context', null),
-        ut3.ut_annotation(5, 'beforeall',null, 'context_setup'),
+        ut3.ut_annotation(4, 'context','a_context', null),
+        ut3.ut_annotation(5, 'displayname','A context', null),
+        ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
         ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
         ut3.ut_annotation(8, 'endcontext',null, null)
     );
@@ -498,10 +499,10 @@ create or replace package body test_suite_builder is
         '%<WARNINGS/>' ||
         '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
-            '%<NAME>context_1</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.context_1</PATH>' ||
+            '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
             '%<ITEMS>' ||
               '<UT_SUITE_ITEM>' ||
-                '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.context_1.test_in_a_context</PATH>' ||
+                '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context.test_in_a_context</PATH>' ||
               '%</UT_SUITE_ITEM>' ||
             '</ITEMS>' ||
             '<BEFORE_ALL_LIST>' ||
@@ -529,7 +530,7 @@ create or replace package body test_suite_builder is
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(1, 'suite','Cool', null),
         ut3.ut_annotation(2, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(3, 'context','A context', null),
+        ut3.ut_annotation(3, 'context','a_context', null),
         ut3.ut_annotation(4, 'beforeall',null, 'context_beforeall'),
         ut3.ut_annotation(5, 'beforeeach',null, 'context_beforeeach'),
         ut3.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
@@ -544,7 +545,7 @@ create or replace package body test_suite_builder is
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '%<UT_SUITE_ITEM>' ||
-            '%<NAME>context_1</NAME>' ||
+            '%<NAME>a_context</NAME>' ||
             '%<ITEMS>' ||
               '%<UT_SUITE_ITEM>' ||
                 '%<NAME>test_in_a_context</NAME>' ||
@@ -579,7 +580,7 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
         ut3.ut_annotation(3, 'beforeeach',null, 'suite_level_beforeeach'),
         ut3.ut_annotation(4, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(5, 'context','A context', null),
+        ut3.ut_annotation(5, 'context','a_context', null),
         ut3.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
         ut3.ut_annotation(7, 'endcontext',null, null),
         ut3.ut_annotation(8, 'aftereach',null, 'suite_level_aftereach'),
@@ -592,7 +593,7 @@ create or replace package body test_suite_builder is
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '%<UT_SUITE_ITEM>' ||
-            '%<NAME>context_1</NAME>' ||
+            '%<NAME>a_context</NAME>' ||
             '%<ITEMS>' ||
               '%<UT_SUITE_ITEM>' ||
                 '%<NAME>test_in_a_context</NAME>' ||
@@ -665,8 +666,9 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(1, 'suite','Cool', null),
         ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
         ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(4, 'context','A context', null),
-        ut3.ut_annotation(5, 'beforeall',null, 'context_setup'),
+        ut3.ut_annotation(4, 'context','a_context', null),
+        ut3.ut_annotation(5, 'displayname','A context', null),
+        ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
         ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
         ut3.ut_annotation(8, 'endcontext',null, null),
         ut3.ut_annotation(9, 'endcontext',null, null)
@@ -682,10 +684,10 @@ create or replace package body test_suite_builder is
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
-            '%<NAME>context_1</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.context_1</PATH>' ||
+            '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
             '%<ITEMS>' ||
               '<UT_SUITE_ITEM>' ||
-                '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.context_1.test_in_a_context</PATH>' ||
+                '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context.test_in_a_context</PATH>' ||
               '%</UT_SUITE_ITEM>' ||
             '</ITEMS>' ||
             '<BEFORE_ALL_LIST>' ||

@@ -15,7 +15,7 @@ create or replace package body ut_curr_usr_compound_helper is
     end if;
   end;
 
-  function get_column_type(a_desc_rec dbms_sql.desc_rec3,a_desc_user_types boolean := false) return ut_key_anyval_pair is
+  function get_column_type(a_desc_rec dbms_sql.desc_rec3, a_desc_user_types boolean := false) return ut_key_anyval_pair is
     l_data ut_data_value;
     l_result ut_key_anyval_pair;
     l_data_type varchar2(500) := 'unknown datatype';  
@@ -47,7 +47,9 @@ create or replace package body ut_curr_usr_compound_helper is
       return ut_key_anyval_pair(a_desc_rec.col_name,l_data);
     end;
 
-  function get_columns_info(a_columns_tab dbms_sql.desc_tab3, a_columns_count integer,a_desc_user_types boolean := false) return ut_key_anyval_pairs is
+  function get_columns_info(
+    a_columns_tab dbms_sql.desc_tab3, a_columns_count integer, a_desc_user_types boolean := false
+  ) return ut_key_anyval_pairs is
     l_result ut_key_anyval_pairs := ut_key_anyval_pairs();
     begin
       for i in 1 .. a_columns_count loop
@@ -57,7 +59,7 @@ create or replace package body ut_curr_usr_compound_helper is
       return l_result;
     end;
 
-  function get_descr_cursor(a_cursor in out nocopy sys_refcursor,a_desc_user_types boolean := false) return ut_key_anyval_pairs is
+  function get_descr_cursor(a_cursor in out nocopy sys_refcursor, a_desc_user_types boolean := false) return ut_key_anyval_pairs is
     l_cursor_number  integer;
     l_columns_count  pls_integer;
     l_columns_desc   dbms_sql.desc_tab3;
@@ -69,12 +71,15 @@ create or replace package body ut_curr_usr_compound_helper is
     l_cursor_number := dbms_sql.to_cursor_number( a_cursor );
     dbms_sql.describe_columns3( l_cursor_number, l_columns_count, l_columns_desc );
     a_cursor := dbms_sql.to_refcursor( l_cursor_number );
-    l_columns_tab := get_columns_info( l_columns_desc, l_columns_count,a_desc_user_types);
+    l_columns_tab := get_columns_info( l_columns_desc, l_columns_count, a_desc_user_types);
     return l_columns_tab;
   end;
   
-  procedure get_descr_cursor(a_cursor in out nocopy sys_refcursor,a_columns_tab in out ut_key_anyval_pairs,
-    a_join_by_tab in out ut_key_anyval_pairs) is
+  procedure get_descr_cursor(
+    a_cursor in out nocopy sys_refcursor,
+    a_columns_tab in out nocopy ut_key_anyval_pairs,
+    a_join_by_tab in out nocopy ut_key_anyval_pairs
+  ) is
     l_cursor_number  integer;
     l_columns_count  pls_integer;
     l_columns_desc   dbms_sql.desc_tab3;
@@ -86,12 +91,16 @@ create or replace package body ut_curr_usr_compound_helper is
     l_cursor_number := dbms_sql.to_cursor_number( a_cursor );
     dbms_sql.describe_columns3( l_cursor_number, l_columns_count, l_columns_desc );
     a_cursor := dbms_sql.to_refcursor( l_cursor_number );
-    a_columns_tab := get_columns_info( l_columns_desc, l_columns_count,false);
-    a_join_by_tab := get_columns_info( l_columns_desc, l_columns_count,true);
+    a_columns_tab := get_columns_info( l_columns_desc, l_columns_count, false);
+    a_join_by_tab := get_columns_info( l_columns_desc, l_columns_count, true);
   end;
   
-  procedure get_columns_info(a_cursor in out nocopy sys_refcursor,a_columns_info out xmltype, 
-                             a_join_by_info out xmltype, a_contains_collection out number) is
+  procedure get_columns_info(
+    a_cursor in out nocopy sys_refcursor,
+    a_columns_info out nocopy xmltype,
+    a_join_by_info out nocopy xmltype,
+    a_contains_collection out nocopy number
+  ) is
     l_columns_info         xmltype;
     l_join_by_info         xmltype;
     l_result_tmp           xmltype;
@@ -119,7 +128,7 @@ create or replace package body ut_curr_usr_compound_helper is
     a_contains_collection := ut_utils.boolean_to_int(g_is_collection);
   end;
 
-  function get_columns_info(a_cursor in out nocopy sys_refcursor,a_desc_user_types boolean := false) return xmltype is
+  function get_columns_info(a_cursor in out nocopy sys_refcursor, a_desc_user_types boolean := false) return xmltype is
     l_result         xmltype;
     l_result_tmp     xmltype;
     l_columns_tab    ut_key_anyval_pairs;
