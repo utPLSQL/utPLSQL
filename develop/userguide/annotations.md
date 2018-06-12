@@ -30,7 +30,7 @@ We strongly recommend putting package level annotations at the very top of packa
 | `--%aftertest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed after the annotated `%test` procedure. |
 | `--%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
 | `--%disabled` | Package/procedure | Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run. |
-| `--%context(<description>)` | Package | Denotes start of a nested context (sub-suite) in a suite package |
+| `--%context(<name>)` | Package | Denotes start of a named context (sub-suite) in a suite package |
 | `--%endcontext` | Package | Denotes end of a nested context (sub-suite) in a suite package |
 
 ### Suite
@@ -863,7 +863,7 @@ In essence, context behaves like a suite within a suite.
 
 Context have following characteristics:
 - start with the `--%context` annotation and ends with `--%endcontext`
-- can have a name provided a parameter for example `--%context(Remove rooms by name)`
+- can have a name provided as parameter for example `--%context(remove_rooms_by_name)`
 - when no name is provided for context, the context is names `context_N` where `N` is the number of the context in suite 
 - can have their own `--%beforeall`, `--%beforeeach`, `--%afterall` and `--%aftereach` procedures
 - `--%beforeall`, `--%beforeeach`, `--%afterall` and `--%aftereach` procedures defined at suite level, propagate to context
@@ -945,6 +945,7 @@ create or replace package test_rooms_management is
 
   
   --%context(remove_rooms_by_name)
+  --%description(Remove rooms by name)
   
     --%test(Removes a room without content in it)
     procedure remove_empty_room;
@@ -957,6 +958,7 @@ create or replace package test_rooms_management is
   
   
   --%context(add_rooms_content)
+  --%description(Add content to a room)
 
     --%test(Fails when room name is not valid)
     --%throws(-1403)
