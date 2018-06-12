@@ -513,7 +513,7 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
       '<?xml version="1.0"'
       ||case
           when a_encoding is not null
-          then ' encoding="'||lower(a_encoding)||'"'
+          then ' encoding="'||upper(a_encoding)||'"'
         end
       ||'?>';
   end;

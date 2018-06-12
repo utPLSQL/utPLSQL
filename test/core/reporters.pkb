@@ -138,7 +138,7 @@ end;]';
     from table(ut3.ut.run('test_reporters', a_reporter, a_client_character_set => a_client_character_set));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
-    ut.expect(l_actual).to_be_like('<?xml version="1.0" encoding="'||lower(a_client_character_set)||'"?>%');
+    ut.expect(l_actual).to_be_like('<?xml version="1.0" encoding="'||upper(a_client_character_set)||'"?>%');
   end;
 
 end reporters;
