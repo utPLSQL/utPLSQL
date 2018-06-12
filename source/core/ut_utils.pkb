@@ -582,10 +582,6 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     l_newlines_count          binary_integer;
     l_offset                  binary_integer := 1;
     l_length                  binary_integer := coalesce(dbms_lob.getlength(a_source), 0);
-    function is_before(a_x binary_integer, a_y binary_integer) return boolean is
-    begin
-      return a_x < a_y or a_y = 0;
-    end;
   begin
     l_ml_comment_start := instr(a_source,'/*');
     l_comment_start := instr(a_source,'--');

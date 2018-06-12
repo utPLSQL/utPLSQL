@@ -3,9 +3,16 @@ create or replace package test_coverage is
   --%suite
   --%suitepath(utplsql.core.reporters)
 
+  g_run_id integer;
+
+  --%beforeall
+  procedure create_dummy_coverage_pkg;
   --%beforeall
   procedure setup_dummy_coverage;
 
+
+  --%afterall
+  procedure drop_dummy_coverage_pkg;
   --%afterall
   procedure cleanup_dummy_coverage;
 
@@ -23,6 +30,7 @@ create or replace package test_coverage is
   procedure coverage_for_file;
   
   --%test(Coverage data is not cached between runs - issue #562 )
+  --%aftertest(create_dummy_coverage_pkg)
   --%aftertest(setup_dummy_coverage)
   procedure coverage_tmp_data_refresh;
 

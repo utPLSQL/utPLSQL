@@ -1,7 +1,5 @@
 create or replace package body test_coverage is
 
-  g_run_id integer;
-
   function get_mock_run_id return integer is
     v_result integer;
   begin
@@ -100,22 +98,32 @@ create or replace package body test_coverage is
     select a_run_id, c_unit_id,     7,           1, 1  from dual;
   end;
 
-  procedure setup_dummy_coverage is
+  procedure create_dummy_coverage_pkg is
     pragma autonomous_transaction;
   begin
     create_dummy_coverage_package();
     create_dummy_coverage_test();
+  end;
+
+  procedure setup_dummy_coverage is
+    pragma autonomous_transaction;
+  begin
     g_run_id := get_mock_run_id();
     ut3.ut_coverage.mock_coverage_id(g_run_id, ut3.ut_coverage.gc_proftab_coverage);
     mock_coverage_data(g_run_id);
     commit;
   end;
 
-  procedure cleanup_dummy_coverage is
+  procedure drop_dummy_coverage_pkg is
     pragma autonomous_transaction;
   begin
     begin execute immediate q'[drop package ut3.test_dummy_coverage]'; exception when others then null; end;
     begin execute immediate q'[drop package ut3.dummy_coverage]'; exception when others then null; end;
+  end;
+
+  procedure cleanup_dummy_coverage is
+    pragma autonomous_transaction;
+  begin
     delete from ut3.plsql_profiler_data where runid = g_run_id;
     delete from ut3.plsql_profiler_units where runid = g_run_id;
     delete from ut3.plsql_profiler_runs where runid = g_run_id;
@@ -229,6 +237,7 @@ create or replace package body test_coverage is
       )
     );
     cleanup_dummy_coverage();
+    drop_dummy_coverage_pkg();
     create_dummy_coverage_test_1;
 
     --Act

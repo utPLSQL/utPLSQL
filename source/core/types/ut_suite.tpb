@@ -17,11 +17,11 @@ create or replace type body ut_suite  as
   */
 
   constructor function ut_suite (
-    self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2, a_suite_name varchar2 := null
+    self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
-    self.init(a_object_owner, a_object_name, nvl(a_suite_name, a_object_name));
+    self.init(a_object_owner, a_object_name, a_object_name);
     self.items := ut_suite_items();
     before_all_list := ut_executables();
     after_all_list  := ut_executables();
