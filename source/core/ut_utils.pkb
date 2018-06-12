@@ -507,6 +507,17 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     return to_char(a_value, gc_number_format, 'NLS_NUMERIC_CHARACTERS=''. ''');
   end;
 
+  function get_xml_header(a_encoding varchar2) return varchar2 is
+  begin
+    return
+      '<?xml version="1.0"'
+      ||case
+          when a_encoding is not null
+          then ' encoding="'||upper(a_encoding)||'"'
+        end
+      ||'?>';
+  end;
+
   function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list is
     l_trimmed_list ut_varchar2_list;
     l_index integer;

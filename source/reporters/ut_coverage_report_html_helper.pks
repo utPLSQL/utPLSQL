@@ -31,7 +31,13 @@ create or replace package ut_coverage_report_html_helper authid current_user is
   
   function line_hits_css_class(a_line_hist number) return varchar2;
   
-  function get_index(a_coverage_data ut_coverage.t_coverage, a_assets_path varchar2, a_project_name varchar2 := null, a_command_line varchar2 := null) return clob;
+  function get_index(
+    a_coverage_data ut_coverage.t_coverage,
+    a_assets_path   varchar2,
+    a_project_name  varchar2 := null,
+    a_command_line  varchar2 := null,
+    a_charset       varchar2 := null
+  ) return clob;
 
 end;
 /

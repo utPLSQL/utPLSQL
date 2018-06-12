@@ -253,7 +253,8 @@ create or replace package body test_coverage is
 
     --Assert
     l_actual := ut3.ut_utils.table_to_clob(l_results);
-    ut.expect(l_actual).to_equal(to_clob('<coverage version="1">
+    ut.expect(l_actual).to_equal(to_clob('<?xml version="1.0"?>
+<coverage version="1">
 </coverage>'));
     drop_dummy_coverage_test_1;
   end;
