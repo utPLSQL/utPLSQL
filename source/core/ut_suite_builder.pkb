@@ -65,7 +65,7 @@ create or replace package body ut_suite_builder is
   );
 
   --holds a list of package and procedure level annotations indexed (order) by position.
-  --procedure level annotations are grouped under procedure name 
+  --procedure level annotations are grouped under procedure name
   type tt_package_annotations is table of t_package_annotation index by t_annotation_position;
 
   --holds all annotations for object
@@ -358,14 +358,39 @@ create or replace package body ut_suite_builder is
     a_annotation_texts tt_annotation_texts,
     a_event_name       ut_utils.t_event_name
   ) is
+    l_string_buffer varchar2(32767);
     l_annotation_pos   binary_integer;
-    begin
-      l_annotation_pos := a_annotation_texts.first;
-      while l_annotation_pos is not null loop
-        add_to_list(a_executables, a_owner, a_package_name, a_annotation_texts(l_annotation_pos), a_event_name );
-        l_annotation_pos := a_annotation_texts.next( l_annotation_pos);
-      end loop;
-    end;
+    l_procedures_list ut_varchar2_list;
+    l_procedures_pos binary_integer;
+    l_components_list ut_varchar2_list;
+  begin
+    l_annotation_pos := a_annotation_texts.first;
+    while l_annotation_pos is not null loop
+      l_string_buffer := l_string_buffer||','||a_annotation_texts(l_annotation_pos);
+      l_annotation_pos := a_annotation_texts.next(l_annotation_pos);
+    end loop;
+    
+    l_procedures_list := ut_utils.trim_list_elements(ut_utils.string_to_table(l_string_buffer, ','));
+    l_procedures_list := ut_utils.filter_list(l_procedures_list, '[[:alpha:]]+');
+    
+    l_procedures_pos := l_procedures_list.first;
+    while l_procedures_pos is not null loop
+      l_components_list := ut_utils.string_to_table(l_procedures_list(l_procedures_pos), '.');
+      
+      case(l_components_list.count())
+        when 1 then 
+          add_to_list(a_executables, a_owner, a_package_name, l_components_list(1), a_event_name );
+        when 2 then 
+          add_to_list(a_executables, a_owner, l_components_list(1), l_components_list(2), a_event_name );
+        when 3 then 
+          add_to_list(a_executables, l_components_list(1), l_components_list(2), l_components_list(3), a_event_name );
+      else
+        null;
+      end case;
+      
+      l_procedures_pos := l_procedures_list.next(l_procedures_pos);
+    end loop;
+  end;
 
   procedure warning_on_duplicate_annot(
     a_suite          in out nocopy ut_suite_item,
@@ -520,7 +545,7 @@ create or replace package body ut_suite_builder is
     warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, gc_beforeeach);
     warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, gc_afterall);
     warning_on_duplicate_annot(a_suite, a_procedure_name, a_proc_annotations, gc_aftereach);
-    
+
     if a_proc_annotations.exists(gc_test) then
       add_test( a_suite, a_procedure_name, a_proc_annotations);
 
