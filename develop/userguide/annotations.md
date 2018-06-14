@@ -26,8 +26,8 @@ We strongly recommend putting package level annotations at the very top of packa
 | `--%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
 | `--%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` procedure in the suite. |
 | `--%aftereach` | Procedure | Denotes that the annotated procedure should be executed after each `%test` procedure in the suite. |
-| `--%beforetest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed before the annotated `%test` procedure. |
-| `--%aftertest(<procedure_name>)` | Procedure | Denotes that mentioned procedure should be executed after the annotated `%test` procedure. |
+| `--%beforetest(<[owner.[package.]]procedure_name>[,...])` | Procedure | Denotes that mentioned procedure(s) should be executed before the annotated `%test` procedure. |
+| `--%aftertest(<[owner.[package.]]procedure_name>[,...]>)` | Procedure | Denotes that mentioned procedure(s) should be executed after the annotated `%test` procedure. |
 | `--%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
 | `--%disabled` | Package/procedure | Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run. |
 | `--%context(<name>)` | Package | Denotes start of a named context (sub-suite) in a suite package |
@@ -685,12 +685,15 @@ Finished in .018115 seconds
 
 ### Beforetest
 
-Indicates a specific setup to be executed for a test. 
-Used alongside `--%test` annotation. Indicates procedure name to be executed before specific test.
+Indicates specific setup procedure(s) to be executed for a test. The procedure(s) can be located either:
+- within current package (package name is optional)
+- within another package 
+ 
+The annotation need to be placed alongside `--%test` annotation.
 
 The `--%beforetest` procedures are executed after invoking all `--%beforeeach` for a test.
 
-If a test is marked as disabled the `--%beforetest` procedure is not invoked for that test.
+If a test is marked as disabled the `--%beforetest` procedures are not invoked for that test.
 
 If `--%beforetest` raises an unhandled exception the following will happen:
 - the following `--%beforetest` for that test **will not be executed**
@@ -701,16 +704,31 @@ If `--%beforetest` raises an unhandled exception the following will happen:
 
 When multiple `--%beforetest` procedures are defined for a test, all of them will be executed before invoking the test.
 
-For multiple `--%beforetest` procedures order of execution is defined by annotation position in the package specification.
+The order of execution for `--%beforetest` procedures is defined by:
+- position of procedure on the list within single annotation
+- annotation position
 
 As a rule, the `--%beforetest` execution gets aborted if preceding `--%beforeeach` or `--%beforetest` failed. 
 
 ```sql
+create or replace package shared_package as  
+  procedure do_some_stuff;
+end;
+/
+
+create or replace package body shared_package as  
+  procedure do_some_stuff is
+  begin
+    dbms_output.put_line('---DO_SOME_STUFF invoked ---');
+  end;
+end;
+/
+
 create or replace package test_package as
   --%suite(Tests for a package)
 
   --%test(Description of tested behavior)
-  --%beforetest(setup_for_a_test)
+  --%beforetest(setup_for_a_test, shared_package.do_some_stuff)
   --%beforetest(another_setup_for_a_test)
   procedure some_test;
 
@@ -754,6 +772,7 @@ exec ut.run('test_package');
 Tests for a package
   Description of tested behavior [.011 sec]
   ---SETUP_FOR_A_TEST invoked ---
+  ---DO_SOME_STUFF invoked ---
   ---ANOTHER_SETUP_FOR_A_TEST invoked ---
   ---SOME_TEST invoked ---
   Description of another behavior [.005 sec]
@@ -767,12 +786,13 @@ Finished in .018446 seconds
 
 ### Aftertest
 
-Indicates a specific cleanup to be executed for a test. 
-Used alongside `--%test` annotation. Indicates procedure name to be executed after specific test.
+Indicates specific cleanup procedure(s) to be executed for a test. The procedure(s) can be located either:
+- within current package (package name is optional)
+- within another package 
+ 
+The annotation need to be placed alongside `--%test` annotation.
 
-The `--%aftertest` procedures are executed before invoking any `--%aftereach` for a test.
-
-If a test is marked as disabled the `--%aftertest` procedure is not invoked for that test.
+If a test is marked as disabled the `--%aftertest` procedures are not invoked for that test.
 
 If `--%aftertest` raises an unhandled exception the following will happen:
 - the test will be marked as errored and exception stack trace will be captured and reported
@@ -782,16 +802,31 @@ If `--%aftertest` raises an unhandled exception the following will happen:
 
 When multiple `--%aftertest` procedures are defined for a test, all of them will be executed before invoking the test.
 
-For multiple `--%aftertest` procedures order of execution is defined by annotation position in the package specification.
+The order of execution for `--%aftertest` procedures is defined by:
+- position of procedure on the list within single annotation
+- annotation position
 
 As a rule, the `--%aftertest` gets executed even if the associated `--%beforeeach`, `--%beforetest`, `--%test` or other `--%aftertest` procedures have raised unhandled exceptions. 
 
 ```sql
+create or replace package shared_package as  
+  procedure do_some_stuff;
+end;
+/
+
+create or replace package body shared_package as  
+  procedure do_some_stuff is
+  begin
+    dbms_output.put_line('---DO_SOME_STUFF invoked ---');
+  end;
+end;
+/
+
 create or replace package test_package as
   --%suite(Tests for a package)
 
   --%test(Description of tested behavior)
-  --%aftertest(cleanup_for_a_test)
+  --%aftertest(cleanup_for_a_test, shared_package.do_some_stuff)
   --%aftertest(another_cleanup_for_a_test)
   procedure some_test;
 
@@ -836,6 +871,7 @@ Tests for a package
   Description of tested behavior [.01 sec]
   ---SOME_TEST invoked ---
   ---CLEANUP_FOR_A_TEST invoked ---
+  ---DO_SOME_STUFF invoked ---
   ---ANOTHER_CLEANUP_FOR_A_TEST invoked ---
   Description of another behavior [.006 sec]
   ---OTHER_TEST invoked ---
