@@ -87,6 +87,9 @@ create or replace package test_suite_builder is
   --%test(Supports mixing before/after all/each annotations on single procedure)
   procedure before_after_on_single_proc;
 
+  --%test(Supports mixed before/after all/each as standalone and procedure level definitions)
+  procedure multiple_mixed_bef_aft;
+
   --%test(Gives warning if more than one --%beforeall annotation used on procedure)
   procedure beforeall_annot_duplicated;
 

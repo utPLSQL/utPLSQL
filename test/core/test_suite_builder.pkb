@@ -523,6 +523,68 @@ create or replace package body test_suite_builder is
     );
   end;
 
+  procedure multiple_mixed_bef_aft is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(2, 'beforeall', null,'first_before_all'),
+        ut3.ut_annotation(3, 'beforeall', 'different_package.another_before_all',null),
+        ut3.ut_annotation(4, 'beforeeach', 'first_before_each',null),
+        ut3.ut_annotation(5, 'beforeeach', 'different_owner.different_package.another_before_each',null),
+        ut3.ut_annotation(6, 'aftereach', null, 'first_after_each'),
+        ut3.ut_annotation(7, 'aftereach', 'another_after_each,different_owner.different_package.one_more_after_each',null),
+        ut3.ut_annotation(8, 'afterall', 'first_after_all',null),
+        ut3.ut_annotation(9, 'afterall', 'another_after_all',null),
+        ut3.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
+        ut3.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
+        ut3.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
+        ut3.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test'),
+        ut3.ut_annotation(21, 'beforeall', null,'last_before_all'),
+        ut3.ut_annotation(22, 'aftereach', null, 'last_after_each'),
+        ut3.ut_annotation(23, 'afterall', null, 'last_after_all')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>some_test</NAME>' ||
+        '%<BEFORE_EACH_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_before_each</PROCEDURE_NAME>' ||
+        '%<OWNER_NAME>different_owner</OWNER_NAME><OBJECT_NAME>different_package</OBJECT_NAME><PROCEDURE_NAME>another_before_each</PROCEDURE_NAME>' ||
+        '%</BEFORE_EACH_LIST>' ||
+        '%<BEFORE_TEST_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc2</PROCEDURE_NAME>' ||
+        '%</BEFORE_TEST_LIST>' ||
+        '%<AFTER_TEST_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc2</PROCEDURE_NAME>' ||
+        '%</AFTER_TEST_LIST>' ||
+        '%<AFTER_EACH_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_after_each</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>another_after_each</PROCEDURE_NAME>' ||
+        '%<OWNER_NAME>different_owner</OWNER_NAME><OBJECT_NAME>different_package</OBJECT_NAME><PROCEDURE_NAME>one_more_after_each</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>last_after_each</PROCEDURE_NAME>' ||
+        '%</AFTER_EACH_LIST>' ||
+        '%</UT_SUITE_ITEM>' ||
+        '%<BEFORE_ALL_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_before_all</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>different_package</OBJECT_NAME><PROCEDURE_NAME>another_before_all</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>last_before_all</PROCEDURE_NAME>' ||
+        '%</BEFORE_ALL_LIST>' ||
+        '%<AFTER_ALL_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_after_all</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>another_after_all</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>last_after_all</PROCEDURE_NAME>' ||
+        '%</AFTER_ALL_LIST>%'
+    );
+  end;
+
+
   procedure before_after_mixed_with_test is
     l_actual      clob;
     l_annotations ut3.ut_annotations;

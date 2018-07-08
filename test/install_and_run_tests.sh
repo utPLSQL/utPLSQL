@@ -13,6 +13,7 @@ cd test
 cd ..
 
 utPLSQL-cli/bin/utplsql run ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@${CONNECTION_STR} \
+-p=test_suite_builder \
 -source_path=source -owner=ut3 \
 -test_path=test -c \
 -f=ut_documentation_reporter  -o=test_results.log -s \
