@@ -13,6 +13,7 @@
 # the job, but won't be visible to anyone browsing https://travis-ci.org/.
 #
 
+echoerr() { echo "$@" 1>&2; }
 
 TRAVIS_URL=travis-ci.org
 BRANCH=develop
@@ -51,15 +52,15 @@ for DOWNSTREAM_BUILD in "${REPO_MATRIX[@]}"; do
 
      if grep -q '"@type": "error"' ${DOWNSTREAM_BUILD}-output.txt; then
        RESULT=0
-       echo ""
-       echo "Failed to start ${DOWNSTREAM_BUILD}"
-       echo ""
+       echoerr ""
+       echoerr "Failed to start ${DOWNSTREAM_BUILD}"
+       echoerr ""
      fi
      if grep -q 'access denied' ${DOWNSTREAM_BUILD}-output.txt; then
        RESULT=0
-       echo ""
-       echo "Failed to start ${DOWNSTREAM_BUILD}"
-       echo ""
+       echoerr ""
+       echoerr "Failed to start ${DOWNSTREAM_BUILD}"
+       echoerr ""
      fi
      
 done
