@@ -50,14 +50,12 @@ for DOWNSTREAM_BUILD in "${REPO_MATRIX[@]}"; do
      | tee ${DOWNSTREAM_BUILD}-output.txt
 
      if grep -q '"@type": "error"' ${DOWNSTREAM_BUILD}-output.txt; then
-       #exit 1
        RESULT=0
        echo ""
        echo "Failed to start ${DOWNSTREAM_BUILD}"
        echo ""
      fi
      if grep -q 'access denied' ${DOWNSTREAM_BUILD}-output.txt; then
-       #exit 1
        RESULT=0
        echo ""
        echo "Failed to start ${DOWNSTREAM_BUILD}"
