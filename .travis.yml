@@ -116,8 +116,8 @@ jobs:
         - pip install mkdocs
       before_script: skip
       script: 
-#        - if [[ ($TRAVIS_BRANCH == develop) && ($TRAVIS_PULL_REQUEST == false) ]]; then bash trigger-travis.sh $TRAVIS_ACCESS_TOKEN; fi
-        - bash .travis/trigger-travis.sh $TRAVIS_ACCESS_TOKEN #testing triggering
+#        - if [[ ($TRAVIS_BRANCH == develop) && ($TRAVIS_PULL_REQUEST == false) ]]; then bash .travis/trigger_travis.sh $TRAVIS_ACCESS_TOKEN; fi
+        - bash .travis/trigger_travis.sh $TRAVIS_ACCESS_TOKEN #testing triggering
         - if [[ ! $TRAVIS_TAG ]]; then bash .travis/push_release_version.sh; fi
         - bash .travis/build_docs.sh
         - bash .travis/push_docs_to_gh_pages.sh
