@@ -14,35 +14,20 @@ create or replace package body test_ut_run is
         --%suitepath(test_state)
 
         --%test
-        procedure stateful_success;
-
-        --%test
-        --%beforetest(recompile_in_background)
+        --%beforetest(acquire_state,recompile_in_background)
         procedure failing_stateful_test;
 
         procedure recompile_in_background;
-
-        --%test
-        procedure dummy_success;
+        procedure acquire_state;
 
       end;
     ]';
     execute immediate q'{
     create or replace package body test_stateful as
 
-      procedure stateful_success is
-      begin
-        ut3.ut.expect(stateful_package.g_state).to_equal('A');
-      end;
-
       procedure failing_stateful_test is
       begin
         ut3.ut.expect(stateful_package.g_state).to_equal('abc');
-      end;
-
-      procedure dummy_success is
-      begin
-        ut3.ut.expect(1).to_equal(1);
       end;
 
       procedure recompile_in_background is
@@ -65,12 +50,16 @@ create or replace package body test_ut_run is
           auto_drop     =>  TRUE,
           comments      =>  'one-time job'
         );
-        dbms_lock.sleep(0.2);
+        dbms_lock.sleep(1);
         while l_cnt > 0 loop
           select count(1) into l_cnt
             from dba_scheduler_running_jobs srj
            where srj.job_name = l_job_name;
         end loop;
+      end;
+      procedure acquire_state is
+      begin
+        dbms_output.put_line('stateful_package.g_state='||stateful_package.g_state);
       end;
     end;
     }';
@@ -84,22 +73,21 @@ create or replace package body test_ut_run is
     --Arrange
     l_expected := 'test_state
   test_stateful
-    stateful_success [% sec]
-    failing_stateful_test [% sec] (FAILED - 1)
-    dummy_success [% sec]%
+    failing_stateful_test [% sec] (FAILED - 1)%
 Failures:%
   1) failing_stateful_test
       ORA-04061: existing state of package "UT3_TESTER.STATEFUL_PACKAGE" has been invalidated
       ORA-04065: not executed, altered or dropped package "UT3_TESTER.STATEFUL_PACKAGE"
       ORA-06508: PL/SQL: could not find program unit being called: "UT3_TESTER.STATEFUL_PACKAGE"
-      ORA-06512: at "UT3_TESTER.TEST_STATEFUL", line 10%
+      ORA-06512: at "UT3_TESTER.TEST_STATEFUL", line 5%
       ORA-06512: at line 6%
-3 tests, 0 failed, 1 errored, 0 disabled, 0 warning(s)%';
+1 tests, 0 failed, 1 errored, 0 disabled, 0 warning(s)%';
 
     --Act
     select * bulk collect into l_results from table(ut3.ut.run('test_stateful'));
   
     --Assert
+    ut.expect( ut3.ut_utils.table_to_clob(l_results) ).to_be_like( l_expected );
     ut.fail('Expected exception but nothing was raised');
   exception
     when others then
