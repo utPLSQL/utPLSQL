@@ -105,7 +105,7 @@ script:
   - bash .travis/push_docs_to_gh_pages.sh
 
 after_success:
- - if [[ ($TRAVIS_BRANCH == develop) && ($TRAVIS_PULL_REQUEST == false) ]]; then bash trigger-travis.sh $TRAVIS_ACCESS_TOKEN fi  
+ - if [[ ($TRAVIS_BRANCH == develop) && ($TRAVIS_PULL_REQUEST == false) ]]; then bash trigger-travis.sh $TRAVIS_ACCESS_TOKEN; fi  
   
 before_deploy:
   - bash .travis/build_release_archive.sh
