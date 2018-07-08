@@ -19,7 +19,7 @@ TRAVIS_URL=travis-ci.org
 BRANCH=develop
 USER="utPLSQL"
 RESULT=1
-declare -a REPO_MATRIX=("utPLSQL-java-api" "utPLSQL-v2-v3-migration" "utPLSQL-cli")
+declare -a REPO_MATRIX=("utPLSQL-java-api" "utPLSQL-v2-v3-migration" "utPLSQL-cli" "utPLSQL-maven-plugin" "utPLSQL-demo-project")
 
 TOKEN=$1
 
@@ -30,7 +30,7 @@ else
 fi
 
 # For debugging:
-echo "MESSAGE=$MESSAGE"
+#echo "MESSAGE=$MESSAGE"
 
 body="{
 \"request\": {
@@ -52,13 +52,13 @@ for DOWNSTREAM_BUILD in "${REPO_MATRIX[@]}"; do
      if grep -q '"@type": "error"' ${DOWNSTREAM_BUILD}-output.txt; then
        RESULT=0
        echoerr ""
-       echoerr "Failed to start ${DOWNSTREAM_BUILD}"
+       echoerr "ERROR: Failed to start ${DOWNSTREAM_BUILD}"
        echoerr ""
      fi
      if grep -q 'access denied' ${DOWNSTREAM_BUILD}-output.txt; then
        RESULT=0
        echoerr ""
-       echoerr "Failed to start ${DOWNSTREAM_BUILD}"
+       echoerr "ERROR: Failed to start ${DOWNSTREAM_BUILD} - access denied"
        echoerr ""
      fi
      
