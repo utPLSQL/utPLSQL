@@ -81,7 +81,6 @@ install:
   - unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
   # Get ojdbc via maven
   - bash .travis/maven_cfg.sh
-  - pip install mkdocs
   - bash .travis/install_sqlcl.sh
   - sudo mkdir -p /dev/pdbs
   - sudo chmod -R 777 /dev/pdbs
@@ -111,9 +110,10 @@ notifications:
 jobs:
   include:
     - stage: deploy
-      env: CONNECTION_STR='127.0.0.1:1521/XE'
+      env: ORACLE_VERSION="none"
       before_install: skip
-      install: skip
+      install:
+        - pip install mkdocs
       before_script: skip
       script: 
         - if [[ ($TRAVIS_BRANCH == develop) && ($TRAVIS_PULL_REQUEST == false) ]]; then bash trigger-travis.sh $TRAVIS_ACCESS_TOKEN; fi
