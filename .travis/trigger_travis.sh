@@ -29,9 +29,8 @@ else
     MESSAGE=",\"message\": \"Triggered manually from shell\""
 fi
 
-## For debugging:
-# echo "TOKEN=$TOKEN"
-# echo "MESSAGE=$MESSAGE"
+# For debugging:
+echo "MESSAGE=$MESSAGE"
 
 body="{
 \"request\": {
