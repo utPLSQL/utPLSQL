@@ -52,8 +52,8 @@ env:
     - MAVEN_HOME=/usr/local/maven
     - MAVEN_CFG=$HOME/.m2
   matrix:
-    - ORACLE_VERSION="${DOCKER_TAG_11G:-11g-r2-xe}"  CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
-    - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2}" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
+    - ORACLE_VERSION="${DOCKER_TAG_11G:-11g-r2-xe}"   CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
+    - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2}"  CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
     - ORACLE_VERSION="${DOCKER_TAG_12C2:-12c-r2-se2}" CONNECTION_STR='127.0.0.1:1521/ORCLPDB1' DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
 
 cache:
@@ -81,7 +81,6 @@ install:
   - unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
   # Get ojdbc via maven
   - bash .travis/maven_cfg.sh
-  - pip install mkdocs
   - bash .travis/install_sqlcl.sh
   - sudo mkdir -p /dev/pdbs
   - sudo chmod -R 777 /dev/pdbs
@@ -100,27 +99,6 @@ script:
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/validate_report_files.sh; fi
   - if [[ ! $TRAVIS_TAG ]] && [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then sonar-scanner; fi
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/coveralls_uploader.sh; fi
-  - bash .travis/build_docs.sh
-  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/push_release_version.sh; fi
-  - bash .travis/push_docs_to_gh_pages.sh
-
-before_deploy:
-  - bash .travis/build_release_archive.sh
-
-deploy:
-  provider: releases
-  api_key: $github_api_token
-  file:
-     - utPLSQL.zip
-     - utPLSQL.tar.gz
-     - utPLSQL.zip.md5
-     - utPLSQL.tar.gz.md5
-  skip_cleanup: true
-  on:
-     repo: ${UTPLSQL_REPO}
-     tags: true
-     # when building from a release tag, use only first job "#xxx.1" to publish artifacts
-     condition: "${TRAVIS_JOB_NUMBER} =~ \\.1$"
 
 notifications:
   slack:
@@ -128,3 +106,33 @@ notifications:
       - secure: "nemt9n2y5sVCAKqa/s7JDQ8AcM59Xu/XbH/RkMOXvPgc+KtR8lBtVD1LkvJ5BaQhqgjuDT7DNt/uisQJ7k6a2OsrVFbnkypZ1hCvntOBpJyoSpD/YL1X8a9GbGojuJcph0BX76KN21LaOVdyOfY0TSlw53XiYWS8iL5HtjpWCbIwHL1SJ8JT8mhdT4hDoUWZjcZ4s4bLH6BQm4un/bMQOmB4sDoCeg4CllJwxgkswVF7OHpOFjgPetvUp7ps8b/Rj8en6zCj9drb0SVbXFgumo2Wd1bC3HHZB8MAZU0kuEV5VgUdum6EelUL5yfB72hssNQA0+CaT3HjBFkTlqWYJmjC4/xyGN3sseiW82T9FDY0g0GAGayNRW+QSiTQ1hbJEcAnNe0GrBUdRsgXdI6COd76YP5VxzRSF6H7niLfgCZdKbIivKUd1o+wBhuyJmqCFIkRWmT38tMGJqJAzbY1jq5gQXbb6E7gt+KdTjlSjcnJYf7XI7zqm+BRr+fbA0ixfXHvfqOBgZN6g08y9nPlDnIjtSF2NSdrj2zqYQAtKuWSOD1bnTyfDJyrtK7OLffZcMYD5Bcss4c8op8tP7MGTjt1S046SJocboh6H4c/nTokpoMRsWs6MKRdebl8C2RObGf5FebSOJg+oh2ZYS5Z/G9GshiY2BD/81+Hc4Miacc="
     on_success: change
     on_failure: always
+
+jobs:
+  include:
+    - stage: deploy
+      env: ORACLE_VERSION="none"
+      before_install: skip
+      install:
+        - pip install mkdocs
+      before_script: skip
+      script: 
+        - if [[ ($TRAVIS_BRANCH == develop) && ($TRAVIS_PULL_REQUEST == false) ]]; then bash trigger-travis.sh $TRAVIS_ACCESS_TOKEN; fi
+        - if [[ ! $TRAVIS_TAG ]]; then bash .travis/push_release_version.sh; fi
+        - bash .travis/build_docs.sh
+        - bash .travis/push_docs_to_gh_pages.sh
+      before_deploy:
+        - bash .travis/build_release_archive.sh
+      deploy:
+        provider: releases
+        api_key: $github_api_token
+        file:
+           - utPLSQL.zip
+           - utPLSQL.tar.gz
+           - utPLSQL.zip.md5
+           - utPLSQL.tar.gz.md5
+        skip_cleanup: true
+        on:
+           repo: ${UTPLSQL_REPO}
+           tags: true
+           # when building from a release tag, use only first job "#xxx.1" to publish artifacts
+           condition: "${TRAVIS_JOB_NUMBER} =~ \\.1$"
