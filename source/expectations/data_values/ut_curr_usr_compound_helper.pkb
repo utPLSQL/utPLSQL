@@ -59,22 +59,6 @@ create or replace package body ut_curr_usr_compound_helper is
       return l_result;
     end;
 
-  function get_descr_cursor(a_cursor in out nocopy sys_refcursor, a_desc_user_types boolean := false) return ut_key_anyval_pairs is
-    l_cursor_number  integer;
-    l_columns_count  pls_integer;
-    l_columns_desc   dbms_sql.desc_tab3;
-    l_columns_tab    ut_key_anyval_pairs;
-  begin
-    if a_cursor is null or not a_cursor%isopen then
-        return null;
-    end if;
-    l_cursor_number := dbms_sql.to_cursor_number( a_cursor );
-    dbms_sql.describe_columns3( l_cursor_number, l_columns_count, l_columns_desc );
-    a_cursor := dbms_sql.to_refcursor( l_cursor_number );
-    l_columns_tab := get_columns_info( l_columns_desc, l_columns_count, a_desc_user_types);
-    return l_columns_tab;
-  end;
-  
   procedure get_descr_cursor(
     a_cursor in out nocopy sys_refcursor,
     a_columns_tab in out nocopy ut_key_anyval_pairs,
@@ -127,25 +111,6 @@ create or replace package body ut_curr_usr_compound_helper is
    
     a_contains_collection := ut_utils.boolean_to_int(g_is_collection);
   end;
-
-  function get_columns_info(a_cursor in out nocopy sys_refcursor, a_desc_user_types boolean := false) return xmltype is
-    l_result         xmltype;
-    l_result_tmp     xmltype;
-    l_columns_tab    ut_key_anyval_pairs;
-    begin
-      l_columns_tab := get_descr_cursor(a_cursor,a_desc_user_types);
-
-      for i in 1..l_columns_tab.COUNT 
-      loop
-        l_result_tmp := ut_compound_data_helper.get_column_info_xml(l_columns_tab(i));
-        select xmlconcat(l_result,l_result_tmp) into l_result from dual; 
-      end loop;
-       
-      select XMLELEMENT("ROW",l_result )
-      into l_result from dual;
-
-      return l_result;
-    end;
 
   function get_anytype_attribute_count (a_anytype anytype) return pls_integer is
             l_attribute_typecode pls_integer;
