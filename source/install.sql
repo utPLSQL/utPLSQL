@@ -29,6 +29,9 @@ whenever oserror exit failure rollback
 prompt Switching current schema to &&ut3_owner
 prompt &&line_separator
 alter session set current_schema = &&ut3_owner;
+
+@@check_object_grants.sql
+@@check_sys_grants.sql
 --set define off
 
 --dbms_output buffer cache table
