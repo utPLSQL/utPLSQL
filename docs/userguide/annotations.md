@@ -23,11 +23,15 @@ We strongly recommend putting package level annotations at the very top of packa
 | `--%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can by provided (see `displayname`). |
 | `--%throws(<exception_number>[,<exception_number>[,...]])`| Procedure | Denotes that the annotated procedure must throw one of the exception numbers provided. If no valid numbers were provided as annotation parameters the annotation is ignored. Applicable to test procedures only. |
 | `--%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
+| `--%beforeall([[<owner>.]<package>.]<procedure>[,...])` | Package | Denotes that the mentioned procedure(s) should be executed once before all elements of the suite. |
 | `--%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
+| `--%afterall([[<owner>.]<package>.]<procedure>[,...])` | Package | Denotes that the mentioned procedure(s) should be executed once after all elements of the suite. |
 | `--%beforeeach` | Procedure | Denotes that the annotated procedure should be executed before each `%test` procedure in the suite. |
+| `--%beforeeach([[<owner>.]<package>.]<procedure>[,...])` | Package | Denotes that the mentioned procedure(s) should be executed before each `%test` procedure in the suite. |
 | `--%aftereach` | Procedure | Denotes that the annotated procedure should be executed after each `%test` procedure in the suite. |
-| `--%beforetest(<[owner.[package.]]procedure_name>[,...])` | Procedure | Denotes that mentioned procedure(s) should be executed before the annotated `%test` procedure. |
-| `--%aftertest(<[owner.[package.]]procedure_name>[,...]>)` | Procedure | Denotes that mentioned procedure(s) should be executed after the annotated `%test` procedure. |
+| `--%aftereach([[<owner>.]<package>.]<procedure>[,...])` | Package | Denotes that the mentioned procedure(s) should be executed after each `%test` procedure in the suite. |
+| `--%beforetest([[<owner>.]<package>.]<procedure>[,...])` | Procedure | Denotes that mentioned procedure(s) should be executed before the annotated `%test` procedure. |
+| `--%aftertest([[<owner>.]<package>.]<procedure>[,...])` | Procedure | Denotes that mentioned procedure(s) should be executed after the annotated `%test` procedure. |
 | `--%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
 | `--%disabled` | Package/procedure | Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run. |
 | `--%context(<name>)` | Package | Denotes start of a named context (sub-suite) in a suite package |
@@ -301,7 +305,34 @@ Finished in .005868 seconds
 
 ### Beforeall
 
+There are two possible ways  to use the `--%beforeall` annotation.
+
+As a procedure level annotation:
+```sql
+--%suite(Some test suite)
+
+--%beforeall
+procedure to_be_executed_before_all;
+
+--%test
+procedure some_test;
+```
 Marks annotated procedure to be executed before all test procedures in a suite.
+
+As a package level annotation (not associated with any procedure).
+```sql
+--%suite(Some test suite)
+
+--%beforeall(to_be_executed_before_all, other_package.some_setup)
+
+--%test
+procedure some_test;
+
+procedure to_be_executed_before_all;
+
+```
+Indicates that the procedure(s) mentioned as the annotation parameter are to be executed before all test procedures in a suite.
+
 
 If `--%beforeall` raises an exception, suite content cannot be safely executed as the setup was not executed successfully for the suite. 
 
@@ -357,42 +388,58 @@ Finished in .012292 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
-In the below example, procedure `another_setup` is invoked after `initial_setup`. 
-The `another_setup` still gets invoked before any test from that suite package is executed.  
+In the below example a combination pacakge and procedure level `--%beforeall` annotations is used.
+The order of execution of the beforeall procedures is determined by the annotation position in package. 
+All of the `--%beforeall` procedures get invoked before any test is executed in a suite.  
  ```sql
- create or replace package test_package as
-   --%suite(Tests for a package)
+  create or replace package test_package as
+    --%suite(Tests for a package)
+  
+    --%beforeall(initial_setup,test_package.another_setup)
+  
+    --%test(Description of tested behavior)
+    procedure some_test;
+  
+    --%test(Description of another behavior)
+    procedure other_test;
+     
+    --%beforeall
+    procedure next_setup;
+  
+    --%beforeall(one_more_setup)
+
+    procedure another_setup;
+    procedure one_more_setup;
+    procedure initial_setup;
  
-   --%beforeall
-   procedure initial_setup;
-   
-   --%test(Description of tested behavior)
-   procedure some_test;
- 
-   --%test(Description of another behavior)
-   procedure other_test;
- 
-   --%beforeall
-   procedure another_setup;
-   
- end;
- /
- create or replace package body test_package as
-   procedure another_setup is
-   begin
-     dbms_output.put_line('--- ANOTHER_SETUP invoked ---');
-   end;
-   
-   procedure initial_setup is
-   begin
-     dbms_output.put_line('--- INITIAL_SETUP invoked ---');
-   end;
-   
-   procedure some_test is begin null; end;
-   
-   procedure other_test is begin null; end;
- end;
- /
+  end;
+  /
+  create or replace package body test_package as
+    procedure one_more_setup is
+    begin
+      dbms_output.put_line('--- ONE_MORE_SETUP invoked ---');
+    end;
+    
+    procedure next_setup is
+    begin
+      dbms_output.put_line('--- NEXT_SETUP invoked ---');
+    end;
+    
+    procedure another_setup is
+    begin
+      dbms_output.put_line('--- ANOTHER_SETUP invoked ---');
+    end;
+    
+    procedure initial_setup is
+    begin
+      dbms_output.put_line('--- INITIAL_SETUP invoked ---');
+    end;
+    
+    procedure some_test is begin null; end;
+    
+    procedure other_test is begin null; end;
+  end;
+  /
  ```
 
  ```sql
@@ -402,10 +449,12 @@ The `another_setup` still gets invoked before any test from that suite package i
 Tests for a package
   --- INITIAL_SETUP invoked ---
   --- ANOTHER_SETUP invoked ---
-  Description of tested behavior [.004 sec]
-  Description of another behavior [.004 sec]
+  --- NEXT_SETUP invoked ---
+  --- ONE_MORE_SETUP invoked ---
+  Description of tested behavior [.003 sec]
+  Description of another behavior [.002 sec]
  
-Finished in .016672 seconds
+Finished in .018944 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
  ```
 
@@ -468,7 +517,33 @@ Finished in .012158 seconds
 
 ### Afterall
 
+There are two possible ways  to use the `--%afterall` annotation.
+
+As a procedure level annotation:
+```sql
+--%suite(Some test suite)
+
+--%afterall
+procedure to_be_executed_after_all;
+
+--%test
+procedure some_test;
+```
 Marks annotated procedure to be executed after all test procedures in a suite.
+
+As a package level annotation (not associated with any procedure).
+```sql
+--%suite(Some test suite)
+
+--%afterall(to_be_executed_after_all, other_package.some_cleanup)
+
+--%test
+procedure some_test;
+
+procedure to_be_executed_after_all;
+
+```
+Indicates that the procedure(s) mentioned as the annotation parameter are to be executed after all test procedures in a suite.
 
 If `--%afterall` raises an exception the following will happen:
 - a warning will be raised, indicating that `--%afterall` procedure has failed
@@ -526,10 +601,37 @@ Finished in .014161 seconds
 
 ### Beforeeach
 
-Marks annotated procedure to be executed before each test procedure in a suite.
-
 The procedure annotated as `--%beforeeach` is getting executed before each test in a suite.
 That means that the procedure will be executed as many times as there are test in suite package.
+
+There are two possible ways  to use the `--%beforeeach` annotation.
+
+As a procedure level annotation:
+```sql
+--%suite(Some test suite)
+
+--%beforeeach
+procedure to_be_executed_before_each;
+
+--%test
+procedure some_test;
+```
+Marks annotated procedure to be executed before each test procedures in a suite.
+
+As a package level annotation (not associated with any procedure).
+```sql
+--%suite(Some test suite)
+
+--%beforeeach(to_be_executed_before_each, other_package.some_setup)
+
+--%test
+procedure some_test;
+
+procedure to_be_executed_before_each;
+
+```
+Indicates that the procedure(s) mentioned as the annotation parameter are to be executed before each test procedure in a suite.
+
 
 If a test is marked as disabled the `--%beforeeach` procedure is not invoked for that test.
 
@@ -604,6 +706,7 @@ Finished in .014683 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
+See [beforeall](#Beforeall) for more examples.
 
 ### Aftereach
 
@@ -611,6 +714,34 @@ Marks annotated procedure to be executed after each test procedure in a suite.
 
 The procedure annotated as `--%aftereach` is getting executed after each test in a suite.
 That means that the procedure will be executed as many times as there are test in suite package.
+
+There are two possible ways  to use the `--%aftereach` annotation.
+
+As a procedure level annotation:
+```sql
+--%suite(Some test suite)
+
+--%aftereach
+procedure to_be_executed_after_each;
+
+--%test
+procedure some_test;
+```
+Marks annotated procedure to be executed after each test procedures in a suite.
+
+As a package level annotation (not associated with any procedure).
+```sql
+--%suite(Some test suite)
+
+--%aftereach(to_be_executed_after_each, other_package.some_setup)
+
+--%test
+procedure some_test;
+
+procedure to_be_executed_after_each;
+
+```
+Indicates that the procedure(s) mentioned as the annotation parameter are to be executed after each test procedure in a suite.
 
 If a test is marked as disabled the `--%aftereach` procedure is not invoked for that test.
 
@@ -683,6 +814,8 @@ Finished in .018115 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
+See [beforeall](#Beforeall) for more examples.
+
 ### Beforetest
 
 Indicates specific setup procedure(s) to be executed for a test. The procedure(s) can be located either:
@@ -711,29 +844,16 @@ The order of execution for `--%beforetest` procedures is defined by:
 As a rule, the `--%beforetest` execution gets aborted if preceding `--%beforeeach` or `--%beforetest` failed. 
 
 ```sql
-create or replace package shared_package as  
-  procedure do_some_stuff;
-end;
-/
-
-create or replace package body shared_package as  
-  procedure do_some_stuff is
-  begin
-    dbms_output.put_line('---DO_SOME_STUFF invoked ---');
-  end;
-end;
-/
-
 create or replace package test_package as
   --%suite(Tests for a package)
 
   --%test(Description of tested behavior)
-  --%beforetest(setup_for_a_test, shared_package.do_some_stuff)
+  --%beforetest(test_package.setup_for_a_test)
   --%beforetest(another_setup_for_a_test)
   procedure some_test;
 
   --%test(Description of another behavior)
-  --%beforetest(setup_for_a_test)
+  --%beforetest(test_package.setup_for_a_test, another_setup_for_a_test)
   procedure other_test;
 
   procedure another_setup_for_a_test;
@@ -770,16 +890,16 @@ exec ut.run('test_package');
 ```
 ```
 Tests for a package
-  Description of tested behavior [.011 sec]
+  Description of tested behavior [.008 sec]
   ---SETUP_FOR_A_TEST invoked ---
-  ---DO_SOME_STUFF invoked ---
   ---ANOTHER_SETUP_FOR_A_TEST invoked ---
   ---SOME_TEST invoked ---
   Description of another behavior [.005 sec]
   ---SETUP_FOR_A_TEST invoked ---
+  ---ANOTHER_SETUP_FOR_A_TEST invoked ---
   ---OTHER_TEST invoked ---
  
-Finished in .018446 seconds
+Finished in .015185 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
@@ -809,29 +929,16 @@ The order of execution for `--%aftertest` procedures is defined by:
 As a rule, the `--%aftertest` gets executed even if the associated `--%beforeeach`, `--%beforetest`, `--%test` or other `--%aftertest` procedures have raised unhandled exceptions. 
 
 ```sql
-create or replace package shared_package as  
-  procedure do_some_stuff;
-end;
-/
-
-create or replace package body shared_package as  
-  procedure do_some_stuff is
-  begin
-    dbms_output.put_line('---DO_SOME_STUFF invoked ---');
-  end;
-end;
-/
-
 create or replace package test_package as
   --%suite(Tests for a package)
 
   --%test(Description of tested behavior)
-  --%aftertest(cleanup_for_a_test, shared_package.do_some_stuff)
+  --%aftertest(test_package.cleanup_for_a_test)
   --%aftertest(another_cleanup_for_a_test)
   procedure some_test;
 
   --%test(Description of another behavior)
-  --%aftertest(cleanup_for_a_test)
+  --%aftertest(test_package.cleanup_for_a_test, another_cleanup_for_a_test)
   procedure other_test;
 
   procedure another_cleanup_for_a_test;
@@ -868,16 +975,16 @@ exec ut.run('test_package');
 ```
 ```
 Tests for a package
-  Description of tested behavior [.01 sec]
+  Description of tested behavior [.008 sec]
   ---SOME_TEST invoked ---
   ---CLEANUP_FOR_A_TEST invoked ---
-  ---DO_SOME_STUFF invoked ---
   ---ANOTHER_CLEANUP_FOR_A_TEST invoked ---
   Description of another behavior [.006 sec]
   ---OTHER_TEST invoked ---
   ---CLEANUP_FOR_A_TEST invoked ---
+  ---ANOTHER_CLEANUP_FOR_A_TEST invoked ---
  
-Finished in .018691 seconds
+Finished in .016873 seconds
 2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
