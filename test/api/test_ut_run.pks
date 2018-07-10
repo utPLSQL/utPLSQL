@@ -9,14 +9,14 @@ create or replace package test_ut_run is
   --%aftertest(drop_test_suite)
   procedure raise_in_invalid_state;
   
-  --%test(ut.run - run invalid package and fail expectation)
+  --%test(ut.run - Does not execute suite when specified package is not valid)
   --%beforetest(compile_invalid_package)
   --%aftertest(drop_invalid_package)
   procedure run_in_invalid_state;
   procedure compile_invalid_package;
   procedure drop_invalid_package;
   
-  --%test( Invalidate package specs via rebuild but still execute package)
+  --%test(Invalidate package specs via rebuild but still execute package)
   --%beforetest(generate_invalid_spec)
   --%aftertest(drop_test_package)
   procedure run_and_revalidate_specs;

@@ -86,17 +86,19 @@ create or replace type body ut_executable is
       l_status number;
       l_line varchar2(32767);
     begin
-      dbms_lob.createtemporary(self.serveroutput, true, dur => dbms_lob.session);
 
-      loop
-        dbms_output.get_line(line => l_line, status => l_status);
-        exit when l_status = 1;
-
+      dbms_output.get_line(line => l_line, status => l_status);
+      if l_status != 1 then
+        dbms_lob.createtemporary(self.serveroutput, true, dur => dbms_lob.session);
+      end if;
+      while l_status != 1 loop
         if l_line is not null then
           ut_utils.append_to_clob(self.serveroutput, l_line);
         end if;
-
-        dbms_lob.writeappend(self.serveroutput,1,chr(10));
+        dbms_output.get_line(line => l_line, status => l_status);
+        if l_status != 1 then
+          dbms_lob.writeappend(self.serveroutput,1,chr(10));
+        end if;
       end loop;
     end save_dbms_output;
   begin
@@ -116,7 +118,7 @@ create or replace type body ut_executable is
       '  l_error_backtrace varchar2(32767);' || chr(10) ||
       'begin' || chr(10) ||
       '  begin' || chr(10) ||
-      '    ' || ut_metadata.form_name(self.owner_name, self.object_name, self.procedure_name) || ';' || chr(10) ||
+      '    ' || self.form_name() || ';' || chr(10) ||
       '  exception' || chr(10) ||
       '    when others then ' || chr(10) ||
       '      l_error_stack := dbms_utility.format_error_stack;' || chr(10) ||
