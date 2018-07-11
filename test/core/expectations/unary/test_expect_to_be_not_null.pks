@@ -1,7 +1,7 @@
-create or replace package test_expect_not_to_be_null
+create or replace package test_expect_to_be_not_null
 is
-    --%suite(not_to_be_null)
-    --%suitepath(utplsql.core.expectations.scalar_data.unary)
+    --%suite(to_be_not_null)
+    --%suitepath(utplsql.core.expectations.unary)
 
     --%aftereach
     procedure cleanup_expectations;
@@ -15,8 +15,8 @@ is
     --%test(Gives success for not null blob)
     procedure blob_not_null;
 
-    --%test(Gives success for blob with length 0)
-    procedure blob_0_length;
+    --%test(Gives success for empty blob)
+    procedure empty_blob;
 
     --%test(Gives success for not null boolean)
     procedure boolean_not_null;
@@ -24,8 +24,8 @@ is
     --%test(Gives success for not null clob)
     procedure clob_not_null;
 
-    --%test(Gives success for clob with length 0)
-    procedure clob_0_length;
+    --%test(Gives success for empty clob)
+    procedure empty_clob;
 
     --%test(Gives success for not null date)
     procedure date_not_null;
@@ -93,5 +93,5 @@ is
     --%test(Gives failure with uninitialized varray within anydata)
     procedure uninit_varray_in_anydata;
 
-end test_expect_not_to_be_null;
+end test_expect_to_be_not_null;
 /

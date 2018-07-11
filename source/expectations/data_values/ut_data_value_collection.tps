@@ -17,6 +17,7 @@ create or replace type ut_data_value_collection under ut_data_value_anydata(
   */
 
   constructor function ut_data_value_collection(self in out nocopy ut_data_value_collection, a_value anydata) return self as result,
-  overriding member function is_multi_line return boolean
+  overriding member function is_empty return boolean
+
 )
 /

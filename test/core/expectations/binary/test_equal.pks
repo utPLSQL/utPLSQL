@@ -1,7 +1,7 @@
 create or replace package test_equal is
 
   --%suite((not)to_be_equal)
-  --%suitepath(utplsql.core.expectations.scalar_data.binary)
+  --%suitepath(utplsql.core.expectations.binary)
 
   procedure reset_nulls_equal;
 
