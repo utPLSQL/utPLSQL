@@ -18,6 +18,7 @@ create or replace type ut_data_value_blob under ut_data_value(
   data_value blob,
   constructor function ut_data_value_blob(self in out nocopy ut_data_value_blob, a_value blob) return self as result,
   overriding member function is_null return boolean,
+  overriding member function is_empty return boolean,
   overriding member function to_string return varchar2,
   overriding member function is_multi_line return boolean,
   overriding member function compare_implementation(a_other ut_data_value) return integer

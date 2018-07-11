@@ -38,7 +38,6 @@ create or replace type ut_compound_data_value force under ut_data_value(
   overriding member function get_object_info return varchar2,
   overriding member function is_null return boolean,
   overriding member function is_diffable return boolean,
-  member function is_empty return boolean,
   overriding member function to_string return varchar2,
   overriding member function is_multi_line return boolean,
   overriding member function compare_implementation(a_other ut_data_value) return integer,

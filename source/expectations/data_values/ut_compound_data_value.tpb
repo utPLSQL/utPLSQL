@@ -31,14 +31,9 @@ create or replace type body ut_compound_data_value as
     return true;
   end;
 
-  member function is_empty return boolean is
-  begin
-    return self.elements_count = 0;
-  end;
-
   overriding member function is_multi_line return boolean is
   begin
-    return not self.is_null() and not self.is_empty();
+    return not self.is_null();
   end;
 
   overriding member function compare_implementation(a_other ut_data_value) return integer is

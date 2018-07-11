@@ -33,7 +33,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure blob_0_length is
+  procedure empty_blob is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'blob', 'empty_blob()');
@@ -57,7 +57,7 @@ is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure clob_0_length is
+  procedure empty_clob is
   begin
     --Act
     execute immediate expectations.unary_expectation_block('to_be_not_null', 'clob', 'empty_clob()');

@@ -1,7 +1,7 @@
 create or replace package test_be_less_or_equal is
 
   --%suite((not)to_be_less_or_equal)
-  --%suitepath(utplsql.core.expectations.scalar_data.binary)
+  --%suitepath(utplsql.core.expectations.binary)
 
   --%aftereach
   procedure cleanup_expectations;

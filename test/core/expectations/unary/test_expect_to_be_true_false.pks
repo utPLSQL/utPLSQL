@@ -1,7 +1,7 @@
 create or replace package test_expect_to_be_true_false
 is
   --%suite(to_be_true/false)
-  --%suitepath(utplsql.core.expectations.scalar_data.unary)
+  --%suitepath(utplsql.core.expectations.unary)
 
   --%aftereach
   procedure cleanup_expectations;

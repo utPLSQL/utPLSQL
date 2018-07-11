@@ -166,24 +166,6 @@ exec ut_coverage.set_develop_mode(true);
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithInvalidValues.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithNullValue.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.Success.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.Blob.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.Clob.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.Date.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.NullBlob.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.NullClob.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.NullDate.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.NullNumber.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.NullTimestamp.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.NullVarchar2.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.Timestamp.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.TimestampWithLocalTimeZone.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.TimestampWithTimeZone.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.Varchar2.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigBlob.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigClob.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigNumber.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigVarchar2.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 
 --Finally
 @@lib/RunSummary

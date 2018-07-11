@@ -198,5 +198,70 @@ was expected to be empty%%]';
     ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
 
+  procedure success_be_empty_clob is
+    begin
+      -- Act
+      ut3.ut.expect( empty_clob() ).to_( ut3.be_empty() );
+      --Assert
+      ut.expect(expectations.failed_expectations_data()).to_be_empty();
+    end;
+
+  procedure fail_be_empty_clob is
+    begin
+      -- Act
+      ut3.ut.expect( to_clob(' ') ).to_( ut3.be_empty() );
+      --Assert
+      ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+    end;
+
+  procedure success_be_empty_blob is
+    begin
+      -- Act
+      ut3.ut.expect( empty_blob() ).to_( ut3.be_empty() );
+      --Assert
+      ut.expect(expectations.failed_expectations_data()).to_be_empty();
+    end;
+
+  procedure fail_be_empty_blob is
+    begin
+      -- Act
+      ut3.ut.expect( to_blob('AA') ).to_( ut3.be_empty() );
+      --Assert
+      ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+    end;
+
+
+  procedure fail_not_be_empty_clob is
+  begin
+    -- Act
+    ut3.ut.expect( empty_clob() ).not_to( ut3.be_empty() );
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+  end;
+
+  procedure success_not_be_empty_clob is
+  begin
+    -- Act
+    ut3.ut.expect( to_clob(' ') ).not_to( ut3.be_empty() );
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure fail_not_be_empty_blob is
+  begin
+    -- Act
+    ut3.ut.expect( empty_blob() ).not_to( ut3.be_empty() );
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+  end;
+
+  procedure success_not_be_empty_blob is
+  begin
+    -- Act
+    ut3.ut.expect( to_blob('AA') ).not_to( ut3.be_empty() );
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
 end;
 /

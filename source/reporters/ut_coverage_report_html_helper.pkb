@@ -297,7 +297,7 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
     l_charset := coalesce(upper(a_charset),'UTF-8');
     l_coverage_pct := coverage_pct(a_coverage_data.covered_lines, a_coverage_data.uncovered_lines);
 
-    l_time_str := ut_utils.to_string(sysdate);
+    l_time_str := to_char(sysdate,'yyyy-mm-dd"T"hh24:mi:ss');
     l_using := case
                  when a_command_line is not null then
                   '<br/>using ' || dbms_xmlgen.convert(a_command_line)

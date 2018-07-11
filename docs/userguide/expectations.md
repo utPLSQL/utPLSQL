@@ -165,7 +165,11 @@ end;
 ## be_empty
 Unary matcher that validates if the provided dataset is empty.
 
-Can be used with `refcursor` or `nested table`/`varray` passed as `ANYDATA`
+Can be used with `BLOB`,`CLOB`, `refcursor` or `nested table`/`varray` passed as `ANYDATA`
+
+**Note:**
+BLOB/CLOB that is initialized is not NULL but it is actually equal to `empty_blob()`/`empty_clob()`.
+
 
 Usage:
 ```sql
@@ -794,7 +798,7 @@ The matrix below illustrates the data types supported by different matchers.
 |**equal**              |  X  |   X   |  X  |  X  |  X   |    X    |             X               |                   X                  |   X    |               X               |               X               |   X  |              X            |   X  |
 |**match**              |     |       |  X  |     |      |         |                             |                                      |   X    |                               |                               |      |                           |      |
 |**be_like**            |     |       |  X  |     |      |         |                             |                                      |   X    |                               |                               |      |                           |      |
-|**be_empty**           |     |       |     |     |      |         |                             |                                      |        |                               |                               |   X  |              X            |      |
+|**be_empty**           |  X  |       |  X  |     |      |         |                             |                                      |        |                               |                               |   X  |              X            |      |
 |**have_count**         |     |       |     |     |      |         |                             |                                      |        |                               |                               |   X  |              X            |      |
                                                                                                                                                                                                                                                                                  
 

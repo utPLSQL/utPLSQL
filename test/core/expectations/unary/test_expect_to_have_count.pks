@@ -1,7 +1,7 @@
 create or replace package test_expect_to_have_count is
 
   --%suite((not)to_have_count)
-  --%suitepath(utplsql.core.expectations.compound_data)
+  --%suitepath(utplsql.core.expectations.unary)
 
   --%aftereach
   procedure cleanup_expectations;

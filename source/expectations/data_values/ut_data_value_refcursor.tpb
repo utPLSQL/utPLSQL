@@ -257,6 +257,11 @@ create or replace type body ut_data_value_refcursor as
     return l_result;
   end;
 
+  overriding member function is_empty return boolean is
+  begin
+    return self.elements_count = 0;
+  end;
+
 
 end;
 /

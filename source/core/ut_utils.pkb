@@ -107,8 +107,10 @@ create or replace package body ut_utils is
     l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
     l_result varchar2(32767);
   begin
-    if l_len = 0 then
+    if a_value is null then
       l_result := gc_null_string;
+    elsif l_len = 0 then
+      l_result := gc_empty_string;
     elsif l_len <= gc_max_input_string_length then
       l_result := surround_with(a_value,a_qoute_char);
     else
@@ -121,8 +123,10 @@ create or replace package body ut_utils is
     l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
     l_result varchar2(32767);
   begin
-    if l_len = 0 then
+    if a_value is null then
       l_result := gc_null_string;
+    elsif l_len = 0 then
+      l_result := gc_empty_string;
     elsif l_len <= gc_max_input_string_length then
       l_result := surround_with(rawtohex(a_value),a_qoute_char);
     else

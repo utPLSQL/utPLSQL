@@ -2,6 +2,37 @@ create or replace package body test_ut_utils is
 
   gv_nls_value nls_session_parameters.value%type;
 
+  gc_delimiter varchar2(1) := get_numeric_delimiter();
+
+  function get_numeric_delimiter return varchar2 is
+    l_result varchar2(1);
+  begin
+    select substr(value, 1, 1) into l_result from nls_session_parameters t where t.parameter = 'NLS_NUMERIC_CHARACTERS';
+    return l_result;
+  end;
+
+  function clob_to_blob(p_clob clob) return blob is
+    l_blob          blob;
+    l_dest_offset   integer := 1;
+    l_source_offset integer := 1;
+    l_lang_context  integer := dbms_lob.default_lang_ctx;
+    l_warning       integer := dbms_lob.warn_inconvertible_char;
+  begin
+    dbms_lob.createtemporary(l_blob, true);
+    dbms_lob.converttoblob(
+        dest_lob    =>l_blob,
+        src_clob    =>p_clob,
+        amount      =>DBMS_LOB.LOBMAXSIZE,
+        dest_offset =>l_dest_offset,
+        src_offset  =>l_source_offset,
+        blob_csid   =>DBMS_LOB.DEFAULT_CSID,
+        lang_context=>l_lang_context,
+        warning     =>l_warning
+    );
+    return l_blob;
+  end;
+
+
   procedure common_clob_to_table_exec(p_clob varchar2, p_delimiter varchar2, p_expected_list ut3.ut_varchar2_list, p_limit number) is
   begin
     execute immediate 'declare
@@ -54,163 +85,149 @@ end;]' using p_expected_list;
     common_clob_to_table_exec( ',a,,c,d,', ',', ut3.ut_varchar2_list('','a','','c','d',''), 1000);
   end;
 
-  procedure test_to_char is
+  procedure test_test_result_to_char is
   begin
     ut.expect(ut3.ut_utils.test_result_to_char(-1),'test unknown').to_equal('Unknown(-1)');
     ut.expect(ut3.ut_utils.test_result_to_char(null),'test unknown').to_equal('Unknown(NULL)');
     ut.expect(ut3.ut_utils.test_result_to_char(ut3.ut_utils.gc_success),'test unknown').to_equal(ut3.ut_utils.gc_success_char);
   end;
 
-  procedure test_to_string_blob is
+  procedure to_string_emptyblob is
+  begin
+    ut.expect(ut3.ut_data_value_blob(empty_blob()).to_string()).to_equal('EMPTY');
+  end;
+
+  procedure to_string_emptyclob is
+  begin
+    ut.expect(ut3.ut_data_value_clob(empty_clob()).to_string()).to_equal('EMPTY');
+  end;
+
+  procedure to_string_nullblob is
+  begin
+    ut.expect(ut3.ut_data_value_blob(null).to_string()).to_equal('NULL');
+  end;
+
+  procedure to_string_nullclob is
+  begin
+    ut.expect(ut3.ut_data_value_clob(null).to_string()).to_equal('NULL');
+  end;
+
+  procedure to_string_nulldate is
+  begin
+    ut.expect(ut3.ut_data_value_date(null).to_string()).to_equal('NULL');
+  end;
+
+  procedure to_string_nullnumber is
+  begin
+    ut.expect(ut3.ut_data_value_number(null).to_string()).to_equal('NULL');
+  end;
+
+  procedure to_string_nulltimestamp is
+  begin
+    ut.expect(ut3.ut_data_value_timestamp(null).to_string()).to_equal('NULL');
+  end;
+
+  procedure to_string_nulltimestamp_ltz is
+  begin
+    ut.expect(ut3.ut_data_value_timestamp_ltz(null).to_string()).to_equal('NULL');
+  end;
+
+  procedure to_string_nulltimestamp_tz is
+  begin
+    ut.expect(ut3.ut_data_value_timestamp_tz(null).to_string()).to_equal('NULL');
+  end;
+
+  procedure to_string_nullvarchar2 is
+  begin
+    ut.expect(ut3.ut_data_value_varchar2(null).to_string()).to_equal('NULL');
+  end;
+
+  procedure to_string_blob is
     l_text     varchar2(32767) := 'A test char';
     l_value    blob := utl_raw.cast_to_raw(l_text);
     l_expected varchar2(32767) := ''''||rawtohex(l_value)||'''';
-    l_result   varchar2(32767);
   begin
-    l_result :=  ut3.ut_utils.to_String(l_value);
-    ut.expect(l_result).to_equal(l_expected);
+    ut.expect(ut3.ut_data_value_blob(l_value).to_string()).to_equal(l_expected);
   end;
 
-  procedure test_to_string_clob is
-  l_value    clob := 'A test char';
-  l_expected varchar2(32767) := ''''||l_value||'''';
-  l_result   varchar2(32767);
+  procedure to_string_clob is
+    l_value    clob := 'A test char';
+    l_expected varchar2(32767) := ''''||l_value||'''';
   begin
-    l_result :=  ut3.ut_utils.to_String(l_value);
-    ut.expect(l_result).to_equal(l_expected);
+    ut.expect(ut3.ut_data_value_clob(l_value).to_string()).to_equal(l_expected);
   end;
 
-  procedure test_to_string_date is
-  l_value    date := to_date('2016-12-31 23:59:59', 'yyyy-mm-dd hh24:mi:ss');
-  l_expected varchar2(100) := '2016-12-31T23:59:59';
-  l_result   varchar2(32767);
+  procedure to_string_date is
+    l_value    date := to_date('2016-12-31 23:59:59', 'yyyy-mm-dd hh24:mi:ss');
+    l_expected varchar2(100) := '2016-12-31T23:59:59';
   begin
-    l_result :=  ut3.ut_utils.to_String(l_value);
-    ut.expect(l_result).to_equal(l_expected);
+    ut.expect(ut3.ut_data_value_date(l_value).to_string()).to_equal(l_expected);
   end;
 
-  procedure to_string_null is
-  begin
-    ut.expect(ut3.ut_utils.to_String(to_blob(NULL))).to_equal('NULL');
-    ut.expect(ut3.ut_utils.to_String(to_clob(NULL))).to_equal('NULL');
-    ut.expect(ut3.ut_utils.to_String(to_date(NULL))).to_equal('NULL');
-    ut.expect(ut3.ut_utils.to_String(to_number(NULL))).to_equal('NULL');
-    ut.expect(ut3.ut_utils.to_String(to_timestamp(NULL))).to_equal('NULL');
-  end;
-
-  procedure to_string is
+  procedure to_string_timestamp is
     l_value    timestamp(9) := to_timestamp('2016-12-31 23:59:59.123456789', 'yyyy-mm-dd hh24:mi:ss.ff');
-    l_value2    timestamp(9) with local time zone:= to_timestamp('2016-12-31 23:59:59.123456789', 'yyyy-mm-dd hh24:mi:ss.ff');
-    l_value3    timestamp(9) with time zone := to_timestamp_tz('2016-12-31 23:59:59.123456789 -8:00', 'yyyy-mm-dd hh24:mi:ss.ff tzh:tzm');
-    l_value4    varchar2(20) := 'A test char';
-    l_expected varchar2(100);
-    l_result   varchar2(100);
-    l_delimiter varchar2(10);
+    l_expected varchar2(100) := '2016-12-31T23:59:59'||gc_delimiter||'123456789';
   begin
-    select substr(value, 1, 1) into l_delimiter from nls_session_parameters t where t.parameter = 'NLS_NUMERIC_CHARACTERS';
-    l_expected := '2016-12-31T23:59:59'||l_delimiter||'123456789';
-
-    l_result :=  ut3.ut_utils.to_String(l_value);
-    ut.expect(l_result,'Returns a full string representation of a timestamp with maximum precission').to_equal(l_expected);
-
-    l_expected := '2016-12-31T23:59:59'||l_delimiter||'123456789';
-    l_result :=  ut3.ut_utils.to_String(l_value2);
-    ut.expect(l_result,'Returns a full string representation of a timestamp with maximum precission').to_equal(l_expected);
-
-    l_expected := '2016-12-31T23:59:59'||l_delimiter||'123456789 -08:00';
-
-    l_result :=  ut3.ut_utils.to_String(l_value3);
-    ut.expect(l_result,'Returns a full string representation of a timestamp with maximum precission').to_equal(l_expected);
-
-    l_expected := ''''||l_value4||'''';
-    l_result :=  ut3.ut_utils.to_String(l_value4);
-    ut.expect(l_result,'Returns a varchar2 eclosed in quotes').to_equal(l_expected);
-
+    ut.expect(ut3.ut_data_value_timestamp(l_value).to_string()).to_equal(l_expected);
   end;
 
-  procedure to_string_big_blob is
+  procedure to_string_timestamp_ltz is
+    l_value    timestamp(9)  with local time zone := to_timestamp('2016-12-31 23:59:59.123456789', 'yyyy-mm-dd hh24:mi:ss.ff');
+    l_expected varchar2(100) := '2016-12-31T23:59:59'||gc_delimiter||'123456789';
+  begin
+    ut.expect(ut3.ut_data_value_timestamp_ltz(l_value).to_string()).to_equal(l_expected);
+  end;
+
+  procedure to_string_timestamp_tz is
+    l_value    timestamp(9) with time zone := to_timestamp_tz('2016-12-31 23:59:59.123456789 -8:00', 'yyyy-mm-dd hh24:mi:ss.ff tzh:tzm');
+    l_expected varchar2(100) := '2016-12-31T23:59:59'||gc_delimiter||'123456789 -08:00';
+  begin
+    ut.expect(ut3.ut_data_value_timestamp_tz(l_value).to_string()).to_equal(l_expected);
+  end;
+
+  procedure to_string_varchar2 is
+    l_value    varchar2(20) := 'A test char';
+    l_expected varchar2(100) := ''''||l_value||'''';
+  begin
+    ut.expect(ut3.ut_data_value_varchar2(l_value).to_string()).to_equal(l_expected);
+  end;
+
+  procedure to_string_verybigblob is
     l_text     clob := lpad('A test char',32767,'1')||lpad('1',32767,'1');
     l_value    blob;
-    l_result   varchar2(32767);
-    function clob_to_blob(p_clob clob) return blob
-    as
-      l_blob          blob;
-      l_dest_offset   integer := 1;
-      l_source_offset integer := 1;
-      l_lang_context  integer := dbms_lob.default_lang_ctx;
-      l_warning       integer := dbms_lob.warn_inconvertible_char;
-    begin
-      dbms_lob.createtemporary(l_blob, true);
-      dbms_lob.converttoblob(
-        dest_lob    =>l_blob,
-        src_clob    =>p_clob,
-        amount      =>DBMS_LOB.LOBMAXSIZE,
-        dest_offset =>l_dest_offset,
-        src_offset  =>l_source_offset,
-        blob_csid   =>DBMS_LOB.DEFAULT_CSID,
-        lang_context=>l_lang_context,
-        warning     =>l_warning
-      );
-      return l_blob;
-    end;
   begin
     l_value := clob_to_blob(l_text);
-  --Act
-    l_result :=  ut3.ut_utils.to_String(l_value);
-  --Assert
-    ut.EXPECT(length(l_result)).to_equal(ut3.ut_utils.gc_max_output_string_length);
-    ut.EXPECT(l_result).to_be_like('%'||ut3.ut_utils.gc_more_data_string);
-
+    ut.expect(length(ut3.ut_data_value_blob(l_value).to_string())).to_equal(ut3.ut_utils.gc_max_output_string_length);
+    ut.expect(ut3.ut_data_value_blob(l_value).to_string()).to_be_like('%'||ut3.ut_utils.gc_more_data_string);
   end;
 
-  procedure to_string_big_clob is
+  procedure to_string_verybigclob is
     l_value    clob := lpad('A test char',32767,'1')||lpad('1',32767,'1');
-    l_result   varchar2(32767);
   begin
-  --Act
-    l_result :=  ut3.ut_utils.to_String(l_value);
-  --Assert
-    ut.EXPECT(length(l_result)).to_equal(ut3.ut_utils.gc_max_output_string_length);
-    ut.EXPECT(l_result).to_be_like('%'||ut3.ut_utils.gc_more_data_string);
+    ut.expect(length(ut3.ut_data_value_clob(l_value).to_string())).to_equal(ut3.ut_utils.gc_max_output_string_length);
+    ut.expect(ut3.ut_data_value_clob(l_value).to_string()).to_be_like('%'||ut3.ut_utils.gc_more_data_string);
   end;
 
-  procedure to_string_big_number is
+  procedure to_string_verybignumber is
     l_value    number := 1234567890123456789012345678901234567890;
     l_expected varchar2(100) := '1234567890123456789012345678901234567890';
-    l_result   varchar2(100);
   begin
-  --Act
-    l_result := ut3.ut_utils.to_String(l_value);
-  --Assert
-    ut.expect(l_result).TO_equal(l_expected);
+    ut.expect(ut3.ut_data_value_number(l_value).to_string()).to_equal(l_expected);
   end;
 
-  procedure to_string_big_varchar2 is
+  procedure to_string_verybigvarchar2 is
     l_value    varchar2(32767) := lpad('A test char',32767,'1');
     l_result   varchar2(32767);
   begin
-  --Act
-    l_result :=  ut3.ut_utils.to_String(l_value);
-  --Assert
-    ut.EXPECT(length(l_result)).to_equal(ut3.ut_utils.gc_max_output_string_length);
-    ut.EXPECT(l_result).to_be_like('%'||ut3.ut_utils.gc_more_data_string);
+    ut.expect(length(ut3.ut_data_value_varchar2(l_value).to_string())).to_equal(ut3.ut_utils.gc_max_output_string_length);
+    ut.expect(ut3.ut_data_value_varchar2(l_value).to_string()).to_be_like('%'||ut3.ut_utils.gc_more_data_string);
   end;
 
-  procedure to_string_big_tiny_number is
+  procedure to_string_verysmallnumber is
     l_value    number := 0.123456789012345678901234567890123456789;
-    l_expected varchar2(100);
-    l_result   varchar2(100);
-    l_delimiter varchar2(1);
+    l_expected varchar2(100) := gc_delimiter||'123456789012345678901234567890123456789';
   begin
-  --Act
-    select substr(value, 1, 1) into l_delimiter from nls_session_parameters t where t.parameter = 'NLS_NUMERIC_CHARACTERS';
-    l_expected := l_delimiter||'123456789012345678901234567890123456789';
-
-    l_result :=  ut3.ut_utils.to_String(l_value);
-
-  --Assert
-    ut.expect(l_result).TO_equal(l_expected);
-
+    ut.expect(ut3.ut_data_value_number(l_value).to_string()).to_equal(l_expected);
   end;
 
   procedure test_table_to_clob is

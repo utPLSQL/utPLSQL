@@ -29,6 +29,15 @@ create or replace type body ut_data_value_clob as
     return (self.data_value is null);
   end;
 
+  overriding member function is_empty return boolean is
+    l_result boolean := false;
+  begin
+    if self.data_value is not null and dbms_lob.compare( self.data_value, empty_clob()) = 0 then
+      l_result := true;
+    end if;
+    return l_result;
+  end;
+
   overriding member function to_string return varchar2 is
   begin
     return ut_utils.to_string(self.data_value);
