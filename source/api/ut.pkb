@@ -104,7 +104,6 @@ create or replace package body ut is
     end if;
   end;
   
-  /* Testing of PR sonar*/
   
   procedure run_autonomous(
     a_paths ut_varchar2_list,
