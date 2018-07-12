@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+#Run Sonar based on conditions
+
 MAIN_DEV_BRANCH="develop"
 
 BRANCH_SONAR_PROPERTY="sonar.branch.name"
