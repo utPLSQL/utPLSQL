@@ -22,6 +22,29 @@ create or replace package test_ut_run is
   procedure run_and_revalidate_specs;
   procedure generate_invalid_spec;
   procedure drop_test_package;  
+
+  procedure create_test_csl_packages;
+  procedure drop_test_csl_packages;
+  
+  --%test( Pass name of tests as varchar2_list )  
+  --%beforetest(create_test_csl_packages)
+  --%aftertest(drop_test_csl_packages)
+  procedure pass_varchar2_name_list;
+ 
+  --%test( Pass single test name as varchar2 ) 
+  --%beforetest(create_test_csl_packages)
+  --%aftertest(drop_test_csl_packages)
+  procedure pass_varchar2_name;
+  
+  --%test( Pass coma separated list of suite names )
+  --%beforetest(create_test_csl_packages)
+  --%aftertest(drop_test_csl_packages)
+  procedure pass_varchar2_suite_csl;
+
+  --%test( Pass coma separated list of test names )
+  --%beforetest(create_test_csl_packages)
+  --%aftertest(drop_test_csl_packages)
+  procedure pass_varchar2_test_csl;
   
 end;
 /

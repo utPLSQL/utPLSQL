@@ -332,7 +332,7 @@ create or replace package body ut is
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter,
     ut_documentation_reporter());
-    l_paths     ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
+    l_paths     ut_varchar2_list := coalesce(ut_utils.string_to_table(a_string => a_path,a_delimiter => ','),ut_varchar2_list(sys_context('userenv', 'current_schema')));
     l_lines     sys_refcursor;
     l_line      varchar2(4000);
   begin
@@ -372,7 +372,7 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
-    l_paths     ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
+    l_paths     ut_varchar2_list := coalesce(ut_utils.string_to_table(a_string => a_path,a_delimiter => ','),ut_varchar2_list(sys_context('userenv', 'current_schema')));
     l_lines     sys_refcursor;
     l_line      varchar2(4000);
   begin
@@ -519,7 +519,7 @@ create or replace package body ut is
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null
   ) is
-    l_paths  ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
+    l_paths     ut_varchar2_list := coalesce(ut_utils.string_to_table(a_string => a_path,a_delimiter => ','),ut_varchar2_list(sys_context('userenv', 'current_schema')));
   begin
     ut.run(
       l_paths,
@@ -545,7 +545,7 @@ create or replace package body ut is
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null
   ) is
-    l_paths  ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
+    l_paths     ut_varchar2_list := coalesce(ut_utils.string_to_table(a_string => a_path,a_delimiter => ','),ut_varchar2_list(sys_context('userenv', 'current_schema')));
   begin
     ut.run(
       l_paths,
