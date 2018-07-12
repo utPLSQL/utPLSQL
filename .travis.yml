@@ -64,6 +64,8 @@ cache:
     - $MAVEN_CFG
 
 before_install:
+  #debug
+  - if [[ ! $TRAVIS_TAG ]] && [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ]; then bash .travis/run_sonar_scanner.sh; fi
   #The update_project_version.sh is done before deployment to validate that the change of project files does not break installation
   - bash .travis/update_project_version.sh
   # download latest utPLSQL release
