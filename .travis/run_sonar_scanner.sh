@@ -32,12 +32,13 @@ fi
 echo "Check if we running from develop or on branch"
 if [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [[ ! "${BRANCH}" =~ ^(release/v[0-9]+\.[0-9]+\.[0-9]+.*|"${MAIN_DEV_BRANCH}")$ ]]; then
     
+    echo "" >> sonar-project.properties
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then 
-        echo "Updating sonar properties to include branch name"
+        echo "Updating sonar properties to include branch ${BRANCH}"
         add_sonar_property "${BRANCH_SONAR_PROPERTY}" "${BRANCH}" 
         add_sonar_property "${BRANCH_SONAR_TARGET_PROPERTY}" "${MAIN_DEV_BRANCH}" 
      else
-       echo "Updating sonar properties to include pull request name"
+       echo "Updating sonar properties to include pull request ${BRANCH}"
        add_sonar_property "${PR_SONAR_TOKEN_PROPERTY}" "${GITHUB_TRAVISCI_TOKEN}"
        add_sonar_property "${PR_SONAR_BRANCH_PROPERTY}" "${BRANCH}"
        add_sonar_property "${PR_KEY_PROPERTY}" "${PR}"
@@ -47,8 +48,5 @@ else
     echo "No need to update sonar we building on release or develop"
 fi
 
-#debug
-cat sonar-project.properties
-
 #Execute Sonar scanner
-#sonar-scanner
+sonar-scanner
