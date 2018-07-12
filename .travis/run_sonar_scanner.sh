@@ -20,12 +20,13 @@ else
 
 fi   
 
+add_sonar_property "sonar.pullrequest.github.token.secured" "${GITHUB_TRAVISCI_TOKEN}"
 
 # We are updating sonar_properties only when is not a develop
 # if its a pull request we will create a separate 
 if [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [[ ! "${BRANCH}" =~ ^(release/v[0-9]+\.[0-9]+\.[0-9]+.*|"${MAIN_DEV_BRANCH}")$ ]]; then
     echo "Updating sonar properties to include branch name"
-
+  
     add_sonar_property "${BRANCH_SONAR_PROPERTY}" "${BRANCH}" 
     
     if [ ! -z "$PR_BRANCH" ];  then
