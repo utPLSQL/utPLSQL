@@ -12,9 +12,6 @@ addons:
     organization: utplsql
     token:
       secure: ${SONAR_TOKEN}
-    branches:
-      - develop
-      - master
 
 services:
   - docker
