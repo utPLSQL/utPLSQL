@@ -63,6 +63,8 @@ cache:
 before_install:
   #The update_project_version.sh is done before deployment to validate that the change of project files does not break installation
   - bash .travis/update_project_version.sh
+  #Allow for sonar to blame issues
+  - git fetch --unshallow
   # download latest utPLSQL release
   #- curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
   - git clone --depth=1 --branch=${SELFTESTING_BRANCH:-master} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
