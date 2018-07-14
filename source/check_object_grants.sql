@@ -2,6 +2,8 @@ declare
   c_expected_grants constant dbmsoutput_linesarray := dbmsoutput_linesarray('DBMS_LOCK','DBMS_CRYPTO');
 
   l_missing_grants varchar2(4000);
+  l_target_table   varchar2(128);
+  l_owner_column   varchar2(128);
 
   function get_view(a_dba_view_name varchar2) return varchar2 is
       l_invalid_object_name exception;
@@ -16,6 +18,8 @@ declare
     end;
 
 begin
+  l_target_table := get_view('dba_tab_privs');
+  l_owner_column := case when l_target_table like 'DBA%' then 'owner' else 'table_schema' end;
   execute immediate q'[
   select listagg(' -  '||object_name,CHR(10)) within group(order by object_name)
     from (
@@ -23,9 +27,9 @@ begin
     from table(:l_expected_grants)
    minus
   select table_name as object_name
-    from ]'||get_view('dba_tab_privs')||q'[
+    from ]'||l_target_table||q'[
    where grantee = SYS_CONTEXT('userenv','current_schema')
-     and owner = 'SYS')]'
+     and ]'||l_owner_column||q'[ = 'SYS')]'
   into l_missing_grants using c_expected_grants;
   if l_missing_grants is not null then
     raise_application_error(
@@ -37,4 +41,3 @@ begin
   end if;
 end;
 /
-
