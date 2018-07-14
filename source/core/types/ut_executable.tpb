@@ -93,12 +93,9 @@ create or replace type body ut_executable is
       end if;
       while l_status != 1 loop
         if l_line is not null then
-          ut_utils.append_to_clob(self.serveroutput, l_line);
+          ut_utils.append_to_clob(self.serveroutput, l_line||chr(10));
         end if;
         dbms_output.get_line(line => l_line, status => l_status);
-        if l_status != 1 then
-          dbms_lob.writeappend(self.serveroutput,1,chr(10));
-        end if;
       end loop;
     end save_dbms_output;
   begin
