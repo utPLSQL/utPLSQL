@@ -12,9 +12,6 @@ addons:
     organization: utplsql
     token:
       secure: ${SONAR_TOKEN}
-    branches:
-      - develop
-      - master
 
 services:
   - docker
@@ -66,6 +63,8 @@ cache:
 before_install:
   #The update_project_version.sh is done before deployment to validate that the change of project files does not break installation
   - bash .travis/update_project_version.sh
+  #Allow for sonar to blame issues
+  - git fetch --unshallow
   # download latest utPLSQL release
   #- curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
   - git clone --depth=1 --branch=${SELFTESTING_BRANCH:-master} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
@@ -94,7 +93,7 @@ before_script:
 script:
   - if [[ ! $TRAVIS_TAG ]]; then bash test/install_and_run_tests.sh; fi
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/validate_report_files.sh; fi
-  - if [[ ! $TRAVIS_TAG ]] && [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then sonar-scanner; fi
+  - if [[ ! $TRAVIS_TAG ]] && [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ]; then bash .travis/run_sonar_scanner.sh; fi
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/coveralls_uploader.sh; fi
 
 notifications:
