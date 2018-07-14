@@ -30,7 +30,7 @@ create or replace package body test_ut_executable is
     l_result := l_executable.do_execute(l_test);
     --Assert
     ut.expect(l_result).to_be_true;
-    ut.expect(l_executable.serveroutput).to_equal(to_clob(g_dbms_output_text));
+    ut.expect(l_executable.serveroutput).to_equal(to_clob(g_dbms_output_text||chr(10)));
     ut.expect(l_executable.get_error_stack_trace()).to_be_null;
   end;
 
