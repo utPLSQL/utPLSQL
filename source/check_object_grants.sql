@@ -19,7 +19,7 @@ declare
 
 begin
   l_target_table := get_view('dba_tab_privs');
-  l_owner_column := case when l_target_table like 'DBA%' then 'owner' else 'table_schema' end;
+  l_owner_column := case when l_target_table like 'dba%' then 'owner' else 'table_schema' end;
   execute immediate q'[
   select listagg(' -  '||object_name,CHR(10)) within group(order by object_name)
     from (
