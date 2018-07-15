@@ -26,25 +26,41 @@ create or replace package test_ut_run is
   procedure create_test_csl_packages;
   procedure drop_test_csl_packages;
   
+  --%context(ut_run_coma_sep_list)
+  --%beforeall(create_test_csl_packages)
+  --%afterall(drop_test_csl_packages)
+  
   --%test( Pass name of tests as varchar2_list )  
-  --%beforetest(create_test_csl_packages)
-  --%aftertest(drop_test_csl_packages)
   procedure pass_varchar2_name_list;
  
   --%test( Pass single test name as varchar2 ) 
-  --%beforetest(create_test_csl_packages)
-  --%aftertest(drop_test_csl_packages)
   procedure pass_varchar2_name;
   
   --%test( Pass coma separated list of suite names )
-  --%beforetest(create_test_csl_packages)
-  --%aftertest(drop_test_csl_packages)
   procedure pass_varchar2_suite_csl;
 
   --%test( Pass coma separated list of test names )
-  --%beforetest(create_test_csl_packages)
-  --%aftertest(drop_test_csl_packages)
   procedure pass_varchar2_test_csl;
+
+  --%test( Pass coma separated list of test names with spaces )
+  procedure pass_varch_test_csl_spc;
+
+  --%test( Pass coma separated list and source and test files )
+  procedure pass_csl_with_srcfile;
+
+  --%test( Pass single varchar2 into procedure )
+  procedure pass_singlevar_with_proc;
+ 
+  --%test( Pass varchar2_list into procedure )
+  procedure pass_vlist_with_proc; 
+ 
+   --%test( Pass coma separated list varchar2 into procedure )
+  procedure pass_csl_with_proc;
+
+  --%test( Pass coma separated list varchar2 into procedure with src file)
+  procedure pass_csl_src_proc;
+  
+  --%endcontext
   
 end;
 /

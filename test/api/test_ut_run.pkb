@@ -328,5 +328,111 @@ end;]';
 %2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
   end;
 
+  procedure pass_varch_test_csl_spc is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+    select *
+      bulk collect into l_results
+    from table(ut3.ut.run('test_csl_names1.one_is_one, test_csl_names2.one_is_one'));
+    
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like('%Finished in % seconds
+%2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
+  end;
+  
+  procedure pass_csl_with_srcfile is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+  
+    select *
+      bulk collect into l_results
+      from table(
+        ut3.ut.run(
+          a_path => 'test_csl_names1.one_is_one,test_csl_names2.one_is_one',
+          a_source_files => ut3.ut_varchar2_list('ut3.ut'),
+          a_test_files => ut3.ut_varchar2_list('ut3_tester.test_csl_names2')
+        )
+      );
+    
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like('%Finished in % seconds
+%2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
+  end;
+
+  procedure pass_singlevar_with_proc is
+    l_output_data       dbms_output.chararr;
+    l_num_lines         integer := 100000;
+    l_packages_executed integer := 0;
+  begin
+    --act
+    ut3.ut.run('test_csl_names1');
+    dbms_output.get_lines( l_output_data, l_num_lines);
+
+    for i in 1 .. l_num_lines loop
+      if  l_output_data(i) like '%test_csl_names1%' then
+        l_packages_executed := l_packages_executed + 1;
+      end if;
+    end loop;
+    ut.expect(l_packages_executed ).to_equal(1);
+  end;
+  
+  procedure pass_vlist_with_proc is
+    l_output_data       dbms_output.chararr;
+    l_num_lines         integer := 100000;
+    l_packages_executed integer := 0;
+  begin
+    --act
+    ut3.ut.run(ut3.ut_varchar2_list('test_csl_names1','test_csl_names2'));
+    dbms_output.get_lines( l_output_data, l_num_lines);
+
+    for i in 1 .. l_num_lines loop
+      if  l_output_data(i) like '%test_csl_names1%'
+       or l_output_data(i) like '%test_csl_names2%' then
+         l_packages_executed := l_packages_executed + 1;
+      end if;
+    end loop;
+    ut.expect(l_packages_executed ).to_equal(2);
+  end;  
+  
+  procedure pass_csl_with_proc is
+    l_output_data       dbms_output.chararr;
+    l_num_lines         integer := 100000;
+    l_packages_executed integer := 0;
+  begin
+    --act
+    ut3.ut.run('test_csl_names1,test_csl_names2');
+    dbms_output.get_lines( l_output_data, l_num_lines);
+
+    for i in 1 .. l_num_lines loop
+      if  l_output_data(i) like '%test_csl_names1%'
+       or l_output_data(i) like '%test_csl_names2%' then
+         l_packages_executed := l_packages_executed + 1;
+      end if;
+    end loop;
+    ut.expect(l_packages_executed ).to_equal(2);
+  end;  
+    
+  procedure pass_csl_src_proc is
+    l_output_data       dbms_output.chararr;
+    l_num_lines         integer := 100000;
+    l_packages_executed integer := 0;
+  begin
+    --act
+    ut3.ut.run(a_path => 'test_csl_names1,test_csl_names2',
+               a_source_files => ut3.ut_varchar2_list('ut3.ut'),
+               a_test_files => ut3.ut_varchar2_list('ut3_tester.test_csl_names2'));
+    dbms_output.get_lines( l_output_data, l_num_lines);
+
+    for i in 1 .. l_num_lines loop
+      if  l_output_data(i) like '%test_csl_names1%'
+       or l_output_data(i) like '%test_csl_names2%' then
+         l_packages_executed := l_packages_executed + 1;
+      end if;
+    end loop;
+    ut.expect(l_packages_executed ).to_equal(2);
+  end;
+  
 end;
 /
