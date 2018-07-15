@@ -251,5 +251,13 @@ create or replace package body test_expect_to_be_less_than is
     ut.expect( expectations.failed_expectations_data( ) ).to_be_empty( );
   end;
 
+  procedure actual_clob is
+  begin
+    --Act
+    ut3.ut.expect(to_clob('3')).to_( ut3.be_less_than(4) );
+    --Assert
+    ut.expect( expectations.failed_expectations_data( ) ).not_to_be_empty( );
+  end;
+
 end;
 /

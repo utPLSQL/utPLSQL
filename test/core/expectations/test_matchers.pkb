@@ -64,7 +64,7 @@ create or replace package body test_matchers is
     cleanup_expectations();
   end exec_be_between2;
 
-  procedure exec_be_like(a_type varchar2, a_value varchar2, a_pattern varchar2, a_escape varchar2, a_result integer, a_prefix varchar2) is
+  procedure exec_be_like(a_type varchar2, a_value varchar2, a_pattern varchar2, a_escape varchar2, a_result integer, a_prefix varchar2 default null) is
   begin
     execute immediate
      'declare
@@ -156,6 +156,7 @@ create or replace package body test_matchers is
     exec_be_between2('timestamp with time zone', 'null', 'systimestamp-1', 'systimestamp+1', ut3.ut_utils.gc_failure, '');
     exec_be_between2('interval year to month', 'null', '''2-0''', '''2-2''', ut3.ut_utils.gc_failure, '');
     exec_be_between2('interval day to second', 'null', '''2 00:59:58''', '''2 01:00:01''', ut3.ut_utils.gc_failure, '');
+
     exec_be_between2('date', 'null', 'sysdate-2', 'sysdate-1', ut3.ut_utils.gc_failure, 'not_');
     exec_be_between2('number', 'null', '1.99', '1.999', ut3.ut_utils.gc_failure, 'not_');
     exec_be_between2('varchar2(1)', 'null', '''a''', '''b''', ut3.ut_utils.gc_failure, 'not_');
@@ -174,6 +175,7 @@ create or replace package body test_matchers is
     exec_be_between2('timestamp with time zone', 'systimestamp', 'null', 'systimestamp+1', ut3.ut_utils.gc_failure, '');
     exec_be_between2('interval year to month', '''2-1''', 'null', '''2-2''', ut3.ut_utils.gc_failure, '');
     exec_be_between2('interval day to second', '''2 01:00:00''', 'null', '''2 01:00:01''', ut3.ut_utils.gc_failure, '');
+
     exec_be_between2('date', 'sysdate', 'null', 'sysdate-1', ut3.ut_utils.gc_failure, 'not_');
     exec_be_between2('number', '2.0', 'null', '1.999', ut3.ut_utils.gc_failure, 'not_');
     exec_be_between2('varchar2(1)', '''b''', 'null', '''b''', ut3.ut_utils.gc_failure, 'not_');
@@ -182,19 +184,21 @@ create or replace package body test_matchers is
     exec_be_between2('timestamp with time zone', 'systimestamp+1', 'null', 'systimestamp', ut3.ut_utils.gc_failure, 'not_');
     exec_be_between2('interval year to month', '''2-2''', 'null', '''2-1''', ut3.ut_utils.gc_failure, 'not_');
     exec_be_between2('interval day to second', '''2 01:00:00''', 'null', '''2 00:59:59''', ut3.ut_utils.gc_failure, 'not_');
+    --Fails for unsupported data-type
+    exec_be_between2('clob', '''b''', '''a''', '''c''', ut3.ut_utils.gc_failure, '');
   end;
 
   procedure test_match is
   begin
-    exec_match('varchar2(100)', '''Stephen''', '^Ste(v|ph)en$', '', ut3.ut_utils.gc_success, '');
-    exec_match('varchar2(100)', '''sTEPHEN''', '^Ste(v|ph)en$', 'i', ut3.ut_utils.gc_success, '');
-    exec_match('clob', 'rpad('', '',32767)||''Stephen''', 'Ste(v|ph)en$', '', ut3.ut_utils.gc_success, '');
-    exec_match('clob', 'rpad('', '',32767)||''sTEPHEN''', 'Ste(v|ph)en$', 'i', ut3.ut_utils.gc_success, '');
+    exec_match('varchar2(100)', '''Stephen''', '^Ste(v|ph)en$', '', ut3.ut_utils.gc_success);
+    exec_match('varchar2(100)', '''sTEPHEN''', '^Ste(v|ph)en$', 'i', ut3.ut_utils.gc_success);
+    exec_match('clob', 'rpad('', '',32767)||''Stephen''', 'Ste(v|ph)en$', '', ut3.ut_utils.gc_success);
+    exec_match('clob', 'rpad('', '',32767)||''sTEPHEN''', 'Ste(v|ph)en$', 'i', ut3.ut_utils.gc_success);
 
-    exec_match('varchar2(100)', '''Stephen''', '^Steven$', '', ut3.ut_utils.gc_failure, '');
-    exec_match('varchar2(100)', '''sTEPHEN''', '^Steven$', 'i', ut3.ut_utils.gc_failure, '');
-    exec_match('clob', 'to_clob(rpad('', '',32767)||''Stephen'')', '^Stephen', '', ut3.ut_utils.gc_failure, '');
-    exec_match('clob', 'to_clob(rpad('', '',32767)||''sTEPHEN'')', '^Stephen', 'i', ut3.ut_utils.gc_failure, '');
+    exec_match('varchar2(100)', '''Stephen''', '^Steven$', '', ut3.ut_utils.gc_failure);
+    exec_match('varchar2(100)', '''sTEPHEN''', '^Steven$', 'i', ut3.ut_utils.gc_failure);
+    exec_match('clob', 'to_clob(rpad('', '',32767)||''Stephen'')', '^Stephen', '', ut3.ut_utils.gc_failure);
+    exec_match('clob', 'to_clob(rpad('', '',32767)||''sTEPHEN'')', '^Stephen', 'i', ut3.ut_utils.gc_failure);
 
     exec_match('varchar2(100)', '''Stephen''', '^Ste(v|ph)en$', '', ut3.ut_utils.gc_failure, 'not_');
     exec_match('varchar2(100)', '''sTEPHEN''', '^Ste(v|ph)en$', 'i', ut3.ut_utils.gc_failure, 'not_');
@@ -205,19 +209,21 @@ create or replace package body test_matchers is
     exec_match('varchar2(100)', '''sTEPHEN''', '^Steven$', 'i', ut3.ut_utils.gc_success, 'not_');
     exec_match('clob', 'to_clob(rpad('', '',32767)||''Stephen'')', '^Stephen', '', ut3.ut_utils.gc_success, 'not_');
     exec_match('clob', 'to_clob(rpad('', '',32767)||''sTEPHEN'')', '^Stephen', 'i', ut3.ut_utils.gc_success, 'not_');
+    --Fails for unsupported data-type
+    exec_match('number', '12345', '^123.*', 'i', ut3.ut_utils.gc_failure);
   end;
 
   procedure test_be_like is
   begin
-    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en%', '', ut3.ut_utils.gc_success, '');
-    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en\_K%', '\', ut3.ut_utils.gc_success, '');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en%', '', ut3.ut_utils.gc_success, '');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en\_K%', '\', ut3.ut_utils.gc_success, '');
+    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en%', '', ut3.ut_utils.gc_success);
+    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en\_K%', '\', ut3.ut_utils.gc_success);
+    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en%', '', ut3.ut_utils.gc_success);
+    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en\_K%', '\', ut3.ut_utils.gc_success);
 
-    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste_en%', '', ut3.ut_utils.gc_failure, '');
-    exec_be_like('varchar2(100)', '''Stephen_King''', 'Stephe\__%', '\', ut3.ut_utils.gc_failure, '');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste_en%', '', ut3.ut_utils.gc_failure, '');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Stephe\__%', '\', ut3.ut_utils.gc_failure, '');
+    exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste_en%', '', ut3.ut_utils.gc_failure);
+    exec_be_like('varchar2(100)', '''Stephen_King''', 'Stephe\__%', '\', ut3.ut_utils.gc_failure);
+    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste_en%', '', ut3.ut_utils.gc_failure);
+    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Stephe\__%', '\', ut3.ut_utils.gc_failure);
 
     exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en%', '', ut3.ut_utils.gc_failure, 'not_');
     exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en\_K%', '\', ut3.ut_utils.gc_failure, 'not_');
@@ -228,6 +234,9 @@ create or replace package body test_matchers is
     exec_be_like('varchar2(100)', '''Stephen_King''', 'Stephe\__%', '\', ut3.ut_utils.gc_success, 'not_');
     exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste_en%', '', ut3.ut_utils.gc_success, 'not_');
     exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Stephe\__%', '\', ut3.ut_utils.gc_success, 'not_');
+
+    --Fails for unsupported data-type
+    exec_be_like('number', '12345', '123%', '', ut3.ut_utils.gc_failure);
   end;
 
   procedure test_timestamp_between is
