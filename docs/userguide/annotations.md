@@ -21,7 +21,7 @@ We strongly recommend putting package level annotations at the very top of packa
 | `--%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
 | `--%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a suite/test. `%displayname(Name of the suite/test)`. The annotation is provided for flexibility and convenience only. It has exactly the same meaning as `<description>` in `test` and `suite` annotations. If description is provided using both `suite`/`test` and `displayname`, then the one defined as last takes precedence. |
 | `--%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can by provided (see `displayname`). |
-| `--%throws(<exception_number>[,<exception_number>[,...]])`| Procedure | Denotes that the annotated procedure must throw one of the exception numbers provided. If no valid numbers were provided as annotation parameters the annotation is ignored. Applicable to test procedures only. |
+| `--%throws(<exception|>[,...])`| Procedure | Denotes that the annotated test procedure must throw one of the exceptions provided. Supported forms of exceptions are: numeric literals, numeric contant names, exception constant names, predefined Oracle exception names. |
 | `--%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
 | `--%beforeall([[<owner>.]<package>.]<procedure>[,...])` | Package | Denotes that the mentioned procedure(s) should be executed once before all elements of the suite. |
 | `--%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
@@ -1081,6 +1081,7 @@ Below test suite defines:
 ```sql
 create or replace package test_rooms_management is
 
+  gc_null_value_exception constant integer := -1400;
   --%suite(Rooms management)
   
   --%beforeall
@@ -1104,11 +1105,11 @@ create or replace package test_rooms_management is
   --%description(Add content to a room)
 
     --%test(Fails when room name is not valid)
-    --%throws(-1403)
+    --%throws(no_data_found)
     procedure fails_on_room_name_invalid;
 
     --%test(Fails when content name is null)
-    --%throws(-1400)
+    --%throws(gc_null_value_exception)
     procedure fails_on_content_null;
 
     --%test(Adds a content to existing room)
@@ -1170,7 +1171,7 @@ create or replace package body test_rooms_management is
   begin
     --Act
     add_rooms_content('Dining Room',null);
-    --Assert by --%throws annotation
+    --Assert done by --%throws annotation
   end;
 
   procedure add_content_success is
