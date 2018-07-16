@@ -30,9 +30,10 @@ else
 fi   
 
 
-#Are we running on develop branch ?
+#Are we running on utPLSQL repo and not an external PR?
 echo "Check if we running from develop or on branch"
-if [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [[ ! "${BRANCH}" =~ ^(release/v[0-9]+\.[0-9]+\.[0-9]+.*|"${MAIN_DEV_BRANCH}")$ ]]; then
+if [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [ "${TRAVIS_PULL_REQUEST_SLUG}" = "${TRAVIS_REPO_SLUG}" ] && \
+    [[ ! "${BRANCH}" =~ ^(release/v[0-9]+\.[0-9]+\.[0-9]+.*|"${MAIN_DEV_BRANCH}")$ ]]; then
     
     echo "" >> sonar-project.properties
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then 
