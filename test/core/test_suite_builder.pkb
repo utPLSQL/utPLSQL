@@ -1020,5 +1020,37 @@ create or replace package body test_suite_builder is
     );
   end;
 
-end;
+  procedure test_bad_procedure_annotation is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(2, 'bad_procedure_annotation',null, 'some_procedure'),
+        ut3.ut_annotation(6, 'test','A test', 'do_stuff')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like('%<WARNINGS><VARCHAR2>Unsupported annotation &quot;--\%bad_procedure_annotation&quot;. Annotation ignored.% line 2</VARCHAR2></WARNINGS>%', '\');
+  end;
+
+  procedure test_bad_package_annotation is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+    begin
+      --Arrange
+      l_annotations := ut3.ut_annotations(
+          ut3.ut_annotation(1, 'suite','Cool', null),
+          ut3.ut_annotation(17, 'bad_package_annotation',null, null),
+          ut3.ut_annotation(24, 'test','A test', 'do_stuff')
+      );
+      --Act
+      l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+      --Assert
+      ut.expect(l_actual).to_be_like('%<WARNINGS><VARCHAR2>Unsupported annotation &quot;--\%bad_package_annotation&quot;. Annotation ignored.% line 17</VARCHAR2></WARNINGS>%', '\');
+  end;
+
+end test_suite_builder;
 /
