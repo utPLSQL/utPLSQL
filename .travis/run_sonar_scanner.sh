@@ -32,20 +32,21 @@ fi
 
 #Are we running on utPLSQL repo and not an external PR?
 echo "Check if we running from develop or on branch"
-if [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [ "${TRAVIS_PULL_REQUEST_SLUG}" = "${TRAVIS_REPO_SLUG}" ] && \
-    [[ ! "${BRANCH}" =~ ^(release/v[0-9]+\.[0-9]+\.[0-9]+.*|"${MAIN_DEV_BRANCH}")$ ]]; then
+if [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [[ ! "${BRANCH}" =~ ^(release/v[0-9]+\.[0-9]+\.[0-9]+.*|"${MAIN_DEV_BRANCH}")$ ]]; then
     
     echo "" >> sonar-project.properties
     if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then 
         echo "Updating sonar properties to include branch ${BRANCH}"
         add_sonar_property "${BRANCH_SONAR_PROPERTY}" "${BRANCH}" 
         add_sonar_property "${BRANCH_SONAR_TARGET_PROPERTY}" "${MAIN_DEV_BRANCH}" 
-     else
+     elif [ "${TRAVIS_PULL_REQUEST_SLUG}" = "${TRAVIS_REPO_SLUG}" ]
        echo "Updating sonar properties to include pull request ${BRANCH}"
        add_sonar_property "${PR_SONAR_TOKEN_PROPERTY}" "${GITHUB_TRAVISCI_TOKEN}"
        add_sonar_property "${PR_SONAR_BRANCH_PROPERTY}" "${BRANCH}"
        add_sonar_property "${PR_KEY_PROPERTY}" "${PR}"
        add_sonar_property "${PR_SONAR_BASE_PROPERTY}" "${PR_BRANCH}"
+     else
+       echo "PR from external source no changes to properties."
      fi    
 else
     echo "No need to update sonar we building on release or develop"
