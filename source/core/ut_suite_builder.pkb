@@ -37,6 +37,27 @@ create or replace package body ut_suite_builder is
   gc_context                     constant t_annotation_name := 'context';
   gc_endcontext                  constant t_annotation_name := 'endcontext';
 
+  type tt_annotations is table of t_annotation_name;
+
+  gc_supported_annotations       constant tt_annotations
+    := tt_annotations(
+      gc_suite,
+      gc_suitepath,
+      gc_test,
+      gc_disabled,
+      gc_displayname,
+      gc_beforeall,
+      gc_beforeeach,
+      gc_beforetest,
+      gc_afterall,
+      gc_aftereach,
+      gc_aftertest,
+      gc_throws,
+      gc_rollback,
+      gc_context,
+      gc_endcontext
+  );
+
   gc_placeholder                 constant varchar2(3) := '\\%';
   
   gc_integer_exception           constant varchar2(1) := 'I';
@@ -742,7 +763,27 @@ create or replace package body ut_suite_builder is
       end loop;
     end if;
   end;
-  
+
+  procedure warning_on_unknown_annotations(
+    a_suite in out nocopy ut_suite_item,
+    a_annotations tt_annotations_by_line
+  ) is
+    l_line_no t_annotation_position :=  a_annotations.first;
+  begin
+    while l_line_no is not null loop
+      if a_annotations(l_line_no).name not member of (gc_supported_annotations) then
+        add_annotation_ignored_warning(
+            a_suite,
+            a_annotations(l_line_no).name,
+            'Unsupported annotation %%%.',
+            l_line_no,
+            a_annotations(l_line_no).procedure_name
+        );
+      end if;
+      l_line_no := a_annotations.next(l_line_no);
+    end loop;
+  end;
+
   function create_suite(
     a_annotations t_annotations_info
   ) return ut_logical_suite is
@@ -756,6 +797,7 @@ create or replace package body ut_suite_builder is
       l_suite := ut_suite(l_annotations.owner, l_annotations.name);
       l_annotation_pos := l_annotations.by_name( gc_suite).first;
       l_suite.description := l_annotations.by_name( gc_suite)( l_annotation_pos);
+      warning_on_unknown_annotations(l_suite, l_annotations.by_line);
 
       warning_on_duplicate_annot( l_suite, l_annotations.by_name, gc_suite );
 

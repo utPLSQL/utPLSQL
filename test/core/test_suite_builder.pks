@@ -163,5 +163,16 @@ create or replace package test_suite_builder is
 
   --%endcontext
 
-end;
+  --%context(unknown_annotation)
+  --%displayname(--%bad_annotation)
+
+  --%test(Gives warning when unknown procedure level annotation passed)
+  procedure test_bad_procedure_annotation;
+
+  --%test(Gives warning when unknown package level annotation passed)
+  procedure test_bad_package_annotation;
+
+  --%endcontext
+
+end test_suite_builder;
 /
