@@ -22,6 +22,6 @@ create or replace package test_ut_run is
   procedure run_and_revalidate_specs;
   procedure generate_invalid_spec;
   procedure drop_test_package;  
-  
+    
 end;
 /

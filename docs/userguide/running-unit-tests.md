@@ -93,7 +93,25 @@ end;
 ```
 Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_.
 
+```sql
+begin
+  ut.run(ut_varchar2_list('hr.test_apply_bonus,cust)');
+end;
+```
+
+Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_.
+
+```sql
+begin
+  ut.run('hr.test_apply_bonus,cust');
+end;
+```
+
+Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_.
+
 Using a list of items to execute allows you to execute a fine-grained set of tests.
+
+List can be passed as a comma separated list or a list of *ut_varchar2_list objects* or as a list within ut_varchar2_list.
 
 
 **Note:**
