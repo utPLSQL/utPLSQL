@@ -325,10 +325,10 @@ create or replace package body test_expectations_cursor is
     l_second   number := 1/24/60/60;
   begin
     --Arrange
-    ut.set_nls;
+    ut3.ut.set_nls;
     open l_actual for select l_date as some_date from dual;
     open l_expected for select l_date-l_second some_date from dual;
-    ut.reset_nls;
+    ut3.ut.reset_nls;
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert

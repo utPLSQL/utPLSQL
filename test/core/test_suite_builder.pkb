@@ -664,15 +664,15 @@ create or replace package body test_suite_builder is
   begin
     --Arrange
     l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(3, 'context','a_context', null),
-        ut3.ut_annotation(4, 'beforeall',null, 'context_beforeall'),
-        ut3.ut_annotation(5, 'beforeeach',null, 'context_beforeeach'),
+        ut3.ut_annotation(1, 'suite', 'Cool', null),
+        ut3.ut_annotation(2, 'test', 'In suite', 'suite_level_test'),
+        ut3.ut_annotation(3, 'context', 'a_context', null),
+        ut3.ut_annotation(4, 'beforeall', 'context_beforeall', null),
+        ut3.ut_annotation(5, 'beforeeach', null, 'context_beforeeach'),
         ut3.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
-        ut3.ut_annotation(7, 'aftereach',null, 'context_aftereach'),
-        ut3.ut_annotation(8, 'afterall',null, 'context_afterall'),
-        ut3.ut_annotation(9, 'endcontext',null, null)
+        ut3.ut_annotation(7, 'aftereach', 'context_aftereach' ,null),
+        ut3.ut_annotation(8, 'afterall', null, 'context_afterall'),
+        ut3.ut_annotation(9, 'endcontext', null, null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');

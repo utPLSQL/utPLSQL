@@ -23,10 +23,12 @@ whenever oserror exit failure rollback
 @@core/annotations/test_annotation_parser.pks
 @@core/annotations/test_annotation_manager.pks
 @@core/annotations/test_before_after_test_annotation.pks
+@@core/expectations/test_expectation_processor.pks
 @@core/expectations/test_matchers.pks
 @@core/test_output_buffer.pks
 @@core/test_file_mapper.pks
 @@core/test_suite_manager.pks
+@@core/test_ut_executable.pks
 @@core/test_suite_builder.pks
 @@core/reporters.pks
 @@core/reporters/test_coverage.pks
@@ -43,6 +45,7 @@ set define on
 set define off
 @@core/reporters/test_tfs_junit_reporter.pks
 @@core/reporters/test_sonar_test_reporter.pks
+@@core/reporters/test_teamcity_reporter.pks
 @@core/expectations.pks
 @@core/expectations/binary/test_be_greater_or_equal.pks
 @@core/expectations/binary/test_be_greater_than.pks
@@ -67,11 +70,13 @@ set define off
 @@core/test_ut_test.pkb
 @@core/annotations/test_annotation_parser.pkb
 @@core/annotations/test_annotation_manager.pkb
+@@core/expectations/test_expectation_processor.pkb
 @@core/expectations/test_matchers.pkb
 @@core/annotations/test_before_after_test_annotation.pkb
 @@core/test_output_buffer.pkb
 @@core/test_file_mapper.pkb
 @@core/test_suite_manager.pkb
+@@core/test_ut_executable.pkb
 @@core/test_suite_builder.pkb
 @@core/reporters.pkb
 @@core/reporters/test_coverage.pkb
@@ -88,6 +93,7 @@ set define on
 set define off
 @@core/reporters/test_tfs_junit_reporter.pkb
 @@core/reporters/test_sonar_test_reporter.pkb
+@@core/reporters/test_teamcity_reporter.pkb
 @@core/expectations.pkb
 @@core/expectations/binary/test_be_greater_or_equal.pkb
 @@core/expectations/binary/test_be_greater_than.pkb

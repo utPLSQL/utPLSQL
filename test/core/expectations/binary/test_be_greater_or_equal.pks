@@ -90,5 +90,8 @@ create or replace package test_be_greater_or_equal is
   --%test(Negated - Gives failure when actual timestamp with local time zone is greater than expected)
   procedure not_actual_timestamp_ltz_gretr;
 
+  --%test(Gives failure when running against CLOB)
+  procedure actual_clob;
+
 end;
 /

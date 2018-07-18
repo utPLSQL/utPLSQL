@@ -29,42 +29,6 @@ create or replace type body ut_executable is
     return;
   end;
 
-  member function is_defined(self in out nocopy ut_executable) return boolean is
-    l_result boolean := false;
-    l_message_part varchar2(4000) := 'Call params for ' || self.executable_type || ' are not valid: ';
-  begin
-
-    if self.object_name is null then
-      self.error_stack := l_message_part || 'package is not defined';
-    elsif self.procedure_name is null then
-      self.error_stack := l_message_part || 'procedure is not defined';
-    else
-      l_result := true;
-    end if;
-
-    return l_result;
-  end is_defined;
-
-  /**
-  * We will check if error raised because package was invalid if not we let it propagate.
-  **/
-  member function is_invalid(self in out nocopy ut_executable) return boolean is
-    l_result boolean := true;
-    l_message_part varchar2(4000) := 'Call params for ' || self.executable_type || ' are not valid: ';
-  begin
-
-    if not ut_metadata.package_valid(self.owner_name, self.object_name) then
-      self.error_stack := l_message_part || 'package does not exist or is invalid: ' ||upper(self.owner_name||'.'||self.object_name);
-    elsif not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.procedure_name) then
-      self.error_stack := l_message_part || 'procedure does not exist  '
-                          || upper(self.owner_name || '.' || self.object_name || '.' ||self.procedure_name);
-    else
-      l_result := false;
-    end if;
-
-    return l_result;
-  end is_invalid;
-
   member function form_name return varchar2 is
   begin
     return ut_metadata.form_name(owner_name, object_name, procedure_name);
@@ -84,22 +48,54 @@ create or replace type body ut_executable is
     l_failed_with_invalid_pck  boolean := true;
     l_start_transaction_id     varchar2(250);
     l_end_transaction_id     varchar2(250);
-    
+
+    function is_defined return boolean is
+      l_result boolean := false;
+      l_message_part varchar2(4000) := 'Call params for ' || self.executable_type || ' are not valid: ';
+    begin
+
+      if self.object_name is null then
+        self.error_stack := l_message_part || 'package is not defined';
+      elsif self.procedure_name is null then
+        self.error_stack := l_message_part || 'procedure is not defined';
+      else
+        l_result := true;
+      end if;
+
+      return l_result;
+    end is_defined;
+
+    function is_invalid return boolean is
+      l_result boolean := true;
+      l_message_part varchar2(4000) := 'Call params for ' || self.executable_type || ' are not valid: ';
+    begin
+
+      if not ut_metadata.package_valid(self.owner_name, self.object_name) then
+        self.error_stack := l_message_part || 'package does not exist or is invalid: ' ||upper(self.owner_name||'.'||self.object_name);
+      elsif not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.procedure_name) then
+        self.error_stack := l_message_part || 'procedure does not exist  '
+                            || upper(self.owner_name || '.' || self.object_name || '.' ||self.procedure_name);
+      else
+        l_result := false;
+      end if;
+
+      return l_result;
+    end is_invalid;
+
     procedure save_dbms_output is
       l_status number;
       l_line varchar2(32767);
     begin
-      dbms_lob.createtemporary(self.serveroutput, true, dur => dbms_lob.session);
 
-      loop
-        dbms_output.get_line(line => l_line, status => l_status);
-        exit when l_status = 1;
-
+      dbms_output.get_line(line => l_line, status => l_status);
+      if l_status != 1 then
+        dbms_lob.createtemporary(self.serveroutput, true, dur => dbms_lob.session);
+      end if;
+      while l_status != 1 loop
         if l_line is not null then
-          ut_utils.append_to_clob(self.serveroutput, l_line);
+          ut_utils.append_to_clob(self.serveroutput, l_line||chr(10));
         end if;
-
-        dbms_lob.writeappend(self.serveroutput,1,chr(10));
+        dbms_output.get_line(line => l_line, status => l_status);
       end loop;
     end save_dbms_output;
   begin
@@ -111,7 +107,7 @@ create or replace type body ut_executable is
     --listener - before call to executable
     ut_event_manager.trigger_event('before_'||self.executable_type, self);
 
-    l_completed_without_errors := self.is_defined();
+    l_completed_without_errors := is_defined();
     if l_completed_without_errors then
       l_statement :=
       'declare' || chr(10) ||
@@ -119,7 +115,7 @@ create or replace type body ut_executable is
       '  l_error_backtrace varchar2(32767);' || chr(10) ||
       'begin' || chr(10) ||
       '  begin' || chr(10) ||
-      '    ' || ut_metadata.form_name(self.owner_name, self.object_name, self.procedure_name) || ';' || chr(10) ||
+      '    ' || self.form_name() || ';' || chr(10) ||
       '  exception' || chr(10) ||
       '    when others then ' || chr(10) ||
       '      l_error_stack := dbms_utility.format_error_stack;' || chr(10) ||
@@ -149,7 +145,7 @@ create or replace type body ut_executable is
         dbms_sql.close_cursor(l_cursor_number);
       exception 
         when ut_utils.ex_invalid_package then
-          l_failed_with_invalid_pck := self.is_invalid();
+          l_failed_with_invalid_pck := is_invalid();
           dbms_sql.close_cursor(l_cursor_number);
           if not l_failed_with_invalid_pck then 
             raise;

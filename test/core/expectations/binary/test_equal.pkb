@@ -95,6 +95,8 @@ create or replace package body test_equal is
 
   procedure equal_fail_on_type_diff is
   begin
+    test_to_equal_fail('boolean', 'integer', 'true', '1');
+    test_to_equal_fail('integer', 'boolean', '1', 'true');
     test_to_equal_fail('blob', 'clob', 'to_blob(''ABC'')', '''ABC''');
     test_to_equal_fail('clob', 'blob', '''ABC''', 'to_blob(''ABC'')');
     test_to_equal_fail('clob', 'anydata', '''ABC''', 'null');
@@ -115,6 +117,8 @@ create or replace package body test_equal is
 
   procedure not_equal_fail_on_type_diff is
   begin
+    test_not_to_equal_fail('boolean', 'integer', 'true', '1');
+    test_not_to_equal_fail('integer', 'boolean', '1', 'true');
     test_not_to_equal_fail('blob', 'clob', 'to_blob(''ABC'')', '''ABC''');
     test_not_to_equal_fail('clob', 'blob', '''ABC''', 'to_blob(''ABC'')');
     test_not_to_equal_fail('clob', 'anydata', '''ABC''', 'null');
@@ -136,6 +140,7 @@ create or replace package body test_equal is
   procedure failure_on_data_diff is
   begin
     test_to_equal_fail('blob', 'to_blob(''abc'')', 'to_blob(''abd'')');
+    test_to_equal_fail('boolean', 'false', 'true');
     test_to_equal_fail('boolean', 'true', 'false');
     test_to_equal_fail('clob', '''Abc''', '''abc''');
     test_to_equal_fail('date', 'sysdate', 'sysdate-1');

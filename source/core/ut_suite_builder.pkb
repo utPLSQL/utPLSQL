@@ -328,21 +328,6 @@ create or replace package body ut_suite_builder is
       return l_result;
     end;
 
-  procedure add_executable(
-    a_executables     in out nocopy ut_executables,
-    a_owner           t_object_name,
-    a_package_name    t_object_name,
-    a_procedure_name  t_object_name,
-    a_executable_type ut_utils.t_executable_type
-  ) is
-    begin
-      if a_executables is null then
-        a_executables := ut_executables();
-      end if;
-      a_executables.extend;
-      a_executables(a_executables.last) := ut_executable(a_owner, a_package_name, a_procedure_name, a_executable_type);
-  end;
-
   function add_executables(
     a_owner            t_object_name,
     a_package_name     t_object_name,
