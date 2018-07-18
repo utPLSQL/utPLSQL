@@ -39,7 +39,7 @@ if [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [[ ! "${BRANCH}" =~ ^(releas
         echo "Updating sonar properties to include branch ${BRANCH}"
         add_sonar_property "${BRANCH_SONAR_PROPERTY}" "${BRANCH}" 
         add_sonar_property "${BRANCH_SONAR_TARGET_PROPERTY}" "${MAIN_DEV_BRANCH}" 
-     elif [ "${TRAVIS_PULL_REQUEST_SLUG}" = "${TRAVIS_REPO_SLUG}" ]
+     elif [ "${TRAVIS_PULL_REQUEST_SLUG}" = "${TRAVIS_REPO_SLUG}" ]; then
        echo "Updating sonar properties to include pull request ${BRANCH}"
        add_sonar_property "${PR_SONAR_TOKEN_PROPERTY}" "${GITHUB_TRAVISCI_TOKEN}"
        add_sonar_property "${PR_SONAR_BRANCH_PROPERTY}" "${BRANCH}"
