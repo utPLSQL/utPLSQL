@@ -89,14 +89,17 @@ create or replace package body ut_runner is
     l_coverage_schema_names ut_varchar2_rows;
     l_exclude_object_names  ut_object_names := ut_object_names();
     l_include_object_names  ut_object_names;
-    l_paths                 ut_varchar2_list;
+    l_paths                 ut_varchar2_list := ut_varchar2_list();                 
   begin
     ut_event_manager.initialize();
     if a_paths is null or a_paths is empty or a_paths.count = 1 and a_paths(1) is null then
       l_paths := ut_varchar2_list(sys_context('userenv', 'current_schema'));
     else
-      l_paths := a_paths;
+      for i in 1..a_paths.COUNT loop
+        l_paths := l_paths multiset union ut_utils.string_to_table(a_string => a_paths(i),a_delimiter => ',');
+      end loop;
     end if;
+
     begin
       ut_expectation_processor.reset_invalidation_exception();
       ut_utils.save_dbms_output_to_cache();

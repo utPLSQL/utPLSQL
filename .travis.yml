@@ -5,9 +5,9 @@ addons:
   apt:
     packages:
       - unzip
-      # Java8 Required for Sonar and SQLCL
-      - oracle-java8-installer
-      - oracle-java8-set-default
+      # Java9 Required for Sonar and SQLCL
+      - oracle-java9-installer
+      - oracle-java9-set-default
   sonarcloud:
     organization: utplsql
     token:

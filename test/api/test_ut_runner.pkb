@@ -361,5 +361,175 @@ end;';
       ut.expect(dbms_utility.format_error_stack||dbms_utility.format_error_backtrace).not_to_be_like('%ORA-02055%');
   end;
 
+  procedure create_test_csl_packages is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[
+      create or replace package test_csl_names1 as
+        --%suite
+        --%suitepath(test_csl_names)
+
+        --%test
+        procedure one_is_one;
+        
+        --%test
+        procedure two_is_two;
+
+      end;
+    ]';
+    
+    execute immediate q'{
+    create or replace package body test_csl_names1 as
+
+      procedure one_is_one is
+      begin
+        ut3.ut.expect(1).to_equal(1);
+      end;
+      
+      procedure two_is_two is
+      begin
+        ut3.ut.expect(2).to_equal(2);
+      end;
+      
+    end;
+    }';
+
+    execute immediate q'[
+      create or replace package test_csl_names2 as
+        --%suite
+        --%suitepath(test_csl_names)
+
+        --%test
+        procedure one_is_one;
+        
+        --%test
+        procedure two_is_two;
+
+      end;
+    ]';
+    
+    execute immediate q'{
+    create or replace package body test_csl_names2 as
+
+      procedure one_is_one is
+      begin
+        ut3.ut.expect(1).to_equal(1);
+      end;
+      
+      procedure two_is_two is
+      begin
+        ut3.ut.expect(2).to_equal(2);
+      end;
+      
+    end;
+    }';
+    
+  end;
+  
+  procedure drop_test_csl_packages is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package test_csl_names1';
+    execute immediate 'drop package test_csl_names2';
+  end;
+
+  procedure pass_varchar2_name_list is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+    select *
+      bulk collect into l_results
+    from table(ut3.ut.run(ut3.ut_varchar2_list('test_csl_names1','test_csl_names2')));
+    
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like('%Finished in % seconds
+%4 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
+  end;
+ 
+  procedure pass_varchar2_name is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+    select *
+      bulk collect into l_results
+    from table(ut3.ut.run('test_csl_names1'));
+    
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like('%Finished in % seconds
+%2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
+  end;
+  
+  procedure pass_varchar2_suite_csl is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+    select *
+      bulk collect into l_results
+    from table(ut3.ut.run('test_csl_names1,test_csl_names2'));
+    
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like('%Finished in % seconds
+%4 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
+  end;
+
+  procedure pass_varchar2_test_csl is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+    select *
+      bulk collect into l_results
+    from table(ut3.ut.run('test_csl_names1.one_is_one,test_csl_names2.one_is_one'));
+    
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like('%Finished in % seconds
+%2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
+  end;
+
+  procedure pass_varch_test_csl_spc is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+    select *
+      bulk collect into l_results
+    from table(ut3.ut.run('test_csl_names1.one_is_one, test_csl_names2.one_is_one'));
+    
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like('%Finished in % seconds
+%2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
+  end;
+  
+  procedure pass_csl_with_srcfile is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+  
+    select *
+      bulk collect into l_results
+      from table(
+        ut3.ut.run(
+          a_path => 'test_csl_names1.one_is_one,test_csl_names2.one_is_one',
+          a_source_files => ut3.ut_varchar2_list('ut3.ut'),
+          a_test_files => ut3.ut_varchar2_list('ut3_tester.test_csl_names2')
+        )
+      );
+    
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like('%Finished in % seconds
+%2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
+  end;
+
+  procedure pass_csl_within_var2list is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+    select *
+      bulk collect into l_results
+    from table(ut3.ut.run(ut3.ut_varchar2_list('test_csl_names1.one_is_one,test_csl_names2.one_is_one')));
+    
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like('%Finished in % seconds
+%2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
+  end;
+  
 end;
 /
