@@ -21,7 +21,7 @@ We strongly recommend putting package level annotations at the very top of packa
 | `--%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
 | `--%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a suite/test. `%displayname(Name of the suite/test)`. The annotation is provided for flexibility and convenience only. It has exactly the same meaning as `<description>` in `test` and `suite` annotations. If description is provided using both `suite`/`test` and `displayname`, then the one defined as last takes precedence. |
 | `--%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can by provided (see `displayname`). |
-| `--%throws(<exception|>[,...])`| Procedure | Denotes that the annotated test procedure must throw one of the exceptions provided. Supported forms of exceptions are: numeric literals, numeric contant names, exception constant names, predefined Oracle exception names. |
+| `--%throws(<exception>[,...])`| Procedure | Denotes that the annotated test procedure must throw one of the exceptions provided. Supported forms of exceptions are: numeric literals, numeric contant names, exception constant names, predefined Oracle exception names. |
 | `--%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
 | `--%beforeall([[<owner>.]<package>.]<procedure>[,...])` | Package | Denotes that the mentioned procedure(s) should be executed once before all elements of the suite. |
 | `--%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
