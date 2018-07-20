@@ -16,7 +16,7 @@ The framework follows industry standards and best patterns of modern Unit Testin
        - [Using reporters](userguide/reporters.md)
        - [Reporting errors](userguide/exception-reporting.md)
        - [Code coverage](userguide/coverage.md)
-  - [Cheat-sheet](https://www.cheatography.com/jgebal/cheat-sheets/utplsql-v3/#downloads)
+  - [Cheat-sheet](https://www.cheatography.com/jgebal/cheat-sheets/utplsql-v3-1-2/#downloads)
   - About
        - [Project Details](about/project-details.md)
        - [License](about/license.md)

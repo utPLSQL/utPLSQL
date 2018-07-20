@@ -45,7 +45,7 @@ Published releases are available for download on the [utPLSQL GitHub Releases Pa
 
 Full documentation of the project is automatically published on [utPLSQL github pages](https://utplsql.github.io/utPLSQL/)
 
-[Cheat-sheet](https://www.cheatography.com/jgebal/cheat-sheets/utplsql-v3/#downloads)
+[Cheat-sheets](https://www.cheatography.com/jgebal/lists/utplsql-v3-cheat-sheets/)
 
 # Installation
 
