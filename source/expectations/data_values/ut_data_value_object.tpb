@@ -28,10 +28,5 @@ create or replace type body ut_data_value_object as
     return self.data_type;
   end;
 
-  overriding member function is_multi_line return boolean is
-  begin
-    return not self.is_null();
-  end;
-
 end;
 /

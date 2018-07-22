@@ -61,9 +61,35 @@ create or replace package body test_junit_reporter as
    execute immediate q'[create or replace package body tst_package_junit_nosuite as
     procedure test1 is begin ut.expect(1).to_equal(1); end;
   end;]';
-
-  reporters.reporters_setup;
   
+  execute immediate q'[create or replace package Tst_Fix_Case_Sensitive as
+      --%suite
+
+      --%test(bugfix)
+      procedure bUgFiX;
+  end;]';
+
+   execute immediate q'[create or replace package body Tst_Fix_Case_Sensitive as
+    procedure bUgFiX is begin ut.expect(1).to_equal(1); end;
+  end;]';  
+  
+  execute immediate q'[create or replace package check_fail_escape is
+      --%suitepath(core)
+      --%suite(checkfailedescape)
+      --%displayname(Check JUNIT XML failure is escaped)
+            
+      --%test(Fail Miserably)
+      procedure fail_miserably;
+      
+    end;]';
+    
+    execute immediate q'[create or replace package body check_fail_escape is
+      procedure fail_miserably is
+      begin
+        ut3.ut.expect('test').to_equal('<![CDATA[some stuff]]>');
+      end;
+    end;]';
+
   end;
 
   procedure escapes_special_chars is
@@ -118,7 +144,7 @@ create or replace package body test_junit_reporter as
       from table(ut3.ut.run('check_junit_reporting',ut3.ut_junit_reporter()));
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     --Assert
-    ut.expect(l_actual).to_be_like('%at "%.CHECK_JUNIT_REPORTING%", line %');
+    ut.expect(l_actual).to_be_like('%at &quot;%.CHECK_JUNIT_REPORTING%&quot;, line %');
   end;
 
   procedure check_classname_suite is
@@ -171,7 +197,8 @@ create or replace package body test_junit_reporter as
   procedure report_test_without_desc is
     l_results   ut3.ut_varchar2_list;
     l_actual    clob;
-    l_expected  varchar2(32767):= q'[<testsuites tests="2" disabled="0" errors="0" failures="0" name="" time="%" >
+    l_expected  varchar2(32767):= q'[<?xml version="1.0"?>
+<testsuites tests="2" disabled="0" errors="0" failures="0" name="" time="%" >
 <testsuite tests="2" id="1" package="tst_package_junit_nodesc"  disabled="0" errors="0" failures="0" name="Suite name" time="%" >
 <testcase classname="tst_package_junit_nodesc" assertions="0" name="test1" time="%" >
 <system-out/>
@@ -196,7 +223,8 @@ create or replace package body test_junit_reporter as
   procedure report_suite_without_desc is
     l_results   ut3.ut_varchar2_list;
     l_actual    clob;
-    l_expected  varchar2(32767):= q'[<testsuites tests="1" disabled="0" errors="0" failures="0" name="" time="%" >
+    l_expected  varchar2(32767):= q'[<?xml version="1.0"?>
+<testsuites tests="1" disabled="0" errors="0" failures="0" name="" time="%" >
 <testsuite tests="1" id="1" package="tst_package_junit_nosuite"  disabled="0" errors="0" failures="0" name="tst_package_junit_nosuite" time="%" >
 <testcase classname="tst_package_junit_nosuite" assertions="0" name="Test name" time="%" >
 <system-out/>
@@ -217,7 +245,8 @@ create or replace package body test_junit_reporter as
   procedure reporort_produces_expected_out is
     l_results   ut3.ut_varchar2_list;
     l_actual    clob;
-    l_expected  varchar2(32767):=q'[<testsuites tests="4" disabled="1" errors="1" failures="1" name="" time="%" >
+    l_expected  varchar2(32767):=q'[<?xml version="1.0"?>
+<testsuites tests="4" disabled="1" errors="1" failures="1" name="" time="%" >
 <testsuite tests="4" id="1" package="utplsqlorg"  disabled="1" errors="1" failures="1" name="utplsqlorg" time="%" >
 <testsuite tests="4" id="2" package="utplsqlorg.helpers"  disabled="1" errors="1" failures="1" name="helpers" time="%" >
 <testsuite tests="4" id="3" package="utplsqlorg.helpers.tests"  disabled="1" errors="1" failures="1" name="tests" time="%" >
@@ -267,6 +296,46 @@ create or replace package body test_junit_reporter as
     ut.expect(l_actual).to_be_like(l_expected);  
   end;
   
+  procedure check_failure_escaped is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+    --Act
+    select *
+      bulk collect into l_results
+      from table(ut3.ut.run('check_fail_escape',ut3.ut_junit_reporter()));
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    --Assert
+    ut.expect(l_actual).to_be_like('%Actual: &apos;test&apos; (varchar2) was expected to equal: &apos;&lt;![CDATA[some stuff]]&gt;&apos; (varchar2)%');
+  end;
+  
+  procedure check_classname_is_populated is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+    l_expected  varchar2(32767):= q'[<?xml version="1.0"?>
+<testsuites tests="1" disabled="0" errors="0" failures="0" name="" time="%" >
+<testsuite tests="1" id="1" package="tst_fix_case_sensitive"  disabled="0" errors="0" failures="0" name="tst_fix_case_sensitive" time="%" >
+<testcase classname="tst_fix_case_sensitive" assertions="0" name="bugfix" time="%" >
+<system-out/>
+<system-err/>
+</testcase>
+<system-out/>
+<system-err/>
+</testsuite>
+</testsuites>]';
+  begin
+    select *
+      bulk collect into l_results
+    from table(ut3.ut.run('Tst_Fix_Case_Sensitive',ut3.ut_junit_reporter()));
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    ut.expect(l_actual).to_be_like(l_expected);  
+  end;
+
+  procedure check_encoding_included is
+  begin
+    reporters.check_xml_encoding_included(ut3.ut_junit_reporter(), 'UTF-8');
+  end;
+
   procedure remove_test_package is
     pragma autonomous_transaction;
   begin
@@ -274,7 +343,9 @@ create or replace package body test_junit_reporter as
     execute immediate 'drop package check_junit_rep_suitepath';
     execute immediate 'drop package tst_package_junit_nodesc';
     execute immediate 'drop package tst_package_junit_nosuite';
-    reporters.reporters_cleanup;
+    execute immediate 'drop package check_fail_escape';
+    execute immediate 'drop package Tst_Fix_Case_Sensitive';
   end;
+
 end;
 /

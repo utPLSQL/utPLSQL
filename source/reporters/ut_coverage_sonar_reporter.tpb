@@ -59,7 +59,8 @@ create or replace type body ut_coverage_sonar_reporter is
       return l_result;
     end;
     function get_coverage_xml(
-      a_coverage_data ut_coverage.t_coverage
+      a_coverage_data ut_coverage.t_coverage,
+      a_run ut_run
     ) return clob is
       l_file_part            varchar2(32767);
       l_result               clob;
@@ -70,6 +71,7 @@ create or replace type body ut_coverage_sonar_reporter is
       begin
       dbms_lob.createtemporary(l_result,true);
 
+      ut_utils.append_to_clob(l_result, ut_utils.get_xml_header(a_run.client_character_set)||chr(10));
       ut_utils.append_to_clob(l_result, c_coverage_header);
       l_unit := a_coverage_data.objects.first;
       while l_unit is not null loop
@@ -90,7 +92,7 @@ create or replace type body ut_coverage_sonar_reporter is
 
     l_coverage_data := ut_coverage.get_coverage_data(a_run.coverage_options);
 
-    self.print_clob( get_coverage_xml( l_coverage_data ) );
+    self.print_clob( get_coverage_xml( l_coverage_data, a_run ) );
   end;
 
   overriding member function get_description return varchar2 as

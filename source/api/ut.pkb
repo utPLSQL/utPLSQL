@@ -103,52 +103,92 @@ create or replace package body ut is
       raise e_package_invalidated;
     end if;
   end;
-
+  
+  
   procedure run_autonomous(
-    a_paths ut_varchar2_list, a_reporter ut_reporter_base, a_color_console integer,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings, a_test_file_mappings ut_file_mappings,
-    a_include_objects ut_varchar2_list, a_exclude_objects ut_varchar2_list
+    a_paths ut_varchar2_list,
+    a_reporter in out nocopy ut_reporter_base,
+    a_color_console integer,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_file_mappings ut_file_mappings,
+    a_test_file_mappings ut_file_mappings,
+    a_include_objects ut_varchar2_list,
+    a_exclude_objects ut_varchar2_list,
+    a_client_character_set varchar2 := null
   ) is
     pragma autonomous_transaction;
+    c_fail_on_errors constant boolean := false;
   begin
+    a_reporter := coalesce(a_reporter,ut_documentation_reporter());
     ut_runner.run(
-      a_paths, ut_reporters(coalesce(a_reporter,ut_documentation_reporter())),
-      ut_utils.int_to_boolean(a_color_console), a_coverage_schemes, a_source_file_mappings, 
-      a_test_file_mappings, a_include_objects, a_exclude_objects, false
+      a_paths,
+      ut_reporters(a_reporter),
+      ut_utils.int_to_boolean(a_color_console),
+      a_coverage_schemes,
+      a_source_file_mappings,
+      a_test_file_mappings,
+      a_include_objects,
+      a_exclude_objects,
+      c_fail_on_errors,
+      a_client_character_set
     );
     rollback;
   end;
 
   procedure run_autonomous(
-    a_paths ut_varchar2_list, a_reporter ut_reporter_base, a_color_console integer,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list, a_exclude_objects ut_varchar2_list
+    a_paths ut_varchar2_list,
+    a_reporter in out nocopy ut_reporter_base,
+    a_color_console integer,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_files ut_varchar2_list,
+    a_test_files ut_varchar2_list,
+    a_include_objects ut_varchar2_list,
+    a_exclude_objects ut_varchar2_list,
+    a_client_character_set varchar2 := null
   ) is
     pragma autonomous_transaction;
+    c_fail_on_errors constant boolean := false;
   begin
+    a_reporter := coalesce(a_reporter,ut_documentation_reporter());
     ut_runner.run(
-      a_paths, ut_reporters(coalesce(a_reporter,ut_documentation_reporter())),
-      ut_utils.int_to_boolean(a_color_console), a_coverage_schemes,
+      a_paths,
+      ut_reporters(a_reporter),
+      ut_utils.int_to_boolean(a_color_console),
+      a_coverage_schemes,
       ut_file_mapper.build_file_mappings(a_source_files),
       ut_file_mapper.build_file_mappings(a_test_files),
-      a_include_objects, a_exclude_objects, false
+      a_include_objects,
+      a_exclude_objects,
+      c_fail_on_errors,
+      a_client_character_set
     );
     rollback;
   end;
 
   function run(
-    a_reporter ut_reporter_base := null, a_color_console integer := 0,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_reporter ut_reporter_base := null,
+    a_color_console integer := 0,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_file_mappings ut_file_mappings := null,
+    a_test_file_mappings ut_file_mappings := null,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
-    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
-    l_paths     ut_varchar2_list := ut_varchar2_list(sys_context('userenv', 'current_schema'));
+    l_reporter  ut_reporter_base := a_reporter;
     l_lines     sys_refcursor;
     l_line      varchar2(4000);
   begin
     run_autonomous(
-      l_paths, l_reporter, a_color_console,
-      a_coverage_schemes, a_source_file_mappings, a_test_file_mappings, a_include_objects, a_exclude_objects
+      ut_varchar2_list(),
+      l_reporter,
+      a_color_console,
+      a_coverage_schemes,
+      a_source_file_mappings,
+      a_test_file_mappings,
+      a_include_objects,
+      a_exclude_objects,
+      a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -164,18 +204,29 @@ create or replace package body ut is
   end;
 
   function run(
-    a_reporter ut_reporter_base := null, a_color_console integer := 0,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_reporter ut_reporter_base := null,
+    a_color_console integer := 0,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_files ut_varchar2_list,
+    a_test_files ut_varchar2_list,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
-    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
-    l_paths     ut_varchar2_list := ut_varchar2_list(sys_context('userenv', 'current_schema'));
+    l_reporter  ut_reporter_base := a_reporter;
     l_lines     sys_refcursor;
     l_line      varchar2(4000);
   begin
     run_autonomous(
-      l_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_files, a_test_files,
-      a_include_objects, a_exclude_objects
+      ut_varchar2_list(),
+      l_reporter,
+      a_color_console,
+      a_coverage_schemes,
+      a_source_files,
+      a_test_files,
+      a_include_objects,
+      a_exclude_objects,
+      a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -191,17 +242,30 @@ create or replace package body ut is
   end;
 
   function run(
-    a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console integer := 0,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_paths ut_varchar2_list,
+    a_reporter ut_reporter_base := null,
+    a_color_console integer := 0,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_file_mappings ut_file_mappings := null,
+    a_test_file_mappings ut_file_mappings := null,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
-    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
+    l_reporter  ut_reporter_base := a_reporter;
     l_lines     sys_refcursor;
     l_line      varchar2(4000);
   begin
     run_autonomous(
-      a_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_file_mappings, a_test_file_mappings,
-      a_include_objects, a_exclude_objects
+      a_paths,
+      l_reporter,
+      a_color_console,
+      a_coverage_schemes,
+      a_source_file_mappings,
+      a_test_file_mappings,
+      a_include_objects,
+      a_exclude_objects,
+      a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -217,17 +281,30 @@ create or replace package body ut is
   end;
 
   function run(
-    a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console integer := 0,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_paths ut_varchar2_list,
+    a_reporter ut_reporter_base := null,
+    a_color_console integer := 0,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_files ut_varchar2_list,
+    a_test_files ut_varchar2_list,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
-    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
+    l_reporter  ut_reporter_base := a_reporter;
     l_lines     sys_refcursor;
     l_line      varchar2(4000);
   begin
     run_autonomous(
-      a_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_files, a_test_files,
-      a_include_objects, a_exclude_objects
+      a_paths,
+      l_reporter,
+      a_color_console,
+      a_coverage_schemes,
+      a_source_files,
+      a_test_files,
+      a_include_objects,
+      a_exclude_objects,
+      a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -243,18 +320,30 @@ create or replace package body ut is
   end;
 
   function run(
-    a_path varchar2, a_reporter ut_reporter_base := null, a_color_console integer := 0,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_path varchar2,
+    a_reporter ut_reporter_base := null,
+    a_color_console integer := 0,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_file_mappings ut_file_mappings := null,
+    a_test_file_mappings ut_file_mappings := null,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
-    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
-    l_paths     ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
+    l_reporter  ut_reporter_base := a_reporter;
     l_lines     sys_refcursor;
     l_line      varchar2(4000);
   begin
     run_autonomous(
-      l_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_file_mappings, a_test_file_mappings,
-      a_include_objects, a_exclude_objects
+      ut_varchar2_list(a_path),
+      l_reporter,
+      a_color_console,
+      a_coverage_schemes,
+      a_source_file_mappings,
+      a_test_file_mappings,
+      a_include_objects,
+      a_exclude_objects,
+      a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -270,18 +359,30 @@ create or replace package body ut is
   end;
 
   function run(
-    a_path varchar2, a_reporter ut_reporter_base := null, a_color_console integer := 0,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_path varchar2,
+    a_reporter ut_reporter_base := null,
+    a_color_console integer := 0,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_files ut_varchar2_list,
+    a_test_files ut_varchar2_list,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
-    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
-    l_paths     ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
+    l_reporter  ut_reporter_base := a_reporter;
     l_lines     sys_refcursor;
     l_line      varchar2(4000);
   begin
     run_autonomous(
-      l_paths, l_reporter, a_color_console, a_coverage_schemes, a_source_files, a_test_files,
-      a_include_objects, a_exclude_objects
+      ut_varchar2_list(a_path),
+      l_reporter,
+      a_color_console,
+      a_coverage_schemes,
+      a_source_files,
+      a_test_files,
+      a_include_objects,
+      a_exclude_objects,
+      a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -297,15 +398,28 @@ create or replace package body ut is
   end;
 
   procedure run(
-    a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_paths ut_varchar2_list,
+    a_reporter ut_reporter_base := null,
+    a_color_console boolean := false,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_file_mappings ut_file_mappings := null,
+    a_test_file_mappings ut_file_mappings := null,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_client_character_set varchar2 := null
   ) is
-    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
+    l_reporter  ut_reporter_base := a_reporter;
   begin
     run_autonomous(
-      a_paths, l_reporter, ut_utils.boolean_to_int(a_color_console), a_coverage_schemes, a_source_file_mappings, a_test_file_mappings,
-      a_include_objects, a_exclude_objects
+      a_paths,
+      l_reporter,
+      ut_utils.boolean_to_int(a_color_console),
+      a_coverage_schemes,
+      a_source_file_mappings,
+      a_test_file_mappings,
+      a_include_objects,
+      a_exclude_objects,
+      a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
         treat(l_reporter as ut_output_reporter_base).lines_to_dbms_output();
@@ -314,15 +428,28 @@ create or replace package body ut is
   end;
 
   procedure run(
-    a_paths ut_varchar2_list, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_paths ut_varchar2_list,
+    a_reporter ut_reporter_base := null,
+    a_color_console boolean := false,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_files ut_varchar2_list,
+    a_test_files ut_varchar2_list,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_client_character_set varchar2 := null
   ) is
-    l_reporter  ut_reporter_base := coalesce(a_reporter, ut_documentation_reporter());
+    l_reporter  ut_reporter_base := a_reporter;
   begin
     run_autonomous(
-      a_paths, l_reporter, ut_utils.boolean_to_int(a_color_console), a_coverage_schemes, a_source_files, a_test_files,
-      a_include_objects, a_exclude_objects
+      a_paths,
+      l_reporter,
+      ut_utils.boolean_to_int(a_color_console),
+      a_coverage_schemes,
+      a_source_files,
+      a_test_files,
+      a_include_objects,
+      a_exclude_objects,
+      a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
       treat(l_reporter as ut_output_reporter_base).lines_to_dbms_output();
@@ -331,52 +458,100 @@ create or replace package body ut is
   end;
 
   procedure run(
-    a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_reporter ut_reporter_base := null,
+    a_color_console boolean := false,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_file_mappings ut_file_mappings := null,
+    a_test_file_mappings ut_file_mappings := null,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_client_character_set varchar2 := null
   ) is
   begin
     ut.run(
-      ut_varchar2_list(sys_context('userenv', 'current_schema')), a_reporter, a_color_console,
-      a_coverage_schemes, a_source_file_mappings, a_test_file_mappings, a_include_objects, a_exclude_objects
+      ut_varchar2_list(),
+      a_reporter,
+      a_color_console,
+      a_coverage_schemes,
+      a_source_file_mappings,
+      a_test_file_mappings,
+      a_include_objects,
+      a_exclude_objects,
+      a_client_character_set
     );
   end;
 
   procedure run(
-    a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_reporter ut_reporter_base := null,
+    a_color_console boolean := false,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_files ut_varchar2_list,
+    a_test_files ut_varchar2_list,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_client_character_set varchar2 := null
   ) is
   begin
     ut.run(
-      ut_varchar2_list(sys_context('userenv', 'current_schema')), a_reporter, a_color_console,
-      a_coverage_schemes, a_source_files, a_test_files, a_include_objects, a_exclude_objects
+      ut_varchar2_list(),
+      a_reporter,
+      a_color_console,
+      a_coverage_schemes,
+      a_source_files,
+      a_test_files,
+      a_include_objects,
+      a_exclude_objects,
+      a_client_character_set
     );
   end;
 
   procedure run(
-    a_path varchar2, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_path varchar2,
+    a_reporter ut_reporter_base := null,
+    a_color_console boolean := false,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_file_mappings ut_file_mappings := null,
+    a_test_file_mappings ut_file_mappings := null,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_client_character_set varchar2 := null
   ) is
-    l_paths  ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
   begin
     ut.run(
-      l_paths, a_reporter, a_color_console, a_coverage_schemes, a_source_file_mappings, a_test_file_mappings,
-      a_include_objects, a_exclude_objects
+      ut_varchar2_list(a_path),
+      a_reporter,
+      a_color_console,
+      a_coverage_schemes,
+      a_source_file_mappings,
+      a_test_file_mappings,
+      a_include_objects,
+      a_exclude_objects,
+      a_client_character_set
     );
   end;
 
   procedure run(
-    a_path varchar2, a_reporter ut_reporter_base := null, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_files ut_varchar2_list, a_test_files ut_varchar2_list,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null
+    a_path varchar2,
+    a_reporter ut_reporter_base := null,
+    a_color_console boolean := false,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_files ut_varchar2_list,
+    a_test_files ut_varchar2_list,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_client_character_set varchar2 := null
   ) is
-    l_paths  ut_varchar2_list := ut_varchar2_list(coalesce(a_path, sys_context('userenv', 'current_schema')));
   begin
     ut.run(
-      l_paths, a_reporter, a_color_console, a_coverage_schemes, a_source_files, a_test_files,
-      a_include_objects, a_exclude_objects 
+      ut_varchar2_list(a_path),
+      a_reporter,
+      a_color_console,
+      a_coverage_schemes,
+      a_source_files,
+      a_test_files,
+      a_include_objects,
+      a_exclude_objects,
+      a_client_character_set
     );
   end;
 

@@ -6,5 +6,8 @@ create or replace package test_coverage_sonar_reporter is
   --%test(reports on a project file mapped to database object)
   procedure report_on_file;
 
+  --%test(Includes XML header with encoding when encoding provided)
+  procedure check_encoding_included;
+
 end;
 /

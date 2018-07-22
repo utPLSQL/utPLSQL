@@ -1,4 +1,4 @@
-create or replace type ut_key_value_pair as object(
+create or replace type ut_key_value_pair force as object(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2017 utPLSQL Project

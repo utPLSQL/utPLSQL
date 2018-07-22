@@ -29,6 +29,9 @@ whenever oserror exit failure rollback
 prompt Switching current schema to &&ut3_owner
 prompt &&line_separator
 alter session set current_schema = &&ut3_owner;
+
+@@check_object_grants.sql
+@@check_sys_grants.sql
 --set define off
 
 --dbms_output buffer cache table
@@ -68,6 +71,7 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_test.tps'
 @@install_component.sql 'core/types/ut_logical_suite.tps'
 @@install_component.sql 'core/types/ut_suite.tps'
+@@install_component.sql 'core/types/ut_suite_context.tps'
 @@install_component.sql 'core/types/ut_file_mapping.tps'
 @@install_component.sql 'core/types/ut_file_mappings.tps'
 @@install_component.sql 'core/types/ut_coverage_options.tps'
@@ -151,6 +155,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'core/types/ut_test.tpb'
 @@install_component.sql 'core/types/ut_logical_suite.tpb'
 @@install_component.sql 'core/types/ut_suite.tpb'
+@@install_component.sql 'core/types/ut_suite_context.tpb'
 @@install_component.sql 'core/types/ut_run.tpb'
 @@install_component.sql 'core/types/ut_expectation_result.tpb'
 @@install_component.sql 'core/types/ut_reporter_base.tpb'
@@ -166,7 +171,6 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_compound_data_diff_tmp.sql'
 @@install_component.sql 'expectations/data_values/ut_data_value.tps'
 @@install_component.sql 'expectations/data_values/ut_compound_data_value.tps'
-@@install_component.sql 'expectations/data_values/ut_compound_data_helper.pks'
 @@install_component.sql 'expectations/data_values/ut_data_value_anydata.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_collection.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_object.tps'
@@ -182,6 +186,11 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value_timestamp_ltz.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_varchar2.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_yminterval.tps'
+@@install_component.sql 'expectations/data_values/ut_data_value_xmltype.tps'
+@@install_component.sql 'expectations/data_values/ut_key_anyval_pair.tps'
+@@install_component.sql 'expectations/data_values/ut_key_anyval_pairs.tps'
+@@install_component.sql 'expectations/data_values/ut_compound_data_helper.pks'
+@@install_component.sql 'expectations/data_values/ut_curr_usr_compound_helper.pks'
 @@install_component.sql 'expectations/matchers/ut_matcher.tps'
 @@install_component.sql 'expectations/matchers/ut_comparison_matcher.tps'
 @@install_component.sql 'expectations/matchers/ut_be_false.tps'
@@ -203,6 +212,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value.tpb'
 @@install_component.sql 'expectations/data_values/ut_compound_data_value.tpb'
 @@install_component.sql 'expectations/data_values/ut_compound_data_helper.pkb'
+@@install_component.sql 'expectations/data_values/ut_curr_usr_compound_helper.pkb'
 @@install_component.sql 'expectations/data_values/ut_data_value_anydata.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_object.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_collection.tpb'
@@ -218,6 +228,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value_timestamp_ltz.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_varchar2.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_yminterval.tpb'
+@@install_component.sql 'expectations/data_values/ut_data_value_xmltype.tpb'
 @@install_component.sql 'expectations/matchers/ut_matcher.tpb'
 @@install_component.sql 'expectations/matchers/ut_comparison_matcher.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_false.tpb'

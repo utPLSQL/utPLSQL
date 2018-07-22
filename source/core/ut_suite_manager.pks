@@ -17,7 +17,7 @@ create or replace package ut_suite_manager authid current_user is
   */
 
   /**
-   * Reads database source code, parses it and returns annotations
+   * Resposible for building hierarhy of sutes from individual suites created by suite_builder
    */
 
   /**

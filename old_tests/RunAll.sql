@@ -37,99 +37,19 @@ create table ut$test_table (val varchar2(1));
 exec ut_coverage.coverage_start();
 exec ut_coverage.set_develop_mode(true);
 
-@@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTrace.sql
-@@lib/RunTest.sql ut_expectation_processor/who_called_expectation.parseStackTraceWith0x.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNotBoolean.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsNull.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesFailureWhenExpessionIsTrue.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_false.GivesSuccessWhenExpessionIsFalse.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_like.FailsForUnsupportedDatatype.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenAnydataIsNull.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenCollectionPassedIsNull.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_null.anydata.GivesSuccessWhenObjectPassedIsNull.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsFalse.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNotBoolean.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesFailureWhenExpessionIsNull.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_be_true.GivesSuccessWhenExpessionIsTrue.sql
-@@ut_expectations/ut.expect.not_to_equal.GivesFailureForEqualValues.sql
-@@ut_expectations/ut.expect.not_to_equal.GivesSuccessForDifferentValues.sql
-@@lib/RunTest.sql ut_expectations/ut.expect.to_match.FailsForUnsupportedDatatype.sql
-@@lib/RunTest.sql ut_expectations/ut_data_value_object.compare.Gives0WhenComparingIdenticalObjects.sql
 @@lib/RunTest.sql ut_expectations/ut_expectation_processor.nulls_are_equal.raisesExceptionWhenTryingToSetNullValue.sql
 @@lib/RunTest.sql ut_expectations/ut_expectation_processor.stackOnFailedTest.sql
 @@lib/RunTest.sql ut_expectations/ut_expectation_processor.stackOnUtFail.sql
 
-@@ut_matchers/be_between.sql
-@@ut_matchers/be_like.sql
-@@ut_matchers/match.sql
-
-@@lib/RunTest.sql ut_matchers/timestamp_between.sql
-@@lib/RunTest.sql ut_matchers/timestamp_ltz_between.sql
-@@lib/RunTest.sql ut_matchers/timestamp_ltz_not_between.sql
-@@lib/RunTest.sql ut_matchers/timestamp_not_between.sql
-@@lib/RunTest.sql ut_matchers/timestamp_tz_between.sql
-@@lib/RunTest.sql ut_matchers/timestamp_tz_not_between.sql
-
 @@lib/RunTest.sql ut_metadata/ut_metadata.form_name.TrimStandaloneProgramName.sql
 
-@@lib/RunTest.sql ut_output_buffer/get_lines.RecievesALineFromBufferTableAndDeletes.sql
-@@lib/RunTest.sql ut_output_buffer/get_lines.WaitsForMoreDataToAppearForSpecifiedTime.sql
-@@lib/RunTest.sql ut_output_buffer/get_lines.WaitsForTheDataToAppearForSpecifiedTime.sql
-@@lib/RunTest.sql ut_output_buffer/send_line.DoesNotSendLineIfNullTextGiven.sql
-@@lib/RunTest.sql ut_output_buffer/send_line.SendsALineIntoBufferTable.sql
-
-@@lib/RunTest.sql ut_reporters/ut_coverage_sonar_reporter.AcceptsFileMapping.sql
-@@lib/RunTest.sql ut_reporters/ut_coverage_sonar_reporter.BuildsSonarCoverageReport.sql
 @@lib/RunTest.sql ut_reporters/ut_documentation_reporter.providesCorrectLineFromStacktrace.sql
-@@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.AcceptsFileMapping.sql
-@@lib/RunTest.sql ut_reporters/ut_sonar_test_reporter.ProducesExpectedOutputs.sql
-@@lib/RunTest.sql ut_reporters/ut_teamcity_reporter.ProducesExpectedOutputs.sql
-@@lib/RunTest.sql ut_reporters/ut_html_reporter.UserOverrideSchemaCoverage.sql
-@@lib/RunTest.sql ut_reporters/ut_html_reporter.DefaultSchemaCoverage.sql
 @@lib/RunTest.sql ut_reporters/ut_documentation_reporter.reportMultipleWarnings.sql
 @@lib/RunTest.sql ut_reporters/ut_documentation_reporter.reportTestTiming.sql
-
-@@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileList.sql
-@@lib/RunTest.sql ut/ut.run.AcceptsCoverageFileListWithSutePaths.sql
-@@lib/RunTest.sql ut/ut.run.AcceptsSutePaths.sql
-@@lib/RunTest.sql ut/ut.run.ExecutesSuccesfullyAnEmptySuite.sql
-@@lib/RunTest.sql ut/ut.run.FailsToExecuteAnInvalidPackageBody.sql
-@@lib/RunTest.sql ut/ut.run.function.AcceptsCoverageFileList.sql
-@@lib/RunTest.sql ut/ut.run.function.AcceptsCoverageFileListWithSutePaths.sql
-@@lib/RunTest.sql ut/ut.run.function.AcceptsSutePaths.sql
-@@lib/RunTest.sql ut/ut.run.function.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
-@@lib/RunTest.sql ut/ut.run.function.WithNoParams.ExecutesAllFromCurrentSchema.sql
-@@lib/RunTest.sql ut/ut.run.function.WithPackageName.ExecutesAllFromGivenPackage.sql
---@@lib/RunTest.sql ut.run/ut.run.function.WithPackageName.ExecutesAllFromGivenPackageOnly.sql --TODO this one doesn't work at the moment
-@@lib/RunTest.sql ut/ut.run.function.WithSchemaName.ExecutesAllFromGivenSchema.sql
-@@lib/RunTest.sql ut/ut.run.function.WithSuitePath.ExecutesAllFromGivenPath.sql
-@@lib/RunTest.sql ut/ut.run.WithGivenReporter.ExectutesAllInCurrentSchemaUsingReporter.sql
-@@lib/RunTest.sql ut/ut.run.WithNoParams.ExecutesAllFromCurrentSchema.sql
-@@lib/RunTest.sql ut/ut.run.WithPackageName.ExecutesAllFromGivenPackage.sql
---@@lib/RunTest.sql ut.run/ut.run.WithPackageName.ExecutesAllFromGivenPackageOnly.sql --TODO this one doesn't work at the moment
-@@lib/RunTest.sql ut/ut.run.WithSchemaName.ExecutesAllFromGivenSchema.sql
-@@lib/RunTest.sql ut/ut.run.WithSuitePath.ExecutesAllFromGivenPath.sql
-@@lib/RunTest.sql ut/ut.version.sql
+@@lib/RunTest.sql ut_reporters/ut_html_reporter.DefaultSchemaCoverage.sql
+@@lib/RunTest.sql ut_reporters/ut_html_reporter.UserOverrideSchemaCoverage.sql
 
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.AllowsDescriptionsWithComma.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheSchema.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPath.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByPathCurUser.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByPath.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByPathCurUser.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByPath.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByPathCurUser.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByName.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageByNameCurUser.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByName.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageByNameCurUser.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByName.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageWithoutSubsuitesByNameCurUser.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageProcedureByPath.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTopPackageProcedureByPathCurUser.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPath.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.configure_execution_by_path.PrepareRunnerForTheTop2PackageProcedureByPathCurUser.sql
-@@lib/RunTest.sql ut_suite_manager/ut_suite_manager.DoesntFindTheSuiteWhenPackageSpecIsInvalid.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.emptySuitePath.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.get_schema_ut_packages.IncludesPackagesWithSutePath.sql
 @@lib/RunTest.sql ut_suite_manager/ut_suite_manager.IncludesInvalidPackageBodiesInTheRun.sql
@@ -171,24 +91,6 @@ exec ut_coverage.set_develop_mode(true);
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithInvalidValues.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.RunsWithNullValue.sql
 @@lib/RunTest.sql ut_utils/ut_utils.test_result_to_char.Success.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.Blob.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.Clob.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.Date.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.NullBlob.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.NullClob.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.NullDate.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.NullNumber.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.NullTimestamp.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.NullVarchar2.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.Timestamp.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.TimestampWithLocalTimeZone.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.TimestampWithTimeZone.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.Varchar2.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigBlob.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigClob.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigNumber.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.veryBigVarchar2.sql
-@@lib/RunTest.sql ut_utils/ut_utils.to_string.verySmallNumber.sql
 
 --Finally
 @@lib/RunSummary

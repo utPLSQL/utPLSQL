@@ -61,5 +61,35 @@ create or replace package test_ut_runner is
   --%aftertest(db_link_cleanup)
   procedure raises_20213_on_fail_link;
 
+  procedure create_test_csl_packages;
+  procedure drop_test_csl_packages;
+  
+  --%context(ut_run_coma_sep_list)
+  --%beforeall(create_test_csl_packages)
+  --%afterall(drop_test_csl_packages)
+  
+  --%test( Pass name of tests as varchar2_list )  
+  procedure pass_varchar2_name_list;
+ 
+  --%test( Pass single test name as varchar2 ) 
+  procedure pass_varchar2_name;
+  
+  --%test( Pass coma separated list of suite names )
+  procedure pass_varchar2_suite_csl;
+
+  --%test( Pass coma separated list of test names )
+  procedure pass_varchar2_test_csl;
+
+  --%test( Pass coma separated list of test names with spaces )
+  procedure pass_varch_test_csl_spc;
+
+  --%test( Pass coma separated list and source and test files )
+  procedure pass_csl_with_srcfile;
+ 
+  --%test( Pass coma separated list in varchar2list )
+  procedure pass_csl_within_var2list; 
+  
+  --%endcontext
+
 end;
 /

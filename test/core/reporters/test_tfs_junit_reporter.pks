@@ -27,6 +27,12 @@ create or replace package test_tfs_junit_reporter as
   --%test(Reports duration according to XML specification for numbers)
   procedure check_nls_number_formatting;
 
+  --%test( Validate that failures with special char are escaped )
+  procedure check_failure_escaped;
+
+  --%test(Includes XML header with encoding when encoding provided)
+  procedure check_encoding_included;
+
   --%afterall
   procedure remove_test_package;
 end;

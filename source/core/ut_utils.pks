@@ -21,38 +21,38 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.1.1865';
+  gc_version                 constant varchar2(50) := 'v3.1.2.2130';
 
   /* Constants: Event names */
   subtype t_event_name           is varchar2(30);
   gc_before_run                  constant t_event_name := 'before_run';
   gc_before_suite                constant t_event_name := 'before_suite';
-  gc_before_before_all           constant t_event_name := 'before_before_all';
-  gc_before_before_each          constant t_event_name := 'before_before_each';
-  gc_before_before_test          constant t_event_name := 'before_before_test';
-  gc_before_test_execute         constant t_event_name := 'before_test_execute';
-  gc_before_after_test           constant t_event_name := 'before_after_test';
-  gc_before_after_each           constant t_event_name := 'before_after_each';
-  gc_before_after_all            constant t_event_name := 'before_after_all';
+  gc_before_before_all           constant t_event_name := 'before_beforeall';
+  gc_before_before_each          constant t_event_name := 'before_beforeeach';
+  gc_before_before_test          constant t_event_name := 'before_beforetest';
+  gc_before_test_execute         constant t_event_name := 'before_test';
+  gc_before_after_test           constant t_event_name := 'before_aftertest';
+  gc_before_after_each           constant t_event_name := 'before_aftereach';
+  gc_before_after_all            constant t_event_name := 'before_afterall';
   gc_after_run                   constant t_event_name := 'after_run';
   gc_after_suite                 constant t_event_name := 'after_suite';
-  gc_after_before_all            constant t_event_name := 'after_before_all';
-  gc_after_before_each           constant t_event_name := 'after_before_each';
-  gc_after_before_test           constant t_event_name := 'after_before_test';
-  gc_after_test_execute          constant t_event_name := 'after_test_execute';
-  gc_after_after_test            constant t_event_name := 'after_after_test';
-  gc_after_after_each            constant t_event_name := 'after_after_each';
-  gc_after_after_all             constant t_event_name := 'after_after_all';
+  gc_after_before_all            constant t_event_name := 'after_beforeall';
+  gc_after_before_each           constant t_event_name := 'after_beforeeach';
+  gc_after_before_test           constant t_event_name := 'after_beforetest';
+  gc_after_test_execute          constant t_event_name := 'after_test';
+  gc_after_after_test            constant t_event_name := 'after_aftertest';
+  gc_after_after_each            constant t_event_name := 'after_aftereach';
+  gc_after_after_all             constant t_event_name := 'after_afterall';
   gc_finalize                    constant t_event_name := 'finalize';
 
   subtype t_executable_type      is varchar2(30);
-  gc_before_all                  constant t_executable_type := 'before_all';
-  gc_before_each                 constant t_executable_type := 'before_each';
-  gc_before_test                 constant t_executable_type := 'before_test';
-  gc_test_execute                constant t_executable_type := 'test_execute';
-  gc_after_test                  constant t_executable_type := 'after_test';
-  gc_after_each                  constant t_executable_type := 'after_each';
-  gc_after_all                   constant t_executable_type := 'after_all';
+  gc_before_all                  constant t_executable_type := 'beforeall';
+  gc_before_each                 constant t_executable_type := 'beforeeach';
+  gc_before_test                 constant t_executable_type := 'beforetest';
+  gc_test_execute                constant t_executable_type := 'test';
+  gc_after_test                  constant t_executable_type := 'aftertest';
+  gc_after_each                  constant t_executable_type := 'aftereach';
+  gc_after_all                   constant t_executable_type := 'afterall';
 
   /* Constants: Test Results */
   subtype t_test_result   is binary_integer range 0 .. 3;
@@ -110,6 +110,10 @@ create or replace package ut_utils authid definer is
   gc_invalid_version_no constant pls_integer := -20214;
   pragma exception_init(ex_invalid_version_no, -20214);
 
+  ex_invalid_package exception;
+  gc_invalid_package constant pls_integer := -6550;
+  pragma exception_init(ex_invalid_package, -6550);
+
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
   gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
@@ -120,6 +124,7 @@ create or replace package ut_utils authid definer is
   gc_timestamp_format         constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff';
   gc_timestamp_tz_format      constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff tzh:tzm';
   gc_null_string              constant varchar2(4) := 'NULL';
+  gc_empty_string             constant varchar2(5) := 'EMPTY';
 
   type t_version is record(
     major  natural,
@@ -315,6 +320,13 @@ create or replace package ut_utils authid definer is
   * https://www.w3.org/TR/xmlschema-2/#decimal
   */
   function to_xml_number_format(a_value number) return varchar2;
+
+
+  /**
+  * Returns xml header. If a_encoding is not null, header will include encoding attribute with provided value
+  */
+  function get_xml_header(a_encoding varchar2) return varchar2;
+
 
   /*It takes a collection of type ut_varchar2_list and it trims the characters passed as arguments for every element*/
   function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list;

@@ -36,8 +36,7 @@ create or replace package body ut_annotation_manager as
            left join ]'||l_ut_owner||q'[.ut_annotation_cache_info i
              on o.owner = i.object_owner and o.object_name = i.object_name and o.object_type = i.object_type
           where o.owner = :a_object_owner
-            and o.object_type = :a_object_type
-            and o.status = 'VALID' ]';
+            and o.object_type = :a_object_type]';
     open l_result for l_cursor_text  using a_object_owner, a_object_type;
     return l_result;
   end;
@@ -190,6 +189,7 @@ create or replace package body ut_annotation_manager as
     l_results                ut_annotated_objects;
     c_object_fetch_limit  constant integer := 10;
   begin
+   
     l_info_cursor := get_annotation_objs_info_cur(a_object_owner, a_object_type);
     fetch l_info_cursor bulk collect into l_info_rows;
     close l_info_cursor;

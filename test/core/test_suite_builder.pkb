@@ -150,6 +150,25 @@ create or replace package body test_suite_builder is
     );
   end;
 
+  procedure test_annotation is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','Cool', null),
+        ut3.ut_annotation(8, 'test','Some test', 'test_procedure')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>' ||
+        '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
+        '%</UT_SUITE_ITEM>%'
+    );
+  end;
+
   procedure test_annot_duplicated is
     l_actual      clob;
     l_annotations ut3.ut_annotations;
@@ -415,6 +434,61 @@ create or replace package body test_suite_builder is
     );
   end;
 
+  procedure multiple_standalone_bef_aft is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(2, 'beforeall', 'some_package.first_before_all',null),
+        ut3.ut_annotation(3, 'beforeall', 'different_package.another_before_all',null),
+        ut3.ut_annotation(4, 'beforeeach', 'first_before_each',null),
+        ut3.ut_annotation(5, 'beforeeach', 'different_owner.different_package.another_before_each',null),
+        ut3.ut_annotation(6, 'aftereach', 'first_after_each',null),
+        ut3.ut_annotation(7, 'aftereach', 'another_after_each,different_owner.different_package.one_more_after_each',null),
+        ut3.ut_annotation(8, 'afterall', 'first_after_all',null),
+        ut3.ut_annotation(9, 'afterall', 'another_after_all',null),
+        ut3.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
+        ut3.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
+        ut3.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
+        ut3.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>some_test</NAME>' ||
+        '%<BEFORE_EACH_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_before_each</PROCEDURE_NAME>' ||
+        '%<OWNER_NAME>different_owner</OWNER_NAME><OBJECT_NAME>different_package</OBJECT_NAME><PROCEDURE_NAME>another_before_each</PROCEDURE_NAME>' ||
+        '%</BEFORE_EACH_LIST>' ||
+        '%<BEFORE_TEST_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc2</PROCEDURE_NAME>' ||
+        '%</BEFORE_TEST_LIST>' ||
+        '%<AFTER_TEST_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc2</PROCEDURE_NAME>' ||
+        '%</AFTER_TEST_LIST>' ||
+        '%<AFTER_EACH_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_after_each</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>another_after_each</PROCEDURE_NAME>' ||
+        '%<OWNER_NAME>different_owner</OWNER_NAME><OBJECT_NAME>different_package</OBJECT_NAME><PROCEDURE_NAME>one_more_after_each</PROCEDURE_NAME>' ||
+        '%</AFTER_EACH_LIST>' ||
+        '%</UT_SUITE_ITEM>' ||
+        '%<BEFORE_ALL_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_before_all</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>different_package</OBJECT_NAME><PROCEDURE_NAME>another_before_all</PROCEDURE_NAME>' ||
+        '%</BEFORE_ALL_LIST>' ||
+        '%<AFTER_ALL_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_after_all</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>another_after_all</PROCEDURE_NAME>' ||
+        '%</AFTER_ALL_LIST>%'
+    );
+  end;
+
   procedure before_after_on_single_proc is
     l_actual      clob;
     l_annotations ut3.ut_annotations;
@@ -448,6 +522,68 @@ create or replace package body test_suite_builder is
       '%</AFTER_ALL_LIST>%'
     );
   end;
+
+  procedure multiple_mixed_bef_aft is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(2, 'beforeall', null,'first_before_all'),
+        ut3.ut_annotation(3, 'beforeall', 'different_package.another_before_all',null),
+        ut3.ut_annotation(4, 'beforeeach', 'first_before_each',null),
+        ut3.ut_annotation(5, 'beforeeach', 'different_owner.different_package.another_before_each',null),
+        ut3.ut_annotation(6, 'aftereach', null, 'first_after_each'),
+        ut3.ut_annotation(7, 'aftereach', 'another_after_each,different_owner.different_package.one_more_after_each',null),
+        ut3.ut_annotation(8, 'afterall', 'first_after_all',null),
+        ut3.ut_annotation(9, 'afterall', 'another_after_all',null),
+        ut3.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
+        ut3.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
+        ut3.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
+        ut3.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test'),
+        ut3.ut_annotation(21, 'beforeall', null,'last_before_all'),
+        ut3.ut_annotation(22, 'aftereach', null, 'last_after_each'),
+        ut3.ut_annotation(23, 'afterall', null, 'last_after_all')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>some_test</NAME>' ||
+        '%<BEFORE_EACH_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_before_each</PROCEDURE_NAME>' ||
+        '%<OWNER_NAME>different_owner</OWNER_NAME><OBJECT_NAME>different_package</OBJECT_NAME><PROCEDURE_NAME>another_before_each</PROCEDURE_NAME>' ||
+        '%</BEFORE_EACH_LIST>' ||
+        '%<BEFORE_TEST_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc2</PROCEDURE_NAME>' ||
+        '%</BEFORE_TEST_LIST>' ||
+        '%<AFTER_TEST_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc2</PROCEDURE_NAME>' ||
+        '%</AFTER_TEST_LIST>' ||
+        '%<AFTER_EACH_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_after_each</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>another_after_each</PROCEDURE_NAME>' ||
+        '%<OWNER_NAME>different_owner</OWNER_NAME><OBJECT_NAME>different_package</OBJECT_NAME><PROCEDURE_NAME>one_more_after_each</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>last_after_each</PROCEDURE_NAME>' ||
+        '%</AFTER_EACH_LIST>' ||
+        '%</UT_SUITE_ITEM>' ||
+        '%<BEFORE_ALL_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_before_all</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>different_package</OBJECT_NAME><PROCEDURE_NAME>another_before_all</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>last_before_all</PROCEDURE_NAME>' ||
+        '%</BEFORE_ALL_LIST>' ||
+        '%<AFTER_ALL_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_after_all</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>another_after_all</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>last_after_all</PROCEDURE_NAME>' ||
+        '%</AFTER_ALL_LIST>%'
+    );
+  end;
+
 
   procedure before_after_mixed_with_test is
     l_actual      clob;
@@ -485,8 +621,9 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(1, 'suite','Cool', null),
         ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
         ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(4, 'context','A context', null),
-        ut3.ut_annotation(5, 'beforeall',null, 'context_setup'),
+        ut3.ut_annotation(4, 'context','a_context', null),
+        ut3.ut_annotation(5, 'displayname','A context', null),
+        ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
         ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
         ut3.ut_annotation(8, 'endcontext',null, null)
     );
@@ -498,10 +635,10 @@ create or replace package body test_suite_builder is
         '%<WARNINGS/>' ||
         '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
-            '%<NAME>context_1</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.context_1</PATH>' ||
+            '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
             '%<ITEMS>' ||
               '<UT_SUITE_ITEM>' ||
-                '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.context_1.test_in_a_context</PATH>' ||
+                '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context.test_in_a_context</PATH>' ||
               '%</UT_SUITE_ITEM>' ||
             '</ITEMS>' ||
             '<BEFORE_ALL_LIST>' ||
@@ -527,15 +664,15 @@ create or replace package body test_suite_builder is
   begin
     --Arrange
     l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(3, 'context','A context', null),
-        ut3.ut_annotation(4, 'beforeall',null, 'context_beforeall'),
-        ut3.ut_annotation(5, 'beforeeach',null, 'context_beforeeach'),
+        ut3.ut_annotation(1, 'suite', 'Cool', null),
+        ut3.ut_annotation(2, 'test', 'In suite', 'suite_level_test'),
+        ut3.ut_annotation(3, 'context', 'a_context', null),
+        ut3.ut_annotation(4, 'beforeall', 'context_beforeall', null),
+        ut3.ut_annotation(5, 'beforeeach', null, 'context_beforeeach'),
         ut3.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
-        ut3.ut_annotation(7, 'aftereach',null, 'context_aftereach'),
-        ut3.ut_annotation(8, 'afterall',null, 'context_afterall'),
-        ut3.ut_annotation(9, 'endcontext',null, null)
+        ut3.ut_annotation(7, 'aftereach', 'context_aftereach' ,null),
+        ut3.ut_annotation(8, 'afterall', null, 'context_afterall'),
+        ut3.ut_annotation(9, 'endcontext', null, null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -544,7 +681,7 @@ create or replace package body test_suite_builder is
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '%<UT_SUITE_ITEM>' ||
-            '%<NAME>context_1</NAME>' ||
+            '%<NAME>a_context</NAME>' ||
             '%<ITEMS>' ||
               '%<UT_SUITE_ITEM>' ||
                 '%<NAME>test_in_a_context</NAME>' ||
@@ -579,7 +716,7 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
         ut3.ut_annotation(3, 'beforeeach',null, 'suite_level_beforeeach'),
         ut3.ut_annotation(4, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(5, 'context','A context', null),
+        ut3.ut_annotation(5, 'context','a_context', null),
         ut3.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
         ut3.ut_annotation(7, 'endcontext',null, null),
         ut3.ut_annotation(8, 'aftereach',null, 'suite_level_aftereach'),
@@ -592,7 +729,7 @@ create or replace package body test_suite_builder is
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '%<UT_SUITE_ITEM>' ||
-            '%<NAME>context_1</NAME>' ||
+            '%<NAME>a_context</NAME>' ||
             '%<ITEMS>' ||
               '%<UT_SUITE_ITEM>' ||
                 '%<NAME>test_in_a_context</NAME>' ||
@@ -665,8 +802,9 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(1, 'suite','Cool', null),
         ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
         ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(4, 'context','A context', null),
-        ut3.ut_annotation(5, 'beforeall',null, 'context_setup'),
+        ut3.ut_annotation(4, 'context','a_context', null),
+        ut3.ut_annotation(5, 'displayname','A context', null),
+        ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
         ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
         ut3.ut_annotation(8, 'endcontext',null, null),
         ut3.ut_annotation(9, 'endcontext',null, null)
@@ -682,10 +820,10 @@ create or replace package body test_suite_builder is
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
-            '%<NAME>context_1</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.context_1</PATH>' ||
+            '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
             '%<ITEMS>' ||
               '<UT_SUITE_ITEM>' ||
-                '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.context_1.test_in_a_context</PATH>' ||
+                '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context.test_in_a_context</PATH>' ||
               '%</UT_SUITE_ITEM>' ||
             '</ITEMS>' ||
             '<BEFORE_ALL_LIST>' ||
@@ -705,5 +843,214 @@ create or replace package body test_suite_builder is
     );
   end;
 
-end;
+  procedure throws_value_empty is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(3, 'test','A test with empty throws annotation', 'A_TEST_PROCEDURE'),
+        ut3.ut_annotation(3, 'throws',null, 'A_TEST_PROCEDURE')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<WARNINGS>%&quot;--%throws&quot; annotation requires a parameter. Annotation ignored.%</WARNINGS>%'
+    );
+  end;
+
+  procedure throws_value_invalid is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(3, 'test','A test with invalid throws annotation', 'A_TEST_PROCEDURE'),
+        ut3.ut_annotation(3, 'throws',' -20145 , bad_variable_name ', 'A_TEST_PROCEDURE')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<WARNINGS>%Invalid parameter value &quot;bad_variable_name&quot; for &quot;--%throws&quot; annotation. Parameter ignored.%</WARNINGS>%'
+    );
+  end;
+
+
+  procedure before_aftertest_multi is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
+        ut3.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
+        ut3.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
+        ut3.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>some_test</NAME>' ||
+        '%<BEFORE_TEST_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc2</PROCEDURE_NAME>' ||
+        '%</BEFORE_TEST_LIST>' ||
+        '%<AFTER_TEST_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc2</PROCEDURE_NAME>' ||
+        '%</AFTER_TEST_LIST>' ||
+        '%</UT_SUITE_ITEM>%'
+    );
+  end;
+
+  procedure before_aftertest_twice is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3.ut_annotation(15, 'beforetest','before_test_proc, before_test_proc2', 'some_test'),
+        ut3.ut_annotation(16, 'beforetest','before_test_proc3', 'some_test'),
+        ut3.ut_annotation(18, 'aftertest','after_test_proc,after_test_proc2', 'some_test'),
+        ut3.ut_annotation(20, 'aftertest','after_test_proc3', 'some_test')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>some_test</NAME>' ||
+        '%<BEFORE_TEST_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc2</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc3</PROCEDURE_NAME>' ||
+        '%</BEFORE_TEST_LIST>' ||
+        '%<AFTER_TEST_LIST>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc2</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc3</PROCEDURE_NAME>' ||
+        '%</AFTER_TEST_LIST>' ||
+        '%</UT_SUITE_ITEM>%'
+    );
+  end;
+
+  procedure before_aftertest_pkg_proc is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3.ut_annotation(15, 'beforetest','external_package.before_test_proc', 'some_test'),
+        ut3.ut_annotation(18, 'aftertest','external_package.after_test_proc', 'some_test')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>some_test</NAME>' ||
+        '%<BEFORE_TEST_LIST>' ||
+        '%<OBJECT_NAME>external_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc</PROCEDURE_NAME>' ||
+        '%</BEFORE_TEST_LIST>' ||
+        '%<AFTER_TEST_LIST>' ||
+        '%<OBJECT_NAME>external_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc</PROCEDURE_NAME>' ||
+        '%</AFTER_TEST_LIST>' ||
+        '%</UT_SUITE_ITEM>%'
+    );
+  end;
+
+  procedure before_aftertest_mixed_syntax is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3.ut_annotation(15, 'beforetest','external_package.before_test_proc, before_test_proc2', 'some_test'),
+        ut3.ut_annotation(18, 'aftertest','external_package.after_test_proc, after_test_proc2', 'some_test')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>some_test</NAME>' ||
+        '%<BEFORE_TEST_LIST>' ||
+        '%<OBJECT_NAME>external_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>before_test_proc2</PROCEDURE_NAME>' ||
+        '%</BEFORE_TEST_LIST>' ||
+        '%<AFTER_TEST_LIST>' ||
+        '%<OBJECT_NAME>external_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc</PROCEDURE_NAME>' ||
+        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>after_test_proc2</PROCEDURE_NAME>' ||
+        '%</AFTER_TEST_LIST>' ||
+        '%</UT_SUITE_ITEM>%'
+    );
+  end;
+
+  procedure test_annotation_ordering is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(4, 'test','B test', 'b_test'),
+        ut3.ut_annotation(10, 'test','Z test', 'z_test'),
+        ut3.ut_annotation(14, 'test','A test', 'a_test')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>b_test</NAME>' ||
+        '%</UT_SUITE_ITEM>%'||
+        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>z_test</NAME>' ||
+        '%</UT_SUITE_ITEM>%'||
+        '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>a_test</NAME>' ||
+        '%</UT_SUITE_ITEM>%'
+    );
+  end;
+
+  procedure test_bad_procedure_annotation is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(1, 'suite','Cool', null),
+        ut3.ut_annotation(2, 'bad_procedure_annotation',null, 'some_procedure'),
+        ut3.ut_annotation(6, 'test','A test', 'do_stuff')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like('%<WARNINGS><VARCHAR2>Unsupported annotation &quot;--\%bad_procedure_annotation&quot;. Annotation ignored.% line 2</VARCHAR2></WARNINGS>%', '\');
+  end;
+
+  procedure test_bad_package_annotation is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+    begin
+      --Arrange
+      l_annotations := ut3.ut_annotations(
+          ut3.ut_annotation(1, 'suite','Cool', null),
+          ut3.ut_annotation(17, 'bad_package_annotation',null, null),
+          ut3.ut_annotation(24, 'test','A test', 'do_stuff')
+      );
+      --Act
+      l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+      --Assert
+      ut.expect(l_actual).to_be_like('%<WARNINGS><VARCHAR2>Unsupported annotation &quot;--\%bad_package_annotation&quot;. Annotation ignored.% line 17</VARCHAR2></WARNINGS>%', '\');
+  end;
+
+end test_suite_builder;
 /

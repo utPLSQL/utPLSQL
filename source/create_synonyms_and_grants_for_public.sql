@@ -31,6 +31,8 @@ whenever oserror exit failure rollback
 
 alter session set current_schema = &&ut3_owner;
 
+grant execute on &&ut3_owner..ut_expectation to public;
+grant execute on &&ut3_owner..ut_expectation_compound to public;
 grant execute on &&ut3_owner..ut_be_between to public;
 grant execute on &&ut3_owner..ut_be_empty to public;
 grant execute on &&ut3_owner..ut_be_false to public;
@@ -101,6 +103,8 @@ end;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
+create public synonym ut_expectation for &&ut3_owner..ut_expectation;
+create public synonym ut_expectation_compound for &&ut3_owner..ut_expectation_compound;
 create public synonym be_between for &&ut3_owner..ut_be_between;
 create public synonym be_empty for &&ut3_owner..ut_be_empty;
 create public synonym be_false for &&ut3_owner..ut_be_false;
@@ -142,8 +146,6 @@ create public synonym ut_file_mapping for &&ut3_owner..ut_file_mapping;
 create public synonym ut_file_mapper for &&ut3_owner..ut_file_mapper;
 create public synonym ut_key_value_pairs for &&ut3_owner..ut_key_value_pairs;
 create public synonym ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
-create public synonym ut_compound_data_tmp for &&ut3_owner..ut_compound_data_tmp;
-create public synonym ut_compound_data_diff_tmp for &&ut3_owner..ut_compound_data_diff_tmp;
 create public synonym ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
 begin
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then

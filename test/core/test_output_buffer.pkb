@@ -55,12 +55,12 @@ create or replace package body test_output_buffer is
   --Act
     l_expected := lpad('a text',4000,',a text');
     l_buffer.send_line(l_expected);
-    l_start := systimestamp;
+    l_start := localtimestamp;
     select * into l_result from table(l_buffer.get_lines(1,1));
-    l_duration := systimestamp - l_start;
+    l_duration := localtimestamp - l_start;
 
     ut.expect(l_result).to_equal(l_expected);
-    ut.expect(l_duration).to_be_greater_than(interval '1' second);
+    ut.expect(l_duration).to_be_greater_than(interval '0.99' second);
     select count(1) into l_remaining from ut3.ut_output_buffer_tmp where output_id = l_buffer.output_id;
 
     ut.expect(l_remaining).to_equal(0);

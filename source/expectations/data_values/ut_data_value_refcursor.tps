@@ -24,16 +24,28 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
    * Determines if the cursor is null
    */
   is_cursor_null  integer,
-
+  
+  /**
+  * hold information if the cursor contains collection object
+  */
+  contain_collection number(1,0),
+  
   /**
   * Holds information about column names and column data-types
   */
   columns_info       xmltype,
-
+  
+  /**
+  * Holds more detailed information regarding the pk joins
+  */
+  key_info xmltype,
+  
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) return self as result,
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor),
   overriding member function to_string return varchar2,
-  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return varchar2,
-  overriding member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer
+  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean := false ) return varchar2,
+  overriding member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean) return integer,
+  overriding member function is_empty return boolean
+
 )
 /

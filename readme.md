@@ -7,7 +7,7 @@
 
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/master.svg?label=master%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/develop.svg?label=develop%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
-[![sonar](https://sonarcloud.io/api/badges/gate?key=utPLSQL%3Adevelop)](https://sonarcloud.io/dashboard/index?id=utPLSQL%3Adevelop)
+[![sonar](https://sonarcloud.io/api/project_badges/measure?project=utPLSQL&metric=sqale_rating)](https://sonarcloud.io/dashboard/index?id=utPLSQL)
 [![Coveralls coverage](https://coveralls.io/repos/github/utPLSQL/utPLSQL/badge.svg?branch=develop)](https://coveralls.io/github/utPLSQL/utPLSQL?branch=develop)
 
 ----------
@@ -45,7 +45,7 @@ Published releases are available for download on the [utPLSQL GitHub Releases Pa
 
 Full documentation of the project is automatically published on [utPLSQL github pages](https://utplsql.github.io/utPLSQL/)
 
-[Cheat-sheet](https://www.cheatography.com/jgebal/cheat-sheets/utplsql-v3/#downloads)
+[Cheat-sheets](https://www.cheatography.com/jgebal/lists/utplsql-v3-cheat-sheets/)
 
 # Installation
 

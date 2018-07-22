@@ -74,16 +74,32 @@ create or replace package body ut_runner is
   end;
 
   procedure run(
-    a_paths ut_varchar2_list, a_reporters ut_reporters, a_color_console boolean := false,
-    a_coverage_schemes ut_varchar2_list := null, a_source_file_mappings ut_file_mappings := null, a_test_file_mappings ut_file_mappings := null,
-    a_include_objects ut_varchar2_list := null, a_exclude_objects ut_varchar2_list := null, a_fail_on_errors boolean default false
+    a_paths ut_varchar2_list,
+    a_reporters ut_reporters,
+    a_color_console boolean := false,
+    a_coverage_schemes ut_varchar2_list := null,
+    a_source_file_mappings ut_file_mappings := null,
+    a_test_file_mappings ut_file_mappings := null,
+    a_include_objects ut_varchar2_list := null,
+    a_exclude_objects ut_varchar2_list := null,
+    a_fail_on_errors boolean := false,
+    a_client_character_set varchar2 := null
   ) is
     l_run                   ut_run;
     l_coverage_schema_names ut_varchar2_rows;
     l_exclude_object_names  ut_object_names := ut_object_names();
     l_include_object_names  ut_object_names;
+    l_paths                 ut_varchar2_list := ut_varchar2_list();                 
   begin
     ut_event_manager.initialize();
+    if a_paths is null or a_paths is empty or a_paths.count = 1 and a_paths(1) is null then
+      l_paths := ut_varchar2_list(sys_context('userenv', 'current_schema'));
+    else
+      for i in 1..a_paths.COUNT loop
+        l_paths := l_paths multiset union ut_utils.string_to_table(a_string => a_paths(i),a_delimiter => ',');
+      end loop;
+    end if;
+
     begin
       ut_expectation_processor.reset_invalidation_exception();
       ut_utils.save_dbms_output_to_cache();
@@ -100,7 +116,7 @@ create or replace package body ut_runner is
       if a_coverage_schemes is not empty then
         l_coverage_schema_names := ut_utils.convert_collection(a_coverage_schemes);
       else
-        l_coverage_schema_names := ut_suite_manager.get_schema_names(a_paths);
+        l_coverage_schema_names := ut_suite_manager.get_schema_names(l_paths);
       end if;
 
       if a_exclude_objects is not empty then
@@ -112,13 +128,14 @@ create or replace package body ut_runner is
       l_include_object_names := to_ut_object_list(a_include_objects, l_coverage_schema_names);
 
       l_run := ut_run(
-        ut_suite_manager.configure_execution_by_path(a_paths),
-        a_paths,
+        ut_suite_manager.configure_execution_by_path(l_paths),
+        l_paths,
         l_coverage_schema_names,
         l_exclude_object_names,
         l_include_object_names,
         set(a_source_file_mappings),
-        set(a_test_file_mappings)
+        set(a_test_file_mappings),
+        a_client_character_set
       );
       l_run.do_execute();
 

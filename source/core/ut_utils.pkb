@@ -107,8 +107,10 @@ create or replace package body ut_utils is
     l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
     l_result varchar2(32767);
   begin
-    if l_len = 0 then
+    if a_value is null then
       l_result := gc_null_string;
+    elsif l_len = 0 then
+      l_result := gc_empty_string;
     elsif l_len <= gc_max_input_string_length then
       l_result := surround_with(a_value,a_qoute_char);
     else
@@ -121,8 +123,10 @@ create or replace package body ut_utils is
     l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
     l_result varchar2(32767);
   begin
-    if l_len = 0 then
+    if a_value is null then
       l_result := gc_null_string;
+    elsif l_len = 0 then
+      l_result := gc_empty_string;
     elsif l_len <= gc_max_input_string_length then
       l_result := surround_with(rawtohex(a_value),a_qoute_char);
     else
@@ -437,17 +441,16 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
   procedure save_dbms_output_to_cache is
     l_status number;
     l_line   varchar2(32767);
-    l_line_no integer := 1;
+    l_offset integer := 0;
     l_lines  ut_varchar2_rows := ut_varchar2_rows();
     c_lines_limit constant integer := 100;
     pragma autonomous_transaction;
 
-    procedure flush_lines is
+    procedure flush_lines(a_lines ut_varchar2_rows, a_offset integer) is
     begin
       insert into ut_dbms_output_cache (seq_no,text)
-        select rownum, column_value
-        from table(l_lines);
-      l_lines.delete;
+        select rownum+a_offset, column_value
+        from table(a_lines);
     end;
   begin
     loop
@@ -455,10 +458,12 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
       exit when l_status = 1;
       l_lines := l_lines multiset union all ut_utils.convert_collection(ut_utils.clob_to_table(l_line||chr(7),4000));
       if l_lines.count > c_lines_limit then
-        flush_lines();
+        flush_lines(l_lines, l_offset);
+        l_offset := l_offset + l_lines.count;
+        l_lines.delete;
       end if;
     end loop;
-    flush_lines();
+    flush_lines(l_lines, l_offset);
     commit;
   end;
 
@@ -506,6 +511,17 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     return to_char(a_value, gc_number_format, 'NLS_NUMERIC_CHARACTERS=''. ''');
   end;
 
+  function get_xml_header(a_encoding varchar2) return varchar2 is
+  begin
+    return
+      '<?xml version="1.0"'
+      ||case
+          when a_encoding is not null
+          then ' encoding="'||upper(a_encoding)||'"'
+        end
+      ||'?>';
+  end;
+
   function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list is
     l_trimmed_list ut_varchar2_list;
     l_index integer;
@@ -524,7 +540,7 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     return l_trimmed_list;
   end;
 
-  function filter_list(a_list IN ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list is
+  function filter_list(a_list in ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list is
     l_filtered_list ut_varchar2_list;
     l_index integer;
   begin
@@ -570,10 +586,6 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     l_newlines_count          binary_integer;
     l_offset                  binary_integer := 1;
     l_length                  binary_integer := coalesce(dbms_lob.getlength(a_source), 0);
-    function is_before(a_x binary_integer, a_y binary_integer) return boolean is
-    begin
-      return a_x < a_y or a_y = 0;
-    end;
   begin
     l_ml_comment_start := instr(a_source,'/*');
     l_comment_start := instr(a_source,'--');

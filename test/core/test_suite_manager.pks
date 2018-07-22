@@ -65,12 +65,18 @@ create or replace package test_suite_manager is
   --%test(Prepare runner for the suites package by path for current user)
   procedure test_top_subpck_by_path_cu;
 
-  --%test(Prepare runner for invalid package)
+  --%test(Prepare runner for invalid package - it will add to suite but fail on exec )
   --%beforetest(compile_invalid_package)
   --%aftertest(drop_invalid_package)
   procedure test_search_invalid_pck;
   procedure compile_invalid_package;
   procedure drop_invalid_package;
+ 
+  --%test(Prepare runner for nonexisting package with schema) 
+  procedure test_search_nonexisting_pck;
+ 
+   --%test(Prepare runner for nonexisting package without schema) 
+  procedure test_search_nonexist_sch_pck; 
 
   --%test(Test description with comma)
   --%beforetest(setup_desc_with_comma)
@@ -138,6 +144,12 @@ create or replace package test_suite_manager is
 
   --%test(Whole suite gets disabled with floating annotation)
   procedure disable_suite_floating_annot;
+
+  --%test(Prepare runner for a package procedure inside context)
+  procedure pck_proc_in_ctx_by_name;
+
+  --%test(Prepare runner for a package procedure inside context by path)
+  procedure pck_proc_in_ctx_by_path;
 
 end test_suite_manager;
 /

@@ -36,9 +36,9 @@ create or replace type body ut_data_value_collection as
     return;
   end;
 
-  overriding member function is_multi_line return boolean is
+  overriding member function is_empty return boolean is
   begin
-    return not self.is_null();
+    return self.elements_count = 0;
   end;
 
 end;

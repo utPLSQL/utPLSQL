@@ -213,26 +213,64 @@ create or replace package body ut_suite_manager is
   end;
 
   procedure filter_suite_by_path(a_suite in out nocopy ut_suite_item, a_path varchar2) is
-    c_root        constant varchar2(32767) := lower(regexp_substr(a_path, '[A-Za-z0-9$#_]+'));
-    c_rest_path   constant varchar2(32767) := regexp_substr(a_path, '\.(.+)', subexpression => 1);
-    l_suite       ut_logical_suite;
-    l_item        ut_suite_item;
-    l_items       ut_suite_items := ut_suite_items();
+    c_item_name          constant varchar2(32767) := lower(regexp_substr(a_path, '[A-Za-z0-9$#_]+'));
+    c_child_filter_path  constant varchar2(32767) := regexp_substr(a_path, '\.(.+)', subexpression => 1);
+    l_suite              ut_logical_suite;
+    l_item               ut_suite_item;
+    l_items              ut_suite_items := ut_suite_items();
+
+    function find_item_in_suite(a_suite ut_logical_suite, a_item_name varchar2) return ut_suite_item is
+      l_item_index binary_integer;
+    begin
+      l_item_index := a_suite.items.first;
+      while l_item_index is not null loop
+        if lower(a_suite.items(l_item_index).name) = a_item_name then
+          return a_suite.items(l_item_index);
+        end if;
+        l_item_index := a_suite.items.next(l_item_index);
+      end loop;
+      return null;
+    end;
+
+    function find_item_in_suite_contexts(a_suite ut_logical_suite, a_item_name varchar2) return ut_suite_item is
+      l_item_index binary_integer;
+      l_context    ut_suite_context;
+      l_item       ut_suite_item;
+    begin
+      l_item_index := a_suite.items.first;
+      while l_item_index is not null loop
+        if a_suite.items(l_item_index) is of (ut_suite_context) then
+          l_item := find_item_in_suite(
+              treat(a_suite.items(l_item_index) as ut_suite_context)
+              , a_item_name
+          );
+        end if;
+
+        if l_item is not null then
+          l_context := treat(a_suite.items(l_item_index) as ut_suite_context);
+          l_context.items := ut_suite_items(l_item);
+          exit;
+        end if;
+        l_item_index := a_suite.items.next(l_item_index);
+      end loop;
+      return l_context;
+    end;
   begin
-    if a_path is not null and a_suite is not null and a_suite is of (ut_logical_suite) then
+    if a_suite is of (ut_logical_suite) then
       l_suite := treat(a_suite as ut_logical_suite);
 
-      for i in 1 .. l_suite.items.count loop
-        l_item := l_suite.items(i);
-        if lower(l_item.name) = c_root then
-          filter_suite_by_path(l_item, c_rest_path);
-          l_items.extend;
-          l_items(l_items.count) := l_item;
+      l_item := coalesce(
+          find_item_in_suite(l_suite, c_item_name)
+          , find_item_in_suite_contexts(l_suite, c_item_name)
+      );
+      if l_item is not null then
+        if c_child_filter_path is not null then
+          filter_suite_by_path(l_item, c_child_filter_path);
         end if;
-      end loop;
-
-      if l_items.count = 0 then
-        raise_application_error(-20203, 'Suite not found');
+        l_items.extend;
+        l_items(l_items.count) := l_item;
+      else
+        raise_application_error(-20203, 'Suite item '||c_item_name||' not found');
       end if;
 
       l_suite.items := l_items;
@@ -241,12 +279,15 @@ create or replace package body ut_suite_manager is
   end filter_suite_by_path;
 
   function get_suite_filtered_by_path(a_path varchar2, a_schema_suites tt_schema_suites) return ut_logical_suite is
-    l_suite           ut_logical_suite;
-    c_suite_path      constant varchar2(4000) := regexp_substr(a_path, ':(.+)', subexpression => 1);
-    c_root_suite_name constant varchar2(4000) := regexp_substr(c_suite_path, '^[A-Za-z0-9$#_]+');
+    l_suite             ut_logical_suite;
+    c_suite_path        constant varchar2(32767) := regexp_substr(a_path, ':(.+)', subexpression => 1);
+    c_root_suite_name   constant varchar2(32767) := regexp_substr(c_suite_path, '^[A-Za-z0-9$#_]+');
+    c_child_filter_path constant varchar2(32767) := regexp_substr(c_suite_path, '\.(.+)', subexpression => 1);
   begin
     l_suite := a_schema_suites(c_root_suite_name);
-    filter_suite_by_path(l_suite, regexp_substr(c_suite_path, '\.(.+)', subexpression => 1));
+    if c_child_filter_path is not null then
+      filter_suite_by_path(l_suite, c_child_filter_path);
+    end if;
     return l_suite;
   exception
     when no_data_found then
@@ -293,7 +334,7 @@ create or replace package body ut_suite_manager is
     l_index              varchar2(4000 char);
     l_suite              ut_logical_suite;
     l_objects_to_run     ut_suite_items;
-    l_schema_paths   t_schema_paths;
+    l_schema_paths       t_schema_paths;
   begin
     --resolve schema names from paths and group paths by schema name
     resolve_schema_names(l_paths);

@@ -1,11 +1,11 @@
 create or replace type body ut_executable_test as
   constructor function ut_executable_test(
     self in out nocopy ut_executable_test, a_owner varchar2, a_package varchar2,
-    a_procedure_name varchar2, a_associated_event_name varchar2
+    a_procedure_name varchar2, a_executable_type varchar2
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
-    self.associated_event_name := a_associated_event_name;
+    self.executable_type := a_executable_type;
     self.owner_name := a_owner;
     self.object_name := a_package;
     self.procedure_name := a_procedure_name;

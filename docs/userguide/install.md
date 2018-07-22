@@ -70,7 +70,7 @@ cd source
 sqlplus sys/sys_pass@db as sysdba @install_headless.sql utp3 my_verySecret_password utp3_tablespace   
 ```
 
-The script needs to be executed by SYSDBA, in order to grant access to DBMS_LOCK system package.
+The script needs to be executed by `SYSDBA`, in order to grant access to `DBMS_LOCK` and `DBMS_CRYPTO` system packages.
 
 
 # Recommended Schema
@@ -88,7 +88,7 @@ If the installation and utPLSQL owner user is one and the same, the user must ha
   - CREATE SYNONYM
   - ALTER SESSION
   
-In addition the user must be granted the execute privilege on `DBMS_LOCK` package.
+In addition the user must be granted the execute privilege on `DBMS_LOCK` and `DBMS_CRYPTO` packages.
     
 utPLSQL is using [DBMS_PROFILER tables](https://docs.oracle.com/cd/E18283_01/appdev.112/e16760/d_profil.htm#i999476) for code coverage. The tables required by DBMS_PROFILER will be created in the installation schema unless they already exist.
 The uninstall process will **not** drop profiler tables, as they can potentially be shared and reused for profiling PLSQL code.
@@ -135,12 +135,13 @@ Example invocation:
 cd source
 sqlplus admin/admins_password@database @create_synonyms_and_grants_for_public.sql ut3  
 ```
-To grant utPLSQL to an individual user, execute script `source/create_synonyms_and_grants_for_user.sql`, provide `schema_name` where utPLSQL is installed and `user_name` to grant access for.
+To grant utPLSQL to an individual user, execute scripts `source/create_user_grants.sql` and `source/create_user_synonyms.sql`, provide `schema_name` where utPLSQL is installed and `user_name` to grant access for.
 
 Example invocation:
 ```bash
 cd source
-sqlplus admin/admins_password@database @create_synonyms_and_grants_for_user.sql ut3 hr  
+sqlplus ut3_user/ut3_password@database @create_user_grants.sql ut3 hr
+sqlplus user/user_password@database @create_user_synonyms.sql ut3 hr
 ```
 
 The following tools that support the SQL*Plus commands can be used to run the installation script:
