@@ -19,7 +19,7 @@ We strongly recommend putting package level annotations at the very top of packa
 | --- | --- | --- |
 | `--%suite(<description>)` | Package | Mandatory. Marks package as a test suite. Optional suite description can be provided (see `displayname`). |
 | `--%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
-| `--%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a suite/test. `%displayname(Name of the suite/test)`. The annotation is provided for flexibility and convenience only. It has exactly the same meaning as `<description>` in `test` and `suite` annotations. If description is provided using both `suite`/`test` and `displayname`, then the one defined as last takes precedence. |
+| `--%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a context/suite/test. Provides description to a `context` when used within `context`. When used with `test` or `suite` annotation, overrides the `<description>` provided with `suite`/`test`. |
 | `--%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can by provided (see `displayname`). |
 | `--%throws(<exception>[,...])`| Procedure | Denotes that the annotated test procedure must throw one of the exceptions provided. Supported forms of exceptions are: numeric literals, numeric contant names, exception constant names, predefined Oracle exception names. |
 | `--%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
