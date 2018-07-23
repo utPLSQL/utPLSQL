@@ -1089,7 +1089,7 @@ create or replace package test_rooms_management is
 
   
   --%context(remove_rooms_by_name)
-  --%description(Remove rooms by name)
+  --%displayname(Remove rooms by name)
   
     --%test(Removes a room without content in it)
     procedure remove_empty_room;
@@ -1102,7 +1102,7 @@ create or replace package test_rooms_management is
   
   
   --%context(add_rooms_content)
-  --%description(Add content to a room)
+  --%displayname(Add content to a room)
 
     --%test(Fails when room name is not valid)
     --%throws(no_data_found)
