@@ -14,10 +14,18 @@ create or replace package test_ut_executable is
   --%test(Executes a procedure raising exception, saves dbms_output and exception stack trace)
   procedure exec_failing_proc;
 
+  $if dbms_db_version.version > 12 $then
+  --%disabled
   --%test(Sets state invalid flag when package-state invalidated and saves exception stack trace)
   --%beforetest(create_state_dependant_pkg)
   --%aftertest(drop_state_dependant_pkg)
   procedure exec_invalid_state_proc;
+  $else
+  --%test(Sets state invalid flag when package-state invalidated and saves exception stack trace)
+  --%beforetest(create_state_dependant_pkg)
+  --%aftertest(drop_state_dependant_pkg)
+  procedure exec_invalid_state_proc;
+  $end
 
   procedure create_state_dependant_pkg;
   procedure drop_state_dependant_pkg;
