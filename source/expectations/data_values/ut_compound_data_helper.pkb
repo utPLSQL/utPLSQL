@@ -46,9 +46,9 @@ create or replace package body ut_compound_data_helper is
     -- That is, we always get: l_exclude_xpath, l_include_xpath
     --   regardless if the variables are NULL (not to be used) or NOT NULL and will be used for filtering
     if a_exclude_xpath is null and a_include_xpath is null then
-      l_filter := ':l_exclude_xpath, :l_include_xpath, '||l_source_column||' as '||a_column_alias;
+      l_filter := ':l_exclude_xpath as exclude_path, :l_include_xpath as include_path, '||l_source_column||' as '||a_column_alias;
     elsif a_exclude_xpath is not null and a_include_xpath is null then
-      l_filter := 'deletexml( '||l_source_column||', :l_exclude_xpath ) as '||a_column_alias||', :l_include_xpath';
+      l_filter := 'deletexml( '||l_source_column||', :l_exclude_xpath ) as '||a_column_alias||', :l_include_xpath as include_path';
     elsif a_exclude_xpath is null and a_include_xpath is not null then
       l_filter := ':l_exclude_xpath, extract( '||l_source_column||', :l_include_xpath ) as '||a_column_alias;
     elsif a_exclude_xpath is not null and a_include_xpath is not null then
