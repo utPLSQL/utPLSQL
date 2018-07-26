@@ -235,7 +235,7 @@ create or replace type body ut_compound_data_value as
     execute immediate 'merge into ' || l_ut_owner || '.ut_compound_data_tmp tgt
                        using (
                               select '||l_ut_owner ||'.ut_compound_data_helper.get_hash(ucd.item_data.getclobval()) item_hash, 
-                                      pk_hash, ucd.item_no, ucd.data_id
+                                      pk_hash, ucd.item_no, ucd.data_id, ucd.item_data
                               from
                               (
                               select '||l_column_filter||','||get_column_pk_hash(a_join_by_xpath)||', item_no, data_id
@@ -246,35 +246,38 @@ create or replace type body ut_compound_data_value as
                        on (tgt.item_no = src.item_no and tgt.data_id = src.data_id)
                        when matched then update
                        set tgt.item_hash = src.item_hash,
-                           tgt.pk_hash = src.pk_hash ]'
-                       using a_exclude_xpath, a_include_xpath,a_join_by_xpath,self.data_id, l_other.data_id;
+                           tgt.pk_hash = src.pk_hash,
+                           tgt.pk_value = replace((extract(src.item_data,:join_by_xpath).getstringval()),chr(10))]'
+                       using a_exclude_xpath, a_include_xpath,
+                             a_join_by_xpath,self.data_id, l_other.data_id,
+                             a_join_by_xpath;
     
     /* Peform minus on two sets two get diffrences that will be used later on to print results */
-    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no)
+    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no,pk_value)
                        with source_data as
                        ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
-                           pk_hash
+                           pk_hash , t.pk_value
                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
                            where data_id = :self_guid or data_id = :other_guid
                         )           
-                       select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
+                       select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no,tmp.pk_value
                        from(
                          (
-                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           select t.item_hash,t.duplicate_no,t.pk_hash,t.pk_value
                            from  source_data t
                            where t.data_id = :self_guid
                            minus
-                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           select t.item_hash,t.duplicate_no,t.pk_hash,t.pk_value
                            from  source_data t
                            where t.data_id = :other_guid
                          )
                            union all
                          (
-                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           select t.item_hash,t.duplicate_no,t.pk_hash,t.pk_value
                            from  source_data t
                            where t.data_id = :other_guid
                            minus
-                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           select t.item_hash,t.duplicate_no,t.pk_hash,t.pk_value
                            from  source_data t
                            where t.data_id = :self_guid
                         ))tmp'
