@@ -204,7 +204,7 @@ create or replace type body ut_compound_data_value as
     c_max_rows        constant integer := 20;
     l_pk_hash_str     varchar2(100);
     
-    function get_column_pk_hash_string(a_join_by_xpath varchar2) return varchar2 result_cache is
+    function get_column_pk_hash_string(a_join_by_xpath varchar2) return varchar2 is
       l_column varchar2(32767);
     begin
       /* due to possibility of key being to columns we cannot use xmlextractvalue
@@ -257,39 +257,51 @@ create or replace type body ut_compound_data_value as
     execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no)
                        with source_data as
                        ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
-                           pk_hash , t.pk_value
+                           pk_hash, 
+                           pk_value
                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
                            where data_id = :self_guid or data_id = :other_guid
-                        )           
+                        ) ,
+                        actual as (
+                        select t.item_hash,t.duplicate_no,t.pk_hash
+                        from  source_data t
+                        where t.data_id = :self_guid
+                        ),
+                        expected as (
+                           select t.item_hash,t.duplicate_no,t.pk_hash
+                           from  source_data t
+                           where t.data_id = :other_guid                       
+                        )
                        select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
                        from(
                          (
-                           select t.item_hash,t.duplicate_no,t.pk_hash
-                           from  source_data t
-                           where t.data_id = :self_guid
-                           minus
-                           select t.item_hash,t.duplicate_no,t.pk_hash
-                           from  source_data t
-                           where t.data_id = :other_guid
+                           select act.item_hash,act.duplicate_no,act.pk_hash
+                           from  actual act left outer join expected exp
+                           on (act.item_hash = exp.item_hash 
+                               and act.duplicate_no = exp.duplicate_no 
+                               and nvl(act.pk_hash,''1'') = nvl(exp.pk_hash,''1'') )
+                           where exp.item_hash is null
                          )
                            union all
                          (
-                           select t.item_hash,t.duplicate_no,t.pk_hash
-                           from  source_data t
-                           where t.data_id = :other_guid
-                           minus
-                           select t.item_hash,t.duplicate_no,t.pk_hash
-                           from  source_data t
-                           where t.data_id = :self_guid
-                        ))tmp'
+                           select exp.item_hash,exp.duplicate_no,exp.pk_hash
+                           from  expected exp left outer join actual act
+                           on (
+                               act.item_hash = exp.item_hash 
+                               and act.duplicate_no = exp.duplicate_no 
+                               and nvl(act.pk_hash,''1'') = nvl(exp.pk_hash,''1'')
+                               )
+                          where act.item_hash is null
+                         )
+                        )tmp'
        using self.data_id, l_other.data_id,
-             l_diff_id, 
              self.data_id, l_other.data_id,
-             l_other.data_id,self.data_id;
+             l_diff_id;
     --result is OK only if both are same
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;
     else
+      raise_application_error(-20100,'test'||sql%rowcount );
       l_result := 1;
     end if;
     return l_result;
