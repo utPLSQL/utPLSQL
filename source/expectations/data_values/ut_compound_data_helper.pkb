@@ -157,8 +157,13 @@ create or replace package body ut_compound_data_helper is
     return l_results;
   end;
   
-  function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return clob is
-    l_pk_value clob;
+  function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return varchar2 is
+    
+    $if dbms_db_version.version = 12 $then
+    pragma udf;
+    $end
+    
+    l_pk_value varchar2(4000);
   begin
     select replace((extract(a_item_data,a_join_by_xpath).getclobval()),chr(10)) into l_pk_value from dual;    
     return l_pk_value; 
@@ -468,15 +473,30 @@ create or replace package body ut_compound_data_helper is
 
   end;
 
-  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
-  begin
-    return dbms_crypto.hash(a_data, a_hash_type);
-  end;
+  $if dbms_db_version.version = 12 $then
+    function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1)  return t_hash deterministic is
+      pragma udf;
+    begin
+      return dbms_crypto.hash(a_data, a_hash_type);
+    end;
+   
+    function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash deterministic is
+      pragma udf;
+    begin
+      return dbms_crypto.hash(a_data, a_hash_type);
+    end;   
+  $else   
+    function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
+    begin
+      return dbms_crypto.hash(a_data, a_hash_type);
+    end;
 
-  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
-  begin
-    return dbms_crypto.hash(a_data, a_hash_type);
-  end;
+    function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
+    begin
+      return dbms_crypto.hash(a_data, a_hash_type);
+    end;
+  $end
+
 
   function columns_hash(
     a_data_value_cursor ut_data_value_refcursor, a_exclude_xpath varchar2, a_include_xpath varchar2,
