@@ -301,7 +301,6 @@ create or replace type body ut_compound_data_value as
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;
     else
-      raise_application_error(-20100,'test'||sql%rowcount );
       l_result := 1;
     end if;
     return l_result;
