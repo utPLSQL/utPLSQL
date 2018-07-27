@@ -18,7 +18,7 @@ begin
     select column_value as privilege
     from table(l_expected_grants)
     minus
-    select privilege
+    select replace(privilege,' ANY ') privilege
     from user_sys_privs
   );
   if l_missing_grants is not null then
