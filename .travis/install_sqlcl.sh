@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-SQLCL_FILE=sqlcl-4.2.0.17.073.1038-no-jre.zip
+SQLCL_FILE=sqlcl-18.2.0.zip
 cd .travis
 
 # Download if not present on cache dir.
