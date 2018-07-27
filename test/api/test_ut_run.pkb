@@ -514,11 +514,27 @@ create or replace package body test_ut_run is
   end;
 
   procedure create_test_suite is
+    l_service_name varchar2(100);
     pragma autonomous_transaction;
   begin
+    select global_name into l_service_name from global_name;
+    execute immediate
+    'create public database link db_loopback connect to ut3_tester identified by ut3
+      using ''(DESCRIPTION=
+                (ADDRESS=(PROTOCOL=TCP)
+                  (HOST='||sys_context('userenv','SERVER_HOST')||')
+                  (PORT=1521)
+                )
+                (CONNECT_DATA=(SERVICE_NAME='||l_service_name||')))''';
     execute immediate q'[
       create or replace package stateful_package as
+        function get_state return varchar2;
+      end;
+    ]';
+    execute immediate q'[
+      create or replace package body stateful_package as
         g_state varchar2(1) := 'A';
+        function get_state return varchar2 is begin return g_state; end;
       end;
     ]';
     execute immediate q'[
@@ -527,11 +543,11 @@ create or replace package body test_ut_run is
         --%suitepath(test_state)
 
         --%test
-        --%beforetest(acquire_state,recompile_in_background)
+        --%beforetest(acquire_state_via_db_link,rebuild_stateful_package)
         procedure failing_stateful_test;
 
-        procedure recompile_in_background;
-        procedure acquire_state;
+        procedure rebuild_stateful_package;
+        procedure acquire_state_via_db_link;
 
       end;
     ]';
@@ -540,39 +556,23 @@ create or replace package body test_ut_run is
 
       procedure failing_stateful_test is
       begin
-        ut3.ut.expect(stateful_package.g_state).to_equal('abc');
+        ut3.ut.expect(stateful_package.get_state@db_loopback).to_equal('abc');
       end;
 
-      procedure recompile_in_background is
-        l_job_name varchar2(30) := 'recreate_stateful_package';
-        l_cnt      integer      := 1;
+      procedure rebuild_stateful_package is
         pragma autonomous_transaction;
       begin
-        dbms_scheduler.create_job(
-          job_name      =>  l_job_name,
-          job_type      =>  'PLSQL_BLOCK',
-          job_action    =>  q'/
-            begin
-              execute immediate q'[
-                create or replace package stateful_package as
-                  g_state varchar2(3) := 'abc';
-                end;]';
-            end;/',
-          start_date    =>  localtimestamp,
-          enabled       =>  TRUE,
-          auto_drop     =>  TRUE,
-          comments      =>  'one-time job'
-        );
-        dbms_lock.sleep(1);
-        while l_cnt > 0 loop
-          select count(1) into l_cnt
-            from dba_scheduler_running_jobs srj
-           where srj.job_name = l_job_name;
-        end loop;
+        execute immediate q'[
+          create or replace package body stateful_package as
+            g_state varchar2(3) := 'abc';
+            function get_state return varchar2 is begin return g_state; end;
+          end;
+        ]';
       end;
-      procedure acquire_state is
+
+      procedure acquire_state_via_db_link is
       begin
-        dbms_output.put_line('stateful_package.g_state='||stateful_package.g_state);
+        dbms_output.put_line('stateful_package.get_state@db_loopback='||stateful_package.get_state@db_loopback);
       end;
     end;
     }';
@@ -589,10 +589,9 @@ create or replace package body test_ut_run is
     failing_stateful_test [% sec] (FAILED - 1)%
 Failures:%
   1) failing_stateful_test
-      ORA-04061: existing state of package "UT3_TESTER.STATEFUL_PACKAGE" has been invalidated
-      ORA-04065: not executed, altered or dropped package "UT3_TESTER.STATEFUL_PACKAGE"
-      ORA-06508: PL/SQL: could not find program unit being called: "UT3_TESTER.STATEFUL_PACKAGE"
-      ORA-06512: at "UT3_TESTER.TEST_STATEFUL", line 5%
+      ORA-04068: existing state of packages (DB_LOOPBACK) has been discarded
+      ORA-04061: existing state of package body "UT3_TESTER.STATEFUL_PACKAGE" has been invalidated
+      ORA-04065: not executed, altered or dropped package body "UT3_TESTER.STATEFUL_PACKAGE"%
       ORA-06512: at line 6%
 1 tests, 0 failed, 1 errored, 0 disabled, 0 warning(s)%';
 
@@ -613,6 +612,7 @@ Failures:%
   begin
     execute immediate 'drop package stateful_package';
     execute immediate 'drop package test_stateful';
+    begin execute immediate 'drop public database link db_loopback'; exception when others then null; end;
   end;
 
   procedure run_in_invalid_state is
