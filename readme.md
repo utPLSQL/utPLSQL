@@ -192,7 +192,7 @@ If you have a great feature in mind, that you would like to see in utPLSQL v3 pl
 | Auto Compilation of Tests              | Yes                    | No (Let us know if you use this) | 
 | Assertion Library                      | 30 assertions<sup>2</sup> | 26 matchers (13 + 13 negated) |
 | Extendable assertions                  | No                     | Yes - custom matchers  |
-| PLSQL Record Assertions	             | generated code through **utRecEq** Package | [possible on Oracle 12c](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1) using [cursor matchers](docs/userguide/expectations.md#comparing-cursors)| 
+| PLSQL Record Assertions	             | generated code through **utRecEq** Package | [possible on Oracle 12c+](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1) using [cursor matchers](docs/userguide/expectations.md#comparing-cursors)| 
 | Test Skeleton Generation               | Yes                    | No (Let us know if you use this) |
 | **Test Execution<sup>3</sup>**         |                        |                        |
 | Single Test Package Execution          |  Yes                   | Yes                    | 

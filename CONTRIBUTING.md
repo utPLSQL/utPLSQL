@@ -175,6 +175,7 @@ We are using private docker images to test utPLSQL for our Travis CI builds. The
 * 11g XE R2
 * 12c SE R1
 * 12c SE R2
+* 18c SE
 
 These images are based on the slimmed versions [official dockerfiles released by Oracle](https://github.com/utPLSQL/docker-scripts), but due to licensing restrictions, we can't make the images public.
 You can build your own and use it locally, or push to a private docker repository.
