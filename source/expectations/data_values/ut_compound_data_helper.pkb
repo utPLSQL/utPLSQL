@@ -472,30 +472,16 @@ create or replace package body ut_compound_data_helper is
       end case;
 
   end;
+  
+  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
+  begin
+    return dbms_crypto.hash(a_data, a_hash_type);
+  end;
 
-  $if dbms_db_version.version = 12 $then
-    function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1)  return t_hash deterministic is
-      pragma udf;
-    begin
-      return dbms_crypto.hash(a_data, a_hash_type);
-    end;
-   
-    function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash deterministic is
-      pragma udf;
-    begin
-      return dbms_crypto.hash(a_data, a_hash_type);
-    end;   
-  $else   
-    function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
-    begin
-      return dbms_crypto.hash(a_data, a_hash_type);
-    end;
-
-    function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
-    begin
-      return dbms_crypto.hash(a_data, a_hash_type);
-    end;
-  $end
+  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
+  begin
+    return dbms_crypto.hash(a_data, a_hash_type);
+  end;
 
 
   function columns_hash(

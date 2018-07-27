@@ -71,15 +71,8 @@ create or replace package ut_compound_data_helper authid definer is
 
   subtype t_hash  is raw(128);
   
-  $if dbms_db_version.version = 12 $then
-    function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1)  return t_hash deterministic;
-    function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash deterministic;
-  $else
-    function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash;
-    function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1)  return t_hash;
-  $end  
- 
-
+  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash;
+  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1)  return t_hash;
   
   function columns_hash(
     a_data_value_cursor ut_data_value_refcursor, a_exclude_xpath varchar2, a_include_xpath varchar2,
