@@ -18,8 +18,11 @@ begin
     select column_value as privilege
     from table(l_expected_grants)
     minus
-    select replace(privilege,' ANY ') privilege
+    (select privilege
     from user_sys_privs
+    union all
+    select replace(privilege,' ANY ') privilege
+    from user_sys_privs)
   );
   if l_missing_grants is not null then
     raise_application_error(
