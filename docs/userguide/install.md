@@ -51,7 +51,7 @@ foreach ($i in $urlList) {
 
 # Supported database versions
 
-The utPLSQL may be installed on any supported version of Oracle Database [see](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf)
+The utPLSQL may be installed on any supported version of Oracle Database [see](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6)
 * 11g R2 
 * 12c
 * 12c R2
