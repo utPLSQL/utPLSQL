@@ -249,50 +249,39 @@ create or replace type body ut_compound_data_value as
 
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
     l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
-      
-    /**
-    * Due to incompatibility issues in XML between 11 and 12.2 and 12.1 versions we will prepopulate item_hash upfront to
-    * avoid optimizer incorrectly rewrite and causing NULL error or ORA-600.
-    * We will also update item_data by include exclude values so we dont have to apply transformation over and over later.
-    **/     
-    execute immediate 'merge into ' || l_ut_owner || '.ut_compound_data_tmp tgt
-                       using (
-                              select '||l_ut_owner ||'.ut_compound_data_helper.get_hash(ucd.item_data.getclobval()) item_hash, 
-                                      ucd.item_no, ucd.data_id, ucd.item_data
+          
+    /* Peform minus on two sets two get diffrences that will be used later on to print results */
+    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,duplicate_no,item_data, data_id)
+                       with data_source as (
+                         select '||l_ut_owner ||'.ut_compound_data_helper.get_hash(ucd.item_data.getclobval()) item_hash, 
+                              ucd.item_no, ucd.data_id, ucd.item_data_pre item_data
                               from
                               (
-                              select '||l_column_filter||', item_no, data_id
-                              from  ' || l_ut_owner || q'[.ut_compound_data_tmp ucd
+                              select '||l_column_filter||', item_no, data_id, item_data as item_data_pre
+                              from  ' || l_ut_owner || '.ut_compound_data_tmp ucd
                               where data_id = :self_guid or data_id = :other_guid
                               ) ucd
-                       ) src
-                       on (tgt.item_no = src.item_no and tgt.data_id = src.data_id)
-                       when matched then update
-                       set tgt.item_hash = src.item_hash]'
-                       --add item data update
-                       using a_exclude_xpath, a_include_xpath,
-                             self.data_id, l_other.data_id;
-    
-    /* Peform minus on two sets two get diffrences that will be used later on to print results */
-    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,duplicate_no,item_data)
-                       with actual as (
+                       ),
+                       actual as (
                         select t.item_hash,
                         t.item_data,
+                        t.data_id,
                         row_number() over (partition by t.item_hash order by 1) duplicate_no
-                        from  ' || l_ut_owner || '.ut_compound_data_tmp t
+                        from  data_source t
                         where t.data_id = :self_guid
                         ),
                         expected as (
                            select t.item_hash,
                            t.item_data,
+                           t.data_id,
                            row_number() over (partition by t.item_hash order by 1) duplicate_no
-                           from  ' || l_ut_owner || '.ut_compound_data_tmp t
+                           from  data_source t
                            where t.data_id = :other_guid                       
                         )
-                       select :diff_id,tmp.item_hash,tmp.duplicate_no,tmp.item_data
+                       select :diff_id, tmp.item_hash, tmp.duplicate_no, tmp.item_data, tmp.data_id
                        from(
                          (
-                           select act.item_hash,act.duplicate_no,act.item_data
+                           select act.item_hash,act.duplicate_no,act.item_data, act.data_id
                            from  actual act left outer join expected exp
                            on (
                                act.item_hash = exp.item_hash 
@@ -302,7 +291,7 @@ create or replace type body ut_compound_data_value as
                          )
                            union all
                          (
-                           select exp.item_hash,exp.duplicate_no,exp.item_data
+                           select exp.item_hash,exp.duplicate_no,exp.item_data, exp.data_id
                            from  expected exp left outer join actual act
                            on (
                                act.item_hash = exp.item_hash 
@@ -311,7 +300,9 @@ create or replace type body ut_compound_data_value as
                           where act.item_hash is null
                          )
                         )tmp'
-       using self.data_id, l_other.data_id,
+       using a_exclude_xpath, a_include_xpath,
+                             self.data_id, l_other.data_id,
+                             self.data_id, l_other.data_id,
              l_diff_id;
     
     --result is OK only if both are same

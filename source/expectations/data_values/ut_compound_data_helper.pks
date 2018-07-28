@@ -58,8 +58,6 @@ create or replace package ut_compound_data_helper authid definer is
   function get_columns_diff(
     a_expected xmltype, a_actual xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2
   ) return tt_column_diffs;
-
- function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return varchar2;
   
  function compare_type(a_join_by_xpath in varchar2,a_unordered boolean) return varchar2;
 
