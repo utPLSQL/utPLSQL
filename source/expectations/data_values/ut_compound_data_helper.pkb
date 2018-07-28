@@ -175,7 +175,7 @@ create or replace package body ut_compound_data_helper is
     **/
     execute immediate q'[
     with diff_info as (
-      select item_hash, pk_hash, pk_value, duplicate_no ,item_data ,data_id
+      select item_hash, pk_hash, pk_value, duplicate_no 
       from ut_compound_data_diff_tmp ucdc 
       where diff_id = :diff_guid
       )
@@ -207,9 +207,11 @@ create or replace package body ut_compound_data_helper is
                  ucd.column_value.getRootElement() col_name,
                  r.pk_value
                  from 
-                  (select ]'||l_column_filter||q'[, ucd.item_hash, ucd.pk_hash, ucd.pk_value, ucd.duplicate_no
-                   from diff_info ucd
+                  (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash, i.pk_value, i.duplicate_no
+                   from ut_compound_data_tmp ucd,
+                   diff_info i
                    where ucd.data_id = :self_guid
+                   and ucd.item_hash = i.item_hash
                   ) r,
                   table( xmlsequence( extract(r.item_data,'/*/*') ) ) ucd
                 ) ucd
@@ -225,9 +227,11 @@ create or replace package body ut_compound_data_helper is
                   ucd.column_value.getRootElement() col_name,
                   r.pk_value
                   from 
-                   (select ]'||l_column_filter||q'[, ucd.item_hash, ucd.pk_hash, ucd.pk_value, ucd.duplicate_no
-                    from diff_info ucd
+                   (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash, i.pk_value, i.duplicate_no
+                    from ut_compound_data_tmp ucd,
+                    diff_info i
                     where ucd.data_id = :other_guid
+                    and ucd.item_hash = i.item_hash
                    ) r,
                    table( xmlsequence( extract(r.item_data,'/*/*') ) ) ucd
                  ) ucd
@@ -243,14 +247,18 @@ create or replace package body ut_compound_data_helper is
              xmlserialize(content nvl(exp.item_data, act.item_data) no indent) diffed_row,
              coalesce(exp.pk_hash,act.pk_hash) pk_hash,
              coalesce(exp.pk_value,act.pk_value) pk_value
-        from (select extract(deletexml(ucd.item_data, :join_by),'/*/*') item_data, ucd.pk_hash, ucd.pk_value
-                from diff_info ucd
+        from (select extract(deletexml(ucd.item_data, :join_by),'/*/*') item_data, i.pk_hash, i.pk_value
+                from ut_compound_data_tmp ucd,
+                diff_info i
                where ucd.data_id = :self_guid
+                 and ucd.item_hash = i.item_hash
              ) exp
         full outer join (
-              select extract(deletexml(ucd.item_data, :join_by),'/*/*') item_data,ucd.pk_hash, ucd.pk_value
-                from diff_info ucd
+              select extract(deletexml(ucd.item_data, :join_by),'/*/*') item_data,i.pk_hash, i.pk_value
+                from ut_compound_data_tmp ucd,
+                diff_info i
                where ucd.data_id = :other_guid
+                 and ucd.item_hash = i.item_hash
              )act
           on exp.pk_hash = act.pk_hash
        where exp.pk_hash is null or act.pk_hash is null
@@ -358,7 +366,7 @@ create or replace package body ut_compound_data_helper is
     */      
 
     execute immediate q'[with
-      diff_info as (select item_hash, duplicate_no, item_data, data_id from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
+      diff_info as (select item_hash,duplicate_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
       select duplicate_no,
              diffed_type,
              diffed_row,
@@ -380,9 +388,11 @@ create or replace package body ut_compound_data_helper is
             from (select ucd.column_value row_data,
                     r.item_hash row_hash,
                     r.duplicate_no
-                    from (select ]'||l_column_filter||q'[, ucd.item_hash, ucd.duplicate_no
-                        from diff_info ucd
+                    from (select ]'||l_column_filter||q'[, ucd.item_no, i.item_hash, i.duplicate_no
+                        from ut_compound_data_tmp ucd,
+                        diff_info i
                         where ucd.data_id = :self_guid
+                        and ucd.item_hash = i.item_hash
                        ) r,
                   table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
               ) ucd
@@ -392,9 +402,11 @@ create or replace package body ut_compound_data_helper is
          from (select ucd.column_value row_data,
                       r.item_hash row_hash,
                       r.duplicate_no
-                      from (select  ]'||l_column_filter||q'[, ucd.item_hash, ucd.duplicate_no
-                     from diff_info ucd
+                      from (select  ]'||l_column_filter||q'[, ucd.item_no, i.item_hash, i.duplicate_no
+                     from ut_compound_data_tmp ucd,
+                     diff_info i
                      where ucd.data_id = :other_guid
+                     and ucd.item_hash = i.item_hash
                      ) r,
                table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
                ) ucd
