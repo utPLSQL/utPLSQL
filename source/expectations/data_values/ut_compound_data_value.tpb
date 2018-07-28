@@ -255,21 +255,16 @@ create or replace type body ut_compound_data_value as
     
     /* Peform minus on two sets two get diffrences that will be used later on to print results */
     execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no)
-                       with source_data as
-                       ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
-                           pk_hash, 
-                           pk_value
-                           from  ' || l_ut_owner || '.ut_compound_data_tmp t
-                           where data_id = :self_guid or data_id = :other_guid
-                        ) ,
-                        actual as (
-                        select t.item_hash,t.duplicate_no,t.pk_hash
-                        from  source_data t
+                       with actual as (
+                        select t.item_hash,t.pk_hash,
+                        row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no
+                        from  ' || l_ut_owner || '.ut_compound_data_tmp t
                         where t.data_id = :self_guid
                         ),
                         expected as (
-                           select t.item_hash,t.duplicate_no,t.pk_hash
-                           from  source_data t
+                           select t.item_hash,t.pk_hash,
+                           row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no
+                           from  ' || l_ut_owner || '.ut_compound_data_tmp t
                            where t.data_id = :other_guid                       
                         )
                        select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
@@ -295,7 +290,6 @@ create or replace type body ut_compound_data_value as
                          )
                         )tmp'
        using self.data_id, l_other.data_id,
-             self.data_id, l_other.data_id,
              l_diff_id;
     --result is OK only if both are same
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
