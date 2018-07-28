@@ -156,14 +156,7 @@ create or replace package body ut_compound_data_helper is
 
     return l_results;
   end;
-  
-  function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return varchar2 is    
-    l_pk_value varchar2(4000);
-  begin
-    select replace((extract(a_item_data,a_join_by_xpath).getclobval()),chr(10)) into l_pk_value from dual;    
-    return l_pk_value; 
-  end;
-    
+   
   function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
@@ -181,7 +174,11 @@ create or replace package body ut_compound_data_helper is
     * lead to second value being null depend on execution plan that been chosen
     **/
     execute immediate q'[
-    with diff_info as (select item_hash,pk_hash,duplicate_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
+    with diff_info as (
+      select item_hash, pk_hash, pk_value, duplicate_no 
+      from ut_compound_data_diff_tmp ucdc 
+      where diff_id = :diff_guid
+      )
       select rn,diff_type,diffed_row,pk_value from
       (
       select 
@@ -208,9 +205,9 @@ create or replace package body ut_compound_data_helper is
                  r.duplicate_no,
                  ucd.column_value.getclobval() col_val,
                  ucd.column_value.getRootElement() col_name,
-                 ut_compound_data_helper.get_pk_value(:join_xpath,r.item_data) pk_value
+                 r.pk_value
                  from 
-                  (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash, i.duplicate_no
+                  (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash, i.pk_value, i.duplicate_no
                    from ut_compound_data_tmp ucd,
                    diff_info i
                    where ucd.data_id = :self_guid
@@ -228,9 +225,9 @@ create or replace package body ut_compound_data_helper is
                   r.duplicate_no,
                   ucd.column_value.getclobval() col_val,
                   ucd.column_value.getRootElement() col_name,
-                  ut_compound_data_helper.get_pk_value(:join_xpath,r.item_data) pk_value
+                  r.pk_value
                   from 
-                   (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash, i.duplicate_no
+                   (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_hash, i.pk_hash, i.pk_value, i.duplicate_no
                     from ut_compound_data_tmp ucd,
                     diff_info i
                     where ucd.data_id = :other_guid
@@ -250,16 +247,14 @@ create or replace package body ut_compound_data_helper is
              xmlserialize(content nvl(exp.item_data, act.item_data) no indent) diffed_row,
              coalesce(exp.pk_hash,act.pk_hash) pk_hash,
              coalesce(exp.pk_value,act.pk_value) pk_value
-        from (select extract(deletexml(ucd.item_data, :join_by),'/*/*') item_data,i.pk_hash,
-                ut_compound_data_helper.get_pk_value(:join_by,item_data) pk_value
+        from (select extract(deletexml(ucd.item_data, :join_by),'/*/*') item_data, i.pk_hash, i.pk_value
                 from ut_compound_data_tmp ucd,
                 diff_info i
                where ucd.data_id = :self_guid
                  and ucd.item_hash = i.item_hash
              ) exp
         full outer join (
-              select extract(deletexml(ucd.item_data, :join_by),'/*/*') item_data,i.pk_hash,
-                ut_compound_data_helper.get_pk_value(:join_by,item_data) pk_value
+              select extract(deletexml(ucd.item_data, :join_by),'/*/*') item_data,i.pk_hash, i.pk_value
                 from ut_compound_data_tmp ucd,
                 diff_info i
                where ucd.data_id = :other_guid
@@ -273,11 +268,9 @@ create or replace package body ut_compound_data_helper is
       ]'
     bulk collect into l_results
     using a_diff_id,
-    a_join_by_xpath,
     a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
-    a_join_by_xpath,
     a_exclude_xpath, a_include_xpath, a_actual_dataset_guid,
-    a_join_by_xpath,a_join_by_xpath,a_expected_dataset_guid,a_join_by_xpath,a_join_by_xpath, a_actual_dataset_guid,
+    a_join_by_xpath,a_expected_dataset_guid,a_join_by_xpath, a_actual_dataset_guid,
     a_max_rows;
         
     return l_results;

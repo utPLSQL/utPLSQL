@@ -269,7 +269,6 @@ create or replace type body ut_compound_data_value as
                        on (tgt.item_no = src.item_no and tgt.data_id = src.data_id)
                        when matched then update
                        set tgt.item_hash = src.item_hash]'
-                       --add item data update
                        using a_exclude_xpath, a_include_xpath,
                              self.data_id, l_other.data_id;
     
