@@ -18,6 +18,7 @@ create global temporary table ut_compound_data_diff_tmp(
   pk_value   varchar2(4000),
   item_hash  raw(128),
   duplicate_no integer,
+  item_data  xmltype,
   constraint ut_compound_data_diff_tmp_uk1 unique (diff_id,duplicate_no,item_no,item_hash, pk_hash),
   constraint ut_compound_data_diff_tmp_chk check(
    item_no is not null and pk_hash is null and duplicate_no is null

@@ -157,12 +157,7 @@ create or replace package body ut_compound_data_helper is
     return l_results;
   end;
   
-  function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return varchar2 is
-    
-    $if dbms_db_version.version = 12 $then
-    pragma udf;
-    $end
-    
+  function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return varchar2 is    
     l_pk_value varchar2(4000);
   begin
     select replace((extract(a_item_data,a_join_by_xpath).getclobval()),chr(10)) into l_pk_value from dual;    
