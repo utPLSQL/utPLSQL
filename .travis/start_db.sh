@@ -10,6 +10,9 @@ else
     mkdir -p $HOME/.docker && cp $CACHE_DIR/.docker/config.json $HOME/.docker/
 fi
 
-docker pull $DOCKHER_HUB_REPO:$ORACLE_VERSION
+df -h
+time docker pull $DOCKHER_HUB_REPO:$ORACLE_VERSION
+df -h
 docker run -d --name $ORACLE_VERSION $DOCKER_OPTIONS -p 1521:1521 $DOCKHER_HUB_REPO:$ORACLE_VERSION
-docker logs -f $ORACLE_VERSION | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
+time docker logs -f $ORACLE_VERSION | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
+df -h
