@@ -7,6 +7,7 @@ set -ev
 set feedback off
 set verify off
 
+alter session set plsql_optimize_level=0;
 @install_headless.sql $UT3_OWNER $UT3_OWNER_PASSWORD
 SQL
 
