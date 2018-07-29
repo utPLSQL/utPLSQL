@@ -37,6 +37,7 @@ end;
 SQL
 
 "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<SQL
+alter session set plsql_optimize_level=0;
 @install_headless.sql ${UT3_RELEASE_VERSION_SCHEMA}
 exit
 SQL
