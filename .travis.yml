@@ -80,9 +80,7 @@ install:
   - bash .travis/install_sqlcl.sh
   - sudo mkdir -p /dev/pdbs
   - sudo chmod -R 777 /dev/pdbs
-  - df -h
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/start_db.sh; fi
-  - df -h
 
 before_script:
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/install.sh; fi
