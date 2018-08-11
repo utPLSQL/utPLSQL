@@ -45,6 +45,7 @@ set define on
 @@install_below_12_2.sql 'core/reporters/test_coverage/test_html_proftab_reporter.pks'
 set define off
 @@core/reporters/test_tfs_junit_reporter.pks
+@@core/reporters/test_documentation_reporter.pks
 @@core/reporters/test_sonar_test_reporter.pks
 @@core/reporters/test_teamcity_reporter.pks
 @@core/expectations.pks
@@ -93,6 +94,7 @@ set define on
 @@install_below_12_2.sql 'core/reporters/test_coverage/test_html_proftab_reporter.pkb'
 set define off
 @@core/reporters/test_tfs_junit_reporter.pkb
+@@core/reporters/test_documentation_reporter.pkb
 @@core/reporters/test_sonar_test_reporter.pkb
 @@core/reporters/test_teamcity_reporter.pkb
 @@core/expectations.pkb
