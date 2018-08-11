@@ -22,14 +22,14 @@ create or replace package body test_teamcity_reporter as
 <!beforeeach!>
 <!failing test!>
 <!aftereach!>
-%##teamcity[testFailed timestamp='%' message='Fails as values are different' name='ut3_tester.test_reporters.failing_test']
+%##teamcity[testFailed timestamp='%' details='Actual: |'number |[1|] |' (varchar2) was expected to equal: |'number |[2|] |' (varchar2) ' message='Fails as values are different' name='ut3_tester.test_reporters.failing_test']
 %##teamcity[testFinished timestamp='%' duration='%' name='ut3_tester.test_reporters.failing_test']
 %##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_tester.test_reporters.erroring_test']
 <!beforeeach!>
 <!erroring test!>
 <!aftereach!>
-%##teamcity[testStdErr timestamp='%' name='ut3_tester.test_reporters.erroring_test' out='Test exception:|rORA-06512: at |"UT3_TESTER.TEST_REPORTERS|", line %|rORA-06512: at %|r|r']
-%##teamcity[testFailed timestamp='%' details='Test exception:|rORA-06512: at |"UT3_TESTER.TEST_REPORTERS|", line %|rORA-06512: at %|r|r' message='Error occured' name='ut3_tester.test_reporters.erroring_test']
+%##teamcity[testStdErr timestamp='%' name='ut3_tester.test_reporters.erroring_test' out='Test exception:|nORA-06512: at "UT3_TESTER.TEST_REPORTERS", line %|nORA-06512: at %|n|n']
+%##teamcity[testFailed timestamp='%' details='Test exception:|nORA-06512: at "UT3_TESTER.TEST_REPORTERS", line %|nORA-06512: at %|n|n' message='Error occured' name='ut3_tester.test_reporters.erroring_test']
 %##teamcity[testFinished timestamp='%' duration='%' name='ut3_tester.test_reporters.erroring_test']
 %##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_tester.test_reporters.disabled_test']
 %##teamcity[testIgnored timestamp='%' name='ut3_tester.test_reporters.disabled_test']
