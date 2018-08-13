@@ -13,7 +13,7 @@ time "$SQLCLI" ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@//${CONNECTION_STR} @install
 cd ..
 
 time utPLSQL-cli/bin/utplsql run ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@${CONNECTION_STR} \
--source_path=source -owner=ut3 -p=test_documentation_reporter \
+-source_path=source -owner=ut3 \
 -test_path=test -c \
 -f=ut_documentation_reporter  -o=test_results.log -s \
 -f=ut_coverage_sonar_reporter -o=coverage.xml \
