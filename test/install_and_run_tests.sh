@@ -8,11 +8,11 @@ git rev-parse && cd "$(git rev-parse --show-cdup)"
 
 cd test
 
-"$SQLCLI" ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@//${CONNECTION_STR} @install_tests.sql
+time "$SQLCLI" ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@//${CONNECTION_STR} @install_tests.sql
 
 cd ..
 
-utPLSQL-cli/bin/utplsql run ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@${CONNECTION_STR} \
+time utPLSQL-cli/bin/utplsql run ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@${CONNECTION_STR} \
 -source_path=source -owner=ut3 \
 -test_path=test -c \
 -f=ut_documentation_reporter  -o=test_results.log -s \
