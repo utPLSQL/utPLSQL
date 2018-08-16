@@ -21,13 +21,14 @@ create or replace package body ut_teamcity_reporter_helper is
 
   function escape_value(a_value in varchar2) return varchar2 is
   begin
-    return translate(regexp_replace(a_value, '(''|"|[|]|' || chr(13) || '|' || chr(10) || ')', '|\1'),chr(13)||chr(10),'nr');
+    return translate(regexp_replace(a_value, q'/(\'|\||\[|\]|/' || chr(13) || '|' || chr(10) || ')', '|\1'),chr(13)||chr(10),'rn');
   end;
 
   function message(a_command in varchar2, a_props t_props default cast(null as t_props)) return varchar2 is
     l_message varchar2(32767);
     l_index   t_prop_index;
     l_value   varchar2(32767);
+    l_max_len binary_integer := 2000;
   begin
     l_message := '##teamcity[' || a_command || ' timestamp=''' ||
                  regexp_replace(to_char(systimestamp, 'YYYY-MM-DD"T"HH24:MI:ss.FF3TZHTZM'), '(\.\d{3})\d+(\+)', '\1\2') || '''';
@@ -36,6 +37,9 @@ create or replace package body ut_teamcity_reporter_helper is
     while l_index is not null loop
       if a_props(l_index) is not null then
         l_value   := escape_value(a_props(l_index));
+        if length(l_value) > l_max_len then
+          l_value   := substr(l_value,1,l_max_len-7)||escape_value('[...]');
+        end if;
         l_message := l_message || ' ' || l_index || '=''' || l_value || '''';
       end if;
       l_index := a_props.next(l_index);
