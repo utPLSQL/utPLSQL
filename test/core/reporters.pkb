@@ -81,7 +81,7 @@ as
   is
   begin
     dbms_output.put_line('<!failing test!>');
-    ut3.ut.expect(1,'Fails as values are different').to_equal(2);
+    ut3.ut.expect('number [1] ','Fails as values are different').to_equal('number [2] ');
   end;
 
   procedure erroring_test
