@@ -6,7 +6,7 @@ create or replace package body reporters is
   execute immediate q'[create or replace package test_reporters
 as
   --%suite(A suite for testing different outcomes from reporters)
-  --%suitepath(utplsqlorg.helpers.tests.test.test_reporters)
+  --%suitepath(org.utplsql.tests.helpers)
 
   --%beforeall
   procedure beforeall;
@@ -14,10 +14,15 @@ as
   --%beforeeach
   procedure beforeeach;
 
+  --%context(some_context)
+  --%displayname(A description of some context)
+
   --%test
   --%beforetest(beforetest)
   --%aftertest(aftertest)
   procedure passing_test;
+
+  --%endcontext
 
   procedure beforetest;
 

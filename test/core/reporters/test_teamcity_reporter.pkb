@@ -39,12 +39,12 @@ create or replace package body test_teamcity_reporter as
     l_output            clob;
     l_expected          varchar2(32767);
   begin
-    l_expected := q'{%##teamcity[testSuiteStarted timestamp='%' name='utplsqlorg']
-%##teamcity[testSuiteStarted timestamp='%' name='utplsqlorg.helpers']
-%##teamcity[testSuiteStarted timestamp='%' name='utplsqlorg.helpers.tests']
-%##teamcity[testSuiteStarted timestamp='%' name='utplsqlorg.helpers.tests.test']
-%##teamcity[testSuiteStarted timestamp='%' name='utplsqlorg.helpers.tests.test.test_reporters']
+    l_expected := q'{%##teamcity[testSuiteStarted timestamp='%' name='org']
+%##teamcity[testSuiteStarted timestamp='%' name='org.utplsql']
+%##teamcity[testSuiteStarted timestamp='%' name='org.utplsql.tests']
+%##teamcity[testSuiteStarted timestamp='%' name='org.utplsql.tests.helpers']
 %##teamcity[testSuiteStarted timestamp='%' name='A suite for testing different outcomes from reporters']
+%##teamcity[testSuiteStarted timestamp='%' name='A description of some context']
 %##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_tester.test_reporters.passing_test']
 <!beforeeach!>
 <!beforetest!>
@@ -52,6 +52,7 @@ create or replace package body test_teamcity_reporter as
 <!aftertest!>
 <!aftereach!>
 %##teamcity[testFinished timestamp='%' duration='%' name='ut3_tester.test_reporters.passing_test']
+%##teamcity[testSuiteFinished timestamp='%' name='A description of some context']
 %##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_tester.test_reporters.failing_test']
 <!beforeeach!>
 <!failing test!>
@@ -68,11 +69,10 @@ create or replace package body test_teamcity_reporter as
 %##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3_tester.test_reporters.disabled_test']
 %##teamcity[testIgnored timestamp='%' name='ut3_tester.test_reporters.disabled_test']
 %##teamcity[testSuiteFinished timestamp='%' name='A suite for testing different outcomes from reporters']
-%##teamcity[testSuiteFinished timestamp='%' name='utplsqlorg.helpers.tests.test.test_reporters']
-%##teamcity[testSuiteFinished timestamp='%' name='utplsqlorg.helpers.tests.test']
-%##teamcity[testSuiteFinished timestamp='%' name='utplsqlorg.helpers.tests']
-%##teamcity[testSuiteFinished timestamp='%' name='utplsqlorg.helpers']
-%##teamcity[testSuiteFinished timestamp='%' name='utplsqlorg']}';
+%##teamcity[testSuiteFinished timestamp='%' name='org.utplsql.tests.helpers']
+%##teamcity[testSuiteFinished timestamp='%' name='org.utplsql.tests']
+%##teamcity[testSuiteFinished timestamp='%' name='org.utplsql']
+%##teamcity[testSuiteFinished timestamp='%' name='org']}';
     --act
     select *
     bulk collect into l_output_data
