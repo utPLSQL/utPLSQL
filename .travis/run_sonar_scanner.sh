@@ -53,4 +53,4 @@ else
 fi
 
 #Execute Sonar scanner
-sonar-scanner
+sonar-scanner  -Dsonar.exclusions=**
