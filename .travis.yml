@@ -58,10 +58,14 @@ cache:
   pip: true
   directories:
     - $CACHE_DIR
+    - /home/travis/.sonar/cache
     - node_modules
     - $MAVEN_CFG
 
 before_install:
+  #cache to be used between stages. Based on https://github.com/travis-ci/docs-travis-ci-com/issues/1329
+  #delete all files in cache that are older than 5 days
+  - mkdir -p $CACHE_DIR/stages_cache; find $CACHE_DIR/stages_cache/ -mtime +5 -exec rm {} \;
   #The update_project_version.sh is done before deployment to validate that the change of project files does not break installation
   - bash .travis/update_project_version.sh
   #Allow for sonar to blame issues
