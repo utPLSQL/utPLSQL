@@ -95,37 +95,39 @@ create or replace package body ut_compound_data_helper is
       with
         expected_cols as ( select :a_expected as item_data from dual ),
         actual_cols as ( select :a_actual as item_data from dual ),
-  expected_cols_info as (
-          select e.*,
+        expected_cols_info as (
+          select /*+ cardinality(e 100) */
+                 e.*,
                  replace(expected_type,'VARCHAR2','CHAR') expected_type_compare
             from (
-                   SELECT rownum expected_pos,
-                   xt.name expected_name,
-                   xt.type expected_type
-         FROM   (select ]'||l_column_filter||q'[ from expected_cols ucd) x,
-           XMLTABLE('/ROW/*'
-             PASSING x.item_data
-             COLUMNS 
-               name     VARCHAR2(4000)  PATH '@xml_valid_name',
-               type      VARCHAR2(4000) PATH '/' 
-             ) xt
-            ) e
+                  select rownum expected_pos,
+                         xt.name expected_name,
+                         xt.type expected_type
+                    from (select ]'||l_column_filter||q'[ from expected_cols ucd) x,
+                         xmltable(
+                           '/ROW/*'
+                           passing x.item_data
+                           columns
+                             name     varchar2(4000)  PATH '@xml_valid_name',
+                             type     varchar2(4000) PATH '/'
+                         ) xt
+                 ) e
         ),
         actual_cols_info as (
-          select a.*,
+          select /*+ cardinality(a 100) */
+                 a.*,
                  replace(actual_type,'VARCHAR2','CHAR') actual_type_compare
-            from (
-                   SELECT rownum actual_pos,
-                   xt.name actual_name,
-                   xt.type actual_type
-         FROM    (select ]'||l_column_filter||q'[ from actual_cols ucd) x,
-           XMLTABLE('/ROW/*'
-             PASSING x.item_data
-             COLUMNS 
-               name     VARCHAR2(4000)  PATH '@xml_valid_name',
-               type      VARCHAR2(4000) PATH '/' 
-             ) xt
-            ) a
+            from (select rownum actual_pos,
+                         xt.name actual_name,
+                         xt.type actual_type
+                    from (select ]'||l_column_filter||q'[ from actual_cols ucd) x,
+                         xmltable('/ROW/*'
+                           passing x.item_data
+                           columns
+                             name     varchar2(4000)  path '@xml_valid_name',
+                             type      varchar2(4000) path '/'
+                         ) xt
+                 ) a
         ),
         joined_cols as (
          select e.*, a.*,
@@ -134,7 +136,8 @@ create or replace package body ut_compound_data_helper is
            from expected_cols_info e
            full outer join actual_cols_info a on e.expected_name = a.actual_name
       )
-      select case
+      select /*+ cardinality(joined_cols 100)*/
+             case
                when expected_pos is null and actual_pos is not null then '+'
                when expected_pos is not null and actual_pos is null then '-'
                when expected_type_compare != actual_type_compare then 't'
