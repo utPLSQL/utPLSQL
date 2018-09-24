@@ -192,8 +192,8 @@ create or replace package body test_matchers is
   begin
     exec_match('varchar2(100)', '''Stephen''', '^Ste(v|ph)en$', '', ut3.ut_utils.gc_success);
     exec_match('varchar2(100)', '''sTEPHEN''', '^Ste(v|ph)en$', 'i', ut3.ut_utils.gc_success);
-    exec_match('clob', 'rpad('', '',32767)||''Stephen''', 'Ste(v|ph)en$', '', ut3.ut_utils.gc_success);
-    exec_match('clob', 'rpad('', '',32767)||''sTEPHEN''', 'Ste(v|ph)en$', 'i', ut3.ut_utils.gc_success);
+    exec_match('clob', 'to_clob(rpad('', '',32767)||''Stephen'')', 'Ste(v|ph)en$', '', ut3.ut_utils.gc_success);
+    exec_match('clob', 'to_clob(rpad('', '',32767)||''sTEPHEN'')', 'Ste(v|ph)en$', 'i', ut3.ut_utils.gc_success);
 
     exec_match('varchar2(100)', '''Stephen''', '^Steven$', '', ut3.ut_utils.gc_failure);
     exec_match('varchar2(100)', '''sTEPHEN''', '^Steven$', 'i', ut3.ut_utils.gc_failure);
@@ -202,8 +202,8 @@ create or replace package body test_matchers is
 
     exec_match('varchar2(100)', '''Stephen''', '^Ste(v|ph)en$', '', ut3.ut_utils.gc_failure, 'not_');
     exec_match('varchar2(100)', '''sTEPHEN''', '^Ste(v|ph)en$', 'i', ut3.ut_utils.gc_failure, 'not_');
-    exec_match('clob', 'rpad('', '',32767)||''Stephen''', 'Ste(v|ph)en$', '', ut3.ut_utils.gc_failure, 'not_');
-    exec_match('clob', 'rpad('', '',32767)||''sTEPHEN''', 'Ste(v|ph)en$', 'i', ut3.ut_utils.gc_failure, 'not_');
+    exec_match('clob', 'to_clob(rpad('', '',32767)||''Stephen'')', 'Ste(v|ph)en$', '', ut3.ut_utils.gc_failure, 'not_');
+    exec_match('clob', 'to_clob(rpad('', '',32767)||''sTEPHEN'')', 'Ste(v|ph)en$', 'i', ut3.ut_utils.gc_failure, 'not_');
 
     exec_match('varchar2(100)', '''Stephen''', '^Steven$', '', ut3.ut_utils.gc_success, 'not_');
     exec_match('varchar2(100)', '''sTEPHEN''', '^Steven$', 'i', ut3.ut_utils.gc_success, 'not_');
@@ -217,23 +217,23 @@ create or replace package body test_matchers is
   begin
     exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en%', '', ut3.ut_utils.gc_success);
     exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en\_K%', '\', ut3.ut_utils.gc_success);
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en%', '', ut3.ut_utils.gc_success);
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en\_K%', '\', ut3.ut_utils.gc_success);
+    exec_be_like('clob', 'to_clob(rpad(''a'',32767,''a'')||''Stephen_King'')', 'a%Ste__en%', '', ut3.ut_utils.gc_success);
+    exec_be_like('clob', 'to_clob(rpad(''a'',32767,''a'')||''Stephen_King'')', 'a%Ste__en\_K%', '\', ut3.ut_utils.gc_success);
 
     exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste_en%', '', ut3.ut_utils.gc_failure);
     exec_be_like('varchar2(100)', '''Stephen_King''', 'Stephe\__%', '\', ut3.ut_utils.gc_failure);
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste_en%', '', ut3.ut_utils.gc_failure);
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Stephe\__%', '\', ut3.ut_utils.gc_failure);
+    exec_be_like('clob', 'to_clob(rpad(''a'',32767,''a'')||''Stephen_King'')', 'a%Ste_en%', '', ut3.ut_utils.gc_failure);
+    exec_be_like('clob', 'to_clob(rpad(''a'',32767,''a'')||''Stephen_King'')', 'a%Stephe\__%', '\', ut3.ut_utils.gc_failure);
 
     exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en%', '', ut3.ut_utils.gc_failure, 'not_');
     exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste__en\_K%', '\', ut3.ut_utils.gc_failure, 'not_');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en%', '', ut3.ut_utils.gc_failure, 'not_');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste__en\_K%', '\', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_like('clob', 'to_clob(rpad(''a'',32767,''a'')||''Stephen_King'')', 'a%Ste__en%', '', ut3.ut_utils.gc_failure, 'not_');
+    exec_be_like('clob', 'to_clob(rpad(''a'',32767,''a'')||''Stephen_King'')', 'a%Ste__en\_K%', '\', ut3.ut_utils.gc_failure, 'not_');
 
     exec_be_like('varchar2(100)', '''Stephen_King''', 'Ste_en%', '', ut3.ut_utils.gc_success, 'not_');
     exec_be_like('varchar2(100)', '''Stephen_King''', 'Stephe\__%', '\', ut3.ut_utils.gc_success, 'not_');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Ste_en%', '', ut3.ut_utils.gc_success, 'not_');
-    exec_be_like('clob', 'rpad(''a'',32767,''a'')||''Stephen_King''', 'a%Stephe\__%', '\', ut3.ut_utils.gc_success, 'not_');
+    exec_be_like('clob', 'to_clob(rpad(''a'',32767,''a'')||''Stephen_King'')', 'a%Ste_en%', '', ut3.ut_utils.gc_success, 'not_');
+    exec_be_like('clob', 'to_clob(rpad(''a'',32767,''a'')||''Stephen_King'')', 'a%Stephe\__%', '\', ut3.ut_utils.gc_success, 'not_');
 
     --Fails for unsupported data-type
     exec_be_like('number', '12345', '123%', '', ut3.ut_utils.gc_failure);
