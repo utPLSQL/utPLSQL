@@ -21,10 +21,10 @@ create or replace package body test_extended_coverage is
   procedure create_dummy_coverage_package is
     pragma autonomous_transaction;
   begin
-    execute immediate q'[create or replace package UT3.DUMMY_COVERAGE is
+    execute immediate q'[create or replace package UT3.DUMMY_COVERAGE_PACKAGE_WITH_AN_AMAZINGLY_LONG_NAME_THAT_YOU_WOULD_NOT_THINK_OF_IN_REAL_LIFE_PROJECT_BECAUSE_ITS_SIMPLY_TOO_LONG is
       procedure do_stuff(i_input in number);
     end;]';
-    execute immediate q'[create or replace package body UT3.DUMMY_COVERAGE is
+    execute immediate q'[create or replace package body UT3.DUMMY_COVERAGE_PACKAGE_WITH_AN_AMAZINGLY_LONG_NAME_THAT_YOU_WOULD_NOT_THINK_OF_IN_REAL_LIFE_PROJECT_BECAUSE_ITS_SIMPLY_TOO_LONG is
       procedure do_stuff(i_input in number) is
       begin
         if i_input = 2 then
@@ -49,7 +49,7 @@ create or replace package body test_extended_coverage is
     execute immediate q'[create or replace package body UT3.TEST_DUMMY_COVERAGE is
       procedure test_do_stuff is
       begin
-        dummy_coverage.do_stuff(1);
+        dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long.do_stuff(1);
         ut.expect(1).to_equal(1);
       end;
     end;]';
@@ -62,7 +62,7 @@ create or replace package body test_extended_coverage is
     values(a_run_id, user, sysdate, 'unit testing utPLSQL');
 
     insert into dbmspcc_units ( run_id, object_id, type, owner, name,last_ddl_time)
-    values(a_run_id, c_unit_id, 'PACKAGE BODY', 'UT3', 'DUMMY_COVERAGE',sysdate);
+    values(a_run_id, c_unit_id, 'PACKAGE BODY', 'UT3', 'DUMMY_COVERAGE_PACKAGE_WITH_AN_AMAZINGLY_LONG_NAME_THAT_YOU_WOULD_NOT_THINK_OF_IN_REAL_LIFE_PROJECT_BECAUSE_ITS_SIMPLY_TOO_LONG',sysdate);
 
     insert into dbmspcc_blocks ( run_id,  object_id, line,block,col,covered,not_feasible)
     select a_run_id, c_unit_id,4,1,1,1,0  from dual union all
@@ -78,7 +78,7 @@ create or replace package body test_extended_coverage is
     values(a_run_id, user, sysdate, 'unit testing utPLSQL');
 
     insert into ut3.plsql_profiler_units ( runid, unit_number, unit_type, unit_owner, unit_name)
-    values(a_run_id, c_unit_id, 'PACKAGE BODY', 'UT3', 'DUMMY_COVERAGE');
+    values(a_run_id, c_unit_id, 'PACKAGE BODY', 'UT3', 'DUMMY_COVERAGE_PACKAGE_WITH_AN_AMAZINGLY_LONG_NAME_THAT_YOU_WOULD_NOT_THINK_OF_IN_REAL_LIFE_PROJECT_BECAUSE_ITS_SIMPLY_TOO_LONG');
 
     insert into ut3.plsql_profiler_data ( runid,  unit_number, line#, total_occur, total_time)
     select a_run_id, c_unit_id,     4,           1, 1  from dual union all
@@ -104,7 +104,7 @@ create or replace package body test_extended_coverage is
     pragma autonomous_transaction;
   begin
     begin execute immediate q'[drop package ut3.test_dummy_coverage]'; exception when others then null; end;
-    begin execute immediate q'[drop package ut3.dummy_coverage]'; exception when others then null; end;
+    begin execute immediate q'[drop package ut3.dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long]'; exception when others then null; end;
     delete from dbmspcc_blocks where run_id = g_run_id(ut3.ut_coverage.gc_block_coverage);
     delete from dbmspcc_units where run_id = g_run_id(ut3.ut_coverage.gc_block_coverage);
     delete from dbmspcc_runs where run_id = g_run_id(ut3.ut_coverage.gc_block_coverage);
@@ -120,7 +120,7 @@ create or replace package body test_extended_coverage is
     l_results   ut3.ut_varchar2_list;
   begin
     --Arrange
-    l_expected := '%<file path="ut3.dummy_coverage">%<lineToCover lineNumber="4" covered="true" branchesToCover="2" coveredBranches="1"/>%';
+    l_expected := '%<file path="ut3.dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long">%<lineToCover lineNumber="4" covered="true" branchesToCover="2" coveredBranches="1"/>%';
     --Act
     select *
       bulk collect into l_results
@@ -128,7 +128,7 @@ create or replace package body test_extended_coverage is
         ut3.ut.run(
           a_path => 'ut3.test_dummy_coverage',
           a_reporter=> ut3.ut_coverage_sonar_reporter( ),
-          a_include_objects => ut3.ut_varchar2_list( 'ut3.dummy_coverage' )
+          a_include_objects => ut3.ut_varchar2_list( 'ut3.dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long' )
         )
       );
     --Assert
@@ -142,7 +142,7 @@ create or replace package body test_extended_coverage is
     l_results   ut3.ut_varchar2_list;
   begin
     --Arrange
-    l_expected := '%<file path="ut3.dummy_coverage">%<lineToCover lineNumber="4" covered="true" branchesToCover="2" coveredBranches="1"/>%';
+    l_expected := '%<file path="ut3.dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long">%<lineToCover lineNumber="4" covered="true" branchesToCover="2" coveredBranches="1"/>%';
     --Act
     select *
       bulk collect into l_results
@@ -163,10 +163,10 @@ create or replace package body test_extended_coverage is
     l_expected  clob;
     l_actual    clob;
     l_results   ut3.ut_varchar2_list;
-    l_file_path varchar2(100);
+    l_file_path varchar2(250);
   begin
     --Arrange
-    l_file_path := lower('test/ut3.dummy_coverage.pkb');
+    l_file_path := lower('test/ut3.dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long.pkb');
     l_expected := '%<file path="'||l_file_path||'">%<lineToCover lineNumber="4" covered="true" branchesToCover="2" coveredBranches="1"/>%';
     --Act
     select *
