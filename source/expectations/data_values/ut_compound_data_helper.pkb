@@ -97,11 +97,10 @@ create or replace package body ut_compound_data_helper is
         expected_cols as ( select :a_expected as item_data from dual ),
         actual_cols as ( select :a_actual as item_data from dual ),
         expected_cols_info as (
-          select /*+ cardinality(e 100) */
-                 e.*,
+          select e.*,
                  replace(expected_type,'VARCHAR2','CHAR') expected_type_compare
             from (
-                  select /*+ cardinality(xt 100) */
+                  select /*+ CARDINALITY(xt 100) */
                          rownum expected_pos,
                          xt.name expected_name,
                          xt.type expected_type
@@ -116,10 +115,9 @@ create or replace package body ut_compound_data_helper is
                  ) e
         ),
         actual_cols_info as (
-          select /*+ cardinality(a 100) */
-                 a.*,
+          select a.*,
                  replace(actual_type,'VARCHAR2','CHAR') actual_type_compare
-            from (select /*+ cardinality(xt 100) */
+            from (select /*+ CARDINALITY(xt 100) */
                          rownum actual_pos,
                          xt.name actual_name,
                          xt.type actual_type
@@ -139,8 +137,7 @@ create or replace package body ut_compound_data_helper is
            from expected_cols_info e
            full outer join actual_cols_info a on e.expected_name = a.actual_name
       )
-      select /*+ cardinality(joined_cols 100)*/
-             case
+      select case
                when expected_pos is null and actual_pos is not null then '+'
                when expected_pos is not null and actual_pos is null then '-'
                when expected_type_compare != actual_type_compare then 't'
