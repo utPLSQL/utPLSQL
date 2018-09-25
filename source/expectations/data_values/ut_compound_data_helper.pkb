@@ -91,6 +91,7 @@ create or replace package body ut_compound_data_helper is
     l_results        tt_column_diffs;
   begin
     l_column_filter := get_columns_row_filter(a_exclude_xpath, a_include_xpath);
+    --CARDINALITY hints added to address issue: https://github.com/utPLSQL/utPLSQL/issues/752
     l_sql := q'[
       with
         expected_cols as ( select :a_expected as item_data from dual ),
@@ -100,7 +101,8 @@ create or replace package body ut_compound_data_helper is
                  e.*,
                  replace(expected_type,'VARCHAR2','CHAR') expected_type_compare
             from (
-                  select rownum expected_pos,
+                  select /*+ cardinality(xt 100) */
+                         rownum expected_pos,
                          xt.name expected_name,
                          xt.type expected_type
                     from (select ]'||l_column_filter||q'[ from expected_cols ucd) x,
@@ -117,7 +119,8 @@ create or replace package body ut_compound_data_helper is
           select /*+ cardinality(a 100) */
                  a.*,
                  replace(actual_type,'VARCHAR2','CHAR') actual_type_compare
-            from (select rownum actual_pos,
+            from (select /*+ cardinality(xt 100) */
+                         rownum actual_pos,
                          xt.name actual_name,
                          xt.type actual_type
                     from (select ]'||l_column_filter||q'[ from actual_cols ucd) x,
