@@ -66,6 +66,11 @@ before_install:
   #cache to be used between stages. Based on https://github.com/travis-ci/docs-travis-ci-com/issues/1329
   #delete all files in cache that are older than 5 days
   - mkdir -p $CACHE_DIR/stages_cache; find $CACHE_DIR/stages_cache/ -mtime +5 -exec rm {} \;
+  - if [[ ! $TRAVIS_TAG ]]; then |
+             bash .travis/docker_login_cache.sh
+             time docker pull $DOCKHER_HUB_REPO:$ORACLE_VERSION
+             docker run -d --name $ORACLE_VERSION $DOCKER_OPTIONS -p 1521:1521 $DOCKHER_HUB_REPO:$ORACLE_VERSION
+        fi
   #The update_project_version.sh is done before deployment to validate that the change of project files does not break installation
   - bash .travis/update_project_version.sh
   #Allow for sonar to blame issues
@@ -75,6 +80,9 @@ before_install:
   - git clone --depth=1 --branch=${SELFTESTING_BRANCH:-master} https://github.com/utPLSQL/utPLSQL.git $UTPLSQL_DIR
   # download latest utPLSQL-cli release
   - curl -Lk -o utPLSQL-cli.zip https://github.com/utPLSQL/utPLSQL-cli/releases/download/v${UTPLSQL_CLI_VERSION}/utPLSQL-cli.zip
+  # wait for DB to be ready
+  time docker logs -f $ORACLE_VERSION | grep -m 1 "DATABASE IS READY TO USE!" --line-buffered
+
 
 install:
   #- unzip utPLSQL.zip
@@ -84,7 +92,6 @@ install:
   - bash .travis/install_sqlcl.sh
   - sudo mkdir -p /dev/pdbs
   - sudo chmod -R 777 /dev/pdbs
-  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/start_db.sh; fi
 
 before_script:
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/install.sh; fi
