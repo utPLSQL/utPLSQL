@@ -203,7 +203,7 @@ create or replace type body ut_compound_data_value as
     l_row_diffs       ut_compound_data_helper.tt_row_diffs;
     c_max_rows        constant integer := 20;
     
-    function get_column_pk_hash(a_join_by_xpath varchar2) return varchar2 is
+    function get_column_pk_hash_string(a_join_by_xpath varchar2) return varchar2 is
       l_column varchar2(32767);
     begin
       /* due to possibility of key being to columns we cannot use xmlextractvalue
@@ -218,6 +218,28 @@ create or replace type body ut_compound_data_value as
       return l_column;
     end;
     
+    procedure produce_pk_hash(a_pk_hash_extr_string varchar2, a_join_by_xpath in varchar2, a_diff_id raw) is
+    begin
+      execute immediate 'merge into ' || l_ut_owner || '.ut_compound_data_diff_tmp tgt
+        using (
+          select '||a_pk_hash_extr_string ||', diff_id, item_hash, duplicate_no,
+          replace((extract(ucd.item_data,:join_by_xpath).getclobval()),chr(10)) pk_value
+          from ' || l_ut_owner || '.ut_compound_data_diff_tmp ucd
+          where diff_id = :diff_id
+        ) src
+        on
+          (
+          tgt.diff_id = src.diff_id
+          and tgt.item_hash = src.item_hash
+          and tgt.duplicate_no = src.duplicate_no
+          )
+        when matched then update
+        set tgt.pk_hash = src.pk_hash,
+            tgt.pk_value = src.pk_value'
+        using a_join_by_xpath,a_join_by_xpath,
+              a_diff_id;
+    end;
+    
   begin
     if not a_other is of (ut_compound_data_value) then
       raise value_error;
@@ -229,63 +251,80 @@ create or replace type body ut_compound_data_value as
     l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
       
     /**
-    * Due to incompatibility issues in XML between 11 and 12.2 and 12.1 versions we will prepopulate pk_hash upfront to
-    * avoid optimizer incorrectly rewrite and causing NULL error or ORA-600
-    **/        
+    * Due to incompatibility issues in XML between 11 and 12.2 and 12.1 versions we will prepopulate item_hash upfront to
+    * avoid optimizer incorrectly rewrite and causing NULL error or ORA-600.
+    * We will also update item_data by include exclude values so we dont have to apply transformation over and over later.
+    **/     
     execute immediate 'merge into ' || l_ut_owner || '.ut_compound_data_tmp tgt
                        using (
                               select '||l_ut_owner ||'.ut_compound_data_helper.get_hash(ucd.item_data.getclobval()) item_hash, 
-                                      pk_hash, ucd.item_no, ucd.data_id
+                                      ucd.item_no, ucd.data_id, ucd.item_data
                               from
                               (
-                              select '||l_column_filter||','||get_column_pk_hash(a_join_by_xpath)||', item_no, data_id
+                              select '||l_column_filter||', item_no, data_id
                               from  ' || l_ut_owner || q'[.ut_compound_data_tmp ucd
                               where data_id = :self_guid or data_id = :other_guid
                               ) ucd
                        ) src
                        on (tgt.item_no = src.item_no and tgt.data_id = src.data_id)
                        when matched then update
-                       set tgt.item_hash = src.item_hash,
-                           tgt.pk_hash = src.pk_hash ]'
-                       using a_exclude_xpath, a_include_xpath,a_join_by_xpath,self.data_id, l_other.data_id;
+                       set tgt.item_hash = src.item_hash]'
+                       using a_exclude_xpath, a_include_xpath,
+                             self.data_id, l_other.data_id;
     
     /* Peform minus on two sets two get diffrences that will be used later on to print results */
-    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no)
-                       with source_data as
-                       ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
-                           pk_hash
+    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,duplicate_no,item_data)
+                       with actual as (
+                        select t.item_hash,
+                        t.item_data,
+                        row_number() over (partition by t.item_hash order by 1) duplicate_no
+                        from  ' || l_ut_owner || '.ut_compound_data_tmp t
+                        where t.data_id = :self_guid
+                        ),
+                        expected as (
+                           select t.item_hash,
+                           t.item_data,
+                           row_number() over (partition by t.item_hash order by 1) duplicate_no
                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
-                           where data_id = :self_guid or data_id = :other_guid
-                        )           
-                       select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
+                           where t.data_id = :other_guid                       
+                        )
+                       select :diff_id,tmp.item_hash,tmp.duplicate_no,tmp.item_data
                        from(
                          (
-                           select t.item_hash,t. duplicate_no,t.pk_hash
-                           from  source_data t
-                           where t.data_id = :self_guid
-                           minus
-                           select t.item_hash,t. duplicate_no,t.pk_hash
-                           from  source_data t
-                           where t.data_id = :other_guid
+                           select act.item_hash,act.duplicate_no,act.item_data
+                           from  actual act left outer join expected exp
+                           on (
+                               act.item_hash = exp.item_hash 
+                               and act.duplicate_no = exp.duplicate_no 
+                               )
+                           where exp.item_hash is null
                          )
                            union all
                          (
-                           select t.item_hash,t. duplicate_no,t.pk_hash
-                           from  source_data t
-                           where t.data_id = :other_guid
-                           minus
-                           select t.item_hash,t. duplicate_no,t.pk_hash
-                           from  source_data t
-                           where t.data_id = :self_guid
-                        ))tmp'
+                           select exp.item_hash,exp.duplicate_no,exp.item_data
+                           from  expected exp left outer join actual act
+                           on (
+                               act.item_hash = exp.item_hash 
+                               and act.duplicate_no = exp.duplicate_no 
+                               )
+                          where act.item_hash is null
+                         )
+                        )tmp'
        using self.data_id, l_other.data_id,
-             l_diff_id, 
-             self.data_id, l_other.data_id,
-             l_other.data_id,self.data_id;
+             l_diff_id;
+    
     --result is OK only if both are same
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;
     else
+    
+      /** 
+      * When we know there are diffrences we will make further checks to generate pk_value,pk_hash
+      **/
+      if a_join_by_xpath is not null then
+        produce_pk_hash(get_column_pk_hash_string(a_join_by_xpath),a_join_by_xpath,l_diff_id);
+      end if;
+      
       l_result := 1;
     end if;
     return l_result;
