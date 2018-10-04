@@ -69,19 +69,32 @@ create or replace type body ut_sonar_test_reporter is
 
     procedure print_suite_results(a_suite ut_logical_suite, a_file_mappings ut_file_mappings) is
     begin
+
       for i in 1 .. a_suite.items.count loop
-        if a_suite.items(i) is of(ut_logical_suite) then
+        if a_suite.items(i) is of(ut_logical_suite) and a_suite.items(i) is not of(ut_suite_context) then
           print_suite_results(treat(a_suite.items(i) as ut_logical_suite), a_file_mappings);
         end if;
       end loop;
-      if a_suite is of(ut_suite) then
-        self.print_text('<file path="'||dbms_xmlgen.convert(map_package_to_file(treat(a_suite as ut_suite), a_file_mappings))||'">');
 
+      if a_suite is of(ut_suite) and a_suite is not of(ut_suite_context) then
+        self.print_text('<file path="'||dbms_xmlgen.convert(map_package_to_file(treat(a_suite as ut_suite), a_file_mappings))||'">');
+      end if;
+
+      for i in 1 .. a_suite.items.count loop
+        if a_suite.items(i) is of(ut_suite_context) then
+          print_suite_results(treat(a_suite.items(i) as ut_suite_context), a_file_mappings);
+        end if;
+      end loop;
+
+      if a_suite is of(ut_suite) then
         for i in 1 .. a_suite.items.count loop
           if a_suite.items(i) is of(ut_test) then
             print_test_results(treat(a_suite.items(i) as ut_test));
           end if;
         end loop;
+      end if;
+
+      if a_suite is of(ut_suite) and a_suite is not of(ut_suite_context) then
         self.print_text('</file>');
       end if;
     end;
