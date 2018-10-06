@@ -540,5 +540,92 @@ create or replace package body ut_compound_data_helper is
     return l_no_missing_keys;
   end;
    
+  function get_unordered(a_owner in varchar2) return varchar2 is
+    l_sql varchar2(32767);
+  begin
+    l_sql := 'with source_data as
+                       ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
+                           pk_hash
+                           from  ' || a_owner || '.ut_compound_data_tmp t
+                           where data_id = :self_guid or data_id = :other_guid
+                        )           
+                       select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
+                       from(
+                         (
+                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           from  source_data t
+                           where t.data_id = :self_guid
+                           minus
+                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           from  source_data t
+                           where t.data_id = :other_guid
+                         )
+                           union all
+                         (
+                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           from  source_data t
+                           where t.data_id = :other_guid
+                           minus
+                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           from  source_data t
+                           where t.data_id = :self_guid
+                        ))tmp';
+    return l_sql;
+  end;
+ 
+  function get_inclusion_matcher_sql(a_owner in varchar2) return varchar2 is
+    l_sql varchar2(32767);
+  begin
+    l_sql := 'with source_data as
+                       ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
+                           pk_hash
+                           from  ' || a_owner || '.ut_compound_data_tmp t
+                           where data_id = :self_guid or data_id = :other_guid
+                        )           
+                       select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
+                       from( 
+                         (
+                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           from  source_data t
+                           where t.data_id = :self_guid
+                           minus
+                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           from  source_data t
+                           where t.data_id = :other_guid
+                         )
+                           union all
+                         (
+                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           from  source_data t,
+                           source_data s
+                           where t.data_id = :other_guid 
+                           and s.data_id = :self_guid 
+                           and t.pk_hash = s.pk_hash                      
+                         )
+                        )
+                        tmp';
+    return l_sql;
+  end;
+  
+  function get_inclusion_matcher_not_sql(a_owner in varchar2) return varchar2 is
+  begin
+    null;
+  end;  
+   
+  function get_refcursor_matcher_sql(a_owner in varchar2,a_inclusion_matcher boolean := false, a_negated_match boolean := false) return varchar2  is
+    l_sql varchar2(32767);
+  begin
+    l_sql := 'insert into ' || a_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no)'||chr(10);
+    if a_inclusion_matcher and not(a_negated_match) then
+      l_sql := l_sql || get_inclusion_matcher_sql(a_owner);
+    elsif a_inclusion_matcher and a_negated_match then
+      null;
+    elsif not(a_inclusion_matcher) then
+      l_sql := l_sql || get_unordered(a_owner);
+    end if;
+    
+    return l_sql;
+  end;
+   
 end;
 /

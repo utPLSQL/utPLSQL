@@ -202,9 +202,9 @@ create or replace type body ut_compound_data_value as
     l_diff_id         ut_compound_data_helper.t_hash;
     l_result          integer;
     l_row_diffs       ut_compound_data_helper.tt_row_diffs;
-    c_max_rows        constant integer := 20;
+    c_max_rows        constant integer := 20;   
+    l_sql             varchar2(32767);
     
-    l_test varchar2(32000);
     function get_column_pk_hash(a_join_by_xpath varchar2) return varchar2 is
       l_column varchar2(32767);
     begin
@@ -254,56 +254,16 @@ create or replace type body ut_compound_data_value as
     /*!* 
     * Comparision is based on type of search, for inclusion based search we will look for left join only.
     * For normal two side diff we will peform minus on two sets two get diffrences.
-    * SELF is expected
+    * SELF is expected. 
+    * Due to growing complexity I have moved a dynamic SQL into helper package.
     */
-    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no)
-                       with source_data as
-                       ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
-                           pk_hash
-                           from  ' || l_ut_owner || '.ut_compound_data_tmp t
-                           where data_id = :self_guid or data_id = :other_guid
-                        )           
-                       select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
-                       from( 
-                         (
-                           select t.item_hash,t. duplicate_no,t.pk_hash
-                           from  source_data t
-                           where t.data_id = :self_guid
-                           minus
-                           select t.item_hash,t. duplicate_no,t.pk_hash
-                           from  source_data t
-                           where t.data_id = :other_guid
-                         )
-                           union all
-                         (
-                           select t.item_hash,t. duplicate_no,t.pk_hash
-                           from  source_data t
-                           where t.data_id = :other_guid '
-                           || 
-                           case when a_inclusion_compare then
-                             ' and 1 = 2 '
-                           else 
-                             null 
-                           end ||
-                           '
-                           minus
-                           select t.item_hash,t. duplicate_no,t.pk_hash
-                           from  source_data t
-                           where t.data_id = :self_guid '
-                           || 
-                           case when a_inclusion_compare then
-                             ' and 1 = 2 '
-                           else 
-                             null 
-                           end ||
-                           '
-                         )
-                        )
-                        tmp'
-       using self.data_id, l_other.data_id,
-             l_diff_id, 
-             self.data_id, l_other.data_id,
-             l_other.data_id,self.data_id;
+    l_sql := ut_compound_data_helper.get_refcursor_matcher_sql(l_ut_owner,a_inclusion_compare);
+    
+    execute immediate l_sql
+    using self.data_id, l_other.data_id,
+          l_diff_id, 
+          self.data_id, l_other.data_id,
+          l_other.data_id,self.data_id;
                
     /*!*
     * Result OK when is not inclusion matcher and both are the same 
@@ -311,7 +271,7 @@ create or replace type body ut_compound_data_value as
     */
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count and not(a_inclusion_compare ) then
       l_result := 0;
-    elsif sql%rowcount = 0  and a_inclusion_compare then
+    elsif sql%rowcount = 0 and a_inclusion_compare then
       l_result := 0;
     else
       l_result := 1;
