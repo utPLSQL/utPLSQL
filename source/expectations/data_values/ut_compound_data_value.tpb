@@ -204,6 +204,7 @@ create or replace type body ut_compound_data_value as
     l_row_diffs       ut_compound_data_helper.tt_row_diffs;
     c_max_rows        constant integer := 20;
     
+    l_test varchar2(32000);
     function get_column_pk_hash(a_join_by_xpath varchar2) return varchar2 is
       l_column varchar2(32767);
     begin
@@ -267,17 +268,17 @@ create or replace type body ut_compound_data_value as
                          (
                            select t.item_hash,t. duplicate_no,t.pk_hash
                            from  source_data t
-                           where t.data_id = :other_guid
+                           where t.data_id = :self_guid
                            minus
                            select t.item_hash,t. duplicate_no,t.pk_hash
                            from  source_data t
-                           where t.data_id = :self_guid
+                           where t.data_id = :other_guid
                          )
                            union all
                          (
                            select t.item_hash,t. duplicate_no,t.pk_hash
                            from  source_data t
-                           where t.data_id = :self_guid '
+                           where t.data_id = :other_guid '
                            || 
                            case when a_inclusion_compare then
                              ' and 1 = 2 '
@@ -288,7 +289,7 @@ create or replace type body ut_compound_data_value as
                            minus
                            select t.item_hash,t. duplicate_no,t.pk_hash
                            from  source_data t
-                           where t.data_id = :other_guid '
+                           where t.data_id = :self_guid '
                            || 
                            case when a_inclusion_compare then
                              ' and 1 = 2 '
@@ -301,11 +302,16 @@ create or replace type body ut_compound_data_value as
                         tmp'
        using self.data_id, l_other.data_id,
              l_diff_id, 
-             l_other.data_id,self.data_id,
-             self.data_id, l_other.data_id;
-             
-    --result is OK only if both are same
-    if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
+             self.data_id, l_other.data_id,
+             l_other.data_id,self.data_id;
+               
+    /*!*
+    * Result OK when is not inclusion matcher and both are the same 
+    * Resullt OK when is inclusion matcher and left contains right set
+    */
+    if sql%rowcount = 0 and self.elements_count = l_other.elements_count and not(a_inclusion_compare ) then
+      l_result := 0;
+    elsif sql%rowcount = 0  and a_inclusion_compare then
       l_result := 0;
     else
       l_result := 1;
