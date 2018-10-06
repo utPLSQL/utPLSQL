@@ -220,7 +220,8 @@ create or replace type body ut_data_value_refcursor as
     return l_result_string;
   end;
 
-  overriding member function compare_implementation (a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean) return integer is
+  overriding member function compare_implementation (a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, 
+                                                     a_unordered boolean, a_inclusion_compare boolean := false) return integer is
     l_result          integer := 0;
     l_other           ut_data_value_refcursor;
     function is_pk_missing (a_pk_missing_tab ut_compound_data_helper.tt_missing_pk) return integer is
@@ -236,7 +237,8 @@ create or replace type body ut_data_value_refcursor as
     
     --if we join by key and key is missing fail and report error
     if a_join_by_xpath is not null then 
-      l_result := is_pk_missing(ut_compound_data_helper.is_pk_exists(self.key_info, l_other.key_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath));
+      l_result := is_pk_missing(ut_compound_data_helper.is_pk_exists(self.key_info, l_other.key_info, a_exclude_xpath, 
+                                a_include_xpath,a_join_by_xpath));
     end if;
     
     if l_result = 0 then
@@ -246,9 +248,10 @@ create or replace type body ut_data_value_refcursor as
       then
         l_result := 1;
       end if;
-    
+     
       if a_unordered then
-        l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath, a_unordered);
+        l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, 
+                                a_join_by_xpath, a_unordered, a_inclusion_compare);      
       else
         l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath);
       end if;

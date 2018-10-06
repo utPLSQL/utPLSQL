@@ -34,7 +34,6 @@ create or replace type body ut_expectation_compound as
     self.not_to( ut_be_empty() );
   end;
 
-
   member procedure to_have_count(self in ut_expectation_compound, a_expected integer) is
   begin
     self.to_( ut_have_count(a_expected) );
@@ -72,6 +71,36 @@ create or replace type body ut_expectation_compound as
     l_result ut_expectation_compound := self;
   begin
     l_result.matcher := ut_equal(a_expected, a_nulls_are_equal);
+    l_result.negated := ut_utils.boolean_to_int(true);
+    return l_result;
+  end;
+
+  member function to_include(a_expected sys_refcursor) return ut_expectation_compound is
+    l_result ut_expectation_compound := self;
+  begin
+    l_result.matcher := ut_include(a_expected);
+    return l_result;
+  end;
+
+  member function to_contain(a_expected sys_refcursor) return ut_expectation_compound is
+    l_result ut_expectation_compound := self;
+  begin
+    l_result.matcher := ut_include(a_expected);
+    return l_result;
+  end;
+
+  member function not_to_include(a_expected sys_refcursor) return ut_expectation_compound is
+    l_result ut_expectation_compound := self;
+  begin
+    l_result.matcher := ut_include(a_expected);
+    l_result.negated := ut_utils.boolean_to_int(true);
+    return l_result;
+  end;
+
+  member function not_to_contain(a_expected sys_refcursor) return ut_expectation_compound is
+    l_result ut_expectation_compound := self;
+  begin
+    l_result.matcher := ut_include(a_expected);
     l_result.negated := ut_utils.boolean_to_int(true);
     return l_result;
   end;

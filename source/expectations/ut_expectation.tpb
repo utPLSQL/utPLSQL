@@ -679,5 +679,25 @@ create or replace type body ut_expectation as
     self.not_to(  ut_be_less_than (a_expected) );
   end;
 
+  member procedure to_include(self in ut_expectation, a_expected sys_refcursor) is
+  begin
+    self.to_( ut_include(a_expected) );
+  end;
+  
+  member procedure to_contain(self in ut_expectation, a_expected sys_refcursor) is
+  begin
+    self.to_( ut_include(a_expected) );
+  end;
+  
+  member procedure not_to_include(self in ut_expectation, a_expected sys_refcursor) is
+  begin
+   self.not_to( ut_include(a_expected) );
+  end;
+  
+  member procedure not_to_contain(self in ut_expectation, a_expected sys_refcursor) is
+  begin
+    self.not_to( ut_include(a_expected) );
+  end;
+
 end;
 /

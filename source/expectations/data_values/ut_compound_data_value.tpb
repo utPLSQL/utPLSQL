@@ -194,7 +194,8 @@ create or replace type body ut_compound_data_value as
     return l_result;
   end;
 
-  member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean ) return integer is
+  member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, 
+                                         a_unordered boolean , a_inclusion_compare boolean := false ) return integer is
     l_other           ut_compound_data_value;
     l_ut_owner        varchar2(250) := ut_utils.ut_owner;
     l_column_filter   varchar2(32767);
@@ -249,7 +250,11 @@ create or replace type body ut_compound_data_value as
                            tgt.pk_hash = src.pk_hash ]'
                        using a_exclude_xpath, a_include_xpath,a_join_by_xpath,self.data_id, l_other.data_id;
     
-    /* Peform minus on two sets two get diffrences that will be used later on to print results */
+    /*!* 
+    * Comparision is based on type of search, for inclusion based search we will look for left join only.
+    * For normal two side diff we will peform minus on two sets two get diffrences.
+    * SELF is expected
+    */
     execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no)
                        with source_data as
                        ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
@@ -258,30 +263,47 @@ create or replace type body ut_compound_data_value as
                            where data_id = :self_guid or data_id = :other_guid
                         )           
                        select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
-                       from(
+                       from( 
                          (
                            select t.item_hash,t. duplicate_no,t.pk_hash
                            from  source_data t
-                           where t.data_id = :self_guid
+                           where t.data_id = :other_guid
                            minus
                            select t.item_hash,t. duplicate_no,t.pk_hash
                            from  source_data t
-                           where t.data_id = :other_guid
+                           where t.data_id = :self_guid
                          )
                            union all
                          (
                            select t.item_hash,t. duplicate_no,t.pk_hash
                            from  source_data t
-                           where t.data_id = :other_guid
+                           where t.data_id = :self_guid '
+                           || 
+                           case when a_inclusion_compare then
+                             ' and 1 = 2 '
+                           else 
+                             null 
+                           end ||
+                           '
                            minus
                            select t.item_hash,t. duplicate_no,t.pk_hash
                            from  source_data t
-                           where t.data_id = :self_guid
-                        ))tmp'
+                           where t.data_id = :other_guid '
+                           || 
+                           case when a_inclusion_compare then
+                             ' and 1 = 2 '
+                           else 
+                             null 
+                           end ||
+                           '
+                         )
+                        )
+                        tmp'
        using self.data_id, l_other.data_id,
              l_diff_id, 
-             self.data_id, l_other.data_id,
-             l_other.data_id,self.data_id;
+             l_other.data_id,self.data_id,
+             self.data_id, l_other.data_id;
+             
     --result is OK only if both are same
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;

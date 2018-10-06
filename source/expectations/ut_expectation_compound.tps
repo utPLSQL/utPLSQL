@@ -29,6 +29,12 @@ create or replace type ut_expectation_compound under ut_expectation(
   member function  to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_expectation_compound,
   member function  not_to_equal(a_expected anydata, a_nulls_are_equal boolean := null) return ut_expectation_compound,
   member function  not_to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_expectation_compound,
+  
+  member function to_include(a_expected sys_refcursor) return ut_expectation_compound,
+  member function to_contain(a_expected sys_refcursor) return ut_expectation_compound, 
+  member function not_to_include(a_expected sys_refcursor) return ut_expectation_compound,
+  member function not_to_contain(a_expected sys_refcursor) return ut_expectation_compound,
+  
   member function  include(a_items varchar2) return ut_expectation_compound,
   member function  include(a_items ut_varchar2_list) return ut_expectation_compound,
   member procedure include(self in ut_expectation_compound, a_items varchar2),
