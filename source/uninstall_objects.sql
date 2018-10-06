@@ -69,6 +69,8 @@ drop type ut_match force;
 
 drop type ut_be_between force;
 
+drop type ut_include force;
+
 drop type ut_equal force;
 
 drop type ut_be_true force;
