@@ -71,3 +71,4 @@ create or replace type ut_equal force under ut_comparison_matcher(
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2
 )
 not final
+/
