@@ -107,7 +107,6 @@ create or replace type body ut_compound_data_value as
     l_actual := treat(a_other as ut_compound_data_value);
 
     dbms_lob.createtemporary(l_result,true);
-
     --diff rows and row elements
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_actual.data_id);
     
@@ -115,7 +114,6 @@ create or replace type body ut_compound_data_value as
     execute immediate 'select count('||case when a_join_by_xpath is not null then 'distinct pk_hash' else '*' end||') from ' 
                       || l_ut_owner || '.ut_compound_data_diff_tmp 
                       where diff_id = :diff_id' into l_diff_row_count using l_diff_id;
-
     if l_diff_row_count > 0  then
       l_compare_type := ut_compound_data_helper.compare_type(a_join_by_xpath,a_unordered);
       l_row_diffs := ut_compound_data_helper.get_rows_diff(
@@ -224,7 +222,7 @@ create or replace type body ut_compound_data_value as
     if not a_other is of (ut_compound_data_value) then
       raise value_error;
     end if;
-
+          
     l_other   := treat(a_other as ut_compound_data_value);
 
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
@@ -264,11 +262,11 @@ create or replace type body ut_compound_data_value as
           l_diff_id, 
           self.data_id, l_other.data_id,
           l_other.data_id,self.data_id;
-               
+                     
     /*!*
     * Result OK when is not inclusion matcher and both are the same 
     * Resullt OK when is inclusion matcher and left contains right set
-    */
+    */    
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count and not(a_inclusion_compare ) then
       l_result := 0;
     elsif sql%rowcount = 0 and a_inclusion_compare then

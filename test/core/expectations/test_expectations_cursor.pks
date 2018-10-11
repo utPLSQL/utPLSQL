@@ -316,5 +316,29 @@ create or replace package test_expectations_cursor is
   --%test(Trying to join on collection element inside record )   
   procedure compare_rec_coll_as_join;
   
+  --%test( Cursor contains data from another cursor)   
+  procedure cursor_contain;
+  
+  --%test( Fail cursor contains data from another cursor )   
+  procedure cursor_contain_fail;
+  
+   --%test( Cursor contains data from another cursor with joinby)   
+  procedure cursor_contain_joinby;
+
+   --%test( Fail cursor contains data from another cursor with joinby)  
+  procedure cursor_contain_joinby_fail;
+  
+  --%test(Cursor contains data with of columns to include)
+  procedure contain_incl_cols_as_list;
+  
+  --%test(Cursor contains data with of columns to include and join by value)
+  procedure contain_join_incl_cols_as_lst;
+  
+  --%test(Cursor contains data with of columns to exclude and join by value)
+  procedure contain_join_excl_cols_as_lst;
+  
+  --%test(Cursor contains data with of columns to exclude)
+  procedure contain_excl_cols_as_list;
+  
 end;
 /
