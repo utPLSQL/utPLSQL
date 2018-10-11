@@ -36,12 +36,24 @@ create or replace type body ut_include as
    return true;
   end;
   
+  member function negated return ut_include is
+    l_result ut_include := self;
+  begin
+    l_result.is_negated := ut_utils.boolean_to_int(true);
+    return l_result;
+  end;
+  
   overriding member function run_matcher(self in out nocopy ut_include, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
     if self.expected.data_type = a_actual.data_type then
-      l_result := 0 = treat(self.expected as ut_data_value_refcursor).compare_implementation(a_actual, self.get_exclude_xpath(), self.get_include_xpath(), self.get_join_by_xpath(),
-                            true,get_inclusion_compare());
+      if nvl(self.is_negated,0) = 0 then
+        l_result := 0 = treat(self.expected as ut_data_value_refcursor).compare_implementation(a_actual, self.get_exclude_xpath(), self.get_include_xpath(), self.get_join_by_xpath(),
+                              true,get_inclusion_compare());
+      else
+        l_result := 0 = treat(self.expected as ut_data_value_refcursor).compare_implementation(a_actual, self.get_exclude_xpath(), self.get_include_xpath(), self.get_join_by_xpath(),
+                              true,get_inclusion_compare());
+      end if;
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
     end if;

@@ -606,11 +606,6 @@ create or replace package body ut_compound_data_helper is
                         tmp';
     return l_sql;
   end;
-  
-  function get_inclusion_matcher_not_sql(a_owner in varchar2) return varchar2 is
-  begin
-    null;
-  end;  
    
   function get_refcursor_matcher_sql(a_owner in varchar2,a_inclusion_matcher boolean := false, a_negated_match boolean := false) return varchar2  is
     l_sql varchar2(32767);

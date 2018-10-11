@@ -92,7 +92,7 @@ create or replace type body ut_expectation_compound as
   member function not_to_include(a_expected sys_refcursor) return ut_expectation_compound is
     l_result ut_expectation_compound := self;
   begin
-    l_result.matcher := ut_include(a_expected);
+    l_result.matcher := ut_include(a_expected).negated;
     l_result.negated := ut_utils.boolean_to_int(true);
     return l_result;
   end;
@@ -100,7 +100,7 @@ create or replace type body ut_expectation_compound as
   member function not_to_contain(a_expected sys_refcursor) return ut_expectation_compound is
     l_result ut_expectation_compound := self;
   begin
-    l_result.matcher := ut_include(a_expected);
+    l_result.matcher := ut_include(a_expected).negated;
     l_result.negated := ut_utils.boolean_to_int(true);
     return l_result;
   end;

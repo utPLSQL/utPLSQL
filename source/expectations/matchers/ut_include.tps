@@ -16,9 +16,18 @@ create or replace type ut_include under ut_equal(
   limitations under the License.
   */
     
+  /**
+  * Due to nature of inclusion compare the not is bit diffrente than standard.
+  * Result is false when even one element belongs which can cause overlap.
+  * e.g. set can fail at same time not_include and include. By that we mean
+  * that false include not necessary mean true not include.
+  */
+  is_negated number(1,0),  
+    
   member procedure init(self in out nocopy ut_include, a_expected ut_data_value),
   constructor function ut_include(self in out nocopy ut_include, a_expected sys_refcursor) return self as result,
   member function get_inclusion_compare return boolean,
+  member function negated return ut_include,
   overriding member function run_matcher(self in out nocopy ut_include, a_actual ut_data_value) return boolean,
   overriding member function failure_message(a_actual ut_data_value) return varchar2
 )
