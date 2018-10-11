@@ -322,6 +322,12 @@ create or replace package test_expectations_cursor is
   --%test( Fail cursor contains data from another cursor )   
   procedure cursor_contain_fail;
   
+  --%test( Cursor contains data from another cursor using second keyword)   
+  procedure cursor_to_contain;
+  
+  --%test( Fail cursor contains data from another cursor using second keyword) 
+  procedure cursor_to_contain_fail;  
+  
    --%test( Cursor contains data from another cursor with joinby)   
   procedure cursor_contain_joinby;
 

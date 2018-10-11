@@ -2031,6 +2031,50 @@ Diff:%
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;  
 
+ procedure cursor_to_contain is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for select owner, object_name,object_type from all_objects where owner = user
+    order by 1,2,3 asc;
+    open l_expected for select owner, object_name,object_type from all_objects where owner = user
+    and rownum < 20;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_contain(l_expected);
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+  
+  procedure cursor_to_contain_fail is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    --Arrange
+    open l_actual for select owner, object_name,object_type from all_objects where owner = user
+    and rownum < 5;
+    open l_expected for select owner, object_name,object_type from all_objects where owner = user
+    and rownum < 10;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_contain(l_expected);
+   --Assert
+     l_expected_message := q'[%Actual: refcursor [ count = 4 ] was expected to include: refcursor [ count = 9 ]
+%Diff:
+%Rows: [ 5 differences ]
+%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>
+%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>
+%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>
+%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>
+%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;  
+
   procedure cursor_contain_joinby is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
