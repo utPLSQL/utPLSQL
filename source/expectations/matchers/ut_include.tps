@@ -28,7 +28,9 @@ create or replace type ut_include under ut_equal(
   constructor function ut_include(self in out nocopy ut_include, a_expected sys_refcursor) return self as result,
   member function get_inclusion_compare return boolean,
   member function negated return ut_include,
+  member function get_negated return boolean,
   overriding member function run_matcher(self in out nocopy ut_include, a_actual ut_data_value) return boolean,
-  overriding member function failure_message(a_actual ut_data_value) return varchar2
+  overriding member function failure_message(a_actual ut_data_value) return varchar2,
+  overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2
 )
 /

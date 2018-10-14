@@ -607,6 +607,34 @@ create or replace package body ut_compound_data_helper is
     return l_sql;
   end;
    
+   function get_not_inclusion_matcher_sql(a_owner in varchar2) return varchar2 is
+    l_sql varchar2(32767);
+  begin
+    /* Self set does not contain any values from other set */
+    l_sql := 'with source_data as
+                       ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
+                           pk_hash
+                           from  ' || a_owner || '.ut_compound_data_tmp t
+                           where data_id = :self_guid or data_id = :other_guid
+                        )           
+                       select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
+                       from
+                         (
+                         select act.item_hash,act. duplicate_no,act.pk_hash
+                         from  source_data act where act.data_id = :self_guid
+                         and exists ( select 1
+                                      from  source_data exp
+                                      where exp.data_id = :other_guid
+                                      and exp.item_hash = act.item_hash
+                                     )
+                        union all
+                        select null,null,null
+                        from dual where :other_guid = :self_guid
+                        )
+                        tmp';
+    return l_sql;
+  end;  
+   
   function get_refcursor_matcher_sql(a_owner in varchar2,a_inclusion_matcher boolean := false, a_negated_match boolean := false) return varchar2  is
     l_sql varchar2(32767);
   begin
@@ -614,7 +642,7 @@ create or replace package body ut_compound_data_helper is
     if a_inclusion_matcher and not(a_negated_match) then
       l_sql := l_sql || get_inclusion_matcher_sql(a_owner);
     elsif a_inclusion_matcher and a_negated_match then
-      null;
+      l_sql := l_sql || get_not_inclusion_matcher_sql(a_owner);
     elsif not(a_inclusion_matcher) then
       l_sql := l_sql || get_unordered(a_owner);
     end if;

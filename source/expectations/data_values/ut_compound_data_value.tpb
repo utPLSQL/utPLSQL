@@ -193,7 +193,7 @@ create or replace type body ut_compound_data_value as
   end;
 
   member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, 
-                                         a_unordered boolean , a_inclusion_compare boolean := false ) return integer is
+                                         a_unordered boolean , a_inclusion_compare boolean := false, a_is_negated boolean := false ) return integer is
     l_other           ut_compound_data_value;
     l_ut_owner        varchar2(250) := ut_utils.ut_owner;
     l_column_filter   varchar2(32767);
@@ -255,14 +255,14 @@ create or replace type body ut_compound_data_value as
     * SELF is expected. 
     * Due to growing complexity I have moved a dynamic SQL into helper package.
     */
-    l_sql := ut_compound_data_helper.get_refcursor_matcher_sql(l_ut_owner,a_inclusion_compare);
-    
+    l_sql := ut_compound_data_helper.get_refcursor_matcher_sql(l_ut_owner,a_inclusion_compare,a_is_negated);
+
     execute immediate l_sql
     using self.data_id, l_other.data_id,
           l_diff_id, 
           self.data_id, l_other.data_id,
           l_other.data_id,self.data_id;
-                     
+
     /*!*
     * Result OK when is not inclusion matcher and both are the same 
     * Resullt OK when is inclusion matcher and left contains right set

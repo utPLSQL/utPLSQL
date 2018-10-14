@@ -346,5 +346,23 @@ create or replace package test_expectations_cursor is
   --%test(Cursor contains data with of columns to exclude)
   procedure contain_excl_cols_as_list;
   
+  --%test( Cursor not to contains data from another cursor)   
+  procedure cursor_not_to_contain;
+  
+  --%test( Cursor not to include data from another cursor)   
+  procedure cursor_not_to_include;  
+  
+  --%test( Cursor not contains data from another cursor with joinby clause)   
+  procedure cursor_not_to_contain_joinby;  
+  
+  --%test( Cursor not include data from another cursor with joinby clause)   
+  procedure cursor_not_to_include_joinby;  
+ 
+  --%test(Cursor not contains data with of columns to include and join by value)
+  procedure not_cont_join_incl_cols_as_lst;
+  
+  --%test(Cursor not contains data with of columns to exclude and join by value)
+  procedure not_cont_join_excl_cols_as_lst; 
+  
 end;
 /

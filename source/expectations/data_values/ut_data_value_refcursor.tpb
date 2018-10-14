@@ -221,7 +221,7 @@ create or replace type body ut_data_value_refcursor as
   end;
 
   overriding member function compare_implementation (a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, 
-                                                     a_unordered boolean, a_inclusion_compare boolean := false) return integer is
+                                                     a_unordered boolean, a_inclusion_compare boolean := false, a_is_negated boolean := false) return integer is
     l_result          integer := 0;
     l_other           ut_data_value_refcursor;
     function is_pk_missing (a_pk_missing_tab ut_compound_data_helper.tt_missing_pk) return integer is
@@ -251,7 +251,7 @@ create or replace type body ut_data_value_refcursor as
      
       if a_unordered then
         l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, 
-                                a_join_by_xpath, a_unordered, a_inclusion_compare);      
+                                a_join_by_xpath, a_unordered, a_inclusion_compare, a_is_negated);      
       else
         l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath);
       end if;
@@ -264,7 +264,6 @@ create or replace type body ut_data_value_refcursor as
   begin
     return self.elements_count = 0;
   end;
-
 
 end;
 /

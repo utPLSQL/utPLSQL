@@ -45,8 +45,7 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
   overriding member function to_string return varchar2,
   overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean := false ) return varchar2,
   overriding member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, 
-                                                    a_unordered boolean, a_inclusion_compare boolean := false) return integer,
+                                                    a_unordered boolean, a_inclusion_compare boolean := false, a_is_negated boolean := false) return integer,
   overriding member function is_empty return boolean
-
 )
 /
