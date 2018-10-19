@@ -149,7 +149,7 @@ create or replace package body test_tfs_junit_reporter as
     l_nls_numeric_characters varchar2(30);
   begin
     --Arrange
-    select nsp.value into l_nls_numeric_characters
+    select replace(nsp.value,'''','''''') into l_nls_numeric_characters
     from nls_session_parameters nsp
     where parameter = 'NLS_NUMERIC_CHARACTERS';
     execute immediate q'[alter session set NLS_NUMERIC_CHARACTERS=', ']';

@@ -589,7 +589,7 @@ create or replace package body test_ut_run is
     failing_stateful_test [% sec] (FAILED - 1)%
 Failures:%
   1) failing_stateful_test
-      ORA-04068: existing state of packages (DB_LOOPBACK) has been discarded
+      ORA-04068: existing state of packages (DB_LOOPBACK%) has been discarded
       ORA-04061: existing state of package body "UT3_TESTER.STATEFUL_PACKAGE" has been invalidated
       ORA-04065: not executed, altered or dropped package body "UT3_TESTER.STATEFUL_PACKAGE"%
       ORA-06512: at line 6%
