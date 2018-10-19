@@ -23,7 +23,7 @@ alter session set plsql_optimize_level=0;
 @@core/test_ut_test.pks
 @@core/annotations/test_annotation_parser.pks
 @@core/annotations/test_annotation_manager.pks
-@@core/annotations/test_before_after_test_annotation.pks
+@@core/annotations/test_before_after_annotations.pks
 @@core/expectations/test_expectation_processor.pks
 @@core/expectations/test_matchers.pks
 @@core/test_output_buffer.pks
@@ -74,7 +74,7 @@ set define off
 @@core/annotations/test_annotation_manager.pkb
 @@core/expectations/test_expectation_processor.pkb
 @@core/expectations/test_matchers.pkb
-@@core/annotations/test_before_after_test_annotation.pkb
+@@core/annotations/test_before_after_annotations.pkb
 @@core/test_output_buffer.pkb
 @@core/test_file_mapper.pkb
 @@core/test_suite_manager.pkb
