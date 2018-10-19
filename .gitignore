@@ -16,3 +16,13 @@ utPLSQL_latest_release/
 utPLSQL-cli/
 development/env.sh
 *.log
+
+# exclusions based on artifacts created via actions documented in CONTRIBUTING.md
+test/dummy.sql
+coverage.html_assets/
+coverage.html
+coverage.json
+coverage.xml
+tfs_test_results.xml
+junit_test_results.xml
+test_results.xml
