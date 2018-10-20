@@ -315,10 +315,10 @@ create or replace package test_expectations_cursor is
 
   --%test(Trying to join on collection element inside record )   
   procedure compare_rec_coll_as_join;
-  
-  --%test( Cursor contains data from another cursor)   
-  procedure cursor_contain;
-  
+ 
+  --%test( Unordered fix for issues with duplicate no : #764 )   
+  procedure unordered_fix_764;
+ 
   --%test( Fail cursor contains data from another cursor )   
   procedure cursor_contain_fail;
   

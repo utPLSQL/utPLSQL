@@ -372,8 +372,7 @@ create or replace package body ut_compound_data_helper is
     /**
     * Since its unordered search we cannot select max rows from diffs as we miss some comparision records
     * We will restrict output on higher level of select
-    */      
-
+    */    
     execute immediate q'[with
       diff_info as (select item_hash,duplicate_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
       select duplicate_no,
@@ -402,6 +401,7 @@ create or replace package body ut_compound_data_helper is
                         diff_info i
                         where ucd.data_id = :self_guid
                         and ucd.item_hash = i.item_hash
+                        and ucd.duplicate_no = i.duplicate_no
                        ) r,
                   table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
               ) ucd
@@ -416,6 +416,7 @@ create or replace package body ut_compound_data_helper is
                      diff_info i
                      where ucd.data_id = :other_guid
                      and ucd.item_hash = i.item_hash
+                     and ucd.duplicate_no = i.duplicate_no
                      ) r,
                table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
                ) ucd
