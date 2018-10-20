@@ -234,6 +234,13 @@ create or replace type body ut_compound_data_value as
     **/        
     execute immediate 'merge into ' || l_ut_owner || '.ut_compound_data_tmp tgt
                        using (
+                              select ucd_out.item_hash,
+                                     ucd_out.pk_hash,
+                                     ucd_out.item_no, 
+                                     ucd_out.data_id,
+                                     row_number() over (partition by ucd_out.pk_hash,ucd_out.item_hash,ucd_out.data_id order by 1,2) duplicate_no
+                              from 
+                              (
                               select '||l_ut_owner ||'.ut_compound_data_helper.get_hash(ucd.item_data.getclobval()) item_hash, 
                                       pk_hash, ucd.item_no, ucd.data_id
                               from
@@ -242,17 +249,19 @@ create or replace type body ut_compound_data_value as
                               from  ' || l_ut_owner || q'[.ut_compound_data_tmp ucd
                               where data_id = :self_guid or data_id = :other_guid
                               ) ucd
+                              )ucd_out
                        ) src
                        on (tgt.item_no = src.item_no and tgt.data_id = src.data_id)
                        when matched then update
                        set tgt.item_hash = src.item_hash,
-                           tgt.pk_hash = src.pk_hash ]'
+                           tgt.pk_hash = src.pk_hash,
+                           tgt.duplicate_no = src.duplicate_no]'
                        using a_exclude_xpath, a_include_xpath,a_join_by_xpath,self.data_id, l_other.data_id;
     
     /* Peform minus on two sets two get diffrences that will be used later on to print results */
     execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no)
                        with source_data as
-                       ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
+                       ( select t.data_id,t.item_hash,t.duplicate_no,
                            pk_hash
                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
                            where data_id = :self_guid or data_id = :other_guid
@@ -260,21 +269,21 @@ create or replace type body ut_compound_data_value as
                        select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
                        from(
                          (
-                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           select t.item_hash,t.duplicate_no,t.pk_hash
                            from  source_data t
                            where t.data_id = :self_guid
                            minus
-                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           select t.item_hash,t.duplicate_no,t.pk_hash
                            from  source_data t
                            where t.data_id = :other_guid
                          )
                            union all
                          (
-                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           select t.item_hash,t.duplicate_no,t.pk_hash
                            from  source_data t
                            where t.data_id = :other_guid
                            minus
-                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           select t.item_hash,t.duplicate_no,t.pk_hash
                            from  source_data t
                            where t.data_id = :self_guid
                         ))tmp'
@@ -282,7 +291,7 @@ create or replace type body ut_compound_data_value as
              l_diff_id, 
              self.data_id, l_other.data_id,
              l_other.data_id,self.data_id;
-    --result is OK only if both are same
+   --result is OK only if both are same
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;
     else
