@@ -1986,6 +1986,38 @@ Diff:%
     ut.expect(l_actual_message).to_be_like(l_expected_message);
 
   end;  
-  
+ 
+  procedure unordered_fix_764 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    open l_expected for
+      select 'Table' as name from dual
+      union all
+      select 'Desk' as name from dual
+      union all
+      select 'Table' as name from dual;
+      
+    open l_actual for
+      select 'Desk' as name from dual
+      union all
+      select 'Table' as name from dual;
+     
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected ).unordered();
+    
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 3 ]
+%Diff:
+%Rows: [ 1 differences ]
+%Missing:  <ROW><NAME>Table</NAME></ROW>%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+
+  end;
+ 
 end;
 /
