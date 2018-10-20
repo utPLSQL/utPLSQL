@@ -13,8 +13,8 @@ alter session set plsql_optimize_level=0;
 @install_headless.sql $UT3_OWNER $UT3_OWNER_PASSWORD
 SQL
 
-#Run this step only on first job slave (11.2 - at it's fastest)
-if [[ "${TRAVIS_JOB_NUMBER}" =~ \.1$ ]]; then
+#Run this step only on second child job (12.1 - at it's fastest)
+if [[ "${TRAVIS_JOB_NUMBER}" =~ \.2$ ]]; then
 
     #check code-style for errors
     time "$SQLCLI" $UT3_OWNER/$UT3_OWNER_PASSWORD@//$CONNECTION_STR @../development/utplsql_style_check.sql
