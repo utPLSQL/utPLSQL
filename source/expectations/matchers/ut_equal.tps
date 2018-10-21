@@ -1,4 +1,4 @@
-create or replace type ut_equal force under ut_comparison_matcher(
+create or replace type ut_equal under ut_comparison_matcher(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project

@@ -176,6 +176,7 @@ create or replace package body ut_compound_data_helper is
     l_results       tt_row_diffs;
   begin
     l_column_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath);
+    
    /**
     * Since its unordered search we cannot select max rows from diffs as we miss some comparision records
     * We will restrict output on higher level of select
