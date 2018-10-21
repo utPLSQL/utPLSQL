@@ -544,7 +544,7 @@ create or replace package body ut_compound_data_helper is
     l_sql varchar2(32767);
   begin
     l_sql := 'with source_data as
-                       ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
+                       ( select t.data_id,t.item_hash,t.duplicate_no,
                            pk_hash
                            from  ' || a_owner || '.ut_compound_data_tmp t
                            where data_id = :self_guid or data_id = :other_guid
@@ -577,7 +577,7 @@ create or replace package body ut_compound_data_helper is
     l_sql varchar2(32767);
   begin
     l_sql := 'with source_data as
-                       ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
+                       ( select t.data_id,t.item_hash,t.duplicate_no,
                            pk_hash
                            from  ' || a_owner || '.ut_compound_data_tmp t
                            where data_id = :self_guid or data_id = :other_guid
@@ -613,7 +613,7 @@ create or replace package body ut_compound_data_helper is
   begin
     /* Self set does not contain any values from other set */
     l_sql := 'with source_data as
-                       ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
+                       ( select t.data_id,t.item_hash,t.duplicate_no,
                            pk_hash
                            from  ' || a_owner || '.ut_compound_data_tmp t
                            where data_id = :self_guid or data_id = :other_guid

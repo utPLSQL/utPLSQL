@@ -2019,7 +2019,7 @@ Diff:%
 
   end;
  
-  procedure cursor_contain is
+  procedure cursor_to_include is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
   begin
@@ -2035,7 +2035,7 @@ Diff:%
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
   
-  procedure cursor_contain_fail is
+  procedure cursor_to_include_fail is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
     l_expected_message varchar2(32767);
@@ -2107,7 +2107,7 @@ Diff:%
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;  
 
-  procedure cursor_contain_joinby is
+  procedure cursor_to_include_joinby is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
   begin
@@ -2121,7 +2121,7 @@ Diff:%
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
   
-  procedure cursor_contain_joinby_fail is
+  procedure cursor_to_include_joinby_fail is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
     l_expected_message varchar2(32767);
@@ -2151,7 +2151,51 @@ Diff:%
     
   end;  
 
-  procedure contain_incl_cols_as_list
+  procedure cursor_contain_joinby is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for select username,user_id from all_users;
+    open l_expected for select username ,user_id from all_users where rownum < 5;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_contain(l_expected).join_by('USERNAME');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+  
+  procedure cursor_contain_joinby_fail is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    --Arrange
+    open l_actual for select username, user_id from all_users
+    union all
+    select 'TEST' username, -600 user_id from dual
+    order by 1 desc;
+    open l_expected   for select username, user_id from all_users
+    union all
+    select 'TEST' username, -601 user_id from dual
+    order by 1 asc;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_contain(l_expected).join_by('USERNAME');
+    --Assert
+     l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to include: refcursor [ count = % ]
+%Diff:
+%Rows: [ 1 differences ]
+%PK <USERNAME>TEST</USERNAME> - Actual:   <USER_ID>-600</USER_ID>
+%PK <USERNAME>TEST</USERNAME> - Expected: <USER_ID>-601</USER_ID>%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+    
+  end;  
+
+  procedure to_include_incl_cols_as_list
   as
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -2164,8 +2208,22 @@ Diff:%
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
+ 
+  procedure to_contain_cont_cols_as_list
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 6;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_contain(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL'));
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
   
-  procedure contain_join_incl_cols_as_lst
+  procedure to_inc_join_incl_cols_as_lst
   as
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -2179,7 +2237,21 @@ Diff:%
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure contain_join_excl_cols_as_lst
+  procedure to_cont_join_incl_cols_as_lst
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_contain(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure include_join_excl_cols_as_lst
   as
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -2193,7 +2265,21 @@ Diff:%
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure contain_excl_cols_as_list
+  procedure contain_join_excl_cols_as_lst
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_contain(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure include_excl_cols_as_list
   as
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -2203,6 +2289,20 @@ Diff:%
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
     ut3.ut.expect(l_actual).to_include(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN|//Some_Col'));
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure contain_excl_cols_as_list
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).to_contain(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN|//Some_Col'));
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;  
@@ -2268,6 +2368,19 @@ Diff:%
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
+
+  procedure not_inc_join_incl_cols_as_lst is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'b' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).not_to_include(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
  
   procedure not_cont_join_incl_cols_as_lst is
     l_actual   sys_refcursor;
@@ -2277,7 +2390,20 @@ Diff:%
     open l_actual   for select rownum as rn, 'b' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_include(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
+    ut3.ut.expect(l_actual).not_to_contain(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure not_inc_join_excl_cols_as_lst is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'y' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
+    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    --Act
+    ut3.ut.expect(l_actual).not_to_include(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
@@ -2290,7 +2416,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'y' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_include(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
+    ut3.ut.expect(l_actual).not_to_contain(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;

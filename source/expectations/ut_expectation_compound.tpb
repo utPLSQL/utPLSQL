@@ -124,11 +124,7 @@ create or replace type body ut_expectation_compound as
   member procedure include(self in ut_expectation_compound, a_items varchar2) is
   begin
       if ut_utils.int_to_boolean(negated) then
-        if (matcher is of (ut_include)) then
-          self.not_include( treat(matcher as ut_equal).include(a_items) );
-        else
-          self.not_to( treat(matcher as ut_equal).include(a_items) );
-        end if;
+        self.not_to( treat(matcher as ut_equal).include(a_items) );
       else
         self.to_( treat(matcher as ut_equal).include(a_items) );
       end if;
@@ -137,11 +133,7 @@ create or replace type body ut_expectation_compound as
   member procedure include(self in ut_expectation_compound, a_items ut_varchar2_list) is
   begin
       if ut_utils.int_to_boolean(negated) then
-        if (matcher is of (ut_include)) then
-          self.not_include( treat(matcher as ut_equal).include(a_items) );
-        else
-          self.not_to( treat(matcher as ut_equal).include(a_items) );
-        end if;
+        self.not_to( treat(matcher as ut_equal).include(a_items) );
       else
         self.to_( treat(matcher as ut_equal).include(a_items) );
       end if;
@@ -168,11 +160,7 @@ create or replace type body ut_expectation_compound as
   member procedure exclude(self in ut_expectation_compound, a_items varchar2) is
     begin
       if ut_utils.int_to_boolean(negated) then
-        if (matcher is of (ut_include)) then
-          self.not_include( treat(matcher as ut_equal).exclude(a_items) );
-        else
-          self.not_to( treat(matcher as ut_equal).exclude(a_items) );
-        end if;
+        self.not_to( treat(matcher as ut_equal).exclude(a_items) );
       else
         self.to_( treat(matcher as ut_equal).exclude(a_items) );
       end if;
@@ -181,11 +169,7 @@ create or replace type body ut_expectation_compound as
   member procedure exclude(self in ut_expectation_compound, a_items ut_varchar2_list) is
     begin
       if ut_utils.int_to_boolean(negated) then
-        if (matcher is of (ut_include)) then
-          self.not_include( treat(matcher as ut_equal).exclude(a_items) );
-        else
-          self.not_to( treat(matcher as ut_equal).exclude(a_items) );
-        end if;
+        self.not_to( treat(matcher as ut_equal).exclude(a_items) );
       else
         self.to_( treat(matcher as ut_equal).exclude(a_items) );
       end if;
@@ -228,11 +212,7 @@ create or replace type body ut_expectation_compound as
   member procedure join_by(self in ut_expectation_compound, a_columns varchar2) is
   begin
     if ut_utils.int_to_boolean(negated) then
-      if (matcher is of (ut_include)) then
-        self.not_include( treat(matcher as ut_equal).join_by(a_columns) );
-      else 
-        self.not_to( treat(matcher as ut_equal).join_by(a_columns) );
-      end if;
+      self.not_to( treat(matcher as ut_equal).join_by(a_columns) );
     else
       self.to_( treat(matcher as ut_equal).join_by(a_columns) );
     end if;
@@ -241,11 +221,7 @@ create or replace type body ut_expectation_compound as
   member procedure join_by(self in ut_expectation_compound, a_columns ut_varchar2_list) is
   begin
     if ut_utils.int_to_boolean(negated) then
-      if (matcher is of (ut_include)) then
-        self.not_include( treat(matcher as ut_equal).join_by(a_columns) );
-      else 
-        self.not_to( treat(matcher as ut_equal).join_by(a_columns) );
-      end if;
+      self.not_to( treat(matcher as ut_equal).join_by(a_columns) );
     else
       self.to_( treat(matcher as ut_equal).join_by(a_columns) );
     end if;

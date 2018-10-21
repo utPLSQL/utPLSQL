@@ -21,8 +21,7 @@ create or replace type ut_expectation authid current_user as object(
   --base matcher executors
   member procedure to_(self in ut_expectation, a_matcher ut_matcher),
   member procedure not_to(self in ut_expectation, a_matcher ut_matcher),
-  member procedure not_include(self in ut_expectation, a_matcher ut_matcher),
-
+  
   --shortcuts
   member procedure to_be_null(self in ut_expectation),
   member procedure to_be_not_null(self in ut_expectation),
