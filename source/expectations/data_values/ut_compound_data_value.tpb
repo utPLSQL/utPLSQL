@@ -198,27 +198,11 @@ create or replace type body ut_compound_data_value as
                                          a_unordered boolean , a_inclusion_compare boolean := false, a_is_negated boolean := false ) return integer is
     l_other           ut_compound_data_value;
     l_ut_owner        varchar2(250) := ut_utils.ut_owner;
-    l_column_filter   varchar2(32767);
     l_diff_id         ut_compound_data_helper.t_hash;
     l_result          integer;
     l_row_diffs       ut_compound_data_helper.tt_row_diffs;
     c_max_rows        constant integer := 20;   
     l_sql             varchar2(32767);
-    
-    function get_column_pk_hash(a_join_by_xpath varchar2) return varchar2 is
-      l_column varchar2(32767);
-    begin
-      /* due to possibility of key being to columns we cannot use xmlextractvalue
-         usage of xmlagg is possible however it greatly complicates code and performance is impacted.
-         xpath to be looked at or regex
-      */
-      if a_join_by_xpath is not null then
-        l_column :=  l_ut_owner ||'.ut_compound_data_helper.get_hash(extract(ucd.item_data,:join_by_xpath).GetClobVal()) pk_hash';
-      else
-        l_column := ':join_by_xpath pk_hash';
-      end if;
-      return l_column;
-    end;
     
   begin
     if not a_other is of (ut_compound_data_value) then
@@ -228,37 +212,12 @@ create or replace type body ut_compound_data_value as
     l_other   := treat(a_other as ut_compound_data_value);
 
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
-    l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
-      
+    
     /**
     * Due to incompatibility issues in XML between 11 and 12.2 and 12.1 versions we will prepopulate pk_hash upfront to
     * avoid optimizer incorrectly rewrite and causing NULL error or ORA-600
-    **/        
-    execute immediate 'merge into ' || l_ut_owner || '.ut_compound_data_tmp tgt
-                       using (
-                              select ucd_out.item_hash,
-                                     ucd_out.pk_hash,
-                                     ucd_out.item_no, 
-                                     ucd_out.data_id,
-                                     row_number() over (partition by ucd_out.pk_hash,ucd_out.item_hash,ucd_out.data_id order by 1,2) duplicate_no
-                              from 
-                              (
-                              select '||l_ut_owner ||'.ut_compound_data_helper.get_hash(ucd.item_data.getclobval()) item_hash, 
-                                      pk_hash, ucd.item_no, ucd.data_id
-                              from
-                              (
-                              select '||l_column_filter||','||get_column_pk_hash(a_join_by_xpath)||', item_no, data_id
-                              from  ' || l_ut_owner || q'[.ut_compound_data_tmp ucd
-                              where data_id = :self_guid or data_id = :other_guid
-                              ) ucd
-                              )ucd_out
-                       ) src
-                       on (tgt.item_no = src.item_no and tgt.data_id = src.data_id)
-                       when matched then update
-                       set tgt.item_hash = src.item_hash,
-                           tgt.pk_hash = src.pk_hash,
-                           tgt.duplicate_no = src.duplicate_no]'
-                       using a_exclude_xpath, a_include_xpath,a_join_by_xpath,self.data_id, l_other.data_id;
+    **/   
+    ut_compound_data_helper.update_row_and_pk_hash(self.data_id, l_other.data_id, a_exclude_xpath,a_include_xpath,a_join_by_xpath);
     
     /*!* 
     * Comparision is based on type of search, for inclusion based search we will look for left join only.
