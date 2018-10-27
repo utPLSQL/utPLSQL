@@ -145,6 +145,7 @@ utPLSQL provides the following matchers to perform checks on the expected and ac
 - `be_null`
 - `be_true`
 - `equal`
+- `include ` / `contain`
 - `have_count`
 - `match`
 
@@ -432,6 +433,210 @@ end;
 The `a_nulls_are_equal` parameter controls the behavior of a `null = null` comparison.
 To change the behavior of `NULL = NULL` comparison pass the `a_nulls_are_equal => false` to the `equal` matcher.  
 
+## include / contain
+
+This matcher supports only cursor comparison. It check if the give set contain all values from given subset.
+
+Test using this matcher behaves similar to `equal`  in respect that it succeeds only when the compared data-types are exactly the same.
+
+The matcher supports all advanced comparison options as `equal` e.g. include , exclude, join_by.
+
+The matcher will be successful only when all of the values in expected results are part of actual set.
+
+Similar negated `not_to_include`/ `not_to_contain` will be successful only when none of the values from expected set are part of actual e.g.
+
+*Example 1.*
+
+Set 1 is defined as [ A , B , C ] 
+
+*Set 2 is defined as [A , D , E ]*
+
+*Result : This will fail both of options to`to_include` and `not_to_include`*
+
+
+
+*Example 2.*
+
+Set 1 is defined as [ A , B , C , D ] 
+
+*Set 2 is defined as [A , B , D ]*
+
+*Result : This will be success on option `to_include` and fail `not_to_include`*
+
+
+
+*Example 3*
+
+Set 1 is defined as [ A , B , C  ] 
+
+*Set 2 is defined as [D, E , F  ]*
+
+*Result : This will be success on options `not_to_include` and fail  `to_include`* 
+
+
+
+Example usage
+
+```sql
+create or replace package example_include is
+  	--%suite(Include test)
+  
+  	--%test( Cursor include data from another cursor)   
+  	procedure cursor_to_include;
+  	
+    --%test( Cursor include data from another cursor)   
+  	procedure cursor_not_to_include;
+      	
+    --%test( Cursor fail include)   
+  	procedure cursor_fail_include;
+  	
+  	--%test( Cursor fail not include)  
+  	procedure cursor_fail_not_include;
+end;
+/
+  
+create or replace package body example_include is
+  
+	procedure cursor_to_include is
+    	l_actual   SYS_REFCURSOR;
+        l_expected SYS_REFCURSOR;
+    begin
+        --Arrange
+        open l_actual for 
+        select 'a' as name from dual 
+        union all
+        select 'b' as name from dual
+        union all
+        select 'c' as name from dual
+        union all
+        select 'd' as name from dual;
+        
+        open l_expected for 
+        select 'a' as name from dual 
+        union all
+        select 'b' as name from dual
+        union all
+        select 'c' as name from dual;
+
+        --Act
+        ut3.ut.expect(l_actual).to_include(l_expected);
+	end;
+	
+	procedure cursor_not_to_include is
+    	l_actual   SYS_REFCURSOR;
+        l_expected SYS_REFCURSOR;
+    begin
+        --Arrange
+        open l_actual for 
+        select 'a' as name from dual 
+        union all
+        select 'b' as name from dual
+        union all
+        select 'c' as name from dual;
+        
+        open l_expected for 
+        select 'd' as name from dual 
+        union all
+        select 'e' as name from dual
+        union all
+        select 'f' as name from dual;
+
+        --Act
+        ut3.ut.expect(l_actual).not_to_include(l_expected);
+	end;
+    
+	procedure cursor_fail_include is
+    	l_actual   SYS_REFCURSOR;
+        l_expected SYS_REFCURSOR;
+    begin
+        --Arrange
+        open l_actual for 
+        select 'a' as name from dual 
+        union all
+        select 'b' as name from dual
+        union all
+        select 'c' as name from dual;
+        
+        open l_expected for 
+        select 'a' as name from dual 
+        union all
+        select 'd' as name from dual
+        union all
+        select 'e' as name from dual;
+
+        --Act
+        ut3.ut.expect(l_actual).to_include(l_expected);
+	end;
+	
+	procedure cursor_fail_not_include is
+    	l_actual   SYS_REFCURSOR;
+        l_expected SYS_REFCURSOR;
+    begin
+        --Arrange
+        open l_actual for 
+        select 'a' as name from dual 
+        union all
+        select 'b' as name from dual
+        union all
+        select 'c' as name from dual;
+        
+        open l_expected for 
+        select 'a' as name from dual 
+        union all
+        select 'd' as name from dual
+        union all
+        select 'e' as name from dual;
+
+        --Act
+        ut3.ut.expect(l_actual).not_to_include(l_expected);
+	end;
+end;
+/
+```
+
+
+
+Above execution will provide results as follow:
+
+```sql
+Include test
+  Cursor include data from another cursor [.045 sec]
+  Cursor include data from another cursor [.039 sec]
+  Cursor fail include [.046 sec] (FAILED - 1)
+  Cursor fail not include [.043 sec] (FAILED - 2)
+ 
+Failures:
+ 
+  1) cursor_fail_include
+      Actual: refcursor [ count = 3 ] was expected to include: refcursor [ count = 3 ]
+      Diff:
+      Rows: [ 2 differences ]
+      Missing:  <ROW><NAME>d</NAME></ROW>
+      Missing:  <ROW><NAME>e</NAME></ROW>
+      at "UT3.EXAMPLE_INCLUDE.CURSOR_FAIL_INCLUDE", line 71 ut3.ut.expect(l_actual).to_include(l_expected);
+      
+       
+  2) cursor_fail_not_include
+      Actual: (refcursor [ count = 3 ])
+          Data-types:
+          <ROW><NAME xml_valid_name="NAME">CHAR</NAME>
+          </ROW>
+          Data:
+          <ROW><NAME>a</NAME></ROW>
+          <ROW><NAME>b</NAME></ROW>
+          <ROW><NAME>c</NAME></ROW>
+      was expected not to include:(refcursor [ count = 3 ])
+          Data-types:
+          <ROW><NAME xml_valid_name="NAME">CHAR</NAME>
+          </ROW>
+          Data:
+          <ROW><NAME>a</NAME></ROW>
+          <ROW><NAME>d</NAME></ROW>
+          <ROW><NAME>e</NAME></ROW>
+      at "UT3.EXAMPLE_INCLUDE.CURSOR_FAIL_NOT_INCLUDE", line 94 ut3.ut.expect(l_actual).not_to_include(l_expected);
+```
+
+
 
 ## Comparing cursors, object types, nested tables and varrays 
 
@@ -450,7 +655,7 @@ utPLSQL is capable of comparing compound data-types including:
 - It is possible to compare PL/SQL records, collections, varrays and associative arrays. To compare this types of data, use cursor comparison feature of utPLSQL and TABLE operator in SQL query
     - On Oracle 11g Release 2 - pipelined table functions are needed (see section [Implicit (Shadow) Types in this artcile](https://oracle-base.com/articles/misc/pipelined-table-functions))
     - On Oracle 12c and above - use [TABLE function on nested tables/varrays/associative arrays of PL/SQL records](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1) 
-   
+
 
 utPLSQL offers advanced data-comparison options, for comparing compound data-types. The options allow you to:
 - define columns/attributes to exclude from comparison
@@ -784,23 +989,24 @@ Since NULL is neither *true* nor *false*, both expectations will report failure.
 
 The matrix below illustrates the data types supported by different matchers.
 
-|  Matcher              |blob |boolean|clob |date |number|timestamp|timestamp<br>with<br>timezone|timestamp<br>with<br>local<br>timezone|varchar2|interval<br>year<br>to<br>month|interval<br>day<br>to<br>second|cursor|nested<br>table<br>/ varray|object|
-|:----------------------|:---:|:-----:|:---:|:---:|:----:|:-------:|:---------------------------:|:------------------------------------:|:------:|:-----------------------------:|:-----------------------------:|:----:|:-------------------------:|:----:|
-|**be_not_null**        |  X  |   X   |  X  |  X  |  X   |    X    |             X               |                   X                  |   X    |               X               |               X               |   X  |              X            |   X  |
-|**be_null**            |  X  |   X   |  X  |  X  |  X   |    X    |             X               |                   X                  |   X    |               X               |               X               |   X  |              X            |   X  |
-|**be_false**           |     |   X   |     |     |      |         |                             |                                      |        |                               |                               |      |                           |      |
-|**be_true**            |     |   X   |     |     |      |         |                             |                                      |        |                               |                               |      |                           |      |
-|**be_greater_than**    |     |       |     |  X  |  X   |    X    |             X               |                   X                  |        |               X               |               X               |      |                           |      |
-|**be_greater_or_equal**|     |       |     |  X  |  X   |    X    |             X               |                   X                  |        |               X               |               X               |      |                           |      |
-|**be_less_or_equal**   |     |       |     |  X  |  X   |    X    |             X               |                   X                  |        |               X               |               X               |      |                           |      |
-|**be_less_than**       |     |       |     |  X  |  X   |    X    |             X               |                   X                  |        |               X               |               X               |      |                           |      |
-|**be_between**         |     |       |     |  X  |  X   |    X    |             X               |                   X                  |   X    |               X               |               X               |      |                           |      |
-|**equal**              |  X  |   X   |  X  |  X  |  X   |    X    |             X               |                   X                  |   X    |               X               |               X               |   X  |              X            |   X  |
-|**match**              |     |       |  X  |     |      |         |                             |                                      |   X    |                               |                               |      |                           |      |
-|**be_like**            |     |       |  X  |     |      |         |                             |                                      |   X    |                               |                               |      |                           |      |
-|**be_empty**           |  X  |       |  X  |     |      |         |                             |                                      |        |                               |                               |   X  |              X            |      |
-|**have_count**         |     |       |     |     |      |         |                             |                                      |        |                               |                               |   X  |              X            |      |
-                                                                                                                                                                                                                                                                                 
+| Matcher                 | blob | boolean | clob | date | number | timestamp | timestamp<br>with<br>timezone | timestamp<br>with<br>local<br>timezone | varchar2 | interval<br>year<br>to<br>month | interval<br>day<br>to<br>second | cursor | nested<br>table<br>/ varray | object |
+| :---------------------- | :--: | :-----: | :--: | :--: | :----: | :-------: | :---------------------------: | :------------------------------------: | :------: | :-----------------------------: | :-----------------------------: | :----: | :-------------------------: | :----: |
+| **be_not_null**         |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |
+| **be_null**             |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |
+| **be_false**            |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |
+| **be_true**             |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |
+| **be_greater_than**     |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |
+| **be_greater_or_equal** |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |
+| **be_less_or_equal**    |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |
+| **be_less_than**        |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |
+| **be_between**          |      |         |      |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |        |                             |        |
+| **equal**               |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |
+| **include / contain**   |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |   X    |
+| **match**               |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |
+| **be_like**             |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |
+| **be_empty**            |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |
+| **have_count**          |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |
 
+​				
 
 
