@@ -21,7 +21,7 @@ create or replace type body ut_logical_suite as
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
-    self.init(a_object_owner, a_object_name, a_name);
+    self.init(a_object_owner, a_object_name, a_name, 0);
     self.path := a_path;
     self.disabled_flag := ut_utils.boolean_to_int(false);
     self.items := ut_suite_items();

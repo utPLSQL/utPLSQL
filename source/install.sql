@@ -70,6 +70,7 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_executable_test.tps'
 @@install_component.sql 'core/types/ut_test.tps'
 @@install_component.sql 'core/types/ut_logical_suite.tps'
+@@install_component.sql 'core/types/ut_logical_suites.tps'
 @@install_component.sql 'core/types/ut_suite.tps'
 @@install_component.sql 'core/types/ut_suite_context.tps'
 @@install_component.sql 'core/types/ut_file_mapping.tps'
@@ -109,6 +110,10 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/annotations/ut_annotation_manager.pkb'
 
 --suite builder
+@@install_component.sql 'core/ut_suite_cache_schema.sql'
+@@install_component.sql 'core/ut_suite_cache.sql'
+@@install_component.sql 'core/ut_suite_cache_manager.pks'
+@@install_component.sql 'core/ut_suite_cache_manager.pkb'
 @@install_component.sql 'core/ut_suite_builder.pks'
 @@install_component.sql 'core/ut_suite_builder.pkb'
 --suite manager

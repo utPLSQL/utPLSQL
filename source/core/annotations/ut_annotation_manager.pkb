@@ -19,11 +19,12 @@ create or replace package body ut_annotation_manager as
   ------------------------------
   --private definitions
 
-  function get_annotation_objs_info_cur(a_object_owner varchar2, a_object_type varchar2) return sys_refcursor is
-    l_result       sys_refcursor;
+  function get_annotation_objs_info(a_object_owner varchar2, a_object_type varchar2, a_parse_date date := null) return ut_annotation_objs_cache_info is
+    l_rows         sys_refcursor;
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
     l_objects_view varchar2(200) := ut_metadata.get_dba_view('dba_objects');
-    l_cursor_text  long;
+    l_cursor_text  varchar2(32767);
+    l_result       ut_annotation_objs_cache_info;
   begin
     l_cursor_text :=
       q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
@@ -34,10 +35,20 @@ create or replace package body ut_annotation_manager as
                   )
            from ]'||l_objects_view||q'[ o
            left join ]'||l_ut_owner||q'[.ut_annotation_cache_info i
-             on o.owner = i.object_owner and o.object_name = i.object_name and o.object_type = i.object_type
+             on o.owner = i.object_owner
+            and o.object_name = i.object_name
+            and o.object_type = i.object_type
           where o.owner = :a_object_owner
-            and o.object_type = :a_object_type]';
-    open l_result for l_cursor_text  using a_object_owner, a_object_type;
+            and o.object_type = :a_object_type
+            and ]'
+      || case
+           when a_parse_date is null
+           then ':a_parse_date is null'
+           else 'o.last_ddl_time > :a_parse_date'
+         end;
+    open l_rows for l_cursor_text  using a_object_owner, a_object_type, a_parse_date;
+    fetch l_rows bulk collect into l_result limit 1000000;
+    close l_rows;
     return l_result;
   end;
 
@@ -103,6 +114,7 @@ create or replace package body ut_annotation_manager as
     l_names               dbms_preprocessor.source_lines_t;
     l_name                varchar2(250);
     l_object_lines        dbms_preprocessor.source_lines_t;
+    l_parse_time          date := sysdate;
     pragma autonomous_transaction;
   begin
     ut_annotation_cache_manager.cleanup_cache(a_schema_objects);
@@ -112,7 +124,7 @@ create or replace package body ut_annotation_manager as
         if l_names(i) != l_name then
           l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines);
           ut_annotation_cache_manager.update_cache(
-            ut_annotated_object(a_object_owner, l_name, a_object_type, l_annotations)
+            ut_annotated_object(a_object_owner, l_name, a_object_type, l_parse_time, l_annotations)
           );
           l_object_lines.delete;
         end if;
@@ -126,7 +138,7 @@ create or replace package body ut_annotation_manager as
     if a_sources_cursor%rowcount > 0 then
       l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines);
       ut_annotation_cache_manager.update_cache(
-        ut_annotated_object(a_object_owner, l_name, a_object_type, l_annotations)
+        ut_annotated_object(a_object_owner, l_name, a_object_type, l_parse_time, l_annotations)
       );
       l_object_lines.delete;
     end if;
@@ -140,7 +152,8 @@ create or replace package body ut_annotation_manager as
     l_objects_to_parse       ut_annotation_objs_cache_info := ut_annotation_objs_cache_info();
   begin
     --get list of objects in cache
-    select count( 1)into l_objects_in_cache_count from table(a_info_rows) x where x.needs_refresh = 'N';
+    select count(1) into l_objects_in_cache_count
+      from table(a_info_rows) x where x.needs_refresh = 'N';
 
     --if cache is empty and there are objects to parse
     if l_objects_in_cache_count = 0 and a_info_rows.count > 0 then
@@ -173,30 +186,26 @@ create or replace package body ut_annotation_manager as
   --public definitions
   ------------------------------------------------------------
   procedure rebuild_annotation_cache(a_object_owner varchar2, a_object_type varchar2) is
-    l_info_cursor            sys_refcursor;
-    l_info_rows              ut_annotation_objs_cache_info;
   begin
-    l_info_cursor := get_annotation_objs_info_cur(a_object_owner, a_object_type);
-    fetch l_info_cursor bulk collect into l_info_rows;
-    close l_info_cursor;
-    rebuild_annotation_cache(a_object_owner, a_object_type, l_info_rows);
+    rebuild_annotation_cache(
+      a_object_owner,
+      a_object_type,
+      get_annotation_objs_info(a_object_owner, a_object_type, null)
+    );
   end;
 
-  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2) return ut_annotated_objects pipelined is
-    l_info_cursor            sys_refcursor;
+  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_parse_date date := null) return ut_annotated_objects pipelined is
     l_info_rows              ut_annotation_objs_cache_info;
     l_cursor                 sys_refcursor;
     l_results                ut_annotated_objects;
     c_object_fetch_limit  constant integer := 10;
   begin
-   
-    l_info_cursor := get_annotation_objs_info_cur(a_object_owner, a_object_type);
-    fetch l_info_cursor bulk collect into l_info_rows;
-    close l_info_cursor;
+
+    l_info_rows := get_annotation_objs_info(a_object_owner, a_object_type, a_parse_date);
     rebuild_annotation_cache(a_object_owner, a_object_type, l_info_rows);
 
     --pipe annotations from cache
-    l_cursor := ut_annotation_cache_manager.get_annotations_for_objects(l_info_rows);
+    l_cursor := ut_annotation_cache_manager.get_annotations_for_objects(l_info_rows, a_parse_date);
     loop
       fetch l_cursor bulk collect into l_results limit c_object_fetch_limit;
       for i in 1 .. l_results.count loop
@@ -205,7 +214,6 @@ create or replace package body ut_annotation_manager as
       exit when l_cursor%notfound;
     end loop;
     close l_cursor;
-
   end;
 
   procedure purge_cache(a_object_owner varchar2, a_object_type varchar2) is

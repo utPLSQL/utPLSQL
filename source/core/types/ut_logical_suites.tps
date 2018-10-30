@@ -1,4 +1,4 @@
-create or replace type body ut_suite_context as
+create or replace type ut_logical_suites as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -15,18 +15,5 @@ create or replace type body ut_suite_context as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-
-  constructor function ut_suite_context (
-    self in out nocopy ut_suite_context, a_object_owner varchar2, a_object_name varchar2, a_context_name varchar2 := null, a_line_no integer
-  ) return self as result is
-  begin
-    self.self_type := $$plsql_unit;
-    self.init(a_object_owner, a_object_name, a_context_name, a_line_no);
-    self.items := ut_suite_items();
-    before_all_list := ut_executables();
-    after_all_list  := ut_executables();
-    return;
-  end;
-
-end;
+  table of ut_logical_suite
 /

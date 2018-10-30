@@ -55,6 +55,10 @@ drop package ut_suite_manager;
 
 drop package ut_suite_builder;
 
+drop table ut_suite_cache;
+
+drop table ut_suite_cache_schema;
+
 drop package ut;
 
 drop table ut_dbms_output_cache;

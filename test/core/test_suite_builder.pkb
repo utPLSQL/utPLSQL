@@ -11,7 +11,7 @@ create or replace package body test_suite_builder is
   begin
     open l_cursor for select value(x) from table(
                ut3.ut_annotated_objects(
-                   ut3.ut_annotated_object('UT3_TESTER', a_package_name, 'PACKAGE', a_annotations)
+                   ut3.ut_annotated_object('UT3_TESTER', a_package_name, 'PACKAGE', SYSDATE, a_annotations)
                ) ) x;
     l_suites := ut3.ut_suite_builder.build_suites(l_cursor).schema_suites;
     l_suite  := l_suites(l_suites.first);
@@ -841,6 +841,61 @@ create or replace package body test_suite_builder is
         '<AFTER_ALL_LIST/>' ||
       '</UT_LOGICAL_SUITE>'
     );
+  end;
+
+  --%test(Gives warning when two contexts have the same name)
+  procedure duplicate_context_name is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+    begin
+      --Arrange
+      l_annotations := ut3.ut_annotations(
+          ut3.ut_annotation(1, 'suite','Cool', null),
+          ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
+          ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
+          ut3.ut_annotation(4, 'context','a_context', null),
+          ut3.ut_annotation(5, 'displayname','A context', null),
+          ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
+          ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+          ut3.ut_annotation(8, 'endcontext',null, null),
+          ut3.ut_annotation(9, 'context','a_context', null),
+          ut3.ut_annotation(10, 'displayname','A context', null),
+          ut3.ut_annotation(11, 'beforeall',null, 'setup_in_duplicated_context'),
+          ut3.ut_annotation(12, 'test', 'In duplicated context', 'test_in_duplicated_context'),
+          ut3.ut_annotation(13, 'endcontext',null, null)
+      );
+      --Act
+      l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+      --Assert
+      ut.expect(l_actual).to_be_like(
+          '%<WARNINGS><VARCHAR2>Context name must be unique in a suite. Context and all of it&apos;s content ignored.%at &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 9</VARCHAR2></WARNINGS>%'
+          ,'\'
+      );
+      ut.expect(l_actual).to_be_like(
+          '<UT_LOGICAL_SUITE>' ||
+          '%<ITEMS>' ||
+          '<UT_SUITE_ITEM>' ||
+          '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
+          '%<ITEMS>' ||
+          '<UT_SUITE_ITEM>' ||
+          '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context.test_in_a_context</PATH>' ||
+          '%</UT_SUITE_ITEM>' ||
+          '</ITEMS>' ||
+          '<BEFORE_ALL_LIST>' ||
+          '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>context_setup</PROCEDURE_NAME>' ||
+          '%</BEFORE_ALL_LIST>' ||
+          '<AFTER_ALL_LIST/>' ||
+          '</UT_SUITE_ITEM>' ||
+          '<UT_SUITE_ITEM>' ||
+          '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+          '%</UT_SUITE_ITEM>' ||
+          '</ITEMS>' ||
+          '<BEFORE_ALL_LIST>' ||
+          '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
+          '%</BEFORE_ALL_LIST>' ||
+          '<AFTER_ALL_LIST/>' ||
+          '</UT_LOGICAL_SUITE>'
+      );
   end;
 
   procedure throws_value_empty is

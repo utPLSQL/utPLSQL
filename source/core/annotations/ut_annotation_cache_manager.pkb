@@ -37,17 +37,10 @@ create or replace package body ut_annotation_cache_manager as
       where cache_id = l_cache_id;
 
     if a_object.annotations is not null and a_object.annotations.count > 0 then
---       begin
       insert into ut_annotation_cache
              (cache_id, annotation_position, annotation_name, annotation_text, subobject_name)
       select l_cache_id, a.position, a.name, a.text, a.subobject_name
         from table(a_object.annotations) a;
-      --TODO - duplicate annotations found?? - should not happen, getting standalone annotations need to happen after procedure annotations were parsed
---       exception
---         when others then
---           dbms_output.put_line(xmltype(anydata.convertCollection(a_object.annotations)).getclobval);
---           raise;
---       end;
     end if;
     commit;
   end;
@@ -81,12 +74,12 @@ create or replace package body ut_annotation_cache_manager as
     commit;
   end;
 
-  function get_annotations_for_objects(a_cached_objects ut_annotation_objs_cache_info) return sys_refcursor is
+  function get_annotations_for_objects(a_cached_objects ut_annotation_objs_cache_info, a_parse_date date) return sys_refcursor is
     l_results     sys_refcursor;
   begin
-    open l_results for
+    open l_results for q'[
       select ut_annotated_object(
-               o.object_owner, o.object_name, o.object_type,
+               i.object_owner, i.object_name, i.object_type, i.parse_time,
                cast(
                  collect(
                    ut_annotation(
@@ -95,11 +88,13 @@ create or replace package body ut_annotation_cache_manager as
                  ) as ut_annotations
                )
              )
-        from table(a_cached_objects) o
+        from table(:a_cached_objects) o
         join ut_annotation_cache_info i
           on o.object_owner = i.object_owner and o.object_name = i.object_name and o.object_type = i.object_type
         join ut_annotation_cache c on i.cache_id = c.cache_id
-       group by o.object_owner, o.object_name, o.object_type;
+       where ]'|| case when a_parse_date is null then ':a_parse_date is null' else 'i.parse_time > :a_parse_date' end ||q'[
+       group by i.object_owner, i.object_name, i.object_type, i.parse_time]'
+    using a_cached_objects, a_parse_date;
     return l_results;
   end;
 

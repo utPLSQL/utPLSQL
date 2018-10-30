@@ -9,13 +9,13 @@ create or replace package body test_ut_suite is
     l_suite    ut3.ut_suite;
   begin
     --Arrange
-    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_EXAMPLE_TESTS');
+    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_EXAMPLE_TESTS', a_line_no=> 1);
     l_suite.path := 'ut_example_tests';
     l_suite.disabled_flag := ut3.ut_utils.boolean_to_int(true);
     l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'UT_EXAMPLE_TESTS', 'set_g_number_0', ut3.ut_utils.gc_before_all));
     l_suite.after_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'UT_EXAMPLE_TESTS', 'add_1_to_g_number', ut3.ut_utils.gc_before_all));
-    l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'add_1_to_g_number'));
-    l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'add_1_to_g_number'));
+    l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'add_1_to_g_number', a_line_no=> 1));
+    l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'add_1_to_g_number', a_line_no=> 1));
     --Act
     l_suite.do_execute();
     --Assert
@@ -32,10 +32,10 @@ create or replace package body test_ut_suite is
     l_suite    ut3.ut_suite;
   begin
     --Arrange
-    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_EXAMPLE_TESTS');
+    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_EXAMPLE_TESTS', a_line_no=> 1);
     l_suite.path := 'ut_example_tests';
     l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'UT_EXAMPLE_TESTS', 'failing_procedure', ut3.ut_utils.gc_before_all));
-    l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'set_g_number_0'));
+    l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'set_g_number_0', a_line_no=> 1));
     --Act
     l_suite.do_execute();
     --Assert
@@ -52,12 +52,12 @@ create or replace package body test_ut_suite is
     l_suite    ut3.ut_suite;
   begin
     --Arrange
-    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_EXAMPLE_TESTS');
+    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_EXAMPLE_TESTS', a_line_no=> 1);
     l_suite.path := 'ut_example_tests';
     l_suite.after_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'UT_EXAMPLE_TESTS', 'failing_procedure', ut3.ut_utils.gc_after_all));
 
-    l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'set_g_number_0'));
-    l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'add_1_to_g_number'));
+    l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'set_g_number_0', a_line_no=> 1));
+    l_suite.add_item(ut3.ut_test(a_object_name => 'UT_EXAMPLE_TESTS',a_name => 'add_1_to_g_number', a_line_no=> 1));
     --Act
     l_suite.do_execute();
     --Assert
@@ -73,9 +73,9 @@ create or replace package body test_ut_suite is
   procedure package_without_body is
     l_suite    ut3.ut_suite;
   begin
-    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_WITHOUT_BODY');
+    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_WITHOUT_BODY', a_line_no=> 1);
     l_suite.path := 'UT_WITHOUT_BODY';
-    l_suite.add_item(ut3.ut_test(a_object_name => 'ut_without_body',a_name => 'test1'/*, a_rollback_type => ut3.ut_utils.gc_rollback_auto*/));
+    l_suite.add_item(ut3.ut_test(a_object_name => 'ut_without_body',a_name => 'test1', a_line_no=> 1));
     --Act
     l_suite.do_execute();
     --Assert
@@ -85,9 +85,9 @@ create or replace package body test_ut_suite is
   procedure package_with_invalid_body is
     l_suite    ut3.ut_suite;
   begin
-    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_WITH_INVALID_BODY');
+    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_WITH_INVALID_BODY', a_line_no=> 1);
     l_suite.path := 'UT_WITH_INVALID_BODY';
-    l_suite.add_item(ut3.ut_test(a_object_name => 'ut_with_invalid_body',a_name => 'test1'/*, a_rollback_type => ut3.ut_utils.gc_rollback_auto*/));
+    l_suite.add_item(ut3.ut_test(a_object_name => 'ut_with_invalid_body',a_name => 'test1', a_line_no=> 1));
     --Act
     l_suite.do_execute();
     --Assert
@@ -99,10 +99,10 @@ create or replace package body test_ut_suite is
   begin
     --Arrange
     execute immediate 'delete from ut$test_table';
-    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_TRANSACTION_CONTROL');
+    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_TRANSACTION_CONTROL', a_line_no=> 1);
     l_suite.path := 'ut_transaction_control';
     l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'UT_TRANSACTION_CONTROL', 'setup', ut3.ut_utils.gc_before_all));
-    l_suite.add_item(ut3.ut_test(a_object_owner => USER, a_object_name => 'ut_transaction_control',a_name => a_procedure_name));
+    l_suite.add_item(ut3.ut_test(a_object_owner => USER, a_object_name => 'ut_transaction_control',a_name => a_procedure_name, a_line_no=> 1));
     l_suite.set_rollback_type(a_rollback_type);
 
     --Act

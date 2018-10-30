@@ -32,7 +32,7 @@ create or replace package ut_annotation_cache_manager authid definer as
    *
    * @param a_cached_objects a `ut_annotation_objs_cache_info` list with information about objects to get from cache
    */
-  function get_annotations_for_objects(a_cached_objects ut_annotation_objs_cache_info) return sys_refcursor;
+  function get_annotations_for_objects(a_cached_objects ut_annotation_objs_cache_info, a_parse_date date) return sys_refcursor;
 
   /**
    * Removes cached information about annotations for objects on the list and updates parse_time in cache info table.

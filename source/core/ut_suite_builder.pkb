@@ -59,7 +59,7 @@ create or replace package body ut_suite_builder is
   );
 
   gc_placeholder                 constant varchar2(3) := '\\%';
-  
+
   gc_integer_exception           constant varchar2(1) := 'I';
   gc_named_exception             constant varchar2(1) := 'N';
 
@@ -73,7 +73,7 @@ create or replace package body ut_suite_builder is
     text                  t_annotation_text,
     procedure_name        t_object_name
   );
-  
+
   type tt_annotations_by_line is table of t_annotation index by t_annotation_position;
 
   --list of annotation texts for a given annotation indexed by annotation position:
@@ -84,17 +84,18 @@ create or replace package body ut_suite_builder is
   --  procedure some_test ...
   -- when you'd like to have two beforetest procedures executed in a single test
   type tt_annotation_texts is table of t_annotation_text index by t_annotation_position;
-  
+
   type tt_annotations_by_name is table of tt_annotation_texts index by t_annotation_name;
 
   type tt_annotations_by_proc is table of tt_annotations_by_name index by t_object_name;
 
   type t_annotations_info is record (
-    owner   t_object_name,
-    name    t_object_name,
-    by_line tt_annotations_by_line,
-    by_proc tt_annotations_by_proc,
-    by_name tt_annotations_by_name
+    owner       t_object_name,
+    name        t_object_name,
+    parse_time  date,
+    by_line     tt_annotations_by_line,
+    by_proc     tt_annotations_by_proc,
+    by_name     tt_annotations_by_name
   );
 
   procedure delete_annotations_range(
@@ -430,37 +431,39 @@ create or replace package body ut_suite_builder is
     a_suite            in out nocopy ut_suite,
     a_tests            in out nocopy tt_tests,
     a_procedure_name   t_object_name,
-    a_proc_annotations tt_annotations_by_name
+    a_annotations      t_annotations_info
   ) is
     l_test             ut_test;
     l_annotation_texts tt_annotation_texts;
     l_annotation_pos   binary_integer;
+    l_proc_annotations tt_annotations_by_name :=  a_annotations.by_proc(a_procedure_name);
   begin
-    if not a_proc_annotations.exists(gc_test) then
+    if not l_proc_annotations.exists(gc_test) then
       return;
     end if;
-    warning_on_duplicate_annot(a_suite, a_proc_annotations, gc_test, a_procedure_name);
-    warning_on_duplicate_annot(a_suite, a_proc_annotations, gc_displayname, a_procedure_name);
-    warning_on_duplicate_annot(a_suite, a_proc_annotations, gc_rollback, a_procedure_name);
+    warning_on_duplicate_annot( a_suite, l_proc_annotations, gc_test, a_procedure_name);
+    warning_on_duplicate_annot( a_suite, l_proc_annotations, gc_displayname, a_procedure_name);
+    warning_on_duplicate_annot( a_suite, l_proc_annotations, gc_rollback, a_procedure_name);
     warning_bad_annot_combination(
-        a_suite, a_procedure_name, a_proc_annotations, gc_test,
+        a_suite, a_procedure_name, l_proc_annotations, gc_test,
         ut_varchar2_list(gc_beforeeach, gc_aftereach, gc_beforeall, gc_afterall)
     );
-    
-    l_test := ut_test(a_suite.object_owner, a_suite.object_name, a_procedure_name);
 
-    if a_proc_annotations.exists(gc_displayname) then
-      l_annotation_texts := a_proc_annotations(gc_displayname);
+    l_test := ut_test(a_suite.object_owner, a_suite.object_name, a_procedure_name, l_proc_annotations( gc_test).first);
+    l_test.parse_time  := a_annotations.parse_time;
+
+    if l_proc_annotations.exists( gc_displayname) then
+      l_annotation_texts := l_proc_annotations( gc_displayname);
       --take the last definition if more than one was provided
       l_test.description := l_annotation_texts(l_annotation_texts.first);
       --TODO if more than one - warning
     else
-      l_test.description := a_proc_annotations(gc_test)(a_proc_annotations(gc_test).first);
+      l_test.description := l_proc_annotations(gc_test)(l_proc_annotations(gc_test).first);
     end if;
     l_test.path := a_suite.path ||'.'||a_procedure_name;
 
-    if a_proc_annotations.exists(gc_rollback) then
-      l_annotation_texts := a_proc_annotations(gc_rollback);
+    if l_proc_annotations.exists(gc_rollback) then
+      l_annotation_texts := l_proc_annotations(gc_rollback);
       l_test.rollback_type := get_rollback_type(l_annotation_texts(l_annotation_texts.first));
       if l_test.rollback_type is null then
         add_annotation_ignored_warning(
@@ -470,22 +473,22 @@ create or replace package body ut_suite_builder is
       end if;
     end if;
 
-    if a_proc_annotations.exists(gc_beforetest) then
+    if l_proc_annotations.exists( gc_beforetest) then
       l_test.before_test_list := convert_list(
-          add_executables( l_test.object_owner, l_test.object_name, a_proc_annotations( gc_beforetest ), gc_beforetest )
+          add_executables( l_test.object_owner, l_test.object_name, l_proc_annotations( gc_beforetest ), gc_beforetest )
       );
     end if;
-    if a_proc_annotations.exists(gc_aftertest) then
+    if l_proc_annotations.exists( gc_aftertest) then
       l_test.after_test_list := convert_list(
-          add_executables( l_test.object_owner, l_test.object_name, a_proc_annotations( gc_aftertest ), gc_aftertest )
+          add_executables( l_test.object_owner, l_test.object_name, l_proc_annotations( gc_aftertest ), gc_aftertest )
       );
     end if;
-    if a_proc_annotations.exists(gc_throws) then
-      add_to_throws_numbers_list(a_suite, l_test.expected_error_codes, a_procedure_name, a_proc_annotations(gc_throws));
+    if l_proc_annotations.exists( gc_throws) then
+      add_to_throws_numbers_list(a_suite, l_test.expected_error_codes, a_procedure_name, l_proc_annotations( gc_throws));
     end if;
-    l_test.disabled_flag := ut_utils.boolean_to_int(a_proc_annotations.exists(gc_disabled));
+    l_test.disabled_flag := ut_utils.boolean_to_int( l_proc_annotations.exists( gc_disabled));
 
-    a_tests(a_proc_annotations(gc_test).first) := l_test;
+    a_tests( l_proc_annotations( gc_test).first) := l_test;
   end;
 
   procedure update_before_after_each(
@@ -512,13 +515,37 @@ create or replace package body ut_suite_builder is
     end if;
   end;
 
+  procedure update_before_after_each(
+    a_suite_items in out nocopy ut_suite_items,
+    a_before_each_list tt_executables,
+    a_after_each_list  tt_executables
+  ) is
+    l_test      ut_test;
+    l_context   ut_logical_suite;
+    begin
+      if a_suite_items is not null then
+        for i in 1 .. a_suite_items.count loop
+          if a_suite_items(i) is of (ut_test) then
+            l_test := treat( a_suite_items(i) as ut_test);
+            l_test.before_each_list := coalesce(convert_list(a_before_each_list),ut_executables()) multiset union all l_test.before_each_list;
+            l_test.after_each_list := l_test.after_each_list multiset union all coalesce(convert_list(a_after_each_list),ut_executables());
+            a_suite_items(i) := l_test;
+          elsif a_suite_items(i) is of (ut_logical_suite) then
+            l_context := treat(a_suite_items(i) as ut_logical_suite);
+            update_before_after_each(l_context.items, a_before_each_list, a_after_each_list);
+            a_suite_items(i) := l_context;
+          end if;
+        end loop;
+      end if;
+    end;
+
   procedure process_before_after_annot(
     a_list             in out nocopy tt_executables,
     a_annotation_name  t_annotation_name,
     a_procedure_name   t_object_name,
     a_proc_annotations tt_annotations_by_name,
     a_suite            in out nocopy ut_suite
-  ) is 
+  ) is
   begin
     if a_proc_annotations.exists(a_annotation_name) and not a_proc_annotations.exists(gc_test) then
       a_list( a_proc_annotations(a_annotation_name).first ) := ut_executables(ut_executable(a_suite.object_owner,  a_suite.object_name, a_procedure_name, a_annotation_name));
@@ -528,7 +555,7 @@ create or replace package body ut_suite_builder is
   end;
 
   procedure add_annotated_procedures(
-    a_proc_annotations tt_annotations_by_proc,
+    a_proc_annotations t_annotations_info,
     a_suite            in out nocopy ut_suite,
     a_before_each_list in out nocopy tt_executables,
     a_after_each_list  in out nocopy tt_executables,
@@ -538,16 +565,40 @@ create or replace package body ut_suite_builder is
     l_procedure_name   t_object_name;
     l_tests            tt_tests;
   begin
-    l_procedure_name := a_proc_annotations.first;
+    l_procedure_name := a_proc_annotations.by_proc.first;
     while l_procedure_name is not null loop
-      add_test( a_suite, l_tests, l_procedure_name, a_proc_annotations(l_procedure_name) );
-      process_before_after_annot(a_before_each_list, gc_beforeeach, l_procedure_name, a_proc_annotations(l_procedure_name), a_suite);
-      process_before_after_annot(a_after_each_list,  gc_aftereach,  l_procedure_name, a_proc_annotations(l_procedure_name), a_suite);
-      process_before_after_annot(a_before_all_list,  gc_beforeall,  l_procedure_name, a_proc_annotations(l_procedure_name), a_suite);
-      process_before_after_annot(a_after_all_list,   gc_afterall,   l_procedure_name, a_proc_annotations(l_procedure_name), a_suite);
-      l_procedure_name := a_proc_annotations.next( l_procedure_name );
+      add_test( a_suite, l_tests, l_procedure_name, a_proc_annotations );
+      process_before_after_annot(a_before_each_list, gc_beforeeach, l_procedure_name, a_proc_annotations.by_proc(l_procedure_name), a_suite);
+      process_before_after_annot(a_after_each_list,  gc_aftereach,  l_procedure_name, a_proc_annotations.by_proc(l_procedure_name), a_suite);
+      process_before_after_annot(a_before_all_list,  gc_beforeall,  l_procedure_name, a_proc_annotations.by_proc(l_procedure_name), a_suite);
+      process_before_after_annot(a_after_all_list,   gc_afterall,   l_procedure_name, a_proc_annotations.by_proc(l_procedure_name), a_suite);
+      l_procedure_name := a_proc_annotations.by_proc.next( l_procedure_name );
     end loop;
     a_suite.items := a_suite.items multiset union all convert_list(l_tests);
+  end;
+
+  function get_annotated_procedures(
+    a_proc_annotations t_annotations_info,
+    a_suite            in out nocopy ut_suite,
+    a_before_each_list in out nocopy tt_executables,
+    a_after_each_list  in out nocopy tt_executables,
+    a_before_all_list  in out nocopy tt_executables,
+    a_after_all_list   in out nocopy tt_executables
+  ) return ut_suite_items is
+    l_procedure_name   t_object_name;
+    l_tests            tt_tests;
+
+  begin
+    l_procedure_name := a_proc_annotations.by_proc.first;
+    while l_procedure_name is not null loop
+      add_test( a_suite, l_tests, l_procedure_name, a_proc_annotations );
+      process_before_after_annot(a_before_each_list, gc_beforeeach, l_procedure_name, a_proc_annotations.by_proc(l_procedure_name), a_suite);
+      process_before_after_annot(a_after_each_list,  gc_aftereach,  l_procedure_name, a_proc_annotations.by_proc(l_procedure_name), a_suite);
+      process_before_after_annot(a_before_all_list,  gc_beforeall,  l_procedure_name, a_proc_annotations.by_proc(l_procedure_name), a_suite);
+      process_before_after_annot(a_after_all_list,   gc_afterall,   l_procedure_name, a_proc_annotations.by_proc(l_procedure_name), a_suite);
+      l_procedure_name := a_proc_annotations.by_proc.next( l_procedure_name );
+    end loop;
+    return convert_list(l_tests);
   end;
 
   procedure build_suitepath(
@@ -630,12 +681,118 @@ create or replace package body ut_suite_builder is
     a_suite.disabled_flag := ut_utils.boolean_to_int(a_annotations.by_name.exists(gc_disabled));
 
     --process procedure annotations for suite
-    add_annotated_procedures(a_annotations.by_proc, a_suite, l_before_each_list, l_after_each_list, l_before_all_list, l_after_all_list);
+    add_annotated_procedures(a_annotations, a_suite, l_before_each_list, l_after_each_list, l_before_all_list, l_after_all_list);
 
     a_suite.set_rollback_type(l_rollback_type);
     update_before_after_each(a_suite, l_before_each_list, l_after_each_list);
     a_suite.before_all_list := convert_list(l_before_all_list);
     a_suite.after_all_list  := convert_list(l_after_all_list);
+  end;
+
+  function get_suite_items(
+    a_suite              in out nocopy ut_suite,
+    a_annotations        t_annotations_info
+  ) return ut_suite_items is
+    l_before_each_list   tt_executables;
+    l_after_each_list    tt_executables;
+    l_before_all_list    tt_executables;
+    l_after_all_list     tt_executables;
+    l_rollback_type      ut_utils.t_rollback_type;
+    l_annotation_text    t_annotation_text;
+    l_results            ut_suite_items := ut_suite_items();
+  begin
+    if a_annotations.by_name.exists(gc_displayname) then
+      l_annotation_text := trim(a_annotations.by_name(gc_displayname)(a_annotations.by_name(gc_displayname).first));
+      if l_annotation_text is not null then
+        a_suite.description := l_annotation_text;
+      else
+        add_annotation_ignored_warning(
+            a_suite, gc_displayname, '%%% annotation requires a non-empty parameter value.',
+            a_annotations.by_name(gc_displayname).first
+        );
+      end if;
+      warning_on_duplicate_annot(a_suite, a_annotations.by_name, gc_displayname);
+    end if;
+
+    if a_annotations.by_name.exists(gc_rollback) then
+      l_rollback_type := get_rollback_type(a_annotations.by_name(gc_rollback)(a_annotations.by_name(gc_rollback).first));
+      if l_rollback_type is null then
+        add_annotation_ignored_warning(
+            a_suite, gc_rollback, '%%% annotation requires one of values as parameter: "auto" or "manual".',
+            a_annotations.by_name(gc_rollback).first
+        );
+      end if;
+      warning_on_duplicate_annot(a_suite, a_annotations.by_name, gc_rollback);
+    end if;
+    if a_annotations.by_name.exists(gc_beforeall) then
+      l_before_all_list := add_executables( a_suite.object_owner, a_suite.object_name, a_annotations.by_name(gc_beforeall), gc_beforeall );
+    end if;
+    if a_annotations.by_name.exists(gc_afterall) then
+      l_after_all_list := add_executables( a_suite.object_owner, a_suite.object_name, a_annotations.by_name(gc_afterall), gc_afterall );
+    end if;
+
+    if a_annotations.by_name.exists(gc_beforeeach) then
+      l_before_each_list := add_executables( a_suite.object_owner, a_suite.object_name, a_annotations.by_name(gc_beforeeach), gc_beforeeach );
+    end if;
+    if a_annotations.by_name.exists(gc_aftereach) then
+      l_after_each_list := add_executables( a_suite.object_owner, a_suite.object_name, a_annotations.by_name(gc_aftereach), gc_aftereach );
+    end if;
+
+    a_suite.disabled_flag := ut_utils.boolean_to_int(a_annotations.by_name.exists(gc_disabled));
+
+    --process procedure annotations for suite
+    l_results := get_annotated_procedures(a_annotations, a_suite, l_before_each_list, l_after_each_list, l_before_all_list, l_after_all_list);
+
+    a_suite.set_rollback_type(l_rollback_type);
+    update_before_after_each(l_results, l_before_each_list, l_after_each_list);
+    a_suite.before_all_list := convert_list(l_before_all_list);
+    a_suite.after_all_list  := convert_list(l_after_all_list);
+    return l_results;
+  end;
+
+  function get_endcontext_position(
+    a_context_ann_pos     t_annotation_position,
+    a_package_annotations in out nocopy tt_annotations_by_name
+  ) return t_annotation_position is
+    l_result t_annotation_position;
+  begin
+    if a_package_annotations.exists(gc_endcontext) then
+      l_result := a_package_annotations(gc_endcontext).first;
+      while l_result <= a_context_ann_pos loop
+        l_result := a_package_annotations(gc_endcontext).next(l_result);
+      end loop;
+    end if;
+    return l_result;
+  end;
+
+  function get_annotations_in_context(
+    a_annotations        t_annotations_info,
+    a_context_pos        t_annotation_position,
+    a_end_context_pos    t_annotation_position
+  ) return t_annotations_info is
+    l_result          t_annotations_info;
+    l_position        t_annotation_position;
+    l_procedure_name  t_object_name;
+    l_annotation_name t_annotation_name;
+    l_annotation_text t_annotation_text;
+  begin
+    l_position := a_context_pos;
+    l_result.owner := a_annotations.owner;
+    l_result.name := a_annotations.name;
+    l_result.parse_time := a_annotations.parse_time;
+    while l_position is not null and l_position <= a_end_context_pos loop
+      l_result.by_line(l_position) := a_annotations.by_line(l_position);
+      l_procedure_name  := l_result.by_line(l_position).procedure_name;
+      l_annotation_name := l_result.by_line(l_position).name;
+      l_annotation_text := l_result.by_line(l_position).text;
+      if l_procedure_name is not null then
+        l_result.by_proc(l_procedure_name)(l_annotation_name)(l_position) := l_annotation_text;
+      else
+        l_result.by_name(l_annotation_name)(l_position) := l_annotation_text;
+      end if;
+      l_position := a_annotations.by_line.next(l_position);
+    end loop;
+    return l_result;
   end;
 
 
@@ -649,51 +806,8 @@ create or replace package body ut_suite_builder is
     l_ctx_annotations    t_annotations_info;
     l_context            ut_suite_context;
     l_context_no         binary_integer := 1;
-
-    function get_endcontext_position(
-      a_context_ann_pos     t_annotation_position,
-      a_package_annotations in out nocopy tt_annotations_by_name
-    ) return t_annotation_position is
-      l_result t_annotation_position;
-    begin
-      if a_package_annotations.exists(gc_endcontext) then
-        l_result := a_package_annotations(gc_endcontext).first;
-        while l_result <= a_context_ann_pos loop
-          l_result := a_package_annotations(gc_endcontext).next(l_result);
-        end loop;
-      end if;
-      return l_result;
-    end;
-
-    function get_annotations_in_context(
-      a_annotations        t_annotations_info,
-      a_context_pos        t_annotation_position,
-      a_end_context_pos    t_annotation_position
-    ) return t_annotations_info is
-      l_result          t_annotations_info;
-      l_position        t_annotation_position;
-      l_procedure_name  t_object_name;
-      l_annotation_name t_annotation_name;
-      l_annotation_text t_annotation_text;
-    begin
-      l_position := a_context_pos;
-      l_result.owner := a_annotations.owner;
-      l_result.name := a_annotations.name;
-      while l_position is not null and l_position <= a_end_context_pos loop
-        l_result.by_line(l_position) := a_annotations.by_line(l_position);
-        l_procedure_name  := l_result.by_line(l_position).procedure_name;
-        l_annotation_name := l_result.by_line(l_position).name;
-        l_annotation_text := l_result.by_line(l_position).text;
-        if l_procedure_name is not null then
-          l_result.by_proc(l_procedure_name)(l_annotation_name)(l_position) := l_annotation_text;
-        else
-          l_result.by_name(l_annotation_name)(l_position) := l_annotation_text;
-        end if;
-        l_position := a_annotations.by_line.next(l_position);
-      end loop;
-      return l_result;
-    end;
-
+    type tt_context_names is table of boolean index by t_object_name;
+    l_context_names      tt_context_names;
   begin
     if not a_annotations.by_name.exists(gc_context) then
       return;
@@ -714,18 +828,22 @@ create or replace package body ut_suite_builder is
         l_ctx_annotations.by_line( l_context_pos ).text
         , gc_context||'_'||l_context_no
       );
+      if l_context_names.exists(l_context_name) then
+        add_annotation_ignored_warning( a_suite, 'context', 'Context name must be unique in a suite. Context and all of it''s content ignored.', l_context_pos );
+      else
+        l_context_names(l_context_name) := true;
+        l_context := ut_suite_context(a_suite.object_owner, a_suite.object_name, l_context_name, l_context_pos );
 
-      l_context := ut_suite_context(a_suite.object_owner, a_suite.object_name, l_context_name );
+        l_context.path := a_suite.path||'.'||l_context_name;
+        l_context.description := l_ctx_annotations.by_line( l_context_pos ).text;
 
-      l_context.path := a_suite.path||'.'||l_context_name;
-      l_context.description := l_ctx_annotations.by_line( l_context_pos ).text;
+        warning_on_duplicate_annot( l_context, l_ctx_annotations.by_name, gc_context );
 
-      warning_on_duplicate_annot( l_context, l_ctx_annotations.by_name, gc_context );
+        populate_suite_contents( l_context, l_ctx_annotations );
 
-      populate_suite_contents( l_context, l_ctx_annotations );
+        a_suite.add_item(l_context);
 
-      a_suite.add_item(l_context);
-
+      end if;
       -- remove annotations within context after processing them
       delete_annotations_range(a_annotations, l_context_pos, l_end_context_pos);
 
@@ -734,6 +852,67 @@ create or replace package body ut_suite_builder is
       l_context_pos := a_annotations.by_name( gc_context).next( l_context_pos);
       l_context_no := l_context_no + 1;
     end loop;
+  end;
+
+  function get_suite_contexts_items(
+    a_suite              in out nocopy ut_suite,
+    a_annotations        in out nocopy t_annotations_info
+  ) return ut_suite_items is
+    l_context_pos        t_annotation_position;
+    l_end_context_pos    t_annotation_position;
+    l_context_name       t_object_name;
+    l_ctx_annotations    t_annotations_info;
+    l_context            ut_suite_context;
+    l_context_no         binary_integer := 1;
+    type tt_context_names is table of boolean index by t_object_name;
+    l_context_names      tt_context_names;
+    l_results            ut_suite_items := ut_suite_items();
+  begin
+    if not a_annotations.by_name.exists(gc_context) then
+      return l_results;
+    end if;
+
+    l_context_pos := a_annotations.by_name( gc_context).first;
+
+    while l_context_pos is not null loop
+      l_end_context_pos := get_endcontext_position(l_context_pos, a_annotations.by_name );
+      if l_end_context_pos is null then
+        exit;
+      end if;
+
+      --create a sub-set of annotations to process as sub-suite (context)
+      l_ctx_annotations   := get_annotations_in_context( a_annotations, l_context_pos, l_end_context_pos);
+
+      l_context_name := coalesce(
+        l_ctx_annotations.by_line( l_context_pos ).text
+        , gc_context||'_'||l_context_no
+      );
+      if l_context_names.exists(l_context_name) then
+        add_annotation_ignored_warning( a_suite, 'context', 'Context name must be unique in a suite. Context and all of it''s content ignored.', l_context_pos );
+      else
+        l_context_names(l_context_name) := true;
+
+        l_context := ut_suite_context(a_suite.object_owner, a_suite.object_name, l_context_name, l_context_pos );
+
+        l_context.path := a_suite.path||'.'||l_context_name;
+        l_context.description := l_ctx_annotations.by_line( l_context_pos ).text;
+        l_context.parse_time  := a_annotations.parse_time;
+
+        warning_on_duplicate_annot( l_context, l_ctx_annotations.by_name, gc_context );
+
+        l_results := l_results multiset union all get_suite_items( l_context, l_ctx_annotations );
+        l_results.extend;
+        l_results(l_results.last) := l_context;
+      end if;
+      -- remove annotations within context after processing them
+      delete_annotations_range(a_annotations, l_context_pos, l_end_context_pos);
+
+      exit when not a_annotations.by_name.exists( gc_context);
+
+      l_context_pos := a_annotations.by_name( gc_context).next( l_context_pos);
+      l_context_no := l_context_no + 1;
+    end loop;
+    return l_results;
   end;
 
   procedure warning_on_incomplete_context(
@@ -794,9 +973,9 @@ create or replace package body ut_suite_builder is
     if l_annotations.by_name.exists( gc_suite) then
 
       --create an incomplete suite
-      l_suite := ut_suite(l_annotations.owner, l_annotations.name);
-      l_annotation_pos := l_annotations.by_name( gc_suite).first;
-      l_suite.description := l_annotations.by_name( gc_suite)( l_annotation_pos);
+      l_annotation_pos := l_annotations.by_name(gc_suite).first;
+      l_suite := ut_suite(l_annotations.owner, l_annotations.name, l_annotation_pos);
+      l_suite.description := l_annotations.by_name(gc_suite)(l_annotation_pos);
       warning_on_unknown_annotations(l_suite, l_annotations.by_line);
 
       warning_on_duplicate_annot( l_suite, l_annotations.by_name, gc_suite );
@@ -813,7 +992,54 @@ create or replace package body ut_suite_builder is
     return l_suite;
   end;
 
-  function build_suites_hierarchy(a_suites_by_path tt_schema_suites) return tt_schema_suites is
+  function build_parent_suites_for_path(a_suite ut_suite) return ut_suite_items is
+    l_results   ut_suite_items := ut_suite_items();
+    l_path varchar2(200);
+    l_name varchar2(200);
+  begin
+    l_path := a_suite.path;
+    loop
+      l_path := substr( l_path, 1, instr(l_path,'.',-1)-1);
+      exit when l_path is null;
+      l_name := substr( l_path, instr(l_path,'.',-1)+1);
+      l_results.extend;
+      l_results(l_results.last) :=
+        ut_logical_suite(
+            a_object_owner => a_suite.object_owner,
+            a_object_name => l_name, a_name => l_name, a_path => l_path
+        );
+      l_results(l_results.last).parse_time := a_suite.parse_time;
+    end loop;
+    return l_results;
+  end;
+  function create_suite_items( a_annotations t_annotations_info ) return ut_suite_items is
+    l_annotations    t_annotations_info := a_annotations;
+    l_annotation_pos t_annotation_position;
+    l_suite          ut_suite;
+    l_results        ut_suite_items;
+  begin
+    if l_annotations.by_name.exists(gc_suite) then
+      l_annotation_pos := l_annotations.by_name(gc_suite).first;
+      l_suite := ut_suite(l_annotations.owner, l_annotations.name, l_annotation_pos);
+      l_suite.description := l_annotations.by_name( gc_suite)( l_annotation_pos);
+      l_suite.parse_time  := l_annotations.parse_time;
+      warning_on_unknown_annotations(l_suite, l_annotations.by_line);
+
+      warning_on_duplicate_annot( l_suite, l_annotations.by_name, gc_suite );
+
+      build_suitepath( l_suite, l_annotations );
+      l_results := get_suite_contexts_items( l_suite, l_annotations ) multiset union all get_suite_items( l_suite, l_annotations );
+
+      --by this time all contexts were consumed and l_annotations should not have any context/endcontext annotation in it.
+      warning_on_incomplete_context( l_suite, l_annotations.by_name );
+      l_results.extend;
+      l_results(l_results.last) := l_suite;
+      l_results := l_results multiset union all build_parent_suites_for_path(l_suite);
+    end if;
+    return l_results;
+    end;
+
+  function build_suites_hierarchy( a_suites_by_path tt_schema_suites ) return tt_schema_suites is
     l_result            tt_schema_suites;
     l_suite_path        varchar2(4000 char);
     l_parent_path       varchar2(4000 char);
@@ -856,49 +1082,53 @@ create or replace package body ut_suite_builder is
     return l_result;
   end;
 
+  function convert_package_annotations(a_object ut_annotated_object) return t_annotations_info is
+    l_result          t_annotations_info;
+    l_annotation      t_annotation;
+    l_annotation_no   binary_integer;
+    l_annotation_pos  binary_integer;
+  begin
+    l_result.owner := a_object.object_owner;
+    l_result.name  := lower(trim(a_object.object_name));
+    l_result.parse_time := a_object.parse_time;
+    l_annotation_no := a_object.annotations.first;
+    while l_annotation_no is not null loop
+      l_annotation_pos  := a_object.annotations(l_annotation_no).position;
+      l_annotation.name := a_object.annotations(l_annotation_no).name;
+      l_annotation.text := a_object.annotations(l_annotation_no).text;
+      l_annotation.procedure_name := lower(trim(a_object.annotations(l_annotation_no).subobject_name));
+      l_result.by_line( l_annotation_pos) := l_annotation;
+      if l_annotation.procedure_name is null then
+        l_result.by_name( l_annotation.name)( l_annotation_pos) := l_annotation.text;
+      else
+        l_result.by_proc(l_annotation.procedure_name)(l_annotation.name)(l_annotation_pos) := l_annotation.text;
+      end if;
+      l_annotation_no := a_object.annotations.next(l_annotation_no);
+    end loop;
+    return l_result;
+  end;
+
+
   function build_suites(a_annotated_objects sys_refcursor) return t_schema_suites_info is
     l_suite             ut_logical_suite;
     l_annotated_objects ut_annotated_objects;
     l_all_suites        tt_schema_suites;
     l_result            t_schema_suites_info;
-
-    function convert_package_annotations(a_object ut_annotated_object) return t_annotations_info is
-      l_result          t_annotations_info;
-      l_annotation      t_annotation;
-      l_annotation_no   binary_integer;
-      l_annotation_pos  binary_integer;
-    begin
-      l_result.owner := a_object.object_owner;
-      l_result.name  := lower(trim(a_object.object_name));
-      l_annotation_no := a_object.annotations.first;
-      while l_annotation_no is not null loop
-        l_annotation_pos := a_object.annotations(l_annotation_no).position;
-        l_annotation.name := a_object.annotations(l_annotation_no).name;
-        l_annotation.text := a_object.annotations(l_annotation_no).text;
-        l_annotation.procedure_name := lower(trim(a_object.annotations(l_annotation_no).subobject_name));
-        l_result.by_line( l_annotation_pos) := l_annotation;
-        if l_annotation.procedure_name is null then
-          l_result.by_name( l_annotation.name)( l_annotation_pos) := l_annotation.text;
-        else
-          l_result.by_proc(l_annotation.procedure_name)(l_annotation.name)(l_annotation_pos) := l_annotation.text;
-        end if;
-        l_annotation_no := a_object.annotations.next(l_annotation_no);
-      end loop;
-      return l_result;
-    end;
-
   begin
-    fetch a_annotated_objects bulk collect into l_annotated_objects;
-    close a_annotated_objects;
+    loop
+      fetch a_annotated_objects bulk collect into l_annotated_objects limit 10;
 
-    for i in 1 .. l_annotated_objects.count loop
-      l_suite := create_suite(convert_package_annotations(l_annotated_objects(i)));
-      if l_suite is not null then
-        l_all_suites(l_suite.path) := l_suite;
-        l_result.suite_paths(l_suite.object_name) := l_suite.path;
-      end if;
+      for i in 1 .. l_annotated_objects.count loop
+        l_suite := create_suite(convert_package_annotations(l_annotated_objects(i)));
+        ut_suite_cache_manager.save_cache( create_suite_items(convert_package_annotations(l_annotated_objects(i))) );
+        if l_suite is not null then
+          l_all_suites(l_suite.path) := l_suite;
+          l_result.suite_paths(l_suite.object_name) := l_suite.path;
+        end if;
+      end loop;
+      exit when a_annotated_objects%notfound;
     end loop;
-
+    close a_annotated_objects;
     --build hierarchical structure of the suite
     -- Restructure single-dimension list into hierarchy of suites by the value of %suitepath attribute value
     l_result.schema_suites := build_suites_hierarchy(l_all_suites);
@@ -906,7 +1136,77 @@ create or replace package body ut_suite_builder is
     return l_result;
   end;
 
-  function build_schema_suites(a_owner_name varchar2) return t_schema_suites_info is
+  procedure refresh_suite_cache(a_annotated_objects sys_refcursor) is
+    l_suite             ut_logical_suite;
+    l_annotated_objects ut_annotated_objects;
+    l_all_suites        tt_schema_suites;
+    l_result            t_schema_suites_info;
+  begin
+    loop
+      fetch a_annotated_objects bulk collect into l_annotated_objects limit 10;
+
+      for i in 1 .. l_annotated_objects.count loop
+        ut_suite_cache_manager.save_cache( create_suite_items(convert_package_annotations(l_annotated_objects(i))) );
+      end loop;
+      exit when a_annotated_objects%notfound;
+    end loop;
+    close a_annotated_objects;
+  end;
+
+  procedure reconstruct_from_cache(
+    a_suites            in out nocopy ut_suite_items,
+    a_suite_data_cursor sys_refcursor
+  ) is
+    type t_item_levels is table of ut_suite_items index by binary_integer;
+    l_items_at_level    t_item_levels;
+    l_tests             ut_suite_items;
+    l_logical_suites    ut_logical_suites;
+    l_levels            ut_integer_list;
+    l_cursor_idx        integer;
+    l_prev_level        integer;
+  begin
+    a_suites := ut_suite_items();
+    loop
+      if l_cursor_idx is null then
+        fetch a_suite_data_cursor bulk collect into l_tests, l_logical_suites, l_levels limit 1000;
+        l_cursor_idx := l_levels.first;
+      end if;
+      exit when l_cursor_idx is null;
+      if l_levels(l_cursor_idx) > 1 then
+        if l_prev_level > l_levels(l_cursor_idx) then
+          l_logical_suites(l_cursor_idx).items := l_items_at_level(l_prev_level);
+          l_items_at_level(l_prev_level).delete;
+        end if;
+        if not l_items_at_level.exists((l_levels(l_cursor_idx))) then
+          l_items_at_level(l_levels(l_cursor_idx)) := ut_suite_items();
+        end if;
+        l_items_at_level(l_levels(l_cursor_idx)).extend;
+        if l_tests(l_cursor_idx) is not null then
+          l_items_at_level(l_levels(l_cursor_idx))(l_items_at_level(l_levels(l_cursor_idx)).last)
+            := l_tests(l_cursor_idx);
+        else
+          l_items_at_level(l_levels(l_cursor_idx))(l_items_at_level(l_levels(l_cursor_idx)).last)
+            := l_logical_suites(l_cursor_idx);
+        end if;
+      else
+        if l_prev_level > l_levels(l_cursor_idx) then
+          l_logical_suites(l_cursor_idx).items := l_items_at_level(l_prev_level);
+          l_items_at_level(l_prev_level).delete;
+        end if;
+        a_suites.extend;
+        if l_tests(l_cursor_idx) is not null then
+          a_suites(a_suites.last) := l_tests(l_cursor_idx);
+        else
+          a_suites(a_suites.last) := l_logical_suites(l_cursor_idx);
+        end if;
+      end if;
+      l_prev_level := l_levels(l_cursor_idx);
+      l_cursor_idx := l_levels.next(l_cursor_idx);
+    end loop;
+    close a_suite_data_cursor;
+  end;
+
+  function build_schema_suites_old(a_owner_name varchar2) return t_schema_suites_info is
     l_annotations_cursor sys_refcursor;
   begin
     -- form the single-dimension list of suites constructed from parsed packages
@@ -918,6 +1218,67 @@ create or replace package body ut_suite_builder is
       using a_owner_name;
 
     return build_suites(l_annotations_cursor);
+  end;
+
+  function get_build_suites(a_owner_name varchar2) return ut_suite_items is
+    l_suites t_schema_suites_info;
+    l_results       ut_suite_items := ut_suite_items();
+    l_index  varchar2(4000);
+  begin
+    l_suites := build_schema_suites_old(a_owner_name);
+    l_index := l_suites.schema_suites.first;
+    while l_index is not null loop
+      l_results.extend;
+      l_results(l_results.last) := l_suites.schema_suites(l_index);
+      l_index := l_suites.schema_suites.next(l_index);
+    end loop;
+    return l_results;
+  end;
+
+
+  procedure refresh_suite_cache(a_owner_name varchar2) is
+    l_annotations_cursor sys_refcursor;
+  begin
+    open l_annotations_cursor for
+    q'[select value(x)
+        from table(
+          ]'||ut_utils.ut_owner||q'[.ut_annotation_manager.get_annotated_objects(:a_owner_name, 'PACKAGE')
+        )x ]'
+    using a_owner_name;
+    refresh_suite_cache(l_annotations_cursor);
+  end;
+
+  function build_schema_suites(a_owner_name varchar2) return ut_suite_items is
+    l_suites ut_suite_items;
+  begin
+    refresh_suite_cache(a_owner_name);
+    reconstruct_from_cache(l_suites, ut_suite_cache_manager.cached_suite_by_schema(a_owner_name));
+    for i in 1 .. l_suites.count loop
+      l_suites(i).set_rollback_type(l_suites(i).get_rollback_type);
+    end loop;
+    return l_suites;
+  end;
+
+  function build_schema_suites(a_owner_name varchar2,a_object_name varchar2,a_procedure_name varchar2) return ut_suite_items is
+    l_suites ut_suite_items;
+  begin
+    refresh_suite_cache(a_owner_name);
+    reconstruct_from_cache(l_suites, ut_suite_cache_manager.cached_suite_by_package(a_owner_name, a_object_name, a_procedure_name));
+    for i in 1 .. l_suites.count loop
+      l_suites(i).set_rollback_type(l_suites(i).get_rollback_type);
+    end loop;
+    return l_suites;
+  end;
+
+  function build_schema_suites(a_owner_name varchar2,a_path varchar2) return ut_suite_items is
+    l_suites ut_suite_items;
+  begin
+    refresh_suite_cache(a_owner_name);
+    reconstruct_from_cache(l_suites, ut_suite_cache_manager.cached_suite_by_path(a_owner_name, a_path));
+    for i in 1 .. l_suites.count loop
+      l_suites(i).set_rollback_type(l_suites(i).get_rollback_type);
+    end loop;
+    return l_suites;
   end;
 
 end ut_suite_builder;

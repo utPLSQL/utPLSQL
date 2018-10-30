@@ -1,4 +1,4 @@
-create or replace type body ut_suite_context as
+create or replace package ut_suite_cache_manager authid definer is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -16,17 +16,17 @@ create or replace type body ut_suite_context as
   limitations under the License.
   */
 
-  constructor function ut_suite_context (
-    self in out nocopy ut_suite_context, a_object_owner varchar2, a_object_name varchar2, a_context_name varchar2 := null, a_line_no integer
-  ) return self as result is
-  begin
-    self.self_type := $$plsql_unit;
-    self.init(a_object_owner, a_object_name, a_context_name, a_line_no);
-    self.items := ut_suite_items();
-    before_all_list := ut_executables();
-    after_all_list  := ut_executables();
-    return;
-  end;
+  /**
+   * Responsible for storing and retrieving suite data from cache
+   */
 
-end;
+  procedure save_cache(a_suite_items ut_suite_items);
+
+  function cached_suite_by_path(a_schema_name varchar2, a_path varchar2) return sys_refcursor;
+
+  function cached_suite_by_package(a_schema_name varchar2, a_object_name varchar2, a_procedure_name varchar2) return sys_refcursor;
+
+  function cached_suite_by_schema(a_schema_name varchar2) return sys_refcursor;
+
+end ut_suite_cache_manager;
 /
