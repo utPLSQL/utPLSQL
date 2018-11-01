@@ -443,9 +443,42 @@ The matcher supports all advanced comparison options as `equal` e.g. include , e
 
 The matcher will be successful only when all of the values in expected results are part of actual set.
 
+In situation where the duplicate is present in expected set we would also expect matching number of occurrences in actual set for matcher to be success.
+
+*Example 1*
+
+```sql
+   PROCEDURE ut_refcursors IS
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual  for select rownum as rn  from dual a connect by level < 10;
+    open l_expected for select rownum as rn from dual a connect by level < 4
+    union all select rownum as rn from dual a connect by level < 4;
+    
+    --Act
+    ut.expect(l_actual).to_include(l_expected);
+   END;
+```
+
+Will result in failure message
+
+```sql
+  1) ut_refcursors
+      Actual: refcursor [ count = 9 ] was expected to include: refcursor [ count = 6 ]
+      Diff:
+      Rows: [ 3 differences ]
+      Missing:  <ROW><RN>3</RN></ROW>
+      Missing:  <ROW><RN>2</RN></ROW>
+      Missing:  <ROW><RN>1</RN></ROW>
+```
+
+
+
 Similar negated `not_to_include`/ `not_to_contain` will be successful only when none of the values from expected set are part of actual e.g.
 
-*Example 1.*
+*Example 2.*
 
 Set 1 is defined as [ A , B , C ] 
 

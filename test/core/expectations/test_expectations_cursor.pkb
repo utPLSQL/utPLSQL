@@ -2420,6 +2420,47 @@ Diff:%
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
+ 
+  procedure to_include_duplicates is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual  for select rownum as rn  from dual a connect by level < 10
+                       union all 
+                       select rownum as rn from dual a connect by level < 4;
+    open l_expected for select rownum as rn from dual a connect by level < 4;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_include(l_expected);
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+  
+  procedure to_include_duplicates_fail is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    --Arrange
+    open l_actual  for select rownum as rn  from dual a connect by level < 10;
+    open l_expected for select rownum as rn from dual a connect by level < 4
+    union all select rownum as rn from dual a connect by level < 4;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_include(l_expected);
+   --Assert
+     l_expected_message := q'[%Actual: refcursor [ count = 9 ] was expected to include: refcursor [ count = 6 ]
+%Diff:
+%Rows: [ 3 differences ]
+%Missing:  <ROW><RN>%</RN></ROW>
+%Missing:  <ROW><RN>%</RN></ROW>
+%Missing:  <ROW><RN>%</RN></ROW>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
   
 end;
 /
