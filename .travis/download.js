@@ -17,6 +17,7 @@ var paramUsername = casper.cli.get(0);
 var paramPassword = casper.cli.get(1);
 var agreementUrl  = casper.cli.get(2);
 var downloadUrl   = casper.cli.get(3);
+var downloaded    = false;
 
 casper.start();
 // TODO: Error handling.
@@ -41,10 +42,11 @@ casper.thenOpen(downloadUrl).waitForUrl(/signon\.jsp$/, function (re) {
 });
 
 casper.on("resource.received", function (resource) {
-   if (resource.url.indexOf("AuthParam") !== -1) {
+   if (resource.url.indexOf("AuthParam") !== -1 && !downloaded) {
       // this.echo("DownloadUrl:");
       // Print the download url.
       this.echo(resource.url);
+      downloaded = true;
       // TODO: Try to download file from here. this.download is not working because of cross site request.
    }
 });
