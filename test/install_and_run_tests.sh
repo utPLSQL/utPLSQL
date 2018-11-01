@@ -20,7 +20,7 @@ status_line_regex="^[0-9]+ tests, ([0-9]+) failed, ([0-9]+) errored.*"
 
 RC=$(cat min_test_results.log | grep -E "${status_line_regex}" | sed -re "s/${status_line_regex}/\1\2/")
 
-if [ "$RC" == "1" ] then
+if [ "$RC" == "1" ]; then
    exit 1
 fi
 
