@@ -1,17 +1,6 @@
 #!/bin/bash
 set -ev
 
-check_result()
-{
-  RC1=$1
-  RC2=$2
-
-  if [ "$RC1" != "0" ] || [ "$RC2" != "0" ]; then
-   return 1
-  fi
-  return 0
-}
-
 #goto git root directory
 git rev-parse && cd "$(git rev-parse --show-cdup)"
 
@@ -29,7 +18,11 @@ time utPLSQL-cli/bin/utplsql run ${UT3_USER}/${UT3_USER_PASSWORD}@${CONNECTION_S
 
 status_line_regex="^[0-9]+ tests, ([0-9]+) failed, ([0-9]+) errored.*"
 
-RC1=$(cat min_test_results.log | grep -E "${status_line_regex}" | sed -re "s/${status_line_regex}/\1\2/")
+RC=$(cat min_test_results.log | grep -E "${status_line_regex}" | sed -re "s/${status_line_regex}/\1\2/")
+
+if [ "$RC" == "1" ] then
+   exit 1
+fi
 
 cd test
 
@@ -54,9 +47,7 @@ status_line_regex="^[0-9]+ tests, ([0-9]+) failed, ([0-9]+) errored.*"
 #cat coverage.xml
 #cat test_results.xml
 
-RC2=$(cat test_results.log | grep -E "${status_line_regex}" | sed -re "s/${status_line_regex}/\1\2/")
-
-check_result $RC1 $RC2
-RC=$?
+RC=$(cat test_results.log | grep -E "${status_line_regex}" | sed -re "s/${status_line_regex}/\1\2/")
 
 exit $RC
+
