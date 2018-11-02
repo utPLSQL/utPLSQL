@@ -20,58 +20,30 @@ create or replace package ut_suite_builder authid current_user is
    * Responsible for converting annotations into unit test suites
    */
 
-  --table of ut_suites indexed by suite path - tt_schema_suites('suite.path') gives ut_logical_suite
-  type tt_schema_suites is table of ut_logical_suite index by varchar2(4000 char);
-
-  --table of suite paths indexed by object name -  t_object_suite_path('object_name') = 'suitepath.to.object'
-  type t_object_suite_path is table of varchar2(4000) index by varchar2(4000 char);
-
-  type t_schema_suites_info is record (
-    schema_suites tt_schema_suites,
-    suite_paths   t_object_suite_path
-  );
-
   /**
    * Builds set of hierarchical suites for a given schema
    *
    * @param a_owner_name  name of the schema to builds suite for
+   * @param a_path        suite path to build suite for  (optional)
+   * @param a_object_name object name to build suite for (optional)
+   * @param a_object_name procedure name to build suite for (optional)
    * @return list of suites organized into hierarchy
    *
    */
-  function build_schema_suites(a_owner_name varchar2) return ut_suite_items;
+  function build_schema_suites(
+    a_owner_name     varchar2,
+    a_path           varchar2 := null,
+    a_object_name    varchar2 := null,
+    a_procedure_name varchar2 := null
+  ) return ut_suite_items;
 
-  /**
-   * Builds set of hierarchical suites for a given schema
-   *
-   * @param a_owner_name  name of the schema to builds suite for
-   * @param a_object_name object name to build suite for
-   * @param a_object_name procedure name to build suite for (can be null)
-   * @return list of suites organized into hierarchy
-   *
-   */
-  function build_schema_suites(a_owner_name varchar2, a_object_name varchar2,a_procedure_name varchar2) return ut_suite_items;
+  function build_suites_from_annotations(
+    a_owner_name        varchar2,
+    a_annotated_objects sys_refcursor,
+    a_path              varchar2 := null,
+    a_object_name       varchar2 := null,
+    a_procedure_name    varchar2 := null
+  ) return ut_suite_items;
 
-  /**
-   * Builds set of hierarchical suites for a given schema
-   *
-   * @param a_owner_name  name of the schema to builds suite for
-   * @param a_path        suite path to build suite for
-   * @return list of suites organized into hierarchy
-   *
-   */
-  function build_schema_suites(a_owner_name varchar2,a_path varchar2) return ut_suite_items;
-
-  /**
-   * Builds set of hierarchical suites for given annotations
-   *
-   * @param a_annotated_objects cursor returning ut_annotated_object type
-   * @return list of suites organized into hierarchy
-   *
-   */
-  function build_suites(a_annotated_objects sys_refcursor) return t_schema_suites_info;
-
-  function get_build_suites(a_owner_name varchar2) return ut_suite_items;
-  function build_schema_suites_old(a_owner_name varchar2) return t_schema_suites_info;
-  
 end ut_suite_builder;
 /

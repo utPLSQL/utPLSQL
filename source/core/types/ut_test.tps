@@ -60,6 +60,12 @@ create or replace type ut_test under ut_suite_item (
     a_line_no integer, a_expected_error_codes ut_integer_list := null
   ) return self as result,
   overriding member procedure mark_as_skipped(self in out nocopy ut_test),
+  overriding member procedure add_item(
+    self in out nocopy ut_test,
+    a_item ut_suite_item,
+    a_expected_level integer := 1,
+    a_current_level integer :=1
+  ),
   overriding member function do_execute(self in out nocopy ut_test) return boolean,
   overriding member procedure calc_execution_result(self in out nocopy ut_test),
   overriding member procedure mark_as_errored(self in out nocopy ut_test, a_error_stack_trace varchar2),

@@ -25,7 +25,12 @@ create or replace type ut_logical_suite under ut_suite_item (
     self in out nocopy ut_logical_suite, a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_path varchar2
   ) return self as result,
   member function is_valid(self in out nocopy ut_logical_suite) return boolean,
-  member procedure add_item(self in out nocopy ut_logical_suite, a_item ut_suite_item),
+  overriding member procedure add_item(
+    self in out nocopy ut_logical_suite,
+    a_item ut_suite_item,
+    a_expected_level integer := 1,
+    a_current_level integer :=1
+  ),
   overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite),
   overriding member procedure set_rollback_type(self in out nocopy ut_logical_suite, a_rollback_type integer),
   overriding member function  do_execute(self in out nocopy ut_logical_suite) return boolean,

@@ -4,17 +4,23 @@ create or replace package body test_suite_builder is
     a_annotations ut3.ut_annotations,
     a_package_name varchar2 := 'TEST_SUITE_BUILDER_PACKAGE'
   ) return clob is
-    l_suites ut3.ut_suite_builder.tt_schema_suites;
+    l_suites ut3.ut_suite_items;
     l_suite  ut3.ut_logical_suite;
     l_cursor sys_refcursor;
     l_xml    xmltype;
   begin
     open l_cursor for select value(x) from table(
                ut3.ut_annotated_objects(
-                   ut3.ut_annotated_object('UT3_TESTER', a_package_name, 'PACKAGE', SYSDATE, a_annotations)
+                   ut3.ut_annotated_object('UT3_TESTER', a_package_name, 'PACKAGE', systimestamp, a_annotations)
                ) ) x;
-    l_suites := ut3.ut_suite_builder.build_suites(l_cursor).schema_suites;
-    l_suite  := l_suites(l_suites.first);
+
+    l_suites := ut3.ut_suite_builder.build_suites_from_annotations(
+      a_owner_name => 'UT3_TESTER',
+      a_annotated_objects => l_cursor,
+      a_path => null,
+      a_object_name => a_package_name
+    );
+    l_suite  := treat( l_suites(l_suites.first) as ut3.ut_logical_suite);
 
     select deletexml(
              xmltype(l_suite),
@@ -635,6 +641,9 @@ create or replace package body test_suite_builder is
         '%<WARNINGS/>' ||
         '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
+            '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+          '%</UT_SUITE_ITEM>' ||
+          '<UT_SUITE_ITEM>' ||
             '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
             '%<ITEMS>' ||
               '<UT_SUITE_ITEM>' ||
@@ -646,9 +655,6 @@ create or replace package body test_suite_builder is
             '%</BEFORE_ALL_LIST>' ||
             '<AFTER_ALL_LIST/>' ||
           '</UT_SUITE_ITEM>' ||
-          '<UT_SUITE_ITEM>' ||
-            '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
-          '%</UT_SUITE_ITEM>' ||
         '</ITEMS>' ||
         '<BEFORE_ALL_LIST>' ||
         '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||

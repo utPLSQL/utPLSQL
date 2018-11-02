@@ -34,6 +34,16 @@ create or replace type body ut_test as
     return;
   end;
 
+  overriding member procedure add_item(
+    self in out nocopy ut_test,
+    a_item ut_suite_item,
+    a_expected_level integer := 1,
+    a_current_level integer :=1
+  ) is
+  begin
+    raise_application_error(-20000, 'Cannot add a suite item to ut_test');
+  end;
+
   overriding member procedure mark_as_skipped(self in out nocopy ut_test) is
   begin
     ut_event_manager.trigger_event(ut_utils.gc_before_test, self);

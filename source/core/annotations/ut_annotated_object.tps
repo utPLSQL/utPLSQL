@@ -18,7 +18,7 @@ create type ut_annotated_object as object(
   object_owner                  varchar2(250),
   object_name                   varchar2(250),
   object_type                   varchar2(50),
-  parse_time                    date,
+  parse_time                    timestamp,
   annotations                   ut_annotations
 )
 /

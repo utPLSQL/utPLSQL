@@ -21,7 +21,7 @@ create or replace type body ut_logical_suite as
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
-    self.init(a_object_owner, a_object_name, a_name, 0);
+    self.init(a_object_owner, a_object_name, a_name, null);
     self.path := a_path;
     self.disabled_flag := ut_utils.boolean_to_int(false);
     self.items := ut_suite_items();
@@ -33,10 +33,26 @@ create or replace type body ut_logical_suite as
     return true;
   end;
 
-  member procedure add_item(self in out nocopy ut_logical_suite, a_item ut_suite_item) is
+  overriding member procedure add_item(
+    self in out nocopy ut_logical_suite,
+    a_item ut_suite_item,
+    a_expected_level integer := 1,
+    a_current_level integer :=1
+  ) is
   begin
-    self.items.extend;
-    self.items(self.items.last) := a_item;
+    if a_expected_level > a_current_level then
+      if self.items.last is not null then
+        self.items(self.items.last).add_item(a_item, a_expected_level, a_current_level+1);
+      else
+        raise_application_error(-20000, 'cannot add suite item to sub suite at level '||a_expected_level||'. suite items at level '||a_current_level||' are empty');
+      end if;
+    else
+      if self.items is null then
+        self.items := ut_suite_items();
+      end if;
+      self.items.extend;
+      self.items(self.items.last) := a_item;
+    end if;
   end;
 
   overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite) is

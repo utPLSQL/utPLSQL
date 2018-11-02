@@ -51,6 +51,16 @@ create or replace type body ut_run as
     null;
   end;
 
+  overriding member procedure add_item(
+    self in out nocopy ut_run,
+    a_item ut_suite_item,
+    a_expected_level integer := 1,
+    a_current_level integer :=1
+  ) is
+  begin
+    raise_application_error(-20000, 'Cannot add a suite item to ut_run');
+  end;
+  
   overriding member function do_execute(self in out nocopy ut_run) return boolean is
     l_completed_without_errors boolean;
   begin

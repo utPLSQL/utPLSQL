@@ -19,14 +19,22 @@ create or replace package ut_suite_cache_manager authid definer is
   /**
    * Responsible for storing and retrieving suite data from cache
    */
+  subtype t_cached_suite is ut_suite_cache%rowtype;
+  type tt_cached_suites is table of t_cached_suite;
+  type t_cached_suites_cursor is ref cursor return t_cached_suite;
 
-  procedure save_cache(a_suite_items ut_suite_items);
+  procedure save_cache(a_object_owner varchar2, a_suite_items ut_suite_items);
 
-  function cached_suite_by_path(a_schema_name varchar2, a_path varchar2) return sys_refcursor;
+  function get_cached_suite_data(
+    a_schema_name varchar2,
+    a_path varchar2 := null,
+    a_object_name varchar2 := null,
+    a_procedure_name varchar2 := null
+  ) return t_cached_suites_cursor;
 
-  function cached_suite_by_package(a_schema_name varchar2, a_object_name varchar2, a_procedure_name varchar2) return sys_refcursor;
+  function get_schema_ut_packages(a_schema_names ut_varchar2_rows) return ut_object_names;
 
-  function cached_suite_by_schema(a_schema_name varchar2) return sys_refcursor;
+  function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache;
 
 end ut_suite_cache_manager;
 /

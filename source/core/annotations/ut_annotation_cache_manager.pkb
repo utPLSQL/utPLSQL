@@ -22,14 +22,14 @@ create or replace package body ut_annotation_cache_manager as
     pragma autonomous_transaction;
   begin
     update ut_annotation_cache_info i
-       set i.parse_time = sysdate
+       set i.parse_time = systimestamp
      where (i.object_owner, i.object_name, i.object_type)
         in ((a_object.object_owner, a_object.object_name, a_object.object_type))
       returning cache_id into l_cache_id;
     if sql%rowcount = 0 then
       insert into ut_annotation_cache_info
              (cache_id, object_owner, object_name, object_type, parse_time)
-      values (ut_annotation_cache_seq.nextval, a_object.object_owner, a_object.object_name, a_object.object_type, sysdate)
+      values (ut_annotation_cache_seq.nextval, a_object.object_owner, a_object.object_name, a_object.object_type, systimestamp)
         returning cache_id into l_cache_id;
     end if;
 
@@ -66,15 +66,15 @@ create or replace package body ut_annotation_cache_manager as
          on (o.object_name = i.object_name
              and o.object_type = i.object_type
              and o.object_owner = i.object_owner)
-     when matched then update set parse_time = sysdate
+     when matched then update set parse_time = systimestamp
      when not matched then insert
            (cache_id, object_owner, object_name, object_type, parse_time)
-     values (ut_annotation_cache_seq.nextval, o.object_owner, o.object_name, o.object_type, sysdate);
+     values (ut_annotation_cache_seq.nextval, o.object_owner, o.object_name, o.object_type, systimestamp);
 
     commit;
   end;
 
-  function get_annotations_for_objects(a_cached_objects ut_annotation_objs_cache_info, a_parse_date date) return sys_refcursor is
+  function get_annotations_for_objects(a_cached_objects ut_annotation_objs_cache_info, a_parse_time timestamp) return sys_refcursor is
     l_results     sys_refcursor;
   begin
     open l_results for q'[
@@ -92,9 +92,9 @@ create or replace package body ut_annotation_cache_manager as
         join ut_annotation_cache_info i
           on o.object_owner = i.object_owner and o.object_name = i.object_name and o.object_type = i.object_type
         join ut_annotation_cache c on i.cache_id = c.cache_id
-       where ]'|| case when a_parse_date is null then ':a_parse_date is null' else 'i.parse_time > :a_parse_date' end ||q'[
+       where ]'|| case when a_parse_time is null then ':a_parse_date is null' else 'i.parse_time > :a_parse_time' end ||q'[
        group by i.object_owner, i.object_name, i.object_type, i.parse_time]'
-    using a_cached_objects, a_parse_date;
+    using a_cached_objects, a_parse_time;
     return l_results;
   end;
 

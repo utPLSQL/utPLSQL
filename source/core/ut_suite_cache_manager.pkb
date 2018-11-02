@@ -16,227 +16,130 @@ create or replace package body ut_suite_cache_manager is
   limitations under the License.
   */
 
-  function get_suite_by(a_schema_name varchar2, a_path varchar2 := null, a_object_name varchar2 := null, a_procedure_name varchar2 := null) return sys_refcursor is
+  function get_cached_suite_data(
+    a_schema_name    varchar2,
+    a_path           varchar2 := null,
+    a_object_name    varchar2 := null,
+    a_procedure_name varchar2 := null
+  ) return t_cached_suites_cursor is
+    l_path   varchar2( 4000 );
     l_result sys_refcursor;
   begin
+    if a_path is null and a_object_name is not null then
+      select min(path) into l_path
+        from ut_suite_cache
+       where object_owner = upper(a_schema_name) and object_name = lower(a_object_name) and
+                 name = nvl(lower(a_procedure_name), name);
+    else
+      l_path := lower( a_path );
+    end if;
+
+
     open l_result for
-      select
-             case self_type
-                  when 'UT_TEST'
-                       then ut_test(
-                              self_type => self_type,
-                              object_owner => object_owner, object_name => object_name, name => name,
-                              description => description, path => path, rollback_type => rollback_type,
-                              disabled_flag => disabled_flag, line_no => line_no, parse_time => parse_time,
-                              start_time => null, end_time => null, result => null, warnings => warnings,
-                              results_count => ut_results_counter(), transaction_invalidators => null,
-                              before_each_list => before_each_list, before_test_list => before_test_list,
-                              item => item, after_test_list => after_test_list, after_each_list => after_each_list,
-                              all_expectations => null, failed_expectations => null,
-                              parent_error_stack_trace => null, expected_error_codes => expected_error_codes
-                 )
-                 end as test_item,
-             case self_type
-                  when 'UT_SUITE'
-                       then ut_suite(
-                              self_type => self_type,
-                              object_owner => object_owner, object_name => object_name, name => name,
-                              description => description, path => path, rollback_type => rollback_type,
-                              disabled_flag => disabled_flag, line_no => line_no, parse_time => parse_time,
-                              start_time => null, end_time => null, result => null, warnings => warnings,
-                              results_count => ut_results_counter(), transaction_invalidators => null,
-                              items => ut_suite_items(),
-                              before_all_list => before_all_list, after_all_list => after_all_list
-                 )
-                  when 'UT_SUITE_CONTEXT'
-                       then ut_suite_context(
-                              self_type => self_type,
-                              object_owner => object_owner, object_name => object_name, name => name,
-                              description => description, path => path, rollback_type => rollback_type,
-                              disabled_flag => disabled_flag, line_no => line_no, parse_time => parse_time,
-                              start_time => null, end_time => null, result => null, warnings => warnings,
-                              results_count => ut_results_counter(), transaction_invalidators => null,
-                              items => ut_suite_items(),
-                              before_all_list => before_all_list, after_all_list => after_all_list
-                 )
-                  when 'UT_LOGICAL_SUITE'
-                       then ut_logical_suite(
-                              self_type => self_type,
-                              object_owner => object_owner, object_name => object_name, name => name,
-                              description => description, path => path, rollback_type => rollback_type,
-                              disabled_flag => disabled_flag, line_no => line_no, parse_time => parse_time,
-                              start_time => null, end_time => null, result => null, warnings => warnings,
-                              results_count => ut_results_counter(), transaction_invalidators => null,
-                              items => ut_suite_items()
-                 )
-             end as logical_suite,
-             length(path) - length( replace(path, '.') )+1 as path_level
-      from ut_suite_cache x
-      where (  a_path like path ||'.'||'%'
-             or ( path like a_path || '%'
-                    and object_name = nvl(lower(a_object_name), object_name)
-                    and name = nvl(lower(a_procedure_name), name)
-                   )
-            )
-          and object_owner = upper(a_schema_name)
-      order by path desc, object_name, line_no;
-    
+    select c.*
+      from ut_suite_cache c
+      --         join all_objects a
+      --           on a.owner = x.object_owner
+      --          and a.object_name = x.object_name
+      --          and a.object_type = 'PACKAGE'
+     where ( l_path like c.path || '.' || '%'
+               or ( c.path like l_path || '%'
+                      and c.object_name = nvl(lower(a_object_name), c.object_name)
+                      and c.name = nvl(lower(a_procedure_name), c.name)
+         )
+       ) and c.object_owner = upper(a_schema_name)
+     order by c.object_owner,
+              replace(case
+                      when c.self_type in ( 'UT_TEST' )
+                        then substr(c.path, 1, instr(c.path, '.', -1) - 1)
+                      else c.path
+                      end, '.', chr(0)) desc nulls last,
+              c.object_name desc,
+              c.line_no desc;
+
     return l_result;
   end;
-  
---   function get_suite_by(a_schema_name varchar2, a_path varchar2 := null, a_object_name varchar2 := null, a_procedure_name varchar2 := null) return sys_refcursor is
---     l_filter varchar2(1000);
---     l_result sys_refcursor;
---     l_owner  varchar2(250) := ut_utils.ut_owner();
---   begin
---     if a_object_name is not null then
---       l_filter := ' object_name = lower(:a_object_name)';
---       if a_procedure_name is not null then
---         l_filter := l_filter || ' and name = lower(:a_procedure_name)';
---       else
---         l_filter := l_filter || ' and :a_procedure_name is null';
---       end if;
---     else
---       l_filter := ' :a_object_name is null and :a_procedure_name is null';
---     end if;
---     open l_result for q'[
---       select
---              case self_type
---                   when 'UT_TEST'
---                        then ]'||l_owner||q'[.ut_test(
---                               self_type => self_type,
---                               object_owner => object_owner, object_name => object_name, name => name,
---                               description => description, path => path, rollback_type => rollback_type,
---                               disabled_flag => disabled_flag, line_no => line_no, parse_time => parse_time,
---                               start_time => null, end_time => null, result => null, warnings => warnings,
---                               results_count => ut_results_counter(), transaction_invalidators => null,
---                               before_each_list => before_each_list, before_test_list => before_test_list,
---                               item => item, after_test_list => after_test_list, after_each_list => after_each_list,
---                               all_expectations => null, failed_expectations => null,
---                               parent_error_stack_trace => null, expected_error_codes => expected_error_codes
---                  )
---                  end as test_item,
---              case self_type
---                   when 'UT_SUITE'
---                        then ]'||l_owner||q'[.ut_suite(
---                               self_type => self_type,
---                               object_owner => object_owner, object_name => object_name, name => name,
---                               description => description, path => path, rollback_type => rollback_type,
---                               disabled_flag => disabled_flag, line_no => line_no, parse_time => parse_time,
---                               start_time => null, end_time => null, result => null, warnings => warnings,
---                               results_count => ]'||l_owner||q'[.ut_results_counter(), transaction_invalidators => null,
---                               items => ut_suite_items(),
---                               before_all_list => before_all_list, after_all_list => after_all_list
---                  )
---                   when 'UT_SUITE_CONTEXT'
---                        then ]'||l_owner||q'[.ut_suite_context(
---                               self_type => self_type,
---                               object_owner => object_owner, object_name => object_name, name => name,
---                               description => description, path => path, rollback_type => rollback_type,
---                               disabled_flag => disabled_flag, line_no => line_no, parse_time => parse_time,
---                               start_time => null, end_time => null, result => null, warnings => warnings,
---                               results_count => ]'||l_owner||q'[.ut_results_counter(), transaction_invalidators => null,
---                               items => ut_suite_items(),
---                               before_all_list => before_all_list, after_all_list => after_all_list
---                  )
---                   when 'UT_LOGICAL_SUITE'
---                        then ]'||l_owner||q'[.ut_logical_suite(
---                               self_type => self_type,
---                               object_owner => object_owner, object_name => object_name, name => name,
---                               description => description, path => path, rollback_type => rollback_type,
---                               disabled_flag => disabled_flag, line_no => line_no, parse_time => parse_time,
---                               start_time => null, end_time => null, result => null, warnings => warnings,
---                               results_count => ]'||l_owner||q'[.ut_results_counter(), transaction_invalidators => null,
---                               items => ut_suite_items()
---                  )
---              end as logical_suite,
---              length(path) - length( replace(path, '.') )+1 as path_level
---       from ]'||l_owner||q'[.ut_suite_cache x
---       where (  :a_path like path ||'.'||'%'
---              or path like :a_path ||'%' and ]'||l_filter||q'[ )
---           and object_owner = upper(:a_schema_name)
---       order by path desc, object_name, line_no]'
---     using a_path, a_path, a_object_name, a_procedure_name, a_schema_name;
---
---     return l_result;
---   end;
---
-  function cached_suite_by_path(a_schema_name varchar2, a_path varchar2) return sys_refcursor is
+
+
+  function get_schema_ut_packages( a_schema_names ut_varchar2_rows ) return ut_object_names is
+    l_results      ut_object_names := ut_object_names( );
+    l_schema_names ut_varchar2_rows;
+    l_object_names ut_varchar2_rows;
   begin
-    return get_suite_by(a_schema_name, a_path);
+    select distinct c.object_owner, c.object_name
+      bulk collect into l_schema_names, l_object_names
+      from ut_suite_cache c
+             --       join all_objects a
+             --         on a.owner = c.object_owner
+             --        and a.object_name = c.object_name
+             --        and a.object_type = 'PACKAGE'
+           join table ( a_schema_names ) s on c.object_owner = upper(s.column_value);
+    l_results.extend( l_schema_names.count );
+    for i in 1 .. l_schema_names.count loop
+      l_results( i ) := ut_object_name( l_schema_names( i ), l_object_names( i ) );
+    end loop;
+    return l_results;
   end;
 
-  function cached_suite_by_package(a_schema_name varchar2, a_object_name varchar2, a_procedure_name varchar2) return sys_refcursor is
-    l_path varchar2(4000);
+  function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache is
+    l_cache_parse_time timestamp;
   begin
-    select min(path) into l_path
-    from ut_suite_cache
-    where object_owner = upper(a_schema_name)
-      and object_name = lower(a_object_name)
-      and name = nvl(lower(a_procedure_name),name);
-
-    return get_suite_by(a_schema_name, l_path, a_object_name, a_procedure_name );
+    select min(t.parse_time)
+      into l_cache_parse_time
+      from ut_suite_cache_schema t
+     where object_owner = a_schema_name;
+    return l_cache_parse_time;
   end;
 
-  function cached_suite_by_schema(a_schema_name varchar2) return sys_refcursor is
-  begin
-    return get_suite_by(a_schema_name);
-  end;
-
-  procedure save_cache(a_suite_items ut_suite_items) is
+  procedure save_cache(a_object_owner varchar2, a_suite_items ut_suite_items) is
     pragma autonomous_transaction;
-    l_annotation_parse_time date;
-    l_suite_parse_time    date;
+    l_parse_time        timestamp;
+    l_cached_parse_time timestamp;
   begin
     if a_suite_items.count = 0 then
       return;
     end if;
+
     if a_suite_items(1).self_type != 'UT_LOGICAL_SUITE' then
       select min(parse_time)
-          into l_suite_parse_time from ut_suite_cache t
+        into l_cached_parse_time
+        from ut_suite_cache t
       where t.object_name = a_suite_items(1).object_name
-          and t.object_owner = a_suite_items(1).object_owner
-          and rownum = 1;
+        and t.object_owner = a_suite_items(1).object_owner
+        and rownum = 1;
     end if;
 
-    l_annotation_parse_time := a_suite_items(1).parse_time;
+    select max(parse_time) into l_parse_time from table(a_suite_items) s;
 
-    if l_annotation_parse_time > l_suite_parse_time or l_suite_parse_time is null then
+    if l_parse_time > l_cached_parse_time or l_cached_parse_time is null then
 
-      merge into ut_suite_cache_schema t
-        using(select object_owner, max(parse_time) parse_time from table(a_suite_items) group by object_owner) s
-           on (s.object_owner = t.object_owner)
-      when matched then update
-        set t.parse_time = s.parse_time
-      where s.parse_time > t.parse_time
-      when not matched then
-        insert (object_owner, parse_time)
-        values (s.object_owner, s.parse_time);
+      update ut_suite_cache_schema t
+         set t.parse_time = l_parse_time
+       where object_owner = a_object_owner;
+
+      if sql%rowcount = 0 then
+        insert into ut_suite_cache_schema
+          (object_owner, parse_time)
+        values (a_object_owner, l_parse_time);
+      end if;
 
       delete from ut_suite_cache t
       where (t.object_name, t.object_owner)
          in (select s.object_name, s.object_owner from table(a_suite_items) s where s.self_type != 'UT_LOGICAL_SUITE');
 
-      merge into ut_suite_cache t
-        using (
-          select self_type, path, object_owner, object_name, name,
-                 line_no, parse_time, description,
-                 rollback_type, disabled_flag, warnings
-            from table(a_suite_items) x where x.self_type = 'UT_LOGICAL_SUITE'
-        ) s
-        on (t.object_name = s.object_name and t.object_owner = s.object_owner)
-      when not matched then
-        insert (
+
+      insert into ut_suite_cache t
+        (
           self_type, path, object_owner, object_name, name,
           line_no, parse_time, description,
           rollback_type, disabled_flag, warnings
         )
-        values (
-          s.self_type, s.path, s.object_owner, s.object_name, s.name,
-          s.line_no, s.parse_time, s.description,
-          s.rollback_type, s.disabled_flag, s.warnings
-        );
-
+      select self_type, path, object_owner, object_name, name,
+             line_no, parse_time, description,
+             rollback_type, disabled_flag, warnings
+        from table(a_suite_items) s
+       where s.self_type = 'UT_LOGICAL_SUITE'
+         and (s.object_owner, s.path) not in (select c.object_owner, c.path from ut_suite_cache c);
 
       insert into ut_suite_cache t
           (
@@ -248,16 +151,9 @@ create or replace package body ut_suite_cache_manager is
               before_test_list, after_test_list,
               expected_error_codes, item
           )
-        with
-            suite_items as ( select value(x) item from table(a_suite_items) x ),
-            suites as (
-              select treat(item as ut_suite) i from suite_items s
-              where s.item.self_type in ('UT_SUITE','UT_SUITE_CONTEXT')
-          ),
-            tests as (
-              select treat(item as ut_test) t from suite_items s
-              where s.item.self_type in ('UT_TEST')
-          )
+        with suites as ( select treat(value(x) as ut_suite) i
+                           from table(a_suite_items) x
+                          where x.self_type in( 'UT_SUITE', 'UT_SUITE_CONTEXT' ) )
         select s.i.self_type as self_type, s.i.path as path,
                s.i.object_owner as object_owner, s.i.object_name as object_name, s.i.name as name,
                s.i.line_no as line_no, s.i.parse_time as parse_time, s.i.description as description,
@@ -266,19 +162,34 @@ create or replace package body ut_suite_cache_manager is
                null before_each_list, null after_each_list,
                null before_test_list, null after_test_list,
                null expected_error_codes, null item
-        from suites s
-        union all
-        select s.t.self_type as self_type, s.t.path as path,
-               s.t.object_owner as object_owner, s.t.object_name as object_name, s.t.name as name,
-               s.t.line_no as line_no, s.t.parse_time as parse_time, s.t.description as description,
-               s.t.rollback_type as rollback_type, s.t.disabled_flag as disabled_flag, s.t.warnings as warnings,
-               null before_all_list, null after_all_list,
-               s.t.before_each_list as before_each_list, s.t.after_each_list as after_each_list,
-               s.t.before_test_list as before_test_list, s.t.after_test_list as after_test_list,
-               s.t.expected_error_codes as expected_error_codes, s.t.item as item
+        from suites s;
+
+      insert into ut_suite_cache t
+        (
+          self_type, path, object_owner, object_name, name,
+          line_no, parse_time, description,
+          rollback_type, disabled_flag, warnings,
+          before_all_list, after_all_list,
+          before_each_list, after_each_list,
+          before_test_list, after_test_list,
+          expected_error_codes, item
+        )
+        with tests as ( select treat(value(x) as ut_test) t
+                          from table ( a_suite_items ) x
+                         where x.self_type in ( 'UT_TEST' ) )
+      select s.t.self_type as self_type, s.t.path as path,
+             s.t.object_owner as object_owner, s.t.object_name as object_name, s.t.name as name,
+             s.t.line_no as line_no, s.t.parse_time as parse_time, s.t.description as description,
+             s.t.rollback_type as rollback_type, s.t.disabled_flag as disabled_flag, s.t.warnings as warnings,
+             null before_all_list, null after_all_list,
+             s.t.before_each_list as before_each_list, s.t.after_each_list as after_each_list,
+             s.t.before_test_list as before_test_list, s.t.after_test_list as after_test_list,
+             s.t.expected_error_codes as expected_error_codes, s.t.item as item
         from tests s;
+
+      commit;
     end if;
-    commit;
   end;
+
 end ut_suite_cache_manager;
 /

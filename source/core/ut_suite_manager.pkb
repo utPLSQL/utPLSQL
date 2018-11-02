@@ -16,24 +16,6 @@ create or replace package body ut_suite_manager is
   limitations under the License.
   */
 
-  subtype tt_schema_suites is ut_suite_builder.tt_schema_suites;
-  subtype t_object_suite_path is ut_suite_builder.t_object_suite_path;
-  subtype t_schema_suites_info is ut_suite_builder.t_schema_suites_info;
-
-  type t_schema_info is record (changed_at date, obj_cnt integer);
-
-  type t_schema_cache is record(
-     schema_suites tt_schema_suites
-    ,changed_at    date
-    ,obj_cnt       integer
-    ,suite_paths   t_object_suite_path
-  );
-  type tt_schema_suites_list is table of t_schema_cache index by varchar2(128 char);
-
-  g_schema_suites tt_schema_suites_list;
-
-
---   type t_schema_paths is table of ut_varchar2_list index by varchar2(4000 char);
 
   type t_path_item is record (
     object_name    varchar2(250),
@@ -45,96 +27,9 @@ create or replace package body ut_suite_manager is
 
   ------------------
 
-  function get_schema_info(a_owner_name varchar2) return t_schema_info is
-    l_info t_schema_info;
-    l_view_name      varchar2(200) := ut_metadata.get_dba_view('dba_objects');
-  begin
-    execute immediate q'[
-    select nvl(max(t.last_ddl_time), date '4999-12-31'), count(*)
-      from ]'||l_view_name||q'[ t
-     where t.owner = :a_owner_name
-       and t.object_type in ('PACKAGE')]'
-    into l_info using a_owner_name;
-    return l_info;
-  end;
-
-  procedure update_cache(a_owner_name varchar2, a_suites_info t_schema_suites_info, a_total_obj_cnt integer) is
-  begin
-    if a_suites_info.schema_suites.count > 0 then
-      g_schema_suites(a_owner_name).schema_suites := a_suites_info.schema_suites;
-      g_schema_suites(a_owner_name).changed_at := sysdate;
-      g_schema_suites(a_owner_name).obj_cnt := a_total_obj_cnt;
-      g_schema_suites(a_owner_name).suite_paths := a_suites_info.suite_paths;
-    elsif g_schema_suites.exists(a_owner_name) then
-      g_schema_suites.delete(a_owner_name);
-    end if;
-  end;
-
-  function cache_valid(a_schema_name varchar2) return boolean is
-    l_info   t_schema_info;
-    l_result boolean := true;
-  begin
-    if not g_schema_suites.exists(a_schema_name) then
-      l_result := false;
-    else
-      l_info := get_schema_info(a_schema_name);
-      if g_schema_suites(a_schema_name).changed_at <= l_info.changed_at or g_schema_suites(a_schema_name).obj_cnt != l_info.obj_cnt then
-        l_result := false;
-      else
-        l_result := true;
-      end if;
-    end if;
-    return l_result;
-  end;
-
-  function get_schema_suites(a_schema_name in varchar2) return t_schema_suites_info is
-    l_result      t_schema_suites_info;
-  begin
-    -- Currently cache invalidation on DDL is not implemented so schema is rescaned each time
-    if cache_valid(a_schema_name) then
-      l_result.schema_suites := g_schema_suites(a_schema_name).schema_suites;
-      l_result.suite_paths := g_schema_suites(a_schema_name).suite_paths;
-    else
-      ut_utils.debug_log('Rescanning schema ' || a_schema_name);
-      l_result := ut_suite_builder.build_schema_suites_old(a_schema_name);
-      update_cache(a_schema_name, l_result, get_schema_info(a_schema_name).obj_cnt );
-    end if;
-
-    return l_result;
-  end get_schema_suites;
-
   function get_schema_ut_packages(a_schema_names ut_varchar2_rows) return ut_object_names is
-    l_schema_ut_packages ut_object_names := ut_object_names();
-    l_schema_suites      tt_schema_suites;
-    l_iter               varchar2(4000);
-    procedure populate_suite_ut_packages(a_suite ut_logical_suite, a_packages in out nocopy ut_object_names) is
-      l_sub_suite ut_logical_suite;
-    begin
-      if a_suite is of (ut_suite) then
-        a_packages.extend;
-        a_packages(a_packages.last) := ut_object_name(a_suite.object_owner, a_suite.object_name);
-      end if;
-      for i in 1 .. a_suite.items.count loop
-        if a_suite.items(i) is of (ut_logical_suite) then
-          l_sub_suite := treat(a_suite.items(i) as ut_logical_suite);
-          populate_suite_ut_packages(l_sub_suite, a_packages);
-        end if;
-      end loop;
-    end;
   begin
-    if a_schema_names is not null then
-      for i in 1 .. a_schema_names.count loop
-        l_schema_suites := get_schema_suites(a_schema_names(i)).schema_suites;
-        l_iter := l_schema_suites.first;
-        while l_iter is not null loop
-          populate_suite_ut_packages(l_schema_suites(l_iter), l_schema_ut_packages);
-          l_iter := l_schema_suites.next(l_iter);
-        end loop;
-      end loop;
-      l_schema_ut_packages := set(l_schema_ut_packages);
-    end if;
-
-    return l_schema_ut_packages;
+    return ut_suite_cache_manager.get_schema_ut_packages(a_schema_names);
   end;
 
   procedure validate_paths(a_paths in ut_varchar2_list) is
@@ -220,169 +115,6 @@ create or replace package body ut_suite_manager is
     return resolve_schema_names(l_paths);
   end;
 
-  procedure filter_suite_by_path(a_suite in out nocopy ut_suite_item, a_path varchar2) is
-    c_item_name          constant varchar2(32767) := lower(regexp_substr(a_path, '[A-Za-z0-9$#_]+'));
-    c_child_filter_path  constant varchar2(32767) := regexp_substr(a_path, '\.(.+)', subexpression => 1);
-    l_suite              ut_logical_suite;
-    l_item               ut_suite_item;
-    l_items              ut_suite_items := ut_suite_items();
-
-    function find_item_in_suite(a_suite ut_logical_suite, a_item_name varchar2) return ut_suite_item is
-      l_item_index binary_integer;
-    begin
-      l_item_index := a_suite.items.first;
-      while l_item_index is not null loop
-        if lower(a_suite.items(l_item_index).name) = a_item_name then
-          return a_suite.items(l_item_index);
-        end if;
-        l_item_index := a_suite.items.next(l_item_index);
-      end loop;
-      return null;
-    end;
-
-    function find_item_in_suite_contexts(a_suite ut_logical_suite, a_item_name varchar2) return ut_suite_item is
-      l_item_index binary_integer;
-      l_context    ut_suite_context;
-      l_item       ut_suite_item;
-    begin
-      l_item_index := a_suite.items.first;
-      while l_item_index is not null loop
-        if a_suite.items(l_item_index) is of (ut_suite_context) then
-          l_item := find_item_in_suite(
-              treat(a_suite.items(l_item_index) as ut_suite_context)
-              , a_item_name
-          );
-        end if;
-
-        if l_item is not null then
-          l_context := treat(a_suite.items(l_item_index) as ut_suite_context);
-          l_context.items := ut_suite_items(l_item);
-          exit;
-        end if;
-        l_item_index := a_suite.items.next(l_item_index);
-      end loop;
-      return l_context;
-    end;
-  begin
-    if a_suite is of (ut_logical_suite) then
-      l_suite := treat(a_suite as ut_logical_suite);
-
-      l_item := coalesce(
-          find_item_in_suite(l_suite, c_item_name)
-          , find_item_in_suite_contexts(l_suite, c_item_name)
-      );
-      if l_item is not null then
-        if c_child_filter_path is not null then
-          filter_suite_by_path(l_item, c_child_filter_path);
-        end if;
-        l_items.extend;
-        l_items(l_items.count) := l_item;
-      else
-        raise_application_error(-20203, 'Suite item '||c_item_name||' not found');
-      end if;
-
-      l_suite.items := l_items;
-      a_suite := l_suite;
-    end if;
-  end filter_suite_by_path;
-
-  function get_suite_filtered_by_path(a_path varchar2, a_schema_suites tt_schema_suites) return ut_logical_suite is
-    l_suite             ut_logical_suite;
-    c_suite_path        constant varchar2(32767) := regexp_substr(a_path, ':(.+)', subexpression => 1);
-    c_root_suite_name   constant varchar2(32767) := regexp_substr(c_suite_path, '^[A-Za-z0-9$#_]+');
-    c_child_filter_path constant varchar2(32767) := regexp_substr(c_suite_path, '\.(.+)', subexpression => 1);
-  begin
-    l_suite := a_schema_suites(c_root_suite_name);
-    if c_child_filter_path is not null then
-      filter_suite_by_path(l_suite, c_child_filter_path);
-    end if;
-    return l_suite;
-  exception
-    when no_data_found then
-      raise_application_error(-20203, 'Suite ' || c_root_suite_name || ' does not exist or is invalid');
-  end;
-
-  function convert_to_suite_path(a_path varchar2, a_suite_paths t_object_suite_path) return varchar2 is
-    c_package_path_regex constant varchar2(100) := '^([A-Za-z0-9$#_]+)\.([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?$';
-    l_schema_name        varchar2(4000) := regexp_substr(a_path, c_package_path_regex, subexpression => 1);
-    l_package_name       varchar2(4000) := regexp_substr(a_path, c_package_path_regex, subexpression => 2);
-    l_procedure_name     varchar2(4000) := regexp_substr(a_path, c_package_path_regex, subexpression => 4);
-    l_path               varchar2(4000) := a_path;
-  begin
-    if regexp_like(l_path, c_package_path_regex) then
-      if not a_suite_paths.exists(l_package_name) then
-        raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||l_schema_name||'.'||l_package_name|| ' not found');
-      end if;
-      l_path := rtrim(l_schema_name || ':' || a_suite_paths(l_package_name) || '.' || l_procedure_name, '.');
-    end if;
-    return l_path;
-  end;
-
---   function group_paths_by_schema(a_paths ut_varchar2_list) return t_schema_paths is
---     l_result          t_schema_paths;
---     l_schema          varchar2(4000);
---   begin
---     for i in 1 .. a_paths.count loop
---       l_schema := upper(regexp_substr(a_paths(i),'^[^.:]+'));
---       if l_result.exists(l_schema) then
---         l_result(l_schema).extend;
---         l_result(l_schema)(l_result(l_schema).last) := a_paths(i);
---       else
---         l_result(l_schema) := ut_varchar2_list(a_paths(i));
---       end if;
---     end loop;
---     return l_result;
---   end;
---
---   function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items is
---     l_paths              ut_varchar2_list := a_paths;
---     l_path               varchar2(32767);
---     l_schema             varchar2(4000);
---     l_suites_info        t_schema_suites_info;
---     l_index              varchar2(4000 char);
---     l_suite              ut_logical_suite;
---     l_objects_to_run     ut_suite_items;
---     l_schema_paths       t_schema_paths;
---   begin
---     --resolve schema names from paths and group paths by schema name
---     resolve_schema_names(l_paths);
---
---     l_schema_paths := group_paths_by_schema(l_paths);
---
---     l_objects_to_run := ut_suite_items();
---
---     l_schema := l_schema_paths.first;
---     while l_schema is not null loop
---       l_paths := l_schema_paths(l_schema);
---       l_suites_info := get_schema_suites(l_schema);
---
---       for i in 1 .. l_paths.count loop
---         l_path := l_paths(i);
---         --run whole schema
---         if regexp_like(l_path, '^[A-Za-z0-9$#_]+$') then
---           l_index := l_suites_info.schema_suites.first;
---           while l_index is not null loop
---             l_objects_to_run.extend;
---             l_objects_to_run(l_objects_to_run.count) := l_suites_info.schema_suites(l_index);
---             l_index := l_suites_info.schema_suites.next(l_index);
---           end loop;
---         else
---           l_suite := get_suite_filtered_by_path( convert_to_suite_path( l_path, l_suites_info.suite_paths ), l_suites_info.schema_suites );
---           l_objects_to_run.extend;
---           l_objects_to_run(l_objects_to_run.count) := l_suite;
---         end if;
---       end loop;
---       l_schema := l_schema_paths.next(l_schema);
---     end loop;
---
---     --propagate rollback type to suite items after organizing suites into hierarchy
---     for i in 1 .. l_objects_to_run.count loop
---       l_objects_to_run(i).set_rollback_type( l_objects_to_run(i).get_rollback_type() );
---     end loop;
---
---     return l_objects_to_run;
---   end configure_execution_by_path;
-
   function group_paths_by_schema(a_paths ut_varchar2_list) return t_schema_paths is
     c_package_path_regex constant varchar2(100) := '^([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?(\.([A-Za-z0-9$#_]+))?$';
     l_schema             varchar2(4000);
@@ -409,6 +141,7 @@ create or replace package body ut_suite_manager is
     end loop;
     return l_results;
   end;
+  
   function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items is
     l_paths              ut_varchar2_list := a_paths;
     l_path_items         t_path_items;
@@ -431,15 +164,12 @@ create or replace package body ut_suite_manager is
       l_path_items  := l_schema_paths(l_schema);
       for i in 1 .. l_path_items.count loop
         l_path_item := l_path_items(i);
-        --whole schema
-        if l_path_item.object_name is null and l_path_item.suite_path is null then
-          l_suites := ut_suite_builder.build_schema_suites(upper(l_schema));
-        --suite path
-        elsif l_path_item.suite_path is not null then
-          l_suites := ut_suite_builder.build_schema_suites(upper(l_schema), l_path_item.suite_path);
-        else
-          l_suites := ut_suite_builder.build_schema_suites(upper(l_schema), l_path_item.object_name, l_path_item.procedure_name);
-        end if;
+          l_suites := ut_suite_builder.build_schema_suites(
+            upper(l_schema),
+            l_path_item.suite_path,
+            l_path_item.object_name,
+            l_path_item.procedure_name
+          );
         l_index := l_suites.first;
         while l_index is not null loop
           l_objects_to_run.extend;

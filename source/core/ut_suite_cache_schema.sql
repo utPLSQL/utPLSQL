@@ -13,7 +13,7 @@ create table ut_suite_cache_schema (
   limitations under the License.
   */
   object_owner    varchar2(250) not null,
-  parse_time      date          not null,
+  parse_time      timestamp     not null,
   constraint ut_suite_cache_schema_pk primary key(object_owner)
 ) organization index
 /

@@ -75,9 +75,7 @@ alter table ut_suite_cache modify (object_owner not null, path not null, self_ty
 /
 alter table ut_suite_cache add constraint ut_suite_cache_pk primary key (object_owner, path)
 /
-create unique index ut_suite_cache_uk on ut_suite_cache(object_owner, object_name, line_no)
-/
-create index ut_suite_cache_nu1 on ut_suite_cache(object_owner, object_name)
+create index ut_suite_cache_nu1 on ut_suite_cache(object_owner, object_name, parse_time desc)
 /
 alter table ut_suite_cache add constraint ut_suite_cache_schema_fk foreign key (object_owner) references ut_suite_cache_schema(object_owner)
 /
