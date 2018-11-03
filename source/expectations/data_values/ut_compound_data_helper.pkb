@@ -166,6 +166,54 @@ create or replace package body ut_compound_data_helper is
     select replace((extract(a_item_data,a_join_by_xpath).getclobval()),chr(10)) into l_pk_value from dual;    
     return l_pk_value; 
   end;
+
+  function get_rows_diff_by_sql(
+    a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
+    a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
+    a_join_by_xpath varchar2
+  ) return tt_row_diffs is
+    l_column_filter varchar2(32767);
+    l_results       tt_row_diffs;
+  begin
+    l_column_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath);
+    
+    execute immediate q'[with diff_info as 
+    ( select act_data_id, exp_data_id,
+      act_item_data,exp_item_data, :join_by join_by, item_no
+      from ut_compound_data_diff_tmp 
+      where diff_id = :diff_id ),
+    exp as (
+    select exp_item_data, exp_data_id, item_no rn,rownum col_no,
+      nvl2(exp_item_data,ut3.ut_compound_data_helper.get_pk_value(i.join_by,exp_item_data),null) pk_value,
+      s.column_value col, s.column_value.getRootElement() col_name, s.column_value.getclobval() col_val
+    from diff_info i,
+    table( xmlsequence( extract(i.exp_item_data,'/*/*') ) ) s
+    where i.exp_data_id = :self_guid),
+    act as (
+    select act_item_data, act_data_id, item_no rn, rownum col_no,
+      nvl2(act_item_data,ut3.ut_compound_data_helper.get_pk_value(i.join_by,act_item_data),null) pk_value,
+      s.column_value col, s.column_value.getRootElement() col_name, s.column_value.getclobval() col_val
+    from diff_info i,
+    table( xmlsequence( extract(i.act_item_data,'/*/*') ) ) s
+    where i.act_data_id = :other_guid)
+    select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, pk_value pk_value
+    from (
+      select nvl(exp.rn, act.rn) rn, nvl(exp.pk_value, act.pk_value) pk_value, exp.col  exp_item, act.col  act_item        
+      from exp join act
+      on exp.rn = act.rn and exp.col_name = act.col_name
+      where dbms_lob.compare(exp.col_val, act.col_val) != 0)
+    unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
+    union all
+    select item_no as rn, case when exp_data_id is null then 'Extra' else 'Missing' end as diff_type,
+      xmlserialize(content nvl(exp_item_data, act_item_data) no indent) diffed_row,
+      nvl2(i.join_by,ut3.ut_compound_data_helper.get_pk_value(i.join_by,coalesce(exp_item_data,act_item_data)),null) pk_value
+   from diff_info i
+   where act_data_id is null or exp_data_id is null]'
+   bulk collect into l_results
+    using a_join_by_xpath, a_diff_id, a_expected_dataset_guid,a_actual_dataset_guid;
+         
+    return l_results;
+  end;
     
   function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
@@ -438,9 +486,11 @@ create or replace package body ut_compound_data_helper is
 
   end;
   
-  function compare_type(a_join_by_xpath in varchar2,a_unordered boolean) return varchar2 is
+  function compare_type(a_join_by_xpath in varchar2,a_unordered boolean, a_is_sql_diffable integer := 0) return varchar2 is
     begin
       case 
+        when a_is_sql_diffable = 1 then
+         return gc_compare_sql;
         when a_join_by_xpath is not null then
           return gc_compare_join_by;
         when a_unordered then
@@ -453,23 +503,26 @@ create or replace package body ut_compound_data_helper is
   function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_join_by_xpath varchar2,a_unorderdered boolean
+    a_join_by_xpath varchar2,a_unorderdered boolean, a_is_sql_diffable integer
   ) return tt_row_diffs is
-    l_results       tt_row_diffs;
-    l_compare_type  varchar2(10):= compare_type(a_join_by_xpath,a_unorderdered);
+        l_result tt_row_diffs := tt_row_diffs();
+    l_compare_type  varchar2(10):= compare_type(a_join_by_xpath,a_unorderdered, a_is_sql_diffable);
   begin
     case 
+      when l_compare_type = gc_compare_sql then
+        l_result := get_rows_diff_by_sql(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
+                                   a_max_rows, a_exclude_xpath, a_include_xpath ,a_join_by_xpath);                                  
       when l_compare_type = gc_compare_join_by then
-        return get_rows_diff(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
+        l_result := get_rows_diff(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
                                    a_max_rows, a_exclude_xpath, a_include_xpath ,a_join_by_xpath);
       when l_compare_type = gc_compare_unordered then 
-        return get_rows_diff_unordered(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
+        l_result := get_rows_diff_unordered(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
                                              a_max_rows, a_exclude_xpath, a_include_xpath);
       else
-        return get_rows_diff(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
+        l_result := get_rows_diff(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
                                    a_max_rows, a_exclude_xpath, a_include_xpath);
       end case;
-
+      return l_result;
   end;
 
   function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
@@ -565,7 +618,8 @@ create or replace package body ut_compound_data_helper is
   begin
     l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
     l_pk_hash_sql := get_column_pk_hash(a_join_by_xpath);
-         
+    
+    --Use a item hash as pk hash for unordered     
     execute immediate 'merge into ' || l_ut_owner || '.ut_compound_data_tmp tgt
                        using (
                               select ucd_out.item_hash,
@@ -690,6 +744,7 @@ create or replace package body ut_compound_data_helper is
     return l_sql;
   end;  
    
+  -- TODO:Rebuild as the unordered can be done using join_by compare
   function get_refcursor_matcher_sql(a_owner in varchar2,a_inclusion_matcher boolean := false, a_negated_match boolean := false) return varchar2  is
     l_sql varchar2(32767);
   begin
@@ -704,6 +759,105 @@ create or replace package body ut_compound_data_helper is
     
     return l_sql;
   end;
-   
+
+ function generate_xmltab_stmt (a_column_info xmltype) return varchar2 is
+    l_sql_stmt varchar2(32767);
+  begin
+    for i in (select /*+ CARDINALITY(xt 100) */
+     xt.name
+     from (select a_column_info item_data from dual) x,
+                         xmltable(
+                           '/ROW/*'
+                           passing x.item_data
+                           columns
+                             name     varchar2(4000)  PATH '@xml_valid_name'
+                         ) xt)
+    loop
+      l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ',' end ||i.name||q'[ varchar2(4000) PATH ']'||i.name||q'[']';
+    end loop;
+    return l_sql_stmt;
+  end;
+  
+  function generate_equal_sql (a_column_info xmltype) return varchar2 is
+    l_sql_stmt varchar2(32767);
+  begin
+    for i in (select /*+ CARDINALITY(xt 100) */
+     xt.name
+     from (select a_column_info item_data from dual) x,
+                         xmltable(
+                           '/ROW/*'
+                           passing x.item_data
+                           columns
+                             name     varchar2(4000)  PATH '@xml_valid_name'
+                         ) xt)
+    loop
+      l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' and ' end ||' a.'||i.name||q'[ = ]'||' e.'||i.name;
+    end loop;
+    return l_sql_stmt;
+  end;
+ 
+  function generate_not_equal_sql (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2 is
+    l_sql_stmt varchar2(32767);
+    l_pk_xpath_tabs ut_varchar2_list := ut_varchar2_list();
+  begin
+    l_pk_xpath_tabs := ut_utils.string_to_table(a_join_by_xpath,'|');
+    
+    for i in (
+    with  xpaths_tab as (select column_value  xpath from table(l_pk_xpath_tabs)),
+    pk_names as (select REGEXP_SUBSTR (xpath,'[^(/\*/)](.+)$') name
+              from xpaths_tab)
+    select /*+ CARDINALITY(xt 100) */
+     xt.name
+     from (select a_column_info item_data from dual) x,
+                         xmltable(
+                           '/ROW/*'
+                           passing x.item_data
+                           columns
+                             name     varchar2(4000)  PATH '@xml_valid_name'
+                         ) xt
+          where not exists (select 1 from pk_names p where lower(p.name) = lower(xt.name))
+                         )
+    loop
+      l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' or ' end ||' a.'||i.name||q'[ <> ]'||' e.'||i.name;
+    end loop;
+    return l_sql_stmt;
+  end; 
+  
+  function generate_join_by_on_stmt (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2 is
+    l_sql_stmt varchar2(32767);
+    l_pk_xpath_tabs ut_varchar2_list := ut_varchar2_list();
+    
+  begin
+    l_pk_xpath_tabs := ut_utils.string_to_table(a_join_by_xpath,'|');
+        
+    for i in (with  xpaths_tab as (select column_value  xpath from table(l_pk_xpath_tabs))
+              select REGEXP_SUBSTR (xpath,'[^(/\*/)](.+)$') name
+              from xpaths_tab)
+    loop
+      l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' and ' end ||' a.'||i.name||q'[ = ]'||' e.'||i.name;
+    end loop;
+    return l_sql_stmt;
+  end;  
+
+  function generate_join_null_sql (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2 is
+    l_sql_stmt varchar2(32767);
+    l_pk_xpath_tabs ut_varchar2_list := ut_varchar2_list();
+    
+  begin
+    l_pk_xpath_tabs := ut_utils.string_to_table(a_join_by_xpath,'|');
+        
+    for i in (with  xpaths_tab as (select column_value  xpath from table(l_pk_xpath_tabs))
+              select REGEXP_SUBSTR (xpath,'[^(/\*/)](.+)$') name
+              from xpaths_tab)
+    loop
+      l_sql_stmt := l_sql_stmt || case 
+                                    when l_sql_stmt is null 
+                                      then null 
+                                      else ' or ' 
+                                    end ||' a.'||i.name||q'[ is null or ]'||' e.'||i.name||q'[ is null]';
+    end loop;
+    return l_sql_stmt;
+  end;  
+  
 end;
 /

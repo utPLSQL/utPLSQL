@@ -88,14 +88,18 @@ create or replace type body ut_compound_data_value as
     l_diff_id           ut_compound_data_helper.t_hash;
     l_row_diffs         ut_compound_data_helper.tt_row_diffs;
     l_compare_type      varchar2(10);
+    l_self              ut_compound_data_value;
+    l_is_sql_diff       integer := 0;
     
     function get_diff_message (a_row_diff ut_compound_data_helper.t_row_diffs,a_compare_type varchar2) return varchar2 is
     begin
-      if a_compare_type = ut_compound_data_helper.gc_compare_join_by and a_row_diff.pk_value is not null then
+      if a_compare_type in (ut_compound_data_helper.gc_compare_join_by,ut_compound_data_helper.gc_compare_sql) 
+                            and a_row_diff.pk_value is not null then
         return  '  PK '||a_row_diff.pk_value||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
       elsif a_compare_type = ut_compound_data_helper.gc_compare_join_by or a_compare_type = ut_compound_data_helper.gc_compare_normal then
         return '  Row No. '||a_row_diff.rn||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
-      elsif a_compare_type = ut_compound_data_helper.gc_compare_unordered then
+      elsif a_compare_type in (ut_compound_data_helper.gc_compare_unordered,ut_compound_data_helper.gc_compare_sql) 
+                              and a_row_diff.pk_value is null then
         return rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
       end if;
     end;
@@ -104,6 +108,11 @@ create or replace type body ut_compound_data_value as
     if not a_other is of (ut_compound_data_value) then
       raise value_error;
     end if;
+    
+    if self is of (ut_data_value_refcursor) then
+      l_is_sql_diff := treat(self as ut_data_value_refcursor).is_sql_diffable;
+    end if;    
+    
     l_actual := treat(a_other as ut_compound_data_value);
 
     dbms_lob.createtemporary(l_result,true);
@@ -112,14 +121,20 @@ create or replace type body ut_compound_data_value as
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_actual.data_id);
     
     -- First tell how many rows are different
-    execute immediate 'select count('||case when a_join_by_xpath is not null then 'distinct pk_hash' else '*' end||') from ' 
-                      || l_ut_owner || '.ut_compound_data_diff_tmp 
-                      where diff_id = :diff_id' into l_diff_row_count using l_diff_id;
+    execute immediate 'select count('
+                      ||case when ( a_join_by_xpath is not null and l_is_sql_diff = 0 ) 
+                          then 'distinct pk_hash' 
+                          else '*' 
+                        end
+                      ||') from '|| l_ut_owner || '.ut_compound_data_diff_tmp '
+                      ||'where diff_id = :diff_id' 
+                      into l_diff_row_count using l_diff_id;
                       
     if l_diff_row_count > 0  then
-      l_compare_type := ut_compound_data_helper.compare_type(a_join_by_xpath,a_unordered);
+      l_compare_type := ut_compound_data_helper.compare_type(a_join_by_xpath,a_unordered, l_is_sql_diff);
       l_row_diffs := ut_compound_data_helper.get_rows_diff(
-            self.data_id, l_actual.data_id, l_diff_id, c_max_rows, a_exclude_xpath, a_include_xpath, a_join_by_xpath, a_unordered);
+            self.data_id, l_actual.data_id, l_diff_id, c_max_rows, a_exclude_xpath, 
+            a_include_xpath, a_join_by_xpath, a_unordered, l_is_sql_diff);
       l_message := chr(10)
                    ||'Rows: [ ' || l_diff_row_count ||' differences'
                    ||  case when  l_diff_row_count > c_max_rows and l_row_diffs.count > 0 then ', showing first '||c_max_rows end
@@ -247,5 +262,71 @@ create or replace type body ut_compound_data_value as
     return l_result;
   end;
 
+  member function compare_implementation_by_sql(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_inclusion_compare boolean := false) return integer is
+    l_compare_sql   varchar2(32767);
+    l_ut_owner      varchar2(250) := ut_utils.ut_owner;
+    l_actual        ut_data_value_refcursor :=  treat(a_other as ut_data_value_refcursor);
+    l_diff_id       ut_compound_data_helper.t_hash;
+    l_table_stmt    varchar2(32767);
+    l_where_stmt    varchar2(32767);
+    l_join_by_stmt  varchar2(32767);
+    l_exec_sql      varchar2(32767);
+    l_other         ut_compound_data_value;
+    l_result        integer;
+  begin
+   
+   -- TODO : Add column filters!!!!
+   l_other   := treat(a_other as ut_compound_data_value);  
+   l_table_stmt := ut_compound_data_helper.generate_xmltab_stmt(l_actual.columns_info);
+   l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
+    
+   l_compare_sql := q'[with exp as (select xt.*,x.item_no,x.data_id from (select item_data,item_no,data_id from ]' || l_ut_owner || q'[.ut_compound_data_tmp where data_id = :self_guid) x,]'
+                     ||q'[xmltable('/ROWSET/ROW' passing x.item_data columns ]'
+                     ||l_table_stmt||q'[ ,item_data xmltype PATH '*' ) xt),]'
+                     ||q'[act as (select xt.*, x.item_no,x.data_id from (select item_data,item_no,data_id from ]' || l_ut_owner || q'[.ut_compound_data_tmp where data_id = :other_guid) x,]'
+                     ||q'[xmltable('/ROWSET/ROW' passing x.item_data columns ]' ||
+                     l_table_stmt||q'[ ,item_data xmltype PATH '*') xt)]';
+   
+   if a_join_by_xpath is null then
+     -- If no key defined do the join on all columns
+     l_join_by_stmt  := ut_compound_data_helper.generate_equal_sql(l_actual.columns_info);
+     l_compare_sql := l_compare_sql || q'[select a.item_data act_item_data, a.data_id act_data_id, e.item_data exp_item_data, e.data_id exp_data_id ]'
+                                    || q'[from act a full outer join exp e on ( ]'
+                                    ||l_join_by_stmt||q'[ ) where a.data_id is null or e.data_id is null]';
+   else
+     -- If key defined do the join or these and where on diffrences
+     l_where_stmt   := ut_compound_data_helper.generate_not_equal_sql(l_actual.columns_info, a_join_by_xpath);
+     --l_join_is_null := ut_compound_data_helper.generate_join_null_sql(l_actual.columns_info, a_join_by_xpath);
+     l_join_by_stmt := ut_compound_data_helper.generate_join_by_on_stmt (l_actual.columns_info, a_join_by_xpath);
+     l_compare_sql  := l_compare_sql  || 'select a.item_data act_item_data, a.data_id act_data_id,'
+                                      ||' e.item_data exp_item_data, e.data_id exp_data_id from act a full outer join exp e on ( '
+                                      ||l_join_by_stmt||' ) '
+                                      ||' where '||
+                                      case 
+                                        when l_where_stmt is null then
+                                         null
+                                        else
+                                          '( '||l_where_stmt||' ) or' 
+                                        end
+                                      ||'( a.data_id is null or e.data_id is null )';
+   end if;
+
+    l_exec_sql := 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp '
+                  ||'( diff_id, act_item_data, act_data_id, exp_item_data, exp_data_id, item_no )'
+                  ||' select :diff_id, nvl2(act_item_data,xmlelement( name "ROW", act_item_data),null) act_item_data, act_data_id,'
+                  ||' nvl2(exp_item_data,xmlelement( name "ROW", exp_item_data),null) exp_item_data, exp_data_id , rownum '
+                  ||'from ( '|| l_compare_sql ||')';
+   
+   execute immediate l_exec_sql using l_diff_id, self.data_id,l_actual.data_id;
+        --result is OK only if both are same
+    if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
+      l_result := 0;
+    else
+      l_result := 1;
+    end if;
+    return l_result;
+   
+  end;  
+  
 end;
 /

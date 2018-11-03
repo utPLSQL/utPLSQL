@@ -30,6 +30,7 @@ time "$SQLCLI" ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@//${CONNECTION_STR} @install
 
 cd ..
 
+
 time utPLSQL-cli/bin/utplsql run ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@${CONNECTION_STR} \
 -source_path=source -owner=ut3 \
 -test_path=test -c \

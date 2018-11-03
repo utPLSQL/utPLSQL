@@ -45,6 +45,7 @@ create or replace type ut_compound_data_value force under ut_data_value(
   member function get_data_diff(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean) return clob,
   member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer,
   member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, 
-                                         a_unordered boolean , a_inclusion_compare boolean := false, a_is_negated boolean := false) return integer
+                                         a_unordered boolean , a_inclusion_compare boolean := false, a_is_negated boolean := false) return integer,
+  member function compare_implementation_by_sql(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_inclusion_compare boolean := false) return integer
 ) not final not instantiable
 /

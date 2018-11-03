@@ -19,6 +19,7 @@ create or replace package ut_compound_data_helper authid definer is
   gc_compare_join_by   constant varchar2(10):='join_by';
   gc_compare_unordered constant varchar2(10):='unordered';
   gc_compare_normal    constant varchar2(10):='normal';
+  gc_compare_sql       constant varchar2(10):='sql';
   
   type t_column_diffs is record(
     diff_type     varchar2(1),
@@ -61,12 +62,12 @@ create or replace package ut_compound_data_helper authid definer is
 
  function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return clob;
 
- function compare_type(a_join_by_xpath in varchar2,a_unordered boolean) return varchar2;
+ function compare_type(a_join_by_xpath in varchar2,a_unordered boolean, a_is_sql_diffable integer := 0) return varchar2;
 
  function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_join_by_xpath varchar2,a_unorderdered boolean
+    a_join_by_xpath varchar2,a_unorderdered boolean, a_is_sql_diffable integer
   ) return tt_row_diffs;
 
   subtype t_hash  is raw(128);
@@ -85,6 +86,15 @@ create or replace package ut_compound_data_helper authid definer is
 
   procedure update_row_and_pk_hash(a_self_data_id in raw, a_other_data_id in raw, a_exclude_xpath varchar2, 
                                    a_include_xpath varchar2, a_join_by_xpath varchar2);
+                                   
+  function generate_xmltab_stmt (a_column_info xmltype) return varchar2;
+  
+  function generate_equal_sql (a_column_info xmltype) return varchar2;
 
+  function generate_not_equal_sql (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2;
+  
+  function generate_join_by_on_stmt (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2;
+  
+  function generate_join_null_sql (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2;
 end;
 /
