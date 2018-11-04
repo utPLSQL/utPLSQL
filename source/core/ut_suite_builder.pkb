@@ -65,9 +65,6 @@ create or replace package body ut_suite_builder is
 
   type tt_executables is table of ut_executables index by t_annotation_position;
 
-  type tt_tests is table of ut_test index by t_annotation_position;
-
-
   type t_annotation is record(
     name                  t_annotation_name,
     text                  t_annotation_text,
@@ -315,35 +312,46 @@ create or replace package body ut_suite_builder is
     end loop;
   end;
 
+  procedure set_seq_no(
+    a_list in out nocopy ut_executables
+  ) is
+  begin
+    if a_list is not null then
+      for i in 1 .. a_list.count loop
+        a_list(i).seq_no := i;
+      end loop;
+    end if;
+  end;
+
+  function sort_by_seq_no(
+    a_list ut_executables
+  ) return ut_executables is
+    l_results ut_executables := ut_executables();
+  begin
+    if a_list is not null then
+      l_results.extend(a_list.count);
+      for i in 1 .. a_list.count loop
+        l_results(a_list(i).seq_no) := a_list(i);
+      end loop;
+    end if;
+    return l_results;
+  end;
+
   function convert_list(
     a_list tt_executables
   ) return ut_executables is
     l_result ut_executables := ut_executables();
     l_pos   t_annotation_position := a_list.first;
-    begin
-      while l_pos is not null loop
-        for i in 1 .. a_list(l_pos).count loop
-          l_result.extend;
-          l_result(l_result.last) := a_list(l_pos)(i);
-        end loop;
-        l_pos := a_list.next(l_pos);
-      end loop;
-      return l_result;
-    end;
-
-  function convert_list(
-    a_list tt_tests
-  ) return ut_suite_items is
-    l_result ut_suite_items := ut_suite_items();
-    l_pos   t_annotation_position := a_list.first;
-    begin
-      while l_pos is not null loop
+  begin
+    while l_pos is not null loop
+      for i in 1 .. a_list(l_pos).count loop
         l_result.extend;
-        l_result(l_result.last) := a_list(l_pos);
-        l_pos := a_list.next(l_pos);
+        l_result(l_result.last) := a_list(l_pos)(i);
       end loop;
-      return l_result;
-    end;
+      l_pos := a_list.next(l_pos);
+    end loop;
+    return l_result;
+  end;
 
   function add_executables(
     a_owner            t_object_name,
@@ -492,11 +500,13 @@ create or replace package body ut_suite_builder is
       l_test.before_test_list := convert_list(
           add_executables( l_test.object_owner, l_test.object_name, l_proc_annotations( gc_beforetest ), gc_beforetest )
       );
+      set_seq_no(l_test.before_test_list);
     end if;
     if l_proc_annotations.exists( gc_aftertest) then
       l_test.after_test_list := convert_list(
           add_executables( l_test.object_owner, l_test.object_name, l_proc_annotations( gc_aftertest ), gc_aftertest )
       );
+      set_seq_no(l_test.after_test_list);
     end if;
     if l_proc_annotations.exists( gc_throws) then
       add_to_throws_numbers_list(a_suite, l_test.expected_error_codes, a_procedure_name, l_proc_annotations( gc_throws));
@@ -519,8 +529,10 @@ create or replace package body ut_suite_builder is
       for i in 1 .. a_suite.items.count loop
         if a_suite.items(i) is of (ut_test) then
           l_test := treat( a_suite.items(i) as ut_test);
-          l_test.before_each_list := coalesce(convert_list(a_before_each_list),ut_executables()) multiset union all l_test.before_each_list;
-          l_test.after_each_list := l_test.after_each_list multiset union all coalesce(convert_list(a_after_each_list),ut_executables());
+          l_test.before_each_list := convert_list(a_before_each_list) multiset union all l_test.before_each_list;
+          set_seq_no(l_test.before_each_list);
+          l_test.after_each_list := l_test.after_each_list multiset union all convert_list(a_after_each_list);
+          set_seq_no(l_test.after_each_list);
           a_suite.items(i) := l_test;
         elsif a_suite.items(i) is of (ut_logical_suite) then
           l_context := treat(a_suite.items(i) as ut_logical_suite);
@@ -543,8 +555,10 @@ create or replace package body ut_suite_builder is
         for i in 1 .. a_suite_items.count loop
           if a_suite_items(i) is of (ut_test) then
             l_test := treat( a_suite_items(i) as ut_test);
-            l_test.before_each_list := coalesce(convert_list(a_before_each_list),ut_executables()) multiset union all l_test.before_each_list;
-            l_test.after_each_list := l_test.after_each_list multiset union all coalesce(convert_list(a_after_each_list),ut_executables());
+            l_test.before_each_list := convert_list(a_before_each_list) multiset union all l_test.before_each_list;
+            set_seq_no(l_test.before_each_list);
+            l_test.after_each_list := l_test.after_each_list multiset union all convert_list(a_after_each_list);
+            set_seq_no(l_test.after_each_list);
             a_suite_items(i) := l_test;
           elsif a_suite_items(i) is of (ut_logical_suite) then
             l_context := treat(a_suite_items(i) as ut_logical_suite);
@@ -580,8 +594,6 @@ create or replace package body ut_suite_builder is
     a_after_all_list   in out nocopy tt_executables
   ) is
     l_procedure_name   t_object_name;
-    l_tests            tt_tests;
-
   begin
     l_procedure_name := a_proc_annotations.by_proc.first;
     while l_procedure_name is not null loop
@@ -679,7 +691,9 @@ create or replace package body ut_suite_builder is
     a_suite.set_rollback_type(l_rollback_type);
     propagate_before_after_each( a_suite_items, l_before_each_list, l_after_each_list);
     a_suite.before_all_list := convert_list(l_before_all_list);
+    set_seq_no(a_suite.before_all_list);
     a_suite.after_all_list  := convert_list(l_after_all_list);
+    set_seq_no(a_suite.after_all_list);
   end;
 
   function get_endcontext_position(
@@ -943,9 +957,9 @@ create or replace package body ut_suite_builder is
                   line_no => l_rows(i).line_no, parse_time => l_rows(i).parse_time,
                   start_time => null, end_time => null, result => null, warnings => l_rows(i).warnings,
                   results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                  before_each_list => l_rows(i).before_each_list, before_test_list => l_rows(i).before_test_list,
+                  before_each_list => sort_by_seq_no(l_rows(i).before_each_list), before_test_list => sort_by_seq_no(l_rows(i).before_test_list),
                   item => l_rows(i).item,
-                  after_test_list => l_rows(i).after_test_list, after_each_list => l_rows(i).after_each_list,
+                  after_test_list => sort_by_seq_no(l_rows(i).after_test_list), after_each_list => sort_by_seq_no(l_rows(i).after_each_list),
                   all_expectations => ut_expectation_results(), failed_expectations => ut_expectation_results(),
                   parent_error_stack_trace => null, expected_error_codes => l_rows(i).expected_error_codes
                 );
@@ -960,7 +974,7 @@ create or replace package body ut_suite_builder is
                   start_time => null, end_time => null, result => null, warnings => l_rows(i).warnings,
                   results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
                   items => ut_suite_items(),
-                  before_all_list => l_rows(i).before_all_list, after_all_list => l_rows(i).after_all_list
+                  before_all_list => sort_by_seq_no(l_rows(i).before_all_list), after_all_list => sort_by_seq_no(l_rows(i).after_all_list)
                 );
             when 'UT_SUITE_CONTEXT' then
               l_logical_suites(i) :=
@@ -973,7 +987,7 @@ create or replace package body ut_suite_builder is
                   start_time => null, end_time => null, result => null, warnings => l_rows(i).warnings,
                   results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
                   items => ut_suite_items(),
-                  before_all_list => l_rows(i).before_all_list, after_all_list => l_rows(i).after_all_list
+                  before_all_list => sort_by_seq_no(l_rows(i).before_all_list), after_all_list => sort_by_seq_no(l_rows(i).after_all_list)
                 );
             when 'UT_LOGICAL_SUITE' then
               l_logical_suites(i) :=
@@ -1054,7 +1068,7 @@ create or replace package body ut_suite_builder is
         suite_items as (
           select c.*
             from ]'||l_ut_owner||q'[.ut_suite_cache c
-           where 1 = 1 ]'||case when not a_skip_all_objects /*1 = 0*/ then q'[
+           where 1 = 1 ]'||case when not a_skip_all_objects then q'[
                  and exists
                      ( select 1
                          from all_objects a
@@ -1226,11 +1240,11 @@ create or replace package body ut_suite_builder is
         from '||l_ut_owner||q'[.ut_suite_cache_package c
              join table ( :a_schema_names ) s
                on c.object_owner = upper(s.column_value)
---        where exists
---             (select 1 from  all_objects a
---               where a.owner = c.object_owner
---                     and a.object_name = c.object_name
---                     and a.object_type = 'PACKAGE')
+       where exists
+            (select 1 from  all_objects a
+              where a.owner = c.object_owner
+                    and a.object_name = c.object_name
+                    and a.object_type = 'PACKAGE')
         ]'
     bulk collect into l_schema_names, l_object_names using a_schema_names;
     l_results.extend( l_schema_names.count );

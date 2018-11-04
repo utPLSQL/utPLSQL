@@ -24,7 +24,6 @@ create or replace package test_ut_run is
   --%test(Runs all tests in current schema with coverage file list)
   procedure run_proc_cov_file_list;
 
-  --%disabled(TODO - currently it executes the package and all child packages)
   --%test(Runs given package only with package name given as path)
   procedure run_proc_pkg_name;
   --%test(Runs all from given package with package name given as path and coverage file list)
@@ -57,7 +56,6 @@ create or replace package test_ut_run is
   --%test(Runs all tests in current schema with coverage file list)
   procedure run_func_cov_file_list;
 
-  --%disabled(TODO - currently it executes the package and all child packages)
   --%test(Runs given package only with package name given as path)
   procedure run_func_pkg_name;
   --%test(Runs all from given package with package name given as path and coverage file list)
