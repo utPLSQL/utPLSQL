@@ -263,16 +263,36 @@ create or replace type body ut_compound_data_value as
   end;
 
   member function compare_implementation_by_sql(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_inclusion_compare boolean := false) return integer is
-    l_compare_sql   varchar2(32767);
+
     l_ut_owner      varchar2(250) := ut_utils.ut_owner;
     l_actual        ut_data_value_refcursor :=  treat(a_other as ut_data_value_refcursor);
     l_diff_id       ut_compound_data_helper.t_hash;
+
+    --Variable for dynamic SQL - to review and simplify ??
     l_table_stmt    varchar2(32767);
     l_where_stmt    varchar2(32767);
     l_join_by_stmt  varchar2(32767);
     l_exec_sql      varchar2(32767);
+    l_compare_sql   varchar2(32767);
+    
     l_other         ut_compound_data_value;
     l_result        integer;
+    --Max rows to prevent out of memory for too much diffs especially on join by non unique
+    l_max_rows      integer := greatest(self.elements_count,1000);
+    l_loop_curs     sys_refcursor;
+    type t_diff_rec is record (
+    act_item_data clob, 
+    act_data_id raw(32), 
+    exp_item_data clob, 
+    exp_data_id raw(32),
+    item_no   integer
+    );
+    type t_diff_tab is table of t_diff_rec; 
+    l_diff_tab t_diff_tab;
+    
+    --TEST
+    t1 pls_integer;
+    
   begin
    
    -- TODO : Add column filters!!!!
@@ -290,7 +310,7 @@ create or replace type body ut_compound_data_value as
    if a_join_by_xpath is null then
      -- If no key defined do the join on all columns
      l_join_by_stmt  := ut_compound_data_helper.generate_equal_sql(l_actual.columns_info);
-     l_compare_sql := l_compare_sql || q'[select a.item_data act_item_data, a.data_id act_data_id, e.item_data exp_item_data, e.data_id exp_data_id ]'
+     l_compare_sql := l_compare_sql || q'[select xmlelement( name "ROW", a.item_data) act_item_data, a.data_id act_data_id, xmlelement( name "ROW", e.item_data) exp_item_data, e.data_id exp_data_id, rownum item_no ]'
                                     || q'[from act a full outer join exp e on ( ]'
                                     ||l_join_by_stmt||q'[ ) where a.data_id is null or e.data_id is null]';
    else
@@ -298,8 +318,8 @@ create or replace type body ut_compound_data_value as
      l_where_stmt   := ut_compound_data_helper.generate_not_equal_sql(l_actual.columns_info, a_join_by_xpath);
      --l_join_is_null := ut_compound_data_helper.generate_join_null_sql(l_actual.columns_info, a_join_by_xpath);
      l_join_by_stmt := ut_compound_data_helper.generate_join_by_on_stmt (l_actual.columns_info, a_join_by_xpath);
-     l_compare_sql  := l_compare_sql  || 'select a.item_data act_item_data, a.data_id act_data_id,'
-                                      ||' e.item_data exp_item_data, e.data_id exp_data_id from act a full outer join exp e on ( '
+     l_compare_sql  := l_compare_sql  || 'select xmlserialize(content (xmlelement( name "ROW", a.item_data)) no indent) act_item_data, a.data_id act_data_id,'
+                                      ||' xmlserialize(content (xmlelement( name "ROW", e.item_data)) no indent) exp_item_data, e.data_id exp_data_id, rownum item_no from act a full outer join exp e on ( '
                                       ||l_join_by_stmt||' ) '
                                       ||' where '||
                                       case 
@@ -313,11 +333,29 @@ create or replace type body ut_compound_data_value as
 
     l_exec_sql := 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp '
                   ||'( diff_id, act_item_data, act_data_id, exp_item_data, exp_data_id, item_no )'
-                  ||' select :diff_id, nvl2(act_item_data,xmlelement( name "ROW", act_item_data),null) act_item_data, act_data_id,'
-                  ||' nvl2(exp_item_data,xmlelement( name "ROW", exp_item_data),null) exp_item_data, exp_data_id , rownum '
+                  ||' select :diff_id, act_item_data, act_data_id,'
+                  ||' exp_item_data, exp_data_id , item_no '
                   ||'from ( '|| l_compare_sql ||')';
    
-   execute immediate l_exec_sql using l_diff_id, self.data_id,l_actual.data_id;
+   open l_loop_curs for l_compare_sql using  self.data_id,l_actual.data_id;
+   
+   loop
+    fetch l_loop_curs bulk collect into l_diff_tab limit l_max_rows;
+    exit when l_diff_tab.count = 0;
+    --Pass it to helper as authid as definer
+    t1 := dbms_utility.get_time;
+    
+    forall idx in 1..l_diff_tab.count
+    insert into ut3.ut_compound_data_diff_tmp
+    ( diff_id, act_item_data, act_data_id, exp_item_data, exp_data_id, item_no )
+    values 
+    (l_diff_id, l_diff_tab(idx).act_item_data, l_diff_tab(idx).act_data_id, l_diff_tab(idx).exp_item_data, l_diff_tab(idx).exp_data_id,l_diff_tab(idx).item_no);    
+     dbms_output.put_line((dbms_utility.get_time - t1)/100 || ' seconds - get col info');
+     --Exit after first fetch of max rows (to look later)
+     exit;
+   end loop;
+   
+   --execute immediate l_exec_sql using l_diff_id, self.data_id,l_actual.data_id;
         --result is OK only if both are same
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;

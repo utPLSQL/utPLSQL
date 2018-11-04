@@ -174,12 +174,14 @@ create or replace package body ut_compound_data_helper is
   ) return tt_row_diffs is
     l_column_filter varchar2(32767);
     l_results       tt_row_diffs;
+    t1 integer;
   begin
     l_column_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath);
+    t1 := dbms_utility.get_time;
     
     execute immediate q'[with diff_info as 
     ( select act_data_id, exp_data_id,
-      act_item_data,exp_item_data, :join_by join_by, item_no
+      xmltype(act_item_data) act_item_data, xmltype(exp_item_data) exp_item_data, :join_by join_by, item_no
       from ut_compound_data_diff_tmp 
       where diff_id = :diff_id ),
     exp as (
@@ -211,7 +213,9 @@ create or replace package body ut_compound_data_helper is
    where act_data_id is null or exp_data_id is null]'
    bulk collect into l_results
     using a_join_by_xpath, a_diff_id, a_expected_dataset_guid,a_actual_dataset_guid;
-         
+    
+    dbms_output.put_line((dbms_utility.get_time - t1)/100 || ' seconds - get col info');
+    
     return l_results;
   end;
     
