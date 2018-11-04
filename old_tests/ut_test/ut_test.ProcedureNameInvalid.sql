@@ -2,7 +2,7 @@ PROMPT Reports error when test procedure name for a test is invalid
 
 --Arrange
 declare
-  simple_test ut_test := ut_test(a_object_name => 'ut_example_tests' ,a_name => 'invalid procedure name');
+  simple_test ut_test := ut_test(a_object_name => 'ut_example_tests' ,a_name => 'invalid procedure name', a_line_no => null);
 begin
 --Act
   simple_test.do_execute();

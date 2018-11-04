@@ -3,8 +3,9 @@ PROMPT Does not execute test and reports error when test aftereach procedure nam
 --Arrange
 declare
   simple_test ut_test := ut_test(
-    a_object_name => 'ut_example_tests'
-    ,a_name => 'ut_exampletest'
+    a_object_name => 'ut_example_tests',
+    a_name => 'ut_exampletest',
+    a_line_no => null
   );
 begin
   simple_test.after_each_list := ut_executables(ut_executable(user, 'ut_example_tests', 'invalid setup name', ut_utils.gc_after_each));

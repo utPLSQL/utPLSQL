@@ -18,7 +18,7 @@ Finished %
   --act
   select *
   bulk collect into l_output_data
-  from table(ut.run('test_reporters',ut_documentation_reporter()));
+  from table(ut.run(':org.utplsql.utplsql.test.test_reporters',ut_documentation_reporter()));
 
   l_output := ut_utils.table_to_clob(l_output_data);
 

@@ -22,8 +22,8 @@ begin
   ut_event_manager.initialize();
   l_parent_suite := ut_logical_suite( a_object_owner=>null, a_object_name => null, a_name => 'complex_test_suite', a_path => null);
 
-  l_suite := ut_suite(user, 'ut_exampletest');
-  l_test := ut_test(user, 'ut_exampletest','ut_exAmpletest');
+  l_suite := ut_suite(user, 'ut_exampletest',a_line_no=>1);
+  l_test := ut_test(user, 'ut_exampletest','ut_exAmpletest',a_line_no=>3);
   l_test.description      := 'Example test1';
   l_test.before_test_list := ut_executables(ut_executable(user, 'ut_exampletest','Setup',ut_utils.gc_before_test));
   l_test.after_test_list  := ut_executables(ut_executable(user, 'ut_exampletest','tEardown',ut_utils.gc_after_test));
@@ -32,8 +32,8 @@ begin
   l_parent_suite.add_item(l_suite);
 
 
-  l_suite := ut_suite(user, 'ut_exampletest2');
-  l_test := ut_test(user, 'UT_EXAMPLETEST2','UT_EXAMPLETEST');
+  l_suite := ut_suite(user, 'ut_exampletest2',a_line_no=>1);
+  l_test := ut_test(user, 'UT_EXAMPLETEST2','UT_EXAMPLETEST',a_line_no=>3);
   l_test.before_test_list := ut_executables(ut_executable(user, 'UT_EXAMPLETEST2','SETUP',ut_utils.gc_before_test));
   l_test.after_test_list  := ut_executables(ut_executable(user, 'UT_EXAMPLETEST2','TEARDOWN',ut_utils.gc_after_test));
 

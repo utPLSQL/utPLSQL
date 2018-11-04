@@ -1,4 +1,4 @@
-create sequence ut_annotation_cache_seq
+create sequence ut_suite_cache_seq
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project

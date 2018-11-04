@@ -2,7 +2,7 @@ PROMPT Checks that rollback exception does not make run to fail
 
 --Arrange
 declare
-	simple_test ut_test := ut_test(a_object_name => 'ut_example_tests', a_name => 'ut_commit_test');
+	simple_test ut_test := ut_test(a_object_name => 'ut_example_tests', a_name => 'ut_commit_test', a_line_no => null);
 begin
   simple_test.rollback_type := ut_utils.gc_rollback_auto;
 --Act

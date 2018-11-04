@@ -8,7 +8,7 @@ end;
 set termout on
 
 declare
-	simple_test ut_test := ut_test(a_object_name => 'invalid_package', a_name => 'ut_exampletest');
+	simple_test ut_test := ut_test(a_object_name => 'invalid_package', a_name => 'ut_exampletest', a_line_no => null);
 begin
 --Act
 	simple_test.do_execute();

@@ -21,11 +21,11 @@ begin
   ut_event_manager.add_listener(l_doc_reporter);
   ut_event_manager.add_listener(l_tc_reporter);
 
-  suite := ut_suite(user, 'ut_exampletest');
+  suite := ut_suite(user, 'ut_exampletest',a_line_no=>1);
   suite.description := 'Test Suite Name';
 
-  suite.add_item(ut_test(user,'ut_exampletest','ut_exAmpletest'));
-  suite.add_item(ut_test(user, 'UT_EXAMPLETEST2','UT_EXAMPLETEST'));
+  suite.add_item(ut_test(user,'ut_exampletest','ut_exAmpletest',a_line_no=>3));
+  suite.add_item(ut_test(user, 'UT_EXAMPLETEST2','UT_EXAMPLETEST',a_line_no=>6));
 
   -- provide a reporter to process results
   l_run := ut_run(ut_suite_items(suite));

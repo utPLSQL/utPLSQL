@@ -17,6 +17,7 @@ create table ut_suite_cache (
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  id,
   self_type,
   path,
   object_owner,
@@ -47,6 +48,7 @@ create table ut_suite_cache (
   nested table expected_error_codes store as ut_suite_cache_trhows
   as
     select
+           cast(null as number(22)) id,
            c.self_type,
            c.path,
            c.object_owner,
@@ -73,11 +75,15 @@ create table ut_suite_cache (
 
 alter table ut_suite_cache modify (object_owner not null, path not null, self_type not null, object_name not null, name not null, parse_time not null)
 /
-alter table ut_suite_cache add constraint ut_suite_cache_pk primary key (object_owner, path)
+alter table ut_suite_cache add constraint ut_suite_cache_pk primary key (id)
 /
-create index ut_suite_cache_nu1 on ut_suite_cache(object_owner, object_name, parse_time desc)
+alter table ut_suite_cache add constraint ut_suite_cache_uk1 unique (object_owner, path)
 /
-alter table ut_suite_cache add constraint ut_suite_cache_schema_fk foreign key (object_owner) references ut_suite_cache_schema(object_owner)
+alter table ut_suite_cache add constraint ut_suite_cache_uk2 unique (object_owner, object_name, line_no)
+/
+
+alter table ut_suite_cache add constraint ut_suite_cache_schema_fk foreign key (object_owner, object_name)
+references ut_suite_cache_package(object_owner, object_name) on delete cascade
 /
 
 drop type ut_tests

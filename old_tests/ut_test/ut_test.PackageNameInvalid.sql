@@ -2,7 +2,7 @@ PROMPT Reports error when unit test package name for a test is invalid
 
 --Arrange
 declare
-	simple_test ut_test := ut_test(a_object_name => 'invalid test package name', a_name => 'ut_passing_test');
+	simple_test ut_test := ut_test(a_object_name => 'invalid test package name', a_name => 'ut_passing_test', a_line_no => null);
 begin
 --Act
 	simple_test.do_execute();

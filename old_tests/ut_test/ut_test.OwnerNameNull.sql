@@ -2,7 +2,11 @@ PROMPT Executes test in current schema when test owner name for a test is null
 
 --Arrange
 declare
-  simple_test ut_test:= ut_test(a_object_owner => null, a_object_name => 'ut_example_tests', a_name => 'ut_passing_test');
+  simple_test ut_test:= ut_test(
+    a_object_owner => null,
+    a_object_name => 'ut_example_tests',
+    a_name => 'ut_passing_test',
+    a_line_no => null);
 begin
 --Act
   simple_test.do_execute();

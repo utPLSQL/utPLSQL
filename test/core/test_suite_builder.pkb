@@ -414,7 +414,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
       '%<UT_SUITE_ITEM>%<OBJECT_NAME>some_package</OBJECT_NAME>%<NAME>some_test</NAME>' ||
       '%<BEFORE_EACH_LIST>' ||
-      '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_bfore_each</PROCEDURE_NAME>' ||
+      '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>first_before_each</PROCEDURE_NAME>' ||
       '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>another_before_each</PROCEDURE_NAME>' ||
       '%</BEFORE_EACH_LIST>' ||
       '%<BEFORE_TEST_LIST>' ||

@@ -2,7 +2,7 @@ PROMPT Reports error when test procedure name for a test is null
 
 --Arrange
 declare
-  simple_test ut_test := ut_test(a_object_name => 'ut_example_tests', a_name => null);
+  simple_test ut_test := ut_test(a_object_name => 'ut_example_tests', a_name => null, a_line_no => null);
 begin
 --Act
   simple_test.do_execute();

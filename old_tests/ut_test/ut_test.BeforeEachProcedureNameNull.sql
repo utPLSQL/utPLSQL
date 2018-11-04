@@ -3,8 +3,9 @@ PROMPT Does not invoke setup procedure when beforeeach procedure name for a test
 --Arrange
 declare
   simple_test ut_test := ut_test(
-    a_object_name => 'ut_example_tests'
-    ,a_name => 'ut_passing_test'
+    a_object_name => 'ut_example_tests',
+    a_name => 'ut_passing_test',
+    a_line_no => null
   );
 begin
   simple_test.before_each_list := ut_executables(ut_executable(user, 'ut_example_tests', '', ut_utils.gc_before_each));

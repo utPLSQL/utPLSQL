@@ -1,4 +1,4 @@
-create sequence ut_annotation_cache_seq
+create table ut_suite_cache_package (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -12,5 +12,12 @@ create sequence ut_annotation_cache_seq
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-cache 100;
+  object_owner    varchar2(250) not null,
+  object_name     varchar2(250) not null,
+  parse_time      timestamp     not null,
+  constraint ut_suite_cache_package_pk primary key(object_owner, object_name),
+  constraint ut_suite_cache_package_fk foreign key (object_owner) references ut_suite_cache_schema(object_owner) on delete cascade
+) organization index
+/
+
 

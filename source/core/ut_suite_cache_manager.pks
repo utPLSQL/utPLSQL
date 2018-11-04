@@ -20,7 +20,12 @@ create or replace package ut_suite_cache_manager authid definer is
    * Responsible for storing and retrieving suite data from cache
    */
 
-  procedure save_cache(a_object_owner varchar2, a_suite_items ut_suite_items);
+  procedure save_object_cache(
+    a_object_owner varchar2,
+    a_object_name  varchar2,
+    a_parse_time   timestamp,
+    a_suite_items ut_suite_items
+  );
 
   function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache;
 

@@ -992,7 +992,6 @@ create or replace package body ut_suite_builder is
         l_idx := l_rows.first;
       end if;
       exit when l_idx is null;
-
       l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
 
       if l_level > 1 then
@@ -1055,7 +1054,7 @@ create or replace package body ut_suite_builder is
         suite_items as (
           select c.*
             from ]'||l_ut_owner||q'[.ut_suite_cache c
-           where 1 = 1 ]'||case when a_skip_all_objects is null then q'[
+           where 1 = 1 ]'||case when not a_skip_all_objects /*1 = 0*/ then q'[
                  and exists
                      ( select 1
                          from all_objects a
@@ -1112,7 +1111,7 @@ create or replace package body ut_suite_builder is
              not in (select s.path from suitepaths s)
         ),
         logical_suites as (
-          select s.self_type, s.path, s.object_owner, s.object_name,
+          select to_number(null) as id, s.self_type, s.path, s.object_owner, s.object_name,
                  s.object_name as name, null as line_no, null as parse_time,
                  null as description, null as rollback_type, 0 as disabled_flag,
                  ]'||l_ut_owner||q'[.ut_varchar2_rows() as warnings,
@@ -1164,7 +1163,12 @@ create or replace package body ut_suite_builder is
           convert_package_annotations( l_annotated_objects( i ) ),
           l_suite_items
         );
-        ut_suite_cache_manager.save_cache( a_owner_name, l_suite_items );
+        ut_suite_cache_manager.save_object_cache(
+          a_owner_name,
+          l_annotated_objects( i ).object_name,
+          l_annotated_objects( i ).parse_time,
+          l_suite_items
+        );
       end loop;
       exit when a_annotated_objects%notfound;
     end loop;
@@ -1202,7 +1206,7 @@ create or replace package body ut_suite_builder is
         ]' || ut_utils.ut_owner || q'[.ut_annotation_manager.get_annotated_objects(:a_owner_name, 'PACKAGE', :a_suite_cache_parse_time)
       )x ]'
     using a_owner_name, l_suite_cache_time;
-    
+
     return build_suites_from_annotations(
       a_owner_name,
       l_annotations_cursor,
@@ -1218,8 +1222,8 @@ create or replace package body ut_suite_builder is
     l_object_names ut_varchar2_rows;
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
   begin
-    execute immediate 'select distinct c.object_owner, c.object_name
-        from '||l_ut_owner||q'[.ut_suite_cache c
+    execute immediate 'select c.object_owner, c.object_name
+        from '||l_ut_owner||q'[.ut_suite_cache_package c
              join table ( :a_schema_names ) s
                on c.object_owner = upper(s.column_value)
 --        where exists
