@@ -92,7 +92,7 @@ create or replace package body ut_annotation_cache_manager as
         join ut_annotation_cache_info i
           on o.object_owner = i.object_owner and o.object_name = i.object_name and o.object_type = i.object_type
         join ut_annotation_cache c on i.cache_id = c.cache_id
-       where ]'|| case when a_parse_time is null then ':a_parse_date is null' else 'i.parse_time > :a_parse_time' end ||q'[
+       where ]'|| case when a_parse_time is null then ':a_parse_date is null' else 'i.parse_time >= :a_parse_time' end ||q'[
        group by i.object_owner, i.object_name, i.object_type, i.parse_time]'
     using a_cached_objects, a_parse_time;
     return l_results;

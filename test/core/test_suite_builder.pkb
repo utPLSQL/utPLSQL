@@ -18,7 +18,8 @@ create or replace package body test_suite_builder is
       a_owner_name => 'UT3_TESTER',
       a_annotated_objects => l_cursor,
       a_path => null,
-      a_object_name => a_package_name
+      a_object_name => a_package_name,
+      a_skip_all_objects => true
     );
     l_suite  := treat( l_suites(l_suites.first) as ut3.ut_logical_suite);
 
@@ -395,7 +396,7 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(1, 'suite','Cool', null),
         ut3.ut_annotation(2, 'beforeall',null, 'first_before_all'),
         ut3.ut_annotation(3, 'beforeall',null, 'another_before_all'),
-        ut3.ut_annotation(4, 'beforeeach',null, 'first_bfore_each'),
+        ut3.ut_annotation(4, 'beforeeach',null, 'first_before_each'),
         ut3.ut_annotation(5, 'beforeeach',null, 'another_before_each'),
         ut3.ut_annotation(6, 'aftereach',null, 'first_after_each'),
         ut3.ut_annotation(7, 'aftereach',null, 'another_after_each'),
@@ -641,9 +642,6 @@ create or replace package body test_suite_builder is
         '%<WARNINGS/>' ||
         '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
-            '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
-          '%</UT_SUITE_ITEM>' ||
-          '<UT_SUITE_ITEM>' ||
             '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
             '%<ITEMS>' ||
               '<UT_SUITE_ITEM>' ||
@@ -655,6 +653,9 @@ create or replace package body test_suite_builder is
             '%</BEFORE_ALL_LIST>' ||
             '<AFTER_ALL_LIST/>' ||
           '</UT_SUITE_ITEM>' ||
+          '<UT_SUITE_ITEM>' ||
+            '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+          '%</UT_SUITE_ITEM>' ||
         '</ITEMS>' ||
         '<BEFORE_ALL_LIST>' ||
         '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||

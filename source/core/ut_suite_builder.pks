@@ -37,12 +37,15 @@ create or replace package ut_suite_builder authid current_user is
     a_procedure_name varchar2 := null
   ) return ut_suite_items;
 
+  function get_schema_ut_packages(a_schema_names ut_varchar2_rows) return ut_object_names;
+
   function build_suites_from_annotations(
     a_owner_name        varchar2,
     a_annotated_objects sys_refcursor,
     a_path              varchar2 := null,
     a_object_name       varchar2 := null,
-    a_procedure_name    varchar2 := null
+    a_procedure_name    varchar2 := null,
+    a_skip_all_objects  boolean := false
   ) return ut_suite_items;
 
 end ut_suite_builder;

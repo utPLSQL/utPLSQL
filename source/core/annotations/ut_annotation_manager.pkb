@@ -44,7 +44,7 @@ create or replace package body ut_annotation_manager as
       || case
            when a_parse_date is null
            then ':a_parse_date is null'
-           else 'o.last_ddl_time > cast(:a_parse_date as date)'
+           else 'o.last_ddl_time >= cast(:a_parse_date as date)'
          end;
     open l_rows for l_cursor_text  using a_object_owner, a_object_type, a_parse_date;
     fetch l_rows bulk collect into l_result limit 1000000;

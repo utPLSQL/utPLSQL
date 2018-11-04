@@ -29,7 +29,7 @@ create or replace package body ut_suite_manager is
 
   function get_schema_ut_packages(a_schema_names ut_varchar2_rows) return ut_object_names is
   begin
-    return ut_suite_cache_manager.get_schema_ut_packages(a_schema_names);
+    return ut_suite_builder.get_schema_ut_packages(a_schema_names);
   end;
 
   procedure validate_paths(a_paths in ut_varchar2_list) is
@@ -170,6 +170,15 @@ create or replace package body ut_suite_manager is
             l_path_item.object_name,
             l_path_item.procedure_name
           );
+        if l_suites.count = 0 then
+          if l_path_item.suite_path is not null then
+            raise_application_error(ut_utils.gc_suite_package_not_found,'No suite packages found for path '||l_schema||':'||l_path_item.suite_path|| '.');
+          elsif l_path_item.procedure_name is not null then
+            raise_application_error(ut_utils.gc_suite_package_not_found,'Suite test '||l_schema||'.'||l_path_item.object_name|| '.'||l_path_item.procedure_name||' does not exist');
+          else
+            raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||l_schema||'.'||l_path_item.object_name|| ' does not exist');
+          end if;
+        end if;
         l_index := l_suites.first;
         while l_index is not null loop
           l_objects_to_run.extend;
