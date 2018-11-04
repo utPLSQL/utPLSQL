@@ -391,7 +391,7 @@ create or replace package body test_ut_run is
     execute immediate 'begin :l_results := ut3$user#.test_package_1.run(:a_path); end;'
     using out l_results, in 'test_package_1';
     --Assert
-    ut.expect( ut3.ut_utils.table_to_clob(l_results) ).to_be_like( '%test_package_bal%' );
+    ut.expect( ut3.ut_utils.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
     ut.expect( ut3.ut_utils.table_to_clob(l_results) ).not_to_be_like( '%test_package_2%' );
     ut.expect( ut3.ut_utils.table_to_clob(l_results) ).not_to_be_like( '%test_package_3%' );
   end;
