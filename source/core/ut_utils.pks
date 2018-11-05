@@ -126,6 +126,9 @@ create or replace package ut_utils authid definer is
   gc_null_string              constant varchar2(4) := 'NULL';
   gc_empty_string             constant varchar2(5) := 'EMPTY';
 
+  gc_bc_fetch_limit           constant integer := 1000;
+  gc_diff_max_rows            constant integer := 20;
+
   type t_version is record(
     major  natural,
     minor  natural,

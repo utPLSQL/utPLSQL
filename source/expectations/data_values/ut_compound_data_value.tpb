@@ -78,7 +78,7 @@ create or replace type body ut_compound_data_value as
   
   member function get_data_diff(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, 
                                 a_join_by_xpath varchar2, a_unordered boolean) return clob is
-    c_max_rows          constant integer := 20;
+    c_max_rows          integer := ut_utils.gc_diff_max_rows;
     l_result            clob;
     l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
     l_message           varchar2(32767);
@@ -269,27 +269,21 @@ create or replace type body ut_compound_data_value as
     l_diff_id       ut_compound_data_helper.t_hash;
 
     --Variable for dynamic SQL - to review and simplify ??
-    l_table_stmt    varchar2(32767);
-    l_where_stmt    varchar2(32767);
-    l_join_by_stmt  varchar2(32767);
-    l_exec_sql      varchar2(32767);
-    l_compare_sql   varchar2(32767);
+    l_table_stmt    clob;
+    l_where_stmt    clob;
+    l_join_by_stmt  clob;
+    l_exec_sql      clob;
+    l_compare_sql   clob;
     
     l_other         ut_compound_data_value;
     l_result        integer;
-    --Max rows to prevent out of memory for too much diffs especially on join by non unique
-    l_max_rows      integer := greatest(self.elements_count,1000);
-    l_loop_curs     sys_refcursor;
-    type t_diff_rec is record (
-    act_item_data clob, 
-    act_data_id raw(32), 
-    exp_item_data clob, 
-    exp_data_id raw(32),
-    item_no   integer
-    );
-    type t_diff_tab is table of t_diff_rec; 
-    l_diff_tab t_diff_tab;
+    --We will start with number od differences being displayed.
+    l_max_rows      integer := ut_utils.gc_diff_max_rows;
     
+    l_loop_curs     sys_refcursor;   
+    l_diff_tab ut_compound_data_helper.t_diff_tab;
+    l_sql_rowcount integer :=0;
+   
     --TEST
     t1 pls_integer;
     
@@ -345,19 +339,24 @@ create or replace type body ut_compound_data_value as
     --Pass it to helper as authid as definer
     t1 := dbms_utility.get_time;
     
-    forall idx in 1..l_diff_tab.count
-    insert into ut3.ut_compound_data_diff_tmp
-    ( diff_id, act_item_data, act_data_id, exp_item_data, exp_data_id, item_no )
-    values 
-    (l_diff_id, l_diff_tab(idx).act_item_data, l_diff_tab(idx).act_data_id, l_diff_tab(idx).exp_item_data, l_diff_tab(idx).exp_data_id,l_diff_tab(idx).item_no);    
-     dbms_output.put_line((dbms_utility.get_time - t1)/100 || ' seconds - get col info');
-     --Exit after first fetch of max rows (to look later)
-     exit;
+    if (ut_utils.gc_diff_max_rows > l_sql_rowcount ) then
+      ut_compound_data_helper.insert_diffs_result(l_diff_tab,l_diff_id);     
+    end if;
+    
+    l_sql_rowcount := l_sql_rowcount + l_diff_tab.count;
+    
+    if (ut_utils.gc_diff_max_rows <= l_sql_rowcount and l_max_rows != ut_utils.gc_bc_fetch_limit ) then
+      l_max_rows := ut_utils.gc_bc_fetch_limit;
+    end if;
+    
+    dbms_output.put_line((dbms_utility.get_time - t1)/100 || ' seconds - get col info , values'||l_sql_rowcount);
    end loop;
+   
+   --l_actual.set_difference_count(l_sql_rowcount);
    
    --execute immediate l_exec_sql using l_diff_id, self.data_id,l_actual.data_id;
         --result is OK only if both are same
-    if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
+    if l_sql_rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;
     else
       l_result := 1;

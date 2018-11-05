@@ -49,6 +49,15 @@ create or replace package ut_compound_data_helper authid definer is
 
   type tt_row_diffs is table of t_row_diffs;
 
+  type t_diff_rec is record (
+    act_item_data clob, 
+    act_data_id raw(32), 
+    exp_item_data clob, 
+    exp_data_id raw(32),
+    item_no   integer
+    );
+  type t_diff_tab is table of t_diff_rec; 
+
   function get_column_info_xml(a_column_details ut_key_anyval_pair) return xmltype;
 
   function get_columns_filter(
@@ -96,5 +105,8 @@ create or replace package ut_compound_data_helper authid definer is
   function generate_join_by_on_stmt (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2;
   
   function generate_join_null_sql (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2;
+  
+  procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw);
+  
 end;
 /

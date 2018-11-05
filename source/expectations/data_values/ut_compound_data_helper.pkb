@@ -863,5 +863,14 @@ create or replace package body ut_compound_data_helper is
     return l_sql_stmt;
   end;  
   
+  procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw) is
+  begin  
+    forall idx in 1..a_diff_tab.count
+    insert into ut3.ut_compound_data_diff_tmp
+    ( diff_id, act_item_data, act_data_id, exp_item_data, exp_data_id, item_no )
+    values 
+    (a_diff_id, a_diff_tab(idx).act_item_data, a_diff_tab(idx).act_data_id, a_diff_tab(idx).exp_item_data, a_diff_tab(idx).exp_data_id,a_diff_tab(idx).item_no);         
+  end;
+  
 end;
 /
