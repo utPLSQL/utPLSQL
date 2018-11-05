@@ -518,32 +518,6 @@ create or replace package body ut_suite_builder is
   end;
 
   procedure propagate_before_after_each(
-    a_suite in out nocopy ut_logical_suite,
-    a_before_each_list tt_executables,
-    a_after_each_list  tt_executables
-  ) is
-    l_test      ut_test;
-    l_context   ut_logical_suite;
-  begin
-    if a_suite.items is not null then
-      for i in 1 .. a_suite.items.count loop
-        if a_suite.items(i) is of (ut_test) then
-          l_test := treat( a_suite.items(i) as ut_test);
-          l_test.before_each_list := convert_list(a_before_each_list) multiset union all l_test.before_each_list;
-          set_seq_no(l_test.before_each_list);
-          l_test.after_each_list := l_test.after_each_list multiset union all convert_list(a_after_each_list);
-          set_seq_no(l_test.after_each_list);
-          a_suite.items(i) := l_test;
-        elsif a_suite.items(i) is of (ut_logical_suite) then
-          l_context := treat(a_suite.items(i) as ut_logical_suite);
-          propagate_before_after_each( l_context, a_before_each_list, a_after_each_list);
-          a_suite.items(i) := l_context;
-        end if;
-      end loop;
-    end if;
-  end;
-
-  procedure propagate_before_after_each(
     a_suite_items in out nocopy ut_suite_items,
     a_before_each_list tt_executables,
     a_after_each_list  tt_executables
@@ -929,113 +903,110 @@ create or replace package body ut_suite_builder is
     a_suite_data_cursor sys_refcursor
   ) is
     type t_item_levels is table of ut_suite_items index by binary_integer;
+    c_bulk_limit        constant pls_integer := 1000;
     l_items_at_level    t_item_levels;
     l_rows              tt_cached_suites;
-    l_tests             ut_suite_items := ut_suite_items();
-    l_logical_suites    ut_logical_suites := ut_logical_suites();
+    l_test              ut_test;
+    l_logical_suite     ut_logical_suite;
     l_level             pls_integer;
     l_prev_level        pls_integer;
     l_idx               integer;
   begin
     a_suites := ut_suite_items();
     loop
-      if l_idx is null then
-        fetch a_suite_data_cursor bulk collect into l_rows limit 1000;
-        l_tests.delete;
-        l_tests.extend(l_rows.count);
-        l_logical_suites.delete;
-        l_logical_suites.extend(l_rows.count);
-        for i in 1 .. l_rows.count loop
-          case l_rows(i).self_type
-            when 'UT_TEST' then
-              l_tests(i) :=
-                ut_test(
-                  self_type => l_rows(i).self_type,
-                  object_owner => l_rows(i).object_owner, object_name => lower(l_rows(i).object_name),
-                  name => lower(l_rows(i).name), description => l_rows(i).description, path => l_rows(i).path,
-                  rollback_type => l_rows(i).rollback_type, disabled_flag => l_rows(i).disabled_flag,
-                  line_no => l_rows(i).line_no, parse_time => l_rows(i).parse_time,
-                  start_time => null, end_time => null, result => null, warnings => l_rows(i).warnings,
-                  results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                  before_each_list => sort_by_seq_no(l_rows(i).before_each_list), before_test_list => sort_by_seq_no(l_rows(i).before_test_list),
-                  item => l_rows(i).item,
-                  after_test_list => sort_by_seq_no(l_rows(i).after_test_list), after_each_list => sort_by_seq_no(l_rows(i).after_each_list),
-                  all_expectations => ut_expectation_results(), failed_expectations => ut_expectation_results(),
-                  parent_error_stack_trace => null, expected_error_codes => l_rows(i).expected_error_codes
-                );
-            when 'UT_SUITE' then
-              l_logical_suites(i) :=
-                ut_suite(
-                  self_type => l_rows(i).self_type,
-                  object_owner => l_rows(i).object_owner, object_name => lower(l_rows(i).object_name),
-                  name => lower(l_rows(i).name), description => l_rows(i).description, path => l_rows(i).path,
-                  rollback_type => l_rows(i).rollback_type, disabled_flag => l_rows(i).disabled_flag,
-                  line_no => l_rows(i).line_no, parse_time => l_rows(i).parse_time,
-                  start_time => null, end_time => null, result => null, warnings => l_rows(i).warnings,
-                  results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                  items => ut_suite_items(),
-                  before_all_list => sort_by_seq_no(l_rows(i).before_all_list), after_all_list => sort_by_seq_no(l_rows(i).after_all_list)
-                );
-            when 'UT_SUITE_CONTEXT' then
-              l_logical_suites(i) :=
-                ut_suite_context(
-                  self_type => l_rows(i).self_type,
-                  object_owner => l_rows(i).object_owner, object_name => lower(l_rows(i).object_name),
-                  name => lower(l_rows(i).name), description => l_rows(i).description, path => l_rows(i).path,
-                  rollback_type => l_rows(i).rollback_type, disabled_flag => l_rows(i).disabled_flag,
-                  line_no => l_rows(i).line_no, parse_time => l_rows(i).parse_time,
-                  start_time => null, end_time => null, result => null, warnings => l_rows(i).warnings,
-                  results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                  items => ut_suite_items(),
-                  before_all_list => sort_by_seq_no(l_rows(i).before_all_list), after_all_list => sort_by_seq_no(l_rows(i).after_all_list)
-                );
-            when 'UT_LOGICAL_SUITE' then
-              l_logical_suites(i) :=
-                ut_logical_suite(
-                  self_type => l_rows(i).self_type,
-                  object_owner => l_rows(i).object_owner, object_name => lower(l_rows(i).object_name),
-                  name => lower(l_rows(i).name), description => l_rows(i).description, path => l_rows(i).path,
-                  rollback_type => l_rows(i).rollback_type, disabled_flag => l_rows(i).disabled_flag,
-                  line_no => l_rows(i).line_no, parse_time => l_rows(i).parse_time,
-                  start_time => null, end_time => null, result => null, warnings => l_rows(i).warnings,
-                  results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                  items => ut_suite_items()
-                );
-          end case;
-        end loop;
-        l_idx := l_rows.first;
-      end if;
-      exit when l_idx is null;
-      l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
+      fetch a_suite_data_cursor bulk collect into l_rows limit c_bulk_limit;
+      exit when l_rows.count = 0;
 
-      if l_level > 1 then
-        if l_prev_level > l_level then
-          l_logical_suites(l_idx).items := l_items_at_level(l_prev_level);
-          l_items_at_level(l_prev_level).delete;
-        end if;
-        if not l_items_at_level.exists(l_level) then
-          l_items_at_level(l_level) := ut_suite_items();
-        end if;
-        l_items_at_level(l_level).extend;
-        if l_tests(l_idx) is not null then
-          l_items_at_level(l_level)(l_items_at_level(l_level).last) := l_tests(l_idx);
+      l_idx := l_rows.first;
+      loop
+        l_test := null;
+        l_logical_suite := null;
+        case l_rows(l_idx).self_type
+          when 'UT_TEST' then
+          l_test :=
+            ut_test(
+              self_type => l_rows(l_idx).self_type,
+              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
+              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
+              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
+              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
+              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
+              before_each_list => sort_by_seq_no(l_rows(l_idx).before_each_list), before_test_list => sort_by_seq_no(l_rows(l_idx).before_test_list),
+              item => l_rows(l_idx).item,
+              after_test_list => sort_by_seq_no(l_rows(l_idx).after_test_list), after_each_list => sort_by_seq_no(l_rows(l_idx).after_each_list),
+              all_expectations => ut_expectation_results(), failed_expectations => ut_expectation_results(),
+              parent_error_stack_trace => null, expected_error_codes => l_rows(l_idx).expected_error_codes
+            );
+          when 'UT_SUITE' then
+          l_logical_suite :=
+            ut_suite(
+              self_type => l_rows(l_idx).self_type,
+              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
+              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
+              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
+              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
+              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
+              items => ut_suite_items(),
+              before_all_list => sort_by_seq_no(l_rows(l_idx).before_all_list), after_all_list => sort_by_seq_no(l_rows(l_idx).after_all_list)
+            );
+          when 'UT_SUITE_CONTEXT' then
+          l_logical_suite :=
+            ut_suite_context(
+              self_type => l_rows(l_idx).self_type,
+              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
+              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
+              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
+              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
+              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
+              items => ut_suite_items(),
+              before_all_list => sort_by_seq_no(l_rows(l_idx).before_all_list), after_all_list => sort_by_seq_no(l_rows(l_idx).after_all_list)
+            );
+          when 'UT_LOGICAL_SUITE' then
+          l_logical_suite :=
+            ut_logical_suite(
+              self_type => l_rows(l_idx).self_type,
+              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
+              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
+              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
+              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
+              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
+              items => ut_suite_items()
+            );
+        end case;
+
+        l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
+
+        if l_level > 1 then
+          if l_prev_level > l_level then
+            l_logical_suite.items := l_items_at_level(l_prev_level);
+            l_items_at_level(l_prev_level).delete;
+          end if;
+          if not l_items_at_level.exists(l_level) then
+            l_items_at_level(l_level) := ut_suite_items();
+          end if;
+          l_items_at_level(l_level).extend;
+          if l_test is not null then
+            l_items_at_level(l_level)(l_items_at_level(l_level).last) := l_test;
+          else
+            l_items_at_level(l_level)(l_items_at_level(l_level).last) := l_logical_suite;
+          end if;
         else
-          l_items_at_level(l_level)(l_items_at_level(l_level).last) := l_logical_suites(l_idx);
+          if l_prev_level > l_level then
+            l_logical_suite.items := l_items_at_level(l_prev_level);
+            l_items_at_level(l_prev_level).delete;
+          end if;
+          a_suites.extend;
+          a_suites(a_suites.last) := l_logical_suite;
         end if;
-      else
-        if l_prev_level > l_level then
-          l_logical_suites(l_idx).items := l_items_at_level(l_prev_level);
-          l_items_at_level(l_prev_level).delete;
-        end if;
-        a_suites.extend;
-        if l_tests(l_idx) is not null then
-          a_suites(a_suites.last) := l_tests(l_idx);
-        else
-          a_suites(a_suites.last) := l_logical_suites(l_idx);
-        end if;
-      end if;
-      l_prev_level := l_level;
-      l_idx := l_rows.next(l_idx);
+        l_prev_level := l_level;
+        l_idx := l_rows.next(l_idx);
+        exit when l_idx is null;
+      end loop;
+      exit when l_rows.count < c_bulk_limit;
     end loop;
     copy_list_reverse_order( a_suites );
     close a_suite_data_cursor;
@@ -1066,7 +1037,7 @@ create or replace package body ut_suite_builder is
     open l_result for
     q'[with
         suite_items as (
-          select c.*
+          select /*+ cardinality(c 100) */ c.*
             from ]'||l_ut_owner||q'[.ut_suite_cache c
            where 1 = 1 ]'||case when not a_skip_all_objects then q'[
                  and exists
@@ -1093,7 +1064,7 @@ create or replace package body ut_suite_builder is
         ),
         gen as (
           select rownum as pos
-            from xmltable('1 to 100')
+            from xmltable('1 to 20')
         ),
         suitepaths as (
           select distinct substr(path,1,instr(path,'.',-1)-1) as suitepath,

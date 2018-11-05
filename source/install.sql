@@ -70,7 +70,6 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_executable_test.tps'
 @@install_component.sql 'core/types/ut_test.tps'
 @@install_component.sql 'core/types/ut_logical_suite.tps'
-@@install_component.sql 'core/types/ut_logical_suites.tps'
 @@install_component.sql 'core/types/ut_suite.tps'
 @@install_component.sql 'core/types/ut_suite_context.tps'
 @@install_component.sql 'core/types/ut_file_mapping.tps'

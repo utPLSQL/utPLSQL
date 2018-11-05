@@ -58,17 +58,18 @@ create or replace package body ut_annotation_manager as
   begin
     open l_result for
      q'[select s.name, s.text
-          from ]'||l_sources_view||q'[ s
-         where s.type = :a_object_type
-           and s.owner = :a_object_owner
-           and s.name
-            in (select x.name
-                  from ]'||l_sources_view||q'[ x
-                 where x.type = :a_object_type
-                   and x.owner = :a_object_owner
-                   and x.text like '%--%\%%' escape '\'
-               )
-          order by name, line]'
+          from (select s.name, s.text, s.line,
+                       max(case when s.text like '%--%\%%' escape '\'
+                                 and regexp_like(s.text,'--\s*%')
+                           then 'Y' else 'N' end
+                          )
+                         over(partition by s.name) is_annotated
+                  from ]'||l_sources_view||q'[ s
+                 where s.type = :a_object_type
+                   and s.owner = :a_object_owner
+               ) s
+         where s.is_annotated = 'Y'
+         order by s.name, s.line]'
       using a_object_type, a_object_owner, a_object_type, a_object_owner;
 
     return l_result;
@@ -81,25 +82,25 @@ create or replace package body ut_annotation_manager as
   begin
     l_card := ut_utils.scale_cardinality(cardinality(a_objects_to_refresh));
     open l_result for
-     q'[select /*+ cardinality( r ]'||l_card||q'[ )*/
-               s.name, s.text
-          from table(:a_objects_to_refresh) r
-          join ]'||l_sources_view||q'[ s
-            on s.name = r.object_name
-         where s.type = :a_object_type
-           and s.owner = :a_object_owner
-           and s.name
-            in (select /*+ cardinality( t ]'||l_card||q'[ )*/
-                       x.name
-                  from table(:a_objects_to_refresh) t
-                  join ]'||l_sources_view||q'[ x
-                    on x.name = t.object_name
-                 where x.type = :a_object_type
-                   and x.owner = :a_object_owner
-                   and x.text like '%--%\%%' escape '\'
-               )
-          order by name, line]'
-      using a_objects_to_refresh, a_object_type, a_object_owner, a_objects_to_refresh, a_object_type, a_object_owner;
+     q'[select s.name, s.text
+          from (select /*+ cardinality( r ]'||l_card||q'[ )*/
+                       s.name, s.text, s.line,
+                       max(case when s.text like '%--%\%%' escape '\'
+                                 and regexp_like(s.text,'--\s*%')
+                           then 'Y' else 'N' end
+                          )
+                         over(partition by s.name) is_annotated
+                  from table(:a_objects_to_refresh) r
+                  join ]'||l_sources_view||q'[ s
+                    on s.name = r.object_name
+                   and s.owner = r.object_owner
+                   and s.type = r.object_type
+                 where s.type = :a_object_type
+                   and s.owner = :a_object_owner
+               ) s
+         where s.is_annotated = 'Y'
+          order by s.name, s.line]'
+      using a_objects_to_refresh, a_object_type, a_object_owner;
 
     return l_result;
   end;
