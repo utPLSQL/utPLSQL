@@ -312,8 +312,8 @@ create or replace type body ut_compound_data_value as
      l_where_stmt   := ut_compound_data_helper.generate_not_equal_sql(l_actual.columns_info, a_join_by_xpath);
      --l_join_is_null := ut_compound_data_helper.generate_join_null_sql(l_actual.columns_info, a_join_by_xpath);
      l_join_by_stmt := ut_compound_data_helper.generate_join_by_on_stmt (l_actual.columns_info, a_join_by_xpath);
-     l_compare_sql  := l_compare_sql  || 'select xmlserialize(content (xmlelement( name "ROW", a.item_data)) no indent) act_item_data, a.data_id act_data_id,'
-                                      ||' xmlserialize(content (xmlelement( name "ROW", e.item_data)) no indent) exp_item_data, e.data_id exp_data_id, rownum item_no from act a full outer join exp e on ( '
+     l_compare_sql  := l_compare_sql  || 'select a.item_data act_item_data, a.data_id act_data_id,'
+                                      ||'  e.item_data exp_item_data, e.data_id exp_data_id, rownum item_no from act a full outer join exp e on ( '
                                       ||l_join_by_stmt||' ) '
                                       ||' where '||
                                       case 

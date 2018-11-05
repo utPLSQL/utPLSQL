@@ -181,7 +181,7 @@ create or replace package body ut_compound_data_helper is
     
     execute immediate q'[with diff_info as 
     ( select act_data_id, exp_data_id,
-      xmltype(act_item_data) act_item_data, xmltype(exp_item_data) exp_item_data, :join_by join_by, item_no
+      act_item_data act_item_data, exp_item_data exp_item_data, :join_by join_by, item_no
       from ut_compound_data_diff_tmp 
       where diff_id = :diff_id ),
     exp as (
@@ -869,7 +869,7 @@ create or replace package body ut_compound_data_helper is
     insert into ut3.ut_compound_data_diff_tmp
     ( diff_id, act_item_data, act_data_id, exp_item_data, exp_data_id, item_no )
     values 
-    (a_diff_id, a_diff_tab(idx).act_item_data, a_diff_tab(idx).act_data_id, a_diff_tab(idx).exp_item_data, a_diff_tab(idx).exp_data_id,a_diff_tab(idx).item_no);         
+    (a_diff_id, xmlelement( name "ROW", a_diff_tab(idx).act_item_data), a_diff_tab(idx).act_data_id,xmlelement( name "ROW", a_diff_tab(idx).exp_item_data), a_diff_tab(idx).exp_data_id,a_diff_tab(idx).item_no);         
   end;
   
 end;

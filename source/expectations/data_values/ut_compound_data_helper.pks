@@ -50,9 +50,9 @@ create or replace package ut_compound_data_helper authid definer is
   type tt_row_diffs is table of t_row_diffs;
 
   type t_diff_rec is record (
-    act_item_data clob, 
+    act_item_data xmltype, 
     act_data_id raw(32), 
-    exp_item_data clob, 
+    exp_item_data xmltype, 
     exp_data_id raw(32),
     item_no   integer
     );
