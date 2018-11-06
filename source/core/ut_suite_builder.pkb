@@ -1062,10 +1062,6 @@ create or replace package body ut_suite_builder is
                           )
                      )
         ),
-        gen as (
-          select rownum as pos
-            from xmltable('1 to 20')
-        ),
         suitepaths as (
           select distinct substr(path,1,instr(path,'.',-1)-1) as suitepath,
                           path,
@@ -1075,7 +1071,7 @@ create or replace package body ut_suite_builder is
         ),
           gen as (
           select rownum as pos
-            from xmltable('1 to 10')
+            from xmltable('1 to 20')
         ),
         suitepath_part AS (
           select distinct
