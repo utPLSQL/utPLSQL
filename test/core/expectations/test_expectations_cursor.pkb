@@ -1087,13 +1087,13 @@ Rows: [ 2 differences ]%
     l_expected SYS_REFCURSOR;
   begin
     --Arrange
-    open l_actual for select owner, object_name,object_type from all_objects where owner = user
+    open l_actual for select object_id, owner, object_name,object_type from all_objects where owner = user
     order by 1,2,3 asc;
-    open l_expected for select owner, object_name,object_type from all_objects where owner = user
+    open l_expected for select object_id, owner, object_name,object_type from all_objects where owner = user
     order by 1,2,3 desc;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OWNER');
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID');
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
@@ -1109,7 +1109,7 @@ Rows: [ 2 differences ]%
     order by 1,2,3 desc;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('OWNER,OBJECT_NAME'));
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('OBJECT_NAME,OBJECT_TYPE'));
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
@@ -1257,10 +1257,10 @@ Diff:%
     l_expected SYS_REFCURSOR;
   begin
     --Arrange
-    open l_actual for select object_name from all_objects where rownum <=1100;
-    open l_expected for select object_name from all_objects where rownum <=1100;
+    open l_actual for select level object_id, level || '_TEST' object_name from dual connect by level  <=1100;
+    open l_expected for select level object_id, level || '_TEST' object_name from dual connect by level  <=1100;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_NAME');
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID');
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;

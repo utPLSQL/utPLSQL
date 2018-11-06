@@ -17,6 +17,7 @@ create or replace package body ut_compound_data_helper is
   */
 
   g_user_defined_type pls_integer := dbms_sql.user_defined_type;
+  gc_diff_count       integer;
   
   function get_column_info_xml(a_column_details ut_key_anyval_pair) return xmltype is
     l_result varchar2(4000);
@@ -822,7 +823,7 @@ create or replace package body ut_compound_data_helper is
           where not exists (select 1 from pk_names p where lower(p.name) = lower(xt.name))
                          )
     loop
-      l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' or ' end ||' a.'||i.name||q'[ <> ]'||' e.'||i.name;
+      l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' or ' end ||' (decode(a.'||i.name||','||' e.'||i.name||',1,0) = 0)';
     end loop;
     return l_sql_stmt;
   end; 
@@ -870,6 +871,21 @@ create or replace package body ut_compound_data_helper is
     ( diff_id, act_item_data, act_data_id, exp_item_data, exp_data_id, item_no )
     values 
     (a_diff_id, xmlelement( name "ROW", a_diff_tab(idx).act_item_data), a_diff_tab(idx).act_data_id,xmlelement( name "ROW", a_diff_tab(idx).exp_item_data), a_diff_tab(idx).exp_data_id,a_diff_tab(idx).item_no);         
+  end;
+  
+  procedure set_rows_diff(a_rows_diff integer) is
+  begin
+    gc_diff_count := a_rows_diff;
+  end;
+  
+  procedure cleanup_diff is
+  begin
+    gc_diff_count := 0;
+  end;
+  
+  function get_rows_diff return integer is
+  begin
+    return gc_diff_count;
   end;
   
 end;

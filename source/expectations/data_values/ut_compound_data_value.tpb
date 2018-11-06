@@ -121,7 +121,12 @@ create or replace type body ut_compound_data_value as
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_actual.data_id);
     
     -- First tell how many rows are different
-    execute immediate 'select count('
+    
+    --REDO that is a bit mess ??
+    if l_is_sql_diff = 1 then
+      l_diff_row_count := ut_compound_data_helper.get_rows_diff;
+    else
+      execute immediate 'select count('
                       ||case when ( a_join_by_xpath is not null and l_is_sql_diff = 0 ) 
                           then 'distinct pk_hash' 
                           else '*' 
@@ -129,7 +134,8 @@ create or replace type body ut_compound_data_value as
                       ||') from '|| l_ut_owner || '.ut_compound_data_diff_tmp '
                       ||'where diff_id = :diff_id' 
                       into l_diff_row_count using l_diff_id;
-                      
+    end if;                  
+    
     if l_diff_row_count > 0  then
       l_compare_type := ut_compound_data_helper.compare_type(a_join_by_xpath,a_unordered, l_is_sql_diff);
       l_row_diffs := ut_compound_data_helper.get_rows_diff(
@@ -324,12 +330,6 @@ create or replace type body ut_compound_data_value as
                                         end
                                       ||'( a.data_id is null or e.data_id is null )';
    end if;
-
-    l_exec_sql := 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp '
-                  ||'( diff_id, act_item_data, act_data_id, exp_item_data, exp_data_id, item_no )'
-                  ||' select :diff_id, act_item_data, act_data_id,'
-                  ||' exp_item_data, exp_data_id , item_no '
-                  ||'from ( '|| l_compare_sql ||')';
    
    open l_loop_curs for l_compare_sql using  self.data_id,l_actual.data_id;
    
@@ -337,8 +337,7 @@ create or replace type body ut_compound_data_value as
     fetch l_loop_curs bulk collect into l_diff_tab limit l_max_rows;
     exit when l_diff_tab.count = 0;
     --Pass it to helper as authid as definer
-    t1 := dbms_utility.get_time;
-    
+
     if (ut_utils.gc_diff_max_rows > l_sql_rowcount ) then
       ut_compound_data_helper.insert_diffs_result(l_diff_tab,l_diff_id);     
     end if;
@@ -349,12 +348,10 @@ create or replace type body ut_compound_data_value as
       l_max_rows := ut_utils.gc_bc_fetch_limit;
     end if;
     
-    dbms_output.put_line((dbms_utility.get_time - t1)/100 || ' seconds - get col info , values'||l_sql_rowcount);
    end loop;
+    
+   ut_compound_data_helper.set_rows_diff(l_sql_rowcount);  
    
-   --l_actual.set_difference_count(l_sql_rowcount);
-   
-   --execute immediate l_exec_sql using l_diff_id, self.data_id,l_actual.data_id;
         --result is OK only if both are same
     if l_sql_rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;

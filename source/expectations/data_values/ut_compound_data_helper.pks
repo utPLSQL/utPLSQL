@@ -108,5 +108,11 @@ create or replace package ut_compound_data_helper authid definer is
   
   procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw);
   
+  procedure set_rows_diff(a_rows_diff integer);
+  
+  procedure cleanup_diff;
+  
+  function get_rows_diff return integer;
+  
 end;
 /

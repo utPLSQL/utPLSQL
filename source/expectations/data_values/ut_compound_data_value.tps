@@ -34,7 +34,7 @@ create or replace type ut_compound_data_value force under ut_data_value(
    * Holds unique id for retrieving the data from ut_compound_data_tmp temp table
    */
   data_id  raw(16),
-
+   
   overriding member function get_object_info return varchar2,
   overriding member function is_null return boolean,
   overriding member function is_diffable return boolean,
