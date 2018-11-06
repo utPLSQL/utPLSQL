@@ -173,15 +173,18 @@ create or replace package body ut_compound_data_helper is
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
     a_join_by_xpath varchar2
   ) return tt_row_diffs is
-    l_column_filter varchar2(32767);
+    
+    l_act_col_filter varchar2(32767);
+    l_exp_col_filter varchar2(32767);
     l_results       tt_row_diffs;
   begin
-    l_column_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath);
+    l_act_col_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath,'ucd','act_item_data');
+    l_exp_col_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath,'ucd','exp_item_data');
     
     execute immediate q'[with diff_info as 
-    ( select act_data_id, exp_data_id,
-      act_item_data act_item_data, exp_item_data exp_item_data, :join_by join_by, item_no
-      from ut_compound_data_diff_tmp 
+    ( select act_data_id, exp_data_id,]'
+      ||l_act_col_filter||','|| l_exp_col_filter||q'[, :join_by join_by, item_no
+      from ut_compound_data_diff_tmp  ucd
       where diff_id = :diff_id ),
     exp as (
     select exp_item_data, exp_data_id, item_no rn,rownum col_no,
@@ -206,12 +209,14 @@ create or replace package body ut_compound_data_helper is
     unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
     union all
     select item_no as rn, case when exp_data_id is null then 'Extra' else 'Missing' end as diff_type,
-      xmlserialize(content nvl(exp_item_data, act_item_data) no indent) diffed_row,
-      nvl2(i.join_by,ut3.ut_compound_data_helper.get_pk_value(i.join_by,coalesce(exp_item_data,act_item_data)),null) pk_value
+      xmlserialize(content (case when exp_data_id is null then act_item_data else exp_item_data end) no indent) diffed_row,
+      nvl2(i.join_by,ut3.ut_compound_data_helper.get_pk_value(i.join_by,case when exp_data_id is null then act_item_data else exp_item_data end),null) pk_value
    from diff_info i
    where act_data_id is null or exp_data_id is null]'
    bulk collect into l_results
-    using a_join_by_xpath, a_diff_id, a_expected_dataset_guid,a_actual_dataset_guid;
+    using a_exclude_xpath,a_include_xpath,
+          a_exclude_xpath,a_include_xpath,
+          a_join_by_xpath, a_diff_id, a_expected_dataset_guid,a_actual_dataset_guid;
         
     return l_results;
   end;
@@ -761,7 +766,7 @@ create or replace package body ut_compound_data_helper is
     return l_sql;
   end;
 
-  function generate_xmltab_stmt (a_column_info ut_varchar2_list, a_inc_filter ut_varchar2_list, a_exc_filter ut_varchar2_list) return clob is
+  function generate_xmltab_stmt (a_column_info ut_varchar2_list) return clob is
     l_sql_stmt clob;
   begin    
     for i in 1..a_column_info.count loop
@@ -770,7 +775,7 @@ create or replace package body ut_compound_data_helper is
     return l_sql_stmt;
   end;
 
-  function generate_equal_sql (a_column_info ut_varchar2_list, a_inc_filter ut_varchar2_list, a_exc_filter ut_varchar2_list) return clob is
+  function generate_equal_sql (a_column_info ut_varchar2_list) return clob is
     l_sql_stmt clob;
   begin
     for i in 1..a_column_info.count loop
@@ -812,18 +817,15 @@ create or replace package body ut_compound_data_helper is
   
   function gen_compare_sql(a_column_info xmltype, a_exclude_xpath varchar2, 
                                    a_include_xpath varchar2, a_join_by_xpath varchar2) return clob is
-    l_compare_sql clob;
-    l_column_filter   varchar2(32767);
-    l_temp_string     varchar2(32767);
+    l_compare_sql   clob;
+    l_temp_string   varchar2(32767);
     
-    l_pk_xpath_tabs ut_varchar2_list := ut_varchar2_list();
-    l_xpath_inc_tab ut_varchar2_list := ut_varchar2_list();
-    l_xpath_exc_tab ut_varchar2_list := ut_varchar2_list();
-    l_col_info_tab  ut_varchar2_list := ut_varchar2_list();
+    l_pk_xpath_tabs  ut_varchar2_list := ut_varchar2_list();
+    l_act_col_tab    ut_varchar2_list := ut_varchar2_list();
     
-    l_ut_owner      varchar2(250) := ut_utils.ut_owner;
-    l_xmltable_stmt clob;
-    l_where_stmt    clob;
+    l_ut_owner       varchar2(250) := ut_utils.ut_owner;
+    l_xmltable_stmt  clob;
+    l_where_stmt     clob;
     
     function get_columns_names (a_xpath_tab in ut_varchar2_list) return ut_varchar2_list is
       l_names_tab ut_varchar2_list := ut_varchar2_list();
@@ -852,12 +854,22 @@ create or replace package body ut_compound_data_helper is
    
   begin
     dbms_lob.createtemporary(l_compare_sql, true);
-    l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
-    l_pk_xpath_tabs := get_columns_names(ut_utils.string_to_table(a_join_by_xpath,'|'));
-    l_xpath_inc_tab := get_columns_names(ut_utils.string_to_table(a_include_xpath,'|'));
-    l_xpath_exc_tab := get_columns_names(ut_utils.string_to_table(a_exclude_xpath,'|'));
-    l_col_info_tab  := get_columns_info(a_column_info);
-    l_xmltable_stmt := generate_xmltab_stmt(l_col_info_tab, l_xpath_inc_tab, l_xpath_exc_tab);
+    
+    --Check include and exclude columns and create an actual column list that have to be compared.
+    --TODO :Reformat
+    if a_include_xpath is null and a_exclude_xpath is null then
+      l_act_col_tab := get_columns_info(a_column_info);
+    elsif a_include_xpath is not null and a_exclude_xpath is null then
+      l_act_col_tab := get_columns_names(ut_utils.string_to_table(a_include_xpath,'|'));
+    elsif a_include_xpath is null and a_exclude_xpath is not null then
+      l_act_col_tab := get_columns_info(a_column_info) multiset except get_columns_names(ut_utils.string_to_table(a_exclude_xpath,'|'));
+    elsif a_include_xpath is not null and a_exclude_xpath is not null then
+      l_act_col_tab := get_columns_names(ut_utils.string_to_table(a_include_xpath,'|')) multiset except get_columns_names(ut_utils.string_to_table(a_exclude_xpath,'|'));
+    end if;
+    
+    l_pk_xpath_tabs := get_columns_names(ut_utils.string_to_table(a_join_by_xpath,'|'));   
+    
+    l_xmltable_stmt := generate_xmltab_stmt(l_act_col_tab);
     
     l_temp_string := q'[with exp as (select ucd.*,x.item_no,x.data_id from (select item_data,item_no,data_id from ]' || l_ut_owner || q'[.ut_compound_data_tmp where data_id = :self_guid) x,]'
                      ||q'[xmltable('/ROWSET/ROW' passing x.item_data columns ]';   
@@ -872,27 +884,26 @@ create or replace package body ut_compound_data_helper is
           
     if a_join_by_xpath is null then
      -- If no key defined do the join on all columns
-     l_temp_string :=  q'[select xmlelement( name "ROW", a.item_data) act_item_data, a.data_id act_data_id, xmlelement( name "ROW", e.item_data) exp_item_data, e.data_id exp_data_id, rownum item_no ]'
+     l_temp_string :=  q'[ select a.item_data as act_item_data, a.data_id act_data_id, e.item_data as exp_item_data, e.data_id exp_data_id, rownum item_no ]'
                        || q'[from act a full outer join exp e on ( ]';
      ut_utils.append_to_clob(l_compare_sql,l_temp_string);
-     ut_utils.append_to_clob(l_compare_sql,ut_compound_data_helper.generate_equal_sql(l_col_info_tab, l_xpath_inc_tab, l_xpath_exc_tab)||q'[ ) where a.data_id is null or e.data_id is null]');
+     ut_utils.append_to_clob(l_compare_sql,ut_compound_data_helper.generate_equal_sql(l_act_col_tab)||q'[ ) where a.data_id is null or e.data_id is null]');
    else
      -- If key defined do the join or these and where on diffrences
-     l_temp_string := 'select a.item_data act_item_data, a.data_id act_data_id,'
-                       ||'  e.item_data exp_item_data, e.data_id exp_data_id, rownum item_no from act a full outer join exp e on ( ';
+     l_temp_string :=  q'[ select a.item_data act_item_data, a.data_id act_data_id,]'
+                       ||' e.item_data exp_item_data, e.data_id exp_data_id, rownum item_no from act a full outer join exp e on ( ';
      ut_utils.append_to_clob(l_compare_sql,l_temp_string); 
      
-     ut_utils.append_to_clob(l_compare_sql,ut_compound_data_helper.generate_join_by_on_stmt (l_pk_xpath_tabs)||' )  where ');
+     ut_utils.append_to_clob(l_compare_sql,ut_compound_data_helper.generate_join_by_on_stmt (l_pk_xpath_tabs)||' ) ');
      
-     l_where_stmt   := ut_compound_data_helper.generate_not_equal_sql(l_col_info_tab, l_pk_xpath_tabs);
+     l_where_stmt   := ut_compound_data_helper.generate_not_equal_sql(l_act_col_tab, l_pk_xpath_tabs);
      case 
        when l_where_stmt is null then
          null;
        else
-         ut_utils.append_to_clob(l_compare_sql,'( '||l_where_stmt||' ) or ( a.data_id is null or e.data_id is null )'); 
+         ut_utils.append_to_clob(l_compare_sql,' where ( '||l_where_stmt||' ) or ( a.data_id is null or e.data_id is null )'); 
      end case;
    end if;     
-                     
     return l_compare_sql;
   end;
  

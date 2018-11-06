@@ -296,7 +296,7 @@ create or replace type body ut_compound_data_value as
     if (ut_utils.gc_diff_max_rows > l_sql_rowcount ) then
       ut_compound_data_helper.insert_diffs_result(l_diff_tab,l_diff_id);     
     end if;
-    
+        
     l_sql_rowcount := l_sql_rowcount + l_diff_tab.count;
     
     if (ut_utils.gc_diff_max_rows <= l_sql_rowcount and l_max_rows != ut_utils.gc_bc_fetch_limit ) then
