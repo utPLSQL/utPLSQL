@@ -96,16 +96,9 @@ create or replace package ut_compound_data_helper authid definer is
   procedure update_row_and_pk_hash(a_self_data_id in raw, a_other_data_id in raw, a_exclude_xpath varchar2, 
                                    a_include_xpath varchar2, a_join_by_xpath varchar2);
                                    
-  function generate_xmltab_stmt (a_column_info xmltype) return varchar2;
-  
-  function generate_equal_sql (a_column_info xmltype) return varchar2;
-
-  function generate_not_equal_sql (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2;
-  
-  function generate_join_by_on_stmt (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2;
-  
-  function generate_join_null_sql (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2;
-  
+  function gen_compare_sql(a_column_info xmltype, a_exclude_xpath varchar2, 
+                                   a_include_xpath varchar2, a_join_by_xpath varchar2) return clob;
+ 
   procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw);
   
   procedure set_rows_diff(a_rows_diff integer);

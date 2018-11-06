@@ -175,10 +175,8 @@ create or replace package body ut_compound_data_helper is
   ) return tt_row_diffs is
     l_column_filter varchar2(32767);
     l_results       tt_row_diffs;
-    t1 integer;
   begin
     l_column_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath);
-    t1 := dbms_utility.get_time;
     
     execute immediate q'[with diff_info as 
     ( select act_data_id, exp_data_id,
@@ -214,9 +212,7 @@ create or replace package body ut_compound_data_helper is
    where act_data_id is null or exp_data_id is null]'
    bulk collect into l_results
     using a_join_by_xpath, a_diff_id, a_expected_dataset_guid,a_actual_dataset_guid;
-    
-    dbms_output.put_line((dbms_utility.get_time - t1)/100 || ' seconds - get col info');
-    
+        
     return l_results;
   end;
     
@@ -765,105 +761,141 @@ create or replace package body ut_compound_data_helper is
     return l_sql;
   end;
 
- function generate_xmltab_stmt (a_column_info xmltype) return varchar2 is
-    l_sql_stmt varchar2(32767);
-  begin
-    for i in (select /*+ CARDINALITY(xt 100) */
-     xt.name
-     from (select a_column_info item_data from dual) x,
-                         xmltable(
-                           '/ROW/*'
-                           passing x.item_data
-                           columns
-                             name     varchar2(4000)  PATH '@xml_valid_name'
-                         ) xt)
-    loop
-      l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ',' end ||i.name||q'[ varchar2(4000) PATH ']'||i.name||q'[']';
+  function generate_xmltab_stmt (a_column_info ut_varchar2_list, a_inc_filter ut_varchar2_list, a_exc_filter ut_varchar2_list) return clob is
+    l_sql_stmt clob;
+  begin    
+    for i in 1..a_column_info.count loop
+      l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ',' end ||a_column_info(i)||q'[ varchar2(4000) PATH ']'||a_column_info(i)||q'[']';
     end loop;
     return l_sql_stmt;
   end;
-  
-  function generate_equal_sql (a_column_info xmltype) return varchar2 is
-    l_sql_stmt varchar2(32767);
+
+  function generate_equal_sql (a_column_info ut_varchar2_list, a_inc_filter ut_varchar2_list, a_exc_filter ut_varchar2_list) return clob is
+    l_sql_stmt clob;
   begin
-    for i in (select /*+ CARDINALITY(xt 100) */
-     xt.name
-     from (select a_column_info item_data from dual) x,
-                         xmltable(
-                           '/ROW/*'
-                           passing x.item_data
-                           columns
-                             name     varchar2(4000)  PATH '@xml_valid_name'
-                         ) xt)
+    for i in 1..a_column_info.count loop
+      l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' and ' end ||' a.'||a_column_info(i)||q'[ = ]'||' e.'||a_column_info(i);
+    end loop;
+    
+    return l_sql_stmt;
+  end;
+
+  function generate_join_by_on_stmt (a_join_by_xpath_tab ut_varchar2_list) return clob is
+      l_sql_stmt clob;
+  begin      
+    for i in (with  xpaths_tab as (select column_value  xpath from table(a_join_by_xpath_tab))
+              select REGEXP_SUBSTR (xpath,'[^(/\*/)](.+)$') name
+              from xpaths_tab)
     loop
       l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' and ' end ||' a.'||i.name||q'[ = ]'||' e.'||i.name;
     end loop;
     return l_sql_stmt;
   end;
- 
-  function generate_not_equal_sql (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2 is
-    l_sql_stmt varchar2(32767);
-    l_pk_xpath_tabs ut_varchar2_list := ut_varchar2_list();
-  begin
-    l_pk_xpath_tabs := ut_utils.string_to_table(a_join_by_xpath,'|');
-    
+
+  function generate_not_equal_sql (a_column_info ut_varchar2_list, a_join_by_xpath ut_varchar2_list) return clob is
+    l_sql_stmt clob;
+  begin 
     for i in (
-    with  xpaths_tab as (select column_value  xpath from table(l_pk_xpath_tabs)),
+    with  xpaths_tab as (select column_value  xpath from table(a_join_by_xpath)),
     pk_names as (select REGEXP_SUBSTR (xpath,'[^(/\*/)](.+)$') name
               from xpaths_tab)
-    select /*+ CARDINALITY(xt 100) */
-     xt.name
-     from (select a_column_info item_data from dual) x,
-                         xmltable(
-                           '/ROW/*'
-                           passing x.item_data
-                           columns
-                             name     varchar2(4000)  PATH '@xml_valid_name'
-                         ) xt
-          where not exists (select 1 from pk_names p where lower(p.name) = lower(xt.name))
-                         )
+     select /*+ CARDINALITY(xt 100) */
+     column_value as name
+     from table(a_column_info) xt
+     where not exists (select 1 from pk_names p where lower(p.name) = lower(xt.column_value))
+     )
     loop
       l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' or ' end ||' (decode(a.'||i.name||','||' e.'||i.name||',1,0) = 0)';
     end loop;
     return l_sql_stmt;
-  end; 
-  
-  function generate_join_by_on_stmt (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2 is
-    l_sql_stmt varchar2(32767);
-    l_pk_xpath_tabs ut_varchar2_list := ut_varchar2_list();
-    
-  begin
-    l_pk_xpath_tabs := ut_utils.string_to_table(a_join_by_xpath,'|');
-        
-    for i in (with  xpaths_tab as (select column_value  xpath from table(l_pk_xpath_tabs))
-              select REGEXP_SUBSTR (xpath,'[^(/\*/)](.+)$') name
-              from xpaths_tab)
-    loop
-      l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' and ' end ||' a.'||i.name||q'[ = ]'||' e.'||i.name;
-    end loop;
-    return l_sql_stmt;
-  end;  
-
-  function generate_join_null_sql (a_column_info xmltype, a_join_by_xpath varchar2) return varchar2 is
-    l_sql_stmt varchar2(32767);
-    l_pk_xpath_tabs ut_varchar2_list := ut_varchar2_list();
-    
-  begin
-    l_pk_xpath_tabs := ut_utils.string_to_table(a_join_by_xpath,'|');
-        
-    for i in (with  xpaths_tab as (select column_value  xpath from table(l_pk_xpath_tabs))
-              select REGEXP_SUBSTR (xpath,'[^(/\*/)](.+)$') name
-              from xpaths_tab)
-    loop
-      l_sql_stmt := l_sql_stmt || case 
-                                    when l_sql_stmt is null 
-                                      then null 
-                                      else ' or ' 
-                                    end ||' a.'||i.name||q'[ is null or ]'||' e.'||i.name||q'[ is null]';
-    end loop;
-    return l_sql_stmt;
   end;  
   
+  function gen_compare_sql(a_column_info xmltype, a_exclude_xpath varchar2, 
+                                   a_include_xpath varchar2, a_join_by_xpath varchar2) return clob is
+    l_compare_sql clob;
+    l_column_filter   varchar2(32767);
+    l_temp_string     varchar2(32767);
+    
+    l_pk_xpath_tabs ut_varchar2_list := ut_varchar2_list();
+    l_xpath_inc_tab ut_varchar2_list := ut_varchar2_list();
+    l_xpath_exc_tab ut_varchar2_list := ut_varchar2_list();
+    l_col_info_tab  ut_varchar2_list := ut_varchar2_list();
+    
+    l_ut_owner      varchar2(250) := ut_utils.ut_owner;
+    l_xmltable_stmt clob;
+    l_where_stmt    clob;
+    
+    function get_columns_names (a_xpath_tab in ut_varchar2_list) return ut_varchar2_list is
+      l_names_tab ut_varchar2_list := ut_varchar2_list();
+    begin
+      select REGEXP_SUBSTR (column_value,'[^(/\*/)](.+)$')
+      bulk collect into l_names_tab
+      from table(a_xpath_tab);    
+      return l_names_tab;
+    end;
+ 
+    function get_columns_info (a_columns_info in xmltype) return ut_varchar2_list is
+      l_columns_info ut_varchar2_list := ut_varchar2_list();
+    begin
+     select /*+ CARDINALITY(xt 100) */
+     xt.name
+     bulk collect into l_columns_info
+     from (select a_column_info item_data from dual) x,
+           xmltable(
+           '/ROW/*'
+           passing x.item_data
+           columns
+           name     varchar2(4000)  PATH '@xml_valid_name'
+           ) xt;  
+      return l_columns_info;
+    end; 
+   
+  begin
+    dbms_lob.createtemporary(l_compare_sql, true);
+    l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
+    l_pk_xpath_tabs := get_columns_names(ut_utils.string_to_table(a_join_by_xpath,'|'));
+    l_xpath_inc_tab := get_columns_names(ut_utils.string_to_table(a_include_xpath,'|'));
+    l_xpath_exc_tab := get_columns_names(ut_utils.string_to_table(a_exclude_xpath,'|'));
+    l_col_info_tab  := get_columns_info(a_column_info);
+    l_xmltable_stmt := generate_xmltab_stmt(l_col_info_tab, l_xpath_inc_tab, l_xpath_exc_tab);
+    
+    l_temp_string := q'[with exp as (select ucd.*,x.item_no,x.data_id from (select item_data,item_no,data_id from ]' || l_ut_owner || q'[.ut_compound_data_tmp where data_id = :self_guid) x,]'
+                     ||q'[xmltable('/ROWSET/ROW' passing x.item_data columns ]';   
+    ut_utils.append_to_clob(l_compare_sql, l_temp_string);   
+    ut_utils.append_to_clob(l_compare_sql,l_xmltable_stmt);
+    
+    l_temp_string := q'[ ,item_data xmltype PATH '*' ) ucd),]'
+                     ||q'[act as (select ucd.*, x.item_no,x.data_id from (select item_data,item_no,data_id from ]' || l_ut_owner || q'[.ut_compound_data_tmp where data_id = :other_guid) x,]'
+                     ||q'[xmltable('/ROWSET/ROW' passing x.item_data columns ]' ;
+    ut_utils.append_to_clob(l_compare_sql,l_temp_string);
+    ut_utils.append_to_clob(l_compare_sql,l_xmltable_stmt||q'[ ,item_data xmltype PATH '*') ucd)]');
+          
+    if a_join_by_xpath is null then
+     -- If no key defined do the join on all columns
+     l_temp_string :=  q'[select xmlelement( name "ROW", a.item_data) act_item_data, a.data_id act_data_id, xmlelement( name "ROW", e.item_data) exp_item_data, e.data_id exp_data_id, rownum item_no ]'
+                       || q'[from act a full outer join exp e on ( ]';
+     ut_utils.append_to_clob(l_compare_sql,l_temp_string);
+     ut_utils.append_to_clob(l_compare_sql,ut_compound_data_helper.generate_equal_sql(l_col_info_tab, l_xpath_inc_tab, l_xpath_exc_tab)||q'[ ) where a.data_id is null or e.data_id is null]');
+   else
+     -- If key defined do the join or these and where on diffrences
+     l_temp_string := 'select a.item_data act_item_data, a.data_id act_data_id,'
+                       ||'  e.item_data exp_item_data, e.data_id exp_data_id, rownum item_no from act a full outer join exp e on ( ';
+     ut_utils.append_to_clob(l_compare_sql,l_temp_string); 
+     
+     ut_utils.append_to_clob(l_compare_sql,ut_compound_data_helper.generate_join_by_on_stmt (l_pk_xpath_tabs)||' )  where ');
+     
+     l_where_stmt   := ut_compound_data_helper.generate_not_equal_sql(l_col_info_tab, l_pk_xpath_tabs);
+     case 
+       when l_where_stmt is null then
+         null;
+       else
+         ut_utils.append_to_clob(l_compare_sql,'( '||l_where_stmt||' ) or ( a.data_id is null or e.data_id is null )'); 
+     end case;
+   end if;     
+                     
+    return l_compare_sql;
+  end;
+ 
   procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw) is
   begin  
     forall idx in 1..a_diff_tab.count
