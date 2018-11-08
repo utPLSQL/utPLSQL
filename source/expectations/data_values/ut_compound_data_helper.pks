@@ -16,10 +16,8 @@ create or replace package ut_compound_data_helper authid definer is
   limitations under the License.
   */
 
-  gc_compare_join_by   constant varchar2(10):='join_by';
   gc_compare_unordered constant varchar2(10):='unordered';
   gc_compare_normal    constant varchar2(10):='normal';
-  gc_compare_sql       constant varchar2(10):='sql';
   
   type t_column_diffs is record(
     diff_type     varchar2(1),
@@ -54,10 +52,12 @@ create or replace package ut_compound_data_helper authid definer is
     act_data_id raw(32), 
     exp_item_data xmltype, 
     exp_data_id raw(32),
-    item_no   integer
+    item_no   integer,
+    dup_no    integer
     );
-  type t_diff_tab is table of t_diff_rec; 
-
+    
+  type t_diff_tab is table of t_diff_rec;
+    
   function get_column_info_xml(a_column_details ut_key_anyval_pair) return xmltype;
 
   function get_columns_filter(
@@ -71,13 +71,11 @@ create or replace package ut_compound_data_helper authid definer is
 
  function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return clob;
 
- function compare_type(a_join_by_xpath in varchar2,a_unordered boolean, a_is_sql_diffable integer := 0) return varchar2;
-
  function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_join_by_xpath varchar2,a_unorderdered boolean, a_is_sql_diffable integer
-  ) return tt_row_diffs;
+    a_join_by_xpath varchar2,a_unorderdered boolean
+    ) return tt_row_diffs;
 
   subtype t_hash  is raw(128);
 
@@ -92,9 +90,6 @@ create or replace package ut_compound_data_helper authid definer is
   return tt_missing_pk;
 
   function get_refcursor_matcher_sql(a_owner in varchar2,a_inclusion_matcher boolean := false, a_negated_match boolean := false) return varchar2;
-
-  procedure update_row_and_pk_hash(a_self_data_id in raw, a_other_data_id in raw, a_exclude_xpath varchar2, 
-                                   a_include_xpath varchar2, a_join_by_xpath varchar2);
                                    
   function gen_compare_sql(a_column_info xmltype, a_exclude_xpath varchar2, 
                                    a_include_xpath varchar2, a_join_by_xpath varchar2) return clob;

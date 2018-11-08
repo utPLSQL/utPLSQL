@@ -61,9 +61,8 @@ create or replace type body ut_data_value_refcursor as
           l_ctx := dbms_xmlgen.newContext(l_cursor);
           dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
           dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);
-
-          if self.is_sql_diffable = 1 then 
-            loop
+                    
+          loop
                 l_xml := dbms_xmlgen.getxmltype(l_ctx);
                 exit when dbms_xmlgen.getNumRowsProcessed(l_ctx) = 0;
 
@@ -74,23 +73,8 @@ create or replace type body ut_data_value_refcursor as
                 using in self.data_id, l_set_id, l_xml;
                  
                 l_set_id := l_set_id + 1;               
-            end loop;
-          else
-            loop
-              l_xml := dbms_xmlgen.getxmltype(l_ctx);
-              execute immediate
-                'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
-                'select :self_guid, :self_row_count + rownum, value(a) ' ||
-                '  from table( xmlsequence( extract(:l_xml,''ROWSET/*'') ) ) a'
-                using in self.data_id, self.elements_count, l_xml;
-
-              exit when sql%rowcount = 0;
-
-              self.elements_count := self.elements_count + sql%rowcount;
-            end loop;
+          end loop;
             
-          end if;
-       
           ut_expectation_processor.reset_nls_params();
           if l_cursor%isopen then
             close l_cursor;
@@ -265,17 +249,11 @@ create or replace type body ut_data_value_refcursor as
       then
         l_result := 1;
       end if;
-      
+        
+        
       if a_unordered then
-        if self.is_sql_diffable = 1 then
-          --TODO: :Treat unorder as pk by on all rows
-          l_result := l_result + (self as ut_compound_data_value).compare_implementation_by_sql(a_other, a_exclude_xpath, a_include_xpath, 
+        l_result := l_result + (self as ut_compound_data_value).compare_implementation_by_sql(a_other, a_exclude_xpath, a_include_xpath, 
                                 a_join_by_xpath, a_inclusion_compare);  
-        else
-          --We will make a decision about type of data inside whether we dump into table or do normal row by row      
-          l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, 
-                                a_join_by_xpath, a_unordered, a_inclusion_compare);  
-        end if;
       else
         l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath);
       end if;

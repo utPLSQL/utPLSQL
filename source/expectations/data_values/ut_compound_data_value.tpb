@@ -89,29 +89,25 @@ create or replace type body ut_compound_data_value as
     l_row_diffs         ut_compound_data_helper.tt_row_diffs;
     l_compare_type      varchar2(10);
     l_self              ut_compound_data_value;
-    l_is_sql_diff       integer := 0;
     
-    function get_diff_message (a_row_diff ut_compound_data_helper.t_row_diffs,a_compare_type varchar2) return varchar2 is
+    function get_diff_message (a_row_diff ut_compound_data_helper.t_row_diffs,a_is_unordered boolean) return varchar2 is
     begin
-      if a_compare_type in (ut_compound_data_helper.gc_compare_join_by,ut_compound_data_helper.gc_compare_sql) 
-                            and a_row_diff.pk_value is not null then
-        return  '  PK '||a_row_diff.pk_value||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
-      elsif a_compare_type = ut_compound_data_helper.gc_compare_join_by or a_compare_type = ut_compound_data_helper.gc_compare_normal then
+
+      if a_is_unordered then     
+        if a_row_diff.pk_value is not null then
+          return  '  PK '||a_row_diff.pk_value||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
+        else
+          return rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
+        end if;
+      else
         return '  Row No. '||a_row_diff.rn||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
-      elsif a_compare_type in (ut_compound_data_helper.gc_compare_unordered,ut_compound_data_helper.gc_compare_sql) 
-                              and a_row_diff.pk_value is null then
-        return rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
-      end if;
+      end if; 
     end;
     
   begin
     if not a_other is of (ut_compound_data_value) then
       raise value_error;
-    end if;
-    
-    if self is of (ut_data_value_refcursor) then
-      l_is_sql_diff := treat(self as ut_data_value_refcursor).is_sql_diffable;
-    end if;    
+    end if; 
     
     l_actual := treat(a_other as ut_compound_data_value);
 
@@ -122,12 +118,12 @@ create or replace type body ut_compound_data_value as
     
     -- First tell how many rows are different
     
-    --REDO that is a bit mess ??
-    if l_is_sql_diff = 1 then
+    --TODO: that is a bit mess ?? Can we use global variable for all matchers.
+    if a_unordered then
       l_diff_row_count := ut_compound_data_helper.get_rows_diff;
     else
       execute immediate 'select count('
-                      ||case when ( a_join_by_xpath is not null and l_is_sql_diff = 0 ) 
+                      ||case when ( a_join_by_xpath is not null ) 
                           then 'distinct pk_hash' 
                           else '*' 
                         end
@@ -137,10 +133,9 @@ create or replace type body ut_compound_data_value as
     end if;                  
     
     if l_diff_row_count > 0  then
-      l_compare_type := ut_compound_data_helper.compare_type(a_join_by_xpath,a_unordered, l_is_sql_diff);
       l_row_diffs := ut_compound_data_helper.get_rows_diff(
             self.data_id, l_actual.data_id, l_diff_id, c_max_rows, a_exclude_xpath, 
-            a_include_xpath, a_join_by_xpath, a_unordered, l_is_sql_diff);
+            a_include_xpath, a_join_by_xpath, a_unordered);
       l_message := chr(10)
                    ||'Rows: [ ' || l_diff_row_count ||' differences'
                    ||  case when  l_diff_row_count > c_max_rows and l_row_diffs.count > 0 then ', showing first '||c_max_rows end
@@ -150,7 +145,7 @@ create or replace type body ut_compound_data_value as
       ut_utils.append_to_clob( l_result, l_message );
       for i in 1 .. l_row_diffs.count loop
         l_results.extend;
-        l_results(l_results.last) := get_diff_message(l_row_diffs(i),l_compare_type);
+        l_results(l_results.last) := get_diff_message(l_row_diffs(i),a_unordered);
       end loop;
       ut_utils.append_to_clob(l_result,l_results);
     end if;
@@ -164,6 +159,9 @@ create or replace type body ut_compound_data_value as
     l_column_filter   varchar2(32767);
     l_diff_id         ut_compound_data_helper.t_hash;
     l_result          integer;
+    
+    l_sql varchar2(32767);
+    
     --the XML stylesheet is applied on XML representation of data to exclude column names from comparison
     --column names and data-types are compared separately
     --user CHR(38) instead of ampersand to eliminate define request when installing through some IDEs
@@ -184,20 +182,40 @@ create or replace type body ut_compound_data_value as
     if not a_other is of (ut_compound_data_value) then
       raise value_error;
     end if;
-
+    
     l_other   := treat(a_other as ut_compound_data_value);
 
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
     l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
     -- Find differences
-    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id, item_no )
-                        select :diff_id, nvl(exp.item_no, act.item_no)
-                          from (select '||l_column_filter||', ucd.item_no
-                                  from ' || l_ut_owner || '.ut_compound_data_tmp ucd where ucd.data_id = :self_guid) exp
+    execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id, item_no,exp_item_data, act_item_data,exp_data_id, act_data_id )
+                        select :diff_id, nvl(exp.item_no, act.item_no) , exp.item_data, act.item_data, exp.data_id, act.data_id
+                          from ( select '||l_column_filter||', rownum item_no, ucd.data_id                          
+                                  from
+                                  (select xmlelement(name "ROW" ,xt.item_data) item_data, t.data_id
+                                  from ' || l_ut_owner || q'[.ut_compound_data_tmp t,
+                                  xmltable('/ROWSET/ROW'
+                                  passing t.item_data
+                                  columns
+                                  item_data xmltype path '*'
+                                  ) xt
+                                  where t.data_id = :self_guid) ucd
+                                  ) exp
                           full outer join
-                               (select '||l_column_filter||', ucd.item_no
-                                  from ' || l_ut_owner || '.ut_compound_data_tmp ucd where ucd.data_id = :l_other_guid) act
-                            on exp.item_no = act.item_no '||
+                               (select ]'||l_column_filter||', rownum item_no, ucd.data_id                           
+                                  from
+                                  (
+                                   select xmlelement(name "ROW" ,xt.item_data) item_data, t.data_id
+                                   from ' || l_ut_owner || q'[.ut_compound_data_tmp t,
+                                   xmltable('/ROWSET/ROW'
+                                   passing t.item_data
+                                   columns
+                                   item_data xmltype path '*'
+                                   ) xt
+                                   where t.data_id = :l_other_guid
+                                  ) ucd
+                                  ) act
+                            on exp.item_no = act.item_no ]'||
                         'where nvl( dbms_lob.compare(' ||
                                      /*the xmltransform removes column names and leaves column data to be compared only*/
                                      '  xmltransform(exp.item_data, :l_xml_data_fmt).getclobval()' ||
@@ -206,6 +224,7 @@ create or replace type body ut_compound_data_value as
                                  ') != 0'
       using in l_diff_id, a_exclude_xpath, a_include_xpath, self.data_id,
          a_exclude_xpath, a_include_xpath, l_other.data_id, l_xml_data_fmt, l_xml_data_fmt;
+
     --result is OK only if both are same
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;
@@ -233,12 +252,6 @@ create or replace type body ut_compound_data_value as
     l_other   := treat(a_other as ut_compound_data_value);
 
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
-    
-    /**
-    * Due to incompatibility issues in XML between 11 and 12.2 and 12.1 versions we will prepopulate pk_hash upfront to
-    * avoid optimizer incorrectly rewrite and causing NULL error or ORA-600
-    **/   
-    ut_compound_data_helper.update_row_and_pk_hash(self.data_id, l_other.data_id, a_exclude_xpath,a_include_xpath,a_join_by_xpath);
     
     /*!* 
     * Comparision is based on type of search, for inclusion based search we will look for left join only.
@@ -283,7 +296,7 @@ create or replace type body ut_compound_data_value as
     l_sql_rowcount integer :=0;
     
   begin
-   
+   --TODO : Error on xml when same column is more then once in item data xml.Do we need to cleanup ??  
    l_other         := treat(a_other as ut_compound_data_value);  
    l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
  
@@ -292,7 +305,6 @@ create or replace type body ut_compound_data_value as
    loop
     fetch l_loop_curs bulk collect into l_diff_tab limit l_max_rows;
     exit when l_diff_tab.count = 0;
-    --Pass it to helper as authid as definer
     if (ut_utils.gc_diff_max_rows > l_sql_rowcount ) then
       ut_compound_data_helper.insert_diffs_result(l_diff_tab,l_diff_id);     
     end if;
@@ -303,14 +315,15 @@ create or replace type body ut_compound_data_value as
       l_max_rows := ut_utils.gc_bc_fetch_limit;
     end if;
    end loop;
-    
+       
    ut_compound_data_helper.set_rows_diff(l_sql_rowcount);     
-        --result is OK only if both are same
+        --result is OK only if both are same         
     if l_sql_rowcount = 0 and self.elements_count = l_other.elements_count then
-      l_result := 0;
+      l_result := 0; 
     else
       l_result := 1;
     end if;
+    
     return l_result;
    
   end;  

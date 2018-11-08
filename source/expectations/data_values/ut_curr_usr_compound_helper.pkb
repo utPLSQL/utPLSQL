@@ -6,7 +6,7 @@ create or replace package body ut_curr_usr_compound_helper is
   g_anytype_collection_name t_type_name_map;
   g_user_defined_type       pls_integer := dbms_sql.user_defined_type;
   g_is_collection           boolean := false;
-  g_is_sql_diffable         boolean := false;
+  g_is_sql_diffable         boolean := true;
  
   procedure set_collection_state(a_is_collection boolean) is
   begin
@@ -18,8 +18,8 @@ create or replace package body ut_curr_usr_compound_helper is
 
   procedure set_sql_diff_state(a_is_sql_diff boolean) is
   begin
-    --Make sure that we set a g_is_collection only once so we dont reset from true to false.
-    if not g_is_sql_diffable then
+    --Make sure that we set a g_is_collection only once so we dont reset from false to true.
+    if g_is_sql_diffable then
       g_is_sql_diffable := a_is_sql_diff;
     end if;
   end;
@@ -27,15 +27,23 @@ create or replace package body ut_curr_usr_compound_helper is
   function is_sql_compare_allowed(a_type_name varchar2) return boolean is
   begin
     --clob/blob/xmltype/object/nestedcursor/nestedtable
-    if a_type_name IN (g_anytype_name_map(dbms_types.typecode_blob),
-                       g_anytype_name_map(dbms_types.typecode_clob),
-                       g_anytype_name_map(dbms_types.typecode_bfile),
-                       g_anytype_name_map(dbms_types.typecode_varray))
-    then 
+    
+    
+    if a_type_name IN (g_type_name_map(dbms_sql.blob_type),
+                       g_type_name_map(dbms_sql.clob_type),
+                       g_type_name_map(dbms_sql.bfile_type),
+                       g_type_name_map(dbms_sql.user_defined_type))
+    then    
       return false;
     else
       return true;
     end if;
+  end;
+
+  function is_sql_compare_int(a_type_name varchar2) return integer is
+  begin  
+     --raise_application_error(-20111,'no '||a_type_name||ut_utils.boolean_to_int(is_sql_compare_allowed(a_type_name)));
+      return ut_utils.boolean_to_int(is_sql_compare_allowed(a_type_name));
   end;
 
   function get_column_type(a_desc_rec dbms_sql.desc_rec3, a_desc_user_types boolean := false) return ut_key_anyval_pair is
@@ -54,7 +62,7 @@ create or replace package body ut_curr_usr_compound_helper is
       return l_typecode = 'COLLECTION';
     end;
     
-    begin 
+    begin
       if g_type_name_map.exists(a_desc_rec.col_type) then
         l_data := ut_data_value_varchar2(g_type_name_map(a_desc_rec.col_type));
         set_sql_diff_state(is_sql_compare_allowed(g_type_name_map(a_desc_rec.col_type)));
@@ -76,7 +84,7 @@ create or replace package body ut_curr_usr_compound_helper is
         l_data := ut_data_value_varchar2(a_desc_rec.col_schema_name||'.'||a_desc_rec.col_type_name);
         set_sql_diff_state(false);
       end if;
-      
+       
       return ut_key_anyval_pair(a_desc_rec.col_name,l_data);
     end;
 
@@ -281,6 +289,7 @@ create or replace package body ut_curr_usr_compound_helper is
   g_type_name_map( dbms_sql.number_type )                  := 'NUMBER';
   g_type_name_map( dbms_sql.rowid_type )                   := 'ROWID';
   g_type_name_map( dbms_sql.urowid_type )                  := 'UROWID';  
+  g_type_name_map( dbms_sql.user_defined_type )            := 'USER_DEFINED_TYPE'; 
   
 end;
 /

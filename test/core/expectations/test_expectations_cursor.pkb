@@ -1087,10 +1087,8 @@ Rows: [ 2 differences ]%
     l_expected SYS_REFCURSOR;
   begin
     --Arrange
-    open l_actual for select object_id, owner, object_name,object_type from all_objects where owner = user
-    order by 1,2,3 asc;
-    open l_expected for select object_id, owner, object_name,object_type from all_objects where owner = user
-    order by 1,2,3 desc;
+    open l_actual for select object_id, owner, object_name,object_type from all_objects where owner = user;
+    open l_expected for select object_id, owner, object_name,object_type from all_objects where owner = user;
     
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID');
@@ -1103,13 +1101,11 @@ Rows: [ 2 differences ]%
     l_expected SYS_REFCURSOR;
   begin
     --Arrange
-    open l_actual for select owner, object_name,object_type from all_objects where owner = user
-    order by 1,2,3 asc;
-    open l_expected for select owner, object_name,object_type from all_objects where owner = user
-    order by 1,2,3 desc;
+    open l_actual for select object_id, owner, object_name,object_type from all_objects where owner = user;
+    open l_expected for select object_id, owner, object_name,object_type from all_objects where owner = user;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('OBJECT_NAME,OBJECT_TYPE'));
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('OBJECT_ID,OBJECT_NAME'));
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
@@ -1310,8 +1306,8 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to equal: refcursor [ count = % ]
 %Diff:%
 %Rows: [ 2 differences ]%
-%PK <USERNAME>TEST</USERNAME><USER_ID>-610</USER_ID> - Extra%
-%PK <USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID> - Missing%]';
+%PK <USERNAME>TEST</USERNAME><USER_ID>-610</USER_ID> - Extra:    <ROW><USERNAME>TEST</USERNAME><USER_ID>-610</USER_ID></ROW>%
+%PK <USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID> - Missing:  <ROW><USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID></ROW>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1366,7 +1362,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('SOME_COL');
+    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
@@ -1380,7 +1376,7 @@ Diff:%
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('SOME_COL');
+    ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
@@ -1726,7 +1722,7 @@ Diff:%
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
 %Diff:%
-%Rows: [ 2 differences ]%
+%Rows: [ 4 differences ]%
 %PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE>%Extra%<RN>%</RN>%
 %PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE>%Extra%<RN>%</RN>%
 %PK <NESTED_TABLE>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR>%<UT_KEY_VALUE_PAIR>%<KEY>%</KEY>%<VALUE>%</VALUE>%</UT_KEY_VALUE_PAIR></NESTED_TABLE>%Missing%<RN>%</RN>%
