@@ -40,12 +40,6 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
   */
   key_info xmltype,
   
-    /**
-  * Hold info if type contain any of the nonstandard user types which defines way we do compare later.
-  * Types of clob/blob/xmltype/object/nestedcursor/nestedtable will force into hash
-  */
-  is_sql_diffable number(1,0),
-  
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) return self as result,
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor),
   overriding member function to_string return varchar2,

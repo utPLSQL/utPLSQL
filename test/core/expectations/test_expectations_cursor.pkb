@@ -2342,8 +2342,8 @@ Diff:%
     l_expected SYS_REFCURSOR;
   begin
     --Arrange
-    open l_actual for select username,user_id from all_users;
-    open l_expected for select username||'ACT' username ,user_id from all_users where rownum < 5;
+    open l_actual for select username,rownum * 10 user_id from all_users where rownum < 5;
+    open l_expected for select username ,rownum user_id from all_users where rownum < 5;
     
     --Act
     ut3.ut.expect(l_actual).not_to_contain(l_expected).join_by('USER_ID');

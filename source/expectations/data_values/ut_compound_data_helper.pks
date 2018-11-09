@@ -88,11 +88,9 @@ create or replace package ut_compound_data_helper authid definer is
   
   function is_pk_exists(a_expected_cursor xmltype, a_actual_cursor xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2,a_join_by_xpath varchar2) 
   return tt_missing_pk;
-
-  function get_refcursor_matcher_sql(a_owner in varchar2,a_inclusion_matcher boolean := false, a_negated_match boolean := false) return varchar2;
-                                   
+                     
   function gen_compare_sql(a_column_info xmltype, a_exclude_xpath varchar2, 
-                                   a_include_xpath varchar2, a_join_by_xpath varchar2) return clob;
+                                   a_include_xpath varchar2, a_join_by_xpath varchar2, a_inclusion_type boolean, a_is_negated boolean ) return clob;
  
   procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw);
   

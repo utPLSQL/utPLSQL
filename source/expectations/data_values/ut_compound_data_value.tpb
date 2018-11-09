@@ -234,58 +234,10 @@ create or replace type body ut_compound_data_value as
     return l_result;
   end;
 
-  member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, 
-                                         a_unordered boolean , a_inclusion_compare boolean := false, a_is_negated boolean := false ) return integer is
-    l_other           ut_compound_data_value;
-    l_ut_owner        varchar2(250) := ut_utils.ut_owner;
-    l_diff_id         ut_compound_data_helper.t_hash;
-    l_result          integer;
-    l_row_diffs       ut_compound_data_helper.tt_row_diffs;
-    c_max_rows        constant integer := 20;   
-    l_sql             varchar2(32767);
-    
-  begin
-    if not a_other is of (ut_compound_data_value) then
-      raise value_error;
-    end if;
-    
-    l_other   := treat(a_other as ut_compound_data_value);
+  member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, 
+                                         a_join_by_xpath varchar2,a_unordered boolean, a_inclusion_compare boolean := false, a_is_negated boolean := false ) return integer is
 
-    l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
-    
-    /*!* 
-    * Comparision is based on type of search, for inclusion based search we will look for left join only.
-    * For normal two side diff we will peform minus on two sets two get diffrences.
-    * SELF is expected. 
-    * Due to growing complexity I have moved a dynamic SQL into helper package.
-    */
-    l_sql := ut_compound_data_helper.get_refcursor_matcher_sql(l_ut_owner,a_inclusion_compare,a_is_negated);
-
-    execute immediate l_sql
-    using self.data_id, l_other.data_id,
-          l_diff_id, 
-          self.data_id, l_other.data_id,
-          l_other.data_id,self.data_id;
-
-    /*!*
-    * Result OK when is not inclusion matcher and both are the same 
-    * Resullt OK when is inclusion matcher and left contains right set
-    */    
-    if sql%rowcount = 0 and self.elements_count = l_other.elements_count and not(a_inclusion_compare ) then
-      l_result := 0;
-    elsif sql%rowcount = 0 and a_inclusion_compare then
-      l_result := 0;
-    else
-      l_result := 1;
-    end if;
-    return l_result;
-  end;
-
-  member function compare_implementation_by_sql(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_inclusion_compare boolean := false) return integer is
-
-    l_actual        ut_data_value_refcursor :=  treat(a_other as ut_data_value_refcursor);
-    l_diff_id       ut_compound_data_helper.t_hash;
-       
+    l_diff_id       ut_compound_data_helper.t_hash;      
     l_other         ut_compound_data_value;
     l_result        integer;
     --We will start with number od differences being displayed.
@@ -299,16 +251,16 @@ create or replace type body ut_compound_data_value as
    --TODO : Error on xml when same column is more then once in item data xml.Do we need to cleanup ??  
    l_other         := treat(a_other as ut_compound_data_value);  
    l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
- 
-   open l_loop_curs for ut_compound_data_helper.gen_compare_sql(l_actual.columns_info, a_exclude_xpath, 
-                                   a_include_xpath, a_join_by_xpath) using  self.data_id,l_actual.data_id;  
+
+   open l_loop_curs for ut_compound_data_helper.gen_compare_sql(treat(a_other as ut_data_value_refcursor).columns_info, a_exclude_xpath, 
+                                   a_include_xpath, a_join_by_xpath, a_inclusion_compare, a_is_negated) using  self.data_id,l_other.data_id;  
    loop
     fetch l_loop_curs bulk collect into l_diff_tab limit l_max_rows;
     exit when l_diff_tab.count = 0;
     if (ut_utils.gc_diff_max_rows > l_sql_rowcount ) then
       ut_compound_data_helper.insert_diffs_result(l_diff_tab,l_diff_id);     
     end if;
-        
+       
     l_sql_rowcount := l_sql_rowcount + l_diff_tab.count;
     
     if (ut_utils.gc_diff_max_rows <= l_sql_rowcount and l_max_rows != ut_utils.gc_bc_fetch_limit ) then
@@ -318,7 +270,7 @@ create or replace type body ut_compound_data_value as
        
    ut_compound_data_helper.set_rows_diff(l_sql_rowcount);     
         --result is OK only if both are same         
-    if l_sql_rowcount = 0 and self.elements_count = l_other.elements_count then
+    if l_sql_rowcount = 0 and ( self.elements_count = l_other.elements_count or a_inclusion_compare )then
       l_result := 0; 
     else
       l_result := 1;

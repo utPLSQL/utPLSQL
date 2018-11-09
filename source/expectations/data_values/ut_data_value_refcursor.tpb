@@ -42,7 +42,7 @@ create or replace type body ut_data_value_refcursor as
           --Get some more info regarding cursor, including if it containts collection columns and what is their name
 
           ut_curr_usr_compound_helper.get_columns_info(l_cursor,self.columns_info,self.key_info,
-            self.contain_collection,self.is_sql_diffable);          
+            self.contain_collection);          
           self.elements_count     := 0;
           
           -- We use DBMS_XMLGEN in order to:
@@ -252,8 +252,8 @@ create or replace type body ut_data_value_refcursor as
         
         
       if a_unordered then
-        l_result := l_result + (self as ut_compound_data_value).compare_implementation_by_sql(a_other, a_exclude_xpath, a_include_xpath, 
-                                a_join_by_xpath, a_inclusion_compare);  
+        l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, 
+                                a_join_by_xpath,a_unordered, a_inclusion_compare, a_is_negated);  
       else
         l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath);
       end if;
