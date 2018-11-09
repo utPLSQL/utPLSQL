@@ -178,6 +178,7 @@ create or replace package body ut_compound_data_helper is
     l_act_col_filter varchar2(32767);
     l_exp_col_filter varchar2(32767);
     l_results       tt_row_diffs;
+    
   begin
     l_act_col_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath,'ucd','act_item_data');
     l_exp_col_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath,'ucd','exp_item_data');
@@ -201,7 +202,7 @@ create or replace package body ut_compound_data_helper is
       select act_data_id, ]'||l_act_col_filter||q'[, :join_by join_by, item_no
       from ut_compound_data_diff_tmp  ucd
       where diff_id = :diff_id 
-      and ucd.exp_data_id = :other_guid ) i,
+      and ucd.act_data_id = :other_guid ) i,
     table( xmlsequence( extract(i.act_item_data,'/*/*') ) ) s
     )
     select rn, diff_type, diffed_row, pk_value pk_value
