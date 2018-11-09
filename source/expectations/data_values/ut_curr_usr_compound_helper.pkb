@@ -56,9 +56,9 @@ create or replace package body ut_curr_usr_compound_helper is
         l_data := ut_data_value_varchar2(g_type_name_map(a_desc_rec.col_type));
         return ut_key_anyval_pair(a_desc_rec.col_name,l_data);
       end if;
+      
       /*If its a collection regardless is we want to describe user defined types we will return just a name
-      and capture that name */
-            
+      and capture that name */            
       if a_desc_rec.col_type = g_user_defined_type and is_collection(a_desc_rec.col_schema_name,a_desc_rec.col_type_name) then
         l_data := ut_data_value_varchar2(a_desc_rec.col_schema_name||'.'||a_desc_rec.col_type_name);
         set_collection_state(true);

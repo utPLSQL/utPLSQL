@@ -17,7 +17,7 @@ create or replace package body ut_compound_data_helper is
   */
 
   g_user_defined_type pls_integer := dbms_sql.user_defined_type;
-  gc_diff_count       integer;
+  g_diff_count        integer;
   
   function get_column_info_xml(a_column_details ut_key_anyval_pair) return xmltype is
     l_result varchar2(4000);
@@ -182,46 +182,53 @@ create or replace package body ut_compound_data_helper is
     l_act_col_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath,'ucd','act_item_data');
     l_exp_col_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath,'ucd','exp_item_data');
     
-    execute immediate q'[with diff_info as 
-    ( select act_data_id, exp_data_id,]'
-      ||l_act_col_filter||','|| l_exp_col_filter||q'[, :join_by join_by, item_no
-      from ut_compound_data_diff_tmp  ucd
-      where diff_id = :diff_id ),
-    exp as (
+    execute immediate q'[with exp as (
     select exp_item_data, exp_data_id, item_no rn,rownum col_no,
       nvl2(exp_item_data,ut3.ut_compound_data_helper.get_pk_value(i.join_by,exp_item_data),null) pk_value,
       s.column_value col, s.column_value.getRootElement() col_name, s.column_value.getclobval() col_val
-    from diff_info i,
+    from ( 
+      select exp_data_id, ]'||l_exp_col_filter||q'[, :join_by join_by, item_no
+      from ut_compound_data_diff_tmp  ucd
+      where diff_id = :diff_id 
+      and ucd.exp_data_id = :self_guid) i,
     table( xmlsequence( extract(i.exp_item_data,'/*/*') ) ) s
-    where i.exp_data_id = :self_guid),
+    ),
     act as (
     select act_item_data, act_data_id, item_no rn, rownum col_no,
       nvl2(act_item_data,ut3.ut_compound_data_helper.get_pk_value(i.join_by,act_item_data),null) pk_value,
       s.column_value col, s.column_value.getRootElement() col_name, s.column_value.getclobval() col_val
-    from diff_info i,
+    from ( 
+      select act_data_id, ]'||l_act_col_filter||q'[, :join_by join_by, item_no
+      from ut_compound_data_diff_tmp  ucd
+      where diff_id = :diff_id 
+      and ucd.exp_data_id = :other_guid ) i,
     table( xmlsequence( extract(i.act_item_data,'/*/*') ) ) s
-    where i.act_data_id = :other_guid)
+    )
     select rn, diff_type, diffed_row, pk_value pk_value
     from (
-    select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, pk_value pk_value
-    from (
-      select nvl(exp.rn, act.rn) rn, nvl(exp.pk_value, act.pk_value) pk_value, exp.col  exp_item, act.col  act_item        
-      from exp join act
-      on exp.rn = act.rn and exp.col_name = act.col_name
-      where dbms_lob.compare(exp.col_val, act.col_val) != 0)
-    unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
+      select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, pk_value pk_value
+      from 
+        (select nvl(exp.rn, act.rn) rn, nvl(exp.pk_value, act.pk_value) pk_value, exp.col  exp_item, act.col  act_item        
+        from exp join act on exp.rn = act.rn and exp.col_name = act.col_name
+        where dbms_lob.compare(exp.col_val, act.col_val) != 0)
+        unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') 
+      )
     union all
-    select item_no as rn, case when exp_data_id is null then 'Extra:' else 'Missing:' end as diff_type,
+    select 
+      item_no as rn, case when exp_data_id is null then 'Extra:' else 'Missing:' end as diff_type,
       xmlserialize(content (case when exp_data_id is null then act_item_data else exp_item_data end) no indent) diffed_row,
-      nvl2(i.join_by,ut3.ut_compound_data_helper.get_pk_value(i.join_by,case when exp_data_id is null then act_item_data else exp_item_data end),null) pk_value
-   from diff_info i
-   where act_data_id is null or exp_data_id is null
+      nvl2(:join_by,ut3.ut_compound_data_helper.get_pk_value(:join_by,case when exp_data_id is null then act_item_data else exp_item_data end),null) pk_value
+    from   ut_compound_data_diff_tmp i
+    where  diff_id = :diff_id 
+    and    act_data_id is null or exp_data_id is null
    )
    order by  2, 1]'
    bulk collect into l_results
-    using a_exclude_xpath,a_include_xpath,
-          a_exclude_xpath,a_include_xpath,
-          a_join_by_xpath, a_diff_id, a_expected_dataset_guid,a_actual_dataset_guid;
+    using a_exclude_xpath, a_include_xpath, a_join_by_xpath,
+          a_diff_id, a_expected_dataset_guid,
+          a_exclude_xpath,a_include_xpath, a_join_by_xpath,
+          a_diff_id, a_actual_dataset_guid,
+          a_join_by_xpath,a_join_by_xpath, a_diff_id;
         
     return l_results;
   end;
@@ -700,17 +707,17 @@ create or replace package body ut_compound_data_helper is
   
   procedure set_rows_diff(a_rows_diff integer) is
   begin
-    gc_diff_count := a_rows_diff;
+    g_diff_count := a_rows_diff;
   end;
   
   procedure cleanup_diff is
   begin
-    gc_diff_count := 0;
+    g_diff_count := 0;
   end;
   
   function get_rows_diff return integer is
   begin
-    return gc_diff_count;
+    return g_diff_count;
   end;
   
 end;
