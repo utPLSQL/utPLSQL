@@ -215,6 +215,7 @@ create or replace type body ut_compound_data_value as
     
   begin
    --TODO : Error on xml when same column is more then once in item data xml.Do we need to cleanup ??  
+   --TODO : Bring diffs row into same place for ref data cursor especially (how we going to do that so we dont break anyval etc)
    l_other         := treat(a_other as ut_compound_data_value);  
    l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
 
