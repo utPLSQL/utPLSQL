@@ -250,13 +250,8 @@ create or replace type body ut_data_value_refcursor as
         l_result := 1;
       end if;
         
-        
-      if a_unordered then
-        l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, 
+      l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, 
                                 a_join_by_xpath,a_unordered, a_inclusion_compare, a_is_negated);  
-      else
-        l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath);
-      end if;
     end if;
     
     return l_result;

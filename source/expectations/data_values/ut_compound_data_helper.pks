@@ -74,7 +74,7 @@ create or replace package ut_compound_data_helper authid definer is
  function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_join_by_xpath varchar2,a_unorderdered boolean
+    a_join_by_xpath varchar2,a_unordered boolean
     ) return tt_row_diffs;
 
   subtype t_hash  is raw(128);
@@ -89,8 +89,9 @@ create or replace package ut_compound_data_helper authid definer is
   function is_pk_exists(a_expected_cursor xmltype, a_actual_cursor xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2,a_join_by_xpath varchar2) 
   return tt_missing_pk;
                      
-  function gen_compare_sql(a_column_info xmltype, a_exclude_xpath varchar2, 
-                                   a_include_xpath varchar2, a_join_by_xpath varchar2, a_inclusion_type boolean, a_is_negated boolean ) return clob;
+  function gen_compare_sql(a_column_info xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2,
+                           a_join_by_xpath varchar2, a_inclusion_type boolean, a_is_negated boolean,
+                           a_unordered boolean ) return clob;
  
   procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw);
   

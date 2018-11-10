@@ -183,6 +183,8 @@ create or replace package body ut_compound_data_helper is
     l_act_col_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath,'ucd','act_item_data');
     l_exp_col_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath,'ucd','exp_item_data');
     
+    --TODO: Generate a dynamic SQL based on input e.g. no need for PK during unordered and consolidate get_rows_diff
+    
     execute immediate q'[with exp as (
     select exp_item_data, exp_data_id, item_no rn,rownum col_no,
       nvl2(exp_item_data,ut3.ut_compound_data_helper.get_pk_value(i.join_by,exp_item_data),null) pk_value,
@@ -317,12 +319,12 @@ create or replace package body ut_compound_data_helper is
   function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_join_by_xpath varchar2,a_unorderdered boolean
+    a_join_by_xpath varchar2,a_unordered boolean
   ) return tt_row_diffs is
     l_result tt_row_diffs := tt_row_diffs();
   begin
     case 
-      when a_unorderdered then
+      when a_unordered then
         l_result := get_rows_diff_by_sql(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
                                    a_max_rows, a_exclude_xpath, a_include_xpath ,a_join_by_xpath);                                  
       else
@@ -559,8 +561,9 @@ create or replace package body ut_compound_data_helper is
     return l_sql_stmt;
   end;  
   
-  function gen_compare_sql(a_column_info xmltype, a_exclude_xpath varchar2, 
-                                   a_include_xpath varchar2, a_join_by_xpath varchar2, a_inclusion_type boolean, a_is_negated boolean ) return clob is
+  function gen_compare_sql(a_column_info xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2, 
+                           a_join_by_xpath varchar2, a_inclusion_type boolean, a_is_negated boolean,
+                           a_unordered boolean) return clob is
     l_compare_sql   clob;
     l_temp_string   varchar2(32767);
     
@@ -613,6 +616,7 @@ create or replace package body ut_compound_data_helper is
     dbms_lob.createtemporary(l_compare_sql, true);
     
     --TODO: Resolve issues with collection and nested tables, can we extract by internal column name if defined e.g. xml of colval.id.getclobval()
+    --TODO: Comment better all pieces
     --Check include and exclude columns and create an actual column list that have to be compared.
     if a_include_xpath is null and a_exclude_xpath is null then
       l_act_col_tab := get_columns_info(a_column_info);
@@ -638,12 +642,19 @@ create or replace package body ut_compound_data_helper is
     ut_utils.append_to_clob(l_compare_sql, l_temp_string);
     ut_utils.append_to_clob(l_compare_sql, l_select_stmt);
     
-    l_temp_string := q'[,x.item_no,x.data_id from (select item_data,item_no,data_id from ]' || l_ut_owner || q'[.ut_compound_data_tmp where data_id = :self_guid) x,]'
+    l_temp_string := ',x.data_id ,'
+                     || case when not a_unordered then 'position ' else 'rownum ' end 
+                     ||'item_no from '|| l_ut_owner || '.ut_compound_data_tmp x, '
                      ||q'[xmltable('/ROWSET/ROW' passing x.item_data columns ]';   
-    ut_utils.append_to_clob(l_compare_sql, l_temp_string);   
+    ut_utils.append_to_clob(l_compare_sql, l_temp_string); 
+    
+    if not a_unordered then
+      ut_utils.append_to_clob(l_compare_sql,'POSITION for ordinality, ');
+    end if;
+    
     ut_utils.append_to_clob(l_compare_sql,l_xmltable_stmt);
     
-    l_temp_string := q'[ ,item_data xmltype PATH '*' ) ucd ) ucd ) ,]';
+    l_temp_string := q'[ ,item_data xmltype PATH '*' ) ucd where data_id = :self_guid ) ucd ) ,]';
     ut_utils.append_to_clob(l_compare_sql,l_temp_string);
     
     l_temp_string :='act as ( select ucd.* , '; 
@@ -654,35 +665,50 @@ create or replace package body ut_compound_data_helper is
     ut_utils.append_to_clob(l_compare_sql,l_temp_string);
     ut_utils.append_to_clob(l_compare_sql, l_select_stmt);
      
-    l_temp_string := q'[, x.item_no,x.data_id from (select item_data,item_no,data_id from ]' || l_ut_owner || q'[.ut_compound_data_tmp where data_id = :other_guid) x,]'
+    l_temp_string := ',x.data_id, '
+                     || case when not a_unordered then 'position ' else 'rownum ' end 
+                     ||'item_no from ' || l_ut_owner || '.ut_compound_data_tmp x,'
                      ||q'[xmltable('/ROWSET/ROW' passing x.item_data columns ]' ;
     ut_utils.append_to_clob(l_compare_sql,l_temp_string);
-    ut_utils.append_to_clob(l_compare_sql,l_xmltable_stmt||q'[ ,item_data xmltype PATH '*') ucd ) ucd ) ]');
-          
-    if a_join_by_xpath is null then
-     -- If no key defined do the join on all columns
-     l_temp_string :=  ' select a.item_data as act_item_data, a.data_id act_data_id,'
-                       ||'e.item_data as exp_item_data, e.data_id exp_data_id, rownum item_no, nvl(e.dup_no,a.dup_no) dup_no '
+    
+    if not a_unordered then
+      ut_utils.append_to_clob(l_compare_sql,'POSITION for ordinality, ');
+    end if;
+    
+    ut_utils.append_to_clob(l_compare_sql,l_xmltable_stmt||q'[ ,item_data xmltype PATH '*') ucd where data_id = :other_guid ) ucd ) ]');
+    
+    l_temp_string :=  ' select a.item_data as act_item_data, a.data_id act_data_id,'
+                       ||'e.item_data as exp_item_data, e.data_id exp_data_id, '||
+                       case when a_unordered then 'rownum item_no' else 'nvl(e.item_no,a.item_no) item_no' end ||', nvl(e.dup_no,a.dup_no) dup_no '
                        ||'from act a '||get_join_type(a_inclusion_type,a_is_negated)||' exp e on ( ';
-     ut_utils.append_to_clob(l_compare_sql,l_temp_string);
-     ut_utils.append_to_clob(l_compare_sql,generate_equal_sql(l_act_col_tab)||q'[ and e.dup_no = a.dup_no ) where ]');
-   else
-     -- If key defined do the join or these and where on diffrences
-     l_temp_string :=  q'[ select a.item_data act_item_data, a.data_id act_data_id, ]'
-                       ||' e.item_data exp_item_data, e.data_id exp_data_id, rownum item_no,nvl(e.dup_no,a.dup_no) dup_no from act a '||get_join_type(a_inclusion_type,a_is_negated)||' exp e on ( e.dup_no = a.dup_no and ';
-     ut_utils.append_to_clob(l_compare_sql,l_temp_string); 
+    ut_utils.append_to_clob(l_compare_sql,l_temp_string); 
+    
+    if a_unordered then 
+      ut_utils.append_to_clob(l_compare_sql,' e.dup_no = a.dup_no and '); 
+    end if;
+       
+    if a_join_by_xpath is null and a_unordered then
+     -- If no key defined do the join on all columns
+     ut_utils.append_to_clob(l_compare_sql,generate_equal_sql(l_act_col_tab));
+   elsif a_join_by_xpath is not null and a_unordered then
+     -- If key defined do the join or these and where on diffrences   
+     ut_utils.append_to_clob(l_compare_sql,generate_join_by_on_stmt (l_pk_xpath_tabs,a_column_info,a_join_by_xpath));         
+   elsif not a_unordered then
+     ut_utils.append_to_clob(l_compare_sql, 'a.item_no = e.item_no ' );
+   end if;   
      
-     ut_utils.append_to_clob(l_compare_sql,generate_join_by_on_stmt (l_pk_xpath_tabs,a_column_info,a_join_by_xpath)||' ) where');
-     
-     
-     if not a_is_negated then
+   ut_utils.append_to_clob(l_compare_sql,' ) where ');
+   
+   if (a_join_by_xpath is not null) and (a_unordered) and (a_inclusion_type) and (not a_is_negated) then
        l_where_stmt   := generate_not_equal_sql(l_act_col_tab, l_pk_xpath_tabs);
        if l_where_stmt is not null then
            ut_utils.append_to_clob(l_compare_sql,' ( '||l_where_stmt||' ) or '); 
        end if;
-     end if;
-   end if;     
-   
+   elsif not a_unordered then
+     l_where_stmt   := generate_not_equal_sql(l_act_col_tab, l_pk_xpath_tabs);
+     ut_utils.append_to_clob(l_compare_sql,' ( '||l_where_stmt||' ) or ');
+   end if;
+  
    --If its inlcusion we expect a actual set to fully match and have no extra elements over expected
    if a_inclusion_type and not(a_is_negated) then
      l_temp_string := ' ( a.data_id is null ) '; 
