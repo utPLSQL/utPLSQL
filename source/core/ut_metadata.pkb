@@ -116,7 +116,6 @@ create or replace package body ut_metadata as
   end;
 
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
-    l_cursor sys_refcursor;
     l_view_name varchar2(128) := get_dba_view('dba_source');
     l_line all_source.text%type;
     c_key  constant varchar2(500) := a_owner || '.' || a_object_name;

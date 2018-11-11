@@ -58,8 +58,6 @@ create or replace package body ut_suite_builder is
       gc_endcontext
   );
 
-  gc_placeholder                 constant varchar2(3) := '\\%';
-
   gc_integer_exception           constant varchar2(1) := 'I';
   gc_named_exception             constant varchar2(1) := 'N';
 
@@ -218,7 +216,6 @@ create or replace package body ut_suite_builder is
     function get_exception_number (a_exception_var in varchar2) return integer is
       l_exc_no   integer;
       l_exc_type varchar2(50);
-      l_sql      varchar2(32767);
       function remap_no_data_found (a_number integer) return integer is
       begin
         return case a_number when 100 then -1403 else a_number end;
@@ -260,7 +257,7 @@ create or replace package body ut_suite_builder is
       l_exception_number_list   ut_integer_list := ut_integer_list();
       c_regexp_for_exception_no constant varchar2(30) := '^-?[[:digit:]]{1,5}$';
     begin
-      /*the a_expected_error_codes is converted to a ut_varchar2_list after that is trimmed and filtered to left only valid exception numbers*/
+      --the a_expected_error_codes is converted to a ut_varchar2_list after that is trimmed and filtered to left only valid exception numbers
       l_throws_list := ut_utils.trim_list_elements(ut_utils.string_to_table(a_annotation_text, ',', 'Y'));
 
       for i in 1 .. l_throws_list.count
@@ -407,18 +404,15 @@ create or replace package body ut_suite_builder is
     a_for_annotation varchar2,
     a_procedure_name  t_object_name := null
   ) is
-    l_annotation_name t_annotation_name;
     l_line_no           binary_integer;
   begin
-    if a_annotations.exists(a_for_annotation) then
-      if a_annotations(a_for_annotation).count > 1 then
-        --start from second occurrence of annotation
-        l_line_no := a_annotations(a_for_annotation).next( a_annotations(a_for_annotation).first );
-        while l_line_no is not null loop
-          add_annotation_ignored_warning( a_suite, a_for_annotation, 'Duplicate annotation %%%.', l_line_no, a_procedure_name );
-          l_line_no := a_annotations(a_for_annotation).next( l_line_no );
-        end loop;
-      end if;
+    if a_annotations.exists(a_for_annotation) and a_annotations(a_for_annotation).count > 1 then
+      --start from second occurrence of annotation
+      l_line_no := a_annotations(a_for_annotation).next( a_annotations(a_for_annotation).first );
+      while l_line_no is not null loop
+        add_annotation_ignored_warning( a_suite, a_for_annotation, 'Duplicate annotation %%%.', l_line_no, a_procedure_name );
+        l_line_no := a_annotations(a_for_annotation).next( l_line_no );
+      end loop;
     end if;
   end;
 
@@ -430,8 +424,7 @@ create or replace package body ut_suite_builder is
     a_invalid_annotations ut_varchar2_list
   ) is
     l_annotation_name t_annotation_name;
-    l_warning         varchar2(32767);
-    l_line_no           binary_integer;
+    l_line_no         binary_integer;
   begin
     if a_proc_annotations.exists(a_for_annotation) then
       l_annotation_name := a_proc_annotations.first;
@@ -739,9 +732,8 @@ create or replace package body ut_suite_builder is
 
     while l_context_pos is not null loop
       l_end_context_pos := get_endcontext_position(l_context_pos, a_annotations.by_name );
-      if l_end_context_pos is null then
-        exit;
-      end if;
+
+      exit when l_end_context_pos is null;
 
       l_context_items  := ut_suite_items();
       --create a sub-set of annotations to process as sub-suite (context)
@@ -1156,10 +1148,8 @@ create or replace package body ut_suite_builder is
     a_skip_all_objects  boolean := false
   ) return ut_suite_items is
     l_suites             ut_suite_items;
-    l_annotations_cursor sys_refcursor;
     l_annotated_objects  ut_annotated_objects;
     l_suite_items        ut_suite_items;
-    l_suite_data_cursor  sys_refcursor;
   begin
     loop
       fetch a_annotated_objects bulk collect into l_annotated_objects limit 10;
