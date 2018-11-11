@@ -1020,10 +1020,10 @@ create or replace package body ut_suite_builder is
                  where o.owner = i.object_owner
                    and o.object_name = i.object_name
                    and o.object_type = 'PACKAGE'
-                   and o.owner = :a_object_owner
+                   and o.owner = ']'||a_object_owner||q'['
                 )
-            and i.object_owner = :a_object_owner]';
-    open l_rows for l_cursor_text  using a_object_owner, a_object_owner;
+            and i.object_owner = ']'||a_object_owner||q'[']';
+    open l_rows for l_cursor_text;
     fetch l_rows bulk collect into l_result limit 1000000;
     close l_rows;
     return l_result;
@@ -1061,10 +1061,11 @@ create or replace package body ut_suite_builder is
                      ( select 1
                          from all_objects a
                         where a.object_name = c.object_name
+                          and a.object_owner = ']'||upper(a_object_owner)||q'['
                           and a.owner       = c.object_owner
                           and a.object_type = 'PACKAGE'
                      )]' end ||q'[
-                 and c.object_owner = :a_object_owner
+                 and c.object_owner = ']'||upper(a_object_owner)||q'['
                  and ( ]' || case when l_path is not null then q'[
                         :l_path||'.' like c.path || '.%' /*all children and self*/
                        or ( c.path||'.' like :l_path || '.%'  --all parents
@@ -1134,7 +1135,7 @@ create or replace package body ut_suite_builder is
                         end, '.', chr(0)) desc nulls last,
                 c.object_name desc,
                 c.line_no]'
-    using upper(a_object_owner), l_path, l_path, upper(a_object_name), upper(a_procedure_name);
+    using l_path, l_path, upper(a_object_name), upper(a_procedure_name);
 
     return l_result;
   end;
@@ -1238,7 +1239,7 @@ create or replace package body ut_suite_builder is
     then
       l_need_all_objects_scan := false;
     end if;
-    
+
     execute immediate 'select c.object_owner, c.object_name
         from '||l_ut_owner||q'[.ut_suite_cache_package c
              join table ( :a_schema_names ) s

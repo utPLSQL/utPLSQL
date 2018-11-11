@@ -19,37 +19,37 @@ create or replace package body ut_annotation_manager as
   ------------------------------
   --private definitions
 
---   function get_missing_objects(a_object_owner varchar2, a_object_type varchar2) return ut_annotation_objs_cache_info is
---     l_rows         sys_refcursor;
---     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
---     l_objects_view varchar2(200) := ut_metadata.get_dba_view('dba_objects');
---     l_cursor_text  varchar2(32767);
---     l_result       ut_annotation_objs_cache_info;
---   begin
---     l_cursor_text :=
---       q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
---                     object_owner => i.object_owner,
---                     object_name => i.object_name,
---                     object_type => i.object_type,
---                     needs_refresh => null
---                   )
---            from ]'||l_ut_owner||q'[.ut_annotation_cache_info i
---            where
---              not exists (
---                 select 1  from ]'||l_objects_view||q'[ o
---                  where o.owner = i.object_owner
---                    and o.object_name = i.object_name
---                    and o.object_type = i.object_type
---                    and o.owner = :a_object_owner
---                    and o.object_type = :a_object_type
---                 )
---             and i.object_owner = :a_object_owner
---             and i.object_type = :a_object_type]';
---     open l_rows for l_cursor_text  using a_object_owner, a_object_type, a_object_owner, a_object_type;
---     fetch l_rows bulk collect into l_result limit 1000000;
---     close l_rows;
---     return l_result;
---   end;
+  function get_missing_objects(a_object_owner varchar2, a_object_type varchar2) return ut_annotation_objs_cache_info is
+    l_rows         sys_refcursor;
+    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
+    l_objects_view varchar2(200) := ut_metadata.get_dba_view('dba_objects');
+    l_cursor_text  varchar2(32767);
+    l_result       ut_annotation_objs_cache_info;
+  begin
+    l_cursor_text :=
+      q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
+                    object_owner => i.object_owner,
+                    object_name => i.object_name,
+                    object_type => i.object_type,
+                    needs_refresh => null
+                  )
+           from ]'||l_ut_owner||q'[.ut_annotation_cache_info i
+           where
+             not exists (
+                select 1  from ]'||l_objects_view||q'[ o
+                 where o.owner = i.object_owner
+                   and o.object_name = i.object_name
+                   and o.object_type = i.object_type
+                   and o.owner = :a_object_owner
+                   and o.object_type = :a_object_type
+                )
+            and i.object_owner = :a_object_owner
+            and i.object_type = :a_object_type]';
+    open l_rows for l_cursor_text  using a_object_owner, a_object_type, a_object_owner, a_object_type;
+    fetch l_rows bulk collect into l_result limit 1000000;
+    close l_rows;
+    return l_result;
+  end;
 
   function get_annotation_objs_info(a_object_owner varchar2, a_object_type varchar2, a_parse_date timestamp := null) return ut_annotation_objs_cache_info is
     l_rows         sys_refcursor;
@@ -60,36 +60,25 @@ create or replace package body ut_annotation_manager as
   begin
     l_cursor_text :=
       q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
-                    object_owner => nvl( o.owner, i.object_owner ),
-                    object_name => nvl( o.object_name, i.object_name ),
-                    object_type => nvl( o.object_type, i.object_type ),
-                    needs_refresh =>
-                      case
-                        when o.last_ddl_time < cast(i.parse_time as date) then 'N'
-                        when o.owner is null then null
-                        else 'Y'
-                      end
+                    object_owner => o.owner,
+                    object_name => o.object_name,
+                    object_type => o.object_type,
+                    needs_refresh => case when o.last_ddl_time < cast(i.parse_time as date) then 'N' else 'Y' end
                   )
-           from (
-                 select * from ]'||l_objects_view||q'[ o
-                  where o.owner = :a_object_owner
-                    and o.object_type = :a_object_type
-                ) o
-           full outer join (
-                 select * from ]'||l_ut_owner||q'[.ut_annotation_cache_info i
-                  where i.object_owner = :a_object_owner
-                    and i.object_type = :a_object_type
-                ) i
+           from ]'||l_objects_view||q'[ o
+           left join ]'||l_ut_owner||q'[.ut_annotation_cache_info i
              on o.owner = i.object_owner
             and o.object_name = i.object_name
             and o.object_type = i.object_type
-          where ]'
-      || case
+          where o.owner = ']'||a_object_owner||q'['
+            and o.object_type = ']'||a_object_type||q'['
+            and ]'
+        || case
            when a_parse_date is null
-           then ':a_parse_date is null'
-           else 'o.last_ddl_time >= cast(:a_parse_date as date) or o.last_ddl_time is null'
-         end;
-    open l_rows for l_cursor_text  using a_object_owner, a_object_type, a_object_owner, a_object_type, a_parse_date;
+             then ':a_parse_date is null'
+           else 'o.last_ddl_time >= cast(:a_parse_date as date)'
+           end;
+    open l_rows for l_cursor_text  using a_parse_date;
     fetch l_rows bulk collect into l_result limit 1000000;
     close l_rows;
     return l_result;
@@ -197,7 +186,6 @@ create or replace package body ut_annotation_manager as
     a_info_rows    ut_annotation_objs_cache_info
   ) is
     l_objects_to_parse       ut_annotation_objs_cache_info;
-    l_objects_to_remove      ut_annotation_objs_cache_info;
   begin
     select value(x)bulk collect into l_objects_to_parse
       from table(a_info_rows) x where x.needs_refresh = 'Y';
@@ -208,13 +196,9 @@ create or replace package body ut_annotation_manager as
       or ut_metadata.is_object_visible('ut3.ut_utils')
       or ut_metadata.is_object_visible('dba_objects')
     then
-      select value(x)bulk collect into l_objects_to_remove
-        from table(a_info_rows) x where x.needs_refresh is null;
-
-      ut_annotation_cache_manager.remove_from_cache(l_objects_to_remove);
---       ut_annotation_cache_manager.remove_from_cache(
---         get_missing_objects(a_object_owner, a_object_type)
---       );
+      ut_annotation_cache_manager.remove_from_cache(
+        get_missing_objects(a_object_owner, a_object_type)
+      );
     end if;
 
     --if some source needs parsing and putting into cache
