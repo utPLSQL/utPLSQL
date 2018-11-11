@@ -23,14 +23,14 @@ create or replace type body ut_data_value_refcursor as
   end;
 
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) is
-    c_bulk_rows  constant integer := 5000;
+    c_bulk_rows  constant integer := 10000;
     l_cursor     sys_refcursor := a_value;
     l_ctx                 number;
     l_xml                 xmltype;
     l_current_date_format varchar2(4000);
     cursor_not_open       exception;
     l_ut_owner            varchar2(250) := ut_utils.ut_owner;
-    l_set_id              integer := 1;
+    l_set_id              integer := 0;
 
   begin
     self.is_data_null := ut_utils.boolean_to_int(a_value is null);
@@ -72,7 +72,7 @@ create or replace type body ut_data_value_refcursor as
                 'values (:self_guid, :self_row_count, :l_xml)'
                 using in self.data_id, l_set_id, l_xml;
                  
-                l_set_id := l_set_id + 1;               
+                l_set_id := l_set_id + c_bulk_rows;               
           end loop;
             
           ut_expectation_processor.reset_nls_params();

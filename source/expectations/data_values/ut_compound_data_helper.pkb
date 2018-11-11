@@ -643,7 +643,7 @@ create or replace package body ut_compound_data_helper is
     ut_utils.append_to_clob(l_compare_sql, l_select_stmt);
     
     l_temp_string := ',x.data_id ,'
-                     || case when not a_unordered then 'position ' else 'rownum ' end 
+                     || case when not a_unordered then 'position + x.item_no ' else 'rownum ' end 
                      ||'item_no from '|| l_ut_owner || '.ut_compound_data_tmp x, '
                      ||q'[xmltable('/ROWSET/ROW' passing x.item_data columns ]';   
     ut_utils.append_to_clob(l_compare_sql, l_temp_string); 
@@ -666,7 +666,7 @@ create or replace package body ut_compound_data_helper is
     ut_utils.append_to_clob(l_compare_sql, l_select_stmt);
      
     l_temp_string := ',x.data_id, '
-                     || case when not a_unordered then 'position ' else 'rownum ' end 
+                     || case when not a_unordered then 'position + x.item_no ' else 'rownum ' end 
                      ||'item_no from ' || l_ut_owner || '.ut_compound_data_tmp x,'
                      ||q'[xmltable('/ROWSET/ROW' passing x.item_data columns ]' ;
     ut_utils.append_to_clob(l_compare_sql,l_temp_string);
