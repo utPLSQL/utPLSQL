@@ -183,7 +183,7 @@ create or replace package body ut_compound_data_helper is
     l_act_col_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath,'ucd','act_item_data');
     l_exp_col_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath,'ucd','exp_item_data');
     
-    --TODO: Generate a dynamic SQL based on input e.g. no need for PK during unordered and consolidate get_rows_diff
+    --TODO: Generate SQL based on input as unorder join should aggregate
     
     execute immediate q'[with exp as (
     select exp_item_data, exp_data_id, item_no rn,rownum col_no,
@@ -209,23 +209,31 @@ create or replace package body ut_compound_data_helper is
     )
     select rn, diff_type, diffed_row, pk_value pk_value
     from (
+      select rn, diff_type, diffed_row, pk_value
+      ,case when diff_type = 'Actual:' then 1 else 2 end rnk
+      ,1 final_order
+      from (
       select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, pk_value pk_value
       from 
-        (select nvl(exp.rn, act.rn) rn, nvl(exp.pk_value, act.pk_value) pk_value, exp.col  exp_item, act.col  act_item        
+        (select nvl(exp.rn, act.rn) rn, nvl(exp.pk_value, act.pk_value) pk_value, exp.col  exp_item, act.col  act_item       
         from exp join act on exp.rn = act.rn and exp.col_name = act.col_name
         where dbms_lob.compare(exp.col_val, act.col_val) != 0)
         unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') 
-      )
+      ))
     union all
     select 
       item_no as rn, case when exp_data_id is null then 'Extra:' else 'Missing:' end as diff_type,
       xmlserialize(content (extract((case when exp_data_id is null then act_item_data else exp_item_data end),'/*/*')) no indent) diffed_row,
       nvl2(:join_by,ut3.ut_compound_data_helper.get_pk_value(:join_by,case when exp_data_id is null then act_item_data else exp_item_data end),null) pk_value
+      ,case when exp_data_id is null then 1 else 2 end rnk
+      ,2 final_order
     from   ut_compound_data_diff_tmp i
     where  diff_id = :diff_id 
     and    act_data_id is null or exp_data_id is null
    )
-   order by rn ,diff_type  ]'
+   order by final_order, 
+   case when final_order = 1 then rn else rnk end,
+   case when final_order = 1 then rnk else rn end ]'
    bulk collect into l_results
     using a_exclude_xpath, a_include_xpath, a_join_by_xpath,
           a_diff_id, a_expected_dataset_guid,
