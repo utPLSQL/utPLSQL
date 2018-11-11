@@ -36,6 +36,10 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
   columns_info       xmltype,
   
   /**
+  * Holds information about column names and column data-types and also some supporting attributes
+  */ 
+  col_info_desc      xmltype,  
+  /**
   * Holds more detailed information regarding the pk joins
   */
   key_info xmltype,

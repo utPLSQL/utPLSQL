@@ -232,6 +232,15 @@ create or replace package body ut_curr_usr_compound_helper is
     return l_result;
   end;
   
+  function extract_min_col_info(a_full_col_info xmltype) return xmltype is
+    l_result xmltype;
+  begin
+  SELECT deleteXML(a_full_col_info,'/ROW/*/@sql_diffable')
+  into l_result
+  from dual;
+  return l_result ;
+  end;
+  
   begin
   g_anytype_name_map(dbms_types.typecode_date)             := 'DATE';
   g_anytype_name_map(dbms_types.typecode_number)           := 'NUMBER';

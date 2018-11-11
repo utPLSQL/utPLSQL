@@ -37,13 +37,16 @@ create or replace type body ut_data_value_refcursor as
     self.self_type := $$plsql_unit;
     self.data_id   := sys_guid();
     self.data_type := 'refcursor';
+    ut_compound_data_helper.cleanup_diff;
+    
     if l_cursor is not null then
         if l_cursor%isopen then
           --Get some more info regarding cursor, including if it containts collection columns and what is their name
 
-          ut_curr_usr_compound_helper.get_columns_info(l_cursor,self.columns_info,self.key_info,
+          ut_curr_usr_compound_helper.get_columns_info(l_cursor,self.col_info_desc,self.key_info,
             self.contain_collection);          
           self.elements_count     := 0;
+          self.columns_info := ut_curr_usr_compound_helper.extract_min_col_info(self.col_info_desc);
           
           -- We use DBMS_XMLGEN in order to:
           -- 1) be able to process data in bulks (set of rows)
@@ -80,7 +83,7 @@ create or replace type body ut_data_value_refcursor as
             close l_cursor;
           end if;
           dbms_xmlgen.closeContext(l_ctx);
-
+          
         elsif not l_cursor%isopen then
             raise cursor_not_open;
         end if;

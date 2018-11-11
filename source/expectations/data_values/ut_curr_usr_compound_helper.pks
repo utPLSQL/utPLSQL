@@ -13,5 +13,7 @@ create or replace package ut_curr_usr_compound_helper authid current_user is
 
   function get_user_defined_type(a_owner varchar2, a_type_name varchar2) return xmltype;
   
+  function extract_min_col_info(a_full_col_info xmltype) return xmltype;
+  
 end;
 /

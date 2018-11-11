@@ -36,6 +36,8 @@ create or replace type body ut_data_value_anydata as
     else
       self.is_data_null := 1;
     end if;
+    
+    ut_compound_data_helper.cleanup_diff;
     if not self.is_null() then
       ut_expectation_processor.set_xml_nls_params();
       open l_query for select a_value val from dual;

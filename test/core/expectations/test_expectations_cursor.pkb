@@ -62,6 +62,7 @@ create or replace package body test_expectations_cursor is
     l_actual   sys_refcursor;
   begin
     -- Arrange
+    ut.set_nls;
     open l_expected for
       select 1 as my_num,
              'This is my test string' as my_string,
@@ -74,6 +75,7 @@ create or replace package body test_expectations_cursor is
              to_clob('This is an even longer test clob') as my_clob,
              to_date('1984-09-05', 'YYYY-MM-DD') as my_date
       from dual;
+    ut.reset_nls;
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
@@ -661,9 +663,7 @@ Diff:
 Columns:
   Column <COL_4> is misplaced. Expected position: 2, actual position: 4.
   Column <COL_2> is misplaced. Expected position: 3, actual position: 2.
-  Column <COL_3> is misplaced. Expected position: 4, actual position: 3.
-Rows: [ 2 differences ]
-  All rows are different as the columns are not matching.]';
+  Column <COL_3> is misplaced. Expected position: 4, actual position: 3.]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -893,8 +893,8 @@ Rows: [ 4 differences ]
     l_expected sys_refcursor;
   begin
     --Arrange
-    open l_actual for select object_name from all_objects where rownum <=1100;
-    open l_expected for select object_name from all_objects where rownum <=1100;
+    open l_actual for select object_name from all_objects where rownum <=1100 order by object_id;
+    open l_expected for select object_name from all_objects where rownum <=1100 order by object_id;
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
 
@@ -908,8 +908,8 @@ Rows: [ 4 differences ]
     l_expected sys_refcursor;
   begin
     --Arrange
-    open l_actual for select object_name from all_objects where rownum <=11000;
-    open l_expected for select object_name from all_objects where rownum <=11000;
+    open l_actual for select object_name from all_objects where rownum <=11000 order by object_id;
+    open l_expected for select object_name from all_objects where rownum <=11000 order by object_id;
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
 
@@ -1090,8 +1090,8 @@ Rows: [ 2 differences ]%
     l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
 %Diff:%
 %Rows: [ 2 differences ]%
-%Extra:    <ROW><USERNAME>test</USERNAME><USER_ID>-666</USER_ID></ROW>%
-%Missing:  <ROW><USERNAME>test</USERNAME><USER_ID>-667</USER_ID></ROW>%]';
+%Extra:    <USERNAME>test</USERNAME><USER_ID>-666</USER_ID>%
+%Missing:  <USERNAME>test</USERNAME><USER_ID>-667</USER_ID>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1289,6 +1289,32 @@ Diff:%
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end; 
  
+   procedure cursor_unorder_compare_1000 is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for select level object_id, level || '_TEST' object_name from dual connect by level  <=1100;
+    open l_expected for select level object_id, level || '_TEST' object_name from dual connect by level  <=1100;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end; 
+  
+  procedure cursor_unorder_compare_10000 is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for select level object_id, level || '_TEST' object_name from dual connect by level  <=11000;
+    open l_expected for select level object_id, level || '_TEST' object_name from dual connect by level  <=11000;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end; 
+ 
   procedure cursor_joinby_compare_fail is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
@@ -1334,8 +1360,8 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to equal: refcursor [ count = % ]
 %Diff:%
 %Rows: [ 2 differences ]%
-%PK <USERNAME>TEST</USERNAME><USER_ID>-610</USER_ID> - Extra:    <ROW><USERNAME>TEST</USERNAME><USER_ID>-610</USER_ID></ROW>%
-%PK <USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID> - Missing:  <ROW><USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID></ROW>%]';
+%PK <USERNAME>TEST</USERNAME><USER_ID>-610</USER_ID> - Extra:    <USERNAME>TEST</USERNAME><USER_ID>-610</USER_ID>%
+%PK <USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID> - Missing:  <USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1516,12 +1542,12 @@ Diff:%
     ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
-Rows: [ 5 differences ]
-%Extra:    <ROW><COLVAL><ID>2</ID><name>Something 2</name><Value>2</Value></COLVAL></ROW>%
-%Extra:    <ROW><COLVAL><ID>1</ID><name>Something 1</name><Value>1</Value></COLVAL></ROW>%
-%Missing:  <ROW><COLVAL><ID>1</ID><name>Somethings 1</name><Value>1</Value></COLVAL></ROW>%
-%Missing:  <ROW><COLVAL><ID>2</ID><name>Somethings 2</name><Value>2</Value></COLVAL></ROW>%
-%Missing:  <ROW><COLVAL><ID>3</ID><name>Somethings 3</name><Value>3</Value></COLVAL></ROW>%]';
+Rows: [ 5 differences 1
+%Extra:    <COLVAL><ID>1</ID><name>Something 1</name><Value>1</Value></COLVAL>%
+%Extra:    <COLVAL><ID>2</ID><name>Something 2</name><Value>2</Value></COLVAL>%
+%Missing:  <COLVAL><ID>1</ID><name>Somethings 1</name><Value>1</Value></COLVAL>%
+%Missing:  <COLVAL><ID>2</ID><name>Somethings 2</name><Value>2</Value></COLVAL>%
+%Missing:  <COLVAL><ID>3</ID><name>Somethings 3</name><Value>3</Value></COLVAL>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -2036,7 +2062,7 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 3 ]
 %Diff:
 %Rows: [ 1 differences ]
-%Missing:  <ROW><NAME>Table</NAME></ROW>%]';
+%Missing:  <NAME>Table</NAME>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -2077,11 +2103,11 @@ Diff:%
      l_expected_message := q'[%Actual: refcursor [ count = 4 ] was expected to include: refcursor [ count = 9 ]
 %Diff:
 %Rows: [ 5 differences ]
-%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>
-%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>
-%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>
-%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>
-%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>%]';
+%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
+%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
+%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
+%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
+%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -2121,11 +2147,11 @@ Diff:%
      l_expected_message := q'[%Actual: refcursor [ count = 4 ] was expected to include: refcursor [ count = 9 ]
 %Diff:
 %Rows: [ 5 differences ]
-%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>
-%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>
-%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>
-%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>
-%Missing:  <ROW><OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE></ROW>%]';
+%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
+%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
+%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
+%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
+%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -2478,9 +2504,9 @@ Diff:%
      l_expected_message := q'[%Actual: refcursor [ count = 9 ] was expected to include: refcursor [ count = 6 ]
 %Diff:
 %Rows: [ 3 differences ]
-%Missing:  <ROW><RN>%</RN></ROW>
-%Missing:  <ROW><RN>%</RN></ROW>
-%Missing:  <ROW><RN>%</RN></ROW>]';
+%Missing:  <RN>%</RN>
+%Missing:  <RN>%</RN>
+%Missing:  <RN>%</RN>]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);

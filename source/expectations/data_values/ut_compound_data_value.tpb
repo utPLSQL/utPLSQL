@@ -53,10 +53,13 @@ create or replace type body ut_compound_data_value as
       --return first c_max_rows rows
       execute immediate '
           select xmlserialize( content ucd.item_data no indent)
-            from '|| ut_utils.ut_owner ||'.ut_compound_data_tmp ucd
-           where ucd.data_id = :data_id
-             and ucd.item_no <= :max_rows'
-        bulk collect into l_results using self.data_id, c_max_rows;
+            from '|| ut_utils.ut_owner ||q'[.ut_compound_data_tmp tmp
+            ,xmltable ( '/ROWSET' passing tmp.item_data
+            columns item_data xmltype PATH '*'         
+            ) ucd
+           where tmp.data_id = :data_id
+             and rownum <= :max_rows]'
+        bulk collect into l_results using self.data_id, ut_utils.gc_diff_max_rows;
 
       ut_utils.append_to_clob(l_result,l_results);
 
@@ -113,18 +116,15 @@ create or replace type body ut_compound_data_value as
 
     dbms_lob.createtemporary(l_result,true);
     
-    --diff rows and row elements
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_actual.data_id);
-    
+
     -- First tell how many rows are different
-    
-    --TODO: that is a bit mess ?? Can we use global variable for all matchers.
-    l_diff_row_count := ut_compound_data_helper.get_rows_diff;           
-    
+    l_diff_row_count := ut_compound_data_helper.get_rows_diff_count; 
+ 
     if l_diff_row_count > 0  then
       l_row_diffs := ut_compound_data_helper.get_rows_diff(
             self.data_id, l_actual.data_id, l_diff_id, c_max_rows, a_exclude_xpath, 
-            a_include_xpath, a_join_by_xpath, a_unordered);
+            a_include_xpath, a_join_by_xpath, a_other is of (ut_data_value_refcursor));
       l_message := chr(10)
                    ||'Rows: [ ' || l_diff_row_count ||' differences'
                    ||  case when  l_diff_row_count > c_max_rows and l_row_diffs.count > 0 then ', showing first '||c_max_rows end
@@ -168,7 +168,7 @@ create or replace type body ut_compound_data_value as
     if not a_other is of (ut_compound_data_value) then
       raise value_error;
     end if;
-
+   
     l_other   := treat(a_other as ut_compound_data_value);
 
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
@@ -194,7 +194,7 @@ create or replace type body ut_compound_data_value as
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;
     else
-      ut_compound_data_helper.set_rows_diff(sql%rowcount); 
+      ut_compound_data_helper.set_rows_diff(sql%rowcount);
       l_result := 1;
     end if;
     return l_result;
@@ -216,10 +216,11 @@ create or replace type body ut_compound_data_value as
   begin
    --TODO : Error on xml when same column is more then once in item data xml.Do we need to cleanup ??  
    --TODO : Bring diffs row into same place for ref data cursor especially (how we going to do that so we dont break anyval etc)
+   --TODO : Test binary xml storage (didnt seems to make a diffrence, docker and datafiles layer ??)
    l_other         := treat(a_other as ut_compound_data_value);  
    l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
 
-   open l_loop_curs for ut_compound_data_helper.gen_compare_sql(treat(a_other as ut_data_value_refcursor).columns_info, a_exclude_xpath, 
+   open l_loop_curs for ut_compound_data_helper.gen_compare_sql(treat(a_other as ut_data_value_refcursor).col_info_desc, a_exclude_xpath, 
                                    a_include_xpath, a_join_by_xpath, a_inclusion_compare, a_is_negated, a_unordered ) using  self.data_id,l_other.data_id;  
    loop
     fetch l_loop_curs bulk collect into l_diff_tab limit l_max_rows;
@@ -233,15 +234,14 @@ create or replace type body ut_compound_data_value as
     if (ut_utils.gc_diff_max_rows <= l_sql_rowcount and l_max_rows != ut_utils.gc_bc_fetch_limit ) then
       l_max_rows := ut_utils.gc_bc_fetch_limit;
     end if;
-   end loop;
-           
+   end loop;      
         --result is OK only if both are same         
     if l_sql_rowcount = 0 and ( self.elements_count = l_other.elements_count or a_inclusion_compare )then
       l_result := 0; 
     else
       ut_compound_data_helper.set_rows_diff(l_sql_rowcount); 
       l_result := 1;
-    end if;
+    end if; 
     
     return l_result;
    
