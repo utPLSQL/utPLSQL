@@ -31,6 +31,7 @@ create or replace package body test_annotation_manager is
         --%beforetest(some_procedure)
         procedure some_dummy_test_procedure;
       end;]';
+    execute immediate q'[grant execute on dummy_test_package to public]';
   end;
 
   procedure modify_dummy_test_package is
@@ -54,6 +55,28 @@ create or replace package body test_annotation_manager is
     pragma autonomous_transaction;
   begin
     execute immediate q'[alter package dummy_test_package compile]';
+  end;
+
+  procedure create_parse_proc_as_ut3$user# is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[
+    create or replace procedure ut3$user#.parse_annotations is
+      begin
+        ut3.ut_annotation_manager.rebuild_annotation_cache('UT3_TESTER','PACKAGE');
+      end;]';
+  end;
+
+  procedure parse_dummy_test_as_ut3$user# is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'begin ut3$user#.parse_annotations; end;';
+  end;
+
+  procedure drop_parse_proc_as_ut3$user# is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop procedure ut3$user#.parse_annotations';
   end;
 
   procedure cleanup_annotation_cache is
@@ -204,12 +227,11 @@ create or replace package body test_annotation_manager is
     l_expected sys_refcursor;
     l_start_date date;
   begin
-    --Arrange
-    ut3.ut_annotation_manager.rebuild_annotation_cache(user,'PACKAGE');
+    parse_dummy_test_as_ut3$user#();
     l_start_date := sysdate;
     drop_dummy_test_package();
     --Act
-    ut3.ut_annotation_manager.rebuild_annotation_cache(user,'PACKAGE');
+    parse_dummy_test_as_ut3$user#();
     --Assert
     select max(cache_id)
       into l_actual_cache_id
@@ -217,7 +239,7 @@ create or replace package body test_annotation_manager is
      where object_owner = user and object_type = 'PACKAGE' and object_name = 'DUMMY_TEST_PACKAGE'
        and parse_time >= l_start_date;
 
-    ut.expect(l_actual_cache_id).to_be_not_null;
+    ut.expect(l_actual_cache_id).not_to_be_null();
 
     open l_actual for
       select annotation_position, annotation_name, annotation_text, subobject_name
@@ -250,6 +272,30 @@ create or replace package body test_annotation_manager is
        where object_name = 'DUMMY_TEST_PACKAGE';
     --Assert
     ut.expect(l_actual).to_be_empty();
+  end;
+
+  procedure cleanup_dropped_data_in_cache is
+    l_cache_count integer;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_start_date date;
+  begin
+    --Arrange
+    ut3.ut_annotation_manager.rebuild_annotation_cache(user,'PACKAGE');
+    l_start_date := sysdate;
+    drop_dummy_test_package();
+    --Act
+    ut3.ut_annotation_manager.rebuild_annotation_cache(user,'PACKAGE');
+    --Assert
+    select count(1)
+      into l_cache_count
+      from ut3.ut_annotation_cache_info
+     where object_owner = user
+       and object_type = 'PACKAGE'
+       and object_name = 'DUMMY_TEST_PACKAGE';
+
+    ut.expect(l_cache_count).to_equal(0);
+
   end;
 
 end test_annotation_manager;

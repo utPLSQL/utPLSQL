@@ -148,15 +148,34 @@ create or replace package body ut_metadata as
   end;
 
   function get_dba_view(a_dba_view_name varchar2) return varchar2 is
-    l_invalid_object_name exception;
     l_result              varchar2(128) := lower(a_dba_view_name);
+  begin
+    if not is_object_visible(a_dba_view_name) then
+      l_result := replace(l_result,'dba_','all_');
+    end if;
+     return l_result;
+  end;
+
+  function user_has_execute_any_proc return boolean is
+    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
+    l_dummy        varchar2(250);
+  begin
+    execute immediate 'select '||l_ut_owner||'.ut_utils.ut_owner from dual'
+      into l_dummy;
+    return true;
+  exception
+    when others then
+      return false;
+  end;
+
+  function is_object_visible(a_object_name varchar2) return boolean is
+    l_invalid_object_name exception;
     pragma exception_init(l_invalid_object_name,-44002);
   begin
-    l_result := dbms_assert.sql_object_name(l_result);
-    return l_result;
+    return dbms_assert.sql_object_name(a_object_name) is not null;
   exception
     when l_invalid_object_name then
-      return replace(l_result,'dba_','all_');
+      return false;
   end;
 
   function package_exists_in_cur_schema(a_object_name varchar2) return boolean is

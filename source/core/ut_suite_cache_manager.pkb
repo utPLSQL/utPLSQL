@@ -135,5 +135,17 @@ create or replace package body ut_suite_cache_manager is
     commit;
   end;
 
+  procedure remove_from_cache(a_schema_name varchar2, a_objects ut_varchar2_rows) is
+    pragma autonomous_transaction;
+  begin
+    delete
+      from ut_suite_cache_package i
+     where i.object_owner = a_schema_name
+       and i.object_name in ( select column_value from table (a_objects) );
+
+    commit;
+  end;
+
+
 end ut_suite_cache_manager;
 /

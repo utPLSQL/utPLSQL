@@ -70,6 +70,18 @@ create or replace package ut_metadata authid current_user as
   function get_dba_view(a_dba_view_name varchar2) return varchar2;
 
   /**
+   * Returns true if object is accessible to current user
+   * @param a_object_name fully qualified object name (with schema name)
+   */
+  function is_object_visible(a_object_name varchar2) return boolean;
+
+  /**
+   * Returns true if current user has execute any procedure privilege
+   * The check is performed by checking if user can execute ut_utils package
+   */
+  function user_has_execute_any_proc return boolean;
+
+  /**
    * Returns true if given object is a package and it exists in current schema
    * @param a_object_name the name of the object to be checked
    */

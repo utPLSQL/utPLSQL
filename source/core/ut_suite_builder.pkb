@@ -1012,6 +1012,31 @@ create or replace package body ut_suite_builder is
     close a_suite_data_cursor;
   end;
 
+  function get_missing_objects(a_object_owner varchar2) return ut_varchar2_rows is
+    l_rows         sys_refcursor;
+    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
+    l_objects_view varchar2(200) := ut_metadata.get_dba_view('dba_objects');
+    l_cursor_text  varchar2(32767);
+    l_result       ut_varchar2_rows;
+  begin
+    l_cursor_text :=
+      q'[select i.object_name
+           from ]'||l_ut_owner||q'[.ut_suite_cache_package i
+           where
+             not exists (
+                select 1  from ]'||l_objects_view||q'[ o
+                 where o.owner = i.object_owner
+                   and o.object_name = i.object_name
+                   and o.object_type = 'PACKAGE'
+                   and o.owner = :a_object_owner
+                )
+            and i.object_owner = :a_object_owner]';
+    open l_rows for l_cursor_text  using a_object_owner, a_object_owner;
+    fetch l_rows bulk collect into l_result limit 1000000;
+    close l_rows;
+    return l_result;
+  end;
+
   function get_cached_suite_data(
     a_object_owner   varchar2,
     a_path           varchar2 := null,
@@ -1177,8 +1202,9 @@ create or replace package body ut_suite_builder is
     a_object_name    varchar2 := null,
     a_procedure_name varchar2 := null
   ) return ut_suite_items is
-    l_annotations_cursor sys_refcursor;
-    l_suite_cache_time   timestamp;
+    l_annotations_cursor    sys_refcursor;
+    l_suite_cache_time      timestamp;
+    l_skip_all_objects_scan boolean := false;
   begin
     l_suite_cache_time := ut_suite_cache_manager.get_schema_parse_time(a_owner_name);
     open l_annotations_cursor for
@@ -1188,12 +1214,23 @@ create or replace package body ut_suite_builder is
       )x ]'
     using a_owner_name, l_suite_cache_time;
 
+    -- if current user is the onwer or current user has execute any procedure privilege
+    if sys_context('userenv','current_schema') = a_owner_name
+      or ut_metadata.is_object_visible('ut3.ut_utils')
+    then
+      l_skip_all_objects_scan := true;
+    end if;
+    if l_skip_all_objects_scan or ut_metadata.is_object_visible('dba_objects') then
+      ut_suite_cache_manager.remove_from_cache( a_owner_name, get_missing_objects(a_owner_name) );
+    end if;
+
     return build_suites_from_annotations(
       a_owner_name,
       l_annotations_cursor,
       a_path,
       a_object_name,
-      a_procedure_name
+      a_procedure_name,
+      l_skip_all_objects_scan
     );
   end;
 
@@ -1202,17 +1239,27 @@ create or replace package body ut_suite_builder is
     l_schema_names ut_varchar2_rows;
     l_object_names ut_varchar2_rows;
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
+    l_need_all_objects_scan boolean := true;
   begin
+    -- if current user is the onwer or current user has execute any procedure privilege
+    if ut_metadata.is_object_visible('ut3.ut_utils')
+      or (a_schema_names is not null and a_schema_names.count = 1
+         and sys_context('userenv','current_schema') = a_schema_names(1))
+    then
+      l_need_all_objects_scan := false;
+    end if;
+    
     execute immediate 'select c.object_owner, c.object_name
         from '||l_ut_owner||q'[.ut_suite_cache_package c
              join table ( :a_schema_names ) s
-               on c.object_owner = upper(s.column_value)
+               on c.object_owner = upper(s.column_value)]'
+      || case when l_need_all_objects_scan then q'[
        where exists
             (select 1 from  all_objects a
               where a.owner = c.object_owner
                     and a.object_name = c.object_name
                     and a.object_type = 'PACKAGE')
-        ]'
+        ]' end
     bulk collect into l_schema_names, l_object_names using a_schema_names;
     l_results.extend( l_schema_names.count );
     for i in 1 .. l_schema_names.count loop

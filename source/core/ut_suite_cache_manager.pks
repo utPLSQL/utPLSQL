@@ -29,5 +29,7 @@ create or replace package ut_suite_cache_manager authid definer is
 
   function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache;
 
+  procedure remove_from_cache(a_schema_name varchar2, a_objects ut_varchar2_rows);
+
 end ut_suite_cache_manager;
 /
