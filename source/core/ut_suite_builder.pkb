@@ -93,10 +93,6 @@ create or replace package body ut_suite_builder is
     by_name     tt_annotations_by_name
   );
 
-  subtype t_cached_suite is ut_suite_cache%rowtype;
-  type tt_cached_suites  is table of t_cached_suite;
-  type t_cached_suites_cursor is ref cursor return t_cached_suite;
-
   procedure delete_annotations_range(
     a_annotations in out nocopy t_annotations_info,
     a_start_pos   t_annotation_position,
@@ -318,20 +314,6 @@ create or replace package body ut_suite_builder is
         a_list(i).seq_no := i;
       end loop;
     end if;
-  end;
-
-  function sort_by_seq_no(
-    a_list ut_executables
-  ) return ut_executables is
-    l_results ut_executables := ut_executables();
-  begin
-    if a_list is not null then
-      l_results.extend(a_list.count);
-      for i in 1 .. a_list.count loop
-        l_results(a_list(i).seq_no) := a_list(i);
-      end loop;
-    end if;
-    return l_results;
   end;
 
   function convert_list(
@@ -819,33 +801,6 @@ create or replace package body ut_suite_builder is
     end loop;
   end;
 
-  procedure create_suite_item_list( a_annotations t_annotations_info, a_suite_items out nocopy ut_suite_items ) is
-    l_annotations      t_annotations_info := a_annotations;
-    l_annotation_pos   t_annotation_position;
-    l_suite            ut_suite;
-  begin
-    if l_annotations.by_name.exists(gc_suite) then
-      l_annotation_pos := l_annotations.by_name(gc_suite).first;
-      l_suite := ut_suite(l_annotations.owner, l_annotations.name, l_annotation_pos);
-      l_suite.description := l_annotations.by_name( gc_suite)( l_annotation_pos);
-      l_suite.parse_time  := l_annotations.parse_time;
-      warning_on_unknown_annotations(l_suite, l_annotations.by_line);
-
-      warning_on_duplicate_annot( l_suite, l_annotations.by_name, gc_suite );
-
-      build_suitepath( l_suite, l_annotations );
-      get_suite_contexts_items( l_suite, l_annotations, a_suite_items );
-      --create suite tests and add
-      add_suite_tests( l_suite, l_annotations, a_suite_items );
-
-      --by this time all contexts were consumed and l_annotations should not have any context/endcontext annotation in it.
-      warning_on_incomplete_context( l_suite, l_annotations.by_name );
-
-      a_suite_items.extend;
-      a_suite_items( a_suite_items.last) := l_suite;
-    end if;
-  end;
-
   function convert_package_annotations(a_object ut_annotated_object) return t_annotations_info is
     l_result          t_annotations_info;
     l_annotation      t_annotation;
@@ -872,391 +827,33 @@ create or replace package body ut_suite_builder is
     return l_result;
   end;
 
-  procedure copy_list_reverse_order(
-    a_list in out nocopy ut_suite_items
-  ) is
-    l_start_idx pls_integer;
-    l_end_idx   pls_integer;
-    l_item      ut_suite_item;
+  procedure create_suite_item_list( a_annotated_object ut_annotated_object, a_suite_items out nocopy ut_suite_items ) is
+    l_annotations      t_annotations_info;
+    l_annotation_pos   t_annotation_position;
+    l_suite            ut_suite;
   begin
-    l_start_idx := a_list.first;
-    l_end_idx := a_list.last;
-    while l_start_idx < l_end_idx loop
-      l_item := a_list(l_start_idx);
-      a_list(l_start_idx) := a_list(l_end_idx);
-      a_list(l_end_idx) := l_item;
-      l_end_idx := a_list.prior(l_end_idx);
-      l_start_idx := a_list.next(l_start_idx);
-    end loop;
-  end;
+    l_annotations := convert_package_annotations( a_annotated_object );
 
-  procedure reconstruct_from_cache(
-    a_suites            out nocopy ut_suite_items,
-    a_suite_data_cursor sys_refcursor
-  ) is
-    type t_item_levels is table of ut_suite_items index by binary_integer;
-    c_bulk_limit        constant pls_integer := 1000;
-    l_items_at_level    t_item_levels;
-    l_rows              tt_cached_suites;
-    l_test              ut_test;
-    l_logical_suite     ut_logical_suite;
-    l_level             pls_integer;
-    l_prev_level        pls_integer;
-    l_idx               integer;
-  begin
-    a_suites := ut_suite_items();
-    loop
-      fetch a_suite_data_cursor bulk collect into l_rows limit c_bulk_limit;
-      exit when l_rows.count = 0;
+    if l_annotations.by_name.exists(gc_suite) then
+      l_annotation_pos := l_annotations.by_name(gc_suite).first;
+      l_suite := ut_suite(l_annotations.owner, l_annotations.name, l_annotation_pos);
+      l_suite.description := l_annotations.by_name( gc_suite)( l_annotation_pos);
+      l_suite.parse_time  := l_annotations.parse_time;
+      warning_on_unknown_annotations(l_suite, l_annotations.by_line);
 
-      l_idx := l_rows.first;
-      loop
-        l_test := null;
-        l_logical_suite := null;
-        case l_rows(l_idx).self_type
-          when 'UT_TEST' then
-          l_test :=
-            ut_test(
-              self_type => l_rows(l_idx).self_type,
-              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
-              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
-              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
-              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
-              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
-              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-              before_each_list => sort_by_seq_no(l_rows(l_idx).before_each_list), before_test_list => sort_by_seq_no(l_rows(l_idx).before_test_list),
-              item => l_rows(l_idx).item,
-              after_test_list => sort_by_seq_no(l_rows(l_idx).after_test_list), after_each_list => sort_by_seq_no(l_rows(l_idx).after_each_list),
-              all_expectations => ut_expectation_results(), failed_expectations => ut_expectation_results(),
-              parent_error_stack_trace => null, expected_error_codes => l_rows(l_idx).expected_error_codes
-            );
-          when 'UT_SUITE' then
-          l_logical_suite :=
-            ut_suite(
-              self_type => l_rows(l_idx).self_type,
-              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
-              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
-              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
-              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
-              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
-              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-              items => ut_suite_items(),
-              before_all_list => sort_by_seq_no(l_rows(l_idx).before_all_list), after_all_list => sort_by_seq_no(l_rows(l_idx).after_all_list)
-            );
-          when 'UT_SUITE_CONTEXT' then
-          l_logical_suite :=
-            ut_suite_context(
-              self_type => l_rows(l_idx).self_type,
-              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
-              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
-              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
-              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
-              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
-              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-              items => ut_suite_items(),
-              before_all_list => sort_by_seq_no(l_rows(l_idx).before_all_list), after_all_list => sort_by_seq_no(l_rows(l_idx).after_all_list)
-            );
-          when 'UT_LOGICAL_SUITE' then
-          l_logical_suite :=
-            ut_logical_suite(
-              self_type => l_rows(l_idx).self_type,
-              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
-              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
-              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
-              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
-              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
-              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-              items => ut_suite_items()
-            );
-        end case;
+      warning_on_duplicate_annot( l_suite, l_annotations.by_name, gc_suite );
 
-        l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
+      build_suitepath( l_suite, l_annotations );
+      get_suite_contexts_items( l_suite, l_annotations, a_suite_items );
+      --create suite tests and add
+      add_suite_tests( l_suite, l_annotations, a_suite_items );
 
-        if l_level > 1 then
-          if l_prev_level > l_level then
-            l_logical_suite.items := l_items_at_level(l_prev_level);
-            l_items_at_level(l_prev_level).delete;
-          end if;
-          if not l_items_at_level.exists(l_level) then
-            l_items_at_level(l_level) := ut_suite_items();
-          end if;
-          l_items_at_level(l_level).extend;
-          if l_test is not null then
-            l_items_at_level(l_level)(l_items_at_level(l_level).last) := l_test;
-          else
-            l_items_at_level(l_level)(l_items_at_level(l_level).last) := l_logical_suite;
-          end if;
-        else
-          if l_prev_level > l_level then
-            l_logical_suite.items := l_items_at_level(l_prev_level);
-            l_items_at_level(l_prev_level).delete;
-          end if;
-          a_suites.extend;
-          a_suites(a_suites.last) := l_logical_suite;
-        end if;
-        l_prev_level := l_level;
-        l_idx := l_rows.next(l_idx);
-        exit when l_idx is null;
-      end loop;
-      exit when l_rows.count < c_bulk_limit;
-    end loop;
-    copy_list_reverse_order( a_suites );
-    close a_suite_data_cursor;
-  end;
+      --by this time all contexts were consumed and l_annotations should not have any context/endcontext annotation in it.
+      warning_on_incomplete_context( l_suite, l_annotations.by_name );
 
-  function get_missing_objects(a_object_owner varchar2) return ut_varchar2_rows is
-    l_rows         sys_refcursor;
-    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
-    l_objects_view varchar2(200) := ut_metadata.get_dba_view('dba_objects');
-    l_cursor_text  varchar2(32767);
-    l_result       ut_varchar2_rows;
-  begin
-    l_cursor_text :=
-      q'[select i.object_name
-           from ]'||l_ut_owner||q'[.ut_suite_cache_package i
-           where
-             not exists (
-                select 1  from ]'||l_objects_view||q'[ o
-                 where o.owner = i.object_owner
-                   and o.object_name = i.object_name
-                   and o.object_type = 'PACKAGE'
-                   and o.owner = ']'||a_object_owner||q'['
-                )
-            and i.object_owner = ']'||a_object_owner||q'[']';
-    open l_rows for l_cursor_text;
-    fetch l_rows bulk collect into l_result limit 1000000;
-    close l_rows;
-    return l_result;
-  end;
-
-  function get_cached_suite_data(
-    a_object_owner   varchar2,
-    a_path           varchar2 := null,
-    a_object_name    varchar2 := null,
-    a_procedure_name varchar2 := null,
-    a_skip_all_objects  boolean := false
-  ) return t_cached_suites_cursor is
-    l_path     varchar2( 4000 );
-    l_result   sys_refcursor;
-    l_ut_owner varchar2(250) := ut_utils.ut_owner;
-  begin
-    if a_path is null and a_object_name is not null then
-      execute immediate 'select min(path)
-        from '||l_ut_owner||q'[.ut_suite_cache
-       where object_owner = :a_object_owner
-             and object_name = :a_object_name
-             and name = nvl(:a_procedure_name, name)]'
-      into l_path using upper(a_object_owner), upper(a_object_name), upper(a_procedure_name);
-    else
-      l_path := lower( a_path );
+      a_suite_items.extend;
+      a_suite_items( a_suite_items.last) := l_suite;
     end if;
-
-    open l_result for
-    q'[with
-        suite_items as (
-          select /*+ cardinality(c 100) */ c.*
-            from ]'||l_ut_owner||q'[.ut_suite_cache c
-           where 1 = 1 ]'||case when not a_skip_all_objects then q'[
-                 and exists
-                     ( select 1
-                         from all_objects a
-                        where a.object_name = c.object_name
-                          and a.object_owner = ']'||upper(a_object_owner)||q'['
-                          and a.owner       = c.object_owner
-                          and a.object_type = 'PACKAGE'
-                     )]' end ||q'[
-                 and c.object_owner = ']'||upper(a_object_owner)||q'['
-                 and ( ]' || case when l_path is not null then q'[
-                        :l_path||'.' like c.path || '.%' /*all children and self*/
-                       or ( c.path||'.' like :l_path || '.%'  --all parents
-                              ]'
-                             else ' :l_path is null  and ( :l_path is null ' end
-                              || case when a_object_name is not null
-                                   then 'and c.object_name = :a_object_name '
-                                   else 'and :a_object_name is null' end ||'
-                              '|| case when a_procedure_name is not null
-                                  then 'and c.name = :a_procedure_name'
-                                  else 'and :a_procedure_name is null' end ||q'[
-                          )
-                     )
-        ),
-        suitepaths as (
-          select distinct substr(path,1,instr(path,'.',-1)-1) as suitepath,
-                          path,
-                          object_owner
-            from suite_items
-           where self_type = 'UT_SUITE'
-        ),
-          gen as (
-          select rownum as pos
-            from xmltable('1 to 20')
-        ),
-        suitepath_part AS (
-          select distinct
-                          substr(b.suitepath, 1, instr(b.suitepath || '.', '.', 1, g.pos) -1) as path,
-                          object_owner
-            from suitepaths b
-                 join gen g
-                   on g.pos <= regexp_count(b.suitepath, '\w+')
-        ),
-        logical_suite_data as (
-          select 'UT_LOGICAL_SUITE' as self_type, p.path, p.object_owner,
-                 upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name,
-                 cast(null as ]'||l_ut_owner||q'[.ut_executables) as x,
-                 cast(null as ]'||l_ut_owner||q'[.ut_integer_list) as y,
-                 cast(null as ]'||l_ut_owner||q'[.ut_executable_test) as z
-            from suitepath_part p
-           where p.path
-             not in (select s.path from suitepaths s)
-        ),
-        logical_suites as (
-          select to_number(null) as id, s.self_type, s.path, s.object_owner, s.object_name,
-                 s.object_name as name, null as line_no, null as parse_time,
-                 null as description, null as rollback_type, 0 as disabled_flag,
-                 ]'||l_ut_owner||q'[.ut_varchar2_rows() as warnings,
-                 s.x as before_all_list, s.x as after_all_list,
-                 s.x as before_each_list, s.x as before_test_list,
-                 s.x as after_each_list, s.x as after_test_list,
-                 s.y as expected_error_codes, s.z as item
-            from logical_suite_data s
-        ),
-        items as (
-          select * from suite_items
-          union all
-          select * from logical_suites
-        )
-      select c.*
-        from items c
-       order by c.object_owner,
-                replace(case
-                        when c.self_type in ( 'UT_TEST' )
-                          then substr(c.path, 1, instr(c.path, '.', -1) )
-                        else c.path
-                        end, '.', chr(0)) desc nulls last,
-                c.object_name desc,
-                c.line_no]'
-    using l_path, l_path, upper(a_object_name), upper(a_procedure_name);
-
-    return l_result;
-  end;
-
-  function build_suites_from_annotations(
-    a_owner_name        varchar2,
-    a_annotated_objects sys_refcursor,
-    a_path              varchar2 := null,
-    a_object_name       varchar2 := null,
-    a_procedure_name    varchar2 := null,
-    a_skip_all_objects  boolean := false
-  ) return ut_suite_items is
-    l_suites             ut_suite_items;
-    l_annotated_objects  ut_annotated_objects;
-    l_suite_items        ut_suite_items;
-  begin
-    loop
-      fetch a_annotated_objects bulk collect into l_annotated_objects limit 10;
-
-      for i in 1 .. l_annotated_objects.count loop
-        create_suite_item_list(
-          convert_package_annotations( l_annotated_objects( i ) ),
-          l_suite_items
-        );
-        ut_suite_cache_manager.save_object_cache(
-          a_owner_name,
-          l_annotated_objects( i ).object_name,
-          l_annotated_objects( i ).parse_time,
-          l_suite_items
-        );
-      end loop;
-      exit when a_annotated_objects%notfound;
-    end loop;
-    close a_annotated_objects;
-
-    reconstruct_from_cache(
-      l_suites,
-      get_cached_suite_data(
-        a_owner_name,
-        a_path,
-        a_object_name,
-        a_procedure_name,
-        a_skip_all_objects
-      )
-    );
-    for i in 1 .. l_suites.count loop
-      l_suites( i ).set_rollback_type( l_suites( i ).get_rollback_type );
-    end loop;
-    return l_suites;
-  end;
-
-  function build_schema_suites(
-    a_owner_name     varchar2,
-    a_path           varchar2 := null,
-    a_object_name    varchar2 := null,
-    a_procedure_name varchar2 := null
-  ) return ut_suite_items is
-    l_annotations_cursor    sys_refcursor;
-    l_suite_cache_time      timestamp;
-    l_skip_all_objects_scan boolean := false;
-  begin
-    l_suite_cache_time := ut_suite_cache_manager.get_schema_parse_time(a_owner_name);
-    open l_annotations_cursor for
-    q'[select value(x)
-      from table(
-        ]' || ut_utils.ut_owner || q'[.ut_annotation_manager.get_annotated_objects(:a_owner_name, 'PACKAGE', :a_suite_cache_parse_time)
-      )x ]'
-    using a_owner_name, l_suite_cache_time;
-
-    -- if current user is the onwer or current user has execute any procedure privilege
-    if sys_context('userenv','current_schema') = a_owner_name
-      or ut_metadata.is_object_visible('ut3.ut_utils')
-    then
-      l_skip_all_objects_scan := true;
-    end if;
-    if l_skip_all_objects_scan or ut_metadata.is_object_visible('dba_objects') then
-      ut_suite_cache_manager.remove_from_cache( a_owner_name, get_missing_objects(a_owner_name) );
-    end if;
-
-    return build_suites_from_annotations(
-      a_owner_name,
-      l_annotations_cursor,
-      a_path,
-      a_object_name,
-      a_procedure_name,
-      l_skip_all_objects_scan
-    );
-  end;
-
-  function get_schema_ut_packages( a_schema_names ut_varchar2_rows ) return ut_object_names is
-    l_results      ut_object_names := ut_object_names( );
-    l_schema_names ut_varchar2_rows;
-    l_object_names ut_varchar2_rows;
-    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
-    l_need_all_objects_scan boolean := true;
-  begin
-    -- if current user is the onwer or current user has execute any procedure privilege
-    if ut_metadata.is_object_visible('ut3.ut_utils')
-      or (a_schema_names is not null and a_schema_names.count = 1
-         and sys_context('userenv','current_schema') = a_schema_names(1))
-    then
-      l_need_all_objects_scan := false;
-    end if;
-
-    execute immediate 'select c.object_owner, c.object_name
-        from '||l_ut_owner||q'[.ut_suite_cache_package c
-             join table ( :a_schema_names ) s
-               on c.object_owner = upper(s.column_value)]'
-      || case when l_need_all_objects_scan then q'[
-       where exists
-            (select 1 from  all_objects a
-              where a.owner = c.object_owner
-                    and a.object_name = c.object_name
-                    and a.object_type = 'PACKAGE')
-        ]' end
-    bulk collect into l_schema_names, l_object_names using a_schema_names;
-    l_results.extend( l_schema_names.count );
-    for i in 1 .. l_schema_names.count loop
-      l_results( i ) := ut_object_name( l_schema_names( i ), l_object_names( i ) );
-    end loop;
-    return l_results;
   end;
 
 end ut_suite_builder;

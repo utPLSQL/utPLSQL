@@ -21,32 +21,12 @@ create or replace package ut_suite_builder authid current_user is
    */
 
   /**
-   * Builds set of hierarchical suites for a given schema
-   *
-   * @param a_owner_name  name of the schema to builds suite for
-   * @param a_path        suite path to build suite for  (optional)
-   * @param a_object_name object name to build suite for (optional)
-   * @param a_object_name procedure name to build suite for (optional)
-   * @return list of suites organized into hierarchy
-   *
+   * Creates a list of suite items for an annotated object
    */
-  function build_schema_suites(
-    a_owner_name     varchar2,
-    a_path           varchar2 := null,
-    a_object_name    varchar2 := null,
-    a_procedure_name varchar2 := null
-  ) return ut_suite_items;
-
-  function get_schema_ut_packages(a_schema_names ut_varchar2_rows) return ut_object_names;
-
-  function build_suites_from_annotations(
-    a_owner_name        varchar2,
-    a_annotated_objects sys_refcursor,
-    a_path              varchar2 := null,
-    a_object_name       varchar2 := null,
-    a_procedure_name    varchar2 := null,
-    a_skip_all_objects  boolean := false
-  ) return ut_suite_items;
+  procedure create_suite_item_list(
+    a_annotated_object ut_annotated_object,
+    a_suite_items out nocopy ut_suite_items
+  );
 
 end ut_suite_builder;
 /

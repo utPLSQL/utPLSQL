@@ -14,7 +14,7 @@ create or replace package body test_suite_builder is
                    ut3.ut_annotated_object('UT3_TESTER', a_package_name, 'PACKAGE', systimestamp, a_annotations)
                ) ) x;
 
-    l_suites := ut3.ut_suite_builder.build_suites_from_annotations(
+    l_suites := ut3.ut_suite_manager.build_suites_from_annotations(
       a_owner_name => 'UT3_TESTER',
       a_annotated_objects => l_cursor,
       a_path => null,

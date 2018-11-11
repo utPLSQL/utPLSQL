@@ -45,5 +45,20 @@ create or replace package ut_suite_manager authid current_user is
    */
   function get_schema_names(a_paths ut_varchar2_list) return ut_varchar2_rows;
 
+
+  /**
+  * Constructs a list of suites based on the list of annotations passed
+  * the suites are stored in cache
+  */
+  function build_suites_from_annotations(
+    a_owner_name        varchar2,
+    a_annotated_objects sys_refcursor,
+    a_path              varchar2 := null,
+    a_object_name       varchar2 := null,
+    a_procedure_name    varchar2 := null,
+    a_skip_all_objects  boolean := false
+  ) return ut_suite_items;
+
+
 end ut_suite_manager;
 /
