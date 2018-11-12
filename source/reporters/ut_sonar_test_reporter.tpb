@@ -43,28 +43,31 @@ create or replace type body ut_sonar_test_reporter is
     end;
 
     procedure print_test_results(a_test ut_test) is
-      l_lines ut_varchar2_list;
+      l_results ut_varchar2_rows := ut_varchar2_rows();
+      l_lines   ut_varchar2_list;
     begin
-      self.print_text('<testCase name="'||dbms_xmlgen.convert(a_test.name)||'" duration="'||round(a_test.execution_time()*1000,0)||'" >');
+      ut_utils.append_to_list( l_results, '<testCase name="'||dbms_xmlgen.convert(a_test.name)||'" duration="'||round(a_test.execution_time()*1000,0)||'" >');
       if a_test.result = ut_utils.gc_disabled then
-        self.print_text('<skipped message="skipped"/>');
+        ut_utils.append_to_list( l_results, '<skipped message="skipped"/>');
       elsif a_test.result = ut_utils.gc_error then
-        self.print_text('<error message="encountered errors">');
-        self.print_text('<![CDATA[');
-        self.print_clob(ut_utils.table_to_clob(a_test.get_error_stack_traces()));
-        self.print_text(']]>');
-        self.print_text('</error>');
+        ut_utils.append_to_list( l_results, '<error message="encountered errors">');
+        ut_utils.append_to_list( l_results, '<![CDATA[');
+        ut_utils.append_to_list( l_results, ut_utils.table_to_clob(a_test.get_error_stack_traces()));
+        ut_utils.append_to_list( l_results, ']]>');
+        ut_utils.append_to_list( l_results, '</error>');
       elsif a_test.result > ut_utils.gc_success then
-        self.print_text('<failure message="some expectations have failed">');
+        ut_utils.append_to_list( l_results, '<failure message="some expectations have failed">');
         for i in 1 .. a_test.failed_expectations.count loop
           l_lines := a_test.failed_expectations(i).get_result_lines();
           for i in 1 .. l_lines.count loop
-            self.print_text(dbms_xmlgen.convert(l_lines(i)));
+            ut_utils.append_to_list( l_results, dbms_xmlgen.convert(l_lines(i)));
           end loop;
         end loop;
-        self.print_text('</failure>');
+        ut_utils.append_to_list( l_results, '</failure>');
       end if;
-      self.print_text('</testCase>');
+      ut_utils.append_to_list( l_results, '</testCase>');
+
+      self.print_text_lines(l_results);
     end;
 
     procedure print_suite_results(a_suite ut_logical_suite, a_file_mappings ut_file_mappings) is

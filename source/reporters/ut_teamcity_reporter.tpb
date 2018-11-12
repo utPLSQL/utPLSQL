@@ -57,6 +57,7 @@ create or replace type body ut_teamcity_reporter is
   end;
 
   overriding member procedure after_calling_test(self in out nocopy ut_teamcity_reporter, a_test in ut_test) is
+    l_results        ut_varchar2_rows := ut_varchar2_rows();
     l_test_full_name varchar2(4000);
     l_std_err_msg    varchar2(32767);
   begin
@@ -64,10 +65,10 @@ create or replace type body ut_teamcity_reporter is
                         lower(a_test.item.procedure_name);
 
     if a_test.result = ut_utils.gc_disabled then
-      self.print_text(ut_teamcity_reporter_helper.test_disabled(l_test_full_name));
+      ut_utils.append_to_list( l_results, ut_teamcity_reporter_helper.test_disabled(l_test_full_name));
     else
 
-      self.print_clob(a_test.get_serveroutputs());
+      ut_utils.append_to_list( l_results, a_test.get_serveroutputs());
 
       if a_test.result = ut_utils.gc_error then
         for i in 1 .. a_test.before_each_list.count loop
@@ -98,27 +99,52 @@ create or replace type body ut_teamcity_reporter is
           end if;
         end loop;
 
-        self.print_text(ut_teamcity_reporter_helper.test_std_err(a_test_name => l_test_full_name
-                                                                ,a_out       => trim(l_std_err_msg)));
-        self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
-                                                               ,a_msg       => 'Error occured'
-                                                               ,a_details   => trim(l_std_err_msg) || case when a_test.failed_expectations is not null and a_test.failed_expectations.count>0 then a_test.failed_expectations(1)
-                                                                              .message end));
+        ut_utils.append_to_list(
+          l_results,
+          ut_teamcity_reporter_helper.test_std_err(
+            a_test_name => l_test_full_name,
+            a_out       => trim(l_std_err_msg)
+          )
+        );
+        ut_utils.append_to_list(
+          l_results,
+          ut_teamcity_reporter_helper.test_failed(
+            a_test_name => l_test_full_name,
+            a_msg       => 'Error occured',
+            a_details   =>
+              trim(l_std_err_msg)
+                || case when a_test.failed_expectations is not null
+                      and a_test.failed_expectations.count>0
+                   then a_test.failed_expectations(1).message end
+          )
+        );
       elsif a_test.failed_expectations is not null and a_test.failed_expectations.count > 0 then
         -- Teamcity supports only a single failure message
 
-        self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
-                                                               ,a_msg       => a_test.failed_expectations(a_test.failed_expectations.first).description
-                                                               ,a_details   => a_test.failed_expectations(a_test.failed_expectations.first).message ));
+        ut_utils.append_to_list(
+          l_results,
+          ut_teamcity_reporter_helper.test_failed(
+            a_test_name => l_test_full_name,
+            a_msg       => a_test.failed_expectations(a_test.failed_expectations.first).description,
+            a_details   => a_test.failed_expectations(a_test.failed_expectations.first).message )
+        );
       elsif a_test.result = ut_utils.gc_failure then
-        self.print_text(ut_teamcity_reporter_helper.test_failed(a_test_name => l_test_full_name
-                                                               ,a_msg       => 'Test failed'));
+        ut_utils.append_to_list(
+          l_results,
+          ut_teamcity_reporter_helper.test_failed(
+            a_test_name => l_test_full_name,
+            a_msg       => 'Test failed'
+          )
+        );
       end if;
 
-      self.print_text(ut_teamcity_reporter_helper.test_finished(l_test_full_name, trunc(a_test.execution_time * 1e3)));
+      ut_utils.append_to_list(
+        l_results,
+        ut_teamcity_reporter_helper.test_finished(l_test_full_name, trunc(a_test.execution_time * 1e3))
+      );
 
     end if;
-
+    self.print_text_lines(l_results);
   end;
 
   overriding member function get_description return varchar2 as

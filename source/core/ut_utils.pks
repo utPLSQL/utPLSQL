@@ -247,6 +247,21 @@ create or replace package ut_utils authid definer is
    */
   procedure append_to_list(a_list in out nocopy ut_varchar2_list, a_item varchar2);
 
+  /**
+   * Append a item to the end of ut_varchar2_rows
+   */
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item varchar2);
+
+  /**
+   * Append a item to the end of ut_varchar2_rows
+   */
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item clob);
+
+  /**
+   * Append a list of items to the end of ut_varchar2_rows
+   */
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_items ut_varchar2_rows);
+
   procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2 := chr(10));
 
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob);

@@ -326,7 +326,51 @@ create or replace package body ut_utils is
     end if;
   end append_to_list;
 
-procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2:= chr(10)) is
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_items ut_varchar2_rows) is
+  begin
+    if a_items is not null then
+      if a_list is null then
+        a_list := ut_varchar2_rows();
+      end if;
+      for i in 1 .. a_items.count loop
+        a_list.extend;
+        a_list(a_list.last) := a_items(i);
+      end loop;
+    end if;
+  end;
+
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item clob) is
+  begin
+    append_to_list(
+      a_list,
+      convert_collection(
+        clob_to_table( a_item, ut_utils.gc_max_storage_varchar2_len )
+      )
+    );
+  end;
+
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item varchar2) is
+    l_items ut_varchar2_rows;
+  begin
+    if a_item is not null then
+      if a_list is null then
+        a_list := ut_varchar2_rows();
+      end if;
+      if length(a_item) > gc_max_storage_varchar2_len then
+        append_to_list(
+          a_list,
+          ut_utils.convert_collection(
+            ut_utils.clob_to_table( a_item, gc_max_storage_varchar2_len )
+          )
+        );
+      else
+        a_list.extend;
+        a_list(a_list.last) := a_item;
+      end if;
+    end if;
+  end append_to_list;
+
+  procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2:= chr(10)) is
   begin
     if a_clob_table is not null and cardinality(a_clob_table) > 0 then
       if a_src_clob is null then
@@ -522,7 +566,7 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
       ||'?>';
   end;
 
-  function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list is
+  function trim_list_elements(a_list ut_varchar2_list, a_regexp_to_trim varchar2 default '[:space:]') return ut_varchar2_list is
     l_trimmed_list ut_varchar2_list;
     l_index integer;
   begin
