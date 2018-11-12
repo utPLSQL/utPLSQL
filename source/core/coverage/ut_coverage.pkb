@@ -135,7 +135,7 @@ create or replace package body ut_coverage is
       l_cov_sources_crsr := get_cov_sources_cursor(a_coverage_options,a_sql);
 
       loop
-        fetch l_cov_sources_crsr bulk collect into l_cov_sources_data limit 1000;
+        fetch l_cov_sources_crsr bulk collect into l_cov_sources_data limit 10000;
 
         ut_coverage_helper.insert_into_tmp_table(l_cov_sources_data);
 
