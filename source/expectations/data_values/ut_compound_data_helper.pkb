@@ -172,20 +172,20 @@ create or replace package body ut_compound_data_helper is
   function get_rows_diff_by_sql(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_join_by_xpath varchar2
+    a_join_by_xpath varchar2, a_unordered boolean
   ) return tt_row_diffs is
     
     l_act_col_filter varchar2(32767);
     l_exp_col_filter varchar2(32767);
     l_results       tt_row_diffs;
-    
+    l_sql           varchar2(32767);
   begin
     l_act_col_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath,'ucd','act_item_data');
     l_exp_col_filter := get_columns_row_filter(a_exclude_xpath,a_include_xpath,'ucd','exp_item_data');
     
     --TODO: Generate SQL based on input as unorder join should aggregate
     
-    execute immediate q'[with exp as (
+   l_sql := q'[with exp as (
     select exp_item_data, exp_data_id, item_no rn,rownum col_no,
       nvl2(exp_item_data,ut3.ut_compound_data_helper.get_pk_value(i.join_by,exp_item_data),null) pk_value,
       s.column_value col, s.column_value.getRootElement() col_name, s.column_value.getclobval() col_val
@@ -212,15 +212,31 @@ create or replace package body ut_compound_data_helper is
       select rn, diff_type, diffed_row, pk_value
       ,case when diff_type = 'Actual:' then 1 else 2 end rnk
       ,1 final_order
-      from (
-      select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, pk_value pk_value
+      from ( ]';
+      
+    if a_unordered then 
+      l_sql := l_sql || q'[select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, pk_value pk_value
       from 
         (select nvl(exp.rn, act.rn) rn, nvl(exp.pk_value, act.pk_value) pk_value, exp.col  exp_item, act.col  act_item       
         from exp join act on exp.rn = act.rn and exp.col_name = act.col_name
         where dbms_lob.compare(exp.col_val, act.col_val) != 0)
         unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') 
-      ))
-    union all
+      ))]';
+    else
+    l_sql := l_sql || q'[ select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, null pk_value
+      from 
+        (select nvl(exp.rn, act.rn) rn,
+          xmlagg(exp.col order by exp.col_no) exp_item,
+          xmlagg(act.col order by act.col_no) act_item
+        from exp exp join act act on exp.rn = act.rn and exp.col_name = act.col_name
+        where dbms_lob.compare(exp.col_val, act.col_val) != 0
+        group by exp.rn, act.rn
+        )
+        unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:'))
+      )]';
+    end if;
+    
+    l_sql := l_sql || q'[union all
     select 
       item_no as rn, case when exp_data_id is null then 'Extra:' else 'Missing:' end as diff_type,
       xmlserialize(content (extract((case when exp_data_id is null then act_item_data else exp_item_data end),'/*/*')) no indent) diffed_row,
@@ -233,7 +249,9 @@ create or replace package body ut_compound_data_helper is
    )
    order by final_order, 
    case when final_order = 1 then rn else rnk end,
-   case when final_order = 1 then rnk else rn end ]'
+   case when final_order = 1 then rnk else rn end ]';
+   
+   execute immediate l_sql
    bulk collect into l_results
     using a_exclude_xpath, a_include_xpath, a_join_by_xpath,
           a_diff_id, a_expected_dataset_guid,
@@ -322,14 +340,14 @@ create or replace package body ut_compound_data_helper is
   function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_join_by_xpath varchar2,a_refcursor boolean
+    a_join_by_xpath varchar2,a_refcursor boolean, a_unordered boolean
   ) return tt_row_diffs is
     l_result tt_row_diffs := tt_row_diffs();
   begin
     case 
       when a_refcursor then
         l_result := get_rows_diff_by_sql(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
-                                   a_max_rows, a_exclude_xpath, a_include_xpath ,a_join_by_xpath);                                  
+                                   a_max_rows, a_exclude_xpath, a_include_xpath ,a_join_by_xpath, a_unordered);                                  
       else
         l_result := get_rows_diff(a_expected_dataset_guid, a_actual_dataset_guid, a_diff_id,
                                    a_max_rows, a_exclude_xpath, a_include_xpath);
