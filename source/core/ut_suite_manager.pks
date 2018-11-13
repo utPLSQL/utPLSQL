@@ -59,6 +59,21 @@ create or replace package ut_suite_manager authid current_user is
     a_skip_all_objects  boolean := false
   ) return ut_suite_items;
 
+  type t_suite_item_rec is record (
+    object_owner     varchar2(250),
+    object_name      varchar2(250),
+    item_name        varchar2(250),
+    item_description varchar2(250),
+    item_type        varchar2(250),
+    item_line_no     varchar2(250),
+    path             varchar2(4000),
+    disabled_flag    integer
+  );
+
+  type tt_suite_items is table of t_suite_item_rec;
+
+  function get_suites_info(a_owner_name varchar2) return tt_suite_items pipelined;
+
 
 end ut_suite_manager;
 /

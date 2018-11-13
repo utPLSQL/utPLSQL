@@ -149,7 +149,7 @@ create or replace package body ut_suite_manager is
     return l_results;
   end;
 
-  procedure copy_list_reverse_order(
+  procedure reverse_list_order(
     a_list in out nocopy ut_suite_items
   ) is
     l_start_idx pls_integer;
@@ -277,9 +277,14 @@ create or replace package body ut_suite_manager is
       end loop;
       exit when l_rows.count < c_bulk_limit;
     end loop;
-    copy_list_reverse_order( a_suites );
+
+    reverse_list_order( a_suites );
+
+    for i in 1 .. a_suites.count loop
+      a_suites( i ).set_rollback_type( a_suites( i ).get_rollback_type );
+    end loop;
     close a_suite_data_cursor;
-  end;
+  end reconstruct_from_cache;
 
   function get_missing_objects(a_object_owner varchar2) return ut_varchar2_rows is
     l_rows         sys_refcursor;
@@ -338,7 +343,7 @@ create or replace package body ut_suite_manager is
                    ( select 1
                        from all_objects a
                       where a.object_name = c.object_name
-                        and a.object_owner = ']'||upper(a_object_owner)||q'['
+                        and a.owner       = ']'||upper(a_object_owner)||q'['
                         and a.owner       = c.object_owner
                         and a.object_type = 'PACKAGE'
                    )]' end ||q'[
@@ -417,57 +422,17 @@ create or replace package body ut_suite_manager is
     return l_result;
   end;
 
-  function build_schema_suites(
-    a_owner_name     varchar2,
-    a_path           varchar2 := null,
-    a_object_name    varchar2 := null,
-    a_procedure_name varchar2 := null
-  ) return ut_suite_items is
-    l_annotations_cursor    sys_refcursor;
-    l_suite_cache_time      timestamp;
-    l_skip_all_objects_scan boolean := false;
+  function can_skip_all_objects_scan(
+    a_owner_name         varchar2
+  ) return boolean is
   begin
-    l_suite_cache_time := ut_suite_cache_manager.get_schema_parse_time(a_owner_name);
-    open l_annotations_cursor for
-    q'[select value(x)
-    from table(
-      ]' || ut_utils.ut_owner || q'[.ut_annotation_manager.get_annotated_objects(:a_owner_name, 'PACKAGE', :a_suite_cache_parse_time)
-    )x ]'
-    using a_owner_name, l_suite_cache_time;
-
-    -- if current user is the onwer or current user has execute any procedure privilege
-    if sys_context('userenv','current_schema') = a_owner_name
-      or ut_metadata.is_object_visible('ut3.ut_utils')
-    then
-      l_skip_all_objects_scan := true;
-    end if;
-    if l_skip_all_objects_scan or ut_metadata.is_object_visible('dba_objects') then
-      ut_suite_cache_manager.remove_from_cache( a_owner_name, get_missing_objects(a_owner_name) );
-    end if;
-
-    return build_suites_from_annotations(
-      a_owner_name,
-      l_annotations_cursor,
-      a_path,
-      a_object_name,
-      a_procedure_name,
-      l_skip_all_objects_scan
-    );
+    return sys_context( 'userenv', 'current_schema' ) = a_owner_name or ut_metadata.is_object_visible( ut_utils.ut_owner ||'.ut_utils' );
   end;
 
-  -----------------------------------------------
-  -----------------------------------------------
-  -------------  Public definitions -------------
-
-  function build_suites_from_annotations(
+  procedure build_and_cache_suites(
     a_owner_name        varchar2,
-    a_annotated_objects sys_refcursor,
-    a_path              varchar2 := null,
-    a_object_name       varchar2 := null,
-    a_procedure_name    varchar2 := null,
-    a_skip_all_objects  boolean := false
-  ) return ut_suite_items is
-    l_suites             ut_suite_items;
+    a_annotated_objects sys_refcursor
+  ) is
     l_annotated_objects  ut_annotated_objects;
     l_suite_items        ut_suite_items;
   begin
@@ -487,6 +452,77 @@ create or replace package body ut_suite_manager is
     end loop;
     close a_annotated_objects;
 
+  end;
+
+  procedure refresh_cache(
+    a_owner_name         varchar2,
+    a_annotations_cursor sys_refcursor := null
+  ) is
+    l_annotations_cursor    sys_refcursor;
+    l_suite_cache_time      timestamp;
+  begin
+    l_suite_cache_time := ut_suite_cache_manager.get_schema_parse_time(a_owner_name);
+    if a_annotations_cursor is not null then
+      l_annotations_cursor := a_annotations_cursor;
+    else
+      open l_annotations_cursor for
+      q'[select value(x)
+      from table(
+        ]' || ut_utils.ut_owner || q'[.ut_annotation_manager.get_annotated_objects(
+              :a_owner_name, 'PACKAGE', :a_suite_cache_parse_time
+            )
+          )x ]'
+      using a_owner_name, l_suite_cache_time;
+    end if;
+
+    build_and_cache_suites(a_owner_name, l_annotations_cursor);
+
+    if can_skip_all_objects_scan(a_owner_name) or ut_metadata.is_object_visible( 'dba_objects') then
+      ut_suite_cache_manager.remove_from_cache( a_owner_name, get_missing_objects(a_owner_name) );
+    end if;
+
+  end;
+
+  function get_suites_for_path(
+    a_owner_name     varchar2,
+    a_path           varchar2 := null,
+    a_object_name    varchar2 := null,
+    a_procedure_name varchar2 := null
+  ) return ut_suite_items is
+    l_suites                ut_suite_items;
+  begin
+    refresh_cache(a_owner_name);
+
+    reconstruct_from_cache(
+      l_suites,
+      get_cached_suite_data(
+        a_owner_name,
+        a_path,
+        a_object_name,
+        a_procedure_name,
+        can_skip_all_objects_scan(a_owner_name)
+      )
+    );
+    return l_suites;
+
+  end get_suites_for_path;
+
+  -----------------------------------------------
+  -----------------------------------------------
+  -------------  Public definitions -------------
+
+  function build_suites_from_annotations(
+    a_owner_name        varchar2,
+    a_annotated_objects sys_refcursor,
+    a_path              varchar2 := null,
+    a_object_name       varchar2 := null,
+    a_procedure_name    varchar2 := null,
+    a_skip_all_objects  boolean := false
+  ) return ut_suite_items is
+    l_suites             ut_suite_items;
+  begin
+    build_and_cache_suites(a_owner_name, a_annotated_objects);
+
     reconstruct_from_cache(
       l_suites,
       get_cached_suite_data(
@@ -497,9 +533,6 @@ create or replace package body ut_suite_manager is
         a_skip_all_objects
       )
     );
-    for i in 1 .. l_suites.count loop
-      l_suites( i ).set_rollback_type( l_suites( i ).get_rollback_type );
-    end loop;
     return l_suites;
   end;
 
@@ -566,7 +599,7 @@ create or replace package body ut_suite_manager is
       l_path_items  := l_schema_paths(l_schema);
       for i in 1 .. l_path_items.count loop
         l_path_item := l_path_items(i);
-          l_suites := build_schema_suites(
+          l_suites := get_suites_for_path(
             upper(l_schema),
             l_path_item.suite_path,
             l_path_item.object_name,
@@ -598,6 +631,82 @@ create or replace package body ut_suite_manager is
 
     return l_objects_to_run;
   end configure_execution_by_path;
+
+  function get_suites_info(a_owner_name varchar2) return tt_suite_items pipelined is
+    l_cursor      sys_refcursor;
+    l_ut_owner    varchar2(250) := ut_utils.ut_owner;
+    c_bulk_limit  constant integer := 100;
+    l_results     tt_suite_items;
+  begin
+    refresh_cache(a_owner_name);
+    
+    open l_cursor for
+    q'[with
+      suite_items as (
+        select /*+ cardinality(c 100) */ c.*
+          from ]'||l_ut_owner||q'[.ut_suite_cache c
+         where 1 = 1 ]'||case when can_skip_all_objects_scan(a_owner_name) then q'[
+               and exists
+                   ( select 1
+                       from all_objects a
+                      where a.object_name = c.object_name
+                        and a.owner       = ']'||upper(a_owner_name)||q'['
+                        and a.owner       = c.object_owner
+                        and a.object_type = 'PACKAGE'
+                   )]' end ||q'[
+               and c.object_owner = ']'||upper(a_owner_name)||q'['
+      ),
+      suitepaths as (
+        select distinct
+               substr(path,1,instr(path,'.',-1)-1) as suitepath,
+               path,
+               object_owner
+          from suite_items
+         where self_type = 'UT_SUITE'
+      ),
+        gen as (
+        select rownum as pos
+          from xmltable('1 to 20')
+      ),
+      suitepath_part AS (
+        select distinct
+               substr(b.suitepath, 1, instr(b.suitepath || '.', '.', 1, g.pos) -1) as path,
+               object_owner
+          from suitepaths b
+               join gen g
+                 on g.pos <= regexp_count(b.suitepath, '\w+')
+      ),
+      logical_suites as (
+        select 'UT_LOGICAL_SUITE' as item_type,
+               p.path, p.object_owner,
+               upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name
+          from suitepath_part p
+         where p.path
+           not in (select s.path from suitepaths s)
+      ),
+      items as (
+        select object_owner, object_name, name as item_name,
+               description as item_description, self_type as item_type, line_no as item_line_no,
+               path, disabled_flag
+          from suite_items
+        union all
+        select object_owner, object_name, object_name as item_name,
+               null as item_description, item_type, null as item_line_no,
+               s.path,  0 as disabled_flag
+          from logical_suites s
+      )
+    select c.*
+      from items c]';
+    loop
+      fetch l_cursor bulk collect into l_results limit c_bulk_limit;
+      for i in 1 .. l_results.count loop
+        pipe row (l_results(i));
+      end loop;
+      exit when l_cursor%notfound;
+    end loop;
+    close l_cursor;
+
+  end;
 
 end ut_suite_manager;
 /
