@@ -48,6 +48,8 @@ create or replace type body ut_data_value_refcursor as
           self.elements_count     := 0;
           self.columns_info := ut_curr_usr_compound_helper.extract_min_col_info(self.col_info_desc);
           
+          self.cursor_col_info := ut_cursor_info(l_cursor);
+           
           -- We use DBMS_XMLGEN in order to:
           -- 1) be able to process data in bulks (set of rows)
           -- 2) be able to influence the ROWSET/ROW tags
@@ -99,7 +101,7 @@ create or replace type body ut_data_value_refcursor as
       dbms_xmlgen.closeContext(l_ctx);
       raise;
   end;
-
+ 
   overriding member function to_string return varchar2 is
     l_result        clob;
     l_result_string varchar2(32767);
@@ -236,7 +238,7 @@ create or replace type body ut_data_value_refcursor as
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
     end if;
-
+ 
     l_other   := treat(a_other as ut_data_value_refcursor);
     
     --if we join by key and key is missing fail and report error
@@ -265,6 +267,14 @@ create or replace type body ut_data_value_refcursor as
     return self.elements_count = 0;
   end;
 
+ member function filter_cursor (a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list) return ut_data_value_refcursor is
+    l_result ut_data_value_refcursor := self;
+  begin
+    if l_result.cursor_col_info.cursor_info is not null then
+      l_result.cursor_col_info.cursor_info := ut_compound_data_helper.inc_exc_columns_from_cursor(l_result.cursor_col_info.cursor_info,a_exclude_xpath,a_include_xpath);
+    end if;
+    return l_result;
+  end;
 
 end;
 /

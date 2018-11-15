@@ -25,7 +25,7 @@ create or replace type body ut_equal as
     self.exclude_list := ut_varchar2_list();
     self.join_columns := ut_varchar2_list();
   end;
-
+ 
   member function equal_with_nulls(a_assert_result boolean, a_actual ut_data_value) return boolean is
   begin
     ut_utils.debug_log('ut_equal.equal_with_nulls :' || ut_utils.to_test_result(a_assert_result) || ':');
@@ -228,12 +228,14 @@ create or replace type body ut_equal as
   
   overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean is
     l_result boolean;
+    l_actual ut_data_value;
   begin
     if self.expected.data_type = a_actual.data_type then
       if self.expected is of (ut_data_value_anydata) then
         l_result := 0 = treat(self.expected as ut_data_value_anydata).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath());
       elsif self.expected is of (ut_data_value_refcursor) then
-        l_result := 0 = treat(self.expected as ut_data_value_refcursor).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath(), get_join_by_xpath(), get_unordered());
+        l_actual := treat(a_actual as ut_data_value_refcursor).filter_cursor(exclude_list, include_list);
+        l_result := 0 = treat(self.expected as ut_data_value_refcursor).filter_cursor(exclude_list, include_list).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath(), get_join_by_xpath(), get_unordered());
       else
         l_result := equal_with_nulls((self.expected = a_actual), a_actual);
       end if;

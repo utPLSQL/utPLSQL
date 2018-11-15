@@ -18,6 +18,7 @@ create or replace package body ut_compound_data_helper is
 
   g_user_defined_type pls_integer := dbms_sql.user_defined_type;
   g_diff_count        integer;
+  g_filter_tab        ut_varchar2_list;
   
   function get_column_info_xml(a_column_details ut_key_anyval_pair) return xmltype is
     l_result varchar2(4000);
@@ -620,7 +621,7 @@ create or replace package body ut_compound_data_helper is
   
   begin
     dbms_lob.createtemporary(l_compare_sql, true);
-    
+     
     --TODO: Resolve issues with collection and nested tables, can we extract by internal column name if defined e.g. xml of colval.id.getclobval()
     --TODO: Comment better all pieces
     l_column_filter := get_columns_row_filter(a_exclude_xpath, a_include_xpath);     
@@ -717,7 +718,7 @@ create or replace package body ut_compound_data_helper is
      l_temp_string := ' (a.data_id is null or e.data_id is null) ';
    end if;
    ut_utils.append_to_clob(l_compare_sql,l_temp_string);
-  
+   
    return l_compare_sql;
   end;
  
@@ -748,5 +749,129 @@ create or replace package body ut_compound_data_helper is
     return g_diff_count;
   end;
   
-end;
+  function populate_filter_columns (a_column_string in varchar2, a_column_info ut_column_info_tab) return ut_column_info_rec is
+    l_result ut_column_info_rec;
+    l_column_from_string varchar2(32767);
+    l_rest_of_path varchar2(32767);
+  begin
+    --check if string has a path
+    l_column_from_string := regexp_substr(a_column_string,'^([^\/]*)?\/?(.*)',1,1,null,1);
+    for col in 1..a_column_info.count loop          
+      if  l_column_from_string = a_column_info(col).column_name then
+        if a_column_string like '%/%' then  
+          l_rest_of_path := regexp_substr(a_column_string,'^([^\/]*)?\/(.*)',1,1,null,2);
+          l_result  := treat(a_column_info(col) as ut_column_info_rec);
+          l_result.nested_details := ut_column_info_tab(); 
+          l_result.nested_details.extend;
+          l_result.nested_details(l_result.nested_details.last) := populate_filter_columns (l_rest_of_path,treat(a_column_info(col) as ut_column_info_rec).nested_details);
+        else
+          l_result := treat(a_column_info(col) as ut_column_info_rec);     
+        end if;
+      end if;
+    end loop;
+    return l_result;
+  end;
+
+  function get_child(a_parent in varchar2 default null) return ut_varchar2_list is
+      l_out_tab ut_varchar2_list := ut_varchar2_list();
+      cursor c_child(cp_parent in varchar2) is
+         with sorted as
+          (select r_num,
+                  regexp_substr(t.column_value, '[^/]+', 1, commas.column_value) as colval,
+                  commas.column_value lev
+             from (select row_number() over(order by 1) r_num,
+                          column_value
+                     from ((table(g_filter_tab)))) t,
+                  table(cast(multiset
+                             (select level
+                                from dual
+                              connect by level <=
+                                         length(regexp_replace(t.column_value,
+                                                               '[^/]+')) + 1) as
+                             sys.odcinumberlist)) commas
+            order by r_num,
+                     lev),
+         hier as
+          (select r_num,
+                  lev,
+                  colval,
+                  lag(colval, 1) over(partition by r_num order by lev) parent
+             from sorted)
+         select distinct colval
+           from hier
+          where nvl(parent, 1) = nvl(cp_parent, 1);
+   
+   begin
+      open c_child(a_parent);
+      fetch c_child bulk collect
+         into l_out_tab;
+      close c_child;
+      return l_out_tab;
+   end;
+
+  function exc_inc_cursors_columns(a_column_info_tab ut_column_info_tab,a_current_list ut_varchar2_list) 
+  return ut_column_info_tab is
+    l_result ut_column_info_tab := ut_column_info_tab();
+    l_record  ut_column_info_rec;
+    l_index   integer := 1;
+  begin
+    --TODO : Optimize search using while or exists operator ?
+    for lst in 1..a_current_list.count loop
+      for i in 1..a_column_info_tab.count loop
+        if a_current_list(lst) = a_column_info_tab(i).column_name then
+          l_result.extend;
+          if a_column_info_tab(i) is of (ut_column_info_rec) then
+            l_record := treat(a_column_info_tab(i) as ut_column_info_rec);  
+            l_record.nested_details := exc_inc_cursors_columns(treat(a_column_info_tab(i) as ut_column_info_rec).nested_details,get_child(a_column_info_tab(i).column_name));
+          end if;
+          l_result(l_result.last) := l_record;
+        end if;
+      end loop;
+    end loop;
+    return l_result;
+  end;
+
+  function inc_exc_columns_from_cursor (a_cursor_info ut_column_info_tab, a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list)
+  return ut_column_info_tab is
+    l_filtered_set ut_varchar2_list := ut_varchar2_list();
+    l_result ut_column_info_tab := ut_column_info_tab();  
+  begin
+    g_filter_tab := ut_varchar2_list();  
+    
+    -- if include and exclude is not null its columns from include minus exclude
+    -- If inlcude is not null and exclude is null cursor will have only include
+    -- If exclude is not null and include is null cursor will have all except exclude
+    
+    if a_include_xpath.count > 0 and a_exclude_xpath.count > 0 then
+      select col_names bulk collect into l_filtered_set
+      from(
+        select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
+        from table(a_include_xpath)
+        minus
+        select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
+        from table(a_exclude_xpath)
+       );
+    elsif a_include_xpath.count > 0 and a_exclude_xpath.count = 0 then
+      select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
+      bulk collect into l_filtered_set
+      from table(a_include_xpath);
+    elsif a_include_xpath.count = 0 and a_exclude_xpath.count > 0 then
+      select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
+      bulk collect into l_filtered_set
+      from table(a_exclude_xpath);
+    elsif a_cursor_info is not null then
+      l_result:= a_cursor_info;
+    else
+      l_result := ut_column_info_tab();
+    end if;
+        
+    g_filter_tab := l_filtered_set;
+    if g_filter_tab.count <> 0 then
+      l_result := exc_inc_cursors_columns(a_cursor_info,get_child());
+    end if;   
+
+    return l_result;
+  end;
+  
+end; 
 /

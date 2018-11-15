@@ -19,4 +19,5 @@ create global temporary table ut_compound_data_tmp(
   pk_hash          raw(128),
   duplicate_no     integer,
   constraint ut_cmp_data_tmp_hash_pk unique (data_id, item_no, duplicate_no)
-) on commit preserve rows xmltype column item_data store as binary xml;
+) on commit preserve rows;
+--xmltype column item_data store as binary xml;

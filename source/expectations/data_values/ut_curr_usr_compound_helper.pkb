@@ -34,12 +34,7 @@ create or replace package body ut_curr_usr_compound_helper is
       return ut_utils.boolean_to_int(is_sql_compare_allowed(a_type_name));
   end;
 
-  function get_column_type(a_desc_rec dbms_sql.desc_rec3, a_desc_user_types boolean := false) return ut_key_anyval_pair is
-    l_data ut_data_value;
-    l_result ut_key_anyval_pair;
-    l_data_type varchar2(500) := 'unknown datatype';  
-    
-    function is_collection (a_owner varchar2,a_type_name varchar2) return boolean is
+  function is_collection (a_owner varchar2,a_type_name varchar2) return boolean is
       l_type_view varchar2(200) := ut_metadata.get_dba_view('dba_types');
       l_typecode varchar2(100);
     begin
@@ -48,7 +43,16 @@ create or replace package body ut_curr_usr_compound_helper is
       into l_typecode using a_owner,a_type_name;   
       
       return l_typecode = 'COLLECTION';
+    exception
+      when no_data_found then
+      return false;
     end;
+
+  function get_column_type(a_desc_rec dbms_sql.desc_rec3, a_desc_user_types boolean := false) return ut_key_anyval_pair is
+    l_data ut_data_value;
+    l_result ut_key_anyval_pair;
+    l_data_type varchar2(500) := 'unknown datatype';  
+
     --TODO: Review the types in and resolving
     begin
           
@@ -241,6 +245,11 @@ create or replace package body ut_curr_usr_compound_helper is
   return l_result ;
   end;
   
+  function get_column_type(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2 is
+  begin
+   return case when not a_dbms_sql_desc then g_anytype_name_map(a_type_code) else g_type_name_map(a_type_code) end;
+  end;
+  
   begin
   g_anytype_name_map(dbms_types.typecode_date)             := 'DATE';
   g_anytype_name_map(dbms_types.typecode_number)           := 'NUMBER';
@@ -262,7 +271,7 @@ create or replace package body ut_curr_usr_compound_helper is
   g_anytype_name_map(dbms_types.typecode_varray)           := 'VARRRAY';
   g_anytype_name_map(dbms_types.typecode_table)            := 'TABLE';
   g_anytype_name_map(dbms_types.typecode_namedcollection)  := 'NAMEDCOLLECTION';  
-  
+    
   g_anytype_collection_name(dbms_types.typecode_varray)           := 'VARRRAY';
   g_anytype_collection_name(dbms_types.typecode_table)            := 'TABLE';
   g_anytype_collection_name(dbms_types.typecode_namedcollection)  := 'NAMEDCOLLECTION';
