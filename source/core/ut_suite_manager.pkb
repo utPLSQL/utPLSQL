@@ -29,6 +29,7 @@ create or replace package body ut_suite_manager is
   type tt_cached_suites  is table of t_cached_suite;
   type t_cached_suites_cursor is ref cursor return t_cached_suite;
 
+  type t_item_levels is table of ut_suite_items index by binary_integer;
   ------------------
 
   procedure validate_paths(a_paths in ut_varchar2_list) is
@@ -167,33 +168,19 @@ create or replace package body ut_suite_manager is
     end loop;
   end;
 
-  procedure reconstruct_from_cache(
-    a_suites            out nocopy ut_suite_items,
-    a_suite_data_cursor sys_refcursor
-  ) is
-    type t_item_levels is table of ut_suite_items index by binary_integer;
-    c_bulk_limit        constant pls_integer := 1000;
-    l_items_at_level    t_item_levels;
-    l_rows              tt_cached_suites;
-    l_test              ut_test;
-    l_logical_suite     ut_logical_suite;
-    l_level             pls_integer;
-    l_prev_level        pls_integer;
-    l_idx               integer;
+  function get_logical_suite(
+    l_rows tt_cached_suites,
+    l_idx pls_integer,
+    l_level             pls_integer,
+    l_prev_level        pls_integer,
+    l_items_at_level    t_item_levels
+  ) return ut_logical_suite is
   begin
-    a_suites := ut_suite_items();
-    loop
-      fetch a_suite_data_cursor bulk collect into l_rows limit c_bulk_limit;
-      exit when l_rows.count = 0;
-
-      l_idx := l_rows.first;
-      loop
-        l_test := null;
-        l_logical_suite := null;
-        case l_rows(l_idx).self_type
-          when 'UT_TEST' then
-          l_test :=
-            ut_test(
+    return
+      case l_rows(l_idx).self_type
+        when 'UT_SUITE' then
+          case when l_prev_level > l_level then
+            ut_suite(
               self_type => l_rows(l_idx).self_type,
               object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
               name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
@@ -201,14 +188,10 @@ create or replace package body ut_suite_manager is
               line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
               start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
               results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-              before_each_list => sort_by_seq_no(l_rows(l_idx).before_each_list), before_test_list => sort_by_seq_no(l_rows(l_idx).before_test_list),
-              item => l_rows(l_idx).item,
-              after_test_list => sort_by_seq_no(l_rows(l_idx).after_test_list), after_each_list => sort_by_seq_no(l_rows(l_idx).after_each_list),
-              all_expectations => ut_expectation_results(), failed_expectations => ut_expectation_results(),
-              parent_error_stack_trace => null, expected_error_codes => l_rows(l_idx).expected_error_codes
-            );
-          when 'UT_SUITE' then
-          l_logical_suite :=
+              items => l_items_at_level(l_prev_level),
+              before_all_list => sort_by_seq_no(l_rows(l_idx).before_all_list), after_all_list => sort_by_seq_no(l_rows(l_idx).after_all_list)
+            )
+          else
             ut_suite(
               self_type => l_rows(l_idx).self_type,
               object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
@@ -219,9 +202,22 @@ create or replace package body ut_suite_manager is
               results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
               items => ut_suite_items(),
               before_all_list => sort_by_seq_no(l_rows(l_idx).before_all_list), after_all_list => sort_by_seq_no(l_rows(l_idx).after_all_list)
-            );
-          when 'UT_SUITE_CONTEXT' then
-          l_logical_suite :=
+            )
+          end
+        when 'UT_SUITE_CONTEXT' then
+          case when l_prev_level > l_level then
+            ut_suite_context(
+              self_type => l_rows(l_idx).self_type,
+              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
+              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
+              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
+              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
+              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
+              items => l_items_at_level(l_prev_level),
+              before_all_list => sort_by_seq_no(l_rows(l_idx).before_all_list), after_all_list => sort_by_seq_no(l_rows(l_idx).after_all_list)
+            )
+          else
             ut_suite_context(
               self_type => l_rows(l_idx).self_type,
               object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
@@ -232,9 +228,21 @@ create or replace package body ut_suite_manager is
               results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
               items => ut_suite_items(),
               before_all_list => sort_by_seq_no(l_rows(l_idx).before_all_list), after_all_list => sort_by_seq_no(l_rows(l_idx).after_all_list)
-            );
-          when 'UT_LOGICAL_SUITE' then
-          l_logical_suite :=
+            )
+          end
+        when 'UT_LOGICAL_SUITE' then
+          case when l_prev_level > l_level then
+            ut_logical_suite(
+              self_type => l_rows(l_idx).self_type,
+              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
+              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
+              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
+              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
+              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+              results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
+              items => l_items_at_level(l_prev_level)
+            )
+          else
             ut_logical_suite(
               self_type => l_rows(l_idx).self_type,
               object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
@@ -244,32 +252,62 @@ create or replace package body ut_suite_manager is
               start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
               results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
               items => ut_suite_items()
-            );
-        end case;
+            )
+          end
+      end;
+  end;
+  
+  procedure reconstruct_from_cache(
+    a_suites            in out nocopy ut_suite_items,
+    a_suite_data_cursor sys_refcursor
+  ) is
+    c_bulk_limit        constant pls_integer := 1000;
+    l_items_at_level    t_item_levels;
+    l_rows              tt_cached_suites;
+    l_logical_suite     ut_logical_suite;
+    l_level             pls_integer;
+    l_prev_level        pls_integer;
+    l_idx               integer;
+  begin
+    loop
+      fetch a_suite_data_cursor bulk collect into l_rows limit c_bulk_limit;
+      exit when l_rows.count = 0;
 
+      l_idx := l_rows.first;
+      loop
         l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
-
         if l_level > 1 then
-          if l_prev_level > l_level then
-            l_logical_suite.items := l_items_at_level(l_prev_level);
-            l_items_at_level(l_prev_level).delete;
-          end if;
           if not l_items_at_level.exists(l_level) then
             l_items_at_level(l_level) := ut_suite_items();
           end if;
           l_items_at_level(l_level).extend;
-          if l_test is not null then
-            l_items_at_level(l_level)(l_items_at_level(l_level).last) := l_test;
+          if l_rows(l_idx).self_type = 'UT_TEST' then
+            l_items_at_level(l_level)(l_items_at_level(l_level).last) :=
+              ut_test(
+                self_type => l_rows(l_idx).self_type,
+                object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
+                name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
+                rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
+                line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
+                start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+                results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
+                before_each_list => sort_by_seq_no(l_rows(l_idx).before_each_list), before_test_list => sort_by_seq_no(l_rows(l_idx).before_test_list),
+                item => l_rows(l_idx).item,
+                after_test_list => sort_by_seq_no(l_rows(l_idx).after_test_list), after_each_list => sort_by_seq_no(l_rows(l_idx).after_each_list),
+                all_expectations => ut_expectation_results(), failed_expectations => ut_expectation_results(),
+                parent_error_stack_trace => null, expected_error_codes => l_rows(l_idx).expected_error_codes
+              );
           else
-            l_items_at_level(l_level)(l_items_at_level(l_level).last) := l_logical_suite;
-          end if;
+            pragma inline(get_logical_suite, 'YES');
+            l_items_at_level(l_level)(l_items_at_level(l_level).last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
+           end if;
         else
-          if l_prev_level > l_level then
-            l_logical_suite.items := l_items_at_level(l_prev_level);
-            l_items_at_level(l_prev_level).delete;
-          end if;
           a_suites.extend;
-          a_suites(a_suites.last) := l_logical_suite;
+          pragma inline(get_logical_suite, 'YES');
+          a_suites(a_suites.last) := get_logical_suite(l_rows, l_idx, l_level,l_prev_level, l_items_at_level );
+        end if;
+        if l_prev_level > l_level then
+          l_items_at_level(l_prev_level).delete;
         end if;
         l_prev_level := l_level;
         l_idx := l_rows.next(l_idx);
@@ -483,18 +521,18 @@ create or replace package body ut_suite_manager is
 
   end;
 
-  function get_suites_for_path(
+  procedure add_suites_for_path(
     a_owner_name     varchar2,
     a_path           varchar2 := null,
     a_object_name    varchar2 := null,
-    a_procedure_name varchar2 := null
-  ) return ut_suite_items is
-    l_suites                ut_suite_items;
+    a_procedure_name varchar2 := null,
+    a_suites         in out nocopy ut_suite_items
+  ) is
   begin
     refresh_cache(a_owner_name);
 
     reconstruct_from_cache(
-      l_suites,
+      a_suites,
       get_cached_suite_data(
         a_owner_name,
         a_path,
@@ -503,9 +541,8 @@ create or replace package body ut_suite_manager is
         can_skip_all_objects_scan(a_owner_name)
       )
     );
-    return l_suites;
 
-  end get_suites_for_path;
+  end;
 
   -----------------------------------------------
   -----------------------------------------------
@@ -519,7 +556,7 @@ create or replace package body ut_suite_manager is
     a_procedure_name    varchar2 := null,
     a_skip_all_objects  boolean := false
   ) return ut_suite_items is
-    l_suites             ut_suite_items;
+    l_suites             ut_suite_items := ut_suite_items();
   begin
     build_and_cache_suites(a_owner_name, a_annotated_objects);
 
@@ -578,58 +615,59 @@ create or replace package body ut_suite_manager is
   end;
 
   function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items is
+    l_suites             ut_suite_items := ut_suite_items();
+  begin
+    configure_execution_by_path(a_paths, l_suites );
+    return l_suites;
+  end;
+
+  procedure configure_execution_by_path(a_paths in ut_varchar2_list, a_suites out nocopy ut_suite_items) is
     l_paths              ut_varchar2_list := a_paths;
     l_path_items         t_path_items;
     l_path_item          t_path_item;
     l_schema             varchar2(4000);
-    l_suites             ut_suite_items;
+    l_suites_count       pls_integer := 0;
     l_index              varchar2(4000 char);
-    l_objects_to_run     ut_suite_items;
     l_schema_paths       t_schema_paths;
   begin
+    a_suites := ut_suite_items();
     --resolve schema names from paths and group paths by schema name
     resolve_schema_names(l_paths);
 
     l_schema_paths := group_paths_by_schema(l_paths);
-
-    l_objects_to_run := ut_suite_items();
 
     l_schema := l_schema_paths.first;
     while l_schema is not null loop
       l_path_items  := l_schema_paths(l_schema);
       for i in 1 .. l_path_items.count loop
         l_path_item := l_path_items(i);
-          l_suites := get_suites_for_path(
+          add_suites_for_path(
             upper(l_schema),
             l_path_item.suite_path,
             l_path_item.object_name,
-            l_path_item.procedure_name
+            l_path_item.procedure_name,
+            a_suites
           );
-        if l_suites.count = 0 then
+        if a_suites.count = l_suites_count then
           if l_path_item.suite_path is not null then
             raise_application_error(ut_utils.gc_suite_package_not_found,'No suite packages found for path '||l_schema||':'||l_path_item.suite_path|| '.');
           elsif l_path_item.procedure_name is not null then
             raise_application_error(ut_utils.gc_suite_package_not_found,'Suite test '||l_schema||'.'||l_path_item.object_name|| '.'||l_path_item.procedure_name||' does not exist');
-          else
+          elsif l_path_item.object_name is not null then
             raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||l_schema||'.'||l_path_item.object_name|| ' does not exist');
           end if;
         end if;
-        l_index := l_suites.first;
-        while l_index is not null loop
-          l_objects_to_run.extend;
-          l_objects_to_run(l_objects_to_run.count) := l_suites(l_index);
-          l_index := l_suites.next(l_index);
-        end loop;
+        l_index := a_suites.first;
+        l_suites_count := a_suites.count;
       end loop;
       l_schema := l_schema_paths.next(l_schema);
     end loop;
 
     --propagate rollback type to suite items after organizing suites into hierarchy
-    for i in 1 .. l_objects_to_run.count loop
-      l_objects_to_run(i).set_rollback_type( l_objects_to_run(i).get_rollback_type() );
+    for i in 1 .. a_suites.count loop
+      a_suites(i).set_rollback_type( a_suites(i).get_rollback_type() );
     end loop;
 
-    return l_objects_to_run;
   end configure_execution_by_path;
 
   function get_suites_info(a_owner_name varchar2) return tt_suite_items pipelined is

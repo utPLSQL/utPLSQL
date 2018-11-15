@@ -40,6 +40,15 @@ create or replace package ut_suite_manager authid current_user is
   function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items;
 
   /**
+   * Builds a hierarchical suites based on given suite-paths
+   *
+   * @param a_paths   list of suite-paths or procedure names or package names or schema names
+   * @param a_suites  returned array containing root suites-ready to be executed
+   *
+   */
+  procedure configure_execution_by_path(a_paths in ut_varchar2_list, a_suites out nocopy ut_suite_items);
+
+  /**
    * Cleanup paths by removing leading/trailing whitespace and making paths lowercase
    * Get list of schema names from execution paths.
    */

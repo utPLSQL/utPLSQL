@@ -128,7 +128,7 @@ create or replace package body ut_runner is
       l_include_object_names := to_ut_object_list(a_include_objects, l_coverage_schema_names);
 
       l_run := ut_run(
-        ut_suite_manager.configure_execution_by_path(l_paths),
+        null,
         l_paths,
         l_coverage_schema_names,
         l_exclude_object_names,
@@ -137,6 +137,7 @@ create or replace package body ut_runner is
         set(a_test_file_mappings),
         a_client_character_set
       );
+      ut_suite_manager.configure_execution_by_path(l_paths, l_run.items);
       l_run.do_execute();
 
       finish_run(l_run);
