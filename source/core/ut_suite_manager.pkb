@@ -169,87 +169,91 @@ create or replace package body ut_suite_manager is
   end;
 
   function get_logical_suite(
-    l_rows tt_cached_suites,
-    l_idx pls_integer,
-    l_level             pls_integer,
-    l_prev_level        pls_integer,
-    l_items_at_level    t_item_levels
+    a_rows tt_cached_suites,
+    a_idx pls_integer,
+    a_level             pls_integer,
+    a_prev_level        pls_integer,
+    a_items_at_level    t_item_levels
   ) return ut_logical_suite is
   begin
     return
-      case l_rows(l_idx).self_type
+      case a_rows( a_idx ).self_type
         when 'UT_SUITE' then
-          case when l_prev_level > l_level then
+          case when a_prev_level > a_level then
             ut_suite(
-              self_type => l_rows(l_idx).self_type,
-              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
-              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
-              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
-              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
-              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+              self_type => a_rows( a_idx ).self_type,
+              object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
+              name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
+              rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag,
+              line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
+              start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
               results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-              items => l_items_at_level(l_prev_level),
-              before_all_list => sort_by_seq_no(l_rows(l_idx).before_all_list), after_all_list => sort_by_seq_no(l_rows(l_idx).after_all_list)
+              items => a_items_at_level(a_prev_level),
+              before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
+                a_rows( a_idx ).after_all_list)
             )
           else
             ut_suite(
-              self_type => l_rows(l_idx).self_type,
-              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
-              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
-              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
-              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
-              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+              self_type => a_rows( a_idx ).self_type,
+              object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
+              name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
+              rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag,
+              line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
+              start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
               results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
               items => ut_suite_items(),
-              before_all_list => sort_by_seq_no(l_rows(l_idx).before_all_list), after_all_list => sort_by_seq_no(l_rows(l_idx).after_all_list)
+              before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
+                a_rows( a_idx ).after_all_list)
             )
           end
         when 'UT_SUITE_CONTEXT' then
-          case when l_prev_level > l_level then
+          case when a_prev_level > a_level then
             ut_suite_context(
-              self_type => l_rows(l_idx).self_type,
-              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
-              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
-              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
-              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
-              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+              self_type => a_rows( a_idx ).self_type,
+              object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
+              name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
+              rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag,
+              line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
+              start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
               results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-              items => l_items_at_level(l_prev_level),
-              before_all_list => sort_by_seq_no(l_rows(l_idx).before_all_list), after_all_list => sort_by_seq_no(l_rows(l_idx).after_all_list)
+              items => a_items_at_level(a_prev_level),
+              before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
+                a_rows( a_idx ).after_all_list)
             )
           else
             ut_suite_context(
-              self_type => l_rows(l_idx).self_type,
-              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
-              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
-              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
-              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
-              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+              self_type => a_rows( a_idx ).self_type,
+              object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
+              name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
+              rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag,
+              line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
+              start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
               results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
               items => ut_suite_items(),
-              before_all_list => sort_by_seq_no(l_rows(l_idx).before_all_list), after_all_list => sort_by_seq_no(l_rows(l_idx).after_all_list)
+              before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
+                a_rows( a_idx ).after_all_list)
             )
           end
         when 'UT_LOGICAL_SUITE' then
-          case when l_prev_level > l_level then
+          case when a_prev_level > a_level then
             ut_logical_suite(
-              self_type => l_rows(l_idx).self_type,
-              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
-              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
-              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
-              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
-              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+              self_type => a_rows( a_idx ).self_type,
+              object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
+              name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
+              rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag,
+              line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
+              start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
               results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-              items => l_items_at_level(l_prev_level)
+              items => a_items_at_level(a_prev_level)
             )
           else
             ut_logical_suite(
-              self_type => l_rows(l_idx).self_type,
-              object_owner => l_rows(l_idx).object_owner, object_name => lower(l_rows(l_idx).object_name),
-              name => lower(l_rows(l_idx).name), description => l_rows(l_idx).description, path => l_rows(l_idx).path,
-              rollback_type => l_rows(l_idx).rollback_type, disabled_flag => l_rows(l_idx).disabled_flag,
-              line_no => l_rows(l_idx).line_no, parse_time => l_rows(l_idx).parse_time,
-              start_time => null, end_time => null, result => null, warnings => l_rows(l_idx).warnings,
+              self_type => a_rows( a_idx ).self_type,
+              object_owner => a_rows( a_idx ).object_owner, object_name => lower( a_rows( a_idx ).object_name),
+              name => lower( a_rows( a_idx ).name), description => a_rows( a_idx ).description, path => a_rows( a_idx ).path,
+              rollback_type => a_rows( a_idx ).rollback_type, disabled_flag => a_rows( a_idx ).disabled_flag,
+              line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
+              start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
               results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
               items => ut_suite_items()
             )
