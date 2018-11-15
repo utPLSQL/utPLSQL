@@ -2,7 +2,7 @@ set define off
 whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
-alter session set plsql_optimize_level=0;
+--alter session set plsql_optimize_level=0;
 --Install helpers
 @@helpers/ut_test_table.sql
 @@helpers/ut_example_tests.pks

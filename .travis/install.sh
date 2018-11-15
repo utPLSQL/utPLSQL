@@ -9,7 +9,7 @@ set feedback off
 set verify off
 
 --alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6003,6009,6010,7206)';
-alter session set plsql_optimize_level=0;
+--alter session set plsql_optimize_level=0;
 @install_headless.sql $UT3_OWNER $UT3_OWNER_PASSWORD
 SQL
 
@@ -45,7 +45,7 @@ SQL
     set feedback off
     set verify off
 
-    alter session set plsql_optimize_level=0;
+    --alter session set plsql_optimize_level=0;
     @install.sql $UT3_OWNER
 SQL
 
