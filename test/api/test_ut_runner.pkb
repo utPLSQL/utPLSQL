@@ -583,7 +583,7 @@ end;';
 
   procedure has_suites_false is
   begin
-    ut.expect( ut3.ut_runner.has_suites( 'UT3' ) ).to_be_false();
+    ut.expect( ut3.ut_runner.has_suites( 'UT3_LATEST_RELEASE' ) ).to_be_false();
     ut.expect( ut3.ut_runner.has_suites( 'BAD' ) ).to_be_false();
     ut.expect( ut3.ut_runner.has_suites(  null ) ).to_be_false();
   end;
