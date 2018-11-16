@@ -37,7 +37,7 @@ create or replace package body ut_suite_cache_manager is
     l_object_owner      varchar2(250) := upper(a_object_owner);
     l_object_name       varchar2(250) := upper(a_object_name);
   begin
-    if a_suite_items.count = 0 then
+    if a_suite_items is not null and a_suite_items.count = 0 then
 
       delete from ut_suite_cache t
        where t.object_owner = l_object_owner

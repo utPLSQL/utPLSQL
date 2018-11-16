@@ -94,7 +94,33 @@ create or replace package ut_runner authid current_user is
   * @param   a_package_name optional name of unit test package to retrieve, if NULLm all unit test packages are returned
   * @return  ut_suite_items_info table of objects
   */
-  function get_unit_test_info(a_owner varchar2, a_package_name varchar2) return ut_suite_items_info pipelined;
+  function get_suites_info(a_owner varchar2, a_package_name varchar2 := null) return ut_suite_items_info pipelined;
+
+
+  /**
+  * Returns true if given procedure is a test in a test suite, false otherwise
+  *
+  * @param   a_owner          owner of test package
+  * @param   a_package_name   name of test package
+  * @param   a_procedure_name name of test procedure
+  */
+  function is_test(a_owner varchar2, a_package_name varchar2, a_procedure_name varchar2) return boolean;
+  
+  /**
+  * Returns true if given package is a test suite, false otherwise
+  *
+  * @param   a_owner          owner of test package
+  * @param   a_package_name   name of test package
+  */
+  function is_suite(a_owner varchar2, a_package_name varchar2) return boolean;
+  
+  /**
+  * Returns true if given schema contains test suites, false otherwise
+  *
+  * @param   a_owner          owner of test package
+  */
+  function has_suites(a_owner varchar2) return boolean;
+  
 
   type t_reporter_rec is record (
     reporter_object_name  varchar2(250),

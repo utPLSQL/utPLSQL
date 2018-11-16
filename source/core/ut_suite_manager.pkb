@@ -674,7 +674,10 @@ create or replace package body ut_suite_manager is
 
   end configure_execution_by_path;
 
-  function get_suites_info(a_owner_name varchar2, a_package_name varchar2) return sys_refcursor is
+  function get_suites_info(
+    a_owner_name     varchar2, 
+    a_package_name   varchar2 := null
+  ) return sys_refcursor is
     l_result      sys_refcursor;
     l_ut_owner    varchar2(250) := ut_utils.ut_owner;
   begin
@@ -748,6 +751,52 @@ create or replace package body ut_suite_manager is
       from items c]' using upper(a_package_name);
 
     return l_result;
+  end;
+
+  function suite_item_exists(
+    a_owner_name     varchar2, 
+    a_package_name   varchar2 := null, 
+    a_procedure_name varchar2 := null,
+    a_item_type      varchar2 := null
+  ) return boolean is
+    l_result    integer;
+    l_ut_owner  varchar2(250) := ut_utils.ut_owner;
+  begin
+    refresh_cache(a_owner_name);
+
+    execute immediate q'[
+      select count(1) from dual
+       where exists (
+                select 1
+                  from ]'||l_ut_owner||q'[.ut_suite_cache c
+                 where 1 = 1 ]'||case when can_skip_all_objects_scan(a_owner_name) then q'[
+                       and exists
+                           ( select 1
+                               from all_objects a
+                              where a.object_name = c.object_name
+                                and a.owner       = :a_owner_name
+                                and a.owner       = c.object_owner
+                                and a.object_type = 'PACKAGE'
+                           )]' else q'[
+                       and :a_owner_name is not null ]' end ||q'[
+                       and c.object_owner = :a_owner_name
+                       and ]'
+                       || case when a_package_name is not null
+                          then 'c.object_name = :a_package_name'
+                          else ':a_package_name is null' end
+                       || q'[
+                       and ]'
+                       || case when a_procedure_name is not null
+                          then 'c.name = :a_procedure_name'
+                          else ':a_procedure_name is null' end
+                       || q'[
+             )]'
+      into l_result 
+      using 
+        upper(a_owner_name), upper(a_owner_name),
+        upper(a_package_name), upper(a_procedure_name);
+    
+    return l_result > 0;
   end;
 
 end ut_suite_manager;

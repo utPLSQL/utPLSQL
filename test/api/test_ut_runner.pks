@@ -43,10 +43,10 @@ create or replace package test_ut_runner is
   --%aftertest(cleanup_cache)
   procedure test_rebuild_cache_schema_type;
 
-  --%test(get_unit_tests_info returns a cursor containing records for a newly created test)
+  --%test(get_suites_info returns a cursor containing records for a newly created test)
   --%beforetest(setup_cache_objects)
   --%aftertest(cleanup_cache)
-  procedure test_get_unit_test_info;
+  procedure test_get_suites_info;
 
   --%test(get_reporters_list returns a cursor containing all built-in reporters and information about output-reporter)
   --%beforetest(setup_cache_objects)
@@ -89,6 +89,42 @@ create or replace package test_ut_runner is
   --%test( Pass coma separated list in varchar2list )
   procedure pass_csl_within_var2list; 
   
+  --%endcontext
+
+  --%context(is_test)
+  --%beforeall(setup_cache_objects)
+  --%afterall(cleanup_cache)
+
+  --%test(Returns true when procedure is a test)
+  procedure is_test_true;
+
+  --%test(Returns false when procedure is not a test)
+  procedure is_test_false;
+
+  --%endcontext
+
+  --%context(is_suite)
+  --%beforeall(setup_cache_objects)
+  --%afterall(cleanup_cache)
+
+  --%test(Returns true when package is a test suite)
+  procedure is_suite_true;
+
+  --%test(Returns false when package is not a test suite)
+  procedure is_suite_false;
+
+  --%endcontext
+
+  --%context(has_suites)
+  --%beforeall(setup_cache_objects)
+  --%afterall(cleanup_cache)
+
+  --%test(Returns true when schema contains test suites)
+  procedure has_suites_true;
+
+  --%test(Returns false when schema does not contain test suites)
+  procedure has_suites_false;
+
   --%endcontext
 
 end;
