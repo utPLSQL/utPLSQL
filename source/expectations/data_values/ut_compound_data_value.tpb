@@ -201,7 +201,8 @@ create or replace type body ut_compound_data_value as
   end;
 
   member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, 
-                                         a_join_by_xpath varchar2,a_unordered boolean, a_inclusion_compare boolean := false, a_is_negated boolean := false ) return integer is
+                                         a_join_by_xpath varchar2,a_unordered boolean, a_inclusion_compare boolean := false, 
+                                         a_is_negated boolean := false, a_join_by_list ut_varchar2_list:=null ) return integer is
 
     l_diff_id       ut_compound_data_helper.t_hash;      
     l_other         ut_compound_data_value;
@@ -221,7 +222,8 @@ create or replace type body ut_compound_data_value as
    l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
 
    open l_loop_curs for ut_compound_data_helper.gen_compare_sql(treat(a_other as ut_data_value_refcursor).col_info_desc, a_exclude_xpath, 
-                                   a_include_xpath, a_join_by_xpath, a_inclusion_compare, a_is_negated, a_unordered ) using  self.data_id,l_other.data_id;  
+                                   a_include_xpath, a_join_by_xpath, a_inclusion_compare, a_is_negated, a_unordered, 
+                                   treat(a_other as ut_data_value_refcursor), a_join_by_list ) using  self.data_id,l_other.data_id;  
    loop
     fetch l_loop_curs bulk collect into l_diff_tab limit l_max_rows;
     exit when l_diff_tab.count = 0;

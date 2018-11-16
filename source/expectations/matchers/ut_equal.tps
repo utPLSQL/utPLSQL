@@ -36,6 +36,12 @@ create or replace type ut_equal under ut_comparison_matcher(
    */
   join_columns ut_varchar2_list,
   
+    /**
+   * Holds list of columns to be used as a join PK on sys_refcursor comparision, prefiltered to remvoe
+   * xpath tag from from
+   */
+  join_on_list ut_varchar2_list,
+  
   member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean),
   member function equal_with_nulls( self in ut_equal, a_assert_result boolean, a_actual ut_data_value) return boolean,
   constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result,

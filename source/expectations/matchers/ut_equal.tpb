@@ -158,28 +158,44 @@ create or replace type body ut_equal as
   member function include(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    ut_utils.append_to_list(l_result.include_list, a_items);
+    l_result.include_list := l_result.include_list multiset union all coalesce(ut_utils.string_to_table(a_items,','),ut_varchar2_list());
+    l_result.include_list := l_result.include_list multiset union all coalesce(ut_utils.string_to_table(a_items,'|'),ut_varchar2_list());
     return l_result;
   end;
 
   member function include(a_items ut_varchar2_list) return ut_equal is
     l_result ut_equal := self;
+    l_items  ut_varchar2_list := ut_varchar2_list();
   begin
-    l_result.include_list := l_result.include_list multiset union all coalesce(a_items,ut_varchar2_list());
+    --Split exclude into single expressions so we cater for concat operator like |
+    for i in 1..a_items.count loop
+      l_items := l_items multiset union all coalesce(ut_utils.string_to_table(a_items(i),'|'),ut_varchar2_list());
+      l_items := l_items multiset union all coalesce(ut_utils.string_to_table(a_items(i),','),ut_varchar2_list());
+    end loop;
+    l_result.include_list := l_result.include_list multiset union all coalesce(l_items,ut_varchar2_list());
     return l_result;
   end;
 
   member function exclude(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    ut_utils.append_to_list(l_result.exclude_list, a_items);
+    l_result.exclude_list := l_result.exclude_list multiset union all coalesce(ut_utils.string_to_table(a_items,','),ut_varchar2_list());
+    l_result.exclude_list := l_result.exclude_list multiset union all coalesce(ut_utils.string_to_table(a_items,'|'),ut_varchar2_list());
     return l_result;
   end;
 
   member function exclude(a_items ut_varchar2_list) return ut_equal is
     l_result ut_equal := self;
+    l_items  ut_varchar2_list := ut_varchar2_list();
   begin
-    l_result.exclude_list := l_result.exclude_list multiset union all coalesce(a_items,ut_varchar2_list());
+    --Split exclude into single expressions so we cater for concat operator like |
+    for i in 1..a_items.count loop
+      --TODO :  idoiot proof solution for both include and exclude
+      l_items := l_items multiset union all coalesce(ut_utils.string_to_table(a_items(i),'|'),ut_varchar2_list());
+      l_items := l_items multiset union all coalesce(ut_utils.string_to_table(a_items(i),','),ut_varchar2_list());
+    end loop;
+    
+    l_result.exclude_list := l_result.exclude_list multiset union all coalesce(l_items,ut_varchar2_list());
     return l_result;
   end;
 
@@ -194,15 +210,31 @@ create or replace type body ut_equal as
     l_result ut_equal := self;
   begin
     l_result.is_unordered := ut_utils.boolean_to_int(true);
-    ut_utils.append_to_list(l_result.join_columns, a_columns);
+    l_result.join_columns := l_result.join_columns multiset union all coalesce(ut_utils.string_to_table(a_columns,','),ut_varchar2_list());
+    l_result.join_columns := l_result.join_columns multiset union all coalesce(ut_utils.string_to_table(a_columns,'|'),ut_varchar2_list());
+    
+    select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
+    bulk collect into l_result.join_on_list
+    from table(l_result.join_columns);
     return l_result;
   end;
 
   member function join_by(a_columns ut_varchar2_list) return ut_equal is
     l_result ut_equal := self;
+    l_items  ut_varchar2_list := ut_varchar2_list();
   begin
     l_result.is_unordered := ut_utils.boolean_to_int(true);
-    l_result.join_columns := l_result.join_columns multiset union all coalesce(a_columns,ut_varchar2_list());
+    for i in 1..a_columns.count loop
+      --TODO :  idoiot proof solution for both include and exclude
+      l_items := l_items multiset union all coalesce(ut_utils.string_to_table(a_columns(i),'|'),ut_varchar2_list());
+      l_items := l_items multiset union all coalesce(ut_utils.string_to_table(a_columns(i),','),ut_varchar2_list());
+    end loop;
+    l_result.join_columns := l_result.join_columns multiset union all coalesce(l_items,ut_varchar2_list());
+    
+    select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
+    bulk collect into l_result.join_on_list
+    from table(l_result.join_columns);
+    
     return l_result;
   end;
 
@@ -235,7 +267,8 @@ create or replace type body ut_equal as
         l_result := 0 = treat(self.expected as ut_data_value_anydata).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath());
       elsif self.expected is of (ut_data_value_refcursor) then
         l_actual := treat(a_actual as ut_data_value_refcursor).filter_cursor(exclude_list, include_list);
-        l_result := 0 = treat(self.expected as ut_data_value_refcursor).filter_cursor(exclude_list, include_list).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath(), get_join_by_xpath(), get_unordered());
+        l_result := 0 = treat(self.expected as ut_data_value_refcursor).filter_cursor(exclude_list, include_list).compare_implementation(l_actual, get_exclude_xpath(), 
+                              get_include_xpath(), get_join_by_xpath(), get_unordered(), false, false, join_on_list );
       else
         l_result := equal_with_nulls((self.expected = a_actual), a_actual);
       end if;

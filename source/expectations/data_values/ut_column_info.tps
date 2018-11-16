@@ -1,6 +1,7 @@
 create or replace type ut_column_info force authid current_user as object
 (
    xml_valid_name  varchar2(100),
+   hashed_name     raw(30),
    column_name     varchar2(100),
    column_type     varchar2(100),
    column_schema   varchar2(100),
@@ -18,8 +19,9 @@ create or replace type ut_column_info force authid current_user as object
                          a_col_type_name   varchar2,
                          a_col_prec        integer,
                          a_col_scale       integer,
-                         a_col_len         integer,
-                         a_dbms_sql_desc   boolean := false)
+                         a_col_max_len     integer,
+                         a_dbms_sql_desc   boolean := false,
+                         a_parent_name     varchar2 := null)
 )
 not final not instantiable
 /

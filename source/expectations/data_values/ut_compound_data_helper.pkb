@@ -424,179 +424,147 @@ create or replace package body ut_compound_data_helper is
     
     return l_no_missing_keys;
   end;
-      
-  function generate_select_stmt(a_column_info ut_varchar2_list,a_xml_column_info xmltype) return clob is
+        
+  procedure generate_not_equal_stmt(a_data_info ut_column_info, a_pk_table ut_varchar2_list, a_not_equal_stmt in out nocopy clob) is
+    l_pk_tab ut_varchar2_list := coalesce(a_pk_table,ut_varchar2_list());
+    l_index integer;
+    l_sql_stmt varchar2(32767);
+    l_exists boolean := false;
+  begin 
+    l_index := l_pk_tab.first;
+    if l_pk_tab.count > 0 then
+      loop
+        if a_data_info.column_name = l_pk_tab(l_index) then
+          l_exists := true;
+        end if;
+      exit when l_index = l_pk_tab.count or (a_data_info.column_name = l_pk_tab(l_index));
+      l_index := a_pk_table.next(l_index);      
+      end loop;
+    end if;
+    
+    if not(l_exists) then  
+      l_sql_stmt := l_sql_stmt || case when a_not_equal_stmt is null then null else ' or ' end 
+                        ||' (decode(a.'||a_data_info.xml_valid_name||','||' e.'||a_data_info.xml_valid_name||',1,0) = 0)';
+      ut_utils.append_to_clob(a_not_equal_stmt,l_sql_stmt);
+    end if;  
+  end;
+   
+  procedure generate_join_by_stmt(a_data_info ut_column_info, a_pk_table ut_varchar2_list, a_join_by_stmt in out nocopy clob) is
+    l_pk_tab ut_varchar2_list := coalesce(a_pk_table,ut_varchar2_list());
+    l_index integer ;
+    l_sql_stmt varchar2(32767);
+  begin 
+    if l_pk_tab.count <> 0 then
+    l_index:= l_pk_tab.first;
+    loop
+      if a_data_info.column_name = a_pk_table(l_index) then
+        l_sql_stmt := l_sql_stmt || case when a_join_by_stmt is null then null else ' and ' end;  
+         if a_data_info.is_sql_diffable = 0 then        
+           --TODO : Non diffable is more complex as to hash we need to know how to cast it to raw or clob ?
+           /*l_sql_stmt := l_ut_owner ||'.ut_compound_data_helper.get_hash( a.'||a_data_info.xml_valid_name||') = '
+                         ||l_ut_owner ||'.ut_compound_data_helper.get_hash( e.'||a_data_info.xml_valid_name||')';*/
+           l_sql_stmt := l_sql_stmt ||' a.'||a_data_info.xml_valid_name||q'[ = ]'||' e.'||a_data_info.xml_valid_name;
+         elsif a_data_info.is_sql_diffable = 1 then
+           l_sql_stmt := l_sql_stmt ||' a.'||a_data_info.xml_valid_name||q'[ = ]'||' e.'||a_data_info.xml_valid_name;
+         end if;
+       end if;
+    exit when (a_data_info.column_name = a_pk_table(l_index)) or l_index = a_pk_table.count;
+    l_index := a_pk_table.next(l_index);
+    end loop;
+    ut_utils.append_to_clob(a_join_by_stmt,l_sql_stmt);
+    end if;
+  end;
+  
+  procedure generate_equal_sql(a_data_info ut_column_info,a_equal_stmt in out nocopy clob) is  
+    l_sql_stmt varchar2(32767);
+  begin
+    l_sql_stmt := case when a_equal_stmt is null then null else ' and ' end ||' a.'||a_data_info.xml_valid_name||q'[ = ]'||' e.'||a_data_info.xml_valid_name;
+    ut_utils.append_to_clob(a_equal_stmt,l_sql_stmt);
+  end;
+
+  procedure generate_partition_stmt(a_data_info ut_column_info,a_partition_stmt in out nocopy clob) is  
+    l_alias varchar2(10) := 'ucd.';
+  begin    
+    ut_utils.append_to_clob(a_partition_stmt,case when a_partition_stmt is null then null else ',' end||l_alias||a_data_info.xml_valid_name); 
+  end;   
+  
+  procedure generate_select_stmt(a_data_info ut_column_info,a_sql_stmt in out nocopy clob) is
     l_sql_stmt clob;
-    l_col_type varchar2(4000);
     l_alias varchar2(10) := 'ucd.';
     l_col_syntax varchar2(4000);
     l_ut_owner varchar2(250) := ut_utils.ut_owner;
   begin    
-    for i in (select /*+ CARDINALITY(xt 100) */
-                distinct
-                t.column_value,
-                xt.is_sql_diff,
-                xt.type
-              from 
-              (select a_xml_column_info item_data from dual) x,
-              xmltable(
-                '/ROW/*'
-                passing x.item_data
-                columns
-                name     varchar2(4000)  PATH '@xml_valid_name',
-                type     varchar2(4000)  PATH '/',
-                is_sql_diff     varchar2(4000)  PATH '@sql_diffable'
-              ) xt,
-              table(a_column_info) t
-              where '"'||xt.name||'"' = t.column_value)
-    loop
-       if i.is_sql_diff = 0 then 
-         l_col_syntax :=  l_ut_owner ||'.ut_compound_data_helper.get_hash('||l_alias||i.column_value||'.getClobVal()) as '||i.column_value ;
-       else 
-         l_col_syntax :=  l_alias||i.column_value||' as '|| i.column_value;
-       end if;
-   
-       l_sql_stmt := l_sql_stmt ||','||l_col_syntax;
-    end loop;
-    return l_sql_stmt;
+    if a_data_info.is_sql_diffable = 0 then 
+      l_col_syntax :=  l_ut_owner ||'.ut_compound_data_helper.get_hash('||l_alias||a_data_info.xml_valid_name||'.getClobVal()) as '||a_data_info.xml_valid_name ;
+    else 
+      l_col_syntax :=  l_alias||a_data_info.xml_valid_name||' as '|| a_data_info.xml_valid_name;
+    end if;   
+    ut_utils.append_to_clob(a_sql_stmt,','||l_col_syntax);
   end;
-  
-  function generate_partition_stmt(a_column_info ut_varchar2_list) return clob is
-    l_sql_stmt clob;
-    l_alias varchar2(10) := 'ucd.';
-
-  begin    
-    if a_column_info.count > 0 or a_column_info is null then
-      for i in 1..a_column_info.count
-      loop
-        l_sql_stmt := l_sql_stmt || case 
-                                    when l_sql_stmt is null then 
-                                      null 
-                                    else ',' 
-                            end||l_alias||a_column_info(i); 
-      end loop;    
-      l_sql_stmt := ', row_number() over (partition by '|| l_sql_stmt || ' order by '||l_sql_stmt||' ) dup_no ';
-    else
-      l_sql_stmt := ', 1 dup_no ';   
-    end if;
-    return l_sql_stmt;
-  end;  
-
-  function generate_xmltab_stmt (a_column_info ut_varchar2_list,a_xml_column_info xmltype) return clob is
-    l_sql_stmt clob;
+    
+  procedure generate_xmltab_stmt(a_data_info ut_column_info,a_sql_stmt in out nocopy clob) is
+    l_sql_stmt varchar2(32767);
     l_col_type varchar2(4000);
   begin    
-    for i in (select /*+ CARDINALITY(xt 100) */
-                distinct
-                t.column_value,
-                xt.is_sql_diff,
-                xt.type
-              from 
-              (select a_xml_column_info item_data from dual) x,
-              xmltable(
-                '/ROW/*'
-                passing x.item_data
-                columns
-                name     varchar2(4000)  PATH '@xml_valid_name',
-                type     varchar2(4000)  PATH '/',
-                is_sql_diff     varchar2(4000)  PATH '@sql_diffable'
-              ) xt,
-              table(a_column_info) t
-              where '"'||xt.name||'"' = t.column_value)
-    loop
-       if i.is_sql_diff = 0 then 
-         l_col_type := 'XMLTYPE';
-       elsif i.is_sql_diff = 1 and (i.type IN ('CHAR','VARCHAR2','VARCHAR')) then 
-         l_col_type := 'VARCHAR2(4000)';
-       elsif i.is_sql_diff = 1 and i.type = 'DATE' then 
-         l_col_type := 'TIMESTAMP';
-       else 
-         l_col_type := i.type;
-       end if;
-       
-       l_sql_stmt := l_sql_stmt||i.column_value||' '||l_col_type||q'[ PATH ']'||TRIM(BOTH '"' FROM i.column_value)||q'[',]';
-    end loop;
-    return l_sql_stmt;
+    if a_data_info.is_sql_diffable = 0 then 
+      l_col_type := 'XMLTYPE';
+    elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type = 'DATE' then 
+      l_col_type := 'TIMESTAMP';
+    else 
+       l_col_type := a_data_info.column_type||'('||a_data_info.column_len||')';
+    end if;
+    l_sql_stmt := ' '||a_data_info.xml_valid_name||' '||l_col_type||q'[ PATH ']'||a_data_info.column_name||q'[',]';   
+    ut_utils.append_to_clob(a_sql_stmt, l_sql_stmt);
   end;
-
-  function generate_equal_sql (a_column_info ut_varchar2_list) return clob is
-    l_sql_stmt clob;
+  
+  procedure gen_sql_pieces_out_of_cursor(a_data_info ut_data_value_refcursor,a_pk_table ut_varchar2_list, a_xml_stmt out nocopy clob, 
+  a_select_stmt out nocopy clob  ,a_partition_stmt out nocopy clob, a_equal_stmt out nocopy clob, a_join_by_stmt out nocopy clob,
+  a_not_equal_stmt out nocopy clob) is
+    l_cursor_info ut_column_info_tab := a_data_info.cursor_col_info.cursor_info;
+    l_partition_tmp clob;
   begin
-    for i in 1..a_column_info.count loop
-      l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' and ' end ||' a.'||a_column_info(i)||q'[ = ]'||' e.'||a_column_info(i);
-    end loop;
-    return l_sql_stmt;
+    if l_cursor_info is not null then  
+      --Parition by piece 
+      ut_utils.append_to_clob(a_partition_stmt,', row_number() over (partition by ');
+      --TODO : Handle nested objects...
+      for i in 1..l_cursor_info.count loop
+         --Get XMLTABLE column list
+         generate_xmltab_stmt(l_cursor_info(i),a_xml_stmt);
+         --Get Select statment list of columns
+         generate_select_stmt(l_cursor_info(i),a_select_stmt);
+         --Get columns by which we partition
+         generate_partition_stmt(l_cursor_info(i),l_partition_tmp);
+         --Get equal statement
+         generate_equal_sql(l_cursor_info(i),a_equal_stmt);
+         --Generate join by stmt
+         generate_join_by_stmt(l_cursor_info(i),a_pk_table,a_join_by_stmt);
+         --Generate not equal stmt
+         generate_not_equal_stmt(l_cursor_info(i),a_pk_table,a_not_equal_stmt);
+      end loop;
+      --Finish parition by 
+      ut_utils.append_to_clob(a_partition_stmt,l_partition_tmp||' order by '||l_partition_tmp||' ) dup_no ');    
+    else
+      --Partition by piece when no data
+      ut_utils.append_to_clob(a_partition_stmt,', 1 dup_no ');
+    end if;
   end;
-
-  function generate_join_by_on_stmt (a_join_by_xpath_tab ut_varchar2_list, a_columns_info xmltype, a_join_by_xpath in varchar2) return clob is
-      l_sql_stmt clob;
-      l_non_diff_var varchar2(32767);
-      l_ut_owner varchar2(250) := ut_utils.ut_owner;
-  begin         
-    for i in (select /*+ CARDINALITY(xt 100) */
-                distinct
-                t.column_value,
-                xt.is_sql_diff
-              from 
-              (select a_columns_info item_data from dual) x,
-              xmltable(
-                '/ROW/*'
-                passing x.item_data
-                columns
-                name     varchar2(4000)  PATH '@xml_valid_name',
-                is_sql_diff     varchar2(4000)  PATH '@sql_diffable'
-              ) xt,
-              table(a_join_by_xpath_tab) t
-              where '"'||xt.name||'"' = t.column_value)
-    loop
-   
-       if i.is_sql_diff = 0 then 
-         l_non_diff_var := l_ut_owner ||'.ut_compound_data_helper.get_hash((extract( a.'||i.column_value||', '||a_join_by_xpath||')).getclobval()) = '
-                         ||l_ut_owner ||'.ut_compound_data_helper.get_hash((extract( e.'||i.column_value||', '||a_join_by_xpath||')).getclobval())';
-         l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' and ' end ||' a.'||i.column_value||q'[ = ]'||' e.'||i.column_value;
-       elsif i.is_sql_diff = 1 then
-         l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' and ' end ||' a.'||i.column_value||q'[ = ]'||' e.'||i.column_value;
-       end if;
-    
-    end loop;
-
-    return l_sql_stmt;
-  end;
-
-  function generate_not_equal_sql (a_column_info ut_varchar2_list, a_join_by_xpath ut_varchar2_list) return clob is
-    l_sql_stmt clob;
-  begin 
-    for i in (
-    with  xpaths_tab as (select column_value  xpath from table(a_join_by_xpath)),
-    pk_names as (select '"'||REGEXP_SUBSTR (xpath,'[^(/\*/)](.+)$')||'"' name
-              from xpaths_tab)
-     select /*+ CARDINALITY(xt 100) */
-     column_value as name
-     from table(a_column_info) xt
-     where not exists (select 1 from pk_names p where lower(p.name) = lower(xt.column_value))
-     )
-    loop
-      l_sql_stmt := l_sql_stmt || case when l_sql_stmt is null then null else ' or ' end ||' (decode(a.'||i.name||','||' e.'||i.name||',1,0) = 0)';
-    end loop;
-    return l_sql_stmt;
-  end;  
   
   function gen_compare_sql(a_column_info xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2, 
                            a_join_by_xpath varchar2, a_inclusion_type boolean, a_is_negated boolean,
-                           a_unordered boolean) return clob is
+                           a_unordered boolean, a_other ut_data_value_refcursor :=null, a_join_by_list ut_varchar2_list:=null ) return clob is
     l_compare_sql   clob;
     l_temp_string   varchar2(32767);
     
-    l_pk_xpath_tabs  ut_varchar2_list := ut_varchar2_list();
-    l_act_col_tab    ut_varchar2_list := ut_varchar2_list();
-       
     l_ut_owner       varchar2(250) := ut_utils.ut_owner;
     l_xmltable_stmt  clob;
     l_where_stmt     clob;
     l_select_stmt    clob;
     l_partition_stmt clob;
+    l_equal_stmt     clob;
+    l_join_on_stmt   clob;
+    l_not_equal_stmt clob;
     l_column_filter  varchar2(32767);
-    
+        
     function get_filtered_columns_name (a_columns_info in xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2) return ut_varchar2_list is
       l_columns_info ut_varchar2_list := ut_varchar2_list();
     begin
@@ -626,14 +594,10 @@ create or replace package body ut_compound_data_helper is
     --TODO: Comment better all pieces
     l_column_filter := get_columns_row_filter(a_exclude_xpath, a_include_xpath);     
     
-    l_act_col_tab := get_filtered_columns_name(a_column_info,a_exclude_xpath,a_include_xpath);
-     
-    l_pk_xpath_tabs := get_filtered_columns_name(a_column_info,null,a_join_by_xpath);   
-    
-    l_xmltable_stmt  := generate_xmltab_stmt(l_act_col_tab,a_column_info);
-    l_select_stmt    := generate_select_stmt(l_act_col_tab,a_column_info);
-    l_partition_stmt := generate_partition_stmt(l_act_col_tab);
-    
+    gen_sql_pieces_out_of_cursor(a_other, a_join_by_list, 
+      l_xmltable_stmt, l_select_stmt, l_partition_stmt, l_equal_stmt, 
+      l_join_on_stmt, l_not_equal_stmt);
+            
     l_temp_string := 'with exp as ( select ucd.* ';    
     ut_utils.append_to_clob(l_compare_sql, l_temp_string);
     ut_utils.append_to_clob(l_compare_sql,l_partition_stmt);
@@ -689,10 +653,10 @@ create or replace package body ut_compound_data_helper is
        
     if a_join_by_xpath is null and a_unordered then
      -- If no key defined do the join on all columns
-     ut_utils.append_to_clob(l_compare_sql,generate_equal_sql(l_act_col_tab));
+     ut_utils.append_to_clob(l_compare_sql,l_equal_stmt);
    elsif a_join_by_xpath is not null and a_unordered then
      -- If key defined do the join or these and where on diffrences   
-     ut_utils.append_to_clob(l_compare_sql,generate_join_by_on_stmt (l_pk_xpath_tabs,a_column_info,a_join_by_xpath));         
+     ut_utils.append_to_clob(l_compare_sql,l_join_on_stmt);         
    elsif not a_unordered then
      ut_utils.append_to_clob(l_compare_sql, 'a.item_no = e.item_no ' );
    end if;   
@@ -700,14 +664,12 @@ create or replace package body ut_compound_data_helper is
    ut_utils.append_to_clob(l_compare_sql,' ) where ');
    
   if (a_join_by_xpath is not null) and (a_unordered) and (not a_is_negated) then
-       l_where_stmt   := generate_not_equal_sql(l_act_col_tab, l_pk_xpath_tabs);
-       if l_where_stmt is not null then
-           ut_utils.append_to_clob(l_compare_sql,' ( '||l_where_stmt||' ) or '); 
+       if l_not_equal_stmt is not null then
+           ut_utils.append_to_clob(l_compare_sql,' ( '||l_not_equal_stmt||' ) or '); 
        end if;
    elsif not a_unordered then
-     l_where_stmt   := generate_not_equal_sql(l_act_col_tab, l_pk_xpath_tabs);
-     if l_where_stmt is not null then
-       ut_utils.append_to_clob(l_compare_sql,' ( '||l_where_stmt||' ) or ');
+     if l_not_equal_stmt is not null then
+       ut_utils.append_to_clob(l_compare_sql,' ( '||l_not_equal_stmt||' ) or ');
      end if;
    end if;
 
@@ -718,7 +680,8 @@ create or replace package body ut_compound_data_helper is
      l_temp_string := ' (a.data_id is null or e.data_id is null) ';
    end if;
    ut_utils.append_to_clob(l_compare_sql,l_temp_string);
-   
+    
+   --dbms_output.put_line(l_compare_sql);
    return l_compare_sql;
   end;
  
@@ -749,29 +712,6 @@ create or replace package body ut_compound_data_helper is
     return g_diff_count;
   end;
   
-  function populate_filter_columns (a_column_string in varchar2, a_column_info ut_column_info_tab) return ut_column_info_rec is
-    l_result ut_column_info_rec;
-    l_column_from_string varchar2(32767);
-    l_rest_of_path varchar2(32767);
-  begin
-    --check if string has a path
-    l_column_from_string := regexp_substr(a_column_string,'^([^\/]*)?\/?(.*)',1,1,null,1);
-    for col in 1..a_column_info.count loop          
-      if  l_column_from_string = a_column_info(col).column_name then
-        if a_column_string like '%/%' then  
-          l_rest_of_path := regexp_substr(a_column_string,'^([^\/]*)?\/(.*)',1,1,null,2);
-          l_result  := treat(a_column_info(col) as ut_column_info_rec);
-          l_result.nested_details := ut_column_info_tab(); 
-          l_result.nested_details.extend;
-          l_result.nested_details(l_result.nested_details.last) := populate_filter_columns (l_rest_of_path,treat(a_column_info(col) as ut_column_info_rec).nested_details);
-        else
-          l_result := treat(a_column_info(col) as ut_column_info_rec);     
-        end if;
-      end if;
-    end loop;
-    return l_result;
-  end;
-
   function get_child(a_parent in varchar2 default null) return ut_varchar2_list is
       l_out_tab ut_varchar2_list := ut_varchar2_list();
       cursor c_child(cp_parent in varchar2) is
@@ -809,39 +749,75 @@ create or replace package body ut_compound_data_helper is
       return l_out_tab;
    end;
 
-  function exc_inc_cursors_columns(a_column_info_tab ut_column_info_tab,a_current_list ut_varchar2_list) 
+  function inc_cursors_columns(a_column_info_tab ut_column_info_tab,a_current_list ut_varchar2_list) 
   return ut_column_info_tab is
     l_result ut_column_info_tab := ut_column_info_tab();
     l_record  ut_column_info_rec;
-    l_index   integer := 1;
+    l_index   integer;
   begin
-    --TODO : Optimize search using while or exists operator ?
     for lst in 1..a_current_list.count loop
-      for i in 1..a_column_info_tab.count loop
-        if a_current_list(lst) = a_column_info_tab(i).column_name then
+      l_index := a_column_info_tab.first;
+      loop
+        if a_current_list(lst) = a_column_info_tab(l_index).column_name then
           l_result.extend;
-          if a_column_info_tab(i) is of (ut_column_info_rec) then
-            l_record := treat(a_column_info_tab(i) as ut_column_info_rec);  
-            l_record.nested_details := exc_inc_cursors_columns(treat(a_column_info_tab(i) as ut_column_info_rec).nested_details,get_child(a_column_info_tab(i).column_name));
+          l_record := treat(a_column_info_tab(l_index) as ut_column_info_rec);  
+          
+          if treat(a_column_info_tab(l_index) as ut_column_info_rec).nested_details is not null then
+            l_record.nested_details := inc_cursors_columns(treat(a_column_info_tab(l_index) as ut_column_info_rec).nested_details,get_child(a_column_info_tab(l_index).column_name));
           end if;
+          
           l_result(l_result.last) := l_record;
         end if;
+        exit when (a_current_list(lst) = a_column_info_tab(l_index).column_name) or (l_index = a_column_info_tab.count);
+        l_index := a_column_info_tab.next(l_index);
       end loop;
     end loop;
+    
+    return l_result;
+  end;
+
+  function exc_cursors_columns(a_column_info_tab ut_column_info_tab,a_current_list ut_varchar2_list) 
+  return ut_column_info_tab is
+    l_result ut_column_info_tab := ut_column_info_tab();
+    l_record  ut_column_info_rec;
+    l_index integer;
+    l_exists boolean := false;
+  begin
+    --TODO : Optimize search using while or exists operator ?
+     for lst in 1..a_column_info_tab.count loop
+      l_index := a_current_list.first;
+      loop
+        if a_current_list(l_index) = a_column_info_tab(lst).column_name then
+          l_exists := true;
+        end if;
+        exit when (a_current_list(l_index) = a_column_info_tab(lst).column_name) or (l_index = a_current_list.count);
+        l_index := a_current_list.next(l_index);
+      end loop;
+      
+      if not(l_exists) then
+      l_result.extend;
+      l_record := treat(a_column_info_tab(lst) as ut_column_info_rec); 
+        if treat(a_column_info_tab(lst) as ut_column_info_rec).nested_details is not null then          
+          l_record.nested_details := exc_cursors_columns(treat(a_column_info_tab(lst) as ut_column_info_rec).nested_details,get_child(a_column_info_tab(lst).column_name));
+        end if;
+        l_result(l_result.last) := l_record;
+      end if;
+      l_exists := false;
+    end loop;   
     return l_result;
   end;
 
   function inc_exc_columns_from_cursor (a_cursor_info ut_column_info_tab, a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list)
   return ut_column_info_tab is
     l_filtered_set ut_varchar2_list := ut_varchar2_list();
-    l_result ut_column_info_tab := ut_column_info_tab();  
+    l_result ut_column_info_tab := ut_column_info_tab();
+    l_include boolean;
   begin
     g_filter_tab := ut_varchar2_list();  
-    
+        
     -- if include and exclude is not null its columns from include minus exclude
     -- If inlcude is not null and exclude is null cursor will have only include
     -- If exclude is not null and include is null cursor will have all except exclude
-    
     if a_include_xpath.count > 0 and a_exclude_xpath.count > 0 then
       select col_names bulk collect into l_filtered_set
       from(
@@ -851,23 +827,28 @@ create or replace package body ut_compound_data_helper is
         select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
         from table(a_exclude_xpath)
        );
+       l_include := true;
     elsif a_include_xpath.count > 0 and a_exclude_xpath.count = 0 then
       select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
       bulk collect into l_filtered_set
       from table(a_include_xpath);
+      l_include := true;
     elsif a_include_xpath.count = 0 and a_exclude_xpath.count > 0 then
       select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
       bulk collect into l_filtered_set
       from table(a_exclude_xpath);
+      l_include := false;
     elsif a_cursor_info is not null then
       l_result:= a_cursor_info;
     else
       l_result := ut_column_info_tab();
     end if;
-        
-    g_filter_tab := l_filtered_set;
-    if g_filter_tab.count <> 0 then
-      l_result := exc_inc_cursors_columns(a_cursor_info,get_child());
+    
+    g_filter_tab := l_filtered_set;    
+    if l_filtered_set.count <> 0 and l_include then
+      l_result := inc_cursors_columns(a_cursor_info,get_child());
+    elsif l_filtered_set.count <> 0 and not(l_include) then
+      l_result := exc_cursors_columns(a_cursor_info,get_child());   
     end if;   
 
     return l_result;

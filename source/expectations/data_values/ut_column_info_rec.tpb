@@ -1,6 +1,6 @@
 create or replace type body ut_column_info_rec as
 
-   member function get_anytype_attributes_info(a_anytype anytype)
+   member function get_anytype_attributes_info(a_anytype anytype, a_col_name varchar2)
       return ut_column_info_tab is
       l_result             ut_column_info_tab := ut_column_info_tab();
       l_attribute_typecode pls_integer;
@@ -54,7 +54,9 @@ create or replace type body ut_column_info_rec as
                                                       null,
                                                       l_prec,
                                                       l_scale,
-                                                      l_len);
+                                                      l_len,
+                                                      false,
+                                                      a_col_name);
       end loop;
       return l_result;
    end;
@@ -86,15 +88,21 @@ create or replace type body ut_column_info_rec as
                                     a_col_type_name   varchar2,
                                     a_col_prec        integer,
                                     a_col_scale       integer,
-                                    a_col_len         integer,
-                                    a_dbms_sql_desc   boolean := false) is
+                                    a_col_max_len     integer,
+                                    a_dbms_sql_desc   boolean := false,
+                                    a_parent_name     varchar2) is
       l_anytype anytype;
    begin
       self.column_prec     := a_col_prec;
-      self.column_len      := a_col_len;
+      self.column_len      := a_col_max_len;
       self.column_scale    := a_col_scale;
-      self.xml_valid_name  := '"'||a_col_name||'"';
-      self.column_name     := a_col_name;
+      self.column_name     := TRIM(BOTH '''' FROM a_col_name);
+      self.xml_valid_name  := '"'||self.column_name||'"';
+      self.hashed_name     := case when a_parent_name is not null then 
+                                   ut_compound_data_helper.get_hash(utl_raw.cast_to_raw(a_parent_name||self.column_name))
+                                   else 
+                                     null
+                                    end;
       self.column_type     := a_col_type_name;
       self.column_schema   := a_col_schema_name;
       self.is_sql_diffable := 0;
@@ -102,7 +110,7 @@ create or replace type body ut_column_info_rec as
       self.is_user_defined := 1;
    
       l_anytype           := get_user_defined_type(a_col_schema_name, a_col_type_name);
-      self.nested_details := get_anytype_attributes_info(l_anytype);
+      self.nested_details := get_anytype_attributes_info(l_anytype, self.column_name);
    end;
 
    constructor function ut_column_info_rec(self             in out nocopy ut_column_info_rec,
@@ -112,18 +120,20 @@ create or replace type body ut_column_info_rec as
                                           a_col_type_name   varchar2,
                                           a_col_prec        integer,
                                           a_col_scale       integer,
-                                          a_col_len         integer,
-                                          a_dbms_sql_desc   boolean := false)
+                                          a_col_max_len     integer,
+                                          a_dbms_sql_desc   boolean := false,
+                                          a_parent_name     varchar2 := null)
       return self as result is
    begin
       if a_col_type = dbms_sql.user_defined_type then
-        self.init(a_col_type, a_col_name, a_col_schema_name, a_col_type_name,a_col_prec,a_col_scale,a_col_len);
+        self.init(a_col_type, a_col_name, a_col_schema_name, a_col_type_name,a_col_prec,a_col_scale,a_col_max_len);
       else
          (self as ut_column_info).init(a_col_type,
                                       a_col_name,
                                       a_col_schema_name,
-                                      a_col_type_name,a_col_prec,a_col_scale,a_col_len,
-                                      a_dbms_sql_desc);
+                                      a_col_type_name,a_col_prec,a_col_scale,a_col_max_len,
+                                      a_dbms_sql_desc,
+                                      a_parent_name);
       end if;
       return;
    end;

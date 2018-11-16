@@ -21,7 +21,7 @@ create or replace type body ut_cursor_info as
                                                                   l_columns_desc(i).col_type_name,
                                                                   l_columns_desc(i).col_precision,
                                                                   l_columns_desc(i).col_scale,
-                                                                  l_columns_desc(i).col_name_len,
+                                                                  l_columns_desc(i).col_max_len,
                                                                   true);
       end loop;
    

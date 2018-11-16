@@ -52,8 +52,8 @@ create or replace package ut_compound_data_helper authid definer is
     act_data_id raw(32), 
     exp_item_data xmltype, 
     exp_data_id raw(32),
-    item_no   integer,
-    dup_no    integer
+    item_no   number,
+    dup_no    number
     );
     
   type t_diff_tab is table of t_diff_rec;
@@ -92,7 +92,7 @@ create or replace package ut_compound_data_helper authid definer is
                      
   function gen_compare_sql(a_column_info xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2,
                            a_join_by_xpath varchar2, a_inclusion_type boolean, a_is_negated boolean,
-                           a_unordered boolean ) return clob;
+                           a_unordered boolean, a_other ut_data_value_refcursor :=null, a_join_by_list ut_varchar2_list:=null ) return clob;
  
   procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw);
   
