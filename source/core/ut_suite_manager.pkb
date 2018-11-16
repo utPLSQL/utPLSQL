@@ -674,15 +674,14 @@ create or replace package body ut_suite_manager is
 
   end configure_execution_by_path;
 
-  function get_suites_info(a_owner_name varchar2) return tt_suite_items pipelined is
-    l_cursor      sys_refcursor;
+  function get_suites_info(a_owner_name varchar2, a_package_name varchar2) return sys_refcursor is
+    l_result      sys_refcursor;
     l_ut_owner    varchar2(250) := ut_utils.ut_owner;
-    c_bulk_limit  constant integer := 100;
-    l_results     tt_suite_items;
   begin
+
     refresh_cache(a_owner_name);
     
-    open l_cursor for
+    open l_result for
     q'[with
       suite_items as (
         select /*+ cardinality(c 100) */ c.*
@@ -696,7 +695,12 @@ create or replace package body ut_suite_manager is
                         and a.owner       = c.object_owner
                         and a.object_type = 'PACKAGE'
                    )]' end ||q'[
-               and c.object_owner = ']'||upper(a_owner_name)||q'['
+               and c.object_owner = ']'||upper(a_owner_name) ||q'['
+               and ]'
+               || case when a_package_name is not null
+                  then 'c.object_name = :a_package_name'
+                  else ':a_package_name is null' end
+               || q'[
       ),
       suitepaths as (
         select distinct
@@ -737,17 +741,13 @@ create or replace package body ut_suite_manager is
                s.path,  0 as disabled_flag
           from logical_suites s
       )
-    select c.*
-      from items c]';
-    loop
-      fetch l_cursor bulk collect into l_results limit c_bulk_limit;
-      for i in 1 .. l_results.count loop
-        pipe row (l_results(i));
-      end loop;
-      exit when l_cursor%notfound;
-    end loop;
-    close l_cursor;
+    select ]'||l_ut_owner||q'[.ut_suite_item_info(
+             object_owner, object_name, item_name, item_description,
+             item_type, item_line_no, path, disabled_flag
+           )
+      from items c]' using upper(a_package_name);
 
+    return l_result;
   end;
 
 end ut_suite_manager;

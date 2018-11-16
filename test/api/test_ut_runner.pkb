@@ -273,12 +273,16 @@ end;';
   begin
     --Arrange
     open l_expected for
-      select 'UT3_TESTER'  package_owner, 'DUMMY_TEST_PACKAGE' package_name,
-             to_char(null) procedure_name, 2 annotation_pos, 'suite' annotation_name, 'dummy_test_suite' annotation_text
+      select
+             'UT3_TESTER'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'DUMMY_TEST_PACKAGE' item_name,
+             'dummy_test_suite' item_description, 'UT_SUITE' item_type, 2 item_line_no,
+             'dummy_test_package' path, 0 disabled_flag
         from dual union all
-      select 'UT3_TESTER', 'DUMMY_TEST_PACKAGE', to_char(null),               3, 'rollback', 'manual' from dual union all
-      select 'UT3_TESTER', 'DUMMY_TEST_PACKAGE', 'SOME_DUMMY_TEST_PROCEDURE', 5, 'test', 'dummy_test' from dual union all
-      select 'UT3_TESTER', 'DUMMY_TEST_PACKAGE', 'SOME_DUMMY_TEST_PROCEDURE', 6, 'beforetest', 'some_procedure' from dual;
+      select
+             'UT3_TESTER'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'SOME_DUMMY_TEST_PROCEDURE' item_name,
+             'dummy_test' item_description, 'UT_TEST' item_type, 5 item_line_no,
+             'dummy_test_package.some_dummy_test_procedure' path, 0 disabled_flag
+        from dual;
     --Act
     open l_actual for select * from table(ut3.ut_runner.get_unit_test_info('UT3_TESTER','DUMMY_TEST_PACKAGE'));
     --Assert
