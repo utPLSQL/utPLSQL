@@ -16,3 +16,4 @@ curl -Lk -o utPLSQL-cli.zip https://github.com/utPLSQL/utPLSQL-cli/releases/down
 # unzip utPLSQL-cli and remove the zip file
 unzip utPLSQL-cli.zip && chmod u+x utPLSQL-cli/bin/utplsql && rm utPLSQL-cli.zip
 
+cp development/*.jar utPLSQL-cli/lib/
