@@ -61,7 +61,6 @@ create or replace type body ut_coveralls_reporter is
     function get_coverage_json(
       a_coverage_data ut_coverage.t_coverage
     ) return ut_varchar2_rows is
-      l_file_part            varchar2(32767);
       l_result               ut_varchar2_rows := ut_varchar2_rows();
       l_unit                 ut_coverage.t_full_name;
       c_coverage_header constant varchar2(30) := '{"source_files":[';

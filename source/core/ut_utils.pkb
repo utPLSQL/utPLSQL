@@ -350,7 +350,6 @@ create or replace package body ut_utils is
   end;
 
   procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item varchar2) is
-    l_items ut_varchar2_rows;
   begin
     if a_item is not null then
       if a_list is null then

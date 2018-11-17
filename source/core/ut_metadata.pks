@@ -64,10 +64,20 @@ create or replace package ut_metadata authid current_user as
   procedure reset_source_definition_cache;
 
   /**
-   * Returns dba_... view name if it is accessible, otherwise it returns all_xxx view
+   * Returns dba_... view name if it is accessible, otherwise it returns all_... view
    * @param a_dba_view_name the name of dba view requested
    */
   function get_dba_view(a_dba_view_name varchar2) return varchar2;
+
+  /**
+   * Returns dba_source if accessible otherwise returns all_source
+   */
+  function get_source_view_name return varchar2;
+
+  /**
+   * Returns dba_objects if accessible otherwise returns all_objects
+   */
+  function get_objects_view_name return varchar2;
 
   /**
    * Returns true if object is accessible to current user

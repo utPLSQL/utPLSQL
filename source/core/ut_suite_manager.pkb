@@ -268,17 +268,15 @@ create or replace package body ut_suite_manager is
     c_bulk_limit        constant pls_integer := 1000;
     l_items_at_level    t_item_levels;
     l_rows              tt_cached_suites;
-    l_logical_suite     ut_logical_suite;
     l_level             pls_integer;
     l_prev_level        pls_integer;
     l_idx               integer;
   begin
     loop
       fetch a_suite_data_cursor bulk collect into l_rows limit c_bulk_limit;
-      exit when l_rows.count = 0;
 
       l_idx := l_rows.first;
-      loop
+      while l_idx is not null loop
         l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
         if l_level > 1 then
           if not l_items_at_level.exists(l_level) then
@@ -315,9 +313,8 @@ create or replace package body ut_suite_manager is
         end if;
         l_prev_level := l_level;
         l_idx := l_rows.next(l_idx);
-        exit when l_idx is null;
       end loop;
-      exit when l_rows.count < c_bulk_limit;
+      exit when a_suite_data_cursor%NOTFOUND;
     end loop;
 
     reverse_list_order( a_suites );
@@ -331,7 +328,7 @@ create or replace package body ut_suite_manager is
   function get_missing_objects(a_object_owner varchar2) return ut_varchar2_rows is
     l_rows         sys_refcursor;
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
-    l_objects_view varchar2(200) := ut_metadata.get_dba_view('dba_objects');
+    l_objects_view varchar2(200) := ut_metadata.get_objects_view_name();
     l_cursor_text  varchar2(32767);
     l_result       ut_varchar2_rows;
   begin

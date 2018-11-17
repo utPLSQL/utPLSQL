@@ -22,7 +22,7 @@ create or replace package body ut_annotation_manager as
   function get_missing_objects(a_object_owner varchar2, a_object_type varchar2) return ut_annotation_objs_cache_info is
     l_rows         sys_refcursor;
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
-    l_objects_view varchar2(200) := ut_metadata.get_dba_view('dba_objects');
+    l_objects_view varchar2(200) := ut_metadata.get_objects_view_name();
     l_cursor_text  varchar2(32767);
     l_result       ut_annotation_objs_cache_info;
   begin
@@ -54,7 +54,7 @@ create or replace package body ut_annotation_manager as
   function get_annotation_objs_info(a_object_owner varchar2, a_object_type varchar2, a_parse_date timestamp := null) return ut_annotation_objs_cache_info is
     l_rows         sys_refcursor;
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
-    l_objects_view varchar2(200) := ut_metadata.get_dba_view('dba_objects');
+    l_objects_view varchar2(200) := ut_metadata.get_objects_view_name();
     l_cursor_text  varchar2(32767);
     l_result       ut_annotation_objs_cache_info;
   begin
@@ -86,7 +86,7 @@ create or replace package body ut_annotation_manager as
 
   function get_sources_to_annotate(a_object_owner varchar2, a_object_type varchar2) return sys_refcursor is
     l_result       sys_refcursor;
-    l_sources_view varchar2(200) := ut_metadata.get_dba_view('dba_source');
+    l_sources_view varchar2(200) := ut_metadata.get_source_view_name();
   begin
     open l_result for
      q'[select s.name, s.text
@@ -109,7 +109,7 @@ create or replace package body ut_annotation_manager as
 
   function get_sources_to_annotate(a_object_owner varchar2, a_object_type varchar2, a_objects_to_refresh ut_annotation_objs_cache_info) return sys_refcursor is
     l_result       sys_refcursor;
-    l_sources_view varchar2(200) := ut_metadata.get_dba_view('dba_source');
+    l_sources_view varchar2(200) := ut_metadata.get_source_view_name();
     l_card         natural;
   begin
     l_card := ut_utils.scale_cardinality(cardinality(a_objects_to_refresh));

@@ -81,16 +81,13 @@ end;';
 
   procedure keep_an_open_transaction is
     l_expected    varchar2(300);
-    l_output_data dbms_output.chararr;
-    l_num_lines   integer := 100000;
   begin
     --Arrange
     create_test_spec();
     create_test_body(0);
     l_expected := dbms_transaction.local_transaction_id(true);
     --Act
-    ut3.ut.run('test_cache');
-    dbms_output.get_lines( l_output_data, l_num_lines);
+    ut3.ut_runner.run(ut3.ut_varchar2_list('test_cache'),null, a_perform_rollback => false);
     --Assert
     ut.expect(dbms_transaction.local_transaction_id()).to_equal(l_expected);
     drop_test_package();
@@ -105,7 +102,7 @@ end;';
     create_test_body(0);
     rollback;
     --Act
-    ut3.ut.run('test_cache');
+    ut3.ut_runner.run(ut3.ut_varchar2_list('test_cache'),null);
     dbms_output.get_lines( l_output_data, l_num_lines);
     --Assert
     ut.expect(dbms_transaction.local_transaction_id()).to_be_null();

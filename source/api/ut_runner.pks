@@ -43,6 +43,9 @@ create or replace package ut_runner authid current_user is
   * @param a_include_objects        list of database objects (in format 'owner.name') that coverage should be reported on
   * @param a_exclude_objects        list of database objects (in format 'owner.name') that coverage should be skipped for
   * @param a_fail_on_errors         true/false - should an exception be thrown when tests are completed with failures/errors
+  * @param a_client_character_set   if provided, affects some of reporters by setting specific character set for XML/HTML reports
+  * @param a_perform_rollback       true/false - should rollback be performed as part of test execution (default true)
+
   *
   * @example
   * Parameter `a_paths` accepts values of the following formats:
@@ -65,7 +68,8 @@ create or replace package ut_runner authid current_user is
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
     a_fail_on_errors boolean := false,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_perform_rollback boolean := true
   );
 
   /**

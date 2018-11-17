@@ -38,7 +38,7 @@ create or replace package body ut_coverage is
   function get_cov_sources_sql(a_coverage_options ut_coverage_options) return varchar2 is
     l_result varchar2(32767);
     l_full_name varchar2(100);
-    l_view_name      varchar2(200) := ut_metadata.get_dba_view('dba_source');
+    l_view_name      varchar2(200) := ut_metadata.get_source_view_name();
   begin
     if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
       l_full_name := 'f.file_name';

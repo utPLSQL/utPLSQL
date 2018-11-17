@@ -66,7 +66,7 @@ create or replace package body ut_metadata as
     l_schema         varchar2(200);
     l_package_name   varchar2(200);
     l_procedure_name varchar2(200);
-    l_view_name      varchar2(200) := get_dba_view('dba_objects');
+    l_view_name      varchar2(200) := get_objects_view_name;
   begin
 
     l_schema       := a_owner_name;
@@ -116,7 +116,7 @@ create or replace package body ut_metadata as
   end;
 
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
-    l_view_name varchar2(128) := get_dba_view('dba_source');
+    l_view_name varchar2(128) := get_source_view_name();
     l_line all_source.text%type;
     c_key  constant varchar2(500) := a_owner || '.' || a_object_name;
   begin
@@ -153,6 +153,17 @@ create or replace package body ut_metadata as
       l_result := replace(l_result,'dba_','all_');
     end if;
      return l_result;
+  end;
+
+  function get_source_view_name return varchar2 is
+  begin
+    return get_dba_view('dba_source');
+  end;
+
+
+  function get_objects_view_name return varchar2 is
+  begin
+    return get_dba_view('dba_objects');
   end;
 
   function user_has_execute_any_proc return boolean is
