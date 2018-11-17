@@ -101,9 +101,9 @@ create or replace package ut_compound_data_helper authid definer is
   procedure cleanup_diff;
   
   function get_rows_diff_count return integer;
-  
-  function inc_exc_columns_from_cursor (a_cursor_info ut_column_info_tab, a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list)
-  return ut_column_info_tab;
+   
+  function inc_exc_columns_from_cursor (a_cursor_info ut_cursor_column_tab, a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list)  
+  return ut_cursor_column_tab;
   
 end;
 /

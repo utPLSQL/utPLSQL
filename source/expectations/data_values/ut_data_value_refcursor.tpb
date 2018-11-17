@@ -48,7 +48,7 @@ create or replace type body ut_data_value_refcursor as
           self.elements_count     := 0;
           self.columns_info := ut_curr_usr_compound_helper.extract_min_col_info(self.col_info_desc);
           
-          self.cursor_col_info := ut_cursor_info(l_cursor);
+          self.cursor_details  := ut_cursor_details(l_cursor);
            
           -- We use DBMS_XMLGEN in order to:
           -- 1) be able to process data in bulks (set of rows)
@@ -271,9 +271,9 @@ create or replace type body ut_data_value_refcursor as
  member function filter_cursor (a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list) return ut_data_value_refcursor is
     l_result ut_data_value_refcursor := self;
   begin
-    if l_result.cursor_col_info.cursor_info is not null then
-      l_result.cursor_col_info.cursor_info := ut_compound_data_helper.inc_exc_columns_from_cursor(l_result.cursor_col_info.cursor_info,a_exclude_xpath,a_include_xpath);
-    end if;
+    if l_result.cursor_details.cursor_info is not null then
+      l_result.cursor_details.cursor_info := ut_compound_data_helper.inc_exc_columns_from_cursor(l_result.cursor_details.cursor_info,a_exclude_xpath,a_include_xpath);
+    end if;    
     return l_result;
   end;
 

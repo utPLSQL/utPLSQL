@@ -131,6 +131,12 @@ drop type ut_data_value_xmltype force;
 
 drop type ut_data_value force;
 
+drop type ut_cursor_details force;
+
+drop type ut_cursor_column_tab force;
+
+drop type ut_cursor_column force;
+
 drop table ut_compound_data_tmp;
 
 drop table ut_compound_data_diff_tmp;

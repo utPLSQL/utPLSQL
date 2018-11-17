@@ -46,8 +46,8 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
   
   /*
   *columns info 
-  */
-  cursor_col_info ut_cursor_info,
+  */  
+  cursor_details ut_cursor_details,
   
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) return self as result,
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor),

@@ -169,6 +169,9 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 --expectations and matchers
 @@install_component.sql 'expectations/data_values/ut_compound_data_tmp.sql'
 @@install_component.sql 'expectations/data_values/ut_compound_data_diff_tmp.sql'
+@@install_component.sql 'expectations/data_values/ut_cursor_column.tps'
+@@install_component.sql 'expectations/data_values/ut_cursor_column_tab.tps'
+@@install_component.sql 'expectations/data_values/ut_cursor_details.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value.tps'
 @@install_component.sql 'expectations/data_values/ut_compound_data_value.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_anydata.tps'
@@ -209,6 +212,8 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_empty.tps'
 @@install_component.sql 'expectations/matchers/ut_match.tps'
 @@install_component.sql 'expectations/ut_expectation.tps'
+@@install_component.sql 'expectations/data_values/ut_cursor_column.tpb'
+@@install_component.sql 'expectations/data_values/ut_cursor_details.tpb'
 @@install_component.sql 'expectations/ut_expectation_compound.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value.tpb'
 @@install_component.sql 'expectations/data_values/ut_compound_data_value.tpb'
