@@ -91,11 +91,11 @@ create or replace package ut_runner authid current_user is
   /**
   * Returns a pipelined collection containing information about unit test suites and the tests contained in them
   *
-  * @param   a_owner        owner of unit tests to retrieve
-  * @param   a_package_name optional name of unit test package to retrieve, if NULLm all unit test packages are returned
+  * @param   a_owner        owner of unit tests to retrieve (optional), if NULL, current schema is used
+  * @param   a_package_name name of unit test package to retrieve (optional), if NULL all unit test packages are returned
   * @return  ut_suite_items_info table of objects
   */
-  function get_suites_info(a_owner varchar2, a_package_name varchar2 := null) return ut_suite_items_info pipelined;
+  function get_suites_info(a_owner varchar2 := null, a_package_name varchar2 := null) return ut_suite_items_info pipelined;
 
 
   /**
