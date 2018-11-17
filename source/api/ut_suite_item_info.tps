@@ -15,13 +15,13 @@ create or replace type ut_suite_item_info as object (
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  object_owner     varchar2(250),
-  object_name      varchar2(250),
-  item_name        varchar2(250),
-  item_description varchar2(250),
-  item_type        varchar2(250),
-  item_line_no     integer,
-  path             varchar2(4000),
-  disabled_flag    integer
+  object_owner     varchar2( 250 ), -- the owner of test suite packages
+  object_name      varchar2( 250 ), -- the name of test suite package
+  item_name        varchar2( 250 ), -- the name of suite/test
+  item_description varchar2( 250 ), -- the description of suite/suite item
+  item_type        varchar2( 250 ), -- the type of item (UT_SUITE/UT_SUITE_CONTEXT/UT_TEST)
+  item_line_no     integer,         -- line_number where annotation identifying the item exists
+  path             varchar2( 4000 ),-- suitepath of the item
+  disabled_flag    integer          -- 0 (zero) if item is not disabled, 1 if item is disabled by --%disabled annotation
 )
 /

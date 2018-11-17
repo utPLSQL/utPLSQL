@@ -83,8 +83,7 @@ create or replace package body ut_runner is
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
     a_fail_on_errors boolean := false,
-    a_client_character_set varchar2 := null,
-    a_perform_rollback boolean := true
+    a_client_character_set varchar2 := null
   ) is
     l_run                   ut_run;
     l_coverage_schema_names ut_varchar2_rows;
@@ -142,17 +141,13 @@ create or replace package body ut_runner is
       l_run.do_execute();
 
       finish_run(l_run);
-      if a_perform_rollback then
-        rollback;
-      end if;
+      rollback;
     exception
       when others then
         finish_run(l_run);
         dbms_output.put_line(dbms_utility.format_error_backtrace);
         dbms_output.put_line(dbms_utility.format_error_stack);
-        if a_perform_rollback then
-          rollback;
-        end if;
+        rollback;
         raise;
     end;
     if a_fail_on_errors and l_run.result in (ut_utils.gc_failure, ut_utils.gc_error) then
