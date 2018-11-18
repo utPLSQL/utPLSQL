@@ -18,8 +18,6 @@ create or replace package body ut_ansiconsole_helper as
   gc_red     constant varchar2(7) := chr(27) || '[31m';
   gc_green   constant varchar2(7) := chr(27) || '[32m';
   gc_yellow  constant varchar2(7) := chr(27) || '[33m';
-  gc_blue    constant varchar2(7) := chr(27) || '[34m';
-  gc_magenta constant varchar2(7) := chr(27) || '[35m';
   gc_cyan    constant varchar2(7) := chr(27) || '[36m';
   gc_reset   constant varchar2(7) := chr(27) || '[0m';
   g_enabled  boolean := false;
