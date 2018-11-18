@@ -131,6 +131,26 @@ Executes all tests from package _HR.TEST_APPLY_BONUS_ and provide outputs to DBM
 
 For details on build-in reporters look at [reporters documentation](reporters.md).
 
+## Keeping uncommited data after test-run
+
+utPLSQL by default runs tests in autonomous transaction and performs automatic rollback to assure that tests do not impact one-another and do not have impact on the current session in your IDE.
+
+If you would like to keep your uncommited data persisted after running tests, you can do so by using `a_force_manual_rollback` flag.
+Setting this flag to true has following side-effects:
+
+- test execution is done in current transaction - if while running tests commit or rollback is issued your current session data will get commited too.
+- automatic rollback is forced to be disabled in test-run even if it was explicitly enabled by using annotation `--%rollback(manual)
+
+Example invocation:
+```sql
+begin
+  ut.run('hr.test_apply_bonus', a_force_manual_rollback => true);
+end;
+```
+
+
+This option is not anvailable when running tests using `ut.run` as a table function.   
+
 ## ut.run functions
 
 The `ut.run` functions provide exactly the same functionality as the `ut.run` procedures. 
