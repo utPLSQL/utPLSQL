@@ -114,6 +114,12 @@ create or replace package test_ut_run is
   procedure generate_invalid_spec;
   procedure drop_invalid_spec;
 
+  --%test(Provides warnings on invalid annotations)
+  --%beforetest(create_bad_annot)
+  --%aftertest(drop_bad_annot)
+  procedure run_and_report_warnings;
+  procedure create_bad_annot;
+  procedure drop_bad_annot;
   --%endcontext
 
 end;

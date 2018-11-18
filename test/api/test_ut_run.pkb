@@ -806,7 +806,45 @@ Failures:%
   begin
     execute immediate 'drop package invalid_pckag_that_revalidates';
     execute immediate 'drop package parent_specs';
-  end;  
-  
+  end;
+
+  procedure run_and_report_warnings is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+
+    select * bulk collect into l_results from table(ut3.ut.run('bad_annotations'));
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+    
+    ut.expect(l_actual).to_be_like('%Invalid annotation "--%context". Cannot find following "--%endcontext". Annotation ignored.%
+%1 tests, 0 failed, 0 errored, 0 disabled, 1 warning(s)%');
+
+  end;
+
+  procedure create_bad_annot is
+    pragma autonomous_transaction;
+    begin
+      execute immediate q'[
+      create or replace package bad_annotations as
+        --%suite
+
+        --%context
+
+        --%test(invalidspecs)
+        procedure test1;
+
+      end;]';
+
+      execute immediate q'[
+      create or replace package body bad_annotations as
+        procedure test1 is begin ut.expect(1).to_equal(1); end;
+      end;]';
+      
+    end;
+  procedure drop_bad_annot is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package bad_annotations';
+  end;
 end;
 /
