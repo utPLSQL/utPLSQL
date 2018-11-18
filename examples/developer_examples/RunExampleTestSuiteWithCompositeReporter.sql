@@ -12,7 +12,7 @@ set echo off
 
 PROMPT Runs test report using composite reporter
 declare
-  suite          ut_logical_suite;
+  l_suite        ut_logical_suite;
   l_doc_reporter ut_output_reporter_base := ut_documentation_reporter();
   l_tc_reporter  ut_output_reporter_base := ut_teamcity_reporter();
   l_run          ut_run;
@@ -21,14 +21,16 @@ begin
   ut_event_manager.add_listener(l_doc_reporter);
   ut_event_manager.add_listener(l_tc_reporter);
 
-  suite := ut_suite(user, 'ut_exampletest');
-  suite.description := 'Test Suite Name';
+  l_suite := ut_suite(user, 'ut_exampletest',a_line_no=>1);
+  l_suite.description := 'Test Suite Name';
 
-  suite.add_item(ut_test(user,'ut_exampletest','ut_exAmpletest'));
-  suite.add_item(ut_test(user, 'UT_EXAMPLETEST2','UT_EXAMPLETEST'));
+  l_suite.items.extend;
+  l_suite.items(l_suite.items.last) := ut_test(user,'ut_exampletest','ut_exAmpletest',a_line_no=>3);
+  l_suite.items.extend;
+  l_suite.items(l_suite.items.last) := ut_test(user, 'UT_EXAMPLETEST2','UT_EXAMPLETEST',a_line_no=>6);
 
   -- provide a reporter to process results
-  l_run := ut_run(ut_suite_items(suite));
+  l_run := ut_run(ut_suite_items(l_suite));
   l_run.do_execute();
 
   ut_event_manager.trigger_event(ut_utils.gc_finalize, l_run);

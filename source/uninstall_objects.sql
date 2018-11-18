@@ -51,9 +51,21 @@ drop package ut_teamcity_reporter_helper;
 
 drop package ut_runner;
 
+drop type ut_suite_items_info force;
+
+drop type ut_suite_item_info force;
+
 drop package ut_suite_manager;
 
 drop package ut_suite_builder;
+
+drop table ut_suite_cache;
+
+drop sequence ut_suite_cache_seq;
+
+drop table ut_suite_cache_package;
+
+drop table ut_suite_cache_schema;
 
 drop package ut;
 

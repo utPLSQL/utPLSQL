@@ -19,15 +19,15 @@ create or replace type ut_suite_item force under ut_event_item (
   /**
   * owner of the database object (package)
   */
-  object_owner  varchar2(4000 byte),
+  object_owner  varchar2(250 byte),
   /**
   * name of the database object (package)
   */
-  object_name   varchar2(4000 byte),
+  object_name   varchar2(250 byte),
   /**
   * Name of the object (suite, sub-suite, test)
   */
-  name          varchar2(4000 byte),
+  name          varchar2(250 byte),
   /**
   * Description fo the suite item (as given by the annotation)
   */
@@ -45,15 +45,22 @@ create or replace type ut_suite_item force under ut_event_item (
   * Indicates if the test is to be disabled by execution
   */
   disabled_flag integer(1),
+  /**
+  * Line no where annotation identifying this item is placed in package
+  */
+  line_no       integer,
+  /**
+  * Time when the suite item was last parsed from package source
+  */
+  parse_time    timestamp,
   --execution result fields
   start_time    timestamp with time zone,
   end_time      timestamp with time zone,
   result        integer(1),
-  warnings      ut_varchar2_list,
+  warnings      ut_varchar2_rows,
   results_count ut_results_counter,
   transaction_invalidators ut_varchar2_list,
-  member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2),
-  member procedure set_disabled_flag(self in out nocopy ut_suite_item, a_disabled_flag boolean),
+  member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_line_no integer),
   member function get_disabled_flag return boolean,
   not instantiable member procedure mark_as_skipped(self in out nocopy ut_suite_item),
   member procedure set_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer),

@@ -1,12 +1,12 @@
 # Running tests
 
-The utPLSQL framework provides two main entry points to run unit tests from within the database: 
+utPLSQL framework provides two main entry points to run unit tests from within the database: 
 
 - `ut.run` procedures and functions
 - `ut_runner.run` procedures
 
 These two entry points differ in purpose and behavior.
-Most of the time you will want to use `ut.run` as `ut_runner` is designed for API integration and does not output the results to the screen directly.
+Most of the time you will want to use `ut.run` as `ut_runner.run` is designed for API integration and does not display the results to the screen.
 
 # Running from CI servers and command line
 

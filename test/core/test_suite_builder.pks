@@ -39,6 +39,9 @@ create or replace package test_suite_builder is
   --%test(Gives warning if more than one --%test annotation used)
   procedure test_annot_duplicated;
 
+  --%test(Is added to suite according to annotation order in package spec)
+  procedure test_annotation_ordering;
+
   --%endcontext
 
   --%context(suitepath)
@@ -125,6 +128,9 @@ create or replace package test_suite_builder is
   --%test(Gives warning if --%endcontext is missing a preceding --%context)
   procedure endcontext_without_context;
 
+  --%test(Gives warning when two contexts have the same name and ignores duplicated context)
+  procedure duplicate_context_name;
+
   --%endcontext
 
   --%context(throws)
@@ -152,14 +158,6 @@ create or replace package test_suite_builder is
 
   --%test(Supports mix of procedure and package.procedure)
   procedure before_aftertest_mixed_syntax;
-
-  --%endcontext
-
-  --%context(test)
-  --%displayname(--%test annontation)
-
-  --%test(Is added to suite according to annotation order in package spec)
-  procedure test_annotation_ordering;
 
   --%endcontext
 

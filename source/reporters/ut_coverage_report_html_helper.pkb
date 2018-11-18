@@ -101,11 +101,12 @@ create or replace package body ut_coverage_report_html_helper is
 
 
 
-function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a_unit_coverage ut_coverage.t_unit_coverage)
-    return clob is
-    l_source_code   ut_varchar2_list;
-    l_result        clob;
-    
+  function get_details_file_content(
+    a_object_id varchar2,
+    a_unit ut_object_name,
+    a_unit_coverage ut_coverage.t_unit_coverage
+  ) return ut_varchar2_rows is
+
     function get_block_file_attributes(a_coverage_unit ut_coverage.t_unit_coverage) return varchar2 is
       l_result varchar2(32767);
     begin
@@ -129,15 +130,14 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
     end;   
     
     function build_details_file_content(a_object_id varchar2, a_object_full_name varchar2, a_source_code ut_varchar2_list, a_coverage_unit ut_coverage.t_unit_coverage)
-      return clob is
-      l_file_part     varchar2(32767);
-      l_result        clob;
-      l_coverage_pct  number(5, 2);
+      return ut_varchar2_rows is
+      l_file_part           varchar2(32767);
+      l_result              ut_varchar2_rows := ut_varchar2_rows();
+      l_coverage_pct        number(5, 2);
       l_coverage_block_pct  number(5, 2);
-      l_hits varchar2(30);
-      l_blocks varchar2(30);
+      l_hits                varchar2(30);
+      l_blocks              varchar2(30);
     begin
-      dbms_lob.createtemporary(l_result, true);
 
      l_coverage_pct := coverage_pct(a_coverage_unit.covered_lines, a_coverage_unit.uncovered_lines);
 
@@ -145,7 +145,7 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
                      dbms_xmlgen.convert(a_object_full_name) || '</h3><h4><span class="' || coverage_css_class(l_coverage_pct) || '">'
                     || l_coverage_pct || ' %</span> lines covered</h4>' 
                     ||get_common_file_attributes(a_coverage_unit) ||'</div></div><pre><ol>';
-      ut_utils.append_to_clob(l_result, l_file_part);
+      ut_utils.append_to_list(l_result, l_file_part);
     
       for line_no in 1 .. a_source_code.count loop
         if not a_coverage_unit.lines.exists(line_no) then
@@ -191,22 +191,20 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
               <code class="sql">' || (dbms_xmlgen.convert(a_source_code(line_no))) ||
                          '</code></li>';
         end if;
-        ut_utils.append_to_clob(l_result, l_file_part);
+        ut_utils.append_to_list(l_result, l_file_part);
       end loop;
     
       l_file_part := '</ol></pre></div>';
-      ut_utils.append_to_clob(l_result, l_file_part);
+      ut_utils.append_to_list(l_result, l_file_part);
       return l_result;
     end;
   begin
-    l_source_code := ut_coverage_helper.get_tmp_table_object_lines(a_unit.owner, a_unit.name);
-    dbms_lob.createtemporary(l_result, true);
-    l_result := build_details_file_content(a_object_id
-                                          ,a_unit.identity
-                                          ,l_source_code
-                                          ,a_unit_coverage
-                                          );
-    return l_result;
+    return build_details_file_content(
+      a_object_id,
+      a_unit.identity,
+      ut_coverage_helper.get_tmp_table_object_lines(a_unit.owner, a_unit.name),
+      a_unit_coverage
+    );
   end;
 
     function get_block_list_attributes(a_coverage_unit ut_coverage.t_coverage) return varchar2 is
@@ -220,19 +218,17 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
       return l_result;
     end;
 
-  function file_list(a_title varchar2, a_coverage ut_coverage.t_coverage) return clob is
+  function file_list(a_title varchar2, a_coverage ut_coverage.t_coverage) return ut_varchar2_rows is
     l_file_part     varchar2(32767);
     l_title         varchar2(100) := 'All files';
     l_coverage_pct  number(5, 2);
     l_coverage_block_pct  number(5, 2);
-    l_result        clob;
+    l_result        ut_varchar2_rows;
     l_id            varchar2(50) := object_id(a_title);
     l_unit_coverage ut_coverage.t_unit_coverage;
     l_unit          ut_coverage.t_object_name;
   begin
     l_coverage_pct := coverage_pct(a_coverage.covered_lines, a_coverage.uncovered_lines);
-
-    dbms_lob.createtemporary(l_result, true);
 
     l_file_part := '<div class="file_list_container" id="' || l_id || '">' || '<h2><span class="group_name">' || l_title ||
                    '</span>' || ' (<span class="covered_percent"><span class="' || coverage_css_class(l_coverage_pct) || '">' ||
@@ -251,7 +247,7 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
                    '<th>File</th><th>% covered</th><th>Lines</th><th>Relevant Lines</th><th>Lines covered</th><th>Lines missed</th><th>'
                    ||'Avg. Hits / Line </th>' ||
                    '</tr></thead><tbody>';
-    ut_utils.append_to_clob(l_result, l_file_part);
+    ut_utils.append_to_list( l_result, l_file_part );
     l_unit := a_coverage.objects.first;
     loop
       exit when l_unit is null;
@@ -266,11 +262,11 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
                        '<td>' || to_char(executions_per_line(l_unit_coverage.executions
                                         ,l_unit_coverage.uncovered_lines + l_unit_coverage.covered_lines))
                        || '</td></tr>';
-      ut_utils.append_to_clob(l_result, l_file_part);
+      ut_utils.append_to_list( l_result, l_file_part );
       l_unit := a_coverage.objects.next(l_unit);
     end loop;
     l_file_part := '</tbody></table></div>';
-    ut_utils.append_to_clob(l_result, l_file_part);
+    ut_utils.append_to_list( l_result, l_file_part );
     return l_result;
   end;
 
@@ -283,10 +279,10 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
     a_project_name  varchar2 := null,
     a_command_line  varchar2 := null,
     a_charset       varchar2 := null
-  ) return clob is
+  ) return ut_varchar2_rows is
   
     l_file_part     varchar2(32767);
-    l_result        clob;
+    l_result        ut_varchar2_rows := ut_varchar2_rows();
     l_title         varchar2(250);
     l_coverage_pct  number(5, 2);
     l_time_str      varchar2(50);
@@ -302,8 +298,6 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
                  when a_command_line is not null then
                   '<br/>using ' || dbms_xmlgen.convert(a_command_line)
                end;
-    dbms_lob.createtemporary(l_result, true);
-  
     l_title := case
                  when a_project_name is null then
                   'Code coverage'
@@ -323,32 +317,35 @@ function get_details_file_content(a_object_id varchar2, a_unit ut_object_name, a
                    '<div id="wrapper" style="display:none;">' ||
                    '<div class="timestamp">Generated <abbr class="timeago" title="' || l_time_str || '">' || l_time_str ||
                    '</abbr></div>' || '<ul class="group_tabs"></ul>' || '<div id="content">';
-    ut_utils.append_to_clob(l_result, l_file_part);
-  
-    dbms_lob.append(l_result, file_list('All files', a_coverage_data));
+    ut_utils.append_to_list(l_result, l_file_part);
+
+    ut_utils.append_to_list(l_result, file_list('All files', a_coverage_data));
   
     l_file_part := chr(10) || '</div><div id="footer">' ||
                    'Generated by <a href="http://github.com/utPLSQL/utPLSQL">utPLSQL ' || ut_utils.gc_version ||
                    '</a><br/>' ||
                    'Based on <a href="http://github.com/colszowka/simplecov-html">simplecov-html</a> v0.10.0 ' ||
                    l_using || '' || '</div><div class="source_files">';
-    ut_utils.append_to_clob(l_result, l_file_part);
+    ut_utils.append_to_list(l_result, l_file_part);
   
     l_unit := a_coverage_data.objects.first;
     loop
       exit when l_unit is null;
-      dbms_lob.append(l_result
-                     ,get_details_file_content(object_id(l_unit)
-                                              ,ut_object_name(a_coverage_data.objects(l_unit).owner
-                                                             ,a_coverage_data.objects(l_unit).name)
-                                              ,a_coverage_data.objects(l_unit)
-                                              ));
+      ut_utils.append_to_list(
+        l_result,
+        get_details_file_content(
+          object_id(l_unit),
+          ut_object_name(a_coverage_data.objects(l_unit).owner,
+          a_coverage_data.objects(l_unit).name),
+          a_coverage_data.objects(l_unit)
+        )
+      );
       l_unit := a_coverage_data.objects.next(l_unit);
     end loop;
   
     l_file_part := '</div></div></div></body></html>';
   
-    ut_utils.append_to_clob(l_result, l_file_part);
+    ut_utils.append_to_list(l_result, l_file_part);
     return l_result;
   end;
 

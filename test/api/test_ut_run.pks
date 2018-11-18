@@ -24,7 +24,6 @@ create or replace package test_ut_run is
   --%test(Runs all tests in current schema with coverage file list)
   procedure run_proc_cov_file_list;
 
-  --%disabled(TODO - currently it executes the package and all child packages)
   --%test(Runs given package only with package name given as path)
   procedure run_proc_pkg_name;
   --%test(Runs all from given package with package name given as path and coverage file list)
@@ -42,6 +41,21 @@ create or replace package test_ut_run is
   --%test(Runs all tests in current schema with empty path list given)
   procedure run_proc_empty_path_list;
 
+  procedure create_suite_with_commit;
+  procedure drop_suite_with_commit;
+  --%test(Reports a warning if transaction was invalidated by test with automatic rollback)
+  --%beforetest(create_suite_with_commit)
+  --%aftertest(drop_suite_with_commit)
+  procedure run_proc_warn_on_commit;
+
+
+  procedure create_failing_beforeall_suite;
+  procedure drop_failing_beforeall_suite;
+  --%test(Marks child suite as failed when parent's suite beforeall fails)
+  --%beforetest(create_failing_beforeall_suite)
+  --%aftertest(drop_failing_beforeall_suite)
+  procedure run_proc_fail_child_suites;
+
   --%endcontext
 
 
@@ -57,7 +71,6 @@ create or replace package test_ut_run is
   --%test(Runs all tests in current schema with coverage file list)
   procedure run_func_cov_file_list;
 
-  --%disabled(TODO - currently it executes the package and all child packages)
   --%test(Runs given package only with package name given as path)
   procedure run_func_pkg_name;
   --%test(Runs all from given package with package name given as path and coverage file list)
@@ -101,6 +114,12 @@ create or replace package test_ut_run is
   procedure generate_invalid_spec;
   procedure drop_invalid_spec;
 
+  --%test(Provides warnings on invalid annotations)
+  --%beforetest(create_bad_annot)
+  --%aftertest(drop_bad_annot)
+  procedure run_and_report_warnings;
+  procedure create_bad_annot;
+  procedure drop_bad_annot;
   --%endcontext
 
 end;

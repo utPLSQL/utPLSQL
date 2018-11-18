@@ -16,5 +16,9 @@ as
     g_number := 1 / 0;
   end;
 
+  procedure ut_commit_test is
+  begin
+    commit;
+  end;
 end;
 /

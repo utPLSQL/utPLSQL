@@ -313,7 +313,7 @@ end test_package_with_ctx;]';
           ut.expect(l_test1_suite.name).to_equal('test_package_1');
           ut.expect(l_test1_suite.items.count).to_equal(3);
           ut.expect(l_test1_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
-          l_test2_suite := treat(l_test1_suite.items(3) as ut3.ut_logical_suite);
+          l_test2_suite := treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
 
           ut.expect(l_test2_suite.name).to_equal('test_package_2');
           ut.expect(l_test2_suite.items.count).to_equal(3);
@@ -515,7 +515,6 @@ end test_package_with_ctx;]';
 
     l_test0_suite ut3.ut_logical_suite;
     l_test1_suite ut3.ut_suite;
-    l_test2_suite ut3.ut_suite;
   begin
   --Act
     l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
@@ -529,7 +528,7 @@ end test_package_with_ctx;]';
     l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
-    ut.expect(l_test1_suite.items.count).to_equal(3);
+    ut.expect(l_test1_suite.items.count).to_equal(2);
 
     ut.expect(l_test1_suite.items(1).name).to_equal('test1');
     ut.expect(l_test1_suite.items(1).description).to_equal('Test1 from test package 1');
@@ -545,12 +544,6 @@ end test_package_with_ctx;]';
     ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_each_list.count).to_be_greater_than(0);
     ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).disabled_flag).to_equal(0);
 
-    -- temporary behavior.
-    -- decided that when executed by package, not path, only that package has to execute
-    l_test2_suite :=  treat(l_test1_suite.items(3) as ut3.ut_suite);
-
-    ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
   procedure test_top_pack_by_name_cu is
@@ -573,7 +566,7 @@ end test_package_with_ctx;]';
     l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
-    ut.expect(l_test1_suite.items.count).to_equal(3);
+    ut.expect(l_test1_suite.items.count).to_equal(2);
 
     ut.expect(l_test1_suite.items(1).name).to_equal('test1');
     ut.expect(l_test1_suite.items(1).description).to_equal('Test1 from test package 1');
@@ -589,12 +582,6 @@ end test_package_with_ctx;]';
     ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_each_list.count).to_be_greater_than(0);
     ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).disabled_flag).to_equal(0);
 
-    -- temporary behavior.
-    -- decided that when executed by package, not path, only that package has to execute
-    l_test2_suite :=  treat(l_test1_suite.items(3) as ut3.ut_suite);
-
-    ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
   procedure test_top_pack_by_path is
@@ -618,7 +605,7 @@ end test_package_with_ctx;]';
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(3);
-    l_test2_suite :=  treat(l_test1_suite.items(3) as ut3.ut_logical_suite);
+    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
     ut.expect(l_test2_suite.items.count).to_equal(3);
@@ -645,7 +632,7 @@ end test_package_with_ctx;]';
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(3);
-    l_test2_suite :=  treat(l_test1_suite.items(3) as ut3.ut_logical_suite);
+    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
     ut.expect(l_test2_suite.items.count).to_equal(3);
@@ -942,7 +929,7 @@ end;]';
     l_objects_to_run ut3.ut_suite_items;
   begin
     l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('ut3.failing_non_existing'));
-    ut.fail('Non existing package didnt raised exception');
+    ut.fail('Non existing package did not raise exception');
   exception
     when others then
       ut.expect(sqlerrm).to_be_like('%failing_non_existing%');
@@ -952,7 +939,7 @@ end;]';
     l_objects_to_run ut3.ut_suite_items;
   begin
     l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('failing_non_existing'));
-    ut.fail('Non existing package without schema didnt raised exception');
+    ut.fail('Non existing package without schema did not raise exception');
   exception
     when others then
       ut.expect(sqlerrm).to_be_like('%ORA-44001: invalid schema%');
@@ -979,10 +966,10 @@ end;]';
     ut.expect(l_test.name).to_equal('test1');
     ut.expect(l_test.description).to_equal('A test description, though with comma, is assigned by suite_manager');
 
-    l_test := treat(l_suite.items(2) as ut3.ut_test);
-
-    ut.expect(l_test.name).to_equal('test2');
-    ut.expect(l_test.description).to_equal('A test description, though with comma, is assigned by suite_manager');
+--     l_test := treat(l_suite.items(2) as ut3.ut_test);
+--
+--     ut.expect(l_test.name).to_equal('test2');
+--     ut.expect(l_test.description).to_equal('A test description, though with comma, is assigned by suite_manager');
 
   end;
   procedure setup_desc_with_comma is
@@ -1029,7 +1016,7 @@ end;';
       ut.fail('Cache not invalidated on package drop');
     exception
       when others then
-        ut.expect(sqlerrm).to_be_like('%tst_package_to_be_dropped%not found%');
+        ut.expect(sqlerrm).to_be_like('%tst_package_to_be_dropped%does not exist%');
     end;
 
   end;

@@ -6,8 +6,6 @@ set linesize 1000
 
 exec ut_ansiconsole_helper.color_enabled(true);
 --developer examples
-prompt RunExampleComplexSuiteWithCustomReporter
-@@developer_examples/RunExampleComplexSuiteWithCustomReporter.sql
 prompt RunExampleTestSuiteWithCustomReporter
 @@developer_examples/RunExampleTestSuiteWithCustomReporter.sql
 prompt RunExampleTestAnnotationsParsingTimeHugePackage

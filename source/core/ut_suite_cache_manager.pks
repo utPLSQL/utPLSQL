@@ -1,4 +1,4 @@
-create type ut_annotated_object as object(
+create or replace package ut_suite_cache_manager authid definer is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -15,11 +15,21 @@ create type ut_annotated_object as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  object_owner                  varchar2(250),
-  object_name                   varchar2(250),
-  object_type                   varchar2(50),
-  parse_time                    timestamp,
-  annotations                   ut_annotations
-)
-/
 
+  /**
+   * Responsible for storing and retrieving suite data from cache
+   */
+
+  procedure save_object_cache(
+    a_object_owner varchar2,
+    a_object_name  varchar2,
+    a_parse_time   timestamp,
+    a_suite_items ut_suite_items
+  );
+
+  function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache;
+
+  procedure remove_from_cache(a_schema_name varchar2, a_objects ut_varchar2_rows);
+
+end ut_suite_cache_manager;
+/

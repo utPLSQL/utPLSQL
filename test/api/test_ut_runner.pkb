@@ -267,20 +267,24 @@ end;';
     ut.expect(l_actual).to_equal(0);
   end;
 
-  procedure test_get_unit_test_info is
+  procedure test_get_suites_info is
     l_expected sys_refcursor;
     l_actual   sys_refcursor;
   begin
     --Arrange
     open l_expected for
-      select 'UT3_TESTER'  package_owner, 'DUMMY_TEST_PACKAGE' package_name,
-             to_char(null) procedure_name, 2 annotation_pos, 'suite' annotation_name, 'dummy_test_suite' annotation_text
+      select
+             'UT3_TESTER'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'DUMMY_TEST_PACKAGE' item_name,
+             'dummy_test_suite' item_description, 'UT_SUITE' item_type, 2 item_line_no,
+             'dummy_test_package' path, 0 disabled_flag
         from dual union all
-      select 'UT3_TESTER', 'DUMMY_TEST_PACKAGE', to_char(null),               3, 'rollback', 'manual' from dual union all
-      select 'UT3_TESTER', 'DUMMY_TEST_PACKAGE', 'SOME_DUMMY_TEST_PROCEDURE', 5, 'test', 'dummy_test' from dual union all
-      select 'UT3_TESTER', 'DUMMY_TEST_PACKAGE', 'SOME_DUMMY_TEST_PROCEDURE', 6, 'beforetest', 'some_procedure' from dual;
+      select
+             'UT3_TESTER'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'SOME_DUMMY_TEST_PROCEDURE' item_name,
+             'dummy_test' item_description, 'UT_TEST' item_type, 5 item_line_no,
+             'dummy_test_package.some_dummy_test_procedure' path, 0 disabled_flag
+        from dual;
     --Act
-    open l_actual for select * from table(ut3.ut_runner.get_unit_test_info('UT3_TESTER','DUMMY_TEST_PACKAGE'));
+    open l_actual for select * from table(ut3.ut_runner.get_suites_info(NULL,'DUMMY_TEST_PACKAGE'));
     --Assert
     ut.expect(l_actual).to_equal(l_expected);
   end;
@@ -529,6 +533,59 @@ end;';
     l_actual := ut3.ut_utils.table_to_clob(l_results);
     ut.expect(l_actual).to_be_like('%Finished in % seconds
 %2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%'); 
+  end;
+
+  procedure is_test_true is
+  begin
+    ut.expect(
+      ut3.ut_runner.is_test(
+        a_owner => 'UT3_TESTER',
+        a_package_name => 'DUMMY_TEST_PACKAGE',
+        a_procedure_name => 'SOME_DUMMY_TEST_PROCEDURE'
+      )
+    ).to_be_true();
+    ut.expect( ut3.ut_runner.is_test( 'ut3_tester','dummy_test_package','some_dummy_test_procedure' ) ).to_be_true();
+  end;
+
+  procedure is_test_false is
+  begin
+    ut.expect( ut3.ut_runner.is_test( 'UT3_TESTER','DUMMY_TEST_PACKAGE', 'BAD' ) ).to_be_false();
+    ut.expect( ut3.ut_runner.is_test( 'UT3_TESTER','DUMMY_TEST_PACKAGE',  null ) ).to_be_false();
+    ut.expect( ut3.ut_runner.is_test( 'UT3_TESTER',null,'some_dummy_test_procedure' ) ).to_be_false();
+    ut.expect( ut3.ut_runner.is_test(  null,'DUMMY_TEST_PACKAGE','some_dummy_test_procedure' ) ).to_be_false();
+  end;
+
+  procedure is_suite_true is
+  begin
+    ut.expect(
+      ut3.ut_runner.is_suite(
+        a_owner => 'UT3_TESTER',
+        a_package_name => 'DUMMY_TEST_PACKAGE'
+      )
+    ).to_be_true();
+    
+    ut.expect( ut3.ut_runner.is_suite( 'ut3_tester','dummy_test_package' ) ).to_be_true();
+  end;
+
+  procedure is_suite_false is
+  begin
+    ut.expect( ut3.ut_runner.is_suite( 'UT3_TESTER','BAD' ) ).to_be_false();
+    ut.expect( ut3.ut_runner.is_suite( 'UT3_TESTER', null ) ).to_be_false();
+    ut.expect( ut3.ut_runner.is_suite( null,'DUMMY_TEST_PACKAGE' ) ).to_be_false();
+  end;
+  
+  procedure has_suites_true is
+  begin
+    ut.expect( ut3.ut_runner.has_suites( a_owner => 'UT3_TESTER' ) ).to_be_true();
+    
+    ut.expect( ut3.ut_runner.has_suites( 'ut3_tester' ) ).to_be_true();
+  end;
+
+  procedure has_suites_false is
+  begin
+    ut.expect( ut3.ut_runner.has_suites( 'UT3_LATEST_RELEASE' ) ).to_be_false();
+    ut.expect( ut3.ut_runner.has_suites( 'BAD' ) ).to_be_false();
+    ut.expect( ut3.ut_runner.has_suites(  null ) ).to_be_false();
   end;
   
 end;
