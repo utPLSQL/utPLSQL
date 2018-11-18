@@ -52,11 +52,11 @@ create or replace type body ut_include as
     l_result boolean;
     l_actual ut_data_value;
   begin
+    --TODO : Join by exclude an include should show differences
     if self.expected.data_type = a_actual.data_type then
         l_actual := treat(a_actual as ut_data_value_refcursor).filter_cursor(exclude_list, include_list);      
-        l_result := 0 = treat(self.expected as ut_data_value_refcursor).filter_cursor(exclude_list, include_list).compare_implementation(l_actual, 
-                         self.get_exclude_xpath(), self.get_include_xpath(), self.get_join_by_xpath(),
-                         true,self.get_inclusion_compare(), self.get_negated(), join_on_list);
+        l_result := 0 = treat(self.expected as ut_data_value_refcursor).filter_cursor(exclude_list, include_list).compare_implementation(l_actual,                          
+                         true,self.get_inclusion_compare(), self.get_negated(), self.get_join_by_list());
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
     end if;

@@ -120,7 +120,7 @@ create or replace type body ut_compound_data_value as
 
     -- First tell how many rows are different
     l_diff_row_count := ut_compound_data_helper.get_rows_diff_count; 
- 
+    --TODO : Change message when the types not matching
     if l_diff_row_count > 0  then
       l_row_diffs := ut_compound_data_helper.get_rows_diff(
             self.data_id, l_actual.data_id, l_diff_id, c_max_rows, a_exclude_xpath, 
@@ -200,9 +200,8 @@ create or replace type body ut_compound_data_value as
     return l_result;
   end;
 
-  member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, 
-                                         a_join_by_xpath varchar2,a_unordered boolean, a_inclusion_compare boolean := false, 
-                                         a_is_negated boolean := false, a_join_by_list ut_varchar2_list:=null ) return integer is
+  member function compare_implementation(a_other ut_data_value, a_unordered boolean, a_inclusion_compare boolean, 
+                                         a_is_negated boolean, a_join_by_list ut_varchar2_list:=ut_varchar2_list()) return integer is
 
     l_diff_id       ut_compound_data_helper.t_hash;      
     l_other         ut_compound_data_value;
@@ -215,15 +214,13 @@ create or replace type body ut_compound_data_value as
     l_sql_rowcount integer :=0;
     
   begin
-   --TODO : Error on xml when same column is more then once in item data xml.Do we need to cleanup ??  
    --TODO : Bring diffs row into same place for ref data cursor especially (how we going to do that so we dont break anyval etc)
-   --TODO : Test binary xml storage (didnt seems to make a diffrence, docker and datafiles layer ??)
    l_other         := treat(a_other as ut_compound_data_value);  
    l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
 
-   open l_loop_curs for ut_compound_data_helper.gen_compare_sql(treat(a_other as ut_data_value_refcursor).col_info_desc, a_exclude_xpath, 
-                                   a_include_xpath, a_join_by_xpath, a_inclusion_compare, a_is_negated, a_unordered, 
-                                   treat(a_other as ut_data_value_refcursor), a_join_by_list ) using  self.data_id,l_other.data_id;  
+   open l_loop_curs for ut_compound_data_helper.gen_compare_sql(treat(a_other as ut_data_value_refcursor).col_info_desc, 
+                                   a_inclusion_compare, a_is_negated, a_unordered, treat(a_other as ut_data_value_refcursor), 
+                                   a_join_by_list ) using  self.data_id,l_other.data_id;  
    loop
     fetch l_loop_curs bulk collect into l_diff_tab limit l_max_rows;
     exit when l_diff_tab.count = 0;
@@ -232,19 +229,17 @@ create or replace type body ut_compound_data_value as
     end if;
        
     l_sql_rowcount := l_sql_rowcount + l_diff_tab.count;
-    
     if (ut_utils.gc_diff_max_rows <= l_sql_rowcount and l_max_rows != ut_utils.gc_bc_fetch_limit ) then
       l_max_rows := ut_utils.gc_bc_fetch_limit;
     end if;
    end loop;      
-        --result is OK only if both are same         
+        --result is OK only if both are same  
     if l_sql_rowcount = 0 and ( self.elements_count = l_other.elements_count or a_inclusion_compare )then
       l_result := 0; 
     else
       ut_compound_data_helper.set_rows_diff(l_sql_rowcount); 
       l_result := 1;
     end if; 
-    
     return l_result;
    
   end;  

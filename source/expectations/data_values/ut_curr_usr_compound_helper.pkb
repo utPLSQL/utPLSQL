@@ -18,7 +18,6 @@ create or replace package body ut_curr_usr_compound_helper is
   function is_sql_compare_allowed(a_type_name varchar2) return boolean is
   begin
     --clob/blob/xmltype/object/nestedcursor/nestedtable
-    
     if a_type_name IN (g_type_name_map(dbms_sql.blob_type),
                        g_type_name_map(dbms_sql.clob_type),
                        g_type_name_map(dbms_sql.bfile_type))
@@ -53,7 +52,6 @@ create or replace package body ut_curr_usr_compound_helper is
     l_result ut_key_anyval_pair;
     l_data_type varchar2(500) := 'unknown datatype';  
 
-    --TODO: Review the types in and resolving
     begin
           
       if g_type_name_map.exists(a_desc_rec.col_type) then
@@ -245,9 +243,9 @@ create or replace package body ut_curr_usr_compound_helper is
   return l_result ;
   end;
   
-  function get_column_type(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2 is
+  function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2 is
   begin
-   return case when not a_dbms_sql_desc then g_anytype_name_map(a_type_code) else g_type_name_map(a_type_code) end;
+   return case when a_dbms_sql_desc then g_type_name_map(a_type_code) else g_anytype_name_map(a_type_code) end;
   end;
   
   begin
@@ -296,6 +294,9 @@ create or replace package body ut_curr_usr_compound_helper is
   g_type_name_map( dbms_sql.number_type )                  := 'NUMBER';
   g_type_name_map( dbms_sql.rowid_type )                   := 'ROWID';
   g_type_name_map( dbms_sql.urowid_type )                  := 'UROWID';  
+  g_type_name_map( dbms_sql.user_defined_type )            := 'USER_DEFINED_TYPE';
+  g_type_name_map( dbms_sql.ref_type )                     := 'REF_TYPE';
   
+
 end;
 /

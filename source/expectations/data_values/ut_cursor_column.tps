@@ -2,7 +2,7 @@ create or replace type ut_cursor_column force authid current_user as object
 (
    parent_name     varchar2(100),
    access_path     varchar2(500),
-   nested_name     raw(30),
+   nested_name     varchar2(32),
    hierarchy_level number,
    column_position number,
    xml_valid_name  varchar2(100),

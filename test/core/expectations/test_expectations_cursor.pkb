@@ -2356,39 +2356,99 @@ Diff:%
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;  
+ 
+  procedure cursor_not_to_contain
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for select 'TEST' username, -600 user_id from dual;
+    
+    open l_actual for select username, user_id from all_users
+    union all
+    select 'TEST1' username, -601 user_id from dual;
+    
+    --Act
+    ut3.ut.expect(l_actual).not_to_contain(l_expected);   
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;  
   
-  procedure cursor_not_to_contain is
+  procedure cursor_not_to_include
+  as
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for select 'TEST' username, -600 user_id from dual;
+    
+    open l_actual for select username, user_id from all_users
+    union all
+    select 'TEST1' username, -601 user_id from dual;
+    
+    --Act
+    ut3.ut.expect(l_actual).not_to_include(l_expected);
+    --Asserty
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;    
+  
+  procedure cursor_not_to_contain_fail is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
   begin
     --Arrange
     open l_expected for select 'TEST' username, -600 user_id from dual;
     
     open l_actual for select username, user_id from all_users
     union all
-    select 'TEST' username, -601 user_id from dual;
+    select 'TEST' username, -600 user_id from dual;
     
     --Act
     ut3.ut.expect(l_actual).not_to_contain(l_expected);
     --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+     l_expected_message := q'[%Actual: (refcursor [ count = 18 ])%
+%Data-types:%
+%<ROW><USERNAME xml_valid_name="USERNAME">VARCHAR2</USERNAME><USER_ID xml_valid_name="USER_ID">NUMBER</USER_ID></ROW>%
+%Data:%
+%was expected not to include:(refcursor [ count = 1 ])%
+%Data-types:%
+%<ROW><USERNAME xml_valid_name="USERNAME">CHAR</USERNAME><USER_ID xml_valid_name="USER_ID">NUMBER</USER_ID></ROW>%
+%Data:%
+%<ROW><USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID></ROW>%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
     
-  procedure cursor_not_to_include is
+  procedure cursor_not_to_include_fail is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
   begin
     --Arrange
     open l_expected for select 'TEST' username, -600 user_id from dual;
     
     open l_actual for select username, user_id from all_users
     union all
-    select 'TEST' username, -601 user_id from dual;
+    select 'TEST' username, -600 user_id from dual;
     
     --Act
     ut3.ut.expect(l_actual).not_to_include(l_expected);
     --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+     l_expected_message := q'[%Actual: (refcursor [ count = 18 ])%
+%Data-types:%
+%<ROW><USERNAME xml_valid_name="USERNAME">VARCHAR2</USERNAME><USER_ID xml_valid_name="USER_ID">NUMBER</USER_ID></ROW>%
+%Data:%
+%was expected not to include:(refcursor [ count = 1 ])%
+%Data-types:%
+%<ROW><USERNAME xml_valid_name="USERNAME">CHAR</USERNAME><USER_ID xml_valid_name="USER_ID">NUMBER</USER_ID></ROW>%
+%Data:%
+%<ROW><USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID></ROW>%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
   
   procedure cursor_not_to_contain_joinby is
@@ -2410,8 +2470,8 @@ Diff:%
     l_expected SYS_REFCURSOR;
   begin
     --Arrange
-    open l_actual for select username,user_id from all_users;
-    open l_expected for select username||'ACT' username ,user_id from all_users where rownum < 5;
+    open l_actual for select username,rownum * 10 user_id from all_users where rownum < 5;
+    open l_expected for select username ,rownum user_id from all_users where rownum < 5;
     
     --Act
     ut3.ut.expect(l_actual).not_to_include(l_expected).join_by('USER_ID');

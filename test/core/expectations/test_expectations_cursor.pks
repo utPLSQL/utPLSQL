@@ -380,7 +380,13 @@ create or replace package test_expectations_cursor is
   procedure cursor_not_to_contain;
   
   --%test( Cursor not to include data from another cursor)   
-  procedure cursor_not_to_include;  
+  procedure cursor_not_to_include; 
+  
+  --%test( Cursor fail not to contains data from another cursor)   
+  procedure cursor_not_to_contain_fail;
+  
+  --%test( Cursor fail not to include data from another cursor)   
+  procedure cursor_not_to_include_fail;  
   
   --%test( Cursor not contains data from another cursor with joinby clause)   
   procedure cursor_not_to_contain_joinby;  

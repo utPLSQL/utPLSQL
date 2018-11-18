@@ -44,8 +44,7 @@ create or replace type ut_compound_data_value force under ut_data_value(
   overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean := false ) return varchar2,
   member function get_data_diff(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean) return clob,
   member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer,
-  member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, 
-                                 a_join_by_xpath varchar2, a_unordered boolean, a_inclusion_compare boolean := false,
-                                 a_is_negated boolean := false, a_join_by_list ut_varchar2_list:=null ) return integer
+  member function compare_implementation(a_other ut_data_value, a_unordered boolean, a_inclusion_compare boolean,
+                                         a_is_negated boolean, a_join_by_list ut_varchar2_list:=ut_varchar2_list() ) return integer
 ) not final not instantiable
 /

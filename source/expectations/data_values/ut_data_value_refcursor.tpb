@@ -47,9 +47,7 @@ create or replace type body ut_data_value_refcursor as
             self.contain_collection);          
           self.elements_count     := 0;
           self.columns_info := ut_curr_usr_compound_helper.extract_min_col_info(self.col_info_desc);
-          
           self.cursor_details  := ut_cursor_details(l_cursor);
-           
           -- We use DBMS_XMLGEN in order to:
           -- 1) be able to process data in bulks (set of rows)
           -- 2) be able to influence the ROWSET/ROW tags
@@ -226,11 +224,15 @@ create or replace type body ut_data_value_refcursor as
     return l_result_string;
   end;
 
-  overriding member function compare_implementation (a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, 
-                                                     a_unordered boolean, a_inclusion_compare boolean := false, 
-                                                     a_is_negated boolean := false, a_join_by_list ut_varchar2_list:=null) return integer is
+  overriding member function compare_implementation (a_other ut_data_value, a_unordered boolean, a_inclusion_compare boolean := false, 
+                                          a_is_negated boolean := false, a_join_by_list ut_varchar2_list:=ut_varchar2_list()) 
+                                          return integer is
     l_result          integer := 0;
     l_other           ut_data_value_refcursor;
+    
+    l_act_pk          ut_cursor_column_tab;
+    l_exp_pk          ut_cursor_column_tab;
+    
     function is_pk_missing (a_pk_missing_tab ut_compound_data_helper.tt_missing_pk) return integer is
     begin
       return case when a_pk_missing_tab.count > 0 then 1 else 0 end;
@@ -243,21 +245,19 @@ create or replace type body ut_data_value_refcursor as
     l_other   := treat(a_other as ut_data_value_refcursor);
     
     --if we join by key and key is missing fail and report error
-    if a_join_by_xpath is not null then 
-      l_result := is_pk_missing(ut_compound_data_helper.is_pk_exists(self.key_info, l_other.key_info, a_exclude_xpath, 
-                                a_include_xpath,a_join_by_xpath));
+    if a_join_by_list.count > 0 then
+      l_act_pk := ut_compound_data_helper.compare_cursor_to_columns(self.cursor_details.cursor_info ,a_join_by_list);
+      l_exp_pk := ut_compound_data_helper.compare_cursor_to_columns(l_other.cursor_details.cursor_info,a_join_by_list);
+      l_result := case when (l_act_pk.count > 0) or (l_exp_pk.count > 0) then 1 else 0 end;
     end if;
-    
-    if l_result = 0 then
-      --if column names/types are not equal - build a diff of column names and types
-      if ut_compound_data_helper.columns_hash( self, a_exclude_xpath, a_include_xpath )
-         != ut_compound_data_helper.columns_hash( l_other, a_exclude_xpath, a_include_xpath )
-      then
-        l_result := 1;
-      end if;
         
-      l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other, a_exclude_xpath, a_include_xpath, 
-                                a_join_by_xpath,a_unordered, a_inclusion_compare, a_is_negated, a_join_by_list);  
+  
+    if l_result = 0 then     
+      if (self.cursor_details is not null and l_other.cursor_details is not null) and (self.cursor_details != l_other.cursor_details) then 
+        l_result := 1; 
+      end if;    
+      l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other,a_unordered, a_inclusion_compare, 
+                              a_is_negated, a_join_by_list);  
     end if;
     
     return l_result;
