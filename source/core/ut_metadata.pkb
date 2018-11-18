@@ -77,6 +77,9 @@ create or replace package body ut_metadata as
 
     -- expect both package and body to be valid
     return l_cnt = 1;
+  exception
+    when others then
+      return false;
   end;
 
   function procedure_exists(a_owner_name varchar2, a_package_name in varchar2, a_procedure_name in varchar2)
@@ -101,6 +104,9 @@ create or replace package body ut_metadata as
 
     --expect one method only for the package with that name.
     return l_cnt = 1;
+  exception
+    when others then
+      return false;
   end;
 
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
