@@ -88,5 +88,7 @@ create or replace package test_ut_test is
   --%test(Test output gathering)
   procedure test_output_gathering;
 
+  --%endcontext
+
 end;
 /
