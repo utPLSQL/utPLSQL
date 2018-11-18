@@ -541,5 +541,58 @@ create or replace package body ut_compound_data_helper is
     return l_no_missing_keys;
   end;
    
+  procedure update_row_and_pk_hash(a_self_data_id in raw, a_other_data_id in raw, a_exclude_xpath varchar2, 
+                                   a_include_xpath varchar2, a_join_by_xpath varchar2) is
+    l_ut_owner        varchar2(250) := ut_utils.ut_owner;
+    l_column_filter   varchar2(32767);
+    l_pk_hash_sql     varchar2(32767);
+    
+    function get_column_pk_hash(a_join_by_xpath varchar2) return varchar2 is
+      l_column varchar2(32767);
+    begin
+      /* due to possibility of key being to columns we cannot use xmlextractvalue
+         usage of xmlagg is possible however it greatly complicates code and performance is impacted.
+         xpath to be looked at or regex
+      */
+      if a_join_by_xpath is not null then
+        l_column :=  l_ut_owner ||'.ut_compound_data_helper.get_hash(extract(ucd.item_data,:join_by_xpath).GetClobVal()) pk_hash';
+      else
+        l_column := ':join_by_xpath pk_hash';
+      end if;
+      return l_column;
+    end;  
+  
+  begin
+    l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
+    l_pk_hash_sql := get_column_pk_hash(a_join_by_xpath);
+         
+    execute immediate 'merge into ' || l_ut_owner || '.ut_compound_data_tmp tgt
+                       using (
+                              select ucd_out.item_hash,
+                                     ucd_out.pk_hash,
+                                     ucd_out.item_no, 
+                                     ucd_out.data_id,
+                                     row_number() over (partition by ucd_out.pk_hash,ucd_out.item_hash,ucd_out.data_id order by 1,2) duplicate_no
+                              from 
+                              (
+                              select '||l_ut_owner ||'.ut_compound_data_helper.get_hash(ucd.item_data.getclobval()) item_hash, 
+                                      pk_hash, ucd.item_no, ucd.data_id
+                              from
+                              (
+                              select '||l_column_filter||','||l_pk_hash_sql||', item_no, data_id
+                              from  ' || l_ut_owner || q'[.ut_compound_data_tmp ucd
+                              where data_id = :self_guid or data_id = :other_guid
+                              ) ucd
+                              )ucd_out
+                       ) src
+                       on (tgt.item_no = src.item_no and tgt.data_id = src.data_id)
+                       when matched then update
+                       set tgt.item_hash = src.item_hash,
+                           tgt.pk_hash = src.pk_hash,
+                           tgt.duplicate_no = src.duplicate_no]'
+                       using a_exclude_xpath, a_include_xpath,a_join_by_xpath,a_self_data_id, a_other_data_id;    
+
+  end;
+   
 end;
 /
