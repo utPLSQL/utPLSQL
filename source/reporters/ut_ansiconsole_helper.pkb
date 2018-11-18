@@ -53,16 +53,6 @@ create or replace package body ut_ansiconsole_helper as
     return add_color(a_text, gc_yellow);
   end;
 
-  function blue(a_text varchar2) return varchar2 is
-  begin
-    return add_color(a_text, gc_blue);
-  end;
-
-  function magenta(a_text varchar2) return varchar2 is
-  begin
-    return add_color(a_text, gc_magenta);
-  end;
-
   function cyan(a_text varchar2) return varchar2 is
   begin
     return add_color(a_text, gc_cyan);

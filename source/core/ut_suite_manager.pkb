@@ -465,7 +465,7 @@ create or replace package body ut_suite_manager is
     a_owner_name         varchar2
   ) return boolean is
   begin
-    return sys_context( 'userenv', 'current_schema' ) = a_owner_name or ut_metadata.is_object_visible( ut_utils.ut_owner ||'.ut_utils' );
+    return sys_context( 'userenv', 'current_schema' ) = a_owner_name or ut_metadata.user_has_execute_any_proc();
   end;
 
   procedure build_and_cache_suites(
@@ -582,7 +582,7 @@ create or replace package body ut_suite_manager is
     l_need_all_objects_scan boolean := true;
   begin
     -- if current user is the onwer or current user has execute any procedure privilege
-    if ut_metadata.is_object_visible('ut3.ut_utils')
+    if ut_metadata.user_has_execute_any_proc()
       or (a_schema_names is not null and a_schema_names.count = 1
       and sys_context('userenv','current_schema') = a_schema_names(1))
     then

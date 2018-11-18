@@ -193,7 +193,7 @@ create or replace package body ut_annotation_manager as
     ut_annotation_cache_manager.cleanup_cache(l_objects_to_parse);
 
     if sys_context('userenv','current_schema') = a_object_owner
-      or ut_metadata.is_object_visible('ut3.ut_utils')
+      or ut_metadata.user_has_execute_any_proc()
       or ut_metadata.is_object_visible('dba_objects')
     then
       ut_annotation_cache_manager.remove_from_cache(

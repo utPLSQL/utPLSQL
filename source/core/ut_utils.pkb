@@ -55,18 +55,6 @@ create or replace package body ut_utils is
     return '"'|| utl_raw.cast_to_varchar2(utl_encode.base64_encode(sys_guid()))||'"';
   end;
 
-  /*
-   Procedure: validate_rollback_type
-
-   Validates passed value against supported rollback types
-  */
-  procedure validate_rollback_type(a_rollback_type number) is
-  begin
-    if a_rollback_type not in (gc_rollback_auto, gc_rollback_manual) then
-      raise_application_error(-20200,'Rollback type is not supported');
-    end if;
-  end validate_rollback_type;
-
   procedure debug_log(a_message varchar2) is
   begin
     $if $$ut_trace $then
@@ -604,15 +592,13 @@ create or replace package body ut_utils is
   end;
 
   function xmlgen_escaped_string(a_string in varchar2) return varchar2 is
-    l_result varchar2(4000);
+    l_result varchar2(4000) := a_string;
     l_sql varchar2(32767) := q'!select q'[!'||a_string||q'!]' as "!'||a_string||'" from dual';
   begin
     if a_string is not null then
       select extract(dbms_xmlgen.getxmltype(l_sql),'/*/*/*').getRootElement()
       into l_result
       from dual;
-    else
-    l_result := a_string;
     end if;
     return l_result;
   end;

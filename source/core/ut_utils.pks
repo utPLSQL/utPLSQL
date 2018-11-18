@@ -184,12 +184,6 @@ create or replace package ut_utils authid definer is
   function int_to_boolean(a_value integer) return boolean;
 
   /**
-   * Validates passed value against supported rollback types
-   */
-  procedure validate_rollback_type(a_rollback_type number);
-
-
-  /**
    *
    * Splits a given string into table of string by delimiter.
    * The delimiter gets removed.

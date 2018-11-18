@@ -40,12 +40,6 @@ create or replace package ut_metadata authid current_user as
     return boolean;
 
   /**
-   * Resolves [owner.]object using dbms_utility.name_resolve and returns resolved parts
-   *
-   */
-  procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2);
-
-  /**
    * Resolves [owner.]object[.procedure] using dbms_utility.name_resolve and returns resolved parts
    *
    */

@@ -63,12 +63,6 @@ create or replace type ut_suite_item force under ut_event_item (
   member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_line_no integer),
   member function get_disabled_flag return boolean,
   not instantiable member procedure mark_as_skipped(self in out nocopy ut_suite_item),
-  not instantiable member procedure add_item(
-    self in out nocopy ut_suite_item,
-    a_item ut_suite_item,
-    a_expected_level integer := 1,
-    a_current_level integer :=1
-  ),
   member procedure set_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer),
   member function get_rollback_type return integer,
   member function create_savepoint_if_needed return varchar2,

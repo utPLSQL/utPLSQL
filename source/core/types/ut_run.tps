@@ -36,12 +36,6 @@ create or replace type ut_run under ut_suite_item (
     a_client_character_set  varchar2 := null
   ) return self as result,
   overriding member procedure mark_as_skipped(self in out nocopy ut_run),
-  overriding member procedure add_item(
-    self in out nocopy ut_run,
-    a_item ut_suite_item,
-    a_expected_level integer := 1,
-    a_current_level integer :=1
-  ),
   overriding member function  do_execute(self in out nocopy ut_run) return boolean,
   overriding member procedure calc_execution_result(self in out nocopy ut_run),
   overriding member procedure mark_as_errored(self in out nocopy ut_run, a_error_stack_trace varchar2),

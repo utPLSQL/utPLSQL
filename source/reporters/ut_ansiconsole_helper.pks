@@ -23,10 +23,6 @@ create or replace package ut_ansiconsole_helper as
 
   function yellow(a_text varchar2) return varchar2;
 
-  function blue(a_text varchar2) return varchar2;
-
-  function magenta(a_text varchar2) return varchar2;
-
   function cyan(a_text varchar2) return varchar2;
 end;
 /

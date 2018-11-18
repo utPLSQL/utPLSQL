@@ -60,6 +60,25 @@ create or replace type body ut_teamcity_reporter is
     l_results        ut_varchar2_rows := ut_varchar2_rows();
     l_test_full_name varchar2(4000);
     l_std_err_msg    varchar2(32767);
+    function add_error_message( a_message varchar2, a_message_name varchar2) return varchar2 is
+    begin
+      return
+        case
+          when a_message is not null
+          then a_message_name || chr(10) || a_message || chr(10)
+        end;
+    end;
+    function add_error_messages(a_executables ut_executables, a_message_name varchar2) return varchar2 is
+      l_message varchar2(32767);
+      l_idx     binary_integer;
+    begin
+      l_idx := a_executables.first;
+      while l_idx is not null loop
+        l_message := l_message || add_error_message(a_executables(l_idx).error_backtrace, a_message_name);
+        l_idx := a_executables.next(l_idx);
+      end loop;
+      return l_message;
+    end;
   begin
     l_test_full_name := lower(a_test.item.owner_name) || '.' || lower(a_test.item.object_name) || '.' ||
                         lower(a_test.item.procedure_name);
@@ -71,33 +90,11 @@ create or replace type body ut_teamcity_reporter is
       ut_utils.append_to_list( l_results, a_test.get_serveroutputs());
 
       if a_test.result = ut_utils.gc_error then
-        for i in 1 .. a_test.before_each_list.count loop
-          if a_test.before_each_list(i).error_backtrace is not null then
-            l_std_err_msg := l_std_err_msg || 'Before each exception:' || chr(10) || a_test.before_each_list(i).error_backtrace || chr(10);
-          end if;
-        end loop;
-
-        for i in 1 .. a_test.before_test_list.count loop
-          if a_test.before_test_list(i).error_backtrace is not null then
-            l_std_err_msg := l_std_err_msg || 'Before test exception:' || chr(10) || a_test.before_test_list(i).error_backtrace || chr(10);
-          end if;
-        end loop;
-
-        if a_test.item.error_backtrace is not null then
-          l_std_err_msg := l_std_err_msg || 'Test exception:' || chr(10) || a_test.item.error_backtrace || chr(10);
-        end if;
-
-        for i in 1 .. a_test.after_test_list.count loop
-          if a_test.after_test_list(i).error_backtrace is not null then
-            l_std_err_msg := l_std_err_msg || 'After test exception:' || chr(10) || a_test.after_test_list(i).error_backtrace || chr(10);
-          end if;
-        end loop;
-
-        for i in 1 .. a_test.after_each_list.count loop
-          if a_test.after_each_list(i).error_backtrace is not null then
-            l_std_err_msg := l_std_err_msg || 'After each exception:' || chr(10) || a_test.after_each_list(i).error_backtrace || chr(10);
-          end if;
-        end loop;
+        l_std_err_msg := l_std_err_msg || add_error_messages(a_test.before_each_list, 'Before each exception:');
+        l_std_err_msg := l_std_err_msg || add_error_messages(a_test.before_test_list, 'Before test exception:');
+        l_std_err_msg := l_std_err_msg || add_error_message(a_test.item.error_backtrace, 'Test exception:');
+        l_std_err_msg := l_std_err_msg || add_error_messages(a_test.after_test_list, 'After test exception:');
+        l_std_err_msg := l_std_err_msg || add_error_messages(a_test.after_each_list, 'After each exception:');
 
         ut_utils.append_to_list(
           l_results,

@@ -41,6 +41,21 @@ create or replace package test_ut_run is
   --%test(Runs all tests in current schema with empty path list given)
   procedure run_proc_empty_path_list;
 
+  procedure create_suite_with_commit;
+  procedure drop_suite_with_commit;
+  --%test(Reports a warning if transaction was invalidated by test with automatic rollback)
+  --%beforetest(create_suite_with_commit)
+  --%aftertest(drop_suite_with_commit)
+  procedure run_proc_warn_on_commit;
+
+
+  procedure create_failing_beforeall_suite;
+  procedure drop_failing_beforeall_suite;
+  --%test(Marks child suite as failed when parent's suite beforeall fails)
+  --%beforetest(create_failing_beforeall_suite)
+  --%aftertest(drop_failing_beforeall_suite)
+  procedure run_proc_fail_child_suites;
+
   --%endcontext
 
 

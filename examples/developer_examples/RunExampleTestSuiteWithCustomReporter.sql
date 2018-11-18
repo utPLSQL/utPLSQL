@@ -28,13 +28,15 @@ begin
   l_test.description := 'Example test1';
   l_test.before_test_list := ut_executables(ut_executable(user, 'ut_exampletest','Setup',ut_utils.gc_before_test));
   l_test.after_test_list  := ut_executables(ut_executable(user, 'ut_exampletest','tEardown',ut_utils.gc_after_test));
-  l_suite.add_item(l_test);
+  l_suite.items.extend;
+  l_suite.items(l_suite.items.last) := l_test;
 
   l_test := ut_test(user, 'UT_EXAMPLETEST2','ut_exAmpletest',a_line_no=>6);
   l_test.description := 'Another example test';
   l_test.before_test_list := ut_executables(ut_executable(user, 'ut_exampletest','SETUP',ut_utils.gc_before_test));
   l_test.after_test_list  := ut_executables(ut_executable(user, 'ut_exampletest','TEARDOWN',ut_utils.gc_after_test));
-  l_suite.add_item(l_test);
+  l_suite.items.extend;
+  l_suite.items(l_suite.items.last) := l_test;
 
   -- provide a reporter to process results tabbing each hierarcy level by tab_size
   l_reporter := ut_custom_reporter(a_tab_size => 2);

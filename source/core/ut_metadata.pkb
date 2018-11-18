@@ -22,12 +22,6 @@ create or replace package body ut_metadata as
   ------------------------------
   --public definitions
 
-  procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2) is
-    l_procedure_name  varchar2(200);
-  begin
-    do_resolve(a_owner, a_object, l_procedure_name );
-  end do_resolve;
-
   procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2, a_procedure_name in out nocopy varchar2) is
     l_name          varchar2(200);
     l_context       integer := 1; --plsql
@@ -83,9 +77,6 @@ create or replace package body ut_metadata as
 
     -- expect both package and body to be valid
     return l_cnt = 1;
-  exception
-    when others then
-      return false;
   end;
 
   function procedure_exists(a_owner_name varchar2, a_package_name in varchar2, a_procedure_name in varchar2)
@@ -110,9 +101,6 @@ create or replace package body ut_metadata as
 
     --expect one method only for the package with that name.
     return l_cnt = 1;
-  exception
-    when others then
-      return false;
   end;
 
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
@@ -168,14 +156,8 @@ create or replace package body ut_metadata as
 
   function user_has_execute_any_proc return boolean is
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
-    l_dummy        varchar2(250);
   begin
-    execute immediate 'select '||l_ut_owner||'.ut_utils.ut_owner from dual'
-      into l_dummy;
-    return true;
-  exception
-    when others then
-      return false;
+    return is_object_visible(l_ut_owner||'.ut_utils');
   end;
 
   function is_object_visible(a_object_name varchar2) return boolean is
