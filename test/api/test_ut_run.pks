@@ -44,6 +44,21 @@ create or replace package test_ut_run is
 
   --%endcontext
 
+  --%context(run_proc_transaction_control)
+
+  --%beforeall
+  procedure transaction_setup;
+  --%afterall
+  procedure transaction_cleanup;
+  --%test(Leaves transaction open and uncommitted with a_force_manual_rollback)
+  procedure run_proc_keep_test_data;
+  --%test(Leaves transaction open and uncommitted with a_force_manual_rollback with exceptions)
+  procedure run_proc_keep_test_data_raise;
+  --%test(Does not impact current transaction when ran without a_force_manual_rollback)
+  procedure run_proc_discard_test_data;
+
+  --%endcontext
+
 
   --%context(ut_run_function)
   --%displayname(ut.run() function options)

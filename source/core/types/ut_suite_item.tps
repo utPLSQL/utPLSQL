@@ -56,7 +56,7 @@ create or replace type ut_suite_item force under ut_event_item (
   member procedure set_disabled_flag(self in out nocopy ut_suite_item, a_disabled_flag boolean),
   member function get_disabled_flag return boolean,
   not instantiable member procedure mark_as_skipped(self in out nocopy ut_suite_item),
-  member procedure set_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer),
+  member procedure set_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer, a_force boolean := false),
   member function get_rollback_type return integer,
   member function create_savepoint_if_needed return varchar2,
   member procedure rollback_to_savepoint(self in out nocopy ut_suite_item, a_savepoint varchar2),

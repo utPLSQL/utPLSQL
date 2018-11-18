@@ -42,13 +42,16 @@ create or replace package body ut_runner is
     return l_result;
   end;
 
-  procedure finish_run(a_run ut_run) is
+  procedure finish_run(a_run ut_run, a_force_manual_rollback boolean) is
   begin
     ut_utils.cleanup_temp_tables;
     ut_event_manager.trigger_event(ut_utils.gc_finalize, a_run);
     ut_metadata.reset_source_definition_cache;
     ut_utils.read_cache_to_dbms_output();
     ut_coverage_helper.cleanup_tmp_table();
+    if not a_force_manual_rollback then
+      rollback;
+    end if;
   end;
 
 
@@ -83,7 +86,8 @@ create or replace package body ut_runner is
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
     a_fail_on_errors boolean := false,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   ) is
     l_run                   ut_run;
     l_coverage_schema_names ut_varchar2_rows;
@@ -137,16 +141,18 @@ create or replace package body ut_runner is
         set(a_test_file_mappings),
         a_client_character_set
       );
+      if a_force_manual_rollback then
+        l_run.set_rollback_type(ut_utils.gc_rollback_manual, a_force=>true);
+      end if;
+
       l_run.do_execute();
 
-      finish_run(l_run);
-      rollback;
+      finish_run(l_run, a_force_manual_rollback);
     exception
       when others then
-        finish_run(l_run);
+        finish_run(l_run, a_force_manual_rollback);
         dbms_output.put_line(dbms_utility.format_error_backtrace);
         dbms_output.put_line(dbms_utility.format_error_stack);
-        rollback;
         raise;
     end;
     if a_fail_on_errors and l_run.result in (ut_utils.gc_failure, ut_utils.gc_error) then

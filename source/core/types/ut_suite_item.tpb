@@ -37,9 +37,9 @@ create or replace type body ut_suite_item as
     return ut_utils.int_to_boolean(self.disabled_flag);
   end;
 
-  member procedure set_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer) is
+  member procedure set_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer, a_force boolean := false) is
   begin
-    self.rollback_type := coalesce(self.rollback_type, a_rollback_type);
+    self.rollback_type := case when a_force then a_rollback_type else coalesce(self.rollback_type, a_rollback_type) end;
   end;
 
   member function get_rollback_type return integer is

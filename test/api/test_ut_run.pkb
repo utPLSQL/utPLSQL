@@ -355,6 +355,122 @@ create or replace package body test_ut_run is
     ut.expect( l_results ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
   end;
 
+  procedure transaction_setup is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'create table transaction_test_table(message varchar2(100))';
+    execute immediate 'create or replace package test_transaction is
+      --%suite
+
+      --%test
+      procedure insert_row;
+
+      --%test
+      procedure insert_and_raise;
+    end;
+    ';
+    execute immediate 'create or replace package body test_transaction is
+        procedure insert_row is
+        begin
+          insert into transaction_test_table values (''2 - inside the test_transaction.insert_row test'');
+        end;
+        procedure insert_and_raise is
+        begin
+          insert into transaction_test_table values (''2 - inside the test_transaction.insert_row test'');
+          raise no_data_found;
+        end;
+      end;
+    ';
+
+  end;
+
+  procedure transaction_cleanup is
+    pragma autonomous_transaction;
+  begin
+    begin
+      execute immediate 'drop table transaction_test_table';
+    exception
+      when others then null;
+    end;
+    begin
+      execute immediate 'drop pacakge test_transaction';
+    exception
+      when others then null;
+    end;
+  end;
+
+  procedure run_proc_keep_test_data is
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+    l_results  clob;
+  begin
+    --Arrange
+    execute immediate '
+      insert into transaction_test_table values (''1 - inside the test_ut_run.run_proc_keep_test_changes test'')';
+
+    --Act
+    ut3.ut.run('test_transaction.insert_row', a_force_manual_rollback => true);
+    l_results := get_dbms_output_as_clob();
+
+    --Assert
+    open l_expected for
+    select '1 - inside the test_ut_run.run_proc_keep_test_changes test' as message from dual
+    union all
+    select '2 - inside the test_transaction.insert_row test' from dual
+    order by 1;
+
+    open l_actual for 'select * from transaction_test_table order by 1';
+
+    ut.expect( l_actual ).to_equal(l_expected);
+  end;
+
+  procedure run_proc_keep_test_data_raise is
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+    l_results  clob;
+  begin
+    --Arrange
+    execute immediate '
+      insert into transaction_test_table values (''1 - inside the test_ut_run.run_proc_keep_test_changes test'')';
+
+    --Act
+    ut3.ut.run('test_transaction.insert_and_raise', a_force_manual_rollback => true);
+    l_results := get_dbms_output_as_clob();
+
+    --Assert
+    open l_expected for
+    select '1 - inside the test_ut_run.run_proc_keep_test_changes test' as message from dual
+    union all
+    select '2 - inside the test_transaction.insert_row test' from dual
+    order by 1;
+
+    open l_actual for 'select * from transaction_test_table order by 1';
+
+    ut.expect( l_actual ).to_equal(l_expected);
+  end;
+
+  procedure run_proc_discard_test_data is
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+    l_results  clob;
+  begin
+    --Arrange
+    execute immediate '
+      insert into transaction_test_table values (''1 - inside the test_ut_run.run_proc_keep_test_changes test'')';
+
+    --Act
+    ut3.ut.run('test_transaction.insert_row');
+    l_results := get_dbms_output_as_clob();
+
+    --Assert
+    open l_expected for
+    select '1 - inside the test_ut_run.run_proc_keep_test_changes test' as message from dual;
+
+    open l_actual for 'select * from transaction_test_table order by 1';
+
+    ut.expect( l_actual ).to_equal(l_expected);
+  end;
+
   procedure run_func_no_params is
     l_results   ut3.ut_varchar2_list;
   begin
