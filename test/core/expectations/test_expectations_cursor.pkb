@@ -1542,9 +1542,9 @@ Diff:%
     ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
-Rows: [ 5 differences 1
-%Extra:    <COLVAL><ID>1</ID><name>Something 1</name><Value>1</Value></COLVAL>%
+Rows: [ 5 differences%
 %Extra:    <COLVAL><ID>2</ID><name>Something 2</name><Value>2</Value></COLVAL>%
+%Extra:    <COLVAL><ID>1</ID><name>Something 1</name><Value>1</Value></COLVAL>%
 %Missing:  <COLVAL><ID>1</ID><name>Somethings 1</name><Value>1</Value></COLVAL>%
 %Missing:  <COLVAL><ID>2</ID><name>Somethings 2</name><Value>2</Value></COLVAL>%
 %Missing:  <COLVAL><ID>3</ID><name>Somethings 3</name><Value>3</Value></COLVAL>%]';

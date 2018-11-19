@@ -2,6 +2,7 @@ create or replace type ut_cursor_column force authid current_user as object
 (
    parent_name     varchar2(100),
    access_path     varchar2(500),
+   has_nested_col  number(1,0),
    nested_name     varchar2(32),
    hierarchy_level number,
    column_position number,
@@ -15,7 +16,6 @@ create or replace type ut_cursor_column force authid current_user as object
    column_scale    integer,
    is_sql_diffable number(1, 0),
    is_collection   number(1, 0),
-   is_user_defined number(1, 0),
 
    member procedure init(self in out nocopy ut_cursor_column,
      a_col_name varchar2, a_col_schema_name varchar2,

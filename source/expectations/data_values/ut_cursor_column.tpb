@@ -23,10 +23,15 @@ create or replace type body ut_cursor_column as
       self.xml_valid_name  := '"'||self.column_name||'"';
       self.column_type     := a_col_type;
       self.column_schema   := a_col_schema_name;
-      self.is_sql_diffable := ut_utils.boolean_to_int(ut_curr_usr_compound_helper.is_sql_compare_allowed(self.column_type));
+      self.is_sql_diffable := case when lower(self.column_type) = 'user_defined_type' then 
+                                0 
+                              else 
+                                ut_utils.boolean_to_int(ut_curr_usr_compound_helper.is_sql_compare_allowed(self.column_type))
+                              end;
+      --TODO : Part of the constructor same as has nested ??
       self.is_collection   := ut_utils.boolean_to_int(ut_curr_usr_compound_helper.is_collection(a_col_schema_name,a_col_type_name));
       --TODO : fix that as is nasty hardcode
-      self.is_user_defined := case when lower(self.column_type) = 'user_defined_type' then 1 else 0 end;
+      self.has_nested_col := case when lower(self.column_type) = 'user_defined_type' and self.is_collection = 0 then 1 else 0 end;
    end;
    
    constructor function ut_cursor_column( self in out nocopy ut_cursor_column,
