@@ -47,16 +47,15 @@ create or replace type body ut_output_table_buffer is
   end;
 
   overriding member procedure send_line(self in ut_output_table_buffer, a_text varchar2) is
-    l_text_list  ut_varchar2_rows;
     pragma autonomous_transaction;
   begin
     if a_text is not null then
       if length(a_text) > ut_utils.gc_max_storage_varchar2_len then
-        l_text_list := ut_utils.convert_collection(ut_utils.clob_to_table(a_text, ut_utils.gc_max_storage_varchar2_len));
-        insert
-          into ut_output_buffer_tmp(output_id, message_id, text)
-        select self.output_id, ut_message_id_seq.nextval, t.column_value
-          from table(l_text_list) t;
+        self.send_lines(
+          ut_utils.convert_collection(
+            ut_utils.clob_to_table(a_text, ut_utils.gc_max_storage_varchar2_len)
+          )
+        );
       else
         insert into ut_output_buffer_tmp(output_id, message_id, text)
         values (self.output_id, ut_message_id_seq.nextval, a_text);
@@ -64,6 +63,18 @@ create or replace type body ut_output_table_buffer is
       commit;
     end if;
   end;
+
+  overriding member procedure send_lines(self in ut_output_table_buffer, a_text_list ut_varchar2_rows) is
+    pragma autonomous_transaction;
+  begin
+    insert into ut_output_buffer_tmp(output_id, message_id, text)
+    select self.output_id, ut_message_id_seq.nextval, t.column_value
+      from table(a_text_list) t
+     where t.column_value is not null;
+
+    commit;
+  end;
+
 
   overriding member function get_lines(a_initial_timeout natural := null, a_timeout_sec natural := null) return ut_varchar2_rows pipelined is
     l_buffer_data        ut_varchar2_rows;

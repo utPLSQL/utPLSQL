@@ -35,48 +35,54 @@ create or replace type body ut_junit_reporter is
     end;
 
     procedure print_test_elements(a_test ut_test) is
-      l_lines ut_varchar2_list;
+      l_results ut_varchar2_rows := ut_varchar2_rows();
+      l_lines   ut_varchar2_list;
       l_output clob;
     begin
-      self.print_text('<testcase classname="' || dbms_xmlgen.convert(get_path(a_test.path, a_test.name)) || '"' || ' assertions="' ||
-                      nvl(a_test.all_expectations.count,0) || self.get_common_item_attributes(a_test) || case when
-                      a_test.result != ut_utils.gc_success then
-                      ' status="' || ut_utils.test_result_to_char(a_test.result) || '"' end || '>');
+      ut_utils.append_to_list(
+        l_results,
+        '<testcase classname="' || dbms_xmlgen.convert(get_path(a_test.path, a_test.name)) || '"' || ' assertions="'
+        || nvl(a_test.all_expectations.count,0) || self.get_common_item_attributes(a_test)
+        || case when a_test.result != ut_utils.gc_success then
+                ' status="' || ut_utils.test_result_to_char(a_test.result) || '"' end || '>'
+      );
       if a_test.result = ut_utils.gc_disabled then
-        self.print_text('<skipped/>');
+        ut_utils.append_to_list( l_results, '<skipped/>' );
       end if;
       if a_test.result = ut_utils.gc_error then
-        self.print_text('<error>');
-        self.print_text(c_cddata_tag_start);
-        self.print_clob(ut_utils.table_to_clob(a_test.get_error_stack_traces()));
-        self.print_text(c_cddata_tag_end);
-        self.print_text('</error>');
+        ut_utils.append_to_list( l_results, '<error>');
+        ut_utils.append_to_list( l_results, c_cddata_tag_start);
+        ut_utils.append_to_list( l_results, ut_utils.convert_collection(a_test.get_error_stack_traces()) );
+        ut_utils.append_to_list( l_results, c_cddata_tag_end);
+        ut_utils.append_to_list( l_results, '</error>');
       elsif a_test.result > ut_utils.gc_success then
-        self.print_text('<failure>');
+        ut_utils.append_to_list( l_results, '<failure>');
         for i in 1 .. a_test.failed_expectations.count loop
           
           l_lines := a_test.failed_expectations(i).get_result_lines();
           
           for j in 1 .. l_lines.count loop
-            self.print_text(dbms_xmlgen.convert(l_lines(j)));
+            ut_utils.append_to_list( l_results, dbms_xmlgen.convert(l_lines(j)) );
           end loop;
-          self.print_text(dbms_xmlgen.convert(a_test.failed_expectations(i).caller_info));
+          ut_utils.append_to_list( l_results, dbms_xmlgen.convert(a_test.failed_expectations(i).caller_info) );
         end loop;
-        self.print_text('</failure>');
+        ut_utils.append_to_list( l_results, '</failure>');
       end if;
       -- TODO - decide if we need/want to use the <system-err/> tag too
       l_output := a_test.get_serveroutputs();
       if l_output is not null then
-        self.print_text('<system-out>');
-        self.print_text(c_cddata_tag_start);
-        self.print_clob(l_output);
-        self.print_text(c_cddata_tag_end);
-        self.print_text('</system-out>');
+        ut_utils.append_to_list( l_results, '<system-out>');
+        ut_utils.append_to_list( l_results, c_cddata_tag_start);
+        ut_utils.append_to_list( l_results, l_output);
+        ut_utils.append_to_list( l_results, c_cddata_tag_end );
+        ut_utils.append_to_list( l_results, '</system-out>' );
       else
-        self.print_text('<system-out/>');
+        ut_utils.append_to_list( l_results, '<system-out/>');
       end if;
-      self.print_text('<system-err/>');
-      self.print_text('</testcase>');
+      ut_utils.append_to_list( l_results, '<system-err/>');
+      ut_utils.append_to_list( l_results, '</testcase>');
+
+      self.print_text_lines(l_results);
     end;
 
     procedure print_suite_elements(a_suite ut_logical_suite, a_suite_id in out nocopy integer) is
@@ -84,6 +90,7 @@ create or replace type body ut_junit_reporter is
                                a_suite.results_count.failure_count + a_suite.results_count.errored_count;
       l_suite       ut_suite;
       l_tests       ut_suite_items := ut_suite_items();
+      l_results     ut_varchar2_rows := ut_varchar2_rows();
       l_data        clob;
       l_errors      ut_varchar2_list;
     begin
@@ -111,28 +118,31 @@ create or replace type body ut_junit_reporter is
 
         l_data := l_suite.get_serveroutputs();
         if l_data is not null and l_data != empty_clob() then
-          self.print_text('<system-out>');
-          self.print_text(c_cddata_tag_start);
-          self.print_clob(l_data);
-          self.print_text(c_cddata_tag_end);
-          self.print_text('</system-out>');
+          ut_utils.append_to_list( l_results, '<system-out>');
+          ut_utils.append_to_list( l_results, c_cddata_tag_start);
+          ut_utils.append_to_list( l_results, l_data);
+          ut_utils.append_to_list( l_results, c_cddata_tag_end);
+          ut_utils.append_to_list( l_results, '</system-out>');
         else
-          self.print_text('<system-out/>');
+          ut_utils.append_to_list( l_results, '<system-out/>');
         end if;
 
         l_errors := l_suite.get_error_stack_traces();
         if l_errors is not empty then
-          self.print_text('<system-err>');
-          self.print_text(c_cddata_tag_start);
-          self.print_clob(ut_utils.table_to_clob(l_errors));
-          self.print_text(c_cddata_tag_end);
-          self.print_text('</system-err>');
+          ut_utils.append_to_list( l_results, '<system-err>');
+          ut_utils.append_to_list( l_results, c_cddata_tag_start);
+          ut_utils.append_to_list( l_results, ut_utils.table_to_clob(l_errors));
+          ut_utils.append_to_list( l_results, c_cddata_tag_end);
+          ut_utils.append_to_list( l_results, '</system-err>');
         else
-          self.print_text('<system-err/>');
+          ut_utils.append_to_list( l_results, '<system-err/>');
         end if;
       end if;
-      self.print_text('</testsuite>');
+      ut_utils.append_to_list( l_results, '</testsuite>');
+
+      self.print_text_lines(l_results);
     end;
+
   begin
     l_suite_id := 0;
     self.print_text(ut_utils.get_xml_header(a_run.client_character_set));

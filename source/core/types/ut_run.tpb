@@ -101,19 +101,7 @@ create or replace type body ut_run as
 
   overriding member procedure mark_as_errored(self in out nocopy ut_run, a_error_stack_trace varchar2) is
   begin
-    ut_utils.debug_log('ut_run.fail');
-
-    ut_event_manager.trigger_event(ut_utils.gc_before_run, self);
-    self.start_time := current_timestamp;
-
-    for i in 1 .. self.items.count loop
-      self.items(i).mark_as_errored(a_error_stack_trace);
-    end loop;
-
-    self.calc_execution_result();
-    self.end_time := self.start_time;
-
-    ut_event_manager.trigger_event(ut_utils.gc_after_run, self);
+    null;
   end;
 
   overriding member function get_error_stack_traces return ut_varchar2_list is

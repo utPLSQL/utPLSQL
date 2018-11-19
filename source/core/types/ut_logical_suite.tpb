@@ -16,29 +16,6 @@ create or replace type body ut_logical_suite as
   limitations under the License.
   */
 
-  constructor function ut_logical_suite(
-    self in out nocopy ut_logical_suite,a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_path varchar2
-  ) return self as result is
-  begin
-    self.self_type := $$plsql_unit;
-    self.init(a_object_owner, a_object_name, a_name);
-    self.path := a_path;
-    self.disabled_flag := ut_utils.boolean_to_int(false);
-    self.items := ut_suite_items();
-    return;
-  end;
-
-  member function is_valid(self in out nocopy ut_logical_suite) return boolean is
-  begin
-    return true;
-  end;
-
-  member procedure add_item(self in out nocopy ut_logical_suite, a_item ut_suite_item) is
-  begin
-    self.items.extend;
-    self.items(self.items.last) := a_item;
-  end;
-
   overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite) is
   begin
     ut_event_manager.trigger_event(ut_utils.gc_before_suite, self);

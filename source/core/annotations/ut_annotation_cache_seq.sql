@@ -12,5 +12,5 @@ create sequence ut_annotation_cache_seq
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-cache 20;
+cache 100;
 

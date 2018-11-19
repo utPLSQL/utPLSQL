@@ -40,10 +40,64 @@ create or replace package ut_suite_manager authid current_user is
   function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items;
 
   /**
+   * Builds a hierarchical suites based on given suite-paths
+   *
+   * @param a_paths   list of suite-paths or procedure names or package names or schema names
+   * @param a_suites  returned array containing root suites-ready to be executed
+   *
+   */
+  procedure configure_execution_by_path(a_paths in ut_varchar2_list, a_suites out nocopy ut_suite_items);
+
+  /**
    * Cleanup paths by removing leading/trailing whitespace and making paths lowercase
    * Get list of schema names from execution paths.
    */
   function get_schema_names(a_paths ut_varchar2_list) return ut_varchar2_rows;
+
+
+  /**
+  * Constructs a list of suites based on the list of annotations passed
+  * the suites are stored in cache
+  */
+  function build_suites_from_annotations(
+    a_owner_name        varchar2,
+    a_annotated_objects sys_refcursor,
+    a_path              varchar2 := null,
+    a_object_name       varchar2 := null,
+    a_procedure_name    varchar2 := null,
+    a_skip_all_objects  boolean := false
+  ) return ut_suite_items;
+
+
+  /**
+  * Returns a ref cursor containing information about unit test suites and the tests contained in them
+  *
+  * @param   a_owner          owner of unit tests to retrieve
+  * @param   a_package_name   name of test package (optional)
+  * @param   a_procedure_name name of test procedure (optional)
+  * @return  ut_suite_items_info table of objects
+  */
+  function get_suites_info(
+    a_owner_name     varchar2, 
+    a_package_name   varchar2 := null
+  ) return sys_refcursor;
+
+  /**
+  * Returns true if given suite item exists
+  *
+  * @param   a_owner          owner of items to retrieve
+  * @param   a_package_name   name of suite package (optional)
+  * @param   a_procedure_name name of suite item (optional)
+  * @param   a_item_type      suite_item type (optional)
+  * @return  ut_suite_items_info table of objects
+  */
+  function suite_item_exists(
+    a_owner_name     varchar2, 
+    a_package_name   varchar2 := null, 
+    a_procedure_name varchar2 := null,
+    a_item_type      varchar2 := null
+  ) return boolean;
+
 
 end ut_suite_manager;
 /

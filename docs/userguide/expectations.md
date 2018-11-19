@@ -445,6 +445,8 @@ utPLSQL is capable of comparing compound data-types including:
 - Cursors, nested table and varray types are compared as **ordered lists of elements**. If order of elements differ, expectation will fail.   
 - Comparison of compound data is data-type aware. So a column `ID NUMBER` in a cursor is not the same as `ID VARCHAR2(100)`, even if they both hold the same numeric values.
 - Comparison of cursor columns containing `DATE` will only compare date part **and ignore time** by default. See [Comparing cursor data containing DATE fields](#comparing-cursor-data-containing-date-fields) to check how to enable date-time comparison in cursors.
+- Comparison of cursor returning `TIMESTAMP` **columns** against cursor returning `TIMESTAMP` **bind variables** requires variables to be casted to proper precision. This is an Oracle SQL - PLSQL compatibility issue and usage of CAST is the only known workaround for now.
+See [Comparing cursor data containing TIMESTAMP bind variables](#comparing-cursor-data-containing-timestamp-bind-variables) for examples.    
 - To compare nested table/varray type you need to convert it to `anydata` by using `anydata.convertCollection()`  
 - To compare object type you need to convert it to `anydata` by using `anydata.convertObject()`  
 - It is possible to compare PL/SQL records, collections, varrays and associative arrays. To compare this types of data, use cursor comparison feature of utPLSQL and TABLE operator in SQL query
@@ -748,6 +750,100 @@ drop package test_get_events;
 In the above example:
 - The test `get_events_for_date_range` will succeed, as the `l_expected_bad_date` cursor contains different date-time then the cursor returned by `get_events` function call.
 - The test `bad_test` will fail, as the column `event_date` will get compared as DATE without TIME.
+
+### Comparing cursor data containing TIMESTAMP bind variables
+
+To properly compare `timestamp` column data returned by cursor against bind variable data from another cursor, a conversion needs to be done.
+
+This applies to `timestamp`,`timestamp with timezone`, `timestamp with local timezone` data types.
+
+Example below illustrates usage of `cast` operator to assure appropriate precision is applied on timestamp bind-variables in cursor result-set   
+```sql
+drop table timestamps;
+create table timestamps (
+	ts3 timestamp (3),
+	ts6 timestamp (6),
+	ts9 timestamp (9)
+);
+
+create or replace package timestamps_api is
+  procedure load (
+    i_timestamp3 timestamps.ts3%type,
+    i_timestamp6 timestamps.ts6%type,
+    i_timestamp9 timestamps.ts9%type
+  );
+end;
+/
+
+create or replace package body timestamps_api is
+  procedure load (
+    i_timestamp3 timestamps.ts3%type,
+    i_timestamp6 timestamps.ts6%type,
+    i_timestamp9 timestamps.ts9%type
+  )
+  is
+  begin
+    insert into timestamps (ts3, ts6, ts9) 
+      values (i_timestamp3, i_timestamp6, i_timestamp9);
+  end;
+end;
+/
+
+
+create or replace package test_timestamps_api is
+  -- %suite
+
+  -- %test(Loads data into timestamps table)
+  procedure test_load;
+end;
+/
+
+create or replace package body test_timestamps_api is
+  procedure test_load is
+    l_time     timestamp(9);
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+  begin
+    --Arrange
+    l_time := systimestamp;
+
+    open l_expected for
+      select
+        cast(l_time as timestamp(3)) as ts3, 
+        cast(l_time as timestamp(6)) as ts6,  
+        cast(l_time as timestamp(9)) as ts9
+      from dual;
+
+    --Act
+    timestamps_api.load (
+      l_time, l_time, l_time
+    );
+
+    --Assert
+    open l_actual for
+      select ts3, ts6, ts9
+      from timestamps;
+          
+     ut.expect (l_actual).to_equal (l_expected);
+
+  end;
+end;
+/
+
+begin
+  ut.run ('test_timestamps_api');
+end;
+/
+```
+
+The execution of the above runs successfully
+```
+test_timestamps_api
+  Loads data into timestamps table [.046 sec]
+ 
+Finished in .048181 seconds
+1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```
 
 
 # Negating a matcher

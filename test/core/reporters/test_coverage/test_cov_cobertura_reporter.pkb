@@ -7,9 +7,10 @@ create or replace package body test_cov_cobertura_reporter is
   begin
     --Arrange
     l_expected := 
-    '<?xml version="1.0"?>
+    q'[<?xml version="1.0"?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage line-rate="0" branch-rate="0.0" lines-covered="2" lines-valid="3" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="%"><sources>
+<coverage line-rate="0" branch-rate="0.0" lines-covered="2" lines-valid="3" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="%">
+<sources>
 <source>test/ut3.dummy_coverage.pkb</source>
 </sources>
 <packages>
@@ -23,7 +24,7 @@ create or replace package body test_cov_cobertura_reporter is
 </class>
 </package>
 </packages>
-</coverage>';
+</coverage>]';
     --Act
     select *
       bulk collect into l_results

@@ -86,10 +86,17 @@ grant execute on &&ut3_owner..ut_annotated_object to public;
 grant execute on &&ut3_owner..ut_annotated_objects to public;
 grant select on &&ut3_owner..ut_annotation_cache_info to public;
 grant select on &&ut3_owner..ut_annotation_cache to public;
+grant execute on &&ut3_owner..ut_executables to public;
+grant execute on &&ut3_owner..ut_executable_test to public;
+grant select on &&ut3_owner..ut_suite_cache to public;
+grant select on &&ut3_owner..ut_suite_cache_package to public;
+grant select on &&ut3_owner..ut_suite_cache_schema to public;
 grant execute on &&ut3_owner..ut_annotation_cache_manager to public;
 grant execute on &&ut3_owner..ut_annotation_parser to public;
 grant execute on &&ut3_owner..ut_annotation_objs_cache_info to public;
 grant execute on &&ut3_owner..ut_annotation_obj_cache_info to public;
+grant execute on &&ut3_owner..ut_suite_items_info to public;
+grant execute on &&ut3_owner..ut_suite_item_info to public;
 begin
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
   execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to public';
@@ -147,6 +154,8 @@ create public synonym ut_file_mapper for &&ut3_owner..ut_file_mapper;
 create public synonym ut_key_value_pairs for &&ut3_owner..ut_key_value_pairs;
 create public synonym ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
 create public synonym ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
+create public synonym ut_suite_items_info for &&ut3_owner..ut_suite_items_info;
+create public synonym ut_suite_item_info for &&ut3_owner..ut_suite_item_info;
 begin
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
   execute immediate 'create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks';
