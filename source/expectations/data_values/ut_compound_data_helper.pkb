@@ -1,7 +1,7 @@
 create or replace package body ut_compound_data_helper is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -91,41 +91,44 @@ create or replace package body ut_compound_data_helper is
     l_results        tt_column_diffs;
   begin
     l_column_filter := get_columns_row_filter(a_exclude_xpath, a_include_xpath);
+    --CARDINALITY hints added to address issue: https://github.com/utPLSQL/utPLSQL/issues/752
     l_sql := q'[
       with
         expected_cols as ( select :a_expected as item_data from dual ),
         actual_cols as ( select :a_actual as item_data from dual ),
-  expected_cols_info as (
+        expected_cols_info as (
           select e.*,
                  replace(expected_type,'VARCHAR2','CHAR') expected_type_compare
             from (
-                   SELECT rownum expected_pos,
-                   xt.name expected_name,
-                   xt.type expected_type
-         FROM   (select ]'||l_column_filter||q'[ from expected_cols ucd) x,
-           XMLTABLE('/ROW/*'
-             PASSING x.item_data
-             COLUMNS 
-               name     VARCHAR2(4000)  PATH '@xml_valid_name',
-               type      VARCHAR2(4000) PATH '/' 
-             ) xt
-            ) e
+                  select /*+ CARDINALITY(xt 100) */
+                         rownum expected_pos,
+                         xt.name expected_name,
+                         xt.type expected_type
+                    from (select ]'||l_column_filter||q'[ from expected_cols ucd) x,
+                         xmltable(
+                           '/ROW/*'
+                           passing x.item_data
+                           columns
+                             name     varchar2(4000)  PATH '@xml_valid_name',
+                             type     varchar2(4000) PATH '/'
+                         ) xt
+                 ) e
         ),
         actual_cols_info as (
           select a.*,
                  replace(actual_type,'VARCHAR2','CHAR') actual_type_compare
-            from (
-                   SELECT rownum actual_pos,
-                   xt.name actual_name,
-                   xt.type actual_type
-         FROM    (select ]'||l_column_filter||q'[ from actual_cols ucd) x,
-           XMLTABLE('/ROW/*'
-             PASSING x.item_data
-             COLUMNS 
-               name     VARCHAR2(4000)  PATH '@xml_valid_name',
-               type      VARCHAR2(4000) PATH '/' 
-             ) xt
-            ) a
+            from (select /*+ CARDINALITY(xt 100) */
+                         rownum actual_pos,
+                         xt.name actual_name,
+                         xt.type actual_type
+                    from (select ]'||l_column_filter||q'[ from actual_cols ucd) x,
+                         xmltable('/ROW/*'
+                           passing x.item_data
+                           columns
+                             name     varchar2(4000)  path '@xml_valid_name',
+                             type      varchar2(4000) path '/'
+                         ) xt
+                 ) a
         ),
         joined_cols as (
          select e.*, a.*,
@@ -370,8 +373,7 @@ create or replace package body ut_compound_data_helper is
     /**
     * Since its unordered search we cannot select max rows from diffs as we miss some comparision records
     * We will restrict output on higher level of select
-    */      
-
+    */    
     execute immediate q'[with
       diff_info as (select item_hash,duplicate_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid)
       select duplicate_no,
@@ -400,6 +402,7 @@ create or replace package body ut_compound_data_helper is
                         diff_info i
                         where ucd.data_id = :self_guid
                         and ucd.item_hash = i.item_hash
+                        and ucd.duplicate_no = i.duplicate_no
                        ) r,
                   table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
               ) ucd
@@ -414,6 +417,7 @@ create or replace package body ut_compound_data_helper is
                      diff_info i
                      where ucd.data_id = :other_guid
                      and ucd.item_hash = i.item_hash
+                     and ucd.duplicate_no = i.duplicate_no
                      ) r,
                table( xmlsequence( extract(r.item_data,'/*') ) ) ucd
                ) ucd
@@ -535,6 +539,59 @@ create or replace package body ut_compound_data_helper is
     end if;
     
     return l_no_missing_keys;
+  end;
+   
+  procedure update_row_and_pk_hash(a_self_data_id in raw, a_other_data_id in raw, a_exclude_xpath varchar2, 
+                                   a_include_xpath varchar2, a_join_by_xpath varchar2) is
+    l_ut_owner        varchar2(250) := ut_utils.ut_owner;
+    l_column_filter   varchar2(32767);
+    l_pk_hash_sql     varchar2(32767);
+    
+    function get_column_pk_hash(a_join_by_xpath varchar2) return varchar2 is
+      l_column varchar2(32767);
+    begin
+      /* due to possibility of key being to columns we cannot use xmlextractvalue
+         usage of xmlagg is possible however it greatly complicates code and performance is impacted.
+         xpath to be looked at or regex
+      */
+      if a_join_by_xpath is not null then
+        l_column :=  l_ut_owner ||'.ut_compound_data_helper.get_hash(extract(ucd.item_data,:join_by_xpath).GetClobVal()) pk_hash';
+      else
+        l_column := ':join_by_xpath pk_hash';
+      end if;
+      return l_column;
+    end;  
+  
+  begin
+    l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
+    l_pk_hash_sql := get_column_pk_hash(a_join_by_xpath);
+         
+    execute immediate 'merge into ' || l_ut_owner || '.ut_compound_data_tmp tgt
+                       using (
+                              select ucd_out.item_hash,
+                                     ucd_out.pk_hash,
+                                     ucd_out.item_no, 
+                                     ucd_out.data_id,
+                                     row_number() over (partition by ucd_out.pk_hash,ucd_out.item_hash,ucd_out.data_id order by 1,2) duplicate_no
+                              from 
+                              (
+                              select '||l_ut_owner ||'.ut_compound_data_helper.get_hash(ucd.item_data.getclobval()) item_hash, 
+                                      pk_hash, ucd.item_no, ucd.data_id
+                              from
+                              (
+                              select '||l_column_filter||','||l_pk_hash_sql||', item_no, data_id
+                              from  ' || l_ut_owner || q'[.ut_compound_data_tmp ucd
+                              where data_id = :self_guid or data_id = :other_guid
+                              ) ucd
+                              )ucd_out
+                       ) src
+                       on (tgt.item_no = src.item_no and tgt.data_id = src.data_id)
+                       when matched then update
+                       set tgt.item_hash = src.item_hash,
+                           tgt.pk_hash = src.pk_hash,
+                           tgt.duplicate_no = src.duplicate_no]'
+                       using a_exclude_xpath, a_include_xpath,a_join_by_xpath,a_self_data_id, a_other_data_id;    
+
   end;
    
 end;

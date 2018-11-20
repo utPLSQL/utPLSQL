@@ -1,7 +1,7 @@
 create or replace package body ut_expectation_processor as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ create or replace package body ut_expectation_processor as
 
   g_expectations_called ut_expectation_results := ut_expectation_results();
 
-  g_warnings ut_varchar2_list := ut_varchar2_list();
+  g_warnings ut_varchar2_rows := ut_varchar2_rows();
 
   g_nulls_are_equal boolean_not_null := gc_default_nulls_are_equal;
 
@@ -176,7 +176,7 @@ create or replace package body ut_expectation_processor as
     );
   end;
 
-  function get_warnings return ut_varchar2_list is
+  function get_warnings return ut_varchar2_rows is
   begin
     return g_warnings;
   end;

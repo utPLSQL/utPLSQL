@@ -1,7 +1,7 @@
 create or replace type body ut_output_reporter_base is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -44,6 +44,11 @@ create or replace type body ut_output_reporter_base is
   member procedure print_text(self in out nocopy ut_output_reporter_base, a_text varchar2) is
   begin
     self.output_buffer.send_line(a_text);
+  end;
+
+  member procedure print_text_lines(self in out nocopy ut_output_reporter_base, a_text_lines ut_varchar2_rows) is
+  begin
+    self.output_buffer.send_lines(a_text_lines);
   end;
 
   final member function get_lines(a_initial_timeout natural := null, a_timeout_sec natural) return ut_varchar2_rows pipelined is

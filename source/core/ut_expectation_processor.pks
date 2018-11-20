@@ -1,7 +1,7 @@
 create or replace package ut_expectation_processor authid current_user as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ create or replace package ut_expectation_processor authid current_user as
 
   procedure add_depreciation_warning(a_deprecated_syntax varchar2, a_new_syntax varchar2);
 
-  function get_warnings return ut_varchar2_list;
+  function get_warnings return ut_varchar2_rows;
 
   function invalidation_exception_found return boolean;
   procedure set_invalidation_exception;

@@ -1,7 +1,7 @@
 create or replace package body ut_annotation_parser as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ create or replace package body ut_annotation_parser as
       -- position index is shifted by 1 because gc_annot_comment_pattern contains ^ as first sign
       -- but after instr index already points to the char on that line
       l_comment_pos := l_comment_pos-1;
-      l_comment_line := regexp_count(substr(a_source,1,l_comment_pos),chr(10),1,'m')+1;
+      l_comment_line := length(substr(a_source,1,l_comment_pos))-length(replace(substr(a_source,1,l_comment_pos),chr(10)))+1;
       l_comments(l_comment_line) := trim(regexp_substr(srcstr        => a_source
                                                             ,pattern       => gc_annot_comment_pattern
                                                             ,occurrence    => 1

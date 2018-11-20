@@ -1,7 +1,7 @@
 create or replace type body ut_suite  as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@ create or replace type body ut_suite  as
   */
 
   constructor function ut_suite (
-    self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2
+    self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2, a_line_no integer
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
-    self.init(a_object_owner, a_object_name, a_object_name);
+    self.init(a_object_owner, a_object_name, a_object_name, a_line_no);
     self.items := ut_suite_items();
     before_all_list := ut_executables();
     after_all_list  := ut_executables();

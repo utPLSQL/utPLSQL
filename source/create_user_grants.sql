@@ -1,6 +1,6 @@
 /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -96,8 +96,8 @@ grant execute on &&ut3_owner..ut_file_mapping to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mapper to &ut3_user;
 grant execute on &&ut3_owner..ut_key_value_pairs to &ut3_user;
 grant execute on &&ut3_owner..ut_key_value_pair to &ut3_user;
-grant select, insert, delete on &&ut3_owner..ut_compound_data_tmp to &ut3_user;
-grant select, insert, delete on &&ut3_owner..ut_compound_data_diff_tmp to &ut3_user;
+grant select, insert, update, delete on &&ut3_owner..ut_compound_data_tmp to &ut3_user;
+grant select, insert, update, delete on &&ut3_owner..ut_compound_data_diff_tmp to &ut3_user;
 grant execute on &&ut3_owner..ut_sonar_test_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_annotations to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation to &ut3_user;
@@ -106,6 +106,11 @@ grant execute on &&ut3_owner..ut_annotated_object to &ut3_user;
 grant execute on &&ut3_owner..ut_annotated_objects to &ut3_user;
 grant select on &&ut3_owner..ut_annotation_cache_info to &ut3_user;
 grant select on &&ut3_owner..ut_annotation_cache to &ut3_user;
+grant execute on &&ut3_owner..ut_executables to &ut3_user;
+grant execute on &&ut3_owner..ut_executable_test to &ut3_user;
+grant select on &&ut3_owner..ut_suite_cache to &ut3_user;
+grant select on &&ut3_owner..ut_suite_cache_package to public;
+grant select on &&ut3_owner..ut_suite_cache_schema to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation_cache_manager to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation_parser to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation_objs_cache_info to &ut3_user;

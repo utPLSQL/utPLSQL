@@ -1814,13 +1814,13 @@ Diff:%
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_annotated_object('TEST','TEST','TEST',
+    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
       ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
                          ut3.ut_annotation(2,'test','test','test'))
     )
     into l_actual_tab from dual;
  
-    select ut3.ut_annotated_object('TEST','TEST','TEST',
+    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
       ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
                          ut3.ut_annotation(2,'test','test','test'))
     )
@@ -1846,13 +1846,13 @@ Diff:%
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_annotated_object('TEST','TEST','TEST',
+    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
       ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
                          ut3.ut_annotation(2,'test','test','test'))
     )
     into l_actual_tab from dual;
  
-    select ut3.ut_annotated_object('TEST','TEST','TEST',
+    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
       ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
                          ut3.ut_annotation(2,'test','test','test'))
     )
@@ -1878,13 +1878,13 @@ Diff:%
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_annotated_object('TEST','TEST','TEST',
+    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
       ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
                          ut3.ut_annotation(2,'test','test','test'))
     )
     into l_actual_tab from dual;
  
-    select ut3.ut_annotated_object('TEST','TEST','TEST',
+    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
       ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
                          ut3.ut_annotation(2,'test','test','test'))
     )
@@ -1909,15 +1909,16 @@ Diff:%
     l_expected_tab ut3.ut_annotated_object;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
+    l_date             date := sysdate;
   begin
-    select ut3.ut_annotated_object('TEST','TEST','TEST',
+    select ut3.ut_annotated_object('TEST','TEST','TEST', l_date,
       ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
                          ut3.ut_annotation(2,'test','test','test'))
     )
     into l_actual_tab
     from dual;
  
-    select ut3.ut_annotated_object('TEST','TEST','TEST',
+    select ut3.ut_annotated_object('TEST','TEST','TEST', l_date,
       ut3.ut_annotations(ut3.ut_annotation(1,'1test','test','test'),
                          ut3.ut_annotation(2,'test','test','test'))
     )
@@ -1938,8 +1939,8 @@ Diff:%
      l_expected_message := q'[%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 %Diff:
 %Rows: [ 1 differences ]
-%PK <OBJECT_OWNER>TEST</OBJECT_OWNER> - Actual:   <NESTED_TABLE><OBJECT_OWNER>TEST</OBJECT_OWNER><OBJECT_NAME>TEST</OBJECT_NAME><OBJECT_TYPE>TEST</OBJECT_TYPE><ANNOTATIONS><UT_ANNOTATION><POSITION>1</POSITION><NAME>test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION><UT_ANNOTATION><POSITION>2</POSITION><NAME>test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION></ANNOTATIONS></NESTED_TABLE>%
-%PK <OBJECT_OWNER>TEST</OBJECT_OWNER> - Expected: <NESTED_TABLE><OBJECT_OWNER>TEST</OBJECT_OWNER><OBJECT_NAME>TEST</OBJECT_NAME><OBJECT_TYPE>TEST</OBJECT_TYPE><ANNOTATIONS><UT_ANNOTATION><POSITION>1</POSITION><NAME>1test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION><UT_ANNOTATION><POSITION>2</POSITION><NAME>test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION></ANNOTATIONS></NESTED_TABLE>%]';
+%PK <OBJECT_OWNER>TEST</OBJECT_OWNER> - Actual:   <NESTED_TABLE><OBJECT_OWNER>TEST</OBJECT_OWNER><OBJECT_NAME>TEST</OBJECT_NAME><OBJECT_TYPE>TEST</OBJECT_TYPE>%<ANNOTATIONS><UT_ANNOTATION><POSITION>1</POSITION><NAME>test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION><UT_ANNOTATION><POSITION>2</POSITION><NAME>test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION></ANNOTATIONS></NESTED_TABLE>%
+%PK <OBJECT_OWNER>TEST</OBJECT_OWNER> - Expected: <NESTED_TABLE><OBJECT_OWNER>TEST</OBJECT_OWNER><OBJECT_NAME>TEST</OBJECT_NAME><OBJECT_TYPE>TEST</OBJECT_TYPE>%<ANNOTATIONS><UT_ANNOTATION><POSITION>1</POSITION><NAME>1test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION><UT_ANNOTATION><POSITION>2</POSITION><NAME>test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION></ANNOTATIONS></NESTED_TABLE>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1954,13 +1955,13 @@ Diff:%
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_annotated_object('TEST','TEST','TEST',
+    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
       ut3.ut_annotations(ut3.ut_annotation(1,'1test','test','test'),
                          ut3.ut_annotation(2,'test','test','test'))
     )
     into l_actual_tab from dual;
  
-    select ut3.ut_annotated_object('TEST','TEST','TEST',
+    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
       ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
                          ut3.ut_annotation(2,'test','test','test'))
     )
@@ -1986,6 +1987,38 @@ Diff:%
     ut.expect(l_actual_message).to_be_like(l_expected_message);
 
   end;  
-  
+ 
+  procedure unordered_fix_764 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    open l_expected for
+      select 'Table' as name from dual
+      union all
+      select 'Desk' as name from dual
+      union all
+      select 'Table' as name from dual;
+      
+    open l_actual for
+      select 'Desk' as name from dual
+      union all
+      select 'Table' as name from dual;
+     
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected ).unordered();
+    
+    --Assert
+ l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 3 ]
+%Diff:
+%Rows: [ 1 differences ]
+%Missing:  <ROW><NAME>Table</NAME></ROW>%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+
+  end;
+ 
 end;
 /

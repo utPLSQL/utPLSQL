@@ -2,7 +2,7 @@ create or replace package ut authid current_user as
 
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -125,7 +125,8 @@ create or replace package ut authid current_user as
     a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   );
 
   procedure run(
@@ -136,7 +137,8 @@ create or replace package ut authid current_user as
     a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   );
 
   procedure run(
@@ -148,7 +150,8 @@ create or replace package ut authid current_user as
     a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   );
 
   procedure run(
@@ -160,7 +163,8 @@ create or replace package ut authid current_user as
     a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   );
 
   procedure run(
@@ -172,7 +176,8 @@ create or replace package ut authid current_user as
     a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   );
 
   procedure run(
@@ -184,7 +189,8 @@ create or replace package ut authid current_user as
     a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   );
 
   /**

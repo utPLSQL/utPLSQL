@@ -1,6 +1,6 @@
 /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -76,8 +76,8 @@ grant execute on &&ut3_owner..ut_file_mapping to public;
 grant execute on &&ut3_owner..ut_file_mapper to public;
 grant execute on &&ut3_owner..ut_key_value_pairs to public;
 grant execute on &&ut3_owner..ut_key_value_pair to public;
-grant select, insert, delete on &&ut3_owner..ut_compound_data_tmp to public;
-grant select, insert, delete on &&ut3_owner..ut_compound_data_diff_tmp to public;
+grant select, insert, update, delete on &&ut3_owner..ut_compound_data_tmp to public;
+grant select, insert, update, delete on &&ut3_owner..ut_compound_data_diff_tmp to public;
 grant execute on &&ut3_owner..ut_sonar_test_reporter to public;
 grant execute on &&ut3_owner..ut_annotations to public;
 grant execute on &&ut3_owner..ut_annotation to public;
@@ -86,10 +86,17 @@ grant execute on &&ut3_owner..ut_annotated_object to public;
 grant execute on &&ut3_owner..ut_annotated_objects to public;
 grant select on &&ut3_owner..ut_annotation_cache_info to public;
 grant select on &&ut3_owner..ut_annotation_cache to public;
+grant execute on &&ut3_owner..ut_executables to public;
+grant execute on &&ut3_owner..ut_executable_test to public;
+grant select on &&ut3_owner..ut_suite_cache to public;
+grant select on &&ut3_owner..ut_suite_cache_package to public;
+grant select on &&ut3_owner..ut_suite_cache_schema to public;
 grant execute on &&ut3_owner..ut_annotation_cache_manager to public;
 grant execute on &&ut3_owner..ut_annotation_parser to public;
 grant execute on &&ut3_owner..ut_annotation_objs_cache_info to public;
 grant execute on &&ut3_owner..ut_annotation_obj_cache_info to public;
+grant execute on &&ut3_owner..ut_suite_items_info to public;
+grant execute on &&ut3_owner..ut_suite_item_info to public;
 begin
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
   execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to public';
@@ -147,6 +154,8 @@ create public synonym ut_file_mapper for &&ut3_owner..ut_file_mapper;
 create public synonym ut_key_value_pairs for &&ut3_owner..ut_key_value_pairs;
 create public synonym ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
 create public synonym ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
+create public synonym ut_suite_items_info for &&ut3_owner..ut_suite_items_info;
+create public synonym ut_suite_item_info for &&ut3_owner..ut_suite_item_info;
 begin
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
   execute immediate 'create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks';

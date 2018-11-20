@@ -1,7 +1,7 @@
 create or replace type body ut_compound_data_value as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -197,26 +197,10 @@ create or replace type body ut_compound_data_value as
   member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean ) return integer is
     l_other           ut_compound_data_value;
     l_ut_owner        varchar2(250) := ut_utils.ut_owner;
-    l_column_filter   varchar2(32767);
     l_diff_id         ut_compound_data_helper.t_hash;
     l_result          integer;
     l_row_diffs       ut_compound_data_helper.tt_row_diffs;
     c_max_rows        constant integer := 20;
-    
-    function get_column_pk_hash(a_join_by_xpath varchar2) return varchar2 is
-      l_column varchar2(32767);
-    begin
-      /* due to possibility of key being to columns we cannot use xmlextractvalue
-         usage of xmlagg is possible however it greatly complicates code and performance is impacted.
-         xpath to be looked at or regex
-      */
-      if a_join_by_xpath is not null then
-        l_column :=  l_ut_owner ||'.ut_compound_data_helper.get_hash(extract(ucd.item_data,:join_by_xpath).GetClobVal()) pk_hash';
-      else
-        l_column := ':join_by_xpath pk_hash';
-      end if;
-      return l_column;
-    end;
     
   begin
     if not a_other is of (ut_compound_data_value) then
@@ -226,33 +210,17 @@ create or replace type body ut_compound_data_value as
     l_other   := treat(a_other as ut_compound_data_value);
 
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
-    l_column_filter := ut_compound_data_helper.get_columns_filter(a_exclude_xpath, a_include_xpath);
-      
+    
     /**
     * Due to incompatibility issues in XML between 11 and 12.2 and 12.1 versions we will prepopulate pk_hash upfront to
     * avoid optimizer incorrectly rewrite and causing NULL error or ORA-600
-    **/        
-    execute immediate 'merge into ' || l_ut_owner || '.ut_compound_data_tmp tgt
-                       using (
-                              select '||l_ut_owner ||'.ut_compound_data_helper.get_hash(ucd.item_data.getclobval()) item_hash, 
-                                      pk_hash, ucd.item_no, ucd.data_id
-                              from
-                              (
-                              select '||l_column_filter||','||get_column_pk_hash(a_join_by_xpath)||', item_no, data_id
-                              from  ' || l_ut_owner || q'[.ut_compound_data_tmp ucd
-                              where data_id = :self_guid or data_id = :other_guid
-                              ) ucd
-                       ) src
-                       on (tgt.item_no = src.item_no and tgt.data_id = src.data_id)
-                       when matched then update
-                       set tgt.item_hash = src.item_hash,
-                           tgt.pk_hash = src.pk_hash ]'
-                       using a_exclude_xpath, a_include_xpath,a_join_by_xpath,self.data_id, l_other.data_id;
+    **/   
+    ut_compound_data_helper.update_row_and_pk_hash(self.data_id, l_other.data_id, a_exclude_xpath,a_include_xpath,a_join_by_xpath);
     
     /* Peform minus on two sets two get diffrences that will be used later on to print results */
     execute immediate 'insert into ' || l_ut_owner || '.ut_compound_data_diff_tmp ( diff_id,item_hash,pk_hash,duplicate_no)
                        with source_data as
-                       ( select t.data_id,t.item_hash,row_number() over (partition by t.pk_hash,t.item_hash,t.data_id order by 1,2) duplicate_no,
+                       ( select t.data_id,t.item_hash,t.duplicate_no,
                            pk_hash
                            from  ' || l_ut_owner || '.ut_compound_data_tmp t
                            where data_id = :self_guid or data_id = :other_guid
@@ -260,21 +228,21 @@ create or replace type body ut_compound_data_value as
                        select distinct :diff_id,tmp.item_hash,tmp.pk_hash,tmp.duplicate_no
                        from(
                          (
-                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           select t.item_hash,t.duplicate_no,t.pk_hash
                            from  source_data t
                            where t.data_id = :self_guid
                            minus
-                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           select t.item_hash,t.duplicate_no,t.pk_hash
                            from  source_data t
                            where t.data_id = :other_guid
                          )
                            union all
                          (
-                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           select t.item_hash,t.duplicate_no,t.pk_hash
                            from  source_data t
                            where t.data_id = :other_guid
                            minus
-                           select t.item_hash,t. duplicate_no,t.pk_hash
+                           select t.item_hash,t.duplicate_no,t.pk_hash
                            from  source_data t
                            where t.data_id = :self_guid
                         ))tmp'
@@ -282,7 +250,7 @@ create or replace type body ut_compound_data_value as
              l_diff_id, 
              self.data_id, l_other.data_id,
              l_other.data_id,self.data_id;
-    --result is OK only if both are same
+   --result is OK only if both are same
     if sql%rowcount = 0 and self.elements_count = l_other.elements_count then
       l_result := 0;
     else

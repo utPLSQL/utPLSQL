@@ -1,7 +1,7 @@
 create or replace package body ut_coverage is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ create or replace package body ut_coverage is
   function get_cov_sources_sql(a_coverage_options ut_coverage_options) return varchar2 is
     l_result varchar2(32767);
     l_full_name varchar2(100);
-    l_view_name      varchar2(200) := ut_metadata.get_dba_view('dba_source');
+    l_view_name      varchar2(200) := ut_metadata.get_source_view_name();
   begin
     if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
       l_full_name := 'f.file_name';
@@ -135,7 +135,7 @@ create or replace package body ut_coverage is
       l_cov_sources_crsr := get_cov_sources_cursor(a_coverage_options,a_sql);
 
       loop
-        fetch l_cov_sources_crsr bulk collect into l_cov_sources_data limit 1000;
+        fetch l_cov_sources_crsr bulk collect into l_cov_sources_data limit 10000;
 
         ut_coverage_helper.insert_into_tmp_table(l_cov_sources_data);
 

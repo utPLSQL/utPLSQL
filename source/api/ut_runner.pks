@@ -2,7 +2,7 @@ create or replace package ut_runner authid current_user is
 
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -43,6 +43,8 @@ create or replace package ut_runner authid current_user is
   * @param a_include_objects        list of database objects (in format 'owner.name') that coverage should be reported on
   * @param a_exclude_objects        list of database objects (in format 'owner.name') that coverage should be skipped for
   * @param a_fail_on_errors         true/false - should an exception be thrown when tests are completed with failures/errors
+  * @param a_client_character_set   if provided, affects some of reporters by setting specific character set for XML/HTML reports
+  * @param a_force_manual_rollback  true/false - should the transaction control be forced to --%rollback(manual) and no rollback issued at the end of the run
   *
   * @example
   * Parameter `a_paths` accepts values of the following formats:
@@ -65,7 +67,8 @@ create or replace package ut_runner authid current_user is
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
     a_fail_on_errors boolean := false,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   );
 
   /**
@@ -87,24 +90,40 @@ create or replace package ut_runner authid current_user is
   procedure purge_cache(a_object_owner varchar2 := null, a_object_type varchar2 := null);
 
 
-  type t_annotation_rec is record (
-    package_owner   varchar2(250),
-    package_name    varchar2(250),
-    procedure_name  varchar2(250),
-    annotation_pos  number(5,0),
-    annotation_name varchar2(1000),
-    annotation_text varchar2(4000)
-  );
-  type tt_annotations is table of t_annotation_rec;
+  /**
+  * Returns a pipelined collection containing information about unit test suites and the tests contained in them
+  *
+  * @param   a_owner        owner of unit tests to retrieve (optional), if NULL, current schema is used
+  * @param   a_package_name name of unit test package to retrieve (optional), if NULL all unit test packages are returned
+  * @return  ut_suite_items_info table of objects
+  */
+  function get_suites_info(a_owner varchar2 := null, a_package_name varchar2 := null) return ut_suite_items_info pipelined;
+
 
   /**
-  * Returns a pipelined collection containing information about unit tests package/packages for a given owner
+  * Returns true if given procedure is a test in a test suite, false otherwise
   *
-  * @param   a_owner        owner of unit tests to retrieve
-  * @param   a_package_name optional name of unit test package to retrieve, if NULLm all unit test packages are returned
-  * @return  tt_annotations table of records
+  * @param   a_owner          owner of test package
+  * @param   a_package_name   name of test package
+  * @param   a_procedure_name name of test procedure
   */
-  function get_unit_test_info(a_owner varchar2, a_package_name varchar2 := null) return tt_annotations pipelined;
+  function is_test(a_owner varchar2, a_package_name varchar2, a_procedure_name varchar2) return boolean;
+
+  /**
+  * Returns true if given package is a test suite, false otherwise
+  *
+  * @param   a_owner          owner of test package
+  * @param   a_package_name   name of test package
+  */
+  function is_suite(a_owner varchar2, a_package_name varchar2) return boolean;
+
+  /**
+  * Returns true if given schema contains test suites, false otherwise
+  *
+  * @param   a_owner          owner of test package
+  */
+  function has_suites(a_owner varchar2) return boolean;
+
 
   type t_reporter_rec is record (
     reporter_object_name  varchar2(250),

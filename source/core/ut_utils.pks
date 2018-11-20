@@ -1,7 +1,7 @@
 create or replace package ut_utils authid definer is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.2.2130';
+  gc_version                 constant varchar2(50) := 'v3.1.3.2398';
 
   /* Constants: Event names */
   subtype t_event_name           is varchar2(30);
@@ -184,12 +184,6 @@ create or replace package ut_utils authid definer is
   function int_to_boolean(a_value integer) return boolean;
 
   /**
-   * Validates passed value against supported rollback types
-   */
-  procedure validate_rollback_type(a_rollback_type number);
-
-
-  /**
    *
    * Splits a given string into table of string by delimiter.
    * The delimiter gets removed.
@@ -246,6 +240,21 @@ create or replace package ut_utils authid definer is
    * Append a item to the end of ut_varchar2_list
    */
   procedure append_to_list(a_list in out nocopy ut_varchar2_list, a_item varchar2);
+
+  /**
+   * Append a item to the end of ut_varchar2_rows
+   */
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item varchar2);
+
+  /**
+   * Append a item to the end of ut_varchar2_rows
+   */
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item clob);
+
+  /**
+   * Append a list of items to the end of ut_varchar2_rows
+   */
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_items ut_varchar2_rows);
 
   procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2 := chr(10));
 

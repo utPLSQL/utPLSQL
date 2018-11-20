@@ -240,43 +240,43 @@ is
 
   procedure throws_same_annotated_except is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Throws same annotated exception \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Throws same annotated exception \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('raised_same_exception');
   end;
 
   procedure throws_one_of_annotated_excpt is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Throws one of the listed exceptions \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Throws one of the listed exceptions \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('raised_one_listed_exception');
   end;
 
   procedure throws_with_leading_zero is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Leading zero is ignored in exception list \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Leading zero is ignored in exception list \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('leading_0_exception_no');
   end;
 
   procedure throws_diff_annotated_except is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Throws diff exception \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Throws diff exception \[[,\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
     ut.expect(g_tests_results).to_match('raised_diff_exception\s+Actual: -20143 was expected to equal: -20144\s+ORA-20143: Test error\s+ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
   end;
 
   procedure throws_empty is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Throws empty \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Throws empty \[[,\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
     ut.expect(g_tests_results).to_match('empty_throws\s*ORA-20143: Test error\s*ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
   end;
 
   procedure bad_paramters_with_except is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Ignores annotation and fails when exception was thrown \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Ignores annotation and fails when exception was thrown \[[,\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
     ut.expect(g_tests_results).to_match('bad_paramters_with_except\s*ORA-20143: Test error\s*ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
   end;
 
   procedure bad_paramters_without_except is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Ignores annotation and succeeds when no exception thrown \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Ignores annotation and succeeds when no exception thrown \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('bad_paramters_without_except');
   end;
 
@@ -288,79 +288,79 @@ is
 
   procedure nothing_thrown is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Gives failure when a exception is expected and nothing is thrown \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Gives failure when a exception is expected and nothing is thrown \[[,\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
     ut.expect(g_tests_results).to_match('nothing_thrown\s*Expected one of exceptions \(-20459, -20136, -20145\) but nothing was raised.');
   end;
 
   procedure single_exc_const_pkg is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Single exception defined as a constant number in package \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Single exception defined as a constant number in package \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('single_exc_const_pkg');
   end;
   
   procedure list_of_exc_constant is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Gives success when one of annotated exception using constant is thrown \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Gives success when one of annotated exception using constant is thrown \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('list_of_exc_constant');
   end;  
 
   procedure fail_not_match_exc is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Gives failure when the raised exception is different that the annotated one using variable \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Gives failure when the raised exception is different that the annotated one using variable \[[,\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
     ut.expect(g_tests_results).to_match('fail_not_match_exc\s+Actual: -1403 was expected to equal: -20204\s+ORA-01403: no data found\s+ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
   end;  
 
   procedure mixed_exc_list is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Success when one of exception from mixed list of number and constant is thrown \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Success when one of exception from mixed list of number and constant is thrown \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('mixed_exc_list');
   end;
       
   procedure mixed_list_notexi is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Success when match exception even if other variable on list dont exists \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Success when match exception even if other variable on list dont exists \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('mixed_list_notexi');
   end;
 
   procedure named_exc_pragma is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Success resolve and match named exception defined in pragma exception init \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Success resolve and match named exception defined in pragma exception init \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('mixed_list_notexi');  
   end;
   
   procedure named_exc_ora is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Success resolve and match oracle named exception \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Success resolve and match oracle named exception \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('named_exc_ora');
   end;  
 
   procedure named_exc_ora_dup_ind is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Success resolve and match oracle named exception dup val index \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Success resolve and match oracle named exception dup val index \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('named_exc_ora_dup_ind');
   end;   
   
   procedure nodata_exc_ora is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Success map no data 100 to -1403 \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Success map no data 100 to -1403 \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('nodata_exc_ora');
   end; 
   
   procedure defined_varchar_exc is 
   begin
-    ut.expect(g_tests_results).to_match('^\s*Success for exception defined as varchar \[[\.0-9]+ sec\]\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Success for exception defined as varchar \[[,\.0-9]+ sec\]\s*$','m');
     ut.expect(g_tests_results).not_to_match('defined_varchar_exc');
   end; 
   
   procedure non_existing_const is  
   begin
-    ut.expect(g_tests_results).to_match('^\s*Non existing constant exception \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Non existing constant exception \[[,\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
     ut.expect(g_tests_results).to_match('non_existing_const\s*ORA-20143: Test error\s*ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
   end;
  
   procedure bad_exc_const is
   begin
-    ut.expect(g_tests_results).to_match('^\s*Bad exception constant \[[\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
+    ut.expect(g_tests_results).to_match('^\s*Bad exception constant \[[,\.0-9]+ sec\] \(FAILED - [0-9]+\)\s*$','m');
     ut.expect(g_tests_results).to_match('bad_exc_const\s*ORA-20143: Test error\s*ORA-06512: at "UT3_TESTER.ANNOTATED_PACKAGE_WITH_THROWS"');
   end; 
   

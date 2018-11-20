@@ -2,7 +2,7 @@ create or replace package body ut is
 
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ create or replace package body ut is
   */
 
   g_nls_date_format varchar2(4000);
+  gc_fail_on_errors constant boolean := false;
 
   function version return varchar2 is
   begin
@@ -117,7 +118,6 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) is
     pragma autonomous_transaction;
-    c_fail_on_errors constant boolean := false;
   begin
     a_reporter := coalesce(a_reporter,ut_documentation_reporter());
     ut_runner.run(
@@ -129,7 +129,7 @@ create or replace package body ut is
       a_test_file_mappings,
       a_include_objects,
       a_exclude_objects,
-      c_fail_on_errors,
+      gc_fail_on_errors,
       a_client_character_set
     );
     rollback;
@@ -147,7 +147,6 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) is
     pragma autonomous_transaction;
-    c_fail_on_errors constant boolean := false;
   begin
     a_reporter := coalesce(a_reporter,ut_documentation_reporter());
     ut_runner.run(
@@ -159,7 +158,7 @@ create or replace package body ut is
       ut_file_mapper.build_file_mappings(a_test_files),
       a_include_objects,
       a_exclude_objects,
-      c_fail_on_errors,
+      gc_fail_on_errors,
       a_client_character_set
     );
     rollback;
@@ -406,21 +405,39 @@ create or replace package body ut is
     a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   ) is
     l_reporter  ut_reporter_base := a_reporter;
   begin
-    run_autonomous(
-      a_paths,
-      l_reporter,
-      ut_utils.boolean_to_int(a_color_console),
-      a_coverage_schemes,
-      a_source_file_mappings,
-      a_test_file_mappings,
-      a_include_objects,
-      a_exclude_objects,
-      a_client_character_set
-    );
+    if a_force_manual_rollback then
+      l_reporter := coalesce(l_reporter,ut_documentation_reporter());
+      ut_runner.run(
+        a_paths,
+        ut_reporters(l_reporter),
+        a_color_console,
+        a_coverage_schemes,
+        a_source_file_mappings,
+        a_test_file_mappings,
+        a_include_objects,
+        a_exclude_objects,
+        gc_fail_on_errors,
+        a_client_character_set,
+        a_force_manual_rollback
+      );
+    else
+      run_autonomous(
+        a_paths,
+        l_reporter,
+        ut_utils.boolean_to_int(a_color_console),
+        a_coverage_schemes,
+        a_source_file_mappings,
+        a_test_file_mappings,
+        a_include_objects,
+        a_exclude_objects,
+        a_client_character_set
+      );
+    end if;
     if l_reporter is of (ut_output_reporter_base) then
         treat(l_reporter as ut_output_reporter_base).lines_to_dbms_output();
     end if;
@@ -436,25 +453,23 @@ create or replace package body ut is
     a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   ) is
     l_reporter  ut_reporter_base := a_reporter;
   begin
-    run_autonomous(
+    ut.run(
       a_paths,
       l_reporter,
-      ut_utils.boolean_to_int(a_color_console),
+      a_color_console,
       a_coverage_schemes,
-      a_source_files,
-      a_test_files,
+      ut_file_mapper.build_file_mappings(a_source_files),
+      ut_file_mapper.build_file_mappings(a_test_files),
       a_include_objects,
       a_exclude_objects,
-      a_client_character_set
+      a_client_character_set,
+      a_force_manual_rollback
     );
-    if l_reporter is of (ut_output_reporter_base) then
-      treat(l_reporter as ut_output_reporter_base).lines_to_dbms_output();
-    end if;
-    raise_if_packages_invalidated();
   end;
 
   procedure run(
@@ -465,7 +480,8 @@ create or replace package body ut is
     a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   ) is
   begin
     ut.run(
@@ -477,7 +493,8 @@ create or replace package body ut is
       a_test_file_mappings,
       a_include_objects,
       a_exclude_objects,
-      a_client_character_set
+      a_client_character_set,
+      a_force_manual_rollback
     );
   end;
 
@@ -489,7 +506,8 @@ create or replace package body ut is
     a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   ) is
   begin
     ut.run(
@@ -501,7 +519,8 @@ create or replace package body ut is
       a_test_files,
       a_include_objects,
       a_exclude_objects,
-      a_client_character_set
+      a_client_character_set,
+      a_force_manual_rollback
     );
   end;
 
@@ -514,7 +533,8 @@ create or replace package body ut is
     a_test_file_mappings ut_file_mappings := null,
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   ) is
   begin
     ut.run(
@@ -526,7 +546,8 @@ create or replace package body ut is
       a_test_file_mappings,
       a_include_objects,
       a_exclude_objects,
-      a_client_character_set
+      a_client_character_set,
+      a_force_manual_rollback
     );
   end;
 
@@ -539,7 +560,8 @@ create or replace package body ut is
     a_test_files ut_varchar2_list,
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   ) is
   begin
     ut.run(
@@ -551,7 +573,8 @@ create or replace package body ut is
       a_test_files,
       a_include_objects,
       a_exclude_objects,
-      a_client_character_set
+      a_client_character_set,
+      a_force_manual_rollback
     );
   end;
 

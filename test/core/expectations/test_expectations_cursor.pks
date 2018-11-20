@@ -315,6 +315,9 @@ create or replace package test_expectations_cursor is
 
   --%test(Trying to join on collection element inside record )   
   procedure compare_rec_coll_as_join;
-  
+ 
+  --%test( Unordered fix for issues with duplicate no : #764 )   
+  procedure unordered_fix_764;
+ 
 end;
 /

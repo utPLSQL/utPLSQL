@@ -1,7 +1,7 @@
 create or replace type ut_output_buffer_base authid definer as object(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ create or replace type ut_output_buffer_base authid definer as object(
   member procedure init(self in out nocopy ut_output_buffer_base),
   not instantiable member procedure close(self in ut_output_buffer_base),
   not instantiable member procedure send_line(self in ut_output_buffer_base, a_text varchar2),
+  not instantiable member procedure send_lines(self in ut_output_buffer_base, a_text_list ut_varchar2_rows),
   not instantiable member function get_lines(a_initial_timeout natural := null, a_timeout_sec natural := null) return ut_varchar2_rows pipelined,
   not instantiable member function get_lines_cursor(a_initial_timeout natural := null, a_timeout_sec natural := null) return sys_refcursor,
   not instantiable member procedure lines_to_dbms_output(self in ut_output_buffer_base, a_initial_timeout natural := null, a_timeout_sec natural := null)

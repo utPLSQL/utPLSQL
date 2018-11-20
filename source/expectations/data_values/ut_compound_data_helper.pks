@@ -1,7 +1,7 @@
 create or replace package ut_compound_data_helper authid definer is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -80,6 +80,9 @@ create or replace package ut_compound_data_helper authid definer is
   
   function is_pk_exists(a_expected_cursor xmltype, a_actual_cursor xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2,a_join_by_xpath varchar2) 
   return tt_missing_pk;
+
+  procedure update_row_and_pk_hash(a_self_data_id in raw, a_other_data_id in raw, a_exclude_xpath varchar2, 
+                                   a_include_xpath varchar2, a_join_by_xpath varchar2);
 
 end;
 /

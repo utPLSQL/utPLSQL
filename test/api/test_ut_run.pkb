@@ -355,6 +355,210 @@ create or replace package body test_ut_run is
     ut.expect( l_results ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
   end;
 
+  procedure create_suite_with_commit is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'create or replace package test_commit_warning is
+      --%suite
+      --%suitepath(ut.run.transaction)
+
+      --%test
+      procedure does_commit;
+    end;';
+    execute immediate 'create or replace package body test_commit_warning is
+      procedure does_commit is
+      begin
+        ut3.ut.expect(1).to_equal(1);
+        commit;
+      end;
+    end;';
+  end;
+
+  procedure drop_suite_with_commit is
+    pragma autonomous_transaction;
+    begin
+      execute immediate 'drop package test_commit_warning';
+    end;
+
+  procedure run_proc_warn_on_commit is
+    l_results clob;
+  begin
+    ut3.ut.run('test_commit_warning');
+    l_results := get_dbms_output_as_clob();
+    ut.expect(l_results).to_be_like(
+      '%Unable to perform automatic rollback after test%'||
+      'An implicit or explicit commit/rollback occurred in procedures:%' ||
+      'does_commit%' ||
+      'Use the "--%rollback(manual)" annotation or remove commit/rollback/ddl statements that are causing the issue.%'
+    );
+  end;
+
+  procedure create_failing_beforeall_suite is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'create or replace package parent_suite is
+      --%suite
+      --%suitepath(ut.run.failing_setup)
+
+      --%beforeall
+      procedure failing_setup;
+    end;';
+    execute immediate 'create or replace package body parent_suite is
+      procedure failing_setup is
+      begin
+        raise no_data_found;
+      end;
+    end;';
+    execute immediate 'create or replace package child_suite is
+      --%suite
+      --%suitepath(ut.run.failing_setup.parent_suite.some_sub_suite)
+
+      --%test
+      procedure does_stuff;
+    end;';
+    execute immediate 'create or replace package body child_suite is
+      procedure does_stuff is
+      begin
+        ut3.ut.expect(1).to_equal(1);
+      end;
+    end;';
+  end;
+
+  procedure drop_failing_beforeall_suite is
+    pragma autonomous_transaction;
+    begin
+      execute immediate 'drop package parent_suite';
+      execute immediate 'drop package child_suite';
+    end;
+
+  procedure run_proc_fail_child_suites is
+    l_results clob;
+  begin
+    ut3.ut.run('child_suite');
+    l_results := get_dbms_output_as_clob();
+    ut.expect(l_results).to_be_like(
+      '%1) does_stuff%' ||
+        'ORA-01403: no data found%' ||
+        'ORA-06512: at "UT3_TESTER.PARENT_SUITE%'
+    );
+  end;
+
+  procedure transaction_setup is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'create table transaction_test_table(message varchar2(100))';
+    execute immediate 'create or replace package test_transaction is
+      --%suite
+
+      --%test
+      procedure insert_row;
+
+      --%test
+      procedure insert_and_raise;
+    end;
+    ';
+    execute immediate 'create or replace package body test_transaction is
+        procedure insert_row is
+        begin
+          insert into transaction_test_table values (''2 - inside the test_transaction.insert_row test'');
+        end;
+        procedure insert_and_raise is
+        begin
+          insert into transaction_test_table values (''2 - inside the test_transaction.insert_row test'');
+          raise no_data_found;
+        end;
+      end;
+    ';
+
+  end;
+
+  procedure transaction_cleanup is
+    pragma autonomous_transaction;
+  begin
+    begin
+      execute immediate 'drop table transaction_test_table';
+    exception
+      when others then null;
+    end;
+    begin
+      execute immediate 'drop pacakge test_transaction';
+    exception
+      when others then null;
+    end;
+  end;
+
+  procedure run_proc_keep_test_data is
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+    l_results  clob;
+  begin
+    --Arrange
+    execute immediate '
+      insert into transaction_test_table values (''1 - inside the test_ut_run.run_proc_keep_test_changes test'')';
+
+    --Act
+    ut3.ut.run('test_transaction.insert_row', a_force_manual_rollback => true);
+    l_results := get_dbms_output_as_clob();
+
+    --Assert
+    open l_expected for
+    select '1 - inside the test_ut_run.run_proc_keep_test_changes test' as message from dual
+    union all
+    select '2 - inside the test_transaction.insert_row test' from dual
+    order by 1;
+
+    open l_actual for 'select * from transaction_test_table order by 1';
+
+    ut.expect( l_actual ).to_equal(l_expected);
+  end;
+
+  procedure run_proc_keep_test_data_raise is
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+    l_results  clob;
+  begin
+    --Arrange
+    execute immediate '
+      insert into transaction_test_table values (''1 - inside the test_ut_run.run_proc_keep_test_changes test'')';
+
+    --Act
+    ut3.ut.run('test_transaction.insert_and_raise', a_force_manual_rollback => true);
+    l_results := get_dbms_output_as_clob();
+
+    --Assert
+    open l_expected for
+    select '1 - inside the test_ut_run.run_proc_keep_test_changes test' as message from dual
+    union all
+    select '2 - inside the test_transaction.insert_row test' from dual
+    order by 1;
+
+    open l_actual for 'select * from transaction_test_table order by 1';
+
+    ut.expect( l_actual ).to_equal(l_expected);
+  end;
+
+  procedure run_proc_discard_test_data is
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+    l_results  clob;
+  begin
+    --Arrange
+    execute immediate '
+      insert into transaction_test_table values (''1 - inside the test_ut_run.run_proc_keep_test_changes test'')';
+
+    --Act
+    ut3.ut.run('test_transaction.insert_row');
+    l_results := get_dbms_output_as_clob();
+
+    --Assert
+    open l_expected for
+    select '1 - inside the test_ut_run.run_proc_keep_test_changes test' as message from dual;
+
+    open l_actual for 'select * from transaction_test_table order by 1';
+
+    ut.expect( l_actual ).to_equal(l_expected);
+  end;
+
   procedure run_func_no_params is
     l_results   ut3.ut_varchar2_list;
   begin
@@ -391,7 +595,7 @@ create or replace package body test_ut_run is
     execute immediate 'begin :l_results := ut3$user#.test_package_1.run(:a_path); end;'
     using out l_results, in 'test_package_1';
     --Assert
-    ut.expect( ut3.ut_utils.table_to_clob(l_results) ).to_be_like( '%test_package_bal%' );
+    ut.expect( ut3.ut_utils.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
     ut.expect( ut3.ut_utils.table_to_clob(l_results) ).not_to_be_like( '%test_package_2%' );
     ut.expect( ut3.ut_utils.table_to_clob(l_results) ).not_to_be_like( '%test_package_3%' );
   end;
@@ -514,11 +718,27 @@ create or replace package body test_ut_run is
   end;
 
   procedure create_test_suite is
+    l_service_name varchar2(100);
     pragma autonomous_transaction;
   begin
+    select global_name into l_service_name from global_name;
+    execute immediate
+    'create public database link db_loopback connect to ut3_tester identified by ut3
+      using ''(DESCRIPTION=
+                (ADDRESS=(PROTOCOL=TCP)
+                  (HOST='||sys_context('userenv','SERVER_HOST')||')
+                  (PORT=1521)
+                )
+                (CONNECT_DATA=(SERVICE_NAME='||l_service_name||')))''';
     execute immediate q'[
       create or replace package stateful_package as
+        function get_state return varchar2;
+      end;
+    ]';
+    execute immediate q'[
+      create or replace package body stateful_package as
         g_state varchar2(1) := 'A';
+        function get_state return varchar2 is begin return g_state; end;
       end;
     ]';
     execute immediate q'[
@@ -527,11 +747,11 @@ create or replace package body test_ut_run is
         --%suitepath(test_state)
 
         --%test
-        --%beforetest(acquire_state,recompile_in_background)
+        --%beforetest(acquire_state_via_db_link,rebuild_stateful_package)
         procedure failing_stateful_test;
 
-        procedure recompile_in_background;
-        procedure acquire_state;
+        procedure rebuild_stateful_package;
+        procedure acquire_state_via_db_link;
 
       end;
     ]';
@@ -540,39 +760,23 @@ create or replace package body test_ut_run is
 
       procedure failing_stateful_test is
       begin
-        ut3.ut.expect(stateful_package.g_state).to_equal('abc');
+        ut3.ut.expect(stateful_package.get_state@db_loopback).to_equal('abc');
       end;
 
-      procedure recompile_in_background is
-        l_job_name varchar2(30) := 'recreate_stateful_package';
-        l_cnt      integer      := 1;
+      procedure rebuild_stateful_package is
         pragma autonomous_transaction;
       begin
-        dbms_scheduler.create_job(
-          job_name      =>  l_job_name,
-          job_type      =>  'PLSQL_BLOCK',
-          job_action    =>  q'/
-            begin
-              execute immediate q'[
-                create or replace package stateful_package as
-                  g_state varchar2(3) := 'abc';
-                end;]';
-            end;/',
-          start_date    =>  localtimestamp,
-          enabled       =>  TRUE,
-          auto_drop     =>  TRUE,
-          comments      =>  'one-time job'
-        );
-        dbms_lock.sleep(1);
-        while l_cnt > 0 loop
-          select count(1) into l_cnt
-            from dba_scheduler_running_jobs srj
-           where srj.job_name = l_job_name;
-        end loop;
+        execute immediate q'[
+          create or replace package body stateful_package as
+            g_state varchar2(3) := 'abc';
+            function get_state return varchar2 is begin return g_state; end;
+          end;
+        ]';
       end;
-      procedure acquire_state is
+
+      procedure acquire_state_via_db_link is
       begin
-        dbms_output.put_line('stateful_package.g_state='||stateful_package.g_state);
+        dbms_output.put_line('stateful_package.get_state@db_loopback='||stateful_package.get_state@db_loopback);
       end;
     end;
     }';
@@ -589,10 +793,9 @@ create or replace package body test_ut_run is
     failing_stateful_test [% sec] (FAILED - 1)%
 Failures:%
   1) failing_stateful_test
-      ORA-04061: existing state of package "UT3_TESTER.STATEFUL_PACKAGE" has been invalidated
-      ORA-04065: not executed, altered or dropped package "UT3_TESTER.STATEFUL_PACKAGE"
-      ORA-06508: PL/SQL: could not find program unit being called: "UT3_TESTER.STATEFUL_PACKAGE"
-      ORA-06512: at "UT3_TESTER.TEST_STATEFUL", line 5%
+      ORA-04068: existing state of packages (DB_LOOPBACK%) has been discarded
+      ORA-04061: existing state of package body "UT3_TESTER.STATEFUL_PACKAGE" has been invalidated
+      ORA-04065: not executed, altered or dropped package body "UT3_TESTER.STATEFUL_PACKAGE"%
       ORA-06512: at line 6%
 1 tests, 0 failed, 1 errored, 0 disabled, 0 warning(s)%';
 
@@ -613,6 +816,7 @@ Failures:%
   begin
     execute immediate 'drop package stateful_package';
     execute immediate 'drop package test_stateful';
+    begin execute immediate 'drop public database link db_loopback'; exception when others then null; end;
   end;
 
   procedure run_in_invalid_state is
@@ -718,7 +922,45 @@ Failures:%
   begin
     execute immediate 'drop package invalid_pckag_that_revalidates';
     execute immediate 'drop package parent_specs';
-  end;  
-  
+  end;
+
+  procedure run_and_report_warnings is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+
+    select * bulk collect into l_results from table(ut3.ut.run('bad_annotations'));
+    l_actual := ut3.ut_utils.table_to_clob(l_results);
+
+    ut.expect(l_actual).to_be_like('%Invalid annotation "--%context". Cannot find following "--%endcontext". Annotation ignored.%
+%1 tests, 0 failed, 0 errored, 0 disabled, 1 warning(s)%');
+
+  end;
+
+  procedure create_bad_annot is
+    pragma autonomous_transaction;
+    begin
+      execute immediate q'[
+      create or replace package bad_annotations as
+        --%suite
+
+        --%context
+
+        --%test(invalidspecs)
+        procedure test1;
+
+      end;]';
+
+      execute immediate q'[
+      create or replace package body bad_annotations as
+        procedure test1 is begin ut.expect(1).to_equal(1); end;
+      end;]';
+
+    end;
+  procedure drop_bad_annot is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package bad_annotations';
+  end;
 end;
 /

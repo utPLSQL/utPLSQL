@@ -1,7 +1,7 @@
 create or replace package ut_annotation_cache_manager authid definer as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -32,14 +32,21 @@ create or replace package ut_annotation_cache_manager authid definer as
    *
    * @param a_cached_objects a `ut_annotation_objs_cache_info` list with information about objects to get from cache
    */
-  function get_annotations_for_objects(a_cached_objects ut_annotation_objs_cache_info) return sys_refcursor;
+  function get_annotations_for_objects(a_cached_objects ut_annotation_objs_cache_info, a_parse_time timestamp) return sys_refcursor;
 
   /**
    * Removes cached information about annotations for objects on the list and updates parse_time in cache info table.
    *
-   * @param a_objects a `ut_annotation_objs_cache_info` list with information about objects to remove from cache
+   * @param a_objects a `ut_annotation_objs_cache_info` list with information about objects to remove annotations for
    */
   procedure cleanup_cache(a_objects ut_annotation_objs_cache_info);
+
+  /**
+   * Removes information about objects on the list
+   *
+   * @param a_objects a `ut_annotation_objs_cache_info` list with information about objects to remove from cache
+   */
+  procedure remove_from_cache(a_objects ut_annotation_objs_cache_info);
 
   /**
    * Removes cached information about annotations for objects of specified type and specified owner

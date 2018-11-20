@@ -1,7 +1,7 @@
 create or replace package body ut_metadata as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -21,12 +21,6 @@ create or replace package body ut_metadata as
   g_cached_object varchar2(500);
   ------------------------------
   --public definitions
-
-  procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2) is
-    l_procedure_name  varchar2(200);
-  begin
-    do_resolve(a_owner, a_object, l_procedure_name );
-  end do_resolve;
 
   procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2, a_procedure_name in out nocopy varchar2) is
     l_name          varchar2(200);
@@ -66,7 +60,7 @@ create or replace package body ut_metadata as
     l_schema         varchar2(200);
     l_package_name   varchar2(200);
     l_procedure_name varchar2(200);
-    l_view_name      varchar2(200) := get_dba_view('dba_objects');
+    l_view_name      varchar2(200) := get_objects_view_name;
   begin
 
     l_schema       := a_owner_name;
@@ -116,8 +110,7 @@ create or replace package body ut_metadata as
   end;
 
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
-    l_cursor sys_refcursor;
-    l_view_name varchar2(128) := get_dba_view('dba_source');
+    l_view_name varchar2(128) := get_source_view_name();
     l_line all_source.text%type;
     c_key  constant varchar2(500) := a_owner || '.' || a_object_name;
   begin
@@ -148,15 +141,39 @@ create or replace package body ut_metadata as
   end;
 
   function get_dba_view(a_dba_view_name varchar2) return varchar2 is
-    l_invalid_object_name exception;
     l_result              varchar2(128) := lower(a_dba_view_name);
+  begin
+    if not is_object_visible(a_dba_view_name) then
+      l_result := replace(l_result,'dba_','all_');
+    end if;
+     return l_result;
+  end;
+
+  function get_source_view_name return varchar2 is
+  begin
+    return get_dba_view('dba_source');
+  end;
+
+
+  function get_objects_view_name return varchar2 is
+  begin
+    return get_dba_view('dba_objects');
+  end;
+
+  function user_has_execute_any_proc return boolean is
+    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
+  begin
+    return is_object_visible(l_ut_owner||'.ut_utils');
+  end;
+
+  function is_object_visible(a_object_name varchar2) return boolean is
+    l_invalid_object_name exception;
     pragma exception_init(l_invalid_object_name,-44002);
   begin
-    l_result := dbms_assert.sql_object_name(l_result);
-    return l_result;
+    return dbms_assert.sql_object_name(a_object_name) is not null;
   exception
     when l_invalid_object_name then
-      return replace(l_result,'dba_','all_');
+      return false;
   end;
 
   function package_exists_in_cur_schema(a_object_name varchar2) return boolean is

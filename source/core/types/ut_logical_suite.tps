@@ -1,7 +1,7 @@
 create or replace type ut_logical_suite under ut_suite_item (
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -21,13 +21,8 @@ create or replace type ut_logical_suite under ut_suite_item (
   */
   items        ut_suite_items,
 
-  constructor function ut_logical_suite(
-    self in out nocopy ut_logical_suite, a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_path varchar2
-  ) return self as result,
-  member function is_valid(self in out nocopy ut_logical_suite) return boolean,
-  member procedure add_item(self in out nocopy ut_logical_suite, a_item ut_suite_item),
   overriding member procedure mark_as_skipped(self in out nocopy ut_logical_suite),
-  overriding member procedure set_rollback_type(self in out nocopy ut_logical_suite, a_rollback_type integer),
+  overriding member procedure set_rollback_type(self in out nocopy ut_logical_suite, a_rollback_type integer, a_force boolean := false),
   overriding member function  do_execute(self in out nocopy ut_logical_suite) return boolean,
   overriding member procedure calc_execution_result(self in out nocopy ut_logical_suite),
   overriding member procedure mark_as_errored(self in out nocopy ut_logical_suite, a_error_stack_trace varchar2),

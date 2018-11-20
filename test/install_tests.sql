@@ -2,6 +2,7 @@ set define off
 whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
+alter session set plsql_optimize_level=0;
 --Install helpers
 @@helpers/ut_test_table.sql
 @@helpers/ut_example_tests.pks
@@ -22,7 +23,7 @@ whenever oserror exit failure rollback
 @@core/test_ut_test.pks
 @@core/annotations/test_annotation_parser.pks
 @@core/annotations/test_annotation_manager.pks
-@@core/annotations/test_before_after_test_annotation.pks
+@@core/annotations/test_before_after_annotations.pks
 @@core/expectations/test_expectation_processor.pks
 @@core/expectations/test_matchers.pks
 @@core/test_output_buffer.pks
@@ -44,6 +45,7 @@ set define on
 @@install_below_12_2.sql 'core/reporters/test_coverage/test_html_proftab_reporter.pks'
 set define off
 @@core/reporters/test_tfs_junit_reporter.pks
+@@core/reporters/test_documentation_reporter.pks
 @@core/reporters/test_sonar_test_reporter.pks
 @@core/reporters/test_teamcity_reporter.pks
 @@core/expectations.pks
@@ -72,7 +74,7 @@ set define off
 @@core/annotations/test_annotation_manager.pkb
 @@core/expectations/test_expectation_processor.pkb
 @@core/expectations/test_matchers.pkb
-@@core/annotations/test_before_after_test_annotation.pkb
+@@core/annotations/test_before_after_annotations.pkb
 @@core/test_output_buffer.pkb
 @@core/test_file_mapper.pkb
 @@core/test_suite_manager.pkb
@@ -92,6 +94,7 @@ set define on
 @@install_below_12_2.sql 'core/reporters/test_coverage/test_html_proftab_reporter.pkb'
 set define off
 @@core/reporters/test_tfs_junit_reporter.pkb
+@@core/reporters/test_documentation_reporter.pkb
 @@core/reporters/test_sonar_test_reporter.pkb
 @@core/reporters/test_teamcity_reporter.pkb
 @@core/expectations.pkb

@@ -1,7 +1,7 @@
 create or replace package body ut_ansiconsole_helper as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ create or replace package body ut_ansiconsole_helper as
   gc_red     constant varchar2(7) := chr(27) || '[31m';
   gc_green   constant varchar2(7) := chr(27) || '[32m';
   gc_yellow  constant varchar2(7) := chr(27) || '[33m';
-  gc_blue    constant varchar2(7) := chr(27) || '[34m';
-  gc_magenta constant varchar2(7) := chr(27) || '[35m';
   gc_cyan    constant varchar2(7) := chr(27) || '[36m';
   gc_reset   constant varchar2(7) := chr(27) || '[0m';
   g_enabled  boolean := false;
@@ -51,16 +49,6 @@ create or replace package body ut_ansiconsole_helper as
   function yellow(a_text varchar2) return varchar2 is
   begin
     return add_color(a_text, gc_yellow);
-  end;
-
-  function blue(a_text varchar2) return varchar2 is
-  begin
-    return add_color(a_text, gc_blue);
-  end;
-
-  function magenta(a_text varchar2) return varchar2 is
-  begin
-    return add_color(a_text, gc_magenta);
   end;
 
   function cyan(a_text varchar2) return varchar2 is

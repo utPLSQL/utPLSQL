@@ -1,7 +1,7 @@
 create or replace type body ut_test as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@ create or replace type body ut_test as
 
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2,
-    a_expected_error_codes ut_integer_list := null
+    a_line_no integer, a_expected_error_codes ut_integer_list := null
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
-    self.init(a_object_owner, a_object_name, a_name);
+    self.init(a_object_owner, a_object_name, a_name, a_line_no);
     self.item := ut_executable_test(a_object_owner, a_object_name, a_name, ut_utils.gc_test_execute);
     self.before_each_list     := ut_executables();
     self.before_test_list     := ut_executables();
@@ -97,7 +97,7 @@ create or replace type body ut_test as
   end;
 
   overriding member procedure calc_execution_result(self in out nocopy ut_test) is
-  l_warnings ut_varchar2_list;
+    l_warnings ut_varchar2_rows;
   begin
     if self.get_error_stack_traces().count = 0 then
       self.result := ut_expectation_processor.get_status();
@@ -107,7 +107,7 @@ create or replace type body ut_test as
     --expectation results need to be part of test results
     self.all_expectations    := ut_expectation_processor.get_all_expectations();
     self.failed_expectations := ut_expectation_processor.get_failed_expectations();
-    l_warnings := coalesce( ut_expectation_processor.get_warnings(), ut_varchar2_list() );
+    l_warnings := coalesce( ut_expectation_processor.get_warnings(), ut_varchar2_rows() );
     self.warnings := self.warnings multiset union all l_warnings;
     self.results_count.increase_warning_count( cardinality(l_warnings) );
     self.results_count.set_counter_values(self.result);

@@ -277,7 +277,7 @@ create or replace package body test_before_after_annotations is
     ut.expect(l_actual).to_be_empty;
 
     ut.expect(g_tests_results).to_match(
-        '^\s*Stops execution at first non-existing Beforetest procedure and marks test as errored \[[\.0-9]+ sec\] \(FAILED - 1\)\s*$'
+        '^\s*Stops execution at first non-existing Beforetest procedure and marks test as errored \[[,\.0-9]+ sec\] \(FAILED - 1\)\s*$'
         ,'m'
     );
     ut.expect(g_tests_results).to_match(
@@ -297,7 +297,7 @@ create or replace package body test_before_after_annotations is
     ut.expect(l_actual).to_be_empty;
 
     ut.expect(g_tests_results).to_match(
-        '^\s*Stops execution at first non-existing Beforetest procedure and marks test as errored \[[\.0-9]+ sec\] \(FAILED - 1\)\s*$'
+        '^\s*Stops execution at first non-existing Beforetest procedure and marks test as errored \[[,\.0-9]+ sec\] \(FAILED - 1\)\s*$'
         ,'m'
     );
     ut.expect(g_tests_results).to_match(

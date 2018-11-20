@@ -1,7 +1,7 @@
 create or replace type ut_test under ut_suite_item (
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ create or replace type ut_test under ut_suite_item (
   expected_error_codes  ut_integer_list,
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2,
-    a_expected_error_codes ut_integer_list := null
+    a_line_no integer, a_expected_error_codes ut_integer_list := null
   ) return self as result,
   overriding member procedure mark_as_skipped(self in out nocopy ut_test),
   overriding member function do_execute(self in out nocopy ut_test) return boolean,

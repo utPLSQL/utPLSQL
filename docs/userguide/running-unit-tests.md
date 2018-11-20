@@ -1,12 +1,12 @@
 # Running tests
 
-The utPLSQL framework provides two main entry points to run unit tests from within the database: 
+utPLSQL framework provides two main entry points to run unit tests from within the database: 
 
 - `ut.run` procedures and functions
 - `ut_runner.run` procedures
 
 These two entry points differ in purpose and behavior.
-Most of the time you will want to use `ut.run` as `ut_runner` is designed for API integration and does not output the results to the screen directly.
+Most of the time you will want to use `ut.run` as `ut_runner.run` is designed for API integration and does not display the results to the screen.
 
 # Running from CI servers and command line
 
@@ -123,13 +123,33 @@ You can execute any set of tests with any of the predefined reporters.
 
 ```sql
 begin
-  ut.run('hr.test_apply_bonus', ut_xunit_reporter());
+  ut.run('hr.test_apply_bonus', ut_junit_reporter());
 end;
 ```
-Executes all tests from package _HR.TEST_APPLY_BONUS_ and provide outputs to DBMS_OUTPUT using the XUnit reporter. 
+Executes all tests from package _HR.TEST_APPLY_BONUS_ and provide outputs to DBMS_OUTPUT using the JUnit reporter. 
 
 
 For details on build-in reporters look at [reporters documentation](reporters.md).
+
+## Keeping uncommited data after test-run
+
+utPLSQL by default runs tests in autonomous transaction and performs automatic rollback to assure that tests do not impact one-another and do not have impact on the current session in your IDE.
+
+If you would like to keep your uncommited data persisted after running tests, you can do so by using `a_force_manual_rollback` flag.
+Setting this flag to true has following side-effects:
+
+- test execution is done in current transaction - if while running tests commit or rollback is issued your current session data will get commited too.
+- automatic rollback is forced to be disabled in test-run even if it was explicitly enabled by using annotation `--%rollback(manual)
+
+Example invocation:
+```sql
+begin
+  ut.run('hr.test_apply_bonus', a_force_manual_rollback => true);
+end;
+```
+
+
+This option is not anvailable when running tests using `ut.run` as a table function.   
 
 ## ut.run functions
 
@@ -140,7 +160,7 @@ Functions provide output as a pipelined stream and therefore need to be executed
 
 Example.
 ```sql
-select * from table(ut.run('hr.test_apply_bonus', ut_xunit_reporter()));
+select * from table(ut.run('hr.test_apply_bonus', ut_junit_reporter()));
 ```
 
 # ut_runner.run procedures
@@ -158,3 +178,17 @@ The concept is pretty simple.
 - as a separate thread, start `ut_runner.run` and pass reporters with previously defined output_ids.
 - for each reporter start a separate thread and read outputs from the `ut_output_buffer.get_lines` table function by providing the output_id defined in the main thread.
   
+# Reports characterset encoding
+
+To get properly encoded reports, when running utPLSQL with HTML/XML reports on data containing national characters you need to provide your client character set when calling `ut.run` functions and procedures.
+
+If you run your tests using `utPLSQL-cli`, this is done automatically and no action needs to be taken.
+
+To make sure that the reports will display your national characters properly when running from IDE like SQLDeveloper/TOAD/SQLPlus or sqlcl you need to provide the charaterset manualy to `ut.run`.
+
+Example call with characterset provided:
+```sql
+begin
+  ut.run('hr.test_apply_bonus', ut_junit_reporter(), a_client_character_set => 'Windows-1251');
+end;
+``` 

@@ -166,7 +166,7 @@ create or replace package body test_junit_reporter as
     l_nls_numeric_characters varchar2(30);
   begin
     --Arrange
-    select nsp.value into l_nls_numeric_characters
+    select replace(nsp.value,'''','''''') into l_nls_numeric_characters
     from nls_session_parameters nsp
     where parameter = 'NLS_NUMERIC_CHARACTERS';
     execute immediate q'[alter session set NLS_NUMERIC_CHARACTERS=', ']';
@@ -247,32 +247,35 @@ create or replace package body test_junit_reporter as
     l_actual    clob;
     l_expected  varchar2(32767):=q'[<?xml version="1.0"?>
 <testsuites tests="4" disabled="1" errors="1" failures="1" name="" time="%" >
-<testsuite tests="4" id="1" package="utplsqlorg"  disabled="1" errors="1" failures="1" name="utplsqlorg" time="%" >
-<testsuite tests="4" id="2" package="utplsqlorg.helpers"  disabled="1" errors="1" failures="1" name="helpers" time="%" >
-<testsuite tests="4" id="3" package="utplsqlorg.helpers.tests"  disabled="1" errors="1" failures="1" name="tests" time="%" >
-<testsuite tests="4" id="4" package="utplsqlorg.helpers.tests.test"  disabled="1" errors="1" failures="1" name="test" time="%" >
-<testsuite tests="4" id="5" package="utplsqlorg.helpers.tests.test.test_reporters"  disabled="1" errors="1" failures="1" name="test_reporters" time="%" >
-<testsuite tests="4" id="6" package="utplsqlorg.helpers.tests.test.test_reporters.test_reporters"  disabled="1" errors="1" failures="1" name="A suite for testing different outcomes from reporters" time="%" >
-<testcase classname="utplsqlorg.helpers.tests.test.test_reporters.test_reporters" assertions="1" name="passing_test" time="%" >
+<testsuite tests="4" id="1" package="org"  disabled="1" errors="1" failures="1" name="org" time="%" >
+<testsuite tests="4" id="2" package="org.utplsql"  disabled="1" errors="1" failures="1" name="utplsql" time="%" >
+<testsuite tests="4" id="3" package="org.utplsql.tests"  disabled="1" errors="1" failures="1" name="tests" time="%" >
+<testsuite tests="4" id="4" package="org.utplsql.tests.helpers"  disabled="1" errors="1" failures="1" name="helpers" time="%" >
+<testsuite tests="4" id="5" package="org.utplsql.tests.helpers.test_reporters"  disabled="1" errors="1" failures="1" name="A suite for testing different outcomes from reporters" time="%" >
+<testsuite tests="1" id="6" package="org.utplsql.tests.helpers.test_reporters.some_context"  disabled="0" errors="0" failures="0" name="A description of some context" time="%" >
+<testcase classname="org.utplsql.tests.helpers.test_reporters.some_context" assertions="1" name="passing_test" time="%" >
 <system-out>%
 </system-out>
 <system-err/>
 </testcase>
-<testcase classname="utplsqlorg.helpers.tests.test.test_reporters.test_reporters" assertions="1" name="a test with failing assertion" time="%"  status="Failure">
+<system-out/>
+<system-err/>
+</testsuite>
+<testcase classname="org.utplsql.tests.helpers.test_reporters" assertions="1" name="a test with failing assertion" time="%"  status="Failure">
 <failure>%Fails as values are different%
 </failure>
 <system-out>%
 </system-out>
 <system-err/>
 </testcase>
-<testcase classname="utplsqlorg.helpers.tests.test.test_reporters.test_reporters" assertions="0" name="a test raising unhandled exception" time="%"  status="Error">
+<testcase classname="org.utplsql.tests.helpers.test_reporters" assertions="0" name="a test raising unhandled exception" time="%"  status="Error">
 <error>%ORA-06502:%
 </error>
 <system-out>%
 </system-out>
 <system-err/>
 </testcase>
-<testcase classname="utplsqlorg.helpers.tests.test.test_reporters.test_reporters" assertions="0" name="a disabled test" time="0"  status="Disabled">
+<testcase classname="org.utplsql.tests.helpers.test_reporters" assertions="0" name="a disabled test" time="0"  status="Disabled">
 <skipped/>
 <system-out/>
 <system-err/>
@@ -280,7 +283,6 @@ create or replace package body test_junit_reporter as
 <system-out>%
 </system-out>
 <system-err/>
-</testsuite>
 </testsuite>
 </testsuite>
 </testsuite>
