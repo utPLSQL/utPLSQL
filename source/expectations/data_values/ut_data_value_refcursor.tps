@@ -52,7 +52,8 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) return self as result,
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor),
   overriding member function to_string return varchar2,
-  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean := false ) return varchar2,
+  member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean := false
+                                  ,a_join_by_list ut_varchar2_list:=ut_varchar2_list()) return varchar2,
   overriding member function compare_implementation(a_other ut_data_value, a_unordered boolean, a_inclusion_compare boolean := false, 
                                                     a_is_negated boolean := false, a_join_by_list ut_varchar2_list:=ut_varchar2_list()) return integer,
   overriding member function is_empty return boolean,

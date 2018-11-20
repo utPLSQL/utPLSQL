@@ -481,25 +481,6 @@ create or replace package body test_expectations_cursor is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure include_columns_xpath_invalid
-  as
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
-  begin
-    --Arrange
-    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
-    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
-    begin
-      --Act
-      ut3.ut.expect(l_actual).to_equal(l_expected).include('/ROW/RN,\\//A_Column,//SOME_COL');
-      --Assert
-      ut.fail('Expected exception but nothing was raised');
-    exception
-      when others then
-        ut.expect(sqlcode).to_be_between(-31013,-31011);
-    end;
-  end;
-
   procedure include_columns_xpath
   as
     l_actual   sys_refcursor;
@@ -617,7 +598,9 @@ Rows: [ 1 differences ]
     l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
 Diff:
 Columns:
-  Column <RN> data-type is invalid. Expected: NUMBER, actual: VARCHAR2.]';
+  Column <RN> data-type is invalid. Expected: NUMBER, actual: VARCHAR2.
+Rows: [  all different ]
+  All rows are different as the columns are not matching.]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -663,7 +646,9 @@ Diff:
 Columns:
   Column <COL_4> is misplaced. Expected position: 2, actual position: 4.
   Column <COL_2> is misplaced. Expected position: 3, actual position: 2.
-  Column <COL_3> is misplaced. Expected position: 4, actual position: 3.]';
+  Column <COL_3> is misplaced. Expected position: 4, actual position: 3.
+Rows: [  all different ]
+  All rows are different as the columns are not matching.]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -990,15 +975,15 @@ Rows: [ 4 differences ]
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
 
-    l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]%
-Diff:%
-Columns:%
-  Column <ROWNUM> [data-type: NUMBER] is missing. Expected column position: 1.%
-  Column <EXPECTED_COLUMN_NAME> [data-type: NUMBER] is missing. Expected column position: 2.%
-  Column <%1%> [position: 1, data-type: CHAR] is not expected in results.%
-  Column <%2%> [position: 2, data-type: CHAR] is not expected in results.%
-Rows: [ 2 differences ]%
-  All rows are different as the columns are not matching.%]';
+    l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
+%Diff:
+%Columns:
+%Column <ROWNUM> [data-type: NUMBER] is missing. Expected column position: 1.
+%Column <EXPECTED_COLUMN_NAME> [data-type: NUMBER] is missing. Expected column position: 2.
+%Column <1> [position: 1, data-type: CHAR] is not expected in results.
+%Column <2> [position: 2, data-type: CHAR] is not expected in results.
+%Rows: [  all different ]
+%All rows are different as the columns are not matching.]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1026,7 +1011,7 @@ Rows: [ 2 differences ]%
   begin
     --Arrange
     open l_actual   for select rownum as rn, 'a', 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
-    open l_expected for select rownum as rn, 'a', 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
+    open l_expected for select rownum as rn, 'a', 'd' as A_COLUMN, 'c' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
     begin
       --Act
       ut3.ut.expect(l_actual).to_equal(l_expected).include(q'!/ROW/RN,'a',//SOME_COL!');

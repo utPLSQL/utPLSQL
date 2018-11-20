@@ -34,6 +34,11 @@ create or replace type body ut_cursor_column as
       self.has_nested_col := case when lower(self.column_type) = 'user_defined_type' and self.is_collection = 0 then 1 else 0 end;
    end;
    
+   --TODO : Scenarios : 
+   --namedcollection xmltype getclobhash
+   --collection  xml type get clob hash
+   -- user defined type
+   
    constructor function ut_cursor_column( self in out nocopy ut_cursor_column,
      a_col_name varchar2, a_col_schema_name varchar2,
      a_col_type_name varchar2, a_col_prec integer, a_col_scale integer,

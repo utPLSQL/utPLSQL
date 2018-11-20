@@ -116,14 +116,17 @@ create or replace type body ut_data_value_refcursor as
     return l_result_string;
   end;
 
-  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean := false ) return varchar2 is
+  member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, 
+    a_unordered boolean := false, a_join_by_list ut_varchar2_list:=ut_varchar2_list() ) return varchar2 is
     l_result            clob;
     l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
     l_result_string     varchar2(32767);
     l_actual            ut_data_value_refcursor;
     l_column_diffs      ut_compound_data_helper.tt_column_diffs := ut_compound_data_helper.tt_column_diffs();
     l_exclude_xpath     varchar2(32767) := a_exclude_xpath;
+    
     l_missing_pk        ut_compound_data_helper.tt_missing_pk := ut_compound_data_helper.tt_missing_pk();
+    l_col_diffs         ut_compound_data_helper.tt_column_diffs := ut_compound_data_helper.tt_column_diffs();
     
     function get_col_diff_text(a_col ut_compound_data_helper.t_column_diffs) return varchar2 is
     begin
@@ -143,7 +146,6 @@ create or replace type body ut_data_value_refcursor as
     function get_missing_key_message(a_missing_keys ut_compound_data_helper.t_missing_pk) return varchar2 is
       l_message varchar2(200);
     begin
-      
       if a_missing_keys.diff_type = 'a' then
         l_message :=  '  Join key '||a_missing_keys.missingxpath||' does not exists in actual';
       elsif a_missing_keys.diff_type = 'e' then
@@ -184,7 +186,7 @@ create or replace type body ut_data_value_refcursor as
 
     --diff columns
     if not self.is_null and not l_actual.is_null then
-      l_column_diffs := ut_compound_data_helper.get_columns_diff(self.columns_info, l_actual.columns_info, a_exclude_xpath, a_include_xpath);
+      l_column_diffs := ut_compound_data_helper.get_columns_diff(self.cursor_details.cursor_info,l_actual.cursor_details.cursor_info);
 
       if l_column_diffs.count > 0 then
         ut_utils.append_to_clob(l_result,chr(10) || 'Columns:' || chr(10));
@@ -199,8 +201,8 @@ create or replace type body ut_data_value_refcursor as
     end if;
     
     --check for missing pk 
-    if (a_join_by_xpath is not null) then
-      l_missing_pk := ut_compound_data_helper.is_pk_exists(self.key_info, l_actual.key_info, a_exclude_xpath, a_include_xpath,a_join_by_xpath);
+    if a_join_by_list.count > 0 then
+      l_missing_pk := ut_compound_data_helper.get_missing_pk(self.cursor_details.cursor_info,l_actual.cursor_details.cursor_info,a_join_by_list);
     end if;
     
     --diff rows and row elements if the pk is not missing 
@@ -213,7 +215,8 @@ create or replace type body ut_data_value_refcursor as
           ut_utils.append_to_clob(l_result, get_missing_key_message(l_missing_pk(i))|| chr(10));
         end loop;
         
-        if ut_utils.int_to_boolean(self.contain_collection) or ut_utils.int_to_boolean(l_actual.contain_collection) then
+        if ut_compound_data_helper.contains_collection(self.cursor_details.cursor_info) > 0 
+           or ut_compound_data_helper.contains_collection(l_actual.cursor_details.cursor_info) > 0 then
           ut_utils.append_to_clob(l_result,'  Please make sure that your join clause is not refferring to collection element'|| chr(10));
         end if;
         
@@ -228,36 +231,29 @@ create or replace type body ut_data_value_refcursor as
                                           a_is_negated boolean := false, a_join_by_list ut_varchar2_list:=ut_varchar2_list()) 
                                           return integer is
     l_result          integer := 0;
-    l_other           ut_data_value_refcursor;
+    l_actual          ut_data_value_refcursor;
+
+    l_pk_missing_tab ut_compound_data_helper.tt_missing_pk;
     
-    l_act_pk          ut_cursor_column_tab;
-    l_exp_pk          ut_cursor_column_tab;
-    
-    function is_pk_missing (a_pk_missing_tab ut_compound_data_helper.tt_missing_pk) return integer is
-    begin
-      return case when a_pk_missing_tab.count > 0 then 1 else 0 end;
-    end;
   begin
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
     end if;
  
-    l_other   := treat(a_other as ut_data_value_refcursor);
+    l_actual   := treat(a_other as ut_data_value_refcursor);
     
     --if we join by key and key is missing fail and report error
     if a_join_by_list.count > 0 then
-      l_act_pk := ut_compound_data_helper.compare_cursor_to_columns(self.cursor_details.cursor_info ,a_join_by_list);
-      l_exp_pk := ut_compound_data_helper.compare_cursor_to_columns(l_other.cursor_details.cursor_info,a_join_by_list);
-      l_result := case when (l_act_pk.count > 0) or (l_exp_pk.count > 0) then 1 else 0 end;
+      l_pk_missing_tab := ut_compound_data_helper.get_missing_pk(self.cursor_details.cursor_info,l_actual.cursor_details.cursor_info,a_join_by_list);
+      l_result := case when (l_pk_missing_tab.count > 0) then 1 else 0 end;
     end if;
         
-  
     if l_result = 0 then     
-      if (self.cursor_details is not null and l_other.cursor_details is not null) and (self.cursor_details != l_other.cursor_details) then 
+      if (self.cursor_details is not null and l_actual.cursor_details is not null) and (self.cursor_details != l_actual.cursor_details) then 
         l_result := 1; 
-      end if;    
+      end if;
       l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other,a_unordered, a_inclusion_compare, 
-                              a_is_negated, a_join_by_list);  
+                              a_is_negated, a_join_by_list); 
     end if;
     
     return l_result;

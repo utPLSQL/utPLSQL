@@ -85,81 +85,45 @@ create or replace package body ut_compound_data_helper is
     end if;
     return l_filter;
   end;
-
-  function get_columns_diff(
-    a_expected xmltype, a_actual xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2
-  ) return tt_column_diffs is
+ 
+  function get_columns_diff(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab) 
+  return tt_column_diffs is
     l_column_filter  varchar2(32767);
     l_sql            varchar2(32767);
     l_results        tt_column_diffs;
   begin
-    l_column_filter := get_columns_row_filter(a_exclude_xpath, a_include_xpath);
-    --CARDINALITY hints added to address issue: https://github.com/utPLSQL/utPLSQL/issues/752
-    l_sql := q'[
-      with
-        expected_cols as ( select :a_expected as item_data from dual ),
-        actual_cols as ( select :a_actual as item_data from dual ),
-        expected_cols_info as (
-          select e.*,
-                 replace(expected_type,'VARCHAR2','CHAR') expected_type_compare
-            from (
-                  select /*+ CARDINALITY(xt 100) */
-                         rownum expected_pos,
-                         xt.name expected_name,
-                         xt.type expected_type
-                    from (select ]'||l_column_filter||q'[ from expected_cols ucd) x,
-                         xmltable(
-                           '/ROW/*'
-                           passing x.item_data
-                           columns
-                             name     varchar2(4000)  PATH '@xml_valid_name',
-                             type     varchar2(4000) PATH '/'
-                         ) xt
-                 ) e
-        ),
-        actual_cols_info as (
-          select a.*,
-                 replace(actual_type,'VARCHAR2','CHAR') actual_type_compare
-            from (select /*+ CARDINALITY(xt 100) */
-                         rownum actual_pos,
-                         xt.name actual_name,
-                         xt.type actual_type
-                    from (select ]'||l_column_filter||q'[ from actual_cols ucd) x,
-                         xmltable('/ROW/*'
-                           passing x.item_data
-                           columns
-                             name     varchar2(4000)  path '@xml_valid_name',
-                             type      varchar2(4000) path '/'
-                         ) xt
-                 ) a
-        ),
-        joined_cols as (
-         select e.*, a.*,
-                row_number() over(partition by case when actual_pos + expected_pos is not null then 1 end order by actual_pos) a_pos_nn,
-                row_number() over(partition by case when actual_pos + expected_pos is not null then 1 end order by expected_pos) e_pos_nn
-           from expected_cols_info e
-           full outer join actual_cols_info a on e.expected_name = a.actual_name
-      )
+    with 
+      expected_cols as 
+      (select access_path exp_column_name,column_position exp_col_pos,
+      replace(column_type,'VARCHAR2','CHAR') exp_col_type_compare, column_type exp_col_type
+      from table(a_expected)),
+      actual_cols as
+      (select access_path act_column_name,column_position act_col_pos,
+      replace(column_type,'VARCHAR2','CHAR') act_col_type_compare, column_type act_col_type
+      from table(a_actual)),
+      joined_cols as
+      (select e.*,a.*,
+        row_number() over(partition by case when a.act_col_pos + e.exp_col_pos is not null then 1 end order by a.act_col_pos) a_pos_nn,
+        row_number() over(partition by case when a.act_col_pos + e.exp_col_pos is not null then 1 end order by e.exp_col_pos) e_pos_nn
+      from expected_cols e
+      full outer join actual_cols a on e.exp_column_name = a.act_column_name)
       select case
-               when expected_pos is null and actual_pos is not null then '+'
-               when expected_pos is not null and actual_pos is null then '-'
-               when expected_type_compare != actual_type_compare then 't'
+               when exp_col_pos is null and act_col_pos is not null then '+'
+               when exp_col_pos is not null and act_col_pos is null then '-'
+               when exp_col_type_compare != act_col_type_compare then 't'
                else 'p'
              end as diff_type,
-             expected_name, expected_type, expected_pos,
-             actual_name, actual_type, actual_pos
+             exp_column_name, exp_col_type, exp_col_pos,
+             act_column_name, act_col_type, act_col_pos
+        bulk collect into l_results
         from joined_cols
              --column is unexpected (extra) or missing
-       where actual_pos is null or expected_pos is null
+       where act_col_pos is null or exp_col_pos is null
           --column type is not matching (except CHAR/VARCHAR2)
-          or actual_type_compare != expected_type_compare
+          or act_col_type_compare != exp_col_type_compare
           --column position is not matching (both when excluded extra/missing columns as well as when they are included)
-          or (a_pos_nn != e_pos_nn and expected_pos != actual_pos)
-       order by expected_pos, actual_pos]';
-    execute immediate l_sql
-      bulk collect into l_results
-      using a_expected, a_actual, a_exclude_xpath, a_include_xpath, a_exclude_xpath, a_include_xpath;
-
+          or (a_pos_nn != e_pos_nn and exp_col_pos != act_col_pos)
+       order by exp_col_pos, act_col_pos;
     return l_results;
   end;
   
@@ -690,6 +654,7 @@ create or replace package body ut_compound_data_helper is
    end if;
    ut_utils.append_to_clob(l_compare_sql,l_temp_string);
     
+   dbms_output.put_line(l_compare_sql);
    return l_compare_sql;
   end;
  
@@ -735,12 +700,8 @@ create or replace package body ut_compound_data_helper is
      select lev,column_name,parent_name from hier),
      t1(column_name, parent_name) AS (
      select column_name,parent_name from table(:a_cursor_info) where parent_name is null
-    union all
-    select t2.column_name,t2.parent_name from table(:a_cursor_info) t2, t1 where t2.parent_name = t1.column_name)
-    select ut_cursor_column(i.column_name,i.column_schema,i.column_type_name, i.column_prec,i.column_scale,i.column_len, i.parent_name, 
-     i.hierarchy_level,i.column_position, i.column_type)
-    from t1 join table(:a_cursor_info) i on ( nvl(t1.parent_name,1) = nvl(i.parent_name,1) and t1.column_name = i.column_name)
-    ]';
+     union all
+     select t2.column_name,t2.parent_name from table(:a_cursor_info) t2, t1 where t2.parent_name = t1.column_name)]';
   begin
     return l_sql;
   end;
@@ -750,10 +711,13 @@ create or replace package body ut_compound_data_helper is
     l_sql varchar2(32767) := get_cursor_vs_list_sql;
     l_result ut_cursor_column_tab := ut_cursor_column_tab();
   begin
+   l_sql := l_sql || q'[select ut_cursor_column(i.column_name,i.column_schema,i.column_type_name, i.column_prec,i.column_scale,i.column_len, i.parent_name, 
+     i.hierarchy_level,i.column_position, i.column_type)
+     from t1 join table(:a_cursor_info) i on ( nvl(t1.parent_name,1) = nvl(i.parent_name,1) and t1.column_name = i.column_name)]';
    if a_include then 
     l_sql := l_sql || ' join constructed c on ( nvl(t1.parent_name,1) = nvl(c.parent_name,1) and t1.column_name = c.column_name)';
    else
-    l_sql := l_sql ||'left outer join constructed c on ( nvl(t1.parent_name,1) = nvl(c.parent_name,1) and t1.column_name = c.column_name)
+    l_sql := l_sql ||' left outer join constructed c on ( nvl(t1.parent_name,1) = nvl(c.parent_name,1) and t1.column_name = c.column_name)
     where c.column_name is null';
    end if;
     
@@ -764,10 +728,12 @@ create or replace package body ut_compound_data_helper is
   end;
   
   function compare_cursor_to_columns(a_cursor_info ut_cursor_column_tab, a_current_list ut_varchar2_list) 
-  return ut_cursor_column_tab is
+  return ut_varchar2_list is
     l_sql varchar2(32767) := get_cursor_vs_list_sql;
-    l_result ut_cursor_column_tab := ut_cursor_column_tab();
+    l_result ut_varchar2_list := ut_varchar2_list();
   begin
+    l_sql := l_sql || q'[select c.parent_name || case when c.parent_name is null then null else '/' end ||c.column_name 
+     from t1 join table(:a_cursor_info) i on ( nvl(t1.parent_name,1) = nvl(i.parent_name,1) and t1.column_name = i.column_name)]';
     l_sql := l_sql ||'right outer join constructed c on ( nvl(t1.parent_name,1) = nvl(c.parent_name,1) and t1.column_name = c.column_name)
     where t1.column_name is null';
     
@@ -775,7 +741,22 @@ create or replace package body ut_compound_data_helper is
     using a_current_list,a_cursor_info,a_cursor_info,a_cursor_info;   
     return l_result;
   end;
-  
+
+  function get_missing_pk(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab, a_current_list ut_varchar2_list) 
+  return tt_missing_pk is
+    l_actual ut_varchar2_list := coalesce(compare_cursor_to_columns(a_actual,a_current_list),ut_varchar2_list());
+    l_expected  ut_varchar2_list := coalesce(compare_cursor_to_columns(a_expected,a_current_list),ut_varchar2_list());
+    l_missing_pk tt_missing_pk;
+  begin 
+    select name,type
+    bulk collect into l_missing_pk
+    from
+    (select act.column_value name, 'e' type from table(l_expected) act    
+    union all
+    select exp.column_value name, 'a' type from table(l_actual) exp)
+    order by type desc,name;
+    return l_missing_pk;
+  end;
   
   function inc_exc_columns_from_cursor (a_cursor_info ut_cursor_column_tab, a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list)
   return ut_cursor_column_tab is
@@ -817,6 +798,14 @@ create or replace package body ut_compound_data_helper is
     end if;      
 
     return l_result;
+  end;
+  
+  function contains_collection (a_cursor_info ut_cursor_column_tab) return number is
+    l_collection_elements number;
+  begin
+    select count(1) into l_collection_elements from
+    table(a_cursor_info) c where c.is_collection = 1;
+    return l_collection_elements;
   end;
   
 end; 

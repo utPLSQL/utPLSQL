@@ -107,9 +107,6 @@ create or replace package test_expectations_cursor is
   --%test(Comma separated list of columns to include is case sensitive)
   procedure include_columns_as_csv;
 
-  --%test(Include columns fails on invalid XPath)
-  procedure include_columns_xpath_invalid;
-
   --%test(Include columns by XPath is case sensitive)
   procedure include_columns_xpath;
 

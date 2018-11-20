@@ -79,6 +79,7 @@ create or replace type body ut_compound_data_value as
     return l_result_string;
   end;
   
+  -- TODO : Rework to exclude xpath 
   member function get_data_diff(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, 
                                 a_join_by_xpath varchar2, a_unordered boolean) return clob is
     c_max_rows          integer := ut_utils.gc_diff_max_rows;
@@ -128,15 +129,16 @@ create or replace type body ut_compound_data_value as
       l_message := chr(10)
                    ||'Rows: [ ' || l_diff_row_count ||' differences'
                    ||  case when  l_diff_row_count > c_max_rows and l_row_diffs.count > 0 then ', showing first '||c_max_rows end
-                   ||' ]' || chr(10)
-                   || case when l_row_diffs.count = 0
-        then '  All rows are different as the columns are not matching.' end;
+                   ||' ]'||chr(10)|| case when l_row_diffs.count = 0 then '  All rows are different as the columns are not matching.' else null end;
       ut_utils.append_to_clob( l_result, l_message );
       for i in 1 .. l_row_diffs.count loop
         l_results.extend;
         l_results(l_results.last) := get_diff_message(l_row_diffs(i),a_unordered);
       end loop;
       ut_utils.append_to_clob(l_result,l_results);
+    else
+      l_message:= chr(10)||'Rows: [  all different ]'||chr(10)||'  All rows are different as the columns are not matching.';
+      ut_utils.append_to_clob( l_result, l_message );
     end if;
     return l_result;
   end;

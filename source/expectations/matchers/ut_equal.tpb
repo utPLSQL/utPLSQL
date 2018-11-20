@@ -282,11 +282,19 @@ create or replace type body ut_equal as
 
   overriding member function failure_message(a_actual ut_data_value) return varchar2 is
     l_result varchar2(32767);
+    l_actual ut_data_value;
   begin
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
-      l_result :=
-        'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
-        || chr(10) || 'Diff:' || expected.diff(a_actual, get_exclude_xpath(), get_include_xpath(), get_join_by_xpath(), get_unordered());
+      if self.expected is of (ut_data_value_refcursor) then
+        l_actual := treat(a_actual as ut_data_value_refcursor).filter_cursor(exclude_list, include_list);
+        l_result :=
+          'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
+          || chr(10) || 'Diff:' || treat(expected as ut_data_value_refcursor).filter_cursor(exclude_list, include_list).diff(l_actual, get_exclude_xpath(), get_include_xpath(), get_join_by_xpath(), get_unordered(),get_join_by_list());      
+      else
+        l_result :=
+          'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
+          || chr(10) || 'Diff:' || expected.diff(a_actual, get_exclude_xpath(), get_include_xpath(), get_join_by_xpath(), get_unordered());
+      end if;
     else
       l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     end if;

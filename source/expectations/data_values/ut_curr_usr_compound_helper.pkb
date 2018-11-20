@@ -20,7 +20,8 @@ create or replace package body ut_curr_usr_compound_helper is
     --clob/blob/xmltype/object/nestedcursor/nestedtable
     if a_type_name IN (g_type_name_map(dbms_sql.blob_type),
                        g_type_name_map(dbms_sql.clob_type),
-                       g_type_name_map(dbms_sql.bfile_type))
+                       g_type_name_map(dbms_sql.bfile_type),
+                       g_anytype_name_map(dbms_types.typecode_namedcollection))
     then    
       return false;
     else
