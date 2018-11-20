@@ -20,14 +20,14 @@ create or replace type ut_cursor_column force authid current_user as object
    member procedure init(self in out nocopy ut_cursor_column,
      a_col_name varchar2, a_col_schema_name varchar2,
      a_col_type_name varchar2, a_col_prec integer, a_col_scale integer,
-     a_col_max_len integer, a_parent_name varchar2 := null, a_hierarchy_level number := 1,
-     a_col_position number, a_col_type in varchar2),
+     a_col_max_len integer, a_parent_name varchar2 := null, a_hierarchy_level integer := 1,
+     a_col_position integer, a_col_type in varchar2, a_collection integer),
      
    constructor function ut_cursor_column( self in out nocopy ut_cursor_column,
      a_col_name varchar2, a_col_schema_name varchar2,
      a_col_type_name varchar2, a_col_prec integer, a_col_scale integer,
-     a_col_max_len integer, a_parent_name varchar2 := null, a_hierarchy_level number := 1,
-     a_col_position number, a_col_type in varchar2) 
+     a_col_max_len integer, a_parent_name varchar2 := null, a_hierarchy_level integer := 1,
+     a_col_position integer, a_col_type in varchar2, a_collection integer) 
    return self as result
 )
 /

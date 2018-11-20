@@ -444,6 +444,7 @@ create or replace package body ut_compound_data_helper is
     ut_utils.append_to_clob(a_equal_stmt,l_sql_stmt);
   end;
 
+  --TODO : Scenario where join by is on whole type not a column of type e.g. NESTEDTABLE
   procedure generate_partition_stmt(a_data_info ut_cursor_column, a_partition_stmt in out nocopy clob,a_pk_table in ut_varchar2_list,a_col_name in varchar2) is  
     l_alias varchar2(10) := 'ucd.';
     l_pk_tab ut_varchar2_list := coalesce(a_pk_table,ut_varchar2_list());
@@ -486,10 +487,20 @@ create or replace package body ut_compound_data_helper is
   begin    
     if a_data_info.is_sql_diffable = 0 then 
       l_col_type := 'XMLTYPE';
+    --TODO : Is it right to use timestamp ?
     elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type = 'DATE' then 
       l_col_type := 'TIMESTAMP';
+    elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('TIMESTAMP','TIMESTAMP WITH TIME ZONE') then
+      l_col_type := a_data_info.column_type;
+    --TODO : Oracle bug : https://community.oracle.com/thread/1957521
+    elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type = 'TIMESTAMP WITH LOCAL TIME ZONE' then
+      l_col_type := 'VARCHAR2(50)';
+    elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('INTERVAL DAY TO SECOND','INTERVAL YEAR TO MONTH') then
+      l_col_type := a_data_info.column_type;
     else 
-       l_col_type := a_data_info.column_type||case when a_data_info.column_len is not null then  '('||a_data_info.column_len||')' else null end;
+       l_col_type := a_data_info.column_type||case when a_data_info.column_len is not null then  
+         '('||a_data_info.column_len||')' 
+       else null end;
     end if;
     l_sql_stmt := ' '||a_col_name||' '||l_col_type||q'[ PATH ']'||a_data_info.access_path||q'[',]';   
     ut_utils.append_to_clob(a_sql_stmt, l_sql_stmt);
@@ -654,7 +665,7 @@ create or replace package body ut_compound_data_helper is
    end if;
    ut_utils.append_to_clob(l_compare_sql,l_temp_string);
     
-   dbms_output.put_line(l_compare_sql);
+   --dbms_output.put_line(l_compare_sql);
    return l_compare_sql;
   end;
  
@@ -689,15 +700,17 @@ create or replace package body ut_compound_data_helper is
    l_sql varchar2(32767) :=
     q'[with 
       sorted as
-      (select r_num,regexp_substr(t.column_value, '[^/]+', 1, commas.column_value) as colval,commas.column_value lev
+      (select r_num,regexp_substr(t.column_value, '[^/]+', 1, commas.column_value) as colval,commas.column_value lev,
+       t.column_value access_path
        from (select row_number() over(order by 1) r_num, column_value from ((table(:a_current_list)))) t,
               table(cast(multiset 
               (select level from dual connect by level <= length(regexp_replace(t.column_value,'[^/]+')) + 1) as sys.odcinumberlist)) commas
               order by r_num,lev),
       hier as
-        (select r_num,lev,colval column_name,lag(colval, 1) over(partition by r_num order by lev) parent_name from sorted),
+        (select r_num,lev,colval column_name,lag(colval, 1) over(partition by r_num order by lev) parent_name , access_path 
+         from sorted),
      constructed as (
-     select lev,column_name,parent_name from hier),
+     select lev,column_name,parent_name,access_path from hier),
      t1(column_name, parent_name) AS (
      select column_name,parent_name from table(:a_cursor_info) where parent_name is null
      union all
@@ -712,7 +725,7 @@ create or replace package body ut_compound_data_helper is
     l_result ut_cursor_column_tab := ut_cursor_column_tab();
   begin
    l_sql := l_sql || q'[select ut_cursor_column(i.column_name,i.column_schema,i.column_type_name, i.column_prec,i.column_scale,i.column_len, i.parent_name, 
-     i.hierarchy_level,i.column_position, i.column_type)
+     i.hierarchy_level,i.column_position, i.column_type, i.is_collection)
      from t1 join table(:a_cursor_info) i on ( nvl(t1.parent_name,1) = nvl(i.parent_name,1) and t1.column_name = i.column_name)]';
    if a_include then 
     l_sql := l_sql || ' join constructed c on ( nvl(t1.parent_name,1) = nvl(c.parent_name,1) and t1.column_name = c.column_name)';
@@ -732,7 +745,7 @@ create or replace package body ut_compound_data_helper is
     l_sql varchar2(32767) := get_cursor_vs_list_sql;
     l_result ut_varchar2_list := ut_varchar2_list();
   begin
-    l_sql := l_sql || q'[select c.parent_name || case when c.parent_name is null then null else '/' end ||c.column_name 
+    l_sql := l_sql || q'[select c.access_path 
      from t1 join table(:a_cursor_info) i on ( nvl(t1.parent_name,1) = nvl(i.parent_name,1) and t1.column_name = i.column_name)]';
     l_sql := l_sql ||'right outer join constructed c on ( nvl(t1.parent_name,1) = nvl(c.parent_name,1) and t1.column_name = c.column_name)
     where t1.column_name is null';

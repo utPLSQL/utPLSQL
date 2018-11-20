@@ -229,20 +229,21 @@ create or replace type body ut_compound_data_value as
     if (ut_utils.gc_diff_max_rows > l_sql_rowcount ) then
       ut_compound_data_helper.insert_diffs_result(l_diff_tab,l_diff_id);     
     end if;
-       
     l_sql_rowcount := l_sql_rowcount + l_diff_tab.count;
     if (ut_utils.gc_diff_max_rows <= l_sql_rowcount and l_max_rows != ut_utils.gc_bc_fetch_limit ) then
       l_max_rows := ut_utils.gc_bc_fetch_limit;
     end if;
-   end loop;      
+   end loop;
+   
+   ut_compound_data_helper.set_rows_diff(l_sql_rowcount); 
         --result is OK only if both are same  
-    if l_sql_rowcount = 0 and ( self.elements_count = l_other.elements_count or a_inclusion_compare )then
-      l_result := 0; 
-    else
-      ut_compound_data_helper.set_rows_diff(l_sql_rowcount); 
-      l_result := 1;
-    end if; 
-    return l_result;
+   if l_sql_rowcount = 0 and ( self.elements_count = l_other.elements_count or a_inclusion_compare )then
+     l_result := 0; 
+   else
+     l_result := 1;
+   end if; 
+   
+   return l_result;
    
   end;  
   

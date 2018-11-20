@@ -248,6 +248,7 @@ create or replace type body ut_data_value_refcursor as
       l_result := case when (l_pk_missing_tab.count > 0) then 1 else 0 end;
     end if;
         
+        
     if l_result = 0 then     
       if (self.cursor_details is not null and l_actual.cursor_details is not null) and (self.cursor_details != l_actual.cursor_details) then 
         l_result := 1; 

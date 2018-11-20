@@ -34,15 +34,22 @@ create or replace package body ut_curr_usr_compound_helper is
       return ut_utils.boolean_to_int(is_sql_compare_allowed(a_type_name));
   end;
 
-  function is_collection (a_owner varchar2,a_type_name varchar2) return boolean is
+  function is_collection (a_owner varchar2,a_type_name varchar2, a_anytype_code in integer :=null) return boolean is
       l_type_view varchar2(200) := ut_metadata.get_dba_view('dba_types');
       l_typecode varchar2(100);
     begin
-      execute immediate 'select typecode from '||l_type_view ||' 
-      where owner = :owner and type_name = :typename'
-      into l_typecode using a_owner,a_type_name;   
       
-      return l_typecode = 'COLLECTION';
+      if a_anytype_code is null then
+        
+        execute immediate 'select typecode from '||l_type_view ||' 
+        where owner = :owner and type_name = :typename'
+        into l_typecode using a_owner,a_type_name; 
+        
+        return l_typecode = 'COLLECTION';
+      else
+       return a_anytype_code in (dbms_types.typecode_varray,dbms_types.typecode_table,dbms_types.typecode_namedcollection);
+      end if;
+         
     exception
       when no_data_found then
       return false;

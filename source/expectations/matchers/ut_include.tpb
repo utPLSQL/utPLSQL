@@ -51,6 +51,7 @@ create or replace type body ut_include as
   overriding member function run_matcher(self in out nocopy ut_include, a_actual ut_data_value) return boolean is
     l_result boolean;
     l_actual ut_data_value;
+    l_result1 integer;
   begin
     --TODO : Join by exclude an include should show differences
     if self.expected.data_type = a_actual.data_type then

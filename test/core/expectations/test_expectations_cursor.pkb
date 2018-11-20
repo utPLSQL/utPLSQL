@@ -2442,7 +2442,7 @@ Diff:%
   begin
     --Arrange
     open l_actual for select username,rownum * 10 user_id from all_users where rownum < 5;
-    open l_expected for select username ,rownum user_id from all_users where rownum < 5;
+    open l_expected for select username||to_char(rownum) username ,rownum user_id from all_users where rownum < 5;
     
     --Act
     ut3.ut.expect(l_actual).not_to_contain(l_expected).join_by('USER_ID');
@@ -2456,7 +2456,7 @@ Diff:%
   begin
     --Arrange
     open l_actual for select username,rownum * 10 user_id from all_users where rownum < 5;
-    open l_expected for select username ,rownum user_id from all_users where rownum < 5;
+    open l_expected for select username||to_char(rownum) username ,rownum user_id from all_users where rownum < 5;
     
     --Act
     ut3.ut.expect(l_actual).not_to_include(l_expected).join_by('USER_ID');

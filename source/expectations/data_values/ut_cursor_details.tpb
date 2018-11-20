@@ -3,12 +3,14 @@ create or replace type body ut_cursor_details as
   order member function compare(a_other ut_cursor_details) return integer is
    l_diffs integer;
   begin
+       
     select count(1) into l_diffs
     from table(self.cursor_info) a full outer join table(a_other.cursor_info) e
     on  ( decode(a.parent_name,e.parent_name,1,0)= 1 and a.column_name = e.column_name and 
-          REPLACE(a.column_type,'VARCHAR','CHAR') =  REPLACE(e.column_type,'VARCHAR','CHAR')
+          REPLACE(a.column_type,'VARCHAR2','CHAR') =  REPLACE(e.column_type,'VARCHAR2','CHAR')
          and  a.column_position = e.column_position )
     where a.column_name is null or e.column_name is null;
+    
     return l_diffs;
   end;
 
@@ -69,7 +71,8 @@ create or replace type body ut_cursor_details as
     l_csid               pls_integer;
     l_csfrm              pls_integer;
     l_attr_elt_type      anytype;
-    l_anytype  anytype;      
+    l_anytype            anytype;     
+    l_is_collection      boolean;
    begin
       self.cursor_info := ut_cursor_column_tab();
       l_cursor_number  := dbms_sql.to_cursor_number(a_cursor);
@@ -79,6 +82,7 @@ create or replace type body ut_cursor_details as
       a_cursor := dbms_sql.to_refcursor(l_cursor_number);
    
       for cur in 1 .. l_columns_count loop
+         l_is_collection := ut_curr_usr_compound_helper.is_collection(l_columns_desc(cur).col_schema_name,l_columns_desc(cur).col_type_name);
          self.cursor_info.extend;
          self.cursor_info(cursor_info.last) := ut_cursor_column(  l_columns_desc(cur).col_name,
                                                                   l_columns_desc(cur).col_schema_name,
@@ -89,11 +93,10 @@ create or replace type body ut_cursor_details as
                                                                   null,
                                                                   1,
                                                                   cur,
-                                                                  ut_curr_usr_compound_helper.get_column_type_desc(l_columns_desc(cur).col_type,true)
+                                                                  ut_curr_usr_compound_helper.get_column_type_desc(l_columns_desc(cur).col_type,true),
+                                                                  ut_utils.boolean_to_int(l_is_collection)
                                                                   );                                                                  
-        if l_columns_desc(cur).col_type = dbms_sql.user_defined_type 
-           and 
-           not ut_curr_usr_compound_helper.is_collection(l_columns_desc(cur).col_schema_name,l_columns_desc(cur).col_type_name) then
+        if l_columns_desc(cur).col_type = dbms_sql.user_defined_type and not l_is_collection then
           l_anytype := get_user_defined_type(l_columns_desc(cur).col_schema_name , l_columns_desc(cur).col_type_name );
           for i in 1 .. get_anytype_attribute_count(l_anytype) loop
            l_attribute_typecode := l_anytype.getattreleminfo(pos           => i, --First attribute
@@ -105,9 +108,10 @@ create or replace type body ut_cursor_details as
                                                            attr_elt_type => l_attr_elt_type,
                                                            aname         => l_aname);
       
+          l_is_collection := ut_curr_usr_compound_helper.is_collection(l_columns_desc(cur).col_schema_name,l_columns_desc(cur).col_type_name,l_attribute_typecode);
           self.cursor_info.extend;
           self.cursor_info(cursor_info.last) := ut_cursor_column( l_aname,
-                                                                  null,
+                                                                  l_columns_desc(cur).col_schema_name,
                                                                   null,
                                                                   l_prec,
                                                                   l_scale,
@@ -115,7 +119,8 @@ create or replace type body ut_cursor_details as
                                                                   l_columns_desc(cur).col_name,
                                                                   2,
                                                                   i,
-                                                                  ut_curr_usr_compound_helper.get_column_type_desc(l_attribute_typecode,false)
+                                                                  ut_curr_usr_compound_helper.get_column_type_desc(l_attribute_typecode,false),
+                                                                  ut_utils.boolean_to_int(l_is_collection)
                                                                   );          
           end loop;
         end if;

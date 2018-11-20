@@ -33,12 +33,9 @@ create or replace type body ut_expectation as
     l_message       varchar2(32767);
   begin
     --Negated matcher for include option.
-    if (l_matcher is of (ut_include)) then
-      l_expectation_result := l_matcher.run_matcher( self.actual_data );
-    else
-      l_expectation_result := l_matcher.run_matcher_negated( self.actual_data );
-    end if;
+    l_expectation_result := l_matcher.run_matcher_negated( self.actual_data );
     l_expectation_result := coalesce(l_expectation_result,false);
+ 
     l_message := coalesce( l_matcher.error_message( self.actual_data ), l_matcher.failure_message_when_negated( self.actual_data ) );
     ut_expectation_processor.add_expectation_result( ut_expectation_result( ut_utils.to_test_result( l_expectation_result ), self.description, l_message ) );
   end;
