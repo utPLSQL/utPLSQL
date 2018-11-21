@@ -429,7 +429,12 @@ create or replace package body ut_compound_data_helper is
       if a_data_info.access_path = l_pk_tab(l_index) then
         l_sql_stmt := case when a_join_by_stmt is null then null else ' and ' end;  
         l_sql_stmt := l_sql_stmt ||' a.'||a_col_name||q'[ = ]'||' e.'||a_col_name;
-       end if;
+      elsif a_data_info.parent_name = l_pk_tab(l_index)then
+        --When then table is nested and join is on whole table
+        --TODO : Can this be done smarter ?
+        l_sql_stmt := case when a_join_by_stmt is null then null else ' and ' end;  
+        l_sql_stmt := l_sql_stmt ||' a.'||a_col_name||q'[ = ]'||' e.'||a_col_name;
+      end if;
     exit when (a_data_info.access_path = l_pk_tab(l_index)) or l_index = l_pk_tab.count;
     l_index := l_pk_tab.next(l_index);
     end loop;
@@ -457,7 +462,13 @@ create or replace package body ut_compound_data_helper is
         if a_data_info.access_path = l_pk_tab(l_index) then
           l_sql_stmt := case when a_partition_stmt is null then null else ',' end;  
           l_sql_stmt := l_sql_stmt ||l_alias||a_col_name;
+        elsif a_data_info.parent_name = l_pk_tab(l_index)then
+          --When then table is nested and join is on whole table
+          --TODO : Can this be done smarter ?
+          l_sql_stmt := case when a_partition_stmt is null then null else ',' end;  
+          l_sql_stmt := l_sql_stmt ||l_alias||a_col_name;
         end if;
+        
         exit when (a_data_info.access_path = l_pk_tab(l_index)) or l_index = l_pk_tab.count;
         l_index := l_pk_tab.next(l_index);
       end loop;
@@ -515,7 +526,6 @@ create or replace package body ut_compound_data_helper is
   begin
     if l_cursor_info is not null then  
       --Parition by piece
-      --TODO : Collection is intersting exmaple that we probably has to extract full xml and hash it.
       ut_utils.append_to_clob(a_partition_stmt,', row_number() over (partition by ');
       for i in 1..l_cursor_info.count loop
         if l_cursor_info(i).has_nested_col = 0 then
@@ -665,7 +675,6 @@ create or replace package body ut_compound_data_helper is
    end if;
    ut_utils.append_to_clob(l_compare_sql,l_temp_string);
     
-   dbms_output.put_line(l_compare_sql);
    return l_compare_sql;
   end;
  
@@ -819,6 +828,20 @@ create or replace package body ut_compound_data_helper is
     select count(1) into l_collection_elements from
     table(a_cursor_info) c where c.is_collection = 1;
     return l_collection_elements;
+  end;
+  
+  function remove_incomparable_cols( a_cursor_details ut_cursor_column_tab,a_incomparable_cols ut_varchar2_list) return ut_cursor_column_tab is
+    l_result ut_cursor_column_tab;
+  begin
+    select ut_cursor_column(i.column_name,i.column_schema,i.column_type_name, i.column_prec,i.column_scale,i.column_len, i.parent_name, 
+    i.hierarchy_level,i.column_position, i.column_type, i.is_collection)
+    bulk collect into l_result
+    from table(a_cursor_details) i
+    left outer join table(a_incomparable_cols) c
+    on (i.access_path = c.column_value)
+    where c.column_value is null;  
+      
+    return l_result;
   end;
   
 end; 

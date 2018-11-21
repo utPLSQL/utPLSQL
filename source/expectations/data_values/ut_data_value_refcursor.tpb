@@ -116,6 +116,69 @@ create or replace type body ut_data_value_refcursor as
     return l_result_string;
   end;
 
+  member function get_data_diff(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, 
+                                a_join_by_xpath varchar2, a_unordered boolean,a_join_by_list ut_varchar2_list:=ut_varchar2_list()) return clob is
+    c_max_rows          integer := ut_utils.gc_diff_max_rows;
+    l_result            clob;
+    l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
+    l_message           varchar2(32767);
+    l_ut_owner          varchar2(250) := ut_utils.ut_owner;
+    l_diff_row_count    integer;
+    l_actual            ut_compound_data_value;
+    l_diff_id           ut_compound_data_helper.t_hash;
+    l_row_diffs         ut_compound_data_helper.tt_row_diffs;
+    l_compare_type      varchar2(10);
+    l_self              ut_compound_data_value;
+    
+    function get_diff_message (a_row_diff ut_compound_data_helper.t_row_diffs,a_is_unordered boolean) return varchar2 is
+    begin
+
+      if a_is_unordered then     
+        if a_row_diff.pk_value is not null then
+          return  '  PK '||a_row_diff.pk_value||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
+        else
+          return rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
+        end if;
+      else
+        return '  Row No. '||a_row_diff.rn||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
+      end if; 
+    end;
+    
+  begin
+    if not a_other is of (ut_compound_data_value) then
+      raise value_error;
+    end if; 
+    
+    l_actual := treat(a_other as ut_compound_data_value);
+
+    dbms_lob.createtemporary(l_result,true);
+    
+    l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_actual.data_id);
+
+    -- First tell how many rows are different
+    l_diff_row_count := ut_compound_data_helper.get_rows_diff_count; 
+    --TODO : Change message when the types not matching
+    if l_diff_row_count > 0  then
+      l_row_diffs := ut_compound_data_helper.get_rows_diff(
+            self.data_id, l_actual.data_id, l_diff_id, c_max_rows, a_exclude_xpath, 
+            a_include_xpath, a_join_by_xpath, a_other is of (ut_data_value_refcursor), a_unordered);
+      l_message := chr(10)
+                   ||'Rows: [ ' || l_diff_row_count ||' differences'
+                   ||  case when  l_diff_row_count > c_max_rows and l_row_diffs.count > 0 then ', showing first '||c_max_rows end
+                   ||' ]'||chr(10)|| case when l_row_diffs.count = 0 then '  All rows are different as the columns are not matching.' else null end;
+      ut_utils.append_to_clob( l_result, l_message );
+      for i in 1 .. l_row_diffs.count loop
+        l_results.extend;
+        l_results(l_results.last) := get_diff_message(l_row_diffs(i),a_unordered);
+      end loop;
+      ut_utils.append_to_clob(l_result,l_results);
+    else
+      l_message:= chr(10)||'Rows: [  all different ]'||chr(10)||'  All rows are different as the columns are not matching.';
+      ut_utils.append_to_clob( l_result, l_message );
+    end if;
+    return l_result;
+  end;
+
   member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, 
     a_unordered boolean := false, a_join_by_list ut_varchar2_list:=ut_varchar2_list() ) return varchar2 is
     l_result            clob;
@@ -123,10 +186,18 @@ create or replace type body ut_data_value_refcursor as
     l_result_string     varchar2(32767);
     l_actual            ut_data_value_refcursor;
     l_column_diffs      ut_compound_data_helper.tt_column_diffs := ut_compound_data_helper.tt_column_diffs();
-    l_exclude_xpath     varchar2(32767) := a_exclude_xpath;
     
+    l_act_cols          ut_cursor_column_tab;
+    l_exp_cols          ut_cursor_column_tab;
+        
     l_missing_pk        ut_compound_data_helper.tt_missing_pk := ut_compound_data_helper.tt_missing_pk();
     l_col_diffs         ut_compound_data_helper.tt_column_diffs := ut_compound_data_helper.tt_column_diffs();
+    
+    c_max_rows          integer := ut_utils.gc_diff_max_rows;
+    l_diff_id           ut_compound_data_helper.t_hash;
+    l_diff_row_count    integer;
+    l_row_diffs         ut_compound_data_helper.tt_row_diffs;
+    l_message           varchar2(32767);
     
     function get_col_diff_text(a_col ut_compound_data_helper.t_column_diffs) return varchar2 is
     begin
@@ -155,35 +226,44 @@ create or replace type body ut_data_value_refcursor as
      return l_message;
     end;
     
-    function add_incomparable_cols_to_xpath(
-      a_column_diffs ut_compound_data_helper.tt_column_diffs, a_exclude_xpath varchar2
-    ) return varchar2 is
+    function remove_incomparable_cols( a_cursor_details ut_cursor_column_tab,a_column_diffs ut_compound_data_helper.tt_column_diffs) return ut_cursor_column_tab is
       l_incomparable_cols ut_varchar2_list := ut_varchar2_list();
-      l_result            varchar2(32767);
+      l_filter_out ut_cursor_column_tab;
     begin
       for i in 1 .. a_column_diffs.count loop
         if a_column_diffs(i).diff_type in ('-','+') then
           l_incomparable_cols.extend;
-          l_incomparable_cols(l_incomparable_cols.last) := ut_utils.xmlgen_escaped_string(coalesce(a_column_diffs(i).expected_name,a_column_diffs(i).actual_name));
-        end if;
+          l_incomparable_cols(l_incomparable_cols.last) := coalesce(a_column_diffs(i).expected_name,a_column_diffs(i).actual_name);
+        end if; 
       end loop;
-      l_result := ut_utils.to_xpath(l_incomparable_cols);
-      if a_exclude_xpath is not null and l_result is not null then
-        l_result := l_result ||'|'||a_exclude_xpath;
-      else
-        l_result := coalesce(a_exclude_xpath, l_result);
-      end if;
-      return l_result;
+      
+      return ut_compound_data_helper.remove_incomparable_cols(a_cursor_details,l_incomparable_cols);
     end;
     
+    function get_diff_message (a_row_diff ut_compound_data_helper.t_row_diffs,a_is_unordered boolean) return varchar2 is
+    begin
+
+      if a_is_unordered then     
+        if a_row_diff.pk_value is not null then
+          return  '  PK '||a_row_diff.pk_value||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
+        else
+          return rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
+        end if;
+      else
+        return '  Row No. '||a_row_diff.rn||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
+      end if; 
+    end;
+  
   begin
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
     end if;
     l_actual := treat(a_other as ut_data_value_refcursor);
 
-    dbms_lob.createtemporary(l_result,true);
+    l_act_cols  := l_actual.cursor_details.cursor_info;
+    l_exp_cols  := self.cursor_details.cursor_info;
 
+    dbms_lob.createtemporary(l_result,true);
     --diff columns
     if not self.is_null and not l_actual.is_null then
       l_column_diffs := ut_compound_data_helper.get_columns_diff(self.cursor_details.cursor_info,l_actual.cursor_details.cursor_info);
@@ -191,23 +271,45 @@ create or replace type body ut_data_value_refcursor as
       if l_column_diffs.count > 0 then
         ut_utils.append_to_clob(l_result,chr(10) || 'Columns:' || chr(10));
       end if;
-
       for i in 1 .. l_column_diffs.count loop
         l_results.extend;
         l_results(l_results.last) := get_col_diff_text(l_column_diffs(i));
       end loop;
       ut_utils.append_to_clob(l_result, l_results);
-      l_exclude_xpath := add_incomparable_cols_to_xpath(l_column_diffs, a_exclude_xpath);
+      l_act_cols  := remove_incomparable_cols(l_actual.cursor_details.cursor_info,l_column_diffs);
+      l_exp_cols  := remove_incomparable_cols(self.cursor_details.cursor_info,l_column_diffs);
     end if;
     
     --check for missing pk 
     if a_join_by_list.count > 0 then
-      l_missing_pk := ut_compound_data_helper.get_missing_pk(self.cursor_details.cursor_info,l_actual.cursor_details.cursor_info,a_join_by_list);
+      l_missing_pk := ut_compound_data_helper.get_missing_pk(l_exp_cols,l_act_cols,a_join_by_list);
     end if;
     
     --diff rows and row elements if the pk is not missing 
     if l_missing_pk.count = 0 then
-        ut_utils.append_to_clob(l_result, self.get_data_diff(a_other, a_exclude_xpath, a_include_xpath, a_join_by_xpath, a_unordered));    
+    l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_actual.data_id);
+
+    -- First tell how many rows are different
+    l_diff_row_count := ut_compound_data_helper.get_rows_diff_count; 
+    l_results := ut_utils.t_clob_tab();
+    if l_diff_row_count > 0  then
+        l_row_diffs := ut_compound_data_helper.get_rows_diff(
+              self.data_id, l_actual.data_id, l_diff_id, c_max_rows, a_exclude_xpath, 
+              a_include_xpath, a_join_by_xpath, a_other is of (ut_data_value_refcursor), a_unordered);
+        l_message := chr(10)
+                     ||'Rows: [ ' || l_diff_row_count ||' differences'
+                     ||  case when  l_diff_row_count > c_max_rows and l_row_diffs.count > 0 then ', showing first '||c_max_rows end
+                     ||' ]'||chr(10)|| case when l_row_diffs.count = 0 then '  All rows are different as the columns are not matching.' else null end;
+        ut_utils.append_to_clob( l_result, l_message );
+        for i in 1 .. l_row_diffs.count loop
+          l_results.extend;
+          l_results(l_results.last) := get_diff_message(l_row_diffs(i),a_unordered);
+        end loop;
+        ut_utils.append_to_clob(l_result,l_results);
+      else
+        l_message:= chr(10)||'Rows: [  all different ]'||chr(10)||'  All rows are different as the columns are not matching.';
+        ut_utils.append_to_clob( l_result, l_message );
+      end if;   
     else
         ut_utils.append_to_clob(l_result,chr(10) || 'Unable to join sets:' || chr(10));
         for i in 1 .. l_missing_pk.count loop
@@ -242,12 +344,10 @@ create or replace type body ut_data_value_refcursor as
  
     l_actual   := treat(a_other as ut_data_value_refcursor);
     
-    --if we join by key and key is missing fail and report error
     if a_join_by_list.count > 0 then
       l_pk_missing_tab := ut_compound_data_helper.get_missing_pk(self.cursor_details.cursor_info,l_actual.cursor_details.cursor_info,a_join_by_list);
       l_result := case when (l_pk_missing_tab.count > 0) then 1 else 0 end;
     end if;
-        
         
     if l_result = 0 then  
       if (self.cursor_details is not null and l_actual.cursor_details is not null) and (self.cursor_details != l_actual.cursor_details) then 
