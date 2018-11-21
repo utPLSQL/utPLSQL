@@ -89,14 +89,18 @@ export CONNECTION_STR=127.0.0.1:1521/xe # Adjust the connect string
 export ORACLE_PWD=oracle # Adjust your local SYS password
 ```
 
+### Download Oracle JDBC drivers
+
+Download `ojdbc8-xxx.jar` and `orai18n-xxx.jar` from [Oracle](https://www.oracle.com/technetwork/database/features/jdbc/jdbc-ucp-122-3110062.html).
+Place them in `development` directory of the project.
+  
+
 ### Download utPLSQL release sources and utplsq-cli
 
 The below script is fetching latest release version from utPLSQL repository. Latest release version is used for self-testing.
 ```bash
 development/refresh_sources.sh
 ```
-> **Important notice:**
-> You'll have to provide the ojdbc.jar in the folder utPLSQL-cli/lib manually due to Oracle licensing restrictions.
 
 ### Setup local database for utPLSQL development
 

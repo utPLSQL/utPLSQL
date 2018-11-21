@@ -40,12 +40,6 @@ create or replace package ut_metadata authid current_user as
     return boolean;
 
   /**
-   * Resolves [owner.]object using dbms_utility.name_resolve and returns resolved parts
-   *
-   */
-  procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2);
-
-  /**
    * Resolves [owner.]object[.procedure] using dbms_utility.name_resolve and returns resolved parts
    *
    */
@@ -64,10 +58,32 @@ create or replace package ut_metadata authid current_user as
   procedure reset_source_definition_cache;
 
   /**
-   * Returns dba_... view name if it is accessible, otherwise it returns all_xxx view
+   * Returns dba_... view name if it is accessible, otherwise it returns all_... view
    * @param a_dba_view_name the name of dba view requested
    */
   function get_dba_view(a_dba_view_name varchar2) return varchar2;
+
+  /**
+   * Returns dba_source if accessible otherwise returns all_source
+   */
+  function get_source_view_name return varchar2;
+
+  /**
+   * Returns dba_objects if accessible otherwise returns all_objects
+   */
+  function get_objects_view_name return varchar2;
+
+  /**
+   * Returns true if object is accessible to current user
+   * @param a_object_name fully qualified object name (with schema name)
+   */
+  function is_object_visible(a_object_name varchar2) return boolean;
+
+  /**
+   * Returns true if current user has execute any procedure privilege
+   * The check is performed by checking if user can execute ut_utils package
+   */
+  function user_has_execute_any_proc return boolean;
 
   /**
    * Returns true if given object is a package and it exists in current schema

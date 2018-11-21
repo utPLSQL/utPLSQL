@@ -55,18 +55,6 @@ create or replace package body ut_utils is
     return '"'|| utl_raw.cast_to_varchar2(utl_encode.base64_encode(sys_guid()))||'"';
   end;
 
-  /*
-   Procedure: validate_rollback_type
-
-   Validates passed value against supported rollback types
-  */
-  procedure validate_rollback_type(a_rollback_type number) is
-  begin
-    if a_rollback_type not in (gc_rollback_auto, gc_rollback_manual) then
-      raise_application_error(-20200,'Rollback type is not supported');
-    end if;
-  end validate_rollback_type;
-
   procedure debug_log(a_message varchar2) is
   begin
     $if $$ut_trace $then
@@ -326,7 +314,50 @@ create or replace package body ut_utils is
     end if;
   end append_to_list;
 
-procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2:= chr(10)) is
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_items ut_varchar2_rows) is
+  begin
+    if a_items is not null then
+      if a_list is null then
+        a_list := ut_varchar2_rows();
+      end if;
+      for i in 1 .. a_items.count loop
+        a_list.extend;
+        a_list(a_list.last) := a_items(i);
+      end loop;
+    end if;
+  end;
+
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item clob) is
+  begin
+    append_to_list(
+      a_list,
+      convert_collection(
+        clob_to_table( a_item, ut_utils.gc_max_storage_varchar2_len )
+      )
+    );
+  end;
+
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item varchar2) is
+  begin
+    if a_item is not null then
+      if a_list is null then
+        a_list := ut_varchar2_rows();
+      end if;
+      if length(a_item) > gc_max_storage_varchar2_len then
+        append_to_list(
+          a_list,
+          ut_utils.convert_collection(
+            ut_utils.clob_to_table( a_item, gc_max_storage_varchar2_len )
+          )
+        );
+      else
+        a_list.extend;
+        a_list(a_list.last) := a_item;
+      end if;
+    end if;
+  end append_to_list;
+
+  procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2:= chr(10)) is
   begin
     if a_clob_table is not null and cardinality(a_clob_table) > 0 then
       if a_src_clob is null then
@@ -522,7 +553,7 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
       ||'?>';
   end;
 
-  function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list is
+  function trim_list_elements(a_list ut_varchar2_list, a_regexp_to_trim varchar2 default '[:space:]') return ut_varchar2_list is
     l_trimmed_list ut_varchar2_list;
     l_index integer;
   begin
@@ -561,15 +592,13 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
   end;
 
   function xmlgen_escaped_string(a_string in varchar2) return varchar2 is
-    l_result varchar2(4000);
+    l_result varchar2(4000) := a_string;
     l_sql varchar2(32767) := q'!select q'[!'||a_string||q'!]' as "!'||a_string||'" from dual';
   begin
     if a_string is not null then
       select extract(dbms_xmlgen.getxmltype(l_sql),'/*/*/*').getRootElement()
       into l_result
       from dual;
-    else
-    l_result := a_string;
     end if;
     return l_result;
   end;

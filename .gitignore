@@ -15,6 +15,7 @@ node_modules/
 utPLSQL_latest_release/
 utPLSQL-cli/
 development/env.sh
+development/*.jar
 *.log
 
 # exclusions based on artifacts created via actions documented in CONTRIBUTING.md

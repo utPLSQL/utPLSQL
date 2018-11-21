@@ -42,7 +42,7 @@ create or replace package body ut_runner is
     return l_result;
   end;
 
-  procedure finish_run(a_run ut_run) is
+  procedure finish_run(a_run ut_run, a_force_manual_rollback boolean) is
   begin
     ut_utils.cleanup_temp_tables;
     ut_event_manager.trigger_event(ut_utils.gc_finalize, a_run);
@@ -50,6 +50,9 @@ create or replace package body ut_runner is
     ut_utils.read_cache_to_dbms_output();
     ut_coverage_helper.cleanup_tmp_table();
     ut_compound_data_helper.cleanup_diff();
+    if not a_force_manual_rollback then
+      rollback;
+    end if;
   end;
 
 
@@ -84,7 +87,8 @@ create or replace package body ut_runner is
     a_include_objects ut_varchar2_list := null,
     a_exclude_objects ut_varchar2_list := null,
     a_fail_on_errors boolean := false,
-    a_client_character_set varchar2 := null
+    a_client_character_set varchar2 := null,
+    a_force_manual_rollback boolean := false
   ) is
     l_run                   ut_run;
     l_coverage_schema_names ut_varchar2_rows;
@@ -129,7 +133,7 @@ create or replace package body ut_runner is
       l_include_object_names := to_ut_object_list(a_include_objects, l_coverage_schema_names);
 
       l_run := ut_run(
-        ut_suite_manager.configure_execution_by_path(l_paths),
+        null,
         l_paths,
         l_coverage_schema_names,
         l_exclude_object_names,
@@ -138,16 +142,19 @@ create or replace package body ut_runner is
         set(a_test_file_mappings),
         a_client_character_set
       );
+      ut_suite_manager.configure_execution_by_path(l_paths, l_run.items);
+      if a_force_manual_rollback then
+        l_run.set_rollback_type(ut_utils.gc_rollback_manual, a_force=>true);
+      end if;
+
       l_run.do_execute();
 
-      finish_run(l_run);
-      rollback;
+      finish_run(l_run, a_force_manual_rollback);
     exception
       when others then
-        finish_run(l_run);
+        finish_run(l_run, a_force_manual_rollback);
         dbms_output.put_line(dbms_utility.format_error_backtrace);
         dbms_output.put_line(dbms_utility.format_error_stack);
-        rollback;
         raise;
     end;
     if a_fail_on_errors and l_run.result in (ut_utils.gc_failure, ut_utils.gc_error) then
@@ -165,21 +172,12 @@ create or replace package body ut_runner is
     ut_annotation_manager.purge_cache(a_object_owner, a_object_type);
   end;
 
-  function get_unit_test_info(a_owner varchar2, a_package_name varchar2 := null) return tt_annotations pipelined is
+  function get_suites_info(a_owner varchar2 := null, a_package_name varchar2 := null) return ut_suite_items_info pipelined is
     l_cursor      sys_refcursor;
-    l_filter      varchar2(100);
-    l_ut_owner    varchar2(250) := ut_utils.ut_owner;
-    l_results     tt_annotations;
+    l_results     ut_suite_items_info;
     c_bulk_limit  constant integer := 10;
   begin
-    l_filter := case when a_package_name is null then 'is null' else '= o.object_name' end;
-    open l_cursor for
-      'select o.object_owner, o.object_name, upper(a.subobject_name),' ||
-      '       a.position, a.name, a.text' ||
-      '  from table('||l_ut_owner||'.ut_annotation_manager.get_annotated_objects(:a_owner, ''PACKAGE'')) o,' ||
-      '       table(o.annotations) a' ||
-      ' where :a_package_name ' || l_filter
-    using a_owner, a_package_name;
+    l_cursor := ut_suite_manager.get_suites_info( nvl(a_owner,sys_context('userenv', 'current_schema')), a_package_name );
     loop
       fetch l_cursor bulk collect into l_results limit c_bulk_limit;
       for i in 1 .. l_results.count loop
@@ -189,6 +187,42 @@ create or replace package body ut_runner is
     end loop;
     close l_cursor;
     return;
+  end;
+
+  function is_test(a_owner varchar2, a_package_name varchar2, a_procedure_name varchar2) return boolean is
+    l_result      boolean := false;
+  begin
+    if a_owner is not null and a_package_name is not null and a_procedure_name is not null then
+
+      l_result := ut_suite_manager.suite_item_exists( a_owner, a_package_name, a_procedure_name );
+
+    end if;
+
+    return l_result;
+  end;
+
+  function is_suite(a_owner varchar2, a_package_name varchar2) return boolean is
+    l_result      boolean := false;
+  begin
+    if a_owner is not null and a_package_name is not null then
+
+      l_result := ut_suite_manager.suite_item_exists( a_owner, a_package_name );
+
+    end if;
+
+    return l_result;
+  end;
+
+  function has_suites(a_owner varchar2) return boolean is
+    l_result      boolean := false;
+  begin
+    if a_owner is not null then
+
+      l_result := ut_suite_manager.suite_item_exists( a_owner );
+
+    end if;
+
+    return l_result;
   end;
 
   function get_reporters_list return tt_reporters_info pipelined is

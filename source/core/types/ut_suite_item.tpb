@@ -16,20 +16,16 @@ create or replace type body ut_suite_item as
   limitations under the License.
   */
 
-  member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2) is
+  member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_line_no integer) is
   begin
     self.object_owner  := a_object_owner;
     self.object_name   := lower(trim(a_object_name));
     self.name          := lower(trim(a_name));
     self.results_count := ut_results_counter();
-    self.warnings      := ut_varchar2_list();
+    self.warnings      := ut_varchar2_rows();
+    self.line_no       := a_line_no;
     self.transaction_invalidators := ut_varchar2_list();
     self.disabled_flag := ut_utils.boolean_to_int(false);
-  end;
-
-  member procedure set_disabled_flag(self in out nocopy ut_suite_item, a_disabled_flag boolean) is
-  begin
-    self.disabled_flag := ut_utils.boolean_to_int(a_disabled_flag);
   end;
 
   member function get_disabled_flag return boolean is
@@ -37,9 +33,9 @@ create or replace type body ut_suite_item as
     return ut_utils.int_to_boolean(self.disabled_flag);
   end;
 
-  member procedure set_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer) is
+  member procedure set_rollback_type(self in out nocopy ut_suite_item, a_rollback_type integer, a_force boolean := false) is
   begin
-    self.rollback_type := coalesce(self.rollback_type, a_rollback_type);
+    self.rollback_type := case when a_force then a_rollback_type else coalesce(self.rollback_type, a_rollback_type) end;
   end;
 
   member function get_rollback_type return integer is
@@ -47,7 +43,7 @@ create or replace type body ut_suite_item as
     return nvl(self.rollback_type, ut_utils.gc_rollback_default);
   end;
 
-final member procedure do_execute(self in out nocopy ut_suite_item) is
+  final member procedure do_execute(self in out nocopy ut_suite_item) is
     l_completed_without_errors boolean;
   begin
     l_completed_without_errors := self.do_execute();

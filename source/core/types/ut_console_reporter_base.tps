@@ -23,11 +23,7 @@ create or replace type ut_console_reporter_base under ut_output_reporter_base(
 
   member procedure print_yellow_text(self in out nocopy ut_console_reporter_base, a_text varchar2),
 
-  member procedure print_blue_text(self in out nocopy ut_console_reporter_base, a_text varchar2),
-
-  member procedure print_cyan_text(self in out nocopy ut_console_reporter_base, a_text varchar2),
-
-  member procedure print_magenta_text(self in out nocopy ut_console_reporter_base, a_text varchar2)
+  member procedure print_cyan_text(self in out nocopy ut_console_reporter_base, a_text varchar2)
 
 ) not final not instantiable
 /

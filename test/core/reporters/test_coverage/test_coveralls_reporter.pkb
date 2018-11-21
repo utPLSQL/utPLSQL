@@ -8,14 +8,17 @@ create or replace package body test_coveralls_reporter is
     --Arrange
     l_expected := q'[{"source_files":[
 { "name": "test/ut3.dummy_coverage.pkb",
-"coverage": [null,
+"coverage": [
+null,
 null,
 null,
 1,
 0,
 null,
 1
-]}]}
+]
+}
+]}
  ]';
     --Act
     select *
@@ -42,7 +45,7 @@ null,
     --Arrange
     l_expected := q'[{"source_files":[
 { "name": "ut3.dummy_coverage",
-"coverage": [0,
+"coverage": [
 0,
 0,
 0,
@@ -51,7 +54,11 @@ null,
 0,
 0,
 0,
-0]}]}
+0,
+0
+]
+}
+]}
  ]';
 
     test_coverage.cleanup_dummy_coverage;

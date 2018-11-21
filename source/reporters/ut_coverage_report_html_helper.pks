@@ -37,7 +37,7 @@ create or replace package ut_coverage_report_html_helper authid current_user is
     a_project_name  varchar2 := null,
     a_command_line  varchar2 := null,
     a_charset       varchar2 := null
-  ) return clob;
+  ) return ut_varchar2_rows;
 
 end;
 /

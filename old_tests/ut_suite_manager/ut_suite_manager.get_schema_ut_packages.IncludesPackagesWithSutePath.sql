@@ -6,8 +6,9 @@ end;
 set termout on
 
 declare
-  l_expected ut_object_names;
-  l_actual   ut_object_names;
+  l_expected  ut_object_names;
+  l_actual    ut_object_names;
+  l_not_found ut_object_names := ut_object_names();
 begin
   l_expected := ut_object_names(
     ut_object_name(user,'TEST_PACKAGE_1'),
@@ -17,7 +18,13 @@ begin
     ut_object_name(user,'TEST_REPORTERS')
   );
   l_actual := ut_suite_manager.get_schema_ut_packages(ut_varchar2_rows(user));
-  if l_actual = l_expected then
+  for i in 1 .. l_expected.count loop
+    if l_expected(i) not member of l_actual then
+      l_not_found.extend;
+      l_not_found(l_not_found.last) := l_expected(i);
+    end if;
+  end loop;
+  if l_not_found is empty then
     :test_result := ut_utils.gc_success;
   else
     dbms_output.put_line('actual:'||xmltype(anydata.convertcollection(l_actual)).getclobval());
