@@ -118,14 +118,13 @@ create or replace type body ut_compound_data_value as
     dbms_lob.createtemporary(l_result,true);
     
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_actual.data_id);
-
     -- First tell how many rows are different
     l_diff_row_count := ut_compound_data_helper.get_rows_diff_count; 
     --TODO : Change message when the types not matching
     if l_diff_row_count > 0  then
       l_row_diffs := ut_compound_data_helper.get_rows_diff(
             self.data_id, l_actual.data_id, l_diff_id, c_max_rows, a_exclude_xpath, 
-            a_include_xpath, a_join_by_xpath, a_other is of (ut_data_value_refcursor), a_unordered);
+            a_include_xpath);
       l_message := chr(10)
                    ||'Rows: [ ' || l_diff_row_count ||' differences'
                    ||  case when  l_diff_row_count > c_max_rows and l_row_diffs.count > 0 then ', showing first '||c_max_rows end

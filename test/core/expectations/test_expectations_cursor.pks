@@ -92,7 +92,7 @@ create or replace package test_expectations_cursor is
   --%test(Excludes comma separated list of mixed columns and XPath)
   procedure exclude_columns_as_mix_csv_lst;
 
-  --%test(Exclude columns fails on invalid XPath)
+  --%test(Exclude column with invalid filter will result in column being included )
   procedure exclude_columns_xpath_invalid;
 
   --%test(Exclude columns by XPath is case sensitive)
@@ -192,12 +192,6 @@ create or replace package test_expectations_cursor is
 
   --%test(Reports column match on cursor with column name implicit )
   procedure col_mtch_on_col_name_implicit;
-  
-  --%test( Fail on passing implicit column name as include filter )
-  procedure include_col_name_implicit;
-
-  --%test( Fail on passing implicit column name as exclude filter )
-  procedure exclude_col_name_implicit;
   
   --%test( Compare cursors using unordered method success)
   procedure cursor_unorderd_compr_success;

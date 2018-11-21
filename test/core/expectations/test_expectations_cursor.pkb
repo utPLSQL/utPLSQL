@@ -409,20 +409,27 @@ create or replace package body test_expectations_cursor is
   as
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
-    l_error_code integer := -31011; --xpath_error
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
   begin
     --Arrange
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
-    begin
       --Act
-      ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'/ROW/A_COLUMN,\\//Some_Col');
+    ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'/ROW/A_COLUMN,\\//Some_Col');
       --Assert
-      ut.fail('Expected '||l_error_code||' but nothing was raised');
-      exception
-      when others then
-      ut.expect(sqlcode).to_equal(l_error_code);
-    end;
+    l_expected_message := q'[Actual: refcursor [ count = 3 ] was expected to equal: refcursor [ count = 3 ]
+%Diff:
+%Rows: [ 3 differences ]
+%Row No. 1 - Actual:   <Some_Col>d</Some_Col>
+%Row No. 1 - Expected: <Some_Col>c</Some_Col>
+%Row No. 2 - Actual:   <Some_Col>d</Some_Col>
+%Row No. 2 - Expected: <Some_Col>c</Some_Col>
+%Row No. 3 - Actual:   <Some_Col>d</Some_Col>
+%Row No. 3 - Expected: <Some_Col>c</Some_Col>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
   procedure exclude_columns_xpath
@@ -1003,44 +1010,7 @@ Rows: [ 4 differences ]
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
-    
-    
-  procedure include_col_name_implicit is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
-  begin
-    --Arrange
-    open l_actual   for select rownum as rn, 'a', 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
-    open l_expected for select rownum as rn, 'a', 'd' as A_COLUMN, 'c' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
-    begin
-      --Act
-      ut3.ut.expect(l_actual).to_equal(l_expected).include(q'!/ROW/RN,'a',//SOME_COL!');
-      --Assert
-      ut.fail('Expected exception but nothing was raised');
-    exception
-      when others then
-        ut.expect(sqlcode).to_be_between(-31013,-31011);
-    end;
-  end;
-
-  procedure exclude_col_name_implicit is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
-  begin
-    --Arrange
-    open l_actual   for select rownum as rn, 'a', 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
-    open l_expected for select rownum as rn, 'a', 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
-    begin
-      --Act
-      ut3.ut.expect(l_actual).to_equal(l_expected).exclude(q'!/ROW/RN,'a',//SOME_COL!');
-      --Assert
-      ut.fail('Expected exception but nothing was raised');
-    exception
-      when others then
-        ut.expect(sqlcode).to_be_between(-31013,-31011);
-    end;
-  end;
-  
+      
   procedure cursor_unorderd_compr_success is 
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;

@@ -78,7 +78,7 @@ create or replace type body ut_include as
         l_actual := treat(a_actual as ut_data_value_refcursor).filter_cursor(exclude_list, include_list);
         l_result :=
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
-          || chr(10) || 'Diff:' || treat(expected as ut_data_value_refcursor).filter_cursor(self.exclude_list, self.include_list).diff(a_actual, self.get_exclude_xpath(), self.get_include_xpath(), self.get_join_by_xpath(), true);      
+          || chr(10) || 'Diff:' || treat(expected as ut_data_value_refcursor).filter_cursor(self.exclude_list, self.include_list).diff(l_actual, true, self.get_join_by_list());     
       else
         l_result :=
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
