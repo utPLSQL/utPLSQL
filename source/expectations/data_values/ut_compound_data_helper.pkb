@@ -150,7 +150,7 @@ create or replace package body ut_compound_data_helper is
     
     l_sql := q'[with exp as (
     select exp_item_data, exp_data_id, item_no rn,rownum col_no,
-      nvl2(exp_item_data,ut3.ut_compound_data_helper.get_pk_value(i.join_by,exp_item_data),null) pk_value,
+      nvl2(exp_item_data,ut_compound_data_helper.get_pk_value(i.join_by,exp_item_data),null) pk_value,
       s.column_value col, s.column_value.getRootElement() col_name, s.column_value.getclobval() col_val
     from ( 
       select exp_data_id, ]'||l_exp_col_filter||q'[, :join_by join_by, item_no
@@ -161,7 +161,7 @@ create or replace package body ut_compound_data_helper is
     ),
     act as (
     select act_item_data, act_data_id, item_no rn, rownum col_no,
-      nvl2(act_item_data,ut3.ut_compound_data_helper.get_pk_value(i.join_by,act_item_data),null) pk_value,
+      nvl2(act_item_data,ut_compound_data_helper.get_pk_value(i.join_by,act_item_data),null) pk_value,
       s.column_value col, s.column_value.getRootElement() col_name, s.column_value.getclobval() col_val
     from ( 
       select act_data_id, ]'||l_act_col_filter||q'[, :join_by join_by, item_no
@@ -203,7 +203,7 @@ create or replace package body ut_compound_data_helper is
     select 
       item_no as rn, case when exp_data_id is null then 'Extra:' else 'Missing:' end as diff_type,
       xmlserialize(content (extract((case when exp_data_id is null then act_item_data else exp_item_data end),'/*/*')) no indent) diffed_row,
-      nvl2(:join_by,ut3.ut_compound_data_helper.get_pk_value(:join_by,case when exp_data_id is null then act_item_data else exp_item_data end),null) pk_value
+      nvl2(:join_by,ut_compound_data_helper.get_pk_value(:join_by,case when exp_data_id is null then act_item_data else exp_item_data end),null) pk_value
       ,case when exp_data_id is null then 1 else 2 end rnk
       ,2 final_order
     from   ut_compound_data_diff_tmp i
@@ -681,7 +681,7 @@ create or replace package body ut_compound_data_helper is
   procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw) is
   begin  
     forall idx in 1..a_diff_tab.count
-    insert into ut3.ut_compound_data_diff_tmp
+    insert into ut_compound_data_diff_tmp
     ( diff_id, act_item_data, act_data_id, exp_item_data, exp_data_id, item_no, duplicate_no )
     values 
     (a_diff_id, 
