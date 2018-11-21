@@ -2393,7 +2393,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).not_to_contain(l_expected);
     --Assert
-     l_expected_message := q'[%Actual: (refcursor [ count = 18 ])%
+     l_expected_message := q'[%Actual: (refcursor [ count = % ])%
 %Data-types:%
 %<ROW><USERNAME xml_valid_name="USERNAME">VARCHAR2</USERNAME><USER_ID xml_valid_name="USER_ID">NUMBER</USER_ID></ROW>%
 %Data:%
@@ -2423,7 +2423,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).not_to_include(l_expected);
     --Assert
-     l_expected_message := q'[%Actual: (refcursor [ count = 18 ])%
+     l_expected_message := q'[%Actual: (refcursor [ count = % ])%
 %Data-types:%
 %<ROW><USERNAME xml_valid_name="USERNAME">VARCHAR2</USERNAME><USER_ID xml_valid_name="USER_ID">NUMBER</USER_ID></ROW>%
 %Data:%
