@@ -391,7 +391,7 @@ create or replace package test_expectations_cursor is
   --%test( Cursor not include data from another cursor with joinby clause)   
   procedure cursor_not_to_include_joinby;  
 
-  --%test(Cursor not include data with of columns to include and join by value)
+  --%test(Cursor not include data with of columns to include and join by value - Fail)
   procedure not_inc_join_incl_cols_as_lst;
  
   --%test(Cursor not contains data with of columns to include and join by value)

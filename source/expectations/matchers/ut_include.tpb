@@ -64,6 +64,11 @@ create or replace type body ut_include as
     return l_result;
   end;
 
+  overriding member function run_matcher_negated(self in out nocopy ut_include, a_actual ut_data_value) return boolean is
+  begin
+    return run_matcher(a_actual);
+  end;
+
   overriding member function failure_message(a_actual ut_data_value) return varchar2 is
     l_result varchar2(32767);
     l_actual ut_data_value;

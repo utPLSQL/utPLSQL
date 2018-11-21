@@ -249,7 +249,7 @@ create or replace type body ut_data_value_refcursor as
     end if;
         
         
-    if l_result = 0 then     
+    if l_result = 0 then  
       if (self.cursor_details is not null and l_actual.cursor_details is not null) and (self.cursor_details != l_actual.cursor_details) then 
         l_result := 1; 
       end if;

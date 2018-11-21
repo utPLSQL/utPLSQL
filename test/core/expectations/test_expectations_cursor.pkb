@@ -2467,6 +2467,8 @@ Diff:%
   procedure not_inc_join_incl_cols_as_lst is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
   begin
     --Arrange
     open l_actual   for select rownum as rn, 'b' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
@@ -2474,7 +2476,19 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).not_to_include(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
     --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+    l_expected_message := q'[%Actual: (refcursor [ count = 9 ])
+%Data-types:
+%<ROW><RN xml_valid_name="RN">NUMBER</RN><A_Column xml_valid_name="A_Column">CHAR</A_Column><A_COLUMN xml_valid_name="A_COLUMN">CHAR</A_COLUMN><SOME_COL xml_valid_name="SOME_COL">CHAR</SOME_COL><Some_Col xml_valid_name="Some_Col">CHAR</Some_Col></ROW>
+%Data:
+%<ROW>%</ROW>
+%was expected not to include:(refcursor [ count = 3 ])
+%Data-types:
+%<ROW><RN xml_valid_name="RN">NUMBER</RN><A_Column xml_valid_name="A_Column">CHAR</A_Column><A_COLUMN xml_valid_name="A_COLUMN">CHAR</A_COLUMN><SOME_COL xml_valid_name="SOME_COL">CHAR</SOME_COL><Some_Col xml_valid_name="Some_Col">CHAR</Some_Col></ROW>
+%Data:
+%<ROW><RN>1</RN><A_Column>a</A_Column><A_COLUMN>d</A_COLUMN><SOME_COL>x</SOME_COL><Some_Col>c</Some_Col></ROW><ROW><RN>2</RN><A_Column>a</A_Column><A_COLUMN>d</A_COLUMN><SOME_COL>x</SOME_COL><Some_Col>c</Some_Col></ROW><ROW><RN>3</RN><A_Column>a</A_Column><A_COLUMN>d</A_COLUMN><SOME_COL>x</SOME_COL><Some_Col>c</Some_Col></ROW>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
  
   procedure not_cont_join_incl_cols_as_lst is
@@ -2483,7 +2497,7 @@ Diff:%
   begin
     --Arrange
     open l_actual   for select rownum as rn, 'b' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
-    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    open l_expected for select rownum  * 20 rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
     ut3.ut.expect(l_actual).not_to_contain(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
     --Assert
@@ -2496,7 +2510,7 @@ Diff:%
   begin
     --Arrange
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'y' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
-    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    open l_expected for select rownum * 20 as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
     ut3.ut.expect(l_actual).not_to_include(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
     --Assert
@@ -2509,7 +2523,7 @@ Diff:%
   begin
     --Arrange
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'y' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
-    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
+    open l_expected for select rownum * 20 as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
     ut3.ut.expect(l_actual).not_to_contain(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
     --Assert

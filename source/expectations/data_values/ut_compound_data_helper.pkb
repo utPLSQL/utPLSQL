@@ -665,7 +665,7 @@ create or replace package body ut_compound_data_helper is
    end if;
    ut_utils.append_to_clob(l_compare_sql,l_temp_string);
     
-   --dbms_output.put_line(l_compare_sql);
+   dbms_output.put_line(l_compare_sql);
    return l_compare_sql;
   end;
  
