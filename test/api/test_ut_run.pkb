@@ -19,26 +19,6 @@ create or replace package body test_ut_run is
     ut3.ut_expectation_processor.clear_expectations();
   end;
 
-
-  function get_dbms_output_as_clob return clob is
-    l_status number;
-    l_line   varchar2(32767);
-    l_result clob;
-  begin
-
-    dbms_output.get_line(line => l_line, status => l_status);
-    if l_status != 1 then
-      dbms_lob.createtemporary(l_result, true, dur => dbms_lob.session);
-    end if;
-    while l_status != 1 loop
-      if l_line is not null then
-        ut3.ut_utils.append_to_clob(l_result, l_line||chr(10));
-      end if;
-      dbms_output.get_line(line => l_line, status => l_status);
-    end loop;
-    return l_result;
-  end;
-
   procedure create_ut3$user#_tests is
     pragma autonomous_transaction;
   begin
@@ -227,7 +207,7 @@ create or replace package body test_ut_run is
     l_results clob;
   begin
     execute immediate 'begin ut3$user#.test_package_1.run(); end;';
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
   end;
@@ -238,7 +218,7 @@ create or replace package body test_ut_run is
     --Act
     execute immediate 'begin ut3$user#.test_package_1.run(:a_reporter); end;'
     using in ut3.ut_documentation_reporter();
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
   end;
@@ -251,7 +231,7 @@ create or replace package body test_ut_run is
     using
       in ut3.ut_varchar2_list('tests/ut3$user#.test_package_1.pkb','tests/ut3$user#.test_package_2.pkb','tests/ut3$user#.test_package_3.pkb'),
       in ut3.ut_sonar_test_reporter();
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%tests/ut3$user#.test_package_2.pkb%tests/ut3$user#.test_package_1.pkb%tests/ut3$user#.test_package_3.pkb%' );
   end;
@@ -261,7 +241,7 @@ create or replace package body test_ut_run is
   begin
     execute immediate 'begin ut3$user#.test_package_1.run(:a_path); end;'
     using in 'test_package_1';
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%' );
     ut.expect( l_results ).not_to_be_like( '%test_package_2%' );
@@ -276,7 +256,7 @@ create or replace package body test_ut_run is
       in 'test_package_3',
       in ut3.ut_varchar2_list('tests/ut3$user#.test_package_1.pkb','tests/ut3$user#.test_package_2.pkb','tests/ut3$user#.test_package_3.pkb'),
       in ut3.ut_sonar_test_reporter();
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%tests/ut3$user#.test_package_3.pkb%' );
     ut.expect( l_results ).not_to_be_like( '%tests/ut3$user#.test_package_1.pkb%' );
@@ -288,7 +268,7 @@ create or replace package body test_ut_run is
   begin
     execute immediate 'begin ut3$user#.test_package_1.run(:a_paths); end;'
     using in ut3.ut_varchar2_list(':tests.test_package_1',':tests');
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%' );
     ut.expect( l_results ).to_be_like( '%test_package_2%' );
@@ -303,7 +283,7 @@ create or replace package body test_ut_run is
       in ut3.ut_varchar2_list(':tests.test_package_1',':tests'),
       in ut3.ut_varchar2_list('tests/ut3$user#.test_package_1.pkb','tests/ut3$user#.test_package_2.pkb','tests/ut3$user#.test_package_3.pkb'),
       in ut3.ut_sonar_test_reporter();
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%tests/ut3$user#.test_package_1.pkb%' );
     ut.expect( l_results ).to_be_like( '%tests/ut3$user#.test_package_2.pkb%' );
@@ -316,7 +296,7 @@ create or replace package body test_ut_run is
     --Act
     execute immediate 'begin ut3$user#.test_package_1.run(:a_reporter); end;'
     using in cast(null as ut3.ut_reporter_base);
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%tests%test_package_1%test_package_2%tests2%test_package_3%' );
   end;
@@ -327,7 +307,7 @@ create or replace package body test_ut_run is
     --Act
     execute immediate 'begin ut3$user#.test_package_1.run(:a_path); end;'
     using in cast(null as varchar2);
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
   end;
@@ -339,7 +319,7 @@ create or replace package body test_ut_run is
     --Act
     execute immediate 'begin ut3$user#.test_package_1.run(:a_paths); end;'
     using in l_paths;
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
   end;
@@ -350,7 +330,7 @@ create or replace package body test_ut_run is
     --Act
     execute immediate 'begin ut3$user#.test_package_1.run(:a_paths); end;'
     using in ut3.ut_varchar2_list();
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
   end;
@@ -384,7 +364,7 @@ create or replace package body test_ut_run is
     l_results clob;
   begin
     ut3.ut.run('test_commit_warning');
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     ut.expect(l_results).to_be_like(
       '%Unable to perform automatic rollback after test%'||
       'An implicit or explicit commit/rollback occurred in procedures:%' ||
@@ -435,7 +415,7 @@ create or replace package body test_ut_run is
     l_results clob;
   begin
     ut3.ut.run('child_suite');
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
     ut.expect(l_results).to_be_like(
       '%1) does_stuff%' ||
         'ORA-01403: no data found%' ||
@@ -481,7 +461,7 @@ create or replace package body test_ut_run is
       when others then null;
     end;
     begin
-      execute immediate 'drop pacakge test_transaction';
+      execute immediate 'drop package test_transaction';
     exception
       when others then null;
     end;
@@ -498,7 +478,7 @@ create or replace package body test_ut_run is
 
     --Act
     ut3.ut.run('test_transaction.insert_row', a_force_manual_rollback => true);
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
 
     --Assert
     open l_expected for
@@ -523,7 +503,7 @@ create or replace package body test_ut_run is
 
     --Act
     ut3.ut.run('test_transaction.insert_and_raise', a_force_manual_rollback => true);
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
 
     --Assert
     open l_expected for
@@ -548,7 +528,7 @@ create or replace package body test_ut_run is
 
     --Act
     ut3.ut.run('test_transaction.insert_row');
-    l_results := get_dbms_output_as_clob();
+    l_results := core.get_dbms_output_as_clob();
 
     --Assert
     open l_expected for

@@ -16,6 +16,7 @@ alter session set plsql_optimize_level=0;
 
 --Install tests
 @@core.pks
+@@core/min_grant_user/test_min_grant_user.pks
 @@api/test_ut_runner.pks
 @@api/test_ut_run.pks
 @@core/test_ut_utils.pks
@@ -65,6 +66,7 @@ set define off
 @@core/annotations/test_annot_throws_exception.pks
 
 @@core.pkb
+@@core/min_grant_user/test_min_grant_user.pkb
 @@api/test_ut_runner.pkb
 @@api/test_ut_run.pkb
 @@core/test_ut_utils.pkb

@@ -6,18 +6,6 @@ git rev-parse && cd "$(git rev-parse --show-cdup)"
 
 cd test
 
-time "$SQLCLI" ${UT3_USER}/${UT3_USER_PASSWORD}@//${CONNECTION_STR} @install__min_usr_tests.sql
-
-cd ..
-
-time utPLSQL-cli/bin/utplsql run ${UT3_USER}/${UT3_USER_PASSWORD}@${CONNECTION_STR} \
--source_path=source -owner=ut3 \
--test_path=test -c \
--f=ut_documentation_reporter  -o=min_test_results.log -s \
--scc
-
-cd test
-
 time "$SQLCLI" ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@//${CONNECTION_STR} @install_tests.sql
 
 cd ..
@@ -33,9 +21,3 @@ time utPLSQL-cli/bin/utplsql run ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@${CONNECTI
 -f=ut_junit_reporter          -o=junit_test_results.xml \
 -f=ut_tfs_junit_reporter      -o=tfs_test_results.xml \
 -scc
-
-status_line_regex="^[0-9]+ tests, ([0-9]+) failed, ([0-9]+) errored.*"
-
-
-exit $RC
-
