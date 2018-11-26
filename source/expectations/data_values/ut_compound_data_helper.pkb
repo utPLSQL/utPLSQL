@@ -755,7 +755,7 @@ create or replace package body ut_compound_data_helper is
     return l_warn_msg;
   end;
  
-  function getxmlchildren(p_parent_name varchar2,a_cursor_table ut_cursor_column_tab)
+  function getxmlchildren(a_parent_name varchar2,a_cursor_table ut_cursor_column_tab)
       return xmltype is
       l_result xmltype;
     begin
@@ -764,8 +764,8 @@ create or replace package body ut_compound_data_helper is
                                            getxmlchildren(t.column_name,a_cursor_table)))
          into l_result
         from table(a_cursor_table) t
-       where (p_parent_name is not null and parent_name = p_parent_name)
-          or (p_parent_name is null and parent_name is null)
+       where (a_parent_name is not null and parent_name = a_parent_name)
+          or (a_parent_name is null and parent_name is null)
        having count(*) > 0;
 
 

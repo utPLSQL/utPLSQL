@@ -116,7 +116,7 @@ create or replace package ut_compound_data_helper authid definer is
   
   function generate_missing_cols_warn_msg(a_missing_columns ut_varchar2_list,a_attribute in varchar2) return varchar2;
   
-  function getxmlchildren(p_parent_name varchar2,a_cursor_table ut_cursor_column_tab) return xmltype;
+  function getxmlchildren(a_parent_name varchar2,a_cursor_table ut_cursor_column_tab) return xmltype;
 
   function is_sql_compare_allowed(a_type_name varchar2) return boolean;
   
