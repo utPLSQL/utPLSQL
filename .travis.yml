@@ -90,7 +90,6 @@ before_script:
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/install.sh; fi
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/install_utplsql_release.sh; fi
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/run_examples.sh; fi
-  - if [[ ! $TRAVIS_TAG ]]; then bash .travis/run_old_tests.sh; fi
 
 script:
   - if [[ ! $TRAVIS_TAG ]]; then bash test/install_and_run_tests.sh; fi

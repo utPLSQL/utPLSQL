@@ -138,9 +138,7 @@ Whenever a new version of utPLSQL or a new version of utPLSQL-cli is available, 
 
 ## Running unit tests
 
-Currently we use two forms of unit tests in our CI build:
-- sql scripts as unit tests in the `old_tests` directory
-- utPLSQL v3 unit tests in the `test` directory
+utPLSQL v3 unit tests are located in the `test` directory
 
 Before you push any changes and create a pull request to the utPLSQL project repository, make sure that all of the tests are executing successfully in your local environment.
 
@@ -150,18 +148,13 @@ Every new functionality needs to be documented by unit tests that cover both hap
 > We do our best to keep utPLSQL covered with unit tests.
 > Lack of sufficient unit testing is a perfect reason for PR to be rejected.
 
-To suite of legacy unit tests execute:
-```bash
-development/env.sh
-old_tests/runAll.sh
-```
 To run a full suite of unit tests execute:
 ```bash
 development/env.sh
 test/install_and_run_tests.sh
 ```
 
-You can review the results of tests as well as see information about code coverage in `./old_tests/coverage.html, ./coverage.html` files.
+You can review the results of tests as well as see information about code coverage in `./coverage.html` file.
 
 
 ## Modules
