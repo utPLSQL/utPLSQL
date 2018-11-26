@@ -26,7 +26,7 @@ create or replace type body ut_cursor_column as
       self.is_sql_diffable  := case when lower(self.column_type) = 'user_defined_type' then 
                                 0 
                               else 
-                                ut_utils.boolean_to_int(ut_curr_usr_compound_helper.is_sql_compare_allowed(self.column_type))
+                                ut_utils.boolean_to_int(ut_compound_data_helper.is_sql_compare_allowed(self.column_type))
                               end;
       --TODO : Part of the constructor same as has nested ??
       self.is_collection   := a_collection;

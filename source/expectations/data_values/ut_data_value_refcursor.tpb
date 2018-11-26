@@ -42,11 +42,8 @@ create or replace type body ut_data_value_refcursor as
     if l_cursor is not null then
         if l_cursor%isopen then
           --Get some more info regarding cursor, including if it containts collection columns and what is their name
-
-          ut_curr_usr_compound_helper.get_columns_info(l_cursor,self.col_info_desc,self.key_info,
-            self.contain_collection);          
+        
           self.elements_count     := 0;
-          self.columns_info := ut_curr_usr_compound_helper.extract_min_col_info(self.col_info_desc);
           self.cursor_details  := ut_cursor_details(l_cursor);
           -- We use DBMS_XMLGEN in order to:
           -- 1) be able to process data in bulks (set of rows)
@@ -103,12 +100,19 @@ create or replace type body ut_data_value_refcursor as
   overriding member function to_string return varchar2 is
     l_result        clob;
     l_result_string varchar2(32767);
+    l_cursor_details ut_cursor_column_tab := self.cursor_details.cursor_info;
+    
+    l_query   varchar2(32767);
+    l_column_info   xmltype;
+   
   begin
     if not self.is_null() then
       dbms_lob.createtemporary(l_result, true);
       ut_utils.append_to_clob(l_result, 'Data-types:'||chr(10));
-      ut_utils.append_to_clob(l_result, self.columns_info.getclobval());
+      
+      l_column_info := ut_compound_data_helper.getxmlchildren(null,l_cursor_details);
 
+      ut_utils.append_to_clob(l_result, l_column_info.getclobval());
       ut_utils.append_to_clob(l_result,chr(10)||(self as ut_compound_data_value).to_string());
       l_result_string := ut_utils.to_string(l_result,null);
       dbms_lob.freetemporary(l_result);

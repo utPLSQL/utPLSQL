@@ -2365,11 +2365,11 @@ Diff:%
     --Assert
      l_expected_message := q'[%Actual: (refcursor [ count = % ])%
 %Data-types:%
-%<ROW><USERNAME xml_valid_name="USERNAME">VARCHAR2</USERNAME><USER_ID xml_valid_name="USER_ID">NUMBER</USER_ID></ROW>%
+%<USERNAME>VARCHAR2</USERNAME><USER_ID>NUMBER</USER_ID>%
 %Data:%
 %was expected not to include:(refcursor [ count = 1 ])%
 %Data-types:%
-%<ROW><USERNAME xml_valid_name="USERNAME">CHAR</USERNAME><USER_ID xml_valid_name="USER_ID">NUMBER</USER_ID></ROW>%
+%<USERNAME>CHAR</USERNAME><USER_ID>NUMBER</USER_ID>%
 %Data:%
 %<ROW><USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID></ROW>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
@@ -2395,11 +2395,11 @@ Diff:%
     --Assert
      l_expected_message := q'[%Actual: (refcursor [ count = % ])%
 %Data-types:%
-%<ROW><USERNAME xml_valid_name="USERNAME">VARCHAR2</USERNAME><USER_ID xml_valid_name="USER_ID">NUMBER</USER_ID></ROW>%
+%<USERNAME>VARCHAR2</USERNAME><USER_ID>NUMBER</USER_ID>%
 %Data:%
 %was expected not to include:(refcursor [ count = 1 ])%
 %Data-types:%
-%<ROW><USERNAME xml_valid_name="USERNAME">CHAR</USERNAME><USER_ID xml_valid_name="USER_ID">NUMBER</USER_ID></ROW>%
+%<USERNAME>CHAR</USERNAME><USER_ID>NUMBER</USER_ID>%
 %Data:%
 %<ROW><USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID></ROW>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
@@ -2449,12 +2449,12 @@ Diff:%
     --Assert
     l_expected_message := q'[%Actual: (refcursor [ count = 9 ])
 %Data-types:
-%<ROW><RN xml_valid_name="RN">NUMBER</RN><A_Column xml_valid_name="A_Column">CHAR</A_Column><A_COLUMN xml_valid_name="A_COLUMN">CHAR</A_COLUMN><SOME_COL xml_valid_name="SOME_COL">CHAR</SOME_COL><Some_Col xml_valid_name="Some_Col">CHAR</Some_Col></ROW>
+%<RN>NUMBER</RN><A_Column>CHAR</A_Column><A_COLUMN>CHAR</A_COLUMN><SOME_COL>CHAR</SOME_COL><Some_Col>CHAR</Some_Col>
 %Data:
 %<ROW>%</ROW>
 %was expected not to include:(refcursor [ count = 3 ])
 %Data-types:
-%<ROW><RN xml_valid_name="RN">NUMBER</RN><A_Column xml_valid_name="A_Column">CHAR</A_Column><A_COLUMN xml_valid_name="A_COLUMN">CHAR</A_COLUMN><SOME_COL xml_valid_name="SOME_COL">CHAR</SOME_COL><Some_Col xml_valid_name="Some_Col">CHAR</Some_Col></ROW>
+%<RN>NUMBER</RN><A_Column>CHAR</A_Column><A_COLUMN>CHAR</A_COLUMN><SOME_COL>CHAR</SOME_COL><Some_Col>CHAR</Some_Col>
 %Data:
 %<ROW><RN>1</RN><A_Column>a</A_Column><A_COLUMN>d</A_COLUMN><SOME_COL>x</SOME_COL><Some_Col>c</Some_Col></ROW><ROW><RN>2</RN><A_Column>a</A_Column><A_COLUMN>d</A_COLUMN><SOME_COL>x</SOME_COL><Some_Col>c</Some_Col></ROW><ROW><RN>3</RN><A_Column>a</A_Column><A_COLUMN>d</A_COLUMN><SOME_COL>x</SOME_COL><Some_Col>c</Some_Col></ROW>]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;

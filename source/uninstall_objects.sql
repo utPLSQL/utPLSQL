@@ -279,8 +279,6 @@ drop package ut_coverage_profiler;
 
 drop package ut_compound_data_helper;
 
-drop package ut_curr_usr_compound_helper;
-
 drop package ut_coverage_helper_profiler;
 
 drop type ut_have_count;

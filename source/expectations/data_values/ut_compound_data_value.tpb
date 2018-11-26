@@ -219,9 +219,8 @@ create or replace type body ut_compound_data_value as
    l_other         := treat(a_other as ut_compound_data_value);  
    l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
 
-   open l_loop_curs for ut_compound_data_helper.gen_compare_sql(treat(a_other as ut_data_value_refcursor).col_info_desc, 
-                                   a_inclusion_compare, a_is_negated, a_unordered, treat(a_other as ut_data_value_refcursor), 
-                                   a_join_by_list ) using  self.data_id,l_other.data_id;  
+   open l_loop_curs for ut_compound_data_helper.gen_compare_sql(a_inclusion_compare, a_is_negated, a_unordered, 
+     treat(a_other as ut_data_value_refcursor), a_join_by_list ) using  self.data_id,l_other.data_id;  
    loop
     fetch l_loop_curs bulk collect into l_diff_tab limit l_max_rows;
     exit when l_diff_tab.count = 0;

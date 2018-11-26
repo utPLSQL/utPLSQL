@@ -20,23 +20,10 @@ create or replace package body ut_compound_data_helper is
   g_diff_count        integer;
   g_filter_tab        ut_varchar2_list;
   
-  function get_column_info_xml(a_column_details ut_key_anyval_pair) return xmltype is
-    l_result varchar2(4000);
-    l_res xmltype;
-    l_data ut_data_value := a_column_details.value;
-    l_key varchar2(4000) := ut_utils.xmlgen_escaped_string(a_column_details.KEY);
-    l_is_diff number;
-  begin   
-    l_result := '<'||l_key||' xml_valid_name="'||l_key;
-    if l_data is of(ut_data_value_xmltype) then
-      l_result := l_result||'" sql_diffable="0">' ||trim( both '''' from (treat(l_data as ut_data_value_xmltype).to_string));
-    else
-      l_is_diff := ut_curr_usr_compound_helper.is_sql_compare_int((treat(l_data as ut_data_value_varchar2).data_value));
-      l_result := l_result||'" sql_diffable="'||l_is_diff||'">' || ut_utils.xmlgen_escaped_string((treat(l_data as ut_data_value_varchar2).data_value));
-    end if;
-    l_result := l_result ||'</'||l_key||'>'; 
-    return xmltype(l_result);
-  end;
+  type t_type_name_map is table of varchar2(100) index by binary_integer;
+  g_type_name_map           t_type_name_map;
+  g_anytype_name_map        t_type_name_map;
+  g_anytype_collection_name t_type_name_map;
   
   function get_columns_filter(
     a_exclude_xpath varchar2, a_include_xpath varchar2,
@@ -56,32 +43,6 @@ create or replace package body ut_compound_data_helper is
       l_filter := ':l_exclude_xpath, extract( '||l_source_column||', :l_include_xpath ) as '||a_column_alias;
     elsif a_exclude_xpath is not null and a_include_xpath is not null then
       l_filter := 'extract( deletexml( '||l_source_column||', :l_exclude_xpath ), :l_include_xpath ) as '||a_column_alias;
-    end if;
-    return l_filter;
-  end;
- 
-  /**
-  * Current get column filter shaving off ROW tag during extract, this not working well with include and XMLTABLE option
-  * so when there is extract we artificially inject removed tag
-  **/
-  function get_columns_row_filter(
-    a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_table_alias varchar2 := 'ucd', a_column_alias varchar2 := 'item_data'
-  ) return varchar2 is
-    l_filter varchar2(32767);
-    l_source_column varchar2(500) := a_table_alias||'.'||a_column_alias;
-  begin
-    -- this SQL statement is constructed in a way that we always get the same number and ordering of substitution variables
-    -- That is, we always get: l_exclude_xpath, l_include_xpath
-    --   regardless if the variables are NULL (not to be used) or NOT NULL and will be used for filtering
-    if a_exclude_xpath is null and a_include_xpath is null then
-      l_filter := ':l_exclude_xpath, :l_include_xpath, '||l_source_column||' as '||a_column_alias;
-    elsif a_exclude_xpath is not null and a_include_xpath is null then
-      l_filter := 'deletexml( '||l_source_column||', :l_exclude_xpath ) as '||a_column_alias||', :l_include_xpath';
-    elsif a_exclude_xpath is null and a_include_xpath is not null then
-      l_filter := ':l_exclude_xpath, xmlelement("ROW",extract( '||l_source_column||', :l_include_xpath )) as '||a_column_alias;
-    elsif a_exclude_xpath is not null and a_include_xpath is not null then
-      l_filter := 'xmlelement("ROW",extract( deletexml( '||l_source_column||', :l_exclude_xpath ), :l_include_xpath )) as '||a_column_alias;
     end if;
     return l_filter;
   end;
@@ -295,8 +256,8 @@ create or replace package body ut_compound_data_helper is
     end if;
   end;
   
-  function gen_compare_sql(a_column_info xmltype,a_inclusion_type boolean, a_is_negated boolean,a_unordered boolean, 
-                           a_other ut_data_value_refcursor :=null, a_join_by_list ut_varchar2_list:=ut_varchar2_list() ) return clob is
+  function gen_compare_sql(a_inclusion_type boolean, a_is_negated boolean,a_unordered boolean,
+    a_other ut_data_value_refcursor :=null, a_join_by_list ut_varchar2_list:=ut_varchar2_list() ) return clob is
     l_compare_sql   clob;
     l_temp_string   varchar2(32767);
     
@@ -427,7 +388,6 @@ create or replace package body ut_compound_data_helper is
     end loop;
     return l_column_list;
   end;
-  
   
   function get_rows_diff_by_sql(a_act_cursor_info ut_cursor_column_tab,a_exp_cursor_info ut_cursor_column_tab, 
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
@@ -608,65 +568,6 @@ create or replace package body ut_compound_data_helper is
     return dbms_utility.get_hash_value(a_string,a_base,a_size);
   end;
 
-  function columns_hash(
-    a_data_value_cursor ut_data_value_refcursor, a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_hash_type binary_integer := dbms_crypto.hash_sh1
-  ) return t_hash is
-    l_cols_hash t_hash;
-  begin      
-    if not a_data_value_cursor.is_null then      
-      execute immediate
-      q'[select dbms_crypto.hash(replace(x.item_data.getclobval(),'>CHAR<','>VARCHAR2<'),]'||a_hash_type||') ' ||
-      '  from ( select '||get_columns_filter(a_exclude_xpath, a_include_xpath)||
-      '           from (select :columns_info as item_data from dual ) ucd' ||
-      '  ) x'
-      into l_cols_hash using a_exclude_xpath,a_include_xpath, a_data_value_cursor.columns_info;
-    end if;
-    return l_cols_hash;
-  end;
-
-  function is_pk_exists(a_expected_cursor xmltype,a_actual_cursor xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2,a_join_by_xpath varchar2) 
-  return tt_missing_pk is
-    l_pk_xpath_tabs ut_varchar2_list := ut_varchar2_list();
-    l_column_filter  varchar2(32767);
-    l_no_missing_keys tt_missing_pk := tt_missing_pk();
-
-  begin
-    if a_join_by_xpath is not null then
-      l_pk_xpath_tabs := ut_utils.string_to_table(a_join_by_xpath,'|');
-      l_column_filter := get_columns_row_filter(a_exclude_xpath, a_include_xpath);
-          
-      execute immediate q'[
-      with  xpaths_tab as (select column_value  xpath from table(:xpath_tabs)),
-        expected_column_info as ( select :expected as item_data from dual ),
-        actual_column_info as ( select :actual as item_data from dual ) 
-        select  REGEXP_SUBSTR (xpath,'[^(/\*/)](.+)$'),diif_type from
-        (
-         (select xpath,'e' diif_type from xpaths_tab
-         minus
-         select xpath,'e' diif_type
-         from   ( select ]'||l_column_filter||q'[ from expected_column_info ucd) x
-         ,xpaths_tab
-         where xmlexists (xpaths_tab.xpath passing x.item_data)
-         )
-         union all
-         (select xpath,'a' diif_type from xpaths_tab
-         minus
-         select xpath,'a' diif_type
-         from   ( select ]'||l_column_filter||q'[ from actual_column_info ucd) x
-         ,xpaths_tab
-         where xmlexists (xpaths_tab.xpath passing x.item_data)
-         )       
-         )]' bulk collect into l_no_missing_keys 
-         using l_pk_xpath_tabs,a_expected_cursor,a_actual_cursor,
-         a_exclude_xpath, a_include_xpath,
-         a_exclude_xpath, a_include_xpath; 
-    
-    end if;
-    
-    return l_no_missing_keys;
-  end;
-        
   procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw) is
   begin  
     forall idx in 1..a_diff_tab.count
@@ -853,6 +754,106 @@ create or replace package body ut_compound_data_helper is
     end loop;
     return l_warn_msg;
   end;
+ 
+  function getxmlchildren(p_parent_name varchar2,a_cursor_table ut_cursor_column_tab)
+      return xmltype is
+      l_result xmltype;
+    begin
+
+       select xmlagg(xmlelement(evalname t.column_name,t.column_type,
+                                           getxmlchildren(t.column_name,a_cursor_table)))
+         into l_result
+        from table(a_cursor_table) t
+       where (p_parent_name is not null and parent_name = p_parent_name)
+          or (p_parent_name is null and parent_name is null)
+       having count(*) > 0;
+
+
+      return l_result;
+   end;     
+
+  function is_sql_compare_allowed(a_type_name varchar2) return boolean is
+  begin
+    --clob/blob/xmltype/object/nestedcursor/nestedtable
+    if a_type_name IN (g_type_name_map(dbms_sql.blob_type),
+                       g_type_name_map(dbms_sql.clob_type),
+                       g_type_name_map(dbms_sql.bfile_type),
+                       g_anytype_name_map(dbms_types.typecode_namedcollection))
+    then    
+      return false;
+    else
+      return true;
+    end if;
+  end;
+
+  function is_collection (a_owner varchar2,a_type_name varchar2, a_anytype_code in integer :=null) return boolean is
+    l_type_view varchar2(200) := ut_metadata.get_dba_view('dba_types');
+    l_typecode varchar2(100);
+  begin    
+    if a_anytype_code is null then    
+      execute immediate 'select typecode from '||l_type_view ||' 
+      where owner = :owner and type_name = :typename'
+      into l_typecode using a_owner,a_type_name; 
+        
+      return l_typecode = 'COLLECTION';
+    else
+      return a_anytype_code in (dbms_types.typecode_varray,dbms_types.typecode_table,dbms_types.typecode_namedcollection);
+    end if;
+         
+    exception
+      when no_data_found then
+      return false;
+  end;
+
+  function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2 is
+  begin
+   return case when a_dbms_sql_desc then g_type_name_map(a_type_code) else g_anytype_name_map(a_type_code) end;
+  end;
   
-end; 
+
+begin
+  g_anytype_name_map(dbms_types.typecode_date)             := 'DATE';
+  g_anytype_name_map(dbms_types.typecode_number)           := 'NUMBER';
+  g_anytype_name_map(dbms_types.typecode_raw)              := 'RAW';
+  g_anytype_name_map(dbms_types.typecode_char)             := 'CHAR';
+  g_anytype_name_map(dbms_types.typecode_varchar2)         := 'VARCHAR2';
+  g_anytype_name_map(dbms_types.typecode_varchar)          := 'VARCHAR';
+  g_anytype_name_map(dbms_types.typecode_blob)             := 'BLOB';
+  g_anytype_name_map(dbms_types.typecode_bfile)            := 'BFILE';
+  g_anytype_name_map(dbms_types.typecode_clob)             := 'CLOB';
+  g_anytype_name_map(dbms_types.typecode_timestamp)        := 'TIMESTAMP';
+  g_anytype_name_map(dbms_types.typecode_timestamp_tz)     := 'TIMESTAMP WITH TIME ZONE';
+  g_anytype_name_map(dbms_types.typecode_timestamp_ltz)    := 'TIMESTAMP WITH LOCAL TIME ZONE';
+  g_anytype_name_map(dbms_types.typecode_interval_ym)      := 'INTERVAL YEAR TO MONTH';
+  g_anytype_name_map(dbms_types.typecode_interval_ds)      := 'INTERVAL DAY TO SECOND';
+  g_anytype_name_map(dbms_types.typecode_bfloat)           := 'BINARY_FLOAT';
+  g_anytype_name_map(dbms_types.typecode_bdouble)          := 'BINARY_DOUBLE';
+  g_anytype_name_map(dbms_types.typecode_urowid)           := 'UROWID';
+  g_anytype_name_map(dbms_types.typecode_varray)           := 'VARRRAY';
+  g_anytype_name_map(dbms_types.typecode_table)            := 'TABLE';
+  g_anytype_name_map(dbms_types.typecode_namedcollection)  := 'NAMEDCOLLECTION';  
+
+  g_type_name_map( dbms_sql.binary_bouble_type )           := 'BINARY_DOUBLE';
+  g_type_name_map( dbms_sql.bfile_type )                   := 'BFILE';
+  g_type_name_map( dbms_sql.binary_float_type )            := 'BINARY_FLOAT';
+  g_type_name_map( dbms_sql.blob_type )                    := 'BLOB';
+  g_type_name_map( dbms_sql.long_raw_type )                := 'LONG RAW';
+  g_type_name_map( dbms_sql.char_type )                    := 'CHAR';
+  g_type_name_map( dbms_sql.clob_type )                    := 'CLOB';
+  g_type_name_map( dbms_sql.long_type )                    := 'LONG';
+  g_type_name_map( dbms_sql.date_type )                    := 'DATE';
+  g_type_name_map( dbms_sql.interval_day_to_second_type )  := 'INTERVAL DAY TO SECOND';
+  g_type_name_map( dbms_sql.interval_year_to_month_type )  := 'INTERVAL YEAR TO MONTH';
+  g_type_name_map( dbms_sql.raw_type )                     := 'RAW';
+  g_type_name_map( dbms_sql.timestamp_type )               := 'TIMESTAMP';
+  g_type_name_map( dbms_sql.timestamp_with_tz_type )       := 'TIMESTAMP WITH TIME ZONE';
+  g_type_name_map( dbms_sql.timestamp_with_local_tz_type ) := 'TIMESTAMP WITH LOCAL TIME ZONE';
+  g_type_name_map( dbms_sql.varchar2_type )                := 'VARCHAR2';
+  g_type_name_map( dbms_sql.number_type )                  := 'NUMBER';
+  g_type_name_map( dbms_sql.rowid_type )                   := 'ROWID';
+  g_type_name_map( dbms_sql.urowid_type )                  := 'UROWID';  
+  g_type_name_map( dbms_sql.user_defined_type )            := 'USER_DEFINED_TYPE';
+  g_type_name_map( dbms_sql.ref_type )                     := 'REF_TYPE';
+  
+end;
 /
