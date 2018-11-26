@@ -1,5 +1,24 @@
 create or replace package body core is
 
+  function get_dbms_output_as_clob return clob is
+    l_status number;
+    l_line   varchar2(32767);
+    l_result clob;
+  begin
+
+    dbms_output.get_line(line => l_line, status => l_status);
+    if l_status != 1 then
+      dbms_lob.createtemporary(l_result, true, dur => dbms_lob.session);
+      end if;
+    while l_status != 1 loop
+      if l_line is not null then
+        ut3.ut_utils.append_to_clob(l_result, l_line||chr(10));
+        end if;
+      dbms_output.get_line(line => l_line, status => l_status);
+    end loop;
+    return l_result;
+  end;
+
   procedure global_setup is
   begin
     ut3.ut_coverage.set_develop_mode(true);

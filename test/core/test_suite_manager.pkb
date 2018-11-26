@@ -1420,5 +1420,36 @@ end;]';
       ut.expect(l_test_proc.name).to_equal('test1');
     end;
 
+  procedure test_get_schema_ut_packages is
+    l_expected  ut3.ut_object_names;
+    l_actual    ut3.ut_object_names;
+  begin
+    l_expected := ut3.ut_object_names(
+      ut3.ut_object_name('UT3','SOME_TEST_PACKAGE')
+      );
+    l_actual := ut3.ut_suite_manager.get_schema_ut_packages(ut3.ut_varchar2_rows('UT3'));
+
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+  end;
+  procedure create_ut3_suite is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[
+      create or replace package ut3.some_test_package
+      as
+        --%suite
+
+        --%test
+        procedure some_test;
+
+      end;]';
+  end;
+
+  procedure drop_ut3_suite is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[drop package ut3.some_test_package]';
+  end;
+
 end test_suite_manager;
 /

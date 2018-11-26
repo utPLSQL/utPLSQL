@@ -151,5 +151,16 @@ create or replace package test_suite_manager is
   --%test(Prepare runner for a package procedure inside context by path)
   procedure pck_proc_in_ctx_by_path;
 
+  --%context(get_schema_ut_packages)
+
+  --%test(returns list of all unit test packages in given schema)
+  --%beforetest(create_ut3_suite)
+  --%aftertest(drop_ut3_suite)
+  procedure test_get_schema_ut_packages;
+  procedure create_ut3_suite;
+  procedure drop_ut3_suite;
+
+  --%endcontext
+
 end test_suite_manager;
 /

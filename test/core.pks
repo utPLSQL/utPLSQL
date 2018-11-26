@@ -15,7 +15,7 @@ create or replace package core is
 
   function get_value(a_variable varchar2) return integer;
 
-
+  function get_dbms_output_as_clob return clob;
 
 end;
 /

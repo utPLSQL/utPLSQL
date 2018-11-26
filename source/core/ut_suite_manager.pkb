@@ -592,6 +592,10 @@ create or replace package body ut_suite_manager is
       l_need_all_objects_scan := false;
     end if;
 
+    for i in 1 .. a_schema_names.count loop
+      refresh_cache(a_schema_names(i));
+    end loop;
+
     execute immediate 'select c.object_owner, c.object_name
       from '||l_ut_owner||q'[.ut_suite_cache_package c
            join table ( :a_schema_names ) s
