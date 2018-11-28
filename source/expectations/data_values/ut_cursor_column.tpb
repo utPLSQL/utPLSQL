@@ -2,16 +2,13 @@ create or replace type body ut_cursor_column as
    
    member procedure init(self in out nocopy ut_cursor_column,
      a_col_name varchar2, a_col_schema_name varchar2,
-     a_col_type_name varchar2, a_col_prec integer, a_col_scale integer,
-     a_col_max_len integer, a_parent_name varchar2 := null, a_hierarchy_level integer := 1,
+     a_col_type_name varchar2, a_col_max_len integer, a_parent_name varchar2 := null, a_hierarchy_level integer := 1,
      a_col_position integer, a_col_type varchar2, a_collection integer) is
    begin
       self.parent_name      := a_parent_name;
       self.hierarchy_level  := a_hierarchy_level;
       self.column_position  := a_col_position;
-      self.column_prec      := a_col_prec;
       self.column_len       := a_col_max_len;
-      self.column_scale     := a_col_scale;
       self.column_name      := TRIM( BOTH '''' FROM a_col_name);
       self.column_type_name := a_col_type_name;
       self.access_path      := case when self.parent_name is null then self.column_name else self.parent_name||'/'||self.column_name end;
@@ -41,12 +38,10 @@ create or replace type body ut_cursor_column as
    
    constructor function ut_cursor_column( self in out nocopy ut_cursor_column,
      a_col_name varchar2, a_col_schema_name varchar2,
-     a_col_type_name varchar2, a_col_prec integer, a_col_scale integer,
-     a_col_max_len integer, a_parent_name varchar2 := null, a_hierarchy_level integer := 1,
+     a_col_type_name varchar2, a_col_max_len integer, a_parent_name varchar2 := null, a_hierarchy_level integer := 1,
      a_col_position integer, a_col_type in varchar2, a_collection integer) return self as result is
    begin
-     init(a_col_name, a_col_schema_name, a_col_type_name, a_col_prec,
-       a_col_scale, a_col_max_len, a_parent_name,a_hierarchy_level, a_col_position, a_col_type, a_collection);
+     init(a_col_name, a_col_schema_name, a_col_type_name, a_col_max_len, a_parent_name,a_hierarchy_level, a_col_position, a_col_type, a_collection);
    return;
    end;
 end;

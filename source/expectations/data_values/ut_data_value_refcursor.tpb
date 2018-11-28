@@ -22,16 +22,55 @@ create or replace type body ut_data_value_refcursor as
     return;
   end;
 
-  member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) is
+  member procedure extract_cursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) is
     c_bulk_rows  constant integer := 10000;
     l_cursor     sys_refcursor := a_value;
     l_ctx                 number;
     l_xml                 xmltype;
-    l_current_date_format varchar2(4000);
-    cursor_not_open       exception;
     l_ut_owner            varchar2(250) := ut_utils.ut_owner;
     l_set_id              integer := 0;
+  begin
+    -- We use DBMS_XMLGEN in order to:
+    -- 1) be able to process data in bulks (set of rows)
+    -- 2) be able to influence the ROWSET/ROW tags
+    -- 3) be able to influence the way NULL values are handled (empty TAG)
+    -- 4) be able to influence the way TIMESTAMP is formatted.
+    -- Due to Oracle feature/bug, it is not possible to change the DATE formatting of cursor data
+    -- AFTER the cursor was opened.
+    -- The only solution for this is to change NLS settings before opening the cursor.
+    --
+    -- This would work fine if we could use DBMS_XMLGEN.restartQuery.
+    --  The restartQuery fails however if PLSQL variables of TIMESTAMP/INTERVAL or CLOB/BLOB are used.
+    ut_expectation_processor.set_xml_nls_params();
+    l_ctx := dbms_xmlgen.newContext(l_cursor);
+    dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
+    dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);
+                    
+    loop
+      l_xml := dbms_xmlgen.getxmltype(l_ctx);
+      exit when dbms_xmlgen.getNumRowsProcessed(l_ctx) = 0;
 
+      self.elements_count := self.elements_count + dbms_xmlgen.getNumRowsProcessed(l_ctx);
+      execute immediate
+      'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
+      'values (:self_guid, :self_row_count, :l_xml)'
+      using in self.data_id, l_set_id, l_xml;
+                 
+      l_set_id := l_set_id + c_bulk_rows;               
+    end loop;
+            
+    ut_expectation_processor.reset_nls_params();
+    dbms_xmlgen.closeContext(l_ctx);
+  exception
+    when others then
+      ut_expectation_processor.reset_nls_params();
+      dbms_xmlgen.closeContext(l_ctx);
+      raise;
+  end;
+
+  member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) is
+    l_cursor     sys_refcursor := a_value;
+    cursor_not_open       exception;
   begin
     self.is_data_null := ut_utils.boolean_to_int(a_value is null);
     self.self_type := $$plsql_unit;
@@ -41,46 +80,13 @@ create or replace type body ut_data_value_refcursor as
     
     if l_cursor is not null then
         if l_cursor%isopen then
-          --Get some more info regarding cursor, including if it containts collection columns and what is their name
-        
+          --Get some more info regarding cursor, including if it containts collection columns and what is their name        
           self.elements_count     := 0;
           self.cursor_details  := ut_cursor_details(l_cursor);
-          -- We use DBMS_XMLGEN in order to:
-          -- 1) be able to process data in bulks (set of rows)
-          -- 2) be able to influence the ROWSET/ROW tags
-          -- 3) be able to influence the way NULL values are handled (empty TAG)
-          -- 4) be able to influence the way TIMESTAMP is formatted.
-          -- Due to Oracle feature/bug, it is not possible to change the DATE formatting of cursor data
-          -- AFTER the cursor was opened.
-          -- The only solution for this is to change NLS settings before opening the cursor.
-          --
-          -- This would work fine if we could use DBMS_XMLGEN.restartQuery.
-          --  The restartQuery fails however if PLSQL variables of TIMESTAMP/INTERVAL or CLOB/BLOB are used.
-
-          ut_expectation_processor.set_xml_nls_params();
-          l_ctx := dbms_xmlgen.newContext(l_cursor);
-          dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
-          dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);
-                    
-          loop
-                l_xml := dbms_xmlgen.getxmltype(l_ctx);
-                exit when dbms_xmlgen.getNumRowsProcessed(l_ctx) = 0;
-
-                self.elements_count := self.elements_count + dbms_xmlgen.getNumRowsProcessed(l_ctx);
-                execute immediate
-                'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
-                'values (:self_guid, :self_row_count, :l_xml)'
-                using in self.data_id, l_set_id, l_xml;
-                 
-                l_set_id := l_set_id + c_bulk_rows;               
-          end loop;
-            
-          ut_expectation_processor.reset_nls_params();
+          extract_cursor(l_cursor);
           if l_cursor%isopen then
             close l_cursor;
-          end if;
-          dbms_xmlgen.closeContext(l_ctx);
-          
+          end if;          
         elsif not l_cursor%isopen then
             raise cursor_not_open;
         end if;
@@ -89,11 +95,9 @@ create or replace type body ut_data_value_refcursor as
     when cursor_not_open then
         raise_application_error(-20155, 'Cursor is not open');
     when others then
-      ut_expectation_processor.reset_nls_params();
       if l_cursor%isopen then
         close l_cursor;
       end if;
-      dbms_xmlgen.closeContext(l_ctx);
       raise;
   end;
  

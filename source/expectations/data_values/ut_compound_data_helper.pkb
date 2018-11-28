@@ -623,7 +623,7 @@ create or replace package body ut_compound_data_helper is
     l_sql varchar2(32767) := get_cursor_vs_list_sql;
     l_result ut_cursor_column_tab := ut_cursor_column_tab();
   begin
-   l_sql := l_sql || q'[select ut_cursor_column(i.column_name,i.column_schema,i.column_type_name, i.column_prec,i.column_scale,i.column_len, i.parent_name, 
+   l_sql := l_sql || q'[select ut_cursor_column(i.column_name,i.column_schema,i.column_type_name,i.column_len, i.parent_name, 
      i.hierarchy_level,i.column_position, i.column_type, i.is_collection)
      from t1 join table(:a_cursor_info) i on ( nvl(t1.parent_name,1) = nvl(i.parent_name,1) and t1.column_name = i.column_name)]';
    if a_include then 
@@ -735,7 +735,7 @@ create or replace package body ut_compound_data_helper is
   function remove_incomparable_cols( a_cursor_details ut_cursor_column_tab,a_incomparable_cols ut_varchar2_list) return ut_cursor_column_tab is
     l_result ut_cursor_column_tab;
   begin
-    select ut_cursor_column(i.column_name,i.column_schema,i.column_type_name, i.column_prec,i.column_scale,i.column_len, i.parent_name, 
+    select ut_cursor_column(i.column_name,i.column_schema,i.column_type_name,i.column_len, i.parent_name, 
     i.hierarchy_level,i.column_position, i.column_type, i.is_collection)
     bulk collect into l_result
     from table(a_cursor_details) i

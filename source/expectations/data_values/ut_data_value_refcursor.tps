@@ -31,6 +31,7 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
   cursor_details ut_cursor_details,
   
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) return self as result,
+  member procedure extract_cursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor),
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor),
   overriding member function to_string return varchar2,
   member function diff( a_other ut_data_value, a_unordered boolean := false, a_join_by_list ut_varchar2_list:=ut_varchar2_list() ) return varchar2,
