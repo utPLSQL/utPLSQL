@@ -375,7 +375,6 @@ create or replace package body ut_compound_data_helper is
      l_temp_string := ' (a.data_id is null or e.data_id is null) ';
    end if;
    ut_utils.append_to_clob(l_compare_sql,l_temp_string);
-    
    return l_compare_sql;
   end;
   
@@ -402,7 +401,6 @@ create or replace package body ut_compound_data_helper is
     l_results        tt_row_diffs;
     l_sql            varchar2(32767);
   begin
-
     l_sql := q'[with exp as (
     select exp_item_data, exp_data_id, item_no rn,rownum col_no, pk_value,
       s.column_value col, s.column_value.getRootElement() col_name, s.column_value.getclobval() col_val
@@ -563,7 +561,7 @@ create or replace package body ut_compound_data_helper is
     return dbms_crypto.hash(a_data, a_hash_type);
   end;
 
-  function get_fixed_size_hash(a_string varchar2, a_base integer :=0,a_size integer :=30) return number is
+  function get_fixed_size_hash(a_string varchar2, a_base integer :=0,a_size integer := 9999999) return number is
   begin
     return dbms_utility.get_hash_value(a_string,a_base,a_size);
   end;
@@ -595,69 +593,42 @@ create or replace package body ut_compound_data_helper is
     return g_diff_count;
   end;
 
-  function get_cursor_vs_list_sql return varchar2 is
-   l_sql varchar2(32767) :=
-    q'[with 
-      sorted as
-      (select r_num,regexp_substr(t.column_value, '[^/]+', 1, commas.column_value) as colval,commas.column_value lev,
-       t.column_value access_path
-       from (select row_number() over(order by 1) r_num, column_value from ((table(:a_current_list)))) t,
-              table(cast(multiset 
-              (select level from dual connect by level <= length(regexp_replace(t.column_value,'[^/]+')) + 1) as sys.odcinumberlist)) commas
-              order by r_num,lev),
-      hier as
-        (select r_num,lev,colval column_name,lag(colval, 1) over(partition by r_num order by lev) parent_name , access_path 
-         from sorted),
-     constructed as (
-     select lev,column_name,parent_name,access_path from hier),
-     t1(column_name, parent_name) AS (
-     select column_name,parent_name from table(:a_cursor_info) where parent_name is null
-     union all
-     select t2.column_name,t2.parent_name from table(:a_cursor_info) t2, t1 where t2.parent_name = t1.column_name)]';
-  begin
-    return l_sql;
-  end;
-
+  --Filter out columns from cursor based on include (exists) or exclude (not exists)
   function filter_out_cols(a_cursor_info ut_cursor_column_tab, a_current_list ut_varchar2_list,a_include boolean := true) 
   return ut_cursor_column_tab is
-    l_sql varchar2(32767) := get_cursor_vs_list_sql;
     l_result ut_cursor_column_tab := ut_cursor_column_tab();
-  begin
-   l_sql := l_sql || q'[select ut_cursor_column(i.column_name,i.column_schema,i.column_type_name,i.column_len, i.parent_name, 
-     i.hierarchy_level,i.column_position, i.column_type, i.is_collection)
-     from t1 join table(:a_cursor_info) i on ( nvl(t1.parent_name,1) = nvl(i.parent_name,1) and t1.column_name = i.column_name)]';
-   if a_include then 
-    l_sql := l_sql || ' join constructed c on ( nvl(t1.parent_name,1) = nvl(c.parent_name,1) and t1.column_name = c.column_name)';
-   else
-    l_sql := l_sql ||' left outer join constructed c on ( nvl(t1.parent_name,1) = nvl(c.parent_name,1) and t1.column_name = c.column_name)
-    where c.column_name is null';
-   end if;
-    
-   execute immediate l_sql bulk collect into l_result
-     using a_current_list,a_cursor_info,a_cursor_info,a_cursor_info;
+    l_filter_sql varchar2(32767);
+  begin 
+   l_filter_sql :=
+   q'[with 
+   coltab as (
+     select i.parent_name,i.access_path,i.has_nested_col,i.transformed_name,i.hierarchy_level,i.column_position ,
+     i.xml_valid_name,i.column_name,i.column_type,i.column_type_name ,i.column_schema,i.column_len,i.is_sql_diffable ,i.is_collection
+     from table(:cursor_info) i),
+   filter as (select column_value from table(:current_list))
+   select ut_cursor_column(i.parent_name,i.access_path,i.has_nested_col,i.transformed_name,i.hierarchy_level,i.column_position ,
+     i.xml_valid_name,i.column_name,i.column_type,i.column_type_name ,i.column_schema,i.column_len,i.is_sql_diffable ,i.is_collection)
+   from coltab i where ]'||case when a_include then null else ' not ' end 
+   ||q'[exists (select 1 from filter f where regexp_like(i.access_path, '^'||f.column_value||'($|/.*)'))]';
      
+   execute immediate l_filter_sql bulk collect into l_result using a_cursor_info,a_current_list;
    return l_result;
   end;
-  
-  function compare_cursor_to_columns(a_cursor_info ut_cursor_column_tab, a_current_list ut_varchar2_list) 
-  return ut_varchar2_list is
-    l_sql varchar2(32767) := get_cursor_vs_list_sql;
+ 
+  function get_missing_filter_columns(a_cursor_info ut_cursor_column_tab, a_column_filter_list ut_varchar2_list) return ut_varchar2_list is
     l_result ut_varchar2_list := ut_varchar2_list();
-  begin
-    l_sql := l_sql || q'[select c.access_path 
-     from t1 join table(:a_cursor_info) i on ( nvl(t1.parent_name,1) = nvl(i.parent_name,1) and t1.column_name = i.column_name)]';
-    l_sql := l_sql ||'right outer join constructed c on ( nvl(t1.parent_name,1) = nvl(c.parent_name,1) and t1.column_name = c.column_name)
-    where t1.column_name is null';
-    
-    execute immediate l_sql bulk collect into l_result
-    using a_current_list,a_cursor_info,a_cursor_info,a_cursor_info;   
-    return l_result;
+  begin 
+   select fl.column_value
+   bulk collect into l_result
+   from table(a_column_filter_list) fl
+   where not exists (select 1 from table(a_cursor_info) c where regexp_like(c.access_path, '^'||fl.column_value||'($|/.*)')); 
+   return l_result;
   end;
-
+ 
   function get_missing_pk(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab, a_current_list ut_varchar2_list) 
   return tt_missing_pk is
-    l_actual ut_varchar2_list := coalesce(compare_cursor_to_columns(a_actual,a_current_list),ut_varchar2_list());
-    l_expected  ut_varchar2_list := coalesce(compare_cursor_to_columns(a_expected,a_current_list),ut_varchar2_list());
+    l_actual ut_varchar2_list := coalesce(get_missing_filter_columns(a_actual,a_current_list),ut_varchar2_list());
+    l_expected  ut_varchar2_list := coalesce(get_missing_filter_columns(a_expected,a_current_list),ut_varchar2_list());
     l_missing_pk tt_missing_pk;
   begin 
     select name,type
@@ -735,14 +706,14 @@ create or replace package body ut_compound_data_helper is
   function remove_incomparable_cols( a_cursor_details ut_cursor_column_tab,a_incomparable_cols ut_varchar2_list) return ut_cursor_column_tab is
     l_result ut_cursor_column_tab;
   begin
-    select ut_cursor_column(i.column_name,i.column_schema,i.column_type_name,i.column_len, i.parent_name, 
-    i.hierarchy_level,i.column_position, i.column_type, i.is_collection)
+    select ut_cursor_column(i.parent_name,i.access_path,i.has_nested_col,i.transformed_name,i.hierarchy_level,i.column_position ,
+    i.xml_valid_name,i.column_name,i.column_type,i.column_type_name ,i.column_schema,i.column_len,i.is_sql_diffable ,i.is_collection)
     bulk collect into l_result
     from table(a_cursor_details) i
     left outer join table(a_incomparable_cols) c
     on (i.access_path = c.column_value)
     where c.column_value is null;  
-      
+
     return l_result;
   end;
   
@@ -759,13 +730,12 @@ create or replace package body ut_compound_data_helper is
       return xmltype is
       l_result xmltype;
     begin
-
        select xmlagg(xmlelement(evalname t.column_name,t.column_type,
                                            getxmlchildren(t.column_name,a_cursor_table)))
          into l_result
         from table(a_cursor_table) t
-       where (a_parent_name is not null and parent_name = a_parent_name)
-          or (a_parent_name is null and parent_name is null)
+       where (a_parent_name is not null and parent_name = a_parent_name and hierarchy_level > 1 and column_name is not null)
+          or (a_parent_name is null and parent_name is null and hierarchy_level = 1 and column_name is not null)
        having count(*) > 0;
 
 
@@ -805,6 +775,14 @@ create or replace package body ut_compound_data_helper is
       return false;
   end;
 
+  function is_collection (a_anytype_code in integer) return boolean is
+    l_type_view varchar2(200) := ut_metadata.get_dba_view('dba_types');
+    l_typecode varchar2(100);
+  begin    
+    return a_anytype_code in (dbms_types.typecode_varray,dbms_types.typecode_table,dbms_types.typecode_namedcollection);
+  end;
+
+  --TODO Look at simplify that option
   function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2 is
   begin
    return case when a_dbms_sql_desc then g_type_name_map(a_type_code) else g_anytype_name_map(a_type_code) end;
@@ -832,7 +810,8 @@ begin
   g_anytype_name_map(dbms_types.typecode_varray)           := 'VARRRAY';
   g_anytype_name_map(dbms_types.typecode_table)            := 'TABLE';
   g_anytype_name_map(dbms_types.typecode_namedcollection)  := 'NAMEDCOLLECTION';  
-
+  g_anytype_name_map(dbms_types.typecode_object)           := 'OBJECT';
+ 
   g_type_name_map( dbms_sql.binary_bouble_type )           := 'BINARY_DOUBLE';
   g_type_name_map( dbms_sql.bfile_type )                   := 'BFILE';
   g_type_name_map( dbms_sql.binary_float_type )            := 'BINARY_FLOAT';

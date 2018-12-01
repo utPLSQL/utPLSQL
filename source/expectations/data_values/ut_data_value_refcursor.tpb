@@ -41,11 +41,11 @@ create or replace type body ut_data_value_refcursor as
     --
     -- This would work fine if we could use DBMS_XMLGEN.restartQuery.
     --  The restartQuery fails however if PLSQL variables of TIMESTAMP/INTERVAL or CLOB/BLOB are used.
+    
     ut_expectation_processor.set_xml_nls_params();
     l_ctx := dbms_xmlgen.newContext(l_cursor);
     dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
-    dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);
-                    
+    dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);        
     loop
       l_xml := dbms_xmlgen.getxmltype(l_ctx);
       exit when dbms_xmlgen.getNumRowsProcessed(l_ctx) = 0;
@@ -54,11 +54,9 @@ create or replace type body ut_data_value_refcursor as
       execute immediate
       'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
       'values (:self_guid, :self_row_count, :l_xml)'
-      using in self.data_id, l_set_id, l_xml;
-                 
-      l_set_id := l_set_id + c_bulk_rows;               
+      using in self.data_id, l_set_id, l_xml;           
+      l_set_id := l_set_id + c_bulk_rows;   
     end loop;
-            
     ut_expectation_processor.reset_nls_params();
     dbms_xmlgen.closeContext(l_ctx);
   exception
@@ -71,6 +69,7 @@ create or replace type body ut_data_value_refcursor as
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) is
     l_cursor     sys_refcursor := a_value;
     cursor_not_open       exception;
+    l_cursor_number number;
   begin
     self.is_data_null := ut_utils.boolean_to_int(a_value is null);
     self.self_type := $$plsql_unit;
@@ -82,11 +81,10 @@ create or replace type body ut_data_value_refcursor as
         if l_cursor%isopen then
           --Get some more info regarding cursor, including if it containts collection columns and what is their name        
           self.elements_count     := 0;
-          self.cursor_details  := ut_cursor_details(l_cursor);
           extract_cursor(l_cursor);
-          if l_cursor%isopen then
-            close l_cursor;
-          end if;          
+          l_cursor_number  := dbms_sql.to_cursor_number(l_cursor);
+          self.cursor_details  := ut_cursor_details(l_cursor_number);
+          dbms_sql.close_cursor(l_cursor_number);         
         elsif not l_cursor%isopen then
             raise cursor_not_open;
         end if;

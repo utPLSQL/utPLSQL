@@ -166,9 +166,6 @@ create or replace package test_expectations_cursor is
   --%test(Compares cursors with more than 1000 rows)
   procedure compares_over_1000_rows;
 
-  --%test(Compares cursors with more than 10000 rows)
-  procedure compares_over_10000_rows;
-
   --%test(Adds a warning when using depreciated syntax to_equal( a_expected sys_refcursor, a_exclude varchar2 ))
   procedure deprec_to_equal_excl_varch;
 
@@ -225,15 +222,9 @@ create or replace package test_expectations_cursor is
   
   --%test( Compare cursors join by single key more than 1000 rows)
   procedure cursor_joinby_compare_1000;
- 
-  --%test( Compare cursors join by single key more than 10000 rows)
-  procedure cursor_joinby_compare_10000; 
 
   --%test( Compare cursors unorder more than 1000 rows)
   procedure cursor_unorder_compare_1000;
- 
-  --%test( Compare cursors unorder more than 10000 rows)
-  procedure cursor_unorder_compare_10000; 
   
   --%test( Compare two column cursors join by and fail to match )
   procedure cursor_joinby_compare_fail;  

@@ -83,7 +83,7 @@ create or replace package ut_compound_data_helper authid definer is
   function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1)  return t_hash;
   function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash;
   
-  function get_fixed_size_hash(a_string varchar2, a_base integer :=0,a_size integer :=30) return number;
+  function get_fixed_size_hash(a_string varchar2, a_base integer :=0,a_size integer :=9999999) return number;
                      
   function gen_compare_sql(a_inclusion_type boolean, a_is_negated boolean, a_unordered boolean, 
     a_other ut_data_value_refcursor :=null, a_join_by_list ut_varchar2_list:=ut_varchar2_list() ) return clob;
@@ -99,9 +99,6 @@ create or replace package ut_compound_data_helper authid definer is
   function filter_out_cols(a_cursor_info ut_cursor_column_tab, a_current_list ut_varchar2_list,a_include boolean := true) 
   return ut_cursor_column_tab;
    
-  function compare_cursor_to_columns(a_cursor_info ut_cursor_column_tab, a_current_list ut_varchar2_list) 
-  return ut_varchar2_list;
-
   function get_missing_pk(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab, a_current_list ut_varchar2_list) 
   return tt_missing_pk;
   
@@ -121,6 +118,8 @@ create or replace package ut_compound_data_helper authid definer is
   function is_sql_compare_allowed(a_type_name varchar2) return boolean;
   
   function is_collection (a_owner varchar2,a_type_name varchar2, a_anytype_code in integer :=null) return boolean;
+
+  function is_collection (a_anytype_code in integer) return boolean;
 
   function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2;
   
