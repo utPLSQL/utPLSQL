@@ -256,12 +256,37 @@ create or replace package body ut_compound_data_helper is
     end if;
   end;
   
+  procedure get_act_and_exp_set(a_current_stmt in out nocopy clob, a_partition_stmt clob, a_select_stmt clob, 
+    a_xmltable_stmt clob, a_unordered boolean,a_type varchar2) is
+    l_temp_string varchar2(32767);
+    l_ut_owner       varchar2(250) := ut_utils.ut_owner;
+  begin
+    ut_utils.append_to_clob(a_current_stmt, a_partition_stmt);
+    
+    l_temp_string := 'from (select ucd.item_data ';
+    ut_utils.append_to_clob(a_current_stmt,l_temp_string);
+    ut_utils.append_to_clob(a_current_stmt, a_select_stmt);
+     
+    l_temp_string := ',x.data_id, '
+                     || case when not a_unordered then 'position + x.item_no ' else 'rownum ' end 
+                     ||'item_no from ' || l_ut_owner || '.ut_compound_data_tmp x,'
+                     ||q'[xmltable('/ROWSET/ROW' passing x.item_data columns ]' ;
+    ut_utils.append_to_clob(a_current_stmt,l_temp_string);
+    
+    ut_utils.append_to_clob(a_current_stmt,a_xmltable_stmt);
+    ut_utils.append_to_clob(a_current_stmt,case when a_xmltable_stmt is null then '' else ',' end||q'[ item_data xmltype PATH '*']');
+    if not a_unordered then
+      ut_utils.append_to_clob(a_current_stmt,', POSITION for ordinality ');
+    end if;   
+    ut_utils.append_to_clob(a_current_stmt,' ) ucd where data_id = :'||a_type||'_guid ) ucd ) ');  
+  end;
+    
+  
   function gen_compare_sql(a_inclusion_type boolean, a_is_negated boolean,a_unordered boolean,
     a_other ut_data_value_refcursor :=null, a_join_by_list ut_varchar2_list:=ut_varchar2_list() ) return clob is
     l_compare_sql   clob;
     l_temp_string   varchar2(32767);
     
-    l_ut_owner       varchar2(250) := ut_utils.ut_owner;
     l_xmltable_stmt  clob;
     l_where_stmt     clob;
     l_select_stmt    clob;
@@ -289,50 +314,12 @@ create or replace package body ut_compound_data_helper is
       
     l_temp_string := 'with exp as ( select ucd.* ';    
     ut_utils.append_to_clob(l_compare_sql, l_temp_string);
-    ut_utils.append_to_clob(l_compare_sql,l_partition_stmt);
+    get_act_and_exp_set(l_compare_sql, l_partition_stmt,l_select_stmt, l_xmltable_stmt, a_unordered,'exp');
     
-    l_temp_string := 'from (select ucd.item_data ';
+        
+    l_temp_string :=',act as ( select ucd.* '; 
     ut_utils.append_to_clob(l_compare_sql, l_temp_string);
-    ut_utils.append_to_clob(l_compare_sql, l_select_stmt);
-    
-    l_temp_string := ',x.data_id ,'
-                     || case when not a_unordered then 'position + x.item_no ' else 'rownum ' end 
-                     ||'item_no from '|| l_ut_owner || '.ut_compound_data_tmp x, '
-                     ||q'[xmltable('/ROWSET/ROW' passing x.item_data columns ]';   
-    ut_utils.append_to_clob(l_compare_sql, l_temp_string); 
-    
-    ut_utils.append_to_clob(l_compare_sql,l_xmltable_stmt);
-    ut_utils.append_to_clob(l_compare_sql,case when l_xmltable_stmt is null then '' else ',' end||q'[ item_data xmltype PATH '*']');
-     
-    if not a_unordered then
-      ut_utils.append_to_clob(l_compare_sql,', POSITION for ordinality ');
-    end if;
-    
-    l_temp_string := q'[) ucd where data_id = :self_guid ) ucd ) ,]';
-    ut_utils.append_to_clob(l_compare_sql,l_temp_string);
-    
-    l_temp_string :='act as ( select ucd.* '; 
-    ut_utils.append_to_clob(l_compare_sql, l_temp_string);
-    ut_utils.append_to_clob(l_compare_sql, l_partition_stmt);
-    
-    l_temp_string := 'from (select ucd.item_data ';
-    ut_utils.append_to_clob(l_compare_sql,l_temp_string);
-    ut_utils.append_to_clob(l_compare_sql, l_select_stmt);
-     
-    l_temp_string := ',x.data_id, '
-                     || case when not a_unordered then 'position + x.item_no ' else 'rownum ' end 
-                     ||'item_no from ' || l_ut_owner || '.ut_compound_data_tmp x,'
-                     ||q'[xmltable('/ROWSET/ROW' passing x.item_data columns ]' ;
-    ut_utils.append_to_clob(l_compare_sql,l_temp_string);
-    
-    ut_utils.append_to_clob(l_compare_sql,l_xmltable_stmt);
-    ut_utils.append_to_clob(l_compare_sql,case when l_xmltable_stmt is null then '' else ',' end||q'[ item_data xmltype PATH '*']');
- 
-    if not a_unordered then
-      ut_utils.append_to_clob(l_compare_sql,', POSITION for ordinality ');
-    end if;
-    
-    ut_utils.append_to_clob(l_compare_sql,q'[ ) ucd where data_id = :other_guid ) ucd ) ]');
+    get_act_and_exp_set(l_compare_sql, l_partition_stmt,l_select_stmt, l_xmltable_stmt, a_unordered,'act');
     
     l_temp_string :=  ' select a.item_data as act_item_data, a.data_id act_data_id,'
                        ||'e.item_data as exp_item_data, e.data_id exp_data_id, '||
