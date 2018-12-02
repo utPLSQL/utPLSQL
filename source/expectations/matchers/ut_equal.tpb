@@ -158,7 +158,6 @@ create or replace type body ut_equal as
   member function include(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    --TODO : move that logic split into get_include after removed all calls to incl and excl  
     l_result.include_list := l_result.include_list multiset union coalesce(ut_utils.string_to_table(REPLACE(a_items,'|',','),','),ut_varchar2_list());
     return l_result;
   end;
@@ -167,7 +166,6 @@ create or replace type body ut_equal as
     l_result ut_equal := self;
     l_items  ut_varchar2_list := ut_varchar2_list();
   begin
-    --TODO : move that logic split into get_include after removed all calls to incl and excl
     for i in 1..a_items.count loop
       l_items := l_items multiset union all coalesce(ut_utils.string_to_table(REPLACE(a_items(i),'|',','),','),ut_varchar2_list());
     end loop;
@@ -178,7 +176,6 @@ create or replace type body ut_equal as
   member function exclude(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    --TODO : move that logic split into get_include after removed all calls to incl and excl
     l_result.exclude_list := l_result.exclude_list multiset union all coalesce(ut_utils.string_to_table(REPLACE(a_items,'|',','),','),ut_varchar2_list());
     return l_result;
   end;
@@ -187,7 +184,6 @@ create or replace type body ut_equal as
     l_result ut_equal := self;
     l_items  ut_varchar2_list := ut_varchar2_list();
   begin
-    --TODO : move that logic split into get_include after removed all calls to incl and excl
     for i in 1..a_items.count loop
      l_items := l_items multiset union all coalesce(ut_utils.string_to_table(REPLACE(a_items(i),'|',','),','),ut_varchar2_list());
     end loop;

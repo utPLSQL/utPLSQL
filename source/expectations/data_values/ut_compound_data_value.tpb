@@ -111,7 +111,6 @@ create or replace type body ut_compound_data_value as
     l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_actual.data_id);
     -- First tell how many rows are different
     l_diff_row_count := ut_compound_data_helper.get_rows_diff_count; 
-    --TODO : Change message when the types not matching
     if l_diff_row_count > 0  then
       l_row_diffs := ut_compound_data_helper.get_rows_diff(
             self.data_id, l_actual.data_id, l_diff_id, c_max_rows, a_exclude_xpath, 
@@ -206,7 +205,6 @@ create or replace type body ut_compound_data_value as
     l_sql_rowcount integer :=0;
     
   begin
-   --TODO : Bring diffs row into same place for ref data cursor especially (how we going to do that so we dont break anyval etc)
    l_other         := treat(a_other as ut_compound_data_value);  
    l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
 

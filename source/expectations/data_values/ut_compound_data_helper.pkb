@@ -134,7 +134,6 @@ create or replace package body ut_compound_data_helper is
         l_sql_stmt := l_sql_stmt ||' a.'||a_col_name||q'[ = ]'||' e.'||a_col_name;
       elsif a_data_info.parent_name = l_pk_tab(l_index)then
         --When then table is nested and join is on whole table
-        --TODO : Can this be done smarter ?
         l_sql_stmt := case when a_join_by_stmt is null then null else ' and ' end;  
         l_sql_stmt := l_sql_stmt ||' a.'||a_col_name||q'[ = ]'||' e.'||a_col_name;
       end if;
@@ -168,7 +167,6 @@ create or replace package body ut_compound_data_helper is
           l_sql_stmt := l_sql_stmt ||l_alias||a_col_name;
         elsif a_data_info.parent_name = l_pk_tab(l_index)then
           --When then table is nested and join is on whole table
-          --TODO : Can this be done smarter ?
           l_sql_stmt := case when a_partition_stmt is null then null else ',' end;  
           l_sql_stmt := l_sql_stmt ||l_alias||a_col_name;
         end if;
@@ -202,7 +200,6 @@ create or replace package body ut_compound_data_helper is
   begin    
     if a_data_info.is_sql_diffable = 0 then 
       l_col_type := 'XMLTYPE';
-    --TODO : Is it right to use timestamp ?
     elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type = 'DATE' then 
       l_col_type := 'TIMESTAMP';
     elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('TIMESTAMP','TIMESTAMP WITH TIME ZONE') then
@@ -748,7 +745,6 @@ create or replace package body ut_compound_data_helper is
     return a_anytype_code in (dbms_types.typecode_varray,dbms_types.typecode_table,dbms_types.typecode_namedcollection);
   end;
 
-  --TODO Look at simplify that option
   function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2 is
   begin
    return case when a_dbms_sql_desc then g_type_name_map(a_type_code) else g_anytype_name_map(a_type_code) end;

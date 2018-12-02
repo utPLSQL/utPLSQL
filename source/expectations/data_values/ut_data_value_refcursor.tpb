@@ -235,7 +235,6 @@ create or replace type body ut_data_value_refcursor as
     l_diff_row_count := ut_compound_data_helper.get_rows_diff_count; 
     l_results := ut_utils.t_clob_tab();
     if l_diff_row_count > 0  then
-        --TODO : since columns can differ we need to pass both list or get common denominator
         l_row_diffs := ut_compound_data_helper.get_rows_diff_by_sql(
               l_exp_cols,l_act_cols, self.data_id, l_actual.data_id, l_diff_id,a_join_by_list , a_unordered);
         l_message := chr(10)

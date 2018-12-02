@@ -53,7 +53,6 @@ create or replace type body ut_include as
     l_actual ut_data_value;
     l_result1 integer;
   begin
-    --TODO : Join by exclude an include should show differences
     if self.expected.data_type = a_actual.data_type then
         l_actual := treat(a_actual as ut_data_value_refcursor).filter_cursor(exclude_list, include_list);      
         l_result := 0 = treat(self.expected as ut_data_value_refcursor).filter_cursor(exclude_list, include_list).compare_implementation(l_actual,                          

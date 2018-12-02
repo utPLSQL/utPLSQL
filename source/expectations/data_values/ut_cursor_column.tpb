@@ -30,7 +30,6 @@ create or replace type body ut_cursor_column as
                                 ut_utils.boolean_to_int(ut_compound_data_helper.is_sql_compare_allowed(self.column_type))
                               end;  --can we directly compare or do we need to hash value
       self.is_collection   := a_collection;
-      --TODO : fix that as is nasty hardcode
       self.has_nested_col := case when lower(self.column_type) = 'user_defined_type' and self.is_collection = 0 then 1 else 0 end;
    end;
      
