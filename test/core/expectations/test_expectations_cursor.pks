@@ -68,8 +68,14 @@ create or replace package test_expectations_cursor is
   --%test(Gives failure when different column name is used in cursors)
   procedure fail_on_different_column_name;
 
-  --%test(Gives failure when different column ordering is used in cursors)
+  --%test(Gives failure when different column ordering is used in cursors when enforced column order)
   procedure fail_on_different_column_order;
+
+  --%test(Pass when different column ordering is used in cursors)
+  procedure pass_on_different_column_order;
+
+  --%test(Fail and highlight diffrence between columns when columns are unordered and different value)
+  procedure fail_on_multi_diff_col_order;
 
   --%test(Gives failure when different row ordering is used in cursors)
   procedure fail_on_different_row_order;
@@ -131,8 +137,11 @@ create or replace package test_expectations_cursor is
   --%test(Reports column diff on cursor with different column name)
   procedure column_diff_on_col_name_diff;
 
-  --%test(Reports column diff on cursor with different column positions)
+  --%test(Reports column diff on cursor with different column positions when column order is enforced)
   procedure column_diff_on_col_position;
+
+  --%test(Reports column diff on cursor with different column positions)
+  procedure column_diff_on_col_pos_unord;
 
   --%test(Reports only mismatched columns on row data mismatch)
   procedure data_diff_on_col_data_mismatch;
@@ -140,8 +149,11 @@ create or replace package test_expectations_cursor is
   --%test(Reports only first 20 rows of diff and gives a full diff count)
   procedure data_diff_on_20_rows_only;
 
-  --%test(Reports data diff and column diff when both are different)
+  --%test(Reports data diff and column diff when both are different with enforced ordered columns)
   procedure column_and_data_diff;
+
+  --%test(Reports data diff and column diff when both are different when columns are not ordered)
+  procedure col_and_data_diff_not_ordered;
 
   procedure prepare_table;
   procedure cleanup_table;
@@ -198,6 +210,9 @@ create or replace package test_expectations_cursor is
   
   --%test( Compare cursors join by single key )
   procedure cursor_joinby_compare; 
+  
+  --%test(Compare cursors by single key with unordered columns position)
+  procedure cursor_joinby_col_not_ord;  
   
   --%test( Compare cursors join by composite key)
   procedure cursor_joinby_compare_twocols; 

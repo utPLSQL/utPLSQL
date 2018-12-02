@@ -2,13 +2,21 @@ create or replace type body ut_cursor_details as
 
   order member function compare(a_other ut_cursor_details) return integer is
    l_diffs integer;
-  begin     
-    select count(1) into l_diffs
-    from table(self.cursor_info) a full outer join table(a_other.cursor_info) e
-    on  ( decode(a.parent_name,e.parent_name,1,0)= 1 and a.column_name = e.column_name and 
-          REPLACE(a.column_type,'VARCHAR2','CHAR') =  REPLACE(e.column_type,'VARCHAR2','CHAR')
-         and  a.column_position = e.column_position )
-    where a.column_name is null or e.column_name is null;   
+  begin   
+    if self.is_column_order_enforced = 1 then
+      select count(1) into l_diffs
+      from table(self.cursor_info) a full outer join table(a_other.cursor_info) e
+      on  ( decode(a.parent_name,e.parent_name,1,0)= 1 and a.column_name = e.column_name and 
+        REPLACE(a.column_type,'VARCHAR2','CHAR') =  REPLACE(e.column_type,'VARCHAR2','CHAR')
+       and  a.column_position = e.column_position )
+      where a.column_name is null or e.column_name is null;  
+    else
+      select count(1) into l_diffs
+      from table(self.cursor_info) a full outer join table(a_other.cursor_info) e
+      on  ( decode(a.parent_name,e.parent_name,1,0)= 1 and a.column_name = e.column_name and 
+        REPLACE(a.column_type,'VARCHAR2','CHAR') =  REPLACE(e.column_type,'VARCHAR2','CHAR'))
+      where a.column_name is null or e.column_name is null;   
+    end if;
     return l_diffs;
   end;
   
@@ -220,6 +228,11 @@ create or replace type body ut_cursor_details as
       end loop;
       return;
    end;
+
+  member procedure ordered_columns(self in out nocopy ut_cursor_details,a_ordered_columns boolean := false) is
+  begin
+    self.is_column_order_enforced := ut_utils.boolean_to_int(a_ordered_columns);
+  end;
 
 end;
 /

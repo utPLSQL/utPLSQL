@@ -46,8 +46,8 @@ create or replace package body ut_compound_data_helper is
     end if;
     return l_filter;
   end;
- 
-  function get_columns_diff(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab) 
+    
+  function get_columns_diff_ordered(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab) 
   return tt_column_diffs is
     l_column_filter  varchar2(32767);
     l_sql            varchar2(32767);
@@ -86,6 +86,53 @@ create or replace package body ut_compound_data_helper is
           or (a_pos_nn != e_pos_nn and exp_col_pos != act_col_pos)
        order by exp_col_pos, act_col_pos;
     return l_results;
+  end;
+  
+  function get_columns_diff_unordered(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab) 
+  return tt_column_diffs is
+    l_column_filter  varchar2(32767);
+    l_sql            varchar2(32767);
+    l_results        tt_column_diffs;
+  begin
+    with 
+      expected_cols as 
+      (select access_path exp_column_name,column_position exp_col_pos,
+      replace(column_type,'VARCHAR2','CHAR') exp_col_type_compare, column_type exp_col_type
+      from table(a_expected)),
+      actual_cols as
+      (select access_path act_column_name,column_position act_col_pos,
+      replace(column_type,'VARCHAR2','CHAR') act_col_type_compare, column_type act_col_type
+      from table(a_actual)),
+      joined_cols as
+      (select e.*,a.*
+      from expected_cols e
+      full outer join actual_cols a on e.exp_column_name = a.act_column_name)
+      select case
+               when exp_col_pos is null and act_col_pos is not null then '+'
+               when exp_col_pos is not null and act_col_pos is null then '-'
+               when exp_col_type_compare != act_col_type_compare then 't'
+               else 'p'
+             end as diff_type,
+             exp_column_name, exp_col_type, exp_col_pos,
+             act_column_name, act_col_type, act_col_pos
+        bulk collect into l_results
+        from joined_cols
+             --column is unexpected (extra) or missing
+       where act_col_pos is null or exp_col_pos is null
+          --column type is not matching (except CHAR/VARCHAR2)
+          or act_col_type_compare != exp_col_type_compare
+       order by exp_col_pos, act_col_pos;
+    return l_results;
+  end;
+
+  function get_columns_diff(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab,a_order_enforced boolean := false) 
+  return tt_column_diffs is
+  begin
+    if a_order_enforced then
+      return get_columns_diff_ordered(a_expected,a_actual);
+    else 
+      return get_columns_diff_unordered(a_expected,a_actual);
+    end if;
   end;
   
   function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return clob is
@@ -218,10 +265,10 @@ create or replace package body ut_compound_data_helper is
     ut_utils.append_to_clob(a_sql_stmt, l_sql_stmt);
   end;
   
-  procedure gen_sql_pieces_out_of_cursor(a_data_info ut_data_value_refcursor,a_pk_table ut_varchar2_list, a_xml_stmt out nocopy clob, 
+  procedure gen_sql_pieces_out_of_cursor(a_data_info ut_cursor_column_tab,a_pk_table ut_varchar2_list, a_xml_stmt out nocopy clob, 
   a_select_stmt out nocopy clob  ,a_partition_stmt out nocopy clob, a_equal_stmt out nocopy clob, a_join_by_stmt out nocopy clob,
   a_not_equal_stmt out nocopy clob) is
-    l_cursor_info ut_cursor_column_tab := a_data_info.cursor_details.cursor_info;
+    l_cursor_info ut_cursor_column_tab := a_data_info;
     l_partition_tmp clob;
     l_col_name varchar2(100);
   begin
@@ -305,7 +352,7 @@ create or replace package body ut_compound_data_helper is
   
   begin
     dbms_lob.createtemporary(l_compare_sql, true);
-    gen_sql_pieces_out_of_cursor(a_other, a_join_by_list, 
+    gen_sql_pieces_out_of_cursor(a_other.cursor_details.cursor_info, a_join_by_list, 
       l_xmltable_stmt, l_select_stmt, l_partition_stmt, l_equal_stmt, 
       l_join_on_stmt, l_not_equal_stmt);
       
@@ -374,9 +421,8 @@ create or replace package body ut_compound_data_helper is
   
   function get_rows_diff_by_sql(a_act_cursor_info ut_cursor_column_tab,a_exp_cursor_info ut_cursor_column_tab, 
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
-    a_join_by_list ut_varchar2_list, a_unordered boolean
+    a_join_by_list ut_varchar2_list, a_unordered boolean, a_enforce_column_order boolean := false
   ) return tt_row_diffs is
-    
     l_act_col_filter varchar2(32767);
     l_exp_col_filter varchar2(32767);
     l_act_extract_xpath  varchar2(32767):= ut_utils.to_xpath(get_column_extract_path(a_act_cursor_info));
@@ -412,25 +458,28 @@ create or replace package body ut_compound_data_helper is
       select rn, diff_type, diffed_row, pk_value
       ,case when diff_type = 'Actual:' then 1 else 2 end rnk
       ,1 final_order
+      ,col_name
       from ( ]';
       
     if a_unordered then 
-      l_sql := l_sql || q'[select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, pk_value pk_value
+      l_sql := l_sql || q'[select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, pk_value,col_name
       from 
-        (select nvl(exp.rn, act.rn) rn, nvl(exp.pk_value, act.pk_value) pk_value, exp.col  exp_item, act.col  act_item       
+        (select nvl(exp.rn, act.rn) rn, nvl(exp.pk_value, act.pk_value) pk_value, exp.col  exp_item, act.col  act_item ,
+        nvl(exp.col_name,act.col_name) col_name
         from exp join act on exp.rn = act.rn and exp.col_name = act.col_name
         where dbms_lob.compare(exp.col_val, act.col_val) != 0)
         unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') 
       ))]';
     else
-    l_sql := l_sql || q'[ select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, null pk_value
+    l_sql := l_sql || q'[ select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, null pk_value,col_name
       from 
         (select nvl(exp.rn, act.rn) rn,
           xmlagg(exp.col order by exp.col_no) exp_item,
-          xmlagg(act.col order by act.col_no) act_item
+          xmlagg(act.col order by act.col_no) act_item,
+          max(nvl(exp.col_name,act.col_name)) col_name
         from exp exp join act act on exp.rn = act.rn and exp.col_name = act.col_name
         where dbms_lob.compare(exp.col_val, act.col_val) != 0
-        group by exp.rn, act.rn
+        group by (exp.rn, act.rn)
         )
         unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:'))
       )]';
@@ -443,14 +492,26 @@ create or replace package body ut_compound_data_helper is
       nvl2(:join_by,ut_compound_data_helper.get_pk_value(:join_by,case when exp_data_id is null then act_item_data else exp_item_data end),null) pk_value
       ,case when exp_data_id is null then 1 else 2 end rnk
       ,2 final_order
+      ,null col_name
     from   ut_compound_data_diff_tmp i
     where  diff_id = :diff_id 
     and    act_data_id is null or exp_data_id is null
    )
-   order by final_order, 
-   case when final_order = 1 then rn else rnk end,
-   case when final_order = 1 then rnk else rn end ]';
+   order by final_order,]';
    
+   if a_enforce_column_order then
+     l_sql := l_sql ||q'[case when final_order = 1 then rn else rnk end,
+     case when final_order = 1 then rnk else rn end ]';
+   elsif not(a_enforce_column_order) and not(a_unordered) then
+     l_sql := l_sql ||q'[case when final_order = 1 then rn else rnk end,
+     case when final_order = 1 then rnk else rn end ]';    
+   elsif a_unordered then
+     l_sql := l_sql ||q'[case when final_order = 1 then col_name else to_char(rnk) end,
+     case when final_order = 1 then to_char(rn) else col_name end,
+     case when final_order = 1 then to_char(rnk) else col_name end
+     ]';  
+   end if;
+
    execute immediate l_sql
    bulk collect into l_results
     using l_exp_extract_xpath,l_join_xpath,a_diff_id, a_expected_dataset_guid,

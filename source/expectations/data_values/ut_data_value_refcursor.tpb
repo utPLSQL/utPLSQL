@@ -141,6 +141,8 @@ create or replace type body ut_data_value_refcursor as
     l_row_diffs         ut_compound_data_helper.tt_row_diffs;
     l_message           varchar2(32767);
     
+    l_column_order_enforce boolean := ut_utils.int_to_boolean(self.cursor_details.is_column_order_enforced);
+    
     function get_col_diff_text(a_col ut_compound_data_helper.t_column_diffs) return varchar2 is
     begin
       return
@@ -208,8 +210,8 @@ create or replace type body ut_data_value_refcursor as
     dbms_lob.createtemporary(l_result,true);
     --diff columns
     if not self.is_null and not l_actual.is_null then
-      l_column_diffs := ut_compound_data_helper.get_columns_diff(self.cursor_details.cursor_info,l_actual.cursor_details.cursor_info);
-
+      l_column_diffs := ut_compound_data_helper.get_columns_diff(self.cursor_details.cursor_info,l_actual.cursor_details.cursor_info,l_column_order_enforce);
+    
       if l_column_diffs.count > 0 then
         ut_utils.append_to_clob(l_result,chr(10) || 'Columns:' || chr(10));
       end if;
@@ -234,9 +236,9 @@ create or replace type body ut_data_value_refcursor as
     -- First tell how many rows are different
     l_diff_row_count := ut_compound_data_helper.get_rows_diff_count; 
     l_results := ut_utils.t_clob_tab();
-    if l_diff_row_count > 0  then
+      if l_diff_row_count > 0  then
         l_row_diffs := ut_compound_data_helper.get_rows_diff_by_sql(
-              l_exp_cols,l_act_cols, self.data_id, l_actual.data_id, l_diff_id,a_join_by_list , a_unordered);
+              l_exp_cols,l_act_cols, self.data_id, l_actual.data_id, l_diff_id,a_join_by_list , a_unordered, l_column_order_enforce);
         l_message := chr(10)
                      ||'Rows: [ ' || l_diff_row_count ||' differences'
                      ||  case when  l_diff_row_count > c_max_rows and l_row_diffs.count > 0 then ', showing first '||c_max_rows end
@@ -248,7 +250,7 @@ create or replace type body ut_data_value_refcursor as
         end loop;
         ut_utils.append_to_clob(l_result,l_results);
       else
-        l_message:= chr(10)||'Rows: [  all different ]'||chr(10)||'  All rows are different as the columns are not matching.';
+        l_message:= chr(10)||'Rows: [  all different ]'||chr(10)||'  All rows are different as the columns position is not matching.';
         ut_utils.append_to_clob( l_result, l_message );
       end if;   
     else
@@ -304,11 +306,12 @@ create or replace type body ut_data_value_refcursor as
     return self.elements_count = 0;
   end;
 
-  member function filter_cursor (a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list) return ut_data_value_refcursor is
+  member function update_cursor_details (a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list,a_ordered_columns boolean := false) return ut_data_value_refcursor is
     l_result ut_data_value_refcursor := self;
   begin   
     if l_result.cursor_details.cursor_info is not null then
       l_result.cursor_details.cursor_info := ut_compound_data_helper.inc_exc_columns_from_cursor(l_result.cursor_details.cursor_info,a_exclude_xpath,a_include_xpath);
+      l_result.cursor_details.ordered_columns(a_ordered_columns);
     end if;    
     return l_result;
   end;

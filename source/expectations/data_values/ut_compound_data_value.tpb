@@ -223,7 +223,7 @@ create or replace type body ut_compound_data_value as
    end loop;
    
    ut_compound_data_helper.set_rows_diff(l_sql_rowcount); 
-        --result is OK only if both are same  
+   --result is OK only if both are same  
    if l_sql_rowcount = 0 and ( self.elements_count = l_other.elements_count or a_inclusion_compare )then
      l_result := 0; 
    else

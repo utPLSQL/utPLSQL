@@ -1,6 +1,7 @@
 create or replace type ut_cursor_details force authid current_user as object
 (
    cursor_info ut_cursor_column_tab,
+   is_column_order_enforced number(1,0),
    order member function compare(a_other ut_cursor_details) return integer,
    member procedure get_anytype_members_info(a_anytype anytype, a_attribute_typecode out pls_integer,
     a_schema_name out varchar2, a_type_name out varchar2, a_len out pls_integer,a_elements_count out pls_integer),
@@ -15,6 +16,7 @@ create or replace type ut_cursor_details force authid current_user as object
    member function get_user_defined_type(a_data anydata) return anytype,
    constructor function ut_cursor_details(self in out nocopy ut_cursor_details) return self as result,
    constructor function ut_cursor_details(self in out nocopy ut_cursor_details,a_cursor_number in number)
-      return self as result
+      return self as result,
+   member procedure ordered_columns(self in out nocopy ut_cursor_details,a_ordered_columns boolean := false)
 )
 /

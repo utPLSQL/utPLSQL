@@ -38,5 +38,6 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
   overriding member function compare_implementation(a_other ut_data_value, a_unordered boolean, a_inclusion_compare boolean := false, a_is_negated boolean := false, 
                                          a_join_by_list ut_varchar2_list:=ut_varchar2_list()) return integer,
   overriding member function is_empty return boolean,
-  member function filter_cursor (a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list) return ut_data_value_refcursor)
+  member function update_cursor_details (a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list,a_ordered_columns boolean := false) return ut_data_value_refcursor
+)
 /

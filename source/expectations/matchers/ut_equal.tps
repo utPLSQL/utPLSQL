@@ -1,4 +1,4 @@
-create or replace type ut_equal under ut_comparison_matcher(
+create or replace type ut_equal force under ut_comparison_matcher(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -42,6 +42,11 @@ create or replace type ut_equal under ut_comparison_matcher(
    */
   join_on_list ut_varchar2_list,
   
+  /**
+  * Flag to force cursor comparision into ordered mode
+  */
+  is_column_order_enforced number(1,0),
+  
   member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean),
   member function equal_with_nulls( self in ut_equal, a_assert_result boolean, a_actual ut_data_value) return boolean,
   constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result,
@@ -75,7 +80,9 @@ create or replace type ut_equal under ut_comparison_matcher(
   member function get_join_by_list return ut_varchar2_list,
   overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean,
   overriding member function failure_message(a_actual ut_data_value) return varchar2,
-  overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2
+  overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2,
+  member function ordered_columns return ut_equal,
+  member function get_ordered_columns return boolean
 )
 not final
 /

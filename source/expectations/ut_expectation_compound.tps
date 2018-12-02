@@ -48,7 +48,9 @@ create or replace type ut_expectation_compound under ut_expectation(
   member function  join_by(a_columns varchar2) return ut_expectation_compound,
   member function  join_by(a_columns ut_varchar2_list) return ut_expectation_compound,
   member procedure join_by(self in ut_expectation_compound, a_columns varchar2),
-  member procedure join_by(self in ut_expectation_compound, a_columns ut_varchar2_list)
+  member procedure join_by(self in ut_expectation_compound, a_columns ut_varchar2_list),
+  member function  ordered_columns return ut_expectation_compound,
+  member procedure ordered_columns(self in ut_expectation_compound)
 )
 final
 /
