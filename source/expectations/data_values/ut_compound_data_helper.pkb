@@ -640,18 +640,6 @@ create or replace package body ut_compound_data_helper is
     order by type desc,name;
     return l_missing_pk;
   end;
- 
-  function validate_attributes(a_cursor_info ut_cursor_column_tab,a_filter_list ut_varchar2_list)
-  return ut_varchar2_list is
-    l_result ut_varchar2_list := ut_varchar2_list();
-  begin
-    select col_name bulk collect into l_result
-    from (select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_name
-    from table(a_filter_list)) flr left outer join table(a_cursor_info) cur
-    on (flr.col_name = cur.access_path) where cur.access_path is null;
-     
-    return l_result;
-  end;
   
   function inc_exc_columns_from_cursor (a_cursor_info ut_cursor_column_tab, a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list)
   return ut_cursor_column_tab is
@@ -715,15 +703,6 @@ create or replace package body ut_compound_data_helper is
     where c.column_value is null;  
 
     return l_result;
-  end;
-  
-  function generate_missing_cols_warn_msg(a_missing_columns ut_varchar2_list,a_attribute in varchar2) return varchar2 is
-    l_warn_msg varchar2(32767) := 'For specified option :'||a_attribute||' following columns not exists in cursor:'||chr(10);
-  begin
-    for i in 1..a_missing_columns.count loop
-      l_warn_msg := l_warn_msg||a_missing_columns(i)||chr(10);
-    end loop;
-    return l_warn_msg;
   end;
  
   function getxmlchildren(a_parent_name varchar2,a_cursor_table ut_cursor_column_tab)

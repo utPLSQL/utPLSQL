@@ -1755,15 +1755,16 @@ Diff:%
       from dual connect by level <=2;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/UT_KEY_VALUE_PAIR');
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/UT_KEY_VALUE_PAIRS');
     
     --Assert
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
 %Diff:
-%Unable to join sets:
-%Join key NESTED_TABLE/UT_KEY_VALUE_PAIR does not exists in expected%
-%Join key NESTED_TABLE/UT_KEY_VALUE_PAIR does not exists in actual%
-%Please make sure that your join clause is not refferring to collection element%]';
+%Rows: [ 4 differences ]
+%Extra:    <RN>2</RN><NESTED_TABLE><UT_KEY_VALUE_PAIR><KEY>1</KEY><VALUE>Something 1</VALUE></UT_KEY_VALUE_PAIR><UT_KEY_VALUE_PAIR><KEY>2</KEY><VALUE>Something 2</VALUE></UT_KEY_VALUE_PAIR></NESTED_TABLE>
+%Extra:    <RN>1</RN><NESTED_TABLE><UT_KEY_VALUE_PAIR><KEY>1</KEY><VALUE>Something 1</VALUE></UT_KEY_VALUE_PAIR><UT_KEY_VALUE_PAIR><KEY>2</KEY><VALUE>Something 2</VALUE></UT_KEY_VALUE_PAIR></NESTED_TABLE>
+%Missing:  <RN>1</RN><NESTED_TABLE><UT_KEY_VALUE_PAIR><KEY>1</KEY><VALUE>Somethings 1</VALUE></UT_KEY_VALUE_PAIR><UT_KEY_VALUE_PAIR><KEY>2</KEY><VALUE>Somethings 2</VALUE></UT_KEY_VALUE_PAIR></NESTED_TABLE>
+%Missing:  <RN>2</RN><NESTED_TABLE><UT_KEY_VALUE_PAIR><KEY>1</KEY><VALUE>Somethings 1</VALUE></UT_KEY_VALUE_PAIR><UT_KEY_VALUE_PAIR><KEY>2</KEY><VALUE>Somethings 2</VALUE></UT_KEY_VALUE_PAIR></NESTED_TABLE>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);

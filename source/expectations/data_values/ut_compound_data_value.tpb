@@ -96,16 +96,7 @@ create or replace type body ut_compound_data_value as
     
     function get_diff_message (a_row_diff ut_compound_data_helper.t_row_diffs,a_is_unordered boolean) return varchar2 is
     begin
-
-      if a_is_unordered then     
-        if a_row_diff.pk_value is not null then
-          return  '  PK '||a_row_diff.pk_value||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
-        else
-          return rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
-        end if;
-      else
-        return '  Row No. '||a_row_diff.rn||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
-      end if; 
+      return '  Row No. '||a_row_diff.rn||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
     end;
     
   begin

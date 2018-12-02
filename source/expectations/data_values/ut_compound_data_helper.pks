@@ -102,16 +102,12 @@ create or replace package ut_compound_data_helper authid definer is
   function get_missing_pk(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab, a_current_list ut_varchar2_list) 
   return tt_missing_pk;
   
-  function validate_attributes(a_cursor_info ut_cursor_column_tab, a_filter_list ut_varchar2_list) return ut_varchar2_list;
-  
   function inc_exc_columns_from_cursor (a_cursor_info ut_cursor_column_tab, a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list)  
   return ut_cursor_column_tab;
   
   function contains_collection (a_cursor_info ut_cursor_column_tab) return number;
   
   function remove_incomparable_cols( a_cursor_details ut_cursor_column_tab,a_incomparable_cols ut_varchar2_list) return ut_cursor_column_tab;
-  
-  function generate_missing_cols_warn_msg(a_missing_columns ut_varchar2_list,a_attribute in varchar2) return varchar2;
   
   function getxmlchildren(a_parent_name varchar2,a_cursor_table ut_cursor_column_tab) return xmltype;
 

@@ -35,14 +35,11 @@ Each item in the comma separated list can be:
 - a column name of cursor to be compared
 - an attribute name of object type to be compared   
 - an attribute name of object type within a table of objects to be compared
-- an [XPath](http://zvon.org/xxl/XPathTutorial/Output/example1.html) expression representing column/attribute
 - Include and exclude option will not support implicit colum names that starts with single quota, or in fact any other special characters e.g. <, >, &
 
 Each element in `ut_varchar2_list` nested table can be an item or a comma separated list of items.
 
 When specifying column/attribute names, keep in mind that the names are **case sensitive**. 
-
-**XPath expressions with comma are not supported.**
 
 ## Excluding elements from data comparison
 
@@ -286,30 +283,31 @@ Diff:
 
 ***Please note that .join_by option will take longer to process due to need of parsing via primary keys.***
 
-## Defining item as XPath
-When using XPath expression, keep in mind the following:
+## Defining item lists in option
+XPath expressions are deprecated. They are currently still supported but in future versions they can be removed completely. Please use a current standard of defining items filter.
 
-- cursor columns are nested under `<ROW>` element
+When using item list expression, keep in mind the following:
+
 - object type attributes are nested under `<OBJECTY_TYPE>` element
 - nested table and varray items type attributes are nested under `<ARRAY><OBJECTY_TYPE>` elements
 
-Example of a valid XPath parameter to include columns: `RN`, `A_Column`, `SOME_COL` in data comparison. 
+Example of a valid parameter to include columns: `RN`, `A_Column`, `SOME_COL` in data comparison. 
 ```sql
-procedure include_col_as_xpath_eq is
+procedure include_col_list_eq is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
 begin
     open l_expected for select rownum as rn, 'a' as "A_Column", 'x' SOME_COL from dual a connect by level < 4;
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'x' SOME_COL, a.* from all_objects a where rownum < 4;
-    ut.expect( l_actual ).to_equal( l_expected ).include( '/ROW/RN|/ROW/A_Column|/ROW/SOME_COL' );
+    ut.expect( l_actual ).to_equal( l_expected ).include( 'RN,A_Column,SOME_COL' );
 end;
 
-procedure include_col_as_xpath_cn is
+procedure include_col_list_eq is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
 begin
     open l_expected for select rownum as rn, 'a' as "A_Column", 'x' SOME_COL from dual a connect by level < 4;
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'x' SOME_COL, a.* from all_objects a where rownum < 6;
-    ut.expect( l_actual ).to_include( l_expected ).include( '/ROW/RN|/ROW/A_Column|/ROW/SOME_COL' );
+    ut.expect( l_actual ).to_include( l_expected ).include( 'RN,A_Column,SOME_COL' );
 end;
 ```
