@@ -102,7 +102,7 @@ create or replace type body ut_data_value_refcursor as
   overriding member function to_string return varchar2 is
     l_result        clob;
     l_result_string varchar2(32767);
-    l_cursor_details ut_cursor_column_tab := self.cursor_details.cursor_info;
+    l_cursor_details ut_cursor_column_tab := self.cursor_details.cursor_columns_info;
     
     l_query   varchar2(32767);
     l_column_info   xmltype;
@@ -204,13 +204,13 @@ create or replace type body ut_data_value_refcursor as
     end if;
     l_actual := treat(a_other as ut_data_value_refcursor);
 
-    l_act_cols  := l_actual.cursor_details.cursor_info;
-    l_exp_cols  := self.cursor_details.cursor_info;
+    l_act_cols  := l_actual.cursor_details.cursor_columns_info;
+    l_exp_cols  := self.cursor_details.cursor_columns_info;
 
     dbms_lob.createtemporary(l_result,true);
     --diff columns
     if not self.is_null and not l_actual.is_null then
-      l_column_diffs := ut_compound_data_helper.get_columns_diff(self.cursor_details.cursor_info,l_actual.cursor_details.cursor_info,l_column_order_enforce);
+      l_column_diffs := ut_compound_data_helper.get_columns_diff(self.cursor_details.cursor_columns_info,l_actual.cursor_details.cursor_columns_info,l_column_order_enforce);
     
       if l_column_diffs.count > 0 then
         ut_utils.append_to_clob(l_result,chr(10) || 'Columns:' || chr(10));
@@ -220,8 +220,8 @@ create or replace type body ut_data_value_refcursor as
         l_results(l_results.last) := get_col_diff_text(l_column_diffs(i));
       end loop;
       ut_utils.append_to_clob(l_result, l_results);
-      l_act_cols  := remove_incomparable_cols(l_actual.cursor_details.cursor_info,l_column_diffs);
-      l_exp_cols  := remove_incomparable_cols(self.cursor_details.cursor_info,l_column_diffs);
+      l_act_cols  := remove_incomparable_cols(l_actual.cursor_details.cursor_columns_info,l_column_diffs);
+      l_exp_cols  := remove_incomparable_cols(self.cursor_details.cursor_columns_info,l_column_diffs);
     end if;
     
     --check for missing pk 
@@ -260,8 +260,8 @@ create or replace type body ut_data_value_refcursor as
           ut_utils.append_to_clob(l_result, get_missing_key_message(l_missing_pk(i))|| chr(10));
         end loop;
         
-        if ut_compound_data_helper.contains_collection(self.cursor_details.cursor_info) > 0 
-           or ut_compound_data_helper.contains_collection(l_actual.cursor_details.cursor_info) > 0 then
+        if ut_compound_data_helper.contains_collection(self.cursor_details.cursor_columns_info) > 0 
+           or ut_compound_data_helper.contains_collection(l_actual.cursor_details.cursor_columns_info) > 0 then
           ut_utils.append_to_clob(l_result,'  Please make sure that your join clause is not refferring to collection element'|| chr(10));
         end if;
         
@@ -286,7 +286,7 @@ create or replace type body ut_data_value_refcursor as
     l_actual   := treat(a_other as ut_data_value_refcursor);
      
     if a_join_by_list.count > 0 then
-      l_pk_missing_tab := ut_compound_data_helper.get_missing_pk(self.cursor_details.cursor_info,l_actual.cursor_details.cursor_info,a_join_by_list);
+      l_pk_missing_tab := ut_compound_data_helper.get_missing_pk(self.cursor_details.cursor_columns_info,l_actual.cursor_details.cursor_columns_info,a_join_by_list);
       l_result := case when (l_pk_missing_tab.count > 0) then 1 else 0 end;
     end if;
         
@@ -309,8 +309,8 @@ create or replace type body ut_data_value_refcursor as
   member function update_cursor_details (a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list,a_ordered_columns boolean := false) return ut_data_value_refcursor is
     l_result ut_data_value_refcursor := self;
   begin   
-    if l_result.cursor_details.cursor_info is not null then
-      l_result.cursor_details.cursor_info := ut_compound_data_helper.inc_exc_columns_from_cursor(l_result.cursor_details.cursor_info,a_exclude_xpath,a_include_xpath);
+    if l_result.cursor_details.cursor_columns_info is not null then
+      l_result.cursor_details.cursor_columns_info := ut_compound_data_helper.inc_exc_columns_from_cursor(l_result.cursor_details.cursor_columns_info,a_exclude_xpath,a_include_xpath);
       l_result.cursor_details.ordered_columns(a_ordered_columns);
     end if;    
     return l_result;

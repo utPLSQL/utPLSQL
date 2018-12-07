@@ -692,10 +692,5 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
-  function serialize_data (a_data clob) return clob is
-  begin
-    return replace(a_data,chr(10));    
-  end;
-
 end ut_utils;
 /

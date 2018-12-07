@@ -437,15 +437,17 @@ To change the behavior of `NULL = NULL` comparison pass the `a_nulls_are_equal =
 
 This matcher supports only cursor comparison. It check if the give set contain all values from given subset.
 
-Test using this matcher behaves similar to `equal`  in respect that it succeeds only when the compared data-types are exactly the same.
+when comparing data using `include / contain` matcher, the data-types of columns for compared cursors must be exactly the same.
 
 The matcher supports all advanced comparison options as `equal` e.g. include , exclude, join_by.
 
-The matcher will be successful only when all of the values in expected results are part of actual set.
+The matcher is successful when all of the values from expected results are included in actual data set.
 
-In situation where the duplicate is present in expected set we would also expect matching number of occurrences in actual set for matcher to be success.
+The matcher will cause a test to fail if any of expected values are not included in actual data set.
 
-*Example 1*
+![](D:\Oracle\Devwork\mygit\utPLSQL_pure_sql_cursor\docs\images\venn21.gif)
+
+*Example 1*.
 
 ```sql
    PROCEDURE ut_refcursors IS
@@ -474,11 +476,56 @@ Will result in failure message
       Missing:  <ROW><RN>1</RN></ROW>
 ```
 
-
-
-Similar negated `not_to_include`/ `not_to_contain` will be successful only when none of the values from expected set are part of actual e.g.
+When duplicate rows are present in expected data set, actual data set must also include the same amount of duplicate.
 
 *Example 2.*
+
+
+
+```sql
+create or replace package ut_duplicate_test is
+
+   --%suite(Sample Test Suite)
+
+   --%test(Ref Cursor contain duplicates)
+   procedure ut_duplicate_include;
+
+end ut_duplicate_test;
+/
+
+create or replace package body ut_duplicate_test is
+  procedure ut_duplicate_include is
+      l_actual   sys_refcursor;
+      l_expected sys_refcursor;
+  begin
+    open l_expected for select mod(level,2) as rn from dual connect by level < 5;
+    open l_actual   for select mod(level,8) as rn from dual connect by level < 9;
+    ut.expect(l_actual).to_include(l_expected);
+   end;
+   
+end ut_duplicate_test;
+```
+
+Will result in failure test message
+
+```sql
+  1) ut_duplicate_include
+      Actual: refcursor [ count = 8 ] was expected to include: refcursor [ count = 4 ]
+      Diff:
+      Rows: [ 2 differences ]
+      Missing:  <RN>0</RN>
+      Missing:  <RN>1</RN>
+```
+
+
+
+The negated version of `include / contain` ( `not_to_include`/ `not_to_contain` ) is successful only when all values from expected set are not part of actual (they are disjoint and there is no overlap).
+
+
+
+![](D:\Oracle\Devwork\mygit\utPLSQL_pure_sql_cursor\docs\images\venn22.gif)
+
+*Example 3.*
 
 Set 1 is defined as [ A , B , C ] 
 
@@ -488,7 +535,7 @@ Set 1 is defined as [ A , B , C ]
 
 
 
-*Example 2.*
+*Example 4.*
 
 Set 1 is defined as [ A , B , C , D ] 
 
@@ -498,7 +545,7 @@ Set 1 is defined as [ A , B , C , D ]
 
 
 
-*Example 3*
+*Example 5.
 
 Set 1 is defined as [ A , B , C  ] 
 
@@ -681,9 +728,9 @@ utPLSQL is capable of comparing compound data-types including:
 ### Notes on comparison of compound data
 - Compound data can contain elements of any data-type. This includes blob, clob, object type, nested table, varray or even a nested-cursor within a cursor.   
 
-- Nested table and varray types are compared as **ordered lists of elements**. If order of elements differ, expectation will fail.   
+- Attributes in nested table and array types are compared as **ordered lists of elements**. If order of attributes in nested table and array differ, expectation will fail.   
 
-- Cursors are compared as **unordered list of elements** by default. If order of elements is of importance the option has to be passed to enforce column order comparison  `ordered_columns` e.g.
+- Columns in cursors are compared as **unordered list of elements** by default. If order of columns in cursor is of importance the option has to be passed to enforce column order comparison  `ordered_columns` e.g.
 
     ```sql
     procedure ut_refcursors1 is

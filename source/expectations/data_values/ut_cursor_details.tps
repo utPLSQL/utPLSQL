@@ -1,6 +1,6 @@
 create or replace type ut_cursor_details force authid current_user as object
 (
-   cursor_info ut_cursor_column_tab,
+   cursor_columns_info ut_cursor_column_tab,
    is_column_order_enforced number(1,0),
    order member function compare(a_other ut_cursor_details) return integer,
    member procedure get_anytype_members_info(a_anytype anytype, a_attribute_typecode out pls_integer,

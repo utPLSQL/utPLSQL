@@ -6,7 +6,7 @@ utPLSQL expectations incorporates advanced data comparison options when comparin
 - object type
 - nested table and varray  
 
-Advanced data-comparison options are available for the [`equal`](expectations.md#equal) and  [`include/ contain`](expectations.md#include) matcher.
+Advanced data-comparison options are available for the [`equal`](expectations.md#equal) and  [`include / contain`](expectations.md#include) matcher.
 
 ## Syntax
 
@@ -27,7 +27,7 @@ Advanced data-comparison options are available for the [`equal`](expectations.md
  - `exclude(a_items varchar2)` - item or comma separated list of items to exclude
  - `include(a_items ut_varchar2_list)` - table of items to include 
  - `exclude(a_items ut_varchar2_list)` - table of items to exclude
- - `unordered` - perform compare on unordered set of data, return only missing or actual  ***not supported for `include / contain`***
+ - `unordered` - perform compare on unordered set of data, return only missing or actual,  ***not supported for `include / contain`*** , as alternative `join_by` can be used
  - `join_by(a_columns varchar2)` - columns or comma separated list of columns to join two cursors by
  - `join_by(a_columns ut_varchar2_list)` - table of columns to join two cursors by
 

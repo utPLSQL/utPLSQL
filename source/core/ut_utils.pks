@@ -354,8 +354,5 @@ create or replace package ut_utils authid definer is
   */
   function replace_multiline_comments(a_source clob) return clob;
 
-  --TODO optimize clob replace to be more efficient as might not work replace on large clobs
-  function serialize_data (a_data clob) return clob;
-
 end ut_utils;
 /

@@ -20,7 +20,7 @@ create or replace package body ut_compound_data_helper is
   g_diff_count        integer;
   g_filter_tab        ut_varchar2_list;
   
-  type t_type_name_map is table of varchar2(100) index by binary_integer;
+  type t_type_name_map is table of varchar2(128) index by binary_integer;
   g_type_name_map           t_type_name_map;
   g_anytype_name_map        t_type_name_map;
   g_anytype_collection_name t_type_name_map;
@@ -352,7 +352,7 @@ create or replace package body ut_compound_data_helper is
   
   begin
     dbms_lob.createtemporary(l_compare_sql, true);
-    gen_sql_pieces_out_of_cursor(a_other.cursor_details.cursor_info, a_join_by_list, 
+    gen_sql_pieces_out_of_cursor(a_other.cursor_details.cursor_columns_info, a_join_by_list, 
       l_xmltable_stmt, l_select_stmt, l_partition_stmt, l_equal_stmt, 
       l_join_on_stmt, l_not_equal_stmt);
       
