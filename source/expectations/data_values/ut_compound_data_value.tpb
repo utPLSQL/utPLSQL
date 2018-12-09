@@ -43,7 +43,6 @@ create or replace type body ut_compound_data_value as
 
   overriding member function to_string return varchar2 is
     l_results       ut_utils.t_clob_tab;
-    c_max_rows      constant integer := 20;
     l_result        clob;
     l_result_string varchar2(32767);
   begin
@@ -91,14 +90,11 @@ create or replace type body ut_compound_data_value as
     l_result            clob;
     l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
     l_message           varchar2(32767);
-    l_ut_owner          varchar2(250) := ut_utils.ut_owner;
     l_diff_row_count    integer;
     l_actual            ut_compound_data_value;
     l_diff_id           ut_compound_data_helper.t_hash;
     l_row_diffs         ut_compound_data_helper.tt_row_diffs;
-    l_compare_type      varchar2(10);
-    l_self              ut_compound_data_value;
-    
+
     function get_diff_message (a_row_diff ut_compound_data_helper.t_row_diffs,a_is_unordered boolean) return varchar2 is
     begin
       return '  Row No. '||a_row_diff.rn||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;
