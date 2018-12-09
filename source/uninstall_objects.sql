@@ -5,6 +5,10 @@ drop synonym have_count;
 
 drop synonym match;
 
+drop synonym include;
+
+drop synonym contain;
+
 drop synonym be_false;
 
 drop synonym be_empty;

@@ -312,6 +312,8 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'api/equal.syn'
 @@install_component.sql 'api/have_count.syn'
 @@install_component.sql 'api/match.syn'
+@@install_component.sql 'api/contain.syn'
+@@install_component.sql 'api/include.syn'
 
 set linesize 200
 set define on

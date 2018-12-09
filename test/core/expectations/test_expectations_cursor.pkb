@@ -2107,7 +2107,7 @@ Diff:%
     and rownum < 20;
     
     --Act
-    ut3.ut.expect(l_actual).to_include(l_expected);
+    ut3.ut.expect(l_actual).to_( ut3.include(l_expected) );
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
@@ -2151,7 +2151,7 @@ Diff:%
     and rownum < 20;
     
     --Act
-    ut3.ut.expect(l_actual).to_contain(l_expected);
+    ut3.ut.expect(l_actual).to_( ut3.contain(l_expected) );
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
