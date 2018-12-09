@@ -112,7 +112,7 @@ create or replace package body test_divide is
 
   procedure divides_numbers is
   begin
-    ut3.ut.expect(divide(6,2)).to_equal(3);
+    ut.expect(divide(6,2)).to_equal(3);
   end;
   
   procedure raises_divisor_exception is
@@ -124,7 +124,7 @@ create or replace package body test_divide is
 end;
 /
 
-exec ut3.ut.run('test_divide');
+exec ut.run('test_divide');
 ```
 
 For details see documentation of the [`--%throws` annotation.](annotations.md#throws-annotation)  
@@ -364,68 +364,68 @@ end;
 
 create or replace package test_animals_getter is
 
-    --%suite(Animals getter tests)
-    
-    --%test(get_animal - returns a dog)
-    procedure test_variant_1_get_animal;
-    --%test(get_animal - returns a dog)
-    procedure test_variant_2_get_animal;
-    --%test(get_animal - returns a dog)
-    procedure test_variant_3_get_animal;
-    --%test(get_animal - returns a dog)
-    procedure test_variant_4_get_animal;
-    --%test(get_animal - returns a dog)
-    procedure test_variant_5_get_animal;
+  --%suite(Animals getter tests)
+  
+  --%test(get_animal - returns a dog)
+  procedure test_variant_1_get_animal;
+  --%test(get_animal - returns a dog)
+  procedure test_variant_2_get_animal;
+  --%test(get_animal - returns a dog)
+  procedure test_variant_3_get_animal;
+  --%test(get_animal - returns a dog)
+  procedure test_variant_4_get_animal;
+  --%test(get_animal - returns a dog)
+  procedure test_variant_5_get_animal;
 end;
 /
 create or replace package body test_animals_getter is
 
-    --The below tests perform exactly the same check.
-    --They use different syntax to achieve the goal. 
-    procedure test_variant_1_get_animal is
-      l_actual   varchar2(100) := 'a dog';
-      l_expected varchar2(100);
-    begin
-      --Arrange
-      l_actual := 'a dog';
-      --Act
-      l_expected := get_animal();
-      --Assert
-      ut.expect( l_actual ).to_equal( l_expected );
-    end;
+  --The below tests perform exactly the same check.
+  --They use different syntax to achieve the goal. 
+  procedure test_variant_1_get_animal is
+    l_actual   varchar2(100) := 'a dog';
+    l_expected varchar2(100);
+  begin
+    --Arrange
+    l_actual := 'a dog';
+    --Act
+    l_expected := get_animal();
+    --Assert
+    ut.expect( l_actual ).to_equal( l_expected );
+  end;
 
-    procedure test_variant_2_get_animal is
-      l_expected varchar2(100);
-    begin
-      --Act
-      l_expected := get_animal();
-      --Assert
-      ut.expect( l_expected ).to_equal( 'a dog' );
-    end;
+  procedure test_variant_2_get_animal is
+    l_expected varchar2(100);
+  begin
+    --Act
+    l_expected := get_animal();
+    --Assert
+    ut.expect( l_expected ).to_equal( 'a dog' );
+  end;
 
-    procedure test_variant_3_get_animal is
-    begin
-      --Act / Assert
-      ut.expect( get_animal() ).to_equal( 'a dog' );
-    end;
+  procedure test_variant_3_get_animal is
+  begin
+    --Act / Assert
+    ut.expect( get_animal() ).to_equal( 'a dog' );
+  end;
 
-    procedure test_variant_4_get_animal is
-    begin
-      --Act / Assert
-      ut.expect( get_animal() ).to_equal( 'a dog', a_nulls_are_equal => true );
-    end;
+  procedure test_variant_4_get_animal is
+  begin
+    --Act / Assert
+    ut.expect( get_animal() ).to_equal( 'a dog', a_nulls_are_equal => true );
+  end;
 
-    procedure test_variant_5_get_animal is
-    begin
-      --Act / Assert
-      ut.expect( get_animal() ).to_( equal( 'a dog' ) );
-    end;
+  procedure test_variant_5_get_animal is
+  begin
+    --Act / Assert
+    ut.expect( get_animal() ).to_( equal( 'a dog' ) );
+  end;
 
-    procedure test_variant_6_get_animal is
-    begin
-      --Act / Assert
-      ut.expect( get_animal() ).to_( equal( 'a dog', a_nulls_are_equal => true ) );
-    end;
+  procedure test_variant_6_get_animal is
+  begin
+    --Act / Assert
+    ut.expect( get_animal() ).to_( equal( 'a dog', a_nulls_are_equal => true ) );
+  end;
 end;
 ```
 
@@ -450,7 +450,7 @@ The matcher will cause a test to fail if any of expected values are not included
 *Example 1*.
 
 ```sql
-   PROCEDURE ut_refcursors IS
+  procedure ut_refcursors is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
   begin
@@ -461,7 +461,7 @@ The matcher will cause a test to fail if any of expected values are not included
     
     --Act
     ut.expect(l_actual).to_include(l_expected);
-   END;
+  end;
 ```
 
 Will result in failure message
@@ -495,8 +495,8 @@ end ut_duplicate_test;
 
 create or replace package body ut_duplicate_test is
   procedure ut_duplicate_include is
-      l_actual   sys_refcursor;
-      l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     open l_expected for select mod(level,2) as rn from dual connect by level < 5;
     open l_actual   for select mod(level,8) as rn from dual connect by level < 9;
@@ -559,117 +559,100 @@ Example usage
 
 ```sql
 create or replace package example_include is
-  	--%suite(Include test)
+  --%suite(Include test)
   
-  	--%test( Cursor include data from another cursor)   
-  	procedure cursor_to_include;
-  	
-    --%test( Cursor include data from another cursor)   
-  	procedure cursor_not_to_include;
-      	
-    --%test( Cursor fail include)   
-  	procedure cursor_fail_include;
-  	
-  	--%test( Cursor fail not include)  
-  	procedure cursor_fail_not_include;
+  --%test( Cursor include data from another cursor)   
+  procedure cursor_to_include;
+  
+  --%test( Cursor include data from another cursor)   
+  procedure cursor_not_to_include;
+      
+  --%test( Cursor fail include)   
+  procedure cursor_fail_include;
+  
+  --%test( Cursor fail not include)  
+  procedure cursor_fail_not_include;
 end;
 /
   
 create or replace package body example_include is
   
-	procedure cursor_to_include is
-    	l_actual   SYS_REFCURSOR;
-        l_expected SYS_REFCURSOR;
-    begin
-        --Arrange
-        open l_actual for 
-        select 'a' as name from dual 
-        union all
-        select 'b' as name from dual
-        union all
-        select 'c' as name from dual
-        union all
-        select 'd' as name from dual;
-        
-        open l_expected for 
-        select 'a' as name from dual 
-        union all
-        select 'b' as name from dual
-        union all
-        select 'c' as name from dual;
-
-        --Act
-        ut3.ut.expect(l_actual).to_include(l_expected);
-	end;
-	
-	procedure cursor_not_to_include is
-    	l_actual   SYS_REFCURSOR;
-        l_expected SYS_REFCURSOR;
-    begin
-        --Arrange
-        open l_actual for 
-        select 'a' as name from dual 
-        union all
-        select 'b' as name from dual
-        union all
-        select 'c' as name from dual;
-        
-        open l_expected for 
-        select 'd' as name from dual 
-        union all
-        select 'e' as name from dual
-        union all
-        select 'f' as name from dual;
-
-        --Act
-        ut3.ut.expect(l_actual).not_to_include(l_expected);
-	end;
+  procedure cursor_to_include is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for 
+    select 'a' as name from dual union all
+    select 'b' as name from dual union all
+    select 'c' as name from dual union all
+    select 'd' as name from dual;
     
-	procedure cursor_fail_include is
-    	l_actual   SYS_REFCURSOR;
-        l_expected SYS_REFCURSOR;
-    begin
-        --Arrange
-        open l_actual for 
-        select 'a' as name from dual 
-        union all
-        select 'b' as name from dual
-        union all
-        select 'c' as name from dual;
-        
-        open l_expected for 
-        select 'a' as name from dual 
-        union all
-        select 'd' as name from dual
-        union all
-        select 'e' as name from dual;
+    open l_expected for 
+    select 'a' as name from dual union all
+    select 'b' as name from dual union all
+    select 'c' as name from dual;
+    
+    --Act
+    ut.expect(l_actual).to_include(l_expected);
+  end;
+  
+  procedure cursor_not_to_include is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for 
+    select 'a' as name from dual union all
+    select 'b' as name from dual union all
+    select 'c' as name from dual;
+    
+    open l_expected for 
+    select 'd' as name from dual union all
+    select 'e' as name from dual union all
+    select 'f' as name from dual;
 
-        --Act
-        ut3.ut.expect(l_actual).to_include(l_expected);
-	end;
-	
-	procedure cursor_fail_not_include is
-    	l_actual   SYS_REFCURSOR;
-        l_expected SYS_REFCURSOR;
-    begin
-        --Arrange
-        open l_actual for 
-        select 'a' as name from dual 
-        union all
-        select 'b' as name from dual
-        union all
-        select 'c' as name from dual;
-        
-        open l_expected for 
-        select 'a' as name from dual 
-        union all
-        select 'd' as name from dual
-        union all
-        select 'e' as name from dual;
+    --Act
+    ut.expect(l_actual).not_to_include(l_expected);
+  end;
+    
+  procedure cursor_fail_include is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for 
+    select 'a' as name from dual union all
+    select 'b' as name from dual union all
+    select 'c' as name from dual;
+    
+    open l_expected for 
+    select 'a' as name from dual union all
+    select 'd' as name from dual union all
+    select 'e' as name from dual;
 
-        --Act
-        ut3.ut.expect(l_actual).not_to_include(l_expected);
-	end;
+    --Act
+    ut.expect(l_actual).to_include(l_expected);
+  end;
+
+  procedure cursor_fail_not_include is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for 
+    select 'a' as name from dual union all
+    select 'b' as name from dual union all
+    select 'c' as name from dual;
+    
+    open l_expected for 
+    select 'a' as name from dual union all
+    select 'd' as name from dual union all
+    select 'e' as name from dual;
+
+    --Act
+    ut.expect(l_actual).not_to_include(l_expected);
+  end;
 end;
 /
 ```
@@ -693,7 +676,7 @@ Failures:
       Rows: [ 2 differences ]
       Missing:  <ROW><NAME>d</NAME></ROW>
       Missing:  <ROW><NAME>e</NAME></ROW>
-      at "UT3.EXAMPLE_INCLUDE.CURSOR_FAIL_INCLUDE", line 71 ut3.ut.expect(l_actual).to_include(l_expected);
+      at "UT3.EXAMPLE_INCLUDE.CURSOR_FAIL_INCLUDE", line 71 ut.expect(l_actual).to_include(l_expected);
       
        
   2) cursor_fail_not_include
@@ -713,7 +696,7 @@ Failures:
           <ROW><NAME>a</NAME></ROW>
           <ROW><NAME>d</NAME></ROW>
           <ROW><NAME>e</NAME></ROW>
-      at "UT3.EXAMPLE_INCLUDE.CURSOR_FAIL_NOT_INCLUDE", line 94 ut3.ut.expect(l_actual).not_to_include(l_expected);
+      at "UT3.EXAMPLE_INCLUDE.CURSOR_FAIL_NOT_INCLUDE", line 94 ut.expect(l_actual).not_to_include(l_expected);
 ```
 
 
@@ -734,15 +717,15 @@ utPLSQL is capable of comparing compound data-types including:
 
     ```sql
     procedure ut_refcursors1 is
-        l_actual   sys_refcursor;
-        l_expected sys_refcursor;
-        l_expected_message varchar2(32767);
-        l_actual_message   varchar2(32767);
+      l_actual   sys_refcursor;
+      l_expected sys_refcursor;
+      l_expected_message varchar2(32767);
+      l_actual_message   varchar2(32767);
     begin
-        open l_actual for select 1 user_id,'s' a_col,'test' username from dual;
-        open l_expected for select 'test' username,'s' a_col,1 user_id from dual;
-        --Act
-          ut3.ut.expect(l_actual).to_equal(l_expected).join_by('USER_ID').ordered_columns;
+      open l_actual for select 1 user_id,'s' a_col,'test' username from dual;
+      open l_expected for select 'test' username,'s' a_col,1 user_id from dual;
+      --Act
+      ut.expect(l_actual).to_equal(l_expected).join_by('USER_ID').ordered_columns;
     end;
     ```
 
@@ -1069,9 +1052,9 @@ Example below illustrates usage of `cast` operator to assure appropriate precisi
 ```sql
 drop table timestamps;
 create table timestamps (
-	ts3 timestamp (3),
-	ts6 timestamp (6),
-	ts9 timestamp (9)
+  ts3 timestamp (3),
+  ts6 timestamp (6),
+  ts9 timestamp (9)
 );
 
 create or replace package timestamps_api is
@@ -1205,7 +1188,4 @@ The matrix below illustrates the data types supported by different matchers.
 | **be_like**             |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |
 | **be_empty**            |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |
 | **have_count**          |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |
-
-​				
-
 
