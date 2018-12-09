@@ -780,7 +780,12 @@ create or replace package body ut_compound_data_helper is
     end if;
   end;
 
-  function is_collection (a_owner varchar2,a_type_name varchar2, a_anytype_code in integer :=null) return boolean is
+  function is_collection (a_anytype_code in integer) return boolean is
+  begin
+    return a_anytype_code in (dbms_types.typecode_varray,dbms_types.typecode_table,dbms_types.typecode_namedcollection);
+  end;
+
+  function is_collection (a_owner varchar2, a_type_name varchar2, a_anytype_code in integer :=null) return boolean is
     l_type_view varchar2(200) := ut_metadata.get_dba_view('dba_types');
     l_typecode varchar2(100);
   begin    
@@ -791,19 +796,12 @@ create or replace package body ut_compound_data_helper is
         
       return l_typecode = 'COLLECTION';
     else
-      return a_anytype_code in (dbms_types.typecode_varray,dbms_types.typecode_table,dbms_types.typecode_namedcollection);
+      return is_collection(a_anytype_code);
     end if;
          
     exception
       when no_data_found then
       return false;
-  end;
-
-  function is_collection (a_anytype_code in integer) return boolean is
-    l_type_view varchar2(200) := ut_metadata.get_dba_view('dba_types');
-    l_typecode varchar2(100);
-  begin    
-    return a_anytype_code in (dbms_types.typecode_varray,dbms_types.typecode_table,dbms_types.typecode_namedcollection);
   end;
 
   function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2 is

@@ -1,9 +1,11 @@
 create or replace type body ut_cursor_column as
    
-   member procedure init(self in out nocopy ut_cursor_column,
+   member procedure init(
+     self in out nocopy ut_cursor_column,
      a_col_name varchar2, a_col_schema_name varchar2,
      a_col_type_name varchar2, a_col_max_len integer, a_parent_name varchar2 := null, a_hierarchy_level integer := 1,
-     a_col_position integer, a_col_type varchar2, a_collection integer,a_access_path in varchar2) is
+     a_col_position integer, a_col_type varchar2, a_collection integer,a_access_path in varchar2
+   ) is
    begin
       self.parent_name      := a_parent_name; --Name of the parent if its nested
       self.hierarchy_level  := a_hierarchy_level; --Hierarchy level
@@ -36,7 +38,8 @@ create or replace type body ut_cursor_column as
    constructor function ut_cursor_column( self in out nocopy ut_cursor_column,
      a_col_name varchar2, a_col_schema_name varchar2,
      a_col_type_name varchar2, a_col_max_len integer, a_parent_name varchar2 := null, a_hierarchy_level integer := 1,
-     a_col_position integer, a_col_type in varchar2, a_collection integer,a_access_path in varchar2) return self as result is
+     a_col_position integer, a_col_type in varchar2, a_collection integer,a_access_path in varchar2
+   ) return self as result is
    begin
      init(a_col_name, a_col_schema_name, a_col_type_name, a_col_max_len, a_parent_name,a_hierarchy_level, a_col_position, a_col_type, a_collection,a_access_path);
    return;

@@ -55,8 +55,14 @@ create or replace type body ut_include as
   begin
     if self.expected.data_type = a_actual.data_type then
         l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details(exclude_list, include_list,self.get_ordered_columns());      
-        l_result := 0 = treat(self.expected as ut_data_value_refcursor).update_cursor_details(exclude_list, include_list,self.get_ordered_columns()).compare_implementation(l_actual,                          
-                         true,self.get_inclusion_compare(), self.get_negated(), self.get_join_by_list());
+        l_result :=
+          ( 0
+            = treat( self.expected as ut_data_value_refcursor ).update_cursor_details(
+                exclude_list, include_list, self.get_ordered_columns( )
+              ).compare_implementation(
+                l_actual, true, self.get_inclusion_compare( ), self.get_negated( ), self.get_join_by_list( )
+              )
+          );
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
     end if;
@@ -76,7 +82,10 @@ create or replace type body ut_include as
       l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details(exclude_list, include_list,self.get_ordered_columns());
       l_result :=
         'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
-        || chr(10) || 'Diff:' || treat(expected as ut_data_value_refcursor).update_cursor_details(exclude_list, include_list,self.get_ordered_columns()).diff(l_actual, true, self.get_join_by_list());
+        ||  chr(10) || 'Diff:'
+        ||  treat(expected as ut_data_value_refcursor).update_cursor_details(
+              exclude_list, include_list, self.get_ordered_columns()
+            ).diff(l_actual, true, self.get_join_by_list());
     else
       l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     end if;
