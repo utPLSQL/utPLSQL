@@ -445,7 +445,7 @@ The matcher is successful when all of the values from expected results are inclu
 
 The matcher will cause a test to fail if any of expected values are not included in actual data set.
 
-![](D:\Oracle\Devwork\mygit\utPLSQL_pure_sql_cursor\docs\images\venn21.gif)
+![included_set](../images/venn21.gif)
 
 *Example 1*.
 
@@ -523,7 +523,7 @@ The negated version of `include / contain` ( `not_to_include`/ `not_to_contain` 
 
 
 
-![](D:\Oracle\Devwork\mygit\utPLSQL_pure_sql_cursor\docs\images\venn22.gif)
+![not_overlapping_set](../images/venn22.gif)
 
 *Example 3.*
 
