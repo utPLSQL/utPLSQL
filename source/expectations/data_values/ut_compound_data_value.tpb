@@ -69,7 +69,10 @@ create or replace type body ut_compound_data_value as
     return l_result_string;
   end;
 
-  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean := false ) return varchar2 is
+  overriding member function diff(
+    a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2,
+    a_join_by_xpath varchar2, a_unordered boolean := false
+  ) return varchar2 is
     l_result            clob;
     l_result_string     varchar2(32767);
   begin
@@ -80,8 +83,10 @@ create or replace type body ut_compound_data_value as
   end;
   
   -- TODO : Rework to exclude xpath 
-  member function get_data_diff(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, 
-                                a_join_by_xpath varchar2, a_unordered boolean) return clob is
+  member function get_data_diff(
+    a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2,
+    a_join_by_xpath varchar2, a_unordered boolean
+  ) return clob is
     c_max_rows          integer := ut_utils.gc_diff_max_rows;
     l_result            clob;
     l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
@@ -191,8 +196,10 @@ create or replace type body ut_compound_data_value as
     return l_result;
   end;
 
-  member function compare_implementation(a_other ut_data_value, a_unordered boolean, a_inclusion_compare boolean, 
-                                         a_is_negated boolean, a_join_by_list ut_varchar2_list:=ut_varchar2_list()) return integer is
+  member function compare_implementation(
+    a_other ut_data_value, a_unordered boolean, a_inclusion_compare boolean,
+    a_is_negated boolean, a_join_by_list ut_varchar2_list := ut_varchar2_list()
+  ) return integer is
 
     l_diff_id       ut_compound_data_helper.t_hash;      
     l_other         ut_compound_data_value;
@@ -205,33 +212,35 @@ create or replace type body ut_compound_data_value as
     l_sql_rowcount integer :=0;
     
   begin
-   l_other         := treat(a_other as ut_compound_data_value);  
-   l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
+    l_other         := treat(a_other as ut_compound_data_value);
+    l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
 
-   open l_loop_curs for ut_compound_data_helper.gen_compare_sql(a_inclusion_compare, a_is_negated, a_unordered, 
-     treat(a_other as ut_data_value_refcursor), a_join_by_list ) using  self.data_id,l_other.data_id;  
-   loop
-    fetch l_loop_curs bulk collect into l_diff_tab limit l_max_rows;
-    exit when l_diff_tab.count = 0;
-    if (ut_utils.gc_diff_max_rows > l_sql_rowcount ) then
-      ut_compound_data_helper.insert_diffs_result(l_diff_tab,l_diff_id);     
+    open l_loop_curs for
+      ut_compound_data_helper.gen_compare_sql(
+        a_inclusion_compare, a_is_negated, a_unordered,
+        treat(a_other as ut_data_value_refcursor), a_join_by_list
+      ) using self.data_id,l_other.data_id;
+    loop
+      fetch l_loop_curs bulk collect into l_diff_tab limit l_max_rows;
+      exit when l_diff_tab.count = 0;
+      if (ut_utils.gc_diff_max_rows > l_sql_rowcount ) then
+        ut_compound_data_helper.insert_diffs_result(l_diff_tab,l_diff_id);
+      end if;
+      l_sql_rowcount := l_sql_rowcount + l_diff_tab.count;
+      if (ut_utils.gc_diff_max_rows <= l_sql_rowcount and l_max_rows != ut_utils.gc_bc_fetch_limit ) then
+        l_max_rows := ut_utils.gc_bc_fetch_limit;
+      end if;
+    end loop;
+   
+    ut_compound_data_helper.set_rows_diff(l_sql_rowcount);
+    --result is OK only if both are same
+    if l_sql_rowcount = 0 and ( self.elements_count = l_other.elements_count or a_inclusion_compare ) then
+      l_result := 0;
+    else
+      l_result := 1;
     end if;
-    l_sql_rowcount := l_sql_rowcount + l_diff_tab.count;
-    if (ut_utils.gc_diff_max_rows <= l_sql_rowcount and l_max_rows != ut_utils.gc_bc_fetch_limit ) then
-      l_max_rows := ut_utils.gc_bc_fetch_limit;
-    end if;
-   end loop;
    
-   ut_compound_data_helper.set_rows_diff(l_sql_rowcount); 
-   --result is OK only if both are same  
-   if l_sql_rowcount = 0 and ( self.elements_count = l_other.elements_count or a_inclusion_compare )then
-     l_result := 0; 
-   else
-     l_result := 1;
-   end if; 
-   
-   return l_result;
-   
+    return l_result;
   end;  
   
 end;

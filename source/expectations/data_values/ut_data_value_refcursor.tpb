@@ -25,10 +25,10 @@ create or replace type body ut_data_value_refcursor as
   member procedure extract_cursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) is
     c_bulk_rows  constant integer := 10000;
     l_cursor     sys_refcursor := a_value;
-    l_ctx                 number;
-    l_xml                 xmltype;
-    l_ut_owner            varchar2(250) := ut_utils.ut_owner;
-    l_set_id              integer := 0;
+    l_ctx        number;
+    l_xml        xmltype;
+    l_ut_owner   varchar2(250) := ut_utils.ut_owner;
+    l_set_id     integer := 0;
   begin
     -- We use DBMS_XMLGEN in order to:
     -- 1) be able to process data in bulks (set of rows)
@@ -67,8 +67,8 @@ create or replace type body ut_data_value_refcursor as
   end;
 
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) is
-    l_cursor     sys_refcursor := a_value;
-    cursor_not_open       exception;
+    l_cursor        sys_refcursor := a_value;
+    cursor_not_open exception;
     l_cursor_number number;
   begin
     self.is_data_null := ut_utils.boolean_to_int(a_value is null);
@@ -80,13 +80,13 @@ create or replace type body ut_data_value_refcursor as
     if l_cursor is not null then
         if l_cursor%isopen then
           --Get some more info regarding cursor, including if it containts collection columns and what is their name        
-          self.elements_count     := 0;
+          self.elements_count := 0;
           extract_cursor(l_cursor);
           l_cursor_number  := dbms_sql.to_cursor_number(l_cursor);
           self.cursor_details  := ut_cursor_details(l_cursor_number);
           dbms_sql.close_cursor(l_cursor_number);         
         elsif not l_cursor%isopen then
-            raise cursor_not_open;
+          raise cursor_not_open;
         end if;
     end if;
   exception
