@@ -16,15 +16,12 @@ create or replace package body ut_compound_data_helper is
   limitations under the License.
   */
 
-  g_user_defined_type pls_integer := dbms_sql.user_defined_type;
   g_diff_count        integer;
-  g_filter_tab        ut_varchar2_list;
-  
+
   type t_type_name_map is table of varchar2(128) index by binary_integer;
   g_type_name_map           t_type_name_map;
   g_anytype_name_map        t_type_name_map;
-  g_anytype_collection_name t_type_name_map;
-  
+
   function get_columns_filter(
     a_exclude_xpath varchar2, a_include_xpath varchar2,
     a_table_alias varchar2 := 'ucd', a_column_alias varchar2 := 'item_data'
@@ -228,7 +225,6 @@ create or replace package body ut_compound_data_helper is
   end;   
   
   procedure generate_select_stmt(a_data_info ut_cursor_column,a_sql_stmt in out nocopy clob, a_col_name varchar2,a_alias varchar2 := 'ucd.') is
-    l_sql_stmt clob;
     l_alias varchar2(10) := a_alias;
     l_col_syntax varchar2(4000);
     l_ut_owner varchar2(250) := ut_utils.ut_owner;
@@ -326,13 +322,14 @@ create or replace package body ut_compound_data_helper is
   end;
     
   
-  function gen_compare_sql(a_inclusion_type boolean, a_is_negated boolean,a_unordered boolean,
-    a_other ut_data_value_refcursor :=null, a_join_by_list ut_varchar2_list:=ut_varchar2_list() ) return clob is
+  function gen_compare_sql(
+    a_inclusion_type boolean, a_is_negated boolean, a_unordered boolean,
+    a_other ut_data_value_refcursor := null, a_join_by_list ut_varchar2_list := ut_varchar2_list()
+  ) return clob is
     l_compare_sql   clob;
     l_temp_string   varchar2(32767);
     
     l_xmltable_stmt  clob;
-    l_where_stmt     clob;
     l_select_stmt    clob;
     l_partition_stmt clob;
     l_equal_stmt     clob;
@@ -780,35 +777,47 @@ create or replace package body ut_compound_data_helper is
     end if;
   end;
 
-  function is_collection (a_anytype_code in integer) return boolean is
-  begin
-    return a_anytype_code in (dbms_types.typecode_varray,dbms_types.typecode_table,dbms_types.typecode_namedcollection);
-  end;
-
-  function is_collection (a_owner varchar2, a_type_name varchar2, a_anytype_code in integer :=null) return boolean is
-    l_type_view varchar2(200) := ut_metadata.get_dba_view('dba_types');
-    l_typecode varchar2(100);
-  begin    
-    if a_anytype_code is null then    
-      execute immediate 'select typecode from '||l_type_view ||' 
-      where owner = :owner and type_name = :typename'
-      into l_typecode using a_owner,a_type_name; 
-        
-      return l_typecode = 'COLLECTION';
-    else
-      return is_collection(a_anytype_code);
-    end if;
-         
-    exception
-      when no_data_found then
-      return false;
-  end;
-
   function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2 is
   begin
    return case when a_dbms_sql_desc then g_type_name_map(a_type_code) else g_anytype_name_map(a_type_code) end;
   end;
-  
+
+  function get_anytype_members_info( a_anytype anytype ) return t_anytype_members_rec is
+    l_result  t_anytype_members_rec;
+  begin
+    if a_anytype is not null then
+      l_result.type_code := a_anytype.getinfo(
+        prec        => l_result.precision,
+        scale       => l_result.scale,
+        len         => l_result.length,
+        csid        => l_result.char_set_id,
+        csfrm       => l_result.char_set_frm,
+        schema_name => l_result.schema_name,
+        type_name   => l_result.type_name,
+        version     => l_result.version,
+        numelems    => l_result.elements_count
+      );
+    end if;
+    return l_result;
+  end;
+
+  function get_attr_elem_info( a_anytype anytype, a_pos pls_integer := null ) return t_anytype_elem_info_rec is
+    l_result  t_anytype_elem_info_rec;
+  begin
+    if a_anytype is not null then
+      l_result.type_code := a_anytype.getattreleminfo(
+        pos           => a_pos,
+        prec          => l_result.precision,
+        scale         => l_result.scale,
+        len           => l_result.length,
+        csid          => l_result.char_set_id,
+        csfrm         => l_result.char_set_frm,
+        attr_elt_type => l_result.attr_elt_type,
+        aname         => l_result.attribute_name
+      );
+    end if;
+    return l_result;
+  end;
 
 begin
   g_anytype_name_map(dbms_types.typecode_date)             := 'DATE';
