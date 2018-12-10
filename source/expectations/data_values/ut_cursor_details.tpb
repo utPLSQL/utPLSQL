@@ -165,8 +165,6 @@ create or replace type body ut_cursor_details as
     a_owner in varchar2, a_type_name in varchar2
   ) return anytype is
     l_result anytype;
-    e_not_found exception;
-    pragma exception_init(e_not_found,-22303);
   begin
     begin
       $if dbms_db_version.version <= 12 $then
@@ -175,7 +173,7 @@ create or replace type body ut_cursor_details as
         l_result := getanytypefrompersistent( a_owner, a_type_name );
       $end
     exception
-    when e_not_found then
+    when others then
       null;
     end;
     return l_result;
