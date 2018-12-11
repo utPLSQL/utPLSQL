@@ -713,7 +713,7 @@ utPLSQL is capable of comparing compound data-types including:
 
 - Attributes in nested table and array types are compared as **ordered lists of elements**. If order of attributes in nested table and array differ, expectation will fail.   
 
-- Columns in cursors are compared as **unordered list of elements** by default. If order of columns in cursor is of importance the option has to be passed to enforce column order comparison  `ordered_columns` e.g.
+- Columns in cursors are compared as **ordered list of elements** by default. If order of columns in cursor is not of importance the option has to be passed to enforce column order comparison  ` unordered_columns` e.g.
 
     ```sql
     procedure ut_refcursors1 is
@@ -725,7 +725,7 @@ utPLSQL is capable of comparing compound data-types including:
       open l_actual for select 1 user_id,'s' a_col,'test' username from dual;
       open l_expected for select 'test' username,'s' a_col,1 user_id from dual;
       --Act
-      ut.expect(l_actual).to_equal(l_expected).join_by('USER_ID').ordered_columns;
+      ut.expect(l_actual).to_equal(l_expected).join_by('USER_ID').unordered_columns;
     end;
     ```
 
@@ -821,7 +821,7 @@ create or replace package body test_cursor_compare as
         from dual union all
       select 'M' AS GENDER, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 2 as ID, '1000' AS SALARY
         from dual;
-    ut.expect(l_actual).to_equal(l_expected).ordered_columns;
+    ut.expect(l_actual).to_equal(l_expected);
   end;
 end;
 /

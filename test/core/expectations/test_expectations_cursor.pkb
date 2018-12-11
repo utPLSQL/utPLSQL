@@ -300,7 +300,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as col_1, 2 as col_2 from dual;
     open l_actual   for select 2 as col_2, 1 as col_1 from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected ).ordered_columns;
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
@@ -314,7 +314,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as col_1, 2 as col_2 from dual;
     open l_actual   for select 2 as col_2, 1 as col_1 from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3.ut.expect( l_actual ).to_equal( l_expected ).unordered_columns;
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
@@ -330,7 +330,7 @@ create or replace package body test_expectations_cursor is
     open l_expected for select 1 as col_1, 2 as col_2,3 as col_3, 4 as col_4,5 col_5 from dual;
     open l_actual   for select 2 as col_2, 1 as col_1,40 as col_4, 5 as col_5, 30 col_3 from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut3.ut.expect( l_actual ).to_equal( l_expected ).unordered_columns;
     --Assert
     l_expected_message := q'[Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 %Diff:
@@ -637,7 +637,7 @@ Rows: [ 1 differences ]
     open l_actual   for select to_char(rownum) rn, rownum another_rn from dual connect by level <=2;
     open l_expected for select rownum rn,          rownum another_rn from dual connect by level <=2;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).ordered_columns;
+    ut3.ut.expect(l_actual).to_equal(l_expected);
 
     l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
 Diff:
@@ -682,7 +682,7 @@ Columns:%
     open l_actual   for select rownum+1 col_1, rownum+2 col_2, rownum+3 col_3, rownum+4 col_4 from dual connect by level <=2;
     open l_expected for select rownum+1 col_1, rownum+4 col_4, rownum+2 col_2, rownum+3 col_3 from dual connect by level <=2;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).ordered_columns;
+    ut3.ut.expect(l_actual).to_equal(l_expected);
 
     l_expected_message := q'[Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
 Diff:
@@ -707,7 +707,7 @@ Rows: [  all different ]
     open l_actual   for select rownum+1 col_1, rownum+2 col_2, rownum+3 col_3, rownum+4 col_4 from dual connect by level <=2;
     open l_expected for select rownum+1 col_1, rownum+4 col_4, rownum+2 col_2, rownum+3 col_3 from dual connect by level <=2;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3.ut.expect(l_actual).to_equal(l_expected).unordered_columns;
 
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
@@ -791,7 +791,7 @@ Rows: [ 60 differences, showing first 20 ]
       select 'F' AS GENDER, 'JESSICA' as FIRST_NAME, 'JONES' AS LAST_NAME, 4 as ID, '2345' AS SALARY from dual union all
       select 'M' AS GENDER, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 2 as ID, '1000' AS SALARY from dual;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).ordered_columns;
+    ut3.ut.expect(l_actual).to_equal(l_expected);
     l_expected_message := q'[Actual: refcursor [ count = 4 ] was expected to equal: refcursor [ count = 3 ]
 Diff:
 Columns:
@@ -828,7 +828,7 @@ Rows: [ 4 differences ]
       select 'F' AS GENDER, 'JESSICA' as FIRST_NAME, 'JONES' AS LAST_NAME, 4 as ID, '2345' AS SALARY from dual union all
       select 'M' AS GENDER, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 2 as ID, '1000' AS SALARY from dual;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut3.ut.expect(l_actual).to_equal(l_expected).unordered_columns;
     l_expected_message := q'[Actual: refcursor [ count = 4 ] was expected to equal: refcursor [ count = 3 ]
 Diff:
 Columns:
@@ -1051,7 +1051,7 @@ Rows: [ 4 differences ]
     open l_actual   for select '1' , '2'      from dual connect by level <=2;
     open l_expected for select rownum , rownum expected_column_name from dual connect by level <=2;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).ordered_columns;
+    ut3.ut.expect(l_actual).to_equal(l_expected);
 
     l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
 %Diff:
@@ -1148,7 +1148,7 @@ Rows: [ 4 differences ]
     open l_expected for select 1 as col_1, 2 as col_2,3 as col_3, 4 as col_4,5 col_5 from dual;
     open l_actual   for select 2 as col_2, 1 as col_1,40 as col_4, 5 as col_5, 30 col_3 from dual;
     --Act
-    ut3.ut.expect( l_actual ).to_equal( l_expected ).join_by('COL_1');
+    ut3.ut.expect( l_actual ).to_equal( l_expected ).join_by('COL_1').unordered_columns;
     --Assert
     l_expected_message := q'[Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 %Diff:

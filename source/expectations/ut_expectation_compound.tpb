@@ -227,21 +227,21 @@ create or replace type body ut_expectation_compound as
     end if;
   end;
 
-  member function ordered_columns return ut_expectation_compound is
+  member function unordered_columns return ut_expectation_compound is
     l_result ut_expectation_compound;
   begin
     l_result := self;
-    l_result.matcher := treat(l_result.matcher as ut_equal).ordered_columns;
+    l_result.matcher := treat(l_result.matcher as ut_equal).unordered_columns;
     return l_result;
   end;
 
-  member procedure ordered_columns(self in ut_expectation_compound) is
+  member procedure unordered_columns(self in ut_expectation_compound) is
   begin
 
     if ut_utils.int_to_boolean(negated) then
-      self.not_to( treat(matcher as ut_equal).ordered_columns );
+      self.not_to( treat(matcher as ut_equal).unordered_columns );
     else
-      self.to_( treat(matcher as ut_equal).ordered_columns );
+      self.to_( treat(matcher as ut_equal).unordered_columns );
     end if;
   end;
 

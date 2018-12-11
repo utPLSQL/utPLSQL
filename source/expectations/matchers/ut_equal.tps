@@ -81,7 +81,7 @@ create or replace type ut_equal force under ut_comparison_matcher(
   overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean,
   overriding member function failure_message(a_actual ut_data_value) return varchar2,
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2,
-  member function ordered_columns return ut_equal,
+  member function unordered_columns return ut_equal,
   member function get_ordered_columns return boolean
 )
 not final

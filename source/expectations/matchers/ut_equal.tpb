@@ -254,16 +254,16 @@ create or replace type body ut_equal as
     return ( coalesce(join_columns, ut_varchar2_list()) );
   end;
 
-  member function ordered_columns return ut_equal is
+  member function unordered_columns return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.is_column_order_enforced := ut_utils.boolean_to_int(true);
+    l_result.is_column_order_enforced := ut_utils.boolean_to_int(false);
     return l_result;
   end;
   
   member function get_ordered_columns return boolean is
   begin
-   return ut_utils.int_to_boolean(nvl(is_column_order_enforced,0));
+   return ut_utils.int_to_boolean(nvl(is_column_order_enforced,1));
   end;
   
   overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean is
