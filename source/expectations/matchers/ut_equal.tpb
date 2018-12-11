@@ -254,6 +254,11 @@ create or replace type body ut_equal as
     return ( coalesce(join_columns, ut_varchar2_list()) );
   end;
 
+  member function uc return ut_equal is
+  begin
+    return unordered_columns;
+  end;
+  
   member function unordered_columns return ut_equal is
     l_result ut_equal := self;
   begin

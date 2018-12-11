@@ -50,7 +50,9 @@ create or replace type ut_expectation_compound under ut_expectation(
   member procedure join_by(self in ut_expectation_compound, a_columns varchar2),
   member procedure join_by(self in ut_expectation_compound, a_columns ut_varchar2_list),
   member function  unordered_columns return ut_expectation_compound,
-  member procedure unordered_columns(self in ut_expectation_compound)
+  member procedure unordered_columns(self in ut_expectation_compound),
+  member function  uc return ut_expectation_compound,
+  member procedure uc(self in ut_expectation_compound)
 )
 final
 /

@@ -74,8 +74,14 @@ create or replace package test_expectations_cursor is
   --%test(Pass when different column ordering is used in cursors)
   procedure pass_on_different_column_order;
 
+  --%test(Pass when different column ordering is used in cursors - shortname)
+  procedure pass_on_diff_column_ord_uc;
+
   --%test(Fail and highlight diffrence between columns when columns are unordered and different value)
   procedure fail_on_multi_diff_col_order;
+
+  --%test(Fail and highlight diffrence between columns when columns are unordered and different value - shortname)
+  procedure fail_on_multi_diff_col_ord_uc;
 
   --%test(Gives failure when different row ordering is used in cursors)
   procedure fail_on_different_row_order;
@@ -205,11 +211,17 @@ create or replace package test_expectations_cursor is
   --%test( Compare cursors using unordered method success)
   procedure cursor_unorderd_compr_success;
  
+  --%test( Compare cursors using unordered method success and unordered columns position)
+  procedure cursor_unord_compr_success_uc;
+ 
   --%test( Compare cursors using unordered method failure)
   procedure cursor_unordered_compare_fail; 
   
   --%test( Compare cursors join by single key )
   procedure cursor_joinby_compare; 
+  
+  --%test( Compare cursors join by single key with unordered columns position using shortname)
+  procedure cursor_joinby_compare_uc;   
   
   --%test(Compare cursors by single key with unordered columns position)
   procedure cursor_joinby_col_not_ord;  

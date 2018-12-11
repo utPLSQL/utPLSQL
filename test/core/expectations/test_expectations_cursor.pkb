@@ -319,6 +319,20 @@ create or replace package body test_expectations_cursor is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
+  procedure pass_on_diff_column_ord_uc
+  as
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+  begin
+    --Arrange
+    open l_expected for select 1 as col_1, 2 as col_2 from dual;
+    open l_actual   for select 2 as col_2, 1 as col_1 from dual;
+    --Act
+    ut3.ut.expect( l_actual ).to_equal( l_expected ).uc;
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
   procedure fail_on_multi_diff_col_order
   as
     l_expected sys_refcursor;
@@ -331,6 +345,29 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select 2 as col_2, 1 as col_1,40 as col_4, 5 as col_5, 30 col_3 from dual;
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected ).unordered_columns;
+    --Assert
+    l_expected_message := q'[Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Actual:   <COL_4>40</COL_4><COL_3>30</COL_3>
+%Row No. 1 - Expected: <COL_3>3</COL_3><COL_4>4</COL_4>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure fail_on_multi_diff_col_ord_uc
+  as
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    open l_expected for select 1 as col_1, 2 as col_2,3 as col_3, 4 as col_4,5 col_5 from dual;
+    open l_actual   for select 2 as col_2, 1 as col_1,40 as col_4, 5 as col_5, 30 col_3 from dual;
+    --Act
+    ut3.ut.expect( l_actual ).to_equal( l_expected ).uc;
     --Assert
     l_expected_message := q'[Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 %Diff:
@@ -1095,6 +1132,19 @@ Rows: [ 4 differences ]
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
   
+   procedure cursor_unord_compr_success_uc is 
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for select user_id, username  from all_users order by username asc;
+    open l_expected for select username , user_id  from all_users order by username desc;
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).unordered().uc();
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end; 
+  
   procedure cursor_unordered_compare_fail is 
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
@@ -1121,6 +1171,20 @@ Rows: [ 4 differences ]
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+ 
+  procedure cursor_joinby_compare_uc is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    --Arrange
+    open l_actual for select owner, object_id, object_name,object_type from all_objects where owner = user;
+    open l_expected for select object_id, owner, object_name,object_type from all_objects where owner = user;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID').uc();
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
   
   procedure cursor_joinby_compare is

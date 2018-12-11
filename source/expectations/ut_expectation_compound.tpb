@@ -245,5 +245,16 @@ create or replace type body ut_expectation_compound as
     end if;
   end;
 
+  member function uc return ut_expectation_compound is
+    l_result ut_expectation_compound;
+  begin
+    return unordered_columns;
+  end;
+
+  member procedure uc(self in ut_expectation_compound) is
+  begin
+    unordered_columns;
+  end;
+
 end;
 /
