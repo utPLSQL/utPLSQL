@@ -173,12 +173,9 @@ create or replace package body ut_compound_data_helper is
     if l_pk_tab.count <> 0 then
     l_index:= l_pk_tab.first;
     loop
-      if a_data_info.access_path = l_pk_tab(l_index) then
-        l_sql_stmt := case when a_join_by_stmt is null then null else ' and ' end;  
-        l_sql_stmt := l_sql_stmt ||' a.'||a_col_name||q'[ = ]'||' e.'||a_col_name;
-      elsif a_data_info.parent_name = l_pk_tab(l_index)then
+      if l_pk_tab(l_index) in (a_data_info.access_path, a_data_info.parent_name)  then
         --When then table is nested and join is on whole table
-        l_sql_stmt := case when a_join_by_stmt is null then null else ' and ' end;  
+        l_sql_stmt := case when a_join_by_stmt is null then null else ' and ' end;
         l_sql_stmt := l_sql_stmt ||' a.'||a_col_name||q'[ = ]'||' e.'||a_col_name;
       end if;
     exit when (a_data_info.access_path = l_pk_tab(l_index)) or l_index = l_pk_tab.count;
@@ -206,12 +203,9 @@ create or replace package body ut_compound_data_helper is
     if l_pk_tab.count <> 0 then
       l_index:= l_pk_tab.first;
       loop
-        if a_data_info.access_path = l_pk_tab(l_index) then
-          l_sql_stmt := case when a_partition_stmt is null then null else ',' end;  
-          l_sql_stmt := l_sql_stmt ||l_alias||a_col_name;
-        elsif a_data_info.parent_name = l_pk_tab(l_index)then
+        if l_pk_tab(l_index) in (a_data_info.access_path, a_data_info.parent_name) then
           --When then table is nested and join is on whole table
-          l_sql_stmt := case when a_partition_stmt is null then null else ',' end;  
+          l_sql_stmt := case when a_partition_stmt is null then null else ',' end;
           l_sql_stmt := l_sql_stmt ||l_alias||a_col_name;
         end if;
         
@@ -261,9 +255,11 @@ create or replace package body ut_compound_data_helper is
     ut_utils.append_to_clob(a_sql_stmt, l_sql_stmt);
   end;
   
-  procedure gen_sql_pieces_out_of_cursor(a_data_info ut_cursor_column_tab,a_pk_table ut_varchar2_list, a_xml_stmt out nocopy clob, 
-  a_select_stmt out nocopy clob  ,a_partition_stmt out nocopy clob, a_equal_stmt out nocopy clob, a_join_by_stmt out nocopy clob,
-  a_not_equal_stmt out nocopy clob) is
+  procedure gen_sql_pieces_out_of_cursor(
+    a_data_info ut_cursor_column_tab,a_pk_table ut_varchar2_list, a_xml_stmt out nocopy clob,
+    a_select_stmt out nocopy clob  ,a_partition_stmt out nocopy clob, a_equal_stmt out nocopy clob, a_join_by_stmt out nocopy clob,
+    a_not_equal_stmt out nocopy clob
+  ) is
     l_cursor_info ut_cursor_column_tab := a_data_info;
     l_partition_tmp clob;
     l_col_name varchar2(100);
@@ -338,13 +334,12 @@ create or replace package body ut_compound_data_helper is
      
     function get_join_type(a_inclusion_compare in boolean,a_negated in boolean) return varchar2 is
     begin
-     if a_inclusion_compare and not(a_negated) then
-       return ' right outer join ';
-     elsif a_inclusion_compare and a_negated then
-       return ' inner join '; 
-     else
-       return ' full outer join ';
-     end if;
+     return
+       case
+         when a_inclusion_compare and not(a_negated) then ' right outer join '
+         when a_inclusion_compare and a_negated then ' inner join '
+         else ' full outer join '
+       end;
     end;
   
   begin
@@ -388,10 +383,8 @@ create or replace package body ut_compound_data_helper is
        if l_not_equal_stmt is not null then
            ut_utils.append_to_clob(l_compare_sql,' ( '||l_not_equal_stmt||' ) or '); 
        end if;
-   elsif not a_unordered then
-     if l_not_equal_stmt is not null then
-       ut_utils.append_to_clob(l_compare_sql,' ( '||l_not_equal_stmt||' ) or ');
-     end if;
+   elsif not a_unordered and l_not_equal_stmt is not null then
+     ut_utils.append_to_clob(l_compare_sql,' ( '||l_not_equal_stmt||' ) or ');
    end if;
 
    --If its inlcusion we expect a actual set to fully match and have no extra elements over expected
@@ -420,8 +413,6 @@ create or replace package body ut_compound_data_helper is
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_join_by_list ut_varchar2_list, a_unordered boolean, a_enforce_column_order boolean := false
   ) return tt_row_diffs is
-    l_act_col_filter varchar2(32767);
-    l_exp_col_filter varchar2(32767);
     l_act_extract_xpath  varchar2(32767):= ut_utils.to_xpath(get_column_extract_path(a_act_cursor_info));
     l_exp_extract_xpath  varchar2(32767):= ut_utils.to_xpath(get_column_extract_path(a_exp_cursor_info));
     l_join_xpath     varchar2(32767) := ut_utils.to_xpath(a_join_by_list);
@@ -636,8 +627,11 @@ create or replace package body ut_compound_data_helper is
   end;
 
   --Filter out columns from cursor based on include (exists) or exclude (not exists)
-  function filter_out_cols(a_cursor_info ut_cursor_column_tab, a_current_list ut_varchar2_list,a_include boolean := true) 
-  return ut_cursor_column_tab is
+  function filter_out_cols(
+    a_cursor_info ut_cursor_column_tab,
+    a_current_list ut_varchar2_list,
+    a_include boolean := true
+  ) return ut_cursor_column_tab is
     l_result ut_cursor_column_tab := ut_cursor_column_tab();
     l_filter_sql varchar2(32767);
   begin 
@@ -690,7 +684,7 @@ create or replace package body ut_compound_data_helper is
     l_include boolean;
   begin
     -- if include and exclude is not null its columns from include minus exclude
-    -- If inlcude is not null and exclude is null cursor will have only include
+    -- If include is not null and exclude is null cursor will have only include
     -- If exclude is not null and include is null cursor will have all except exclude
     if a_include_xpath.count > 0 and a_exclude_xpath.count > 0 then
       select col_names bulk collect into l_filtered_set

@@ -185,7 +185,6 @@ create or replace type body ut_expectation_compound as
 
   member procedure unordered(self in ut_expectation_compound) is
   begin
-
     if ut_utils.int_to_boolean(negated) then
       self.not_to( treat(matcher as ut_equal).unordered );
     else
@@ -193,7 +192,7 @@ create or replace type body ut_expectation_compound as
     end if;
   end;
 
- member function join_by(a_columns varchar2) return ut_expectation_compound is
+  member function join_by(a_columns varchar2) return ut_expectation_compound is
     l_result ut_expectation_compound;
   begin
     l_result := self;
