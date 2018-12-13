@@ -52,57 +52,13 @@ create or replace type body ut_expectation_compound as
     return l_result;
   end;
 
-  member function to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_expectation_compound is
-    l_result ut_expectation_compound := self;
-  begin
-    l_result.matcher := ut_equal(a_expected, a_nulls_are_equal);
-    return l_result;
-  end;
-
   member function not_to_equal(a_expected anydata, a_nulls_are_equal boolean := null) return ut_expectation_compound is
     l_result ut_expectation_compound := self;
   begin
     l_result.matcher := ut_equal(a_expected, a_nulls_are_equal);
     l_result.negated := ut_utils.boolean_to_int(true);
     return l_result;
-  end;
 
-  member function not_to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_expectation_compound is
-    l_result ut_expectation_compound := self;
-  begin
-    l_result.matcher := ut_equal(a_expected, a_nulls_are_equal);
-    l_result.negated := ut_utils.boolean_to_int(true);
-    return l_result;
-  end;
-
-  member function to_include(a_expected sys_refcursor) return ut_expectation_compound is
-    l_result ut_expectation_compound := self;
-  begin
-    l_result.matcher := ut_include(a_expected);
-    return l_result;
-  end;
-
-  member function to_contain(a_expected sys_refcursor) return ut_expectation_compound is
-    l_result ut_expectation_compound := self;
-  begin
-    l_result.matcher := ut_include(a_expected);
-    return l_result;
-  end;
-
-  member function not_to_include(a_expected sys_refcursor) return ut_expectation_compound is
-    l_result ut_expectation_compound := self;
-  begin
-    l_result.matcher := ut_include(a_expected).negated;
-    l_result.negated := ut_utils.boolean_to_int(true);
-    return l_result;
-  end;
-
-  member function not_to_contain(a_expected sys_refcursor) return ut_expectation_compound is
-    l_result ut_expectation_compound := self;
-  begin
-    l_result.matcher := ut_include(a_expected).negated;
-    l_result.negated := ut_utils.boolean_to_int(true);
-    return l_result;
   end;
 
   member function include(a_items varchar2) return ut_expectation_compound is
@@ -224,35 +180,6 @@ create or replace type body ut_expectation_compound as
     else
       self.to_( treat(matcher as ut_equal).join_by(a_columns) );
     end if;
-  end;
-
-  member function unordered_columns return ut_expectation_compound is
-    l_result ut_expectation_compound;
-  begin
-    l_result := self;
-    l_result.matcher := treat(l_result.matcher as ut_equal).unordered_columns;
-    return l_result;
-  end;
-
-  member procedure unordered_columns(self in ut_expectation_compound) is
-  begin
-
-    if ut_utils.int_to_boolean(negated) then
-      self.not_to( treat(matcher as ut_equal).unordered_columns );
-    else
-      self.to_( treat(matcher as ut_equal).unordered_columns );
-    end if;
-  end;
-
-  member function uc return ut_expectation_compound is
-    l_result ut_expectation_compound;
-  begin
-    return unordered_columns;
-  end;
-
-  member procedure uc(self in ut_expectation_compound) is
-  begin
-    unordered_columns;
   end;
 
 end;

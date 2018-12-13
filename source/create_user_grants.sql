@@ -53,6 +53,8 @@ alter session set current_schema = &&ut3_owner;
 
 grant execute on &&ut3_owner..ut_expectation to &ut3_user;
 grant execute on &&ut3_owner..ut_expectation_compound to &ut3_user;
+grant execute on &&ut3_owner..ut_expectation_refcursor to &ut3_user;
+
 grant execute on &&ut3_owner..ut_be_between to &ut3_user;
 grant execute on &&ut3_owner..ut_be_empty to &ut3_user;
 grant execute on &&ut3_owner..ut_be_false to &ut3_user;

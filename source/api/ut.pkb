@@ -75,9 +75,9 @@ create or replace package body ut is
     return ut_expectation(ut_data_value_varchar2(a_actual), a_message);
   end;
 
-  function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_expectation_compound is
+  function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_expectation_refcursor is
   begin
-    return ut_expectation_compound(ut_data_value_refcursor(a_actual), a_message);
+    return ut_expectation_refcursor(ut_data_value_refcursor(a_actual), a_message);
   end;
 
   function expect(a_actual in yminterval_unconstrained, a_message varchar2 := null) return ut_expectation is

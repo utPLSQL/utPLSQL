@@ -220,6 +220,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_cursor_column.tpb'
 @@install_component.sql 'expectations/data_values/ut_cursor_details.tpb'
 @@install_component.sql 'expectations/ut_expectation_compound.tps'
+@@install_component.sql 'expectations/ut_expectation_refcursor.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value.tpb'
 @@install_component.sql 'expectations/data_values/ut_compound_data_value.tpb'
 @@install_component.sql 'expectations/data_values/ut_compound_data_helper.pkb'
@@ -258,6 +259,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_match.tpb'
 @@install_component.sql 'expectations/ut_expectation.tpb'
 @@install_component.sql 'expectations/ut_expectation_compound.tpb'
+@@install_component.sql 'expectations/ut_expectation_refcursor.tpb'
 
 --core reporter
 @@install_component.sql 'reporters/ut_documentation_reporter.tps'
