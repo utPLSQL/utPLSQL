@@ -16,7 +16,8 @@ create or replace type body ut_data_value_refcursor as
   limitations under the License.
   */
         
-  constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) return self as result is
+  constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor)
+  return self as result is
   begin
     init(a_value);
     return;
@@ -122,7 +123,9 @@ create or replace type body ut_data_value_refcursor as
     return l_result_string;
   end;
 
-  member function diff( a_other ut_data_value, a_unordered boolean := false, a_join_by_list ut_varchar2_list:=ut_varchar2_list() ) return varchar2 is
+  member function diff(
+    a_other ut_data_value, a_unordered boolean := false, a_join_by_list ut_varchar2_list:=ut_varchar2_list()
+  ) return varchar2 is
     l_result            clob;
     l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
     l_result_string     varchar2(32767);
@@ -170,7 +173,9 @@ create or replace type body ut_data_value_refcursor as
      return l_message;
     end;
     
-    function remove_incomparable_cols( a_cursor_details ut_cursor_column_tab,a_column_diffs ut_compound_data_helper.tt_column_diffs) return ut_cursor_column_tab is
+    function remove_incomparable_cols(
+      a_cursor_details ut_cursor_column_tab,a_column_diffs ut_compound_data_helper.tt_column_diffs
+    ) return ut_cursor_column_tab is
       l_incomparable_cols ut_varchar2_list := ut_varchar2_list();
       l_filter_out ut_cursor_column_tab;
     begin
@@ -186,7 +191,6 @@ create or replace type body ut_data_value_refcursor as
     
     function get_diff_message (a_row_diff ut_compound_data_helper.t_row_diffs,a_is_unordered boolean) return varchar2 is
     begin
-
       if a_is_unordered then     
         if a_row_diff.pk_value is not null then
           return  '  PK '||a_row_diff.pk_value||' - '||rpad(a_row_diff.diff_type,10)||a_row_diff.diffed_row;

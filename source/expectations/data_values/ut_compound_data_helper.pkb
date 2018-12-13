@@ -17,7 +17,7 @@ create or replace package body ut_compound_data_helper is
   */
 
   g_diff_count        integer;
-
+  gc_xpath_extract_reg constant varchar2(50) := '^((/ROW/)|^(//)|^(/\*/))?(.*)';
   type t_type_name_map is table of varchar2(128) index by binary_integer;
   g_type_name_map           t_type_name_map;
   g_anytype_name_map        t_type_name_map;
@@ -46,8 +46,6 @@ create or replace package body ut_compound_data_helper is
     
   function get_columns_diff_ordered(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab) 
   return tt_column_diffs is
-    l_column_filter  varchar2(32767);
-    l_sql            varchar2(32767);
     l_results        tt_column_diffs;
   begin
     with 
@@ -87,8 +85,6 @@ create or replace package body ut_compound_data_helper is
   
   function get_columns_diff_unordered(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab) 
   return tt_column_diffs is
-    l_column_filter  varchar2(32767);
-    l_sql            varchar2(32767);
     l_results        tt_column_diffs;
   begin
     with 
@@ -125,11 +121,11 @@ create or replace package body ut_compound_data_helper is
   function get_columns_diff(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab,a_order_enforced boolean := false) 
   return tt_column_diffs is
   begin
-    if a_order_enforced then
-      return get_columns_diff_ordered(a_expected,a_actual);
-    else 
-      return get_columns_diff_unordered(a_expected,a_actual);
-    end if;
+    return
+    case
+      when a_order_enforced then get_columns_diff_ordered(a_expected,a_actual)
+      else get_columns_diff_unordered(a_expected,a_actual)
+    end;
   end;
   
   function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return clob is
@@ -139,8 +135,10 @@ create or replace package body ut_compound_data_helper is
     return l_pk_value; 
   end; 
  
-  procedure generate_not_equal_stmt(a_data_info ut_cursor_column, a_pk_table ut_varchar2_list, a_not_equal_stmt in out nocopy clob,
-    a_col_name varchar2) is
+  procedure generate_not_equal_stmt(
+    a_data_info ut_cursor_column, a_pk_table ut_varchar2_list,
+    a_not_equal_stmt in out nocopy clob, a_col_name varchar2
+  ) is
     l_pk_tab ut_varchar2_list := coalesce(a_pk_table,ut_varchar2_list());
     l_index integer;
     l_sql_stmt varchar2(32767);
@@ -164,8 +162,10 @@ create or replace package body ut_compound_data_helper is
     end if;  
   end;
    
-  procedure generate_join_by_stmt(a_data_info ut_cursor_column, a_pk_table ut_varchar2_list, a_join_by_stmt in out nocopy clob,
-    a_col_name varchar2) is
+  procedure generate_join_by_stmt(
+    a_data_info ut_cursor_column, a_pk_table ut_varchar2_list,
+    a_join_by_stmt in out nocopy clob, a_col_name varchar2
+  ) is
     l_pk_tab ut_varchar2_list := coalesce(a_pk_table,ut_varchar2_list());
     l_index integer;
     l_sql_stmt varchar2(32767);
@@ -192,9 +192,10 @@ create or replace package body ut_compound_data_helper is
     ut_utils.append_to_clob(a_equal_stmt,l_sql_stmt);
   end;
 
-  procedure generate_partition_stmt(a_data_info ut_cursor_column, a_partition_stmt in out nocopy clob,
-    a_pk_table in ut_varchar2_list,a_col_name in varchar2,a_alias varchar2 := 'ucd.') is  
-    
+  procedure generate_partition_stmt(
+    a_data_info ut_cursor_column, a_partition_stmt in out nocopy clob,
+    a_pk_table in ut_varchar2_list,a_col_name in varchar2,a_alias varchar2 := 'ucd.'
+  ) is
     l_alias varchar2(10) := a_alias;
     l_pk_tab ut_varchar2_list := coalesce(a_pk_table,ut_varchar2_list());
     l_index integer;
@@ -284,7 +285,7 @@ create or replace package body ut_compound_data_helper is
          generate_not_equal_stmt(l_cursor_info(i),a_pk_table,a_not_equal_stmt,l_col_name);
          end if;
       end loop;
-      --Finish parition by 
+      --Finish partition by
       ut_utils.append_to_clob(a_partition_stmt,l_partition_tmp||' order by '||l_partition_tmp||' ) dup_no ');    
     else
       --Partition by piece when no data
@@ -292,8 +293,10 @@ create or replace package body ut_compound_data_helper is
     end if;
   end;
   
-  procedure get_act_and_exp_set(a_current_stmt in out nocopy clob, a_partition_stmt clob, a_select_stmt clob, 
-    a_xmltable_stmt clob, a_unordered boolean,a_type varchar2) is
+  procedure get_act_and_exp_set(
+    a_current_stmt in out nocopy clob, a_partition_stmt clob, a_select_stmt clob,
+    a_xmltable_stmt clob, a_unordered boolean,a_type varchar2
+  ) is
     l_temp_string varchar2(32767);
     l_ut_owner       varchar2(250) := ut_utils.ut_owner;
   begin
@@ -409,7 +412,8 @@ create or replace package body ut_compound_data_helper is
     return l_column_list;
   end;
   
-  function get_rows_diff_by_sql(a_act_cursor_info ut_cursor_column_tab,a_exp_cursor_info ut_cursor_column_tab, 
+  function get_rows_diff_by_sql(
+    a_act_cursor_info ut_cursor_column_tab,a_exp_cursor_info ut_cursor_column_tab,
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_join_by_list ut_varchar2_list, a_unordered boolean, a_enforce_column_order boolean := false
   ) return tt_row_diffs is
@@ -601,7 +605,7 @@ create or replace package body ut_compound_data_helper is
 
   procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw) is
   begin  
-    forall idx in 1..a_diff_tab.count
+    forall idx in 1..a_diff_tab.count save exceptions
     insert into ut_compound_data_diff_tmp
     ( diff_id, act_item_data, act_data_id, exp_item_data, exp_data_id, item_no, duplicate_no )
     values 
@@ -609,6 +613,9 @@ create or replace package body ut_compound_data_helper is
     xmlelement( name "ROW", a_diff_tab(idx).act_item_data), a_diff_tab(idx).act_data_id,
     xmlelement( name "ROW", a_diff_tab(idx).exp_item_data), a_diff_tab(idx).exp_data_id,
     a_diff_tab(idx).item_no, a_diff_tab(idx).dup_no);
+  exception
+    when ut_utils.ex_failure_for_all then
+      raise_application_error(ut_utils.gc_failure_for_all,'Failure to insert a diff tmp data.');
   end;
   
   procedure set_rows_diff(a_rows_diff integer) is
@@ -651,7 +658,8 @@ create or replace package body ut_compound_data_helper is
    return l_result;
   end;
  
-  function get_missing_filter_columns(a_cursor_info ut_cursor_column_tab, a_column_filter_list ut_varchar2_list) return ut_varchar2_list is
+  function get_missing_filter_columns(a_cursor_info ut_cursor_column_tab, a_column_filter_list ut_varchar2_list)
+  return ut_varchar2_list is
     l_result ut_varchar2_list := ut_varchar2_list();
   begin 
    select fl.column_value
@@ -689,20 +697,20 @@ create or replace package body ut_compound_data_helper is
     if a_include_xpath.count > 0 and a_exclude_xpath.count > 0 then
       select col_names bulk collect into l_filtered_set
       from(
-        select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
+        select regexp_replace(column_value,gc_xpath_extract_reg,'\5') col_names
         from table(a_include_xpath)
         minus
-        select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
+        select regexp_replace(column_value,gc_xpath_extract_reg,'\5') col_names
         from table(a_exclude_xpath)
        );
        l_include := true;
     elsif a_include_xpath.count > 0 and a_exclude_xpath.count = 0 then
-      select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
+      select regexp_replace(column_value,gc_xpath_extract_reg,'\5') col_names
       bulk collect into l_filtered_set
       from table(a_include_xpath);
       l_include := true;
     elsif a_include_xpath.count = 0 and a_exclude_xpath.count > 0 then
-      select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
+      select regexp_replace(column_value,gc_xpath_extract_reg,'\5') col_names
       bulk collect into l_filtered_set
       from table(a_exclude_xpath);
       l_include := false;
@@ -719,7 +727,8 @@ create or replace package body ut_compound_data_helper is
     return l_result;
   end;
   
-  function contains_collection (a_cursor_info ut_cursor_column_tab) return number is
+  function contains_collection (a_cursor_info ut_cursor_column_tab)
+  return number is
     l_collection_elements number;
   begin
     select count(1) into l_collection_elements from
@@ -727,7 +736,8 @@ create or replace package body ut_compound_data_helper is
     return l_collection_elements;
   end;
   
-  function remove_incomparable_cols( a_cursor_details ut_cursor_column_tab,a_incomparable_cols ut_varchar2_list) return ut_cursor_column_tab is
+  function remove_incomparable_cols( a_cursor_details ut_cursor_column_tab,a_incomparable_cols ut_varchar2_list)
+  return ut_cursor_column_tab is
     l_result ut_cursor_column_tab;
   begin
     select ut_cursor_column(i.parent_name,i.access_path,i.has_nested_col,i.transformed_name,i.hierarchy_level,i.column_position ,
@@ -742,22 +752,23 @@ create or replace package body ut_compound_data_helper is
   end;
  
   function getxmlchildren(a_parent_name varchar2,a_cursor_table ut_cursor_column_tab)
-      return xmltype is
-      l_result xmltype;
-    begin
-       select xmlagg(xmlelement(evalname t.column_name,t.column_type,
-                                           getxmlchildren(t.column_name,a_cursor_table)))
-         into l_result
-        from table(a_cursor_table) t
-       where (a_parent_name is not null and parent_name = a_parent_name and hierarchy_level > 1 and column_name is not null)
-          or (a_parent_name is null and parent_name is null and hierarchy_level = 1 and column_name is not null)
-       having count(*) > 0;
+  return xmltype is
+    l_result xmltype;
+  begin
+    select xmlagg(xmlelement(evalname t.column_name,t.column_type,
+                                      getxmlchildren(t.column_name,a_cursor_table)))
+    into l_result
+    from table(a_cursor_table) t
+    where (a_parent_name is not null and parent_name = a_parent_name and hierarchy_level > 1 and column_name is not null)
+      or (a_parent_name is null and parent_name is null and hierarchy_level = 1 and column_name is not null)
+    having count(*) > 0;
 
+    return l_result;
+  end;
 
-      return l_result;
-   end;     
-
-  function is_sql_compare_allowed(a_type_name varchar2) return boolean is
+  function is_sql_compare_allowed(a_type_name varchar2)
+  return boolean is
+    l_assert boolean;
   begin
     --clob/blob/xmltype/object/nestedcursor/nestedtable
     if a_type_name IN (g_type_name_map(dbms_sql.blob_type),
@@ -765,18 +776,25 @@ create or replace package body ut_compound_data_helper is
                        g_type_name_map(dbms_sql.bfile_type),
                        g_anytype_name_map(dbms_types.typecode_namedcollection))
     then    
-      return false;
+      l_assert := false;
     else
-      return true;
+      l_assert := true;
     end if;
+    return l_assert;
   end;
 
-  function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2 is
+  function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean)
+  return varchar2 is
   begin
-   return case when a_dbms_sql_desc then g_type_name_map(a_type_code) else g_anytype_name_map(a_type_code) end;
+   return
+     case
+       when a_dbms_sql_desc then g_type_name_map(a_type_code)
+       else g_anytype_name_map(a_type_code)
+     end;
   end;
 
-  function get_anytype_members_info( a_anytype anytype ) return t_anytype_members_rec is
+  function get_anytype_members_info( a_anytype anytype )
+  return t_anytype_members_rec is
     l_result  t_anytype_members_rec;
   begin
     if a_anytype is not null then
@@ -795,7 +813,8 @@ create or replace package body ut_compound_data_helper is
     return l_result;
   end;
 
-  function get_attr_elem_info( a_anytype anytype, a_pos pls_integer := null ) return t_anytype_elem_info_rec is
+  function get_attr_elem_info( a_anytype anytype, a_pos pls_integer := null )
+  return t_anytype_elem_info_rec is
     l_result  t_anytype_elem_info_rec;
   begin
     if a_anytype is not null then

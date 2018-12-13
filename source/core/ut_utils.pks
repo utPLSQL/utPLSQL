@@ -114,6 +114,10 @@ create or replace package ut_utils authid definer is
   gc_invalid_package constant pls_integer := -6550;
   pragma exception_init(ex_invalid_package, -6550);
 
+  ex_failure_for_all exception;
+  gc_failure_for_all constant pls_integer := -24381;
+  pragma exception_init (ex_failure_for_all, -24381);
+
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
   gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
