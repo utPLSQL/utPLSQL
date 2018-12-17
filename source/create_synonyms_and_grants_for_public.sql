@@ -97,6 +97,7 @@ grant execute on &&ut3_owner..ut_annotation_objs_cache_info to public;
 grant execute on &&ut3_owner..ut_annotation_obj_cache_info to public;
 grant execute on &&ut3_owner..ut_suite_items_info to public;
 grant execute on &&ut3_owner..ut_suite_item_info to public;
+grant execute on &&ut3_owner..ut_sqldev_reporter to public;
 begin
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
   execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to public';
@@ -156,6 +157,7 @@ create public synonym ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
 create public synonym ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
 create public synonym ut_suite_items_info for &&ut3_owner..ut_suite_items_info;
 create public synonym ut_suite_item_info for &&ut3_owner..ut_suite_item_info;
+create public synonym ut_sqldev_reporter for &&ut3_owner..ut_sqldev_reporter;
 begin
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
   execute immediate 'create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks';
