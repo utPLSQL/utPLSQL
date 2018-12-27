@@ -39,7 +39,7 @@ drop type ut_coverage_html_reporter force;
 
 drop type ut_sonar_test_reporter force;
 
-drop type ut_sqldev_reporter force;
+drop type ut_realtime_reporter force;
 
 drop package ut_coverage;
 

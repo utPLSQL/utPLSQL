@@ -1,4 +1,4 @@
-create or replace type body ut_sqldev_reporter is
+create or replace type body ut_realtime_reporter is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -16,13 +16,13 @@ create or replace type body ut_sqldev_reporter is
   limitations under the License.
   */
     
-  constructor function ut_sqldev_reporter(self in out nocopy ut_sqldev_reporter) return self as result is
+  constructor function ut_realtime_reporter(self in out nocopy ut_realtime_reporter) return self as result is
   begin
     self.init($$plsql_unit);
     return;
   end;
 
-  overriding member procedure before_calling_run(self in out nocopy ut_sqldev_reporter, a_run in ut_run) is
+  overriding member procedure before_calling_run(self in out nocopy ut_realtime_reporter, a_run in ut_run) is
     procedure print_test_elements(a_test ut_test) is
     begin
       self.print_text('<testcase path="' || a_test.path || '"' 
@@ -63,7 +63,7 @@ create or replace type body ut_sqldev_reporter is
     self.print_text('<run>');
   end;
   
-  overriding member procedure before_calling_test(self in out nocopy ut_sqldev_reporter, a_test in ut_test) as
+  overriding member procedure before_calling_test(self in out nocopy ut_realtime_reporter, a_test in ut_test) as
   begin
     self.print_text('<test path="' || a_test.path || '"'
        || ' executable_type="' || a_test.item.executable_type || '"' 
@@ -73,12 +73,12 @@ create or replace type body ut_sqldev_reporter is
        || ' disabled="' || case when a_test.get_disabled_flag() then 'true' else 'false' end || '"/>');
   end;
   
-  overriding member procedure after_calling_test(self in out nocopy ut_sqldev_reporter, a_test in ut_test) as
+  overriding member procedure after_calling_test(self in out nocopy ut_realtime_reporter, a_test in ut_test) as
   begin
      self.print_text('');
   end;
   
-  overriding member procedure after_calling_run(self in out nocopy ut_sqldev_reporter, a_run in ut_run) as
+  overriding member procedure after_calling_run(self in out nocopy ut_realtime_reporter, a_run in ut_run) as
   begin
      self.print_text('</run>');
      self.print_text('</report>');
