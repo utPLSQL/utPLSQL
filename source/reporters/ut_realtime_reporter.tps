@@ -17,51 +17,77 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   */
 
   /**
-   * Private attribute containing the total number of all tests in the run (incl. disabled tests).
+   * Total number of all tests in the run (incl. disabled tests).
    */
   total_number_of_tests integer, 
  
   /**
-   * Private attribute containing the currently executed test.
+   * Currently executed test number.
    */
   current_test_number integer,
 
   /**
-   * Private attribute containing the current indentation in logical tabs.
+   * Current indentation in logical tabs.
    */
   current_indent integer,
   
   /**
    * The realtime reporter.
-   * Provides test results in a XML format, to consumed by clients such as SQL Developer interested progressing details.
+   * Provides test results in a XML format, for clients such as SQL Developer interested progressing details.
    */
-  constructor function ut_realtime_reporter(self in out nocopy ut_realtime_reporter) return self as result,
+  constructor function ut_realtime_reporter(
+    self in out nocopy ut_realtime_reporter
+  ) return self as result,
 
   /**
    * Provides meta data of complete run in advance.
    * Used to show total tests and initialize a progress bar.
    */
-  overriding member procedure before_calling_run(self in out nocopy ut_realtime_reporter, a_run in ut_run),
-
-  /**
-   * Provides meta data of test to be called.
-   */
-  overriding member procedure before_calling_test(self in out nocopy ut_realtime_reporter, a_test in ut_test),
-
-  /**
-   * Provides meta data of a completed test with runtime and status. 
-   */
-  overriding member procedure after_calling_test(self in out nocopy ut_realtime_reporter, a_test in ut_test),
-
-  /**
-   * Provides meta data of completed test suite with runtime.
-   */
-  overriding member procedure after_calling_suite(self in out nocopy ut_realtime_reporter, a_suite in ut_logical_suite),
+  overriding member procedure before_calling_run(
+    self  in out nocopy ut_realtime_reporter, 
+    a_run in            ut_run
+  ),
 
   /**
    * Provides closing tag with runtime summary.
    */
-  overriding member procedure after_calling_run(self in out nocopy ut_realtime_reporter, a_run in ut_run),
+  overriding member procedure after_calling_run(
+    self  in out nocopy ut_realtime_reporter, 
+    a_run in            ut_run
+  ),
+
+  /**
+   * Indicates the start of a test suite execution.
+   */
+  overriding member procedure before_calling_suite(
+    self    in out nocopy ut_realtime_reporter, 
+    a_suite in ut_logical_suite
+  ),
+
+  /**
+   * Provides meta data of completed test suite with runtime.
+   */
+  overriding member procedure after_calling_suite(
+    self    in out nocopy ut_realtime_reporter, 
+    a_suite in ut_logical_suite
+  ),
+
+
+  /**
+   * Indicates the start of a test.
+   */
+  overriding member procedure before_calling_test(
+    self   in out nocopy ut_realtime_reporter, 
+    a_test in            ut_test
+  ),
+
+  /**
+   * Provides meta data of a completed test with runtime and status. 
+   */
+  overriding member procedure after_calling_test(
+    self   in out nocopy ut_realtime_reporter, 
+    a_test in            ut_test
+  ),
 
   /**
    * Provides the description of this reporter.
@@ -69,16 +95,51 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   overriding member function get_description return varchar2,
 
   /**
-   * Private procedure to print a line of the resulting XML document using the current indentation.
+   * Prints the start tag of an XML with an optional id attribute.
+   */
+  member procedure print_start_node(
+     self      in out nocopy ut_realtime_reporter,
+     a_name    in            varchar2,
+     a_id      in            varchar2             default null
+  ),
+  
+  /**
+   * Prints the end tag of an XML node.
+   */
+  member procedure print_end_node(
+    self   in out nocopy ut_realtime_reporter, 
+    a_name in            varchar2
+  ),
+
+  /**
+   * Prints a child node with content. Content will be XML encoded.
+   */
+  member procedure print_node(
+     self      in out nocopy ut_realtime_reporter,
+     a_name    in            varchar2,
+     a_content in            clob
+  ),
+  
+  /**
+   * Prints a child node with content. Content is passed 1:1 incl. new lines, etc. using CDATA.
+   */
+  member procedure print_cdata_node(
+     self      in out nocopy ut_realtime_reporter,
+     a_name    in            varchar2,
+     a_content in            clob
+  ),
+
+  /**
+   * Prints a line of the resulting XML document using the current indentation.
    * a_indent_summand_before is added before printing a line.
    * a_indent_summand_after is added after printing a line.
    * All output is produced through this function.
    */
   member procedure print_xml_fragment(
     self                    in out nocopy ut_realtime_reporter, 
-    a_fragment              in            varchar2, 
-    a_indent_summand_before in            integer               default 0,
-    a_indent_summand_after  in            integer               default 0
+    a_fragment              in            clob, 
+    a_indent_summand_before in            integer              default 0,
+    a_indent_summand_after  in            integer              default 0
   )
 )
 not final
