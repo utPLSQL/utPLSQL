@@ -194,6 +194,10 @@ create or replace type body ut_realtime_reporter is
   ) is
   begin
     self.print_xml_fragment('</' || a_name || '>', -1);
+    if a_name like '%Event' then
+      -- force new line to make complete event a.s.a.p. visible in consuming session
+      self.print_xml_fragment(null);
+    end if;
   end print_end_node;
 
   member procedure print_node(
