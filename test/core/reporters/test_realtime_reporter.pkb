@@ -313,11 +313,10 @@ create or replace package body test_realtime_reporter as
 
   procedure remove_test_suites is
     pragma autonomous_transaction;
-  begin/*
+  begin
     execute immediate 'drop package ut3_tester.check_realtime_reporting1';
     execute immediate 'drop package ut3_tester.check_realtime_reporting2';
     execute immediate 'drop package ut3_tester.check_realtime_reporting3';
-    */ null;
   end remove_test_suites;
 
 end test_realtime_reporter;
