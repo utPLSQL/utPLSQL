@@ -5,7 +5,7 @@ create or replace package body test_realtime_reporter as
   procedure create_test_suites_and_run is
     pragma autonomous_transaction;
   begin
-    execute immediate q'[create or replace package ut3_tester.check_realtime_reporting1 is
+    execute immediate q'[create or replace package check_realtime_reporting1 is
       --%suite(suite <A>)
       --%suitepath(realtime_reporting)
 
@@ -19,7 +19,7 @@ create or replace package body test_realtime_reporter as
 
       --%endcontext
     end;]';
-    execute immediate q'[create or replace package body ut3_tester.check_realtime_reporting1 is
+    execute immediate q'[create or replace package body check_realtime_reporting1 is
       procedure test_1_ok is
       begin
         ut3.ut.expect(1).to_equal(1);
@@ -31,7 +31,7 @@ create or replace package body test_realtime_reporter as
       end;
     end;]';
     
-    execute immediate q'[create or replace package ut3_tester.check_realtime_reporting2 is
+    execute immediate q'[create or replace package check_realtime_reporting2 is
       --%suite
       --%suitepath(realtime_reporting)
 
@@ -45,7 +45,7 @@ create or replace package body test_realtime_reporter as
       --%disabled
       procedure test_5;
     end;]';
-    execute immediate q'[create or replace package body ut3_tester.check_realtime_reporting2 is
+    execute immediate q'[create or replace package body check_realtime_reporting2 is
       procedure test_3_ok is
       begin
         ut3.ut.expect(2).to_equal(2);
@@ -63,7 +63,7 @@ create or replace package body test_realtime_reporter as
       end;
     end;]';
  
-    execute immediate q'[create or replace package ut3_tester.check_realtime_reporting3 is
+    execute immediate q'[create or replace package check_realtime_reporting3 is
       --%suite
       --%suitepath(realtime_reporting)
 
@@ -76,7 +76,7 @@ create or replace package body test_realtime_reporter as
       --%afterall
       procedure print_and_raise;
     end;]';
-    execute immediate q'[create or replace package body ut3_tester.check_realtime_reporting3 is
+    execute immediate q'[create or replace package body check_realtime_reporting3 is
       procedure test_6_with_runtime_error is
         l_actual integer;
       begin
@@ -277,11 +277,11 @@ create or replace package body test_realtime_reporter as
         '/report/runEvents/endTestEvent[@id="realtime_reporting.check_realtime_reporting3.test_6_with_runtime_error"]/errorStack/text()'
       ).getclobval();
     ut3.ut_utils.append_to_list(l_expected_list, '<![CDATA[ORA-00942: table or view does not exist');
-    ut3.ut_utils.append_to_list(l_expected_list, 'ORA-06512: at "UT3_TESTER.CHECK_REALTIME_REPORTING3", line 5');
-    ut3.ut_utils.append_to_list(l_expected_list, 'ORA-06512: at "UT3_TESTER.CHECK_REALTIME_REPORTING3", line 5');
+    ut3.ut_utils.append_to_list(l_expected_list, 'ORA-06512: at "%.CHECK_REALTIME_REPORTING3", line 5');
+    ut3.ut_utils.append_to_list(l_expected_list, 'ORA-06512: at "%.CHECK_REALTIME_REPORTING3", line 5');
     ut3.ut_utils.append_to_list(l_expected_list, 'ORA-06512: at line 6]]>');
     l_expected := ut3.ut_utils.table_to_clob(l_expected_list);
-    ut.expect(l_actual).to_equal(l_expected);
+    ut.expect(l_actual).to_be_like(l_expected);
   end error_stack_of_test;
 
   procedure error_stack_of_testsuite is
@@ -294,11 +294,11 @@ create or replace package body test_realtime_reporter as
         '/report/runEvents/endSuiteEvent[@id="realtime_reporting.check_realtime_reporting3"]/errorStack/text()'
       ).getclobval();
     ut3.ut_utils.append_to_list(l_expected_list, '<![CDATA[ORA-01403: no data found');
-    ut3.ut_utils.append_to_list(l_expected_list, 'ORA-06512: at "UT3_TESTER.CHECK_REALTIME_REPORTING3", line 21');
-    ut3.ut_utils.append_to_list(l_expected_list, 'ORA-06512: at "UT3_TESTER.CHECK_REALTIME_REPORTING3", line 21');
+    ut3.ut_utils.append_to_list(l_expected_list, 'ORA-06512: at "%.CHECK_REALTIME_REPORTING3", line 21');
+    ut3.ut_utils.append_to_list(l_expected_list, 'ORA-06512: at "%.CHECK_REALTIME_REPORTING3", line 21');
     ut3.ut_utils.append_to_list(l_expected_list, 'ORA-06512: at line 6]]>');
     l_expected := ut3.ut_utils.table_to_clob(l_expected_list);
-    ut.expect(l_actual).to_equal(l_expected);
+    ut.expect(l_actual).to_be_like(l_expected);
   end error_stack_of_testsuite;
 
   procedure get_description is
@@ -314,9 +314,9 @@ create or replace package body test_realtime_reporter as
   procedure remove_test_suites is
     pragma autonomous_transaction;
   begin
-    execute immediate 'drop package ut3_tester.check_realtime_reporting1';
-    execute immediate 'drop package ut3_tester.check_realtime_reporting2';
-    execute immediate 'drop package ut3_tester.check_realtime_reporting3';
+    execute immediate 'drop package check_realtime_reporting1';
+    execute immediate 'drop package check_realtime_reporting2';
+    execute immediate 'drop package check_realtime_reporting3';
   end remove_test_suites;
 
 end test_realtime_reporter;
