@@ -33,7 +33,7 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   
   /**
    * The realtime reporter.
-   * Provides test results in a XML format, for clients such as SQL Developer interested progressing details.
+   * Provides test results in a XML format, for clients such as SQL Developer interested in showing progressing details.
    */
   constructor function ut_realtime_reporter(
     self in out nocopy ut_realtime_reporter
@@ -41,7 +41,6 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
 
   /**
    * Provides meta data of complete run in advance.
-   * Used to show total tests and initialize a progress bar.
    */
   overriding member procedure before_calling_run(
     self  in out nocopy ut_realtime_reporter, 
@@ -49,7 +48,7 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   ),
 
   /**
-   * Provides closing tag with runtime summary.
+   * Provides closing tags.
    */
   overriding member procedure after_calling_run(
     self  in out nocopy ut_realtime_reporter, 
@@ -65,7 +64,7 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   ),
 
   /**
-   * Provides meta data of completed test suite with runtime.
+   * Provides meta data of completed test suite.
    */
   overriding member procedure after_calling_suite(
     self    in out nocopy ut_realtime_reporter, 
@@ -82,7 +81,7 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   ),
 
   /**
-   * Provides meta data of a completed test with runtime and status. 
+   * Provides meta data of a completed test. 
    */
   overriding member procedure after_calling_test(
     self   in out nocopy ut_realtime_reporter, 
@@ -95,7 +94,7 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   overriding member function get_description return varchar2,
 
   /**
-   * Prints the start tag of an XML with an optional id attribute.
+   * Prints the start tag of a XML node with an optional id attribute.
    */
   member procedure print_start_node(
      self      in out nocopy ut_realtime_reporter,
@@ -104,7 +103,7 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   ),
   
   /**
-   * Prints the end tag of an XML node.
+   * Prints the end tag of a XML node.
    */
   member procedure print_end_node(
     self   in out nocopy ut_realtime_reporter, 
@@ -112,7 +111,7 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   ),
 
   /**
-   * Prints a child node with content. Content will be XML encoded.
+   * Prints a child node with content. Special characters are encoded.
    */
   member procedure print_node(
      self      in out nocopy ut_realtime_reporter,
@@ -121,7 +120,7 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   ),
   
   /**
-   * Prints a child node with content. Content is passed 1:1 incl. new lines, etc. using CDATA.
+   * Prints a child node with content. Content is passed 1:1 using CDATA.
    */
   member procedure print_cdata_node(
      self      in out nocopy ut_realtime_reporter,
