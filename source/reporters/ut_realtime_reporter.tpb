@@ -85,8 +85,8 @@ create or replace type body ut_realtime_reporter is
     a_run in            ut_run
   ) is
   begin
-     self.print_xml_fragment('</runEvents>', -1);
-     self.print_xml_fragment('</report>', -1);
+    self.print_end_node('runEvents');
+    self.print_end_node('report');
   end after_calling_run;
   
   overriding member procedure before_calling_suite(
