@@ -13,6 +13,7 @@ alter session set plsql_optimize_level=0;
 @@helpers/other_dummy_object.tps
 @@helpers/test_dummy_object.tps
 @@helpers/test_dummy_object_list.tps
+@@helpers/test_xmltype_list.tps
 
 --Install tests
 @@core.pks
