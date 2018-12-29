@@ -15,11 +15,11 @@ create or replace package test_realtime_reporter as
   --%test(Escape special characters in data such as the test suite description)
   procedure escaped_characters;
   
-  --%test(Provide a startTestEvent node before starting a test with testNumber and totalNumberOfTests)
-  procedure number_of_starttestevent_nodes;
+  --%test(Provide a node before starting a test with testNumber and totalNumberOfTests)
+  procedure pre_test_nodes;
   
-  --%test(Provide a endTestEvent node after completion of a test with test results)
-  procedure endtestevent_nodes;
+  --%test(Provide a node after completion of a test with test results)
+  procedure post_test_nodes;
 
   --%test(Provide expectation message for a failed test)
   procedure single_failed_message;
