@@ -168,7 +168,7 @@ create or replace type body ut_realtime_reporter is
 
   overriding member function get_description return varchar2 is
   begin
-    return 'Provides test results in a XML format, for clients such as SQL Developer interested progressing details.';
+    return 'Provides test results in a XML format, for clients such as SQL Developer interested in showing progressing details.';
   end get_description;
 
   member procedure print_start_node(
