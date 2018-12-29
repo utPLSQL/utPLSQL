@@ -71,7 +71,6 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
     a_suite in ut_logical_suite
   ),
 
-
   /**
    * Indicates the start of a test.
    */
