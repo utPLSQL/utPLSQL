@@ -37,7 +37,7 @@ create or replace type body ut_realtime_reporter is
     ) is
     begin
       total_number_of_tests := total_number_of_tests + 1;
-      self.print_start_node('test', a_test.path);
+      self.print_start_node('test', 'id', a_test.path);
       self.print_node('executableType', a_test.item.executable_type);
       self.print_node('ownerName', a_test.item.owner_name);
       self.print_node('objectName', a_test.item.object_name);
@@ -53,7 +53,7 @@ create or replace type body ut_realtime_reporter is
       a_suite in ut_logical_suite
     ) is
     begin
-      self.print_start_node('suite', a_suite.path);
+      self.print_start_node('suite', 'id', a_suite.path);
       self.print_node('name', a_suite.name);
       self.print_node('description', a_suite.description);
       <<suite_elements>>
@@ -67,9 +67,9 @@ create or replace type body ut_realtime_reporter is
       self.print_end_node('suite');
     end print_suite_elements;
   begin
-    self.print_xml_fragment(ut_utils.get_xml_header(a_run.client_character_set));
-    self.print_start_node('report');
-    self.print_start_node('preRun');
+    xml_header := ut_utils.get_xml_header(a_run.client_character_set);
+    self.print_xml_fragment(xml_header);
+    self.print_start_node('event', 'type', 'pre-run');
     self.print_start_node('suites');
     <<items>>
     for i in 1 .. a_run.items.count loop
@@ -77,8 +77,7 @@ create or replace type body ut_realtime_reporter is
     end loop items;
     self.print_end_node('suites');
     self.print_node('totalNumberOfTests', to_char(total_number_of_tests));
-    self.print_end_node('preRun');
-    self.print_start_node('runEvents');
+    self.print_end_node('event');
     self.flush_print_buffer();
   end before_calling_run;
 
@@ -87,8 +86,9 @@ create or replace type body ut_realtime_reporter is
     a_run in            ut_run
   ) is
   begin
-    self.print_end_node('runEvents');
-    self.print_end_node('report');
+    self.print_xml_fragment(xml_header);
+    self.print_start_node('event', 'type', 'post-run');
+    self.print_end_node('event');
     self.flush_print_buffer();
   end after_calling_run;
   
@@ -97,8 +97,11 @@ create or replace type body ut_realtime_reporter is
     a_suite in            ut_logical_suite
   ) is
   begin
-    self.print_start_node('startSuiteEvent', a_suite.path);
-    self.print_end_node('startSuiteEvent');
+    self.print_xml_fragment(xml_header);
+    self.print_start_node('event', 'type', 'pre-suite');
+    self.print_start_node('suite', 'id', a_suite.path);
+    self.print_end_node('suite');
+    self.print_end_node('event');
     self.flush_print_buffer();
   end before_calling_suite;
 
@@ -107,7 +110,9 @@ create or replace type body ut_realtime_reporter is
     a_suite in            ut_logical_suite
   ) is
   begin
-    self.print_start_node('endSuiteEvent', a_suite.path);
+    self.print_xml_fragment(xml_header);
+    self.print_start_node('event', 'type', 'post-suite');
+    self.print_start_node('suite', 'id', a_suite.path);
     self.print_node('startTime', to_char(a_suite.start_time, 'YYYY-MM-DD"T"HH24:MI:SS.FF6'));
     self.print_node('endTime', to_char(a_suite.end_time, 'YYYY-MM-DD"T"HH24:MI:SS.FF6'));
     self.print_node('executionTime', ut_utils.to_xml_number_format(a_suite.execution_time()));
@@ -120,7 +125,8 @@ create or replace type body ut_realtime_reporter is
     self.print_end_node('counter');
     self.print_cdata_node('errorStack', ut_utils.table_to_clob(a_suite.get_error_stack_traces()));
     self.print_cdata_node('serverOutput', a_suite.get_serveroutputs());
-    self.print_end_node('endSuiteEvent');
+    self.print_end_node('suite');
+    self.print_end_node('event');
     self.flush_print_buffer();
   end after_calling_suite;
 
@@ -130,10 +136,13 @@ create or replace type body ut_realtime_reporter is
   ) is
   begin
     current_test_number := current_test_number + 1;
-    self.print_start_node('startTestEvent', a_test.path);
+    self.print_xml_fragment(xml_header);
+    self.print_start_node('event', 'type', 'pre-test');
+    self.print_start_node('test', 'id', a_test.path);
     self.print_node('testNumber', to_char(current_test_number));
     self.print_node('totalNumberOfTests', to_char(total_number_of_tests));
-    self.print_end_node('startTestEvent');
+    self.print_end_node('test');
+    self.print_end_node('event');
     self.flush_print_buffer();
   end before_calling_test;
   
@@ -142,7 +151,9 @@ create or replace type body ut_realtime_reporter is
     a_test in            ut_test
   ) is
   begin
-    self.print_start_node('endTestEvent', a_test.path);
+    self.print_xml_fragment(xml_header);
+    self.print_start_node('event', 'type', 'post-test');
+    self.print_start_node('test', 'id', a_test.path);
     self.print_node('testNumber', to_char(current_test_number));
     self.print_node('totalNumberOfTests', to_char(total_number_of_tests));
     self.print_node('startTime', to_char(a_test.start_time, 'YYYY-MM-DD"T"HH24:MI:SS.FF6'));
@@ -169,7 +180,8 @@ create or replace type body ut_realtime_reporter is
       end loop expectations;
       self.print_end_node('failedExpectations');
     end if;
-    self.print_end_node('endTestEvent');
+    self.print_end_node('test');
+    self.print_end_node('event');
     self.flush_print_buffer();
   end after_calling_test;
 
@@ -179,16 +191,17 @@ create or replace type body ut_realtime_reporter is
   end get_description;
 
   member procedure print_start_node(
-     self      in out nocopy ut_realtime_reporter,
-     a_name    in            varchar2,
-     a_id      in            varchar2             default null
+     self         in out nocopy ut_realtime_reporter,
+     a_node_name  in            varchar2,
+     a_attr_name  in            varchar2             default null,
+     a_attr_value in            varchar2             default null
   ) is
   begin
     self.print_xml_fragment(
-       '<' || a_name
+       '<' || a_node_name
        || case
-            when a_id is not null then
-              ' id="' || dbms_xmlgen.convert(a_id) || '"'
+            when a_attr_name is not null and a_attr_value is not null then
+              ' ' || a_attr_name || '="' || dbms_xmlgen.convert(a_attr_value) || '"'
           end
        || '>',
        0, 1
@@ -201,9 +214,9 @@ create or replace type body ut_realtime_reporter is
   ) is
   begin
     self.print_xml_fragment('</' || a_name || '>', -1);
-    if a_name like '%Event' then
+    if a_name = 'event' then
       -- force new line to make complete event a.s.a.p. visible in consuming session
-      self.print_xml_fragment(null);
+      self.print_xml_fragment(' ');
     end if;
   end print_end_node;
 
