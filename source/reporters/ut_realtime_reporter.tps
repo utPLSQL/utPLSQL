@@ -15,6 +15,11 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+  
+  /**
+   * Cached XML header to be used for every XML document
+   */
+  xml_header varchar2(4000),
 
   /**
    * Total number of all tests in the run (incl. disabled tests).
