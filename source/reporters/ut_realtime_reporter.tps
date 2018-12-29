@@ -32,6 +32,11 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   current_indent integer,
   
   /**
+   * Buffers lines to be printed.
+   */
+  print_buffer ut_varchar2_rows,
+  
+  /**
    * The realtime reporter.
    * Provides test results in a XML format, for clients such as SQL Developer interested in showing progressing details.
    */
@@ -138,6 +143,13 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
     a_fragment              in            clob, 
     a_indent_summand_before in            integer              default 0,
     a_indent_summand_after  in            integer              default 0
+  ),
+  
+  /**
+   * Flushes the local print buffer to the output buffer.
+   */
+  member procedure flush_print_buffer(
+    self in out nocopy ut_realtime_reporter
   )
 )
 not final

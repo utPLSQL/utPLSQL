@@ -24,6 +24,7 @@ create or replace type body ut_realtime_reporter is
     total_number_of_tests := 0;
     current_test_number := 0;
     current_indent := 0;
+    print_buffer := ut_varchar2_rows();
     return;
   end;
 
@@ -78,6 +79,7 @@ create or replace type body ut_realtime_reporter is
     self.print_node('totalNumberOfTests', to_char(total_number_of_tests));
     self.print_end_node('preRun');
     self.print_start_node('runEvents');
+    self.flush_print_buffer();
   end before_calling_run;
 
   overriding member procedure after_calling_run(
@@ -87,6 +89,7 @@ create or replace type body ut_realtime_reporter is
   begin
     self.print_end_node('runEvents');
     self.print_end_node('report');
+    self.flush_print_buffer();
   end after_calling_run;
   
   overriding member procedure before_calling_suite(
@@ -96,6 +99,7 @@ create or replace type body ut_realtime_reporter is
   begin
     self.print_start_node('startSuiteEvent', a_suite.path);
     self.print_end_node('startSuiteEvent');
+    self.flush_print_buffer();
   end before_calling_suite;
 
   overriding member procedure after_calling_suite(
@@ -117,6 +121,7 @@ create or replace type body ut_realtime_reporter is
     self.print_cdata_node('errorStack', ut_utils.table_to_clob(a_suite.get_error_stack_traces()));
     self.print_cdata_node('serverOutput', a_suite.get_serveroutputs());
     self.print_end_node('endSuiteEvent');
+    self.flush_print_buffer();
   end after_calling_suite;
 
   overriding member procedure before_calling_test(
@@ -129,6 +134,7 @@ create or replace type body ut_realtime_reporter is
     self.print_node('testNumber', to_char(current_test_number));
     self.print_node('totalNumberOfTests', to_char(total_number_of_tests));
     self.print_end_node('startTestEvent');
+    self.flush_print_buffer();
   end before_calling_test;
   
   overriding member procedure after_calling_test(
@@ -164,6 +170,7 @@ create or replace type body ut_realtime_reporter is
       self.print_end_node('failedExpectations');
     end if;
     self.print_end_node('endTestEvent');
+    self.flush_print_buffer();
   end after_calling_test;
 
   overriding member function get_description return varchar2 is
@@ -230,9 +237,17 @@ create or replace type body ut_realtime_reporter is
   ) is
   begin
     current_indent := current_indent + a_indent_summand_before;
-    self.print_text(lpad(' ', 2 * current_indent) || a_fragment);
+    ut_utils.append_to_list(print_buffer, lpad(' ', 2 * current_indent) || a_fragment);
     current_indent := current_indent + a_indent_summand_after;
   end print_xml_fragment;
+  
+  member procedure flush_print_buffer(
+    self in out nocopy ut_realtime_reporter
+  ) is
+  begin
+    self.print_text_lines(print_buffer);
+    print_buffer.delete;
+  end flush_print_buffer;
 
 end;
 /
