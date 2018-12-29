@@ -103,12 +103,13 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   overriding member function get_description return varchar2,
 
   /**
-   * Prints the start tag of a XML node with an optional id attribute.
+   * Prints the start tag of a XML node with an optional attribute.
    */
   member procedure print_start_node(
-     self      in out nocopy ut_realtime_reporter,
-     a_name    in            varchar2,
-     a_id      in            varchar2             default null
+     self         in out nocopy ut_realtime_reporter,
+     a_node_name  in            varchar2,
+     a_attr_name  in            varchar2             default null,
+     a_attr_value in            varchar2             default null
   ),
   
   /**
