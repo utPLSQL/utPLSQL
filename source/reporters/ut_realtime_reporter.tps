@@ -58,7 +58,7 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
   ),
 
   /**
-   * Provides closing tags.
+   * Indicates the end of the test run.
    */
   overriding member procedure after_calling_run(
     self  in out nocopy ut_realtime_reporter, 
