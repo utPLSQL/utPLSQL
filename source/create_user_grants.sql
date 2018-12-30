@@ -90,6 +90,8 @@ grant execute on &&ut3_owner..ut_coverage to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_options to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_helper to &ut3_user;
 grant execute on &&ut3_owner..ut_output_buffer_base to &ut3_user;
+grant execute on &&ut3_owner..ut_output_data_row to &ut3_user;
+grant execute on &&ut3_owner..ut_output_data_rows to &ut3_user;
 grant execute on &&ut3_owner..ut_output_table_buffer to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mappings to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mapping to &ut3_user;

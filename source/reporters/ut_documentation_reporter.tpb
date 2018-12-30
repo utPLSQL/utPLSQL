@@ -29,6 +29,21 @@ create or replace type body ut_documentation_reporter is
     return rpad(' ', self.lvl * 2);
   end tab;
 
+  overriding member procedure print_clob(self in out nocopy ut_documentation_reporter, a_clob clob) is
+    l_lines     ut_varchar2_list;
+    l_out_lines ut_varchar2_rows := ut_varchar2_rows();
+  begin
+    if a_clob is not null and dbms_lob.getlength(a_clob) > 0 then
+      l_lines := ut_utils.clob_to_table(a_clob, ut_utils.gc_max_storage_varchar2_len - length(tab()));
+      for i in 1 .. l_lines.count loop
+        if l_lines(i) is not null then
+          ut_utils.append_to_list(l_out_lines, tab() || l_lines(i) );
+        end if;
+      end loop;
+      (self as ut_output_reporter_base).print_text_lines(l_out_lines);
+    end if;
+  end;
+
   overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2) is
     l_lines ut_varchar2_list;
   begin

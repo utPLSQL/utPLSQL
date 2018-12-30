@@ -86,6 +86,8 @@ create or replace synonym &ut3_user..ut_varchar2_rows for &&ut3_owner..ut_varcha
 create or replace synonym &ut3_user..ut_integer_list for &&ut3_owner..ut_integer_list;
 create or replace synonym &ut3_user..ut_reporter_base for &&ut3_owner..ut_reporter_base;
 create or replace synonym &ut3_user..ut_output_reporter_base for &&ut3_owner..ut_output_reporter_base;
+create or replace synonym &ut3_user..ut_output_data_row for &&ut3_owner..ut_output_data_row;
+create or replace synonym &ut3_user..ut_output_data_rows for &&ut3_owner..ut_output_data_rows;
 create or replace synonym &ut3_user..ut_coverage for &&ut3_owner..ut_coverage;
 create or replace synonym &ut3_user..ut_coverage_options for &&ut3_owner..ut_coverage_options;
 create or replace synonym &ut3_user..ut_coverage_helper for &&ut3_owner..ut_coverage_helper;

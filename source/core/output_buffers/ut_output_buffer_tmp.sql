@@ -19,12 +19,14 @@ create table ut_output_buffer_tmp$(
   */
   output_id      raw(32) not null,
   message_id     number(38,0) not null,
-  text           varchar2(4000),
+  text           clob,
+  item_type      varchar2(1000),
   is_finished    number(1,0) default 0 not null,
   constraint ut_output_buffer_tmp_pk primary key(output_id, message_id),
   constraint ut_output_buffer_tmp_ck check(is_finished = 0 and text is not null or is_finished = 1 and text is null),
   constraint ut_output_buffer_fk1 foreign key (output_id) references ut_output_buffer_info_tmp$(output_id)
 ) organization index overflow nologging initrans 100
+  lob(text) store as securefile ut_output_text(retention none)
 ;
 
 -- This is needed to be EBR ready as editioning view can only be created by edition enabled user
@@ -58,6 +60,7 @@ limitations under the License.
 select output_id
       ,message_id
       ,text
+      ,item_type
       ,is_finished
   from ut_output_buffer_tmp$';
 

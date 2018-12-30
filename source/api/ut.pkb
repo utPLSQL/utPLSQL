@@ -175,8 +175,10 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
-    l_lines     sys_refcursor;
-    l_line      varchar2(4000);
+    l_data      sys_refcursor;
+    l_clob      clob;
+    l_item_type varchar2(32767);
+    l_lines     ut_varchar2_list;
   begin
     run_autonomous(
       ut_varchar2_list(),
@@ -190,13 +192,16 @@ create or replace package body ut is
       a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
-      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      l_data := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
-        fetch l_lines into l_line;
-        exit when l_lines%notfound;
-        pipe row(l_line);
+        fetch l_data into l_clob, l_item_type;
+        exit when l_data%notfound;
+        l_lines := ut_utils.clob_to_table(l_clob, ut_utils.gc_max_storage_varchar2_len);
+        for i in 1 .. l_lines.count loop
+          pipe row(l_lines(i));
+        end loop;
       end loop;
-      close l_lines;
+      close l_data;
     end if;
     raise_if_packages_invalidated();
     return;
@@ -213,8 +218,10 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
-    l_lines     sys_refcursor;
-    l_line      varchar2(4000);
+    l_data      sys_refcursor;
+    l_clob      clob;
+    l_item_type varchar2(32767);
+    l_lines     ut_varchar2_list;
   begin
     run_autonomous(
       ut_varchar2_list(),
@@ -228,13 +235,16 @@ create or replace package body ut is
       a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
-      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      l_data := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
-        fetch l_lines into l_line;
-        exit when l_lines%notfound;
-        pipe row(l_line);
+        fetch l_data into l_clob, l_item_type;
+        exit when l_data%notfound;
+        l_lines := ut_utils.clob_to_table(l_clob, ut_utils.gc_max_storage_varchar2_len);
+        for i in 1 .. l_lines.count loop
+          pipe row(l_lines(i));
+        end loop;
       end loop;
-      close l_lines;
+      close l_data;
     end if;
     raise_if_packages_invalidated();
     return;
@@ -252,8 +262,10 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
-    l_lines     sys_refcursor;
-    l_line      varchar2(4000);
+    l_data      sys_refcursor;
+    l_clob      clob;
+    l_item_type varchar2(32767);
+    l_lines     ut_varchar2_list;
   begin
     run_autonomous(
       a_paths,
@@ -267,13 +279,16 @@ create or replace package body ut is
       a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
-      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      l_data := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
-        fetch l_lines into l_line;
-        exit when l_lines%notfound;
-        pipe row(l_line);
+        fetch l_data into l_clob, l_item_type;
+        exit when l_data%notfound;
+        l_lines := ut_utils.clob_to_table(l_clob, ut_utils.gc_max_storage_varchar2_len);
+        for i in 1 .. l_lines.count loop
+          pipe row(l_lines(i));
+        end loop;
       end loop;
-      close l_lines;
+      close l_data;
     end if;
     raise_if_packages_invalidated();
     return;
@@ -291,8 +306,10 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
-    l_lines     sys_refcursor;
-    l_line      varchar2(4000);
+    l_data      sys_refcursor;
+    l_clob      clob;
+    l_item_type varchar2(32767);
+    l_lines     ut_varchar2_list;
   begin
     run_autonomous(
       a_paths,
@@ -306,13 +323,16 @@ create or replace package body ut is
       a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
-      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      l_data := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
-        fetch l_lines into l_line;
-        exit when l_lines%notfound;
-        pipe row(l_line);
+        fetch l_data into l_clob, l_item_type;
+        exit when l_data%notfound;
+        l_lines := ut_utils.clob_to_table(l_clob, ut_utils.gc_max_storage_varchar2_len);
+        for i in 1 .. l_lines.count loop
+          pipe row(l_lines(i));
+        end loop;
       end loop;
-      close l_lines;
+      close l_data;
     end if;
     raise_if_packages_invalidated();
     return;
@@ -330,8 +350,10 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
-    l_lines     sys_refcursor;
-    l_line      varchar2(4000);
+    l_data      sys_refcursor;
+    l_clob      clob;
+    l_item_type varchar2(32767);
+    l_lines     ut_varchar2_list;
   begin
     run_autonomous(
       ut_varchar2_list(a_path),
@@ -345,13 +367,16 @@ create or replace package body ut is
       a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
-      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      l_data := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
-        fetch l_lines into l_line;
-        exit when l_lines%notfound;
-        pipe row(l_line);
+        fetch l_data into l_clob, l_item_type;
+        exit when l_data%notfound;
+        l_lines := ut_utils.clob_to_table(l_clob, ut_utils.gc_max_storage_varchar2_len);
+        for i in 1 .. l_lines.count loop
+          pipe row(l_lines(i));
+        end loop;
       end loop;
-      close l_lines;
+      close l_data;
     end if;
     raise_if_packages_invalidated();
     return;
@@ -369,8 +394,10 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
-    l_lines     sys_refcursor;
-    l_line      varchar2(4000);
+    l_data      sys_refcursor;
+    l_clob      clob;
+    l_item_type varchar2(32767);
+    l_lines     ut_varchar2_list;
   begin
     run_autonomous(
       ut_varchar2_list(a_path),
@@ -384,13 +411,16 @@ create or replace package body ut is
       a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
-      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      l_data := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
-        fetch l_lines into l_line;
-        exit when l_lines%notfound;
-        pipe row(l_line);
+        fetch l_data into l_clob, l_item_type;
+        exit when l_data%notfound;
+        l_lines := ut_utils.clob_to_table(l_clob, ut_utils.gc_max_storage_varchar2_len);
+        for i in 1 .. l_lines.count loop
+          pipe row(l_lines(i));
+        end loop;
       end loop;
-      close l_lines;
+      close l_data;
     end if;
     raise_if_packages_invalidated();
     return;
