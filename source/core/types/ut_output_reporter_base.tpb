@@ -41,14 +41,19 @@ create or replace type body ut_output_reporter_base is
     l_output_table_buffer := treat(self.output_buffer as ut_output_table_buffer);
   end;
 
-  member procedure print_text(self in out nocopy ut_output_reporter_base, a_text varchar2) is
+  member procedure print_text(self in out nocopy ut_output_reporter_base, a_text varchar2, a_item_type varchar2 := null) is
   begin
-    self.output_buffer.send_line(a_text);
+    self.output_buffer.send_line(a_text, a_item_type);
   end;
 
-  member procedure print_text_lines(self in out nocopy ut_output_reporter_base, a_text_lines ut_varchar2_rows) is
+  member procedure print_text_lines(self in out nocopy ut_output_reporter_base, a_text_lines ut_varchar2_rows, a_item_type varchar2 := null) is
   begin
-    self.output_buffer.send_lines(a_text_lines);
+    self.output_buffer.send_lines(a_text_lines, a_item_type);
+  end;
+
+  member procedure print_clob(self in out nocopy ut_output_reporter_base, a_clob clob, a_item_type varchar2 := null) is
+  begin
+    self.output_buffer.send_clob( a_clob, a_item_type );
   end;
 
   final member function get_lines(a_initial_timeout natural := null, a_timeout_sec natural) return ut_output_data_rows pipelined is
@@ -66,15 +71,6 @@ create or replace type body ut_output_reporter_base is
   final member procedure lines_to_dbms_output(self in ut_output_reporter_base, a_initial_timeout natural := null, a_timeout_sec natural) is
   begin
     self.output_buffer.lines_to_dbms_output(a_initial_timeout, a_timeout_sec);
-  end;
-
-  member procedure print_clob(self in out nocopy ut_output_reporter_base, a_clob clob) is
-  begin
-    if a_clob is not null and dbms_lob.getlength(a_clob) > 0 then
-      self.print_text_lines(
-        ut_utils.convert_collection( ut_utils.clob_to_table( a_clob, ut_utils.gc_max_storage_varchar2_len ) )
-        );
-    end if;
   end;
 
   overriding final member procedure on_finalize(self in out nocopy ut_output_reporter_base, a_run in ut_run) is

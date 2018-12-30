@@ -29,7 +29,7 @@ create or replace type body ut_documentation_reporter is
     return rpad(' ', self.lvl * 2);
   end tab;
 
-  overriding member procedure print_clob(self in out nocopy ut_documentation_reporter, a_clob clob) is
+  overriding member procedure print_clob(self in out nocopy ut_documentation_reporter, a_clob clob, a_item_type varchar2 := null) is
     l_lines     ut_varchar2_list;
     l_out_lines ut_varchar2_rows := ut_varchar2_rows();
   begin
@@ -40,17 +40,17 @@ create or replace type body ut_documentation_reporter is
           ut_utils.append_to_list(l_out_lines, tab() || l_lines(i) );
         end if;
       end loop;
-      (self as ut_output_reporter_base).print_text_lines(l_out_lines);
+      (self as ut_output_reporter_base).print_text_lines(l_out_lines, a_item_type);
     end if;
   end;
 
-  overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2) is
+  overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2, a_item_type varchar2 := null) is
     l_lines ut_varchar2_list;
   begin
     if a_text is not null then
       l_lines := ut_utils.string_to_table(a_text);
       for i in 1 .. l_lines.count loop
-        (self as ut_output_reporter_base).print_text(tab || l_lines(i));
+        (self as ut_output_reporter_base).print_text(tab || l_lines(i), a_item_type);
       end loop;
     end if;
   end;
