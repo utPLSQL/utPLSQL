@@ -78,7 +78,7 @@ create or replace type body ut_realtime_reporter is
     self.print_end_node('suites');
     self.print_node('totalNumberOfTests', to_char(total_number_of_tests));
     self.print_end_node('event');
-    self.flush_print_buffer();
+    self.flush_print_buffer('pre-run');
   end before_calling_run;
 
   overriding member procedure after_calling_run(
@@ -89,7 +89,7 @@ create or replace type body ut_realtime_reporter is
     self.print_xml_fragment(xml_header);
     self.print_start_node('event', 'type', 'post-run');
     self.print_end_node('event');
-    self.flush_print_buffer();
+    self.flush_print_buffer('post-run');
   end after_calling_run;
   
   overriding member procedure before_calling_suite(
@@ -102,7 +102,7 @@ create or replace type body ut_realtime_reporter is
     self.print_start_node('suite', 'id', a_suite.path);
     self.print_end_node('suite');
     self.print_end_node('event');
-    self.flush_print_buffer();
+    self.flush_print_buffer('pre-suite');
   end before_calling_suite;
 
   overriding member procedure after_calling_suite(
@@ -127,7 +127,7 @@ create or replace type body ut_realtime_reporter is
     self.print_cdata_node('serverOutput', a_suite.get_serveroutputs());
     self.print_end_node('suite');
     self.print_end_node('event');
-    self.flush_print_buffer();
+    self.flush_print_buffer('post-suite');
   end after_calling_suite;
 
   overriding member procedure before_calling_test(
@@ -143,7 +143,7 @@ create or replace type body ut_realtime_reporter is
     self.print_node('totalNumberOfTests', to_char(total_number_of_tests));
     self.print_end_node('test');
     self.print_end_node('event');
-    self.flush_print_buffer();
+    self.flush_print_buffer('pre-test');
   end before_calling_test;
   
   overriding member procedure after_calling_test(
@@ -182,7 +182,7 @@ create or replace type body ut_realtime_reporter is
     end if;
     self.print_end_node('test');
     self.print_end_node('event');
-    self.flush_print_buffer();
+    self.flush_print_buffer('post-test');
   end after_calling_test;
 
   overriding member function get_description return varchar2 is
@@ -214,10 +214,6 @@ create or replace type body ut_realtime_reporter is
   ) is
   begin
     self.print_xml_fragment('</' || a_name || '>', -1);
-    if a_name = 'event' then
-      -- force new line to make complete event a.s.a.p. visible in consuming session
-      self.print_xml_fragment(' ');
-    end if;
   end print_end_node;
 
   member procedure print_node(
@@ -255,10 +251,17 @@ create or replace type body ut_realtime_reporter is
   end print_xml_fragment;
   
   member procedure flush_print_buffer(
-    self in out nocopy ut_realtime_reporter
+    self        in out nocopy ut_realtime_reporter,
+    a_item_type in            varchar2
   ) is
+    l_doc clob;
+    l_rows integer := print_buffer.count;
   begin
-    self.print_text_lines(print_buffer);
+    for i in 1 .. l_rows loop
+      ut_utils.append_to_clob(l_doc, print_buffer(i));
+      ut_utils.append_to_clob(l_doc, chr(10));
+    end loop;
+    self.print_clob(l_doc, a_item_type);
     print_buffer.delete;
   end flush_print_buffer;
 

@@ -155,7 +155,8 @@ create or replace type ut_realtime_reporter force under ut_output_reporter_base(
    * Flushes the local print buffer to the output buffer.
    */
   member procedure flush_print_buffer(
-    self in out nocopy ut_realtime_reporter
+    self        in out nocopy ut_realtime_reporter,
+    a_item_type in            varchar2
   )
 )
 not final

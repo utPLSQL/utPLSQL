@@ -1,6 +1,6 @@
 create or replace package body test_realtime_reporter as
 
-  g_xml_reports test_xmltype_list := test_xmltype_list();
+  g_xml_reports test_event_list := test_event_list();
 
   procedure create_test_suites_and_run is
     pragma autonomous_transaction;
@@ -102,33 +102,17 @@ create or replace package body test_realtime_reporter as
     
     <<run_report_and_cache_result>>
     declare 
-      l_clob clob;
+      l_reporter ut3.ut_realtime_reporter := ut3.ut_realtime_reporter();
     begin
-      g_xml_reports.delete;
-      <<report_lines>>
-      for r in (
-        with
-          base as (
-            select sum(case when column_value like '<?xml%' then 1 else 0 end) over(order by rownum) group_no, 
-                   rownum as rn,
-                   column_value as line
-              from table(ut3.ut.run('ut3_tester:realtime_reporting', ut3.ut_realtime_reporter()))
-          )
-        select group_no,
-               lead(group_no, 1, -1) over (order by rn) as next_group_no,
-               rn,
-               line
-          from base
-         order by rn
-      ) loop
-        ut3.ut_utils.append_to_clob(l_clob, r.line);
-        ut3.ut_utils.append_to_clob(l_clob, chr(10));
-        if r.group_no != r.next_group_no then
-           g_xml_reports.extend;
-           g_xml_reports(g_xml_reports.count) := xmltype(l_clob);
-           l_clob := null;
-        end if;
-      end loop report_lines;
+      -- produce
+      ut3.ut_runner.run(
+         a_paths     => ut3.ut_varchar2_list(':realtime_reporting'),
+         a_reporters => ut3.ut_reporters(l_reporter)
+      );
+      -- consume
+      select test_event_object(item_type, xmltype(text))
+        bulk collect into g_xml_reports
+        from table(ut3.ut_output_table_buffer(l_reporter.output_buffer.output_id).get_lines());        
     end run_report_and_cache_result;
   end create_test_suites_and_run;
   
@@ -137,8 +121,8 @@ create or replace package body test_realtime_reporter as
     l_expected sys_refcursor;
   begin
     open l_actual for
-      select t.column_value.extract('/event/@type').getstringval()                     as event_type, 
-             t.column_value.extract('/event/suite/@id|/event/test/@id').getstringval() as item_id
+      select t.event_doc.extract('/event/@type').getstringval()                     as event_type, 
+             t.event_doc.extract('/event/suite/@id|/event/test/@id').getstringval() as item_id
         from table(g_xml_reports) t;
     open l_expected for
       select 'pre-run'    as event_type, null                                                                     as item_id from dual union all
@@ -174,22 +158,22 @@ create or replace package body test_realtime_reporter as
     l_actual   integer;
     l_expected integer := 7; 
   begin
-    select t.column_value.extract('/event/totalNumberOfTests/text()').getnumberval()
+    select t.event_doc.extract('/event/totalNumberOfTests/text()').getnumberval()
       into l_actual
       from table(g_xml_reports) t
-     where t.column_value.extract('/event/@type').getstringval() = 'pre-run';
+     where t.event_type = 'pre-run';
   end total_number_of_tests; 
   
   procedure escaped_characters is
     l_actual   varchar2(32767);
     l_expected varchar2(20) := 'suite &lt;A&gt;'; 
   begin
-    select t.column_value.extract(
+    select t.event_doc.extract(
              '//suite[@id="realtime_reporting.check_realtime_reporting1"]/description/text()'
            ).getstringval()
       into l_actual
       from table(g_xml_reports) t
-     where t.column_value.extract('/event/@type').getstringval() = 'pre-run';
+     where t.event_type = 'pre-run';
     ut.expect(l_actual).to_equal(l_expected);
   end escaped_characters;
   
@@ -198,13 +182,13 @@ create or replace package body test_realtime_reporter as
     l_expected sys_refcursor;
   begin
     open l_actual for
-       select t.column_value.extract('//test/testNumber/text()')
+       select t.event_doc.extract('//test/testNumber/text()')
                 .getnumberval() as test_number,
-              t.column_value.extract('//test/totalNumberOfTests/text()')
+              t.event_doc.extract('//test/totalNumberOfTests/text()')
                 .getnumberval() as total_number_of_tests
          from table(g_xml_reports) t
-        where t.column_value.extract('/event/@type').getstringval() = 'pre-test'
-          and t.column_value.extract('//test/@id').getstringval() is not null;
+        where t.event_type = 'pre-test'
+          and t.event_doc.extract('//test/@id').getstringval() is not null;
     open l_expected for
        select level as test_number, 
               7     as total_number_of_tests 
@@ -218,21 +202,21 @@ create or replace package body test_realtime_reporter as
     l_expected sys_refcursor;
   begin
     open l_actual for
-       select t.column_value.extract('//test/testNumber/text()')
+       select t.event_doc.extract('//test/testNumber/text()')
                 .getnumberval() as test_number,
-              t.column_value.extract('//test/totalNumberOfTests/text()')
+              t.event_doc.extract('//test/totalNumberOfTests/text()')
                 .getnumberval() as total_number_of_tests
          from table(g_xml_reports) t
-        where t.column_value.extract('/event/@type').getstringval() = 'post-test'
-          and t.column_value.extract('//test/@id').getstringval() is not null
-          and t.column_value.extract('//test/startTime/text()').getstringval() is not null
-          and t.column_value.extract('//test/endTime/text()').getstringval() is not null
-          and t.column_value.extract('//test/executionTime/text()').getnumberval() is not null
-          and t.column_value.extract('//test/counter/disabled/text()').getnumberval() is not null
-          and t.column_value.extract('//test/counter/success/text()').getnumberval() is not null
-          and t.column_value.extract('//test/counter/failure/text()').getnumberval() is not null
-          and t.column_value.extract('//test/counter/error/text()').getnumberval() is not null
-          and t.column_value.extract('//test/counter/warning/text()').getnumberval() is not null;
+        where t.event_type = 'post-test'
+          and t.event_doc.extract('//test/@id').getstringval() is not null
+          and t.event_doc.extract('//test/startTime/text()').getstringval() is not null
+          and t.event_doc.extract('//test/endTime/text()').getstringval() is not null
+          and t.event_doc.extract('//test/executionTime/text()').getnumberval() is not null
+          and t.event_doc.extract('//test/counter/disabled/text()').getnumberval() is not null
+          and t.event_doc.extract('//test/counter/success/text()').getnumberval() is not null
+          and t.event_doc.extract('//test/counter/failure/text()').getnumberval() is not null
+          and t.event_doc.extract('//test/counter/error/text()').getnumberval() is not null
+          and t.event_doc.extract('//test/counter/warning/text()').getnumberval() is not null;
     open l_expected for
        select level as test_number, 
               7     as total_number_of_tests 
@@ -245,12 +229,12 @@ create or replace package body test_realtime_reporter as
     l_actual   varchar2(32767);
     l_expected varchar2(80) := '<![CDATA[Actual: 1 (number) was expected to equal: 2 (number) ]]>';
   begin
-    select t.column_value.extract(
+    select t.event_doc.extract(
              '/event/test/failedExpectations/expectation[1]/message/text()'
            ).getstringval()
       into l_actual
       from table(g_xml_reports) t
-     where t.column_value.extract('/event[@type="post-test"]/test/@id').getstringval() 
+     where t.event_doc.extract('/event[@type="post-test"]/test/@id').getstringval() 
            = 'realtime_reporting.check_realtime_reporting1.test context.test_2_nok';
     ut.expect(l_actual).to_equal(l_expected);
   end single_failed_message;
@@ -264,11 +248,11 @@ create or replace package body test_realtime_reporter as
       from table(g_xml_reports) t, 
            xmltable(
              '/event/test/failedExpectations/expectation'
-             passing t.column_value
+             passing t.event_doc
              columns message clob path 'message',
                      caller  clob path 'caller'
            ) x
-     where t.column_value.extract('/event[@type="post-test"]/test/@id').getstringval() 
+     where t.event_doc.extract('/event[@type="post-test"]/test/@id').getstringval() 
             = 'realtime_reporting.check_realtime_reporting2.test_4_nok'
        and x.message is not null 
        and x.caller is not null;
@@ -280,10 +264,10 @@ create or replace package body test_realtime_reporter as
     l_expected_list ut3.ut_varchar2_list;
     l_expected clob;
   begin
-    select t.column_value.extract('//event/test/serverOutput/text()').getstringval()
+    select t.event_doc.extract('//event/test/serverOutput/text()').getstringval()
       into l_actual
       from table(g_xml_reports) t
-     where t.column_value.extract('/event[@type="post-test"]/test/@id').getstringval() 
+     where t.event_doc.extract('/event[@type="post-test"]/test/@id').getstringval() 
            = 'realtime_reporting.check_realtime_reporting3.test_7_with_serveroutput';
     ut3.ut_utils.append_to_list(l_expected_list, '<![CDATA[before test 7');
     ut3.ut_utils.append_to_list(l_expected_list, 'after test 7');
@@ -297,10 +281,10 @@ create or replace package body test_realtime_reporter as
     l_expected_list ut3.ut_varchar2_list;
     l_expected clob;
   begin
-    select t.column_value.extract('//event/suite/serverOutput/text()').getstringval()
+    select t.event_doc.extract('//event/suite/serverOutput/text()').getstringval()
       into l_actual
       from table(g_xml_reports) t
-     where t.column_value.extract('/event[@type="post-suite"]/suite/@id').getstringval() 
+     where t.event_doc.extract('/event[@type="post-suite"]/suite/@id').getstringval() 
            = 'realtime_reporting.check_realtime_reporting3';
     ut3.ut_utils.append_to_list(l_expected_list, '<![CDATA[Now, a no_data_found exception is raised');
     ut3.ut_utils.append_to_list(l_expected_list, 'dbms_output and error stack is reported for this suite.');
@@ -315,10 +299,10 @@ create or replace package body test_realtime_reporter as
     l_expected_list ut3.ut_varchar2_list;
     l_expected clob;
   begin
-    select t.column_value.extract('//event/test/errorStack/text()').getstringval()
+    select t.event_doc.extract('//event/test/errorStack/text()').getstringval()
       into l_actual
       from table(g_xml_reports) t
-     where t.column_value.extract('/event[@type="post-test"]/test/@id').getstringval() 
+     where t.event_doc.extract('/event[@type="post-test"]/test/@id').getstringval() 
            = 'realtime_reporting.check_realtime_reporting3.test_6_with_runtime_error';
     ut3.ut_utils.append_to_list(l_expected_list, '<![CDATA[ORA-00942: table or view does not exist');
     ut3.ut_utils.append_to_list(l_expected_list, 'ORA-06512: at "%.CHECK_REALTIME_REPORTING3", line 5');
@@ -332,10 +316,10 @@ create or replace package body test_realtime_reporter as
     l_expected_list ut3.ut_varchar2_list;
     l_expected clob;
   begin
-    select t.column_value.extract('//event/suite/errorStack/text()').getstringval()
+    select t.event_doc.extract('//event/suite/errorStack/text()').getstringval()
       into l_actual
       from table(g_xml_reports) t
-     where t.column_value.extract('/event[@type="post-suite"]/suite/@id').getstringval() 
+     where t.event_doc.extract('/event[@type="post-suite"]/suite/@id').getstringval() 
            = 'realtime_reporting.check_realtime_reporting3';
     ut3.ut_utils.append_to_list(l_expected_list, '<![CDATA[ORA-01403: no data found');
     ut3.ut_utils.append_to_list(l_expected_list, 'ORA-06512: at "%.CHECK_REALTIME_REPORTING3", line 21');
