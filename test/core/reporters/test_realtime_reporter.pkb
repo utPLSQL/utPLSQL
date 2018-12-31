@@ -1,6 +1,6 @@
 create or replace package body test_realtime_reporter as
 
-  g_xml_reports test_event_list := test_event_list();
+  g_events test_event_list := test_event_list();
 
   procedure create_test_suites_and_run is
     pragma autonomous_transaction;
@@ -111,7 +111,7 @@ create or replace package body test_realtime_reporter as
       );
       -- consume
       select test_event_object(item_type, xmltype(text))
-        bulk collect into g_xml_reports
+        bulk collect into g_events
         from table(ut3.ut_output_table_buffer(l_reporter.output_buffer.output_id).get_lines());        
     end run_report_and_cache_result;
   end create_test_suites_and_run;
@@ -123,7 +123,7 @@ create or replace package body test_realtime_reporter as
     open l_actual for
       select t.event_doc.extract('/event/@type').getstringval()                     as event_type, 
              t.event_doc.extract('/event/suite/@id|/event/test/@id').getstringval() as item_id
-        from table(g_xml_reports) t;
+        from table(g_events) t;
     open l_expected for
       select 'pre-run'    as event_type, null                                                                     as item_id from dual union all
       select 'pre-suite'  as event_type, 'realtime_reporting'                                                     as item_id from dual union all
@@ -160,7 +160,7 @@ create or replace package body test_realtime_reporter as
   begin
     select t.event_doc.extract('/event/totalNumberOfTests/text()').getnumberval()
       into l_actual
-      from table(g_xml_reports) t
+      from table(g_events) t
      where t.event_type = 'pre-run';
   end total_number_of_tests; 
   
@@ -172,7 +172,7 @@ create or replace package body test_realtime_reporter as
              '//suite[@id="realtime_reporting.check_realtime_reporting1"]/description/text()'
            ).getstringval()
       into l_actual
-      from table(g_xml_reports) t
+      from table(g_events) t
      where t.event_type = 'pre-run';
     ut.expect(l_actual).to_equal(l_expected);
   end escaped_characters;
@@ -186,7 +186,7 @@ create or replace package body test_realtime_reporter as
                 .getnumberval() as test_number,
               t.event_doc.extract('//test/totalNumberOfTests/text()')
                 .getnumberval() as total_number_of_tests
-         from table(g_xml_reports) t
+         from table(g_events) t
         where t.event_type = 'pre-test'
           and t.event_doc.extract('//test/@id').getstringval() is not null;
     open l_expected for
@@ -206,7 +206,7 @@ create or replace package body test_realtime_reporter as
                 .getnumberval() as test_number,
               t.event_doc.extract('//test/totalNumberOfTests/text()')
                 .getnumberval() as total_number_of_tests
-         from table(g_xml_reports) t
+         from table(g_events) t
         where t.event_type = 'post-test'
           and t.event_doc.extract('//test/@id').getstringval() is not null
           and t.event_doc.extract('//test/startTime/text()').getstringval() is not null
@@ -233,7 +233,7 @@ create or replace package body test_realtime_reporter as
              '/event/test/failedExpectations/expectation[1]/message/text()'
            ).getstringval()
       into l_actual
-      from table(g_xml_reports) t
+      from table(g_events) t
      where t.event_doc.extract('/event[@type="post-test"]/test/@id').getstringval() 
            = 'realtime_reporting.check_realtime_reporting1.test context.test_2_nok';
     ut.expect(l_actual).to_equal(l_expected);
@@ -245,7 +245,7 @@ create or replace package body test_realtime_reporter as
   begin
     select count(*)
       into l_actual
-      from table(g_xml_reports) t, 
+      from table(g_events) t, 
            xmltable(
              '/event/test/failedExpectations/expectation'
              passing t.event_doc
@@ -266,7 +266,7 @@ create or replace package body test_realtime_reporter as
   begin
     select t.event_doc.extract('//event/test/serverOutput/text()').getstringval()
       into l_actual
-      from table(g_xml_reports) t
+      from table(g_events) t
      where t.event_doc.extract('/event[@type="post-test"]/test/@id').getstringval() 
            = 'realtime_reporting.check_realtime_reporting3.test_7_with_serveroutput';
     ut3.ut_utils.append_to_list(l_expected_list, '<![CDATA[before test 7');
@@ -283,7 +283,7 @@ create or replace package body test_realtime_reporter as
   begin
     select t.event_doc.extract('//event/suite/serverOutput/text()').getstringval()
       into l_actual
-      from table(g_xml_reports) t
+      from table(g_events) t
      where t.event_doc.extract('/event[@type="post-suite"]/suite/@id').getstringval() 
            = 'realtime_reporting.check_realtime_reporting3';
     ut3.ut_utils.append_to_list(l_expected_list, '<![CDATA[Now, a no_data_found exception is raised');
@@ -301,7 +301,7 @@ create or replace package body test_realtime_reporter as
   begin
     select t.event_doc.extract('//event/test/errorStack/text()').getstringval()
       into l_actual
-      from table(g_xml_reports) t
+      from table(g_events) t
      where t.event_doc.extract('/event[@type="post-test"]/test/@id').getstringval() 
            = 'realtime_reporting.check_realtime_reporting3.test_6_with_runtime_error';
     ut3.ut_utils.append_to_list(l_expected_list, '<![CDATA[ORA-00942: table or view does not exist');
@@ -318,7 +318,7 @@ create or replace package body test_realtime_reporter as
   begin
     select t.event_doc.extract('//event/suite/errorStack/text()').getstringval()
       into l_actual
-      from table(g_xml_reports) t
+      from table(g_events) t
      where t.event_doc.extract('/event[@type="post-suite"]/suite/@id').getstringval() 
            = 'realtime_reporting.check_realtime_reporting3';
     ut3.ut_utils.append_to_list(l_expected_list, '<![CDATA[ORA-01403: no data found');
