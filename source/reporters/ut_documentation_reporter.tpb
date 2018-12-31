@@ -34,7 +34,7 @@ create or replace type body ut_documentation_reporter is
     l_out_lines ut_varchar2_rows := ut_varchar2_rows();
   begin
     if a_clob is not null and dbms_lob.getlength(a_clob) > 0 then
-      l_lines := ut_utils.clob_to_table(a_clob, ut_utils.gc_max_storage_varchar2_len - length(tab()));
+      l_lines := ut_utils.clob_to_table(a_clob, ut_utils.gc_max_storage_varchar2_len - length(nvl(tab(),0)));
       for i in 1 .. l_lines.count loop
         if l_lines(i) is not null then
           ut_utils.append_to_list(l_out_lines, tab() || l_lines(i) );
