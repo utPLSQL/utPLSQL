@@ -80,6 +80,8 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_reporters.tps'
 
 --output buffer base api
+@@install_component.sql 'core/output_buffers/ut_output_data_row.tps'
+@@install_component.sql 'core/output_buffers/ut_output_data_rows.tps'
 @@install_component.sql 'core/output_buffers/ut_output_buffer_base.tps'
 --output buffer table
 @@install_component.sql 'core/output_buffers/ut_output_buffer_info_tmp.sql'
@@ -292,6 +294,8 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'reporters/ut_coveralls_reporter.tpb'
 @@install_component.sql 'reporters/ut_coverage_cobertura_reporter.tps'
 @@install_component.sql 'reporters/ut_coverage_cobertura_reporter.tpb'
+@@install_component.sql 'reporters/ut_realtime_reporter.tps'
+@@install_component.sql 'reporters/ut_realtime_reporter.tpb'
 
 @@install_component.sql 'api/be_between.syn'
 @@install_component.sql 'api/be_empty.syn'

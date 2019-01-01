@@ -86,6 +86,8 @@ create or replace synonym &ut3_user..ut_varchar2_rows for &&ut3_owner..ut_varcha
 create or replace synonym &ut3_user..ut_integer_list for &&ut3_owner..ut_integer_list;
 create or replace synonym &ut3_user..ut_reporter_base for &&ut3_owner..ut_reporter_base;
 create or replace synonym &ut3_user..ut_output_reporter_base for &&ut3_owner..ut_output_reporter_base;
+create or replace synonym &ut3_user..ut_output_data_row for &&ut3_owner..ut_output_data_row;
+create or replace synonym &ut3_user..ut_output_data_rows for &&ut3_owner..ut_output_data_rows;
 create or replace synonym &ut3_user..ut_coverage for &&ut3_owner..ut_coverage;
 create or replace synonym &ut3_user..ut_coverage_options for &&ut3_owner..ut_coverage_options;
 create or replace synonym &ut3_user..ut_coverage_helper for &&ut3_owner..ut_coverage_helper;
@@ -98,6 +100,7 @@ create or replace synonym &ut3_user..ut_key_value_pairs for &&ut3_owner..ut_key_
 create or replace synonym &ut3_user..ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
 create or replace synonym &ut3_user..ut_compound_data_tmp for &&ut3_owner..ut_cursor_data;
 create or replace synonym &ut3_user..ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
+create or replace synonym &ut3_user..ut_realtime_reporter for &&ut3_owner..ut_realtime_reporter;
 begin
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
   execute immediate 'create or replace synonym &ut3_user..dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks';
