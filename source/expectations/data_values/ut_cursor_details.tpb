@@ -40,8 +40,8 @@ create or replace type body ut_cursor_details as
       null;
     end;
     return l_anytype;
-  end;   
-  
+  end;
+
   member procedure desc_compound_data(
     self in out nocopy ut_cursor_details, a_compound_data anytype,
     a_parent_name in varchar2, a_level in integer, a_access_path in varchar2
@@ -161,24 +161,6 @@ create or replace type body ut_cursor_details as
     return;
   end;
 
-  member function get_anytype_from_name(
-    a_owner in varchar2, a_type_name in varchar2
-  ) return anytype is
-    l_result anytype;
-  begin
-    begin
-      $if dbms_db_version.version <= 12 $then
-        l_result := anytype.getpersistent( a_owner, a_type_name );
-      $else
-        l_result := getanytypefrompersistent( a_owner, a_type_name );
-      $end
-    exception
-    when others then
-      null;
-    end;
-    return l_result;
-  end;
-
   member function is_collection (a_anytype_code in integer) return boolean is
   begin
     return coalesce(a_anytype_code in (dbms_types.typecode_varray,dbms_types.typecode_table,dbms_types.typecode_namedcollection),false);
@@ -188,7 +170,7 @@ create or replace type body ut_cursor_details as
   begin
     return is_collection(
       ut_compound_data_helper.get_anytype_members_info(
-        get_anytype_from_name(a_owner, a_type_name)
+        get_user_defined_type(a_owner, a_type_name)
       ).type_code
     );
   end;

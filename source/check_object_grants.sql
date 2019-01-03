@@ -6,7 +6,7 @@ declare
   l_owner_column   varchar2(128);
 
   function get_view(a_dba_view_name varchar2) return varchar2 is
-      l_invalid_object_name exception;
+    l_invalid_object_name exception;
     l_result              varchar2(128) := lower(a_dba_view_name);
     pragma exception_init(l_invalid_object_name,-44002);
     begin

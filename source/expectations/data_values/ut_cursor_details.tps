@@ -28,9 +28,6 @@ create or replace type ut_cursor_details force authid current_user as object (
      a_parent_name in varchar2, a_level in integer, a_access_path in varchar2
    ),
    member function get_user_defined_type(a_owner varchar2, a_type_name varchar2) return anytype,
-   member function get_anytype_from_name(
-    a_owner in varchar2, a_type_name in varchar2
-    ) return anytype,
    member function is_collection(a_anytype_code in integer) return boolean,
    member function is_collection(a_owner varchar2, a_type_name varchar2) return boolean,
    member procedure ordered_columns(self in out nocopy ut_cursor_details, a_ordered_columns boolean := false)

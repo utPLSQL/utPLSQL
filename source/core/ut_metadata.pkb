@@ -189,6 +189,5 @@ create or replace package body ut_metadata as
     return l_cnt > 0;
   end;
 
-
 end;
 /
