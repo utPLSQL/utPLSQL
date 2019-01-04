@@ -29,16 +29,20 @@ create or replace type body ut_cursor_details as
     not_found exception;
     pragma exception_init(not_found,-22303);
   begin
-    begin
-      $if dbms_db_version.version <= 12 $then
-        l_anytype := anytype.getpersistent( a_owner, a_type_name );
-      $else
-        l_anytype := getanytypefrompersistent( a_owner, a_type_name );
-      $end
-    exception
-    when not_found then
-      null;
-    end;
+    if a_type_name is not null then
+      begin
+        if ut_metadata.IS_OBJECT_VISIBLE('GETANYTYPEFROMPERSISTENT') then
+          execute immediate 'begin :l_anytype := getanytypefrompersistent( :a_owner, :a_type_name ); end;'
+          using out l_anytype, in nvl(a_owner,sys_context('userenv','current_schema')), in a_type_name;
+        else
+          execute immediate 'begin :l_anytype := anytype.getpersistent( :a_owner, :a_type_name ); end;'
+            using out l_anytype, in nvl(a_owner,sys_context('userenv','current_schema')), in a_type_name;
+        end if;
+      exception
+      when not_found then
+        null;
+      end;
+    end if;
     return l_anytype;
   end;
 
