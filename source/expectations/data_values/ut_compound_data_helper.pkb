@@ -491,12 +491,9 @@ create or replace package body ut_compound_data_helper is
    )
    order by final_order,]';
    
-   if a_enforce_column_order then
+   if a_enforce_column_order or (not(a_enforce_column_order) and not(a_unordered)) then
      l_sql := l_sql ||q'[case when final_order = 1 then rn else rnk end,
      case when final_order = 1 then rnk else rn end ]';
-   elsif not(a_enforce_column_order) and not(a_unordered) then
-     l_sql := l_sql ||q'[case when final_order = 1 then rn else rnk end,
-     case when final_order = 1 then rnk else rn end ]';    
    elsif a_unordered then
      l_sql := l_sql ||q'[case when final_order = 1 then col_name else to_char(rnk) end,
      case when final_order = 1 then to_char(rn) else col_name end,

@@ -144,7 +144,6 @@ create or replace type body ut_expectation_refcursor as
   end;
 
   member function uc return ut_expectation_refcursor is
-    l_result ut_expectation_refcursor;
   begin
     return unordered_columns;
   end;
