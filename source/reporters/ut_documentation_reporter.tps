@@ -20,7 +20,8 @@ create or replace type ut_documentation_reporter under ut_console_reporter_base(
   constructor function ut_documentation_reporter(self in out nocopy ut_documentation_reporter) return self as result,
   member function tab(self in ut_documentation_reporter) return varchar2,
 
-  overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2),
+  overriding member procedure print_clob(self in out nocopy ut_documentation_reporter, a_clob clob, a_item_type varchar2 := null),
+  overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2, a_item_type varchar2 := null),
   overriding member procedure before_calling_suite(self in out nocopy ut_documentation_reporter, a_suite ut_logical_suite),
   overriding member procedure after_calling_test(self in out nocopy ut_documentation_reporter, a_test ut_test),
   overriding member procedure after_calling_after_all (self in out nocopy ut_documentation_reporter, a_executable in ut_executable),

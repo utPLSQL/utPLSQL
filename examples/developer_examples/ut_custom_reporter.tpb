@@ -16,9 +16,9 @@ create or replace type body ut_custom_reporter is
     return tab_str;
   end tab;
 
-  overriding member procedure print_text(a_text varchar2) is
+  overriding member procedure print_text(a_text varchar2, a_item_type varchar2 := null) is
   begin
-    (self as ut_documentation_reporter).print_text(tab || a_text);
+    (self as ut_documentation_reporter).print_text(tab || a_text, a_item_type);
   end;
 
   overriding member procedure before_calling_suite(self in out nocopy ut_custom_reporter, a_suite ut_logical_suite) as

@@ -21,13 +21,40 @@ create or replace package body ut_event_manager  as
   type t_listener_numbers is table of boolean index by t_listener_number;
   type t_events_listeners is table of t_listener_numbers index by t_event_name;
 
-  g_event_listeners_index t_events_listeners;
-  g_listeners             t_listeners;
+  type t_event_manager is record (
+    event_listener_index t_events_listeners,
+    listeners            t_listeners
+  );
+  type t_event_managers is table of t_event_manager;
+
+  g_event_listeners_index    t_events_listeners;
+  g_listeners                t_listeners;
+  g_suspended_event_managers t_event_managers;
 
   procedure initialize is
   begin
+    if g_listeners is not null and g_listeners.count > 0 then
+       if g_suspended_event_managers is null then
+         g_suspended_event_managers := t_event_managers();
+       end if;
+       g_suspended_event_managers.extend;
+       g_suspended_event_managers(g_suspended_event_managers.count).event_listener_index := g_event_listeners_index;
+       g_suspended_event_managers(g_suspended_event_managers.count).listeners            := g_listeners;
+    end if;
     g_event_listeners_index.delete;
     g_listeners := t_listeners();
+  end;
+
+  procedure dispose_listeners is
+  begin
+    if g_suspended_event_managers is not null and g_suspended_event_managers.count > 0 then
+      g_event_listeners_index :=  g_suspended_event_managers(g_suspended_event_managers.count).event_listener_index;
+      g_listeners             :=  g_suspended_event_managers(g_suspended_event_managers.count).listeners;
+      g_suspended_event_managers.trim(1);
+    else
+      g_event_listeners_index.delete;
+      g_listeners := t_listeners();
+    end if;
   end;
 
   procedure trigger_event( a_event_name t_event_name, a_event_object ut_event_item ) is
@@ -39,6 +66,9 @@ create or replace package body ut_event_manager  as
       for listener_number in 1 .. g_event_listeners_index(a_event_name).count loop
         g_listeners(listener_number).on_event(a_event_name, a_event_object);
       end loop;
+      if a_event_name = ut_utils.gc_finalize then
+        dispose_listeners;
+      end if;
     end if;
   end;
 

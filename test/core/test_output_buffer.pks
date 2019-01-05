@@ -4,7 +4,7 @@ create or replace package test_output_buffer is
   --%suitepath(utplsql.core)
   
   --%test(Receives a line from buffer table and deletes)
-  procedure test_recieve;
+  procedure test_receive;
   
   --%test(Does not send line if null text given)
   procedure test_doesnt_send_on_null_text;

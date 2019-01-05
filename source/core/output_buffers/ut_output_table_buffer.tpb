@@ -46,38 +46,40 @@ create or replace type body ut_output_table_buffer is
     commit;
   end;
 
-  overriding member procedure send_line(self in ut_output_table_buffer, a_text varchar2) is
+  overriding member procedure send_line(self in ut_output_table_buffer, a_text varchar2, a_item_type varchar2 := null) is
     pragma autonomous_transaction;
   begin
     if a_text is not null then
-      if length(a_text) > ut_utils.gc_max_storage_varchar2_len then
-        self.send_lines(
-          ut_utils.convert_collection(
-            ut_utils.clob_to_table(a_text, ut_utils.gc_max_storage_varchar2_len)
-          )
-        );
-      else
-        insert into ut_output_buffer_tmp(output_id, message_id, text)
-        values (self.output_id, ut_message_id_seq.nextval, a_text);
-      end if;
-      commit;
+      insert into ut_output_buffer_tmp(output_id, message_id, text, item_type)
+      values (self.output_id, ut_message_id_seq.nextval, a_text, a_item_type);
     end if;
+    commit;
   end;
 
-  overriding member procedure send_lines(self in ut_output_table_buffer, a_text_list ut_varchar2_rows) is
+  overriding member procedure send_lines(self in ut_output_table_buffer, a_text_list ut_varchar2_rows, a_item_type varchar2 := null) is
     pragma autonomous_transaction;
   begin
-    insert into ut_output_buffer_tmp(output_id, message_id, text)
-    select self.output_id, ut_message_id_seq.nextval, t.column_value
+    insert into ut_output_buffer_tmp(output_id, message_id, text, item_type)
+    select self.output_id, ut_message_id_seq.nextval, t.column_value, a_item_type
       from table(a_text_list) t
      where t.column_value is not null;
 
     commit;
   end;
 
+  overriding member procedure send_clob(self in ut_output_table_buffer, a_text clob, a_item_type varchar2 := null) is
+    pragma autonomous_transaction;
+  begin
+    if a_text is not null and a_text != empty_clob() then
+      insert into ut_output_buffer_tmp(output_id, message_id, text, item_type)
+      values (self.output_id, ut_message_id_seq.nextval, a_text, a_item_type);
+    end if;
+    commit;
+  end;
 
-  overriding member function get_lines(a_initial_timeout natural := null, a_timeout_sec natural := null) return ut_varchar2_rows pipelined is
-    l_buffer_data        ut_varchar2_rows;
+  overriding member function get_lines(a_initial_timeout natural := null, a_timeout_sec natural := null) return ut_output_data_rows pipelined is
+    l_buffer_data        ut_output_data_rows;
+    l_message_ids        ut_integer_list;
     l_already_waited_for number(10,2) := 0;
     l_finished           boolean := false;
     lc_init_wait_sec     constant naturaln := coalesce(a_initial_timeout, 60 * 60 * 4 ); -- 4 hours
@@ -87,22 +89,24 @@ create or replace type body ut_output_table_buffer is
     lc_long_sleep_time   constant number(1) := 1;     --sleep for 1 s when waiting long
     lc_long_wait_time    constant number(1) := 1;     --waiting more than 1 sec
     l_sleep_time         number(2,1) := lc_short_sleep_time;
-    function get_data_from_buffer return ut_varchar2_rows is
-      l_results        ut_varchar2_rows;
+
+    procedure remove_read_data(a_message_ids ut_integer_list) is
       pragma autonomous_transaction;
     begin
-      delete from (
-        select *
-          from ut_output_buffer_tmp where output_id = self.output_id order by message_id
-        )
-      returning text bulk collect into l_results;
+      delete from ut_output_buffer_tmp a
+       where a.output_id = self.output_id
+         and a.message_id in (select column_value from table(a_message_ids));
       commit;
-      return l_results;
     end;
 
   begin
     loop
-      l_buffer_data := get_data_from_buffer();
+      select a.message_id, ut_output_data_row(a.text, a.item_type)
+        bulk collect into l_message_ids, l_buffer_data
+        from ut_output_buffer_tmp a
+       where a.output_id = self.output_id
+       order by a.message_id;
+
       --nothing fetched from output, wait and try again
       if l_buffer_data.count = 0 then
         dbms_lock.sleep(l_sleep_time);
@@ -117,7 +121,7 @@ create or replace type body ut_output_table_buffer is
         l_already_waited_for := 0;
         l_sleep_time := lc_short_sleep_time;
         for i in 1 .. l_buffer_data.count loop
-          if l_buffer_data(i) is not null then
+          if l_buffer_data(i).text is not null then
             pipe row(l_buffer_data(i));
           else
             l_finished := true;
@@ -125,6 +129,7 @@ create or replace type body ut_output_table_buffer is
           end if;
         end loop;
       end if;
+      remove_read_data(l_message_ids);
       exit when l_already_waited_for >= l_wait_for or l_finished;
     end loop;
     return;
@@ -134,22 +139,27 @@ create or replace type body ut_output_table_buffer is
     l_lines sys_refcursor;
   begin
     open l_lines for
-      select column_value as text
+      select text, item_type
         from table(self.get_lines(a_initial_timeout, a_timeout_sec));
     return l_lines;
   end;
 
   overriding member procedure lines_to_dbms_output(self in ut_output_table_buffer, a_initial_timeout natural := null, a_timeout_sec natural := null) is
-    l_lines sys_refcursor;
-    l_line varchar2(32767);
+    l_data      sys_refcursor;
+    l_clob      clob;
+    l_item_type varchar2(32767);
+    l_lines     ut_varchar2_list;
   begin
-    l_lines := self.get_lines_cursor(a_initial_timeout, a_timeout_sec);
+    l_data := self.get_lines_cursor(a_initial_timeout, a_timeout_sec);
     loop
-      fetch l_lines into l_line;
-      exit when l_lines%notfound;
-      dbms_output.put_line(l_line);
+      fetch l_data into l_clob, l_item_type;
+      exit when l_data%notfound;
+      l_lines := ut_utils.clob_to_table(l_clob);
+      for i in 1 .. l_lines.count loop
+        dbms_output.put_line(l_lines(i));
+      end loop;
     end loop;
-    close l_lines;
+    close l_data;
   end;
 
   member procedure cleanup_buffer(self in ut_output_table_buffer, a_retention_time_sec natural := null) is

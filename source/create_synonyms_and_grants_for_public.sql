@@ -65,6 +65,8 @@ grant execute on &&ut3_owner..ut_varchar2_rows to public;
 grant execute on &&ut3_owner..ut_integer_list to public;
 grant execute on &&ut3_owner..ut_reporter_base to public;
 grant execute on &&ut3_owner..ut_output_reporter_base to public;
+grant execute on &&ut3_owner..ut_output_data_row to public;
+grant execute on &&ut3_owner..ut_output_data_rows to public;
 grant execute on &&ut3_owner..ut_coverage_reporter_base to public;
 grant execute on &&ut3_owner..ut_console_reporter_base to public;
 grant execute on &&ut3_owner..ut_coverage to public;
@@ -98,6 +100,7 @@ grant execute on &&ut3_owner..ut_annotation_objs_cache_info to public;
 grant execute on &&ut3_owner..ut_annotation_obj_cache_info to public;
 grant execute on &&ut3_owner..ut_suite_items_info to public;
 grant execute on &&ut3_owner..ut_suite_item_info to public;
+grant execute on &&ut3_owner..ut_realtime_reporter to public;
 begin
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
   execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to public';
@@ -149,6 +152,8 @@ create public synonym ut_varchar2_rows for &&ut3_owner..ut_varchar2_rows;
 create public synonym ut_integer_list for &&ut3_owner..ut_integer_list;
 create public synonym ut_reporter_base for &&ut3_owner..ut_reporter_base;
 create public synonym ut_output_reporter_base for &&ut3_owner..ut_output_reporter_base;
+create public synonym ut_output_data_row for &&ut3_owner..ut_output_data_row;
+create public synonym ut_output_data_rows for &&ut3_owner..ut_output_data_rows;
 create public synonym ut_coverage for &&ut3_owner..ut_coverage;
 create public synonym ut_coverage_options for &&ut3_owner..ut_coverage_options;
 create public synonym ut_coverage_helper for &&ut3_owner..ut_coverage_helper;
@@ -162,6 +167,7 @@ create public synonym ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
 create public synonym ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
 create public synonym ut_suite_items_info for &&ut3_owner..ut_suite_items_info;
 create public synonym ut_suite_item_info for &&ut3_owner..ut_suite_item_info;
+create public synonym ut_realtime_reporter for &&ut3_owner..ut_realtime_reporter;
 begin
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
   execute immediate 'create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks';

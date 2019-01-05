@@ -20,6 +20,9 @@ create or replace package body ut is
   g_nls_date_format varchar2(4000);
   gc_fail_on_errors constant boolean := false;
 
+  g_result_line_no binary_integer;
+  g_result_lines   ut_varchar2_list := ut_varchar2_list();
+
   function version return varchar2 is
   begin
     return ut_runner.version();
@@ -164,6 +167,31 @@ create or replace package body ut is
     rollback;
   end;
 
+  function get_report_outputs( a_cursor sys_refcursor ) return varchar2 is
+    l_clob      clob;
+    l_item_type varchar2(32767);
+    l_result    varchar2(4000);
+  begin
+    if g_result_line_no is null then
+      fetch a_cursor into l_clob, l_item_type;
+      if a_cursor%notfound then
+        close a_cursor;
+        g_result_line_no := null;
+        g_result_lines   := ut_varchar2_list();
+        raise_if_packages_invalidated();
+        raise no_data_found;
+      end if;
+      g_result_lines   := ut_utils.clob_to_table(l_clob, ut_utils.gc_max_storage_varchar2_len);
+      g_result_line_no := g_result_lines.first;
+    end if;
+    
+    if g_result_line_no is not null then
+      l_result         := g_result_lines(g_result_line_no);
+      g_result_line_no := g_result_lines.next(g_result_line_no);
+    end if;
+    return l_result;
+  end;
+
   function run(
     a_reporter ut_reporter_base := null,
     a_color_console integer := 0,
@@ -175,8 +203,7 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
-    l_lines     sys_refcursor;
-    l_line      varchar2(4000);
+    l_results   sys_refcursor;
   begin
     run_autonomous(
       ut_varchar2_list(),
@@ -190,15 +217,11 @@ create or replace package body ut is
       a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
-      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
-        fetch l_lines into l_line;
-        exit when l_lines%notfound;
-        pipe row(l_line);
+        pipe row( get_report_outputs( l_results ) );
       end loop;
-      close l_lines;
     end if;
-    raise_if_packages_invalidated();
     return;
   end;
 
@@ -213,8 +236,7 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
-    l_lines     sys_refcursor;
-    l_line      varchar2(4000);
+    l_results   sys_refcursor;
   begin
     run_autonomous(
       ut_varchar2_list(),
@@ -228,15 +250,11 @@ create or replace package body ut is
       a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
-      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
-        fetch l_lines into l_line;
-        exit when l_lines%notfound;
-        pipe row(l_line);
+        pipe row( get_report_outputs( l_results ) );
       end loop;
-      close l_lines;
     end if;
-    raise_if_packages_invalidated();
     return;
   end;
 
@@ -252,8 +270,7 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
-    l_lines     sys_refcursor;
-    l_line      varchar2(4000);
+    l_results   sys_refcursor;
   begin
     run_autonomous(
       a_paths,
@@ -267,15 +284,11 @@ create or replace package body ut is
       a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
-      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
-        fetch l_lines into l_line;
-        exit when l_lines%notfound;
-        pipe row(l_line);
+        pipe row( get_report_outputs( l_results ) );
       end loop;
-      close l_lines;
     end if;
-    raise_if_packages_invalidated();
     return;
   end;
 
@@ -291,8 +304,7 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
-    l_lines     sys_refcursor;
-    l_line      varchar2(4000);
+    l_results   sys_refcursor;
   begin
     run_autonomous(
       a_paths,
@@ -306,15 +318,11 @@ create or replace package body ut is
       a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
-      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
-        fetch l_lines into l_line;
-        exit when l_lines%notfound;
-        pipe row(l_line);
+        pipe row( get_report_outputs( l_results ) );
       end loop;
-      close l_lines;
     end if;
-    raise_if_packages_invalidated();
     return;
   end;
 
@@ -329,9 +337,8 @@ create or replace package body ut is
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
-    l_reporter  ut_reporter_base := a_reporter;
-    l_lines     sys_refcursor;
-    l_line      varchar2(4000);
+    l_reporter     ut_reporter_base := a_reporter;
+    l_results      sys_refcursor;
   begin
     run_autonomous(
       ut_varchar2_list(a_path),
@@ -345,15 +352,11 @@ create or replace package body ut is
       a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
-      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
-        fetch l_lines into l_line;
-        exit when l_lines%notfound;
-        pipe row(l_line);
+        pipe row( get_report_outputs( l_results ) );
       end loop;
-      close l_lines;
     end if;
-    raise_if_packages_invalidated();
     return;
   end;
 
@@ -369,8 +372,7 @@ create or replace package body ut is
     a_client_character_set varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
-    l_lines     sys_refcursor;
-    l_line      varchar2(4000);
+    l_results   sys_refcursor;
   begin
     run_autonomous(
       ut_varchar2_list(a_path),
@@ -384,15 +386,11 @@ create or replace package body ut is
       a_client_character_set
     );
     if l_reporter is of (ut_output_reporter_base) then
-      l_lines := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
+      l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
       loop
-        fetch l_lines into l_line;
-        exit when l_lines%notfound;
-        pipe row(l_line);
+        pipe row( get_report_outputs( l_results ) );
       end loop;
-      close l_lines;
     end if;
-    raise_if_packages_invalidated();
     return;
   end;
 

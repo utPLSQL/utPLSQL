@@ -43,6 +43,8 @@ drop type ut_coverage_html_reporter force;
 
 drop type ut_sonar_test_reporter force;
 
+drop type ut_realtime_reporter force;
+
 drop package ut_coverage;
 
 drop package ut_coverage_helper;
@@ -252,6 +254,10 @@ drop view ut_output_buffer_info_tmp;
 drop table ut_output_buffer_info_tmp$;
 
 drop sequence ut_message_id_seq;
+
+drop type ut_output_data_rows force;
+
+drop type ut_output_data_row force;
 
 drop type ut_results_counter force;
 
