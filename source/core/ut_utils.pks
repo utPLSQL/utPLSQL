@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.4.2480-develop';
+  gc_version                 constant varchar2(50) := 'v3.1.4.2493-develop';
 
   /* Constants: Event names */
   subtype t_event_name           is varchar2(30);
@@ -357,6 +357,11 @@ create or replace package ut_utils authid definer is
   * Replaces multi-line comments in given source-code with empty lines
   */
   function replace_multiline_comments(a_source clob) return clob;
+
+   /**
+   * Returns list of sub-type reporters for given list of super-type reporters
+   */
+  function get_child_reporters(a_for_reporters ut_reporters_info := null) return ut_reporters_info;
 
 end ut_utils;
 /

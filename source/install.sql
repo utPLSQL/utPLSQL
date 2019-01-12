@@ -46,6 +46,8 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_object_names.tps'
 @@install_component.sql 'core/types/ut_key_value_pair.tps'
 @@install_component.sql 'core/types/ut_key_value_pairs.tps'
+@@install_component.sql 'core/types/ut_reporter_info.tps'
+@@install_component.sql 'core/types/ut_reporters_info.tps'
 @@install_component.sql 'core/ut_utils.pks'
 @@install_component.sql 'core/ut_metadata.pks'
 @@install_component.sql 'core/ut_utils.pkb'

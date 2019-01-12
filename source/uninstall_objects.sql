@@ -269,6 +269,10 @@ drop package ut_event_manager;
 
 drop type ut_event_item force;
 
+drop type ut_reporters_info force;
+
+drop type ut_reporter_info force;
+
 drop type ut_key_anyval_pair force;
 
 drop type ut_key_anyval_pairs force;

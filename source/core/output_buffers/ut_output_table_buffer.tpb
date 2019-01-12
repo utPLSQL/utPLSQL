@@ -89,6 +89,7 @@ create or replace type body ut_output_table_buffer is
     lc_long_sleep_time   constant number(1) := 1;     --sleep for 1 s when waiting long
     lc_long_wait_time    constant number(1) := 1;     --waiting more than 1 sec
     l_sleep_time         number(2,1) := lc_short_sleep_time;
+    lc_bulk_limit        constant integer := 100;
 
     procedure remove_read_data(a_message_ids ut_integer_list) is
       pragma autonomous_transaction;
@@ -99,13 +100,26 @@ create or replace type body ut_output_table_buffer is
       commit;
     end;
 
-  begin
-    loop
-      select a.message_id, ut_output_data_row(a.text, a.item_type)
+    procedure remove_buffer_info is
+      pragma autonomous_transaction;
+    begin
+      delete from ut_output_buffer_info_tmp a
+       where a.output_id = self.output_id;
+      commit;
+    end;
+
+    begin
+    while not l_finished loop
+      with ordered_buffer as (
+        select a.message_id, ut_output_data_row(a.text, a.item_type)
+          from ut_output_buffer_tmp a
+         where a.output_id = self.output_id
+         order by a.message_id
+      )
+      select b.*
         bulk collect into l_message_ids, l_buffer_data
-        from ut_output_buffer_tmp a
-       where a.output_id = self.output_id
-       order by a.message_id;
+        from ordered_buffer b
+       where rownum <= lc_bulk_limit;
 
       --nothing fetched from output, wait and try again
       if l_buffer_data.count = 0 then
@@ -130,7 +144,12 @@ create or replace type body ut_output_table_buffer is
         end loop;
       end if;
       remove_read_data(l_message_ids);
-      exit when l_already_waited_for >= l_wait_for or l_finished;
+      if l_finished then
+        remove_buffer_info();
+      end if;
+      if l_already_waited_for >= l_wait_for then
+        l_finished := true;
+      end if;
     end loop;
     return;
   end;
