@@ -57,6 +57,7 @@ create or replace type body ut_realtime_reporter is
       self.print_node('name', a_suite.name);
       self.print_node('description', a_suite.description);
       <<suite_elements>>
+      self.print_start_node('items');
       for i in 1 .. a_suite.items.count loop
         if a_suite.items(i) is of(ut_test) then
           print_test_elements(treat(a_suite.items(i) as ut_test));
@@ -64,18 +65,19 @@ create or replace type body ut_realtime_reporter is
           print_suite_elements(treat(a_suite.items(i) as ut_logical_suite));
         end if;
       end loop suite_elements;
+      self.print_end_node('items');
       self.print_end_node('suite');
     end print_suite_elements;
   begin
     xml_header := ut_utils.get_xml_header(a_run.client_character_set);
     self.print_xml_fragment(xml_header);
     self.print_start_node('event', 'type', 'pre-run');
-    self.print_start_node('suites');
+    self.print_start_node('items');
     <<items>>
     for i in 1 .. a_run.items.count loop
       print_suite_elements(treat(a_run.items(i) as ut_logical_suite));
     end loop items;
-    self.print_end_node('suites');
+    self.print_end_node('items');
     self.print_node('totalNumberOfTests', to_char(total_number_of_tests));
     self.print_end_node('event');
     self.flush_print_buffer('pre-run');

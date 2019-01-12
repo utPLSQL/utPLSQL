@@ -153,6 +153,45 @@ create or replace package body test_realtime_reporter as
       select 'post-run'   as event_type, null                                                                     as item_id from dual;
     ut.expect(l_actual).to_equal(l_expected);
   end xml_report_structure;
+
+  procedure pre_run_composite_nodes is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_actual for 
+      select x.node_path
+        from table(g_events) t,
+             xmltable(
+               q'[
+                 for $i in //(event|items|suite|test)
+                 return <result>{$i/string-join(ancestor-or-self::*/name(.), '/')}</result>
+               ]'
+               passing t.event_doc
+               columns node_path varchar2(128) path '.'
+             ) x
+       where event_type = 'pre-run';
+      open l_expected for
+        select 'event'                                                as node_path from dual union all
+        select 'event/items'                                          as node_path from dual union all
+        select 'event/items/suite'                                    as node_path from dual union all
+        select 'event/items/suite/items'                              as node_path from dual union all
+        select 'event/items/suite/items/suite'                        as node_path from dual union all
+        select 'event/items/suite/items/suite/items'                  as node_path from dual union all
+        select 'event/items/suite/items/suite/items/test'             as node_path from dual union all
+        select 'event/items/suite/items/suite/items/test'             as node_path from dual union all
+        select 'event/items/suite/items/suite'                        as node_path from dual union all
+        select 'event/items/suite/items/suite/items'                  as node_path from dual union all
+        select 'event/items/suite/items/suite/items/test'             as node_path from dual union all
+        select 'event/items/suite/items/suite/items/test'             as node_path from dual union all
+        select 'event/items/suite/items/suite/items/test'             as node_path from dual union all
+        select 'event/items/suite/items/suite'                        as node_path from dual union all
+        select 'event/items/suite/items/suite/items'                  as node_path from dual union all
+        select 'event/items/suite/items/suite/items/suite'            as node_path from dual union all
+        select 'event/items/suite/items/suite/items/suite/items'      as node_path from dual union all
+        select 'event/items/suite/items/suite/items/suite/items/test' as node_path from dual union all
+        select 'event/items/suite/items/suite/items/suite/items/test' as node_path from dual;
+      ut.expect(l_actual).to_equal(l_expected);
+  end pre_run_composite_nodes;
   
   procedure total_number_of_tests is
     l_actual   integer;
