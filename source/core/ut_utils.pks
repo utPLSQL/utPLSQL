@@ -351,5 +351,10 @@ create or replace package ut_utils authid definer is
   */
   function replace_multiline_comments(a_source clob) return clob;
 
+   /**
+   * Returns list of sub-type reporters for given list of super-type reporters
+   */
+  function get_child_reporters(a_for_reporters ut_reporters_info := null) return ut_reporters_info;
+
 end ut_utils;
 /

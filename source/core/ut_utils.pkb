@@ -692,5 +692,32 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  function get_child_reporters(a_for_reporters ut_reporters_info := null) return ut_reporters_info is
+    l_for_reporters ut_reporters_info := a_for_reporters;
+    l_results       ut_reporters_info;
+  begin
+    if l_for_reporters is null then
+      l_for_reporters := ut_reporters_info(ut_reporter_info('UT_REPORTER_BASE','N','N','N'));
+    end if;
+    
+    select /*+ cardinality(f 10) */
+      ut_reporter_info(
+        object_name => t.type_name,
+        is_output_reporter =>
+          case
+            when f.is_output_reporter = 'Y' or t.type_name = 'UT_OUTPUT_REPORTER_BASE'
+            then 'Y' else 'N'
+          end,
+        is_instantiable => case when t.instantiable = 'YES' then 'Y' else 'N' end,
+        is_final => case when t.final = 'YES' then 'Y' else 'N' end
+      )
+    bulk collect into l_results
+    from user_types t
+    join (select * from table(l_for_reporters) where is_final = 'N' ) f
+      on f.object_name = supertype_name;
+
+    return l_results;
+  end;
+
 end ut_utils;
 /
