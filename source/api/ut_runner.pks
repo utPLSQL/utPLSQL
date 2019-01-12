@@ -126,8 +126,8 @@ create or replace package ut_runner authid current_user is
 
 
   type t_reporter_rec is record (
-    reporter_object_name  varchar2(250),
-    is_output_reporter        varchar2(1) --Y/N flag
+    reporter_object_name varchar2(250), -- full reporter name in format: owner.name
+    is_output_reporter   varchar2(1)    -- Y/N indication of reporter providing output for API
   );
   type tt_reporters_info is table of t_reporter_rec ;
 

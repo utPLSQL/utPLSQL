@@ -225,32 +225,21 @@ create or replace package body ut_runner is
   end;
 
   function get_reporters_list return tt_reporters_info pipelined is
-    l_cursor      sys_refcursor;
     l_owner       varchar2(128) := upper(ut_utils.ut_owner());
-    l_results     tt_reporters_info;
-    c_bulk_limit  constant integer := 10;
-    l_view_name   varchar2(200) := ut_metadata.get_dba_view('dba_types');
+    l_reporters   ut_reporters_info;
+    l_result      t_reporter_rec;
   begin
-    open l_cursor for q'[
-      SELECT
-        owner || '.' || type_name,
-        CASE
-          WHEN sys_connect_by_path(owner||'.'||type_name,',') LIKE '%]' || l_owner || q'[.UT_OUTPUT_REPORTER_BASE%'
-          THEN 'Y'
-          ELSE 'N'
-        END is_output_reporter
-      FROM ]'||l_view_name||q'[ t
-     WHERE instantiable = 'YES'
-     CONNECT BY supertype_name = PRIOR type_name AND supertype_owner = PRIOR owner
-       START WITH type_name = 'UT_REPORTER_BASE' AND owner = ']'|| l_owner || '''';
     loop
-      fetch l_cursor bulk collect into l_results limit c_bulk_limit;
-      for i in 1 .. l_results.count loop
-        pipe row (l_results(i));
+      l_reporters := ut_utils.get_child_reporters( l_reporters );
+      exit when l_reporters is null or l_reporters.count = 0;
+      for i in 1 .. l_reporters.count loop
+        if l_reporters(i).is_instantiable = 'Y' then
+          l_result.reporter_object_name := l_owner||'.'||l_reporters(i).object_name;
+          l_result.is_output_reporter   := l_reporters(i).is_output_reporter;
+          pipe row( l_result );
+        end if;
       end loop;
-      exit when l_cursor%notfound;
     end loop;
-    close l_cursor;
   end;
 
 end ut_runner;
