@@ -1,4 +1,9 @@
-create table ut_output_buffer_tmp$(
+declare
+  v_table_sql varchar2(32767);
+  e_non_assm exception;
+  pragma exception_init(e_non_assm, -43853);
+begin
+  v_table_sql := 'create table ut_output_buffer_tmp$(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -25,9 +30,18 @@ create table ut_output_buffer_tmp$(
   constraint ut_output_buffer_tmp_pk primary key(output_id, message_id),
   constraint ut_output_buffer_tmp_ck check(is_finished = 0 and text is not null or is_finished = 1 and text is null),
   constraint ut_output_buffer_fk1 foreign key (output_id) references ut_output_buffer_info_tmp$(output_id)
-) organization index overflow nologging initrans 100
-  lob(text) store as securefile ut_output_text(retention none)
-;
+) organization index overflow nologging initrans 100 ';
+  begin
+    execute immediate
+      v_table_sql || 'lob(text) store as securefile ut_output_text(retention none)';
+  exception
+    when e_non_assm then
+      execute immediate
+        v_table_sql || 'lob(text) store as basicfile ut_output_text(pctversion 0)';
+
+  end;
+end;
+/
 
 -- This is needed to be EBR ready as editioning view can only be created by edition enabled user
 declare
