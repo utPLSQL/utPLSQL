@@ -12,6 +12,9 @@ create or replace package test_realtime_reporter as
   --%test(Provide the total number of tests as part of the pre-run information structure)
   procedure total_number_of_tests;
   
+  --%test(Provide the execution time as part of the post-run information structure) 
+  procedure execution_time_of_run;
+  
   --%test(Escape special characters in data such as the test suite description)
   procedure escaped_characters;
   

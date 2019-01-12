@@ -162,7 +162,18 @@ create or replace package body test_realtime_reporter as
       into l_actual
       from table(g_events) t
      where t.event_type = 'pre-run';
-  end total_number_of_tests; 
+    ut.expect(l_actual).to_equal(l_expected);
+  end total_number_of_tests;
+  
+  procedure execution_time_of_run is
+    l_actual number;
+  begin
+    select t.event_doc.extract('/event/run/executionTime/text()').getnumberval()
+      into l_actual
+      from table(g_events) t
+     where t.event_type = 'post-run';
+    ut.expect(l_actual).to_be_not_null;
+  end execution_time_of_run;
   
   procedure escaped_characters is
     l_actual   varchar2(32767);

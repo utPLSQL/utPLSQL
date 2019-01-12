@@ -88,6 +88,20 @@ create or replace type body ut_realtime_reporter is
   begin
     self.print_xml_fragment(xml_header);
     self.print_start_node('event', 'type', 'post-run');
+    self.print_start_node('run');
+    self.print_node('startTime', to_char(a_run.start_time, 'YYYY-MM-DD"T"HH24:MI:SS.FF6'));
+    self.print_node('endTime', to_char(a_run.end_time, 'YYYY-MM-DD"T"HH24:MI:SS.FF6'));
+    self.print_node('executionTime', ut_utils.to_xml_number_format(a_run.execution_time()));
+    self.print_start_node('counter');
+    self.print_node('disabled', to_char(a_run.results_count.disabled_count));
+    self.print_node('success', to_char(a_run.results_count.success_count));
+    self.print_node('failure', to_char(a_run.results_count.failure_count));
+    self.print_node('error', to_char(a_run.results_count.errored_count));
+    self.print_node('warning', to_char(a_run.results_count.warnings_count));
+    self.print_end_node('counter');
+    self.print_cdata_node('errorStack', ut_utils.table_to_clob(a_run.get_error_stack_traces()));
+    self.print_cdata_node('serverOutput', a_run.get_serveroutputs());
+    self.print_end_node('run');
     self.print_end_node('event');
     self.flush_print_buffer('post-run');
   end after_calling_run;
