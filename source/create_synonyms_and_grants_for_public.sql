@@ -100,16 +100,9 @@ grant execute on &&ut3_owner..ut_annotation_obj_cache_info to public;
 grant execute on &&ut3_owner..ut_suite_items_info to public;
 grant execute on &&ut3_owner..ut_suite_item_info to public;
 grant execute on &&ut3_owner..ut_realtime_reporter to public;
-begin
-  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-  execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to public';
-  execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs   to public';
-  execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_units  to public';
-  $else
-  null;
-  $end
-end;
-/
+grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to public;
+grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs   to public;
+grant select, insert, delete, update on &&ut3_owner..dbmspcc_units  to public;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
@@ -162,13 +155,6 @@ create public synonym ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_repo
 create public synonym ut_suite_items_info for &&ut3_owner..ut_suite_items_info;
 create public synonym ut_suite_item_info for &&ut3_owner..ut_suite_item_info;
 create public synonym ut_realtime_reporter for &&ut3_owner..ut_realtime_reporter;
-begin
-  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-  execute immediate 'create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks';
-  execute immediate 'create public synonym dbmspcc_runs for &&ut3_owner..dbmspcc_runs';
-  execute immediate 'create public synonym dbmspcc_units for &&ut3_owner..dbmspcc_units';
-  $else
-  null;
-  $end
-end;
-/
+create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks;
+create public synonym dbmspcc_runs for &&ut3_owner..dbmspcc_runs;
+create public synonym dbmspcc_units for &&ut3_owner..dbmspcc_units;
