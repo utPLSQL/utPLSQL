@@ -80,6 +80,8 @@ sqlplus sys/sys_pass@db as sysdba @install_headless.sql utp3 my_verySecret_passw
 
 The script needs to be executed by `SYSDBA`, in order to grant access to `DBMS_LOCK` and `DBMS_CRYPTO` system packages.
 
+*Note:* Grant on `DBMS_LOCK` is required on Oracle versions below 18c
+
 
 # Recommended Schema
 It is highly recommended to install utPLSQL in it's own schema. You are free to choose any name for this schema.
