@@ -124,7 +124,11 @@ create or replace package body test_annotation_manager is
     ut3.ut_annotation_manager.rebuild_annotation_cache(user,'PACKAGE');
     recompile_dummy_package();
     l_start_date := sysdate;
-    dbms_lock.sleep(1);
+    $if dbms_db_version.version >= 18 $then
+      dbms_session.sleep(1);
+    $else
+      dbms_lock.sleep(1);
+    $end
     --Act
     ut3.ut_annotation_manager.rebuild_annotation_cache(user,'PACKAGE');
     --Assert
