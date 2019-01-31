@@ -1,6 +1,9 @@
 declare
-  c_expected_grants constant dbmsoutput_linesarray := dbmsoutput_linesarray('DBMS_LOCK','DBMS_CRYPTO');
-
+  $if dbms_db_version.version >= 18 $then
+    c_expected_grants constant dbmsoutput_linesarray := dbmsoutput_linesarray('DBMS_CRYPTO');
+  $else
+    c_expected_grants constant dbmsoutput_linesarray := dbmsoutput_linesarray('DBMS_LOCK','DBMS_CRYPTO');
+  $end
   l_missing_grants varchar2(4000);
   l_target_table   varchar2(128);
   l_owner_column   varchar2(128);

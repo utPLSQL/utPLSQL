@@ -70,7 +70,11 @@ create or replace package body test_ut_executable is
         auto_drop     =>  TRUE,
         comments      =>  'one-time job'
     );
-    dbms_lock.sleep(0.4);
+    $if dbms_db_version.version >= 18 $then
+      dbms_session.sleep(0.4);
+    $else
+      dbms_lock.sleep(0.4);
+    $end
     while l_cnt > 0 loop
       select count(1) into l_cnt
       from dba_scheduler_running_jobs srj

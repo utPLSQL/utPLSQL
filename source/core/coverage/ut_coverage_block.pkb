@@ -32,6 +32,7 @@ create or replace package body ut_coverage_block is
     l_source_object       ut_coverage_helper.t_tmp_table_object;
   begin
 
+    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
     l_source_objects_crsr := ut_coverage_helper.get_tmp_table_objects_cursor();
     loop
       fetch l_source_objects_crsr
@@ -150,7 +151,8 @@ create or replace package body ut_coverage_block is
     end loop;
   
     close l_source_objects_crsr;
-  
+    $end
+    
     return l_result;
   end get_coverage_data;
 

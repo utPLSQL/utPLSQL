@@ -123,7 +123,11 @@ create or replace type body ut_output_table_buffer is
 
       --nothing fetched from output, wait and try again
       if l_buffer_data.count = 0 then
-        dbms_lock.sleep(l_sleep_time);
+        $if dbms_db_version.version >= 18 $then
+          dbms_session.sleep(l_sleep_time);
+        $else
+          dbms_lock.sleep(l_sleep_time);
+        $end
         l_already_waited_for := l_already_waited_for + l_sleep_time;
         if l_already_waited_for > lc_long_wait_time then
           l_sleep_time := lc_long_sleep_time;
