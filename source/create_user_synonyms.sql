@@ -101,13 +101,6 @@ create or replace synonym &ut3_user..ut_key_value_pair for &&ut3_owner..ut_key_v
 create or replace synonym &ut3_user..ut_compound_data_tmp for &&ut3_owner..ut_cursor_data;
 create or replace synonym &ut3_user..ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
 create or replace synonym &ut3_user..ut_realtime_reporter for &&ut3_owner..ut_realtime_reporter;
-begin
-  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-  execute immediate 'create or replace synonym &ut3_user..dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks';
-  execute immediate 'create or replace synonym &ut3_user..dbmspcc_runs for &&ut3_owner..dbmspcc_runs';
-  execute immediate 'create or replace synonym &ut3_user..dbmspcc_units for &&ut3_owner..dbmspcc_units';
-  $else
-  null;
-  $end
-end;
-/
+create or replace synonym &ut3_user..dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks;
+create or replace synonym &ut3_user..dbmspcc_runs for &&ut3_owner..dbmspcc_runs;
+create or replace synonym &ut3_user..dbmspcc_units for &&ut3_owner..dbmspcc_units;
