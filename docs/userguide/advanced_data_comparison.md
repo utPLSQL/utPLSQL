@@ -6,7 +6,7 @@ utPLSQL expectations incorporates advanced data comparison options when comparin
 - object type
 - nested table and varray  
 
-Advanced data-comparison options are available for the [`equal`](expectations.md#equal) and  [`include / contain`](expectations.md#include) matcher.
+Advanced data-comparison options are available for the [`equal`](expectations.md#equal) and  [`include / contain`](expectations.md#include--contain) matcher.
 
 ## Syntax
 
