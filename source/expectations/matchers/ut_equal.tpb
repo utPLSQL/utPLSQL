@@ -158,7 +158,7 @@ create or replace type body ut_equal as
   member function include(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.include_list := l_result.include_list multiset union coalesce(ut_utils.string_to_table(REPLACE(a_items,'|',','),','),ut_varchar2_list());
+    l_result.include_list := l_result.include_list multiset union ut_utils.trim_list_elements(ut_utils.string_to_table(replace(a_items,'|',','),','));
     return l_result;
   end;
 
@@ -167,7 +167,7 @@ create or replace type body ut_equal as
     l_items  ut_varchar2_list := ut_varchar2_list();
   begin
     for i in 1..a_items.count loop
-      l_items := l_items multiset union all coalesce(ut_utils.string_to_table(REPLACE(a_items(i),'|',','),','),ut_varchar2_list());
+      l_items := l_items multiset union all ut_utils.trim_list_elements(ut_utils.string_to_table(replace(a_items(i),'|',','),','));
     end loop;
     l_result.include_list := l_result.include_list multiset union all coalesce(l_items,ut_varchar2_list());
     return l_result;
@@ -176,7 +176,7 @@ create or replace type body ut_equal as
   member function exclude(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.exclude_list := l_result.exclude_list multiset union all coalesce(ut_utils.string_to_table(REPLACE(a_items,'|',','),','),ut_varchar2_list());
+    l_result.exclude_list := l_result.exclude_list multiset union all ut_utils.trim_list_elements(ut_utils.string_to_table(replace(a_items,'|',','),','));
     return l_result;
   end;
 
@@ -185,7 +185,7 @@ create or replace type body ut_equal as
     l_items  ut_varchar2_list := ut_varchar2_list();
   begin
     for i in 1..a_items.count loop
-     l_items := l_items multiset union all coalesce(ut_utils.string_to_table(REPLACE(a_items(i),'|',','),','),ut_varchar2_list());
+     l_items := l_items multiset union all ut_utils.trim_list_elements(ut_utils.string_to_table(replace(a_items(i),'|',','),','));
     end loop;
     
     l_result.exclude_list := l_result.exclude_list multiset union all coalesce(l_items,ut_varchar2_list());
@@ -203,7 +203,7 @@ create or replace type body ut_equal as
     l_result ut_equal := self;
   begin
     l_result.is_unordered := ut_utils.boolean_to_int(true);
-    l_result.join_columns := l_result.join_columns multiset union all coalesce(ut_utils.string_to_table(REPLACE(a_columns,'|',','),','),ut_varchar2_list());
+    l_result.join_columns := l_result.join_columns multiset union all ut_utils.trim_list_elements(ut_utils.string_to_table(replace(a_columns,'|',','),','));
     
     select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
     bulk collect into l_result.join_on_list
@@ -218,7 +218,7 @@ create or replace type body ut_equal as
     l_result.is_unordered := ut_utils.boolean_to_int(true);
     for i in 1..a_columns.count loop
       --TODO :  idoiot proof solution for both include and exclude
-      l_items := l_items multiset union all coalesce(ut_utils.string_to_table(REPLACE(a_columns(i),'|',','),','),ut_varchar2_list());
+      l_items := l_items multiset union all ut_utils.trim_list_elements(ut_utils.string_to_table(replace(a_columns(i),'|',','),','));
     end loop;
     l_result.join_columns := l_result.join_columns multiset union all coalesce(l_items,ut_varchar2_list());
     

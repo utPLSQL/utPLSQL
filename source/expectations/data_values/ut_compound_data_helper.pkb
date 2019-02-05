@@ -413,7 +413,7 @@ create or replace package body ut_compound_data_helper is
   end;
   
   function get_rows_diff_by_sql(
-    a_act_cursor_info ut_cursor_column_tab,a_exp_cursor_info ut_cursor_column_tab,
+    a_act_cursor_info ut_cursor_column_tab, a_exp_cursor_info ut_cursor_column_tab,
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_join_by_list ut_varchar2_list, a_unordered boolean, a_enforce_column_order boolean := false
   ) return tt_row_diffs is
@@ -832,6 +832,7 @@ create or replace package body ut_compound_data_helper is
 begin
   g_anytype_name_map(dbms_types.typecode_date)             := 'DATE';
   g_anytype_name_map(dbms_types.typecode_number)           := 'NUMBER';
+  g_anytype_name_map(3 /*INTEGER in object type*/)         := 'NUMBER';
   g_anytype_name_map(dbms_types.typecode_raw)              := 'RAW';
   g_anytype_name_map(dbms_types.typecode_char)             := 'CHAR';
   g_anytype_name_map(dbms_types.typecode_varchar2)         := 'VARCHAR2';

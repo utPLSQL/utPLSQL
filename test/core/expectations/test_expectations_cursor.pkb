@@ -557,7 +557,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col" from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col" from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).include('RN,//A_Column,SOME_COL');
+    ut3.ut.expect(l_actual).to_equal(l_expected).include('RN,//A_Column, SOME_COL');
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
@@ -585,7 +585,7 @@ create or replace package body test_expectations_cursor is
     open l_actual   for select rownum as rn, 'c' as A_COLUMN from dual a connect by level < 4;
     open l_expected for select rownum as rn, 'd' as A_COLUMN from dual a connect by level < 4;
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN','non_existing_column'));
+    ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list(' RN ',' non_existing_column '));
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;

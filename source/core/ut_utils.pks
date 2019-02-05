@@ -344,10 +344,14 @@ create or replace package ut_utils authid definer is
   function get_xml_header(a_encoding varchar2) return varchar2;
 
 
-  /*It takes a collection of type ut_varchar2_list and it trims the characters passed as arguments for every element*/
+  /**
+  * Takes a collection of type ut_varchar2_list and it trims the characters passed as arguments for every element
+  */
   function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list;
 
-  /*It takes a collection of type ut_varchar2_list and it only returns the elements which meets the regular expression*/
+  /**
+  * Takes a collection of type ut_varchar2_list and it only returns the elements which meets the regular expression
+  */
   function filter_list(a_list IN ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list;
 
   -- Generates XMLGEN escaped string

@@ -242,7 +242,8 @@ create or replace type body ut_data_value_refcursor as
     l_results := ut_utils.t_clob_tab();
       if l_diff_row_count > 0  then
         l_row_diffs := ut_compound_data_helper.get_rows_diff_by_sql(
-              l_exp_cols,l_act_cols, self.data_id, l_actual.data_id, l_diff_id,a_join_by_list , a_unordered, l_column_order_enforce);
+              l_exp_cols, l_act_cols, self.data_id, l_actual.data_id, l_diff_id, a_join_by_list , a_unordered, l_column_order_enforce
+          );
         l_message := chr(10)
                      ||'Rows: [ ' || l_diff_row_count ||' differences'
                      ||  case when  l_diff_row_count > c_max_rows and l_row_diffs.count > 0 then ', showing first '||c_max_rows end
