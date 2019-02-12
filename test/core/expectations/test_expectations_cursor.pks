@@ -347,9 +347,24 @@ create or replace package test_expectations_cursor is
   procedure cursor_to_include;
   
   --%test( Fail cursor contains data from another cursor using second keyword) 
-  procedure cursor_to_contain_fail;  
-  
-   --%test( Cursor include data from another cursor with joinby)   
+  procedure cursor_to_contain_fail;
+
+  --%test( Success cursor to contain cursor with unordered columns)
+  procedure cursor_to_contain_uc;
+
+  --%test( Does not fail when comparing cursor to contain cursor with unordered rows option)
+  procedure cursor_to_contain_unordered;
+
+  --%test( Does not fail when comparing cursor to include cursor with unordered rows option)
+  procedure cursor_to_include_unordered;
+
+  --%test( Success cursor to include cursor with unordered columns)
+  procedure cursor_to_include_uc;
+
+  --%test( Cursor contain data from another cursor using second keyword)
+  procedure cursor_to_contain;
+
+  --%test( Cursor include data from another cursor with joinby)
   procedure cursor_to_include_joinby;
 
    --%test( Fail cursor include data from another cursor with joinby)  

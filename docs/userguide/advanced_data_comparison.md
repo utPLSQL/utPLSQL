@@ -27,9 +27,10 @@ Advanced data-comparison options are available for the [`equal`](expectations.md
  - `exclude(a_items varchar2)` - item or comma separated list of items to exclude
  - `include(a_items ut_varchar2_list)` - table of items to include 
  - `exclude(a_items ut_varchar2_list)` - table of items to exclude
- - `unordered` - perform compare on unordered set of data, return only missing or actual,  ***not supported for `include / contain`*** , as alternative `join_by` can be used
+ - `unordered` - ignore order of data sets when comparing data. Default when comparing data-sets with `to_inclide` / `to_contain` 
  - `join_by(a_columns varchar2)` - column or comma separated list of columns to join two cursors by
  - `join_by(a_columns ut_varchar2_list)` - table of columns to join two cursors by
+ - `unordered_columns` / `uc` - ignore the ordering of columns / attributes in compared data-sets. Column/attribute names will be used to identify data to be compared and the position will be ignored. 
 
 Each item in the comma separated list can be:
 - a column name of cursor to be compared
@@ -163,7 +164,7 @@ Above test will result in two differences of one row extra and one row missing.
 
 **Note**
 
-> `include / contain` matcher is not considering order of compared data-sets by default so using `unordered` makes no difference (it's default)
+> `include / contain` matcher is not considering order of compared data-sets. Using `unordered` makes no difference (it's default)
 
 
 ## Join By option
@@ -371,3 +372,53 @@ begin
     ut.expect( l_actual ).to_equal( l_expected ).include( ut_varchar2_list( 'RN', 'A_Column', 'SOME_COL' ) );
 end;
 ```
+
+## Unordered columns / uc option
+
+If you need to perform data comparison of cursors without strictly deending on column order in the returned result-set, use the `unordered_columns` option.
+Shortcut name `uc` is also available for that option.
+
+Expectations that compare cursor data with `unordered_Columns` option, will not fail when columns are ordered differently.
+
+This option can be useful whn we have no control over the ordering of the column or the column order is not of importance from testing perspective.
+
+```sql
+create or replace package test_unordered_columns as
+  --%suite
+
+  --%test
+  procedure cursor_include_unordered_cols;
+end;
+/
+
+create or replace package body test_unordered_columns as
+
+  procedure cursor_include_unordered_cols is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select owner, object_name,object_type from all_objects where owner = user
+    order by 1,2,3 asc;
+    open l_expected for select object_type, owner, object_name from all_objects where owner = user
+    and rownum < 20;
+
+    --Assert
+    ut.expect(l_actual).to_include(l_expected).unordered_columns();
+  end;
+end;
+/
+
+exec ut.run('test_unordered_columns');
+```
+
+The above test is successful despite the fact that column ordering in cursor is different.
+
+```
+test_unordered_columns
+  cursor_include_unordered_cols [.042 sec]
+ 
+Finished in .046193 seconds
+1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```
+

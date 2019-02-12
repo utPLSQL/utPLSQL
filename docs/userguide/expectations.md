@@ -709,38 +709,15 @@ utPLSQL is capable of comparing compound data-types including:
 - nested table/varray types
 
 ### Notes on comparison of compound data
-- Compound data can contain elements of any data-type. This includes blob, clob, object type, nested table, varray or even a nested-cursor within a cursor.   
 
-- Attributes in nested table and array types are compared as **ordered lists of elements**. If order of attributes in nested table and array differ, expectation will fail.   
-
-- Columns in cursors are compared as **ordered list of elements** by default. If order of columns in cursor is not of importance the option has to be passed to enforce column order comparison  ` unordered_columns`  or a short version `uc` e.g.
-
-    ```sql
-    procedure ut_refcursors1 is
-      l_actual   sys_refcursor;
-      l_expected sys_refcursor;
-      l_expected_message varchar2(32767);
-      l_actual_message   varchar2(32767);
-    begin
-      open l_actual for select 1 user_id,'s' a_col,'test' username from dual;
-      open l_expected for select 'test' username,'s' a_col,1 user_id from dual;
-      --Act
-      ut.expect(l_actual).to_equal(l_expected).join_by('USER_ID').unordered_columns();
-      ut.expect(l_actual).to_equal(l_expected).join_by('USER_ID').uc();
-    end;
-    ```
-
+- Compound data can contain elements of any data-type. This includes blob, clob, object type, nested table, varray or even a nested-cursor within a cursor.
+- Attributes in nested table and array types are compared as **ordered lists of elements**. If order of attributes in nested table and array differ, expectation will fail.
+- Columns in cursors are compared as **ordered list of elements** by default. Use `unordered_columns` option when order of columns in cursor is not relevant
 - Comparison of compound data is data-type aware. So a column `ID NUMBER` in a cursor is not the same as `ID VARCHAR2(100)`, even if they both hold the same numeric values.
-
 - Comparison of cursor columns containing `DATE` will only compare date part **and ignore time** by default. See [Comparing cursor data containing DATE fields](#comparing-cursor-data-containing-date-fields) to check how to enable date-time comparison in cursors.
-
-- Comparison of cursor returning `TIMESTAMP` **columns** against cursor returning `TIMESTAMP` **bind variables** requires variables to be casted to proper precision. This is an Oracle SQL - PLSQL compatibility issue and usage of CAST is the only known workaround for now.
-  See [Comparing cursor data containing TIMESTAMP bind variables](#comparing-cursor-data-containing-timestamp-bind-variables) for examples.    
-
+- Comparison of cursor returning `TIMESTAMP` **columns** against cursor returning `TIMESTAMP` **bind variables** requires variables to be casted to proper precision. This is an Oracle SQL - PLSQL compatibility issue and usage of CAST is the only known workaround for now. See [Comparing cursor data containing TIMESTAMP bind variables](#comparing-cursor-data-containing-timestamp-bind-variables) for examples.    
 - To compare nested table/varray type you need to convert it to `anydata` by using `anydata.convertCollection()`  
-
 - To compare object type you need to convert it to `anydata` by using `anydata.convertObject()`  
-
 - It is possible to compare PL/SQL records, collections, varrays and associative arrays. To compare this types of data, use cursor comparison feature of utPLSQL and TABLE operator in SQL query
     - On Oracle 11g Release 2 - pipelined table functions are needed (see section [Implicit (Shadow) Types in this artcile](https://oracle-base.com/articles/misc/pipelined-table-functions))
     - On Oracle 12c and above - use [TABLE function on nested tables/varrays/associative arrays of PL/SQL records](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1) 
@@ -749,7 +726,7 @@ utPLSQL is capable of comparing compound data-types including:
 utPLSQL offers advanced data-comparison options, for comparing compound data-types. The options allow you to:
 - define columns/attributes to exclude from comparison
 - define columns/attributes to include in comparison
-- and more
+- and more ...
 
 For details on available options and how to use them, read the [advanced data comparison](advanced_data_comparison.md) guide.   
 
@@ -780,7 +757,7 @@ And the actual cursor data:
 |            M        |           LUKE        |        SKYWALKER     |         1000        |   2           |
 
 
-The two datasets above have the following differences:
+The two data-sets above have the following differences:
 - column ID is misplaced (should be first column but is last)
 - column SALARY has data-type VARCHAR2 but should be NUMBER
 - column GENDER exists in actual but not in the expected (it is an Extra column)

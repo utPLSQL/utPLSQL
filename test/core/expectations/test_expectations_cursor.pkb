@@ -481,8 +481,8 @@ create or replace package body test_expectations_cursor is
 
   procedure exclude_columns_xpath_invalid
   as
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -1079,8 +1079,8 @@ Rows: [ 4 differences ]
   end;
 
   procedure col_diff_on_col_name_implicit is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -1105,8 +1105,8 @@ Rows: [ 4 differences ]
   end;
 
   procedure col_mtch_on_col_name_implicit is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -1120,8 +1120,8 @@ Rows: [ 4 differences ]
   end;
       
   procedure cursor_unorderd_compr_success is 
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select username , user_id  from all_users order by username asc;
@@ -1133,8 +1133,8 @@ Rows: [ 4 differences ]
   end;
   
    procedure cursor_unord_compr_success_uc is 
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select user_id, username  from all_users order by username asc;
@@ -1146,8 +1146,8 @@ Rows: [ 4 differences ]
   end; 
   
   procedure cursor_unordered_compare_fail is 
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -1174,8 +1174,8 @@ Rows: [ 4 differences ]
   end;
  
   procedure cursor_joinby_compare_uc is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select owner, object_id, object_name,object_type from all_objects where owner = user;
@@ -1188,8 +1188,8 @@ Rows: [ 4 differences ]
   end;
   
   procedure cursor_joinby_compare is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select object_id, owner, object_name,object_type from all_objects where owner = user;
@@ -1227,8 +1227,8 @@ Rows: [ 4 differences ]
   end;
 
   procedure cursor_joinby_compare_twocols is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select object_id, owner, object_name,object_type from all_objects where owner = user;
@@ -1241,8 +1241,8 @@ Rows: [ 4 differences ]
   end;
  
    procedure cursor_joinby_compare_nokey is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -1264,8 +1264,8 @@ Diff:%
   end;
   
   procedure cur_joinby_comp_twocols_nokey is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -1289,8 +1289,8 @@ Diff:%
   end;
   
   procedure cursor_joinby_compare_exkey is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -1312,8 +1312,8 @@ Diff:%
   end;
   
   procedure cur_joinby_comp_twocols_exkey is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -1335,8 +1335,8 @@ Diff:%
   end;
  
   procedure cursor_joinby_comp_nokey_ex is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -1357,8 +1357,8 @@ Diff:%
   end;
   
   procedure cursor_joinby_comp_nokey_ac is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -1379,8 +1379,8 @@ Diff:%
   end;
  
   procedure cursor_joinby_compare_1000 is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select level object_id, level || '_TEST' object_name from dual connect by level  <=1100;
@@ -1392,8 +1392,8 @@ Diff:%
   end;
 
   procedure cursor_unorder_compare_1000 is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select level object_id, level || '_TEST' object_name from dual connect by level  <=1100;
@@ -1405,8 +1405,8 @@ Diff:%
   end; 
  
   procedure cursor_joinby_compare_fail is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -1431,8 +1431,8 @@ Diff:%
   end;
   
   procedure cursor_joinby_cmp_twocol_fail is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -1457,8 +1457,8 @@ Diff:%
   end;
   
   procedure cur_joinby_cmp_threcol_fail is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -2161,8 +2161,8 @@ Diff:%
   end;
  
   procedure cursor_to_include is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select owner, object_name,object_type from all_objects where owner = user
@@ -2175,10 +2175,76 @@ Diff:%
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
-  
+
+  procedure cursor_to_contain_uc is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select owner, object_name, object_type from all_objects where owner = user
+    order by 1,2,3 asc;
+    open l_expected for select object_type, owner, object_name from all_objects where owner = user
+    and rownum < 20;
+
+    --Act
+    ut3.ut.expect(l_actual).to_( ut3.contain(l_expected).uc() );
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure cursor_to_contain_unordered is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for
+      select owner, object_name,object_type from all_objects where owner = user
+      order by 1,2,3 asc;
+    open l_expected for
+      select owner, object_name,object_type from all_objects where owner = user and rownum < 20;
+
+    --Act
+    ut3.ut.expect(l_actual).to_( ut3.contain(l_expected).unordered() );
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure cursor_to_include_unordered is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for
+      select owner, object_name,object_type from all_objects where owner = user
+      order by 1,2,3 asc;
+    open l_expected for
+      select owner, object_name,object_type from all_objects where owner = user and rownum < 20;
+
+    --Act
+    ut3.ut.expect(l_actual).to_( ut3.include(l_expected).unordered() );
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure cursor_to_include_uc is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select owner, object_name,object_type from all_objects where owner = user
+    order by 1,2,3 asc;
+    open l_expected for select object_type, owner, object_name from all_objects where owner = user
+    and rownum < 20;
+
+    --Act
+    ut3.ut.expect(l_actual).to_include(l_expected).uc();
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
   procedure cursor_to_include_fail is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
@@ -2205,8 +2271,8 @@ Diff:%
   end;  
 
  procedure cursor_to_contain is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select owner, object_name,object_type from all_objects where owner = user
@@ -2221,8 +2287,8 @@ Diff:%
   end;
   
   procedure cursor_to_contain_fail is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
@@ -2249,8 +2315,8 @@ Diff:%
   end;  
 
   procedure cursor_to_include_joinby is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select username,user_id from all_users;
@@ -2263,8 +2329,8 @@ Diff:%
   end;
   
   procedure cursor_to_include_joinby_fail is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
@@ -2293,8 +2359,8 @@ Diff:%
   end;  
 
   procedure cursor_contain_joinby is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select username,user_id from all_users;
@@ -2307,8 +2373,8 @@ Diff:%
   end;
   
   procedure cursor_contain_joinby_fail is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
@@ -2483,8 +2549,8 @@ Diff:%
   end;    
   
   procedure cursor_not_to_contain_fail is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
@@ -2513,8 +2579,8 @@ Diff:%
   end;
     
   procedure cursor_not_to_include_fail is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
@@ -2543,8 +2609,8 @@ Diff:%
   end;
   
   procedure cursor_not_to_contain_joinby is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select username,rownum * 10 user_id from all_users where rownum < 5;
@@ -2557,8 +2623,8 @@ Diff:%
   end;
   
    procedure cursor_not_to_include_joinby is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual for select username,rownum * 10 user_id from all_users where rownum < 5;
@@ -2637,8 +2703,8 @@ Diff:%
   end;
  
   procedure to_include_duplicates is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
   begin
     --Arrange
     open l_actual  for select rownum as rn  from dual a connect by level < 10
@@ -2653,8 +2719,8 @@ Diff:%
   end;
   
   procedure to_include_duplicates_fail is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
