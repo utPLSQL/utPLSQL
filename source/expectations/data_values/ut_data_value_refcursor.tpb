@@ -277,8 +277,13 @@ create or replace type body ut_data_value_refcursor as
     return l_result_string;
   end;
 
-  overriding member function compare_implementation(a_other ut_data_value, a_unordered boolean, a_inclusion_compare boolean := false, a_is_negated boolean := false, 
-                                         a_join_by_list ut_varchar2_list:=ut_varchar2_list()) return integer is
+  overriding member function compare_implementation(
+    a_other ut_data_value,
+    a_unordered boolean,
+    a_inclusion_compare boolean := false,
+    a_is_negated boolean := false,
+    a_join_by_list ut_varchar2_list := ut_varchar2_list()
+  ) return integer is
     l_result          integer := 0;
     l_actual          ut_data_value_refcursor;
     l_pk_missing_tab ut_compound_data_helper.tt_missing_pk;
@@ -299,8 +304,10 @@ create or replace type body ut_data_value_refcursor as
       if (self.cursor_details is not null and l_actual.cursor_details is not null) and (self.cursor_details != l_actual.cursor_details) then 
         l_result := 1; 
       end if;
-      l_result := l_result + (self as ut_compound_data_value).compare_implementation(a_other,a_unordered, a_inclusion_compare, 
-                              a_is_negated, a_join_by_list); 
+      l_result := l_result
+        + (self as ut_compound_data_value).compare_implementation(
+              a_other,a_unordered, a_inclusion_compare, a_is_negated, a_join_by_list
+          );
     end if;
     
     return l_result;
@@ -311,12 +318,38 @@ create or replace type body ut_data_value_refcursor as
     return self.elements_count = 0;
   end;
 
-  member function update_cursor_details (a_exclude_xpath ut_varchar2_list, a_include_xpath ut_varchar2_list,a_ordered_columns boolean := false) return ut_data_value_refcursor is
-    l_result ut_data_value_refcursor := self;
-  begin   
+  member function update_cursor_details (a_match_options ut_matcher_config) return ut_data_value_refcursor is
+    l_result       ut_data_value_refcursor := self;
+    c_xpath_extract_reg constant varchar2(50) := '^((/ROW/)|^(//)|^(/\*/))?(.*)';
+  begin
     if l_result.cursor_details.cursor_columns_info is not null then
-      l_result.cursor_details.cursor_columns_info := ut_compound_data_helper.inc_exc_columns_from_cursor(l_result.cursor_details.cursor_columns_info,a_exclude_xpath,a_include_xpath);
-      l_result.cursor_details.ordered_columns(a_ordered_columns);
+      if a_match_options.include().count > 0 then
+        with included_columns as (
+            select regexp_replace( column_value, c_xpath_extract_reg, '\5' ) col_names
+              from table(a_match_options.include())
+             minus
+            select regexp_replace( column_value, c_xpath_extract_reg, '\5' ) col_names
+              from table(a_match_options.exclude())
+          )
+        select value(x)
+               bulk collect into l_result.cursor_details.cursor_columns_info
+          from table(self.cursor_details.cursor_columns_info) x
+         where exists(
+                 select 1 from included_columns f where regexp_like( x.access_path, '^'||f.col_names||'($|/.*)' )
+                 );
+      elsif a_match_options.exclude().count > 0 then
+        with excluded_columns as (
+          select regexp_replace( column_value, c_xpath_extract_reg, '\5' ) col_names
+            from table(a_match_options.exclude())
+        )
+          select value(x)
+                 bulk collect into l_result.cursor_details.cursor_columns_info
+            from table(self.cursor_details.cursor_columns_info) x
+           where not exists(
+             select 1 from excluded_columns f where regexp_like( x.access_path, '^'||f.col_names||'($|/.*)' )
+             );
+      end if;
+      l_result.cursor_details.ordered_columns(a_match_options.ordered_columns());
     end if;    
     return l_result;
   end;

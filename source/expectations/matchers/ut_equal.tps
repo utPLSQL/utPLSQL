@@ -15,39 +15,14 @@ create or replace type ut_equal force under ut_comparison_matcher(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  nulls_are_equal_flag number(1,0),
-  /**
-   * Holds (list of columns/attributes) to exclude when comparing compound types
-   */
-  exclude_list   ut_varchar2_list,
+
 
   /**
-   * Holds (list of columns/attributes) to incude when comparing compound types
-   */
-  include_list   ut_varchar2_list,
-  
-  /**
-   * Holds value if comparision on refcursor to be performed as unordered set
-   */
-  is_unordered   number(1,0),
-
-  /**
-   * Holds list of columns to be used as a join PK on sys_refcursor comparision
-   */
-  join_columns ut_varchar2_list,
-  
-    /**
-   * Holds list of columns to be used as a join PK on sys_refcursor comparision, prefiltered to remvoe
-   * xpath tag from from
-   */
-  join_on_list ut_varchar2_list,
-  
-  /**
-  * Flag to force cursor comparision into ordered mode
+  * Holds information about mather options
   */
-  is_column_order_enforced number(1,0),
-  
-  member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean),
+  options ut_matcher_config,
+
+  member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean, a_self_type varchar2 := null),
   member function equal_with_nulls( self in ut_equal, a_assert_result boolean, a_actual ut_data_value) return boolean,
   constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result,
   constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_exclude varchar2, a_nulls_are_equal boolean := null) return self as result,
@@ -73,17 +48,11 @@ create or replace type ut_equal force under ut_comparison_matcher(
   member function unordered return ut_equal,
   member function join_by(a_columns varchar2) return ut_equal,
   member function join_by(a_columns ut_varchar2_list) return ut_equal,
-  member function get_include_xpath return varchar2,
-  member function get_exclude_xpath return varchar2,
-  member function get_unordered return boolean,
-  member function get_join_by_xpath return varchar2,
-  member function get_join_by_list return ut_varchar2_list,
   overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean,
   overriding member function failure_message(a_actual ut_data_value) return varchar2,
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2,
   member function unordered_columns return ut_equal,
-  member function uc return ut_equal,
-  member function get_ordered_columns return boolean
+  member function uc return ut_equal
 )
 not final
 /

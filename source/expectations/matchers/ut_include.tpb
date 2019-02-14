@@ -16,18 +16,10 @@ create or replace type body ut_include as
   limitations under the License.
   */
 
-  member procedure init(self in out nocopy ut_include, a_expected ut_data_value) is
-  begin
-    self.self_type := $$plsql_unit;
-    self.expected  := a_expected;
-    self.include_list := ut_varchar2_list();
-    self.exclude_list := ut_varchar2_list();
-    self.join_columns := ut_varchar2_list();
-  end;
-
   constructor function ut_include(self in out nocopy ut_include, a_expected sys_refcursor) return self as result is
   begin
-    init(ut_data_value_refcursor(a_expected));
+    self.init(ut_data_value_refcursor(a_expected), null, $$plsql_unit);
+    self.options.unordered();
     return;
   end;
 
@@ -54,13 +46,12 @@ create or replace type body ut_include as
     l_result1 integer;
   begin
     if self.expected.data_type = a_actual.data_type then
-        l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details(exclude_list, include_list,self.get_ordered_columns());      
+        l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details( self.options );
         l_result :=
           ( 0
-            = treat( self.expected as ut_data_value_refcursor ).update_cursor_details(
-                exclude_list, include_list, self.get_ordered_columns( )
-              ).compare_implementation(
-                l_actual, true, self.get_inclusion_compare( ), self.get_negated( ), self.get_join_by_list( )
+            = treat( self.expected as ut_data_value_refcursor ).update_cursor_details( self.options )
+              .compare_implementation(
+                l_actual, self.options.unordered(), get_inclusion_compare( ), get_negated( ), options.join_by( )
               )
           );
     else
@@ -79,13 +70,11 @@ create or replace type body ut_include as
     l_actual ut_data_value;
   begin
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
-      l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details(exclude_list, include_list,self.get_ordered_columns());
+      l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details( self.options );
       l_result :=
         'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
         ||  chr(10) || 'Diff:'
-        ||  treat(expected as ut_data_value_refcursor).update_cursor_details(
-              exclude_list, include_list, self.get_ordered_columns()
-            ).diff(l_actual, true, self.get_join_by_list());
+        ||  treat(expected as ut_data_value_refcursor).update_cursor_details( self.options ).diff(l_actual, self.options.unordered(), self.options.join_by());
     else
       l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     end if;

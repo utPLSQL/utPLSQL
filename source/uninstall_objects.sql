@@ -117,6 +117,10 @@ drop type ut_comparison_matcher force;
 
 drop type ut_matcher force;
 
+drop type ut_matcher_config force;
+
+drop type ut_matcher_config_items force;
+
 drop type ut_data_value_yminterval force;
 
 drop type ut_data_value_varchar2 force;

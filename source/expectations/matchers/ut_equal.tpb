@@ -16,20 +16,17 @@ create or replace type body ut_equal as
   limitations under the License.
   */
 
-  member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean) is
+  member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean, a_self_type varchar2 := null) is
   begin
-    self.nulls_are_equal_flag := ut_utils.boolean_to_int( coalesce(a_nulls_are_equal, ut_expectation_processor.nulls_are_equal()) );
-    self.self_type := $$plsql_unit;
     self.expected  := a_expected;
-    self.include_list := ut_varchar2_list();
-    self.exclude_list := ut_varchar2_list();
-    self.join_columns := ut_varchar2_list();
+    self.options := ut_matcher_config( a_nulls_are_equal );
+    self.self_type := nvl( a_self_type, $$plsql_unit );
   end;
  
   member function equal_with_nulls(a_assert_result boolean, a_actual ut_data_value) return boolean is
   begin
     ut_utils.debug_log('ut_equal.equal_with_nulls :' || ut_utils.to_test_result(a_assert_result) || ':');
-    return ( a_assert_result or ( self.expected.is_null() and a_actual.is_null() and ut_utils.int_to_boolean( nulls_are_equal_flag ) ) );
+    return ( a_assert_result or ( self.expected.is_null() and a_actual.is_null() and options.nulls_are_equal ) );
   end;
 
   constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result is
@@ -46,7 +43,7 @@ create or replace type body ut_equal as
       'equal( a_expected anydata ).exclude( a_exclude varchar2 )'
     );
     init(ut_data_value_anydata.get_instance(a_expected), a_nulls_are_equal);
-    exclude_list := ut_varchar2_list(a_exclude);
+    self.options.exclude(a_exclude);
     return;
   end;
 
@@ -57,7 +54,7 @@ create or replace type body ut_equal as
       'equal( a_expected anydata ).exclude( a_exclude ut_varchar2_list )'
     );
     init(ut_data_value_anydata.get_instance(a_expected), a_nulls_are_equal);
-    exclude_list := coalesce(a_exclude, ut_varchar2_list());
+    self.options.exclude(a_exclude);
     return;
   end;
 
@@ -104,7 +101,7 @@ create or replace type body ut_equal as
       'equal( a_expected sys_refcursor ).exclude( a_exclude varchar2 )'
     );
     init(ut_data_value_refcursor(a_expected), a_nulls_are_equal);
-    exclude_list := ut_varchar2_list(a_exclude);
+    self.options.exclude(a_exclude);
     return;
   end;
 
@@ -115,7 +112,7 @@ create or replace type body ut_equal as
       'equal( a_expected sys_refcursor ).exclude( a_exclude ut_varchar2_list )'
     );
     init(ut_data_value_refcursor(a_expected), a_nulls_are_equal);
-    exclude_list := coalesce(a_exclude, ut_varchar2_list());
+    self.options.exclude(a_exclude);
     return;
   end;
 
@@ -158,100 +155,52 @@ create or replace type body ut_equal as
   member function include(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.include_list := l_result.include_list multiset union ut_utils.trim_list_elements(ut_utils.string_to_table(replace(a_items,'|',','),','));
+    l_result.options.include(a_items);
     return l_result;
   end;
 
   member function include(a_items ut_varchar2_list) return ut_equal is
     l_result ut_equal := self;
-    l_items  ut_varchar2_list := ut_varchar2_list();
   begin
-    for i in 1..a_items.count loop
-      l_items := l_items multiset union all ut_utils.trim_list_elements(ut_utils.string_to_table(replace(a_items(i),'|',','),','));
-    end loop;
-    l_result.include_list := l_result.include_list multiset union all coalesce(l_items,ut_varchar2_list());
+    l_result.options.include(a_items);
     return l_result;
   end;
 
   member function exclude(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.exclude_list := l_result.exclude_list multiset union all ut_utils.trim_list_elements(ut_utils.string_to_table(replace(a_items,'|',','),','));
+    l_result.options.exclude(a_items);
     return l_result;
   end;
 
   member function exclude(a_items ut_varchar2_list) return ut_equal is
     l_result ut_equal := self;
-    l_items  ut_varchar2_list := ut_varchar2_list();
   begin
-    for i in 1..a_items.count loop
-     l_items := l_items multiset union all ut_utils.trim_list_elements(ut_utils.string_to_table(replace(a_items(i),'|',','),','));
-    end loop;
-    
-    l_result.exclude_list := l_result.exclude_list multiset union all coalesce(l_items,ut_varchar2_list());
+    l_result.options.exclude(a_items);
     return l_result;
   end;
 
   member function unordered return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.is_unordered := ut_utils.boolean_to_int(true);
+    l_result.options.unordered();
     return l_result;
   end;
 
   member function join_by(a_columns varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.is_unordered := ut_utils.boolean_to_int(true);
-    l_result.join_columns := l_result.join_columns multiset union all ut_utils.trim_list_elements(ut_utils.string_to_table(replace(a_columns,'|',','),','));
-    
-    select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
-    bulk collect into l_result.join_on_list
-    from table(l_result.join_columns);
+    l_result.options.unordered();
+    l_result.options.join_by(a_columns);
     return l_result;
   end;
 
   member function join_by(a_columns ut_varchar2_list) return ut_equal is
     l_result ut_equal := self;
-    l_items  ut_varchar2_list := ut_varchar2_list();
   begin
-    l_result.is_unordered := ut_utils.boolean_to_int(true);
-    for i in 1..a_columns.count loop
-      --TODO :  idoiot proof solution for both include and exclude
-      l_items := l_items multiset union all ut_utils.trim_list_elements(ut_utils.string_to_table(replace(a_columns(i),'|',','),','));
-    end loop;
-    l_result.join_columns := l_result.join_columns multiset union all coalesce(l_items,ut_varchar2_list());
-    
-    select regexp_replace(column_value,'^((/ROW/)|^(//)|^(/\*/))?(.*)','\5') col_names
-    bulk collect into l_result.join_on_list
-    from table(l_result.join_columns);
-    
+    l_result.options.unordered();
+    l_result.options.join_by(a_columns);
     return l_result;
-  end;
-
-  member function get_include_xpath return varchar2 is
-  begin
-    return ut_utils.to_xpath( coalesce(include_list, ut_varchar2_list()) );
-  end;
-
-  member function get_exclude_xpath return varchar2 is
-  begin
-    return ut_utils.to_xpath( coalesce(exclude_list, ut_varchar2_list()) );
-  end;
-
-  member function get_unordered return boolean is
-  begin
-   return ut_utils.int_to_boolean(nvl(is_unordered,0));
-  end;
-  
-  member function get_join_by_xpath return varchar2 is
-  begin
-    return ut_utils.to_xpath( coalesce(join_columns, ut_varchar2_list()) );
-  end;
-  
-  member function get_join_by_list return ut_varchar2_list is
-  begin
-    return ( coalesce(join_columns, ut_varchar2_list()) );
   end;
 
   member function uc return ut_equal is
@@ -262,25 +211,23 @@ create or replace type body ut_equal as
   member function unordered_columns return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.is_column_order_enforced := ut_utils.boolean_to_int(false);
+    l_result.options.unordered_columns();
     return l_result;
   end;
-  
-  member function get_ordered_columns return boolean is
-  begin
-   return ut_utils.int_to_boolean(nvl(is_column_order_enforced,1));
-  end;
-  
+    
   overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean is
     l_result boolean;
     l_actual ut_data_value;
   begin
     if self.expected.data_type = a_actual.data_type then
       if self.expected is of (ut_data_value_anydata) then
-        l_result := 0 = treat(self.expected as ut_data_value_anydata).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath());
+        l_result := 0 = treat(self.expected as ut_data_value_anydata).compare_implementation(a_actual, options.exclude_list.to_xpath(), options.include_list.to_xpath());
       elsif self.expected is of (ut_data_value_refcursor) then
-        l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details(exclude_list, include_list,get_ordered_columns());
-        l_result := 0 = treat(self.expected as ut_data_value_refcursor).update_cursor_details(exclude_list, include_list,get_ordered_columns()).compare_implementation(l_actual, get_unordered(), false, false, get_join_by_list());
+        l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details( options );
+        l_result := 0 = treat(self.expected as ut_data_value_refcursor).update_cursor_details( options )
+          .compare_implementation(
+            l_actual, options.unordered(), false, false, options.join_by()
+          );
       else
         l_result := equal_with_nulls((self.expected = a_actual), a_actual);
       end if;
@@ -297,14 +244,19 @@ create or replace type body ut_equal as
   begin
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
       if self.expected is of (ut_data_value_refcursor) then
-        l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details(exclude_list, include_list,get_ordered_columns());
+        l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details( options );
         l_result :=
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
-          || chr(10) || 'Diff:' || treat(expected as ut_data_value_refcursor).update_cursor_details(exclude_list, include_list,get_ordered_columns()).diff(l_actual, get_unordered(),get_join_by_list());      
+          || chr(10) || 'Diff:' ||
+            treat(expected as ut_data_value_refcursor).update_cursor_details( options )
+              .diff( l_actual, options.unordered(), options.join_by() );
       else
         l_result :=
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
-          || chr(10) || 'Diff:' || expected.diff(a_actual, get_exclude_xpath(), get_include_xpath(), get_join_by_xpath(), get_unordered());
+          || chr(10) || 'Diff:' ||
+          expected.diff(
+            a_actual, options.exclude_list.to_xpath(), options.include_list.to_xpath(), options.join_by_list.to_xpath(), options.unordered()
+          );
       end if;
     else
       l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();

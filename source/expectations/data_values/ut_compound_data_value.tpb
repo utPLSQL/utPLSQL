@@ -193,8 +193,11 @@ create or replace type body ut_compound_data_value as
   end;
 
   member function compare_implementation(
-    a_other ut_data_value, a_unordered boolean, a_inclusion_compare boolean,
-    a_is_negated boolean, a_join_by_list ut_varchar2_list := ut_varchar2_list()
+    a_other ut_data_value,
+    a_unordered boolean,
+    a_inclusion_compare boolean,
+    a_is_negated boolean,
+    a_join_by_list ut_varchar2_list := ut_varchar2_list()
   ) return integer is
 
     l_diff_id       ut_compound_data_helper.t_hash;      

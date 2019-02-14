@@ -24,7 +24,6 @@ create or replace type ut_include under ut_equal(
   */
   is_negated number(1,0),  
     
-  member procedure init(self in out nocopy ut_include, a_expected ut_data_value),
   constructor function ut_include(self in out nocopy ut_include, a_expected sys_refcursor) return self as result,
   member function get_inclusion_compare return boolean,
   member function negated return ut_include,
