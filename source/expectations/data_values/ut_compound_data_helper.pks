@@ -31,13 +31,6 @@ create or replace package ut_compound_data_helper authid definer is
 
   type tt_column_diffs is table of t_column_diffs;
 
-  type t_missing_pk is record(
-    missingxpath  varchar2(250),
-    diff_type     varchar2(1)
-  );
-
-  type tt_missing_pk is table of t_missing_pk;
-  
   type t_row_diffs is record(
     rn            integer,
     diff_type     varchar2(250),
@@ -54,31 +47,6 @@ create or replace package ut_compound_data_helper authid definer is
     exp_data_id raw(32),
     item_no   number,
     dup_no    number
-  );
-
-  type t_anytype_members_rec is record (
-    type_code       pls_integer,
-    schema_name     varchar2(128),
-    type_name       varchar2(128),
-    length          pls_integer,
-    elements_count  pls_integer,
-    version         varchar2(32767),
-    precision       pls_integer,
-    scale           pls_integer,
-    char_set_id     pls_integer,
-    char_set_frm    pls_integer
-  );
-
-  type t_anytype_elem_info_rec is record (
-    type_code       pls_integer,
-    attribute_name  varchar2(260),
-    length          pls_integer,
-    version         varchar2(32767),
-    precision       pls_integer,
-    scale           pls_integer,
-    char_set_id     pls_integer,
-    char_set_frm    pls_integer,
-    attr_elt_type   anytype
   );
 
   type t_diff_tab is table of t_diff_rec;
@@ -125,26 +93,11 @@ create or replace package ut_compound_data_helper authid definer is
   
   function get_rows_diff_count return integer;
    
-  function get_missing_pk(
-    a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab, a_current_list ut_varchar2_list
-  ) return tt_missing_pk;
-
-  function contains_collection (a_cursor_info ut_cursor_column_tab) return number;
-  
-  function remove_incomparable_cols(
-    a_cursor_details ut_cursor_column_tab,a_incomparable_cols ut_varchar2_list
-  ) return ut_cursor_column_tab;
-  
   function getxmlchildren(a_parent_name varchar2,a_cursor_table ut_cursor_column_tab) return xmltype;
 
   function is_sql_compare_allowed(a_type_name varchar2) return boolean;
   
   function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2;
-
-
-  function get_anytype_members_info( a_anytype anytype ) return t_anytype_members_rec;
-
-  function get_attr_elem_info( a_anytype anytype, a_pos pls_integer := null ) return t_anytype_elem_info_rec;
 
 end;
 /

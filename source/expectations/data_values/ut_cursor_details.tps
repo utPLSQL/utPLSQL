@@ -24,12 +24,14 @@ create or replace type ut_cursor_details force authid current_user as object (
    ) return self as result,
    order member function compare(a_other ut_cursor_details) return integer,
    member procedure desc_compound_data(
-     self in out nocopy ut_cursor_details, a_compound_data anytype,
-     a_parent_name in varchar2, a_level in integer, a_access_path in varchar2
+     self in out nocopy ut_cursor_details,
+     a_compound_data anytype,
+     a_parent_name in varchar2,
+     a_level in integer,
+     a_access_path in varchar2
    ),
-   member function get_user_defined_type(a_owner varchar2, a_type_name varchar2) return anytype,
-   member function is_collection(a_anytype_code in integer) return boolean,
-   member function is_collection(a_owner varchar2, a_type_name varchar2) return boolean,
+   member function contains_collection return boolean,
+   member function get_missing_filter_columns( a_expected_columns ut_varchar2_list ) return ut_varchar2_list,
    member procedure ordered_columns(self in out nocopy ut_cursor_details, a_ordered_columns boolean := false)
 )
 /

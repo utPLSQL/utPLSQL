@@ -1,4 +1,4 @@
-create or replace type body ut_matcher_config_items is
+create or replace type body ut_matcher_options_items is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -16,13 +16,13 @@ create or replace type body ut_matcher_config_items is
   limitations under the License.
   */
 
-  constructor function ut_matcher_config_items(self in out nocopy ut_matcher_config_items) return self as result is
+  constructor function ut_matcher_options_items(self in out nocopy ut_matcher_options_items) return self as result is
   begin
     items := ut_varchar2_list();
     return;
   end;
 
-  member procedure add_items(self in out nocopy ut_matcher_config_items, a_items varchar2) is
+  member procedure add_items(self in out nocopy ut_matcher_options_items, a_items varchar2) is
   begin
     items :=
       items
@@ -35,7 +35,7 @@ create or replace type body ut_matcher_config_items is
         );
   end;
 
-  member procedure add_items(self in out nocopy ut_matcher_config_items, a_items ut_varchar2_list) is
+  member procedure add_items(self in out nocopy ut_matcher_options_items, a_items ut_varchar2_list) is
     l_idx binary_integer;
   begin
     if a_items is not null then

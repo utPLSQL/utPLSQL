@@ -50,9 +50,7 @@ create or replace type body ut_include as
         l_result :=
           ( 0
             = treat( self.expected as ut_data_value_refcursor ).update_cursor_details( self.options )
-              .compare_implementation(
-                l_actual, self.options.unordered(), get_inclusion_compare( ), get_negated( ), options.join_by( )
-              )
+              .compare_implementation( l_actual, self.options, get_inclusion_compare(), get_negated() )
           );
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
@@ -74,7 +72,7 @@ create or replace type body ut_include as
       l_result :=
         'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
         ||  chr(10) || 'Diff:'
-        ||  treat(expected as ut_data_value_refcursor).update_cursor_details( self.options ).diff(l_actual, self.options.unordered(), self.options.join_by());
+        ||  treat(expected as ut_data_value_refcursor).update_cursor_details( self.options ).diff( l_actual, self.options );
     else
       l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     end if;

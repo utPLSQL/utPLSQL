@@ -346,18 +346,20 @@ create or replace package body ut_compound_data_helper is
   
   begin
     dbms_lob.createtemporary(l_compare_sql, true);
-    gen_sql_pieces_out_of_cursor(a_other.cursor_details.cursor_columns_info, a_join_by_list, 
+    gen_sql_pieces_out_of_cursor(
+      a_other.cursor_details.cursor_columns_info, a_join_by_list,
       l_xmltable_stmt, l_select_stmt, l_partition_stmt, l_equal_stmt, 
-      l_join_on_stmt, l_not_equal_stmt);
+      l_join_on_stmt, l_not_equal_stmt
+    );
       
     l_temp_string := 'with exp as ( select ucd.* ';    
     ut_utils.append_to_clob(l_compare_sql, l_temp_string);
-    get_act_and_exp_set(l_compare_sql, l_partition_stmt,l_select_stmt, l_xmltable_stmt, a_unordered,'exp');
+    get_act_and_exp_set(l_compare_sql, l_partition_stmt, l_select_stmt, l_xmltable_stmt, a_unordered,'exp');
     
         
     l_temp_string :=',act as ( select ucd.* '; 
     ut_utils.append_to_clob(l_compare_sql, l_temp_string);
-    get_act_and_exp_set(l_compare_sql, l_partition_stmt,l_select_stmt, l_xmltable_stmt, a_unordered,'act');
+    get_act_and_exp_set(l_compare_sql, l_partition_stmt, l_select_stmt, l_xmltable_stmt, a_unordered,'act');
     
     l_temp_string :=  ' select a.item_data as act_item_data, a.data_id act_data_id,'
                        ||'e.item_data as exp_item_data, e.data_id exp_data_id, '||
@@ -629,57 +631,6 @@ create or replace package body ut_compound_data_helper is
     return g_diff_count;
   end;
 
-  function get_missing_filter_columns(a_cursor_info ut_cursor_column_tab, a_column_filter_list ut_varchar2_list)
-  return ut_varchar2_list is
-    l_result ut_varchar2_list := ut_varchar2_list();
-  begin 
-   select fl.column_value
-   bulk collect into l_result
-   from table(a_column_filter_list) fl
-   where not exists (select 1 from table(a_cursor_info) c where regexp_like(c.access_path, '^'||fl.column_value||'($|/.*)')); 
-   return l_result;
-  end;
- 
-  function get_missing_pk(a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab, a_current_list ut_varchar2_list) 
-  return tt_missing_pk is
-    l_actual ut_varchar2_list := coalesce(get_missing_filter_columns(a_actual,a_current_list),ut_varchar2_list());
-    l_expected  ut_varchar2_list := coalesce(get_missing_filter_columns(a_expected,a_current_list),ut_varchar2_list());
-    l_missing_pk tt_missing_pk;
-  begin 
-    select name,type
-    bulk collect into l_missing_pk
-    from
-    (select act.column_value name, 'e' type from table(l_expected) act    
-    union all
-    select exp.column_value name, 'a' type from table(l_actual) exp)
-    order by type desc,name;
-    return l_missing_pk;
-  end;
-    
-  function contains_collection (a_cursor_info ut_cursor_column_tab)
-  return number is
-    l_collection_elements number;
-  begin
-    select count(1) into l_collection_elements from
-    table(a_cursor_info) c where c.is_collection = 1;
-    return l_collection_elements;
-  end;
-  
-  function remove_incomparable_cols( a_cursor_details ut_cursor_column_tab,a_incomparable_cols ut_varchar2_list)
-  return ut_cursor_column_tab is
-    l_result ut_cursor_column_tab;
-  begin
-    select ut_cursor_column(i.parent_name,i.access_path,i.has_nested_col,i.transformed_name,i.hierarchy_level,i.column_position ,
-    i.xml_valid_name,i.column_name,i.column_type,i.column_type_name ,i.column_schema,i.column_len,i.is_sql_diffable ,i.is_collection)
-    bulk collect into l_result
-    from table(a_cursor_details) i
-    left outer join table(a_incomparable_cols) c
-    on (i.access_path = c.column_value)
-    where c.column_value is null;  
-
-    return l_result;
-  end;
- 
   function getxmlchildren(a_parent_name varchar2,a_cursor_table ut_cursor_column_tab)
   return xmltype is
     l_result xmltype;
@@ -720,45 +671,6 @@ create or replace package body ut_compound_data_helper is
        when a_dbms_sql_desc then g_type_name_map(a_type_code)
        else g_anytype_name_map(a_type_code)
      end;
-  end;
-
-  function get_anytype_members_info( a_anytype anytype )
-  return t_anytype_members_rec is
-    l_result  t_anytype_members_rec;
-  begin
-    if a_anytype is not null then
-      l_result.type_code := a_anytype.getinfo(
-        prec        => l_result.precision,
-        scale       => l_result.scale,
-        len         => l_result.length,
-        csid        => l_result.char_set_id,
-        csfrm       => l_result.char_set_frm,
-        schema_name => l_result.schema_name,
-        type_name   => l_result.type_name,
-        version     => l_result.version,
-        numelems    => l_result.elements_count
-      );
-    end if;
-    return l_result;
-  end;
-
-  function get_attr_elem_info( a_anytype anytype, a_pos pls_integer := null )
-  return t_anytype_elem_info_rec is
-    l_result  t_anytype_elem_info_rec;
-  begin
-    if a_anytype is not null then
-      l_result.type_code := a_anytype.getattreleminfo(
-        pos           => a_pos,
-        prec          => l_result.precision,
-        scale         => l_result.scale,
-        len           => l_result.length,
-        csid          => l_result.char_set_id,
-        csfrm         => l_result.char_set_frm,
-        attr_elt_type => l_result.attr_elt_type,
-        aname         => l_result.attribute_name
-      );
-    end if;
-    return l_result;
   end;
 
 begin

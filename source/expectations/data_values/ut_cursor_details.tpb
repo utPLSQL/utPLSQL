@@ -24,45 +24,23 @@ create or replace type body ut_cursor_details as
     return l_diffs;
   end;
 
-  member function get_user_defined_type(a_owner varchar2, a_type_name varchar2) return anytype is
-    l_anytype anytype;
-    not_found exception;
-    pragma exception_init(not_found,-22303);
-  begin
-    if a_type_name is not null then
-      begin
-        if ut_metadata.IS_OBJECT_VISIBLE('GETANYTYPEFROMPERSISTENT') then
-          execute immediate 'begin :l_anytype := getanytypefrompersistent( :a_owner, :a_type_name ); end;'
-          using out l_anytype, in nvl(a_owner,sys_context('userenv','current_schema')), in a_type_name;
-        else
-          execute immediate 'begin :l_anytype := anytype.getpersistent( :a_owner, :a_type_name ); end;'
-            using out l_anytype, in nvl(a_owner,sys_context('userenv','current_schema')), in a_type_name;
-        end if;
-      exception
-      when not_found then
-        null;
-      end;
-    end if;
-    return l_anytype;
-  end;
-
   member procedure desc_compound_data(
     self in out nocopy ut_cursor_details, a_compound_data anytype,
     a_parent_name in varchar2, a_level in integer, a_access_path in varchar2
   ) is
     l_idx                pls_integer := 1;
-    l_elements_info      ut_compound_data_helper.t_anytype_members_rec;
-    l_element_info       ut_compound_data_helper.t_anytype_elem_info_rec;
+    l_elements_info      ut_metadata.t_anytype_members_rec;
+    l_element_info       ut_metadata.t_anytype_elem_info_rec;
     l_is_collection      boolean;
   begin
 
-    l_elements_info := ut_compound_data_helper.get_anytype_members_info( a_compound_data );
+    l_elements_info := ut_metadata.get_anytype_members_info( a_compound_data );
 
-    l_is_collection := is_collection(l_elements_info.type_code);
+    l_is_collection := ut_metadata.is_collection(l_elements_info.type_code);
 
     if l_elements_info.elements_count is null then
 
-      l_element_info := ut_compound_data_helper.get_attr_elem_info( a_compound_data );
+      l_element_info := ut_metadata.get_attr_elem_info( a_compound_data );
 
       self.cursor_columns_info.extend;
       self.cursor_columns_info(cursor_columns_info.last) :=
@@ -86,7 +64,7 @@ create or replace type body ut_cursor_details as
       end if;
     else
       while l_idx <= l_elements_info.elements_count loop
-        l_element_info := ut_compound_data_helper.get_attr_elem_info( a_compound_data, l_idx );
+        l_element_info := ut_metadata.get_attr_elem_info( a_compound_data, l_idx );
 
         self.cursor_columns_info.extend;
         self.cursor_columns_info(cursor_columns_info.last) :=
@@ -138,7 +116,7 @@ create or replace type body ut_cursor_details as
     * a_cursor := dbms_sql.to_refcursor(l_cursor_number);
     **/
     for pos in 1 .. l_columns_count loop
-      l_is_collection := is_collection( l_columns_desc(pos).col_schema_name, l_columns_desc(pos).col_type_name );
+      l_is_collection := ut_metadata.is_collection( l_columns_desc(pos).col_schema_name, l_columns_desc(pos).col_type_name );
       self.cursor_columns_info.extend;
       self.cursor_columns_info(self.cursor_columns_info.last) :=
         ut_cursor_column(
@@ -155,7 +133,7 @@ create or replace type body ut_cursor_details as
         );
       if l_columns_desc(pos).col_type = dbms_sql.user_defined_type or l_is_collection then
         desc_compound_data(
-          get_user_defined_type( l_columns_desc(pos).col_schema_name, l_columns_desc(pos).col_type_name ),
+          ut_metadata.get_user_defined_type( l_columns_desc(pos).col_schema_name, l_columns_desc(pos).col_type_name ),
           l_columns_desc(pos).col_name,
           l_hierarchy_level + 1,
           l_columns_desc(pos).col_name
@@ -165,18 +143,27 @@ create or replace type body ut_cursor_details as
     return;
   end;
 
-  member function is_collection (a_anytype_code in integer) return boolean is
+  member function contains_collection return boolean is
+    l_collection_elements number;
   begin
-    return coalesce(a_anytype_code in (dbms_types.typecode_varray,dbms_types.typecode_table,dbms_types.typecode_namedcollection),false);
+    select count(1) into l_collection_elements
+      from table(cursor_columns_info) c
+     where c.is_collection = 1 and rownum = 1;
+    return l_collection_elements > 0;
   end;
 
-  member function is_collection (a_owner varchar2, a_type_name varchar2) return boolean is
+  member function get_missing_filter_columns( a_expected_columns ut_varchar2_list ) return ut_varchar2_list is
+    l_result ut_varchar2_list;
   begin
-    return is_collection(
-      ut_compound_data_helper.get_anytype_members_info(
-        get_user_defined_type(a_owner, a_type_name)
-      ).type_code
-    );
+    select fl.column_value
+      bulk collect into l_result
+      from table(a_expected_columns) fl
+     where not exists (
+       select 1 from table(self.cursor_columns_info) c
+        where regexp_like(c.access_path, '^'||fl.column_value||'($|/.*)')
+       )
+     order by fl.column_value;
+    return l_result;
   end;
 
   member procedure ordered_columns(self in out nocopy ut_cursor_details,a_ordered_columns boolean := false) is

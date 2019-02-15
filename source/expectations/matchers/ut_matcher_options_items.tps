@@ -1,4 +1,4 @@
-create or replace type ut_matcher_config_items authid current_user as object(
+create or replace type ut_matcher_options_items authid current_user as object(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -21,9 +21,9 @@ create or replace type ut_matcher_config_items authid current_user as object(
   */
   items ut_varchar2_list,
 
-  constructor function ut_matcher_config_items(self in out nocopy ut_matcher_config_items) return self as result,
-  member procedure add_items(self in out nocopy ut_matcher_config_items, a_items varchar2),
-  member procedure add_items(self in out nocopy ut_matcher_config_items, a_items ut_varchar2_list),
+  constructor function ut_matcher_options_items(self in out nocopy ut_matcher_options_items) return self as result,
+  member procedure add_items(self in out nocopy ut_matcher_options_items, a_items varchar2),
+  member procedure add_items(self in out nocopy ut_matcher_options_items, a_items ut_varchar2_list),
   member function to_xpath return varchar2
 )
 /

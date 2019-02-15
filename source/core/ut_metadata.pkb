@@ -189,5 +189,80 @@ create or replace package body ut_metadata as
     return l_cnt > 0;
   end;
 
+  function is_collection (a_anytype_code in integer) return boolean is
+  begin
+    return coalesce(a_anytype_code in (dbms_types.typecode_varray,dbms_types.typecode_table,dbms_types.typecode_namedcollection),false);
+  end;
+
+  function is_collection (a_owner varchar2, a_type_name varchar2) return boolean is
+  begin
+    return is_collection(
+      get_anytype_members_info(
+        get_user_defined_type(a_owner, a_type_name)
+        ).type_code
+    );
+  end;
+
+  function get_attr_elem_info( a_anytype anytype, a_pos pls_integer := null )
+    return t_anytype_elem_info_rec is
+    l_result  t_anytype_elem_info_rec;
+  begin
+    if a_anytype is not null then
+      l_result.type_code := a_anytype.getattreleminfo(
+        pos           => a_pos,
+        prec          => l_result.precision,
+        scale         => l_result.scale,
+        len           => l_result.length,
+        csid          => l_result.char_set_id,
+        csfrm         => l_result.char_set_frm,
+        attr_elt_type => l_result.attr_elt_type,
+        aname         => l_result.attribute_name
+        );
+      end if;
+    return l_result;
+  end;
+
+  function get_anytype_members_info( a_anytype anytype )
+    return t_anytype_members_rec is
+    l_result  t_anytype_members_rec;
+  begin
+    if a_anytype is not null then
+      l_result.type_code := a_anytype.getinfo(
+        prec        => l_result.precision,
+        scale       => l_result.scale,
+        len         => l_result.length,
+        csid        => l_result.char_set_id,
+        csfrm       => l_result.char_set_frm,
+        schema_name => l_result.schema_name,
+        type_name   => l_result.type_name,
+        version     => l_result.version,
+        numelems    => l_result.elements_count
+        );
+      end if;
+    return l_result;
+  end;
+
+  function get_user_defined_type(a_owner varchar2, a_type_name varchar2) return anytype is
+    l_anytype anytype;
+    not_found exception;
+    pragma exception_init(not_found,-22303);
+  begin
+    if a_type_name is not null then
+      begin
+        if ut_metadata.is_object_visible('GETANYTYPEFROMPERSISTENT') then
+          execute immediate 'begin :l_anytype := getanytypefrompersistent( :a_owner, :a_type_name ); end;'
+            using out l_anytype, in nvl(a_owner,sys_context('userenv','current_schema')), in a_type_name;
+          else
+            execute immediate 'begin :l_anytype := anytype.getpersistent( :a_owner, :a_type_name ); end;'
+              using out l_anytype, in nvl(a_owner,sys_context('userenv','current_schema')), in a_type_name;
+          end if;
+      exception
+        when not_found then
+          null;
+      end;
+      end if;
+    return l_anytype;
+  end;
+
 end;
 /

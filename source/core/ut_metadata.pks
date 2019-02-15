@@ -20,6 +20,31 @@ create or replace package ut_metadata authid current_user as
    * Common package for all code that reads from the system tables.
    */
 
+  type t_anytype_members_rec is record (
+    type_code       pls_integer,
+    schema_name     varchar2(128),
+    type_name       varchar2(128),
+    length          pls_integer,
+    elements_count  pls_integer,
+    version         varchar2(32767),
+    precision       pls_integer,
+    scale           pls_integer,
+    char_set_id     pls_integer,
+    char_set_frm    pls_integer
+    );
+
+  type t_anytype_elem_info_rec is record (
+    type_code       pls_integer,
+    attribute_name  varchar2(260),
+    length          pls_integer,
+    version         varchar2(32767),
+    precision       pls_integer,
+    scale           pls_integer,
+    char_set_id     pls_integer,
+    char_set_frm    pls_integer,
+    attr_elt_type   anytype
+    );
+
   /**
    * Forms correct object/subprogram name to call as owner.object[.subprogram]
    *
@@ -91,5 +116,30 @@ create or replace package ut_metadata authid current_user as
    */
   function package_exists_in_cur_schema(a_object_name varchar2) return boolean;
 
+  /**
+  * Returns true if given typecode is a collection typecode
+  */
+  function is_collection(a_anytype_code in integer) return boolean;
+
+  /**
+  * Returns true if given object is a collection
+  */
+  function is_collection(a_owner varchar2, a_type_name varchar2) return boolean;
+
+  /**
+  * Returns a descriptor of anytype
+  */
+  function get_anytype_members_info( a_anytype anytype ) return t_anytype_members_rec;
+
+  /**
+  * Returns a descriptor of anytype attribute
+  */
+  function get_attr_elem_info( a_anytype anytype, a_pos pls_integer := null ) return t_anytype_elem_info_rec;
+
+  /**
+  * Returns ANYTYPE descriptor of an object type
+  */
+  function get_user_defined_type(a_owner varchar2, a_type_name varchar2) return anytype;
+    
 end ut_metadata;
 /

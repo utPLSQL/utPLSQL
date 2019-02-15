@@ -20,7 +20,7 @@ create or replace type ut_equal force under ut_comparison_matcher(
   /**
   * Holds information about mather options
   */
-  options ut_matcher_config,
+  options ut_matcher_options,
 
   member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean, a_self_type varchar2 := null),
   member function equal_with_nulls( self in ut_equal, a_assert_result boolean, a_actual ut_data_value) return boolean,

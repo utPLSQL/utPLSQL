@@ -19,7 +19,7 @@ create or replace type body ut_equal as
   member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean, a_self_type varchar2 := null) is
   begin
     self.expected  := a_expected;
-    self.options := ut_matcher_config( a_nulls_are_equal );
+    self.options := ut_matcher_options( a_nulls_are_equal );
     self.self_type := nvl( a_self_type, $$plsql_unit );
   end;
  
@@ -43,7 +43,7 @@ create or replace type body ut_equal as
       'equal( a_expected anydata ).exclude( a_exclude varchar2 )'
     );
     init(ut_data_value_anydata.get_instance(a_expected), a_nulls_are_equal);
-    self.options.exclude(a_exclude);
+    self.options.exclude.add_items(a_exclude);
     return;
   end;
 
@@ -54,7 +54,7 @@ create or replace type body ut_equal as
       'equal( a_expected anydata ).exclude( a_exclude ut_varchar2_list )'
     );
     init(ut_data_value_anydata.get_instance(a_expected), a_nulls_are_equal);
-    self.options.exclude(a_exclude);
+    self.options.exclude.add_items(a_exclude);
     return;
   end;
 
@@ -101,7 +101,7 @@ create or replace type body ut_equal as
       'equal( a_expected sys_refcursor ).exclude( a_exclude varchar2 )'
     );
     init(ut_data_value_refcursor(a_expected), a_nulls_are_equal);
-    self.options.exclude(a_exclude);
+    self.options.exclude.add_items(a_exclude);
     return;
   end;
 
@@ -112,7 +112,7 @@ create or replace type body ut_equal as
       'equal( a_expected sys_refcursor ).exclude( a_exclude ut_varchar2_list )'
     );
     init(ut_data_value_refcursor(a_expected), a_nulls_are_equal);
-    self.options.exclude(a_exclude);
+    self.options.exclude.add_items(a_exclude);
     return;
   end;
 
@@ -155,28 +155,28 @@ create or replace type body ut_equal as
   member function include(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.options.include(a_items);
+    l_result.options.include.add_items(a_items);
     return l_result;
   end;
 
   member function include(a_items ut_varchar2_list) return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.options.include(a_items);
+    l_result.options.include.add_items(a_items);
     return l_result;
   end;
 
   member function exclude(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.options.exclude(a_items);
+    l_result.options.exclude.add_items(a_items);
     return l_result;
   end;
 
   member function exclude(a_items ut_varchar2_list) return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.options.exclude(a_items);
+    l_result.options.exclude.add_items(a_items);
     return l_result;
   end;
 
@@ -191,7 +191,7 @@ create or replace type body ut_equal as
     l_result ut_equal := self;
   begin
     l_result.options.unordered();
-    l_result.options.join_by(a_columns);
+    l_result.options.join_by.add_items(a_columns);
     return l_result;
   end;
 
@@ -199,7 +199,7 @@ create or replace type body ut_equal as
     l_result ut_equal := self;
   begin
     l_result.options.unordered();
-    l_result.options.join_by(a_columns);
+    l_result.options.join_by.add_items(a_columns);
     return l_result;
   end;
 
@@ -221,13 +221,11 @@ create or replace type body ut_equal as
   begin
     if self.expected.data_type = a_actual.data_type then
       if self.expected is of (ut_data_value_anydata) then
-        l_result := 0 = treat(self.expected as ut_data_value_anydata).compare_implementation(a_actual, options.exclude_list.to_xpath(), options.include_list.to_xpath());
+        l_result := 0 = treat(self.expected as ut_data_value_anydata).compare_implementation( a_actual, options );
       elsif self.expected is of (ut_data_value_refcursor) then
         l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details( options );
         l_result := 0 = treat(self.expected as ut_data_value_refcursor).update_cursor_details( options )
-          .compare_implementation(
-            l_actual, options.unordered(), false, false, options.join_by()
-          );
+          .compare_implementation( l_actual, options );
       else
         l_result := equal_with_nulls((self.expected = a_actual), a_actual);
       end if;
@@ -249,14 +247,12 @@ create or replace type body ut_equal as
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
           || chr(10) || 'Diff:' ||
             treat(expected as ut_data_value_refcursor).update_cursor_details( options )
-              .diff( l_actual, options.unordered(), options.join_by() );
+              .diff( l_actual, options );
       else
         l_result :=
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
           || chr(10) || 'Diff:' ||
-          expected.diff(
-            a_actual, options.exclude_list.to_xpath(), options.include_list.to_xpath(), options.join_by_list.to_xpath(), options.unordered()
-          );
+          expected.diff( a_actual, options );
       end if;
     else
       l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
