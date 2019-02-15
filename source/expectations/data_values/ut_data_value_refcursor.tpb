@@ -161,16 +161,22 @@ create or replace type body ut_data_value_refcursor as
     end;
 
     function remove_incomparable_cols(
-      a_cursor_details ut_cursor_column_tab,a_column_diffs ut_compound_data_helper.tt_column_diffs
+      a_cursor_details ut_cursor_column_tab, a_column_diffs ut_compound_data_helper.tt_column_diffs
     ) return ut_cursor_column_tab is
-      l_result ut_cursor_column_tab;
+      l_missing_cols ut_varchar2_list := ut_varchar2_list();
+      l_result       ut_cursor_column_tab;
     begin
+      for i in 1 .. a_column_diffs.count loop
+        if a_column_diffs(i).diff_type in ('-','+') then
+          l_missing_cols.extend;
+          l_missing_cols(l_missing_cols.last) := coalesce(a_column_diffs(i).expected_name, a_column_diffs(i).actual_name);
+          end if;
+      end loop;
       select value(i) bulk collect into l_result
         from table(a_cursor_details) i
        where i.access_path not in (
-         select coalesce( c.expected_name, c.actual_name )
-           from table(a_column_diffs) c
-          where c.diff_type in ('-','+')
+         select c.column_value
+           from table(l_missing_cols) c
          );
       return l_result;
     end;
