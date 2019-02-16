@@ -264,7 +264,7 @@ create or replace package body ut_compound_data_helper is
     l_partition_tmp clob;
     l_col_name varchar2(100);
   begin
-    if l_cursor_info is not null then  
+    if l_cursor_info is not empty then
       --Parition by piece
       ut_utils.append_to_clob(a_partition_stmt,', row_number() over (partition by ');
       for i in 1..l_cursor_info.count loop
@@ -321,8 +321,11 @@ create or replace package body ut_compound_data_helper is
     
   
   function gen_compare_sql(
-    a_inclusion_type boolean, a_is_negated boolean, a_unordered boolean,
-    a_other ut_data_value_refcursor := null, a_join_by_list ut_varchar2_list := ut_varchar2_list()
+    a_other ut_data_value_refcursor,
+    a_join_by_list ut_varchar2_list,
+    a_unordered boolean,
+    a_inclusion_type boolean,
+    a_is_negated boolean
   ) return clob is
     l_compare_sql   clob;
     l_temp_string   varchar2(32767);
@@ -372,35 +375,35 @@ create or replace package body ut_compound_data_helper is
     end if;
        
     if (a_join_by_list.count = 0)  and a_unordered then
-     -- If no key defined do the join on all columns
-     ut_utils.append_to_clob(l_compare_sql,l_equal_stmt);
-   elsif (a_join_by_list.count > 0) and a_unordered then
-     -- If key defined do the join or these and where on diffrences   
-     ut_utils.append_to_clob(l_compare_sql,l_join_on_stmt);         
-   elsif not a_unordered then
-     ut_utils.append_to_clob(l_compare_sql, 'a.item_no = e.item_no ' );
-   end if;   
+      -- If no key defined do the join on all columns
+      ut_utils.append_to_clob(l_compare_sql,l_equal_stmt);
+    elsif (a_join_by_list.count > 0) and a_unordered then
+      -- If key defined do the join or these and where on diffrences
+      ut_utils.append_to_clob(l_compare_sql,l_join_on_stmt);
+    elsif not a_unordered then
+      ut_utils.append_to_clob(l_compare_sql, 'a.item_no = e.item_no ' );
+    end if;
      
-   ut_utils.append_to_clob(l_compare_sql,' ) where ');
+    ut_utils.append_to_clob(l_compare_sql,' ) where ');
    
-  if (a_join_by_list.count > 0) and (a_unordered) and (not a_is_negated) then
-       if l_not_equal_stmt is not null then
-           ut_utils.append_to_clob(l_compare_sql,' ( '||l_not_equal_stmt||' ) or '); 
-       end if;
-   elsif not a_unordered and l_not_equal_stmt is not null then
-     ut_utils.append_to_clob(l_compare_sql,' ( '||l_not_equal_stmt||' ) or ');
-   end if;
+    if (a_join_by_list.count > 0) and (a_unordered) and (not a_is_negated) then
+      if l_not_equal_stmt is not null then
+        ut_utils.append_to_clob(l_compare_sql,' ( '||l_not_equal_stmt||' ) or ');
+      end if;
+    elsif not a_unordered and l_not_equal_stmt is not null then
+      ut_utils.append_to_clob(l_compare_sql,' ( '||l_not_equal_stmt||' ) or ');
+    end if;
 
-   --If its inlcusion we expect a actual set to fully match and have no extra elements over expected
-   if a_inclusion_type and not(a_is_negated) then
-     l_temp_string := ' ( a.data_id is null ) '; 
-   elsif a_inclusion_type and a_is_negated then
-     l_temp_string := ' 1 = 1 ';
-   else
-     l_temp_string := ' (a.data_id is null or e.data_id is null) ';
-   end if;
-   ut_utils.append_to_clob(l_compare_sql,l_temp_string);
-   return l_compare_sql;
+    --If its inlcusion we expect a actual set to fully match and have no extra elements over expected
+    if a_inclusion_type and not(a_is_negated) then
+      l_temp_string := ' ( a.data_id is null ) ';
+    elsif a_inclusion_type and a_is_negated then
+      l_temp_string := ' 1 = 1 ';
+    else
+      l_temp_string := ' (a.data_id is null or e.data_id is null) ';
+    end if;
+    ut_utils.append_to_clob(l_compare_sql,l_temp_string);
+    return l_compare_sql;
   end;
   
   function get_column_extract_path(a_cursor_info ut_cursor_column_tab) return ut_varchar2_list is
@@ -629,21 +632,6 @@ create or replace package body ut_compound_data_helper is
   function get_rows_diff_count return integer is
   begin
     return g_diff_count;
-  end;
-
-  function getxmlchildren(a_parent_name varchar2,a_cursor_table ut_cursor_column_tab)
-  return xmltype is
-    l_result xmltype;
-  begin
-    select xmlagg(xmlelement(evalname t.column_name,t.column_type,
-                                      getxmlchildren(t.column_name,a_cursor_table)))
-    into l_result
-    from table(a_cursor_table) t
-    where (a_parent_name is not null and parent_name = a_parent_name and hierarchy_level > 1 and column_name is not null)
-      or (a_parent_name is null and parent_name is null and hierarchy_level = 1 and column_name is not null)
-    having count(*) > 0;
-
-    return l_result;
   end;
 
   function is_sql_compare_allowed(a_type_name varchar2)

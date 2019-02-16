@@ -1,27 +1,17 @@
 create or replace type body ut_cursor_details as
 
-  order member function compare(a_other ut_cursor_details) return integer is
+  member function equals( a_other ut_cursor_details, a_match_options ut_matcher_options ) return boolean is
    l_diffs integer;
   begin   
-    if self.is_column_order_enforced = 1 then
-      select count(1) into l_diffs
+    select count(1) into l_diffs
       from table(self.cursor_columns_info) a
       full outer join table(a_other.cursor_columns_info) e
-      on decode(a.parent_name,e.parent_name,1,0)= 1
-      and a.column_name = e.column_name
-      and replace(a.column_type,'VARCHAR2','CHAR') =  replace(e.column_type,'VARCHAR2','CHAR')
-      and a.column_position = e.column_position
-      where a.column_name is null or e.column_name is null;  
-    else
-      select count(1) into l_diffs
-      from table(self.cursor_columns_info) a
-      full outer join table(a_other.cursor_columns_info) e
-      on decode(a.parent_name,e.parent_name,1,0)= 1
-      and a.column_name = e.column_name
-      and replace(a.column_type,'VARCHAR2','CHAR') =  replace(e.column_type,'VARCHAR2','CHAR')
-      where a.column_name is null or e.column_name is null;   
-    end if;
-    return l_diffs;
+        on decode(a.parent_name,e.parent_name,1,0)= 1
+       and a.column_name = e.column_name
+       and replace(a.column_type,'VARCHAR2','CHAR') =  replace(e.column_type,'VARCHAR2','CHAR')
+       and ( a.column_position = e.column_position or a_match_options.columns_are_unordered_flag = 1 )
+     where a.column_name is null or e.column_name is null;
+    return l_diffs = 0;
   end;
 
   member procedure desc_compound_data(
@@ -152,7 +142,7 @@ create or replace type body ut_cursor_details as
     return l_collection_elements > 0;
   end;
 
-  member function get_missing_filter_columns( a_expected_columns ut_varchar2_list ) return ut_varchar2_list is
+  member function get_missing_join_by_columns( a_expected_columns ut_varchar2_list ) return ut_varchar2_list is
     l_result ut_varchar2_list;
   begin
     select fl.column_value
@@ -166,10 +156,58 @@ create or replace type body ut_cursor_details as
     return l_result;
   end;
 
-  member procedure ordered_columns(self in out nocopy ut_cursor_details,a_ordered_columns boolean := false) is
+  member procedure filter_columns(self in out nocopy ut_cursor_details, a_match_options ut_matcher_options) is
+    l_result            ut_cursor_details := self;
+    c_xpath_extract_reg constant varchar2(50) := '^((/ROW/)|^(//)|^(/\*/))?(.*)';
   begin
-    self.is_column_order_enforced := ut_utils.boolean_to_int(a_ordered_columns);
+    if l_result.cursor_columns_info is not null then
+
+      --limit columns to those on the include items minus exclude items
+      if a_match_options.include.items.count > 0 then
+        -- if include - exclude = 0 then keep all columns
+        if a_match_options.include.items != a_match_options.exclude.items then
+          with included_columns as (
+            select regexp_replace( column_value, c_xpath_extract_reg, '\5' ) col_names
+              from table(a_match_options.include.items)
+             minus
+            select regexp_replace( column_value, c_xpath_extract_reg, '\5' ) col_names
+              from table(a_match_options.exclude.items)
+          )
+          select value(x)
+                 bulk collect into l_result.cursor_columns_info
+            from table(self.cursor_columns_info) x
+           where exists(
+                   select 1 from included_columns f where regexp_like( x.access_path, '^'||f.col_names||'($|/.*)' )
+                 );
+        end if;
+      elsif a_match_options.exclude.items.count > 0 then
+          with excluded_columns as (
+            select regexp_replace( column_value, c_xpath_extract_reg, '\5' ) col_names
+              from table(a_match_options.exclude.items)
+          )
+          select value(x)
+                 bulk collect into l_result.cursor_columns_info
+            from table(self.cursor_columns_info) x
+           where not exists(
+             select 1 from excluded_columns f where regexp_like( x.access_path, '^'||f.col_names||'($|/.*)' )
+           );
+      end if;
+      self := l_result;
+    end if;
   end;
 
+  member function get_xml_children(a_parent_name varchar2 := null) return xmltype is
+    l_result xmltype;
+  begin
+    select xmlagg(xmlelement(evalname t.column_name,t.column_type,
+                             self.get_xml_children(t.column_name)))
+           into l_result
+      from table(self.cursor_columns_info) t
+     where (a_parent_name is not null and parent_name = a_parent_name and hierarchy_level > 1 and column_name is not null)
+       or (a_parent_name is null and parent_name is null and hierarchy_level = 1 and column_name is not null)
+    having count(*) > 0;
+
+    return l_result;
+  end;
 end;
 /

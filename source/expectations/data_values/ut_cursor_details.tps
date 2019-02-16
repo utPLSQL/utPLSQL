@@ -16,13 +16,12 @@ create or replace type ut_cursor_details force authid current_user as object (
   limitations under the License.
   */
    cursor_columns_info      ut_cursor_column_tab,
-   is_column_order_enforced number(1,0),
 
    constructor function ut_cursor_details(self in out nocopy ut_cursor_details) return self as result,
    constructor function ut_cursor_details(
      self in out nocopy ut_cursor_details,a_cursor_number in number
    ) return self as result,
-   order member function compare(a_other ut_cursor_details) return integer,
+   member function equals(a_other ut_cursor_details, a_match_options ut_matcher_options) return boolean,
    member procedure desc_compound_data(
      self in out nocopy ut_cursor_details,
      a_compound_data anytype,
@@ -31,7 +30,8 @@ create or replace type ut_cursor_details force authid current_user as object (
      a_access_path in varchar2
    ),
    member function contains_collection return boolean,
-   member function get_missing_filter_columns( a_expected_columns ut_varchar2_list ) return ut_varchar2_list,
-   member procedure ordered_columns(self in out nocopy ut_cursor_details, a_ordered_columns boolean := false)
+   member function get_missing_join_by_columns( a_expected_columns ut_varchar2_list ) return ut_varchar2_list,
+   member procedure filter_columns(self in out nocopy ut_cursor_details, a_match_options ut_matcher_options),
+   member function get_xml_children(a_parent_name varchar2 := null) return xmltype
 )
 /

@@ -77,7 +77,8 @@ create or replace type body ut_data_value_refcursor as
     self.data_id   := sys_guid();
     self.data_type := 'refcursor';
     ut_compound_data_helper.cleanup_diff;
-    
+    self.cursor_details := ut_cursor_details();
+
     if l_cursor is not null then
         if l_cursor%isopen then
           --Get some more info regarding cursor, including if it containts collection columns and what is their name        
@@ -103,19 +104,12 @@ create or replace type body ut_data_value_refcursor as
   overriding member function to_string return varchar2 is
     l_result        clob;
     l_result_string varchar2(32767);
-    l_cursor_details ut_cursor_column_tab := self.cursor_details.cursor_columns_info;
-    
-    l_query   varchar2(32767);
-    l_column_info   xmltype;
-   
   begin
     if not self.is_null() then
       dbms_lob.createtemporary(l_result, true);
       ut_utils.append_to_clob(l_result, 'Data-types:'||chr(10));
-      
-      l_column_info := ut_compound_data_helper.getxmlchildren(null,l_cursor_details);
 
-      ut_utils.append_to_clob(l_result, l_column_info.getclobval());
+      ut_utils.append_to_clob( l_result, self.cursor_details.get_xml_children().getclobval() );
       ut_utils.append_to_clob(l_result,chr(10)||(self as ut_compound_data_value).to_string());
       l_result_string := ut_utils.to_string(l_result,null);
       dbms_lob.freetemporary(l_result);
@@ -128,22 +122,20 @@ create or replace type body ut_data_value_refcursor as
     l_results           ut_utils.t_clob_tab := ut_utils.t_clob_tab();
     l_result_string     varchar2(32767);
     l_other             ut_data_value_refcursor;
-    l_column_diffs      ut_compound_data_helper.tt_column_diffs := ut_compound_data_helper.tt_column_diffs();
+    l_self              ut_data_value_refcursor := self;
+    l_column_diffs      ut_compound_data_helper.tt_column_diffs;
     
-    l_act_cols          ut_cursor_column_tab;
-    l_exp_cols          ut_cursor_column_tab;
+    l_other_cols        ut_cursor_column_tab;
+    l_self_cols         ut_cursor_column_tab;
         
     l_act_missing_pk    ut_varchar2_list := ut_varchar2_list();
     l_exp_missing_pk    ut_varchar2_list := ut_varchar2_list();
-    l_col_diffs         ut_compound_data_helper.tt_column_diffs := ut_compound_data_helper.tt_column_diffs();
-    
+
     c_max_rows          integer := ut_utils.gc_diff_max_rows;
     l_diff_id           ut_compound_data_helper.t_hash;
     l_diff_row_count    integer;
     l_row_diffs         ut_compound_data_helper.tt_row_diffs;
     l_message           varchar2(32767);
-    
-    l_column_order_enforce boolean := ut_utils.int_to_boolean(self.cursor_details.is_column_order_enforced);
     
     function get_col_diff_text(a_col ut_compound_data_helper.t_column_diffs) return varchar2 is
     begin
@@ -199,49 +191,57 @@ create or replace type body ut_data_value_refcursor as
       raise value_error;
     end if;
     l_other := treat(a_other as ut_data_value_refcursor);
+    l_other.cursor_details.filter_columns(a_match_options);
+    l_self.cursor_details.filter_columns(a_match_options);
 
-    l_act_cols  := l_other.cursor_details.cursor_columns_info;
-    l_exp_cols  := self.cursor_details.cursor_columns_info;
+    l_other_cols := l_other.cursor_details.cursor_columns_info;
+    l_self_cols  := l_self.cursor_details.cursor_columns_info;
 
     dbms_lob.createtemporary(l_result,true);
     --diff columns
-    if not self.is_null and not l_other.is_null then
-      l_column_diffs := ut_compound_data_helper.get_columns_diff(self.cursor_details.cursor_columns_info,l_other.cursor_details.cursor_columns_info,l_column_order_enforce);
+    if not l_self.is_null and not l_other.is_null then
+      l_column_diffs := ut_compound_data_helper.get_columns_diff(
+        l_self.cursor_details.cursor_columns_info,
+        l_other.cursor_details.cursor_columns_info,
+        a_match_options.ordered_columns()
+      );
     
       if l_column_diffs.count > 0 then
         ut_utils.append_to_clob(l_result,chr(10) || 'Columns:' || chr(10));
+        l_other_cols := remove_incomparable_cols( l_other_cols, l_column_diffs );
+        l_self_cols  := remove_incomparable_cols( l_self_cols, l_column_diffs );
+        for i in 1 .. l_column_diffs.count loop
+          l_results.extend;
+          l_results(l_results.last) := get_col_diff_text(l_column_diffs(i));
+        end loop;
+        ut_utils.append_to_clob(l_result, l_results);
       end if;
-      for i in 1 .. l_column_diffs.count loop
-        l_results.extend;
-        l_results(l_results.last) := get_col_diff_text(l_column_diffs(i));
-      end loop;
-      ut_utils.append_to_clob(l_result, l_results);
-      l_act_cols  := remove_incomparable_cols(l_other.cursor_details.cursor_columns_info, l_column_diffs);
-      l_exp_cols  := remove_incomparable_cols(self.cursor_details.cursor_columns_info, l_column_diffs);
     end if;
     
     --check for missing pk 
     if a_match_options.join_by.items.count > 0 then
-      l_act_missing_pk := l_other.cursor_details.get_missing_filter_columns( a_match_options.join_by.items );
-      l_exp_missing_pk := self.cursor_details.get_missing_filter_columns( a_match_options.join_by.items );
+      l_act_missing_pk := l_other.cursor_details.get_missing_join_by_columns( a_match_options.join_by.items );
+      l_exp_missing_pk := l_self.cursor_details.get_missing_join_by_columns( a_match_options.join_by.items );
     end if;
     
     --diff rows and row elements if the pk is not missing 
     if l_act_missing_pk.count + l_exp_missing_pk.count = 0 then
-    l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
+      l_diff_id := ut_compound_data_helper.get_hash( l_self.data_id || l_other.data_id );
 
-    -- First tell how many rows are different
-    l_diff_row_count := ut_compound_data_helper.get_rows_diff_count; 
-    l_results := ut_utils.t_clob_tab();
+      -- First tell how many rows are different
+      l_diff_row_count := ut_compound_data_helper.get_rows_diff_count;
       if l_diff_row_count > 0  then
         l_row_diffs := ut_compound_data_helper.get_rows_diff_by_sql(
-              l_exp_cols, l_act_cols, self.data_id, l_other.data_id, l_diff_id, a_match_options.join_by.items , a_match_options.unordered, l_column_order_enforce
-          );
+          l_self_cols, l_other_cols, l_self.data_id, l_other.data_id,
+          l_diff_id, a_match_options.join_by.items, a_match_options.unordered,
+          a_match_options.ordered_columns()
+        );
         l_message := chr(10)
                      ||'Rows: [ ' || l_diff_row_count ||' differences'
                      ||  case when  l_diff_row_count > c_max_rows and l_row_diffs.count > 0 then ', showing first '||c_max_rows end
                      ||' ]'||chr(10)|| case when l_row_diffs.count = 0 then '  All rows are different as the columns are not matching.' else null end;
         ut_utils.append_to_clob( l_result, l_message );
+        l_results := ut_utils.t_clob_tab();
         for i in 1 .. l_row_diffs.count loop
           l_results.extend;
           l_results(l_results.last) := get_diff_message(l_row_diffs(i),a_match_options.unordered);
@@ -255,16 +255,14 @@ create or replace type body ut_data_value_refcursor as
       ut_utils.append_to_clob(l_result,chr(10) || 'Unable to join sets:' || chr(10));
 
       for i in 1 .. l_exp_missing_pk.count loop
-        l_results.extend;
         ut_utils.append_to_clob(l_result, '  Join key '||l_exp_missing_pk(i)||' does not exists in expected'||chr(10));
       end loop;
 
       for i in 1 .. l_act_missing_pk.count loop
-        l_results.extend;
         ut_utils.append_to_clob(l_result, '  Join key '||l_act_missing_pk(i)||' does not exists in actual'||chr(10));
       end loop;
 
-      if self.cursor_details.contains_collection() or l_other.cursor_details.contains_collection() then
+      if l_self.cursor_details.contains_collection() or l_other.cursor_details.contains_collection() then
         ut_utils.append_to_clob(l_result,'  Please make sure that your join clause is not refferring to collection element'|| chr(10));
       end if;
         
@@ -276,80 +274,79 @@ create or replace type body ut_data_value_refcursor as
   end;
 
   member function compare_implementation(
-    a_other ut_data_value,
-    a_match_options ut_matcher_options,
+    a_other             ut_data_value,
+    a_match_options     ut_matcher_options,
     a_inclusion_compare boolean := false,
-    a_is_negated boolean := false
+    a_is_negated        boolean := false
   ) return integer is
-    l_result          integer := 0;
-    l_other           ut_data_value_refcursor;
-    function compare_data(
-      a_other ut_data_value_refcursor,
-      a_match_options ut_matcher_options,
-      a_inclusion_compare boolean,
-      a_is_negated boolean
-    ) return integer is
+    l_result            integer := 0;
+    l_self              ut_data_value_refcursor := self;
+    l_other             ut_data_value_refcursor;
+    l_diff_cursor_text clob;
 
+    function compare_data(
+      a_self             ut_data_value_refcursor,
+      a_other            ut_data_value_refcursor,
+      a_diff_cursor_text clob
+    ) return integer is
       l_diff_id       ut_compound_data_helper.t_hash;
       l_result        integer;
       --We will start with number od differences being displayed.
-      l_max_rows      integer := ut_utils.gc_diff_max_rows;
-
-      l_loop_curs     sys_refcursor;
+      l_cursor        sys_refcursor;
       l_diff_tab      ut_compound_data_helper.t_diff_tab;
-      l_sql_rowcount integer :=0;
-
+      l_diif_rowcount integer :=0;
     begin
-      l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||a_other.data_id);
-      open l_loop_curs for
-        ut_compound_data_helper.gen_compare_sql(
-          a_inclusion_compare,
-          a_is_negated,
-          a_match_options.unordered(),
-          a_other,
-          a_match_options.join_by.items
-          ) using self.data_id, a_other.data_id;
+      l_diff_id       := ut_compound_data_helper.get_hash(a_self.data_id||a_other.data_id);
+      open l_cursor for a_diff_cursor_text using a_self.data_id, a_other.data_id;
+      --fetch and save rows for display of diff
+      fetch l_cursor bulk collect into l_diff_tab limit ut_utils.gc_diff_max_rows;
+      ut_compound_data_helper.insert_diffs_result( l_diff_tab, l_diff_id );
+      --fetch rows for count only
       loop
-        fetch l_loop_curs bulk collect into l_diff_tab limit l_max_rows;
         exit when l_diff_tab.count = 0;
-        if (ut_utils.gc_diff_max_rows > l_sql_rowcount ) then
-          ut_compound_data_helper.insert_diffs_result( l_diff_tab, l_diff_id );
-        end if;
-        l_sql_rowcount := l_sql_rowcount + l_diff_tab.count;
-        if (ut_utils.gc_diff_max_rows <= l_sql_rowcount and l_max_rows != ut_utils.gc_bc_fetch_limit ) then
-          l_max_rows := ut_utils.gc_bc_fetch_limit;
-        end if;
+        l_diif_rowcount := l_diif_rowcount + l_diff_tab.count;
+        fetch l_cursor bulk collect into l_diff_tab limit ut_utils.gc_bc_fetch_limit;
       end loop;
 
-      ut_compound_data_helper.set_rows_diff(l_sql_rowcount);
+      ut_compound_data_helper.set_rows_diff(l_diif_rowcount);
+
       --result is OK only if both are same
-      if l_sql_rowcount = 0 and ( self.elements_count = a_other.elements_count or a_inclusion_compare ) then
+      if l_diif_rowcount = 0 and a_self.is_null = a_other.is_null then
         l_result := 0;
       else
         l_result := 1;
       end if;
-
+      close l_cursor;
       return l_result;
     end;
-
-    begin
+  begin
     if not a_other is of (ut_data_value_refcursor) then
       raise value_error;
     end if;
-  
-    l_other   := treat(a_other as ut_data_value_refcursor);
-     
+
+    l_other := treat(a_other as ut_data_value_refcursor);
+    l_other.cursor_details.filter_columns( a_match_options );
+    l_self.cursor_details.filter_columns( a_match_options );
+
     if a_match_options.join_by.items.count > 0 then
       l_result :=
-          self.cursor_details.get_missing_filter_columns( a_match_options.join_by.items ).count
-        + l_other.cursor_details.get_missing_filter_columns( a_match_options.join_by.items ).count;
+        l_self.cursor_details.get_missing_join_by_columns( a_match_options.join_by.items ).count
+        + l_other.cursor_details.get_missing_join_by_columns( a_match_options.join_by.items ).count;
     end if;
 
     if l_result = 0 then
-      if not self.is_null() and not l_other.is_null() and self.cursor_details != l_other.cursor_details then
+      if not l_self.is_null() and not l_other.is_null() and not l_self.cursor_details.equals( l_other.cursor_details, a_match_options ) then
         l_result := 1;
       end if;
-      l_result := l_result + compare_data( l_other, a_match_options, a_inclusion_compare, a_is_negated );
+      l_diff_cursor_text := ut_compound_data_helper.gen_compare_sql(
+        l_other,
+        a_match_options.join_by.items,
+        a_match_options.unordered(),
+        a_inclusion_compare,
+        a_is_negated
+        );
+      --       dbms_output.put_line(substr(l_cursor_text,1,32767));
+      l_result := l_result + compare_data( l_self, l_other, l_diff_cursor_text );
     end if;
     return l_result;
   end;
@@ -357,48 +354,6 @@ create or replace type body ut_data_value_refcursor as
   overriding member function is_empty return boolean is
   begin
     return self.elements_count = 0;
-  end;
-
-  member function update_cursor_details (a_match_options ut_matcher_options) return ut_data_value_refcursor is
-    l_result       ut_data_value_refcursor := self;
-    c_xpath_extract_reg constant varchar2(50) := '^((/ROW/)|^(//)|^(/\*/))?(.*)';
-  begin
-    if l_result.cursor_details.cursor_columns_info is not null then
-      
-      --limit columns to those on the include items minus exclude items
-      if a_match_options.include.items.count > 0 then
-        -- if include - exclude = 0 then keep all columns
-        if a_match_options.include.items != a_match_options.exclude.items then
-          with included_columns as (
-              select regexp_replace( column_value, c_xpath_extract_reg, '\5' ) col_names
-                from table(a_match_options.include.items)
-               minus
-              select regexp_replace( column_value, c_xpath_extract_reg, '\5' ) col_names
-                from table(a_match_options.exclude.items)
-            )
-          select value(x)
-                 bulk collect into l_result.cursor_details.cursor_columns_info
-            from table(self.cursor_details.cursor_columns_info) x
-           where exists(
-                   select 1 from included_columns f where regexp_like( x.access_path, '^'||f.col_names||'($|/.*)' )
-                   );
-        end if;
-      elsif a_match_options.exclude.items.count > 0 then
-        with excluded_columns as (
-          select regexp_replace( column_value, c_xpath_extract_reg, '\5' ) col_names
-            from table(a_match_options.exclude.items)
-        )
-          select value(x)
-                 bulk collect into l_result.cursor_details.cursor_columns_info
-            from table(self.cursor_details.cursor_columns_info) x
-           where not exists(
-             select 1 from excluded_columns f where regexp_like( x.access_path, '^'||f.col_names||'($|/.*)' )
-             );
-      end if;
-      
-      l_result.cursor_details.ordered_columns(a_match_options.ordered_columns());
-    end if;    
-    return l_result;
   end;
 
 end;

@@ -42,15 +42,13 @@ create or replace type body ut_include as
   
   overriding member function run_matcher(self in out nocopy ut_include, a_actual ut_data_value) return boolean is
     l_result boolean;
-    l_actual ut_data_value;
     l_result1 integer;
   begin
     if self.expected.data_type = a_actual.data_type then
-        l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details( self.options );
         l_result :=
           ( 0
-            = treat( self.expected as ut_data_value_refcursor ).update_cursor_details( self.options )
-              .compare_implementation( l_actual, self.options, get_inclusion_compare(), get_negated() )
+            = treat( self.expected as ut_data_value_refcursor )
+              .compare_implementation( a_actual, self.options, get_inclusion_compare(), get_negated() )
           );
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
@@ -65,14 +63,12 @@ create or replace type body ut_include as
 
   overriding member function failure_message(a_actual ut_data_value) return varchar2 is
     l_result varchar2(32767);
-    l_actual ut_data_value;
   begin
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
-      l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details( self.options );
       l_result :=
         'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
         ||  chr(10) || 'Diff:'
-        ||  treat(expected as ut_data_value_refcursor).update_cursor_details( self.options ).diff( l_actual, self.options );
+        ||  treat(expected as ut_data_value_refcursor).diff( a_actual, self.options );
     else
       l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     end if;

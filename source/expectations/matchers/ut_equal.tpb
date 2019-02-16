@@ -217,15 +217,12 @@ create or replace type body ut_equal as
     
   overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean is
     l_result boolean;
-    l_actual ut_data_value;
   begin
     if self.expected.data_type = a_actual.data_type then
       if self.expected is of (ut_data_value_anydata) then
         l_result := 0 = treat(self.expected as ut_data_value_anydata).compare_implementation( a_actual, options );
       elsif self.expected is of (ut_data_value_refcursor) then
-        l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details( options );
-        l_result := 0 = treat(self.expected as ut_data_value_refcursor).update_cursor_details( options )
-          .compare_implementation( l_actual, options );
+        l_result := 0 = treat(self.expected as ut_data_value_refcursor).compare_implementation( a_actual, options );
       else
         l_result := equal_with_nulls((self.expected = a_actual), a_actual);
       end if;
@@ -238,16 +235,13 @@ create or replace type body ut_equal as
 
   overriding member function failure_message(a_actual ut_data_value) return varchar2 is
     l_result varchar2(32767);
-    l_actual ut_data_value;
   begin
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
       if self.expected is of (ut_data_value_refcursor) then
-        l_actual := treat(a_actual as ut_data_value_refcursor).update_cursor_details( options );
         l_result :=
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
           || chr(10) || 'Diff:' ||
-            treat(expected as ut_data_value_refcursor).update_cursor_details( options )
-              .diff( l_actual, options );
+            treat(expected as ut_data_value_refcursor).diff( a_actual, options );
       else
         l_result :=
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()

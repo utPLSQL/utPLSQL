@@ -81,8 +81,11 @@ create or replace package ut_compound_data_helper authid definer is
   function get_fixed_size_hash(a_string varchar2, a_base integer :=0,a_size integer :=9999999) return number;
                      
   function gen_compare_sql(
-    a_inclusion_type boolean, a_is_negated boolean, a_unordered boolean,
-    a_other ut_data_value_refcursor :=null, a_join_by_list ut_varchar2_list:=ut_varchar2_list()
+    a_other ut_data_value_refcursor,
+    a_join_by_list ut_varchar2_list,
+    a_unordered boolean,
+    a_inclusion_type boolean,
+    a_is_negated boolean
   ) return clob;
  
   procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw);
@@ -92,8 +95,6 @@ create or replace package ut_compound_data_helper authid definer is
   procedure cleanup_diff;
   
   function get_rows_diff_count return integer;
-   
-  function getxmlchildren(a_parent_name varchar2,a_cursor_table ut_cursor_column_tab) return xmltype;
 
   function is_sql_compare_allowed(a_type_name varchar2) return boolean;
   
