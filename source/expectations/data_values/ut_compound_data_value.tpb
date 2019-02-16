@@ -172,8 +172,9 @@ create or replace type body ut_compound_data_value as
                             on exp.item_no = act.item_no '||
                         'where nvl( dbms_lob.compare(' ||
                                      /*the xmltransform removes column names and leaves column data to be compared only*/
-                                     '  xmltransform(exp.item_data, :l_xml_data_fmt).getclobval()' ||
-                                     ', xmltransform(act.item_data, :l_xml_data_fmt).getclobval())' ||
+                                     '  coalesce( xmltransform(exp.item_data, :l_xml_data_fmt).getclobval(), empty_clob() )' ||
+                                     ', coalesce( xmltransform(act.item_data, :l_xml_data_fmt).getclobval(), empty_clob() )' ||
+                                     ')' ||
                                  ',1' ||
                                  ') != 0'
       using in l_diff_id, a_match_options.exclude.to_xpath(), a_match_options.include.to_xpath(), self.data_id,
