@@ -20,7 +20,6 @@ create or replace type body ut_expectation_refcursor as
   begin
     self.actual_data := a_actual_data;
     self.description := a_description;
-    negated := ut_utils.boolean_to_int(false);
     return;
   end;
 
@@ -34,8 +33,7 @@ create or replace type body ut_expectation_refcursor as
   member function not_to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_expectation_refcursor is
     l_result ut_expectation_refcursor := self;
   begin
-    l_result.matcher := ut_equal(a_expected, a_nulls_are_equal);
-    l_result.negated := ut_utils.boolean_to_int(true);
+    l_result.matcher := ut_equal(a_expected, a_nulls_are_equal).negated();
     return l_result;
   end;
 
@@ -54,27 +52,20 @@ create or replace type body ut_expectation_refcursor as
   end;
 
   member function not_to_include(a_expected sys_refcursor) return ut_expectation_refcursor is
-    l_result ut_expectation_refcursor := self;
   begin
-    l_result.matcher := ut_include(a_expected).negated;
-    l_result.negated := ut_utils.boolean_to_int(true);
-    return l_result;
+    return not_to_contain( a_expected );
   end;
 
   member function not_to_contain(a_expected sys_refcursor) return ut_expectation_refcursor is
     l_result ut_expectation_refcursor := self;
   begin
-    l_result.matcher := ut_include(a_expected).negated;
-    l_result.negated := ut_utils.boolean_to_int(true);
+    l_result.matcher := ut_include(a_expected).negated();
     return l_result;
   end;
 
   overriding member function include(a_items varchar2) return ut_expectation_refcursor is
-    l_result ut_expectation_refcursor;
   begin
-    l_result := self;
-    l_result.matcher := treat(l_result.matcher as ut_equal).include(a_items);
-    return l_result;
+    return include( ut_varchar2_list( a_items ) );
   end;
 
   overriding member function include(a_items ut_varchar2_list) return ut_expectation_refcursor is
@@ -86,12 +77,9 @@ create or replace type body ut_expectation_refcursor as
   end;
 
   overriding member function exclude(a_items varchar2) return ut_expectation_refcursor is
-    l_result ut_expectation_refcursor;
-    begin
-      l_result := self;
-      l_result.matcher := treat(l_result.matcher as ut_equal).exclude(a_items);
-      return l_result;
-    end;
+  begin
+    return exclude( ut_varchar2_list( a_items ) );
+  end;
 
   overriding member function exclude(a_items ut_varchar2_list) return ut_expectation_refcursor is
     l_result ut_expectation_refcursor;
@@ -110,11 +98,8 @@ create or replace type body ut_expectation_refcursor as
   end;
 
   overriding member function join_by(a_columns varchar2) return ut_expectation_refcursor is
-    l_result ut_expectation_refcursor;
   begin
-    l_result := self;
-    l_result.matcher := treat(l_result.matcher as ut_equal).join_by(a_columns);
-    return l_result;
+    return join_by( ut_varchar2_list( a_columns ) );
   end;
 
   overriding member function join_by(a_columns ut_varchar2_list) return ut_expectation_refcursor is
@@ -135,12 +120,7 @@ create or replace type body ut_expectation_refcursor as
 
   member procedure unordered_columns(self in ut_expectation_refcursor) is
   begin
-
-    if ut_utils.int_to_boolean(negated) then
-      self.not_to( treat(matcher as ut_equal).unordered_columns );
-    else
-      self.to_( treat(matcher as ut_equal).unordered_columns );
-    end if;
+    self.to_( treat(matcher as ut_equal).unordered_columns );
   end;
 
   member function uc return ut_expectation_refcursor is

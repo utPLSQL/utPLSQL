@@ -23,33 +23,15 @@ create or replace type body ut_include as
     return;
   end;
 
-  member function get_inclusion_compare return boolean is
-  begin
-   return true;
-  end;
-  
-  member function negated return ut_include is
-    l_result ut_include := self;
-  begin
-    l_result.is_negated := ut_utils.boolean_to_int(true);
-    return l_result;
-  end;
-  
-  member function get_negated return boolean is
-  begin
-    return ut_utils.int_to_boolean(nvl(is_negated,0));
-  end;
-  
   overriding member function run_matcher(self in out nocopy ut_include, a_actual ut_data_value) return boolean is
     l_result boolean;
-    l_result1 integer;
   begin
     if self.expected.data_type = a_actual.data_type then
-        l_result :=
-          ( 0
-            = treat( self.expected as ut_data_value_refcursor )
-              .compare_implementation( a_actual, self.options, get_inclusion_compare(), get_negated() )
-          );
+      l_result :=
+        ( 0
+          = treat( self.expected as ut_data_value_refcursor )
+            .compare_implementation( a_actual, self.options, true, self.is_negated() )
+        );
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
     end if;

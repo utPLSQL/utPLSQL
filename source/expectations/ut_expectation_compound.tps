@@ -1,4 +1,4 @@
-create or replace type ut_expectation_compound under ut_expectation(
+create or replace type ut_expectation_compound force under ut_expectation(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -16,7 +16,6 @@ create or replace type ut_expectation_compound under ut_expectation(
   limitations under the License.
   */
   matcher             ut_matcher,
-  negated             integer,
 
   constructor function ut_expectation_compound(self in out nocopy ut_expectation_compound, a_actual_data ut_data_value, a_description varchar2) return self as result,
 

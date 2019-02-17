@@ -67,5 +67,22 @@ create or replace type body ut_matcher as
     return  'Actual: ' || a_actual.to_string_report(true) || description_when_negated();
   end;
 
+  member procedure negated is
+  begin
+    is_negated_flag := ut_utils.boolean_to_int(true);
+  end;
+
+  member function negated return ut_matcher is
+    l_result ut_matcher := self;
+  begin
+    l_result.negated();
+    return l_result;
+  end;
+
+  member function is_negated return boolean is
+  begin
+    return coalesce(ut_utils.int_to_boolean(is_negated_flag), false);
+  end;
+
 end;
 /

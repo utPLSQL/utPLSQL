@@ -20,7 +20,6 @@ create or replace type body ut_expectation_compound as
   begin
     self.actual_data := a_actual_data;
     self.description := a_description;
-    negated := ut_utils.boolean_to_int(false);
     return;
   end;
 
@@ -55,105 +54,69 @@ create or replace type body ut_expectation_compound as
   member function not_to_equal(a_expected anydata, a_nulls_are_equal boolean := null) return ut_expectation_compound is
     l_result ut_expectation_compound := self;
   begin
-    l_result.matcher := ut_equal(a_expected, a_nulls_are_equal);
-    l_result.negated := ut_utils.boolean_to_int(true);
+    l_result.matcher := ut_equal(a_expected, a_nulls_are_equal).negated();
     return l_result;
-
   end;
 
   member function include(a_items varchar2) return ut_expectation_compound is
-    l_result ut_expectation_compound;
   begin
-    l_result := self;
-    l_result.matcher := treat(l_result.matcher as ut_equal).include(a_items);
-    return l_result;
+    return include( ut_varchar2_list( a_items ) );
   end;
 
   member function include(a_items ut_varchar2_list) return ut_expectation_compound is
-    l_result ut_expectation_compound;
+    l_result ut_expectation_compound := self;
   begin
-    l_result := self;
     l_result.matcher := treat(l_result.matcher as ut_equal).include(a_items);
     return l_result;
   end;
 
   member procedure include(self in ut_expectation_compound, a_items varchar2) is
   begin
-      if ut_utils.int_to_boolean(negated) then
-        self.not_to( treat(matcher as ut_equal).include(a_items) );
-      else
-        self.to_( treat(matcher as ut_equal).include(a_items) );
-      end if;
-    end;
+    include( ut_varchar2_list( a_items ) );
+  end;
 
   member procedure include(self in ut_expectation_compound, a_items ut_varchar2_list) is
   begin
-      if ut_utils.int_to_boolean(negated) then
-        self.not_to( treat(matcher as ut_equal).include(a_items) );
-      else
-        self.to_( treat(matcher as ut_equal).include(a_items) );
-      end if;
-    end;
-
-
+    self.to_( treat(matcher as ut_equal).include(a_items) );
+  end;
 
   member function exclude(a_items varchar2) return ut_expectation_compound is
-    l_result ut_expectation_compound;
-    begin
-      l_result := self;
-      l_result.matcher := treat(l_result.matcher as ut_equal).exclude(a_items);
-      return l_result;
-    end;
+  begin
+    return exclude( ut_varchar2_list( a_items ) );
+  end;
 
   member function exclude(a_items ut_varchar2_list) return ut_expectation_compound is
-    l_result ut_expectation_compound;
-    begin
-      l_result := self;
-      l_result.matcher := treat(l_result.matcher as ut_equal).exclude(a_items);
-      return l_result;
-    end;
+    l_result ut_expectation_compound := self;
+  begin
+    l_result.matcher := treat(l_result.matcher as ut_equal).exclude(a_items);
+    return l_result;
+  end;
 
   member procedure exclude(self in ut_expectation_compound, a_items varchar2) is
-    begin
-      if ut_utils.int_to_boolean(negated) then
-        self.not_to( treat(matcher as ut_equal).exclude(a_items) );
-      else
-        self.to_( treat(matcher as ut_equal).exclude(a_items) );
-      end if;
-    end;
+  begin
+    exclude( ut_varchar2_list( a_items ) );
+  end;
 
   member procedure exclude(self in ut_expectation_compound, a_items ut_varchar2_list) is
-    begin
-      if ut_utils.int_to_boolean(negated) then
-        self.not_to( treat(matcher as ut_equal).exclude(a_items) );
-      else
-        self.to_( treat(matcher as ut_equal).exclude(a_items) );
-      end if;
-    end;
+  begin
+    self.to_( treat(matcher as ut_equal).exclude(a_items) );
+  end;
     
   member function unordered return ut_expectation_compound is
-    l_result ut_expectation_compound;
+    l_result ut_expectation_compound := self;
   begin
-    l_result := self;
-    l_result.matcher := treat(l_result.matcher as ut_equal).unordered;
+    l_result.matcher := treat(l_result.matcher as ut_equal).unordered();
     return l_result;
   end;
 
   member procedure unordered(self in ut_expectation_compound) is
   begin
-    if ut_utils.int_to_boolean(negated) then
-      self.not_to( treat(matcher as ut_equal).unordered );
-    else
-      self.to_( treat(matcher as ut_equal).unordered );
-    end if;
+    self.to_( treat(matcher as ut_equal).unordered() );
   end;
 
   member function join_by(a_columns varchar2) return ut_expectation_compound is
-    l_result ut_expectation_compound;
   begin
-    l_result := self;
-    l_result.matcher := treat(l_result.matcher as ut_equal).join_by(a_columns);
-    return l_result;
+    return join_by( ut_varchar2_list( a_columns ) );
   end;
 
   member function join_by(a_columns ut_varchar2_list) return ut_expectation_compound is
@@ -166,20 +129,12 @@ create or replace type body ut_expectation_compound as
 
   member procedure join_by(self in ut_expectation_compound, a_columns varchar2) is
   begin
-    if ut_utils.int_to_boolean(negated) then
-      self.not_to( treat(matcher as ut_equal).join_by(a_columns) );
-    else
-      self.to_( treat(matcher as ut_equal).join_by(a_columns) );
-    end if;
+    join_by( ut_varchar2_list( a_columns ) );
   end;
 
   member procedure join_by(self in ut_expectation_compound, a_columns ut_varchar2_list) is
   begin
-    if ut_utils.int_to_boolean(negated) then
-      self.not_to( treat(matcher as ut_equal).join_by(a_columns) );
-    else
-      self.to_( treat(matcher as ut_equal).join_by(a_columns) );
-    end if;
+    self.to_( treat(matcher as ut_equal).join_by(a_columns) );
   end;
 
 end;
