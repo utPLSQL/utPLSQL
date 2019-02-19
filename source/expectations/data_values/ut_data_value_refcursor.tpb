@@ -345,7 +345,7 @@ create or replace type body ut_data_value_refcursor as
         a_inclusion_compare,
         a_is_negated
         );
-      --       dbms_output.put_line(substr(l_cursor_text,1,32767));
+--       dbms_output.put_line(substr(l_diff_cursor_text,1,32767));
       l_result := l_result + compare_data( l_self, l_other, l_diff_cursor_text );
     end if;
     return l_result;

@@ -12,7 +12,7 @@ cd ..
 
 
 time utPLSQL-cli/bin/utplsql run ${UT3_TESTER}/${UT3_TESTER_PASSWORD}@${CONNECTION_STR} \
--source_path=source -owner=ut3 \
+-p=test_expectations_cursor -source_path=source -owner=ut3 \
 -test_path=test -c \
 -f=ut_coverage_sonar_reporter -o=coverage.xml \
 -f=ut_coverage_html_reporter  -o=coverage.html \
