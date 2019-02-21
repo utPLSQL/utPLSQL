@@ -61,6 +61,7 @@ create or replace type body ut_suite_item as
 
   member procedure rollback_to_savepoint(self in out nocopy ut_suite_item, a_savepoint varchar2) is
     ex_savepoint_not_exists exception;
+    l_transaction_invalidators clob;
     pragma exception_init(ex_savepoint_not_exists, -1086);
   begin
     if get_rollback_type() = ut_utils.gc_rollback_auto and a_savepoint is not null then
@@ -68,11 +69,16 @@ create or replace type body ut_suite_item as
     end if;
   exception
     when ex_savepoint_not_exists then
+      l_transaction_invalidators :=
+        lower( ut_utils.indent_lines( ut_utils.table_to_clob( self.get_transaction_invalidators() ), 2, true ) );
+      if length(l_transaction_invalidators) > 3000 then
+        l_transaction_invalidators := substr(l_transaction_invalidators,1,3000)||'...';
+      end if;
       put_warning(
         'Unable to perform automatic rollback after test'
-        || case when self_type like '%SUITE' then ' suite' end || '. '
+        || case when self_type like '%SUITE' then ' suite' when self_type like '%CONTEXT' then ' context' end || '. '
         ||'An implicit or explicit commit/rollback occurred in procedures:'||chr(10)
-        ||lower(ut_utils.indent_lines(ut_utils.table_to_clob(self.get_transaction_invalidators()), 2, true))||chr(10)
+        ||l_transaction_invalidators||chr(10)
         ||'Use the "--%rollback(manual)" annotation or remove commit/rollback/ddl statements that are causing the issue.'
       );
   end;
