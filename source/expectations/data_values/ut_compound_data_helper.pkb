@@ -21,7 +21,7 @@ create or replace package body ut_compound_data_helper is
   g_type_name_map           t_type_name_map;
   g_anytype_name_map        t_type_name_map;
 
-  gc_compare_sql_template varchar2(4000) :=
+  g_compare_sql_template varchar2(4000) :=
   q'[
     with exp as (
       select 
@@ -257,10 +257,10 @@ create or replace package body ut_compound_data_helper is
   procedure gen_sql_pieces_out_of_cursor(
     a_data_info   ut_cursor_column_tab,
     a_pk_table    ut_varchar2_list,
+    a_unordered   boolean,
     a_xml_stmt    out nocopy clob,
     a_select_stmt out nocopy clob,
     a_partition_stmt out nocopy clob,
-    a_equal_stmt out nocopy clob,
     a_join_by_stmt out nocopy clob,
     a_not_equal_stmt out nocopy clob
   ) is
@@ -304,12 +304,22 @@ create or replace package body ut_compound_data_helper is
       a_select_stmt := nullif(','||ut_utils.table_to_clob(l_select_list, ' , '),',');
       l_partition_tmp := ut_utils.table_to_clob(l_partition_list, ' , ');
       ut_utils.append_to_clob(a_partition_stmt,' row_number() over (partition by '||l_partition_tmp||' order by '||l_partition_tmp||' ) ');
-      a_equal_stmt := ut_utils.table_to_clob(l_equal_list, ' and ');
-      a_join_by_stmt := ut_utils.table_to_clob(l_join_by_list, ' and ');
+      
+      if a_pk_table.count > 0 then   
+        -- If key defined do the join or these and where on diffrences
+        a_join_by_stmt := ut_utils.table_to_clob(l_join_by_list, ' and ');
+      elsif a_unordered then
+        -- If no key defined do the join on all columns
+        a_join_by_stmt := ' e.dup_no = a.dup_no and '||ut_utils.table_to_clob(l_equal_list, ' and ');
+      else
+        -- Else join on rownumber
+        a_join_by_stmt := 'a.item_no = e.item_no ';
+      end if;
       a_not_equal_stmt := ut_utils.table_to_clob(l_not_equal_list, ' or ');
     else
       --Partition by piece when no data
       ut_utils.append_to_clob(a_partition_stmt,' 1  ');
+      a_join_by_stmt := 'a.item_no = e.item_no ';
     end if;
   end;
   
@@ -352,12 +362,12 @@ create or replace package body ut_compound_data_helper is
   begin
     dbms_lob.createtemporary(l_compare_sql, true);   
     --Initiate a SQL template with placeholders
-    ut_utils.append_to_clob(l_compare_sql, gc_compare_sql_template);
+    ut_utils.append_to_clob(l_compare_sql, g_compare_sql_template);
     --Generate a pieceso of dynamic SQL that will substitute placeholders
     gen_sql_pieces_out_of_cursor(
-      a_other.cursor_details.cursor_columns_info, a_join_by_list,
-      l_xmltable_stmt, l_select_stmt, l_partition_stmt, l_equal_stmt, 
-      l_join_on_stmt, l_not_equal_stmt
+      a_other.cursor_details.cursor_columns_info, a_join_by_list, a_unordered,
+      l_xmltable_stmt, l_select_stmt, l_partition_stmt, l_join_on_stmt, 
+      l_not_equal_stmt
     );
       
     l_compare_sql := replace(l_compare_sql,'{:duplicate_number:}',l_partition_stmt);
@@ -367,24 +377,13 @@ create or replace package body ut_compound_data_helper is
     l_compare_sql := replace(l_compare_sql,'{:xml_to_columns:}',l_xmltable_stmt); 
     l_compare_sql := replace(l_compare_sql,'{:item_no_select:}',case when a_unordered then 'rownum' else 'nvl(e.item_no,a.item_no)' end);
     l_compare_sql := replace(l_compare_sql,'{:join_type:}',get_join_type(a_inclusion_type,a_is_negated));
-    
-    --TODO : Refactor as equal and join is single stmt
-    if (a_join_by_list.count > 0) then
-      -- If key defined do the join or these and where on diffrences
-      l_compare_sql := replace(l_compare_sql,'{:join_condition:}',l_join_on_stmt);
-    elsif a_unordered then
-      -- If no key defined do the join on all columns
-      l_compare_sql := replace(l_compare_sql,'{:join_condition:}',' e.dup_no = a.dup_no and '||l_equal_stmt);
-    else
-      l_compare_sql := replace(l_compare_sql,'{:join_condition:}','a.item_no = e.item_no ');
-    end if;
+    l_compare_sql := replace(l_compare_sql,'{:join_condition:}',l_join_on_stmt);
 
     if l_not_equal_stmt is not null then
       if (a_join_by_list.count > 0 and not a_is_negated) or (not a_unordered) then
         ut_utils.append_to_clob(l_where_stmt,' ( '||l_not_equal_stmt||' ) or ');
       end if;
     end if;
-
     --If its inclusion we expect a actual set to fully match and have no extra elements over expected
     if a_inclusion_type then
       ut_utils.append_to_clob(l_where_stmt,case when a_is_negated then ' 1 = 1 ' else ' ( a.data_id is null ) ' end);
@@ -394,7 +393,6 @@ create or replace package body ut_compound_data_helper is
     
     l_compare_sql := replace(l_compare_sql,'{:where_condition:}',l_where_stmt);
     
-    --dbms_output.put_line(l_compare_sql);
     return l_compare_sql;
   end;
    
