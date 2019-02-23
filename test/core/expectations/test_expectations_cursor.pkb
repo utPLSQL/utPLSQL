@@ -1632,11 +1632,11 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 3 ]%
 Diff:%
 Rows: [ 5 differences%
-%Extra:    <COLVAL><ID>2</ID><name>Something 2</name><Value>2</Value></COLVAL>%
 %Extra:    <COLVAL><ID>1</ID><name>Something 1</name><Value>1</Value></COLVAL>%
-%Missing:  <COLVAL><ID>1</ID><name>Somethings 1</name><Value>1</Value></COLVAL>%
+%Extra:    <COLVAL><ID>2</ID><name>Something 2</name><Value>2</Value></COLVAL>%
+%Missing:  <COLVAL><ID>3</ID><name>Somethings 3</name><Value>3</Value></COLVAL>%
 %Missing:  <COLVAL><ID>2</ID><name>Somethings 2</name><Value>2</Value></COLVAL>%
-%Missing:  <COLVAL><ID>3</ID><name>Somethings 3</name><Value>3</Value></COLVAL>%]';
+%Missing:  <COLVAL><ID>1</ID><name>Somethings 1</name><Value>1</Value></COLVAL>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1914,11 +1914,11 @@ Diff:%
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    select ut3.ut_key_value_pair(rownum,'Apples '||rownum)
     bulk collect into l_actual_tab
     from dual connect by level <=2;
  
-    select ut3.ut_key_value_pair(rownum,'Somethings '||rownum)
+    select ut3.ut_key_value_pair(rownum,'Peaches '||rownum)
     bulk collect into l_expected_tab
     from dual connect by level <=2;
       
@@ -1936,10 +1936,10 @@ Diff:%
  l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
 %Diff:
 %Rows: [ 4 differences ]
-%Extra:    <RN>2</RN><NESTED_TABLE><UT_KEY_VALUE_PAIR><KEY>1</KEY><VALUE>Something 1</VALUE></UT_KEY_VALUE_PAIR><UT_KEY_VALUE_PAIR><KEY>2</KEY><VALUE>Something 2</VALUE></UT_KEY_VALUE_PAIR></NESTED_TABLE>
-%Extra:    <RN>1</RN><NESTED_TABLE><UT_KEY_VALUE_PAIR><KEY>1</KEY><VALUE>Something 1</VALUE></UT_KEY_VALUE_PAIR><UT_KEY_VALUE_PAIR><KEY>2</KEY><VALUE>Something 2</VALUE></UT_KEY_VALUE_PAIR></NESTED_TABLE>
-%Missing:  <RN>1</RN><NESTED_TABLE><UT_KEY_VALUE_PAIR><KEY>1</KEY><VALUE>Somethings 1</VALUE></UT_KEY_VALUE_PAIR><UT_KEY_VALUE_PAIR><KEY>2</KEY><VALUE>Somethings 2</VALUE></UT_KEY_VALUE_PAIR></NESTED_TABLE>
-%Missing:  <RN>2</RN><NESTED_TABLE><UT_KEY_VALUE_PAIR><KEY>1</KEY><VALUE>Somethings 1</VALUE></UT_KEY_VALUE_PAIR><UT_KEY_VALUE_PAIR><KEY>2</KEY><VALUE>Somethings 2</VALUE></UT_KEY_VALUE_PAIR></NESTED_TABLE>%]';
+%Extra:    <RN>1</RN><NESTED_TABLE><UT_KEY_VALUE_PAIR><KEY>1</KEY><VALUE>Apples 1</VALUE></UT_KEY_VALUE_PAIR><UT_KEY_VALUE_PAIR><KEY>2</KEY><VALUE>Apples 2</VALUE></UT_KEY_VALUE_PAIR></NESTED_TABLE>
+%Extra:    <RN>2</RN><NESTED_TABLE><UT_KEY_VALUE_PAIR><KEY>1</KEY><VALUE>Apples 1</VALUE></UT_KEY_VALUE_PAIR><UT_KEY_VALUE_PAIR><KEY>2</KEY><VALUE>Apples 2</VALUE></UT_KEY_VALUE_PAIR></NESTED_TABLE>
+%Missing:  <RN>1</RN><NESTED_TABLE><UT_KEY_VALUE_PAIR><KEY>1</KEY><VALUE>Peaches 1</VALUE></UT_KEY_VALUE_PAIR><UT_KEY_VALUE_PAIR><KEY>2</KEY><VALUE>Peaches 2</VALUE></UT_KEY_VALUE_PAIR></NESTED_TABLE>
+%Missing:  <RN>2</RN><NESTED_TABLE><UT_KEY_VALUE_PAIR><KEY>1</KEY><VALUE>Peaches 1</VALUE></UT_KEY_VALUE_PAIR><UT_KEY_VALUE_PAIR><KEY>2</KEY><VALUE>Peaches 2</VALUE></UT_KEY_VALUE_PAIR></NESTED_TABLE>%]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);

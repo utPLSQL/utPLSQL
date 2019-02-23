@@ -31,7 +31,7 @@ create or replace package body ut_compound_data_helper is
         select 
           ucd.item_data
           ,x.data_id data_id 
-          ,{:item_no:} item_no
+          ,position + x.item_no item_no
           {:columns:}
         from {:ut3_owner:}.ut_compound_data_tmp x,
           xmltable('/ROWSET/ROW' passing x.item_data columns
@@ -49,7 +49,7 @@ create or replace package body ut_compound_data_helper is
         select 
           ucd.item_data
           ,x.data_id data_id
-          ,{:item_no:} item_no 
+          ,position + x.item_no item_no 
           {:columns:}
         from {:ut3_owner:}.ut_compound_data_tmp x,
           xmltable('/ROWSET/ROW' passing x.item_data columns 
@@ -64,7 +64,7 @@ create or replace package body ut_compound_data_helper is
       a.data_id act_data_id,
       e.item_data as exp_item_data, 
       e.data_id exp_data_id,
-      {:item_no_select:} as item_no, 
+      {:item_no:} as item_no, 
       nvl(e.dup_no,a.dup_no) dup_no 
     from act a {:join_type:} exp e on ( {:join_condition:} )
     where {:where_condition:}]';
@@ -354,8 +354,8 @@ create or replace package body ut_compound_data_helper is
     begin
       return
         case 
-          when not a_unordered then 'position + x.item_no ' 
-          else 'rownum '
+          when a_unordered then 'row_number() over ( order by nvl(e.item_no,a.item_no))' 
+          else 'nvl(e.item_no,a.item_no) '
         end;
     end;
 
@@ -372,10 +372,9 @@ create or replace package body ut_compound_data_helper is
       
     l_compare_sql := replace(l_compare_sql,'{:duplicate_number:}',l_partition_stmt);
     l_compare_sql := replace(l_compare_sql,'{:columns:}',l_select_stmt);
-    l_compare_sql := replace(l_compare_sql,'{:item_no:}',get_item_no(a_unordered));
     l_compare_sql := replace(l_compare_sql,'{:ut3_owner:}',l_ut_owner);
     l_compare_sql := replace(l_compare_sql,'{:xml_to_columns:}',l_xmltable_stmt); 
-    l_compare_sql := replace(l_compare_sql,'{:item_no_select:}',case when a_unordered then 'rownum' else 'nvl(e.item_no,a.item_no)' end);
+    l_compare_sql := replace(l_compare_sql,'{:item_no:}',get_item_no(a_unordered));
     l_compare_sql := replace(l_compare_sql,'{:join_type:}',get_join_type(a_inclusion_type,a_is_negated));
     l_compare_sql := replace(l_compare_sql,'{:join_condition:}',l_join_on_stmt);
 
@@ -634,7 +633,7 @@ create or replace package body ut_compound_data_helper is
     a_diff_tab(idx).item_no, a_diff_tab(idx).dup_no);
   exception
     when ut_utils.ex_failure_for_all then
-      raise_application_error(ut_utils.gc_failure_for_all,'Failure to insert a diff tmp data.');
+      raise_application_error(ut_utils.gc_dml_for_all,'Failure to insert a diff tmp data.');
   end;
   
   procedure set_rows_diff(a_rows_diff integer) is
