@@ -42,5 +42,5 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
     a_is_negated boolean := false
   ) return integer,
   overriding member function is_empty return boolean
-)
+) not final
 /

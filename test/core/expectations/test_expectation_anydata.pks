@@ -57,9 +57,6 @@ create or replace package test_expectation_anydata is
   --%test(Comma separated list of attributes to exclude is case sensitive)
   procedure exclude_attributes_as_csv;
 
-  --%test(Exclude attributes fails on invalid XPath)
-  procedure exclude_attrib_xpath_invalid;
-
   --%test(Exclude attributes by XPath is case sensitive)
   procedure exclude_attributes_xpath;
 
@@ -71,9 +68,6 @@ create or replace package test_expectation_anydata is
 
   --%test(Comma separated list of attributes to include is case sensitive)
   procedure include_attributes_as_csv;
-
-  --%test(Include attributes fails on invalid XPath)
-  procedure include_attrib_xpath_invalid;
 
   --%test(Include attributes by XPath is case sensitive)
   procedure include_attributes_xpath;

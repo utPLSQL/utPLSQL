@@ -19,7 +19,7 @@ create or replace package ut authid current_user as
 
   function version return varchar2;
 
-  function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_compound;
+  function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_refcursor;
 
   function expect(a_actual in blob, a_message varchar2 := null) return ut_expectation;
 

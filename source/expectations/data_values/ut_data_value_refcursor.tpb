@@ -50,7 +50,6 @@ create or replace type body ut_data_value_refcursor as
     loop
       l_xml := dbms_xmlgen.getxmltype(l_ctx);
       exit when dbms_xmlgen.getNumRowsProcessed(l_ctx) = 0;
-
       self.elements_count := self.elements_count + dbms_xmlgen.getNumRowsProcessed(l_ctx);
       execute immediate
       'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
@@ -345,7 +344,6 @@ create or replace type body ut_data_value_refcursor as
         a_inclusion_compare,
         a_is_negated
         );
---       dbms_output.put_line(substr(l_diff_cursor_text,1,32767));
       l_result := l_result + compare_data( l_self, l_other, l_diff_cursor_text );
     end if;
     return l_result;

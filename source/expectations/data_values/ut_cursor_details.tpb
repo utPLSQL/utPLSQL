@@ -23,15 +23,10 @@ create or replace type body ut_cursor_details as
     l_element_info       ut_metadata.t_anytype_elem_info_rec;
     l_is_collection      boolean;
   begin
-
     l_elements_info := ut_metadata.get_anytype_members_info( a_compound_data );
-
     l_is_collection := ut_metadata.is_collection(l_elements_info.type_code);
-
     if l_elements_info.elements_count is null then
-
       l_element_info := ut_metadata.get_attr_elem_info( a_compound_data );
-
       self.cursor_columns_info.extend;
       self.cursor_columns_info(cursor_columns_info.last) :=
         ut_cursor_column(
@@ -98,7 +93,7 @@ create or replace type body ut_cursor_details as
   begin
     self.cursor_columns_info := ut_cursor_column_tab();
     dbms_sql.describe_columns3(a_cursor_number, l_columns_count, l_columns_desc);
-      
+
     /**
     * Due to a bug with object being part of cursor in ANYDATA scenario
     * oracle fails to revert number to cursor. We ar using dbms_sql.close cursor to close it
@@ -121,6 +116,7 @@ create or replace type body ut_cursor_details as
           ut_utils.boolean_to_int(l_is_collection),
           null
         );
+
       if l_columns_desc(pos).col_type = dbms_sql.user_defined_type or l_is_collection then
         desc_compound_data(
           ut_metadata.get_user_defined_type( l_columns_desc(pos).col_schema_name, l_columns_desc(pos).col_type_name ),
@@ -177,7 +173,7 @@ create or replace type body ut_cursor_details as
                  bulk collect into l_result.cursor_columns_info
             from table(self.cursor_columns_info) x
            where exists(
-                   select 1 from included_columns f where regexp_like( x.access_path, '^'||f.col_names||'($|/.*)' )
+                   select 1 from included_columns f where regexp_like( x.access_path, '^/?'||f.col_names||'($|/.*)' )
                  );
         end if;
       elsif a_match_options.exclude.items.count > 0 then
@@ -189,7 +185,7 @@ create or replace type body ut_cursor_details as
                  bulk collect into l_result.cursor_columns_info
             from table(self.cursor_columns_info) x
            where not exists(
-             select 1 from excluded_columns f where regexp_like( x.access_path, '^'||f.col_names||'($|/.*)' )
+             select 1 from excluded_columns f where regexp_like( '/'||x.access_path, '^/?'||f.col_names||'($|/.*)' )
            );
       end if;
       self := l_result;

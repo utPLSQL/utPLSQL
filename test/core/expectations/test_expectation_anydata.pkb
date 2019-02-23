@@ -189,7 +189,7 @@ create or replace package body test_expectation_anydata is
     l_list ut3.ut_varchar2_list;
   begin
     --Arrange
-    l_list := ut3.ut_varchar2_list('Value','/TEST_DUMMY_OBJECT/ID');
+    l_list := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/Value','/TEST_DUMMY_OBJECT/ID');
     g_test_expected := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( test_dummy_object(id=>3, "name"=>'A',"Value"=>'1') );
     --Act
@@ -202,7 +202,7 @@ create or replace package body test_expectation_anydata is
     l_list varchar2(100);
   begin
     --Arrange
-    l_list := 'Value,ID';
+    l_list := 'TEST_DUMMY_OBJECT/Value,TEST_DUMMY_OBJECT/ID';
     g_test_expected := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( test_dummy_object(id=>2, "name"=>'A',"Value"=>'1') );
     --Act
@@ -211,27 +211,11 @@ create or replace package body test_expectation_anydata is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure exclude_attrib_xpath_invalid is
-    l_anydata_object anydata;
-    l_xpath          varchar2(100);
-  begin
-    --Arrange
-    l_xpath := '//KEY,\\//Value';
-    l_anydata_object := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
-    --Act
-    ut3.ut.expect( l_anydata_object ).to_equal( l_anydata_object, a_exclude=> l_xpath );
-    --Assert
-    ut.fail('Expected exception -31011 but nothing was raised');
-  exception
-    when others then
-      ut.expect(sqlcode).to_equal(-31011);
-  end;
-
   procedure exclude_attributes_xpath is
     l_xpath varchar2(100);
   begin
     --Arrange
-    l_xpath := '//Value|//ID';
+    l_xpath := '//TEST_DUMMY_OBJECT/Value|//TEST_DUMMY_OBJECT/ID';
     g_test_expected := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( test_dummy_object(id=>2, "name"=>'A',"Value"=>'1') );
     --Act
@@ -257,7 +241,7 @@ create or replace package body test_expectation_anydata is
     l_list ut3.ut_varchar2_list;
   begin
     --Arrange
-    l_list := ut3.ut_varchar2_list('Value','ID');
+    l_list := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/Value','TEST_DUMMY_OBJECT/ID');
     g_test_expected := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( test_dummy_object(id=>1, "name"=>'b',"Value"=>'0') );
     --Act
@@ -270,7 +254,7 @@ create or replace package body test_expectation_anydata is
     l_xpath          varchar2(100);
   begin
     --Arrange
-    l_xpath := 'key,ID';
+    l_xpath := 'TEST_DUMMY_OBJECT/key,TEST_DUMMY_OBJECT/ID';
     g_test_expected := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
@@ -279,27 +263,11 @@ create or replace package body test_expectation_anydata is
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure include_attrib_xpath_invalid is
-    l_anydata_object anydata;
-    l_xpath          varchar2(100);
-  begin
-    --Arrange
-    l_xpath := '//KEY,\\//Value';
-    l_anydata_object := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
-    --Act
-    ut3.ut.expect( l_anydata_object ).to_equal( l_anydata_object ).include( l_xpath );
-    --Assert
-    ut.fail('Expected exception -31011 but nothing was raised');
-  exception
-    when others then
-      ut.expect(sqlcode).to_be_between(-31013,-31011);
-  end;
-
   procedure include_attributes_xpath is
     l_xpath varchar2(100);
   begin
     --Arrange
-    l_xpath := '//key|//ID';
+    l_xpath := '//TEST_DUMMY_OBJECT/key|//TEST_DUMMY_OBJECT/ID';
     g_test_expected := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
@@ -312,7 +280,7 @@ create or replace package body test_expectation_anydata is
     l_include varchar2(100);
   begin
     --Arrange
-    l_include := ' BadAttributeName, ID ';
+    l_include := ' BadAttributeName, TEST_DUMMY_OBJECT/ID ';
     g_test_expected := anydata.convertObject( test_dummy_object(id=>1, "name"=>'B',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
@@ -326,8 +294,8 @@ create or replace package body test_expectation_anydata is
     l_include varchar2(100);
   begin
     --Arrange
-    l_include := 'key,ID,Value';
-    l_exclude := '//key|//Value';
+    l_include := 'TEST_DUMMY_OBJECT/key,TEST_DUMMY_OBJECT/ID,TEST_DUMMY_OBJECT/Value';
+    l_exclude := '//TEST_DUMMY_OBJECT/key|//TEST_DUMMY_OBJECT/Value';
     g_test_expected := anydata.convertObject( test_dummy_object(id=>1, "name"=>'B',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
@@ -341,8 +309,8 @@ create or replace package body test_expectation_anydata is
     l_include ut3.ut_varchar2_list;
   begin
     --Arrange
-    l_include := ut3.ut_varchar2_list('key','ID','Value');
-    l_exclude := ut3.ut_varchar2_list('key','Value');
+    l_include := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/key','TEST_DUMMY_OBJECT/ID','TEST_DUMMY_OBJECT/Value');
+    l_exclude := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/key','TEST_DUMMY_OBJECT/Value');
     g_test_expected := anydata.convertObject( test_dummy_object(id=>1, "name"=>'B',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act

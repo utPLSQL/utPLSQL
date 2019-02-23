@@ -26,7 +26,7 @@ create or replace type body ut_have_count as
   overriding member function run_matcher(self in out nocopy ut_have_count, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
-    if a_actual is of(ut_data_value_refcursor, ut_data_value_collection) then
+    if a_actual is of(ut_data_value_refcursor) then
       l_result := ( self.expected = treat(a_actual as ut_compound_data_value).elements_count );
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
