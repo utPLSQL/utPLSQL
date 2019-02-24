@@ -14,29 +14,34 @@ create or replace type body ut_data_value_anydata as
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  */
-
+  */  
   member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata) is
     l_query    sys_refcursor;
     l_ctx      number;
     l_ut_owner varchar2(250) := ut_utils.ut_owner;
     cursor_not_open exception;
     l_cursor_number number;
-    l_type_name varchar2(100);
-    l_schema varchar(100);
-    l_part1 varchar(30);
-    l_part2 varchar(30);
-    l_dblink varchar(30);
+    l_anydata_type varchar2(100) := get_instance(a_value);
+    l_element_count number;
+    
+    --Used by dbms_utility...
+    l_type_name varchar2(250);
+    l_schema varchar(250);
+    l_part1 varchar(250);
+    l_part2 varchar(250);
+    l_dblink varchar(250);
     l_part1_type number;
     l_objectid number;
+    
   begin
     self.data_type  := case when a_value is not null then lower(a_value.gettypename()) else 'undefined' end;
-    --TODO : Move that to helper ??
     self.data_id    := sys_guid();
     self.self_type := $$plsql_unit;
     self.cursor_details := ut_cursor_details();
     if a_value is not null then
+      --TODO : Move that to helper ??
       dbms_utility.name_resolve(self.data_type,7, l_schema, l_part1, l_part2, l_dblink, l_part1_type, l_objectid);
+      --TODO: Refactor into something nicer
       execute immediate '
         declare
           l_data '||self.data_type||';
@@ -45,12 +50,18 @@ create or replace type body ut_data_value_anydata as
           l_tmp_refcursor sys_refcursor;
           l_refcursor sys_refcursor;
         begin
-          l_status := l_value.get'||get_instance(a_value)||'(l_data);
-          :l_data_is_null := case when l_data is null then 1 else 0 end;
-          open l_tmp_refcursor for select l_data '||l_part1||' from dual;
-          :l_refcursor := l_tmp_refcursor;
-        end;' using in a_value, out self.is_data_null, out l_query;
-        
+          l_status := l_value.get'||l_anydata_type||'(l_data);
+          :l_data_is_null := case when l_data is null then 1 else 0 end; '||
+          case when l_anydata_type = 'collection' then
+            ' open l_tmp_refcursor for select * from table(l_data);'
+          else
+            ' open l_tmp_refcursor for select l_data '||l_part1||' from dual;'            
+          end ||
+          q'[ :l_refcursor := l_tmp_refcursor;
+          if l_data is not null then
+            :l_count := ]'|| case when l_anydata_type = 'collection' then 'l_data.count; ' else '0; ' end ||
+          'end if;
+        end;' using in a_value, out self.is_data_null, out l_query, out l_element_count;       
     else
       self.is_data_null := 1;
     end if;
@@ -59,6 +70,10 @@ create or replace type body ut_data_value_anydata as
       self.elements_count := 0;
       if l_query%isopen then
         self.extract_cursor(l_query);
+        --For collection we have to overwrite a number due to being calculated not correctly
+        if l_anydata_type = 'collection' then 
+          self.elements_count := l_element_count;
+        end if;
         l_cursor_number  := dbms_sql.to_cursor_number(l_query);
         self.cursor_details  := ut_cursor_details(l_cursor_number);
         dbms_sql.close_cursor(l_cursor_number);         

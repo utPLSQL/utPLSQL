@@ -391,7 +391,6 @@ create or replace package body ut_compound_data_helper is
     end if;    
     
     l_compare_sql := replace(l_compare_sql,'{:where_condition:}',l_where_stmt);
-    
     return l_compare_sql;
   end;
    
