@@ -5,8 +5,6 @@ drop synonym have_count;
 
 drop synonym match;
 
-drop synonym include;
-
 drop synonym contain;
 
 drop synonym be_false;
@@ -89,7 +87,7 @@ drop type ut_match force;
 
 drop type ut_be_between force;
 
-drop type ut_include force;
+drop type ut_contain force;
 
 drop type ut_equal force;
 

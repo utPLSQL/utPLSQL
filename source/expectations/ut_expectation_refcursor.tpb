@@ -37,29 +37,17 @@ create or replace type body ut_expectation_refcursor as
     return l_result;
   end;
 
-  member function to_include(a_expected sys_refcursor) return ut_expectation_refcursor is
-    l_result ut_expectation_refcursor := self;
-  begin
-    l_result.matcher := ut_include(a_expected);
-    return l_result;
-  end;
-
   member function to_contain(a_expected sys_refcursor) return ut_expectation_refcursor is
     l_result ut_expectation_refcursor := self;
   begin
-    l_result.matcher := ut_include(a_expected);
+    l_result.matcher := ut_contain(a_expected);
     return l_result;
-  end;
-
-  member function not_to_include(a_expected sys_refcursor) return ut_expectation_refcursor is
-  begin
-    return not_to_contain( a_expected );
   end;
 
   member function not_to_contain(a_expected sys_refcursor) return ut_expectation_refcursor is
     l_result ut_expectation_refcursor := self;
   begin
-    l_result.matcher := ut_include(a_expected).negated();
+    l_result.matcher := ut_contain(a_expected).negated();
     return l_result;
   end;
 

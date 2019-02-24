@@ -217,7 +217,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_null.tps'
 @@install_component.sql 'expectations/matchers/ut_be_true.tps'
 @@install_component.sql 'expectations/matchers/ut_equal.tps'
-@@install_component.sql 'expectations/matchers/ut_include.tps'
+@@install_component.sql 'expectations/matchers/ut_contain.tps'
 @@install_component.sql 'expectations/matchers/ut_have_count.tps'
 @@install_component.sql 'expectations/matchers/ut_be_between.tps'
 @@install_component.sql 'expectations/matchers/ut_be_empty.tps'
@@ -261,7 +261,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_null.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_true.tpb'
 @@install_component.sql 'expectations/matchers/ut_equal.tpb'
-@@install_component.sql 'expectations/matchers/ut_include.tpb'
+@@install_component.sql 'expectations/matchers/ut_contain.tpb'
 @@install_component.sql 'expectations/matchers/ut_have_count.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_between.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_empty.tpb'
@@ -326,7 +326,6 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'api/have_count.syn'
 @@install_component.sql 'api/match.syn'
 @@install_component.sql 'api/contain.syn'
-@@install_component.sql 'api/include.syn'
 
 set linesize 200
 set define on

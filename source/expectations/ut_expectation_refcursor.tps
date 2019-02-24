@@ -21,10 +21,8 @@ create or replace type ut_expectation_refcursor under ut_expectation_compound(
   ) return self as result,
 
   member function  to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_expectation_refcursor,
-  member function  to_include(a_expected sys_refcursor) return ut_expectation_refcursor,
   member function  not_to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_expectation_refcursor,
   member function  to_contain(a_expected sys_refcursor) return ut_expectation_refcursor,
-  member function  not_to_include(a_expected sys_refcursor) return ut_expectation_refcursor,
   member function  not_to_contain(a_expected sys_refcursor) return ut_expectation_refcursor,
 
   overriding member function  include(a_items varchar2) return ut_expectation_refcursor,

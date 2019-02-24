@@ -2160,7 +2160,7 @@ Diff:%
 
   end;
  
-  procedure cursor_to_include is
+  procedure cursor_to_contain is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
   begin
@@ -2171,7 +2171,7 @@ Diff:%
     and rownum < 20;
     
     --Act
-    ut3.ut.expect(l_actual).to_( ut3.include(l_expected) );
+    ut3.ut.expect(l_actual).to_( ut3.contain(l_expected) );
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
@@ -2209,83 +2209,6 @@ Diff:%
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure cursor_to_include_unordered is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    --Arrange
-    open l_actual for
-      select owner, object_name,object_type from all_objects where owner = user
-      order by 1,2,3 asc;
-    open l_expected for
-      select owner, object_name,object_type from all_objects where owner = user and rownum < 20;
-
-    --Act
-    ut3.ut.expect(l_actual).to_( ut3.include(l_expected).unordered() );
-    --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
-  end;
-
-  procedure cursor_to_include_uc is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    --Arrange
-    open l_actual for select owner, object_name,object_type from all_objects where owner = user
-    order by 1,2,3 asc;
-    open l_expected for select object_type, owner, object_name from all_objects where owner = user
-    and rownum < 20;
-
-    --Act
-    ut3.ut.expect(l_actual).to_include(l_expected).uc();
-    --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
-  end;
-
-  procedure cursor_to_include_fail is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-    l_expected_message varchar2(32767);
-    l_actual_message   varchar2(32767);
-  begin
-    --Arrange
-    open l_actual for select owner, object_name,object_type from all_objects where owner = user
-    and rownum < 5;
-    open l_expected for select owner, object_name,object_type from all_objects where owner = user
-    and rownum < 10;
-    
-    --Act
-    ut3.ut.expect(l_actual).to_include(l_expected);
-   --Assert
-     l_expected_message := q'[%Actual: refcursor [ count = 4 ] was expected to include: refcursor [ count = 9 ]
-%Diff:
-%Rows: [ 5 differences ]
-%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
-%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
-%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
-%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
-%Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%]';
-    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
-    --Assert
-    ut.expect(l_actual_message).to_be_like(l_expected_message);
-  end;  
-
- procedure cursor_to_contain is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    --Arrange
-    open l_actual for select owner, object_name,object_type from all_objects where owner = user
-    order by 1,2,3 asc;
-    open l_expected for select owner, object_name,object_type from all_objects where owner = user
-    and rownum < 20;
-    
-    --Act
-    ut3.ut.expect(l_actual).to_( ut3.contain(l_expected) );
-    --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
-  end;
-  
   procedure cursor_to_contain_fail is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -2301,7 +2224,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected);
    --Assert
-     l_expected_message := q'[%Actual: refcursor [ count = 4 ] was expected to include: refcursor [ count = 9 ]
+     l_expected_message := q'[%Actual: refcursor [ count = 4 ] was expected to contain: refcursor [ count = 9 ]
 %Diff:
 %Rows: [ 5 differences ]
 %Missing:  <OWNER>%</OWNER><OBJECT_NAME>%</OBJECT_NAME><OBJECT_TYPE>%</OBJECT_TYPE>%
@@ -2312,50 +2235,6 @@ Diff:%
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
-  end;  
-
-  procedure cursor_to_include_joinby is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    --Arrange
-    open l_actual for select username,user_id from all_users;
-    open l_expected for select username ,user_id from all_users where rownum < 5;
-    
-    --Act
-    ut3.ut.expect(l_actual).to_include(l_expected).join_by('USERNAME');
-    --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
-  end;
-  
-  procedure cursor_to_include_joinby_fail is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-    l_expected_message varchar2(32767);
-    l_actual_message   varchar2(32767);
-  begin
-    --Arrange
-    open l_actual for select username, user_id from all_users
-    union all
-    select 'TEST' username, -600 user_id from dual
-    order by 1 desc;
-    open l_expected   for select username, user_id from all_users
-    union all
-    select 'TEST' username, -601 user_id from dual
-    order by 1 asc;
-    
-    --Act
-    ut3.ut.expect(l_actual).to_include(l_expected).join_by('USERNAME');
-    --Assert
-     l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to include: refcursor [ count = % ]
-%Diff:
-%Rows: [ 1 differences ]
-%PK <USERNAME>TEST</USERNAME> - Actual:   <USER_ID>-600</USER_ID>
-%PK <USERNAME>TEST</USERNAME> - Expected: <USER_ID>-601</USER_ID>%]';
-    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
-    --Assert
-    ut.expect(l_actual_message).to_be_like(l_expected_message);
-    
   end;  
 
   procedure cursor_contain_joinby is
@@ -2391,7 +2270,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected).join_by('USERNAME');
     --Assert
-     l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to include: refcursor [ count = % ]
+     l_expected_message := q'[%Actual: refcursor [ count = % ] was expected to contain: refcursor [ count = % ]
 %Diff:
 %Rows: [ 1 differences ]
 %PK <USERNAME>TEST</USERNAME> - Actual:   <USER_ID>-600</USER_ID>
@@ -2402,21 +2281,7 @@ Diff:%
     
   end;  
 
-  procedure to_include_incl_cols_as_list
-  as
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    --Arrange
-    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 6;
-    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
-    --Act
-    ut3.ut.expect(l_actual).to_include(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL'));
-    --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
-  end;
- 
-  procedure to_contain_cont_cols_as_list
+  procedure to_contain_incl_cols_as_list
   as
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -2430,20 +2295,6 @@ Diff:%
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
   
-  procedure to_inc_join_incl_cols_as_lst
-  as
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    --Arrange
-    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
-    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
-    --Act
-    ut3.ut.expect(l_actual).to_include(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
-    --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
-  end;
-
   procedure to_cont_join_incl_cols_as_lst
   as
     l_actual   sys_refcursor;
@@ -2458,20 +2309,6 @@ Diff:%
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure include_join_excl_cols_as_lst
-  as
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    --Arrange
-    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
-    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
-    --Act
-    ut3.ut.expect(l_actual).to_include(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
-    --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
-  end;
-
   procedure contain_join_excl_cols_as_lst
   as
     l_actual   sys_refcursor;
@@ -2482,20 +2319,6 @@ Diff:%
     open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
-    --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
-  end;
-
-  procedure include_excl_cols_as_list
-  as
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    --Arrange
-    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
-    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
-    --Act
-    ut3.ut.expect(l_actual).to_include(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN|//Some_Col'));
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
@@ -2531,23 +2354,6 @@ Diff:%
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;  
   
-  procedure cursor_not_to_include
-  as
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    open l_expected for select 'TEST' username, -600 user_id from dual;
-    
-    open l_actual for select username, user_id from all_users
-    union all
-    select 'TEST1' username, -601 user_id from dual;
-    
-    --Act
-    ut3.ut.expect(l_actual).not_to_include(l_expected);
-    --Asserty
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
-  end;    
-  
   procedure cursor_not_to_contain_fail is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -2568,7 +2374,7 @@ Diff:%
 %Data-types:%
 %<USERNAME>VARCHAR2</USERNAME><USER_ID>NUMBER</USER_ID>%
 %Data:%
-%was expected not to include:(refcursor [ count = 1 ])%
+%was expected not to contain:(refcursor [ count = 1 ])%
 %Data-types:%
 %<USERNAME>CHAR</USERNAME><USER_ID>NUMBER</USER_ID>%
 %Data:%
@@ -2577,37 +2383,7 @@ Diff:%
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
-    
-  procedure cursor_not_to_include_fail is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-    l_expected_message varchar2(32767);
-    l_actual_message   varchar2(32767);
-  begin
-    --Arrange
-    open l_expected for select 'TEST' username, -600 user_id from dual;
-    
-    open l_actual for select username, user_id from all_users
-    union all
-    select 'TEST' username, -600 user_id from dual;
-    
-    --Act
-    ut3.ut.expect(l_actual).not_to_include(l_expected);
-    --Assert
-     l_expected_message := q'[%Actual: (refcursor [ count = % ])%
-%Data-types:%
-%<USERNAME>VARCHAR2</USERNAME><USER_ID>NUMBER</USER_ID>%
-%Data:%
-%was expected not to include:(refcursor [ count = 1 ])%
-%Data-types:%
-%<USERNAME>CHAR</USERNAME><USER_ID>NUMBER</USER_ID>%
-%Data:%
-%<ROW><USERNAME>TEST</USERNAME><USER_ID>-600</USER_ID></ROW>%]';
-    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
-    --Assert
-    ut.expect(l_actual_message).to_be_like(l_expected_message);
-  end;
-  
+
   procedure cursor_not_to_contain_joinby is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -2622,47 +2398,6 @@ Diff:%
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
   
-   procedure cursor_not_to_include_joinby is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    --Arrange
-    open l_actual for select username,rownum * 10 user_id from all_users where rownum < 5;
-    open l_expected for select username||to_char(rownum) username ,rownum user_id from all_users where rownum < 5;
-    
-    --Act
-    ut3.ut.expect(l_actual).not_to_include(l_expected).join_by('USER_ID');
-    --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
-  end;
-
-  procedure not_inc_join_incl_cols_as_lst is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-    l_expected_message varchar2(32767);
-    l_actual_message   varchar2(32767);
-  begin
-    --Arrange
-    open l_actual   for select rownum as rn, 'b' as "A_Column", 'c' as A_COLUMN, 'x' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
-    open l_expected for select rownum as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
-    --Act
-    ut3.ut.expect(l_actual).not_to_include(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
-    --Assert
-    l_expected_message := q'[%Actual: (refcursor [ count = 9 ])
-%Data-types:
-%<RN>NUMBER</RN><A_Column>CHAR</A_Column><A_COLUMN>CHAR</A_COLUMN><SOME_COL>CHAR</SOME_COL><Some_Col>CHAR</Some_Col>
-%Data:
-%<ROW>%</ROW>
-%was expected not to include:(refcursor [ count = 3 ])
-%Data-types:
-%<RN>NUMBER</RN><A_Column>CHAR</A_Column><A_COLUMN>CHAR</A_COLUMN><SOME_COL>CHAR</SOME_COL><Some_Col>CHAR</Some_Col>
-%Data:
-%<ROW><RN>1</RN><A_Column>a</A_Column><A_COLUMN>d</A_COLUMN><SOME_COL>x</SOME_COL><Some_Col>c</Some_Col></ROW><ROW><RN>2</RN><A_Column>a</A_Column><A_COLUMN>d</A_COLUMN><SOME_COL>x</SOME_COL><Some_Col>c</Some_Col></ROW><ROW><RN>3</RN><A_Column>a</A_Column><A_COLUMN>d</A_COLUMN><SOME_COL>x</SOME_COL><Some_Col>c</Some_Col></ROW>]';
-    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
-    --Assert
-    ut.expect(l_actual_message).to_be_like(l_expected_message);
-  end;
- 
   procedure not_cont_join_incl_cols_as_lst is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -2676,19 +2411,6 @@ Diff:%
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
 
-  procedure not_inc_join_excl_cols_as_lst is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    --Arrange
-    open l_actual   for select rownum as rn, 'a' as "A_Column", 'c' as A_COLUMN, 'y' SOME_COL, 'd' "Some_Col"  from dual a connect by level < 10;
-    open l_expected for select rownum * 20 as rn, 'a' as "A_Column", 'd' as A_COLUMN, 'x' SOME_COL, 'c' "Some_Col"  from dual a connect by level < 4;
-    --Act
-    ut3.ut.expect(l_actual).not_to_include(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
-    --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
-  end;
-  
   procedure not_cont_join_excl_cols_as_lst is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -2701,8 +2423,8 @@ Diff:%
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
- 
-  procedure to_include_duplicates is
+
+  procedure to_contain_duplicates is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
   begin
@@ -2713,12 +2435,12 @@ Diff:%
     open l_expected for select rownum as rn from dual a connect by level < 4;
     
     --Act
-    ut3.ut.expect(l_actual).to_include(l_expected);
+    ut3.ut.expect(l_actual).to_contain(l_expected);
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
   
-  procedure to_include_duplicates_fail is
+  procedure to_contain_duplicates_fail is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
     l_expected_message varchar2(32767);
@@ -2730,9 +2452,9 @@ Diff:%
     union all select rownum as rn from dual a connect by level < 4;
     
     --Act
-    ut3.ut.expect(l_actual).to_include(l_expected);
+    ut3.ut.expect(l_actual).to_contain(l_expected);
    --Assert
-     l_expected_message := q'[%Actual: refcursor [ count = 9 ] was expected to include: refcursor [ count = 6 ]
+     l_expected_message := q'[%Actual: refcursor [ count = 9 ] was expected to contain: refcursor [ count = 6 ]
 %Diff:
 %Rows: [ 3 differences ]
 %Missing:  <RN>%</RN>

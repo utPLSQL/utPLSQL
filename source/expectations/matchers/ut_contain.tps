@@ -1,4 +1,4 @@
-create or replace type ut_include under ut_equal(
+create or replace type ut_contain under ut_equal(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -23,9 +23,9 @@ create or replace type ut_include under ut_equal(
   * that false include not necessary mean true not include.
   */
 
-  constructor function ut_include(self in out nocopy ut_include, a_expected sys_refcursor) return self as result,
-  overriding member function run_matcher(self in out nocopy ut_include, a_actual ut_data_value) return boolean,
-  overriding member function run_matcher_negated(self in out nocopy ut_include, a_actual ut_data_value) return boolean,
+  constructor function ut_contain(self in out nocopy ut_contain, a_expected sys_refcursor) return self as result,
+  overriding member function run_matcher(self in out nocopy ut_contain, a_actual ut_data_value) return boolean,
+  overriding member function run_matcher_negated(self in out nocopy ut_contain, a_actual ut_data_value) return boolean,
   overriding member function failure_message(a_actual ut_data_value) return varchar2,
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2
 )

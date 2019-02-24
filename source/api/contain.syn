@@ -1,1 +1,1 @@
-create synonym contain for ut_include;
+create synonym contain for ut_contain;

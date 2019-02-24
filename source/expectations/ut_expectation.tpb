@@ -35,10 +35,8 @@ create or replace type body ut_expectation as
     l_matcher       ut_matcher := a_matcher;
     l_message       varchar2(32767);
   begin
-    --Negated matcher for include option.
-    l_expectation_result := l_matcher.run_matcher_negated( self.actual_data );
-    l_expectation_result := coalesce(l_expectation_result,false);
- 
+    l_expectation_result := coalesce( l_matcher.run_matcher_negated( self.actual_data ), false );
+
     l_message := coalesce( l_matcher.error_message( self.actual_data ), l_matcher.failure_message_when_negated( self.actual_data ) );
     ut_expectation_processor.add_expectation_result( ut_expectation_result( ut_utils.to_test_result( l_expectation_result ), self.description, l_message ) );
   end;
@@ -683,24 +681,14 @@ create or replace type body ut_expectation as
     self.not_to(  ut_be_less_than (a_expected) );
   end;
 
-  member procedure to_include(self in ut_expectation, a_expected sys_refcursor) is
-  begin
-    to_contain( a_expected );
-  end;
-  
   member procedure to_contain(self in ut_expectation, a_expected sys_refcursor) is
   begin
-    self.to_( ut_include(a_expected) );
-  end;
-  
-  member procedure not_to_include(self in ut_expectation, a_expected sys_refcursor) is
-  begin
-    not_to_contain( a_expected );
+    self.to_( ut_contain(a_expected) );
   end;
   
   member procedure not_to_contain(self in ut_expectation, a_expected sys_refcursor) is
   begin
-    self.not_to( ut_include(a_expected).negated() );
+    self.not_to( ut_contain(a_expected).negated() );
   end;
 
 end;
