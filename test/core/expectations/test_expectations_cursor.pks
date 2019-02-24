@@ -340,11 +340,8 @@ create or replace package test_expectations_cursor is
   --%test( Unordered fix for issues with duplicate no : #764 )   
   procedure unordered_fix_764;
  
-  --%test( Fail cursor to include data from another cursor )   
-  procedure cursor_to_include_fail;
-  
-  --%test( Cursor include data from another cursor using second keyword)   
-  procedure cursor_to_include;
+  --%test( Success when cursor contains data from another cursor)
+  procedure cursor_to_contain;
   
   --%test( Fail cursor contains data from another cursor using second keyword) 
   procedure cursor_to_contain_fail;
@@ -355,86 +352,44 @@ create or replace package test_expectations_cursor is
   --%test( Does not fail when comparing cursor to contain cursor with unordered rows option)
   procedure cursor_to_contain_unordered;
 
-  --%test( Does not fail when comparing cursor to include cursor with unordered rows option)
-  procedure cursor_to_include_unordered;
-
-  --%test( Success cursor to include cursor with unordered columns)
-  procedure cursor_to_include_uc;
-
-  --%test( Cursor contain data from another cursor using second keyword)
-  procedure cursor_to_contain;
-
-  --%test( Cursor include data from another cursor with joinby)
-  procedure cursor_to_include_joinby;
-
-   --%test( Fail cursor include data from another cursor with joinby)  
-  procedure cursor_to_include_joinby_fail;
- 
-   --%test( Cursor contains data from another cursor with joinby)   
+   --%test( Cursor contains data from another cursor with joinby)
   procedure cursor_contain_joinby;
 
    --%test( Fail cursor contains data from another cursor with joinby)  
   procedure cursor_contain_joinby_fail; 
   
-  --%test(Cursor include data with of columns to include)
-  procedure to_include_incl_cols_as_list;
-
-  --%test(Cursor contains data with of columns to include)
-  procedure to_contain_cont_cols_as_list;
+  --%test(Cursor contains data with list of columns to include)
+  procedure to_contain_incl_cols_as_list;
   
-  --%test(Cursor includes data with of columns to include and join by value)
-  procedure to_inc_join_incl_cols_as_lst;
- 
-  --%test(Cursor contains data with of columns to include and join by value) 
+  --%test(Cursor contains data with of columns to include and join by value)
   procedure to_cont_join_incl_cols_as_lst;
-  
-  --%test(Cursor include data with of columns to exclude and join by value)
-  procedure include_join_excl_cols_as_lst;
   
   --%test(Cursor contains data with of columns to exclude and join by value)
   procedure contain_join_excl_cols_as_lst;
  
-  --%test(Cursor include data with of columns to exclude)
-  procedure include_excl_cols_as_list;
-  
   --%test(Cursor contains data with of columns to exclude)
   procedure contain_excl_cols_as_list;
   
   --%test( Cursor not to contains data from another cursor)   
   procedure cursor_not_to_contain;
   
-  --%test( Cursor not to include data from another cursor)   
-  procedure cursor_not_to_include; 
-  
-  --%test( Cursor fail not to contains data from another cursor)   
+  --%test( Cursor fail not to contains data from another cursor)
   procedure cursor_not_to_contain_fail;
   
-  --%test( Cursor fail not to include data from another cursor)   
-  procedure cursor_not_to_include_fail;  
-  
-  --%test( Cursor not contains data from another cursor with joinby clause)   
+  --%test( Cursor not contains data from another cursor with joinby clause)
   procedure cursor_not_to_contain_joinby;  
   
-  --%test( Cursor not include data from another cursor with joinby clause)   
-  procedure cursor_not_to_include_joinby;  
-
-  --%test(Cursor not include data with of columns to include and join by value - Fail)
-  procedure not_inc_join_incl_cols_as_lst;
- 
   --%test(Cursor not contains data with of columns to include and join by value)
   procedure not_cont_join_incl_cols_as_lst;
-  
-  --%test(Cursor not include data with of columns to exclude and join by value)
-  procedure not_inc_join_excl_cols_as_lst;  
   
   --%test(Cursor not contains data with of columns to exclude and join by value)
   procedure not_cont_join_excl_cols_as_lst; 
 
-  --%test(Cursor to include duplicates)
-  procedure to_include_duplicates;
+  --%test(Cursor to contain duplicates)
+  procedure to_contain_duplicates;
   
-  --%test(Cursor to include duplicates fail)
-  procedure to_include_duplicates_fail;
+  --%test(Cursor to contain duplicates fail)
+  procedure to_contain_duplicates_fail;
   
 end;
 /

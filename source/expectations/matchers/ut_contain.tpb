@@ -1,4 +1,4 @@
-create or replace type body ut_include as
+create or replace type body ut_contain as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -16,14 +16,14 @@ create or replace type body ut_include as
   limitations under the License.
   */
 
-  constructor function ut_include(self in out nocopy ut_include, a_expected sys_refcursor) return self as result is
+  constructor function ut_contain(self in out nocopy ut_contain, a_expected sys_refcursor) return self as result is
   begin
     self.init(ut_data_value_refcursor(a_expected), null, $$plsql_unit);
     self.options.unordered();
     return;
   end;
 
-  overriding member function run_matcher(self in out nocopy ut_include, a_actual ut_data_value) return boolean is
+  overriding member function run_matcher(self in out nocopy ut_contain, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
     if self.expected.data_type = a_actual.data_type then
@@ -38,7 +38,7 @@ create or replace type body ut_include as
     return l_result;
   end;
 
-  overriding member function run_matcher_negated(self in out nocopy ut_include, a_actual ut_data_value) return boolean is
+  overriding member function run_matcher_negated(self in out nocopy ut_contain, a_actual ut_data_value) return boolean is
   begin
     return run_matcher(a_actual);
   end;

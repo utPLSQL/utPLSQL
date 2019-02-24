@@ -124,10 +124,9 @@ create public synonym be_like for &&ut3_owner..be_like;
 create public synonym be_not_null for &&ut3_owner..be_not_null;
 create public synonym be_null for &&ut3_owner..be_null;
 create public synonym be_true for &&ut3_owner..be_true;
-create public synonym contain for &&ut3_owner..include;
+create public synonym contain for &&ut3_owner..contain;
 create public synonym equal for &&ut3_owner..equal;
 create public synonym have_count for &&ut3_owner..have_count;
-create public synonym include for &&ut3_owner..include;
 create public synonym match for &&ut3_owner..match;
 
 create public synonym ut for &&ut3_owner..ut;

@@ -15,9 +15,9 @@ Advanced data-comparison options are available for the [`equal`](expectations.md
   ut.expect( a_actual {data-type} ).not_to( equal( a_expected {data-type})[.extendend_option()[.extendend_option()[...]]]) );
   ut.expect( a_actual {data-type} ).to_equal( a_expected {data-type})[.extendend_option()[.extendend_option()[...]]]);
   ut.expect( a_actual {data-type} ).not_to_equal( a_expected {data-type})[.extendend_option()[.extendend_option()[...]]] );
+  ut.expect( a_actual {data-type} ).to_( contain( a_expected {data-type})[.extendend_option()[.extendend_option()[...]]]);
+  ut.expect( a_actual {data-type} ).not_to( contain( a_expected {data-type})[.extendend_option()[.extendend_option()[...]]]) );
   ut.expect( a_actual {data-type} ).to_contain( a_expected {data-type})[.extendend_option()[.extendend_option()[...]]]);
-  ut.expect( a_actual {data-type} ).to_include( a_expected {data-type})[.extendend_option()[.extendend_option()[...]]]);
-  ut.expect( a_actual {data-type} ).not_to_include( a_expected {data-type})[.extendend_option()[.extendend_option()[...]]]);
   ut.expect( a_actual {data-type} ).not_to_contain( a_expected {data-type})[.extendend_option()[.extendend_option()[...]]]);
 ```
 
@@ -61,7 +61,7 @@ procedure test_cur_skip_columns_cn is
 begin
   open l_expected for select 'text' ignore_me, d.* from user_tables d where rownum = 1;
   open l_actual   for select sysdate "ADate",  d.* from user_tables d;
-  ut.expect( l_actual ).to_include( l_expected ).exclude( 'IGNORE_ME,ADate' );
+  ut.expect( l_actual ).to_contain( l_expected ).exclude( 'IGNORE_ME,ADate' );
 end;
 ```
 
@@ -230,7 +230,7 @@ end;
 Above test will indicate that in actual data-set
 
 ```sql
-     Actual: refcursor [ count = 43 ] was expected to include: refcursor [ count = 44 ]
+     Actual: refcursor [ count = 43 ] was expected to contain: refcursor [ count = 44 ]
      Diff:
      Rows: [ 1 differences ]
        PK <USERNAME>TEST</USERNAME> - Missing   <USER_ID>-610</USER_ID>
@@ -404,7 +404,7 @@ create or replace package body test_unordered_columns as
     and rownum < 20;
 
     --Assert
-    ut.expect(l_actual).to_include(l_expected).unordered_columns();
+    ut.expect(l_actual).to_contain(l_expected).unordered_columns();
   end;
 end;
 /

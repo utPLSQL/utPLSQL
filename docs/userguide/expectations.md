@@ -145,7 +145,7 @@ utPLSQL provides the following matchers to perform checks on the expected and ac
 - `be_null`
 - `be_true`
 - `equal`
-- `include ` / `contain`
+- `contain`
 - `have_count`
 - `match`
 
@@ -433,17 +433,17 @@ end;
 The `a_nulls_are_equal` parameter controls the behavior of a `null = null` comparison.
 To change the behavior of `NULL = NULL` comparison pass the `a_nulls_are_equal => false` to the `equal` matcher.  
 
-## include / contain
+## contain
 
 This matcher supports only cursor comparison. It check if the give set contain all values from given subset.
 
-when comparing data using `include / contain` matcher, the data-types of columns for compared cursors must be exactly the same.
+When comparing data using `contain` matcher, the data-types of columns for compared cursors must be exactly the same.
 
-The matcher supports all advanced comparison options as `equal` e.g. include , exclude, join_by.
+The matcher supports all advanced comparison options as `equal` like: `include` , `exclude`, `join_by` etc..
 
-The matcher is successful when all of the values from expected results are included in actual data set.
+The matcher is successful when actual data set contains all of the values from expected results.
 
-The matcher will cause a test to fail if any of expected values are not included in actual data set.
+The matcher will cause a test to fail if actual data set does not contain any of expected values.
 
 ![included_set](../images/venn21.gif)
 
@@ -460,7 +460,7 @@ The matcher will cause a test to fail if any of expected values are not included
     union all select rownum as rn from dual a connect by level < 4;
     
     --Act
-    ut.expect(l_actual).to_include(l_expected);
+    ut.expect(l_actual).to_contain(l_expected);
   end;
 ```
 
@@ -468,7 +468,7 @@ Will result in failure message
 
 ```sql
   1) ut_refcursors
-      Actual: refcursor [ count = 9 ] was expected to include: refcursor [ count = 6 ]
+      Actual: refcursor [ count = 9 ] was expected to contain: refcursor [ count = 6 ]
       Diff:
       Rows: [ 3 differences ]
       Missing:  <ROW><RN>3</RN></ROW>
@@ -476,7 +476,7 @@ Will result in failure message
       Missing:  <ROW><RN>1</RN></ROW>
 ```
 
-When duplicate rows are present in expected data set, actual data set must also include the same amount of duplicate.
+When duplicate rows are present in expected data set, actual data set must also include the same amount of duplicates.
 
 *Example 2.*
 
@@ -488,19 +488,19 @@ create or replace package ut_duplicate_test is
    --%suite(Sample Test Suite)
 
    --%test(Ref Cursor contain duplicates)
-   procedure ut_duplicate_include;
+   procedure ut_duplicate_contain;
 
 end ut_duplicate_test;
 /
 
 create or replace package body ut_duplicate_test is
-  procedure ut_duplicate_include is
+  procedure ut_duplicate_contain is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
   begin
     open l_expected for select mod(level,2) as rn from dual connect by level < 5;
     open l_actual   for select mod(level,8) as rn from dual connect by level < 9;
-    ut.expect(l_actual).to_include(l_expected);
+    ut.expect(l_actual).to_contain(l_expected);
    end;
    
 end ut_duplicate_test;
@@ -509,8 +509,8 @@ end ut_duplicate_test;
 Will result in failure test message
 
 ```sql
-  1) ut_duplicate_include
-      Actual: refcursor [ count = 8 ] was expected to include: refcursor [ count = 4 ]
+  1) ut_duplicate_contain
+      Actual: refcursor [ count = 8 ] was expected to contain: refcursor [ count = 4 ]
       Diff:
       Rows: [ 2 differences ]
       Missing:  <RN>0</RN>
@@ -519,7 +519,7 @@ Will result in failure test message
 
 
 
-The negated version of `include / contain` ( `not_to_include`/ `not_to_contain` ) is successful only when all values from expected set are not part of actual (they are disjoint and there is no overlap).
+The negated version of `contain` ( `not_to_contain` ) is successful only when all values from expected set are not part of actual (they are disjoint and there is no overlap).
 
 
 
@@ -531,7 +531,7 @@ Set 1 is defined as [ A , B , C ]
 
 *Set 2 is defined as [A , D , E ]*
 
-*Result : This will fail both of options to`to_include` and `not_to_include`*
+*Result : This will fail both of options to `to_contain` and `not_to_contain`*
 
 
 
@@ -541,7 +541,7 @@ Set 1 is defined as [ A , B , C , D ]
 
 *Set 2 is defined as [A , B , D ]*
 
-*Result : This will be success on option `to_include` and fail `not_to_include`*
+*Result : This will be success on option `to_contain` and fail `not_to_contain`*
 
 
 
@@ -551,33 +551,33 @@ Set 1 is defined as [ A , B , C  ]
 
 *Set 2 is defined as [D, E , F  ]*
 
-*Result : This will be success on options `not_to_include` and fail  `to_include`* 
+*Result : This will be success on options `not_to_contain` and fail  `to_contain`* 
 
 
 
 Example usage
 
 ```sql
-create or replace package example_include is
-  --%suite(Include test)
+create or replace package example_contain is
+  --%suite(Contain test)
   
-  --%test( Cursor include data from another cursor)   
-  procedure cursor_to_include;
+  --%test( Cursor contains data from another cursor)   
+  procedure cursor_to_contain;
   
-  --%test( Cursor include data from another cursor)   
-  procedure cursor_not_to_include;
+  --%test( Cursor contains data from another cursor)   
+  procedure cursor_not_to_contain;
       
-  --%test( Cursor fail include)   
-  procedure cursor_fail_include;
+  --%test( Cursor fail on to_contain)   
+  procedure cursor_fail_contain;
   
-  --%test( Cursor fail not include)  
-  procedure cursor_fail_not_include;
+  --%test( Cursor fail not_to_contain)  
+  procedure cursor_fail_not_contain;
 end;
 /
   
-create or replace package body example_include is
+create or replace package body example_contain is
   
-  procedure cursor_to_include is
+  procedure cursor_to_contain is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
   begin
@@ -594,10 +594,10 @@ create or replace package body example_include is
     select 'c' as name from dual;
     
     --Act
-    ut.expect(l_actual).to_include(l_expected);
+    ut.expect(l_actual).to_contain(l_expected);
   end;
   
-  procedure cursor_not_to_include is
+  procedure cursor_not_to_contain is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
   begin
@@ -613,10 +613,10 @@ create or replace package body example_include is
     select 'f' as name from dual;
 
     --Act
-    ut.expect(l_actual).not_to_include(l_expected);
+    ut.expect(l_actual).not_to_contain(l_expected);
   end;
     
-  procedure cursor_fail_include is
+  procedure cursor_fail_contain is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
   begin
@@ -632,10 +632,10 @@ create or replace package body example_include is
     select 'e' as name from dual;
 
     --Act
-    ut.expect(l_actual).to_include(l_expected);
+    ut.expect(l_actual).to_contain(l_expected);
   end;
 
-  procedure cursor_fail_not_include is
+  procedure cursor_fail_not_contain is
     l_actual   SYS_REFCURSOR;
     l_expected SYS_REFCURSOR;
   begin
@@ -651,7 +651,7 @@ create or replace package body example_include is
     select 'e' as name from dual;
 
     --Act
-    ut.expect(l_actual).not_to_include(l_expected);
+    ut.expect(l_actual).not_to_contain(l_expected);
   end;
 end;
 /
@@ -660,26 +660,30 @@ end;
 
 
 Above execution will provide results as follow:
+Cursor contains data from another cursor   
+Cursor contains data from another cursor   
+Cursor fail on to_contain   
+Cursor fail not_to_contain  
 
 ```sql
-Include test
-  Cursor include data from another cursor [.045 sec]
-  Cursor include data from another cursor [.039 sec]
-  Cursor fail include [.046 sec] (FAILED - 1)
-  Cursor fail not include [.043 sec] (FAILED - 2)
+Contain test
+  Cursor contains data from another cursor [.045 sec]
+  Cursor contains data from another cursor [.039 sec]
+  Cursor fail on to_contain [.046 sec] (FAILED - 1)
+  Cursor fail not_to_contain [.043 sec] (FAILED - 2)
  
 Failures:
  
-  1) cursor_fail_include
-      Actual: refcursor [ count = 3 ] was expected to include: refcursor [ count = 3 ]
+  1) cursor_fail_contain
+      Actual: refcursor [ count = 3 ] was expected to contain: refcursor [ count = 3 ]
       Diff:
       Rows: [ 2 differences ]
       Missing:  <ROW><NAME>d</NAME></ROW>
       Missing:  <ROW><NAME>e</NAME></ROW>
-      at "UT3.EXAMPLE_INCLUDE.CURSOR_FAIL_INCLUDE", line 71 ut.expect(l_actual).to_include(l_expected);
+      at "UT3.EXAMPLE_CONTAIN.CURSOR_FAIL_CONTAIN", line 71 ut.expect(l_actual).to_contain(l_expected);
       
        
-  2) cursor_fail_not_include
+  2) cursor_fail_not_contain
       Actual: (refcursor [ count = 3 ])
           Data-types:
           <ROW><NAME xml_valid_name="NAME">CHAR</NAME>
@@ -688,7 +692,7 @@ Failures:
           <ROW><NAME>a</NAME></ROW>
           <ROW><NAME>b</NAME></ROW>
           <ROW><NAME>c</NAME></ROW>
-      was expected not to include:(refcursor [ count = 3 ])
+      was expected not to contain:(refcursor [ count = 3 ])
           Data-types:
           <ROW><NAME xml_valid_name="NAME">CHAR</NAME>
           </ROW>
@@ -696,7 +700,7 @@ Failures:
           <ROW><NAME>a</NAME></ROW>
           <ROW><NAME>d</NAME></ROW>
           <ROW><NAME>e</NAME></ROW>
-      at "UT3.EXAMPLE_INCLUDE.CURSOR_FAIL_NOT_INCLUDE", line 94 ut.expect(l_actual).not_to_include(l_expected);
+      at "UT3.EXAMPLE_CONTAIN.CURSOR_FAIL_NOT_CONTAIN", line 94 ut.expect(l_actual).not_to_contain(l_expected);
 ```
 
 
@@ -1161,7 +1165,7 @@ The matrix below illustrates the data types supported by different matchers.
 | **be_less_than**        |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |
 | **be_between**          |      |         |      |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |        |                             |        |
 | **equal**               |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |
-| **include / contain**   |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |   X    |
+| **contain**             |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |   X    |
 | **match**               |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |
 | **be_like**             |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |
 | **be_empty**            |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |

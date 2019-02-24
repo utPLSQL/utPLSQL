@@ -68,6 +68,7 @@ create or replace synonym &ut3_user..be_like for &&ut3_owner..be_like;
 create or replace synonym &ut3_user..be_not_null for &&ut3_owner..be_not_null;
 create or replace synonym &ut3_user..be_null for &&ut3_owner..be_null;
 create or replace synonym &ut3_user..be_true for &&ut3_owner..be_true;
+create or replace synonym &ut3_user..contain for &&ut3_owner..contain;
 create or replace synonym &ut3_user..equal for &&ut3_owner..equal;
 create or replace synonym &ut3_user..have_count for &&ut3_owner..have_count;
 create or replace synonym &ut3_user..match for &&ut3_owner..match;
