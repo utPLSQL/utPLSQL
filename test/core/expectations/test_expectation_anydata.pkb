@@ -16,6 +16,8 @@ create or replace package body test_expectation_anydata is
   end;
 
   procedure fail_on_different_type_null is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
   begin
     --Arrange
     g_test_expected := anydata.convertObject( cast(null as test_dummy_object) );
@@ -23,10 +25,15 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+    l_expected_message := q'[%Actual (ut3_tester.other_dummy_object) cannot be compared to Expected (ut3_tester.test_dummy_object) using matcher 'equal'.]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
   procedure fail_on_different_type is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
   begin
     --Arrange
     g_test_expected := anydata.convertObject( test_dummy_object(1, 'A', '0') );
@@ -34,7 +41,10 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+    l_expected_message := q'[%Actual (ut3_tester.other_dummy_object) cannot be compared to Expected (ut3_tester.test_dummy_object) using matcher 'equal'.]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
   procedure fail_on_different_object_data is
@@ -49,6 +59,8 @@ create or replace package body test_expectation_anydata is
   end;
 
   procedure fail_on_one_object_null is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);  
   begin
     --Arrange
     g_test_expected := anydata.convertObject( test_dummy_object(1, 'A', '0') );
@@ -56,10 +68,19 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+    l_expected_message := q'[%Actual: ut3_tester.test_dummy_object was expected to equal: ut3_tester.test_dummy_object
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Missing:  <TEST_DUMMY_OBJECT><ID>1</ID><name>A</name><Value>0</Value></TEST_DUMMY_OBJECT>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+      
   end;
 
   procedure fail_on_collection_vs_object is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
   begin
     --Arrange
     g_test_expected := anydata.convertObject( test_dummy_object(1, 'A', '0') );
@@ -67,11 +88,16 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+    l_expected_message := q'[%Actual (ut3_tester.test_dummy_object_list) cannot be compared to Expected (ut3_tester.test_dummy_object) using matcher 'equal'.]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
   procedure fail_on_null_vs_empty_coll is
     l_null_list test_dummy_object_list;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
   begin
     --Arrange
     g_test_expected := anydata.convertCollection( test_dummy_object_list() );
@@ -79,11 +105,20 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+    l_expected_message := q'[%Actual: ut3_tester.test_dummy_object_list [ count =  ] was expected to equal: ut3_tester.test_dummy_object_list [ count = 0 ]
+%Diff:
+%Rows: [  all different ]
+%All rows are different as the columns position is not matching.]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+      
   end;
   
   procedure fail_on_one_collection_null is
     l_null_list test_dummy_object_list;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
   begin
     --Arrange
     g_test_expected := anydata.convertCollection( test_dummy_object_list(test_dummy_object(1, 'A', '0')) );
@@ -91,10 +126,18 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+    l_expected_message := q'[%Actual: ut3_tester.test_dummy_object_list [ count =  ] was expected to equal: ut3_tester.test_dummy_object_list [ count = 1 ]
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Missing:  <TEST_DUMMY_OBJECT><ID>1</ID><name>A</name><Value>0</Value></TEST_DUMMY_OBJECT>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
   procedure fail_on_one_collection_empty is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
   begin
     --Arrange
     g_test_expected := anydata.convertCollection( test_dummy_object_list(test_dummy_object(1, 'A', '0')) );
@@ -102,10 +145,19 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+    l_expected_message := q'[%Actual: ut3_tester.test_dummy_object_list [ count = 0 ] was expected to equal: ut3_tester.test_dummy_object_list [ count = 1 ]
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Missing:  <TEST_DUMMY_OBJECT><ID>1</ID><name>A</name><Value>0</Value></TEST_DUMMY_OBJECT>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+      
   end;
 
   procedure fail_on_different_coll_data is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
     l_obj test_dummy_object := test_dummy_object(1, 'A', '0');
   begin
     --Arrange
@@ -114,7 +166,13 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+    l_expected_message := q'[%Actual: ut3_tester.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester.test_dummy_object_list [ count = 1 ]
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 2 - Extra:    <TEST_DUMMY_OBJECT><ID>1</ID><name>A</name><Value>0</Value></TEST_DUMMY_OBJECT>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
   --%test(Gives success when both anydata are NULL)
@@ -162,6 +220,8 @@ create or replace package body test_expectation_anydata is
   end;
 
   procedure fail_on_coll_different_order is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
     l_first_obj  test_dummy_object := test_dummy_object(1, 'A', '0');
     l_second_obj test_dummy_object := test_dummy_object(2, 'b', '1');
   begin
@@ -307,6 +367,8 @@ create or replace package body test_expectation_anydata is
   procedure include_exclude_attrib_list is
     l_exclude ut3.ut_varchar2_list;
     l_include ut3.ut_varchar2_list;
+    l_expected varchar2(32767);
+    l_actual   varchar2(32767);
   begin
     --Arrange
     l_include := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/key','TEST_DUMMY_OBJECT/ID','TEST_DUMMY_OBJECT/Value');
@@ -350,7 +412,7 @@ Rows: [ 1 differences ]
     l_expected := q'[Actual: ut3_tester.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester.test_dummy_object_list [ count = 1 ]
 Diff:
 Rows: [ 1 differences ]
-  Row No. 2 - Extra:    <ID>1</ID><name>A</name><Value>0</Value>]';
+  Row No. 2 - Extra:    <TEST_DUMMY_OBJECT><ID>1</ID><name>A</name><Value>0</Value></TEST_DUMMY_OBJECT>]';
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
@@ -417,7 +479,6 @@ Rows: [ 1 differences ]
     ut.expect(ut3.ut_expectation_processor.get_warnings()(1)).to_be_like('The syntax: "%" is deprecated.%');
   end;
 
-  --%test(Reports only mismatched columns on column data mismatch)
   procedure data_diff_on_atr_data_mismatch is
     l_actual           test_dummy_object_list;
     l_expected         test_dummy_object_list;
@@ -477,6 +538,71 @@ Rows: [ 60 differences, showing first 20 ]
   Row No. 38 - Expected: <ID>38</ID><name>Something 38</name>
   Row No. 40 - Actual:   <ID>-40</ID><name>Something -40</name><Value>-40</Value>
   Row No. 40 - Expected: <ID>40</ID><name>Something 40</name><Value>40</Value>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure collection_include_list is
+    l_actual           test_dummy_object_list;
+    l_expected         test_dummy_object_list;
+    l_list ut3.ut_varchar2_list;
+  begin
+    l_list := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/Value','TEST_DUMMY_OBJECT/ID');
+    --Arrange
+    select test_dummy_object( rownum, 'SomethingsDifferent '||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=2;
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2;
+    --Act
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include( l_list );
+
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure collection_exclude_list is
+    l_actual           test_dummy_object_list;
+    l_expected         test_dummy_object_list;
+    l_list ut3.ut_varchar2_list;
+  begin
+    l_list := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/Value','TEST_DUMMY_OBJECT/ID');
+    --Arrange
+    select test_dummy_object( rownum*2, 'Something '||rownum, rownum*2)
+      bulk collect into l_actual
+      from dual connect by level <=2;
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2;
+    --Act
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).exclude( l_list );
+
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure collection_include_list_fail is
+    l_actual           test_dummy_object_list;
+    l_expected         test_dummy_object_list;
+    l_list ut3.ut_varchar2_list;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    l_list := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/name');
+    --Arrange
+    select test_dummy_object( rownum, 'SomethingsDifferent '||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=2;
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2;
+    --Act
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include( l_list );
+
+    l_expected_message := q'[%Actual: ut3_tester.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester.test_dummy_object_list [ count = 2 ]
+%Diff:
+%Rows: [ 2 differences ]
+%All rows are different as the columns are not matching.]';
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);

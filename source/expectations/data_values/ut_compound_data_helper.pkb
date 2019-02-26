@@ -391,6 +391,7 @@ create or replace package body ut_compound_data_helper is
     end if;    
     
     l_compare_sql := replace(l_compare_sql,'{:where_condition:}',l_where_stmt);
+
     return l_compare_sql;
   end;
    
@@ -407,7 +408,8 @@ create or replace package body ut_compound_data_helper is
   function get_rows_diff_by_sql(
     a_act_cursor_info ut_cursor_column_tab, a_exp_cursor_info ut_cursor_column_tab,
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
-    a_join_by_list ut_varchar2_list, a_unordered boolean, a_enforce_column_order boolean := false
+    a_join_by_list ut_varchar2_list, a_unordered boolean, a_enforce_column_order boolean := false,
+    a_extract_path varchar2
   ) return tt_row_diffs is
     l_act_extract_xpath  varchar2(32767):= ut_utils.to_xpath(get_column_extract_path(a_act_cursor_info));
     l_exp_extract_xpath  varchar2(32767):= ut_utils.to_xpath(get_column_extract_path(a_exp_cursor_info));
@@ -429,7 +431,7 @@ create or replace package body ut_compound_data_helper is
            where diff_id = :diff_id
              and ucd.exp_data_id = :self_guid
           ) i,
-          table( xmlsequence( extract(i.exp_item_data,'/*') ) ) s
+          table( xmlsequence( extract(i.exp_item_data,:extract_path) ) ) s
     ),
     act as (
       select
@@ -444,7 +446,7 @@ create or replace package body ut_compound_data_helper is
            where diff_id = :diff_id
              and ucd.act_data_id = :other_guid
           ) i,
-          table( xmlsequence( extract(i.act_item_data,'/*') ) ) s
+          table( xmlsequence( extract(i.act_item_data,:extract_path) ) ) s
     )
     select rn, diff_type, diffed_row, pk_value pk_value
     from (
@@ -520,16 +522,15 @@ create or replace package body ut_compound_data_helper is
          case when final_order = 1 then to_char(rnk) else col_name end
      ]'
    end;
-
    execute immediate l_sql
    bulk collect into l_results
-    using l_exp_extract_xpath, l_join_xpath, a_diff_id, a_expected_dataset_guid,
-          l_act_extract_xpath, l_join_xpath, a_diff_id, a_actual_dataset_guid,
-          l_join_xpath, l_join_xpath, a_diff_id;
-        
+    using l_exp_extract_xpath, l_join_xpath, a_diff_id, a_expected_dataset_guid,a_extract_path,
+          l_act_extract_xpath, l_join_xpath, a_diff_id, a_actual_dataset_guid,a_extract_path,
+          l_join_xpath, l_join_xpath, a_diff_id;    
     return l_results;
   end;
   
+  --TODO : removal
   function get_rows_diff(
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
     a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2

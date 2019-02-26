@@ -111,5 +111,14 @@ create or replace package test_expectation_anydata is
   --%test(Reports only first 20 rows of diff and gives a full diff count)
   procedure data_diff_on_20_rows_only;
 
+  --%test(Validate include list on collections of objects)
+  procedure collection_include_list;
+  
+  --%test(Validate exclude list on collections of objects)
+  procedure collection_exclude_list;
+
+  --%test(Validate include list on collections of objects fail)
+  procedure collection_include_list_fail;
+  
 end;
 /

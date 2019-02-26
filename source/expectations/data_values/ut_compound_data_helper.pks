@@ -68,7 +68,8 @@ create or replace package ut_compound_data_helper authid definer is
   function get_rows_diff_by_sql(
     a_act_cursor_info ut_cursor_column_tab,a_exp_cursor_info ut_cursor_column_tab,
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
-    a_join_by_list ut_varchar2_list, a_unordered boolean, a_enforce_column_order boolean := false
+    a_join_by_list ut_varchar2_list, a_unordered boolean, a_enforce_column_order boolean := false,
+    a_extract_path varchar2
   ) return tt_row_diffs;
 
   subtype t_hash  is raw(128);

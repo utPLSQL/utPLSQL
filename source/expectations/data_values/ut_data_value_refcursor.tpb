@@ -15,7 +15,7 @@ create or replace type body ut_data_value_refcursor as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-        
+          
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor)
   return self as result is
   begin
@@ -23,13 +23,16 @@ create or replace type body ut_data_value_refcursor as
     return;
   end;
 
-  member procedure extract_cursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) is
+  member function extract_cursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) 
+  return number 
+  is
     c_bulk_rows  constant integer := 10000;
     l_cursor     sys_refcursor := a_value;
     l_ctx        number;
     l_xml        xmltype;
     l_ut_owner   varchar2(250) := ut_utils.ut_owner;
     l_set_id     integer := 0;
+    l_elements_count number := 0;
   begin
     -- We use DBMS_XMLGEN in order to:
     -- 1) be able to process data in bulks (set of rows)
@@ -46,11 +49,11 @@ create or replace type body ut_data_value_refcursor as
     ut_expectation_processor.set_xml_nls_params();
     l_ctx := dbms_xmlgen.newContext(l_cursor);
     dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
-    dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);        
+    dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);   
     loop
       l_xml := dbms_xmlgen.getxmltype(l_ctx);
       exit when dbms_xmlgen.getNumRowsProcessed(l_ctx) = 0;
-      self.elements_count := self.elements_count + dbms_xmlgen.getNumRowsProcessed(l_ctx);
+      l_elements_count := l_elements_count + dbms_xmlgen.getNumRowsProcessed(l_ctx);
       execute immediate
       'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
       'values (:self_guid, :self_row_count, :l_xml)'
@@ -59,6 +62,7 @@ create or replace type body ut_data_value_refcursor as
     end loop;
     ut_expectation_processor.reset_nls_params();
     dbms_xmlgen.closeContext(l_ctx);
+    return l_elements_count;
   exception
     when others then
       ut_expectation_processor.reset_nls_params();
@@ -75,14 +79,15 @@ create or replace type body ut_data_value_refcursor as
     self.self_type := $$plsql_unit;
     self.data_id   := sys_guid();
     self.data_type := 'refcursor';
+    self.compound_type := 'refcursor';
+    self.extract_path := '/*';
     ut_compound_data_helper.cleanup_diff;
     self.cursor_details := ut_cursor_details();
 
     if l_cursor is not null then
         if l_cursor%isopen then
           --Get some more info regarding cursor, including if it containts collection columns and what is their name        
-          self.elements_count := 0;
-          extract_cursor(l_cursor);
+          self.elements_count := extract_cursor(l_cursor);
           l_cursor_number  := dbms_sql.to_cursor_number(l_cursor);
           self.cursor_details  := ut_cursor_details(l_cursor_number);
           dbms_sql.close_cursor(l_cursor_number);         
@@ -233,7 +238,7 @@ create or replace type body ut_data_value_refcursor as
         l_row_diffs := ut_compound_data_helper.get_rows_diff_by_sql(
           l_self_cols, l_other_cols, l_self.data_id, l_other.data_id,
           l_diff_id, a_match_options.join_by.items, a_match_options.unordered,
-          a_match_options.ordered_columns()
+          a_match_options.ordered_columns(), self.extract_path
         );
         l_message := chr(10)
                      ||'Rows: [ ' || l_diff_row_count ||' differences'

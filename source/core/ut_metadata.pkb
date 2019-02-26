@@ -30,18 +30,25 @@ create or replace package body ut_metadata as
     l_object_number number;
   begin
     l_name := form_name(a_owner, a_object, a_procedure_name);
+    do_resolve(l_name,l_context,a_owner,a_object, a_procedure_name);
+  end do_resolve;
 
-    dbms_utility.name_resolve(name          => l_name
-                             ,context       => l_context
+  procedure do_resolve(a_fully_qualified_name in varchar2,a_context in integer,a_owner out nocopy varchar2, a_object out nocopy varchar2, 
+    a_procedure_name out nocopy varchar2) is
+    l_dblink        varchar2(200);
+    l_part1_type    number;
+    l_object_number number;
+  begin
+    dbms_utility.name_resolve(name          => a_fully_qualified_name
+                             ,context       => a_context
                              ,schema        => a_owner
                              ,part1         => a_object
                              ,part2         => a_procedure_name
                              ,dblink        => l_dblink
                              ,part1_type    => l_part1_type
                              ,object_number => l_object_number);
-
-  end do_resolve;
-
+  end;
+  
   function form_name(a_owner_name varchar2, a_object varchar2, a_subprogram varchar2 default null) return varchar2 is
     l_name varchar2(200);
   begin
@@ -262,6 +269,19 @@ create or replace package body ut_metadata as
       end;
       end if;
     return l_anytype;
+  end;
+
+  function get_collection_element(a_anydata in anydata) return varchar2 
+  is
+    l_anytype anytype;
+    l_nested_type t_anytype_members_rec;
+    l_type_code integer;
+  begin
+    l_type_code := a_anydata.gettype(l_anytype);
+    if is_collection(l_type_code) then
+      l_nested_type := get_anytype_members_info(ut_metadata.get_attr_elem_info(l_anytype).attr_elt_type);
+    end if;
+    return l_nested_type.schema_name || '.' ||l_nested_type.type_name;
   end;
 
 end;

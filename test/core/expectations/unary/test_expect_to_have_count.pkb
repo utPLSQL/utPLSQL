@@ -158,22 +158,32 @@ create or replace package body test_expect_to_have_count is
   end;
 
   procedure fail_have_count_number is
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
   begin
     -- Act
     ut3.ut.expect( 1 ).to_( ut3.have_count(0) );
     --Assert
-    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+     l_expected_message := q'[%The matcher 'have count' cannot be used with data type (number).%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
   procedure fail_not_have_count_object is
     l_actual anydata;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
   begin
     --Arrange
     l_actual := anydata.convertObject(ut3.ut_data_value_number(1));
     -- Act
     ut3.ut.expect(l_actual).not_to_have_count(0);
     --Assert
-    ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+     l_expected_message := q'[%The matcher 'have count' cannot be used with data type (ut3.ut_data_value_number).%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
   procedure fail_not_have_count_null_obj is

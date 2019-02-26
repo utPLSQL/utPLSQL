@@ -71,6 +71,12 @@ create or replace package ut_metadata authid current_user as
   procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2, a_procedure_name in out nocopy varchar2);
 
   /**
+   * Resolves single string [owner.]object[.procedure] using dbms_utility.name_resolve and returns parts [owner] [object] [procedure]
+   */
+  procedure do_resolve(a_fully_qualified_name in varchar2,a_context in integer,a_owner out nocopy varchar2, 
+    a_object out nocopy varchar2, a_procedure_name out nocopy varchar2);
+
+  /**
    * Return the text of the source line for a given object (body). It excludes package spec and type spec
    */
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2;
@@ -140,6 +146,11 @@ create or replace package ut_metadata authid current_user as
   * Returns ANYTYPE descriptor of an object type
   */
   function get_user_defined_type(a_owner varchar2, a_type_name varchar2) return anytype;
-    
+  
+  /**
+  * Return fully qualified name of the object from collection, if not collection returns null
+  */
+  function get_collection_element(a_anydata in anydata) return varchar2;
+  
 end ut_metadata;
 /
