@@ -234,3 +234,13 @@ __Project Directories__
 * source - The installation code for utPLSQL
 * tests - Tests for utPLSQL framework
 
+-----------
+# Supporters
+
+__Disclaimer__: The utPLSQL project is completely free and independent from any commercial intent. Companies who support the project
+are listed here with a complete description of their contribution. Although we are grateful for the support, being mentioned does not mean endorsement of
+ or recommendation for the companys' products by utPLSQL or its development team.
+
+|     |     |
+| --- | --- | 
+| [![supported_by_redgate](docs/images/supported_by_redgate_100.png)](https://www.red-gate.com/hub/events/open-source-projects) | utPLSQL has been supported by Redgate in the form of sponsored stickers and t-shirts. Thank you for helping us spreading the word! |
