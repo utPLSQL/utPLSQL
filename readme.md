@@ -1,4 +1,6 @@
-# utPLSQL v3<sub><sup> | Powerful PL/SQL Unit Testing Framework </sup></sub>
+![utPLSQL v3 | Powerful PL/SQL Unit Testing Framework](docs/images/utPLSQL-testing-framework-transparent_120.png)
+
+----------
 
 [![latest-release](https://img.shields.io/github/release/utPLSQL/utPLSQL.svg)](https://github.com/utPLSQL/utPLSQL/releases)
 [![license](https://img.shields.io/github/license/utPLSQL/utPLSQL.svg)](https://www.apache.org/licenses/LICENSE-2.0)
