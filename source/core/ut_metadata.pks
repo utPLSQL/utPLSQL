@@ -151,6 +151,21 @@ create or replace package ut_metadata authid current_user as
   * Return fully qualified name of the object from collection, if not collection returns null
   */
   function get_collection_element(a_anydata in anydata) return varchar2;
+
+  /**
+  * Check if collection got elements
+  */  
+  function has_collection_members (a_anydata in anydata) return boolean;
+
+  /**
+  * Get typename from anydata
+  */   
+  function get_anydata_typename(a_data_value anydata) return varchar2;
+
+  /**
+  * Is anydata object/collection is null
+  */     
+  function is_anytype_null(a_value in anydata, a_compound_type in varchar2) return number;
   
 end ut_metadata;
 /

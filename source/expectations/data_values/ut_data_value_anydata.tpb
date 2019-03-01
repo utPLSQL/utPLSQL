@@ -15,51 +15,16 @@ create or replace type body ut_data_value_anydata as
   See the License for the specific language governing permissions and
   limitations under the License.
   */  
-
-  member function is_null(a_value in anydata) return number is
-    l_result integer := 0;
-    l_anydata_sql varchar2(4000);
-  begin
-    if a_value is not null and self.compound_type = 'object' then
-     l_anydata_sql := '
-        declare
-          l_data '||self.data_type||';
-          l_value anydata := :a_value;
-          l_status integer;
-        begin
-          l_status := l_value.get'||self.compound_type||'(l_data);
-          :l_data_is_null := case when l_data is null then 1 else 0 end; 
-        end;';
-        execute immediate l_anydata_sql using in a_value, out l_result;  
-    --TODO : Refactor 
-    elsif a_value is not null and self.compound_type = 'collection' then
-     l_anydata_sql := '
-        declare
-          l_data '||self.data_type||';
-          l_value anydata := :a_value;
-          l_status integer;
-        begin
-          l_status := l_value.get'||self.compound_type||'(l_data);
-          :l_data_is_null := case 
-            when l_data is null then 1 
-            when l_data is empty then 1
-            else 0 end; 
-        end;';
-        execute immediate l_anydata_sql using in a_value, out l_result;  
-    else
-      l_result := 1;
-    end if;
-    return l_result;
-  end;
   
   overriding member function get_object_info return varchar2 is
   begin
     return self.data_type || case when self.compound_type = 'collection' then ' [ count = '||self.elements_count||' ]' else null end;
   end;
-  
+    
   member procedure get_cursor_from_anydata(a_value in anydata, a_refcursor out sys_refcursor) is
     l_anydata_sql varchar2(4000);
-    
+    l_cursor_sql  varchar2(2000);
+
     function resolve_name(a_object_name in varchar2) return varchar2 is
       l_schema varchar(250);
       l_object varchar(250);
@@ -79,7 +44,7 @@ create or replace type body ut_data_value_anydata as
       return resolve_name(a_datatype);
     end;
     
-  begin
+  begin   
      l_anydata_sql := '
         declare
           l_data '||self.data_type||';
@@ -98,7 +63,22 @@ create or replace type body ut_data_value_anydata as
         end;';
         execute immediate l_anydata_sql using in a_value, out a_refcursor;     
   end;
-   
+  
+  member function get_extract_path(a_data_value anydata) return varchar2 is
+    l_path varchar2(10);
+  begin
+    if self.compound_type = 'object' then 
+      l_path := '/*/*';
+    else
+     case when ut_metadata.has_collection_members(a_data_value) then
+       l_path := '/*/*';
+       else
+        l_path := '/*';
+     end case;
+    end if; 
+    return l_path;
+  end;
+     
   member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata) is
     l_refcursor    sys_refcursor;
     l_ctx      number;
@@ -107,20 +87,18 @@ create or replace type body ut_data_value_anydata as
     l_cursor_number number;
     
   begin
-    self.data_type  := case when a_value is not null then lower(a_value.gettypename()) else 'undefined' end;
+    self.data_type  := ut_metadata.get_anydata_typename(a_value);
     self.compound_type := get_instance(a_value);
-    self.extract_path := '/*/*';
+    self.is_data_null := ut_metadata.is_anytype_null(a_value,self.compound_type);
     self.data_id    := sys_guid();
     self.self_type := $$plsql_unit;
     self.cursor_details := ut_cursor_details();
-    self.is_data_null := is_null(a_value);
-    self.elements_count := 0;
-    if not self.is_null() then
-      get_cursor_from_anydata(a_value,l_refcursor);   
-    end if;
     
     ut_compound_data_helper.cleanup_diff;
+    
     if not self.is_null() then
+      self.extract_path := get_extract_path(a_value);
+      get_cursor_from_anydata(a_value,l_refcursor);
       if l_refcursor%isopen then
         self.elements_count := self.extract_cursor(l_refcursor);
         l_cursor_number  := dbms_sql.to_cursor_number(l_refcursor);
@@ -174,6 +152,14 @@ create or replace type body ut_data_value_anydata as
     l_result := l_result + (self as ut_data_value_refcursor).compare_implementation(a_other,a_match_options,a_inclusion_compare,a_is_negated);
     return l_result;
   end;
-  
+ 
+  overriding member function is_empty return boolean is
+  begin
+    if self.compound_type = 'collection' then 
+      return self.elements_count = 0;
+    else
+      raise value_error;
+    end if;
+  end;  
 end;
 /

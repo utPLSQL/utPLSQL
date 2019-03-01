@@ -608,5 +608,223 @@ Rows: [ 60 differences, showing first 20 ]
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
+  procedure array_same_data is
+  begin
+    --Arrange
+    g_test_expected := anydata.convertCollection( t_tab_varchar('A') );
+    g_test_actual   := anydata.convertCollection(  t_tab_varchar('A')  );
+    --Act
+    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure array_diff_data is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    g_test_expected := anydata.convertCollection( t_tab_varchar('A') );
+    g_test_actual   := anydata.convertCollection(  t_tab_varchar('B')  );
+    --Act
+    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    l_expected_message := q'[%Actual: ut3_tester.t_tab_varchar [ count = 1 ] was expected to equal: ut3_tester.t_tab_varchar [ count = 1 ]
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Actual:   <T_TAB_VARCHAR>B</T_TAB_VARCHAR>
+%Row No. 1 - Expected: <T_TAB_VARCHAR>A</T_TAB_VARCHAR>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure array_is_null is
+   l_is_null t_tab_varchar ;
+  begin
+    ut3.ut.expect( anydata.convertCollection( l_is_null ) ).to_be_null;
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;  
+
+  procedure array_null_equal_array_null is
+   l_is_null t_tab_varchar ;
+   l_is_null_bis t_tab_varchar ;
+  begin
+    ut3.ut.expect( anydata.convertCollection( l_is_null ) ).to_equal(anydata.convertCollection( l_is_null_bis ));
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;  
+  
+  procedure array_null_equal_array_notnull is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+    l_is_null t_tab_varchar ;
+  begin
+    --Arrange
+    g_test_expected := anydata.convertCollection( l_is_null );
+    g_test_actual   := anydata.convertCollection(  t_tab_varchar('A')  );
+    --Act
+    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    l_expected_message := q'[%Actual: ut3_tester.t_tab_varchar [ count = 1 ] was expected to equal: ut3_tester.t_tab_varchar [ count =  ]
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Extra:    <T_TAB_VARCHAR>A</T_TAB_VARCHAR>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
+  procedure empty_array_have_zero_elem is
+  begin
+     ut3.ut.expect( anydata.convertCollection(t_tab_varchar())).to_have_count(0);
+     ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+  
+  procedure array_empty_equal_array_empty is
+  begin
+    --Arrange
+    g_test_expected := anydata.convertCollection(t_tab_varchar());
+    g_test_actual   := anydata.convertCollection(t_tab_varchar());
+    --Act
+    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();  
+  end;
+  
+  procedure array_empty_equal_array_notempty is  
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+    l_is_null t_tab_varchar ;
+  begin
+    --Arrange
+    g_test_expected := anydata.convertCollection( t_tab_varchar() );
+    g_test_actual   := anydata.convertCollection(  t_tab_varchar('A')  );
+    --Act
+    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    l_expected_message := q'[%Actual: ut3_tester.t_tab_varchar [ count = 1 ] was expected to equal: ut3_tester.t_tab_varchar [ count = 0 ]
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Extra:    <T_TAB_VARCHAR>A</T_TAB_VARCHAR>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
+  procedure collection_is_null is
+    l_null_list test_dummy_object_list;
+  begin
+    --Arrange
+    g_test_actual   := anydata.convertCollection( l_null_list );
+    --Act
+    ut3.ut.expect( g_test_actual ).to_be_null;
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure collection_is_empty is
+  begin
+    --Arrange
+    g_test_actual   := anydata.convertCollection( test_dummy_object_list() );
+    --Act
+    ut3.ut.expect( g_test_actual ).to_have_count(0);
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+      
+  end;  
+  
+ procedure varray_same_data is
+  begin
+    --Arrange
+    g_test_expected := anydata.convertCollection( t_varray(1) );
+    g_test_actual   := anydata.convertCollection(  t_varray(1)  );
+    --Act
+    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+
+  procedure varray_diff_data is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    g_test_expected := anydata.convertCollection( t_varray(1) );
+    g_test_actual   := anydata.convertCollection(  t_varray(2) );
+    --Act
+    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    l_expected_message := q'[%Actual: ut3_tester.t_varray [ count = 1 ] was expected to equal: ut3_tester.t_varray [ count = 1 ]
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Actual:   <T_VARRAY>2</T_VARRAY>
+%Row No. 1 - Expected: <T_VARRAY>1</T_VARRAY>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure varray_is_null is
+   l_is_null t_varray ;
+  begin
+    ut3.ut.expect( anydata.convertCollection( l_is_null ) ).to_be_null;
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;  
+
+  procedure varray_null_equal_varray_null is
+   l_is_null t_varray ;
+   l_is_null_bis t_varray ;
+  begin
+    ut3.ut.expect( anydata.convertCollection( l_is_null ) ).to_equal(anydata.convertCollection( l_is_null_bis ));
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;  
+  
+  procedure varray_null_equal_varray_notnull is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+    l_is_null t_varray ;
+  begin
+    --Arrange
+    g_test_expected := anydata.convertCollection( l_is_null );
+    g_test_actual   := anydata.convertCollection(  t_varray(1)  );
+    --Act
+    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    l_expected_message := q'[%Actual: ut3_tester.t_varray [ count = 1 ] was expected to equal: ut3_tester.t_varray [ count =  ]
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Extra:    <T_VARRAY>1</T_VARRAY>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
+  procedure empty_varray_have_zero_elem is
+  begin
+     ut3.ut.expect( anydata.convertCollection(t_varray())).to_have_count(0);
+     ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;
+  
+  procedure varray_empty_equal_varray_empty is
+  begin
+    --Arrange
+    g_test_expected := anydata.convertCollection(t_varray());
+    g_test_actual   := anydata.convertCollection(t_varray());
+    --Act
+    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();  
+  end;
+  
+  procedure varray_empty_equal_varray_notempty is  
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+    l_is_null t_varray ;
+  begin
+    --Arrange
+    g_test_expected := anydata.convertCollection( t_varray() );
+    g_test_actual   := anydata.convertCollection(  t_varray(1)  );
+    --Act
+    ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
+    l_expected_message := q'[%Actual: ut3_tester.t_varray [ count = 1 ] was expected to equal: ut3_tester.t_varray [ count = 0 ]
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Extra:    <T_VARRAY>1</T_VARRAY>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
 end;
 /

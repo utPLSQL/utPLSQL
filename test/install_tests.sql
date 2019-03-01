@@ -15,6 +15,8 @@ alter session set plsql_optimize_level=0;
 @@helpers/test_dummy_object_list.tps
 @@helpers/test_event_object.tps
 @@helpers/test_event_list.tps
+@@helpers/test_tab_varchar2.tps
+@@helpers/test_tab_varray.tps
 
 --Install tests
 @@core.pks

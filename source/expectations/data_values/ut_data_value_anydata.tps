@@ -16,9 +16,10 @@ create or replace type ut_data_value_anydata under ut_data_value_refcursor(
   limitations under the License.
   */
   
-  member function is_null(a_value in anydata) return number,
+  
   member procedure get_cursor_from_anydata(a_value in anydata, a_refcursor out sys_refcursor),
   overriding member function get_object_info return varchar2,
+  member function get_extract_path(a_data_value anydata) return varchar2,
   member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata),
   member function get_instance(a_data_value anydata) return varchar2,
   constructor function ut_data_value_anydata(self in out nocopy ut_data_value_anydata, a_value anydata) return self as result,
@@ -27,6 +28,7 @@ create or replace type ut_data_value_anydata under ut_data_value_refcursor(
     a_match_options ut_matcher_options,
     a_inclusion_compare boolean := false,
     a_is_negated boolean := false
-  ) return integer
+  ) return integer,
+  overriding member function is_empty return boolean
 )
-
+/

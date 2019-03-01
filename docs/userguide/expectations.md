@@ -941,6 +941,60 @@ drop type departments;
 drop type department;
 ```
 
+Some of the possible combinations of the anydata and their results:
+
+```sql
+create or replace type t_tab_varchar is table of varchar2(1)
+/
+
+create or replace type dummy_obj as object (
+  id number,
+  "name"  varchar2(30),
+  "Value" varchar2(30)
+)
+/
+
+create or replace type dummy_obj_lst as table of dummy_obj
+/
+
+create or replace type t_varray is varray(1) of number
+/
+
+```
+
+
+
+
+
+| Type A                                 |  Comparisoon  | Type B                                | Result |
+| :------------------------------------- | :-----------: | :------------------------------------ | -----: |
+| t_tab_varchar('A')                     |     equal     | t_tab_varchar('A')                    |   Pass |
+| t_tab_varchar('A')                     |     equal     | t_tab_varchar('B')                    |   Fail |
+| t_tab_varchar                          |    is_null    |                                       |   Pass |
+| t_tab_varchar                          |     equal     | t_tab_varchar                         |   Pass |
+| t_tab_varchar                          |     equal     | t_tab_varchar('A')                    |   Fail |
+| t_tab_varchar()                        | have_count(0) |                                       |   Pass |
+| t_tab_varchar()                        |     equal     | t_tab_varchar()                       |   Pass |
+| t_tab_varchar()                        |     equal     | t_tab_varchar('A')                    |   Fail |
+| dummy_obj_lst (dummy_obj(1, 'A', '0')) |     equal     | dummy_obj_lst(dummy_obj(1, 'A', '0')) |   Pass |
+| dummy_obj_lst (dummy_obj(1, 'A', '0')) |     equal     | dummy_obj_lst(dummy_obj(2, 'A', '0')) |   Fail |
+| dummy_obj_lst                          |     equal     | dummy_obj_lst(dummy_obj(1, 'A', '0')) |   Fail |
+| dummy_obj_lst                          |    is_null    |                                       |   Pass |
+| dummy_obj_lst                          |     equal     | dummy_obj_lst                         |   Pass |
+| dummy_obj_lst()                        | have_count(0) |                                       |   Pass |
+| dummy_obj_lst()                        |     equal     | dummy_obj_lst(dummy_obj(1, 'A', '0')) |   Fail |
+| dummy_obj_lst()                        |     equal     | dummy_obj_lst()                       |   Pass |
+| t_varray                               |    is null    |                                       |   Pass |
+| t_varray                               |     equal     | t_varray                              |   Pass |
+| t_varray                               |     equal     | t_varray(1)                           |   Fail |
+| t_varray()                             | have_count(0) |                                       |   Pass |
+| t_varray()                             |     equal     | t_varray()                            |   Pass |
+| t_varray()                             |     equal     | t_varray(1)                           |   Fail |
+| t_varray(1)                            |     equal     | t_varray(1)                           |   Pass |
+| t_varray(1)                            |     equal     | t_varray(2)                           |   Fail |
+
+
+
 ### Comparing cursor data containing DATE fields 
 
 **Important note**

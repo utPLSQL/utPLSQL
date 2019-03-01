@@ -274,15 +274,63 @@ create or replace package body ut_metadata as
   function get_collection_element(a_anydata in anydata) return varchar2 
   is
     l_anytype anytype;
-    l_nested_type t_anytype_members_rec;
+    l_nested_type   t_anytype_members_rec;
+    l_elements_rec  t_anytype_elem_info_rec;
     l_type_code integer;
   begin
     l_type_code := a_anydata.gettype(l_anytype);
     if is_collection(l_type_code) then
-      l_nested_type := get_anytype_members_info(ut_metadata.get_attr_elem_info(l_anytype).attr_elt_type);
+      l_elements_rec := get_attr_elem_info(l_anytype);
+      if l_elements_rec.attr_elt_type is null then
+        l_nested_type := get_anytype_members_info(l_anytype);
+      else
+        l_nested_type := get_anytype_members_info(l_elements_rec.attr_elt_type);
+      end if;
     end if;
     return l_nested_type.schema_name || '.' ||l_nested_type.type_name;
+  end; 
+  
+  function has_collection_members (a_anydata in anydata) return boolean is
+    l_anytype anytype;
+    l_nested_type   t_anytype_members_rec;
+    l_elements_rec  t_anytype_elem_info_rec;
+    l_type_code integer;
+  begin
+    l_type_code := a_anydata.gettype(l_anytype);
+    l_elements_rec := get_attr_elem_info(l_anytype);
+    if l_elements_rec.attr_elt_type is null then
+      return false;
+    else 
+      return true;
+    end if;
   end;
+
+  function get_anydata_typename(a_data_value anydata) return varchar2
+  is
+  begin
+    return case when a_data_value is not null then lower(a_data_value.gettypename()) else 'undefined' end;
+  end;
+  
+  function is_anytype_null(a_value in anydata, a_compound_type in varchar2) return number is
+    l_result integer := 0;
+    l_anydata_sql varchar2(4000);
+  begin
+     if a_value is not null then
+     l_anydata_sql := '
+        declare
+          l_data '||get_anydata_typename(a_value)||';
+          l_value anydata := :a_value;
+          l_status integer;
+        begin
+          l_status := l_value.get'||a_compound_type||'(l_data);
+          :l_data_is_null := case when l_data is null then 1 else 0 end; 
+        end;';
+        execute immediate l_anydata_sql using in a_value, out l_result; 
+    else
+      l_result := 1;
+    end if;
+    return l_result;
+  end; 
 
 end;
 /
