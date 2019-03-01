@@ -237,9 +237,7 @@ __Project Directories__
 -----------
 # Supporters
 
-__Disclaimer__: The utPLSQL project is completely free and independent from any commercial intent. Companies who support the project
-are listed here with a complete description of their contribution. Although we are grateful for the support, being mentioned does not mean endorsement of
- or recommendation for the companys' products by utPLSQL or its development team.
+The utPLSQL project is community-driven and is not commercially motivated. Nonetheless, donations and other contributions are always welcome, and are detailed below.
 
 <table>
 <tbody>
