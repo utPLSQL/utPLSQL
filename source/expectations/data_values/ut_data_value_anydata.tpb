@@ -55,9 +55,9 @@ create or replace type body ut_data_value_anydata as
         begin
           l_status := l_value.get'||self.compound_type||'(l_data); '||
           case when self.compound_type = 'collection' then
-            ' open l_tmp_refcursor for select value(x) as '||get_object_name(a_value)||' from table(l_data) x;'
+            q'[ open l_tmp_refcursor for select value(x) as "]'||get_object_name(a_value)||q'[" from table(l_data) x;]'
           else
-            ' open l_tmp_refcursor for select l_data '||get_object_name(self.data_type)||' from dual;'            
+            q'[ open l_tmp_refcursor for select l_data as "]'||get_object_name(self.data_type)||q'[" from dual;]'            
           end ||
           ' :l_refcursor := l_tmp_refcursor;
         end;';
