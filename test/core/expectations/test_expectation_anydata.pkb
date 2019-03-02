@@ -687,7 +687,7 @@ Rows: [ 60 differences, showing first 20 ]
     ut.expect(expectations.failed_expectations_data()).to_be_empty();  
   end;
   
-  procedure array_empty_equal_array_notempty is  
+  procedure arr_empty_equal_arr_notempty is  
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
     l_is_null t_tab_varchar ;
@@ -772,7 +772,7 @@ Rows: [ 60 differences, showing first 20 ]
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;  
   
-  procedure varray_null_equal_varray_notnull is
+  procedure varr_null_equal_varr_notnull is
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
     l_is_null t_varray ;
@@ -797,7 +797,7 @@ Rows: [ 60 differences, showing first 20 ]
      ut.expect(expectations.failed_expectations_data()).to_be_empty();
   end;
   
-  procedure varray_empty_equal_varray_empty is
+  procedure varr_empty_equal_varr_empty is
   begin
     --Arrange
     g_test_expected := anydata.convertCollection(t_varray());
@@ -807,7 +807,7 @@ Rows: [ 60 differences, showing first 20 ]
     ut.expect(expectations.failed_expectations_data()).to_be_empty();  
   end;
   
-  procedure varray_empty_equal_varray_notempty is  
+  procedure varr_empty_equal_varr_notempty is  
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
     l_is_null t_varray ;

@@ -142,7 +142,7 @@ create or replace package test_expectation_anydata is
   procedure array_empty_equal_array_empty; 
   
   --%test(Compare empty ARRAY to ARRAY with data)
-  procedure array_empty_equal_array_notempty; 
+  procedure arr_empty_equal_arr_notempty; 
   
   --%test(Collection is atomically NULL)
   procedure collection_is_null;
@@ -163,16 +163,16 @@ create or replace package test_expectation_anydata is
   procedure varray_null_equal_varray_null; 
   
   --%test(Compare null VARRAY to VARRAY with data)
-  procedure varray_null_equal_varray_notnull;   
+  procedure varr_null_equal_varr_notnull;   
   
   --%test(Empty VARRAY have count of 0)
   procedure empty_varray_have_zero_elem;  
   
   --%test(Compare two empty VARRAYs)
-  procedure varray_empty_equal_varray_empty; 
+  procedure varr_empty_equal_varr_empty; 
   
   --%test(Compare empty VARRAY to VARRAY with data)
-  procedure varray_empty_equal_varray_notempty;   
+  procedure varr_empty_equal_varr_notempty;   
   
 end;
 /
