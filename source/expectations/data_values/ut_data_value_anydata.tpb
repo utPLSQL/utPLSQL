@@ -55,13 +55,12 @@ create or replace type body ut_data_value_anydata as
         begin
           l_status := l_value.get'||self.compound_type||'(l_data); '||
           case when self.compound_type = 'collection' then
-            q'[ open l_tmp_refcursor for select value(x) as "]'||get_object_name(a_value)||q'[" from table(l_data) x;]'
+            q'[ open :l_tmp_refcursor for select value(x) as "]'||get_object_name(a_value)||q'[" from table(l_data) x;]'
           else
-            q'[ open l_tmp_refcursor for select l_data as "]'||get_object_name(self.data_type)||q'[" from dual;]'            
+            q'[ open :l_tmp_refcursor for select l_data as "]'||get_object_name(self.data_type)||q'[" from dual;]'            
           end ||
-          ' :l_refcursor := l_tmp_refcursor;
-        end;';
-        execute immediate l_anydata_sql using in a_value, out a_refcursor;     
+        'end;';
+        execute immediate l_anydata_sql using in a_value, in out a_refcursor; 
   end;
   
   member function get_extract_path(a_data_value anydata) return varchar2 is
