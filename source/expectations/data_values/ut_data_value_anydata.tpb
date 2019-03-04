@@ -21,7 +21,8 @@ create or replace type body ut_data_value_anydata as
     return self.data_type || case when self.compound_type = 'collection' then ' [ count = '||self.elements_count||' ]' else null end;
   end;
     
-  member procedure get_cursor_from_anydata(a_value in anydata, a_refcursor out sys_refcursor) is
+  member procedure get_cursor_from_anydata(self in out nocopy ut_data_value_anydata, a_value in anydata, 
+    a_refcursor out nocopy sys_refcursor) is
     l_anydata_sql varchar2(4000);
     l_cursor_sql  varchar2(2000);
 
@@ -107,6 +108,8 @@ create or replace type body ut_data_value_anydata as
         raise cursor_not_open;
       end if;
     end if;
+    
+    
   exception
     when cursor_not_open then
         raise_application_error(-20155, 'Cursor is not open');
