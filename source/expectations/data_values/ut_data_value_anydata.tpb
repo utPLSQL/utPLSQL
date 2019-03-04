@@ -107,6 +107,14 @@ create or replace type body ut_data_value_anydata as
         raise cursor_not_open;
       end if;
     end if;
+  exception
+    when cursor_not_open then
+        raise_application_error(-20155, 'Cursor is not open');
+    when others then
+      if l_refcursor%isopen then
+        close l_refcursor;
+      end if;
+      raise;  
   end;
 
   member function get_instance(a_data_value anydata) return varchar2 is
