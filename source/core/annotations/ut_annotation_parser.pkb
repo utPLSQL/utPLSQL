@@ -19,13 +19,13 @@ create or replace package body ut_annotation_parser as
   ------------------------------
   --private definitions
 
-  type tt_comment_list is table of varchar2(32767) index by pls_integer;
+  type tt_comment_list is table of varchar2(32767) index by binary_integer;
 
   gc_annotation_qualifier        constant varchar2(1) := '%';
   gc_annot_comment_pattern       constant varchar2(30) := '^( |'||chr(09)||')*-- *('||gc_annotation_qualifier||'.*?)$'; -- chr(09) is a tab character
   gc_comment_replacer_patter     constant varchar2(50) := '{COMMENT#%N%}';
   gc_comment_replacer_regex_ptrn constant varchar2(25) := '{COMMENT#(\d+)}';
-  gc_regexp_identifier           constant varchar2(50) := '[a-z][a-z0-9#_$]*';
+  gc_regexp_identifier           constant varchar2(50) := '[a-zA-Z][a-zA-Z0-9#_$]*';
   gc_annotation_block_pattern    constant varchar2(200) := '(({COMMENT#.+}'||chr(10)||')+)( |'||chr(09)||')*(procedure|function)\s+(' ||
                                                            gc_regexp_identifier || ')';
   gc_annotation_pattern          constant varchar2(50) := gc_annotation_qualifier || gc_regexp_identifier || '[ '||chr(9)||']*(\(.*?\)\s*?$)?';
@@ -46,10 +46,7 @@ create or replace package body ut_annotation_parser as
     if l_annotation_str is not null then
 
       -- get the annotation name and it's parameters if present
-      l_annotation_name := lower(regexp_substr(l_annotation_str
-                                               ,'%(' || gc_regexp_identifier || ')'
-                                               ,modifier => 'i'
-                                               ,subexpression => 1));
+      l_annotation_name := lower(regexp_substr(l_annotation_str ,'%(' || gc_regexp_identifier || ')', subexpression => 1));
       l_annotation_text := trim(regexp_substr(l_annotation_str, '\((.*?)\)\s*$', subexpression => 1));
 
       a_annotations.extend;
@@ -59,7 +56,7 @@ create or replace package body ut_annotation_parser as
   end;
 
   procedure delete_processed_comments( a_comments in out nocopy tt_comment_list, a_annotations ut_annotations ) is
-    l_loop_index       pls_integer := 1;
+    l_loop_index       binary_integer := 1;
   begin
     l_loop_index := a_annotations.first;
     while l_loop_index is not null loop
@@ -74,8 +71,8 @@ create or replace package body ut_annotation_parser as
     a_comments tt_comment_list,
     a_subobject_name varchar2 := null
   ) is
-    l_loop_index       pls_integer := 1;
-    l_annotation_index pls_integer;
+    l_loop_index       binary_integer := 1;
+    l_annotation_index binary_integer;
   begin
     -- loop while there are unprocessed comment blocks
     while 0 != nvl(regexp_instr(srcstr        => a_source
