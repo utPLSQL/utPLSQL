@@ -49,7 +49,7 @@ create or replace type body ut_output_table_buffer is
   overriding member procedure send_line(self in ut_output_table_buffer, a_text varchar2, a_item_type varchar2 := null) is
     pragma autonomous_transaction;
   begin
-    if a_text is not null then
+    if a_text is not null or a_item_type is not null then
       insert into ut_output_buffer_tmp(output_id, message_id, text, item_type)
       values (self.output_id, ut_message_id_seq.nextval, a_text, a_item_type);
     end if;
@@ -62,7 +62,7 @@ create or replace type body ut_output_table_buffer is
     insert into ut_output_buffer_tmp(output_id, message_id, text, item_type)
     select self.output_id, ut_message_id_seq.nextval, t.column_value, a_item_type
       from table(a_text_list) t
-     where t.column_value is not null;
+     where t.column_value is not null or a_item_type is not null;
 
     commit;
   end;
@@ -70,7 +70,7 @@ create or replace type body ut_output_table_buffer is
   overriding member procedure send_clob(self in ut_output_table_buffer, a_text clob, a_item_type varchar2 := null) is
     pragma autonomous_transaction;
   begin
-    if a_text is not null and a_text != empty_clob() then
+    if a_text is not null and a_text != empty_clob() or a_item_type is not null then
       insert into ut_output_buffer_tmp(output_id, message_id, text, item_type)
       values (self.output_id, ut_message_id_seq.nextval, a_text, a_item_type);
     end if;
@@ -80,9 +80,10 @@ create or replace type body ut_output_table_buffer is
   overriding member function get_lines(a_initial_timeout natural := null, a_timeout_sec natural := null) return ut_output_data_rows pipelined is
     l_buffer_data        ut_output_data_rows;
     l_message_ids        ut_integer_list;
+    l_finished_flags     ut_integer_list;
     l_already_waited_for number(10,2) := 0;
     l_finished           boolean := false;
-    lc_init_wait_sec     constant naturaln := coalesce(a_initial_timeout, 60 * 60 * 4 ); -- 4 hours
+    lc_init_wait_sec     constant naturaln := coalesce(a_initial_timeout, 15 ); -- 15 seconds
     lc_max_wait_sec      constant naturaln := coalesce(a_timeout_sec, 60 * 60 * 4); -- 4 hours
     l_wait_for           integer := lc_init_wait_sec;
     lc_short_sleep_time  constant number(1,1) := 0.1; --sleep for 100 ms between checks
@@ -111,13 +112,13 @@ create or replace type body ut_output_table_buffer is
     begin
     while not l_finished loop
       with ordered_buffer as (
-        select a.message_id, ut_output_data_row(a.text, a.item_type)
+        select a.message_id, ut_output_data_row(a.text, a.item_type), is_finished
           from ut_output_buffer_tmp a
          where a.output_id = self.output_id
          order by a.message_id
       )
       select b.*
-        bulk collect into l_message_ids, l_buffer_data
+        bulk collect into l_message_ids, l_buffer_data, l_finished_flags
         from ordered_buffer b
        where rownum <= lc_bulk_limit;
 
@@ -141,18 +142,21 @@ create or replace type body ut_output_table_buffer is
         for i in 1 .. l_buffer_data.count loop
           if l_buffer_data(i).text is not null then
             pipe row(l_buffer_data(i));
-          else
+          elsif l_finished_flags(i) = 1 then
             l_finished := true;
             exit;
           end if;
         end loop;
+        remove_read_data(l_message_ids);
       end if;
-      remove_read_data(l_message_ids);
-      if l_finished then
+      if l_finished or l_already_waited_for >= l_wait_for then
         remove_buffer_info();
-      end if;
-      if l_already_waited_for >= l_wait_for then
-        l_finished := true;
+        if l_already_waited_for > 0 and l_already_waited_for >= l_wait_for then
+          raise_application_error(
+            ut_utils.gc_out_buffer_timeout,
+            'Timeout occurred while waiting for output data. Waited for: '||l_already_waited_for||' seconds.'
+          );
+        end if;
       end if;
     end loop;
     return;

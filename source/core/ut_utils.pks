@@ -23,28 +23,6 @@ create or replace package ut_utils authid definer is
 
   gc_version                 constant varchar2(50) := 'v3.1.4.2559-develop';
 
-  /* Constants: Event names */
-  subtype t_event_name           is varchar2(30);
-  gc_before_run                  constant t_event_name := 'before_run';
-  gc_before_suite                constant t_event_name := 'before_suite';
-  gc_before_before_all           constant t_event_name := 'before_beforeall';
-  gc_before_before_each          constant t_event_name := 'before_beforeeach';
-  gc_before_before_test          constant t_event_name := 'before_beforetest';
-  gc_before_test_execute         constant t_event_name := 'before_test';
-  gc_before_after_test           constant t_event_name := 'before_aftertest';
-  gc_before_after_each           constant t_event_name := 'before_aftereach';
-  gc_before_after_all            constant t_event_name := 'before_afterall';
-  gc_after_run                   constant t_event_name := 'after_run';
-  gc_after_suite                 constant t_event_name := 'after_suite';
-  gc_after_before_all            constant t_event_name := 'after_beforeall';
-  gc_after_before_each           constant t_event_name := 'after_beforeeach';
-  gc_after_before_test           constant t_event_name := 'after_beforetest';
-  gc_after_test_execute          constant t_event_name := 'after_test';
-  gc_after_after_test            constant t_event_name := 'after_aftertest';
-  gc_after_after_each            constant t_event_name := 'after_aftereach';
-  gc_after_after_all             constant t_event_name := 'after_afterall';
-  gc_finalize                    constant t_event_name := 'finalize';
-
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'beforeall';
   gc_before_each                 constant t_executable_type := 'beforeeach';
@@ -105,10 +83,15 @@ create or replace package ut_utils authid definer is
   gc_some_tests_failed constant pls_integer := -20213;
   pragma exception_init(ex_some_tests_failed, -20213);
 
-  -- Any of tests failed
+  -- Version number provided is not in valid format
   ex_invalid_version_no exception;
   gc_invalid_version_no constant pls_integer := -20214;
   pragma exception_init(ex_invalid_version_no, -20214);
+
+  -- Version number provided is not in valid format
+  ex_out_buffer_timeout exception;
+  gc_out_buffer_timeout constant pls_integer := -20215;
+  pragma exception_init(ex_out_buffer_timeout, -20215);
 
   ex_invalid_package exception;
   gc_invalid_package constant pls_integer := -6550;
