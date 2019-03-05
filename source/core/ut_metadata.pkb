@@ -331,6 +331,15 @@ create or replace package body ut_metadata as
     end if;
     return l_result;
   end; 
+    
+  function get_object_name(a_full_object_name in varchar2) return varchar2 is
+    l_schema varchar(250);
+    l_object varchar(250);
+    l_procedure_name varchar(250);
+  begin
+    ut_metadata.do_resolve(a_full_object_name,7,l_schema,l_object, l_procedure_name);
+    return l_object;
+  end;
 
 end;
 /

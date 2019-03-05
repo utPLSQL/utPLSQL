@@ -36,79 +36,13 @@ create or replace type body ut_data_value_anydata as
     return l_path;
   end;
  
-  overriding member procedure extract_cursor(self in out nocopy ut_data_value_anydata, a_value sys_refcursor) 
-  is
-    c_bulk_rows  constant integer := 10000;
-    l_cursor     sys_refcursor := a_value;
-    l_ctx        number;
-    l_xml        xmltype;
-    l_ut_owner   varchar2(250) := ut_utils.ut_owner;
-    l_set_id     integer := 0;
-    l_elements_count number := 0;
-  begin
-    -- We use DBMS_XMLGEN in order to:
-    -- 1) be able to process data in bulks (set of rows)
-    -- 2) be able to influence the ROWSET/ROW tags
-    -- 3) be able to influence the way NULL values are handled (empty TAG)
-    -- 4) be able to influence the way TIMESTAMP is formatted.
-    -- Due to Oracle feature/bug, it is not possible to change the DATE formatting of cursor data
-    -- AFTER the cursor was opened.
-    -- The only solution for this is to change NLS settings before opening the cursor.
-    --
-    -- This would work fine if we could use DBMS_XMLGEN.restartQuery.
-    --  The restartQuery fails however if PLSQL variables of TIMESTAMP/INTERVAL or CLOB/BLOB are used.
-    ut_expectation_processor.set_xml_nls_params();
-    l_ctx := dbms_xmlgen.newContext(l_cursor);
-    dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
-    dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);   
-    loop
-      l_xml := dbms_xmlgen.getxmltype(l_ctx);
-      exit when dbms_xmlgen.getNumRowsProcessed(l_ctx) = 0;
-      l_elements_count := l_elements_count + dbms_xmlgen.getNumRowsProcessed(l_ctx);
-      execute immediate
-      'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
-      'values (:self_guid, :self_row_count, :l_xml)'
-      using in self.data_id, l_set_id, l_xml;           
-      l_set_id := l_set_id + c_bulk_rows;   
-    end loop;
-    ut_expectation_processor.reset_nls_params();
-    dbms_xmlgen.closeContext(l_ctx);
-    self.elements_count := l_elements_count;
-  exception
-    when others then
-      ut_expectation_processor.reset_nls_params();
-      dbms_xmlgen.closeContext(l_ctx);
-      raise;
-  end; 
-     
   member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata) is
     l_refcursor    sys_refcursor;
     l_ctx      number;
     l_ut_owner varchar2(250) := ut_utils.ut_owner;
     cursor_not_open exception;
     l_cursor_number number;
-    l_anydata_sql varchar2(4000);
-    l_cursor_sql  varchar2(2000);
-
-    function resolve_name(a_object_name in varchar2) return varchar2 is
-      l_schema varchar(250);
-      l_object varchar(250);
-      l_procedure_name varchar(250);
-    begin
-      ut_metadata.do_resolve(a_object_name,7,l_schema,l_object, l_procedure_name);
-      return l_object;
-    end;
-    
-    function get_object_name(a_value anydata) return varchar2 is
-    begin
-      return resolve_name(ut_metadata.get_collection_element(a_value));
-    end;
-    
-    function get_object_name(a_datatype in varchar2) return varchar2 is
-    begin
-      return resolve_name(a_datatype);
-    end;
-    
+    l_anydata_sql varchar2(4000);  
   begin
     self.data_type  := ut_metadata.get_anydata_typename(a_value);
     self.compound_type := get_instance(a_value);
@@ -131,15 +65,18 @@ create or replace type body ut_data_value_anydata as
         begin
           l_status := l_value.get'||self.compound_type||'(l_data); '||
           case when self.compound_type = 'collection' then
-            q'[ open :l_tmp_refcursor for select value(x) as "]'||get_object_name(a_value)||q'[" from table(l_data) x;]'
+            q'[ open :l_tmp_refcursor for select value(x) as "]'||
+            ut_metadata.get_object_name(ut_metadata.get_collection_element(a_value))||
+            q'[" from table(l_data) x;]'
           else
-            q'[ open :l_tmp_refcursor for select l_data as "]'||get_object_name(self.data_type)||q'[" from dual;]'            
+            q'[ open :l_tmp_refcursor for select l_data as "]'||ut_metadata.get_object_name(self.data_type)||
+            q'[" from dual;]'            
           end ||
         'end;';
         execute immediate l_anydata_sql using in a_value, in out l_refcursor; 
         
       if l_refcursor%isopen then
-        extract_cursor(l_refcursor);
+        self.extract_cursor(l_refcursor);
         l_cursor_number  := dbms_sql.to_cursor_number(l_refcursor);
         self.cursor_details  := ut_cursor_details(l_cursor_number);
         dbms_sql.close_cursor(l_cursor_number);         

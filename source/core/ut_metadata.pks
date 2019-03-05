@@ -167,5 +167,10 @@ create or replace package ut_metadata authid current_user as
   */     
   function is_anytype_null(a_value in anydata, a_compound_type in varchar2) return number;
   
+  /**
+  * Get object name from fully qualified name e.g ut3.test -> test
+  */
+  function get_object_name(a_full_object_name in varchar2) return varchar2;
+    
 end ut_metadata;
 /

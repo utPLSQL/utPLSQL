@@ -30,7 +30,7 @@ create or replace type body ut_cursor_column as
                               when lower(self.column_type) = 'user_defined_type' then 
                                 0 
                               -- Due to bug in 11g/12.1 collection fails on varchar 4000+
-                              when (lower(self.column_type) in ('varchar2','char')) and (self.column_len >= 4000) then
+                              when (lower(self.column_type) in ('varchar2','char')) and (self.column_len > 4000) then
                                 0
                               else 
                                 ut_utils.boolean_to_int(ut_compound_data_helper.is_sql_compare_allowed(self.column_type))
