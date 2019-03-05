@@ -60,13 +60,11 @@ create or replace package body ut_event_manager  as
   procedure trigger_event( a_event_name t_event_name, a_event_object ut_event_item ) is
   begin
     if a_event_name is not null and g_event_listeners_index.exists(a_event_name)
-    -- disabled due to compiler warning: PLW-06023: invocation of IS NOT NULL computes trivial value
---        and g_event_listeners_index(a_event_name) is not null
     then
       for listener_number in 1 .. g_event_listeners_index(a_event_name).count loop
         g_listeners(listener_number).on_event(a_event_name, a_event_object);
       end loop;
-      if a_event_name = ut_utils.gc_finalize then
+      if a_event_name = ut_event_manager.gc_finalize then
         dispose_listeners;
       end if;
     end if;

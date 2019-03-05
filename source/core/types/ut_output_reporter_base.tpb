@@ -78,5 +78,10 @@ create or replace type body ut_output_reporter_base is
     self.output_buffer.close();
   end;
 
+  overriding member procedure on_initialize(self in out nocopy ut_output_reporter_base, a_run in ut_run) is
+  begin
+    self.output_buffer.send_line(null, 'initialize');
+  end;
+
 end;
 /

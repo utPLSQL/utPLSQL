@@ -17,6 +17,7 @@ create or replace package body test_output_buffer is
     l_expected_item_type := lpad('some item type',1000,'-');
     --Act
     l_buffer.send_clob(l_expected_text, l_expected_item_type);
+    l_buffer.close();
 
     select text, item_type
       into l_actual_text, l_actual_item_type
@@ -64,18 +65,30 @@ create or replace package body test_output_buffer is
     l_start     timestamp;
     l_duration  interval day to second;
   begin
-  --Act
+    --Arrange
     l_expected := 'a text';
     l_buffer.send_line(l_expected);
     l_start := localtimestamp;
-    select text into l_result from table(l_buffer.get_lines(1,1));
-    l_duration := localtimestamp - l_start;
+    --Act
+    begin
+      select text into l_result from table(l_buffer.get_lines(1,1));
+      ut.fail('Expected a timeout exception but nothing was raised');
+    exception 
+      when others then
+        l_duration := localtimestamp - l_start;
+      --Assert
+      --Fetches data from output
+      ut.expect(l_result).to_equal(l_expected);
+      --Throws a timeout exception
+      ut.expect(dbms_utility.format_error_stack()).to_match('ORA'||ut3.ut_utils.gc_out_buffer_timeout);
+      --Waited for one second
+      ut.expect(l_duration).to_be_greater_than(interval '0.99' second);
+    end;
 
-    ut.expect(l_result).to_equal(l_expected);
-    ut.expect(l_duration).to_be_greater_than(interval '0.99' second);
     select count(1) into l_remaining from ut3.ut_output_buffer_tmp where output_id = l_buffer.output_id;
-
+    --Data got removed from output buffer
     ut.expect(l_remaining).to_equal(0);
+
   end;
   
 end test_output_buffer;

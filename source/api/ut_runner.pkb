@@ -45,7 +45,7 @@ create or replace package body ut_runner is
   procedure finish_run(a_run ut_run, a_force_manual_rollback boolean) is
   begin
     ut_utils.cleanup_temp_tables;
-    ut_event_manager.trigger_event(ut_utils.gc_finalize, a_run);
+    ut_event_manager.trigger_event(ut_event_manager.gc_finalize, a_run);
     ut_metadata.reset_source_definition_cache;
     ut_utils.read_cache_to_dbms_output();
     ut_coverage_helper.cleanup_tmp_table();
@@ -141,9 +141,12 @@ create or replace package body ut_runner is
         set(a_test_file_mappings),
         a_client_character_set
       );
+
+      ut_event_manager.trigger_event(ut_event_manager.gc_initialize, l_run);
+      
       ut_suite_manager.configure_execution_by_path(l_paths, l_run.items);
       if a_force_manual_rollback then
-        l_run.set_rollback_type(ut_utils.gc_rollback_manual, a_force=>true);
+        l_run.set_rollback_type( a_rollback_type => ut_utils.gc_rollback_manual, a_force => true );
       end if;
 
       l_run.do_execute();
