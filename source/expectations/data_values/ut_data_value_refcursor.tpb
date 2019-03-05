@@ -23,8 +23,7 @@ create or replace type body ut_data_value_refcursor as
     return;
   end;
 
-  member function extract_cursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) 
-  return number 
+  member procedure extract_cursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) 
   is
     c_bulk_rows  constant integer := 10000;
     l_cursor     sys_refcursor := a_value;
@@ -45,7 +44,6 @@ create or replace type body ut_data_value_refcursor as
     --
     -- This would work fine if we could use DBMS_XMLGEN.restartQuery.
     --  The restartQuery fails however if PLSQL variables of TIMESTAMP/INTERVAL or CLOB/BLOB are used.
-    
     ut_expectation_processor.set_xml_nls_params();
     l_ctx := dbms_xmlgen.newContext(l_cursor);
     dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
@@ -62,7 +60,7 @@ create or replace type body ut_data_value_refcursor as
     end loop;
     ut_expectation_processor.reset_nls_params();
     dbms_xmlgen.closeContext(l_ctx);
-    return l_elements_count;
+    self.elements_count := l_elements_count;
   exception
     when others then
       ut_expectation_processor.reset_nls_params();
@@ -87,7 +85,7 @@ create or replace type body ut_data_value_refcursor as
     if l_cursor is not null then
         if l_cursor%isopen then
           --Get some more info regarding cursor, including if it containts collection columns and what is their name        
-          self.elements_count := extract_cursor(l_cursor);
+          extract_cursor(l_cursor);
           l_cursor_number  := dbms_sql.to_cursor_number(l_cursor);
           self.cursor_details  := ut_cursor_details(l_cursor_number);
           dbms_sql.close_cursor(l_cursor_number);         
