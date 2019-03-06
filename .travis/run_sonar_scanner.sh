@@ -53,4 +53,5 @@ else
 fi
 
 #Execute Sonar scanner
+echo "Executing sonar scanner"
 sonar-scanner
