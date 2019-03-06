@@ -25,9 +25,6 @@ create or replace package body ut_metadata as
   procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2, a_procedure_name in out nocopy varchar2) is
     l_name          varchar2(200);
     l_context       integer := 1; --plsql
-    l_dblink        varchar2(200);
-    l_part1_type    number;
-    l_object_number number;
   begin
     l_name := form_name(a_owner, a_object, a_procedure_name);
     do_resolve(l_name,l_context,a_owner,a_object, a_procedure_name);
@@ -292,17 +289,12 @@ create or replace package body ut_metadata as
   
   function has_collection_members (a_anydata in anydata) return boolean is
     l_anytype anytype;
-    l_nested_type   t_anytype_members_rec;
     l_elements_rec  t_anytype_elem_info_rec;
     l_type_code integer;
   begin
     l_type_code := a_anydata.gettype(l_anytype);
     l_elements_rec := get_attr_elem_info(l_anytype);
-    if l_elements_rec.attr_elt_type is null then
-      return false;
-    else 
-      return true;
-    end if;
+    return l_elements_rec.attr_elt_type is not null;
   end;
 
   function get_anydata_typename(a_data_value anydata) return varchar2
@@ -333,9 +325,9 @@ create or replace package body ut_metadata as
   end; 
     
   function get_object_name(a_full_object_name in varchar2) return varchar2 is
-    l_schema varchar(250);
-    l_object varchar(250);
-    l_procedure_name varchar(250);
+    l_schema varchar2(250);
+    l_object varchar2(250);
+    l_procedure_name varchar2(250);
   begin
     ut_metadata.do_resolve(a_full_object_name,7,l_schema,l_object, l_procedure_name);
     return l_object;

@@ -91,6 +91,8 @@ create or replace package body ut_compound_data_helper is
               || case when a_order_enforced then ',
                    row_number() over(partition by case when a.act_col_pos + e.exp_col_pos is not null then 1 end order by a.act_col_pos) a_pos_nn,
                    row_number() over(partition by case when a.act_col_pos + e.exp_col_pos is not null then 1 end order by e.exp_col_pos) e_pos_nn'
+                else
+                  null
                 end ||q'[
               from expected_cols e
               full outer join actual_cols a
@@ -112,6 +114,8 @@ create or replace package body ut_compound_data_helper is
               || case when a_order_enforced then q'[
               --column position is not matching (both when excluded extra/missing columns as well as when they are included)
               or (a_pos_nn != e_pos_nn and exp_col_pos != act_col_pos)]'
+              else
+                null
               end ||q'[
            order by exp_col_pos, act_col_pos]'
       bulk collect into l_results using a_expected, a_actual;
@@ -312,7 +316,6 @@ create or replace package body ut_compound_data_helper is
     l_xmltable_stmt  clob;
     l_select_stmt    clob;
     l_partition_stmt clob;
-    l_equal_stmt     clob;
     l_join_on_stmt   clob;
     l_not_equal_stmt clob;
     l_where_stmt     clob;
@@ -356,10 +359,8 @@ create or replace package body ut_compound_data_helper is
     l_compare_sql := replace(l_compare_sql,'{:join_type:}',get_join_type(a_inclusion_type,a_is_negated));
     l_compare_sql := replace(l_compare_sql,'{:join_condition:}',l_join_on_stmt);
 
-    if l_not_equal_stmt is not null then
-      if (a_join_by_list.count > 0 and not a_is_negated) or (not a_unordered) then
+    if l_not_equal_stmt is not null and ((a_join_by_list.count > 0 and not a_is_negated) or (not a_unordered)) then
         ut_utils.append_to_clob(l_where_stmt,' ( '||l_not_equal_stmt||' ) or ');
-      end if;
     end if;
     --If its inclusion we expect a actual set to fully match and have no extra elements over expected
     if a_inclusion_type then
@@ -499,6 +500,8 @@ create or replace package body ut_compound_data_helper is
          case when final_order = 1 then to_char(rn) else col_name end,
          case when final_order = 1 then to_char(rnk) else col_name end
      ]'
+   else
+     null
    end;
    execute immediate l_sql
    bulk collect into l_results
