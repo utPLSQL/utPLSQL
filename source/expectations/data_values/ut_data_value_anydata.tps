@@ -18,6 +18,7 @@ create or replace type ut_data_value_anydata under ut_data_value_refcursor(
   
   overriding member function get_object_info return varchar2,
   member function get_extract_path(a_data_value anydata) return varchar2,
+  member function get_cursor_sql_from_anydata(a_data_value anydata) return varchar2,
   member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata),
   member function get_instance(a_data_value anydata) return varchar2,
   constructor function ut_data_value_anydata(self in out nocopy ut_data_value_anydata, a_value anydata) return self as result,

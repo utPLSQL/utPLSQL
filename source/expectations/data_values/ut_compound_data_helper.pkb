@@ -69,28 +69,6 @@ create or replace package body ut_compound_data_helper is
     from act a {:join_type:} exp e on ( {:join_condition:} )
     where {:where_condition:}]';
 
-  function get_columns_filter(
-    a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_table_alias varchar2 := 'ucd', a_column_alias varchar2 := 'item_data'
-  ) return varchar2 is
-    l_filter varchar2(32767);
-    l_source_column varchar2(500) := a_table_alias||'.'||a_column_alias;
-  begin
-    -- this SQL statement is constructed in a way that we always get the same number and ordering of substitution variables
-    -- That is, we always get: l_exclude_xpath, l_include_xpath
-    --   regardless if the variables are NULL (not to be used) or NOT NULL and will be used for filtering
-    if a_exclude_xpath is null and a_include_xpath is null then
-      l_filter := ':l_exclude_xpath, :l_include_xpath, '||l_source_column||' as '||a_column_alias;
-    elsif a_exclude_xpath is not null and a_include_xpath is null then
-      l_filter := 'deletexml( '||l_source_column||', :l_exclude_xpath ) as '||a_column_alias||', :l_include_xpath';
-    elsif a_exclude_xpath is null and a_include_xpath is not null then
-      l_filter := ':l_exclude_xpath, extract( '||l_source_column||', :l_include_xpath ) as '||a_column_alias;
-    elsif a_exclude_xpath is not null and a_include_xpath is not null then
-      l_filter := 'extract( deletexml( '||l_source_column||', :l_exclude_xpath ), :l_include_xpath ) as '||a_column_alias;
-    end if;
-    return l_filter;
-  end;
-
   function get_columns_diff(
     a_expected ut_cursor_column_tab,
     a_actual ut_cursor_column_tab,
@@ -530,82 +508,6 @@ create or replace package body ut_compound_data_helper is
     return l_results;
   end;
   
-  --TODO : removal
-  function get_rows_diff(
-    a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
-    a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2
-  ) return tt_row_diffs is
-    l_column_filter varchar2(32767);
-    l_results       tt_row_diffs;
-  begin
-    l_column_filter := get_columns_filter(a_exclude_xpath,a_include_xpath);
-    execute immediate q'[
-      with
-        diff_info as ( select item_no 
-                       from 
-                         (select item_no from ut_compound_data_diff_tmp ucdc where diff_id = :diff_guid order by item_no asc) 
-                       where rownum <= :max_rows)
-      select *
-        from (select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, null pk_value
-                from (select nvl(exp.rn, act.rn) rn,
-                             xmlagg(exp.col order by exp.col_no) exp_item,
-                             xmlagg(act.col order by act.col_no) act_item
-                        from (select r.item_no as rn, rownum col_no, s.column_value col,
-                                     s.column_value.getRootElement() col_name,
-                                     s.column_value.getclobval() col_val
-                                from (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
-                                        from ut_compound_data_tmp ucd,
-                                        diff_info i
-                                       where ucd.data_id = :self_guid
-                                       and ucd.item_no = i.item_no
-                                    ) r,
-                                     table( xmlsequence( extract(r.item_data,'/*/*') ) ) s
-                             ) exp
-                        join (
-                              select item_no as rn, rownum col_no, s.column_value col,
-                                     s.column_value.getRootElement() col_name,
-                                     s.column_value.getclobval() col_val
-                                from (select ]'||l_column_filter||q'[, ucd.item_no, ucd.item_data item_data_no_filter
-                                        from ut_compound_data_tmp ucd,
-                                        diff_info i
-                                       where ucd.data_id = :other_guid
-                                       and ucd.item_no = i.item_no
-                                    ) r,
-                                     table( xmlsequence( extract(r.item_data,'/*/*') ) ) s
-                              ) act
-                          on exp.rn = act.rn and exp.col_name = act.col_name
-                       where dbms_lob.compare(exp.col_val, act.col_val) != 0
-                       group by exp.rn, act.rn
-                     )
-              unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
-             )
-      union all
-      select nvl(exp.item_no, act.item_no) rn,
-             case when exp.item_no is null then 'Extra:' else 'Missing:' end as diff_type,
-             xmlserialize(content nvl(exp.item_data, act.item_data) no indent) diffed_row,
-             null pk_value
-        from (select ucd.item_no, extract(ucd.item_data,'/*/*') item_data
-                from ut_compound_data_tmp ucd
-               where ucd.data_id = :self_guid
-                 and ucd.item_no in (select i.item_no from diff_info i)
-             ) exp
-        full outer join (
-              select ucd.item_no, extract(ucd.item_data,'/*/*') item_data
-                from ut_compound_data_tmp ucd
-               where ucd.data_id = :other_guid
-                 and ucd.item_no in (select i.item_no from diff_info i)
-             )act
-          on exp.item_no = act.item_no
-       where exp.item_no is null or act.item_no is null
-      order by 1, 2]'
-    bulk collect into l_results
-    using a_diff_id, a_max_rows,
-    a_exclude_xpath, a_include_xpath, a_expected_dataset_guid,
-    a_exclude_xpath, a_include_xpath, a_actual_dataset_guid,
-    a_expected_dataset_guid, a_actual_dataset_guid;
-    return l_results;
-  end;
-
   function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
   begin
     return dbms_crypto.hash(a_data, a_hash_type);

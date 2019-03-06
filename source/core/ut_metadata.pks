@@ -171,6 +171,11 @@ create or replace package ut_metadata authid current_user as
   * Get object name from fully qualified name e.g ut3.test -> test
   */
   function get_object_name(a_full_object_name in varchar2) return varchar2;
+  
+  /**
+  * Based on anydata decide if its a object or collection
+  */
+  function get_anydata_compound_type(a_data_value anydata) return varchar2;
     
 end ut_metadata;
 /

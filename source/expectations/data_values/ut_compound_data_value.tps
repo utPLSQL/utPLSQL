@@ -44,10 +44,6 @@ create or replace type ut_compound_data_value force under ut_data_value(
   overriding member function is_null return boolean,
   overriding member function is_diffable return boolean,
   overriding member function to_string return varchar2,
-  overriding member function is_multi_line return boolean,
-  overriding member function compare_implementation(a_other ut_data_value) return integer,
-  overriding member function diff( a_other ut_data_value, a_match_options ut_matcher_options ) return varchar2,
-  member function get_data_diff( a_other ut_data_value, a_match_options ut_matcher_options ) return clob,
-  member function compare_implementation( a_other ut_data_value, a_match_options ut_matcher_options ) return integer
+  overriding member function is_multi_line return boolean
 ) not final not instantiable
 /

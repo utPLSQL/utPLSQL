@@ -51,19 +51,9 @@ create or replace package ut_compound_data_helper authid definer is
 
   type t_diff_tab is table of t_diff_rec;
           
-  function get_columns_filter(
-    a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_table_alias varchar2 := 'ucd', a_column_alias varchar2 := 'item_data'
-  ) return varchar2;
-
   function get_columns_diff(
     a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab,a_order_enforced boolean := false
   ) return tt_column_diffs;
-
-  function get_rows_diff(
-    a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
-    a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2
-  ) return tt_row_diffs;
 
   function get_rows_diff_by_sql(
     a_act_cursor_info ut_cursor_column_tab,a_exp_cursor_info ut_cursor_column_tab,

@@ -35,6 +35,29 @@ create or replace type body ut_data_value_anydata as
     end if; 
     return l_path;
   end;
+  
+  member function get_cursor_sql_from_anydata(a_data_value anydata) return varchar2 is
+    l_cursor_sql varchar2(32767);
+  begin
+    l_cursor_sql := '
+        declare
+          l_data '||self.data_type||';
+          l_value anydata := :a_value;
+          l_status integer;
+          l_tmp_refcursor sys_refcursor;
+        begin
+          l_status := l_value.get'||self.compound_type||'(l_data); '||
+          case when self.compound_type = 'collection' then
+            q'[ open :l_tmp_refcursor for select value(x) as "]'||
+            ut_metadata.get_object_name(ut_metadata.get_collection_element(a_data_value))||
+            q'[" from table(l_data) x;]'
+          else
+            q'[ open :l_tmp_refcursor for select l_data as "]'||ut_metadata.get_object_name(self.data_type)||
+            q'[" from dual;]'            
+          end ||
+        'end;';  
+    return l_cursor_sql;
+  end;
  
   member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata) is
     l_refcursor    sys_refcursor;
@@ -42,7 +65,7 @@ create or replace type body ut_data_value_anydata as
     l_ut_owner varchar2(250) := ut_utils.ut_owner;
     cursor_not_open exception;
     l_cursor_number number;
-    l_anydata_sql varchar2(4000);  
+    l_anydata_sql varchar2(32767);
   begin
     self.data_type  := ut_metadata.get_anydata_typename(a_value);
     self.compound_type := get_instance(a_value);
@@ -55,26 +78,8 @@ create or replace type body ut_data_value_anydata as
     
     if not self.is_null() then
       self.extract_path := get_extract_path(a_value);
-      --get_cursor_from_anydata(a_value,l_refcursor);
-    l_anydata_sql := '
-        declare
-          l_data '||self.data_type||';
-          l_value anydata := :a_value;
-          l_status integer;
-          l_tmp_refcursor sys_refcursor;
-        begin
-          l_status := l_value.get'||self.compound_type||'(l_data); '||
-          case when self.compound_type = 'collection' then
-            q'[ open :l_tmp_refcursor for select value(x) as "]'||
-            ut_metadata.get_object_name(ut_metadata.get_collection_element(a_value))||
-            q'[" from table(l_data) x;]'
-          else
-            q'[ open :l_tmp_refcursor for select l_data as "]'||ut_metadata.get_object_name(self.data_type)||
-            q'[" from dual;]'            
-          end ||
-        'end;';
-        execute immediate l_anydata_sql using in a_value, in out l_refcursor; 
-        
+      l_anydata_sql := get_cursor_sql_from_anydata(a_value);
+      execute immediate l_anydata_sql using in a_value, in out l_refcursor;   
       if l_refcursor%isopen then
         self.extract_cursor(l_refcursor);
         l_cursor_number  := dbms_sql.to_cursor_number(l_refcursor);
@@ -84,7 +89,6 @@ create or replace type body ut_data_value_anydata as
         raise cursor_not_open;
       end if;
     end if;
-    
   exception
     when cursor_not_open then
         raise_application_error(-20155, 'Cursor is not open');
@@ -97,20 +101,10 @@ create or replace type body ut_data_value_anydata as
 
   member function get_instance(a_data_value anydata) return varchar2 is
     l_result    varchar2(30);
-    l_type      anytype;
-    l_type_code integer;
   begin
-    if a_data_value is not null then
-      l_type_code := a_data_value.gettype(l_type);
-      if l_type_code in (dbms_types.typecode_table, dbms_types.typecode_varray, dbms_types.typecode_namedcollection, dbms_types.typecode_object) then
-        if l_type_code = dbms_types.typecode_object then
-          l_result := 'object';
-        else
-          l_result := 'collection';
-        end if;
-      else
-        raise_application_error(-20000, 'Data type '||a_data_value.gettypename||' in ANYDATA is not supported by utPLSQL');
-      end if;
+    l_result := ut_metadata.get_anydata_compound_type(a_data_value);
+    if l_result not in ('object','collection') then
+      raise_application_error(-20000, 'Data type '||a_data_value.gettypename||' in ANYDATA is not supported by utPLSQL');  
     end if;
     return l_result;
   end;
@@ -133,7 +127,6 @@ create or replace type body ut_data_value_anydata as
     if not a_other is of (ut_data_value_anydata) then
       raise value_error;
     end if;   
-    
     l_result := l_result + (self as ut_data_value_refcursor).compare_implementation(a_other,a_match_options,a_inclusion_compare,a_is_negated);
     return l_result;
   end;

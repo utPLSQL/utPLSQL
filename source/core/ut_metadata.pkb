@@ -341,5 +341,24 @@ create or replace package body ut_metadata as
     return l_object;
   end;
 
+  function get_anydata_compound_type(a_data_value anydata) return varchar2 is
+    l_result    varchar2(30);
+    l_type      anytype;
+    l_type_code integer;
+  begin
+    if a_data_value is not null then
+      l_type_code := a_data_value.gettype(l_type);
+      if l_type_code in (dbms_types.typecode_table, dbms_types.typecode_varray, dbms_types.typecode_namedcollection, 
+        dbms_types.typecode_object) then
+        if l_type_code = dbms_types.typecode_object then
+          l_result := 'object';
+        else
+          l_result := 'collection';
+        end if;
+      end if;
+    end if;
+    return l_result;
+  end;
+
 end;
 /

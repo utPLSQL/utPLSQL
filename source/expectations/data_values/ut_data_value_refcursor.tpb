@@ -275,6 +275,11 @@ create or replace type body ut_data_value_refcursor as
     return l_result_string;
   end;
 
+  overriding member function compare_implementation(a_other ut_data_value) return integer is
+  begin
+    return compare_implementation( a_other, null );
+  end;
+
   member function compare_implementation(
     a_other             ut_data_value,
     a_match_options     ut_matcher_options,

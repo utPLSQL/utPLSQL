@@ -40,6 +40,7 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor),
   overriding member function to_string return varchar2,
   overriding member function diff( a_other ut_data_value, a_match_options ut_matcher_options ) return varchar2,
+  overriding member function compare_implementation(a_other ut_data_value) return integer,
   member function compare_implementation(
     a_other ut_data_value,
     a_match_options ut_matcher_options,
