@@ -56,7 +56,7 @@ create or replace type body ut_run as
   begin
     ut_utils.debug_log('ut_run.execute');
 
-    ut_event_manager.trigger_event(ut_utils.gc_before_run, self);
+    ut_event_manager.trigger_event(ut_event_manager.gc_before_run, self);
     self.start_time := current_timestamp;
 
     -- clear anything that might stay in the session's cache
@@ -70,7 +70,7 @@ create or replace type body ut_run as
 
     self.end_time := current_timestamp;
 
-    ut_event_manager.trigger_event(ut_utils.gc_after_run, self);
+    ut_event_manager.trigger_event(ut_event_manager.gc_after_run, self);
 
     return l_completed_without_errors;
   end;

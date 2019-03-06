@@ -336,7 +336,7 @@ create or replace package body ut_suite_builder is
     a_owner            t_object_name,
     a_package_name     t_object_name,
     a_annotation_texts tt_annotation_texts,
-    a_event_name       ut_utils.t_event_name
+    a_event_name       ut_event_manager.t_event_name
   ) return tt_executables is
     l_executables     ut_executables;
     l_result          tt_executables;

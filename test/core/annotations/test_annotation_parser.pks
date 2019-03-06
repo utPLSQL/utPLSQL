@@ -35,5 +35,8 @@ create or replace package test_annotation_parser is
   -- %test(Parses annotations with very long object names)
   procedure test_annot_very_long_name;
 
+  -- %test(Parses upper case annotations)
+  procedure test_upper_annot;
+
 end test_annotation_parser;
 /

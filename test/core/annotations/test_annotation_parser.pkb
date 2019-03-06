@@ -414,6 +414,48 @@ END;';
     ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
   end;
 
+  procedure test_upper_annot is
+    l_source    clob;
+    l_actual    ut3.ut_annotations;
+    l_expected  ut3.ut_annotations;
+  begin
+    l_source := 'PACKAGE test_tt AS
+    -- %SUITE
+    -- %DISPLAYNAME(Name of suite)
+    -- %SUITEPATH(all.globaltests)
+
+    -- %ANN1(Name of suite)
+    -- %ANN2(all.globaltests)
+
+    --%TEST
+    procedure foo;
+
+    -- %ANN3(Name of suite)
+    -- %ANN4(all.globaltests)
+
+    --%TEST
+    procedure bar;
+  END;';
+
+    --Act
+    l_actual := ut3.ut_annotation_parser.parse_object_annotations(l_source);
+
+    --Assert
+    l_expected := ut3.ut_annotations(
+      ut3.ut_annotation( 2, 'suite', null, null ),
+      ut3.ut_annotation( 3, 'displayname', 'Name of suite', null ),
+      ut3.ut_annotation( 4, 'suitepath', 'all.globaltests', null ),
+      ut3.ut_annotation( 6, 'ann1', 'Name of suite', null ),
+      ut3.ut_annotation( 7, 'ann2', 'all.globaltests', null ),
+      ut3.ut_annotation( 9, 'test', null, 'foo'),
+      ut3.ut_annotation( 12, 'ann3', 'Name of suite', null ),
+      ut3.ut_annotation( 13, 'ann4', 'all.globaltests', null ),
+      ut3.ut_annotation( 15, 'test', null, 'bar')
+      );
+
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+
+  end;
 
 end test_annotation_parser;
 /
