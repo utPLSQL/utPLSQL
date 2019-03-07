@@ -52,5 +52,8 @@ else
     echo "No need to update sonar we building on release or develop"
 fi
 
+#Address issue : Could not find ref 'develop' in refs/heads or refs/remotes/origin
+git fetch --no-tags https://github.com/utPLSQL/utPLSQL.git +refs/heads/develop:refs/remotes/origin/develop
+
 #Execute Sonar scanner
 sonar-scanner
