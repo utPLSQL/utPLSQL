@@ -296,6 +296,7 @@ end;';
     --Arrange
     open l_expected for
       select 'UT3.UT_COVERAGE_COBERTURA_REPORTER' reporter_object_name, 'Y' is_output_reporter from dual union all
+      select 'UT3.UT_DEBUG_REPORTER', 'Y' from dual union all
       select 'UT3.UT_COVERAGE_HTML_REPORTER', 'Y' from dual union all
       select 'UT3.UT_COVERAGE_SONAR_REPORTER', 'Y' from dual union all
       select 'UT3.UT_COVERALLS_REPORTER', 'Y' from dual union all
@@ -305,7 +306,8 @@ end;';
       select 'UT3.UT_SONAR_TEST_REPORTER', 'Y' from dual union all
       select 'UT3.UT_TEAMCITY_REPORTER', 'Y' from dual union all
       select 'UT3.UT_TFS_JUNIT_REPORTER', 'Y' from dual union all
-      select 'UT3.UT_XUNIT_REPORTER', 'Y' from dual;
+      select 'UT3.UT_XUNIT_REPORTER', 'Y' from dual
+    order by 1;
     --Act
     open l_actual for select * from table(ut3.ut_runner.GET_REPORTERS_LIST()) order by 1;
     --Assert

@@ -57,15 +57,26 @@ create or replace package body ut_event_manager  as
     end if;
   end;
 
-  procedure trigger_event( a_event_name t_event_name, a_event_object ut_event_item ) is
-  begin
-    if a_event_name is not null and g_event_listeners_index.exists(a_event_name)
-    then
-      for listener_number in 1 .. g_event_listeners_index(a_event_name).count loop
-        g_listeners(listener_number).on_event(a_event_name, a_event_object);
+  procedure trigger_event( a_event_name t_event_name, a_event_object ut_event_item := null ) is
+    procedure trigger_listener_event( a_listener_numbers t_listener_numbers, a_event_name t_event_name, a_event_object ut_event_item ) is
+      l_listener_number t_listener_number;
+    begin
+      l_listener_number := a_listener_numbers.first;
+      while l_listener_number is not null loop
+        g_listeners(l_listener_number).on_event(a_event_name, a_event_object);
+        l_listener_number := a_listener_numbers.next(l_listener_number);
       end loop;
+    end;
+  begin
+    if a_event_name is not null then
+      if g_event_listeners_index.exists(gc_all) then
+        trigger_listener_event( g_event_listeners_index(gc_all), a_event_name, a_event_object );
+      end if;
+      if g_event_listeners_index.exists(a_event_name) then
+        trigger_listener_event( g_event_listeners_index(a_event_name), a_event_name, a_event_object );
+      end if;
       if a_event_name = ut_event_manager.gc_finalize then
-        dispose_listeners;
+        dispose_listeners();
       end if;
     end if;
   end;
@@ -78,7 +89,7 @@ create or replace package body ut_event_manager  as
   procedure add_events( a_event_names ut_varchar2_list, a_listener_pos binary_integer ) is
   begin
     for i in 1 .. a_event_names.count loop
-      add_event(a_event_names(i), a_listener_pos);
+      add_event( a_event_names(i), a_listener_pos );
     end loop;
   end;
 
@@ -98,10 +109,9 @@ create or replace package body ut_event_manager  as
     if a_listener is not null then
       l_event_names := a_listener.get_supported_events();
       if l_event_names is not empty then
-        add_events( l_event_names, add_listener(a_listener ) );
+        add_events( l_event_names, add_listener( a_listener ) );
       end if;
     end if;
-
   end;
 
 end;

@@ -1,4 +1,4 @@
-create or replace type ut_event_item authid current_user as object (
+create or replace type body ut_event_item is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -16,11 +16,11 @@ create or replace type ut_event_item authid current_user as object (
   limitations under the License.
   */
 
-  /**
-  * Object type is a pre-declaration to be referenced by ut_event_listener_base
-  * The true abstract type is ut_suite_item
-  */
-  self_type    varchar2(250 byte),
-  member function to_clob return clob
-) not final not instantiable
+  member function to_clob return clob is
+    l_clob clob;
+  begin
+      select xmlserialize( content deletexml(xmltype(self),'/*/ITEMS') as clob indent size = 2 ) into l_clob from dual;
+    return l_clob;
+  end;
+end;
 /

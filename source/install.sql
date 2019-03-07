@@ -57,11 +57,14 @@ alter session set current_schema = &&ut3_owner;
 
 --event manager objects
 @@install_component.sql 'core/events/ut_event_item.tps'
+@@install_component.sql 'core/events/ut_event_item.tpb'
 @@install_component.sql 'core/events/ut_event_listener.tps'
 @@install_component.sql 'core/events/ut_event_manager.pks'
 @@install_component.sql 'core/events/ut_event_manager.pkb'
 
 --core types
+@@install_component.sql 'core/types/ut_run_info.tps'
+@@install_component.sql 'core/types/ut_run_info.tpb'
 @@install_component.sql 'core/types/ut_expectation_result.tps'
 @@install_component.sql 'core/types/ut_expectation_results.tps'
 @@install_component.sql 'core/types/ut_results_counter.tps'
@@ -80,6 +83,7 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_run.tps'
 @@install_component.sql 'core/types/ut_reporter_base.tps'
 @@install_component.sql 'core/types/ut_reporters.tps'
+
 
 --output buffer base api
 @@install_component.sql 'core/output_buffers/ut_output_data_row.tps'
@@ -273,6 +277,8 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'api/ut.pkb'
 
 --additional reporters
+@@install_component.sql 'reporters/ut_debug_reporter.tps'
+@@install_component.sql 'reporters/ut_debug_reporter.tpb'
 @@install_component.sql 'reporters/ut_teamcity_reporter.tps'
 @@install_component.sql 'reporters/ut_teamcity_reporter_helper.pks'
 @@install_component.sql 'reporters/ut_teamcity_reporter_helper.pkb'

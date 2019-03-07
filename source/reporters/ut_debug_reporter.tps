@@ -1,4 +1,4 @@
-create or replace type ut_event_item authid current_user as object (
+create or replace type ut_debug_reporter under ut_output_reporter_base(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -16,11 +16,16 @@ create or replace type ut_event_item authid current_user as object (
   limitations under the License.
   */
 
+  constructor function ut_debug_reporter(self in out nocopy ut_debug_reporter) return self as result,
   /**
-  * Object type is a pre-declaration to be referenced by ut_event_listener_base
-  * The true abstract type is ut_suite_item
+  * Returns the list of events that are supported by particular implementation of the reporter
   */
-  self_type    varchar2(250 byte),
-  member function to_clob return clob
-) not final not instantiable
+  overriding member function get_supported_events return ut_varchar2_list,
+
+  /**
+  * Delegates execution of event into individual reporting procedures
+  */
+  overriding member procedure on_event( self in out nocopy ut_debug_reporter, a_event_name varchar2, a_event_item ut_event_item)
+
+)
 /

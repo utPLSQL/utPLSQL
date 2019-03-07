@@ -181,6 +181,8 @@ drop package ut_utils;
 
 drop type ut_documentation_reporter force;
 
+drop type ut_debug_reporter force;
+
 drop type ut_teamcity_reporter force;
 
 drop type ut_xunit_reporter force;
@@ -246,6 +248,8 @@ drop type ut_output_data_rows force;
 drop type ut_output_data_row force;
 
 drop type ut_results_counter force;
+
+drop type ut_run_info force;
 
 drop type ut_expectation_results force;
 

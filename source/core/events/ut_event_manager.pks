@@ -18,6 +18,11 @@ create or replace package ut_event_manager authid current_user as
   /* Constants: Event names */
   subtype t_event_name           is varchar2(250);
 
+    --capture all events
+  gc_all                         constant t_event_name := 'all';
+
+  gc_debug                       constant t_event_name := 'debug';
+
   gc_initialize                  constant t_event_name := 'initialize';
 
   gc_before_run                  constant t_event_name := 'before_run';
@@ -51,7 +56,7 @@ create or replace package ut_event_manager authid current_user as
 
   gc_finalize                    constant t_event_name := 'finalize';
 
-  procedure trigger_event( a_event_name t_event_name, a_event_object ut_event_item );
+  procedure trigger_event( a_event_name t_event_name, a_event_object ut_event_item := null );
 
   procedure initialize;
 

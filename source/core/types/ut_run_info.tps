@@ -1,4 +1,4 @@
-create or replace type ut_event_item authid current_user as object (
+create or replace type ut_run_info under ut_event_item (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -15,12 +15,14 @@ create or replace type ut_event_item authid current_user as object (
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-
-  /**
-  * Object type is a pre-declaration to be referenced by ut_event_listener_base
-  * The true abstract type is ut_suite_item
-  */
-  self_type    varchar2(250 byte),
-  member function to_clob return clob
-) not final not instantiable
+  ut_version           varchar2(4000),
+  db_version           varchar2(4000),
+  db_compatibility     varchar2(4000),
+  db_os_type           varchar2(4000),
+  db_component_version ut_key_value_pairs,
+  nls_session_params   ut_key_value_pairs,
+  nls_instance_params  ut_key_value_pairs,
+  nls_db_params        ut_key_value_pairs,
+  constructor function ut_run_info(self in out nocopy ut_run_info) return self as result
+);
 /

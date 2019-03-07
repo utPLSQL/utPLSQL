@@ -71,6 +71,7 @@ create or replace synonym &ut3_user..have_count for &&ut3_owner..have_count;
 create or replace synonym &ut3_user..match for &&ut3_owner..match;
 create or replace synonym &ut3_user..ut for &&ut3_owner..ut;
 create or replace synonym &ut3_user..ut_runner for &&ut3_owner..ut_runner;
+create or replace synonym &ut3_user..ut_debug_reporter for &&ut3_owner..ut_debug_reporter;
 create or replace synonym &ut3_user..ut_teamcity_reporter for &&ut3_owner..ut_teamcity_reporter;
 create or replace synonym &ut3_user..ut_xunit_reporter for &&ut3_owner..ut_xunit_reporter;
 create or replace synonym &ut3_user..ut_junit_reporter for &&ut3_owner..ut_junit_reporter;
