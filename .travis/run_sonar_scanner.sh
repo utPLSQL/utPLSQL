@@ -58,6 +58,7 @@ fi
 #Address issue : Could not find ref 'develop' in refs/heads or refs/remotes/origin
 git fetch --no-tags https://github.com/utPLSQL/utPLSQL.git +refs/heads/develop:refs/remotes/origin/develop
 
+echo "Adding OJDBC Driver Path ${OJDBC_HOME}/ojdbc8.jar"
 add_sonar_property "${DB_URL_SONAR_PROPERTY}" "jdbc:oracle:thin:@${CONNECTION_STR}"
 add_sonar_property "${DB_DRIVER_PATH}" "${OJDBC_HOME}/ojdbc8.jar"
 
