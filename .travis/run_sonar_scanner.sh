@@ -12,6 +12,9 @@ PR_KEY_PROPERTY="sonar.pullrequest.key"
 PR_SONAR_BASE_PROPERTY="sonar.pullrequest.base"
 PR_SONAR_TOKEN_PROPERTY="sonar.pullrequest.github.token.secured"
 
+DB_URL_SONAR_PROPERTY="sonar.plsql.jdbc.url"
+DB_DRIVER_PATH="sonar.plsql.jdbc.driver.path"
+
 #Add property to file
 function add_sonar_property {
     echo "$1=$2" >> sonar-project.properties
@@ -54,6 +57,10 @@ fi
 
 #Address issue : Could not find ref 'develop' in refs/heads or refs/remotes/origin
 git fetch --no-tags https://github.com/utPLSQL/utPLSQL.git +refs/heads/develop:refs/remotes/origin/develop
+
+add_sonar_property "${DB_URL_SONAR_PROPERTY}" "jdbc:oracle:thin:@${CONNECTION_STR}"
+add_sonar_property "${DB_DRIVER_PATH}" "${OJDBC_HOME}/ojdbc8.jar"
+
 
 #Execute Sonar scanner
 sonar-scanner
