@@ -390,9 +390,6 @@ create or replace package test_expectations_cursor is
   
   --%test(Cursor to contain duplicates fail)
   procedure to_contain_duplicates_fail;
-  
-  --%test( Fixes error 827 when lob compare fails on null)
-  procedure fixes_827_null_on_lob_compare;
-  
+    
 end;
 /
