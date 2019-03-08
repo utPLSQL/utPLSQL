@@ -19,6 +19,8 @@ create or replace type body ut_debug_reporter is
   constructor function ut_debug_reporter(self in out nocopy ut_debug_reporter) return self as result is
   begin
     self.init($$plsql_unit);
+    self.start_time := current_timestamp();
+    self.event_time := current_timestamp();
     return;
   end;
     
@@ -28,26 +30,41 @@ create or replace type body ut_debug_reporter is
   end;
 
   overriding member procedure on_event( self in out nocopy ut_debug_reporter, a_event_name varchar2, a_event_item ut_event_item) is
-  begin
+    c_time            constant timestamp := current_timestamp();
+    c_time_from_start constant interval day(0) to second(6) := (c_time - self.start_time);
+    c_time_from_prev  constant interval day(0) to second(6) := (c_time - self.event_time);
+    l_debug varchar2(32767);
+    l_stack varchar2(32767) := dbms_utility.format_call_stack();
+    begin
+    l_stack := regexp_replace(
+      substr( l_stack, instr( l_stack, chr(10), 1, 6 ) +1 ),
+      '[0-9abcdefx]+ +([0-9]+) +(package |type )?(body )?(.*)','at "\4", line \1');
+
     if a_event_name = ut_event_manager.gc_initialize then
       self.on_initialize(null);
+      self.print_text('<DEBUG_LOG>');
     end if;
+    l_debug :=
+      to_clob( '<DEBUG>' || chr(10)
+        || '  <TIMESTAMP>' || ut_utils.to_string(c_time) || '</TIMESTAMP>' || chr(10)
+        || '  <TIME_FROM_START>'  || c_time_from_start || '</TIME_FROM_START>' || chr(10)
+        || '  <TIME_FROM_PREVIOUS>'  || c_time_from_prev || '</TIME_FROM_PREVIOUS>' || chr(10)
+        || '  <EVENT_NAME>' || a_event_name || '</EVENT_NAME>' || chr(10)
+        || '  <CALL_STACK>' || l_stack || '</CALL_STACK>'  || chr(10)
+      );
     if a_event_item is not null then
       self.print_clob(
-        to_clob( '<DEBUG><EVENT_NAME>' || a_event_name || '</EVENT_NAME>' || chr(10) )
-          || a_event_item.to_clob()
-          || to_clob('</DEBUG>'),
+        to_clob( l_debug ) || a_event_item.to_clob() || to_clob('</DEBUG>'),
         ut_event_manager.gc_debug
       );
     else
-      self.print_clob(
-        '<DEBUG><EVENT_NAME>' || a_event_name || '</EVENT_NAME>' || chr(10) || '</DEBUG>',
-        ut_event_manager.gc_debug
-        );
+      self.print_clob( l_debug || '</DEBUG>', ut_event_manager.gc_debug );
     end if;
     if a_event_name = ut_event_manager.gc_finalize then
+      self.print_text('</DEBUG_LOG>');
       self.on_finalize(null);
     end if;
+    self.event_time := current_timestamp();
   end;
 
 end;

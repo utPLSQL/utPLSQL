@@ -58,10 +58,14 @@ create or replace package body ut_event_manager  as
   end;
 
   procedure trigger_event( a_event_name t_event_name, a_event_object ut_event_item := null ) is
-    procedure trigger_listener_event( a_listener_numbers t_listener_numbers, a_event_name t_event_name, a_event_object ut_event_item ) is
-      l_listener_number t_listener_number;
+
+    procedure trigger_listener_event(
+      a_listener_numbers t_listener_numbers,
+      a_event_name t_event_name,
+      a_event_object ut_event_item
+    ) is
+      l_listener_number t_listener_number := a_listener_numbers.first;
     begin
-      l_listener_number := a_listener_numbers.first;
       while l_listener_number is not null loop
         g_listeners(l_listener_number).on_event(a_event_name, a_event_object);
         l_listener_number := a_listener_numbers.next(l_listener_number);

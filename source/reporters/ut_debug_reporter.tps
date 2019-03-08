@@ -15,7 +15,8 @@ create or replace type ut_debug_reporter under ut_output_reporter_base(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-
+  start_time   timestamp,
+  event_time   timestamp,
   constructor function ut_debug_reporter(self in out nocopy ut_debug_reporter) return self as result,
   /**
   * Returns the list of events that are supported by particular implementation of the reporter
