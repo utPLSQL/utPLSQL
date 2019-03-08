@@ -38,6 +38,7 @@ env:
     - CACHE_DIR=$HOME/.cache
     # Database Env
     - SQLCLI="$HOME/sqlcl/bin/sql"
+    - OJDBC_HOME="$HOME/sqlcl/lib"
     - ORACLE_PWD="oracle"
     - UT3_DOCKER_REPO="utplsqlv3/oracledb"
     - DOCKHER_HUB_REPO="${DOCKER_BASE_TAG:-$UT3_DOCKER_REPO}"
