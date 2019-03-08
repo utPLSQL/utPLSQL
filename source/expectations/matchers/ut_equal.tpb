@@ -237,7 +237,6 @@ create or replace type body ut_equal as
     l_result varchar2(32767);
   begin
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
-     --TODO : Refactor
       if self.expected is of (ut_data_value_refcursor) then
         l_result :=
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()

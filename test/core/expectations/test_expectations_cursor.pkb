@@ -2465,5 +2465,19 @@ Diff:%
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
   
+  procedure fixes_827_null_on_lob_compare is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    --Arrange
+    open l_actual for select rownum as rn, case when rownum = 2 then null else 'Row'||rownum end as rowdesc   
+      from dual a connect by level < 3;
+    open l_expected  for select rownum as rn, 'Row'||rownum as rowdesc  from dual a connect by level < 3;
+    
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+    --Assert
+    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+  end;  
+  
 end;
 /

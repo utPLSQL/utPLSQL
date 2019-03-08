@@ -401,7 +401,7 @@ create or replace package body ut_compound_data_helper is
       select
           exp_item_data, exp_data_id, item_no rn, rownum col_no, pk_value,
           s.column_value col, s.column_value.getRootElement() col_name,
-          s.column_value.getclobval() col_val
+          nvl(s.column_value.getclobval(),empty_clob()) col_val
         from (
           select
               exp_data_id, extract( ucd.exp_item_data, :column_path ) exp_item_data, item_no,
@@ -416,7 +416,7 @@ create or replace package body ut_compound_data_helper is
       select
           act_item_data, act_data_id, item_no rn, rownum col_no, pk_value,
           s.column_value col, s.column_value.getRootElement() col_name,
-          s.column_value.getclobval() col_val
+          nvl(s.column_value.getclobval(),empty_clob()) col_val
         from (
           select
               act_data_id, extract( ucd.act_item_data, :column_path ) act_item_data, item_no,
