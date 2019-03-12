@@ -27,7 +27,7 @@ Advanced data-comparison options are available for the [`equal`](expectations.md
  - `exclude(a_items varchar2)` - item or comma separated list of items to exclude
  - `include(a_items ut_varchar2_list)` - table of items to include 
  - `exclude(a_items ut_varchar2_list)` - table of items to exclude
- - `unordered` - ignore order of data sets when comparing data. Default when comparing data-sets with `to_inclide` / `to_contain` 
+ - `unordered` - ignore order of data sets when comparing data. Default when comparing data-sets with  `to_contain` 
  - `join_by(a_columns varchar2)` - column or comma separated list of columns to join two cursors by
  - `join_by(a_columns ut_varchar2_list)` - table of columns to join two cursors by
  - `unordered_columns` / `uc` - ignore the ordering of columns / attributes in compared data-sets. Column/attribute names will be used to identify data to be compared and the position will be ignored. 
@@ -130,7 +130,7 @@ This option can be useful in scenarios where you need to narrow-down the scope o
 
 ## Unordered
 
-Unordered option allows for quick comparison of two cursors without need of ordering them in any way.
+Unordered option allows for quick comparison of two compound data types without need of ordering them in any way.
 
 Result of such comparison will be limited to only information about row existing or not existing in given set without actual information about exact differences.
 
@@ -169,9 +169,9 @@ Above test will result in two differences of one row extra and one row missing.
 
 ## Join By option
 
-The `join_by` syntax enables comparison of unordered cursors by joining cursor data using specified columns. 
+The `join_by` syntax enables comparison of unordered compound data types by joining data using specified columns. 
 
-You can join two cursors by defining join column(s) that will be used to uniquely identify and compare rows. 
+You can join two compound data types by defining join column(s) that will be used to uniquely identify and compare data rows. 
 With this option, framework is able to identify which rows are missing, which are extra and which are different without need to have both cursors uniformly ordered. 
 When the specified join column(s) are not unique, join will partition set over rows with the same key and join on row number as well as given join key. 
 The extra or missing rows will be presented to user as well as all non-matching rows. 
@@ -237,7 +237,7 @@ Above test will indicate that in actual data-set
 ```
 
 
-### Joining cursors using multiple columns
+### Joining using multiple columns
 
 You can specify multiple columns in `join_by`
 
@@ -257,10 +257,10 @@ begin
     ut.expect( l_actual ).to_equal( l_expected ).join_by('USERNAME, USER_ID');
 end;
 ```
- 
-### Joining cursors using attributes of object in column list
 
-`join_by` allows for joining cursor data by attributes of object from column list of the compared cursors.
+### Joining using attributes of object in column list
+
+`join_by` allows for joining data by attributes of object from column list of the compared compound data types.
 
 To reference attribute as PK, use slash symbol `/` to separate nested elements.
 
@@ -302,7 +302,7 @@ create or replace package body test_join_by is
 end;
 /
 
-``` 
+```
 
 **Note**
 > `join_by` does not support joining on individual elements of nested table. You can still use data of the nested table as a PK value.
