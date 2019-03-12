@@ -172,7 +172,25 @@ create or replace package test_expectation_anydata is
   procedure varr_empty_equal_varr_empty; 
   
   --%test(Compare empty VARRAY to VARRAY with data)
-  procedure varr_empty_equal_varr_notempty;   
+  procedure varr_empty_equal_varr_notempty;  
+  
+  --%test( Anydata collection using joinby )
+  procedure collection_join_by;
+ 
+  --%test( Anydata collection using joinby fail)
+  procedure collection_join_by_fail; 
+ 
+  --%test( Anydata collection unordered ) 
+  procedure collection_unordered;
+ 
+  --%test( Anydata collection unordered fail ) 
+  procedure collection_unordered_fail; 
+  
+  --%test( Anydata object using joinby )
+  procedure object_join_by;
+ 
+  --%test( Anydata object unordered ) 
+  procedure object_unordered;  
   
 end;
 /

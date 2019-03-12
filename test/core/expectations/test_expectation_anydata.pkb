@@ -825,6 +825,124 @@ Rows: [ 60 differences, showing first 20 ]
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
+
+  procedure collection_join_by is
+    l_actual           test_dummy_object_list;
+    l_expected         test_dummy_object_list;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=2;
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2
+     order by rownum desc;
+    --Act
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).join_by('TEST_DUMMY_OBJECT/ID'); 
+    ut.expect(expectations.failed_expectations_data()).to_be_empty(); 
+  end;
+    
+  procedure collection_join_by_fail is
+    l_actual           test_dummy_object_list;
+    l_expected         test_dummy_object_list;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=2;
+    select test_dummy_object( rownum * 2, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2
+     order by rownum desc;
+    --Act
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).join_by('TEST_DUMMY_OBJECT/ID'); 
+    l_expected_message := q'[%Actual: ut3_tester.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester.test_dummy_object_list [ count = 2 ]
+%Diff:
+%Rows: [ 3 differences ]
+%PK <ID>2</ID> - Actual:   <name>Something 2</name>
+%PK <ID>2</ID> - Actual:   <Value>2</Value>
+%PK <ID>2</ID> - Expected: <name>Something 1</name>
+%PK <ID>2</ID> - Expected: <Value>1</Value>
+%PK <ID>1</ID> - Extra:    <TEST_DUMMY_OBJECT><ID>1</ID><name>Something 1</name><Value>1</Value></TEST_DUMMY_OBJECT>
+%PK <ID>4</ID> - Missing:  <TEST_DUMMY_OBJECT><ID>4</ID><name>Something 2</name><Value>2</Value></TEST_DUMMY_OBJECT>]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
+  procedure collection_unordered is
+    l_actual           test_dummy_object_list;
+    l_expected         test_dummy_object_list;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=3;
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=3
+     order by rownum desc;
+    --Act
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).unordered; 
+    ut.expect(expectations.failed_expectations_data()).to_be_empty(); 
+  end;  
+ 
+ procedure collection_unordered_fail is
+    l_actual           test_dummy_object_list;
+    l_expected         test_dummy_object_list;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=2;
+    select test_dummy_object( rownum * 2, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2
+     order by rownum desc;
+
+    l_expected_message := q'[%Actual: ut3_tester.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester.test_dummy_object_list [ count = 2 ]
+%Diff:
+%Rows: [ 4 differences ]
+%Extra:    <TEST_DUMMY_OBJECT><ID>1</ID><name>Something 1</name><Value>1</Value></TEST_DUMMY_OBJECT>
+%Extra:    <TEST_DUMMY_OBJECT><ID>2</ID><name>Something 2</name><Value>2</Value></TEST_DUMMY_OBJECT>
+%Missing:  <TEST_DUMMY_OBJECT><ID>4</ID><name>Something 2</name><Value>2</Value></TEST_DUMMY_OBJECT>
+%Missing:  <TEST_DUMMY_OBJECT><ID>2</ID><name>Something 1</name><Value>1</Value></TEST_DUMMY_OBJECT>]';
+
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).unordered; 
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end; 
+ 
+  procedure object_join_by is
+  begin
+    --Arrange
+    g_test_expected := anydata.convertObject( test_dummy_object(1, 'A', '0') );
+    g_test_actual   := anydata.convertObject( test_dummy_object(1, 'A', '0') );
+    
+    --Act
+    ut3.ut.expect(g_test_actual).to_equal(g_test_expected).join_by('TEST_DUMMY_OBJECT/ID'); 
+    ut.expect(expectations.failed_expectations_data()).to_be_empty(); 
+  end;
+    
+  procedure object_unordered is
+  begin
+    g_test_expected := anydata.convertObject( test_dummy_object(1, 'A', '0') );
+    g_test_actual   := anydata.convertObject( test_dummy_object(1, 'A', '0') );
+    
+    --Act
+    ut3.ut.expect(g_test_actual).to_equal(g_test_expected).unordered;
+    ut.expect(expectations.failed_expectations_data()).to_be_empty(); 
+  end;   
   
 end;
 /
