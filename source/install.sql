@@ -87,7 +87,6 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'expectations/data_values/ut_key_anyval_pair.tps'
 @@install_component.sql 'expectations/data_values/ut_key_anyval_pairs.tps'
 @@install_component.sql 'expectations/data_values/ut_key_anyvalues.tps'
-@@install_component.sql 'expectations/data_values/ut_key_anyvalues.tpb'
 
 
 --output buffer base api
@@ -263,6 +262,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_match.tpb'
 @@install_component.sql 'expectations/ut_expectation.tpb'
 @@install_component.sql 'expectations/ut_expectation_compound.tpb'
+@@install_component.sql 'expectations/data_values/ut_key_anyvalues.tpb'
 
 --core reporter
 @@install_component.sql 'reporters/ut_documentation_reporter.tps'
