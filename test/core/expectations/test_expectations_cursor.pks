@@ -390,6 +390,15 @@ create or replace package test_expectations_cursor is
   
   --%test(Cursor to contain duplicates fail)
   procedure to_contain_duplicates_fail;
+  
+  --%test(Fail to process a cursor for actual)
+  procedure xml_error_actual;
+  
+  --%test(Fail to process a cursor for expected)
+  procedure xml_error_expected;
+  
+  --%test(Fail to process a cursor for both)
+  procedure xml_error_both;  
     
 end;
 /

@@ -105,6 +105,10 @@ create or replace package ut_utils authid definer is
   gc_dml_for_all constant pls_integer := -20215;
   pragma exception_init (ex_dml_for_all, -20215);
 
+  ex_xml_processing exception;
+  gc_xml_processing constant pls_integer := -19202;
+  pragma exception_init (ex_xml_processing, -19202);
+  
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
   gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
@@ -353,6 +357,12 @@ create or replace package ut_utils authid definer is
    * Returns list of sub-type reporters for given list of super-type reporters
    */
   function get_child_reporters(a_for_reporters ut_reporters_info := null) return ut_reporters_info;
-
+  
+  /**
+  * Remove given ORA error from stack
+  */
+  function remove_error_from_stack(a_error_stack varchar2, a_ora_code number) return varchar2;
+  
+  
 end ut_utils;
 /

@@ -2465,5 +2465,99 @@ Diff:%
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
   
+  procedure xml_error_actual is
+     c_price  CONSTANT NUMBER(20,4):= 1357;
+    c_user   CONSTANT varchar2(30):= 'TEST_USER';
+    v_actual  sys_refcursor;
+    v_expected sys_refcursor;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    open v_actual for
+      select cast(null as number(10)) as usd_price_amt, c_user as update_id
+        from dual where dummy = 1;
+    open v_expected for
+      select c_price as usd_price_amt, c_user as update_id from dual;
+      
+    ut3.ut.expect(v_actual).to_equal(v_expected);
+   --Assert
+     l_expected_message := q'[%Failed to process ref_cursor with error
+%ORA-01722: invalid number     
+%Actual: refcursor [ count =  ] was expected to equal: refcursor [ count = 1 ]
+%Diff:
+%Columns:
+%Column <USD_PRICE_AMT> [data-type: NUMBER] is missing. Expected column position: 1.
+%Column <UPDATE_ID> [data-type: VARCHAR2] is missing. Expected column position: 2.
+%Rows: [ 1 differences ]
+%Row No. 1 - Missing:  <USD_PRICE_AMT>1357</USD_PRICE_AMT><UPDATE_ID>TEST_USER</UPDATE_ID>]';
+
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
+  procedure xml_error_expected is
+    c_price  CONSTANT NUMBER(20,4):= 1357;
+    c_user   CONSTANT varchar2(30):= 'TEST_USER';
+    v_actual  sys_refcursor;
+    v_expected sys_refcursor;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    open v_expected for
+      select cast(null as number(10)) as usd_price_amt, c_user as update_id
+        from dual where dummy = 1;
+    open v_actual for
+      select c_price as usd_price_amt, c_user as update_id from dual;
+      
+    ut3.ut.expect(v_actual).to_equal(v_expected);
+   --Assert
+     l_expected_message := q'[%Failed to process ref_cursor with error
+%ORA-01722: invalid number     
+%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count =  ]
+%Diff:
+%Columns:
+%Column <USD_PRICE_AMT> [data-type: NUMBER] is missing. Expected column position: 1.
+%Column <UPDATE_ID> [data-type: VARCHAR2] is missing. Expected column position: 2.
+%Rows: [ 1 differences ]
+%Row No. 1 - Extra:  <USD_PRICE_AMT>1357</USD_PRICE_AMT><UPDATE_ID>TEST_USER</UPDATE_ID>]';
+
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure xml_error_both is
+    c_price  CONSTANT NUMBER(20,4):= 1357;
+    c_user   CONSTANT varchar2(30):= 'TEST_USER';
+    v_actual  sys_refcursor;
+    v_expected sys_refcursor;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    open v_actual for
+      select cast(null as number(10)) as usd_price_amt, c_user as update_id
+        from dual where dummy = 1;
+    open v_expected for
+      select cast(null as number(10)) as usd_price_amt, c_user as update_id
+        from dual where dummy = 1;
+      
+    ut3.ut.expect(v_actual).to_equal(v_expected);
+   --Assert
+     l_expected_message := q'[%Failed to process ref_cursor with error
+%ORA-01722: invalid number     
+%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count =  ]
+%Diff:
+%Columns:
+%Column <USD_PRICE_AMT> [data-type: NUMBER] is missing. Expected column position: 1.
+%Column <UPDATE_ID> [data-type: VARCHAR2] is missing. Expected column position: 2.
+%Rows: [ 1 differences ]
+%Row No. 1 - Extra:  <USD_PRICE_AMT>1357</USD_PRICE_AMT><UPDATE_ID>TEST_USER</UPDATE_ID>]';
+
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+  
 end;
 /

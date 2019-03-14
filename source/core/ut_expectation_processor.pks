@@ -35,6 +35,8 @@ create or replace package ut_expectation_processor authid current_user as
   procedure add_expectation_result(a_expectation_result ut_expectation_result);
 
   procedure report_failure(a_message in varchar2);
+  
+  procedure report_failure_no_caller(a_message in varchar2);
 
   procedure set_xml_nls_params;
 

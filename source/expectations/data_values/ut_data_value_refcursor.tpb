@@ -96,6 +96,12 @@ create or replace type body ut_data_value_refcursor as
   exception
     when cursor_not_open then
         raise_application_error(-20155, 'Cursor is not open');
+    when ut_utils.ex_xml_processing then
+      if l_cursor%isopen then
+        close l_cursor;
+      end if;
+      ut_expectation_processor.report_failure_no_caller('Failed to process ref_cursor with error'||chr(10)|| 
+        ut_utils.remove_error_from_stack(sqlerrm,-19202));
     when others then
       if l_cursor%isopen then
         close l_cursor;

@@ -719,5 +719,18 @@ create or replace package body ut_utils is
     return l_results;
   end;
 
+  function remove_error_from_stack(a_error_stack varchar2, a_ora_code number) return varchar2 is
+    l_caller_stack_line          varchar2(4000);
+    l_ora_search_pattern         varchar2(500) := '^ORA'||a_ora_code||': (.*)$';
+  begin
+   l_caller_stack_line := regexp_replace(srcstr     => a_error_stack
+                          ,pattern    => l_ora_search_pattern
+                          ,replacestr => null
+                          ,position   => 1
+                          ,occurrence => 1
+                          ,modifier   => 'm');
+   return l_caller_stack_line;
+  end;
+
 end ut_utils;
 /
