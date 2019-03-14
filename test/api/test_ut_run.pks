@@ -56,6 +56,7 @@ create or replace package test_ut_run is
   --%aftertest(drop_failing_beforeall_suite)
   procedure run_proc_fail_child_suites;
 
+  --%disabled(Checking if disabling the test will help hanging Travis build)
   --%test(Savepoints are working properly on distributed transactions - Issue #839)
   --%beforetest(create_suite_with_link)
   --%aftertest(drop_suite_with_link)
