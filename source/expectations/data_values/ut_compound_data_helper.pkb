@@ -206,6 +206,14 @@ create or replace package body ut_compound_data_helper is
   begin    
     if a_data_info.is_sql_diffable = 0 then 
       l_col_syntax :=  l_ut_owner ||'.ut_compound_data_helper.get_hash('||l_alias||a_data_info.transformed_name||'.getClobVal()) as '||a_data_info.transformed_name ;
+    elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type = 'DATE' then
+      l_col_syntax :=  'to_date('||l_alias||a_data_info.transformed_name||','''||ut_utils.gc_date_format||''') as '|| a_data_info.transformed_name;
+    elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('TIMESTAMP') then
+      l_col_syntax :=  'to_timestamp('||l_alias||a_data_info.transformed_name||','''||ut_utils.gc_timestamp_format||''') as '|| a_data_info.transformed_name;
+    elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('TIMESTAMP WITH TIME ZONE') then
+      l_col_syntax :=  'to_timestamp_tz('||l_alias||a_data_info.transformed_name||','''||ut_utils.gc_timestamp_tz_format||''') as '|| a_data_info.transformed_name;
+    elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('TIMESTAMP WITH LOCAL TIME ZONE') then
+      l_col_syntax :=  ' cast( to_timestamp_tz('||l_alias||a_data_info.transformed_name||','''||ut_utils.gc_timestamp_tz_format||''') AS TIMESTAMP WITH LOCAL TIME ZONE) as '|| a_data_info.transformed_name;
     else
       l_col_syntax :=  l_alias||a_data_info.transformed_name||' as '|| a_data_info.transformed_name;
     end if;       
@@ -217,12 +225,8 @@ create or replace package body ut_compound_data_helper is
   begin
     if a_data_info.is_sql_diffable = 0 then
       l_col_type := 'XMLTYPE';
-    elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type = 'DATE' then 
-      l_col_type := 'TIMESTAMP';
-    elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('TIMESTAMP','TIMESTAMP WITH TIME ZONE') then
-      l_col_type := a_data_info.column_type;
-    --TODO : Oracle bug : https://community.oracle.com/thread/1957521
-    elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type = 'TIMESTAMP WITH LOCAL TIME ZONE' then
+    elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('DATE','TIMESTAMP','TIMESTAMP WITH TIME ZONE',
+      'TIMESTAMP WITH LOCAL TIME ZONE') then
       l_col_type := 'VARCHAR2(50)';
     elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('INTERVAL DAY TO SECOND','INTERVAL YEAR TO MONTH') then
       l_col_type := a_data_info.column_type;
@@ -370,7 +374,6 @@ create or replace package body ut_compound_data_helper is
     end if;    
     
     l_compare_sql := replace(l_compare_sql,'{:where_condition:}',l_where_stmt);
-
     return l_compare_sql;
   end;
    
