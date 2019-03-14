@@ -697,19 +697,33 @@ create or replace package body test_ut_run is
     execute immediate q'[drop package empty_suite]';
   end;
 
-  procedure create_test_suite is
+  procedure create_db_link is
     l_service_name varchar2(100);
     pragma autonomous_transaction;
   begin
     select global_name into l_service_name from global_name;
     execute immediate
-    'create public database link db_loopback connect to ut3_tester identified by ut3
-      using ''(DESCRIPTION=
-                (ADDRESS=(PROTOCOL=TCP)
-                  (HOST='||sys_context('userenv','SERVER_HOST')||')
+      'create public database link db_loopback connect to ut3_tester identified by ut3
+        using ''(DESCRIPTION=
+                  (ADDRESS=(PROTOCOL=TCP)
+                    (HOST='||sys_context('userenv','SERVER_HOST')||')
                   (PORT=1521)
                 )
                 (CONNECT_DATA=(SERVICE_NAME='||l_service_name||')))''';
+  end;
+
+  procedure drop_db_link is
+  begin
+    execute immediate 'drop public database link db_loopback';
+  exception
+    when others then
+      null;
+  end;
+
+  procedure create_test_suite is
+    pragma autonomous_transaction;
+  begin
+    create_db_link;
     execute immediate q'[
       create or replace package stateful_package as
         function get_state return varchar2;
@@ -796,7 +810,7 @@ Failures:%
   begin
     execute immediate 'drop package stateful_package';
     execute immediate 'drop package test_stateful';
-    begin execute immediate 'drop public database link db_loopback'; exception when others then null; end;
+    drop_db_link;
   end;
 
   procedure run_in_invalid_state is
@@ -942,5 +956,60 @@ Failures:%
   begin
     execute immediate 'drop package bad_annotations';
   end;
+
+  procedure savepoints_on_db_links is
+    l_results clob;
+  begin
+    ut3.ut.run('test_distributed_savepoint');
+    l_results := core.get_dbms_output_as_clob();
+    ut.expect(l_results).to_be_like('%1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%');
+  end;
+
+  procedure create_suite_with_link is
+    pragma autonomous_transaction;
+  begin
+    create_db_link;
+    execute immediate 'create table tst(id number(18,0))';
+    execute immediate q'[
+      create or replace package test_distributed_savepoint is
+        --%suite
+        --%suitepath(alltests)
+
+        --%beforeall
+        procedure setup;
+
+        --%test
+        procedure test;
+      end;]';
+
+    execute immediate q'[
+      create or replace package body test_distributed_savepoint is
+
+        g_expected constant integer := 1;
+
+        procedure setup is
+        begin
+          insert into tst@db_loopback values(g_expected);
+        end;
+
+        procedure test is
+          l_actual   integer := 0;
+        begin
+          select id into l_actual from tst@db_loopback;
+
+          ut.expect(l_actual).to_equal(g_expected);
+        end;
+
+      end;]';
+  end;
+
+  procedure drop_suite_with_link is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop table tst';
+    execute immediate 'drop package test_distributed_savepoint';
+    drop_db_link;
+  end;
+
 end;
 /
