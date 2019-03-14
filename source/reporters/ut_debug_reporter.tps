@@ -26,7 +26,9 @@ create or replace type ut_debug_reporter under ut_output_reporter_base(
   /**
   * Delegates execution of event into individual reporting procedures
   */
-  overriding member procedure on_event( self in out nocopy ut_debug_reporter, a_event_name varchar2, a_event_item ut_event_item)
+  overriding member procedure on_event( self in out nocopy ut_debug_reporter, a_event_name varchar2, a_event_item ut_event_item),
+
+  member function event_item_to_clob(a_event_item ut_event_item) return clob
 
 )
 /

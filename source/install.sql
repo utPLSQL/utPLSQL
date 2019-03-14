@@ -57,7 +57,6 @@ alter session set current_schema = &&ut3_owner;
 
 --event manager objects
 @@install_component.sql 'core/events/ut_event_item.tps'
-@@install_component.sql 'core/events/ut_event_item.tpb'
 @@install_component.sql 'core/events/ut_event_listener.tps'
 @@install_component.sql 'core/events/ut_event_manager.pks'
 @@install_component.sql 'core/events/ut_event_manager.pkb'
@@ -203,6 +202,8 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value_xmltype.tps'
 @@install_component.sql 'expectations/data_values/ut_key_anyval_pair.tps'
 @@install_component.sql 'expectations/data_values/ut_key_anyval_pairs.tps'
+@@install_component.sql 'expectations/data_values/ut_key_anyvalues.tps'
+@@install_component.sql 'expectations/data_values/ut_key_anyvalues.tpb'
 @@install_component.sql 'expectations/data_values/ut_compound_data_helper.pks'
 @@install_component.sql 'expectations/data_values/ut_curr_usr_compound_helper.pks'
 @@install_component.sql 'expectations/matchers/ut_matcher.tps'

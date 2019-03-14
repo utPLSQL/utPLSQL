@@ -33,7 +33,6 @@ create or replace type body ut_debug_reporter is
     c_time            constant timestamp := current_timestamp();
     c_time_from_start constant interval day(0) to second(6) := (c_time - self.start_time);
     c_time_from_prev  constant interval day(0) to second(6) := (c_time - self.event_time);
-    l_debug varchar2(32767);
     l_stack varchar2(32767) := dbms_utility.format_call_stack();
     begin
     l_stack := regexp_replace(
@@ -42,29 +41,38 @@ create or replace type body ut_debug_reporter is
 
     if a_event_name = ut_event_manager.gc_initialize then
       self.on_initialize(null);
-      self.print_text('<DEBUG_LOG>');
+      self.print_text('<DEBUG_LOG>', ut_event_manager.gc_debug);
     end if;
-    l_debug :=
-      to_clob( '<DEBUG>' || chr(10)
-        || '  <TIMESTAMP>' || ut_utils.to_string(c_time) || '</TIMESTAMP>' || chr(10)
+    self.print_text('<DEBUG>', ut_event_manager.gc_debug);
+    self.print_text(
+      '  <TIMESTAMP>' || ut_utils.to_string(c_time) || '</TIMESTAMP>' || chr(10)
         || '  <TIME_FROM_START>'  || c_time_from_start || '</TIME_FROM_START>' || chr(10)
         || '  <TIME_FROM_PREVIOUS>'  || c_time_from_prev || '</TIME_FROM_PREVIOUS>' || chr(10)
-        || '  <EVENT_NAME>' || a_event_name || '</EVENT_NAME>' || chr(10)
-        || '  <CALL_STACK>' || l_stack || '</CALL_STACK>'  || chr(10)
-      );
+        || '  <EVENT_NAME>' || a_event_name || '</EVENT_NAME>',
+      ut_event_manager.gc_debug
+    );
+    self.print_text( '  <CALL_STACK>' || l_stack || '</CALL_STACK>', ut_event_manager.gc_debug);
     if a_event_item is not null then
-      self.print_clob(
-        to_clob( l_debug ) || a_event_item.to_clob() || to_clob('</DEBUG>'),
+      self.print_text_lines(
+        ut_utils.convert_collection(
+          ut_utils.clob_to_table( event_item_to_clob(a_event_item), ut_utils.gc_max_storage_varchar2_len )
+        ),
         ut_event_manager.gc_debug
       );
-    else
-      self.print_clob( l_debug || '</DEBUG>', ut_event_manager.gc_debug );
     end if;
+    self.print_text('</DEBUG>', ut_event_manager.gc_debug);
     if a_event_name = ut_event_manager.gc_finalize then
-      self.print_text('</DEBUG_LOG>');
+      self.print_text('</DEBUG_LOG>', ut_event_manager.gc_debug);
       self.on_finalize(null);
     end if;
     self.event_time := current_timestamp();
+  end;
+
+  member function event_item_to_clob(a_event_item ut_event_item) return clob is
+    l_clob clob;
+  begin
+    select xmlserialize( content deletexml(xmltype(a_event_item),'/*/ITEMS|/*/ALL_EXPECTATIONS|/*/FAILED_EXPECTATIONS') as clob indent size = 2 ) into l_clob from dual;
+    return l_clob;
   end;
 
 end;
