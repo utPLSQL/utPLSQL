@@ -121,6 +121,8 @@ The uninstall process will **not** drop profiler tables, as they can potentially
 
 It is up to DBA to maintain the storage of the profiler tables.
 
+Additionally the user performing the installation must have a `ADMINISTER DATABASE TRIGGER` privilege. This is required for installation of trigger that is responsible for parsing annotations at at compile-time of a package. 
+
 # Manual installation procedure
 
 ### Creating schema for utPLSQL

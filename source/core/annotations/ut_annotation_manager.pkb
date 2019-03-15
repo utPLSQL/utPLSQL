@@ -58,26 +58,39 @@ create or replace package body ut_annotation_manager as
     l_cursor_text  varchar2(32767);
     l_result       ut_annotation_objs_cache_info;
   begin
-    l_cursor_text :=
-      q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
-                    object_owner => o.owner,
-                    object_name => o.object_name,
-                    object_type => o.object_type,
-                    needs_refresh => case when o.last_ddl_time < cast(i.parse_time as date) then 'N' else 'Y' end
-                  )
-           from ]'||l_objects_view||q'[ o
-           left join ]'||l_ut_owner||q'[.ut_annotation_cache_info i
-             on o.owner = i.object_owner
-            and o.object_name = i.object_name
-            and o.object_type = i.object_type
-          where o.owner = ']'||a_object_owner||q'['
-            and o.object_type = ']'||a_object_type||q'['
-            and ]'
-        || case
-           when a_parse_date is null
-             then ':a_parse_date is null'
-           else 'o.last_ddl_time >= cast(:a_parse_date as date)'
-           end;
+    if ut_trigger_check.is_alive() then
+      l_cursor_text :=
+        q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
+                      object_owner => i.object_owner,
+                      object_name => i.object_name,
+                      object_type => i.object_type,
+                      needs_refresh => 'N'
+                    )
+             from ]'||l_ut_owner||q'[.ut_annotation_cache_info i
+            where i.object_owner = :a_object_owner
+              and i.object_type = :a_object_type]';
+    else
+      l_cursor_text :=
+        q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
+                      object_owner => o.owner,
+                      object_name => o.object_name,
+                      object_type => o.object_type,
+                      needs_refresh => case when o.last_ddl_time < cast(i.parse_time as date) then 'N' else 'Y' end
+                    )
+             from ]'||l_objects_view||q'[ o
+             left join ]'||l_ut_owner||q'[.ut_annotation_cache_info i
+               on o.owner = i.object_owner
+              and o.object_name = i.object_name
+              and o.object_type = i.object_type
+            where o.owner = ']'||a_object_owner||q'['
+              and o.object_type = ']'||a_object_type||q'['
+              and ]'
+          || case
+             when a_parse_date is null
+               then ':a_parse_date is null'
+             else 'o.last_ddl_time >= cast(:a_parse_date as date)'
+             end;
+    end if;
     open l_rows for l_cursor_text  using a_parse_date;
     fetch l_rows bulk collect into l_result limit 1000000;
     close l_rows;
@@ -222,11 +235,55 @@ create or replace package body ut_annotation_manager as
     );
   end;
 
+  procedure trigger_obj_annotation_rebuild is
+    l_sql_text    ora_name_list_t;
+    l_parts       binary_integer;
+    l_object_to_parse ut_annotation_obj_cache_info;
+
+    function get_source_from_sql_text(a_object_name varchar2, a_sql_text ora_name_list_t, a_parts binary_integer) return sys_refcursor is
+      l_sql_clob    clob;
+      l_sql_lines   ut_varchar2_rows := ut_varchar2_rows();
+      l_result      sys_refcursor;
+      l_sql_text    ora_name_list_t := a_sql_text;
+    begin
+      if a_parts > 0 then
+        l_sql_text(1) := regexp_replace(l_sql_text(1),'^\s*create(\s+or\s+replace)?\s+', modifier => 'i');
+        for i in 1..a_parts loop
+          ut_utils.append_to_clob(l_sql_clob, l_sql_text(i));
+        end loop;
+        l_sql_lines := ut_utils.convert_collection( ut_utils.clob_to_table(l_sql_clob) );
+      end if;
+      open l_result for
+        select a_object_name as name, column_value||chr(10) as text from table(l_sql_lines);
+      return l_result;
+    end;
+  begin
+    ut_trigger_check.is_alive();
+
+    if ora_dict_obj_type = 'PACKAGE' then
+
+      l_object_to_parse := ut_annotation_obj_cache_info(ora_dict_obj_owner, ora_dict_obj_name, ora_dict_obj_type, 'Y');
+
+      if ora_sysevent = 'CREATE' then
+        l_parts := ORA_SQL_TXT(l_sql_text);
+        build_annot_cache_for_sources(
+          ora_dict_obj_owner, ora_dict_obj_type,
+          get_source_from_sql_text(ora_dict_obj_name, l_sql_text, l_parts)
+        );
+      elsif ora_sysevent = 'ALTER' then
+        null;
+        --update parse_time
+      elsif ora_sysevent = 'DROP' then
+        ut_annotation_cache_manager.remove_from_cache(ut_annotation_objs_cache_info(l_object_to_parse));
+      end if;
+    end if;
+  end;
+
   function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_parse_date timestamp := null) return ut_annotated_objects pipelined is
     l_info_rows              ut_annotation_objs_cache_info;
     l_cursor                 sys_refcursor;
     l_results                ut_annotated_objects;
-    c_object_fetch_limit  constant integer := 10;
+    c_object_fetch_limit     constant integer := 10;
   begin
 
     l_info_rows := get_annotation_objs_info(a_object_owner, a_object_type, a_parse_date);

@@ -109,6 +109,8 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_output_reporter_base.tps'
 
 --annotations
+@@install_component.sql 'core/annotations/ut_trigger_check.pks'
+@@install_component.sql 'core/annotations/ut_trigger_check.pkb'
 @@install_component.sql 'core/annotations/ut_annotation.tps'
 @@install_component.sql 'core/annotations/ut_annotations.tps'
 @@install_component.sql 'core/annotations/ut_annotated_object.tps'
@@ -116,6 +118,7 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/annotations/ut_annotation_obj_cache_info.tps'
 @@install_component.sql 'core/annotations/ut_annotation_objs_cache_info.tps'
 @@install_component.sql 'core/annotations/ut_annotation_cache_seq.sql'
+@@install_component.sql 'core/annotations/ut_annotation_cache_schema.sql'
 @@install_component.sql 'core/annotations/ut_annotation_cache_info.sql'
 @@install_component.sql 'core/annotations/ut_annotation_cache.sql'
 @@install_component.sql 'core/annotations/ut_annotation_cache_manager.pks'
@@ -124,6 +127,7 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/annotations/ut_annotation_parser.pkb'
 @@install_component.sql 'core/annotations/ut_annotation_manager.pks'
 @@install_component.sql 'core/annotations/ut_annotation_manager.pkb'
+@@install_component.sql 'core/annotations/ut_trigger_annotation_parsing.trg'
 
 --suite builder
 @@install_component.sql 'core/ut_suite_cache_schema.sql'
