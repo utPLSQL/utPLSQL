@@ -6,7 +6,7 @@ utPLSQL expectations incorporates advanced data comparison options when comparin
 - object type
 - nested table and varray  
 
-Advanced data-comparison options are available for the [`equal`](expectations.md#equal) and  [`include / contain`](expectations.md#include--contain) matcher.
+Advanced data-comparison options are available for the [`equal`](expectations.md#equal) and  [`contain`](expectations.md#include--contain) matcher.
 
 ## Syntax
 
@@ -164,7 +164,7 @@ Above test will result in two differences of one row extra and one row missing.
 
 **Note**
 
-> `include / contain` matcher is not considering order of compared data-sets. Using `unordered` makes no difference (it's default)
+> `contain` matcher is not considering order of compared data-sets. Using `unordered` makes no difference (it's default)
 
 
 ## Join By option
@@ -375,10 +375,10 @@ end;
 
 ## Unordered columns / uc option
 
-If you need to perform data comparison of cursors without strictly deending on column order in the returned result-set, use the `unordered_columns` option.
+If you need to perform data comparison of compound data types without strictly depending on column order in the returned result-set, use the `unordered_columns` option.
 Shortcut name `uc` is also available for that option.
 
-Expectations that compare cursor data with `unordered_Columns` option, will not fail when columns are ordered differently.
+Expectations that compare compound data type data with `unordered_columns` option, will not fail when columns are ordered differently.
 
 This option can be useful whn we have no control over the ordering of the column or the column order is not of importance from testing perspective.
 
