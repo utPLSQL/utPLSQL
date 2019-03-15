@@ -193,6 +193,8 @@ drop package ut_ansiconsole_helper;
 
 drop package ut_utils;
 
+drop sequence ut_savepoint_seq;
+
 drop type ut_documentation_reporter force;
 
 drop type ut_teamcity_reporter force;

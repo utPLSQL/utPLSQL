@@ -50,6 +50,7 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_reporters_info.tps'
 @@install_component.sql 'core/ut_utils.pks'
 @@install_component.sql 'core/ut_metadata.pks'
+@@install_component.sql 'core/ut_savepoint_seq.sql'
 @@install_component.sql 'core/ut_utils.pkb'
 @@install_component.sql 'core/ut_metadata.pkb'
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pks'
