@@ -5,6 +5,8 @@ drop synonym have_count;
 
 drop synonym match;
 
+drop synonym contain;
+
 drop synonym be_false;
 
 drop synonym be_empty;
@@ -83,6 +85,8 @@ drop type ut_match force;
 
 drop type ut_be_between force;
 
+drop type ut_contain force;
+
 drop type ut_equal force;
 
 drop type ut_be_true force;
@@ -143,6 +147,16 @@ drop type ut_data_value_xmltype force;
 
 drop type ut_data_value force;
 
+drop type ut_matcher_options force;
+
+drop type ut_matcher_options_items force;
+
+drop type ut_cursor_details force;
+
+drop type ut_cursor_column_tab force;
+
+drop type ut_cursor_column force;
+
 drop table ut_compound_data_tmp;
 
 drop table ut_compound_data_diff_tmp;
@@ -178,6 +192,8 @@ drop package ut_metadata;
 drop package ut_ansiconsole_helper;
 
 drop package ut_utils;
+
+drop sequence ut_savepoint_seq;
 
 drop type ut_documentation_reporter force;
 
@@ -284,8 +300,6 @@ drop type ut_varchar2_rows force;
 drop package ut_coverage_profiler;
 
 drop package ut_compound_data_helper;
-
-drop package ut_curr_usr_compound_helper;
 
 drop package ut_coverage_helper_profiler;
 

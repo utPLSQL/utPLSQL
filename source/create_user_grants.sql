@@ -53,6 +53,7 @@ alter session set current_schema = &&ut3_owner;
 
 grant execute on &&ut3_owner..ut_expectation to &ut3_user;
 grant execute on &&ut3_owner..ut_expectation_compound to &ut3_user;
+
 grant execute on &&ut3_owner..ut_be_between to &ut3_user;
 grant execute on &&ut3_owner..ut_be_empty to &ut3_user;
 grant execute on &&ut3_owner..ut_be_false to &ut3_user;
@@ -122,3 +123,6 @@ grant execute on &&ut3_owner..ut_realtime_reporter to &ut3_user;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to &ut3_user;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs to &ut3_user;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_units to &ut3_user;
+grant execute on &&ut3_owner..ut_matcher_options to &ut3_user;
+grant execute on &&ut3_owner..ut_matcher_options_items to &ut3_user;
+

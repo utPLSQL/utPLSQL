@@ -30,7 +30,7 @@ create or replace type body ut_data_value as
     raise value_error;
   end;
 
-  member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2, a_join_by_xpath varchar2, a_unordered boolean :=false ) return varchar2 is
+  member function diff( a_other ut_data_value, a_match_options ut_matcher_options ) return varchar2 is
   begin
     return null;
   end;

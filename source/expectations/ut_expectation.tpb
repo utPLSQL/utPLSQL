@@ -20,11 +20,14 @@ create or replace type body ut_expectation as
     l_matcher       ut_matcher := a_matcher;
     l_message       varchar2(32767);
   begin
-    
-    l_expectation_result := l_matcher.run_matcher( self.actual_data );
-    l_expectation_result := coalesce(l_expectation_result,false);
-    l_message := coalesce( l_matcher.error_message( self.actual_data ), l_matcher.failure_message( self.actual_data ) );
-    ut_expectation_processor.add_expectation_result( ut_expectation_result( ut_utils.to_test_result( l_expectation_result ), self.description, l_message ) );
+    if a_matcher.is_negated() then
+      self.not_to( a_matcher );
+    else
+      l_expectation_result := l_matcher.run_matcher( self.actual_data );
+      l_expectation_result := coalesce(l_expectation_result,false);
+      l_message := coalesce( l_matcher.error_message( self.actual_data ), l_matcher.failure_message( self.actual_data ) );
+      ut_expectation_processor.add_expectation_result( ut_expectation_result( ut_utils.to_test_result( l_expectation_result ), self.description, l_message ) );
+    end if;
   end;
 
   member procedure not_to(self in ut_expectation, a_matcher ut_matcher) is
@@ -32,9 +35,8 @@ create or replace type body ut_expectation as
     l_matcher       ut_matcher := a_matcher;
     l_message       varchar2(32767);
   begin
-    
-    l_expectation_result := l_matcher.run_matcher_negated( self.actual_data );
-    l_expectation_result := coalesce(l_expectation_result,false);
+    l_expectation_result := coalesce( l_matcher.run_matcher_negated( self.actual_data ), false );
+
     l_message := coalesce( l_matcher.error_message( self.actual_data ), l_matcher.failure_message_when_negated( self.actual_data ) );
     ut_expectation_processor.add_expectation_result( ut_expectation_result( ut_utils.to_test_result( l_expectation_result ), self.description, l_message ) );
   end;
@@ -677,6 +679,26 @@ create or replace type body ut_expectation as
   member procedure not_to_be_less_than(self in ut_expectation, a_expected yminterval_unconstrained) is
   begin
     self.not_to(  ut_be_less_than (a_expected) );
+  end;
+
+  member procedure to_contain(self in ut_expectation, a_expected sys_refcursor) is
+  begin
+    self.to_( ut_contain(a_expected) );
+  end;
+  
+  member procedure not_to_contain(self in ut_expectation, a_expected sys_refcursor) is
+  begin
+    self.not_to( ut_contain(a_expected).negated() );
+  end;
+
+  member procedure to_contain(self in ut_expectation, a_expected anydata) is
+  begin
+    self.to_( ut_contain(a_expected) );
+  end;
+  
+  member procedure not_to_contain(self in ut_expectation, a_expected anydata) is
+  begin
+    self.not_to( ut_contain(a_expected).negated() );
   end;
 
 end;

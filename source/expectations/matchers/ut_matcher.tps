@@ -17,6 +17,7 @@ create or replace type ut_matcher authid current_user as object(
   */
   self_type       varchar2(250),
   is_errored      integer,
+  is_negated_flag number(1,0),
 
   /*
     function: run_matcher
@@ -35,6 +36,9 @@ create or replace type ut_matcher authid current_user as object(
   member function description_when_negated return varchar2,
   member function error_message(a_actual ut_data_value) return varchar2,
   member function failure_message(a_actual ut_data_value) return varchar2,
-  member function failure_message_when_negated(a_actual ut_data_value) return varchar2
+  member function failure_message_when_negated(a_actual ut_data_value) return varchar2,
+  member procedure negated,
+  member function negated return ut_matcher,
+  member function is_negated return boolean
 ) not final not instantiable
 /

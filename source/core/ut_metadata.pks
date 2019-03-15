@@ -20,6 +20,31 @@ create or replace package ut_metadata authid current_user as
    * Common package for all code that reads from the system tables.
    */
 
+  type t_anytype_members_rec is record (
+    type_code       pls_integer,
+    schema_name     varchar2(128),
+    type_name       varchar2(128),
+    length          pls_integer,
+    elements_count  pls_integer,
+    version         varchar2(32767),
+    precision       pls_integer,
+    scale           pls_integer,
+    char_set_id     pls_integer,
+    char_set_frm    pls_integer
+    );
+
+  type t_anytype_elem_info_rec is record (
+    type_code       pls_integer,
+    attribute_name  varchar2(260),
+    length          pls_integer,
+    version         varchar2(32767),
+    precision       pls_integer,
+    scale           pls_integer,
+    char_set_id     pls_integer,
+    char_set_frm    pls_integer,
+    attr_elt_type   anytype
+    );
+
   /**
    * Forms correct object/subprogram name to call as owner.object[.subprogram]
    *
@@ -44,6 +69,12 @@ create or replace package ut_metadata authid current_user as
    *
    */
   procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2, a_procedure_name in out nocopy varchar2);
+
+  /**
+   * Resolves single string [owner.]object[.procedure] using dbms_utility.name_resolve and returns parts [owner] [object] [procedure]
+   */
+  procedure do_resolve(a_fully_qualified_name in varchar2,a_context in integer,a_owner out nocopy varchar2, 
+    a_object out nocopy varchar2, a_procedure_name out nocopy varchar2);
 
   /**
    * Return the text of the source line for a given object (body). It excludes package spec and type spec
@@ -91,5 +122,60 @@ create or replace package ut_metadata authid current_user as
    */
   function package_exists_in_cur_schema(a_object_name varchar2) return boolean;
 
+  /**
+  * Returns true if given typecode is a collection typecode
+  */
+  function is_collection(a_anytype_code in integer) return boolean;
+
+  /**
+  * Returns true if given object is a collection
+  */
+  function is_collection(a_owner varchar2, a_type_name varchar2) return boolean;
+
+  /**
+  * Returns a descriptor of anytype
+  */
+  function get_anytype_members_info( a_anytype anytype ) return t_anytype_members_rec;
+
+  /**
+  * Returns a descriptor of anytype attribute
+  */
+  function get_attr_elem_info( a_anytype anytype, a_pos pls_integer := null ) return t_anytype_elem_info_rec;
+
+  /**
+  * Returns ANYTYPE descriptor of an object type
+  */
+  function get_user_defined_type(a_owner varchar2, a_type_name varchar2) return anytype;
+  
+  /**
+  * Return fully qualified name of the object from collection, if not collection returns null
+  */
+  function get_collection_element(a_anydata in anydata) return varchar2;
+
+  /**
+  * Check if collection got elements
+  */  
+  function has_collection_members (a_anydata in anydata) return boolean;
+
+  /**
+  * Get typename from anydata
+  */   
+  function get_anydata_typename(a_data_value anydata) return varchar2;
+
+  /**
+  * Is anydata object/collection is null
+  */     
+  function is_anytype_null(a_value in anydata, a_compound_type in varchar2) return number;
+  
+  /**
+  * Get object name from fully qualified name e.g ut3.test -> test
+  */
+  function get_object_name(a_full_object_name in varchar2) return varchar2;
+  
+  /**
+  * Based on anydata decide if its a object or collection
+  */
+  function get_anydata_compound_type(a_data_value anydata) return varchar2;
+    
 end ut_metadata;
 /
