@@ -11,7 +11,7 @@ The framework follows industry standards and best patterns of modern Unit Testin
        - [Advanced data comparison](userguide/advanced_data_comparison.md)
        - [Running unit tests](userguide/running-unit-tests.md)
        - [Querying for test suites](userguide/querying_suites.md)
-       - [Testing best pracitces](userguide/best-practices.md)
+       - [Testing best practices](userguide/best-practices.md)
        - [Upgrade utPLSQL](userguide/upgrade.md)
   - Reporting
        - [Using reporters](userguide/reporters.md)
