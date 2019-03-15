@@ -62,7 +62,7 @@ create or replace package body test_expectations_cursor is
     l_actual   sys_refcursor;
   begin
     -- Arrange
-    ut.set_nls;
+    ut3.ut.set_nls;
     open l_expected for
       select 1 as my_num,
              'This is my test string' as my_string,
@@ -75,11 +75,11 @@ create or replace package body test_expectations_cursor is
              to_clob('This is an even longer test clob') as my_clob,
              to_date('1984-09-05', 'YYYY-MM-DD') as my_date
       from dual;
-    ut.reset_nls;
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(expectations.failed_expectations_data()).to_be_empty();
+    ut3.ut.reset_nls;
   end;
 
   procedure success_on_empty
@@ -404,11 +404,11 @@ create or replace package body test_expectations_cursor is
     ut3.ut.set_nls;
     open l_actual for select l_date as some_date from dual;
     open l_expected for select l_date-l_second some_date from dual;
-    ut3.ut.reset_nls;
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
     ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+    ut3.ut.reset_nls;
   end;
 
   procedure uses_default_nls_for_date

@@ -1004,7 +1004,7 @@ Due to the way Oracle handles DATE data type when converting from cursor data to
 The NLS_DATE_FORMAT setting from the moment the cursor was opened determines the formatting of dates used for cursor data comparison.
 By default, Oracle NLS_DATE_FORMAT is timeless, so data of DATE datatype, will be compared ignoring the time component.
 
-You should use procedures `ut.set_nls`, `ut.reset_nls` around cursors that you want to compare in your tests.
+You should surround cursors and expectations with procedures `ut.set_nls`, `ut.reset_nls`.
 This way, the DATE data in cursors will be properly formatted for comparison using date-time format.
 
 The example below makes use of `ut.set_nls`, `ut.reset_nls`, so that the date in `l_expected` and `l_actual` is compared using date-time formatting.  
@@ -1048,9 +1048,9 @@ create or replace package body test_get_events is
     open l_expected_bad_date for select gc_description as description, gc_event_date + gc_second as event_date from dual;
     --Act
     l_actual := get_events();
-    ut.reset_nls(); -- Change the NLS settings after cursors were opened
     --Assert
     ut.expect( l_actual ).not_to_equal( l_expected_bad_date );
+    ut.reset_nls(); -- Change the NLS settings after cursors were opened
   end;
 
   procedure bad_test is

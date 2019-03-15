@@ -207,7 +207,7 @@ create or replace package body ut_compound_data_helper is
     if a_data_info.is_sql_diffable = 0 then 
       l_col_syntax :=  l_ut_owner ||'.ut_compound_data_helper.get_hash('||l_alias||a_data_info.transformed_name||'.getClobVal()) as '||a_data_info.transformed_name ;
     elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type = 'DATE' then
-      l_col_syntax :=  'to_date('||l_alias||a_data_info.transformed_name||','''||ut_utils.gc_date_format||''') as '|| a_data_info.transformed_name;
+      l_col_syntax :=  'to_date('||l_alias||a_data_info.transformed_name||') as '|| a_data_info.transformed_name;
     elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('TIMESTAMP') then
       l_col_syntax :=  'to_timestamp('||l_alias||a_data_info.transformed_name||','''||ut_utils.gc_timestamp_format||''') as '|| a_data_info.transformed_name;
     elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('TIMESTAMP WITH TIME ZONE') then

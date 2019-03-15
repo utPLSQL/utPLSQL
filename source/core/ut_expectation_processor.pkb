@@ -96,7 +96,8 @@ create or replace package body ut_expectation_processor as
       bulk collect into l_session_params
      from nls_session_parameters nsp
     where parameter
-       in ( 'NLS_DATE_FORMAT', 'NLS_TIMESTAMP_FORMAT', 'NLS_TIMESTAMP_TZ_FORMAT');
+       in ( 'NLS_DATE_FORMAT', 'NLS_TIMESTAMP_FORMAT', 'NLS_TIMESTAMP_TZ_FORMAT')
+    order by 1;
 
     return l_session_params;
   end;
@@ -113,7 +114,6 @@ create or replace package body ut_expectation_processor as
       when insuf_privs then NULL;
     end;
 
-    execute immediate 'alter session set nls_date_format = '''||ut_utils.gc_date_format||'''';
     execute immediate 'alter session set nls_timestamp_format = '''||ut_utils.gc_timestamp_format||'''';
     execute immediate 'alter session set nls_timestamp_tz_format = '''||ut_utils.gc_timestamp_tz_format||'''';
   end;
