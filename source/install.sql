@@ -84,6 +84,8 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_reporter_base.tps'
 @@install_component.sql 'core/types/ut_reporters.tps'
 
+@@install_component.sql 'expectations/matchers/ut_matcher_options_items.tps'
+@@install_component.sql 'expectations/matchers/ut_matcher_options.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value.tps'
 @@install_component.sql 'expectations/data_values/ut_key_anyval_pair.tps'
 @@install_component.sql 'expectations/data_values/ut_key_anyval_pairs.tps'
@@ -192,8 +194,6 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_cursor_column.tps'
 @@install_component.sql 'expectations/data_values/ut_cursor_column_tab.tps'
 @@install_component.sql 'expectations/data_values/ut_cursor_details.tps'
-@@install_component.sql 'expectations/matchers/ut_matcher_options_items.tps'
-@@install_component.sql 'expectations/matchers/ut_matcher_options.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_anydata.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_blob.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_boolean.tps'

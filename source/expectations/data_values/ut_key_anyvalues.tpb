@@ -30,7 +30,7 @@ create or replace type body ut_key_anyvalues as
   end;
   member function put(a_key varchar2, a_value anydata) return ut_key_anyvalues is
   begin
-    return put(ut_key_anyval_pair(a_key, ut_data_value_anydata.get_instance(a_value)));
+    return put(ut_key_anyval_pair(a_key, ut_data_value_anydata(a_value)));
   end;
 
   member function put(a_key varchar2, a_value blob) return ut_key_anyvalues is
