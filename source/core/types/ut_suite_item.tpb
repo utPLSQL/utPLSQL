@@ -54,7 +54,7 @@ create or replace type body ut_suite_item as
   begin
     if get_rollback_type() = ut_utils.gc_rollback_auto then
       l_savepoint := ut_utils.gen_savepoint_name();
-      execute immediate 'savepoint ' || l_savepoint;
+      dbms_transaction.savepoint(l_savepoint);
     end if;
     return l_savepoint;
   end;
@@ -65,7 +65,7 @@ create or replace type body ut_suite_item as
     pragma exception_init(ex_savepoint_not_exists, -1086);
   begin
     if get_rollback_type() = ut_utils.gc_rollback_auto and a_savepoint is not null then
-      execute immediate 'rollback to ' || a_savepoint;
+      dbms_transaction.rollback_savepoint( a_savepoint );
     end if;
   exception
     when ex_savepoint_not_exists then
