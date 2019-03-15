@@ -66,7 +66,7 @@ create or replace package test_expect_to_be_empty is
   --%test(Gives failure for an empty collection)
   procedure fail_not_be_empty_null_coll;
 
-  --%test(Gives failure for an object)
+  --%test(Gives failure for an empty object)
   procedure fail_not_be_empty_object;
 
   --%test(Gives failure for a null object)

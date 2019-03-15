@@ -103,25 +103,30 @@ grant execute on &&ut3_owner..ut_realtime_reporter to public;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to public;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs   to public;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_units  to public;
+grant execute on &&ut3_owner..ut_matcher_options to public;
+grant execute on &&ut3_owner..ut_matcher_options_items to public;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
 create public synonym ut_expectation for &&ut3_owner..ut_expectation;
 create public synonym ut_expectation_compound for &&ut3_owner..ut_expectation_compound;
-create public synonym be_between for &&ut3_owner..ut_be_between;
-create public synonym be_empty for &&ut3_owner..ut_be_empty;
-create public synonym be_false for &&ut3_owner..ut_be_false;
-create public synonym be_greater_or_equal for &&ut3_owner..ut_be_greater_or_equal;
-create public synonym be_greater_than for &&ut3_owner..ut_be_greater_than;
-create public synonym be_less_or_equal for &&ut3_owner..ut_be_less_or_equal;
-create public synonym be_less_than for &&ut3_owner..ut_be_less_than;
-create public synonym be_like for &&ut3_owner..ut_be_like;
-create public synonym be_not_null for &&ut3_owner..ut_be_not_null;
-create public synonym be_null for &&ut3_owner..ut_be_null;
-create public synonym be_true for &&ut3_owner..ut_be_true;
-create public synonym equal for &&ut3_owner..ut_equal;
+
+create public synonym be_between for &&ut3_owner..be_between;
+create public synonym be_empty for &&ut3_owner..be_empty;
+create public synonym be_false for &&ut3_owner..be_false;
+create public synonym be_greater_or_equal for &&ut3_owner..be_greater_or_equal;
+create public synonym be_greater_than for &&ut3_owner..be_greater_than;
+create public synonym be_less_or_equal for &&ut3_owner..be_less_or_equal;
+create public synonym be_less_than for &&ut3_owner..be_less_than;
+create public synonym be_like for &&ut3_owner..be_like;
+create public synonym be_not_null for &&ut3_owner..be_not_null;
+create public synonym be_null for &&ut3_owner..be_null;
+create public synonym be_true for &&ut3_owner..be_true;
+create public synonym contain for &&ut3_owner..contain;
+create public synonym equal for &&ut3_owner..equal;
 create public synonym have_count for &&ut3_owner..have_count;
-create public synonym match for &&ut3_owner..ut_match;
+create public synonym match for &&ut3_owner..match;
+
 create public synonym ut for &&ut3_owner..ut;
 create public synonym ut_runner for &&ut3_owner..ut_runner;
 create public synonym ut_teamcity_reporter for &&ut3_owner..ut_teamcity_reporter;

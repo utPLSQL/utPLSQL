@@ -12,15 +12,15 @@ create global temporary table ut_compound_data_diff_tmp(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  diff_id    raw(128),
-  item_no    integer,
-  pk_hash    raw(128),
-  item_hash  raw(128),
+  diff_id      raw(128),
+  act_data_id  raw(32),
+  exp_data_id  raw(32),
+  act_item_data xmltype,
+  exp_item_data xmltype,
+  item_no      integer,
   duplicate_no integer,
-  constraint ut_compound_data_diff_tmp_uk1 unique (diff_id,duplicate_no,item_no,item_hash, pk_hash),
+  constraint ut_compound_data_diff_tmp_uk1 unique (diff_id,duplicate_no,item_no),
   constraint ut_compound_data_diff_tmp_chk check(
-   item_no is not null and pk_hash is null and duplicate_no is null
-   or item_no is null and item_hash is not null and duplicate_no is not null
-   or item_no is null and pk_hash is not null and duplicate_no is not null
+   item_no is not null
    )
 ) on commit preserve rows;

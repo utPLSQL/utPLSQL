@@ -166,7 +166,11 @@ was expected to be empty%%]';
     --Assert
     ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
   end;
-
+  
+  /**
+  * https://docs.oracle.com/en/database/oracle/oracle-database/18/adobj/declaring-initializing-objects-in-plsql.html#GUID-23135172-82E2-4C3E-800D-E584B43B578E
+  * User-defined types, just like collections, are atomically null, until you initialize the object by calling the constructor for its object type. That is, the object itself is null, not just its attributes. 
+  */
   procedure fail_not_be_empty_object is
     l_actual anydata;
   begin

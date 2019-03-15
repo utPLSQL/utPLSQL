@@ -16,7 +16,6 @@ create or replace package ut_compound_data_helper authid definer is
   limitations under the License.
   */
 
-  gc_compare_join_by   constant varchar2(10):='join_by';
   gc_compare_unordered constant varchar2(10):='unordered';
   gc_compare_normal    constant varchar2(10):='normal';
   
@@ -32,13 +31,6 @@ create or replace package ut_compound_data_helper authid definer is
 
   type tt_column_diffs is table of t_column_diffs;
 
-  type t_missing_pk is record(
-    missingxpath  varchar2(250),
-    diff_type     varchar2(1)
-  );
-
-  type tt_missing_pk is table of t_missing_pk;
-  
   type t_row_diffs is record(
     rn            integer,
     diff_type     varchar2(250),
@@ -48,41 +40,55 @@ create or replace package ut_compound_data_helper authid definer is
 
   type tt_row_diffs is table of t_row_diffs;
 
-  function get_column_info_xml(a_column_details ut_key_anyval_pair) return xmltype;
+  type t_diff_rec is record (
+    act_item_data xmltype, 
+    act_data_id raw(32), 
+    exp_item_data xmltype, 
+    exp_data_id raw(32),
+    item_no   number,
+    dup_no    number
+  );
 
-  function get_columns_filter(
-    a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_table_alias varchar2 := 'ucd', a_column_alias varchar2 := 'item_data'
-  ) return varchar2;
-
+  type t_diff_tab is table of t_diff_rec;
+          
   function get_columns_diff(
-    a_expected xmltype, a_actual xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2
+    a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab,a_order_enforced boolean := false
   ) return tt_column_diffs;
 
- function get_pk_value (a_join_by_xpath varchar2,a_item_data xmltype) return clob;
-
- function compare_type(a_join_by_xpath in varchar2,a_unordered boolean) return varchar2;
-
- function get_rows_diff(
+  function get_rows_diff_by_sql(
+    a_act_cursor_info ut_cursor_column_tab,a_exp_cursor_info ut_cursor_column_tab,
     a_expected_dataset_guid raw, a_actual_dataset_guid raw, a_diff_id raw,
-    a_max_rows integer, a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_join_by_xpath varchar2,a_unorderdered boolean
+    a_join_by_list ut_varchar2_list, a_unordered boolean, a_enforce_column_order boolean := false,
+    a_extract_path varchar2
   ) return tt_row_diffs;
 
   subtype t_hash  is raw(128);
 
   function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1)  return t_hash;
-  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash;
-  function columns_hash(
-    a_data_value_cursor ut_data_value_refcursor, a_exclude_xpath varchar2, a_include_xpath varchar2,
-    a_hash_type binary_integer := dbms_crypto.hash_sh1
-  ) return t_hash;
-  
-  function is_pk_exists(a_expected_cursor xmltype, a_actual_cursor xmltype, a_exclude_xpath varchar2, a_include_xpath varchar2,a_join_by_xpath varchar2) 
-  return tt_missing_pk;
 
-  procedure update_row_and_pk_hash(a_self_data_id in raw, a_other_data_id in raw, a_exclude_xpath varchar2, 
-                                   a_include_xpath varchar2, a_join_by_xpath varchar2);
+  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash;
+  
+  function get_fixed_size_hash(a_string varchar2, a_base integer :=0,a_size integer :=9999999) return number;
+                     
+  function gen_compare_sql(
+    a_other ut_data_value_refcursor,
+    a_join_by_list ut_varchar2_list,
+    a_unordered boolean,
+    a_inclusion_type boolean,
+    a_is_negated boolean
+  ) return clob;
+ 
+  procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw);
+  
+  procedure set_rows_diff(a_rows_diff integer);
+  
+  procedure cleanup_diff;
+  
+  function get_rows_diff_count return integer;
+
+  function is_sql_compare_allowed(a_type_name varchar2) return boolean;
+  
+  function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2;
 
 end;
 /

@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.4.2653-develop';
+  gc_version                 constant varchar2(50) := 'v3.1.4.2666-develop';
 
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'beforeall';
@@ -97,6 +97,14 @@ create or replace package ut_utils authid definer is
   gc_invalid_package constant pls_integer := -6550;
   pragma exception_init(ex_invalid_package, -6550);
 
+  ex_failure_for_all exception;
+  gc_failure_for_all constant pls_integer := -24381;
+  pragma exception_init (ex_failure_for_all, -24381);
+
+  ex_dml_for_all exception;
+  gc_dml_for_all constant pls_integer := -20215;
+  pragma exception_init (ex_dml_for_all, -20215);
+
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
   gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
@@ -108,6 +116,9 @@ create or replace package ut_utils authid definer is
   gc_timestamp_tz_format      constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff tzh:tzm';
   gc_null_string              constant varchar2(4) := 'NULL';
   gc_empty_string             constant varchar2(5) := 'EMPTY';
+
+  gc_bc_fetch_limit           constant integer := 1000;
+  gc_diff_max_rows            constant integer := 20;
 
   type t_version is record(
     major  natural,
@@ -320,10 +331,14 @@ create or replace package ut_utils authid definer is
   function get_xml_header(a_encoding varchar2) return varchar2;
 
 
-  /*It takes a collection of type ut_varchar2_list and it trims the characters passed as arguments for every element*/
+  /**
+  * Takes a collection of type ut_varchar2_list and it trims the characters passed as arguments for every element
+  */
   function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list;
 
-  /*It takes a collection of type ut_varchar2_list and it only returns the elements which meets the regular expression*/
+  /**
+  * Takes a collection of type ut_varchar2_list and it only returns the elements which meets the regular expression
+  */
   function filter_list(a_list IN ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list;
 
   -- Generates XMLGEN escaped string
