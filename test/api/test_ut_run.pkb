@@ -808,9 +808,9 @@ Failures:%
   procedure drop_test_suite is
     pragma autonomous_transaction;
   begin
+    drop_db_link;
     execute immediate 'drop package stateful_package';
     execute immediate 'drop package test_stateful';
-    drop_db_link;
   end;
 
   procedure run_in_invalid_state is
@@ -1007,9 +1007,9 @@ Failures:%
   procedure drop_suite_with_link is
     pragma autonomous_transaction;
   begin
+    drop_db_link;
     execute immediate 'drop table tst';
     execute immediate 'drop package test_distributed_savepoint';
-    drop_db_link;
   end;
 
 end;
