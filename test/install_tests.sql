@@ -49,6 +49,7 @@ set define off
 @@core/reporters/test_coverage/test_cov_cobertura_reporter.pks
 @@core/reporters/test_junit_reporter.pks
 @@core/reporters/test_realtime_reporter.pks
+@@core/reporters/test_debug_reporter.pks
 set define on
 @@install_below_12_2.sql 'core/reporters/test_coverage/test_html_proftab_reporter.pks'
 set define off
@@ -100,6 +101,7 @@ set define off
 @@core/reporters/test_coverage/test_cov_cobertura_reporter.pkb
 @@core/reporters/test_junit_reporter.pkb
 @@core/reporters/test_realtime_reporter.pkb
+@@core/reporters/test_debug_reporter.pkb
 set define on
 @@install_below_12_2.sql 'core/reporters/test_coverage/test_html_proftab_reporter.pkb'
 set define off
