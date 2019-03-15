@@ -52,7 +52,7 @@ create or replace package body ut_utils is
 
   function gen_savepoint_name return varchar2 is
   begin
-    return '"'|| utl_raw.cast_to_varchar2(utl_encode.base64_encode(sys_guid()))||'"';
+    return 's'||trim(to_char(ut_savepoint_seq.nextval,'0000000000000000000000000000'));
   end;
 
   procedure debug_log(a_message varchar2) is
