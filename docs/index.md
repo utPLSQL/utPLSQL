@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.4.2223--develop-blue.svg)
+
 # Introduction to utPLSQL
 
 utPLSQL is a Unit Testing framework for Oracle PL/SQL.
