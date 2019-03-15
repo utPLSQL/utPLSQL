@@ -75,8 +75,6 @@ drop package ut;
 
 drop table ut_dbms_output_cache;
 
-drop type ut_expectation_refcursor force;
-
 drop type ut_expectation_compound force;
 
 drop type ut_expectation force;

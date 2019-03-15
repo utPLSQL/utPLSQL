@@ -691,5 +691,15 @@ create or replace type body ut_expectation as
     self.not_to( ut_contain(a_expected).negated() );
   end;
 
+  member procedure to_contain(self in ut_expectation, a_expected anydata) is
+  begin
+    self.to_( ut_contain(a_expected) );
+  end;
+  
+  member procedure not_to_contain(self in ut_expectation, a_expected anydata) is
+  begin
+    self.not_to( ut_contain(a_expected).negated() );
+  end;
+
 end;
 /

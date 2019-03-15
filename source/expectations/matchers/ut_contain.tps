@@ -24,9 +24,10 @@ create or replace type ut_contain under ut_equal(
   */
 
   constructor function ut_contain(self in out nocopy ut_contain, a_expected sys_refcursor) return self as result,
+  constructor function ut_contain(self in out nocopy ut_contain, a_expected anydata) return self as result,
   overriding member function run_matcher(self in out nocopy ut_contain, a_actual ut_data_value) return boolean,
   overriding member function run_matcher_negated(self in out nocopy ut_contain, a_actual ut_data_value) return boolean,
   overriding member function failure_message(a_actual ut_data_value) return varchar2,
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2
 )
-/
+
