@@ -57,9 +57,6 @@ create or replace package test_expectation_anydata is
   --%test(Comma separated list of attributes to exclude is case sensitive)
   procedure exclude_attributes_as_csv;
 
-  --%test(Exclude attributes fails on invalid XPath)
-  procedure exclude_attrib_xpath_invalid;
-
   --%test(Exclude attributes by XPath is case sensitive)
   procedure exclude_attributes_xpath;
 
@@ -71,9 +68,6 @@ create or replace package test_expectation_anydata is
 
   --%test(Comma separated list of attributes to include is case sensitive)
   procedure include_attributes_as_csv;
-
-  --%test(Include attributes fails on invalid XPath)
-  procedure include_attrib_xpath_invalid;
 
   --%test(Include attributes by XPath is case sensitive)
   procedure include_attributes_xpath;
@@ -117,5 +111,92 @@ create or replace package test_expectation_anydata is
   --%test(Reports only first 20 rows of diff and gives a full diff count)
   procedure data_diff_on_20_rows_only;
 
+  --%test(Validate include list on collections of objects)
+  procedure collection_include_list;
+  
+  --%test(Validate exclude list on collections of objects)
+  procedure collection_exclude_list;
+
+  --%test(Validate include list on collections of objects fail)
+  procedure collection_include_list_fail;  
+  
+  --%test(Two ARRAYS with same data)
+  procedure array_same_data;
+  
+  --%test(Two ARRAYS with different data)
+  procedure array_diff_data;  
+  
+  --%test(ARRAY is atomically null)
+  procedure array_is_null;
+  
+  --%test(Compare two null ARRAYs)
+  procedure array_null_equal_array_null; 
+  
+  --%test(Compare null ARRAY to ARRAY with data)
+  procedure array_null_equal_array_notnull;   
+  
+  --%test(Empty ARRAY have count of 0)
+  procedure empty_array_have_zero_elem;  
+  
+  --%test(Compare two empty ARRAYs)
+  procedure array_empty_equal_array_empty; 
+  
+  --%test(Compare empty ARRAY to ARRAY with data)
+  procedure arr_empty_equal_arr_notempty; 
+  
+  --%test(Collection is atomically NULL)
+  procedure collection_is_null;
+  
+  --%test(Collection is empty)
+  procedure collection_is_empty;
+  
+  --%test(Two VARRAYS with same data)
+  procedure varray_same_data;
+  
+  --%test(Two VARRAYS with different data)
+  procedure varray_diff_data;  
+  
+  --%test(VARRAY is atomically null)
+  procedure varray_is_null;
+  
+  --%test(Compare two null VARRAYs)
+  procedure varray_null_equal_varray_null; 
+  
+  --%test(Compare null VARRAY to VARRAY with data)
+  procedure varr_null_equal_varr_notnull;   
+  
+  --%test(Empty VARRAY have count of 0)
+  procedure empty_varray_have_zero_elem;  
+  
+  --%test(Compare two empty VARRAYs)
+  procedure varr_empty_equal_varr_empty; 
+  
+  --%test(Compare empty VARRAY to VARRAY with data)
+  procedure varr_empty_equal_varr_notempty;  
+  
+  --%test( Anydata collection using joinby )
+  procedure collection_join_by;
+ 
+  --%test( Anydata collection using joinby fail)
+  procedure collection_join_by_fail; 
+ 
+  --%test( Anydata collection unordered ) 
+  procedure collection_unordered;
+ 
+  --%test( Anydata collection unordered fail ) 
+  procedure collection_unordered_fail; 
+  
+  --%test( Anydata object using joinby )
+  procedure object_join_by;
+ 
+  --%test( Anydata object unordered ) 
+  procedure object_unordered;  
+  
+  --%test( Success when anydata collection contains data from another anydata collection)
+  procedure collection_to_contain; 
+  
+  --%test( Success when anydata object contains data from another anydata)
+  procedure object_to_contain;     
+  
 end;
 /

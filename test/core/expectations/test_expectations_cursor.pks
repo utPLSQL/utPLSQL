@@ -68,8 +68,20 @@ create or replace package test_expectations_cursor is
   --%test(Gives failure when different column name is used in cursors)
   procedure fail_on_different_column_name;
 
-  --%test(Gives failure when different column ordering is used in cursors)
+  --%test(Gives failure when different column ordering is used in cursors when enforced column order)
   procedure fail_on_different_column_order;
+
+  --%test(Pass when different column ordering is used in cursors)
+  procedure pass_on_different_column_order;
+
+  --%test(Pass when different column ordering is used in cursors - shortname)
+  procedure pass_on_diff_column_ord_uc;
+
+  --%test(Fail and highlight diffrence between columns when columns are unordered and different value)
+  procedure fail_on_multi_diff_col_order;
+
+  --%test(Fail and highlight diffrence between columns when columns are unordered and different value - shortname)
+  procedure fail_on_multi_diff_col_ord_uc;
 
   --%test(Gives failure when different row ordering is used in cursors)
   procedure fail_on_different_row_order;
@@ -92,7 +104,7 @@ create or replace package test_expectations_cursor is
   --%test(Excludes comma separated list of mixed columns and XPath)
   procedure exclude_columns_as_mix_csv_lst;
 
-  --%test(Exclude columns fails on invalid XPath)
+  --%test(Exclude column with invalid filter will result in column being included )
   procedure exclude_columns_xpath_invalid;
 
   --%test(Exclude columns by XPath is case sensitive)
@@ -106,9 +118,6 @@ create or replace package test_expectations_cursor is
 
   --%test(Comma separated list of columns to include is case sensitive)
   procedure include_columns_as_csv;
-
-  --%test(Include columns fails on invalid XPath)
-  procedure include_columns_xpath_invalid;
 
   --%test(Include columns by XPath is case sensitive)
   procedure include_columns_xpath;
@@ -134,8 +143,11 @@ create or replace package test_expectations_cursor is
   --%test(Reports column diff on cursor with different column name)
   procedure column_diff_on_col_name_diff;
 
-  --%test(Reports column diff on cursor with different column positions)
+  --%test(Reports column diff on cursor with different column positions when column order is enforced)
   procedure column_diff_on_col_position;
+
+  --%test(Reports column diff on cursor with different column positions)
+  procedure column_diff_on_col_pos_unord;
 
   --%test(Reports only mismatched columns on row data mismatch)
   procedure data_diff_on_col_data_mismatch;
@@ -143,8 +155,11 @@ create or replace package test_expectations_cursor is
   --%test(Reports only first 20 rows of diff and gives a full diff count)
   procedure data_diff_on_20_rows_only;
 
-  --%test(Reports data diff and column diff when both are different)
+  --%test(Reports data diff and column diff when both are different with enforced ordered columns)
   procedure column_and_data_diff;
+
+  --%test(Reports data diff and column diff when both are different when columns are not ordered)
+  procedure col_and_data_diff_not_ordered;
 
   procedure prepare_table;
   procedure cleanup_table;
@@ -193,20 +208,23 @@ create or replace package test_expectations_cursor is
   --%test(Reports column match on cursor with column name implicit )
   procedure col_mtch_on_col_name_implicit;
   
-  --%test( Fail on passing implicit column name as include filter )
-  procedure include_col_name_implicit;
-
-  --%test( Fail on passing implicit column name as exclude filter )
-  procedure exclude_col_name_implicit;
-  
   --%test( Compare cursors using unordered method success)
   procedure cursor_unorderd_compr_success;
+ 
+  --%test( Compare cursors using unordered method success and unordered columns position)
+  procedure cursor_unord_compr_success_uc;
  
   --%test( Compare cursors using unordered method failure)
   procedure cursor_unordered_compare_fail; 
   
   --%test( Compare cursors join by single key )
   procedure cursor_joinby_compare; 
+  
+  --%test( Compare cursors join by single key with unordered columns position using shortname)
+  procedure cursor_joinby_compare_uc;   
+  
+  --%test(Compare cursors by single key with unordered columns position)
+  procedure cursor_joinby_col_not_ord;  
   
   --%test( Compare cursors join by composite key)
   procedure cursor_joinby_compare_twocols; 
@@ -231,6 +249,9 @@ create or replace package test_expectations_cursor is
   
   --%test( Compare cursors join by single key more than 1000 rows)
   procedure cursor_joinby_compare_1000;
+
+  --%test( Compare cursors unorder more than 1000 rows)
+  procedure cursor_unorder_compare_1000;
   
   --%test( Compare two column cursors join by and fail to match )
   procedure cursor_joinby_compare_fail;  
@@ -319,5 +340,56 @@ create or replace package test_expectations_cursor is
   --%test( Unordered fix for issues with duplicate no : #764 )   
   procedure unordered_fix_764;
  
+  --%test( Success when cursor contains data from another cursor)
+  procedure cursor_to_contain;
+  
+  --%test( Fail cursor contains data from another cursor using second keyword) 
+  procedure cursor_to_contain_fail;
+
+  --%test( Success cursor to contain cursor with unordered columns)
+  procedure cursor_to_contain_uc;
+
+  --%test( Does not fail when comparing cursor to contain cursor with unordered rows option)
+  procedure cursor_to_contain_unordered;
+
+   --%test( Cursor contains data from another cursor with joinby)
+  procedure cursor_contain_joinby;
+
+   --%test( Fail cursor contains data from another cursor with joinby)  
+  procedure cursor_contain_joinby_fail; 
+  
+  --%test(Cursor contains data with list of columns to include)
+  procedure to_contain_incl_cols_as_list;
+  
+  --%test(Cursor contains data with of columns to include and join by value)
+  procedure to_cont_join_incl_cols_as_lst;
+  
+  --%test(Cursor contains data with of columns to exclude and join by value)
+  procedure contain_join_excl_cols_as_lst;
+ 
+  --%test(Cursor contains data with of columns to exclude)
+  procedure contain_excl_cols_as_list;
+  
+  --%test( Cursor not to contains data from another cursor)   
+  procedure cursor_not_to_contain;
+  
+  --%test( Cursor fail not to contains data from another cursor)
+  procedure cursor_not_to_contain_fail;
+  
+  --%test( Cursor not contains data from another cursor with joinby clause)
+  procedure cursor_not_to_contain_joinby;  
+  
+  --%test(Cursor not contains data with of columns to include and join by value)
+  procedure not_cont_join_incl_cols_as_lst;
+  
+  --%test(Cursor not contains data with of columns to exclude and join by value)
+  procedure not_cont_join_excl_cols_as_lst; 
+
+  --%test(Cursor to contain duplicates)
+  procedure to_contain_duplicates;
+  
+  --%test(Cursor to contain duplicates fail)
+  procedure to_contain_duplicates_fail;
+    
 end;
 /

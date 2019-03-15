@@ -1,4 +1,4 @@
-create or replace type body ut_data_value_object as
+create or replace type ut_matcher_options_items authid current_user as object(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -16,17 +16,14 @@ create or replace type body ut_data_value_object as
   limitations under the License.
   */
 
-  constructor function ut_data_value_object(self in out nocopy ut_data_value_object, a_value anydata) return self as result is
-  begin
-    self.self_type  := $$plsql_unit;
-    self.init(a_value, 'object', '/*/*');
-    return;
-  end;
+  /**
+  * Attributes / columns list 
+  */
+  items ut_varchar2_list,
 
-  overriding member function get_object_info return varchar2 is
-  begin
-    return self.data_type;
-  end;
-
-end;
+  constructor function ut_matcher_options_items(self in out nocopy ut_matcher_options_items) return self as result,
+  member procedure add_items(self in out nocopy ut_matcher_options_items, a_items varchar2),
+  member procedure add_items(self in out nocopy ut_matcher_options_items, a_items ut_varchar2_list),
+  member function to_xpath return varchar2
+)
 /

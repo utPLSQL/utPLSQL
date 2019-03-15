@@ -49,6 +49,7 @@ create or replace package body ut_runner is
     ut_metadata.reset_source_definition_cache;
     ut_utils.read_cache_to_dbms_output();
     ut_coverage_helper.cleanup_tmp_table();
+    ut_compound_data_helper.cleanup_diff();
     if not a_force_manual_rollback then
       rollback;
     end if;

@@ -64,4 +64,5 @@ add_sonar_property "${DB_DRIVER_PATH}" "${OJDBC_HOME}/ojdbc8.jar"
 
 
 #Execute Sonar scanner
+echo "Executing sonar scanner"
 sonar-scanner

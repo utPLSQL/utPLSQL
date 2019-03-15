@@ -1,4 +1,4 @@
-create or replace type ut_data_value_collection under ut_data_value_anydata(
+create or replace type ut_cursor_column_tab as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -15,9 +15,5 @@ create or replace type ut_data_value_collection under ut_data_value_anydata(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-
-  constructor function ut_data_value_collection(self in out nocopy ut_data_value_collection, a_value anydata) return self as result,
-  overriding member function is_empty return boolean
-
-)
+table of ut_cursor_column
 /
