@@ -83,7 +83,7 @@ create or replace type body ut_output_table_buffer is
     l_finished_flags     ut_integer_list;
     l_already_waited_for number(10,2) := 0;
     l_finished           boolean := false;
-    lc_init_wait_sec     constant naturaln := coalesce(a_initial_timeout, 15 ); -- 15 seconds
+    lc_init_wait_sec     constant naturaln := coalesce(a_initial_timeout, 60 ); -- 1 minute
     lc_max_wait_sec      constant naturaln := coalesce(a_timeout_sec, 60 * 60 * 4); -- 4 hours
     l_wait_for           integer := lc_init_wait_sec;
     lc_short_sleep_time  constant number(1,1) := 0.1; --sleep for 100 ms between checks
