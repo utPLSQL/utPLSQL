@@ -933,24 +933,25 @@ Failures:%
 
   procedure create_bad_annot is
     pragma autonomous_transaction;
-    begin
-      execute immediate q'[
-      create or replace package bad_annotations as
-        --%suite
+  begin
+    execute immediate q'[
+    create or replace package bad_annotations as
+      --%suite
 
-        --%context
+      --%context
 
-        --%test(invalidspecs)
-        procedure test1;
+      --%test(invalidspecs)
+      procedure test1;
 
-      end;]';
+    end;]';
 
-      execute immediate q'[
-      create or replace package body bad_annotations as
-        procedure test1 is begin ut.expect(1).to_equal(1); end;
-      end;]';
+    execute immediate q'[
+    create or replace package body bad_annotations as
+      procedure test1 is begin ut.expect(1).to_equal(1); end;
+    end;]';
 
-    end;
+  end;
+
   procedure drop_bad_annot is
     pragma autonomous_transaction;
   begin
