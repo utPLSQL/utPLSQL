@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.4.2671--develop-blue.svg)
+
 # Qyerying for test suites
 
 

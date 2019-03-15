@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.4.2671--develop-blue.svg)
+
 # Upgrading from version 2
 
 utPLSQL v3 is a total rewrite of the framework.

@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.4.2671--develop-blue.svg)
+
 # Getting started with TDD and utPLSQL
 
 utPLSQL is designed in a way that allows you to follow 
