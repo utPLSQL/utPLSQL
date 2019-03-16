@@ -21,6 +21,7 @@ create or replace type body ut_expectation_result is
     a_description varchar2, a_message clob, a_include_caller_info boolean := true
   ) return self as result is
   begin
+    self.self_type       := $$plsql_unit;
     self.status          := a_status;
     self.description     := a_description;
     self.message := a_message;

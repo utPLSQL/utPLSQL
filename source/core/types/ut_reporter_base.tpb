@@ -211,6 +211,7 @@ create or replace type body ut_reporter_base is
       then self.after_calling_after_all(treat(a_event_item as ut_executable));
       when ut_event_manager.gc_finalize
       then self.on_finalize(treat(a_event_item as ut_run));
+      else null;
     end case;
   end;
 

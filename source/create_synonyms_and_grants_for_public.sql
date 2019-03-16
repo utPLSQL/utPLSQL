@@ -49,6 +49,7 @@ grant execute on &&ut3_owner..ut_have_count to public;
 grant execute on &&ut3_owner..ut_match to public;
 grant execute on &&ut3_owner..ut to public;
 grant execute on &&ut3_owner..ut_runner to public;
+grant execute on &&ut3_owner..ut_debug_reporter to public;
 grant execute on &&ut3_owner..ut_teamcity_reporter to public;
 grant execute on &&ut3_owner..ut_xunit_reporter to public;
 grant execute on &&ut3_owner..ut_junit_reporter to public;
@@ -129,6 +130,7 @@ create public synonym match for &&ut3_owner..match;
 
 create public synonym ut for &&ut3_owner..ut;
 create public synonym ut_runner for &&ut3_owner..ut_runner;
+create public synonym ut_debug_reporter for &&ut3_owner..ut_debug_reporter;
 create public synonym ut_teamcity_reporter for &&ut3_owner..ut_teamcity_reporter;
 create public synonym ut_xunit_reporter for &&ut3_owner..ut_xunit_reporter;
 create public synonym ut_junit_reporter for &&ut3_owner..ut_junit_reporter;
