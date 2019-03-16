@@ -100,8 +100,8 @@ create or replace type body ut_data_value_refcursor as
       if l_cursor%isopen then
         close l_cursor;
       end if;
-      ut_expectation_processor.report_failure_no_caller('Failed to process ref_cursor with error'||chr(10)|| 
-        ut_utils.remove_error_from_stack(sqlerrm,-19202));
+        ut_expectation_processor.report_failure_no_caller('SQL exception thrown when fetching data from cursor: '||
+          ut_utils.remove_error_from_stack(sqlerrm,-19202)||chr(10)||'Check the query and data for errors.');
     when others then
       if l_cursor%isopen then
         close l_cursor;
@@ -117,7 +117,9 @@ create or replace type body ut_data_value_refcursor as
       dbms_lob.createtemporary(l_result, true);
       ut_utils.append_to_clob(l_result, 'Data-types:'||chr(10));
 
-      ut_utils.append_to_clob( l_result, self.cursor_details.get_xml_children().getclobval() );
+      if self.cursor_details.cursor_columns_info.count > 0 then
+        ut_utils.append_to_clob( l_result, self.cursor_details.get_xml_children().getclobval() );
+      end if;
       ut_utils.append_to_clob(l_result,chr(10)||(self as ut_compound_data_value).to_string());
       l_result_string := ut_utils.to_string(l_result,null);
       dbms_lob.freetemporary(l_result);

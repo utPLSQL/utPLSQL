@@ -972,18 +972,21 @@ Rows: [ 4 differences ]
   procedure reports_on_exception_in_cursor
   as
     l_actual     sys_refcursor;
-    l_error_code integer := -19202; --Error occurred in XML processing
+    l_expected_message varchar2(32767);
+    l_actual_message varchar2(32767);
   begin
     --Act
     open l_actual for select 1/0 as error_column from dual connect by level < 10;
-    begin
       ut3.ut.expect(l_actual).to_be_empty();
       --Assert
-      ut.fail('Expected '||l_error_code||' but nothing was raised');
-    exception
-      when others then
-        ut.expect(sqlcode).to_equal(l_error_code);
-    end;
+   --Assert
+     l_expected_message := q'[%SQL exception thrown when fetching data from cursor:%
+%ORA-01476: divisor is equal to zero%
+%Check the query and data for errors.]';
+
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
   procedure exception_when_closed_cursor
@@ -2481,15 +2484,9 @@ Diff:%
       
     ut3.ut.expect(v_actual).to_equal(v_expected);
    --Assert
-     l_expected_message := q'[%Failed to process ref_cursor with error
-%ORA-01722: invalid number     
-%Actual: refcursor [ count =  ] was expected to equal: refcursor [ count = 1 ]
-%Diff:
-%Columns:
-%Column <USD_PRICE_AMT> [data-type: NUMBER] is missing. Expected column position: 1.
-%Column <UPDATE_ID> [data-type: VARCHAR2] is missing. Expected column position: 2.
-%Rows: [ 1 differences ]
-%Row No. 1 - Missing:  <USD_PRICE_AMT>1357</USD_PRICE_AMT><UPDATE_ID>TEST_USER</UPDATE_ID>]';
+     l_expected_message := q'[%SQL exception thrown when fetching data from cursor:%
+%ORA-01722: invalid number%
+%Check the query and data for errors.]';
 
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
@@ -2512,15 +2509,9 @@ Diff:%
       
     ut3.ut.expect(v_actual).to_equal(v_expected);
    --Assert
-     l_expected_message := q'[%Failed to process ref_cursor with error
-%ORA-01722: invalid number     
-%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count =  ]
-%Diff:
-%Columns:
-%Column <USD_PRICE_AMT> [data-type: NUMBER] is missing. Expected column position: 1.
-%Column <UPDATE_ID> [data-type: VARCHAR2] is missing. Expected column position: 2.
-%Rows: [ 1 differences ]
-%Row No. 1 - Extra:  <USD_PRICE_AMT>1357</USD_PRICE_AMT><UPDATE_ID>TEST_USER</UPDATE_ID>]';
+     l_expected_message := q'[%SQL exception thrown when fetching data from cursor:%
+%ORA-01722: invalid number%
+%Check the query and data for errors.]';
 
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
@@ -2544,15 +2535,9 @@ Diff:%
       
     ut3.ut.expect(v_actual).to_equal(v_expected);
    --Assert
-     l_expected_message := q'[%Failed to process ref_cursor with error
-%ORA-01722: invalid number     
-%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count =  ]
-%Diff:
-%Columns:
-%Column <USD_PRICE_AMT> [data-type: NUMBER] is missing. Expected column position: 1.
-%Column <UPDATE_ID> [data-type: VARCHAR2] is missing. Expected column position: 2.
-%Rows: [ 1 differences ]
-%Row No. 1 - Extra:  <USD_PRICE_AMT>1357</USD_PRICE_AMT><UPDATE_ID>TEST_USER</UPDATE_ID>]';
+     l_expected_message := q'[%SQL exception thrown when fetching data from cursor:%
+%ORA-01722: invalid number%
+%Check the query and data for errors.]';
 
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
