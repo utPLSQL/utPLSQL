@@ -102,8 +102,12 @@ create or replace package ut_utils authid definer is
   pragma exception_init (ex_failure_for_all, -24381);
 
   ex_dml_for_all exception;
-  gc_dml_for_all constant pls_integer := -20215;
-  pragma exception_init (ex_dml_for_all, -20215);
+  gc_dml_for_all constant pls_integer := -20216;
+  pragma exception_init (ex_dml_for_all, -20216);
+
+  ex_value_too_large exception;
+  gc_value_too_large constant pls_integer := -20217;
+  pragma exception_init (ex_value_too_large, -20217);
 
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
@@ -151,7 +155,7 @@ create or replace package ut_utils authid definer is
 
   procedure debug_log(a_message clob);
 
-  function to_string(a_value varchar2, a_qoute_char varchar2 := '''') return varchar2;
+  function to_string(a_value varchar2, a_qoute_char varchar2 := '''', a_max_output_len in number := gc_max_output_string_length) return varchar2;
 
   function to_string(a_value clob, a_qoute_char varchar2 := '''') return varchar2;
 

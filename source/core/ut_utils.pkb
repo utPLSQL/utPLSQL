@@ -77,16 +77,18 @@ create or replace package body ut_utils is
     $end
   end;
 
-  function to_string(a_value varchar2, a_qoute_char varchar2 := '''') return varchar2 is
-    l_len integer := coalesce(length(a_value),0);
-    l_result varchar2(32767);
+  function to_string(a_value varchar2, a_qoute_char varchar2 := '''', a_max_output_len in number := gc_max_output_string_length) return varchar2 is
+    l_len                     integer := coalesce(length(a_value),0);
+    l_result                  varchar2(32767);
+    l_max_input_string_length integer := a_max_output_len - 2;--we need to remove 2 chars for quotes around string
+    l_overflow_substr_len     integer := l_max_input_string_length - length(gc_more_data_string);
   begin
     if l_len = 0 then
       l_result := gc_null_string;
-    elsif l_len <= gc_max_input_string_length then
+    elsif l_len <= l_max_input_string_length then
       l_result := surround_with(a_value, a_qoute_char);
     else
-      l_result := surround_with(substr(a_value,1,gc_overflow_substr_len),a_qoute_char) || gc_more_data_string;
+      l_result := surround_with(substr(a_value,1,l_overflow_substr_len),a_qoute_char) || gc_more_data_string;
     end if ;
     return l_result;
   end;
