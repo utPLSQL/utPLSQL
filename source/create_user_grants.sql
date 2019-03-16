@@ -53,7 +53,6 @@ alter session set current_schema = &&ut3_owner;
 
 grant execute on &&ut3_owner..ut_expectation to &ut3_user;
 grant execute on &&ut3_owner..ut_expectation_compound to &ut3_user;
-grant execute on &&ut3_owner..ut_expectation_refcursor to &ut3_user;
 
 grant execute on &&ut3_owner..ut_be_between to &ut3_user;
 grant execute on &&ut3_owner..ut_be_empty to &ut3_user;
@@ -71,6 +70,7 @@ grant execute on &&ut3_owner..ut_have_count to &ut3_user;
 grant execute on &&ut3_owner..ut_match to &ut3_user;
 grant execute on &&ut3_owner..ut to &ut3_user;
 grant execute on &&ut3_owner..ut_runner to &ut3_user;
+grant execute on &&ut3_owner..ut_debug_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_teamcity_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_xunit_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_junit_reporter to &ut3_user;

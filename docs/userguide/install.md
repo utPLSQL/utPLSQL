@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.4.2223--develop-blue.svg)
+
 # Downloading latest version of utPLSQL
 
 To download latest version of utPLSQL from github on both Unix/Linux as well as Windows machines use the below smippets.

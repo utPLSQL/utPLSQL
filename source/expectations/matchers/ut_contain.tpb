@@ -23,6 +23,13 @@ create or replace type body ut_contain as
     return;
   end;
 
+  constructor function ut_contain(self in out nocopy ut_contain, a_expected anydata) return self as result is
+  begin
+    self.init(ut_data_value_anydata(a_expected), null, $$plsql_unit);
+    self.options.unordered();
+    return;
+  end;
+
   overriding member function run_matcher(self in out nocopy ut_contain, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin

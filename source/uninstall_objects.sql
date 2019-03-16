@@ -75,8 +75,6 @@ drop package ut;
 
 drop table ut_dbms_output_cache;
 
-drop type ut_expectation_refcursor force;
-
 drop type ut_expectation_compound force;
 
 drop type ut_expectation force;
@@ -195,7 +193,11 @@ drop package ut_ansiconsole_helper;
 
 drop package ut_utils;
 
+drop sequence ut_savepoint_seq;
+
 drop type ut_documentation_reporter force;
+
+drop type ut_debug_reporter force;
 
 drop type ut_teamcity_reporter force;
 
@@ -262,6 +264,8 @@ drop type ut_output_data_rows force;
 drop type ut_output_data_row force;
 
 drop type ut_results_counter force;
+
+drop type ut_run_info force;
 
 drop type ut_expectation_results force;
 

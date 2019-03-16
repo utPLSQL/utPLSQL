@@ -33,7 +33,6 @@ alter session set current_schema = &&ut3_owner;
 
 grant execute on &&ut3_owner..ut_expectation to public;
 grant execute on &&ut3_owner..ut_expectation_compound to public;
-grant execute on &&ut3_owner..ut_expectation_refcursor to public;
 grant execute on &&ut3_owner..ut_be_between to public;
 grant execute on &&ut3_owner..ut_be_empty to public;
 grant execute on &&ut3_owner..ut_be_false to public;
@@ -50,6 +49,7 @@ grant execute on &&ut3_owner..ut_have_count to public;
 grant execute on &&ut3_owner..ut_match to public;
 grant execute on &&ut3_owner..ut to public;
 grant execute on &&ut3_owner..ut_runner to public;
+grant execute on &&ut3_owner..ut_debug_reporter to public;
 grant execute on &&ut3_owner..ut_teamcity_reporter to public;
 grant execute on &&ut3_owner..ut_xunit_reporter to public;
 grant execute on &&ut3_owner..ut_junit_reporter to public;
@@ -111,7 +111,6 @@ prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
 create public synonym ut_expectation for &&ut3_owner..ut_expectation;
 create public synonym ut_expectation_compound for &&ut3_owner..ut_expectation_compound;
-create public synonym ut_expectation_refcursor for &&ut3_owner..ut_expectation_refcursor;
 
 create public synonym be_between for &&ut3_owner..be_between;
 create public synonym be_empty for &&ut3_owner..be_empty;
@@ -131,6 +130,7 @@ create public synonym match for &&ut3_owner..match;
 
 create public synonym ut for &&ut3_owner..ut;
 create public synonym ut_runner for &&ut3_owner..ut_runner;
+create public synonym ut_debug_reporter for &&ut3_owner..ut_debug_reporter;
 create public synonym ut_teamcity_reporter for &&ut3_owner..ut_teamcity_reporter;
 create public synonym ut_xunit_reporter for &&ut3_owner..ut_xunit_reporter;
 create public synonym ut_junit_reporter for &&ut3_owner..ut_junit_reporter;

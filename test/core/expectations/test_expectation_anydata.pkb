@@ -878,8 +878,6 @@ Rows: [ 60 differences, showing first 20 ]
   procedure collection_unordered is
     l_actual           test_dummy_object_list;
     l_expected         test_dummy_object_list;
-    l_actual_message   varchar2(32767);
-    l_expected_message varchar2(32767);
   begin
     --Arrange
     select test_dummy_object( rownum, 'Something '||rownum, rownum)
@@ -943,6 +941,34 @@ Rows: [ 60 differences, showing first 20 ]
     ut3.ut.expect(g_test_actual).to_equal(g_test_expected).unordered;
     ut.expect(expectations.failed_expectations_data()).to_be_empty(); 
   end;   
+ 
+  procedure collection_to_contain is
+    l_actual           test_dummy_object_list;
+    l_expected         test_dummy_object_list;
+  begin
+    --Arrange
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=4;
+    select test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2
+     order by rownum desc;
+    --Act
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_contain(anydata.convertCollection(l_expected)); 
+    ut.expect(expectations.failed_expectations_data()).to_be_empty(); 
+  end;  
   
+  procedure object_to_contain is
+  begin
+  --Arrange
+    g_test_expected := anydata.convertObject( test_dummy_object(1, 'A', '0') );
+    g_test_actual   := anydata.convertObject( test_dummy_object(1, 'A', '0') );
+    
+    --Act
+    ut3.ut.expect(g_test_actual).to_contain(g_test_expected); 
+    ut.expect(expectations.failed_expectations_data()).to_be_empty(); 
+  end;  
+   
 end;
 /

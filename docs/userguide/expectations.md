@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.4.2223--develop-blue.svg)
+
 # Expectation concepts 
 Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
 utPLSQL uses a combination of expectation and matcher to perform the check on the data.
@@ -435,9 +437,9 @@ To change the behavior of `NULL = NULL` comparison pass the `a_nulls_are_equal =
 
 ## contain
 
-This matcher supports only cursor comparison. It check if the give set contain all values from given subset.
+This matcher supports only compound data comparison. It check if the give set contain all values from given subset.
 
-When comparing data using `contain` matcher, the data-types of columns for compared cursors must be exactly the same.
+When comparing data using `contain` matcher, the data-types of columns for compared compound types must be exactly the same.
 
 The matcher supports all advanced comparison options as `equal` like: `include` , `exclude`, `join_by` etc..
 
@@ -716,7 +718,7 @@ utPLSQL is capable of comparing compound data-types including:
 
 - Compound data can contain elements of any data-type. This includes blob, clob, object type, nested table, varray or even a nested-cursor within a cursor.
 - Attributes in nested table and array types are compared as **ordered lists of elements**. If order of attributes in nested table and array differ, expectation will fail.
-- Columns in cursors are compared as **ordered list of elements** by default. Use `unordered_columns` option when order of columns in cursor is not relevant
+- Columns in compound data are compared as **ordered list of elements** by default. Use `unordered_columns` option when order of columns in cursor is not relevant
 - Comparison of compound data is data-type aware. So a column `ID NUMBER` in a cursor is not the same as `ID VARCHAR2(100)`, even if they both hold the same numeric values.
 - Comparison of cursor columns containing `DATE` will only compare date part **and ignore time** by default. See [Comparing cursor data containing DATE fields](#comparing-cursor-data-containing-date-fields) to check how to enable date-time comparison in cursors.
 - Comparison of cursor returning `TIMESTAMP` **columns** against cursor returning `TIMESTAMP` **bind variables** requires variables to be casted to proper precision. This is an Oracle SQL - PLSQL compatibility issue and usage of CAST is the only known workaround for now. See [Comparing cursor data containing TIMESTAMP bind variables](#comparing-cursor-data-containing-timestamp-bind-variables) for examples.    
@@ -1004,7 +1006,7 @@ Due to the way Oracle handles DATE data type when converting from cursor data to
 The NLS_DATE_FORMAT setting from the moment the cursor was opened determines the formatting of dates used for cursor data comparison.
 By default, Oracle NLS_DATE_FORMAT is timeless, so data of DATE datatype, will be compared ignoring the time component.
 
-You should use procedures `ut.set_nls`, `ut.reset_nls` around cursors that you want to compare in your tests.
+You should surround cursors and expectations with procedures `ut.set_nls`, `ut.reset_nls`.
 This way, the DATE data in cursors will be properly formatted for comparison using date-time format.
 
 The example below makes use of `ut.set_nls`, `ut.reset_nls`, so that the date in `l_expected` and `l_actual` is compared using date-time formatting.  
@@ -1048,9 +1050,9 @@ create or replace package body test_get_events is
     open l_expected_bad_date for select gc_description as description, gc_event_date + gc_second as event_date from dual;
     --Act
     l_actual := get_events();
-    ut.reset_nls(); -- Change the NLS settings after cursors were opened
     --Assert
     ut.expect( l_actual ).not_to_equal( l_expected_bad_date );
+    ut.reset_nls(); -- Change the NLS settings after cursors were opened
   end;
 
   procedure bad_test is

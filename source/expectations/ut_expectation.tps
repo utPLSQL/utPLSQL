@@ -161,7 +161,9 @@ create or replace type ut_expectation authid current_user as object(
   member procedure not_to_be_less_than(self in ut_expectation, a_expected yminterval_unconstrained),
   
   member procedure to_contain(self in ut_expectation, a_expected sys_refcursor),
-  member procedure not_to_contain(self in ut_expectation, a_expected sys_refcursor)
+  member procedure not_to_contain(self in ut_expectation, a_expected sys_refcursor),
+  member procedure to_contain(self in ut_expectation, a_expected anydata),
+  member procedure not_to_contain(self in ut_expectation, a_expected anydata)
   
 )
 not final

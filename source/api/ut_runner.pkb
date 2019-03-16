@@ -97,10 +97,21 @@ create or replace package body ut_runner is
     l_paths                 ut_varchar2_list := ut_varchar2_list();                 
   begin
     ut_event_manager.initialize();
+    if a_reporters is not empty then
+      for i in 1 .. a_reporters.count loop
+        ut_event_manager.add_listener( a_reporters(i) );
+      end loop;
+    else
+      ut_event_manager.add_listener( ut_documentation_reporter() );
+    end if;
+
+    ut_event_manager.trigger_event(ut_event_manager.gc_initialize);
+    ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_run_info());
+
     if a_paths is null or a_paths is empty or a_paths.count = 1 and a_paths(1) is null then
       l_paths := ut_varchar2_list(sys_context('userenv', 'current_schema'));
     else
-      for i in 1..a_paths.COUNT loop
+      for i in 1..a_paths.count loop
         l_paths := l_paths multiset union ut_utils.string_to_table(a_string => a_paths(i),a_delimiter => ',');
       end loop;
     end if;
@@ -110,13 +121,6 @@ create or replace package body ut_runner is
       ut_utils.save_dbms_output_to_cache();
 
       ut_console_reporter_base.set_color_enabled(a_color_console);
-      if a_reporters is null or a_reporters.count = 0 then
-        ut_event_manager.add_listener(ut_documentation_reporter());
-      else
-        for i in 1 .. a_reporters.count loop
-          ut_event_manager.add_listener(a_reporters(i));
-        end loop;
-      end if;
 
       if a_coverage_schemes is not empty then
         l_coverage_schema_names := ut_utils.convert_collection(a_coverage_schemes);
@@ -143,8 +147,6 @@ create or replace package body ut_runner is
         a_client_character_set
       );
 
-      ut_event_manager.trigger_event(ut_event_manager.gc_initialize, l_run);
-      
       ut_suite_manager.configure_execution_by_path(l_paths, l_run.items);
       if a_force_manual_rollback then
         l_run.set_rollback_type( a_rollback_type => ut_utils.gc_rollback_manual, a_force => true );

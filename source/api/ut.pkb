@@ -28,9 +28,9 @@ create or replace package body ut is
     return ut_runner.version();
   end;
 
-  function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_refcursor is
+  function expect(a_actual in anydata, a_message varchar2 := null) return ut_expectation_compound is
   begin
-    return ut_expectation_refcursor(ut_data_value_anydata(a_actual), a_message);
+    return ut_expectation_compound(ut_data_value_anydata(a_actual), a_message);
   end;
 
   function expect(a_actual in blob, a_message varchar2 := null) return ut_expectation is
@@ -78,9 +78,9 @@ create or replace package body ut is
     return ut_expectation(ut_data_value_varchar2(a_actual), a_message);
   end;
 
-  function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_expectation_refcursor is
+  function expect(a_actual in sys_refcursor, a_message varchar2 := null) return ut_expectation_compound is
   begin
-    return ut_expectation_refcursor(ut_data_value_refcursor(a_actual), a_message);
+    return ut_expectation_compound(ut_data_value_refcursor(a_actual), a_message);
   end;
 
   function expect(a_actual in yminterval_unconstrained, a_message varchar2 := null) return ut_expectation is

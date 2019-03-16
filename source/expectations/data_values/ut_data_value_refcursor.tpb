@@ -310,9 +310,19 @@ create or replace type body ut_data_value_refcursor as
       l_diif_rowcount integer :=0;
     begin
       l_diff_id       := ut_compound_data_helper.get_hash(a_self.data_id||a_other.data_id);
-      open l_cursor for a_diff_cursor_text using a_self.data_id, a_other.data_id;
-      --fetch and save rows for display of diff
-      fetch l_cursor bulk collect into l_diff_tab limit ut_utils.gc_diff_max_rows;
+      
+      begin
+        open l_cursor for a_diff_cursor_text using a_self.data_id, a_other.data_id;
+        --fetch and save rows for display of diff
+        fetch l_cursor bulk collect into l_diff_tab limit ut_utils.gc_diff_max_rows;
+      
+      exception when others then
+        if l_cursor%isopen then
+          close l_cursor;
+        end if;
+        raise;
+      end;
+      
       ut_compound_data_helper.insert_diffs_result( l_diff_tab, l_diff_id );
       --fetch rows for count only
       loop
