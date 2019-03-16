@@ -480,25 +480,25 @@ create or replace package body ut_suite_manager is
     l_suite_items        ut_suite_items;
     
     l_bad_suitepath_obj ut_varchar2_list := ut_varchar2_list();   
-    ex_value_too_large  exception;
-    pragma exception_init (ex_value_too_large,-12899);
+    ex_string_too_small exception;
+    pragma exception_init (ex_string_too_small,-06502);
   begin
     loop
       fetch a_annotated_objects bulk collect into l_annotated_objects limit 10;
 
       for i in 1 .. l_annotated_objects.count loop
-        ut_suite_builder.create_suite_item_list( l_annotated_objects( i ), l_suite_items );
         begin
-          ut_suite_cache_manager.save_object_cache(
-            a_owner_name,
-            l_annotated_objects( i ).object_name,
-            l_annotated_objects( i ).parse_time,
-            l_suite_items
-          );
+          ut_suite_builder.create_suite_item_list( l_annotated_objects( i ), l_suite_items );
         exception
-          when ex_value_too_large then
+          when ex_string_too_small then
             ut_utils.append_to_list(l_bad_suitepath_obj,a_owner_name||'.'||l_annotated_objects( i ).object_name);
         end;
+        ut_suite_cache_manager.save_object_cache(
+          a_owner_name,
+          l_annotated_objects( i ).object_name,
+          l_annotated_objects( i ).parse_time,
+          l_suite_items
+        );
       end loop;
       exit when a_annotated_objects%notfound;
     end loop;
@@ -506,13 +506,11 @@ create or replace package body ut_suite_manager is
     
     --Check for any invalid suitepath objects
     if l_bad_suitepath_obj.count > 0 then
-      raise ut_utils.ex_value_too_large;
+      raise_application_error(
+        ut_utils.gc_value_too_large,
+        ut_utils.to_string(gc_suitpath_error_message||ut_utils.table_to_clob(l_bad_suitepath_obj,','))
+      );
     end if;
-    
-  exception 
-    when ut_utils.ex_value_too_large then
-     raise_application_error(ut_utils.gc_value_too_large,
-       ut_utils.to_string(gc_suitpath_error_message||ut_utils.table_to_clob(l_bad_suitepath_obj,',')));
   end;
 
   procedure refresh_cache(

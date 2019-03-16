@@ -111,9 +111,8 @@ create or replace package ut_utils authid definer is
 
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
-  gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
   gc_more_data_string         constant varchar2(5) := '[...]';
-  gc_overflow_substr_len      constant integer := gc_max_input_string_length - length(gc_more_data_string);
+  gc_more_data_string_len     constant integer := length( gc_more_data_string );
   gc_number_format            constant varchar2(100) := 'TM9';
   gc_date_format              constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ss';
   gc_timestamp_format         constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff';
@@ -155,11 +154,23 @@ create or replace package ut_utils authid definer is
 
   procedure debug_log(a_message clob);
 
-  function to_string(a_value varchar2, a_qoute_char varchar2 := '''', a_max_output_len in number := gc_max_output_string_length) return varchar2;
+  function to_string(
+    a_value varchar2,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2;
 
-  function to_string(a_value clob, a_qoute_char varchar2 := '''') return varchar2;
+  function to_string(
+    a_value clob,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2;
 
-  function to_string(a_value blob, a_qoute_char varchar2 := '''') return varchar2;
+  function to_string(
+    a_value blob,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2;
 
   function to_string(a_value boolean) return varchar2;
 

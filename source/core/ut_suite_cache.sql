@@ -73,8 +73,6 @@ create table ut_suite_cache (
     where rownum < 0
 /
 
-alter table ut_suite_cache modify (path varchar2( 1000 ))
-/
 alter table ut_suite_cache modify (object_owner not null, path not null, self_type not null, object_name not null, name not null, parse_time not null)
 /
 alter table ut_suite_cache add constraint ut_suite_cache_pk primary key (id)
@@ -87,8 +85,6 @@ alter table ut_suite_cache add constraint ut_suite_cache_uk2 unique (object_owne
 alter table ut_suite_cache add constraint ut_suite_cache_schema_fk foreign key (object_owner, object_name)
 references ut_suite_cache_package(object_owner, object_name) on delete cascade
 /
-
-
 
 drop type ut_tests
 /

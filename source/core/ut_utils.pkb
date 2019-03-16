@@ -77,50 +77,66 @@ create or replace package body ut_utils is
     $end
   end;
 
-  function to_string(a_value varchar2, a_qoute_char varchar2 := '''', a_max_output_len in number := gc_max_output_string_length) return varchar2 is
-    l_len                     integer := coalesce(length(a_value),0);
+  function to_string(
+    a_value varchar2,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2 is
     l_result                  varchar2(32767);
-    l_max_input_string_length integer := a_max_output_len - 2;--we need to remove 2 chars for quotes around string
-    l_overflow_substr_len     integer := l_max_input_string_length - length(gc_more_data_string);
+    c_length                  constant integer := coalesce( length( a_value ), 0 );
+    c_max_input_string_length constant integer := a_max_output_len - coalesce( length( a_quote_char ) * 2, 0 );
+    c_overflow_substr_len     constant integer := c_max_input_string_length - gc_more_data_string_len;
   begin
-    if l_len = 0 then
+    if c_length = 0 then
       l_result := gc_null_string;
-    elsif l_len <= l_max_input_string_length then
-      l_result := surround_with(a_value, a_qoute_char);
+    elsif c_length <= c_max_input_string_length then
+      l_result := surround_with(a_value, a_quote_char);
     else
-      l_result := surround_with(substr(a_value,1,l_overflow_substr_len),a_qoute_char) || gc_more_data_string;
+      l_result := surround_with(substr(a_value, 1, c_overflow_substr_len ), a_quote_char) || gc_more_data_string;
     end if ;
     return l_result;
   end;
 
-  function to_string(a_value clob, a_qoute_char varchar2 := '''') return varchar2 is
-    l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
-    l_result varchar2(32767);
+  function to_string(
+    a_value clob,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2 is
+    l_result                  varchar2(32767);
+    c_length                  constant integer := coalesce(dbms_lob.getlength(a_value), 0);
+    c_max_input_string_length constant integer := a_max_output_len - coalesce( length( a_quote_char ) * 2, 0 );
+    c_overflow_substr_len     constant integer := c_max_input_string_length - gc_more_data_string_len;
   begin
     if a_value is null then
       l_result := gc_null_string;
-    elsif l_len = 0 then
+    elsif c_length = 0 then
       l_result := gc_empty_string;
-    elsif l_len <= gc_max_input_string_length then
-      l_result := surround_with(a_value,a_qoute_char);
+    elsif c_length <= c_max_input_string_length then
+      l_result := surround_with(a_value,a_quote_char);
     else
-      l_result := surround_with(dbms_lob.substr(a_value, gc_overflow_substr_len),a_qoute_char) || gc_more_data_string;
+      l_result := surround_with(dbms_lob.substr(a_value, c_overflow_substr_len), a_quote_char) || gc_more_data_string;
     end if;
     return l_result;
   end;
 
-  function to_string(a_value blob, a_qoute_char varchar2 := '''') return varchar2 is
-    l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
-    l_result varchar2(32767);
+  function to_string(
+    a_value blob,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2 is
+    l_result                  varchar2(32767);
+    c_length                  constant integer := coalesce(dbms_lob.getlength(a_value), 0);
+    c_max_input_string_length constant integer := a_max_output_len - coalesce( length( a_quote_char ) * 2, 0 );
+    c_overflow_substr_len     constant integer := c_max_input_string_length - gc_more_data_string_len;
   begin
     if a_value is null then
       l_result := gc_null_string;
-    elsif l_len = 0 then
+    elsif c_length = 0 then
       l_result := gc_empty_string;
-    elsif l_len <= gc_max_input_string_length then
-      l_result := surround_with(rawtohex(a_value),a_qoute_char);
+    elsif c_length <= c_max_input_string_length then
+      l_result := surround_with(rawtohex(a_value),a_quote_char);
     else
-      l_result := to_string( rawtohex(dbms_lob.substr(a_value, gc_overflow_substr_len)) );
+      l_result := to_string( rawtohex(dbms_lob.substr(a_value, c_overflow_substr_len)) );
     end if ;
     return l_result;
   end;

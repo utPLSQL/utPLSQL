@@ -36,7 +36,7 @@ create or replace type ut_suite_item force under ut_event_item (
   /**
   * Full path of the invocation of the item (including the items name itself)
   */
-  path          varchar2(4000 byte),
+  path          varchar2(1000 byte),
   /**
   * The type of the rollback behavior
   */

@@ -1484,12 +1484,12 @@ end;]';
     l_actual    ut3.ut_object_names;
     l_expected_message varchar2(500);
   begin
-    l_expected_message := q'[ORA-20217: 'Suitepath exceeds 1000 CHAR on: UT3.DUMMY_LONG_TEST_PACKAGE,UT3.DUMMY_LONG_TEST_PACKAGE1']';
+    l_expected_message := q'[ORA-20217: 'Suitepath exceeds 1000 CHAR on: UT3.DUMMY_LONG_TEST_PACKAGE,UT3.DUMMY_LONG_TEST_PACKAGE1'%]';
     l_actual := ut3.ut_suite_manager.get_schema_ut_packages(ut3.ut_varchar2_rows('UT3'));
     ut.fail('Expected exception for suitpaths over 1k for two packages');
   exception
     when others then
-      ut.expect(SQLERRM).to_equal(l_expected_message);
+      ut.expect(dbms_utility.format_error_stack()).to_be_like(l_expected_message);
       ut.expect(SQLCODE).to_equal(ut3.ut_utils.gc_value_too_large);
   end;
 
