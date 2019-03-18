@@ -106,6 +106,7 @@ grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs   to public;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_units  to public;
 grant execute on &&ut3_owner..ut_matcher_options to public;
 grant execute on &&ut3_owner..ut_matcher_options_items to public;
+grant execute on &&ut3_owner..ut_run_info to public;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
@@ -165,3 +166,4 @@ create public synonym ut_realtime_reporter for &&ut3_owner..ut_realtime_reporter
 create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks;
 create public synonym dbmspcc_runs for &&ut3_owner..dbmspcc_runs;
 create public synonym dbmspcc_units for &&ut3_owner..dbmspcc_units;
+create public synonym ut_run_info for &&ut3_owner..ut_run_info;
