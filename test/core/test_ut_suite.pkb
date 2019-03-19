@@ -140,5 +140,20 @@ create or replace package body test_ut_suite is
   begin
     test_rollback_type('test_failure', ut3.ut_utils.gc_rollback_manual, be_greater_than(0) );
   end;
+
+  procedure trim_transaction_invalidators is
+    l_suite ut3.ut_suite;
+  begin
+    --arrange
+    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_EXAMPLE_TESTS', a_line_no=> 1);
+    for i in 1 .. 100 loop
+      l_suite.add_transaction_invalidator('schema_name.package_name.procedure_name'||i);
+    end loop;
+    --Act
+    l_suite.rollback_to_savepoint('dummy_savepoint');
+    --Assert
+    ut.expect(l_suite.warnings.count).to_equal(1);
+  end;
+
 end;
 /

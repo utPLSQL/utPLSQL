@@ -16,6 +16,7 @@ create or replace package body ut_suite_manager is
   limitations under the License.
   */
 
+  gc_suitpath_error_message constant varchar2(100) := 'Suitepath exceeds 1000 CHAR on: ';
 
   type t_path_item is record (
     object_name    varchar2(250),
@@ -477,12 +478,21 @@ create or replace package body ut_suite_manager is
   ) is
     l_annotated_objects  ut_annotated_objects;
     l_suite_items        ut_suite_items;
+    
+    l_bad_suitepath_obj ut_varchar2_list := ut_varchar2_list();   
+    ex_string_too_small exception;
+    pragma exception_init (ex_string_too_small,-06502);
   begin
     loop
       fetch a_annotated_objects bulk collect into l_annotated_objects limit 10;
 
       for i in 1 .. l_annotated_objects.count loop
-        ut_suite_builder.create_suite_item_list( l_annotated_objects( i ), l_suite_items );
+        begin
+          ut_suite_builder.create_suite_item_list( l_annotated_objects( i ), l_suite_items );
+        exception
+          when ex_string_too_small then
+            ut_utils.append_to_list(l_bad_suitepath_obj,a_owner_name||'.'||l_annotated_objects( i ).object_name);
+        end;
         ut_suite_cache_manager.save_object_cache(
           a_owner_name,
           l_annotated_objects( i ).object_name,
@@ -493,7 +503,14 @@ create or replace package body ut_suite_manager is
       exit when a_annotated_objects%notfound;
     end loop;
     close a_annotated_objects;
-
+    
+    --Check for any invalid suitepath objects
+    if l_bad_suitepath_obj.count > 0 then
+      raise_application_error(
+        ut_utils.gc_value_too_large,
+        ut_utils.to_string(gc_suitpath_error_message||ut_utils.table_to_clob(l_bad_suitepath_obj,','))
+      );
+    end if;
   end;
 
   procedure refresh_cache(
@@ -591,6 +608,10 @@ create or replace package body ut_suite_manager is
     then
       l_need_all_objects_scan := false;
     end if;
+
+    for i in 1 .. a_schema_names.count loop
+      refresh_cache(a_schema_names(i));
+    end loop;
 
     execute immediate 'select c.object_owner, c.object_name
       from '||l_ut_owner||q'[.ut_suite_cache_package c

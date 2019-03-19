@@ -43,7 +43,7 @@ begin
   ut_event_manager.add_listener(l_reporter);
   l_run := ut_run(ut_suite_items(l_suite));
   l_run.do_execute();
-  ut_event_manager.trigger_event(ut_utils.gc_finalize, l_run);
+  ut_event_manager.trigger_event(ut_event_manager.gc_finalize, l_run);
   l_reporter.lines_to_dbms_output(0,0);
 end;
 /

@@ -53,6 +53,7 @@ alter session set current_schema = &&ut3_owner;
 
 grant execute on &&ut3_owner..ut_expectation to &ut3_user;
 grant execute on &&ut3_owner..ut_expectation_compound to &ut3_user;
+
 grant execute on &&ut3_owner..ut_be_between to &ut3_user;
 grant execute on &&ut3_owner..ut_be_empty to &ut3_user;
 grant execute on &&ut3_owner..ut_be_false to &ut3_user;
@@ -69,6 +70,7 @@ grant execute on &&ut3_owner..ut_have_count to &ut3_user;
 grant execute on &&ut3_owner..ut_match to &ut3_user;
 grant execute on &&ut3_owner..ut to &ut3_user;
 grant execute on &&ut3_owner..ut_runner to &ut3_user;
+grant execute on &&ut3_owner..ut_debug_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_teamcity_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_xunit_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_junit_reporter to &ut3_user;
@@ -90,6 +92,8 @@ grant execute on &&ut3_owner..ut_coverage to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_options to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_helper to &ut3_user;
 grant execute on &&ut3_owner..ut_output_buffer_base to &ut3_user;
+grant execute on &&ut3_owner..ut_output_data_row to &ut3_user;
+grant execute on &&ut3_owner..ut_output_data_rows to &ut3_user;
 grant execute on &&ut3_owner..ut_output_table_buffer to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mappings to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mapping to &ut3_user;
@@ -115,13 +119,11 @@ grant execute on &&ut3_owner..ut_annotation_cache_manager to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation_parser to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation_objs_cache_info to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation_obj_cache_info to &ut3_user;
-begin
-  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-  execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to &ut3_user';
-  execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs to &ut3_user';
-  execute immediate 'grant select, insert, delete, update on &&ut3_owner..dbmspcc_units to &ut3_user';
-  $else
-  null;
-  $end
-end;
-/
+grant execute on &&ut3_owner..ut_realtime_reporter to &ut3_user;
+grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to &ut3_user;
+grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs to &ut3_user;
+grant select, insert, delete, update on &&ut3_owner..dbmspcc_units to &ut3_user;
+grant execute on &&ut3_owner..ut_matcher_options to &ut3_user;
+grant execute on &&ut3_owner..ut_matcher_options_items to &ut3_user;
+grant execute on &&ut3_owner..ut_run_info to &ut3_user;
+

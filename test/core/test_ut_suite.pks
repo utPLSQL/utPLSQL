@@ -33,5 +33,8 @@ create or replace package test_ut_suite is
   --%test(rollback(manual) - disables automatic rollback after a suite even if test fails)
   procedure rollback_manual_on_failure;
 
+  --%test(Transaction invalidators list is trimmed in warnings when too long)
+  procedure trim_transaction_invalidators;
+
 end;
 /

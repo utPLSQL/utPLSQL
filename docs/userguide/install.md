@@ -1,6 +1,8 @@
+![version](https://img.shields.io/badge/version-v3.1.4.2223--develop-blue.svg)
+
 # Downloading latest version of utPLSQL
 
-To download latest version of utPLSQL from github on both Unix/Linux as well as Windows machines use the below smippets.
+To download latest version of utPLSQL from github on both Unix/Linux as well as Windows machines use the below snippets.
 
 ## Unix/Linux
 
@@ -49,6 +51,20 @@ foreach ($i in $urlList) {
 }
 ```
 
+# Checking environment and utPLSQL version
+
+To check the framework version execute the following query:
+```sql
+select substr(ut.version(),1,60) as ut_version from dual;
+```
+
+Additionally you may retrieve more information about your environment by executing the following query:
+```sql
+select 
+  xmlserialize( content xmltype(ut_run_info()) as clob indent size = 2 )
+  from dual;
+```
+
 # Supported database versions
 
 The utPLSQL may be installed on any supported version of Oracle Database [see](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6)
@@ -79,6 +95,8 @@ sqlplus sys/sys_pass@db as sysdba @install_headless.sql utp3 my_verySecret_passw
 ```
 
 The script needs to be executed by `SYSDBA`, in order to grant access to `DBMS_LOCK` and `DBMS_CRYPTO` system packages.
+
+*Note:* Grant on `DBMS_LOCK` is required on Oracle versions below 18c
 
 
 # Recommended Schema
@@ -183,8 +201,10 @@ If you have extended any utPLSQL types such as a custom reporter, these will nee
 
 The uninstall script does not drop the schema.
 
-In order for the uninstall to be successful, you need to use the uninstall script that was provided with the exact utPLSQL version installed on your database.
+**In order for the uninstall to be successful, you need to use the uninstall script that was provided with the exact utPLSQL version installed on your database.**
 i.e. the uninstall script provided with version 3.0.1 will probably not work if you want to remove version 3.0.0 from your database.
+
+Alternatively you can drop the user that owns utPLSQL and re-create it using headless install.
 
 # Version upgrade
 

@@ -21,29 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.3.2398';
-
-  /* Constants: Event names */
-  subtype t_event_name           is varchar2(30);
-  gc_before_run                  constant t_event_name := 'before_run';
-  gc_before_suite                constant t_event_name := 'before_suite';
-  gc_before_before_all           constant t_event_name := 'before_beforeall';
-  gc_before_before_each          constant t_event_name := 'before_beforeeach';
-  gc_before_before_test          constant t_event_name := 'before_beforetest';
-  gc_before_test_execute         constant t_event_name := 'before_test';
-  gc_before_after_test           constant t_event_name := 'before_aftertest';
-  gc_before_after_each           constant t_event_name := 'before_aftereach';
-  gc_before_after_all            constant t_event_name := 'before_afterall';
-  gc_after_run                   constant t_event_name := 'after_run';
-  gc_after_suite                 constant t_event_name := 'after_suite';
-  gc_after_before_all            constant t_event_name := 'after_beforeall';
-  gc_after_before_each           constant t_event_name := 'after_beforeeach';
-  gc_after_before_test           constant t_event_name := 'after_beforetest';
-  gc_after_test_execute          constant t_event_name := 'after_test';
-  gc_after_after_test            constant t_event_name := 'after_aftertest';
-  gc_after_after_each            constant t_event_name := 'after_aftereach';
-  gc_after_after_all             constant t_event_name := 'after_afterall';
-  gc_finalize                    constant t_event_name := 'finalize';
+  gc_version                 constant varchar2(50) := 'v3.1.4.2692';
 
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'beforeall';
@@ -105,26 +83,45 @@ create or replace package ut_utils authid definer is
   gc_some_tests_failed constant pls_integer := -20213;
   pragma exception_init(ex_some_tests_failed, -20213);
 
-  -- Any of tests failed
+  -- Version number provided is not in valid format
   ex_invalid_version_no exception;
   gc_invalid_version_no constant pls_integer := -20214;
   pragma exception_init(ex_invalid_version_no, -20214);
+
+  -- Version number provided is not in valid format
+  ex_out_buffer_timeout exception;
+  gc_out_buffer_timeout constant pls_integer := -20215;
+  pragma exception_init(ex_out_buffer_timeout, -20215);
 
   ex_invalid_package exception;
   gc_invalid_package constant pls_integer := -6550;
   pragma exception_init(ex_invalid_package, -6550);
 
+  ex_failure_for_all exception;
+  gc_failure_for_all constant pls_integer := -24381;
+  pragma exception_init (ex_failure_for_all, -24381);
+
+  ex_dml_for_all exception;
+  gc_dml_for_all constant pls_integer := -20216;
+  pragma exception_init (ex_dml_for_all, -20216);
+
+  ex_value_too_large exception;
+  gc_value_too_large constant pls_integer := -20217;
+  pragma exception_init (ex_value_too_large, -20217);
+
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
-  gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
   gc_more_data_string         constant varchar2(5) := '[...]';
-  gc_overflow_substr_len      constant integer := gc_max_input_string_length - length(gc_more_data_string);
+  gc_more_data_string_len     constant integer := length( gc_more_data_string );
   gc_number_format            constant varchar2(100) := 'TM9';
   gc_date_format              constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ss';
   gc_timestamp_format         constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff';
   gc_timestamp_tz_format      constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff tzh:tzm';
   gc_null_string              constant varchar2(4) := 'NULL';
   gc_empty_string             constant varchar2(5) := 'EMPTY';
+
+  gc_bc_fetch_limit           constant integer := 1000;
+  gc_diff_max_rows            constant integer := 20;
 
   type t_version is record(
     major  natural,
@@ -157,11 +154,23 @@ create or replace package ut_utils authid definer is
 
   procedure debug_log(a_message clob);
 
-  function to_string(a_value varchar2, a_qoute_char varchar2 := '''') return varchar2;
+  function to_string(
+    a_value varchar2,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2;
 
-  function to_string(a_value clob, a_qoute_char varchar2 := '''') return varchar2;
+  function to_string(
+    a_value clob,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2;
 
-  function to_string(a_value blob, a_qoute_char varchar2 := '''') return varchar2;
+  function to_string(
+    a_value blob,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2;
 
   function to_string(a_value boolean) return varchar2;
 
@@ -337,10 +346,14 @@ create or replace package ut_utils authid definer is
   function get_xml_header(a_encoding varchar2) return varchar2;
 
 
-  /*It takes a collection of type ut_varchar2_list and it trims the characters passed as arguments for every element*/
+  /**
+  * Takes a collection of type ut_varchar2_list and it trims the characters passed as arguments for every element
+  */
   function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list;
 
-  /*It takes a collection of type ut_varchar2_list and it only returns the elements which meets the regular expression*/
+  /**
+  * Takes a collection of type ut_varchar2_list and it only returns the elements which meets the regular expression
+  */
   function filter_list(a_list IN ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list;
 
   -- Generates XMLGEN escaped string
@@ -350,6 +363,11 @@ create or replace package ut_utils authid definer is
   * Replaces multi-line comments in given source-code with empty lines
   */
   function replace_multiline_comments(a_source clob) return clob;
+
+   /**
+   * Returns list of sub-type reporters for given list of super-type reporters
+   */
+  function get_child_reporters(a_for_reporters ut_reporters_info := null) return ut_reporters_info;
 
 end ut_utils;
 /

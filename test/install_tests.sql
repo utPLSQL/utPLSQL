@@ -13,9 +13,16 @@ alter session set plsql_optimize_level=0;
 @@helpers/other_dummy_object.tps
 @@helpers/test_dummy_object.tps
 @@helpers/test_dummy_object_list.tps
+@@helpers/test_event_object.tps
+@@helpers/test_event_list.tps
+@@helpers/test_tab_varchar2.tps
+@@helpers/test_tab_varray.tps
+@@helpers/ut3user#.test_cursor_grants.pks
+@@helpers/ut3user#.test_cursor_grants.pkb
 
 --Install tests
 @@core.pks
+@@core/min_grant_user/test_min_grant_user.pks
 @@api/test_ut_runner.pks
 @@api/test_ut_run.pks
 @@core/test_ut_utils.pks
@@ -41,6 +48,8 @@ set define off
 @@core/reporters/test_coverage/test_coveralls_reporter.pks
 @@core/reporters/test_coverage/test_cov_cobertura_reporter.pks
 @@core/reporters/test_junit_reporter.pks
+@@core/reporters/test_realtime_reporter.pks
+@@core/reporters/test_debug_reporter.pks
 set define on
 @@install_below_12_2.sql 'core/reporters/test_coverage/test_html_proftab_reporter.pks'
 set define off
@@ -65,6 +74,7 @@ set define off
 @@core/annotations/test_annot_throws_exception.pks
 
 @@core.pkb
+@@core/min_grant_user/test_min_grant_user.pkb
 @@api/test_ut_runner.pkb
 @@api/test_ut_run.pkb
 @@core/test_ut_utils.pkb
@@ -90,6 +100,8 @@ set define off
 @@core/reporters/test_coverage/test_coveralls_reporter.pkb
 @@core/reporters/test_coverage/test_cov_cobertura_reporter.pkb
 @@core/reporters/test_junit_reporter.pkb
+@@core/reporters/test_realtime_reporter.pkb
+@@core/reporters/test_debug_reporter.pkb
 set define on
 @@install_below_12_2.sql 'core/reporters/test_coverage/test_html_proftab_reporter.pkb'
 set define off

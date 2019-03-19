@@ -3,6 +3,35 @@ create or replace package body test_suite_manager is
   ex_obj_doesnt_exist exception;
   pragma exception_init(ex_obj_doesnt_exist, -04043);
 
+  procedure create_dummy_long_test_package is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package ut3.dummy_long_test_package as
+        
+        --%suitepath(verylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtext)
+        --%suite(dummy_test_suite)
+
+        --%test(dummy_test)
+        procedure some_dummy_test_procedure;
+      end;]';
+      
+    execute immediate q'[create or replace package ut3.dummy_long_test_package1 as
+        
+        --%suitepath(verylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtext)
+        --%suite(dummy_test_suite1)
+
+        --%test(dummy_test)
+        procedure some_dummy_test_procedure;
+      end;]';
+  end;
+
+  procedure drop_dummy_long_test_package is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[drop package ut3.dummy_long_test_package]';
+    execute immediate q'[drop package ut3.dummy_long_test_package1]';
+  end;
+
   procedure compile_dummy_packages is
     pragma autonomous_transaction;
   begin
@@ -1419,6 +1448,50 @@ end;]';
       l_test_proc := treat(l_ctx_suite.items(1) as ut3.ut_test);
       ut.expect(l_test_proc.name).to_equal('test1');
     end;
+
+  procedure test_get_schema_ut_packages is
+    l_expected  ut3.ut_object_names;
+    l_actual    ut3.ut_object_names;
+  begin
+    l_expected := ut3.ut_object_names(
+      ut3.ut_object_name('UT3','SOME_TEST_PACKAGE')
+      );
+    l_actual := ut3.ut_suite_manager.get_schema_ut_packages(ut3.ut_varchar2_rows('UT3'));
+
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
+  end;
+  procedure create_ut3_suite is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[
+      create or replace package ut3.some_test_package
+      as
+        --%suite
+
+        --%test
+        procedure some_test;
+
+      end;]';
+  end;
+
+  procedure drop_ut3_suite is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[drop package ut3.some_test_package]';
+  end;
+
+  procedure add_new_long_test_package is
+    l_actual    ut3.ut_object_names;
+    l_expected_message varchar2(500);
+  begin
+    l_expected_message := q'[ORA-20217: 'Suitepath exceeds 1000 CHAR on: UT3.DUMMY_LONG_TEST_PACKAGE,UT3.DUMMY_LONG_TEST_PACKAGE1'%]';
+    l_actual := ut3.ut_suite_manager.get_schema_ut_packages(ut3.ut_varchar2_rows('UT3'));
+    ut.fail('Expected exception for suitpaths over 1k for two packages');
+  exception
+    when others then
+      ut.expect(dbms_utility.format_error_stack()).to_be_like(l_expected_message);
+      ut.expect(SQLCODE).to_equal(ut3.ut_utils.gc_value_too_large);
+  end;
 
 end test_suite_manager;
 /

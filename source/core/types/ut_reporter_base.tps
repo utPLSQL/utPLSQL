@@ -64,6 +64,9 @@ create or replace type ut_reporter_base under ut_event_listener (
   -- This way, you may close all open outputs, files, connections etc. that need closing before the run finishes
   not instantiable member procedure on_finalize(self in out nocopy ut_reporter_base, a_run in ut_run),
 
+  -- This method is executed when run is getting initialized
+  not instantiable member procedure on_initialize(self in out nocopy ut_reporter_base, a_run in ut_run),
+
   /**
   * Returns the list of events that are supported by particular implementation of the reporter
   */

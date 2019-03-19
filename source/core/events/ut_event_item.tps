@@ -21,6 +21,5 @@ create or replace type ut_event_item authid current_user as object (
   * The true abstract type is ut_suite_item
   */
   self_type    varchar2(250 byte)
-
 ) not final not instantiable
 /

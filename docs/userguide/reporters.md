@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.4.2223--develop-blue.svg)
+
 utPLSQL provides the following reporting formats.
 
 # Documentation reporter
@@ -118,3 +120,46 @@ Details:
 # Coverage reporters
 
 utPLSQL comes with a set of build-in coverage reporters. Have a look into the [coverage documentation](coverage.md) to learn more about them.
+
+
+# Debug reporter
+
+The `ut_debug_reporter` provides a highly verbose output containing thorough details about framework and test execution.
+
+Use this reporter only when you need to investigate framework issues or raise a bug report to utPLSQL team.
+
+Usage of this reporter might have impact on performance of test-suite execution.
+
+Amongst others, reporter provides the following information:
+- framework version
+- database version
+- database OS
+- database, instance and session NLS settings
+- timing of each event
+- time between events logged
+- time from start of the run
+- stack trace
+- information about input parameters for the run including
+    - run paths
+    - source file mappings
+    - test file mappings
+    - coverage schemas
+    - coverage exclusions and inclusions
+    - client character set
+- information about every step of the run including
+    - every suite and context
+    - every before/after procedure
+    - every test
+    - every expectation and it's result
+    
+Some of the information in debug log might be redundant.
+
+**Note:**
+>Some of the information in debug log may be sensitive. In particular:
+> - expectation results and messages (logged even for successful runs)
+> - test structure
+> - db object names
+> - etc.
+
+ 
+       

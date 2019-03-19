@@ -1,4 +1,6 @@
-# utPLSQL v3<sub><sup> | Powerful PL/SQL Unit Testing Framework </sup></sub>
+![utPLSQL v3 | Powerful PL/SQL Unit Testing Framework](docs/images/utPLSQL-testing-framework-transparent_120.png)
+
+----------
 
 [![latest-release](https://img.shields.io/github/release/utPLSQL/utPLSQL.svg)](https://github.com/utPLSQL/utPLSQL/releases)
 [![license](https://img.shields.io/github/license/utPLSQL/utPLSQL.svg)](https://www.apache.org/licenses/LICENSE-2.0)
@@ -234,3 +236,16 @@ __Project Directories__
 * source - The installation code for utPLSQL
 * tests - Tests for utPLSQL framework
 
+-----------
+# Supporters
+
+The utPLSQL project is community-driven and is not commercially motivated. Nonetheless, donations and other contributions are always welcome, and are detailed below.
+
+<table>
+<tbody>
+<tr>
+<td><a href="https://www.red-gate.com/hub/events/open-source-projects" rel="nofollow"><img src="docs/images/supported_by_redgate_100.png" alt="supported_by_redgate" style="max-width:100%;"></a></td>
+<td>utPLSQL has been supported by Redgate in the form of sponsored stickers and t-shirts. Thank you for helping us spreading the word!</td>
+</tr>
+</tbody>
+</table>

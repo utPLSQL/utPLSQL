@@ -27,3 +27,4 @@ coverage.xml
 tfs_test_results.xml
 junit_test_results.xml
 test_results.xml
+*debug*.xml

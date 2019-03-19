@@ -52,7 +52,7 @@ create or replace package body ut_utils is
 
   function gen_savepoint_name return varchar2 is
   begin
-    return '"'|| utl_raw.cast_to_varchar2(utl_encode.base64_encode(sys_guid()))||'"';
+    return 's'||trim(to_char(ut_savepoint_seq.nextval,'0000000000000000000000000000'));
   end;
 
   procedure debug_log(a_message varchar2) is
@@ -77,48 +77,66 @@ create or replace package body ut_utils is
     $end
   end;
 
-  function to_string(a_value varchar2, a_qoute_char varchar2 := '''') return varchar2 is
-    l_len integer := coalesce(length(a_value),0);
-    l_result varchar2(32767);
+  function to_string(
+    a_value varchar2,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2 is
+    l_result                  varchar2(32767);
+    c_length                  constant integer := coalesce( length( a_value ), 0 );
+    c_max_input_string_length constant integer := a_max_output_len - coalesce( length( a_quote_char ) * 2, 0 );
+    c_overflow_substr_len     constant integer := c_max_input_string_length - gc_more_data_string_len;
   begin
-    if l_len = 0 then
+    if c_length = 0 then
       l_result := gc_null_string;
-    elsif l_len <= gc_max_input_string_length then
-      l_result := surround_with(a_value, a_qoute_char);
+    elsif c_length <= c_max_input_string_length then
+      l_result := surround_with(a_value, a_quote_char);
     else
-      l_result := surround_with(substr(a_value,1,gc_overflow_substr_len),a_qoute_char) || gc_more_data_string;
+      l_result := surround_with(substr(a_value, 1, c_overflow_substr_len ), a_quote_char) || gc_more_data_string;
     end if ;
     return l_result;
   end;
 
-  function to_string(a_value clob, a_qoute_char varchar2 := '''') return varchar2 is
-    l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
-    l_result varchar2(32767);
+  function to_string(
+    a_value clob,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2 is
+    l_result                  varchar2(32767);
+    c_length                  constant integer := coalesce(dbms_lob.getlength(a_value), 0);
+    c_max_input_string_length constant integer := a_max_output_len - coalesce( length( a_quote_char ) * 2, 0 );
+    c_overflow_substr_len     constant integer := c_max_input_string_length - gc_more_data_string_len;
   begin
     if a_value is null then
       l_result := gc_null_string;
-    elsif l_len = 0 then
+    elsif c_length = 0 then
       l_result := gc_empty_string;
-    elsif l_len <= gc_max_input_string_length then
-      l_result := surround_with(a_value,a_qoute_char);
+    elsif c_length <= c_max_input_string_length then
+      l_result := surround_with(a_value,a_quote_char);
     else
-      l_result := surround_with(dbms_lob.substr(a_value, gc_overflow_substr_len),a_qoute_char) || gc_more_data_string;
+      l_result := surround_with(dbms_lob.substr(a_value, c_overflow_substr_len), a_quote_char) || gc_more_data_string;
     end if;
     return l_result;
   end;
 
-  function to_string(a_value blob, a_qoute_char varchar2 := '''') return varchar2 is
-    l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
-    l_result varchar2(32767);
+  function to_string(
+    a_value blob,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2 is
+    l_result                  varchar2(32767);
+    c_length                  constant integer := coalesce(dbms_lob.getlength(a_value), 0);
+    c_max_input_string_length constant integer := a_max_output_len - coalesce( length( a_quote_char ) * 2, 0 );
+    c_overflow_substr_len     constant integer := c_max_input_string_length - gc_more_data_string_len;
   begin
     if a_value is null then
       l_result := gc_null_string;
-    elsif l_len = 0 then
+    elsif c_length = 0 then
       l_result := gc_empty_string;
-    elsif l_len <= gc_max_input_string_length then
-      l_result := surround_with(rawtohex(a_value),a_qoute_char);
+    elsif c_length <= c_max_input_string_length then
+      l_result := surround_with(rawtohex(a_value),a_quote_char);
     else
-      l_result := to_string( rawtohex(dbms_lob.substr(a_value, gc_overflow_substr_len)) );
+      l_result := to_string( rawtohex(dbms_lob.substr(a_value, c_overflow_substr_len)) );
     end if ;
     return l_result;
   end;
@@ -690,6 +708,33 @@ create or replace package body ut_utils is
     end loop;
     append_to_clob(l_result, substr(a_source, l_end));
     return l_result;
+  end;
+
+  function get_child_reporters(a_for_reporters ut_reporters_info := null) return ut_reporters_info is
+    l_for_reporters ut_reporters_info := a_for_reporters;
+    l_results       ut_reporters_info;
+  begin
+    if l_for_reporters is null then
+      l_for_reporters := ut_reporters_info(ut_reporter_info('UT_REPORTER_BASE','N','N','N'));
+    end if;
+    
+    select /*+ cardinality(f 10) */
+      ut_reporter_info(
+        object_name => t.type_name,
+        is_output_reporter =>
+          case
+            when f.is_output_reporter = 'Y' or t.type_name = 'UT_OUTPUT_REPORTER_BASE'
+            then 'Y' else 'N'
+          end,
+        is_instantiable => case when t.instantiable = 'YES' then 'Y' else 'N' end,
+        is_final => case when t.final = 'YES' then 'Y' else 'N' end
+      )
+    bulk collect into l_results
+    from user_types t
+    join (select * from table(l_for_reporters) where is_final = 'N' ) f
+      on f.object_name = supertype_name;
+
+    return l_results;
   end;
 
 end ut_utils;

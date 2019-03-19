@@ -55,6 +55,7 @@ prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to user &&ut3
 
 create or replace synonym &ut3_user..ut_expectation for &&ut3_owner..ut_expectation;
 create or replace synonym &ut3_user..ut_expectation_compound for &&ut3_owner..ut_expectation_compound;
+
 create or replace synonym &ut3_user..be_between for &&ut3_owner..be_between;
 create or replace synonym &ut3_user..be_empty for &&ut3_owner..be_empty;
 create or replace synonym &ut3_user..be_false for &&ut3_owner..be_false;
@@ -66,11 +67,14 @@ create or replace synonym &ut3_user..be_like for &&ut3_owner..be_like;
 create or replace synonym &ut3_user..be_not_null for &&ut3_owner..be_not_null;
 create or replace synonym &ut3_user..be_null for &&ut3_owner..be_null;
 create or replace synonym &ut3_user..be_true for &&ut3_owner..be_true;
+create or replace synonym &ut3_user..contain for &&ut3_owner..contain;
 create or replace synonym &ut3_user..equal for &&ut3_owner..equal;
 create or replace synonym &ut3_user..have_count for &&ut3_owner..have_count;
 create or replace synonym &ut3_user..match for &&ut3_owner..match;
+
 create or replace synonym &ut3_user..ut for &&ut3_owner..ut;
 create or replace synonym &ut3_user..ut_runner for &&ut3_owner..ut_runner;
+create or replace synonym &ut3_user..ut_debug_reporter for &&ut3_owner..ut_debug_reporter;
 create or replace synonym &ut3_user..ut_teamcity_reporter for &&ut3_owner..ut_teamcity_reporter;
 create or replace synonym &ut3_user..ut_xunit_reporter for &&ut3_owner..ut_xunit_reporter;
 create or replace synonym &ut3_user..ut_junit_reporter for &&ut3_owner..ut_junit_reporter;
@@ -86,6 +90,8 @@ create or replace synonym &ut3_user..ut_varchar2_rows for &&ut3_owner..ut_varcha
 create or replace synonym &ut3_user..ut_integer_list for &&ut3_owner..ut_integer_list;
 create or replace synonym &ut3_user..ut_reporter_base for &&ut3_owner..ut_reporter_base;
 create or replace synonym &ut3_user..ut_output_reporter_base for &&ut3_owner..ut_output_reporter_base;
+create or replace synonym &ut3_user..ut_output_data_row for &&ut3_owner..ut_output_data_row;
+create or replace synonym &ut3_user..ut_output_data_rows for &&ut3_owner..ut_output_data_rows;
 create or replace synonym &ut3_user..ut_coverage for &&ut3_owner..ut_coverage;
 create or replace synonym &ut3_user..ut_coverage_options for &&ut3_owner..ut_coverage_options;
 create or replace synonym &ut3_user..ut_coverage_helper for &&ut3_owner..ut_coverage_helper;
@@ -98,13 +104,8 @@ create or replace synonym &ut3_user..ut_key_value_pairs for &&ut3_owner..ut_key_
 create or replace synonym &ut3_user..ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
 create or replace synonym &ut3_user..ut_compound_data_tmp for &&ut3_owner..ut_cursor_data;
 create or replace synonym &ut3_user..ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
-begin
-  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-  execute immediate 'create or replace synonym &ut3_user..dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks';
-  execute immediate 'create or replace synonym &ut3_user..dbmspcc_runs for &&ut3_owner..dbmspcc_runs';
-  execute immediate 'create or replace synonym &ut3_user..dbmspcc_units for &&ut3_owner..dbmspcc_units';
-  $else
-  null;
-  $end
-end;
-/
+create or replace synonym &ut3_user..ut_realtime_reporter for &&ut3_owner..ut_realtime_reporter;
+create or replace synonym &ut3_user..dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks;
+create or replace synonym &ut3_user..dbmspcc_runs for &&ut3_owner..dbmspcc_runs;
+create or replace synonym &ut3_user..dbmspcc_units for &&ut3_owner..dbmspcc_units;
+create or replace synonym &ut3_user..ut_run_info for &&ut3_owner..ut_run_info;

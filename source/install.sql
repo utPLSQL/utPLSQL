@@ -46,8 +46,11 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_object_names.tps'
 @@install_component.sql 'core/types/ut_key_value_pair.tps'
 @@install_component.sql 'core/types/ut_key_value_pairs.tps'
+@@install_component.sql 'core/types/ut_reporter_info.tps'
+@@install_component.sql 'core/types/ut_reporters_info.tps'
 @@install_component.sql 'core/ut_utils.pks'
 @@install_component.sql 'core/ut_metadata.pks'
+@@install_component.sql 'core/ut_savepoint_seq.sql'
 @@install_component.sql 'core/ut_utils.pkb'
 @@install_component.sql 'core/ut_metadata.pkb'
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pks'
@@ -60,6 +63,8 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/events/ut_event_manager.pkb'
 
 --core types
+@@install_component.sql 'core/types/ut_run_info.tps'
+@@install_component.sql 'core/types/ut_run_info.tpb'
 @@install_component.sql 'core/types/ut_expectation_result.tps'
 @@install_component.sql 'core/types/ut_expectation_results.tps'
 @@install_component.sql 'core/types/ut_results_counter.tps'
@@ -79,7 +84,17 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_reporter_base.tps'
 @@install_component.sql 'core/types/ut_reporters.tps'
 
+@@install_component.sql 'expectations/matchers/ut_matcher_options_items.tps'
+@@install_component.sql 'expectations/matchers/ut_matcher_options.tps'
+@@install_component.sql 'expectations/data_values/ut_data_value.tps'
+@@install_component.sql 'expectations/data_values/ut_key_anyval_pair.tps'
+@@install_component.sql 'expectations/data_values/ut_key_anyval_pairs.tps'
+@@install_component.sql 'expectations/data_values/ut_key_anyvalues.tps'
+
+
 --output buffer base api
+@@install_component.sql 'core/output_buffers/ut_output_data_row.tps'
+@@install_component.sql 'core/output_buffers/ut_output_data_rows.tps'
 @@install_component.sql 'core/output_buffers/ut_output_buffer_base.tps'
 --output buffer table
 @@install_component.sql 'core/output_buffers/ut_output_buffer_info_tmp.sql'
@@ -91,7 +106,7 @@ alter session set current_schema = &&ut3_owner;
 
 @@install_component.sql 'core/types/ut_output_reporter_base.tps'
 
---annoations
+--annotations
 @@install_component.sql 'core/annotations/ut_annotation.tps'
 @@install_component.sql 'core/annotations/ut_annotations.tps'
 @@install_component.sql 'core/annotations/ut_annotated_object.tps'
@@ -141,17 +156,17 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 --gathering coverage
 @@install_component.sql 'core/coverage/ut_coverage_sources_tmp.sql'
 @@install_component.sql 'core/coverage/ut_coverage_helper.pks'
-@@install_above_12_1.sql 'core/coverage/ut_coverage_helper_block.pks'
+@@install_component.sql 'core/coverage/ut_coverage_helper_block.pks'
 @@install_component.sql 'core/coverage/ut_coverage_helper_profiler.pks'
 @@install_component.sql 'core/coverage/ut_coverage.pks'
-@@install_above_12_1.sql 'core/coverage/ut_coverage_block.pks'
+@@install_component.sql 'core/coverage/ut_coverage_block.pks'
 @@install_component.sql 'core/coverage/ut_coverage_profiler.pks'
 @@install_component.sql 'core/coverage/ut_coverage_reporter_base.tps'
 @@install_component.sql 'core/coverage/ut_coverage_helper.pkb'
-@@install_above_12_1.sql 'core/coverage/ut_coverage_helper_block.pkb'
+@@install_component.sql 'core/coverage/ut_coverage_helper_block.pkb'
 @@install_component.sql 'core/coverage/ut_coverage_helper_profiler.pkb'
 @@install_component.sql 'core/coverage/ut_coverage.pkb'
-@@install_above_12_1.sql 'core/coverage/ut_coverage_block.pkb'
+@@install_component.sql 'core/coverage/ut_coverage_block.pkb'
 @@install_component.sql 'core/coverage/ut_coverage_profiler.pkb'
 @@install_component.sql 'core/coverage/ut_coverage_reporter_base.tpb'
 
@@ -175,11 +190,11 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 --expectations and matchers
 @@install_component.sql 'expectations/data_values/ut_compound_data_tmp.sql'
 @@install_component.sql 'expectations/data_values/ut_compound_data_diff_tmp.sql'
-@@install_component.sql 'expectations/data_values/ut_data_value.tps'
 @@install_component.sql 'expectations/data_values/ut_compound_data_value.tps'
+@@install_component.sql 'expectations/data_values/ut_cursor_column.tps'
+@@install_component.sql 'expectations/data_values/ut_cursor_column_tab.tps'
+@@install_component.sql 'expectations/data_values/ut_cursor_details.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_anydata.tps'
-@@install_component.sql 'expectations/data_values/ut_data_value_collection.tps'
-@@install_component.sql 'expectations/data_values/ut_data_value_object.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_blob.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_boolean.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_clob.tps'
@@ -187,16 +202,14 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value_dsinterval.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_number.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_refcursor.tps'
+@@install_component.sql 'expectations/data_values/ut_data_value_anydata.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_timestamp.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_timestamp_tz.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_timestamp_ltz.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_varchar2.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_yminterval.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_xmltype.tps'
-@@install_component.sql 'expectations/data_values/ut_key_anyval_pair.tps'
-@@install_component.sql 'expectations/data_values/ut_key_anyval_pairs.tps'
 @@install_component.sql 'expectations/data_values/ut_compound_data_helper.pks'
-@@install_component.sql 'expectations/data_values/ut_curr_usr_compound_helper.pks'
 @@install_component.sql 'expectations/matchers/ut_matcher.tps'
 @@install_component.sql 'expectations/matchers/ut_comparison_matcher.tps'
 @@install_component.sql 'expectations/matchers/ut_be_false.tps'
@@ -209,19 +222,21 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_null.tps'
 @@install_component.sql 'expectations/matchers/ut_be_true.tps'
 @@install_component.sql 'expectations/matchers/ut_equal.tps'
+@@install_component.sql 'expectations/matchers/ut_contain.tps'
 @@install_component.sql 'expectations/matchers/ut_have_count.tps'
 @@install_component.sql 'expectations/matchers/ut_be_between.tps'
 @@install_component.sql 'expectations/matchers/ut_be_empty.tps'
 @@install_component.sql 'expectations/matchers/ut_match.tps'
 @@install_component.sql 'expectations/ut_expectation.tps'
+@@install_component.sql 'expectations/data_values/ut_cursor_column.tpb'
+@@install_component.sql 'expectations/data_values/ut_cursor_details.tpb'
 @@install_component.sql 'expectations/ut_expectation_compound.tps'
+
+@@install_component.sql 'expectations/matchers/ut_matcher_options_items.tpb'
+@@install_component.sql 'expectations/matchers/ut_matcher_options.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value.tpb'
 @@install_component.sql 'expectations/data_values/ut_compound_data_value.tpb'
 @@install_component.sql 'expectations/data_values/ut_compound_data_helper.pkb'
-@@install_component.sql 'expectations/data_values/ut_curr_usr_compound_helper.pkb'
-@@install_component.sql 'expectations/data_values/ut_data_value_anydata.tpb'
-@@install_component.sql 'expectations/data_values/ut_data_value_object.tpb'
-@@install_component.sql 'expectations/data_values/ut_data_value_collection.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_blob.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_boolean.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_clob.tpb'
@@ -229,6 +244,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value_dsinterval.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_number.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_refcursor.tpb'
+@@install_component.sql 'expectations/data_values/ut_data_value_anydata.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_timestamp.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_timestamp_tz.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_timestamp_ltz.tpb'
@@ -247,12 +263,14 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_null.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_true.tpb'
 @@install_component.sql 'expectations/matchers/ut_equal.tpb'
+@@install_component.sql 'expectations/matchers/ut_contain.tpb'
 @@install_component.sql 'expectations/matchers/ut_have_count.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_between.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_empty.tpb'
 @@install_component.sql 'expectations/matchers/ut_match.tpb'
 @@install_component.sql 'expectations/ut_expectation.tpb'
 @@install_component.sql 'expectations/ut_expectation_compound.tpb'
+@@install_component.sql 'expectations/data_values/ut_key_anyvalues.tpb'
 
 --core reporter
 @@install_component.sql 'reporters/ut_documentation_reporter.tps'
@@ -269,6 +287,8 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'api/ut.pkb'
 
 --additional reporters
+@@install_component.sql 'reporters/ut_debug_reporter.tps'
+@@install_component.sql 'reporters/ut_debug_reporter.tpb'
 @@install_component.sql 'reporters/ut_teamcity_reporter.tps'
 @@install_component.sql 'reporters/ut_teamcity_reporter_helper.pks'
 @@install_component.sql 'reporters/ut_teamcity_reporter_helper.pkb'
@@ -292,6 +312,8 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'reporters/ut_coveralls_reporter.tpb'
 @@install_component.sql 'reporters/ut_coverage_cobertura_reporter.tps'
 @@install_component.sql 'reporters/ut_coverage_cobertura_reporter.tpb'
+@@install_component.sql 'reporters/ut_realtime_reporter.tps'
+@@install_component.sql 'reporters/ut_realtime_reporter.tpb'
 
 @@install_component.sql 'api/be_between.syn'
 @@install_component.sql 'api/be_empty.syn'
@@ -307,6 +329,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'api/equal.syn'
 @@install_component.sql 'api/have_count.syn'
 @@install_component.sql 'api/match.syn'
+@@install_component.sql 'api/contain.syn'
 
 set linesize 200
 set define on

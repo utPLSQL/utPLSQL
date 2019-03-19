@@ -45,10 +45,11 @@ create or replace package body ut_runner is
   procedure finish_run(a_run ut_run, a_force_manual_rollback boolean) is
   begin
     ut_utils.cleanup_temp_tables;
-    ut_event_manager.trigger_event(ut_utils.gc_finalize, a_run);
+    ut_event_manager.trigger_event(ut_event_manager.gc_finalize, a_run);
     ut_metadata.reset_source_definition_cache;
     ut_utils.read_cache_to_dbms_output();
     ut_coverage_helper.cleanup_tmp_table();
+    ut_compound_data_helper.cleanup_diff();
     if not a_force_manual_rollback then
       rollback;
     end if;
@@ -96,10 +97,21 @@ create or replace package body ut_runner is
     l_paths                 ut_varchar2_list := ut_varchar2_list();                 
   begin
     ut_event_manager.initialize();
+    if a_reporters is not empty then
+      for i in 1 .. a_reporters.count loop
+        ut_event_manager.add_listener( a_reporters(i) );
+      end loop;
+    else
+      ut_event_manager.add_listener( ut_documentation_reporter() );
+    end if;
+
+    ut_event_manager.trigger_event(ut_event_manager.gc_initialize);
+    ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_run_info());
+
     if a_paths is null or a_paths is empty or a_paths.count = 1 and a_paths(1) is null then
       l_paths := ut_varchar2_list(sys_context('userenv', 'current_schema'));
     else
-      for i in 1..a_paths.COUNT loop
+      for i in 1..a_paths.count loop
         l_paths := l_paths multiset union ut_utils.string_to_table(a_string => a_paths(i),a_delimiter => ',');
       end loop;
     end if;
@@ -109,13 +121,6 @@ create or replace package body ut_runner is
       ut_utils.save_dbms_output_to_cache();
 
       ut_console_reporter_base.set_color_enabled(a_color_console);
-      if a_reporters is null or a_reporters.count = 0 then
-        ut_event_manager.add_listener(ut_documentation_reporter());
-      else
-        for i in 1 .. a_reporters.count loop
-          ut_event_manager.add_listener(a_reporters(i));
-        end loop;
-      end if;
 
       if a_coverage_schemes is not empty then
         l_coverage_schema_names := ut_utils.convert_collection(a_coverage_schemes);
@@ -141,9 +146,10 @@ create or replace package body ut_runner is
         set(a_test_file_mappings),
         a_client_character_set
       );
+
       ut_suite_manager.configure_execution_by_path(l_paths, l_run.items);
       if a_force_manual_rollback then
-        l_run.set_rollback_type(ut_utils.gc_rollback_manual, a_force=>true);
+        l_run.set_rollback_type( a_rollback_type => ut_utils.gc_rollback_manual, a_force => true );
       end if;
 
       l_run.do_execute();
@@ -225,32 +231,21 @@ create or replace package body ut_runner is
   end;
 
   function get_reporters_list return tt_reporters_info pipelined is
-    l_cursor      sys_refcursor;
     l_owner       varchar2(128) := upper(ut_utils.ut_owner());
-    l_results     tt_reporters_info;
-    c_bulk_limit  constant integer := 10;
-    l_view_name   varchar2(200) := ut_metadata.get_dba_view('dba_types');
+    l_reporters   ut_reporters_info;
+    l_result      t_reporter_rec;
   begin
-    open l_cursor for q'[
-      SELECT
-        owner || '.' || type_name,
-        CASE
-          WHEN sys_connect_by_path(owner||'.'||type_name,',') LIKE '%]' || l_owner || q'[.UT_OUTPUT_REPORTER_BASE%'
-          THEN 'Y'
-          ELSE 'N'
-        END is_output_reporter
-      FROM ]'||l_view_name||q'[ t
-     WHERE instantiable = 'YES'
-     CONNECT BY supertype_name = PRIOR type_name AND supertype_owner = PRIOR owner
-       START WITH type_name = 'UT_REPORTER_BASE' AND owner = ']'|| l_owner || '''';
     loop
-      fetch l_cursor bulk collect into l_results limit c_bulk_limit;
-      for i in 1 .. l_results.count loop
-        pipe row (l_results(i));
+      l_reporters := ut_utils.get_child_reporters( l_reporters );
+      exit when l_reporters is null or l_reporters.count = 0;
+      for i in 1 .. l_reporters.count loop
+        if l_reporters(i).is_instantiable = 'Y' then
+          l_result.reporter_object_name := l_owner||'.'||l_reporters(i).object_name;
+          l_result.is_output_reporter   := l_reporters(i).is_output_reporter;
+          pipe row( l_result );
+        end if;
       end loop;
-      exit when l_cursor%notfound;
     end loop;
-    close l_cursor;
   end;
 
 end ut_runner;

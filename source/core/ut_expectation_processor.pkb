@@ -73,13 +73,13 @@ create or replace package body ut_expectation_processor as
         l_expectations_results(l_expectations_results.last) := g_expectations_called(i);
       end if;
     end loop;
-    ut_utils.debug_log('ut_expectation_processor.get_failed_expectations: l_expectations_results.count='||g_expectations_called.count);
+    ut_utils.debug_log('ut_expectation_processor.get_failed_expectations: l_expectations_results.count='||l_expectations_results.count);
     return l_expectations_results;
   end get_failed_expectations;
 
   procedure add_expectation_result(a_expectation_result ut_expectation_result) is
   begin
-    ut_utils.debug_log('ut_expectation_processor.add_expectation_result');
+    ut_event_manager.trigger_event(ut_event_manager.gc_debug, a_expectation_result);
     g_expectations_called.extend;
     g_expectations_called(g_expectations_called.last) := a_expectation_result;
   end;
@@ -96,7 +96,8 @@ create or replace package body ut_expectation_processor as
       bulk collect into l_session_params
      from nls_session_parameters nsp
     where parameter
-       in ( 'NLS_DATE_FORMAT', 'NLS_TIMESTAMP_FORMAT', 'NLS_TIMESTAMP_TZ_FORMAT');
+       in ( 'NLS_DATE_FORMAT', 'NLS_TIMESTAMP_FORMAT', 'NLS_TIMESTAMP_TZ_FORMAT')
+    order by 1;
 
     return l_session_params;
   end;
@@ -113,7 +114,6 @@ create or replace package body ut_expectation_processor as
       when insuf_privs then NULL;
     end;
 
-    execute immediate 'alter session set nls_date_format = '''||ut_utils.gc_date_format||'''';
     execute immediate 'alter session set nls_timestamp_format = '''||ut_utils.gc_timestamp_format||'''';
     execute immediate 'alter session set nls_timestamp_tz_format = '''||ut_utils.gc_timestamp_tz_format||'''';
   end;

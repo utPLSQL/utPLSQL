@@ -256,7 +256,6 @@ create or replace package body test_coverage is
     ut.expect(l_actual).to_equal(to_clob('<?xml version="1.0"?>
 <coverage version="1">
 </coverage>'));
-    drop_dummy_coverage_test_1;
   end;
 
 end;
