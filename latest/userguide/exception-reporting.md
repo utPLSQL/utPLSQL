@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.4.2696-blue.svg)
+
 # Exception handling and reporting
 
 The utPLSQL is responsible for handling exceptions wherever they occur in the test run. utPLSQL is trapping most of the exceptions so that the test execution is not affected by individual tests or test packages throwing an exception.
