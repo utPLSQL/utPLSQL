@@ -51,5 +51,8 @@ create or replace package ut_annotation_manager authid current_user as
    */
   procedure purge_cache(a_object_owner varchar2, a_object_type varchar2);
 
+  
+  function hash_suite_path(a_path varchar2, a_random_seed positiven) return varchar2;
+
 end ut_annotation_manager;
 /
