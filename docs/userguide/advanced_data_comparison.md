@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.5.2707-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.5.2711--develop-blue.svg)
 
 # Advanced data comparison
 
