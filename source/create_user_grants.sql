@@ -126,4 +126,5 @@ grant select, insert, delete, update on &&ut3_owner..dbmspcc_units to &ut3_user;
 grant execute on &&ut3_owner..ut_matcher_options to &ut3_user;
 grant execute on &&ut3_owner..ut_matcher_options_items to &ut3_user;
 grant execute on &&ut3_owner..ut_run_info to &ut3_user;
-
+grant execute on &&ut3_owner..ut_cursor_column_tab to &ut3_user;
+grant execute on &&ut3_owner..ut_cursor_details to &ut3_user;
