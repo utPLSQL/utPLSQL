@@ -110,3 +110,4 @@ create or replace synonym &ut3_user..dbmspcc_runs for &&ut3_owner..dbmspcc_runs;
 create or replace synonym &ut3_user..dbmspcc_units for &&ut3_owner..dbmspcc_units;
 create or replace synonym &ut3_user..ut_run_info for &&ut3_owner..ut_run_info;
 create or replace synonym &ut3_user..ut_cursor_column_tab for &&ut3_owner..ut_cursor_column_tab;
+create or replace synonym &ut3_user..ut_cursor_details for &&ut3_owner..ut_cursor_details;
