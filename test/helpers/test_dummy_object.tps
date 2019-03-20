@@ -14,3 +14,6 @@ create or replace type test_dummy_object as object (
   "Value" varchar2(30)
 )
 /
+
+
+grant execute on test_dummy_object to ut3$user#;
