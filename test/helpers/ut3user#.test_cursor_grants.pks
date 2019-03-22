@@ -6,7 +6,8 @@ create or replace package ut3$user#.test_cursor_grants is
   procedure run_test_not_empty_cursor;
   procedure run_test_have_count_cursor;
   procedure run_test_empty_cursor;  
-
+  procedure run_test_equal_non_diff_sql; 
+  
   --%test(execute join by test)
   procedure test_join_by_cursor;
   
@@ -21,6 +22,9 @@ create or replace package ut3$user#.test_cursor_grants is
   
   --%test(execute empty test)
   procedure test_empty_cursor;  
+  
+  --%test(execute test with non diff datatype)
+  procedure test_equal_non_diff_sql;
   
 end;
 /

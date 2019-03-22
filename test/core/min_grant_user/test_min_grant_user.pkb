@@ -55,6 +55,17 @@ create or replace package body test_min_grant_user is
     '%1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%' );
 
   end;
+
+  procedure test_equal_non_diff_sql is
+    l_results clob;
+  begin
+    execute immediate 'begin ut3$user#.test_cursor_grants.run_test_equal_non_diff_sql(); end;';
+    l_results := core.get_dbms_output_as_clob();
+    --Assert
+    ut.expect( l_results ).to_be_like( '%execute test with non diff datatype [% sec]' ||
+    '%1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%' );
+
+  end;
   
 end;
 /
