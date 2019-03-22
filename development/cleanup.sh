@@ -3,7 +3,7 @@
 #goto git root directory
 git rev-parse && cd "$(git rev-parse --show-cdup)"
 
-. development/env.sh
+#. development/env.sh
 
 "${SQLCLI}" sys/${ORACLE_PWD}@//${CONNECTION_STR} AS SYSDBA <<-SQL
 set echo on
@@ -21,6 +21,7 @@ end;
 drop user ${UT3_OWNER} cascade;
 drop user ${UT3_RELEASE_VERSION_SCHEMA} cascade;
 drop user ${UT3_TESTER} cascade;
+drop user ${UT3_TESTER_HELPER} cascade;
 drop user ${UT3_USER} cascade;
 
 begin

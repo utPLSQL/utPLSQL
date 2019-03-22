@@ -88,5 +88,38 @@ create or replace package body core is
     return l_glob_val;
   end;
 
+  function get_failed_expectations return ut3.ut_varchar2_list is
+    l_expectations_result ut3.ut_expectation_results := ut3.ut_expectation_processor.get_failed_expectations();
+    l_result ut3.ut_varchar2_list;
+  begin
+    for i in 1..l_expectations_result.count loop
+      l_result := l_result multiset union l_expectations_result(i).get_result_lines();
+    end loop;
+    return l_result;
+  end;    
+  
+  function failed_expectations_data return anydata is
+  begin
+    return anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations());
+  end;
+  
+  function get_failed_expectations_n return number is
+    l_num_failed number;
+    l_results ut3.ut_expectation_results := ut3.ut_expectation_processor.get_failed_expectations();
+  begin
+    l_num_failed := l_results.count;
+    return l_num_failed;
+  end;
+  
+  procedure clear_expectations is
+  begin
+    ut3.ut_expectation_processor.clear_expectations();
+  end;  
+  
+  function table_to_clob(a_results in ut3.ut_varchar2_list) return clob is
+  begin
+    return ut3.ut_utils.table_to_clob(a_results);
+  end;
+  
 end;
 /

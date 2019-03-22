@@ -16,4 +16,5 @@ export UT3_TESTER_PASSWORD=ut3
 export UT3_TABLESPACE=users
 export UT3_USER="UT3\$USER#"
 export UT3_USER_PASSWORD=ut3
-
+export UT3_TESTER_HELPER=ut3_tester_helper
+export UT3_TESTER_HELPER_PASSWORD=ut3
