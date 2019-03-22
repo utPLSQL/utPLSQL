@@ -586,6 +586,18 @@ create or replace package body ut_compound_data_helper is
      end;
   end;
 
+  function get_compare_cursor(a_diff_cursor_text in clob,a_self_id raw, a_other_id raw) return sys_refcursor is
+    l_diff_cursor sys_refcursor;
+  begin
+    open l_diff_cursor for a_diff_cursor_text using a_self_id, a_other_id;
+    return l_diff_cursor;
+  exception when others then
+    if l_diff_cursor%isopen then
+      close l_diff_cursor;
+    end if;
+    raise;
+  end;
+  
 begin
   g_anytype_name_map(dbms_types.typecode_date)             := 'DATE';
   g_anytype_name_map(dbms_types.typecode_number)           := 'NUMBER';

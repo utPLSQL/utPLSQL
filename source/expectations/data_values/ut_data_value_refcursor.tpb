@@ -306,7 +306,8 @@ create or replace type body ut_data_value_refcursor as
       l_diff_id       := ut_compound_data_helper.get_hash(a_self.data_id||a_other.data_id);
       
       begin
-        open l_cursor for a_diff_cursor_text using a_self.data_id, a_other.data_id;
+        l_cursor := ut_compound_data_helper.get_compare_cursor(a_diff_cursor_text,
+          a_self.data_id, a_other.data_id);
         --fetch and save rows for display of diff
         fetch l_cursor bulk collect into l_diff_tab limit ut_utils.gc_diff_max_rows;
       
