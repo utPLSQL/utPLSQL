@@ -3,14 +3,12 @@ whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
 alter session set plsql_optimize_level=0;
---Install ut3_tester_helper
-@@ut3_tester_helper/test_dummy_object.tps
 
-@@ut3_tester_helper/main_helper.pks
-@@ut3_tester_helper/run_helper.pks
 
-@@ut3_tester_helper/main_helper.pkb
-@@ut3_tester_helper/run_helper.pkb
+--Install tests
+@@ut3_tester/core/annotations/test_before_after_annotations.pks
+
+@@ut3_tester/core/annotations/test_before_after_annotations.pkb
 
 set linesize 200
 set define on
@@ -37,12 +35,6 @@ begin
   else
     dbms_output.put_line('Installation completed successfully');
   end if;
- 
-  for i in ( select object_name from user_objects t where t.object_type in ('PACKAGE','TYPE'))
-  loop
-    execute immediate 'grant execute on '||i.object_name||' to PUBLIC';
-  end loop;
-  
 end;
 /
 

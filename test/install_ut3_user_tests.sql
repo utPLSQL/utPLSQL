@@ -6,7 +6,12 @@ alter session set plsql_optimize_level=0;
 
 prompt Install user tests
 @@ut3_user/expectations/test_matchers.pks
+@@ut3_user/expectations/test_expectations_cursor.pks
+@@ut3_user/api/test_ut_runner.pks
+
 @@ut3_user/expectations/test_matchers.pkb
+@@ut3_user/expectations/test_expectations_cursor.pkb
+@@ut3_user/api/test_ut_runner.pkb
 
 set linesize 200
 set define on
@@ -33,6 +38,12 @@ begin
   else
     dbms_output.put_line('Installation completed successfully');
   end if;
+  
+  for i in ( select object_name from user_objects t where t.object_type = 'PACKAGE')
+  loop
+    execute immediate 'grant execute on '||i.object_name||' to UT3_TESTER';
+  end loop;
+  
 end;
 /
 
