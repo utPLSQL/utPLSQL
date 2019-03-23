@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.5.2718--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.5.2724--develop-blue.svg)
 
 # How to get support
 
