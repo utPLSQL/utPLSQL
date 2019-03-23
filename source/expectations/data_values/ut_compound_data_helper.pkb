@@ -591,11 +591,6 @@ create or replace package body ut_compound_data_helper is
   begin
     open l_diff_cursor for a_diff_cursor_text using a_self_id, a_other_id;
     return l_diff_cursor;
-  exception when others then
-    if l_diff_cursor%isopen then
-      close l_diff_cursor;
-    end if;
-    raise;
   end;
   
 begin
