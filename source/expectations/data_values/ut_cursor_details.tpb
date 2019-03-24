@@ -195,12 +195,10 @@ create or replace type body ut_cursor_details as
   member function get_xml_children(a_parent_name varchar2 := null) return xmltype is
     l_result xmltype;
   begin
-    select xmlagg(xmlelement(evalname t.column_name,t.column_type,
-                             self.get_xml_children(t.column_name)))
+    select xmlagg(xmlelement(evalname t.column_name,t.column_type_name))
            into l_result
       from table(self.cursor_columns_info) t
-     where (a_parent_name is not null and parent_name = a_parent_name and hierarchy_level > 1 and column_name is not null)
-       or (a_parent_name is null and parent_name is null and hierarchy_level = 1 and column_name is not null)
+     where (a_parent_name is null and parent_name is null and hierarchy_level = 1 and column_name is not null)
     having count(*) > 0;
 
     return l_result;

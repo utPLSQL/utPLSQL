@@ -24,6 +24,11 @@ create or replace package body ut3$user#.test_cursor_grants is
   begin
     ut3.ut.run('test_cursor_grants.test_empty_cursor');
   end;
+  
+  procedure run_test_equal_non_diff_sql is  
+  begin
+    ut3.ut.run('test_cursor_grants.test_equal_non_diff_sql');
+  end;
     
   procedure test_join_by_cursor is
     l_actual   SYS_REFCURSOR;
@@ -90,6 +95,19 @@ create or replace package body ut3$user#.test_cursor_grants is
       select value(x) as item from table(ut3_tester.test_dummy_object_list()) x;             
     --Act
     ut3.ut.expect(l_expected).to_be_empty();
+  end;
+  
+  procedure test_equal_non_diff_sql is
+    l_actual   SYS_REFCURSOR;
+    l_expected SYS_REFCURSOR;
+  begin
+    open l_actual for
+      select to_clob('test1') as item from dual;   
+
+    open l_expected for
+      select to_clob('test1') as item from dual;
+      
+    ut3.ut.expect(l_actual).to_equal(l_expected);   
   end;
   
 end;

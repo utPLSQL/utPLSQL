@@ -2465,5 +2465,65 @@ Diff:%
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
   
+  procedure udt_messg_format_eq is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+    l_expected_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin 
+    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    bulk collect into l_expected_tab
+    from dual connect by level <=2;
+    
+    --Arrange
+    open l_actual  for select object_name, owner  from all_objects where rownum < 3;
+    open l_expected for select value(x) as udt from table(l_expected_tab) x;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_contain(l_expected);
+   --Assert
+     l_expected_message := q'[%Actual: refcursor [ count = 2 ] was expected to contain: refcursor [ count = 2 ]
+%Diff:
+%Columns:
+%Column <UDT> [data-type: UT_KEY_VALUE_PAIR] is missing. Expected column position: 1.
+%Column <OBJECT_NAME> [position: 1, data-type: VARCHAR2] is not expected in results.
+%Column <OWNER> [position: 2, data-type: VARCHAR2] is not expected in results.
+%Rows: [ 2 differences ]
+%Missing:  <UDT><KEY>1</KEY><VALUE>Something 1</VALUE></UDT>
+%Missing:  <UDT><KEY>2</KEY><VALUE>Something 2</VALUE></UDT>%]';
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+ procedure udt_messg_format_empt is
+    l_actual   sys_refcursor;
+    l_actual_tab ut3.ut_key_value_pairs := ut3.ut_key_value_pairs();
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin 
+    select ut3.ut_key_value_pair(rownum,'Something '||rownum)
+    bulk collect into l_actual_tab
+    from dual connect by level <=2;
+    
+    --Arrange
+    open l_actual for select value(x) as udt from table(l_actual_tab) x;
+    
+    --Act
+    ut3.ut.expect(l_actual).to_be_empty();
+   --Assert
+     l_expected_message := q'[%Actual: (refcursor [ count = 2 ])
+%Data-types:
+%<UDT>UT_KEY_VALUE_PAIR</UDT>
+%Data:
+%<ROW><UDT><KEY>1</KEY><VALUE>Something 1</VALUE></UDT></ROW><ROW><UDT><KEY>2</KEY><VALUE>Something 2</VALUE></UDT></ROW>
+%was expected to be empty%]';
+          
+    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
 end;
 /
