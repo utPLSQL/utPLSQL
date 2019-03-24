@@ -1,7 +1,7 @@
 create or replace package test_expectations_cursor is
 
   --%suite(cursor expectations)
-  --%suitepath(utplsql.core.expectations)
+  --%suitepath(utplsql.test_user.expectations)
 
   --%aftereach
   procedure cleanup_expectations;

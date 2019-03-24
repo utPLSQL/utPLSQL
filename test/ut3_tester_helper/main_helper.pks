@@ -22,6 +22,10 @@ create or replace package main_helper is
   function table_to_clob(a_results in ut3.ut_varchar2_list) return clob;
   
   function get_warnings return ut3.ut_varchar2_rows;
-
+  
+  procedure reset_nulls_equal;
+  
+  procedure nulls_are_equal(a_nulls_equal boolean := true);
+  
 end;
 /

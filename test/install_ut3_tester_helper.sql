@@ -5,12 +5,18 @@ whenever oserror exit failure rollback
 alter session set plsql_optimize_level=0;
 --Install ut3_tester_helper
 @@ut3_tester_helper/test_dummy_object.tps
+@@ut3_tester_helper/other_dummy_object.tps
+@@ut3_tester_helper/test_dummy_object_list.tps
+@@ut3_tester_helper/test_tab_varchar2.tps
+@@ut3_tester_helper/test_tab_varray.tps
 
 @@ut3_tester_helper/main_helper.pks
 @@ut3_tester_helper/run_helper.pks
+@@ut3_tester_helper/expectations_helper.pks
 
 @@ut3_tester_helper/main_helper.pkb
 @@ut3_tester_helper/run_helper.pkb
+@@ut3_tester_helper/expectations_helper.pkb
 
 set linesize 200
 set define on

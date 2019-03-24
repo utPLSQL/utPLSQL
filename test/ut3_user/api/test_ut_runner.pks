@@ -1,7 +1,7 @@
 create or replace package test_ut_runner is
 
   --%suite(ut_runner)
-  --%suitepath(utplsql.api)
+  --%suitepath(utplsql.test_user.api)
   --%rollback(manual)
 
   --%test(transaction stays open after the run if it was opened before the run)

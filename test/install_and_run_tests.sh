@@ -6,6 +6,8 @@ git rev-parse && cd "$(git rev-parse --show-cdup)"
 
 cd test
 
+time "$SQLCLI" sys/${ORACLE_PWD}@//${CONNECTION_STR} AS SYSDBA  @grant_ut3_owner_to_ut3_tester.sql
+
 time "$SQLCLI" ${UT3_TESTER_HELPER}/${UT3_TESTER_HELPER_PASSWORD}@//${CONNECTION_STR} @install_ut3_tester_helper.sql
 
 time "$SQLCLI" ${UT3_USER}/${UT3_USER_PASSWORD}@//${CONNECTION_STR} @install_ut3_user_tests.sql

@@ -6,9 +6,13 @@ alter session set plsql_optimize_level=0;
 
 
 --Install tests
+@@ut3_tester/core.pks
 @@ut3_tester/core/annotations/test_before_after_annotations.pks
+@@ut3_tester/core/expectations/test_expectation_processor.pks
 
+@@ut3_tester/core.pkb
 @@ut3_tester/core/annotations/test_before_after_annotations.pkb
+@@ut3_tester/core/expectations/test_expectation_processor.pkb
 
 set linesize 200
 set define on

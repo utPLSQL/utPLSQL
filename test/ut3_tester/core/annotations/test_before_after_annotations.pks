@@ -1,7 +1,7 @@
 create or replace package test_before_after_annotations is
 
   --%suite(annotations - beforetest and aftertest)
-  --%suitepath(utplsql.core.annotations)
+  --%suitepath(utplsql.framework_tester.core.annotations)
 
   subtype t_procedure_name is varchar2(250) not null;
   type t_procedures is table of t_procedure_name;

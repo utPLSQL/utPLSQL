@@ -86,5 +86,15 @@ create or replace package body main_helper is
     return ut3.ut_expectation_processor.get_warnings();
   end;
   
+  procedure reset_nulls_equal is
+  begin
+    ut3.ut_expectation_processor.nulls_Are_equal(ut3.ut_expectation_processor.gc_default_nulls_are_equal);
+  end;
+  
+  procedure nulls_are_equal(a_nulls_equal boolean := true) is
+  begin
+    ut3.ut_expectation_processor.nulls_Are_equal(a_nulls_equal);
+  end;
+  
 end;
 /

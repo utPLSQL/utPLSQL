@@ -5,11 +5,17 @@ whenever oserror exit failure rollback
 alter session set plsql_optimize_level=0;
 
 prompt Install user tests
+@@ut3_user/expectations/binary/test_equal.pks
+@@ut3_user/expectations/binary/test_expect_to_be_less_than.pks
 @@ut3_user/expectations/test_matchers.pks
+@@ut3_user/expectations/test_expectation_anydata.pks
 @@ut3_user/expectations/test_expectations_cursor.pks
 @@ut3_user/api/test_ut_runner.pks
 
+@@ut3_user/expectations/binary/test_equal.pkb
+@@ut3_user/expectations/binary/test_expect_to_be_less_than.pkb
 @@ut3_user/expectations/test_matchers.pkb
+@@ut3_user/expectations/test_expectation_anydata.pkb
 @@ut3_user/expectations/test_expectations_cursor.pkb
 @@ut3_user/api/test_ut_runner.pkb
 
