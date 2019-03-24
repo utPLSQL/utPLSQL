@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.6.2727--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.6.2728--develop-blue.svg)
 
 # Expectation concepts 
 Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
