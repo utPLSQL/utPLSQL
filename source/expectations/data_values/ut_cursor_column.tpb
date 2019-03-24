@@ -12,7 +12,7 @@ create or replace type body ut_cursor_column as
       self.column_position  := a_col_position; --Position of the column in cursor/ type
       self.column_len       := a_col_max_len; --length of column
       self.column_name      := TRIM( BOTH '''' FROM a_col_name); --name of the column
-      self.column_type_name := a_col_type_name; --type name e.g. test_dummy_object or varchar2
+      self.column_type_name := coalesce(a_col_type_name,a_col_type); --type name e.g. test_dummy_object or varchar2
       self.access_path      := case when a_access_path is null then 
                                  self.column_name 
                                else 

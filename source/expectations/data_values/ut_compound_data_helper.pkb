@@ -79,13 +79,16 @@ create or replace package body ut_compound_data_helper is
     execute immediate q'[with
           expected_cols as (
             select access_path exp_column_name,column_position exp_col_pos,
-                   replace(column_type,'VARCHAR2','CHAR') exp_col_type_compare, column_type exp_col_type
+                   replace(column_type_name,'VARCHAR2','CHAR') exp_col_type_compare, column_type_name exp_col_type
               from table(:a_expected)
+              where parent_name is null and hierarchy_level = 1 and column_name is not null
           ),
           actual_cols as (
             select access_path act_column_name,column_position act_col_pos,
-                   replace(column_type,'VARCHAR2','CHAR') act_col_type_compare, column_type act_col_type
-              from table(:a_actual)),
+                   replace(column_type_name,'VARCHAR2','CHAR') act_col_type_compare, column_type_name act_col_type
+              from table(:a_actual)
+              where parent_name is null and hierarchy_level = 1 and column_name is not null
+          ),
           joined_cols as (
             select e.*,a.*]'
               || case when a_order_enforced then ',
@@ -591,11 +594,6 @@ create or replace package body ut_compound_data_helper is
   begin
     open l_diff_cursor for a_diff_cursor_text using a_self_id, a_other_id;
     return l_diff_cursor;
-  exception when others then
-    if l_diff_cursor%isopen then
-      close l_diff_cursor;
-    end if;
-    raise;
   end;
   
 begin

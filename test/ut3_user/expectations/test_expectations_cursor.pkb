@@ -1008,8 +1008,8 @@ Rows: [ 4 differences ]
     l_expected sys_refcursor;
   begin
     --Arrange
-    open l_actual for select object_name from all_objects where rownum <=1100 order by object_id;
-    open l_expected for select object_name from all_objects where rownum <=1100 order by object_id;
+    open l_actual for select rownum object_name from dual connect by level <=1100;
+    open l_expected for select rownum object_name from dual connect by level <=1100;
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
 
@@ -2198,10 +2198,10 @@ Diff:%
   begin
     --Arrange
     open l_actual for
-      select owner, object_name,object_type from all_objects where owner = user
+      select rownum owner, rownum||'name' object_name,'PACKAGE' object_type from dual connect by level < 20
       order by 1,2,3 asc;
     open l_expected for
-      select owner, object_name,object_type from all_objects where owner = user and rownum < 20;
+      select rownum owner, rownum||'name' object_name,'PACKAGE' object_type from dual connect by level < 10;
 
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected).unordered();
@@ -2216,10 +2216,8 @@ Diff:%
     l_actual_message   varchar2(32767);
   begin
     --Arrange
-    open l_actual for select owner, object_name,object_type from all_objects where owner = user
-    and rownum < 5;
-    open l_expected for select owner, object_name,object_type from all_objects where owner = user
-    and rownum < 10;
+    open l_actual for select rownum owner,rownum  object_name, 'PACKAGE' object_type from dual connect by level < 5;
+    open l_expected for select rownum owner,rownum  object_name, 'PACKAGE' object_type from dual connect by level < 10;
     
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected);
