@@ -25,6 +25,8 @@ env:
     - UT3_USER_PASSWORD=ut3
     - UT3_TESTER=ut3_tester
     - UT3_TESTER_PASSWORD=ut3
+    - UT3_TESTER_HELPER=ut3_tester_helper
+    - UT3_TESTER_HELPER_PASSWORD=ut3
     - UT3_TABLESPACE=users
     # Environment for building a release
     - CURRENT_BRANCH=${TRAVIS_BRANCH}
