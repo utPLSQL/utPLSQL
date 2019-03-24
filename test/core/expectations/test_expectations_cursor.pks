@@ -390,6 +390,11 @@ create or replace package test_expectations_cursor is
   
   --%test(Cursor to contain duplicates fail)
   procedure to_contain_duplicates_fail;
-    
+ 
+  --%test(Display a message with a uer defined type with only type name not structure on equal)
+  procedure udt_messg_format_eq; 
+ 
+  --%test(Display a message with a uer defined type with only type name not structure on empty)
+  procedure udt_messg_format_empt;     
 end;
 /
