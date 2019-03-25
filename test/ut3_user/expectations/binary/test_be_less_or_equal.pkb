@@ -256,7 +256,7 @@ create or replace package body test_be_less_or_equal is
     --Act
     ut3.ut.expect(to_clob('3')).to_( ut3.be_less_or_equal(3) );
     --Assert
-    ut.expect( expectations.failed_expectations_data( ) ).not_to_be_empty( );
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
 end;
