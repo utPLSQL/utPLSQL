@@ -200,7 +200,7 @@ create or replace package body test_before_after_annotations is
     execute immediate l_test_package_body;
 
     --Execute the tests and collect the results
-    select * bulk collect into l_test_results from table(ut3.ut.run(('dummy_before_after_test')));
+    select * bulk collect into l_test_results from table(ut3.ut.run(('ut3_tester.dummy_before_after_test')));
 
     execute immediate 'drop package dummy_before_after_test';
     execute immediate 'drop package shared_test_package';
