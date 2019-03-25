@@ -254,7 +254,7 @@ end;';
              'dummy_test_package.some_dummy_test_procedure' path, 0 disabled_flag
         from dual;
     --Act
-    open l_actual for select * from table(ut3.ut_runner.get_suites_info(NULL,'DUMMY_TEST_PACKAGE'));
+    open l_actual for select * from table(ut3.ut_runner.get_suites_info('UT3$USER#','DUMMY_TEST_PACKAGE'));
     --Assert
     ut.expect(l_actual).to_equal(l_expected);
   end;
