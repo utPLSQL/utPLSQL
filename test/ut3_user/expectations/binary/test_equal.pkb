@@ -40,7 +40,7 @@ create or replace package body test_equal is
   begin
     execute immediate
       to_equal_block( 'to_equal', a_actual_type, a_expected_type, a_actual, a_expected, a_nulls_equal );
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     cleanup_expectations;
   end;
 
@@ -65,7 +65,7 @@ create or replace package body test_equal is
   begin
     execute immediate
       to_equal_block( 'to_equal', a_actual_type, a_expected_type, a_actual, a_expected, a_nulls_equal );
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
     cleanup_expectations;
   end;
 
@@ -79,7 +79,7 @@ create or replace package body test_equal is
   begin
     execute immediate
       to_equal_block( 'not_to_equal', a_actual_type, a_expected_type, a_actual, a_expected, a_nulls_equal );
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
     cleanup_expectations;
   end;
 

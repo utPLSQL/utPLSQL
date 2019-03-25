@@ -55,7 +55,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).not_to_equal( g_test_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure fail_on_one_object_null is
@@ -183,7 +183,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( l_null_anydata ).to_equal( l_null_anydata );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure success_on_both_object_null is
@@ -194,7 +194,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( l_anydata ).to_equal( l_anydata );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure success_on_both_coll_null is
@@ -205,7 +205,7 @@ create or replace package body test_expectation_anydata is
       --Act
       ut3.ut.expect( l_anydata ).to_equal( l_anydata );
       --Assert
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure success_on_same_coll_data is
@@ -216,7 +216,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure fail_on_coll_different_order is
@@ -231,7 +231,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
   procedure success_on_same_object_data is
@@ -242,7 +242,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure exclude_attributes_as_list is
@@ -255,7 +255,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_list );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure exclude_attributes_as_csv is
@@ -268,7 +268,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_list );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure exclude_attributes_xpath is
@@ -281,7 +281,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_xpath );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure exclude_ignores_invalid_attrib is
@@ -294,7 +294,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected, a_exclude=> l_exclude );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_attributes_as_list is
@@ -307,7 +307,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).include( l_list );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_attributes_as_csv is
@@ -320,7 +320,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).include( l_xpath );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_attributes_xpath is
@@ -333,7 +333,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).include( l_xpath );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_ignores_invalid_attrib is
@@ -346,7 +346,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).include( l_include );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_exclude_attributes_csv is
@@ -361,7 +361,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).exclude( l_exclude ).include( l_include );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_exclude_attrib_list is
@@ -378,7 +378,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).exclude( l_exclude ).include( l_include );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure reports_diff_attribute is
@@ -559,7 +559,7 @@ Rows: [ 60 differences, showing first 20 ]
     --Act
     ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include( l_list );
 
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure collection_exclude_list is
@@ -578,7 +578,7 @@ Rows: [ 60 differences, showing first 20 ]
     --Act
     ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).exclude( l_list );
 
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure collection_include_list_fail is
@@ -615,7 +615,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_actual   := anydata.convertCollection(  ut3_tester_helper.t_tab_varchar('A')  );
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure array_diff_data is
@@ -641,7 +641,7 @@ Rows: [ 60 differences, showing first 20 ]
    l_is_null ut3_tester_helper.t_tab_varchar ;
   begin
     ut3.ut.expect( anydata.convertCollection( l_is_null ) ).to_be_null;
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
 
   procedure array_null_equal_array_null is
@@ -649,7 +649,7 @@ Rows: [ 60 differences, showing first 20 ]
    l_is_null_bis ut3_tester_helper.t_tab_varchar ;
   begin
     ut3.ut.expect( anydata.convertCollection( l_is_null ) ).to_equal(anydata.convertCollection( l_is_null_bis ));
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
   
   procedure array_null_equal_array_notnull is
@@ -674,7 +674,7 @@ Rows: [ 60 differences, showing first 20 ]
   procedure empty_array_have_zero_elem is
   begin
      ut3.ut.expect( anydata.convertCollection(ut3_tester_helper.t_tab_varchar())).to_have_count(0);
-     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
   procedure array_empty_equal_array_empty is
@@ -684,7 +684,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_actual   := anydata.convertCollection(ut3_tester_helper.t_tab_varchar());
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);  
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);  
   end;
   
   procedure arr_empty_equal_arr_notempty is  
@@ -714,7 +714,7 @@ Rows: [ 60 differences, showing first 20 ]
     --Act
     ut3.ut.expect( g_test_actual ).to_be_null;
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure collection_is_empty is
@@ -724,7 +724,7 @@ Rows: [ 60 differences, showing first 20 ]
     --Act
     ut3.ut.expect( g_test_actual ).to_have_count(0);
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
       
   end;  
   
@@ -735,7 +735,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_actual   := anydata.convertCollection(  ut3_tester_helper.t_varray(1)  );
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure varray_diff_data is
@@ -761,7 +761,7 @@ Rows: [ 60 differences, showing first 20 ]
    l_is_null ut3_tester_helper.t_varray ;
   begin
     ut3.ut.expect( anydata.convertCollection( l_is_null ) ).to_be_null;
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
 
   procedure varray_null_equal_varray_null is
@@ -769,7 +769,7 @@ Rows: [ 60 differences, showing first 20 ]
    l_is_null_bis ut3_tester_helper.t_varray ;
   begin
     ut3.ut.expect( anydata.convertCollection( l_is_null ) ).to_equal(anydata.convertCollection( l_is_null_bis ));
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
   
   procedure varr_null_equal_varr_notnull is
@@ -794,7 +794,7 @@ Rows: [ 60 differences, showing first 20 ]
   procedure empty_varray_have_zero_elem is
   begin
      ut3.ut.expect( anydata.convertCollection(ut3_tester_helper.t_varray())).to_have_count(0);
-     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
   procedure varr_empty_equal_varr_empty is
@@ -804,7 +804,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_actual   := anydata.convertCollection(ut3_tester_helper.t_varray());
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);  
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);  
   end;
   
   procedure varr_empty_equal_varr_notempty is  
@@ -842,7 +842,7 @@ Rows: [ 60 differences, showing first 20 ]
      order by rownum desc;
     --Act
     ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).join_by('TEST_DUMMY_OBJECT/ID'); 
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0); 
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;
     
   procedure collection_join_by_fail is
@@ -889,7 +889,7 @@ Rows: [ 60 differences, showing first 20 ]
      order by rownum desc;
     --Act
     ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).unordered; 
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0); 
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;  
  
  procedure collection_unordered_fail is
@@ -929,7 +929,7 @@ Rows: [ 60 differences, showing first 20 ]
     
     --Act
     ut3.ut.expect(g_test_actual).to_equal(g_test_expected).join_by('TEST_DUMMY_OBJECT/ID'); 
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0); 
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;
     
   procedure object_unordered is
@@ -939,7 +939,7 @@ Rows: [ 60 differences, showing first 20 ]
     
     --Act
     ut3.ut.expect(g_test_actual).to_equal(g_test_expected).unordered;
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0); 
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;   
  
   procedure collection_to_contain is
@@ -956,7 +956,7 @@ Rows: [ 60 differences, showing first 20 ]
      order by rownum desc;
     --Act
     ut3.ut.expect(anydata.convertCollection(l_actual)).to_contain(anydata.convertCollection(l_expected)); 
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0); 
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;  
   
   procedure object_to_contain is
@@ -967,7 +967,7 @@ Rows: [ 60 differences, showing first 20 ]
     
     --Act
     ut3.ut.expect(g_test_actual).to_contain(g_test_expected); 
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0); 
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;  
    
 end;

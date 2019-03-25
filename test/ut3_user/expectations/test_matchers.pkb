@@ -17,9 +17,9 @@ create or replace package body test_matchers is
       end;';
     execute immediate l_statement;
     if a_result = ut3_tester_helper.main_helper.gc_success then
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n()).to_equal(0);
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num()).to_equal(0);
     else
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n()).to_be_greater_than(0);
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num()).to_be_greater_than(0);
     end if;
     cleanup_expectations();
   end exec_matcher;
@@ -37,9 +37,9 @@ create or replace package body test_matchers is
       end;';
     execute immediate l_statement;
     if a_result = ut3_tester_helper.main_helper.gc_success then
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n()).to_equal(0);
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num()).to_equal(0);
     else
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n()).to_be_greater_than(0);
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num()).to_be_greater_than(0);
     end if;
     cleanup_expectations();
   end exec_be_between;
@@ -57,9 +57,9 @@ create or replace package body test_matchers is
     end;';
     execute immediate l_statement;
     if a_result = ut3_tester_helper.main_helper.gc_success then
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n()).to_equal(0);
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num()).to_equal(0);
     else
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n()).to_be_greater_than(0);
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num()).to_be_greater_than(0);
     end if;
     cleanup_expectations();
   end exec_be_between2;
@@ -77,9 +77,9 @@ create or replace package body test_matchers is
       end;]'
     using a_pattern, a_escape;
     if a_result = ut3_tester_helper.main_helper.gc_success then
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n()).to_equal(0);
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num()).to_equal(0);
     else
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n()).to_be_greater_than(0);
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num()).to_be_greater_than(0);
     end if;
     cleanup_expectations();
   end;
@@ -98,9 +98,9 @@ create or replace package body test_matchers is
       end;';
     execute immediate l_statement using a_pattern, a_modifiers;
     if a_result = ut3_tester_helper.main_helper.gc_success then
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n()).to_equal(0);
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num()).to_equal(0);
     else
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n()).to_be_greater_than(0);
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num()).to_be_greater_than(0);
     end if;
     cleanup_expectations();
   end;

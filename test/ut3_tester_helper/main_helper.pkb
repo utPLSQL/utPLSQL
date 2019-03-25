@@ -63,7 +63,7 @@ create or replace package body main_helper is
     return anydata.convertCollection(ut3.ut_expectation_processor.get_failed_expectations());
   end;
   
-  function get_failed_expectations_n return number is
+  function get_failed_expectations_num return number is
     l_num_failed number;
     l_results ut3.ut_expectation_results := ut3.ut_expectation_processor.get_failed_expectations();
   begin

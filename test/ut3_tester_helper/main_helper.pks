@@ -15,7 +15,7 @@ create or replace package main_helper is
 
   function get_failed_expectations(a_pos in number) return varchar2;
   
-  function get_failed_expectations_n return number;
+  function get_failed_expectations_num return number;
   
   procedure clear_expectations;
     

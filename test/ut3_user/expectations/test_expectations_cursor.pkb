@@ -50,7 +50,7 @@ create or replace package body test_expectations_cursor is
     --Act - execute the expectation on cursor opened on GTT
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     --Cleanup
     rollback;
   end;
@@ -78,7 +78,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     ut3.ut.reset_nls;
   end;
 
@@ -93,7 +93,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure success_on_both_null
@@ -104,7 +104,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure success_to_be_null
@@ -114,7 +114,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_be_null();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure success_not_to_be_not_null
@@ -124,7 +124,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).not_to_be_not_null();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure success_not_to_be_null
@@ -136,7 +136,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_be_not_null();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure success_to_be_not_null
@@ -148,7 +148,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_be_not_null();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure success_is_empty
@@ -160,7 +160,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_be_empty();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure success_is_not_empty
@@ -172,7 +172,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).not_to_be_empty();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure failure_is_null
@@ -184,7 +184,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_be_null();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
   procedure failure_is_not_null
@@ -194,7 +194,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).not_to_be_null();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
   procedure failure_is_empty
@@ -206,7 +206,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_be_empty();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
   procedure failure_is_not_empty
@@ -218,7 +218,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).not_to_be_empty();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
   procedure fail_null_vs_empty
@@ -231,7 +231,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).not_to_equal( l_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure fail_on_difference
@@ -245,7 +245,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
   procedure fail_on_expected_missing
@@ -259,7 +259,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
   procedure fail_on_actual_missing
@@ -273,7 +273,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
   procedure fail_on_different_column_name
@@ -287,7 +287,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
 
@@ -302,7 +302,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
   procedure pass_on_different_column_order
@@ -316,7 +316,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected ).unordered_columns;
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure pass_on_diff_column_ord_uc
@@ -330,7 +330,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected ).uc;
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure fail_on_multi_diff_col_order
@@ -390,7 +390,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
 
   procedure include_time_in_date_with_nls
@@ -407,7 +407,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
     ut3.ut.reset_nls;
   end;
 
@@ -422,7 +422,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure exclude_columns_as_list
@@ -436,7 +436,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3.ut_varchar2_list('A_COLUMN','Some_Col'));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure exclude_columns_as_csv
@@ -450,7 +450,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'A_COLUMN,Some_Col');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure exclude_columns_as_mixed_list is
@@ -463,7 +463,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3.ut_varchar2_list('A_COLUMN','/ROW/Some_Col'));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure exclude_columns_as_mix_csv_lst is
@@ -476,7 +476,7 @@ create or replace package body test_expectations_cursor is
       --Act
       ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'A_COLUMN,/ROW/Some_Col');
       --Assert
-      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     end;
 
   procedure exclude_columns_xpath_invalid
@@ -517,7 +517,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>'/ROW/A_COLUMN|/ROW/Some_Col');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure exclude_ignores_invalid_column
@@ -531,7 +531,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected, a_exclude=>ut3.ut_varchar2_list('A_COLUMN','non_existing_column'));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_columns_as_list
@@ -545,7 +545,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL'));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_columns_as_csv
@@ -559,7 +559,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).include('RN,//A_Column, SOME_COL');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_columns_xpath
@@ -573,7 +573,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).include('/ROW/RN|//A_Column|//SOME_COL');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_ignores_invalid_column
@@ -587,7 +587,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list(' RN ',' non_existing_column '));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_exclude_col_csv_xpath
@@ -601,7 +601,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).exclude('Some_Col').include('/ROW/RN|//Some_Col');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure include_exclude_columns_list
@@ -615,7 +615,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN')).include(ut3.ut_varchar2_list('RN','A_Column','A_COLUMN'));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure data_diff_on_rows_mismatch
@@ -746,7 +746,7 @@ Rows: [  all different ]
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).unordered_columns;
 
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   --%test(Reports only mismatched columns on column data mismatch)
@@ -937,7 +937,7 @@ Rows: [ 4 differences ]
     --Act
     ut3.ut.expect(l_expected).to_equal(l_actual);
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure closes_cursor_after_use
@@ -1014,7 +1014,7 @@ Rows: [ 4 differences ]
     ut3.ut.expect(l_actual).to_equal(l_expected);
 
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
   function get_cursor return sys_refcursor is
@@ -1116,7 +1116,7 @@ Rows: [ 4 differences ]
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
       
   procedure cursor_unorderd_compr_success is 
@@ -1129,7 +1129,7 @@ Rows: [ 4 differences ]
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
    procedure cursor_unord_compr_success_uc is 
@@ -1142,7 +1142,7 @@ Rows: [ 4 differences ]
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).unordered().uc();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end; 
   
   procedure cursor_unordered_compare_fail is 
@@ -1184,7 +1184,7 @@ Rows: [ 4 differences ]
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID').uc();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
   procedure cursor_joinby_compare is
@@ -1198,7 +1198,7 @@ Rows: [ 4 differences ]
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure cursor_joinby_col_not_ord
@@ -1237,7 +1237,7 @@ Rows: [ 4 differences ]
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('OBJECT_ID,OBJECT_NAME'));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
  
    procedure cursor_joinby_compare_nokey is
@@ -1388,7 +1388,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by('OBJECT_ID');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure cursor_unorder_compare_1000 is
@@ -1401,7 +1401,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end; 
  
   procedure cursor_joinby_compare_fail is
@@ -1493,7 +1493,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).unordered;
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure joinby_incl_cols_as_list
@@ -1507,7 +1507,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure joinby_excl_cols_as_list
@@ -1521,7 +1521,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure unord_excl_cols_as_list
@@ -1535,7 +1535,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN|//Some_Col')).unordered;
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
   procedure excl_dif_cols_as_list
@@ -1549,7 +1549,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN'));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
   procedure inlc_dif_cols_as_list
@@ -1563,7 +1563,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN'));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure inlc_exc_dif_cols_as_list
@@ -1577,7 +1577,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).include(ut3.ut_varchar2_list('RN')).exclude(ut3.ut_varchar2_list('A_COLUMN'));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
     
   procedure compare_obj_typ_col_un is
@@ -1594,7 +1594,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).unordered;
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
     procedure compare_obj_typ_col_jb is
@@ -1611,7 +1611,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by('COLVAL/ID');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure comp_obj_typ_col_un_fail is
@@ -1656,7 +1656,7 @@ Rows: [ 5 differences%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by('COLVAL/ID');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
   
   procedure comp_obj_typ_col_jb_multi is
@@ -1673,7 +1673,7 @@ Rows: [ 5 differences%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('RN,COLVAL/ID'));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
   procedure comp_obj_typ_col_jb_nokey is
@@ -1729,7 +1729,7 @@ Diff:%
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by('KEY');
 
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;    
   
   procedure compare_nest_tab_col_jb_fail is
@@ -1796,7 +1796,7 @@ Diff:%
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by(ut3.ut_varchar2_list('KEY,VALUE'));
 
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;    
   
    procedure compare_nest_tab_cols_jb_fail is
@@ -1902,7 +1902,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
       --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     
   end;    
 
@@ -1974,7 +1974,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
 
   end; 
   
@@ -2006,7 +2006,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/OBJECT_OWNER');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
 
   end;   
   
@@ -2038,7 +2038,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/ANNOTATIONS');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
 
   end;   
   
@@ -2084,7 +2084,7 @@ Diff:%
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
-   --ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_be_greater_than(0);
+   --ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;  
 
   procedure compare_rec_coll_as_join is
@@ -2173,7 +2173,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected);
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure cursor_to_contain_uc is
@@ -2189,7 +2189,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected).uc();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure cursor_to_contain_unordered is
@@ -2206,7 +2206,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected).unordered();
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure cursor_to_contain_fail is
@@ -2246,7 +2246,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected).join_by('USERNAME');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
   procedure cursor_contain_joinby_fail is
@@ -2290,7 +2290,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL'));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
   procedure to_cont_join_incl_cols_as_lst
@@ -2304,7 +2304,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure contain_join_excl_cols_as_lst
@@ -2318,7 +2318,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure contain_excl_cols_as_list
@@ -2332,7 +2332,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected).exclude(ut3.ut_varchar2_list('A_COLUMN|//Some_Col'));
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
  
   procedure cursor_not_to_contain
@@ -2349,7 +2349,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).not_to_contain(l_expected);   
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
   
   procedure cursor_not_to_contain_fail is
@@ -2393,7 +2393,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).not_to_contain(l_expected).join_by('USER_ID');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
   procedure not_cont_join_incl_cols_as_lst is
@@ -2406,7 +2406,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).not_to_contain(l_expected).include(ut3.ut_varchar2_list('RN','//A_Column','SOME_COL')).join_by('RN');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure not_cont_join_excl_cols_as_lst is
@@ -2419,7 +2419,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).not_to_contain(l_expected).exclude(ut3.ut_varchar2_list('//Some_Col','A_COLUMN')).join_by('RN');
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
   procedure to_contain_duplicates is
@@ -2435,7 +2435,7 @@ Diff:%
     --Act
     ut3.ut.expect(l_actual).to_contain(l_expected);
     --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_n).to_equal(0);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
   
   procedure to_contain_duplicates_fail is
