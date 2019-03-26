@@ -19,6 +19,7 @@ prompt Install user tests
 @@ut3_user/expectations/test_expectation_anydata.pks
 @@ut3_user/expectations/test_expectations_cursor.pks
 @@ut3_user/api/test_ut_runner.pks
+@@ut3_user/api/test_ut_run.pks
 
 @@ut3_user/expectations/unary/test_expect_not_to_be_null.pkb
 @@ut3_user/expectations/unary/test_expect_to_be_null.pkb
@@ -34,6 +35,7 @@ prompt Install user tests
 @@ut3_user/expectations/test_expectation_anydata.pkb
 @@ut3_user/expectations/test_expectations_cursor.pkb
 @@ut3_user/api/test_ut_runner.pkb
+@@ut3_user/api/test_ut_run.pkb
 
 set linesize 200
 set define on

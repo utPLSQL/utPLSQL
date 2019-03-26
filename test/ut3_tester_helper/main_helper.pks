@@ -26,6 +26,6 @@ create or replace package main_helper is
   procedure reset_nulls_equal;
   
   procedure nulls_are_equal(a_nulls_equal boolean := true);
-  
+    
 end;
 /

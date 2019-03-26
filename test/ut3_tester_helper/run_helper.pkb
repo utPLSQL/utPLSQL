@@ -48,18 +48,33 @@ create or replace package body run_helper is
     execute immediate q'[drop procedure ut3_tester_helper.dummy_test_procedure]';
   end;
 
- procedure db_link_setup is
+  procedure create_db_link is
     l_service_name varchar2(100);
-    begin
-      select global_name into l_service_name from global_name;
-      execute immediate
-      'create public database link db_loopback connect to ut3$user# identified by ut3
+    pragma autonomous_transaction;
+  begin
+    select global_name into l_service_name from global_name;
+    execute immediate
+      'create public database link db_loopback connect to ut3_tester_helper identified by ut3
         using ''(DESCRIPTION=
                   (ADDRESS=(PROTOCOL=TCP)
                     (HOST='||sys_context('userenv','SERVER_HOST')||')
-                    (PORT=1521)
-                  )
-                  (CONNECT_DATA=(SERVICE_NAME='||l_service_name||')))''';
+                  (PORT=1521)
+                )
+                (CONNECT_DATA=(SERVICE_NAME='||l_service_name||')))''';
+  end;
+
+  procedure drop_db_link is
+  begin
+    execute immediate 'drop public database link db_loopback';
+  exception
+    when others then
+      null;
+  end;
+  
+  procedure db_link_setup is
+    l_service_name varchar2(100);
+    begin
+      create_db_link;
       execute immediate q'[
     create or replace package ut3$user#.test_db_link is
       --%suite
@@ -79,13 +94,285 @@ create or replace package body run_helper is
         end;
     end;]';
 
-    end;
+    end; 
     
   procedure db_link_cleanup is
     begin
-      begin execute immediate 'drop public database link db_loopback'; exception when others then null; end;
+      drop_db_link;
       begin execute immediate 'drop package ut3$user#.test_db_link'; exception when others then null; end;
   end;
-    
+
+ procedure create_suite_with_link is
+    pragma autonomous_transaction;
+  begin
+    create_db_link;
+    execute immediate 'create table tst(id number(18,0))';
+    execute immediate q'[
+      create or replace package test_distributed_savepoint is
+        --%suite
+        --%suitepath(alltests)
+
+        --%beforeall
+        procedure setup;
+
+        --%test
+        procedure test;
+      end;]';
+
+    execute immediate q'[
+      create or replace package body test_distributed_savepoint is
+
+        g_expected constant integer := 1;
+
+        procedure setup is
+        begin
+          insert into tst@db_loopback values(g_expected);
+        end;
+
+        procedure test is
+          l_actual   integer := 0;
+        begin
+          select id into l_actual from tst@db_loopback;
+
+          ut.expect(l_actual).to_equal(g_expected);
+        end;
+
+      end;]';
+      execute immediate 'grant execute on test_distributed_savepoint to public';
+  end;
+  
+ procedure drop_suite_with_link is
+    pragma autonomous_transaction;
+  begin
+    drop_db_link;
+    execute immediate 'drop table tst';
+    execute immediate 'drop package test_distributed_savepoint';
+  end;
+  
+  procedure create_ut3$user#_tests is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package test_package_1 is
+      --%suite
+      --%suitepath(tests)
+      --%rollback(manual)
+
+      --%test(Test1 from test package 1)
+      procedure test1;
+
+      --%test(Test2 from test package 1)
+      procedure test2;
+
+    end test_package_1;
+    ]';
+    execute immediate q'[create or replace package body test_package_1 is
+      procedure test1 is
+        begin
+          dbms_output.put_line('test_package_1.test1 executed');
+          raise_application_error(-20111,'test');
+        end;
+      procedure test2 is
+        begin
+          dbms_output.put_line('test_package_1.test2 executed');
+        end;
+    end test_package_1;
+    ]';
+
+    execute immediate q'[create or replace package test_package_2 is
+      --%suite
+      --%suitepath(tests.test_package_1)
+
+      --%test
+      procedure test1;
+
+      --%test
+      procedure test2;
+
+    end test_package_2;
+    ]';
+    execute immediate q'[create or replace package body test_package_2 is
+      procedure test1 is
+        begin
+          dbms_output.put_line('test_package_2.test1 executed');
+        end;
+      procedure test2 is
+        begin
+          dbms_output.put_line('test_package_2.test2 executed');
+        end;
+    end test_package_2;
+    ]';
+
+    execute immediate q'[create or replace package test_package_3 is
+      --%suite
+      --%suitepath(tests2)
+
+      --%test
+      procedure test1;
+
+      --%test
+      procedure test2;
+
+    end test_package_3;
+    ]';
+    execute immediate q'[create or replace package body test_package_3 is
+      procedure test1 is
+        begin
+          dbms_output.put_line('test_package_3.test1 executed');
+        end;
+      procedure test2 is
+        begin
+          dbms_output.put_line('test_package_3.test2 executed');
+        end;
+    end test_package_3;
+    ]';
+    execute immediate q'[grant execute on test_package_1 to public]';
+    execute immediate q'[grant execute on test_package_2 to public]';
+    execute immediate q'[grant execute on test_package_3 to public]';
+  end;
+
+  procedure drop_ut3$user#_tests is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[drop package test_package_1]';
+    execute immediate q'[drop package test_package_2]';
+    execute immediate q'[drop package test_package_3]';
+  end;
+ 
+   procedure create_test_suite is
+    pragma autonomous_transaction;
+  begin
+    ut3_tester_helper.run_helper.create_db_link;
+    execute immediate q'[
+      create or replace package stateful_package as
+        function get_state return varchar2;
+      end;
+    ]';
+    execute immediate q'[
+      create or replace package body stateful_package as
+        g_state varchar2(1) := 'A';
+        function get_state return varchar2 is begin return g_state; end;
+      end;
+    ]';
+    execute immediate q'[
+      create or replace package test_stateful as
+        --%suite
+        --%suitepath(test_state)
+
+        --%test
+        --%beforetest(acquire_state_via_db_link,rebuild_stateful_package)
+        procedure failing_stateful_test;
+
+        procedure rebuild_stateful_package;
+        procedure acquire_state_via_db_link;
+
+      end;
+    ]';
+    execute immediate q'{
+    create or replace package body test_stateful as
+
+      procedure failing_stateful_test is
+      begin
+        ut3.ut.expect(stateful_package.get_state@db_loopback).to_equal('abc');
+      end;
+
+      procedure rebuild_stateful_package is
+        pragma autonomous_transaction;
+      begin
+        execute immediate q'[
+          create or replace package body stateful_package as
+            g_state varchar2(3) := 'abc';
+            function get_state return varchar2 is begin return g_state; end;
+          end;
+        ]';
+      end;
+
+      procedure acquire_state_via_db_link is
+      begin
+        dbms_output.put_line('stateful_package.get_state@db_loopback='||stateful_package.get_state@db_loopback);
+      end;
+    end;
+    }';
+   execute immediate 'grant execute on test_stateful to public';
+  end;
+ 
+  procedure drop_test_suite is
+    pragma autonomous_transaction;
+  begin
+    drop_db_link;
+    execute immediate 'drop package stateful_package';
+    execute immediate 'drop package test_stateful';
+  end; 
+ 
+  procedure run(a_reporter ut3.ut_reporter_base := null) is
+  begin
+    ut3.ut.run(a_reporter);
+  end; 
+  
+  procedure run(a_path varchar2, a_reporter ut3.ut_reporter_base := null) is
+  begin
+    ut3.ut.run(a_path, a_reporter);
+  end;    
+  
+  procedure run(a_paths ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base := null) is
+  begin
+    ut3.ut.run(a_paths, a_reporter);
+  end;
+
+  procedure run(a_paths ut3.ut_varchar2_list, a_test_files ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base) is
+  begin
+    ut3.ut.run(
+      a_paths,
+      a_reporter, 
+      a_source_files => ut3.ut_varchar2_list(),
+      a_test_files => a_test_files
+     );
+   end;
+
+  function run(a_reporter ut3.ut_reporter_base := null) return ut3.ut_varchar2_list is
+    l_results ut3.ut_varchar2_list;
+  begin
+    select * bulk collect into l_results from table (ut3.ut.run(a_reporter));
+    return l_results;
+  end;
+
+  function run(a_paths ut3.ut_varchar2_list, a_test_files ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base) return ut3.ut_varchar2_list is
+    l_results ut3.ut_varchar2_list;
+  begin
+    select * bulk collect into l_results from table (
+      ut3.ut.run(
+      a_paths,
+      a_reporter, a_source_files => ut3.ut_varchar2_list(),
+      a_test_files => a_test_files
+       ));
+    return l_results;
+  end;
+
+  function run(a_path varchar2, a_reporter ut3.ut_reporter_base := null) 
+    return ut3.ut_varchar2_list is
+    l_results ut3.ut_varchar2_list;
+  begin
+    select * bulk collect into l_results from table (ut3.ut.run(a_path, a_reporter));
+    return l_results;
+  end;
+  
+  function run(a_paths ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base := null) 
+    return ut3.ut_varchar2_list is
+    l_results ut3.ut_varchar2_list;
+  begin
+    select * bulk collect into l_results from table (ut3.ut.run(a_paths, a_reporter));
+   return l_results;
+  end;
+  
+  function run(a_test_files ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base) 
+    return ut3.ut_varchar2_list is
+    l_results ut3.ut_varchar2_list;
+  begin
+    select * bulk collect into l_results from table (
+      ut3.ut.run(
+        a_reporter, a_source_files => ut3.ut_varchar2_list(),
+        a_test_files => a_test_files
+      ));
+    return l_results;
+  end;
 end;
 /
