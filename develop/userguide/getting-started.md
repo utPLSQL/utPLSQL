@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.7.2737--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.2748--develop-blue.svg)
 
 # Getting started with TDD and utPLSQL
 
