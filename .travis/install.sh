@@ -47,7 +47,7 @@ SQL
 
     alter session set plsql_optimize_level=0;
     @install.sql $UT3_OWNER
-    @@@create_synonyms_and_grants_for_public.sql $UT3_OWNER
+    @create_synonyms_and_grants_for_public.sql $UT3_OWNER
 SQL
 
 fi
