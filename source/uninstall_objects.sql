@@ -137,10 +137,6 @@ drop type ut_data_value_boolean force;
 
 drop type ut_data_value_blob force;
 
-drop type ut_data_value_object force;
-
-drop type ut_data_value_collection force;
-
 drop type ut_data_value_anydata force;
 
 drop type ut_data_value_xmltype force;
