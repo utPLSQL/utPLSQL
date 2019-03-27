@@ -34,7 +34,7 @@ create or replace package body ut_compound_data_helper is
           ,position + x.item_no item_no
           {:columns:}
         from {:ut3_owner:}.ut_compound_data_tmp x,
-          xmltable('/ROWSET/ROW' passing x.item_data columns
+          xmltable('/ROWSET/ROW' passing xmltype(x.item_data) columns
             item_data xmltype path '*'
             ,position for ordinality
             {:xml_to_columns:} ) ucd
@@ -52,7 +52,7 @@ create or replace package body ut_compound_data_helper is
           ,position + x.item_no item_no 
           {:columns:}
         from {:ut3_owner:}.ut_compound_data_tmp x,
-          xmltable('/ROWSET/ROW' passing x.item_data columns 
+          xmltable('/ROWSET/ROW' passing xmltype(x.item_data) columns 
             item_data xmltype path '*'
             ,position for ordinality
             {:xml_to_columns:} ) ucd
@@ -174,7 +174,7 @@ create or replace package body ut_compound_data_helper is
   
   function generate_equal_sql(a_col_name in varchar2) return varchar2 is
   begin
-    return ' a.'||a_col_name||q'[ = ]'||' e.'||a_col_name;
+    return ' decode(a.'||a_col_name||','||' e.'||a_col_name||',1,0) = 1 ';
   end;
 
   function generate_partition_stmt(

@@ -198,5 +198,10 @@ create or replace package test_expectation_anydata is
   --%test( Success when anydata object contains data from another anydata)
   procedure object_to_contain;     
   
+  --%test ( Empty Array equal empty array )
+  procedure arr_empty_eq_arr_empty_unord;
+ 
+  --%test ( Empty Array not equal array with space )
+  procedure arr_empty_nqua_arr_e_unord;  
 end;
 /

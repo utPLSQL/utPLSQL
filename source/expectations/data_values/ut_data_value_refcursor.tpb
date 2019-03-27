@@ -55,7 +55,7 @@ create or replace type body ut_data_value_refcursor as
       execute immediate
       'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
       'values (:self_guid, :self_row_count, :l_xml)'
-      using in self.data_id, l_set_id, l_xml;           
+      using in self.data_id, l_set_id, l_xml.getclobval();           
       l_set_id := l_set_id + c_bulk_rows;   
     end loop;
     ut_expectation_processor.reset_nls_params();
