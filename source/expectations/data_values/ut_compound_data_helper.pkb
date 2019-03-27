@@ -34,7 +34,7 @@ create or replace package body ut_compound_data_helper is
           ,position + x.item_no item_no
           {:columns:}
         from {:ut3_owner:}.ut_compound_data_tmp x,
-          xmltable('/ROWSET/ROW' passing xmltype(x.item_data) columns
+          xmltable('/ROWSET/ROW' passing x.item_data columns
             item_data xmltype path '*'
             ,position for ordinality
             {:xml_to_columns:} ) ucd
@@ -52,7 +52,7 @@ create or replace package body ut_compound_data_helper is
           ,position + x.item_no item_no 
           {:columns:}
         from {:ut3_owner:}.ut_compound_data_tmp x,
-          xmltable('/ROWSET/ROW' passing xmltype(x.item_data) columns 
+          xmltable('/ROWSET/ROW' passing x.item_data columns 
             item_data xmltype path '*'
             ,position for ordinality
             {:xml_to_columns:} ) ucd

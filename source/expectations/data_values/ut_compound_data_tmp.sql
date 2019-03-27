@@ -14,7 +14,7 @@ create global temporary table ut_compound_data_tmp(
   */
   data_id          raw(32),
   item_no          integer,
-  item_data        clob,
+  item_data        xmltype,
   item_hash        raw(128),
   pk_hash          raw(128),
   duplicate_no     integer,
