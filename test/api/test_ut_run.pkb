@@ -1019,18 +1019,23 @@ Failures:%
       a_results(i) := regexp_replace(a_results(i),'Finished in [0-9]*\.[0-9]+ seconds','');
     end loop;
   end;
+
   procedure run_with_random_order is
     l_random_results ut3.ut_varchar2_list;
     l_results        ut3.ut_varchar2_list;
   begin
     select * bulk collect into l_random_results
-      from table ( ut3.ut.run( 'ut3$user#.test_package_1', a_random_test_order_seed => 3 ) );
+      from table ( ut3.ut.run( 'ut3$user#.test_package_1', a_random_test_order_seed => 3 ) )
+     where trim(column_value) is not null and column_value not like 'Finished in %'
+      and column_value not like '%Tests were executed with random order %';
+
     select * bulk collect into l_results
-    from table ( ut3.ut.run( 'ut3$user#.test_package_1' ) );
+    from table ( ut3.ut.run( 'ut3$user#.test_package_1' ) )
+    --TODO this condition should be removed once issues with unordered compare and 'blank text rows' are resolved.
+    where trim(column_value) is not null and column_value not like 'Finished in %';
 
     remove_time_from_results(l_results);
     remove_time_from_results(l_random_results);
-    l_random_results.delete(l_random_results.count-1);
 
     ut.expect(anydata.convertCollection(l_random_results)).to_equal(anydata.convertCollection(l_results)).unordered();
     ut.expect(anydata.convertCollection(l_random_results)).not_to_equal(anydata.convertCollection(l_results));
@@ -1060,7 +1065,7 @@ Failures:%
     l_actual.delete(l_actual.count);
     l_expected.delete(l_expected.count);
 
-    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).unordered();
+    ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
   end;
 
 end;
