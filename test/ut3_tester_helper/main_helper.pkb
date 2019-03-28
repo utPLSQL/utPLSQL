@@ -95,6 +95,36 @@ create or replace package body main_helper is
   begin
     ut3.ut_expectation_processor.nulls_Are_equal(a_nulls_equal);
   end;
+ 
+  procedure cleanup_annotation_cache is
+    pragma autonomous_transaction;
+  begin
+     delete from ut3.ut_annotation_cache_info
+      where object_owner = user and object_type = 'PACKAGE' and object_name in ('DUMMY_PACKAGE','DUMMY_TEST_PACKAGE');
+    commit;
+  end;  
+  
+  procedure create_parse_proc_as_ut3$user# is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[
+    create or replace procedure ut3$user#.parse_annotations is
+      begin
+        ut3.ut_annotation_manager.rebuild_annotation_cache('UT3_TESTER','PACKAGE');
+      end;]';
+  end;
+
+  procedure drop_parse_proc_as_ut3$user# is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop procedure ut3$user#.parse_annotations';
+  end;
+  
+  procedure parse_dummy_test_as_ut3$user# is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'begin ut3$user#.parse_annotations; end;';
+  end;
   
 end;
 /

@@ -26,6 +26,14 @@ create or replace package main_helper is
   procedure reset_nulls_equal;
   
   procedure nulls_are_equal(a_nulls_equal boolean := true);
+  
+  procedure cleanup_annotation_cache;
+  
+  procedure create_parse_proc_as_ut3$user#;
+  
+  procedure drop_parse_proc_as_ut3$user#;
+  
+  procedure parse_dummy_test_as_ut3$user#;
     
 end;
 /
