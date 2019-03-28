@@ -21,6 +21,7 @@ create or replace package body core is
 
   procedure global_setup is
   begin
+    dbms_output.enable(null);
     ut3.ut_coverage.set_develop_mode(true);
     --improve performance of test execution by disabling all compiler optimizations
     execute_autonomous('ALTER SESSION SET PLSQL_OPTIMIZE_LEVEL=0');

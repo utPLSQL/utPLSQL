@@ -989,7 +989,7 @@ Rows: [ 60 differences, showing first 20 ]
    g_test_actual   := anydata.convertCollection(t_tab_varchar(' '));
 
    --Act
-   ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).unordered();
+   ut3.ut.expect( g_test_actual ).not_to_equal( g_test_expected ).unordered();
    ut.expect(expectations.failed_expectations_data()).to_be_empty();  
 
   end;  
