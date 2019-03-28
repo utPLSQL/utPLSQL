@@ -302,7 +302,7 @@ create or replace package body run_helper is
     execute immediate 'drop package stateful_package';
     execute immediate 'drop package test_stateful';
   end; 
- 
+
   procedure run(a_reporter ut3.ut_reporter_base := null) is
   begin
     ut3.ut.run(a_reporter);
