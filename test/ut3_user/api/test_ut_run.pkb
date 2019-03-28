@@ -99,7 +99,7 @@ create or replace package body test_ut_run is
   procedure run_proc_path_list is
     l_results clob;
   begin
-    ut3.ut.run(ut3.ut_varchar2_list(':tests.test_package_1',':tests'));
+    ut3_tester_helper.run_helper.run(ut3.ut_varchar2_list(':tests.test_package_1',':tests'));
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     --Assert
     ut.expect( l_results ).to_be_like( '%test_package_1%' );
@@ -405,7 +405,7 @@ create or replace package body test_ut_run is
   procedure run_func_pkg_name is
     l_results   ut3.ut_varchar2_list;
   begin
-    select * bulk collect into l_results from table (ut3.ut.run('test_package_1'));
+    select * bulk collect into l_results from table (ut3.ut.run('ut3_tester_helper.test_package_1'));
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2%' );
@@ -432,7 +432,7 @@ create or replace package body test_ut_run is
   procedure run_func_path_list is
     l_results   ut3.ut_varchar2_list;
   begin
-    select * bulk collect into l_results from table (ut3.ut.run(ut3.ut_varchar2_list(':tests.test_package_1',':tests')));
+    l_results := ut3_tester_helper.run_helper.run(ut3.ut_varchar2_list(':tests.test_package_1',':tests'));
     --Assert
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2%' );
