@@ -2525,5 +2525,88 @@ Diff:%
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
+  procedure insginificant_whitespace1 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select column_value t1 from table(ut_varchar2_list(''));
+	 
+	open l_actual for
+	  select column_value t1 from table(ut_varchar2_list(' '));
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+  end; 
+
+  procedure insginificant_whitespace2 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select ' t ' t1 from dual;
+	 
+	open l_actual for
+	  select 't' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+  end; 
+  
+  procedure insginificant_whitespace3 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select 't ' t1 from dual;
+	 
+	open l_actual for
+	  select 't' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+  end;
+  
+  procedure insginificant_whitespace4 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select ' t' t1 from dual;
+	 
+	open l_actual for
+	  select 't' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+  end;     
+  
+  procedure insginificant_whitespace5 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select ' ' t1 from dual;
+	 
+	open l_actual for
+	  select '' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+  end; 
+  
+  procedure nulltowhitespace is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select cast(null as varchar2(2)) t1 from dual;
+	 
+	open l_actual for
+	  select ' ' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+  end; 
 end;
 /

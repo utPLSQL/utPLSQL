@@ -49,15 +49,22 @@ create or replace type body ut_data_value_refcursor as
     dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
     dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);   
     loop
-      l_xml := dbms_xmlgen.getxmltype(l_ctx);
+      l_xml := dbms_xmlgen.getxmltype(l_ctx);      
       exit when dbms_xmlgen.getNumRowsProcessed(l_ctx) = 0;
+      --Bug in oracle 12.2+ where XML binary storage trimming insignificant whitespaces.
+      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+        l_xml := xmltype( replace(l_xml.getClobVal(),'<ROWSET','<ROWSET xml:space=''preserve'''));
+      $else
+        null;
+      $end
       l_elements_count := l_elements_count + dbms_xmlgen.getNumRowsProcessed(l_ctx);
       execute immediate
       'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
       'values (:self_guid, :self_row_count, :l_xml)'
-      using in self.data_id, l_set_id, l_xml;           
+      using in self.data_id, l_set_id, l_xml;       
       l_set_id := l_set_id + c_bulk_rows;   
     end loop;
+   
     ut_expectation_processor.reset_nls_params();
     dbms_xmlgen.closeContext(l_ctx);
     self.elements_count := l_elements_count;
@@ -309,8 +316,7 @@ create or replace type body ut_data_value_refcursor as
         l_cursor := ut_compound_data_helper.get_compare_cursor(a_diff_cursor_text,
           a_self.data_id, a_other.data_id);
         --fetch and save rows for display of diff
-        fetch l_cursor bulk collect into l_diff_tab limit ut_utils.gc_diff_max_rows;
-      
+        fetch l_cursor bulk collect into l_diff_tab limit ut_utils.gc_diff_max_rows;      
       exception when others then
         if l_cursor%isopen then
           close l_cursor;

@@ -396,5 +396,30 @@ create or replace package test_expectations_cursor is
  
   --%test(Display a message with a uer defined type with only type name not structure on empty)
   procedure udt_messg_format_empt;     
+  
+  /*Oracle Bug not readin properly in xmltable */
+  --%test ( Compare insiginificant whitespaces scenario 1 )
+  --%disabled
+  procedure insginificant_whitespace1;
+
+  --%test ( Compare insiginificant whitespaces scenario 2 )
+  procedure insginificant_whitespace2;
+  
+  --%test ( Compare insiginificant whitespaces scenario 3 )
+  procedure insginificant_whitespace3;
+  
+  --%test ( Compare insiginificant whitespaces scenario 4 )
+  procedure insginificant_whitespace4; 
+
+  /*Oracle Bug not readin properly in xmltable */
+  --%test ( Compare insiginificant whitespaces scenario 5 )
+  --%disabled
+  procedure insginificant_whitespace5;
+  
+  /*Oracle Bug not readin properly in xmltable */
+  --%test ( Compare null to whitespace )
+  --%disabled
+  procedure nulltowhitespace;
+
 end;
 /
