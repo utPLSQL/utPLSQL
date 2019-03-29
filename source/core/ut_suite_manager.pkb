@@ -355,11 +355,12 @@ create or replace package body ut_suite_manager is
   end;
 
   function get_cached_suite_data(
-    a_object_owner   varchar2,
-    a_path           varchar2 := null,
-    a_object_name    varchar2 := null,
-    a_procedure_name varchar2 := null,
-    a_skip_all_objects  boolean := false
+    a_object_owner     varchar2,
+    a_path             varchar2 := null,
+    a_object_name      varchar2 := null,
+    a_procedure_name   varchar2 := null,
+    a_skip_all_objects boolean  := false,
+    a_random_seed      positive
   ) return t_cached_suites_cursor is
     l_path     varchar2( 4000 );
     l_result   sys_refcursor;
@@ -452,16 +453,25 @@ create or replace package body ut_suite_manager is
       )
     select c.*
       from items c
-     order by c.object_owner,
-              replace(case
-                      when c.self_type in ( 'UT_TEST' )
-                        then substr(c.path, 1, instr(c.path, '.', -1) )
-                      else c.path
-                      end, '.', chr(0)) desc nulls last,
+     order by c.object_owner,]'||
+          case
+            when a_random_seed is null then q'[
+              replace(
+                case
+                  when c.self_type in ( 'UT_TEST' )
+                    then substr(c.path, 1, instr(c.path, '.', -1) )
+                    else c.path
+                end, '.', chr(0)
+              ) desc nulls last,
               c.object_name desc,
-              c.line_no]'
-    using l_path, l_path, upper(a_object_name), upper(a_procedure_name);
-
+              c.line_no,
+              :a_random_seed]'
+            else
+              l_ut_owner||'.ut_annotation_manager.hash_suite_path(
+                c.path, :a_random_seed
+              ) desc nulls last'
+          end
+    using l_path, l_path, upper(a_object_name), upper(a_procedure_name), a_random_seed;
     return l_result;
   end;
 
@@ -547,7 +557,8 @@ create or replace package body ut_suite_manager is
     a_path           varchar2 := null,
     a_object_name    varchar2 := null,
     a_procedure_name varchar2 := null,
-    a_suites         in out nocopy ut_suite_items
+    a_suites         in out nocopy ut_suite_items,
+    a_random_seed    positive
   ) is
   begin
     refresh_cache(a_owner_name);
@@ -559,7 +570,8 @@ create or replace package body ut_suite_manager is
         a_path,
         a_object_name,
         a_procedure_name,
-        can_skip_all_objects_scan(a_owner_name)
+        can_skip_all_objects_scan(a_owner_name),
+        a_random_seed
       )
     );
 
@@ -588,7 +600,8 @@ create or replace package body ut_suite_manager is
         a_path,
         a_object_name,
         a_procedure_name,
-        a_skip_all_objects
+        a_skip_all_objects,
+        null
       )
     );
     return l_suites;
@@ -639,14 +652,18 @@ create or replace package body ut_suite_manager is
     return resolve_schema_names(l_paths);
   end;
 
-  function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items is
+  function configure_execution_by_path(a_paths ut_varchar2_list, a_random_seed positive := null) return ut_suite_items is
     l_suites             ut_suite_items := ut_suite_items();
   begin
     configure_execution_by_path(a_paths, l_suites );
     return l_suites;
   end;
 
-  procedure configure_execution_by_path(a_paths in ut_varchar2_list, a_suites out nocopy ut_suite_items) is
+  procedure configure_execution_by_path(
+    a_paths in ut_varchar2_list,
+    a_suites out nocopy ut_suite_items,
+    a_random_seed in positive := null
+  ) is
     l_paths              ut_varchar2_list := a_paths;
     l_path_items         t_path_items;
     l_path_item          t_path_item;
@@ -671,7 +688,8 @@ create or replace package body ut_suite_manager is
             l_path_item.suite_path,
             l_path_item.object_name,
             l_path_item.procedure_name,
-            a_suites
+            a_suites,
+            a_random_seed
           );
         if a_suites.count = l_suites_count then
           if l_path_item.suite_path is not null then
