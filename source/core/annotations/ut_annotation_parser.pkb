@@ -234,8 +234,9 @@ create or replace package body ut_annotation_parser as
     if a_source_lines.count > 0 then
       --convert to post-processed source clob
       begin
+        l_processed_lines := a_source_lines;
         --get post-processed source
-        l_processed_lines := sys.dbms_preprocessor.get_post_processed_source(a_source_lines);
+--         l_processed_lines := sys.dbms_preprocessor.get_post_processed_source(a_source_lines);
         --convert to clob
         for i in 1..l_processed_lines.count loop
           ut_utils.append_to_clob(l_source, replace(l_processed_lines(i), chr(13)||chr(10), chr(10)));

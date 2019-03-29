@@ -58,6 +58,10 @@ create or replace package body ut_annotation_manager as
     l_cursor_text  varchar2(32767);
     l_result       ut_annotation_objs_cache_info;
   begin
+    ut_event_manager.trigger_event(
+      'get_annotation_objs_info - start ( ut_trigger_check.is_alive = '
+      || case when ut_trigger_check.is_alive() then 'Y' else 'N' end || ' )'
+    );
     if ut_trigger_check.is_alive() then
       l_cursor_text :=
         q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
@@ -69,6 +73,7 @@ create or replace package body ut_annotation_manager as
              from ]'||l_ut_owner||q'[.ut_annotation_cache_info i
             where i.object_owner = :a_object_owner
               and i.object_type = :a_object_type]';
+      open l_rows for l_cursor_text  using a_object_owner, a_object_type;
     else
       l_cursor_text :=
         q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
@@ -90,10 +95,11 @@ create or replace package body ut_annotation_manager as
                then ':a_parse_date is null'
              else 'o.last_ddl_time >= cast(:a_parse_date as date)'
              end;
+      open l_rows for l_cursor_text  using a_parse_date;
     end if;
-    open l_rows for l_cursor_text  using a_parse_date;
     fetch l_rows bulk collect into l_result limit 1000000;
     close l_rows;
+    ut_event_manager.trigger_event('get_annotation_objs_info - end (count='||l_result.count||')');
     return l_result;
   end;
 
@@ -203,6 +209,7 @@ create or replace package body ut_annotation_manager as
     select value(x)bulk collect into l_objects_to_parse
       from table(a_info_rows) x where x.needs_refresh = 'Y';
 
+    ut_event_manager.trigger_event('rebuild_annotation_cache - start (l_objects_to_parse.count = '||l_objects_to_parse.count||')');
     ut_annotation_cache_manager.cleanup_cache(l_objects_to_parse);
 
     if sys_context('userenv','current_schema') = a_object_owner
@@ -221,6 +228,7 @@ create or replace package body ut_annotation_manager as
         get_sources_to_annotate(a_object_owner, a_object_type, l_objects_to_parse)
       );
     end if;
+    ut_event_manager.trigger_event('rebuild_annotation_cache - end');
   end;
 
   ------------------------------------------------------------
@@ -260,7 +268,7 @@ create or replace package body ut_annotation_manager as
   begin
     ut_trigger_check.is_alive();
 
-    if ora_dict_obj_type = 'PACKAGE' then
+    if ora_dict_obj_type in ('PACKAGE','PROCEDURE','FUNCTION','TYPE') then
 
       l_object_to_parse := ut_annotation_obj_cache_info(ora_dict_obj_owner, ora_dict_obj_name, ora_dict_obj_type, 'Y');
 
@@ -285,6 +293,7 @@ create or replace package body ut_annotation_manager as
     l_results                ut_annotated_objects;
     c_object_fetch_limit     constant integer := 10;
   begin
+    ut_event_manager.trigger_event('get_annotated_objects - start');
 
     l_info_rows := get_annotation_objs_info(a_object_owner, a_object_type, a_parse_date);
     rebuild_annotation_cache(a_object_owner, a_object_type, l_info_rows);
@@ -299,6 +308,7 @@ create or replace package body ut_annotation_manager as
       exit when l_cursor%notfound;
     end loop;
     close l_cursor;
+    ut_event_manager.trigger_event('get_annotated_objects - end');
   end;
 
   procedure purge_cache(a_object_owner varchar2, a_object_type varchar2) is

@@ -127,7 +127,6 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/annotations/ut_annotation_parser.pkb'
 @@install_component.sql 'core/annotations/ut_annotation_manager.pks'
 @@install_component.sql 'core/annotations/ut_annotation_manager.pkb'
-@@install_component.sql 'core/annotations/ut_trigger_annotation_parsing.trg'
 
 --suite builder
 @@install_component.sql 'core/ut_suite_cache_schema.sql'
@@ -335,6 +334,8 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'api/have_count.syn'
 @@install_component.sql 'api/match.syn'
 @@install_component.sql 'api/contain.syn'
+
+@@install_component.sql 'core/annotations/ut_trigger_annotation_parsing.trg'
 
 set linesize 200
 set define on

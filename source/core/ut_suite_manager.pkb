@@ -341,11 +341,10 @@ create or replace package body ut_suite_manager is
          from ]'||l_ut_owner||q'[.ut_suite_cache_package i
          where
            not exists (
-              select 1  from ]'||l_objects_view||q'[ o
-               where o.owner = i.object_owner
+              select 1  from ]'||l_ut_owner||q'[.ut_annotation_cache_info o
+               where o.object_owner = i.object_owner
                  and o.object_name = i.object_name
                  and o.object_type = 'PACKAGE'
-                 and o.owner = ']'||a_object_owner||q'['
               )
           and i.object_owner = ']'||a_object_owner||q'[']';
     open l_rows for l_cursor_text;
@@ -479,7 +478,7 @@ create or replace package body ut_suite_manager is
     a_owner_name         varchar2
   ) return boolean is
   begin
-    return sys_context( 'userenv', 'current_schema' ) = a_owner_name or ut_metadata.user_has_execute_any_proc();
+    return sys_context( 'userenv', 'current_schema' ) = a_owner_name or ut_metadata.user_has_execute_any_proc() or ut_trigger_check.is_alive();
   end;
 
   procedure build_and_cache_suites(
@@ -493,6 +492,7 @@ create or replace package body ut_suite_manager is
     ex_string_too_small exception;
     pragma exception_init (ex_string_too_small,-06502);
   begin
+    ut_event_manager.trigger_event('build_and_cache_suites - start');
     loop
       fetch a_annotated_objects bulk collect into l_annotated_objects limit 10;
 
@@ -521,28 +521,25 @@ create or replace package body ut_suite_manager is
         ut_utils.to_string(gc_suitpath_error_message||ut_utils.table_to_clob(l_bad_suitepath_obj,','))
       );
     end if;
+    ut_event_manager.trigger_event('build_and_cache_suites - end');
   end;
 
   procedure refresh_cache(
-    a_owner_name         varchar2,
-    a_annotations_cursor sys_refcursor := null
+    a_owner_name         varchar2
   ) is
     l_annotations_cursor    sys_refcursor;
     l_suite_cache_time      timestamp;
   begin
+    ut_event_manager.trigger_event('refresh_cache - start');
     l_suite_cache_time := ut_suite_cache_manager.get_schema_parse_time(a_owner_name);
-    if a_annotations_cursor is not null then
-      l_annotations_cursor := a_annotations_cursor;
-    else
-      open l_annotations_cursor for
-      q'[select value(x)
-      from table(
-        ]' || ut_utils.ut_owner || q'[.ut_annotation_manager.get_annotated_objects(
-              :a_owner_name, 'PACKAGE', :a_suite_cache_parse_time
-            )
-          )x ]'
-      using a_owner_name, l_suite_cache_time;
-    end if;
+    open l_annotations_cursor for
+    q'[select value(x)
+    from table(
+      ]' || ut_utils.ut_owner || q'[.ut_annotation_manager.get_annotated_objects(
+            :a_owner_name, 'PACKAGE', :a_suite_cache_parse_time
+          )
+        )x ]'
+    using a_owner_name, l_suite_cache_time;
 
     build_and_cache_suites(a_owner_name, l_annotations_cursor);
 
@@ -550,6 +547,7 @@ create or replace package body ut_suite_manager is
       ut_suite_cache_manager.remove_from_cache( a_owner_name, get_missing_objects(a_owner_name) );
     end if;
 
+    ut_event_manager.trigger_event('refresh_cache - end');
   end;
 
   procedure add_suites_for_path(
@@ -672,6 +670,7 @@ create or replace package body ut_suite_manager is
     l_index              varchar2(4000 char);
     l_schema_paths       t_schema_paths;
   begin
+    ut_event_manager.trigger_event('configure_execution_by_path - start');
     a_suites := ut_suite_items();
     --resolve schema names from paths and group paths by schema name
     resolve_schema_names(l_paths);
@@ -711,6 +710,7 @@ create or replace package body ut_suite_manager is
       a_suites(i).set_rollback_type( a_suites(i).get_rollback_type() );
     end loop;
 
+    ut_event_manager.trigger_event('configure_execution_by_path - start');
   end configure_execution_by_path;
 
   function get_suites_info(
