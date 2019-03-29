@@ -1,4 +1,9 @@
 set echo on
+
+drop trigger ut_trigger_annotation_parsing;
+
+drop synonym ut3_trigger_alive;
+
 drop synonym be_between;
 
 drop synonym have_count;
