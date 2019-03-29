@@ -16,6 +16,9 @@ alter session set plsql_optimize_level=0;
 @@ut3_tester/core/test_ut_test.pks
 @@ut3_tester/core/test_ut_suite.pks
 @@ut3_tester/core/test_ut_executable.pks
+@@ut3_tester/core/test_suite_manager.pks
+@@ut3_tester/core/test_file_mapper.pks
+@@ut3_tester/core/test_output_buffer.pks
 
 
 @@ut3_tester/core.pkb
@@ -28,6 +31,9 @@ alter session set plsql_optimize_level=0;
 @@ut3_tester/core/test_ut_test.pkb
 @@ut3_tester/core/test_ut_suite.pkb
 @@ut3_tester/core/test_ut_executable.pkb
+@@ut3_tester/core/test_suite_manager.pkb
+@@ut3_tester/core/test_file_mapper.pkb
+@@ut3_tester/core/test_output_buffer.pkb
 
 
 set linesize 200

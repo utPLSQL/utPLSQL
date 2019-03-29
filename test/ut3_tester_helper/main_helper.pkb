@@ -126,5 +126,13 @@ create or replace package body main_helper is
     execute immediate 'begin ut3$user#.parse_annotations; end;';
   end;
   
+  function get_job_count(a_job_name varchar2) return number is
+    l_cnt number;
+  begin
+    select count(1) into l_cnt
+    from dba_scheduler_running_jobs srj
+    where srj.job_name = a_job_name;
+  end;
+  
 end;
 /

@@ -1,5 +1,7 @@
 create or replace package run_helper is
 
+  type t_out_buff_tab is table of ut3.ut_output_buffer_tmp%rowtype;
+
   procedure setup_cache_objects;
   procedure setup_cache;
   procedure cleanup_cache;
@@ -38,6 +40,15 @@ create or replace package run_helper is
     return ut3.ut_varchar2_list;
     
   procedure test_rollback_type(a_procedure_name varchar2, a_rollback_type integer, a_expectation ut3_latest_release.ut_matcher);
+  
+  procedure create_dummy_long_test_package;
+  procedure drop_dummy_long_test_package;
+  procedure create_ut3_suite;
+  procedure drop_ut3_suite;
+  function get_object_name(a_owner in varchar2) return ut3.ut_object_names;
+  
+  function ut_output_buffer_tmp return t_out_buff_tab pipelined;
+  procedure delete_buffer;
   
 end;
 /

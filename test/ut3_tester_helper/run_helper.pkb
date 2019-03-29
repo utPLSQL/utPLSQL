@@ -452,5 +452,76 @@ create or replace package body run_helper is
     ut.expect(main_helper.get_value(q'[ut_transaction_control.count_rows('s')]')).to_( a_expectation );
   end;
   
+  procedure create_dummy_long_test_package is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package ut3.dummy_long_test_package as
+        
+        --%suitepath(verylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtext)
+        --%suite(dummy_test_suite)
+
+        --%test(dummy_test)
+        procedure some_dummy_test_procedure;
+      end;]';
+      
+    execute immediate q'[create or replace package ut3.dummy_long_test_package1 as
+        
+        --%suitepath(verylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtext)
+        --%suite(dummy_test_suite1)
+
+        --%test(dummy_test)
+        procedure some_dummy_test_procedure;
+      end;]';
+  end;
+
+  procedure drop_dummy_long_test_package is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[drop package ut3.dummy_long_test_package]';
+    execute immediate q'[drop package ut3.dummy_long_test_package1]';
+  end;
+ 
+  procedure create_ut3_suite is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[
+      create or replace package ut3.some_test_package
+      as
+        --%suite
+
+        --%test
+        procedure some_test;
+
+      end;]';
+  end;
+
+  procedure drop_ut3_suite is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[drop package ut3.some_test_package]';
+  end;
+  
+  function get_object_name(a_owner in varchar2) return ut3.ut_object_names is
+  begin
+    return ut3.ut_suite_manager.get_schema_ut_packages(ut3.ut_varchar2_rows(a_owner));
+  end;
+    
+  function ut_output_buffer_tmp return t_out_buff_tab pipelined is
+    l_buffer_tab t_out_buff_tab;
+    cursor get_buffer is
+    select * from ut3.ut_output_buffer_tmp;
+  begin
+    open get_buffer;
+    fetch get_buffer bulk collect into l_buffer_tab;
+    for idx in 1..l_buffer_tab.count loop
+      pipe row(l_buffer_tab(idx));
+    end loop;
+  end;
+  
+  procedure delete_buffer is
+  begin
+    delete from ut3.ut_output_buffer_tmp;
+  end;
+  
 end;
 /

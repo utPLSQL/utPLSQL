@@ -24,8 +24,9 @@ create or replace package body test_ut_executable is
     l_result     boolean;
   begin
     --Arrange
-    l_test := ut3.ut_test(a_object_name => 'test_ut_executable',a_name => 'test_ut_executable', a_line_no=> 1);
-    l_executable := ut3.ut_executable_test( user, 'test_ut_executable', 'output_proc', ut3.ut_utils.gc_test_execute );
+    l_test := ut3.ut_test(a_object_owner => 'ut3_tester', a_object_name => 'test_ut_executable',a_name => 'test_ut_executable', a_line_no=> 1);
+    l_executable := ut3.ut_executable_test( a_owner => 'ut3_tester', a_package => 'test_ut_executable', 
+      a_procedure_name => 'output_proc', a_executable_type => ut3.ut_utils.gc_test_execute );
     --Act
     l_result := l_executable.do_execute(l_test);
     --Assert
@@ -40,8 +41,8 @@ create or replace package body test_ut_executable is
     l_result     boolean;
   begin
     --Arrange
-    l_test := ut3.ut_test(a_object_name => 'test_ut_executable',a_name => 'test_ut_executable', a_line_no=> 1);
-    l_executable := ut3.ut_executable_test( user, 'test_ut_executable', 'throwing_proc', ut3.ut_utils.gc_test_execute );
+    l_test := ut3.ut_test(a_object_owner => 'ut3_tester', a_object_name => 'test_ut_executable',a_name => 'test_ut_executable', a_line_no=> 1);
+    l_executable := ut3.ut_executable_test( 'ut3_tester', 'test_ut_executable', 'throwing_proc', ut3.ut_utils.gc_test_execute );
     --Act
     l_result := l_executable.do_execute(l_test);
     --Assert
@@ -76,9 +77,7 @@ create or replace package body test_ut_executable is
       dbms_lock.sleep(0.4);
     $end
     while l_cnt > 0 loop
-      select count(1) into l_cnt
-      from dba_scheduler_running_jobs srj
-      where srj.job_name = l_job_name;
+      l_cnt:=ut3_tester_helper.main_helper.get_job_count(l_job_name);
     end loop;
   end;
 
@@ -97,7 +96,7 @@ create or replace package body test_ut_executable is
 
   procedure output_proc is
   begin
-    dbms_output.put_line(g_dbms_output_text);
+    dbms_output.put_line('Some output from procedure');
   end;
 
   procedure throwing_proc is

@@ -34,6 +34,8 @@ create or replace package main_helper is
   procedure drop_parse_proc_as_ut3$user#;
   
   procedure parse_dummy_test_as_ut3$user#;
+  
+  function get_job_count(a_job_name varchar2) return number;
     
 end;
 /
