@@ -14,6 +14,8 @@ alter session set plsql_optimize_level=0;
 @@ut3_tester/core/expectations/test_expectation_processor.pks
 @@ut3_tester/core/test_ut_utils.pks
 @@ut3_tester/core/test_ut_test.pks
+@@ut3_tester/core/test_ut_suite.pks
+@@ut3_tester/core/test_ut_executable.pks
 
 
 @@ut3_tester/core.pkb
@@ -24,6 +26,8 @@ alter session set plsql_optimize_level=0;
 @@ut3_tester/core/annotations/test_annot_throws_exception.pkb
 @@ut3_tester/core/test_ut_utils.pkb
 @@ut3_tester/core/test_ut_test.pkb
+@@ut3_tester/core/test_ut_suite.pkb
+@@ut3_tester/core/test_ut_executable.pkb
 
 
 set linesize 200

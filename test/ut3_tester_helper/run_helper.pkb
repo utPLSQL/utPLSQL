@@ -27,6 +27,49 @@ create or replace package body run_helper is
       execute immediate q'[grant execute on ut3_tester_helper.dummy_test_procedure to public]';
   end;
 
+  procedure create_trans_control is
+      pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package ut_transaction_control as
+            function count_rows(a_val varchar2) return number;
+            procedure setup;
+            procedure test;
+            procedure test_failure;
+         end;]';
+         
+     execute immediate
+      q'[create or replace package body ut_transaction_control
+          as
+
+            function count_rows(a_val varchar2) return number is
+              l_cnt number;
+            begin
+              select count(*) into l_cnt from ut$test_table t where t.val = a_val;
+              return l_cnt;
+            end;
+            procedure setup is begin
+              insert into ut$test_table values ('s');
+            end;
+            procedure test is
+            begin
+              insert into ut$test_table values ('t');
+            end;
+            procedure test_failure is
+            begin
+              insert into ut$test_table values ('t');
+              --raise no_data_found;
+              raise_application_error(-20001,'Error');
+            end;
+         end;]';
+         
+         execute immediate 'grant execute on ut_transaction_control to public';
+  end;
+
+  procedure drop_trans_control is
+      pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package ut_transaction_control';
+  end;
 
   procedure setup_cache is
     pragma autonomous_transaction;
@@ -303,6 +346,20 @@ create or replace package body run_helper is
     execute immediate 'drop package test_stateful';
   end; 
 
+  procedure package_no_body is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'create or replace package ut_without_body as
+    procedure test1;
+  end;';
+  end;
+
+  procedure drop_package_no_body is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package ut_without_body';
+  end;
+
   procedure run(a_reporter ut3.ut_reporter_base := null) is
   begin
     ut3.ut.run(a_reporter);
@@ -374,5 +431,26 @@ create or replace package body run_helper is
       ));
     return l_results;
   end;
+  
+  procedure test_rollback_type(a_procedure_name varchar2, a_rollback_type integer, a_expectation ut3_latest_release.ut_matcher) is
+    l_suite    ut3.ut_suite;
+  begin
+    --Arrange
+    execute immediate 'delete from ut$test_table';
+    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_TRANSACTION_CONTROL', a_line_no=> 1);
+    l_suite.path := 'ut_transaction_control';
+    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'UT_TRANSACTION_CONTROL', 'setup', ut3.ut_utils.gc_before_all));
+    l_suite.items.extend;
+    l_suite.items(l_suite.items.last) := ut3.ut_test(a_object_owner => USER, a_object_name => 'ut_transaction_control',a_name => a_procedure_name, a_line_no=> 1);
+    l_suite.set_rollback_type(a_rollback_type);
+
+    --Act
+    l_suite.do_execute();
+
+    --Assert
+    ut.expect(main_helper.get_value(q'[ut_transaction_control.count_rows('t')]')).to_( a_expectation );
+    ut.expect(main_helper.get_value(q'[ut_transaction_control.count_rows('s')]')).to_( a_expectation );
+  end;
+  
 end;
 /
