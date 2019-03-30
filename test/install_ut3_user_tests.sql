@@ -20,6 +20,13 @@ prompt Install user tests
 @@ut3_user/expectations/test_expectations_cursor.pks
 @@ut3_user/api/test_ut_runner.pks
 @@ut3_user/api/test_ut_run.pks
+@@ut3_user/reporters.pks
+@@ut3_user/reporters/test_tfs_junit_reporter.pks
+@@ut3_user/reporters/test_teamcity_reporter.pks
+@@ut3_user/reporters/test_sonar_test_reporter.pks
+@@ut3_user/reporters/test_junit_reporter.pks
+
+
 
 @@ut3_user/expectations/unary/test_expect_not_to_be_null.pkb
 @@ut3_user/expectations/unary/test_expect_to_be_null.pkb
@@ -36,6 +43,12 @@ prompt Install user tests
 @@ut3_user/expectations/test_expectations_cursor.pkb
 @@ut3_user/api/test_ut_runner.pkb
 @@ut3_user/api/test_ut_run.pkb
+@@ut3_user/reporters.pkb
+@@ut3_user/reporters/test_tfs_junit_reporter.pkb
+@@ut3_user/reporters/test_teamcity_reporter.pkb
+@@ut3_user/reporters/test_sonar_test_reporter.pkb
+@@ut3_user/reporters/test_junit_reporter.pkb
+
 
 set linesize 200
 set define on

@@ -8,9 +8,7 @@ create or replace package test_ut_executable is
   --%test(Executes procedure in current schema when user was not provided)
   procedure exec_schema_package_proc;
 
-  /* TODO: Fix Me */
   --%test(Executes procedure and saves dbms_output)
-  --%disabled
   procedure exec_package_proc_output;
 
   --%test(Executes a procedure raising exception, saves dbms_output and exception stack trace)
