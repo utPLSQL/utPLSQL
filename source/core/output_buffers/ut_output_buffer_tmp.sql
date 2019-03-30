@@ -32,14 +32,15 @@ begin
          is_finished = 0 and (text is not null or item_type is not null )
       or is_finished = 1 and text is null and item_type is null ),
   constraint ut_output_buffer_fk1 foreign key (output_id) references ut_output_buffer_info_tmp$(output_id)
-) organization index overflow nologging initrans 100 ';
+) nologging initrans 100
+';
   begin
     execute immediate
-      v_table_sql || 'lob(text) store as securefile ut_output_text(retention none)';
+      v_table_sql || 'lob(text) store as securefile ut_output_text(retention none enable storage in row)';
   exception
     when e_non_assm then
       execute immediate
-        v_table_sql || 'lob(text) store as basicfile ut_output_text(pctversion 0)';
+        v_table_sql || 'lob(text) store as basicfile ut_output_text(pctversion 0 enable storage in row)';
 
   end;
 end;

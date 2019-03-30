@@ -194,7 +194,6 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_cursor_column.tps'
 @@install_component.sql 'expectations/data_values/ut_cursor_column_tab.tps'
 @@install_component.sql 'expectations/data_values/ut_cursor_details.tps'
-@@install_component.sql 'expectations/data_values/ut_data_value_anydata.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_blob.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_boolean.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_clob.tps'

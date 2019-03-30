@@ -78,8 +78,9 @@ create or replace type body ut_output_table_buffer is
   end;
 
   overriding member function get_lines(a_initial_timeout natural := null, a_timeout_sec natural := null) return ut_output_data_rows pipelined is
+    type t_rowid_tab     is table of urowid;
+    l_message_rowids     t_rowid_tab;
     l_buffer_data        ut_output_data_rows;
-    l_message_ids        ut_integer_list;
     l_finished_flags     ut_integer_list;
     l_already_waited_for number(10,2) := 0;
     l_finished           boolean := false;
@@ -90,14 +91,14 @@ create or replace type body ut_output_table_buffer is
     lc_long_sleep_time   constant number(1) := 1;     --sleep for 1 s when waiting long
     lc_long_wait_time    constant number(1) := 1;     --waiting more than 1 sec
     l_sleep_time         number(2,1) := lc_short_sleep_time;
-    lc_bulk_limit        constant integer := 100;
+    lc_bulk_limit        constant integer := 3000;
 
-    procedure remove_read_data(a_message_ids ut_integer_list) is
+    procedure remove_read_data(a_message_rowids t_rowid_tab) is
       pragma autonomous_transaction;
     begin
-      delete from ut_output_buffer_tmp a
-       where a.output_id = self.output_id
-         and a.message_id in (select column_value from table(a_message_ids));
+      forall i in 1 .. a_message_rowids.count
+        delete from ut_output_buffer_tmp a
+         where rowid = a_message_rowids(i);
       commit;
     end;
 
@@ -112,13 +113,13 @@ create or replace type body ut_output_table_buffer is
     begin
     while not l_finished loop
       with ordered_buffer as (
-        select a.message_id, ut_output_data_row(a.text, a.item_type), is_finished
+        select a.rowid, ut_output_data_row(a.text, a.item_type), is_finished
           from ut_output_buffer_tmp a
          where a.output_id = self.output_id
          order by a.message_id
       )
       select b.*
-        bulk collect into l_message_ids, l_buffer_data, l_finished_flags
+        bulk collect into l_message_rowids, l_buffer_data, l_finished_flags
         from ordered_buffer b
        where rownum <= lc_bulk_limit;
 
@@ -147,7 +148,7 @@ create or replace type body ut_output_table_buffer is
             exit;
           end if;
         end loop;
-        remove_read_data(l_message_ids);
+        remove_read_data(l_message_rowids);
       end if;
       if l_finished or l_already_waited_for >= l_wait_for then
         remove_buffer_info();
