@@ -96,8 +96,7 @@ create or replace type body ut_output_table_buffer is
       pragma autonomous_transaction;
     begin
       delete from ut_output_buffer_tmp a
-       where a.output_id = self.output_id
-         and a.message_id in (select column_value from table(a_message_ids));
+       where (a.output_id, a.message_id) in (select self.output_id, column_value from table(a_message_ids));
       commit;
     end;
 
