@@ -95,7 +95,7 @@ create or replace type body ut_output_table_buffer is
     lc_long_sleep_time   constant number(1) := 1;     --sleep for 1 s when waiting long
     lc_long_wait_time    constant number(1) := 1;     --waiting more than 1 sec
     l_sleep_time         number(2,1) := lc_short_sleep_time;
-    lc_bulk_limit        constant integer := 1000;
+    lc_bulk_limit        constant integer := 5000;
     l_max_message_id     integer := lc_bulk_limit;
 
     procedure remove_read_data(a_message_rowids t_rowid_tab) is
@@ -154,6 +154,7 @@ create or replace type body ut_output_table_buffer is
           end if;
         end loop;
         remove_read_data(l_message_rowids);
+        l_max_message_id := l_max_message_id + lc_bulk_limit;
       end if;
       if l_finished or l_already_waited_for >= l_wait_for then
         remove_buffer_info();
@@ -164,7 +165,6 @@ create or replace type body ut_output_table_buffer is
           );
         end if;
       end if;
-      l_max_message_id := l_max_message_id + lc_bulk_limit;
     end loop;
     return;
   end;
