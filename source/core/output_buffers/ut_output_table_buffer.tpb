@@ -20,6 +20,7 @@ create or replace type body ut_output_table_buffer is
   begin
     self.output_id := coalesce(a_output_id, sys_guid());
     self.start_date := sysdate;
+    self.last_message_id := 0;
     self.init();
     self.cleanup_buffer();
     return;
@@ -38,41 +39,44 @@ create or replace type body ut_output_table_buffer is
     commit;
   end;
 
-  overriding member procedure close(self in ut_output_table_buffer) is
+  overriding member procedure close(self in out nocopy ut_output_table_buffer) is
     pragma autonomous_transaction;
   begin
+    self.last_message_id := self.last_message_id + 1;
     insert into ut_output_buffer_tmp(output_id, message_id, is_finished)
-    values (self.output_id, ut_message_id_seq.nextval, 1);
+    values (self.output_id, self.last_message_id, 1);
     commit;
   end;
 
-  overriding member procedure send_line(self in ut_output_table_buffer, a_text varchar2, a_item_type varchar2 := null) is
+  overriding member procedure send_line(self in out nocopy ut_output_table_buffer, a_text varchar2, a_item_type varchar2 := null) is
     pragma autonomous_transaction;
   begin
     if a_text is not null or a_item_type is not null then
+      self.last_message_id := self.last_message_id + 1;
       insert into ut_output_buffer_tmp(output_id, message_id, text, item_type)
-      values (self.output_id, ut_message_id_seq.nextval, a_text, a_item_type);
+      values (self.output_id, self.last_message_id, a_text, a_item_type);
     end if;
     commit;
   end;
 
-  overriding member procedure send_lines(self in ut_output_table_buffer, a_text_list ut_varchar2_rows, a_item_type varchar2 := null) is
+  overriding member procedure send_lines(self in out nocopy ut_output_table_buffer, a_text_list ut_varchar2_rows, a_item_type varchar2 := null) is
     pragma autonomous_transaction;
   begin
     insert into ut_output_buffer_tmp(output_id, message_id, text, item_type)
-    select self.output_id, ut_message_id_seq.nextval, t.column_value, a_item_type
+    select self.output_id, self.last_message_id + rownum, t.column_value, a_item_type
       from table(a_text_list) t
      where t.column_value is not null or a_item_type is not null;
-
+    self.last_message_id := self.last_message_id + a_text_list.count;
     commit;
   end;
 
-  overriding member procedure send_clob(self in ut_output_table_buffer, a_text clob, a_item_type varchar2 := null) is
+  overriding member procedure send_clob(self in out nocopy ut_output_table_buffer, a_text clob, a_item_type varchar2 := null) is
     pragma autonomous_transaction;
   begin
     if a_text is not null and a_text != empty_clob() or a_item_type is not null then
+      self.last_message_id := self.last_message_id + 1;
       insert into ut_output_buffer_tmp(output_id, message_id, text, item_type)
-      values (self.output_id, ut_message_id_seq.nextval, a_text, a_item_type);
+      values (self.output_id, self.last_message_id, a_text, a_item_type);
     end if;
     commit;
   end;
@@ -91,7 +95,8 @@ create or replace type body ut_output_table_buffer is
     lc_long_sleep_time   constant number(1) := 1;     --sleep for 1 s when waiting long
     lc_long_wait_time    constant number(1) := 1;     --waiting more than 1 sec
     l_sleep_time         number(2,1) := lc_short_sleep_time;
-    lc_bulk_limit        constant integer := 3000;
+    lc_bulk_limit        constant integer := 1000;
+    l_max_message_id     integer := lc_bulk_limit;
 
     procedure remove_read_data(a_message_rowids t_rowid_tab) is
       pragma autonomous_transaction;
@@ -113,15 +118,15 @@ create or replace type body ut_output_table_buffer is
     begin
     while not l_finished loop
       with ordered_buffer as (
-        select a.rowid, ut_output_data_row(a.text, a.item_type), is_finished
+        select /*+ index(a) */ a.rowid, ut_output_data_row(a.text, a.item_type), is_finished
           from ut_output_buffer_tmp a
          where a.output_id = self.output_id
+           and a.message_id <= l_max_message_id
          order by a.message_id
       )
       select b.*
         bulk collect into l_message_rowids, l_buffer_data, l_finished_flags
-        from ordered_buffer b
-       where rownum <= lc_bulk_limit;
+        from ordered_buffer b;
 
       --nothing fetched from output, wait and try again
       if l_buffer_data.count = 0 then
@@ -159,6 +164,7 @@ create or replace type body ut_output_table_buffer is
           );
         end if;
       end if;
+      l_max_message_id := l_max_message_id + lc_bulk_limit;
     end loop;
     return;
   end;
