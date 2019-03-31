@@ -247,11 +247,17 @@ drop type ut_suite_item force;
 
 drop type ut_output_table_buffer force;
 
+drop type ut_output_clob_table_buffer force;
+
 drop type ut_output_buffer_base force;
 
 drop view ut_output_buffer_tmp;
 
 drop table ut_output_buffer_tmp$ purge;
+
+drop view ut_output_clob_buffer_tmp;
+
+drop table ut_output_clob_buffer_tmp$ purge;
 
 drop view ut_output_buffer_info_tmp;
 

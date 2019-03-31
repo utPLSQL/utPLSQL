@@ -9,7 +9,7 @@ create or replace package body test_output_buffer is
     l_buffer             ut3.ut_output_buffer_base;
   begin
     --Arrange
-    l_buffer        := ut3.ut_output_table_buffer();
+    l_buffer        := ut3.ut_output_clob_table_buffer();
     l_expected_text := to_clob(lpad('a text', 31000, ',a text'))
       || chr(10) || to_clob(lpad('a text', 31000, ',a text'))
       || chr(13) || to_clob(lpad('a text', 31000, ',a text'))
