@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.6.2728--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.2748--develop-blue.svg)
 
 # Downloading latest version of utPLSQL
 
@@ -9,7 +9,7 @@ To download latest version of utPLSQL from github on both Unix/Linux as well as 
 ```bash
 #!/bin/bash
 # Get the url to latest release "zip" file
-UTPLSQL_DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
+UTPLSQL_DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip\"" | sed 's/"//g')
 # Download the latest release "zip" file
 curl -Lk "${UTPLSQL_DOWNLOAD_URL}" -o utPLSQL.zip
 # Extract downloaded "zip" file
@@ -19,7 +19,7 @@ unzip -q utPLSQL.zip
 You may download with a one-liner if that is more convenient.
 ```bash
 #!/bin/bash
-curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g') 
+curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip\"" | sed 's/"//g') 
 ```
 
 ## Windows
