@@ -25,8 +25,18 @@ prompt Install user tests
 @@ut3_user/reporters/test_teamcity_reporter.pks
 @@ut3_user/reporters/test_sonar_test_reporter.pks
 @@ut3_user/reporters/test_junit_reporter.pks
+@@ut3_user/reporters/test_documentation_reporter.pks
+@@ut3_user/reporters/test_debug_reporter.pks
+@@ut3_user/reporters/test_realtime_reporter.pks
+@@ut3_user/reporters/test_coverage.pks
+set define on
+@@install_above_12_1.sql 'ut3_user/reporters/test_extended_coverage.pks'
+set define off
 
-
+--set define on
+--@@install_below_12_2.sql 'ut3_user/reporters/test_proftag_coverage.pks'
+--@@install_below_12_2.sql 'ut3_user/reporters/test_coverage/test_html_proftab_reporter.pks'
+--set define off
 
 @@ut3_user/expectations/unary/test_expect_not_to_be_null.pkb
 @@ut3_user/expectations/unary/test_expect_to_be_null.pkb
@@ -48,6 +58,18 @@ prompt Install user tests
 @@ut3_user/reporters/test_teamcity_reporter.pkb
 @@ut3_user/reporters/test_sonar_test_reporter.pkb
 @@ut3_user/reporters/test_junit_reporter.pkb
+@@ut3_user/reporters/test_documentation_reporter.pkb
+@@ut3_user/reporters/test_debug_reporter.pkb
+@@ut3_user/reporters/test_realtime_reporter.pkb
+@@ut3_user/reporters/test_coverage.pkb
+set define on
+@@install_above_12_1.sql 'ut3_user/reporters/test_extended_coverage.pkb'
+set define off
+
+--set define on
+--@@install_below_12_2.sql 'ut3_user/reporters/test_coverage.pkb'
+--@@install_below_12_2.sql 'ut3_user/reporters/test_coverage/test_html_proftab_reporter.pkb'
+--set define off
 
 
 set linesize 200

@@ -134,5 +134,25 @@ create or replace package body main_helper is
     where srj.job_name = a_job_name;
   end;
   
+  procedure append_to_list(a_list in out nocopy ut3.ut_varchar2_list, a_item varchar2) is
+  begin
+     ut3.ut_utils.append_to_list(a_list,a_item);
+  end;
+
+  procedure append_to_list(a_list in out nocopy ut3.ut_varchar2_rows, a_item varchar2) is
+  begin
+     ut3.ut_utils.append_to_list(a_list,a_item);
+  end;
+
+  procedure append_to_list(a_list in out nocopy ut3.ut_varchar2_rows, a_item clob) is
+  begin
+     ut3.ut_utils.append_to_list(a_list,a_item);
+  end;
+
+  procedure append_to_list(a_list in out nocopy ut3.ut_varchar2_rows, a_items ut3.ut_varchar2_rows) is
+  begin
+     ut3.ut_utils.append_to_list(a_list,a_items);
+  end;
+  
 end;
 /

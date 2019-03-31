@@ -11,14 +11,18 @@ alter session set plsql_optimize_level=0;
 @@ut3_tester_helper/test_tab_varray.tps
 @@ut3_tester_helper/test_dummy_number.tps
 @@ut3_tester_helper/ut_test_table.sql
+@@ut3_tester_helper/test_event_object.tps
+@@ut3_tester_helper/test_event_list.tps
 
 @@ut3_tester_helper/main_helper.pks
 @@ut3_tester_helper/run_helper.pks
+@@ut3_tester_helper/coverage_helper.pks
 @@ut3_tester_helper/expectations_helper.pks
 @@ut3_tester_helper/ut_example_tests.pks
 
 @@ut3_tester_helper/main_helper.pkb
 @@ut3_tester_helper/run_helper.pkb
+@@ut3_tester_helper/coverage_helper.pkb
 @@ut3_tester_helper/expectations_helper.pkb
 @@ut3_tester_helper/ut_example_tests.pkb
 

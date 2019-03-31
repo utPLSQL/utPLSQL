@@ -36,6 +36,14 @@ create or replace package main_helper is
   procedure parse_dummy_test_as_ut3$user#;
   
   function get_job_count(a_job_name varchar2) return number;
-    
+  
+  procedure append_to_list(a_list in out nocopy ut3.ut_varchar2_list, a_item varchar2);
+
+  procedure append_to_list(a_list in out nocopy ut3.ut_varchar2_rows, a_item varchar2);
+
+  procedure append_to_list(a_list in out nocopy ut3.ut_varchar2_rows, a_item clob);
+
+  procedure append_to_list(a_list in out nocopy ut3.ut_varchar2_rows, a_items ut3.ut_varchar2_rows);
+  
 end;
 /

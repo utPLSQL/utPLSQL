@@ -522,6 +522,6 @@ create or replace package body run_helper is
   begin
     delete from ut3.ut_output_buffer_tmp;
   end;
-  
+ 
 end;
 /

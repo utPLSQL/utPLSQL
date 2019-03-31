@@ -17,7 +17,7 @@ begin
     and generated = 'N'
     and lower(object_name) not like 'sys%')
   loop
-    execute immediate 'grant execute on ut3.'||i.object_name||' to UT3_TESTER';
+    execute immediate 'grant execute on ut3."'||i.object_name||'" to UT3_TESTER';
   end loop;
 end;
 /
