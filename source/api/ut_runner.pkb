@@ -88,13 +88,16 @@ create or replace package body ut_runner is
     a_exclude_objects ut_varchar2_list := null,
     a_fail_on_errors boolean := false,
     a_client_character_set varchar2 := null,
-    a_force_manual_rollback boolean := false
+    a_force_manual_rollback boolean := false,
+    a_random_test_order     boolean := false,
+    a_random_test_order_seed     positive := null
   ) is
-    l_run                   ut_run;
-    l_coverage_schema_names ut_varchar2_rows;
-    l_exclude_object_names  ut_object_names := ut_object_names();
-    l_include_object_names  ut_object_names;
-    l_paths                 ut_varchar2_list := ut_varchar2_list();                 
+    l_run                     ut_run;
+    l_coverage_schema_names   ut_varchar2_rows;
+    l_exclude_object_names    ut_object_names := ut_object_names();
+    l_include_object_names    ut_object_names;
+    l_paths                   ut_varchar2_list := ut_varchar2_list();
+    l_random_test_order_seed  positive;
   begin
     ut_event_manager.initialize();
     if a_reporters is not empty then
@@ -107,7 +110,12 @@ create or replace package body ut_runner is
 
     ut_event_manager.trigger_event(ut_event_manager.gc_initialize);
     ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_run_info());
-
+    if a_random_test_order_seed is not null then
+      l_random_test_order_seed  := a_random_test_order_seed;
+    elsif a_random_test_order then
+      dbms_random.seed( to_char(systimestamp,'yyyyddmmhh24missffff') );
+      l_random_test_order_seed := trunc(dbms_random.value(1, 1000000000));
+    end if;
     if a_paths is null or a_paths is empty or a_paths.count = 1 and a_paths(1) is null then
       l_paths := ut_varchar2_list(sys_context('userenv', 'current_schema'));
     else
@@ -144,10 +152,11 @@ create or replace package body ut_runner is
         l_include_object_names,
         set(a_source_file_mappings),
         set(a_test_file_mappings),
-        a_client_character_set
+        a_client_character_set,
+        l_random_test_order_seed
       );
 
-      ut_suite_manager.configure_execution_by_path(l_paths, l_run.items);
+      ut_suite_manager.configure_execution_by_path(l_paths, l_run.items, l_random_test_order_seed);
       if a_force_manual_rollback then
         l_run.set_rollback_type( a_rollback_type => ut_utils.gc_rollback_manual, a_force => true );
       end if;
