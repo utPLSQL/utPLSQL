@@ -154,5 +154,9 @@ create or replace package body main_helper is
      ut3.ut_utils.append_to_list(a_list,a_items);
   end;
   
+  procedure output_null is
+  begin
+    dbms_output.enable(null);
+  end;
 end;
 /

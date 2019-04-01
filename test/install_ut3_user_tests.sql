@@ -5,6 +5,7 @@ whenever oserror exit failure rollback
 alter session set plsql_optimize_level=0;
 
 prompt Install user tests
+@@ut3_user/test_user.pks
 @@ut3_user/expectations/unary/test_expect_not_to_be_null.pks
 @@ut3_user/expectations/unary/test_expect_to_be_null.pks
 @@ut3_user/expectations/unary/test_expect_to_be_empty.pks
@@ -42,7 +43,7 @@ set define on
 @@install_below_12_2.sql 'ut3_user/reporters/test_coverage/test_html_proftab_reporter.pks'
 set define off
 
-
+@@ut3_user/test_user.pkb
 @@ut3_user/expectations/unary/test_expect_not_to_be_null.pkb
 @@ut3_user/expectations/unary/test_expect_to_be_null.pkb
 @@ut3_user/expectations/unary/test_expect_to_be_empty.pkb

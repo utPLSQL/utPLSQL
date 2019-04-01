@@ -27,4 +27,5 @@ time utPLSQL-cli/bin/utplsql run ${UT3_TESTER_HELPER}/${UT3_TESTER_HELPER_PASSWO
 -f=ut_junit_reporter          -o=junit_test_results.xml \
 -f=ut_tfs_junit_reporter      -o=tfs_test_results.xml \
 -f=ut_documentation_reporter  -o=test_results.log -s \
--scc
+-scc \
+-q

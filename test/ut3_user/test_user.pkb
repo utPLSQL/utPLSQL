@@ -1,4 +1,4 @@
-create or replace package body core is
+create or replace package body test_user is
 
    procedure global_setup is
   begin
