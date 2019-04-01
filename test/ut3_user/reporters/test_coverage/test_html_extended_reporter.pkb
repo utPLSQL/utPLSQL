@@ -13,7 +13,7 @@ create or replace package body test_html_extended_reporter is
       bulk collect into l_results
       from table(
         ut3.ut.run(
-          a_path => 'ut3.test_dummy_coverage',
+          a_path => 'ut3.test_block_dummy_coverage',
           a_reporter=> ut3.ut_coverage_html_reporter(),
           a_source_files => ut3.ut_varchar2_list( 'test/ut3.dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long.pkb' ),
           a_test_files => ut3.ut_varchar2_list( ),

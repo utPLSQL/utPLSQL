@@ -1,7 +1,7 @@
 create or replace package test_extended_coverage is
 
   --%suite
-  --%suitepath(utplsql.test_user.reporters.test_coverage)
+  --%suitepath(utplsql.test_user.reporters)
 
   --%beforeall
   procedure setup_dummy_coverage;

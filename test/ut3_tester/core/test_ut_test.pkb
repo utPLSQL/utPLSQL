@@ -404,6 +404,16 @@ create or replace package body test_ut_test is
     ut.expect(l_test.result).to_equal(ut3.ut_utils.gc_error);
   end;
 
+  procedure create_synonym is
+  begin
+   ut3_tester_helper.ut_example_tests.create_synonym;
+  end;
+  
+  procedure drop_synonym is
+  begin
+   ut3_tester_helper.ut_example_tests.drop_synonym;
+  end;
+
   procedure owner_name_null is
     --Arrange
     l_test ut3.ut_test := ut3.ut_test(

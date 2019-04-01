@@ -50,9 +50,13 @@ create or replace package test_ut_test is
   --%test(Fails when owner name invalid)
   procedure owner_name_invalid;
   
-  --TODO: FIX that
+  
+  procedure create_synonym;
+  procedure drop_synonym;
+  
   --%test(Runs test as current schema when owner name null)
-  --%disabled
+  --%beforetest(create_synonym)
+  --%aftertest(drop_synonym)
   procedure owner_name_null;
 
   procedure create_invalid_package;
