@@ -15,7 +15,10 @@ create or replace package coverage_helper is
   procedure grant_exec_on_cov;
   procedure mock_profiler_coverage_data(a_run_id integer,a_user in varchar2);
   procedure drop_dummy_coverage_pkg;  
-    
+  procedure create_dummy_coverage_test_1;
+  procedure drop_dummy_coverage_test_1; 
+  procedure grant_exec_on_cov_1;
+  
   --Block coverage
   procedure create_dummy_12_2_cov_pck;
   procedure create_dummy_12_2_cov_test;

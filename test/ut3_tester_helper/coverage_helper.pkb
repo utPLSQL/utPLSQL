@@ -106,6 +106,66 @@ create or replace package body coverage_helper is
     begin execute immediate q'[drop package ut3.dummy_coverage]'; exception when others then null; end;
   end;
  
+
+  procedure create_dummy_coverage_test_1 is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package UT3.DUMMY_COVERAGE_1 is
+      procedure do_stuff;
+      procedure grant_myself;
+    end;]';
+    execute immediate q'[create or replace package body UT3.DUMMY_COVERAGE_1 is
+      procedure do_stuff is
+      begin
+        if 1 = 2 then
+          dbms_output.put_line('should not get here');
+        else
+          dbms_output.put_line('should get here');
+        end if;
+      end;
+      
+      procedure grant_myself is
+      begin
+        execute immediate 'grant debug,execute on UT3.DUMMY_COVERAGE_1 to ut3$user#';
+      end;
+      
+    end;]';
+    execute immediate q'[create or replace package UT3.TEST_DUMMY_COVERAGE_1 is
+      --%suite(dummy coverage test 1)
+      --%suitepath(coverage_testing)
+
+      --%test
+      procedure test_do_stuff;
+      
+      procedure grant_myself;
+    end;]';
+    execute immediate q'[create or replace package body UT3.TEST_DUMMY_COVERAGE_1 is
+      procedure test_do_stuff is
+      begin
+        dummy_coverage_1.do_stuff;
+      end;
+      
+      procedure grant_myself is
+      begin
+        execute immediate 'grant debug,execute on UT3.TEST_DUMMY_COVERAGE_1 to ut3$user#';
+      end;
+      
+    end;]';
+  end;
+
+  procedure drop_dummy_coverage_test_1 is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[drop package UT3.DUMMY_COVERAGE_1]';
+    execute immediate q'[drop package UT3.TEST_DUMMY_COVERAGE_1]';
+  end;
+
+  procedure grant_exec_on_cov_1 is
+      pragma autonomous_transaction;
+  begin
+    execute immediate 'begin UT3.DUMMY_COVERAGE_1.grant_myself(); end;';
+    execute immediate 'begin UT3.TEST_DUMMY_COVERAGE_1.grant_myself(); end;'; 
+  end;
   
   --12.2 Setup
   procedure create_dummy_12_2_cov_pck is

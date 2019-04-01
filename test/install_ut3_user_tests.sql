@@ -36,12 +36,11 @@ set define off
 @@ut3_user/reporters/test_coverage/test_coveralls_reporter.pks
 @@ut3_user/reporters/test_coverage/test_cov_cobertura_reporter.pks
 @@ut3_user/reporters/test_coverage/test_coverage_sonar_reporter.pks
+set define on
+@@install_below_12_2.sql 'ut3_user/reporters/test_proftab_coverage.pks'
+@@install_below_12_2.sql 'ut3_user/reporters/test_coverage/test_html_proftab_reporter.pks'
+set define off
 
-
---set define on
---@@install_below_12_2.sql 'ut3_user/reporters/test_proftag_coverage.pks'
---@@install_below_12_2.sql 'ut3_user/reporters/test_coverage/test_html_proftab_reporter.pks'
---set define off
 
 @@ut3_user/expectations/unary/test_expect_not_to_be_null.pkb
 @@ut3_user/expectations/unary/test_expect_to_be_null.pkb
@@ -74,11 +73,10 @@ set define off
 @@ut3_user/reporters/test_coverage/test_coveralls_reporter.pkb
 @@ut3_user/reporters/test_coverage/test_cov_cobertura_reporter.pkb
 @@ut3_user/reporters/test_coverage/test_coverage_sonar_reporter.pkb
-
---set define on
---@@install_below_12_2.sql 'ut3_user/reporters/test_coverage.pkb'
---@@install_below_12_2.sql 'ut3_user/reporters/test_coverage/test_html_proftab_reporter.pkb'
---set define off
+set define on
+@@install_below_12_2.sql 'ut3_user/reporters/test_proftab_coverage.pkb'
+@@install_below_12_2.sql 'ut3_user/reporters/test_coverage/test_html_proftab_reporter.pkb'
+set define off
 
 
 set linesize 200
