@@ -20,7 +20,7 @@ create or replace type body ut_realtime_reporter is
     self in out nocopy ut_realtime_reporter
   ) return self as result is
   begin
-    self.init($$plsql_unit);
+    self.init($$plsql_unit,ut_output_clob_table_buffer());
     total_number_of_tests := 0;
     current_test_number := 0;
     current_indent := 0;

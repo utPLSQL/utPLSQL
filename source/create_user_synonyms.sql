@@ -97,6 +97,7 @@ create or replace synonym &ut3_user..ut_coverage_options for &&ut3_owner..ut_cov
 create or replace synonym &ut3_user..ut_coverage_helper for &&ut3_owner..ut_coverage_helper;
 create or replace synonym &ut3_user..ut_output_buffer_base for &&ut3_owner..ut_output_buffer_base;
 create or replace synonym &ut3_user..ut_output_table_buffer for &&ut3_owner..ut_output_table_buffer;
+create or replace synonym &ut3_user..ut_output_clob_table_buffer for &&ut3_owner..ut_output_clob_table_buffer;
 create or replace synonym &ut3_user..ut_file_mappings for &&ut3_owner..ut_file_mappings;
 create or replace synonym &ut3_user..ut_file_mapping for &&ut3_owner..ut_file_mapping;
 create or replace synonym &ut3_user..ut_file_mapper for &&ut3_owner..ut_file_mapper;
