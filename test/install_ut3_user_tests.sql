@@ -10,6 +10,7 @@ prompt Install user tests
 @@ut3_user/expectations/unary/test_expect_to_be_empty.pks
 @@ut3_user/expectations/unary/test_expect_to_have_count.pks
 @@ut3_user/expectations/unary/test_expect_to_be_true_false.pks
+@@ut3_user/expectations/unary/test_expect_to_be_not_null.pks
 @@ut3_user/expectations/binary/test_equal.pks
 @@ut3_user/expectations/binary/test_expect_to_be_less_than.pks
 @@ut3_user/expectations/binary/test_be_less_or_equal.pks
@@ -47,6 +48,7 @@ set define off
 @@ut3_user/expectations/unary/test_expect_to_be_empty.pkb
 @@ut3_user/expectations/unary/test_expect_to_have_count.pkb
 @@ut3_user/expectations/unary/test_expect_to_be_true_false.pkb
+@@ut3_user/expectations/unary/test_expect_to_be_not_null.pkb
 @@ut3_user/expectations/binary/test_equal.pkb
 @@ut3_user/expectations/binary/test_expect_to_be_less_than.pkb
 @@ut3_user/expectations/binary/test_be_less_or_equal.pkb
