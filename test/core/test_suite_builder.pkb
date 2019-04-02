@@ -608,11 +608,11 @@ create or replace package body test_suite_builder is
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
-    ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%beforeall&quot;%line 2%</WARNINGS>%', '\');
-    ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%beforeeach&quot;%line 3%</WARNINGS>%', '\');
-    ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%aftereach&quot;%line 4%</WARNINGS>%', '\');
-    ut.expect(l_actual).to_be_like('%<WARNINGS>%Annotation &quot;--\%afterall&quot; cannot be used with &quot;--\%test&quot;. Annotation ignored.'
-                                   ||'%at &quot;UT3_TESTER.SOME_PACKAGE.DO_STUFF&quot;, line 5%</WARNINGS>%', '\');
+    ut.expect(l_actual).to_match('(.*)(<WARNINGS>)(.*)(Annotation &quot;--%beforeall&quot;)(.*)(line 2)(.*)(</WARNINGS>)(.*)', 'n');
+    ut.expect(l_actual).to_match('(.*)(<WARNINGS>)(.*)(Annotation &quot;--%beforeeach&quot;)(.*)(line 3)(.*)(</WARNINGS>)(.*)', 'n');
+    ut.expect(l_actual).to_match('(.*)(<WARNINGS>)(.*)(Annotation &quot;--%aftereach&quot;)(.*)(line 4)(.*)(</WARNINGS>)(.*)', 'n');
+    ut.expect(l_actual).to_match('(.*)(<WARNINGS>)(.*)(Annotation &quot;--%afterall&quot; cannot be used with &quot;--%test&quot;. Annotation ignored.)'
+                               ||'(.*)(at &quot;UT3_TESTER.SOME_PACKAGE.DO_STUFF&quot;, line 5)(.*)(</WARNINGS>)(.*)', 'n');
     ut.expect(l_actual).not_to_be_like('%<BEFORE_EACH_LIST>%');
     ut.expect(l_actual).not_to_be_like('%<AFTER_EACH_LIST>%');
     ut.expect(l_actual).not_to_be_like('%<BEFORE_ALL_LIST>%');
@@ -1095,7 +1095,7 @@ create or replace package body test_suite_builder is
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
-    ut.expect(l_actual).to_be_like('%<WARNINGS><VARCHAR2>Unsupported annotation &quot;--\%bad_procedure_annotation&quot;. Annotation ignored.% line 2</VARCHAR2></WARNINGS>%', '\');
+    ut.expect(l_actual).to_match('(.*)(<WARNINGS><VARCHAR2>Unsupported annotation &quot;--%bad_procedure_annotation&quot;\. Annotation ignored\.)(.*)( line 2</VARCHAR2></WARNINGS>)(.*)', 'n');
   end;
 
   procedure test_bad_package_annotation is
@@ -1111,7 +1111,7 @@ create or replace package body test_suite_builder is
       --Act
       l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
       --Assert
-      ut.expect(l_actual).to_be_like('%<WARNINGS><VARCHAR2>Unsupported annotation &quot;--\%bad_package_annotation&quot;. Annotation ignored.% line 17</VARCHAR2></WARNINGS>%', '\');
+      ut.expect(l_actual).to_match('(.*)(<WARNINGS><VARCHAR2>Unsupported annotation &quot;--%bad_package_annotation&quot;\. Annotation ignored\.)(.*)( line 17</VARCHAR2></WARNINGS>)(.*)', 'n');
   end;
 
 end test_suite_builder;
