@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.7.2795--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.2803--develop-blue.svg)
 
 # Expectation concepts 
 Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
@@ -272,7 +272,9 @@ begin
 end;
 ```
 
-Parameters `a_mask` and `a_escape_char` represent valid parameters of the [Oracle LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF52142)
+Parameters `a_mask` and `a_escape_char` represent valid parameters of the [Oracle LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF52142).
+
+If you use Oracle Database version 11.2.0.4, you may run into Oracle Bug 14402514: WRONG RESULTS WITH LIKE ON CLOB USING ESCAPE CHARACTER. In this case we recommend to use `match` instead of `be_like`.
 
 
 ## be_not_null
