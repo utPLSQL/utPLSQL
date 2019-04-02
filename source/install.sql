@@ -99,10 +99,12 @@ alter session set current_schema = &&ut3_owner;
 --output buffer table
 @@install_component.sql 'core/output_buffers/ut_output_buffer_info_tmp.sql'
 @@install_component.sql 'core/output_buffers/ut_output_buffer_tmp.sql'
-@@install_component.sql 'core/output_buffers/ut_message_id_seq.sql'
+@@install_component.sql 'core/output_buffers/ut_output_clob_buffer_tmp.sql'
 --output buffer table api
 @@install_component.sql 'core/output_buffers/ut_output_table_buffer.tps'
 @@install_component.sql 'core/output_buffers/ut_output_table_buffer.tpb'
+@@install_component.sql 'core/output_buffers/ut_output_clob_table_buffer.tps'
+@@install_component.sql 'core/output_buffers/ut_output_clob_table_buffer.tpb'
 
 @@install_component.sql 'core/types/ut_output_reporter_base.tps'
 
@@ -194,7 +196,6 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_cursor_column.tps'
 @@install_component.sql 'expectations/data_values/ut_cursor_column_tab.tps'
 @@install_component.sql 'expectations/data_values/ut_cursor_details.tps'
-@@install_component.sql 'expectations/data_values/ut_data_value_anydata.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_blob.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_boolean.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_clob.tps'

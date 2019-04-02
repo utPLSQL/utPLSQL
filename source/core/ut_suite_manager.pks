@@ -37,7 +37,7 @@ create or replace package ut_suite_manager authid current_user is
    * @return array containing root suites-ready to be executed
    *
    */
-  function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items;
+  function configure_execution_by_path(a_paths ut_varchar2_list, a_random_seed positive := null) return ut_suite_items;
 
   /**
    * Builds a hierarchical suites based on given suite-paths
@@ -46,7 +46,11 @@ create or replace package ut_suite_manager authid current_user is
    * @param a_suites  returned array containing root suites-ready to be executed
    *
    */
-  procedure configure_execution_by_path(a_paths in ut_varchar2_list, a_suites out nocopy ut_suite_items);
+  procedure configure_execution_by_path(
+    a_paths       in ut_varchar2_list,
+    a_suites      out nocopy ut_suite_items,
+    a_random_seed in positive := null
+  );
 
   /**
    * Cleanup paths by removing leading/trailing whitespace and making paths lowercase

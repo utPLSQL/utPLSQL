@@ -18,7 +18,7 @@ create or replace type body ut_debug_reporter is
 
   constructor function ut_debug_reporter(self in out nocopy ut_debug_reporter) return self as result is
   begin
-    self.init($$plsql_unit);
+    self.init($$plsql_unit,ut_output_clob_table_buffer());
     self.start_time := current_timestamp();
     self.event_time := current_timestamp();
     return;

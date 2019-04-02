@@ -147,6 +147,22 @@ create or replace package test_ut_run is
   procedure drop_bad_annot;
   --%endcontext
 
+  --%context(random_order)
+  --%displayname(Random test execution order)
+  --%beforeall(create_ut3$user#_tests)
+  --%afterall(drop_ut3$user#_tests)
+
+  --%test(Runs tests in random order)
+  procedure run_with_random_order;
+
+  --%test(Reports test random_test_order_seed)
+  procedure run_and_report_random_ord_seed;
+
+  --%test(Runs tests in the same random order with provided seed)
+  procedure run_with_random_order_seed;
+
+  --%endcontext
+
 end;
 /
 

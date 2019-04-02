@@ -174,7 +174,7 @@ create or replace package body ut_compound_data_helper is
   
   function generate_equal_sql(a_col_name in varchar2) return varchar2 is
   begin
-    return ' a.'||a_col_name||q'[ = ]'||' e.'||a_col_name;
+    return ' decode(a.'||a_col_name||','||' e.'||a_col_name||',1,0) = 1 ';
   end;
 
   function generate_partition_stmt(

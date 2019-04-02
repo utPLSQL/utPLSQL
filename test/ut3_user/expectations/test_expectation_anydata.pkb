@@ -970,5 +970,29 @@ Rows: [ 60 differences, showing first 20 ]
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;  
    
+  procedure arr_empty_eq_arr_empty_unord is
+  begin
+   --Arrange
+   g_test_expected := anydata.convertCollection(ut3_tester_helper.t_tab_varchar(null));
+   g_test_actual   := anydata.convertCollection(ut3_tester_helper.t_tab_varchar(null));
+
+   --Act
+   ut3.ut.expect( g_test_actual ).to_equal( g_test_expected ).unordered();
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);   
+
+  end;   
+  
+  procedure arr_empty_nqua_arr_e_unord is
+  begin
+   --Arrange
+   g_test_expected := anydata.convertCollection(ut3_tester_helper.t_tab_varchar('t'));
+   g_test_actual   := anydata.convertCollection(ut3_tester_helper.t_tab_varchar(' '));
+
+   --Act
+   ut3.ut.expect( g_test_actual ).not_to_equal( g_test_expected ).unordered();
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
+
+  end;  
+  
 end;
 /

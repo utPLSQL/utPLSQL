@@ -3,7 +3,7 @@ declare
   e_non_assm exception;
   pragma exception_init(e_non_assm, -43853);
 begin
-  v_table_sql := 'create table ut_output_buffer_tmp$(
+  v_table_sql := 'create table ut_output_clob_buffer_tmp$(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -24,27 +24,25 @@ begin
   */
   output_id      raw(32) not null,
   message_id     number(38,0) not null,
-  text           varchar2(4000),
+  text           clob,
   item_type      varchar2(1000),
   is_finished    number(1,0) default 0 not null,
-  constraint ut_output_buffer_tmp_pk primary key(output_id, message_id),
-  constraint ut_output_buffer_tmp_ck check(
+  constraint ut_output_clob_buffer_tmp_pk primary key(output_id, message_id),
+  constraint ut_output_clob_buffer_tmp_ck check(
          is_finished = 0 and (text is not null or item_type is not null )
       or is_finished = 1 and text is null and item_type is null ),
-  constraint ut_output_buffer_fk1 foreign key (output_id) references ut_output_buffer_info_tmp$(output_id)
-) organization index nologging initrans 100
-  overflow nologging initrans 100
+  constraint ut_output_clob_buffer_tmp_fk1 foreign key (output_id) references ut_output_buffer_info_tmp$(output_id)
+) nologging initrans 100
 ';
-  execute immediate v_table_sql;
---   begin
---     execute immediate
---       v_table_sql || 'lob(text) store as securefile ut_output_text(retention none enable storage in row)';
---   exception
---     when e_non_assm then
---       execute immediate
---         v_table_sql || 'lob(text) store as basicfile ut_output_text(pctversion 0 enable storage in row)';
---
---   end;
+  begin
+    execute immediate
+      v_table_sql || 'lob(text) store as securefile ut_output_text(retention none enable storage in row)';
+  exception
+    when e_non_assm then
+      execute immediate
+        v_table_sql || 'lob(text) store as basicfile ut_output_text(pctversion 0 enable storage in row)';
+
+  end;
 end;
 /
 
@@ -57,12 +55,12 @@ declare
   v_view_source varchar2(32767);
 begin
   begin
-    execute immediate 'drop view ut_output_buffer_tmp';
+    execute immediate 'drop view ut_output_clob_buffer_tmp';
   exception
     when ex_view_doesnt_exist then
       null;
   end;
-  v_view_source := ' ut_output_buffer_tmp as
+  v_view_source := ' ut_output_clob_buffer_tmp as
 /*
 utPLSQL - Version 3
 Copyright 2016 - 2018 utPLSQL Project
@@ -81,7 +79,7 @@ select output_id
       ,text
       ,item_type
       ,is_finished
-  from ut_output_buffer_tmp$';
+  from ut_output_clob_buffer_tmp$';
 
   execute immediate 'create or replace editioning view '||v_view_source;
 exception

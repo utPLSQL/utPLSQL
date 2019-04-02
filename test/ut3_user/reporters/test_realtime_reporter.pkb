@@ -112,7 +112,7 @@ create or replace package body test_realtime_reporter as
       -- consume
       select ut3_tester_helper.test_event_object(item_type, xmltype(text))
         bulk collect into g_events
-        from table(ut3.ut_output_table_buffer(l_reporter.output_buffer.output_id).get_lines())
+        from table(l_reporter.get_lines())
         where trim(text) is not null and item_type is not null;
     end run_report_and_cache_result;
   end create_test_suites_and_run;

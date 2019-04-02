@@ -1,6 +1,6 @@
 create or replace package body test_user is
 
-   procedure global_setup is
+  procedure global_setup is
   begin
     ut3.ut_coverage.set_develop_mode(true);
     --improve performance of test execution by disabling all compiler optimizations
