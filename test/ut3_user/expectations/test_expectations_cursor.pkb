@@ -2534,7 +2534,7 @@ Diff:%
 	  select column_value t1 from table(ut_varchar2_list(' '));
     --Assert
     ut3.ut.expect( l_actual ).to_equal( l_expected );
-	ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end; 
 
   procedure insginificant_whitespace2 is
@@ -2548,7 +2548,7 @@ Diff:%
 	  select 't' t1 from dual;
     --Assert
     ut3.ut.expect( l_actual ).to_equal( l_expected );
-	ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end; 
   
   procedure insginificant_whitespace3 is
@@ -2562,7 +2562,7 @@ Diff:%
 	  select 't' t1 from dual;
     --Assert
     ut3.ut.expect( l_actual ).to_equal( l_expected );
-	ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
   
   procedure insginificant_whitespace4 is
@@ -2576,7 +2576,7 @@ Diff:%
 	  select 't' t1 from dual;
     --Assert
     ut3.ut.expect( l_actual ).to_equal( l_expected );
-	ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;     
   
   procedure insginificant_whitespace5 is
@@ -2590,7 +2590,7 @@ Diff:%
 	  select '' t1 from dual;
     --Assert
     ut3.ut.expect( l_actual ).to_equal( l_expected );
-	ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end; 
   
   procedure nulltowhitespace is
@@ -2604,7 +2604,7 @@ Diff:%
 	  select ' ' t1 from dual;
     --Assert
     ut3.ut.expect( l_actual ).to_equal( l_expected );
-	ut.expect(expectations.failed_expectations_data()).not_to_be_empty();
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end; 
 end;
 /
