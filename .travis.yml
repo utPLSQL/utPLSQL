@@ -25,6 +25,8 @@ env:
     - UT3_USER_PASSWORD=ut3
     - UT3_TESTER=ut3_tester
     - UT3_TESTER_PASSWORD=ut3
+    - UT3_TESTER_HELPER=ut3_tester_helper
+    - UT3_TESTER_HELPER_PASSWORD=ut3
     - UT3_TABLESPACE=users
     # Environment for building a release
     - CURRENT_BRANCH=${TRAVIS_BRANCH}
@@ -45,7 +47,7 @@ env:
     #utPLSQL released version directory
     - UTPLSQL_DIR="utPLSQL_latest_release"
     - SELFTESTING_BRANCH=${TRAVIS_BRANCH}
-    - UTPLSQL_CLI_VERSION="3.1.0"
+    - UTPLSQL_CLI_VERSION="3.1.6"
     # Maven
     - MAVEN_HOME=/usr/local/maven
     - MAVEN_CFG=$HOME/.m2
