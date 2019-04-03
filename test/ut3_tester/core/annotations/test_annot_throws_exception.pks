@@ -1,7 +1,7 @@
 create or replace package test_annot_throws_exception
 is
   --%suite(annotations - throws)
-  --%suitepath(utplsql.framework_tester.core.annotations)
+  --%suitepath(utplsql.ut3_tester.core.annotations)
     
   --%beforeall
   procedure recollect_tests_results;

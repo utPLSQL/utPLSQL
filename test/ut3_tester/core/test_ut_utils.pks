@@ -1,7 +1,7 @@
 create or replace package test_ut_utils is
 
   --%suite(ut_utils)
-  --%suitepath(utplsql.framework_tester.core)
+  --%suitepath(utplsql.ut3_tester.core)
 
   function get_numeric_delimiter return varchar2;
 

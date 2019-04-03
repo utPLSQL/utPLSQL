@@ -1,6 +1,6 @@
 create or replace package test_suite_builder is
   --%suite(suite_builder)
-  --%suitepath(utplsql.framework_tester.core)
+  --%suitepath(utplsql.ut3_tester.core)
 
   --%context(suite)
   --%displayname(--%suite annotation)

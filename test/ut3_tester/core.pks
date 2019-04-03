@@ -1,7 +1,7 @@
 create or replace package core is
 
   --%suite
-  --%suitepath(utplsql)
+  --%suitepath(utplsql.ut3_tester)
 
   --%beforeall
   procedure global_setup;

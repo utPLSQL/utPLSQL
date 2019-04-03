@@ -1,7 +1,7 @@
 create or replace package test_ut_executable is
 
   --%suite(ut_executable)
-  --%suitepath(utplsql.framework_tester.core)
+  --%suitepath(utplsql.ut3_tester.core)
 
   --%context(do_execute)
 

@@ -1,7 +1,7 @@
 create or replace package test_expectation_processor is
 
   --%suite(expectation_processor)
-  --%suitepath(utplsql.framework_tester.core.expectations)
+  --%suitepath(utplsql.ut3_tester.core.expectations)
 
   --%context(who_called_expectation)
 

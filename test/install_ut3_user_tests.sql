@@ -4,6 +4,9 @@ whenever oserror exit failure rollback
 
 alter session set plsql_optimize_level=0;
 
+@@common_helper/utplsql.pks
+@@common_helper/utplsql.pkb
+
 prompt Install user tests
 @@ut3_user/test_user.pks
 @@ut3_user/expectations/unary/test_expect_not_to_be_null.pks

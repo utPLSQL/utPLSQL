@@ -69,6 +69,7 @@ end;';
   procedure close_newly_opened_transaction is
     l_output_data dbms_output.chararr;
     l_num_lines   integer := 100000;
+    pragma autonomous_transaction;
   begin
     --Arrange
     create_test_spec();
@@ -285,12 +286,13 @@ end;';
   end;
 
   procedure db_link_cleanup is
-    begin
-      ut3_tester_helper.run_helper.db_link_cleanup();
-    end;
+    pragma autonomous_transaction;
+  begin
+    ut3_tester_helper.run_helper.db_link_cleanup();
+  end;
 
   procedure db_link_setup is
-    l_service_name varchar2(100);
+    pragma autonomous_transaction;
   begin
     ut3_tester_helper.run_helper.db_link_setup();
   end;
@@ -298,6 +300,7 @@ end;';
   procedure raises_20213_on_fail_link is
     l_reporter ut3.ut_documentation_reporter := ut3.ut_documentation_reporter();
     l_lines    ut3.ut_varchar2_list;
+    pragma autonomous_transaction;
   begin
     --Arrange
     --Act

@@ -1,7 +1,7 @@
 create or replace package test_suite_manager is
 
   --%suite(suite_manager)
-  --%suitepath(utplsql.framework_tester.core)
+  --%suitepath(utplsql.ut3_tester.core)
 
   procedure create_dummy_long_test_package;
 

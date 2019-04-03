@@ -1,7 +1,7 @@
 create or replace package test_ut_test is
 
   --%suite(ut_test)
-  --%suitepath(utplsql.framework_tester.core)
+  --%suitepath(utplsql.ut3_tester.core)
   
   --%beforeeach
   procedure cleanup_package_state;

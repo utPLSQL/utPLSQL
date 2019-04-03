@@ -1,7 +1,7 @@
 create or replace package test_file_mapper is
 
   --%suite(file_mapper)
-  --%suitepath(utplsql.framework_tester.core)
+  --%suitepath(utplsql.ut3_tester.core)
 
   --%test(Maps file paths into database objects using default mappings)
   procedure default_mappings;
