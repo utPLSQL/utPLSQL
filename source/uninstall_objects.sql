@@ -137,10 +137,6 @@ drop type ut_data_value_boolean force;
 
 drop type ut_data_value_blob force;
 
-drop type ut_data_value_object force;
-
-drop type ut_data_value_collection force;
-
 drop type ut_data_value_anydata force;
 
 drop type ut_data_value_xmltype force;
@@ -247,17 +243,21 @@ drop type ut_suite_item force;
 
 drop type ut_output_table_buffer force;
 
+drop type ut_output_clob_table_buffer force;
+
 drop type ut_output_buffer_base force;
 
 drop view ut_output_buffer_tmp;
 
 drop table ut_output_buffer_tmp$ purge;
 
+drop view ut_output_clob_buffer_tmp;
+
+drop table ut_output_clob_buffer_tmp$ purge;
+
 drop view ut_output_buffer_info_tmp;
 
 drop table ut_output_buffer_info_tmp$;
-
-drop sequence ut_message_id_seq;
 
 drop type ut_output_data_rows force;
 
