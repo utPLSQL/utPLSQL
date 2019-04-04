@@ -396,9 +396,6 @@ create or replace package test_expectations_cursor is
   
   --%test(Fail to process a cursor for expected)
   procedure xml_error_expected;
-  
-  --%test(Fail to process a cursor for both)
-  procedure xml_error_both;  
-    
+      
 end;
 /

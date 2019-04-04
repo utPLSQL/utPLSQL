@@ -2484,9 +2484,9 @@ Diff:%
       
     ut3.ut.expect(v_actual).to_equal(v_expected);
    --Assert
-     l_expected_message := q'[%SQL exception thrown when fetching data from cursor:%
+     l_expected_message := q'[%ORA-20218: SQL exception thrown when fetching data from cursor: 
 %ORA-01722: invalid number%
-%Check the query and data for errors.]';
+at%ut.expect(v_actual).to_equal(v_expected)%]';
 
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert
@@ -2494,50 +2494,21 @@ Diff:%
   end;
   
   procedure xml_error_expected is
-    c_price  CONSTANT NUMBER(20,4):= 1357;
-    c_user   CONSTANT varchar2(30):= 'TEST_USER';
     v_actual  sys_refcursor;
     v_expected sys_refcursor;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
     open v_expected for
-      select cast(null as number(10)) as usd_price_amt, c_user as update_id
-        from dual where dummy = 1;
+      select 1/0 as test from dual;
     open v_actual for
-      select c_price as usd_price_amt, c_user as update_id from dual;
+      select 1 as test from dual;
       
     ut3.ut.expect(v_actual).to_equal(v_expected);
    --Assert
-     l_expected_message := q'[%SQL exception thrown when fetching data from cursor:%
-%ORA-01722: invalid number%
-%Check the query and data for errors.]';
-
-    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
-    --Assert
-    ut.expect(l_actual_message).to_be_like(l_expected_message);
-  end;
-
-  procedure xml_error_both is
-    c_price  CONSTANT NUMBER(20,4):= 1357;
-    c_user   CONSTANT varchar2(30):= 'TEST_USER';
-    v_actual  sys_refcursor;
-    v_expected sys_refcursor;
-    l_expected_message varchar2(32767);
-    l_actual_message   varchar2(32767);
-  begin
-    open v_actual for
-      select cast(null as number(10)) as usd_price_amt, c_user as update_id
-        from dual where dummy = 1;
-    open v_expected for
-      select cast(null as number(10)) as usd_price_amt, c_user as update_id
-        from dual where dummy = 1;
-      
-    ut3.ut.expect(v_actual).to_equal(v_expected);
-   --Assert
-     l_expected_message := q'[%SQL exception thrown when fetching data from cursor:%
-%ORA-01722: invalid number%
-%Check the query and data for errors.]';
+     l_expected_message := q'[%ORA-20218: SQL exception thrown when fetching data from cursor: 
+%ORA-01476: divisor is equal to zero%
+%at % ut.expect(v_actual).to_equal(v_expected)%]';
 
     l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
     --Assert

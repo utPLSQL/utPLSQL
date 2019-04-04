@@ -113,6 +113,10 @@ create or replace package ut_utils authid definer is
   gc_xml_processing constant pls_integer := -19202;
   pragma exception_init (ex_xml_processing, -19202);
   
+  ex_failed_open_cur exception;
+  gc_failed_open_cur constant pls_integer := -20218;
+  pragma exception_init (ex_failed_open_cur, -20218);  
+  
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
   gc_more_data_string         constant varchar2(5) := '[...]';
@@ -378,6 +382,7 @@ create or replace package ut_utils authid definer is
   */
   function remove_error_from_stack(a_error_stack varchar2, a_ora_code number) return varchar2;
   
+  function create_err_cursor_msg(a_error_stack varchar2) return varchar2;
   
 end ut_utils;
 /

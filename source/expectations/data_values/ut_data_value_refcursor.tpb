@@ -100,8 +100,7 @@ create or replace type body ut_data_value_refcursor as
       if l_cursor%isopen then
         close l_cursor;
       end if;
-        ut_expectation_processor.report_failure_no_caller('SQL exception thrown when fetching data from cursor: '||
-          ut_utils.remove_error_from_stack(sqlerrm,-19202)||chr(10)||'Check the query and data for errors.');
+        raise_application_error(ut_utils.gc_failed_open_cur,ut_utils.create_err_cursor_msg(dbms_utility.format_call_stack()));
     when others then
       if l_cursor%isopen then
         close l_cursor;
