@@ -595,6 +595,14 @@ create or replace package body ut_compound_data_helper is
     open l_diff_cursor for a_diff_cursor_text using a_self_id, a_other_id;
     return l_diff_cursor;
   end;
+ 
+  function create_err_cursor_msg(a_error_stack varchar2) return varchar2 is
+  begin
+    return 'SQL exception thrown when fetching data from cursor: '||
+      ut_utils.remove_error_from_stack(sqlerrm,-19202)||chr(10)||
+      ut_expectation_processor.who_called_expectation(a_error_stack)||
+      'Check the query and data for errors.';   
+  end; 
   
 begin
   g_anytype_name_map(dbms_types.typecode_date)             := 'DATE';

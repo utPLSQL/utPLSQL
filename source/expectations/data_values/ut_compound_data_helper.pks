@@ -92,5 +92,7 @@ create or replace package ut_compound_data_helper authid definer is
   
   function get_compare_cursor(a_diff_cursor_text in clob,a_self_id raw, a_other_id raw) return sys_refcursor;
   
+  function create_err_cursor_msg(a_error_stack varchar2) return varchar2;
+  
 end;
 /

@@ -972,21 +972,16 @@ Rows: [ 4 differences ]
   procedure reports_on_exception_in_cursor
   as
     l_actual     sys_refcursor;
-    l_expected_message varchar2(32767);
-    l_actual_message varchar2(32767);
   begin
     --Act
     open l_actual for select 1/0 as error_column from dual connect by level < 10;
       ut3.ut.expect(l_actual).to_be_empty();
-      --Assert
-   --Assert
-     l_expected_message := q'[%SQL exception thrown when fetching data from cursor:%
-%ORA-01476: divisor is equal to zero%
-%Check the query and data for errors.]';
 
-    l_actual_message := ut3.ut_expectation_processor.get_failed_expectations()(1).message;
-    --Assert
-    ut.expect(l_actual_message).to_be_like(l_expected_message);
+    ut.fail('Expected exception on cursor fetch');
+  exception
+    when others then
+      ut.expect(sqlerrm).to_be_like('%ORA-20218: SQL exception thrown when fetching data from cursor:%
+%ORA-01476: divisor is equal to zero%Check the query and data for errors%'); 
   end;
 
   procedure exception_when_closed_cursor
@@ -2531,8 +2526,6 @@ Diff:%
     c_user   CONSTANT varchar2(30):= 'TEST_USER';
     v_actual  sys_refcursor;
     v_expected sys_refcursor;
-    l_expected_message varchar2(32767);
-    l_actual_message   varchar2(32767);
   begin
     open v_actual for
       select cast(null as number(10)) as usd_price_amt, c_user as update_id
@@ -2541,21 +2534,17 @@ Diff:%
       select c_price as usd_price_amt, c_user as update_id from dual;
       
     ut3.ut.expect(v_actual).to_equal(v_expected);
-   --Assert
-     l_expected_message := q'[%ORA-20218: SQL exception thrown when fetching data from cursor: 
-%ORA-01722: invalid number%
-at%ut.expect(v_actual).to_equal(v_expected)%]';
 
-    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
-    --Assert
-    ut.expect(l_actual_message).to_be_like(l_expected_message);
+    ut.fail('Expected exception on cursor fetch');
+  exception
+    when others then
+      ut.expect(sqlerrm).to_be_like('%ORA-20218: SQL exception thrown when fetching data from cursor:%
+%ORA-01722: invalid number%%Check the query and data for errors%'); 
   end;
   
   procedure xml_error_expected is
     v_actual  sys_refcursor;
     v_expected sys_refcursor;
-    l_expected_message varchar2(32767);
-    l_actual_message   varchar2(32767);
   begin
     open v_expected for
       select 1/0 as test from dual;
@@ -2563,14 +2552,12 @@ at%ut.expect(v_actual).to_equal(v_expected)%]';
       select 1 as test from dual;
       
     ut3.ut.expect(v_actual).to_equal(v_expected);
-   --Assert
-     l_expected_message := q'[%ORA-20218: SQL exception thrown when fetching data from cursor: 
-%ORA-01476: divisor is equal to zero%
-%at % ut.expect(v_actual).to_equal(v_expected)%]';
 
-    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
-    --Assert
-    ut.expect(l_actual_message).to_be_like(l_expected_message);
+    ut.fail('Expected exception on cursor fetch');
+  exception
+    when others then
+      ut.expect(sqlerrm).to_be_like('%ORA-20218: SQL exception thrown when fetching data from cursor:%
+%ORA-01476: divisor is equal to zero%Check the query and data for errors%'); 
   end;
   
 end;

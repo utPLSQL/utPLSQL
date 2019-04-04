@@ -100,7 +100,8 @@ create or replace type body ut_data_value_refcursor as
       if l_cursor%isopen then
         close l_cursor;
       end if;
-        raise_application_error(ut_utils.gc_failed_open_cur,ut_utils.create_err_cursor_msg(dbms_utility.format_call_stack()));
+        raise_application_error(ut_utils.gc_failed_open_cur,
+          ut_compound_data_helper.create_err_cursor_msg(dbms_utility.format_call_stack()));
     when others then
       if l_cursor%isopen then
         close l_cursor;

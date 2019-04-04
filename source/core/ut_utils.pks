@@ -381,8 +381,6 @@ create or replace package ut_utils authid definer is
   * Remove given ORA error from stack
   */
   function remove_error_from_stack(a_error_stack varchar2, a_ora_code number) return varchar2;
-  
-  function create_err_cursor_msg(a_error_stack varchar2) return varchar2;
-  
+    
 end ut_utils;
 /
