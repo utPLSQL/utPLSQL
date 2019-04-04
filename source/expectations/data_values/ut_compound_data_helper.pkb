@@ -79,13 +79,16 @@ create or replace package body ut_compound_data_helper is
     execute immediate q'[with
           expected_cols as (
             select access_path exp_column_name,column_position exp_col_pos,
-                   replace(column_type,'VARCHAR2','CHAR') exp_col_type_compare, column_type exp_col_type
+                   replace(column_type_name,'VARCHAR2','CHAR') exp_col_type_compare, column_type_name exp_col_type
               from table(:a_expected)
+              where parent_name is null and hierarchy_level = 1 and column_name is not null
           ),
           actual_cols as (
             select access_path act_column_name,column_position act_col_pos,
-                   replace(column_type,'VARCHAR2','CHAR') act_col_type_compare, column_type act_col_type
-              from table(:a_actual)),
+                   replace(column_type_name,'VARCHAR2','CHAR') act_col_type_compare, column_type_name act_col_type
+              from table(:a_actual)
+              where parent_name is null and hierarchy_level = 1 and column_name is not null
+          ),
           joined_cols as (
             select e.*,a.*]'
               || case when a_order_enforced then ',
@@ -171,7 +174,7 @@ create or replace package body ut_compound_data_helper is
   
   function generate_equal_sql(a_col_name in varchar2) return varchar2 is
   begin
-    return ' a.'||a_col_name||q'[ = ]'||' e.'||a_col_name;
+    return ' decode(a.'||a_col_name||','||' e.'||a_col_name||',1,0) = 1 ';
   end;
 
   function generate_partition_stmt(
@@ -586,6 +589,13 @@ create or replace package body ut_compound_data_helper is
      end;
   end;
 
+  function get_compare_cursor(a_diff_cursor_text in clob,a_self_id raw, a_other_id raw) return sys_refcursor is
+    l_diff_cursor sys_refcursor;
+  begin
+    open l_diff_cursor for a_diff_cursor_text using a_self_id, a_other_id;
+    return l_diff_cursor;
+  end;
+  
 begin
   g_anytype_name_map(dbms_types.typecode_date)             := 'DATE';
   g_anytype_name_map(dbms_types.typecode_number)           := 'NUMBER';

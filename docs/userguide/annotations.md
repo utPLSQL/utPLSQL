@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.4.2223--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.2808--develop-blue.svg)
 
 # Annotations
 
@@ -1111,7 +1111,7 @@ create or replace package test_rooms_management is
     procedure fails_on_room_name_invalid;
 
     --%test(Fails when content name is null)
-    --%throws(gc_null_value_exception)
+    --%throws(test_rooms_management.gc_null_value_exception)
     procedure fails_on_content_null;
 
     --%test(Adds a content to existing room)
@@ -1148,7 +1148,7 @@ create or replace package body test_rooms_management is
   begin
     open l_rooms_not_named_b for select * from rooms where name not like 'B%';
 
-    remove_rooms_by_name('B%');
+    rooms_management.remove_rooms_by_name('B%');
 
     open l_remaining_rooms for select * from rooms;
     ut.expect( l_remaining_rooms ).to_equal(l_rooms_not_named_b);
@@ -1156,23 +1156,27 @@ create or replace package body test_rooms_management is
 
   procedure room_with_content is
   begin
-    remove_rooms_by_name('Living Room');
+    rooms_management.remove_rooms_by_name('Living Room');
   end;
 
   procedure null_room_name is
   begin
-    remove_rooms_by_name(NULL);
+    --Act
+    rooms_management.remove_rooms_by_name(NULL);
+    --Assert done by --%throws annotation
   end;
 
   procedure fails_on_room_name_invalid is
   begin
-    add_rooms_content('bad room name','Chair');
+    --Act
+    rooms_management.add_rooms_content('bad room name','Chair');
+    --Assert done by --%throws annotation
   end;
 
   procedure fails_on_content_null is
   begin
     --Act
-    add_rooms_content('Dining Room',null);
+    rooms_management.add_rooms_content('Dining Room',null);
     --Assert done by --%throws annotation
   end;
 
@@ -1184,7 +1188,7 @@ create or replace package body test_rooms_management is
     l_expected := 'Table';
 
     --Act
-    add_rooms_content( 'Dining Room', l_expected );
+    rooms_management.add_rooms_content( 'Dining Room', l_expected );
     --Assert
     select name into l_actual from room_contents
      where contents_key = (select max(contents_key) from room_contents);
@@ -1198,7 +1202,7 @@ end;
 
 When te tests are executed
 ```sql
-exec ut.run('test_package');
+exec ut.run('test_rooms_management');
 ```
 The following report is displayed
 ```

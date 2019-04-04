@@ -9,6 +9,7 @@ if [ "${TRAVIS_REPO_SLUG}" = "${UTPLSQL_REPO}" ] && [ "$TRAVIS_PULL_REQUEST" == 
     git add sonar-project.properties
     git add VERSION
     git add source/*
+    git add docs/*
     git commit -m 'Updated project version after build [skip ci]'
     echo "Pushing to origin"
     git push --quiet origin HEAD:${CURRENT_BRANCH}

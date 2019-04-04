@@ -89,6 +89,8 @@ create or replace package ut_compound_data_helper authid definer is
   function is_sql_compare_allowed(a_type_name varchar2) return boolean;
   
   function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2;
-
+  
+  function get_compare_cursor(a_diff_cursor_text in clob,a_self_id raw, a_other_id raw) return sys_refcursor;
+  
 end;
 /

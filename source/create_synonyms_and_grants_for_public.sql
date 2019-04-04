@@ -74,6 +74,7 @@ grant execute on &&ut3_owner..ut_coverage_options to public;
 grant execute on &&ut3_owner..ut_coverage_helper to public;
 grant execute on &&ut3_owner..ut_output_buffer_base to public;
 grant execute on &&ut3_owner..ut_output_table_buffer to public;
+grant execute on &&ut3_owner..ut_output_clob_table_buffer to public;
 grant execute on &&ut3_owner..ut_file_mappings to public;
 grant execute on &&ut3_owner..ut_file_mapping to public;
 grant execute on &&ut3_owner..ut_file_mapper to public;
@@ -106,6 +107,7 @@ grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs   to public;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_units  to public;
 grant execute on &&ut3_owner..ut_matcher_options to public;
 grant execute on &&ut3_owner..ut_matcher_options_items to public;
+grant execute on &&ut3_owner..ut_run_info to public;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
@@ -153,6 +155,7 @@ create public synonym ut_coverage_options for &&ut3_owner..ut_coverage_options;
 create public synonym ut_coverage_helper for &&ut3_owner..ut_coverage_helper;
 create public synonym ut_output_buffer_base for &&ut3_owner..ut_output_buffer_base;
 create public synonym ut_output_table_buffer for &&ut3_owner..ut_output_table_buffer;
+create public synonym ut_output_clob_table_buffer for &&ut3_owner..ut_output_clob_table_buffer;
 create public synonym ut_file_mappings for &&ut3_owner..ut_file_mappings;
 create public synonym ut_file_mapping for &&ut3_owner..ut_file_mapping;
 create public synonym ut_file_mapper for &&ut3_owner..ut_file_mapper;
@@ -165,3 +168,4 @@ create public synonym ut_realtime_reporter for &&ut3_owner..ut_realtime_reporter
 create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks;
 create public synonym dbmspcc_runs for &&ut3_owner..dbmspcc_runs;
 create public synonym dbmspcc_units for &&ut3_owner..dbmspcc_units;
+create public synonym ut_run_info for &&ut3_owner..ut_run_info;

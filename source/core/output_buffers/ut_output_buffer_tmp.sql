@@ -24,7 +24,7 @@ begin
   */
   output_id      raw(32) not null,
   message_id     number(38,0) not null,
-  text           clob,
+  text           varchar2(4000),
   item_type      varchar2(1000),
   is_finished    number(1,0) default 0 not null,
   constraint ut_output_buffer_tmp_pk primary key(output_id, message_id),
@@ -32,16 +32,19 @@ begin
          is_finished = 0 and (text is not null or item_type is not null )
       or is_finished = 1 and text is null and item_type is null ),
   constraint ut_output_buffer_fk1 foreign key (output_id) references ut_output_buffer_info_tmp$(output_id)
-) organization index overflow nologging initrans 100 ';
-  begin
-    execute immediate
-      v_table_sql || 'lob(text) store as securefile ut_output_text(retention none)';
-  exception
-    when e_non_assm then
-      execute immediate
-        v_table_sql || 'lob(text) store as basicfile ut_output_text(pctversion 0)';
-
-  end;
+) organization index nologging initrans 100
+  overflow nologging initrans 100
+';
+  execute immediate v_table_sql;
+--   begin
+--     execute immediate
+--       v_table_sql || 'lob(text) store as securefile ut_output_text(retention none enable storage in row)';
+--   exception
+--     when e_non_assm then
+--       execute immediate
+--         v_table_sql || 'lob(text) store as basicfile ut_output_text(pctversion 0 enable storage in row)';
+--
+--   end;
 end;
 /
 

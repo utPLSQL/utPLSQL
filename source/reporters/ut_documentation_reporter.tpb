@@ -209,6 +209,9 @@ create or replace type body ut_documentation_reporter is
     else
       self.print_green_text(l_summary_text);
     end if;
+    if a_run.random_test_order_seed is not null then
+      self.print_text('Tests were executed with random order seed '''||a_run.random_test_order_seed||'''.');
+    end if;
     self.print_text(' ');
     (self as ut_reporter_base).after_calling_run(a_run);
   end;

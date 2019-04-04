@@ -18,23 +18,22 @@ create or replace type body ut_run as
   
   constructor function ut_run(
     self in out nocopy ut_run,
-    a_items                 ut_suite_items,
-    a_run_paths             ut_varchar2_list := null,
-    a_schema_names          ut_varchar2_rows := null,
-    a_exclude_objects       ut_object_names := null,
-    a_include_objects       ut_object_names := null,
-    a_project_file_mappings ut_file_mappings := null,
-    a_test_file_mappings    ut_file_mappings := null,
-    a_client_character_set  varchar2 := null
+    a_items                  ut_suite_items,
+    a_run_paths              ut_varchar2_list := null,
+    a_schema_names           ut_varchar2_rows := null,
+    a_exclude_objects        ut_object_names := null,
+    a_include_objects        ut_object_names := null,
+    a_project_file_mappings  ut_file_mappings := null,
+    a_test_file_mappings     ut_file_mappings := null,
+    a_client_character_set   varchar2 := null,
+    a_random_test_order_seed positive := null
   ) return self as result is
-    l_coverage_schema_names ut_varchar2_rows;
-    l_coverage_options ut_coverage_options;
-    l_exclude_objects  ut_object_names;
-  begin    
+  begin
     self.run_paths := a_run_paths;
     self.self_type := $$plsql_unit;
     self.items := a_items;
     self.client_character_set := lower(a_client_character_set);
+    self.random_test_order_seed := a_random_test_order_seed;
     self.results_count := ut_results_counter();
     self.test_file_mappings := coalesce(a_test_file_mappings, ut_file_mappings());
     self.coverage_options := ut_coverage_options(

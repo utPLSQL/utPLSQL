@@ -10,7 +10,10 @@ To create a release:
    - merge the release branch to master and wait for master build to complete successfully
    - create a release from the master branch using [github releases page](https://github.com/utPLSQL/utPLSQL/releases) and populate release description using information found on the issues and pull requests since previous release.
    To find issues closed after certain date use [advanced filters](https://help.github.com/articles/searching-issues-and-pull-requests/#search-by-open-or-closed-state). 
-   Example: [`is:issue closed:>2018-07-22`](https://github.com/utPLSQL/utPLSQL/issues?utf8=%E2%9C%93&q=is%3Aissue+closed%3A%3E2018-07-22+) 
+   Example: [`is:issue closed:>2018-07-22`](https://github.com/utPLSQL/utPLSQL/issues?utf8=%E2%9C%93&q=is%3Aissue+closed%3A%3E2018-07-22+)
+   - After release was successfully built, merge master branch back into develop branch
+   - After develop branch was built, update version number in `VERSION` file to represent next planned release version.
+   - Clone `utplsql.githug.io` project and add a new announcement about next version being released in `_posts`. Use previous announcements as a template. Make sure to set date, time and post title properly.
 
 The following will happen:
    - build executed on branch `release/vX.Y.Z-[something]` updates files `sonar-project.properties`, `VERSION` with project version derived from the release branch name
