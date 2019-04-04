@@ -78,6 +78,7 @@ create or replace package test_ut_utils is
   procedure to_string_verybigvarchar2;
 
   --%test(Returns string representation of small number)
+  --%disabled(Just a demo for OUG Ireland'19)
   procedure to_string_verysmallnumber;
 
   --%endcontext
