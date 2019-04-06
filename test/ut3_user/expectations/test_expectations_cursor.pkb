@@ -100,7 +100,7 @@ create or replace package body test_expectations_cursor is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    ut.expect(expectations.failed_expectations_data()).to_be_empty();
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     ut3.ut.reset_nls;
   end;
 
