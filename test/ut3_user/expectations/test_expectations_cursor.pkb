@@ -82,7 +82,7 @@ create or replace package body test_expectations_cursor is
     ut3.ut.reset_nls;
   end;
 
-  procedure success_on_same_data_with_float
+  procedure success_on_same_data_float
   as
     l_expected sys_refcursor;
     l_actual   sys_refcursor;

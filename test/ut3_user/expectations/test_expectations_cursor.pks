@@ -18,7 +18,7 @@ create or replace package test_expectations_cursor is
   procedure success_on_same_data;
 
   --%test(Gives success for identical data with floats)
-  procedure success_on_same_data_with_float;
+  procedure success_on_same_data_float;
 
   --%test(Gives success when both cursors are empty)
   procedure success_on_empty;
