@@ -2549,14 +2549,14 @@ Diff:%
     l_exp_message varchar2(32000);
   begin
     l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
-ORA-01722: invalid number
+ORA-01476: divisor is equal to zero
 at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2561 ut3.ut.expect(l_actual).to_equal(l_expected);
 Check the query and data for errors.';
 
     open l_actual for
-      select cast(null as number(10)) as usd_price_amt from dual where dummy = 1;
+      select 1 as test from dual;
     open l_expected for
-      select 1357 as usd_price_amt from dual;
+      select 1/0 as test from dual;
       
     ut3.ut.expect(l_actual).to_equal(l_expected); 
     --Line that error relates to in expected messag
@@ -2575,7 +2575,7 @@ Check the query and data for errors.';
   
     l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
 ORA-01476: divisor is equal to zero
-at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2589 ut3.ut.expect(l_actual).to_equal(l_expected);
+at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2586 ut3.ut.expect(l_actual).to_equal(l_expected);
 Check the query and data for errors.';
 
     open l_expected for
