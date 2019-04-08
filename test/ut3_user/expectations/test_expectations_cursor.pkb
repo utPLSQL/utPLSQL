@@ -2544,22 +2544,19 @@ Diff:%
   end;
 
  procedure xml_error_actual is
-    c_price  CONSTANT NUMBER(20,4):= 1357;
-    c_user   CONSTANT varchar2(30):= 'TEST_USER';
     l_actual  sys_refcursor;
     l_expected sys_refcursor;
     l_exp_message varchar2(32000);
   begin
     l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
 ORA-01722: invalid number
-at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2564 ut3.ut.expect(l_actual).to_equal(l_expected);
+at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2561 ut3.ut.expect(l_actual).to_equal(l_expected);
 Check the query and data for errors.';
 
     open l_actual for
-      select cast(null as number(10)) as usd_price_amt, c_user as update_id
-        from dual where dummy = 1;
+      select cast(null as number(10)) as usd_price_amt from dual where dummy = 1;
     open l_expected for
-      select c_price as usd_price_amt, c_user as update_id from dual;
+      select 1357 as usd_price_amt from dual;
       
     ut3.ut.expect(l_actual).to_equal(l_expected); 
     --Line that error relates to in expected messag
