@@ -2561,13 +2561,13 @@ Check the query and data for errors.';
     open l_expected for
       select c_price as usd_price_amt, c_user as update_id from dual;
       
-    ut3.ut.expect(l_actual).to_be_like(l_expected); 
+    ut3.ut.expect(l_actual).to_equal(l_expected); 
     --Line that error relates to in expected messag
 
     ut.fail('Expected exception on cursor fetch');
   exception
     when others then
-     ut.expect(sqlerrm).to_equal(l_exp_message); 
+     ut.expect(sqlerrm).to_be_like(l_exp_message); 
   end;
   
   procedure xml_error_expected is
@@ -2586,12 +2586,12 @@ Check the query and data for errors.';
     open l_actual for
       select 1 as test from dual;
       
-    ut3.ut.expect(l_actual).to_be_like(l_expected);
+    ut3.ut.expect(l_actual).to_equal(l_expected);
 
     ut.fail('Expected exception on cursor fetch');
   exception
     when others then
-      ut.expect(sqlerrm).to_equal(l_exp_message); 
+      ut.expect(sqlerrm).to_be_like(l_exp_message); 
   end;
   
 end;
