@@ -94,5 +94,10 @@ create or replace package ut_compound_data_helper authid definer is
   
   function create_err_cursor_msg(a_error_stack varchar2) return varchar2;
   
+  /*
+  * Function to return true or false if the type dont have an length
+  */
+  function type_no_length ( a_type_name varchar2) return boolean;
+  
 end;
 /

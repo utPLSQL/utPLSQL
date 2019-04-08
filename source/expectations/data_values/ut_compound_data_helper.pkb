@@ -231,8 +231,7 @@ create or replace package body ut_compound_data_helper is
     elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('DATE','TIMESTAMP','TIMESTAMP WITH TIME ZONE',
       'TIMESTAMP WITH LOCAL TIME ZONE') then
       l_col_type := 'VARCHAR2(50)';
-    elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('INTERVAL DAY TO SECOND',
-      'INTERVAL YEAR TO MONTH', 'BINARY_FLOAT', 'BINARY_DOUBLE') then
+    elsif  a_data_info.is_sql_diffable = 1  and type_no_length(a_data_info.column_type) then
       l_col_type := a_data_info.column_type;
     else 
       l_col_type := a_data_info.column_type
@@ -570,6 +569,8 @@ create or replace package body ut_compound_data_helper is
     --clob/blob/xmltype/object/nestedcursor/nestedtable
     if a_type_name IN (g_type_name_map(dbms_sql.blob_type),
                        g_type_name_map(dbms_sql.clob_type),
+                       g_type_name_map(dbms_sql.long_type),
+                       g_type_name_map(dbms_sql.long_raw_type),
                        g_type_name_map(dbms_sql.bfile_type),
                        g_anytype_name_map(dbms_types.typecode_namedcollection))
     then    
@@ -604,6 +605,16 @@ create or replace package body ut_compound_data_helper is
       trim(ut_expectation_processor.who_called_expectation(a_error_stack))||
       'Check the query and data for errors.';   
   end; 
+  
+  function type_no_length ( a_type_name varchar2) return boolean is
+  begin
+    return case 
+      when a_type_name in ('INTERVAL DAY TO SECOND','INTERVAL YEAR TO MONTH', 'BINARY_FLOAT', 'BINARY_DOUBLE','ROWID') then
+        true
+      else
+        false
+      end;
+  end;
   
 begin
   g_anytype_name_map(dbms_types.typecode_date)             := 'DATE';
