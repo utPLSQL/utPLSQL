@@ -82,6 +82,28 @@ create or replace package body test_expectations_cursor is
     ut3.ut.reset_nls;
   end;
 
+  procedure success_on_same_data_float
+  as
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+  begin
+    -- Arrange
+    ut3.ut.set_nls;
+    open l_expected for
+      select cast(3.14 as binary_double) as pi_double,
+             cast(3.14 as binary_float) as pi_float
+      from dual;
+    open l_actual for
+      select cast(3.14 as binary_double) as pi_double,
+             cast(3.14 as binary_float) as pi_float
+      from dual;
+    --Act
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    ut3.ut.reset_nls;
+  end;
+
   procedure success_on_empty
   as
     l_expected sys_refcursor;

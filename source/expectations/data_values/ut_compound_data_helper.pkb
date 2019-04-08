@@ -231,7 +231,8 @@ create or replace package body ut_compound_data_helper is
     elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('DATE','TIMESTAMP','TIMESTAMP WITH TIME ZONE',
       'TIMESTAMP WITH LOCAL TIME ZONE') then
       l_col_type := 'VARCHAR2(50)';
-    elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('INTERVAL DAY TO SECOND','INTERVAL YEAR TO MONTH') then
+    elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('INTERVAL DAY TO SECOND',
+      'INTERVAL YEAR TO MONTH', 'BINARY_FLOAT', 'BINARY_DOUBLE') then
       l_col_type := a_data_info.column_type;
     else 
       l_col_type := a_data_info.column_type
