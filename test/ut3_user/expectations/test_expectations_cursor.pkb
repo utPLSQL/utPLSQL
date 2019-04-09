@@ -2591,17 +2591,32 @@ Check the query and data for errors.';
       ut.expect(sqlerrm).to_be_like(l_exp_message); 
   end;
   
-  procedure rowid_refcursor is
+  procedure no_length_datatypes is
     l_actual  sys_refcursor;
     l_expected sys_refcursor;
   begin
+    ut3.ut.set_nls;
     open l_expected for
-      select rowid as test from dual;
+      select cast(3.14 as binary_double) as pi_double,
+             cast(3.14 as binary_float) as pi_float,
+             rowid as row_rowid,
+             numtodsinterval(1.12345678912, 'day') row_ds_interval,
+             numtoyminterval(1.1, 'year') row_ym_interval
+      from dual;
+    
     open l_actual for
-      select rowid as test from dual;
-      
-    ut3.ut.expect(l_actual).to_equal(l_expected);  
+      select cast(3.14 as binary_double) as pi_double,
+             cast(3.14 as binary_float) as pi_float,
+             rowid as row_rowid,
+             numtodsinterval(1.12345678912, 'day') row_ds_interval,
+             numtoyminterval(1.1, 'year') row_ym_interval
+      from dual;
+    --Act
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    ut3.ut.reset_nls;
+      
   end;
 end;
 /

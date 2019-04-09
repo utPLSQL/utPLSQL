@@ -406,8 +406,8 @@ create or replace package test_expectations_cursor is
   --%test(Fail to process a cursor for expected)
   procedure xml_error_expected;
   
-  --%test(Check that cursor correctly handles ROWID dataype)
-  procedure rowid_refcursor;
+  --%test(Check that cursor correctly handles no length dataypes)
+  procedure no_length_datatypes;
       
 end;
 /

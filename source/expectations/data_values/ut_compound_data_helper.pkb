@@ -18,8 +18,10 @@ create or replace package body ut_compound_data_helper is
 
   g_diff_count        integer;
   type t_type_name_map is table of varchar2(128) index by binary_integer;
+  type t_types_no_length is table of varchar2(128) index by varchar2(128);
   g_type_name_map           t_type_name_map;
   g_anytype_name_map        t_type_name_map;
+  g_type_no_length_map      t_types_no_length;
 
   g_compare_sql_template varchar2(4000) :=
   q'[
@@ -609,7 +611,7 @@ create or replace package body ut_compound_data_helper is
   function type_no_length ( a_type_name varchar2) return boolean is
   begin
     return case 
-      when a_type_name in ('INTERVAL DAY TO SECOND','INTERVAL YEAR TO MONTH', 'BINARY_FLOAT', 'BINARY_DOUBLE','ROWID') then
+      when g_type_no_length_map.exists(a_type_name) then
         true
       else
         false
@@ -661,6 +663,15 @@ begin
   g_type_name_map( dbms_sql.urowid_type )                  := 'UROWID';  
   g_type_name_map( dbms_sql.user_defined_type )            := 'USER_DEFINED_TYPE';
   g_type_name_map( dbms_sql.ref_type )                     := 'REF_TYPE';
-  
+    
+    
+  /**
+  * List of types that have no length but can produce a max_len from desc_cursor function.
+  */
+  g_type_no_length_map('ROWID')                            := 'ROWID';
+  g_type_no_length_map('INTERVAL DAY TO SECOND')           := 'INTERVAL DAY TO SECOND';
+  g_type_no_length_map('INTERVAL YEAR TO MONTH')           := 'INTERVAL YEAR TO MONTH';
+  g_type_no_length_map('BINARY_DOUBLE')                    := 'BINARY_DOUBLE';
+  g_type_no_length_map('BINARY_FLOAT')                     := 'BINARY_FLOAT';
 end;
 /
