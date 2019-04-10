@@ -603,8 +603,8 @@ create or replace package body ut_compound_data_helper is
   function create_err_cursor_msg(a_error_stack varchar2) return varchar2 is
   begin
     return 'SQL exception thrown when fetching data from cursor:'||
-      trim(ut_utils.remove_error_from_stack(sqlerrm,ut_utils.gc_xml_processing))||chr(10)||
-      trim(ut_expectation_processor.who_called_expectation(a_error_stack))||
+      ut_utils.remove_error_from_stack(sqlerrm,ut_utils.gc_xml_processing)||chr(10)||
+      ut_expectation_processor.who_called_expectation(a_error_stack)||
       'Check the query and data for errors.';   
   end; 
   
