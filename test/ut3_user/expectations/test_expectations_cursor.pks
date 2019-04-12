@@ -408,6 +408,15 @@ create or replace package test_expectations_cursor is
   
   --%test(Check that cursor correctly handles no length dataypes)
   procedure no_length_datatypes;
+  
+  --%test(Check that colon is converted properly fix #902)
+  procedure colon_part_of_columnname;
+  
+  --%test(Check that column name accept special characters fix #902)
+  procedure specialchar_part_of_colname;  
+  
+  --%test(Check that column name accept non xml characters fix #902)
+  procedure nonxmlchar_part_of_colname;
       
 end;
 /

@@ -749,8 +749,40 @@ create or replace package body ut_utils is
                           ,modifier   => 'm');
    return l_caller_stack_line;
   end;
-
-
+  
+  function get_valid_xml_name(a_name varchar2) return varchar2 is
+    l_valid_name varchar2(4000);
+  begin
+    if regexp_like(a_name,gc_full_valid_xml_name) then
+      l_valid_name := a_name;
+    else
+      l_valid_name := build_valid_xml_name(a_name);
+    end if;
+    return l_valid_name;
+  end;
+  
+  function build_valid_xml_name(a_preprocessed_name varchar2) return varchar2 is
+    l_post_processed varchar2(4000);
+  begin
+    for i in (select regexp_substr( a_preprocessed_name ,'(.{1})', 1, level, null, 1 ) AS string_char,level level_no
+              from   dual connect by level <= regexp_count(a_preprocessed_name, '(.{1})'))
+    loop
+      if i.level_no = 1 and regexp_like(i.string_char,gc_invalid_first_xml_char) then
+        l_post_processed := l_post_processed || char_to_xmlgen_unicode(i.string_char);
+      elsif regexp_like(i.string_char,gc_invalid_xml_char) then
+        l_post_processed := l_post_processed || char_to_xmlgen_unicode(i.string_char);
+      else
+        l_post_processed := l_post_processed || i.string_char;
+      end if;
+    end loop;
+    return l_post_processed;  
+  end;
+  
+  function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
+    l_new_char varchar2(10) := rawtohex(utl_raw.cast_to_raw(a_character));
+  begin
+    return '_x00'||l_new_char||'_';
+  end;
 
 end ut_utils;
 /
