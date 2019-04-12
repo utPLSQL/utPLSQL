@@ -2550,7 +2550,7 @@ Diff:%
   begin
     l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
 ORA-01476: divisor is equal to zero
-at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2561 ut3.ut.expect(l_actual).to_equal(l_expected);
+at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2561 ut3.ut.expect(l_actual).to_equal(l_expected);%
 Check the query and data for errors.';
 
     open l_actual for
@@ -2575,7 +2575,7 @@ Check the query and data for errors.';
   
     l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
 ORA-01476: divisor is equal to zero
-at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2586 ut3.ut.expect(l_actual).to_equal(l_expected);
+at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2586 ut3.ut.expect(l_actual).to_equal(l_expected);%
 Check the query and data for errors.';
 
     open l_expected for
