@@ -96,6 +96,12 @@ create or replace type body ut_data_value_refcursor as
   exception
     when cursor_not_open then
         raise_application_error(-20155, 'Cursor is not open');
+    when ut_utils.ex_xml_processing then
+      if l_cursor%isopen then
+        close l_cursor;
+      end if;
+        raise_application_error(ut_utils.gc_failed_open_cur,
+          ut_compound_data_helper.create_err_cursor_msg(dbms_utility.format_call_stack()));
     when others then
       if l_cursor%isopen then
         close l_cursor;
@@ -111,7 +117,9 @@ create or replace type body ut_data_value_refcursor as
       dbms_lob.createtemporary(l_result, true);
       ut_utils.append_to_clob(l_result, 'Data-types:'||chr(10));
 
-      ut_utils.append_to_clob( l_result, self.cursor_details.get_xml_children().getclobval() );
+      if self.cursor_details.cursor_columns_info.count > 0 then
+        ut_utils.append_to_clob( l_result, self.cursor_details.get_xml_children().getclobval() );
+      end if;
       ut_utils.append_to_clob(l_result,chr(10)||(self as ut_compound_data_value).to_string());
       l_result_string := ut_utils.to_string(l_result,null);
       dbms_lob.freetemporary(l_result);

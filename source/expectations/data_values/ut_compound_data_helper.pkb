@@ -18,8 +18,10 @@ create or replace package body ut_compound_data_helper is
 
   g_diff_count        integer;
   type t_type_name_map is table of varchar2(128) index by binary_integer;
+  type t_types_no_length is table of varchar2(128) index by varchar2(128);
   g_type_name_map           t_type_name_map;
   g_anytype_name_map        t_type_name_map;
+  g_type_no_length_map      t_types_no_length;
 
   g_compare_sql_template varchar2(4000) :=
   q'[
@@ -231,8 +233,7 @@ create or replace package body ut_compound_data_helper is
     elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('DATE','TIMESTAMP','TIMESTAMP WITH TIME ZONE',
       'TIMESTAMP WITH LOCAL TIME ZONE') then
       l_col_type := 'VARCHAR2(50)';
-    elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('INTERVAL DAY TO SECOND',
-      'INTERVAL YEAR TO MONTH', 'BINARY_FLOAT', 'BINARY_DOUBLE') then
+    elsif  a_data_info.is_sql_diffable = 1  and type_no_length(a_data_info.column_type) then
       l_col_type := a_data_info.column_type;
     else 
       l_col_type := a_data_info.column_type
@@ -570,6 +571,8 @@ create or replace package body ut_compound_data_helper is
     --clob/blob/xmltype/object/nestedcursor/nestedtable
     if a_type_name IN (g_type_name_map(dbms_sql.blob_type),
                        g_type_name_map(dbms_sql.clob_type),
+                       g_type_name_map(dbms_sql.long_type),
+                       g_type_name_map(dbms_sql.long_raw_type),
                        g_type_name_map(dbms_sql.bfile_type),
                        g_anytype_name_map(dbms_types.typecode_namedcollection))
     then    
@@ -595,6 +598,24 @@ create or replace package body ut_compound_data_helper is
   begin
     open l_diff_cursor for a_diff_cursor_text using a_self_id, a_other_id;
     return l_diff_cursor;
+  end;
+ 
+  function create_err_cursor_msg(a_error_stack varchar2) return varchar2 is
+  begin
+    return 'SQL exception thrown when fetching data from cursor:'||
+      ut_utils.remove_error_from_stack(sqlerrm,ut_utils.gc_xml_processing)||chr(10)||
+      ut_expectation_processor.who_called_expectation(a_error_stack)||
+      'Check the query and data for errors.';   
+  end; 
+  
+  function type_no_length ( a_type_name varchar2) return boolean is
+  begin
+    return case 
+      when g_type_no_length_map.exists(a_type_name) then
+        true
+      else
+        false
+      end;
   end;
   
 begin
@@ -642,6 +663,15 @@ begin
   g_type_name_map( dbms_sql.urowid_type )                  := 'UROWID';  
   g_type_name_map( dbms_sql.user_defined_type )            := 'USER_DEFINED_TYPE';
   g_type_name_map( dbms_sql.ref_type )                     := 'REF_TYPE';
-  
+    
+    
+  /**
+  * List of types that have no length but can produce a max_len from desc_cursor function.
+  */
+  g_type_no_length_map('ROWID')                            := 'ROWID';
+  g_type_no_length_map('INTERVAL DAY TO SECOND')           := 'INTERVAL DAY TO SECOND';
+  g_type_no_length_map('INTERVAL YEAR TO MONTH')           := 'INTERVAL YEAR TO MONTH';
+  g_type_no_length_map('BINARY_DOUBLE')                    := 'BINARY_DOUBLE';
+  g_type_no_length_map('BINARY_FLOAT')                     := 'BINARY_FLOAT';
 end;
 /
