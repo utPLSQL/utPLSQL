@@ -23,7 +23,6 @@ create or replace package ut_utils authid definer is
 
   gc_version                 constant varchar2(50) := 'v3.1.7.2844-develop';
   
-  gc_valid_xml_name          constant varchar2(50)  := '(^[^a-zA-Z_])(.*)';
   gc_invalid_first_xml_char  constant varchar2(50)  := '[^_a-zA-Z]';
   gc_invalid_xml_char        constant varchar2(50)  := '[^_a-zA-Z0-9\.-]';
   gc_full_valid_xml_name     constant varchar2(50)  := '^([_a-zA-Z])([_a-zA-Z0-9\.-])*$';
