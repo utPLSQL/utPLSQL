@@ -22,7 +22,7 @@ create or replace package ut_utils authid definer is
    */
 
   gc_version                 constant varchar2(50) := 'v3.1.7.2844-develop';
-
+    
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'beforeall';
   gc_before_each                 constant t_executable_type := 'beforeeach';
@@ -381,6 +381,11 @@ create or replace package ut_utils authid definer is
   * Remove given ORA error from stack
   */
   function remove_error_from_stack(a_error_stack varchar2, a_ora_code number) return varchar2;
-    
+  
+  /**
+  * Check if xml name is valid if not build a valid name
+  */
+  function get_valid_xml_name(a_name varchar2) return varchar2;
+  
 end ut_utils;
 /

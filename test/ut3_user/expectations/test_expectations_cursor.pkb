@@ -2618,5 +2618,64 @@ Check the query and data for errors.';
     ut3.ut.reset_nls;
       
   end;
+  
+  procedure colon_part_of_columnname is
+    type t_key_val_rec is record(
+    key varchar2(100),
+    value varchar2(100));
+    
+    l_act     t_key_val_rec;
+    l_exp     t_key_val_rec;
+    l_act_cur sys_refcursor;
+    l_exp_cur sys_refcursor;
+  begin
+    l_act.key := 'NAME';
+    l_act.value := 'TEST';
+    l_exp.key := 'NAME';
+    l_exp.value := 'TEST';    
+
+   OPEN l_act_cur FOR SELECT l_act.key, l_act.value
+     FROM dual;
+      
+   OPEN l_exp_cur FOR SELECT l_exp.key, l_exp.value
+     FROM dual;
+   
+   ut3.ut.expect(l_act_cur).to_equal(l_exp_cur);
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    
+  end;
+  
+  procedure specialchar_part_of_colname is
+    l_act_cur sys_refcursor;
+    l_exp_cur sys_refcursor;
+  begin
+ 
+   OPEN l_act_cur FOR SELECT 1 as "$Test", 2 as "&Test"
+     FROM dual;
+      
+   OPEN l_exp_cur FOR SELECT 1 as "$Test", 2 as "&Test"
+     FROM dual;
+   
+   ut3.ut.expect(l_act_cur).to_equal(l_exp_cur);  
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    
+  end;
+  
+  procedure nonxmlchar_part_of_colname is
+    l_act_cur sys_refcursor;
+    l_exp_cur sys_refcursor;
+  begin
+ 
+   OPEN l_act_cur FOR SELECT 1 as "<Test>", 2 as "_Test", 3 as ".Test>"
+     FROM dual;
+      
+   OPEN l_exp_cur FOR SELECT 1 as "<Test>", 2 as "_Test", 3 as ".Test>"
+     FROM dual;
+   
+   ut3.ut.expect(l_act_cur).to_equal(l_exp_cur); 
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    
+  end;  
+  
 end;
 /
