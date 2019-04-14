@@ -36,6 +36,7 @@ create table ut_suite_cache (
   after_each_list,
   after_test_list,
   expected_error_codes,
+  tags,
   item
 )
   nested table warnings store as ut_suite_cache_warnings
@@ -45,7 +46,8 @@ create table ut_suite_cache (
   nested table after_each_list store as ut_suite_cache_after_each
   nested table before_test_list store as ut_suite_cache_before_test
   nested table after_test_list store as ut_suite_cache_after_test
-  nested table expected_error_codes store as ut_suite_cache_trhows
+  nested table expected_error_codes store as ut_suite_cache_throws
+  nested table tags store as ut_suite_cache_tags return as locator
   as
     select
            cast(null as number(22)) id,
@@ -67,6 +69,7 @@ create table ut_suite_cache (
            t.after_each_list,
            t.after_test_list,
            t.expected_error_codes,
+           t.test_tags,
            t.item
     from table(ut_suite_contexts(ut_suite_context(user,'package_name','ctx_name',1))) c
            cross join table(ut_tests(ut_test(user,'package_name','test_name',1))) t

@@ -26,8 +26,13 @@ create or replace type ut_suite  under ut_logical_suite (
   * Procedure exists within the package of the suite
   */
   after_all_list ut_executables,
+  /**
+  * Hold list of tags assign to suite
+  */
+  suite_tags ut_varchar2_rows,
   constructor function ut_suite (
-    self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2, a_line_no integer
+    self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2, a_line_no integer,
+    a_suite_tags ut_varchar2_rows := null
   ) return self as result,
   overriding member function do_execute(self in out nocopy ut_suite) return boolean,
   overriding member function get_error_stack_traces(self ut_suite) return ut_varchar2_list,

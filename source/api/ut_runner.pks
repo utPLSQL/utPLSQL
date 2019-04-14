@@ -70,7 +70,8 @@ create or replace package ut_runner authid current_user is
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags ut_varchar2_rows := null
   );
 
   /**

@@ -57,7 +57,8 @@ create or replace package ut authid current_user as
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) return ut_varchar2_rows pipelined;
 
   function run(
@@ -70,7 +71,8 @@ create or replace package ut authid current_user as
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) return ut_varchar2_rows pipelined;
 
   function run(
@@ -84,7 +86,8 @@ create or replace package ut authid current_user as
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) return ut_varchar2_rows pipelined;
 
   function run(
@@ -98,7 +101,8 @@ create or replace package ut authid current_user as
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) return ut_varchar2_rows pipelined;
 
   function run(
@@ -112,7 +116,8 @@ create or replace package ut authid current_user as
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) return ut_varchar2_rows pipelined;
 
   function run(
@@ -126,7 +131,8 @@ create or replace package ut authid current_user as
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) return ut_varchar2_rows pipelined;
 
   procedure run(
@@ -140,7 +146,8 @@ create or replace package ut authid current_user as
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   );
 
   procedure run(
@@ -154,7 +161,8 @@ create or replace package ut authid current_user as
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   );
 
   procedure run(
@@ -169,7 +177,8 @@ create or replace package ut authid current_user as
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags ut_varchar2_rows := null
   );
 
   procedure run(
@@ -184,7 +193,8 @@ create or replace package ut authid current_user as
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags ut_varchar2_rows := null
   );
 
   procedure run(
@@ -199,7 +209,8 @@ create or replace package ut authid current_user as
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   );
 
   procedure run(
@@ -214,7 +225,8 @@ create or replace package ut authid current_user as
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   );
 
   /**

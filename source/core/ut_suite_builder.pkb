@@ -23,6 +23,7 @@ create or replace package body ut_suite_builder is
 
   gc_suite                       constant t_annotation_name := 'suite';
   gc_suitepath                   constant t_annotation_name := 'suitepath';
+  gc_tag                         constant t_annotation_name := 'tag';
   gc_test                        constant t_annotation_name := ut_utils.gc_test_execute;
   gc_disabled                    constant t_annotation_name := 'disabled';
   gc_displayname                 constant t_annotation_name := 'displayname';
@@ -43,6 +44,7 @@ create or replace package body ut_suite_builder is
     := tt_annotations(
       gc_suite,
       gc_suitepath,
+      gc_tag,
       gc_test,
       gc_disabled,
       gc_displayname,
@@ -305,6 +307,33 @@ create or replace package body ut_suite_builder is
     end loop;
   end;
 
+  procedure add_tags_to_test(
+    a_suite           in out nocopy ut_suite,
+    a_list            in out nocopy ut_varchar2_rows,
+    a_procedure_name  t_object_name,
+    a_tags_ann_text tt_annotation_texts
+  ) is
+    l_annotation_pos binary_integer;
+  begin
+    a_list := ut_varchar2_rows();
+    l_annotation_pos := a_tags_ann_text.first;
+    while l_annotation_pos is not null loop
+      if a_tags_ann_text(l_annotation_pos) is null then
+        a_suite.put_warning(
+            '"--%tag" annotation requires a tag value populated. Annotation ignored.'
+            || chr( 10 ) || 'at "' || get_qualified_object_name(a_suite, a_procedure_name) || '", line ' || l_annotation_pos
+        );
+      else
+        a_list :=
+          a_list multiset union
+          ut_utils.convert_collection(ut_utils.trim_list_elements(ut_utils.string_to_table(a_tags_ann_text(l_annotation_pos), ',', 'Y')));
+      end if;
+      l_annotation_pos := a_tags_ann_text.next(l_annotation_pos);
+    end loop;
+    
+  end;
+
+
   procedure set_seq_no(
     a_list in out nocopy ut_executables
   ) is
@@ -483,13 +512,19 @@ create or replace package body ut_suite_builder is
       );
       set_seq_no(l_test.after_test_list);
     end if;
+   
+    if l_proc_annotations.exists( gc_tag) then
+      add_tags_to_test(a_suite, l_test.test_tags, a_procedure_name, l_proc_annotations( gc_tag));
+    end if;
+    
     if l_proc_annotations.exists( gc_throws) then
       add_to_throws_numbers_list(a_suite, l_test.expected_error_codes, a_procedure_name, l_proc_annotations( gc_throws));
     end if;
     l_test.disabled_flag := ut_utils.boolean_to_int( l_proc_annotations.exists( gc_disabled));
-
+   
     a_suite_items.extend;
     a_suite_items( a_suite_items.last ) := l_test;
+
   end;
 
   procedure propagate_before_after_each(
@@ -583,6 +618,29 @@ create or replace package body ut_suite_builder is
     a_suite.path := lower(coalesce(a_suite.path, a_suite.object_name));
   end;
 
+  procedure add_tags_to_suite(
+    a_suite           in out nocopy ut_suite,
+    a_tags_ann_text tt_annotation_texts
+  ) is
+    l_annotation_pos binary_integer;
+    l_tags ut_varchar2_rows := ut_varchar2_rows();
+  begin
+    l_annotation_pos := a_tags_ann_text.first;
+    while l_annotation_pos is not null loop
+      if a_tags_ann_text(l_annotation_pos) is null then
+        a_suite.put_warning(
+            '"--%tag" annotation requires a tag value populated. Annotation ignored, line ' || l_annotation_pos
+        );
+      else
+        l_tags :=
+          l_tags multiset union
+          ut_utils.convert_collection(ut_utils.trim_list_elements(ut_utils.string_to_table(a_tags_ann_text(l_annotation_pos), ',', 'Y')));
+      end if;
+      l_annotation_pos := a_tags_ann_text.next(l_annotation_pos);
+    end loop;
+    a_suite.suite_tags := l_tags;
+  end;
+  
   procedure add_suite_tests(
     a_suite              in out nocopy ut_suite,
     a_annotations        t_annotations_info,
@@ -594,6 +652,7 @@ create or replace package body ut_suite_builder is
     l_after_all_list     tt_executables;
     l_rollback_type      ut_utils.t_rollback_type;
     l_annotation_text    t_annotation_text;
+    l_suite_tags         ut_varchar2_rows;
   begin
     if a_annotations.by_name.exists(gc_displayname) then
       l_annotation_text := trim(a_annotations.by_name(gc_displayname)(a_annotations.by_name(gc_displayname).first));
@@ -631,7 +690,10 @@ create or replace package body ut_suite_builder is
     if a_annotations.by_name.exists(gc_aftereach) then
       l_after_each_list := add_executables( a_suite.object_owner, a_suite.object_name, a_annotations.by_name(gc_aftereach), gc_aftereach );
     end if;
-
+   
+    if a_annotations.by_name.exists(gc_tag) then
+      add_tags_to_suite(a_suite, a_annotations.by_name(gc_tag));
+    end if;
     a_suite.disabled_flag := ut_utils.boolean_to_int(a_annotations.by_name.exists(gc_disabled));
 
     --process procedure annotations for suite
