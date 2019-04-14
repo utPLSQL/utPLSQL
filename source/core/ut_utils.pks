@@ -22,11 +22,7 @@ create or replace package ut_utils authid definer is
    */
 
   gc_version                 constant varchar2(50) := 'v3.1.7.2844-develop';
-  
-  gc_invalid_first_xml_char  constant varchar2(50)  := '[^_a-zA-Z]';
-  gc_invalid_xml_char        constant varchar2(50)  := '[^_a-zA-Z0-9\.-]';
-  gc_full_valid_xml_name     constant varchar2(50)  := '^([_a-zA-Z])([_a-zA-Z0-9\.-])*$';
-  
+    
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'beforeall';
   gc_before_each                 constant t_executable_type := 'beforeeach';
@@ -391,15 +387,5 @@ create or replace package ut_utils authid definer is
   */
   function get_valid_xml_name(a_name varchar2) return varchar2;
   
-  /**
-  * Build valid XML column name as element names can contain letters, digits, hyphens, underscores, and periods
-  */
-  function build_valid_xml_name(a_preprocessed_name varchar2) return varchar2;
-  
-  /**
-  * Change string into unicode to match xmlgen format _00xx_
-  */
-  function char_to_xmlgen_unicode(a_character varchar2) return varchar2;  
-    
 end ut_utils;
 /

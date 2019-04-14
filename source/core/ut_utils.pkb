@@ -16,6 +16,13 @@ create or replace package body ut_utils is
   limitations under the License.
   */
 
+  /**
+  * Constants regex used to validate XML name
+  */
+  gc_invalid_first_xml_char  constant varchar2(50)  := '[^_a-zA-Z]';
+  gc_invalid_xml_char        constant varchar2(50)  := '[^_a-zA-Z0-9\.-]';
+  gc_full_valid_xml_name     constant varchar2(50)  := '^([_a-zA-Z])([_a-zA-Z0-9\.-])*$';
+
   function surround_with(a_value varchar2, a_quote_char varchar2) return varchar2 is
   begin
     return case when a_quote_char is not null then a_quote_char||a_value||a_quote_char else a_value end;
@@ -749,18 +756,20 @@ create or replace package body ut_utils is
                           ,modifier   => 'm');
    return l_caller_stack_line;
   end;
-  
-  function get_valid_xml_name(a_name varchar2) return varchar2 is
-    l_valid_name varchar2(4000);
+ 
+  /**
+  * Change string into unicode to match xmlgen format _00<unicode>_
+  * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
+  * secion 8.2.1.1
+  */  
+  function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
   begin
-    if regexp_like(a_name,gc_full_valid_xml_name) then
-      l_valid_name := a_name;
-    else
-      l_valid_name := build_valid_xml_name(a_name);
-    end if;
-    return l_valid_name;
+    return '_x00'||rawtohex(utl_raw.cast_to_raw(a_character))||'_';
   end;
   
+  /**
+  * Build valid XML column name as element names can contain letters, digits, hyphens, underscores, and periods
+  */  
   function build_valid_xml_name(a_preprocessed_name varchar2) return varchar2 is
     l_post_processed varchar2(4000);
   begin
@@ -778,10 +787,15 @@ create or replace package body ut_utils is
     return l_post_processed;  
   end;
   
-  function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
-    l_new_char varchar2(10) := rawtohex(utl_raw.cast_to_raw(a_character));
+  function get_valid_xml_name(a_name varchar2) return varchar2 is
+    l_valid_name varchar2(4000);
   begin
-    return '_x00'||l_new_char||'_';
+    if regexp_like(a_name,gc_full_valid_xml_name) then
+      l_valid_name := a_name;
+    else
+      l_valid_name := build_valid_xml_name(a_name);
+    end if;
+    return l_valid_name;
   end;
 
 end ut_utils;
