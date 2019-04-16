@@ -10,8 +10,7 @@ title: utPLSQL
 google_analytics: UA-80445365-1
 email:
 description: > # this means to ignore newlines until "baseurl:"
-  utPLSQL <br/>
-  Unit Testing Framework for Oracle PL/SQL.
+  Testing Framework for PL/SQL
 baseurl: "/utPLSQL" # the subpath of your site, e.g. /blog
 url: "https://utPLSQL.github.io" # the base hostname & protocol for your site
 twitter_username: utplsql
@@ -19,3 +18,4 @@ github_username:  utplsql
 # Build settings
 markdown: kramdown
 exclude: ["readme.md","dl-files"]
+header_image: /images/utPLSQL-testing-framework-transparent - small.png
