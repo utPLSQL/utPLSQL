@@ -897,7 +897,7 @@ create or replace package body test_suite_builder is
           '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>context_setup</PROCEDURE_NAME>' ||
           '%</BEFORE_ALL_LIST>' ||
           '<AFTER_ALL_LIST/>' ||
-          '<SUITE_TAGS/>' ||
+          '<TAGS/>' ||
           '</UT_SUITE_ITEM>' ||
           '<UT_SUITE_ITEM>' ||
           '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
@@ -907,7 +907,7 @@ create or replace package body test_suite_builder is
           '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
           '%</BEFORE_ALL_LIST>' ||
           '<AFTER_ALL_LIST/>' ||
-          '<SUITE_TAGS/>' ||
+          '<TAGS/>' ||
           '</UT_LOGICAL_SUITE>'
       );
   end;

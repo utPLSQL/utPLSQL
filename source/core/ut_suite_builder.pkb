@@ -309,13 +309,12 @@ create or replace package body ut_suite_builder is
 
   procedure add_tags_to_test(
     a_suite           in out nocopy ut_suite,
-    a_list            in out nocopy ut_varchar2_rows,
+    a_list            in out nocopy varchar2,
     a_procedure_name  t_object_name,
     a_tags_ann_text tt_annotation_texts
   ) is
     l_annotation_pos binary_integer;
   begin
-    a_list := ut_varchar2_rows();
     l_annotation_pos := a_tags_ann_text.first;
     while l_annotation_pos is not null loop
       if a_tags_ann_text(l_annotation_pos) is null then
@@ -325,8 +324,7 @@ create or replace package body ut_suite_builder is
         );
       else
         a_list :=
-          a_list multiset union
-          ut_utils.convert_collection(ut_utils.trim_list_elements(ut_utils.string_to_table(a_tags_ann_text(l_annotation_pos), ',', 'Y')));
+          a_list || a_tags_ann_text(l_annotation_pos);
       end if;
       l_annotation_pos := a_tags_ann_text.next(l_annotation_pos);
     end loop;
@@ -514,7 +512,7 @@ create or replace package body ut_suite_builder is
     end if;
    
     if l_proc_annotations.exists( gc_tag) then
-      add_tags_to_test(a_suite, l_test.test_tags, a_procedure_name, l_proc_annotations( gc_tag));
+      add_tags_to_test(a_suite, l_test.tags, a_procedure_name, l_proc_annotations( gc_tag));
     end if;
     
     if l_proc_annotations.exists( gc_throws) then
@@ -623,7 +621,7 @@ create or replace package body ut_suite_builder is
     a_tags_ann_text tt_annotation_texts
   ) is
     l_annotation_pos binary_integer;
-    l_tags ut_varchar2_rows := ut_varchar2_rows();
+    l_tags varchar2(4000);
   begin
     l_annotation_pos := a_tags_ann_text.first;
     while l_annotation_pos is not null loop
@@ -633,12 +631,11 @@ create or replace package body ut_suite_builder is
         );
       else
         l_tags :=
-          l_tags multiset union
-          ut_utils.convert_collection(ut_utils.trim_list_elements(ut_utils.string_to_table(a_tags_ann_text(l_annotation_pos), ',', 'Y')));
+          l_tags || a_tags_ann_text(l_annotation_pos);
       end if;
       l_annotation_pos := a_tags_ann_text.next(l_annotation_pos);
     end loop;
-    a_suite.suite_tags := l_tags;
+    a_suite.tags := l_tags;
   end;
   
   procedure add_suite_tests(

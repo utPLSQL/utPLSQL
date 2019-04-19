@@ -193,7 +193,7 @@ create or replace package body ut_suite_manager is
                   results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
                   items => a_items_at_level(a_prev_level),
                   before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
-                    a_rows( a_idx ).after_all_list), suite_tags => a_rows(a_idx).tags --TODO : Should be share or separate
+                    a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags --TODO : Should be share or separate
                 )
             else
                 ut_suite(
@@ -206,7 +206,7 @@ create or replace package body ut_suite_manager is
                   results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
                   items => ut_suite_items(),
                   before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
-                    a_rows( a_idx ).after_all_list), suite_tags => a_rows(a_idx).tags --TODO : Should be share or separate
+                    a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags --TODO : Should be share or separate
                 )
             end;
         when 'UT_SUITE_CONTEXT' then
@@ -222,7 +222,7 @@ create or replace package body ut_suite_manager is
                 results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
                 items => a_items_at_level(a_prev_level),
                 before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
-                  a_rows( a_idx ).after_all_list), suite_tags => a_rows(a_idx).tags --TODO : Should be share or separate
+                  a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags --TODO : Should be share or separate
               )
             else
               ut_suite_context(
@@ -235,7 +235,7 @@ create or replace package body ut_suite_manager is
                 results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
                 items => ut_suite_items(),
                 before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
-                  a_rows( a_idx ).after_all_list), suite_tags => a_rows(a_idx).tags --TODO : Should be share or separate
+                  a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags --TODO : Should be share or separate
               )
             end;
         when 'UT_LOGICAL_SUITE' then
@@ -278,7 +278,7 @@ create or replace package body ut_suite_manager is
               after_test_list => sort_by_seq_no(a_rows(a_idx).after_test_list), after_each_list => sort_by_seq_no(a_rows(a_idx).after_each_list),
               all_expectations => ut_expectation_results(), failed_expectations => ut_expectation_results(),
               parent_error_stack_trace => null, expected_error_codes => a_rows(a_idx).expected_error_codes,
-              test_tags => a_rows(a_idx).tags
+              tags => a_rows(a_idx).tags
             );
       end case;
     l_result.results_count.warnings_count := l_result.warnings.count;
@@ -363,14 +363,14 @@ create or replace package body ut_suite_manager is
     a_procedure_name   varchar2 := null,
     a_skip_all_objects boolean  := false,
     a_random_seed      positive,
-    a_tags             ut_varchar2_rows := null
+    a_tags             varchar2 := null
   ) return t_cached_suites_cursor is
     l_path     varchar2( 4000 );
     l_result   sys_refcursor;
     l_ut_owner varchar2(250) := ut_utils.ut_owner;
     l_sql      varchar2(32767);
-    l_tags     ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
     l_suite_item_name varchar2(20);
+    l_tag_list varchar2(4000) :=a_tags;
   begin
     if a_path is null and a_object_name is not null then    
       execute immediate 'select min(path)
@@ -382,8 +382,7 @@ create or replace package body ut_suite_manager is
     else
       l_path := lower( a_path );
     end if;
-    
-    l_suite_item_name := case when l_tags.count > 0 then 'suite_items_tags' else 'suite_items' end;
+    l_suite_item_name := case when l_tag_list is not null then 'suite_items_tags' else 'suite_items' end;
     
     /* Rewrite that as tags should be put on whats left not on full suite item cache */
     l_sql :=
@@ -415,13 +414,13 @@ create or replace package body ut_suite_manager is
                         )
                    )
       ),]'
-      ||case when l_tags.count > 0 then
+      ||case when l_tag_list is not null then
       q'[ filter_tags as (
        select s.* from suite_items s
        where exists 
          ( select 1 
-           from table(s.tags) ct,table(:l_tags) tag 
-           where ct.column_value = tag.column_value)
+           from ]'||l_ut_owner||q'[.ut_suite_cache_tag ct 
+           where ct.suiteid = s.id and instr(:a_tag_list,ct.tagname) > 0 )
        ),
        suite_items_tags as (
        select c.* from suite_items c
@@ -431,7 +430,7 @@ create or replace package body ut_suite_manager is
           )
        ),]'
        else
-       q'[dummy as (select 1 from table(:l_tags) where 1 = 2 ),]'
+       q'[dummy as (select 'x' from dual where :a_tag_list is null ),]'
        end||
       q'[ suitepaths as (
         select distinct substr(path,1,instr(path,'.',-1)-1) as suitepath,
@@ -457,7 +456,6 @@ create or replace package body ut_suite_manager is
                upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name,
                cast(null as ]'||l_ut_owner||q'[.ut_executables) as x,
                cast(null as ]'||l_ut_owner||q'[.ut_integer_list) as y,
-               cast(null as ]'||l_ut_owner||q'[.ut_varchar2_rows) as q,
                cast(null as ]'||l_ut_owner||q'[.ut_executable_test) as z
           from suitepath_part p
          where p.path
@@ -471,7 +469,7 @@ create or replace package body ut_suite_manager is
                s.x as before_all_list, s.x as after_all_list,
                s.x as before_each_list, s.x as before_test_list,
                s.x as after_each_list, s.x as after_test_list,
-               s.y as expected_error_codes, s.q as test_tags,
+               s.y as expected_error_codes, null as test_tags,
                s.z as item
           from logical_suite_data s
       ),
@@ -499,8 +497,8 @@ create or replace package body ut_suite_manager is
               l_ut_owner||'.ut_annotation_manager.hash_suite_path(
                 c.path, :a_random_seed
               ) desc nulls last'
-          end;    
-    open l_result for l_sql using l_path, l_path, upper(a_object_name), upper(a_procedure_name), l_tags, a_random_seed;
+          end;   
+    open l_result for l_sql using l_path, l_path, upper(a_object_name), upper(a_procedure_name), l_tag_list, a_random_seed;
     return l_result;
   end;
 
@@ -588,7 +586,7 @@ create or replace package body ut_suite_manager is
     a_procedure_name varchar2 := null,
     a_suites         in out nocopy ut_suite_items,
     a_random_seed    positive,
-    a_tags           ut_varchar2_rows := null
+    a_tags           varchar2 := null
   ) is
   begin
     refresh_cache(a_owner_name);
@@ -695,7 +693,7 @@ create or replace package body ut_suite_manager is
     a_paths in ut_varchar2_list,
     a_suites out nocopy ut_suite_items,
     a_random_seed in positive := null,
-    a_tags ut_varchar2_rows := null
+    a_tags varchar2 := null
   ) is
     l_paths              ut_varchar2_list := a_paths;
     l_path_items         t_path_items;
@@ -736,8 +734,8 @@ create or replace package body ut_suite_manager is
             raise_application_error(ut_utils.gc_suite_package_not_found,'Suite test '||l_schema||'.'||l_path_item.object_name|| '.'||l_path_item.procedure_name||' does not exist');
           elsif l_path_item.object_name is not null then
             raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||l_schema||'.'||l_path_item.object_name|| ' does not exist');
-          elsif a_tags.count > 0 then
-            raise_application_error(ut_utils.gc_suite_package_not_found,'No suite packages found for tags: '||ut_utils.to_string(ut_utils.table_to_clob(a_tags,','),a_max_output_len => 450));
+          elsif a_tags is not null then
+            raise_application_error(ut_utils.gc_suite_package_not_found,'No suite packages found for tags: '||ut_utils.to_string(a_tags,a_max_output_len => 450));
           end if;
         end if;
         l_index := a_suites.first;

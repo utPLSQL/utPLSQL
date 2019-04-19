@@ -18,7 +18,7 @@ create or replace type body ut_test as
 
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2,
-    a_line_no integer, a_expected_error_codes ut_integer_list := null, a_test_tags ut_varchar2_rows := null
+    a_line_no integer, a_expected_error_codes ut_integer_list := null, a_tags varchar2 := null
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
@@ -31,7 +31,7 @@ create or replace type body ut_test as
     self.all_expectations     := ut_expectation_results();
     self.failed_expectations  := ut_expectation_results();
     self.expected_error_codes := a_expected_error_codes;
-    self.test_tags            := a_test_tags;
+    self.tags                 := a_tags;
     return;
   end;
 

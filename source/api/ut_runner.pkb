@@ -91,7 +91,7 @@ create or replace package body ut_runner is
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
     a_random_test_order_seed     positive := null,
-    a_tags ut_varchar2_rows := null
+    a_tags varchar2 := null
   ) is
     l_run                     ut_run;
     l_coverage_schema_names   ut_varchar2_rows;
@@ -99,7 +99,6 @@ create or replace package body ut_runner is
     l_include_object_names    ut_object_names;
     l_paths                   ut_varchar2_list := ut_varchar2_list();
     l_random_test_order_seed  positive;
-    l_tags                    ut_varchar2_rows := ut_varchar2_rows();
   begin
     ut_event_manager.initialize();
     if a_reporters is not empty then
@@ -123,12 +122,6 @@ create or replace package body ut_runner is
     else
       for i in 1..a_paths.count loop
         l_paths := l_paths multiset union ut_utils.string_to_table(a_string => a_paths(i),a_delimiter => ',');
-      end loop;
-    end if;
-
-    if (a_tags is not null) or not(a_tags is empty) then
-      for i in 1..a_tags.count loop
-        l_tags := l_tags multiset union ut_utils.convert_collection(ut_utils.string_to_table(a_string => a_tags(i),a_delimiter => ','));
       end loop;
     end if;
 
@@ -161,10 +154,10 @@ create or replace package body ut_runner is
         set(a_test_file_mappings),
         a_client_character_set,
         l_random_test_order_seed,
-        l_tags
+        a_tags
       );
 
-      ut_suite_manager.configure_execution_by_path(l_paths, l_run.items, l_random_test_order_seed, l_tags);
+      ut_suite_manager.configure_execution_by_path(l_paths, l_run.items, l_random_test_order_seed, a_tags);
       if a_force_manual_rollback then
         l_run.set_rollback_type( a_rollback_type => ut_utils.gc_rollback_manual, a_force => true );
       end if;

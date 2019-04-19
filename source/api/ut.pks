@@ -178,7 +178,7 @@ create or replace package ut authid current_user as
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
     a_random_test_order_seed     positive := null,
-    a_tags ut_varchar2_rows := null
+    a_tags varchar2 := null
   );
 
   procedure run(
@@ -194,7 +194,7 @@ create or replace package ut authid current_user as
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
     a_random_test_order_seed     positive := null,
-    a_tags ut_varchar2_rows := null
+    a_tags varchar2 := null
   );
 
   procedure run(
