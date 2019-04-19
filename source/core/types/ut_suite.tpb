@@ -18,7 +18,7 @@ create or replace type body ut_suite  as
 
   constructor function ut_suite (
     self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2, a_line_no integer,
-    a_suite_tags ut_varchar2_rows := null
+    a_tags varchar2 := null
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
@@ -26,7 +26,7 @@ create or replace type body ut_suite  as
     self.items := ut_suite_items();
     before_all_list := ut_executables();
     after_all_list  := ut_executables();
-    self.suite_tags := a_suite_tags;
+    self.tags       := a_tags;
     return;
   end;
 

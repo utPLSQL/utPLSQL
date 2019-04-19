@@ -63,6 +63,8 @@ drop package ut_suite_manager;
 
 drop package ut_suite_builder;
 
+drop table ut_suite_cache_tag;
+
 drop table ut_suite_cache;
 
 drop sequence ut_suite_cache_seq;

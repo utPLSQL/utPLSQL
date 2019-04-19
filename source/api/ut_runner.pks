@@ -71,7 +71,7 @@ create or replace package ut_runner authid current_user is
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
     a_random_test_order_seed     positive := null,
-    a_tags ut_varchar2_rows := null
+    a_tags varchar2 := null
   );
 
   /**
