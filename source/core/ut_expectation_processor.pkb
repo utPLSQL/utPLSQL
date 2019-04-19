@@ -88,7 +88,7 @@ create or replace package body ut_expectation_processor as
   begin
     add_expectation_result(ut_expectation_result(ut_utils.gc_failure, null, a_message));
   end;
-
+  
   function get_session_parameters return tt_nls_params is
     l_session_params tt_nls_params;
   begin

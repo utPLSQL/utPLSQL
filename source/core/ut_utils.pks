@@ -21,8 +21,8 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.7.2808-develop';
-
+  gc_version                 constant varchar2(50) := 'v3.1.7.2851-develop';
+    
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'beforeall';
   gc_before_each                 constant t_executable_type := 'beforeeach';
@@ -109,6 +109,14 @@ create or replace package ut_utils authid definer is
   gc_value_too_large constant pls_integer := -20217;
   pragma exception_init (ex_value_too_large, -20217);
 
+  ex_xml_processing exception;
+  gc_xml_processing constant pls_integer := -19202;
+  pragma exception_init (ex_xml_processing, -19202);
+  
+  ex_failed_open_cur exception;
+  gc_failed_open_cur constant pls_integer := -20218;
+  pragma exception_init (ex_failed_open_cur, -20218);  
+  
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
   gc_more_data_string         constant varchar2(5) := '[...]';
@@ -368,6 +376,16 @@ create or replace package ut_utils authid definer is
    * Returns list of sub-type reporters for given list of super-type reporters
    */
   function get_child_reporters(a_for_reporters ut_reporters_info := null) return ut_reporters_info;
-
+  
+  /**
+  * Remove given ORA error from stack
+  */
+  function remove_error_from_stack(a_error_stack varchar2, a_ora_code number) return varchar2;
+  
+  /**
+  * Check if xml name is valid if not build a valid name
+  */
+  function get_valid_xml_name(a_name varchar2) return varchar2;
+  
 end ut_utils;
 /

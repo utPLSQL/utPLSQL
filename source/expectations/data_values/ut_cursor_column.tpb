@@ -13,17 +13,24 @@ create or replace type body ut_cursor_column as
       self.column_len       := a_col_max_len; --length of column
       self.column_name      := TRIM( BOTH '''' FROM a_col_name); --name of the column
       self.column_type_name := coalesce(a_col_type_name,a_col_type); --type name e.g. test_dummy_object or varchar2
-      self.access_path      := case when a_access_path is null then 
+      self.xml_valid_name   := ut_utils.get_valid_xml_name(self.column_name);
+      self.display_path     := case when a_access_path is null then 
                                  self.column_name 
                                else 
                                  a_access_path||'/'||self.column_name 
-                               end; --Access path used for incldue exclude eg/ TEST_DUMMY_OBJECT/VARCHAR2
-      self.xml_valid_name   := '"'||self.column_name||'"'; --User friendly column name
-      self.transformed_name := case when self.parent_name is null then 
-                                self.xml_valid_name
-                             else 
-                                '"'||ut_compound_data_helper.get_fixed_size_hash(self.parent_name||self.column_name)||'"'
-                             end; --when is nestd we need to hash name to make sure we dont exceed 30 char
+                               end; --Access path used for incldue exclude eg/ TEST_DUMMY_OBJECT/VARCHAR2       
+      self.access_path      := case when a_access_path is null then 
+                                 self.xml_valid_name 
+                               else 
+                                 a_access_path||'/'||self.xml_valid_name 
+                               end; --Access path used for incldue exclude eg/ TEST_DUMMY_OBJECT/VARCHAR2     
+      self.transformed_name := case when length(self.xml_valid_name) > 30 then
+                                 '"'||ut_compound_data_helper.get_fixed_size_hash(self.parent_name||self.xml_valid_name)||'"'
+                               when self.parent_name is null then 
+                                 '"'||self.xml_valid_name||'"'
+                               else 
+                                 '"'||ut_compound_data_helper.get_fixed_size_hash(self.parent_name||self.xml_valid_name)||'"'
+                               end; --when is nestd we need to hash name to make sure we dont exceed 30 char
       self.column_type      := a_col_type; --column type e.g. user_defined , varchar2
       self.column_schema    := a_col_schema_name; -- schema name
       self.is_sql_diffable  := case 

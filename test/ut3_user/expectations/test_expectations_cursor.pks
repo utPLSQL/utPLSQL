@@ -17,6 +17,9 @@ create or replace package test_expectations_cursor is
   --%test(Gives success for identical data)
   procedure success_on_same_data;
 
+  --%test(Gives success for identical data with floats)
+  procedure success_on_same_data_float;
+
   --%test(Gives success when both cursors are empty)
   procedure success_on_empty;
 
@@ -390,12 +393,31 @@ create or replace package test_expectations_cursor is
   
   --%test(Cursor to contain duplicates fail)
   procedure to_contain_duplicates_fail;
- 
+    
   --%test(Display a message with a uer defined type with only type name not structure on equal)
   procedure udt_messg_format_eq; 
  
   --%test(Display a message with a uer defined type with only type name not structure on empty)
-  procedure udt_messg_format_empt;     
+  procedure udt_messg_format_empt;    
+   
+  --%test(Fail to process a cursor for actual)
+  procedure xml_error_actual;
+  
+  --%test(Fail to process a cursor for expected)
+  procedure xml_error_expected;
+  
+  --%test(Check that cursor correctly handles no length dataypes)
+  procedure no_length_datatypes;
+  
+  --%test(Check that colon is converted properly fix #902)
+  procedure colon_part_of_columnname;
+  
+  --%test(Check that column name accept special characters fix #902)
+  procedure specialchar_part_of_colname;  
+  
+  --%test(Check that column name accept non xml characters fix #902)
+  procedure nonxmlchar_part_of_colname;
+      
   
   /*Oracle Bug not readin properly in xmltable */
   --%test ( Compare insiginificant whitespaces scenario 1 )

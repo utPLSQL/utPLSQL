@@ -82,6 +82,28 @@ create or replace package body test_expectations_cursor is
     ut3.ut.reset_nls;
   end;
 
+  procedure success_on_same_data_float
+  as
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+  begin
+    -- Arrange
+    ut3.ut.set_nls;
+    open l_expected for
+      select cast(3.14 as binary_double) as pi_double,
+             cast(3.14 as binary_float) as pi_float
+      from dual;
+    open l_actual for
+      select cast(3.14 as binary_double) as pi_double,
+             cast(3.14 as binary_float) as pi_float
+      from dual;
+    --Act
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    ut3.ut.reset_nls;
+  end;
+
   procedure success_on_empty
   as
     l_expected sys_refcursor;
@@ -972,18 +994,16 @@ Rows: [ 4 differences ]
   procedure reports_on_exception_in_cursor
   as
     l_actual     sys_refcursor;
-    l_error_code integer := -19202; --Error occurred in XML processing
   begin
     --Act
     open l_actual for select 1/0 as error_column from dual connect by level < 10;
-    begin
       ut3.ut.expect(l_actual).to_be_empty();
-      --Assert
-      ut.fail('Expected '||l_error_code||' but nothing was raised');
-    exception
-      when others then
-        ut.expect(sqlcode).to_equal(l_error_code);
-    end;
+
+    ut.fail('Expected exception on cursor fetch');
+  exception
+    when others then
+      ut.expect(sqlerrm).to_be_like('%ORA-20218: SQL exception thrown when fetching data from cursor:%
+%ORA-01476: divisor is equal to zero%Check the query and data for errors%'); 
   end;
 
   procedure exception_when_closed_cursor
@@ -2523,6 +2543,141 @@ Diff:%
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
+ procedure xml_error_actual is
+    l_actual  sys_refcursor;
+    l_expected sys_refcursor;
+    l_exp_message varchar2(32000);
+  begin
+    l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
+ORA-01476: divisor is equal to zero
+at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2561 ut3.ut.expect(l_actual).to_equal(l_expected);%
+Check the query and data for errors.';
+
+    open l_actual for
+      select 1 as test from dual;
+    open l_expected for
+      select 1/0 as test from dual;
+      
+    ut3.ut.expect(l_actual).to_equal(l_expected); 
+    --Line that error relates to in expected messag
+
+    ut.fail('Expected exception on cursor fetch');
+  exception
+    when others then
+     ut.expect(sqlerrm).to_be_like(l_exp_message); 
+  end;
+  
+  procedure xml_error_expected is
+    l_actual  sys_refcursor;
+    l_expected sys_refcursor;
+    l_exp_message varchar2(32000);
+  begin
+  
+    l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
+ORA-01476: divisor is equal to zero
+at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2586 ut3.ut.expect(l_actual).to_equal(l_expected);%
+Check the query and data for errors.';
+
+    open l_expected for
+      select 1/0 as test from dual;
+    open l_actual for
+      select 1 as test from dual;
+      
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+
+    ut.fail('Expected exception on cursor fetch');
+  exception
+    when others then
+      ut.expect(sqlerrm).to_be_like(l_exp_message); 
+  end;
+  
+  procedure no_length_datatypes is
+    l_actual  sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    ut3.ut.set_nls;
+    open l_expected for
+      select cast(3.14 as binary_double) as pi_double,
+             cast(3.14 as binary_float) as pi_float,
+             rowid as row_rowid,
+             numtodsinterval(1.12345678912, 'day') row_ds_interval,
+             numtoyminterval(1.1, 'year') row_ym_interval
+      from dual;
+    
+    open l_actual for
+      select cast(3.14 as binary_double) as pi_double,
+             cast(3.14 as binary_float) as pi_float,
+             rowid as row_rowid,
+             numtodsinterval(1.12345678912, 'day') row_ds_interval,
+             numtoyminterval(1.1, 'year') row_ym_interval
+      from dual;
+    --Act
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    ut3.ut.reset_nls;
+      
+  end;
+  
+  procedure colon_part_of_columnname is
+    type t_key_val_rec is record(
+    key varchar2(100),
+    value varchar2(100));
+    
+    l_act     t_key_val_rec;
+    l_exp     t_key_val_rec;
+    l_act_cur sys_refcursor;
+    l_exp_cur sys_refcursor;
+  begin
+    l_act.key := 'NAME';
+    l_act.value := 'TEST';
+    l_exp.key := 'NAME';
+    l_exp.value := 'TEST';    
+
+   OPEN l_act_cur FOR SELECT l_act.key, l_act.value
+     FROM dual;
+      
+   OPEN l_exp_cur FOR SELECT l_exp.key, l_exp.value
+     FROM dual;
+   
+   ut3.ut.expect(l_act_cur).to_equal(l_exp_cur);
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    
+  end;
+  
+  procedure specialchar_part_of_colname is
+    l_act_cur sys_refcursor;
+    l_exp_cur sys_refcursor;
+  begin
+ 
+   OPEN l_act_cur FOR SELECT 1 as "$Test", 2 as "&Test"
+     FROM dual;
+      
+   OPEN l_exp_cur FOR SELECT 1 as "$Test", 2 as "&Test"
+     FROM dual;
+   
+   ut3.ut.expect(l_act_cur).to_equal(l_exp_cur);  
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    
+  end;
+  
+  procedure nonxmlchar_part_of_colname is
+    l_act_cur sys_refcursor;
+    l_exp_cur sys_refcursor;
+  begin
+ 
+   OPEN l_act_cur FOR SELECT 1 as "<Test>", 2 as "_Test", 3 as ".Test>"
+     FROM dual;
+      
+   OPEN l_exp_cur FOR SELECT 1 as "<Test>", 2 as "_Test", 3 as ".Test>"
+     FROM dual;
+   
+   ut3.ut.expect(l_act_cur).to_equal(l_exp_cur); 
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    
+  end;  
+
+
   procedure insginificant_whitespace1 is
     l_actual   sys_refcursor;
     l_expected sys_refcursor;
@@ -2605,6 +2760,7 @@ Diff:%
     --Assert
     ut3.ut.expect( l_actual ).to_equal( l_expected );
 	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
-  end; 
+  end;   
+ 
 end;
 /

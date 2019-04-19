@@ -18,8 +18,10 @@ create or replace package body ut_compound_data_helper is
 
   g_diff_count        integer;
   type t_type_name_map is table of varchar2(128) index by binary_integer;
+  type t_types_no_length is table of varchar2(128) index by varchar2(128);
   g_type_name_map           t_type_name_map;
   g_anytype_name_map        t_type_name_map;
+  g_type_no_length_map      t_types_no_length;
 
   g_compare_sql_template varchar2(4000) :=
   q'[
@@ -78,13 +80,13 @@ create or replace package body ut_compound_data_helper is
   begin
     execute immediate q'[with
           expected_cols as (
-            select access_path exp_column_name,column_position exp_col_pos,
+            select display_path exp_column_name,column_position exp_col_pos,
                    replace(column_type_name,'VARCHAR2','CHAR') exp_col_type_compare, column_type_name exp_col_type
               from table(:a_expected)
               where parent_name is null and hierarchy_level = 1 and column_name is not null
           ),
           actual_cols as (
-            select access_path act_column_name,column_position act_col_pos,
+            select display_path act_column_name,column_position act_col_pos,
                    replace(column_type_name,'VARCHAR2','CHAR') act_col_type_compare, column_type_name act_col_type
               from table(:a_actual)
               where parent_name is null and hierarchy_level = 1 and column_name is not null
@@ -231,7 +233,7 @@ create or replace package body ut_compound_data_helper is
     elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('DATE','TIMESTAMP','TIMESTAMP WITH TIME ZONE',
       'TIMESTAMP WITH LOCAL TIME ZONE') then
       l_col_type := 'VARCHAR2(50)';
-    elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('INTERVAL DAY TO SECOND','INTERVAL YEAR TO MONTH') then
+    elsif  a_data_info.is_sql_diffable = 1  and type_no_length(a_data_info.column_type) then
       l_col_type := a_data_info.column_type;
     elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('VARCHAR2','CHAR') then
       l_col_type := 'VARCHAR2('||greatest(a_data_info.column_len,4000)||')';
@@ -571,6 +573,8 @@ create or replace package body ut_compound_data_helper is
     --clob/blob/xmltype/object/nestedcursor/nestedtable
     if a_type_name IN (g_type_name_map(dbms_sql.blob_type),
                        g_type_name_map(dbms_sql.clob_type),
+                       g_type_name_map(dbms_sql.long_type),
+                       g_type_name_map(dbms_sql.long_raw_type),
                        g_type_name_map(dbms_sql.bfile_type),
                        g_anytype_name_map(dbms_types.typecode_namedcollection))
     then    
@@ -596,6 +600,24 @@ create or replace package body ut_compound_data_helper is
   begin
     open l_diff_cursor for a_diff_cursor_text using a_self_id, a_other_id;
     return l_diff_cursor;
+  end;
+ 
+  function create_err_cursor_msg(a_error_stack varchar2) return varchar2 is
+  begin
+    return 'SQL exception thrown when fetching data from cursor:'||
+      ut_utils.remove_error_from_stack(sqlerrm,ut_utils.gc_xml_processing)||chr(10)||
+      ut_expectation_processor.who_called_expectation(a_error_stack)||
+      'Check the query and data for errors.';   
+  end; 
+  
+  function type_no_length ( a_type_name varchar2) return boolean is
+  begin
+    return case 
+      when g_type_no_length_map.exists(a_type_name) then
+        true
+      else
+        false
+      end;
   end;
   
 begin
@@ -643,6 +665,15 @@ begin
   g_type_name_map( dbms_sql.urowid_type )                  := 'UROWID';  
   g_type_name_map( dbms_sql.user_defined_type )            := 'USER_DEFINED_TYPE';
   g_type_name_map( dbms_sql.ref_type )                     := 'REF_TYPE';
-  
+    
+    
+  /**
+  * List of types that have no length but can produce a max_len from desc_cursor function.
+  */
+  g_type_no_length_map('ROWID')                            := 'ROWID';
+  g_type_no_length_map('INTERVAL DAY TO SECOND')           := 'INTERVAL DAY TO SECOND';
+  g_type_no_length_map('INTERVAL YEAR TO MONTH')           := 'INTERVAL YEAR TO MONTH';
+  g_type_no_length_map('BINARY_DOUBLE')                    := 'BINARY_DOUBLE';
+  g_type_no_length_map('BINARY_FLOAT')                     := 'BINARY_FLOAT';
 end;
 /
