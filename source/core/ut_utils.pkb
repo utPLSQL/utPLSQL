@@ -610,7 +610,6 @@ create or replace package body ut_utils is
     if a_list is not null then
       l_filtered_list := ut_varchar2_list();
       l_index := a_list.first;
-
       while (l_index is not null) loop
         if regexp_like(a_list(l_index), a_regexp_filter) then
           l_filtered_list.extend;

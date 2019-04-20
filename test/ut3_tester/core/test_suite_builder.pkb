@@ -1121,5 +1121,305 @@ create or replace package body test_suite_builder is
       ut.expect(l_actual).to_match('(.*)(<WARNINGS><VARCHAR2>Unsupported annotation &quot;--%bad_package_annotation&quot;\. Annotation ignored\.)(.*)( line 17</VARCHAR2></WARNINGS>)(.*)', 'n');
   end;
 
+  procedure test_tag_annotation is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3.ut_annotation(9, 'tag','testtag', 'test_procedure')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>' ||
+        '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
+        '%<TAGS>testtag</TAGS>%'||
+        '%</UT_SUITE_ITEM>%'
+    );
+ 
+  end;
+
+  procedure suite_tag_annotation is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(3, 'tag','suitetag', null)
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_LOGICAL_SUITE>' ||
+        '%<NAME>some_package</NAME><DESCRIPTION>testsuite</DESCRIPTION><PATH>some_package</PATH>' ||
+        '%<TAGS>suitetag</TAGS>%'||
+        '%</UT_LOGICAL_SUITE>%'
+    );
+ 
+  end;
+  
+  procedure test_tags_annotation is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3.ut_annotation(9, 'tag','testtag,testtag2,testtag3', 'test_procedure')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>' ||
+        '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
+        '%<TAGS>testtag,testtag2,testtag3</TAGS>%'||
+        '%</UT_SUITE_ITEM>%'
+    );
+ 
+  end;
+
+  procedure suite_tags_annotation is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(3, 'tag','suitetag,suitetag1,suitetag2', null)
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_LOGICAL_SUITE>' ||
+        '%<NAME>some_package</NAME><DESCRIPTION>testsuite</DESCRIPTION><PATH>some_package</PATH>' ||
+        '%<TAGS>suitetag,suitetag1,suitetag2</TAGS>%'||
+        '%</UT_LOGICAL_SUITE>%'
+    );
+ 
+  end;
+
+  procedure test_2line_tags_annotation is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3.ut_annotation(9, 'tag','testtag', 'test_procedure'),
+        ut3.ut_annotation(10, 'tag','testtag2', 'test_procedure')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>' ||
+        '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
+        '%<TAGS>testtag,testtag2</TAGS>%'||
+        '%</UT_SUITE_ITEM>%'
+    );
+ 
+  end;
+
+  procedure suite_2line_tags_annotation is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(3, 'tag','suitetag', null),
+        ut3.ut_annotation(4, 'tag','suitetag1', null)
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_LOGICAL_SUITE>' ||
+        '%<NAME>some_package</NAME><DESCRIPTION>testsuite</DESCRIPTION><PATH>some_package</PATH>' ||
+        '%<TAGS>suitetag,suitetag1</TAGS>%'||
+        '%</UT_LOGICAL_SUITE>%'
+    );
+ 
+  end;
+
+  procedure test_empty_tag is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3.ut_annotation(9, 'tag',null, 'test_procedure')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<WARNINGS>%&quot;--%tag&quot; annotation requires a tag value populated. Annotation ignored.%</WARNINGS>%'||
+        '%<TAGS/>%'
+    );
+ 
+  end;
+  
+  procedure suite_empty_tag is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(3, 'tag',null, null)
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<WARNINGS><VARCHAR2>&quot;--%tag&quot; annotation requires a tag value populated. Annotation ignored, line 3</VARCHAR2></WARNINGS>%'||
+        '%<TAGS/>%'
+    );
+ 
+  end;
+
+  procedure test_duplicate_tag is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3.ut_annotation(9, 'tag','testtag,testtag1,testtag', 'test_procedure'),
+        ut3.ut_annotation(10, 'tag',' testtag,testtag1,testtag2', 'test_procedure')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>' ||
+        '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
+        '%<TAGS>testtag,testtag1,testtag2</TAGS>%'||
+        '%</UT_SUITE_ITEM>%'
+    );
+ 
+  end;
+  
+  procedure suite_duplicate_tag is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(3, 'tag','suitetag,suitetag1,suitetag', null),
+        ut3.ut_annotation(4, 'tag',' suitetag1,suitetag2', null)
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_LOGICAL_SUITE>' ||
+        '%<NAME>some_package</NAME><DESCRIPTION>testsuite</DESCRIPTION><PATH>some_package</PATH>' ||
+        '%<TAGS>suitetag,suitetag1,suitetag2</TAGS>%'||
+        '%</UT_LOGICAL_SUITE>%'
+    );
+ 
+  end;
+
+  procedure test_empty_tag_between is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3.ut_annotation(9, 'tag','testtag,,  ,testtag1', 'test_procedure')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>' ||
+        '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
+        '%<TAGS>testtag,testtag1</TAGS>%'||
+        '%</UT_SUITE_ITEM>%'
+    );
+ 
+  end;
+  
+  procedure suite_empty_tag_between is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(3, 'tag','suitetag,,  ,suitetag1', null)
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_LOGICAL_SUITE>' ||
+        '%<NAME>some_package</NAME><DESCRIPTION>testsuite</DESCRIPTION><PATH>some_package</PATH>' ||
+        '%<TAGS>suitetag,suitetag1</TAGS>%'||
+        '%</UT_LOGICAL_SUITE>%'
+    );
+ 
+  end; 
+
+  procedure test_special_char_tag is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3.ut_annotation(9, 'tag','#?$%^&*!|\/@][', 'test_procedure')
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_SUITE_ITEM>' ||
+        '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
+        '%<TAGS>#?$%^&amp;*!|\/@][</TAGS>%'||
+        '%</UT_SUITE_ITEM>%'
+    );
+ 
+  end;
+  
+  procedure suite_special_char_tag is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+      --Arrange
+    l_annotations := ut3.ut_annotations(
+        ut3.ut_annotation(2, 'suite','testsuite', null),
+        ut3.ut_annotation(3, 'tag','#?$%^&*!|\/@][', null)
+    );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+        '%<UT_LOGICAL_SUITE>' ||
+        '%<NAME>some_package</NAME><DESCRIPTION>testsuite</DESCRIPTION><PATH>some_package</PATH>' ||
+        '%<TAGS>#?$%^&amp;*!|\/@][</TAGS>%'||
+        '%</UT_LOGICAL_SUITE>%'
+    );
+ 
+  end; 
+
 end test_suite_builder;
 /

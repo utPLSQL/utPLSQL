@@ -314,6 +314,7 @@ create or replace package body ut_suite_builder is
     a_tags_ann_text tt_annotation_texts
   ) is
     l_annotation_pos binary_integer;
+    l_tag_list ut_varchar2_list := ut_varchar2_list();
   begin
     l_annotation_pos := a_tags_ann_text.first;
     while l_annotation_pos is not null loop
@@ -323,9 +324,13 @@ create or replace package body ut_suite_builder is
             || chr( 10 ) || 'at "' || get_qualified_object_name(a_suite, a_procedure_name) || '", line ' || l_annotation_pos
         );
       else
-        a_list :=
-          a_list || a_tags_ann_text(l_annotation_pos);
+        l_tag_list := l_tag_list multiset union distinct ut_utils.trim_list_elements(
+          ut_utils.string_to_table(a_tags_ann_text(l_annotation_pos),',')
+          );
       end if;
+      a_list := ut_utils.table_to_clob(
+        ut_utils.filter_list(l_tag_list,'^(\w|\S)+$'),
+        ',');
       l_annotation_pos := a_tags_ann_text.next(l_annotation_pos);
     end loop;
     
@@ -621,7 +626,7 @@ create or replace package body ut_suite_builder is
     a_tags_ann_text tt_annotation_texts
   ) is
     l_annotation_pos binary_integer;
-    l_tags varchar2(4000);
+    l_tag_list ut_varchar2_list := ut_varchar2_list();
   begin
     l_annotation_pos := a_tags_ann_text.first;
     while l_annotation_pos is not null loop
@@ -630,12 +635,15 @@ create or replace package body ut_suite_builder is
             '"--%tag" annotation requires a tag value populated. Annotation ignored, line ' || l_annotation_pos
         );
       else
-        l_tags :=
-          l_tags || a_tags_ann_text(l_annotation_pos);
+        l_tag_list := l_tag_list multiset union distinct ut_utils.trim_list_elements(
+          ut_utils.string_to_table(a_tags_ann_text(l_annotation_pos),',')
+          );
       end if;
       l_annotation_pos := a_tags_ann_text.next(l_annotation_pos);
     end loop;
-    a_suite.tags := l_tags;
+    a_suite.tags := ut_utils.table_to_clob(
+      ut_utils.filter_list(l_tag_list,'^(\w|\S)+$'),
+      ',');    
   end;
   
   procedure add_suite_tests(
