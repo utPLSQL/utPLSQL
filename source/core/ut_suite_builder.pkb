@@ -23,7 +23,7 @@ create or replace package body ut_suite_builder is
 
   gc_suite                       constant t_annotation_name := 'suite';
   gc_suitepath                   constant t_annotation_name := 'suitepath';
-  gc_tag                         constant t_annotation_name := 'tag';
+  gc_tag                         constant t_annotation_name := 'tags';
   gc_test                        constant t_annotation_name := ut_utils.gc_test_execute;
   gc_disabled                    constant t_annotation_name := 'disabled';
   gc_displayname                 constant t_annotation_name := 'displayname';

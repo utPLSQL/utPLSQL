@@ -1129,7 +1129,7 @@ create or replace package body test_suite_builder is
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
         ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tag','testtag', 'test_procedure')
+        ut3.ut_annotation(9, 'tags','testtag', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1150,7 +1150,7 @@ create or replace package body test_suite_builder is
       --Arrange
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tag','suitetag', null)
+        ut3.ut_annotation(3, 'tags','suitetag', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1172,7 +1172,7 @@ create or replace package body test_suite_builder is
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
         ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tag','testtag,testtag2,testtag3', 'test_procedure')
+        ut3.ut_annotation(9, 'tags','testtag,testtag2,testtag3', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1193,7 +1193,7 @@ create or replace package body test_suite_builder is
       --Arrange
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tag','suitetag,suitetag1,suitetag2', null)
+        ut3.ut_annotation(3, 'tags','suitetag,suitetag1,suitetag2', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1215,8 +1215,8 @@ create or replace package body test_suite_builder is
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
         ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tag','testtag', 'test_procedure'),
-        ut3.ut_annotation(10, 'tag','testtag2', 'test_procedure')
+        ut3.ut_annotation(9, 'tags','testtag', 'test_procedure'),
+        ut3.ut_annotation(10, 'tags','testtag2', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1237,8 +1237,8 @@ create or replace package body test_suite_builder is
       --Arrange
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tag','suitetag', null),
-        ut3.ut_annotation(4, 'tag','suitetag1', null)
+        ut3.ut_annotation(3, 'tags','suitetag', null),
+        ut3.ut_annotation(4, 'tags','suitetag1', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1259,7 +1259,7 @@ create or replace package body test_suite_builder is
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
         ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tag',null, 'test_procedure')
+        ut3.ut_annotation(9, 'tags',null, 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1278,7 +1278,7 @@ create or replace package body test_suite_builder is
       --Arrange
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tag',null, null)
+        ut3.ut_annotation(3, 'tags',null, null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1298,8 +1298,8 @@ create or replace package body test_suite_builder is
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
         ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tag','testtag,testtag1,testtag', 'test_procedure'),
-        ut3.ut_annotation(10, 'tag',' testtag,testtag1,testtag2', 'test_procedure')
+        ut3.ut_annotation(9, 'tags','testtag,testtag1,testtag', 'test_procedure'),
+        ut3.ut_annotation(10, 'tags',' testtag,testtag1,testtag2', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1320,8 +1320,8 @@ create or replace package body test_suite_builder is
       --Arrange
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tag','suitetag,suitetag1,suitetag', null),
-        ut3.ut_annotation(4, 'tag',' suitetag1,suitetag2', null)
+        ut3.ut_annotation(3, 'tags','suitetag,suitetag1,suitetag', null),
+        ut3.ut_annotation(4, 'tags',' suitetag1,suitetag2', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1343,7 +1343,7 @@ create or replace package body test_suite_builder is
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
         ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tag','testtag,,  ,testtag1', 'test_procedure')
+        ut3.ut_annotation(9, 'tags','testtag,,  ,testtag1', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1364,7 +1364,7 @@ create or replace package body test_suite_builder is
       --Arrange
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tag','suitetag,,  ,suitetag1', null)
+        ut3.ut_annotation(3, 'tags','suitetag,,  ,suitetag1', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1386,7 +1386,7 @@ create or replace package body test_suite_builder is
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
         ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tag','#?$%^&*!|\/@][', 'test_procedure')
+        ut3.ut_annotation(9, 'tags','#?$%^&*!|\/@][', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1407,7 +1407,7 @@ create or replace package body test_suite_builder is
       --Arrange
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tag','#?$%^&*!|\/@][', null)
+        ut3.ut_annotation(3, 'tags','#?$%^&*!|\/@][', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
