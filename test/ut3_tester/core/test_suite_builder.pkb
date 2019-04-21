@@ -7,6 +7,8 @@ create or replace package body test_suite_builder is
     l_suites ut3.ut_suite_items;
     l_suite  ut3.ut_logical_suite;
     l_cursor sys_refcursor;
+    l_type_cursor sys_refcursor;
+    l_ctx   dbms_xmlgen.ctxhandle;
     l_xml    xmltype;
   begin
     open l_cursor for select value(x) from table(
@@ -22,9 +24,14 @@ create or replace package body test_suite_builder is
       a_skip_all_objects => true
     );
     l_suite  := treat( l_suites(l_suites.first) as ut3.ut_logical_suite);
-
+ 
+    open l_type_cursor for select l_suite as "UT_LOGICAL_SUITE" from dual;
+    l_ctx := dbms_xmlgen.newcontext(l_type_cursor);
+    dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
+    l_xml := dbms_xmlgen.getxmltype(l_ctx);
+    
     select deletexml(
-             xmltype(l_suite),
+             l_xml,
              '//RESULTS_COUNT|//START_TIME|//END_TIME|//RESULT|//ASSOCIATED_EVENT_NAME' ||
              '|//TRANSACTION_INVALIDATORS|//ERROR_BACKTRACE|//ERROR_STACK|//SERVEROUTPUT'
            )
@@ -638,7 +645,8 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-      '%<UT_LOGICAL_SUITE>' ||
+      '<ROWSET><ROW>'||
+      '<UT_LOGICAL_SUITE>' ||
         '%<WARNINGS/>' ||
         '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
@@ -663,7 +671,8 @@ create or replace package body test_suite_builder is
         '%</BEFORE_ALL_LIST>' ||
         '<AFTER_ALL_LIST/>' ||
         '<TAGS/>' ||
-      '</UT_LOGICAL_SUITE>'
+      '</UT_LOGICAL_SUITE>'||
+      '</ROW></ROWSET>'
     );
   end;
 
@@ -687,6 +696,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
+     '<ROWSET><ROW>'||
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '%<UT_SUITE_ITEM>' ||
@@ -707,7 +717,8 @@ create or replace package body test_suite_builder is
             '%<ITEM>%<PROCEDURE_NAME>suite_level_test</PROCEDURE_NAME>%</ITEM>' ||
           '%</UT_SUITE_ITEM>' ||
         '%</ITEMS>' ||
-      '%</UT_LOGICAL_SUITE>'
+      '%</UT_LOGICAL_SUITE>'||
+      '</ROW></ROWSET>'
     );
     ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%</ITEMS>%<BEFORE_EACH_LIST>%</ITEMS>%');
     ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%</ITEMS>%<AFTER_EACH_LIST>%</ITEMS>%');
@@ -735,6 +746,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
+     '<ROWSET><ROW>'||
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '%<UT_SUITE_ITEM>' ||
@@ -757,7 +769,8 @@ create or replace package body test_suite_builder is
         '%</ITEMS>' ||
         '%<BEFORE_ALL_LIST>%<PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>%</BEFORE_ALL_LIST>' ||
         '%<AFTER_ALL_LIST>%<PROCEDURE_NAME>suite_level_afterall</PROCEDURE_NAME>%</AFTER_ALL_LIST>' ||
-      '%</UT_LOGICAL_SUITE>'
+      '%</UT_LOGICAL_SUITE>'||
+      '</ROW></ROWSET>'
     );
     ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%</ITEMS>%<BEFORE_ALL_LIST>%</ITEMS>%');
     ut.expect(l_actual).not_to_be_like('%<ITEMS>%<ITEMS>%</ITEMS>%<AFTER_ALL_LIST>%</ITEMS>%');
@@ -784,6 +797,7 @@ create or replace package body test_suite_builder is
         ,'\'
     );
     ut.expect(l_actual).to_be_like(
+        '<ROWSET><ROW>'||
         '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
         '<UT_SUITE_ITEM>' ||
@@ -799,7 +813,8 @@ create or replace package body test_suite_builder is
         '%</BEFORE_ALL_LIST>' ||
         '<AFTER_ALL_LIST/>' ||
         '<TAGS/>'||
-        '</UT_LOGICAL_SUITE>'
+        '</UT_LOGICAL_SUITE>'||
+        '</ROW></ROWSET>'
     );
   end;
 
@@ -827,6 +842,7 @@ create or replace package body test_suite_builder is
         ,'\'
     );
     ut.expect(l_actual).to_be_like(
+      '<ROWSET><ROW>'||
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
@@ -851,7 +867,8 @@ create or replace package body test_suite_builder is
         '%</BEFORE_ALL_LIST>' ||
         '<AFTER_ALL_LIST/>' ||
         '<TAGS/>' ||
-      '</UT_LOGICAL_SUITE>'
+      '</UT_LOGICAL_SUITE>'||
+      '</ROW></ROWSET>'
     );
   end;
 
@@ -884,6 +901,7 @@ create or replace package body test_suite_builder is
           ,'\'
       );
       ut.expect(l_actual).to_be_like(
+          '<ROWSET><ROW>'||
           '<UT_LOGICAL_SUITE>' ||
           '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
@@ -908,7 +926,8 @@ create or replace package body test_suite_builder is
           '%</BEFORE_ALL_LIST>' ||
           '<AFTER_ALL_LIST/>' ||
           '<TAGS/>' ||
-          '</UT_LOGICAL_SUITE>'
+          '</UT_LOGICAL_SUITE>'||
+          '</ROW></ROWSET>'
       );
   end;
 
