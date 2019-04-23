@@ -370,7 +370,7 @@ create or replace package body ut_suite_manager is
     l_ut_owner varchar2(250) := ut_utils.ut_owner;
     l_sql      varchar2(32767);
     l_suite_item_name varchar2(20);
-    l_tag_list varchar2(4000) :=a_tags;
+    l_tag_list varchar2(4000) := a_tags;
   begin
     if a_path is null and a_object_name is not null then    
       execute immediate 'select min(path)
@@ -383,6 +383,8 @@ create or replace package body ut_suite_manager is
       l_path := lower( a_path );
     end if;
     l_suite_item_name := case when l_tag_list is not null then 'suite_items_tags' else 'suite_items' end;
+    
+    
     
     /* Rewrite that as tags should be put on whats left not on full suite item cache */
     l_sql :=
@@ -420,7 +422,7 @@ create or replace package body ut_suite_manager is
        where exists 
          ( select 1 
            from ]'||l_ut_owner||q'[.ut_suite_cache_tag ct 
-           where ct.suiteid = s.id and instr(:a_tag_list,ct.tagname) > 0 )
+           where ct.suiteid = s.id and regexp_like(:a_tag_list,'(^|,){1}'||ct.tagname||'(,|$){1}') )
        ),
        suite_items_tags as (
        select c.* from suite_items c

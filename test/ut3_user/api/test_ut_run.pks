@@ -163,6 +163,40 @@ create or replace package test_ut_run is
 
   --%endcontext
 
+  --%context(run with tags)
+  --%displayname(Call ut.run with #tags)
+  --%beforeall(create_ut3$user#_tests)
+  --%afterall(drop_ut3$user#_tests)
+  
+  --%test(Execute test by tag)
+  procedure test_run_by_one_tag;
+  
+  --%test( Execute suite by one tag)
+  procedure suite_run_by_one_tag;
+
+  --%test(Execute two tests by one tag)
+  procedure two_test_run_by_one_tag;
+ 
+  --%test(Execute all suites tests with tag)
+  procedure all_suites_run_by_one_tag;  
+  
+  --%test(Execute tests by passing two tags)
+  procedure two_test_run_by_two_tags;  
+  
+  --%test(Execute suite and all of its children)
+  procedure suite_with_children_tag;  
+  
+  --%test(Execute test for non existing tag)
+  procedure test_nonexists_tag;    
+  
+  --%test(Execute test for duplicate list tags)
+  procedure test_duplicate_tag;   
+  
+  --%test(Execute suite test for duplicate list tags)
+  procedure suite_duplicate_tag;   
+  
+  --%endcontext
+  
 end;
 /
 

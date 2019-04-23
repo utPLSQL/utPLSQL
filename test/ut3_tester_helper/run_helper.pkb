@@ -197,13 +197,16 @@ create or replace package body run_helper is
   begin
     execute immediate q'[create or replace package test_package_1 is
       --%suite
+      --%tags(suite1,helper)
       --%suitepath(tests)
       --%rollback(manual)
 
       --%test(Test1 from test package 1)
+      --%tags(test1,suite1test1,subtest1)
       procedure test1;
 
       --%test(Test2 from test package 1)
+      --%tags(test1,suite1test1)
       procedure test2;
 
     end test_package_1;
@@ -223,12 +226,15 @@ create or replace package body run_helper is
 
     execute immediate q'[create or replace package test_package_2 is
       --%suite
+      --%tags(suite2,helper)
       --%suitepath(tests.test_package_1)
 
       --%test
+      --%tags(test2,test1suite2,subtest2)
       procedure test1;
 
       --%test
+      --%tags(test2suite1)
       procedure test2;
 
     end test_package_2;
@@ -247,12 +253,15 @@ create or replace package body run_helper is
 
     execute immediate q'[create or replace package test_package_3 is
       --%suite
+      --%tags(suite3,helper)
       --%suitepath(tests2)
 
       --%test
+      --%tags(test1suite3)
       procedure test1;
 
       --%test
+      --%tags(test2suite3)
       procedure test2;
 
     end test_package_3;
@@ -430,6 +439,44 @@ create or replace package body run_helper is
         a_test_files => a_test_files
       ));
     return l_results;
+  end;
+ 
+  procedure run(a_reporter ut3.ut_reporter_base := null,a_tags varchar2) is
+  begin
+    ut3.ut.run(a_reporter,a_tags => a_tags);
+  end; 
+  
+  procedure run(a_path varchar2, a_reporter ut3.ut_reporter_base := null,a_tags varchar2) is
+  begin
+    ut3.ut.run(a_path, a_reporter,a_tags => a_tags);
+  end;
+  
+  procedure run(a_paths ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base := null, a_tags varchar2) is
+  begin
+    ut3.ut.run(a_paths, a_reporter,a_tags => a_tags);
+  end;
+  
+  function run(a_reporter ut3.ut_reporter_base := null,a_tags varchar2) return ut3.ut_varchar2_list  is
+    l_results ut3.ut_varchar2_list;
+  begin
+    select * bulk collect into l_results from table (ut3.ut.run(a_reporter, a_tags => a_tags));
+    return l_results;
+  end;
+  
+  function run(a_path varchar2, a_reporter ut3.ut_reporter_base := null, a_tags varchar2) 
+    return ut3.ut_varchar2_list is
+    l_results ut3.ut_varchar2_list;
+  begin
+    select * bulk collect into l_results from table (ut3.ut.run(a_path, a_reporter,a_tags => a_tags));
+    return l_results;
+  end;
+  
+  function run(a_paths ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base := null, a_tags varchar2) 
+    return ut3.ut_varchar2_list is
+    l_results ut3.ut_varchar2_list;
+  begin
+    select * bulk collect into l_results from table (ut3.ut.run(a_paths, a_reporter, a_tags => a_tags));
+   return l_results;
   end;
   
   procedure test_rollback_type(a_procedure_name varchar2, a_rollback_type integer, a_expectation ut3_latest_release.ut_matcher) is
