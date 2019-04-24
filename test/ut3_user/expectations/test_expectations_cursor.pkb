@@ -2618,5 +2618,149 @@ Check the query and data for errors.';
     ut3.ut.reset_nls;
       
   end;
+  
+  procedure colon_part_of_columnname is
+    type t_key_val_rec is record(
+    key varchar2(100),
+    value varchar2(100));
+    
+    l_act     t_key_val_rec;
+    l_exp     t_key_val_rec;
+    l_act_cur sys_refcursor;
+    l_exp_cur sys_refcursor;
+  begin
+    l_act.key := 'NAME';
+    l_act.value := 'TEST';
+    l_exp.key := 'NAME';
+    l_exp.value := 'TEST';    
+
+   OPEN l_act_cur FOR SELECT l_act.key, l_act.value
+     FROM dual;
+      
+   OPEN l_exp_cur FOR SELECT l_exp.key, l_exp.value
+     FROM dual;
+   
+   ut3.ut.expect(l_act_cur).to_equal(l_exp_cur);
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    
+  end;
+  
+  procedure specialchar_part_of_colname is
+    l_act_cur sys_refcursor;
+    l_exp_cur sys_refcursor;
+  begin
+ 
+   OPEN l_act_cur FOR SELECT 1 as "$Test", 2 as "&Test"
+     FROM dual;
+      
+   OPEN l_exp_cur FOR SELECT 1 as "$Test", 2 as "&Test"
+     FROM dual;
+   
+   ut3.ut.expect(l_act_cur).to_equal(l_exp_cur);  
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    
+  end;
+  
+  procedure nonxmlchar_part_of_colname is
+    l_act_cur sys_refcursor;
+    l_exp_cur sys_refcursor;
+  begin
+ 
+   OPEN l_act_cur FOR SELECT 1 as "<Test>", 2 as "_Test", 3 as ".Test>"
+     FROM dual;
+      
+   OPEN l_exp_cur FOR SELECT 1 as "<Test>", 2 as "_Test", 3 as ".Test>"
+     FROM dual;
+   
+   ut3.ut.expect(l_act_cur).to_equal(l_exp_cur); 
+   ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    
+  end;  
+
+
+  procedure insginificant_whitespace1 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select column_value t1 from table(ut_varchar2_list(''));
+	 
+	open l_actual for
+	  select column_value t1 from table(ut_varchar2_list(' '));
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end; 
+
+  procedure insginificant_whitespace2 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select ' t ' t1 from dual;
+	 
+	open l_actual for
+	  select 't' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end; 
+  
+  procedure insginificant_whitespace3 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select 't ' t1 from dual;
+	 
+	open l_actual for
+	  select 't' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end;
+  
+  procedure insginificant_whitespace4 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select ' t' t1 from dual;
+	 
+	open l_actual for
+	  select 't' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end;     
+  
+  procedure insginificant_whitespace5 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select ' ' t1 from dual;
+	 
+	open l_actual for
+	  select '' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end; 
+  
+  procedure nulltowhitespace is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select cast(null as varchar2(2)) t1 from dual;
+	 
+	open l_actual for
+	  select ' ' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end;   
+ 
 end;
 /

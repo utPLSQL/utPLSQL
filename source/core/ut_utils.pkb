@@ -16,6 +16,13 @@ create or replace package body ut_utils is
   limitations under the License.
   */
 
+  /**
+  * Constants regex used to validate XML name
+  */
+  gc_invalid_first_xml_char  constant varchar2(50)  := '[^_a-zA-Z]';
+  gc_invalid_xml_char        constant varchar2(50)  := '[^_a-zA-Z0-9\.-]';
+  gc_full_valid_xml_name     constant varchar2(50)  := '^([_a-zA-Z])([_a-zA-Z0-9\.-])*$';
+
   function surround_with(a_value varchar2, a_quote_char varchar2) return varchar2 is
   begin
     return case when a_quote_char is not null then a_quote_char||a_value||a_quote_char else a_value end;
@@ -762,8 +769,47 @@ create or replace package body ut_utils is
                           ,modifier   => 'm');
    return l_caller_stack_line;
   end;
-
-
+ 
+  /**
+  * Change string into unicode to match xmlgen format _00<unicode>_
+  * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
+  * secion v3.1.7.2859-develop
+  */  
+  function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
+  begin
+    return '_x00'||rawtohex(utl_raw.cast_to_raw(a_character))||'_';
+  end;
+  
+  /**
+  * Build valid XML column name as element names can contain letters, digits, hyphens, underscores, and periods
+  */  
+  function build_valid_xml_name(a_preprocessed_name varchar2) return varchar2 is
+    l_post_processed varchar2(4000);
+  begin
+    for i in (select regexp_substr( a_preprocessed_name ,'(.{1})', 1, level, null, 1 ) AS string_char,level level_no
+              from   dual connect by level <= regexp_count(a_preprocessed_name, '(.{1})'))
+    loop
+      if i.level_no = 1 and regexp_like(i.string_char,gc_invalid_first_xml_char) then
+        l_post_processed := l_post_processed || char_to_xmlgen_unicode(i.string_char);
+      elsif regexp_like(i.string_char,gc_invalid_xml_char) then
+        l_post_processed := l_post_processed || char_to_xmlgen_unicode(i.string_char);
+      else
+        l_post_processed := l_post_processed || i.string_char;
+      end if;
+    end loop;
+    return l_post_processed;  
+  end;
+  
+  function get_valid_xml_name(a_name varchar2) return varchar2 is
+    l_valid_name varchar2(4000);
+  begin
+    if regexp_like(a_name,gc_full_valid_xml_name) then
+      l_valid_name := a_name;
+    else
+      l_valid_name := build_valid_xml_name(a_name);
+    end if;
+    return l_valid_name;
+  end;
 
 end ut_utils;
 /
