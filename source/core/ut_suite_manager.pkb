@@ -704,15 +704,15 @@ create or replace package body ut_suite_manager is
     if a_suite_path is not null then 
       l_error_msg := 'No suite packages found for path '||a_schema_name||':'||a_suite_path;
     elsif a_procedure_name is not null then 
-      l_error_msg := 'Suite test '||a_schema_name||'.'||a_object_name|| '.'||a_procedure_name||' does not exist';
+      l_error_msg := 'Suite test '||a_schema_name||'.'||a_object_name|| '.'||a_procedure_name||' does not exists';
     elsif a_object_name is not null then
-      l_error_msg := 'Suite package '||a_schema_name||'.'||a_object_name|| ' does not exist';
+      l_error_msg := 'Suite package '||a_schema_name||'.'||a_object_name|| ' does not exists';
     end if;
     
     if l_error_msg is null and a_tags is not null then
       l_error_msg := 'No tests found for tags: '||ut_utils.to_string(a_tags,a_max_output_len => gc_tag_errmsg);
     elsif l_error_msg is not null and a_tags is not null then
-      l_error_msg := l_error_msg||'with tags: '||ut_utils.to_string(a_tags,a_max_output_len => gc_tag_errmsg);
+      l_error_msg := l_error_msg||' with tags: '||ut_utils.to_string(a_tags,a_max_output_len => gc_tag_errmsg);
     end if;
     
     l_error_msg := l_error_msg ||'.';

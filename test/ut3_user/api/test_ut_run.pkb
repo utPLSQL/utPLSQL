@@ -864,7 +864,7 @@ Failures:%
     l_results clob;
     l_exp_message varchar2(4000);
   begin
-    l_exp_message :=q'[ORA-20204: No suite packages found for tags: 'nonexisting']';
+    l_exp_message :=q'[ORA-20204: No tests found for tags: 'nonexisting'.]';
     ut3_tester_helper.run_helper.run(a_tags => 'nonexisting');
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
     ut.fail('Expecte test to fail');
@@ -900,7 +900,7 @@ Failures:%
     l_results clob;
     l_exp_message varchar2(4000);
   begin
-    l_exp_message :=q'[ORA-20204: Suite package ut3_tester_helper.test_package_1 does not existwith tags: 'nonexists'.]';
+    l_exp_message :=q'[ORA-20204: Suite package ut3_tester_helper.test_package_1 does not exists with tags: 'nonexists'.]';
     ut3.ut.run('ut3_tester_helper.test_package_1',a_tags => 'nonexists');
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
         ut.fail('Expecte test to fail');
