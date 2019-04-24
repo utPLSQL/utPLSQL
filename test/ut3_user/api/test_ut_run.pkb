@@ -860,6 +860,17 @@ Failures:%
     ut.expect( l_results ).not_to_be_like( '%test_package_3%' );  
   end;
   
+  procedure suite_with_tag_parent is
+    l_results clob;
+  begin
+    ut3_tester_helper.run_helper.run(a_tags => 'suite2');
+    l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
+    --Assert
+    ut.expect( l_results ).to_be_like( '%test_package_1%' );
+    ut.expect( l_results ).to_be_like( '%test_package_2%' );
+    ut.expect( l_results ).not_to_be_like( '%test_package_3%' );  
+  end;
+  
   procedure test_nonexists_tag is
     l_results clob;
     l_exp_message varchar2(4000);

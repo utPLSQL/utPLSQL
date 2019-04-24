@@ -186,6 +186,9 @@ create or replace package test_ut_run is
   --%test(Execute suite and all of its children)
   procedure suite_with_children_tag;  
   
+  --%test(Execute suite and parents)
+  procedure suite_with_tag_parent;   
+  
   --%test(Execute test for non existing tag)
   procedure test_nonexists_tag;    
   
@@ -215,7 +218,7 @@ create or replace package test_ut_run is
 
   --%test(Runs tests from given paths with paths list and a tag)
   procedure tag_run_func_path_list;
-  
+ 
   --%endcontext
   
 end;

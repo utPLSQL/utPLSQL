@@ -1245,7 +1245,9 @@ or
 
 Tags are defined as a coma separated list. When executing a tests filtering by tag utPLSQL will find all tests associated with a given tag and execute it. It will apply `OR` logic when resolving a tags so any tests / suites that got matching at least one tag will get executed. 
 
-When a suite gets tagged all of its children will automatically inherit a tag and get executed along the parent.
+When a suite gets tagged all of its children will automatically inherit a tag and get executed along the parent. Parent suit tests are not executed. but a suitepath hierarchy is kept.
+
+Sample tag package.
 
 ```sql
 create or replace PACKAGE ut_sample_test IS
@@ -1257,6 +1259,10 @@ create or replace PACKAGE ut_sample_test IS
    --%tag(test1,sample)
    PROCEDURE ut_refcursors1;
 
+   --%test(Compare Ref Cursors #2)
+   --%tag(test2,sample)
+   PROCEDURE ut_refcursors2;
+   
 END ut_sample_test;
 /
 
@@ -1271,7 +1277,17 @@ create or replace PACKAGE BODY ut_sample_test IS
 
       ut.expect(v_actual).to_equal(v_expected);
    END;
+   
+   PROCEDURE ut_refcursors2 IS
+      v_actual   SYS_REFCURSOR;
+      v_expected SYS_REFCURSOR;
+   BEGIN
+    open v_expected for select 1 as test from dual;
+    open v_actual   for select 2 as test from dual;
 
+      ut.expect(v_actual).to_equal(v_expected);
+   END;
+   
 END ut_sample_test;
 /
 ```
@@ -1280,7 +1296,8 @@ Execution of the test is done by using a new parameter `a_tags`
 
 ```sql
 select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'suite1'));
-select * from table(ut.run(a_tags => 'suite1'));
+select * from table(ut.run(a_tags => 'test1,test2'));
+select * from table(ut.run(a_tags => 'sample'));
 
 begin
   ut.run(a_path => 'ut_sample_test',a_tags => 'suite1');
