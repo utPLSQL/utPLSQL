@@ -168,7 +168,7 @@ create or replace package test_ut_run is
   --%beforeall(create_ut3$user#_tests)
   --%afterall(drop_ut3$user#_tests)
   
-  --%test(Execute test by tag)
+  --%test(Execute test by tag ut_run)
   procedure test_run_by_one_tag;
   
   --%test( Execute suite by one tag)
@@ -194,6 +194,18 @@ create or replace package test_ut_run is
   
   --%test(Execute suite test for duplicate list tags)
   procedure suite_duplicate_tag;   
+
+  --%test(Run a package by name with non existing tag)
+  procedure run_proc_pkg_name_no_tag;
+
+  --%test(Runs given package only with package name given as path and filter by tag)
+  procedure run_proc_pkg_name_tag;
+  
+  --%test(Runs all from given package with package name given as path and coverage file list with tag)
+  procedure run_pkg_name_file_list_tag;
+  
+  --%test(Runs tests from given paths with paths list and tag)
+  procedure run_proc_path_list_tag;  
   
   --%endcontext
   

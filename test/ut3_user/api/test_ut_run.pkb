@@ -895,6 +895,62 @@ Failures:%
     ut.expect( l_results ).to_be_like( '%test_package_2%' );
     ut.expect( l_results ).not_to_be_like( '%test_package_3%' ); 
   end;  
+ 
+  procedure run_proc_pkg_name_no_tag is
+    l_results clob;
+    l_exp_message varchar2(4000);
+  begin
+    l_exp_message :=q'[ORA-20204: Suite package ut3_tester_helper.test_package_1 does not existwith tags: 'nonexists'.]';
+    ut3.ut.run('ut3_tester_helper.test_package_1',a_tags => 'nonexists');
+    l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
+        ut.fail('Expecte test to fail');
+  exception
+    when others then
+    ut.expect( sqlerrm ).to_be_like( l_exp_message );
+  end; 
+  
+  procedure run_proc_pkg_name_tag is
+    l_results clob;
+  begin
+    ut3.ut.run('ut3_tester_helper.test_package_1',a_tags => 'suite1test1');
+    l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
+    --Assert
+    ut.expect( l_results ).to_be_like( '%test_package_1%' );
+    ut.expect( l_results ).to_be_like( '%test_package_1.test1%executed%' ); 
+    ut.expect( l_results ).not_to_be_like( '%test_package_1.test2%' ); 
+    ut.expect( l_results ).not_to_be_like( '%test_package_2%' );
+    ut.expect( l_results ).not_to_be_like( '%test_package_3%' );
+  end;
+  
+  procedure run_pkg_name_file_list_tag is
+    l_results clob;
+  begin
+    ut3.ut.run('ut3_tester_helper.test_package_1',a_tags => 'suite1test1');
+    l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
+    --Assert
+    ut.expect( l_results ).to_be_like( '%test_package_1%' );
+    ut.expect( l_results ).to_be_like( '%test_package_1.test1%executed%' ); 
+    ut.expect( l_results ).not_to_be_like( '%test_package_1.test2%' ); 
+    ut.expect( l_results ).not_to_be_like( '%test_package_2%' );
+    ut.expect( l_results ).not_to_be_like( '%test_package_3%' );
+  end;
+  
+  procedure run_proc_path_list_tag is
+    l_results clob;
+  begin
+     ut3.ut.run(
+       'ut3_tester_helper.test_package_1',
+       ut3.ut_sonar_test_reporter(), a_source_files => ut3.ut_varchar2_list(),a_tags => 'suite1',
+       a_test_files => ut3.ut_varchar2_list('tests/ut3_tester_helper.test_package_1.pkb',
+         'tests/ut3_tester_helper.test_package_2.pkb',
+         'tests/ut3_tester_helper.test_package_3.pkb')
+       );
+    l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
+    --Assert
+    ut.expect( l_results ).to_be_like( '%tests/ut3_tester_helper.test_package_1.pkb%' );
+    ut.expect( l_results ).not_to_be_like( '%tests/ut3_tester_helper.test_package_2.pkb%' );
+    ut.expect( l_results ).not_to_be_like( '%tests/ut3_tester_helper.test_package_3.pkb%' );
+  end;
   
 end;
 /

@@ -206,7 +206,7 @@ create or replace package body run_helper is
       procedure test1;
 
       --%test(Test2 from test package 1)
-      --%tags(test1,suite1test1)
+      --%tags(test1,suite1test2)
       procedure test2;
 
     end test_package_1;
