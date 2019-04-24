@@ -80,13 +80,13 @@ create or replace package body ut_compound_data_helper is
   begin
     execute immediate q'[with
           expected_cols as (
-            select access_path exp_column_name,column_position exp_col_pos,
+            select display_path exp_column_name,column_position exp_col_pos,
                    replace(column_type_name,'VARCHAR2','CHAR') exp_col_type_compare, column_type_name exp_col_type
               from table(:a_expected)
               where parent_name is null and hierarchy_level = 1 and column_name is not null
           ),
           actual_cols as (
-            select access_path act_column_name,column_position act_col_pos,
+            select display_path act_column_name,column_position act_col_pos,
                    replace(column_type_name,'VARCHAR2','CHAR') act_col_type_compare, column_type_name act_col_type
               from table(:a_actual)
               where parent_name is null and hierarchy_level = 1 and column_name is not null
@@ -235,6 +235,8 @@ create or replace package body ut_compound_data_helper is
       l_col_type := 'VARCHAR2(50)';
     elsif  a_data_info.is_sql_diffable = 1  and type_no_length(a_data_info.column_type) then
       l_col_type := a_data_info.column_type;
+    elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('VARCHAR2','CHAR') then
+      l_col_type := 'VARCHAR2('||greatest(a_data_info.column_len,4000)||')';
     else 
       l_col_type := a_data_info.column_type
         ||case when a_data_info.column_len is not null
