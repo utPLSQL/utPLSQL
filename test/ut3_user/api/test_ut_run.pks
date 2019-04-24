@@ -207,6 +207,15 @@ create or replace package test_ut_run is
   --%test(Runs tests from given paths with paths list and tag)
   procedure run_proc_path_list_tag;  
   
+  --%test(Runs all tests in current schema with default reporter when only tag is given)
+  procedure tag_run_func_no_params;
+
+  --%test(Runs given package only with package name given as path and filter by tag)
+  procedure tag_run_func_pkg_name;
+
+  --%test(Runs tests from given paths with paths list and a tag)
+  procedure tag_run_func_path_list;
+  
   --%endcontext
   
 end;

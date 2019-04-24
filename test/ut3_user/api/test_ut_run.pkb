@@ -951,6 +951,39 @@ Failures:%
     ut.expect( l_results ).not_to_be_like( '%tests/ut3_tester_helper.test_package_2.pkb%' );
     ut.expect( l_results ).not_to_be_like( '%tests/ut3_tester_helper.test_package_3.pkb%' );
   end;
+
+  procedure tag_run_func_no_params is
+    l_results   ut3.ut_varchar2_list;
+  begin
+    l_results := ut3_tester_helper.run_helper.run(a_tags => 'helper');
+    --Assert
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%test_package_2%test_package_3%' );
+  end;
+
+  procedure tag_run_func_pkg_name is
+    l_results   ut3.ut_varchar2_list;
+  begin
+    select * bulk collect into l_results from table (ut3.ut.run('ut3_tester_helper.test_package_1', a_tags => 'suite1test1'));
+    --Assert
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1.test1%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3%' );
+  end;
+
+  procedure tag_run_func_path_list is
+    l_results   ut3.ut_varchar2_list;
+  begin
+    l_results := ut3_tester_helper.run_helper.run(ut3.ut_varchar2_list(':tests.test_package_1',':tests'),a_tags => 'suite1test1,suite2test1');
+    --Assert
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_1.test1%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_1.test2%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( '%test_package_2.test1%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test2%executed%' );
+    ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3%' );
+  end;
   
 end;
 /

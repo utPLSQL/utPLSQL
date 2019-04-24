@@ -230,11 +230,11 @@ create or replace package body run_helper is
       --%suitepath(tests.test_package_1)
 
       --%test
-      --%tags(test2,test1suite2,subtest2)
+      --%tags(test2,suite2test1,subtest2)
       procedure test1;
 
       --%test
-      --%tags(test2suite1)
+      --%tags(suite2test2)
       procedure test2;
 
     end test_package_2;
