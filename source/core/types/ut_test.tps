@@ -55,10 +55,6 @@ create or replace type ut_test force under ut_suite_item (
   *Holds the expected error codes list when the user use the annotation throws
   */
   expected_error_codes  ut_integer_list,
-  /**
-  * Hold list of tags assign to test
-  */
-  tags varchar2(4000),
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2,
     a_line_no integer, a_expected_error_codes ut_integer_list := null, a_tags varchar2 := null

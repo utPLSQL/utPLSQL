@@ -26,10 +26,6 @@ create or replace type ut_suite  under ut_logical_suite (
   * Procedure exists within the package of the suite
   */
   after_all_list ut_executables,
-  /**
-  * Hold list of tags assign to suite
-  */
-  tags varchar2(4000),
   constructor function ut_suite (
     self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2, a_line_no integer,
     a_tags varchar2 := null

@@ -250,7 +250,7 @@ create or replace package body ut_suite_manager is
                 line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
                 start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
                 results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                items => a_items_at_level(a_prev_level)
+                items => a_items_at_level(a_prev_level), tags => null
               )
             else
               ut_logical_suite(
@@ -261,7 +261,7 @@ create or replace package body ut_suite_manager is
                 line_no => a_rows( a_idx ).line_no, parse_time => a_rows( a_idx ).parse_time,
                 start_time => null, end_time => null, result => null, warnings => a_rows( a_idx ).warnings,
                 results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
-                items => ut_suite_items()
+                items => ut_suite_items(), tags => null
               )
             end;
         when 'UT_TEST' then
