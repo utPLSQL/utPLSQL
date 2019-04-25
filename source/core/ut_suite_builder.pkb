@@ -320,7 +320,7 @@ create or replace package body ut_suite_builder is
     while l_annotation_pos is not null loop
       if a_tags_ann_text(l_annotation_pos) is null then
         a_suite.put_warning(
-            '"--%tag" annotation requires a tag value populated. Annotation ignored.'
+            '"--%tags" annotation requires a tag value populated. Annotation ignored.'
             || chr( 10 ) || 'at "' || get_qualified_object_name(a_suite, a_procedure_name) || '", line ' || l_annotation_pos
         );
       else
@@ -328,6 +328,7 @@ create or replace package body ut_suite_builder is
           ut_utils.string_to_table(a_tags_ann_text(l_annotation_pos),',')
           );
       end if;
+      --remove empty strings from table list e.g. tag1,,tag2
       a_list := ut_utils.table_to_clob(
         ut_utils.filter_list(l_tag_list,'^(\w|\S)+$'),
         ',');
@@ -632,7 +633,7 @@ create or replace package body ut_suite_builder is
     while l_annotation_pos is not null loop
       if a_tags_ann_text(l_annotation_pos) is null then
         a_suite.put_warning(
-            '"--%tag" annotation requires a tag value populated. Annotation ignored, line ' || l_annotation_pos
+            '"--%tags" annotation requires a tag value populated. Annotation ignored, line ' || l_annotation_pos
         );
       else
         l_tag_list := l_tag_list multiset union distinct ut_utils.trim_list_elements(
@@ -641,6 +642,7 @@ create or replace package body ut_suite_builder is
       end if;
       l_annotation_pos := a_tags_ann_text.next(l_annotation_pos);
     end loop;
+    --remove empty strings from table list e.g. tag1,,tag2
     a_suite.tags := ut_utils.table_to_clob(
       ut_utils.filter_list(l_tag_list,'^(\w|\S)+$'),
       ',');    
@@ -657,7 +659,6 @@ create or replace package body ut_suite_builder is
     l_after_all_list     tt_executables;
     l_rollback_type      ut_utils.t_rollback_type;
     l_annotation_text    t_annotation_text;
-    l_suite_tags         ut_varchar2_rows;
   begin
     if a_annotations.by_name.exists(gc_displayname) then
       l_annotation_text := trim(a_annotations.by_name(gc_displayname)(a_annotations.by_name(gc_displayname).first));

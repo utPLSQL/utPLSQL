@@ -194,7 +194,7 @@ create or replace package body ut_suite_manager is
                   results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
                   items => a_items_at_level(a_prev_level),
                   before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
-                    a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags --TODO : Should be share or separate
+                    a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags
                 )
             else
                 ut_suite(
@@ -207,7 +207,7 @@ create or replace package body ut_suite_manager is
                   results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
                   items => ut_suite_items(),
                   before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
-                    a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags --TODO : Should be share or separate
+                    a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags
                 )
             end;
         when 'UT_SUITE_CONTEXT' then
@@ -223,7 +223,7 @@ create or replace package body ut_suite_manager is
                 results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
                 items => a_items_at_level(a_prev_level),
                 before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
-                  a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags --TODO : Should be share or separate
+                  a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags
               )
             else
               ut_suite_context(
@@ -236,7 +236,7 @@ create or replace package body ut_suite_manager is
                 results_count => ut_results_counter(), transaction_invalidators => ut_varchar2_list(),
                 items => ut_suite_items(),
                 before_all_list => sort_by_seq_no( a_rows( a_idx ).before_all_list), after_all_list => sort_by_seq_no(
-                  a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags --TODO : Should be share or separate
+                  a_rows( a_idx ).after_all_list), tags => a_rows(a_idx).tags
               )
             end;
         when 'UT_LOGICAL_SUITE' then
@@ -371,7 +371,6 @@ create or replace package body ut_suite_manager is
     l_ut_owner varchar2(250) := ut_utils.ut_owner;
     l_sql      varchar2(32767);
     l_suite_item_name varchar2(20);
-    l_tag_list varchar2(4000) := a_tags;
   begin
     if a_path is null and a_object_name is not null then    
       execute immediate 'select min(path)
@@ -383,11 +382,8 @@ create or replace package body ut_suite_manager is
     else
       l_path := lower( a_path );
     end if;
-    l_suite_item_name := case when l_tag_list is not null then 'suite_items_tags' else 'suite_items' end;
+    l_suite_item_name := case when a_tags is not null then 'suite_items_tags' else 'suite_items' end;
     
-    
-    
-    /* Rewrite that as tags should be put on whats left not on full suite item cache */
     l_sql :=
     q'[with
       suite_items as (
@@ -417,7 +413,7 @@ create or replace package body ut_suite_manager is
                         )
                    )
       ),]'
-      ||case when l_tag_list is not null then
+      ||case when a_tags is not null then
       q'[ filter_tags as (
        select s.* from suite_items s
        where exists 
@@ -501,7 +497,7 @@ create or replace package body ut_suite_manager is
                 c.path, :a_random_seed
               ) desc nulls last'
           end;   
-    open l_result for l_sql using l_path, l_path, upper(a_object_name), upper(a_procedure_name), l_tag_list, a_random_seed;
+    open l_result for l_sql using l_path, l_path, upper(a_object_name), upper(a_procedure_name), a_tags, a_random_seed;
     return l_result;
   end;
 
@@ -739,11 +735,7 @@ create or replace package body ut_suite_manager is
     resolve_schema_names(l_paths);
 
     l_schema_paths := group_paths_by_schema(l_paths);
-    
-    -- TODO : use a_tags to filter out path. Should we do it before ? we dont know suites, if we do it after
-    -- we running into danger of filtering out to null value and raising wrong message. I reckon we should resolve that 
-    -- before loop and l_th_items is set or after filter it out.
-    
+        
     l_schema := l_schema_paths.first;
     while l_schema is not null loop
       l_path_items  := l_schema_paths(l_schema);
