@@ -25,14 +25,18 @@ if [[ "${TRAVIS_JOB_NUMBER}" =~ \.2$ ]]; then
     set verify off
 
     @uninstall_all.sql $UT3_OWNER
+    whenever sqlerror exit failure rollback
     declare
       v_leftover_objects_count integer;
     begin
       select sum(cnt)
         into v_leftover_objects_count
-        from (select count(1) cnt from dba_objects where owner = '$UT3_OWNER'
-        union all
-        select count(1) cnt from dba_synonyms where table_owner = '$UT3_OWNER'
+        from (
+          select count(1) cnt from dba_objects where owner = '$UT3_OWNER'
+           where object_name not like 'PLSQL_PROFILER%' and object_name not like 'DBMSPCC_%'
+          union all
+          select count(1) cnt from dba_synonyms where table_owner = '$UT3_OWNER'
+           where table_name not like 'PLSQL_PROFILER%' and table_name not like 'DBMSPCC_%'
         );
       if v_leftover_objects_count > 0 then
         raise_application_error(-20000, 'Not all objects were successfully uninstalled - leftover objects count='||v_leftover_objects_count);

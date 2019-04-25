@@ -68,6 +68,8 @@ drop package ut_suite_manager;
 
 drop package ut_suite_builder;
 
+drop package ut_suite_cache_manager;
+
 drop table ut_suite_cache;
 
 drop sequence ut_suite_cache_seq;
@@ -297,6 +299,8 @@ drop type ut_key_anyval_pairs force;
 drop type ut_key_value_pairs force;
 
 drop type ut_key_value_pair force;
+
+drop type ut_key_anyvalues force;
 
 drop type ut_object_names force;
 

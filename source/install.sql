@@ -335,8 +335,6 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'api/match.syn'
 @@install_component.sql 'api/contain.syn'
 
-@@install_component.sql 'core/annotations/ut_trigger_annotation_parsing.trg'
-
 set linesize 200
 set define on
 column text format a100
