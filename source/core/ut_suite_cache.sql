@@ -47,6 +47,7 @@ create table ut_suite_cache (
   nested table before_test_list store as ut_suite_cache_before_test
   nested table after_test_list store as ut_suite_cache_after_test
   nested table expected_error_codes store as ut_suite_cache_throws
+  nested table tags store as ut_suite_cache_tags return as locator
   as
     select
            cast(null as number(22)) id,

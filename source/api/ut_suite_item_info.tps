@@ -22,6 +22,7 @@ create or replace type ut_suite_item_info as object (
   item_type        varchar2( 250 ), -- the type of item (UT_SUITE/UT_SUITE_CONTEXT/UT_TEST)
   item_line_no     integer,         -- line_number where annotation identifying the item exists
   path             varchar2( 4000 ),-- suitepath of the item
-  disabled_flag    integer          -- 0 (zero) if item is not disabled, 1 if item is disabled by --%disabled annotation
+  disabled_flag    integer,          -- 0 (zero) if item is not disabled, 1 if item is disabled by --%disabled annotation
+  tags             varchar2(4000)
 )
 /

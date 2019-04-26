@@ -93,7 +93,6 @@ grant select on &&ut3_owner..ut_annotation_cache to public;
 grant execute on &&ut3_owner..ut_executables to public;
 grant execute on &&ut3_owner..ut_executable_test to public;
 grant select on &&ut3_owner..ut_suite_cache to public;
-grant select on &&ut3_owner..ut_suite_cache_tag to public;
 grant select on &&ut3_owner..ut_suite_cache_package to public;
 grant select on &&ut3_owner..ut_suite_cache_schema to public;
 grant execute on &&ut3_owner..ut_annotation_cache_manager to public;

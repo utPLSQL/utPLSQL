@@ -1149,7 +1149,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_SUITE_ITEM>' ||
         '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
-        '%<TAGS>testtag</TAGS>%'||
+        '%<TAGS><VARCHAR2>testtag</VARCHAR2></TAGS>%'||
         '%</UT_SUITE_ITEM>%'
     );
  
@@ -1170,7 +1170,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_LOGICAL_SUITE>' ||
         '%<NAME>some_package</NAME><DESCRIPTION>testsuite</DESCRIPTION><PATH>some_package</PATH>' ||
-        '%<TAGS>suitetag</TAGS>%'||
+        '%<TAGS><VARCHAR2>suitetag</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
  
@@ -1192,7 +1192,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_SUITE_ITEM>' ||
         '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
-        '%<TAGS>testtag,testtag2,testtag3</TAGS>%'||
+        '%<TAGS><VARCHAR2>testtag</VARCHAR2><VARCHAR2>testtag2</VARCHAR2><VARCHAR2>testtag3</VARCHAR2></TAGS>%'||
         '%</UT_SUITE_ITEM>%'
     );
  
@@ -1213,7 +1213,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_LOGICAL_SUITE>' ||
         '%<NAME>some_package</NAME><DESCRIPTION>testsuite</DESCRIPTION><PATH>some_package</PATH>' ||
-        '%<TAGS>suitetag,suitetag1,suitetag2</TAGS>%'||
+        '%<TAGS><VARCHAR2>suitetag</VARCHAR2><VARCHAR2>suitetag1</VARCHAR2><VARCHAR2>suitetag2</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
  
@@ -1236,7 +1236,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_SUITE_ITEM>' ||
         '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
-        '%<TAGS>testtag,testtag2</TAGS>%'||
+        '%<TAGS><VARCHAR2>testtag</VARCHAR2><VARCHAR2>testtag2</VARCHAR2></TAGS>%'||
         '%</UT_SUITE_ITEM>%'
     );
  
@@ -1258,7 +1258,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_LOGICAL_SUITE>' ||
         '%<NAME>some_package</NAME><DESCRIPTION>testsuite</DESCRIPTION><PATH>some_package</PATH>' ||
-        '%<TAGS>suitetag,suitetag1</TAGS>%'||
+        '%<TAGS><VARCHAR2>suitetag</VARCHAR2><VARCHAR2>suitetag1</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
  
@@ -1319,7 +1319,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_SUITE_ITEM>' ||
         '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
-        '%<TAGS>testtag,testtag1,testtag2</TAGS>%'||
+        '%<TAGS><VARCHAR2>testtag</VARCHAR2><VARCHAR2>testtag1</VARCHAR2><VARCHAR2>testtag2</VARCHAR2></TAGS>%'||
         '%</UT_SUITE_ITEM>%'
     );
  
@@ -1341,7 +1341,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_LOGICAL_SUITE>' ||
         '%<NAME>some_package</NAME><DESCRIPTION>testsuite</DESCRIPTION><PATH>some_package</PATH>' ||
-        '%<TAGS>suitetag,suitetag1,suitetag2</TAGS>%'||
+        '%<TAGS><VARCHAR2>suitetag</VARCHAR2><VARCHAR2>suitetag1</VARCHAR2><VARCHAR2>suitetag2</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
  
@@ -1363,7 +1363,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_SUITE_ITEM>' ||
         '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
-        '%<TAGS>testtag,testtag1</TAGS>%'||
+        '%<TAGS><VARCHAR2>testtag</VARCHAR2><VARCHAR2>testtag1</VARCHAR2></TAGS>%'||
         '%</UT_SUITE_ITEM>%'
     );
  
@@ -1384,7 +1384,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_LOGICAL_SUITE>' ||
         '%<NAME>some_package</NAME><DESCRIPTION>testsuite</DESCRIPTION><PATH>some_package</PATH>' ||
-        '%<TAGS>suitetag,suitetag1</TAGS>%'||
+        '%<TAGS><VARCHAR2>suitetag</VARCHAR2><VARCHAR2>suitetag1</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
  
@@ -1406,7 +1406,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_SUITE_ITEM>' ||
         '%<NAME>test_procedure</NAME><DESCRIPTION>Some test</DESCRIPTION><PATH>some_package.test_procedure</PATH>' ||
-        '%<TAGS>#?$%^&amp;*!|\/@][</TAGS>%'||
+        '%<TAGS><VARCHAR2>#?$%^&amp;*!|\/@][</VARCHAR2></TAGS>%'||
         '%</UT_SUITE_ITEM>%'
     );
  
@@ -1427,7 +1427,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_be_like(
         '%<UT_LOGICAL_SUITE>' ||
         '%<NAME>some_package</NAME><DESCRIPTION>testsuite</DESCRIPTION><PATH>some_package</PATH>' ||
-        '%<TAGS>#?$%^&amp;*!|\/@][</TAGS>%'||
+        '%<TAGS><VARCHAR2>#?$%^&amp;*!|\/@][</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
  

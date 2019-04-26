@@ -299,7 +299,6 @@ create or replace package body ut_suite_manager is
   begin
     loop
       fetch a_suite_data_cursor bulk collect into l_rows limit c_bulk_limit;
-
       l_idx := l_rows.first;
       while l_idx is not null loop
         l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
@@ -364,13 +363,14 @@ create or replace package body ut_suite_manager is
     a_procedure_name   varchar2 := null,
     a_skip_all_objects boolean  := false,
     a_random_seed      positive,
-    a_tags             varchar2 := null
+    a_tags             ut_varchar2_rows := null
   ) return t_cached_suites_cursor is
     l_path     varchar2( 4000 );
     l_result   sys_refcursor;
     l_ut_owner varchar2(250) := ut_utils.ut_owner;
     l_sql      varchar2(32767);
     l_suite_item_name varchar2(20);
+    l_tags ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
   begin
     if a_path is null and a_object_name is not null then    
       execute immediate 'select min(path)
@@ -382,7 +382,7 @@ create or replace package body ut_suite_manager is
     else
       l_path := lower( a_path );
     end if;
-    l_suite_item_name := case when a_tags is not null then 'suite_items_tags' else 'suite_items' end;
+    l_suite_item_name := case when l_tags.count > 0 then 'suite_items_tags' else 'suite_items' end;
     
     l_sql :=
     q'[with
@@ -413,14 +413,13 @@ create or replace package body ut_suite_manager is
                         )
                    )
       ),]'
-      ||case when a_tags is not null then
-      q'[ filter_tags as (
-       select s.* from suite_items s
-       where exists 
-         ( select 1 
-           from ]'||l_ut_owner||q'[.ut_suite_cache_tag ct 
-           where ct.suiteid = s.id and regexp_like(:a_tag_list,'(^|,){1}'||ct.tagname||'(,|$){1}') )
-       ),
+      ||case when l_tags.count > 0 then
+      q'[ 
+      filter_tags as (
+        select c.*
+        from suite_items c
+        where c.tags multiset intersect :a_tag_list is not empty
+      ),
        suite_items_tags as (
        select c.* from suite_items c
        where exists (select 1 from filter_tags t where 
@@ -497,7 +496,7 @@ create or replace package body ut_suite_manager is
                 c.path, :a_random_seed
               ) desc nulls last'
           end;   
-    open l_result for l_sql using l_path, l_path, upper(a_object_name), upper(a_procedure_name), a_tags, a_random_seed;
+    open l_result for l_sql using l_path, l_path, upper(a_object_name), upper(a_procedure_name), l_tags, a_random_seed;
     return l_result;
   end;
 
@@ -585,7 +584,7 @@ create or replace package body ut_suite_manager is
     a_procedure_name varchar2 := null,
     a_suites         in out nocopy ut_suite_items,
     a_random_seed    positive,
-    a_tags           varchar2 := null
+    a_tags           ut_varchar2_rows := null
   ) is
   begin
     refresh_cache(a_owner_name);
@@ -693,9 +692,10 @@ create or replace package body ut_suite_manager is
     a_suite_path in varchar2,
     a_procedure_name in varchar2,
     a_object_name in varchar2,
-    a_tags in varchar2    
+    a_tags in ut_varchar2_rows    
     ) return varchar2 is
     l_error_msg varchar2(500);
+    l_tags clob:= ut_utils.table_to_clob(coalesce(a_tags,ut_varchar2_rows()),',');
   begin
     if a_suite_path is not null then 
       l_error_msg := 'No suite packages found for path '||a_schema_name||':'||a_suite_path;
@@ -706,9 +706,9 @@ create or replace package body ut_suite_manager is
     end if;
     
     if l_error_msg is null and a_tags is not null then
-      l_error_msg := 'No tests found for tags: '||ut_utils.to_string(a_tags,a_max_output_len => gc_tag_errmsg);
+      l_error_msg := 'No tests found for tags: '||ut_utils.to_string(l_tags,a_max_output_len => gc_tag_errmsg);
     elsif l_error_msg is not null and a_tags is not null then
-      l_error_msg := l_error_msg||' with tags: '||ut_utils.to_string(a_tags,a_max_output_len => gc_tag_errmsg);
+      l_error_msg := l_error_msg||' with tags: '||ut_utils.to_string(l_tags,a_max_output_len => gc_tag_errmsg);
     end if;
     
     l_error_msg := l_error_msg ||'.';
@@ -720,7 +720,7 @@ create or replace package body ut_suite_manager is
     a_paths in ut_varchar2_list,
     a_suites out nocopy ut_suite_items,
     a_random_seed in positive := null,
-    a_tags varchar2 := null
+    a_tags ut_varchar2_rows := null
   ) is
     l_paths              ut_varchar2_list := a_paths;
     l_path_items         t_path_items;
@@ -768,6 +768,7 @@ create or replace package body ut_suite_manager is
 
   end configure_execution_by_path;
 
+  --TODO : add tags
   function get_suites_info(
     a_owner_name     varchar2, 
     a_package_name   varchar2 := null

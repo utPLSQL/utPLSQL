@@ -134,19 +134,6 @@ create or replace package body ut_suite_cache_manager is
                s.t.item as item
           from tests s;
                 
-        --TODO : Optimize to use only inserted
-        merge into ut_suite_cache_tag tgt
-        using ( select /*+cardinality (tt 100) */ t.id,tt.column_value tag
-                from ut_suite_cache t, 
-                table(ut_utils.convert_collection((ut_utils.string_to_table(t.tags,',')))) tt
-                where tt.column_value is not null  ) src
-        on ( tgt.suiteid = src.id and tgt.tagname = src.tag)
-        when not matched then
-        insert 
-        (suiteid, tagname )
-        values
-        (src.id, src.tag);
-
       end if;
     end if;
     commit;
