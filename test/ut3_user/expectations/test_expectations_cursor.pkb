@@ -2677,5 +2677,15 @@ Check the query and data for errors.';
     
   end;  
   
+  procedure number_from_dual is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for select 12345 as test from dual;
+    open l_actual   for select 12345 as test from dual;
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+   end;
+  
 end;
 /
