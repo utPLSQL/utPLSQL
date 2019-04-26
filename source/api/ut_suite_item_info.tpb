@@ -1,4 +1,4 @@
-create or replace type ut_suite_item_info as object (
+create or replace type body ut_suite_item_info is
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -15,17 +15,24 @@ create or replace type ut_suite_item_info as object (
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  object_owner     varchar2( 250 ), -- the owner of test suite packages
-  object_name      varchar2( 250 ), -- the name of test suite package
-  item_name        varchar2( 250 ), -- the name of suite/test
-  item_description varchar2( 250 ), -- the description of suite/suite item
-  item_type        varchar2( 250 ), -- the type of item (UT_SUITE/UT_SUITE_CONTEXT/UT_TEST)
-  item_line_no     integer,         -- line_number where annotation identifying the item exists
-  path             varchar2( 4000 ),-- suitepath of the item
-  disabled_flag    integer,          -- 0 (zero) if item is not disabled, 1 if item is disabled by --%disabled annotation
-  tags             varchar2(4000),
   constructor function ut_suite_item_info(a_object_owner varchar2, a_object_name varchar2, a_item_name varchar2, 
     a_item_description varchar2, a_item_type varchar2, a_item_line_no integer, a_path varchar2, a_disabled_flag integer,
-    a_tags ut_varchar2_rows) return self as result
-)
+    a_tags ut_varchar2_rows) return self as result is  
+  begin
+    self.object_owner     := a_object_owner;
+    self.object_name      := a_object_name;
+    self.item_name        := a_item_name;
+    self.item_description := a_item_description;
+    self.item_type        := a_item_type;
+    self.item_line_no     := a_item_line_no;
+    self.path             := a_path;
+    self.disabled_flag    := a_disabled_flag;
+    self.tags             := case 
+                               when a_tags is null then null 
+                               when a_tags.count = 0 then null
+                               else ut_utils.to_string(ut_utils.table_to_clob(a_tags,',') ,a_quote_char => null)
+                             end;
+    return;
+  end;
+end;
 /

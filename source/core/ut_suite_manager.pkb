@@ -692,7 +692,7 @@ create or replace package body ut_suite_manager is
     a_suite_path in varchar2,
     a_procedure_name in varchar2,
     a_object_name in varchar2,
-    a_tags in ut_varchar2_rows    
+    a_tags in ut_varchar2_rows := ut_varchar2_rows()  
     ) return varchar2 is
     l_error_msg varchar2(500);
     l_tags clob:= ut_utils.table_to_clob(coalesce(a_tags,ut_varchar2_rows()),',');
@@ -705,9 +705,9 @@ create or replace package body ut_suite_manager is
       l_error_msg := 'Suite package '||a_schema_name||'.'||a_object_name|| ' does not exists';
     end if;
     
-    if l_error_msg is null and a_tags is not null then
+    if l_error_msg is null and a_tags.count > 0 then
       l_error_msg := 'No tests found for tags: '||ut_utils.to_string(l_tags,a_max_output_len => gc_tag_errmsg);
-    elsif l_error_msg is not null and a_tags is not null then
+    elsif l_error_msg is not null and a_tags.count > 0 then
       l_error_msg := l_error_msg||' with tags: '||ut_utils.to_string(l_tags,a_max_output_len => gc_tag_errmsg);
     end if;
     
@@ -720,7 +720,7 @@ create or replace package body ut_suite_manager is
     a_paths in ut_varchar2_list,
     a_suites out nocopy ut_suite_items,
     a_random_seed in positive := null,
-    a_tags ut_varchar2_rows := null
+    a_tags ut_varchar2_rows := ut_varchar2_rows()
   ) is
     l_paths              ut_varchar2_list := a_paths;
     l_path_items         t_path_items;
@@ -768,7 +768,6 @@ create or replace package body ut_suite_manager is
 
   end configure_execution_by_path;
 
-  --TODO : add tags
   function get_suites_info(
     a_owner_name     varchar2, 
     a_package_name   varchar2 := null
@@ -779,7 +778,7 @@ create or replace package body ut_suite_manager is
 
     refresh_cache(a_owner_name);
     
-    open l_result for
+     open l_result for
     q'[with
       suite_items as (
         select /*+ cardinality(c 100) */ c.*
@@ -831,17 +830,17 @@ create or replace package body ut_suite_manager is
       items as (
         select object_owner, object_name, name as item_name,
                description as item_description, self_type as item_type, line_no as item_line_no,
-               path, disabled_flag
+               path, disabled_flag,tags
           from suite_items
         union all
         select object_owner, object_name, object_name as item_name,
                null as item_description, item_type, null as item_line_no,
-               s.path,  0 as disabled_flag
+               s.path,  0 as disabled_flag, ]'||l_ut_owner||q'[.ut_varchar2_rows() as tags
           from logical_suites s
       )
     select ]'||l_ut_owner||q'[.ut_suite_item_info(
              object_owner, object_name, item_name, item_description,
-             item_type, item_line_no, path, disabled_flag
+             item_type, item_line_no, path, disabled_flag, tags
            )
       from items c]' using upper(a_package_name);
 

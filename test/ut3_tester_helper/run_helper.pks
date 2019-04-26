@@ -6,6 +6,9 @@ create or replace package run_helper is
   type prof_runs_tab is table of ut3.plsql_profiler_runs%rowtype;
 
   procedure setup_cache_objects;
+  procedure setup_cache_objectstag;
+  procedure setup_cache_twotags;
+  procedure setup_cache_longtags;
   procedure setup_cache;
   procedure cleanup_cache;
   procedure create_db_link;
