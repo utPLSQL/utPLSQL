@@ -418,7 +418,7 @@ create or replace package test_expectations_cursor is
   --%test(Check that column name accept non xml characters fix #902)
   procedure nonxmlchar_part_of_colname;
       
-  --%test(Check precision of number from dual)
+  --%test(Check precision of number from dual #907)
   procedure number_from_dual;
   
 end;
