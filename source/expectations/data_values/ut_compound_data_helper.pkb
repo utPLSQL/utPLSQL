@@ -235,6 +235,8 @@ create or replace package body ut_compound_data_helper is
       l_col_type := 'VARCHAR2(50)';
     elsif  a_data_info.is_sql_diffable = 1  and type_no_length(a_data_info.column_type) then
       l_col_type := a_data_info.column_type;
+    elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('VARCHAR2','CHAR') then
+      l_col_type := 'VARCHAR2('||greatest(a_data_info.column_len,4000)||')';
     elsif a_data_info.is_sql_diffable = 1 and a_data_info.column_type in ('NUMBER') then
       --We cannot use a precision and scale as dbms_sql.describe_columns3 return precision 0 for dual table
       -- there is also no need for that as we not process data but only read and compare as they are stored
