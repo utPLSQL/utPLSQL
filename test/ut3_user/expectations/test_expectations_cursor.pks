@@ -443,5 +443,8 @@ create or replace package test_expectations_cursor is
   --%disabled
   procedure nulltowhitespace;
 
+  --%test(Check precision of number from dual #907)
+  procedure number_from_dual;
+  
 end;
 /
