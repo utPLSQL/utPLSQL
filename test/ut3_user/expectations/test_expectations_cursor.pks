@@ -445,6 +445,19 @@ create or replace package test_expectations_cursor is
 
   --%test(Check precision of number from dual #907)
   procedure number_from_dual;
-  
+
+  --%test( Comparing number types with different precisions works with package-type nested tables )
+  procedure compare_number_pckg_type;
+
+  type t_num_rec is record (
+    col1 number(15,0),
+    col2 number(1,0),
+    col3 number(4,0),
+    col4 number(4,0),
+    col5 number(38,0));
+
+
+  type t_num_tab is table of t_num_rec index by binary_integer;
+
 end;
 /
