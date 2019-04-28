@@ -1,7 +1,7 @@
 create or replace package body ut_metadata as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -22,32 +22,30 @@ create or replace package body ut_metadata as
   ------------------------------
   --public definitions
 
-  procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2) is
-    l_procedure_name  varchar2(200);
-  begin
-    do_resolve(a_owner, a_object, l_procedure_name );
-  end do_resolve;
-
   procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2, a_procedure_name in out nocopy varchar2) is
     l_name          varchar2(200);
     l_context       integer := 1; --plsql
+  begin
+    l_name := form_name(a_owner, a_object, a_procedure_name);
+    do_resolve(l_name,l_context,a_owner,a_object, a_procedure_name);
+  end do_resolve;
+
+  procedure do_resolve(a_fully_qualified_name in varchar2,a_context in integer,a_owner out nocopy varchar2, a_object out nocopy varchar2, 
+    a_procedure_name out nocopy varchar2) is
     l_dblink        varchar2(200);
     l_part1_type    number;
     l_object_number number;
   begin
-    l_name := form_name(a_owner, a_object, a_procedure_name);
-
-    dbms_utility.name_resolve(name          => l_name
-                             ,context       => l_context
+    dbms_utility.name_resolve(name          => a_fully_qualified_name
+                             ,context       => a_context
                              ,schema        => a_owner
                              ,part1         => a_object
                              ,part2         => a_procedure_name
                              ,dblink        => l_dblink
                              ,part1_type    => l_part1_type
                              ,object_number => l_object_number);
-
-  end do_resolve;
-
+  end;
+  
   function form_name(a_owner_name varchar2, a_object varchar2, a_subprogram varchar2 default null) return varchar2 is
     l_name varchar2(200);
   begin
@@ -66,7 +64,7 @@ create or replace package body ut_metadata as
     l_schema         varchar2(200);
     l_package_name   varchar2(200);
     l_procedure_name varchar2(200);
-    l_view_name      varchar2(200) := get_dba_view('dba_objects');
+    l_view_name      varchar2(200) := get_objects_view_name;
   begin
 
     l_schema       := a_owner_name;
@@ -116,8 +114,7 @@ create or replace package body ut_metadata as
   end;
 
   function get_source_definition_line(a_owner varchar2, a_object_name varchar2, a_line_no integer) return varchar2 is
-    l_cursor sys_refcursor;
-    l_view_name varchar2(128) := get_dba_view('dba_source');
+    l_view_name varchar2(128) := get_source_view_name();
     l_line all_source.text%type;
     c_key  constant varchar2(500) := a_owner || '.' || a_object_name;
   begin
@@ -148,15 +145,39 @@ create or replace package body ut_metadata as
   end;
 
   function get_dba_view(a_dba_view_name varchar2) return varchar2 is
-    l_invalid_object_name exception;
     l_result              varchar2(128) := lower(a_dba_view_name);
+  begin
+    if not is_object_visible(a_dba_view_name) then
+      l_result := replace(l_result,'dba_','all_');
+    end if;
+     return l_result;
+  end;
+
+  function get_source_view_name return varchar2 is
+  begin
+    return get_dba_view('dba_source');
+  end;
+
+
+  function get_objects_view_name return varchar2 is
+  begin
+    return get_dba_view('dba_objects');
+  end;
+
+  function user_has_execute_any_proc return boolean is
+    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
+  begin
+    return is_object_visible(l_ut_owner||'.ut_utils');
+  end;
+
+  function is_object_visible(a_object_name varchar2) return boolean is
+    l_invalid_object_name exception;
     pragma exception_init(l_invalid_object_name,-44002);
   begin
-    l_result := dbms_assert.sql_object_name(l_result);
-    return l_result;
+    return dbms_assert.sql_object_name(a_object_name) is not null;
   exception
     when l_invalid_object_name then
-      return replace(l_result,'dba_','all_');
+      return false;
   end;
 
   function package_exists_in_cur_schema(a_object_name varchar2) return boolean is
@@ -172,6 +193,164 @@ create or replace package body ut_metadata as
     return l_cnt > 0;
   end;
 
+  function is_collection (a_anytype_code in integer) return boolean is
+  begin
+    return coalesce(a_anytype_code in (dbms_types.typecode_varray,dbms_types.typecode_table,dbms_types.typecode_namedcollection),false);
+  end;
+
+  function is_collection (a_owner varchar2, a_type_name varchar2) return boolean is
+  begin
+    return is_collection(
+      get_anytype_members_info(
+        get_user_defined_type(a_owner, a_type_name)
+        ).type_code
+    );
+  end;
+
+  function get_attr_elem_info( a_anytype anytype, a_pos pls_integer := null )
+    return t_anytype_elem_info_rec is
+    l_result  t_anytype_elem_info_rec;
+  begin
+    if a_anytype is not null then
+      l_result.type_code := a_anytype.getattreleminfo(
+        pos           => a_pos,
+        prec          => l_result.precision,
+        scale         => l_result.scale,
+        len           => l_result.length,
+        csid          => l_result.char_set_id,
+        csfrm         => l_result.char_set_frm,
+        attr_elt_type => l_result.attr_elt_type,
+        aname         => l_result.attribute_name
+        );
+      end if;
+    return l_result;
+  end;
+
+  function get_anytype_members_info( a_anytype anytype )
+    return t_anytype_members_rec is
+    l_result  t_anytype_members_rec;
+  begin
+    if a_anytype is not null then
+      l_result.type_code := a_anytype.getinfo(
+        prec        => l_result.precision,
+        scale       => l_result.scale,
+        len         => l_result.length,
+        csid        => l_result.char_set_id,
+        csfrm       => l_result.char_set_frm,
+        schema_name => l_result.schema_name,
+        type_name   => l_result.type_name,
+        version     => l_result.version,
+        numelems    => l_result.elements_count
+        );
+      end if;
+    return l_result;
+  end;
+
+  function get_user_defined_type(a_owner varchar2, a_type_name varchar2) return anytype is
+    l_anytype anytype;
+    not_found exception;
+    pragma exception_init(not_found,-22303);
+  begin
+    if a_type_name is not null then
+      begin
+        if ut_metadata.is_object_visible('GETANYTYPEFROMPERSISTENT') then
+          execute immediate 'begin :l_anytype := getanytypefrompersistent( :a_owner, :a_type_name ); end;'
+            using out l_anytype, in nvl(a_owner,sys_context('userenv','current_schema')), in a_type_name;
+          else
+            execute immediate 'begin :l_anytype := anytype.getpersistent( :a_owner, :a_type_name ); end;'
+              using out l_anytype, in nvl(a_owner,sys_context('userenv','current_schema')), in a_type_name;
+          end if;
+      exception
+        when not_found then
+          null;
+      end;
+      end if;
+    return l_anytype;
+  end;
+
+  function get_collection_element(a_anydata in anydata) return varchar2 
+  is
+    l_anytype anytype;
+    l_nested_type   t_anytype_members_rec;
+    l_elements_rec  t_anytype_elem_info_rec;
+    l_type_code integer;
+  begin
+    l_type_code := a_anydata.gettype(l_anytype);
+    if is_collection(l_type_code) then
+      l_elements_rec := get_attr_elem_info(l_anytype);
+      if l_elements_rec.attr_elt_type is null then
+        l_nested_type := get_anytype_members_info(l_anytype);
+      else
+        l_nested_type := get_anytype_members_info(l_elements_rec.attr_elt_type);
+      end if;
+    end if;
+    return l_nested_type.schema_name || '.' ||l_nested_type.type_name;
+  end; 
+  
+  function has_collection_members (a_anydata in anydata) return boolean is
+    l_anytype anytype;
+    l_elements_rec  t_anytype_elem_info_rec;
+    l_type_code integer;
+  begin
+    l_type_code := a_anydata.gettype(l_anytype);
+    l_elements_rec := get_attr_elem_info(l_anytype);
+    return l_elements_rec.attr_elt_type is not null;
+  end;
+
+  function get_anydata_typename(a_data_value anydata) return varchar2
+  is
+  begin
+    return case when a_data_value is not null then lower(a_data_value.gettypename()) else 'undefined' end;
+  end;
+  
+  function is_anytype_null(a_value in anydata, a_compound_type in varchar2) return number is
+    l_result integer := 0;
+    l_anydata_sql varchar2(4000);
+  begin
+     if a_value is not null then
+     l_anydata_sql := '
+        declare
+          l_data '||get_anydata_typename(a_value)||';
+          l_value anydata := :a_value;
+          l_status integer;
+        begin
+          l_status := l_value.get'||a_compound_type||'(l_data);
+          :l_data_is_null := case when l_data is null then 1 else 0 end; 
+        end;';
+        execute immediate l_anydata_sql using in a_value, out l_result; 
+    else
+      l_result := 1;
+    end if;
+    return l_result;
+  end; 
+    
+  function get_object_name(a_full_object_name in varchar2) return varchar2 is
+    l_schema varchar2(250);
+    l_object varchar2(250);
+    l_procedure_name varchar2(250);
+  begin
+    ut_metadata.do_resolve(a_full_object_name,7,l_schema,l_object, l_procedure_name);
+    return l_object;
+  end;
+
+  function get_anydata_compound_type(a_data_value anydata) return varchar2 is
+    l_result    varchar2(30);
+    l_type      anytype;
+    l_type_code integer;
+  begin
+    if a_data_value is not null then
+      l_type_code := a_data_value.gettype(l_type);
+      if l_type_code in (dbms_types.typecode_table, dbms_types.typecode_varray, dbms_types.typecode_namedcollection, 
+        dbms_types.typecode_object) then
+        if l_type_code = dbms_types.typecode_object then
+          l_result := 'object';
+        else
+          l_result := 'collection';
+        end if;
+      end if;
+    end if;
+    return l_result;
+  end;
 
 end;
 /

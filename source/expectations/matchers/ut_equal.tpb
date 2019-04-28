@@ -1,7 +1,7 @@
 create or replace type body ut_equal as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -16,24 +16,22 @@ create or replace type body ut_equal as
   limitations under the License.
   */
 
-  member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean) is
+  member procedure init(self in out nocopy ut_equal, a_expected ut_data_value, a_nulls_are_equal boolean, a_self_type varchar2 := null) is
   begin
-    self.nulls_are_equal_flag := ut_utils.boolean_to_int( coalesce(a_nulls_are_equal, ut_expectation_processor.nulls_are_equal()) );
-    self.self_type := $$plsql_unit;
     self.expected  := a_expected;
-    self.include_list := ut_varchar2_list();
-    self.exclude_list := ut_varchar2_list();
+    self.options := ut_matcher_options( a_nulls_are_equal );
+    self.self_type := nvl( a_self_type, $$plsql_unit );
   end;
-
+ 
   member function equal_with_nulls(a_assert_result boolean, a_actual ut_data_value) return boolean is
   begin
     ut_utils.debug_log('ut_equal.equal_with_nulls :' || ut_utils.to_test_result(a_assert_result) || ':');
-    return ( a_assert_result or ( self.expected.is_null() and a_actual.is_null() and ut_utils.int_to_boolean( nulls_are_equal_flag ) ) );
+    return ( a_assert_result or ( self.expected.is_null() and a_actual.is_null() and options.nulls_are_equal ) );
   end;
 
   constructor function ut_equal(self in out nocopy ut_equal, a_expected anydata, a_nulls_are_equal boolean := null) return self as result is
   begin
-    init(ut_data_value_anydata.get_instance(a_expected), a_nulls_are_equal);
+    init(ut_data_value_anydata(a_expected), a_nulls_are_equal);
     return;
   end;
 
@@ -44,8 +42,8 @@ create or replace type body ut_equal as
       'equal( a_expected anydata, a_exclude varchar2 )',
       'equal( a_expected anydata ).exclude( a_exclude varchar2 )'
     );
-    init(ut_data_value_anydata.get_instance(a_expected), a_nulls_are_equal);
-    exclude_list := ut_varchar2_list(a_exclude);
+    init(ut_data_value_anydata(a_expected), a_nulls_are_equal);
+    self.options.exclude.add_items(a_exclude);
     return;
   end;
 
@@ -55,8 +53,8 @@ create or replace type body ut_equal as
       'equal( a_expected anydata, a_exclude ut_varchar2_list )',
       'equal( a_expected anydata ).exclude( a_exclude ut_varchar2_list )'
     );
-    init(ut_data_value_anydata.get_instance(a_expected), a_nulls_are_equal);
-    exclude_list := coalesce(a_exclude, ut_varchar2_list());
+    init(ut_data_value_anydata(a_expected), a_nulls_are_equal);
+    self.options.exclude.add_items(a_exclude);
     return;
   end;
 
@@ -103,7 +101,7 @@ create or replace type body ut_equal as
       'equal( a_expected sys_refcursor ).exclude( a_exclude varchar2 )'
     );
     init(ut_data_value_refcursor(a_expected), a_nulls_are_equal);
-    exclude_list := ut_varchar2_list(a_exclude);
+    self.options.exclude.add_items(a_exclude);
     return;
   end;
 
@@ -114,7 +112,7 @@ create or replace type body ut_equal as
       'equal( a_expected sys_refcursor ).exclude( a_exclude ut_varchar2_list )'
     );
     init(ut_data_value_refcursor(a_expected), a_nulls_are_equal);
-    exclude_list := coalesce(a_exclude, ut_varchar2_list());
+    self.options.exclude.add_items(a_exclude);
     return;
   end;
 
@@ -157,49 +155,74 @@ create or replace type body ut_equal as
   member function include(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    ut_utils.append_to_list(l_result.include_list, a_items);
+    l_result.options.include.add_items(a_items);
     return l_result;
   end;
 
   member function include(a_items ut_varchar2_list) return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.include_list := l_result.include_list multiset union all coalesce(a_items,ut_varchar2_list());
+    l_result.options.include.add_items(a_items);
     return l_result;
   end;
 
   member function exclude(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
-    ut_utils.append_to_list(l_result.exclude_list, a_items);
+    l_result.options.exclude.add_items(a_items);
     return l_result;
   end;
 
   member function exclude(a_items ut_varchar2_list) return ut_equal is
     l_result ut_equal := self;
   begin
-    l_result.exclude_list := l_result.exclude_list multiset union all coalesce(a_items,ut_varchar2_list());
+    l_result.options.exclude.add_items(a_items);
     return l_result;
   end;
 
-  member function get_include_xpath return varchar2 is
+  member function unordered return ut_equal is
+    l_result ut_equal := self;
   begin
-    return ut_utils.to_xpath( coalesce(include_list, ut_varchar2_list()) );
+    l_result.options.unordered();
+    return l_result;
   end;
 
-  member function get_exclude_xpath return varchar2 is
+  member function join_by(a_columns varchar2) return ut_equal is
+    l_result ut_equal := self;
   begin
-    return ut_utils.to_xpath( coalesce(exclude_list, ut_varchar2_list()) );
+    l_result.options.unordered();
+    l_result.options.join_by.add_items(a_columns);
+    return l_result;
   end;
 
+  member function join_by(a_columns ut_varchar2_list) return ut_equal is
+    l_result ut_equal := self;
+  begin
+    l_result.options.unordered();
+    l_result.options.join_by.add_items(a_columns);
+    return l_result;
+  end;
+
+  member function uc return ut_equal is
+  begin
+    return unordered_columns;
+  end;
+  
+  member function unordered_columns return ut_equal is
+    l_result ut_equal := self;
+  begin
+    l_result.options.unordered_columns();
+    return l_result;
+  end;
+    
   overriding member function run_matcher(self in out nocopy ut_equal, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
     if self.expected.data_type = a_actual.data_type then
       if self.expected is of (ut_data_value_anydata) then
-        l_result := 0 = treat(self.expected as ut_data_value_anydata).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath());
+        l_result := 0 = treat(self.expected as ut_data_value_anydata).compare_implementation( a_actual, options );
       elsif self.expected is of (ut_data_value_refcursor) then
-        l_result := 0 = treat(self.expected as ut_data_value_refcursor).compare_implementation(a_actual, get_exclude_xpath(), get_include_xpath());
+        l_result := 0 = treat(self.expected as ut_data_value_refcursor).compare_implementation( a_actual, options );
       else
         l_result := equal_with_nulls((self.expected = a_actual), a_actual);
       end if;
@@ -214,9 +237,17 @@ create or replace type body ut_equal as
     l_result varchar2(32767);
   begin
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
-      l_result :=
-        'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
-        || chr(10) || 'Diff:' || expected.diff(a_actual, get_exclude_xpath(), get_include_xpath());
+      if self.expected is of (ut_data_value_refcursor) then
+        l_result :=
+          'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
+          || chr(10) || 'Diff:' ||
+            treat(expected as ut_data_value_refcursor).diff( a_actual, options );
+      else
+        l_result :=
+          'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
+          || chr(10) || 'Diff:' ||
+          expected.diff( a_actual, options );
+      end if;
     else
       l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     end if;

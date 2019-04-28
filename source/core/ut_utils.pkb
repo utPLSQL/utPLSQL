@@ -1,7 +1,7 @@
 create or replace package body ut_utils is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -15,6 +15,13 @@ create or replace package body ut_utils is
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+
+  /**
+  * Constants regex used to validate XML name
+  */
+  gc_invalid_first_xml_char  constant varchar2(50)  := '[^_a-zA-Z]';
+  gc_invalid_xml_char        constant varchar2(50)  := '[^_a-zA-Z0-9\.-]';
+  gc_full_valid_xml_name     constant varchar2(50)  := '^([_a-zA-Z])([_a-zA-Z0-9\.-])*$';
 
   function surround_with(a_value varchar2, a_quote_char varchar2) return varchar2 is
   begin
@@ -52,20 +59,8 @@ create or replace package body ut_utils is
 
   function gen_savepoint_name return varchar2 is
   begin
-    return '"'|| utl_raw.cast_to_varchar2(utl_encode.base64_encode(sys_guid()))||'"';
+    return 's'||trim(to_char(ut_savepoint_seq.nextval,'0000000000000000000000000000'));
   end;
-
-  /*
-   Procedure: validate_rollback_type
-
-   Validates passed value against supported rollback types
-  */
-  procedure validate_rollback_type(a_rollback_type number) is
-  begin
-    if a_rollback_type not in (gc_rollback_auto, gc_rollback_manual) then
-      raise_application_error(-20200,'Rollback type is not supported');
-    end if;
-  end validate_rollback_type;
 
   procedure debug_log(a_message varchar2) is
   begin
@@ -89,44 +84,66 @@ create or replace package body ut_utils is
     $end
   end;
 
-  function to_string(a_value varchar2, a_qoute_char varchar2 := '''') return varchar2 is
-    l_len integer := coalesce(length(a_value),0);
-    l_result varchar2(32767);
+  function to_string(
+    a_value varchar2,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2 is
+    l_result                  varchar2(32767);
+    c_length                  constant integer := coalesce( length( a_value ), 0 );
+    c_max_input_string_length constant integer := a_max_output_len - coalesce( length( a_quote_char ) * 2, 0 );
+    c_overflow_substr_len     constant integer := c_max_input_string_length - gc_more_data_string_len;
   begin
-    if l_len = 0 then
+    if c_length = 0 then
       l_result := gc_null_string;
-    elsif l_len <= gc_max_input_string_length then
-      l_result := surround_with(a_value, a_qoute_char);
+    elsif c_length <= c_max_input_string_length then
+      l_result := surround_with(a_value, a_quote_char);
     else
-      l_result := surround_with(substr(a_value,1,gc_overflow_substr_len),a_qoute_char) || gc_more_data_string;
+      l_result := surround_with(substr(a_value, 1, c_overflow_substr_len ), a_quote_char) || gc_more_data_string;
     end if ;
     return l_result;
   end;
 
-  function to_string(a_value clob, a_qoute_char varchar2 := '''') return varchar2 is
-    l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
-    l_result varchar2(32767);
+  function to_string(
+    a_value clob,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2 is
+    l_result                  varchar2(32767);
+    c_length                  constant integer := coalesce(dbms_lob.getlength(a_value), 0);
+    c_max_input_string_length constant integer := a_max_output_len - coalesce( length( a_quote_char ) * 2, 0 );
+    c_overflow_substr_len     constant integer := c_max_input_string_length - gc_more_data_string_len;
   begin
-    if l_len = 0 then
+    if a_value is null then
       l_result := gc_null_string;
-    elsif l_len <= gc_max_input_string_length then
-      l_result := surround_with(a_value,a_qoute_char);
+    elsif c_length = 0 then
+      l_result := gc_empty_string;
+    elsif c_length <= c_max_input_string_length then
+      l_result := surround_with(a_value,a_quote_char);
     else
-      l_result := surround_with(dbms_lob.substr(a_value, gc_overflow_substr_len),a_qoute_char) || gc_more_data_string;
+      l_result := surround_with(dbms_lob.substr(a_value, c_overflow_substr_len), a_quote_char) || gc_more_data_string;
     end if;
     return l_result;
   end;
 
-  function to_string(a_value blob, a_qoute_char varchar2 := '''') return varchar2 is
-    l_len integer := coalesce(dbms_lob.getlength(a_value), 0);
-    l_result varchar2(32767);
+  function to_string(
+    a_value blob,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2 is
+    l_result                  varchar2(32767);
+    c_length                  constant integer := coalesce(dbms_lob.getlength(a_value), 0);
+    c_max_input_string_length constant integer := a_max_output_len - coalesce( length( a_quote_char ) * 2, 0 );
+    c_overflow_substr_len     constant integer := c_max_input_string_length - gc_more_data_string_len;
   begin
-    if l_len = 0 then
+    if a_value is null then
       l_result := gc_null_string;
-    elsif l_len <= gc_max_input_string_length then
-      l_result := surround_with(rawtohex(a_value),a_qoute_char);
+    elsif c_length = 0 then
+      l_result := gc_empty_string;
+    elsif c_length <= c_max_input_string_length then
+      l_result := surround_with(rawtohex(a_value),a_quote_char);
     else
-      l_result := to_string( rawtohex(dbms_lob.substr(a_value, gc_overflow_substr_len)) );
+      l_result := to_string( rawtohex(dbms_lob.substr(a_value, c_overflow_substr_len)) );
     end if ;
     return l_result;
   end;
@@ -322,7 +339,50 @@ create or replace package body ut_utils is
     end if;
   end append_to_list;
 
-procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2:= chr(10)) is
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_items ut_varchar2_rows) is
+  begin
+    if a_items is not null then
+      if a_list is null then
+        a_list := ut_varchar2_rows();
+      end if;
+      for i in 1 .. a_items.count loop
+        a_list.extend;
+        a_list(a_list.last) := a_items(i);
+      end loop;
+    end if;
+  end;
+
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item clob) is
+  begin
+    append_to_list(
+      a_list,
+      convert_collection(
+        clob_to_table( a_item, ut_utils.gc_max_storage_varchar2_len )
+      )
+    );
+  end;
+
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item varchar2) is
+  begin
+    if a_item is not null then
+      if a_list is null then
+        a_list := ut_varchar2_rows();
+      end if;
+      if length(a_item) > gc_max_storage_varchar2_len then
+        append_to_list(
+          a_list,
+          ut_utils.convert_collection(
+            ut_utils.clob_to_table( a_item, gc_max_storage_varchar2_len )
+          )
+        );
+      else
+        a_list.extend;
+        a_list(a_list.last) := a_item;
+      end if;
+    end if;
+  end append_to_list;
+
+  procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2:= chr(10)) is
   begin
     if a_clob_table is not null and cardinality(a_clob_table) > 0 then
       if a_src_clob is null then
@@ -437,17 +497,16 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
   procedure save_dbms_output_to_cache is
     l_status number;
     l_line   varchar2(32767);
-    l_line_no integer := 1;
+    l_offset integer := 0;
     l_lines  ut_varchar2_rows := ut_varchar2_rows();
     c_lines_limit constant integer := 100;
     pragma autonomous_transaction;
 
-    procedure flush_lines is
+    procedure flush_lines(a_lines ut_varchar2_rows, a_offset integer) is
     begin
       insert into ut_dbms_output_cache (seq_no,text)
-        select rownum, column_value
-        from table(l_lines);
-      l_lines.delete;
+        select rownum+a_offset, column_value
+        from table(a_lines);
     end;
   begin
     loop
@@ -455,10 +514,12 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
       exit when l_status = 1;
       l_lines := l_lines multiset union all ut_utils.convert_collection(ut_utils.clob_to_table(l_line||chr(7),4000));
       if l_lines.count > c_lines_limit then
-        flush_lines();
+        flush_lines(l_lines, l_offset);
+        l_offset := l_offset + l_lines.count;
+        l_lines.delete;
       end if;
     end loop;
-    flush_lines();
+    flush_lines(l_lines, l_offset);
     commit;
   end;
 
@@ -506,7 +567,18 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     return to_char(a_value, gc_number_format, 'NLS_NUMERIC_CHARACTERS=''. ''');
   end;
 
-  function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list is
+  function get_xml_header(a_encoding varchar2) return varchar2 is
+  begin
+    return
+      '<?xml version="1.0"'
+      ||case
+          when a_encoding is not null
+          then ' encoding="'||upper(a_encoding)||'"'
+        end
+      ||'?>';
+  end;
+
+  function trim_list_elements(a_list ut_varchar2_list, a_regexp_to_trim varchar2 default '[:space:]') return ut_varchar2_list is
     l_trimmed_list ut_varchar2_list;
     l_index integer;
   begin
@@ -524,7 +596,7 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     return l_trimmed_list;
   end;
 
-  function filter_list(a_list IN ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list is
+  function filter_list(a_list in ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list is
     l_filtered_list ut_varchar2_list;
     l_index integer;
   begin
@@ -545,15 +617,13 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
   end;
 
   function xmlgen_escaped_string(a_string in varchar2) return varchar2 is
-    l_result varchar2(4000);
+    l_result varchar2(4000) := a_string;
     l_sql varchar2(32767) := q'!select q'[!'||a_string||q'!]' as "!'||a_string||'" from dual';
   begin
     if a_string is not null then
       select extract(dbms_xmlgen.getxmltype(l_sql),'/*/*/*').getRootElement()
       into l_result
       from dual;
-    else
-    l_result := a_string;
     end if;
     return l_result;
   end;
@@ -570,10 +640,6 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     l_newlines_count          binary_integer;
     l_offset                  binary_integer := 1;
     l_length                  binary_integer := coalesce(dbms_lob.getlength(a_source), 0);
-    function is_before(a_x binary_integer, a_y binary_integer) return boolean is
-    begin
-      return a_x < a_y or a_y = 0;
-    end;
   begin
     l_ml_comment_start := instr(a_source,'/*');
     l_comment_start := instr(a_source,'--');
@@ -649,6 +715,87 @@ procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab,
     end loop;
     append_to_clob(l_result, substr(a_source, l_end));
     return l_result;
+  end;
+
+  function get_child_reporters(a_for_reporters ut_reporters_info := null) return ut_reporters_info is
+    l_for_reporters ut_reporters_info := a_for_reporters;
+    l_results       ut_reporters_info;
+  begin
+    if l_for_reporters is null then
+      l_for_reporters := ut_reporters_info(ut_reporter_info('UT_REPORTER_BASE','N','N','N'));
+    end if;
+    
+    select /*+ cardinality(f 10) */
+      ut_reporter_info(
+        object_name => t.type_name,
+        is_output_reporter =>
+          case
+            when f.is_output_reporter = 'Y' or t.type_name = 'UT_OUTPUT_REPORTER_BASE'
+            then 'Y' else 'N'
+          end,
+        is_instantiable => case when t.instantiable = 'YES' then 'Y' else 'N' end,
+        is_final => case when t.final = 'YES' then 'Y' else 'N' end
+      )
+    bulk collect into l_results
+    from user_types t
+    join (select * from table(l_for_reporters) where is_final = 'N' ) f
+      on f.object_name = supertype_name;
+
+    return l_results;
+  end;
+
+  function remove_error_from_stack(a_error_stack varchar2, a_ora_code number) return varchar2 is
+    l_caller_stack_line          varchar2(4000);
+    l_ora_search_pattern         varchar2(500) := '^ORA'||a_ora_code||': (.*)$';
+  begin
+   l_caller_stack_line := regexp_replace(srcstr     => a_error_stack
+                          ,pattern    => l_ora_search_pattern
+                          ,replacestr => null
+                          ,position   => 1
+                          ,occurrence => 1
+                          ,modifier   => 'm');
+   return l_caller_stack_line;
+  end;
+ 
+  /**
+  * Change string into unicode to match xmlgen format _00<unicode>_
+  * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
+  * secion v3.1.7.2897-develop
+  */  
+  function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
+  begin
+    return '_x00'||rawtohex(utl_raw.cast_to_raw(a_character))||'_';
+  end;
+  
+  /**
+  * Build valid XML column name as element names can contain letters, digits, hyphens, underscores, and periods
+  */  
+  function build_valid_xml_name(a_preprocessed_name varchar2) return varchar2 is
+    l_post_processed varchar2(4000);
+  begin
+    for i in (select regexp_substr( a_preprocessed_name ,'(.{1})', 1, level, null, 1 ) AS string_char,level level_no
+              from   dual connect by level <= regexp_count(a_preprocessed_name, '(.{1})'))
+    loop
+      if i.level_no = 1 and regexp_like(i.string_char,gc_invalid_first_xml_char) then
+        l_post_processed := l_post_processed || char_to_xmlgen_unicode(i.string_char);
+      elsif regexp_like(i.string_char,gc_invalid_xml_char) then
+        l_post_processed := l_post_processed || char_to_xmlgen_unicode(i.string_char);
+      else
+        l_post_processed := l_post_processed || i.string_char;
+      end if;
+    end loop;
+    return l_post_processed;  
+  end;
+  
+  function get_valid_xml_name(a_name varchar2) return varchar2 is
+    l_valid_name varchar2(4000);
+  begin
+    if regexp_like(a_name,gc_full_valid_xml_name) then
+      l_valid_name := a_name;
+    else
+      l_valid_name := build_valid_xml_name(a_name);
+    end if;
+    return l_valid_name;
   end;
 
 end ut_utils;

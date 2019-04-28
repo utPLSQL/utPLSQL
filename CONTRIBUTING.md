@@ -89,14 +89,18 @@ export CONNECTION_STR=127.0.0.1:1521/xe # Adjust the connect string
 export ORACLE_PWD=oracle # Adjust your local SYS password
 ```
 
+### Download Oracle JDBC drivers
+
+Download `ojdbc8-xxx.jar` and `orai18n-xxx.jar` from [Oracle](https://www.oracle.com/technetwork/database/features/jdbc/jdbc-ucp-122-3110062.html).
+Place them in `development` directory of the project.
+  
+
 ### Download utPLSQL release sources and utplsq-cli
 
 The below script is fetching latest release version from utPLSQL repository. Latest release version is used for self-testing.
 ```bash
 development/refresh_sources.sh
 ```
-> **Important notice:**
-> You'll have to provide the ojdbc.jar in the folder utPLSQL-cli/lib manually due to Oracle licensing restrictions.
 
 ### Setup local database for utPLSQL development
 
@@ -134,9 +138,7 @@ Whenever a new version of utPLSQL or a new version of utPLSQL-cli is available, 
 
 ## Running unit tests
 
-Currently we use two forms of unit tests in our CI build:
-- sql scripts as unit tests in the `old_tests` directory
-- utPLSQL v3 unit tests in the `test` directory
+utPLSQL v3 unit tests are located in the `test` directory
 
 Before you push any changes and create a pull request to the utPLSQL project repository, make sure that all of the tests are executing successfully in your local environment.
 
@@ -146,18 +148,13 @@ Every new functionality needs to be documented by unit tests that cover both hap
 > We do our best to keep utPLSQL covered with unit tests.
 > Lack of sufficient unit testing is a perfect reason for PR to be rejected.
 
-To suite of legacy unit tests execute:
-```bash
-development/env.sh
-old_tests/runAll.sh
-```
 To run a full suite of unit tests execute:
 ```bash
 development/env.sh
 test/install_and_run_tests.sh
 ```
 
-You can review the results of tests as well as see information about code coverage in `./old_tests/coverage.html, ./coverage.html` files.
+You can review the results of tests as well as see information about code coverage in `./coverage.html` file.
 
 
 ## Modules
@@ -175,6 +172,7 @@ We are using private docker images to test utPLSQL for our Travis CI builds. The
 * 11g XE R2
 * 12c SE R1
 * 12c SE R2
+* 18c SE
 
 These images are based on the slimmed versions [official dockerfiles released by Oracle](https://github.com/utPLSQL/docker-scripts), but due to licensing restrictions, we can't make the images public.
 You can build your own and use it locally, or push to a private docker repository.

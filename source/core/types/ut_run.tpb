@@ -1,7 +1,7 @@
 create or replace type body ut_run as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -18,21 +18,22 @@ create or replace type body ut_run as
   
   constructor function ut_run(
     self in out nocopy ut_run,
-    a_items                 ut_suite_items,
-    a_run_paths             ut_varchar2_list := null,
-    a_schema_names          ut_varchar2_rows := null,
-    a_exclude_objects       ut_object_names := null,
-    a_include_objects       ut_object_names := null,
-    a_project_file_mappings ut_file_mappings := null,
-    a_test_file_mappings    ut_file_mappings := null
+    a_items                  ut_suite_items,
+    a_run_paths              ut_varchar2_list := null,
+    a_schema_names           ut_varchar2_rows := null,
+    a_exclude_objects        ut_object_names := null,
+    a_include_objects        ut_object_names := null,
+    a_project_file_mappings  ut_file_mappings := null,
+    a_test_file_mappings     ut_file_mappings := null,
+    a_client_character_set   varchar2 := null,
+    a_random_test_order_seed positive := null
   ) return self as result is
-    l_coverage_schema_names ut_varchar2_rows;
-    l_coverage_options ut_coverage_options;
-    l_exclude_objects  ut_object_names;
-  begin    
+  begin
     self.run_paths := a_run_paths;
     self.self_type := $$plsql_unit;
     self.items := a_items;
+    self.client_character_set := lower(a_client_character_set);
+    self.random_test_order_seed := a_random_test_order_seed;
     self.results_count := ut_results_counter();
     self.test_file_mappings := coalesce(a_test_file_mappings, ut_file_mappings());
     self.coverage_options := ut_coverage_options(
@@ -54,7 +55,7 @@ create or replace type body ut_run as
   begin
     ut_utils.debug_log('ut_run.execute');
 
-    ut_event_manager.trigger_event(ut_utils.gc_before_run, self);
+    ut_event_manager.trigger_event(ut_event_manager.gc_before_run, self);
     self.start_time := current_timestamp;
 
     -- clear anything that might stay in the session's cache
@@ -68,9 +69,17 @@ create or replace type body ut_run as
 
     self.end_time := current_timestamp;
 
-    ut_event_manager.trigger_event(ut_utils.gc_after_run, self);
+    ut_event_manager.trigger_event(ut_event_manager.gc_after_run, self);
 
     return l_completed_without_errors;
+  end;
+
+  overriding member procedure set_rollback_type(self in out nocopy ut_run, a_rollback_type integer, a_force boolean := false) is
+  begin
+    self.rollback_type := case when a_force then a_rollback_type else coalesce(self.rollback_type, a_rollback_type) end;
+    for i in 1 .. self.items.count loop
+      self.items(i).set_rollback_type(self.rollback_type, a_force);
+    end loop;
   end;
 
   overriding member procedure calc_execution_result(self in out nocopy ut_run) is
@@ -91,19 +100,7 @@ create or replace type body ut_run as
 
   overriding member procedure mark_as_errored(self in out nocopy ut_run, a_error_stack_trace varchar2) is
   begin
-    ut_utils.debug_log('ut_run.fail');
-
-    ut_event_manager.trigger_event(ut_utils.gc_before_run, self);
-    self.start_time := current_timestamp;
-
-    for i in 1 .. self.items.count loop
-      self.items(i).mark_as_errored(a_error_stack_trace);
-    end loop;
-
-    self.calc_execution_result();
-    self.end_time := self.start_time;
-
-    ut_event_manager.trigger_event(ut_utils.gc_after_run, self);
+    null;
   end;
 
   overriding member function get_error_stack_traces return ut_varchar2_list is

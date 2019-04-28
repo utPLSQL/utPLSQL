@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.7.2897--develop-blue.svg)
+
 # Introduction to utPLSQL
 
 utPLSQL is a Unit Testing framework for Oracle PL/SQL.
@@ -10,13 +12,14 @@ The framework follows industry standards and best patterns of modern Unit Testin
        - [Expectations](userguide/expectations.md)
        - [Advanced data comparison](userguide/advanced_data_comparison.md)
        - [Running unit tests](userguide/running-unit-tests.md)
-       - [Testing best pracitces](userguide/best-practices.md)
+       - [Querying for test suites](userguide/querying_suites.md)
+       - [Testing best practices](userguide/best-practices.md)
        - [Upgrade utPLSQL](userguide/upgrade.md)
   - Reporting
        - [Using reporters](userguide/reporters.md)
        - [Reporting errors](userguide/exception-reporting.md)
        - [Code coverage](userguide/coverage.md)
-  - [Cheat-sheet](https://www.cheatography.com/jgebal/cheat-sheets/utplsql-v3/#downloads)
+  - [Cheat-sheet](https://www.cheatography.com/jgebal/cheat-sheets/utplsql-v3-1-2/#downloads)
   - About
        - [Project Details](about/project-details.md)
        - [License](about/license.md)

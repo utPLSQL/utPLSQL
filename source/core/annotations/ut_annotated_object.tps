@@ -1,7 +1,7 @@
 create type ut_annotated_object as object(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ create type ut_annotated_object as object(
   object_owner                  varchar2(250),
   object_name                   varchar2(250),
   object_type                   varchar2(50),
+  parse_time                    timestamp,
   annotations                   ut_annotations
 )
 /

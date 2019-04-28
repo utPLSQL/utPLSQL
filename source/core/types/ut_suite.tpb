@@ -1,7 +1,7 @@
 create or replace type body ut_suite  as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -17,11 +17,11 @@ create or replace type body ut_suite  as
   */
 
   constructor function ut_suite (
-    self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2, a_suite_name varchar2 := null
+    self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2, a_line_no integer
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
-    self.init(a_object_owner, a_object_name, nvl(a_suite_name, a_object_name));
+    self.init(a_object_owner, a_object_name, a_object_name, a_line_no);
     self.items := ut_suite_items();
     before_all_list := ut_executables();
     after_all_list  := ut_executables();
@@ -46,7 +46,7 @@ create or replace type body ut_suite  as
     if self.get_disabled_flag() then
       self.mark_as_skipped();
     else
-      ut_event_manager.trigger_event(ut_utils.gc_before_suite, self);
+      ut_event_manager.trigger_event(ut_event_manager.gc_before_suite, self);
       self.start_time := current_timestamp;
 
       l_suite_savepoint := self.create_savepoint_if_needed();
@@ -78,7 +78,7 @@ create or replace type body ut_suite  as
 
       self.calc_execution_result();
       self.end_time := current_timestamp;
-      ut_event_manager.trigger_event(ut_utils.gc_after_suite, self);
+      ut_event_manager.trigger_event(ut_event_manager.gc_after_suite, self);
     end if;
 
     ut_utils.set_action(null);

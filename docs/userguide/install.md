@@ -1,13 +1,15 @@
+![version](https://img.shields.io/badge/version-v3.1.7.2897--develop-blue.svg)
+
 # Downloading latest version of utPLSQL
 
-To download latest version of utPLSQL from github on both Unix/Linux as well as Windows machines use the below smippets.
+To download latest version of utPLSQL from github on both Unix/Linux as well as Windows machines use the below snippets.
 
 ## Unix/Linux
 
 ```bash
 #!/bin/bash
 # Get the url to latest release "zip" file
-UTPLSQL_DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g')
+UTPLSQL_DOWNLOAD_URL=$(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip\"" | sed 's/"//g')
 # Download the latest release "zip" file
 curl -Lk "${UTPLSQL_DOWNLOAD_URL}" -o utPLSQL.zip
 # Extract downloaded "zip" file
@@ -17,7 +19,7 @@ unzip -q utPLSQL.zip
 You may download with a one-liner if that is more convenient.
 ```bash
 #!/bin/bash
-curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip" | sed 's/"//g') 
+curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip\"" | sed 's/"//g') 
 ```
 
 ## Windows
@@ -49,6 +51,28 @@ foreach ($i in $urlList) {
 }
 ```
 
+# Checking environment and utPLSQL version
+
+To check the framework version execute the following query:
+```sql
+select substr(ut.version(),1,60) as ut_version from dual;
+```
+
+Additionally you may retrieve more information about your environment by executing the following query:
+```sql
+select 
+  xmlserialize( content xmltype(ut_run_info()) as clob indent size = 2 )
+  from dual;
+```
+
+# Supported database versions
+
+The utPLSQL may be installed on any supported version of Oracle Database [see](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6)
+* 11g R2 
+* 12c
+* 12c R2
+* 18c
+
 # Headless installation
 
 To install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql` as SYSDBA.
@@ -70,7 +94,9 @@ cd source
 sqlplus sys/sys_pass@db as sysdba @install_headless.sql utp3 my_verySecret_password utp3_tablespace   
 ```
 
-The script needs to be executed by SYSDBA, in order to grant access to DBMS_LOCK system package.
+The script needs to be executed by `SYSDBA`, in order to grant access to `DBMS_LOCK` and `DBMS_CRYPTO` system packages.
+
+*Note:* Grant on `DBMS_LOCK` is required on Oracle versions below 18c
 
 
 # Recommended Schema
@@ -88,7 +114,7 @@ If the installation and utPLSQL owner user is one and the same, the user must ha
   - CREATE SYNONYM
   - ALTER SESSION
   
-In addition the user must be granted the execute privilege on `DBMS_LOCK` package.
+In addition the user must be granted the execute privilege on `DBMS_LOCK` and `DBMS_CRYPTO` packages.
     
 utPLSQL is using [DBMS_PROFILER tables](https://docs.oracle.com/cd/E18283_01/appdev.112/e16760/d_profil.htm#i999476) for code coverage. The tables required by DBMS_PROFILER will be created in the installation schema unless they already exist.
 The uninstall process will **not** drop profiler tables, as they can potentially be shared and reused for profiling PLSQL code.
@@ -175,8 +201,10 @@ If you have extended any utPLSQL types such as a custom reporter, these will nee
 
 The uninstall script does not drop the schema.
 
-In order for the uninstall to be successful, you need to use the uninstall script that was provided with the exact utPLSQL version installed on your database.
+**In order for the uninstall to be successful, you need to use the uninstall script that was provided with the exact utPLSQL version installed on your database.**
 i.e. the uninstall script provided with version 3.0.1 will probably not work if you want to remove version 3.0.0 from your database.
+
+Alternatively you can drop the user that owns utPLSQL and re-create it using headless install.
 
 # Version upgrade
 

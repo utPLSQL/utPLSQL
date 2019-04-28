@@ -1,7 +1,7 @@
 create or replace package body ut_expectation_processor as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ create or replace package body ut_expectation_processor as
 
   g_expectations_called ut_expectation_results := ut_expectation_results();
 
-  g_warnings ut_varchar2_list := ut_varchar2_list();
+  g_warnings ut_varchar2_rows := ut_varchar2_rows();
 
   g_nulls_are_equal boolean_not_null := gc_default_nulls_are_equal;
 
@@ -73,13 +73,13 @@ create or replace package body ut_expectation_processor as
         l_expectations_results(l_expectations_results.last) := g_expectations_called(i);
       end if;
     end loop;
-    ut_utils.debug_log('ut_expectation_processor.get_failed_expectations: l_expectations_results.count='||g_expectations_called.count);
+    ut_utils.debug_log('ut_expectation_processor.get_failed_expectations: l_expectations_results.count='||l_expectations_results.count);
     return l_expectations_results;
   end get_failed_expectations;
 
   procedure add_expectation_result(a_expectation_result ut_expectation_result) is
   begin
-    ut_utils.debug_log('ut_expectation_processor.add_expectation_result');
+    ut_event_manager.trigger_event(ut_event_manager.gc_debug, a_expectation_result);
     g_expectations_called.extend;
     g_expectations_called(g_expectations_called.last) := a_expectation_result;
   end;
@@ -88,7 +88,7 @@ create or replace package body ut_expectation_processor as
   begin
     add_expectation_result(ut_expectation_result(ut_utils.gc_failure, null, a_message));
   end;
-
+  
   function get_session_parameters return tt_nls_params is
     l_session_params tt_nls_params;
   begin
@@ -96,7 +96,8 @@ create or replace package body ut_expectation_processor as
       bulk collect into l_session_params
      from nls_session_parameters nsp
     where parameter
-       in ( 'NLS_DATE_FORMAT', 'NLS_TIMESTAMP_FORMAT', 'NLS_TIMESTAMP_TZ_FORMAT');
+       in ( 'NLS_DATE_FORMAT', 'NLS_TIMESTAMP_FORMAT', 'NLS_TIMESTAMP_TZ_FORMAT')
+    order by 1;
 
     return l_session_params;
   end;
@@ -113,7 +114,6 @@ create or replace package body ut_expectation_processor as
       when insuf_privs then NULL;
     end;
 
-    execute immediate 'alter session set nls_date_format = '''||ut_utils.gc_date_format||'''';
     execute immediate 'alter session set nls_timestamp_format = '''||ut_utils.gc_timestamp_format||'''';
     execute immediate 'alter session set nls_timestamp_tz_format = '''||ut_utils.gc_timestamp_tz_format||'''';
   end;
@@ -176,7 +176,7 @@ create or replace package body ut_expectation_processor as
     );
   end;
 
-  function get_warnings return ut_varchar2_list is
+  function get_warnings return ut_varchar2_rows is
   begin
     return g_warnings;
   end;

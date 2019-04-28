@@ -1,7 +1,7 @@
 create or replace type body ut_expectation_result is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ create or replace type body ut_expectation_result is
     a_description varchar2, a_message clob, a_include_caller_info boolean := true
   ) return self as result is
   begin
+    self.self_type       := $$plsql_unit;
     self.status          := a_status;
     self.description     := a_description;
     self.message := a_message;

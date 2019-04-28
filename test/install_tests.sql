@@ -2,6 +2,7 @@ set define off
 whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 
+alter session set plsql_optimize_level=0;
 --Install helpers
 @@helpers/ut_test_table.sql
 @@helpers/ut_example_tests.pks
@@ -12,9 +13,16 @@ whenever oserror exit failure rollback
 @@helpers/other_dummy_object.tps
 @@helpers/test_dummy_object.tps
 @@helpers/test_dummy_object_list.tps
+@@helpers/test_event_object.tps
+@@helpers/test_event_list.tps
+@@helpers/test_tab_varchar2.tps
+@@helpers/test_tab_varray.tps
+@@helpers/ut3user#.test_cursor_grants.pks
+@@helpers/ut3user#.test_cursor_grants.pkb
 
 --Install tests
 @@core.pks
+@@core/min_grant_user/test_min_grant_user.pks
 @@api/test_ut_runner.pks
 @@api/test_ut_run.pks
 @@core/test_ut_utils.pks
@@ -22,10 +30,13 @@ whenever oserror exit failure rollback
 @@core/test_ut_test.pks
 @@core/annotations/test_annotation_parser.pks
 @@core/annotations/test_annotation_manager.pks
+@@core/annotations/test_before_after_annotations.pks
+@@core/expectations/test_expectation_processor.pks
 @@core/expectations/test_matchers.pks
 @@core/test_output_buffer.pks
 @@core/test_file_mapper.pks
 @@core/test_suite_manager.pks
+@@core/test_ut_executable.pks
 @@core/test_suite_builder.pks
 @@core/reporters.pks
 @@core/reporters/test_coverage.pks
@@ -37,27 +48,33 @@ set define off
 @@core/reporters/test_coverage/test_coveralls_reporter.pks
 @@core/reporters/test_coverage/test_cov_cobertura_reporter.pks
 @@core/reporters/test_junit_reporter.pks
+@@core/reporters/test_realtime_reporter.pks
+@@core/reporters/test_debug_reporter.pks
 set define on
 @@install_below_12_2.sql 'core/reporters/test_coverage/test_html_proftab_reporter.pks'
 set define off
 @@core/reporters/test_tfs_junit_reporter.pks
+@@core/reporters/test_documentation_reporter.pks
+@@core/reporters/test_sonar_test_reporter.pks
+@@core/reporters/test_teamcity_reporter.pks
 @@core/expectations.pks
-@@core/expectations/scalar_data/binary/test_be_greater_or_equal.pks
-@@core/expectations/scalar_data/binary/test_be_greater_than.pks
-@@core/expectations/scalar_data/binary/test_be_less_or_equal.pks
-@@core/expectations/scalar_data/binary/test_equal.pks
-@@core/expectations/scalar_data/binary/test_expect_to_be_less_than.pks
-@@core/expectations/compound_data/test_expect_to_be_empty.pks
-@@core/expectations/compound_data/test_expect_to_have_count.pks
-@@core/expectations/compound_data/test_expectations_cursor.pks
-@@core/expectations/compound_data/test_expectation_anydata.pks
-@@core/expectations/scalar_data/unary/test_expect_not_to_be_null.pks
-@@core/expectations/scalar_data/unary/test_expect_to_be_not_null.pks
-@@core/expectations/scalar_data/unary/test_expect_to_be_null.pks
-@@core/expectations/scalar_data/unary/test_expect_to_be_true_false.pks
+@@core/expectations/binary/test_be_greater_or_equal.pks
+@@core/expectations/binary/test_be_greater_than.pks
+@@core/expectations/binary/test_be_less_or_equal.pks
+@@core/expectations/binary/test_equal.pks
+@@core/expectations/binary/test_expect_to_be_less_than.pks
+@@core/expectations/unary/test_expect_to_be_empty.pks
+@@core/expectations/unary/test_expect_to_have_count.pks
+@@core/expectations/unary/test_expect_not_to_be_null.pks
+@@core/expectations/unary/test_expect_to_be_not_null.pks
+@@core/expectations/unary/test_expect_to_be_null.pks
+@@core/expectations/unary/test_expect_to_be_true_false.pks
+@@core/expectations/test_expectations_cursor.pks
+@@core/expectations/test_expectation_anydata.pks
 @@core/annotations/test_annot_throws_exception.pks
 
 @@core.pkb
+@@core/min_grant_user/test_min_grant_user.pkb
 @@api/test_ut_runner.pkb
 @@api/test_ut_run.pkb
 @@core/test_ut_utils.pkb
@@ -65,10 +82,13 @@ set define off
 @@core/test_ut_test.pkb
 @@core/annotations/test_annotation_parser.pkb
 @@core/annotations/test_annotation_manager.pkb
+@@core/expectations/test_expectation_processor.pkb
 @@core/expectations/test_matchers.pkb
+@@core/annotations/test_before_after_annotations.pkb
 @@core/test_output_buffer.pkb
 @@core/test_file_mapper.pkb
 @@core/test_suite_manager.pkb
+@@core/test_ut_executable.pkb
 @@core/test_suite_builder.pkb
 @@core/reporters.pkb
 @@core/reporters/test_coverage.pkb
@@ -80,24 +100,29 @@ set define off
 @@core/reporters/test_coverage/test_coveralls_reporter.pkb
 @@core/reporters/test_coverage/test_cov_cobertura_reporter.pkb
 @@core/reporters/test_junit_reporter.pkb
+@@core/reporters/test_realtime_reporter.pkb
+@@core/reporters/test_debug_reporter.pkb
 set define on
 @@install_below_12_2.sql 'core/reporters/test_coverage/test_html_proftab_reporter.pkb'
 set define off
 @@core/reporters/test_tfs_junit_reporter.pkb
+@@core/reporters/test_documentation_reporter.pkb
+@@core/reporters/test_sonar_test_reporter.pkb
+@@core/reporters/test_teamcity_reporter.pkb
 @@core/expectations.pkb
-@@core/expectations/scalar_data/binary/test_be_greater_or_equal.pkb
-@@core/expectations/scalar_data/binary/test_be_greater_than.pkb
-@@core/expectations/scalar_data/binary/test_be_less_or_equal.pkb
-@@core/expectations/scalar_data/binary/test_equal.pkb
-@@core/expectations/scalar_data/binary/test_expect_to_be_less_than.pkb
-@@core/expectations/compound_data/test_expect_to_be_empty.pkb
-@@core/expectations/compound_data/test_expect_to_have_count.pkb
-@@core/expectations/compound_data/test_expectations_cursor.pkb
-@@core/expectations/compound_data/test_expectation_anydata.pkb
-@@core/expectations/scalar_data/unary/test_expect_not_to_be_null.pkb
-@@core/expectations/scalar_data/unary/test_expect_to_be_not_null.pkb
-@@core/expectations/scalar_data/unary/test_expect_to_be_null.pkb
-@@core/expectations/scalar_data/unary/test_expect_to_be_true_false.pkb
+@@core/expectations/binary/test_be_greater_or_equal.pkb
+@@core/expectations/binary/test_be_greater_than.pkb
+@@core/expectations/binary/test_be_less_or_equal.pkb
+@@core/expectations/binary/test_equal.pkb
+@@core/expectations/binary/test_expect_to_be_less_than.pkb
+@@core/expectations/unary/test_expect_to_be_empty.pkb
+@@core/expectations/unary/test_expect_to_have_count.pkb
+@@core/expectations/unary/test_expect_not_to_be_null.pkb
+@@core/expectations/unary/test_expect_to_be_not_null.pkb
+@@core/expectations/unary/test_expect_to_be_null.pkb
+@@core/expectations/unary/test_expect_to_be_true_false.pkb
+@@core/expectations/test_expectations_cursor.pkb
+@@core/expectations/test_expectation_anydata.pkb
 @@core/annotations/test_annot_throws_exception.pkb
 
 set linesize 200

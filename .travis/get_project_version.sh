@@ -8,7 +8,7 @@ else
   version=`cat VERSION`
   #When on develop branch, add "-develop" to the version text
   if [[ "${CURRENT_BRANCH}" == "develop" ]]; then
-    version=`sed -r "s/(v?[0-9]+\.[0-9]+\.[0-9]+).*/\1-develop/" <<< "${version}"`
+    version=`sed -E "s/(v?[0-9]+\.[0-9]+\.[0-9]+).*/\1-develop/" <<< "${version}"`
   fi
 fi
 echo ${version}

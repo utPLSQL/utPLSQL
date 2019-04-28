@@ -1,7 +1,7 @@
 create or replace type ut_event_item authid current_user as object (
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -21,6 +21,5 @@ create or replace type ut_event_item authid current_user as object (
   * The true abstract type is ut_suite_item
   */
   self_type    varchar2(250 byte)
-
 ) not final not instantiable
 /

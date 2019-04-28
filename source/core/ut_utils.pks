@@ -1,7 +1,7 @@
 create or replace package ut_utils authid definer is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -21,38 +21,16 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.2.1913-develop';
-
-  /* Constants: Event names */
-  subtype t_event_name           is varchar2(30);
-  gc_before_run                  constant t_event_name := 'before_run';
-  gc_before_suite                constant t_event_name := 'before_suite';
-  gc_before_before_all           constant t_event_name := 'before_before_all';
-  gc_before_before_each          constant t_event_name := 'before_before_each';
-  gc_before_before_test          constant t_event_name := 'before_before_test';
-  gc_before_test_execute         constant t_event_name := 'before_test_execute';
-  gc_before_after_test           constant t_event_name := 'before_after_test';
-  gc_before_after_each           constant t_event_name := 'before_after_each';
-  gc_before_after_all            constant t_event_name := 'before_after_all';
-  gc_after_run                   constant t_event_name := 'after_run';
-  gc_after_suite                 constant t_event_name := 'after_suite';
-  gc_after_before_all            constant t_event_name := 'after_before_all';
-  gc_after_before_each           constant t_event_name := 'after_before_each';
-  gc_after_before_test           constant t_event_name := 'after_before_test';
-  gc_after_test_execute          constant t_event_name := 'after_test_execute';
-  gc_after_after_test            constant t_event_name := 'after_after_test';
-  gc_after_after_each            constant t_event_name := 'after_after_each';
-  gc_after_after_all             constant t_event_name := 'after_after_all';
-  gc_finalize                    constant t_event_name := 'finalize';
-
+  gc_version                 constant varchar2(50) := 'v3.1.7.2897-develop';
+    
   subtype t_executable_type      is varchar2(30);
-  gc_before_all                  constant t_executable_type := 'before_all';
-  gc_before_each                 constant t_executable_type := 'before_each';
-  gc_before_test                 constant t_executable_type := 'before_test';
-  gc_test_execute                constant t_executable_type := 'test_execute';
-  gc_after_test                  constant t_executable_type := 'after_test';
-  gc_after_each                  constant t_executable_type := 'after_each';
-  gc_after_all                   constant t_executable_type := 'after_all';
+  gc_before_all                  constant t_executable_type := 'beforeall';
+  gc_before_each                 constant t_executable_type := 'beforeeach';
+  gc_before_test                 constant t_executable_type := 'beforetest';
+  gc_test_execute                constant t_executable_type := 'test';
+  gc_after_test                  constant t_executable_type := 'aftertest';
+  gc_after_each                  constant t_executable_type := 'aftereach';
+  gc_after_all                   constant t_executable_type := 'afterall';
 
   /* Constants: Test Results */
   subtype t_test_result   is binary_integer range 0 .. 3;
@@ -105,21 +83,53 @@ create or replace package ut_utils authid definer is
   gc_some_tests_failed constant pls_integer := -20213;
   pragma exception_init(ex_some_tests_failed, -20213);
 
-  -- Any of tests failed
+  -- Version number provided is not in valid format
   ex_invalid_version_no exception;
   gc_invalid_version_no constant pls_integer := -20214;
   pragma exception_init(ex_invalid_version_no, -20214);
 
+  -- Version number provided is not in valid format
+  ex_out_buffer_timeout exception;
+  gc_out_buffer_timeout constant pls_integer := -20215;
+  pragma exception_init(ex_out_buffer_timeout, -20215);
+
+  ex_invalid_package exception;
+  gc_invalid_package constant pls_integer := -6550;
+  pragma exception_init(ex_invalid_package, -6550);
+
+  ex_failure_for_all exception;
+  gc_failure_for_all constant pls_integer := -24381;
+  pragma exception_init (ex_failure_for_all, -24381);
+
+  ex_dml_for_all exception;
+  gc_dml_for_all constant pls_integer := -20216;
+  pragma exception_init (ex_dml_for_all, -20216);
+
+  ex_value_too_large exception;
+  gc_value_too_large constant pls_integer := -20217;
+  pragma exception_init (ex_value_too_large, -20217);
+
+  ex_xml_processing exception;
+  gc_xml_processing constant pls_integer := -19202;
+  pragma exception_init (ex_xml_processing, -19202);
+  
+  ex_failed_open_cur exception;
+  gc_failed_open_cur constant pls_integer := -20218;
+  pragma exception_init (ex_failed_open_cur, -20218);  
+  
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
-  gc_max_input_string_length  constant integer := gc_max_output_string_length - 2; --we need to remove 2 chars for quotes around string
   gc_more_data_string         constant varchar2(5) := '[...]';
-  gc_overflow_substr_len      constant integer := gc_max_input_string_length - length(gc_more_data_string);
+  gc_more_data_string_len     constant integer := length( gc_more_data_string );
   gc_number_format            constant varchar2(100) := 'TM9';
   gc_date_format              constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ss';
   gc_timestamp_format         constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff';
   gc_timestamp_tz_format      constant varchar2(100) := 'yyyy-mm-dd"T"hh24:mi:ssxff tzh:tzm';
   gc_null_string              constant varchar2(4) := 'NULL';
+  gc_empty_string             constant varchar2(5) := 'EMPTY';
+
+  gc_bc_fetch_limit           constant integer := 1000;
+  gc_diff_max_rows            constant integer := 20;
 
   type t_version is record(
     major  natural,
@@ -152,11 +162,23 @@ create or replace package ut_utils authid definer is
 
   procedure debug_log(a_message clob);
 
-  function to_string(a_value varchar2, a_qoute_char varchar2 := '''') return varchar2;
+  function to_string(
+    a_value varchar2,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2;
 
-  function to_string(a_value clob, a_qoute_char varchar2 := '''') return varchar2;
+  function to_string(
+    a_value clob,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2;
 
-  function to_string(a_value blob, a_qoute_char varchar2 := '''') return varchar2;
+  function to_string(
+    a_value blob,
+    a_quote_char varchar2 := '''',
+    a_max_output_len in number := gc_max_output_string_length
+  ) return varchar2;
 
   function to_string(a_value boolean) return varchar2;
 
@@ -177,12 +199,6 @@ create or replace package ut_utils authid definer is
   function boolean_to_int(a_value boolean) return integer;
 
   function int_to_boolean(a_value integer) return boolean;
-
-  /**
-   * Validates passed value against supported rollback types
-   */
-  procedure validate_rollback_type(a_rollback_type number);
-
 
   /**
    *
@@ -241,6 +257,21 @@ create or replace package ut_utils authid definer is
    * Append a item to the end of ut_varchar2_list
    */
   procedure append_to_list(a_list in out nocopy ut_varchar2_list, a_item varchar2);
+
+  /**
+   * Append a item to the end of ut_varchar2_rows
+   */
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item varchar2);
+
+  /**
+   * Append a item to the end of ut_varchar2_rows
+   */
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item clob);
+
+  /**
+   * Append a list of items to the end of ut_varchar2_rows
+   */
+  procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_items ut_varchar2_rows);
 
   procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2 := chr(10));
 
@@ -316,10 +347,21 @@ create or replace package ut_utils authid definer is
   */
   function to_xml_number_format(a_value number) return varchar2;
 
-  /*It takes a collection of type ut_varchar2_list and it trims the characters passed as arguments for every element*/
+
+  /**
+  * Returns xml header. If a_encoding is not null, header will include encoding attribute with provided value
+  */
+  function get_xml_header(a_encoding varchar2) return varchar2;
+
+
+  /**
+  * Takes a collection of type ut_varchar2_list and it trims the characters passed as arguments for every element
+  */
   function trim_list_elements(a_list IN ut_varchar2_list, a_regexp_to_trim in varchar2 default '[:space:]') return ut_varchar2_list;
 
-  /*It takes a collection of type ut_varchar2_list and it only returns the elements which meets the regular expression*/
+  /**
+  * Takes a collection of type ut_varchar2_list and it only returns the elements which meets the regular expression
+  */
   function filter_list(a_list IN ut_varchar2_list, a_regexp_filter in varchar2) return ut_varchar2_list;
 
   -- Generates XMLGEN escaped string
@@ -330,5 +372,20 @@ create or replace package ut_utils authid definer is
   */
   function replace_multiline_comments(a_source clob) return clob;
 
+   /**
+   * Returns list of sub-type reporters for given list of super-type reporters
+   */
+  function get_child_reporters(a_for_reporters ut_reporters_info := null) return ut_reporters_info;
+  
+  /**
+  * Remove given ORA error from stack
+  */
+  function remove_error_from_stack(a_error_stack varchar2, a_ora_code number) return varchar2;
+  
+  /**
+  * Check if xml name is valid if not build a valid name
+  */
+  function get_valid_xml_name(a_name varchar2) return varchar2;
+  
 end ut_utils;
 /

@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.7.2897--develop-blue.svg)
+
 # Best Practices
 
 The following are best practices we at utPLSQL have learned about PL/SQL and Unit Testing. 

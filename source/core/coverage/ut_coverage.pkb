@@ -1,7 +1,7 @@
 create or replace package body ut_coverage is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ create or replace package body ut_coverage is
   function get_cov_sources_sql(a_coverage_options ut_coverage_options) return varchar2 is
     l_result varchar2(32767);
     l_full_name varchar2(100);
-    l_view_name      varchar2(200) := ut_metadata.get_dba_view('dba_source');
+    l_view_name      varchar2(200) := ut_metadata.get_source_view_name();
   begin
     if a_coverage_options.file_mappings is not null and a_coverage_options.file_mappings.count > 0 then
       l_full_name := 'f.file_name';
@@ -131,11 +131,11 @@ create or replace package body ut_coverage is
 
     if not ut_coverage_helper.is_tmp_table_populated() or is_develop_mode() then
       ut_coverage_helper.cleanup_tmp_table();
-
-      l_cov_sources_crsr := get_cov_sources_cursor(a_coverage_options,a_sql);
+      ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_key_anyvalues().put('a_sql',a_sql) );
+      l_cov_sources_crsr := get_cov_sources_cursor(a_coverage_options, a_sql);
 
       loop
-        fetch l_cov_sources_crsr bulk collect into l_cov_sources_data limit 1000;
+        fetch l_cov_sources_crsr bulk collect into l_cov_sources_data limit 10000;
 
         ut_coverage_helper.insert_into_tmp_table(l_cov_sources_data);
 
@@ -209,48 +209,50 @@ create or replace package body ut_coverage is
     l_line_no                binary_integer;
   begin
     --prepare global temp table with sources
+    ut_event_manager.trigger_event('about to populate coverage temp table');
     populate_tmp_table(a_coverage_options, get_cov_sources_sql(a_coverage_options));
+    ut_event_manager.trigger_event('coverage temp table populated');
 
     -- Get raw data for both reporters, order is important as tmp table will skip headers and dont populate
     -- tmp table for block again.
     l_result_profiler_enrich:= ut_coverage_profiler.get_coverage_data( a_coverage_options, get_coverage_id(gc_proftab_coverage) );
-  
-   -- If block coverage available we will use it.
-   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-    l_result_block := ut_coverage_block.get_coverage_data( a_coverage_options, get_coverage_id(gc_block_coverage) );
-  
-    -- Enrich profiler results with some of the block results
-    l_object := l_result_profiler_enrich.objects.first;
-    while (l_object is not null)
-     loop
-     
-      l_line_no := l_result_profiler_enrich.objects(l_object).lines.first;
-      
-      -- to avoid no data found check if we got object in profiler
-      if l_result_block.objects.exists(l_object) then
-      while (l_line_no is not null)
-       loop         
-        -- To avoid no data check for object line
-        if l_result_block.objects(l_object).lines.exists(l_line_no) then
-         -- enrich line level stats
-         l_result_profiler_enrich.objects(l_object).lines(l_line_no).partcove := l_result_block.objects(l_object).lines(l_line_no).partcove;
-         l_result_profiler_enrich.objects(l_object).lines(l_line_no).covered_blocks := l_result_block.objects(l_object).lines(l_line_no).covered_blocks;
-         l_result_profiler_enrich.objects(l_object).lines(l_line_no).no_blocks := l_result_block.objects(l_object).lines(l_line_no).no_blocks;
-         -- enrich object level stats
-         l_result_profiler_enrich.objects(l_object).partcovered_lines :=  nvl(l_result_profiler_enrich.objects(l_object).partcovered_lines,0) + l_result_block.objects(l_object).lines(l_line_no).partcove;    
+    ut_event_manager.trigger_event('profiler coverage data retrieved');
+
+    -- If block coverage available we will use it.
+    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+      l_result_block := ut_coverage_block.get_coverage_data( a_coverage_options, get_coverage_id(gc_block_coverage) );
+      ut_event_manager.trigger_event('block coverage data retrieved');
+
+      -- Enrich profiler results with some of the block results
+      l_object := l_result_profiler_enrich.objects.first;
+      while (l_object is not null) loop
+
+        l_line_no := l_result_profiler_enrich.objects(l_object).lines.first;
+
+        -- to avoid no data found check if we got object in profiler
+        if l_result_block.objects.exists(l_object) then
+          while (l_line_no is not null) loop
+            -- To avoid no data check for object line
+            if l_result_block.objects(l_object).lines.exists(l_line_no) then
+             -- enrich line level stats
+             l_result_profiler_enrich.objects(l_object).lines(l_line_no).partcove := l_result_block.objects(l_object).lines(l_line_no).partcove;
+             l_result_profiler_enrich.objects(l_object).lines(l_line_no).covered_blocks := l_result_block.objects(l_object).lines(l_line_no).covered_blocks;
+             l_result_profiler_enrich.objects(l_object).lines(l_line_no).no_blocks := l_result_block.objects(l_object).lines(l_line_no).no_blocks;
+             -- enrich object level stats
+             l_result_profiler_enrich.objects(l_object).partcovered_lines :=  nvl(l_result_profiler_enrich.objects(l_object).partcovered_lines,0) + l_result_block.objects(l_object).lines(l_line_no).partcove;
+            end if;
+            --At the end go to next line
+            l_line_no := l_result_profiler_enrich.objects(l_object).lines.next(l_line_no);
+          end loop;
+          --total level stats enrich
+          l_result_profiler_enrich.partcovered_lines := nvl(l_result_profiler_enrich.partcovered_lines,0) + l_result_profiler_enrich.objects(l_object).partcovered_lines;
+          -- At the end go to next object
         end if;
-        --At the end go to next line
-        l_line_no := l_result_profiler_enrich.objects(l_object).lines.next(l_line_no);
-       end loop;
-       --total level stats enrich
-       l_result_profiler_enrich.partcovered_lines := nvl(l_result_profiler_enrich.partcovered_lines,0) + l_result_profiler_enrich.objects(l_object).partcovered_lines;
-      -- At the end go to next object
-     end if;
-     
-     l_object := l_result_profiler_enrich.objects.next(l_object);
-     
-     end loop;    
-    $end   
+
+        l_object := l_result_profiler_enrich.objects.next(l_object);
+      end loop;
+      ut_event_manager.trigger_event('coverage data combined');
+    $end
         
     return l_result_profiler_enrich;
   end get_coverage_data;  

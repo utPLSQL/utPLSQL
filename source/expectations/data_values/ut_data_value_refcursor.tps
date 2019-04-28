@@ -1,7 +1,7 @@
 create or replace type ut_data_value_refcursor under ut_compound_data_value(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -24,16 +24,29 @@ create or replace type ut_data_value_refcursor under ut_compound_data_value(
    * Determines if the cursor is null
    */
   is_cursor_null  integer,
-
-  /**
-  * Holds information about column names and column data-types
+      
+  /*
+  *columns info 
+  */  
+  cursor_details ut_cursor_details,
+  
+  /*
+  * extract path of elements, important for collectiosn and objects
   */
-  columns_info       xmltype,
-
+  extract_path varchar2(10),
+  
   constructor function ut_data_value_refcursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor) return self as result,
+  member procedure extract_cursor(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor),
   member procedure init(self in out nocopy ut_data_value_refcursor, a_value sys_refcursor),
   overriding member function to_string return varchar2,
-  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return varchar2,
-  overriding member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer
-)
+  overriding member function diff( a_other ut_data_value, a_match_options ut_matcher_options ) return varchar2,
+  overriding member function compare_implementation(a_other ut_data_value) return integer,
+  member function compare_implementation(
+    a_other ut_data_value,
+    a_match_options ut_matcher_options,
+    a_inclusion_compare boolean := false,
+    a_is_negated boolean := false
+  ) return integer,
+  overriding member function is_empty return boolean
+) not final
 /

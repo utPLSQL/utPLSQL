@@ -1,7 +1,7 @@
 create or replace type ut_reporter_base under ut_event_listener (
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -63,6 +63,9 @@ create or replace type ut_reporter_base under ut_event_listener (
   -- it differs from after_calling_run, as it is getting called, even when the run fails
   -- This way, you may close all open outputs, files, connections etc. that need closing before the run finishes
   not instantiable member procedure on_finalize(self in out nocopy ut_reporter_base, a_run in ut_run),
+
+  -- This method is executed when run is getting initialized
+  not instantiable member procedure on_initialize(self in out nocopy ut_reporter_base, a_run in ut_run),
 
   /**
   * Returns the list of events that are supported by particular implementation of the reporter

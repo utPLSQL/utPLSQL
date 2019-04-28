@@ -1,7 +1,7 @@
 create or replace type ut_data_value_clob under ut_data_value(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ create or replace type ut_data_value_clob under ut_data_value(
   data_value clob,
   constructor function ut_data_value_clob(self in out nocopy ut_data_value_clob, a_value clob) return self as result,
   overriding member function is_null return boolean,
+  overriding member function is_empty return boolean,
   overriding member function to_string return varchar2,
   overriding member function is_multi_line return boolean,
   overriding member function compare_implementation(a_other ut_data_value) return integer

@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.7.2897--develop-blue.svg)
+
 # utPLSQL Project Details
 
 [![chat](http://img.shields.io/badge/GitHub_Project-Active-blue.svg)](https://github.com/utPLSQL/utPLSQL)

@@ -1,7 +1,7 @@
-create or replace type ut_compound_data_value under ut_data_value(
+create or replace type ut_compound_data_value force under ut_data_value(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -34,16 +34,16 @@ create or replace type ut_compound_data_value under ut_data_value(
    * Holds unique id for retrieving the data from ut_compound_data_tmp temp table
    */
   data_id  raw(16),
-
+  
+  /**
+  * Holds name for the type of compound
+  */
+  compound_type varchar2(50),
+  
   overriding member function get_object_info return varchar2,
   overriding member function is_null return boolean,
   overriding member function is_diffable return boolean,
-  member function is_empty return boolean,
   overriding member function to_string return varchar2,
-  overriding member function is_multi_line return boolean,
-  overriding member function compare_implementation(a_other ut_data_value) return integer,
-  overriding member function diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return varchar2,
-  member function get_data_diff( a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2 ) return clob,
-  member function compare_implementation(a_other ut_data_value, a_exclude_xpath varchar2, a_include_xpath varchar2) return integer
+  overriding member function is_multi_line return boolean
 ) not final not instantiable
 /

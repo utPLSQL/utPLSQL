@@ -1,7 +1,7 @@
 create global temporary table ut_coverage_sources_tmp$(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -39,7 +39,7 @@ begin
   v_view_source := ' ut_coverage_sources_tmp as
 /*
 utPLSQL - Version 3
-Copyright 2016 - 2017 utPLSQL Project
+Copyright 2016 - 2018 utPLSQL Project
 Licensed under the Apache License, Version 2.0 (the "License"):
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at

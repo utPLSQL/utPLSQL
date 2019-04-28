@@ -6,6 +6,9 @@ echo Update version in project source files
 find ${UTPLSQL_SOURCES_DIR} -type f -name '*' -exec sed -i -r "s/${UTPLSQL_VERSION_PATTERN}/${UTPLSQL_BUILD_VERSION}/" {} \;
 echo Source files updated with version tag: ${UTPLSQL_BUILD_VERSION}
 
+echo Update version in documentation files
+find docs -type f -name '*.md' -exec sed -i -r "s/(badge\/version-).*(-blue\.svg)/\1${UTPLSQL_BUILD_VERSION/-/--}\2/" {} \;
+
 echo Update of sonar-project.properties sonar.projectVersion
 sed -i -r "s/(sonar\.projectVersion=).*?/\1${UTPLSQL_VERSION}/" sonar-project.properties
 

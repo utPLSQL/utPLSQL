@@ -1,7 +1,7 @@
 create or replace package body ut_coverage_helper_block is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -32,12 +32,20 @@ create or replace package body ut_coverage_helper_block is
 
   procedure coverage_start(a_run_comment varchar2, a_coverage_id out integer)  is
   begin
-    a_coverage_id := dbms_plsql_code_coverage.start_coverage(run_comment => a_run_comment);
+    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+      a_coverage_id := dbms_plsql_code_coverage.start_coverage(run_comment => a_run_comment);
+    $else
+      null;
+    $end
   end;
 
   procedure coverage_stop is
   begin
-    dbms_plsql_code_coverage.stop_coverage();
+    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+      dbms_plsql_code_coverage.stop_coverage();
+    $else
+      null;
+    $end
   end;
 
   function block_results(a_object_owner varchar2, a_object_name varchar2, a_coverage_id integer) return t_block_rows is
@@ -70,22 +78,22 @@ create or replace package body ut_coverage_helper_block is
     l_results  ut_coverage_helper.t_unit_line_calls;
   
   begin
-    l_tmp_data := block_results(a_object_owner, a_object_name, a_coverage_id);
-    
-    for i in 1 .. l_tmp_data.count loop
-      l_results(l_tmp_data(i).line).blocks := l_tmp_data(i).blocks;
-      l_results(l_tmp_data(i).line).covered_blocks := l_tmp_data(i).covered_blocks;
-      l_results(l_tmp_data(i).line).partcovered := case
-                                                     when (l_tmp_data(i).covered_blocks > 0) and
-                                                          (l_tmp_data(i).blocks > l_tmp_data(i).covered_blocks) then
-                                                      1
-                                                     else
-                                                      0
-                                                   end;
-    end loop;
+    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+      l_tmp_data := block_results(a_object_owner, a_object_name, a_coverage_id);
+
+      for i in 1 .. l_tmp_data.count loop
+        l_results(l_tmp_data(i).line).blocks := l_tmp_data(i).blocks;
+        l_results(l_tmp_data(i).line).covered_blocks := l_tmp_data(i).covered_blocks;
+        l_results(l_tmp_data(i).line).partcovered := case
+                                                       when (l_tmp_data(i).covered_blocks > 0) and
+                                                            (l_tmp_data(i).blocks > l_tmp_data(i).covered_blocks) then
+                                                        1
+                                                       else
+                                                        0
+                                                     end;
+      end loop;
+    $end
     return l_results;
   end;
-
-
 end;
 /

@@ -1,6 +1,6 @@
 /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -27,11 +27,18 @@ define ut3_tablespace = &3
 
 prompt Creating utPLSQL user &&ut3_user
 
-create user &ut3_user identified by &ut3_password default tablespace &ut3_tablespace quota unlimited on &ut3_tablespace;
+create user &ut3_user identified by "&ut3_password" default tablespace &ut3_tablespace quota unlimited on &ut3_tablespace;
 
 grant create session, create sequence, create procedure, create type, create table, create view, create synonym to &ut3_user;
 
-grant execute on dbms_lock to &ut3_user;
+begin
+  $if dbms_db_version.version < 18 $then
+    execute immediate 'grant execute on dbms_lock to &ut3_user';
+  $else
+    null;
+  $end
+end;
+/
 
 grant execute on dbms_crypto to &ut3_user;
 

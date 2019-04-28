@@ -1,7 +1,7 @@
 create or replace type body ut_console_reporter_base is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -36,19 +36,9 @@ create or replace type body ut_console_reporter_base is
     self.print_text(ut_ansiconsole_helper.yellow(a_text));
   end;
 
-  member procedure print_blue_text(self in out nocopy ut_console_reporter_base, a_text varchar2) is
-  begin
-    self.print_text(ut_ansiconsole_helper.red(a_text));
-  end;
-
   member procedure print_cyan_text(self in out nocopy ut_console_reporter_base, a_text varchar2) is
   begin
     self.print_text(ut_ansiconsole_helper.cyan(a_text));
-  end;
-
-  member procedure print_magenta_text(self in out nocopy ut_console_reporter_base, a_text varchar2) is
-  begin
-    self.print_text(ut_ansiconsole_helper.magenta(a_text));
   end;
 
 end;

@@ -15,19 +15,21 @@ declare
   l_test          ut_test;
   l_expectation   ut_expectation_result;
 begin
-  l_suite := ut_suite(user, 'ut_exampletest');
+  l_suite := ut_suite(user, 'ut_exampletest',a_line_no=>1);
   l_suite.description := 'Test Suite Name';
-  l_test := ut_test(user, 'ut_exampletest','ut_exAmpletest');
+  l_test := ut_test(user, 'ut_exampletest','ut_exAmpletest',a_line_no=>3);
   l_test.description := 'Example test1';
   l_test.before_test_list := ut_executables(ut_executable(user, 'ut_exampletest','Setup',ut_utils.gc_before_test));
   l_test.after_test_list  := ut_executables(ut_executable(user, 'ut_exampletest','tEardown',ut_utils.gc_after_test));
-  l_suite.add_item(l_test);
+  l_suite.items.extend;
+  l_suite.items(l_suite.items.last) := l_test;
 
-  l_test := ut_test(user, 'UT_EXAMPLETEST2','ut_exAmpletest');
+  l_test := ut_test(user, 'UT_EXAMPLETEST2','ut_exAmpletest',a_line_no=>6);
   l_test.description := 'Another example test';
   l_test.before_test_list := ut_executables(ut_executable(user, 'UT_EXAMPLETEST2','SETUP',ut_utils.gc_before_test));
   l_test.after_test_list  := ut_executables(ut_executable(user, 'UT_EXAMPLETEST2','TEARDOWN',ut_utils.gc_after_test));
-  l_suite.add_item(l_test);
+  l_suite.items.extend;
+  l_suite.items(l_suite.items.last) := l_test;
 
   l_suite.do_execute();
 

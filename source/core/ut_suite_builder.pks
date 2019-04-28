@@ -1,7 +1,7 @@
 create or replace package ut_suite_builder authid current_user is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -20,34 +20,13 @@ create or replace package ut_suite_builder authid current_user is
    * Responsible for converting annotations into unit test suites
    */
 
-  --table of ut_suites indexed by object name ( suite_paths('object_name') = ut_logical_suite
-  type tt_schema_suites is table of ut_logical_suite index by varchar2(4000 char);
-
-  --table of suite paths indexed by object name ( suite_paths('object_name') = 'suitepath.to.object'
-  type t_object_suite_path is table of varchar2(4000) index by varchar2(4000 char);
-
-  type t_schema_suites_info is record (
-    schema_suites tt_schema_suites,
-    suite_paths   t_object_suite_path
+  /**
+   * Creates a list of suite items for an annotated object
+   */
+  procedure create_suite_item_list(
+    a_annotated_object ut_annotated_object,
+    a_suite_items out nocopy ut_suite_items
   );
-
-  /**
-   * Builds set of hierarchical suites for a given schema
-   *
-   * @param a_owner_name name of the schema to builds suites for
-   * @return list of suites organized into hierarchy
-   *
-   */
-  function build_schema_suites(a_owner_name varchar2) return t_schema_suites_info;
-
-  /**
-   * Builds set of hierarchical suites for given annotations
-   *
-   * @param a_annotated_objects cursor returning ut_annotated_object type
-   * @return list of suites organized into hierarchy
-   *
-   */
-  function build_suites(a_annotated_objects sys_refcursor) return t_schema_suites_info;
 
 end ut_suite_builder;
 /

@@ -1,7 +1,7 @@
 create or replace type body ut_have_count as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ create or replace type body ut_have_count as
   overriding member function run_matcher(self in out nocopy ut_have_count, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
-    if a_actual is of(ut_data_value_refcursor, ut_data_value_collection) then
-      l_result := ( self.expected = treat(a_actual as ut_compound_data_value).elements_count );
+    if a_actual is of(ut_data_value_refcursor) and ( treat (a_actual as ut_data_value_refcursor).compound_type != 'object') then
+      l_result := ( self.expected = treat(a_actual as ut_data_value_refcursor).elements_count );
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
     end if;

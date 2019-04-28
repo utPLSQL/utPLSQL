@@ -1,7 +1,7 @@
 create or replace type body ut_documentation_reporter is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -29,13 +29,28 @@ create or replace type body ut_documentation_reporter is
     return rpad(' ', self.lvl * 2);
   end tab;
 
-  overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2) is
+  overriding member procedure print_clob(self in out nocopy ut_documentation_reporter, a_clob clob, a_item_type varchar2 := null) is
+    l_lines     ut_varchar2_list;
+    l_out_lines ut_varchar2_rows := ut_varchar2_rows();
+  begin
+    if a_clob is not null and dbms_lob.getlength(a_clob) > 0 then
+      l_lines := ut_utils.clob_to_table(a_clob, ut_utils.gc_max_storage_varchar2_len - length(nvl(tab(),0)));
+      for i in 1 .. l_lines.count loop
+        if l_lines(i) is not null then
+          ut_utils.append_to_list(l_out_lines, tab() || l_lines(i) );
+        end if;
+      end loop;
+      (self as ut_output_reporter_base).print_text_lines(l_out_lines, a_item_type);
+    end if;
+  end;
+
+  overriding member procedure print_text(self in out nocopy ut_documentation_reporter, a_text varchar2, a_item_type varchar2 := null) is
     l_lines ut_varchar2_list;
   begin
     if a_text is not null then
       l_lines := ut_utils.string_to_table(a_text);
       for i in 1 .. l_lines.count loop
-        (self as ut_output_reporter_base).print_text(tab || l_lines(i));
+        (self as ut_output_reporter_base).print_text(tab || l_lines(i), a_item_type);
       end loop;
     end if;
   end;
@@ -193,6 +208,9 @@ create or replace type body ut_documentation_reporter is
       self.print_red_text(l_summary_text);
     else
       self.print_green_text(l_summary_text);
+    end if;
+    if a_run.random_test_order_seed is not null then
+      self.print_text('Tests were executed with random order seed '''||a_run.random_test_order_seed||'''.');
     end if;
     self.print_text(' ');
     (self as ut_reporter_base).after_calling_run(a_run);

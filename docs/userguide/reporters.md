@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.7.2897--develop-blue.svg)
+
 utPLSQL provides the following reporting formats.
 
 # Documentation reporter
@@ -42,7 +44,7 @@ Example outputs from documentation reporter.
 # JUnit reporter 
 
 Most of continuous integration servers (like Jenkins) are capable of consuming unit test execution results in [JUnit](https://en.wikipedia.org/wiki/JUnit) format.
-The `ut_junit_reporter` in earlier version referred as ut_xunit_reporter is producing outcomes as JUnit-compatible XML unit test report, that can be used by CI servers to display their custom reports and provide metrics (like tests execution trends).
+The `ut_junit_reporter` in earlier version referred as `ut_xunit_reporter` is producing outcomes as JUnit-compatible XML unit test report, that can be used by CI servers to display their custom reports and provide metrics (like tests execution trends).
 Please note that in previous versions it was called ut_xunit_reporter and for backward compatibility that name still exists.
 
 Invocation of tests with JUnit reporter.  
@@ -63,7 +65,7 @@ Example of failure report details
 
 # Teamcity reporter
 
-[Teamcity](https://www.jetbrains.com/teamcity/) is a CI server by Jetbrains. It supports XUnit reporting and additionally has it's own format of reporting that allows tracking of progress of a CI step/task as it executes.
+[Teamcity](https://www.jetbrains.com/teamcity/) is a CI server by Jetbrains. It supports JUnit reporting and additionally has it's own format of reporting that allows tracking of progress of a CI step/task as it executes.
 The TeamCity format developed by Jetbrains is supported by utPLSQL with `ut_teamcity_reporter`.
 
 Invocation of tests with Teamcity reporter.  
@@ -74,11 +76,11 @@ The `ut_teamcity_reporter` doesn't accept any arguments.
 
 Example of unit test report from Teamcity CI server.
 
-![xunit_reporter_outputs](../images/teamcity_report_example.png)
+![junit_reporter_outputs](../images/teamcity_report_example.png)
 
 Example of failure report details
  
-![xunit_reporter_outputs](../images/teamcity_report_example_errors.png)
+![junit_reporter_outputs_errors](../images/teamcity_report_example_errors.png)
 
 
 # Sonar test reporter
@@ -118,3 +120,46 @@ Details:
 # Coverage reporters
 
 utPLSQL comes with a set of build-in coverage reporters. Have a look into the [coverage documentation](coverage.md) to learn more about them.
+
+
+# Debug reporter
+
+The `ut_debug_reporter` provides a highly verbose output containing thorough details about framework and test execution.
+
+Use this reporter only when you need to investigate framework issues or raise a bug report to utPLSQL team.
+
+Usage of this reporter might have impact on performance of test-suite execution.
+
+Amongst others, reporter provides the following information:
+- framework version
+- database version
+- database OS
+- database, instance and session NLS settings
+- timing of each event
+- time between events logged
+- time from start of the run
+- stack trace
+- information about input parameters for the run including
+    - run paths
+    - source file mappings
+    - test file mappings
+    - coverage schemas
+    - coverage exclusions and inclusions
+    - client character set
+- information about every step of the run including
+    - every suite and context
+    - every before/after procedure
+    - every test
+    - every expectation and it's result
+    
+Some of the information in debug log might be redundant.
+
+**Note:**
+>Some of the information in debug log may be sensitive. In particular:
+> - expectation results and messages (logged even for successful runs)
+> - test structure
+> - db object names
+> - etc.
+
+ 
+       

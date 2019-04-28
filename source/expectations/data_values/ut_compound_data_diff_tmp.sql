@@ -1,7 +1,7 @@
 create global temporary table ut_compound_data_diff_tmp(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -12,7 +12,15 @@ create global temporary table ut_compound_data_diff_tmp(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  diff_id    raw(128),
-  item_no    integer,
-  constraint ut_compound_data_diff_tmp_pk primary key(diff_id,item_no)
+  diff_id      raw(128),
+  act_data_id  raw(32),
+  exp_data_id  raw(32),
+  act_item_data xmltype,
+  exp_item_data xmltype,
+  item_no      integer,
+  duplicate_no integer,
+  constraint ut_compound_data_diff_tmp_uk1 unique (diff_id,duplicate_no,item_no),
+  constraint ut_compound_data_diff_tmp_chk check(
+   item_no is not null
+   )
 ) on commit preserve rows;

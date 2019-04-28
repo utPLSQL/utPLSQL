@@ -1,7 +1,7 @@
 create or replace type ut_run under ut_suite_item (
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -23,18 +23,23 @@ create or replace type ut_run under ut_suite_item (
   run_paths                      ut_varchar2_list,
   coverage_options               ut_coverage_options,
   test_file_mappings             ut_file_mappings,
+  client_character_set           varchar2(100),
+  random_test_order_seed         number(38,0),
   constructor function ut_run(
     self in out nocopy ut_run,
-    a_items                 ut_suite_items,
-    a_run_paths             ut_varchar2_list := null,
-    a_schema_names          ut_varchar2_rows := null,
-    a_exclude_objects       ut_object_names := null,
-    a_include_objects       ut_object_names := null,
-    a_project_file_mappings ut_file_mappings := null,
-    a_test_file_mappings    ut_file_mappings := null
+    a_items                  ut_suite_items,
+    a_run_paths              ut_varchar2_list := null,
+    a_schema_names           ut_varchar2_rows := null,
+    a_exclude_objects        ut_object_names := null,
+    a_include_objects        ut_object_names := null,
+    a_project_file_mappings  ut_file_mappings := null,
+    a_test_file_mappings     ut_file_mappings := null,
+    a_client_character_set   varchar2 := null,
+    a_random_test_order_seed positive := null
   ) return self as result,
   overriding member procedure mark_as_skipped(self in out nocopy ut_run),
   overriding member function  do_execute(self in out nocopy ut_run) return boolean,
+  overriding member procedure set_rollback_type(self in out nocopy ut_run, a_rollback_type integer, a_force boolean := false),
   overriding member procedure calc_execution_result(self in out nocopy ut_run),
   overriding member procedure mark_as_errored(self in out nocopy ut_run, a_error_stack_trace varchar2),
   overriding member function get_error_stack_traces return ut_varchar2_list,

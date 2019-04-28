@@ -1,7 +1,7 @@
 create or replace type ut_expectation authid current_user as object(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ create or replace type ut_expectation authid current_user as object(
   --base matcher executors
   member procedure to_(self in ut_expectation, a_matcher ut_matcher),
   member procedure not_to(self in ut_expectation, a_matcher ut_matcher),
-
+  
   --shortcuts
   member procedure to_be_null(self in ut_expectation),
   member procedure to_be_not_null(self in ut_expectation),
@@ -158,7 +158,13 @@ create or replace type ut_expectation authid current_user as object(
   member procedure not_to_be_less_than(self in ut_expectation, a_expected timestamp_unconstrained),
   member procedure not_to_be_less_than(self in ut_expectation, a_expected timestamp_ltz_unconstrained),
   member procedure not_to_be_less_than(self in ut_expectation, a_expected timestamp_tz_unconstrained),
-  member procedure not_to_be_less_than(self in ut_expectation, a_expected yminterval_unconstrained)
+  member procedure not_to_be_less_than(self in ut_expectation, a_expected yminterval_unconstrained),
+  
+  member procedure to_contain(self in ut_expectation, a_expected sys_refcursor),
+  member procedure not_to_contain(self in ut_expectation, a_expected sys_refcursor),
+  member procedure to_contain(self in ut_expectation, a_expected anydata),
+  member procedure not_to_contain(self in ut_expectation, a_expected anydata)
+  
 )
 not final
 /

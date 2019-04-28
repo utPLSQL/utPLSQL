@@ -1,7 +1,7 @@
 create or replace type body ut_be_empty as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -30,14 +30,10 @@ create or replace type body ut_be_empty as
   overriding member function run_matcher(self in out nocopy ut_be_empty, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
-    if a_actual is of(ut_data_value_refcursor) then
-      l_result := treat(a_actual as ut_data_value_refcursor).is_empty;
-    elsif a_actual is of(ut_data_value_collection) then
-      l_result := treat(a_actual as ut_data_value_collection).is_empty;
-    else
-      l_result := (self as ut_matcher).run_matcher(a_actual);
-    end if;
-    return l_result;
+    return a_actual.is_empty();
+  exception 
+    when value_error then
+      return (self as ut_matcher).run_matcher(a_actual);
   end;
 
 end;

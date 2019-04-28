@@ -1,3 +1,5 @@
+![version](https://img.shields.io/badge/version-v3.1.7.2897--develop-blue.svg)
+
 # Coverage
 utPLSQL comes with a built-in coverage reporting engine. The code coverage reporting is based on the DBMS_PROFILER package provided with Oracle database.
 Code coverage is gathered for the following source types:
@@ -230,14 +232,14 @@ C:
       \hr.test_betwnstr.pks
 ``` 
 
-By default, utPLSQL will convert file paths into database objects using the following regular expression `/((\w+)\.)?(\w+)\.(\w{3})$`
+By default, utPLSQL will convert file paths into database objects using the following regular expression `/(((\w|[$#])+)\.)?((\w|[$#])+)\.(\w{3})$`
 - object owner (if it is present) is identified by the expression in the second set of  brackets
-- object name is identified by the expression in the third set of brackets
-- object type is identified by the expression in the fourth set of brackets
+- object name is identified by the expression in the fourth set of brackets
+- object type is identified by the expression in the sixth set of brackets
 
 
 **Note**
-> utPLSQL will replace any '\' with '/' for the purpose of mapping files to objects. The paths shown in the results will remain (contain '\' where it was present).
+> utPLSQL will replace any '\\' with '/' for the purpose of mapping files to objects. The paths shown in the results will remain (contain '\' where it was present).
 > This is done to simplify the syntax of regular expressions. Regular expression will always use '/' as a directory separator on a file path regardless of whether you're on a Windows or Unix system.    
 
 **Note**

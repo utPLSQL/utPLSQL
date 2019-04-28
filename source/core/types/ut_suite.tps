@@ -1,7 +1,7 @@
 create or replace type ut_suite  under ut_logical_suite (
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ create or replace type ut_suite  under ut_logical_suite (
   */
   after_all_list ut_executables,
   constructor function ut_suite (
-    self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2, a_suite_name varchar2 := null
+    self in out nocopy ut_suite, a_object_owner varchar2, a_object_name varchar2, a_line_no integer
   ) return self as result,
   overriding member function do_execute(self in out nocopy ut_suite) return boolean,
   overriding member function get_error_stack_traces(self ut_suite) return ut_varchar2_list,
   overriding member function get_serveroutputs return clob
-)
+) not final
 /

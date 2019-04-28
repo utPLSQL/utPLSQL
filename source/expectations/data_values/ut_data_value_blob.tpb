@@ -1,7 +1,7 @@
 create or replace type body ut_data_value_blob as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2017 utPLSQL Project
+  Copyright 2016 - 2018 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -27,6 +27,15 @@ create or replace type body ut_data_value_blob as
   overriding member function is_null return boolean is
   begin
     return (self.data_value is null);
+  end;
+
+  overriding member function is_empty return boolean is
+    l_result boolean := false;
+  begin
+    if self.data_value is not null and dbms_lob.compare( self.data_value, empty_blob()) = 0 then
+      l_result := true;
+    end if;
+    return l_result;
   end;
 
   overriding member function to_string return varchar2 is
