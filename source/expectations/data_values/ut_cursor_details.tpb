@@ -39,7 +39,9 @@ create or replace type body ut_cursor_details as
           l_idx,
           ut_compound_data_helper.get_column_type_desc(l_elements_info.type_code,false),
           ut_utils.boolean_to_int(l_is_collection),
-          a_access_path
+          a_access_path,
+          l_elements_info.precision,
+          l_elements_info.scale
         );
       if l_element_info.attr_elt_type is not null then
         desc_compound_data(
@@ -63,7 +65,9 @@ create or replace type body ut_cursor_details as
             l_idx,
             ut_compound_data_helper.get_column_type_desc(l_element_info.type_code,false),
             ut_utils.boolean_to_int(l_is_collection),
-            a_access_path
+            a_access_path,
+            l_elements_info.precision,
+            l_elements_info.scale
           );
         if l_element_info.attr_elt_type is not null then
           desc_compound_data(
@@ -114,7 +118,9 @@ create or replace type body ut_cursor_details as
           pos,
           ut_compound_data_helper.get_column_type_desc(l_columns_desc(pos).col_type,true),
           ut_utils.boolean_to_int(l_is_collection),
-          null
+          null,
+          l_columns_desc(pos).col_precision,
+          l_columns_desc(pos).col_scale
         );
 
       if l_columns_desc(pos).col_type = dbms_sql.user_defined_type or l_is_collection then

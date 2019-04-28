@@ -2676,6 +2676,118 @@ Check the query and data for errors.';
    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     
   end;  
+
+
+  procedure insginificant_whitespace1 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select column_value t1 from table(ut_varchar2_list(''));
+	 
+	open l_actual for
+	  select column_value t1 from table(ut_varchar2_list(' '));
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end; 
+
+  procedure insginificant_whitespace2 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select ' t ' t1 from dual;
+	 
+	open l_actual for
+	  select 't' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end; 
+  
+  procedure insginificant_whitespace3 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select 't ' t1 from dual;
+	 
+	open l_actual for
+	  select 't' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end;
+  
+  procedure insginificant_whitespace4 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select ' t' t1 from dual;
+	 
+	open l_actual for
+	  select 't' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end;     
+  
+  procedure insginificant_whitespace5 is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select ' ' t1 from dual;
+	 
+	open l_actual for
+	  select '' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end; 
+  
+  procedure nulltowhitespace is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for
+      select cast(null as varchar2(2)) t1 from dual;
+	 
+	open l_actual for
+	  select ' ' t1 from dual;
+    --Assert
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+	ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
+  end;   
+
+  procedure number_from_dual is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_expected for select 
+      12345 as n1,
+      cast(7456123.89 as number(7,-2)) as n2,
+      cast(7456123.89 as number(9,1)) as n3,
+      cast(7456123.89 as number(9,2)) as n4,
+      cast(7456123.89 as number(9)) as n5,
+      cast(7456123.89 as number(*,1)) as n6,
+      7456123.89 as n7
+    from dual;
+    
+    open l_actual for select 
+      12345 as n1,
+      7456100 as n2,
+      7456123.9 as n3,
+      7456123.89 as n4,
+      7456124 as n5,
+      7456123.9 as n6,
+      7456123.89 as n7
+    from dual;
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+   end;
   
 end;
 /

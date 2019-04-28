@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.7.2851--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.2897--develop-blue.svg)
 
 # Running tests
 
