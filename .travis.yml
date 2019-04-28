@@ -56,6 +56,7 @@ env:
     - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2-small}"  CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
     - ORACLE_VERSION="${DOCKER_TAG_12C2:-12c-r2-se2-small}" CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
     - ORACLE_VERSION="${DOCKER_TAG_18:-18c-se2-small}"      CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
+    - ORACLE_VERSION="${DOCKER_TAG_19:-19c-se2-small}"      CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
 
 cache:
   pip: true
