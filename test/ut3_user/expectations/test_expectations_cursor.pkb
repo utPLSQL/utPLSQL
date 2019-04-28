@@ -2802,6 +2802,8 @@ Check the query and data for errors.';
     l_expected_data(1).col4 :=  2016;
     l_expected_data(1).col5 :=  -1;
 
+    --Select on package level nested table types supported only since Oracle 12
+    $if dbms_db_version.version >= 12 $then
     open l_expected for
       select *
         from table (l_expected_data);
@@ -2826,6 +2828,7 @@ Check the query and data for errors.';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
 
     ut.expect(l_actual_message).to_be_like(l_expected_message);
+    $end
   end;
 
 end;
