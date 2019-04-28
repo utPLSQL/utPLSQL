@@ -43,7 +43,6 @@ create or replace package test_ut_runner is
   procedure setup_cache_objects;
   procedure setup_cache_objectstag;
   procedure setup_cache_twotags;
-  procedure setup_cache_longtags;
 
   --%test(Rebuilds cache for a given schema and object type)
   --%beforetest(setup_cache_objects)
@@ -64,16 +63,6 @@ create or replace package test_ut_runner is
   --%beforetest(setup_cache_twotags)
   --%aftertest(cleanup_cache)
   procedure test_get_suites_info_twotag;  
-
-  /*** 
-  * This test at the moment is not possible to correctly run due to limit of to_string when
-  * displaying a diff message returnign max 4k char. 
-  */
-  --%test(get_suites_info returns a cursor containing records for a newly created test with long tag)
-  --%beforetest(setup_cache_longtags)
-  --%aftertest(cleanup_cache)
-  --%disabled
-  procedure test_get_suites_info_longtag;
 
   --%test(get_reporters_list returns a cursor containing all built-in reporters and information about output-reporter)
   --%beforetest(setup_cache_objects)

@@ -8,7 +8,6 @@ create or replace package run_helper is
   procedure setup_cache_objects;
   procedure setup_cache_objectstag;
   procedure setup_cache_twotags;
-  procedure setup_cache_longtags;
   procedure setup_cache;
   procedure cleanup_cache;
   procedure create_db_link;
