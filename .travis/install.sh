@@ -10,7 +10,7 @@ set verify off
 
 --alter session set plsql_warnings = 'ENABLE:ALL', 'DISABLE:(5004,5018,6000,6001,6003,6009,6010,7206)';
 alter session set plsql_optimize_level=0;
-@install_headless.sql $UT3_OWNER $UT3_OWNER_PASSWORD
+@install_headless_with_trigger.sql $UT3_OWNER $UT3_OWNER_PASSWORD
 SQL
 
 #Run this step only on second child job (12.1 - at it's fastest)
@@ -92,5 +92,7 @@ set feedback on
 --Needed for testing coverage outside of main UT3 schema.
 grant create any procedure, drop any procedure, execute any procedure, create any type, drop any type, execute any type, under any type, select any table, update any table, insert any table, delete any table, create any table, drop any table, alter any table, select any dictionary, create any synonym, drop any synonym to $UT3_TESTER_HELPER;
 grant create job to $UT3_TESTER_HELPER;
+--Needed to allow for enable/disable of annotation triggers
+grant administer database trigger to $UT3_TESTER_HELPER;
 exit
 SQL
