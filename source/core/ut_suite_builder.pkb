@@ -16,6 +16,11 @@ create or replace package body ut_suite_builder is
   limitations under the License.
   */
 
+  /** 
+  * Regexp to validate tag
+  */
+  gc_word_no_space              constant varchar2(50) := '^(\w|\S)+$';
+  
   subtype t_annotation_text     is varchar2(4000);
   subtype t_annotation_name     is varchar2(4000);
   subtype t_object_name         is varchar2(500);
@@ -329,7 +334,7 @@ create or replace package body ut_suite_builder is
           );
       end if;
       --remove empty strings from table list e.g. tag1,,tag2 and conver to rows        
-      a_list := ut_utils.convert_collection( ut_utils.filter_list(l_tag_list,'^(\w|\S)+$') ); 
+      a_list := ut_utils.convert_collection( ut_utils.filter_list(l_tag_list,gc_word_no_space) ); 
       l_annotation_pos := a_tags_ann_text.next(l_annotation_pos);
     end loop;
     
@@ -641,7 +646,7 @@ create or replace package body ut_suite_builder is
       l_annotation_pos := a_tags_ann_text.next(l_annotation_pos);
     end loop;
     --remove empty strings from table list e.g. tag1,,tag2
-    a_suite.tags := ut_utils.convert_collection(ut_utils.filter_list(l_tag_list,'^(\w|\S)+$'));    
+    a_suite.tags := ut_utils.convert_collection(ut_utils.filter_list(l_tag_list,gc_word_no_space));    
   end;
   
   procedure add_suite_tests(
