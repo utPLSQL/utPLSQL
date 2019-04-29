@@ -17,7 +17,7 @@ create or replace package body ut_suite_manager is
   */
 
   gc_suitpath_error_message constant varchar2(100) := 'Suitepath exceeds 1000 CHAR on: ';
-  gc_tag_errmsg             constant number := 450;
+  gc_tag_errmsg             constant integer       := 450;
 
   type t_path_item is record (
     object_name    varchar2(250),
@@ -687,35 +687,6 @@ create or replace package body ut_suite_manager is
     return l_suites;
   end;
 
-  function build_no_test_error_msg(
-    a_schema_name in varchar2,
-    a_suite_path in varchar2,
-    a_procedure_name in varchar2,
-    a_object_name in varchar2,
-    a_tags in ut_varchar2_rows := ut_varchar2_rows()  
-    ) return varchar2 is
-    l_error_msg varchar2(500);
-    l_tags clob:= ut_utils.table_to_clob(coalesce(a_tags,ut_varchar2_rows()),',');
-  begin
-    if a_suite_path is not null then 
-      l_error_msg := 'No suite packages found for path '||a_schema_name||':'||a_suite_path;
-    elsif a_procedure_name is not null then 
-      l_error_msg := 'Suite test '||a_schema_name||'.'||a_object_name|| '.'||a_procedure_name||' does not exists';
-    elsif a_object_name is not null then
-      l_error_msg := 'Suite package '||a_schema_name||'.'||a_object_name|| ' does not exists';
-    end if;
-    
-    if l_error_msg is null and a_tags.count > 0 then
-      l_error_msg := 'No tests found for tags: '||ut_utils.to_string(l_tags,a_max_output_len => gc_tag_errmsg);
-    elsif l_error_msg is not null and a_tags.count > 0 then
-      l_error_msg := l_error_msg||' with tags: '||ut_utils.to_string(l_tags,a_max_output_len => gc_tag_errmsg);
-    end if;
-    
-    l_error_msg := l_error_msg ||'.';
-    
-    return l_error_msg;
-  end;
-
   procedure configure_execution_by_path(
     a_paths in ut_varchar2_list,
     a_suites out nocopy ut_suite_items,
@@ -751,9 +722,13 @@ create or replace package body ut_suite_manager is
             a_tags
           );
         if a_suites.count = l_suites_count then
-          raise_application_error(ut_utils.gc_suite_package_not_found,build_no_test_error_msg(
-            l_schema,l_path_item.suite_path,l_path_item.procedure_name,
-            l_path_item.object_name,a_tags));
+          if l_path_item.suite_path is not null then
+            raise_application_error(ut_utils.gc_suite_package_not_found,'No suite packages found for path '||l_schema||':'||l_path_item.suite_path|| '.');
+          elsif l_path_item.procedure_name is not null then
+            raise_application_error(ut_utils.gc_suite_package_not_found,'Suite test '||l_schema||'.'||l_path_item.object_name|| '.'||l_path_item.procedure_name||' does not exist');
+          elsif l_path_item.object_name is not null then
+            raise_application_error(ut_utils.gc_suite_package_not_found,'Suite package '||l_schema||'.'||l_path_item.object_name|| ' does not exist');
+          end if;
         end if;
         l_index := a_suites.first;
         l_suites_count := a_suites.count;

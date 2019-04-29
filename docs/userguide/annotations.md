@@ -1250,40 +1250,40 @@ When a suite gets tagged all of its children will automatically inherit a tag an
 Sample tag package.
 
 ```sql
-create or replace PACKAGE ut_sample_test IS
+create or replace package ut_sample_test IS
 
    --%suite(Sample Test Suite)
    --%tag(suite1)
 
    --%test(Compare Ref Cursors)
    --%tag(test1,sample)
-   PROCEDURE ut_refcursors1;
+   procedure ut_refcursors1;
 
    --%test(Run equality test)
    --%tag(test2,sample)
-   PROCEDURE ut_test;
+   procedure ut_test;
    
-END ut_sample_test;
+end ut_sample_test;
 /
 
-create or replace PACKAGE BODY ut_sample_test IS
+create or replace package body ut_sample_test is
 
-   PROCEDURE ut_refcursors1 IS
-      v_actual   SYS_REFCURSOR;
-      v_expected SYS_REFCURSOR;
-   BEGIN
+   procedure ut_refcursors1 is
+      v_actual   sys_refcursor;
+      v_expected sys_refcursor;
+   begin
     open v_expected for select 1 as test from dual;
     open v_actual   for select 2 as test from dual;
 
       ut.expect(v_actual).to_equal(v_expected);
-   END;
+   end;
    
-   PROCEDURE ut_test IS
-   BEGIN
+   procedure ut_test is
+   begin
        ut.expect(1).to_equal(0);
-   END;
+   end;
    
-END ut_sample_test;
+end ut_sample_test;
 /
 ```
 

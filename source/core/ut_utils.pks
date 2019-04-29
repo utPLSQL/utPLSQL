@@ -131,6 +131,11 @@ create or replace package ut_utils authid definer is
   gc_bc_fetch_limit           constant integer := 1000;
   gc_diff_max_rows            constant integer := 20;
 
+  /** 
+  * Regexp to validate tag
+  */
+  gc_word_no_space              constant varchar2(50) := '^(\w|\S)+$';
+
   type t_version is record(
     major  natural,
     minor  natural,

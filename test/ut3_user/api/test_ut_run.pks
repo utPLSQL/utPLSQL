@@ -198,9 +198,6 @@ create or replace package test_ut_run is
   --%test(Execute suite test for duplicate list tags)
   procedure suite_duplicate_tag;   
 
-  --%test(Run a package by name with non existing tag)
-  procedure run_proc_pkg_name_no_tag;
-
   --%test(Runs given package only with package name given as path and filter by tag)
   procedure run_proc_pkg_name_tag;
   

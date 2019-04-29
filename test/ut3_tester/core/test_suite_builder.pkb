@@ -1296,7 +1296,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS><VARCHAR2>&quot;--%tags&quot; annotation requires a tag value populated. Annotation ignored, line 3</VARCHAR2></WARNINGS>%'||
+        '%<WARNINGS><VARCHAR2>&quot;--%tags&quot; annotation requires a tag value populated. Annotation ignored.%</VARCHAR2></WARNINGS>%'||
         '%<TAGS/>%'
     );
  

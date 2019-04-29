@@ -270,7 +270,6 @@ end;';
     ut.expect(l_actual).to_equal(l_expected);
   end;
 
-  --TODO : Apostro?????
   procedure test_get_suites_info_tag is
     l_expected sys_refcursor;
     l_actual   sys_refcursor;

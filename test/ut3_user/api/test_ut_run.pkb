@@ -875,14 +875,11 @@ Failures:%
     l_results clob;
     l_exp_message varchar2(4000);
   begin
-    l_exp_message :=q'[ORA-20204: No tests found for tags: 'nonexisting'.]';
     ut3_tester_helper.run_helper.run(a_tags => 'nonexisting');
     l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
-    ut.fail('Expecte test to fail');
-    --Assert
-  exception
-    when others then
-    ut.expect( sqlerrm ).to_be_like( l_exp_message );
+    ut.expect( l_results ).not_to_be_like( '%test_package_1%' );
+    ut.expect( l_results ).not_to_be_like( '%test_package_2%' );
+    ut.expect( l_results ).not_to_be_like( '%test_package_3%' ); 
   end; 
   
   procedure test_duplicate_tag is
@@ -906,19 +903,6 @@ Failures:%
     ut.expect( l_results ).to_be_like( '%test_package_2%' );
     ut.expect( l_results ).not_to_be_like( '%test_package_3%' ); 
   end;  
- 
-  procedure run_proc_pkg_name_no_tag is
-    l_results clob;
-    l_exp_message varchar2(4000);
-  begin
-    l_exp_message :=q'[ORA-20204: Suite package ut3_tester_helper.test_package_1 does not exists with tags: 'nonexists'.]';
-    ut3.ut.run('ut3_tester_helper.test_package_1',a_tags => 'nonexists');
-    l_results :=  ut3_tester_helper.main_helper.get_dbms_output_as_clob();
-        ut.fail('Expecte test to fail');
-  exception
-    when others then
-    ut.expect( sqlerrm ).to_be_like( l_exp_message );
-  end; 
   
   procedure run_proc_pkg_name_tag is
     l_results clob;

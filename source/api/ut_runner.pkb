@@ -143,7 +143,7 @@ create or replace package body ut_runner is
        
       if a_tags is not null then
         l_tags := l_tags multiset union distinct ut_utils.convert_collection( 
-          ut_utils.filter_list(ut_utils.string_to_table(a_tags,','),'^(\w|\S)+$')
+          ut_utils.trim_list_elements(ut_utils.filter_list(ut_utils.string_to_table(a_tags,','),ut_utils.gc_word_no_space))
         );
       end if;
       l_exclude_object_names := l_exclude_object_names multiset union all ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names);

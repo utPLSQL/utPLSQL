@@ -15,11 +15,6 @@ create or replace package body ut_suite_builder is
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-
-  /** 
-  * Regexp to validate tag
-  */
-  gc_word_no_space              constant varchar2(50) := '^(\w|\S)+$';
   
   subtype t_annotation_text     is varchar2(4000);
   subtype t_annotation_name     is varchar2(4000);
@@ -311,13 +306,13 @@ create or replace package body ut_suite_builder is
       l_annotation_pos := a_throws_ann_text.next(l_annotation_pos);
     end loop;
   end;
-
-  procedure add_tags_to_test(
+  
+  procedure add_tags_to_suite_item(
     a_suite           in out nocopy ut_suite,
+    a_tags_ann_text   tt_annotation_texts,
     a_list            in out nocopy ut_varchar2_rows,
-    a_procedure_name  t_object_name,
-    a_tags_ann_text tt_annotation_texts
-  ) is
+    a_procedure_name  t_object_name := null
+  ) is 
     l_annotation_pos binary_integer;
     l_tag_list ut_varchar2_list := ut_varchar2_list();
   begin
@@ -333,14 +328,12 @@ create or replace package body ut_suite_builder is
           ut_utils.string_to_table(a_tags_ann_text(l_annotation_pos),',')
           );
       end if;
-      --remove empty strings from table list e.g. tag1,,tag2 and conver to rows        
-      a_list := ut_utils.convert_collection( ut_utils.filter_list(l_tag_list,gc_word_no_space) ); 
       l_annotation_pos := a_tags_ann_text.next(l_annotation_pos);
     end loop;
-    
+    --remove empty strings from table list e.g. tag1,,tag2 and conver to rows        
+    a_list := ut_utils.convert_collection( ut_utils.filter_list(l_tag_list,ut_utils.gc_word_no_space) ); 
   end;
-
-
+  
   procedure set_seq_no(
     a_list in out nocopy ut_executables
   ) is
@@ -521,7 +514,7 @@ create or replace package body ut_suite_builder is
     end if;
    
     if l_proc_annotations.exists( gc_tag) then
-      add_tags_to_test(a_suite, l_test.tags, a_procedure_name, l_proc_annotations( gc_tag));
+      add_tags_to_suite_item(a_suite, l_proc_annotations( gc_tag), l_test.tags, a_procedure_name);
     end if;
     
     if l_proc_annotations.exists( gc_throws) then
@@ -625,30 +618,6 @@ create or replace package body ut_suite_builder is
     a_suite.path := lower(coalesce(a_suite.path, a_suite.object_name));
   end;
 
-  procedure add_tags_to_suite(
-    a_suite           in out nocopy ut_suite,
-    a_tags_ann_text tt_annotation_texts
-  ) is
-    l_annotation_pos binary_integer;
-    l_tag_list ut_varchar2_list := ut_varchar2_list();
-  begin
-    l_annotation_pos := a_tags_ann_text.first;
-    while l_annotation_pos is not null loop
-      if a_tags_ann_text(l_annotation_pos) is null then
-        a_suite.put_warning(
-            '"--%tags" annotation requires a tag value populated. Annotation ignored, line ' || l_annotation_pos
-        );
-      else
-        l_tag_list := l_tag_list multiset union distinct ut_utils.trim_list_elements(
-          ut_utils.string_to_table(a_tags_ann_text(l_annotation_pos),',')
-          );
-      end if;
-      l_annotation_pos := a_tags_ann_text.next(l_annotation_pos);
-    end loop;
-    --remove empty strings from table list e.g. tag1,,tag2
-    a_suite.tags := ut_utils.convert_collection(ut_utils.filter_list(l_tag_list,gc_word_no_space));    
-  end;
-  
   procedure add_suite_tests(
     a_suite              in out nocopy ut_suite,
     a_annotations        t_annotations_info,
@@ -699,7 +668,7 @@ create or replace package body ut_suite_builder is
     end if;
    
     if a_annotations.by_name.exists(gc_tag) then
-      add_tags_to_suite(a_suite, a_annotations.by_name(gc_tag));
+      add_tags_to_suite_item(a_suite, a_annotations.by_name(gc_tag),a_suite.tags);
     end if;
     a_suite.disabled_flag := ut_utils.boolean_to_int(a_annotations.by_name.exists(gc_disabled));
 
