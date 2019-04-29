@@ -19,6 +19,70 @@ create or replace package body ut_suite_manager is
   gc_suitpath_error_message constant varchar2(100) := 'Suitepath exceeds 1000 CHAR on: ';
   gc_tag_errmsg             constant integer       := 450;
 
+  gc_get_cache_suite_sql    constant varchar2(32767) :=
+    q'[with
+      suite_items as (
+        select  /*+ cardinality(c 100) */ c.*
+         from {:owner:}.ut_suite_cache c
+         where 1 = 1 {:object_list:}
+               and c.object_owner = '{:object_owner:}'
+               and ( {:path:} 
+                     and {:object_name:}
+                     and {:procedure_name:}
+                   )
+        )
+      ),
+      {:tags:},
+      suitepaths as (
+        select distinct substr(path,1,instr(path,'.',-1)-1) as suitepath,
+                        path,
+                        object_owner
+          from {:suite_item_name:}
+         where self_type = 'UT_SUITE'
+      ),
+        gen as (
+        select rownum as pos
+          from xmltable('1 to 20')
+      ),
+      suitepath_part AS (
+        select distinct
+                        substr(b.suitepath, 1, instr(b.suitepath || '.', '.', 1, g.pos) -1) as path,
+                        object_owner
+          from suitepaths b
+               join gen g
+                 on g.pos <= regexp_count(b.suitepath, '\w+')
+      ),
+      logical_suite_data as (
+        select 'UT_LOGICAL_SUITE' as self_type, p.path, p.object_owner,
+               upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name,
+               cast(null as {:owner:}.ut_executables) as x,
+               cast(null as {:owner:}.ut_integer_list) as y,
+               cast(null as {:owner:}.ut_executable_test) as z
+          from suitepath_part p
+         where p.path
+           not in (select s.path from suitepaths s)
+      ),
+      logical_suites as (
+        select to_number(null) as id, s.self_type, s.path, s.object_owner, s.object_name,
+               s.object_name as name, null as line_no, null as parse_time,
+               null as description, null as rollback_type, 0 as disabled_flag,
+               {:owner:}.ut_varchar2_rows() as warnings,
+               s.x as before_all_list, s.x as after_all_list,
+               s.x as before_each_list, s.x as before_test_list,
+               s.x as after_each_list, s.x as after_test_list,
+               s.y as expected_error_codes, null as test_tags,
+               s.z as item
+          from logical_suite_data s
+      ),
+      items as (
+        select * from {:suite_item_name:} 
+        union all
+        select * from logical_suites
+      )
+    select c.*
+      from items c
+     order by c.object_owner,{:random_seed:}]';
+
   type t_path_item is record (
     object_name    varchar2(250),
     procedure_name varchar2(250),
@@ -330,7 +394,7 @@ create or replace package body ut_suite_manager is
     end loop;
     close a_suite_data_cursor;
   end reconstruct_from_cache;
-
+    
   function get_missing_objects(a_object_owner varchar2) return ut_varchar2_rows is
     l_rows         sys_refcursor;
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
@@ -356,6 +420,83 @@ create or replace package body ut_suite_manager is
     return l_result;
   end;
 
+  function get_object_names_sql(a_skip_all_objects boolean ) return varchar2 is
+  begin
+    return case when not a_skip_all_objects then q'[
+               and exists
+                   ( select 1
+                       from all_objects a
+                      where a.object_name = c.object_name
+                        and a.owner       = '{:object_owner:}'
+                        and a.owner       = c.object_owner
+                        and a.object_type = 'PACKAGE'
+                   )]' else null end;
+  end;
+  
+  function get_path_sql(a_path in varchar2) return varchar2 is
+  begin
+    return case when a_path is not null then q'[
+                      :l_path||'.' like c.path || '.%' /*all children and self*/
+                     or ( c.path||'.' like :l_path || '.%'  --all parents
+                            ]'
+                           else ' :l_path is null  and ( :l_path is null ' end;
+  end;
+ 
+  function get_object_name_sql(a_object_name in varchar2) return varchar2 is
+  begin
+    return case when a_object_name is not null
+      then ' c.object_name = :a_object_name '
+         else ' :a_object_name is null' end;
+  end;
+  
+  function get_procedure_name_sql(a_procedure_name in varchar2) return varchar2 is
+  begin
+    return case when a_procedure_name is not null
+      then ' c.name = :a_procedure_name'
+      else ' :a_procedure_name is null' end;
+  end;
+  
+  function get_tags_sql(a_tags_count in integer) return varchar2 is
+  begin
+  return case when a_tags_count > 0 then
+      q'[filter_tags as (
+        select c.*
+        from suite_items c
+        where c.tags multiset intersect :a_tag_list is not empty
+      ),
+       suite_items_tags as (
+       select c.* from suite_items c
+       where exists (select 1 from filter_tags t where 
+          t.path||'.' like c.path || '.%' /*all children and self*/
+          or c.path||'.' like t.path || '.%'  --all parents
+          )
+       )]'
+       else
+       q'[dummy as (select 'x' from dual where :a_tag_list is null )]'
+       end;
+  end;
+  
+  function get_random_seed_sql(a_random_seed positive) return varchar2 is
+  begin
+    return case
+            when a_random_seed is null then q'[
+              replace(
+                case
+                  when c.self_type in ( 'UT_TEST' )
+                    then substr(c.path, 1, instr(c.path, '.', -1) )
+                    else c.path
+                end, '.', chr(0)
+              ) desc nulls last,
+              c.object_name desc,
+              c.line_no,
+              :a_random_seed]'
+            else
+              ' {:owner:}.ut_annotation_manager.hash_suite_path(
+                c.path, :a_random_seed
+              ) desc nulls last'
+              end;
+  end;
+  
   function get_cached_suite_data(
     a_object_owner     varchar2,
     a_path             varchar2 := null,
@@ -384,118 +525,17 @@ create or replace package body ut_suite_manager is
     end if;
     l_suite_item_name := case when l_tags.count > 0 then 'suite_items_tags' else 'suite_items' end;
     
-    l_sql :=
-    q'[with
-      suite_items as (
-        select  /*+ cardinality(c 100) */ c.*
-         from ]'||l_ut_owner||q'[.ut_suite_cache c
-         where 1 = 1 ]'||case when not a_skip_all_objects then q'[
-               and exists
-                   ( select 1
-                       from all_objects a
-                      where a.object_name = c.object_name
-                        and a.owner       = ']'||upper(a_object_owner)||q'['
-                        and a.owner       = c.object_owner
-                        and a.object_type = 'PACKAGE'
-                   )]' end ||q'[
-               and c.object_owner = ']'||upper(a_object_owner)||q'['
-               and ( ]' || case when l_path is not null then q'[
-                      :l_path||'.' like c.path || '.%' /*all children and self*/
-                     or ( c.path||'.' like :l_path || '.%'  --all parents
-                            ]'
-                           else ' :l_path is null  and ( :l_path is null ' end
-      || case when a_object_name is not null
-      then 'and c.object_name = :a_object_name '
-         else 'and :a_object_name is null' end ||'
-                            '|| case when a_procedure_name is not null
-      then 'and c.name = :a_procedure_name'
-                                else 'and :a_procedure_name is null' end ||q'[
-                        )
-                   )
-      ),]'
-      ||case when l_tags.count > 0 then
-      q'[ 
-      filter_tags as (
-        select c.*
-        from suite_items c
-        where c.tags multiset intersect :a_tag_list is not empty
-      ),
-       suite_items_tags as (
-       select c.* from suite_items c
-       where exists (select 1 from filter_tags t where 
-          t.path||'.' like c.path || '.%' /*all children and self*/
-          or c.path||'.' like t.path || '.%'  --all parents
-          )
-       ),]'
-       else
-       q'[dummy as (select 'x' from dual where :a_tag_list is null ),]'
-       end||
-      q'[ suitepaths as (
-        select distinct substr(path,1,instr(path,'.',-1)-1) as suitepath,
-                        path,
-                        object_owner
-          from ]'||l_suite_item_name||q'[
-         where self_type = 'UT_SUITE'
-      ),
-        gen as (
-        select rownum as pos
-          from xmltable('1 to 20')
-      ),
-      suitepath_part AS (
-        select distinct
-                        substr(b.suitepath, 1, instr(b.suitepath || '.', '.', 1, g.pos) -1) as path,
-                        object_owner
-          from suitepaths b
-               join gen g
-                 on g.pos <= regexp_count(b.suitepath, '\w+')
-      ),
-      logical_suite_data as (
-        select 'UT_LOGICAL_SUITE' as self_type, p.path, p.object_owner,
-               upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name,
-               cast(null as ]'||l_ut_owner||q'[.ut_executables) as x,
-               cast(null as ]'||l_ut_owner||q'[.ut_integer_list) as y,
-               cast(null as ]'||l_ut_owner||q'[.ut_executable_test) as z
-          from suitepath_part p
-         where p.path
-           not in (select s.path from suitepaths s)
-      ),
-      logical_suites as (
-        select to_number(null) as id, s.self_type, s.path, s.object_owner, s.object_name,
-               s.object_name as name, null as line_no, null as parse_time,
-               null as description, null as rollback_type, 0 as disabled_flag,
-               ]'||l_ut_owner||q'[.ut_varchar2_rows() as warnings,
-               s.x as before_all_list, s.x as after_all_list,
-               s.x as before_each_list, s.x as before_test_list,
-               s.x as after_each_list, s.x as after_test_list,
-               s.y as expected_error_codes, null as test_tags,
-               s.z as item
-          from logical_suite_data s
-      ),
-      items as (
-        select * from ]'||l_suite_item_name||q'[ 
-        union all
-        select * from logical_suites
-      )
-    select c.*
-      from items c
-     order by c.object_owner,]'||
-          case
-            when a_random_seed is null then q'[
-              replace(
-                case
-                  when c.self_type in ( 'UT_TEST' )
-                    then substr(c.path, 1, instr(c.path, '.', -1) )
-                    else c.path
-                end, '.', chr(0)
-              ) desc nulls last,
-              c.object_name desc,
-              c.line_no,
-              :a_random_seed]'
-            else
-              l_ut_owner||'.ut_annotation_manager.hash_suite_path(
-                c.path, :a_random_seed
-              ) desc nulls last'
-          end;   
+    l_sql := gc_get_cache_suite_sql;
+    l_sql := replace(l_sql,'{:suite_item_name:}',l_suite_item_name);
+    l_sql := replace(l_sql,'{:object_list:}',get_object_names_sql(a_skip_all_objects));
+    l_sql := replace(l_sql,'{:object_owner:}',upper(a_object_owner));
+    l_sql := replace(l_sql,'{:path:}',get_path_sql(l_path));
+    l_sql := replace(l_sql,'{:object_name:}',get_object_name_sql(a_object_name));
+    l_sql := replace(l_sql,'{:procedure_name:}',get_procedure_name_sql(a_procedure_name));
+    l_sql := replace(l_sql,'{:tags:}',get_tags_sql(l_tags.count));    
+    l_sql := replace(l_sql,'{:random_seed:}',get_random_seed_sql(a_random_seed)); 
+    l_sql := replace(l_sql,'{:owner:}',l_ut_owner);
+    
     open l_result for l_sql using l_path, l_path, upper(a_object_name), upper(a_procedure_name), l_tags, a_random_seed;
     return l_result;
   end;
