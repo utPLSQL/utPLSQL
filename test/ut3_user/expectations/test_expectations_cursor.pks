@@ -459,5 +459,8 @@ create or replace package test_expectations_cursor is
 
   type t_num_tab is table of t_num_rec index by binary_integer;
 
+  --%test( Mixed column order exclusion  )
+  procedure uc_columns_exclude;
+
 end;
 /
