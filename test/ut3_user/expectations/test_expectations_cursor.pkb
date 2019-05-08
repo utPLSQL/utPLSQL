@@ -2842,5 +2842,6 @@ Check the query and data for errors.';
 
     ut3.ut.expect(v_actual).to_equal(v_expected).exclude('ID');
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
 end;
 /
