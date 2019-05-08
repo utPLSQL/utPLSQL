@@ -204,7 +204,9 @@ create or replace type body ut_cursor_details as
         row_number() over (partition by parent_name,transformed_name order by column_position) as new_position, xml_valid_name,
         column_name, column_type, column_type_name, column_schema,
         column_len, column_precision ,column_scale ,is_sql_diffable, is_collection,value(x) col_info
-      from table(l_result.cursor_columns_info) x) loop
+      from table(l_result.cursor_columns_info) x
+	  order by x.column_position asc
+	  ) loop
         l_column := i.col_info;
         l_column.column_position := i.new_position;
         l_column_tab.extend;
