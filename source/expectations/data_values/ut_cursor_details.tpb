@@ -201,7 +201,7 @@ create or replace type body ut_cursor_details as
       for i in (
       select parent_name, access_path, display_path, has_nested_col,
         transformed_name, hierarchy_level, 
-        row_number() over (order by column_position) as new_position, xml_valid_name,
+        rownum as new_position, xml_valid_name,
         column_name, column_type, column_type_name, column_schema,
         column_len, column_precision ,column_scale ,is_sql_diffable, is_collection,value(x) col_info
       from table(l_result.cursor_columns_info) x
