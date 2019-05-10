@@ -47,7 +47,7 @@ create or replace package body test_output_buffer is
   end;
   
   
-  procedure test_doesnt_send_multiline_on_null_text is
+  procedure test_doesnt_send_on_null_elem is
     l_cur    sys_refcursor;
     l_result integer;
     l_buffer ut3.ut_output_buffer_base := ut3.ut_output_table_buffer();

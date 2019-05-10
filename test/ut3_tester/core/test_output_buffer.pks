@@ -10,7 +10,7 @@ create or replace package test_output_buffer is
   procedure test_doesnt_send_on_null_text;
   
   --%test(Does not send line if null text given for multiline case)
-  procedure test_doesnt_send_multiline_on_null_text;
+  procedure test_doesnt_send_on_null_elem;
   
   --%test(Sends a line into buffer table)
   procedure test_send_line;
