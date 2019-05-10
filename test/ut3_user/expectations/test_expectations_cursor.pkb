@@ -2831,5 +2831,17 @@ Check the query and data for errors.';
     $end
   end;
 
+  procedure uc_columns_exclude is
+    v_actual   SYS_REFCURSOR;
+    v_expected SYS_REFCURSOR;
+  begin
+    open v_expected for
+    select to_Char(null) id, 'ok' name from dual;
+    open v_actual for
+    select 'ok' name, to_number(null) id from dual;
+
+    ut3.ut.expect(v_actual).to_equal(v_expected).exclude('ID');
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
 end;
 /
