@@ -66,7 +66,7 @@ create or replace type body ut_output_clob_table_buffer is
     select self.output_id, self.last_message_id + rownum, t.column_value, a_item_type
       from table(a_text_list) t
      where t.column_value is not null or a_item_type is not null;
-    self.last_message_id := self.last_message_id + a_text_list.count;
+    self.last_message_id := self.last_message_id + SQL%rowcount;
     commit;
   end;
 
