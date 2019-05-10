@@ -56,8 +56,8 @@ create or replace package body test_output_buffer is
   begin
     ut3_tester_helper.run_helper.delete_buffer();
     --Act
-    l_buffer.send_lines(ut_varchar2_rows(null));
-    l_buffer.send_lines(ut_varchar2_rows('test'));
+    l_buffer.send_lines(ut3.ut_varchar2_rows(null));
+    l_buffer.send_lines(ut3.ut_varchar2_rows('test'));
 
     select message_id, text into l_message_id, l_text from table(ut3_tester_helper.run_helper.ut_output_buffer_tmp);
     ut.expect(l_message_id).to_equal('1');
