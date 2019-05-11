@@ -39,7 +39,7 @@ create or replace type body ut_coverage_cobertura_reporter is
       l_line_no := a_unit_coverage.lines.first;
       if l_line_no is null then
         for i in 1 .. a_unit_coverage.total_lines loop
-          ut_utils.append_to_clob(l_result, '<line number="'||i||'" hits="0" branch="false"/>');
+          ut_utils.append_to_clob(l_result, '<line number="'||i||'" hits="0" branch="false"/>'||chr(10));
         end loop;
       else
         while l_line_no is not null loop
