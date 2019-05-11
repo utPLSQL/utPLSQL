@@ -387,5 +387,10 @@ create or replace package ut_utils authid definer is
   */
   function get_valid_xml_name(a_name varchar2) return varchar2;
   
+  /**
+  * Add prefix word to elements of list
+  */
+  function add_prefix(a_list ut_varchar2_list, a_prefix varchar2, a_connector varchar2 := '/') return ut_varchar2_list;
+  
 end ut_utils;
 /

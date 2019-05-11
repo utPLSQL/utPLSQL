@@ -95,6 +95,7 @@ create or replace type body ut_data_value_refcursor as
           extract_cursor(l_cursor);
           l_cursor_number  := dbms_sql.to_cursor_number(l_cursor);
           self.cursor_details  := ut_cursor_details(l_cursor_number);
+          self.cursor_details.has_anydata(false);
           dbms_sql.close_cursor(l_cursor_number);         
         elsif not l_cursor%isopen then
           raise cursor_not_open;
@@ -250,8 +251,14 @@ create or replace type body ut_data_value_refcursor as
       if l_diff_row_count > 0  then
         l_row_diffs := ut_compound_data_helper.get_rows_diff_by_sql(
           l_self_cols, l_other_cols, l_self.data_id, l_other.data_id,
-          l_diff_id, a_match_options.join_by.items, a_match_options.unordered,
-          a_match_options.ordered_columns(), self.extract_path
+          l_diff_id, 
+          case 
+          when 
+            l_self.cursor_details.is_anydata = 1 then ut_utils.add_prefix(a_match_options.join_by.items, l_self.cursor_details.get_root) 
+          else 
+            a_match_options.join_by.items 
+          end, 
+          a_match_options.unordered,a_match_options.ordered_columns(), self.extract_path
         );
         l_message := chr(10)
                      ||'Rows: [ ' || l_diff_row_count ||' differences'
@@ -359,17 +366,18 @@ create or replace type body ut_data_value_refcursor as
     l_other := treat(a_other as ut_data_value_refcursor);
     l_other.cursor_details.filter_columns( a_match_options );
     l_self.cursor_details.filter_columns( a_match_options );
-
+     
     if a_match_options.join_by.items.count > 0 then
       l_result :=
         l_self.cursor_details.get_missing_join_by_columns( a_match_options.join_by.items ).count
         + l_other.cursor_details.get_missing_join_by_columns( a_match_options.join_by.items ).count;
     end if;
-
+        
     if l_result = 0 then
       if not l_self.is_null() and not l_other.is_null() and not l_self.cursor_details.equals( l_other.cursor_details, a_match_options ) then
         l_result := 1;
       end if;
+            
       l_diff_cursor_text := ut_compound_data_helper.gen_compare_sql(
         l_other,
         a_match_options.join_by.items,

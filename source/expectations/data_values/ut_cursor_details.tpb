@@ -146,13 +146,25 @@ create or replace type body ut_cursor_details as
 
   member function get_missing_join_by_columns( a_expected_columns ut_varchar2_list ) return ut_varchar2_list is
     l_result ut_varchar2_list;
+    l_prefix            varchar2(125);
   begin
+      if self.is_anydata = 1 then
+        l_prefix := get_root;
+      end if;
+    --regexp_replace(c.access_path,'^\/?([^\/]+\/){1}')
     select fl.column_value
       bulk collect into l_result
       from table(a_expected_columns) fl
      where not exists (
        select 1 from table(self.cursor_columns_info) c
-        where regexp_like(c.access_path, '^'||fl.column_value||'($|/.*)')
+        where regexp_like(c.access_path,'^/?'||
+        case 
+          when self.is_anydata = 1 then
+            l_prefix||'/'||trim (leading '/' from fl.column_value)
+          else
+            fl.column_value
+          end||'($|/.*)'
+        )
        )
      order by fl.column_value;
     return l_result;
@@ -162,9 +174,14 @@ create or replace type body ut_cursor_details as
     l_result            ut_cursor_details := self;
     l_column_tab        ut_cursor_column_tab := ut_cursor_column_tab();
     l_column            ut_cursor_column;
+    l_prefix            varchar2(125);
     c_xpath_extract_reg constant varchar2(50) := '^((/ROW/)|^(//)|^(/\*/))?(.*)';
   begin
     if l_result.cursor_columns_info is not null then
+      
+      if self.is_anydata = 1 then
+        l_prefix := get_root;
+      end if;
 
       --limit columns to those on the include items minus exclude items
       if a_match_options.include.items.count > 0 then
@@ -181,8 +198,16 @@ create or replace type body ut_cursor_details as
                  bulk collect into l_result.cursor_columns_info
             from table(self.cursor_columns_info) x
            where exists(
-                   select 1 from included_columns f where regexp_like( x.access_path, '^/?'||f.col_names||'($|/.*)' )
-                 );
+                   select 1 from included_columns f where regexp_like(x.access_path,'^/?'||
+                   case 
+                     when self.is_anydata = 1 then
+                       l_prefix||'/'||trim(leading '/' from f.col_names)
+                     else
+                       f.col_names
+                     end||'($|/.*)' 
+                   )
+                 )
+                 or x.hierarchy_level = case when self.is_anydata = 1 then 1 else 0 end ;
         end if;
       elsif a_match_options.exclude.items.count > 0 then
           with excluded_columns as (
@@ -193,7 +218,13 @@ create or replace type body ut_cursor_details as
                  bulk collect into l_result.cursor_columns_info
             from table(self.cursor_columns_info) x
            where not exists(
-             select 1 from excluded_columns f where regexp_like( '/'||x.access_path, '^/?'||f.col_names||'($|/.*)' )
+             select 1 from excluded_columns f where regexp_like(x.access_path,'^/?'||
+             case 
+               when self.is_anydata = 1 then
+                 l_prefix||'/'||trim(leading '/' from f.col_names)
+               else
+                 f.col_names
+               end||'($|/.*)' )
            );
       end if;
       
@@ -226,8 +257,30 @@ create or replace type body ut_cursor_details as
       from table(self.cursor_columns_info) t
      where (a_parent_name is null and parent_name is null and hierarchy_level = 1 and column_name is not null)
     having count(*) > 0;
-
     return l_result;
   end;
+
+  member procedure has_anydata(self in out nocopy ut_cursor_details, a_is_anydata in boolean :=false) is
+  begin
+    self.is_anydata := case when nvl(a_is_anydata,false) then 1 else 0 end;
+  end;
+
+  member function has_anydata return boolean is
+  begin
+    return ut_utils.int_to_boolean(nvl(self.is_anydata,0));
+  end;
+
+  member function get_root return varchar2 is
+    l_root varchar2(250);
+  begin
+    if self.cursor_columns_info.count > 0 then
+      select x.access_path into l_root from table(self.cursor_columns_info) x
+      where x.hierarchy_level = 1;
+    else
+      l_root := null;
+    end if;
+    return l_root;
+  end;
+  
 end;
 /

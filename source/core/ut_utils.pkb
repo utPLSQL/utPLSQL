@@ -798,5 +798,20 @@ create or replace package body ut_utils is
     return l_valid_name;
   end;
 
+  function add_prefix(a_list ut_varchar2_list, a_prefix varchar2, a_connector varchar2 := '/') return ut_varchar2_list is
+    l_result ut_varchar2_list := ut_varchar2_list();
+    l_idx binary_integer;
+  begin
+    if a_prefix is not null then  
+      l_idx := a_list.first;
+      while l_idx is not null loop
+        l_result.extend;
+        l_result(l_idx) := a_prefix||a_connector||trim(leading a_connector from a_list(l_idx));
+        l_idx := a_list.next(l_idx);
+      end loop;
+    end if;
+      return l_result;
+  end;
+
 end ut_utils;
 /

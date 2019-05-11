@@ -84,6 +84,7 @@ create or replace type body ut_data_value_anydata as
         self.extract_cursor(l_refcursor);
         l_cursor_number  := dbms_sql.to_cursor_number(l_refcursor);
         self.cursor_details  := ut_cursor_details(l_cursor_number);
+        self.cursor_details.has_anydata(true);
         dbms_sql.close_cursor(l_cursor_number);         
       elsif not l_refcursor%isopen then
         raise cursor_not_open;
@@ -139,5 +140,6 @@ create or replace type body ut_data_value_anydata as
       raise value_error;
     end if;
   end;  
+    
 end;
 /
