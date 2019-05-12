@@ -160,6 +160,8 @@ create or replace type body ut_cursor_details as
 
   member procedure filter_columns(self in out nocopy ut_cursor_details, a_match_options ut_matcher_options) is
     l_result            ut_cursor_details := self;
+    l_column_tab        ut_cursor_column_tab := ut_cursor_column_tab();
+    l_column            ut_cursor_column;
     c_xpath_extract_reg constant varchar2(50) := '^((/ROW/)|^(//)|^(/\*/))?(.*)';
   begin
     if l_result.cursor_columns_info is not null then
@@ -194,6 +196,24 @@ create or replace type body ut_cursor_details as
              select 1 from excluded_columns f where regexp_like( '/'||x.access_path, '^/?'||f.col_names||'($|/.*)' )
            );
       end if;
+      
+      --Rewrite column order after columns been excluded
+      for i in (
+      select parent_name, access_path, display_path, has_nested_col,
+        transformed_name, hierarchy_level, 
+        rownum as new_position, xml_valid_name,
+        column_name, column_type, column_type_name, column_schema,
+        column_len, column_precision ,column_scale ,is_sql_diffable, is_collection,value(x) col_info
+      from table(l_result.cursor_columns_info) x
+	  order by x.column_position asc
+	  ) loop
+        l_column := i.col_info;
+        l_column.column_position := i.new_position;
+        l_column_tab.extend;
+        l_column_tab(l_column_tab.last) := l_column;
+      end loop;
+      
+      l_result.cursor_columns_info := l_column_tab;      
       self := l_result;
     end if;
   end;
