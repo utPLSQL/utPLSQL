@@ -46,6 +46,24 @@ create or replace package body test_output_buffer is
     ut.expect(l_cur).to_be_empty;
   end;
   
+  
+  procedure test_doesnt_send_on_null_elem is
+    l_cur    sys_refcursor;
+    l_result integer;
+    l_buffer ut3.ut_output_buffer_base := ut3.ut_output_table_buffer();
+    l_message_id varchar2(255);
+    l_text varchar2(4000);
+  begin
+    ut3_tester_helper.run_helper.delete_buffer();
+    --Act
+    l_buffer.send_lines(ut3.ut_varchar2_rows(null));
+    l_buffer.send_lines(ut3.ut_varchar2_rows('test'));
+
+    select message_id, text into l_message_id, l_text from table(ut3_tester_helper.run_helper.ut_output_buffer_tmp);
+    ut.expect(l_message_id).to_equal('1');
+    ut.expect(l_text).to_equal('test');
+  end;  
+  
   procedure test_send_line is
     l_result   varchar2(4000);
     c_expected constant varchar2(4000) := lpad('a text',4000,',a text');
