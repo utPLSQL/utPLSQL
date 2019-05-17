@@ -211,6 +211,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value_yminterval.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_xmltype.tps'
 @@install_component.sql 'expectations/data_values/ut_compound_data_helper.pks'
+@@install_component.sql 'expectations/data_values/ut_data_value_json.tps'
 @@install_component.sql 'expectations/matchers/ut_matcher.tps'
 @@install_component.sql 'expectations/matchers/ut_comparison_matcher.tps'
 @@install_component.sql 'expectations/matchers/ut_be_false.tps'
@@ -232,6 +233,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_cursor_column.tpb'
 @@install_component.sql 'expectations/data_values/ut_cursor_details.tpb'
 @@install_component.sql 'expectations/ut_expectation_compound.tps'
+@@install_component.sql 'expectations/ut_expectation_json.tps'
 
 @@install_component.sql 'expectations/matchers/ut_matcher_options_items.tpb'
 @@install_component.sql 'expectations/matchers/ut_matcher_options.tpb'
@@ -252,6 +254,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value_varchar2.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_yminterval.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_xmltype.tpb'
+@@install_component.sql 'expectations/data_values/ut_data_value_json.tpb'
 @@install_component.sql 'expectations/matchers/ut_matcher.tpb'
 @@install_component.sql 'expectations/matchers/ut_comparison_matcher.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_false.tpb'
@@ -271,6 +274,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_match.tpb'
 @@install_component.sql 'expectations/ut_expectation.tpb'
 @@install_component.sql 'expectations/ut_expectation_compound.tpb'
+@@install_component.sql 'expectations/ut_expectation_json.tpb'
 @@install_component.sql 'expectations/data_values/ut_key_anyvalues.tpb'
 
 --core reporter
