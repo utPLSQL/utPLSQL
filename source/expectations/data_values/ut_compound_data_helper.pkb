@@ -624,6 +624,71 @@ create or replace package body ut_compound_data_helper is
       end;
   end;
   
+  function get_json_diffs(a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return tt_json_diff_tab is
+    l_result_diff tt_json_diff_tab := tt_json_diff_tab();
+  begin
+    with differences as (
+    select 
+    case 
+      when (a.element_name is null or e.element_name is null) then gc_json_missing
+      when a.json_type != e.json_type then gc_json_type
+      when (decode(a.element_value,e.element_value,1,0) = 0) then gc_json_notequal     
+      else gc_json_unknown end  as difference_type,
+      a.element_name as act_element_name,
+      a.element_value as act_element_value,
+      a.hierarchy_level as act_hierarchy_level,
+      a.json_type as act_json_type,
+      e.element_name as exp_element_name,
+      e.element_value as exp_element_value,
+      e.hierarchy_level as exp_hierarchy_level,
+      e.json_type as exp_json_type,
+      a.parent_name act_par_name,
+      e.parent_name exp_par_name
+      from table(a_act_json_data) a
+      full outer join table(a_exp_json_data) e
+        on decode(a.parent_name,e.parent_name,1,0)= 1
+       and ( 
+          case when a.parent_type = 'object' or e.parent_type = 'object' then
+            decode(a.element_name,e.element_name,1,0) 
+          else 1 end = 1
+           )
+        and ( 
+          case when a.parent_type = 'array' or e.parent_type = 'array' then
+            decode(a.index_position,e.index_position,1,0) 
+          else 1 end = 1
+           )
+       and a.hierarchy_level = e.hierarchy_level
+     where (a.element_name is null or e.element_name is null)
+     or (a.json_type != e.json_type)
+     or (decode(a.element_value,e.element_value,1,0) = 0)
+     order by nvl(a.hierarchy_level,e.hierarchy_level),nvl(a.index_position,e.index_position)
+     )
+     select difference_type,
+      act_element_name,
+      act_element_value,
+      act_json_type,
+      exp_element_name,
+      exp_element_value,
+      exp_json_type
+     bulk collect into l_result_diff
+     from differences a
+     where not exists ( select 1 from differences b where (a.act_par_name = b.act_element_name and a.act_hierarchy_level - 1 = b.act_hierarchy_level)
+      or  (a.exp_par_name = b.exp_element_name and a.exp_hierarchy_level - 1 = b.exp_hierarchy_level));
+     
+     return l_result_diff;
+  end;
+  
+  function get_json_diffs_type(a_diffs_all tt_json_diff_tab) return tt_json_diff_type_tab is
+    l_diffs_summary tt_json_diff_type_tab := tt_json_diff_type_tab();
+  begin
+    select difference_type,count(1) 
+    bulk collect into l_diffs_summary
+    from table(a_diffs_all) d
+    group by d.difference_type;
+    
+    return l_diffs_summary;
+  end;
+  
 begin
   g_anytype_name_map(dbms_types.typecode_date)             := 'DATE';
   g_anytype_name_map(dbms_types.typecode_number)           := 'NUMBER';

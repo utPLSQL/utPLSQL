@@ -34,7 +34,11 @@ create or replace package body test_expectations_json is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    l_expected_message := q'[%Actual: '{"name1":"value1","name2":"value2"}' (json) was expected to equal: '{"name1":"value2","name2":"value2"}' (json)%]';
+    l_expected_message := q'[%Actual: json was expected to equal: json
+%Diff:
+%Found: 1 difference.
+%1 unequal values
+%Actual value is value2 was expected to be value1%]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -53,16 +57,15 @@ create or replace package body test_expectations_json is
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
 
-  procedure null_json
+  procedure empty_json
   as
-    l_expected json_element_t;
-    l_actual   json_element_t;
+    l_expected JSON_OBJECT_T;
   begin
     -- Arrange
     l_expected := JSON_OBJECT_T();
 
     --Act
-    ut3.ut.expect( l_expected ).to_be_null;
+    ut3.ut.expect( l_expected ).to_be_empty;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;

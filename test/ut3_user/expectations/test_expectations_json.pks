@@ -16,8 +16,8 @@ create or replace package test_expectations_json is
   --%test( Json variable is null)
   procedure null_json_variable;  
 
-  --%test(Json string is null)
-  procedure null_json;  
+  --%test(Json string is empty)
+  procedure empty_json;  
   
 end;
 /

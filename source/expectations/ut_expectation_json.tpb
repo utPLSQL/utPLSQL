@@ -33,16 +33,6 @@ create or replace type body ut_expectation_json as
     self.not_to( ut_be_empty() );
   end;
 
-  member procedure to_have_count(self in ut_expectation_json, a_expected integer) is
-  begin
-    self.to_( ut_have_count(a_expected) );
-  end;
-
-  member procedure not_to_have_count(self in ut_expectation_json, a_expected integer) is
-  begin
-    self.not_to( ut_have_count(a_expected) );
-  end;
-
   member function to_equal(a_expected json_element_t, a_nulls_are_equal boolean := null) return ut_expectation_json is
     l_result ut_expectation_json := self;
   begin

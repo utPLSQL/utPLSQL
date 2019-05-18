@@ -19,6 +19,11 @@ create or replace package ut_compound_data_helper authid definer is
   gc_compare_unordered constant varchar2(10):='unordered';
   gc_compare_normal    constant varchar2(10):='normal';
   
+  gc_json_missing  constant varchar2(30) :=  'missing properties';
+  gc_json_type     constant varchar2(30) :=  'incorrect types';
+  gc_json_notequal constant varchar2(30) :=  'unequal values';
+  gc_json_unknown  constant varchar2(30) :=  'unknown';
+  
   type t_column_diffs is record(
     diff_type     varchar2(1),
     expected_name varchar2(250),
@@ -50,7 +55,26 @@ create or replace package ut_compound_data_helper authid definer is
   );
 
   type t_diff_tab is table of t_diff_rec;
-          
+  
+  type t_json_diff_rec is record (
+    difference_type       varchar2(50),
+    act_element_name      varchar2(4000),
+    act_element_value     varchar2(4000),
+    act_json_type         varchar2(4000),
+    exp_element_name      varchar2(4000),
+    exp_element_value     varchar2(4000),
+    exp_json_type         varchar2(4000)
+  );
+  
+  type tt_json_diff_tab is table of t_json_diff_rec;          
+  
+  type t_json_diff_type_rec is record (
+    difference_type   varchar2(50),
+    no_of_occurence   integer
+  );
+    
+  type tt_json_diff_type_tab is table of t_json_diff_type_rec; 
+  
   function get_columns_diff(
     a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab,a_order_enforced boolean := false
   ) return tt_column_diffs;
@@ -98,6 +122,10 @@ create or replace package ut_compound_data_helper authid definer is
   * Function to return true or false if the type dont have an length
   */
   function type_no_length ( a_type_name varchar2) return boolean;
+  
+  function get_json_diffs(a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return tt_json_diff_tab;
+  
+  function get_json_diffs_type(a_diffs_all tt_json_diff_tab) return tt_json_diff_type_tab;
   
 end;
 /

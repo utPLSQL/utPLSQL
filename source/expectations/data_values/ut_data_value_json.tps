@@ -1,4 +1,4 @@
-create or replace type ut_data_value_json under ut_data_value(
+create or replace type ut_data_value_json under ut_compound_data_value(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -15,13 +15,15 @@ create or replace type ut_data_value_json under ut_data_value(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  is_data_null   integer,
-  data_value clob,
+  data_value     clob,
+  json_tree      ut_json_tree_details,
   constructor function ut_data_value_json(self in out nocopy ut_data_value_json, a_value json_element_t) return self as result,
   overriding member function is_null return boolean,
+  overriding member function is_empty return boolean,
   overriding member function to_string return varchar2,
   overriding member function diff( a_other ut_data_value, a_match_options ut_matcher_options ) return varchar2,
   overriding member function compare_implementation(a_other ut_data_value) return integer,
-  member function compare_implementation(a_other ut_data_value,a_match_options ut_matcher_options) return integer
+  member function compare_implementation(a_other ut_data_value,a_match_options ut_matcher_options) return integer,
+  overriding member function get_object_info return varchar2
 )
 /

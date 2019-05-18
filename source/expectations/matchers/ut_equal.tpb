@@ -248,6 +248,11 @@ create or replace type body ut_equal as
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
           || chr(10) || 'Diff:' ||
             treat(expected as ut_data_value_refcursor).diff( a_actual, options );
+      elsif self.expected is of (ut_data_value_json) then
+        l_result :=
+          'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
+          || chr(10) || 'Diff:' ||
+          treat(expected as ut_data_value_json).diff( a_actual, options );
       else
         l_result :=
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()

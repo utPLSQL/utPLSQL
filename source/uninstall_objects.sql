@@ -147,6 +147,12 @@ drop type ut_matcher_options force;
 
 drop type ut_matcher_options_items force;
 
+drop type ut_json_tree_details force;
+
+drop type ut_json_leaf_tab force;
+
+drop type ut_json_leaf;
+
 drop type ut_cursor_details force;
 
 drop type ut_cursor_column_tab force;
