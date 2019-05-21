@@ -51,13 +51,11 @@ create or replace type body ut_data_value_json as
     l_self              ut_data_value_json := self;
 
     c_max_rows          integer := ut_utils.gc_diff_max_rows;
-    l_diff_row_count    integer;
     l_diffs             ut_compound_data_helper.tt_json_diff_tab;
     l_message           varchar2(32767);
     
     function get_diff_by_type(a_diff ut_compound_data_helper.tt_json_diff_tab) return clob is
-      l_diff_summary ut_compound_data_helper.tt_json_diff_type_tab := ut_compound_data_helper.get_json_diffs_type(a_diff);  
-      l_message      varchar2(32767);
+      l_diff_summary ut_compound_data_helper.tt_json_diff_type_tab := ut_compound_data_helper.get_json_diffs_type(a_diff);
       l_message_list      ut_varchar2_list := ut_varchar2_list();
     begin
       for i in 1..l_diff_summary.count loop
@@ -69,16 +67,21 @@ create or replace type body ut_data_value_json as
          
     function get_json_diff_text (a_json_diff ut_compound_data_helper.t_json_diff_rec) return clob is
     begin
-      return case 
-               when a_json_diff.difference_type = ut_compound_data_helper.gc_json_missing  and a_json_diff.act_element_name is not null
-                 then 'Missing property '||a_json_diff.act_element_name
-              when a_json_diff.difference_type = ut_compound_data_helper.gc_json_missing  and a_json_diff.exp_element_name is not null
-                 then 'Extra property '||a_json_diff.exp_element_name
-               when a_json_diff.difference_type = ut_compound_data_helper.gc_json_type 
-                 then 'Actual type is '||a_json_diff.act_json_type||' was expected to be '||a_json_diff.exp_json_type
-               when a_json_diff.difference_type = ut_compound_data_helper.gc_json_notequal
-                 then 'Actual value is '||a_json_diff.act_element_value||' was expected to be '||a_json_diff.exp_element_value
-               else 'Unknown' end;
+      return 
+        case a_json_diff.difference_type
+          when ut_compound_data_helper.gc_json_missing 
+            then 
+              case 
+                when a_json_diff.act_element_name is not null then 'Missing property "'||a_json_diff.act_element_name||'"'
+                when a_json_diff.exp_element_name is not null then 'Extra property "'||a_json_diff.exp_element_name||'"'
+                else 'Unknown'
+              end
+          when ut_compound_data_helper.gc_json_type 
+            then 'Actual type is "'||a_json_diff.act_json_type||'" was expected to be "'||a_json_diff.exp_json_type||'"'
+          when ut_compound_data_helper.gc_json_notequal
+            then 'Actual value is "'||a_json_diff.act_element_value||'" was expected to be "'||a_json_diff.exp_element_value||'"'
+          else 'Unknown' 
+        end || ' on path :'||nvl(a_json_diff.act_access_path,a_json_diff.exp_access_path);
     end;
     
   begin
@@ -89,15 +92,16 @@ create or replace type body ut_data_value_json as
     
     if not l_self.is_null and not l_other.is_null then
       l_diffs := ut_compound_data_helper.get_json_diffs(
-        l_self.json_tree.json_tree_info,
-        l_other.json_tree.json_tree_info);
+        l_other.json_tree.json_tree_info,
+        l_self.json_tree.json_tree_info);
         
-      l_message:= chr(10)||'Found: '||l_diffs.count|| case when l_diffs.count > 1 then ' differences.' else ' difference.' end||chr(10);
+      l_message:= chr(10)||'Found: '||l_diffs.count|| ' differences' || 
+        case when l_diffs.count > c_max_rows then ', showing first '||c_max_rows else null end||chr(10);
       ut_utils.append_to_clob( l_result, l_message );
       l_message:= get_diff_by_type(l_diffs)||chr(10);
       ut_utils.append_to_clob( l_result, l_message );
       
-      for i in 1..l_diffs.count loop
+      for i in 1..least(c_max_rows,l_diffs.count) loop
          l_results.extend;
          l_results(l_results.last) := get_json_diff_text(l_diffs(i));
       end loop;
@@ -107,7 +111,7 @@ create or replace type body ut_data_value_json as
     
     
     l_result_string := ut_utils.to_string(l_result,null);
-    --dbms_lob.freetemporary(l_result);
+    dbms_lob.freetemporary(l_result);
     return l_result_string;
   end;
 

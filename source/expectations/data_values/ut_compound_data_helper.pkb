@@ -637,12 +637,16 @@ create or replace package body ut_compound_data_helper is
       a.element_name as act_element_name,
       a.element_value as act_element_value,
       a.hierarchy_level as act_hierarchy_level,
+      a.index_position as act_index_position,
       a.json_type as act_json_type,
+      a.access_path as act_access_path,
+      a.parent_name act_par_name,
       e.element_name as exp_element_name,
       e.element_value as exp_element_value,
       e.hierarchy_level as exp_hierarchy_level,
+      e.index_position as exp_index_position,
       e.json_type as exp_json_type,
-      a.parent_name act_par_name,
+      e.access_path as exp_access_path,
       e.parent_name exp_par_name
       from table(a_act_json_data) a
       full outer join table(a_exp_json_data) e
@@ -661,20 +665,22 @@ create or replace package body ut_compound_data_helper is
      where (a.element_name is null or e.element_name is null)
      or (a.json_type != e.json_type)
      or (decode(a.element_value,e.element_value,1,0) = 0)
-     order by nvl(a.hierarchy_level,e.hierarchy_level),nvl(a.index_position,e.index_position)
      )
      select difference_type,
       act_element_name,
       act_element_value,
       act_json_type,
+      act_access_path,
       exp_element_name,
       exp_element_value,
-      exp_json_type
+      exp_json_type,
+      exp_access_path
      bulk collect into l_result_diff
      from differences a
      where not exists ( select 1 from differences b where (a.act_par_name = b.act_element_name and a.act_hierarchy_level - 1 = b.act_hierarchy_level)
-      or  (a.exp_par_name = b.exp_element_name and a.exp_hierarchy_level - 1 = b.exp_hierarchy_level));
-     
+      or  (a.exp_par_name = b.exp_element_name and a.exp_hierarchy_level - 1 = b.exp_hierarchy_level))
+      order by nvl(act_hierarchy_level,exp_hierarchy_level),nvl(act_index_position,exp_index_position) nulls first, 
+      nvl(act_element_name,exp_element_name),nvl(act_json_type,exp_json_type) ;
      return l_result_diff;
   end;
   

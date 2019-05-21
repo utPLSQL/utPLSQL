@@ -61,9 +61,11 @@ create or replace package ut_compound_data_helper authid definer is
     act_element_name      varchar2(4000),
     act_element_value     varchar2(4000),
     act_json_type         varchar2(4000),
+    act_access_path       varchar2(4000),
     exp_element_name      varchar2(4000),
     exp_element_value     varchar2(4000),
-    exp_json_type         varchar2(4000)
+    exp_json_type         varchar2(4000),
+    exp_access_path       varchar2(4000)
   );
   
   type tt_json_diff_tab is table of t_json_diff_rec;          
