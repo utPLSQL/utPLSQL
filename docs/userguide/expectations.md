@@ -1177,7 +1177,30 @@ Finished in .048181 seconds
 ```
 
 
+
+# Comparing json objects
+
+utPLSQL is capable of comparing json data-types on Oracle 12.2 and above.
+
+### Notes on comparison of json data
+
+- Json data can contain objects, scalar or arrays.
+- During comparison of json objects the order doesn't matter.
+- During comparison of json arrays the index of element is taken into account
+- To compare json you have to make sure its type of  `json_element_t` or its subtypes
+
+utPLSQL offers advanced data-comparison options, for comparing json data-types. The options allow you to:
+
+- define json path query to exclude from comparison
+- define json path query to include in comparison
+- and more ...
+
+For details on available options and how to use them, read the [advanced data comparison](advanced_data_comparison.md) guide.   
+
+
+
 # Negating a matcher
+
 Expectations provide a very convenient way to perform a check on a negated matcher.
 
 Syntax to check for matcher evaluating to true:

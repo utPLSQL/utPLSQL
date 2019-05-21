@@ -31,5 +31,11 @@ create or replace package test_expectations_json is
   --%test(Json string is not empty)
   procedure not_empty_json;   
   
+  --%test( Fail json string is empty)
+  procedure fail_empty_json;  
+ 
+  --%test( Fail json string is not empty)
+  procedure fail_not_empty_json;
+  
 end;
 /

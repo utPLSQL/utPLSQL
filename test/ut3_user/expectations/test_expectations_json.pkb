@@ -46,7 +46,7 @@ create or replace package body test_expectations_json is
 %Actual type is "string" was expected to be "number" on path :$.Aidan Gillen.int
 %Missing property "otherint" on path :$.Aidan Gillen.otherint
 %Actual type is "string" was expected to be "boolean" on path :$.Aidan Gillen.aboolean
-%Actual value is "0" was expected to be "1" on path :$.Aidan Gillen.boolean
+%Actual value is "false" was expected to be "true" on path :$.Aidan Gillen.boolean
 %Actual value is "Game of Thrones" was expected to be "Game of Thron"es" on path :$.Aidan Gillen.array[0]
 %Extra property "object1" on path :$.Aidan Gillen.object.object1
 %Extra property "object2" on path :$.Aidan Gillen.object.object2
@@ -62,7 +62,7 @@ create or replace package body test_expectations_json is
     l_expected json_object_t ;
   begin
     -- Arrange
-    l_expected := cast (null as JSON_OBJECT_T );
+    l_expected := cast (null as json_object_t );
 
     --Act
     ut3.ut.expect( l_expected ).to_be_null;
@@ -75,7 +75,7 @@ create or replace package body test_expectations_json is
     l_expected json_object_t ;
   begin
     -- Arrange
-    l_expected := JSON_OBJECT_T();
+    l_expected := json_object_t();
 
     --Act
     ut3.ut.expect( l_expected ).not_to_be_null;
@@ -90,7 +90,7 @@ create or replace package body test_expectations_json is
     l_actual_message   varchar2(32767);
   begin
     -- Arrange
-    l_expected := JSON_OBJECT_T('{ "t" : "1" }');
+    l_expected := json_object_t('{ "t" : "1" }');
 
     --Act
     ut3.ut.expect( l_expected ).to_be_null;
@@ -110,7 +110,7 @@ create or replace package body test_expectations_json is
     l_actual_message   varchar2(32767);
   begin
     -- Arrange
-    l_expected := cast (null as JSON_OBJECT_T );
+    l_expected := cast (null as json_object_t );
 
     --Act
     ut3.ut.expect( l_expected ).not_to_be_null;
@@ -123,10 +123,10 @@ create or replace package body test_expectations_json is
 
   procedure empty_json
   as
-    l_expected JSON_OBJECT_T;
+    l_expected json_object_t;
   begin
     -- Arrange
-    l_expected := JSON_OBJECT_T();
+    l_expected := json_object_t();
 
     --Act
     ut3.ut.expect( l_expected ).to_be_empty;
@@ -136,16 +136,56 @@ create or replace package body test_expectations_json is
   
   procedure not_empty_json
   as
-    l_expected JSON_OBJECT_T;
+    l_expected json_object_t;
   begin
     -- Arrange
-    l_expected := JSON_OBJECT_T.parse('{ "name" : "test" }');
+    l_expected := json_object_t.parse('{ "name" : "test" }');
 
     --Act
     ut3.ut.expect( l_expected ).not_to_be_empty;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;  
+
+  procedure fail_empty_json
+  as
+    l_expected json_object_t;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    -- Arrange
+    l_expected := json_object_t.parse('{ "name" : "test" }');
+
+    --Act
+    ut3.ut.expect( l_expected ).to_be_empty;
+    --Assert
+    l_expected_message := q'[%Actual: (json)
+%'{"name":"test"}'
+%was expected to be empty%]';
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
   
+  procedure fail_not_empty_json
+  as
+    l_expected json_object_t;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    -- Arrange
+    l_expected := json_object_t();
+
+    --Act
+    ut3.ut.expect( l_expected ).not_to_be_empty;
+    --Assert
+    l_expected_message := q'[%Actual: (json)
+%'{}'
+%was expected not to be empty%]';
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
 end;
 /

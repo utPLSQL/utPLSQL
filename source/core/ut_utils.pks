@@ -200,6 +200,8 @@ create or replace package ut_utils authid definer is
 
   function int_to_boolean(a_value integer) return boolean;
 
+  function boolean_to_char(a_value boolean) return varchar2;
+
   /**
    *
    * Splits a given string into table of string by delimiter.

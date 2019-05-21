@@ -634,19 +634,11 @@ create or replace package body ut_compound_data_helper is
       when a.json_type != e.json_type then gc_json_type
       when (decode(a.element_value,e.element_value,1,0) = 0) then gc_json_notequal     
       else gc_json_unknown end  as difference_type,
-      a.element_name as act_element_name,
-      a.element_value as act_element_value,
-      a.hierarchy_level as act_hierarchy_level,
-      a.index_position as act_index_position,
-      a.json_type as act_json_type,
-      a.access_path as act_access_path,
-      a.parent_name act_par_name,
-      e.element_name as exp_element_name,
-      e.element_value as exp_element_value,
-      e.hierarchy_level as exp_hierarchy_level,
-      e.index_position as exp_index_position,
-      e.json_type as exp_json_type,
-      e.access_path as exp_access_path,
+      a.element_name as act_element_name, a.element_value as act_element_value, a.hierarchy_level as act_hierarchy_level,
+      a.index_position as act_index_position, a.json_type as act_json_type, a.access_path as act_access_path,
+      a.parent_name act_par_name, 
+      e.element_name as exp_element_name, e.element_value as exp_element_value, e.hierarchy_level as exp_hierarchy_level,
+      e.index_position as exp_index_position, e.json_type as exp_json_type, e.access_path as exp_access_path,
       e.parent_name exp_par_name
       from table(a_act_json_data) a
       full outer join table(a_exp_json_data) e
@@ -666,15 +658,8 @@ create or replace package body ut_compound_data_helper is
      or (a.json_type != e.json_type)
      or (decode(a.element_value,e.element_value,1,0) = 0)
      )
-     select difference_type,
-      act_element_name,
-      act_element_value,
-      act_json_type,
-      act_access_path,
-      exp_element_name,
-      exp_element_value,
-      exp_json_type,
-      exp_access_path
+     select difference_type, act_element_name, act_element_value, act_json_type, act_access_path,
+      exp_element_name, exp_element_value, exp_json_type, exp_access_path
      bulk collect into l_result_diff
      from differences a
      where not exists ( select 1 from differences b where (a.act_par_name = b.act_element_name and a.act_hierarchy_level - 1 = b.act_hierarchy_level)
