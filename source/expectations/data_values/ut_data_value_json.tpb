@@ -20,11 +20,12 @@ create or replace type body ut_data_value_json as
 
   constructor function ut_data_value_json(self in out nocopy ut_data_value_json, a_value json_element_t) return self as result is
   begin 
-    self.is_data_null := case when a_value is null then 1 else 0 end;
-    self.data_value   :=  case when a_value is null then null else a_value.to_clob end;
-    self.self_type    := $$plsql_unit;
-    self.data_type    := 'json';
-    self.json_tree    := ut_json_tree_details(a_value);
+    self.is_data_null   := case when a_value is null then 1 else 0 end;
+    self.data_value     := case when a_value is null then null else a_value.to_clob end;
+    self.self_type      := $$plsql_unit;
+    self.data_type      := 'json';
+    self.json_tree      := ut_json_tree_details(a_value);
+    self.data_id        := sys_guid();
     return;
   end;
 
@@ -49,7 +50,7 @@ create or replace type body ut_data_value_json as
     l_result_string     varchar2(32767);
     l_other             ut_data_value_json;
     l_self              ut_data_value_json := self;
-
+    l_diff_id           ut_compound_data_helper.t_hash;
     c_max_rows          integer := ut_utils.gc_diff_max_rows;
     l_diffs             ut_compound_data_helper.tt_json_diff_tab;
     l_message           varchar2(32767);
@@ -72,14 +73,14 @@ create or replace type body ut_data_value_json as
           when ut_compound_data_helper.gc_json_missing 
             then 
               case 
-                when a_json_diff.act_element_name is not null then 'Missing property "'||a_json_diff.act_element_name||'"'
-                when a_json_diff.exp_element_name is not null then 'Extra property "'||a_json_diff.exp_element_name||'"'
+                when a_json_diff.act_element_name is not null then q'[Missing property ']'||a_json_diff.act_element_name||q'[']'
+                when a_json_diff.exp_element_name is not null then q'[Extra property ']'||a_json_diff.exp_element_name||q'[']'
                 else 'Unknown'
               end
           when ut_compound_data_helper.gc_json_type 
-            then 'Actual type is "'||a_json_diff.act_json_type||'" was expected to be "'||a_json_diff.exp_json_type||'"'
+            then q'[Actual type is ']'||a_json_diff.act_json_type||q'[' was expected to be ']'||a_json_diff.exp_json_type||q'[']'
           when ut_compound_data_helper.gc_json_notequal
-            then 'Actual value is "'||a_json_diff.act_element_value||'" was expected to be "'||a_json_diff.exp_element_value||'"'
+            then q'[Actual value is ']'||a_json_diff.act_element_value||q'[' was expected to be ']'||a_json_diff.exp_element_value||q'[']'
           else 'Unknown' 
         end || ' on path :'||nvl(a_json_diff.act_access_path,a_json_diff.exp_access_path);
     end;
@@ -89,11 +90,10 @@ create or replace type body ut_data_value_json as
       raise value_error;
     end if;
     l_other := treat(a_other as ut_data_value_json);       
+    l_diff_id  := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);  
     
     if not l_self.is_null and not l_other.is_null then
-      l_diffs := ut_compound_data_helper.get_json_diffs(
-        l_other.json_tree.json_tree_info,
-        l_self.json_tree.json_tree_info);
+      l_diffs := ut_compound_data_helper.get_json_diffs_tmp(l_diff_id);
         
       l_message:= chr(10)||'Found: '||l_diffs.count|| ' differences' || 
         case when l_diffs.count > c_max_rows then ', showing first '||c_max_rows else null end||chr(10);
@@ -114,32 +114,43 @@ create or replace type body ut_data_value_json as
     dbms_lob.freetemporary(l_result);
     return l_result_string;
   end;
-
   
   overriding member function compare_implementation(a_other ut_data_value) return integer is
-  begin
-    return compare_implementation( a_other, null );
+    l_self ut_data_value_json := self;
+    l_other ut_data_value := a_other;
+  begin   
+    return l_self.compare_implementation( l_other, null );
   end;  
-
-  member function compare_implementation(a_other ut_data_value,a_match_options ut_matcher_options) return integer is
+  
+  member function compare_implementation(a_other in ut_data_value,a_match_options ut_matcher_options) return 
+    integer is
     l_result integer;
     l_other  ut_data_value_json;
+    l_diff_id       ut_compound_data_helper.t_hash;
   begin
    if a_other is of (ut_data_value_json) then
       l_other := treat(a_other as ut_data_value_json);
-      --select case when json_equal(self.data_value, l_other.data_value) then 0 else 1 end
-      --into l_result
-      --from dual;
-      l_result := case when self.json_tree.equals( l_other.json_tree, a_match_options ) then 0 else 1 end;
+      l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
+      l_result := case when ut_compound_data_helper.insert_json_diffs(
+        l_diff_id,self.json_tree.json_tree_info,l_other.json_tree.json_tree_info) > 0 then 1 else 0 end;
     end if;
-
     return l_result;
+  end;
+
+  member function get_elements_count return integer is
+  begin
+    return json_element_t.parse(self.data_value).get_size;
+  end;
+
+  member function get_json_count_info return varchar2 is
+  begin
+    return self.data_type||' [ count = '||self.get_elements_count||' ]';
   end;
 
   overriding member function get_object_info return varchar2 is
   begin
     return self.data_type;
   end;
-  
+
 end;
 /

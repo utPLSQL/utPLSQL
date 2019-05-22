@@ -24,6 +24,8 @@ create or replace type ut_data_value_json under ut_compound_data_value(
   overriding member function diff( a_other ut_data_value, a_match_options ut_matcher_options ) return varchar2,
   overriding member function compare_implementation(a_other ut_data_value) return integer,
   member function compare_implementation(a_other ut_data_value,a_match_options ut_matcher_options) return integer,
+  member function get_elements_count return integer,
+  member function get_json_count_info return varchar2,
   overriding member function get_object_info return varchar2
 )
 /

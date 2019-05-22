@@ -1,4 +1,4 @@
-create or replace type ut_json_tree_details force as object (
+create or replace type ut_json_tree_details as object (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -16,7 +16,6 @@ create or replace type ut_json_tree_details force as object (
   limitations under the License.
   */
    json_tree_info      ut_json_leaf_tab,
-   member function equals(a_other ut_json_tree_details, a_match_options ut_matcher_options) return boolean,
    member function get_json_type(a_json_piece json_element_t) return varchar2,
    member function get_json_value(a_json_piece json_object_t,a_key varchar2) return varchar2,
    member function get_json_value(a_json_piece json_array_t,a_key integer) return varchar2,

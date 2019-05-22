@@ -624,7 +624,7 @@ create or replace package body ut_compound_data_helper is
       end;
   end;
   
-  function get_json_diffs(a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return tt_json_diff_tab is
+  function compare_json_data(a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return tt_json_diff_tab is
     l_result_diff tt_json_diff_tab := tt_json_diff_tab();
   begin
     with differences as (
@@ -669,15 +669,40 @@ create or replace package body ut_compound_data_helper is
      return l_result_diff;
   end;
   
+  function insert_json_diffs(a_diff_id raw, a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return integer is
+    l_diffs tt_json_diff_tab := compare_json_data(a_act_json_data,a_exp_json_data);
+  begin
+    forall i in 1..l_diffs.count
+    insert into ut_json_data_diff_tmp
+    (diff_id, difference_type,act_element_name,act_element_value,act_json_type,act_access_path,
+      exp_element_name,exp_element_value,exp_json_type,exp_access_path)
+    values
+    (a_diff_id,l_diffs(i).difference_type,
+    l_diffs(i).act_element_name,l_diffs(i).act_element_value,l_diffs(i).act_json_type, l_diffs(i).act_access_path,
+    l_diffs(i).exp_element_name,l_diffs(i).exp_element_value,l_diffs(i).exp_json_type,l_diffs(i).exp_access_path);
+     
+    return l_diffs.count; --TODO : na sqlrowcount
+  end;
+  
   function get_json_diffs_type(a_diffs_all tt_json_diff_tab) return tt_json_diff_type_tab is
     l_diffs_summary tt_json_diff_type_tab := tt_json_diff_type_tab();
   begin
-    select difference_type,count(1) 
+    select d.difference_type,count(1) 
     bulk collect into l_diffs_summary
     from table(a_diffs_all) d
     group by d.difference_type;
     
     return l_diffs_summary;
+  end;
+
+  function get_json_diffs_tmp(a_diff_id raw) return tt_json_diff_tab is
+    l_diffs tt_json_diff_tab;
+  begin
+    select difference_type,act_element_name,act_element_value,act_json_type,act_access_path,
+      exp_element_name,exp_element_value,exp_json_type,exp_access_path
+    bulk collect into l_diffs
+    from ut_json_data_diff_tmp where diff_id = a_diff_id;
+    return l_diffs;
   end;
   
 begin

@@ -192,6 +192,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 --expectations and matchers
 @@install_component.sql 'expectations/data_values/ut_compound_data_tmp.sql'
 @@install_component.sql 'expectations/data_values/ut_compound_data_diff_tmp.sql'
+@@install_component.sql 'expectations/data_values/ut_json_data_diff_tmp.sql'
 @@install_component.sql 'expectations/data_values/ut_compound_data_value.tps'
 @@install_component.sql 'expectations/data_values/ut_json_leaf.tps'
 @@install_component.sql 'expectations/data_values/ut_json_leaf_tab.tps'

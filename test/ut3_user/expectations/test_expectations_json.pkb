@@ -28,30 +28,30 @@ create or replace package body test_expectations_json is
     l_actual_message   varchar2(32767);
   begin
     -- Arrange
-    l_actual   := json_element_t.parse('{"Aidan Gillen": {"array": ["Game of Thrones","The Wire"],"string": "some string","int": "2","otherint": 4, "aboolean": "true", "boolean": false,"object": {"foo": "bar"}},"Amy Ryan": ["In Treatment","The Wire"],"Annie Fitzgerald": ["True Blood","Big Love","The Sopranos","Oz"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsg?rd": ["Generation Kill","True Blood"],"Alice Farmer": ["The Corner","Oz","The Wire"]}');
-    l_expected := json_element_t.parse('{"Aidan Gillen": {"array": ["Game of Thron\"es","The Wire"],"string": "some string","int": 2,"aboolean": true, "boolean": true,"object": {"foo": "bar","object1": {"new prop1": "new prop value"},"object2": {"new prop1": "new prop value"},"object3": {"new prop1": "new prop value"},"object4": {"new prop1": "new prop value"}}},"Amy Ryan": {"one": "In Treatment","two": "The Wire"},"Annie Fitzgerald": ["Big Love","True Blood"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsgard": ["Generation Kill","True Blood"], "Clarke Peters": null}');
+    l_expected   := json_element_t.parse('{"Aidan Gillen": {"array": ["Game of Thrones","The Wire"],"string": "some string","int": "2","otherint": 4, "aboolean": "true", "boolean": false,"object": {"foo": "bar"}},"Amy Ryan": ["In Treatment","The Wire"],"Annie Fitzgerald": ["True Blood","Big Love","The Sopranos","Oz"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsg?rd": ["Generation Kill","True Blood"],"Alice Farmer": ["The Corner","Oz","The Wire"]}');
+    l_actual := json_element_t.parse('{"Aidan Gillen": {"array": ["Game of Thron\"es","The Wire"],"string": "some string","int": 2,"aboolean": true, "boolean": true,"object": {"foo": "bar","object1": {"new prop1": "new prop value"},"object2": {"new prop1": "new prop value"},"object3": {"new prop1": "new prop value"},"object4": {"new prop1": "new prop value"}}},"Amy Ryan": {"one": "In Treatment","two": "The Wire"},"Annie Fitzgerald": ["Big Love","True Blood"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsgard": ["Generation Kill","True Blood"], "Clarke Peters": null}');
 
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    l_expected_message := q'[%%Actual type is "array" was expected to be "object" on path :$.Amy Ryan
-%Missing property "Alexander Skarsg?rd" on path :$.Alexander Skarsg?rd
-%Extra property "Alexander Skarsgard" on path :$.Alexander Skarsgard
-%Missing property "Alice Farmer" on path :$.Alice Farmer
-%Extra property "Clarke Peters" on path :$.Clarke Peters
-%Actual value is "True Blood" was expected to be "Big Love" on path :$.Annie Fitzgerald[0]
-%Actual value is "Big Love" was expected to be "True Blood" on path :$.Annie Fitzgerald[1]
-%Missing property ""The Sopranos"" on path :$.Annie Fitzgerald[2]
-%Missing property ""Oz"" on path :$.Annie Fitzgerald[3]
-%Actual type is "string" was expected to be "number" on path :$.Aidan Gillen.int
-%Missing property "otherint" on path :$.Aidan Gillen.otherint
-%Actual type is "string" was expected to be "boolean" on path :$.Aidan Gillen.aboolean
-%Actual value is "false" was expected to be "true" on path :$.Aidan Gillen.boolean
-%Actual value is "Game of Thrones" was expected to be "Game of Thron"es" on path :$.Aidan Gillen.array[0]
-%Extra property "object1" on path :$.Aidan Gillen.object.object1
-%Extra property "object2" on path :$.Aidan Gillen.object.object2
-%Extra property "object3" on path :$.Aidan Gillen.object.object3
-%Extra property "object4" on path :$.Aidan Gillen.object.object4]';
+    l_expected_message := q'[%Actual type is 'array' was expected to be 'object' on path :$.Amy Ryan
+%Missing property 'Alexander Skarsg?rd' on path :$.Alexander Skarsg?rd
+%Extra property 'Alexander Skarsgard' on path :$.Alexander Skarsgard
+%Missing property 'Alice Farmer' on path :$.Alice Farmer
+%Extra property 'Clarke Peters' on path :$.Clarke Peters
+%Actual value is 'True Blood' was expected to be 'Big Love' on path :$.Annie Fitzgerald[0]
+%Actual value is 'Big Love' was expected to be 'True Blood' on path :$.Annie Fitzgerald[1]
+%Missing property '"The Sopranos"' on path :$.Annie Fitzgerald[2]
+%Missing property '"Oz"' on path :$.Annie Fitzgerald[3]
+%Actual type is 'string' was expected to be 'number' on path :$.Aidan Gillen.int
+%Missing property 'otherint' on path :$.Aidan Gillen.otherint
+%Actual type is 'string' was expected to be 'boolean' on path :$.Aidan Gillen.aboolean
+%Actual value is 'false' was expected to be 'true' on path :$.Aidan Gillen.boolean
+%Actual value is 'Game of Thrones' was expected to be 'Game of Thron"es' on path :$.Aidan Gillen.array[0]
+%Extra property 'object1' on path :$.Aidan Gillen.object.object1
+%Extra property 'object2' on path :$.Aidan Gillen.object.object2
+%Extra property 'object3' on path :$.Aidan Gillen.object.object3
+%Extra property 'object4' on path :$.Aidan Gillen.object.object4%]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -187,5 +187,88 @@ create or replace package body test_expectations_json is
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
 
+  procedure to_have_count as
+    l_actual   json_element_t;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    -- Arrange
+    l_actual   := json_element_t.parse('{"Aidan Gillen": {"array": ["Game of Thrones","The Wire"],"string": "some string","int": "2","otherint": 4, "aboolean": "true", "boolean": false,"object": {"foo": "bar"}},"Amy Ryan": ["In Treatment","The Wire"],"Annie Fitzgerald": ["True Blood","Big Love","The Sopranos","Oz"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsg?rd": ["Generation Kill","True Blood"],"Alice Farmer": ["The Corner","Oz","The Wire"]}');
+
+    --Act
+    ut3.ut.expect( l_actual ).to_have_count( 6 );  
+    
+    --Assert
+     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+
+  end;
+  
+  procedure fail_to_have_count
+  as
+    l_actual   json_element_t;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    -- Arrange
+    l_actual   := json_element_t.parse('{"Aidan Gillen": {"array": ["Game of Thrones","The Wire"],"string": "some string","int": "2","otherint": 4, "aboolean": "true", "boolean": false,"object": {"foo": "bar"}},"Amy Ryan": ["In Treatment","The Wire"],"Annie Fitzgerald": ["True Blood","Big Love","The Sopranos","Oz"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsg?rd": ["Generation Kill","True Blood"],"Alice Farmer": ["The Corner","Oz","The Wire"]}');
+
+    --Act
+    ut3.ut.expect( l_actual ).to_have_count( 2 ); 
+    --Assert
+    l_expected_message := q'[%Actual: (json [ count = 6 ]) was expected to have [ count = 2 ]%]';
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+
+  end;
+  
+  procedure not_to_have_count
+  as
+    l_actual   json_element_t;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    -- Arrange
+    l_actual   := json_element_t.parse('{"Aidan Gillen": {"array": ["Game of Thrones","The Wire"],"string": "some string","int": "2","otherint": 4, "aboolean": "true", "boolean": false,"object": {"foo": "bar"}},"Amy Ryan": ["In Treatment","The Wire"],"Annie Fitzgerald": ["True Blood","Big Love","The Sopranos","Oz"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsg?rd": ["Generation Kill","True Blood"],"Alice Farmer": ["The Corner","Oz","The Wire"]}');
+
+    --Act
+    ut3.ut.expect( l_actual ).not_to_have_count( 7 );  
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
+
+  procedure fail_not_to_have_count
+  as
+    l_actual   json_element_t;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    -- Arrange
+    l_actual   := json_element_t.parse('{"Aidan Gillen": {"array": ["Game of Thrones","The Wire"],"string": "some string","int": "2","otherint": 4, "aboolean": "true", "boolean": false,"object": {"foo": "bar"}},"Amy Ryan": ["In Treatment","The Wire"],"Annie Fitzgerald": ["True Blood","Big Love","The Sopranos","Oz"],"Anwan Glover": ["Treme","The Wire"],"Alexander Skarsg?rd": ["Generation Kill","True Blood"],"Alice Farmer": ["The Corner","Oz","The Wire"]}');
+
+    --Act
+    ut3.ut.expect( l_actual ).not_to_have_count( 6 );  
+    --Assert
+    l_expected_message := q'[%Actual: json [ count = 6 ] was expected not to have [ count = 6 ]%]';
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+  end;
+
+  procedure to_have_count_array
+  as
+    l_actual   json_element_t;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    -- Arrange
+    l_actual   := json_element_t.parse('["Game of Thrones","The Wire"]');
+
+    --Act
+    ut3.ut.expect( l_actual ).to_have_count( 2 );  
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
+  
 end;
 /

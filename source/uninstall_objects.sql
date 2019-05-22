@@ -163,6 +163,8 @@ drop table ut_compound_data_tmp;
 
 drop table ut_compound_data_diff_tmp;
 
+drop table ut_json_data_diff_tmp;
+
 drop package ut_annotation_manager;
 
 drop package ut_annotation_parser;

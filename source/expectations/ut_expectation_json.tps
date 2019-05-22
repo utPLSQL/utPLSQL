@@ -1,4 +1,4 @@
-create or replace type ut_expectation_json force under ut_expectation(
+create or replace type ut_expectation_json under ut_expectation(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -22,6 +22,8 @@ create or replace type ut_expectation_json force under ut_expectation(
   member procedure to_be_empty(self in ut_expectation_json),
   member procedure not_to_be_empty(self in ut_expectation_json),
   member function  to_equal(a_expected json_element_t , a_nulls_are_equal boolean := null) return ut_expectation_json,
-  member function  not_to_equal(a_expected json_element_t , a_nulls_are_equal boolean := null) return ut_expectation_json
+  member function  not_to_equal(a_expected json_element_t , a_nulls_are_equal boolean := null) return ut_expectation_json,
+  member procedure to_have_count(self in ut_expectation_json, a_expected integer),
+  member procedure not_to_have_count(self in ut_expectation_json, a_expected integer)
 )
 /

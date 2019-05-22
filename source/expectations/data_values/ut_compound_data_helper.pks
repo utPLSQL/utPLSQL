@@ -125,7 +125,12 @@ create or replace package ut_compound_data_helper authid definer is
   */
   function type_no_length ( a_type_name varchar2) return boolean;
   
-  function get_json_diffs(a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return tt_json_diff_tab;
+  function compare_json_data(a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return tt_json_diff_tab;
+  
+  function insert_json_diffs(a_diff_id raw, a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return integer;
+  
+  function get_json_diffs_tmp(a_diff_id raw) return tt_json_diff_tab;
+
   
   function get_json_diffs_type(a_diffs_all tt_json_diff_tab) return tt_json_diff_type_tab;
   

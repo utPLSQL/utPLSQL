@@ -47,5 +47,15 @@ create or replace type body ut_expectation_json as
     return l_result;
   end;
 
+  member procedure to_have_count(self in ut_expectation_json, a_expected integer) is
+  begin
+    self.to_( ut_have_count(a_expected) );
+  end;
+
+  member procedure not_to_have_count(self in ut_expectation_json, a_expected integer) is
+  begin
+    self.not_to( ut_have_count(a_expected) );
+  end;
+
 end;
 /

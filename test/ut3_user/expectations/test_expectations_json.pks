@@ -37,5 +37,22 @@ create or replace package test_expectations_json is
   --%test( Fail json string is not empty)
   procedure fail_not_empty_json;
   
+  --%test( Json object to have count )
+  procedure to_have_count;
+  
+    --%test( Fail Json object to have count)
+  procedure fail_to_have_count;
+  
+    --%test( Json object not to have count)
+  procedure not_to_have_count;
+  
+    --%test( Fail Json object not to have count)
+  procedure fail_not_to_have_count;
+    
+  --%test( Json object to have count on array)
+  procedure to_have_count_array;
+  
+  
+
 end;
 /
