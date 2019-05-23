@@ -69,7 +69,6 @@ create or replace type body ut_json_tree_details as
   member procedure traverse_object(self in out nocopy ut_json_tree_details, a_json_piece json_object_t,
     a_parent_name varchar2 := null, a_hierarchy_level integer := 1, a_access_path varchar2 := null ) as
     l_keys      json_key_list;
-    l_object    json_element_t;
   begin
     l_keys := coalesce(a_json_piece.get_keys,json_key_list()); 
     

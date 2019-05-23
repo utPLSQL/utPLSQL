@@ -690,7 +690,7 @@ create or replace package body ut_compound_data_helper is
     l_diffs(i).act_element_name,l_diffs(i).act_element_value,l_diffs(i).act_json_type, l_diffs(i).act_access_path,
     l_diffs(i).exp_element_name,l_diffs(i).exp_element_value,l_diffs(i).exp_json_type,l_diffs(i).exp_access_path);
      
-    return l_diffs.count; --TODO : na sqlrowcount
+    return l_diffs.count;
   end;
   
   function get_json_diffs_type(a_diffs_all tt_json_diff_tab) return tt_json_diff_type_tab is
