@@ -23,8 +23,9 @@ create or replace type body ut_junit_reporter is
   end;
 
   overriding member procedure after_calling_run(self in out nocopy ut_junit_reporter, a_run in ut_run) is
-    c_cddata_tag_start constant varchar2(30) := '<![CDATA[';
-    c_cddata_tag_end   constant varchar2(10) := ']]>';
+    c_cdata_start_tag     constant varchar2(30) := '<![CDATA[';
+    c_cdata_end_tag       constant varchar2(10) := ']]>';
+    c_cdata_end_tag_wrap  constant varchar2(30) := ']]'||c_cdata_end_tag||c_cdata_start_tag||'>';
     l_suite_id    integer := 0;
     l_tests_count integer := a_run.results_count.disabled_count + a_run.results_count.success_count +
                              a_run.results_count.failure_count + a_run.results_count.errored_count;
@@ -37,7 +38,7 @@ create or replace type body ut_junit_reporter is
     procedure print_test_elements(a_test ut_test) is
       l_results ut_varchar2_rows := ut_varchar2_rows();
       l_lines   ut_varchar2_list;
-      l_output clob;
+      l_output  clob;
     begin
       ut_utils.append_to_list(
         l_results,
@@ -51,26 +52,31 @@ create or replace type body ut_junit_reporter is
       end if;
       if a_test.result = ut_utils.gc_error then
         ut_utils.append_to_list( l_results, '<error>');
-        ut_utils.append_to_list( l_results, c_cddata_tag_start);
+        ut_utils.append_to_list( l_results, c_cdata_start_tag);
         ut_utils.append_to_list( l_results, ut_utils.convert_collection(a_test.get_error_stack_traces()) );
-        ut_utils.append_to_list( l_results, c_cddata_tag_end);
+        ut_utils.append_to_list( l_results, c_cdata_end_tag);
         ut_utils.append_to_list( l_results, '</error>');
       elsif a_test.result > ut_utils.gc_success then
         ut_utils.append_to_list( l_results, '<failure>');
-        ut_utils.append_to_list( l_results, c_cddata_tag_start);
+        ut_utils.append_to_list( l_results, c_cdata_start_tag);
         for i in 1 .. a_test.failed_expectations.count loop
-          ut_utils.append_to_list( l_results, ut_utils.table_to_clob(a_test.failed_expectations(i).get_result_lines()));
+          l_lines := a_test.failed_expectations(i).get_result_lines();
+          for j in 1 .. l_lines.count loop
+            --Encapsulate nested CDATA in results
+            ut_utils.append_to_list( l_results, replace( l_lines(j), c_cdata_end_tag, c_cdata_end_tag_wrap ) );
+          end loop;
+          ut_utils.append_to_list( l_results, replace( a_test.failed_expectations(i).caller_info, c_cdata_end_tag, c_cdata_end_tag_wrap ) );
         end loop;
-        ut_utils.append_to_list( l_results, c_cddata_tag_end);
+        ut_utils.append_to_list( l_results, c_cdata_end_tag);
         ut_utils.append_to_list( l_results, '</failure>');
       end if;
       -- TODO - decide if we need/want to use the <system-err/> tag too
       l_output := a_test.get_serveroutputs();
       if l_output is not null then
         ut_utils.append_to_list( l_results, '<system-out>');
-        ut_utils.append_to_list( l_results, c_cddata_tag_start);
-        ut_utils.append_to_list( l_results, l_output);
-        ut_utils.append_to_list( l_results, c_cddata_tag_end );
+        ut_utils.append_to_list( l_results, c_cdata_start_tag);
+        ut_utils.append_to_list( l_results, replace( l_output, c_cdata_end_tag, c_cdata_end_tag_wrap ) );
+        ut_utils.append_to_list( l_results, c_cdata_end_tag );
         ut_utils.append_to_list( l_results, '</system-out>' );
       else
         ut_utils.append_to_list( l_results, '<system-out/>');
@@ -115,9 +121,9 @@ create or replace type body ut_junit_reporter is
         l_data := l_suite.get_serveroutputs();
         if l_data is not null and l_data != empty_clob() then
           ut_utils.append_to_list( l_results, '<system-out>');
-          ut_utils.append_to_list( l_results, c_cddata_tag_start);
-          ut_utils.append_to_list( l_results, l_data);
-          ut_utils.append_to_list( l_results, c_cddata_tag_end);
+          ut_utils.append_to_list( l_results, c_cdata_start_tag);
+          ut_utils.append_to_list( l_results, replace( l_data, c_cdata_end_tag, c_cdata_end_tag_wrap ) );
+          ut_utils.append_to_list( l_results, c_cdata_end_tag);
           ut_utils.append_to_list( l_results, '</system-out>');
         else
           ut_utils.append_to_list( l_results, '<system-out/>');
@@ -126,9 +132,9 @@ create or replace type body ut_junit_reporter is
         l_errors := l_suite.get_error_stack_traces();
         if l_errors is not empty then
           ut_utils.append_to_list( l_results, '<system-err>');
-          ut_utils.append_to_list( l_results, c_cddata_tag_start);
-          ut_utils.append_to_list( l_results, ut_utils.table_to_clob(l_errors));
-          ut_utils.append_to_list( l_results, c_cddata_tag_end);
+          ut_utils.append_to_list( l_results, c_cdata_start_tag);
+          ut_utils.append_to_list( l_results, replace( ut_utils.table_to_clob(l_errors), c_cdata_end_tag, c_cdata_end_tag_wrap ) );
+          ut_utils.append_to_list( l_results, c_cdata_end_tag);
           ut_utils.append_to_list( l_results, '</system-err>');
         else
           ut_utils.append_to_list( l_results, '<system-err/>');

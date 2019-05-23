@@ -28,6 +28,9 @@ create or replace type body ut_tfs_junit_reporter is
   end;
 
  member procedure junit_version_one(self in out nocopy ut_tfs_junit_reporter,a_run in ut_run) is
+    c_cdata_start_tag     constant varchar2(30) := '<![CDATA[';
+    c_cdata_end_tag       constant varchar2(10) := ']]>';
+    c_cdata_end_tag_wrap  constant varchar2(30) := ']]'||c_cdata_end_tag||c_cdata_start_tag||'>';
     l_suite_id    integer := 0;
     l_tests_count integer := a_run.results_count.disabled_count + a_run.results_count.success_count +
                              a_run.results_count.failure_count + a_run.results_count.errored_count;
@@ -69,20 +72,23 @@ create or replace type body ut_tfs_junit_reporter is
       
       if a_test.result = ut_utils.gc_error then
         ut_utils.append_to_list( l_results, '<error type="error" message="Error while executing '||a_test.name||'">');
-        ut_utils.append_to_list( l_results, '<![CDATA[');
+        ut_utils.append_to_list( l_results, c_cdata_start_tag);
         ut_utils.append_to_list( l_results, ut_utils.table_to_clob(a_test.get_error_stack_traces()));
-        ut_utils.append_to_list( l_results, ']]>');
+        ut_utils.append_to_list( l_results, c_cdata_end_tag);
         ut_utils.append_to_list( l_results, '</error>');
      -- Do not count error as failure
       elsif a_test.result = ut_utils.gc_failure then
         ut_utils.append_to_list( l_results, '<failure type="failure" message="Test '||a_test.name||' failed">');
+        ut_utils.append_to_list( l_results, c_cdata_start_tag);
         for i in 1 .. a_test.failed_expectations.count loop
           l_lines := a_test.failed_expectations(i).get_result_lines();
           for j in 1 .. l_lines.count loop
-            ut_utils.append_to_list( l_results, dbms_xmlgen.convert(l_lines(j)));
+            --Encapsulate nested CDATA in results
+            ut_utils.append_to_list( l_results, replace( l_lines(j), c_cdata_end_tag, c_cdata_end_tag_wrap ) );
           end loop;
-          ut_utils.append_to_list( l_results, dbms_xmlgen.convert(a_test.failed_expectations(i).caller_info));
+          ut_utils.append_to_list( l_results, replace( a_test.failed_expectations(i).caller_info, c_cdata_end_tag, c_cdata_end_tag_wrap ) );
         end loop;
+        ut_utils.append_to_list( l_results, c_cdata_end_tag);
         ut_utils.append_to_list( l_results, '</failure>');
       end if;
 
@@ -120,9 +126,9 @@ create or replace type body ut_tfs_junit_reporter is
         l_outputs := l_suite.get_serveroutputs();
         if l_outputs is not null and l_outputs != empty_clob() then
           ut_utils.append_to_list( l_results, '<system-out>');
-          ut_utils.append_to_list( l_results, '<![CDATA[');
+          ut_utils.append_to_list( l_results, c_cdata_start_tag);
           ut_utils.append_to_list( l_results, l_outputs);
-          ut_utils.append_to_list( l_results, ']]>');
+          ut_utils.append_to_list( l_results, c_cdata_end_tag);
           ut_utils.append_to_list( l_results, '</system-out>');
         else 
           ut_utils.append_to_list( l_results, '<system-out/>');
@@ -131,9 +137,9 @@ create or replace type body ut_tfs_junit_reporter is
         l_errors := l_suite.get_error_stack_traces();
         if l_errors is not empty then
           ut_utils.append_to_list( l_results, '<system-err>');
-          ut_utils.append_to_list( l_results, '<![CDATA[');
+          ut_utils.append_to_list( l_results, c_cdata_start_tag);
           ut_utils.append_to_list( l_results, ut_utils.table_to_clob(l_errors));
-          ut_utils.append_to_list( l_results, ']]>');
+          ut_utils.append_to_list( l_results, c_cdata_end_tag);
           ut_utils.append_to_list( l_results, '</system-err>');
         else
           ut_utils.append_to_list( l_results, '<system-err/>');
