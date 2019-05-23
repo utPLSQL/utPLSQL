@@ -52,7 +52,11 @@ create or replace package test_expectations_json is
   --%test( Json object to have count on array)
   procedure to_have_count_array;
   
-  
+  --%test( Two json use plsql function to extract same pieces and compare)
+  procedure to_diff_json_extract_same;
+
+  --%test( Two json use plsql function to extract diff pieces and compare)
+  procedure to_diff_json_extract_diff;
 
 end;
 /

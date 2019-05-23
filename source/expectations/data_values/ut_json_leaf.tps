@@ -26,16 +26,17 @@ create or replace type ut_json_leaf force authid current_user as object (
    json_type        varchar2(2000),
    is_array_element integer,
    parent_type      varchar2(2000),
+   parent_path      varchar2(4000),
 
    member procedure init(self in out nocopy ut_json_leaf,
      a_element_name varchar2, a_element_value varchar2,a_parent_name varchar2, 
      a_access_path varchar2, a_hierarchy_level integer, a_index_position integer, a_json_type in varchar2,
-     a_parent_type varchar2, a_array_element integer:=0),
+     a_parent_type varchar2, a_array_element integer:=0, a_parent_path varchar2),
      
    constructor function ut_json_leaf( self in out nocopy ut_json_leaf,
      a_element_name varchar2, a_element_value varchar2,a_parent_name varchar2,
      a_access_path varchar2, a_hierarchy_level integer, a_index_position integer, a_json_type in varchar2,
-     a_parent_type varchar2, a_array_element integer:=0)
+     a_parent_type varchar2, a_array_element integer:=0, a_parent_path varchar2)
    return self as result
 )
 /

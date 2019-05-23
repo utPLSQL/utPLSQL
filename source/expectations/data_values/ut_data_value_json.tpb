@@ -89,6 +89,7 @@ create or replace type body ut_data_value_json as
     if not a_other is of (ut_data_value_json) then
       raise value_error;
     end if;
+    dbms_lob.createtemporary(l_result, true);
     l_other := treat(a_other as ut_data_value_json);       
     l_diff_id  := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);  
     

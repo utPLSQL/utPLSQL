@@ -59,21 +59,22 @@ create or replace type body ut_json_tree_details as
    
    member procedure add_json_leaf(self in out nocopy ut_json_tree_details, a_element_name varchar2, a_element_value varchar2,
      a_parent_name varchar2, a_access_path varchar2, a_hierarchy_level integer, a_index_position integer, 
-     a_json_type in varchar2, a_parent_type in varchar2, a_array_element integer := 0) is
+     a_json_type in varchar2, a_parent_type in varchar2, a_array_element integer := 0, a_parent_path varchar2) is
   begin
     self.json_tree_info.extend;
     self.json_tree_info(self.json_tree_info.last) := ut_json_leaf(a_element_name,a_element_value,a_parent_name,a_access_path,
-      a_hierarchy_level, a_index_position,a_json_type, a_parent_type, a_array_element);
+      a_hierarchy_level, a_index_position,a_json_type, a_parent_type, a_array_element, a_parent_path);
   end;
   
   member procedure traverse_object(self in out nocopy ut_json_tree_details, a_json_piece json_object_t,
     a_parent_name varchar2 := null, a_hierarchy_level integer := 1, a_access_path varchar2 := null ) as
     l_keys      json_key_list;
+    l_object    json_element_t;
   begin
     l_keys := coalesce(a_json_piece.get_keys,json_key_list()); 
     
     for indx in 1 .. l_keys.count
-    loop 
+    loop           
           add_json_leaf(l_keys(indx),
                    get_json_value(a_json_piece,l_keys(indx)),
                    a_parent_name,
@@ -81,7 +82,9 @@ create or replace type body ut_json_tree_details as
                    a_hierarchy_level,
                    indx,
                    get_json_type(a_json_piece.get (l_keys(indx))),
-                   'object'
+                   'object',
+                   0,
+                   a_access_path
                    ); 
       case get_json_type(a_json_piece.get(l_keys(indx)))
         when 'array' then
@@ -118,7 +121,8 @@ create or replace type body ut_json_tree_details as
                    indx,
                    get_json_type(l_array.get (indx)),
                    'array',
-                   1
+                   1,
+                   a_access_path
                    ); 
       case get_json_type(l_array.get (indx))
         when 'array' then

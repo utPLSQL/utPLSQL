@@ -643,6 +643,7 @@ create or replace package body ut_compound_data_helper is
       from table(a_act_json_data) a
       full outer join table(a_exp_json_data) e
         on decode(a.parent_name,e.parent_name,1,0)= 1
+       and decode(a.parent_path,e.parent_path,1,0)= 1
        and ( 
           case when a.parent_type = 'object' or e.parent_type = 'object' then
             decode(a.element_name,e.element_name,1,0) 

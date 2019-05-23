@@ -11,8 +11,78 @@ create or replace package body test_expectations_json is
     l_actual   json_element_t;
   begin
     -- Arrange
-    l_expected := json_element_t.parse('{"name1":"value1","name2":"value2"}');
-    l_actual   := json_element_t.parse('{"name1":"value1","name2":"value2"}');
+    l_expected := json_element_t.parse('    {
+      "Actors": [
+        {
+          "name": "Tom Cruise",
+          "age": 56,
+          "Born At": "Syracuse, NY",
+          "Birthdate": "July 3, 1962",
+          "photo": "https://jsonformatter.org/img/tom-cruise.jpg",
+          "wife": null,
+          "weight": 67.5,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Suri",
+            "Isabella Jane",
+            "Connor"
+          ]
+        },
+        {
+          "name": "Robert Downey Jr.",
+          "age": 53,
+          "Born At": "New York City, NY",
+          "Birthdate": "April 4, 1965",
+          "photo": "https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
+          "wife": "Susan Downey",
+          "weight": 77.1,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Indio Falconer",
+            "Avri Roel",
+            "Exton Elias"
+          ]
+        }
+      ]
+    }');
+    l_actual   := json_element_t.parse('    {
+      "Actors": [
+        {
+          "name": "Tom Cruise",
+          "age": 56,
+          "Born At": "Syracuse, NY",
+          "Birthdate": "July 3, 1962",
+          "photo": "https://jsonformatter.org/img/tom-cruise.jpg",
+          "wife": null,
+          "weight": 67.5,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Suri",
+            "Isabella Jane",
+            "Connor"
+          ]
+        },
+        {
+          "name": "Robert Downey Jr.",
+          "age": 53,
+          "Born At": "New York City, NY",
+          "Birthdate": "April 4, 1965",
+          "photo": "https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
+          "wife": "Susan Downey",
+          "weight": 77.1,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Indio Falconer",
+            "Avri Roel",
+            "Exton Elias"
+          ]
+        }
+      ]
+    }');
 
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_actual );
@@ -268,6 +338,153 @@ create or replace package body test_expectations_json is
     ut3.ut.expect( l_actual ).to_have_count( 2 );  
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
+ 
+  procedure to_diff_json_extract_same
+  as
+         l_expected   json_object_t;
+        l_actual     json_object_t;
+    BEGIN
+    -- Arrange
+        l_expected := json_object_t.parse('    {
+      "Actors": [
+        {
+          "name": "Tom Cruise",
+          "age": 56,
+          "Born At": "Syracuse, NY",
+          "Birthdate": "July 3, 1962",
+          "photo": "https://jsonformatter.org/img/tom-cruise.jpg",
+          "wife": null,
+          "weight": 67.5,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Suri",
+            "Isabella Jane",
+            "Connor"
+          ]
+        },
+        {
+          "name": "Robert Downey Jr.",
+          "age": 53,
+          "Born At": "New York City, NY",
+          "Birthdate": "April 4, 1965",
+          "photo": "https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
+          "wife": "Susan Downey",
+          "weight": 77.1,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Indio Falconer",
+            "Avri Roel",
+            "Exton Elias"
+          ]
+        }
+      ]
+    }'
+        );
+        l_actual := json_object_t.parse('    {
+      "Actors": 
+        {
+          "name": "Krzystof Jarzyna",
+          "age": 53,
+          "Born At": "Szczecin",
+          "Birthdate": "April 4, 1965",
+          "photo": "niewidzialny",
+          "wife": "Susan Downey",
+          "children": [
+            "Indio Falconer",
+            "Avri Roel",
+            "Exton Elias"
+          ]
+        }
+    }'
+        );
+    
+    
+    --Act
+    ut3.ut.expect(json_array_t(json_query(l_actual.stringify,'$.Actors.children'))).to_equal(json_array_t(json_query(l_expected
+        .stringify,'$.Actors[1].children')));
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
+
+  procedure to_diff_json_extract_diff
+  as
+    l_expected   json_object_t;
+    l_actual     json_object_t;
+    l_expected_message varchar2(32767);
+    l_actual_message   varchar2(32767);
+  begin
+    -- Arrange
+        l_expected := json_object_t.parse('    {
+      "Actors": [
+        {
+          "name": "Tom Cruise",
+          "age": 56,
+          "Born At": "Syracuse, NY",
+          "Birthdate": "July 3, 1962",
+          "photo": "https://jsonformatter.org/img/tom-cruise.jpg",
+          "wife": null,
+          "weight": 67.5,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Suri",
+            "Isabella Jane",
+            "Connor"
+          ]
+        },
+        {
+          "name": "Robert Downey Jr.",
+          "age": 53,
+          "Born At": "New York City, NY",
+          "Birthdate": "April 4, 1965",
+          "photo": "https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
+          "wife": "Susan Downey",
+          "weight": 77.1,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Noemi",
+            "Avri Roel",
+            "Exton Elias"
+          ]
+        }
+      ]
+    }'
+        );
+        l_actual := json_object_t.parse('    {
+      "Actors": 
+        {
+          "name": "Krzystof Jarzyna",
+          "age": 53,
+          "Born At": "Szczecin",
+          "Birthdate": "April 4, 1965",
+          "photo": "niewidzialny",
+          "wife": "Susan Downey",
+          "children": [
+            "Indio Falconer",
+            "Avri Roel",
+            "Exton Elias"
+          ]
+        }
+    }'
+        );
+    
+    
+    --Act
+    ut3.ut.expect(json_array_t(json_query(l_actual.stringify,'$.Actors.children'))).to_equal(json_array_t(json_query(l_expected
+        .stringify,'$.Actors[1].children')));
+    --Assert
+    l_expected_message := q'[%Actual: json was expected to equal: json
+%Diff:
+%Found: 1 differences
+%1 unequal values
+%Actual value is 'Noemi' was expected to be 'Indio Falconer' on path :$[0]%]';
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
   
 end;
