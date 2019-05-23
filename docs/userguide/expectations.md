@@ -1178,7 +1178,7 @@ Finished in .048181 seconds
 
 
 
-# Comparing json objects
+# Comparing Json objects
 
 utPLSQL is capable of comparing json data-types on Oracle 12.2 and above.
 
@@ -1188,6 +1188,197 @@ utPLSQL is capable of comparing json data-types on Oracle 12.2 and above.
 - During comparison of json objects the order doesn't matter.
 - During comparison of json arrays the index of element is taken into account
 - To compare json you have to make sure its type of  `json_element_t` or its subtypes
+
+
+
+Some examples of using json data-types in matcher are :
+
+```sql
+create or replace package test_expectations_json is
+
+  --%suite(json expectations)
+  
+  --%test(Gives success for identical data)
+  procedure success_on_same_data
+end;
+/
+
+create or replace package body test_expectations_json is
+
+  procedure success_on_same_data
+  as
+    l_expected json_element_t;
+    l_actual   json_element_t;
+  begin
+    -- Arrange
+    l_expected := json_element_t.parse('    {
+      "Actors": [
+        {
+          "name": "Tom Cruise",
+          "age": 56,
+          "Born At": "Syracuse, NY",
+          "Birthdate": "July 3, 1962",
+          "photo": "https://jsonformatter.org/img/tom-cruise.jpg",
+          "wife": null,
+          "weight": 67.5,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Suri",
+            "Isabella Jane",
+            "Connor"
+          ]
+        },
+        {
+          "name": "Robert Downey Jr.",
+          "age": 53,
+          "Born At": "New York City, NY",
+          "Birthdate": "April 4, 1965",
+          "photo": "https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
+          "wife": "Susan Downey",
+          "weight": 77.1,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Indio Falconer",
+            "Avri Roel",
+            "Exton Elias"
+          ]
+        }
+      ]
+    }');
+    l_actual   := json_element_t.parse('    {
+      "Actors": [
+        {
+          "name": "Tom Cruise",
+          "age": 56,
+          "Born At": "Syracuse, NY",
+          "Birthdate": "July 3, 1962",
+          "photo": "https://jsonformatter.org/img/tom-cruise.jpg",
+          "wife": null,
+          "weight": 67.5,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Suri",
+            "Isabella Jane",
+            "Connor"
+          ]
+        },
+        {
+          "name": "Robert Downey Jr.",
+          "age": 53,
+          "Born At": "New York City, NY",
+          "Birthdate": "April 4, 1965",
+          "photo": "https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
+          "wife": "Susan Downey",
+          "weight": 77.1,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Indio Falconer",
+            "Avri Roel",
+            "Exton Elias"
+          ]
+        }
+      ]
+    }');
+
+    ut3.ut.expect( l_actual ).to_equal( l_actual );
+
+  end;
+end;
+/
+```
+
+It is possible to use a PL/SQL to extract a piece of JSON and compare it as follow
+
+```sql
+create or replace package test_expectations_json is
+
+  --%suite(json expectations)
+  
+  --%test(Gives success for identical pieces of two different jsons)
+  procedure to_diff_json_extract_same
+end;
+/
+
+create or replace package body test_expectations_json is
+  procedure to_diff_json_extract_same
+  as
+         l_expected   json_object_t;
+        l_actual     json_object_t;
+    BEGIN
+    -- Arrange
+        l_expected := json_object_t.parse('    {
+      "Actors": [
+        {
+          "name": "Tom Cruise",
+          "age": 56,
+          "Born At": "Syracuse, NY",
+          "Birthdate": "July 3, 1962",
+          "photo": "https://jsonformatter.org/img/tom-cruise.jpg",
+          "wife": null,
+          "weight": 67.5,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Suri",
+            "Isabella Jane",
+            "Connor"
+          ]
+        },
+        {
+          "name": "Robert Downey Jr.",
+          "age": 53,
+          "Born At": "New York City, NY",
+          "Birthdate": "April 4, 1965",
+          "photo": "https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
+          "wife": "Susan Downey",
+          "weight": 77.1,
+          "hasChildren": true,
+          "hasGreyHair": false,
+          "children": [
+            "Indio Falconer",
+            "Avri Roel",
+            "Exton Elias"
+          ]
+        }
+      ]
+    }'
+        );
+        l_actual := json_object_t.parse('    {
+      "Actors": 
+        {
+          "name": "Krzystof Jarzyna",
+          "age": 53,
+          "Born At": "Szczecin",
+          "Birthdate": "April 4, 1965",
+          "photo": "niewidzialny",
+          "wife": "Susan Downey",
+          "children": [
+            "Indio Falconer",
+            "Avri Roel",
+            "Exton Elias"
+          ]
+        }
+    }'
+        );
+    
+    
+    --Act
+    ut3.ut.expect(json_array_t(json_query(l_actual.stringify,'$.Actors.children'))).to_equal(json_array_t(json_query(l_expected.stringify,'$.Actors[1].children')));
+
+  end;
+end;
+/
+```
+
+
+
+
+
+
 
 # Negating a matcher
 
@@ -1224,21 +1415,21 @@ Since NULL is neither *true* nor *false*, both expectations will report failure.
 
 The matrix below illustrates the data types supported by different matchers.
 
-| Matcher                 | blob | boolean | clob | date | number | timestamp | timestamp<br>with<br>timezone | timestamp<br>with<br>local<br>timezone | varchar2 | interval<br>year<br>to<br>month | interval<br>day<br>to<br>second | cursor | nested<br>table<br>/ varray | object |
-| :---------------------- | :--: | :-----: | :--: | :--: | :----: | :-------: | :---------------------------: | :------------------------------------: | :------: | :-----------------------------: | :-----------------------------: | :----: | :-------------------------: | :----: |
-| **be_not_null**         |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |
-| **be_null**             |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |
-| **be_false**            |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |
-| **be_true**             |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |
-| **be_greater_than**     |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |
-| **be_greater_or_equal** |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |
-| **be_less_or_equal**    |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |
-| **be_less_than**        |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |
-| **be_between**          |      |         |      |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |        |                             |        |
-| **equal**               |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |
-| **contain**             |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |   X    |
-| **match**               |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |
-| **be_like**             |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |
-| **be_empty**            |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |
-| **have_count**          |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |
+|         Matcher         | blob | boolean | clob | date | number | timestamp | timestamp<br>with<br>timezone | timestamp<br>with<br>local<br>timezone | varchar2 | interval<br>year<br>to<br>month | interval<br>day<br>to<br>second | cursor | nested<br>table<br>/ varray | object | json |
+| :---------------------: | :--: | :-----: | :--: | :--: | :----: | :-------: | :---------------------------: | :------------------------------------: | :------: | :-----------------------------: | :-----------------------------: | :----: | :-------------------------: | :----: | :--: |
+|     **be_not_null**     |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
+|       **be_null**       |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
+|      **be_false**       |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
+|       **be_true**       |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
+|   **be_greater_than**   |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+| **be_greater_or_equal** |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+|  **be_less_or_equal**   |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+|    **be_less_than**     |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+|     **be_between**      |      |         |      |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |        |                             |        |      |
+|        **equal**        |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
+|       **contain**       |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |   X    |      |
+|        **match**        |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
+|       **be_like**       |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
+|      **be_empty**       |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
+|     **have_count**      |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
 

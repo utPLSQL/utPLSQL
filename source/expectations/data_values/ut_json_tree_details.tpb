@@ -108,34 +108,38 @@ create or replace type body ut_json_tree_details as
   member procedure traverse_array(self in out nocopy ut_json_tree_details, a_json_piece json_array_t, 
      a_parent_name varchar2 := null, a_hierarchy_level integer := 1, a_access_path varchar2 := null ) as
     l_array     json_array_t;
+    l_type      varchar2(50);
+    l_name      varchar2(4000); 
   begin
     l_array  := a_json_piece;
-    
     for indx in 0 .. l_array.get_size - 1 
     loop 
-           add_json_leaf(l_array.get(indx).stringify,
+      l_type := get_json_type(l_array.get (indx));
+      l_name := case when l_type = 'object' then l_type else l_array.get(indx).stringify end;
+           
+           add_json_leaf(l_name,
                    get_json_value(a_json_piece,indx),
                    a_parent_name,
                    a_access_path||'['||indx||']',
                    a_hierarchy_level,
                    indx,
-                   get_json_type(l_array.get (indx)),
+                   l_type,
                    'array',
                    1,
                    a_access_path
                    ); 
-      case get_json_type(l_array.get (indx))
+      case l_type
         when 'array' then
             traverse_array ( 
               treat (l_array.get (indx) as json_array_t), 
-              l_array.get(indx).stringify,
+              l_name,
               a_hierarchy_level + 1,
               a_access_path||'['||indx||']'
               ); 
         when 'object' then
             traverse_object( 
               treat (a_json_piece.get (indx) as json_object_t),
-              l_array.get(indx).stringify,
+              l_name,
               a_hierarchy_level+1,
               a_access_path||'['||indx||']'
               );

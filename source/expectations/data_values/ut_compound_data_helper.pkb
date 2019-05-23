@@ -627,6 +627,7 @@ create or replace package body ut_compound_data_helper is
   function compare_json_data(a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return tt_json_diff_tab is
     l_result_diff tt_json_diff_tab := tt_json_diff_tab();
   begin
+
     with differences as (
     select 
     case 
@@ -634,6 +635,11 @@ create or replace package body ut_compound_data_helper is
       when a.json_type != e.json_type then gc_json_type
       when (decode(a.element_value,e.element_value,1,0) = 0) then gc_json_notequal     
       else gc_json_unknown end  as difference_type,
+    case 
+      when (a.element_name is null or e.element_name is null) then 1
+      when a.json_type != e.json_type then 2
+      when (decode(a.element_value,e.element_value,1,0) = 0) then 3     
+      else 4 end  as order_by_type,
       a.element_name as act_element_name, a.element_value as act_element_value, a.hierarchy_level as act_hierarchy_level,
       a.index_position as act_index_position, a.json_type as act_json_type, a.access_path as act_access_path,
       a.parent_name act_par_name, 
@@ -664,9 +670,11 @@ create or replace package body ut_compound_data_helper is
      bulk collect into l_result_diff
      from differences a
      where not exists ( select 1 from differences b where (a.act_par_name = b.act_element_name and a.act_hierarchy_level - 1 = b.act_hierarchy_level)
-      or  (a.exp_par_name = b.exp_element_name and a.exp_hierarchy_level - 1 = b.exp_hierarchy_level))
-      order by nvl(act_hierarchy_level,exp_hierarchy_level),nvl(act_index_position,exp_index_position) nulls first, 
-      nvl(act_element_name,exp_element_name),nvl(act_json_type,exp_json_type) ;
+      or  (a.exp_par_name = b.exp_element_name and a.exp_hierarchy_level - 1 = b.exp_hierarchy_level)
+      and a.difference_type = gc_json_missing and b.difference_type = gc_json_missing)
+      order by order_by_type,
+      nvl(act_hierarchy_level,exp_hierarchy_level),nvl(act_index_position,exp_index_position) nulls first, 
+      nvl(act_element_name,exp_element_name) ;
      return l_result_diff;
   end;
   

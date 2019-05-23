@@ -57,6 +57,18 @@ create or replace package test_expectations_json is
 
   --%test( Two json use plsql function to extract diff pieces and compare)
   procedure to_diff_json_extract_diff;
+  
+  --%test( Long JSON test same )
+  procedure long_json_test;
+
+  --%test( JSON test same semantic content different order )
+  procedure json_same_diffrent_ord;
+
+  --%test( Long complex nested JSON test )
+  procedure long_json_test2;
+
+  --%test( Long complex json differences )
+  procedure long_json_diff;
 
 end;
 /
