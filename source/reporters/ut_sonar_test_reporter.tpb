@@ -57,12 +57,11 @@ create or replace type body ut_sonar_test_reporter is
         ut_utils.append_to_list( l_results, '</error>');
       elsif a_test.result > ut_utils.gc_success then
         ut_utils.append_to_list( l_results, '<failure message="some expectations have failed">');
+        ut_utils.append_to_list( l_results, '<![CDATA[');
         for i in 1 .. a_test.failed_expectations.count loop
-          l_lines := a_test.failed_expectations(i).get_result_lines();
-          for i in 1 .. l_lines.count loop
-            ut_utils.append_to_list( l_results, dbms_xmlgen.convert(l_lines(i)));
-          end loop;
+          ut_utils.append_to_list( l_results, ut_utils.table_to_clob(a_test.failed_expectations(i).get_result_lines()));
         end loop;
+        ut_utils.append_to_list( l_results, ']]>');
         ut_utils.append_to_list( l_results, '</failure>');
       end if;
       ut_utils.append_to_list( l_results, '</testCase>');
