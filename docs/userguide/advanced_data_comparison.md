@@ -133,36 +133,70 @@ create or replace package ut_anydata_inc_exc IS
 
    --%suite(Anydata)
 
-   --%test(Anydata include and exclude)
-   procedure ut_anydata_test;
+   --%test(Anydata include)
+   procedure ut_anydata_test_inc;
+
+   --%test(Anydata exclude)
+   procedure ut_anydata_test_exc;
 
 end ut_anydata_inc_exc;
 /
 
 create or replace package body ut_anydata_inc_exc IS
 
-   procedure ut_refcursors1 IS
+   procedure ut_anydata_test_inc IS
     l_actual           ut3_tester_helper.test_dummy_object_list;
     l_expected         ut3_tester_helper.test_dummy_object_list;
   begin
     --Arrange
     select ut3_tester_helper.test_dummy_object( rownum, 'Something Name'||rownum, rownum)
       bulk collect into l_actual
-      from dual connect by level <=2;
+      from dual connect by level <=2
+      order by rownum asc;
     select ut3_tester_helper.test_dummy_object( rownum, 'Something '||rownum, rownum)
       bulk collect into l_expected
       from dual connect by level <=2
-     order by rownum desc;
+     order by rownum asc;
     --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include('ID'); 
-ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).exclude('name'); 
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include('ID,Value');  
+   end;
+   
+   procedure ut_anydata_test_exc IS
+    l_actual           ut3_tester_helper.test_dummy_object_list;
+    l_expected         ut3_tester_helper.test_dummy_object_list;
+  begin
+    --Arrange
+    select ut3_tester_helper.test_dummy_object( rownum, 'Something Name'||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=2
+      order by rownum asc;
+    select ut3_tester_helper.test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2
+     order by rownum asc;
+    --Act
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).exclude('name');  
    end;
 
-end ut_sample_test;
+end ut_anydata_inc_exc;
 /
+
+```
+
+will result in :
+
+```sql
+Anydata
+  Anydata include [.07 sec]
+  Anydata exclude [.058 sec]
+ 
+Finished in .131218 seconds
+2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
 
+
+Example of exclude
 
 Only the columns 'RN', "A_Column" will be compared. Column 'SOME_COL' is excluded.
 
