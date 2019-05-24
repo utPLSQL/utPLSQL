@@ -126,6 +126,44 @@ end;
 
 ```
 
+Example of `include / exclude` for anydata.convertCollection
+
+```plsql
+create or replace package ut_anydata_inc_exc IS
+
+   --%suite(Anydata)
+
+   --%test(Anydata include and exclude)
+   procedure ut_anydata_test;
+
+end ut_anydata_inc_exc;
+/
+
+create or replace package body ut_anydata_inc_exc IS
+
+   procedure ut_refcursors1 IS
+    l_actual           ut3_tester_helper.test_dummy_object_list;
+    l_expected         ut3_tester_helper.test_dummy_object_list;
+  begin
+    --Arrange
+    select ut3_tester_helper.test_dummy_object( rownum, 'Something Name'||rownum, rownum)
+      bulk collect into l_actual
+      from dual connect by level <=2;
+    select ut3_tester_helper.test_dummy_object( rownum, 'Something '||rownum, rownum)
+      bulk collect into l_expected
+      from dual connect by level <=2
+     order by rownum desc;
+    --Act
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include('ID'); 
+ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).exclude('name'); 
+   end;
+
+end ut_sample_test;
+/
+```
+
+
+
 Only the columns 'RN', "A_Column" will be compared. Column 'SOME_COL' is excluded.
 
 This option can be useful in scenarios where you need to narrow-down the scope of test so that the test is only focused on very specific data.  

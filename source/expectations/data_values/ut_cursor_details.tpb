@@ -146,10 +146,10 @@ create or replace type body ut_cursor_details as
 
   member function get_missing_join_by_columns( a_expected_columns ut_varchar2_list ) return ut_varchar2_list is
     l_result ut_varchar2_list;
-    l_prefix            varchar2(125);
+    l_root   varchar2(125);
   begin
       if self.is_anydata = 1 then
-        l_prefix := get_root;
+        l_root := get_root;
       end if;
     --regexp_replace(c.access_path,'^\/?([^\/]+\/){1}')
     select fl.column_value
@@ -160,7 +160,7 @@ create or replace type body ut_cursor_details as
         where regexp_like(c.access_path,'^/?'||
         case 
           when self.is_anydata = 1 then
-            l_prefix||'/'||trim (leading '/' from fl.column_value)
+            l_root||'/'||trim (leading '/' from fl.column_value)
           else
             fl.column_value
           end||'($|/.*)'
@@ -174,13 +174,13 @@ create or replace type body ut_cursor_details as
     l_result            ut_cursor_details := self;
     l_column_tab        ut_cursor_column_tab := ut_cursor_column_tab();
     l_column            ut_cursor_column;
-    l_prefix            varchar2(125);
+    l_root            varchar2(125);
     c_xpath_extract_reg constant varchar2(50) := '^((/ROW/)|^(//)|^(/\*/))?(.*)';
   begin
     if l_result.cursor_columns_info is not null then
       
       if self.is_anydata = 1 then
-        l_prefix := get_root;
+        l_root := get_root;
       end if;
 
       --limit columns to those on the include items minus exclude items
@@ -201,7 +201,7 @@ create or replace type body ut_cursor_details as
                    select 1 from included_columns f where regexp_like(x.access_path,'^/?'||
                    case 
                      when self.is_anydata = 1 then
-                       l_prefix||'/'||trim(leading '/' from f.col_names)
+                       l_root||'/'||trim(leading '/' from f.col_names)
                      else
                        f.col_names
                      end||'($|/.*)' 
@@ -221,7 +221,7 @@ create or replace type body ut_cursor_details as
              select 1 from excluded_columns f where regexp_like(x.access_path,'^/?'||
              case 
                when self.is_anydata = 1 then
-                 l_prefix||'/'||trim(leading '/' from f.col_names)
+                 l_root||'/'||trim(leading '/' from f.col_names)
                else
                  f.col_names
                end||'($|/.*)' )
