@@ -806,12 +806,22 @@ create or replace package body ut_utils is
       l_idx := a_list.first;
       while l_idx is not null loop
         l_result.extend;
-        l_result(l_idx) := a_prefix||a_connector||trim(leading a_connector from a_list(l_idx));
+        l_result(l_idx) := add_prefix(a_list(l_idx), a_prefix, a_connector);
         l_idx := a_list.next(l_idx);
       end loop;
     end if;
       return l_result;
   end;
 
+  function add_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2 is
+  begin
+    return a_prefix||a_connector||trim(leading a_connector from a_item);  
+  end;
+  
+  function strip_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2 is
+  begin
+    return regexp_replace(a_item,a_prefix||a_connector);  
+  end;
+  
 end ut_utils;
 /
