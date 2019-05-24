@@ -1,4 +1,4 @@
-create or replace type ut_cursor_details force authid current_user as object (
+create or replace type ut_cursor_details authid current_user as object (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -35,8 +35,7 @@ create or replace type ut_cursor_details force authid current_user as object (
    member function  get_missing_join_by_columns( a_expected_columns ut_varchar2_list ) return ut_varchar2_list,
    member procedure filter_columns(self in out nocopy ut_cursor_details, a_match_options ut_matcher_options),
    member function  get_xml_children(a_parent_name varchar2 := null) return xmltype,
-   member procedure has_anydata(self in out nocopy ut_cursor_details, a_is_anydata in boolean := false),
-   member function  has_anydata return boolean,
-   member function get_root return varchar2
+   member function get_root return varchar2,
+   member procedure strip_root_from_anydata(self in out nocopy ut_cursor_details)
 )
 /

@@ -95,7 +95,6 @@ create or replace type body ut_data_value_refcursor as
           extract_cursor(l_cursor);
           l_cursor_number  := dbms_sql.to_cursor_number(l_cursor);
           self.cursor_details  := ut_cursor_details(l_cursor_number);
-          self.cursor_details.has_anydata(false);
           dbms_sql.close_cursor(l_cursor_number);         
         elsif not l_cursor%isopen then
           raise cursor_not_open;

@@ -26,7 +26,8 @@ create or replace type body ut_cursor_column as
                                  self.xml_valid_name 
                                else 
                                  a_access_path||'/'||self.xml_valid_name 
-                               end; --Access path used for incldue exclude eg/ TEST_DUMMY_OBJECT/VARCHAR2     
+                               end; --Access path used for XMLTABLE query   
+      self.filter_path      := self.access_path; --Filter path will differ from access path in anydata type
       self.transformed_name := case when length(self.xml_valid_name) > 30 then
                                  '"'||ut_compound_data_helper.get_fixed_size_hash(self.parent_name||self.xml_valid_name)||'"'
                                when self.parent_name is null then 
