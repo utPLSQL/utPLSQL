@@ -249,7 +249,7 @@ create or replace type body ut_cursor_details as
   begin
     self.is_anydata := 1;
     for i in 1..cursor_columns_info.count loop
-      self.cursor_columns_info(i).filter_path := ut_utils.strip_prefix(self.cursor_columns_info(i).access_path,l_root);
+      self.cursor_columns_info(i).filter_path := '/'||ut_utils.strip_prefix(self.cursor_columns_info(i).access_path,l_root);
     end loop; 
   end;
     
