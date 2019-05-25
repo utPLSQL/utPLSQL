@@ -53,21 +53,12 @@ create or replace type body ut_junit_reporter is
       if a_test.result = ut_utils.gc_error then
         ut_utils.append_to_list( l_results, '<error>');
         ut_utils.append_to_list( l_results, c_cdata_start_tag);
-        ut_utils.append_to_list( l_results, ut_utils.convert_collection(a_test.get_error_stack_traces()) );
+        ut_utils.append_to_list( l_results, replace( ut_utils.table_to_clob(a_test.get_error_stack_traces()), c_cdata_end_tag, c_cdata_end_tag_wrap ));
         ut_utils.append_to_list( l_results, c_cdata_end_tag);
         ut_utils.append_to_list( l_results, '</error>');
       elsif a_test.result > ut_utils.gc_success then
         ut_utils.append_to_list( l_results, '<failure>');
-        ut_utils.append_to_list( l_results, c_cdata_start_tag);
-        for i in 1 .. a_test.failed_expectations.count loop
-          l_lines := a_test.failed_expectations(i).get_result_lines();
-          for j in 1 .. l_lines.count loop
-            --Encapsulate nested CDATA in results
-            ut_utils.append_to_list( l_results, replace( l_lines(j), c_cdata_end_tag, c_cdata_end_tag_wrap ) );
-          end loop;
-          ut_utils.append_to_list( l_results, replace( a_test.failed_expectations(i).caller_info, c_cdata_end_tag, c_cdata_end_tag_wrap ) );
-        end loop;
-        ut_utils.append_to_list( l_results, c_cdata_end_tag);
+        ut_utils.append_to_list( l_results, a_test.get_failed_expectations_cdata() );
         ut_utils.append_to_list( l_results, '</failure>');
       end if;
       -- TODO - decide if we need/want to use the <system-err/> tag too

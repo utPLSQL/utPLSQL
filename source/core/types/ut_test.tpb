@@ -162,5 +162,26 @@ create or replace type body ut_test as
     end loop;
     return l_outputs;
   end;
+
+  member function get_failed_expectations_cdata return ut_varchar2_rows is
+    c_cdata_start_tag     constant varchar2(30) := '<![CDATA[';
+    c_cdata_end_tag       constant varchar2(10) := ']]>';
+    c_cdata_end_tag_wrap  constant varchar2(30) := ']]'||c_cdata_end_tag||c_cdata_start_tag||'>';
+    l_results             ut_varchar2_rows;
+    l_lines               ut_varchar2_list;
+  begin
+    ut_utils.append_to_list( l_results, c_cdata_start_tag);
+    for i in 1 .. self.failed_expectations.count loop
+      l_lines := self.failed_expectations(i).get_result_lines();
+      for j in 1 .. l_lines.count loop
+        --Encapsulate nested CDATA in results
+        ut_utils.append_to_list( l_results, replace( l_lines(j), c_cdata_end_tag, c_cdata_end_tag_wrap ) );
+      end loop;
+      ut_utils.append_to_list( l_results, replace( self.failed_expectations(i).caller_info, c_cdata_end_tag, c_cdata_end_tag_wrap ) );
+    end loop;
+    ut_utils.append_to_list( l_results, c_cdata_end_tag);
+    return l_results;
+  end;
+
 end;
 /
