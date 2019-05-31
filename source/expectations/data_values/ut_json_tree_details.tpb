@@ -18,43 +18,46 @@ create or replace type body ut_json_tree_details as
            end;           
    end;
    
-   member function get_json_value(a_json_piece json_object_t,a_key varchar2) return varchar2 is
-     l_json_el json_element_t := a_json_piece.get (a_key);
+   member function get_json_value(a_json_piece json_element_t,a_key varchar2) return varchar2 is
+     l_json json_object_t := treat(a_json_piece as json_object_t);
+     l_json_el json_element_t := l_json.get (a_key);
      l_val varchar2(4000);
    begin
      case 
-       when l_json_el.is_string       then l_val := a_json_piece.get_string(a_key);
-       when l_json_el.is_number       then l_val := to_char(a_json_piece.get_number(a_key));
-       when l_json_el.is_boolean      then l_val := ut_utils.boolean_to_char(a_json_piece.get_boolean(a_key));
-       when l_json_el.is_true         then l_val := ut_utils.boolean_to_char(a_json_piece.get_boolean(a_key));
-       when l_json_el.is_false        then l_val := ut_utils.boolean_to_char(a_json_piece.get_boolean(a_key));
-       when l_json_el.is_date         then l_val := to_char(a_json_piece.get_date(a_key),'DD/MM/RRRR');
-       when a_json_piece.is_timestamp then l_val := to_char(a_json_piece.get_date(a_key),'DD/MM/RRRR HH24:MI:SS AM');
+       when l_json_el.is_string       then l_val := l_json.get_string(a_key);
+       when l_json_el.is_number       then l_val := to_char(l_json.get_number(a_key));
+       when l_json_el.is_boolean      then l_val := ut_utils.boolean_to_char(l_json.get_boolean(a_key));
+       when l_json_el.is_true         then l_val := ut_utils.boolean_to_char(l_json.get_boolean(a_key));
+       when l_json_el.is_false        then l_val := ut_utils.boolean_to_char(l_json.get_boolean(a_key));
+       when l_json_el.is_date         then l_val := to_char(l_json.get_date(a_key),'DD/MM/RRRR');
+       when l_json.is_timestamp then l_val := to_char(l_json.get_date(a_key),'DD/MM/RRRR HH24:MI:SS AM');
        else null;
       end case;
      return l_val;
    end;
   
-   member function get_json_value(a_json_piece json_array_t,a_key integer) return varchar2 is
-     l_json_el json_element_t := a_json_piece.get (a_key);
+   member function get_json_value(a_json_piece json_element_t,a_key integer) return varchar2 is
+     l_json json_array_t := treat(a_json_piece as json_array_t);
+     l_json_el json_element_t := treat(a_json_piece as json_array_t).get (a_key);
      l_val varchar2(4000);
+     
    begin
      case 
-       when l_json_el.is_string       then l_val := a_json_piece.get_string(a_key);
-       when l_json_el.is_number       then l_val := to_char(a_json_piece.get_number(a_key));
-       when l_json_el.is_boolean      then l_val := ut_utils.boolean_to_char(a_json_piece.get_boolean(a_key));
-       when l_json_el.is_true         then l_val := ut_utils.boolean_to_char(a_json_piece.get_boolean(a_key));
-       when l_json_el.is_false        then l_val := ut_utils.boolean_to_char(a_json_piece.get_boolean(a_key));
-       when l_json_el.is_date         then l_val := to_char(a_json_piece.get_date(a_key),'DD/MM/RRRR');
-       when a_json_piece.is_timestamp then l_val := to_char(a_json_piece.get_date(a_key),'DD/MM/RRRR HH24:MI:SS AM');
+       when l_json_el.is_string       then l_val := l_json.get_string(a_key);
+       when l_json_el.is_number       then l_val := to_char(l_json.get_number(a_key));
+       when l_json_el.is_boolean      then l_val := ut_utils.boolean_to_char(l_json.get_boolean(a_key));
+       when l_json_el.is_true         then l_val := ut_utils.boolean_to_char(l_json.get_boolean(a_key));
+       when l_json_el.is_false        then l_val := ut_utils.boolean_to_char(l_json.get_boolean(a_key));
+       when l_json_el.is_date         then l_val := to_char(l_json.get_date(a_key),'DD/MM/RRRR');
+       when l_json_el.is_timestamp    then l_val := to_char(l_json.get_date(a_key),'DD/MM/RRRR HH24:MI:SS AM');
        else null;
       end case;
      return l_val;
    end;  
    
-   member function get_json_size(a_json_piece json_object_t) return integer is
+   member function get_json_size(a_json_piece json_element_t) return integer is
    begin
-     return a_json_piece.get_size;
+     return treat(a_json_piece as json_object_t).get_size;
    end;
    
    member procedure add_json_leaf(self in out nocopy ut_json_tree_details, a_element_name varchar2, a_element_value varchar2,
@@ -66,35 +69,36 @@ create or replace type body ut_json_tree_details as
       a_hierarchy_level, a_index_position,a_json_type, a_parent_type, a_array_element, a_parent_path);
   end;
   
-  member procedure traverse_object(self in out nocopy ut_json_tree_details, a_json_piece json_object_t,
+  member procedure traverse_object(self in out nocopy ut_json_tree_details, a_json_piece json_element_t,
     a_parent_name varchar2 := null, a_hierarchy_level integer := 1, a_access_path varchar2 := null ) as
     l_keys      json_key_list;
+    l_object    json_object_t := treat(a_json_piece as json_object_t);
   begin
-    l_keys := coalesce(a_json_piece.get_keys,json_key_list()); 
+    l_keys := coalesce(l_object.get_keys,json_key_list()); 
     
     for indx in 1 .. l_keys.count
     loop           
           add_json_leaf(l_keys(indx),
-                   get_json_value(a_json_piece,l_keys(indx)),
+                   get_json_value(l_object,l_keys(indx)),
                    a_parent_name,
                    a_access_path||'.'||l_keys(indx),
                    a_hierarchy_level,
                    indx,
-                   get_json_type(a_json_piece.get (l_keys(indx))),
+                   get_json_type(l_object.get (l_keys(indx))),
                    'object',
                    0,
                    a_access_path
                    ); 
-      case get_json_type(a_json_piece.get(l_keys(indx)))
+      case get_json_type(l_object.get(l_keys(indx)))
         when 'array' then
             traverse_array ( 
-              treat (a_json_piece.get (l_keys(indx)) as json_array_t), 
+              treat (l_object.get (l_keys(indx)) as json_array_t), 
               l_keys(indx),
               a_hierarchy_level + 1,
               a_access_path||'.'||l_keys(indx)
               ); 
         when 'object' then
-            traverse_object( treat (a_json_piece.get (l_keys(indx)) as json_object_t),
+            traverse_object( treat (l_object.get (l_keys(indx)) as json_object_t),
               l_keys (indx),
               a_hierarchy_level+1,
               a_access_path||'.'||l_keys(indx)
@@ -104,13 +108,13 @@ create or replace type body ut_json_tree_details as
    end loop; 
   end traverse_object;
  
-  member procedure traverse_array(self in out nocopy ut_json_tree_details, a_json_piece json_array_t, 
+  member procedure traverse_array(self in out nocopy ut_json_tree_details, a_json_piece json_element_t, 
      a_parent_name varchar2 := null, a_hierarchy_level integer := 1, a_access_path varchar2 := null ) as
     l_array     json_array_t;
     l_type      varchar2(50);
     l_name      varchar2(4000); 
   begin
-    l_array  := a_json_piece;
+    l_array  := treat(a_json_piece as json_array_t);
     for indx in 0 .. l_array.get_size - 1 
     loop 
       l_type := get_json_type(l_array.get (indx));
@@ -137,7 +141,7 @@ create or replace type body ut_json_tree_details as
               ); 
         when 'object' then
             traverse_object( 
-              treat (a_json_piece.get (indx) as json_object_t),
+              treat (l_array.get (indx) as json_object_t),
               l_name,
               a_hierarchy_level+1,
               a_access_path||'['||indx||']'
