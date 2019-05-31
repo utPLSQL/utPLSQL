@@ -195,6 +195,10 @@ drop package ut_metadata;
 
 drop package ut_ansiconsole_helper;
 
+$if dbms_db_version.version = 12 and dbms_db_version.release = 1 or dbms_db_version.version < 12 $then
+drop type json_element_t cascade;
+$end
+
 drop package ut_utils;
 
 drop sequence ut_savepoint_seq;
