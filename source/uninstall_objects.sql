@@ -77,6 +77,8 @@ drop table ut_dbms_output_cache;
 
 drop type ut_expectation_compound force;
 
+drop type ut_expectation_json force;
+
 drop type ut_expectation force;
 
 drop package ut_expectation_processor;
@@ -126,6 +128,8 @@ drop type ut_data_value_timestamp force;
 drop type ut_data_value_number force;
 
 drop type ut_data_value_refcursor force;
+
+drop type ut_data_value_json force;
 
 drop type ut_data_value_dsinterval force;
 
@@ -195,9 +199,14 @@ drop package ut_metadata;
 
 drop package ut_ansiconsole_helper;
 
-$if dbms_db_version.version = 12 and dbms_db_version.release = 1 or dbms_db_version.version < 12 $then
-drop type json_element_t force;
-$end
+begin
+  $if dbms_db_version.version = 12 and dbms_db_version.release = 1 or dbms_db_version.version < 12 $then
+    execute immediate 'drop type json_element_t force';
+  $else
+    dbms_output.put_line('Nothing to drop');
+  $end
+end;
+/
 
 drop package ut_utils;
 
