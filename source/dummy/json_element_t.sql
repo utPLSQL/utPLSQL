@@ -1,7 +1,7 @@
 BEGIN
 
   $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-    null;
+    dbms_output.put_line('Object exists , dont install');
   $else
     execute immediate  'create or replace type json_element_t as object (
   /*
