@@ -1,12 +1,11 @@
 create or replace package body test_expectations_json is
 
+  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
 
   procedure cleanup_expectations is
   begin
     ut3_tester_helper.main_helper.clear_expectations( );
   end;
-
-  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
 
   procedure success_on_same_data
   as

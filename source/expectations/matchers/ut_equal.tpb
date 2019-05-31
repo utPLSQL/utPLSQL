@@ -248,14 +248,12 @@ create or replace type body ut_equal as
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
           || chr(10) || 'Diff:' ||
             treat(expected as ut_data_value_refcursor).diff( a_actual, options );
-      elsif self.expected is of (ut_data_value_json) then
       $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+      elsif self.expected is of (ut_data_value_json) then
         l_result :=
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
           || chr(10) || 'Diff:' ||
           treat(expected as ut_data_value_json).diff( a_actual, options );
-      $else
-        l_result := 'This version doesnt support json';
       $end
       else
         l_result :=
