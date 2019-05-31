@@ -1,11 +1,13 @@
 create or replace package test_expectations_json is
 
+
   --%suite(json expectations)
   --%suitepath(utplsql.test_user.expectations)
 
   --%aftereach
   procedure cleanup_expectations;
 
+  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
 
   --%test(Gives success for identical data)
   procedure success_on_same_data;
@@ -70,5 +72,6 @@ create or replace package test_expectations_json is
   --%test( Long complex json differences )
   procedure long_json_diff;
 
+ $end  
 end;
 /

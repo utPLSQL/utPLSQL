@@ -34,6 +34,7 @@ alter session set current_schema = &&ut3_owner;
 @@check_sys_grants.sql
 --set define off
 
+
 --dbms_output buffer cache table
 @@install_component.sql 'core/ut_dbms_output_cache.sql'
 
@@ -55,6 +56,9 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/ut_metadata.pkb'
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pks'
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pkb'
+
+--dummy objects
+@@install_component.sql 'dummy/json_element_t.sql'
 
 --event manager objects
 @@install_component.sql 'core/events/ut_event_item.tps'
