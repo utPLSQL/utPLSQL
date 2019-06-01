@@ -63,9 +63,11 @@ create or replace type body ut_suite_item as
     ex_savepoint_not_exists exception;
     l_transaction_invalidators clob;
     pragma exception_init(ex_savepoint_not_exists, -1086);
+    l_savepoint varchar2(250);
   begin
     if get_rollback_type() = ut_utils.gc_rollback_auto and a_savepoint is not null then
-      execute immediate 'rollback to ' || a_savepoint;
+      l_savepoint := sys.dbms_assert.qualified_sql_name(a_savepoint);
+      execute immediate 'rollback to ' || l_savepoint;
     end if;
   exception
     when ex_savepoint_not_exists then

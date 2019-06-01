@@ -57,7 +57,15 @@ create or replace package body ut_annotation_manager as
     l_objects_view varchar2(200) := ut_metadata.get_objects_view_name();
     l_cursor_text  varchar2(32767);
     l_result       ut_annotation_objs_cache_info;
+    l_object_owner varchar2(250);
+    l_object_type  varchar2(250);
   begin
+    if a_object_owner is not null then
+      l_object_owner := sys.dbms_assert.qualified_sql_name(a_object_owner);
+    end if;
+    if a_object_type is not null then
+      l_object_type := sys.dbms_assert.qualified_sql_name(a_object_type);
+    end if;
     l_cursor_text :=
       q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
                     object_owner => o.owner,
@@ -70,8 +78,8 @@ create or replace package body ut_annotation_manager as
              on o.owner = i.object_owner
             and o.object_name = i.object_name
             and o.object_type = i.object_type
-          where o.owner = ']'||a_object_owner||q'['
-            and o.object_type = ']'||a_object_type||q'['
+          where o.owner = ']'||l_object_owner||q'['
+            and o.object_type = ']'||l_object_type||q'['
             and ]'
         || case
            when a_parse_date is null
