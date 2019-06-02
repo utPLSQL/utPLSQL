@@ -734,8 +734,8 @@ Failures:%
     procedure remove_time_from_results(a_results in out nocopy ut3.ut_varchar2_list) is
   begin
     for i in 1 .. a_results.count loop
-      a_results(i) := regexp_replace(a_results(i),'\[[0-9]*\.[0-9]+ sec\]','');
-      a_results(i) := regexp_replace(a_results(i),'Finished in [0-9]*\.[0-9]+ seconds','');
+      a_results(i) := regexp_replace(a_results(i),'\[[0-9]*[\.,][0-9]+ sec\]','');
+      a_results(i) := regexp_replace(a_results(i),'Finished in [0-9]*[\.,][0-9]+ seconds','');
     end loop;
   end;
 

@@ -760,7 +760,7 @@ create or replace package body ut_utils is
   /**
   * Change string into unicode to match xmlgen format _00<unicode>_
   * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
-  * secion v3.1.7.2935-develop
+  * secion v3.1.7.2992-develop
   */  
   function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
   begin
@@ -798,11 +798,37 @@ create or replace package body ut_utils is
     return l_valid_name;
   end;
 
+  function to_cdata(a_lines ut_varchar2_rows) return ut_varchar2_rows is
+    l_results ut_varchar2_rows;
+  begin
+    if a_lines is not empty then
+      ut_utils.append_to_list( l_results, gc_cdata_start_tag);
+      for i in 1 .. a_lines.count loop
+        ut_utils.append_to_list( l_results, replace( a_lines(i), gc_cdata_end_tag, gc_cdata_end_tag_wrap ) );
+      end loop;
+      ut_utils.append_to_list( l_results, gc_cdata_end_tag);
+    else
+      l_results := a_lines;
+    end if;
+    return l_results;
+  end;
+
+  function to_cdata(a_clob clob) return clob is
+    l_result clob;
+  begin
+    if a_clob is not null and a_clob != empty_clob() then
+      l_result := replace( a_clob, gc_cdata_end_tag, gc_cdata_end_tag_wrap );
+    else
+      l_result := a_clob;
+    end if;
+    return l_result;
+  end;
+
   function add_prefix(a_list ut_varchar2_list, a_prefix varchar2, a_connector varchar2 := '/') return ut_varchar2_list is
     l_result ut_varchar2_list := ut_varchar2_list();
     l_idx binary_integer;
   begin
-    if a_prefix is not null then  
+    if a_prefix is not null then
       l_idx := a_list.first;
       while l_idx is not null loop
         l_result.extend;
@@ -815,13 +841,13 @@ create or replace package body ut_utils is
 
   function add_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2 is
   begin
-    return a_prefix||a_connector||trim(leading a_connector from a_item);  
+    return a_prefix||a_connector||trim(leading a_connector from a_item);
   end;
-  
+
   function strip_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2 is
   begin
-    return regexp_replace(a_item,a_prefix||a_connector);  
+    return regexp_replace(a_item,a_prefix||a_connector);
   end;
-  
+
 end ut_utils;
 /
