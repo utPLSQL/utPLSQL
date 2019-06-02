@@ -32,5 +32,10 @@ create or replace package body test_sonar_test_reporter as
     reporters.check_xml_encoding_included(ut3.ut_sonar_test_reporter(), 'UTF-8');
   end;
 
+  procedure check_failure_escaped is
+  begin
+    reporters.check_xml_failure_escaped(ut3.ut_sonar_test_reporter());
+  end;
+
 end;
 /
