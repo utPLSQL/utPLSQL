@@ -43,9 +43,6 @@ create or replace type body ut_sonar_test_reporter is
     end;
 
     procedure print_test_results(a_test ut_test) is
-      c_cdata_start_tag     constant varchar2(30) := '<![CDATA[';
-      c_cdata_end_tag       constant varchar2(10) := ']]>';
-      c_cdata_end_tag_wrap  constant varchar2(30) := ']]'||c_cdata_end_tag||c_cdata_start_tag||'>';
       l_results             ut_varchar2_rows := ut_varchar2_rows();
     begin
       ut_utils.append_to_list( l_results, '<testCase name="'||dbms_xmlgen.convert(a_test.name)||'" duration="'||round(a_test.execution_time()*1000,0)||'" >');
@@ -53,13 +50,11 @@ create or replace type body ut_sonar_test_reporter is
         ut_utils.append_to_list( l_results, '<skipped message="skipped"/>');
       elsif a_test.result = ut_utils.gc_error then
         ut_utils.append_to_list( l_results, '<error message="encountered errors">');
-        ut_utils.append_to_list( l_results, c_cdata_start_tag);
-        ut_utils.append_to_list( l_results, replace( ut_utils.table_to_clob(a_test.get_error_stack_traces()), c_cdata_end_tag, c_cdata_end_tag_wrap ));
-        ut_utils.append_to_list( l_results, c_cdata_end_tag);
+        ut_utils.append_to_list( l_results, ut_utils.to_cdata( ut_utils.convert_collection( a_test.get_error_stack_traces() ) ) );
         ut_utils.append_to_list( l_results, '</error>');
       elsif a_test.result > ut_utils.gc_success then
         ut_utils.append_to_list( l_results, '<failure message="some expectations have failed">');
-        ut_utils.append_to_list( l_results, a_test.get_failed_expectations_cdata() );
+        ut_utils.append_to_list( l_results, ut_utils.to_cdata( a_test.get_failed_expectation_lines() ) );
         ut_utils.append_to_list( l_results, '</failure>');
       end if;
       ut_utils.append_to_list( l_results, '</testCase>');

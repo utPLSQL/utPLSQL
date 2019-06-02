@@ -798,5 +798,31 @@ create or replace package body ut_utils is
     return l_valid_name;
   end;
 
+  function to_cdata(a_lines ut_varchar2_rows) return ut_varchar2_rows is
+    l_results ut_varchar2_rows;
+  begin
+    if a_lines is not empty then
+      ut_utils.append_to_list( l_results, gc_cdata_start_tag);
+      for i in 1 .. a_lines.count loop
+        ut_utils.append_to_list( l_results, replace( a_lines(i), gc_cdata_end_tag, gc_cdata_end_tag_wrap ) );
+      end loop;
+      ut_utils.append_to_list( l_results, gc_cdata_end_tag);
+    else
+      l_results := a_lines;
+    end if;
+    return l_results;
+  end;
+
+  function to_cdata(a_clob clob) return clob is
+    l_result clob;
+  begin
+    if a_clob is not null and a_clob != empty_clob() then
+      l_result := replace( a_clob, gc_cdata_end_tag, gc_cdata_end_tag_wrap );
+    else
+      l_result := a_clob;
+    end if;
+    return l_result;
+  end;
+
 end ut_utils;
 /

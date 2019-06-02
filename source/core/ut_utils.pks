@@ -44,6 +44,11 @@ create or replace package ut_utils authid definer is
   gc_failure_char            constant varchar2(7) := 'Failure'; -- one or more expectations failed
   gc_error_char              constant varchar2(5) := 'Error'; -- exception was raised
 
+  gc_cdata_start_tag         constant varchar2(10) := '<![CDATA[';
+  gc_cdata_end_tag           constant varchar2(10) := ']]>';
+  gc_cdata_end_tag_wrap      constant varchar2(30) := ']]'||gc_cdata_end_tag||gc_cdata_start_tag||'>';
+
+
   /*
     Constants: Rollback type for ut_test_object
   */
@@ -386,6 +391,18 @@ create or replace package ut_utils authid definer is
   * Check if xml name is valid if not build a valid name
   */
   function get_valid_xml_name(a_name varchar2) return varchar2;
-  
-end ut_utils;
+
+  /**
+  * Converts input list into a list surrounded by CDATA tags
+  * All CDATA end tags get escaped using recommended method from https://en.wikipedia.org/wiki/CDATA#Nesting
+  */
+  function to_cdata(a_lines ut_varchar2_rows) return ut_varchar2_rows;
+
+  /**
+  * Converts input CLOB into a CLOB surrounded by CDATA tags
+  * All CDATA end tags get escaped using recommended method from https://en.wikipedia.org/wiki/CDATA#Nesting
+  */
+  function to_cdata(a_clob clob) return clob;
+
+  end ut_utils;
 /
