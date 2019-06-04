@@ -129,6 +129,14 @@ end;
 Example of `include / exclude` for anydata.convertCollection
 
 ```plsql
+create or replace type person as object(
+  name varchar2(100),
+  age  integer
+)
+/
+create or replace type people as table of person
+/
+
 create or replace package ut_anydata_inc_exc IS
 
    --%suite(Anydata)
@@ -138,45 +146,37 @@ create or replace package ut_anydata_inc_exc IS
 
    --%test(Anydata exclude)
    procedure ut_anydata_test_exc;
-
+   
+   --%test(Fail on age)
+   procedure ut_fail_anydata_test;
+   
 end ut_anydata_inc_exc;
 /
 
 create or replace package body ut_anydata_inc_exc IS
 
    procedure ut_anydata_test_inc IS
-    l_actual           ut3_tester_helper.test_dummy_object_list;
-    l_expected         ut3_tester_helper.test_dummy_object_list;
+    l_actual           people := people(person('Matt',45));
+    l_expected         people :=people(person('Matt',47));
   begin
-    --Arrange
-    select ut3_tester_helper.test_dummy_object( rownum, 'Something Name'||rownum, rownum)
-      bulk collect into l_actual
-      from dual connect by level <=2
-      order by rownum asc;
-    select ut3_tester_helper.test_dummy_object( rownum, 'Something '||rownum, rownum)
-      bulk collect into l_expected
-      from dual connect by level <=2
-     order by rownum asc;
-    --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include('ID,Value');  
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include('NAME');  
    end;
-   
+
    procedure ut_anydata_test_exc IS
-    l_actual           ut3_tester_helper.test_dummy_object_list;
-    l_expected         ut3_tester_helper.test_dummy_object_list;
+    l_actual           people := people(person('Matt',45));
+    l_expected         people :=people(person('Matt',47));
   begin
     --Arrange
-    select ut3_tester_helper.test_dummy_object( rownum, 'Something Name'||rownum, rownum)
-      bulk collect into l_actual
-      from dual connect by level <=2
-      order by rownum asc;
-    select ut3_tester_helper.test_dummy_object( rownum, 'Something '||rownum, rownum)
-      bulk collect into l_expected
-      from dual connect by level <=2
-     order by rownum asc;
-    --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).exclude('name');  
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).exclude('AGE');   
    end;
+
+   procedure ut_fail_anydata_test IS
+    l_actual           people := people(person('Matt',45));
+    l_expected         people :=people(person('Matt',47));
+  begin
+    --Arrange
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include('AGE');   
+  end;
 
 end ut_anydata_inc_exc;
 /
@@ -187,11 +187,18 @@ will result in :
 
 ```sql
 Anydata
-  Anydata include [.07 sec]
-  Anydata exclude [.058 sec]
+  Anydata include [.044 sec]
+  Anydata exclude [.035 sec]
+  Fail on age [.058 sec] (FAILED - 1)
  
-Finished in .131218 seconds
-2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+Failures:
+ 
+  1) ut_fail_anydata_test
+      Actual: ut3.people [ count = 1 ] was expected to equal: ut3.people [ count = 1 ]
+      Diff:
+      Rows: [ 1 differences ]
+        Row No. 1 - Actual:   <AGE>45</AGE>
+        Row No. 1 - Expected: <AGE>47</AGE>
 ```
 
 
