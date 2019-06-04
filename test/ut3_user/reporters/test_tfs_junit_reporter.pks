@@ -12,9 +12,6 @@ create or replace package test_tfs_junit_reporter as
   --%test(Reports only failed expectations and exceptions)
   procedure reports_only_failed_or_errored;
 
-  --%test(Reports failed line of test)
-  procedure reports_failed_line;
-
   --%test(Check that classname is returned correct suite)
   procedure check_classname_suite;
   

@@ -765,7 +765,7 @@ create or replace package body ut_utils is
   /**
   * Change string into unicode to match xmlgen format _00<unicode>_
   * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
-  * secion v3.1.7.2935-develop
+  * secion v3.1.7.2992-develop
   */  
   function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
   begin
@@ -801,6 +801,32 @@ create or replace package body ut_utils is
       l_valid_name := build_valid_xml_name(a_name);
     end if;
     return l_valid_name;
+  end;
+
+  function to_cdata(a_lines ut_varchar2_rows) return ut_varchar2_rows is
+    l_results ut_varchar2_rows;
+  begin
+    if a_lines is not empty then
+      ut_utils.append_to_list( l_results, gc_cdata_start_tag);
+      for i in 1 .. a_lines.count loop
+        ut_utils.append_to_list( l_results, replace( a_lines(i), gc_cdata_end_tag, gc_cdata_end_tag_wrap ) );
+      end loop;
+      ut_utils.append_to_list( l_results, gc_cdata_end_tag);
+    else
+      l_results := a_lines;
+    end if;
+    return l_results;
+  end;
+
+  function to_cdata(a_clob clob) return clob is
+    l_result clob;
+  begin
+    if a_clob is not null and a_clob != empty_clob() then
+      l_result := replace( a_clob, gc_cdata_end_tag, gc_cdata_end_tag_wrap );
+    else
+      l_result := a_clob;
+    end if;
+    return l_result;
   end;
 
 end ut_utils;

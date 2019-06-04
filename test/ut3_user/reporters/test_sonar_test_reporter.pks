@@ -9,5 +9,8 @@ create or replace package test_sonar_test_reporter as
   --%test(Includes XML header with encoding when encoding provided)
   procedure check_encoding_included;
 
+  --%test( Validate that fail with special char are escaped )
+  procedure check_failure_escaped;
+
 end;
 /

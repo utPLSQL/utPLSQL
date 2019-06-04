@@ -110,8 +110,24 @@ as
     dbms_output.put_line('<!afterall!>');
   end;
 
-end;]'; 
-  
+end;]';
+
+  execute immediate q'[create or replace package check_fail_escape is
+      --%suitepath(core)
+      --%suite(Check JUNIT XML failure is escaped)
+
+      --%test(Fail Miserably)
+      procedure fail_miserably;
+
+    end;]';
+
+  execute immediate q'[create or replace package body check_fail_escape is
+      procedure fail_miserably is
+      begin
+        ut3.ut.expect('test').to_equal('<![CDATA[some stuff]]>');
+      end;
+    end;]';
+
   end;
   
   procedure reporters_setup is
@@ -122,6 +138,7 @@ end;]';
   procedure drop_test_helper_package is
   begin
     execute immediate 'drop package test_reporters';
+    execute immediate 'drop package check_fail_escape';
   end;
 
   procedure reporters_cleanup is
@@ -144,6 +161,25 @@ end;]';
     l_actual := ut3_tester_helper.main_helper.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_be_like('<?xml version="1.0" encoding="'||upper(a_client_character_set)||'"?>%');
+  end;
+
+  procedure check_xml_failure_escaped(
+    a_reporter ut3.ut_output_reporter_base
+  ) is
+    l_results   ut3.ut_varchar2_list;
+    l_actual    clob;
+  begin
+    --Act
+    select *
+           bulk collect into l_results
+      from table( ut3.ut.run( 'check_fail_escape', a_reporter ) );
+    l_actual := ut3_tester_helper.main_helper.table_to_clob(l_results);
+    --Assert
+    ut.expect(l_actual).to_be_like('%<![CDATA['
+      ||q'[%Actual: 'test' (varchar2) was expected to equal: '<![CDATA[some stuff]]]]><![CDATA[>' (varchar2)%]'
+      ||q'[at "UT3$USER#.CHECK_FAIL_ESCAPE%", line % ut3.ut.expect('test').to_equal('<![CDATA[some stuff]]]]><![CDATA[>');]'
+      ||'%]]>%'
+      );
   end;
 
 end reporters;
