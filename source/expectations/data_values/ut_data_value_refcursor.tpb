@@ -250,8 +250,14 @@ create or replace type body ut_data_value_refcursor as
       if l_diff_row_count > 0  then
         l_row_diffs := ut_compound_data_helper.get_rows_diff_by_sql(
           l_self_cols, l_other_cols, l_self.data_id, l_other.data_id,
-          l_diff_id, a_match_options.join_by.items, a_match_options.unordered,
-          a_match_options.ordered_columns(), self.extract_path
+          l_diff_id, 
+          case 
+          when 
+            l_self.cursor_details.is_anydata = 1 then ut_utils.add_prefix(a_match_options.join_by.items, l_self.cursor_details.get_root) 
+          else 
+            a_match_options.join_by.items 
+          end, 
+          a_match_options.unordered,a_match_options.ordered_columns(), self.extract_path
         );
         l_message := chr(10)
                      ||'Rows: [ ' || l_diff_row_count ||' differences'
