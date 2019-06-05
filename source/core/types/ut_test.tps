@@ -64,6 +64,7 @@ create or replace type ut_test force under ut_suite_item (
   overriding member procedure calc_execution_result(self in out nocopy ut_test),
   overriding member procedure mark_as_errored(self in out nocopy ut_test, a_error_stack_trace varchar2),
   overriding member function get_error_stack_traces(self ut_test) return ut_varchar2_list,
-  overriding member function get_serveroutputs return clob
+  overriding member function get_serveroutputs return clob,
+  member function get_failed_expectation_lines return ut_varchar2_rows
 )
 /

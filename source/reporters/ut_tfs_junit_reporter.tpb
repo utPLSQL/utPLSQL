@@ -29,9 +29,7 @@ create or replace type body ut_tfs_junit_reporter is
 
  member procedure junit_version_one(self in out nocopy ut_tfs_junit_reporter,a_run in ut_run) is
     l_suite_id    integer := 0;
-    l_tests_count integer := a_run.results_count.disabled_count + a_run.results_count.success_count +
-                             a_run.results_count.failure_count + a_run.results_count.errored_count;
-     
+
     function get_common_suite_attributes(a_item ut_suite_item) return varchar2 is
     begin
      return ' errors="' ||a_item.results_count.errored_count || '"' || 
@@ -55,7 +53,6 @@ create or replace type body ut_tfs_junit_reporter is
 
     procedure print_test_results(a_test ut_test) is
       l_results ut_varchar2_rows := ut_varchar2_rows();
-      l_lines   ut_varchar2_list;
     begin
       self.print_text('<testcase classname="' || dbms_xmlgen.convert(get_path(a_test.path, a_test.name)) || '" ' || 
                       get_common_testcase_attributes(a_test) || '>');
@@ -69,20 +66,12 @@ create or replace type body ut_tfs_junit_reporter is
       
       if a_test.result = ut_utils.gc_error then
         ut_utils.append_to_list( l_results, '<error type="error" message="Error while executing '||a_test.name||'">');
-        ut_utils.append_to_list( l_results, '<![CDATA[');
-        ut_utils.append_to_list( l_results, ut_utils.table_to_clob(a_test.get_error_stack_traces()));
-        ut_utils.append_to_list( l_results, ']]>');
+        ut_utils.append_to_list( l_results, ut_utils.to_cdata( ut_utils.convert_collection( a_test.get_error_stack_traces() ) ) );
         ut_utils.append_to_list( l_results, '</error>');
      -- Do not count error as failure
       elsif a_test.result = ut_utils.gc_failure then
         ut_utils.append_to_list( l_results, '<failure type="failure" message="Test '||a_test.name||' failed">');
-        for i in 1 .. a_test.failed_expectations.count loop
-          l_lines := a_test.failed_expectations(i).get_result_lines();
-          for j in 1 .. l_lines.count loop
-            ut_utils.append_to_list( l_results, dbms_xmlgen.convert(l_lines(j)));
-          end loop;
-          ut_utils.append_to_list( l_results, dbms_xmlgen.convert(a_test.failed_expectations(i).caller_info));
-        end loop;
+        ut_utils.append_to_list( l_results, ut_utils.to_cdata( a_test.get_failed_expectation_lines() ) );
         ut_utils.append_to_list( l_results, '</failure>');
       end if;
 
@@ -106,43 +95,39 @@ create or replace type body ut_tfs_junit_reporter is
         end if;
       end loop;     
      
-    if a_suite is of(ut_suite) then
-       a_suite_id := a_suite_id + 1;
-       self.print_text('<testsuite tests="' || l_tests_count || '"' || ' id="' || a_suite_id || '"' || ' package="' ||
-                      dbms_xmlgen.convert(a_suite.path) || '" ' || get_common_suite_attributes(a_suite) || '>');
-       self.print_text('<properties/>');
-        for i in 1 .. a_suite.items.count loop
-          if a_suite.items(i) is of(ut_test) then
-            print_test_results(treat(a_suite.items(i) as ut_test));
-          end if;
-        end loop;
-        l_suite := treat(a_suite as ut_suite);
-        l_outputs := l_suite.get_serveroutputs();
-        if l_outputs is not null and l_outputs != empty_clob() then
-          ut_utils.append_to_list( l_results, '<system-out>');
-          ut_utils.append_to_list( l_results, '<![CDATA[');
-          ut_utils.append_to_list( l_results, l_outputs);
-          ut_utils.append_to_list( l_results, ']]>');
-          ut_utils.append_to_list( l_results, '</system-out>');
-        else 
-          ut_utils.append_to_list( l_results, '<system-out/>');
-        end if;
+      if a_suite is of(ut_suite) then
+         a_suite_id := a_suite_id + 1;
+         self.print_text('<testsuite tests="' || l_tests_count || '"' || ' id="' || a_suite_id || '"' || ' package="' ||
+                        dbms_xmlgen.convert(a_suite.path) || '" ' || get_common_suite_attributes(a_suite) || '>');
+         self.print_text('<properties/>');
+         for i in 1 .. a_suite.items.count loop
+           if a_suite.items(i) is of(ut_test) then
+             print_test_results(treat(a_suite.items(i) as ut_test));
+           end if;
+         end loop;
+         l_suite := treat(a_suite as ut_suite);
+         l_outputs := l_suite.get_serveroutputs();
+         if l_outputs is not null and l_outputs != empty_clob() then
+           ut_utils.append_to_list( l_results, '<system-out>');
+           ut_utils.append_to_list( l_results, ut_utils.to_cdata( l_suite.get_serveroutputs() ) );
+           ut_utils.append_to_list( l_results, '</system-out>');
+         else
+           ut_utils.append_to_list( l_results, '<system-out/>');
+         end if;
 
-        l_errors := l_suite.get_error_stack_traces();
-        if l_errors is not empty then
-          ut_utils.append_to_list( l_results, '<system-err>');
-          ut_utils.append_to_list( l_results, '<![CDATA[');
-          ut_utils.append_to_list( l_results, ut_utils.table_to_clob(l_errors));
-          ut_utils.append_to_list( l_results, ']]>');
-          ut_utils.append_to_list( l_results, '</system-err>');
-        else
-          ut_utils.append_to_list( l_results, '<system-err/>');
-        end if;
-        ut_utils.append_to_list( l_results, '</testsuite>');
+         l_errors := l_suite.get_error_stack_traces();
+         if l_errors is not empty then
+           ut_utils.append_to_list( l_results, '<system-err>');
+           ut_utils.append_to_list( l_results, ut_utils.to_cdata( ut_utils.convert_collection( l_errors ) ) );
+           ut_utils.append_to_list( l_results, '</system-err>');
+         else
+           ut_utils.append_to_list( l_results, '<system-err/>');
+         end if;
+         ut_utils.append_to_list( l_results, '</testsuite>');
 
-        self.print_text_lines(l_results);
+         self.print_text_lines(l_results);
       end if;
-    end; 
+    end;
       
   begin
     l_suite_id := 0;

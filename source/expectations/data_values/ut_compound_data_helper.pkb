@@ -335,6 +335,7 @@ create or replace package body ut_compound_data_helper is
     l_not_equal_stmt clob;
     l_where_stmt     clob;
     l_ut_owner       varchar2(250) := ut_utils.ut_owner;
+    l_join_by_list   ut_varchar2_list;
      
     function get_join_type(a_inclusion_compare in boolean,a_negated in boolean) return varchar2 is
     begin
@@ -356,12 +357,22 @@ create or replace package body ut_compound_data_helper is
     end;
 
   begin
+      /**
+      * We already estabilished cursor equality so now we add anydata root if we compare anydata
+      * to join by.
+      */
+    l_join_by_list := 
+      case 
+        when a_other is of (ut_data_value_anydata) then ut_utils.add_prefix(a_join_by_list, a_other.cursor_details.get_root) 
+        else a_join_by_list
+      end;
+      
     dbms_lob.createtemporary(l_compare_sql, true);   
     --Initiate a SQL template with placeholders
     ut_utils.append_to_clob(l_compare_sql, g_compare_sql_template);
     --Generate a pieceso of dynamic SQL that will substitute placeholders
     gen_sql_pieces_out_of_cursor(
-      a_other.cursor_details.cursor_columns_info, a_join_by_list, a_unordered,
+      a_other.cursor_details.cursor_columns_info, l_join_by_list, a_unordered,
       l_xmltable_stmt, l_select_stmt, l_partition_stmt, l_join_on_stmt, 
       l_not_equal_stmt
     );
@@ -374,7 +385,7 @@ create or replace package body ut_compound_data_helper is
     l_compare_sql := replace(l_compare_sql,'{:join_type:}',get_join_type(a_inclusion_type,a_is_negated));
     l_compare_sql := replace(l_compare_sql,'{:join_condition:}',l_join_on_stmt);
 
-    if l_not_equal_stmt is not null and ((a_join_by_list.count > 0 and not a_is_negated) or (not a_unordered)) then
+    if l_not_equal_stmt is not null and ((l_join_by_list.count > 0 and not a_is_negated) or (not a_unordered)) then
         ut_utils.append_to_clob(l_where_stmt,' ( '||l_not_equal_stmt||' ) or ');
     end if;
     --If its inclusion we expect a actual set to fully match and have no extra elements over expected

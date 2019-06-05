@@ -163,5 +163,15 @@ create or replace type body ut_test as
     end loop;
     return l_outputs;
   end;
+
+  member function get_failed_expectation_lines return ut_varchar2_rows is
+    l_results ut_varchar2_rows;
+  begin
+    for i in 1 .. failed_expectations.count loop
+      ut_utils.append_to_list( l_results, ut_utils.convert_collection( failed_expectations(i).get_result_lines() ) );
+      ut_utils.append_to_list( l_results, failed_expectations(i).caller_info );
+    end loop;
+    return l_results;
+  end;
 end;
 /

@@ -26,7 +26,7 @@ create or replace package body ut_suite_manager is
          from {:owner:}.ut_suite_cache c
          where 1 = 1 {:object_list:}
                and c.object_owner = '{:object_owner:}'
-               and ( {:path:} 
+               and ( {:path:}
                      and {:object_name:}
                      and {:procedure_name:}
                    )
@@ -75,7 +75,7 @@ create or replace package body ut_suite_manager is
           from logical_suite_data s
       ),
       items as (
-        select * from {:suite_item_name:} 
+        select * from {:suite_item_name:}
         union all
         select * from logical_suites
       )
@@ -122,7 +122,7 @@ create or replace package body ut_suite_manager is
     end loop;
     return l_paths_temp;
   end;
-    
+
   function resolve_schema_names(a_paths in out nocopy ut_varchar2_list) return ut_varchar2_rows is
     l_schema          varchar2(4000);
     l_object          varchar2(4000);
@@ -165,7 +165,7 @@ create or replace package body ut_suite_manager is
       l_schema_names.extend;
       l_schema_names(l_schema_names.last) := l_schema;
     end loop;
-    
+
     return l_schema_names;
   end;
 
@@ -363,6 +363,7 @@ create or replace package body ut_suite_manager is
   begin
     loop
       fetch a_suite_data_cursor bulk collect into l_rows limit c_bulk_limit;
+
       l_idx := l_rows.first;
       while l_idx is not null loop
         l_level := length(l_rows(l_idx).path) - length( replace(l_rows(l_idx).path, '.') ) + 1;
@@ -394,14 +395,16 @@ create or replace package body ut_suite_manager is
     end loop;
     close a_suite_data_cursor;
   end reconstruct_from_cache;
-    
+
   function get_missing_objects(a_object_owner varchar2) return ut_varchar2_rows is
     l_rows         sys_refcursor;
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
     l_objects_view varchar2(200) := ut_metadata.get_objects_view_name();
     l_cursor_text  varchar2(32767);
     l_result       ut_varchar2_rows;
+    l_object_owner varchar2(250);
   begin
+    l_object_owner := sys.dbms_assert.qualified_sql_name(a_object_owner);
     l_cursor_text :=
       q'[select i.object_name
          from ]'||l_ut_owner||q'[.ut_suite_cache_package i
@@ -411,9 +414,9 @@ create or replace package body ut_suite_manager is
                where o.owner = i.object_owner
                  and o.object_name = i.object_name
                  and o.object_type = 'PACKAGE'
-                 and o.owner = ']'||a_object_owner||q'['
+                 and o.owner = ']'||l_object_owner||q'['
               )
-          and i.object_owner = ']'||a_object_owner||q'[']';
+          and i.object_owner = ']'||l_object_owner||q'[']';
     open l_rows for l_cursor_text;
     fetch l_rows bulk collect into l_result limit 1000000;
     close l_rows;
@@ -432,7 +435,7 @@ create or replace package body ut_suite_manager is
                         and a.object_type = 'PACKAGE'
                    )]' else null end;
   end;
-  
+
   function get_path_sql(a_path in varchar2) return varchar2 is
   begin
     return case when a_path is not null then q'[
@@ -441,21 +444,21 @@ create or replace package body ut_suite_manager is
                             ]'
                            else ' :l_path is null  and ( :l_path is null ' end;
   end;
- 
+
   function get_object_name_sql(a_object_name in varchar2) return varchar2 is
   begin
     return case when a_object_name is not null
       then ' c.object_name = :a_object_name '
          else ' :a_object_name is null' end;
   end;
-  
+
   function get_procedure_name_sql(a_procedure_name in varchar2) return varchar2 is
   begin
     return case when a_procedure_name is not null
       then ' c.name = :a_procedure_name'
       else ' :a_procedure_name is null' end;
   end;
-  
+
   function get_tags_sql(a_tags_count in integer) return varchar2 is
   begin
   return case when a_tags_count > 0 then
@@ -466,7 +469,7 @@ create or replace package body ut_suite_manager is
       ),
        suite_items_tags as (
        select c.* from suite_items c
-       where exists (select 1 from filter_tags t where 
+       where exists (select 1 from filter_tags t where
           t.path||'.' like c.path || '.%' /*all children and self*/
           or c.path||'.' like t.path || '.%'  --all parents
           )
@@ -475,7 +478,7 @@ create or replace package body ut_suite_manager is
        q'[dummy as (select 'x' from dual where :a_tag_list is null )]'
        end;
   end;
-  
+
   function get_random_seed_sql(a_random_seed positive) return varchar2 is
   begin
     return case
@@ -496,7 +499,7 @@ create or replace package body ut_suite_manager is
               ) desc nulls last'
               end;
   end;
-  
+
   function get_cached_suite_data(
     a_object_owner     varchar2,
     a_path             varchar2 := null,
@@ -506,36 +509,50 @@ create or replace package body ut_suite_manager is
     a_random_seed      positive,
     a_tags             ut_varchar2_rows := null
   ) return t_cached_suites_cursor is
-    l_path     varchar2( 4000 );
-    l_result   sys_refcursor;
-    l_ut_owner varchar2(250) := ut_utils.ut_owner;
-    l_sql      varchar2(32767);
+    l_path            varchar2(4000);
+    l_result          sys_refcursor;
+    l_ut_owner        varchar2(250) := ut_utils.ut_owner;
+    l_sql             varchar2(32767);
     l_suite_item_name varchar2(20);
-    l_tags ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
+    l_tags            ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
+    l_object_owner    varchar2(250);
+    l_object_name     varchar2(250);
+    l_procedure_name  varchar2(250);
   begin
-    if a_path is null and a_object_name is not null then    
+    if a_object_owner is not null then
+      l_object_owner := sys.dbms_assert.qualified_sql_name(a_object_owner);
+      end if;
+    if a_object_name is not null then
+      l_object_name := sys.dbms_assert.qualified_sql_name(a_object_name);
+      end if;
+    if a_procedure_name is not null then
+      l_procedure_name := sys.dbms_assert.qualified_sql_name(a_procedure_name);
+      end if;
+    if a_path is null and a_object_name is not null then
       execute immediate 'select min(path)
       from '||l_ut_owner||q'[.ut_suite_cache
      where object_owner = :a_object_owner
            and object_name = :a_object_name
            and name = nvl(:a_procedure_name, name)]'
-      into l_path using upper(a_object_owner), upper(a_object_name), upper(a_procedure_name);
+      into l_path using upper(l_object_owner), upper(l_object_name), upper(a_procedure_name);
     else
-      l_path := lower( a_path );
+      if a_path is not null then
+        l_path := lower(sys.dbms_assert.qualified_sql_name(a_path));
+      end if;
     end if;
     l_suite_item_name := case when l_tags.count > 0 then 'suite_items_tags' else 'suite_items' end;
-    
+
     l_sql := gc_get_cache_suite_sql;
     l_sql := replace(l_sql,'{:suite_item_name:}',l_suite_item_name);
     l_sql := replace(l_sql,'{:object_list:}',get_object_names_sql(a_skip_all_objects));
-    l_sql := replace(l_sql,'{:object_owner:}',upper(a_object_owner));
+    l_sql := replace(l_sql,'{:object_owner:}',upper(l_object_owner));
     l_sql := replace(l_sql,'{:path:}',get_path_sql(l_path));
-    l_sql := replace(l_sql,'{:object_name:}',get_object_name_sql(a_object_name));
-    l_sql := replace(l_sql,'{:procedure_name:}',get_procedure_name_sql(a_procedure_name));
-    l_sql := replace(l_sql,'{:tags:}',get_tags_sql(l_tags.count));    
-    l_sql := replace(l_sql,'{:random_seed:}',get_random_seed_sql(a_random_seed)); 
+    l_sql := replace(l_sql,'{:object_name:}',get_object_name_sql(l_object_name));
+    l_sql := replace(l_sql,'{:procedure_name:}',get_procedure_name_sql(l_procedure_name));
+    l_sql := replace(l_sql,'{:tags:}',get_tags_sql(l_tags.count));
+    l_sql := replace(l_sql,'{:random_seed:}',get_random_seed_sql(a_random_seed));
     l_sql := replace(l_sql,'{:owner:}',l_ut_owner);
-    
+
     open l_result for l_sql using l_path, l_path, upper(a_object_name), upper(a_procedure_name), l_tags, a_random_seed;
     return l_result;
   end;
@@ -728,10 +745,10 @@ create or replace package body ut_suite_manager is
   end;
 
   procedure configure_execution_by_path(
-    a_paths in ut_varchar2_list,
-    a_suites out nocopy ut_suite_items,
-    a_random_seed in positive := null,
-    a_tags ut_varchar2_rows := ut_varchar2_rows()
+    a_paths       ut_varchar2_list,
+    a_suites      out nocopy ut_suite_items,
+    a_random_seed positive   := null,
+    a_tags        ut_varchar2_rows := ut_varchar2_rows()
   ) is
     l_paths              ut_varchar2_list := a_paths;
     l_path_items         t_path_items;
@@ -746,7 +763,7 @@ create or replace package body ut_suite_manager is
     resolve_schema_names(l_paths);
 
     l_schema_paths := group_paths_by_schema(l_paths);
-        
+
     l_schema := l_schema_paths.first;
     while l_schema is not null loop
       l_path_items  := l_schema_paths(l_schema);
@@ -787,29 +804,37 @@ create or replace package body ut_suite_manager is
     a_owner_name     varchar2, 
     a_package_name   varchar2 := null
   ) return sys_refcursor is
-    l_result      sys_refcursor;
-    l_ut_owner    varchar2(250) := ut_utils.ut_owner;
+    l_result       sys_refcursor;
+    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
+    l_owner_name   varchar2(250);
+    l_package_name varchar2(250);
   begin
+    if a_owner_name is not null then
+      l_owner_name := sys.dbms_assert.qualified_sql_name(a_owner_name);
+    end if;
+    if a_package_name is not null then
+      l_package_name := sys.dbms_assert.qualified_sql_name(a_package_name);
+    end if;
 
-    refresh_cache(a_owner_name);
+    refresh_cache(l_owner_name);
     
-     open l_result for
+    open l_result for
     q'[with
       suite_items as (
         select /*+ cardinality(c 100) */ c.*
           from ]'||l_ut_owner||q'[.ut_suite_cache c
-         where 1 = 1 ]'||case when can_skip_all_objects_scan(a_owner_name) then q'[
+         where 1 = 1 ]'||case when can_skip_all_objects_scan(l_owner_name) then q'[
                and exists
                    ( select 1
                        from all_objects a
                       where a.object_name = c.object_name
-                        and a.owner       = ']'||upper(a_owner_name)||q'['
+                        and a.owner       = ']'||upper(l_owner_name)||q'['
                         and a.owner       = c.object_owner
                         and a.object_type = 'PACKAGE'
                    )]' end ||q'[
-               and c.object_owner = ']'||upper(a_owner_name) ||q'['
+               and c.object_owner = ']'||upper(l_owner_name)||q'['
                and ]'
-               || case when a_package_name is not null
+               || case when l_package_name is not null
                   then 'c.object_name = :a_package_name'
                   else ':a_package_name is null' end
                || q'[
@@ -857,7 +882,7 @@ create or replace package body ut_suite_manager is
              object_owner, object_name, item_name, item_description,
              item_type, item_line_no, path, disabled_flag, tags
            )
-      from items c]' using upper(a_package_name);
+      from items c]' using upper(l_package_name);
 
     return l_result;
   end;
@@ -868,17 +893,30 @@ create or replace package body ut_suite_manager is
     a_procedure_name varchar2 := null,
     a_item_type      varchar2 := null
   ) return boolean is
-    l_result    integer;
-    l_ut_owner  varchar2(250) := ut_utils.ut_owner;
+    l_result         integer;
+    l_ut_owner       varchar2(250) := ut_utils.ut_owner;
+    l_owner_name     varchar2(250);
+    l_package_name   varchar2(250);
+    l_procedure_name varchar2(250);
   begin
-    refresh_cache(a_owner_name);
+    if a_owner_name is not null then
+      l_owner_name := sys.dbms_assert.qualified_sql_name(a_owner_name);
+    end if;
+    if a_package_name is not null then
+      l_package_name := sys.dbms_assert.qualified_sql_name(a_package_name);
+    end if;
+    if a_procedure_name is not null then
+      l_procedure_name := sys.dbms_assert.qualified_sql_name(a_procedure_name);
+    end if;
+
+    refresh_cache(l_owner_name);
 
     execute immediate q'[
       select count(1) from dual
        where exists (
                 select 1
                   from ]'||l_ut_owner||q'[.ut_suite_cache c
-                 where 1 = 1 ]'||case when can_skip_all_objects_scan(a_owner_name) then q'[
+                 where 1 = 1 ]'||case when can_skip_all_objects_scan(l_owner_name) then q'[
                        and exists
                            ( select 1
                                from all_objects a
@@ -890,20 +928,20 @@ create or replace package body ut_suite_manager is
                        and :a_owner_name is not null ]' end ||q'[
                        and c.object_owner = :a_owner_name
                        and ]'
-                       || case when a_package_name is not null
+                       || case when l_package_name is not null
                           then 'c.object_name = :a_package_name'
                           else ':a_package_name is null' end
                        || q'[
                        and ]'
-                       || case when a_procedure_name is not null
+                       || case when l_procedure_name is not null
                           then 'c.name = :a_procedure_name'
                           else ':a_procedure_name is null' end
                        || q'[
              )]'
       into l_result 
       using 
-        upper(a_owner_name), upper(a_owner_name),
-        upper(a_package_name), upper(a_procedure_name);
+        upper(l_owner_name), upper(l_owner_name),
+        upper(l_package_name), upper(l_procedure_name);
     
     return l_result > 0;
   end;

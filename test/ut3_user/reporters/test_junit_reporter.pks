@@ -15,9 +15,6 @@ create or replace package test_junit_reporter as
   --%test(Xunit Backward Compatibility - Reports only failed expectations and exceptions)
   procedure reports_xunit_only_fail_or_err;
   
-  --%test(Reports failed line of test)
-  procedure reports_failed_line;
-
   --%test(Check that classname is returned correct suite)
   procedure check_classname_suite;
 
