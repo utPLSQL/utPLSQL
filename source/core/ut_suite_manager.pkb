@@ -17,7 +17,6 @@ create or replace package body ut_suite_manager is
   */
 
   gc_suitpath_error_message constant varchar2(100) := 'Suitepath exceeds 1000 CHAR on: ';
-  gc_tag_errmsg             constant integer       := 450;
 
   gc_get_cache_suite_sql    constant varchar2(32767) :=
     q'[with
@@ -552,6 +551,8 @@ create or replace package body ut_suite_manager is
     l_sql := replace(l_sql,'{:tags:}',get_tags_sql(l_tags.count));
     l_sql := replace(l_sql,'{:random_seed:}',get_random_seed_sql(a_random_seed));
     l_sql := replace(l_sql,'{:owner:}',l_ut_owner);
+
+    ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_key_anyvalues().put('l_sql',l_sql) );
 
     open l_result for l_sql using l_path, l_path, upper(a_object_name), upper(a_procedure_name), l_tags, a_random_seed;
     return l_result;

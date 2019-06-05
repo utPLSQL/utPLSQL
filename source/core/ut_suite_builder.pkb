@@ -23,7 +23,7 @@ create or replace package body ut_suite_builder is
 
   gc_suite                       constant t_annotation_name := 'suite';
   gc_suitepath                   constant t_annotation_name := 'suitepath';
-  gc_tag                         constant t_annotation_name := 'tags';
+  gc_tags                        constant t_annotation_name := 'tags';
   gc_test                        constant t_annotation_name := ut_utils.gc_test_execute;
   gc_disabled                    constant t_annotation_name := 'disabled';
   gc_displayname                 constant t_annotation_name := 'displayname';
@@ -44,7 +44,7 @@ create or replace package body ut_suite_builder is
     := tt_annotations(
       gc_suite,
       gc_suitepath,
-      gc_tag,
+      gc_tags,
       gc_test,
       gc_disabled,
       gc_displayname,
@@ -513,8 +513,8 @@ create or replace package body ut_suite_builder is
       set_seq_no(l_test.after_test_list);
     end if;
    
-    if l_proc_annotations.exists( gc_tag) then
-      add_tags_to_suite_item(a_suite, l_proc_annotations( gc_tag), l_test.tags, a_procedure_name);
+    if l_proc_annotations.exists( gc_tags) then
+      add_tags_to_suite_item(a_suite, l_proc_annotations( gc_tags), l_test.tags, a_procedure_name);
     end if;
     
     if l_proc_annotations.exists( gc_throws) then
@@ -667,8 +667,8 @@ create or replace package body ut_suite_builder is
       l_after_each_list := add_executables( a_suite.object_owner, a_suite.object_name, a_annotations.by_name(gc_aftereach), gc_aftereach );
     end if;
    
-    if a_annotations.by_name.exists(gc_tag) then
-      add_tags_to_suite_item(a_suite, a_annotations.by_name(gc_tag),a_suite.tags);
+    if a_annotations.by_name.exists(gc_tags) then
+      add_tags_to_suite_item(a_suite, a_annotations.by_name(gc_tags),a_suite.tags);
     end if;
     a_suite.disabled_flag := ut_utils.boolean_to_int(a_annotations.by_name.exists(gc_disabled));
 
