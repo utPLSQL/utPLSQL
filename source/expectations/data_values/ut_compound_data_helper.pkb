@@ -336,7 +336,7 @@ create or replace package body ut_compound_data_helper is
     l_where_stmt     clob;
     l_ut_owner       varchar2(250) := ut_utils.ut_owner;
     l_join_by_list   ut_varchar2_list;
-    
+     
     function get_join_type(a_inclusion_compare in boolean,a_negated in boolean) return varchar2 is
     begin
      return

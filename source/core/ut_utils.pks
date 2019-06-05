@@ -413,5 +413,5 @@ create or replace package ut_utils authid definer is
 
   function strip_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2;
 
-end ut_utils;
+  end ut_utils;
 /

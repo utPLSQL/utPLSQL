@@ -365,18 +365,17 @@ create or replace type body ut_data_value_refcursor as
     l_other := treat(a_other as ut_data_value_refcursor);
     l_other.cursor_details.filter_columns( a_match_options );
     l_self.cursor_details.filter_columns( a_match_options );
-     
+
     if a_match_options.join_by.items.count > 0 then
       l_result :=
         l_self.cursor_details.get_missing_join_by_columns( a_match_options.join_by.items ).count
         + l_other.cursor_details.get_missing_join_by_columns( a_match_options.join_by.items ).count;
     end if;
-        
+
     if l_result = 0 then
       if not l_self.is_null() and not l_other.is_null() and not l_self.cursor_details.equals( l_other.cursor_details, a_match_options ) then
         l_result := 1;
       end if;
-            
       l_diff_cursor_text := ut_compound_data_helper.gen_compare_sql(
         l_other,
         a_match_options.join_by.items,

@@ -138,6 +138,5 @@ create or replace type body ut_data_value_anydata as
       raise value_error;
     end if;
   end;  
-    
 end;
 /

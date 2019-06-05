@@ -167,7 +167,7 @@ create or replace type body ut_cursor_details as
     c_xpath_extract_reg constant varchar2(50) := '^((/ROW/)|^(//)|^(/\*/))?(.*)';
   begin
     if l_result.cursor_columns_info is not null then
-            
+
       --limit columns to those on the include items minus exclude items
       if a_match_options.include.items.count > 0 then
         -- if include - exclude = 0 then keep all columns
@@ -252,6 +252,5 @@ create or replace type body ut_cursor_details as
       self.cursor_columns_info(i).filter_path := '/'||ut_utils.strip_prefix(self.cursor_columns_info(i).access_path,l_root);
     end loop; 
   end;
-    
 end;
 /

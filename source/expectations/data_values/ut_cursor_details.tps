@@ -16,7 +16,7 @@ create or replace type ut_cursor_details authid current_user as object (
   limitations under the License.
   */
    cursor_columns_info      ut_cursor_column_tab,
-   
+
    /*if type is anydata we need to skip level 1 on joinby / inlude / exclude as its artificial cursor*/
    is_anydata           number(1,0),
    constructor function ut_cursor_details(self in out nocopy ut_cursor_details) return self as result,
