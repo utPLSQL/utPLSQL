@@ -21,7 +21,6 @@ create or replace package test_annotation_parser is
   procedure ignore_annotations_in_comments;
 
   --%test(Ignores wrapped package and does not raise exception)
-  --%disabled(TODO - causes issues on 18c with install when trigger enabled)
   procedure ignore_wrapped_package;
 
   --%test(Parses package level annotations with annotation params containing brackets)
