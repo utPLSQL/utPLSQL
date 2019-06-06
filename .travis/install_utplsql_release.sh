@@ -36,9 +36,14 @@ end;
 /
 SQL
 
+INSTALL_FILE="install_headless_with_trigger.sql"
+if [[ ! -f "${INSTALL_FILE}" ]]; then
+ INSTALL_FILE="install_headless.sql"
+fi
+
 "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<SQL
 alter session set plsql_optimize_level=0;
-@install_headless_with_trigger.sql ${UT3_RELEASE_VERSION_SCHEMA}
+@${INSTALL_FILE} ${UT3_RELEASE_VERSION_SCHEMA}
 exit
 SQL
 
