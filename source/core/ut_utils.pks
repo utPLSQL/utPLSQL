@@ -136,6 +136,11 @@ create or replace package ut_utils authid definer is
   gc_bc_fetch_limit           constant integer := 1000;
   gc_diff_max_rows            constant integer := 20;
 
+  /** 
+  * Regexp to validate tag
+  */
+  gc_word_no_space              constant varchar2(50) := '^(\w|\S)+$';
+
   type t_version is record(
     major  natural,
     minor  natural,
@@ -239,7 +244,9 @@ create or replace package ut_utils authid definer is
   function clob_to_table(a_clob clob, a_max_amount integer := 8191, a_delimiter varchar2:= chr(10)) return ut_varchar2_list;
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob;
-
+  
+  function table_to_clob(a_text_table ut_varchar2_rows, a_delimiter varchar2:= chr(10)) return clob;
+  
   function table_to_clob(a_integer_table ut_integer_list, a_delimiter varchar2:= chr(10)) return clob;
 
   /**

@@ -120,7 +120,8 @@ create or replace package body ut is
     a_exclude_objects ut_varchar2_list,
     a_client_character_set varchar2,
     a_random_test_order     integer,
-    a_random_test_order_seed     positive
+    a_random_test_order_seed     positive,
+    a_tags varchar2 := null
   ) is
     pragma autonomous_transaction;
   begin
@@ -138,7 +139,8 @@ create or replace package body ut is
       a_client_character_set,
       false,
       ut_utils.int_to_boolean(a_random_test_order),
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
     rollback;
   end;
@@ -154,7 +156,8 @@ create or replace package body ut is
     a_exclude_objects ut_varchar2_list,
     a_client_character_set varchar2,
     a_random_test_order    integer,
-    a_random_test_order_seed    positive
+    a_random_test_order_seed    positive,
+    a_tags varchar2 := null
   ) is
     pragma autonomous_transaction;
   begin
@@ -172,7 +175,8 @@ create or replace package body ut is
       a_client_character_set,
       false,
       ut_utils.int_to_boolean(a_random_test_order),
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
     rollback;
   end;
@@ -212,7 +216,8 @@ create or replace package body ut is
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -228,7 +233,8 @@ create or replace package body ut is
       a_exclude_objects,
       a_client_character_set,
       a_random_test_order,
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -249,7 +255,8 @@ create or replace package body ut is
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -265,7 +272,8 @@ create or replace package body ut is
       a_exclude_objects,
       a_client_character_set,
       a_random_test_order,
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -287,7 +295,8 @@ create or replace package body ut is
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -303,7 +312,8 @@ create or replace package body ut is
       a_exclude_objects,
       a_client_character_set,
       a_random_test_order,
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -325,7 +335,8 @@ create or replace package body ut is
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -341,7 +352,8 @@ create or replace package body ut is
       a_exclude_objects,
       a_client_character_set,
       a_random_test_order,
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -363,7 +375,8 @@ create or replace package body ut is
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter     ut_reporter_base := a_reporter;
     l_results      sys_refcursor;
@@ -379,7 +392,8 @@ create or replace package body ut is
       a_exclude_objects,
       a_client_character_set,
       a_random_test_order,
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -401,7 +415,8 @@ create or replace package body ut is
     a_exclude_objects ut_varchar2_list := null,
     a_client_character_set varchar2 := null,
     a_random_test_order     integer := 0,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) return ut_varchar2_rows pipelined is
     l_reporter  ut_reporter_base := a_reporter;
     l_results   sys_refcursor;
@@ -417,7 +432,8 @@ create or replace package body ut is
       a_exclude_objects,
       a_client_character_set,
       a_random_test_order,
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
     if l_reporter is of (ut_output_reporter_base) then
       l_results := treat(l_reporter as ut_output_reporter_base).get_lines_cursor();
@@ -440,7 +456,8 @@ create or replace package body ut is
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) is
     l_reporter  ut_reporter_base := a_reporter;
   begin
@@ -459,7 +476,8 @@ create or replace package body ut is
         a_client_character_set,
         a_force_manual_rollback,
         a_random_test_order,
-        a_random_test_order_seed
+        a_random_test_order_seed,
+        a_tags
       );
     else
       run_autonomous(
@@ -473,7 +491,8 @@ create or replace package body ut is
         a_exclude_objects,
         a_client_character_set,
         ut_utils.boolean_to_int(a_random_test_order),
-        a_random_test_order_seed
+        a_random_test_order_seed,
+        a_tags
       );
     end if;
     if l_reporter is of (ut_output_reporter_base) then
@@ -494,7 +513,8 @@ create or replace package body ut is
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) is
     l_reporter  ut_reporter_base := a_reporter;
   begin
@@ -510,7 +530,8 @@ create or replace package body ut is
       a_client_character_set,
       a_force_manual_rollback,
       a_random_test_order,
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
   end;
 
@@ -525,7 +546,8 @@ create or replace package body ut is
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) is
   begin
     ut.run(
@@ -540,7 +562,8 @@ create or replace package body ut is
       a_client_character_set,
       a_force_manual_rollback,
       a_random_test_order,
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
   end;
 
@@ -555,7 +578,8 @@ create or replace package body ut is
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) is
   begin
     ut.run(
@@ -570,7 +594,8 @@ create or replace package body ut is
       a_client_character_set,
       a_force_manual_rollback,
       a_random_test_order,
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
   end;
 
@@ -586,7 +611,8 @@ create or replace package body ut is
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) is
   begin
     ut.run(
@@ -601,7 +627,8 @@ create or replace package body ut is
       a_client_character_set,
       a_force_manual_rollback,
       a_random_test_order,
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
   end;
 
@@ -617,7 +644,8 @@ create or replace package body ut is
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) is
   begin
     ut.run(
@@ -632,9 +660,11 @@ create or replace package body ut is
       a_client_character_set,
       a_force_manual_rollback,
       a_random_test_order,
-      a_random_test_order_seed
+      a_random_test_order_seed,
+      a_tags
     );
   end;
+
 
   procedure set_nls is
   begin

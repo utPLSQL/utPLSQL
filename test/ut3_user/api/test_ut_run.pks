@@ -163,6 +163,61 @@ create or replace package test_ut_run is
 
   --%endcontext
 
+  --%context(run with tags)
+  --%displayname(Call ut.run with #tags)
+  --%beforeall(create_ut3$user#_tests)
+  --%afterall(drop_ut3$user#_tests)
+  
+  --%test(Execute test by tag ut_run)
+  procedure test_run_by_one_tag;
+  
+  --%test( Execute suite by one tag)
+  procedure suite_run_by_one_tag;
+
+  --%test(Execute two tests by one tag)
+  procedure two_test_run_by_one_tag;
+ 
+  --%test(Execute all suites tests with tag)
+  procedure all_suites_run_by_one_tag;  
+  
+  --%test(Execute tests by passing two tags)
+  procedure two_test_run_by_two_tags;  
+  
+  --%test(Execute suite and all of its children)
+  procedure suite_with_children_tag;  
+  
+  --%test(Execute suite and parents)
+  procedure suite_with_tag_parent;   
+  
+  --%test(Execute test for non existing tag)
+  procedure test_nonexists_tag;    
+  
+  --%test(Execute test for duplicate list tags)
+  procedure test_duplicate_tag;   
+  
+  --%test(Execute suite test for duplicate list tags)
+  procedure suite_duplicate_tag;   
+
+  --%test(Runs given package only with package name given as path and filter by tag)
+  procedure run_proc_pkg_name_tag;
+  
+  --%test(Runs all from given package with package name given as path and coverage file list with tag)
+  procedure run_pkg_name_file_list_tag;
+  
+  --%test(Runs tests from given paths with paths list and tag)
+  procedure run_proc_path_list_tag;  
+  
+  --%test(Runs all tests in current schema with default reporter when only tag is given)
+  procedure tag_run_func_no_params;
+
+  --%test(Runs given package only with package name given as path and filter by tag)
+  procedure tag_run_func_pkg_name;
+
+  --%test(Runs tests from given paths with paths list and a tag)
+  procedure tag_run_func_path_list;
+ 
+  --%endcontext
+  
 end;
 /
 

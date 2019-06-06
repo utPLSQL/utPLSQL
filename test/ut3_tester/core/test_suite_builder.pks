@@ -172,5 +172,52 @@ create or replace package test_suite_builder is
 
   --%endcontext
 
+  --%context(tags_annotation)
+  --%displayname(--%tag_annotation)
+  
+  --%test(Build suite test with tag)
+  procedure test_tag_annotation;
+
+  --%test(Build suite with tag)
+  procedure suite_tag_annotation;
+
+  --%test(Build suite test with three tags)
+  procedure test_tags_annotation;
+  
+  --%test(Build suite with three tags)
+  procedure suite_tags_annotation;
+
+  --%test(Build suite test with two line tag annotation)
+  procedure test_2line_tags_annotation;
+  
+  --%test(Build suite with two line tag annotation)
+  procedure suite_2line_tags_annotation;
+
+  --%test(Build suite test with empty line tag annotation)   
+  procedure test_empty_tag;
+  
+  --%test(Build suite with empty line tag annotation)  
+  procedure suite_empty_tag;
+  
+  --%test(Build suite test with duplicate tag annotation)   
+  procedure test_duplicate_tag;
+  
+  --%test(Build suite with duplicate tag annotation)  
+  procedure suite_duplicate_tag;  
+
+  --%test(Build suite test with empty between tag annotation)   
+  procedure test_empty_tag_between;
+  
+  --%test(Build suite with empty between tag annotation)  
+  procedure suite_empty_tag_between;  
+
+  --%test(Build suite test with special char tag annotation)   
+  procedure test_special_char_tag;
+  
+  --%test(Build suite with special char tag annotation)  
+  procedure suite_special_char_tag; 
+  
+  --%endcontext
+  
 end test_suite_builder;
 /

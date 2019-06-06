@@ -26,10 +26,12 @@ create or replace type body ut_run as
     a_project_file_mappings  ut_file_mappings := null,
     a_test_file_mappings     ut_file_mappings := null,
     a_client_character_set   varchar2 := null,
-    a_random_test_order_seed positive := null
+    a_random_test_order_seed positive := null,
+    a_run_tags               ut_varchar2_rows := null
   ) return self as result is
   begin
     self.run_paths := a_run_paths;
+    self.run_tags  := a_run_tags;
     self.self_type := $$plsql_unit;
     self.items := a_items;
     self.client_character_set := lower(a_client_character_set);
