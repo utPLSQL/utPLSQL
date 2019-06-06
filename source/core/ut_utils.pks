@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.7.2897-develop';
+  gc_version                 constant varchar2(50) := 'v3.1.7.2999-develop';
     
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'beforeall';
@@ -43,6 +43,11 @@ create or replace package ut_utils authid definer is
   gc_success_char            constant varchar2(7) := 'Success'; -- test passed
   gc_failure_char            constant varchar2(7) := 'Failure'; -- one or more expectations failed
   gc_error_char              constant varchar2(5) := 'Error'; -- exception was raised
+
+  gc_cdata_start_tag         constant varchar2(10) := '<![CDATA[';
+  gc_cdata_end_tag           constant varchar2(10) := ']]>';
+  gc_cdata_end_tag_wrap      constant varchar2(30) := ']]'||gc_cdata_end_tag||gc_cdata_start_tag||'>';
+
 
   /*
     Constants: Rollback type for ut_test_object
@@ -386,6 +391,27 @@ create or replace package ut_utils authid definer is
   * Check if xml name is valid if not build a valid name
   */
   function get_valid_xml_name(a_name varchar2) return varchar2;
-  
-end ut_utils;
+
+  /**
+  * Converts input list into a list surrounded by CDATA tags
+  * All CDATA end tags get escaped using recommended method from https://en.wikipedia.org/wiki/CDATA#Nesting
+  */
+  function to_cdata(a_lines ut_varchar2_rows) return ut_varchar2_rows;
+
+  /**
+  * Converts input CLOB into a CLOB surrounded by CDATA tags
+  * All CDATA end tags get escaped using recommended method from https://en.wikipedia.org/wiki/CDATA#Nesting
+  */
+  function to_cdata(a_clob clob) return clob;
+
+  /**
+  * Add prefix word to elements of list
+  */
+  function add_prefix(a_list ut_varchar2_list, a_prefix varchar2, a_connector varchar2 := '/') return ut_varchar2_list;
+
+  function add_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2;
+
+  function strip_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2;
+
+  end ut_utils;
 /

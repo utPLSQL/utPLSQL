@@ -96,6 +96,7 @@ create or replace type body ut_cursor_details as
     l_hierarchy_level  integer := 1;
   begin
     self.cursor_columns_info := ut_cursor_column_tab();
+    self.is_anydata := 0;
     dbms_sql.describe_columns3(a_cursor_number, l_columns_count, l_columns_desc);
 
     /**
@@ -147,12 +148,13 @@ create or replace type body ut_cursor_details as
   member function get_missing_join_by_columns( a_expected_columns ut_varchar2_list ) return ut_varchar2_list is
     l_result ut_varchar2_list;
   begin
+    --regexp_replace(c.access_path,'^\/?([^\/]+\/){1}')
     select fl.column_value
       bulk collect into l_result
       from table(a_expected_columns) fl
      where not exists (
        select 1 from table(self.cursor_columns_info) c
-        where regexp_like(c.access_path, '^'||fl.column_value||'($|/.*)')
+        where regexp_like(c.filter_path,'^/?'||fl.column_value||'($|/.*)' )
        )
      order by fl.column_value;
     return l_result;
@@ -160,6 +162,8 @@ create or replace type body ut_cursor_details as
 
   member procedure filter_columns(self in out nocopy ut_cursor_details, a_match_options ut_matcher_options) is
     l_result            ut_cursor_details := self;
+    l_column_tab        ut_cursor_column_tab := ut_cursor_column_tab();
+    l_column            ut_cursor_column;
     c_xpath_extract_reg constant varchar2(50) := '^((/ROW/)|^(//)|^(/\*/))?(.*)';
   begin
     if l_result.cursor_columns_info is not null then
@@ -179,8 +183,9 @@ create or replace type body ut_cursor_details as
                  bulk collect into l_result.cursor_columns_info
             from table(self.cursor_columns_info) x
            where exists(
-                   select 1 from included_columns f where regexp_like( x.access_path, '^/?'||f.col_names||'($|/.*)' )
-                 );
+                   select 1 from included_columns f where regexp_like(x.filter_path,'^/?'||f.col_names||'($|/.*)' )
+                   )
+                 or x.hierarchy_level = case when self.is_anydata = 1 then 1 else 0 end ;
         end if;
       elsif a_match_options.exclude.items.count > 0 then
           with excluded_columns as (
@@ -191,9 +196,27 @@ create or replace type body ut_cursor_details as
                  bulk collect into l_result.cursor_columns_info
             from table(self.cursor_columns_info) x
            where not exists(
-             select 1 from excluded_columns f where regexp_like( '/'||x.access_path, '^/?'||f.col_names||'($|/.*)' )
+             select 1 from excluded_columns f where regexp_like(x.filter_path,'^/?'||f.col_names||'($|/.*)' )
            );
       end if;
+      
+      --Rewrite column order after columns been excluded
+      for i in (
+      select parent_name, access_path, display_path, has_nested_col,
+        transformed_name, hierarchy_level, 
+        rownum as new_position, xml_valid_name,
+        column_name, column_type, column_type_name, column_schema,
+        column_len, column_precision ,column_scale ,is_sql_diffable, is_collection,value(x) col_info
+      from table(l_result.cursor_columns_info) x
+	  order by x.column_position asc
+	  ) loop
+        l_column := i.col_info;
+        l_column.column_position := i.new_position;
+        l_column_tab.extend;
+        l_column_tab(l_column_tab.last) := l_column;
+      end loop;
+      
+      l_result.cursor_columns_info := l_column_tab;      
       self := l_result;
     end if;
   end;
@@ -206,8 +229,28 @@ create or replace type body ut_cursor_details as
       from table(self.cursor_columns_info) t
      where (a_parent_name is null and parent_name is null and hierarchy_level = 1 and column_name is not null)
     having count(*) > 0;
-
     return l_result;
+  end;
+  
+  member function get_root return varchar2 is
+    l_root varchar2(250);
+  begin
+    if self.cursor_columns_info.count > 0 then
+      select x.access_path into l_root from table(self.cursor_columns_info) x
+      where x.hierarchy_level = 1;
+    else
+      l_root := null;
+    end if;
+    return l_root;
+  end;  
+  
+  member procedure strip_root_from_anydata(self in out nocopy ut_cursor_details) is
+    l_root varchar2(250) := get_root();
+  begin
+    self.is_anydata := 1;
+    for i in 1..cursor_columns_info.count loop
+      self.cursor_columns_info(i).filter_path := '/'||ut_utils.strip_prefix(self.cursor_columns_info(i).access_path,l_root);
+    end loop; 
   end;
 end;
 /

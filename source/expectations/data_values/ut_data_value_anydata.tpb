@@ -61,8 +61,6 @@ create or replace type body ut_data_value_anydata as
  
   member procedure init(self in out nocopy ut_data_value_anydata, a_value anydata) is
     l_refcursor    sys_refcursor;
-    l_ctx      number;
-    l_ut_owner varchar2(250) := ut_utils.ut_owner;
     cursor_not_open exception;
     l_cursor_number number;
     l_anydata_sql varchar2(32767);
@@ -84,6 +82,7 @@ create or replace type body ut_data_value_anydata as
         self.extract_cursor(l_refcursor);
         l_cursor_number  := dbms_sql.to_cursor_number(l_refcursor);
         self.cursor_details  := ut_cursor_details(l_cursor_number);
+        self.cursor_details.strip_root_from_anydata;
         dbms_sql.close_cursor(l_cursor_number);         
       elsif not l_refcursor%isopen then
         raise cursor_not_open;

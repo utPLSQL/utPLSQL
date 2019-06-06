@@ -2788,6 +2788,60 @@ Check the query and data for errors.';
     ut3.ut.expect(l_actual).to_equal(l_expected);
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
    end;
-  
+
+  procedure compare_number_pckg_type
+  as
+    l_expected sys_refcursor;
+    l_actual   sys_refcursor;
+    l_expected_data t_num_tab;
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+
+    l_expected_data(1).col1 :=  2135;
+    l_expected_data(1).col4 :=  2016;
+    l_expected_data(1).col5 :=  -1;
+
+    --Select on package level nested table types supported only since Oracle 12
+    $if dbms_db_version.version >= 12 $then
+    open l_expected for
+      select *
+        from table (l_expected_data);
+
+    open l_actual for
+      select
+        1 as col1
+        ,2 as col2
+        ,3 as col3
+        ,2016 as col4
+        ,-1 as col5
+      from dual;
+
+    ut3.ut.expect(l_actual).to_equal(a_expected => l_expected);
+
+    l_expected_message := q'[%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
+%Diff:
+%Rows: [ 1 differences ]
+%Row No. 1 - Actual:   <COL1>1</COL1><COL2>2</COL2><COL3>3</COL3>
+%Row No. 1 - Expected: <COL1>2135</COL1><COL2/><COL3/>%]';
+
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+    $end
+  end;
+
+  procedure uc_columns_exclude is
+    v_actual   SYS_REFCURSOR;
+    v_expected SYS_REFCURSOR;
+  begin
+    open v_expected for
+    select to_Char(null) id, 'ok' name from dual;
+    open v_actual for
+    select 'ok' name, to_number(null) id from dual;
+
+    ut3.ut.expect(v_actual).to_equal(v_expected).exclude('ID');
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
 end;
 /

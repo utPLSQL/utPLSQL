@@ -14,5 +14,9 @@ create or replace package reporters is
     a_client_character_set varchar2
   );
 
+  procedure check_xml_failure_escaped(
+    a_reporter ut3.ut_output_reporter_base
+  );
+
 end reporters;
 /

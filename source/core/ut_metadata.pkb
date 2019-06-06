@@ -306,15 +306,17 @@ create or replace package body ut_metadata as
   function is_anytype_null(a_value in anydata, a_compound_type in varchar2) return number is
     l_result integer := 0;
     l_anydata_sql varchar2(4000);
+    l_compound_type varchar2(250);
   begin
-     if a_value is not null then
-     l_anydata_sql := '
+    if a_value is not null then
+      l_compound_type := sys.dbms_assert.qualified_sql_name(a_compound_type);
+      l_anydata_sql := '
         declare
           l_data '||get_anydata_typename(a_value)||';
           l_value anydata := :a_value;
           l_status integer;
         begin
-          l_status := l_value.get'||a_compound_type||'(l_data);
+          l_status := l_value.get'||l_compound_type||'(l_data);
           :l_data_is_null := case when l_data is null then 1 else 0 end; 
         end;';
         execute immediate l_anydata_sql using in a_value, out l_result; 

@@ -249,7 +249,7 @@ create or replace package body test_expectation_anydata is
     l_list ut3.ut_varchar2_list;
   begin
     --Arrange
-    l_list := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/Value','/TEST_DUMMY_OBJECT/ID');
+    l_list := ut3.ut_varchar2_list('Value','/ID');
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>3, "name"=>'A',"Value"=>'1') );
     --Act
@@ -262,7 +262,7 @@ create or replace package body test_expectation_anydata is
     l_list varchar2(100);
   begin
     --Arrange
-    l_list := 'TEST_DUMMY_OBJECT/Value,TEST_DUMMY_OBJECT/ID';
+    l_list := 'Value,ID';
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>2, "name"=>'A',"Value"=>'1') );
     --Act
@@ -275,7 +275,7 @@ create or replace package body test_expectation_anydata is
     l_xpath varchar2(100);
   begin
     --Arrange
-    l_xpath := '//TEST_DUMMY_OBJECT/Value|//TEST_DUMMY_OBJECT/ID';
+    l_xpath := '//Value|//ID';
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>2, "name"=>'A',"Value"=>'1') );
     --Act
@@ -301,7 +301,7 @@ create or replace package body test_expectation_anydata is
     l_list ut3.ut_varchar2_list;
   begin
     --Arrange
-    l_list := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/Value','TEST_DUMMY_OBJECT/ID');
+    l_list := ut3.ut_varchar2_list('Value','ID');
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'b',"Value"=>'0') );
     --Act
@@ -314,7 +314,7 @@ create or replace package body test_expectation_anydata is
     l_xpath          varchar2(100);
   begin
     --Arrange
-    l_xpath := 'TEST_DUMMY_OBJECT/key,TEST_DUMMY_OBJECT/ID';
+    l_xpath := 'key,ID';
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
@@ -327,7 +327,7 @@ create or replace package body test_expectation_anydata is
     l_xpath varchar2(100);
   begin
     --Arrange
-    l_xpath := '//TEST_DUMMY_OBJECT/key|//TEST_DUMMY_OBJECT/ID';
+    l_xpath := '//key|//ID';
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
@@ -340,7 +340,7 @@ create or replace package body test_expectation_anydata is
     l_include varchar2(100);
   begin
     --Arrange
-    l_include := ' BadAttributeName, TEST_DUMMY_OBJECT/ID ';
+    l_include := ' BadAttributeName, ID ';
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'B',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
@@ -354,8 +354,8 @@ create or replace package body test_expectation_anydata is
     l_include varchar2(100);
   begin
     --Arrange
-    l_include := 'TEST_DUMMY_OBJECT/key,TEST_DUMMY_OBJECT/ID,TEST_DUMMY_OBJECT/Value';
-    l_exclude := '//TEST_DUMMY_OBJECT/key|//TEST_DUMMY_OBJECT/Value';
+    l_include := 'key,ID,Value';
+    l_exclude := '//key|//Value';
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'B',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
@@ -371,8 +371,8 @@ create or replace package body test_expectation_anydata is
     l_actual   varchar2(32767);
   begin
     --Arrange
-    l_include := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/key','TEST_DUMMY_OBJECT/ID','TEST_DUMMY_OBJECT/Value');
-    l_exclude := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/key','TEST_DUMMY_OBJECT/Value');
+    l_include := ut3.ut_varchar2_list('key','ID','Value');
+    l_exclude := ut3.ut_varchar2_list('key','Value');
     g_test_expected := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'B',"Value"=>'0') );
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(id=>1, "name"=>'A',"Value"=>'1') );
     --Act
@@ -548,7 +548,7 @@ Rows: [ 60 differences, showing first 20 ]
     l_expected         ut3_tester_helper.test_dummy_object_list;
     l_list ut3.ut_varchar2_list;
   begin
-    l_list := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/Value','TEST_DUMMY_OBJECT/ID');
+    l_list := ut3.ut_varchar2_list('Value','ID');
     --Arrange
     select ut3_tester_helper.test_dummy_object( rownum, 'SomethingsDifferent '||rownum, rownum)
       bulk collect into l_actual
@@ -567,7 +567,7 @@ Rows: [ 60 differences, showing first 20 ]
     l_expected         ut3_tester_helper.test_dummy_object_list;
     l_list ut3.ut_varchar2_list;
   begin
-    l_list := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/Value','TEST_DUMMY_OBJECT/ID');
+    l_list := ut3.ut_varchar2_list('Value','ID');
     --Arrange
     select ut3_tester_helper.test_dummy_object( rownum*2, 'Something '||rownum, rownum*2)
       bulk collect into l_actual
@@ -588,7 +588,7 @@ Rows: [ 60 differences, showing first 20 ]
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
-    l_list := ut3.ut_varchar2_list('TEST_DUMMY_OBJECT/name');
+    l_list := ut3.ut_varchar2_list('name');
     --Arrange
     select ut3_tester_helper.test_dummy_object( rownum, 'SomethingsDifferent '||rownum, rownum)
       bulk collect into l_actual
@@ -602,7 +602,10 @@ Rows: [ 60 differences, showing first 20 ]
     l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 2 ]
 %Diff:
 %Rows: [ 2 differences ]
-%All rows are different as the columns are not matching.]';
+%Row No. 1 - Actual:   <name>SomethingsDifferent 1</name>
+%Row No. 1 - Expected: <name>Something 1</name>
+%Row No. 2 - Actual:   <name>SomethingsDifferent 2</name>
+%Row No. 2 - Expected: <name>Something 2</name>]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -841,7 +844,7 @@ Rows: [ 60 differences, showing first 20 ]
       from dual connect by level <=2
      order by rownum desc;
     --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).join_by('TEST_DUMMY_OBJECT/ID'); 
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).join_by('ID'); 
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;
     
@@ -860,7 +863,7 @@ Rows: [ 60 differences, showing first 20 ]
       from dual connect by level <=2
      order by rownum desc;
     --Act
-    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).join_by('TEST_DUMMY_OBJECT/ID'); 
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).join_by('ID'); 
     l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 2 ]
 %Diff:
 %Rows: [ 3 differences ]
@@ -928,7 +931,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_actual   := anydata.convertObject( ut3_tester_helper.test_dummy_object(1, 'A', '0') );
     
     --Act
-    ut3.ut.expect(g_test_actual).to_equal(g_test_expected).join_by('TEST_DUMMY_OBJECT/ID'); 
+    ut3.ut.expect(g_test_actual).to_equal(g_test_expected).join_by('ID'); 
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0); 
   end;
     
