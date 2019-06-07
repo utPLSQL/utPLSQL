@@ -1,7 +1,5 @@
 create or replace package body test_expectations_json is
 
-  $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-
   procedure cleanup_expectations is
   begin
     ut3_tester_helper.main_helper.clear_expectations( );
@@ -1586,8 +1584,6 @@ create or replace package body test_expectations_json is
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
- 
- $end  
  
 end;
 /
