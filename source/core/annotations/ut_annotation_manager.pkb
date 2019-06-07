@@ -170,7 +170,7 @@ create or replace package body ut_annotation_manager as
     a_sources_cursor   sys_refcursor
   ) is
     l_annotations         ut_annotations;
-    c_lines_fetch_limit   constant integer := 1000;
+    c_lines_fetch_limit   constant integer := 10000;
     l_lines               dbms_preprocessor.source_lines_t;
     l_names               dbms_preprocessor.source_lines_t;
     l_name                varchar2(250);
@@ -263,14 +263,14 @@ create or replace package body ut_annotation_manager as
       l_sql_text    ora_name_list_t := a_sql_text;
     begin
       if a_parts > 0 then
-        l_sql_text(1) := regexp_replace(l_sql_text(1),'^\s*create(\s+or\s+replace)?\s+', modifier => 'i');
+        l_sql_text(1) := regexp_replace(l_sql_text(1),'^\s*create(\s+or\s+replace)?(\s+(non)?editionable)?\s+', modifier => 'i');
         for i in 1..a_parts loop
           ut_utils.append_to_clob(l_sql_clob, l_sql_text(i));
         end loop;
         l_sql_lines := ut_utils.convert_collection( ut_utils.clob_to_table(l_sql_clob) );
       end if;
       open l_result for
-        select a_object_name as name, column_value||chr(10) as text from table(l_sql_lines);
+        select a_object_name as name, column_value||chr(10) as text from table(l_sql_lines) where rownum <1;
       return l_result;
     end;
   begin
