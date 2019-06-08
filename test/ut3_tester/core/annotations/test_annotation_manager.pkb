@@ -1,5 +1,18 @@
 create or replace package body test_annotation_manager is
 
+  procedure disable_ddl_trigger is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'alter trigger ut3.ut_trigger_annotation_parsing disable';
+    execute immediate 'begin ut3.ut_trigger_check.is_alive(); end;';
+  end;
+
+  procedure enable_ddl_trigger is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'alter trigger ut3.ut_trigger_annotation_parsing enable';
+  end;
+
   procedure create_dummy_package is
     pragma autonomous_transaction;
   begin
@@ -49,6 +62,9 @@ create or replace package body test_annotation_manager is
     pragma autonomous_transaction;
   begin
     execute immediate q'[drop package dummy_test_package]';
+  exception
+    when others then
+      null;
   end;
 
   procedure recompile_dummy_test_package is
@@ -241,8 +257,7 @@ create or replace package body test_annotation_manager is
        order by annotation_position;
 
     open l_expected for
-      select 2 as annotation_position, 'suite' as annotation_name,
-            'dummy_test_suite' as annotation_text, '' as subobject_name
+      select 2 as annotation_position, 'suite' as annotation_name, 'dummy_test_suite' as annotation_text, '' as subobject_name
         from dual union all
       select 3, 'rollback' , 'manual', '' as subobject_name
         from dual union all

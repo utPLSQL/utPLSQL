@@ -182,7 +182,7 @@ create or replace package body ut_annotation_manager as
       fetch a_sources_cursor bulk collect into l_names, l_lines limit c_lines_fetch_limit;
       for i in 1 .. l_names.count loop
         if l_names(i) != l_name then
-          l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines);
+          l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines, a_object_type);
           ut_annotation_cache_manager.update_cache(
             ut_annotated_object(a_object_owner, l_name, a_object_type, l_parse_time, l_annotations)
           );
@@ -196,7 +196,7 @@ create or replace package body ut_annotation_manager as
 
     end loop;
     if a_sources_cursor%rowcount > 0 then
-      l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines);
+      l_annotations := ut_annotation_parser.parse_object_annotations(l_object_lines, a_object_type);
       ut_annotation_cache_manager.update_cache(
         ut_annotated_object(a_object_owner, l_name, a_object_type, l_parse_time, l_annotations)
       );
@@ -263,14 +263,14 @@ create or replace package body ut_annotation_manager as
       l_sql_text    ora_name_list_t := a_sql_text;
     begin
       if a_parts > 0 then
-        l_sql_text(1) := regexp_replace(l_sql_text(1),'^\s*create(\s+or\s+replace)?(\s+(non)?editionable)?\s+', modifier => 'i');
+        l_sql_text(1) := regexp_replace(l_sql_text(1),'^\s*create(\s+or\s+replace){0,1}(\s+(editionable|noneditionable)){0,1}\s+{0,1}', modifier => 'i');
         for i in 1..a_parts loop
           ut_utils.append_to_clob(l_sql_clob, l_sql_text(i));
         end loop;
         l_sql_lines := ut_utils.convert_collection( ut_utils.clob_to_table(l_sql_clob) );
       end if;
       open l_result for
-        select a_object_name as name, column_value||chr(10) as text from table(l_sql_lines) where rownum <1;
+        select a_object_name as name, column_value||chr(10) as text from table(l_sql_lines);
       return l_result;
     end;
   begin

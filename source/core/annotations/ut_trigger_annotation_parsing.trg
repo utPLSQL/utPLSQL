@@ -8,6 +8,7 @@ begin
             'ANONYMOUS','APPQOSSYS','AUDSYS','DBSFWUSER','DBSNMP','DIP','GGSYS','GSMADMIN_INTERNAL',
             'GSMCATUSER','GSMUSER','ORACLE_OCM','OUTLN','REMOTE_SCHEDULER_AGENT','SYS','SYS$UMF',
             'SYSBACKUP','SYSDG','SYSKM','SYSRAC','SYSTEM','WMSYS','XDB','XS$NULL')
+        and not (ora_dict_obj_type = 'TYPE' and ora_dict_obj_name like 'SYS\_PLSQL\_%' escape '\')
         )
      or (ora_dict_obj_owner = UPPER('&&UT3_OWNER')
          and ora_dict_obj_name = 'UT3_TRIGGER_ALIVE'

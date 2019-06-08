@@ -17,7 +17,6 @@ create or replace package body ut_trigger_check is
   */
 
   g_is_trigger_live    boolean := false;
-  gc_check_object_name constant varchar2(128) := 'UT3_TRIGGER_ALIVE';
 
   function is_alive return boolean is
     pragma autonomous_transaction;
@@ -32,6 +31,8 @@ create or replace package body ut_trigger_check is
   begin
     if ora_dict_obj_owner = ut_utils.ut_owner and ora_dict_obj_name = gc_check_object_name and ora_dict_obj_type = 'SYNONYM' then
       g_is_trigger_live := true;
+    else
+      g_is_trigger_live := false;
     end if;
   end;
 

@@ -69,6 +69,9 @@ SQL
 time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
 set feedback off
 @create_utplsql_owner.sql $UT3_TESTER $UT3_TESTER_PASSWORD $UT3_TABLESPACE
+--needed for disabling DDL trigger and testint parser without trigger enabled/present
+grant alter any trigger to ut3_tester;
+grant administer database trigger to $UT3_TESTER;
 exit
 SQL
 

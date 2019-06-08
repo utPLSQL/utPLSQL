@@ -16,12 +16,17 @@ create or replace package ut_trigger_check authid definer is
   limitations under the License.
   */
 
+  gc_check_object_name constant varchar2(128) := 'UT3_TRIGGER_ALIVE';
+
   /**
    * checks if the trigger &&UT3_OWNER._PARSE is enabled and operational.
    */
-
   function is_alive return boolean;
 
+  /**
+  * If called from a DDL trigger when creating object gc_check_object_name, sts alive flag to true
+  * Otherwise sets alive flag to false.
+  */
   procedure is_alive;
 
 end;
