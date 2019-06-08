@@ -1,4 +1,4 @@
-create or replace type ut_json_leaf force authid current_user as object (
+create or replace type ut_json_leaf authid current_user as object (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project

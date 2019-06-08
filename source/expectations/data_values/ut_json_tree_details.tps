@@ -19,7 +19,6 @@ create or replace type ut_json_tree_details force as object (
    member function get_json_type(a_json_piece json_element_t) return varchar2,
    member function get_json_value(a_json_piece json_element_t,a_key varchar2) return varchar2,
    member function get_json_value(a_json_piece json_element_t,a_key integer) return varchar2,
-   member function get_json_size(a_json_piece json_element_t) return integer,
    member procedure add_json_leaf(self in out nocopy ut_json_tree_details, a_element_name varchar2, a_element_value varchar2,
      a_parent_name varchar2, a_access_path varchar2, a_hierarchy_level integer, a_index_position integer, 
      a_json_type in varchar2, a_parent_type in varchar2, a_array_element integer := 0,a_parent_path varchar2),

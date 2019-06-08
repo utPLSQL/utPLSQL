@@ -65,16 +65,7 @@ create or replace type body ut_json_tree_details as
       return null;
     $end
    end;  
-   
-   member function get_json_size(a_json_piece json_element_t) return integer is
-   begin
-    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-     return treat(a_json_piece as json_object_t).get_size;
-    $else
-      return null;
-    $end
-   end;
-   
+      
    member procedure add_json_leaf(self in out nocopy ut_json_tree_details, a_element_name varchar2, a_element_value varchar2,
      a_parent_name varchar2, a_access_path varchar2, a_hierarchy_level integer, a_index_position integer, 
      a_json_type in varchar2, a_parent_type in varchar2, a_array_element integer := 0, a_parent_path varchar2) is
