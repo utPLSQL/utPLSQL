@@ -19,9 +19,7 @@ create or replace type body ut_data_value_json as
   member procedure init (self in out nocopy ut_data_value_json, a_value json_element_t) is
   begin
     self.is_data_null   := case when a_value is null then 1 else 0 end;
-    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
     self.data_value     := case when a_value is null then null else a_value.to_clob end;
-    $end
     self.self_type      := $$plsql_unit;
     self.data_type      := 'json';
     self.json_tree      := ut_json_tree_details(a_value);
@@ -145,11 +143,7 @@ create or replace type body ut_data_value_json as
 
   member function get_elements_count return integer is
   begin
-    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
     return json_element_t.parse(self.data_value).get_size;
-    $else
-    return null;
-    $end
   end;
 
   member function get_json_count_info return varchar2 is

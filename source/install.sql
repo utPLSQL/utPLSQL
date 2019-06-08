@@ -57,9 +57,6 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pks'
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pkb'
 
---dummy objects
-@@install_component.sql 'dummy/json_element_t.sql'
-
 --event manager objects
 @@install_component.sql 'core/events/ut_event_item.tps'
 @@install_component.sql 'core/events/ut_event_listener.tps'
@@ -88,6 +85,8 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_reporter_base.tps'
 @@install_component.sql 'core/types/ut_reporters.tps'
 
+
+@@install_component.sql 'expectations/json_objects_specs.sql'
 @@install_component.sql 'expectations/matchers/ut_matcher_options_items.tps'
 @@install_component.sql 'expectations/matchers/ut_matcher_options.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value.tps'
