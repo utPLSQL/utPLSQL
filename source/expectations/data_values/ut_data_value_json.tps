@@ -29,4 +29,4 @@ create or replace type ut_data_value_json under ut_compound_data_value(
   member function get_json_count_info return varchar2,
   overriding member function get_object_info return varchar2
 )
-
+/
