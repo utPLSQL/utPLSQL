@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.7.2992-develop';
+  gc_version                 constant varchar2(50) := 'v3.1.7.3006-develop';
     
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'beforeall';
@@ -136,6 +136,11 @@ create or replace package ut_utils authid definer is
   gc_bc_fetch_limit           constant integer := 1000;
   gc_diff_max_rows            constant integer := 20;
 
+  /** 
+  * Regexp to validate tag
+  */
+  gc_word_no_space              constant varchar2(50) := '^(\w|\S)+$';
+
   type t_version is record(
     major  natural,
     minor  natural,
@@ -241,7 +246,9 @@ create or replace package ut_utils authid definer is
   function clob_to_table(a_clob clob, a_max_amount integer := 8191, a_delimiter varchar2:= chr(10)) return ut_varchar2_list;
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob;
-
+  
+  function table_to_clob(a_text_table ut_varchar2_rows, a_delimiter varchar2:= chr(10)) return clob;
+  
   function table_to_clob(a_integer_table ut_integer_list, a_delimiter varchar2:= chr(10)) return clob;
 
   /**
@@ -405,6 +412,15 @@ create or replace package ut_utils authid definer is
   * All CDATA end tags get escaped using recommended method from https://en.wikipedia.org/wiki/CDATA#Nesting
   */
   function to_cdata(a_clob clob) return clob;
+
+  /**
+  * Add prefix word to elements of list
+  */
+  function add_prefix(a_list ut_varchar2_list, a_prefix varchar2, a_connector varchar2 := '/') return ut_varchar2_list;
+
+  function add_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2;
+
+  function strip_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2;
 
   end ut_utils;
 /

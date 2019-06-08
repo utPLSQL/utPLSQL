@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.7.2992--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.3006--develop-blue.svg)
 
 # Advanced data comparison
 
@@ -130,6 +130,85 @@ begin
 end;
 
 ```
+
+Example of `include / exclude` for anydata.convertCollection
+
+```plsql
+create or replace type person as object(
+  name varchar2(100),
+  age  integer
+)
+/
+create or replace type people as table of person
+/
+
+create or replace package ut_anydata_inc_exc IS
+
+   --%suite(Anydata)
+
+   --%test(Anydata include)
+   procedure ut_anydata_test_inc;
+
+   --%test(Anydata exclude)
+   procedure ut_anydata_test_exc;
+   
+   --%test(Fail on age)
+   procedure ut_fail_anydata_test;
+   
+end ut_anydata_inc_exc;
+/
+
+create or replace package body ut_anydata_inc_exc IS
+
+   procedure ut_anydata_test_inc IS
+    l_actual           people := people(person('Matt',45));
+    l_expected         people :=people(person('Matt',47));
+  begin
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include('NAME');  
+   end;
+
+   procedure ut_anydata_test_exc IS
+    l_actual           people := people(person('Matt',45));
+    l_expected         people :=people(person('Matt',47));
+  begin
+    --Arrange
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).exclude('AGE');   
+   end;
+
+   procedure ut_fail_anydata_test IS
+    l_actual           people := people(person('Matt',45));
+    l_expected         people :=people(person('Matt',47));
+  begin
+    --Arrange
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include('AGE');   
+  end;
+
+end ut_anydata_inc_exc;
+/
+
+```
+
+will result in :
+
+```sql
+Anydata
+  Anydata include [.044 sec]
+  Anydata exclude [.035 sec]
+  Fail on age [.058 sec] (FAILED - 1)
+ 
+Failures:
+ 
+  1) ut_fail_anydata_test
+      Actual: ut3.people [ count = 1 ] was expected to equal: ut3.people [ count = 1 ]
+      Diff:
+      Rows: [ 1 differences ]
+        Row No. 1 - Actual:   <AGE>45</AGE>
+        Row No. 1 - Expected: <AGE>47</AGE>
+```
+
+
+
+Example of exclude
 
 Only the columns 'RN', "A_Column" will be compared. Column 'SOME_COL' is excluded.
 

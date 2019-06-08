@@ -90,7 +90,8 @@ create or replace package body ut_suite_cache_manager is
                 before_all_list, after_all_list,
                 before_each_list, after_each_list,
                 before_test_list, after_test_list,
-                expected_error_codes, item
+                expected_error_codes, tags,
+                item
             )
           with suites as (
                select treat(value(x) as ut_suite) i
@@ -103,7 +104,8 @@ create or replace package body ut_suite_cache_manager is
                  s.i.before_all_list as before_all_list, s.i.after_all_list as after_all_list,
                  null before_each_list, null after_each_list,
                  null before_test_list, null after_test_list,
-                 null expected_error_codes, null item
+                 null expected_error_codes, s.i.tags tags,
+                 null item
           from suites s;
 
         insert into ut_suite_cache t
@@ -114,7 +116,8 @@ create or replace package body ut_suite_cache_manager is
             before_all_list, after_all_list,
             before_each_list, after_each_list,
             before_test_list, after_test_list,
-            expected_error_codes, item
+            expected_error_codes, tags,
+            item
           )
           with tests as (
                select treat(value(x) as ut_test) t
@@ -127,9 +130,10 @@ create or replace package body ut_suite_cache_manager is
                null before_all_list, null after_all_list,
                s.t.before_each_list as before_each_list, s.t.after_each_list as after_each_list,
                s.t.before_test_list as before_test_list, s.t.after_test_list as after_test_list,
-               s.t.expected_error_codes as expected_error_codes, s.t.item as item
+               s.t.expected_error_codes as expected_error_codes, s.t.tags as test_tags,
+               s.t.item as item
           from tests s;
-
+                
       end if;
     end if;
     commit;

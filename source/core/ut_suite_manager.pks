@@ -49,7 +49,8 @@ create or replace package ut_suite_manager authid current_user is
   procedure configure_execution_by_path(
     a_paths       in ut_varchar2_list,
     a_suites      out nocopy ut_suite_items,
-    a_random_seed in positive := null
+    a_random_seed in positive := null,
+    a_tags ut_varchar2_rows := ut_varchar2_rows()
   );
 
   /**

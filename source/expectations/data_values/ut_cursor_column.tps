@@ -1,4 +1,4 @@
-create or replace type ut_cursor_column force authid current_user as object (
+create or replace type ut_cursor_column authid current_user as object (
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
@@ -17,6 +17,7 @@ create or replace type ut_cursor_column force authid current_user as object (
   */
    parent_name      varchar2(4000),
    access_path      varchar2(4000),
+   filter_path      varchar2(4000),
    display_path     varchar2(4000),
    has_nested_col   number(1,0),
    transformed_name varchar2(2000),
