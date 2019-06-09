@@ -89,10 +89,23 @@ The headless scripts accept three optional parameters that define:
 
 The scripts need to be executed by `SYSDBA`, in order to grant access to `DBMS_LOCK` and `DBMS_CRYPTO` system packages.
 
-*Note:* Grant on `DBMS_LOCK` is required only for installation on Oracle versions below 18c. For versions 18c and above, utPLSQL uses `DBMS_SESSION.SLEEP` so access to `DBMS_LOCK` package is no longer needed. 
+**Note:**
+> Grant on `DBMS_LOCK` is required only for installation on Oracle versions below 18c. For versions 18c and above, utPLSQL uses `DBMS_SESSION.SLEEP` so access to `DBMS_LOCK` package is no longer needed. 
 
-*Note:* The user performing the installation must have the `ADMINISTER DATABASE TRIGGER` privilege. This is required for installation of trigger that is responsible for parsing annotations at at compile-time of a package.
+**Note:**
+> The user performing the installation must have the `ADMINISTER DATABASE TRIGGER` privilege. This is required for installation of trigger that is responsible for parsing annotations at at compile-time of a package.
 
+**Note:**
+> When installing with DDL trigger, utPLSQL will not be registering unit tests for any of oracle-maintained schemas.
+For Oracle 11g following users are excluded:
+> ANONYMOUS, APPQOSSYS, AUDSYS, DBSFWUSER, DBSNMP, DIP, GGSYS, GSMADMIN_INTERNAL, GSMCATUSER, GSMUSER, ORACLE_OCM, OUTLN, REMOTE_SCHEDULER_AGENT, SYS, SYS$UMF, SYSBACKUP, SYSDG, SYSKM, SYSRAC, SYSTEM, WMSYS, XDB, XS$NULL 
+>
+> For Oracle 12c and above the users returned by below query are excluded by utPLSQL:
+>
+>```sql
+>  select username from all_users where oracle_maintained='Y';
+>```
+ 
 ## Installation without DDL trigger
 
 To install the utPLSQL into a new database schema and grant it to public, execute the script `install_headless.sql` as SYSDBA.
@@ -125,15 +138,12 @@ cd source
 sqlplus sys/sys_pass@db as sysdba @install_headless_with_trigger.sql utp3 my_verySecret_password utp3_tablespace   
 ```
 
-*Note:* 
-
-When installing utPLSQL into database with existing unit test packages, utPLSQL will not be able to already-existing unit test packages.
-When utPSLQL was installed with DDL trigger, you have to do one of:
-- Recompile existing Unit Test packages to make utPLSQL aware of their existence 
-- Invoke `exec ut_runner.rebuild_annotation_cache(a_schema_name=> ... );` for every schema containing unit tests in your database
-
-Steps above are required to assure annotation cache is populated properly from existing objects.
-Rebuilding annotation cache might be faster than code recompilation.     
+**Note:** 
+>When installing utPLSQL into database with existing unit test packages, utPLSQL will not be able to already-existing unit test packages. When utPSLQL was installed with DDL trigger, you have to do one of:
+>- Recompile existing Unit Test packages to make utPLSQL aware of their existence 
+>- Invoke `exec ut_runner.rebuild_annotation_cache(a_schema_name=> ... );` for every schema containing unit tests in your database
+>
+> Steps above are required to assure annotation cache is populated properly from existing objects. Rebuilding annotation cache might be faster than code recompilation.     
 
 # Recommended Schema
 It is highly recommended to install utPLSQL in it's own schema. You are free to choose any name for this schema.
@@ -199,7 +209,8 @@ cd source
 sqlplus admin/admins_password@database @install_ddl_trigger.sql ut3  
 ```
 
-*Note:* Trigger can be installed ant any point in time.
+**Note:**
+>Trigger can be installed ant any point in time.
 
 
 ## Allowing other users to access the utPLSQL framework

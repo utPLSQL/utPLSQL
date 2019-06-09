@@ -16,6 +16,7 @@ create or replace package body ut_trigger_check is
   limitations under the License.
   */
 
+  gc_check_object_name constant varchar2(128) := 'UT3_TRIGGER_ALIVE';
   g_is_trigger_live    boolean := false;
 
   function is_alive return boolean is

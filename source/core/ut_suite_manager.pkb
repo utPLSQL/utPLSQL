@@ -332,7 +332,6 @@ create or replace package body ut_suite_manager is
   function get_missing_objects(a_object_owner varchar2) return ut_varchar2_rows is
     l_rows         sys_refcursor;
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
-    l_objects_view varchar2(200) := ut_metadata.get_objects_view_name();
     l_cursor_text  varchar2(32767);
     l_result       ut_varchar2_rows;
     l_object_owner varchar2(250);

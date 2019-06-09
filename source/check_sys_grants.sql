@@ -1,4 +1,4 @@
-DEFINE expected_grants = "&1"
+define expected_grants = "&1"
 declare
   c_expected_grants constant dbmsoutput_linesarray := dbmsoutput_linesarray( &expected_grants );
 

@@ -430,7 +430,7 @@ Unable to join sets:
   Please make sure that your join clause is not refferring to collection element
 ```
 
-***Note***
+**Note**
 >`join_by` option is slower to process as it needs to perform a cursor join.
 
 ## Defining item lists in option
