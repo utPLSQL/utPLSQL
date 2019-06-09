@@ -29,7 +29,7 @@ create or replace package body ut_trigger_check is
 
   procedure is_alive is
   begin
-    if ora_dict_obj_owner = ut_utils.ut_owner and ora_dict_obj_name = gc_check_object_name and ora_dict_obj_type = 'SYNONYM' then
+    if ora_dict_obj_owner is not null and ora_dict_obj_name is not null and ora_dict_obj_type is not null then
       g_is_trigger_live := true;
     else
       g_is_trigger_live := false;

@@ -31,7 +31,7 @@ prompt &&line_separator
 alter session set current_schema = &&ut3_owner;
 
 @@check_object_grants.sql
-@@check_sys_grants.sql
+@@check_sys_grants.sql "'CREATE TYPE','CREATE VIEW','CREATE SYNONYM','CREATE SEQUENCE','CREATE PROCEDURE','CREATE TABLE'"
 --set define off
 
 --dbms_output buffer cache table

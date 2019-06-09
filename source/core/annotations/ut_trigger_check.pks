@@ -24,7 +24,7 @@ create or replace package ut_trigger_check authid definer is
   function is_alive return boolean;
 
   /**
-  * If called from a DDL trigger when creating object gc_check_object_name, sts alive flag to true
+  * If called from a DDL trigger when creating object gc_check_object_name, sets alive flag to true
   * Otherwise sets alive flag to false.
   */
   procedure is_alive;
