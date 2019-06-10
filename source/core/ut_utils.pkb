@@ -285,6 +285,20 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  function table_to_clob(a_text_table ut_varchar2_rows, a_delimiter varchar2:= chr(10)) return clob is
+    l_result     clob;
+    l_table_rows integer := coalesce(cardinality(a_text_table),0);
+  begin
+    for i in 1 .. l_table_rows loop
+      if i < l_table_rows then
+        append_to_clob(l_result, a_text_table(i)||a_delimiter);
+      else
+        append_to_clob(l_result, a_text_table(i));
+      end if;
+    end loop;
+    return l_result;
+  end;
+
   function table_to_clob(a_integer_table ut_integer_list, a_delimiter varchar2:= chr(10)) return clob is
     l_result     clob;
     l_table_rows integer := coalesce(cardinality(a_integer_table),0);
@@ -603,7 +617,6 @@ create or replace package body ut_utils is
     if a_list is not null then
       l_filtered_list := ut_varchar2_list();
       l_index := a_list.first;
-
       while (l_index is not null) loop
         if regexp_like(a_list(l_index), a_regexp_filter) then
           l_filtered_list.extend;
@@ -760,7 +773,7 @@ create or replace package body ut_utils is
   /**
   * Change string into unicode to match xmlgen format _00<unicode>_
   * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
-  * secion v3.1.7.2999-develop
+  * secion v3.1.7.3006-develop
   */  
   function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
   begin

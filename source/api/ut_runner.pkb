@@ -90,7 +90,8 @@ create or replace package body ut_runner is
     a_client_character_set varchar2 := null,
     a_force_manual_rollback boolean := false,
     a_random_test_order     boolean := false,
-    a_random_test_order_seed     positive := null
+    a_random_test_order_seed     positive := null,
+    a_tags varchar2 := null
   ) is
     l_run                     ut_run;
     l_coverage_schema_names   ut_varchar2_rows;
@@ -98,6 +99,7 @@ create or replace package body ut_runner is
     l_include_object_names    ut_object_names;
     l_paths                   ut_varchar2_list := ut_varchar2_list();
     l_random_test_order_seed  positive;
+    l_tags                    ut_varchar2_rows := ut_varchar2_rows();
   begin
     ut_event_manager.initialize();
     if a_reporters is not empty then
@@ -129,7 +131,6 @@ create or replace package body ut_runner is
       ut_utils.save_dbms_output_to_cache();
 
       ut_console_reporter_base.set_color_enabled(a_color_console);
-
       if a_coverage_schemes is not empty then
         l_coverage_schema_names := ut_utils.convert_collection(a_coverage_schemes);
       else
@@ -139,7 +140,12 @@ create or replace package body ut_runner is
       if a_exclude_objects is not empty then
         l_exclude_object_names := to_ut_object_list(a_exclude_objects, l_coverage_schema_names);
       end if;
-
+       
+      if a_tags is not null then
+        l_tags := l_tags multiset union distinct ut_utils.convert_collection( 
+          ut_utils.trim_list_elements(ut_utils.filter_list(ut_utils.string_to_table(a_tags,','),ut_utils.gc_word_no_space))
+        );
+      end if;
       l_exclude_object_names := l_exclude_object_names multiset union all ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names);
 
       l_include_object_names := to_ut_object_list(a_include_objects, l_coverage_schema_names);
@@ -153,10 +159,11 @@ create or replace package body ut_runner is
         set(a_source_file_mappings),
         set(a_test_file_mappings),
         a_client_character_set,
-        l_random_test_order_seed
+        l_random_test_order_seed,
+        l_tags
       );
 
-      ut_suite_manager.configure_execution_by_path(l_paths, l_run.items, l_random_test_order_seed);
+      ut_suite_manager.configure_execution_by_path(l_paths, l_run.items, l_random_test_order_seed, l_tags);
       if a_force_manual_rollback then
         l_run.set_rollback_type( a_rollback_type => ut_utils.gc_rollback_manual, a_force => true );
       end if;

@@ -282,6 +282,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 
 --plugin interface API for running utPLSQL
 @@install_component.sql 'api/ut_suite_item_info.tps'
+@@install_component.sql 'api/ut_suite_item_info.tpb'
 @@install_component.sql 'api/ut_suite_items_info.tps'
 @@install_component.sql 'api/ut_runner.pks'
 @@install_component.sql 'api/ut_runner.pkb'

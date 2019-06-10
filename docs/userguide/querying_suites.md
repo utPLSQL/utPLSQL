@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.7.2999--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.3006--develop-blue.svg)
 
 # Qyerying for test suites
 
@@ -22,21 +22,22 @@ Querying the data from function provides the follwing details:
 - `item_line_no`     - line_number where annotation identifying the item exists
 - `path`             - suitepath of the item
 - `disabled_flag`    - (0/1) indicator if item is disabled by --%disabled annotation
-    
+- `tags`     - tags associated with suites
+
 To get list of all test suites in current schema 
 ```sql
 select * from table(ut_runner.get_suites_info()) where item_type = 'UT_SUITE';
-``` 
+```
 
 To get list of all tests for test suite `TEST_STUFF` in current user schema  
 ```sql
 select * from table(ut_runner.get_suites_info(USER, 'TEST_STUFF')) where item_type = 'UT_TEST';
-``` 
+```
 
 To get a full information about suite `TEST_STUFF` including suite description, all contexts and tests in a suite  
 ```sql
 select * from table(ut_runner.get_suites_info(USER, 'TEST_STUFF')) where item_type = 'UT_TEST';
-``` 
+```
 
 ## Checking if schema contains tests
 
