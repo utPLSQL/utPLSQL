@@ -255,9 +255,10 @@ create or replace package body ut_annotation_manager as
   end;
 
   procedure trigger_obj_annotation_rebuild is
-    l_sql_text    ora_name_list_t;
-    l_parts       binary_integer;
-    l_object_to_parse ut_annotation_obj_cache_info;
+    l_sql_text         ora_name_list_t;
+    l_parts            binary_integer;
+    l_object_to_parse  ut_annotation_obj_cache_info;
+    l_restricted_users ora_name_list_t;
 
     function get_source_from_sql_text(a_object_name varchar2, a_sql_text ora_name_list_t, a_parts binary_integer) return sys_refcursor is
       l_sql_clob    clob;
@@ -291,9 +292,21 @@ create or replace package body ut_annotation_manager as
         using a_object_name, a_object_type, a_object_owner, a_object_name;
       return l_result;
     end;
-      
+
   begin
     if ora_dict_obj_type in ('PACKAGE','PROCEDURE','FUNCTION','TYPE') then
+      $if dbms_db_version.version < 12 $then
+        l_restricted_users := ora_name_list_t(
+          'ANONYMOUS','APPQOSSYS','AUDSYS','DBSFWUSER','DBSNMP','DIP','GGSYS','GSMADMIN_INTERNAL',
+          'GSMCATUSER','GSMUSER','ORACLE_OCM','OUTLN','REMOTE_SCHEDULER_AGENT','SYS','SYS$UMF',
+          'SYSBACKUP','SYSDG','SYSKM','SYSRAC','SYSTEM','WMSYS','XDB','XS$NULL');
+      $else
+        select username bulk collect into l_restricted_users
+          from all_users where oracle_maintained = 'Y';
+      $end
+      if ora_dict_obj_owner member of l_restricted_users then
+        return;
+      end if;
 
       l_object_to_parse := ut_annotation_obj_cache_info(ora_dict_obj_owner, ora_dict_obj_name, ora_dict_obj_type, 'Y');
 
