@@ -18,6 +18,6 @@ create table ut_annotation_cache_info (
   object_type     varchar2(250) not null,
   parse_time      timestamp     not null,
   constraint ut_annotation_cache_info_pk primary key(cache_id),
-  constraint ut_annotation_cache_info_uk unique (object_owner, object_name, object_type)
+  constraint ut_annotation_cache_info_uk unique (object_owner, object_type, object_name)
 ) organization index;
 

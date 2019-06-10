@@ -27,7 +27,7 @@ create or replace package ut_annotation_parser authid current_user as
    * @param a_source_lines ordered lines of source code to be parsed
    * @return array containing annotations
    */
-  function parse_object_annotations(a_source_lines dbms_preprocessor.source_lines_t) return ut_annotations;
+  function parse_object_annotations(a_source_lines dbms_preprocessor.source_lines_t, a_object_type varchar2) return ut_annotations;
 
 
   /**

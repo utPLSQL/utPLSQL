@@ -1,4 +1,5 @@
-/*
+create or replace package ut_trigger_check authid definer is
+  /*
   utPLSQL - Version 3
   Copyright 2016 - 2018 utPLSQL Project
 
@@ -13,12 +14,18 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-*/
+  */
 
-@@set_install_params.sql
+  /**
+   * checks if the trigger &&UT3_OWNER._PARSE is enabled and operational.
+   */
+  function is_alive return boolean;
 
-@@create_utplsql_owner.sql &&ut3_owner &&ut3_password &&ut3_tablespace
-@@install.sql &&ut3_owner
-@@create_synonyms_and_grants_for_public.sql &&ut3_owner
+  /**
+  * If called from a DDL trigger sets alive flag to true.
+  * If called outside of DDL trigger, sets alive flag to false.
+  */
+  procedure is_alive;
 
-exit
+end;
+/

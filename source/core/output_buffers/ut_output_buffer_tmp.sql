@@ -36,15 +36,6 @@ begin
   overflow nologging initrans 100
 ';
   execute immediate v_table_sql;
---   begin
---     execute immediate
---       v_table_sql || 'lob(text) store as securefile ut_output_text(retention none enable storage in row)';
---   exception
---     when e_non_assm then
---       execute immediate
---         v_table_sql || 'lob(text) store as basicfile ut_output_text(pctversion 0 enable storage in row)';
---
---   end;
 end;
 /
 

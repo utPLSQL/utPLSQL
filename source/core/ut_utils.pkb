@@ -566,7 +566,7 @@ create or replace package body ut_utils is
 
   function scale_cardinality(a_cardinality natural) return natural is
   begin
-    return nvl(trunc(power(10,(floor(log(10,a_cardinality))+1))/3),0);
+    return case when a_cardinality > 0 then trunc(power(10,(floor(log(10,a_cardinality))+1))/3) else 1 end;
   end;
 
   function build_depreciation_warning(a_old_syntax varchar2, a_new_syntax varchar2) return varchar2 is

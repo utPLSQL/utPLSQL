@@ -198,7 +198,7 @@ end;';
   procedure test_purge_cache_schema_type is
     l_actual sys_refcursor;
   begin
-    
+
     open l_actual for
       select * from ut3.ut_annotation_cache_info
        where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PROCEDURE';
@@ -230,7 +230,7 @@ end;';
     l_actual integer;
   begin
     --Act
-    ut3.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
+    ut3.ut_runner.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
     --Assert
     select count(1) into l_actual
       from ut3.ut_annotation_cache_info i

@@ -305,7 +305,7 @@ v58yvbLAXLi9gYHwoIvAgccti+Cmpg0DKLY=
 -- %some_annotation_like_text
 ';
     --Act
-    l_actual   := ut3.ut_annotation_parser.parse_object_annotations(l_source);
+    l_actual   := ut3.ut_annotation_parser.parse_object_annotations(l_source,'PACKAGE');
     --Assert
     ut.expect(anydata.convertCollection(l_actual)).to_be_empty();
   end;
