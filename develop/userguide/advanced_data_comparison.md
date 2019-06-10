@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.7.3006--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.3035--develop-blue.svg)
 
 # Advanced data comparison
 
@@ -430,7 +430,7 @@ Unable to join sets:
   Please make sure that your join clause is not refferring to collection element
 ```
 
-***Note***
+**Note**
 >`join_by` option is slower to process as it needs to perform a cursor join.
 
 ## Defining item lists in option
