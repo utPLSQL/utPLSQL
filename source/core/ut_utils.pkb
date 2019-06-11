@@ -571,7 +571,7 @@ create or replace package body ut_utils is
 
   function scale_cardinality(a_cardinality natural) return natural is
   begin
-    return nvl(trunc(power(10,(floor(log(10,a_cardinality))+1))/3),0);
+    return case when a_cardinality > 0 then trunc(power(10,(floor(log(10,a_cardinality))+1))/3) else 1 end;
   end;
 
   function build_depreciation_warning(a_old_syntax varchar2, a_new_syntax varchar2) return varchar2 is
@@ -778,7 +778,7 @@ create or replace package body ut_utils is
   /**
   * Change string into unicode to match xmlgen format _00<unicode>_
   * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
-  * secion v3.1.7.3006-develop
+  * secion v3.1.7.3038-develop
   */  
   function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
   begin

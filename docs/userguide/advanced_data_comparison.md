@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.7.3006--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.3038--develop-blue.svg)
 
 # Advanced data comparison
 
@@ -11,11 +11,7 @@ utPLSQL expectations incorporates advanced data comparison options when comparin
 
 Advanced data-comparison options are available for the [`equal`](expectations.md#equal) and  [`contain`](expectations.md#include--contain) matcher.
 
-In addition json data-types supports advanced matcher `to_have_count`
-
-## Refcursor, object type, nested table and varray
-
-### Syntax
+Syntax
 
 ```
   ut.expect( a_actual {data-type} ).to_( equal( a_expected {data-type})[.extendend_option()[.extendend_option()[...]]]);
@@ -49,7 +45,7 @@ Each element in `ut_varchar2_list` nested table can be an item or a comma separa
 
 When specifying column/attribute names, keep in mind that the names are **case sensitive**. 
 
-### Excluding elements from data comparison
+## Excluding elements from data comparison
 
 Consider the following examples
 ```sql
@@ -77,7 +73,7 @@ The cursor data is equal or includes expected, when those columns are excluded.
 
 This option is useful in scenarios, when you need to exclude incomparable/unpredictable column data like CREATE_DATE of a record that is maintained by default value on a table column.
 
-### Selecting columns for data comparison
+## Selecting columns for data comparison
 
 Consider the following example
 ```sql
@@ -100,7 +96,7 @@ begin
 end;
 ```
 
-### Combining include/exclude options
+## Combining include/exclude options
 You can chain the advanced options in an expectation and mix the `varchar2` with `ut_varchar2_list` arguments.
 When doing so, the final list of items to include/exclude will be a concatenation of all items.   
 
@@ -214,7 +210,7 @@ Only the columns 'RN', "A_Column" will be compared. Column 'SOME_COL' is exclude
 
 This option can be useful in scenarios where you need to narrow-down the scope of test so that the test is only focused on very specific data.  
 
-### Unordered
+## Unordered
 
 Unordered option allows for quick comparison of two compound data types without need of ordering them in any way.
 
@@ -253,7 +249,7 @@ Above test will result in two differences of one row extra and one row missing.
 > `contain` matcher is not considering order of compared data-sets. Using `unordered` makes no difference (it's default)
 
 
-### Join By option
+## Join By option
 
 The `join_by` syntax enables comparison of unordered compound data types by joining data using specified columns. 
 
@@ -323,7 +319,7 @@ Above test will indicate that in actual data-set
 ```
 
 
-#### Joining using multiple columns
+### Joining using multiple columns
 
 You can specify multiple columns in `join_by`
 
@@ -344,7 +340,7 @@ begin
 end;
 ```
 
-#### Joining using attributes of object in column list
+### Joining using attributes of object in column list
 
 `join_by` allows for joining data by attributes of object from column list of the compared compound data types.
 
@@ -435,10 +431,10 @@ Unable to join sets:
   Please make sure that your join clause is not refferring to collection element
 ```
 
-***Note***
+**Note**
 >`join_by` option is slower to process as it needs to perform a cursor join.
 
-### Defining item lists in option
+## Defining item lists in option
 XPath expressions are deprecated. They are currently still supported but in future versions they can be removed completely. Please use a current standard of defining items filter.
 
 When using item list expression, keep in mind the following:
@@ -459,7 +455,7 @@ begin
 end;
 ```
 
-### Unordered columns / uc option
+## Unordered columns / uc option
 
 If you need to perform data comparison of compound data types without strictly depending on column order in the returned result-set, use the `unordered_columns` option.
 Shortcut name `uc` is also available for that option.

@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.7.3006--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.3038--develop-blue.svg)
 
 # Expectation concepts 
 Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
@@ -319,7 +319,7 @@ end;
 ## have_count
 Unary matcher that validates if the provided dataset count is equal to expected value.
 
-Can be used with `refcursor` or `table type`
+Can be used with `refcursor` , `json`or `table type`
 
 Usage:
 ```sql
@@ -1199,92 +1199,94 @@ create or replace package test_expectations_json is
   --%suite(json expectations)
   
   --%test(Gives success for identical data)
-  procedure success_on_same_data
+  procedure success_on_same_data;
 end;
 /
 
 create or replace package body test_expectations_json is
 
-  procedure success_on_same_data
-  as
+  procedure success_on_same_data is
     l_expected json_element_t;
     l_actual   json_element_t;
   begin
     -- Arrange
-    l_expected := json_element_t.parse('    {
-      "Actors": [
-        {
-          "name": "Tom Cruise",
-          "age": 56,
-          "Born At": "Syracuse, NY",
-          "Birthdate": "July 3, 1962",
-          "photo": "https://jsonformatter.org/img/tom-cruise.jpg",
-          "wife": null,
-          "weight": 67.5,
-          "hasChildren": true,
-          "hasGreyHair": false,
-          "children": [
+    l_expected := json_element_t.parse('
+{
+   "Actors":[
+      {
+         "name":"Tom Cruise",
+         "age":56,
+         "Born At":"Syracuse, NY",
+         "Birthdate":"July 3, 1962",
+         "photo":"https://jsonformatter.org/img/tom-cruise.jpg",
+         "wife":null,
+         "weight":67.5,
+         "hasChildren":true,
+         "hasGreyHair":false,
+         "children":[
             "Suri",
             "Isabella Jane",
             "Connor"
-          ]
-        },
-        {
-          "name": "Robert Downey Jr.",
-          "age": 53,
-          "Born At": "New York City, NY",
-          "Birthdate": "April 4, 1965",
-          "photo": "https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
-          "wife": "Susan Downey",
-          "weight": 77.1,
-          "hasChildren": true,
-          "hasGreyHair": false,
-          "children": [
+         ]
+      },
+      {
+         "name":"Robert Downey Jr.",
+         "age":53,
+         "Born At":"New York City, NY",
+         "Birthdate":"April 4, 1965",
+         "photo":"https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
+         "wife":"Susan Downey",
+         "weight":77.1,
+         "hasChildren":true,
+         "hasGreyHair":false,
+         "children":[
             "Indio Falconer",
             "Avri Roel",
             "Exton Elias"
-          ]
-        }
-      ]
-    }');
-    l_actual   := json_element_t.parse('    {
-      "Actors": [
-        {
-          "name": "Tom Cruise",
-          "age": 56,
-          "Born At": "Syracuse, NY",
-          "Birthdate": "July 3, 1962",
-          "photo": "https://jsonformatter.org/img/tom-cruise.jpg",
-          "wife": null,
-          "weight": 67.5,
-          "hasChildren": true,
-          "hasGreyHair": false,
-          "children": [
-            "Suri",
-            "Isabella Jane",
-            "Connor"
-          ]
-        },
-        {
-          "name": "Robert Downey Jr.",
-          "age": 53,
-          "Born At": "New York City, NY",
-          "Birthdate": "April 4, 1965",
-          "photo": "https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
-          "wife": "Susan Downey",
-          "weight": 77.1,
-          "hasChildren": true,
-          "hasGreyHair": false,
-          "children": [
-            "Indio Falconer",
-            "Avri Roel",
-            "Exton Elias"
-          ]
-        }
-      ]
-    }');
+         ]
+      }
+   ]
+}');
 
-    ut3.ut.expect( l_actual ).to_equal( l_actual );
+  l_actual   := json_element_t.parse('
+{
+   "Actors":[
+      {
+         "name":"Tom Cruise",
+         "age":56,
+         "Born At":"Syracuse, NY",
+         "Birthdate":"July 3, 1962",
+         "photo":"https://jsonformatter.org/img/tom-cruise.jpg",
+         "wife":null,
+         "weight":67.5,
+         "hasChildren":true,
+         "hasGreyHair":false,
+         "children":[
+            "Suri",
+            "Isabella Jane",
+            "Connor"
+         ]
+      },
+      {
+         "name":"Robert Downey Jr.",
+         "age":53,
+         "Born At":"New York City, NY",
+         "Birthdate":"April 4, 1965",
+         "photo":"https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
+         "wife":"Susan Downey",
+         "weight":77.1,
+         "hasChildren":true,
+         "hasGreyHair":false,
+         "children":[
+            "Indio Falconer",
+            "Avri Roel",
+            "Exton Elias"
+         ]
+      }
+   ]
+}');
+
+  ut3.ut.expect( l_actual ).to_equal( l_actual );
 
   end;
 end;
