@@ -18,25 +18,8 @@ create or replace type body ut_output_table_buffer is
 
   constructor function ut_output_table_buffer(self in out nocopy ut_output_table_buffer, a_output_id raw := null) return self as result is
   begin
-    self.output_id := coalesce(a_output_id, sys_guid());
-    self.start_date := sysdate;
-    self.last_message_id := 0;
-    self.init();
-    self.cleanup_buffer();
+    self.init(a_output_id, $$plsql_unit);
     return;
-  end;
-
-  overriding member procedure init(self in out nocopy ut_output_table_buffer) is
-    pragma autonomous_transaction;
-    l_exists int;
-  begin
-    select count(*) into l_exists from ut_output_buffer_info_tmp where output_id = self.output_id;
-    if ( l_exists > 0 ) then
-      update ut_output_buffer_info_tmp set start_date = self.start_date where output_id = self.output_id;
-    else
-      insert into ut_output_buffer_info_tmp(output_id, start_date) values (self.output_id, self.start_date);
-    end if;
-    commit;
   end;
 
   overriding member procedure close(self in out nocopy ut_output_table_buffer) is
@@ -46,6 +29,7 @@ create or replace type body ut_output_table_buffer is
     insert into ut_output_buffer_tmp(output_id, message_id, is_finished)
     values (self.output_id, self.last_message_id, 1);
     commit;
+    self.is_closed := 1;
   end;
 
   overriding member procedure send_line(self in out nocopy ut_output_table_buffer, a_text varchar2, a_item_type varchar2 := null) is
@@ -185,47 +169,6 @@ create or replace type body ut_output_table_buffer is
       end if;
     end loop;
     return;
-  end;
-
-  overriding member function get_lines_cursor(a_initial_timeout natural := null, a_timeout_sec natural := null) return sys_refcursor is
-    l_lines sys_refcursor;
-  begin
-    open l_lines for
-      select text, item_type
-        from table(self.get_lines(a_initial_timeout, a_timeout_sec));
-    return l_lines;
-  end;
-
-  overriding member procedure lines_to_dbms_output(self in ut_output_table_buffer, a_initial_timeout natural := null, a_timeout_sec natural := null) is
-    l_data      sys_refcursor;
-    l_clob      clob;
-    l_item_type varchar2(32767);
-    l_lines     ut_varchar2_list;
-  begin
-    l_data := self.get_lines_cursor(a_initial_timeout, a_timeout_sec);
-    loop
-      fetch l_data into l_clob, l_item_type;
-      exit when l_data%notfound;
-      l_lines := ut_utils.clob_to_table(l_clob);
-      for i in 1 .. l_lines.count loop
-        dbms_output.put_line(l_lines(i));
-      end loop;
-    end loop;
-    close l_data;
-  end;
-
-  member procedure cleanup_buffer(self in ut_output_table_buffer, a_retention_time_sec natural := null) is
-    gc_buffer_retention_sec  constant naturaln := coalesce(a_retention_time_sec, 60 * 60 * 24); -- 24 hours
-    l_retention_days         number := gc_buffer_retention_sec / (60 * 60 * 24);
-    l_max_retention_date     date := sysdate - l_retention_days;
-    pragma autonomous_transaction;
-  begin
-    delete from ut_output_buffer_tmp t
-     where t.output_id
-        in (select i.output_id from ut_output_buffer_info_tmp i where i.start_date <= l_max_retention_date);
-
-    delete from ut_output_buffer_info_tmp i where i.start_date <= l_max_retention_date;
-    commit;
   end;
 
 end;
