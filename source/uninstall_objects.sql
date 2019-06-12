@@ -52,9 +52,7 @@ drop package ut_coverage;
 
 drop package ut_coverage_helper;
 
-drop view ut_coverage_sources_tmp;
-
-drop table ut_coverage_sources_tmp$;
+drop table ut_coverage_sources_tmp purge;
 
 drop package ut_teamcity_reporter_helper;
 
@@ -70,17 +68,17 @@ drop package ut_suite_builder;
 
 drop package ut_suite_cache_manager;
 
-drop table ut_suite_cache;
+drop table ut_suite_cache purge;
 
 drop sequence ut_suite_cache_seq;
 
-drop table ut_suite_cache_package;
+drop table ut_suite_cache_package purge;
 
-drop table ut_suite_cache_schema;
+drop table ut_suite_cache_schema purge;
 
 drop package ut;
 
-drop table ut_dbms_output_cache;
+drop table ut_dbms_output_cache purge;
 
 drop type ut_expectation_compound force;
 
@@ -160,9 +158,9 @@ drop type ut_cursor_column_tab force;
 
 drop type ut_cursor_column force;
 
-drop table ut_compound_data_tmp;
+drop table ut_compound_data_tmp purge;
 
-drop table ut_compound_data_diff_tmp;
+drop table ut_compound_data_diff_tmp purge;
 
 drop trigger ut_trigger_annotation_parsing;
 
@@ -172,11 +170,11 @@ drop package ut_annotation_parser;
 
 drop package ut_annotation_cache_manager;
 
-drop table ut_annotation_cache cascade constraints;
+drop table ut_annotation_cache cascade constraints purge;
 
-drop table ut_annotation_cache_info cascade constraints;
+drop table ut_annotation_cache_info cascade constraints purge;
 
-drop table ut_annotation_cache_schema cascade constraints;
+drop table ut_annotation_cache_schema cascade constraints purge;
 
 drop sequence ut_annotation_cache_seq;
 
@@ -260,17 +258,11 @@ drop type ut_output_clob_table_buffer force;
 
 drop type ut_output_buffer_base force;
 
-drop view ut_output_buffer_tmp;
+drop table ut_output_buffer_tmp purge;
 
-drop table ut_output_buffer_tmp$ purge;
+drop table ut_output_clob_buffer_tmp purge;
 
-drop view ut_output_clob_buffer_tmp;
-
-drop table ut_output_clob_buffer_tmp$ purge;
-
-drop view ut_output_buffer_info_tmp;
-
-drop table ut_output_buffer_info_tmp$;
+drop table ut_output_buffer_info_tmp purge;
 
 drop type ut_output_data_rows force;
 
