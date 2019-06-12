@@ -141,6 +141,7 @@ create or replace type body ut_realtime_reporter is
     self.print_end_node('counter');
     self.print_cdata_node('errorStack', ut_utils.table_to_clob(a_suite.get_error_stack_traces()));
     self.print_cdata_node('serverOutput', a_suite.get_serveroutputs());
+    self.print_cdata_node('warnings', ut_utils.table_to_clob(a_suite.warnings));
     self.print_end_node('suite');
     self.print_end_node('event');
     self.flush_print_buffer('post-suite');
@@ -196,6 +197,7 @@ create or replace type body ut_realtime_reporter is
       end loop expectations;
       self.print_end_node('failedExpectations');
     end if;
+    self.print_cdata_node('warnings', ut_utils.table_to_clob(a_test.warnings));
     self.print_end_node('test');
     self.print_end_node('event');
     self.flush_print_buffer('post-test');
