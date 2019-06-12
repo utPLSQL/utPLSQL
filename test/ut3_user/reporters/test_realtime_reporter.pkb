@@ -99,6 +99,23 @@ create or replace package body test_realtime_reporter as
         raise no_data_found;
       end;
     end;]';
+
+    execute immediate q'[create or replace package check_realtime_reporting4 is
+      --%suite
+      --%suitepath(realtime_reporting)
+      /* tag annotation without parameter will raise a warning */
+      --%tags
+
+      --%test 
+      procedure test_8_with_warning;
+    end;]';
+    execute immediate q'[create or replace package body check_realtime_reporting4 is
+      procedure test_8_with_warning is
+      begin
+        commit; -- this will raise a warning
+        ut3.ut.expect(8).to_equal(8);
+      end;
+    end;]';
     
     <<run_report_and_cache_result>>
     declare 
@@ -128,6 +145,10 @@ create or replace package body test_realtime_reporter as
     open l_expected for
       select 'pre-run'    as event_type, null                                                                     as item_id from dual union all
       select 'pre-suite'  as event_type, 'realtime_reporting'                                                     as item_id from dual union all
+      select 'pre-suite'  as event_type, 'realtime_reporting.check_realtime_reporting4'                           as item_id from dual union all
+      select 'pre-test'   as event_type, 'realtime_reporting.check_realtime_reporting4.test_8_with_warning'       as item_id from dual union all
+      select 'post-test'  as event_type, 'realtime_reporting.check_realtime_reporting4.test_8_with_warning'       as item_id from dual union all
+      select 'post-suite' as event_type, 'realtime_reporting.check_realtime_reporting4'                           as item_id from dual union all
       select 'pre-suite'  as event_type, 'realtime_reporting.check_realtime_reporting3'                           as item_id from dual union all
       select 'pre-test'   as event_type, 'realtime_reporting.check_realtime_reporting3.test_6_with_runtime_error' as item_id from dual union all
       select 'post-test'  as event_type, 'realtime_reporting.check_realtime_reporting3.test_6_with_runtime_error' as item_id from dual union all
@@ -179,6 +200,9 @@ create or replace package body test_realtime_reporter as
         select 'event/items/suite/items/suite'                        as node_path from dual union all
         select 'event/items/suite/items/suite/items'                  as node_path from dual union all
         select 'event/items/suite/items/suite/items/test'             as node_path from dual union all
+        select 'event/items/suite/items/suite'                        as node_path from dual union all
+        select 'event/items/suite/items/suite/items'                  as node_path from dual union all
+        select 'event/items/suite/items/suite/items/test'             as node_path from dual union all
         select 'event/items/suite/items/suite/items/test'             as node_path from dual union all
         select 'event/items/suite/items/suite'                        as node_path from dual union all
         select 'event/items/suite/items/suite/items'                  as node_path from dual union all
@@ -196,7 +220,7 @@ create or replace package body test_realtime_reporter as
   
   procedure total_number_of_tests is
     l_actual   integer;
-    l_expected integer := 7; 
+    l_expected integer := 8; 
   begin
     select t.event_doc.extract('/event/totalNumberOfTests/text()').getnumberval()
       into l_actual
@@ -242,9 +266,9 @@ create or replace package body test_realtime_reporter as
           and t.event_doc.extract('//test/@id').getstringval() is not null;
     open l_expected for
        select level as test_number, 
-              7     as total_number_of_tests 
+              8     as total_number_of_tests 
          from dual
-      connect by level <= 7;
+      connect by level <= 8;
     ut.expect(l_actual).to_equal(l_expected).unordered;
   end pre_test_nodes;
   
@@ -270,9 +294,9 @@ create or replace package body test_realtime_reporter as
           and t.event_doc.extract('//test/counter/warning/text()').getnumberval() is not null;
     open l_expected for
        select level as test_number, 
-              7     as total_number_of_tests 
+              8     as total_number_of_tests 
          from dual
-      connect by level <= 7;
+      connect by level <= 8;
     ut.expect(l_actual).to_equal(l_expected).unordered;
   end post_test_nodes;
 
@@ -378,6 +402,41 @@ create or replace package body test_realtime_reporter as
     l_expected := ut3_tester_helper.main_helper.table_to_clob(l_expected_list);
     ut.expect(l_actual).to_be_like(l_expected);
   end error_stack_of_testsuite;
+
+  procedure warnings_of_test is
+    l_actual   clob;
+    l_expected_list ut3.ut_varchar2_list;
+    l_expected clob;
+  begin
+    select t.event_doc.extract('//event/test/warnings/text()').getstringval()
+      into l_actual
+      from table(g_events) t
+     where t.event_doc.extract('/event[@type="post-test"]/test/@id').getstringval() 
+           = 'realtime_reporting.check_realtime_reporting4.test_8_with_warning';
+    ut3_tester_helper.main_helper.append_to_list(l_expected_list, '<![CDATA[Unable to perform automatic rollback after test.%');
+    ut3_tester_helper.main_helper.append_to_list(l_expected_list, 'Use the "--%rollback(manual)" annotation %]]>');
+    l_expected := ut3_tester_helper.main_helper.table_to_clob(l_expected_list);
+    ut.expect(l_actual).to_be_like(l_expected);    
+  end warnings_of_test;
+
+  procedure warnings_of_testsuite is
+    l_actual   clob;
+    l_expected_list ut3.ut_varchar2_list;
+    l_expected clob;
+  begin
+    select t.event_doc.extract('//event/suite/warnings/text()').getstringval()
+      into l_actual
+      from table(g_events) t
+     where t.event_doc.extract('/event[@type="post-suite"]/suite/@id').getstringval() 
+           = 'realtime_reporting.check_realtime_reporting4';
+    ut3_tester_helper.main_helper.append_to_list(l_expected_list, '<![CDATA["--%tags" annotation requires a tag value populated.%');
+    ut3_tester_helper.main_helper.append_to_list(l_expected_list, '%');
+    ut3_tester_helper.main_helper.append_to_list(l_expected_list, 'Unable to perform automatic rollback after test suite.%');
+    ut3_tester_helper.main_helper.append_to_list(l_expected_list, '%');
+    ut3_tester_helper.main_helper.append_to_list(l_expected_list, 'Use the "--%rollback(manual)" annotation%.]]>');
+    l_expected := ut3_tester_helper.main_helper.table_to_clob(l_expected_list);
+    ut.expect(l_actual).to_be_like(l_expected);
+  end warnings_of_testsuite;
 
   procedure get_description is
     l_reporter ut3.ut_realtime_reporter;
