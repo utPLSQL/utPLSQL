@@ -454,6 +454,7 @@ create or replace package body test_realtime_reporter as
     execute immediate 'drop package check_realtime_reporting1';
     execute immediate 'drop package check_realtime_reporting2';
     execute immediate 'drop package check_realtime_reporting3';
+    execute immediate 'drop package check_realtime_reporting4';
   end remove_test_suites;
 
 end test_realtime_reporter;
