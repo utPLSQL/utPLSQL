@@ -44,7 +44,13 @@ create or replace package test_realtime_reporter as
 
   --%test(Provide the error stack of a testsuite)
   procedure error_stack_of_testsuite;
-  
+
+  --%test(Provide warnings of a test)
+  procedure warnings_of_test;
+
+  --%test(Provide warnings of a testsuite)
+  procedure warnings_of_testsuite;
+
   --%test(Provide a description of the reporter explaining the use for SQL Developer)
   procedure get_description;
 
