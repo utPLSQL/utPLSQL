@@ -95,14 +95,15 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'expectations/data_values/ut_key_anyvalues.tps'
 
 
---output buffer base api
-@@install_component.sql 'core/output_buffers/ut_output_data_row.tps'
-@@install_component.sql 'core/output_buffers/ut_output_data_rows.tps'
-@@install_component.sql 'core/output_buffers/ut_output_buffer_base.tps'
 --output buffer table
 @@install_component.sql 'core/output_buffers/ut_output_buffer_info_tmp.sql'
 @@install_component.sql 'core/output_buffers/ut_output_buffer_tmp.sql'
 @@install_component.sql 'core/output_buffers/ut_output_clob_buffer_tmp.sql'
+--output buffer base api
+@@install_component.sql 'core/output_buffers/ut_output_data_row.tps'
+@@install_component.sql 'core/output_buffers/ut_output_data_rows.tps'
+@@install_component.sql 'core/output_buffers/ut_output_buffer_base.tps'
+@@install_component.sql 'core/output_buffers/ut_output_buffer_base.tpb'
 --output buffer table api
 @@install_component.sql 'core/output_buffers/ut_output_table_buffer.tps'
 @@install_component.sql 'core/output_buffers/ut_output_table_buffer.tpb'

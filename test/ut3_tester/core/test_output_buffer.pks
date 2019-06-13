@@ -18,5 +18,13 @@ create or replace package test_output_buffer is
   --%test(Waits For The Data To Appear For Specified Time)
   procedure test_waiting_for_data;
 
+  --%test(Purges text buffer data older than one day and leaves the rest)
+  --%throws(-20218)
+  procedure test_purge_text_buffer;
+
+  --%test(Purges clob buffer data older than one day and leaves the rest)
+  --%throws(-20218)
+  procedure test_purge_clob_buffer;
+
 end test_output_buffer;
 /
