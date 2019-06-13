@@ -26,9 +26,9 @@ create or replace type body ut_json_tree_details as
      case 
        when l_json_el.is_string       then l_val := treat(a_json_piece as json_object_t).get_string(a_key);
        when l_json_el.is_number       then l_val := to_char(treat(a_json_piece as json_object_t).get_number(a_key));
-       when l_json_el.is_boolean      then l_val := ut_utils.boolean_to_char(treat(a_json_piece as json_object_t).get_boolean(a_key));
-       when l_json_el.is_true         then l_val := ut_utils.boolean_to_char(treat(a_json_piece as json_object_t).get_boolean(a_key));
-       when l_json_el.is_false        then l_val := ut_utils.boolean_to_char(treat(a_json_piece as json_object_t).get_boolean(a_key));
+       when l_json_el.is_boolean      then l_val := ut_utils.to_string(treat(a_json_piece as json_object_t).get_boolean(a_key));
+       when l_json_el.is_true         then l_val := ut_utils.to_string(treat(a_json_piece as json_object_t).get_boolean(a_key));
+       when l_json_el.is_false        then l_val := ut_utils.to_string(treat(a_json_piece as json_object_t).get_boolean(a_key));
        when l_json_el.is_date         then l_val := to_char(treat(a_json_piece as json_object_t).get_date(a_key),'DD/MM/RRRR');
        when l_json_el.is_timestamp then l_val := to_char(treat(a_json_piece as json_object_t).get_date(a_key),'DD/MM/RRRR HH24:MI:SS AM');
        else null;
@@ -44,9 +44,9 @@ create or replace type body ut_json_tree_details as
      case 
        when l_json_el.is_string       then l_val := treat(a_json_piece as json_array_t).get_string(a_key);
        when l_json_el.is_number       then l_val := to_char(treat(a_json_piece as json_array_t).get_number(a_key));
-       when l_json_el.is_boolean      then l_val := ut_utils.boolean_to_char(treat(a_json_piece as json_array_t).get_boolean(a_key));
-       when l_json_el.is_true         then l_val := ut_utils.boolean_to_char(treat(a_json_piece as json_array_t).get_boolean(a_key));
-       when l_json_el.is_false        then l_val := ut_utils.boolean_to_char(treat(a_json_piece as json_array_t).get_boolean(a_key));
+       when l_json_el.is_boolean      then l_val := ut_utils.to_string(treat(a_json_piece as json_array_t).get_boolean(a_key));
+       when l_json_el.is_true         then l_val := ut_utils.to_string(treat(a_json_piece as json_array_t).get_boolean(a_key));
+       when l_json_el.is_false        then l_val := ut_utils.to_string(treat(a_json_piece as json_array_t).get_boolean(a_key));
        when l_json_el.is_date         then l_val := to_char(treat(a_json_piece as json_array_t).get_date(a_key),'DD/MM/RRRR');
        when l_json_el.is_timestamp    then l_val := to_char(treat(a_json_piece as json_array_t).get_date(a_key),'DD/MM/RRRR HH24:MI:SS AM');
        else null;

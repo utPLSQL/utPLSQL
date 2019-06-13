@@ -698,8 +698,8 @@ create or replace package body ut_compound_data_helper is
       exp_element_name,exp_element_value,exp_json_type,exp_access_path)
     values
     (a_diff_id,l_diffs(i).difference_type,
-    l_diffs(i).act_element_name,l_diffs(i).act_element_value,l_diffs(i).act_json_type, l_diffs(i).act_access_path,
-    l_diffs(i).exp_element_name,l_diffs(i).exp_element_value,l_diffs(i).exp_json_type,l_diffs(i).exp_access_path);
+    l_diffs(i).act_element_name,ut_utils.to_string(l_diffs(i).act_element_value,null),l_diffs(i).act_json_type, l_diffs(i).act_access_path,
+    l_diffs(i).exp_element_name,ut_utils.to_string(l_diffs(i).exp_element_value,null),l_diffs(i).exp_json_type,l_diffs(i).exp_access_path);
      
     return l_diffs.count;
   end;

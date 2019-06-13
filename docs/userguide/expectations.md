@@ -1301,18 +1301,21 @@ create or replace package test_expectations_json is
   --%suite(json expectations)
   
   --%test(Gives success for identical pieces of two different jsons)
-  procedure to_diff_json_extract_same
+  procedure to_diff_json_extract_same;
+  
 end;
 /
 
 create or replace package body test_expectations_json is
-  procedure to_diff_json_extract_same
-  as
-         l_expected   json_object_t;
-        l_actual     json_object_t;
-    BEGIN
+
+  procedure to_diff_json_extract_same as
+    l_expected       json_object_t;
+    l_actual         json_object_t;
+    l_array_actual   json_array_t;
+    l_array_expected json_array_t;
+  begin
     -- Arrange
-        l_expected := json_object_t.parse('    {
+    l_expected := json_object_t.parse('    {
       "Actors": [
         {
           "name": "Tom Cruise",
@@ -1348,8 +1351,9 @@ create or replace package body test_expectations_json is
         }
       ]
     }'
-        );
-        l_actual := json_object_t.parse('    {
+    );
+    
+    l_actual := json_object_t.parse('    {
       "Actors": 
         {
           "name": "Krzystof Jarzyna",
@@ -1365,11 +1369,12 @@ create or replace package body test_expectations_json is
           ]
         }
     }'
-        );
+    );
     
-    
+    l_array_actual   := json_array_t(json_query(l_actual.stringify,'$.Actors.children'));
+    l_array_expected := json_array_t(json_query(l_expected.stringify,'$.Actors[1].children'));    
     --Act
-    ut3.ut.expect(json_array_t(json_query(l_actual.stringify,'$.Actors.children'))).to_equal(json_array_t(json_query(l_expected.stringify,'$.Actors[1].children')));
+    ut3.ut.expect(l_array_actual).to_equal(l_array_expected);
 
   end;
 end;

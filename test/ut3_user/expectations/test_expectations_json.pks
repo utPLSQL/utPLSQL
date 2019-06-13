@@ -68,6 +68,12 @@ create or replace package test_expectations_json is
 
   --%test( Long complex json differences )
   procedure long_json_diff;
+  
+  --%test( Compare two objects json )
+  procedure check_json_objects;
+  
+  --%test( Compare two json arrays )
+  procedure check_json_arrays;
 
 end;
 /

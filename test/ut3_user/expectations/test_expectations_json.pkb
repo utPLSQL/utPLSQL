@@ -88,7 +88,7 @@ create or replace package body test_expectations_json is
 %Actual type is 'string' was expected to be 'boolean' on path :$.Aidan Gillen.aboolean
 %Actual value is 'True Blood' was expected to be 'Big Love' on path :$.Annie Fitzgerald[0]
 %Actual value is 'Big Love' was expected to be 'True Blood' on path :$.Annie Fitzgerald[1]
-%Actual value is 'false' was expected to be 'true' on path :$.Aidan Gillen.boolean
+%Actual value is 'FALSE' was expected to be 'TRUE' on path :$.Aidan Gillen.boolean
 %Actual value is 'Game of Thrones' was expected to be 'Game of Thron"es' on path :$.Aidan Gillen.array[0]%]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
@@ -1048,7 +1048,7 @@ create or replace package body test_expectations_json is
   end; 
  
   procedure long_json_diff as  
-  l_expected json_element_t;
+    l_expected json_element_t;
     l_actual   json_element_t;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
@@ -1570,9 +1570,9 @@ create or replace package body test_expectations_json is
 %Actual value is '42e07b71-b769-4078-b226-f79048b75bd2' was expected to be 'bb0eaa88-f7fd-4b72-8538-8c0b4595bcec' on path :$[2].guid
 %Actual value is '6b9124a9-fbde-4c60-8dac-e296f5daa3c4' was expected to be '4a4363b5-9d65-4b22-9b58-a5c8c1c5bd5d' on path :$[3].guid
 %Actual value is '1acb2b6b-15b5-4747-a62f-db477e18df61' was expected to be 'c222eda5-d925-4163-89e3-4b0e50d5e297' on path :$[0].guid
-%Actual value is 'false' was expected to be 'true' on path :$[2].isActive
-%Actual value is 'true' was expected to be 'false' on path :$[3].isActive
-%Actual value is 'true' was expected to be 'false' on path :$[1].isActive
+%Actual value is 'FALSE' was expected to be 'TRUE' on path :$[2].isActive
+%Actual value is 'TRUE' was expected to be 'FALSE' on path :$[3].isActive
+%Actual value is 'TRUE' was expected to be 'FALSE' on path :$[1].isActive
 %Actual value is '$3,895.35' was expected to be '$2,299.28' on path :$[1].balance
 %Actual value is '$1,443.80' was expected to be '$3,626.25' on path :$[0].balance
 %Actual value is '$3,366.81' was expected to be '$3,085.28' on path :$[2].balance
@@ -1584,6 +1584,27 @@ create or replace package body test_expectations_json is
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
+ 
+  procedure check_json_objects is
+    l_expected json_object_t;
+    l_actual   json_object_t;
+  begin
+    l_expected := json_object_t('{ "name" : "Bond", "proffesion" : "spy", "drink" : "martini"}');
+    l_actual   := json_object_t('{ "proffesion" : "spy","name" : "Bond", "drink" : "martini"}');
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
+  
+  procedure check_json_arrays is
+    l_expected json_array_t;
+    l_actual   json_array_t;
+  begin
+    l_expected := json_array_t('[  {"name" : "Bond", "proffesion" : "spy", "drink" : "martini"} , {"name" : "Kloss", "proffesion" : "spy", "drink" : "beer"} ]');
+    l_actual   := json_array_t('[  {"name" : "Bond", "proffesion" : "spy", "drink" : "martini"} , {"name" : "Kloss", "proffesion" : "spy", "drink" : "beer"} ]');
+    ut3.ut.expect( l_actual ).to_equal( l_expected );
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
+
  
 end;
 /

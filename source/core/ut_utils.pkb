@@ -199,11 +199,6 @@ create or replace package body ut_utils is
     return case a_value when 1 then true when 0 then false end;
   end;
 
-  function boolean_to_char(a_value boolean) return varchar2 is
-  begin
-    return case a_value when true then 'true' when false then 'false' end;
-  end;
-
   function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_varchar2_list is
     l_offset                 integer := 1;
     l_delimiter_position     integer;
@@ -495,6 +490,7 @@ create or replace package body ut_utils is
   begin
     execute immediate 'delete from ut_compound_data_tmp';
     execute immediate 'delete from ut_compound_data_diff_tmp';
+    execute immediate 'delete from ut_json_data_diff_tmp';
   end;
 
   function to_version(a_version_no varchar2) return t_version is
