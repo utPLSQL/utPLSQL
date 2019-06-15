@@ -85,6 +85,7 @@ create or replace package test_ut_run is
 
 
   --%context(ut_run_function)
+    
   --%displayname(ut.run() function options)
   --%beforeall(create_ut3$user#_tests)
   --%afterall(drop_ut3$user#_tests)
@@ -145,9 +146,18 @@ create or replace package test_ut_run is
   procedure run_and_report_warnings;
   procedure create_bad_annot;
   procedure drop_bad_annot;
+
+  --%test(Can run test package that is named the same as schema name)
+  --%beforetest(create_schema_name_package)
+  --%aftertest(drop_schema_name_package)
+  procedure run_schema_name_test;
+  procedure create_schema_name_package;
+  procedure drop_schema_name_package;
+
   --%endcontext
 
   --%context(random_order)
+    
   --%displayname(Random test execution order)
   --%beforeall(create_ut3$user#_tests)
   --%afterall(drop_ut3$user#_tests)
@@ -164,6 +174,7 @@ create or replace package test_ut_run is
   --%endcontext
 
   --%context(run with tags)
+    
   --%displayname(Call ut.run with #tags)
   --%beforeall(create_ut3$user#_tests)
   --%afterall(drop_ut3$user#_tests)

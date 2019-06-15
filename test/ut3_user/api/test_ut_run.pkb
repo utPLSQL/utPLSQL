@@ -1,5 +1,7 @@
 create or replace package body test_ut_run is
 
+  g_owner varchar2(250) := sys_context('userenv', 'current_schema');
+
   procedure clear_expectations is
   begin
     ut3_tester_helper.main_helper.clear_expectations();
@@ -576,7 +578,7 @@ Failures:%
     select * bulk collect into l_results from table(ut3.ut.run('failing_invalid_spec'));
     
     l_actual :=  ut3_tester_helper.main_helper.table_to_clob(l_results);
-    ut.expect(l_actual).to_be_like('%Call params for % are not valid: package does not exist or is invalid: %FAILING_INVALID_SPEC%'); 
+    ut.expect(l_actual).to_be_like('%Call params for % are not valid: package %FAILING_INVALID_SPEC% does not exist or is invalid.%');
     
   end;
 
@@ -737,6 +739,40 @@ Failures:%
       a_results(i) := regexp_replace(a_results(i),'\[[0-9]*[\.,][0-9]+ sec\]','');
       a_results(i) := regexp_replace(a_results(i),'Finished in [0-9]*[\.,][0-9]+ seconds','');
     end loop;
+  end;
+
+  procedure run_schema_name_test is
+    l_results    ut3.ut_varchar2_list;
+    l_expected   clob;
+  begin
+    select * bulk collect into l_results
+      from table ( ut3.ut.run( g_owner||'.'||g_owner ) );
+    l_expected := '%1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%';
+    ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( l_expected );
+  end;
+
+  procedure create_schema_name_package is
+    pragma autonomous_transaction;
+  begin
+    execute immediate '
+    create or replace package '||g_owner||'.'||g_owner||' as
+      --%suite
+
+      --%test
+      procedure sample_test;
+    end;';
+
+    execute immediate '
+    create or replace package body '||g_owner||'.'||g_owner||' as
+      procedure sample_test is begin ut.expect(1).to_equal(1); end;
+    end;';
+
+  end;
+
+  procedure drop_schema_name_package is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop package '||g_owner||'.'||g_owner;
   end;
 
   procedure run_with_random_order is
