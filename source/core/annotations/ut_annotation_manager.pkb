@@ -271,7 +271,7 @@ create or replace package body ut_annotation_manager as
         end loop;
         l_sql_clob := ut_utils.replace_multiline_comments(l_sql_clob);
         -- replace comment lines that contain "-- create or replace"
-        l_sql_clob := regexp_replace(l_sql_clob, '^.*[-]{2,}\s*create(\s+or\s+replace).*$', modiafier => 'mi');
+        l_sql_clob := regexp_replace(l_sql_clob, '^.*[-]{2,}\s*create(\s+or\s+replace).*$', modifier => 'mi');
         -- remove the "create [or replace] [[non]editionable] " so that we have only "type|package" for parsing
         -- needed for dbms_preprocessor
         l_sql_clob := regexp_replace(l_sql_clob, '^(.*?\s*create(\s+or\s+replace)?(\s+(editionable|noneditionable))?\s+?)((package|type).*)', '\5', 1, 1, 'ni');
