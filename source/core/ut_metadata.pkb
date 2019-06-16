@@ -292,7 +292,7 @@ create or replace package body ut_metadata as
     if not l_result like '"%"' then
       l_result := upper(l_result);
     end if;
-    return l_result;
+    return sys.dbms_assert.qualified_sql_name(l_result);
   end;
 
   function get_anydata_compound_type(a_data_value anydata) return varchar2 is
