@@ -109,6 +109,42 @@ create or replace package body test_output_buffer is
     ut.expect(l_remaining).to_equal(0);
 
   end;
-  
+
+  procedure test_purge(a_buffer ut3.ut_output_buffer_base ) is
+    l_stale_buffer ut3.ut_output_buffer_base := a_buffer;
+    l_fresh_buffer ut3.ut_output_buffer_base;
+    l_buffer       ut3.ut_output_buffer_base;
+  begin
+    --Arrange
+    l_stale_buffer.start_date := sysdate - 2;
+    --initialize with new start date
+    l_stale_buffer.init();
+    l_stale_buffer.send_line('some text');
+    l_stale_buffer.close();
+
+    l_fresh_buffer := ut3.ut_output_table_buffer();
+    l_fresh_buffer.send_line('some text');
+    l_fresh_buffer.close();
+
+    --Act - purge is performed on new buffer create
+    l_buffer := ut3.ut_output_table_buffer();
+
+    --Assert
+    -- Data in "fresh" buffer remains
+    ut.expect( l_fresh_buffer.get_lines_cursor(0,0), l_buffer.self_type ).to_have_count(1);
+    -- Data in "slate" buffer is purged and so the call to get_lines_cursor throws ORA-20218
+    ut.expect( l_stale_buffer.get_lines_cursor(0,0), l_buffer.self_type ).to_be_empty();
+  end;
+
+  procedure test_purge_text_buffer is
+  begin
+    test_purge(ut3.ut_output_table_buffer());
+  end;
+
+  procedure test_purge_clob_buffer is
+  begin
+    test_purge(ut3.ut_output_clob_table_buffer());
+  end;
+
 end test_output_buffer;
 /
