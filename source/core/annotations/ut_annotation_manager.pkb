@@ -267,10 +267,11 @@ create or replace package body ut_annotation_manager as
       l_sql_text    ora_name_list_t := a_sql_text;
     begin
       if a_parts > 0 then
-        l_sql_text(1) := regexp_replace(l_sql_text(1),'^\s*create(\s+or\s+replace){0,1}(\s+(editionable|noneditionable)){0,1}\s+{0,1}', modifier => 'i');
         for i in 1..a_parts loop
           ut_utils.append_to_clob(l_sql_clob, l_sql_text(i));
         end loop;
+        l_sql_clob := ut3.ut_utils.replace_multiline_comments(l_sql_clob);
+        l_sql_clob := regexp_replace(l_sql_clob, '^(.*?[^-]{2,}\s*create(\s+or\s+replace){0,1}(\s+(editionable|noneditionable))?\s+?)((package|type).*)', '\5', 1, 1, 'ni');
         l_sql_lines := ut_utils.convert_collection( ut_utils.clob_to_table(l_sql_clob) );
       end if;
       open l_result for
