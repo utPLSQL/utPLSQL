@@ -492,6 +492,7 @@ create or replace package body ut_utils is
   begin
     execute immediate 'delete from ut_compound_data_tmp';
     execute immediate 'delete from ut_compound_data_diff_tmp';
+    execute immediate 'delete from ut_json_data_diff_tmp';
   end;
 
   function to_version(a_version_no varchar2) return t_version is

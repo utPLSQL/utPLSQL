@@ -55,6 +55,7 @@ prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to user &&ut3
 
 create or replace synonym &ut3_user..ut_expectation for &&ut3_owner..ut_expectation;
 create or replace synonym &ut3_user..ut_expectation_compound for &&ut3_owner..ut_expectation_compound;
+create or replace synonym &ut3_user..ut_expectation_json for &&ut3_owner..ut_expectation_json;
 
 create or replace synonym &ut3_user..be_between for &&ut3_owner..be_between;
 create or replace synonym &ut3_user..be_empty for &&ut3_owner..be_empty;

@@ -635,6 +635,119 @@ create or replace package body ut_compound_data_helper is
       end;
   end;
   
+  function compare_json_data(a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return tt_json_diff_tab is
+    l_result_diff tt_json_diff_tab := tt_json_diff_tab();
+  begin
+
+    with
+      differences as (
+        select case
+                 when (a.element_name is null or e.element_name is null) then gc_json_missing
+                 when a.json_type != e.json_type then gc_json_type
+                 when (decode(a.element_value,e.element_value,1,0) = 0) then gc_json_notequal
+                 else gc_json_unknown
+               end  as difference_type,
+               case
+                 when (a.element_name is null or e.element_name is null) then 1
+                 when a.json_type != e.json_type then 2
+                 when (decode(a.element_value,e.element_value,1,0) = 0) then 3
+                 else 4
+               end  as order_by_type,
+               a.element_name as act_element_name,
+               a.element_value as act_element_value,
+               a.hierarchy_level as act_hierarchy_level,
+               a.index_position as act_index_position,
+               a.json_type as act_json_type,
+               a.access_path as act_access_path,
+               a.parent_name as act_par_name,
+               a.parent_path as act_parent_path,
+               e.element_name as exp_element_name,
+               e.element_value as exp_element_value,
+               e.hierarchy_level as exp_hierarchy_level,
+               e.index_position as exp_index_position,
+               e.json_type as exp_json_type,
+               e.access_path as exp_access_path,
+               e.parent_name as exp_par_name,
+               e.parent_path as exp_parent_path
+        from table(a_act_json_data) a
+          full outer join table(a_exp_json_data) e
+            on decode(a.parent_name,e.parent_name,1,0)= 1
+              and decode(a.parent_path,e.parent_path,1,0)= 1
+              and (
+                case when a.parent_type = 'object' or e.parent_type = 'object' then
+                  decode(a.element_name,e.element_name,1,0)
+                else 1 end = 1
+              )
+              and (
+                case when a.parent_type = 'array' or e.parent_type = 'array' then
+                  decode(a.index_position,e.index_position,1,0)
+                else 1 end = 1
+              )
+              and a.hierarchy_level = e.hierarchy_level
+        where (a.element_name is null or e.element_name is null)
+           or (a.json_type != e.json_type)
+           or (decode(a.element_value,e.element_value,1,0) = 0)
+     )
+     select difference_type,
+            act_element_name, act_element_value, act_json_type, act_access_path, act_parent_path,
+            exp_element_name, exp_element_value, exp_json_type, exp_access_path, exp_parent_path
+     bulk collect into l_result_diff
+     from differences a
+     where not exists (
+         select 1 from differences b
+         where (a.act_par_name = b.act_element_name and a.act_hierarchy_level - 1 = b.act_hierarchy_level)
+            or (a.exp_par_name = b.exp_element_name and a.exp_hierarchy_level - 1 = b.exp_hierarchy_level)
+           and a.difference_type = gc_json_missing and b.difference_type = gc_json_missing
+       )
+    order by order_by_type,
+             nvl(act_hierarchy_level,exp_hierarchy_level),
+             nvl(act_index_position,exp_index_position) nulls first,
+             nvl(act_element_name,exp_element_name) ;
+     return l_result_diff;
+  end;
+  
+  function insert_json_diffs(a_diff_id raw, a_act_json_data ut_json_leaf_tab, a_exp_json_data ut_json_leaf_tab) return integer is
+    l_diffs tt_json_diff_tab := compare_json_data(a_act_json_data,a_exp_json_data);
+  begin
+    forall i in 1..l_diffs.count
+    insert into ut_json_data_diff_tmp (
+      diff_id, difference_type,
+      act_element_name, act_element_value, act_json_type, act_access_path, act_parent_path,
+      exp_element_name, exp_element_value, exp_json_type, exp_access_path, exp_parent_path
+    )
+    values (
+      a_diff_id,l_diffs(i).difference_type,
+      l_diffs(i).act_element_name,l_diffs(i).act_element_value,l_diffs(i).act_json_type, l_diffs(i).act_access_path, l_diffs(i).act_parent_path,
+      l_diffs(i).exp_element_name,l_diffs(i).exp_element_value,l_diffs(i).exp_json_type,l_diffs(i).exp_access_path, l_diffs(i).exp_parent_path
+    );
+     
+    return l_diffs.count;
+  end;
+  
+  function get_json_diffs_type(a_diffs_all tt_json_diff_tab) return tt_json_diff_type_tab is
+    l_diffs_summary tt_json_diff_type_tab := tt_json_diff_type_tab();
+  begin
+    select d.difference_type,count(1) 
+    bulk collect into l_diffs_summary
+    from table(a_diffs_all) d
+    group by d.difference_type;
+    
+    return l_diffs_summary;
+  end;
+
+  function get_json_diffs_tmp(a_diff_id raw) return tt_json_diff_tab is
+    l_diffs tt_json_diff_tab;
+  begin
+    select difference_type,
+           act_element_name, act_element_value, act_json_type, act_access_path, act_parent_path,
+           exp_element_name, exp_element_value, exp_json_type, exp_access_path, exp_parent_path
+    bulk collect into l_diffs
+    from ut_json_data_diff_tmp
+    where diff_id = a_diff_id;
+
+    return l_diffs;
+  end;
+  
 begin
   g_anytype_name_map(dbms_types.typecode_date)             := 'DATE';
   g_anytype_name_map(dbms_types.typecode_number)           := 'NUMBER';

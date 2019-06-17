@@ -34,6 +34,7 @@ alter session set current_schema = &&ut3_owner;
 @@check_sys_grants.sql "'CREATE TYPE','CREATE VIEW','CREATE SYNONYM','CREATE SEQUENCE','CREATE PROCEDURE','CREATE TABLE'"
 --set define off
 
+
 --dbms_output buffer cache table
 @@install_component.sql 'core/ut_dbms_output_cache.sql'
 
@@ -84,6 +85,8 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_reporter_base.tps'
 @@install_component.sql 'core/types/ut_reporters.tps'
 
+
+@@install_component.sql 'expectations/json_objects_specs.sql'
 @@install_component.sql 'expectations/matchers/ut_matcher_options_items.tps'
 @@install_component.sql 'expectations/matchers/ut_matcher_options.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value.tps'
@@ -196,7 +199,11 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 --expectations and matchers
 @@install_component.sql 'expectations/data_values/ut_compound_data_tmp.sql'
 @@install_component.sql 'expectations/data_values/ut_compound_data_diff_tmp.sql'
+@@install_component.sql 'expectations/data_values/ut_json_data_diff_tmp.sql'
 @@install_component.sql 'expectations/data_values/ut_compound_data_value.tps'
+@@install_component.sql 'expectations/data_values/ut_json_leaf.tps'
+@@install_component.sql 'expectations/data_values/ut_json_leaf_tab.tps'
+@@install_component.sql 'expectations/data_values/ut_json_tree_details.tps'
 @@install_component.sql 'expectations/data_values/ut_cursor_column.tps'
 @@install_component.sql 'expectations/data_values/ut_cursor_column_tab.tps'
 @@install_component.sql 'expectations/data_values/ut_cursor_details.tps'
@@ -215,6 +222,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value_yminterval.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_xmltype.tps'
 @@install_component.sql 'expectations/data_values/ut_compound_data_helper.pks'
+@@install_component.sql 'expectations/data_values/ut_data_value_json.tps'
 @@install_component.sql 'expectations/matchers/ut_matcher.tps'
 @@install_component.sql 'expectations/matchers/ut_comparison_matcher.tps'
 @@install_component.sql 'expectations/matchers/ut_be_false.tps'
@@ -233,9 +241,12 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_empty.tps'
 @@install_component.sql 'expectations/matchers/ut_match.tps'
 @@install_component.sql 'expectations/ut_expectation.tps'
+@@install_component.sql 'expectations/data_values/ut_json_leaf.tpb'
+@@install_component.sql 'expectations/data_values/ut_json_tree_details.tpb'
 @@install_component.sql 'expectations/data_values/ut_cursor_column.tpb'
 @@install_component.sql 'expectations/data_values/ut_cursor_details.tpb'
 @@install_component.sql 'expectations/ut_expectation_compound.tps'
+@@install_component.sql 'expectations/ut_expectation_json.tps'
 
 @@install_component.sql 'expectations/matchers/ut_matcher_options_items.tpb'
 @@install_component.sql 'expectations/matchers/ut_matcher_options.tpb'
@@ -256,6 +267,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value_varchar2.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_yminterval.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_xmltype.tpb'
+@@install_component.sql 'expectations/data_values/ut_data_value_json.tpb'
 @@install_component.sql 'expectations/matchers/ut_matcher.tpb'
 @@install_component.sql 'expectations/matchers/ut_comparison_matcher.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_false.tpb'
@@ -275,6 +287,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_match.tpb'
 @@install_component.sql 'expectations/ut_expectation.tpb'
 @@install_component.sql 'expectations/ut_expectation_compound.tpb'
+@@install_component.sql 'expectations/ut_expectation_json.tpb'
 @@install_component.sql 'expectations/data_values/ut_key_anyvalues.tpb'
 
 --core reporter

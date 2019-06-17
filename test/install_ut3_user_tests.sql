@@ -23,6 +23,9 @@ prompt Install user tests
 @@ut3_user/expectations/test_matchers.pks
 @@ut3_user/expectations/test_expectation_anydata.pks
 @@ut3_user/expectations/test_expectations_cursor.pks
+set define on
+@@install_above_12_1.sql 'ut3_user/expectations/test_expectations_json.pks'
+set define off
 @@ut3_user/api/test_ut_runner.pks
 @@ut3_user/api/test_ut_run.pks
 @@ut3_user/reporters.pks
@@ -61,6 +64,9 @@ set define off
 @@ut3_user/expectations/test_matchers.pkb
 @@ut3_user/expectations/test_expectation_anydata.pkb
 @@ut3_user/expectations/test_expectations_cursor.pkb
+set define on
+@@install_above_12_1.sql 'ut3_user/expectations/test_expectations_json.pkb'
+set define off
 @@ut3_user/api/test_ut_runner.pkb
 @@ut3_user/api/test_ut_run.pkb
 @@ut3_user/reporters.pkb

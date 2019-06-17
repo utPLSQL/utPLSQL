@@ -186,6 +186,10 @@ create or replace type body ut_expectation as
     self.to_( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
+  member procedure to_equal(self in ut_expectation, a_expected json_element_t, a_nulls_are_equal boolean := null) is
+  begin
+    self.to_( ut_equal(a_expected, a_nulls_are_equal) );
+  end;
 
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null) is
   begin
@@ -288,6 +292,10 @@ create or replace type body ut_expectation as
     self.not_to( ut_equal(a_expected, a_nulls_are_equal) );
   end;
 
+  member procedure not_to_equal(self in ut_expectation, a_expected json_element_t, a_nulls_are_equal boolean := null) is
+  begin
+    self.not_to( ut_equal(a_expected, a_nulls_are_equal) );
+  end;
 
   member procedure to_be_like(self in ut_expectation, a_mask in varchar2, a_escape_char in varchar2 := null) is
   begin
@@ -700,6 +708,6 @@ create or replace type body ut_expectation as
   begin
     self.not_to( ut_contain(a_expected).negated() );
   end;
-
+  
 end;
 /

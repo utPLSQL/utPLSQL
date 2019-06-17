@@ -152,6 +152,12 @@ create or replace type body ut_equal as
     return;
   end;
 
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected json_element_t, a_nulls_are_equal boolean := null) return self as result is
+  begin
+    init(ut_data_value_json(a_expected), a_nulls_are_equal);
+    return;
+  end;
+
   member function include(a_items varchar2) return ut_equal is
     l_result ut_equal := self;
   begin
@@ -237,17 +243,17 @@ create or replace type body ut_equal as
     l_result varchar2(32767);
   begin
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
-      if self.expected is of (ut_data_value_refcursor) then
         l_result :=
           'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
-          || chr(10) || 'Diff:' ||
-            treat(expected as ut_data_value_refcursor).diff( a_actual, options );
+          || chr(10) || 'Diff:' ||  
+      case 
+        when  self.expected is of (ut_data_value_refcursor) then
+          treat(expected as ut_data_value_refcursor).diff( a_actual, options )
+        when self.expected is of (ut_data_value_json) then
+          treat(expected as ut_data_value_json).diff( a_actual, options )
       else
-        l_result :=
-          'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
-          || chr(10) || 'Diff:' ||
-          expected.diff( a_actual, options );
-      end if;
+          expected.diff( a_actual, options )
+      end;
     else
       l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     end if;

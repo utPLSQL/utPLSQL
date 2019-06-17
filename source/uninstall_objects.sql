@@ -82,6 +82,8 @@ drop table ut_dbms_output_cache purge;
 
 drop type ut_expectation_compound force;
 
+drop type ut_expectation_json force;
+
 drop type ut_expectation force;
 
 drop package ut_expectation_processor;
@@ -132,6 +134,8 @@ drop type ut_data_value_number force;
 
 drop type ut_data_value_refcursor force;
 
+drop type ut_data_value_json force;
+
 drop type ut_data_value_dsinterval force;
 
 drop type ut_data_value_date force;
@@ -152,6 +156,12 @@ drop type ut_matcher_options force;
 
 drop type ut_matcher_options_items force;
 
+drop type ut_json_tree_details force;
+
+drop type ut_json_leaf_tab force;
+
+drop type ut_json_leaf;
+
 drop type ut_cursor_details force;
 
 drop type ut_cursor_column_tab force;
@@ -161,6 +171,8 @@ drop type ut_cursor_column force;
 drop table ut_compound_data_tmp purge;
 
 drop table ut_compound_data_diff_tmp purge;
+
+drop table ut_json_data_diff_tmp;
 
 drop trigger ut_trigger_annotation_parsing;
 
@@ -197,6 +209,15 @@ drop package ut_file_mapper;
 drop package ut_metadata;
 
 drop package ut_ansiconsole_helper;
+
+begin
+  $if dbms_db_version.version = 12 and dbms_db_version.release = 1 or dbms_db_version.version < 12 $then
+    execute immediate 'drop type json_element_t force';
+  $else
+    dbms_output.put_line('Nothing to drop');
+  $end
+end;
+/
 
 drop package ut_utils;
 

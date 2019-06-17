@@ -45,6 +45,8 @@ create or replace package ut authid current_user as
 
   function expect(a_actual in dsinterval_unconstrained, a_message varchar2 := null) return ut_expectation;
 
+  function expect(a_actual in json_element_t , a_message varchar2 := null) return ut_expectation_json;
+
   procedure fail(a_message in varchar2);
 
   function run(
