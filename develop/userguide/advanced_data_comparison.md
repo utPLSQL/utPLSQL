@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.7.3076--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.3083--develop-blue.svg)
 
 # Advanced data comparison
 
@@ -7,10 +7,11 @@ utPLSQL expectations incorporates advanced data comparison options when comparin
 - refcursor
 - object type
 - nested table and varray  
+- json data-types
 
 Advanced data-comparison options are available for the [`equal`](expectations.md#equal) and  [`contain`](expectations.md#include--contain) matcher.
 
-## Syntax
+Syntax
 
 ```
   ut.expect( a_actual {data-type} ).to_( equal( a_expected {data-type})[.extendend_option()[.extendend_option()[...]]]);
@@ -502,4 +503,6 @@ test_unordered_columns
 Finished in .046193 seconds
 1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
+
+
 
