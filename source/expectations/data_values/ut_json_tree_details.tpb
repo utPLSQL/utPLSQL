@@ -28,8 +28,8 @@ create or replace type body ut_json_tree_details as
        when l_json_el.is_string    then l_val := ut_utils.to_string(l_json_el.to_string(),null);
        when l_json_el.is_number    then l_val := ut_utils.to_string(l_json_el.to_number());
        when l_json_el.is_boolean   then l_val := ut_utils.to_string(l_json_el.to_boolean());
-       when l_json_el.is_true      then l_val := ut_utils.to_string(l_json_el.to_boolean());
-       when l_json_el.is_false     then l_val := ut_utils.to_string(l_json_el.to_boolean());
+--        when l_json_el.is_true      then l_val := ut_utils.to_string(l_json_el.to_boolean());
+--        when l_json_el.is_false     then l_val := ut_utils.to_string(l_json_el.to_boolean());
        when l_json_el.is_date      then l_val := ut_utils.to_string(l_json_el.to_date());
        when l_json_el.is_timestamp then l_val := ut_utils.to_string(l_json_el.to_date());
        else null;
@@ -46,8 +46,8 @@ create or replace type body ut_json_tree_details as
        when l_json_el.is_string    then l_val := ut_utils.to_string(l_json_el.to_string(),null);
        when l_json_el.is_number    then l_val := ut_utils.to_string(l_json_el.to_number());
        when l_json_el.is_boolean   then l_val := ut_utils.to_string(l_json_el.to_boolean());
-       when l_json_el.is_true      then l_val := ut_utils.to_string(l_json_el.to_boolean());
-       when l_json_el.is_false     then l_val := ut_utils.to_string(l_json_el.to_boolean());
+--        when l_json_el.is_true      then l_val := ut_utils.to_string(l_json_el.to_boolean());
+--        when l_json_el.is_false     then l_val := ut_utils.to_string(l_json_el.to_boolean());
        when l_json_el.is_date      then l_val := ut_utils.to_string(l_json_el.to_date());
        when l_json_el.is_timestamp then l_val := ut_utils.to_string(l_json_el.to_date());
        else null;
