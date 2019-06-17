@@ -241,7 +241,9 @@ create or replace package body ut_utils is
   begin
     while l_offset <= l_length loop
       l_amount := a_max_amount - coalesce( length(l_last_line), 0 );
-      dbms_lob.read(a_clob, l_amount, l_offset, l_buffer);
+--      dbms_lob.read(a_clob, l_amount, l_offset, l_buffer);
+      l_buffer := substr(a_clob, l_offset, l_amount);
+      l_amount := length(l_buffer);
       l_offset := l_offset + l_amount;
 
       l_string_results := string_to_table( l_last_line || l_buffer, a_delimiter, l_skip_leading_delimiter );
@@ -774,7 +776,7 @@ create or replace package body ut_utils is
   /**
   * Change string into unicode to match xmlgen format _00<unicode>_
   * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
-  * secion v3.1.7.3051-develop
+  * secion v3.1.7.3076-develop
   */  
   function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
   begin

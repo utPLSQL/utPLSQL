@@ -39,10 +39,19 @@ create or replace package body test_annotation_manager is
   procedure create_dummy_test_package is
     pragma autonomous_transaction;
   begin
-    execute immediate q'[create or replace package dummy_test_package as
+    execute immediate q'[
+      /*
+      * Some multiline comments before package spec
+      create or replace package dummy_test_package dummy comment to prove that we pick the right piece of code
+      */
+      -- create or replace package dummy_test_package dummy comment to prove that we pick the right piece of code
+      --Some single-line comment before package spec
+      create or replace package dummy_test_package as
         --%suite(dummy_test_suite)
         --%rollback(manual)
 
+        --create or replace package dummy_test_package dummy comment to prove that we pick the right piece of code
+        
         --%test(dummy_test)
         --%beforetest(some_procedure)
         procedure some_dummy_test_procedure;
@@ -142,9 +151,9 @@ create or replace package body test_annotation_manager is
         from dual union all
       select 3, 'rollback' , 'manual', '' as subobject_name
         from dual union all
-      select 5, 'test' , 'dummy_test', 'some_dummy_test_procedure' as subobject_name
+      select 7, 'test' , 'dummy_test', 'some_dummy_test_procedure' as subobject_name
         from dual union all
-      select 6, 'beforetest' , 'some_procedure', 'some_dummy_test_procedure' as subobject_name
+      select 8, 'beforetest' , 'some_procedure', 'some_dummy_test_procedure' as subobject_name
         from dual;
 
     ut.expect(l_actual).to_equal(l_expected);
