@@ -916,7 +916,7 @@ create or replace package body ut_suite_manager is
        where exists (
                 select 1
                   from ]'||l_ut_owner||q'[.ut_suite_cache c
-                 where 1 = 1 ]'||case when can_skip_all_objects_scan(l_owner_name) then q'[
+                 where 1 = 1 ]'||case when not can_skip_all_objects_scan(l_owner_name) then q'[
                        and exists
                            ( select 1
                                from all_objects a

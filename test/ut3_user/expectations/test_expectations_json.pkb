@@ -68,28 +68,28 @@ create or replace package body test_expectations_json is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    l_expected_message := q'[%Found: 20 differences
-%3 incorrect types,4 unequal values,13 missing properties
-%Missing property 'Alexander Skarsg?rd' on path :$.Alexander Skarsg?rd
-%Extra property 'Alexander Skarsgard' on path :$.Alexander Skarsgard
-%Missing property 'Alice Farmer' on path :$.Alice Farmer
-%Extra property 'Clarke Peters' on path :$.Clarke Peters
-%Extra property 'one' on path :$.Amy Ryan.one
-%Missing property '"The Sopranos"' on path :$.Annie Fitzgerald[2]
-%Extra property 'two' on path :$.Amy Ryan.two
-%Missing property '"Oz"' on path :$.Annie Fitzgerald[3]
-%Missing property 'otherint' on path :$.Aidan Gillen.otherint
-%Extra property 'object1' on path :$.Aidan Gillen.object.object1
-%Extra property 'object2' on path :$.Aidan Gillen.object.object2
-%Extra property 'object3' on path :$.Aidan Gillen.object.object3
-%Extra property 'object4' on path :$.Aidan Gillen.object.object4
-%Actual type is 'array' was expected to be 'object' on path :$.Amy Ryan
-%Actual type is 'string' was expected to be 'number' on path :$.Aidan Gillen.int
-%Actual type is 'string' was expected to be 'boolean' on path :$.Aidan Gillen.aboolean
-%Actual value is 'True Blood' was expected to be 'Big Love' on path :$.Annie Fitzgerald[0]
-%Actual value is 'Big Love' was expected to be 'True Blood' on path :$.Annie Fitzgerald[1]
-%Actual value is 'FALSE' was expected to be 'TRUE' on path :$.Aidan Gillen.boolean
-%Actual value is 'Game of Thrones' was expected to be 'Game of Thron"es' on path :$.Aidan Gillen.array[0]%]';
+    l_expected_message := q'[%Diff: 20 differences found
+%3 incorrect types, 4 unequal values, 13 missing properties
+%Missing property: "Alexander Skarsg?rd" on path: $
+%Extra   property: "Alexander Skarsgard" on path: $
+%Missing property: "Alice Farmer" on path: $
+%Extra   property: "Clarke Peters" on path: $
+%Extra   property: "one" on path: $."Amy Ryan"
+%Missing property: "The Sopranos" on path: $."Annie Fitzgerald"[2]
+%Extra   property: "two" on path: $."Amy Ryan"
+%Missing property: "Oz" on path: $."Annie Fitzgerald"[3]
+%Missing property: "otherint" on path: $."Aidan Gillen"
+%Extra   property: "object1" on path: $."Aidan Gillen"."object"
+%Extra   property: "object2" on path: $."Aidan Gillen"."object"
+%Extra   property: "object3" on path: $."Aidan Gillen"."object"
+%Extra   property: "object4" on path: $."Aidan Gillen"."object"
+%Actual  type: 'array' was expected to be: 'object' on path: $."Amy Ryan"
+%Actual  type: 'string' was expected to be: 'number' on path: $."Aidan Gillen"."int"
+%Actual  type: 'string' was expected to be: 'boolean' on path: $."Aidan Gillen"."aboolean"
+%Actual value: "True Blood" was expected to be: "Big Love" on path: $."Annie Fitzgerald"[0]
+%Actual value: "Big Love" was expected to be: "True Blood" on path: $."Annie Fitzgerald"[1]
+%Actual value: FALSE was expected to be: TRUE on path: $."Aidan Gillen"."boolean"
+%Actual value: "Game of Thrones" was expected to be: "Game of Thron\"es" on path: $."Aidan Gillen"."array"[0]%]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -446,10 +446,9 @@ create or replace package body test_expectations_json is
         .stringify,'$.Actors[1].children')));
     --Assert
     l_expected_message := q'[%Actual: json was expected to equal: json
-%Diff:
-%Found: 1 differences
+%Diff: 1 differences found
 %1 unequal values
-%Actual value is 'Noemi' was expected to be 'Indio Falconer' on path :$[0]%]';
+%Actual value: "Noemi" was expected to be: "Indio Falconer" on path: $[0]%]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -1557,28 +1556,28 @@ create or replace package body test_expectations_json is
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
-    l_expected_message := q'[%Found: 133 differences, showing first 20
-%132 unequal values,1 missing properties
-%Extra property 'object' on path :$[5]
-%Actual value is '5ce6ec46cb9977b050f15d97' was expected to be '5ce6ec6660565269b16cf836' on path :$[0]._id
-%Actual value is '5ce6ec469ba57bef5c421021' was expected to be '5ce6ec66383ddbf3c400e3ed' on path :$[1]._id
-%Actual value is '5ce6ec4632328a654d592cb6' was expected to be '5ce6ec6600fb7aaee2d1243e' on path :$[3]._id
-%Actual value is '5ce6ec464e6f8751e75ed29f' was expected to be '5ce6ec660a8b5f95ed543305' on path :$[2]._id
-%Actual value is '5ce6ec46d9dbfbf9b184cee7' was expected to be '5ce6ec660585cbb589b34fc8' on path :$[4]._id
-%Actual value is '59be5b73-fffe-4a4f-acea-65c5abbdb53c' was expected to be '2e778803-50d3-411f-b34d-47d0f19d03f7' on path :$[1].guid
-%Actual value is '9dece65b-6b48-4960-880b-7795ff63c81c' was expected to be '18547241-6fd0-466d-9f79-21aeb0485294' on path :$[4].guid
-%Actual value is '42e07b71-b769-4078-b226-f79048b75bd2' was expected to be 'bb0eaa88-f7fd-4b72-8538-8c0b4595bcec' on path :$[2].guid
-%Actual value is '6b9124a9-fbde-4c60-8dac-e296f5daa3c4' was expected to be '4a4363b5-9d65-4b22-9b58-a5c8c1c5bd5d' on path :$[3].guid
-%Actual value is '1acb2b6b-15b5-4747-a62f-db477e18df61' was expected to be 'c222eda5-d925-4163-89e3-4b0e50d5e297' on path :$[0].guid
-%Actual value is 'FALSE' was expected to be 'TRUE' on path :$[2].isActive
-%Actual value is 'TRUE' was expected to be 'FALSE' on path :$[3].isActive
-%Actual value is 'TRUE' was expected to be 'FALSE' on path :$[1].isActive
-%Actual value is '$3,895.35' was expected to be '$2,299.28' on path :$[1].balance
-%Actual value is '$1,443.80' was expected to be '$3,626.25' on path :$[0].balance
-%Actual value is '$3,366.81' was expected to be '$3,085.28' on path :$[2].balance
-%Actual value is '$2,927.54' was expected to be '$3,853.86' on path :$[4].balance
-%Actual value is '$2,374.96' was expected to be '$3,152.70' on path :$[3].balance
-%Actual value is '23' was expected to be '36' on path :$[2].age%]';
+    l_expected_message := q'[%Diff: 133 differences found, showing first 20
+%132 unequal values, 1 missing properties
+%Extra   property: object on path: $[5]
+%Actual value: "5ce6ec46cb9977b050f15d97" was expected to be: "5ce6ec6660565269b16cf836" on path: $[0]."_id"
+%Actual value: "5ce6ec469ba57bef5c421021" was expected to be: "5ce6ec66383ddbf3c400e3ed" on path: $[1]."_id"
+%Actual value: "5ce6ec4632328a654d592cb6" was expected to be: "5ce6ec6600fb7aaee2d1243e" on path: $[3]."_id"
+%Actual value: "5ce6ec464e6f8751e75ed29f" was expected to be: "5ce6ec660a8b5f95ed543305" on path: $[2]."_id"
+%Actual value: "5ce6ec46d9dbfbf9b184cee7" was expected to be: "5ce6ec660585cbb589b34fc8" on path: $[4]."_id"
+%Actual value: "59be5b73-fffe-4a4f-acea-65c5abbdb53c" was expected to be: "2e778803-50d3-411f-b34d-47d0f19d03f7" on path: $[1]."guid"
+%Actual value: "9dece65b-6b48-4960-880b-7795ff63c81c" was expected to be: "18547241-6fd0-466d-9f79-21aeb0485294" on path: $[4]."guid"
+%Actual value: "42e07b71-b769-4078-b226-f79048b75bd2" was expected to be: "bb0eaa88-f7fd-4b72-8538-8c0b4595bcec" on path: $[2]."guid"
+%Actual value: "6b9124a9-fbde-4c60-8dac-e296f5daa3c4" was expected to be: "4a4363b5-9d65-4b22-9b58-a5c8c1c5bd5d" on path: $[3]."guid"
+%Actual value: "1acb2b6b-15b5-4747-a62f-db477e18df61" was expected to be: "c222eda5-d925-4163-89e3-4b0e50d5e297" on path: $[0]."guid"
+%Actual value: FALSE was expected to be: TRUE on path: $[2]."isActive"
+%Actual value: TRUE was expected to be: FALSE on path: $[3]."isActive"
+%Actual value: TRUE was expected to be: FALSE on path: $[1]."isActive"
+%Actual value: "$3,895.35" was expected to be: "$2,299.28" on path: $[1]."balance"
+%Actual value: "$1,443.80" was expected to be: "$3,626.25" on path: $[0]."balance"
+%Actual value: "$3,366.81" was expected to be: "$3,085.28" on path: $[2]."balance"
+%Actual value: "$2,927.54" was expected to be: "$3,853.86" on path: $[4]."balance"
+%Actual value: "$2,374.96" was expected to be: "$3,152.70" on path: $[3]."balance"
+%Actual value: 23 was expected to be: 36 on path: $[2]."age"%]';
  
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert

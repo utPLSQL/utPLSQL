@@ -59,33 +59,34 @@ create or replace type body ut_data_value_json as
     l_message           varchar2(32767);
     
     function get_diff_by_type(a_diff ut_compound_data_helper.tt_json_diff_tab) return clob is
-      l_diff_summary ut_compound_data_helper.tt_json_diff_type_tab := ut_compound_data_helper.get_json_diffs_type(a_diff);
-      l_message_list      ut_varchar2_list := ut_varchar2_list();
+      l_diff_summary  ut_compound_data_helper.tt_json_diff_type_tab := ut_compound_data_helper.get_json_diffs_type(a_diff);
+      l_message_list  ut_varchar2_list := ut_varchar2_list();
     begin
       for i in 1..l_diff_summary.count loop
         l_message_list.extend;
         l_message_list(l_message_list.last) := l_diff_summary(i).no_of_occurence||' '||l_diff_summary(i).difference_type; 
       end loop;
-      return ut_utils.table_to_clob(l_message_list,',');
+      return ut_utils.table_to_clob(l_message_list,', ');
     end;
          
     function get_json_diff_text (a_json_diff ut_compound_data_helper.t_json_diff_rec) return clob is
     begin
       return 
-        case a_json_diff.difference_type
-          when ut_compound_data_helper.gc_json_missing 
+        case
+          when a_json_diff.difference_type = ut_compound_data_helper.gc_json_missing
             then 
               case 
-                when a_json_diff.act_element_name is not null then q'[Missing property ']'||a_json_diff.act_element_name||q'[']'
-                when a_json_diff.exp_element_name is not null then q'[Extra property ']'||a_json_diff.exp_element_name||q'[']'
-                else 'Unknown'
-              end
-          when ut_compound_data_helper.gc_json_type 
-            then q'[Actual type is ']'||a_json_diff.act_json_type||q'[' was expected to be ']'||a_json_diff.exp_json_type||q'[']'
-          when ut_compound_data_helper.gc_json_notequal
-            then q'[Actual value is ']'||a_json_diff.act_element_value||q'[' was expected to be ']'||a_json_diff.exp_element_value||q'[']'
-          else 'Unknown' 
-        end || ' on path :'||nvl(a_json_diff.act_access_path,a_json_diff.exp_access_path);
+                when a_json_diff.act_element_name is not null then q'[  Missing property: ]'||a_json_diff.act_element_name
+                when a_json_diff.exp_element_name is not null then q'[  Extra   property: ]'||a_json_diff.exp_element_name
+              end || ' on path: '||nvl(a_json_diff.act_parent_path,a_json_diff.exp_parent_path)
+          else
+            case
+              when a_json_diff.difference_type = ut_compound_data_helper.gc_json_type
+                then q'[  Actual  type: ']'||a_json_diff.act_json_type||q'[' was expected to be: ']'||a_json_diff.exp_json_type||q'[']'
+              when a_json_diff.difference_type = ut_compound_data_helper.gc_json_notequal
+                then q'[  Actual value: ]'||a_json_diff.act_element_value||q'[ was expected to be: ]'||a_json_diff.exp_element_value
+            end || ' on path: '||nvl(a_json_diff.act_access_path,a_json_diff.exp_access_path)
+        end;
     end;
     
   begin
@@ -99,13 +100,13 @@ create or replace type body ut_data_value_json as
     if not l_self.is_null and not l_other.is_null then
       l_diffs := ut_compound_data_helper.get_json_diffs_tmp(l_diff_id);
         
-      l_message:= chr(10)||'Found: '||l_diffs.count|| ' differences' || 
-        case when l_diffs.count > c_max_rows then ', showing first '||c_max_rows else null end||chr(10);
+      l_message := ' '||l_diffs.count|| ' differences found' ||
+        case when l_diffs.count > c_max_rows then ', showing first '|| c_max_rows else null end||chr(10);
       ut_utils.append_to_clob( l_result, l_message );
-      l_message:= get_diff_by_type(l_diffs)||chr(10);
+      l_message := get_diff_by_type(l_diffs)||chr(10);
       ut_utils.append_to_clob( l_result, l_message );
-      
-      for i in 1..least(c_max_rows,l_diffs.count) loop
+
+      for i in 1 .. least( c_max_rows, l_diffs.count ) loop
          l_results.extend;
          l_results(l_results.last) := get_json_diff_text(l_diffs(i));
       end loop;
@@ -133,10 +134,15 @@ create or replace type body ut_data_value_json as
     l_diff_id       ut_compound_data_helper.t_hash;
   begin
    if a_other is of (ut_data_value_json) then
-      l_other := treat(a_other as ut_data_value_json);
-      l_diff_id       := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
-      l_result := case when ut_compound_data_helper.insert_json_diffs(
-        l_diff_id,self.json_tree.json_tree_info,l_other.json_tree.json_tree_info) > 0 then 1 else 0 end;
+      l_other   := treat(a_other as ut_data_value_json);
+      l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
+      l_result :=
+        case
+          when ut_compound_data_helper.insert_json_diffs(
+            l_diff_id, self.json_tree.json_tree_info, l_other.json_tree.json_tree_info
+          ) > 0 then 1
+          else 0
+        end;
     end if;
     return l_result;
   end;
