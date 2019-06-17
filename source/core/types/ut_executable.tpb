@@ -29,9 +29,13 @@ create or replace type body ut_executable is
     return;
   end;
 
-  member function form_name return varchar2 is
+  member function form_name(a_skip_current_user_schema boolean := false) return varchar2 is
+    l_owner_name varchar2(250) := owner_name;
   begin
-    return ut_metadata.form_name(owner_name, object_name, procedure_name);
+    if a_skip_current_user_schema and sys_context('userenv', 'current_schema') = owner_name then
+      l_owner_name := null;
+    end if;
+    return ut_metadata.form_name(l_owner_name, object_name, procedure_name);
   end;
 
   member procedure do_execute(self in out nocopy ut_executable, a_item in out nocopy ut_suite_item) is
@@ -71,10 +75,9 @@ create or replace type body ut_executable is
     begin
 
       if not ut_metadata.package_valid(self.owner_name, self.object_name) then
-        self.error_stack := l_message_part || 'package does not exist or is invalid: ' ||upper(self.owner_name||'.'||self.object_name);
+        self.error_stack := l_message_part || 'package '||upper(self.owner_name||'.'||self.object_name)||' does not exist or is invalid.';
       elsif not ut_metadata.procedure_exists(self.owner_name, self.object_name, self.procedure_name) then
-        self.error_stack := l_message_part || 'procedure does not exist  '
-                            || upper(self.owner_name || '.' || self.object_name || '.' ||self.procedure_name);
+        self.error_stack := l_message_part || 'procedure '||upper(self.owner_name || '.' || self.object_name || '.' ||self.procedure_name)||' does not exist.';
       else
         l_result := false;
       end if;
@@ -115,7 +118,7 @@ create or replace type body ut_executable is
       '  l_error_backtrace varchar2(32767);' || chr(10) ||
       'begin' || chr(10) ||
       '  begin' || chr(10) ||
-      '    ' || self.form_name() || ';' || chr(10) ||
+      '    ' || self.form_name( a_skip_current_user_schema => true ) || ';' || chr(10) ||
       '  exception' || chr(10) ||
       '    when others then ' || chr(10) ||
       '      l_error_stack := dbms_utility.format_error_stack;' || chr(10) ||

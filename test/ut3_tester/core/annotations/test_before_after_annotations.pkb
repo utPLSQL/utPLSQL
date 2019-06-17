@@ -282,8 +282,7 @@ create or replace package body test_before_after_annotations is
     );
     ut.expect(g_tests_results).to_match(
         '1\) beforetest_missing_procedure\s+' ||
-        'Call params for beforetest are not valid: procedure does not exist  ' ||
-        'UT3_TESTER.DUMMY_BEFORE_AFTER_TEST.NON_EXISTENT_PROCEDURE'
+        'Call params for beforetest are not valid: procedure UT3_TESTER\.DUMMY_BEFORE_AFTER_TEST\.NON_EXISTENT_PROCEDURE does not exist\.'
         ,'m'
     );
   end;
