@@ -1,7 +1,7 @@
 create or replace package ut_metadata authid current_user as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -63,18 +63,6 @@ create or replace package ut_metadata authid current_user as
    */
   function procedure_exists(a_owner_name varchar2, a_package_name in varchar2, a_procedure_name in varchar2)
     return boolean;
-
-  /**
-   * Resolves [owner.]object[.procedure] using dbms_utility.name_resolve and returns resolved parts
-   *
-   */
-  procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2, a_procedure_name in out nocopy varchar2);
-
-  /**
-   * Resolves single string [owner.]object[.procedure] using dbms_utility.name_resolve and returns parts [owner] [object] [procedure]
-   */
-  procedure do_resolve(a_fully_qualified_name in varchar2,a_context in integer,a_owner out nocopy varchar2, 
-    a_object out nocopy varchar2, a_procedure_name out nocopy varchar2);
 
   /**
    * Return the text of the source line for a given object (body). It excludes package spec and type spec

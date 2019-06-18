@@ -1,6 +1,6 @@
 /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to user &&ut3
 
 create or replace synonym &ut3_user..ut_expectation for &&ut3_owner..ut_expectation;
 create or replace synonym &ut3_user..ut_expectation_compound for &&ut3_owner..ut_expectation_compound;
+create or replace synonym &ut3_user..ut_expectation_json for &&ut3_owner..ut_expectation_json;
 
 create or replace synonym &ut3_user..be_between for &&ut3_owner..be_between;
 create or replace synonym &ut3_user..be_empty for &&ut3_owner..be_empty;
@@ -97,6 +98,7 @@ create or replace synonym &ut3_user..ut_coverage_options for &&ut3_owner..ut_cov
 create or replace synonym &ut3_user..ut_coverage_helper for &&ut3_owner..ut_coverage_helper;
 create or replace synonym &ut3_user..ut_output_buffer_base for &&ut3_owner..ut_output_buffer_base;
 create or replace synonym &ut3_user..ut_output_table_buffer for &&ut3_owner..ut_output_table_buffer;
+create or replace synonym &ut3_user..ut_output_clob_table_buffer for &&ut3_owner..ut_output_clob_table_buffer;
 create or replace synonym &ut3_user..ut_file_mappings for &&ut3_owner..ut_file_mappings;
 create or replace synonym &ut3_user..ut_file_mapping for &&ut3_owner..ut_file_mapping;
 create or replace synonym &ut3_user..ut_file_mapper for &&ut3_owner..ut_file_mapper;

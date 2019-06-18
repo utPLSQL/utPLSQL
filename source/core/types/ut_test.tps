@@ -1,7 +1,7 @@
-create or replace type ut_test under ut_suite_item (
+create or replace type ut_test force under ut_suite_item (
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -57,13 +57,14 @@ create or replace type ut_test under ut_suite_item (
   expected_error_codes  ut_integer_list,
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2,
-    a_line_no integer, a_expected_error_codes ut_integer_list := null
+    a_line_no integer, a_expected_error_codes ut_integer_list := null, a_tags ut_varchar2_rows := null
   ) return self as result,
   overriding member procedure mark_as_skipped(self in out nocopy ut_test),
   overriding member function do_execute(self in out nocopy ut_test) return boolean,
   overriding member procedure calc_execution_result(self in out nocopy ut_test),
   overriding member procedure mark_as_errored(self in out nocopy ut_test, a_error_stack_trace varchar2),
   overriding member function get_error_stack_traces(self ut_test) return ut_varchar2_list,
-  overriding member function get_serveroutputs return clob
+  overriding member function get_serveroutputs return clob,
+  member function get_failed_expectation_lines return ut_varchar2_rows
 )
 /

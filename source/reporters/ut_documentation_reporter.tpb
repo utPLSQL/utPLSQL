@@ -1,7 +1,7 @@
 create or replace type body ut_documentation_reporter is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -208,6 +208,9 @@ create or replace type body ut_documentation_reporter is
       self.print_red_text(l_summary_text);
     else
       self.print_green_text(l_summary_text);
+    end if;
+    if a_run.random_test_order_seed is not null then
+      self.print_text('Tests were executed with random order seed '''||a_run.random_test_order_seed||'''.');
     end if;
     self.print_text(' ');
     (self as ut_reporter_base).after_calling_run(a_run);

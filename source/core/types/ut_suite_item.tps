@@ -1,7 +1,7 @@
 create or replace type ut_suite_item force under ut_event_item (
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -60,6 +60,10 @@ create or replace type ut_suite_item force under ut_event_item (
   warnings      ut_varchar2_rows,
   results_count ut_results_counter,
   transaction_invalidators ut_varchar2_list,
+    /**
+  * Hold list of tags assign to test
+  */
+  tags ut_varchar2_rows,
   member procedure init(self in out nocopy ut_suite_item, a_object_owner varchar2, a_object_name varchar2, a_name varchar2, a_line_no integer),
   member function get_disabled_flag return boolean,
   not instantiable member procedure mark_as_skipped(self in out nocopy ut_suite_item),

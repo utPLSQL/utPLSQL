@@ -1,7 +1,7 @@
 create or replace package body ut_coverage is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -107,12 +107,18 @@ create or replace package body ut_coverage is
     l_cursor        sys_refcursor;
     l_skip_objects  ut_object_names;
     l_sql           varchar2(32767);
+    l_valid_pattern varchar2(250) := '^\s*select.+$';
   begin
     if not is_develop_mode() then
       --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
       l_skip_objects := ut_utils.get_utplsql_objects_list() multiset union all coalesce(a_coverage_options.exclude_objects, ut_object_names());
     end if;
-    l_sql := a_sql;
+    if regexp_like(a_sql, l_valid_pattern, 'mi') then
+      -- pseudo assert for PL/SQL Cop
+      l_sql := sys.dbms_assert.noop(a_sql); 
+    else
+      raise_application_error(-20542, 'Possible SQL injection detected. a_sql parameter does not match valid pattern "' || l_valid_pattern || '".');
+    end if;
     if a_coverage_options.file_mappings is not empty then
       open l_cursor for l_sql using a_coverage_options.file_mappings, l_skip_objects;
     elsif a_coverage_options.include_objects is not empty then

@@ -1,7 +1,7 @@
 create or replace package ut_suite_manager authid current_user is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ create or replace package ut_suite_manager authid current_user is
    * @return array containing root suites-ready to be executed
    *
    */
-  function configure_execution_by_path(a_paths in ut_varchar2_list) return ut_suite_items;
+  function configure_execution_by_path(a_paths ut_varchar2_list, a_random_seed positive := null) return ut_suite_items;
 
   /**
    * Builds a hierarchical suites based on given suite-paths
@@ -46,7 +46,12 @@ create or replace package ut_suite_manager authid current_user is
    * @param a_suites  returned array containing root suites-ready to be executed
    *
    */
-  procedure configure_execution_by_path(a_paths in ut_varchar2_list, a_suites out nocopy ut_suite_items);
+  procedure configure_execution_by_path(
+    a_paths       in ut_varchar2_list,
+    a_suites      out nocopy ut_suite_items,
+    a_random_seed in positive := null,
+    a_tags ut_varchar2_rows := ut_varchar2_rows()
+  );
 
   /**
    * Cleanup paths by removing leading/trailing whitespace and making paths lowercase

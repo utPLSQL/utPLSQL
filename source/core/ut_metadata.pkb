@@ -1,7 +1,7 @@
 create or replace package body ut_metadata as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -21,31 +21,6 @@ create or replace package body ut_metadata as
   g_cached_object varchar2(500);
   ------------------------------
   --public definitions
-
-  procedure do_resolve(a_owner in out nocopy varchar2, a_object in out nocopy varchar2, a_procedure_name in out nocopy varchar2) is
-    l_name          varchar2(200);
-    l_context       integer := 1; --plsql
-  begin
-    l_name := form_name(a_owner, a_object, a_procedure_name);
-    do_resolve(l_name,l_context,a_owner,a_object, a_procedure_name);
-  end do_resolve;
-
-  procedure do_resolve(a_fully_qualified_name in varchar2,a_context in integer,a_owner out nocopy varchar2, a_object out nocopy varchar2, 
-    a_procedure_name out nocopy varchar2) is
-    l_dblink        varchar2(200);
-    l_part1_type    number;
-    l_object_number number;
-  begin
-    dbms_utility.name_resolve(name          => a_fully_qualified_name
-                             ,context       => a_context
-                             ,schema        => a_owner
-                             ,part1         => a_object
-                             ,part2         => a_procedure_name
-                             ,dblink        => l_dblink
-                             ,part1_type    => l_part1_type
-                             ,object_number => l_object_number);
-  end;
-  
   function form_name(a_owner_name varchar2, a_object varchar2, a_subprogram varchar2 default null) return varchar2 is
     l_name varchar2(200);
   begin
@@ -61,25 +36,16 @@ create or replace package body ut_metadata as
 
   function package_valid(a_owner_name varchar2, a_package_name in varchar2) return boolean as
     l_cnt            number;
-    l_schema         varchar2(200);
-    l_package_name   varchar2(200);
-    l_procedure_name varchar2(200);
     l_view_name      varchar2(200) := get_objects_view_name;
   begin
 
-    l_schema       := a_owner_name;
-    l_package_name := a_package_name;
-
-    do_resolve(l_schema, l_package_name, l_procedure_name);
-
-    execute immediate q'[select count(decode(status, 'VALID', 1, null)) / count(*)
+    execute immediate q'[select count(*)
       from ]'||l_view_name||q'[
-     where owner = :l_schema
-       and object_name = :l_package_name
-       and object_type in ('PACKAGE')]'
-    into l_cnt using l_schema, l_package_name;
-
-    -- expect both package and body to be valid
+     where owner = :a_owner_name
+       and object_name = :a_package_name
+       and object_type = 'PACKAGE'
+       and status = 'VALID']'
+    into l_cnt using upper(a_owner_name), upper(a_package_name);
     return l_cnt = 1;
   exception
     when others then
@@ -89,22 +55,12 @@ create or replace package body ut_metadata as
   function procedure_exists(a_owner_name varchar2, a_package_name in varchar2, a_procedure_name in varchar2)
     return boolean as
     l_cnt            number;
-    l_schema         varchar2(200);
-    l_package_name   varchar2(200);
-    l_procedure_name varchar2(200);
     l_view_name      varchar2(200) := get_dba_view('dba_procedures');
   begin
-
-    l_schema         := a_owner_name;
-    l_package_name   := a_package_name;
-    l_procedure_name := a_procedure_name;
-
-    do_resolve(l_schema, l_package_name, l_procedure_name);
-
     execute immediate
       'select count(*) from '||l_view_name
-      ||' where owner = :l_schema and object_name = :l_package_name and procedure_name = :l_procedure_name'
-    into l_cnt using l_schema, l_package_name, l_procedure_name;
+        ||' where owner = :l_schema and object_name = :l_package_name and procedure_name = :l_procedure_name and rownum = 1'
+    into l_cnt using a_owner_name, a_package_name, a_procedure_name;
 
     --expect one method only for the package with that name.
     return l_cnt = 1;
@@ -306,15 +262,17 @@ create or replace package body ut_metadata as
   function is_anytype_null(a_value in anydata, a_compound_type in varchar2) return number is
     l_result integer := 0;
     l_anydata_sql varchar2(4000);
+    l_compound_type varchar2(250);
   begin
-     if a_value is not null then
-     l_anydata_sql := '
+    if a_value is not null then
+      l_compound_type := sys.dbms_assert.qualified_sql_name(a_compound_type);
+      l_anydata_sql := '
         declare
           l_data '||get_anydata_typename(a_value)||';
           l_value anydata := :a_value;
           l_status integer;
         begin
-          l_status := l_value.get'||a_compound_type||'(l_data);
+          l_status := l_value.get'||l_compound_type||'(l_data);
           :l_data_is_null := case when l_data is null then 1 else 0 end; 
         end;';
         execute immediate l_anydata_sql using in a_value, out l_result; 
@@ -325,12 +283,16 @@ create or replace package body ut_metadata as
   end; 
     
   function get_object_name(a_full_object_name in varchar2) return varchar2 is
-    l_schema varchar2(250);
-    l_object varchar2(250);
-    l_procedure_name varchar2(250);
+    l_result varchar2(250);
   begin
-    ut_metadata.do_resolve(a_full_object_name,7,l_schema,l_object, l_procedure_name);
-    return l_object;
+    l_result := regexp_substr(
+      a_full_object_name,
+      '^([A-Za-z0-9$#_]+|".*?")\.([A-Za-z0-9$#_]+|".*?")', subexpression => 2
+      );
+    if not l_result like '"%"' then
+      l_result := upper(l_result);
+    end if;
+    return sys.dbms_assert.qualified_sql_name(l_result);
   end;
 
   function get_anydata_compound_type(a_data_value anydata) return varchar2 is

@@ -40,8 +40,8 @@ select i.name, i.type, i.object_name, i.object_type, i.usage, i.line, i.col, cou
    and i.usage_context_id = p.usage_id
  where i.type like 'VARIABLE' and i.usage = 'DECLARATION'
    and i.object_type not in ('TYPE')
-   and (i.name not like 'L#_%' escape '#' and p.type in ('PROCEDURE','FUNCTION','ITERATOR')
-       or i.name not like 'G#_%' escape '#' and p.type not in ('PROCEDURE','FUNCTION','ITERATOR'))
+   and (i.name not like 'L#_%' escape '#' and p.type in ('PROCEDURE','FUNCTION','ITERATOR','TRIGGER')
+       or i.name not like 'G#_%' escape '#' and p.type not in ('PROCEDURE','FUNCTION','ITERATOR','TRIGGER'))
    and p.type != 'RECORD'
  order by object_name, object_type, line, col
 ;

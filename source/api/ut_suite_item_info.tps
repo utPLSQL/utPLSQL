@@ -1,7 +1,7 @@
 create or replace type ut_suite_item_info as object (
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -22,6 +22,10 @@ create or replace type ut_suite_item_info as object (
   item_type        varchar2( 250 ), -- the type of item (UT_SUITE/UT_SUITE_CONTEXT/UT_TEST)
   item_line_no     integer,         -- line_number where annotation identifying the item exists
   path             varchar2( 4000 ),-- suitepath of the item
-  disabled_flag    integer          -- 0 (zero) if item is not disabled, 1 if item is disabled by --%disabled annotation
+  disabled_flag    integer,          -- 0 (zero) if item is not disabled, 1 if item is disabled by --%disabled annotation
+  tags             varchar2(4000),
+  constructor function ut_suite_item_info(a_object_owner varchar2, a_object_name varchar2, a_item_name varchar2, 
+    a_item_description varchar2, a_item_type varchar2, a_item_line_no integer, a_path varchar2, a_disabled_flag integer,
+    a_tags ut_varchar2_rows) return self as result
 )
 /

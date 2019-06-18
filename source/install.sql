@@ -1,6 +1,6 @@
 /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -31,8 +31,9 @@ prompt &&line_separator
 alter session set current_schema = &&ut3_owner;
 
 @@check_object_grants.sql
-@@check_sys_grants.sql
+@@check_sys_grants.sql "'CREATE TYPE','CREATE VIEW','CREATE SYNONYM','CREATE SEQUENCE','CREATE PROCEDURE','CREATE TABLE'"
 --set define off
+
 
 --dbms_output buffer cache table
 @@install_component.sql 'core/ut_dbms_output_cache.sql'
@@ -84,6 +85,8 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/types/ut_reporter_base.tps'
 @@install_component.sql 'core/types/ut_reporters.tps'
 
+
+@@install_component.sql 'expectations/json_objects_specs.sql'
 @@install_component.sql 'expectations/matchers/ut_matcher_options_items.tps'
 @@install_component.sql 'expectations/matchers/ut_matcher_options.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value.tps'
@@ -92,21 +95,26 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'expectations/data_values/ut_key_anyvalues.tps'
 
 
+--output buffer table
+@@install_component.sql 'core/output_buffers/ut_output_buffer_info_tmp.sql'
+@@install_component.sql 'core/output_buffers/ut_output_buffer_tmp.sql'
+@@install_component.sql 'core/output_buffers/ut_output_clob_buffer_tmp.sql'
 --output buffer base api
 @@install_component.sql 'core/output_buffers/ut_output_data_row.tps'
 @@install_component.sql 'core/output_buffers/ut_output_data_rows.tps'
 @@install_component.sql 'core/output_buffers/ut_output_buffer_base.tps'
---output buffer table
-@@install_component.sql 'core/output_buffers/ut_output_buffer_info_tmp.sql'
-@@install_component.sql 'core/output_buffers/ut_output_buffer_tmp.sql'
-@@install_component.sql 'core/output_buffers/ut_message_id_seq.sql'
+@@install_component.sql 'core/output_buffers/ut_output_buffer_base.tpb'
 --output buffer table api
 @@install_component.sql 'core/output_buffers/ut_output_table_buffer.tps'
 @@install_component.sql 'core/output_buffers/ut_output_table_buffer.tpb'
+@@install_component.sql 'core/output_buffers/ut_output_clob_table_buffer.tps'
+@@install_component.sql 'core/output_buffers/ut_output_clob_table_buffer.tpb'
 
 @@install_component.sql 'core/types/ut_output_reporter_base.tps'
 
 --annotations
+@@install_component.sql 'core/annotations/ut_trigger_check.pks'
+@@install_component.sql 'core/annotations/ut_trigger_check.pkb'
 @@install_component.sql 'core/annotations/ut_annotation.tps'
 @@install_component.sql 'core/annotations/ut_annotations.tps'
 @@install_component.sql 'core/annotations/ut_annotated_object.tps'
@@ -114,6 +122,7 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/annotations/ut_annotation_obj_cache_info.tps'
 @@install_component.sql 'core/annotations/ut_annotation_objs_cache_info.tps'
 @@install_component.sql 'core/annotations/ut_annotation_cache_seq.sql'
+@@install_component.sql 'core/annotations/ut_annotation_cache_schema.sql'
 @@install_component.sql 'core/annotations/ut_annotation_cache_info.sql'
 @@install_component.sql 'core/annotations/ut_annotation_cache.sql'
 @@install_component.sql 'core/annotations/ut_annotation_cache_manager.pks'
@@ -190,11 +199,14 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 --expectations and matchers
 @@install_component.sql 'expectations/data_values/ut_compound_data_tmp.sql'
 @@install_component.sql 'expectations/data_values/ut_compound_data_diff_tmp.sql'
+@@install_component.sql 'expectations/data_values/ut_json_data_diff_tmp.sql'
 @@install_component.sql 'expectations/data_values/ut_compound_data_value.tps'
+@@install_component.sql 'expectations/data_values/ut_json_leaf.tps'
+@@install_component.sql 'expectations/data_values/ut_json_leaf_tab.tps'
+@@install_component.sql 'expectations/data_values/ut_json_tree_details.tps'
 @@install_component.sql 'expectations/data_values/ut_cursor_column.tps'
 @@install_component.sql 'expectations/data_values/ut_cursor_column_tab.tps'
 @@install_component.sql 'expectations/data_values/ut_cursor_details.tps'
-@@install_component.sql 'expectations/data_values/ut_data_value_anydata.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_blob.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_boolean.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_clob.tps'
@@ -210,6 +222,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value_yminterval.tps'
 @@install_component.sql 'expectations/data_values/ut_data_value_xmltype.tps'
 @@install_component.sql 'expectations/data_values/ut_compound_data_helper.pks'
+@@install_component.sql 'expectations/data_values/ut_data_value_json.tps'
 @@install_component.sql 'expectations/matchers/ut_matcher.tps'
 @@install_component.sql 'expectations/matchers/ut_comparison_matcher.tps'
 @@install_component.sql 'expectations/matchers/ut_be_false.tps'
@@ -228,9 +241,12 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_be_empty.tps'
 @@install_component.sql 'expectations/matchers/ut_match.tps'
 @@install_component.sql 'expectations/ut_expectation.tps'
+@@install_component.sql 'expectations/data_values/ut_json_leaf.tpb'
+@@install_component.sql 'expectations/data_values/ut_json_tree_details.tpb'
 @@install_component.sql 'expectations/data_values/ut_cursor_column.tpb'
 @@install_component.sql 'expectations/data_values/ut_cursor_details.tpb'
 @@install_component.sql 'expectations/ut_expectation_compound.tps'
+@@install_component.sql 'expectations/ut_expectation_json.tps'
 
 @@install_component.sql 'expectations/matchers/ut_matcher_options_items.tpb'
 @@install_component.sql 'expectations/matchers/ut_matcher_options.tpb'
@@ -251,6 +267,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/data_values/ut_data_value_varchar2.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_yminterval.tpb'
 @@install_component.sql 'expectations/data_values/ut_data_value_xmltype.tpb'
+@@install_component.sql 'expectations/data_values/ut_data_value_json.tpb'
 @@install_component.sql 'expectations/matchers/ut_matcher.tpb'
 @@install_component.sql 'expectations/matchers/ut_comparison_matcher.tpb'
 @@install_component.sql 'expectations/matchers/ut_be_false.tpb'
@@ -270,6 +287,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'expectations/matchers/ut_match.tpb'
 @@install_component.sql 'expectations/ut_expectation.tpb'
 @@install_component.sql 'expectations/ut_expectation_compound.tpb'
+@@install_component.sql 'expectations/ut_expectation_json.tpb'
 @@install_component.sql 'expectations/data_values/ut_key_anyvalues.tpb'
 
 --core reporter
@@ -278,6 +296,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 
 --plugin interface API for running utPLSQL
 @@install_component.sql 'api/ut_suite_item_info.tps'
+@@install_component.sql 'api/ut_suite_item_info.tpb'
 @@install_component.sql 'api/ut_suite_items_info.tps'
 @@install_component.sql 'api/ut_runner.pks'
 @@install_component.sql 'api/ut_runner.pkb'

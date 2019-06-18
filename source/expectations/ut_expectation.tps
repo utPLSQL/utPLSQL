@@ -1,7 +1,7 @@
 create or replace type ut_expectation authid current_user as object(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ create or replace type ut_expectation authid current_user as object(
   member procedure to_equal(self in ut_expectation, a_expected varchar2, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null),
+  member procedure to_equal(self in ut_expectation, a_expected json_element_t, a_nulls_are_equal boolean := null),
 
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2, a_nulls_are_equal boolean := null),
@@ -69,6 +70,7 @@ create or replace type ut_expectation authid current_user as object(
   member procedure not_to_equal(self in ut_expectation, a_expected varchar2, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null),
   member procedure not_to_equal(self in ut_expectation, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null),
+  member procedure not_to_equal(self in ut_expectation, a_expected json_element_t, a_nulls_are_equal boolean := null),
 
   member procedure to_be_like(self in ut_expectation, a_mask in varchar2, a_escape_char in varchar2 := null),
 

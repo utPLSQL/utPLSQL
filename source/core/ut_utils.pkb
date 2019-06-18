@@ -1,7 +1,7 @@
 create or replace package body ut_utils is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -15,6 +15,13 @@ create or replace package body ut_utils is
   See the License for the specific language governing permissions and
   limitations under the License.
   */
+
+  /**
+  * Constants regex used to validate XML name
+  */
+  gc_invalid_first_xml_char  constant varchar2(50)  := '[^_a-zA-Z]';
+  gc_invalid_xml_char        constant varchar2(50)  := '[^_a-zA-Z0-9\.-]';
+  gc_full_valid_xml_name     constant varchar2(50)  := '^([_a-zA-Z])([_a-zA-Z0-9\.-])*$';
 
   function surround_with(a_value varchar2, a_quote_char varchar2) return varchar2 is
   begin
@@ -234,7 +241,9 @@ create or replace package body ut_utils is
   begin
     while l_offset <= l_length loop
       l_amount := a_max_amount - coalesce( length(l_last_line), 0 );
-      dbms_lob.read(a_clob, l_amount, l_offset, l_buffer);
+--      dbms_lob.read(a_clob, l_amount, l_offset, l_buffer);
+      l_buffer := substr(a_clob, l_offset, l_amount);
+      l_amount := length(l_buffer);
       l_offset := l_offset + l_amount;
 
       l_string_results := string_to_table( l_last_line || l_buffer, a_delimiter, l_skip_leading_delimiter );
@@ -265,6 +274,20 @@ create or replace package body ut_utils is
   end;
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob is
+    l_result     clob;
+    l_table_rows integer := coalesce(cardinality(a_text_table),0);
+  begin
+    for i in 1 .. l_table_rows loop
+      if i < l_table_rows then
+        append_to_clob(l_result, a_text_table(i)||a_delimiter);
+      else
+        append_to_clob(l_result, a_text_table(i));
+      end if;
+    end loop;
+    return l_result;
+  end;
+
+  function table_to_clob(a_text_table ut_varchar2_rows, a_delimiter varchar2:= chr(10)) return clob is
     l_result     clob;
     l_table_rows integer := coalesce(cardinality(a_text_table),0);
   begin
@@ -469,6 +492,7 @@ create or replace package body ut_utils is
   begin
     execute immediate 'delete from ut_compound_data_tmp';
     execute immediate 'delete from ut_compound_data_diff_tmp';
+    execute immediate 'delete from ut_json_data_diff_tmp';
   end;
 
   function to_version(a_version_no varchar2) return t_version is
@@ -545,7 +569,7 @@ create or replace package body ut_utils is
 
   function scale_cardinality(a_cardinality natural) return natural is
   begin
-    return nvl(trunc(power(10,(floor(log(10,a_cardinality))+1))/3),0);
+    return case when a_cardinality > 0 then trunc(power(10,(floor(log(10,a_cardinality))+1))/3) else 1 end;
   end;
 
   function build_depreciation_warning(a_old_syntax varchar2, a_new_syntax varchar2) return varchar2 is
@@ -596,7 +620,6 @@ create or replace package body ut_utils is
     if a_list is not null then
       l_filtered_list := ut_varchar2_list();
       l_index := a_list.first;
-
       while (l_index is not null) loop
         if regexp_like(a_list(l_index), a_regexp_filter) then
           l_filtered_list.extend;
@@ -735,6 +758,111 @@ create or replace package body ut_utils is
       on f.object_name = supertype_name;
 
     return l_results;
+  end;
+
+  function remove_error_from_stack(a_error_stack varchar2, a_ora_code number) return varchar2 is
+    l_caller_stack_line          varchar2(4000);
+    l_ora_search_pattern         varchar2(500) := '^ORA'||a_ora_code||': (.*)$';
+  begin
+   l_caller_stack_line := regexp_replace(srcstr     => a_error_stack
+                          ,pattern    => l_ora_search_pattern
+                          ,replacestr => null
+                          ,position   => 1
+                          ,occurrence => 1
+                          ,modifier   => 'm');
+   return l_caller_stack_line;
+  end;
+ 
+  /**
+  * Change string into unicode to match xmlgen format _00<unicode>_
+  * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
+  * secion v3.1.7.3085
+  */  
+  function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
+  begin
+    return '_x00'||rawtohex(utl_raw.cast_to_raw(a_character))||'_';
+  end;
+  
+  /**
+  * Build valid XML column name as element names can contain letters, digits, hyphens, underscores, and periods
+  */  
+  function build_valid_xml_name(a_preprocessed_name varchar2) return varchar2 is
+    l_post_processed varchar2(4000);
+  begin
+    for i in (select regexp_substr( a_preprocessed_name ,'(.{1})', 1, level, null, 1 ) AS string_char,level level_no
+              from   dual connect by level <= regexp_count(a_preprocessed_name, '(.{1})'))
+    loop
+      if i.level_no = 1 and regexp_like(i.string_char,gc_invalid_first_xml_char) then
+        l_post_processed := l_post_processed || char_to_xmlgen_unicode(i.string_char);
+      elsif regexp_like(i.string_char,gc_invalid_xml_char) then
+        l_post_processed := l_post_processed || char_to_xmlgen_unicode(i.string_char);
+      else
+        l_post_processed := l_post_processed || i.string_char;
+      end if;
+    end loop;
+    return l_post_processed;  
+  end;
+  
+  function get_valid_xml_name(a_name varchar2) return varchar2 is
+    l_valid_name varchar2(4000);
+  begin
+    if regexp_like(a_name,gc_full_valid_xml_name) then
+      l_valid_name := a_name;
+    else
+      l_valid_name := build_valid_xml_name(a_name);
+    end if;
+    return l_valid_name;
+  end;
+
+  function to_cdata(a_lines ut_varchar2_rows) return ut_varchar2_rows is
+    l_results ut_varchar2_rows;
+  begin
+    if a_lines is not empty then
+      ut_utils.append_to_list( l_results, gc_cdata_start_tag);
+      for i in 1 .. a_lines.count loop
+        ut_utils.append_to_list( l_results, replace( a_lines(i), gc_cdata_end_tag, gc_cdata_end_tag_wrap ) );
+      end loop;
+      ut_utils.append_to_list( l_results, gc_cdata_end_tag);
+    else
+      l_results := a_lines;
+    end if;
+    return l_results;
+  end;
+
+  function to_cdata(a_clob clob) return clob is
+    l_result clob;
+  begin
+    if a_clob is not null and a_clob != empty_clob() then
+      l_result := replace( a_clob, gc_cdata_end_tag, gc_cdata_end_tag_wrap );
+    else
+      l_result := a_clob;
+    end if;
+    return l_result;
+  end;
+
+  function add_prefix(a_list ut_varchar2_list, a_prefix varchar2, a_connector varchar2 := '/') return ut_varchar2_list is
+    l_result ut_varchar2_list := ut_varchar2_list();
+    l_idx binary_integer;
+  begin
+    if a_prefix is not null then
+      l_idx := a_list.first;
+      while l_idx is not null loop
+        l_result.extend;
+        l_result(l_idx) := add_prefix(a_list(l_idx), a_prefix, a_connector);
+        l_idx := a_list.next(l_idx);
+      end loop;
+    end if;
+      return l_result;
+  end;
+
+  function add_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2 is
+  begin
+    return a_prefix||a_connector||trim(leading a_connector from a_item);
+  end;
+
+  function strip_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2 is
+  begin
+    return regexp_replace(a_item,a_prefix||a_connector);
   end;
 
 end ut_utils;

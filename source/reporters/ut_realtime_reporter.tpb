@@ -1,7 +1,7 @@
 create or replace type body ut_realtime_reporter is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ create or replace type body ut_realtime_reporter is
     self in out nocopy ut_realtime_reporter
   ) return self as result is
   begin
-    self.init($$plsql_unit);
+    self.init($$plsql_unit,ut_output_clob_table_buffer());
     total_number_of_tests := 0;
     current_test_number := 0;
     current_indent := 0;
@@ -141,6 +141,7 @@ create or replace type body ut_realtime_reporter is
     self.print_end_node('counter');
     self.print_cdata_node('errorStack', ut_utils.table_to_clob(a_suite.get_error_stack_traces()));
     self.print_cdata_node('serverOutput', a_suite.get_serveroutputs());
+    self.print_cdata_node('warnings', ut_utils.table_to_clob(a_suite.warnings));
     self.print_end_node('suite');
     self.print_end_node('event');
     self.flush_print_buffer('post-suite');
@@ -196,6 +197,7 @@ create or replace type body ut_realtime_reporter is
       end loop expectations;
       self.print_end_node('failedExpectations');
     end if;
+    self.print_cdata_node('warnings', ut_utils.table_to_clob(a_test.warnings));
     self.print_end_node('test');
     self.print_end_node('event');
     self.flush_print_buffer('post-test');

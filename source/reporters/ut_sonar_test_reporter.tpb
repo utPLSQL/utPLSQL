@@ -1,7 +1,7 @@
 create or replace type body ut_sonar_test_reporter is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -43,26 +43,18 @@ create or replace type body ut_sonar_test_reporter is
     end;
 
     procedure print_test_results(a_test ut_test) is
-      l_results ut_varchar2_rows := ut_varchar2_rows();
-      l_lines   ut_varchar2_list;
+      l_results             ut_varchar2_rows := ut_varchar2_rows();
     begin
       ut_utils.append_to_list( l_results, '<testCase name="'||dbms_xmlgen.convert(a_test.name)||'" duration="'||round(a_test.execution_time()*1000,0)||'" >');
       if a_test.result = ut_utils.gc_disabled then
         ut_utils.append_to_list( l_results, '<skipped message="skipped"/>');
       elsif a_test.result = ut_utils.gc_error then
         ut_utils.append_to_list( l_results, '<error message="encountered errors">');
-        ut_utils.append_to_list( l_results, '<![CDATA[');
-        ut_utils.append_to_list( l_results, ut_utils.table_to_clob(a_test.get_error_stack_traces()));
-        ut_utils.append_to_list( l_results, ']]>');
+        ut_utils.append_to_list( l_results, ut_utils.to_cdata( ut_utils.convert_collection( a_test.get_error_stack_traces() ) ) );
         ut_utils.append_to_list( l_results, '</error>');
       elsif a_test.result > ut_utils.gc_success then
         ut_utils.append_to_list( l_results, '<failure message="some expectations have failed">');
-        for i in 1 .. a_test.failed_expectations.count loop
-          l_lines := a_test.failed_expectations(i).get_result_lines();
-          for i in 1 .. l_lines.count loop
-            ut_utils.append_to_list( l_results, dbms_xmlgen.convert(l_lines(i)));
-          end loop;
-        end loop;
+        ut_utils.append_to_list( l_results, ut_utils.to_cdata( a_test.get_failed_expectation_lines() ) );
         ut_utils.append_to_list( l_results, '</failure>');
       end if;
       ut_utils.append_to_list( l_results, '</testCase>');

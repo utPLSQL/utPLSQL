@@ -1,7 +1,7 @@
 create or replace type body ut_data_value_refcursor as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -49,15 +49,22 @@ create or replace type body ut_data_value_refcursor as
     dbms_xmlgen.setNullHandling(l_ctx, dbms_xmlgen.empty_tag);
     dbms_xmlgen.setMaxRows(l_ctx, c_bulk_rows);   
     loop
-      l_xml := dbms_xmlgen.getxmltype(l_ctx);
+      l_xml := dbms_xmlgen.getxmltype(l_ctx);      
       exit when dbms_xmlgen.getNumRowsProcessed(l_ctx) = 0;
+      --Bug in oracle 12.2+ where XML binary storage trimming insignificant whitespaces.
+      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+        l_xml := xmltype( replace(l_xml.getClobVal(),'<ROWSET','<ROWSET xml:space=''preserve'''));
+      $else
+        null;
+      $end
       l_elements_count := l_elements_count + dbms_xmlgen.getNumRowsProcessed(l_ctx);
       execute immediate
       'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
       'values (:self_guid, :self_row_count, :l_xml)'
-      using in self.data_id, l_set_id, l_xml;           
+      using in self.data_id, l_set_id, l_xml;       
       l_set_id := l_set_id + c_bulk_rows;   
     end loop;
+   
     ut_expectation_processor.reset_nls_params();
     dbms_xmlgen.closeContext(l_ctx);
     self.elements_count := l_elements_count;
@@ -96,6 +103,12 @@ create or replace type body ut_data_value_refcursor as
   exception
     when cursor_not_open then
         raise_application_error(-20155, 'Cursor is not open');
+    when ut_utils.ex_xml_processing then
+      if l_cursor%isopen then
+        close l_cursor;
+      end if;
+        raise_application_error(ut_utils.gc_failed_open_cur,
+          ut_compound_data_helper.create_err_cursor_msg(dbms_utility.format_call_stack()));
     when others then
       if l_cursor%isopen then
         close l_cursor;
@@ -111,7 +124,9 @@ create or replace type body ut_data_value_refcursor as
       dbms_lob.createtemporary(l_result, true);
       ut_utils.append_to_clob(l_result, 'Data-types:'||chr(10));
 
-      ut_utils.append_to_clob( l_result, self.cursor_details.get_xml_children().getclobval() );
+      if self.cursor_details.cursor_columns_info.count > 0 then
+        ut_utils.append_to_clob( l_result, self.cursor_details.get_xml_children().getclobval() );
+      end if;
       ut_utils.append_to_clob(l_result,chr(10)||(self as ut_compound_data_value).to_string());
       l_result_string := ut_utils.to_string(l_result,null);
       dbms_lob.freetemporary(l_result);
@@ -235,8 +250,14 @@ create or replace type body ut_data_value_refcursor as
       if l_diff_row_count > 0  then
         l_row_diffs := ut_compound_data_helper.get_rows_diff_by_sql(
           l_self_cols, l_other_cols, l_self.data_id, l_other.data_id,
-          l_diff_id, a_match_options.join_by.items, a_match_options.unordered,
-          a_match_options.ordered_columns(), self.extract_path
+          l_diff_id, 
+          case 
+          when 
+            l_self.cursor_details.is_anydata = 1 then ut_utils.add_prefix(a_match_options.join_by.items, l_self.cursor_details.get_root) 
+          else 
+            a_match_options.join_by.items 
+          end, 
+          a_match_options.unordered,a_match_options.ordered_columns(), self.extract_path
         );
         l_message := chr(10)
                      ||'Rows: [ ' || l_diff_row_count ||' differences'
@@ -309,8 +330,7 @@ create or replace type body ut_data_value_refcursor as
         l_cursor := ut_compound_data_helper.get_compare_cursor(a_diff_cursor_text,
           a_self.data_id, a_other.data_id);
         --fetch and save rows for display of diff
-        fetch l_cursor bulk collect into l_diff_tab limit ut_utils.gc_diff_max_rows;
-      
+        fetch l_cursor bulk collect into l_diff_tab limit ut_utils.gc_diff_max_rows;      
       exception when others then
         if l_cursor%isopen then
           close l_cursor;

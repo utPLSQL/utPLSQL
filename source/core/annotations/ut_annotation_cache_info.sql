@@ -1,7 +1,7 @@
 create table ut_annotation_cache_info (
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
@@ -18,6 +18,6 @@ create table ut_annotation_cache_info (
   object_type     varchar2(250) not null,
   parse_time      timestamp     not null,
   constraint ut_annotation_cache_info_pk primary key(cache_id),
-  constraint ut_annotation_cache_info_uk unique (object_owner, object_name, object_type)
+  constraint ut_annotation_cache_info_uk unique (object_owner, object_type, object_name)
 ) organization index;
 

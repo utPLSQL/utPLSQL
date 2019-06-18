@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.6.2729-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.3085-blue.svg)
 
 # Annotations
 
@@ -38,6 +38,7 @@ We strongly recommend putting package level annotations at the very top of packa
 | `--%disabled` | Package/procedure | Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run. |
 | `--%context(<name>)` | Package | Denotes start of a named context (sub-suite) in a suite package |
 | `--%endcontext` | Package | Denotes end of a nested context (sub-suite) in a suite package |
+| `--%tags` | Package/procedure | Used to label a test or a suite for purpose of identification |
 
 ### Suite
 
@@ -823,7 +824,7 @@ See [beforeall](#Beforeall) for more examples.
 Indicates specific setup procedure(s) to be executed for a test. The procedure(s) can be located either:
 - within current package (package name is optional)
 - within another package 
- 
+
 The annotation need to be placed alongside `--%test` annotation.
 
 The `--%beforetest` procedures are executed after invoking all `--%beforeeach` for a test.
@@ -911,7 +912,7 @@ Finished in .015185 seconds
 Indicates specific cleanup procedure(s) to be executed for a test. The procedure(s) can be located either:
 - within current package (package name is optional)
 - within another package 
- 
+
 The annotation need to be placed alongside `--%test` annotation.
 
 If a test is marked as disabled the `--%aftertest` procedures are not invoked for that test.
@@ -1221,6 +1222,98 @@ Finished in .035261 seconds
 ```
 
 
+
+### Tags
+
+Tag is a label attached to the test or a suite path. It is used for identification and execution a group of tests / suites that share same tag.  
+
+It allows us to group a tests / suites using a various categorization and place a test / suite in multiple buckets. Same tests can be group with other tests based on the functionality , frequency, type of output etc.
+
+e.q. 
+
+```sql
+--%tags(batch,daily,csv)
+```
+
+or
+
+```sql
+--%tags(api,online,json)
+```
+
+
+
+Tags are defined as a coma separated list. When executing a test run with tag filter applied, framework will find all tests associated with given tags and execute them. Framework applies `OR` logic when resolving a tags so any tests / suites that match at least one tag will be included in the test run. 
+
+When a suite gets tagged all of its children will automatically inherit a tag and get executed along the parent. Parent suit tests are not executed. but a suitepath hierarchy is kept.
+
+Sample tag package.
+
+```sql
+create or replace package ut_sample_test IS
+
+   --%suite(Sample Test Suite)
+   --%tag(suite1)
+
+   --%test(Compare Ref Cursors)
+   --%tag(test1,sample)
+   procedure ut_refcursors1;
+
+   --%test(Run equality test)
+   --%tag(test2,sample)
+   procedure ut_test;
+   
+end ut_sample_test;
+/
+
+create or replace package body ut_sample_test is
+
+   procedure ut_refcursors1 is
+      v_actual   sys_refcursor;
+      v_expected sys_refcursor;
+   begin
+    open v_expected for select 1 as test from dual;
+    open v_actual   for select 2 as test from dual;
+
+      ut.expect(v_actual).to_equal(v_expected);
+   end;
+   
+   procedure ut_test is
+   begin
+       ut.expect(1).to_equal(0);
+   end;
+   
+end ut_sample_test;
+/
+```
+
+Execution of the test is done by using a parameter `a_tags`
+
+```sql
+select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'suite1'));
+select * from table(ut.run(a_tags => 'test1,test2'));
+select * from table(ut.run(a_tags => 'sample'));
+
+begin
+  ut.run(a_path => 'ut_sample_test',a_tags => 'suite1');
+end;
+/
+
+exec ut.run('ut_sample_test', a_tags => 'sample');
+```
+
+
+
+Tags should adhere to following rules:
+
+- tags are case sensitive
+- tags cannot be an empty string
+- tags cannot contain spaces e.g. to create a multi-word `tag` please use underscores,dashes, dots etc. e.g. `test_of_batch`
+- tags with empty spaces will be ignored during execution
+- tags can contain special characters
+
+
+
 ### Suitepath
 
 It is very likely that the application for which you are going to introduce tests consists of many different packages, procedures and functions.
@@ -1346,9 +1439,9 @@ If `--%throws` annotation is specified with arguments and exception raised is no
 The framework will raise a warning, when `--%throws` annotation has invalid arguments or when no arguments were provided.
 
 Annotation `--%throws(7894562, operaqk, -=1, -20496, pow74d, posdfk3)` will be interpreted as `--%throws(-20496)`.
- 
+
 Please note that `NO_DATA_FOUND` exception is a special case in Oracle. To capture it use `NO_DATA_FOUND` named exception or `-1403` exception No.
-                                                                                                        
+​                                                                                                        
 Example:
 ```sql
 create or replace package exc_pkg is
