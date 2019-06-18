@@ -1,4 +1,4 @@
-![utPLSQL v3 | Powerful PL/SQL Unit Testing Framework](docs/images/utPLSQL-testing-framework-transparent_120.png)
+![utPLSQL v3 | Testing Framework for PL/SQL](docs/images/utPLSQL-testing-framework-transparent_120.png)
 
 ----------
 
