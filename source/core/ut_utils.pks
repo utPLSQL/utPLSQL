@@ -1,7 +1,7 @@
 create or replace package ut_utils authid definer is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.6.2729';
-
+  gc_version                 constant varchar2(50) := 'v3.1.7.3085';
+    
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'beforeall';
   gc_before_each                 constant t_executable_type := 'beforeeach';
@@ -43,6 +43,11 @@ create or replace package ut_utils authid definer is
   gc_success_char            constant varchar2(7) := 'Success'; -- test passed
   gc_failure_char            constant varchar2(7) := 'Failure'; -- one or more expectations failed
   gc_error_char              constant varchar2(5) := 'Error'; -- exception was raised
+
+  gc_cdata_start_tag         constant varchar2(10) := '<![CDATA[';
+  gc_cdata_end_tag           constant varchar2(10) := ']]>';
+  gc_cdata_end_tag_wrap      constant varchar2(30) := ']]'||gc_cdata_end_tag||gc_cdata_start_tag||'>';
+
 
   /*
     Constants: Rollback type for ut_test_object
@@ -109,6 +114,14 @@ create or replace package ut_utils authid definer is
   gc_value_too_large constant pls_integer := -20217;
   pragma exception_init (ex_value_too_large, -20217);
 
+  ex_xml_processing exception;
+  gc_xml_processing constant pls_integer := -19202;
+  pragma exception_init (ex_xml_processing, -19202);
+  
+  ex_failed_open_cur exception;
+  gc_failed_open_cur constant pls_integer := -20218;
+  pragma exception_init (ex_failed_open_cur, -20218);  
+  
   gc_max_storage_varchar2_len constant integer := 4000;
   gc_max_output_string_length constant integer := 4000;
   gc_more_data_string         constant varchar2(5) := '[...]';
@@ -122,6 +135,11 @@ create or replace package ut_utils authid definer is
 
   gc_bc_fetch_limit           constant integer := 1000;
   gc_diff_max_rows            constant integer := 20;
+
+  /** 
+  * Regexp to validate tag
+  */
+  gc_word_no_space              constant varchar2(50) := '^(\w|\S)+$';
 
   type t_version is record(
     major  natural,
@@ -226,7 +244,9 @@ create or replace package ut_utils authid definer is
   function clob_to_table(a_clob clob, a_max_amount integer := 8191, a_delimiter varchar2:= chr(10)) return ut_varchar2_list;
 
   function table_to_clob(a_text_table ut_varchar2_list, a_delimiter varchar2:= chr(10)) return clob;
-
+  
+  function table_to_clob(a_text_table ut_varchar2_rows, a_delimiter varchar2:= chr(10)) return clob;
+  
   function table_to_clob(a_integer_table ut_integer_list, a_delimiter varchar2:= chr(10)) return clob;
 
   /**
@@ -368,6 +388,37 @@ create or replace package ut_utils authid definer is
    * Returns list of sub-type reporters for given list of super-type reporters
    */
   function get_child_reporters(a_for_reporters ut_reporters_info := null) return ut_reporters_info;
+  
+  /**
+  * Remove given ORA error from stack
+  */
+  function remove_error_from_stack(a_error_stack varchar2, a_ora_code number) return varchar2;
+  
+  /**
+  * Check if xml name is valid if not build a valid name
+  */
+  function get_valid_xml_name(a_name varchar2) return varchar2;
 
-end ut_utils;
+  /**
+  * Converts input list into a list surrounded by CDATA tags
+  * All CDATA end tags get escaped using recommended method from https://en.wikipedia.org/wiki/CDATA#Nesting
+  */
+  function to_cdata(a_lines ut_varchar2_rows) return ut_varchar2_rows;
+
+  /**
+  * Converts input CLOB into a CLOB surrounded by CDATA tags
+  * All CDATA end tags get escaped using recommended method from https://en.wikipedia.org/wiki/CDATA#Nesting
+  */
+  function to_cdata(a_clob clob) return clob;
+
+  /**
+  * Add prefix word to elements of list
+  */
+  function add_prefix(a_list ut_varchar2_list, a_prefix varchar2, a_connector varchar2 := '/') return ut_varchar2_list;
+
+  function add_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2;
+
+  function strip_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2;
+
+  end ut_utils;
 /

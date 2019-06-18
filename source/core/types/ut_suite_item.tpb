@@ -1,7 +1,7 @@
 create or replace type body ut_suite_item as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -63,9 +63,11 @@ create or replace type body ut_suite_item as
     ex_savepoint_not_exists exception;
     l_transaction_invalidators clob;
     pragma exception_init(ex_savepoint_not_exists, -1086);
+    l_savepoint varchar2(250);
   begin
     if get_rollback_type() = ut_utils.gc_rollback_auto and a_savepoint is not null then
-      execute immediate 'rollback to ' || a_savepoint;
+      l_savepoint := sys.dbms_assert.qualified_sql_name(a_savepoint);
+      execute immediate 'rollback to ' || l_savepoint;
     end if;
   exception
     when ex_savepoint_not_exists then

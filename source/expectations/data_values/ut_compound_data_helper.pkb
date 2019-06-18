@@ -1,7 +1,7 @@
 create or replace package body ut_compound_data_helper is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ create or replace package body ut_compound_data_helper is
 
   g_diff_count        integer;
   type t_type_name_map is table of varchar2(128) index by binary_integer;
+  type t_types_no_length is table of varchar2(128) index by varchar2(128);
   g_type_name_map           t_type_name_map;
   g_anytype_name_map        t_type_name_map;
+  g_type_no_length_map      t_types_no_length;
 
   g_compare_sql_template varchar2(4000) :=
   q'[
@@ -78,13 +80,13 @@ create or replace package body ut_compound_data_helper is
   begin
     execute immediate q'[with
           expected_cols as (
-            select access_path exp_column_name,column_position exp_col_pos,
+            select display_path exp_column_name,column_position exp_col_pos,
                    replace(column_type_name,'VARCHAR2','CHAR') exp_col_type_compare, column_type_name exp_col_type
               from table(:a_expected)
               where parent_name is null and hierarchy_level = 1 and column_name is not null
           ),
           actual_cols as (
-            select access_path act_column_name,column_position act_col_pos,
+            select display_path act_column_name,column_position act_col_pos,
                    replace(column_type_name,'VARCHAR2','CHAR') act_col_type_compare, column_type_name act_col_type
               from table(:a_actual)
               where parent_name is null and hierarchy_level = 1 and column_name is not null
@@ -174,7 +176,7 @@ create or replace package body ut_compound_data_helper is
   
   function generate_equal_sql(a_col_name in varchar2) return varchar2 is
   begin
-    return ' a.'||a_col_name||q'[ = ]'||' e.'||a_col_name;
+    return ' decode(a.'||a_col_name||','||' e.'||a_col_name||',1,0) = 1 ';
   end;
 
   function generate_partition_stmt(
@@ -231,7 +233,13 @@ create or replace package body ut_compound_data_helper is
     elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('DATE','TIMESTAMP','TIMESTAMP WITH TIME ZONE',
       'TIMESTAMP WITH LOCAL TIME ZONE') then
       l_col_type := 'VARCHAR2(50)';
-    elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('INTERVAL DAY TO SECOND','INTERVAL YEAR TO MONTH') then
+    elsif  a_data_info.is_sql_diffable = 1  and type_no_length(a_data_info.column_type) then
+      l_col_type := a_data_info.column_type;
+    elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('VARCHAR2','CHAR') then
+      l_col_type := 'VARCHAR2('||greatest(a_data_info.column_len,4000)||')';
+    elsif a_data_info.is_sql_diffable = 1 and a_data_info.column_type in ('NUMBER') then
+      --We cannot use a precision and scale as dbms_sql.describe_columns3 return precision 0 for dual table
+      -- there is also no need for that as we not process data but only read and compare as they are stored
       l_col_type := a_data_info.column_type;
     else 
       l_col_type := a_data_info.column_type
@@ -327,6 +335,7 @@ create or replace package body ut_compound_data_helper is
     l_not_equal_stmt clob;
     l_where_stmt     clob;
     l_ut_owner       varchar2(250) := ut_utils.ut_owner;
+    l_join_by_list   ut_varchar2_list;
      
     function get_join_type(a_inclusion_compare in boolean,a_negated in boolean) return varchar2 is
     begin
@@ -348,12 +357,22 @@ create or replace package body ut_compound_data_helper is
     end;
 
   begin
+      /**
+      * We already estabilished cursor equality so now we add anydata root if we compare anydata
+      * to join by.
+      */
+    l_join_by_list := 
+      case 
+        when a_other is of (ut_data_value_anydata) then ut_utils.add_prefix(a_join_by_list, a_other.cursor_details.get_root) 
+        else a_join_by_list
+      end;
+      
     dbms_lob.createtemporary(l_compare_sql, true);   
     --Initiate a SQL template with placeholders
     ut_utils.append_to_clob(l_compare_sql, g_compare_sql_template);
     --Generate a pieceso of dynamic SQL that will substitute placeholders
     gen_sql_pieces_out_of_cursor(
-      a_other.cursor_details.cursor_columns_info, a_join_by_list, a_unordered,
+      a_other.cursor_details.cursor_columns_info, l_join_by_list, a_unordered,
       l_xmltable_stmt, l_select_stmt, l_partition_stmt, l_join_on_stmt, 
       l_not_equal_stmt
     );
@@ -366,7 +385,7 @@ create or replace package body ut_compound_data_helper is
     l_compare_sql := replace(l_compare_sql,'{:join_type:}',get_join_type(a_inclusion_type,a_is_negated));
     l_compare_sql := replace(l_compare_sql,'{:join_condition:}',l_join_on_stmt);
 
-    if l_not_equal_stmt is not null and ((a_join_by_list.count > 0 and not a_is_negated) or (not a_unordered)) then
+    if l_not_equal_stmt is not null and ((l_join_by_list.count > 0 and not a_is_negated) or (not a_unordered)) then
         ut_utils.append_to_clob(l_where_stmt,' ( '||l_not_equal_stmt||' ) or ');
     end if;
     --If its inclusion we expect a actual set to fully match and have no extra elements over expected
@@ -569,6 +588,8 @@ create or replace package body ut_compound_data_helper is
     --clob/blob/xmltype/object/nestedcursor/nestedtable
     if a_type_name IN (g_type_name_map(dbms_sql.blob_type),
                        g_type_name_map(dbms_sql.clob_type),
+                       g_type_name_map(dbms_sql.long_type),
+                       g_type_name_map(dbms_sql.long_raw_type),
                        g_type_name_map(dbms_sql.bfile_type),
                        g_anytype_name_map(dbms_types.typecode_namedcollection))
     then    
@@ -594,6 +615,137 @@ create or replace package body ut_compound_data_helper is
   begin
     open l_diff_cursor for a_diff_cursor_text using a_self_id, a_other_id;
     return l_diff_cursor;
+  end;
+ 
+  function create_err_cursor_msg(a_error_stack varchar2) return varchar2 is
+  begin
+    return 'SQL exception thrown when fetching data from cursor:'||
+      ut_utils.remove_error_from_stack(sqlerrm,ut_utils.gc_xml_processing)||chr(10)||
+      ut_expectation_processor.who_called_expectation(a_error_stack)||
+      'Check the query and data for errors.';   
+  end; 
+  
+  function type_no_length ( a_type_name varchar2) return boolean is
+  begin
+    return case 
+      when g_type_no_length_map.exists(a_type_name) then
+        true
+      else
+        false
+      end;
+  end;
+  
+  function compare_json_data(a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return tt_json_diff_tab is
+    l_result_diff tt_json_diff_tab := tt_json_diff_tab();
+  begin
+
+    with
+      differences as (
+        select case
+                 when (a.element_name is null or e.element_name is null) then gc_json_missing
+                 when a.json_type != e.json_type then gc_json_type
+                 when (decode(a.element_value,e.element_value,1,0) = 0) then gc_json_notequal
+                 else gc_json_unknown
+               end  as difference_type,
+               case
+                 when (a.element_name is null or e.element_name is null) then 1
+                 when a.json_type != e.json_type then 2
+                 when (decode(a.element_value,e.element_value,1,0) = 0) then 3
+                 else 4
+               end  as order_by_type,
+               a.element_name as act_element_name,
+               a.element_value as act_element_value,
+               a.hierarchy_level as act_hierarchy_level,
+               a.index_position as act_index_position,
+               a.json_type as act_json_type,
+               a.access_path as act_access_path,
+               a.parent_name as act_par_name,
+               a.parent_path as act_parent_path,
+               e.element_name as exp_element_name,
+               e.element_value as exp_element_value,
+               e.hierarchy_level as exp_hierarchy_level,
+               e.index_position as exp_index_position,
+               e.json_type as exp_json_type,
+               e.access_path as exp_access_path,
+               e.parent_name as exp_par_name,
+               e.parent_path as exp_parent_path
+        from table(a_act_json_data) a
+          full outer join table(a_exp_json_data) e
+            on decode(a.parent_name,e.parent_name,1,0)= 1
+              and decode(a.parent_path,e.parent_path,1,0)= 1
+              and (
+                case when a.parent_type = 'object' or e.parent_type = 'object' then
+                  decode(a.element_name,e.element_name,1,0)
+                else 1 end = 1
+              )
+              and (
+                case when a.parent_type = 'array' or e.parent_type = 'array' then
+                  decode(a.index_position,e.index_position,1,0)
+                else 1 end = 1
+              )
+              and a.hierarchy_level = e.hierarchy_level
+        where (a.element_name is null or e.element_name is null)
+           or (a.json_type != e.json_type)
+           or (decode(a.element_value,e.element_value,1,0) = 0)
+     )
+     select difference_type,
+            act_element_name, act_element_value, act_json_type, act_access_path, act_parent_path,
+            exp_element_name, exp_element_value, exp_json_type, exp_access_path, exp_parent_path
+     bulk collect into l_result_diff
+     from differences a
+     where not exists (
+         select 1 from differences b
+         where (a.act_par_name = b.act_element_name and a.act_hierarchy_level - 1 = b.act_hierarchy_level)
+            or (a.exp_par_name = b.exp_element_name and a.exp_hierarchy_level - 1 = b.exp_hierarchy_level)
+           and a.difference_type = gc_json_missing and b.difference_type = gc_json_missing
+       )
+    order by order_by_type,
+             nvl(act_hierarchy_level,exp_hierarchy_level),
+             nvl(act_index_position,exp_index_position) nulls first,
+             nvl(act_element_name,exp_element_name) ;
+     return l_result_diff;
+  end;
+  
+  function insert_json_diffs(a_diff_id raw, a_act_json_data ut_json_leaf_tab, a_exp_json_data ut_json_leaf_tab) return integer is
+    l_diffs tt_json_diff_tab := compare_json_data(a_act_json_data,a_exp_json_data);
+  begin
+    forall i in 1..l_diffs.count
+    insert into ut_json_data_diff_tmp (
+      diff_id, difference_type,
+      act_element_name, act_element_value, act_json_type, act_access_path, act_parent_path,
+      exp_element_name, exp_element_value, exp_json_type, exp_access_path, exp_parent_path
+    )
+    values (
+      a_diff_id,l_diffs(i).difference_type,
+      l_diffs(i).act_element_name,l_diffs(i).act_element_value,l_diffs(i).act_json_type, l_diffs(i).act_access_path, l_diffs(i).act_parent_path,
+      l_diffs(i).exp_element_name,l_diffs(i).exp_element_value,l_diffs(i).exp_json_type,l_diffs(i).exp_access_path, l_diffs(i).exp_parent_path
+    );
+     
+    return l_diffs.count;
+  end;
+  
+  function get_json_diffs_type(a_diffs_all tt_json_diff_tab) return tt_json_diff_type_tab is
+    l_diffs_summary tt_json_diff_type_tab := tt_json_diff_type_tab();
+  begin
+    select d.difference_type,count(1) 
+    bulk collect into l_diffs_summary
+    from table(a_diffs_all) d
+    group by d.difference_type;
+    
+    return l_diffs_summary;
+  end;
+
+  function get_json_diffs_tmp(a_diff_id raw) return tt_json_diff_tab is
+    l_diffs tt_json_diff_tab;
+  begin
+    select difference_type,
+           act_element_name, act_element_value, act_json_type, act_access_path, act_parent_path,
+           exp_element_name, exp_element_value, exp_json_type, exp_access_path, exp_parent_path
+    bulk collect into l_diffs
+    from ut_json_data_diff_tmp
+    where diff_id = a_diff_id;
+
+    return l_diffs;
   end;
   
 begin
@@ -641,6 +793,15 @@ begin
   g_type_name_map( dbms_sql.urowid_type )                  := 'UROWID';  
   g_type_name_map( dbms_sql.user_defined_type )            := 'USER_DEFINED_TYPE';
   g_type_name_map( dbms_sql.ref_type )                     := 'REF_TYPE';
-  
+    
+    
+  /**
+  * List of types that have no length but can produce a max_len from desc_cursor function.
+  */
+  g_type_no_length_map('ROWID')                            := 'ROWID';
+  g_type_no_length_map('INTERVAL DAY TO SECOND')           := 'INTERVAL DAY TO SECOND';
+  g_type_no_length_map('INTERVAL YEAR TO MONTH')           := 'INTERVAL YEAR TO MONTH';
+  g_type_no_length_map('BINARY_DOUBLE')                    := 'BINARY_DOUBLE';
+  g_type_no_length_map('BINARY_FLOAT')                     := 'BINARY_FLOAT';
 end;
 /

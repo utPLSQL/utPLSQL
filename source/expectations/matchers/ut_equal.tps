@@ -1,7 +1,7 @@
 create or replace type ut_equal force under ut_comparison_matcher(
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ create or replace type ut_equal force under ut_comparison_matcher(
   constructor function ut_equal(self in out nocopy ut_equal, a_expected varchar2, a_nulls_are_equal boolean := null) return self as result,
   constructor function ut_equal(self in out nocopy ut_equal, a_expected yminterval_unconstrained, a_nulls_are_equal boolean := null) return self as result,
   constructor function ut_equal(self in out nocopy ut_equal, a_expected dsinterval_unconstrained, a_nulls_are_equal boolean := null) return self as result,
+  constructor function ut_equal(self in out nocopy ut_equal, a_expected json_element_t, a_nulls_are_equal boolean := null) return self as result,
   member function include(a_items varchar2) return ut_equal,
   member function include(a_items ut_varchar2_list) return ut_equal,
   member function exclude(a_items varchar2) return ut_equal,

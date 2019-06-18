@@ -1,6 +1,6 @@
 /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ alter session set current_schema = &&ut3_owner;
 
 grant execute on &&ut3_owner..ut_expectation to &ut3_user;
 grant execute on &&ut3_owner..ut_expectation_compound to &ut3_user;
+grant execute on &&ut3_owner..ut_expectation_json to &ut3_user;
 
 grant execute on &&ut3_owner..ut_be_between to &ut3_user;
 grant execute on &&ut3_owner..ut_be_empty to &ut3_user;
@@ -95,6 +96,7 @@ grant execute on &&ut3_owner..ut_output_buffer_base to &ut3_user;
 grant execute on &&ut3_owner..ut_output_data_row to &ut3_user;
 grant execute on &&ut3_owner..ut_output_data_rows to &ut3_user;
 grant execute on &&ut3_owner..ut_output_table_buffer to &ut3_user;
+grant execute on &&ut3_owner..ut_output_clob_table_buffer to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mappings to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mapping to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mapper to &ut3_user;

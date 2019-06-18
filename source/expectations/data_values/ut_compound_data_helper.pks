@@ -1,7 +1,7 @@
 create or replace package ut_compound_data_helper authid definer is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -18,6 +18,11 @@ create or replace package ut_compound_data_helper authid definer is
 
   gc_compare_unordered constant varchar2(10):='unordered';
   gc_compare_normal    constant varchar2(10):='normal';
+  
+  gc_json_missing  constant varchar2(30) :=  'missing properties';
+  gc_json_type     constant varchar2(30) :=  'incorrect types';
+  gc_json_notequal constant varchar2(30) :=  'unequal values';
+  gc_json_unknown  constant varchar2(30) :=  'unknown';
   
   type t_column_diffs is record(
     diff_type     varchar2(1),
@@ -50,7 +55,30 @@ create or replace package ut_compound_data_helper authid definer is
   );
 
   type t_diff_tab is table of t_diff_rec;
-          
+  
+  type t_json_diff_rec is record (
+    difference_type       varchar2(50),
+    act_element_name      varchar2(4000),
+    act_element_value     varchar2(4000),
+    act_json_type         varchar2(4000),
+    act_access_path       varchar2(4000),
+    act_parent_path       varchar2(4000),
+    exp_element_name      varchar2(4000),
+    exp_element_value     varchar2(4000),
+    exp_json_type         varchar2(4000),
+    exp_access_path       varchar2(4000),
+    exp_parent_path       varchar2(4000)
+  );
+  
+  type tt_json_diff_tab is table of t_json_diff_rec;          
+  
+  type t_json_diff_type_rec is record (
+    difference_type   varchar2(50),
+    no_of_occurence   integer
+  );
+    
+  type tt_json_diff_type_tab is table of t_json_diff_type_rec; 
+  
   function get_columns_diff(
     a_expected ut_cursor_column_tab, a_actual ut_cursor_column_tab,a_order_enforced boolean := false
   ) return tt_column_diffs;
@@ -91,6 +119,22 @@ create or replace package ut_compound_data_helper authid definer is
   function get_column_type_desc(a_type_code in integer, a_dbms_sql_desc in boolean) return varchar2;
   
   function get_compare_cursor(a_diff_cursor_text in clob,a_self_id raw, a_other_id raw) return sys_refcursor;
+  
+  function create_err_cursor_msg(a_error_stack varchar2) return varchar2;
+  
+  /*
+  * Function to return true or false if the type dont have an length
+  */
+  function type_no_length ( a_type_name varchar2) return boolean;
+  
+  function compare_json_data(a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return tt_json_diff_tab;
+  
+  function insert_json_diffs(a_diff_id raw, a_act_json_data ut_json_leaf_tab,a_exp_json_data ut_json_leaf_tab) return integer;
+  
+  function get_json_diffs_tmp(a_diff_id raw) return tt_json_diff_tab;
+
+  
+  function get_json_diffs_type(a_diffs_all tt_json_diff_tab) return tt_json_diff_type_tab;
   
 end;
 /

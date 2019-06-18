@@ -1,7 +1,7 @@
 create or replace type body ut_test as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ create or replace type body ut_test as
 
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2,
-    a_line_no integer, a_expected_error_codes ut_integer_list := null
+    a_line_no integer, a_expected_error_codes ut_integer_list := null, a_tags ut_varchar2_rows := null
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;
@@ -31,6 +31,7 @@ create or replace type body ut_test as
     self.all_expectations     := ut_expectation_results();
     self.failed_expectations  := ut_expectation_results();
     self.expected_error_codes := a_expected_error_codes;
+    self.tags                 := coalesce(a_tags,ut_varchar2_rows());
     return;
   end;
 
@@ -161,6 +162,16 @@ create or replace type body ut_test as
       ut_utils.append_to_clob(l_outputs, self.after_each_list(i).serveroutput);
     end loop;
     return l_outputs;
+  end;
+
+  member function get_failed_expectation_lines return ut_varchar2_rows is
+    l_results ut_varchar2_rows;
+  begin
+    for i in 1 .. failed_expectations.count loop
+      ut_utils.append_to_list( l_results, ut_utils.convert_collection( failed_expectations(i).get_result_lines() ) );
+      ut_utils.append_to_list( l_results, failed_expectations(i).caller_info );
+    end loop;
+    return l_results;
   end;
 end;
 /

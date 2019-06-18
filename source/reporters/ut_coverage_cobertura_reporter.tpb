@@ -1,7 +1,7 @@
 create or replace type body ut_coverage_cobertura_reporter is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ create or replace type body ut_coverage_cobertura_reporter is
       l_line_no := a_unit_coverage.lines.first;
       if l_line_no is null then
         for i in 1 .. a_unit_coverage.total_lines loop
-          ut_utils.append_to_clob(l_result, '<line number="'||i||'" hits="0" branch="false"/>');
+          ut_utils.append_to_clob(l_result, '<line number="'||i||'" hits="0" branch="false"/>'||chr(10));
         end loop;
       else
         while l_line_no is not null loop

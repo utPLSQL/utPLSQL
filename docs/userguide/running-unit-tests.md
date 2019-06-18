@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.6.2729-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.3085-blue.svg)
 
 # Running tests
 
@@ -47,6 +47,7 @@ The examples below illustrate different ways and options to invoke `ut.run` proc
 
 ```sql
 alter session set current_schema=hr;
+set serveroutput on
 begin
   ut.run();
 end;
@@ -55,6 +56,7 @@ Executes all tests in current schema (_HR_).
 
 
 ```sql
+set serveroutput on
 begin
   ut.run('HR');
 end;
@@ -63,6 +65,7 @@ Executes all tests in specified schema (_HR_).
 
 
 ```sql
+set serveroutput on
 begin
   ut.run('hr:com.my_org.my_project');
 end;
@@ -73,6 +76,7 @@ Check the [annotations documentation](annotations.md) to find out about suitepat
 
 
 ```sql
+set serveroutput on
 begin
   ut.run('hr.test_apply_bonus');
 end;
@@ -81,6 +85,7 @@ Executes all tests from package _hr.test_apply_bonus_.
 
 
 ```sql
+set serveroutput on
 begin
   ut.run('hr.test_apply_bonus.bonus_cannot_be_negative');
 end;
@@ -89,6 +94,7 @@ Executes single test procedure _hr.test_apply_bonus.bonus_cannot_be_negative_.
 
 
 ```sql
+set serveroutput on
 begin
   ut.run(ut_varchar2_list('hr.test_apply_bonus','cust'));
 end;
@@ -96,6 +102,7 @@ end;
 Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_.
 
 ```sql
+set serveroutput on
 begin
   ut.run(ut_varchar2_list('hr.test_apply_bonus,cust)');
 end;
@@ -104,6 +111,7 @@ end;
 Executes all tests from package _hr.test_apply_bonus_ and all tests from schema _cust_.
 
 ```sql
+set serveroutput on
 begin
   ut.run('hr.test_apply_bonus,cust');
 end;
@@ -124,6 +132,7 @@ The `ut.run` procedures and functions accept `a_reporter` attribute that defines
 You can execute any set of tests with any of the predefined reporters.
 
 ```sql
+set serveroutput on
 begin
   ut.run('hr.test_apply_bonus', ut_junit_reporter());
 end;
@@ -133,32 +142,16 @@ Executes all tests from package _HR.TEST_APPLY_BONUS_ and provide outputs to DBM
 
 For details on build-in reporters look at [reporters documentation](reporters.md).
 
-## Keeping uncommited data after test-run
-
-utPLSQL by default runs tests in autonomous transaction and performs automatic rollback to assure that tests do not impact one-another and do not have impact on the current session in your IDE.
-
-If you would like to keep your uncommited data persisted after running tests, you can do so by using `a_force_manual_rollback` flag.
-Setting this flag to true has following side-effects:
-
-- test execution is done in current transaction - if while running tests commit or rollback is issued your current session data will get commited too.
-- automatic rollback is forced to be disabled in test-run even if it was explicitly enabled by using annotation `--%rollback(manual)
-
-Example invocation:
-```sql
-begin
-  ut.run('hr.test_apply_bonus', a_force_manual_rollback => true);
-end;
-```
-
-
-This option is not anvailable when running tests using `ut.run` as a table function.   
-
 ## ut.run functions
 
 The `ut.run` functions provide exactly the same functionality as the `ut.run` procedures. 
 You may use the same sets of parameters with both functions and procedures. 
 The only difference is the output of the results.
 Functions provide output as a pipelined stream and therefore need to be executed as select statements.
+
+**Note:**
+>When running tests with `ut.run` functions, whole test run is executed as autonomous transaction.
+At the end of the run, the transaction is automatically rolled-back and all uncommitted changes are reverted.   
 
 Example.
 ```sql
@@ -180,7 +173,83 @@ The concept is pretty simple.
 - as a separate thread, start `ut_runner.run` and pass reporters with previously defined output_ids.
 - for each reporter start a separate thread and read outputs from the `ut_output_buffer.get_lines` table function by providing the output_id defined in the main thread.
   
-# Reports characterset encoding
+# Order of test execution
+
+## Default order
+
+When unit tests are executed without random order, they are ordered by:
+- schema name
+- suite path or test package name if `--%suitepath` was not specified for that package  
+- `--%test` line number in package
+ 
+## Random order
+
+You can force a test run to execute tests in random order by providing one of options to `ut.run`:
+- `a_random_test_order` - true/false for procedures and 1/0 for functions
+- `a_random_test_order_seed` - positive number in range of 1 .. 1 000 000 000 
+
+When tests are executed with random order, randomization is applied to single level of suitepath hierarchy tree.
+This is needed to maintain visibility and accessibility of common setup/cleanup `beforeall`/`afterall` in tests.
+
+Example:
+```sql
+set serveroutput on
+begin
+  ut.run('hr.test_apply_bonus', a_random_test_order => true);
+end;
+```
+
+```sql
+select * from table(ut.run('hr.test_apply_bonus', a_random_test_order => 1));
+```
+
+When running with random order, the default report (`ut_documentation_reporter`) will include information about the random test run seed.
+Example output:
+```
+...
+Finished in .12982 seconds
+35 tests, 0 failed, 0 errored, 1 disabled, 0 warning(s)
+Tests were executed with random order seed '302980531'.
+```
+
+If you want to re-run tests using previously generated seed, you may do so by running them with parameter `a_random_test_order_seed`
+Example:
+```sql
+set serveroutput on
+begin
+  ut.run('hr.test_apply_bonus', a_random_test_order_seed => 302980531);
+end;
+```
+
+```sql
+select * from table(ut.run('hr.test_apply_bonus', a_random_test_order_seed => 302980531));
+```
+
+**Note**
+>Random order seed must be a positive number within range of 1 .. 1 000 000 000. 
+  
+# Keeping uncommitted data after test-run
+
+utPLSQL by default runs tests in autonomous transaction and performs automatic rollback to assure that tests do not impact one-another and do not have impact on the current session in your IDE.
+
+If you would like to keep your uncommitted data persisted after running tests, you can do so by using `a_force_manual_rollback` flag.
+Setting this flag to true has following side-effects:
+
+- test execution is done in current transaction - if while running tests commit or rollback is issued your current session data will get commited too.
+- automatic rollback is forced to be disabled in test-run even if it was explicitly enabled by using annotation `--%rollback(manual)
+
+Example invocation:
+```sql
+set serveroutput on
+begin
+  ut.run('hr.test_apply_bonus', a_force_manual_rollback => true);
+end;
+```
+
+**Note:**
+>This option is not available when running tests using `ut.run` as a table function.
+
+# Reports character-set encoding
 
 To get properly encoded reports, when running utPLSQL with HTML/XML reports on data containing national characters you need to provide your client character set when calling `ut.run` functions and procedures.
 

@@ -1,7 +1,7 @@
 create or replace package body ut_expectation_processor as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ create or replace package body ut_expectation_processor as
   begin
     add_expectation_result(ut_expectation_result(ut_utils.gc_failure, null, a_message));
   end;
-
+  
   function get_session_parameters return tt_nls_params is
     l_session_params tt_nls_params;
   begin

@@ -1,7 +1,7 @@
 create or replace package ut_annotation_parser authid current_user as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ create or replace package ut_annotation_parser authid current_user as
    * @param a_source_lines ordered lines of source code to be parsed
    * @return array containing annotations
    */
-  function parse_object_annotations(a_source_lines dbms_preprocessor.source_lines_t) return ut_annotations;
+  function parse_object_annotations(a_source_lines dbms_preprocessor.source_lines_t, a_object_type varchar2) return ut_annotations;
 
 
   /**

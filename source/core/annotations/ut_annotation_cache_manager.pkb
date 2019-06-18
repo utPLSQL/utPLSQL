@@ -1,7 +1,7 @@
 create or replace package body ut_annotation_cache_manager as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -18,22 +18,40 @@ create or replace package body ut_annotation_cache_manager as
 
   procedure update_cache(a_object ut_annotated_object) is
     l_cache_id       integer;
+    l_new_objects_count integer := 0;
     pragma autonomous_transaction;
   begin
-    update ut_annotation_cache_info i
-       set i.parse_time = systimestamp
-     where (i.object_owner, i.object_name, i.object_type)
-        in ((a_object.object_owner, a_object.object_name, a_object.object_type))
-      returning cache_id into l_cache_id;
-    if sql%rowcount = 0 then
-      insert into ut_annotation_cache_info
-             (cache_id, object_owner, object_name, object_type, parse_time)
-      values (ut_annotation_cache_seq.nextval, a_object.object_owner, a_object.object_name, a_object.object_type, systimestamp)
+    -- if not in trigger, or object has annotations
+    if ora_sysevent is null or a_object.annotations is not null and a_object.annotations.count > 0 then
+
+      update ut_annotation_cache_info i
+         set i.parse_time = systimestamp
+       where (i.object_owner, i.object_name, i.object_type)
+          in ((a_object.object_owner, a_object.object_name, a_object.object_type))
         returning cache_id into l_cache_id;
+
+      if sql%rowcount = 0 then
+
+        insert into ut_annotation_cache_info
+               (cache_id, object_owner, object_name, object_type, parse_time)
+        values (ut_annotation_cache_seq.nextval, a_object.object_owner, a_object.object_name, a_object.object_type, systimestamp)
+          returning cache_id into l_cache_id;
+        l_new_objects_count := 1;
+      end if;
+
     end if;
 
-    delete from ut_annotation_cache c
-      where cache_id = l_cache_id;
+    update ut_annotation_cache_schema s
+    set s.object_count = s.object_count + l_new_objects_count, s.max_parse_time = systimestamp
+    where s.object_type = a_object.object_type and s.object_owner = a_object.object_owner;
+
+    if sql%rowcount = 0 then
+      insert into ut_annotation_cache_schema s
+          (object_owner, object_type, object_count, max_parse_time)
+      values (a_object.object_owner, a_object.object_type, l_new_objects_count, systimestamp);
+    end if;
+
+    delete from ut_annotation_cache c where cache_id = l_cache_id;
 
     if a_object.annotations is not null and a_object.annotations.count > 0 then
       insert into ut_annotation_cache
@@ -73,17 +91,32 @@ create or replace package body ut_annotation_cache_manager as
     commit;
   end;
 
+  function get_cache_schema_info(a_object_owner varchar2, a_object_type varchar2) return t_cache_schema_info is
+    l_result t_cache_schema_info;
+  begin
+    begin
+      select *
+             into l_result
+        from ut_annotation_cache_schema s
+       where s.object_type = a_object_type and s.object_owner = a_object_owner;
+    exception
+      when no_data_found then
+        null;
+    end;
+    return l_result;
+  end;
+
   procedure remove_from_cache(a_objects ut_annotation_objs_cache_info) is
     pragma autonomous_transaction;
   begin
 
     delete from ut_annotation_cache_info i
-      where exists (
-        select 1 from table (a_objects) o
-        where o.object_name = i.object_name
-        and o.object_type = i.object_type
-        and o.object_owner = i.object_owner
-      );
+     where exists (
+             select 1 from table (a_objects) o
+              where o.object_name = i.object_name
+                and o.object_type = i.object_type
+                and o.object_owner = i.object_owner
+             );
 
     commit;
   end;
@@ -139,6 +172,12 @@ create or replace package body ut_annotation_cache_manager as
       delete from ut_annotation_cache_info i
        where ' || l_filter
     using a_object_owner, a_object_type;
+
+    execute immediate '
+      delete from ut_annotation_cache_schema s
+       where ' || l_filter
+    using a_object_owner, a_object_type;
+
     commit;
   end;
 

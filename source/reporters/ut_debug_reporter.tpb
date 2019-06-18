@@ -1,7 +1,7 @@
 create or replace type body ut_debug_reporter is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ create or replace type body ut_debug_reporter is
 
   constructor function ut_debug_reporter(self in out nocopy ut_debug_reporter) return self as result is
   begin
-    self.init($$plsql_unit);
+    self.init($$plsql_unit,ut_output_clob_table_buffer());
     self.start_time := current_timestamp();
     self.event_time := current_timestamp();
     return;

@@ -1,7 +1,7 @@
 create or replace type body ut_have_count as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ create or replace type body ut_have_count as
   begin
     if a_actual is of(ut_data_value_refcursor) and ( treat (a_actual as ut_data_value_refcursor).compound_type != 'object') then
       l_result := ( self.expected = treat(a_actual as ut_data_value_refcursor).elements_count );
+    elsif a_actual is of(ut_data_value_json) then
+      l_result := ( self.expected = treat(a_actual as ut_data_value_json).get_elements_count );
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
     end if;
@@ -36,12 +38,16 @@ create or replace type body ut_have_count as
 
   overriding member function failure_message(a_actual ut_data_value) return varchar2 is
   begin
-    return 'Actual: (' || a_actual.get_object_info()||') was expected to have [ count = '||ut_utils.to_string(self.expected)||' ]';
+    return 'Actual: (' || case when a_actual is of (ut_data_value_json) then 
+      treat(a_actual as ut_data_value_json).get_json_count_info()  else a_actual.get_object_info() end||
+      ') was expected to have [ count = '||ut_utils.to_string(self.expected)||' ]';
   end;
 
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2 is
   begin
-    return 'Actual: ' || a_actual.get_object_info()||' was expected not to have [ count = '||ut_utils.to_string(self.expected)||' ]';
+    return 'Actual: ' || case when a_actual is of (ut_data_value_json) then 
+      treat(a_actual as ut_data_value_json).get_json_count_info()  else a_actual.get_object_info() end||
+      ' was expected not to have [ count = '||ut_utils.to_string(self.expected)||' ]';
   end;
 
 end;

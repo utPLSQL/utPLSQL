@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.6.2729-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.7.3085-blue.svg)
 
 # Advanced data comparison
 
@@ -7,10 +7,11 @@ utPLSQL expectations incorporates advanced data comparison options when comparin
 - refcursor
 - object type
 - nested table and varray  
+- json data-types
 
 Advanced data-comparison options are available for the [`equal`](expectations.md#equal) and  [`contain`](expectations.md#include--contain) matcher.
 
-## Syntax
+Syntax
 
 ```
   ut.expect( a_actual {data-type} ).to_( equal( a_expected {data-type})[.extendend_option()[.extendend_option()[...]]]);
@@ -125,6 +126,85 @@ begin
 end;
 
 ```
+
+Example of `include / exclude` for anydata.convertCollection
+
+```plsql
+create or replace type person as object(
+  name varchar2(100),
+  age  integer
+)
+/
+create or replace type people as table of person
+/
+
+create or replace package ut_anydata_inc_exc IS
+
+   --%suite(Anydata)
+
+   --%test(Anydata include)
+   procedure ut_anydata_test_inc;
+
+   --%test(Anydata exclude)
+   procedure ut_anydata_test_exc;
+   
+   --%test(Fail on age)
+   procedure ut_fail_anydata_test;
+   
+end ut_anydata_inc_exc;
+/
+
+create or replace package body ut_anydata_inc_exc IS
+
+   procedure ut_anydata_test_inc IS
+    l_actual           people := people(person('Matt',45));
+    l_expected         people :=people(person('Matt',47));
+  begin
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include('NAME');  
+   end;
+
+   procedure ut_anydata_test_exc IS
+    l_actual           people := people(person('Matt',45));
+    l_expected         people :=people(person('Matt',47));
+  begin
+    --Arrange
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).exclude('AGE');   
+   end;
+
+   procedure ut_fail_anydata_test IS
+    l_actual           people := people(person('Matt',45));
+    l_expected         people :=people(person('Matt',47));
+  begin
+    --Arrange
+    ut3.ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected)).include('AGE');   
+  end;
+
+end ut_anydata_inc_exc;
+/
+
+```
+
+will result in :
+
+```sql
+Anydata
+  Anydata include [.044 sec]
+  Anydata exclude [.035 sec]
+  Fail on age [.058 sec] (FAILED - 1)
+ 
+Failures:
+ 
+  1) ut_fail_anydata_test
+      Actual: ut3.people [ count = 1 ] was expected to equal: ut3.people [ count = 1 ]
+      Diff:
+      Rows: [ 1 differences ]
+        Row No. 1 - Actual:   <AGE>45</AGE>
+        Row No. 1 - Expected: <AGE>47</AGE>
+```
+
+
+
+Example of exclude
 
 Only the columns 'RN', "A_Column" will be compared. Column 'SOME_COL' is excluded.
 
@@ -351,7 +431,7 @@ Unable to join sets:
   Please make sure that your join clause is not refferring to collection element
 ```
 
-***Note***
+**Note**
 >`join_by` option is slower to process as it needs to perform a cursor join.
 
 ## Defining item lists in option
@@ -423,4 +503,6 @@ test_unordered_columns
 Finished in .046193 seconds
 1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
+
+
 

@@ -1,7 +1,7 @@
 create or replace package body ut_annotation_parser as
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -223,7 +223,7 @@ create or replace package body ut_annotation_parser as
     return l_result;
   end parse_object_annotations;
 
-  function parse_object_annotations(a_source_lines dbms_preprocessor.source_lines_t) return ut_annotations is
+  function parse_object_annotations(a_source_lines dbms_preprocessor.source_lines_t, a_object_type varchar2) return ut_annotations is
     l_processed_lines dbms_preprocessor.source_lines_t;
     l_source          clob;
     l_annotations     ut_annotations := ut_annotations();
@@ -235,7 +235,11 @@ create or replace package body ut_annotation_parser as
       --convert to post-processed source clob
       begin
         --get post-processed source
-        l_processed_lines := sys.dbms_preprocessor.get_post_processed_source(a_source_lines);
+        if a_object_type = 'TYPE' then
+          l_processed_lines := a_source_lines;
+        else
+          l_processed_lines := sys.dbms_preprocessor.get_post_processed_source(a_source_lines);
+        end if;
         --convert to clob
         for i in 1..l_processed_lines.count loop
           ut_utils.append_to_clob(l_source, replace(l_processed_lines(i), chr(13)||chr(10), chr(10)));

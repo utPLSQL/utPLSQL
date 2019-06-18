@@ -1,7 +1,7 @@
 create or replace package body ut_coverage_helper is
   /*
   utPLSQL - Version 3
-  Copyright 2016 - 2018 utPLSQL Project
+  Copyright 2016 - 2019 utPLSQL Project
 
   Licensed under the Apache License, Version 2.0 (the "License"):
   you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ create or replace package body ut_coverage_helper is
     pragma autonomous_transaction;
   begin
     null;
-    execute immediate 'truncate table ut_coverage_sources_tmp$';
+    execute immediate 'truncate table ut_coverage_sources_tmp';
     commit;
   end;
 

@@ -1,4 +1,9 @@
 set echo on
+
+drop trigger ut_trigger_annotation_parsing;
+
+drop synonym ut3_trigger_alive;
+
 drop synonym be_between;
 
 drop synonym have_count;
@@ -47,9 +52,7 @@ drop package ut_coverage;
 
 drop package ut_coverage_helper;
 
-drop view ut_coverage_sources_tmp;
-
-drop table ut_coverage_sources_tmp$;
+drop table ut_coverage_sources_tmp purge;
 
 drop package ut_teamcity_reporter_helper;
 
@@ -63,19 +66,23 @@ drop package ut_suite_manager;
 
 drop package ut_suite_builder;
 
-drop table ut_suite_cache;
+drop package ut_suite_cache_manager;
+
+drop table ut_suite_cache purge;
 
 drop sequence ut_suite_cache_seq;
 
-drop table ut_suite_cache_package;
+drop table ut_suite_cache_package purge;
 
-drop table ut_suite_cache_schema;
+drop table ut_suite_cache_schema purge;
 
 drop package ut;
 
-drop table ut_dbms_output_cache;
+drop table ut_dbms_output_cache purge;
 
 drop type ut_expectation_compound force;
+
+drop type ut_expectation_json force;
 
 drop type ut_expectation force;
 
@@ -127,6 +134,8 @@ drop type ut_data_value_number force;
 
 drop type ut_data_value_refcursor force;
 
+drop type ut_data_value_json force;
+
 drop type ut_data_value_dsinterval force;
 
 drop type ut_data_value_date force;
@@ -136,10 +145,6 @@ drop type ut_data_value_clob force;
 drop type ut_data_value_boolean force;
 
 drop type ut_data_value_blob force;
-
-drop type ut_data_value_object force;
-
-drop type ut_data_value_collection force;
 
 drop type ut_data_value_anydata force;
 
@@ -151,15 +156,25 @@ drop type ut_matcher_options force;
 
 drop type ut_matcher_options_items force;
 
+drop type ut_json_tree_details force;
+
+drop type ut_json_leaf_tab force;
+
+drop type ut_json_leaf;
+
 drop type ut_cursor_details force;
 
 drop type ut_cursor_column_tab force;
 
 drop type ut_cursor_column force;
 
-drop table ut_compound_data_tmp;
+drop table ut_compound_data_tmp purge;
 
-drop table ut_compound_data_diff_tmp;
+drop table ut_compound_data_diff_tmp purge;
+
+drop table ut_json_data_diff_tmp;
+
+drop trigger ut_trigger_annotation_parsing;
 
 drop package ut_annotation_manager;
 
@@ -167,9 +182,11 @@ drop package ut_annotation_parser;
 
 drop package ut_annotation_cache_manager;
 
-drop table ut_annotation_cache cascade constraints;
+drop table ut_annotation_cache cascade constraints purge;
 
-drop table ut_annotation_cache_info cascade constraints;
+drop table ut_annotation_cache_info cascade constraints purge;
+
+drop table ut_annotation_cache_schema cascade constraints purge;
 
 drop sequence ut_annotation_cache_seq;
 
@@ -185,11 +202,22 @@ drop type ut_annotations force;
 
 drop type ut_annotation force;
 
+drop package ut_trigger_check;
+
 drop package ut_file_mapper;
 
 drop package ut_metadata;
 
 drop package ut_ansiconsole_helper;
+
+begin
+  $if dbms_db_version.version = 12 and dbms_db_version.release = 1 or dbms_db_version.version < 12 $then
+    execute immediate 'drop type json_element_t force';
+  $else
+    dbms_output.put_line('Nothing to drop');
+  $end
+end;
+/
 
 drop package ut_utils;
 
@@ -247,17 +275,15 @@ drop type ut_suite_item force;
 
 drop type ut_output_table_buffer force;
 
+drop type ut_output_clob_table_buffer force;
+
 drop type ut_output_buffer_base force;
 
-drop view ut_output_buffer_tmp;
+drop table ut_output_buffer_tmp purge;
 
-drop table ut_output_buffer_tmp$ purge;
+drop table ut_output_clob_buffer_tmp purge;
 
-drop view ut_output_buffer_info_tmp;
-
-drop table ut_output_buffer_info_tmp$;
-
-drop sequence ut_message_id_seq;
+drop table ut_output_buffer_info_tmp purge;
 
 drop type ut_output_data_rows force;
 
@@ -286,6 +312,8 @@ drop type ut_key_anyval_pairs force;
 drop type ut_key_value_pairs force;
 
 drop type ut_key_value_pair force;
+
+drop type ut_key_anyvalues force;
 
 drop type ut_object_names force;
 
