@@ -5,6 +5,7 @@ set -ev
 
 #install core of utplsql
 time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
+whenever sqlerror exit failure rollback
 set feedback off
 set verify off
 
@@ -57,46 +58,69 @@ SQL
 
 fi
 
-#additional privileges to run scripted tests
-time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
-set feedback on
---needed for Mystats script to work
-grant select any dictionary to $UT3_OWNER;
---Needed for testing a coverage outside ut3_owner.
-grant create any procedure, drop any procedure, execute any procedure to $UT3_OWNER;
-SQL
 
-#Create user that will own the tests that are relevant to internal framework
 time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
 set feedback off
-@create_utplsql_owner.sql $UT3_TESTER $UT3_TESTER_PASSWORD $UT3_TABLESPACE
---needed for disabling DDL trigger and testint parser without trigger enabled/present
-grant alter any trigger to ut3_tester;
+whenever sqlerror exit failure rollback
+
+--------------------------------------------------------------------------------
+PROMPT Creating $UT3_TESTER - Power-user for testing internal framework code
+
+create user $UT3_TESTER identified by "$UT3_TESTER_PASSWORD" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
+grant create session, create procedure, create type, create table to $UT3_TESTER;
+
+PROMPT Additional grants for disabling DDL trigger and testing parser without trigger enabled/present
+
+grant alter any trigger to $UT3_TESTER;
 grant administer database trigger to $UT3_TESTER;
-exit
-SQL
+grant execute on dbms_lock to $UT3_TESTER;
 
-#Create additional UT3$USER# to test for special characters and front end API testing
-time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
-set feedback off
-@create_utplsql_owner.sql $UT3_USER $UT3_USER_PASSWORD $UT3_TABLESPACE
---Grant UT3 framework to min user
-@create_user_grants.sql $UT3_OWNER $UT3_USER
-exit
-SQL
+PROMPT Granting $UT3_OWNER code to $UT3_TESTER
 
-#Create additional UT3_TESTER_HELPER that will provide a functions to allow min grant test user setup test
-time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
-set feedback off
-@create_utplsql_owner.sql $UT3_TESTER_HELPER $UT3_TESTER_HELPER_PASSWORD $UT3_TABLESPACE
---needed for testing distributed transactions
+begin
+  for i in (
+    select object_name from all_objects t
+      where t.object_type in ('PACKAGE','TYPE')
+      and owner = 'UT3'
+      and generated = 'N'
+      and object_name not like 'SYS%')
+  loop
+    execute immediate 'grant execute on ut3."'||i.object_name||'" to UT3_TESTER';
+  end loop;
+end;
+/
+
+PROMPT Granting $UT3_OWNER tables to $UT3_TESTER
+
+begin
+  for i in ( select table_name from all_tables t where  owner = 'UT3' and nested = 'NO' and IOT_TYPE is NULL)
+  loop
+    execute immediate 'grant select on UT3.'||i.table_name||' to UT3_TESTER';
+  end loop;
+end;
+/
+
+
+--------------------------------------------------------------------------------
+PROMPT Creating $UT3_USER - minimal privileges user for API testing
+
+create user $UT3_USER identified by "$UT3_USER_PASSWORD" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
+grant create session, create procedure, create type, create table to $UT3_USER;
+
+
+--------------------------------------------------------------------------------
+PROMPT Creating $UT3_TESTER_HELPER - provides functions to allow min grant test user setup tests.
+
+create user $UT3_TESTER_HELPER identified by "$UT3_TESTER_HELPER_PASSWORD" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
+grant create session, create procedure, create type, create table to $UT3_TESTER_HELPER;
+
+PROMPT Grants for testing distributed transactions
 grant create public database link to $UT3_TESTER_HELPER;
 grant drop public database link to  $UT3_TESTER_HELPER;
-set feedback on
---Needed for testing coverage outside of main UT3 schema.
+
+PROMPT Grants for testing coverage outside of main UT3 schema.
 grant create any procedure, drop any procedure, execute any procedure, create any type, drop any type, execute any type, under any type, select any table, update any table, insert any table, delete any table, create any table, drop any table, alter any table, select any dictionary, create any synonym, drop any synonym to $UT3_TESTER_HELPER;
 grant create job to $UT3_TESTER_HELPER;
---Needed to allow for enable/disable of annotation triggers
-grant administer database trigger to $UT3_TESTER_HELPER;
+
 exit
 SQL
