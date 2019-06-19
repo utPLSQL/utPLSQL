@@ -21,6 +21,6 @@
 @@install.sql &&ut3_owner
 @@create_synonyms_and_grants_for_public.sql &&ut3_owner
 
-@@install_ddl_trigger.sql
+@@install_ddl_trigger.sql &&ut3_owner
 
 exit

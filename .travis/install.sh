@@ -64,6 +64,10 @@ set feedback off
 whenever sqlerror exit failure rollback
 
 --------------------------------------------------------------------------------
+PROMPT Adding back create-trigger privilege to $UT3_OWNER for testing
+grant administer database trigger to $UT3_OWNER;
+
+--------------------------------------------------------------------------------
 PROMPT Creating $UT3_TESTER - Power-user for testing internal framework code
 
 create user $UT3_TESTER identified by "$UT3_TESTER_PASSWORD" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;

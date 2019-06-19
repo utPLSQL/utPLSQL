@@ -18,5 +18,7 @@
 @@define_ut3_owner_param.sql
 
 @@check_sys_grants.sql "'ADMINISTER DATABASE TRIGGER','CREATE TRIGGER'"
-@@install_component.sql 'core/annotations/ut_trigger_annotation_parsing.trg'
 
+grant administer database trigger to &&ut3_owner;
+@@install_component.sql 'core/annotations/ut_trigger_annotation_parsing.trg'
+revoke administer database trigger from &&ut3_owner;
