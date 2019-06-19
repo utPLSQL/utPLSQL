@@ -58,8 +58,8 @@ create or replace type body ut_data_value_json as
     l_diffs             ut_compound_data_helper.tt_json_diff_tab;
     l_message           varchar2(32767);
     
-    function get_diff_by_type(a_diff ut_compound_data_helper.tt_json_diff_tab) return clob is
-      l_diff_summary  ut_compound_data_helper.tt_json_diff_type_tab := ut_compound_data_helper.get_json_diffs_type(a_diff);
+    function get_diff_by_type(a_diff_id raw) return clob is
+      l_diff_summary  ut_compound_data_helper.tt_json_diff_type_tab := ut_compound_data_helper.get_json_diffs_type(a_diff_id);
       l_message_list  ut_varchar2_list := ut_varchar2_list();
     begin
       for i in 1..l_diff_summary.count loop
@@ -103,7 +103,7 @@ create or replace type body ut_data_value_json as
       l_message := ' '||l_diffs.count|| ' differences found' ||
         case when l_diffs.count > c_max_rows then ', showing first '|| c_max_rows else null end||chr(10);
       ut_utils.append_to_clob( l_result, l_message );
-      l_message := get_diff_by_type(l_diffs)||chr(10);
+      l_message := get_diff_by_type(l_diff_id)||chr(10);
       ut_utils.append_to_clob( l_result, l_message );
 
       for i in 1 .. least( c_max_rows, l_diffs.count ) loop
