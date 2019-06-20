@@ -491,7 +491,7 @@ create or replace package body ut_suite_manager is
               c.line_no,
               :a_random_seed]'
             else
-              ' {:owner:}.ut_annotation_manager.hash_suite_path(
+              ' {:owner:}.ut_runner.hash_suite_path(
                 c.path, :a_random_seed
               ) desc nulls last'
               end;
@@ -614,14 +614,9 @@ create or replace package body ut_suite_manager is
   begin
     ut_event_manager.trigger_event('refresh_cache - start');
     l_suite_cache_time := ut_suite_cache_manager.get_schema_parse_time(a_owner_name);
-    open l_annotations_cursor for
-    q'[select value(x)
-    from table(
-      ]' || ut_utils.ut_owner || q'[.ut_annotation_manager.get_annotated_objects(
-            :a_owner_name, 'PACKAGE', :a_suite_cache_parse_time
-          )
-        )x ]'
-    using a_owner_name, l_suite_cache_time;
+    l_annotations_cursor := ut_annotation_manager.get_annotated_objects(
+      a_owner_name, 'PACKAGE', l_suite_cache_time
+    );
 
     build_and_cache_suites(a_owner_name, l_annotations_cursor);
 

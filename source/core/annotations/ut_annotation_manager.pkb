@@ -331,11 +331,9 @@ create or replace package body ut_annotation_manager as
     end if;
   end;
 
-  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_parse_date timestamp := null) return ut_annotated_objects pipelined is
+  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_parse_date timestamp := null) return sys_refcursor is
     l_annotation_objs_info   ut_annotation_objs_cache_info;
     l_cursor                 sys_refcursor;
-    l_results                ut_annotated_objects;
-    c_object_fetch_limit     constant integer := 10;
     l_full_scan_needed       boolean := not ut_trigger_check.is_alive();
   begin
     ut_event_manager.trigger_event('get_annotated_objects - start');
@@ -344,54 +342,13 @@ create or replace package body ut_annotation_manager as
 
     --pipe annotations from cache
     l_cursor := ut_annotation_cache_manager.get_annotations_for_objects(l_annotation_objs_info, a_parse_date);
-    loop
-      fetch l_cursor bulk collect into l_results limit c_object_fetch_limit;
-      for i in 1 .. l_results.count loop
-        pipe row (l_results(i));
-      end loop;
-      exit when l_cursor%notfound;
-    end loop;
-    close l_cursor;
     ut_event_manager.trigger_event('get_annotated_objects - end');
+    return l_cursor;
   end;
 
   procedure purge_cache(a_object_owner varchar2, a_object_type varchar2) is
   begin
     ut_annotation_cache_manager.purge_cache(a_object_owner, a_object_type);
-  end;
-
-  function hash_suite_path(a_path varchar2, a_random_seed positiven) return varchar2 is
-    l_start_pos pls_integer := 1;
-    l_end_pos   pls_integer := 1;
-    l_result    varchar2(4000);
-    l_item      varchar2(4000);
-    l_at_end    boolean := false;
-  begin
-    if a_random_seed is null then
-      l_result := a_path;
-    end if;
-    if a_path is not null then
-      loop
-        l_end_pos := instr(a_path,'.',l_start_pos);
-        if l_end_pos = 0 then
-          l_end_pos := length(a_path)+1;
-          l_at_end  := true;
-          end if;
-        l_item := substr(a_path,l_start_pos,l_end_pos-l_start_pos);
-        if l_item is not null then
-          l_result  :=
-            l_result ||
-            dbms_crypto.hash(
-              to_char( dbms_utility.get_hash_value( l_item, 1, a_random_seed ) ),
-                  dbms_crypto.hash_sh1
-                );
-        end if;
-        exit when l_at_end;
-        l_result  := l_result || chr(0);
-        l_start_pos := l_end_pos + 1;
-      end loop;
-    end if;
-    return l_result;
   end;
 
 end ut_annotation_manager;
