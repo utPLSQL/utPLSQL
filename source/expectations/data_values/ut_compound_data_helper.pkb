@@ -724,12 +724,13 @@ create or replace package body ut_compound_data_helper is
     return l_diffs.count;
   end;
   
-  function get_json_diffs_type(a_diffs_all tt_json_diff_tab) return tt_json_diff_type_tab is
+  function get_json_diffs_type(a_diff_id raw) return tt_json_diff_type_tab is
     l_diffs_summary tt_json_diff_type_tab := tt_json_diff_type_tab();
   begin
     select d.difference_type,count(1) 
     bulk collect into l_diffs_summary
-    from table(a_diffs_all) d
+    from ut_json_data_diff_tmp d
+    where diff_id = a_diff_id
     group by d.difference_type;
     
     return l_diffs_summary;
