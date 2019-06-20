@@ -110,7 +110,7 @@ create or replace package body main_helper is
     execute immediate q'[
     create or replace procedure ut3$user#.parse_annotations is
       begin
-        ut3.ut_annotation_manager.rebuild_annotation_cache('UT3_TESTER','PACKAGE');
+        ut3.ut_runner.rebuild_annotation_cache('UT3_TESTER','PACKAGE');
       end;]';
   end;
 

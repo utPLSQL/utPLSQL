@@ -140,5 +140,10 @@ create or replace package ut_runner authid current_user is
    */
   function get_reporters_list return tt_reporters_info pipelined;
 
+  /*
+  * Returns a hash value of suitepath based on input path and random seed
+  */
+  function hash_suite_path(a_path varchar2, a_random_seed positiven) return varchar2;
+
 end ut_runner;
 /
