@@ -2849,15 +2849,19 @@ Check the query and data for errors.';
     l_expected sys_refcursor;
   begin
     -- populate actual
-    open l_actual for
-      select rownum as id, '1' some_column_with_a_pretty_long_enough_name from dual;
+    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+      open l_actual for
+        select rownum as id, '1' some_column_with_a_pretty_long_enough_name from dual;
 
-    open l_expected for
-      select rownum as id, '1' some_column_with_a_pretty_long_enough_name from dual;
+      open l_expected for
+        select rownum as id, '1' some_column_with_a_pretty_long_enough_name from dual;
 
-    ut3.ut.expect(l_actual).to_equal(l_expected).include('ID,SOME_COLUMN_WITH_A_PRETTY_LONG_ENOUGH_NAME').join_by('ID');
-    --Assert
-    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+      ut3.ut.expect(l_actual).to_equal(l_expected).include('ID,SOME_COLUMN_WITH_A_PRETTY_LONG_ENOUGH_NAME').join_by('ID');
+      --Assert
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    $else
+      null;
+    $end
   end;
 
 end;
