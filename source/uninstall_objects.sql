@@ -174,8 +174,6 @@ drop table ut_compound_data_diff_tmp purge;
 
 drop table ut_json_data_diff_tmp;
 
-drop trigger ut_trigger_annotation_parsing;
-
 drop package ut_annotation_manager;
 
 drop package ut_annotation_parser;
