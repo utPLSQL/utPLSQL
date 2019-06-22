@@ -16,6 +16,7 @@ create or replace package body ut_annotation_manager as
   limitations under the License.
   */
 
+  gc_max_objects_limit integer := 1000000;
   ------------------------------
   --private definitions
 
@@ -24,29 +25,28 @@ create or replace package body ut_annotation_manager as
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
     l_objects_view varchar2(200) := ut_metadata.get_objects_view_name();
     l_cursor_text  varchar2(32767);
+    l_data         ut_annotation_objs_cache_info;
     l_result       ut_annotation_objs_cache_info;
+    l_card         natural;
   begin
+    l_data := ut_annotation_cache_manager.get_annotations_objects_info(a_object_owner, a_object_type);
+    l_card := ut_utils.scale_cardinality(cardinality(l_data));
+
     l_cursor_text :=
-      q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
-                    object_owner => i.object_owner,
-                    object_name => i.object_name,
-                    object_type => i.object_type,
-                    needs_refresh => null
-                  )
-           from ]'||l_ut_owner||q'[.ut_annotation_cache_info i
+      'select /*+ cardinality(i '||l_card||') */
+                value(i)
+           from table( cast( :l_data as '||l_ut_owner||'.ut_annotation_objs_cache_info ) ) i
            where
              not exists (
-                select 1  from ]'||l_objects_view||q'[ o
+                select 1  from '||l_objects_view||q'[ o
                  where o.owner = i.object_owner
                    and o.object_name = i.object_name
                    and o.object_type = i.object_type
-                   and o.owner = :a_object_owner
-                   and o.object_type = :a_object_type
-                )
-            and i.object_owner = :a_object_owner
-            and i.object_type = :a_object_type]';
-    open l_rows for l_cursor_text  using a_object_owner, a_object_type, a_object_owner, a_object_type;
-    fetch l_rows bulk collect into l_result limit 1000000;
+                   and o.owner       = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
+                   and o.object_type = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
+                )]';
+    open l_rows for l_cursor_text  using l_data;
+    fetch l_rows bulk collect into l_result limit gc_max_objects_limit;
     close l_rows;
     return l_result;
   end;
@@ -61,80 +61,45 @@ create or replace package body ut_annotation_manager as
     l_ut_owner      varchar2(250) := ut_utils.ut_owner;
     l_objects_view  varchar2(200) := ut_metadata.get_objects_view_name();
     l_cursor_text   varchar2(32767);
+    l_data          ut_annotation_objs_cache_info;
     l_result        ut_annotation_objs_cache_info;
-    l_object_owner  varchar2(250);
-    l_object_type   varchar2(250);
   begin
     ut_event_manager.trigger_event(
       'get_annotation_objs_info - start ( a_full_scan = ' || ut_utils.to_string(a_full_scan) || ' )'
     );
+
+    l_data := ut_annotation_cache_manager.get_annotations_objects_info(a_object_owner, a_object_type);
+
     if not a_full_scan then
-      l_cursor_text :=
-        q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
-                      object_owner  => i.object_owner,
-                      object_name   => i.object_name,
-                      object_type   => i.object_type,
-                      needs_refresh => 'N'
-                    )
-             from ]'||l_ut_owner||q'[.ut_annotation_cache_info i
-            where i.object_owner = :a_object_owner
-              and i.object_type  = :a_object_type]';
-      open l_rows for l_cursor_text  using a_object_owner, a_object_type;
+      l_result := l_data;
     else
-      if a_object_owner is not null then
-        l_object_owner := sys.dbms_assert.qualified_sql_name(a_object_owner);
-      end if;
-      if a_object_type is not null then
-        l_object_type := sys.dbms_assert.qualified_sql_name(a_object_type);
-      end if;
       l_cursor_text :=
-        q'[select ]'||l_ut_owner||q'[.ut_annotation_obj_cache_info(
-                      object_owner  => o.owner,
-                      object_name   => o.object_name,
-                      object_type   => o.object_type,
-                      needs_refresh => case when o.last_ddl_time < cast(i.parse_time as date) then 'N' else 'Y' end
-                    )
-             from ]'||l_objects_view||q'[ o
-             left join ]'||l_ut_owner||q'[.ut_annotation_cache_info i
+        'select /*+ cardinality(i '||ut_utils.scale_cardinality(cardinality(l_data))||') */
+                  '||l_ut_owner||q'[.ut_annotation_obj_cache_info(
+                    object_owner  => o.owner,
+                    object_name   => o.object_name,
+                    object_type   => o.object_type,
+                    needs_refresh => case when o.last_ddl_time < cast(i.parse_time as date) then 'N' else 'Y' end,
+                    parse_time    => i.parse_time
+                  )
+             from ]'||l_objects_view||' o
+             left join table( cast(:l_data as '||l_ut_owner||q'[.ut_annotation_objs_cache_info ) ) i
                on o.owner       = i.object_owner
               and o.object_name = i.object_name
               and o.object_type = i.object_type
-            where o.owner       = ']'||l_object_owner||q'['
-              and o.object_type = ']'||l_object_type||q'['
+            where o.owner       = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
+              and o.object_type = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
               and ]'
           || case
              when a_parse_date is null
                then ':a_parse_date is null'
              else 'o.last_ddl_time >= cast(:a_parse_date as date)'
              end;
-      open l_rows for l_cursor_text  using a_parse_date;
+      open l_rows for l_cursor_text  using l_data, a_parse_date;
+      fetch l_rows bulk collect into l_result limit gc_max_objects_limit;
+      close l_rows;
     end if;
-    fetch l_rows bulk collect into l_result limit 10000000;
-    close l_rows;
     ut_event_manager.trigger_event('get_annotation_objs_info - end (count='||l_result.count||')');
-    return l_result;
-  end;
-
-  function get_sources_to_annotate(a_object_owner varchar2, a_object_type varchar2) return sys_refcursor is
-    l_result       sys_refcursor;
-    l_sources_view varchar2(200) := ut_metadata.get_source_view_name();
-  begin
-    open l_result for
-     q'[select s.name, s.text
-          from (select s.name, s.text, s.line,
-                       max(case when s.text like '%--%\%%' escape '\'
-                                 and regexp_like(s.text,'--\s*%')
-                           then 'Y' else 'N' end
-                          )
-                         over(partition by s.name) is_annotated
-                  from ]'||l_sources_view||q'[ s
-                 where s.type = :a_object_type
-                   and s.owner = :a_object_owner
-               ) s
-         where s.is_annotated = 'Y'
-         order by s.name, s.line]'
-      using a_object_type, a_object_owner, a_object_type, a_object_owner;
-
     return l_result;
   end;
 
@@ -158,12 +123,12 @@ create or replace package body ut_annotation_manager as
                     on s.name = r.object_name
                    and s.owner = r.object_owner
                    and s.type = r.object_type
-                 where s.type = :a_object_type
-                   and s.owner = :a_object_owner
+                 where s.owner       = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
+                   and s.type        = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
                ) s
          where s.is_annotated = 'Y'
           order by s.name, s.line]'
-      using a_objects_to_refresh, a_object_type, a_object_owner;
+      using a_objects_to_refresh;
 
     return l_result;
   end;
@@ -257,7 +222,6 @@ create or replace package body ut_annotation_manager as
   procedure trigger_obj_annotation_rebuild is
     l_sql_text         ora_name_list_t;
     l_parts            binary_integer;
-    l_object_to_parse  ut_annotation_obj_cache_info;
     l_restricted_users ora_name_list_t;
 
     function get_source_from_sql_text(a_object_name varchar2, a_sql_text ora_name_list_t, a_parts binary_integer) return sys_refcursor is
@@ -312,8 +276,6 @@ create or replace package body ut_annotation_manager as
         return;
       end if;
 
-      l_object_to_parse := ut_annotation_obj_cache_info(ora_dict_obj_owner, ora_dict_obj_name, ora_dict_obj_type, 'Y');
-
       if ora_sysevent = 'CREATE' then
         l_parts := ORA_SQL_TXT(l_sql_text);
         build_annot_cache_for_sources(
@@ -324,9 +286,13 @@ create or replace package body ut_annotation_manager as
         build_annot_cache_for_sources(
           ora_dict_obj_owner, ora_dict_obj_type,
           get_source_for_object(ora_dict_obj_owner, ora_dict_obj_name, ora_dict_obj_type)
-          );
+        );
       elsif ora_sysevent = 'DROP' then
-        ut_annotation_cache_manager.remove_from_cache(ut_annotation_objs_cache_info(l_object_to_parse));
+        ut_annotation_cache_manager.remove_from_cache(
+          ut_annotation_objs_cache_info(
+            ut_annotation_obj_cache_info(ora_dict_obj_owner, ora_dict_obj_name, ora_dict_obj_type, 'Y', null)
+          )
+        );
       end if;
     end if;
   end;

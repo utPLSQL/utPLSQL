@@ -285,10 +285,7 @@ create or replace package body ut_runner is
         if l_item is not null then
           l_result  :=
             l_result ||
-              dbms_crypto.hash(
-                to_char( dbms_utility.get_hash_value( l_item, 1, a_random_seed ) ),
-                dbms_crypto.hash_sh1
-                );
+              ut_utils.get_hash( to_char( dbms_utility.get_hash_value( l_item, 1, a_random_seed ) ) );
           end if;
         exit when l_at_end;
         l_result  := l_result || chr(0);

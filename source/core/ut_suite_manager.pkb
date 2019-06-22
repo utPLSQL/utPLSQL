@@ -401,20 +401,22 @@ create or replace package body ut_suite_manager is
     l_cursor_text  varchar2(32767);
     l_result       ut_varchar2_rows;
     l_object_owner varchar2(250);
+    l_data         ut_annotation_objs_cache_info;
   begin
-    l_object_owner := sys.dbms_assert.qualified_sql_name(a_object_owner);
+    l_object_owner := ut_utils.qualified_sql_name(a_object_owner);
+    l_data := ut_annotation_cache_manager.get_annotations_objects_info(a_object_owner, 'PACKAGE');
     l_cursor_text :=
       q'[select i.object_name
          from ]'||l_ut_owner||q'[.ut_suite_cache_package i
          where
            not exists (
-              select 1  from ]'||l_ut_owner||q'[.ut_annotation_cache_info o
+              select 1  from table(:l_data) o
                where o.object_owner = i.object_owner
                  and o.object_name = i.object_name
                  and o.object_type = 'PACKAGE'
               )
           and i.object_owner = ']'||l_object_owner||q'[']';
-    open l_rows for l_cursor_text;
+    open l_rows for l_cursor_text using l_data;
     fetch l_rows bulk collect into l_result limit 1000000;
     close l_rows;
     return l_result;
@@ -516,15 +518,9 @@ create or replace package body ut_suite_manager is
     l_object_name     varchar2(250);
     l_procedure_name  varchar2(250);
   begin
-    if a_object_owner is not null then
-      l_object_owner := sys.dbms_assert.qualified_sql_name(a_object_owner);
-      end if;
-    if a_object_name is not null then
-      l_object_name := sys.dbms_assert.qualified_sql_name(a_object_name);
-      end if;
-    if a_procedure_name is not null then
-      l_procedure_name := sys.dbms_assert.qualified_sql_name(a_procedure_name);
-      end if;
+    l_object_owner   := ut_utils.qualified_sql_name(a_object_owner);
+    l_object_name    := ut_utils.qualified_sql_name(a_object_name);
+    l_procedure_name := ut_utils.qualified_sql_name(a_procedure_name);
     if a_path is null and a_object_name is not null then
       execute immediate 'select min(path)
       from '||l_ut_owner||q'[.ut_suite_cache
@@ -533,9 +529,7 @@ create or replace package body ut_suite_manager is
            and name = nvl(:a_procedure_name, name)]'
       into l_path using upper(l_object_owner), upper(l_object_name), upper(a_procedure_name);
     else
-      if a_path is not null then
-        l_path := lower(sys.dbms_assert.qualified_sql_name(a_path));
-      end if;
+      l_path := lower(ut_utils.qualified_sql_name(a_path));
     end if;
     l_suite_item_name := case when l_tags.count > 0 then 'suite_items_tags' else 'suite_items' end;
 
@@ -804,12 +798,8 @@ create or replace package body ut_suite_manager is
     l_owner_name   varchar2(250);
     l_package_name varchar2(250);
   begin
-    if a_owner_name is not null then
-      l_owner_name := sys.dbms_assert.qualified_sql_name(a_owner_name);
-    end if;
-    if a_package_name is not null then
-      l_package_name := sys.dbms_assert.qualified_sql_name(a_package_name);
-    end if;
+    l_owner_name := ut_utils.qualified_sql_name(a_owner_name);
+    l_package_name := ut_utils.qualified_sql_name(a_package_name);
 
     refresh_cache(l_owner_name);
     
@@ -894,15 +884,9 @@ create or replace package body ut_suite_manager is
     l_package_name   varchar2(250);
     l_procedure_name varchar2(250);
   begin
-    if a_owner_name is not null then
-      l_owner_name := sys.dbms_assert.qualified_sql_name(a_owner_name);
-    end if;
-    if a_package_name is not null then
-      l_package_name := sys.dbms_assert.qualified_sql_name(a_package_name);
-    end if;
-    if a_procedure_name is not null then
-      l_procedure_name := sys.dbms_assert.qualified_sql_name(a_procedure_name);
-    end if;
+    l_owner_name := ut_utils.qualified_sql_name(a_owner_name);
+    l_package_name := ut_utils.qualified_sql_name(a_package_name);
+    l_procedure_name := ut_utils.qualified_sql_name(a_procedure_name);
 
     refresh_cache(l_owner_name);
 

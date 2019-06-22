@@ -31,6 +31,17 @@ whenever oserror exit failure rollback
 
 alter session set current_schema = &&ut3_owner;
 
+--public API
+grant execute on &&ut3_owner..ut to public;
+grant execute on &&ut3_owner..ut_runner to public;
+grant execute on &&ut3_owner..ut_file_mappings to public;
+grant execute on &&ut3_owner..ut_file_mapping to public;
+grant execute on &&ut3_owner..ut_file_mapper to public;
+grant execute on &&ut3_owner..ut_key_value_pairs to public;
+grant execute on &&ut3_owner..ut_key_value_pair to public;
+grant execute on &&ut3_owner..ut_suite_items_info to public;
+grant execute on &&ut3_owner..ut_suite_item_info to public;
+
 --expectations
 grant execute on &&ut3_owner..ut_expectation to public;
 grant execute on &&ut3_owner..ut_expectation_compound to public;
@@ -51,15 +62,6 @@ grant execute on &&ut3_owner..ut_be_true to public;
 grant execute on &&ut3_owner..ut_equal to public;
 grant execute on &&ut3_owner..ut_have_count to public;
 grant execute on &&ut3_owner..ut_match to public;
-
---public API
-grant execute on &&ut3_owner..ut to public;
-grant execute on &&ut3_owner..ut_runner to public;
-grant execute on &&ut3_owner..ut_file_mappings to public;
-grant execute on &&ut3_owner..ut_file_mapping to public;
-grant execute on &&ut3_owner..ut_file_mapper to public;
-grant execute on &&ut3_owner..ut_key_value_pairs to public;
-grant execute on &&ut3_owner..ut_key_value_pair to public;
 
 --generic types
 grant execute on &&ut3_owner..ut_varchar2_list to public;
@@ -103,30 +105,24 @@ grant execute on &&ut3_owner..ut_output_clob_table_buffer to public;
 grant select, insert, update, delete on &&ut3_owner..ut_compound_data_tmp to public;
 grant select, insert, update, delete on &&ut3_owner..ut_compound_data_diff_tmp to public;
 
-grant execute on &&ut3_owner..ut_annotations to public;
-grant execute on &&ut3_owner..ut_annotation to public;
-grant execute on &&ut3_owner..ut_annotated_object to public;
-grant execute on &&ut3_owner..ut_annotated_objects to public;
-grant select on &&ut3_owner..ut_annotation_cache_info to public;
-grant select on &&ut3_owner..ut_annotation_cache to public;
-
+--other grants
 grant execute on &&ut3_owner..ut_executables to public;
 grant execute on &&ut3_owner..ut_executable_test to public;
 grant select on &&ut3_owner..ut_suite_cache to public;
 grant select on &&ut3_owner..ut_suite_cache_package to public;
 grant select on &&ut3_owner..ut_suite_cache_schema to public;
-grant execute on &&ut3_owner..ut_annotation_cache_manager to public;
-grant execute on &&ut3_owner..ut_annotation_parser to public;
+
+--needed for selecting from annotation objects
 grant execute on &&ut3_owner..ut_annotation_objs_cache_info to public;
 grant execute on &&ut3_owner..ut_annotation_obj_cache_info to public;
-grant execute on &&ut3_owner..ut_suite_items_info to public;
-grant execute on &&ut3_owner..ut_suite_item_info to public;
+
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to public;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs   to public;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_units  to public;
 grant execute on &&ut3_owner..ut_matcher_options to public;
 grant execute on &&ut3_owner..ut_matcher_options_items to public;
 grant execute on &&ut3_owner..ut_run_info to public;
+
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 

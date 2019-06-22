@@ -97,7 +97,7 @@ end;
 PROMPT Granting $UT3_OWNER tables to $UT3_TESTER
 
 begin
-  for i in ( select table_name from all_tables t where  owner = 'UT3' and nested = 'NO' and IOT_TYPE is NULL)
+  for i in ( select table_name from all_tables t where  owner = 'UT3' and nested = 'NO' and IOT_NAME is NULL)
   loop
     execute immediate 'grant select on UT3.'||i.table_name||' to UT3_TESTER';
   end loop;

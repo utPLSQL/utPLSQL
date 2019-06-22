@@ -51,6 +51,17 @@ whenever oserror exit failure rollback
 
 alter session set current_schema = &&ut3_owner;
 
+--public API
+grant execute on &&ut3_owner..ut to &ut3_user;
+grant execute on &&ut3_owner..ut_runner to &ut3_user;
+grant execute on &&ut3_owner..ut_file_mappings to &ut3_user;
+grant execute on &&ut3_owner..ut_file_mapping to &ut3_user;
+grant execute on &&ut3_owner..ut_file_mapper to &ut3_user;
+grant execute on &&ut3_owner..ut_key_value_pairs to &ut3_user;
+grant execute on &&ut3_owner..ut_key_value_pair to &ut3_user;
+grant execute on &&ut3_owner..ut_suite_items_info to &ut3_user;
+grant execute on &&ut3_owner..ut_suite_item_info to &ut3_user;
+
 --expectations
 grant execute on &&ut3_owner..ut_expectation to &ut3_user;
 grant execute on &&ut3_owner..ut_expectation_compound to &ut3_user;
@@ -72,15 +83,6 @@ grant execute on &&ut3_owner..ut_equal to &ut3_user;
 grant execute on &&ut3_owner..ut_have_count to &ut3_user;
 grant execute on &&ut3_owner..ut_match to &ut3_user;
 
---public API
-grant execute on &&ut3_owner..ut to &ut3_user;
-grant execute on &&ut3_owner..ut_runner to &ut3_user;
-grant execute on &&ut3_owner..ut_file_mappings to &ut3_user;
-grant execute on &&ut3_owner..ut_file_mapping to &ut3_user;
-grant execute on &&ut3_owner..ut_file_mapper to &ut3_user;
-grant execute on &&ut3_owner..ut_key_value_pairs to &ut3_user;
-grant execute on &&ut3_owner..ut_key_value_pair to &ut3_user;
-
 --generic types
 grant execute on &&ut3_owner..ut_varchar2_list to &ut3_user;
 grant execute on &&ut3_owner..ut_varchar2_rows to &ut3_user;
@@ -97,6 +99,7 @@ grant execute on &&ut3_owner..ut_coverage_html_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_sonar_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_coveralls_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_cobertura_reporter to &ut3_user;
+grant execute on &&ut3_owner..ut_realtime_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_sonar_test_reporter to &ut3_user;
 
 --reporters base
@@ -122,23 +125,17 @@ grant execute on &&ut3_owner..ut_output_clob_table_buffer to &ut3_user;
 grant select, insert, update, delete on &&ut3_owner..ut_compound_data_tmp to &ut3_user;
 grant select, insert, update, delete on &&ut3_owner..ut_compound_data_diff_tmp to &ut3_user;
 
-grant execute on &&ut3_owner..ut_annotations to &ut3_user;
-grant execute on &&ut3_owner..ut_annotation to &ut3_user;
-grant execute on &&ut3_owner..ut_annotated_object to &ut3_user;
-grant execute on &&ut3_owner..ut_annotated_objects to &ut3_user;
-grant select on &&ut3_owner..ut_annotation_cache_info to &ut3_user;
-grant select on &&ut3_owner..ut_annotation_cache to &ut3_user;
-
+--other grants
 grant execute on &&ut3_owner..ut_executables to &ut3_user;
 grant execute on &&ut3_owner..ut_executable_test to &ut3_user;
 grant select on &&ut3_owner..ut_suite_cache to &ut3_user;
 grant select on &&ut3_owner..ut_suite_cache_package to &ut3_user;
 grant select on &&ut3_owner..ut_suite_cache_schema to &ut3_user;
-grant execute on &&ut3_owner..ut_annotation_cache_manager to &ut3_user;
-grant execute on &&ut3_owner..ut_annotation_parser to &ut3_user;
+
+--needed for selecting from annotation objects
 grant execute on &&ut3_owner..ut_annotation_objs_cache_info to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation_obj_cache_info to &ut3_user;
-grant execute on &&ut3_owner..ut_realtime_reporter to &ut3_user;
+
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to &ut3_user;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs to &ut3_user;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_units to &ut3_user;

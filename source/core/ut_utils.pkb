@@ -865,5 +865,24 @@ create or replace package body ut_utils is
     return regexp_replace(a_item,a_prefix||a_connector);
   end;
 
+  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
+  begin
+    return dbms_crypto.hash(a_data, a_hash_type);
+  end;
+
+  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
+  begin
+    return dbms_crypto.hash(a_data, a_hash_type);
+  end;
+
+  function qualified_sql_name(a_name varchar2) return varchar2 is
+  begin
+    return
+        case
+          when a_name is not null
+          then sys.dbms_assert.qualified_sql_name(a_name)
+        end;
+  end;
+
 end ut_utils;
 /

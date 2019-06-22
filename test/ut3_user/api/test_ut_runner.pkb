@@ -198,54 +198,64 @@ end;';
   procedure test_purge_cache_schema_type is
     l_actual sys_refcursor;
   begin
+    --Arrange
+    l_actual := ut3_tester_helper.run_helper.get_annotation_cache_info_cur(
+      a_owner => sys_context('USERENV', 'CURRENT_USER'),
+      a_type => 'PROCEDURE'
+      );
 
-    open l_actual for
-      select * from ut3.ut_annotation_cache_info
-       where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PROCEDURE';
     ut.expect(l_actual).not_to_be_empty();
 
     --Act
     ut3.ut_runner.purge_cache(sys_context('USERENV', 'CURRENT_USER'),'PROCEDURE');
 
     --Assert
-    open l_actual for
-      select * from ut3.ut_annotation_cache_info
-       where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PROCEDURE';
+    
+    l_actual := ut3_tester_helper.run_helper.get_annotation_cache_info_cur(
+      a_owner => sys_context('USERENV', 'CURRENT_USER'),
+      a_type => 'PROCEDURE'
+      );
     --Cache purged for object owner/type
     ut.expect(l_actual).to_be_empty();
-    open l_actual for
-      select * from ut3.ut_annotation_cache_info
-       where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PACKAGE';
+
+    l_actual := ut3_tester_helper.run_helper.get_annotation_cache_info_cur(
+      a_owner => sys_context('USERENV', 'CURRENT_USER'),
+      a_type => 'PACKAGE'
+      );
     --Cache not purged for other types
     ut.expect(l_actual).not_to_be_empty();
-    open l_actual for
-      select * from ut3.ut_annotation_cache_info
-       where object_owner = 'UT3_TESTER_HELPER' and object_type = 'PROCEDURE';
+
+    l_actual := ut3_tester_helper.run_helper.get_annotation_cache_info_cur(
+      a_owner => 'UT3_TESTER_HELPER',
+      a_type => 'PROCEDURE'
+      );
     --Cache not purged for other owners
     ut.expect(l_actual).not_to_be_empty();
 
   end;
 
   procedure test_rebuild_cache_schema_type is
-    l_actual integer;
+    l_actual sys_refcursor;
   begin
     --Act
-    ut3.ut_runner.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
+    ut3.ut_runner.rebuild_annotation_cache( sys_context('USERENV', 'CURRENT_USER'), 'PACKAGE' );
     --Assert
-    select count(1) into l_actual
-      from ut3.ut_annotation_cache_info i
-      join ut3.ut_annotation_cache c on c.cache_id = i.cache_id
-     where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PACKAGE' and object_name = 'DUMMY_TEST_PACKAGE';
-    --Rebuild cache for sys_context('USERENV', 'CURRENT_USER')/packages
-    ut.expect(l_actual).to_equal(4);
+    l_actual := ut3_tester_helper.run_helper.get_annotation_cache_cursor(
+      a_owner => sys_context('USERENV', 'CURRENT_USER'),
+      a_type => 'PACKAGE',
+      a_name => 'DUMMY_TEST_PACKAGE'
+      );
 
-    select count(1) into l_actual
-      from ut3.ut_annotation_cache_info i
-      join ut3.ut_annotation_cache c on c.cache_id = i.cache_id
-     where object_owner = 'UT3_TESTER_HELPER' and object_type = 'PROCEDURE';
+    --Rebuild cache for sys_context('USERENV', 'CURRENT_USER')/packages
+    ut.expect(l_actual).to_have_count(4);
+
+    l_actual := ut3_tester_helper.run_helper.get_annotation_cache_cursor(
+      a_owner => sys_context('USERENV', 'CURRENT_USER'),
+      a_type => 'PACKAGE'
+      );
 
     --Did not rebuild cache for ut3/procedures
-    ut.expect(l_actual).to_equal(0);
+    ut.expect(l_actual).to_have_count(0);
   end;
 
   procedure test_get_suites_info_notag is

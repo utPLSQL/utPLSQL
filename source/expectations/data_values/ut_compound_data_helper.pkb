@@ -210,7 +210,7 @@ create or replace package body ut_compound_data_helper is
     l_ut_owner varchar2(250) := ut_utils.ut_owner;
   begin    
     if a_data_info.is_sql_diffable = 0 then 
-      l_col_syntax :=  l_ut_owner ||'.ut_compound_data_helper.get_hash('||l_alias||a_data_info.transformed_name||'.getClobVal()) as '||a_data_info.transformed_name ;
+      l_col_syntax :=  l_ut_owner ||'.ut_utils.get_hash('||l_alias||a_data_info.transformed_name||'.getClobVal()) as '||a_data_info.transformed_name ;
     elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type = 'DATE' then
       l_col_syntax :=  'to_date('||l_alias||a_data_info.transformed_name||') as '|| a_data_info.transformed_name;
     elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('TIMESTAMP') then
@@ -536,16 +536,6 @@ create or replace package body ut_compound_data_helper is
     return l_results;
   end;
   
-  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
-  begin
-    return dbms_crypto.hash(a_data, a_hash_type);
-  end;
-
-  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
-  begin
-    return dbms_crypto.hash(a_data, a_hash_type);
-  end;
-
   function get_fixed_size_hash(a_string varchar2, a_base integer :=0,a_size integer := 9999999) return number is
   begin
     return dbms_utility.get_hash_value(a_string,a_base,a_size);
