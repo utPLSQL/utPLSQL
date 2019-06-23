@@ -53,10 +53,28 @@ alter session set current_schema = &&ut3_owner;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to user &&ut3_user
 
+--public API
+create or replace synonym &ut3_user..ut for &&ut3_owner..ut;
+create or replace synonym &ut3_user..ut_runner for &&ut3_owner..ut_runner;
+create or replace synonym &ut3_user..ut_file_mappings for &&ut3_owner..ut_file_mappings;
+create or replace synonym &ut3_user..ut_file_mapping for &&ut3_owner..ut_file_mapping;
+create or replace synonym &ut3_user..ut_file_mapper for &&ut3_owner..ut_file_mapper;
+create or replace synonym &ut3_user..ut_suite_items_info for &&ut3_owner..ut_suite_items_info;
+create or replace synonym &ut3_user..ut_suite_item_info for &&ut3_owner..ut_suite_item_info;
+
+--generic types
+create or replace synonym &ut3_user..ut_varchar2_list for &&ut3_owner..ut_varchar2_list;
+create or replace synonym &ut3_user..ut_varchar2_rows for &&ut3_owner..ut_varchar2_rows;
+create or replace synonym &ut3_user..ut_integer_list for &&ut3_owner..ut_integer_list;
+create or replace synonym &ut3_user..ut_key_value_pairs for &&ut3_owner..ut_key_value_pairs;
+create or replace synonym &ut3_user..ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
+
+--expectations
 create or replace synonym &ut3_user..ut_expectation for &&ut3_owner..ut_expectation;
 create or replace synonym &ut3_user..ut_expectation_compound for &&ut3_owner..ut_expectation_compound;
 create or replace synonym &ut3_user..ut_expectation_json for &&ut3_owner..ut_expectation_json;
 
+--matchers
 create or replace synonym &ut3_user..be_between for &&ut3_owner..be_between;
 create or replace synonym &ut3_user..be_empty for &&ut3_owner..be_empty;
 create or replace synonym &ut3_user..be_false for &&ut3_owner..be_false;
@@ -73,40 +91,34 @@ create or replace synonym &ut3_user..equal for &&ut3_owner..equal;
 create or replace synonym &ut3_user..have_count for &&ut3_owner..have_count;
 create or replace synonym &ut3_user..match for &&ut3_owner..match;
 
-create or replace synonym &ut3_user..ut for &&ut3_owner..ut;
-create or replace synonym &ut3_user..ut_runner for &&ut3_owner..ut_runner;
-create or replace synonym &ut3_user..ut_debug_reporter for &&ut3_owner..ut_debug_reporter;
+
+--reporters - test results
 create or replace synonym &ut3_user..ut_teamcity_reporter for &&ut3_owner..ut_teamcity_reporter;
 create or replace synonym &ut3_user..ut_xunit_reporter for &&ut3_owner..ut_xunit_reporter;
 create or replace synonym &ut3_user..ut_junit_reporter for &&ut3_owner..ut_junit_reporter;
 create or replace synonym &ut3_user..ut_tfs_junit_reporter for &&ut3_owner..ut_tfs_junit_reporter;
 create or replace synonym &ut3_user..ut_documentation_reporter for &&ut3_owner..ut_documentation_reporter;
+create or replace synonym &ut3_user..ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
+create or replace synonym &ut3_user..ut_realtime_reporter for &&ut3_owner..ut_realtime_reporter;
+--reporters - coverage
 create or replace synonym &ut3_user..ut_coverage_html_reporter for &&ut3_owner..ut_coverage_html_reporter;
 create or replace synonym &ut3_user..ut_coverage_sonar_reporter for &&ut3_owner..ut_coverage_sonar_reporter;
 create or replace synonym &ut3_user..ut_coveralls_reporter for &&ut3_owner..ut_coveralls_reporter;
 create or replace synonym &ut3_user..ut_coverage_cobertura_reporter for &&ut3_owner..ut_coverage_cobertura_reporter;
+--reporters - debug
+create or replace synonym &ut3_user..ut_debug_reporter for &&ut3_owner..ut_debug_reporter;
+--reporters - base types
 create or replace synonym &ut3_user..ut_reporters for &&ut3_owner..ut_reporters;
-create or replace synonym &ut3_user..ut_varchar2_list for &&ut3_owner..ut_varchar2_list;
-create or replace synonym &ut3_user..ut_varchar2_rows for &&ut3_owner..ut_varchar2_rows;
-create or replace synonym &ut3_user..ut_integer_list for &&ut3_owner..ut_integer_list;
 create or replace synonym &ut3_user..ut_reporter_base for &&ut3_owner..ut_reporter_base;
 create or replace synonym &ut3_user..ut_output_reporter_base for &&ut3_owner..ut_output_reporter_base;
+
+--other synonyms
 create or replace synonym &ut3_user..ut_output_data_row for &&ut3_owner..ut_output_data_row;
 create or replace synonym &ut3_user..ut_output_data_rows for &&ut3_owner..ut_output_data_rows;
-create or replace synonym &ut3_user..ut_coverage for &&ut3_owner..ut_coverage;
-create or replace synonym &ut3_user..ut_coverage_options for &&ut3_owner..ut_coverage_options;
-create or replace synonym &ut3_user..ut_coverage_helper for &&ut3_owner..ut_coverage_helper;
 create or replace synonym &ut3_user..ut_output_buffer_base for &&ut3_owner..ut_output_buffer_base;
 create or replace synonym &ut3_user..ut_output_table_buffer for &&ut3_owner..ut_output_table_buffer;
 create or replace synonym &ut3_user..ut_output_clob_table_buffer for &&ut3_owner..ut_output_clob_table_buffer;
-create or replace synonym &ut3_user..ut_file_mappings for &&ut3_owner..ut_file_mappings;
-create or replace synonym &ut3_user..ut_file_mapping for &&ut3_owner..ut_file_mapping;
-create or replace synonym &ut3_user..ut_file_mapper for &&ut3_owner..ut_file_mapper;
-create or replace synonym &ut3_user..ut_key_value_pairs for &&ut3_owner..ut_key_value_pairs;
-create or replace synonym &ut3_user..ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
-create or replace synonym &ut3_user..ut_compound_data_tmp for &&ut3_owner..ut_cursor_data;
-create or replace synonym &ut3_user..ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
-create or replace synonym &ut3_user..ut_realtime_reporter for &&ut3_owner..ut_realtime_reporter;
+
 create or replace synonym &ut3_user..dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks;
 create or replace synonym &ut3_user..dbmspcc_runs for &&ut3_owner..dbmspcc_runs;
 create or replace synonym &ut3_user..dbmspcc_units for &&ut3_owner..dbmspcc_units;

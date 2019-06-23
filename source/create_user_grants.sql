@@ -57,10 +57,15 @@ grant execute on &&ut3_owner..ut_runner to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mappings to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mapping to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mapper to &ut3_user;
-grant execute on &&ut3_owner..ut_key_value_pairs to &ut3_user;
-grant execute on &&ut3_owner..ut_key_value_pair to &ut3_user;
 grant execute on &&ut3_owner..ut_suite_items_info to &ut3_user;
 grant execute on &&ut3_owner..ut_suite_item_info to &ut3_user;
+
+--generic types
+grant execute on &&ut3_owner..ut_varchar2_list to &ut3_user;
+grant execute on &&ut3_owner..ut_varchar2_rows to &ut3_user;
+grant execute on &&ut3_owner..ut_integer_list to &ut3_user;
+grant execute on &&ut3_owner..ut_key_value_pairs to &ut3_user;
+grant execute on &&ut3_owner..ut_key_value_pair to &ut3_user;
 
 --expectations
 grant execute on &&ut3_owner..ut_expectation to &ut3_user;
@@ -83,36 +88,28 @@ grant execute on &&ut3_owner..ut_equal to &ut3_user;
 grant execute on &&ut3_owner..ut_have_count to &ut3_user;
 grant execute on &&ut3_owner..ut_match to &ut3_user;
 
---generic types
-grant execute on &&ut3_owner..ut_varchar2_list to &ut3_user;
-grant execute on &&ut3_owner..ut_varchar2_rows to &ut3_user;
-grant execute on &&ut3_owner..ut_integer_list to &ut3_user;
-
---reporters
-grant execute on &&ut3_owner..ut_debug_reporter to &ut3_user;
+--reporters - tests
 grant execute on &&ut3_owner..ut_teamcity_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_xunit_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_junit_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_tfs_junit_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_documentation_reporter to &ut3_user;
+grant execute on &&ut3_owner..ut_realtime_reporter to &ut3_user;
+grant execute on &&ut3_owner..ut_sonar_test_reporter to &ut3_user;
+--reporters - coverage
 grant execute on &&ut3_owner..ut_coverage_html_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_sonar_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_coveralls_reporter to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_cobertura_reporter to &ut3_user;
-grant execute on &&ut3_owner..ut_realtime_reporter to &ut3_user;
-grant execute on &&ut3_owner..ut_sonar_test_reporter to &ut3_user;
+--reporters - debug
+grant execute on &&ut3_owner..ut_debug_reporter to &ut3_user;
 
---reporters base
+--reporters - base types
 grant execute on &&ut3_owner..ut_reporters to &ut3_user;
 grant execute on &&ut3_owner..ut_reporter_base to &ut3_user;
 grant execute on &&ut3_owner..ut_output_reporter_base to &ut3_user;
 grant execute on &&ut3_owner..ut_coverage_reporter_base to &ut3_user;
 grant execute on &&ut3_owner..ut_console_reporter_base to &ut3_user;
-
---coverage
-grant execute on &&ut3_owner..ut_coverage to &ut3_user;
-grant execute on &&ut3_owner..ut_coverage_options to &ut3_user;
-grant execute on &&ut3_owner..ut_coverage_helper to &ut3_user;
 
 --outputs
 grant execute on &&ut3_owner..ut_output_buffer_base to &ut3_user;

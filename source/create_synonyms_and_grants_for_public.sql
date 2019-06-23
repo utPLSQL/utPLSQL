@@ -37,10 +37,15 @@ grant execute on &&ut3_owner..ut_runner to public;
 grant execute on &&ut3_owner..ut_file_mappings to public;
 grant execute on &&ut3_owner..ut_file_mapping to public;
 grant execute on &&ut3_owner..ut_file_mapper to public;
-grant execute on &&ut3_owner..ut_key_value_pairs to public;
-grant execute on &&ut3_owner..ut_key_value_pair to public;
 grant execute on &&ut3_owner..ut_suite_items_info to public;
 grant execute on &&ut3_owner..ut_suite_item_info to public;
+
+--generic types
+grant execute on &&ut3_owner..ut_varchar2_list to public;
+grant execute on &&ut3_owner..ut_varchar2_rows to public;
+grant execute on &&ut3_owner..ut_integer_list to public;
+grant execute on &&ut3_owner..ut_key_value_pairs to public;
+grant execute on &&ut3_owner..ut_key_value_pair to public;
 
 --expectations
 grant execute on &&ut3_owner..ut_expectation to public;
@@ -63,36 +68,29 @@ grant execute on &&ut3_owner..ut_equal to public;
 grant execute on &&ut3_owner..ut_have_count to public;
 grant execute on &&ut3_owner..ut_match to public;
 
---generic types
-grant execute on &&ut3_owner..ut_varchar2_list to public;
-grant execute on &&ut3_owner..ut_varchar2_rows to public;
-grant execute on &&ut3_owner..ut_integer_list to public;
 
---reporters
-grant execute on &&ut3_owner..ut_debug_reporter to public;
+--reporters - test results
 grant execute on &&ut3_owner..ut_teamcity_reporter to public;
 grant execute on &&ut3_owner..ut_xunit_reporter to public;
 grant execute on &&ut3_owner..ut_junit_reporter to public;
 grant execute on &&ut3_owner..ut_tfs_junit_reporter to public;
 grant execute on &&ut3_owner..ut_documentation_reporter to public;
+grant execute on &&ut3_owner..ut_sonar_test_reporter to public;
+grant execute on &&ut3_owner..ut_realtime_reporter to public;
+--reporters - coverage
 grant execute on &&ut3_owner..ut_coverage_html_reporter to public;
 grant execute on &&ut3_owner..ut_coverage_sonar_reporter to public;
 grant execute on &&ut3_owner..ut_coveralls_reporter to public;
 grant execute on &&ut3_owner..ut_coverage_cobertura_reporter to public;
-grant execute on &&ut3_owner..ut_realtime_reporter to public;
-grant execute on &&ut3_owner..ut_sonar_test_reporter to public;
+--reporters - debug
+grant execute on &&ut3_owner..ut_debug_reporter to public;
 
---reporters base
+--reporters - base types
 grant execute on &&ut3_owner..ut_reporters to public;
 grant execute on &&ut3_owner..ut_reporter_base to public;
 grant execute on &&ut3_owner..ut_output_reporter_base to public;
 grant execute on &&ut3_owner..ut_coverage_reporter_base to public;
 grant execute on &&ut3_owner..ut_console_reporter_base to public;
-
---coverage
-grant execute on &&ut3_owner..ut_coverage to public;
-grant execute on &&ut3_owner..ut_coverage_options to public;
-grant execute on &&ut3_owner..ut_coverage_helper to public;
 
 --outputs
 grant execute on &&ut3_owner..ut_output_data_row to public;
@@ -105,16 +103,16 @@ grant execute on &&ut3_owner..ut_output_clob_table_buffer to public;
 grant select, insert, update, delete on &&ut3_owner..ut_compound_data_tmp to public;
 grant select, insert, update, delete on &&ut3_owner..ut_compound_data_diff_tmp to public;
 
+--needed for selecting from annotation objects
+grant execute on &&ut3_owner..ut_annotation_objs_cache_info to public;
+grant execute on &&ut3_owner..ut_annotation_obj_cache_info to public;
+
 --other grants
 grant execute on &&ut3_owner..ut_executables to public;
 grant execute on &&ut3_owner..ut_executable_test to public;
 grant select on &&ut3_owner..ut_suite_cache to public;
 grant select on &&ut3_owner..ut_suite_cache_package to public;
 grant select on &&ut3_owner..ut_suite_cache_schema to public;
-
---needed for selecting from annotation objects
-grant execute on &&ut3_owner..ut_annotation_objs_cache_info to public;
-grant execute on &&ut3_owner..ut_annotation_obj_cache_info to public;
 
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to public;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs   to public;
@@ -126,10 +124,28 @@ grant execute on &&ut3_owner..ut_run_info to public;
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
 
+--public API
+create public synonym ut for &&ut3_owner..ut;
+create public synonym ut_runner for &&ut3_owner..ut_runner;
+create public synonym ut_file_mappings for &&ut3_owner..ut_file_mappings;
+create public synonym ut_file_mapping for &&ut3_owner..ut_file_mapping;
+create public synonym ut_file_mapper for &&ut3_owner..ut_file_mapper;
+create public synonym ut_suite_items_info for &&ut3_owner..ut_suite_items_info;
+create public synonym ut_suite_item_info for &&ut3_owner..ut_suite_item_info;
+
+--generic types
+create public synonym ut_varchar2_list for &&ut3_owner..ut_varchar2_list;
+create public synonym ut_varchar2_rows for &&ut3_owner..ut_varchar2_rows;
+create public synonym ut_integer_list for &&ut3_owner..ut_integer_list;
+create public synonym ut_key_value_pairs for &&ut3_owner..ut_key_value_pairs;
+create public synonym ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
+
+--expectations
 create public synonym ut_expectation for &&ut3_owner..ut_expectation;
 create public synonym ut_expectation_compound for &&ut3_owner..ut_expectation_compound;
 create public synonym ut_expectation_json for &&ut3_owner..ut_expectation_json;
 
+--matchers
 create public synonym be_between for &&ut3_owner..be_between;
 create public synonym be_empty for &&ut3_owner..be_empty;
 create public synonym be_false for &&ut3_owner..be_false;
@@ -146,41 +162,34 @@ create public synonym equal for &&ut3_owner..equal;
 create public synonym have_count for &&ut3_owner..have_count;
 create public synonym match for &&ut3_owner..match;
 
-create public synonym ut for &&ut3_owner..ut;
-create public synonym ut_runner for &&ut3_owner..ut_runner;
-create public synonym ut_debug_reporter for &&ut3_owner..ut_debug_reporter;
+--reporters - test results
 create public synonym ut_teamcity_reporter for &&ut3_owner..ut_teamcity_reporter;
 create public synonym ut_xunit_reporter for &&ut3_owner..ut_xunit_reporter;
 create public synonym ut_junit_reporter for &&ut3_owner..ut_junit_reporter;
 create public synonym ut_tfs_junit_reporter for &&ut3_owner..ut_tfs_junit_reporter;
 create public synonym ut_documentation_reporter for &&ut3_owner..ut_documentation_reporter;
+create public synonym ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
+create public synonym ut_realtime_reporter for &&ut3_owner..ut_realtime_reporter;
+--reporters - coverage
 create public synonym ut_coverage_html_reporter for &&ut3_owner..ut_coverage_html_reporter;
 create public synonym ut_coverage_sonar_reporter for &&ut3_owner..ut_coverage_sonar_reporter;
 create public synonym ut_coveralls_reporter for &&ut3_owner..ut_coveralls_reporter;
 create public synonym ut_coverage_cobertura_reporter for &&ut3_owner..ut_coverage_cobertura_reporter;
+--reporters - debug
+create public synonym ut_debug_reporter for &&ut3_owner..ut_debug_reporter;
+
+--reporters - base types
 create public synonym ut_reporters for &&ut3_owner..ut_reporters;
-create public synonym ut_varchar2_list for &&ut3_owner..ut_varchar2_list;
-create public synonym ut_varchar2_rows for &&ut3_owner..ut_varchar2_rows;
-create public synonym ut_integer_list for &&ut3_owner..ut_integer_list;
 create public synonym ut_reporter_base for &&ut3_owner..ut_reporter_base;
 create public synonym ut_output_reporter_base for &&ut3_owner..ut_output_reporter_base;
+
+--other synonyms
 create public synonym ut_output_data_row for &&ut3_owner..ut_output_data_row;
 create public synonym ut_output_data_rows for &&ut3_owner..ut_output_data_rows;
-create public synonym ut_coverage for &&ut3_owner..ut_coverage;
-create public synonym ut_coverage_options for &&ut3_owner..ut_coverage_options;
-create public synonym ut_coverage_helper for &&ut3_owner..ut_coverage_helper;
 create public synonym ut_output_buffer_base for &&ut3_owner..ut_output_buffer_base;
 create public synonym ut_output_table_buffer for &&ut3_owner..ut_output_table_buffer;
 create public synonym ut_output_clob_table_buffer for &&ut3_owner..ut_output_clob_table_buffer;
-create public synonym ut_file_mappings for &&ut3_owner..ut_file_mappings;
-create public synonym ut_file_mapping for &&ut3_owner..ut_file_mapping;
-create public synonym ut_file_mapper for &&ut3_owner..ut_file_mapper;
-create public synonym ut_key_value_pairs for &&ut3_owner..ut_key_value_pairs;
-create public synonym ut_key_value_pair for &&ut3_owner..ut_key_value_pair;
-create public synonym ut_sonar_test_reporter for &&ut3_owner..ut_sonar_test_reporter;
-create public synonym ut_suite_items_info for &&ut3_owner..ut_suite_items_info;
-create public synonym ut_suite_item_info for &&ut3_owner..ut_suite_item_info;
-create public synonym ut_realtime_reporter for &&ut3_owner..ut_realtime_reporter;
+
 create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks;
 create public synonym dbmspcc_runs for &&ut3_owner..dbmspcc_runs;
 create public synonym dbmspcc_units for &&ut3_owner..dbmspcc_units;
