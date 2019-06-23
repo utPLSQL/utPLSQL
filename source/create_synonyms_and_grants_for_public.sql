@@ -39,6 +39,7 @@ grant execute on &&ut3_owner..ut_file_mapping to public;
 grant execute on &&ut3_owner..ut_file_mapper to public;
 grant execute on &&ut3_owner..ut_suite_items_info to public;
 grant execute on &&ut3_owner..ut_suite_item_info to public;
+grant execute on &&ut3_owner..ut_run_info to public;
 
 --generic types
 grant execute on &&ut3_owner..ut_varchar2_list to public;
@@ -88,16 +89,9 @@ grant execute on &&ut3_owner..ut_debug_reporter to public;
 --reporters - base types
 grant execute on &&ut3_owner..ut_reporters to public;
 grant execute on &&ut3_owner..ut_reporter_base to public;
-grant execute on &&ut3_owner..ut_output_reporter_base to public;
-grant execute on &&ut3_owner..ut_coverage_reporter_base to public;
-grant execute on &&ut3_owner..ut_console_reporter_base to public;
 
 --outputs
-grant execute on &&ut3_owner..ut_output_data_row to public;
-grant execute on &&ut3_owner..ut_output_data_rows to public;
 grant execute on &&ut3_owner..ut_output_buffer_base to public;
-grant execute on &&ut3_owner..ut_output_table_buffer to public;
-grant execute on &&ut3_owner..ut_output_clob_table_buffer to public;
 
 --user temp tables
 grant select, insert, update, delete on &&ut3_owner..ut_compound_data_tmp to public;
@@ -119,7 +113,6 @@ grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs   to public;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_units  to public;
 grant execute on &&ut3_owner..ut_matcher_options to public;
 grant execute on &&ut3_owner..ut_matcher_options_items to public;
-grant execute on &&ut3_owner..ut_run_info to public;
 
 
 prompt Creating synonyms for UTPLSQL objects in &&ut3_owner schema to PUBLIC
@@ -132,6 +125,7 @@ create public synonym ut_file_mapping for &&ut3_owner..ut_file_mapping;
 create public synonym ut_file_mapper for &&ut3_owner..ut_file_mapper;
 create public synonym ut_suite_items_info for &&ut3_owner..ut_suite_items_info;
 create public synonym ut_suite_item_info for &&ut3_owner..ut_suite_item_info;
+create public synonym ut_run_info for &&ut3_owner..ut_run_info;
 
 --generic types
 create public synonym ut_varchar2_list for &&ut3_owner..ut_varchar2_list;
@@ -181,16 +175,8 @@ create public synonym ut_debug_reporter for &&ut3_owner..ut_debug_reporter;
 --reporters - base types
 create public synonym ut_reporters for &&ut3_owner..ut_reporters;
 create public synonym ut_reporter_base for &&ut3_owner..ut_reporter_base;
-create public synonym ut_output_reporter_base for &&ut3_owner..ut_output_reporter_base;
 
 --other synonyms
-create public synonym ut_output_data_row for &&ut3_owner..ut_output_data_row;
-create public synonym ut_output_data_rows for &&ut3_owner..ut_output_data_rows;
-create public synonym ut_output_buffer_base for &&ut3_owner..ut_output_buffer_base;
-create public synonym ut_output_table_buffer for &&ut3_owner..ut_output_table_buffer;
-create public synonym ut_output_clob_table_buffer for &&ut3_owner..ut_output_clob_table_buffer;
-
 create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks;
 create public synonym dbmspcc_runs for &&ut3_owner..dbmspcc_runs;
 create public synonym dbmspcc_units for &&ut3_owner..dbmspcc_units;
-create public synonym ut_run_info for &&ut3_owner..ut_run_info;

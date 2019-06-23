@@ -59,6 +59,7 @@ grant execute on &&ut3_owner..ut_file_mapping to &ut3_user;
 grant execute on &&ut3_owner..ut_file_mapper to &ut3_user;
 grant execute on &&ut3_owner..ut_suite_items_info to &ut3_user;
 grant execute on &&ut3_owner..ut_suite_item_info to &ut3_user;
+grant execute on &&ut3_owner..ut_run_info to &ut3_user;
 
 --generic types
 grant execute on &&ut3_owner..ut_varchar2_list to &ut3_user;
@@ -107,16 +108,9 @@ grant execute on &&ut3_owner..ut_debug_reporter to &ut3_user;
 --reporters - base types
 grant execute on &&ut3_owner..ut_reporters to &ut3_user;
 grant execute on &&ut3_owner..ut_reporter_base to &ut3_user;
-grant execute on &&ut3_owner..ut_output_reporter_base to &ut3_user;
-grant execute on &&ut3_owner..ut_coverage_reporter_base to &ut3_user;
-grant execute on &&ut3_owner..ut_console_reporter_base to &ut3_user;
 
 --outputs
 grant execute on &&ut3_owner..ut_output_buffer_base to &ut3_user;
-grant execute on &&ut3_owner..ut_output_data_row to &ut3_user;
-grant execute on &&ut3_owner..ut_output_data_rows to &ut3_user;
-grant execute on &&ut3_owner..ut_output_table_buffer to &ut3_user;
-grant execute on &&ut3_owner..ut_output_clob_table_buffer to &ut3_user;
 
 --user temp tables
 grant select, insert, update, delete on &&ut3_owner..ut_compound_data_tmp to &ut3_user;
@@ -138,4 +132,3 @@ grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs to &ut3_user;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_units to &ut3_user;
 grant execute on &&ut3_owner..ut_matcher_options to &ut3_user;
 grant execute on &&ut3_owner..ut_matcher_options_items to &ut3_user;
-grant execute on &&ut3_owner..ut_run_info to &ut3_user;

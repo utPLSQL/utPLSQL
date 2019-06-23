@@ -148,7 +148,7 @@ end;]';
   end;
 
   procedure check_xml_encoding_included(
-    a_reporter             ut3.ut_output_reporter_base,
+    a_reporter             ut3.ut_reporter_base,
     a_client_character_set varchar2
   ) is
     l_results   ut3.ut_varchar2_list;
@@ -164,7 +164,7 @@ end;]';
   end;
 
   procedure check_xml_failure_escaped(
-    a_reporter ut3.ut_output_reporter_base
+    a_reporter ut3.ut_reporter_base
   ) is
     l_results   ut3.ut_varchar2_list;
     l_actual    clob;

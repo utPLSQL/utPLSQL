@@ -61,6 +61,7 @@ create or replace synonym &ut3_user..ut_file_mapping for &&ut3_owner..ut_file_ma
 create or replace synonym &ut3_user..ut_file_mapper for &&ut3_owner..ut_file_mapper;
 create or replace synonym &ut3_user..ut_suite_items_info for &&ut3_owner..ut_suite_items_info;
 create or replace synonym &ut3_user..ut_suite_item_info for &&ut3_owner..ut_suite_item_info;
+create or replace synonym &ut3_user..ut_run_info for &&ut3_owner..ut_run_info;
 
 --generic types
 create or replace synonym &ut3_user..ut_varchar2_list for &&ut3_owner..ut_varchar2_list;
@@ -110,16 +111,8 @@ create or replace synonym &ut3_user..ut_debug_reporter for &&ut3_owner..ut_debug
 --reporters - base types
 create or replace synonym &ut3_user..ut_reporters for &&ut3_owner..ut_reporters;
 create or replace synonym &ut3_user..ut_reporter_base for &&ut3_owner..ut_reporter_base;
-create or replace synonym &ut3_user..ut_output_reporter_base for &&ut3_owner..ut_output_reporter_base;
 
 --other synonyms
-create or replace synonym &ut3_user..ut_output_data_row for &&ut3_owner..ut_output_data_row;
-create or replace synonym &ut3_user..ut_output_data_rows for &&ut3_owner..ut_output_data_rows;
-create or replace synonym &ut3_user..ut_output_buffer_base for &&ut3_owner..ut_output_buffer_base;
-create or replace synonym &ut3_user..ut_output_table_buffer for &&ut3_owner..ut_output_table_buffer;
-create or replace synonym &ut3_user..ut_output_clob_table_buffer for &&ut3_owner..ut_output_clob_table_buffer;
-
 create or replace synonym &ut3_user..dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks;
 create or replace synonym &ut3_user..dbmspcc_runs for &&ut3_owner..dbmspcc_runs;
 create or replace synonym &ut3_user..dbmspcc_units for &&ut3_owner..dbmspcc_units;
-create or replace synonym &ut3_user..ut_run_info for &&ut3_owner..ut_run_info;
