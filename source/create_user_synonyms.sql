@@ -111,6 +111,7 @@ create or replace synonym &ut3_user..ut_debug_reporter for &&ut3_owner..ut_debug
 --reporters - base types
 create or replace synonym &ut3_user..ut_reporters for &&ut3_owner..ut_reporters;
 create or replace synonym &ut3_user..ut_reporter_base for &&ut3_owner..ut_reporter_base;
+create or replace synonym &ut3_user..ut_output_reporter_base for &&ut3_owner..ut_output_reporter_base;
 
 --other synonyms
 create or replace synonym &ut3_user..dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks;

@@ -108,6 +108,7 @@ grant execute on &&ut3_owner..ut_debug_reporter to &ut3_user;
 --reporters - base types
 grant execute on &&ut3_owner..ut_reporters to &ut3_user;
 grant execute on &&ut3_owner..ut_reporter_base to &ut3_user;
+grant execute on &&ut3_owner..ut_output_reporter_base to &ut3_user;
 
 --outputs
 grant execute on &&ut3_owner..ut_output_buffer_base to &ut3_user;

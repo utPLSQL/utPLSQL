@@ -89,6 +89,7 @@ grant execute on &&ut3_owner..ut_debug_reporter to public;
 --reporters - base types
 grant execute on &&ut3_owner..ut_reporters to public;
 grant execute on &&ut3_owner..ut_reporter_base to public;
+grant execute on &&ut3_owner..ut_output_reporter_base to public;
 
 --outputs
 grant execute on &&ut3_owner..ut_output_buffer_base to public;
@@ -175,6 +176,7 @@ create public synonym ut_debug_reporter for &&ut3_owner..ut_debug_reporter;
 --reporters - base types
 create public synonym ut_reporters for &&ut3_owner..ut_reporters;
 create public synonym ut_reporter_base for &&ut3_owner..ut_reporter_base;
+create public synonym ut_output_reporter_base for &&ut3_owner..ut_output_reporter_base;
 
 --other synonyms
 create public synonym dbmspcc_blocks for &&ut3_owner..dbmspcc_blocks;
