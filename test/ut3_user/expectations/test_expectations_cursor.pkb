@@ -2843,5 +2843,26 @@ Check the query and data for errors.';
     ut3.ut.expect(v_actual).to_equal(v_expected).exclude('ID');
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
+
+  procedure compare_long_column_names is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    -- populate actual
+    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+      open l_actual for
+        select rownum as id, '1' some_column_with_a_pretty_long_enough_name from dual;
+
+      open l_expected for
+        select rownum as id, '1' some_column_with_a_pretty_long_enough_name from dual;
+
+      ut3.ut.expect(l_actual).to_equal(l_expected).include('ID,SOME_COLUMN_WITH_A_PRETTY_LONG_ENOUGH_NAME').join_by('ID');
+      --Assert
+      ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+    $else
+      null;
+    $end
+  end;
+
 end;
 /

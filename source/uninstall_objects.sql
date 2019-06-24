@@ -1,8 +1,28 @@
+set echo off
+set serverout on
+declare
+  procedure drop_if_exists(a_object_type varchar2, a_object_name varchar2) is
+    l_count integer;
+  begin
+    select count(1)
+      into l_count
+      from all_objects
+     where owner = sys_context('USERENV','CURRENT_SCHEMA')
+       and object_type = a_object_type
+       and object_name = a_object_name;
+    if l_count > 0 then
+      execute immediate 'drop '||a_object_type||' '||a_object_name;
+      dbms_output.put_line(initcap(a_object_type)||' '||a_object_name||' dropped.');
+    else
+      dbms_output.put_line(initcap(a_object_type)||' '||a_object_name||' was not dropped, '||lower(a_object_type)||' does not exist.');
+    end if;
+  end;
+begin
+  drop_if_exists('TRIGGER', 'UT_TRIGGER_ANNOTATION_PARSING');
+  drop_if_exists('SYNONYM','UT3_TRIGGER_ALIVE');
+end;
+/
 set echo on
-
-drop trigger ut_trigger_annotation_parsing;
-
-drop synonym ut3_trigger_alive;
 
 drop synonym be_between;
 

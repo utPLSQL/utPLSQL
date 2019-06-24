@@ -24,6 +24,7 @@ if [[ "${TRAVIS_JOB_NUMBER}" =~ \.2$ ]]; then
     time "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<-SQL
     set feedback off
     set verify off
+    whenever sqlerror exit failure rollback
 
     @uninstall_all.sql $UT3_OWNER
     whenever sqlerror exit failure rollback
