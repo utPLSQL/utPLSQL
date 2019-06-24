@@ -543,7 +543,7 @@ create or replace package body ut_utils is
   procedure read_cache_to_dbms_output is
     l_lines_data sys_refcursor;
     l_lines  ut_varchar2_rows;
-    c_lines_limit constant integer := 100;
+    c_lines_limit constant integer := 1000;
     pragma autonomous_transaction;
   begin
     open l_lines_data for select text from ut_dbms_output_cache order by seq_no;
@@ -558,7 +558,7 @@ create or replace package body ut_utils is
       end loop;
       exit when l_lines_data%notfound;
     end loop;
-    delete from ut_dbms_output_cache;
+    execute immediate 'truncate table ut_dbms_output_cache';
     commit;
   end;
 
