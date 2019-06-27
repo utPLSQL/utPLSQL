@@ -115,6 +115,10 @@ create or replace package ut_compound_data_helper authid definer is
   function get_compare_cursor(a_diff_cursor_text in clob,a_self_id raw, a_other_id raw) return sys_refcursor;
   
   function create_err_cursor_msg(a_error_stack varchar2) return varchar2;
+
+  procedure save_cursor_data_for_diff(a_data_id raw, a_set_id integer, a_xml xmltype);
+
+  function get_row_data_as_xml(a_data_id raw, a_max_rows integer) return ut_utils.t_clob_tab;
   
   /*
   * Function to return true or false if the type dont have an length

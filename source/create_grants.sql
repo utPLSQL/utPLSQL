@@ -115,11 +115,7 @@ grant execute on &&ut3_owner..ut_output_reporter_base to &ut3_user;
 --outputs
 grant execute on &&ut3_owner..ut_output_buffer_base to &ut3_user;
 
---user temp tables
-grant select, insert, update, delete on &&ut3_owner..ut_compound_data_tmp to &ut3_user;
-grant select, insert, update, delete on &&ut3_owner..ut_compound_data_diff_tmp to &ut3_user;
-
---needed for selecting from annotation objects
+--needed internally for selecting from annotation objects within packages that use invoker rights
 grant execute on &&ut3_owner..ut_annotation_objs_cache_info to &ut3_user;
 grant execute on &&ut3_owner..ut_annotation_obj_cache_info to &ut3_user;
 

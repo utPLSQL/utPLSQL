@@ -58,10 +58,7 @@ create or replace type body ut_data_value_refcursor as
         null;
       $end
       l_elements_count := l_elements_count + dbms_xmlgen.getNumRowsProcessed(l_ctx);
-      execute immediate
-      'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
-      'values (:self_guid, :self_row_count, :l_xml)'
-      using in self.data_id, l_set_id, l_xml;       
+      ut_compound_data_helper.save_cursor_data_for_diff( self.data_id, l_set_id, l_xml );
       l_set_id := l_set_id + c_bulk_rows;   
     end loop;
    
