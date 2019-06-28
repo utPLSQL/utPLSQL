@@ -44,18 +44,10 @@ create or replace type body ut_compound_data_value as
     if not self.is_null() then
       dbms_lob.createtemporary(l_result, true);
       ut_utils.append_to_clob(l_result,'Data:'||chr(10));
-      --return first c_max_rows rows
-      execute immediate '
-          select xmlserialize( content ucd.item_data no indent)
-            from '|| ut_utils.ut_owner ||q'[.ut_compound_data_tmp tmp
-            ,xmltable ( '/ROWSET' passing tmp.item_data
-            columns item_data xmltype PATH '*'         
-            ) ucd
-           where tmp.data_id = :data_id
-             and rownum <= :max_rows]'
-        bulk collect into l_results using self.data_id, ut_utils.gc_diff_max_rows;
-
-      ut_utils.append_to_clob(l_result,l_results);
+      ut_utils.append_to_clob(
+        l_result,
+        ut_compound_data_helper.get_row_data_as_xml( self.data_id, ut_utils.gc_diff_max_rows )
+      );
 
       l_result_string := ut_utils.to_string(l_result,null);
       dbms_lob.freetemporary(l_result);

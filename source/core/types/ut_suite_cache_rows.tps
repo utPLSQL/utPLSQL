@@ -1,4 +1,4 @@
-create type ut_annotation_obj_cache_info as object(
+create type ut_suite_cache_rows as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2019 utPLSQL Project
@@ -15,10 +15,5 @@ create type ut_annotation_obj_cache_info as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-    object_owner   varchar2(250),
-    object_name    varchar2(250),
-    object_type    varchar2(250),
-    needs_refresh  varchar2(1),
-    parse_time     timestamp
-  )
+  table of ut_suite_cache_row
 /

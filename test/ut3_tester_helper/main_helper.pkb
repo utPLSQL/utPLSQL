@@ -100,7 +100,7 @@ create or replace package body main_helper is
     pragma autonomous_transaction;
   begin
      delete from ut3.ut_annotation_cache_info
-      where object_owner = user and object_type = 'PACKAGE' and object_name in ('DUMMY_PACKAGE','DUMMY_TEST_PACKAGE');
+      where object_owner = 'UT3_TESTER' and object_type = 'PACKAGE' and object_name in ('DUMMY_PACKAGE','DUMMY_TEST_PACKAGE');
     commit;
   end;  
   

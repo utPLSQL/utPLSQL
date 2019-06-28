@@ -57,6 +57,10 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pks'
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pkb'
 
+@@install_component.sql 'api/ut_suite_item_info.tps'
+@@install_component.sql 'api/ut_suite_item_info.tpb'
+@@install_component.sql 'api/ut_suite_items_info.tps'
+
 --event manager objects
 @@install_component.sql 'core/events/ut_event_item.tps'
 @@install_component.sql 'core/events/ut_event_listener.tps'
@@ -133,10 +137,13 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/annotations/ut_annotation_manager.pkb'
 
 --suite builder
+@@install_component.sql 'core/types/ut_suite_cache_row.tps'
+@@install_component.sql 'core/types/ut_suite_cache_rows.tps'
 @@install_component.sql 'core/ut_suite_cache_schema.sql'
 @@install_component.sql 'core/ut_suite_cache_package.sql'
 @@install_component.sql 'core/ut_suite_cache_seq.sql'
 @@install_component.sql 'core/ut_suite_cache.sql'
+
 @@install_component.sql 'core/ut_suite_cache_manager.pks'
 @@install_component.sql 'core/ut_suite_cache_manager.pkb'
 @@install_component.sql 'core/ut_suite_builder.pks'
@@ -295,9 +302,6 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'reporters/ut_documentation_reporter.tpb'
 
 --plugin interface API for running utPLSQL
-@@install_component.sql 'api/ut_suite_item_info.tps'
-@@install_component.sql 'api/ut_suite_item_info.tpb'
-@@install_component.sql 'api/ut_suite_items_info.tps'
 @@install_component.sql 'api/ut_runner.pks'
 @@install_component.sql 'api/ut_runner.pkb'
 

@@ -1967,23 +1967,15 @@ Diff:%
   end;   
 
   procedure compare_rec_colltype_as_cols is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-    l_actual_tab ut3.ut_annotated_object;
-    l_expected_tab ut3.ut_annotated_object;
-    l_expected_message varchar2(32767);
-    l_actual_message   varchar2(32767);
+    l_actual           sys_refcursor;
+    l_expected         sys_refcursor;
+    l_actual_tab       some_object;
+    l_expected_tab     some_object;
   begin
-    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
-      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
-                         ut3.ut_annotation(2,'test','test','test'))
-    )
+    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
     into l_actual_tab from dual;
  
-    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
-      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
-                         ut3.ut_annotation(2,'test','test','test'))
-    )
+    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
     into l_expected_tab from dual;
       
     --Arrange
@@ -1999,24 +1991,16 @@ Diff:%
   end; 
   
   procedure compare_rec_colltype_as_attr is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-    l_actual_tab ut3.ut_annotated_object;
-    l_expected_tab ut3.ut_annotated_object;
-    l_expected_message varchar2(32767);
-    l_actual_message   varchar2(32767);
+    l_actual           sys_refcursor;
+    l_expected         sys_refcursor;
+    l_actual_tab       some_object;
+    l_expected_tab     some_object;
   begin
-    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
-      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
-                         ut3.ut_annotation(2,'test','test','test'))
-    )
-    into l_actual_tab from dual;
- 
-    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
-      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
-                         ut3.ut_annotation(2,'test','test','test'))
-    )
-    into l_expected_tab from dual;
+    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+           into l_actual_tab from dual;
+
+    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+           into l_expected_tab from dual;
       
     --Arrange
     open l_actual for select l_actual_tab as nested_table from dual;
@@ -2031,60 +2015,44 @@ Diff:%
   end;   
   
   procedure compare_collection_in_rec is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-    l_actual_tab ut3.ut_annotated_object;
-    l_expected_tab ut3.ut_annotated_object;
-    l_expected_message varchar2(32767);
-    l_actual_message   varchar2(32767);
+    l_actual       sys_refcursor;
+    l_expected     sys_refcursor;
+    l_actual_tab       some_object;
+    l_expected_tab     some_object;
   begin
-    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
-      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
-                         ut3.ut_annotation(2,'test','test','test'))
-    )
-    into l_actual_tab from dual;
- 
-    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
-      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
-                         ut3.ut_annotation(2,'test','test','test'))
-    )
-    into l_expected_tab from dual;
-      
+    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+           into l_actual_tab from dual;
+
+    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+           into l_expected_tab from dual;
+
     --Arrange
     open l_actual for select l_actual_tab as nested_table from dual;
 
     open l_expected for select l_expected_tab as nested_table from dual;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/ANNOTATIONS');
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/ITEMS');
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
 
   end;   
   
   procedure compare_rec_coll_as_cols_fl is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-    l_actual_tab ut3.ut_annotated_object;
-    l_expected_tab ut3.ut_annotated_object;
+    l_actual           sys_refcursor;
+    l_expected         sys_refcursor;
+    l_actual_tab       some_object;
+    l_expected_tab     some_object;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
     l_date             date := sysdate;
   begin
-    select ut3.ut_annotated_object('TEST','TEST','TEST', l_date,
-      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
-                         ut3.ut_annotation(2,'test','test','test'))
-    )
-    into l_actual_tab
-    from dual;
- 
-    select ut3.ut_annotated_object('TEST','TEST','TEST', l_date,
-      ut3.ut_annotations(ut3.ut_annotation(1,'1test','test','test'),
-                         ut3.ut_annotation(2,'test','test','test'))
-    )
-    into l_expected_tab
-    from dual;
-      
+    select some_object( 'TEST','TEST', l_date, some_items( some_item(1,'BAD'), some_item(2,'test') ) )
+           into l_actual_tab from dual;
+
+    select some_object( 'TEST','TEST', l_date, some_items( some_item(1,'TEST'), some_item(2,'test') ) )
+           into l_expected_tab from dual;
+
     --Arrange
     open l_actual for select rownum rn, l_actual_tab as nested_table
       from dual;
@@ -2099,48 +2067,41 @@ Diff:%
      l_expected_message := q'[%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 %Diff:
 %Rows: [ 1 differences ]
-%PK <OBJECT_OWNER>TEST</OBJECT_OWNER> - Actual:   <NESTED_TABLE><OBJECT_OWNER>TEST</OBJECT_OWNER><OBJECT_NAME>TEST</OBJECT_NAME><OBJECT_TYPE>TEST</OBJECT_TYPE>%<ANNOTATIONS><UT_ANNOTATION><POSITION>1</POSITION><NAME>test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION><UT_ANNOTATION><POSITION>2</POSITION><NAME>test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION></ANNOTATIONS></NESTED_TABLE>%
-%PK <OBJECT_OWNER>TEST</OBJECT_OWNER> - Expected: <NESTED_TABLE><OBJECT_OWNER>TEST</OBJECT_OWNER><OBJECT_NAME>TEST</OBJECT_NAME><OBJECT_TYPE>TEST</OBJECT_TYPE>%<ANNOTATIONS><UT_ANNOTATION><POSITION>1</POSITION><NAME>1test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION><UT_ANNOTATION><POSITION>2</POSITION><NAME>test</NAME><TEXT>test</TEXT><SUBOBJECT_NAME>test</SUBOBJECT_NAME></UT_ANNOTATION></ANNOTATIONS></NESTED_TABLE>%]';
+%PK <OBJECT_OWNER>TEST</OBJECT_OWNER> - Actual:   <NESTED_TABLE><OBJECT_OWNER>TEST</OBJECT_OWNER><OBJECT_NAME>TEST</OBJECT_NAME>%<ITEMS><SOME_ITEM><ITEM_ID>1</ITEM_ID><ITEM_NAME>BAD</ITEM_NAME></SOME_ITEM><SOME_ITEM><ITEM_ID>2</ITEM_ID><ITEM_NAME>test</ITEM_NAME></SOME_ITEM></ITEMS></NESTED_TABLE>%
+%PK <OBJECT_OWNER>TEST</OBJECT_OWNER> - Expected: <NESTED_TABLE><OBJECT_OWNER>TEST</OBJECT_OWNER><OBJECT_NAME>TEST</OBJECT_NAME>%<ITEMS><SOME_ITEM><ITEM_ID>1</ITEM_ID><ITEM_NAME>TEST</ITEM_NAME></SOME_ITEM><SOME_ITEM><ITEM_ID>2</ITEM_ID><ITEM_NAME>test</ITEM_NAME></SOME_ITEM></ITEMS></NESTED_TABLE>%]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
-   --ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
-  end;  
+  end;
 
   procedure compare_rec_coll_as_join is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-    l_actual_tab ut3.ut_annotated_object;
-    l_expected_tab ut3.ut_annotated_object;
+    l_actual           sys_refcursor;
+    l_expected         sys_refcursor;
+    l_actual_tab       some_object;
+    l_expected_tab     some_object;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
-      ut3.ut_annotations(ut3.ut_annotation(1,'1test','test','test'),
-                         ut3.ut_annotation(2,'test','test','test'))
-    )
-    into l_actual_tab from dual;
- 
-    select ut3.ut_annotated_object('TEST','TEST','TEST', SYSDATE,
-      ut3.ut_annotations(ut3.ut_annotation(1,'test','test','test'),
-                         ut3.ut_annotation(2,'test','test','test'))
-    )
-    into l_expected_tab from dual;
-      
+    select some_object( 'TEST','TEST', sysdate, some_items( some_item(1,'BAD'), some_item(2,'test') ) )
+           into l_actual_tab from dual;
+
+    select some_object( 'TEST','TEST', sysdate, some_items( some_item(1,'TEST'), some_item(2,'test') ) )
+           into l_expected_tab from dual;
+
     --Arrange
     open l_actual for select l_actual_tab as nested_table from dual;
 
     open l_expected for select l_expected_tab as nested_table from dual;
     
     --Act
-    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/ANNOTATIONS/TEXT');
+    ut3.ut.expect(l_actual).to_equal(l_expected).join_by('NESTED_TABLE/ITEMS/ID');
     
     --Assert
- l_expected_message := q'[%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]%
+    l_expected_message := q'[%Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]%
 %Diff:%
 %Unable to join sets:%
-%Join key NESTED_TABLE/ANNOTATIONS/TEXT does not exists in expected%
-%Join key NESTED_TABLE/ANNOTATIONS/TEXT does not exists in actual%
+%Join key NESTED_TABLE/ITEMS/ID does not exists in expected%
+%Join key NESTED_TABLE/ITEMS/ID does not exists in actual%
 %Please make sure that your join clause is not refferring to collection element%]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
@@ -2550,7 +2511,7 @@ Diff:%
   begin
     l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
 ORA-01476: divisor is equal to zero
-at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2561 ut3.ut.expect(l_actual).to_equal(l_expected);%
+at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2522 ut3.ut.expect(l_actual).to_equal(l_expected);%
 Check the query and data for errors.';
 
     open l_actual for
@@ -2575,7 +2536,7 @@ Check the query and data for errors.';
   
     l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
 ORA-01476: divisor is equal to zero
-at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2586 ut3.ut.expect(l_actual).to_equal(l_expected);%
+at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2547 ut3.ut.expect(l_actual).to_equal(l_expected);%
 Check the query and data for errors.';
 
     open l_expected for

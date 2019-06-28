@@ -44,7 +44,6 @@ create or replace package body ut_runner is
 
   procedure finish_run(a_run ut_run, a_force_manual_rollback boolean) is
   begin
-    ut_utils.cleanup_temp_tables;
     ut_event_manager.trigger_event(ut_event_manager.gc_finalize, a_run);
     ut_metadata.reset_source_definition_cache;
     ut_utils.read_cache_to_dbms_output();
@@ -52,6 +51,7 @@ create or replace package body ut_runner is
     ut_compound_data_helper.cleanup_diff();
     if not a_force_manual_rollback then
       rollback;
+      ut_utils.cleanup_session_temp_tables;
     end if;
   end;
 
@@ -196,7 +196,7 @@ create or replace package body ut_runner is
   function get_suites_info(a_owner varchar2 := null, a_package_name varchar2 := null) return ut_suite_items_info pipelined is
     l_cursor      sys_refcursor;
     l_results     ut_suite_items_info;
-    c_bulk_limit  constant integer := 10;
+    c_bulk_limit  constant integer := 100;
   begin
     l_cursor := ut_suite_manager.get_suites_info( nvl(a_owner,sys_context('userenv', 'current_schema')), a_package_name );
     loop
@@ -285,10 +285,7 @@ create or replace package body ut_runner is
         if l_item is not null then
           l_result  :=
             l_result ||
-              dbms_crypto.hash(
-                to_char( dbms_utility.get_hash_value( l_item, 1, a_random_seed ) ),
-                dbms_crypto.hash_sh1
-                );
+              ut_utils.get_hash( to_char( dbms_utility.get_hash_value( l_item, 1, a_random_seed ) ) );
           end if;
         exit when l_at_end;
         l_result  := l_result || chr(0);

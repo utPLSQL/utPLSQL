@@ -53,7 +53,7 @@ create or replace type body ut_data_value_json as
     l_result_string     varchar2(32767);
     l_other             ut_data_value_json;
     l_self              ut_data_value_json := self;
-    l_diff_id           ut_compound_data_helper.t_hash;
+    l_diff_id           ut_utils.t_hash;
     c_max_rows          integer := ut_utils.gc_diff_max_rows;
     l_diffs             ut_compound_data_helper.tt_json_diff_tab;
     l_message           varchar2(32767);
@@ -95,7 +95,7 @@ create or replace type body ut_data_value_json as
     end if;
     dbms_lob.createtemporary(l_result, true);
     l_other := treat(a_other as ut_data_value_json);       
-    l_diff_id  := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);  
+    l_diff_id  := ut_utils.get_hash(self.data_id||l_other.data_id);
     
     if not l_self.is_null and not l_other.is_null then
       l_diffs := ut_compound_data_helper.get_json_diffs_tmp(l_diff_id);
@@ -129,13 +129,13 @@ create or replace type body ut_data_value_json as
   
   member function compare_implementation(a_other in ut_data_value,a_match_options ut_matcher_options) return 
     integer is
-    l_result integer;
-    l_other  ut_data_value_json;
-    l_diff_id       ut_compound_data_helper.t_hash;
+    l_result    integer;
+    l_other     ut_data_value_json;
+    l_diff_id   ut_utils.t_hash;
   begin
    if a_other is of (ut_data_value_json) then
       l_other   := treat(a_other as ut_data_value_json);
-      l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
+      l_diff_id := ut_utils.get_hash(self.data_id||l_other.data_id);
       l_result :=
         case
           when ut_compound_data_helper.insert_json_diffs(

@@ -35,7 +35,7 @@ create or replace package body ut_compound_data_helper is
           ,x.data_id data_id 
           ,position + x.item_no item_no
           {:columns:}
-        from {:ut3_owner:}.ut_compound_data_tmp x,
+        from ut_compound_data_tmp x,
           xmltable('/ROWSET/ROW' passing x.item_data columns
             item_data xmltype path '*'
             ,position for ordinality
@@ -53,7 +53,7 @@ create or replace package body ut_compound_data_helper is
           ,x.data_id data_id
           ,position + x.item_no item_no 
           {:columns:}
-        from {:ut3_owner:}.ut_compound_data_tmp x,
+        from ut_compound_data_tmp x,
           xmltable('/ROWSET/ROW' passing x.item_data columns 
             item_data xmltype path '*'
             ,position for ordinality
@@ -207,10 +207,9 @@ create or replace package body ut_compound_data_helper is
   is
     l_alias varchar2(10) := a_alias;
     l_col_syntax varchar2(4000);
-    l_ut_owner varchar2(250) := ut_utils.ut_owner;
-  begin    
+  begin
     if a_data_info.is_sql_diffable = 0 then 
-      l_col_syntax :=  l_ut_owner ||'.ut_compound_data_helper.get_hash('||l_alias||a_data_info.transformed_name||'.getClobVal()) as '||a_data_info.transformed_name ;
+      l_col_syntax :=  'ut_utils.get_hash('||l_alias||a_data_info.transformed_name||'.getClobVal()) as '||a_data_info.transformed_name ;
     elsif a_data_info.is_sql_diffable = 1  and a_data_info.column_type = 'DATE' then
       l_col_syntax :=  'to_date('||l_alias||a_data_info.transformed_name||') as '|| a_data_info.transformed_name;
     elsif  a_data_info.is_sql_diffable = 1  and a_data_info.column_type in ('TIMESTAMP') then
@@ -334,7 +333,6 @@ create or replace package body ut_compound_data_helper is
     l_join_on_stmt   clob;
     l_not_equal_stmt clob;
     l_where_stmt     clob;
-    l_ut_owner       varchar2(250) := ut_utils.ut_owner;
     l_join_by_list   ut_varchar2_list;
      
     function get_join_type(a_inclusion_compare in boolean,a_negated in boolean) return varchar2 is
@@ -379,8 +377,7 @@ create or replace package body ut_compound_data_helper is
       
     l_compare_sql := replace(l_compare_sql,'{:duplicate_number:}',l_partition_stmt);
     l_compare_sql := replace(l_compare_sql,'{:columns:}',l_select_stmt);
-    l_compare_sql := replace(l_compare_sql,'{:ut3_owner:}',l_ut_owner);
-    l_compare_sql := replace(l_compare_sql,'{:xml_to_columns:}',l_xmltable_stmt); 
+    l_compare_sql := replace(l_compare_sql,'{:xml_to_columns:}',l_xmltable_stmt);
     l_compare_sql := replace(l_compare_sql,'{:item_no:}',get_item_no(a_unordered));
     l_compare_sql := replace(l_compare_sql,'{:join_type:}',get_join_type(a_inclusion_type,a_is_negated));
     l_compare_sql := replace(l_compare_sql,'{:join_condition:}',l_join_on_stmt);
@@ -536,16 +533,6 @@ create or replace package body ut_compound_data_helper is
     return l_results;
   end;
   
-  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
-  begin
-    return dbms_crypto.hash(a_data, a_hash_type);
-  end;
-
-  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
-  begin
-    return dbms_crypto.hash(a_data, a_hash_type);
-  end;
-
   function get_fixed_size_hash(a_string varchar2, a_base integer :=0,a_size integer := 9999999) return number is
   begin
     return dbms_utility.get_hash_value(a_string,a_base,a_size);
@@ -623,8 +610,28 @@ create or replace package body ut_compound_data_helper is
       ut_utils.remove_error_from_stack(sqlerrm,ut_utils.gc_xml_processing)||chr(10)||
       ut_expectation_processor.who_called_expectation(a_error_stack)||
       'Check the query and data for errors.';   
-  end; 
-  
+  end;
+
+  procedure save_cursor_data_for_diff(a_data_id raw, a_set_id integer, a_xml xmltype) is
+  begin
+    insert into ut_compound_data_tmp (data_id, item_no, item_data) values (a_data_id, a_set_id, a_xml);
+  end;
+
+  function get_row_data_as_xml(a_data_id raw, a_max_rows integer) return ut_utils.t_clob_tab is
+    l_results       ut_utils.t_clob_tab;
+  begin
+    select xmlserialize( content ucd.item_data no indent)
+      bulk collect into l_results
+      from ut_compound_data_tmp tmp
+        ,xmltable ( '/ROWSET' passing tmp.item_data
+           columns item_data xmltype PATH '*'
+         ) ucd
+     where tmp.data_id = a_data_id
+           and rownum <= a_max_rows;
+
+    return l_results;
+  end;
+
   function type_no_length ( a_type_name varchar2) return boolean is
   begin
     return case 

@@ -23,4 +23,4 @@ create global temporary table ut_compound_data_diff_tmp(
   constraint ut_compound_data_diff_tmp_chk check(
    item_no is not null
    )
-) on commit preserve rows;
+) on commit delete rows;

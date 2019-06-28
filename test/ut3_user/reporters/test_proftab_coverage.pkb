@@ -1,16 +1,5 @@
 create or replace package body test_proftab_coverage is
 
-  procedure create_dummy_coverage_test_1 is
-  begin
-    ut3_tester_helper.coverage_helper.create_dummy_coverage_test_1();
-    ut3_tester_helper.coverage_helper.grant_exec_on_cov_1();
-  end;
-
-  procedure drop_dummy_coverage_test_1 is
-  begin
-    ut3_tester_helper.coverage_helper.drop_dummy_coverage_test_1();
-  end;
-
   procedure coverage_for_object is
     l_expected  clob;
     l_actual    clob;
@@ -117,9 +106,9 @@ create or replace package body test_proftab_coverage is
           a_include_objects => ut3.ut_varchar2_list( 'ut3.dummy_coverage' )
       )
     );
-    ut3_tester_helper.coverage_helper.cleanup_dummy_coverage(test_coverage.g_run_id);
+    ut3_tester_helper.coverage_helper.cleanup_dummy_coverage();
     ut3_tester_helper.coverage_helper.drop_dummy_coverage_pkg();
-    create_dummy_coverage_test_1;
+    ut3_tester_helper.coverage_helper.create_dummy_coverage_test_1();
 
     --Act
     select *

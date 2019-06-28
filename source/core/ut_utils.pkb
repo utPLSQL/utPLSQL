@@ -488,11 +488,11 @@ create or replace package body ut_utils is
     return l_xpath;
   end;
 
-  procedure cleanup_temp_tables is
+  procedure cleanup_session_temp_tables is
   begin
-    execute immediate 'delete from ut_compound_data_tmp';
-    execute immediate 'delete from ut_compound_data_diff_tmp';
-    execute immediate 'delete from ut_json_data_diff_tmp';
+    execute immediate 'truncate table dbmspcc_blocks';
+    execute immediate 'truncate table dbmspcc_units';
+    execute immediate 'truncate table dbmspcc_runs';
   end;
 
   function to_version(a_version_no varchar2) return t_version is
@@ -543,7 +543,7 @@ create or replace package body ut_utils is
   procedure read_cache_to_dbms_output is
     l_lines_data sys_refcursor;
     l_lines  ut_varchar2_rows;
-    c_lines_limit constant integer := 100;
+    c_lines_limit constant integer := 1000;
     pragma autonomous_transaction;
   begin
     open l_lines_data for select text from ut_dbms_output_cache order by seq_no;
@@ -558,7 +558,7 @@ create or replace package body ut_utils is
       end loop;
       exit when l_lines_data%notfound;
     end loop;
-    delete from ut_dbms_output_cache;
+    execute immediate 'truncate table ut_dbms_output_cache';
     commit;
   end;
 
@@ -863,6 +863,25 @@ create or replace package body ut_utils is
   function strip_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2 is
   begin
     return regexp_replace(a_item,a_prefix||a_connector);
+  end;
+
+  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
+  begin
+    return dbms_crypto.hash(a_data, a_hash_type);
+  end;
+
+  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
+  begin
+    return dbms_crypto.hash(a_data, a_hash_type);
+  end;
+
+  function qualified_sql_name(a_name varchar2) return varchar2 is
+  begin
+    return
+        case
+          when a_name is not null
+          then sys.dbms_assert.qualified_sql_name(a_name)
+        end;
   end;
 
 end ut_utils;

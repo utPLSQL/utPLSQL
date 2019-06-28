@@ -24,4 +24,4 @@ create global temporary table ut_json_data_diff_tmp(
   exp_json_type     varchar2(2000),
   exp_access_path   varchar2(4000),
   exp_parent_path   varchar2(4000)
-) on commit preserve rows;
+) on commit delete rows;

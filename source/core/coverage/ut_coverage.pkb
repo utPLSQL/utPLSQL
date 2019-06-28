@@ -161,9 +161,7 @@ create or replace package body ut_coverage is
     l_run_comment varchar2(200) := 'utPLSQL Code coverage run '||ut_utils.to_string(systimestamp);
   begin
     if not is_develop_mode() and not g_is_started then
-      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
       ut_coverage_helper_block.coverage_start( l_run_comment, g_coverage_id(gc_block_coverage) );
-      $end
       ut_coverage_helper_profiler.coverage_start( l_run_comment, g_coverage_id(gc_proftab_coverage) );
       coverage_pause();
       g_is_started := true;
@@ -200,9 +198,7 @@ create or replace package body ut_coverage is
   begin
     if not is_develop_mode() then
       g_is_started := false;
-      $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
       ut_coverage_helper_block.coverage_stop();
-      $end
       ut_coverage_helper_profiler.coverage_stop();
       g_is_started := false;
     end if;

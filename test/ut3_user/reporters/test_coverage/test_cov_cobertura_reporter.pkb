@@ -79,7 +79,7 @@ create or replace package body test_cov_cobertura_reporter is
 </packages>
 </coverage>]';
 
-    test_coverage.cleanup_dummy_coverage;
+    ut3_tester_helper.coverage_helper.cleanup_dummy_coverage();
     --Act
     select *
       bulk collect into l_results

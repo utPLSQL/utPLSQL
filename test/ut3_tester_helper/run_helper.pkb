@@ -627,6 +627,35 @@ create or replace package body run_helper is
   begin
     delete from ut3.ut_output_buffer_tmp;
   end;
- 
+
+  function get_annotation_cache_info_cur(
+    a_owner varchar2,
+    a_type varchar2
+  ) return sys_refcursor is
+    l_result sys_refcursor;
+  begin
+    open l_result for
+      select * from ut3.ut_annotation_cache_info
+       where object_owner = a_owner and object_type = a_type;
+
+    return l_result;
+  end;
+
+  function get_annotation_cache_cursor(
+    a_owner varchar2,
+    a_type  varchar2,
+    a_name  varchar2 := null
+  ) return sys_refcursor is
+    l_result sys_refcursor;
+  begin
+    open l_result for
+      select *
+        from ut3.ut_annotation_cache_info i
+        join ut3.ut_annotation_cache c on c.cache_id = i.cache_id
+       where object_owner = a_owner and object_type = a_type and object_name = nvl( a_name, object_name );
+
+    return l_result;
+  end;
+
 end;
 /
