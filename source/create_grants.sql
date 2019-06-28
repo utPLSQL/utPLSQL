@@ -122,9 +122,8 @@ grant execute on &&ut3_owner..ut_annotation_obj_cache_info to &ut3_user;
 --other grants
 grant execute on &&ut3_owner..ut_executables to &ut3_user;
 grant execute on &&ut3_owner..ut_executable_test to &ut3_user;
-grant select on &&ut3_owner..ut_suite_cache to &ut3_user;
-grant select on &&ut3_owner..ut_suite_cache_package to &ut3_user;
-grant select on &&ut3_owner..ut_suite_cache_schema to &ut3_user;
+grant execute on &&ut3_owner..ut_suite_cache_row to &ut3_user;
+grant execute on &&ut3_owner..ut_suite_cache_rows to &ut3_user;
 
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_blocks to &ut3_user;
 grant select, insert, delete, update on &&ut3_owner..dbmspcc_runs   to &ut3_user;

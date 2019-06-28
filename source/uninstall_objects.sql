@@ -70,6 +70,10 @@ drop package ut_suite_cache_manager;
 
 drop table ut_suite_cache purge;
 
+drop type ut_suite_cache_rows force;
+
+drop type ut_suite_cache_row force;
+
 drop sequence ut_suite_cache_seq;
 
 drop table ut_suite_cache_package purge;

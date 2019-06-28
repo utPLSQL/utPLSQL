@@ -18,7 +18,7 @@ create or replace type ut_suite_item_info as object (
   object_owner     varchar2( 250 ), -- the owner of test suite packages
   object_name      varchar2( 250 ), -- the name of test suite package
   item_name        varchar2( 250 ), -- the name of suite/test
-  item_description varchar2( 250 ), -- the description of suite/suite item
+  item_description varchar2( 4000 ), -- the description of suite/suite item
   item_type        varchar2( 250 ), -- the type of item (UT_SUITE/UT_SUITE_CONTEXT/UT_TEST)
   item_line_no     integer,         -- line_number where annotation identifying the item exists
   path             varchar2( 4000 ),-- suitepath of the item

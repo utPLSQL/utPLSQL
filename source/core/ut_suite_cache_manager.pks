@@ -20,6 +20,9 @@ create or replace package ut_suite_cache_manager authid definer is
    * Responsible for storing and retrieving suite data from cache
    */
 
+  /*
+  * Saves suite items for individual package in suite cache
+  */
   procedure save_object_cache(
     a_object_owner varchar2,
     a_object_name  varchar2,
@@ -27,9 +30,59 @@ create or replace package ut_suite_cache_manager authid definer is
     a_suite_items ut_suite_items
   );
 
+  /*
+  * Returns time when schema was last saved in cache
+  */
   function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache;
 
-  procedure remove_from_cache(a_schema_name varchar2, a_objects ut_varchar2_rows);
+  /*
+  * Removes packages that are no longer annotated from cache
+  */
+  procedure remove_missing_objs_from_cache(a_schema_name varchar2);
+
+  /*
+  * Retrieves suite items data from cache.
+  * Returned data is not filtered by user access rights.
+  * Not to be used publicly. Used internally for building suites at runtime.
+  */
+  function get_cached_suite_rows(
+    a_object_owner     varchar2,
+    a_path             varchar2 := null,
+    a_object_name      varchar2 := null,
+    a_procedure_name   varchar2 := null,
+    a_random_seed      positive := null,
+    a_tags             ut_varchar2_rows := null
+  ) return ut_suite_cache_rows;
+
+  /*
+  * Retrieves suite item info rows from cache.
+  * Returned data is not filtered by user access rights.
+  * Not to be used publicly. Used internally for building suites info.
+  */
+  function get_cached_suite_info(
+    a_object_owner     varchar2,
+    a_object_name      varchar2
+  ) return ut_suite_items_info;
+
+  /*
+  * Retrieves list of cached suite packages.
+  * Returned data is not filtered by user access rights.
+  * Not to be used publicly. Used internally.
+  */
+  function get_cached_packages(
+    a_schema_names ut_varchar2_rows
+  ) return ut_object_names;
+
+  /*
+  * Returns true if given suite item exists in cache.
+  * Returned data is not filtered by user access rights.
+  * Not to be used publicly. Used internally.
+  */
+  function suite_item_exists(
+    a_owner_name     varchar2,
+    a_package_name   varchar2,
+    a_procedure_name varchar2
+  ) return boolean;
 
 end ut_suite_cache_manager;
 /

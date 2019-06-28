@@ -49,28 +49,24 @@ create or replace package body ut_coverage_helper_block is
   end;
 
   function block_results(a_object_owner varchar2, a_object_name varchar2, a_coverage_id integer) return t_block_rows is
-    l_raw_coverage  sys_refcursor;
     l_coverage_rows t_block_rows;
-    l_ut3_owner     varchar2(128) := ut_utils.ut_owner();
   begin
           
-    open l_raw_coverage for 'select ccb.line
-          ,count(ccb.block) totalblocks
-          ,sum(ccb.covered) 
+    select ccb.line         as line,
+           count(ccb.block) as blocks,
+           sum(ccb.covered) as covered_blocks
+      bulk collect into l_coverage_rows
       from dbmspcc_units ccu
       left outer join dbmspcc_blocks ccb
         on ccu.run_id = ccb.run_id
        and ccu.object_id = ccb.object_id
-     where ccu.run_id = :a_coverage_id
-       and ccu.owner = :a_object_owner
-       and ccu.name = :a_object_name
+     where ccu.run_id = a_coverage_id
+       and ccu.owner = a_object_owner
+       and ccu.name = a_object_name
      group by ccb.line
-     order by 1' using a_coverage_id,a_object_owner,a_object_name;
+     order by 1;
      
-     fetch l_raw_coverage bulk collect into l_coverage_rows;
-     close l_raw_coverage;
-
-     return l_coverage_rows; 
+     return l_coverage_rows;
   end;
 
   function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2, a_coverage_id integer) return ut_coverage_helper.t_unit_line_calls is

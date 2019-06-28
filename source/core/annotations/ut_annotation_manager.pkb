@@ -16,7 +16,6 @@ create or replace package body ut_annotation_manager as
   limitations under the License.
   */
 
-  gc_max_objects_limit integer := 1000000;
   ------------------------------
   --private definitions
 
@@ -46,7 +45,7 @@ create or replace package body ut_annotation_manager as
                    and o.object_type = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
                 )]';
     open l_rows for l_cursor_text  using l_data;
-    fetch l_rows bulk collect into l_result limit gc_max_objects_limit;
+    fetch l_rows bulk collect into l_result limit ut_utils.gc_max_objects_fetch_limit;
     close l_rows;
     return l_result;
   end;
@@ -96,7 +95,7 @@ create or replace package body ut_annotation_manager as
              else 'o.last_ddl_time >= cast(:a_parse_date as date)'
              end;
       open l_rows for l_cursor_text  using l_data, a_parse_date;
-      fetch l_rows bulk collect into l_result limit gc_max_objects_limit;
+      fetch l_rows bulk collect into l_result limit ut_utils.gc_max_objects_fetch_limit;
       close l_rows;
     end if;
     ut_event_manager.trigger_event('get_annotation_objs_info - end (count='||l_result.count||')');
@@ -172,7 +171,6 @@ create or replace package body ut_annotation_manager as
       l_object_lines.delete;
     end if;
     close a_sources_cursor;
-    commit;
   end;
 
 
