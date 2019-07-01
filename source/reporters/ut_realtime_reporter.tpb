@@ -15,7 +15,7 @@ create or replace type body ut_realtime_reporter is
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-    
+
   constructor function ut_realtime_reporter(
     self in out nocopy ut_realtime_reporter
   ) return self as result is
@@ -101,13 +101,13 @@ create or replace type body ut_realtime_reporter is
     self.print_node('error', to_char(a_run.results_count.errored_count));
     self.print_node('warning', to_char(a_run.results_count.warnings_count));
     self.print_end_node('counter');
-    self.print_cdata_node('errorStack', ut_utils.table_to_clob(a_run.get_error_stack_traces()));
+    self.print_cdata_node('errorStack', ut_utils.table_to_clob(a_run.get_error_stack_traces(), chr(10)||chr(10)));
     self.print_cdata_node('serverOutput', a_run.get_serveroutputs());
     self.print_end_node('run');
     self.print_end_node('event');
     self.flush_print_buffer('post-run');
   end after_calling_run;
-  
+
   overriding member procedure before_calling_suite(
     self    in out nocopy ut_realtime_reporter, 
     a_suite in            ut_logical_suite
@@ -139,9 +139,9 @@ create or replace type body ut_realtime_reporter is
     self.print_node('error', to_char(a_suite.results_count.errored_count));
     self.print_node('warning', to_char(a_suite.results_count.warnings_count));
     self.print_end_node('counter');
-    self.print_cdata_node('errorStack', ut_utils.table_to_clob(a_suite.get_error_stack_traces()));
+    self.print_cdata_node('errorStack', ut_utils.table_to_clob(a_suite.get_error_stack_traces(), chr(10)||chr(10)));
     self.print_cdata_node('serverOutput', a_suite.get_serveroutputs());
-    self.print_cdata_node('warnings', ut_utils.table_to_clob(a_suite.warnings));
+    self.print_cdata_node('warnings', ut_utils.table_to_clob(a_suite.warnings, chr(10)||chr(10)));
     self.print_end_node('suite');
     self.print_end_node('event');
     self.flush_print_buffer('post-suite');
@@ -162,7 +162,7 @@ create or replace type body ut_realtime_reporter is
     self.print_end_node('event');
     self.flush_print_buffer('pre-test');
   end before_calling_test;
-  
+
   overriding member procedure after_calling_test(
     self   in out nocopy ut_realtime_reporter, 
     a_test in            ut_test
@@ -183,7 +183,7 @@ create or replace type body ut_realtime_reporter is
     self.print_node('error', to_char(a_test.results_count.errored_count));
     self.print_node('warning', to_char(a_test.results_count.warnings_count));
     self.print_end_node('counter');
-    self.print_cdata_node('errorStack', ut_utils.table_to_clob(a_test.get_error_stack_traces()));
+    self.print_cdata_node('errorStack', ut_utils.table_to_clob(a_test.get_error_stack_traces(), chr(10)||chr(10)));
     self.print_cdata_node('serverOutput', a_test.get_serveroutputs());
     if a_test.failed_expectations.count > 0 then
       self.print_start_node('failedExpectations');
@@ -197,7 +197,7 @@ create or replace type body ut_realtime_reporter is
       end loop expectations;
       self.print_end_node('failedExpectations');
     end if;
-    self.print_cdata_node('warnings', ut_utils.table_to_clob(a_test.warnings));
+    self.print_cdata_node('warnings', ut_utils.table_to_clob(a_test.warnings, chr(10)||chr(10)));
     self.print_end_node('test');
     self.print_end_node('event');
     self.flush_print_buffer('post-test');
@@ -225,7 +225,7 @@ create or replace type body ut_realtime_reporter is
        0, 1
     );
   end print_start_node;
-  
+
   member procedure print_end_node(
     self in out nocopy ut_realtime_reporter, 
     a_name in varchar2
@@ -244,7 +244,7 @@ create or replace type body ut_realtime_reporter is
        self.print_xml_fragment('<' || a_name || '>' || dbms_xmlgen.convert(a_content) || '</' || a_name || '>');
     end if;
   end print_node;
-  
+
   member procedure print_cdata_node(
      self      in out nocopy ut_realtime_reporter,
      a_name    in            varchar2,
@@ -267,7 +267,7 @@ create or replace type body ut_realtime_reporter is
     ut_utils.append_to_list(print_buffer, lpad(' ', 2 * current_indent) || a_fragment);
     current_indent := current_indent + a_indent_summand_after;
   end print_xml_fragment;
-  
+
   member procedure flush_print_buffer(
     self        in out nocopy ut_realtime_reporter,
     a_item_type in            varchar2
