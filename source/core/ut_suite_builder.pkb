@@ -95,6 +95,27 @@ create or replace package body ut_suite_builder is
     by_name     tt_annotations_by_name
   );
 
+  function get_qualified_object_name(
+    a_suite ut_suite_item, a_procedure_name t_object_name
+  ) return varchar2 is
+    l_result varchar2(1000);
+  begin
+    if a_suite is not null then
+      l_result := upper( a_suite.object_owner || '.' || a_suite.object_name );
+      if a_procedure_name is not null then
+        l_result := l_result || upper( '.' || a_procedure_name );
+        end if;
+      end if;
+    return l_result;
+  end;
+
+  function get_object_reference(
+    a_suite ut_suite_item, a_procedure_name t_object_name, a_line_no binary_integer
+  ) return varchar2 is
+  begin
+    return chr( 10 ) || 'at package "' || get_qualified_object_name(a_suite, a_procedure_name) || '", line ' || a_line_no;
+  end;
+
   procedure delete_annotations_range(
     a_annotations in out nocopy t_annotations_info,
     a_start_pos   t_annotation_position,
@@ -131,20 +152,6 @@ create or replace package body ut_suite_builder is
   -- Processing annotations
   -----------------------------------------------
 
-  function get_qualified_object_name(
-    a_suite ut_suite_item, a_procedure_name t_object_name
-  ) return varchar2 is
-    l_result varchar2(1000);
-  begin
-    if a_suite is not null then
-      l_result := upper( a_suite.object_owner || '.' || a_suite.object_name );
-      if a_procedure_name is not null then
-        l_result := l_result || upper( '.' || a_procedure_name );
-      end if;
-    end if;
-    return l_result;
-  end;
-
   procedure add_annotation_ignored_warning(
     a_suite          in out nocopy ut_suite_item,
     a_annotation     t_annotation_name,
@@ -154,8 +161,8 @@ create or replace package body ut_suite_builder is
   ) is
   begin
     a_suite.put_warning(
-        replace(a_message,'%%%','"--%'||a_annotation||'"') || ' Annotation ignored.'
-        || chr( 10 ) || 'at "' || get_qualified_object_name(a_suite, a_procedure_name) || '", line ' || a_line_no
+        replace(a_message,'%%%','"--%'||a_annotation||'"')
+          || ' Annotation ignored.' || get_object_reference( a_suite, a_procedure_name, a_line_no )
     );
   end;
 
@@ -271,8 +278,8 @@ create or replace package body ut_suite_builder is
 
         if l_exception_number is null then
           a_suite.put_warning(
-              'Invalid parameter value "'||l_throws_list(i)||'" for "--%throws" annotation. Parameter ignored.'
-              || chr( 10 ) || 'at "' || get_qualified_object_name(a_suite, a_procedure_name) || '", line ' || a_line_no
+              'Invalid parameter value "'||l_throws_list(i)
+                ||'" for "--%throws" annotation. Parameter ignored.'||get_object_reference( a_suite, a_procedure_name, a_line_no )
           );
         else
           l_exception_number_list.extend;
@@ -291,7 +298,7 @@ create or replace package body ut_suite_builder is
       if a_throws_ann_text(l_annotation_pos) is null then
         a_suite.put_warning(
             '"--%throws" annotation requires a parameter. Annotation ignored.'
-            || chr( 10 ) || 'at "' || get_qualified_object_name(a_suite, a_procedure_name) || '", line ' || l_annotation_pos
+              || get_object_reference( a_suite, a_procedure_name, l_annotation_pos )
         );
       else
         a_list :=
@@ -321,7 +328,7 @@ create or replace package body ut_suite_builder is
       if a_tags_ann_text(l_annotation_pos) is null then
         a_suite.put_warning(
             '"--%tags" annotation requires a tag value populated. Annotation ignored.'
-            || chr( 10 ) || 'at "' || get_qualified_object_name(a_suite, a_procedure_name) || '", line ' || l_annotation_pos
+            || get_object_reference( a_suite, a_procedure_name, l_annotation_pos )
         );
       else
         l_tag_list := l_tag_list multiset union distinct ut_utils.trim_list_elements(
