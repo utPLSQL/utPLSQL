@@ -411,7 +411,7 @@ create or replace package body ut_suite_cache_manager is
       select count( 1 ) into l_count from dual
        where exists(
                select 1
-                 from ut_suite_cache_package c
+                 from ut_suite_cache c
                 where c.object_owner = a_owner_name
                   and c.object_name = a_package_name
                );
@@ -419,7 +419,7 @@ create or replace package body ut_suite_cache_manager is
       select count( 1 ) into l_count from dual
        where exists(
                select 1
-                 from ut_suite_cache_package c
+                 from ut_suite_cache c
                 where c.object_owner = a_owner_name
                );
     end if;

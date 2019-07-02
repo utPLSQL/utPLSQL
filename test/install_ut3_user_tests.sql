@@ -12,6 +12,8 @@ prompt Install user tests
 @@ut3_user/helpers/some_items.tps
 @@ut3_user/helpers/some_object.tps
 @@ut3_user/test_user.pks
+@@ut3_user/expectations.pks
+@@ut3_user/expectations.pkb
 @@ut3_user/expectations/unary/test_expect_not_to_be_null.pks
 @@ut3_user/expectations/unary/test_expect_to_be_null.pks
 @@ut3_user/expectations/unary/test_expect_to_be_empty.pks

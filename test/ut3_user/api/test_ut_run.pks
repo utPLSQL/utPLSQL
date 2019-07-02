@@ -11,7 +11,8 @@ create or replace package test_ut_run is
   procedure ut_version;
 
   --%test(ut.fail() marks test as failed)
-  --%aftertest(clear_expectations)
+  --%beforetest(ut3_tester_helper.main_helper.set_ut_run_context)
+  --%aftertest(clear_expectations, ut3_tester_helper.main_helper.clear_ut_run_context)
   procedure ut_fail;
 
   --%context(ut_run_procedure)
@@ -227,6 +228,54 @@ create or replace package test_ut_run is
   --%test(Runs tests from given paths with paths list and a tag)
   procedure tag_run_func_path_list;
  
+  --%endcontext
+
+  --%context(ut3_info context)
+
+    --%beforeall
+    procedure set_application_info;
+    --%beforeall
+    procedure create_context_test_suite;
+
+    --%beforeall
+    procedure run_context_test_suite;
+
+    --%afterall
+    procedure drop_context_test_suite;
+
+    --%test(sets context for suite level beforeall)
+    procedure sys_ctx_on_suite_beforeall;
+
+    --%test(sets context for context level beforeall)
+    procedure sys_ctx_on_context_beforeall;
+
+    --%test(set for context level beforeeach)
+    procedure sys_ctx_on_beforeeach;
+
+    --%test(set for context level beforetest)
+    procedure sys_ctx_on_beforetest;
+
+    --%test(set for context level test)
+    procedure sys_ctx_on_test;
+
+    --%test(set for context level aftertest)
+    procedure sys_ctx_on_aftertest;
+
+    --%test(set for context level aftereach)
+    procedure sys_ctx_on_aftereach;
+
+    --%test(set for context level afterall)
+    procedure sys_ctx_on_context_afterall;
+
+    --%test(set for suite level afterall)
+    procedure sys_ctx_on_suite_afterall;
+
+    --%test(is cleared after run)
+    procedure sys_ctx_clear_after_run;
+
+    --%test(application info is restored after run)
+    procedure app_info_restore_after_run;
+
   --%endcontext
   
 end;

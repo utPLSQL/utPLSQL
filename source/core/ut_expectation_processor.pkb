@@ -78,10 +78,19 @@ create or replace package body ut_expectation_processor as
   end get_failed_expectations;
 
   procedure add_expectation_result(a_expectation_result ut_expectation_result) is
+    l_results ut_varchar2_list;
   begin
-    ut_event_manager.trigger_event(ut_event_manager.gc_debug, a_expectation_result);
-    g_expectations_called.extend;
-    g_expectations_called(g_expectations_called.last) := a_expectation_result;
+    if ut_session_context.is_ut_run then
+      ut_event_manager.trigger_event(ut_event_manager.gc_debug, a_expectation_result);
+      g_expectations_called.extend;
+      g_expectations_called(g_expectations_called.last) := a_expectation_result;
+    else
+      l_results := a_expectation_result.get_result_lines();
+      dbms_output.put_line( upper( ut_utils.test_result_to_char( a_expectation_result.status ) ) || '');
+      for i in 1 .. l_results.count loop
+        dbms_output.put_line( '  ' || l_results(i) );
+      end loop;
+    end if;
   end;
 
   procedure report_failure(a_message in varchar2) is

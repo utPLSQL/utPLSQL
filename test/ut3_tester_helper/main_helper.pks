@@ -44,6 +44,10 @@ create or replace package main_helper is
   procedure append_to_list(a_list in out nocopy ut3.ut_varchar2_rows, a_item clob);
 
   procedure append_to_list(a_list in out nocopy ut3.ut_varchar2_rows, a_items ut3.ut_varchar2_rows);
+
+  procedure set_ut_run_context;
+
+  procedure clear_ut_run_context;
   
 end;
 /

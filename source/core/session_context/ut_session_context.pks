@@ -1,4 +1,4 @@
-create or replace type ut_reporter_info as object (
+create or replace package ut_session_context as
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2019 utPLSQL Project
@@ -15,9 +15,31 @@ create or replace type ut_reporter_info as object (
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  object_name          varchar2(250), 
-  is_output_reporter   varchar2(1),
-  is_instantiable      varchar2(1),
-  is_final             varchar2(1)
-)
+
+  /*
+  * Sets value of a context
+  */
+  procedure set_context(a_name varchar2, a_value varchar2);
+
+  /*
+  * Clears value of a context
+  */
+  procedure clear_context(a_name varchar2);
+
+  /*
+  * Clears entire context for utPLSQL run
+  */
+  procedure clear_all_context;
+
+  /*
+  * Returns true, if session context UT3_INFO is not empty
+  */
+  function is_ut_run return boolean;
+    
+  /*
+  * Returns utPLSQL session context namespace name
+  */
+  function get_namespace return varchar2;
+
+end;
 /

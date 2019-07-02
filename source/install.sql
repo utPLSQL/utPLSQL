@@ -31,9 +31,17 @@ prompt &&line_separator
 alter session set current_schema = &&ut3_owner;
 
 @@check_object_grants.sql
-@@check_sys_grants.sql "'CREATE TYPE','CREATE VIEW','CREATE SYNONYM','CREATE SEQUENCE','CREATE PROCEDURE','CREATE TABLE'"
+@@check_sys_grants.sql "'CREATE TYPE','CREATE VIEW','CREATE SYNONYM','CREATE SEQUENCE','CREATE PROCEDURE','CREATE TABLE', 'CREATE CONTEXT'"
 --set define off
 
+begin
+  $if $$self_testing_install $then
+    execute immediate 'create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_context';
+  $else
+    execute immediate 'create or replace context ut3_info using &&ut3_owner..ut_session_context';
+  $end
+end;
+/
 
 --dbms_output buffer cache table
 @@install_component.sql 'core/ut_dbms_output_cache.sql'
@@ -98,6 +106,11 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'expectations/data_values/ut_key_anyval_pairs.tps'
 @@install_component.sql 'expectations/data_values/ut_key_anyvalues.tps'
 
+--session_context
+@@install_component.sql  'core/session_context/ut_session_context.pks'
+@@install_component.sql  'core/session_context/ut_session_context.pkb'
+@@install_component.sql  'core/session_context/ut_session_info.tps'
+@@install_component.sql  'core/session_context/ut_session_info.tpb'
 
 --output buffer table
 @@install_component.sql 'core/output_buffers/ut_output_buffer_info_tmp.sql'
