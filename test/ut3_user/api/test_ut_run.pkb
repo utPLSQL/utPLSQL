@@ -1164,7 +1164,6 @@ Failures:%
         ||'%BEFORE_SUITE:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%BEFORE_SUITE:SUITE_PATH=some.suite.path.check_context'
         ||'%BEFORE_SUITE:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
-        ||'%BEFORE_SUITE:TIME_IN_SUITE=+000000000 00:00:0'
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=before_suite%'
@@ -1187,8 +1186,6 @@ Failures:%
         ||'%BEFORE_CONTEXT:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%BEFORE_CONTEXT:SUITE_PATH=some.suite.path.check_context'
         ||'%BEFORE_CONTEXT:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
-        ||'%BEFORE_CONTEXT:TIME_IN_CONTEXT=+000000000 00:00:0'
-        ||'%BEFORE_CONTEXT:TIME_IN_SUITE=+000000000 00:00:0'
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=before_context%'
@@ -1213,9 +1210,6 @@ Failures:%
         ||'%BEFORE_EACH_TEST:TEST_DESCRIPTION=Some test description'
         ||'%BEFORE_EACH_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
         ||'%BEFORE_EACH_TEST:TEST_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
-        ||'%BEFORE_EACH_TEST:TIME_IN_CONTEXT=+000000000 00:00:0%'
-        ||'%BEFORE_EACH_TEST:TIME_IN_SUITE=+000000000 00:00:0%'
-        ||'%BEFORE_EACH_TEST:TIME_IN_TEST=+000000000 00:00:0%'
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=before_each_test%'
@@ -1239,9 +1233,6 @@ Failures:%
         ||'%BEFORE_TEST:TEST_DESCRIPTION=Some test description'
         ||'%BEFORE_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
         ||'%BEFORE_TEST:TEST_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
-        ||'%BEFORE_TEST:TIME_IN_CONTEXT=+000000000 00:00:0%'
-        ||'%BEFORE_TEST:TIME_IN_SUITE=+000000000 00:00:0%'
-        ||'%BEFORE_TEST:TIME_IN_TEST=+000000000 00:00:0%'
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=before_test%'
@@ -1265,9 +1256,6 @@ Failures:%
         ||'%THE_TEST:TEST_DESCRIPTION=Some test description'
         ||'%THE_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
         ||'%THE_TEST:TEST_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
-        ||'%THE_TEST:TIME_IN_CONTEXT=+000000000 00:00:0%'
-        ||'%THE_TEST:TIME_IN_SUITE=+000000000 00:00:0%'
-        ||'%THE_TEST:TIME_IN_TEST=+000000000 00:00:0%'
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=the_test%'
@@ -1291,9 +1279,6 @@ Failures:%
         ||'%AFTER_TEST:TEST_DESCRIPTION=Some test description'
         ||'%AFTER_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
         ||'%AFTER_TEST:TEST_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
-        ||'%AFTER_TEST:TIME_IN_CONTEXT=+000000000 00:00:0%'
-        ||'%AFTER_TEST:TIME_IN_SUITE=+000000000 00:00:0%'
-        ||'%AFTER_TEST:TIME_IN_TEST=+000000000 00:00:0%'
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=after_test%'
@@ -1317,9 +1302,6 @@ Failures:%
         ||'%AFTER_EACH_TEST:TEST_DESCRIPTION=Some test description'
         ||'%AFTER_EACH_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
         ||'%AFTER_EACH_TEST:TEST_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
-        ||'%AFTER_EACH_TEST:TIME_IN_CONTEXT=+000000000 00:00:0%'
-        ||'%AFTER_EACH_TEST:TIME_IN_SUITE=+000000000 00:00:0%'
-        ||'%AFTER_EACH_TEST:TIME_IN_TEST=+000000000 00:00:0%'
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=after_each_test%'
@@ -1340,8 +1322,6 @@ Failures:%
         ||'%AFTER_CONTEXT:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%AFTER_CONTEXT:SUITE_PATH=some.suite.path.check_context'
         ||'%AFTER_CONTEXT:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
-        ||'%AFTER_CONTEXT:TIME_IN_CONTEXT=+000000000 00:00:0%'
-        ||'%AFTER_CONTEXT:TIME_IN_SUITE=+000000000 00:00:0%'
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=after_context%'
@@ -1359,7 +1339,6 @@ Failures:%
         ||'%AFTER_SUITE:SUITE_PACKAGE='||gc_owner||'.check_context'
         ||'%AFTER_SUITE:SUITE_PATH=some.suite.path.check_context'
         ||'%AFTER_SUITE:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
-        ||'%AFTER_SUITE:TIME_IN_SUITE=+000000000 00:00:0%'
         ||'%APPLICATION_INFO:MODULE=utPLSQL'
         ||'%APPLICATION_INFO:ACTION=check_context'
         ||'%APPLICATION_INFO:CLIENT_INFO=after_suite%'

@@ -19,9 +19,6 @@ create or replace type ut_session_info under ut_event_listener (
   module             varchar2(4000),
   action             varchar2(4000),
   client_info        varchar2(4000),
-  suite_start_time   timestamp,
-  context_start_time timestamp,
-  test_start_time    timestamp,
   constructor function ut_session_info(self in out nocopy ut_session_info) return self as result,
 
   member procedure before_calling_run(self in out nocopy ut_session_info, a_run in ut_run),

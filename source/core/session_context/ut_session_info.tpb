@@ -42,18 +42,16 @@ create or replace type body ut_session_info as
   member procedure before_calling_suite(self in out nocopy ut_session_info, a_suite in ut_logical_suite) is
   begin
     if a_suite is not of (ut_suite_context) then
-      suite_start_time := a_suite.start_time;
       ut_session_context.set_context( 'suite_path',        a_suite.path );
       ut_session_context.set_context( 'suite_package',     a_suite.object_owner||'.'||a_suite.object_name );
       ut_session_context.set_context( 'suite_description', a_suite.description );
-      ut_session_context.set_context( 'suite_start_time',  ut_utils.to_string(suite_start_time)  );
+      ut_session_context.set_context( 'suite_start_time',  ut_utils.to_string(a_suite.start_time)  );
       dbms_application_info.set_module( 'utPLSQL',         a_suite.object_name );
     else
-      context_start_time := a_suite.start_time;
       ut_session_context.set_context( 'context_name',        a_suite.name );
       ut_session_context.set_context( 'context_path',        a_suite.path);
       ut_session_context.set_context( 'context_description', a_suite.description );
-      ut_session_context.set_context( 'context_start_time',  ut_utils.to_string(context_start_time)  );
+      ut_session_context.set_context( 'context_start_time',  ut_utils.to_string(a_suite.start_time)  );
     end if;
   end;
 
@@ -64,25 +62,20 @@ create or replace type body ut_session_info as
       ut_session_context.clear_context( 'suite_path' );
       ut_session_context.clear_context( 'suite_description' );
       ut_session_context.clear_context( 'suite_start_time' );
-      ut_session_context.clear_context( 'time_in_suite' );
-      suite_start_time := null;
     else
       ut_session_context.clear_context( 'context_name' );
       ut_session_context.clear_context( 'context_path' );
       ut_session_context.clear_context( 'context_description' );
       ut_session_context.clear_context( 'context_start_time' );
-      ut_session_context.clear_context( 'time_in_context' );
-      context_start_time := null;
     end if;
   end;
 
 
   member procedure before_calling_test(self in out nocopy ut_session_info, a_test in ut_test) is
   begin
-    test_start_time := a_test.start_time;
     ut_session_context.set_context( 'test_name', a_test.object_owner||'.'||a_test.object_name||'.'||a_test.name );
     ut_session_context.set_context( 'test_description', a_test.description );
-    ut_session_context.set_context( 'test_start_time',  ut_utils.to_string(test_start_time)  );
+    ut_session_context.set_context( 'test_start_time',  ut_utils.to_string(a_test.start_time)  );
   end;
 
   member procedure after_calling_test (self in out nocopy ut_session_info, a_test in ut_test) is
@@ -90,8 +83,6 @@ create or replace type body ut_session_info as
     ut_session_context.clear_context( 'test_name' );
     ut_session_context.clear_context( 'test_description' );
     ut_session_context.clear_context( 'test_start_time' );
-    ut_session_context.clear_context( 'time_in_test' );
-    test_start_time := null;
   end;
 
   member procedure before_calling_executable(self in out nocopy ut_session_info, a_executable in ut_executable) is
@@ -102,15 +93,6 @@ create or replace type body ut_session_info as
       a_executable.owner_name||'.'||a_executable.object_name||'.'||a_executable.procedure_name
     );
     dbms_application_info.set_client_info( a_executable.procedure_name );
-    if suite_start_time is not null then
-      ut_session_context.set_context( 'time_in_suite', current_timestamp - suite_start_time );
-      if context_start_time is not null then
-        ut_session_context.set_context( 'time_in_context', current_timestamp - context_start_time );
-      end if;
-      if test_start_time is not null then
-        ut_session_context.set_context( 'time_in_test', current_timestamp - test_start_time );
-      end if;
-    end if;
   end;
 
   member procedure after_calling_executable(self in out nocopy ut_session_info, a_executable in ut_executable) is
