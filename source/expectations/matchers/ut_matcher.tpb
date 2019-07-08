@@ -40,12 +40,12 @@ create or replace type body ut_matcher as
 
   member function description return varchar2 is
   begin
-    return 'was expected to '||name();
+    return ' was expected to '||name();
   end;
 
   member function description_when_negated return varchar2 is
   begin
-    return 'was expected not to '||name();
+    return ' was expected not to '||name();
   end;
 
   member function error_message(a_actual ut_data_value) return varchar2 is

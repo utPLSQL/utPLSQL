@@ -608,7 +608,7 @@ create or replace package body ut_compound_data_helper is
   begin
     return 'SQL exception thrown when fetching data from cursor:'||
       ut_utils.remove_error_from_stack(sqlerrm,ut_utils.gc_xml_processing)||chr(10)||
-      ut_expectation_processor.who_called_expectation(a_error_stack)||
+      ut_expectation_processor.who_called_expectation(a_error_stack)||chr(10)||
       'Check the query and data for errors.';   
   end;
 

@@ -105,10 +105,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ count =  ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 0 ]
-%Diff:
-%Rows: [  all different ]
-%All rows are different as the columns position is not matching.]';
+    l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ null ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 0 ]]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -126,7 +123,7 @@ create or replace package body test_expectation_anydata is
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
     --Assert
-    l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ count =  ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 1 ]
+    l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ null ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 1 ]
 %Diff:
 %Rows: [ 1 differences ]
 %Row No. 1 - Missing:  <TEST_DUMMY_OBJECT><ID>1</ID><name>A</name><Value>0</Value></TEST_DUMMY_OBJECT>]';
@@ -665,7 +662,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_actual   := anydata.convertCollection(  ut3_tester_helper.t_tab_varchar('A')  );
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
-    l_expected_message := q'[%Actual: ut3_tester_helper.t_tab_varchar [ count = 1 ] was expected to equal: ut3_tester_helper.t_tab_varchar [ count =  ]
+    l_expected_message := q'[%Actual: ut3_tester_helper.t_tab_varchar [ count = 1 ] was expected to equal: ut3_tester_helper.t_tab_varchar [ null ]
 %Diff:
 %Rows: [ 1 differences ]
 %Row No. 1 - Extra:    <T_TAB_VARCHAR>A</T_TAB_VARCHAR>]';
@@ -785,7 +782,7 @@ Rows: [ 60 differences, showing first 20 ]
     g_test_actual   := anydata.convertCollection(  ut3_tester_helper.t_varray(1)  );
     --Act
     ut3.ut.expect( g_test_actual ).to_equal( g_test_expected );
-    l_expected_message := q'[%Actual: ut3_tester_helper.t_varray [ count = 1 ] was expected to equal: ut3_tester_helper.t_varray [ count =  ]
+    l_expected_message := q'[%Actual: ut3_tester_helper.t_varray [ count = 1 ] was expected to equal: ut3_tester_helper.t_varray [ null ]
 %Diff:
 %Rows: [ 1 differences ]
 %Row No. 1 - Extra:    <T_VARRAY>1</T_VARRAY>]';

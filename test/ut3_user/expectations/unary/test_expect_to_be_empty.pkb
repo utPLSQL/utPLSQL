@@ -38,7 +38,7 @@ create or replace package body test_expect_to_be_empty is
 
     l_expected_message := q'[Actual: (refcursor [ count = 1 ])%
     <ROW><DUMMY>X</DUMMY></ROW>%
-was expected to be empty%%]';
+ was expected to be empty%]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
 
     --Assert

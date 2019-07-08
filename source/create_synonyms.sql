@@ -91,6 +91,7 @@ create &action_type. synonym &ut3_user.ut_expectation_compound for &&ut3_owner..
 create &action_type. synonym &ut3_user.ut_expectation_json for &&ut3_owner..ut_expectation_json;
 
 --matchers
+create &action_type. synonym &ut3_user.ut_matcher for &&ut3_owner..ut_matcher;
 create &action_type. synonym &ut3_user.be_between for &&ut3_owner..be_between;
 create &action_type. synonym &ut3_user.be_empty for &&ut3_owner..be_empty;
 create &action_type. synonym &ut3_user.be_false for &&ut3_owner..be_false;

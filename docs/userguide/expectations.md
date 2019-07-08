@@ -2,93 +2,263 @@
 
 # Expectation concepts 
 Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
-utPLSQL uses a combination of expectation and matcher to perform the check on the data.
+utPLSQL uses expectations and matchers to perform the check on the data.
 
-Example of a unit test procedure body.
+Example of an expectation
 ```sql
 begin
-  ut.expect( 'the tested value', 'optional custom failure message' ).to_( equal('the expected value') );
+  ut.expect( 'the tested value' ).to_equal('the expected value');
 end;
+/
 ```
 
-Expectation is a set of the expected value(s), actual values(s) and the matcher(s) to run on those values.
-You can also add a custom failure message for an expectation.
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  Actual: 'the tested value' (varchar2) was expected to equal: 'the expected value' (varchar2)
+  at "anonymous block", line 2
+```
 
-Matcher defines the comparison operation to be performed on expected and actual values.
+Expectation is a combination of:
+- the expected value
+- optional custom message for the expectation 
+- the matcher used to perform comparison
+- them matcher parameters (actual value), depending on the matcher type
+  
+**Note:**
+> The output from expectation is provided directly DBMS_OUTPUT only when the expectation is executed standalone (not as part of unit test).
+> The output from expectation contains call stack trace only when expectation fails.                                       
+> Source code of the line which called the expectation is only reported when the line is part of in-database code (package) and the user calling expectation has privileges to see that source code.
+
+Matcher defines the comparison operation to be performed on expected (and actual) value.
 Pseudo-code:
 ```sql
   ut.expect( a_actual {data-type} [, a_message {varchar2}] ).to_( {matcher} );
   ut.expect( a_actual {data-type} [, a_message {varchar2}] ).not_to( {matcher} );
 ```
 
-All matchers have shortcuts like below, sou you don't need to surround matcher with brackets, unless you want to pass it as parameter to the expectation.
+Expectations provide two variants of syntax that you can use. Both variants are functionally-equal but give different usage flexibility.  
+
+Syntax where matcher is passed as parameter to the expectation:
 ```sql
-  ut.expect( a_actual {data-type} ).to_{matcher};
-  ut.expect( a_actual {data-type} ).not_to_{matcher};
+  ut.expect( a_actual ).to_( {matcher} );
+  ut.expect( a_actual ).not_to( {matcher} );
+  -- example
+  ut.expect( 1 ).to_( be_null() );
 ```
 
-## Providing a custom failure message
-You can provide a custom failure message as second argument for the expectation.
+Shortcut syntax, where matcher is directly part of expectation:
+```sql
+  ut.expect( a_actual ).to_{matcher};
+  ut.expect( a_actual ).not_to_{matcher};
+  
+  --example
+  ut.expect( 1 ).to_( be_null() );
+```
+
+When using shortcut syntax you don't need to surround matcher with brackets. Shortcut syntax is provided for convenience.
+
+If you would like to perform more dynamic checks in your code, you could pass the matcher into a procedure like in the below example:
+```sql
+declare
+  procedure do_check( p_actual varchar2, p_matcher ut_matcher ) is 
+  begin
+    ut.expect(p_actual).to_( p_matcher );
+  end;
+begin
+  do_check( 'a', equal('b') );
+  do_check( 'Alibaba', match('ali','i') );
+end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  Actual: 'a' (varchar2) was expected to equal: 'b' (varchar2)
+  at "anonymous block", line 4
+  at "anonymous block", line 7
+SUCCESS
+  Actual: 'Alibaba' (varchar2) was expected to match: 'ali' , modifiers 'i'
+```
+
+**Note:**
+> The examples in the document will be only using shortcut syntax, to keep the document brief.  
+
+# Matchers
+utPLSQL provides the following matchers to perform checks on the expected and actual values.  
+
+- `be_between( a_upper_bound {data-type}, a_lower_bound {data-type} )`
+- `be_empty()`
+- `be_false()`
+- `be_greater_than( a_expected {data-type} )`
+- `be_greater_or_equal( a_expected {data-type} )`
+- `be_less_or_equal( a_expected {data-type} )`
+- `be_less_than( a_expected {data-type} )`
+- `be_like( a_mask {varchar2} [, a_escape_char {varchar2}] )`
+- `be_not_null()`
+- `be_null()`
+- `be_true()`
+- `equal( a_expected {data-type} [, a_nulls_are_equal {boolean}] )`
+- `contain( a_expected {data-type})`
+- `have_count( a_expected {integer} )`
+- `match( a_patter {varchar2} [, a_modifiers {varchar2}] )`
+
+## Providing a custom message
+You can provide a custom failure message as second argument for the expectation by passing message as the second parameter to the expectation.
+`ut.expect( a_actual {data-type}, a_message {varchar2} ).to_{matcher}`
+
+Example:
 ````sql
-  -- Pseudocode
-  ut.expect( a_actual {data-type}, a_message {varchar2} ).to_{matcher};
-  -- Example
-  ut.expect( 'supercat', 'checked superhero-animal was not a dog' ).to_( equal('superdog') );
+exec  ut.expect( 'supercat', 'checked superhero-animal was not a dog' ).to_equal('superdog');
 ````
 
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  "checked superhero-animal was not a dog"
+  Actual: 'supercat' (varchar2) was expected to equal: 'superdog' (varchar2)
+  at "anonymous block", line 1
+```
 If the message is provided, it is being added to the normal failure message returned by the matcher.
-
 This is mostly useful when your expectations accept dynamic content, as you can provide additional context to make failing test results more readable.
 
-### Dynamic tests example
-You have a bunch of tables and an archive functionality for them and you want to test if the things you put into live-tables are removed from live-tables and present in archive-tables.
+In most cases, there is no need to provide custom message to expectation. This is because utPLSQL identifies:
+- The test used to execute the expectation
+- The line number where the expectation is placed in your test code
+- The line text of the expectation
 
-````sql
-procedure test_data_existance( i_tableName varchar2 ) 
-  as
-    v_count_real integer;
-    v_count_archive integer;
-  begin
-    
-    execute immediate 'select count(*) from ' || i_tablename || '' into v_count_real;
-    execute immediate 'select count(*) from ' || i_tablename || '_ARCHIVE' into v_count_archive;
+Custom message is useful, if your expectation is placed in a shared procedure to perform a check and your test is using the procedure multiple times.
 
-    ut.expect( v_count_archive, 'failure checking entry-count of ' || i_tablename || '_archive' ).to_( equal(1) );
-    ut.expect( v_count_real, 'failure checking entry-count of ' || i_tablename ).to_( equal(0) );
-
-  end;
-
- procedure test_archive_data
-  as
-  begin
-    -- Arrange
-   -- insert several data into real-tables here
-
-    -- Act
-    package_to_test.archive_data();
-
-    -- Assert
-    test_data_existance('TABLE_A');
-    test_data_existance('TABLE_B');
-    test_data_existance('TABLE_C');
-    test_data_existance('TABLE_D');
+Example:
+```sql
+create or replace package shared_expectation_test is
+  --%suite
+  
+  --%test
+  procedure the_test;
 end;
-````
-A failed output will look like this:
-````
+/
+create or replace package body shared_expectation_test is
+  procedure table_is_empty(p_table_name varchar2) is
+    l_count integer;
+  begin
+    execute immediate 'select count(*) from '||p_table_name into l_count;
+    ut.expect( l_count, 'Checking table '||p_table_name ).to_equal(0);
+  end;
+  
+  procedure the_test is
+  begin
+    table_is_empty('ALL_USERS');
+    table_is_empty('ALL_TABLES');
+  end;
+end;
+/
+
+exec ut.run('shared_expectation_test');
+```  
+
+Returns following output via DBMS_OUTPUT:
+```
+shared_expectation_test
+  the_test [.064 sec] (FAILED - 1)
+ 
 Failures:
  
-  1) test_archive_data
-      "failure checking entry-count of table_a_archive"
-      Actual: 2 (number) was expected to equal: 1 (number) 
-      at "UT_TEST_PACKAGE.TEST_DATA_EXISTANCE", line 12 ut.expect( v_count_archive, 'failure checking entry-count of ' || i_tablename || '_archive' ).to_( equal(1) );
-````
+  1) the_test
+      "Checking table ALL_USERS"
+      Actual: 28 (number) was expected to equal: 0 (number)
+      at "UT3$USER#.SHARED_EXPECTATION_TEST.TABLE_IS_EMPTY", line 6 ut.expect( l_count, 'Checking table '||p_table_name ).to_equal(0);
+      at "UT3$USER#.SHARED_EXPECTATION_TEST.THE_TEST", line 11
+       
+      "Checking table ALL_TABLES"
+      Actual: 55 (number) was expected to equal: 0 (number)
+      at "UT3$USER#.SHARED_EXPECTATION_TEST.TABLE_IS_EMPTY", line 6 ut.expect( l_count, 'Checking table '||p_table_name ).to_equal(0);
+      at "UT3$USER#.SHARED_EXPECTATION_TEST.THE_TEST", line 12
+       
+Finished in .066344 seconds
+1 tests, 1 failed, 0 errored, 0 disabled, 0 warning(s)
+```  
+
+In the tests results window you can see the list of failed expectations for a test as well as:
+- the additional message for expectation
+- the reason why the expectation failed
+- the line number of the expectation
+- the line text of the expectations
+- the call stack for the expectation (in the example it's the lines that called the procedure `table_is_empty`)
+
+## Negating a matcher
+
+Expectations provide a very convenient way to perform a check on a negated matcher.
+
+Syntax to check for matcher evaluating to true:
+```sql
+begin 
+  ut.expect( a_actual {data-type} ).to_{matcher};
+  ut.expect( a_actual {data-type} ).to_( {matcher} );
+end;
+```
+
+Syntax to check for matcher evaluating to false:
+```sql
+begin
+  ut.expect( a_actual {data-type} ).not_to_{matcher};
+  ut.expect( a_actual {data-type} ).not_to( {matcher} );
+end;
+```
+
+If a matcher evaluated to NULL, then both `to_` and `not_to` will cause the expectation to report failure.
+
+Example:
+```sql
+declare
+  l_actual boolean;
+begin
+  ut.expect( l_actual ).to_be_true();
+  ut.expect( l_actual ).not_to_be_true();
+end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  Actual: NULL (boolean) was expected to be true
+  at "anonymous block", line 4
+FAILURE
+  Actual: NULL (boolean) was expected not to be true
+  at "anonymous block", line 5
+```
+Since NULL is neither *true* nor *false*, both expectations will report failure.
+
+# Supported data types
+
+The matrix below illustrates the data types supported by different matchers.
+
+|         Matcher         | blob | boolean | clob | date | number | timestamp | timestamp<br>with<br>timezone | timestamp<br>with<br>local<br>timezone | varchar2 | interval<br>year<br>to<br>month | interval<br>day<br>to<br>second | cursor | nested<br>table<br>/ varray | object | json |
+| :---------------------: | :--: | :-----: | :--: | :--: | :----: | :-------: | :---------------------------: | :------------------------------------: | :------: | :-----------------------------: | :-----------------------------: | :----: | :-------------------------: | :----: | :--: |
+|     **be_not_null**     |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
+|       **be_null**       |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
+|      **be_false**       |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
+|       **be_true**       |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
+|   **be_greater_than**   |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+| **be_greater_or_equal** |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+|  **be_less_or_equal**   |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+|    **be_less_than**     |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
+|     **be_between**      |      |         |      |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |        |                             |        |      |
+|        **equal**        |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
+|       **contain**       |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |   X    |      |
+|        **match**        |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
+|       **be_like**       |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
+|      **be_empty**       |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
+|     **have_count**      |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
+
 
 # Expecting exceptions
 
-Testing is not limited to checking for happy-path scenarios. When writing tests, you often want to check that in specific scenarios, an exception is thrown.
+Testing is not limited to checking for happy-path scenarios. When writing tests, you often want to validate that in specific scenarios, an exception is thrown.
 
-Use the `--%throws` annotation, to test for expected exceptions 
+Use the `--%throws` annotation, to test for expected exceptions. 
 
 Example:
 ```sql
@@ -101,9 +271,6 @@ end;
 create or replace package test_divide as
   --%suite(Divide function)
 
-  --%test(Return divided numbers)
-  procedure divides_numbers;
-
   --%test(Throws divisor equal)
   --%throws(-01476)
   procedure raises_divisor_exception;
@@ -112,11 +279,6 @@ end;
 
 create or replace package body test_divide is
 
-  procedure divides_numbers is
-  begin
-    ut.expect(divide(6,2)).to_equal(3);
-  end;
-  
   procedure raises_divisor_exception is
     x integer;
   begin
@@ -129,40 +291,77 @@ end;
 exec ut.run('test_divide');
 ```
 
-For details see documentation of the [`--%throws` annotation.](annotations.md#throws-annotation)  
+Returns following output via DBMS_OUTPUT:
+```
+Divide function
+  Throws divisor equal [.007 sec]
+ 
+Finished in .009229 seconds
+1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```
+
+For more details see documentation of the [`--%throws` annotation.](annotations.md#throws-annotation)  
 
 
-# Matchers
-utPLSQL provides the following matchers to perform checks on the expected and actual values.  
+# Matchers 
 
-- `be_between`
-- `be_empty`
-- `be_false`
-- `be_greater_than`
-- `be_greater_or_equal`
-- `be_less_or_equal`
-- `be_less_than`
-- `be_like`
-- `be_not_null`
-- `be_null`
-- `be_true`
-- `equal`
-- `contain`
-- `have_count`
-- `match`
+You can choose different matchers to validate the your PL/SQL code is working as expected.
+
 
 ## be_between
 Validates that the actual value is between the lower and upper bound.
 
 Example:
 ```sql
+declare
+  l_timestamp     timestamp := current_timestamp;
+  l_timestamp_tz  timestamp with time zone := systimestamp;
+  l_timestamp_ltz timestamp with local time zone := systimestamp;
+  l_interval_ds   interval day to second := interval '1' second;
+  l_interval_ym   interval year to month := interval '1' year;
 begin
-  ut.expect( a_actual => 3 ).to_be_between( a_lower_bound => 1, a_upper_bound => 3 );
   ut.expect( 3 ).to_be_between( 1, 3 );
-  --or
-  ut.expect( a_actual => 3 ).to_( be_between( a_lower_bound => 1, a_upper_bound => 3 ) );
-  ut.expect( 3 ).to_( be_between( 1, 3 ) );  
+  ut.expect( 5 ).to_( be_between( 1, 3 ) );
+  ut.expect( 3 ).not_to_be_between( 1, 3 );
+  ut.expect( 5 ).not_to( be_between( 1, 3 ) );  
+  ut.expect( sysdate ).to_be_between( sysdate, sysdate + 1 );
+  ut.expect( l_timestamp ).to_be_between( l_timestamp,  l_timestamp );
+  ut.expect( systimestamp ).to_be_between( l_timestamp_tz, systimestamp );
+  ut.expect( systimestamp ).to_be_between( l_timestamp_ltz, l_timestamp_ltz );
+  ut.expect( l_interval_ds ).to_be_between( interval '0.1' second, interval '1' day );
+  ut.expect( l_interval_ym ).to_be_between( interval '12' month, interval '12' year );
+  ut.expect( 'Abb' ).to_be_between( 'Aba', 'Abc' );
 end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: 3 (number) was expected to be between: 1  and 3 
+FAILURE
+  Actual: 5 (number) was expected to be between: 1  and 3 
+  at "anonymous block", line 9
+FAILURE
+  Actual: 3 (number) was expected not to be between: 1  and 3 
+  at "anonymous block", line 10
+SUCCESS
+  Actual: 5 (number) was expected not to be between: 1  and 3 
+SUCCESS
+  Actual: 2019-07-07T21:25:27 (date) was expected to be between: 2019-07-07T21:25:27  and 2019-07-08T21:25:27 
+SUCCESS
+  Actual: 2019-07-07T22:25:27.701546000 (timestamp) was expected to be between: 2019-07-07T22:25:27.701546000  and 2019-07-07T22:25:27.701546000 
+SUCCESS
+  Actual: 2019-07-07T21:25:27.705768000 +00:00 (timestamp with time zone) was expected to be between: 2019-07-07T21:25:27.701596000 +00:00  and 2019-07-07T21:25:27.705808000 +00:00 
+FAILURE
+  The matcher 'be between' cannot be used with data type (timestamp with time zone).
+  at "anonymous block", line 15
+SUCCESS
+  Actual: +000000000 00:00:01.000000000 (interval day to second) was expected to be between: +000000000 00:00:00.100000000  and +000000001 00:00:00.000000000 
+SUCCESS
+  Actual: +000000001-00 (interval year to month) was expected to be between: +000000001-00  and +000000012-00 
+SUCCESS
+  Actual: 'Abb' (varchar2) was expected to be between: 'Aba'  and 'Abc'
 ```
 
 ## be_empty
@@ -174,27 +373,44 @@ Can be used with `BLOB`,`CLOB`, `refcursor` or `nested table`/`varray` passed as
 BLOB/CLOB that is initialized is not NULL but it is actually equal to `empty_blob()`/`empty_clob()`.
 
 
-Usage:
+Example:
 ```sql
-procedure test_if_cursor_is_empty is
+declare
   l_cursor sys_refcursor;
 begin
-  open l_cursor for select * from dual where 1 = 0;
+  open l_cursor for select * from dual where 0=1;
   ut.expect( l_cursor ).to_be_empty();
-  --or
-  ut.expect( l_cursor ).to_( be_empty() );
+  ut.expect( anydata.convertCollection(ut_varchar2_list()) ).to_( be_empty() );
+  ut.expect( empty_clob() ).not_to_be_empty();
+  ut.expect( empty_blob() ).not_to( be_empty() );
+  ut.expect( 1 ).not_to( be_empty() );
 end;
+/
 ```
 
-```sql
-procedure test_if_cursor_is_empty is
-  l_data ut_varchar2_list;
-begin
-  l_data := ut_varchar2_list();
-  ut.expect( anydata.convertCollection( l_data ) ).to_be_empty();
-  --or
-  ut.expect( anydata.convertCollection( l_data ) ).to_( be_empty() );
-end;
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: (refcursor [ count = 0 ])
+      Data-types:
+      <DUMMY>VARCHAR2</DUMMY>
+      Data:
+   was expected to be empty
+SUCCESS
+  Actual: (ut3.ut_varchar2_list [ count = 0 ])
+      Data-types:
+      <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
+      Data:
+   was expected to be empty
+FAILURE
+  Actual: EMPTY (clob) was expected not to be empty
+  at "anonymous block", line 7
+FAILURE
+  Actual: EMPTY (blob) was expected not to be empty
+  at "anonymous block", line 8
+FAILURE
+  The matcher 'be empty' cannot be used with data type (number).
+  at "anonymous block", line 9
 ```
 
 ## be_false
@@ -204,9 +420,25 @@ Usage:
 ```sql
 begin
   ut.expect( ( 1 = 0 ) ).to_be_false();
-  --or 
-  ut.expect( ( 1 = 0 ) ).to_( be_false() );
+  ut.expect( ( 1 = 1 ) ).to_( be_false() );
+  ut.expect( ( 1 = 0 ) ).not_to_be_false();
+  ut.expect( ( 1 = 1 ) ).not_to( be_false() );
 end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: FALSE (boolean) was expected to be false
+FAILURE
+  Actual: TRUE (boolean) was expected to be false
+  at "anonymous block", line 3
+FAILURE
+  Actual: FALSE (boolean) was expected not to be false
+  at "anonymous block", line 4
+SUCCESS
+  Actual: TRUE (boolean) was expected not to be false
 ```
 
 ## be_greater_or_equal
@@ -216,9 +448,25 @@ Usage:
 ```sql
 begin
   ut.expect( sysdate ).to_be_greater_or_equal( sysdate - 1 );
-  --or
-  ut.expect( sysdate ).to_( be_greater_or_equal( sysdate - 1 ) );
+  ut.expect( sysdate ).to_( be_greater_or_equal( sysdate + 1 ) );
+  ut.expect( sysdate ).not_to_be_greater_or_equal( sysdate - 1 );
+  ut.expect( sysdate ).not_to( be_greater_or_equal( sysdate + 1 ) );
 end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: 2019-07-07T22:43:29 (date) was expected to be greater or equal: 2019-07-06T22:43:29 (date)
+FAILURE
+  Actual: 2019-07-07T22:43:29 (date) was expected to be greater or equal: 2019-07-08T22:43:29 (date)
+  at "anonymous block", line 3
+FAILURE
+  Actual: 2019-07-07T22:43:29 (date) was expected not to be greater or equal: 2019-07-06T22:43:29 (date)
+  at "anonymous block", line 4
+SUCCESS
+  Actual: 2019-07-07T22:43:29 (date) was expected not to be greater or equal: 2019-07-08T22:43:29 (date)
 ```
 
 ## be_greater_than
@@ -228,9 +476,25 @@ Usage:
 ```sql
 begin
   ut.expect( 2 ).to_be_greater_than( 1 );
-  --or 
-  ut.expect( 2 ).to_( be_greater_than( 1 ) );
+  ut.expect( 0 ).to_( be_greater_than( 1 ) );
+  ut.expect( 2 ).not_to_be_greater_than( 1 );
+  ut.expect( 0 ).not_to( be_greater_than( 1 ) );
 end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: 2 (number) was expected to be greater than: 1 (number)
+FAILURE
+  Actual: 0 (number) was expected to be greater than: 1 (number)
+  at "anonymous block", line 3
+FAILURE
+  Actual: 2 (number) was expected not to be greater than: 1 (number)
+  at "anonymous block", line 4
+SUCCESS
+  Actual: 0 (number) was expected not to be greater than: 1 (number)
 ```
 
 ## be_less_or_equal
@@ -240,9 +504,25 @@ Usage:
 ```sql
 begin
   ut.expect( 3 ).to_be_less_or_equal( 3 );
-  --or 
-  ut.expect( 3 ).to_( be_less_or_equal( 3 ) );
+  ut.expect( 4 ).to_( be_less_or_equal( 3 ) );
+  ut.expect( 3 ).not_to_be_less_or_equal( 3 );
+  ut.expect( 4 ).not_to( be_less_or_equal( 3 ) );
 end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: 3 (number) was expected to be less or equal: 3 (number)
+FAILURE
+  Actual: 4 (number) was expected to be less or equal: 3 (number)
+  at "anonymous block", line 3
+FAILURE
+  Actual: 3 (number) was expected not to be less or equal: 3 (number)
+  at "anonymous block", line 4
+SUCCESS
+  Actual: 4 (number) was expected not to be less or equal: 3 (number)
 ```
 
 ## be_less_than
@@ -252,30 +532,64 @@ Usage:
 ```sql
 begin
   ut.expect( 3 ).to_be_less_than( 2 );
-  --or 
-  ut.expect( 3 ).to_( be_less_than( 2 ) );
+  ut.expect( 0 ).to_( be_less_than( 2 ) );
+  ut.expect( 3 ).not_to_be_less_than( 2 );
+  ut.expect( 0 ).not_to( be_less_than( 2 ) );
 end;
+/
 ```
 
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  Actual: 3 (number) was expected to be less than: 2 (number)
+  at "anonymous block", line 2
+SUCCESS
+  Actual: 0 (number) was expected to be less than: 2 (number)
+SUCCESS
+  Actual: 3 (number) was expected not to be less than: 2 (number)
+FAILURE
+  Actual: 0 (number) was expected not to be less than: 2 (number)
+  at "anonymous block", line 5
+```
 
 ## be_like
 Validates that the actual value is like the expected expression.
 
-Usage:
-```sql
-begin
-  ut.expect( 'Lorem_impsum' ).to_be_like( a_mask => '%rem#_%', a_escape_char => '#' );
-  ut.expect( 'Lorem_impsum' ).to_be_like( '%rem#_%', '#' );
-  --or 
-  ut.expect( 'Lorem_impsum' ).to_( be_like( a_mask => '%rem#_%', a_escape_char => '#' ) );
-  ut.expect( 'Lorem_impsum' ).to_( be_like( '%rem#_%', '#' ) );
-end;
-```
+Syntax:
+
+`ut.expect( a_actual ).to_be_like( a_mask [, a_escape_char] )`
 
 Parameters `a_mask` and `a_escape_char` represent valid parameters of the [Oracle LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF52142).
 
 If you use Oracle Database version 11.2.0.4, you may run into Oracle Bug 14402514: WRONG RESULTS WITH LIKE ON CLOB USING ESCAPE CHARACTER. In this case we recommend to use `match` instead of `be_like`.
 
+Usage:
+```sql
+begin
+  ut.expect( 'Lorem_impsum' ).to_be_like( '%rem%');
+  ut.expect( 'Lorem_impsum' ).to_be_like( '%rem\_i%', '\' );
+  ut.expect( 'Lorem_impsum' ).to_( be_like( 'Lor_m%' ) );
+  ut.expect( 'Lorem_impsum' ).not_to_be_like( '%rem%');
+  ut.expect( 'Lorem_impsum' ).not_to( be_like( '%reM%') );
+end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: 'Lorem_impsum' (varchar2) was expected to be like: '%rem%' 
+SUCCESS
+  Actual: 'Lorem_impsum' (varchar2) was expected to be like: '%rem\_i%' , escape '\'
+SUCCESS
+  Actual: 'Lorem_impsum' (varchar2) was expected to be like: 'Lor_m%' 
+FAILURE
+  Actual: 'Lorem_impsum' (varchar2) was expected not to be like: '%rem%' 
+  at "anonymous block", line 5
+SUCCESS
+  Actual: 'Lorem_impsum' (varchar2) was expected not to be like: '%reM%' 
+```
 
 ## be_not_null
 Unary matcher that validates if the actual value is not null.
@@ -284,11 +598,25 @@ Usage:
 ```sql
 begin 
   ut.expect( to_clob('ABC') ).to_be_not_null();
-  --or 
-  ut.expect( to_clob('ABC') ).to_( be_not_null() );
-  --or 
-  ut.expect( to_clob('ABC') ).not_to( be_null() );
+  ut.expect( to_clob('') ).to_( be_not_null() );
+  ut.expect( to_clob('ABC') ).not_to_be_not_null();
+  ut.expect( '').not_to( be_not_null() );
 end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: 'ABC' (clob) was expected to be not null
+FAILURE
+  Actual: NULL (clob) was expected to be not null
+  at "anonymous block", line 3
+FAILURE
+  Actual: 'ABC' (clob) was expected not to be not null
+  at "anonymous block", line 4
+SUCCESS
+  Actual: NULL (varchar2) was expected not to be not null
 ```
 
 ## be_null
@@ -297,23 +625,54 @@ Unary matcher that validates if the actual value is null.
 Usage:
 ```sql
 begin
-  ut.expect( cast(null as varchar2(100)) ).to_be_null();
-  --or 
-  ut.expect( cast(null as varchar2(100)) ).to_( be_null() );
+  ut.expect( '' ).to_be_null();
+  ut.expect( 0 ).to_( be_null() );
+  ut.expect( '' ).not_to_be_null();
+  ut.expect( 0 ).not_to( be_null() );
 end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: NULL (varchar2) was expected to be null
+FAILURE
+  Actual: 0 (number) was expected to be null
+  at "anonymous block", line 3
+FAILURE
+  Actual: NULL (varchar2) was expected not to be null
+  at "anonymous block", line 4
+SUCCESS
+  Actual: 0 (number) was expected not to be null
 ```
 
 ## be_true
 Unary matcher that validates if the provided value is true.
-- `boolean`
 
 Usage:
 ```sql
-begin 
-  ut.expect( ( 1 = 1 ) ).to_be_true();
-  --or 
+begin
+  ut.expect( ( 1 = 0 ) ).to_be_true();
   ut.expect( ( 1 = 1 ) ).to_( be_true() );
+  ut.expect( ( 1 = 0 ) ).not_to_be_true();
+  ut.expect( ( 1 = 1 ) ).not_to( be_true() );
 end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  Actual: FALSE (boolean) was expected to be true
+  at "anonymous block", line 2
+SUCCESS
+  Actual: TRUE (boolean) was expected to be true
+SUCCESS
+  Actual: FALSE (boolean) was expected not to be true
+FAILURE
+  Actual: TRUE (boolean) was expected not to be true
+  at "anonymous block", line 5
 ```
 
 ## have_count
@@ -323,123 +682,158 @@ Can be used with `refcursor` , `json`or `table type`
 
 Usage:
 ```sql
-procedure test_if_cursor_is_empty is
+declare
   l_cursor sys_refcursor;
+  l_collection ut_varchar2_list;
 begin
   open l_cursor for select * from dual connect by level <=10;
   ut.expect( l_cursor ).to_have_count(10);
-  --or
+  open l_cursor for select rownum from xmltable('1 to 5');
   ut.expect( l_cursor ).to_( have_count(10) );
+  l_collection := ut_varchar2_list( 'a', 'a', 'b' );
+  ut.expect( anydata.convertCollection( l_collection ) ).not_to_have_count(10);
+  ut.expect( anydata.convertCollection( l_collection ) ).not_to( have_count(3) );
 end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: (refcursor [ count = 10 ]) was expected to have [ count = 10 ]
+FAILURE
+  Actual: (refcursor [ count = 5 ]) was expected to have [ count = 10 ]
+  at "anonymous block", line 8
+SUCCESS
+  Actual: ut3.ut_varchar2_list [ count = 3 ] was expected not to have [ count = 10 ]
+FAILURE
+  Actual: ut3.ut_varchar2_list [ count = 3 ] was expected not to have [ count = 3 ]
+  at "anonymous block", line 11
 ```
 
 ## match
 Validates that the actual value is matching the expected regular expression.
 
+Syntax:
+
+`ut.expect( a_actual ).to_match( a_pattern [, a_modifiers] );`
+
+Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle REGEXP_LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501)
+
 Usage:
 ```sql
 begin 
-  ut.expect( a_actual => '123-456-ABcd' ).to_match( a_pattern => '\d{3}-\d{3}-[a-z]', a_modifiers => 'i' );
-  ut.expect( 'some value' ).to_match( '^some.*' );
-  --or 
-  ut.expect( a_actual => '123-456-ABcd' ).to_( match( a_pattern => '\d{3}-\d{3}-[a-z]', a_modifiers => 'i' ) );
-  ut.expect( 'some value' ).to_( match( '^some.*' ) );
+  ut.expect( '123-456-ABcd' ).to_match( '\d{3}-\d{3}-[a-z]{4}', 'i' );
+  ut.expect( 'some value' ).to_( match( '^some.*' ) ) ;
+  ut.expect( '123-456-ABcd' ).not_to_match( '\d{3}-\d{3}-[a-z]{4}', 'i' );
+  ut.expect( 'some value' ).not_to( match( '^some.*' ) ) ;
 end;
+/
 ```
 
-Parameters `a_pattern` and `a_modifiers` represent a valid regexp pattern accepted by [Oracle REGEXP_LIKE condition](https://docs.oracle.com/database/121/SQLRF/conditions007.htm#SQLRF00501)
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: '123-456-ABcd' (varchar2) was expected to match: '\d{3}-\d{3}-[a-z]{4}' , modifiers 'i'
+SUCCESS
+  Actual: 'some value' (varchar2) was expected to match: '^some.*' 
+FAILURE
+  Actual: '123-456-ABcd' (varchar2) was expected not to match: '\d{3}-\d{3}-[a-z]{4}' , modifiers 'i'
+  at "anonymous block", line 4
+FAILURE
+  Actual: 'some value' (varchar2) was expected not to match: '^some.*' 
+  at "anonymous block", line 5
+```
 
 ## equal
 The equal matcher is very restrictive. Test using this matcher succeeds only when the compared data-types are exactly the same.
 If you are comparing `varchar2` to a `number` will fail even if the text contains the same numeric value as the number.
 The matcher will also fail when comparing a `timestamp` to a `timestamp with timezone` data-type etc.
-The matcher enables detection data-type changes. 
+
+The matcher enables detection of data-type changes. 
 If you expect your variable to be a number and it is now some other type, the test will fail and give you early indication of a potential problem.
 
 To keep it simple, the `equal` matcher will only succeed if you compare apples to apples.
 
+Syntax:
+
+`ut.expect( a_actual ).to_equal( a_expected [, a_nulls_are_equal])[.advanced_options]`
 Example usage
 ```sql
-function get_animal return varchar2 is 
+declare
+  l_actual   varchar2(20);
+  l_expected varchar2(20);
 begin
-  return 'a dog';
+  --Arrange
+  l_actual := 'a dog';
+  --Assert
+  ut.expect( l_actual ).to_equal( 'other_dog' );
+  ut.expect( l_actual ).to_equal( '' );
+  ut.expect( l_actual ).to_equal( 1 );
+
+  l_actual := null;
+  ut.expect( l_actual ).to_equal( '' );
+  ut.expect( l_actual ).to_equal( '', a_nulls_are_equal => false );
+  ut.expect( l_actual ).not_to_equal( '' );
+  ut.expect( sysdate ).to_equal( sysdate );
+  ut.expect( sysdate ).to_equal( current_timestamp );
+  ut.expect( current_timestamp ).to_equal( systimestamp );
+  ut.expect( to_clob('varchar') ).to_equal( 'varchar' );
+  ut.expect( to_blob('aa') ).to_equal( to_blob('aa') );
+  ut.expect( to_clob('aa') ).to_equal( to_clob('aa') );
+  ut.expect( to_blob('aa') ).to_equal( to_clob('aa') );
 end;
 /
-
-create or replace package test_animals_getter is
-
-  --%suite(Animals getter tests)
-  
-  --%test(get_animal - returns a dog)
-  procedure test_variant_1_get_animal;
-  --%test(get_animal - returns a dog)
-  procedure test_variant_2_get_animal;
-  --%test(get_animal - returns a dog)
-  procedure test_variant_3_get_animal;
-  --%test(get_animal - returns a dog)
-  procedure test_variant_4_get_animal;
-  --%test(get_animal - returns a dog)
-  procedure test_variant_5_get_animal;
-end;
-/
-create or replace package body test_animals_getter is
-
-  --The below tests perform exactly the same check.
-  --They use different syntax to achieve the goal. 
-  procedure test_variant_1_get_animal is
-    l_actual   varchar2(100) := 'a dog';
-    l_expected varchar2(100);
-  begin
-    --Arrange
-    l_actual := 'a dog';
-    --Act
-    l_expected := get_animal();
-    --Assert
-    ut.expect( l_actual ).to_equal( l_expected );
-  end;
-
-  procedure test_variant_2_get_animal is
-    l_expected varchar2(100);
-  begin
-    --Act
-    l_expected := get_animal();
-    --Assert
-    ut.expect( l_expected ).to_equal( 'a dog' );
-  end;
-
-  procedure test_variant_3_get_animal is
-  begin
-    --Act / Assert
-    ut.expect( get_animal() ).to_equal( 'a dog' );
-  end;
-
-  procedure test_variant_4_get_animal is
-  begin
-    --Act / Assert
-    ut.expect( get_animal() ).to_equal( 'a dog', a_nulls_are_equal => true );
-  end;
-
-  procedure test_variant_5_get_animal is
-  begin
-    --Act / Assert
-    ut.expect( get_animal() ).to_( equal( 'a dog' ) );
-  end;
-
-  procedure test_variant_6_get_animal is
-  begin
-    --Act / Assert
-    ut.expect( get_animal() ).to_( equal( 'a dog', a_nulls_are_equal => true ) );
-  end;
-end;
 ```
 
-**Comparing NULLs is by default a success!**
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  Actual: 'a dog' (varchar2) was expected to equal: 'other_dog' (varchar2)
+  at "anonymous block", line 8
+FAILURE
+  Actual: 'a dog' (varchar2) was expected to equal: NULL (varchar2)
+  at "anonymous block", line 9
+FAILURE
+  Actual (varchar2) cannot be compared to Expected (number) using matcher 'equal'.
+  at "anonymous block", line 10
+SUCCESS
+  Actual: NULL (varchar2) was expected to equal: NULL (varchar2)
+FAILURE
+  Actual: NULL (varchar2) was expected to equal: NULL (varchar2)
+  at "anonymous block", line 14
+FAILURE
+  Actual: NULL (varchar2) was expected not to equal: NULL (varchar2)
+  at "anonymous block", line 15
+SUCCESS
+  Actual: 2019-07-07T22:50:21 (date) was expected to equal: 2019-07-07T22:50:21 (date)
+FAILURE
+  Actual (date) cannot be compared to Expected (timestamp with time zone) using matcher 'equal'.
+  at "anonymous block", line 17
+FAILURE
+  Actual: 2019-07-07T23:50:21.159268000 +01:00 (timestamp with time zone) was expected to equal: 2019-07-07T22:50:21.159296000 +00:00 (timestamp with time zone)
+  at "anonymous block", line 18
+FAILURE
+  Actual (clob) cannot be compared to Expected (varchar2) using matcher 'equal'.
+  at "anonymous block", line 19
+SUCCESS
+  Actual: 'AA' (blob) was expected to equal: 'AA' (blob)
+SUCCESS
+  Actual: 'aa' (clob) was expected to equal: 'aa' (clob)
+FAILURE
+  Actual (blob) cannot be compared to Expected (clob) using matcher 'equal'.
+  at "anonymous block", line 22
+```
+
+
+**Note:**
+>**Comparing NULLs gives success by default **
 The `a_nulls_are_equal` parameter controls the behavior of a `null = null` comparison.
 To change the behavior of `NULL = NULL` comparison pass the `a_nulls_are_equal => false` to the `equal` matcher.  
 
 ## contain
 
-This matcher supports only compound data comparison. It check if the give set contain all values from given subset.
+This matcher supports only compound data-types comparison. It check if the actual set contains all values of expected subset.
 
 When comparing data using `contain` matcher, the data-types of columns for compared compound types must be exactly the same.
 
@@ -451,263 +845,180 @@ The matcher will cause a test to fail if actual data set does not contain any of
 
 ![included_set](../images/venn21.gif)
 
-*Example 1*.
-
+**Example 1.**
 ```sql
-  procedure ut_refcursors is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
-  begin
-    --Arrange
-    open l_actual  for select rownum as rn  from dual a connect by level < 10;
-    open l_expected for select rownum as rn from dual a connect by level < 4
-    union all select rownum as rn from dual a connect by level < 4;
-    
-    --Act
-    ut.expect(l_actual).to_contain(l_expected);
-  end;
+declare
+  l_actual   sys_refcursor;
+  l_expected sys_refcursor;
+begin
+  --Arrange
+  open l_actual  for select rownum as rn  from dual a connect by level < 10;
+  open l_expected for select rownum as rn from dual a connect by level < 4
+  union all select rownum as rn from dual a connect by level < 4;
+  
+  --Act
+  ut.expect(l_actual).to_contain(l_expected);
+end;
+/
 ```
 
-Will result in failure message
-
-```sql
-  1) ut_refcursors
-      Actual: refcursor [ count = 9 ] was expected to contain: refcursor [ count = 6 ]
-      Diff:
-      Rows: [ 3 differences ]
-      Missing:  <ROW><RN>3</RN></ROW>
-      Missing:  <ROW><RN>2</RN></ROW>
-      Missing:  <ROW><RN>1</RN></ROW>
+Returns following output via DBMS_OUTPUT:
 ```
+FAILURE
+  Actual: refcursor [ count = 9 ] was expected to contain: refcursor [ count = 6 ]
+  Diff:
+  Rows: [ 3 differences ]
+  Missing:  <RN>1</RN>
+  Missing:  <RN>2</RN>
+  Missing:  <RN>3</RN>
+  at "anonymous block", line 11
+```
+
 
 When duplicate rows are present in expected data set, actual data set must also include the same amount of duplicates.
 
-*Example 2.*
-
-
-
+**Example 2.**
 ```sql
-create or replace package ut_duplicate_test is
-
-   --%suite(Sample Test Suite)
-
-   --%test(Ref Cursor contain duplicates)
-   procedure ut_duplicate_contain;
-
-end ut_duplicate_test;
+declare
+  l_actual   ut_varchar2_list;
+  l_expected ut_varchar2_list;
+begin
+  l_actual := ut_varchar2_list( 1, 2, 3, 4, 5, 6, 7, 8, 1 );
+  l_expected := ut_varchar2_list( 1, 2, 1, 2 );
+  ut.expect( anydata.convertCollection( l_actual ) ).to_contain( anydata.convertCollection( l_expected ) );
+end;
 /
-
-create or replace package body ut_duplicate_test is
-  procedure ut_duplicate_contain is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    open l_expected for select mod(level,2) as rn from dual connect by level < 5;
-    open l_actual   for select mod(level,8) as rn from dual connect by level < 9;
-    ut.expect(l_actual).to_contain(l_expected);
-   end;
-   
-end ut_duplicate_test;
 ```
 
-Will result in failure test message
-
-```sql
-  1) ut_duplicate_contain
-      Actual: refcursor [ count = 8 ] was expected to contain: refcursor [ count = 4 ]
-      Diff:
-      Rows: [ 2 differences ]
-      Missing:  <RN>0</RN>
-      Missing:  <RN>1</RN>
+Returns following output via DBMS_OUTPUT:
 ```
-
-
+FAILURE
+  Actual: ut3.ut_varchar2_list [ count = 9 ] was expected to contain: ut3.ut_varchar2_list [ count = 4 ]
+  Diff:
+  Rows: [ 1 differences ]
+  Missing:  <UT_VARCHAR2_LIST>2</UT_VARCHAR2_LIST>
+  at "anonymous block", line 7
+```
 
 The negated version of `contain` ( `not_to_contain` ) is successful only when all values from expected set are not part of actual (they are disjoint and there is no overlap).
 
 
-
 ![not_overlapping_set](../images/venn22.gif)
 
-*Example 3.*
-
-Set 1 is defined as [ A , B , C ] 
-
-*Set 2 is defined as [A , D , E ]*
-
-*Result : This will fail both of options to `to_contain` and `not_to_contain`*
-
-
-
-*Example 4.*
-
-Set 1 is defined as [ A , B , C , D ] 
-
-*Set 2 is defined as [A , B , D ]*
-
-*Result : This will be success on option `to_contain` and fail `not_to_contain`*
-
-
-
-*Example 5.
-
-Set 1 is defined as [ A , B , C  ] 
-
-*Set 2 is defined as [D, E , F  ]*
-
-*Result : This will be success on options `not_to_contain` and fail  `to_contain`* 
-
-
-
-Example usage
-
+**Example 3.**
 ```sql
-create or replace package example_contain is
-  --%suite(Contain test)
-  
-  --%test( Cursor contains data from another cursor)   
-  procedure cursor_to_contain;
-  
-  --%test( Cursor contains data from another cursor)   
-  procedure cursor_not_to_contain;
-      
-  --%test( Cursor fail on to_contain)   
-  procedure cursor_fail_contain;
-  
-  --%test( Cursor fail not_to_contain)  
-  procedure cursor_fail_not_contain;
-end;
-/
-  
-create or replace package body example_contain is
-  
-  procedure cursor_to_contain is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
-  begin
-    --Arrange
-    open l_actual for 
-    select 'a' as name from dual union all
-    select 'b' as name from dual union all
-    select 'c' as name from dual union all
-    select 'd' as name from dual;
-    
-    open l_expected for 
-    select 'a' as name from dual union all
-    select 'b' as name from dual union all
-    select 'c' as name from dual;
-    
-    --Act
-    ut.expect(l_actual).to_contain(l_expected);
-  end;
-  
-  procedure cursor_not_to_contain is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
-  begin
-    --Arrange
-    open l_actual for 
-    select 'a' as name from dual union all
-    select 'b' as name from dual union all
-    select 'c' as name from dual;
-    
-    open l_expected for 
-    select 'd' as name from dual union all
-    select 'e' as name from dual union all
-    select 'f' as name from dual;
-
-    --Act
-    ut.expect(l_actual).not_to_contain(l_expected);
-  end;
-    
-  procedure cursor_fail_contain is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
-  begin
-    --Arrange
-    open l_actual for 
-    select 'a' as name from dual union all
-    select 'b' as name from dual union all
-    select 'c' as name from dual;
-    
-    open l_expected for 
-    select 'a' as name from dual union all
-    select 'd' as name from dual union all
-    select 'e' as name from dual;
-
-    --Act
-    ut.expect(l_actual).to_contain(l_expected);
-  end;
-
-  procedure cursor_fail_not_contain is
-    l_actual   SYS_REFCURSOR;
-    l_expected SYS_REFCURSOR;
-  begin
-    --Arrange
-    open l_actual for 
-    select 'a' as name from dual union all
-    select 'b' as name from dual union all
-    select 'c' as name from dual;
-    
-    open l_expected for 
-    select 'a' as name from dual union all
-    select 'd' as name from dual union all
-    select 'e' as name from dual;
-
-    --Act
-    ut.expect(l_actual).not_to_contain(l_expected);
-  end;
+declare
+  l_actual   ut_varchar2_list;
+  l_expected ut_varchar2_list;
+begin
+  l_actual   := ut_varchar2_list( 'A', 'B', 'C' );
+  l_expected := ut_varchar2_list( 'A', 'B', 'E' );
+  ut.expect( anydata.convertCollection( l_actual ) ).to_contain( anydata.convertCollection( l_expected ) );
+  ut.expect( anydata.convertCollection( l_actual ) ).not_to_contain( anydata.convertCollection( l_expected ) );
 end;
 /
 ```
 
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  Actual: ut3_latest_release.ut_varchar2_list [ count = 3 ] was expected to contain: ut3_latest_release.ut_varchar2_list [ count = 3 ]
+  Diff:
+  Rows: [ 1 differences ]
+  Missing:  <UT_VARCHAR2_LIST>E</UT_VARCHAR2_LIST>
+  at "anonymous block", line 7
+FAILURE
+  Actual: (ut3_latest_release.ut_varchar2_list [ count = 3 ])
+      Data-types:
+      <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
+      Data:
+      <ROW><UT_VARCHAR2_LIST>A</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>B</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>C</UT_VARCHAR2_LIST></ROW>
+   was expected not to contain:(ut3_latest_release.ut_varchar2_list [ count = 3 ])
+      Data-types:
+      <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
+      Data:
+      <ROW><UT_VARCHAR2_LIST>A</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>B</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>E</UT_VARCHAR2_LIST></ROW>
+  at "anonymous block", line 8
+```
 
-
-Above execution will provide results as follow:
-Cursor contains data from another cursor   
-Cursor contains data from another cursor   
-Cursor fail on to_contain   
-Cursor fail not_to_contain  
+**Example 4.**
 
 ```sql
-Contain test
-  Cursor contains data from another cursor [.045 sec]
-  Cursor contains data from another cursor [.039 sec]
-  Cursor fail on to_contain [.046 sec] (FAILED - 1)
-  Cursor fail not_to_contain [.043 sec] (FAILED - 2)
- 
-Failures:
- 
-  1) cursor_fail_contain
-      Actual: refcursor [ count = 3 ] was expected to contain: refcursor [ count = 3 ]
-      Diff:
-      Rows: [ 2 differences ]
-      Missing:  <ROW><NAME>d</NAME></ROW>
-      Missing:  <ROW><NAME>e</NAME></ROW>
-      at "UT3.EXAMPLE_CONTAIN.CURSOR_FAIL_CONTAIN", line 71 ut.expect(l_actual).to_contain(l_expected);
-      
-       
-  2) cursor_fail_not_contain
-      Actual: (refcursor [ count = 3 ])
-          Data-types:
-          <ROW><NAME xml_valid_name="NAME">CHAR</NAME>
-          </ROW>
-          Data:
-          <ROW><NAME>a</NAME></ROW>
-          <ROW><NAME>b</NAME></ROW>
-          <ROW><NAME>c</NAME></ROW>
-      was expected not to contain:(refcursor [ count = 3 ])
-          Data-types:
-          <ROW><NAME xml_valid_name="NAME">CHAR</NAME>
-          </ROW>
-          Data:
-          <ROW><NAME>a</NAME></ROW>
-          <ROW><NAME>d</NAME></ROW>
-          <ROW><NAME>e</NAME></ROW>
-      at "UT3.EXAMPLE_CONTAIN.CURSOR_FAIL_NOT_CONTAIN", line 94 ut.expect(l_actual).not_to_contain(l_expected);
+declare
+  l_actual   ut_varchar2_list;
+  l_expected ut_varchar2_list;
+begin
+  l_actual   := ut_varchar2_list( 'A', 'B', 'C', 'D' );
+  l_expected := ut_varchar2_list( 'A', 'B', 'D' );
+  ut.expect( anydata.convertCollection( l_actual ) ).to_contain( anydata.convertCollection( l_expected ) );
+  ut.expect( anydata.convertCollection( l_actual ) ).not_to_contain( anydata.convertCollection( l_expected ) );
+end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: ut3_latest_release.ut_varchar2_list [ count = 4 ] was expected to contain: ut3_latest_release.ut_varchar2_list [ count = 3 ]
+FAILURE
+  Actual: (ut3_latest_release.ut_varchar2_list [ count = 4 ])
+      Data-types:
+      <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
+      Data:
+      <ROW><UT_VARCHAR2_LIST>A</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>B</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>C</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>D</UT_VARCHAR2_LIST></ROW>
+   was expected not to contain:(ut3_latest_release.ut_varchar2_list [ count = 3 ])
+      Data-types:
+      <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
+      Data:
+      <ROW><UT_VARCHAR2_LIST>A</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>B</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>D</UT_VARCHAR2_LIST></ROW>
+  at "anonymous block", line 8
+```
+
+**Example 5.**
+
+```sql
+declare
+  l_actual   ut_varchar2_list;
+  l_expected ut_varchar2_list;
+begin
+  l_actual   := ut_varchar2_list( 'A', 'B', 'C' );
+  l_expected := ut_varchar2_list( 'D', 'E', 'F' );
+  ut.expect( anydata.convertCollection( l_actual ) ).to_contain( anydata.convertCollection( l_expected ) );
+  ut.expect( anydata.convertCollection( l_actual ) ).not_to_contain( anydata.convertCollection( l_expected ) );
+end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  Actual: ut3_latest_release.ut_varchar2_list [ count = 3 ] was expected to contain: ut3_latest_release.ut_varchar2_list [ count = 3 ]
+  Diff:
+  Rows: [ 3 differences ]
+  Missing:  <UT_VARCHAR2_LIST>D</UT_VARCHAR2_LIST>
+  Missing:  <UT_VARCHAR2_LIST>E</UT_VARCHAR2_LIST>
+  Missing:  <UT_VARCHAR2_LIST>F</UT_VARCHAR2_LIST>
+  at "anonymous block", line 7
+SUCCESS
+  Actual: (ut3_latest_release.ut_varchar2_list [ count = 3 ])
+      Data-types:
+      <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
+      Data:
+      <ROW><UT_VARCHAR2_LIST>A</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>B</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>C</UT_VARCHAR2_LIST></ROW>
+   was expected not to contain:(ut3_latest_release.ut_varchar2_list [ count = 3 ])
+      Data-types:
+      <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
+      Data:
+      <ROW><UT_VARCHAR2_LIST>D</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>E</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>F</UT_VARCHAR2_LIST></ROW>
 ```
 
 
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+  TODO - continue doc rewrite
+  TODO - fix negated results for contain & equal
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
 
 ## Comparing cursors, object types, nested tables and varrays 
 
@@ -1286,7 +1597,7 @@ create or replace package body test_expectations_json is
    ]
 }');
 
-  ut3.ut.expect( l_actual ).to_equal( l_actual );
+    ut.expect( l_actual ).to_equal( l_actual );
 
   end;
 end;
@@ -1374,69 +1685,9 @@ create or replace package body test_expectations_json is
     l_array_actual   := json_array_t(json_query(l_actual.stringify,'$.Actors.children'));
     l_array_expected := json_array_t(json_query(l_expected.stringify,'$.Actors[1].children'));    
     --Act
-    ut3.ut.expect(l_array_actual).to_equal(l_array_expected);
+    ut.expect(l_array_actual).to_equal(l_array_expected);
 
   end;
 end;
 /
 ```
-
-
-
-
-
-
-
-# Negating a matcher
-
-Expectations provide a very convenient way to perform a check on a negated matcher.
-
-Syntax to check for matcher evaluating to true:
-```sql
-begin 
-  ut.expect( a_actual {data-type} ).to_{matcher};
-  ut.expect( a_actual {data-type} ).to_( {matcher} );
-end;
-```
-
-Syntax to check for matcher evaluating to false:
-```sql
-begin
-  ut.expect( a_actual {data-type} ).not_to_{matcher};
-  ut.expect( a_actual {data-type} ).not_to( {matcher} );
-end;
-```
-
-If a matcher evaluated to NULL, then both `to_` and `not_to` will cause the expectation to report failure.
-
-Example:
-```sql
-begin
-  ut.expect( null ).to_( be_true() );
-  ut.expect( null ).not_to( be_true() );
-end;
-```
-Since NULL is neither *true* nor *false*, both expectations will report failure.
-
-# Supported data types
-
-The matrix below illustrates the data types supported by different matchers.
-
-|         Matcher         | blob | boolean | clob | date | number | timestamp | timestamp<br>with<br>timezone | timestamp<br>with<br>local<br>timezone | varchar2 | interval<br>year<br>to<br>month | interval<br>day<br>to<br>second | cursor | nested<br>table<br>/ varray | object | json |
-| :---------------------: | :--: | :-----: | :--: | :--: | :----: | :-------: | :---------------------------: | :------------------------------------: | :------: | :-----------------------------: | :-----------------------------: | :----: | :-------------------------: | :----: | :--: |
-|     **be_not_null**     |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
-|       **be_null**       |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
-|      **be_false**       |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
-|       **be_true**       |      |    X    |      |      |        |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
-|   **be_greater_than**   |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
-| **be_greater_or_equal** |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
-|  **be_less_or_equal**   |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
-|    **be_less_than**     |      |         |      |  X   |   X    |     X     |               X               |                   X                    |          |                X                |                X                |        |                             |        |      |
-|     **be_between**      |      |         |      |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |        |                             |        |      |
-|        **equal**        |  X   |    X    |  X   |  X   |   X    |     X     |               X               |                   X                    |    X     |                X                |                X                |   X    |              X              |   X    |  X   |
-|       **contain**       |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |   X    |      |
-|        **match**        |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
-|       **be_like**       |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
-|      **be_empty**       |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
-|     **have_count**      |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
-

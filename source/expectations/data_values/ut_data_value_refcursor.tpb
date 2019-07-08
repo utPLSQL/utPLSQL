@@ -220,7 +220,7 @@ create or replace type body ut_data_value_refcursor as
         a_match_options.ordered_columns()
       );
     
-      if l_column_diffs.count > 0 then
+      if l_column_diffs is not empty then
         ut_utils.append_to_clob(l_result,chr(10) || 'Columns:' || chr(10));
         l_other_cols := remove_incomparable_cols( l_other_cols, l_column_diffs );
         l_self_cols  := remove_incomparable_cols( l_self_cols, l_column_diffs );
@@ -267,8 +267,8 @@ create or replace type body ut_data_value_refcursor as
           l_results(l_results.last) := get_diff_message(l_row_diffs(i),a_match_options.unordered);
         end loop;
         ut_utils.append_to_clob(l_result,l_results);
-      else
-        l_message:= chr(10)||'Rows: [  all different ]'||chr(10)||'  All rows are different as the columns position is not matching.';
+      elsif l_column_diffs is not empty then
+        l_message:= chr(10)||'Rows: [ all different ]'||chr(10)||'  All rows are different as the columns position is not matching.';
         ut_utils.append_to_clob( l_result, l_message );
       end if;   
     else
@@ -287,8 +287,9 @@ create or replace type body ut_data_value_refcursor as
       end if;
         
     end if;
-    
-    l_result_string := ut_utils.to_string(l_result,null);
+    if l_result != empty_clob() then
+      l_result_string := chr(10) || 'Diff:' || ut_utils.to_string(l_result,null);
+    end if;
     dbms_lob.freetemporary(l_result);
     return l_result_string;
   end;

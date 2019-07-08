@@ -33,6 +33,9 @@ create or replace type ut_expectation authid current_user as object(
   member procedure not_to_be_true(self in ut_expectation),
   member procedure not_to_be_false(self in ut_expectation),
 
+  member procedure to_be_empty(self in ut_expectation),
+  member procedure not_to_be_empty(self in ut_expectation),
+
   -- this is done to provide strong type comparison. other comporators should be implemented in the type-specific classes
   member procedure to_equal(self in ut_expectation, a_expected anydata, a_nulls_are_equal boolean := null),
   member procedure to_equal(self in ut_expectation, a_expected anydata, a_exclude varchar2, a_nulls_are_equal boolean := null),

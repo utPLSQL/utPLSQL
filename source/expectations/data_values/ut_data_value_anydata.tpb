@@ -18,7 +18,7 @@ create or replace type body ut_data_value_anydata as
   
   overriding member function get_object_info return varchar2 is
   begin
-    return self.data_type || case when self.compound_type = 'collection' then ' [ count = '||self.elements_count||' ]' else null end;
+    return self.data_type || case when self.compound_type = 'collection' then self.get_elements_count_info() end;
   end;
     
   member function get_extract_path(a_data_value anydata) return varchar2 is

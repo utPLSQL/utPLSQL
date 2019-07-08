@@ -75,6 +75,7 @@ grant execute on &&ut3_owner..ut_expectation_compound to &ut3_user;
 grant execute on &&ut3_owner..ut_expectation_json to &ut3_user;
 
 --matchers
+grant execute on &&ut3_owner..ut_matcher to &ut3_user;
 grant execute on &&ut3_owner..ut_be_between to &ut3_user;
 grant execute on &&ut3_owner..ut_be_empty to &ut3_user;
 grant execute on &&ut3_owner..ut_be_false to &ut3_user;
