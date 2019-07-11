@@ -2,6 +2,7 @@
 
 # Expectation concepts 
 Validation of the code under test (the tested logic of procedure/function etc.) is performed by comparing the actual data against the expected data.
+
 utPLSQL uses expectations and matchers to perform the check on the data.
 
 Example of an expectation
@@ -25,10 +26,6 @@ Expectation is a combination of:
 - the matcher used to perform comparison
 - them matcher parameters (actual value), depending on the matcher type
   
-**Note:**
-> The output from expectation is provided directly DBMS_OUTPUT only when the expectation is executed standalone (not as part of unit test).
-> The output from expectation contains call stack trace only when expectation fails.                                       
-> Source code of the line which called the expectation is only reported when the line is part of in-database code (package) and the user calling expectation has privileges to see that source code.
 
 Matcher defines the comparison operation to be performed on expected (and actual) value.
 Pseudo-code:
@@ -84,6 +81,90 @@ SUCCESS
 
 **Note:**
 > The examples in the document will be only using shortcut syntax, to keep the document brief.  
+
+# Using expectations
+There are two ways to use expectations:
+- by invoking utPLSQL framework to execute suite(s) of utPLSQL tests  
+- without invoking the utPLSQL framework - running expectations standalone
+
+## Running expectations within utPLSQL framework
+When expectations are ran a part of test suite, the framework tracks:
+- status of each expectation 
+- outcomes (messages) produced by each expectation
+- call stack to each expectation
+
+In this case:
+- expectation results of are not sent directly to `dbms_output`
+- utPLSQL Reporters used when running suite decide on how the expectation results are formatted and displayed    
+
+Example of test suite with an expectation:
+```sql
+create or replace package test_divide as 
+  --%suite(Divide two numbers)
+
+  --%test(Returns result when divisor is not zero)
+  procedure divide_6_by_2;
+  
+  --%test(Throws exception when divisor is zero)
+  --%throws(zero_divide)
+  procedure divide_by_0_throws;
+end;
+/
+
+create or replace package body test_divide as 
+  procedure divide_6_by_2 is
+  begin
+    ut.expect(6/2).to_equal(3);
+  end;
+    
+  procedure divide_by_0_throws is
+  begin
+    ut.expect(6/0).to_be_not_null();
+  end;
+end;
+/
+
+exec ut.run('test_divide');
+
+drop package test_divide;
+```
+
+Produces following outputs:
+```
+Package TEST_DIVIDE compiled
+
+
+Package Body TEST_DIVIDE compiled
+
+Divide two numbers
+  Returns result when divisor is not zero [.003 sec]
+  Throws exception when divisor is zero [.003 sec]
+ 
+Finished in .009774 seconds
+2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+ 
+
+
+PL/SQL procedure successfully completed.
+
+
+Package TEST_DIVIDE dropped.
+```
+
+Please read about different options for [running test suites](running-unit-tests.md).
+ 
+## Running expectations outside utPLSQL framework
+When expectations are invoked outside of utPLSQL framework the outputs from expectations are redirected straight to `dbms_output`.
+
+**Note:**
+> The output from expectation contains call stack trace only when expectation fails.                                       
+> Source code of the line which called the expectation is only reported when the line is part of in-database code (package) and the user calling expectation has privileges to see that source code.
+
+**Important**
+> Please do not use expectations as part of your production code. They are not designed to be used as part ot your code. Expectations are meant to be used only as part of your day-to-day testing activities.
+
+**Note:**
+> The examples in the document will be only using standalone expectations, to keep the document brief.  
 
 # Matchers
 utPLSQL provides the following matchers to perform checks on the expected and actual values.  
@@ -922,18 +1003,18 @@ end;
 Returns following output via DBMS_OUTPUT:
 ```
 FAILURE
-  Actual: ut3_latest_release.ut_varchar2_list [ count = 3 ] was expected to contain: ut3_latest_release.ut_varchar2_list [ count = 3 ]
+  Actual: ut3.ut_varchar2_list [ count = 3 ] was expected to contain: ut3.ut_varchar2_list [ count = 3 ]
   Diff:
   Rows: [ 1 differences ]
   Missing:  <UT_VARCHAR2_LIST>E</UT_VARCHAR2_LIST>
   at "anonymous block", line 7
 FAILURE
-  Actual: (ut3_latest_release.ut_varchar2_list [ count = 3 ])
+  Actual: (ut3.ut_varchar2_list [ count = 3 ])
       Data-types:
       <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
       Data:
       <ROW><UT_VARCHAR2_LIST>A</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>B</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>C</UT_VARCHAR2_LIST></ROW>
-   was expected not to contain:(ut3_latest_release.ut_varchar2_list [ count = 3 ])
+   was expected not to contain:(ut3.ut_varchar2_list [ count = 3 ])
       Data-types:
       <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
       Data:
@@ -959,14 +1040,14 @@ end;
 Returns following output via DBMS_OUTPUT:
 ```
 SUCCESS
-  Actual: ut3_latest_release.ut_varchar2_list [ count = 4 ] was expected to contain: ut3_latest_release.ut_varchar2_list [ count = 3 ]
+  Actual: ut3.ut_varchar2_list [ count = 4 ] was expected to contain: ut3.ut_varchar2_list [ count = 3 ]
 FAILURE
-  Actual: (ut3_latest_release.ut_varchar2_list [ count = 4 ])
+  Actual: (ut3.ut_varchar2_list [ count = 4 ])
       Data-types:
       <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
       Data:
       <ROW><UT_VARCHAR2_LIST>A</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>B</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>C</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>D</UT_VARCHAR2_LIST></ROW>
-   was expected not to contain:(ut3_latest_release.ut_varchar2_list [ count = 3 ])
+   was expected not to contain:(ut3.ut_varchar2_list [ count = 3 ])
       Data-types:
       <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
       Data:
@@ -992,7 +1073,7 @@ end;
 Returns following output via DBMS_OUTPUT:
 ```
 FAILURE
-  Actual: ut3_latest_release.ut_varchar2_list [ count = 3 ] was expected to contain: ut3_latest_release.ut_varchar2_list [ count = 3 ]
+  Actual: ut3.ut_varchar2_list [ count = 3 ] was expected to contain: ut3.ut_varchar2_list [ count = 3 ]
   Diff:
   Rows: [ 3 differences ]
   Missing:  <UT_VARCHAR2_LIST>D</UT_VARCHAR2_LIST>
@@ -1000,25 +1081,18 @@ FAILURE
   Missing:  <UT_VARCHAR2_LIST>F</UT_VARCHAR2_LIST>
   at "anonymous block", line 7
 SUCCESS
-  Actual: (ut3_latest_release.ut_varchar2_list [ count = 3 ])
+  Actual: (ut3.ut_varchar2_list [ count = 3 ])
       Data-types:
       <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
       Data:
       <ROW><UT_VARCHAR2_LIST>A</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>B</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>C</UT_VARCHAR2_LIST></ROW>
-   was expected not to contain:(ut3_latest_release.ut_varchar2_list [ count = 3 ])
+   was expected not to contain:(ut3.ut_varchar2_list [ count = 3 ])
       Data-types:
       <UT_VARCHAR2_LIST>VARCHAR2</UT_VARCHAR2_LIST>
       Data:
       <ROW><UT_VARCHAR2_LIST>D</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>E</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>F</UT_VARCHAR2_LIST></ROW>
 ```
 
-
-----------------------------------------------------------------------------------
-----------------------------------------------------------------------------------
-  TODO - continue doc rewrite
-  TODO - fix negated results for contain & equal
-----------------------------------------------------------------------------------
-----------------------------------------------------------------------------------
 
 ## Comparing cursors, object types, nested tables and varrays 
 
@@ -1089,74 +1163,50 @@ utPLSQL will report all of the above differences in a readable format to help yo
 
 Below example illustrates, how utPLSQL will report such differences.  
 ```sql
-create or replace package test_cursor_compare as
-  --%suite
-   
-  --%test
-  procedure do_test;
-end;
-/
-
-create or replace package body test_cursor_compare as
-  procedure do_test is
-    l_actual   sys_refcursor;
-    l_expected sys_refcursor;
-  begin
-    open l_expected for
-      select 1 as ID, 'JACK' as FIRST_NAME, 'SPARROW' AS LAST_NAME, 10000 AS SALARY
-        from dual union all
-      select 2 as ID, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 1000 AS SALARY
-        from dual union all
-      select 3 as ID, 'TONY' as FIRST_NAME, 'STARK' AS LAST_NAME, 100000 AS SALARY
-        from dual;
-    open l_actual for
-      select 'M' AS GENDER, 'JACK' as FIRST_NAME, 'SPARROW' AS LAST_NAME, 1 as ID, '25000' AS SALARY
-        from dual union all
-      select 'M' AS GENDER, 'TONY' as FIRST_NAME, 'STARK' AS LAST_NAME, 3 as ID, '100000' AS SALARY
-        from dual union all
-      select 'F' AS GENDER, 'JESSICA' as FIRST_NAME, 'JONES' AS LAST_NAME, 4 as ID, '2345' AS SALARY
-        from dual union all
-      select 'M' AS GENDER, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 2 as ID, '1000' AS SALARY
-        from dual;
-    ut.expect(l_actual).to_equal(l_expected);
-  end;
+declare
+  l_actual   sys_refcursor;
+  l_expected sys_refcursor;
+begin
+  open l_expected for
+    select 1 as ID, 'JACK' as FIRST_NAME, 'SPARROW' AS LAST_NAME, 10000 AS SALARY
+      from dual union all
+    select 2 as ID, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 1000 AS SALARY
+      from dual union all
+    select 3 as ID, 'TONY' as FIRST_NAME, 'STARK' AS LAST_NAME, 100000 AS SALARY
+      from dual;
+  open l_actual for
+    select 'M' AS GENDER, 'JACK' as FIRST_NAME, 'SPARROW' AS LAST_NAME, 1 as ID, '25000' AS SALARY
+      from dual union all
+    select 'M' AS GENDER, 'TONY' as FIRST_NAME, 'STARK' AS LAST_NAME, 3 as ID, '100000' AS SALARY
+      from dual union all
+    select 'F' AS GENDER, 'JESSICA' as FIRST_NAME, 'JONES' AS LAST_NAME, 4 as ID, '2345' AS SALARY
+      from dual union all
+    select 'M' AS GENDER, 'LUKE' as FIRST_NAME, 'SKYWALKER' AS LAST_NAME, 2 as ID, '1000' AS SALARY
+      from dual;
+  ut.expect(l_actual).to_equal(l_expected);
 end;
 /
 ```
 
-When the test package is executed using: 
-
-```sql
-set serverout on
-exec ut.run('test_cursor_compare');
+Returns following output via DBMS_OUTPUT:
 ```
-We get the following report:
-```
-test_cursor_compare
-  do_test [.052 sec] (FAILED - 1)
- 
-Failures:
- 
-  1) do_test
-      Actual: refcursor [ count = 4 ] was expected to equal: refcursor [ count = 3 ]
-      Diff:
-      Columns:
-        Column <ID> is misplaced. Expected position: 1, actual position: 4.
-        Column <SALARY> data-type is invalid. Expected: NUMBER, actual: VARCHAR2.
-        Column <GENDER> [position: 1, data-type: CHAR] is not expected in results.
-      Rows: [ 4 differences ]
-        Row No. 1 - Actual:   <SALARY>25000</SALARY>
-        Row No. 1 - Expected: <SALARY>10000</SALARY>
-        Row No. 2 - Actual:   <FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><ID>3</ID><SALARY>100000</SALARY>
-        Row No. 2 - Expected: <ID>2</ID><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><SALARY>1000</SALARY>
-        Row No. 3 - Actual:   <FIRST_NAME>JESSICA</FIRST_NAME><LAST_NAME>JONES</LAST_NAME><ID>4</ID><SALARY>2345</SALARY>
-        Row No. 3 - Expected: <ID>3</ID><FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><SALARY>100000</SALARY>
-        Row No. 4 - Extra:    <GENDER>M</GENDER><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><ID>2</ID><SALARY>1000</SALARY>
-      at "UT3.TEST_CURSOR_COMPARE", line 22 ut.expect(l_actual).to_equal(l_expected);
-      
-       
-Finished in .053553 seconds
-1 tests, 1 failed, 0 errored, 0 disabled, 0 warning(s)
+FAILURE
+  Actual: refcursor [ count = 4 ] was expected to equal: refcursor [ count = 3 ]
+  Diff:
+  Columns:
+    Column <ID> is misplaced. Expected position: 1, actual position: 4.
+    Column <SALARY> data-type is invalid. Expected: NUMBER, actual: VARCHAR2.
+    Column <GENDER> [position: 1, data-type: CHAR] is not expected in results.
+  Rows: [ 4 differences ]
+    Row No. 1 - Actual:   <SALARY>25000</SALARY>
+    Row No. 1 - Expected: <SALARY>10000</SALARY>
+    Row No. 2 - Actual:   <FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><ID>3</ID><SALARY>100000</SALARY>
+    Row No. 2 - Expected: <ID>2</ID><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><SALARY>1000</SALARY>
+    Row No. 3 - Actual:   <FIRST_NAME>JESSICA</FIRST_NAME><LAST_NAME>JONES</LAST_NAME><ID>4</ID><SALARY>2345</SALARY>
+    Row No. 3 - Expected: <ID>3</ID><FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><SALARY>100000</SALARY>
+    Row No. 4 - Extra:    <GENDER>M</GENDER><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><ID>2</ID><SALARY>1000</SALARY>
+    Row No. 4 - Extra:    <GENDER>M</GENDER><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><ID>2</ID><SALARY>1000</SALARY>
+  at "anonymous block", line 21
 ```
 
 utPLSQL identifies and reports on columns:
@@ -1186,35 +1236,28 @@ Object type comparison.
 ```sql
 create type department as object(name varchar2(30))
 /
+
 create or replace function get_dept return department is 
 begin
  return department('IT');
 end;
 /
-create or replace package demo_dept as 
-  --%suite(demo)
 
-  --%test(demo of object to object comparison)
-  procedure test_department; 
-end;
-/
-create or replace package body demo_dept as 
-  procedure test_department is
-    v_actual   department;
-  begin
-    --Act/ Assert
-    ut.expect( anydata.convertObject( get_dept() ) ).to_equal( anydata.convertObject( department('HR') ) );
-  end;
-end;
-/
-begin
-  ut.run('demo_dept');
-end;
-/
+exec ut.expect( anydata.convertObject( get_dept() ) ).to_equal( anydata.convertObject( department('HR') ) );
 
-drop package demo_dept;
 drop function get_dept;
 drop type department;
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  Actual: ut3.department was expected to equal: ut3.department
+  Diff:
+  Rows: [ 1 differences ]
+    Row No. 1 - Actual:   <NAME>IT</NAME>
+    Row No. 1 - Expected: <NAME>HR</NAME>
+  at "anonymous block", line 1
 ```
 
 Table type comparison.
@@ -1228,87 +1271,215 @@ begin
  return departments( department('IT'), department('HR') );
 end;
 /
-create or replace package demo_depts as 
-  --%suite(demo)
 
-  --%test(demo of collection comparison)
-  procedure test_departments; 
-end;
-/
-create or replace package body demo_depts as 
-  procedure test_departments is
-    v_expected departments;
-    v_actual   departments;
-  begin
-    v_expected := departments(department('HR'), department('IT') );
-    ut.expect( anydata.convertCollection( get_depts() ) ).to_equal( anydata.convertCollection( v_expected ) );
-  end;
-end;
-/
+declare
+  v_expected departments;
 begin
-  ut.run('demo_depts');
+  v_expected := departments(department('HR'), department('IT') );
+  ut.expect( anydata.convertCollection( get_depts() ) ).to_equal( anydata.convertCollection( v_expected ) );
 end;
 /
 
-drop package demo_dept;
 drop type function get_depts;
 drop type departments;
 drop type department;
 ```
 
-Some of the possible combinations of the anydata and their results:
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  Actual: ut3.departments [ count = 2 ] was expected to equal: ut3.departments [ count = 2 ]
+  Diff:
+  Rows: [ 2 differences ]
+    Row No. 1 - Actual:   <NAME>IT</NAME>
+    Row No. 1 - Expected: <NAME>HR</NAME>
+    Row No. 2 - Actual:   <NAME>HR</NAME>
+    Row No. 2 - Expected: <NAME>IT</NAME>
+  at "anonymous block", line 5
+```
 
+Some of the possible combinations of anydata and their results:
 ```sql
+clear screen
+set serverout on
+set feedback off
+
 create or replace type t_tab_varchar is table of varchar2(1)
 /
-
 create or replace type dummy_obj as object (
   id number,
   "name"  varchar2(30),
   "Value" varchar2(30)
 )
 /
-
 create or replace type dummy_obj_lst as table of dummy_obj
 /
-
 create or replace type t_varray is varray(1) of number
 /
 
+exec ut.expect( anydata.convertObject( dummy_obj( 1, 'A', '0' ) ) ).to_equal( anydata.convertObject( dummy_obj(1, 'A', '0') ) ); 
+exec ut.expect( anydata.convertCollection( t_tab_varchar('A') ) ).to_equal( anydata.convertCollection( t_tab_varchar('A') ) );
+exec ut.expect( anydata.convertCollection( t_tab_varchar('A') ) ).to_equal( anydata.convertCollection( t_tab_varchar('B') ) );
+exec ut.expect( anydata.convertCollection( t_tab_varchar() ) ).to_be_null();
+exec ut.expect( anydata.convertCollection( t_tab_varchar() ) ).to_equal( anydata.convertCollection( t_tab_varchar() ) );                      
+exec ut.expect( anydata.convertCollection( t_tab_varchar() ) ).to_equal( anydata.convertCollection( t_tab_varchar('A') ) );                    
+exec ut.expect( anydata.convertCollection( t_tab_varchar() ) ).to_have_count(0);
+exec ut.expect( anydata.convertCollection( t_tab_varchar() ) ).to_equal( anydata.convertCollection( t_tab_varchar() ) );                       
+exec ut.expect( anydata.convertCollection( t_tab_varchar() ) ).to_equal( anydata.convertCollection( t_tab_varchar('A') ) );                    
+exec ut.expect( anydata.convertCollection( dummy_obj_lst( dummy_obj( 1, 'A', '0' ) ) ) ).to_equal( anydata.convertCollection( dummy_obj_lst( dummy_obj( 1, 'A', '0' ) ) ) );
+exec ut.expect( anydata.convertCollection( dummy_obj_lst( dummy_obj( 1, 'A', '0' ) ) ) ).to_equal( anydata.convertCollection( dummy_obj_lst( dummy_obj( 2, 'A', '0' ) ) ) ); 
+exec ut.expect( anydata.convertCollection( dummy_obj_lst() ) ).to_equal( anydata.convertCollection( dummy_obj_lst( dummy_obj( 1, 'A', '0' ) ) ) ); 
+exec ut.expect( anydata.convertCollection( dummy_obj_lst() ) ).to_be_null();                                
+exec ut.expect( anydata.convertCollection( dummy_obj_lst() ) ).to_equal( anydata.convertCollection( dummy_obj_lst() ) );                         
+exec ut.expect( anydata.convertCollection( dummy_obj_lst() ) ).to_have_count(0);                             
+exec ut.expect( anydata.convertCollection( dummy_obj_lst() ) ).to_equal( anydata.convertCollection( dummy_obj_lst(dummy_obj(1, 'A', '0') ) ) ); 
+exec ut.expect( anydata.convertCollection( dummy_obj_lst() ) ).to_equal( anydata.convertCollection( dummy_obj_lst() ) );                       
+exec ut.expect( anydata.convertCollection( t_varray() ) ).to_be_null();                                
+exec ut.expect( anydata.convertCollection( t_varray() ) ).to_equal( anydata.convertCollection( t_varray() ) );                              
+exec ut.expect( anydata.convertCollection( t_varray() ) ).to_equal( anydata.convertCollection( t_varray(1) ) );                           
+exec ut.expect( anydata.convertCollection( t_varray() ) ).to_have_count(0);                             
+exec ut.expect( anydata.convertCollection( t_varray() ) ).to_equal( anydata.convertCollection( t_varray() ) );                            
+exec ut.expect( anydata.convertCollection( t_varray() ) ).to_equal( anydata.convertCollection( t_varray(1) ) );                           
+exec ut.expect( anydata.convertCollection( t_varray(1) ) ).to_equal( anydata.convertCollection( t_varray(1) ) );                           
+exec ut.expect( anydata.convertCollection( t_varray(1) ) ).to_equal( anydata.convertCollection( t_varray(2) ) );                           
+
+drop type t_varray;
+drop type dummy_obj_lst;
+drop type dummy_obj;
+drop type t_tab_varchar;
 ```
 
+Returns following output via DBMS_OUTPUT:
+```
+SUCCESS
+  Actual: ut3.dummy_obj was expected to equal: ut3.dummy_obj
 
+SUCCESS
+  Actual: ut3.t_tab_varchar [ count = 1 ] was expected to equal: ut3.t_tab_varchar [ count = 1 ]
 
+FAILURE
+  Actual: ut3.t_tab_varchar [ count = 1 ] was expected to equal: ut3.t_tab_varchar [ count = 1 ]
+  Diff:
+  Rows: [ 1 differences ]
+    Row No. 1 - Actual:   <T_TAB_VARCHAR>A</T_TAB_VARCHAR>
+    Row No. 1 - Expected: <T_TAB_VARCHAR>B</T_TAB_VARCHAR>
+  at "anonymous block", line 1
 
+FAILURE
+  Actual: (ut3.t_tab_varchar [ count = 0 ])
+      Data-types:
+      <T_TAB_VARCHAR>VARCHAR2</T_TAB_VARCHAR>
+      Data:
+   was expected to be null
+  at "anonymous block", line 1
 
-| Type A                                 |  Comparisoon  | Type B                                | Result |
-| :------------------------------------- | :-----------: | :------------------------------------ | -----: |
-| t_tab_varchar('A')                     |     equal     | t_tab_varchar('A')                    |   Pass |
-| t_tab_varchar('A')                     |     equal     | t_tab_varchar('B')                    |   Fail |
-| t_tab_varchar                          |    is_null    |                                       |   Pass |
-| t_tab_varchar                          |     equal     | t_tab_varchar                         |   Pass |
-| t_tab_varchar                          |     equal     | t_tab_varchar('A')                    |   Fail |
-| t_tab_varchar()                        | have_count(0) |                                       |   Pass |
-| t_tab_varchar()                        |     equal     | t_tab_varchar()                       |   Pass |
-| t_tab_varchar()                        |     equal     | t_tab_varchar('A')                    |   Fail |
-| dummy_obj_lst (dummy_obj(1, 'A', '0')) |     equal     | dummy_obj_lst(dummy_obj(1, 'A', '0')) |   Pass |
-| dummy_obj_lst (dummy_obj(1, 'A', '0')) |     equal     | dummy_obj_lst(dummy_obj(2, 'A', '0')) |   Fail |
-| dummy_obj_lst                          |     equal     | dummy_obj_lst(dummy_obj(1, 'A', '0')) |   Fail |
-| dummy_obj_lst                          |    is_null    |                                       |   Pass |
-| dummy_obj_lst                          |     equal     | dummy_obj_lst                         |   Pass |
-| dummy_obj_lst()                        | have_count(0) |                                       |   Pass |
-| dummy_obj_lst()                        |     equal     | dummy_obj_lst(dummy_obj(1, 'A', '0')) |   Fail |
-| dummy_obj_lst()                        |     equal     | dummy_obj_lst()                       |   Pass |
-| t_varray                               |    is null    |                                       |   Pass |
-| t_varray                               |     equal     | t_varray                              |   Pass |
-| t_varray                               |     equal     | t_varray(1)                           |   Fail |
-| t_varray()                             | have_count(0) |                                       |   Pass |
-| t_varray()                             |     equal     | t_varray()                            |   Pass |
-| t_varray()                             |     equal     | t_varray(1)                           |   Fail |
-| t_varray(1)                            |     equal     | t_varray(1)                           |   Pass |
-| t_varray(1)                            |     equal     | t_varray(2)                           |   Fail |
+SUCCESS
+  Actual: ut3.t_tab_varchar [ count = 0 ] was expected to equal: ut3.t_tab_varchar [ count = 0 ]
 
+FAILURE
+  Actual: ut3.t_tab_varchar [ count = 0 ] was expected to equal: ut3.t_tab_varchar [ count = 1 ]
+  Diff:
+  Rows: [ 1 differences ]
+    Row No. 1 - Missing:  <T_TAB_VARCHAR>A</T_TAB_VARCHAR>
+  at "anonymous block", line 1
 
+SUCCESS
+  Actual: (ut3.t_tab_varchar [ count = 0 ]) was expected to have [ count = 0 ]
+
+SUCCESS
+  Actual: ut3.t_tab_varchar [ count = 0 ] was expected to equal: ut3.t_tab_varchar [ count = 0 ]
+
+FAILURE
+  Actual: ut3.t_tab_varchar [ count = 0 ] was expected to equal: ut3.t_tab_varchar [ count = 1 ]
+  Diff:
+  Rows: [ 1 differences ]
+    Row No. 1 - Missing:  <T_TAB_VARCHAR>A</T_TAB_VARCHAR>
+  at "anonymous block", line 1
+
+SUCCESS
+  Actual: ut3.dummy_obj_lst [ count = 1 ] was expected to equal: ut3.dummy_obj_lst [ count = 1 ]
+
+FAILURE
+  Actual: ut3.dummy_obj_lst [ count = 1 ] was expected to equal: ut3.dummy_obj_lst [ count = 1 ]
+  Diff:
+  Rows: [ 1 differences ]
+    Row No. 1 - Actual:   <ID>1</ID>
+    Row No. 1 - Expected: <ID>2</ID>
+  at "anonymous block", line 1
+
+FAILURE
+  Actual: ut3.dummy_obj_lst [ count = 0 ] was expected to equal: ut3.dummy_obj_lst [ count = 1 ]
+  Diff:
+  Rows: [ 1 differences ]
+    Row No. 1 - Missing:  <DUMMY_OBJ><ID>1</ID><name>A</name><Value>0</Value></DUMMY_OBJ>
+  at "anonymous block", line 1
+
+FAILURE
+  Actual: (ut3.dummy_obj_lst [ count = 0 ])
+      Data-types:
+      <DUMMY_OBJ>DUMMY_OBJ</DUMMY_OBJ>
+      Data:
+   was expected to be null
+  at "anonymous block", line 1
+
+SUCCESS
+  Actual: ut3.dummy_obj_lst [ count = 0 ] was expected to equal: ut3.dummy_obj_lst [ count = 0 ]
+
+SUCCESS
+  Actual: (ut3.dummy_obj_lst [ count = 0 ]) was expected to have [ count = 0 ]
+
+FAILURE
+  Actual: ut3.dummy_obj_lst [ count = 0 ] was expected to equal: ut3.dummy_obj_lst [ count = 1 ]
+  Diff:
+  Rows: [ 1 differences ]
+    Row No. 1 - Missing:  <DUMMY_OBJ><ID>1</ID><name>A</name><Value>0</Value></DUMMY_OBJ>
+  at "anonymous block", line 1
+
+SUCCESS
+  Actual: ut3.dummy_obj_lst [ count = 0 ] was expected to equal: ut3.dummy_obj_lst [ count = 0 ]
+
+FAILURE
+  Actual: (ut3.t_varray [ count = 0 ])
+      Data-types:
+      <T_VARRAY>NUMBER</T_VARRAY>
+      Data:
+   was expected to be null
+  at "anonymous block", line 1
+
+SUCCESS
+  Actual: ut3.t_varray [ count = 0 ] was expected to equal: ut3.t_varray [ count = 0 ]
+
+FAILURE
+  Actual: ut3.t_varray [ count = 0 ] was expected to equal: ut3.t_varray [ count = 1 ]
+  Diff:
+  Rows: [ 1 differences ]
+    Row No. 1 - Missing:  <T_VARRAY>1</T_VARRAY>
+  at "anonymous block", line 1
+
+SUCCESS
+  Actual: (ut3.t_varray [ count = 0 ]) was expected to have [ count = 0 ]
+
+SUCCESS
+  Actual: ut3.t_varray [ count = 0 ] was expected to equal: ut3.t_varray [ count = 0 ]
+
+FAILURE
+  Actual: ut3.t_varray [ count = 0 ] was expected to equal: ut3.t_varray [ count = 1 ]
+  Diff:
+  Rows: [ 1 differences ]
+    Row No. 1 - Missing:  <T_VARRAY>1</T_VARRAY>
+  at "anonymous block", line 1
+
+SUCCESS
+  Actual: ut3.t_varray [ count = 1 ] was expected to equal: ut3.t_varray [ count = 1 ]
+
+FAILURE
+  Actual: ut3.t_varray [ count = 1 ] was expected to equal: ut3.t_varray [ count = 1 ]
+  Diff:
+  Rows: [ 1 differences ]
+    Row No. 1 - Actual:   <T_VARRAY>1</T_VARRAY>
+    Row No. 1 - Expected: <T_VARRAY>2</T_VARRAY>
+  at "anonymous block", line 1
+```
 
 ### Comparing cursor data containing DATE fields 
 
@@ -1324,74 +1495,79 @@ This way, the DATE data in cursors will be properly formatted for comparison usi
 
 The example below makes use of `ut.set_nls`, `ut.reset_nls`, so that the date in `l_expected` and `l_actual` is compared using date-time formatting.  
 ```sql
+clear screen
+alter session set nls_date_format='yyyy-mm-dd';
+set serverout on
+set feedback off
 create table events ( description varchar2(4000), event_date  date )
 /
-create or replace function get_events return sys_refcursor is
-  l_result sys_refcursor;
+declare
+  c_description constant varchar2(30) := 'Test event';
+  c_event_date  constant date := to_date('2016-09-08 06:51:22','yyyy-mm-dd hh24:mi:ss');
+  c_second      constant number := 1/24/60/60;
+  l_actual   sys_refcursor;
+  l_expected sys_refcursor;
 begin
-  open l_result for select description, event_date from events;
-  return l_result;
-end;
-/
+  --Arrange
+  insert into events (description, event_date) values (c_description, c_event_date);
 
-create or replace package test_get_events is
-  --%suite(get_events)
-
-  --%beforeall
-  procedure setup_events;
-  --%test(returns event within date range)
-  procedure get_events_for_date_range;
-end;
-/
-
-create or replace package body test_get_events is
-
-  gc_description constant varchar2(30) := 'Test event';
-  gc_event_date  constant date := to_date('2016-09-08 06:51:22','yyyy-mm-dd hh24:mi:ss');
-  gc_second      constant number := 1/24/60/60;
-  procedure setup_events is
   begin
-    insert into events (description, event_date) values (gc_description, gc_event_date);
-  end;
-
-  procedure get_events_for_date_range is
-    l_actual            sys_refcursor;
-    l_expected_bad_date sys_refcursor;
-  begin
-    --Arrange
-    ut.set_nls(); -- Change the NLS settings for date to be ISO date-time 'YYYY-MM-DD HH24:MI:SS' 
-    open l_expected_bad_date for select gc_description as description, gc_event_date + gc_second as event_date from dual;
+    -- Change the NLS settings for date to be ISO date-time 'YYYY-MM-DD HH24:MI:SS'
+    ut.set_nls(); 
     --Act
-    l_actual := get_events();
+    open l_expected for select c_description as description, c_event_date + c_second as event_date from dual;
+    open l_actual   for select description, event_date from events;
     --Assert
-    ut.expect( l_actual ).not_to_equal( l_expected_bad_date );
-    ut.reset_nls(); -- Change the NLS settings after cursors were opened
+    ut.expect( l_actual ).not_to_equal( l_expected );
+    -- Reset the NLS settings to their default values after cursor data was processed
+    ut.reset_nls(); 
   end;
-
-  procedure bad_test is
-    l_expected_bad_date sys_refcursor;
+  
   begin
-    --Arrange
-    open l_expected_bad_date for select gc_description as description, gc_event_date + gc_second as event_date from dual;
-    --Act / Assert
-    ut.expect( get_events() ).not_to_equal( l_expected_bad_date );
+    --Act
+    open l_expected for select c_description as description, c_event_date + c_second as event_date from dual;
+    open l_actual   for select description, event_date from events;
+    --Assert
+    ut.expect( l_actual ).not_to_equal( l_expected );
   end;
-
-end;
-/
-
-begin
-  ut.run('test_get_events');
+  --Cleanup
+  rollback;
 end;
 /
 
 drop table events;
-drop function get_events;
-drop package test_get_events;
 ```
+
 In the above example:
-- The test `get_events_for_date_range` will succeed, as the `l_expected_bad_date` cursor contains different date-time then the cursor returned by `get_events` function call.
-- The test `bad_test` will fail, as the column `event_date` will get compared as DATE without TIME.
+- The first expectation is successful, as the `l_expected` cursor contains different date-time then the cursor returned by `get_events` function call
+- The second expectation fails, as the column `event_date` will get compared as DATE without TIME (suing default current session NLS date format)
+
+Output via DBMS_OUTPUT from the above example:
+```
+SUCCESS
+  Actual: (refcursor [ count = 1 ])
+      Data-types:
+      <DESCRIPTION>VARCHAR2</DESCRIPTION><EVENT_DATE>DATE</EVENT_DATE>
+      Data:
+      <ROW><DESCRIPTION>Test event</DESCRIPTION><EVENT_DATE>2016-09-08T06:51:22</EVENT_DATE></ROW>
+   was expected not to equal: (refcursor [ count = 1 ])
+      Data-types:
+      <DESCRIPTION>VARCHAR2</DESCRIPTION><EVENT_DATE>DATE</EVENT_DATE>
+      Data:
+      <ROW><DESCRIPTION>Test event</DESCRIPTION><EVENT_DATE>2016-09-08T06:51:23</EVENT_DATE></ROW>
+FAILURE
+  Actual: (refcursor [ count = 1 ])
+      Data-types:
+      <DESCRIPTION>VARCHAR2</DESCRIPTION><EVENT_DATE>DATE</EVENT_DATE>
+      Data:
+      <ROW><DESCRIPTION>Test event</DESCRIPTION><EVENT_DATE>2016-09-08</EVENT_DATE></ROW>
+   was expected not to equal: (refcursor [ count = 1 ])
+      Data-types:
+      <DESCRIPTION>VARCHAR2</DESCRIPTION><EVENT_DATE>DATE</EVENT_DATE>
+      Data:
+      <ROW><DESCRIPTION>Test event</DESCRIPTION><EVENT_DATE>2016-09-08</EVENT_DATE></ROW>
+  at "anonymous block", line 28
+```
 
 ### Comparing cursor data containing TIMESTAMP bind variables
 
@@ -1400,98 +1576,73 @@ To properly compare `timestamp` column data returned by cursor against bind vari
 This applies to `timestamp`,`timestamp with timezone`, `timestamp with local timezone` data types.
 
 Example below illustrates usage of `cast` operator to assure appropriate precision is applied on timestamp bind-variables in cursor result-set   
+
 ```sql
-drop table timestamps;
+clear screen
+set serverout on
+set feedback off
+
 create table timestamps (
   ts3 timestamp (3),
   ts6 timestamp (6),
   ts9 timestamp (9)
 );
 
-create or replace package timestamps_api is
-  procedure load (
-    i_timestamp3 timestamps.ts3%type,
-    i_timestamp6 timestamps.ts6%type,
-    i_timestamp9 timestamps.ts9%type
-  );
-end;
-/
+declare
+  l_time     timestamp(9);
+  l_expected sys_refcursor;
+  l_actual   sys_refcursor;
+begin
+  --Arrange
+  l_time := systimestamp;
 
-create or replace package body timestamps_api is
-  procedure load (
-    i_timestamp3 timestamps.ts3%type,
-    i_timestamp6 timestamps.ts6%type,
-    i_timestamp9 timestamps.ts9%type
-  )
-  is
+  insert into timestamps (ts3, ts6, ts9) values (l_time, l_time, l_time);
+
   begin
-    insert into timestamps (ts3, ts6, ts9) 
-      values (i_timestamp3, i_timestamp6, i_timestamp9);
-  end;
-end;
-/
-
-
-create or replace package test_timestamps_api is
-  -- %suite
-
-  -- %test(Loads data into timestamps table)
-  procedure test_load;
-end;
-/
-
-create or replace package body test_timestamps_api is
-  procedure test_load is
-    l_time     timestamp(9);
-    l_expected sys_refcursor;
-    l_actual   sys_refcursor;
-  begin
-    --Arrange
-    l_time := systimestamp;
-
+    --Act
     open l_expected for
       select
         cast(l_time as timestamp(3)) as ts3, 
         cast(l_time as timestamp(6)) as ts6,  
         cast(l_time as timestamp(9)) as ts9
-      from dual;
-
-    --Act
-    timestamps_api.load (
-      l_time, l_time, l_time
-    );
-
+        from dual;
+  
+    open l_actual for select ts3, ts6, ts9 from timestamps;
+            
     --Assert
-    open l_actual for
-      select ts3, ts6, ts9
-      from timestamps;
-          
-     ut.expect (l_actual).to_equal (l_expected);
-
+    ut.expect (l_actual).to_equal (l_expected);
+  end;
+  begin
+    open l_expected for
+      select l_time as ts3, l_time as ts6, l_time as ts9 from dual;  
+    
+    open l_actual for select ts3, ts6, ts9 from timestamps;
+            
+    --Assert
+    ut.expect (l_actual).to_equal (l_expected);
   end;
 end;
 /
 
-begin
-  ut.run ('test_timestamps_api');
-end;
-/
+drop table timestamps;
 ```
 
-The execution of the above runs successfully
+Returns following output via DBMS_OUTPUT:
 ```
-test_timestamps_api
-  Loads data into timestamps table [.046 sec]
- 
-Finished in .048181 seconds
-1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+SUCCESS
+  Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
+FAILURE
+  Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
+  Diff:
+  Rows: [ 1 differences ]
+    Row No. 1 - Actual:   <TS3>2019-07-08T22:08:41.899</TS3><TS6>2019-07-08T22:08:41.899319</TS6>
+    Row No. 1 - Expected: <TS3>2019-07-08T22:08:41.899319000</TS3><TS6>2019-07-08T22:08:41.899319000</TS6>
+  at "anonymous block", line 32
 ```
-
-
 
 # Comparing Json objects
 
-utPLSQL is capable of comparing json data-types on Oracle 12.2 and above.
+utPLSQL is capable of comparing json data-types **on Oracle 12.2 and above**.
 
 ### Notes on comparison of json data
 
@@ -1502,136 +1653,111 @@ utPLSQL is capable of comparing json data-types on Oracle 12.2 and above.
 
 
 
-Some examples of using json data-types in matcher are :
-
+Compare JSON example:
 ```sql
-create or replace package test_expectations_json is
-
-  --%suite(json expectations)
-  
-  --%test(Gives success for identical data)
-  procedure success_on_same_data;
-end;
-/
-
-create or replace package body test_expectations_json is
-
-  procedure success_on_same_data is
-    l_expected json_element_t;
-    l_actual   json_element_t;
-  begin
-    -- Arrange
-    l_expected := json_element_t.parse('
-{
-   "Actors":[
-      {
-         "name":"Tom Cruise",
-         "age":56,
-         "Born At":"Syracuse, NY",
-         "Birthdate":"July 3, 1962",
-         "photo":"https://jsonformatter.org/img/tom-cruise.jpg",
-         "wife":null,
-         "weight":67.5,
-         "hasChildren":true,
-         "hasGreyHair":false,
-         "children":[
-            "Suri",
-            "Isabella Jane",
-            "Connor"
-         ]
-      },
-      {
-         "name":"Robert Downey Jr.",
-         "age":53,
-         "Born At":"New York City, NY",
-         "Birthdate":"April 4, 1965",
-         "photo":"https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
-         "wife":"Susan Downey",
-         "weight":77.1,
-         "hasChildren":true,
-         "hasGreyHair":false,
-         "children":[
-            "Indio Falconer",
-            "Avri Roel",
-            "Exton Elias"
-         ]
-      }
-   ]
-}');
-
-  l_actual   := json_element_t.parse('
-{
-   "Actors":[
-      {
-         "name":"Tom Cruise",
-         "age":56,
-         "Born At":"Syracuse, NY",
-         "Birthdate":"July 3, 1962",
-         "photo":"https://jsonformatter.org/img/tom-cruise.jpg",
-         "wife":null,
-         "weight":67.5,
-         "hasChildren":true,
-         "hasGreyHair":false,
-         "children":[
-            "Suri",
-            "Isabella Jane",
-            "Connor"
-         ]
-      },
-      {
-         "name":"Robert Downey Jr.",
-         "age":53,
-         "Born At":"New York City, NY",
-         "Birthdate":"April 4, 1965",
-         "photo":"https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
-         "wife":"Susan Downey",
-         "weight":77.1,
-         "hasChildren":true,
-         "hasGreyHair":false,
-         "children":[
-            "Indio Falconer",
-            "Avri Roel",
-            "Exton Elias"
-         ]
-      }
-   ]
-}');
-
-    ut.expect( l_actual ).to_equal( l_actual );
-
-  end;
-end;
-/
-```
-
-It is possible to use a PL/SQL to extract a piece of JSON and compare it as follow
-
-```sql
-create or replace package test_expectations_json is
-
-  --%suite(json expectations)
-  
-  --%test(Gives success for identical pieces of two different jsons)
-  procedure to_diff_json_extract_same;
-  
-end;
-/
-
-create or replace package body test_expectations_json is
-
-  procedure to_diff_json_extract_same as
-    l_expected       json_object_t;
-    l_actual         json_object_t;
-    l_array_actual   json_array_t;
-    l_array_expected json_array_t;
-  begin
-    -- Arrange
-    l_expected := json_object_t.parse('    {
+declare
+  l_expected json_element_t;
+  l_actual   json_element_t;
+begin
+  l_expected := json_element_t.parse('
+    {
       "Actors": [
         {
           "name": "Tom Cruise",
           "age": 56,
-          "Born At": "Syracuse, NY",
+          "Birthdate": "July 3, 1962",
+          "hasChildren": true,
+          "children": [
+            "Connor"
+          ]
+        },
+        {
+          "name": "Robert Downey Jr.",
+          "age": 53,
+          "Birthdate": "April 4, 1965",
+          "hasChildren": true,
+          "children": [
+            "Exton Elias"
+          ]
+        }
+      ]
+    }'
+  );
+
+  l_actual   := json_element_t.parse('
+    {
+      "Actors": [
+        {
+          "name": "Tom Cruise",
+          "age": 56,
+          "Birthdate": "1962.07.03",
+          "hasChildren": true,
+          "children": [
+            "Suri",
+            "Isabella Jane",
+            "Connor"
+          ]
+        },
+        {
+          "name": "Jr., Robert Downey",
+          "age": 53,
+          "Birthdate": "April 4, 1965",
+          "hasChildren": true,
+          "children": [
+            "Indio Falconer",
+            "Avri Roel",
+            "Exton Elias"
+          ]
+        }
+      ]
+    }'
+  );
+
+  ut.expect( l_actual ).to_equal( l_expected );
+
+end;
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  Actual: json was expected to equal: json
+  Diff: 8 differences found
+  4 unequal values, 4 missing properties
+    Extra   property: "Avri Roel" on path: $."Actors"[1]."children"[1]
+    Extra   property: "Isabella Jane" on path: $."Actors"[0]."children"[1]
+    Extra   property: "Connor" on path: $."Actors"[0]."children"[2]
+    Extra   property: "Exton Elias" on path: $."Actors"[1]."children"[2]
+    Actual value: "Robert Downey Jr." was expected to be: "Jr., Robert Downey" on path: $."Actors"[1]."name"
+    Actual value: "July 3, 1962" was expected to be: "1962.07.03" on path: $."Actors"[0]."Birthdate"
+    Actual value: "Connor" was expected to be: "Suri" on path: $."Actors"[0]."children"[0]
+    Actual value: "Exton Elias" was expected to be: "Indio Falconer" on path: $."Actors"[1]."children"[0]
+  at "anonymous block", line 59
+```
+
+Comparing parts of JSON example:
+```sql
+declare
+  l_actual         json_object_t;
+  l_actual_extract json_array_t;
+  l_expected       json_array_t;
+begin
+  -- Arrange
+  l_expected := json_array_t.parse('
+    [
+      "Indio Falconer",
+      "Avri Roel",
+      "Exton Elias"
+    ]'
+  );
+    
+  l_actual := json_object_t.parse('
+    {
+      "Actors": [
+         {
+            "name": "Tom Cruise",
+          "age": 56,
+           "Born At": "Syracuse, NY",
           "Birthdate": "July 3, 1962",
           "photo": "https://jsonformatter.org/img/tom-cruise.jpg",
           "wife": null,
@@ -1645,49 +1771,39 @@ create or replace package body test_expectations_json is
           ]
         },
         {
-          "name": "Robert Downey Jr.",
+            "name": "Robert Downey Jr.",
           "age": 53,
           "Born At": "New York City, NY",
           "Birthdate": "April 4, 1965",
           "photo": "https://jsonformatter.org/img/Robert-Downey-Jr.jpg",
           "wife": "Susan Downey",
-          "weight": 77.1,
+           "weight": 77.1,
           "hasChildren": true,
           "hasGreyHair": false,
           "children": [
             "Indio Falconer",
-            "Avri Roel",
             "Exton Elias"
           ]
         }
       ]
     }'
-    );
+  );
     
-    l_actual := json_object_t.parse('    {
-      "Actors": 
-        {
-          "name": "Krzystof Jarzyna",
-          "age": 53,
-          "Born At": "Szczecin",
-          "Birthdate": "April 4, 1965",
-          "photo": "niewidzialny",
-          "wife": "Susan Downey",
-          "children": [
-            "Indio Falconer",
-            "Avri Roel",
-            "Exton Elias"
-          ]
-        }
-    }'
-    );
-    
-    l_array_actual   := json_array_t(json_query(l_actual.stringify,'$.Actors.children'));
-    l_array_expected := json_array_t(json_query(l_expected.stringify,'$.Actors[1].children'));    
-    --Act
-    ut.expect(l_array_actual).to_equal(l_array_expected);
+  l_actual_extract   := json_array_t(json_query(l_actual.stringify,'$.Actors[1].children'));
+  --Act
+  ut.expect(l_actual_extract).to_equal(l_expected);
 
-  end;
 end;
 /
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+FAILURE
+  Actual: json was expected to equal: json
+  Diff: 2 differences found
+  1 unequal values, 1 missing properties
+    Missing property: "Exton Elias" on path: $[2]
+    Actual value: "Avri Roel" was expected to be: "Exton Elias" on path: $[1]
+  at "anonymous block", line 55
 ```
