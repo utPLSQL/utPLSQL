@@ -766,7 +766,7 @@ create or replace package body ut_utils is
   /**
   * Change string into unicode to match xmlgen format _00<unicode>_
   * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
-  * secion v3.1.8.3148-develop
+  * secion v3.1.8.3161-develop
   */  
   function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
   begin
