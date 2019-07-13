@@ -43,13 +43,11 @@ create or replace type body ut_suite  as
   begin
     ut_utils.debug_log('ut_suite.execute');
 
-    ut_utils.set_action(self.object_name);
-
     if self.get_disabled_flag() then
       self.mark_as_skipped();
     else
-      ut_event_manager.trigger_event(ut_event_manager.gc_before_suite, self);
       self.start_time := current_timestamp;
+      ut_event_manager.trigger_event(ut_event_manager.gc_before_suite, self);
 
       l_suite_savepoint := self.create_savepoint_if_needed();
 
@@ -82,8 +80,6 @@ create or replace type body ut_suite  as
       self.end_time := current_timestamp;
       ut_event_manager.trigger_event(ut_event_manager.gc_after_suite, self);
     end if;
-
-    ut_utils.set_action(null);
 
     return l_no_errors;
   end;

@@ -43,6 +43,8 @@ fi
 
 "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<SQL
 alter session set plsql_optimize_level=0;
+alter session set plsql_ccflags = 'SELF_TESTING_INSTALL:TRUE';
+
 @${INSTALL_FILE} ${UT3_RELEASE_VERSION_SCHEMA}
 exit
 SQL

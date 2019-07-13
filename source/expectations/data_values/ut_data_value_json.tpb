@@ -113,9 +113,10 @@ create or replace type body ut_data_value_json as
       ut_utils.append_to_clob(l_result, l_results);
     
     end if;
-    
-    
-    l_result_string := ut_utils.to_string(l_result,null);
+
+    if l_result != empty_clob() then
+      l_result_string := chr(10) || 'Diff:' || ut_utils.to_string(l_result,null);
+    end if;
     dbms_lob.freetemporary(l_result);
     return l_result_string;
   end;

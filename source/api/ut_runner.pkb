@@ -109,6 +109,7 @@ create or replace package body ut_runner is
     else
       ut_event_manager.add_listener( ut_documentation_reporter() );
     end if;
+    ut_event_manager.add_listener( ut_session_info() );
 
     ut_event_manager.trigger_event(ut_event_manager.gc_initialize);
     ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_run_info());

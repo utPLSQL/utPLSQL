@@ -23,16 +23,6 @@ create or replace type body ut_expectation_json as
     return;
   end;
 
-  member procedure to_be_empty(self in ut_expectation_json) is
-  begin
-    self.to_( ut_be_empty() );
-  end;
-
-  member procedure not_to_be_empty(self in ut_expectation_json) is
-  begin
-    self.not_to( ut_be_empty() );
-  end;
-
   member function to_equal(a_expected json_element_t, a_nulls_are_equal boolean := null) return ut_expectation_json is
     l_result ut_expectation_json := self;
   begin

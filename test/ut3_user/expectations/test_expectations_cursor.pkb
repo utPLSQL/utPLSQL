@@ -702,7 +702,7 @@ Rows: [ 1 differences ]
 Diff:
 Columns:
   Column <RN> data-type is invalid. Expected: NUMBER, actual: VARCHAR2.
-Rows: [  all different ]
+Rows: [ all different ]
   All rows are different as the columns position is not matching.]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
@@ -749,7 +749,7 @@ Columns:
   Column <COL_4> is misplaced. Expected position: 2, actual position: 4.
   Column <COL_2> is misplaced. Expected position: 3, actual position: 2.
   Column <COL_3> is misplaced. Expected position: 4, actual position: 3.
-Rows: [  all different ]
+Rows: [ all different ]
   All rows are different as the columns position is not matching.]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
@@ -1117,7 +1117,7 @@ Rows: [ 4 differences ]
 %Column <EXPECTED_COLUMN_NAME> [data-type: NUMBER] is missing. Expected column position: 2.
 %Column <1> [position: 1, data-type: CHAR] is not expected in results.
 %Column <2> [position: 2, data-type: CHAR] is not expected in results.
-%Rows: [  all different ]
+%Rows: [ all different ]
 %All rows are different as the columns position is not matching.]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert

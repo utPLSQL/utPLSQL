@@ -78,10 +78,22 @@ create or replace package body ut_expectation_processor as
   end get_failed_expectations;
 
   procedure add_expectation_result(a_expectation_result ut_expectation_result) is
+    l_results ut_varchar2_list;
   begin
-    ut_event_manager.trigger_event(ut_event_manager.gc_debug, a_expectation_result);
-    g_expectations_called.extend;
-    g_expectations_called(g_expectations_called.last) := a_expectation_result;
+    if ut_session_context.is_ut_run then
+      ut_event_manager.trigger_event(ut_event_manager.gc_debug, a_expectation_result);
+      g_expectations_called.extend;
+      g_expectations_called(g_expectations_called.last) := a_expectation_result;
+    else
+      l_results := a_expectation_result.get_result_lines();
+      dbms_output.put_line( upper( ut_utils.test_result_to_char( a_expectation_result.status ) ) || '');
+      for i in 1 .. l_results.count loop
+        dbms_output.put_line( '  ' || l_results(i) );
+      end loop;
+      if a_expectation_result.caller_info is not null then
+        dbms_output.put_line( ut_utils.indent_lines( a_expectation_result.caller_info, 2, true) );
+      end if;
+    end if;
   end;
 
   procedure report_failure(a_message in varchar2) is
@@ -138,28 +150,55 @@ create or replace package body ut_expectation_processor as
 
   function who_called_expectation(a_call_stack varchar2) return varchar2 is
     l_caller_stack_line          varchar2(4000);
+    l_call_stack                 varchar2(4000);
     l_line_no                    integer;
     l_owner                      varchar2(1000);
     l_object_name                varchar2(1000);
-    l_object_full_name           varchar2(1000);
     l_result                     varchar2(4000);
     -- in 12.2 format_call_stack reportes not only package name, but also the procedure name
     -- when 11g and 12c reports only package name
-    c_expectation_search_pattern constant varchar2(500) :=
-    '(.*\.(UT_EXPECTATION[A-Z0-9#_$]*|UT|UTASSERT2?)(\.[A-Z0-9#_$]+)?\s+)+(.*)';
+    function cut_header_and_expectations( a_stack varchar2 ) return varchar2 is
+    begin
+      return regexp_substr( a_stack, '(.*\.(UT_EXPECTATION[A-Z0-9#_$]*|UT|UTASSERT2?)(\.[A-Z0-9#_$]+)?\s+)+((.|\s)*)', 1, 1, 'm', 4);
+    end;
+    function cut_address_columns( a_stack varchar2 ) return varchar2 is
+    begin
+      return regexp_replace( a_stack, '^(0x)?[0-9a-f]+\s+', '', 1, 0, 'm' );
+    end;
+    function cut_framework_stack( a_stack varchar2 ) return varchar2 is
+    begin
+      return regexp_replace(
+        a_stack,
+        '[0-9]+\s+anonymous\s+block\s+[0-9]+\s+package\s+body\s+sys\.dbms_sql(\.execute)?\s+[0-9]+\s+[0-9_$#a-z ]+\.ut_executable.*',
+        '',
+        1, 1, 'mni'
+        );
+    end;
+    function format_stack( a_stack varchar2 ) return varchar2 is
+    begin
+      return regexp_replace(
+        a_stack,
+        '([0-9]+)\s+(.* )?((anonymous block)|(([0-9_$#a-z]+\.[0-9_$#a-z]+(\.([0-9_$#a-z])+)?)))',
+        'at "\3", line \1', 1, 0, 'i'
+        );
+    end;
   begin
-    l_caller_stack_line    := regexp_substr( a_call_stack, c_expectation_search_pattern, 1, 1, 'm', 4);
+    l_call_stack  := cut_header_and_expectations( a_call_stack );
+    l_call_stack  := cut_address_columns( l_call_stack );
+    l_call_stack := cut_framework_stack( l_call_stack );
+    l_call_stack := format_stack( l_call_stack );
+    l_caller_stack_line    := regexp_substr(l_call_stack,'^(.*)');
     if l_caller_stack_line like '%.%' then
-      l_line_no     := to_number( regexp_substr(l_caller_stack_line,'(0x)?[0-9a-f]+\s+(\d+)',subexpression => 2) );
-      l_owner       := regexp_substr(l_caller_stack_line,'([A-Za-z0-9$#_]+)\.([A-Za-z0-9$#_]|\.)+',subexpression => 1);
-      l_object_name := regexp_substr(l_caller_stack_line,'([A-Za-z0-9$#_]+)\.([A-Za-z0-9$#_]+)',subexpression => 2);
-      l_object_full_name := regexp_substr(l_caller_stack_line,'([A-Za-z0-9$#_]+)\.(([A-Za-z0-9$#_]|\.)+)',subexpression => 2);
-      if l_owner is not null and l_object_name is not null and l_line_no is not null then
-        l_result := 'at "' || l_owner || '.' || l_object_full_name || '", line '|| l_line_no || ' '
-                    || ut_metadata.get_source_definition_line(l_owner, l_object_name, l_line_no);
-      end if;
+      l_line_no          := to_number( regexp_substr( l_caller_stack_line, ', line (\d+)', subexpression => 1 ) );
+      l_owner            := regexp_substr( l_caller_stack_line, 'at "([A-Za-z0-9$#_]+)\.(([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?)", line (\d+)', subexpression => 1 );
+      l_object_name      := regexp_substr( l_caller_stack_line, 'at "([A-Za-z0-9$#_]+)\.(([A-Za-z0-9$#_]+)(\.([A-Za-z0-9$#_]+))?)", line (\d+)', subexpression => 3 );
+      l_result :=
+        l_caller_stack_line || ' ' || rtrim(ut_metadata.get_source_definition_line(l_owner, l_object_name, l_line_no),chr(10))
+        || replace( l_call_stack, l_caller_stack_line );
+    else
+      l_result := l_call_stack;
     end if;
-    return l_result;
+    return rtrim(l_result,chr(10));
   end;
 
   procedure add_warning(a_messsage varchar2) is

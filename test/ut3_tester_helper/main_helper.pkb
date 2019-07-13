@@ -153,6 +153,16 @@ create or replace package body main_helper is
   begin
      ut3.ut_utils.append_to_list(a_list,a_items);
   end;
-  
+
+  procedure set_ut_run_context is
+  begin
+    ut3.ut_session_context.set_context('RUN_PATHS',' ');
+  end;
+
+  procedure clear_ut_run_context is
+  begin
+    ut3.ut_session_context.clear_all_context;
+  end;
+
 end;
 /

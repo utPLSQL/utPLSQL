@@ -307,6 +307,10 @@ drop table ut_output_clob_buffer_tmp purge;
 
 drop table ut_output_buffer_info_tmp purge;
 
+drop package ut_session_context;
+
+drop type ut_session_info force;
+
 drop type ut_output_data_rows force;
 
 drop type ut_output_data_row force;

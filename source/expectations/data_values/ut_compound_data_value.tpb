@@ -16,9 +16,14 @@ create or replace type body ut_compound_data_value as
   limitations under the License.
   */
 
+  member function get_elements_count_info return varchar2 is
+  begin
+    return case when elements_count is null then ' [ null ]' else ' [ count = '||elements_count||' ]' end;
+  end;
+
   overriding member function get_object_info return varchar2 is
   begin
-    return self.data_type||' [ count = '||self.elements_count||' ]';
+    return self.data_type||get_elements_count_info();
   end;
 
   overriding member function is_null return boolean is
@@ -37,7 +42,6 @@ create or replace type body ut_compound_data_value as
   end;
 
   overriding member function to_string return varchar2 is
-    l_results       ut_utils.t_clob_tab;
     l_result        clob;
     l_result_string varchar2(32767);
   begin
