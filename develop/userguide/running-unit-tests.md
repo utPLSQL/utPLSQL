@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.8.3148--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.8.3161--develop-blue.svg)
 
 # Running tests
 
@@ -30,6 +30,8 @@ curl -Lk "${DOWNLOAD_URL}" -o utplsql-cli.zip
 # Extract downloaded "zip" file
 unzip -q utplsql-cli.zip
 ```
+
+Keep in mind that you will need to download/provide Oracle JDBC driver separately, as it is not part of utPLSQL-cli due to licensing restrictions.
 
 # ut.run
 
@@ -167,11 +169,63 @@ The main difference compared to the `ut.run` API is that `ut_runner.run` does no
 `ut_runner.run` accepts multiple reporters. Each reporter pipes to a separate output (uniquely identified by output_id).
 Outputs of multiple reporters can be consumed in parallel. This allows for live reporting of test execution progress with threads and several database sessions.
 
-The concept is pretty simple.
+`ut_runner.run` API is used by utPLSQL-cli, utPLSQL-SQLDeveloper extension and utPLSQL-maven-plugin and allows for:
+- deciding on the scope of test run (by schema names, object names, suite paths or tags )
+- running tests with several concurrent reporters
+- real-time reporting of test execution progress
+- controlling colored text output to the screen
+- controlling scope of code coverage reports
+- mapping of database source code to project files
+- controlling behavior on test-failures
+- controlling client character set for HTML and XML reports
+- controlling rollback behavior of test-run
+- controlling random order of test execution
+
+Running with multiple reporters.
 
 - in the main thread (session), define the reporters to be used. Each reporter has it's output_id and so you need to extract and store those output_ids.
 - as a separate thread, start `ut_runner.run` and pass reporters with previously defined output_ids.
-- for each reporter start a separate thread and read outputs from the `ut_output_buffer.get_lines` table function by providing the output_id defined in the main thread.
+- for each reporter start a separate thread and read outputs from the `reporter.get_lines` table function or from `reporter.get_lines_cursor()` by providing the `reporter_id` defined in the main thread.
+- each reporter for each test-run must have a unique `reporter_id`. The `reporter_id` is used between two sessions to identify the data stream 
+
+Example:
+```sql
+--main test run ( session 1 )
+declare
+  l_reporter      ut_realtime_reporter := ut_realtime_reporter();
+begin
+  l_reporter.set_reporter_id( 'd8a79e85915640a6a4e1698fdf90ba74' );
+  l_reporter.output_buffer.init();
+  ut_runner.run (ut_varchar2_list ('ut3_tester','ut3$user#'), ut_reporters( l_reporter ) );
+end;
+/
+```
+
+```sql
+--report consumer ( session 2 )
+set arraysize 1
+set pagesize 0
+
+select * 
+  from table(
+         ut_realtime_reporter()
+           .set_reporter_id('d8a79e85915640a6a4e1698fdf90ba74')
+           .get_lines()
+  );
+```
+
+```sql
+--alternative version of report consumer ( session 2 )
+set arraysize 1
+set pagesize 0
+
+select
+    ut_realtime_reporter()
+      .set_reporter_id('d8a79e85915640a6a4e1698fdf90ba74')
+      .get_lines_cursor()
+  from dual;
+```
+
   
 # Order of test execution
 

@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.8.3148--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.8.3161--develop-blue.svg)
 
 # Annotations
 
@@ -1732,6 +1732,113 @@ When processing the test suite `test_employee_pkg` defined in [Example of annota
 >utPLSQL does not guarantee ordering of tests in suite. On contrary utPLSQL might give random order of tests/contexts in suite.
 >
 >Order of execution within multiple occurrences of `before`/`after` procedures is determined by the order of annotations in specific block (context/suite) of package specification.
+
+## sys_context
+
+It is possible to access information about currently running suite, test and befire/after procedure form within PLSQL procedure using SYS_CONTEXT.
+
+The information is available by calling `sys_context( 'UT3_INFO', attribute )`.
+
+Following attributes are populated:
+- Always:
+    - `sys_context( 'UT3_INFO', 'RUN_PATHS' );` - list of suitepaths / suitenames used as input parameters for call to `ut.run(...)` or `ut_runner.run(...)`
+    - `sys_context( 'UT3_INFO', 'SUITE_DESCRIPTION' );` - the description of test suite that is currently being executed
+    - `sys_context( 'UT3_INFO', 'SUITE_PACKAGE' );` -  the owner and name of test suite package that is currently being executed
+    - `sys_context( 'UT3_INFO', 'SUITE_PATH' );` - the suitepath for the test suite package that is currently being executed
+    - `sys_context( 'UT3_INFO', 'SUITE_START_TIME' );` - the execution start timestamp of test suite package that is currently being executed
+    - `sys_context( 'UT3_INFO', 'CURRENT_EXECUTABLE_NAME' );` - the owner.package.procedure of currently running test suite executable
+    - `sys_context( 'UT3_INFO', 'CURRENT_EXECUTABLE_TYPE' );` - the type of currently running test suite executable (one of: `beforeall`, `beforeeach`, `beforetest`, `test`, `aftertest`, `aftereach`, `afterall`
+
+- When running in suite context
+    - `sys_context( 'UT3_INFO', 'CONTEXT_DESCRIPTION' );` - the description of test suite context that is currently being executed 
+    - `sys_context( 'UT3_INFO', 'CONTEXT_NAME' );` - the name of test suite context that is currently being executed 
+    - `sys_context( 'UT3_INFO', 'CONTEXT_PATH' );` - the suitepath for the currently executed test suite context
+    - `sys_context( 'UT3_INFO', 'CONTEXT_START_TIME' );` - the execution start timestamp for the currently executed test suite context
+- When running a suite executable procedure that is a `test` or `beforeeach`, `aftereach`, `beforetest`, `aftertest`
+    - `sys_context( 'UT3_INFO', 'TEST_DESCRIPTION' );` - the description of test for which the current executable is being invoked
+    - `sys_context( 'UT3_INFO', 'TEST_NAME' );` -  the name of test for which the current executable is being invoked
+    - `sys_context( 'UT3_INFO', 'TEST_START_TIME' );` - the execution start timestamp of test that is currently being executed (the time when first `beforeeach`/`beforetest` was called for that test)
+ 
+Example:
+```sql
+create or replace procedure which_procecure_called_me is
+begin
+  dbms_output.put_line(
+    'Currently running utPLSQL ' ||sys_context( 'ut3_info', 'current_executable_type' )
+    ||' ' ||sys_context( 'ut3_info', 'current_executable_name' )
+  );
+end;
+/
+
+create or replace package test_call is
+
+  --%suite
+
+  --%beforeall
+  procedure beforeall;
+  
+  --%beforeeach
+  procedure beforeeach;
+  
+  --%test
+  procedure test1;
+
+  --%test
+  procedure test2;
+  
+end;
+/
+
+create or replace package body test_call is
+
+  procedure beforeall is
+  begin
+    which_procecure_called_me();
+    dbms_output.put_line('Current test procedure is: '||sys_context('ut3_info','test_name'));
+  end;
+
+  procedure beforeeach is
+  begin
+    which_procecure_called_me();
+    dbms_output.put_line('Current test procedure is: '||sys_context('ut3_info','test_name'));
+  end;
+  
+  procedure test1 is
+  begin
+    which_procecure_called_me();
+    ut.expect(sys_context('ut3_info','suite_package')).to_equal(user||'.test_call');
+  end;
+
+  procedure test2 is
+  begin
+    which_procecure_called_me();
+    ut.expect(sys_context('ut3_info','test_name')).to_equal(user||'.test_call.test2');
+  end;
+  
+end;
+/
+```
+
+```sql
+exec ut.run('test_call');
+```
+
+```
+test_call
+  Currently running utPLSQL beforeall UT3.test_call.beforeall
+  Current test procedure is: 
+  test1 [.008 sec]
+  Currently running utPLSQL beforeeach UT3.test_call.beforeeach
+  Current test procedure is: UT3.test_call.test1
+  Currently running utPLSQL test UT3.test_call.test1
+  test2 [.004 sec]
+  Currently running utPLSQL beforeeach UT3.test_call.beforeeach
+  Current test procedure is: UT3.test_call.test2
+  Currently running utPLSQL test UT3.test_call.test2
+ 
+Finished in .021295 seconds
+2 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
+```
 
 
 ## Annotation cache
