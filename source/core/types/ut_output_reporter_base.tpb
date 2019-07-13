@@ -31,7 +31,14 @@ create or replace type body ut_output_reporter_base is
   overriding member procedure set_reporter_id(self in out nocopy ut_output_reporter_base, a_reporter_id raw) is
   begin
     self.id := a_reporter_id;
-    self.output_buffer.output_id := a_reporter_id;
+    self.output_buffer.init(a_reporter_id);
+  end;
+
+  member function set_reporter_id(self in ut_output_reporter_base, a_reporter_id raw) return ut_output_reporter_base is
+    l_result ut_output_reporter_base := self;
+  begin
+    l_result.set_reporter_id(a_reporter_id);
+    return l_result;
   end;
 
   overriding member procedure before_calling_run(self in out nocopy ut_output_reporter_base, a_run in ut_run) is
