@@ -366,7 +366,7 @@ create or replace package body ut_suite_cache_manager is
     l_cache_rows   ut_suite_cache_rows;
     l_results      ut_suite_items_info;
   begin
-    l_cache_rows := get_cached_suite_rows( a_object_owner, a_object_name );
+    l_cache_rows := get_cached_suite_rows( a_object_owner => a_object_owner, a_object_name =>a_object_name );
     select ut_suite_item_info(
              c.object_owner, c.object_name, c.name,
              c.description, c.self_type, c.line_no,
