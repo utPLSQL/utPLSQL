@@ -5,6 +5,7 @@ create or replace package body run_helper is
   begin
     execute immediate q'[create or replace package ut3$user#.dummy_test_package as    
         --%suite(dummy_test_suite)
+        --%suitepath(some.path)
         --%rollback(manual)
 
         --%test(dummy_test)
@@ -24,7 +25,13 @@ create or replace package body run_helper is
         null;
       end;]';
       
-      execute immediate q'[grant execute on ut3_tester_helper.dummy_test_procedure to public]';
+    execute immediate q'[grant execute on ut3_tester_helper.dummy_test_procedure to public]';
+
+    execute immediate q'[create or replace package ut3$user#.bad_test_package as
+        --%rollback(manual)
+        --%test(dummy_test)
+        procedure some_dummy_test_procedure;
+      end;]';
   end;
 
   procedure setup_cache_objectstag is
@@ -32,6 +39,7 @@ create or replace package body run_helper is
   begin
     execute immediate q'[create or replace package ut3$user#.dummy_test_package as    
         --%suite(dummy_test_suite)
+        --%suitepath(some.path)
         --%tags(dummy)
         --%rollback(manual)
 
