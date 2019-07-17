@@ -45,7 +45,15 @@ create or replace package body ut_coverage is
     else
       l_full_name := 'lower(s.owner||''.''||s.name)';
     end if;
-    l_result := '
+    l_result := 'WITH w_source AS
+    (
+      SELECT owner,
+             name,
+             line,
+             TYPE,
+             text
+      FROM '||l_view_name||'
+    )
       select full_name, owner, name, line, to_be_skipped, text
         from (
           select '||l_full_name||q'[ as full_name,
@@ -55,7 +63,7 @@ create or replace package body ut_coverage is
                  coalesce(
                    case when type!='TRIGGER' then 0 end,
                    (select min(t.line) - 1
-                      from ]'||l_view_name||q'[ t
+                      from w_source t
                      where t.owner = s.owner and t.type = s.type and t.name = s.name
                        and regexp_like( t.text, '[A-Za-z0-9$#_]*(begin|declare|compound).*','i'))
                  ) as line,
@@ -78,7 +86,7 @@ create or replace package body ut_coverage is
                     then 'Y'
                  end as to_be_skipped ]';
 
-    l_result := l_result ||' from '||l_view_name||q'[ s]';
+    l_result := l_result ||' from w_source '||q'[ s]';
             
     if a_coverage_options.file_mappings is not empty then
       l_result := l_result || '
