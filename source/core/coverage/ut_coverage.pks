@@ -18,7 +18,6 @@ create or replace package ut_coverage authid current_user is
 
   gc_proftab_coverage    constant varchar2(32) := 'proftab';
   gc_block_coverage      constant varchar2(32) := 'block';
-  gc_extended_coverage   constant varchar2(32) := 'extended';
 
   type tt_coverage_id_arr is table of integer index by varchar2(30);
 
@@ -75,7 +74,7 @@ create or replace package ut_coverage authid current_user is
   * Allows overwriting of private global variable g_coverage_id
   * Used internally, only for unit testing of the framework only
   */
-  procedure mock_coverage_id(a_coverage_id integer,a_coverage_type in varchar2);
+  procedure mock_coverage_id(a_coverage_id integer, a_coverage_type in varchar2);
 
   procedure mock_coverage_id(a_coverage_id tt_coverage_id_arr);
 

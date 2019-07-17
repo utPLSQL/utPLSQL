@@ -35,7 +35,7 @@ create or replace package body ut_coverage is
       return g_develop_mode;
     end;
 
-  function get_cov_sources_sql(a_coverage_options ut_coverage_options) return varchar2 is
+  function get_cov_sources_sql(a_coverage_options ut_coverage_options, a_skip_objects  ut_object_names) return varchar2 is
     l_result                varchar2(32767);
     l_full_name             varchar2(32767);
     l_join_mappings         varchar2(32767);
@@ -43,58 +43,51 @@ create or replace package body ut_coverage is
     l_mappings_cardinality  integer := 0;
   begin
     l_result := q'[
-    with sources as (
-          select /*+ cardinality(f {mappings_cardinality}) */
-                 {l_full_name} as full_name, s.owner, s.name, s.line, s.text
-            from {sources_view} s {join_file_mappings}
-           where s.type in ('PACKAGE BODY', 'TYPE BODY', 'PROCEDURE', 'FUNCTION')
-             {filters}
-        ),
-        trigger_sources as (
-          select /*+ cardinality(f {mappings_cardinality}) */
-                 {l_full_name} as full_name,
-                 s.owner,
-                 s.name,
-                 s.line
-                 - (select min(t.line) - 1
-                      from {sources_view} t
-                     where t.owner = s.owner and t.type = s.type and t.name = s.name
-                       and regexp_like( t.text, '[A-Za-z0-9$#_]*(begin|declare|compound).*', 'i' )
-                   ) as line,
-                 s.text
-            from {sources_view} s {join_file_mappings}
-           where s.type = 'TRIGGER'
-             {filters}
-        ),
-        coverage_sources as (
-          select full_name, owner, name, line, text,
-                 case
-                   when
-                     -- to avoid execution of regexp_like on every line
-                     -- first do a rough check for existence of search pattern keyword
-                     (lower(s.text) like '%procedure%'
-                      or lower(s.text) like '%function%'
-                      or lower(s.text) like '%begin%'
-                      or lower(s.text) like '%end%'
-                      or lower(s.text) like '%package%'
-                     ) and
-                     regexp_like(
-                        s.text,
-                        '^([\t ]*(((not)?\s*(overriding|final|instantiable)[\t ]*)*(static|constructor|member)?[\t ]*(procedure|function)|package([\t ]+body)|begin|end([\t ]+\S+)*[ \t]*;))', 'i'
-                     )
-                    then 'Y'
-                 end as to_be_skipped
-            from (
-              select * from sources
-              union all
-              select * from trigger_sources
-            ) s
-        )
-      select full_name, owner, name, line, to_be_skipped, text
-        from coverage_sources s
-          --Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
-      where (s.owner, s.name) not in ( select el.owner, el.name from table(:l_skipped_objects) el )
-        and line > 0
+    with
+      trigger_source_offsets as (
+        select min(s.line) - 1 offset, s.owner, s.name, s.type
+          from {sources_view} s
+         where s.type = 'TRIGGER'
+           {filters}
+           and (lower(s.text) like '%begin%' or lower(s.text) like '%declare%' or lower(s.text) like '%compound%')
+         group by s.owner, s.name, s.type
+      ),
+      sources as (
+        select /*+ cardinality(f {mappings_cardinality}) */
+               {l_full_name} as full_name, s.owner, s.name,
+               s.line - case when s.type = 'TRIGGER' then o.offset else 0 end as line,
+               s.text
+          from {sources_view} s {join_file_mappings}
+          left join trigger_source_offsets o
+            on (s.owner = o.owner and s.name = o.name and s.type = o.type)
+         where s.type in ('PACKAGE BODY', 'TYPE BODY', 'PROCEDURE', 'FUNCTION', 'TRIGGER')
+           {filters}
+      ),
+      coverage_sources as (
+        select full_name, owner, name, line, text,
+               case
+                 when
+                   -- to avoid execution of regexp_like on every line
+                   -- first do a rough check for existence of search pattern keyword
+                   (lower(s.text) like '%procedure%'
+                    or lower(s.text) like '%function%'
+                    or lower(s.text) like '%begin%'
+                    or lower(s.text) like '%end%'
+                    or lower(s.text) like '%package%'
+                   ) and
+                   regexp_like(
+                      s.text,
+                      '^([\t ]*(((not)?\s*(overriding|final|instantiable)[\t ]*)*(static|constructor|member)?[\t ]*(procedure|function)|package([\t ]+body)|begin|end([\t ]+\S+)*[ \t]*;))', 'i'
+                   )
+                  then 'Y'
+               end as to_be_skipped
+          from sources s
+      )
+    select full_name, owner, name, line, to_be_skipped, text
+      from coverage_sources s
+           -- Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
+     where (s.owner, s.name) not in ( select /*+ cardinality(el {skipped_objects_cardinality})*/el.owner, el.name from table(:l_skipped_objects) el )
+       and line > 0
     ]';
 
     if a_coverage_options.file_mappings is not empty then
@@ -109,9 +102,16 @@ create or replace package body ut_coverage is
       l_full_name := q'[lower(s.owner||'.'||s.name)]';
       l_filters := case
         when a_coverage_options.include_objects is not empty then '
-           and (s.owner, s.name) in (select il.owner, il.name from table(:include_objects) il)'
+           and (s.owner, s.name) in (
+                 select /*+ cardinality(il '||ut_utils.scale_cardinality(cardinality(a_coverage_options.include_objects))||') */
+                        il.owner, il.name
+                   from table(:include_objects) il
+               )'
         else '
-           and s.owner in (select upper(t.column_value) from table(:l_schema_names) t)'
+           and s.owner in (
+                 select /*+ cardinality(t '||ut_utils.scale_cardinality(cardinality(a_coverage_options.schema_names))||') */
+                        upper(t.column_value)
+                   from table(:l_schema_names) t)'
         end;
     end if;
 
@@ -120,29 +120,28 @@ create or replace package body ut_coverage is
     l_result := replace(l_result, '{join_file_mappings}',   l_join_mappings);
     l_result := replace(l_result, '{filters}',              l_filters);
     l_result := replace(l_result, '{mappings_cardinality}', l_mappings_cardinality);
+    l_result := replace(l_result, '{skipped_objects_cardinality}', ut_utils.scale_cardinality(cardinality(a_skip_objects)));
 
     return l_result;
 
   end;
 
-  function get_cov_sources_cursor(a_coverage_options in ut_coverage_options,a_sql in varchar2) return sys_refcursor is
+  function get_cov_sources_cursor(a_coverage_options in ut_coverage_options) return sys_refcursor is
     l_cursor        sys_refcursor;
     l_skip_objects  ut_object_names;
     l_sql           varchar2(32767);
-    l_valid_pattern varchar2(250) := '^\s*select.+$';
   begin
     if not is_develop_mode() then
       --skip all the utplsql framework objects and all the unit test packages that could potentially be reported by coverage.
       l_skip_objects := ut_utils.get_utplsql_objects_list() multiset union all coalesce(a_coverage_options.exclude_objects, ut_object_names());
     end if;
-    if regexp_like(a_sql, l_valid_pattern, 'mi') then
-      -- pseudo assert for PL/SQL Cop
-      l_sql := sys.dbms_assert.noop(a_sql); 
-    else
-      raise_application_error(-20542, 'Possible SQL injection detected. a_sql parameter does not match valid pattern "' || l_valid_pattern || '".');
-    end if;
+
+    l_sql := get_cov_sources_sql(a_coverage_options, l_skip_objects);
+
+    ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_key_anyvalues().put('l_sql',l_sql) );
+
     if a_coverage_options.file_mappings is not empty then
-      open l_cursor for l_sql using a_coverage_options.file_mappings, a_coverage_options.file_mappings, l_skip_objects;
+      open l_cursor for l_sql using a_coverage_options.file_mappings, l_skip_objects;
     elsif a_coverage_options.include_objects is not empty then
       open l_cursor for l_sql using a_coverage_options.include_objects, a_coverage_options.include_objects, l_skip_objects;
     else
@@ -151,7 +150,7 @@ create or replace package body ut_coverage is
     return l_cursor;
   end;
 
-  procedure populate_tmp_table(a_coverage_options ut_coverage_options, a_sql in varchar2) is
+  procedure populate_tmp_table(a_coverage_options ut_coverage_options) is
     pragma autonomous_transaction;
     l_cov_sources_crsr sys_refcursor;
     l_cov_sources_data ut_coverage_helper.t_coverage_sources_tmp_rows;
@@ -159,8 +158,7 @@ create or replace package body ut_coverage is
 
     if not ut_coverage_helper.is_tmp_table_populated() or is_develop_mode() then
       ut_coverage_helper.cleanup_tmp_table();
-      ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_key_anyvalues().put('a_sql',a_sql) );
-      l_cov_sources_crsr := get_cov_sources_cursor(a_coverage_options, a_sql);
+      l_cov_sources_crsr := get_cov_sources_cursor(a_coverage_options);
 
       loop
         fetch l_cov_sources_crsr bulk collect into l_cov_sources_data limit 10000;
@@ -234,7 +232,7 @@ create or replace package body ut_coverage is
   begin
     --prepare global temp table with sources
     ut_event_manager.trigger_event('about to populate coverage temp table');
-    populate_tmp_table(a_coverage_options, get_cov_sources_sql(a_coverage_options));
+    populate_tmp_table(a_coverage_options);
     ut_event_manager.trigger_event('coverage temp table populated');
 
     -- Get raw data for both reporters, order is important as tmp table will skip headers and dont populate
