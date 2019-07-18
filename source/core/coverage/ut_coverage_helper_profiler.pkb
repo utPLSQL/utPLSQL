@@ -54,26 +54,23 @@ create or replace package body ut_coverage_helper_profiler is
   end;
 
   function proftab_results(a_object_owner varchar2, a_object_name varchar2, a_coverage_id integer) return t_proftab_rows is
-   l_raw_coverage sys_refcursor;
-   l_coverage_rows t_proftab_rows;
+    l_coverage_rows t_proftab_rows;
   begin
-     open l_raw_coverage for q'[select d.line#,
+    select
+        d.line#,
         case when sum(d.total_occur) = 0 and sum(d.total_time) > 0 then 1 else sum(d.total_occur) end total_occur
-        from plsql_profiler_units u
-        join plsql_profiler_data d
-          on u.runid = d.runid
-         and u.unit_number = d.unit_number
-       where u.runid = :a_coverage_id
-         and u.unit_owner = :a_object_owner
-         and u.unit_name = :a_object_name
-         and u.unit_type not in ('PACKAGE SPEC', 'TYPE SPEC', 'ANONYMOUS BLOCK')
-       group by d.line#]' using a_coverage_id,a_object_owner,a_object_name;
+      bulk collect into l_coverage_rows
+      from plsql_profiler_units u
+      join plsql_profiler_data d
+        on u.runid = d.runid
+       and u.unit_number = d.unit_number
+     where u.runid = a_coverage_id
+       and u.unit_owner = a_object_owner
+       and u.unit_name = a_object_name
+       and u.unit_type in ('PACKAGE BODY', 'TYPE BODY', 'PROCEDURE', 'FUNCTION', 'TRIGGER')
+     group by d.line#;
        
-      FETCH l_raw_coverage BULK COLLECT
-         INTO l_coverage_rows;
-      CLOSE l_raw_coverage;
-
-      RETURN l_coverage_rows; 
+    return l_coverage_rows;
   end;
   
   function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2, a_coverage_id integer) return ut_coverage_helper.t_unit_line_calls is
