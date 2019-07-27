@@ -10,10 +10,15 @@ pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: DockerCompose@0
+  inputs:
+    containerregistrytype: 'Container Registry'
+    dockerRegistryEndpoint: 'utPLSQL-docker'
+    dockerComposeFile: '**/docker-compose.yml'
+    action: 'Run a specific service'
+    serviceName: 'oracle12102small'
+    containerName: 'oracle12102small'
+    ports: |
+      1521:1521
+      5500:5500
+    detached: false
