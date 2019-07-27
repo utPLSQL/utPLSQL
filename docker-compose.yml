@@ -1,0 +1,9 @@
+version: '3.3'
+
+services:
+  oracle12102:
+    build: "./12.1.0.2"
+    image: "utplsqlv3/oracledb:12c-r1-se2-small"
+    ports:
+      - "1521:1521"
+      - "5500:5500"
