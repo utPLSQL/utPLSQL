@@ -21,4 +21,6 @@ steps:
     ports: |
       1521:1521
       5500:5500
-    detached: false
+    detached: true
+
+    
