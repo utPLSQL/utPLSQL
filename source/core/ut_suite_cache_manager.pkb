@@ -23,7 +23,7 @@ create or replace package body ut_suite_cache_manager is
   gc_get_cache_suite_sql    constant varchar2(32767) :=
     q'[with
       suite_items as (
-        select  /*+ cardinality(c 100) */ value(c) as obj
+        select  /*+ cardinality(c 500) */ value(c) as obj
           from ut_suite_cache c
          where 1 = 1
                and c.object_owner = :l_object_owner
@@ -87,7 +87,7 @@ create or replace package body ut_suite_cache_manager is
     l_result       ut_varchar2_rows;
     l_data         ut_annotation_objs_cache_info;
   begin
-    l_data := ut_annotation_cache_manager.get_annotations_objects_info(a_object_owner, 'PACKAGE');
+    l_data := ut_annotation_cache_manager.get_cached_objects_list(a_object_owner, 'PACKAGE');
 
     select i.object_name
            bulk collect into l_result
@@ -258,7 +258,7 @@ create or replace package body ut_suite_cache_manager is
     select min(t.parse_time)
       into l_cache_parse_time
       from ut_suite_cache_schema t
-     where object_owner = a_schema_name;
+     where object_owner = upper(a_schema_name);
     return l_cache_parse_time;
   end;
 
@@ -380,13 +380,16 @@ create or replace package body ut_suite_cache_manager is
     pragma autonomous_transaction;
   begin
     l_objects := get_missing_cache_objects(a_schema_name);
-    delete from ut_suite_cache i
-     where i.object_owner = a_schema_name
-       and i.object_name in ( select column_value from table (l_objects) );
 
-    delete from ut_suite_cache_package i
-     where i.object_owner = a_schema_name
-       and i.object_name in ( select column_value from table (l_objects) );
+    if l_objects is not empty then
+      delete from ut_suite_cache i
+       where i.object_owner = a_schema_name
+         and i.object_name in ( select column_value from table (l_objects) );
+
+      delete from ut_suite_cache_package i
+       where i.object_owner = a_schema_name
+         and i.object_name in ( select column_value from table (l_objects) );
+    end if;
 
     commit;
   end;
@@ -459,5 +462,5 @@ create or replace package body ut_suite_cache_manager is
     return l_count > 0;
   end;
 
-end ut_suite_cache_manager;
+end;
 /

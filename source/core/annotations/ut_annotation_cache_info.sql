@@ -17,7 +17,10 @@ create table ut_annotation_cache_info (
   object_name     varchar2(250) not null,
   object_type     varchar2(250) not null,
   parse_time      timestamp     not null,
-  constraint ut_annotation_cache_info_pk primary key(cache_id),
-  constraint ut_annotation_cache_info_uk unique (object_owner, object_type, object_name)
+  is_annotated    varchar2(1)   not null,
+  constraint ut_annotation_cache_info_ck1 check(is_annotated in ('Y','N')),
+  constraint ut_annotation_cache_info_pk primary key(cache_id) using index,
+  constraint ut_annotation_cache_info_uk unique (object_owner, object_type, object_name) using index,
+  constraint ut_annotation_cache_info_fk foreign key(object_owner, object_type) references ut_annotation_cache_schema(object_owner, object_type) on delete cascade
 ) organization index;
 

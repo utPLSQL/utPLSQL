@@ -512,9 +512,11 @@ create or replace package body ut_utils is
 
     procedure flush_lines(a_lines ut_varchar2_rows, a_offset integer) is
     begin
-      insert into ut_dbms_output_cache (seq_no,text)
-        select rownum+a_offset, column_value
-        from table(a_lines);
+      if a_lines is not empty then
+        insert into ut_dbms_output_cache (seq_no,text)
+          select rownum+a_offset, column_value
+          from table(a_lines);
+      end if;
     end;
   begin
     loop
@@ -534,7 +536,7 @@ create or replace package body ut_utils is
   procedure read_cache_to_dbms_output is
     l_lines_data sys_refcursor;
     l_lines  ut_varchar2_rows;
-    c_lines_limit constant integer := 1000;
+    c_lines_limit constant integer := 10000;
     pragma autonomous_transaction;
   begin
     open l_lines_data for select text from ut_dbms_output_cache order by seq_no;

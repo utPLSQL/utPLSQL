@@ -59,7 +59,7 @@ create or replace package run_helper is
   procedure drop_dummy_long_test_package;
   procedure create_ut3_suite;
   procedure drop_ut3_suite;
-  function get_object_name(a_owner in varchar2) return ut3.ut_object_names;
+  function get_schema_ut_packages(a_owner in varchar2) return ut3.ut_object_names;
   
   function ut_output_buffer_tmp return t_out_buff_tab pipelined;
   procedure delete_buffer;

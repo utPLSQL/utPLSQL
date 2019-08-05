@@ -212,14 +212,6 @@ create or replace package body ut_annotation_parser as
 
     select value(x) bulk collect into l_result from table(l_annotations) x order by x.position;
 
-    -- printing out parsed structure for debugging
-    $if $$ut_trace $then
-      print_parse_results(l_result);
-      dbms_output.put_line('Annotations count: ' || l_result.count);
-      for i in 1 .. l_result.count loop
-        dbms_output.put_line(xmltype(l_result(i)).getclobval());
-      end loop;
-    $end
     return l_result;
   end parse_object_annotations;
 
@@ -229,7 +221,8 @@ create or replace package body ut_annotation_parser as
     l_annotations     ut_annotations := ut_annotations();
     ex_package_is_wrapped exception;
     pragma exception_init(ex_package_is_wrapped, -24241);
-
+    source_text_is_empty exception;
+    pragma exception_init(source_text_is_empty, -24236);
   begin
     if a_source_lines.count > 0 then
       --convert to post-processed source clob
@@ -248,12 +241,12 @@ create or replace package body ut_annotation_parser as
         l_annotations := parse_object_annotations(l_source);
         dbms_lob.freetemporary(l_source);
       exception
-        when ex_package_is_wrapped then
+        when ex_package_is_wrapped or source_text_is_empty then
           null;
       end;
     end if;
     return l_annotations;
   end;
 
-end ut_annotation_parser;
+end;
 /

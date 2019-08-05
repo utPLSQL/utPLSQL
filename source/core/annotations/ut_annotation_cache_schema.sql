@@ -12,10 +12,10 @@ create table ut_annotation_cache_schema (
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  object_owner    varchar2(250) not null,
-  object_type     varchar2(250) not null,
-  object_count    integer       not null,
-  max_parse_time  date          not null,
+  object_owner      varchar2(250) not null,
+  object_type       varchar2(250) not null,
+  max_parse_time    date          not null,
+  full_refresh_time timestamp,
   constraint ut_annotation_cache_schema_pk primary key(object_owner, object_type)
 ) organization index;
 
