@@ -554,7 +554,7 @@ create or replace package body ut_utils is
 
   function ut_owner return varchar2 is
   begin
-    return sys_context('userenv','current_schema');
+    return qualified_sql_name( sys_context('userenv','current_schema') );
   end;
 
   function scale_cardinality(a_cardinality natural) return natural is
