@@ -90,12 +90,6 @@ create or replace package ut_compound_data_helper authid definer is
     a_extract_path varchar2
   ) return tt_row_diffs;
 
-  subtype t_hash  is raw(128);
-
-  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1)  return t_hash;
-
-  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash;
-  
   function get_fixed_size_hash(a_string varchar2, a_base integer :=0,a_size integer :=9999999) return number;
                      
   function gen_compare_sql(
@@ -121,6 +115,10 @@ create or replace package ut_compound_data_helper authid definer is
   function get_compare_cursor(a_diff_cursor_text in clob,a_self_id raw, a_other_id raw) return sys_refcursor;
   
   function create_err_cursor_msg(a_error_stack varchar2) return varchar2;
+
+  procedure save_cursor_data_for_diff(a_data_id raw, a_set_id integer, a_xml xmltype);
+
+  function get_row_data_as_xml(a_data_id raw, a_max_rows integer) return ut_utils.t_clob_tab;
   
   /*
   * Function to return true or false if the type dont have an length
@@ -134,7 +132,7 @@ create or replace package ut_compound_data_helper authid definer is
   function get_json_diffs_tmp(a_diff_id raw) return tt_json_diff_tab;
 
   
-  function get_json_diffs_type(a_diffs_all tt_json_diff_tab) return tt_json_diff_type_tab;
+  function get_json_diffs_type(a_diff_id raw) return tt_json_diff_type_tab;
   
 end;
 /

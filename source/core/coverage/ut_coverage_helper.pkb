@@ -43,9 +43,7 @@ create or replace package body ut_coverage_helper is
   procedure cleanup_tmp_table is
     pragma autonomous_transaction;
   begin
-    null;
     execute immediate 'truncate table ut_coverage_sources_tmp';
-    commit;
   end;
 
   function is_tmp_table_populated return boolean is

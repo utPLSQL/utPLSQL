@@ -5,6 +5,7 @@ create or replace package body run_helper is
   begin
     execute immediate q'[create or replace package ut3$user#.dummy_test_package as    
         --%suite(dummy_test_suite)
+        --%suitepath(some.path)
         --%rollback(manual)
 
         --%test(dummy_test)
@@ -24,7 +25,13 @@ create or replace package body run_helper is
         null;
       end;]';
       
-      execute immediate q'[grant execute on ut3_tester_helper.dummy_test_procedure to public]';
+    execute immediate q'[grant execute on ut3_tester_helper.dummy_test_procedure to public]';
+
+    execute immediate q'[create or replace package ut3$user#.bad_test_package as
+        --%rollback(manual)
+        --%test(dummy_test)
+        procedure some_dummy_test_procedure;
+      end;]';
   end;
 
   procedure setup_cache_objectstag is
@@ -32,6 +39,7 @@ create or replace package body run_helper is
   begin
     execute immediate q'[create or replace package ut3$user#.dummy_test_package as    
         --%suite(dummy_test_suite)
+        --%suitepath(some.path)
         --%tags(dummy)
         --%rollback(manual)
 
@@ -627,6 +635,35 @@ create or replace package body run_helper is
   begin
     delete from ut3.ut_output_buffer_tmp;
   end;
- 
+
+  function get_annotation_cache_info_cur(
+    a_owner varchar2,
+    a_type varchar2
+  ) return sys_refcursor is
+    l_result sys_refcursor;
+  begin
+    open l_result for
+      select * from ut3.ut_annotation_cache_info
+       where object_owner = a_owner and object_type = a_type;
+
+    return l_result;
+  end;
+
+  function get_annotation_cache_cursor(
+    a_owner varchar2,
+    a_type  varchar2,
+    a_name  varchar2 := null
+  ) return sys_refcursor is
+    l_result sys_refcursor;
+  begin
+    open l_result for
+      select *
+        from ut3.ut_annotation_cache_info i
+        join ut3.ut_annotation_cache c on c.cache_id = i.cache_id
+       where object_owner = a_owner and object_type = a_type and object_name = nvl( a_name, object_name );
+
+    return l_result;
+  end;
+
 end;
 /

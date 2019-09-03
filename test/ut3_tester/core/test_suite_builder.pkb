@@ -619,7 +619,7 @@ create or replace package body test_suite_builder is
     ut.expect(l_actual).to_match('(.*)(<WARNINGS>)(.*)(Annotation &quot;--%beforeeach&quot;)(.*)(line 3)(.*)(</WARNINGS>)(.*)', 'n');
     ut.expect(l_actual).to_match('(.*)(<WARNINGS>)(.*)(Annotation &quot;--%aftereach&quot;)(.*)(line 4)(.*)(</WARNINGS>)(.*)', 'n');
     ut.expect(l_actual).to_match('(.*)(<WARNINGS>)(.*)(Annotation &quot;--%afterall&quot; cannot be used with &quot;--%test&quot;. Annotation ignored.)'
-                               ||'(.*)(at &quot;UT3_TESTER.SOME_PACKAGE.DO_STUFF&quot;, line 5)(.*)(</WARNINGS>)(.*)', 'n');
+                               ||'(.*)(at package &quot;UT3_TESTER.SOME_PACKAGE.DO_STUFF&quot;, line 5)(.*)(</WARNINGS>)(.*)', 'n');
     ut.expect(l_actual).not_to_be_like('%<BEFORE_EACH_LIST>%');
     ut.expect(l_actual).not_to_be_like('%<AFTER_EACH_LIST>%');
     ut.expect(l_actual).not_to_be_like('%<BEFORE_ALL_LIST>%');
@@ -791,7 +791,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS><VARCHAR2>Invalid annotation &quot;--\%context&quot;. Cannot find following &quot;--\%endcontext&quot;. Annotation ignored.%at &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 4</VARCHAR2></WARNINGS>%'
+        '%<WARNINGS><VARCHAR2>Invalid annotation &quot;--\%context&quot;. Cannot find following &quot;--\%endcontext&quot;. Annotation ignored.%at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 4</VARCHAR2></WARNINGS>%'
         ,'\'
     );
     ut.expect(l_actual).to_be_like(
@@ -835,7 +835,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS><VARCHAR2>Invalid annotation &quot;--\%endcontext&quot;. Cannot find preceding &quot;--\%context&quot;. Annotation ignored.%at &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 9</VARCHAR2></WARNINGS>%'
+        '%<WARNINGS><VARCHAR2>Invalid annotation &quot;--\%endcontext&quot;. Cannot find preceding &quot;--\%context&quot;. Annotation ignored.%at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 9</VARCHAR2></WARNINGS>%'
         ,'\'
     );
     ut.expect(l_actual).to_be_like(
@@ -892,7 +892,7 @@ create or replace package body test_suite_builder is
       l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
       --Assert
       ut.expect(l_actual).to_be_like(
-          '%<WARNINGS><VARCHAR2>Context name must be unique in a suite. Context and all of it&apos;s content ignored.%at &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 9</VARCHAR2></WARNINGS>%'
+          '%<WARNINGS><VARCHAR2>Context name must be unique in a suite. Context and all of it&apos;s content ignored.%at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 9</VARCHAR2></WARNINGS>%'
           ,'\'
       );
       ut.expect(l_actual).to_be_like(

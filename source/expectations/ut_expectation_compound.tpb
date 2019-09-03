@@ -23,16 +23,6 @@ create or replace type body ut_expectation_compound as
     return;
   end;
 
-  member procedure to_be_empty(self in ut_expectation_compound) is
-  begin
-    self.to_( ut_be_empty() );
-  end;
-
-  member procedure not_to_be_empty(self in ut_expectation_compound) is
-  begin
-    self.not_to( ut_be_empty() );
-  end;
-
   member procedure to_have_count(self in ut_expectation_compound, a_expected integer) is
   begin
     self.to_( ut_have_count(a_expected) );

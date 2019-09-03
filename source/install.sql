@@ -31,9 +31,17 @@ prompt &&line_separator
 alter session set current_schema = &&ut3_owner;
 
 @@check_object_grants.sql
-@@check_sys_grants.sql "'CREATE TYPE','CREATE VIEW','CREATE SYNONYM','CREATE SEQUENCE','CREATE PROCEDURE','CREATE TABLE'"
+@@check_sys_grants.sql "'CREATE TYPE','CREATE VIEW','CREATE SYNONYM','CREATE SEQUENCE','CREATE PROCEDURE','CREATE TABLE', 'CREATE CONTEXT'"
 --set define off
 
+begin
+  $if $$self_testing_install $then
+    execute immediate 'create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_context';
+  $else
+    execute immediate 'create or replace context ut3_info using &&ut3_owner..ut_session_context';
+  $end
+end;
+/
 
 --dbms_output buffer cache table
 @@install_component.sql 'core/ut_dbms_output_cache.sql'
@@ -56,6 +64,10 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/ut_metadata.pkb'
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pks'
 @@install_component.sql 'reporters/ut_ansiconsole_helper.pkb'
+
+@@install_component.sql 'api/ut_suite_item_info.tps'
+@@install_component.sql 'api/ut_suite_item_info.tpb'
+@@install_component.sql 'api/ut_suite_items_info.tps'
 
 --event manager objects
 @@install_component.sql 'core/events/ut_event_item.tps'
@@ -94,6 +106,11 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'expectations/data_values/ut_key_anyval_pairs.tps'
 @@install_component.sql 'expectations/data_values/ut_key_anyvalues.tps'
 
+--session_context
+@@install_component.sql  'core/session_context/ut_session_context.pks'
+@@install_component.sql  'core/session_context/ut_session_context.pkb'
+@@install_component.sql  'core/session_context/ut_session_info.tps'
+@@install_component.sql  'core/session_context/ut_session_info.tpb'
 
 --output buffer table
 @@install_component.sql 'core/output_buffers/ut_output_buffer_info_tmp.sql'
@@ -133,10 +150,13 @@ alter session set current_schema = &&ut3_owner;
 @@install_component.sql 'core/annotations/ut_annotation_manager.pkb'
 
 --suite builder
+@@install_component.sql 'core/types/ut_suite_cache_row.tps'
+@@install_component.sql 'core/types/ut_suite_cache_rows.tps'
 @@install_component.sql 'core/ut_suite_cache_schema.sql'
 @@install_component.sql 'core/ut_suite_cache_package.sql'
 @@install_component.sql 'core/ut_suite_cache_seq.sql'
 @@install_component.sql 'core/ut_suite_cache.sql'
+
 @@install_component.sql 'core/ut_suite_cache_manager.pks'
 @@install_component.sql 'core/ut_suite_cache_manager.pkb'
 @@install_component.sql 'core/ut_suite_builder.pks'
@@ -295,9 +315,6 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'reporters/ut_documentation_reporter.tpb'
 
 --plugin interface API for running utPLSQL
-@@install_component.sql 'api/ut_suite_item_info.tps'
-@@install_component.sql 'api/ut_suite_item_info.tpb'
-@@install_component.sql 'api/ut_suite_items_info.tps'
 @@install_component.sql 'api/ut_runner.pks'
 @@install_component.sql 'api/ut_runner.pkb'
 

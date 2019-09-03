@@ -58,10 +58,7 @@ create or replace type body ut_data_value_refcursor as
         null;
       $end
       l_elements_count := l_elements_count + dbms_xmlgen.getNumRowsProcessed(l_ctx);
-      execute immediate
-      'insert into ' || l_ut_owner || '.ut_compound_data_tmp(data_id, item_no, item_data) ' ||
-      'values (:self_guid, :self_row_count, :l_xml)'
-      using in self.data_id, l_set_id, l_xml;       
+      ut_compound_data_helper.save_cursor_data_for_diff( self.data_id, l_set_id, l_xml );
       l_set_id := l_set_id + c_bulk_rows;   
     end loop;
    
@@ -149,7 +146,7 @@ create or replace type body ut_data_value_refcursor as
     l_exp_missing_pk    ut_varchar2_list := ut_varchar2_list();
 
     c_max_rows          integer := ut_utils.gc_diff_max_rows;
-    l_diff_id           ut_compound_data_helper.t_hash;
+    l_diff_id           ut_utils.t_hash;
     l_diff_row_count    integer;
     l_row_diffs         ut_compound_data_helper.tt_row_diffs;
     l_message           varchar2(32767);
@@ -223,7 +220,7 @@ create or replace type body ut_data_value_refcursor as
         a_match_options.ordered_columns()
       );
     
-      if l_column_diffs.count > 0 then
+      if l_column_diffs is not empty then
         ut_utils.append_to_clob(l_result,chr(10) || 'Columns:' || chr(10));
         l_other_cols := remove_incomparable_cols( l_other_cols, l_column_diffs );
         l_self_cols  := remove_incomparable_cols( l_self_cols, l_column_diffs );
@@ -243,7 +240,7 @@ create or replace type body ut_data_value_refcursor as
     
     --diff rows and row elements if the pk is not missing 
     if l_act_missing_pk.count + l_exp_missing_pk.count = 0 then
-      l_diff_id := ut_compound_data_helper.get_hash( l_self.data_id || l_other.data_id );
+      l_diff_id := ut_utils.get_hash( l_self.data_id || l_other.data_id );
 
       -- First tell how many rows are different
       l_diff_row_count := ut_compound_data_helper.get_rows_diff_count;
@@ -270,8 +267,8 @@ create or replace type body ut_data_value_refcursor as
           l_results(l_results.last) := get_diff_message(l_row_diffs(i),a_match_options.unordered);
         end loop;
         ut_utils.append_to_clob(l_result,l_results);
-      else
-        l_message:= chr(10)||'Rows: [  all different ]'||chr(10)||'  All rows are different as the columns position is not matching.';
+      elsif l_column_diffs is not empty then
+        l_message:= chr(10)||'Rows: [ all different ]'||chr(10)||'  All rows are different as the columns position is not matching.';
         ut_utils.append_to_clob( l_result, l_message );
       end if;   
     else
@@ -290,8 +287,9 @@ create or replace type body ut_data_value_refcursor as
       end if;
         
     end if;
-    
-    l_result_string := ut_utils.to_string(l_result,null);
+    if l_result != empty_clob() then
+      l_result_string := chr(10) || 'Diff:' || ut_utils.to_string(l_result,null);
+    end if;
     dbms_lob.freetemporary(l_result);
     return l_result_string;
   end;
@@ -317,14 +315,14 @@ create or replace type body ut_data_value_refcursor as
       a_other            ut_data_value_refcursor,
       a_diff_cursor_text clob
     ) return integer is
-      l_diff_id       ut_compound_data_helper.t_hash;
+      l_diff_id       ut_utils.t_hash;
       l_result        integer;
       --We will start with number od differences being displayed.
       l_cursor        sys_refcursor;
       l_diff_tab      ut_compound_data_helper.t_diff_tab;
       l_diif_rowcount integer :=0;
     begin
-      l_diff_id       := ut_compound_data_helper.get_hash(a_self.data_id||a_other.data_id);
+      l_diff_id       := ut_utils.get_hash(a_self.data_id||a_other.data_id);
       
       begin
         l_cursor := ut_compound_data_helper.get_compare_cursor(a_diff_cursor_text,

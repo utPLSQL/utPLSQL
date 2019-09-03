@@ -18,6 +18,7 @@ create type ut_annotation_obj_cache_info as object(
     object_owner   varchar2(250),
     object_name    varchar2(250),
     object_type    varchar2(250),
-    needs_refresh  varchar2(1)
+    needs_refresh  varchar2(1),
+    parse_time     timestamp
   )
 /

@@ -55,8 +55,7 @@ create or replace type body ut_contain as
   begin
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
       l_result :=
-        'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
-        ||  chr(10) || 'Diff:'
+        'Actual: '||a_actual.get_object_info()||self.description()||': '||self.expected.get_object_info()
         ||  treat(expected as ut_data_value_refcursor).diff( a_actual, self.options );
     else
       l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();

@@ -30,7 +30,7 @@ create or replace package ut_annotation_manager authid current_user as
    * @param a_parse_date   date when object was last parsed
    * @return array containing annotated objects along with annotations for each object (nested)
    */
-  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_parse_date timestamp := null) return ut_annotated_objects pipelined;
+  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_parse_date timestamp := null) return sys_refcursor;
 
   /**
    * Rebuilds annotation cache for a specified schema and object type.
@@ -56,11 +56,6 @@ create or replace package ut_annotation_manager authid current_user as
    */
   procedure purge_cache(a_object_owner varchar2, a_object_type varchar2);
 
-
-  /*
-  * Returns a hash value of suitepath based on input path and random seed
-  */
-  function hash_suite_path(a_path varchar2, a_random_seed positiven) return varchar2;
 
 end ut_annotation_manager;
 /

@@ -53,13 +53,13 @@ create or replace type body ut_data_value_json as
     l_result_string     varchar2(32767);
     l_other             ut_data_value_json;
     l_self              ut_data_value_json := self;
-    l_diff_id           ut_compound_data_helper.t_hash;
+    l_diff_id           ut_utils.t_hash;
     c_max_rows          integer := ut_utils.gc_diff_max_rows;
     l_diffs             ut_compound_data_helper.tt_json_diff_tab;
     l_message           varchar2(32767);
     
-    function get_diff_by_type(a_diff ut_compound_data_helper.tt_json_diff_tab) return clob is
-      l_diff_summary  ut_compound_data_helper.tt_json_diff_type_tab := ut_compound_data_helper.get_json_diffs_type(a_diff);
+    function get_diff_by_type(a_diff_id raw) return clob is
+      l_diff_summary  ut_compound_data_helper.tt_json_diff_type_tab := ut_compound_data_helper.get_json_diffs_type(a_diff_id);
       l_message_list  ut_varchar2_list := ut_varchar2_list();
     begin
       for i in 1..l_diff_summary.count loop
@@ -95,7 +95,7 @@ create or replace type body ut_data_value_json as
     end if;
     dbms_lob.createtemporary(l_result, true);
     l_other := treat(a_other as ut_data_value_json);       
-    l_diff_id  := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);  
+    l_diff_id  := ut_utils.get_hash(self.data_id||l_other.data_id);
     
     if not l_self.is_null and not l_other.is_null then
       l_diffs := ut_compound_data_helper.get_json_diffs_tmp(l_diff_id);
@@ -103,7 +103,7 @@ create or replace type body ut_data_value_json as
       l_message := ' '||l_diffs.count|| ' differences found' ||
         case when l_diffs.count > c_max_rows then ', showing first '|| c_max_rows else null end||chr(10);
       ut_utils.append_to_clob( l_result, l_message );
-      l_message := get_diff_by_type(l_diffs)||chr(10);
+      l_message := get_diff_by_type(l_diff_id)||chr(10);
       ut_utils.append_to_clob( l_result, l_message );
 
       for i in 1 .. least( c_max_rows, l_diffs.count ) loop
@@ -113,9 +113,10 @@ create or replace type body ut_data_value_json as
       ut_utils.append_to_clob(l_result, l_results);
     
     end if;
-    
-    
-    l_result_string := ut_utils.to_string(l_result,null);
+
+    if l_result != empty_clob() then
+      l_result_string := chr(10) || 'Diff:' || ut_utils.to_string(l_result,null);
+    end if;
     dbms_lob.freetemporary(l_result);
     return l_result_string;
   end;
@@ -129,13 +130,13 @@ create or replace type body ut_data_value_json as
   
   member function compare_implementation(a_other in ut_data_value,a_match_options ut_matcher_options) return 
     integer is
-    l_result integer;
-    l_other  ut_data_value_json;
-    l_diff_id       ut_compound_data_helper.t_hash;
+    l_result    integer;
+    l_other     ut_data_value_json;
+    l_diff_id   ut_utils.t_hash;
   begin
    if a_other is of (ut_data_value_json) then
       l_other   := treat(a_other as ut_data_value_json);
-      l_diff_id := ut_compound_data_helper.get_hash(self.data_id||l_other.data_id);
+      l_diff_id := ut_utils.get_hash(self.data_id||l_other.data_id);
       l_result :=
         case
           when ut_compound_data_helper.insert_json_diffs(

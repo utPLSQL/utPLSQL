@@ -56,8 +56,8 @@ create or replace type body ut_test as
     if self.get_disabled_flag() then
       mark_as_skipped();
     else
-      ut_event_manager.trigger_event(ut_event_manager.gc_before_test, self);
       self.start_time := current_timestamp;
+      ut_event_manager.trigger_event(ut_event_manager.gc_before_test, self);
 
       l_savepoint := self.create_savepoint_if_needed();
 

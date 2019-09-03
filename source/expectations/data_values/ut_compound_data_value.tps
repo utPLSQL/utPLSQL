@@ -39,7 +39,8 @@ create or replace type ut_compound_data_value force under ut_data_value(
   * Holds name for the type of compound
   */
   compound_type varchar2(50),
-  
+
+  member function get_elements_count_info return varchar2,
   overriding member function get_object_info return varchar2,
   overriding member function is_null return boolean,
   overriding member function is_diffable return boolean,

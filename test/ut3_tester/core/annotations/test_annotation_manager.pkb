@@ -212,6 +212,14 @@ create or replace package body test_annotation_manager is
   procedure trg_not_add_new_package is
     l_actual          sys_refcursor;
   begin
+    --Arrange
+    open l_actual for
+      select *
+        from ut3.ut_annotation_cache_info
+       where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PACKAGE' and object_name = 'DUMMY_PACKAGE';
+
+    ut.expect(l_actual).to_be_empty();
+
     --Act
     create_dummy_package();
     --Assert
@@ -236,7 +244,6 @@ create or replace package body test_annotation_manager is
     assert_dummy_test_package(l_start_date);
   end;
 
-  --%test(Removes annotations from cache when object was removed and user can't see whole schema)
   procedure trg_no_data_for_dropped_object is
     l_actual      sys_refcursor;
   begin
@@ -372,15 +379,17 @@ create or replace package body test_annotation_manager is
   end;
 
   procedure no_data_for_dropped_object is
-    l_actual sys_refcursor;
+    l_result   sys_refcursor;
+    l_data     ut3.ut_annotated_objects;
+    l_actual   sys_refcursor;
   begin
     --Arrange
     ut3.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
     drop_dummy_test_package();
     --Act
-    open l_actual for
-      select * from table(ut3.ut_annotation_manager.get_annotated_objects(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE'))
-       where object_name = 'DUMMY_TEST_PACKAGE';
+    l_result := ut3.ut_annotation_manager.get_annotated_objects(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
+    fetch l_result bulk collect into l_data;
+    open l_actual for select object_name from table(l_data) where object_name = 'DUMMY_TEST_PACKAGE';
     --Assert
     ut.expect(l_actual).to_be_empty();
   end;

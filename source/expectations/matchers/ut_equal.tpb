@@ -244,16 +244,15 @@ create or replace type body ut_equal as
   begin
     if self.expected.data_type = a_actual.data_type and self.expected.is_diffable then
         l_result :=
-          'Actual: '||a_actual.get_object_info()||' '||self.description()||': '||self.expected.get_object_info()
-          || chr(10) || 'Diff:' ||  
-      case 
-        when  self.expected is of (ut_data_value_refcursor) then
-          treat(expected as ut_data_value_refcursor).diff( a_actual, options )
-        when self.expected is of (ut_data_value_json) then
-          treat(expected as ut_data_value_json).diff( a_actual, options )
-      else
-          expected.diff( a_actual, options )
-      end;
+          'Actual: '||a_actual.get_object_info()||self.description()||': '||self.expected.get_object_info()
+          ||case
+              when  self.expected is of (ut_data_value_refcursor) then
+                treat(expected as ut_data_value_refcursor).diff( a_actual, options )
+              when self.expected is of (ut_data_value_json) then
+                treat(expected as ut_data_value_json).diff( a_actual, options )
+            else
+                expected.diff( a_actual, options )
+            end;
     else
       l_result := (self as ut_matcher).failure_message(a_actual) || ': '|| self.expected.to_string_report();
     end if;

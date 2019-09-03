@@ -18,10 +18,8 @@ create or replace package test_proftab_coverage is
   --%test(Coverage data is not cached between runs - issue #562 )
   --%aftertest(ut3$user#.test_coverage.create_dummy_coverage_pkg)
   --%aftertest(ut3$user#.test_coverage.setup_dummy_coverage)
-  --%aftertest(drop_dummy_coverage_test_1)
+  --%aftertest(ut3_tester_helper.coverage_helper.drop_dummy_coverage_test_1)
   procedure coverage_tmp_data_refresh;
-
-  procedure drop_dummy_coverage_test_1;
 
 end;
 /

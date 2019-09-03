@@ -63,6 +63,17 @@ create or replace package run_helper is
   
   function ut_output_buffer_tmp return t_out_buff_tab pipelined;
   procedure delete_buffer;
-    
+
+  function get_annotation_cache_info_cur(
+    a_owner varchar2,
+    a_type varchar2
+  ) return sys_refcursor;
+
+  function get_annotation_cache_cursor(
+    a_owner varchar2,
+    a_type  varchar2,
+    a_name  varchar2 := null
+  ) return sys_refcursor;
+
 end;
 /

@@ -302,7 +302,7 @@ create or replace package body test_realtime_reporter as
 
   procedure single_failed_message is
     l_actual   varchar2(32767);
-    l_expected varchar2(80) := '<![CDATA[Actual: 1 (number) was expected to equal: 2 (number) ]]>';
+    l_expected varchar2(80) := '<![CDATA[Actual: 1 (number) was expected to equal: 2 (number)]]>';
   begin
     select t.event_doc.extract(
              '/event/test/failedExpectations/expectation[1]/message/text()'

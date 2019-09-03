@@ -15,7 +15,7 @@ create or replace type ut_reporter_info as object (
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  object_name          varchar2(250),
+  object_name          varchar2(250), 
   is_output_reporter   varchar2(1),
   is_instantiable      varchar2(1),
   is_final             varchar2(1)

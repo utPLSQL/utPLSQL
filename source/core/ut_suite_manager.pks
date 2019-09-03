@@ -24,6 +24,8 @@ create or replace package ut_suite_manager authid current_user is
    * @private
    *
    * Returns a list of Unit Test packages that exist in a given database schema
+   * IMPORTANT! The returned list is not filtered by user privileges.
+   *            To be used internally only.
    *
    * @param a_schema_names list of schemas to return the information for
    * @return array containing unit test schema and object names
@@ -99,8 +101,7 @@ create or replace package ut_suite_manager authid current_user is
   function suite_item_exists(
     a_owner_name     varchar2, 
     a_package_name   varchar2 := null, 
-    a_procedure_name varchar2 := null,
-    a_item_type      varchar2 := null
+    a_procedure_name varchar2 := null
   ) return boolean;
 
 

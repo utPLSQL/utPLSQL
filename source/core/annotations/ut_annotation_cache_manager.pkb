@@ -91,12 +91,29 @@ create or replace package body ut_annotation_cache_manager as
     commit;
   end;
 
+  function get_annotations_objects_info(a_object_owner varchar2, a_object_type varchar2) return ut_annotation_objs_cache_info is
+    l_result ut_annotation_objs_cache_info;
+  begin
+      select ut_annotation_obj_cache_info(
+        object_owner  => i.object_owner,
+        object_name   => i.object_name,
+        object_type   => i.object_type,
+        needs_refresh => 'N',
+        parse_time    => i.parse_time
+      )
+      bulk collect into l_result
+      from ut_annotation_cache_info i
+      where i.object_owner = a_object_owner
+        and i.object_type  = a_object_type;
+    return l_result;
+  end;
+
   function get_cache_schema_info(a_object_owner varchar2, a_object_type varchar2) return t_cache_schema_info is
     l_result t_cache_schema_info;
   begin
     begin
       select *
-             into l_result
+        into l_result
         from ut_annotation_cache_schema s
        where s.object_type = a_object_type and s.object_owner = a_object_owner;
     exception

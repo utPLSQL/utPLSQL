@@ -21,7 +21,7 @@ create or replace package ut_utils authid definer is
    *
    */
 
-  gc_version                 constant varchar2(50) := 'v3.1.7.3085';
+  gc_version                 constant varchar2(50) := 'v3.1.8.3188';
     
   subtype t_executable_type      is varchar2(30);
   gc_before_all                  constant t_executable_type := 'beforeall';
@@ -135,6 +135,8 @@ create or replace package ut_utils authid definer is
 
   gc_bc_fetch_limit           constant integer := 1000;
   gc_diff_max_rows            constant integer := 20;
+
+  gc_max_objects_fetch_limit  constant integer := 1000000;
 
   /** 
   * Regexp to validate tag
@@ -293,21 +295,15 @@ create or replace package ut_utils authid definer is
 
   function convert_collection(a_collection ut_varchar2_list) return ut_varchar2_rows;
 
-  /**
-   * Set session's action and module using dbms_application_info
-   */
-  procedure set_action(a_text in varchar2);
-
-  /**
-   * Set session's client info using dbms_application_info
-   */
-  procedure set_client_info(a_text in varchar2);
-
   function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2;
 
   function to_xpath(a_list ut_varchar2_list, a_ancestors varchar2 := '/*/') return varchar2;
 
-  procedure cleanup_temp_tables;
+  /*
+  * Truncates session-level GTT's (on commit preserve rows)
+  * IMPORTANT: Procedure will do an implicit commit when called
+  */
+  procedure cleanup_session_temp_tables;
 
   /**
    * Converts version string into version record
@@ -420,5 +416,24 @@ create or replace package ut_utils authid definer is
 
   function strip_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2;
 
-  end ut_utils;
+
+  subtype t_hash  is raw(128);
+
+  /*
+  * Wrapper function for calling dbms_crypto.hash
+  */
+  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1)  return t_hash;
+
+  /*
+  * Wrapper function for calling dbms_crypto.hash
+  */
+  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash;
+
+  /*
+  * Verifies that the input string is a qualified SQL name using sys.dbms_assert.qualified_sql_name
+  * If null value passed returns null
+  */
+  function qualified_sql_name(a_name varchar2) return varchar2;
+
+end ut_utils;
 /

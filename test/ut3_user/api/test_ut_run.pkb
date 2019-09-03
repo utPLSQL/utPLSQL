@@ -1,6 +1,11 @@
 create or replace package body test_ut_run is
 
-  g_owner varchar2(250) := sys_context('userenv', 'current_schema');
+  gc_owner               constant varchar2(250) := sys_context('userenv', 'current_schema');
+  gc_module              constant varchar2(32767) := 'test module';
+  gc_action              constant varchar2(32767) := 'test action';
+  gc_client_info         constant varchar2(32767) := 'test client info';
+
+  g_context_test_results clob;
 
   procedure clear_expectations is
   begin
@@ -746,7 +751,7 @@ Failures:%
     l_expected   clob;
   begin
     select * bulk collect into l_results
-      from table ( ut3.ut.run( g_owner||'.'||g_owner ) );
+      from table ( ut3.ut.run( gc_owner||'.'||gc_owner ) );
     l_expected := '%1 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)%';
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( l_expected );
   end;
@@ -755,7 +760,7 @@ Failures:%
     pragma autonomous_transaction;
   begin
     execute immediate '
-    create or replace package '||g_owner||'.'||g_owner||' as
+    create or replace package '||gc_owner||'.'||gc_owner||' as
       --%suite
 
       --%test
@@ -763,7 +768,7 @@ Failures:%
     end;';
 
     execute immediate '
-    create or replace package body '||g_owner||'.'||g_owner||' as
+    create or replace package body '||gc_owner||'.'||gc_owner||' as
       procedure sample_test is begin ut.expect(1).to_equal(1); end;
     end;';
 
@@ -772,7 +777,7 @@ Failures:%
   procedure drop_schema_name_package is
     pragma autonomous_transaction;
   begin
-    execute immediate 'drop package '||g_owner||'.'||g_owner;
+    execute immediate 'drop package '||gc_owner||'.'||gc_owner;
   end;
 
   procedure run_with_random_order is
@@ -1015,6 +1020,357 @@ Failures:%
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_2.test2%executed%' );
     ut.expect(  ut3_tester_helper.main_helper.table_to_clob(l_results) ).not_to_be_like( '%test_package_3%' );
   end;
-  
+
+  procedure set_application_info is
+  begin
+    dbms_application_info.set_module( gc_module, gc_action );
+    dbms_application_info.set_client_info( gc_client_info );
+  end;
+
+  procedure create_context_test_suite is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[
+      create or replace package check_context is
+        --%suite(Suite description)
+        --%suitepath(some.suite.path)
+
+        --%beforeall
+        procedure before_suite;
+
+        --%context(some_context)
+
+          --%displayname(context description)
+
+          --%beforeall
+          procedure before_context;
+
+          --%beforeeach
+          procedure before_each_test;
+
+          --%test(Some test description)
+          --%beforetest(before_test)
+          --%aftertest(after_test)
+          procedure the_test;
+          procedure before_test;
+          procedure after_test;
+
+          --%aftereach
+          procedure after_each_test;
+
+          --%afterall
+          procedure after_context;
+
+        --%endcontext
+
+
+        --%afterall
+        procedure after_suite;
+
+      end;]';
+    execute immediate q'[
+      create or replace package body check_context is
+
+        procedure print_context( a_procedure_name varchar2 ) is
+          l_results      ut_varchar2_rows;
+          l_module       varchar2(32767);
+          l_action       varchar2(32767);
+          l_client_info  varchar2(32767);
+        begin
+          select attribute||'='||value
+          bulk collect into l_results
+           from session_context where namespace = 'UT3_INFO'
+          order by attribute;
+          for i in 1 .. l_results.count loop
+            dbms_output.put_line( upper(a_procedure_name) ||':'|| l_results(i) );
+          end loop;
+          dbms_application_info.read_module( l_module, l_action );
+          dbms_application_info.read_client_info( l_client_info );
+
+          dbms_output.put_line( 'APPLICATION_INFO:MODULE=' || l_module );
+          dbms_output.put_line( 'APPLICATION_INFO:ACTION=' || l_action );
+          dbms_output.put_line( 'APPLICATION_INFO:CLIENT_INFO=' || l_client_info );
+        end;
+
+        procedure before_suite is
+        begin
+          print_context('before_suite');
+        end;
+
+        procedure before_context is
+        begin
+          print_context('before_context');
+        end;
+
+        procedure before_each_test is
+        begin
+          print_context('before_each_test');
+        end;
+
+        procedure the_test is
+        begin
+          print_context('the_test');
+        end;
+
+        procedure before_test is
+        begin
+          print_context('before_test');
+        end;
+
+        procedure after_test is
+        begin
+          print_context('after_test');
+        end;
+
+        procedure after_each_test is
+        begin
+          print_context('after_each_test');
+        end;
+
+        procedure after_context is
+        begin
+          print_context('after_context');
+        end;
+
+        procedure after_suite is
+        begin
+          print_context('after_suite');
+        end;
+
+      end;]';
+  end;
+
+  procedure drop_context_test_suite is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[drop package check_context]';
+  end;
+
+  procedure run_context_test_suite is
+    l_lines  ut3.ut_varchar2_list;
+  begin
+    select * bulk collect into l_lines from table(ut3.ut.run('check_context'));
+    g_context_test_results := ut3_tester_helper.main_helper.table_to_clob(l_lines);
+  end;
+
+
+  procedure sys_ctx_on_suite_beforeall is
+  begin
+    ut.expect(g_context_test_results).to_be_like(
+      '%BEFORE_SUITE:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.before_suite'
+        ||'%BEFORE_SUITE:CURRENT_EXECUTABLE_TYPE=beforeall'
+        ||'%BEFORE_SUITE:RUN_PATHS=check_context'
+        ||'%BEFORE_SUITE:SUITE_DESCRIPTION=Suite description'
+        ||'%BEFORE_SUITE:SUITE_PACKAGE='||gc_owner||'.check_context'
+        ||'%BEFORE_SUITE:SUITE_PATH=some.suite.path.check_context'
+        ||'%BEFORE_SUITE:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%APPLICATION_INFO:MODULE=utPLSQL'
+        ||'%APPLICATION_INFO:ACTION=check_context'
+        ||'%APPLICATION_INFO:CLIENT_INFO=before_suite%'
+      );
+    ut.expect(g_context_test_results).not_to_be_like('%BEFORE_SUITE:CONTEXT_%');
+    ut.expect(g_context_test_results).not_to_be_like('%BEFORE_SUITE:TEST_%');
+  end;
+
+  procedure sys_ctx_on_context_beforeall is
+  begin
+    ut.expect(g_context_test_results).to_be_like(
+      '%BEFORE_CONTEXT:CONTEXT_DESCRIPTION=context description'
+        ||'%BEFORE_CONTEXT:CONTEXT_NAME=some_context'
+        ||'%BEFORE_CONTEXT:CONTEXT_PATH=some.suite.path.check_context.some_context'
+        ||'%BEFORE_CONTEXT:CONTEXT_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_CONTEXT:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.before_context'
+        ||'%BEFORE_CONTEXT:CURRENT_EXECUTABLE_TYPE=beforeall'
+        ||'%BEFORE_CONTEXT:RUN_PATHS=check_context'
+        ||'%BEFORE_CONTEXT:SUITE_DESCRIPTION=Suite description'
+        ||'%BEFORE_CONTEXT:SUITE_PACKAGE='||gc_owner||'.check_context'
+        ||'%BEFORE_CONTEXT:SUITE_PATH=some.suite.path.check_context'
+        ||'%BEFORE_CONTEXT:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%APPLICATION_INFO:MODULE=utPLSQL'
+        ||'%APPLICATION_INFO:ACTION=check_context'
+        ||'%APPLICATION_INFO:CLIENT_INFO=before_context%'
+      );
+    ut.expect(g_context_test_results).not_to_be_like('%BEFORE_CONTEXT:TEST_%');
+  end;
+
+  procedure sys_ctx_on_beforeeach is
+  begin
+    ut.expect(g_context_test_results).to_be_like(
+      '%BEFORE_EACH_TEST:CONTEXT_DESCRIPTION=context description'
+        ||'%BEFORE_EACH_TEST:CONTEXT_NAME=some_context'
+        ||'%BEFORE_EACH_TEST:CONTEXT_PATH=some.suite.path.check_context.some_context'
+        ||'%BEFORE_EACH_TEST:CONTEXT_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_EACH_TEST:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.before_each_test'
+        ||'%BEFORE_EACH_TEST:CURRENT_EXECUTABLE_TYPE=beforeeach'
+        ||'%BEFORE_EACH_TEST:RUN_PATHS=check_context'
+        ||'%BEFORE_EACH_TEST:SUITE_DESCRIPTION=Suite description'
+        ||'%BEFORE_EACH_TEST:SUITE_PACKAGE='||gc_owner||'.check_context'
+        ||'%BEFORE_EACH_TEST:SUITE_PATH=some.suite.path.check_context'
+        ||'%BEFORE_EACH_TEST:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_EACH_TEST:TEST_DESCRIPTION=Some test description'
+        ||'%BEFORE_EACH_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
+        ||'%BEFORE_EACH_TEST:TEST_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%APPLICATION_INFO:MODULE=utPLSQL'
+        ||'%APPLICATION_INFO:ACTION=check_context'
+        ||'%APPLICATION_INFO:CLIENT_INFO=before_each_test%'
+      );
+  end;
+
+  procedure sys_ctx_on_beforetest is
+  begin
+    ut.expect(g_context_test_results).to_be_like(
+      '%BEFORE_TEST:CONTEXT_DESCRIPTION=context description'
+        ||'%BEFORE_TEST:CONTEXT_NAME=some_context'
+        ||'%BEFORE_TEST:CONTEXT_PATH=some.suite.path.check_context.some_context'
+        ||'%BEFORE_TEST:CONTEXT_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_TEST:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.before_test'
+        ||'%BEFORE_TEST:CURRENT_EXECUTABLE_TYPE=beforetest'
+        ||'%BEFORE_TEST:RUN_PATHS=check_context'
+        ||'%BEFORE_TEST:SUITE_DESCRIPTION=Suite description'
+        ||'%BEFORE_TEST:SUITE_PACKAGE='||gc_owner||'.check_context'
+        ||'%BEFORE_TEST:SUITE_PATH=some.suite.path.check_context'
+        ||'%BEFORE_TEST:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%BEFORE_TEST:TEST_DESCRIPTION=Some test description'
+        ||'%BEFORE_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
+        ||'%BEFORE_TEST:TEST_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%APPLICATION_INFO:MODULE=utPLSQL'
+        ||'%APPLICATION_INFO:ACTION=check_context'
+        ||'%APPLICATION_INFO:CLIENT_INFO=before_test%'
+      );
+  end;
+
+  procedure sys_ctx_on_test is
+  begin
+    ut.expect(g_context_test_results).to_be_like(
+      '%THE_TEST:CONTEXT_DESCRIPTION=context description'
+        ||'%THE_TEST:CONTEXT_NAME=some_context'
+        ||'%THE_TEST:CONTEXT_PATH=some.suite.path.check_context.some_context'
+        ||'%THE_TEST:CONTEXT_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%THE_TEST:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.the_test'
+        ||'%THE_TEST:CURRENT_EXECUTABLE_TYPE=test'
+        ||'%THE_TEST:RUN_PATHS=check_context'
+        ||'%THE_TEST:SUITE_DESCRIPTION=Suite description'
+        ||'%THE_TEST:SUITE_PACKAGE='||gc_owner||'.check_context'
+        ||'%THE_TEST:SUITE_PATH=some.suite.path.check_context'
+        ||'%THE_TEST:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%THE_TEST:TEST_DESCRIPTION=Some test description'
+        ||'%THE_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
+        ||'%THE_TEST:TEST_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%APPLICATION_INFO:MODULE=utPLSQL'
+        ||'%APPLICATION_INFO:ACTION=check_context'
+        ||'%APPLICATION_INFO:CLIENT_INFO=the_test%'
+      );
+  end;
+
+  procedure sys_ctx_on_aftertest is
+  begin
+    ut.expect(g_context_test_results).to_be_like(
+      '%AFTER_TEST:CONTEXT_DESCRIPTION=context description'
+        ||'%AFTER_TEST:CONTEXT_NAME=some_context'
+        ||'%AFTER_TEST:CONTEXT_PATH=some.suite.path.check_context.some_context'
+        ||'%AFTER_TEST:CONTEXT_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_TEST:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.after_test'
+        ||'%AFTER_TEST:CURRENT_EXECUTABLE_TYPE=aftertest'
+        ||'%AFTER_TEST:RUN_PATHS=check_context'
+        ||'%AFTER_TEST:SUITE_DESCRIPTION=Suite description'
+        ||'%AFTER_TEST:SUITE_PACKAGE='||gc_owner||'.check_context'
+        ||'%AFTER_TEST:SUITE_PATH=some.suite.path.check_context'
+        ||'%AFTER_TEST:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_TEST:TEST_DESCRIPTION=Some test description'
+        ||'%AFTER_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
+        ||'%AFTER_TEST:TEST_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%APPLICATION_INFO:MODULE=utPLSQL'
+        ||'%APPLICATION_INFO:ACTION=check_context'
+        ||'%APPLICATION_INFO:CLIENT_INFO=after_test%'
+      );
+  end;
+
+  procedure sys_ctx_on_aftereach is
+  begin
+    ut.expect(g_context_test_results).to_be_like(
+      '%AFTER_EACH_TEST:CONTEXT_DESCRIPTION=context description'
+        ||'%AFTER_EACH_TEST:CONTEXT_NAME=some_context'
+        ||'%AFTER_EACH_TEST:CONTEXT_PATH=some.suite.path.check_context.some_context'
+        ||'%AFTER_EACH_TEST:CONTEXT_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_EACH_TEST:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.after_each_test'
+        ||'%AFTER_EACH_TEST:CURRENT_EXECUTABLE_TYPE=aftereach'
+        ||'%AFTER_EACH_TEST:RUN_PATHS=check_context'
+        ||'%AFTER_EACH_TEST:SUITE_DESCRIPTION=Suite description'
+        ||'%AFTER_EACH_TEST:SUITE_PACKAGE='||gc_owner||'.check_context'
+        ||'%AFTER_EACH_TEST:SUITE_PATH=some.suite.path.check_context'
+        ||'%AFTER_EACH_TEST:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_EACH_TEST:TEST_DESCRIPTION=Some test description'
+        ||'%AFTER_EACH_TEST:TEST_NAME='||gc_owner||'.check_context.the_test'
+        ||'%AFTER_EACH_TEST:TEST_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%APPLICATION_INFO:MODULE=utPLSQL'
+        ||'%APPLICATION_INFO:ACTION=check_context'
+        ||'%APPLICATION_INFO:CLIENT_INFO=after_each_test%'
+      );
+  end;
+
+  procedure sys_ctx_on_context_afterall is
+  begin
+    ut.expect(g_context_test_results).to_be_like(
+      '%AFTER_CONTEXT:CONTEXT_DESCRIPTION=context description'
+        ||'%AFTER_CONTEXT:CONTEXT_NAME=some_context'
+        ||'%AFTER_CONTEXT:CONTEXT_PATH=some.suite.path.check_context.some_context'
+        ||'%AFTER_CONTEXT:CONTEXT_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%AFTER_CONTEXT:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.after_context'
+        ||'%AFTER_CONTEXT:CURRENT_EXECUTABLE_TYPE=afterall'
+        ||'%AFTER_CONTEXT:RUN_PATHS=check_context'
+        ||'%AFTER_CONTEXT:SUITE_DESCRIPTION=Suite description'
+        ||'%AFTER_CONTEXT:SUITE_PACKAGE='||gc_owner||'.check_context'
+        ||'%AFTER_CONTEXT:SUITE_PATH=some.suite.path.check_context'
+        ||'%AFTER_CONTEXT:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%APPLICATION_INFO:MODULE=utPLSQL'
+        ||'%APPLICATION_INFO:ACTION=check_context'
+        ||'%APPLICATION_INFO:CLIENT_INFO=after_context%'
+      );
+    ut.expect(g_context_test_results).not_to_be_like('%AFTER_CONTEXT:TEST_%');
+  end;
+
+  procedure sys_ctx_on_suite_afterall is
+  begin
+    ut.expect(g_context_test_results).to_be_like(
+      '%AFTER_SUITE:CURRENT_EXECUTABLE_NAME='||gc_owner||'.check_context.after_suite'
+        ||'%AFTER_SUITE:CURRENT_EXECUTABLE_TYPE=afterall'
+        ||'%AFTER_SUITE:RUN_PATHS=check_context'
+        ||'%AFTER_SUITE:SUITE_DESCRIPTION=Suite description'
+        ||'%AFTER_SUITE:SUITE_PACKAGE='||gc_owner||'.check_context'
+        ||'%AFTER_SUITE:SUITE_PATH=some.suite.path.check_context'
+        ||'%AFTER_SUITE:SUITE_START_TIME='||to_char(current_timestamp,'yyyy-mm-dd"T"hh24:mi')
+        ||'%APPLICATION_INFO:MODULE=utPLSQL'
+        ||'%APPLICATION_INFO:ACTION=check_context'
+        ||'%APPLICATION_INFO:CLIENT_INFO=after_suite%'
+      );
+    ut.expect(g_context_test_results).not_to_be_like('%AFTER_SUITE:CONTEXT_%');
+    ut.expect(g_context_test_results).not_to_be_like('%AFTER_SUITE:TEST_%');
+  end;
+
+  procedure sys_ctx_clear_after_run is
+    l_actual  sys_refcursor;
+  begin
+    open l_actual for
+      select attribute||'='||value
+        from session_context where namespace = 'UT3_INFO';
+
+    ut.expect(l_actual).to_be_empty();
+  end;
+
+  procedure app_info_restore_after_run is
+    l_module       varchar2(32767);
+    l_action       varchar2(32767);
+    l_client_info  varchar2(32767);
+  begin
+    dbms_application_info.read_module( l_module, l_action );
+    dbms_application_info.read_client_info( l_client_info );
+
+    ut.expect(l_module).to_equal(gc_module);
+    ut.expect(l_action).to_equal(gc_action);
+    --Disabled as it can't be tested.
+    --UT3_LATEST_RELEASE is also setting the client_info on each procedure
+    -- ut.expect(l_client_info).to_equal(gc_client_info);
+  end;
+
 end;
 /

@@ -100,7 +100,7 @@ create or replace package body main_helper is
     pragma autonomous_transaction;
   begin
      delete from ut3.ut_annotation_cache_info
-      where object_owner = user and object_type = 'PACKAGE' and object_name in ('DUMMY_PACKAGE','DUMMY_TEST_PACKAGE');
+      where object_owner = 'UT3_TESTER' and object_type = 'PACKAGE' and object_name in ('DUMMY_PACKAGE','DUMMY_TEST_PACKAGE');
     commit;
   end;  
   
@@ -110,7 +110,7 @@ create or replace package body main_helper is
     execute immediate q'[
     create or replace procedure ut3$user#.parse_annotations is
       begin
-        ut3.ut_annotation_manager.rebuild_annotation_cache('UT3_TESTER','PACKAGE');
+        ut3.ut_runner.rebuild_annotation_cache('UT3_TESTER','PACKAGE');
       end;]';
   end;
 
@@ -153,6 +153,16 @@ create or replace package body main_helper is
   begin
      ut3.ut_utils.append_to_list(a_list,a_items);
   end;
-  
+
+  procedure set_ut_run_context is
+  begin
+    ut3.ut_session_context.set_context('RUN_PATHS',' ');
+  end;
+
+  procedure clear_ut_run_context is
+  begin
+    ut3.ut_session_context.clear_all_context;
+  end;
+
 end;
 /

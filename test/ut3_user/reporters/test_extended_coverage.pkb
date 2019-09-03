@@ -1,37 +1,5 @@
 create or replace package body test_extended_coverage is
 
-  g_run_id ut3.ut_coverage.tt_coverage_id_arr;
-
-  function get_mock_block_run_id return integer is
-  begin
-    return ut3_tester_helper.coverage_helper.get_mock_block_run_id();
-  end;
-
-  function get_mock_proftab_run_id return integer is
-  begin
-    return ut3_tester_helper.coverage_helper.get_mock_run_id();
-  end;
-    
-  procedure setup_dummy_coverage is
-      pragma autonomous_transaction;
-  begin   
-    ut3_tester_helper.coverage_helper.create_dummy_12_2_cov_pck();
-    ut3_tester_helper.coverage_helper.create_dummy_12_2_cov_test();
-    ut3_tester_helper.coverage_helper.grant_exec_on_12_2_cov();
-    g_run_id(ut3.ut_coverage.gc_block_coverage) := get_mock_block_run_id();
-    g_run_id(ut3.ut_coverage.gc_proftab_coverage) := get_mock_proftab_run_id();
-    ut3.ut_coverage.mock_coverage_id(g_run_id);
-    ut3_tester_helper.coverage_helper.mock_block_coverage_data(g_run_id(ut3.ut_coverage.gc_block_coverage),user);
-    ut3_tester_helper.coverage_helper.mock_profiler_coverage_data(g_run_id(ut3.ut_coverage.gc_proftab_coverage),user);
-    commit;
-  end;
-
-  procedure cleanup_dummy_coverage is
-  begin
-    ut3_tester_helper.coverage_helper.cleanup_dummy_coverage(g_run_id(ut3.ut_coverage.gc_block_coverage)
-      ,g_run_id(ut3.ut_coverage.gc_proftab_coverage));
-  end;
-
   procedure coverage_for_object is
     l_expected  clob;
     l_actual    clob;

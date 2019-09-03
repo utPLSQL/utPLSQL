@@ -59,7 +59,7 @@ create or replace type body ut_data_value as
         l_result := l_result || chr(10);
       end if;
     else
-      l_result := self.to_string() || ' ' || l_info || ' ';
+      l_result := self.to_string() || ' ' || l_info;
     end if;
     return l_result;
   end;

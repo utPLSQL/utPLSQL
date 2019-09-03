@@ -16,9 +16,14 @@ create or replace type body ut_compound_data_value as
   limitations under the License.
   */
 
+  member function get_elements_count_info return varchar2 is
+  begin
+    return case when elements_count is null then ' [ null ]' else ' [ count = '||elements_count||' ]' end;
+  end;
+
   overriding member function get_object_info return varchar2 is
   begin
-    return self.data_type||' [ count = '||self.elements_count||' ]';
+    return self.data_type||get_elements_count_info();
   end;
 
   overriding member function is_null return boolean is
@@ -37,25 +42,16 @@ create or replace type body ut_compound_data_value as
   end;
 
   overriding member function to_string return varchar2 is
-    l_results       ut_utils.t_clob_tab;
     l_result        clob;
     l_result_string varchar2(32767);
   begin
     if not self.is_null() then
       dbms_lob.createtemporary(l_result, true);
       ut_utils.append_to_clob(l_result,'Data:'||chr(10));
-      --return first c_max_rows rows
-      execute immediate '
-          select xmlserialize( content ucd.item_data no indent)
-            from '|| ut_utils.ut_owner ||q'[.ut_compound_data_tmp tmp
-            ,xmltable ( '/ROWSET' passing tmp.item_data
-            columns item_data xmltype PATH '*'         
-            ) ucd
-           where tmp.data_id = :data_id
-             and rownum <= :max_rows]'
-        bulk collect into l_results using self.data_id, ut_utils.gc_diff_max_rows;
-
-      ut_utils.append_to_clob(l_result,l_results);
+      ut_utils.append_to_clob(
+        l_result,
+        ut_compound_data_helper.get_row_data_as_xml( self.data_id, ut_utils.gc_diff_max_rows )
+      );
 
       l_result_string := ut_utils.to_string(l_result,null);
       dbms_lob.freetemporary(l_result);

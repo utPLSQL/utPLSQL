@@ -34,6 +34,9 @@ create or replace package ut_annotation_cache_manager authid definer as
    */
   function get_annotations_for_objects(a_cached_objects ut_annotation_objs_cache_info, a_parse_time timestamp) return sys_refcursor;
 
+
+  function get_annotations_objects_info(a_object_owner varchar2, a_object_type varchar2) return ut_annotation_objs_cache_info;
+
   function get_cache_schema_info(a_object_owner varchar2, a_object_type varchar2) return t_cache_schema_info;
 
   /**

@@ -198,54 +198,64 @@ end;';
   procedure test_purge_cache_schema_type is
     l_actual sys_refcursor;
   begin
+    --Arrange
+    l_actual := ut3_tester_helper.run_helper.get_annotation_cache_info_cur(
+      a_owner => sys_context('USERENV', 'CURRENT_USER'),
+      a_type => 'PROCEDURE'
+      );
 
-    open l_actual for
-      select * from ut3.ut_annotation_cache_info
-       where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PROCEDURE';
     ut.expect(l_actual).not_to_be_empty();
 
     --Act
     ut3.ut_runner.purge_cache(sys_context('USERENV', 'CURRENT_USER'),'PROCEDURE');
 
     --Assert
-    open l_actual for
-      select * from ut3.ut_annotation_cache_info
-       where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PROCEDURE';
+    
+    l_actual := ut3_tester_helper.run_helper.get_annotation_cache_info_cur(
+      a_owner => sys_context('USERENV', 'CURRENT_USER'),
+      a_type => 'PROCEDURE'
+      );
     --Cache purged for object owner/type
     ut.expect(l_actual).to_be_empty();
-    open l_actual for
-      select * from ut3.ut_annotation_cache_info
-       where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PACKAGE';
+
+    l_actual := ut3_tester_helper.run_helper.get_annotation_cache_info_cur(
+      a_owner => sys_context('USERENV', 'CURRENT_USER'),
+      a_type => 'PACKAGE'
+      );
     --Cache not purged for other types
     ut.expect(l_actual).not_to_be_empty();
-    open l_actual for
-      select * from ut3.ut_annotation_cache_info
-       where object_owner = 'UT3_TESTER_HELPER' and object_type = 'PROCEDURE';
+
+    l_actual := ut3_tester_helper.run_helper.get_annotation_cache_info_cur(
+      a_owner => 'UT3_TESTER_HELPER',
+      a_type => 'PROCEDURE'
+      );
     --Cache not purged for other owners
     ut.expect(l_actual).not_to_be_empty();
 
   end;
 
   procedure test_rebuild_cache_schema_type is
-    l_actual integer;
+    l_actual sys_refcursor;
   begin
     --Act
-    ut3.ut_runner.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
+    ut3.ut_runner.rebuild_annotation_cache( sys_context('USERENV', 'CURRENT_USER'), 'PACKAGE' );
     --Assert
-    select count(1) into l_actual
-      from ut3.ut_annotation_cache_info i
-      join ut3.ut_annotation_cache c on c.cache_id = i.cache_id
-     where object_owner = sys_context('USERENV', 'CURRENT_USER') and object_type = 'PACKAGE' and object_name = 'DUMMY_TEST_PACKAGE';
-    --Rebuild cache for sys_context('USERENV', 'CURRENT_USER')/packages
-    ut.expect(l_actual).to_equal(4);
+    l_actual := ut3_tester_helper.run_helper.get_annotation_cache_cursor(
+      a_owner => sys_context('USERENV', 'CURRENT_USER'),
+      a_type => 'PACKAGE',
+      a_name => 'DUMMY_TEST_PACKAGE'
+      );
 
-    select count(1) into l_actual
-      from ut3.ut_annotation_cache_info i
-      join ut3.ut_annotation_cache c on c.cache_id = i.cache_id
-     where object_owner = 'UT3_TESTER_HELPER' and object_type = 'PROCEDURE';
+    --Rebuild cache for sys_context('USERENV', 'CURRENT_USER')/packages
+    ut.expect(l_actual).to_have_count(4);
+
+    l_actual := ut3_tester_helper.run_helper.get_annotation_cache_cursor(
+      a_owner => sys_context('USERENV', 'CURRENT_USER'),
+      a_type => 'PACKAGE'
+      );
 
     --Did not rebuild cache for ut3/procedures
-    ut.expect(l_actual).to_equal(0);
+    ut.expect(l_actual).to_have_count(0);
   end;
 
   procedure test_get_suites_info_notag is
@@ -257,12 +267,22 @@ end;';
       select
              'UT3$USER#'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'DUMMY_TEST_PACKAGE' item_name,
              'dummy_test_suite' item_description, 'UT_SUITE' item_type, 2 item_line_no,
-             'dummy_test_package' path, 0 disabled_flag,null tags
+             'some.path.dummy_test_package' path, 0 disabled_flag,null tags
         from dual union all
       select
              'UT3$USER#'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'SOME_DUMMY_TEST_PROCEDURE' item_name,
-             'dummy_test' item_description, 'UT_TEST' item_type, 5 item_line_no,
-             'dummy_test_package.some_dummy_test_procedure' path, 0 disabled_flag,null tags
+             'dummy_test' item_description, 'UT_TEST' item_type, 6 item_line_no,
+             'some.path.dummy_test_package.some_dummy_test_procedure' path, 0 disabled_flag,null tags
+        from dual union all
+      select
+             'UT3$USER#'  object_owner, 'PATH' object_name, 'PATH' item_name,
+             null item_description, 'UT_LOGICAL_SUITE' item_type, null item_line_no,
+             'some.path' path, 0 disabled_flag, null tags
+        from dual union all
+      select
+             'UT3$USER#'  object_owner, 'SOME' object_name, 'SOME' item_name,
+             null item_description, 'UT_LOGICAL_SUITE' item_type, null item_line_no,
+             'some' path, 0 disabled_flag, null tags
         from dual;
     --Act
     open l_actual for select * from table(ut3.ut_runner.get_suites_info('UT3$USER#','DUMMY_TEST_PACKAGE'));
@@ -279,12 +299,22 @@ end;';
       select
              'UT3$USER#'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'DUMMY_TEST_PACKAGE' item_name,
              'dummy_test_suite' item_description, 'UT_SUITE' item_type, 2 item_line_no,
-             'dummy_test_package' path, 0 disabled_flag,'dummy' tags
+             'some.path.dummy_test_package' path, 0 disabled_flag,'dummy' tags
         from dual union all
       select
              'UT3$USER#'  object_owner, 'DUMMY_TEST_PACKAGE' object_name, 'SOME_DUMMY_TEST_PROCEDURE' item_name,
-             'dummy_test' item_description, 'UT_TEST' item_type, 6 item_line_no,
-             'dummy_test_package.some_dummy_test_procedure' path, 0 disabled_flag,'testtag' tags
+             'dummy_test' item_description, 'UT_TEST' item_type, 7 item_line_no,
+             'some.path.dummy_test_package.some_dummy_test_procedure' path, 0 disabled_flag,'testtag' tags
+        from dual union all
+      select
+             'UT3$USER#'  object_owner, 'PATH' object_name, 'PATH' item_name,
+             null item_description, 'UT_LOGICAL_SUITE' item_type, null item_line_no,
+             'some.path' path, 0 disabled_flag, null tags
+        from dual union all
+      select
+             'UT3$USER#'  object_owner, 'SOME' object_name, 'SOME' item_name,
+             null item_description, 'UT_LOGICAL_SUITE' item_type, null item_line_no,
+             'some' path, 0 disabled_flag, null tags
         from dual;
     --Act
     open l_actual for select * from table(ut3.ut_runner.get_suites_info('UT3$USER#','DUMMY_TEST_PACKAGE'));
@@ -552,7 +582,8 @@ end;';
   procedure is_test_false is
   begin
     ut.expect( ut3.ut_runner.is_test( 'UT3$USER#','DUMMY_TEST_PACKAGE', 'BAD' ) ).to_be_false();
-    ut.expect( ut3.ut_runner.is_test( 'UT3$USER#','DUMMY_TEST_PACKAGE',  null ) ).to_be_false();
+    ut.expect( ut3.ut_runner.is_test( 'UT3$USER#','BAD_TEST_PACKAGE', 'some_dummy_test_procedure' ) ).to_be_false();
+    ut.expect( ut3.ut_runner.is_test( 'UT3$USER#','DUMMY_TEST_PACKAGE', null ) ).to_be_false();
     ut.expect( ut3.ut_runner.is_test( 'UT3$USER#',null,'some_dummy_test_procedure' ) ).to_be_false();
     ut.expect( ut3.ut_runner.is_test(  null,'DUMMY_TEST_PACKAGE','some_dummy_test_procedure' ) ).to_be_false();
   end;
@@ -574,12 +605,12 @@ end;';
     ut.expect( ut3.ut_runner.is_suite( 'UT3$USER#','BAD' ) ).to_be_false();
     ut.expect( ut3.ut_runner.is_suite( 'UT3$USER#', null ) ).to_be_false();
     ut.expect( ut3.ut_runner.is_suite( null,'DUMMY_TEST_PACKAGE' ) ).to_be_false();
+    ut.expect( ut3.ut_runner.is_suite( 'UT3$USER#','bad_test_package' ) ).to_be_false();
   end;
   
   procedure has_suites_true is
   begin
     ut.expect( ut3.ut_runner.has_suites( a_owner => 'UT3$USER#' ) ).to_be_true();
-    
     ut.expect( ut3.ut_runner.has_suites( 'ut3$user#' ) ).to_be_true();
   end;
 

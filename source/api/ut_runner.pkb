@@ -44,7 +44,6 @@ create or replace package body ut_runner is
 
   procedure finish_run(a_run ut_run, a_force_manual_rollback boolean) is
   begin
-    ut_utils.cleanup_temp_tables;
     ut_event_manager.trigger_event(ut_event_manager.gc_finalize, a_run);
     ut_metadata.reset_source_definition_cache;
     ut_utils.read_cache_to_dbms_output();
@@ -52,6 +51,7 @@ create or replace package body ut_runner is
     ut_compound_data_helper.cleanup_diff();
     if not a_force_manual_rollback then
       rollback;
+      ut_utils.cleanup_session_temp_tables;
     end if;
   end;
 
@@ -109,6 +109,7 @@ create or replace package body ut_runner is
     else
       ut_event_manager.add_listener( ut_documentation_reporter() );
     end if;
+    ut_event_manager.add_listener( ut_session_info() );
 
     ut_event_manager.trigger_event(ut_event_manager.gc_initialize);
     ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_run_info());
@@ -196,7 +197,7 @@ create or replace package body ut_runner is
   function get_suites_info(a_owner varchar2 := null, a_package_name varchar2 := null) return ut_suite_items_info pipelined is
     l_cursor      sys_refcursor;
     l_results     ut_suite_items_info;
-    c_bulk_limit  constant integer := 10;
+    c_bulk_limit  constant integer := 100;
   begin
     l_cursor := ut_suite_manager.get_suites_info( nvl(a_owner,sys_context('userenv', 'current_schema')), a_package_name );
     loop
@@ -262,6 +263,37 @@ create or replace package body ut_runner is
         end if;
       end loop;
     end loop;
+  end;
+
+  function hash_suite_path(a_path varchar2, a_random_seed positiven) return varchar2 is
+    l_start_pos pls_integer := 1;
+    l_end_pos   pls_integer := 1;
+    l_result    varchar2(4000);
+    l_item      varchar2(4000);
+    l_at_end    boolean := false;
+  begin
+    if a_random_seed is null then
+      l_result := a_path;
+      end if;
+    if a_path is not null then
+      loop
+        l_end_pos := instr(a_path,'.',l_start_pos);
+        if l_end_pos = 0 then
+          l_end_pos := length(a_path)+1;
+          l_at_end  := true;
+          end if;
+        l_item := substr(a_path,l_start_pos,l_end_pos-l_start_pos);
+        if l_item is not null then
+          l_result  :=
+            l_result ||
+              ut_utils.get_hash( to_char( dbms_utility.get_hash_value( l_item, 1, a_random_seed ) ) );
+          end if;
+        exit when l_at_end;
+        l_result  := l_result || chr(0);
+        l_start_pos := l_end_pos + 1;
+      end loop;
+      end if;
+    return l_result;
   end;
 
 end ut_runner;

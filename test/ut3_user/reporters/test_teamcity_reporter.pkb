@@ -57,7 +57,7 @@ create or replace package body test_teamcity_reporter as
 <!beforeeach!>
 <!failing test!>
 <!aftereach!>
-%##teamcity[testFailed timestamp='%' details='Actual: |'number |[1|] |' (varchar2) was expected to equal: |'number |[2|] |' (varchar2) ' message='Fails as values are different' name='ut3$user#.test_reporters.failing_test']
+%##teamcity[testFailed timestamp='%' details='Actual: |'number |[1|] |' (varchar2) was expected to equal: |'number |[2|] |' (varchar2)' message='Fails as values are different' name='ut3$user#.test_reporters.failing_test']
 %##teamcity[testFinished timestamp='%' duration='%' name='ut3$user#.test_reporters.failing_test']
 %##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3$user#.test_reporters.erroring_test']
 <!beforeeach!>
@@ -89,7 +89,7 @@ create or replace package body test_teamcity_reporter as
   begin
     l_expected := q'{%##teamcity[testSuiteStarted timestamp='%' name='A suite with |'quote|'']
 %##teamcity[testStarted timestamp='%' captureStandardOutput='true' name='ut3$user#.check_escape_special_chars.test_do_stuff']
-%##teamcity[testFailed timestamp='%' details='Actual: (varchar2)|n    |' |[ |r|n     |] |'|nwas expected to be null' name='ut3$user#.check_escape_special_chars.test_do_stuff']
+%##teamcity[testFailed timestamp='%' details='Actual: (varchar2)|n    |' |[ |r|n     |] |'|n was expected to be null' name='ut3$user#.check_escape_special_chars.test_do_stuff']
 %##teamcity[testFinished timestamp='%' duration='%' name='ut3$user#.check_escape_special_chars.test_do_stuff']
 %##teamcity[testSuiteFinished timestamp='%' name='A suite with |'quote|'']}';
     --act

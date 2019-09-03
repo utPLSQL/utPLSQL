@@ -446,16 +446,6 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
-  procedure set_action(a_text in varchar2) is
-  begin
-    dbms_application_info.set_module('utPLSQL', a_text);
-  end;
-
-  procedure set_client_info(a_text in varchar2) is
-  begin
-    dbms_application_info.set_client_info(a_text);
-  end;
-
   function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2 is
     l_xpath varchar2(32767) := a_list;
   begin
@@ -488,11 +478,11 @@ create or replace package body ut_utils is
     return l_xpath;
   end;
 
-  procedure cleanup_temp_tables is
+  procedure cleanup_session_temp_tables is
   begin
-    execute immediate 'delete from ut_compound_data_tmp';
-    execute immediate 'delete from ut_compound_data_diff_tmp';
-    execute immediate 'delete from ut_json_data_diff_tmp';
+    execute immediate 'truncate table dbmspcc_blocks';
+    execute immediate 'truncate table dbmspcc_units';
+    execute immediate 'truncate table dbmspcc_runs';
   end;
 
   function to_version(a_version_no varchar2) return t_version is
@@ -543,7 +533,7 @@ create or replace package body ut_utils is
   procedure read_cache_to_dbms_output is
     l_lines_data sys_refcursor;
     l_lines  ut_varchar2_rows;
-    c_lines_limit constant integer := 100;
+    c_lines_limit constant integer := 1000;
     pragma autonomous_transaction;
   begin
     open l_lines_data for select text from ut_dbms_output_cache order by seq_no;
@@ -558,13 +548,13 @@ create or replace package body ut_utils is
       end loop;
       exit when l_lines_data%notfound;
     end loop;
-    delete from ut_dbms_output_cache;
+    execute immediate 'truncate table ut_dbms_output_cache';
     commit;
   end;
 
   function ut_owner return varchar2 is
   begin
-    return sys_context('userenv','current_schema');
+    return qualified_sql_name( sys_context('userenv','current_schema') );
   end;
 
   function scale_cardinality(a_cardinality natural) return natural is
@@ -776,7 +766,7 @@ create or replace package body ut_utils is
   /**
   * Change string into unicode to match xmlgen format _00<unicode>_
   * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
-  * secion v3.1.7.3085
+  * secion v3.1.8.3188
   */  
   function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
   begin
@@ -863,6 +853,25 @@ create or replace package body ut_utils is
   function strip_prefix(a_item varchar2, a_prefix varchar2, a_connector varchar2 := '/') return varchar2 is
   begin
     return regexp_replace(a_item,a_prefix||a_connector);
+  end;
+
+  function get_hash(a_data raw, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
+  begin
+    return dbms_crypto.hash(a_data, a_hash_type);
+  end;
+
+  function get_hash(a_data clob, a_hash_type binary_integer := dbms_crypto.hash_sh1) return t_hash is
+  begin
+    return dbms_crypto.hash(a_data, a_hash_type);
+  end;
+
+  function qualified_sql_name(a_name varchar2) return varchar2 is
+  begin
+    return
+        case
+          when a_name is not null
+          then sys.dbms_assert.qualified_sql_name(a_name)
+        end;
   end;
 
 end ut_utils;
