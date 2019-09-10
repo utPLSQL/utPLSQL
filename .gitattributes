@@ -9,3 +9,4 @@ tests                     export-ignore
 development               export-ignore
 node_modules              export-ignore
 ^docs/*                   linguist-documentation
+*.sql                     linguist-language=PLSQL
