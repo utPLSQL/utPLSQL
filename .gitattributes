@@ -9,4 +9,8 @@ tests                     export-ignore
 development               export-ignore
 node_modules              export-ignore
 ^docs/*                   linguist-documentation
+*.pkb                     linguist-language=PLSQL
+*.pks                     linguist-language=PLSQL
 *.sql                     linguist-language=PLSQL
+*.tpb                     linguist-language=PLSQL
+*.tps                     linguist-language=PLSQL
