@@ -21,7 +21,7 @@ begin
     (select privilege
     from user_sys_privs
     union all
-    select replace(privilege,' ANY ') privilege
+    select replace(privilege,' ANY') privilege
     from user_sys_privs)
   );
   if l_missing_grants is not null then
