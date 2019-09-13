@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.9.3196--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.9.3198--develop-blue.svg)
 
 # Coverage
 utPLSQL comes with a built-in coverage reporting engine. The code coverage reporting is based on the DBMS_PROFILER package provided with Oracle database.
