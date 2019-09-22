@@ -2825,5 +2825,50 @@ Check the query and data for errors.';
     $end
   end;
 
+  procedure compare_specific_column_names is
+    function get_cursor return sys_refcursor is
+      l_result sys_refcursor;
+    begin
+      open l_result for
+        select 'a' as item_data, rownum as data_id, rownum as item_no, rownum as dup_no, rownum as position from dual;
+      return l_result;
+    end;
+  begin
+    ut3.ut.expect(get_cursor()).to_equal(get_cursor());
+    ut3.ut.expect(get_cursor()).to_equal(get_cursor()).unordered();
+    ut3.ut.expect(get_cursor()).to_equal(get_cursor()).join_by('ITEM_DATA,DATA_ID,ITEM_NO,DUP_NO');
+    --Assert
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
+  end;
+
+  procedure multiple_cursor_expectations is
+    l_actual   sys_refcursor;
+    l_expected sys_refcursor;
+  begin
+    open l_actual   for select rownum rn from dual connect by level < 5;
+    open l_expected for select rownum rn from dual connect by level = 1;
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+    open l_actual   for select rownum rn from dual connect by level < 3;
+    open l_expected for select * from (select rownum rn from dual connect by level < 3) order by 1 desc;
+    ut3.ut.expect(l_actual).to_equal(l_expected);
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations(1)).to_equal(
+'Actual: refcursor [ count = 4 ] was expected to equal: refcursor [ count = 1 ]
+Diff:
+Rows: [ 3 differences ]
+  Row No. 2 - Extra:    <RN>2</RN>
+  Row No. 3 - Extra:    <RN>3</RN>
+  Row No. 4 - Extra:    <RN>4</RN>'
+      );
+    ut.expect(ut3_tester_helper.main_helper.get_failed_expectations(2)).to_equal(
+'Actual: refcursor [ count = 2 ] was expected to equal: refcursor [ count = 2 ]
+Diff:
+Rows: [ 2 differences ]
+  Row No. 1 - Actual:   <RN>1</RN>
+  Row No. 1 - Expected: <RN>2</RN>
+  Row No. 2 - Actual:   <RN>2</RN>
+  Row No. 2 - Expected: <RN>1</RN>'
+    );
+  end;
+
 end;
 /
