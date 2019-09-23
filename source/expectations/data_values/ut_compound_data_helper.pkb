@@ -28,46 +28,46 @@ create or replace package body ut_compound_data_helper is
     with exp as (
       select 
         ucd.*, 
-        {:duplicate_number:} dup_no
+        {:duplicate_number:} "UT3$_Dup#No"
       from (
         select 
-          ucd.item_data
-          ,x.data_id data_id 
-          ,position + x.item_no item_no
+          ucd."UT3$_Item#Data"
+          ,x.data_id "UT3$_Data#Id"
+          ,ucd."UT3$_Position#" + x.item_no "UT3$_Item#No"
           {:columns:}
         from ut_compound_data_tmp x,
           xmltable('/ROWSET/ROW' passing x.item_data columns
-            item_data xmltype path '*'
-            ,position for ordinality
+            "UT3$_Item#Data" xmltype path '*'
+            ,"UT3$_Position#" for ordinality
             {:xml_to_columns:} ) ucd
-          where data_id = :exp_guid
+          where x.data_id = :exp_guid
           ) ucd
     )
     , act as (
       select 
         ucd.*,
-        {:duplicate_number:} dup_no
+        {:duplicate_number:} "UT3$_Dup#No"
       from (
         select 
-          ucd.item_data
-          ,x.data_id data_id
-          ,position + x.item_no item_no 
+          ucd."UT3$_Item#Data"
+          ,x.data_id "UT3$_Data#Id"
+          ,ucd."UT3$_Position#" + x.item_no "UT3$_Item#No"
           {:columns:}
         from ut_compound_data_tmp x,
           xmltable('/ROWSET/ROW' passing x.item_data columns 
-            item_data xmltype path '*'
-            ,position for ordinality
+            "UT3$_Item#Data" xmltype path '*'
+            ,"UT3$_Position#" for ordinality
             {:xml_to_columns:} ) ucd
-          where data_id = :act_guid
+          where x.data_id = :act_guid
           ) ucd
     )   
     select 
-      a.item_data as act_item_data, 
-      a.data_id act_data_id,
-      e.item_data as exp_item_data, 
-      e.data_id exp_data_id,
+      a."UT3$_Item#Data" as act_item_data,
+      a."UT3$_Data#Id" act_data_id,
+      e."UT3$_Item#Data" as exp_item_data,
+      e."UT3$_Data#Id" exp_data_id,
       {:item_no:} as item_no, 
-      nvl(e.dup_no,a.dup_no) dup_no 
+      nvl(e."UT3$_Dup#No",a."UT3$_Dup#No") dup_no
     from act a {:join_type:} exp e on ( {:join_condition:} )
     where {:where_condition:}]';
 
@@ -306,16 +306,16 @@ create or replace package body ut_compound_data_helper is
         a_join_by_stmt := ut_utils.table_to_clob(l_join_by_list, ' and ');
       elsif a_unordered then
         -- If no key defined do the join on all columns
-        a_join_by_stmt := ' e.dup_no = a.dup_no and '||ut_utils.table_to_clob(l_equal_list, ' and ');
+        a_join_by_stmt := ' e."UT3$_Dup#No" = a."UT3$_Dup#No" and '||ut_utils.table_to_clob(l_equal_list, ' and ');
       else
         -- Else join on rownumber
-        a_join_by_stmt := 'a.item_no = e.item_no ';
+        a_join_by_stmt := 'a."UT3$_Item#No" = e."UT3$_Item#No" ';
       end if;
       a_not_equal_stmt := ut_utils.table_to_clob(l_not_equal_list, ' or ');
     else
       --Partition by piece when no data
       ut_utils.append_to_clob(a_partition_stmt,' 1  ');
-      a_join_by_stmt := 'a.item_no = e.item_no ';
+      a_join_by_stmt := 'a."UT3$_Item#No" = e."UT3$_Item#No" ';
     end if;
   end;
   
@@ -349,8 +349,8 @@ create or replace package body ut_compound_data_helper is
     begin
       return
         case 
-          when a_unordered then 'row_number() over ( order by nvl(e.item_no,a.item_no))' 
-          else 'nvl(e.item_no,a.item_no) '
+          when a_unordered then 'row_number() over ( order by nvl(e."UT3$_Item#No",a."UT3$_Item#No"))'
+          else 'nvl(e."UT3$_Item#No",a."UT3$_Item#No") '
         end;
     end;
 
@@ -387,9 +387,9 @@ create or replace package body ut_compound_data_helper is
     end if;
     --If its inclusion we expect a actual set to fully match and have no extra elements over expected
     if a_inclusion_type then
-      ut_utils.append_to_clob(l_where_stmt,case when a_is_negated then ' 1 = 1 ' else ' ( a.data_id is null ) ' end);
+      ut_utils.append_to_clob(l_where_stmt,case when a_is_negated then ' 1 = 1 ' else ' ( a."UT3$_Data#Id" is null ) ' end);
     else
-      ut_utils.append_to_clob(l_where_stmt,' (a.data_id is null or e.data_id is null) ');
+      ut_utils.append_to_clob(l_where_stmt,' (a."UT3$_Data#Id" is null or e."UT3$_Data#Id" is null) ');
     end if;    
     
     l_compare_sql := replace(l_compare_sql,'{:where_condition:}',l_where_stmt);
@@ -561,6 +561,8 @@ create or replace package body ut_compound_data_helper is
   procedure cleanup_diff is
   begin
     g_diff_count := 0;
+    delete from ut_compound_data_diff_tmp;
+    delete from ut_json_data_diff_tmp;
   end;
   
   function get_rows_diff_count return integer is
