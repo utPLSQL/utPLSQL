@@ -20,18 +20,19 @@ create or replace package body coverage_helper is
     return v_result;
   end;
 
-  procedure setup_mock_coverage_id is
-  begin
-    g_profiler_run_id := get_mock_proftab_run_id();
-    ut3.ut_coverage.mock_coverage_id(g_profiler_run_id, ut3.ut_coverage.gc_proftab_coverage);
-  end;
-
   procedure setup_mock_coverage_ids(a_profiler_run_id integer, a_block_run_id integer) is
     l_coverage_ids ut3.ut_coverage.tt_coverage_id_arr;
   begin
     l_coverage_ids(ut3.ut_coverage.gc_proftab_coverage) := a_profiler_run_id;
     l_coverage_ids(ut3.ut_coverage.gc_block_coverage)   := a_block_run_id;
     ut3.ut_coverage.mock_coverage_id(l_coverage_ids);
+  end;
+
+  procedure setup_mock_coverage_id is
+  begin
+    g_profiler_run_id := get_mock_proftab_run_id();
+    g_block_run_id    := get_mock_block_run_id();
+    setup_mock_coverage_ids(g_profiler_run_id, g_block_run_id);
   end;
 
   procedure setup_dummy_coverage is
