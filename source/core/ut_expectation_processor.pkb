@@ -163,7 +163,7 @@ create or replace package body ut_expectation_processor as
     end;
     function cut_address_columns( a_stack varchar2 ) return varchar2 is
     begin
-      return regexp_replace( a_stack, '^(0x)?[0-9a-f]+\s+', '', 1, 0, 'm' );
+      return regexp_replace( a_stack, '^(0x)?[0-9a-f]+\s+', '', 1, 0, 'mi' );
     end;
     function cut_framework_stack( a_stack varchar2 ) return varchar2 is
     begin
