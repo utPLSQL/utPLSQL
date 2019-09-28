@@ -14,6 +14,9 @@ create or replace package test_expectation_processor is
   --%test(parses stack trace and returns objects and line that called expectation)
   procedure who_called_expectation;
 
+  --%test(parses stack trace for Windows DB os - regression for #1000)
+  procedure who_call_expectation_win_stack;
+
   --%endcontext
 
 end;

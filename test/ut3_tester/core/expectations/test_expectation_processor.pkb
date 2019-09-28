@@ -11,7 +11,7 @@ create or replace package body test_expectation_processor is
   handle    number  name
 34f88e4420       124  package body SCH_TEST.UT_EXPECTATION_PROCESSOR
 353dfeb2f8        26  SCH_TEST.UT_EXPECTATION_RESULT
-cba249ce0       112  SCH_TEST.UT_EXPECTATION
+cba2493ce0       112  SCH_TEST.UT_EXPECTATION
 3539881cf0        21  SCH_TEST.UT_EXPECTATION_NUMBER
 351a608008         7  package body ]'||gc_user||q'[.TEST_EXPECTATION_PROCESSOR
 351a608018        12  package body ]'||gc_user||q'[.TEST_EXPECTATION_PROCESSOR
@@ -24,7 +24,7 @@ cba249ce0       112  SCH_TEST.UT_EXPECTATION
 34f8ab98f0        48  SCH_TEST.UT_SUITE_ITEM
 34f8ab9b10        74  SCH_TEST.UT_SUITE
 34f8ab98f0        48  SCH_TEST.UT_SUITE_ITEM
-cba24bfd0        75  SCH_TEST.UT_LOGICAL_SUITE
+cba24bfad0        75  SCH_TEST.UT_LOGICAL_SUITE
 353dfecf30        59  SCH_TEST.UT_RUN
 34f8ab98f0        48  SCH_TEST.UT_SUITE_ITEM
 357f5421e8        77  package body SCH_TEST.UT_RUNNER
@@ -65,6 +65,40 @@ at "'||gc_user||'.TEST_EXPECTATION_PROCESSOR", line 24');
     ut.expect(
         ut3.ut_expectation_processor.who_called_expectation(l_stack_trace)
     ).to_be_like('at "UT3.UT_EXAMPLETEST", line 20 %');
+  end;
+
+  procedure who_call_expectation_win_stack is
+    l_stack_trace varchar2(4000);
+    l_source_line varchar2(4000);
+  begin
+      l_stack_trace := q'[----- PL/SQL Call Stack -----
+object      line  object
+handle    number  name
+00007FF8547B7D30       124  package body SCH_TEST.UT_EXPECTATION_PROCESSOR
+00007FF8547B7D30        26  SCH_TEST.UT_EXPECTATION_RESULT
+00007FF8547B7D30       112  SCH_TEST.UT_EXPECTATION
+00007FF8547B7D30        21  SCH_TEST.UT_EXPECTATION_NUMBER
+00007FF8547B7D30         7  package body SCOTT.TEST_BETWNSTR.BASIC_USAGE
+00007FF81FF207B0       345  type body SCOTT.TEST_BETWNSTR.BASIC_USAGE_TYP
+00007FF8544B21B8         6  anonymous block
+00007FF8267FBFC8      1721  package body SYS.DBMS_SQL.EXECUTE
+00007FF852BCFC68       142  type body UT3.UT_EXECUTABLE.DO_EXECUTE
+00007FF852BCFC68        44  type body UT3.UT_EXECUTABLE.DO_EXECUTE
+00007FF8512F9A90        74  type body UT3.UT_EXECUTABLE_TEST.DO_EXECUTE
+00007FF8512F9A90        38  type body UT3.UT_EXECUTABLE_TEST.DO_EXECUTE
+00007FF8231A2088        79  type body UT3.UT_TEST.DO_EXECUTE
+00007FF81FF207B0        49  type body UT3.UT_SUITE_ITEM.DO_EXECUTE
+00007FF852C83270        66  type body UT3.UT_SUITE.DO_EXECUTE
+00007FF82165F3B0        67  type body UT3.UT_RUN.DO_EXECUTE
+00007FF81FF207B0        49  type body UT3.UT_SUITE_ITEM.DO_EXECUTE
+00007FF8266285C0       172  package body UT3.UT_RUNNER.RUN
+00007FF854710538       134  package body UT3.UT.RUN_AUTONOMOUS
+00007FF854710538       488  package body UT3.UT.RUN
+00007FF854710538       623  package body UT3.UT.RUN
+00007FF81CFFA388         1  anonymous block]';
+      ut.expect(
+        ut3.ut_expectation_processor.who_called_expectation(l_stack_trace)
+        ).to_be_like('at "SCOTT.TEST_BETWNSTR.BASIC_USAGE", line 7 %');
   end;
 
 end;
