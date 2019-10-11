@@ -168,11 +168,24 @@ To sign up to the chat use [this link](http://utplsql-slack-invite.herokuapp.com
 ----------
 [__Authors__](docs/about/authors.md)
 
+
 ----------
-__Version 2 to Version 3 Comparison__
+__Project Directories__
+
+* .travis - contains files needed for travis-ci integration
+* client_source - Sources to be used on the client-side. Developer workstation or CI platform to run the tests.
+* development - Set of useful scripts and utilities for development and debugging of utPLSQL 
+* docs - Documentation of the project 
+* examples - Example source code and unit tests
+* source - The installation code for utPLSQL
+* tests - Tests for utPLSQL framework
+
+----------
 
 If you have a great feature in mind, that you would like to see in utPLSQL v3 please create an [issue on GitHub](https://github.com/utPLSQL/utPLSQL/issues) or discuss it with us in the [Slack chat rooms](http://utplsql-slack-invite.herokuapp.com/).  
 
+
+# Version 2 to Version 3 Comparison
 
 | Feature                                | Version 2              | Version 3              |
 | -------------------------------------- | ---------------------- | ---------------------- |
@@ -224,19 +237,6 @@ If you have a great feature in mind, that you would like to see in utPLSQL v3 pl
 
 <sup>3</sup> Test execution comparison is in a single call so the results are combined.   We know it was always possible to group in any way with multiple calls.  But that may not be desired under a CI system where you want a single JUnit XML Output.
 
-
-----------
-__Project Directories__
-
-* .travis - contains files needed for travis-ci integration
-* client_source - Sources to be used on the client-side. Developer workstation or CI platform to run the tests.
-* development - Set of useful scripts and utilities for development and debugging of utPLSQL 
-* docs - Documentation of the project 
-* examples - Example source code and unit tests
-* source - The installation code for utPLSQL
-* tests - Tests for utPLSQL framework
-
------------
 # Supporters
 
 The utPLSQL project is community-driven and is not commercially motivated. Nonetheless, donations and other contributions are always welcome, and are detailed below.
