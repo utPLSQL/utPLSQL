@@ -6,8 +6,7 @@ addons:
     packages:
       - unzip
       # Java9+ Required for Sonar and SQLCL
-      - oracle-java11-installer
-      - oracle-java11-set-default
+      - openjdk-9-jre-headless
   sonarcloud:
     organization: utplsql
     token:
