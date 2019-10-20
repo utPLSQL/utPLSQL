@@ -1225,11 +1225,11 @@ Finished in .035261 seconds
 
 ### Tags
 
-Tag is a label attached to the test or a suite path. It is used for identification and execution a group of tests / suites that share same tag.  
+Tag is a label attached to the test or a suite. It is used for identification and execution a group of tests / suites that share same tag.  
 
-It allows us to group a tests / suites using a various categorization and place a test / suite in multiple buckets. Same tests can be group with other tests based on the functionality , frequency, type of output etc.
+It allows for grouping of tests / suites using various categorization and place tests / suites in multiple buckets. Same tests can be grouped with other tests based on the functionality , frequency, type of output etc.
 
-e.q. 
+e.g. 
 
 ```sql
 --%tags(batch,daily,csv)
@@ -1238,29 +1238,31 @@ e.q.
 or
 
 ```sql
---%tags(api,online,json)
+--%tags(online,json)
+--%tags(api)
 ```
 
+Tags are defined as a comma separated list within the `--%tags` annotation. 
+
+When executing a test run with tag filter applied, framework will find all tests associated with given tags and execute them. 
+Framework applies `OR` logic to all specified tags so any test / suite that matches at least one tag will be included in the test run. 
+
+When a suite/context is tagged all of its children will automatically inherit a tag and get executed along with the parent. Parent suite tests are not executed, but a suitepath hierarchy is kept.
 
 
-Tags are defined as a coma separated list. When executing a test run with tag filter applied, framework will find all tests associated with given tags and execute them. Framework applies `OR` logic when resolving a tags so any tests / suites that match at least one tag will be included in the test run. 
-
-When a suite gets tagged all of its children will automatically inherit a tag and get executed along the parent. Parent suit tests are not executed. but a suitepath hierarchy is kept.
-
-Sample tag package.
-
+Sample test suite package with tags.
 ```sql
 create or replace package ut_sample_test IS
 
    --%suite(Sample Test Suite)
-   --%tag(suite1)
+   --%tags(api)
 
    --%test(Compare Ref Cursors)
-   --%tag(test1,sample)
+   --%tags(complex,fast)
    procedure ut_refcursors1;
 
    --%test(Run equality test)
-   --%tag(test2,sample)
+   --%tags(simple,fast)
    procedure ut_test;
    
 end ut_sample_test;
@@ -1290,28 +1292,42 @@ end ut_sample_test;
 Execution of the test is done by using a parameter `a_tags`
 
 ```sql
-select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'suite1'));
-select * from table(ut.run(a_tags => 'test1,test2'));
-select * from table(ut.run(a_tags => 'sample'));
-
-begin
-  ut.run(a_path => 'ut_sample_test',a_tags => 'suite1');
-end;
-/
-
-exec ut.run('ut_sample_test', a_tags => 'sample');
+select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'api'));
 ```
+The above call will execute all tests from `ut_sample_test` package as the whole suite is tagged with `api`
 
+```sql
+select * from table(ut.run(a_tags => 'complex'));
+```
+The above call will execute only the `ut_sample_test.ut_refcursors1` test, as only the test `ut_refcursors1` is tagged with `complex`
 
+```sql
+select * from table(ut.run(a_tags => 'fast'));
+```
+The above call will execute both `ut_sample_test.ut_refcursors1` and `ut_sample_test.ut_test` tests, as both tests are tagged with `fast`
 
-Tags should adhere to following rules:
+#### Excluding tests/suites by tags
 
-- tags are case sensitive
-- tags cannot be an empty string
-- tags cannot contain spaces e.g. to create a multi-word `tag` please use underscores,dashes, dots etc. e.g. `test_of_batch`
-- tags with empty spaces will be ignored during execution
-- tags can contain special characters
+It is possible to exclude parts of test suites with tags.
+In order to do so, prefix the tag name to exclude with a `-` (dash) sign when invoking the test run.
 
+Examples (based on above sample test suite)
+
+```sql
+select * from table(ut.run(a_tags => 'api,fast,-complex'));
+```
+The above call will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex`
+Given the above example package `ut_sample_test`, only `ut_sample_test.ut_test` will be executed.  
+
+**Note:**
+Tags must follow the below naming convention:
+
+- tag is case sensitive
+- tag can contain special characters like `$#/\?-!` etc.
+- tag cannot be an empty string
+- tag cannot start with a dash e.g. `-some-stuff` is **not** a valid tag
+- tag cannot contain spaces e.g. `test of batch`. To create a multi-word tag use underscores or dashes e.g. `test_of_batch`, `test-of-batch`
+- leading and trailing spaces are ignored in tag name e.g. `--%tags(  tag1  ,   tag2  )` becomes `tag1` and `tag2` tag names
 
 
 ### Suitepath

@@ -30,8 +30,8 @@ create or replace package body ut_suite_cache_manager is
                and ( {:path:}
                      and {:object_name:}
                      and {:procedure_name:}
+                     )
                    )
-        )
       ),
       {:tags:}
       suitepaths as (
@@ -106,8 +106,8 @@ create or replace package body ut_suite_cache_manager is
   function get_path_sql(a_path in varchar2) return varchar2 is
   begin
     return case when a_path is not null then q'[
-                      :l_path||'.' like c.path || '.%' /*all children and self*/
-                     or ( c.path||'.' like :l_path || '.%'  --all parents
+                      :l_path||'.' like c.path || '.%'      /*all parents and self*/
+                     or ( c.path||'.' like :l_path || '.%'  /*all children and self*/
                             ]'
            else ' :l_path is null  and ( :l_path is null ' end;
   end;
@@ -129,22 +129,40 @@ create or replace package body ut_suite_cache_manager is
   function get_tags_sql(a_tags_count in integer) return varchar2 is
   begin
     return case when a_tags_count > 0 then
-      q'[filter_tags as (
+      q'[included_tags as (
         select c.obj.path as path
           from suite_items c
-         where c.obj.tags multiset intersect :a_tag_list is not empty
-      ),
+         where exists (
+             select * from table(c.obj.tags)
+             intersect
+             select * from table(:a_tag_list) where column_value not like '-%'
+           )
+           or 0 = (select count(*) from table(:a_tag_list) where column_value not like '-%')
+       ),
+       excluded_tags as (
+        select c.obj.path as path
+          from suite_items c
+         where exists (
+             select * from table(c.obj.tags)
+             intersect
+             select ltrim(column_value,'-') from table(:a_tag_list) where column_value like '-%'
+           )
+       ),
        suite_items_tags as (
        select c.*
          from suite_items c
         where exists (
-          select 1 from filter_tags t
-           where t.path||'.' like c.obj.path || '.%' /*all children and self*/
-              or c.obj.path||'.' like t.path || '.%'  --all parents
+          select 1 from included_tags t
+           where t.path||'.' like c.obj.path || '.%' /*all parents and self*/
+              or c.obj.path||'.' like t.path || '.%' /*all children and self*/
+          )
+        and not exists (
+          select 1 from excluded_tags t
+           where c.obj.path||'.' like t.path || '.%' /*all children and self*/
           )
        ),]'
            else
-             q'[dummy as (select 'x' from dual where :a_tag_list is null ),]'
+             q'[dummy as (select 'x' from dual where :a_tag_list is null and :a_tag_list is null and :a_tag_list is null),]'
            end;
   end;
 
@@ -216,7 +234,7 @@ create or replace package body ut_suite_cache_manager is
 
     execute immediate l_sql
       bulk collect into l_results
-      using upper(l_object_owner), l_path, l_path, upper(a_object_name), upper(a_procedure_name), l_tags, a_random_seed;
+      using upper(l_object_owner), l_path, l_path, upper(a_object_name), upper(a_procedure_name), l_tags, l_tags, l_tags, a_random_seed;
     return l_results;
   end;
 

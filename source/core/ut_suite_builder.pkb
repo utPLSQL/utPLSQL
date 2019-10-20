@@ -321,7 +321,8 @@ create or replace package body ut_suite_builder is
     a_procedure_name  t_object_name := null
   ) is 
     l_annotation_pos binary_integer;
-    l_tag_list ut_varchar2_list := ut_varchar2_list();
+    l_tags_list ut_varchar2_list := ut_varchar2_list();
+    l_tag_items ut_varchar2_list;
   begin
     l_annotation_pos := a_tags_ann_text.first;
     while l_annotation_pos is not null loop
@@ -331,14 +332,25 @@ create or replace package body ut_suite_builder is
             || get_object_reference( a_suite, a_procedure_name, l_annotation_pos )
         );
       else
-        l_tag_list := l_tag_list multiset union distinct ut_utils.trim_list_elements(
-          ut_utils.string_to_table(a_tags_ann_text(l_annotation_pos),',')
-          );
+        l_tag_items := ut_utils.trim_list_elements(ut_utils.string_to_table(a_tags_ann_text(l_annotation_pos),','));
+        if l_tag_items is not empty then
+          for i in 1 .. l_tag_items.count loop
+            if regexp_like(l_tag_items(i),'^[^-](\S)+$') then
+              l_tags_list.extend();
+              l_tags_list(l_tags_list.last) := l_tag_items(i);
+            else
+              a_suite.put_warning(
+                'Invalid value "'||l_tag_items(i)||'" for "--%tags" annotation. See documentation for details on valid tag values. Annotation value ignored.'
+                || get_object_reference( a_suite, a_procedure_name, l_annotation_pos )
+              );
+            end if;
+          end loop;
+        end if;
       end if;
       l_annotation_pos := a_tags_ann_text.next(l_annotation_pos);
     end loop;
-    --remove empty strings from table list e.g. tag1,,tag2 and conver to rows        
-    a_list := ut_utils.convert_collection( ut_utils.filter_list(l_tag_list,ut_utils.gc_word_no_space) ); 
+    --remove empty strings from table list e.g. tag1,,tag2 and convert to rows
+    a_list := ut_utils.convert_collection( ut_utils.filter_list(set(l_tags_list),ut_utils.gc_word_no_space) );
   end;
   
   procedure set_seq_no(
