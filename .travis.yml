@@ -5,9 +5,8 @@ addons:
   apt:
     packages:
       - unzip
-      # Java9 Required for Sonar and SQLCL
-      - oracle-java9-installer
-      - oracle-java9-set-default
+      # Java9+ Required for Sonar and SQLCL
+      - openjdk-9-jre-headless
   sonarcloud:
     organization: utplsql
     token:
@@ -47,7 +46,7 @@ env:
     #utPLSQL released version directory
     - UTPLSQL_DIR="utPLSQL_latest_release"
     - SELFTESTING_BRANCH=${TRAVIS_BRANCH}
-    - UTPLSQL_CLI_VERSION="3.1.6"
+    - UTPLSQL_CLI_VERSION="3.1.7"
     # Maven
     - MAVEN_HOME=/usr/local/maven
     - MAVEN_CFG=$HOME/.m2
