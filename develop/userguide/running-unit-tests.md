@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.9.3226--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.9.3237--develop-blue.svg)
 
 # Running tests
 
@@ -282,6 +282,21 @@ select * from table(ut.run('hr.test_apply_bonus', a_random_test_order_seed => 30
 **Note**
 >Random order seed must be a positive number within range of 1 .. 1 000 000 000. 
   
+# Run by Tags
+
+In addition to the path, you can filter the tests to be run by specifying tags. Tags are defined in the test with the `--%tags`-annotation ([Read more](annotations.md#tags)).  
+Multiple tags are separated by comma. If multiple tags are set, all tests with __any__ of them specified are run.
+
+```sql
+begin
+  ut.run('hr.test_apply_bonus', a_tags => 'test1,test2');
+end;
+```
+```sql
+select * from table(ut.run('hr.test_apply_bonus', a_tags => 'suite1'))
+```
+
+
 # Keeping uncommitted data after test-run
 
 utPLSQL by default runs tests in autonomous transaction and performs automatic rollback to assure that tests do not impact one-another and do not have impact on the current session in your IDE.
