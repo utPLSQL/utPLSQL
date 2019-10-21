@@ -132,21 +132,12 @@ create or replace package body ut_suite_cache_manager is
       q'[included_tags as (
         select c.obj.path as path
           from suite_items c
-         where exists (
-             select * from table(c.obj.tags)
-             intersect
-             select * from table(:a_tag_list) where column_value not like '-%'
-           )
-           or 0 = (select count(*) from table(:a_tag_list) where column_value not like '-%')
+         where c.obj.tags multiset intersect :a_include_tag_list is not empty or :a_include_tag_list is empty
        ),
        excluded_tags as (
         select c.obj.path as path
           from suite_items c
-         where exists (
-             select * from table(c.obj.tags)
-             intersect
-             select ltrim(column_value,'-') from table(:a_tag_list) where column_value like '-%'
-           )
+         where c.obj.tags multiset intersect :a_exclude_tag_list is not empty
        ),
        suite_items_tags as (
        select c.*
@@ -162,7 +153,7 @@ create or replace package body ut_suite_cache_manager is
           )
        ),]'
            else
-             q'[dummy as (select 'x' from dual where :a_tag_list is null and :a_tag_list is null and :a_tag_list is null),]'
+             q'[dummy as (select 'x' from dual where :a_include_tag_list is null and :a_include_tag_list is null and :a_exclude_tag_list is null),]'
            end;
   end;
 
@@ -205,10 +196,23 @@ create or replace package body ut_suite_cache_manager is
     l_sql             varchar2(32767);
     l_suite_item_name varchar2(20);
     l_tags            ut_varchar2_rows := coalesce(a_tags,ut_varchar2_rows());
+    l_include_tags    ut_varchar2_rows;
+    l_exclude_tags    ut_varchar2_rows;
     l_object_owner    varchar2(250) := ut_utils.qualified_sql_name(a_object_owner);
     l_object_name     varchar2(250) := ut_utils.qualified_sql_name(a_object_name);
     l_procedure_name  varchar2(250) := ut_utils.qualified_sql_name(a_procedure_name);
   begin
+
+    select column_value
+      bulk collect into l_include_tags
+      from table(l_tags)
+     where column_value not like '-%';
+
+    select ltrim(column_value,'-')
+      bulk collect into l_exclude_tags
+      from table(l_tags)
+     where column_value like '-%';
+
     if a_path is null and a_object_name is not null then
       select min(c.path)
              into l_path
@@ -234,7 +238,7 @@ create or replace package body ut_suite_cache_manager is
 
     execute immediate l_sql
       bulk collect into l_results
-      using upper(l_object_owner), l_path, l_path, upper(a_object_name), upper(a_procedure_name), l_tags, l_tags, l_tags, a_random_seed;
+      using upper(l_object_owner), l_path, l_path, upper(a_object_name), upper(a_procedure_name), l_include_tags, l_include_tags, l_exclude_tags, a_random_seed;
     return l_results;
   end;
 
