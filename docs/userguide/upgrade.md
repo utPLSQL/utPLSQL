@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.9.3226--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.9.3237--develop-blue.svg)
 
 # Upgrading from version 2
 
