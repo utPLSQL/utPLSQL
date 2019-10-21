@@ -25,6 +25,7 @@ The framework follows industry standards and best patterns of modern Unit Testin
        - [License](about/license.md)
        - [Support](about/support.md)
        - [Authors](about/authors.md)
+  - [Version 2 to Version 3 Comparison](compare_version2_to_3.md)
        
 # Demo project
 
