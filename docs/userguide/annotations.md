@@ -1225,7 +1225,7 @@ Finished in .035261 seconds
 
 ### Tags
 
-Tag is a label attached to the test or a suite. It is used for identification and execution a group of tests / suites that share same tag.  
+Tag is a label attached to the test or a suite. It is used for identification and execution of a group of tests / suites that share the same tag.  
 
 It allows for grouping of tests / suites using various categorization and place tests / suites in multiple buckets. Same tests can be grouped with other tests based on the functionality , frequency, type of output etc.
 
@@ -1244,15 +1244,15 @@ or
 
 Tags are defined as a comma separated list within the `--%tags` annotation. 
 
-When executing a test run with tag filter applied, framework will find all tests associated with given tags and execute them. 
-Framework applies `OR` logic to all specified tags so any test / suite that matches at least one tag will be included in the test run. 
+When executing a test run with tag filter applied, the framework will find all tests associated with the given tags and execute them. 
+The framework applies `OR` logic to all specified tags so any test / suite that matches at least one tag will be included in the test run. 
 
-When a suite/context is tagged all of its children will automatically inherit a tag and get executed along with the parent. Parent suite tests are not executed, but a suitepath hierarchy is kept.
+When a suite/context is tagged, all of its children will automatically inherit the tag and get executed along with the parent. Parent suite tests are not executed, but a suitepath hierarchy is kept.
 
 
 Sample test suite package with tags.
 ```sql
-create or replace package ut_sample_test IS
+create or replace package ut_sample_test is
 
    --%suite(Sample Test Suite)
    --%tags(api)
@@ -1289,7 +1289,7 @@ end ut_sample_test;
 /
 ```
 
-Execution of the test is done by using a parameter `a_tags`
+Execution of the test is done by using the parameter `a_tags`
 
 ```sql
 select * from table(ut.run(a_path => 'ut_sample_test',a_tags => 'api'));
@@ -1306,6 +1306,18 @@ select * from table(ut.run(a_tags => 'fast'));
 ```
 The above call will execute both `ut_sample_test.ut_refcursors1` and `ut_sample_test.ut_test` tests, as both tests are tagged with `fast`
 
+#### Tag naming convention
+
+Tags must follow the below naming convention:
+
+- tag is case sensitive
+- tag can contain special characters like `$#/\?-!` etc.
+- tag cannot be an empty string
+- tag cannot start with a dash, e.g. `-some-stuff` is **not** a valid tag
+- tag cannot contain spaces, e.g. `test of batch`. To create a multi-word tag use underscores or dashes, e.g. `test_of_batch`, `test-of-batch`
+- leading and trailing spaces are ignored in tag name, e.g. `--%tags(  tag1  ,   tag2  )` becomes `tag1` and `tag2` tag names
+
+
 #### Excluding tests/suites by tags
 
 It is possible to exclude parts of test suites with tags.
@@ -1316,18 +1328,9 @@ Examples (based on above sample test suite)
 ```sql
 select * from table(ut.run(a_tags => 'api,fast,-complex'));
 ```
-The above call will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex`
+The above call will execute all suites/contexts/tests that are marked with any of tags `api` or `fast` except those suites/contexts/tests that are marked as `complex`.  
 Given the above example package `ut_sample_test`, only `ut_sample_test.ut_test` will be executed.  
 
-**Note:**
-Tags must follow the below naming convention:
-
-- tag is case sensitive
-- tag can contain special characters like `$#/\?-!` etc.
-- tag cannot be an empty string
-- tag cannot start with a dash e.g. `-some-stuff` is **not** a valid tag
-- tag cannot contain spaces e.g. `test of batch`. To create a multi-word tag use underscores or dashes e.g. `test_of_batch`, `test-of-batch`
-- leading and trailing spaces are ignored in tag name e.g. `--%tags(  tag1  ,   tag2  )` becomes `tag1` and `tag2` tag names
 
 
 ### Suitepath
