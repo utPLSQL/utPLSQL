@@ -46,7 +46,7 @@ env:
     #utPLSQL released version directory
     - UTPLSQL_DIR="utPLSQL_latest_release"
     - SELFTESTING_BRANCH=${TRAVIS_BRANCH}
-    - UTPLSQL_CLI_VERSION="3.1.7"
+    - UTPLSQL_CLI_VERSION="3.1.8"
     # Maven
     - MAVEN_HOME=/usr/local/maven
     - MAVEN_CFG=$HOME/.m2
