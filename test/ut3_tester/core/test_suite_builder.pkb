@@ -965,7 +965,6 @@ create or replace package body test_suite_builder is
     );
   end;
 
-  --%test(Gives warning when two contexts have the same name)
   procedure duplicate_context_name is
     l_actual      clob;
     l_annotations ut3.ut_annotations;
@@ -1019,6 +1018,43 @@ create or replace package body test_suite_builder is
           '<AFTER_ALL_LIST/>' ||
           '</UT_LOGICAL_SUITE>'||
           '</ROW></ROWSET>'
+      );
+  end;
+
+  procedure hard_stop_in_ctx_name is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+    l_bad_name    varchar2(100);
+  begin
+    --Arrange
+    l_bad_name := 'Context with invalid name. Should fail';
+    l_annotations := ut3.ut_annotations(
+      ut3.ut_annotation(1, 'suite','Cool', null),
+      ut3.ut_annotation(4, 'context','Context with invalid name. Should fail', null),
+      ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+      ut3.ut_annotation(13, 'endcontext',null, null)
+      );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+      '%Invalid value &quot;'||l_bad_name||'&quot; for context name. The name cannot contain &quot;.&quot; (hard stop) character. Context name ignored and fallback to auto-name &quot;context_1&quot;%'
+    );
+    ut.expect(l_actual).to_be_like(
+      '<ROWSET><ROW>'||
+        '<UT_LOGICAL_SUITE>' ||
+        '%<ITEMS>' ||
+        '<UT_SUITE_ITEM>' ||
+          '%<NAME>context_1</NAME><DESCRIPTION>Context with invalid name. Should fail</DESCRIPTION><PATH>some_package.context_1</PATH>' ||
+          '%<ITEMS>' ||
+            '<UT_SUITE_ITEM>' ||
+              '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.context_1.test_in_a_context</PATH>' ||
+            '%</UT_SUITE_ITEM>' ||
+          '</ITEMS>%' ||
+        '</UT_SUITE_ITEM>%' ||
+        '</ITEMS>%' ||
+        '</UT_LOGICAL_SUITE>'||
+        '</ROW></ROWSET>'
       );
   end;
 
@@ -1551,13 +1587,13 @@ create or replace package body test_suite_builder is
       );
     ut.expect(l_actual).to_be_like(
       '%<WARNINGS><VARCHAR2>Invalid value &quot;bad tag&quot; for &quot;--%tags&quot; annotation.'||
-      ' See documentation for details on valid tag values. Annotation value ignored.
-at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 3</VARCHAR2><VARCHAR2>%'
+      ' See documentation for details on valid tag values. Annotation value ignored.' ||
+      '%at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 3</VARCHAR2><VARCHAR2>%'
       );
     ut.expect(l_actual).to_be_like(
       '%<VARCHAR2>Invalid value &quot;bad tag&quot; for &quot;--%tags&quot; annotation.'||
-      ' See documentation for details on valid tag values. Annotation value ignored.
-at package &quot;UT3_TESTER.SOME_PACKAGE.TEST_PROCEDURE&quot;, line 9</VARCHAR2></WARNINGS>%'
+      ' See documentation for details on valid tag values. Annotation value ignored.' ||
+      '%at package &quot;UT3_TESTER.SOME_PACKAGE.TEST_PROCEDURE&quot;, line 9</VARCHAR2></WARNINGS>%'
       );
   end;
 
@@ -1581,13 +1617,13 @@ at package &quot;UT3_TESTER.SOME_PACKAGE.TEST_PROCEDURE&quot;, line 9</VARCHAR2>
       );
     ut.expect(l_actual).to_be_like(
       '%<WARNINGS><VARCHAR2>Invalid value &quot;-invalid_tag&quot; for &quot;--%tags&quot; annotation.'||
-        ' See documentation for details on valid tag values. Annotation value ignored.
-at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 3</VARCHAR2><VARCHAR2>%'
+      ' See documentation for details on valid tag values. Annotation value ignored.' ||
+      '%at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 3</VARCHAR2><VARCHAR2>%'
       );
     ut.expect(l_actual).to_be_like(
       '%<VARCHAR2>Invalid value &quot;-invalid_tag&quot; for &quot;--%tags&quot; annotation.'||
-        ' See documentation for details on valid tag values. Annotation value ignored.
-at package &quot;UT3_TESTER.SOME_PACKAGE.TEST_PROCEDURE&quot;, line 9</VARCHAR2></WARNINGS>%'
+      ' See documentation for details on valid tag values. Annotation value ignored.' ||
+      '%at package &quot;UT3_TESTER.SOME_PACKAGE.TEST_PROCEDURE&quot;, line 9</VARCHAR2></WARNINGS>%'
       );
   end;
 

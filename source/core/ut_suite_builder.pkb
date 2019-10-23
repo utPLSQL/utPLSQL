@@ -774,6 +774,16 @@ create or replace package body ut_suite_builder is
       l_end_context_pos := get_endcontext_position(l_context_pos, a_annotations.by_name );
       
       l_context_name := coalesce( a_annotations.by_line( l_context_pos ).text, gc_context||'_'||l_context_no );
+      if regexp_like( l_context_name, '\.' ) or l_context_name is null then
+        if regexp_like( l_context_name, '\.' ) then
+          a_suite.put_warning(
+            'Invalid value "'||l_context_name||'" for context name. The name cannot contain "." (hard stop) character.' ||
+            ' Context name ignored and fallback to auto-name "'||gc_context||'_'||l_context_no||'" ' ||
+            get_object_reference( a_suite, null, l_context_pos )
+            );
+        end if;
+        l_context_name := gc_context||'_'||l_context_no;
+      end if;
       l_context := ut_suite_context(a_suite.object_owner, a_suite.object_name, l_context_name, l_context_pos );
       l_context.path := a_suite.path||'.'||l_context_name;
       l_context.description := a_annotations.by_line( l_context_pos ).text;

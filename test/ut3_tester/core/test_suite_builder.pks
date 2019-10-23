@@ -134,6 +134,9 @@ create or replace package test_suite_builder is
     --%test(Gives warning when two contexts have the same name and ignores duplicated context)
     procedure duplicate_context_name;
 
+    --%test(Fallback to default naming and gives warning when context name contains "." character)
+    procedure hard_stop_in_ctx_name;
+
   --%endcontext
 
   --%context(throws)

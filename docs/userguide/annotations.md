@@ -997,9 +997,9 @@ In most of the cases, the code to be tested is consisting of PLSQL packages cont
 When creating test suites, it's quite common to maintain `one to one` relationship between test suite packages and tested code.
 
 When it comes to test procedures themselves, it is best practice to have one test procedure for one tested behavior of the code that is tested.
-The relationship between test procedure and tested procedure/function will be therefore `many to one` in most of the cases.
+The relationship between test procedure and tested code will be therefore `many to one` or `many to many` in most of the cases.
 
-With this comes a challenge. How to group tests, related to one tested procedure, so that it is obvious that they relate to the same code.
+With this comes a challenge. How to group tests, related to one tested behavior, so that it is obvious that they relate to the same thing.
 
 This is where utPLSQL contexts come handy. 
 
@@ -1008,18 +1008,22 @@ Contexts allow for creating sub-suites within a suite package and they allow for
 In essence, context behaves like a suite within a suite. 
 
 Context have following characteristics:
-- start with the `--%context` annotation and ends with `--%endcontext`
-- can have a name provided as parameter for example `--%context(remove_rooms_by_name)`
-- when no name is provided for context, the context is names `context_N` where `N` is the number of the context in suite 
-- can have their own `--%beforeall`, `--%beforeeach`, `--%afterall` and `--%aftereach` procedures
-- `--%beforeall`, `--%beforeeach`, `--%afterall` and `--%aftereach` procedures defined at suite level, propagate to context
-- test suite package can have multiple contexts in it
-- contexts cannot be nested
-
+- context starts with the `--%context` annotation and ends with `--%endcontext`
+- can have a name provided as parameter for example `--%context(remove_rooms_by_name)`. This is different than with `suite` and `test` annotations, where name is taken from test `package/procedure`
+- when no name is provided for context, the context is named `context_N` where `N` is the number of the context in suite or parent context
+- context name must be unique within it's parent (suite or parent context)
+- if context name is not unique within it's parent, context and it's entire content is excluded from execution 
+- context name should not contain spaces or special characters
+- context name cannot contain a `.` (hard stop) character
+- contexts can be nested, so a context can be nested within another context
+- suite/context can have multiple nested sibling contexts in it 
+- contexts can have their own `--%beforeall`, `--%beforeeach`, `--%afterall` and `--%aftereach` procedures
+- `--%beforeall`, `--%beforeeach`, `--%afterall` and `--%aftereach` procedures defined at ancestor level, propagate to context
+- if `--%endcontext` is missing for a context, the context spans to the end of package specification
 
 The below example illustrates usage of `--%context` for separating tests for individual procedures of package.
 
-Tested tables and code
+Sample tables and code
 ```sql
 create table rooms (
   room_key number primary key,
@@ -1078,8 +1082,8 @@ end;
 
 Below test suite defines:
 - `--%beforeall` outside of context, that will be executed before all tests
-- `--%context(remove_rooms_by_name)` to group tests for `remove_rooms_by_name` procedure
-- `--%context(add_rooms_content)` to group tests for `add_rooms_content` procedure
+- `--%context(remove_rooms_by_name)` to group tests related to `remove_rooms_by_name` functionality
+- `--%context(add_rooms_content)` to group tests related to `add_rooms_content` functionality
 
 ```sql
 create or replace package test_rooms_management is
@@ -1102,7 +1106,6 @@ create or replace package test_rooms_management is
     procedure null_room_name;  
 
   --%endcontext
-  
   
   --%context(add_rooms_content)
   --%displayname(Add content to a room)
@@ -1221,6 +1224,93 @@ Finished in .035261 seconds
 5 tests, 0 failed, 0 errored, 0 disabled, 0 warning(s)
 ```
 
+Example of nested contexts test suite specification.
+*Source - [slide 145](https://www.slideshare.net/Kevlin/structure-and-interpretation-of-test-cases/145?src=clipshare) of Structure and Interpretation of Test Cases by Kevlin Henney*
+
+```sql
+create or replace package queue_spec as
+  --%suite(Queue specification)
+
+  --%context(a_new_queue)
+  --%displayname(A new queue)
+
+    --%test(Is empty)
+    procedure is_empty;
+    --%test(Preserves positive bounding capacity)
+    procedure positive_bounding_capacity;
+    --%test(Cannot be created with non positive bounding capacity)
+    procedure non_positive_bounding_cap;
+  --%endcontext
+  --%context(an_empty_queue)
+  --%displayname(An empty queue)
+
+    --%test(Dequeues an empty value)
+    procedure deq_empty_value;
+    --%test(Remains empty when null enqueued)
+    procedure empty_with_null_enq;
+    --%test(Becomes non empty when non null value enqueued)
+    procedure non_empty_after_enq;
+  --%endcontext
+  --%context(a_non_empty_queue)
+  --%displayname(A non empty queue)
+
+    --%context(that_is_not_full)
+    --%displayname(that is not full)
+
+      --%test(Becomes longer when non null value enqueued)
+      procedure grow_on_enq_non_null;
+      --%test(Becomes full when enqueued up to capacity)
+      procedure full_on_enq_to_cap;
+    --%endcontext
+    --%context(that_is_full)
+    --%displayname(That is full)
+
+      --%test(Ignores further enqueued values)
+      procedure full_ignore_enq;
+      --%test(Becomes non full when dequeued)
+      procedure non_full_on_deq;
+    --%endcontext
+
+    --%test(Dequeues values in order enqueued)
+    procedure dequeue_ordered;
+    --%test(Remains unchanged when null enqueued)
+    procedure no_change_on_null_enq;
+  --%endcontext
+end;
+```
+
+
+When such specification gets executed `ut.run('queue_spec'')` (without body created) you will see the nesting of tests within contexts.
+```
+Queue specification
+  An empty queue
+    Dequeues an empty value [.014 sec] (FAILED - 1)
+    Remains empty when null enqueued [.004 sec] (FAILED - 2)
+    Becomes non empty when non null value enqueued [.005 sec] (FAILED - 3)
+  A non empty queue
+    that is not full
+      Becomes longer when non null value enqueued [.005 sec] (FAILED - 4)
+      Becomes full when enqueued up to capacity [.005 sec] (FAILED - 5)
+    That is full
+      Ignores further enqueued values [.004 sec] (FAILED - 6)
+      Becomes non full when dequeued [.005 sec] (FAILED - 7)
+    Dequeues values in order enqueued [.006 sec] (FAILED - 8)
+    Remains unchanged when null enqueued [.004 sec] (FAILED - 9)
+  A new queue
+    Is empty [.007 sec] (FAILED - 10)
+    Preserves positive bounding capacity [.006 sec] (FAILED - 11)
+    Cannot be created with non positive bounding capacity [.005 sec] (FAILED - 12)
+Failures:
+   1) deq_empty_value
+      ORA-04067: not executed, package body "UT3.QUEUE_SPEC" does not exist
+      ORA-06508: PL/SQL: could not find program unit being called: "UT3.QUEUE_SPEC"
+      ORA-06512: at line 6
+...
+Finished in .088573 seconds
+12 tests, 0 failed, 12 errored, 0 disabled, 0 warning(s)
+``` 
+
+Suite nesting allows for organizing tests into human-readable specification of behavior.
 
 
 ### Tags
