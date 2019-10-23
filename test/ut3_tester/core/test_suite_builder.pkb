@@ -1528,7 +1528,67 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>#?$%^&amp;*!|\/@][</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
+ 
+  end;
 
+  procedure test_spaces_in_tag is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+      ut3.ut_annotation(2, 'suite','testsuite', null),
+      ut3.ut_annotation(3, 'tags',' good_tag , bad tag , good-tag ', null),
+      ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
+      ut3.ut_annotation(9, 'tags',' good_tag , bad tag , good-tag ', 'test_procedure')
+      );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+      '%<TAGS><VARCHAR2>good_tag</VARCHAR2><VARCHAR2>good-tag</VARCHAR2></TAGS>%'||
+        '<TAGS><VARCHAR2>good_tag</VARCHAR2><VARCHAR2>good-tag</VARCHAR2></TAGS>%'
+      );
+    ut.expect(l_actual).to_be_like(
+      '%<WARNINGS><VARCHAR2>Invalid value &quot;bad tag&quot; for &quot;--%tags&quot; annotation.'||
+      ' See documentation for details on valid tag values. Annotation value ignored.
+at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 3</VARCHAR2><VARCHAR2>%'
+      );
+    ut.expect(l_actual).to_be_like(
+      '%<VARCHAR2>Invalid value &quot;bad tag&quot; for &quot;--%tags&quot; annotation.'||
+      ' See documentation for details on valid tag values. Annotation value ignored.
+at package &quot;UT3_TESTER.SOME_PACKAGE.TEST_PROCEDURE&quot;, line 9</VARCHAR2></WARNINGS>%'
+      );
+  end;
+
+  procedure test_minus_in_tag is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+      ut3.ut_annotation(2, 'suite','testsuite', null),
+      ut3.ut_annotation(3, 'tags',' good_tag , -invalid_tag , good-tag ', null),
+      ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
+      ut3.ut_annotation(9, 'tags',' good_tag , -invalid_tag , good-tag ', 'test_procedure')
+      );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+      '%<TAGS><VARCHAR2>good_tag</VARCHAR2><VARCHAR2>good-tag</VARCHAR2></TAGS>%'||
+        '<TAGS><VARCHAR2>good_tag</VARCHAR2><VARCHAR2>good-tag</VARCHAR2></TAGS>%'
+      );
+    ut.expect(l_actual).to_be_like(
+      '%<WARNINGS><VARCHAR2>Invalid value &quot;-invalid_tag&quot; for &quot;--%tags&quot; annotation.'||
+        ' See documentation for details on valid tag values. Annotation value ignored.
+at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 3</VARCHAR2><VARCHAR2>%'
+      );
+    ut.expect(l_actual).to_be_like(
+      '%<VARCHAR2>Invalid value &quot;-invalid_tag&quot; for &quot;--%tags&quot; annotation.'||
+        ' See documentation for details on valid tag values. Annotation value ignored.
+at package &quot;UT3_TESTER.SOME_PACKAGE.TEST_PROCEDURE&quot;, line 9</VARCHAR2></WARNINGS>%'
+      );
   end;
 
 end test_suite_builder;
