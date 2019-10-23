@@ -829,7 +829,7 @@ create or replace package body ut_suite_builder is
     end loop;
   end;
 
-  procedure warning_on_floating_endcontext(
+  procedure warning_on_extra_endcontext(
     a_suite              in out nocopy ut_suite,
     a_package_ann_index  tt_annotations_by_name
   ) is
@@ -915,7 +915,7 @@ create or replace package body ut_suite_builder is
       add_tests_to_items( l_suite, l_annotations, a_suite_items );
 
       --by this time all contexts were consumed and l_annotations should not have any context/endcontext annotation in it.
-      warning_on_floating_endcontext( l_suite, l_annotations.by_name );
+      warning_on_extra_endcontext( l_suite, l_annotations.by_name );
 
       a_suite_items.extend;
       a_suite_items( a_suite_items.last) := l_suite;
