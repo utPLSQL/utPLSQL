@@ -674,6 +674,99 @@ create or replace package body test_suite_builder is
     );
   end;
 
+  procedure nested_contexts is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite','Cool', null),
+      ut3.ut_annotation( 2, 'beforeall',null, 'suite_level_beforeall'),
+      ut3.ut_annotation( 3, 'test','In suite', 'suite_level_test'),
+      ut3.ut_annotation( 4, 'context','a_context', null),
+      ut3.ut_annotation( 5,   'displayname','A context', null),
+      ut3.ut_annotation( 6,   'beforeall',null, 'context_setup'),
+      ut3.ut_annotation( 7,   'test', 'First test in context', 'first_test_in_a_context'),
+      ut3.ut_annotation( 8,   'context','a_nested_context', null),
+      ut3.ut_annotation( 9,     'displayname','A nested context', null),
+      ut3.ut_annotation(10,     'beforeall',null, 'nested_context_setup'),
+      ut3.ut_annotation(11,     'test', 'Test in nested context', 'test_in_nested_context'),
+      ut3.ut_annotation(12,   'endcontext',null, null),
+      ut3.ut_annotation(13,   'context','nested_context_2', null),
+      ut3.ut_annotation(14,     'test', 'Test in nested context', 'test_in_nested_context_2'),
+      ut3.ut_annotation(15,     'context','a_nested_context_3', null),
+      ut3.ut_annotation(16,       'test', 'Test in nested context', 'test_in_nested_context_3'),
+      ut3.ut_annotation(17,     'endcontext',null, null),
+      ut3.ut_annotation(18,   'endcontext',null, null),
+      ut3.ut_annotation(19,   'test', 'Second test in context', 'second_test_in_a_context'),
+      ut3.ut_annotation(20, 'endcontext',null, null)
+      );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+      '<ROWSET><ROW>'||
+        '<UT_LOGICAL_SUITE>' ||
+          '%<WARNINGS/>' ||
+          '%<ITEMS>' ||
+            '<UT_SUITE_ITEM>' ||
+              '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
+              '%<ITEMS>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>nested_context_2</NAME><DESCRIPTION>nested_context_2</DESCRIPTION><PATH>some_package.a_context.nested_context_2</PATH>' ||
+                  '%<ITEMS>' ||
+                    '<UT_SUITE_ITEM>' ||
+                      '%<NAME>a_nested_context_3</NAME><DESCRIPTION>a_nested_context_3</DESCRIPTION><PATH>some_package.a_context.nested_context_2.a_nested_context_3</PATH>' ||
+                      '%<ITEMS>' ||
+                        '<UT_SUITE_ITEM>' ||
+                          '%<NAME>test_in_nested_context_3</NAME><DESCRIPTION>Test in nested context</DESCRIPTION><PATH>some_package.a_context.nested_context_2.a_nested_context_3.test_in_nested_context_3</PATH>' ||
+                        '%</UT_SUITE_ITEM>' ||
+                      '</ITEMS>' ||
+                      '<BEFORE_ALL_LIST/>' ||
+                    '%</UT_SUITE_ITEM>' ||
+                    '<UT_SUITE_ITEM>' ||
+                      '%<NAME>test_in_nested_context_2</NAME><DESCRIPTION>Test in nested context</DESCRIPTION><PATH>some_package.a_context.nested_context_2.test_in_nested_context_2</PATH>' ||
+                    '%</UT_SUITE_ITEM>' ||
+                  '</ITEMS>' ||
+                  '<BEFORE_ALL_LIST/>' ||
+                '%</UT_SUITE_ITEM>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>a_nested_context</NAME><DESCRIPTION>A nested context</DESCRIPTION><PATH>some_package.a_context.a_nested_context</PATH>' ||
+                  '%<ITEMS>' ||
+                    '<UT_SUITE_ITEM>' ||
+                      '%<NAME>test_in_nested_context</NAME><DESCRIPTION>Test in nested context</DESCRIPTION><PATH>some_package.a_context.a_nested_context.test_in_nested_context</PATH>' ||
+                    '%</UT_SUITE_ITEM>' ||
+                  '</ITEMS>' ||
+                  '<BEFORE_ALL_LIST>' ||
+                    '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>nested_context_setup</PROCEDURE_NAME>' ||
+                  '%</BEFORE_ALL_LIST>' ||
+                '%</UT_SUITE_ITEM>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>first_test_in_a_context</NAME><DESCRIPTION>First test in context</DESCRIPTION><PATH>some_package.a_context.first_test_in_a_context</PATH>' ||
+                '%</UT_SUITE_ITEM>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>second_test_in_a_context</NAME><DESCRIPTION>Second test in context</DESCRIPTION><PATH>some_package.a_context.second_test_in_a_context</PATH>' ||
+                '%</UT_SUITE_ITEM>' ||
+              '</ITEMS>' ||
+              '<BEFORE_ALL_LIST>' ||
+                '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>context_setup</PROCEDURE_NAME>' ||
+              '%</BEFORE_ALL_LIST>' ||
+              '<AFTER_ALL_LIST/>' ||
+            '</UT_SUITE_ITEM>' ||
+            '<UT_SUITE_ITEM>' ||
+            '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+            '%</UT_SUITE_ITEM>' ||
+          '</ITEMS>' ||
+          '<BEFORE_ALL_LIST>' ||
+          '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
+          '%</BEFORE_ALL_LIST>' ||
+          '<AFTER_ALL_LIST/>' ||
+        '</UT_LOGICAL_SUITE>'||
+        '</ROW></ROWSET>'
+      );
+  end;
+
+
   procedure before_after_in_context is
     l_actual      clob;
     l_annotations ut3.ut_annotations;
@@ -783,7 +876,7 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(1, 'suite','Cool', null),
         ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
         ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(4, 'context','A context', null),
+        ut3.ut_annotation(4, 'context','a_context', null),
         ut3.ut_annotation(5, 'beforeall',null, 'context_setup'),
         ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context')
     );
@@ -791,25 +884,30 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS><VARCHAR2>Invalid annotation &quot;--\%context&quot;. Cannot find following &quot;--\%endcontext&quot;. Annotation ignored.%at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 4</VARCHAR2></WARNINGS>%'
+        '%<WARNINGS><VARCHAR2>Missing &quot;--\%endcontext&quot; annotation for a &quot;--\%context&quot; annotation. The end of context considered be end of package.%at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 4</VARCHAR2></WARNINGS>%'
         ,'\'
     );
     ut.expect(l_actual).to_be_like(
         '<ROWSET><ROW>'||
         '<UT_LOGICAL_SUITE>' ||
-        '%<ITEMS>' ||
-        '<UT_SUITE_ITEM>' ||
-        '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
-        '%</UT_SUITE_ITEM>' ||
-        '<UT_SUITE_ITEM>' ||
-        '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.test_in_a_context</PATH>' ||
-        '%</UT_SUITE_ITEM>' ||
-        '</ITEMS>' ||
-        '<BEFORE_ALL_LIST>' ||
-        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
-        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>context_setup</PROCEDURE_NAME>' ||
-        '%</BEFORE_ALL_LIST>' ||
-        '<AFTER_ALL_LIST/>' ||
+          '%<ITEMS>' ||
+            '%<NAME>a_context</NAME><DESCRIPTION>a_context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
+            '%<ITEMS>' ||
+              '<UT_SUITE_ITEM>' ||
+                '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context.test_in_a_context</PATH>' ||
+              '%</UT_SUITE_ITEM>' ||
+            '</ITEMS>' ||
+            '<BEFORE_ALL_LIST>' ||
+              '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>context_setup</PROCEDURE_NAME>' ||
+            '%</BEFORE_ALL_LIST>' ||
+            '%<UT_SUITE_ITEM>' ||
+              '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+            '%</UT_SUITE_ITEM>' ||
+          '</ITEMS>' ||
+          '<BEFORE_ALL_LIST>' ||
+            '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
+          '%</BEFORE_ALL_LIST>' ||
+          '<AFTER_ALL_LIST/>' ||
         '</UT_LOGICAL_SUITE>'||
         '</ROW></ROWSET>'
     );
@@ -835,7 +933,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS><VARCHAR2>Invalid annotation &quot;--\%endcontext&quot;. Cannot find preceding &quot;--\%context&quot;. Annotation ignored.%at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 9</VARCHAR2></WARNINGS>%'
+        '%<WARNINGS><VARCHAR2>Extra &quot;--\%endcontext&quot; annotation found. Cannot find corresponding &quot;--\%context&quot;. Annotation ignored.%at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 9</VARCHAR2></WARNINGS>%'
         ,'\'
     );
     ut.expect(l_actual).to_be_like(
@@ -850,7 +948,7 @@ create or replace package body test_suite_builder is
               '%</UT_SUITE_ITEM>' ||
             '</ITEMS>' ||
             '<BEFORE_ALL_LIST>' ||
-            '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>context_setup</PROCEDURE_NAME>' ||
+              '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>context_setup</PROCEDURE_NAME>' ||
             '%</BEFORE_ALL_LIST>' ||
             '<AFTER_ALL_LIST/>' ||
           '</UT_SUITE_ITEM>' ||
@@ -859,7 +957,7 @@ create or replace package body test_suite_builder is
           '%</UT_SUITE_ITEM>' ||
         '</ITEMS>' ||
         '<BEFORE_ALL_LIST>' ||
-        '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
+          '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
         '%</BEFORE_ALL_LIST>' ||
         '<AFTER_ALL_LIST/>' ||
       '</UT_LOGICAL_SUITE>'||
@@ -1152,7 +1250,7 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>testtag</VARCHAR2></TAGS>%'||
         '%</UT_SUITE_ITEM>%'
     );
- 
+
   end;
 
   procedure suite_tag_annotation is
@@ -1173,9 +1271,9 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>suitetag</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
- 
+
   end;
-  
+
   procedure test_tags_annotation is
     l_actual      clob;
     l_annotations ut3.ut_annotations;
@@ -1195,7 +1293,7 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>testtag</VARCHAR2><VARCHAR2>testtag2</VARCHAR2><VARCHAR2>testtag3</VARCHAR2></TAGS>%'||
         '%</UT_SUITE_ITEM>%'
     );
- 
+
   end;
 
   procedure suite_tags_annotation is
@@ -1216,7 +1314,7 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>suitetag</VARCHAR2><VARCHAR2>suitetag1</VARCHAR2><VARCHAR2>suitetag2</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
- 
+
   end;
 
   procedure test_2line_tags_annotation is
@@ -1239,7 +1337,7 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>testtag</VARCHAR2><VARCHAR2>testtag2</VARCHAR2></TAGS>%'||
         '%</UT_SUITE_ITEM>%'
     );
- 
+
   end;
 
   procedure suite_2line_tags_annotation is
@@ -1261,7 +1359,7 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>suitetag</VARCHAR2><VARCHAR2>suitetag1</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
- 
+
   end;
 
   procedure test_empty_tag is
@@ -1280,9 +1378,9 @@ create or replace package body test_suite_builder is
         '%<WARNINGS>%&quot;--%tags&quot; annotation requires a tag value populated. Annotation ignored.%</WARNINGS>%'||
         '%<TAGS/>%'
     );
- 
+
   end;
-  
+
   procedure suite_empty_tag is
     l_actual      clob;
     l_annotations ut3.ut_annotations;
@@ -1299,7 +1397,7 @@ create or replace package body test_suite_builder is
         '%<WARNINGS><VARCHAR2>&quot;--%tags&quot; annotation requires a tag value populated. Annotation ignored.%</VARCHAR2></WARNINGS>%'||
         '%<TAGS/>%'
     );
- 
+
   end;
 
   procedure test_duplicate_tag is
@@ -1322,9 +1420,9 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>testtag</VARCHAR2><VARCHAR2>testtag1</VARCHAR2><VARCHAR2>testtag2</VARCHAR2></TAGS>%'||
         '%</UT_SUITE_ITEM>%'
     );
- 
+
   end;
-  
+
   procedure suite_duplicate_tag is
     l_actual      clob;
     l_annotations ut3.ut_annotations;
@@ -1344,7 +1442,7 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>suitetag</VARCHAR2><VARCHAR2>suitetag1</VARCHAR2><VARCHAR2>suitetag2</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
- 
+
   end;
 
   procedure test_empty_tag_between is
@@ -1366,9 +1464,9 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>testtag</VARCHAR2><VARCHAR2>testtag1</VARCHAR2></TAGS>%'||
         '%</UT_SUITE_ITEM>%'
     );
- 
+
   end;
-  
+
   procedure suite_empty_tag_between is
     l_actual      clob;
     l_annotations ut3.ut_annotations;
@@ -1387,8 +1485,8 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>suitetag</VARCHAR2><VARCHAR2>suitetag1</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
- 
-  end; 
+
+  end;
 
   procedure test_special_char_tag is
     l_actual      clob;
@@ -1409,9 +1507,9 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>#?$%^&amp;*!|\/@][</VARCHAR2></TAGS>%'||
         '%</UT_SUITE_ITEM>%'
     );
- 
+
   end;
-  
+
   procedure suite_special_char_tag is
     l_actual      clob;
     l_annotations ut3.ut_annotations;
@@ -1430,8 +1528,8 @@ create or replace package body test_suite_builder is
         '%<TAGS><VARCHAR2>#?$%^&amp;*!|\/@][</VARCHAR2></TAGS>%'||
         '%</UT_LOGICAL_SUITE>%'
     );
- 
-  end; 
+
+  end;
 
 end test_suite_builder;
 /

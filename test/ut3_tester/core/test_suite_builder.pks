@@ -116,6 +116,9 @@ create or replace package test_suite_builder is
   --%test(Creates nested suite for content between context/endcontext annotations)
   procedure suite_from_context;
 
+  --%test(Creates nested contexts inside a context)
+  procedure nested_contexts;
+
   --%test(Associates before/after all/each to tests in context only)
   procedure before_after_in_context;
 

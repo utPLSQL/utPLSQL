@@ -625,7 +625,7 @@ create or replace package body ut_suite_builder is
     a_suite.path := lower(coalesce(a_suite.path, a_suite.object_name));
   end;
 
-  procedure add_suite_tests(
+  procedure add_tests_to_items(
     a_suite              in out nocopy ut_suite,
     a_annotations        t_annotations_info,
     a_suite_items        in out nocopy ut_suite_items
@@ -738,7 +738,8 @@ create or replace package body ut_suite_builder is
   procedure get_suite_contexts_items(
     a_suite              in out nocopy ut_suite,
     a_annotations        in out nocopy t_annotations_info,
-    a_suite_items        out nocopy ut_suite_items
+    a_suite_items        out nocopy ut_suite_items,
+    a_parent_context_pos in integer := 0
   ) is
     l_context_pos        t_annotation_position;
     l_end_context_pos    t_annotation_position;
@@ -755,35 +756,43 @@ create or replace package body ut_suite_builder is
       return;
     end if;
 
-    l_context_pos := a_annotations.by_name( gc_context).first;
+    l_context_pos := a_annotations.by_name( gc_context).next(a_parent_context_pos);
 
     while l_context_pos is not null loop
       l_end_context_pos := get_endcontext_position(l_context_pos, a_annotations.by_name );
+      
+      l_context_name := coalesce( a_annotations.by_line( l_context_pos ).text, gc_context||'_'||l_context_no );
+      l_context := ut_suite_context(a_suite.object_owner, a_suite.object_name, l_context_name, l_context_pos );
+      l_context.path := a_suite.path||'.'||l_context_name;
+      l_context.description := a_annotations.by_line( l_context_pos ).text;
+      l_context.parse_time  := a_annotations.parse_time;
 
-      exit when l_end_context_pos is null;
+      --if nested context found
+      if a_annotations.by_name(gc_context).next(l_context_pos) < l_end_context_pos or l_end_context_pos is null then
+        get_suite_contexts_items( l_context, a_annotations, l_context_items, l_context_pos );
+        l_end_context_pos := get_endcontext_position(l_context_pos, a_annotations.by_name );
+      else
+        l_context_items  := ut_suite_items();
+      end if;
 
-      l_context_items  := ut_suite_items();
+      if l_end_context_pos is null then
+        a_suite.put_warning(
+          'Missing "--%endcontext" annotation for a "--%context" annotation. The end of package specification is effective end of context.'|| get_object_reference( a_suite, null, l_context_pos )
+          );
+        l_end_context_pos := a_annotations.by_line.last;
+      end if;
+
       --create a sub-set of annotations to process as sub-suite (context)
-      l_ctx_annotations   := get_annotations_in_context( a_annotations, l_context_pos, l_end_context_pos);
+      l_ctx_annotations := get_annotations_in_context( a_annotations, l_context_pos, l_end_context_pos);
 
-      l_context_name := coalesce(
-        l_ctx_annotations.by_line( l_context_pos ).text
-        , gc_context||'_'||l_context_no
-      );
       if l_context_names.exists(l_context_name) then
         add_annotation_ignored_warning( a_suite, 'context', 'Context name must be unique in a suite. Context and all of it''s content ignored.', l_context_pos );
       else
         l_context_names(l_context_name) := true;
 
-        l_context := ut_suite_context(a_suite.object_owner, a_suite.object_name, l_context_name, l_context_pos );
-
-        l_context.path := a_suite.path||'.'||l_context_name;
-        l_context.description := l_ctx_annotations.by_line( l_context_pos ).text;
-        l_context.parse_time  := a_annotations.parse_time;
-
         warning_on_duplicate_annot( l_context, l_ctx_annotations.by_name, gc_context );
 
-        add_suite_tests( l_context, l_ctx_annotations, l_context_items );
+        add_tests_to_items( l_context, l_ctx_annotations, l_context_items );
         add_items_to_list(a_suite_items, l_context_items);
         a_suite_items.extend;
         a_suite_items(a_suite_items.last) := l_context;
@@ -798,27 +807,17 @@ create or replace package body ut_suite_builder is
     end loop;
   end;
 
-  procedure warning_on_incomplete_context(
+  procedure warning_on_floating_endcontext(
     a_suite              in out nocopy ut_suite,
     a_package_ann_index  tt_annotations_by_name
   ) is
     l_annotation_pos  t_annotation_position;
   begin
-    if a_package_ann_index.exists(gc_context) then
-      l_annotation_pos := a_package_ann_index(gc_context).first;
-      while l_annotation_pos is not null loop
-        add_annotation_ignored_warning(
-            a_suite, gc_context, 'Invalid annotation %%%. Cannot find following "--%endcontext".',
-            l_annotation_pos
-        );
-        l_annotation_pos := a_package_ann_index(gc_context).next(l_annotation_pos);
-      end loop;
-    end if;
     if a_package_ann_index.exists(gc_endcontext) then
       l_annotation_pos := a_package_ann_index(gc_endcontext).first;
       while l_annotation_pos is not null loop
         add_annotation_ignored_warning(
-            a_suite, gc_endcontext, 'Invalid annotation %%%. Cannot find preceding "--%context".',
+            a_suite, gc_endcontext, 'Extra %%% annotation found. Cannot find corresponding "--%context".',
             l_annotation_pos
         );
         l_annotation_pos := a_package_ann_index(gc_endcontext).next(l_annotation_pos);
@@ -891,10 +890,10 @@ create or replace package body ut_suite_builder is
       build_suitepath( l_suite, l_annotations );
       get_suite_contexts_items( l_suite, l_annotations, a_suite_items );
       --create suite tests and add
-      add_suite_tests( l_suite, l_annotations, a_suite_items );
+      add_tests_to_items( l_suite, l_annotations, a_suite_items );
 
       --by this time all contexts were consumed and l_annotations should not have any context/endcontext annotation in it.
-      warning_on_incomplete_context( l_suite, l_annotations.by_name );
+      warning_on_floating_endcontext( l_suite, l_annotations.by_name );
 
       a_suite_items.extend;
       a_suite_items( a_suite_items.last) := l_suite;
