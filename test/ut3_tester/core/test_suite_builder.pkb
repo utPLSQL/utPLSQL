@@ -1038,7 +1038,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-      '%Invalid value &quot;'||l_bad_name||'&quot; for context name. The name cannot contain &quot;.&quot; (hard stop) character. Context name ignored and fallback to auto-name &quot;context_1&quot;%'
+      '%Invalid value &quot;'||l_bad_name||'&quot; for context name. The name cannot contain &quot;.&quot; (full stop/period) character. Context name ignored and fallback to auto-name &quot;context_1&quot;%'
     );
     ut.expect(l_actual).to_be_like(
       '<ROWSET><ROW>'||

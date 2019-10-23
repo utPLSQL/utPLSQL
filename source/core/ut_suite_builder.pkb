@@ -777,7 +777,7 @@ create or replace package body ut_suite_builder is
       if regexp_like( l_context_name, '\.' ) or l_context_name is null then
         if regexp_like( l_context_name, '\.' ) then
           a_suite.put_warning(
-            'Invalid value "'||l_context_name||'" for context name. The name cannot contain "." (hard stop) character.' ||
+            'Invalid value "'||l_context_name||'" for context name. The name cannot contain "." (full stop/period) character.' ||
             ' Context name ignored and fallback to auto-name "'||gc_context||'_'||l_context_no||'" ' ||
             get_object_reference( a_suite, null, l_context_pos )
             );

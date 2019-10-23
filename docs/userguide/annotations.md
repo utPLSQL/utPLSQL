@@ -1014,7 +1014,7 @@ Context have following characteristics:
 - context name must be unique within it's parent (suite or parent context)
 - if context name is not unique within it's parent, context and it's entire content is excluded from execution 
 - context name should not contain spaces or special characters
-- context name cannot contain a `.` (hard stop) character
+- context name cannot contain a `.` (full stop/period) character
 - contexts can be nested, so a context can be nested within another context
 - suite/context can have multiple nested sibling contexts in it 
 - contexts can have their own `--%beforeall`, `--%beforeeach`, `--%afterall` and `--%aftereach` procedures
