@@ -884,7 +884,7 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<WARNINGS><VARCHAR2>Missing &quot;--\%endcontext&quot; annotation for a &quot;--\%context&quot; annotation. The end of context considered be end of package.%at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 4</VARCHAR2></WARNINGS>%'
+        '%<WARNINGS><VARCHAR2>Missing &quot;--\%endcontext&quot; annotation for a &quot;--\%context&quot; annotation. The end of package is considered end of context.%at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 4</VARCHAR2></WARNINGS>%'
         ,'\'
     );
     ut.expect(l_actual).to_be_like(

@@ -777,7 +777,7 @@ create or replace package body ut_suite_builder is
 
       if l_end_context_pos is null then
         a_suite.put_warning(
-          'Missing "--%endcontext" annotation for a "--%context" annotation. The end of package specification is effective end of context.'|| get_object_reference( a_suite, null, l_context_pos )
+          'Missing "--%endcontext" annotation for a "--%context" annotation. The end of package is considered end of context.'|| get_object_reference( a_suite, null, l_context_pos )
           );
         l_end_context_pos := a_annotations.by_line.last;
       end if;

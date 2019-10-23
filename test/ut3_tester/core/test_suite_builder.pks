@@ -125,7 +125,7 @@ create or replace package test_suite_builder is
   --%test(Propagates beforeeach/aftereach to context)
   procedure before_after_out_of_context;
 
-  --%test(Does not create context and gives warning when endcontext is missing)
+  --%test(Gives warning when endcontext is missing)
   procedure context_without_endcontext;
 
   --%test(Gives warning if --%endcontext is missing a preceding --%context)
