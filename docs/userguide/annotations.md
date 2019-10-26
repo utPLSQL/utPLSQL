@@ -9,11 +9,95 @@ The framework runner searches for all the suitable annotated packages, automatic
 Annotations are interpreted only in the package specification and are case-insensitive. We strongly recommend using lower-case annotations as described in this documentation.
 
 There are two distinct types of annotations, identified by their location in package:
-- Procedure level annotations - placed directly before a procedure (`--%test`, `--%beforeall`, `--%beforeeach` etc.).
-- Package level annotations   - placed at any place in package except directly before procedure (`--%suite`, `--%suitepath` etc.).
 
+### Procedure level annotations
+
+Annotation placed directly before a procedure (`--%test`, `--%beforeall`, `--%beforeeach` etc.).
+There **can not** be any empty lines or comments between annotation line and procedure line.
+There can be many annotations for a procedure. 
+
+Valid procedure annotations example:
+```sql
+package test_package is
+  --%suite
+
+   
+  --%test()
+  --%disabled
+  procedure my_first_procedure;
+
+  $if dbms_db_version.version >= 12 $then --This is ok - annotation before procedure 
+  --%test() 
+  procedure my_first_procedure;
+  $end
+
+  --A comment goes before annotations
+  --%test()
+  procedure my_first_procedure;
+end;
+```
+
+Invalid procedure annotations examples:
+```sql
+package test_package is
+  --%suite
+   
+  --%test()   --This is wrong as there is an empty line between procedure and annotation
+
+  procedure my_first_procedure;
+   
+  --%test()
+  --This is wrong as there is a comment line between procedure and annotation
+  procedure proc1;
+
+  --%test() --This is wrong as there is a compiler directive between procedure and annotation
+  $if dbms_db_version.version >= 12 $then  
+  procedure proc_12;
+  $end
+
+  --%test()  
+  -- procedure another_proc; 
+  /* The above is wrong as the procedure is commented out 
+     and annotation is not procedure annotation anymore */
+
+end;
+```
+
+### Package level annotations  
+ 
+Those annotations placed at any place in package except directly before procedure (`--%suite`, `--%suitepath` etc.).
 We strongly recommend putting package level annotations at the very top of package except for the `--%context` annotations (described below)  
 
+Valid package annotations example:
+```sql
+package test_package is
+
+  --%suite
+
+  --%suitepath(org.utplsql.example) 
+ 
+  --%beforeall(some_package.some_procedure)
+  
+  --%context
+  
+  --%test()
+  procedure my_first_procedure;
+  --%endcontext
+end;
+```
+
+Invalid  package annotations examples:
+```sql
+package test_package is
+  --%suite               --This is wrong as suite annotation is not a procedure annotation
+  procedure irrelevant;
+   
+  --%context  --This is wrong as there is no empty line between package level annotation and procedure level annotation
+  --%test()   
+  procedure my_first_procedure;
+
+end;
+```
 
 ## Supported annotations
 
