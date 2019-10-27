@@ -1080,9 +1080,8 @@ Failures:%
         --%beforeall
         procedure before_suite;
 
-        --%context(some_context)
-
-          --%displayname(context description)
+        --%context(context description)
+        --%name(some_context)
 
           --%beforeall
           procedure before_context;

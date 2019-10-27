@@ -14,8 +14,8 @@ as
   --%beforeeach
   procedure beforeeach;
 
-  --%context(some_context)
-  --%displayname(A description of some context)
+  --%context(A description of some context)
+  --%name(some_context)
 
   --%test
   --%beforetest(beforetest)

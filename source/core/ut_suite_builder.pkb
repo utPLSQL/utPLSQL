@@ -36,6 +36,7 @@ create or replace package body ut_suite_builder is
   gc_throws                      constant t_annotation_name := 'throws';
   gc_rollback                    constant t_annotation_name := 'rollback';
   gc_context                     constant t_annotation_name := 'context';
+  gc_name                        constant t_annotation_name := 'name';
   gc_endcontext                  constant t_annotation_name := 'endcontext';
 
   type tt_annotations is table of t_annotation_name;
@@ -57,6 +58,7 @@ create or replace package body ut_suite_builder is
       gc_throws,
       gc_rollback,
       gc_context,
+      gc_name,
       gc_endcontext
   );
 
@@ -747,21 +749,47 @@ create or replace package body ut_suite_builder is
     return l_result;
   end;
 
-  procedure get_suite_contexts_items(
-    a_suite              in out nocopy ut_suite,
+  procedure get_context_items(
+    a_parent             in out nocopy ut_suite,
     a_annotations        in out nocopy t_annotations_info,
     a_suite_items        out nocopy ut_suite_items,
     a_parent_context_pos in integer := 0
   ) is
-    l_context_pos        t_annotation_position;
-    l_end_context_pos    t_annotation_position;
-    l_context_name       t_object_name;
-    l_ctx_annotations    t_annotations_info;
-    l_context            ut_suite_context;
-    l_context_no         binary_integer := 1;
-    l_context_items      ut_suite_items;
+    l_context_pos          t_annotation_position;
+    l_next_context_pos     t_annotation_position;
+    l_end_context_pos      t_annotation_position;
+    l_ctx_annotations      t_annotations_info;
+    l_context              ut_suite_context;
+    l_context_no           binary_integer := 1;
+    l_context_items        ut_suite_items;
     type tt_context_names is table of boolean index by t_object_name;
-    l_context_names      tt_context_names;
+    l_used_context_names   tt_context_names;
+    l_context_name         t_object_name;
+    l_default_context_name t_object_name;
+    function get_context_name(
+      a_parent in out nocopy ut_suite,
+      a_context_names in tt_annotation_texts,
+      a_start_position binary_integer,
+      a_end_position binary_integer
+    ) return varchar2 is
+      l_result         t_annotation_name;
+      l_found          boolean;
+      l_annotation_pos binary_integer;
+    begin
+      l_annotation_pos := a_context_names.first;
+      while l_annotation_pos is not null loop
+        if l_annotation_pos > a_start_position and l_annotation_pos < a_end_position then
+          if l_found then
+            add_annotation_ignored_warning(a_parent, gc_name,'Duplicate annotation %%%.', l_annotation_pos);
+          else
+            l_result := a_context_names(l_annotation_pos);
+          end if;
+          l_found := true;
+        end if;
+        l_annotation_pos := a_context_names.next(l_annotation_pos);
+      end loop;
+      return l_result;
+    end;
   begin
     a_suite_items := ut_suite_items();
     if not a_annotations.by_name.exists(gc_context) then
@@ -771,35 +799,57 @@ create or replace package body ut_suite_builder is
     l_context_pos := a_annotations.by_name( gc_context).next(a_parent_context_pos);
 
     while l_context_pos is not null loop
+      l_default_context_name := 'nested_context_#'||l_context_no;
       l_end_context_pos := get_endcontext_position(l_context_pos, a_annotations.by_name );
-      
-      l_context_name := coalesce( a_annotations.by_line( l_context_pos ).text, gc_context||'_'||l_context_no );
-      if regexp_like( l_context_name, '\.' ) or l_context_name is null then
-        if regexp_like( l_context_name, '\.' ) then
-          a_suite.put_warning(
-            'Invalid value "'||l_context_name||'" for context name. The name cannot contain "." (full stop/period) character.' ||
-            ' Context name ignored and fallback to auto-name "'||gc_context||'_'||l_context_no||'" ' ||
-            get_object_reference( a_suite, null, l_context_pos )
+
+      l_next_context_pos := a_annotations.by_name(gc_context).next(l_context_pos);
+      if a_annotations.by_name.exists(gc_name) then
+        l_context_name :=
+          get_context_name(
+            a_parent,
+            a_annotations.by_name( gc_name ),
+            l_context_pos,
+            least(
+              coalesce( l_end_context_pos, a_annotations.by_line.last ),
+              coalesce( l_next_context_pos, a_annotations.by_line.last )
+            )
+          );
+      end if;
+      if not regexp_like( l_context_name, '^(\w|[$#])+$' ) or l_context_name is null then
+        if not regexp_like( l_context_name, '^(\w|[$#])+$' ) then
+          a_parent.put_warning(
+            'Invalid value "'||l_context_name||'" for context name.' ||
+            ' Context name ignored and fallback to auto-name "'||l_default_context_name||'" ' ||
+            get_object_reference( a_parent, null, l_context_pos )
             );
         end if;
-        l_context_name := gc_context||'_'||l_context_no;
+        l_context_name := l_default_context_name;
       end if;
-      l_context := ut_suite_context(a_suite.object_owner, a_suite.object_name, l_context_name, l_context_pos );
-      l_context.path := a_suite.path||'.'||l_context_name;
-      l_context.description := a_annotations.by_line( l_context_pos ).text;
+      if l_used_context_names.exists(l_context_name) then
+        add_annotation_ignored_warning(
+          a_parent, gc_name,
+          'Context name "'||l_context_name||'" already used in this scope. Name must be unique.' ||
+            ' Using fallback name '||l_default_context_name||'.', l_context_pos );
+        l_context_name := l_default_context_name;
+      end if;
+      l_used_context_names(l_context_name) := true;
+
+      l_context := ut_suite_context(a_parent.object_owner, a_parent.object_name, l_context_name, l_context_pos );
+      l_context.path := a_parent.path||'.'||l_context_name;
+      l_context.description := coalesce( a_annotations.by_line( l_context_pos ).text, l_context_name );
       l_context.parse_time  := a_annotations.parse_time;
 
       --if nested context found
-      if a_annotations.by_name(gc_context).next(l_context_pos) < l_end_context_pos or l_end_context_pos is null then
-        get_suite_contexts_items( l_context, a_annotations, l_context_items, l_context_pos );
+      if l_next_context_pos < l_end_context_pos or l_end_context_pos is null then
+        get_context_items( l_context, a_annotations, l_context_items, l_context_pos );
         l_end_context_pos := get_endcontext_position(l_context_pos, a_annotations.by_name );
       else
         l_context_items  := ut_suite_items();
       end if;
 
       if l_end_context_pos is null then
-        a_suite.put_warning(
-          'Missing "--%endcontext" annotation for a "--%context" annotation. The end of package is considered end of context.'|| get_object_reference( a_suite, null, l_context_pos )
+        a_parent.put_warning(
+          'Missing "--%endcontext" annotation for a "--%context" annotation. The end of package is considered end of context.'|| get_object_reference( a_parent, null, l_context_pos )
           );
         l_end_context_pos := a_annotations.by_line.last;
       end if;
@@ -807,18 +857,12 @@ create or replace package body ut_suite_builder is
       --create a sub-set of annotations to process as sub-suite (context)
       l_ctx_annotations := get_annotations_in_context( a_annotations, l_context_pos, l_end_context_pos);
 
-      if l_context_names.exists(l_context_name) then
-        add_annotation_ignored_warning( a_suite, 'context', 'Context name must be unique in a suite. Context and all of it''s content ignored.', l_context_pos );
-      else
-        l_context_names(l_context_name) := true;
+      warning_on_duplicate_annot( l_context, l_ctx_annotations.by_name, gc_context );
 
-        warning_on_duplicate_annot( l_context, l_ctx_annotations.by_name, gc_context );
-
-        add_tests_to_items( l_context, l_ctx_annotations, l_context_items );
-        add_items_to_list(a_suite_items, l_context_items);
-        a_suite_items.extend;
-        a_suite_items(a_suite_items.last) := l_context;
-      end if;
+      add_tests_to_items( l_context, l_ctx_annotations, l_context_items );
+      add_items_to_list(a_suite_items, l_context_items);
+      a_suite_items.extend;
+      a_suite_items(a_suite_items.last) := l_context;
       -- remove annotations within context after processing them
       delete_annotations_range(a_annotations, l_context_pos, l_end_context_pos);
 
@@ -910,7 +954,7 @@ create or replace package body ut_suite_builder is
       warning_on_duplicate_annot( l_suite, l_annotations.by_name, gc_suite );
 
       build_suitepath( l_suite, l_annotations );
-      get_suite_contexts_items( l_suite, l_annotations, a_suite_items );
+      get_context_items( l_suite, l_annotations, a_suite_items );
       --create suite tests and add
       add_tests_to_items( l_suite, l_annotations, a_suite_items );
 

@@ -635,8 +635,8 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(1, 'suite','Cool', null),
         ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
         ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(4, 'context','a_context', null),
-        ut3.ut_annotation(5, 'displayname','A context', null),
+        ut3.ut_annotation(4, 'context','A context', null),
+        ut3.ut_annotation(5, 'name','a_context', null),
         ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
         ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
         ut3.ut_annotation(8, 'endcontext',null, null)
@@ -683,23 +683,24 @@ create or replace package body test_suite_builder is
       ut3.ut_annotation( 1, 'suite','Cool', null),
       ut3.ut_annotation( 2, 'beforeall',null, 'suite_level_beforeall'),
       ut3.ut_annotation( 3, 'test','In suite', 'suite_level_test'),
-      ut3.ut_annotation( 4, 'context','a_context', null),
-      ut3.ut_annotation( 5,   'displayname','A context', null),
+      ut3.ut_annotation( 4, 'context','A context', null),
+      ut3.ut_annotation( 5,   'name','a_context', null),
       ut3.ut_annotation( 6,   'beforeall',null, 'context_setup'),
       ut3.ut_annotation( 7,   'test', 'First test in context', 'first_test_in_a_context'),
-      ut3.ut_annotation( 8,   'context','a_nested_context', null),
-      ut3.ut_annotation( 9,     'displayname','A nested context', null),
+      ut3.ut_annotation( 8,   'context','A nested context', null),
+      ut3.ut_annotation( 9,     'name','a_nested_context', null),
       ut3.ut_annotation(10,     'beforeall',null, 'nested_context_setup'),
       ut3.ut_annotation(11,     'test', 'Test in nested context', 'test_in_nested_context'),
       ut3.ut_annotation(12,   'endcontext',null, null),
-      ut3.ut_annotation(13,   'context','nested_context_2', null),
-      ut3.ut_annotation(14,     'test', 'Test in nested context', 'test_in_nested_context_2'),
-      ut3.ut_annotation(15,     'context','a_nested_context_3', null),
-      ut3.ut_annotation(16,       'test', 'Test in nested context', 'test_in_nested_context_3'),
-      ut3.ut_annotation(17,     'endcontext',null, null),
-      ut3.ut_annotation(18,   'endcontext',null, null),
-      ut3.ut_annotation(19,   'test', 'Second test in context', 'second_test_in_a_context'),
-      ut3.ut_annotation(20, 'endcontext',null, null)
+      ut3.ut_annotation(13,   'context',null, null),
+      ut3.ut_annotation(14,     'name','nested_context_2', null),
+      ut3.ut_annotation(15,     'test', 'Test in nested context', 'test_in_nested_context_2'),
+      ut3.ut_annotation(16,     'context','a_nested_context_3', null),
+      ut3.ut_annotation(17,       'test', 'Test in nested context', 'test_in_nested_context_3'),
+      ut3.ut_annotation(18,     'endcontext',null, null),
+      ut3.ut_annotation(19,   'endcontext',null, null),
+      ut3.ut_annotation(20,   'test', 'Second test in context', 'second_test_in_a_context'),
+      ut3.ut_annotation(21, 'endcontext',null, null)
       );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -716,10 +717,10 @@ create or replace package body test_suite_builder is
                   '%<NAME>nested_context_2</NAME><DESCRIPTION>nested_context_2</DESCRIPTION><PATH>some_package.a_context.nested_context_2</PATH>' ||
                   '%<ITEMS>' ||
                     '<UT_SUITE_ITEM>' ||
-                      '%<NAME>a_nested_context_3</NAME><DESCRIPTION>a_nested_context_3</DESCRIPTION><PATH>some_package.a_context.nested_context_2.a_nested_context_3</PATH>' ||
+                      '%<NAME>nested_context_#1</NAME><DESCRIPTION>a_nested_context_3</DESCRIPTION><PATH>some_package.a_context.nested_context_2.nested_context_#1</PATH>' ||
                       '%<ITEMS>' ||
                         '<UT_SUITE_ITEM>' ||
-                          '%<NAME>test_in_nested_context_3</NAME><DESCRIPTION>Test in nested context</DESCRIPTION><PATH>some_package.a_context.nested_context_2.a_nested_context_3.test_in_nested_context_3</PATH>' ||
+                          '%<NAME>test_in_nested_context_3</NAME><DESCRIPTION>Test in nested context</DESCRIPTION><PATH>some_package.a_context.nested_context_2.nested_context_#1.test_in_nested_context_3</PATH>' ||
                         '%</UT_SUITE_ITEM>' ||
                       '</ITEMS>' ||
                       '<BEFORE_ALL_LIST/>' ||
@@ -775,7 +776,7 @@ create or replace package body test_suite_builder is
     l_annotations := ut3.ut_annotations(
         ut3.ut_annotation(1, 'suite', 'Cool', null),
         ut3.ut_annotation(2, 'test', 'In suite', 'suite_level_test'),
-        ut3.ut_annotation(3, 'context', 'a_context', null),
+        ut3.ut_annotation(3, 'context', 'A context', null),
         ut3.ut_annotation(4, 'beforeall', 'context_beforeall', null),
         ut3.ut_annotation(5, 'beforeeach', null, 'context_beforeeach'),
         ut3.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
@@ -791,7 +792,7 @@ create or replace package body test_suite_builder is
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '%<UT_SUITE_ITEM>' ||
-            '%<NAME>a_context</NAME>' ||
+            '%<NAME>nested_context_#1</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.nested_context_#1</PATH>' ||
             '%<ITEMS>' ||
               '%<UT_SUITE_ITEM>' ||
                 '%<NAME>test_in_a_context</NAME>' ||
@@ -827,7 +828,7 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
         ut3.ut_annotation(3, 'beforeeach',null, 'suite_level_beforeeach'),
         ut3.ut_annotation(4, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(5, 'context','a_context', null),
+        ut3.ut_annotation(5, 'context',null, null),
         ut3.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
         ut3.ut_annotation(7, 'endcontext',null, null),
         ut3.ut_annotation(8, 'aftereach',null, 'suite_level_aftereach'),
@@ -841,7 +842,7 @@ create or replace package body test_suite_builder is
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '%<UT_SUITE_ITEM>' ||
-            '%<NAME>a_context</NAME>' ||
+            '%<NAME>nested_context_#1</NAME><DESCRIPTION>nested_context_#1</DESCRIPTION><PATH>some_package.nested_context_#1</PATH>' ||
             '%<ITEMS>' ||
               '%<UT_SUITE_ITEM>' ||
                 '%<NAME>test_in_a_context</NAME>' ||
@@ -876,8 +877,9 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(1, 'suite','Cool', null),
         ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
         ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(4, 'context','a_context', null),
-        ut3.ut_annotation(5, 'beforeall',null, 'context_setup'),
+        ut3.ut_annotation(4, 'context','Some context', null),
+        ut3.ut_annotation(5, 'name','a_context', null),
+        ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
         ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context')
     );
     --Act
@@ -891,7 +893,7 @@ create or replace package body test_suite_builder is
         '<ROWSET><ROW>'||
         '<UT_LOGICAL_SUITE>' ||
           '%<ITEMS>' ||
-            '%<NAME>a_context</NAME><DESCRIPTION>a_context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
+            '%<NAME>a_context</NAME><DESCRIPTION>Some context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
             '%<ITEMS>' ||
               '<UT_SUITE_ITEM>' ||
                 '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context.test_in_a_context</PATH>' ||
@@ -922,8 +924,8 @@ create or replace package body test_suite_builder is
         ut3.ut_annotation(1, 'suite','Cool', null),
         ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
         ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(4, 'context','a_context', null),
-        ut3.ut_annotation(5, 'displayname','A context', null),
+        ut3.ut_annotation(4, 'context','A context', null),
+        ut3.ut_annotation(5, 'name','a_context', null),
         ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
         ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
         ut3.ut_annotation(8, 'endcontext',null, null),
@@ -974,13 +976,13 @@ create or replace package body test_suite_builder is
           ut3.ut_annotation(1, 'suite','Cool', null),
           ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
           ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-          ut3.ut_annotation(4, 'context','a_context', null),
-          ut3.ut_annotation(5, 'displayname','A context', null),
+          ut3.ut_annotation(4, 'context','A context', null),
+          ut3.ut_annotation(5, 'name','a_context', null),
           ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
           ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
           ut3.ut_annotation(8, 'endcontext',null, null),
-          ut3.ut_annotation(9, 'context','a_context', null),
-          ut3.ut_annotation(10, 'displayname','A context', null),
+          ut3.ut_annotation(9, 'context','A context', null),
+          ut3.ut_annotation(10, 'name','a_context', null),
           ut3.ut_annotation(11, 'beforeall',null, 'setup_in_duplicated_context'),
           ut3.ut_annotation(12, 'test', 'In duplicated context', 'test_in_duplicated_context'),
           ut3.ut_annotation(13, 'endcontext',null, null)
@@ -989,31 +991,43 @@ create or replace package body test_suite_builder is
       l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
       --Assert
       ut.expect(l_actual).to_be_like(
-          '%<WARNINGS><VARCHAR2>Context name must be unique in a suite. Context and all of it&apos;s content ignored.%at package &quot;UT3_TESTER.SOME_PACKAGE&quot;, line 9</VARCHAR2></WARNINGS>%'
+          '%<WARNINGS><VARCHAR2>Context name &quot;a_context&quot; already used in this scope. Name must be unique. Using fallback name nested_context_#2.%</VARCHAR2></WARNINGS>%'
           ,'\'
       );
       ut.expect(l_actual).to_be_like(
           '<ROWSET><ROW>'||
           '<UT_LOGICAL_SUITE>' ||
           '%<ITEMS>' ||
-          '<UT_SUITE_ITEM>' ||
-          '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
-          '%<ITEMS>' ||
-          '<UT_SUITE_ITEM>' ||
-          '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context.test_in_a_context</PATH>' ||
-          '%</UT_SUITE_ITEM>' ||
+            '<UT_SUITE_ITEM>' ||
+              '%<NAME>nested_context_#2</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.nested_context_#2</PATH>' ||
+              '%<ITEMS>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>test_in_duplicated_context</NAME><DESCRIPTION>In duplicated context</DESCRIPTION><PATH>some_package.nested_context_#2.test_in_duplicated_context</PATH>' ||
+                '%</UT_SUITE_ITEM>' ||
+              '</ITEMS>' ||
+              '<BEFORE_ALL_LIST>' ||
+                '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>setup_in_duplicated_context</PROCEDURE_NAME>' ||
+              '%</BEFORE_ALL_LIST>' ||
+              '<AFTER_ALL_LIST/>' ||
+            '</UT_SUITE_ITEM>' ||
+            '<UT_SUITE_ITEM>' ||
+              '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
+              '%<ITEMS>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context.test_in_a_context</PATH>' ||
+                '%</UT_SUITE_ITEM>' ||
+              '</ITEMS>' ||
+              '<BEFORE_ALL_LIST>' ||
+                '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>context_setup</PROCEDURE_NAME>' ||
+              '%</BEFORE_ALL_LIST>' ||
+              '<AFTER_ALL_LIST/>' ||
+            '</UT_SUITE_ITEM>' ||
+            '<UT_SUITE_ITEM>' ||
+                '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+            '%</UT_SUITE_ITEM>' ||
           '</ITEMS>' ||
           '<BEFORE_ALL_LIST>' ||
-          '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>context_setup</PROCEDURE_NAME>' ||
-          '%</BEFORE_ALL_LIST>' ||
-          '<AFTER_ALL_LIST/>' ||
-          '</UT_SUITE_ITEM>' ||
-          '<UT_SUITE_ITEM>' ||
-          '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
-          '%</UT_SUITE_ITEM>' ||
-          '</ITEMS>' ||
-          '<BEFORE_ALL_LIST>' ||
-          '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
+            '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
           '%</BEFORE_ALL_LIST>' ||
           '<AFTER_ALL_LIST/>' ||
           '</UT_LOGICAL_SUITE>'||
@@ -1027,10 +1041,11 @@ create or replace package body test_suite_builder is
     l_bad_name    varchar2(100);
   begin
     --Arrange
-    l_bad_name := 'Context with invalid name. Should fail';
+    l_bad_name := 'ctx_with_dot.in_it';
     l_annotations := ut3.ut_annotations(
       ut3.ut_annotation(1, 'suite','Cool', null),
-      ut3.ut_annotation(4, 'context','Context with invalid name. Should fail', null),
+      ut3.ut_annotation(4, 'context',null, null),
+      ut3.ut_annotation(5, 'name',l_bad_name, null),
       ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
       ut3.ut_annotation(13, 'endcontext',null, null)
       );
@@ -1038,21 +1053,195 @@ create or replace package body test_suite_builder is
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-      '%Invalid value &quot;'||l_bad_name||'&quot; for context name. The name cannot contain &quot;.&quot; (full stop/period) character. Context name ignored and fallback to auto-name &quot;context_1&quot;%'
+      '%Invalid value &quot;'||l_bad_name||'&quot; for context name. Context name ignored and fallback to auto-name &quot;nested_context_#1&quot;%'
     );
     ut.expect(l_actual).to_be_like(
       '<ROWSET><ROW>'||
         '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
         '<UT_SUITE_ITEM>' ||
-          '%<NAME>context_1</NAME><DESCRIPTION>Context with invalid name. Should fail</DESCRIPTION><PATH>some_package.context_1</PATH>' ||
+          '%<NAME>nested_context_#1</NAME><DESCRIPTION>nested_context_#1</DESCRIPTION><PATH>some_package.nested_context_#1</PATH>' ||
           '%<ITEMS>' ||
             '<UT_SUITE_ITEM>' ||
-              '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.context_1.test_in_a_context</PATH>' ||
+              '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.nested_context_#1.test_in_a_context</PATH>' ||
             '%</UT_SUITE_ITEM>' ||
           '</ITEMS>%' ||
         '</UT_SUITE_ITEM>%' ||
         '</ITEMS>%' ||
+        '</UT_LOGICAL_SUITE>'||
+        '</ROW></ROWSET>'
+      );
+  end;
+
+  procedure name_with_spaces_invalid is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+    l_bad_name    varchar2(100);
+  begin
+    --Arrange
+    l_bad_name := 'context name with spaces';
+    l_annotations := ut3.ut_annotations(
+      ut3.ut_annotation(1, 'suite','Cool', null),
+      ut3.ut_annotation(4, 'context',null, null),
+      ut3.ut_annotation(5, 'name',l_bad_name, null),
+      ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+      ut3.ut_annotation(13, 'endcontext',null, null)
+      );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+      '%Invalid value &quot;'||l_bad_name||'&quot; for context name. Context name ignored and fallback to auto-name &quot;nested_context_#1&quot;%'
+      );
+    ut.expect(l_actual).to_be_like(
+      '<ROWSET><ROW>'||
+        '<UT_LOGICAL_SUITE>' ||
+        '%<ITEMS>' ||
+        '<UT_SUITE_ITEM>' ||
+        '%<NAME>nested_context_#1</NAME><DESCRIPTION>nested_context_#1</DESCRIPTION><PATH>some_package.nested_context_#1</PATH>' ||
+        '%<ITEMS>' ||
+        '<UT_SUITE_ITEM>' ||
+        '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.nested_context_#1.test_in_a_context</PATH>' ||
+        '%</UT_SUITE_ITEM>' ||
+        '</ITEMS>%' ||
+        '</UT_SUITE_ITEM>%' ||
+        '</ITEMS>%' ||
+        '</UT_LOGICAL_SUITE>'||
+        '</ROW></ROWSET>'
+      );
+  end;
+
+  procedure duplicate_name_annotation is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+      ut3.ut_annotation(1, 'suite','Cool', null),
+      ut3.ut_annotation(4, 'context','A context', null),
+      ut3.ut_annotation(5, 'name','a_context_name', null),
+      ut3.ut_annotation(6, 'name','a_newer_context_name', null),
+      ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+      ut3.ut_annotation(8, 'endcontext',null, null),
+      ut3.ut_annotation(12, 'test', 'In suite', 'suite_level_test')
+      );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+      '%<WARNINGS><VARCHAR2>Duplicate annotation &quot;--%name&quot;. Annotation ignored.%</VARCHAR2></WARNINGS>%'
+      ,'\'
+      );
+    ut.expect(l_actual).to_be_like(
+      '<ROWSET><ROW>'||
+        '<UT_LOGICAL_SUITE>' ||
+          '%<ITEMS>' ||
+            '<UT_SUITE_ITEM>' ||
+              '%<NAME>a_context_name</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context_name</PATH>' ||
+              '%<ITEMS>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context_name.test_in_a_context</PATH>' ||
+                '%</UT_SUITE_ITEM>' ||
+              '</ITEMS>' ||
+              '<BEFORE_ALL_LIST/>' ||
+              '<AFTER_ALL_LIST/>'  ||
+            '</UT_SUITE_ITEM>' ||
+            '<UT_SUITE_ITEM>' ||
+              '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+            '%</UT_SUITE_ITEM>' ||
+          '</ITEMS>' ||
+          '<BEFORE_ALL_LIST/>' ||
+          '<AFTER_ALL_LIST/>'  ||
+        '</UT_LOGICAL_SUITE>'||
+        '</ROW></ROWSET>'
+      );
+  end;
+
+  procedure name_outside_of_context is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+      ut3.ut_annotation(1, 'suite','Cool', null),
+      ut3.ut_annotation(3, 'name','a_context_name', null),
+      ut3.ut_annotation(4, 'context','A context', null),
+      ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+      ut3.ut_annotation(8, 'endcontext',null, null),
+      ut3.ut_annotation(12, 'test', 'In suite', 'suite_level_test')
+      );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+      '%<WARNINGS/>%'
+      ,'\'
+      );
+    ut.expect(l_actual).to_be_like(
+      '<ROWSET><ROW>'||
+        '<UT_LOGICAL_SUITE>' ||
+          '%<ITEMS>' ||
+            '<UT_SUITE_ITEM>' ||
+              '%<NAME>nested_context_#1</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.nested_context_#1</PATH>' ||
+              '%<ITEMS>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.nested_context_#1.test_in_a_context</PATH>' ||
+                '%</UT_SUITE_ITEM>' ||
+              '</ITEMS>' ||
+              '<BEFORE_ALL_LIST/>' ||
+              '<AFTER_ALL_LIST/>'  ||
+            '</UT_SUITE_ITEM>' ||
+            '<UT_SUITE_ITEM>' ||
+              '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+            '%</UT_SUITE_ITEM>' ||
+          '</ITEMS>' ||
+          '<BEFORE_ALL_LIST/>' ||
+          '<AFTER_ALL_LIST/>'  ||
+        '</UT_LOGICAL_SUITE>'||
+        '</ROW></ROWSET>'
+      );
+  end;
+
+  procedure name_empty_value is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+      ut3.ut_annotation(1, 'suite','Cool', null),
+      ut3.ut_annotation(4, 'context','A context', null),
+      ut3.ut_annotation(5, 'name',null, null),
+      ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+      ut3.ut_annotation(8, 'endcontext',null, null),
+      ut3.ut_annotation(12, 'test', 'In suite', 'suite_level_test')
+      );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+      '%<WARNINGS/>%'
+      ,'\'
+      );
+    ut.expect(l_actual).to_be_like(
+      '<ROWSET><ROW>'||
+        '<UT_LOGICAL_SUITE>' ||
+          '%<ITEMS>' ||
+            '<UT_SUITE_ITEM>' ||
+              '%<NAME>nested_context_#1</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.nested_context_#1</PATH>' ||
+              '%<ITEMS>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.nested_context_#1.test_in_a_context</PATH>' ||
+                '%</UT_SUITE_ITEM>' ||
+              '</ITEMS>' ||
+              '<BEFORE_ALL_LIST/>' ||
+              '<AFTER_ALL_LIST/>'  ||
+            '</UT_SUITE_ITEM>' ||
+            '<UT_SUITE_ITEM>' ||
+              '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+            '%</UT_SUITE_ITEM>' ||
+          '</ITEMS>' ||
+          '<BEFORE_ALL_LIST/>' ||
+          '<AFTER_ALL_LIST/>'  ||
         '</UT_LOGICAL_SUITE>'||
         '</ROW></ROWSET>'
       );

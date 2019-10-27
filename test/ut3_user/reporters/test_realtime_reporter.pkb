@@ -9,7 +9,8 @@ create or replace package body test_realtime_reporter as
       --%suite(suite <A>)
       --%suitepath(realtime_reporting)
 
-      --%context(test context)
+      --%context
+      --%name(test_context)
 
       --%test(test 1 - OK) 
       procedure test_1_ok;
@@ -164,12 +165,12 @@ create or replace package body test_realtime_reporter as
       select 'post-test'  as event_type, 'realtime_reporting.check_realtime_reporting2.test_5'                    as item_id from dual union all
       select 'post-suite' as event_type, 'realtime_reporting.check_realtime_reporting2'                           as item_id from dual union all
       select 'pre-suite'  as event_type, 'realtime_reporting.check_realtime_reporting1'                           as item_id from dual union all
-      select 'pre-suite'  as event_type, 'realtime_reporting.check_realtime_reporting1.test context'              as item_id from dual union all
-      select 'pre-test'   as event_type, 'realtime_reporting.check_realtime_reporting1.test context.test_1_ok'    as item_id from dual union all
-      select 'post-test'  as event_type, 'realtime_reporting.check_realtime_reporting1.test context.test_1_ok'    as item_id from dual union all
-      select 'pre-test'   as event_type, 'realtime_reporting.check_realtime_reporting1.test context.test_2_nok'   as item_id from dual union all
-      select 'post-test'  as event_type, 'realtime_reporting.check_realtime_reporting1.test context.test_2_nok'   as item_id from dual union all
-      select 'post-suite' as event_type, 'realtime_reporting.check_realtime_reporting1.test context'              as item_id from dual union all
+      select 'pre-suite'  as event_type, 'realtime_reporting.check_realtime_reporting1.test_context'              as item_id from dual union all
+      select 'pre-test'   as event_type, 'realtime_reporting.check_realtime_reporting1.test_context.test_1_ok'    as item_id from dual union all
+      select 'post-test'  as event_type, 'realtime_reporting.check_realtime_reporting1.test_context.test_1_ok'    as item_id from dual union all
+      select 'pre-test'   as event_type, 'realtime_reporting.check_realtime_reporting1.test_context.test_2_nok'   as item_id from dual union all
+      select 'post-test'  as event_type, 'realtime_reporting.check_realtime_reporting1.test_context.test_2_nok'   as item_id from dual union all
+      select 'post-suite' as event_type, 'realtime_reporting.check_realtime_reporting1.test_context'              as item_id from dual union all
       select 'post-suite' as event_type, 'realtime_reporting.check_realtime_reporting1'                           as item_id from dual union all
       select 'post-suite' as event_type, 'realtime_reporting'                                                     as item_id from dual union all
       select 'post-run'   as event_type, null                                                                     as item_id from dual;
@@ -310,7 +311,7 @@ create or replace package body test_realtime_reporter as
       into l_actual
       from table(g_events) t
      where t.event_doc.extract('/event[@type="post-test"]/test/@id').getstringval() 
-           = 'realtime_reporting.check_realtime_reporting1.test context.test_2_nok';
+           = 'realtime_reporting.check_realtime_reporting1.test_context.test_2_nok';
     ut.expect(l_actual).to_equal(l_expected);
   end single_failed_message;
   

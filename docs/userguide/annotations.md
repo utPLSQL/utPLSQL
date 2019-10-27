@@ -21,9 +21,9 @@ We strongly recommend putting package level annotations at the very top of packa
 | --- | --- | --- |
 | `--%suite(<description>)` | Package | Mandatory. Marks package as a test suite. Optional suite description can be provided (see `displayname`). |
 | `--%suitepath(<path>)` | Package | Similar to java package. The annotation allows logical grouping of suites into hierarchies. |
-| `--%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a context/suite/test. Provides description to a `context` when used within `context`. When used with `test` or `suite` annotation, overrides the `<description>` provided with `suite`/`test`. |
+| `--%displayname(<description>)` | Package/procedure | Human-readable and meaningful description of a context/suite/test. Overrides the `<description>` provided with `suite`/`test`/`context` annotation. This annotation is redundant and might be removed in future releases. |
 | `--%test(<description>)` | Procedure | Denotes that the annotated procedure is a unit test procedure.  Optional test description can by provided (see `displayname`). |
-| `--%throws(<exception>[,...])`| Procedure | Denotes that the annotated test procedure must throw one of the exceptions provided. Supported forms of exceptions are: numeric literals, numeric contant names, exception constant names, predefined Oracle exception names. |
+| `--%throws(<exception>[,...])`| Procedure | Denotes that the annotated test procedure must throw one of the exceptions provided. Supported forms of exceptions are: numeric literals, numeric constant names, exception constant names, predefined Oracle exception names. |
 | `--%beforeall` | Procedure | Denotes that the annotated procedure should be executed once before all elements of the suite. |
 | `--%beforeall([[<owner>.]<package>.]<procedure>[,...])` | Package | Denotes that the mentioned procedure(s) should be executed once before all elements of the suite. |
 | `--%afterall` | Procedure | Denotes that the annotated procedure should be executed once after all elements of the suite. |
@@ -36,7 +36,8 @@ We strongly recommend putting package level annotations at the very top of packa
 | `--%aftertest([[<owner>.]<package>.]<procedure>[,...])` | Procedure | Denotes that mentioned procedure(s) should be executed after the annotated `%test` procedure. |
 | `--%rollback(<type>)` | Package/procedure | Defines transaction control. Supported values: `auto`(default) - a savepoint is created before invocation of each "before block" is and a rollback to specific savepoint is issued after each "after" block; `manual` - rollback is never issued automatically. Property can be overridden for child element (test in suite) |
 | `--%disabled` | Package/procedure | Used to disable a suite or a test. Disabled suites/tests do not get executed, they are however marked and reported as disabled in a test run. |
-| `--%context(<name>)` | Package | Denotes start of a named context (sub-suite) in a suite package |
+| `--%context(<description>)` | Package | Denotes start of a named context (sub-suite) in a suite package an optional description for context can be provided. |
+| `--%name(<name>)` | Package | Denotes name for a context. Must be placed after the context annotation and before start of nested context. |
 | `--%endcontext` | Package | Denotes end of a nested context (sub-suite) in a suite package |
 | `--%tags` | Package/procedure | Used to label a test or a suite for purpose of identification |
 
@@ -1008,14 +1009,15 @@ Contexts allow for creating sub-suites within a suite package and they allow for
 In essence, context behaves like a suite within a suite. 
 
 Context have following characteristics:
-- context starts with the `--%context` annotation and ends with `--%endcontext`
-- can have a name provided as parameter for example `--%context(remove_rooms_by_name)`. This is different than with `suite` and `test` annotations, where name is taken from test `package/procedure`
-- when no name is provided for context, the context is named `context_N` where `N` is the number of the context in suite or parent context
-- context name must be unique within it's parent (suite or parent context)
+- context starts with the `--%context` annotation and ends with `--%endcontext`. Everything placed between those two annotations belongs to that context
+- can have a description provided as parameter for example `--%context(Some interesting stuff)`. 
+- can have a name provided with `--%name` annotation. This is different than with `suite` and `test` annotations, where name is taken from `package/procedure` name.
+- contexts can be nested, you can place a context inside another context
+- when no name is provided for context, the context is named `context_N` where `N` is the number of the context in suite or parent context.
+- context name must be unique within it's parent (suite / parent context)
 - if context name is not unique within it's parent, context and it's entire content is excluded from execution 
 - context name should not contain spaces or special characters
 - context name cannot contain a `.` (full stop/period) character
-- contexts can be nested, so a context can be nested within another context
 - suite/context can have multiple nested sibling contexts in it 
 - contexts can have their own `--%beforeall`, `--%beforeeach`, `--%afterall` and `--%aftereach` procedures
 - `--%beforeall`, `--%beforeeach`, `--%afterall` and `--%aftereach` procedures defined at ancestor level, propagate to context
@@ -1231,8 +1233,7 @@ Example of nested contexts test suite specification.
 create or replace package queue_spec as
   --%suite(Queue specification)
 
-  --%context(a_new_queue)
-  --%displayname(A new queue)
+  --%context(A new queue)
 
     --%test(Is empty)
     procedure is_empty;
@@ -1241,8 +1242,7 @@ create or replace package queue_spec as
     --%test(Cannot be created with non positive bounding capacity)
     procedure non_positive_bounding_cap;
   --%endcontext
-  --%context(an_empty_queue)
-  --%displayname(An empty queue)
+  --%context(An empty queue)
 
     --%test(Dequeues an empty value)
     procedure deq_empty_value;
@@ -1251,19 +1251,16 @@ create or replace package queue_spec as
     --%test(Becomes non empty when non null value enqueued)
     procedure non_empty_after_enq;
   --%endcontext
-  --%context(a_non_empty_queue)
-  --%displayname(A non empty queue)
+  --%context(A non empty queue)
 
-    --%context(that_is_not_full)
-    --%displayname(that is not full)
+    --%context(that is not full)
 
       --%test(Becomes longer when non null value enqueued)
       procedure grow_on_enq_non_null;
       --%test(Becomes full when enqueued up to capacity)
       procedure full_on_enq_to_cap;
     --%endcontext
-    --%context(that_is_full)
-    --%displayname(That is full)
+    --%context(that is full)
 
       --%test(Ignores further enqueued values)
       procedure full_ignore_enq;
@@ -1312,6 +1309,122 @@ Finished in .088573 seconds
 
 Suite nesting allows for organizing tests into human-readable specification of behavior.
 
+### Name
+The `--%name` annotation is currently only used only for naming a context.
+If a context doesn't have explicit name specified, then the name is given automatically by framework.
+
+The automatic name will be `context_#n` where `n` is a context number within a suite/parent context.
+
+The `--%name` can be useful when you would like to run only a specific context or its items by `suitepath`.
+
+Consider the below example.
+
+```sql
+create or replace package queue_spec as
+  --%suite(Queue specification)
+
+  --%context(A new queue)
+
+    --%test(Cannot be created with non positive bounding capacity)
+    procedure non_positive_bounding_cap;
+  --%endcontext
+  --%context(An empty queue)
+
+    --%test(Becomes non empty when non null value enqueued)
+    procedure non_empty_after_enq;
+  --%endcontext
+  --%context(A non empty queue)
+
+    --%context(that is not full)
+
+      --%test(Becomes full when enqueued up to capacity)
+      procedure full_on_enq_to_cap;
+    --%endcontext
+    --%context(that is full)
+
+      --%test(Becomes non full when dequeued)
+      procedure non_full_on_deq;
+    --%endcontext
+
+  --%endcontext
+end;
+```
+
+In the above code, suitepaths, context names and context descriptions will be as follows.
+
+| suitepath | description | name |
+|-----------|------------|------|
+| queue_spec | Queue specification | queue_spec |
+| queue_spec.context_#1 | A new queue | context_#1 |
+| queue_spec.context_#2 | An empty queue | context_#2 |
+| queue_spec.context_#3 | A non empty queue | context_#3 |
+| queue_spec.context_#3.context_#1 | that is not full | context_#1 |
+| queue_spec.context_#3.context_#2 | that is full | context_#2 |
+
+In order to run only the tests for the context `A non empty queue that is not full` you will need to call utPLSQL as below:
+```sql 
+  exec ut.run(':queue_spec.context_#3.context_#1');
+```
+
+You can use `--%name` annotation to explicitly name contexts on suitepath.  
+```sql
+create or replace package queue_spec as
+  --%suite(Queue specification)
+
+  --%context(A new queue)
+  --%name(a_new_queue)
+
+    --%test(Cannot be created with non positive bounding capacity)
+    procedure non_positive_bounding_cap;
+  --%endcontext
+  --%context(An empty queue)
+  --%name(an_empty_queue)
+
+    --%test(Becomes non empty when non null value enqueued)
+    procedure non_empty_after_enq;
+  --%endcontext
+  --%context(A non empty queue)
+  --%name(a_non_empty_queue)
+
+    --%context(that is not full)
+    --%name(that_is_not_full)
+
+      --%test(Becomes full when enqueued up to capacity)
+      procedure full_on_enq_to_cap;
+    --%endcontext
+    --%context(that is full)
+    --%name(that_is_full)
+
+      --%test(Becomes non full when dequeued)
+      procedure non_full_on_deq;
+    --%endcontext
+
+  --%endcontext
+end;
+```
+
+In the above code, suitepaths, context names and context descriptions will be as follows.
+
+| suitepath | description | name |
+|-----------|------------|------|
+| queue_spec | Queue specification | queue_spec |
+| queue_spec.a_new_queue | A new queue | a_new_queue |
+| queue_spec.an_empty_queue | An empty queue | an_empty_queue |
+| queue_spec.a_non_empty_queue | A non empty queue | a_non_empty_queue |
+| queue_spec.a_non_empty_queue.that_is_not_full | that is not full | that_is_not_full |
+| queue_spec.a_non_empty_queue.that_is_full | that is full | that_is_full |
+
+
+The `--%name` annotation is only relevant for:
+- running subsets of tests by given context suitepath
+- some of test reports, like `ut_junit_reporter` that use suitepath or test-suite element names (not descriptions) for reporting   
+
+#### Name naming convention
+
+The value of `--%name` annotation must follow the following naming rules:
+- cannot contain spaces
+- cannot contain a `.` (full stop/dot)
+- is case-insensitive  
 
 ### Tags
 
@@ -1440,8 +1553,9 @@ If you want to create tests for your application it is recommended to structure 
     * Payments recognition
     * Payments set off
 
-The `%suitepath` annotation is used for such grouping. Even though test packages are defined in a flat structure the `%suitepath` is used by the framework to form them into a hierarchical structure. Your payments recognition test package might look like:
+The `--%suitepath` annotation is used for such grouping. Even though test packages are defined in a flat structure the `--%suitepath` is used by the framework to form them into a hierarchical structure. 
 
+Your payments recognition test package might look like:
 ```sql
 create or replace package test_payment_recognition as
 
@@ -1476,8 +1590,8 @@ create or replace package test_payment_set_off as
 end test_payment_set_off;
 ```
 
-When you execute tests for your application, the framework constructs a test suite for each test package. Then it combines suites into grouping suites by the `%suitepath` annotation value so that the fully qualified path to the `recognize_by_num` procedure is `USER:payments.test_payment_recognition.test_recognize_by_num`. If any of its expectations fails then the test is marked as failed, also the `test_payment_recognition` suite, the parent suite `payments` and the whole run is marked as failed.
-The test report indicates which expectation has failed on the payments module. The payments recognition submodule is causing the failure as `recognize_by_num` has not met the expectations of the test. Grouping tests into modules and submodules using the `%suitepath` annotation allows you to logically organize your project's flat structure of packages into functional groups.
+When you execute tests for your application, the framework constructs a test suite for each test package. Then it combines suites into grouping suites by the `--%suitepath` annotation value so that the fully qualified path to the `recognize_by_num` procedure is `USER:payments.test_payment_recognition.test_recognize_by_num`. If any of its expectations fails then the test is marked as failed, also the `test_payment_recognition` suite, the parent suite `payments` and the whole run is marked as failed.
+The test report indicates which expectation has failed on the payments module. The payments recognition submodule is causing the failure as `recognize_by_num` has not met the expectations of the test. Grouping tests into modules and submodules using the `--%suitepath` annotation allows you to logically organize your project's flat structure of packages into functional groups.
 
 An additional advantage of such grouping is the fact that every element level of the grouping can be an actual unit test package containing a common module level setup for all of the submodules. So in addition to the packages mentioned above you could have the following package.
 ```sql
@@ -1493,9 +1607,10 @@ create or replace package payments as
 
 end payments;
 ```
-A `%suitepath` can be provided in three ways:
+
+When executing tests, `path` for executing tests can be provided in three ways:
 * schema - execute all tests in the schema
-* [schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests in all suites from suite1[.suite2][.suite3]...[.procedure] path. If schema is not provided, then the current schema is used. Example: `:all.rooms_tests`
+* [schema]:suite1[.suite2][.suite3]...[.procedure] - execute all tests by `suitepath` in all suites on path suite1[.suite2][.suite3]...[.procedure]. If schema is not provided, then the current schema is used. Example: `:all.rooms_tests`
 * [schema.]package[.procedure] - execute all tests in the specified test package. The whole hierarchy of suites in the schema is built before all before/after hooks or part suites for the provided suite package are executed as well. Example: `tests.test_contact.test_last_name_validator` or simply `test_contact.test_last_name_validator` if `tests` is the current schema.
 
 
