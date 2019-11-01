@@ -259,8 +259,8 @@ end test_package_3;]';
 
   gv_glob_val number;
 
-  --%context(some_context)
-  --%displayname(Some context description)
+  --%context(Some context description)
+  --%name(some_context)
 
   --%test
   --%displayname(Test1 from test package 1)

@@ -688,7 +688,7 @@ Failures:%
     select * bulk collect into l_results from table(ut3.ut.run('bad_annotations'));
     l_actual :=  ut3_tester_helper.main_helper.table_to_clob(l_results);
 
-    ut.expect(l_actual).to_be_like('%Invalid annotation "--%context". Cannot find following "--%endcontext". Annotation ignored.%
+    ut.expect(l_actual).to_be_like('%Missing "--%endcontext" annotation for a "--%context" annotation. The end of package is considered end of context.%
 %1 tests, 0 failed, 0 errored, 0 disabled, 1 warning(s)%');
 
   end;
@@ -1080,9 +1080,8 @@ Failures:%
         --%beforeall
         procedure before_suite;
 
-        --%context(some_context)
-
-          --%displayname(context description)
+        --%context(context description)
+        --%name(some_context)
 
           --%beforeall
           procedure before_context;

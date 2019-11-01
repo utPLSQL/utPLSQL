@@ -2,8 +2,7 @@ create or replace package test_suite_builder is
   --%suite(suite_builder)
   --%suitepath(utplsql.ut3_tester.core)
 
-  --%context(suite)
-  --%displayname(--%suite annotation)
+  --%context(--%suite annotation)
 
       --%test(Sets suite name from package name and leaves description empty)
       procedure no_suite_description;
@@ -16,8 +15,7 @@ create or replace package test_suite_builder is
 
   --%endcontext
 
-  --%context(displayname)
-  --%displayname(--%displayname annotation)
+  --%context(--%displayname annotation)
 
       --%test(Overrides suite description using first --%displayname annotation)
       procedure suite_descr_from_displayname;
@@ -30,8 +28,7 @@ create or replace package test_suite_builder is
 
   --%endcontext
 
-  --%context(test)
-  --%displayname(--%test annotation)
+  --%context(--%test annotation)
 
       --%test(Creates a test item for procedure annotated with --%test annotation)
       procedure test_annotation;
@@ -44,8 +41,7 @@ create or replace package test_suite_builder is
 
   --%endcontext
 
-  --%context(suitepath)
-  --%displayname(--%suitepath annotation)
+  --%context(--%suitepath annotation)
 
       --%test(Sets suite path using first --%suitepath annotation)
       procedure suitepath_from_non_empty_path;
@@ -61,8 +57,7 @@ create or replace package test_suite_builder is
 
   --%endcontext
 
-  --%context(rollback)
-  --%displayname(--%rollback annotation)
+  --%context--%rollback annotation)
 
       --%test(Sets rollback type using first --%rollback annotation)
       procedure rollback_type_valid;
@@ -78,8 +73,7 @@ create or replace package test_suite_builder is
 
   --%endcontext
 
-  --%context(before_after_all_each)
-  --%displayname(--%before/after all/each annotations)
+  --%context(--%before/after all/each annotations)
 
       --%test(Supports multiple before/after all/each procedure level definitions)
       procedure multiple_before_after;
@@ -110,31 +104,51 @@ create or replace package test_suite_builder is
 
   --%endcontext
 
-  --%context(context)
-  --%displayname(--%context annotation)
+  --%context(--%context annotation)
 
-      --%test(Creates nested suite for content between context/endcontext annotations)
-      procedure suite_from_context;
+    --%test(Creates nested suite for content between context/endcontext annotations)
+    procedure suite_from_context;
 
-      --%test(Associates before/after all/each to tests in context only)
-      procedure before_after_in_context;
+    --%test(Creates nested contexts inside a context)
+    procedure nested_contexts;
 
-      --%test(Propagates beforeeach/aftereach to context)
-      procedure before_after_out_of_context;
+    --%test(Associates before/after all/each to tests in context only)
+    procedure before_after_in_context;
 
-      --%test(Does not create context and gives warning when endcontext is missing)
-      procedure context_without_endcontext;
+    --%test(Propagates beforeeach/aftereach to context)
+    procedure before_after_out_of_context;
 
-      --%test(Gives warning if --%endcontext is missing a preceding --%context)
-      procedure endcontext_without_context;
+    --%test(Gives warning when endcontext is missing)
+    procedure context_without_endcontext;
 
-      --%test(Gives warning when two contexts have the same name and ignores duplicated context)
-      procedure duplicate_context_name;
+    --%test(Gives warning if --%endcontext is missing a preceding --%context)
+    procedure endcontext_without_context;
+
+    --%test(Gives warning when two contexts have the same name and falls back to default context name)
+    procedure duplicate_context_name;
 
   --%endcontext
 
-  --%context(throws)
-  --%displayname(--%throws annotation)
+  --%context(--%name annotation)
+
+    --%test(Falls back to default context name and gives warning when context name contains "." character)
+    procedure hard_stop_in_ctx_name;
+
+    --%test(Falls back to default context name and gives warning when name contains spaces)
+    procedure name_with_spaces_invalid;
+
+    --%test(Raises warning when more than one name annotation used )
+    procedure duplicate_name_annotation;
+
+    --%test(Is ignored when used outside of context - no warning given)
+    procedure name_outside_of_context;
+
+    --%test(Is ignored when name value is empty)
+    procedure name_empty_value;
+
+  --%endcontext
+
+  --%context(--%throws annotation)
 
       --%test(Gives warning if --%throws annotation has no value)
       procedure throws_value_empty;
@@ -144,8 +158,7 @@ create or replace package test_suite_builder is
 
   --%endcontext
 
-  --%context(beforetest_aftertest)
-  --%displayname(--%beforetest/aftertest annotation)
+  --%context(--%beforetest/aftertest annotation)
 
       --%test(Supports multiple occurrences of beforetest/aftertest for a test)
       procedure before_aftertest_multi;
@@ -161,8 +174,7 @@ create or replace package test_suite_builder is
 
   --%endcontext
 
-  --%context(unknown_annotation)
-  --%displayname(--%bad_annotation)
+  --%context(--%bad_annotation)
 
       --%test(Gives warning when unknown procedure level annotation passed)
       procedure test_bad_procedure_annotation;
@@ -172,8 +184,7 @@ create or replace package test_suite_builder is
 
   --%endcontext
 
-  --%context(tags_annotation)
-  --%displayname(--%tag_annotation)
+  --%context(--%tag_annotation)
   
       --%test(Build suite test with tag)
       procedure test_tag_annotation;
