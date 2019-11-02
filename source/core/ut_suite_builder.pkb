@@ -800,6 +800,7 @@ create or replace package body ut_suite_builder is
 
     while l_context_pos is not null loop
       l_default_context_name := 'nested_context_#'||l_context_no;
+      l_context_name := null;
       l_end_context_pos := get_endcontext_position(l_context_pos, a_annotations.by_name );
 
       l_next_context_pos := a_annotations.by_name(gc_context).next(l_context_pos);
