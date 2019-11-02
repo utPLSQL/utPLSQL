@@ -146,6 +146,9 @@ create or replace package test_suite_builder is
     --%test(Is ignored when name value is empty)
     procedure name_empty_value;
 
+    --%test(Is ignored when name value is empty)
+    procedure multiple_contexts;
+
   --%endcontext
 
   --%context(--%throws annotation)
