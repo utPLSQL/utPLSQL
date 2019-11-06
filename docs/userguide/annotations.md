@@ -3,12 +3,33 @@
 # Annotations
 
 Annotations are used to configure tests and suites in a declarative way similar to modern OOP languages. This way, test configuration is stored along with the test logic inside the test package.
-No configuration files or tables are needed. The annotation names are based on popular testing frameworks such as JUnit.
+No additional configuration files or tables are needed for test cases. The annotation names are based on popular testing frameworks such as JUnit.
 The framework runner searches for all the suitable annotated packages, automatically configures suites, forms the suite hierarchy, executes it and reports results in specified formats.
 
-Annotations are interpreted only in the package specification and are case-insensitive. We strongly recommend using lower-case annotations as described in this documentation.
+Annotation is defined by:
+- single line comment `--` (double dash)
+- followed directly by a `%` (percent)
+- followed by annotation name 
+- followed by optional annotation text placed in single brackets. 
 
-There are two distinct types of annotations, identified by their location in package:
+All of text between first opening bracket and last closing bracket in annotation line is considered to be annotation text
+
+Examples:
+`--%suite(The name of my test suite)` - represents `suite` annotation with text `The name of my test suite`  
+
+utPLSQL interprets the whole line of annotation and will treat all the text from the first opening bracket in the line to the last closing bracket 
+
+Example:
+ `--%suite(Stuff) -- we should name this ( correctly )` - represents `suite` annotation with text `Stuff) -- we should name this ( correctly `  
+
+Do not place comments within annotation line to avoid unexpected behaviors.
+
+**Note:**
+>Annotations are interpreted only in the package specification and are case-insensitive. We strongly recommend using lower-case annotations as described in this documentation.
+
+There are two distinct types of annotations, identified by their location in package.
+- package annotations
+- procedure annotations
 
 ### Procedure level annotations
 
