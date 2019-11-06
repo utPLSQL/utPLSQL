@@ -7,7 +7,7 @@ No additional configuration files or tables are needed for test cases. The annot
 The framework runner searches for all the suitable annotated packages, automatically configures suites, forms the suite hierarchy, executes it and reports results in specified formats.
 
 Annotation is defined by:
-- single line comment `--` (double dash)
+- single line comment `--` (double hyphen)
 - followed directly by a `%` (percent)
 - followed by annotation name 
 - followed by optional annotation text placed in single brackets. 
