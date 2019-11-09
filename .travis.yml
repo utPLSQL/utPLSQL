@@ -9,8 +9,7 @@ addons:
       - openjdk-9-jre-headless
   sonarcloud:
     organization: utplsql
-    token:
-      secure: ${SONAR_TOKEN}
+    token:   ${SONAR_TOKEN}
 
 services:
   - docker
