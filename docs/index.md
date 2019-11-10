@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.9.3268-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.10.3271--develop-blue.svg)
 
 # Introduction to utPLSQL
 
