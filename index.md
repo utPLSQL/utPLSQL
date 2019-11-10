@@ -4,11 +4,12 @@ layout: default
 <!-- Auto generated in .travis/push_docs_to_gh_pages.sh -->
 # Documentation
 
- - [Latest v3.1.8 documentation](latest/) - Created 04 Sep 2019 - 12:00:00 AM
- - [Latest development version](develop/) - Created 02 Nov 2019 - 01:30:42 AM
+ - [Latest v3.1.9 documentation](latest/) - Created 10 Nov 2019 - 11:51:17 AM
+ - [Latest development version](develop/) - Created 10 Nov 2019 - 11:51:17 AM
 
 ## Documentation release history
 
+- [v3.1.9 documentation](v3.1.9/) - Created 10 Nov 2019 - 11:51:17 AM
 - [v3.1.8 documentation](v3.1.8/) - Created 04 Sep 2019 - 12:00:00 AM
 - [v3.1.7 documentation](v3.1.7/) - Created 18 Jun 2019 - 10:40:24 PM
 - [v3.1.6 documentation](v3.1.6/) - Created 24 Mar 2019 - 05:49:45 PM
