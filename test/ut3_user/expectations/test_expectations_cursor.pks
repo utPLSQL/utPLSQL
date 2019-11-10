@@ -462,8 +462,14 @@ create or replace package test_expectations_cursor is
   --%test( Mixed column order exclusion  )
   procedure uc_columns_exclude;
 
-  --%test(Compares cursors with long column names - Issue #952 )
+  --%test( Compares cursors with long column names - Issue #952 )
   procedure compare_long_column_names;
+
+  --%test( Compares cursors with specific column names - Issue #997 )
+  procedure compare_specific_column_names;
+
+  --%test( Multiple failures reported correctly - Issue #998 )
+  procedure multiple_cursor_expectations;
 
 end;
 /
