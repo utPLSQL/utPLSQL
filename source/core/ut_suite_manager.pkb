@@ -373,7 +373,10 @@ create or replace package body ut_suite_manager is
     a_owner_name         varchar2
   ) return boolean is
   begin
-    return sys_context( 'userenv', 'current_schema' ) = a_owner_name or ut_metadata.user_has_execute_any_proc() or ut_trigger_check.is_alive();
+    return sys_context( 'userenv', 'current_schema' ) = a_owner_name or ut_metadata.user_has_execute_any_proc()
+        or ( ut_trigger_check.is_alive()
+             and ut_annotation_cache_manager.get_cache_schema_info(a_owner_name, 'PACKAGE').full_refresh_time is not null
+           );
   end;
 
   procedure build_and_cache_suites(
