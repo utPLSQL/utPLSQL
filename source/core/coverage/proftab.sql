@@ -37,7 +37,7 @@ begin
   if l_tab_exist = 0 then
     execute immediate q'[create table plsql_profiler_units
 (
-  runid              number(18) references plsql_profiler_runs,
+  runid              number references plsql_profiler_runs,
   unit_number        number,           -- internally generated library unit #
   unit_type          varchar2(128),     -- library unit type
   unit_owner         varchar2(128),     -- library unit owner name
