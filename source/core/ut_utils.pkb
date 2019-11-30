@@ -22,6 +22,7 @@ create or replace package body ut_utils is
   gc_invalid_first_xml_char  constant varchar2(50)  := '[^_a-zA-Z]';
   gc_invalid_xml_char        constant varchar2(50)  := '[^_a-zA-Z0-9\.-]';
   gc_full_valid_xml_name     constant varchar2(50)  := '^([_a-zA-Z])([_a-zA-Z0-9\.-])*$';
+  gc_owner_hash              constant integer(11)   := dbms_utility.get_hash_value( ut_owner(), 0, power(2,31)-1);
 
   function surround_with(a_value varchar2, a_quote_char varchar2) return varchar2 is
   begin
@@ -59,7 +60,7 @@ create or replace package body ut_utils is
 
   function gen_savepoint_name return varchar2 is
   begin
-    return 's'||trim(to_char(ut_savepoint_seq.nextval,'0000000000000000000000000000'));
+    return 's'||gc_owner_hash||trim(to_char(ut_savepoint_seq.nextval,'00000000000000000'));
   end;
 
   procedure debug_log(a_message varchar2) is

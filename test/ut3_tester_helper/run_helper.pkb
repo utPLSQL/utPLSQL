@@ -550,11 +550,11 @@ create or replace package body run_helper is
   begin
     --Arrange
     execute immediate 'delete from ut$test_table';
-    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'UT_TRANSACTION_CONTROL', a_line_no=> 1);
+    l_suite := ut3.ut_suite(a_object_owner => 'ut3_tester_helper', a_object_name => 'UT_TRANSACTION_CONTROL', a_line_no=> 1);
     l_suite.path := 'ut_transaction_control';
-    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'UT_TRANSACTION_CONTROL', 'setup', ut3.ut_utils.gc_before_all));
+    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'UT_TRANSACTION_CONTROL', 'setup', ut3.ut_utils.gc_before_all));
     l_suite.items.extend;
-    l_suite.items(l_suite.items.last) := ut3.ut_test(a_object_owner => USER, a_object_name => 'ut_transaction_control',a_name => a_procedure_name, a_line_no=> 1);
+    l_suite.items(l_suite.items.last) := ut3.ut_test(a_object_owner => 'ut3_tester_helper', a_object_name => 'ut_transaction_control',a_name => a_procedure_name, a_line_no=> 1);
     l_suite.set_rollback_type(a_rollback_type);
 
     --Act

@@ -12,7 +12,7 @@ create or replace package body test_ut_test is
     --Arrange
     l_suite := ut3.ut_suite(a_object_owner => 'ut3_tester_helper', a_object_name => 'ut_example_tests', a_line_no=> 1);
     l_suite.path := 'ut3_tester_helper.ut_example_tests';
-    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_all));
+    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_all));
 
     l_suite.items.extend;
     l_suite.items(l_suite.items.last) := ut3.ut_test(a_object_owner => 'ut3_tester_helper',a_object_name => 'ut_example_tests',a_name => 'add_1_to_g_number', a_line_no=> 1);
@@ -38,11 +38,11 @@ create or replace package body test_ut_test is
     --Arrange
     l_suite := ut3.ut_suite(a_object_owner => 'ut3_tester_helper', a_object_name => 'ut_example_tests', a_line_no=> 1);
     l_suite.path := 'ut3_tester_helper.ut_example_tests';
-    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_all));
+    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_all));
 
     l_test := ut3.ut_test(a_object_owner => 'ut3_tester_helper',a_object_name => 'ut_example_tests',a_name => 'add_1_to_g_number', a_line_no=> 1);
-    l_test.before_test_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'add_1_to_g_number', ut3.ut_utils.gc_before_test));
-    l_test.after_test_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'failing_procedure', ut3.ut_utils.gc_after_test));
+    l_test.before_test_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'add_1_to_g_number', ut3.ut_utils.gc_before_test));
+    l_test.after_test_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'failing_procedure', ut3.ut_utils.gc_after_test));
     l_suite.items.extend;
     l_suite.items(l_suite.items.last) := l_test;
     l_suite.items.extend;
@@ -65,10 +65,10 @@ create or replace package body test_ut_test is
   begin
     --Arrange
     l_suite := ut3.ut_suite(a_object_owner => 'ut3_tester_helper', a_object_name => 'ut_example_tests', a_line_no=> 1);
-    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_all));
+    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_all));
     l_test := ut3.ut_test(a_object_owner => 'ut3_tester_helper',a_object_name => 'ut_example_tests',a_name => 'add_1_to_g_number', a_line_no=> 1);
-    l_test.before_each_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'add_1_to_g_number', ut3.ut_utils.gc_before_each));
-    l_test.after_each_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'failing_procedure', ut3.ut_utils.gc_after_each));
+    l_test.before_each_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'add_1_to_g_number', ut3.ut_utils.gc_before_each));
+    l_test.after_each_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'failing_procedure', ut3.ut_utils.gc_after_each));
     l_suite.items.extend;
     l_suite.items(l_suite.items.last) := l_test;
     l_suite.items.extend;
@@ -90,11 +90,11 @@ create or replace package body test_ut_test is
     l_test     ut3.ut_test;
   begin
     --Arrange
-    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'ut_example_tests', a_line_no=> 1);
-    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_all));
+    l_suite := ut3.ut_suite(a_object_owner => 'ut3_tester_helper', a_object_name => 'ut_example_tests', a_line_no=> 1);
+    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_all));
     l_test := ut3.ut_test(a_object_owner =>'ut3_tester_helper',a_object_name => 'ut_example_tests',a_name => 'add_1_to_g_number', a_line_no=> 1);
-    l_test.before_test_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'failing_procedure', ut3.ut_utils.gc_before_test));
-    l_test.after_test_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'add_1_to_g_number', ut3.ut_utils.gc_after_test));
+    l_test.before_test_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'failing_procedure', ut3.ut_utils.gc_before_test));
+    l_test.after_test_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'add_1_to_g_number', ut3.ut_utils.gc_after_test));
     l_suite.items.extend;
     l_suite.items(l_suite.items.last) := l_test;
     l_suite.items.extend;
@@ -116,15 +116,15 @@ create or replace package body test_ut_test is
     l_test     ut3.ut_test;
   begin
     --Arrange
-    l_suite := ut3.ut_suite(a_object_owner => USER, a_object_name => 'ut_example_tests', a_line_no=> 1);
-    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_all));
-    l_test := ut3.ut_test(a_object_owner => USER,a_object_name => 'ut_example_tests',a_name => 'add_1_to_g_number', a_line_no=> 1);
-    l_test.before_each_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'failing_procedure', ut3.ut_utils.gc_before_each));
-    l_test.after_each_list := ut3.ut_executables(ut3.ut_executable(USER, 'ut_example_tests', 'add_1_to_g_number', ut3.ut_utils.gc_after_each));
+    l_suite := ut3.ut_suite(a_object_owner => 'ut3_tester_helper', a_object_name => 'ut_example_tests', a_line_no=> 1);
+    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_all));
+    l_test := ut3.ut_test(a_object_owner => 'ut3_tester_helper',a_object_name => 'ut_example_tests',a_name => 'add_1_to_g_number', a_line_no=> 1);
+    l_test.before_each_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'failing_procedure', ut3.ut_utils.gc_before_each));
+    l_test.after_each_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'add_1_to_g_number', ut3.ut_utils.gc_after_each));
     l_suite.items.extend;
     l_suite.items(l_suite.items.last) := l_test;
     l_suite.items.extend;
-    l_suite.items(l_suite.items.last) := ut3.ut_test(a_object_owner => USER,a_object_name => 'ut_example_tests',a_name => 'add_1_to_g_number', a_line_no=> 1);
+    l_suite.items(l_suite.items.last) := ut3.ut_test(a_object_owner => 'ut3_tester_helper',a_object_name => 'ut_example_tests',a_name => 'add_1_to_g_number', a_line_no=> 1);
     --Act
     l_suite.do_execute();
     --Assert
@@ -148,8 +148,8 @@ create or replace package body test_ut_test is
   begin
     l_test.after_each_list := ut3.ut_executables(
       ut3.ut_executable(
-        user, 
-        'UT_EXAMPLE_TESTS', 
+        'ut3_tester_helper',
+        'ut_example_tests',
         'add_1_to_g_number', 
         ut3.ut_utils.gc_after_each
         )
@@ -171,7 +171,7 @@ create or replace package body test_ut_test is
     );
   begin
     l_test.after_each_list := ut3.ut_executables(
-      ut3.ut_executable(user, 'ut_example_tests', 'invalid setup name', ut3.ut_utils.gc_after_each)
+      ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'invalid setup name', ut3.ut_utils.gc_after_each)
     );
     --Act
     l_test.do_execute();
@@ -190,7 +190,7 @@ create or replace package body test_ut_test is
     );
     begin
       l_test.after_each_list := ut3.ut_executables(
-        ut3.ut_executable(user, 'ut_example_tests', null, ut3.ut_utils.gc_after_each)
+        ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', null, ut3.ut_utils.gc_after_each)
       );
       --Act
       l_test.do_execute();
@@ -325,7 +325,7 @@ create or replace package body test_ut_test is
       a_line_no => null
     );
   begin
-    l_test.before_each_list := ut3.ut_executables(ut3.ut_executable(user, 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_each));
+    l_test.before_each_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_each));
     --Act
     l_test.do_execute();
     --Assert
@@ -344,7 +344,7 @@ create or replace package body test_ut_test is
     );
   begin
     l_test.before_each_list := ut3.ut_executables(
-      ut3.ut_executable(user, 'ut_example_tests', 'invalid setup name', ut3.ut_utils.gc_before_each)
+      ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'invalid setup name', ut3.ut_utils.gc_before_each)
     );
     --Act
     l_test.do_execute();
@@ -363,7 +363,7 @@ create or replace package body test_ut_test is
     );
   begin
     l_test.before_each_list := ut3.ut_executables(
-      ut3.ut_executable(user, 'ut_example_tests', null, ut3.ut_utils.gc_before_each)
+      ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', null, ut3.ut_utils.gc_before_each)
     );
     --Act
     l_test.do_execute();
@@ -529,7 +529,7 @@ create or replace package body test_ut_test is
       a_line_no => null
     );
   begin
-    l_test.before_test_list := ut3.ut_executables(ut3.ut_executable(user, 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_test));
+    l_test.before_test_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'set_g_number_0', ut3.ut_utils.gc_before_test));
     --Act
     l_test.do_execute();
     --Assert
@@ -547,7 +547,7 @@ create or replace package body test_ut_test is
     );
   begin
     l_test.before_test_list := ut3.ut_executables(
-      ut3.ut_executable(user, 'ut_example_tests', 'invalid setup name', ut3.ut_utils.gc_before_test)
+      ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'invalid setup name', ut3.ut_utils.gc_before_test)
     );
     --Act
     l_test.do_execute();
@@ -566,7 +566,7 @@ create or replace package body test_ut_test is
     );
   begin
     l_test.before_test_list := ut3.ut_executables(
-      ut3.ut_executable(user, 'ut_example_tests', null, ut3.ut_utils.gc_before_test)
+      ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', null, ut3.ut_utils.gc_before_test)
     );
     --Act
     l_test.do_execute();
@@ -584,7 +584,7 @@ create or replace package body test_ut_test is
       a_line_no => null
     );
   begin
-    l_test.after_test_list := ut3.ut_executables(ut3.ut_executable(user, 'ut_example_tests', 'add_1_to_g_number', ut3.ut_utils.gc_after_test));
+    l_test.after_test_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'add_1_to_g_number', ut3.ut_utils.gc_after_test));
     --Act
     l_test.do_execute();
     --Assert
@@ -602,7 +602,7 @@ create or replace package body test_ut_test is
     );
   begin
     l_test.after_test_list := ut3.ut_executables(
-      ut3.ut_executable(user, 'ut_example_tests', 'invalid procedure name', ut3.ut_utils.gc_after_test)
+      ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', 'invalid procedure name', ut3.ut_utils.gc_after_test)
     );
     --Act
     l_test.do_execute();
@@ -621,7 +621,7 @@ create or replace package body test_ut_test is
     );
   begin
     l_test.after_test_list := ut3.ut_executables(
-      ut3.ut_executable(user, 'ut_example_tests', null, ut3.ut_utils.gc_after_test)
+      ut3.ut_executable('ut3_tester_helper', 'ut_example_tests', null, ut3.ut_utils.gc_after_test)
     );
     --Act
     l_test.do_execute();
