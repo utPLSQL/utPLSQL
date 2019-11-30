@@ -59,7 +59,7 @@ create or replace package body ut_utils is
 
   function gen_savepoint_name return varchar2 is
   begin
-    return 's'||trim(to_char(ut_savepoint_seq.nextval,'0000000000000000000000000000'));
+    return 's'||to_char(systimestamp,'yyyymmddhh24missff9');
   end;
 
   procedure debug_log(a_message varchar2) is
