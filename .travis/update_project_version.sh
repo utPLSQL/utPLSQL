@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+UTPLSQL_VERSION_PATTERN="v?([0-9]+\.){3}[0-9]+[^']*"
+
 echo Current branch is "${CURRENT_BRANCH}"
 
 echo Update version in project source files
