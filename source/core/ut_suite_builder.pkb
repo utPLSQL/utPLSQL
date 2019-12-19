@@ -817,26 +817,35 @@ create or replace package body ut_suite_builder is
     l_default_context_name t_object_name;
     function get_context_name(
       a_parent in out nocopy ut_suite,
-      a_context_names in tt_annotation_texts,
-      a_start_position binary_integer,
-      a_end_position binary_integer
+      a_start_position binary_integer
     ) return varchar2 is
       l_result         t_annotation_name;
       l_found          boolean;
+      l_end_position   binary_integer;
       l_annotation_pos binary_integer;
+      l_context_names  tt_annotation_texts;
     begin
-      l_annotation_pos := a_context_names.first;
-      while l_annotation_pos is not null loop
-        if l_annotation_pos > a_start_position and l_annotation_pos < a_end_position then
-          if l_found then
-            add_annotation_ignored_warning(a_parent, gc_name,'Duplicate annotation %%%.', l_annotation_pos);
-          else
-            l_result := a_context_names(l_annotation_pos);
-          end if;
-          l_found := true;
-        end if;
-        l_annotation_pos := a_context_names.next(l_annotation_pos);
-      end loop;
+      if a_annotations.by_name.exists(gc_name) then
+        l_context_names := a_annotations.by_name( gc_name );
+        l_end_position :=
+          least(
+              coalesce( get_endcontext_position(a_start_position, a_annotations.by_name), a_annotations.by_line.last ),
+              coalesce( a_annotations.by_name(gc_context).next(a_start_position), a_annotations.by_line.last )
+            );
+        l_annotation_pos := l_context_names.first;
+
+	      while l_annotation_pos is not null loop
+	        if l_annotation_pos > a_start_position and l_annotation_pos < l_end_position then
+	          if l_found then
+	            add_annotation_ignored_warning(a_parent, gc_name,'Duplicate annotation %%%.', l_annotation_pos);
+	          else
+	            l_result := l_context_names(l_annotation_pos);
+	          end if;
+	          l_found := true;
+	        end if;
+	        l_annotation_pos := l_context_names.next(l_annotation_pos);
+	      end loop;
+      end if;
       return l_result;
     end;
   begin
@@ -852,18 +861,8 @@ create or replace package body ut_suite_builder is
       l_context_name := null;
       l_end_context_pos := get_endcontext_position(l_context_pos, a_annotations.by_name );
       l_next_context_pos := a_annotations.by_name(gc_context).next(l_context_pos);
-      if a_annotations.by_name.exists(gc_name) then
-        l_context_name :=
-          get_context_name(
-            a_parent,
-            a_annotations.by_name( gc_name ),
-            l_context_pos,
-            least(
-              coalesce( l_end_context_pos, a_annotations.by_line.last ),
-              coalesce( l_next_context_pos, a_annotations.by_line.last )
-            )
-          );
-      end if;
+      l_context_name := get_context_name(a_parent, l_context_pos);
+
       if not regexp_like( l_context_name, '^(\w|[$#])+$' ) or l_context_name is null then
         if not regexp_like( l_context_name, '^(\w|[$#])+$' ) then
           a_parent.put_warning(
