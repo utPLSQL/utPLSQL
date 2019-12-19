@@ -917,6 +917,7 @@ create or replace package body ut_suite_builder is
       exit when not a_annotations.by_name.exists( gc_context);
 
       l_context_pos := a_annotations.by_name( gc_context).next( l_context_pos);
+      -- don't go on when the next context is outside the parent's context boundaries
       if ( a_parent_end_context_pos is not null and a_parent_end_context_pos <= l_context_pos ) then
 	      l_context_pos := null;
       end if;
