@@ -704,6 +704,22 @@ create or replace package body ut_suite_builder is
     set_seq_no(a_suite.after_all_list);
   end;
 
+  function get_next_annotation_of_type(
+    a_start_position      t_annotation_position,
+    a_annotation_type     varchar2,
+    a_package_annotations in out nocopy tt_annotations_by_name
+  ) return t_annotation_position is
+    l_result t_annotation_position;
+  begin
+    if a_package_annotations.exists(a_annotation_type) then
+      l_result := a_package_annotations(a_annotation_type).first;
+      while l_result <= a_start_position loop
+        l_result := a_package_annotations(a_annotation_type).next(l_result);
+      end loop;
+    end if;
+    return l_result;
+  end;
+
   function get_endcontext_position(
     a_context_ann_pos     t_annotation_position,
     a_package_annotations in out nocopy tt_annotations_by_name
@@ -712,13 +728,10 @@ create or replace package body ut_suite_builder is
     l_next_context_pos t_annotation_position;
     l_open_count integer := 0;
   begin
-    if a_package_annotations.exists(gc_endcontext) then
-      l_next_endcontext_pos := a_package_annotations(gc_endcontext).first;
-      while l_next_endcontext_pos <= a_context_ann_pos loop
-        l_next_endcontext_pos := a_package_annotations(gc_endcontext).next(l_next_endcontext_pos);
-      end loop;
+    if a_package_annotations.exists(gc_endcontext) and a_package_annotations.exists(gc_context) then
+      l_next_endcontext_pos := get_next_annotation_of_type(a_context_ann_pos, gc_endcontext, a_package_annotations);
+			l_next_context_pos := a_package_annotations(gc_context).next(a_context_ann_pos);
 
-      l_next_context_pos := a_package_annotations(gc_context).next(a_context_ann_pos);
       loop
 	      -- Get all the %context annotations between start and first %endcontext
         while l_next_context_pos is not null and l_next_context_pos < l_next_endcontext_pos loop
@@ -742,13 +755,14 @@ create or replace package body ut_suite_builder is
     a_package_annotations in out nocopy tt_annotations_by_name
   ) return boolean is
     l_next_endcontext_pos t_annotation_position;
+    l_next_context_pos t_annotation_position;
   begin
     if ( a_package_annotations.exists(gc_endcontext) and a_package_annotations.exists(gc_context)) then
-	    l_next_endcontext_pos := a_package_annotations(gc_endcontext).first;
-      while l_next_endcontext_pos <= a_context_ann_pos loop
-        l_next_endcontext_pos := a_package_annotations(gc_endcontext).next(l_next_endcontext_pos);
-      end loop;
-	    return l_next_endcontext_pos > a_package_annotations(gc_context).next(a_context_ann_pos);
+	    l_next_endcontext_pos := get_next_annotation_of_type(a_context_ann_pos, gc_endcontext, a_package_annotations);
+	    l_next_context_pos := a_package_annotations(gc_context).next(a_context_ann_pos);
+	    if ( l_next_context_pos < l_next_endcontext_pos ) then
+		    return true;
+	    end if;
     end if;
     return false;
   end;
