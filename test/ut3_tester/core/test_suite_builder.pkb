@@ -767,6 +767,74 @@ create or replace package body test_suite_builder is
       );
   end;
 
+  procedure nested_contexts_2 is
+    l_actual      clob;
+    l_annotations ut3.ut_annotations;
+  begin
+    --Arrange
+    l_annotations := ut3.ut_annotations(
+      ut3.ut_annotation( 1, 'suite','Cool', null),
+      ut3.ut_annotation( 2, 'suitepath','path', null),
+      ut3.ut_annotation( 3, 'context','Level 1', null),
+      ut3.ut_annotation( 4,   'name','context_1', null),
+      ut3.ut_annotation( 5,   'context','Level 1.1', null),
+      ut3.ut_annotation( 6,     'name','context_1_1', null),
+      ut3.ut_annotation( 7,     'test', 'Test 1.1.1', 'test_1_1_1'),
+      ut3.ut_annotation( 8,     'test', 'Test 1.1.2', 'test_1_1_2'),
+      ut3.ut_annotation( 9,   'endcontext', null, null),
+      ut3.ut_annotation(10, 'endcontext', null, null),
+      ut3.ut_annotation(11, 'context','Level 2', null),
+      ut3.ut_annotation(12,   'name','context_2', null),
+      ut3.ut_annotation(13,   'test', 'Test 2.1', 'test_2_1'),
+      ut3.ut_annotation(14, 'endcontext',null, null)
+      );
+    --Act
+    l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
+    --Assert
+    ut.expect(l_actual).to_be_like(
+      '<ROWSET><ROW>'||
+        '<UT_LOGICAL_SUITE>' ||
+          '%<ITEMS>%' ||
+            '<UT_SUITE_ITEM>' ||
+              '%<NAME>context_1</NAME><DESCRIPTION>Level 1</DESCRIPTION><PATH>path.some_package.context_1</PATH>' ||
+              '%<ITEMS>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>context_1_1</NAME><DESCRIPTION>Level 1.1</DESCRIPTION><PATH>path.some_package.context_1.context_1_1</PATH>' ||
+                  '%<ITEMS>' ||
+                    '<UT_SUITE_ITEM>' ||
+                      '%<NAME>test_1_1_1</NAME><DESCRIPTION>Test 1.1.1</DESCRIPTION><PATH>path.some_package.context_1.context_1_1.test_1_1_1</PATH>' ||
+                    '%</UT_SUITE_ITEM>' ||
+                    '<UT_SUITE_ITEM>' ||
+                      '%<NAME>test_1_1_2</NAME><DESCRIPTION>Test 1.1.2</DESCRIPTION><PATH>path.some_package.context_1.context_1_1.test_1_1_2</PATH>' ||
+                    '%</UT_SUITE_ITEM>' ||
+                  '</ITEMS>' ||
+                  '%<BEFORE_ALL_LIST/>' ||
+                '%</UT_SUITE_ITEM>' ||
+              '</ITEMS>' ||
+            '%</UT_SUITE_ITEM>' ||
+          '%</ITEMS>' ||
+        '%</UT_LOGICAL_SUITE>'||
+        '</ROW></ROWSET>'
+      );
+    -- Test both contexts separately due to ordering
+    ut.expect(l_actual).to_be_like(
+      '<ROWSET><ROW>'||
+        '<UT_LOGICAL_SUITE>' ||
+          '%<ITEMS>%' ||
+            '<UT_SUITE_ITEM>' ||
+              '%<NAME>context_2</NAME><DESCRIPTION>Level 2</DESCRIPTION><PATH>path.some_package.context_2</PATH>' ||
+              '%<ITEMS>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>test_2_1</NAME><DESCRIPTION>Test 2.1</DESCRIPTION><PATH>path.some_package.context_2.test_2_1</PATH>' ||
+                '%</UT_SUITE_ITEM>' ||
+              '%</ITEMS>' ||
+            '%</UT_SUITE_ITEM>' ||
+          '%</ITEMS>' ||
+        '%</UT_LOGICAL_SUITE>'||
+        '</ROW></ROWSET>'
+      );
+  end;
+
 
   procedure before_after_in_context is
     l_actual      clob;

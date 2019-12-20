@@ -3,6 +3,7 @@ create or replace package test_suite_builder is
   --%suitepath(utplsql.ut3_tester.core)
 
   --%context(--%suite annotation)
+    --%name(suite)
 
       --%test(Sets suite name from package name and leaves description empty)
       procedure no_suite_description;
@@ -105,12 +106,16 @@ create or replace package test_suite_builder is
   --%endcontext
 
   --%context(--%context annotation)
+    --%name(context)
 
     --%test(Creates nested suite for content between context/endcontext annotations)
     procedure suite_from_context;
 
     --%test(Creates nested contexts inside a context)
     procedure nested_contexts;
+
+    --%test(Creates multiple nested contexts inside a context)
+    procedure nested_contexts_2;
 
     --%test(Associates before/after all/each to tests in context only)
     procedure before_after_in_context;
