@@ -106,7 +106,7 @@ create or replace package test_suite_builder is
   --%endcontext
 
   --%context(--%context annotation)
-		--%name(context)
+    --%name(context)
 
     --%test(Creates nested suite for content between context/endcontext annotations)
     procedure suite_from_context;
