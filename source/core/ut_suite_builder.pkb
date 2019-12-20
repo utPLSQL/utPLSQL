@@ -817,10 +817,11 @@ create or replace package body ut_suite_builder is
     begin
       if a_annotations.by_name.exists(gc_name) then
         l_context_names := a_annotations.by_name( gc_name );
+        -- Maximum end-position to look for %name annotation is either the next %context or the next %endcontext annotation
         l_end_position :=
           least(
-              coalesce( get_endcontext_position(a_start_position, a_annotations.by_line), a_annotations.by_line.last ),
-              coalesce( a_annotations.by_name(gc_context).next(a_start_position), a_annotations.by_line.last )
+              coalesce( get_next_annotation_of_type(a_start_position, gc_endcontext, a_annotations.by_name), a_annotations.by_line.last ),
+              coalesce( get_next_annotation_of_type(a_start_position, gc_context, a_annotations.by_name), a_annotations.by_line.last )
             );
         l_annotation_pos := l_context_names.first;
 
