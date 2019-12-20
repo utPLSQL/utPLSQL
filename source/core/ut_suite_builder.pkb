@@ -15,7 +15,7 @@ create or replace package body ut_suite_builder is
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  
+
   subtype t_annotation_text     is varchar2(4000);
   subtype t_annotation_name     is varchar2(4000);
   subtype t_object_name         is varchar2(500);
@@ -315,13 +315,13 @@ create or replace package body ut_suite_builder is
       l_annotation_pos := a_throws_ann_text.next(l_annotation_pos);
     end loop;
   end;
-  
+
   procedure add_tags_to_suite_item(
     a_suite           in out nocopy ut_suite,
     a_tags_ann_text   tt_annotation_texts,
     a_list            in out nocopy ut_varchar2_rows,
     a_procedure_name  t_object_name := null
-  ) is 
+  ) is
     l_annotation_pos binary_integer;
     l_tags_list ut_varchar2_list := ut_varchar2_list();
     l_tag_items ut_varchar2_list;
@@ -354,7 +354,7 @@ create or replace package body ut_suite_builder is
     --remove empty strings from table list e.g. tag1,,tag2 and convert to rows
     a_list := ut_utils.convert_collection( ut_utils.filter_list(set(l_tags_list),ut_utils.gc_word_no_space) );
   end;
-  
+
   procedure set_seq_no(
     a_list in out nocopy ut_executables
   ) is
@@ -533,16 +533,16 @@ create or replace package body ut_suite_builder is
       );
       set_seq_no(l_test.after_test_list);
     end if;
-   
+
     if l_proc_annotations.exists( gc_tags) then
       add_tags_to_suite_item(a_suite, l_proc_annotations( gc_tags), l_test.tags, a_procedure_name);
     end if;
-    
+
     if l_proc_annotations.exists( gc_throws) then
       add_to_throws_numbers_list(a_suite, l_test.expected_error_codes, a_procedure_name, l_proc_annotations( gc_throws));
     end if;
     l_test.disabled_flag := ut_utils.boolean_to_int( l_proc_annotations.exists( gc_disabled));
-   
+
     a_suite_items.extend;
     a_suite_items( a_suite_items.last ) := l_test;
 
@@ -687,7 +687,7 @@ create or replace package body ut_suite_builder is
     if a_annotations.by_name.exists(gc_aftereach) then
       l_after_each_list := add_executables( a_suite.object_owner, a_suite.object_name, a_annotations.by_name(gc_aftereach), gc_aftereach );
     end if;
-   
+
     if a_annotations.by_name.exists(gc_tags) then
       add_tags_to_suite_item(a_suite, a_annotations.by_name(gc_tags),a_suite.tags);
     end if;
@@ -730,22 +730,22 @@ create or replace package body ut_suite_builder is
   begin
     if a_package_annotations.exists(gc_endcontext) and a_package_annotations.exists(gc_context) then
       l_next_endcontext_pos := get_next_annotation_of_type(a_context_ann_pos, gc_endcontext, a_package_annotations);
-			l_next_context_pos := a_package_annotations(gc_context).next(a_context_ann_pos);
+      l_next_context_pos := a_package_annotations(gc_context).next(a_context_ann_pos);
 
       loop
-	      -- Get all the %context annotations between start and first %endcontext
+        -- Get all the %context annotations between start and first %endcontext
         while l_next_context_pos is not null and l_next_context_pos < l_next_endcontext_pos loop
-		      l_open_count := l_open_count+1;
-		      l_next_context_pos := a_package_annotations(gc_context).next(l_next_context_pos);
-		    end loop;
-	      -- Skip as many %endcontexts as we had additional contexts open
-	      while l_open_count > 0 loop
-		      l_open_count := l_open_count-1;
-		      l_next_endcontext_pos := a_package_annotations(gc_endcontext).next(l_next_endcontext_pos);
-	      end loop;
-	      -- Repeat until the next %context is later than next %endcontext
-	      exit when l_next_context_pos is null or l_next_context_pos > l_next_endcontext_pos;
-	    end loop;
+          l_open_count := l_open_count+1;
+          l_next_context_pos := a_package_annotations(gc_context).next(l_next_context_pos);
+        end loop;
+        -- Skip as many %endcontexts as we had additional contexts open
+        while l_open_count > 0 loop
+          l_open_count := l_open_count-1;
+          l_next_endcontext_pos := a_package_annotations(gc_endcontext).next(l_next_endcontext_pos);
+        end loop;
+        -- Repeat until the next %context is later than next %endcontext
+        exit when l_next_context_pos is null or l_next_context_pos > l_next_endcontext_pos;
+      end loop;
     end if;
     return l_next_endcontext_pos;
   end;
@@ -758,11 +758,11 @@ create or replace package body ut_suite_builder is
     l_next_context_pos t_annotation_position;
   begin
     if ( a_package_annotations.exists(gc_endcontext) and a_package_annotations.exists(gc_context)) then
-	    l_next_endcontext_pos := get_next_annotation_of_type(a_context_ann_pos, gc_endcontext, a_package_annotations);
-	    l_next_context_pos := a_package_annotations(gc_context).next(a_context_ann_pos);
-	    if ( l_next_context_pos < l_next_endcontext_pos ) then
-		    return true;
-	    end if;
+      l_next_endcontext_pos := get_next_annotation_of_type(a_context_ann_pos, gc_endcontext, a_package_annotations);
+      l_next_context_pos := a_package_annotations(gc_context).next(a_context_ann_pos);
+      if ( l_next_context_pos < l_next_endcontext_pos ) then
+        return true;
+      end if;
     end if;
     return false;
   end;
@@ -834,17 +834,17 @@ create or replace package body ut_suite_builder is
             );
         l_annotation_pos := l_context_names.first;
 
-	      while l_annotation_pos is not null loop
-	        if l_annotation_pos > a_start_position and l_annotation_pos < l_end_position then
-	          if l_found then
-	            add_annotation_ignored_warning(a_parent, gc_name,'Duplicate annotation %%%.', l_annotation_pos);
-	          else
-	            l_result := l_context_names(l_annotation_pos);
-	          end if;
-	          l_found := true;
-	        end if;
-	        l_annotation_pos := l_context_names.next(l_annotation_pos);
-	      end loop;
+        while l_annotation_pos is not null loop
+          if l_annotation_pos > a_start_position and l_annotation_pos < l_end_position then
+            if l_found then
+              add_annotation_ignored_warning(a_parent, gc_name,'Duplicate annotation %%%.', l_annotation_pos);
+            else
+              l_result := l_context_names(l_annotation_pos);
+            end if;
+            l_found := true;
+          end if;
+          l_annotation_pos := l_context_names.next(l_annotation_pos);
+        end loop;
       end if;
       return l_result;
     end;
@@ -918,7 +918,7 @@ create or replace package body ut_suite_builder is
       l_context_pos := a_annotations.by_name( gc_context).next( l_context_pos);
       -- don't go on when the next context is outside the parent's context boundaries
       if ( a_parent_end_context_pos is not null and a_parent_end_context_pos <= l_context_pos ) then
-	      l_context_pos := null;
+        l_context_pos := null;
       end if;
       l_context_no := l_context_no + 1;
     end loop;
