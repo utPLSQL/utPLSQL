@@ -754,17 +754,14 @@ create or replace package body ut_suite_builder is
     a_context_ann_pos t_annotation_position,
     a_package_annotations in out nocopy tt_annotations_by_name
   ) return boolean is
-    l_next_endcontext_pos t_annotation_position;
-    l_next_context_pos t_annotation_position;
+    l_next_endcontext_pos t_annotation_position := 0;
+    l_next_context_pos t_annotation_position := 0;
   begin
     if ( a_package_annotations.exists(gc_endcontext) and a_package_annotations.exists(gc_context)) then
       l_next_endcontext_pos := get_next_annotation_of_type(a_context_ann_pos, gc_endcontext, a_package_annotations);
       l_next_context_pos := a_package_annotations(gc_context).next(a_context_ann_pos);
-      if ( l_next_context_pos < l_next_endcontext_pos ) then
-        return true;
-      end if;
     end if;
-    return false;
+    return ( l_next_context_pos < l_next_endcontext_pos );
   end;
 
   function get_annotations_in_context(
