@@ -707,7 +707,7 @@ create or replace package body ut_suite_builder is
   function get_next_annotation_of_type(
     a_start_position      t_annotation_position,
     a_annotation_type     varchar2,
-    a_package_annotations in out nocopy tt_annotations_by_name
+    a_package_annotations in tt_annotations_by_name
   ) return t_annotation_position is
     l_result t_annotation_position;
   begin
@@ -745,7 +745,7 @@ create or replace package body ut_suite_builder is
 
   function has_nested_context(
     a_context_ann_pos t_annotation_position,
-    a_package_annotations in out nocopy tt_annotations_by_name
+    a_package_annotations in tt_annotations_by_name
   ) return boolean is
     l_next_endcontext_pos t_annotation_position := 0;
     l_next_context_pos t_annotation_position := 0;
