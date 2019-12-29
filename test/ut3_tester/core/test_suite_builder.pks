@@ -151,7 +151,7 @@ create or replace package test_suite_builder is
     --%test(Is ignored when name value is empty)
     procedure name_empty_value;
 
-    --%test(Is is applied to corresponding context when multiple contexts used)
+    --%test(Is applied to corresponding context when multiple contexts used)
     procedure multiple_contexts;
 
   --%endcontext
