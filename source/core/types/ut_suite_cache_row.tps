@@ -33,7 +33,7 @@ create type ut_suite_cache_row as object (
   before_test_list ut_executables,
   after_each_list ut_executables,
   after_test_list ut_executables,
-  expected_error_codes ut_integer_list,
+  expected_error_codes ut_varchar2_rows,
   tags ut_varchar2_rows,
   item ut_executable_test
 )
