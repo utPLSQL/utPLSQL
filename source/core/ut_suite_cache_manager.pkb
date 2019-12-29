@@ -162,14 +162,20 @@ create or replace package body ut_suite_cache_manager is
     return case
            when a_random_seed is null then q'[
               replace(
-                case
-                  when c.obj.self_type in ( 'UT_TEST' )
-                    then substr(c.obj.path, 1, instr(c.obj.path, '.', -1) )
-                    else c.obj.path
-                end, '.', chr(0)
+                substr( c.obj.path, 1, instr( c.obj.path, lower(c.obj.object_name), -1 ) + length(c.obj.object_name) ),
+                '.',
+                chr(0)
               ) desc nulls last,
-              c.obj.object_name desc,
-              c.obj.line_no,
+              case when c.obj.self_type = 'UT_SUITE_CONTEXT' then
+                ( select max( x.line_no ) + 1
+                    from ut_suite_cache x
+                   where c.obj.object_owner = x.object_owner and c.obj.object_name = x.object_name and
+                         x.path like c.obj.path || '.%'
+                )
+              else
+                c.obj.line_no
+              end,
+              regexp_count(c.obj.path,'\.') desc,
               :a_random_seed]'
            else
              ' ut_runner.hash_suite_path(

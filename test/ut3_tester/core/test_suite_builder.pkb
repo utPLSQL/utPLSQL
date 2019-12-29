@@ -650,6 +650,9 @@ create or replace package body test_suite_builder is
         '%<WARNINGS/>' ||
         '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
+            '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+          '%</UT_SUITE_ITEM>' ||
+          '<UT_SUITE_ITEM>' ||
             '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
             '%<ITEMS>' ||
               '<UT_SUITE_ITEM>' ||
@@ -661,9 +664,6 @@ create or replace package body test_suite_builder is
             '%</BEFORE_ALL_LIST>' ||
             '<AFTER_ALL_LIST/>' ||
           '</UT_SUITE_ITEM>' ||
-          '<UT_SUITE_ITEM>' ||
-            '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
-          '%</UT_SUITE_ITEM>' ||
         '</ITEMS>' ||
         '<BEFORE_ALL_LIST>' ||
         '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
@@ -711,25 +711,13 @@ create or replace package body test_suite_builder is
           '%<WARNINGS/>' ||
           '%<ITEMS>' ||
             '<UT_SUITE_ITEM>' ||
+              '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+            '%</UT_SUITE_ITEM>' ||
+            '<UT_SUITE_ITEM>' ||
               '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
               '%<ITEMS>' ||
                 '<UT_SUITE_ITEM>' ||
-                  '%<NAME>nested_context_2</NAME><DESCRIPTION>nested_context_2</DESCRIPTION><PATH>some_package.a_context.nested_context_2</PATH>' ||
-                  '%<ITEMS>' ||
-                    '<UT_SUITE_ITEM>' ||
-                      '%<NAME>nested_context_#1</NAME><DESCRIPTION>a_nested_context_3</DESCRIPTION><PATH>some_package.a_context.nested_context_2.nested_context_#1</PATH>' ||
-                      '%<ITEMS>' ||
-                        '<UT_SUITE_ITEM>' ||
-                          '%<NAME>test_in_nested_context_3</NAME><DESCRIPTION>Test in nested context</DESCRIPTION><PATH>some_package.a_context.nested_context_2.nested_context_#1.test_in_nested_context_3</PATH>' ||
-                        '%</UT_SUITE_ITEM>' ||
-                      '</ITEMS>' ||
-                      '<BEFORE_ALL_LIST/>' ||
-                    '%</UT_SUITE_ITEM>' ||
-                    '<UT_SUITE_ITEM>' ||
-                      '%<NAME>test_in_nested_context_2</NAME><DESCRIPTION>Test in nested context</DESCRIPTION><PATH>some_package.a_context.nested_context_2.test_in_nested_context_2</PATH>' ||
-                    '%</UT_SUITE_ITEM>' ||
-                  '</ITEMS>' ||
-                  '<BEFORE_ALL_LIST/>' ||
+                  '%<NAME>first_test_in_a_context</NAME><DESCRIPTION>First test in context</DESCRIPTION><PATH>some_package.a_context.first_test_in_a_context</PATH>' ||
                 '%</UT_SUITE_ITEM>' ||
                 '<UT_SUITE_ITEM>' ||
                   '%<NAME>a_nested_context</NAME><DESCRIPTION>A nested context</DESCRIPTION><PATH>some_package.a_context.a_nested_context</PATH>' ||
@@ -743,7 +731,22 @@ create or replace package body test_suite_builder is
                   '%</BEFORE_ALL_LIST>' ||
                 '%</UT_SUITE_ITEM>' ||
                 '<UT_SUITE_ITEM>' ||
-                  '%<NAME>first_test_in_a_context</NAME><DESCRIPTION>First test in context</DESCRIPTION><PATH>some_package.a_context.first_test_in_a_context</PATH>' ||
+                  '%<NAME>nested_context_2</NAME><DESCRIPTION>nested_context_2</DESCRIPTION><PATH>some_package.a_context.nested_context_2</PATH>' ||
+                  '%<ITEMS>' ||
+                    '<UT_SUITE_ITEM>' ||
+                      '%<NAME>test_in_nested_context_2</NAME><DESCRIPTION>Test in nested context</DESCRIPTION><PATH>some_package.a_context.nested_context_2.test_in_nested_context_2</PATH>' ||
+                    '%</UT_SUITE_ITEM>' ||
+                    '<UT_SUITE_ITEM>' ||
+                      '%<NAME>nested_context_#1</NAME><DESCRIPTION>a_nested_context_3</DESCRIPTION><PATH>some_package.a_context.nested_context_2.nested_context_#1</PATH>' ||
+                      '%<ITEMS>' ||
+                        '<UT_SUITE_ITEM>' ||
+                          '%<NAME>test_in_nested_context_3</NAME><DESCRIPTION>Test in nested context</DESCRIPTION><PATH>some_package.a_context.nested_context_2.nested_context_#1.test_in_nested_context_3</PATH>' ||
+                        '%</UT_SUITE_ITEM>' ||
+                      '</ITEMS>' ||
+                      '<BEFORE_ALL_LIST/>' ||
+                    '%</UT_SUITE_ITEM>' ||
+                  '</ITEMS>' ||
+                  '<BEFORE_ALL_LIST/>' ||
                 '%</UT_SUITE_ITEM>' ||
                 '<UT_SUITE_ITEM>' ||
                   '%<NAME>second_test_in_a_context</NAME><DESCRIPTION>Second test in context</DESCRIPTION><PATH>some_package.a_context.second_test_in_a_context</PATH>' ||
@@ -754,9 +757,6 @@ create or replace package body test_suite_builder is
               '%</BEFORE_ALL_LIST>' ||
               '<AFTER_ALL_LIST/>' ||
             '</UT_SUITE_ITEM>' ||
-            '<UT_SUITE_ITEM>' ||
-            '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
-            '%</UT_SUITE_ITEM>' ||
           '</ITEMS>' ||
           '<BEFORE_ALL_LIST>' ||
           '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
@@ -860,6 +860,10 @@ create or replace package body test_suite_builder is
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '%<UT_SUITE_ITEM>' ||
+            '%<NAME>suite_level_test</NAME>' ||
+            '%<ITEM>%<PROCEDURE_NAME>suite_level_test</PROCEDURE_NAME>%</ITEM>' ||
+          '%</UT_SUITE_ITEM>' ||
+          '%<UT_SUITE_ITEM>' ||
             '%<NAME>nested_context_#1</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.nested_context_#1</PATH>' ||
             '%<ITEMS>' ||
               '%<UT_SUITE_ITEM>' ||
@@ -871,10 +875,6 @@ create or replace package body test_suite_builder is
             '%</ITEMS>' ||
             '%<BEFORE_ALL_LIST>%<PROCEDURE_NAME>context_beforeall</PROCEDURE_NAME>%</BEFORE_ALL_LIST>' ||
             '%<AFTER_ALL_LIST>%<PROCEDURE_NAME>context_afterall</PROCEDURE_NAME>%</AFTER_ALL_LIST>' ||
-          '%</UT_SUITE_ITEM>' ||
-          '%<UT_SUITE_ITEM>' ||
-            '%<NAME>suite_level_test</NAME>' ||
-            '%<ITEM>%<PROCEDURE_NAME>suite_level_test</PROCEDURE_NAME>%</ITEM>' ||
           '%</UT_SUITE_ITEM>' ||
         '%</ITEMS>' ||
       '%</UT_LOGICAL_SUITE>'||
@@ -910,6 +910,12 @@ create or replace package body test_suite_builder is
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '%<UT_SUITE_ITEM>' ||
+            '%<NAME>suite_level_test</NAME>' ||
+            '%<BEFORE_EACH_LIST>%<PROCEDURE_NAME>suite_level_beforeeach</PROCEDURE_NAME>%</BEFORE_EACH_LIST>' ||
+            '%<ITEM>%<PROCEDURE_NAME>suite_level_test</PROCEDURE_NAME>%</ITEM>' ||
+            '%<AFTER_EACH_LIST>%<PROCEDURE_NAME>suite_level_aftereach</PROCEDURE_NAME>%</AFTER_EACH_LIST>' ||
+          '%</UT_SUITE_ITEM>' ||
+          '%<UT_SUITE_ITEM>' ||
             '%<NAME>nested_context_#1</NAME><DESCRIPTION>nested_context_#1</DESCRIPTION><PATH>some_package.nested_context_#1</PATH>' ||
             '%<ITEMS>' ||
               '%<UT_SUITE_ITEM>' ||
@@ -919,12 +925,6 @@ create or replace package body test_suite_builder is
                 '%<AFTER_EACH_LIST>%<PROCEDURE_NAME>suite_level_aftereach</PROCEDURE_NAME>%</AFTER_EACH_LIST>' ||
               '%</UT_SUITE_ITEM>' ||
             '%</ITEMS>' ||
-          '%</UT_SUITE_ITEM>' ||
-          '%<UT_SUITE_ITEM>' ||
-            '%<NAME>suite_level_test</NAME>' ||
-            '%<BEFORE_EACH_LIST>%<PROCEDURE_NAME>suite_level_beforeeach</PROCEDURE_NAME>%</BEFORE_EACH_LIST>' ||
-            '%<ITEM>%<PROCEDURE_NAME>suite_level_test</PROCEDURE_NAME>%</ITEM>' ||
-            '%<AFTER_EACH_LIST>%<PROCEDURE_NAME>suite_level_aftereach</PROCEDURE_NAME>%</AFTER_EACH_LIST>' ||
           '%</UT_SUITE_ITEM>' ||
         '%</ITEMS>' ||
         '%<BEFORE_ALL_LIST>%<PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>%</BEFORE_ALL_LIST>' ||
@@ -961,17 +961,19 @@ create or replace package body test_suite_builder is
         '<ROWSET><ROW>'||
         '<UT_LOGICAL_SUITE>' ||
           '%<ITEMS>' ||
-            '%<NAME>a_context</NAME><DESCRIPTION>Some context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
-            '%<ITEMS>' ||
-              '<UT_SUITE_ITEM>' ||
-                '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context.test_in_a_context</PATH>' ||
-              '%</UT_SUITE_ITEM>' ||
-            '</ITEMS>' ||
-            '<BEFORE_ALL_LIST>' ||
-              '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>context_setup</PROCEDURE_NAME>' ||
-            '%</BEFORE_ALL_LIST>' ||
             '%<UT_SUITE_ITEM>' ||
               '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+            '%</UT_SUITE_ITEM>' ||
+            '%<UT_SUITE_ITEM>' ||
+              '%<NAME>a_context</NAME><DESCRIPTION>Some context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
+              '%<ITEMS>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>test_in_a_context</NAME><DESCRIPTION>In context</DESCRIPTION><PATH>some_package.a_context.test_in_a_context</PATH>' ||
+                '%</UT_SUITE_ITEM>' ||
+              '</ITEMS>' ||
+              '<BEFORE_ALL_LIST>' ||
+                '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>context_setup</PROCEDURE_NAME>' ||
+              '%</BEFORE_ALL_LIST>' ||
             '%</UT_SUITE_ITEM>' ||
           '</ITEMS>' ||
           '<BEFORE_ALL_LIST>' ||
@@ -1011,6 +1013,9 @@ create or replace package body test_suite_builder is
       '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
           '<UT_SUITE_ITEM>' ||
+            '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+          '%</UT_SUITE_ITEM>' ||
+          '<UT_SUITE_ITEM>' ||
             '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
             '%<ITEMS>' ||
               '<UT_SUITE_ITEM>' ||
@@ -1022,9 +1027,6 @@ create or replace package body test_suite_builder is
             '%</BEFORE_ALL_LIST>' ||
             '<AFTER_ALL_LIST/>' ||
           '</UT_SUITE_ITEM>' ||
-          '<UT_SUITE_ITEM>' ||
-            '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
-          '%</UT_SUITE_ITEM>' ||
         '</ITEMS>' ||
         '<BEFORE_ALL_LIST>' ||
           '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
@@ -1067,17 +1069,8 @@ create or replace package body test_suite_builder is
           '<UT_LOGICAL_SUITE>' ||
           '%<ITEMS>' ||
             '<UT_SUITE_ITEM>' ||
-              '%<NAME>nested_context_#2</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.nested_context_#2</PATH>' ||
-              '%<ITEMS>' ||
-                '<UT_SUITE_ITEM>' ||
-                  '%<NAME>test_in_duplicated_context</NAME><DESCRIPTION>In duplicated context</DESCRIPTION><PATH>some_package.nested_context_#2.test_in_duplicated_context</PATH>' ||
-                '%</UT_SUITE_ITEM>' ||
-              '</ITEMS>' ||
-              '<BEFORE_ALL_LIST>' ||
-                '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>setup_in_duplicated_context</PROCEDURE_NAME>' ||
-              '%</BEFORE_ALL_LIST>' ||
-              '<AFTER_ALL_LIST/>' ||
-            '</UT_SUITE_ITEM>' ||
+              '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
+            '%</UT_SUITE_ITEM>' ||
             '<UT_SUITE_ITEM>' ||
               '%<NAME>a_context</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.a_context</PATH>' ||
               '%<ITEMS>' ||
@@ -1091,8 +1084,17 @@ create or replace package body test_suite_builder is
               '<AFTER_ALL_LIST/>' ||
             '</UT_SUITE_ITEM>' ||
             '<UT_SUITE_ITEM>' ||
-                '%<NAME>suite_level_test</NAME><DESCRIPTION>In suite</DESCRIPTION><PATH>some_package.suite_level_test</PATH>' ||
-            '%</UT_SUITE_ITEM>' ||
+              '%<NAME>nested_context_#2</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.nested_context_#2</PATH>' ||
+              '%<ITEMS>' ||
+                '<UT_SUITE_ITEM>' ||
+                  '%<NAME>test_in_duplicated_context</NAME><DESCRIPTION>In duplicated context</DESCRIPTION><PATH>some_package.nested_context_#2.test_in_duplicated_context</PATH>' ||
+                '%</UT_SUITE_ITEM>' ||
+              '</ITEMS>' ||
+              '<BEFORE_ALL_LIST>' ||
+              '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>setup_in_duplicated_context</PROCEDURE_NAME>' ||
+              '%</BEFORE_ALL_LIST>' ||
+              '<AFTER_ALL_LIST/>' ||
+            '</UT_SUITE_ITEM>' ||
           '</ITEMS>' ||
           '<BEFORE_ALL_LIST>' ||
             '%<OBJECT_NAME>some_package</OBJECT_NAME><PROCEDURE_NAME>suite_level_beforeall</PROCEDURE_NAME>' ||
@@ -1341,20 +1343,20 @@ create or replace package body test_suite_builder is
         '<UT_LOGICAL_SUITE>' ||
         '%<ITEMS>' ||
         '<UT_SUITE_ITEM>' ||
-        '%<NAME>nested_context_#2</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.nested_context_#2</PATH>' ||
+        '%<NAME>nested_context_#1</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.nested_context_#1</PATH>' ||
         '%<ITEMS>' ||
         '<UT_SUITE_ITEM>' ||
-        '%<NAME>test_in_a_context2</NAME><DESCRIPTION>In context2</DESCRIPTION><PATH>some_package.nested_context_#2.test_in_a_context2</PATH>' ||
+        '%<NAME>test_in_a_context1</NAME><DESCRIPTION>In context1</DESCRIPTION><PATH>some_package.nested_context_#1.test_in_a_context1</PATH>' ||
         '%</UT_SUITE_ITEM>' ||
         '</ITEMS>' ||
         '<BEFORE_ALL_LIST/>' ||
         '<AFTER_ALL_LIST/>'  ||
         '</UT_SUITE_ITEM>' ||
         '<UT_SUITE_ITEM>' ||
-        '%<NAME>nested_context_#1</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.nested_context_#1</PATH>' ||
+        '%<NAME>nested_context_#2</NAME><DESCRIPTION>A context</DESCRIPTION><PATH>some_package.nested_context_#2</PATH>' ||
         '%<ITEMS>' ||
         '<UT_SUITE_ITEM>' ||
-        '%<NAME>test_in_a_context1</NAME><DESCRIPTION>In context1</DESCRIPTION><PATH>some_package.nested_context_#1.test_in_a_context1</PATH>' ||
+        '%<NAME>test_in_a_context2</NAME><DESCRIPTION>In context2</DESCRIPTION><PATH>some_package.nested_context_#2.test_in_a_context2</PATH>' ||
         '%</UT_SUITE_ITEM>' ||
         '</ITEMS>' ||
         '<BEFORE_ALL_LIST/>' ||
