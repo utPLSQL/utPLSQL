@@ -417,31 +417,27 @@ create or replace package test_expectations_cursor is
   
   --%test(Check that column name accept non xml characters fix #902)
   procedure nonxmlchar_part_of_colname;
-      
-  
-  /*Oracle Bug not readin properly in xmltable */
-  --%test ( Compare insiginificant whitespaces scenario 1 )
-  --%disabled
-  procedure insginificant_whitespace1;
 
-  --%test ( Compare insiginificant whitespaces scenario 2 )
-  procedure insginificant_whitespace2;
-  
-  --%test ( Compare insiginificant whitespaces scenario 3 )
-  procedure insginificant_whitespace3;
-  
-  --%test ( Compare insiginificant whitespaces scenario 4 )
-  procedure insginificant_whitespace4; 
 
-  /*Oracle Bug not readin properly in xmltable */
-  --%test ( Compare insiginificant whitespaces scenario 5 )
+  /*Oracle Bug not reading properly in XMLTable - See - Issue #880 */
   --%disabled
-  procedure insginificant_whitespace5;
+  --%test ( Space-only string is not equal empty string )
+  procedure space_only_vs_empty;
+
+  /*Oracle Bug not reading properly in XMLTable - See - Issue #880 */
+  --%disabled
+  --%test ( Tab-only string is not equal empty string )
+  procedure tab_only_vs_empty;
+
+  --%test ( Insignificant start/end whitespaces are considered )
+  procedure insignificant_start_end_space;
   
-  /*Oracle Bug not readin properly in xmltable */
-  --%test ( Compare null to whitespace )
-  --%disabled
-  procedure nulltowhitespace;
+  --%test ( Double and single leading/trailing space is distinguished )
+  procedure double_vs_single_start_end_ws;
+  
+  --%test ( Leading Tab vs. Space is distinguished )
+  procedure leading_tab_vs_space;
+
 
   --%test(Check precision of number from dual #907)
   procedure number_from_dual;

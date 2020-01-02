@@ -1114,7 +1114,8 @@ utPLSQL is capable of comparing compound data-types including:
 - It is possible to compare PL/SQL records, collections, varrays and associative arrays. To compare this types of data, use cursor comparison feature of utPLSQL and TABLE operator in SQL query
     - On Oracle 11g Release 2 - pipelined table functions are needed (see section [Implicit (Shadow) Types in this artcile](https://oracle-base.com/articles/misc/pipelined-table-functions))
     - On Oracle 12c and above - use [TABLE function on nested tables/varrays/associative arrays of PL/SQL records](https://oracle-base.com/articles/12c/using-the-table-operator-with-locally-defined-types-in-plsql-12cr1) 
-
+- utPLSQL is not able to distinguish a NULL column/attribute from a column/attribute containing whitespace-only when comparing compound data. This is due to Oracle limitation on of XMLType., utPLSQL is not able to distinguish between  
+  See [issue #880](https://github.com/utPLSQL/utPLSQL/issues/880) for details. *Note: This behavior might be fixed in future relreases, when utPLSQL is no longer depending on XMLType for compound data comparison.*
 
 utPLSQL offers advanced data-comparison options, for comparing compound data-types. The options allow you to:
 - define columns/attributes to exclude from comparison
