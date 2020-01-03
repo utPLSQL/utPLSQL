@@ -18,7 +18,7 @@ create or replace type body ut_test as
 
   constructor function ut_test(
     self in out nocopy ut_test, a_object_owner varchar2 := null, a_object_name varchar2, a_name varchar2,
-    a_line_no integer, a_expected_error_codes ut_integer_list := null, a_tags ut_varchar2_rows := null
+    a_line_no integer, a_expected_error_codes ut_varchar2_rows := null, a_tags ut_varchar2_rows := null
   ) return self as result is
   begin
     self.self_type := $$plsql_unit;

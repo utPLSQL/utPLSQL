@@ -57,7 +57,7 @@ create or replace package body ut_suite_cache_manager is
         select 'UT_LOGICAL_SUITE' as self_type, p.path, p.object_owner,
                upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name,
                cast(null as ut_executables) as x,
-               cast(null as ut_integer_list) as y,
+               cast(null as ut_varchar2_rows) as y,
                cast(null as ut_executable_test) as z
           from suitepath_part p
          where p.path
