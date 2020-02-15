@@ -371,7 +371,7 @@ create or replace package body test_expectations_cursor is
     l_expected_message := q'[Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 %Diff:
 %Rows: [ 1 differences ]
-%Row No. 1 - Actual:   <COL_4>40</COL_4><COL_3>30</COL_3>
+%Row No. 1 - Actual:   <COL_3>30</COL_3><COL_4>40</COL_4>
 %Row No. 1 - Expected: <COL_3>3</COL_3><COL_4>4</COL_4>]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
@@ -394,7 +394,7 @@ create or replace package body test_expectations_cursor is
     l_expected_message := q'[Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 %Diff:
 %Rows: [ 1 differences ]
-%Row No. 1 - Actual:   <COL_4>40</COL_4><COL_3>30</COL_3>
+%Row No. 1 - Actual:   <COL_3>30</COL_3><COL_4>40</COL_4>
 %Row No. 1 - Expected: <COL_3>3</COL_3><COL_4>4</COL_4>]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
@@ -860,9 +860,9 @@ Columns:
 Rows: [ 4 differences ]
   Row No. 1 - Actual:   <SALARY>25000</SALARY>
   Row No. 1 - Expected: <SALARY>10000</SALARY>
-  Row No. 2 - Actual:   <FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><ID>3</ID><SALARY>100000</SALARY>
+  Row No. 2 - Actual:   <ID>3</ID><FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><SALARY>100000</SALARY>
   Row No. 2 - Expected: <ID>2</ID><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><SALARY>1000</SALARY>
-  Row No. 3 - Actual:   <FIRST_NAME>JESSICA</FIRST_NAME><LAST_NAME>JONES</LAST_NAME><ID>4</ID><SALARY>2345</SALARY>
+  Row No. 3 - Actual:   <ID>4</ID><FIRST_NAME>JESSICA</FIRST_NAME><LAST_NAME>JONES</LAST_NAME><SALARY>2345</SALARY>
   Row No. 3 - Expected: <ID>3</ID><FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><SALARY>100000</SALARY>
   Row No. 4 - Extra:    <GENDER>M</GENDER><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><ID>2</ID><SALARY>1000</SALARY>]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
@@ -896,9 +896,9 @@ Columns:
 Rows: [ 4 differences ]
   Row No. 1 - Actual:   <SALARY>25000</SALARY>
   Row No. 1 - Expected: <SALARY>10000</SALARY>
-  Row No. 2 - Actual:   <FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><ID>3</ID><SALARY>100000</SALARY>
+  Row No. 2 - Actual:   <ID>3</ID><FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><SALARY>100000</SALARY>
   Row No. 2 - Expected: <ID>2</ID><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><SALARY>1000</SALARY>
-  Row No. 3 - Actual:   <FIRST_NAME>JESSICA</FIRST_NAME><LAST_NAME>JONES</LAST_NAME><ID>4</ID><SALARY>2345</SALARY>
+  Row No. 3 - Actual:   <ID>4</ID><FIRST_NAME>JESSICA</FIRST_NAME><LAST_NAME>JONES</LAST_NAME><SALARY>2345</SALARY>
   Row No. 3 - Expected: <ID>3</ID><FIRST_NAME>TONY</FIRST_NAME><LAST_NAME>STARK</LAST_NAME><SALARY>100000</SALARY>
   Row No. 4 - Extra:    <GENDER>M</GENDER><FIRST_NAME>LUKE</FIRST_NAME><LAST_NAME>SKYWALKER</LAST_NAME><ID>2</ID><SALARY>1000</SALARY>]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
@@ -1237,10 +1237,8 @@ Rows: [ 4 differences ]
     l_expected_message := q'[Actual: refcursor [ count = 1 ] was expected to equal: refcursor [ count = 1 ]
 %Diff:
 %Rows: [ 1 differences ]
-%PK <COL_1>1</COL_1> - Actual:   <COL_3>30</COL_3>
-%PK <COL_1>1</COL_1> - Expected: <COL_3>3</COL_3>
-%PK <COL_1>1</COL_1> - Actual:   <COL_4>40</COL_4>
-%PK <COL_1>1</COL_1> - Expected: <COL_4>4</COL_4>]';
+%PK <COL_1>1</COL_1> - Actual:   <COL_3>30</COL_3><COL_4>40</COL_4>
+%PK <COL_1>1</COL_1> - Expected: <COL_3>3</COL_3><COL_4>4</COL_4>]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -2511,7 +2509,7 @@ Diff:%
   begin
     l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
 ORA-01476: divisor is equal to zero
-at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2522 ut3.ut.expect(l_actual).to_equal(l_expected);%
+at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line % ut3.ut.expect(l_actual).to_equal(l_expected);%
 Check the query and data for errors.';
 
     open l_actual for
@@ -2536,7 +2534,7 @@ Check the query and data for errors.';
   
     l_exp_message :='ORA-20218: SQL exception thrown when fetching data from cursor:
 ORA-01476: divisor is equal to zero
-at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line 2547 ut3.ut.expect(l_actual).to_equal(l_expected);%
+at "UT3$USER#.TEST_EXPECTATIONS_CURSOR%", line % ut3.ut.expect(l_actual).to_equal(l_expected);%
 Check the query and data for errors.';
 
     open l_expected for

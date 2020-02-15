@@ -864,10 +864,8 @@ Rows: [ 60 differences, showing first 20 ]
     l_expected_message := q'[%Actual: ut3_tester_helper.test_dummy_object_list [ count = 2 ] was expected to equal: ut3_tester_helper.test_dummy_object_list [ count = 2 ]
 %Diff:
 %Rows: [ 3 differences ]
-%PK <ID>2</ID> - Actual:   <name>Something 2</name>
-%PK <ID>2</ID> - Actual:   <Value>2</Value>
-%PK <ID>2</ID> - Expected: <name>Something 1</name>
-%PK <ID>2</ID> - Expected: <Value>1</Value>
+%PK <ID>2</ID> - Actual:   <name>Something 2</name><Value>2</Value>
+%PK <ID>2</ID> - Expected: <name>Something 1</name><Value>1</Value>
 %PK <ID>1</ID> - Extra:    <TEST_DUMMY_OBJECT><ID>1</ID><name>Something 1</name><Value>1</Value></TEST_DUMMY_OBJECT>
 %PK <ID>4</ID> - Missing:  <TEST_DUMMY_OBJECT><ID>4</ID><name>Something 2</name><Value>2</Value></TEST_DUMMY_OBJECT>]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);

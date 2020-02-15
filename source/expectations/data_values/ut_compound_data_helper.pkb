@@ -417,39 +417,78 @@ create or replace package body ut_compound_data_helper is
     l_join_xpath     varchar2(32767) := ut_utils.to_xpath(a_join_by_list);
     l_results        tt_row_diffs;
     l_sql            varchar2(32767);
+    l_column_order   varchar2(100);
   begin
+    if a_enforce_column_order then
+      l_column_order := 'col_no';
+    else
+      l_column_order := 'col_name';
+    end if;
     l_sql := q'[
-    with exp as (
+    with
+    exp_rows as(
       select
-          exp_item_data, exp_data_id, item_no rn, rownum col_no, pk_value,
-          s.column_value col, s.column_value.getRootElement() col_name,
-          nvl(s.column_value.getclobval(),empty_clob()) col_val
-        from (
-          select
-              exp_data_id, extract( ucd.exp_item_data, :column_path ) exp_item_data, item_no,
-              replace( extract( ucd.exp_item_data, :join_by ).getclobval(), chr(10) ) pk_value
-            from ut_compound_data_diff_tmp  ucd
-           where diff_id = :diff_id
-             and ucd.exp_data_id = :self_guid
-          ) i,
-          table( xmlsequence( extract(i.exp_item_data,:extract_path) ) ) s
+          exp_data_id, extract( exp_item_data, :column_path ) exp_item_data, item_no, diff_id
+        from ut_compound_data_diff_tmp
+       where diff_id = :diff_id
+         and exp_data_id = :self_guid
     ),
-    act as (
+    act_rows as (
       select
-          act_item_data, act_data_id, item_no rn, rownum col_no, pk_value,
+          act_data_id, extract( act_item_data, :column_path ) act_item_data, item_no, diff_id
+        from ut_compound_data_diff_tmp  ucd
+       where diff_id = :diff_id
+         and ucd.act_data_id = :other_guid
+    ),
+    exp_cols as (
+      select
+          exp_item_data, exp_data_id, item_no rn, rownum col_no, diff_id,
           s.column_value col, s.column_value.getRootElement() col_name,
           nvl(s.column_value.getclobval(),empty_clob()) col_val
+        from exp_rows i,
+          table( xmlsequence( extract( i.exp_item_data, :extract_path ) ) ) s
+    ),
+    act_cols as (
+      select
+          act_item_data, act_data_id, item_no rn, rownum col_no, diff_id,
+          s.column_value col, s.column_value.getRootElement() col_name,
+          nvl(s.column_value.getclobval(),empty_clob()) col_val
+        from act_rows i,
+          table( xmlsequence( extract( i.act_item_data, :extract_path ) ) ) s
+    ),
+    data_diff as (
+      select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, null pk_value, col_name, diff_id
         from (
-          select
-              act_data_id, extract( ucd.act_item_data, :column_path ) act_item_data, item_no,
-              replace( extract( ucd.act_item_data, :join_by ).getclobval(), chr(10) ) pk_value
-            from ut_compound_data_diff_tmp  ucd
-           where diff_id = :diff_id
-             and ucd.act_data_id = :other_guid
-          ) i,
-          table( xmlsequence( extract(i.act_item_data,:extract_path) ) ) s
+          select nvl(exp.rn, act.rn) rn,
+                 exp.diff_id diff_id,
+                 xmlagg(exp.col order by exp.col_no) exp_item,
+                 xmlagg(act.col order by nvl(exp.col_no, act.col_no)) act_item,
+                 max(nvl(exp.col_name,act.col_name)) col_name
+            from exp_cols exp
+            join act_cols act
+              on exp.rn = act.rn and exp.col_name = act.col_name
+           where dbms_lob.compare(exp.col_val, act.col_val) != 0
+           group by nvl(exp.rn, act.rn), exp.diff_id
+        )
+      unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
+    ),
+    unordered_diff as (
+      select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, null pk_value, col_name, diff_id
+        from (
+          select nvl(exp.rn, act.rn) rn,
+                 exp.diff_id diff_id,
+                 xmlagg(exp.col order by exp.col_name) exp_item,
+                 xmlagg(act.col order by act.col_name) act_item,
+                 max(nvl(exp.col_name,act.col_name)) col_name
+            from exp_cols exp
+            join act_cols act
+              on exp.rn = act.rn and exp.col_name = act.col_name
+           where dbms_lob.compare(exp.col_val, act.col_val) != 0
+           group by nvl(exp.rn, act.rn), exp.diff_id
+        )
+      unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
     )
-    select rn, diff_type, diffed_row, pk_value pk_value
+    select rn, diff_type, diffed_row, pk_value
     from (
       select rn, diff_type, diffed_row, pk_value,
              case when diff_type = 'Actual:' then 1 else 2 end rnk,
@@ -457,33 +496,20 @@ create or replace package body ut_compound_data_helper is
              col_name
       from ( ]'
         || case when a_unordered then q'[
-        select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, pk_value, col_name
-          from (
-            select nvl(exp.rn, act.rn) rn,
-                   nvl(exp.pk_value, act.pk_value) pk_value,
-                   exp.col exp_item,
-                   act.col act_item,
-                   nvl(exp.col_name,act.col_name) col_name
-              from exp
-              join act
-                on exp.rn = act.rn and exp.col_name = act.col_name
-             where dbms_lob.compare(exp.col_val, act.col_val) != 0
-          )
-        unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') ) ]'
+        select u.rn, u.diff_type, u.diffed_row,
+               replace(
+                 extract( case when i.exp_data_id is null then i.act_item_data else i.exp_item_data end, :join_by ).getclobval(),
+                  chr(10)
+               ) pk_value,
+               u.col_name
+          from data_diff u
+          join ut_compound_data_diff_tmp i
+              on i.diff_id = u.diff_id
+             and i.item_no = u.rn]'
         else q'[
-        select rn, diff_type, xmlserialize(content data_item no indent) diffed_row, null pk_value, col_name
-          from (
-            select nvl(exp.rn, act.rn) rn,
-                   xmlagg(exp.col order by exp.col_no) exp_item,
-                   xmlagg(act.col order by act.col_no) act_item,
-                   max(nvl(exp.col_name,act.col_name)) col_name
-              from exp exp
-              join act act
-                on exp.rn = act.rn and exp.col_name = act.col_name
-             where dbms_lob.compare(exp.col_val, act.col_val) != 0
-             group by (exp.rn, act.rn)
-          )
-        unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') ) ]'
+        select rn, diff_type, diffed_row, pk_value, col_name
+          from data_diff
+         where :join_by is null ]'
         end ||q'[
       )
       union all
@@ -522,14 +548,13 @@ create or replace package body ut_compound_data_helper is
          case when final_order = 1 then to_char(rn) else col_name end,
          case when final_order = 1 then to_char(rnk) else col_name end
      ]'
-   else
-     null
    end;
    execute immediate l_sql
    bulk collect into l_results
-    using l_exp_extract_xpath, l_join_xpath, a_diff_id, a_expected_dataset_guid,a_extract_path,
-          l_act_extract_xpath, l_join_xpath, a_diff_id, a_actual_dataset_guid,a_extract_path,
-          l_join_xpath, l_join_xpath, a_diff_id;    
+    using l_exp_extract_xpath, a_diff_id, a_expected_dataset_guid,
+          l_act_extract_xpath, a_diff_id, a_actual_dataset_guid,
+          a_extract_path, a_extract_path,
+          l_join_xpath, l_join_xpath, l_join_xpath, a_diff_id;
     return l_results;
   end;
   
