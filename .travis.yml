@@ -50,10 +50,10 @@ env:
     - MAVEN_CFG=$HOME/.m2
   matrix:
     - ORACLE_VERSION="${DOCKER_TAG_11G:-11g-r2-xe}"         CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
-    - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2-small}"  CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
-    - ORACLE_VERSION="${DOCKER_TAG_12C2:-12c-r2-se2-small}" CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
-    - ORACLE_VERSION="${DOCKER_TAG_18:-18c-se2-small}"      CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
-    - ORACLE_VERSION="${DOCKER_TAG_19:-19c-se2-small}"      CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
+    - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2-small}"  CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  
+    - ORACLE_VERSION="${DOCKER_TAG_12C2:-12c-r2-se2-small}" CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+    - ORACLE_VERSION="${DOCKER_TAG_18:-18c-se2-small}"      CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+    - ORACLE_VERSION="${DOCKER_TAG_19:-19c-se2-small}"      CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
 
 cache:
   pip: true
@@ -81,8 +81,6 @@ install:
   #- unzip utPLSQL.zip
   - unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
   - bash .travis/install_sqlcl.sh
-  - sudo mkdir -p /dev/pdbs
-  - sudo chmod -R 777 /dev/pdbs
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/start_db.sh; fi
 
 before_script:
