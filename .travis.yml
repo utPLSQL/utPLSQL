@@ -80,8 +80,6 @@ before_install:
 install:
   #- unzip utPLSQL.zip
   - unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
-  # Get ojdbc via maven
-  - bash .travis/maven_cfg.sh
   - bash .travis/install_sqlcl.sh
   - sudo mkdir -p /dev/pdbs
   - sudo chmod -R 777 /dev/pdbs
