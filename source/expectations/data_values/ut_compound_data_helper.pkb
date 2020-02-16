@@ -119,8 +119,6 @@ create or replace package body ut_compound_data_helper is
               || case when a_order_enforced then q'[
               --column position is not matching (both when excluded extra/missing columns as well as when they are included)
               or (a_pos_nn != e_pos_nn and exp_col_pos != act_col_pos)]'
-              else
-                null
               end ||q'[
            order by exp_col_pos, act_col_pos]'
       bulk collect into l_results using a_expected, a_actual;
@@ -426,34 +424,34 @@ create or replace package body ut_compound_data_helper is
     end if;
     l_sql := q'[
     with
-    exp_rows as(
-      select
-          exp_data_id, extract( exp_item_data, :column_path ) exp_item_data, item_no, diff_id
-        from ut_compound_data_diff_tmp
-       where diff_id = :diff_id
-         and exp_data_id = :self_guid
-    ),
-    act_rows as (
-      select
-          act_data_id, extract( act_item_data, :column_path ) act_item_data, item_no, diff_id
-        from ut_compound_data_diff_tmp  ucd
-       where diff_id = :diff_id
-         and ucd.act_data_id = :other_guid
-    ),
     exp_cols as (
       select
-          exp_item_data, exp_data_id, item_no rn, rownum col_no, diff_id,
+          i.exp_item_data, i.exp_data_id, i.item_no rn, rownum col_no, i.diff_id,
           s.column_value col, s.column_value.getRootElement() col_name,
-          nvl(s.column_value.getclobval(),empty_clob()) col_val
-        from exp_rows i,
+          nvl( s.column_value.getclobval(), empty_clob() ) col_val
+        from (
+          select
+              ucd.exp_data_id, extract( ucd.exp_item_data, :column_path ) exp_item_data,
+              ucd.item_no, ucd.diff_id
+            from ut_compound_data_diff_tmp ucd
+           where ucd.diff_id = :diff_id
+             and ucd.exp_data_id = :self_guid
+          ) i,
           table( xmlsequence( extract( i.exp_item_data, :extract_path ) ) ) s
     ),
     act_cols as (
       select
-          act_item_data, act_data_id, item_no rn, rownum col_no, diff_id,
+          i.act_item_data, i.act_data_id, i.item_no rn, rownum col_no, i.diff_id,
           s.column_value col, s.column_value.getRootElement() col_name,
-          nvl(s.column_value.getclobval(),empty_clob()) col_val
-        from act_rows i,
+          nvl( s.column_value.getclobval(), empty_clob() ) col_val
+        from (
+          select
+              ucd.act_data_id, extract( ucd.act_item_data, :column_path ) act_item_data,
+              ucd.item_no, ucd.diff_id
+            from ut_compound_data_diff_tmp ucd
+           where ucd.diff_id = :diff_id
+             and ucd.act_data_id = :other_guid
+          ) i,
           table( xmlsequence( extract( i.act_item_data, :extract_path ) ) ) s
     ),
     data_diff as (
@@ -496,7 +494,8 @@ create or replace package body ut_compound_data_helper is
              col_name
       from ( ]'
         || case when a_unordered then q'[
-        select u.rn, u.diff_type, u.diffed_row,
+        select /*+ no_unnest */
+               u.rn, u.diff_type, u.diffed_row,
                replace(
                  extract( case when i.exp_data_id is null then i.act_item_data else i.exp_item_data end, :join_by ).getclobval(),
                   chr(10)
@@ -551,9 +550,8 @@ create or replace package body ut_compound_data_helper is
    end;
    execute immediate l_sql
    bulk collect into l_results
-    using l_exp_extract_xpath, a_diff_id, a_expected_dataset_guid,
-          l_act_extract_xpath, a_diff_id, a_actual_dataset_guid,
-          a_extract_path, a_extract_path,
+    using l_exp_extract_xpath, a_diff_id, a_expected_dataset_guid, a_extract_path,
+          l_act_extract_xpath, a_diff_id, a_actual_dataset_guid, a_extract_path,
           l_join_xpath, l_join_xpath, l_join_xpath, a_diff_id;
     return l_results;
   end;
