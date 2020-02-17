@@ -78,6 +78,7 @@ create or replace package body ut_annotation_cache_manager as
                 on o.object_name = i.object_name
                and o.object_type = i.object_type
                and o.object_owner = i.object_owner
+               and o.needs_refresh = 'Y'
            );
 
     update ut_annotation_cache_schema s
@@ -86,18 +87,22 @@ create or replace package body ut_annotation_cache_manager as
       in (
          select o.object_owner, o.object_type
            from table(a_objects) o
+          where o.needs_refresh = 'Y'
          );
 
     if sql%rowcount = 0 then
       insert into ut_annotation_cache_schema s
       (object_owner, object_type, max_parse_time)
       select distinct o.object_owner, o.object_type, l_timestamp
-        from table(a_objects) o;
+        from table(a_objects) o
+       where o.needs_refresh = 'Y';
     end if;
 
     merge into ut_annotation_cache_info i
       using (select o.object_name, o.object_type, o.object_owner
-               from table(a_objects) o ) o
+               from table(a_objects) o
+              where o.needs_refresh = 'Y'
+        ) o
          on (o.object_name = i.object_name
              and o.object_type = i.object_type
              and o.object_owner = i.object_owner)

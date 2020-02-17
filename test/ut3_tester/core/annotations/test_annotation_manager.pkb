@@ -6,17 +6,6 @@ create or replace package body test_annotation_manager is
     execute immediate a_sql;
   end;
 
-  procedure disable_ddl_trigger is
-  begin
-    exec_autonomous('alter trigger ut3.ut_trigger_annotation_parsing disable');
-    exec_autonomous('begin ut3.ut_trigger_check.is_alive(); end;');
-  end;
-
-  procedure enable_ddl_trigger is
-  begin
-    exec_autonomous('alter trigger ut3.ut_trigger_annotation_parsing enable');
-  end;
-
   procedure create_dummy_package is
   begin
     exec_autonomous(q'[create or replace package dummy_package as
@@ -157,10 +146,10 @@ create or replace package body test_annotation_manager is
     l_actual_cache_id integer;
   begin
     --Arrange
-    disable_ddl_trigger();
+    annotation_cache_helper.disable_ddl_trigger();
     create_dummy_test_package();
     --Act
-    enable_ddl_trigger();
+    annotation_cache_helper.enable_ddl_trigger();
     --Assert
     select max(cache_id)
            into l_actual_cache_id
@@ -175,10 +164,10 @@ create or replace package body test_annotation_manager is
     l_start_date      date;
   begin
     --Arrange
-    disable_ddl_trigger();
+    annotation_cache_helper.disable_ddl_trigger();
     create_dummy_test_package();
     --Act
-    enable_ddl_trigger();
+    annotation_cache_helper.enable_ddl_trigger();
     l_start_date := sysdate;
     recompile_dummy_test_package();
     --Assert
@@ -190,11 +179,11 @@ create or replace package body test_annotation_manager is
     l_start_date      date;
   begin
     --Arrange
-    disable_ddl_trigger();
+    annotation_cache_helper.disable_ddl_trigger();
     create_dummy_test_package();
     create_dummy_package();
     --Act
-    enable_ddl_trigger();
+    annotation_cache_helper.enable_ddl_trigger();
     l_start_date := sysdate;
     ut3.ut_annotation_manager.rebuild_annotation_cache(sys_context('USERENV', 'CURRENT_USER'),'PACKAGE');
     --Assert

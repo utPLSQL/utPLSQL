@@ -3,12 +3,10 @@ create or replace package test_annotation_manager is
   --%suite(ut_annotation_manager)
   --%suitepath(utplsql.ut3_tester.core.annotations)
 
+  --%afterall(drop_dummy_test_package)
+    
   --%aftereach
   procedure cleanup_annotation_cache;
-
-  procedure disable_ddl_trigger;
-
-  procedure enable_ddl_trigger;
 
   procedure create_dummy_package;
 
@@ -45,17 +43,18 @@ create or replace package test_annotation_manager is
     --%beforetest(create_dummy_test_package)
     procedure trg_no_data_for_dropped_object;
 
-    --%disabled(TODO)
     --%test(Objects are populated on scan after cache was purged)
+    --%beforetest(annotation_cache_helper.disable_ddl_trigger)
+    --%aftertest(annotation_cache_helper.enable_ddl_trigger)
     procedure trg_populate_cache_after_purge;
 
   --%endcontext
 
   --%context(Without DDL trigger)
 
-    --%beforeall(disable_ddl_trigger)
+    --%beforeall(annotation_cache_helper.disable_ddl_trigger)
 
-    --%afterall(enable_ddl_trigger)
+    --%afterall(annotation_cache_helper.enable_ddl_trigger)
 
     --%beforeeach(create_dummy_package)
     --%aftereach(drop_dummy_package)
@@ -69,11 +68,9 @@ create or replace package test_annotation_manager is
     procedure remove_annotated_package;
 
     --%test(Doesn't return annotations when package doesn't contain annotations)
-    --%aftertest(drop_dummy_package)
     procedure add_not_annotated_package;
 
     --%test(Doesn't return annotations when package without annotations was dropped)
-    --%aftertest(drop_dummy_package)
     procedure remove_not_annotated_package;
 
     --%test(Doesn't return annotations when annotations removed from package)
