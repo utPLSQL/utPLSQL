@@ -74,6 +74,8 @@ PROMPT Creating $UT3_TESTER - Power-user for testing internal framework code
 create user $UT3_TESTER identified by "$UT3_TESTER_PASSWORD" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
 grant create session, create procedure, create type, create table to $UT3_TESTER;
 
+grant execute on dbms_lock to $UT3_TESTER;
+
 PROMPT Granting $UT3_OWNER code to $UT3_TESTER
 
 begin
