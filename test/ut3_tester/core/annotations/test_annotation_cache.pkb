@@ -9,7 +9,7 @@ create or replace package body test_annotation_cache is
         from ut3.ut_annotation_cache_info
         where object_owner = 'UT3_CACHE_TEST_OWNER';
     open l_expected_cache_info for
-      select 'UT3_CACHE_TEST_OWNER' as object_owner, upper( column_value ) as object_name, 'Y' as is_annotated
+      select 'UT3_CACHE_TEST_OWNER' as object_owner, upper( column_value ) as object_name
         from table (a_packages) x;
     ut.expect( l_actual_cache_info ).to_equal( l_expected_cache_info ).exclude( 'CACHE_ID,PARSE_TIME,OBJECT_TYPE' ).JOIN_BY('OBJECT_NAME');
   end;

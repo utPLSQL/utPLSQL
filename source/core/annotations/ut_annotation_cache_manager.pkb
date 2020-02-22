@@ -35,8 +35,7 @@ create or replace package body ut_annotation_cache_manager as
     if ora_sysevent is null or a_object.annotations is not null and a_object.annotations.count > 0 then
 
       update ut_annotation_cache_info i
-         set i.parse_time = l_timestamp,
-             i.is_annotated = case when a_object.annotations is not empty then 'Y' else 'N' end
+         set i.parse_time = l_timestamp
        where (i.object_owner, i.object_name, i.object_type)
           in ((a_object.object_owner, a_object.object_name, a_object.object_type))
         returning cache_id into l_cache_id;
@@ -44,10 +43,8 @@ create or replace package body ut_annotation_cache_manager as
       if sql%rowcount = 0 then
 
         insert into ut_annotation_cache_info
-               (cache_id, object_owner, object_name, object_type, parse_time, is_annotated)
-        values (ut_annotation_cache_seq.nextval, a_object.object_owner, a_object.object_name, a_object.object_type, l_timestamp,
-                case when a_object.annotations is not empty then 'Y' else 'N' end
-        )
+               (cache_id, object_owner, object_name, object_type, parse_time)
+        values (ut_annotation_cache_seq.nextval, a_object.object_owner, a_object.object_name, a_object.object_type, l_timestamp)
           returning cache_id into l_cache_id;
       end if;
 
@@ -108,11 +105,10 @@ create or replace package body ut_annotation_cache_manager as
              and o.object_owner = i.object_owner)
      when matched then
        update
-       set parse_time = l_timestamp,
-           is_annotated = 'N'
+       set parse_time = l_timestamp
      when not matched then insert
-            (cache_id, object_owner, object_name, object_type, parse_time, is_annotated)
-     values (ut_annotation_cache_seq.nextval, o.object_owner, o.object_name, o.object_type, l_timestamp, 'N');
+            (cache_id, object_owner, object_name, object_type, parse_time)
+     values (ut_annotation_cache_seq.nextval, o.object_owner, o.object_name, o.object_type, l_timestamp);
 
     commit;
   end;
