@@ -23,7 +23,7 @@ create or replace package body ut_suite_cache_manager is
   gc_get_cache_suite_sql    constant varchar2(32767) :=
     q'[with
       suite_items as (
-        select  /*+ cardinality(c 100) */ value(c) as obj
+        select  /*+ cardinality(c 500) */ value(c) as obj
           from ut_suite_cache c
          where 1 = 1
                and c.object_owner = :l_object_owner
@@ -57,7 +57,7 @@ create or replace package body ut_suite_cache_manager is
         select 'UT_LOGICAL_SUITE' as self_type, p.path, p.object_owner,
                upper( substr(p.path, instr( p.path, '.', -1 ) + 1 ) ) as object_name,
                cast(null as ut_executables) as x,
-               cast(null as ut_integer_list) as y,
+               cast(null as ut_varchar2_rows) as y,
                cast(null as ut_executable_test) as z
           from suitepath_part p
          where p.path
@@ -87,7 +87,7 @@ create or replace package body ut_suite_cache_manager is
     l_result       ut_varchar2_rows;
     l_data         ut_annotation_objs_cache_info;
   begin
-    l_data := ut_annotation_cache_manager.get_annotations_objects_info(a_object_owner, 'PACKAGE');
+    l_data := ut_annotation_cache_manager.get_cached_objects_list(a_object_owner, 'PACKAGE');
 
     select i.object_name
            bulk collect into l_result
@@ -162,14 +162,24 @@ create or replace package body ut_suite_cache_manager is
     return case
            when a_random_seed is null then q'[
               replace(
-                case
-                  when c.obj.self_type in ( 'UT_TEST' )
-                    then substr(c.obj.path, 1, instr(c.obj.path, '.', -1) )
-                    else c.obj.path
-                end, '.', chr(0)
+                --suite path until objects name (excluding contexts and test path) with trailing dot (full stop)
+                substr( c.obj.path, 1, instr( c.obj.path, lower(c.obj.object_name), -1 ) + length(c.obj.object_name) ),
+                '.',
+                --'.' replaced with chr(0) to assure that child elements come before parent when sorting in descending oder
+                chr(0)
               ) desc nulls last,
-              c.obj.object_name desc,
-              c.obj.line_no,
+              case when c.obj.self_type = 'UT_SUITE_CONTEXT' then
+                ( select max( x.line_no ) + 1
+                    from ut_suite_cache x
+                   where c.obj.object_owner = x.object_owner
+                     and c.obj.object_name = x.object_name
+                     and x.path like c.obj.path || '.%'
+                )
+              else
+                c.obj.line_no
+              end,
+              --assures that child contexts come before parent contexts
+              regexp_count(c.obj.path,'\.') desc,
               :a_random_seed]'
            else
              ' ut_runner.hash_suite_path(
@@ -248,7 +258,7 @@ create or replace package body ut_suite_cache_manager is
     select min(t.parse_time)
       into l_cache_parse_time
       from ut_suite_cache_schema t
-     where object_owner = a_schema_name;
+     where object_owner = upper(a_schema_name);
     return l_cache_parse_time;
   end;
 
@@ -370,13 +380,16 @@ create or replace package body ut_suite_cache_manager is
     pragma autonomous_transaction;
   begin
     l_objects := get_missing_cache_objects(a_schema_name);
-    delete from ut_suite_cache i
-     where i.object_owner = a_schema_name
-       and i.object_name in ( select column_value from table (l_objects) );
 
-    delete from ut_suite_cache_package i
-     where i.object_owner = a_schema_name
-       and i.object_name in ( select column_value from table (l_objects) );
+    if l_objects is not empty then
+      delete from ut_suite_cache i
+       where i.object_owner = a_schema_name
+         and i.object_name in ( select column_value from table (l_objects) );
+
+      delete from ut_suite_cache_package i
+       where i.object_owner = a_schema_name
+         and i.object_name in ( select column_value from table (l_objects) );
+    end if;
 
     commit;
   end;
@@ -449,5 +462,5 @@ create or replace package body ut_suite_cache_manager is
     return l_count > 0;
   end;
 
-end ut_suite_cache_manager;
+end;
 /

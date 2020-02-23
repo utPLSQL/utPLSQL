@@ -22,9 +22,7 @@ create or replace package body ut_trigger_check is
   function is_alive return boolean is
     pragma autonomous_transaction;
   begin
-    if not g_is_trigger_live then
-      execute immediate 'create or replace synonym '||ut_utils.ut_owner||'.'||gc_check_object_name||' for no_object';
-    end if;
+    execute immediate 'create or replace synonym '||ut_utils.ut_owner||'.'||gc_check_object_name||' for no_object';
     return g_is_trigger_live;
   end;
 

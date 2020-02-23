@@ -1,9 +1,10 @@
-The release process is semi-automated.
+## Release process 
 
 With every build, the build process on Travis updates files with an appropriate version number before deployment into the database.
 This step is performed, to confirm that the update of versions works properly.
 
-To create a release:
+## To create a release
+
    - create release branch from development branch and make sure to name the release branch: `release/vX.Y.Z`
    - update, commit and push at least one file change in the release branch, to kickoff a Travis build
    - wait for th build to complete successfully

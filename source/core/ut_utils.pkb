@@ -22,6 +22,7 @@ create or replace package body ut_utils is
   gc_invalid_first_xml_char  constant varchar2(50)  := '[^_a-zA-Z]';
   gc_invalid_xml_char        constant varchar2(50)  := '[^_a-zA-Z0-9\.-]';
   gc_full_valid_xml_name     constant varchar2(50)  := '^([_a-zA-Z])([_a-zA-Z0-9\.-])*$';
+  gc_owner_hash              constant integer(11)   := dbms_utility.get_hash_value( ut_owner(), 0, power(2,31)-1);
 
   function surround_with(a_value varchar2, a_quote_char varchar2) return varchar2 is
   begin
@@ -59,7 +60,7 @@ create or replace package body ut_utils is
 
   function gen_savepoint_name return varchar2 is
   begin
-    return 's'||trim(to_char(ut_savepoint_seq.nextval,'0000000000000000000000000000'));
+    return 's'||gc_owner_hash||trim(to_char(ut_savepoint_seq.nextval,'00000000000000000'));
   end;
 
   procedure debug_log(a_message varchar2) is
@@ -511,9 +512,11 @@ create or replace package body ut_utils is
 
     procedure flush_lines(a_lines ut_varchar2_rows, a_offset integer) is
     begin
-      insert into ut_dbms_output_cache (seq_no,text)
-        select rownum+a_offset, column_value
-        from table(a_lines);
+      if a_lines is not empty then
+        insert into ut_dbms_output_cache (seq_no,text)
+          select rownum+a_offset, column_value
+          from table(a_lines);
+      end if;
     end;
   begin
     loop
@@ -533,7 +536,7 @@ create or replace package body ut_utils is
   procedure read_cache_to_dbms_output is
     l_lines_data sys_refcursor;
     l_lines  ut_varchar2_rows;
-    c_lines_limit constant integer := 1000;
+    c_lines_limit constant integer := 10000;
     pragma autonomous_transaction;
   begin
     open l_lines_data for select text from ut_dbms_output_cache order by seq_no;
@@ -766,7 +769,7 @@ create or replace package body ut_utils is
   /**
   * Change string into unicode to match xmlgen format _00<unicode>_
   * https://docs.oracle.com/en/database/oracle/oracle-database/12.2/adxdb/generation-of-XML-data-from-relational-data.html#GUID-5BE09A7D-80D8-4734-B9AF-4A61F27FA9B2
-  * secion v3.1.9.3268
+  * secion v3.1.10.3347
   */  
   function char_to_xmlgen_unicode(a_character varchar2) return varchar2 is
   begin

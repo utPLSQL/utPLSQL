@@ -26,7 +26,13 @@ is
   
   --%test(Ignores when only bad parameters are passed, the test does not raise a exception and it shows successful test)
   procedure bad_paramters_without_except;
-  
+
+  --%test(Ignores annotation for positive exception number value)
+  procedure positive_exception_number;
+
+  --%test(Ignores annotation for positive exception number variable)
+  procedure positive_exception_number_var;
+
   --%test(Detects a valid exception number within many invalid ones)
   procedure one_valid_exception_number;
   

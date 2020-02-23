@@ -13,6 +13,7 @@ alter session set plsql_optimize_level=0;
 @@ut3_tester/core/annotations/test_annotation_parser.pks
 @@ut3_tester/core/annotations/test_annot_throws_exception.pks
 @@ut3_tester/core/annotations/test_annotation_manager.pks
+@@ut3_tester/core/annotations/test_annotation_cache.pks
 @@ut3_tester/core/expectations/test_expectation_processor.pks
 @@ut3_tester/core/test_ut_utils.pks
 @@ut3_tester/core/test_ut_test.pks
@@ -27,9 +28,10 @@ alter session set plsql_optimize_level=0;
 @@ut3_tester/core.pkb
 @@ut3_tester/core/annotations/test_before_after_annotations.pkb
 @@ut3_tester/core/annotations/test_annotation_parser.pkb
-@@ut3_tester/core/expectations/test_expectation_processor.pkb
 @@ut3_tester/core/annotations/test_annotation_manager.pkb
 @@ut3_tester/core/annotations/test_annot_throws_exception.pkb
+@@ut3_tester/core/annotations/test_annotation_cache.pkb
+@@ut3_tester/core/expectations/test_expectation_processor.pkb
 @@ut3_tester/core/test_ut_utils.pkb
 @@ut3_tester/core/test_ut_test.pkb
 @@ut3_tester/core/test_ut_suite.pkb

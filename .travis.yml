@@ -30,7 +30,6 @@ env:
     - CURRENT_BRANCH=${TRAVIS_BRANCH}
     - UTPLSQL_REPO="utPLSQL/utPLSQL"
     - UTPLSQL_BUILD_NO="${TRAVIS_BUILD_NUMBER:-0}"
-    - UTPLSQL_VERSION_PATTERN="v?([0-9]+\.){3}[0-9]+[^']*"
     - UTPLSQL_VERSION=$(. .travis/get_project_version.sh)
     - UTPLSQL_BUILD_VERSION=$(. .travis/get_project_build_version.sh)
     - UTPLSQL_SOURCES_DIR='source'
@@ -51,10 +50,10 @@ env:
     - MAVEN_CFG=$HOME/.m2
   matrix:
     - ORACLE_VERSION="${DOCKER_TAG_11G:-11g-r2-xe}"         CONNECTION_STR='127.0.0.1:1521/XE'       DOCKER_OPTIONS='--shm-size=1g'
-    - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2-small}"  CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
-    - ORACLE_VERSION="${DOCKER_TAG_12C2:-12c-r2-se2-small}" CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
-    - ORACLE_VERSION="${DOCKER_TAG_18:-18c-se2-small}"      CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
-    - ORACLE_VERSION="${DOCKER_TAG_19:-19c-se2-small}"      CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  DOCKER_OPTIONS="-v /dev/pdbs:/opt/oracle/oradata/pdbs"
+    - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2-small}"  CONNECTION_STR='127.0.0.1:1521/ORCLCDB'  
+    - ORACLE_VERSION="${DOCKER_TAG_12C2:-12c-r2-se2-small}" CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+    - ORACLE_VERSION="${DOCKER_TAG_18:-18c-se2-small}"      CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+    - ORACLE_VERSION="${DOCKER_TAG_19:-19c-se2-small}"      CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
 
 cache:
   pip: true
@@ -81,11 +80,7 @@ before_install:
 install:
   #- unzip utPLSQL.zip
   - unzip utPLSQL-cli.zip && chmod -R u+x utPLSQL-cli
-  # Get ojdbc via maven
-  - bash .travis/maven_cfg.sh
   - bash .travis/install_sqlcl.sh
-  - sudo mkdir -p /dev/pdbs
-  - sudo chmod -R 777 /dev/pdbs
   - if [[ ! $TRAVIS_TAG ]]; then bash .travis/start_db.sh; fi
 
 before_script:
@@ -115,16 +110,15 @@ jobs:
         - pip install mkdocs
       before_script: skip
       script: 
-        - if [[ ($TRAVIS_BRANCH == develop) && ($TRAVIS_PULL_REQUEST == false) ]]; then bash .travis/trigger_travis.sh $TRAVIS_ACCESS_TOKEN; fi
-        - #The update_project_version.sh needs to be done before pushing changes to develop branch
         - bash .travis/update_project_version.sh
         - git config --global user.email "builds@travis-ci.com"
         - git config --global user.name "${UTPLSQL_BUILD_USER_NAME}"
         - git remote rm origin
         - git remote add origin https://${github_api_token}@github.com/${UTPLSQL_REPO}
         - if [[ ! $TRAVIS_TAG ]]; then bash .travis/push_release_version.sh; fi
+        - bash .travis/push_docs_to_github_io.sh
         - bash .travis/build_docs.sh
-        - bash .travis/push_docs_to_gh_pages.sh
+        - if [[ ($TRAVIS_BRANCH == develop) && ($TRAVIS_PULL_REQUEST == false) ]]; then bash .travis/trigger_travis.sh $TRAVIS_ACCESS_TOKEN; fi
       before_deploy:
         - bash .travis/build_release_archive.sh
       deploy:

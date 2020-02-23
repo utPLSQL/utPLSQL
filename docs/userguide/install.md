@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.9.3268-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.10.3347-blue.svg)
 
 # Downloading latest version of utPLSQL
 
@@ -137,13 +137,6 @@ Invoking script with parameters:
 cd source
 sqlplus sys/sys_pass@db as sysdba @install_headless_with_trigger.sql utp3 my_verySecret_password utp3_tablespace   
 ```
-
-**Note:** 
->When installing utPLSQL into database with existing unit test packages, utPLSQL will not be able to already-existing unit test packages. When utPSLQL was installed with DDL trigger, you have to do one of:
->- Recompile existing Unit Test packages to make utPLSQL aware of their existence 
->- Invoke `exec ut_runner.rebuild_annotation_cache(a_object_owner=> ... );` for every schema containing unit tests in your database
->
-> Steps above are required to assure annotation cache is populated properly from existing objects. Rebuilding annotation cache might be faster than code recompilation.     
 
 # Recommended Schema
 It is highly recommended to install utPLSQL in it's own schema. You are free to choose any name for this schema.

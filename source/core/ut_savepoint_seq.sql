@@ -12,4 +12,4 @@ create sequence ut_savepoint_seq
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  start with 1 cache 20;
+  start with 1 cache 20 minvalue 1 maxvalue 99999999999999999 cycle;

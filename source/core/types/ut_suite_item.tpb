@@ -97,6 +97,16 @@ create or replace type body ut_suite_item as
     self.results_count.increase_warning_count;
   end;
 
+  member procedure put_warning(self in out nocopy ut_suite_item, a_message varchar2, a_procedure_name varchar2, a_line_no integer) is
+    l_result varchar2(1000);
+  begin
+    l_result := self.object_owner || '.' || self.object_name ;
+    if a_procedure_name is not null then
+      l_result := l_result || '.' || a_procedure_name ;
+    end if;
+    put_warning( a_message || chr( 10 ) || 'at package "' || upper(l_result) || '", line ' || a_line_no );
+  end;
+
   member function get_transaction_invalidators return ut_varchar2_list is
   begin
     return transaction_invalidators;

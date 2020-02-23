@@ -74,7 +74,7 @@ create or replace type body ut_teamcity_reporter is
     begin
       l_idx := a_executables.first;
       while l_idx is not null loop
-        l_message := l_message || add_error_message(a_executables(l_idx).error_backtrace, a_message_name);
+        l_message := l_message || add_error_message( a_executables(l_idx).get_error_stack_trace(), a_message_name );
         l_idx := a_executables.next(l_idx);
       end loop;
       return l_message;
@@ -92,7 +92,7 @@ create or replace type body ut_teamcity_reporter is
       if a_test.result = ut_utils.gc_error then
         l_std_err_msg := l_std_err_msg || add_error_messages(a_test.before_each_list, 'Before each exception:');
         l_std_err_msg := l_std_err_msg || add_error_messages(a_test.before_test_list, 'Before test exception:');
-        l_std_err_msg := l_std_err_msg || add_error_message(a_test.item.error_backtrace, 'Test exception:');
+        l_std_err_msg := l_std_err_msg || add_error_message(a_test.item.get_error_stack_trace(), 'Test exception:');
         l_std_err_msg := l_std_err_msg || add_error_messages(a_test.after_test_list, 'After test exception:');
         l_std_err_msg := l_std_err_msg || add_error_messages(a_test.after_each_list, 'After each exception:');
 
