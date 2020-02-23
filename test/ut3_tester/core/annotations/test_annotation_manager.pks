@@ -3,12 +3,10 @@ create or replace package test_annotation_manager is
   --%suite(ut_annotation_manager)
   --%suitepath(utplsql.ut3_tester.core.annotations)
 
+  --%afterall(drop_dummy_test_package)
+    
   --%aftereach
   procedure cleanup_annotation_cache;
-
-  procedure disable_ddl_trigger;
-
-  procedure enable_ddl_trigger;
 
   procedure create_dummy_package;
 
@@ -45,30 +43,43 @@ create or replace package test_annotation_manager is
     --%beforetest(create_dummy_test_package)
     procedure trg_no_data_for_dropped_object;
 
-    --%test(Updates annotation cache when package recompiled)
-    procedure trg_update_modified_package;
+    --%test(Objects are populated on scan after cache was purged)
+    --%beforetest(annotation_cache_helper.disable_ddl_trigger)
+    --%aftertest(annotation_cache_helper.enable_ddl_trigger)
+    procedure trg_populate_cache_after_purge;
 
   --%endcontext
 
-  --%context(Without DDL trigger enabled)
+  --%context(Without DDL trigger)
 
-    --%beforeall(disable_ddl_trigger)
+    --%beforeall(annotation_cache_helper.disable_ddl_trigger)
 
-    --%afterall(enable_ddl_trigger)
+    --%afterall(annotation_cache_helper.enable_ddl_trigger)
 
     --%beforeeach(create_dummy_package)
     --%aftereach(drop_dummy_package)
 
-    --%test(Adds new package to annotation cache info when it is not unit test package)
-    procedure add_new_package;
-
-    --%test(Updates annotation cache info for modified package)
-    procedure update_modified_package;
-
-    --%test(Adds annotations to cache for unit test package)
-    --%beforetest(create_dummy_test_package)
+    --%test(Returns annotations when annotated package was created)
     --%aftertest(drop_dummy_test_package)
-    procedure add_new_test_package;
+    procedure add_annotated_package;
+
+    --%test(Doesn't return annotations when annotated package was removed)
+    --%aftertest(drop_dummy_test_package)
+    procedure remove_annotated_package;
+
+    --%test(Doesn't return annotations when package doesn't contain annotations)
+    procedure add_not_annotated_package;
+
+    --%test(Doesn't return annotations when package without annotations was dropped)
+    procedure remove_not_annotated_package;
+
+    --%test(Doesn't return annotations when annotations removed from package)
+    --%aftertest(drop_dummy_test_package)
+    procedure remove_annotations_from_pkg;
+
+    --%test(Returns annotations when annotations were added to package)
+    --%aftertest(drop_dummy_test_package)
+    procedure add_annotations_to_package;
 
     --%test(Updates annotations in cache for modified test package)
     procedure update_modified_test_package;
@@ -83,6 +94,9 @@ create or replace package test_annotation_manager is
 
     --%test(Remove object from cache when object dropped and user can see whole schema)
     procedure cleanup_dropped_data_in_cache;
+
+    --%test(Objects are populated on scan after cache was purged)
+    procedure populate_cache_after_purge;
 
   --%endcontext
 

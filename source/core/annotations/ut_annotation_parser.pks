@@ -40,5 +40,5 @@ create or replace package ut_annotation_parser authid current_user as
    */
   function parse_object_annotations(a_source clob) return ut_annotations;
 
-end ut_annotation_parser;
+end;
 /

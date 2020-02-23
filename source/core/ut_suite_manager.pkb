@@ -363,7 +363,8 @@ create or replace package body ut_suite_manager is
                where a.object_name = c.object_name
                  and a.owner       = c.object_owner
                  and a.object_type = 'PACKAGE'
-           );
+           )
+        or c.self_type = 'UT_LOGICAL_SUITE';
     end if;
     
     return l_result;
@@ -373,7 +374,7 @@ create or replace package body ut_suite_manager is
     a_owner_name         varchar2
   ) return boolean is
   begin
-    return sys_context( 'userenv', 'current_schema' ) = a_owner_name or ut_metadata.user_has_execute_any_proc() or ut_trigger_check.is_alive();
+    return sys_context( 'userenv', 'current_schema' ) = a_owner_name or ut_metadata.user_has_execute_any_proc();
   end;
 
   procedure build_and_cache_suites(
@@ -608,6 +609,7 @@ create or replace package body ut_suite_manager is
                       and a.owner       = c.object_owner
                       and a.object_type = 'PACKAGE'
                  )
+            or c.item_type = 'UT_LOGICAL_SUITE'
          order by c.object_owner, c.object_name, c.item_line_no;
     end if;
     return l_result;
@@ -627,7 +629,7 @@ create or replace package body ut_suite_manager is
 
     refresh_cache(l_owner_name);
     l_item_exists := ut_suite_cache_manager.suite_item_exists( l_owner_name, l_package_name, l_procedure_name );
-    if not can_skip_all_objects_scan( l_owner_name ) then
+    if not can_skip_all_objects_scan( l_owner_name ) and l_package_name is not null then
       select count(1)
         into l_count
         from dual c

@@ -614,7 +614,7 @@ create or replace package body run_helper is
     execute immediate q'[drop package ut3.some_test_package]';
   end;
   
-  function get_object_name(a_owner in varchar2) return ut3.ut_object_names is
+  function get_schema_ut_packages(a_owner in varchar2) return ut3.ut_object_names is
   begin
     return ut3.ut_suite_manager.get_schema_ut_packages(ut3.ut_varchar2_rows(a_owner));
   end;

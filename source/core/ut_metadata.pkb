@@ -123,7 +123,7 @@ create or replace package body ut_metadata as
   function user_has_execute_any_proc return boolean is
     l_ut_owner     varchar2(250) := ut_utils.ut_owner;
   begin
-    return is_object_visible(l_ut_owner||'.ut_utils');
+    return is_object_visible(l_ut_owner||'.ut_utils') and sys_context('userenv','current_schema') != l_ut_owner;
   end;
 
   function is_object_visible(a_object_name varchar2) return boolean is

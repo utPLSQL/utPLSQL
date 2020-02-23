@@ -19,86 +19,85 @@ create or replace package body ut_annotation_manager as
   ------------------------------
   --private definitions
 
-  function get_missing_objects(a_object_owner varchar2, a_object_type varchar2) return ut_annotation_objs_cache_info is
-    l_rows         sys_refcursor;
-    l_ut_owner     varchar2(250) := ut_utils.ut_owner;
-    l_objects_view varchar2(200) := ut_metadata.get_objects_view_name();
-    l_cursor_text  varchar2(32767);
-    l_data         ut_annotation_objs_cache_info;
-    l_result       ut_annotation_objs_cache_info;
-    l_card         natural;
+  function user_can_see_whole_schema( a_schema_name varchar2 ) return boolean is
   begin
-    l_data := ut_annotation_cache_manager.get_annotations_objects_info(a_object_owner, a_object_type);
-    l_card := ut_utils.scale_cardinality(cardinality(l_data));
-
-    l_cursor_text :=
-      'select /*+ cardinality(i '||l_card||') */
-                value(i)
-           from table( cast( :l_data as '||l_ut_owner||'.ut_annotation_objs_cache_info ) ) i
-           where
-             not exists (
-                select 1  from '||l_objects_view||q'[ o
-                 where o.owner = i.object_owner
-                   and o.object_name = i.object_name
-                   and o.object_type = i.object_type
-                   and o.owner       = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
-                   and o.object_type = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
-                )]';
-    open l_rows for l_cursor_text  using l_data;
-    fetch l_rows bulk collect into l_result limit ut_utils.gc_max_objects_fetch_limit;
-    close l_rows;
-    return l_result;
+    return sys_context('userenv','current_schema') = a_schema_name
+      or ut_metadata.user_has_execute_any_proc()
+      or ut_metadata.is_object_visible('dba_objects');
   end;
 
-  function get_annotation_objs_info(
-    a_object_owner varchar2,
-    a_object_type  varchar2,
-    a_parse_date   timestamp := null,
-    a_full_scan    boolean   := true
-  ) return ut_annotation_objs_cache_info is
-    l_rows          sys_refcursor;
-    l_ut_owner      varchar2(250) := ut_utils.ut_owner;
-    l_objects_view  varchar2(200) := ut_metadata.get_objects_view_name();
-    l_cursor_text   varchar2(32767);
-    l_data          ut_annotation_objs_cache_info;
-    l_result        ut_annotation_objs_cache_info;
+  function get_non_existing_objects( a_object_owner varchar2, a_object_type varchar2 ) return ut_annotation_objs_cache_info is
+    l_objects_view     varchar2(200) := ut_metadata.get_objects_view_name();
+    l_object_to_delete ut_annotation_objs_cache_info := ut_annotation_objs_cache_info();
+    l_cached_objects   ut_annotation_objs_cache_info;
   begin
-    ut_event_manager.trigger_event(
-      'get_annotation_objs_info - start ( a_full_scan = ' || ut_utils.to_string(a_full_scan) || ' )'
-    );
+    l_cached_objects := ut_annotation_cache_manager.get_cached_objects_list( a_object_owner, a_object_type );
 
-    l_data := ut_annotation_cache_manager.get_annotations_objects_info(a_object_owner, a_object_type);
-
-    if not a_full_scan then
-      l_result := l_data;
-    else
-      l_cursor_text :=
-        'select /*+ cardinality(i '||ut_utils.scale_cardinality(cardinality(l_data))||') */
-                  '||l_ut_owner||q'[.ut_annotation_obj_cache_info(
-                    object_owner  => o.owner,
-                    object_name   => o.object_name,
-                    object_type   => o.object_type,
-                    needs_refresh => case when o.last_ddl_time < cast(i.parse_time as date) then 'N' else 'Y' end,
-                    parse_time    => i.parse_time
-                  )
-             from ]'||l_objects_view||' o
-             left join table( cast(:l_data as '||l_ut_owner||q'[.ut_annotation_objs_cache_info ) ) i
-               on o.owner       = i.object_owner
-              and o.object_name = i.object_name
-              and o.object_type = i.object_type
-            where o.owner       = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
-              and o.object_type = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
-              and ]'
-          || case
-             when a_parse_date is null
-               then ':a_parse_date is null'
-             else 'o.last_ddl_time >= cast(:a_parse_date as date)'
-             end;
-      open l_rows for l_cursor_text  using l_data, a_parse_date;
-      fetch l_rows bulk collect into l_result limit ut_utils.gc_max_objects_fetch_limit;
-      close l_rows;
+    if l_cached_objects is not empty then
+      execute immediate 'select /*+ cardinality(i '||ut_utils.scale_cardinality(cardinality(l_cached_objects))||') */
+                  value(i)
+             from table( :l_data ) i
+             where
+               not exists (
+                  select 1  from '||l_objects_view||q'[ o
+                   where o.owner       = i.object_owner
+                     and o.object_name = i.object_name
+                     and o.object_type = i.object_type
+                     and o.owner       = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
+                     and o.object_type = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
+                  )]'
+        bulk collect into l_object_to_delete
+        using l_cached_objects;
     end if;
-    ut_event_manager.trigger_event('get_annotation_objs_info - end (count='||l_result.count||')');
+    return l_object_to_delete;
+  end;
+
+  function get_objects_to_refresh(
+    a_object_owner   varchar2,
+    a_object_type    varchar2,
+    a_modified_after timestamp
+  ) return ut_annotation_objs_cache_info is
+    l_ut_owner       varchar2(250) := ut_utils.ut_owner;
+    l_refresh_needed boolean;
+    l_objects_view   varchar2(200) := ut_metadata.get_objects_view_name();
+    l_cached_objects ut_annotation_objs_cache_info;
+    l_result         ut_annotation_objs_cache_info;
+  begin
+    ut_event_manager.trigger_event( 'get_objects_to_refresh - start' );
+
+    l_refresh_needed := ( ut_trigger_check.is_alive() = false ) or a_modified_after is null;
+    l_cached_objects := ut_annotation_cache_manager.get_cached_objects_list( a_object_owner, a_object_type, a_modified_after );
+    if l_refresh_needed then
+      --limit the list to objects that exist and are visible to the invoking user
+      --enrich the list by info about cache validity
+      execute immediate
+        'select /*+ cardinality(i '||ut_utils.scale_cardinality(cardinality(l_cached_objects))||') */
+                '||l_ut_owner||q'[.ut_annotation_obj_cache_info(
+                  object_owner  => o.owner,
+                  object_name   => o.object_name,
+                  object_type   => o.object_type,
+                  needs_refresh => 'Y',
+                  parse_time    => c.parse_time
+                )
+           from ]'||l_objects_view||' o
+           left join table( cast(:l_cached_objects as '||l_ut_owner||q'[.ut_annotation_objs_cache_info ) ) c
+             on o.owner       = c.object_owner
+            and o.object_name = c.object_name
+            and o.object_type = c.object_type
+          where o.owner       = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
+            and o.object_type = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
+            and case when o.last_ddl_time < cast(c.parse_time as date) then 'N' else 'Y' end = 'Y'
+            and ]'
+          || case
+             when a_modified_after is null
+               then ':a_modified_after is null'
+             else 'o.last_ddl_time >= cast(:a_modified_after as date)'
+             end
+        bulk collect into l_result using l_cached_objects, a_modified_after;
+    else
+      l_result := l_cached_objects;
+    end if;
+    ut_event_manager.trigger_event('get_objects_to_refresh - end (count='||l_result.count||')');
     return l_result;
   end;
 
@@ -109,24 +108,24 @@ create or replace package body ut_annotation_manager as
   begin
     l_card := ut_utils.scale_cardinality(cardinality(a_objects_to_refresh));
     open l_result for
-     q'[select s.name, s.text
+      q'[select x.name, x.text
           from (select /*+ cardinality( r ]'||l_card||q'[ )*/
                        s.name, s.text, s.line,
                        max(case when s.text like '%--%\%%' escape '\'
-                                 and regexp_like(s.text,'--\s*%')
+                                 and regexp_like(s.text,'^\s*--\s*%')
                            then 'Y' else 'N' end
                           )
                          over(partition by s.name) is_annotated
                   from table(:a_objects_to_refresh) r
                   join ]'||l_sources_view||q'[ s
-                    on s.name = r.object_name
+                    on s.name  = r.object_name
                    and s.owner = r.object_owner
-                   and s.type = r.object_type
-                 where s.owner       = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
-                   and s.type        = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
-               ) s
-         where s.is_annotated = 'Y'
-          order by s.name, s.line]'
+                   and s.type  = r.object_type
+                 where s.owner = ']'||ut_utils.qualified_sql_name(a_object_owner)||q'['
+                   and s.type  = ']'||ut_utils.qualified_sql_name(a_object_type)||q'['
+               ) x
+          where x.is_annotated = 'Y'
+          order by x.name, x.line]'
       using a_objects_to_refresh;
 
     return l_result;
@@ -174,47 +173,57 @@ create or replace package body ut_annotation_manager as
   end;
 
 
-  procedure refresh_annotation_cache(
-    a_object_owner varchar2,
-    a_object_type  varchar2,
-    a_info_rows    ut_annotation_objs_cache_info
+  procedure validate_annotation_cache(
+    a_object_owner   varchar2,
+    a_object_type    varchar2,
+    a_modified_after timestamp := null
   ) is
-    l_objects_to_parse       ut_annotation_objs_cache_info;
+    l_objects_to_refresh ut_annotation_objs_cache_info;
+    l_modified_after     timestamp := a_modified_after;
   begin
-    select value(x)
-      bulk collect into l_objects_to_parse
-      from table(a_info_rows) x where x.needs_refresh = 'Y';
+    if ut_annotation_cache_manager.get_cache_schema_info(a_object_owner, a_object_type).full_refresh_time is null then
+      l_modified_after := null;
+    end if;
 
-    ut_event_manager.trigger_event('rebuild_annotation_cache - start (l_objects_to_parse.count = '||l_objects_to_parse.count||')');
-    ut_annotation_cache_manager.cleanup_cache(l_objects_to_parse);
+    l_objects_to_refresh := get_objects_to_refresh(a_object_owner, a_object_type, l_modified_after);
 
-    if sys_context('userenv','current_schema') = a_object_owner
-      or ut_metadata.user_has_execute_any_proc()
-      or ut_metadata.is_object_visible('dba_objects')
-    then
-      ut_annotation_cache_manager.remove_from_cache(
-        get_missing_objects(a_object_owner, a_object_type)
-      );
+    ut_event_manager.trigger_event('validate_annotation_cache - start (l_objects_to_refresh.count = '||l_objects_to_refresh.count||')');
+
+
+    if user_can_see_whole_schema( a_object_owner ) then
+      --Remove non existing objects from cache only when user can see whole schema
+      ut_annotation_cache_manager.remove_from_cache( get_non_existing_objects( a_object_owner, a_object_type ) );
     end if;
 
     --if some source needs parsing and putting into cache
-    if l_objects_to_parse.count > 0 then
+    if l_objects_to_refresh.count > 0 then
+      --Delete annotations for objects that are to be refreshed
+      ut_annotation_cache_manager.reset_objects_cache(l_objects_to_refresh);
+      --Rebuild cache from objects source
       build_annot_cache_for_sources(
         a_object_owner, a_object_type,
-        get_sources_to_annotate(a_object_owner, a_object_type, l_objects_to_parse)
+        get_sources_to_annotate(a_object_owner, a_object_type, l_objects_to_refresh)
       );
     end if;
-    ut_event_manager.trigger_event('rebuild_annotation_cache - end');
+
+    if l_modified_after is null then
+      if user_can_see_whole_schema( a_object_owner ) then
+        ut_annotation_cache_manager.set_fully_refreshed( a_object_owner, a_object_type );
+      else
+        -- if user cannot see full schema - we dont mark it as fully refreshed
+        -- it will get refreshed each time until someone with proper privs will refresh it
+        null;
+      end if;
+    end if;
+    ut_event_manager.trigger_event('validate_annotation_cache - end');
   end;
 
   ------------------------------------------------------------
   --public definitions
   ------------------------------------------------------------
   procedure rebuild_annotation_cache(a_object_owner varchar2, a_object_type varchar2) is
-    l_annotation_objs_info ut_annotation_objs_cache_info;
   begin
-    l_annotation_objs_info := get_annotation_objs_info(a_object_owner, a_object_type, null, true);
-    refresh_annotation_cache( a_object_owner, a_object_type, l_annotation_objs_info );
+    validate_annotation_cache( a_object_owner, a_object_type );
   end;
 
   procedure trigger_obj_annotation_rebuild is
@@ -295,17 +304,14 @@ create or replace package body ut_annotation_manager as
     end if;
   end;
 
-  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_parse_date timestamp := null) return sys_refcursor is
-    l_annotation_objs_info   ut_annotation_objs_cache_info;
+  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_modified_after timestamp) return sys_refcursor is
     l_cursor                 sys_refcursor;
-    l_full_scan_needed       boolean := not ut_trigger_check.is_alive();
   begin
-    ut_event_manager.trigger_event('get_annotated_objects - start');
-    l_annotation_objs_info := get_annotation_objs_info(a_object_owner, a_object_type, a_parse_date, l_full_scan_needed);
-    refresh_annotation_cache(a_object_owner, a_object_type, l_annotation_objs_info);
+    ut_event_manager.trigger_event('get_annotated_objects - start: a_modified_after='||ut_utils.to_string(a_modified_after));
+    validate_annotation_cache(a_object_owner, a_object_type, a_modified_after);
 
     --pipe annotations from cache
-    l_cursor := ut_annotation_cache_manager.get_annotations_for_objects(l_annotation_objs_info, a_parse_date);
+    l_cursor := ut_annotation_cache_manager.get_annotations_parsed_since(a_object_owner, a_object_type, a_modified_after);
     ut_event_manager.trigger_event('get_annotated_objects - end');
     return l_cursor;
   end;
@@ -315,5 +321,5 @@ create or replace package body ut_annotation_manager as
     ut_annotation_cache_manager.purge_cache(a_object_owner, a_object_type);
   end;
 
-end ut_annotation_manager;
+end;
 /

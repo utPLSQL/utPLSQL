@@ -23,18 +23,17 @@ create or replace package ut_annotation_manager authid current_user as
   /**
    * Gets annotations for all objects of a specified type for database schema.
    * Annotations that are stale or missing are parsed and placed in persistent cache.
-   * After placing in cache, annotation data is returned as pipelined table data.
+   * After placing in cache, annotation data is returned as ref_cursor.
    *
-   * @param a_object_owner owner of objects to get annotations for
-   * @param a_object_type type of objects to get annotations for
-   * @param a_parse_date   date when object was last parsed
-   * @return array containing annotated objects along with annotations for each object (nested)
+   * @param a_object_owner   owner of objects to get annotations for
+   * @param a_object_type    type of objects to get annotations for
+   * @param a_modified_after return only objects modified after thr timestamp
+   * @return                 cursor containing annotated objects along with annotations for each object (nested)
    */
-  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_parse_date timestamp := null) return sys_refcursor;
+  function get_annotated_objects(a_object_owner varchar2, a_object_type varchar2, a_modified_after timestamp) return sys_refcursor;
 
   /**
    * Rebuilds annotation cache for a specified schema and object type.
-   *  The procedure is called internally by `get_annotated_objects` function.
    *  It can be used to speedup initial execution of utPLSQL on a given schema
    *   if it is executed before any call is made to `ut.run` or `ut_runner.run` procedure.
    *
@@ -57,5 +56,5 @@ create or replace package ut_annotation_manager authid current_user as
   procedure purge_cache(a_object_owner varchar2, a_object_type varchar2);
 
 
-end ut_annotation_manager;
+end;
 /
