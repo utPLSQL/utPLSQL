@@ -14,6 +14,19 @@ create or replace package body test_annotation_cache is
     ut.expect( l_actual_cache_info ).to_equal( l_expected_cache_info ).exclude( 'CACHE_ID,PARSE_TIME,OBJECT_TYPE' ).JOIN_BY('OBJECT_NAME');
   end;
 
+  procedure cant_run_any_packages(a_user varchar2) is
+    l_actual       clob;
+    l_current_time date := sysdate;
+    pragma autonomous_transaction;
+  begin
+    --Act
+    l_actual := annotation_cache_helper.run_tests_as( a_user );
+
+    --Assert - no suites are
+    ut.expect( l_actual ).to_be_like( '%0 tests, 0 failed%' );
+    rollback;
+  end;
+
   procedure can_run_one_package(a_user varchar2) is
     l_actual       clob;
     l_current_time date := sysdate;
@@ -380,6 +393,11 @@ create or replace package body test_annotation_cache is
     cache_populated_for_packages( ut_varchar2_rows( 'GRANTED_TEST_SUITE', 'NOT_GRANTED_TEST_SUITE' ) );
   end;
 
+  procedure t_ut_owner_cannot_run_tests is
+  begin
+    cant_run_any_packages( 'ut3' );
+    cache_populated_for_packages( ut_varchar2_rows( 'GRANTED_TEST_SUITE', 'NOT_GRANTED_TEST_SUITE' ) );
+  end;
 
 
 

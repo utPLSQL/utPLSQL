@@ -122,7 +122,7 @@ create or replace package body annotation_cache_helper as
     pragma autonomous_transaction;
   begin
     execute immediate
-      'create or replace function ' || a_user || '.ut_run return clob is
+      'create or replace function ' || a_user || '.call_ut_run return clob is
         l_data    ut3.ut_varchar2_list;
         l_results clob;
       begin
@@ -130,13 +130,13 @@ create or replace package body annotation_cache_helper as
         return ut3_tester_helper.main_helper.table_to_clob( l_data );
       end;
       ';
-    execute immediate 'grant execute on ' || a_user || '.ut_run to public ';
+    execute immediate 'grant execute on ' || a_user || '.call_ut_run to public ';
   end;
 
   procedure drop_run_function_for_user(a_user varchar2) is
     pragma autonomous_transaction;
   begin
-    execute immediate 'drop function ' || a_user || '.ut_run';
+    execute immediate 'drop function ' || a_user || '.call_ut_run';
   end;
 
   procedure create_run_function_for_users is
@@ -146,6 +146,7 @@ create or replace package body annotation_cache_helper as
     create_run_function_for_user( 'ut3_select_any_table_user' );
     create_run_function_for_user( 'ut3_execute_any_proc_user' );
     create_run_function_for_user( 'ut3_cache_test_owner' );
+    create_run_function_for_user( 'ut3' );
   end;
 
   procedure drop_run_function_for_users is
@@ -155,12 +156,13 @@ create or replace package body annotation_cache_helper as
     drop_run_function_for_user( 'ut3_select_any_table_user' );
     drop_run_function_for_user( 'ut3_execute_any_proc_user' );
     drop_run_function_for_user( 'ut3_cache_test_owner' );
+    drop_run_function_for_user( 'ut3' );
   end;
 
   function run_tests_as(a_user varchar2) return clob is
     l_results clob;
   begin
-    execute immediate 'begin :x := '||a_user||'.ut_run; end;' using out l_results;
+    execute immediate 'begin :x := '||a_user||'.call_ut_run; end;' using out l_results;
     return l_results;
   end;
 end;
