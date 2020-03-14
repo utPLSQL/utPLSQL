@@ -12,18 +12,29 @@ begin
       end if;
     end loop;
   end if;
+
+  with
+    x as (
+         select '' as remove from dual
+         union all
+         select ' ANY' as remove  from dual
+    )
   select listagg(' -  '||privilege,CHR(10)) within group(order by privilege)
-  into l_missing_grants
-  from (
-    select column_value as privilege
-    from table(l_expected_grants)
-    minus
-    (select privilege
-    from user_sys_privs
-    union all
-    select replace(privilege,' ANY') privilege
-    from user_sys_privs)
-  );
+    into l_missing_grants
+    from (
+      select column_value as privilege
+        from table(l_expected_grants)
+      minus (
+      select replace(p.privilege, x.remove) as privilege
+        from role_sys_privs p
+        join session_roles r using (role)
+        cross join  x
+      union all
+      select replace(p.privilege, x.remove) as privilege
+        from user_sys_privs p
+        cross join  x
+       )
+    );
   if l_missing_grants is not null then
     raise_application_error(
         -20000

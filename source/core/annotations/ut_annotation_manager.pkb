@@ -21,7 +21,7 @@ create or replace package body ut_annotation_manager as
 
   function user_can_see_whole_schema( a_schema_name varchar2 ) return boolean is
   begin
-    return sys_context('userenv','current_schema') = a_schema_name
+    return sys_context('userenv','current_user') = a_schema_name
       or ut_metadata.user_has_execute_any_proc()
       or ut_metadata.is_object_visible('dba_objects');
   end;

@@ -89,6 +89,13 @@ create or replace package test_annotation_cache is
 
     --%endcontext
 
+    --%context(utPLSQL framework owner)
+
+      --%test(Cannot see any tests and doesn't impact annotation cache )
+      procedure t_ut_owner_cannot_run_tests;
+
+    --%endcontext
+
   --%endcontext
 
   --%context(With DDL trigger disabled)

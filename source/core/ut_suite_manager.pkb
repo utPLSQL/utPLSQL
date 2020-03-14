@@ -374,7 +374,7 @@ create or replace package body ut_suite_manager is
     a_owner_name         varchar2
   ) return boolean is
   begin
-    return sys_context( 'userenv', 'current_schema' ) = a_owner_name or ut_metadata.user_has_execute_any_proc();
+    return sys_context( 'userenv', 'current_user' ) = a_owner_name or ut_metadata.user_has_execute_any_proc();
   end;
 
   procedure build_and_cache_suites(

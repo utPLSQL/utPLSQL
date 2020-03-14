@@ -86,7 +86,7 @@ begin
       and generated = 'N'
       and object_name not like 'SYS%')
   loop
-    execute immediate 'grant execute on ut3."'||i.object_name||'" to UT3_TESTER';
+    execute immediate 'grant execute on $UT3_OWNER."'||i.object_name||'" to $UT3_TESTER';
   end loop;
 end;
 /
@@ -96,7 +96,7 @@ PROMPT Granting $UT3_OWNER tables to $UT3_TESTER
 begin
   for i in ( select table_name from all_tables t where  owner = 'UT3' and nested = 'NO' and iot_name is null)
   loop
-    execute immediate 'grant select on UT3.'||i.table_name||' to UT3_TESTER';
+    execute immediate 'grant select on $UT3_OWNER.'||i.table_name||' to $UT3_TESTER';
   end loop;
 end;
 /
