@@ -419,13 +419,12 @@ create or replace package body test_expectations_cursor is
   as
     l_expected sys_refcursor;
     l_actual   sys_refcursor;
-    l_date     date   := sysdate;
-    l_second   number := 1/24/60/60;
+    c_second   constant number := 1/24/60/60;
   begin
     --Arrange
     ut3.ut.set_nls;
-    open l_actual for select l_date as some_date from dual;
-    open l_expected for select l_date-l_second some_date from dual;
+    open l_actual for select gc_date as some_date from dual;
+    open l_expected for select gc_date - c_second some_date from dual;
     --Act
     ut3.ut.expect( l_actual ).to_equal( l_expected );
     --Assert
@@ -439,8 +438,8 @@ create or replace package body test_expectations_cursor is
     l_expected sys_refcursor;
   begin
     --Arrange
-    open l_actual   for select sysdate as some_date from dual;
-    open l_expected for select to_date(to_char(sysdate)) as some_date from dual;
+    open l_actual   for select gc_date as some_date from dual;
+    open l_expected for select to_date(to_char(gc_date)) as some_date from dual;
     --Act
     ut3.ut.expect(l_actual).to_equal(l_expected);
     --Assert
@@ -1970,10 +1969,10 @@ Diff:%
     l_actual_tab       some_object;
     l_expected_tab     some_object;
   begin
-    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+    select some_object( user,'TEST', gc_date, some_items( some_item(1,'test'), some_item(2,'test') ) )
     into l_actual_tab from dual;
  
-    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+    select some_object( user,'TEST', gc_date, some_items( some_item(1,'test'), some_item(2,'test') ) )
     into l_expected_tab from dual;
       
     --Arrange
@@ -1994,10 +1993,10 @@ Diff:%
     l_actual_tab       some_object;
     l_expected_tab     some_object;
   begin
-    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+    select some_object( user,'TEST', gc_date, some_items( some_item(1,'test'), some_item(2,'test') ) )
            into l_actual_tab from dual;
 
-    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+    select some_object( user,'TEST', gc_date, some_items( some_item(1,'test'), some_item(2,'test') ) )
            into l_expected_tab from dual;
       
     --Arrange
@@ -2018,10 +2017,10 @@ Diff:%
     l_actual_tab       some_object;
     l_expected_tab     some_object;
   begin
-    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+    select some_object( user,'TEST', gc_date, some_items( some_item(1,'test'), some_item(2,'test') ) )
            into l_actual_tab from dual;
 
-    select some_object( user,'TEST', sysdate, some_items( some_item(1,'test'), some_item(2,'test') ) )
+    select some_object( user,'TEST', gc_date, some_items( some_item(1,'test'), some_item(2,'test') ) )
            into l_expected_tab from dual;
 
     --Arrange
@@ -2043,12 +2042,11 @@ Diff:%
     l_expected_tab     some_object;
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
-    l_date             date := sysdate;
   begin
-    select some_object( 'TEST','TEST', l_date, some_items( some_item(1,'BAD'), some_item(2,'test') ) )
+    select some_object( 'TEST','TEST', gc_date, some_items( some_item(1,'BAD'), some_item(2,'test') ) )
            into l_actual_tab from dual;
 
-    select some_object( 'TEST','TEST', l_date, some_items( some_item(1,'TEST'), some_item(2,'test') ) )
+    select some_object( 'TEST','TEST', gc_date, some_items( some_item(1,'TEST'), some_item(2,'test') ) )
            into l_expected_tab from dual;
 
     --Arrange
@@ -2080,10 +2078,10 @@ Diff:%
     l_expected_message varchar2(32767);
     l_actual_message   varchar2(32767);
   begin
-    select some_object( 'TEST','TEST', sysdate, some_items( some_item(1,'BAD'), some_item(2,'test') ) )
+    select some_object( 'TEST','TEST', gc_date, some_items( some_item(1,'BAD'), some_item(2,'test') ) )
            into l_actual_tab from dual;
 
-    select some_object( 'TEST','TEST', sysdate, some_items( some_item(1,'TEST'), some_item(2,'test') ) )
+    select some_object( 'TEST','TEST', gc_date, some_items( some_item(1,'TEST'), some_item(2,'test') ) )
            into l_expected_tab from dual;
 
     --Arrange
