@@ -2064,9 +2064,15 @@ When processing the test suite `test_employee_pkg` defined in [Example of annota
 
 ## sys_context
 
-It is possible to access information about currently running suite, test and befire/after procedure form within PLSQL procedure using SYS_CONTEXT.
-
+It is possible to access information about currently running suite.
 The information is available by calling `sys_context( 'UT3_INFO', attribute )`.
+It can be accessed from any procecure invoked as part of utPLSQL test execution.
+
+**Note:**
+> Context name is derived from schema name where utPLSQL is installed.
+> The context name in below examples represents the default install schema -> `UT3`
+> If you install utPLSQL into another schema the context name will be different.
+> For example if utPLSQL is installed into `HR` schema, the context name will be `HR_INFO`
 
 Following attributes are populated:
 - Always:
