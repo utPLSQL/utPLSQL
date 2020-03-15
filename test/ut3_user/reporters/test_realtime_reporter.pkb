@@ -23,12 +23,12 @@ create or replace package body test_realtime_reporter as
     execute immediate q'[create or replace package body check_realtime_reporting1 is
       procedure test_1_ok is
       begin
-        ut3.ut.expect(1).to_equal(1);
+        ut3_develop.ut.expect(1).to_equal(1);
       end;
 
       procedure test_2_nok is
       begin
-        ut3.ut.expect(1).to_equal(2);
+        ut3_develop.ut.expect(1).to_equal(2);
       end;
     end;]';
     
@@ -49,13 +49,13 @@ create or replace package body test_realtime_reporter as
     execute immediate q'[create or replace package body check_realtime_reporting2 is
       procedure test_3_ok is
       begin
-        ut3.ut.expect(2).to_equal(2);
+        ut3_develop.ut.expect(2).to_equal(2);
       end;
 
       procedure test_4_nok is
       begin
-        ut3.ut.expect(2).to_equal(3);
-        ut3.ut.expect(2).to_equal(4);
+        ut3_develop.ut.expect(2).to_equal(3);
+        ut3_develop.ut.expect(2).to_equal(4);
       end;
       
       procedure test_5 is
@@ -82,13 +82,13 @@ create or replace package body test_realtime_reporter as
         l_actual integer;
       begin
         execute immediate 'select 6 from non_existing_table' into l_actual;
-        ut3.ut.expect(6).to_equal(l_actual);
+        ut3_develop.ut.expect(6).to_equal(l_actual);
       end;
 
       procedure test_7_with_serveroutput is
       begin
         dbms_output.put_line('before test 7');
-        ut3.ut.expect(7).to_equal(7);
+        ut3_develop.ut.expect(7).to_equal(7);
         dbms_output.put_line('after test 7');
       end;
 
@@ -114,18 +114,18 @@ create or replace package body test_realtime_reporter as
       procedure test_8_with_warning is
       begin
         commit; -- this will raise a warning
-        ut3.ut.expect(8).to_equal(8);
+        ut3_develop.ut.expect(8).to_equal(8);
       end;
     end;]';
     
     <<run_report_and_cache_result>>
     declare 
-      l_reporter ut3.ut_realtime_reporter := ut3.ut_realtime_reporter();
+      l_reporter ut3_develop.ut_realtime_reporter := ut3_develop.ut_realtime_reporter();
     begin
       -- produce
-      ut3.ut_runner.run(
-         a_paths     => ut3.ut_varchar2_list(':realtime_reporting'),
-         a_reporters => ut3.ut_reporters(l_reporter)
+      ut3_develop.ut_runner.run(
+         a_paths     => ut3_develop.ut_varchar2_list(':realtime_reporting'),
+         a_reporters => ut3_develop.ut_reporters(l_reporter)
       );
       -- consume
       select ut3_tester_helper.test_event_object(item_type, xmltype(text))
@@ -337,7 +337,7 @@ create or replace package body test_realtime_reporter as
   
   procedure serveroutput_of_test is
     l_actual   clob;
-    l_expected_list ut3.ut_varchar2_list;
+    l_expected_list ut3_develop.ut_varchar2_list;
     l_expected clob;
   begin
     select t.event_doc.extract('//event/test/serverOutput/text()').getstringval()
@@ -354,7 +354,7 @@ create or replace package body test_realtime_reporter as
  
   procedure serveroutput_of_testsuite is
     l_actual   clob;
-    l_expected_list ut3.ut_varchar2_list;
+    l_expected_list ut3_develop.ut_varchar2_list;
     l_expected clob;
   begin
     select t.event_doc.extract('//event/suite/serverOutput/text()').getstringval()
@@ -372,7 +372,7 @@ create or replace package body test_realtime_reporter as
 
   procedure error_stack_of_test is
     l_actual   clob;
-    l_expected_list ut3.ut_varchar2_list;
+    l_expected_list ut3_develop.ut_varchar2_list;
     l_expected clob;
   begin
     select t.event_doc.extract('//event/test/errorStack/text()').getstringval()
@@ -389,7 +389,7 @@ create or replace package body test_realtime_reporter as
 
   procedure error_stack_of_testsuite is
     l_actual   clob;
-    l_expected_list ut3.ut_varchar2_list;
+    l_expected_list ut3_develop.ut_varchar2_list;
     l_expected clob;
   begin
     select t.event_doc.extract('//event/suite/errorStack/text()').getstringval()
@@ -406,7 +406,7 @@ create or replace package body test_realtime_reporter as
 
   procedure warnings_of_test is
     l_actual   clob;
-    l_expected_list ut3.ut_varchar2_list;
+    l_expected_list ut3_develop.ut_varchar2_list;
     l_expected clob;
   begin
     select t.event_doc.extract('//event/test/warnings/text()').getstringval()
@@ -422,7 +422,7 @@ create or replace package body test_realtime_reporter as
 
   procedure warnings_of_testsuite is
     l_actual   clob;
-    l_expected_list ut3.ut_varchar2_list;
+    l_expected_list ut3_develop.ut_varchar2_list;
     l_expected clob;
   begin
     select t.event_doc.extract('//event/suite/warnings/text()').getstringval()
@@ -440,11 +440,11 @@ create or replace package body test_realtime_reporter as
   end warnings_of_testsuite;
 
   procedure get_description is
-    l_reporter ut3.ut_realtime_reporter;
+    l_reporter ut3_develop.ut_realtime_reporter;
     l_actual varchar2(4000);
     l_expected varchar2(80) := '%SQL Developer%';
   begin
-    l_reporter := ut3.ut_realtime_reporter();
+    l_reporter := ut3_develop.ut_realtime_reporter();
     l_actual := l_reporter.get_description();
     ut.expect(l_actual).to_be_like(l_expected);
   end get_description;

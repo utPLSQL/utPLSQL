@@ -1,6 +1,6 @@
 create or replace package coverage_helper is
 
-  type prof_runs_tab is table of ut3.plsql_profiler_runs%rowtype;
+  type prof_runs_tab is table of ut3_develop.plsql_profiler_runs%rowtype;
   
   function get_mock_proftab_run_id return integer;
 

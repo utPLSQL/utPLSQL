@@ -13,7 +13,7 @@ create or replace package body test_teamcity_reporter as
       execute immediate q'[create or replace package body check_escape_special_chars is
       procedure test_do_stuff is
       begin
-        ut3.ut.expect(' [ ' || chr(13) || chr(10) || ' ] ' ).to_be_null;
+        ut3_develop.ut.expect(' [ ' || chr(13) || chr(10) || ' ] ' ).to_be_null;
       end;
 
     end;]';
@@ -27,7 +27,7 @@ create or replace package body test_teamcity_reporter as
       execute immediate q'[create or replace package body check_trims_long_output is
       procedure long_output is
       begin
-        ut3.ut.expect(rpad('aVarchar',4000,'a')).to_be_null;
+        ut3_develop.ut.expect(rpad('aVarchar',4000,'a')).to_be_null;
       end;
     end;]';
 
@@ -35,7 +35,7 @@ create or replace package body test_teamcity_reporter as
 
 
   procedure report_produces_expected_out is
-    l_output_data       ut3.ut_varchar2_list;
+    l_output_data       ut3_develop.ut_varchar2_list;
     l_output            clob;
     l_expected          varchar2(32767);
   begin
@@ -76,14 +76,14 @@ create or replace package body test_teamcity_reporter as
     --act
     select *
     bulk collect into l_output_data
-    from table(ut3.ut.run('test_reporters',ut3.ut_teamcity_reporter()));
+    from table(ut3_develop.ut.run('test_reporters',ut3_develop.ut_teamcity_reporter()));
 
     --assert
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
   end;
 
   procedure escape_special_chars is
-    l_output_data       ut3.ut_varchar2_list;
+    l_output_data       ut3_develop.ut_varchar2_list;
     l_output            clob;
     l_expected          varchar2(32767);
   begin
@@ -95,14 +95,14 @@ create or replace package body test_teamcity_reporter as
     --act
     select *
         bulk collect into l_output_data
-    from table(ut3.ut.run('check_escape_special_chars',ut3.ut_teamcity_reporter()));
+    from table(ut3_develop.ut.run('check_escape_special_chars',ut3_develop.ut_teamcity_reporter()));
 
     --assert
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);
   end;
 
   procedure trims_long_output is
-    l_output_data       ut3.ut_varchar2_list;
+    l_output_data       ut3_develop.ut_varchar2_list;
     l_output            clob;
     l_expected          varchar2(32767);
   begin
@@ -114,7 +114,7 @@ create or replace package body test_teamcity_reporter as
     --act
     select *
         bulk collect into l_output_data
-    from table(ut3.ut.run('check_trims_long_output',ut3.ut_teamcity_reporter()));
+    from table(ut3_develop.ut.run('check_trims_long_output',ut3_develop.ut_teamcity_reporter()));
 
     --assert
     ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_output_data)).to_be_like(l_expected);

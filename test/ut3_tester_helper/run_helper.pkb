@@ -141,15 +141,15 @@ create or replace package body run_helper is
     pragma autonomous_transaction;
   begin
     setup_cache_objects();
-    ut3.ut_annotation_manager.rebuild_annotation_cache('UT3$USER#','PACKAGE');
-    ut3.ut_annotation_manager.rebuild_annotation_cache('UT3$USER#','PROCEDURE');
-    ut3.ut_annotation_manager.rebuild_annotation_cache('UT3_TESTER_HELPER','PROCEDURE');
+    ut3_develop.ut_annotation_manager.rebuild_annotation_cache('UT3$USER#','PACKAGE');
+    ut3_develop.ut_annotation_manager.rebuild_annotation_cache('UT3$USER#','PROCEDURE');
+    ut3_develop.ut_annotation_manager.rebuild_annotation_cache('UT3_TESTER_HELPER','PROCEDURE');
   end;
 
   procedure cleanup_cache is
     pragma autonomous_transaction;
   begin
-    delete from ut3.ut_annotation_cache_info
+    delete from ut3_develop.ut_annotation_cache_info
      where object_type = 'PROCEDURE' and object_owner in ('UT3$USER#','UT3_TESTER_HELPER')
         or object_type = 'PACKAGE' and object_owner = user and object_name = 'DUMMY_TEST_PACKAGE';
     execute immediate q'[drop package ut3$user#.dummy_test_package]';
@@ -199,7 +199,7 @@ create or replace package body run_helper is
         begin
           select 1 into a_value
           from dual@db_loopback;
-          ut3.ut.expect(a_value).to_be_null();
+          ut3_develop.ut.expect(a_value).to_be_null();
         end;
     end;]';
 
@@ -390,7 +390,7 @@ create or replace package body run_helper is
 
       procedure failing_stateful_test is
       begin
-        ut3.ut.expect(stateful_package.get_state@db_loopback).to_equal('abc');
+        ut3_develop.ut.expect(stateful_package.get_state@db_loopback).to_equal('abc');
       end;
 
       procedure rebuild_stateful_package is
@@ -435,126 +435,126 @@ create or replace package body run_helper is
     execute immediate 'drop package ut_without_body';
   end;
 
-  procedure run(a_reporter ut3.ut_reporter_base := null) is
+  procedure run(a_reporter ut3_develop.ut_reporter_base := null) is
   begin
-    ut3.ut.run(a_reporter);
+    ut3_develop.ut.run(a_reporter);
   end; 
   
-  procedure run(a_path varchar2, a_reporter ut3.ut_reporter_base := null) is
+  procedure run(a_path varchar2, a_reporter ut3_develop.ut_reporter_base := null) is
   begin
-    ut3.ut.run(a_path, a_reporter);
+    ut3_develop.ut.run(a_path, a_reporter);
   end;    
   
-  procedure run(a_paths ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base := null) is
+  procedure run(a_paths ut3_develop.ut_varchar2_list, a_reporter ut3_develop.ut_reporter_base := null) is
   begin
-    ut3.ut.run(a_paths, a_reporter);
+    ut3_develop.ut.run(a_paths, a_reporter);
   end;
 
-  procedure run(a_paths ut3.ut_varchar2_list, a_test_files ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base) is
+  procedure run(a_paths ut3_develop.ut_varchar2_list, a_test_files ut3_develop.ut_varchar2_list, a_reporter ut3_develop.ut_reporter_base) is
   begin
-    ut3.ut.run(
+    ut3_develop.ut.run(
       a_paths,
       a_reporter, 
-      a_source_files => ut3.ut_varchar2_list(),
+      a_source_files => ut3_develop.ut_varchar2_list(),
       a_test_files => a_test_files
      );
    end;
 
-  function run(a_reporter ut3.ut_reporter_base := null) return ut3.ut_varchar2_list is
-    l_results ut3.ut_varchar2_list;
+  function run(a_reporter ut3_develop.ut_reporter_base := null) return ut3_develop.ut_varchar2_list is
+    l_results ut3_develop.ut_varchar2_list;
   begin
-    select * bulk collect into l_results from table (ut3.ut.run(a_reporter));
+    select * bulk collect into l_results from table (ut3_develop.ut.run(a_reporter));
     return l_results;
   end;
 
-  function run(a_paths ut3.ut_varchar2_list, a_test_files ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base) return ut3.ut_varchar2_list is
-    l_results ut3.ut_varchar2_list;
+  function run(a_paths ut3_develop.ut_varchar2_list, a_test_files ut3_develop.ut_varchar2_list, a_reporter ut3_develop.ut_reporter_base) return ut3_develop.ut_varchar2_list is
+    l_results ut3_develop.ut_varchar2_list;
   begin
     select * bulk collect into l_results from table (
-      ut3.ut.run(
+      ut3_develop.ut.run(
       a_paths,
-      a_reporter, a_source_files => ut3.ut_varchar2_list(),
+      a_reporter, a_source_files => ut3_develop.ut_varchar2_list(),
       a_test_files => a_test_files
        ));
     return l_results;
   end;
 
-  function run(a_path varchar2, a_reporter ut3.ut_reporter_base := null) 
-    return ut3.ut_varchar2_list is
-    l_results ut3.ut_varchar2_list;
+  function run(a_path varchar2, a_reporter ut3_develop.ut_reporter_base := null)
+    return ut3_develop.ut_varchar2_list is
+    l_results ut3_develop.ut_varchar2_list;
   begin
-    select * bulk collect into l_results from table (ut3.ut.run(a_path, a_reporter));
+    select * bulk collect into l_results from table (ut3_develop.ut.run(a_path, a_reporter));
     return l_results;
   end;
   
-  function run(a_paths ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base := null) 
-    return ut3.ut_varchar2_list is
-    l_results ut3.ut_varchar2_list;
+  function run(a_paths ut3_develop.ut_varchar2_list, a_reporter ut3_develop.ut_reporter_base := null)
+    return ut3_develop.ut_varchar2_list is
+    l_results ut3_develop.ut_varchar2_list;
   begin
-    select * bulk collect into l_results from table (ut3.ut.run(a_paths, a_reporter));
+    select * bulk collect into l_results from table (ut3_develop.ut.run(a_paths, a_reporter));
    return l_results;
   end;
   
-  function run(a_test_files ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base) 
-    return ut3.ut_varchar2_list is
-    l_results ut3.ut_varchar2_list;
+  function run(a_test_files ut3_develop.ut_varchar2_list, a_reporter ut3_develop.ut_reporter_base)
+    return ut3_develop.ut_varchar2_list is
+    l_results ut3_develop.ut_varchar2_list;
   begin
     select * bulk collect into l_results from table (
-      ut3.ut.run(
-        a_reporter, a_source_files => ut3.ut_varchar2_list(),
+      ut3_develop.ut.run(
+        a_reporter, a_source_files => ut3_develop.ut_varchar2_list(),
         a_test_files => a_test_files
       ));
     return l_results;
   end;
  
-  procedure run(a_reporter ut3.ut_reporter_base := null,a_tags varchar2) is
+  procedure run(a_reporter ut3_develop.ut_reporter_base := null,a_tags varchar2) is
   begin
-    ut3.ut.run(a_reporter,a_tags => a_tags);
+    ut3_develop.ut.run(a_reporter,a_tags => a_tags);
   end; 
   
-  procedure run(a_path varchar2, a_reporter ut3.ut_reporter_base := null,a_tags varchar2) is
+  procedure run(a_path varchar2, a_reporter ut3_develop.ut_reporter_base := null,a_tags varchar2) is
   begin
-    ut3.ut.run(a_path, a_reporter,a_tags => a_tags);
+    ut3_develop.ut.run(a_path, a_reporter,a_tags => a_tags);
   end;
   
-  procedure run(a_paths ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base := null, a_tags varchar2) is
+  procedure run(a_paths ut3_develop.ut_varchar2_list, a_reporter ut3_develop.ut_reporter_base := null, a_tags varchar2) is
   begin
-    ut3.ut.run(a_paths, a_reporter,a_tags => a_tags);
+    ut3_develop.ut.run(a_paths, a_reporter,a_tags => a_tags);
   end;
   
-  function run(a_reporter ut3.ut_reporter_base := null,a_tags varchar2) return ut3.ut_varchar2_list  is
-    l_results ut3.ut_varchar2_list;
+  function run(a_reporter ut3_develop.ut_reporter_base := null,a_tags varchar2) return ut3_develop.ut_varchar2_list  is
+    l_results ut3_develop.ut_varchar2_list;
   begin
-    select * bulk collect into l_results from table (ut3.ut.run(a_reporter, a_tags => a_tags));
+    select * bulk collect into l_results from table (ut3_develop.ut.run(a_reporter, a_tags => a_tags));
     return l_results;
   end;
   
-  function run(a_path varchar2, a_reporter ut3.ut_reporter_base := null, a_tags varchar2) 
-    return ut3.ut_varchar2_list is
-    l_results ut3.ut_varchar2_list;
+  function run(a_path varchar2, a_reporter ut3_develop.ut_reporter_base := null, a_tags varchar2)
+    return ut3_develop.ut_varchar2_list is
+    l_results ut3_develop.ut_varchar2_list;
   begin
-    select * bulk collect into l_results from table (ut3.ut.run(a_path, a_reporter,a_tags => a_tags));
+    select * bulk collect into l_results from table (ut3_develop.ut.run(a_path, a_reporter,a_tags => a_tags));
     return l_results;
   end;
   
-  function run(a_paths ut3.ut_varchar2_list, a_reporter ut3.ut_reporter_base := null, a_tags varchar2) 
-    return ut3.ut_varchar2_list is
-    l_results ut3.ut_varchar2_list;
+  function run(a_paths ut3_develop.ut_varchar2_list, a_reporter ut3_develop.ut_reporter_base := null, a_tags varchar2)
+    return ut3_develop.ut_varchar2_list is
+    l_results ut3_develop.ut_varchar2_list;
   begin
-    select * bulk collect into l_results from table (ut3.ut.run(a_paths, a_reporter, a_tags => a_tags));
+    select * bulk collect into l_results from table (ut3_develop.ut.run(a_paths, a_reporter, a_tags => a_tags));
    return l_results;
   end;
   
-  procedure test_rollback_type(a_procedure_name varchar2, a_rollback_type integer, a_expectation ut3_latest_release.ut_matcher) is
-    l_suite    ut3.ut_suite;
+  procedure test_rollback_type(a_procedure_name varchar2, a_rollback_type integer, a_expectation ut_matcher) is
+    l_suite    ut3_develop.ut_suite;
   begin
     --Arrange
     execute immediate 'delete from ut$test_table';
-    l_suite := ut3.ut_suite(a_object_owner => 'ut3_tester_helper', a_object_name => 'UT_TRANSACTION_CONTROL', a_line_no=> 1);
+    l_suite := ut3_develop.ut_suite(a_object_owner => 'ut3_tester_helper', a_object_name => 'UT_TRANSACTION_CONTROL', a_line_no=> 1);
     l_suite.path := 'ut_transaction_control';
-    l_suite.before_all_list := ut3.ut_executables(ut3.ut_executable('ut3_tester_helper', 'UT_TRANSACTION_CONTROL', 'setup', ut3.ut_utils.gc_before_all));
+    l_suite.before_all_list := ut3_develop.ut_executables(ut3_develop.ut_executable('ut3_tester_helper', 'UT_TRANSACTION_CONTROL', 'setup', ut3_develop.ut_utils.gc_before_all));
     l_suite.items.extend;
-    l_suite.items(l_suite.items.last) := ut3.ut_test(a_object_owner => 'ut3_tester_helper', a_object_name => 'ut_transaction_control',a_name => a_procedure_name, a_line_no=> 1);
+    l_suite.items(l_suite.items.last) := ut3_develop.ut_test(a_object_owner => 'ut3_tester_helper', a_object_name => 'ut_transaction_control',a_name => a_procedure_name, a_line_no=> 1);
     l_suite.set_rollback_type(a_rollback_type);
 
     --Act
@@ -568,7 +568,7 @@ create or replace package body run_helper is
   procedure create_dummy_long_test_package is
     pragma autonomous_transaction;
   begin
-    execute immediate q'[create or replace package ut3.dummy_long_test_package as
+    execute immediate q'[create or replace package ut3_develop.dummy_long_test_package as
         
         --%suitepath(verylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtext)
         --%suite(dummy_test_suite)
@@ -577,7 +577,7 @@ create or replace package body run_helper is
         procedure some_dummy_test_procedure;
       end;]';
       
-    execute immediate q'[create or replace package ut3.dummy_long_test_package1 as
+    execute immediate q'[create or replace package ut3_develop.dummy_long_test_package1 as
         
         --%suitepath(verylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtextverylongtext)
         --%suite(dummy_test_suite1)
@@ -590,15 +590,15 @@ create or replace package body run_helper is
   procedure drop_dummy_long_test_package is
     pragma autonomous_transaction;
   begin
-    execute immediate q'[drop package ut3.dummy_long_test_package]';
-    execute immediate q'[drop package ut3.dummy_long_test_package1]';
+    execute immediate q'[drop package ut3_develop.dummy_long_test_package]';
+    execute immediate q'[drop package ut3_develop.dummy_long_test_package1]';
   end;
  
   procedure create_ut3_suite is
     pragma autonomous_transaction;
   begin
     execute immediate q'[
-      create or replace package ut3.some_test_package
+      create or replace package ut3_develop.some_test_package
       as
         --%suite
 
@@ -611,18 +611,18 @@ create or replace package body run_helper is
   procedure drop_ut3_suite is
     pragma autonomous_transaction;
   begin
-    execute immediate q'[drop package ut3.some_test_package]';
+    execute immediate q'[drop package ut3_develop.some_test_package]';
   end;
   
-  function get_schema_ut_packages(a_owner in varchar2) return ut3.ut_object_names is
+  function get_schema_ut_packages(a_owner in varchar2) return ut3_develop.ut_object_names is
   begin
-    return ut3.ut_suite_manager.get_schema_ut_packages(ut3.ut_varchar2_rows(a_owner));
+    return ut3_develop.ut_suite_manager.get_schema_ut_packages(ut3_develop.ut_varchar2_rows(a_owner));
   end;
     
   function ut_output_buffer_tmp return t_out_buff_tab pipelined is
     l_buffer_tab t_out_buff_tab;
     cursor get_buffer is
-    select * from ut3.ut_output_buffer_tmp;
+    select * from ut3_develop.ut_output_buffer_tmp;
   begin
     open get_buffer;
     fetch get_buffer bulk collect into l_buffer_tab;
@@ -633,7 +633,7 @@ create or replace package body run_helper is
   
   procedure delete_buffer is
   begin
-    delete from ut3.ut_output_buffer_tmp;
+    delete from ut3_develop.ut_output_buffer_tmp;
   end;
 
   function get_annotation_cache_info_cur(
@@ -643,7 +643,7 @@ create or replace package body run_helper is
     l_result sys_refcursor;
   begin
     open l_result for
-      select * from ut3.ut_annotation_cache_info
+      select * from ut3_develop.ut_annotation_cache_info
        where object_owner = a_owner and object_type = a_type;
 
     return l_result;
@@ -658,8 +658,8 @@ create or replace package body run_helper is
   begin
     open l_result for
       select *
-        from ut3.ut_annotation_cache_info i
-        join ut3.ut_annotation_cache c on c.cache_id = i.cache_id
+        from ut3_develop.ut_annotation_cache_info i
+        join ut3_develop.ut_annotation_cache c on c.cache_id = i.cache_id
        where object_owner = a_owner and object_type = a_type and object_name = nvl( a_name, object_name );
 
     return l_result;

@@ -12,7 +12,7 @@ create or replace package body expectations_helper is
         l_expected '||a_data_type||' := '||a_data_value||';
       begin
         --act - execute the expectation
-        ut3.ut.expect(l_expected).'||a_matcher_name||'();
+        ut3_develop.ut.expect(l_expected).'||a_matcher_name||'();
       end;';
       return l_execute;
   end;
@@ -28,7 +28,7 @@ create or replace package body expectations_helper is
       declare
         l_object '||a_object_name||' := '||a_object_value||';
       begin
-        ut3.ut.expect(anydata.convert'||a_object_type||'(l_object)).'||a_matcher_name||'();
+        ut3_develop.ut.expect(anydata.convert'||a_object_type||'(l_object)).'||a_matcher_name||'();
       end;';
   end;
 
@@ -48,7 +48,7 @@ create or replace package body expectations_helper is
         l_expected '||a_expected_data_type||' := '||a_expected_data||';
       begin
         --act - execute the expectation
-        ut3.ut.expect( l_actual ).'||a_matcher_name||'(l_expected);
+        ut3_develop.ut.expect( l_actual ).'||a_matcher_name||'(l_expected);
       end;';
     return l_execute;
   end;

@@ -74,14 +74,14 @@ as
   is
   begin
     dbms_output.put_line('<!passing test!>');
-    ut3.ut.expect(1,'Test 1 Should Pass').to_equal(1);
+    ut3_develop.ut.expect(1,'Test 1 Should Pass').to_equal(1);
   end;
 
   procedure failing_test
   is
   begin
     dbms_output.put_line('<!failing test!>');
-    ut3.ut.expect('number [1] ','Fails as values are different').to_equal('number [2] ');
+    ut3_develop.ut.expect('number [1] ','Fails as values are different').to_equal('number [2] ');
   end;
 
   procedure erroring_test
@@ -90,14 +90,14 @@ as
   begin
     dbms_output.put_line('<!erroring test!>');
     l_variable := 'a string';
-    ut3.ut.expect(l_variable).to_equal(1);
+    ut3_develop.ut.expect(l_variable).to_equal(1);
   end;
 
   procedure disabled_test
   is
   begin
     dbms_output.put_line('<!this should not execute!>');
-    ut3.ut.expect(1,'this should not execute').to_equal(1);
+    ut3_develop.ut.expect(1,'this should not execute').to_equal(1);
   end;
 
   procedure beforeall is
@@ -124,7 +124,7 @@ end;]';
   execute immediate q'[create or replace package body check_fail_escape is
       procedure fail_miserably is
       begin
-        ut3.ut.expect('test').to_equal('<![CDATA[some stuff]]>');
+        ut3_develop.ut.expect('test').to_equal('<![CDATA[some stuff]]>');
       end;
     end;]';
 
@@ -148,36 +148,36 @@ end;]';
   end;
 
   procedure check_xml_encoding_included(
-    a_reporter             ut3.ut_reporter_base,
+    a_reporter             ut3_develop.ut_reporter_base,
     a_client_character_set varchar2
   ) is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_actual    clob;
   begin
     --Act
     select *
     bulk collect into l_results
-    from table(ut3.ut.run('test_reporters', a_reporter, a_client_character_set => a_client_character_set));
+    from table(ut3_develop.ut.run('test_reporters', a_reporter, a_client_character_set => a_client_character_set));
     l_actual := ut3_tester_helper.main_helper.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_be_like('<?xml version="1.0" encoding="'||upper(a_client_character_set)||'"?>%');
   end;
 
   procedure check_xml_failure_escaped(
-    a_reporter ut3.ut_reporter_base
+    a_reporter ut3_develop.ut_reporter_base
   ) is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_actual    clob;
   begin
     --Act
     select *
            bulk collect into l_results
-      from table( ut3.ut.run( 'check_fail_escape', a_reporter ) );
+      from table( ut3_develop.ut.run( 'check_fail_escape', a_reporter ) );
     l_actual := ut3_tester_helper.main_helper.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_be_like('%<![CDATA['
       ||q'[%Actual: 'test' (varchar2) was expected to equal: '<![CDATA[some stuff]]]]><![CDATA[>' (varchar2)%]'
-      ||q'[at "UT3$USER#.CHECK_FAIL_ESCAPE%", line % ut3.ut.expect('test').to_equal('<![CDATA[some stuff]]]]><![CDATA[>');]'
+      ||q'[at "UT3$USER#.CHECK_FAIL_ESCAPE%", line % ut3_develop.ut.expect('test').to_equal('<![CDATA[some stuff]]]]><![CDATA[>');]'
       ||'%]]>%'
       );
   end;

@@ -6,7 +6,7 @@ create or replace package body test_annotation_cache is
   begin
     open l_actual_cache_info for
       select *
-        from ut3.ut_annotation_cache_info
+        from ut3_develop.ut_annotation_cache_info
         where object_owner = 'UT3_CACHE_TEST_OWNER';
     open l_expected_cache_info for
       select 'UT3_CACHE_TEST_OWNER' as object_owner, upper( column_value ) as object_name
@@ -395,7 +395,7 @@ create or replace package body test_annotation_cache is
 
   procedure t_ut_owner_cannot_run_tests is
   begin
-    cant_run_any_packages( 'ut3' );
+    cant_run_any_packages( 'ut3_develop' );
     cache_populated_for_packages( ut_varchar2_rows( 'GRANTED_TEST_SUITE', 'NOT_GRANTED_TEST_SUITE' ) );
   end;
 
