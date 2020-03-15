@@ -374,7 +374,7 @@ create or replace package body ut_suite_manager is
     a_owner_name         varchar2
   ) return boolean is
   begin
-    return sys_context( 'userenv', 'current_user' ) = a_owner_name or ut_metadata.user_has_execute_any_proc();
+    return sys_context( 'userenv', 'current_user' ) = upper(a_owner_name) or ut_metadata.user_has_execute_any_proc();
   end;
 
   procedure build_and_cache_suites(
@@ -425,17 +425,18 @@ create or replace package body ut_suite_manager is
   ) is
     l_annotations_cursor    sys_refcursor;
     l_suite_cache_time      timestamp;
+    l_owner_name            varchar2(128) := upper(a_owner_name);
   begin
     ut_event_manager.trigger_event('refresh_cache - start');
-    l_suite_cache_time := ut_suite_cache_manager.get_schema_parse_time(a_owner_name);
+    l_suite_cache_time := ut_suite_cache_manager.get_schema_parse_time(l_owner_name);
     l_annotations_cursor := ut_annotation_manager.get_annotated_objects(
-      a_owner_name, 'PACKAGE', l_suite_cache_time
+      l_owner_name, 'PACKAGE', l_suite_cache_time
     );
 
-    build_and_cache_suites(a_owner_name, l_annotations_cursor);
+    build_and_cache_suites(l_owner_name, l_annotations_cursor);
 
-    if can_skip_all_objects_scan(a_owner_name) or ut_metadata.is_object_visible( 'dba_objects') then
-      ut_suite_cache_manager.remove_missing_objs_from_cache( a_owner_name );
+    if can_skip_all_objects_scan(l_owner_name) or ut_metadata.is_object_visible( 'dba_objects') then
+      ut_suite_cache_manager.remove_missing_objs_from_cache( l_owner_name );
     end if;
 
     ut_event_manager.trigger_event('refresh_cache - end');

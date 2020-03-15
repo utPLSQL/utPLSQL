@@ -2,7 +2,7 @@
 
 set -ev
 
-"$SQLCLI" $UT3_OWNER/$UT3_OWNER_PASSWORD@//$CONNECTION_STR <<SQL
+"$SQLCLI" $UT3_DEVELOP_SCHEMA/$UT3_DEVELOP_SCHEMA_PASSWORD@//$CONNECTION_STR <<SQL
 whenever sqlerror exit failure rollback
 whenever oserror exit failure rollback
 

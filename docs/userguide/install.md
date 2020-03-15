@@ -225,7 +225,7 @@ To grant utPLSQL to an individual user, execute scripts `source/create_user_gran
 Example invocation:
 ```bash
 cd source
-sqlplus ut3_user/ut3_password@database @create_user_grants.sql ut3 hr
+sqlplus ut3_owner_schema/ut3_password@database @create_user_grants.sql ut3 hr
 sqlplus user/user_password@database @create_user_synonyms.sql ut3 hr
 ```
 
