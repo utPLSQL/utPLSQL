@@ -1120,7 +1120,7 @@ Failures:%
         begin
           select attribute||'='||value
           bulk collect into l_results
-           from session_context where namespace = 'UT3_INFO'
+           from session_context where namespace = 'UT3_DEVELOP_INFO'
           order by attribute;
           for i in 1 .. l_results.count loop
             dbms_output.put_line( upper(a_procedure_name) ||':'|| l_results(i) );
@@ -1393,7 +1393,7 @@ Failures:%
   begin
     open l_actual for
       select attribute||'='||value
-        from session_context where namespace = 'UT3_INFO';
+        from session_context where namespace = 'UT3_DEVELOP_INFO';
 
     ut.expect(l_actual).to_be_empty();
   end;
