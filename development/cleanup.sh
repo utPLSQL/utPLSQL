@@ -10,7 +10,7 @@ set echo on
 begin
   for x in (
     select * from dba_objects
-     where owner in ( upper('${UT3_RELEASE_VERSION_SCHEMA}'), upper('${UT3_OWNER}') )
+     where owner in ( upper('${UT3_RELEASE_VERSION_SCHEMA}'), upper('${UT3_DEVELOP_SCHEMA}') )
        and object_name like 'SYS_PLSQL%')
   loop
     execute immediate 'drop type '||x.owner||'.'||x.object_name||' force';
@@ -18,7 +18,7 @@ begin
 end;
 /
 
-drop user ${UT3_OWNER} cascade;
+drop user ${UT3_DEVELOP_SCHEMA} cascade;
 drop user ${UT3_RELEASE_VERSION_SCHEMA} cascade;
 drop user ${UT3_TESTER} cascade;
 drop user ${UT3_TESTER_HELPER} cascade;

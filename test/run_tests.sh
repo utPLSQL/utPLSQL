@@ -5,7 +5,7 @@ set -ev
 git rev-parse && cd "$(git rev-parse --show-cdup)"
 
 time utPLSQL-cli/bin/utplsql run ${UT3_TESTER_HELPER}/${UT3_TESTER_HELPER_PASSWORD}@${CONNECTION_STR} \
--source_path=source -owner=ut3 \
+-source_path=source -owner=ut3_develop \
 -p='ut3_tester,ut3$user#' \
 -test_path=test -c \
 -f=ut_coverage_sonar_reporter     -o=coverage.xml \

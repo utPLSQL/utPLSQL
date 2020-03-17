@@ -10,12 +10,12 @@ create or replace package reporters is
   procedure reporters_cleanup;
 
   procedure check_xml_encoding_included(
-    a_reporter             ut3.ut_reporter_base,
+    a_reporter             ut3_develop.ut_reporter_base,
     a_client_character_set varchar2
   );
 
   procedure check_xml_failure_escaped(
-    a_reporter ut3.ut_reporter_base
+    a_reporter ut3_develop.ut_reporter_base
   );
 
 end reporters;

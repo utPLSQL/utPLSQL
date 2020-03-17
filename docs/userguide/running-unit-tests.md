@@ -31,7 +31,6 @@ curl -Lk "${DOWNLOAD_URL}" -o utplsql-cli.zip
 unzip -q utplsql-cli.zip
 ```
 
-Keep in mind that you will need to download/provide Oracle JDBC driver separately, as it is not part of utPLSQL-cli due to licensing restrictions.
 
 # ut.run
 

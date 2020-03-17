@@ -13,8 +13,8 @@ create or replace package body test_tfs_junit_reporter as
     execute immediate q'[create or replace package body check_junit_reporting is
       procedure test_do_stuff is
       begin
-        ut3.ut.expect(1).to_equal(1);
-        ut3.ut.expect(1).to_equal(2);
+        ut3_develop.ut.expect(1).to_equal(1);
+        ut3_develop.ut.expect(1).to_equal(2);
       end;
 
     end;]';
@@ -31,7 +31,7 @@ create or replace package body test_tfs_junit_reporter as
     execute immediate q'[create or replace package body check_junit_rep_suitepath is
       procedure check_junit_rep_suitepath is
       begin
-        ut3.ut.expect(1).to_equal(1);
+        ut3_develop.ut.expect(1).to_equal(1);
       end;
     end;]';
 
@@ -53,13 +53,13 @@ create or replace package body test_tfs_junit_reporter as
 
 
   procedure escapes_special_chars is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_actual    clob;
   begin
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_tfs_junit_reporter()));
+      from table(ut3_develop.ut.run('check_junit_reporting',ut3_develop.ut_tfs_junit_reporter()));
     l_actual := ut3_tester_helper.main_helper.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).not_to_be_like('%<tag>%');
@@ -67,13 +67,13 @@ create or replace package body test_tfs_junit_reporter as
   end;
 
   procedure reports_only_failed_or_errored is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_actual    clob;
   begin
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_tfs_junit_reporter()));
+      from table(ut3_develop.ut.run('check_junit_reporting',ut3_develop.ut_tfs_junit_reporter()));
     l_actual := ut3_tester_helper.main_helper.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).not_to_be_like('%Actual: 1 (number) was expected to equal: 1 (number)%');
@@ -81,26 +81,26 @@ create or replace package body test_tfs_junit_reporter as
   end;
 
   procedure check_classname_suite is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_actual    clob;    
   begin
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_reporting',ut3.ut_tfs_junit_reporter()));
+      from table(ut3_develop.ut.run('check_junit_reporting',ut3_develop.ut_tfs_junit_reporter()));
     l_actual := ut3_tester_helper.main_helper.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_be_like('%testcase classname="check_junit_reporting"%');
   end;
  
  procedure check_flatten_nested_suites is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_actual    clob;    
   begin
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_flat_suitepath',ut3.ut_tfs_junit_reporter()));
+      from table(ut3_develop.ut.run('check_junit_flat_suitepath',ut3_develop.ut_tfs_junit_reporter()));
     l_actual := ut3_tester_helper.main_helper.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_be_like('<?xml version="1.0"?>
@@ -113,7 +113,7 @@ create or replace package body test_tfs_junit_reporter as
   end;
   
   procedure check_nls_number_formatting is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_actual    clob;
     l_nls_numeric_characters varchar2(30);
   begin
@@ -125,7 +125,7 @@ create or replace package body test_tfs_junit_reporter as
     --Act
     select *
     bulk collect into l_results
-    from table(ut3.ut.run('check_junit_reporting', ut3.ut_tfs_junit_reporter()));
+    from table(ut3_develop.ut.run('check_junit_reporting', ut3_develop.ut_tfs_junit_reporter()));
     l_actual := ut3_tester_helper.main_helper.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_match('time="[0-9]*\.[0-9]{3,6}"');
@@ -135,17 +135,17 @@ create or replace package body test_tfs_junit_reporter as
 
   procedure check_failure_escaped is
   begin
-    reporters.check_xml_failure_escaped(ut3.ut_tfs_junit_reporter());
+    reporters.check_xml_failure_escaped(ut3_develop.ut_tfs_junit_reporter());
   end;
 
   procedure check_classname_suitepath is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
     l_actual    clob;    
   begin
     --Act
     select *
       bulk collect into l_results
-      from table(ut3.ut.run('check_junit_rep_suitepath',ut3.ut_tfs_junit_reporter()));
+      from table(ut3_develop.ut.run('check_junit_rep_suitepath',ut3_develop.ut_tfs_junit_reporter()));
     l_actual := ut3_tester_helper.main_helper.table_to_clob(l_results);
     --Assert
     ut.expect(l_actual).to_be_like('%testcase classname="core.check_junit_rep_suitepath"%');   
@@ -160,7 +160,7 @@ create or replace package body test_tfs_junit_reporter as
 
   procedure check_encoding_included is
   begin
-    reporters.check_xml_encoding_included(ut3.ut_tfs_junit_reporter(), 'UTF-8');
+    reporters.check_xml_encoding_included(ut3_develop.ut_tfs_junit_reporter(), 'UTF-8');
   end;
 
 end;

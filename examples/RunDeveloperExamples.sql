@@ -1,7 +1,7 @@
 PROMPT Run developer examples
 Clear Screen
-set echo off
-set feedback off
+set echo on
+set feedback on
 set linesize 1000
 
 exec ut_ansiconsole_helper.color_enabled(true);

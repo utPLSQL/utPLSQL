@@ -34,14 +34,7 @@ alter session set current_schema = &&ut3_owner;
 @@check_sys_grants.sql "'CREATE TYPE','CREATE VIEW','CREATE SYNONYM','CREATE SEQUENCE','CREATE PROCEDURE','CREATE TABLE', 'CREATE CONTEXT'"
 --set define off
 
-begin
-  $if $$self_testing_install $then
-    execute immediate 'create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_context';
-  $else
-    execute immediate 'create or replace context ut3_info using &&ut3_owner..ut_session_context';
-  $end
-end;
-/
+create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_context;
 
 --dbms_output buffer cache table
 @@install_component.sql 'core/ut_dbms_output_cache.sql'

@@ -1,12 +1,11 @@
 #!/bin/bash
 
+cd "$(dirname "$(readlink -f "$0")")"/../examples
+
 set -ev
 
-"$SQLCLI" $UT3_OWNER/$UT3_OWNER_PASSWORD@//$CONNECTION_STR <<SQL
-whenever sqlerror exit failure rollback
-whenever oserror exit failure rollback
+"$SQLCLI" $UT3_DEVELOP_SCHEMA/$UT3_DEVELOP_SCHEMA_PASSWORD@//$CONNECTION_STR <<SQL
 
-cd examples
 @RunAllExamplesAsTests.sql
 
 exit

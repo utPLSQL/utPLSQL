@@ -28,7 +28,7 @@ create or replace package body test_before_after_annotations is
     l_dummy_utility_pkg_body varchar2(32737);
     l_test_package_spec  varchar2(32737);
     l_test_package_body  varchar2(32737);
-    l_test_results  ut3.ut_varchar2_list;
+    l_test_results  ut3_develop.ut_varchar2_list;
     
   begin
     l_dummy_utility_pkg_spec := q'[
@@ -200,7 +200,7 @@ create or replace package body test_before_after_annotations is
     execute immediate l_test_package_body;
 
     --Execute the tests and collect the results
-    select * bulk collect into l_test_results from table(ut3.ut.run(('ut3_tester.dummy_before_after_test')));
+    select * bulk collect into l_test_results from table(ut3_develop.ut.run(('ut3_tester.dummy_before_after_test')));
 
     execute immediate 'drop package dummy_before_after_test';
     execute immediate 'drop package shared_test_package';

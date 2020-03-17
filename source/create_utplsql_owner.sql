@@ -21,26 +21,26 @@ set feedback off
 set heading off
 set verify off
 
-define ut3_user       = &1
-define ut3_password   = &2
-define ut3_tablespace = &3
+define ut3_owner_schema = &1
+define ut3_password     = &2
+define ut3_tablespace   = &3
 
-prompt Creating utPLSQL user &&ut3_user
+prompt Creating utPLSQL user &&ut3_owner_schema
 
-create user &ut3_user identified by "&ut3_password" default tablespace &ut3_tablespace quota unlimited on &ut3_tablespace;
+create user &ut3_owner_schema identified by "&ut3_password" default tablespace &ut3_tablespace quota unlimited on &ut3_tablespace;
 
-grant create session, create sequence, create procedure, create type, create table, create view, create synonym to &ut3_user;
+grant create session, create sequence, create procedure, create type, create table, create view, create synonym to &ut3_owner_schema;
 
 begin
   $if dbms_db_version.version < 18 $then
-    execute immediate 'grant execute on dbms_lock to &ut3_user';
+    execute immediate 'grant execute on dbms_lock to &ut3_owner_schema';
   $else
     null;
   $end
 end;
 /
 
-grant execute on dbms_crypto to &ut3_user;
+grant execute on dbms_crypto to &ut3_owner_schema;
 
-grant alter session to &ut3_user;
+grant alter session to &ut3_owner_schema;
 

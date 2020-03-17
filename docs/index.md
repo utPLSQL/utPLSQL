@@ -57,7 +57,7 @@ Amongst many benefits they provide ability to:
 * use many reporting formats simultaneously and save reports to files (publish)
 * map your project source files and test files into database objects 
 
-Just download the [latest client](https://github.com/utPLSQL/utPLSQL-cli/releases/latest), download Oracle jdbc driver you are good to go.
+Download the [latest client](https://github.com/utPLSQL/utPLSQL-cli/releases/latest) and you are good to go.
 See [project readme](https://github.com/utPLSQL/utPLSQL-cli/blob/develop/README.md) for details.  
 
 # Coverage

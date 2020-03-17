@@ -1,29 +1,29 @@
 create or replace package body test_suite_builder is
 
   function invoke_builder_for_annotations(
-    a_annotations ut3.ut_annotations,
+    a_annotations ut3_develop.ut_annotations,
     a_package_name varchar2 := 'TEST_SUITE_BUILDER_PACKAGE'
   ) return clob is
-    l_suites ut3.ut_suite_items;
-    l_suite  ut3.ut_logical_suite;
+    l_suites ut3_develop.ut_suite_items;
+    l_suite  ut3_develop.ut_logical_suite;
     l_cursor sys_refcursor;
     l_type_cursor sys_refcursor;
     l_ctx   dbms_xmlgen.ctxhandle;
     l_xml    xmltype;
   begin
     open l_cursor for select value(x) from table(
-               ut3.ut_annotated_objects(
-                   ut3.ut_annotated_object('UT3_TESTER', a_package_name, 'PACKAGE', systimestamp, a_annotations)
+               ut3_develop.ut_annotated_objects(
+                   ut3_develop.ut_annotated_object('UT3_TESTER', a_package_name, 'PACKAGE', systimestamp, a_annotations)
                ) ) x;
 
-    l_suites := ut3.ut_suite_manager.build_suites_from_annotations(
+    l_suites := ut3_develop.ut_suite_manager.build_suites_from_annotations(
       a_owner_name => 'UT3_TESTER',
       a_annotated_objects => l_cursor,
       a_path => null,
       a_object_name => a_package_name,
       a_skip_all_objects => true
     );
-    l_suite  := treat( l_suites(l_suites.first) as ut3.ut_logical_suite);
+    l_suite  := treat( l_suites(l_suites.first) as ut3_develop.ut_logical_suite);
  
     open l_type_cursor for select l_suite as "UT_LOGICAL_SUITE" from dual;
     l_ctx := dbms_xmlgen.newcontext(l_type_cursor);
@@ -43,11 +43,11 @@ create or replace package body test_suite_builder is
 
   procedure no_suite_description is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite',null, null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite',null, null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -59,12 +59,12 @@ create or replace package body test_suite_builder is
 
   procedure suite_description_from_suite is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Some description', null),
-        ut3.ut_annotation(2, 'suite','Another description', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Some description', null),
+        ut3_develop.ut_annotation(2, 'suite','Another description', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -76,13 +76,13 @@ create or replace package body test_suite_builder is
 
   procedure suitepath_from_non_empty_path is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite',null, null),
-        ut3.ut_annotation(2, 'suitepath','org.utplsql.some', null),
-        ut3.ut_annotation(3, 'suitepath','dummy.utplsql.some', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite',null, null),
+        ut3_develop.ut_annotation(2, 'suitepath','org.utplsql.some', null),
+        ut3_develop.ut_annotation(3, 'suitepath','dummy.utplsql.some', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -94,14 +94,14 @@ create or replace package body test_suite_builder is
 
   procedure suite_descr_from_displayname is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Some description', null),
-        ut3.ut_annotation(2, 'suite','Another description', null),
-        ut3.ut_annotation(3, 'displayname','New description', null),
-        ut3.ut_annotation(4, 'displayname','Newest description', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Some description', null),
+        ut3_develop.ut_annotation(2, 'suite','Another description', null),
+        ut3_develop.ut_annotation(3, 'displayname','New description', null),
+        ut3_develop.ut_annotation(4, 'displayname','Newest description', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -113,31 +113,31 @@ create or replace package body test_suite_builder is
 
   procedure rollback_type_valid is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite',null, null),
-        ut3.ut_annotation(2, 'rollback','manual', null),
-        ut3.ut_annotation(3, 'rollback','bad', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite',null, null),
+        ut3_develop.ut_annotation(2, 'rollback','manual', null),
+        ut3_develop.ut_annotation(3, 'rollback','bad', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
     --Assert
     ut.expect(l_actual).to_be_like(
-        '%<ROLLBACK_TYPE>'||ut3.ut_utils.gc_rollback_manual||'</ROLLBACK_TYPE>%'
+        '%<ROLLBACK_TYPE>'||ut3_develop.ut_utils.gc_rollback_manual||'</ROLLBACK_TYPE>%'
     );
   end;
 
   procedure rollback_type_duplicated is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite',null, null),
-        ut3.ut_annotation(2, 'rollback','manual', null),
-        ut3.ut_annotation(3, 'rollback','bad', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite',null, null),
+        ut3_develop.ut_annotation(2, 'rollback','manual', null),
+        ut3_develop.ut_annotation(3, 'rollback','bad', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -149,12 +149,12 @@ create or replace package body test_suite_builder is
 
   procedure suite_annot_duplicated is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','Cool', null),
-        ut3.ut_annotation(8, 'suite','bad', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','Cool', null),
+        ut3_develop.ut_annotation(8, 'suite','bad', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -166,12 +166,12 @@ create or replace package body test_suite_builder is
 
   procedure test_annotation is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','Cool', null),
-        ut3.ut_annotation(8, 'test','Some test', 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','Cool', null),
+        ut3_develop.ut_annotation(8, 'test','Some test', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -185,13 +185,13 @@ create or replace package body test_suite_builder is
 
   procedure test_annot_duplicated is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','Cool', null),
-        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'test','Dup', 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','Cool', null),
+        ut3_develop.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3_develop.ut_annotation(9, 'test','Dup', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -203,13 +203,13 @@ create or replace package body test_suite_builder is
 
   procedure beforeall_annot_duplicated is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','Cool', null),
-        ut3.ut_annotation(8, 'beforeall', null, 'test_procedure'),
-        ut3.ut_annotation(9, 'beforeall', null, 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','Cool', null),
+        ut3_develop.ut_annotation(8, 'beforeall', null, 'test_procedure'),
+        ut3_develop.ut_annotation(9, 'beforeall', null, 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -221,13 +221,13 @@ create or replace package body test_suite_builder is
 
   procedure beforeeach_annot_duplicated is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','Cool', null),
-        ut3.ut_annotation(8, 'beforeeach', null, 'test_procedure'),
-        ut3.ut_annotation(9, 'beforeeach', null, 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','Cool', null),
+        ut3_develop.ut_annotation(8, 'beforeeach', null, 'test_procedure'),
+        ut3_develop.ut_annotation(9, 'beforeeach', null, 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -239,13 +239,13 @@ create or replace package body test_suite_builder is
 
   procedure afterall_annot_duplicated is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','Cool', null),
-        ut3.ut_annotation(8, 'afterall', null, 'test_procedure'),
-        ut3.ut_annotation(9, 'afterall', null, 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','Cool', null),
+        ut3_develop.ut_annotation(8, 'afterall', null, 'test_procedure'),
+        ut3_develop.ut_annotation(9, 'afterall', null, 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -257,13 +257,13 @@ create or replace package body test_suite_builder is
 
   procedure aftereach_annot_duplicated is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','Cool', null),
-        ut3.ut_annotation(8, 'aftereach', null, 'test_procedure'),
-        ut3.ut_annotation(9, 'aftereach', null, 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','Cool', null),
+        ut3_develop.ut_annotation(8, 'aftereach', null, 'test_procedure'),
+        ut3_develop.ut_annotation(9, 'aftereach', null, 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -275,13 +275,13 @@ create or replace package body test_suite_builder is
 
   procedure suitepath_annot_duplicated is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','Cool', null),
-        ut3.ut_annotation(3, 'suitepath','dummy.utplsql.some', null),
-        ut3.ut_annotation(4, 'suitepath','org.utplsql.some', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','Cool', null),
+        ut3_develop.ut_annotation(3, 'suitepath','dummy.utplsql.some', null),
+        ut3_develop.ut_annotation(4, 'suitepath','org.utplsql.some', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -293,13 +293,13 @@ create or replace package body test_suite_builder is
 
   procedure displayname_annot_duplicated is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','Cool', null),
-        ut3.ut_annotation(4, 'displayname','New description', null),
-        ut3.ut_annotation(5, 'displayname','Newest description', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','Cool', null),
+        ut3_develop.ut_annotation(4, 'displayname','New description', null),
+        ut3_develop.ut_annotation(5, 'displayname','Newest description', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -311,12 +311,12 @@ create or replace package body test_suite_builder is
 
   procedure suitepath_annot_empty is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(3, 'suitepath',null, null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(3, 'suitepath',null, null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -328,12 +328,12 @@ create or replace package body test_suite_builder is
 
   procedure suitepath_annot_invalid_path is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'suitepath','path with spaces', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'suitepath','path with spaces', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -345,12 +345,12 @@ create or replace package body test_suite_builder is
 
   procedure displayname_annot_empty is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(3, 'displayname',null, null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(3, 'displayname',null, null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -362,12 +362,12 @@ create or replace package body test_suite_builder is
 
   procedure rollback_type_empty is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(3, 'rollback',null, null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(3, 'rollback',null, null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -379,12 +379,12 @@ create or replace package body test_suite_builder is
 
   procedure rollback_type_invalid is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'rollback','bad', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'rollback','bad', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -396,24 +396,24 @@ create or replace package body test_suite_builder is
 
   procedure multiple_before_after is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'beforeall',null, 'first_before_all'),
-        ut3.ut_annotation(3, 'beforeall',null, 'another_before_all'),
-        ut3.ut_annotation(4, 'beforeeach',null, 'first_before_each'),
-        ut3.ut_annotation(5, 'beforeeach',null, 'another_before_each'),
-        ut3.ut_annotation(6, 'aftereach',null, 'first_after_each'),
-        ut3.ut_annotation(7, 'aftereach',null, 'another_after_each'),
-        ut3.ut_annotation(8, 'afterall',null, 'first_after_all'),
-        ut3.ut_annotation(9, 'afterall',null, 'another_after_all'),
-        ut3.ut_annotation(14, 'test','A test', 'some_test'),
-        ut3.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
-        ut3.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
-        ut3.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
-        ut3.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'beforeall',null, 'first_before_all'),
+        ut3_develop.ut_annotation(3, 'beforeall',null, 'another_before_all'),
+        ut3_develop.ut_annotation(4, 'beforeeach',null, 'first_before_each'),
+        ut3_develop.ut_annotation(5, 'beforeeach',null, 'another_before_each'),
+        ut3_develop.ut_annotation(6, 'aftereach',null, 'first_after_each'),
+        ut3_develop.ut_annotation(7, 'aftereach',null, 'another_after_each'),
+        ut3_develop.ut_annotation(8, 'afterall',null, 'first_after_all'),
+        ut3_develop.ut_annotation(9, 'afterall',null, 'another_after_all'),
+        ut3_develop.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3_develop.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
+        ut3_develop.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
+        ut3_develop.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
+        ut3_develop.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -450,24 +450,24 @@ create or replace package body test_suite_builder is
 
   procedure multiple_standalone_bef_aft is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'beforeall', 'some_package.first_before_all',null),
-        ut3.ut_annotation(3, 'beforeall', 'different_package.another_before_all',null),
-        ut3.ut_annotation(4, 'beforeeach', 'first_before_each',null),
-        ut3.ut_annotation(5, 'beforeeach', 'different_owner.different_package.another_before_each',null),
-        ut3.ut_annotation(6, 'aftereach', 'first_after_each',null),
-        ut3.ut_annotation(7, 'aftereach', 'another_after_each,different_owner.different_package.one_more_after_each',null),
-        ut3.ut_annotation(8, 'afterall', 'first_after_all',null),
-        ut3.ut_annotation(9, 'afterall', 'another_after_all',null),
-        ut3.ut_annotation(14, 'test','A test', 'some_test'),
-        ut3.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
-        ut3.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
-        ut3.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
-        ut3.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'beforeall', 'some_package.first_before_all',null),
+        ut3_develop.ut_annotation(3, 'beforeall', 'different_package.another_before_all',null),
+        ut3_develop.ut_annotation(4, 'beforeeach', 'first_before_each',null),
+        ut3_develop.ut_annotation(5, 'beforeeach', 'different_owner.different_package.another_before_each',null),
+        ut3_develop.ut_annotation(6, 'aftereach', 'first_after_each',null),
+        ut3_develop.ut_annotation(7, 'aftereach', 'another_after_each,different_owner.different_package.one_more_after_each',null),
+        ut3_develop.ut_annotation(8, 'afterall', 'first_after_all',null),
+        ut3_develop.ut_annotation(9, 'afterall', 'another_after_all',null),
+        ut3_develop.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3_develop.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
+        ut3_develop.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
+        ut3_develop.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
+        ut3_develop.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -505,16 +505,16 @@ create or replace package body test_suite_builder is
 
   procedure before_after_on_single_proc is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'beforeall',null, 'do_stuff'),
-        ut3.ut_annotation(3, 'beforeeach',null, 'do_stuff'),
-        ut3.ut_annotation(4, 'aftereach',null, 'do_stuff'),
-        ut3.ut_annotation(5, 'afterall',null, 'do_stuff'),
-        ut3.ut_annotation(6, 'test','A test', 'some_test')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'beforeall',null, 'do_stuff'),
+        ut3_develop.ut_annotation(3, 'beforeeach',null, 'do_stuff'),
+        ut3_develop.ut_annotation(4, 'aftereach',null, 'do_stuff'),
+        ut3_develop.ut_annotation(5, 'afterall',null, 'do_stuff'),
+        ut3_develop.ut_annotation(6, 'test','A test', 'some_test')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -539,27 +539,27 @@ create or replace package body test_suite_builder is
 
   procedure multiple_mixed_bef_aft is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'beforeall', null,'first_before_all'),
-        ut3.ut_annotation(3, 'beforeall', 'different_package.another_before_all',null),
-        ut3.ut_annotation(4, 'beforeeach', 'first_before_each',null),
-        ut3.ut_annotation(5, 'beforeeach', 'different_owner.different_package.another_before_each',null),
-        ut3.ut_annotation(6, 'aftereach', null, 'first_after_each'),
-        ut3.ut_annotation(7, 'aftereach', 'another_after_each,different_owner.different_package.one_more_after_each',null),
-        ut3.ut_annotation(8, 'afterall', 'first_after_all',null),
-        ut3.ut_annotation(9, 'afterall', 'another_after_all',null),
-        ut3.ut_annotation(14, 'test','A test', 'some_test'),
-        ut3.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
-        ut3.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
-        ut3.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
-        ut3.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test'),
-        ut3.ut_annotation(21, 'beforeall', null,'last_before_all'),
-        ut3.ut_annotation(22, 'aftereach', null, 'last_after_each'),
-        ut3.ut_annotation(23, 'afterall', null, 'last_after_all')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'beforeall', null,'first_before_all'),
+        ut3_develop.ut_annotation(3, 'beforeall', 'different_package.another_before_all',null),
+        ut3_develop.ut_annotation(4, 'beforeeach', 'first_before_each',null),
+        ut3_develop.ut_annotation(5, 'beforeeach', 'different_owner.different_package.another_before_each',null),
+        ut3_develop.ut_annotation(6, 'aftereach', null, 'first_after_each'),
+        ut3_develop.ut_annotation(7, 'aftereach', 'another_after_each,different_owner.different_package.one_more_after_each',null),
+        ut3_develop.ut_annotation(8, 'afterall', 'first_after_all',null),
+        ut3_develop.ut_annotation(9, 'afterall', 'another_after_all',null),
+        ut3_develop.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3_develop.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
+        ut3_develop.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
+        ut3_develop.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
+        ut3_develop.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test'),
+        ut3_develop.ut_annotation(21, 'beforeall', null,'last_before_all'),
+        ut3_develop.ut_annotation(22, 'aftereach', null, 'last_after_each'),
+        ut3_develop.ut_annotation(23, 'afterall', null, 'last_after_all')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -601,16 +601,16 @@ create or replace package body test_suite_builder is
 
   procedure before_after_mixed_with_test is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'beforeall',null, 'do_stuff'),
-        ut3.ut_annotation(3, 'beforeeach',null, 'do_stuff'),
-        ut3.ut_annotation(4, 'aftereach',null, 'do_stuff'),
-        ut3.ut_annotation(5, 'afterall',null, 'do_stuff'),
-        ut3.ut_annotation(6, 'test','A test', 'do_stuff')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'beforeall',null, 'do_stuff'),
+        ut3_develop.ut_annotation(3, 'beforeeach',null, 'do_stuff'),
+        ut3_develop.ut_annotation(4, 'aftereach',null, 'do_stuff'),
+        ut3_develop.ut_annotation(5, 'afterall',null, 'do_stuff'),
+        ut3_develop.ut_annotation(6, 'test','A test', 'do_stuff')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -628,18 +628,18 @@ create or replace package body test_suite_builder is
 
   procedure suite_from_context is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
-        ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(4, 'context','A context', null),
-        ut3.ut_annotation(5, 'name','a_context', null),
-        ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
-        ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
-        ut3.ut_annotation(8, 'endcontext',null, null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
+        ut3_develop.ut_annotation(3, 'test','In suite', 'suite_level_test'),
+        ut3_develop.ut_annotation(4, 'context','A context', null),
+        ut3_develop.ut_annotation(5, 'name','a_context', null),
+        ut3_develop.ut_annotation(6, 'beforeall',null, 'context_setup'),
+        ut3_develop.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+        ut3_develop.ut_annotation(8, 'endcontext',null, null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -676,31 +676,31 @@ create or replace package body test_suite_builder is
 
   procedure nested_contexts is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-      ut3.ut_annotation( 1, 'suite','Cool', null),
-      ut3.ut_annotation( 2, 'beforeall',null, 'suite_level_beforeall'),
-      ut3.ut_annotation( 3, 'test','In suite', 'suite_level_test'),
-      ut3.ut_annotation( 4, 'context','A context', null),
-      ut3.ut_annotation( 5,   'name','a_context', null),
-      ut3.ut_annotation( 6,   'beforeall',null, 'context_setup'),
-      ut3.ut_annotation( 7,   'test', 'First test in context', 'first_test_in_a_context'),
-      ut3.ut_annotation( 8,   'context','A nested context', null),
-      ut3.ut_annotation( 9,     'name','a_nested_context', null),
-      ut3.ut_annotation(10,     'beforeall',null, 'nested_context_setup'),
-      ut3.ut_annotation(11,     'test', 'Test in nested context', 'test_in_nested_context'),
-      ut3.ut_annotation(12,   'endcontext',null, null),
-      ut3.ut_annotation(13,   'context',null, null),
-      ut3.ut_annotation(14,     'name','nested_context_2', null),
-      ut3.ut_annotation(15,     'test', 'Test in nested context', 'test_in_nested_context_2'),
-      ut3.ut_annotation(16,     'context','a_nested_context_3', null),
-      ut3.ut_annotation(17,       'test', 'Test in nested context', 'test_in_nested_context_3'),
-      ut3.ut_annotation(18,     'endcontext',null, null),
-      ut3.ut_annotation(19,   'endcontext',null, null),
-      ut3.ut_annotation(20,   'test', 'Second test in context', 'second_test_in_a_context'),
-      ut3.ut_annotation(21, 'endcontext',null, null)
+    l_annotations := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation( 1, 'suite','Cool', null),
+      ut3_develop.ut_annotation( 2, 'beforeall',null, 'suite_level_beforeall'),
+      ut3_develop.ut_annotation( 3, 'test','In suite', 'suite_level_test'),
+      ut3_develop.ut_annotation( 4, 'context','A context', null),
+      ut3_develop.ut_annotation( 5,   'name','a_context', null),
+      ut3_develop.ut_annotation( 6,   'beforeall',null, 'context_setup'),
+      ut3_develop.ut_annotation( 7,   'test', 'First test in context', 'first_test_in_a_context'),
+      ut3_develop.ut_annotation( 8,   'context','A nested context', null),
+      ut3_develop.ut_annotation( 9,     'name','a_nested_context', null),
+      ut3_develop.ut_annotation(10,     'beforeall',null, 'nested_context_setup'),
+      ut3_develop.ut_annotation(11,     'test', 'Test in nested context', 'test_in_nested_context'),
+      ut3_develop.ut_annotation(12,   'endcontext',null, null),
+      ut3_develop.ut_annotation(13,   'context',null, null),
+      ut3_develop.ut_annotation(14,     'name','nested_context_2', null),
+      ut3_develop.ut_annotation(15,     'test', 'Test in nested context', 'test_in_nested_context_2'),
+      ut3_develop.ut_annotation(16,     'context','a_nested_context_3', null),
+      ut3_develop.ut_annotation(17,       'test', 'Test in nested context', 'test_in_nested_context_3'),
+      ut3_develop.ut_annotation(18,     'endcontext',null, null),
+      ut3_develop.ut_annotation(19,   'endcontext',null, null),
+      ut3_develop.ut_annotation(20,   'test', 'Second test in context', 'second_test_in_a_context'),
+      ut3_develop.ut_annotation(21, 'endcontext',null, null)
       );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -769,24 +769,24 @@ create or replace package body test_suite_builder is
 
   procedure nested_contexts_2 is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-      ut3.ut_annotation( 1, 'suite','Cool', null),
-      ut3.ut_annotation( 2, 'suitepath','path', null),
-      ut3.ut_annotation( 3, 'context','Level 1', null),
-      ut3.ut_annotation( 4,   'name','context_1', null),
-      ut3.ut_annotation( 5,   'context','Level 1.1', null),
-      ut3.ut_annotation( 6,     'name','context_1_1', null),
-      ut3.ut_annotation( 7,     'test', 'Test 1.1.1', 'test_1_1_1'),
-      ut3.ut_annotation( 8,     'test', 'Test 1.1.2', 'test_1_1_2'),
-      ut3.ut_annotation( 9,   'endcontext', null, null),
-      ut3.ut_annotation(10, 'endcontext', null, null),
-      ut3.ut_annotation(11, 'context','Level 2', null),
-      ut3.ut_annotation(12,   'name','context_2', null),
-      ut3.ut_annotation(13,   'test', 'Test 2.1', 'test_2_1'),
-      ut3.ut_annotation(14, 'endcontext',null, null)
+    l_annotations := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation( 1, 'suite','Cool', null),
+      ut3_develop.ut_annotation( 2, 'suitepath','path', null),
+      ut3_develop.ut_annotation( 3, 'context','Level 1', null),
+      ut3_develop.ut_annotation( 4,   'name','context_1', null),
+      ut3_develop.ut_annotation( 5,   'context','Level 1.1', null),
+      ut3_develop.ut_annotation( 6,     'name','context_1_1', null),
+      ut3_develop.ut_annotation( 7,     'test', 'Test 1.1.1', 'test_1_1_1'),
+      ut3_develop.ut_annotation( 8,     'test', 'Test 1.1.2', 'test_1_1_2'),
+      ut3_develop.ut_annotation( 9,   'endcontext', null, null),
+      ut3_develop.ut_annotation(10, 'endcontext', null, null),
+      ut3_develop.ut_annotation(11, 'context','Level 2', null),
+      ut3_develop.ut_annotation(12,   'name','context_2', null),
+      ut3_develop.ut_annotation(13,   'test', 'Test 2.1', 'test_2_1'),
+      ut3_develop.ut_annotation(14, 'endcontext',null, null)
       );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -838,19 +838,19 @@ create or replace package body test_suite_builder is
 
   procedure before_after_in_context is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite', 'Cool', null),
-        ut3.ut_annotation(2, 'test', 'In suite', 'suite_level_test'),
-        ut3.ut_annotation(3, 'context', 'A context', null),
-        ut3.ut_annotation(4, 'beforeall', 'context_beforeall', null),
-        ut3.ut_annotation(5, 'beforeeach', null, 'context_beforeeach'),
-        ut3.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
-        ut3.ut_annotation(7, 'aftereach', 'context_aftereach' ,null),
-        ut3.ut_annotation(8, 'afterall', null, 'context_afterall'),
-        ut3.ut_annotation(9, 'endcontext', null, null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite', 'Cool', null),
+        ut3_develop.ut_annotation(2, 'test', 'In suite', 'suite_level_test'),
+        ut3_develop.ut_annotation(3, 'context', 'A context', null),
+        ut3_develop.ut_annotation(4, 'beforeall', 'context_beforeall', null),
+        ut3_develop.ut_annotation(5, 'beforeeach', null, 'context_beforeeach'),
+        ut3_develop.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
+        ut3_develop.ut_annotation(7, 'aftereach', 'context_aftereach' ,null),
+        ut3_develop.ut_annotation(8, 'afterall', null, 'context_afterall'),
+        ut3_develop.ut_annotation(9, 'endcontext', null, null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -888,19 +888,19 @@ create or replace package body test_suite_builder is
 
   procedure before_after_out_of_context is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
-        ut3.ut_annotation(3, 'beforeeach',null, 'suite_level_beforeeach'),
-        ut3.ut_annotation(4, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(5, 'context',null, null),
-        ut3.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
-        ut3.ut_annotation(7, 'endcontext',null, null),
-        ut3.ut_annotation(8, 'aftereach',null, 'suite_level_aftereach'),
-        ut3.ut_annotation(9, 'afterall',null, 'suite_level_afterall')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
+        ut3_develop.ut_annotation(3, 'beforeeach',null, 'suite_level_beforeeach'),
+        ut3_develop.ut_annotation(4, 'test','In suite', 'suite_level_test'),
+        ut3_develop.ut_annotation(5, 'context',null, null),
+        ut3_develop.ut_annotation(6, 'test', 'In context', 'test_in_a_context'),
+        ut3_develop.ut_annotation(7, 'endcontext',null, null),
+        ut3_develop.ut_annotation(8, 'aftereach',null, 'suite_level_aftereach'),
+        ut3_develop.ut_annotation(9, 'afterall',null, 'suite_level_afterall')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -938,17 +938,17 @@ create or replace package body test_suite_builder is
 
   procedure context_without_endcontext is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
-        ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(4, 'context','Some context', null),
-        ut3.ut_annotation(5, 'name','a_context', null),
-        ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
-        ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
+        ut3_develop.ut_annotation(3, 'test','In suite', 'suite_level_test'),
+        ut3_develop.ut_annotation(4, 'context','Some context', null),
+        ut3_develop.ut_annotation(5, 'name','a_context', null),
+        ut3_develop.ut_annotation(6, 'beforeall',null, 'context_setup'),
+        ut3_develop.ut_annotation(7, 'test', 'In context', 'test_in_a_context')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -987,19 +987,19 @@ create or replace package body test_suite_builder is
 
   procedure endcontext_without_context is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
-        ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-        ut3.ut_annotation(4, 'context','A context', null),
-        ut3.ut_annotation(5, 'name','a_context', null),
-        ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
-        ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
-        ut3.ut_annotation(8, 'endcontext',null, null),
-        ut3.ut_annotation(9, 'endcontext',null, null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
+        ut3_develop.ut_annotation(3, 'test','In suite', 'suite_level_test'),
+        ut3_develop.ut_annotation(4, 'context','A context', null),
+        ut3_develop.ut_annotation(5, 'name','a_context', null),
+        ut3_develop.ut_annotation(6, 'beforeall',null, 'context_setup'),
+        ut3_develop.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+        ut3_develop.ut_annotation(8, 'endcontext',null, null),
+        ut3_develop.ut_annotation(9, 'endcontext',null, null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1039,23 +1039,23 @@ create or replace package body test_suite_builder is
 
   procedure duplicate_context_name is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
     begin
       --Arrange
-      l_annotations := ut3.ut_annotations(
-          ut3.ut_annotation(1, 'suite','Cool', null),
-          ut3.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
-          ut3.ut_annotation(3, 'test','In suite', 'suite_level_test'),
-          ut3.ut_annotation(4, 'context','A context', null),
-          ut3.ut_annotation(5, 'name','a_context', null),
-          ut3.ut_annotation(6, 'beforeall',null, 'context_setup'),
-          ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
-          ut3.ut_annotation(8, 'endcontext',null, null),
-          ut3.ut_annotation(9, 'context','A context', null),
-          ut3.ut_annotation(10, 'name','a_context', null),
-          ut3.ut_annotation(11, 'beforeall',null, 'setup_in_duplicated_context'),
-          ut3.ut_annotation(12, 'test', 'In duplicated context', 'test_in_duplicated_context'),
-          ut3.ut_annotation(13, 'endcontext',null, null)
+      l_annotations := ut3_develop.ut_annotations(
+          ut3_develop.ut_annotation(1, 'suite','Cool', null),
+          ut3_develop.ut_annotation(2, 'beforeall',null, 'suite_level_beforeall'),
+          ut3_develop.ut_annotation(3, 'test','In suite', 'suite_level_test'),
+          ut3_develop.ut_annotation(4, 'context','A context', null),
+          ut3_develop.ut_annotation(5, 'name','a_context', null),
+          ut3_develop.ut_annotation(6, 'beforeall',null, 'context_setup'),
+          ut3_develop.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+          ut3_develop.ut_annotation(8, 'endcontext',null, null),
+          ut3_develop.ut_annotation(9, 'context','A context', null),
+          ut3_develop.ut_annotation(10, 'name','a_context', null),
+          ut3_develop.ut_annotation(11, 'beforeall',null, 'setup_in_duplicated_context'),
+          ut3_develop.ut_annotation(12, 'test', 'In duplicated context', 'test_in_duplicated_context'),
+          ut3_develop.ut_annotation(13, 'endcontext',null, null)
       );
       --Act
       l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1107,17 +1107,17 @@ create or replace package body test_suite_builder is
 
   procedure hard_stop_in_ctx_name is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
     l_bad_name    varchar2(100);
   begin
     --Arrange
     l_bad_name := 'ctx_with_dot.in_it';
-    l_annotations := ut3.ut_annotations(
-      ut3.ut_annotation(1, 'suite','Cool', null),
-      ut3.ut_annotation(4, 'context',null, null),
-      ut3.ut_annotation(5, 'name',l_bad_name, null),
-      ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
-      ut3.ut_annotation(13, 'endcontext',null, null)
+    l_annotations := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation(1, 'suite','Cool', null),
+      ut3_develop.ut_annotation(4, 'context',null, null),
+      ut3_develop.ut_annotation(5, 'name',l_bad_name, null),
+      ut3_develop.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+      ut3_develop.ut_annotation(13, 'endcontext',null, null)
       );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1145,17 +1145,17 @@ create or replace package body test_suite_builder is
 
   procedure name_with_spaces_invalid is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
     l_bad_name    varchar2(100);
   begin
     --Arrange
     l_bad_name := 'context name with spaces';
-    l_annotations := ut3.ut_annotations(
-      ut3.ut_annotation(1, 'suite','Cool', null),
-      ut3.ut_annotation(4, 'context',null, null),
-      ut3.ut_annotation(5, 'name',l_bad_name, null),
-      ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
-      ut3.ut_annotation(13, 'endcontext',null, null)
+    l_annotations := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation(1, 'suite','Cool', null),
+      ut3_develop.ut_annotation(4, 'context',null, null),
+      ut3_develop.ut_annotation(5, 'name',l_bad_name, null),
+      ut3_develop.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+      ut3_develop.ut_annotation(13, 'endcontext',null, null)
       );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1183,17 +1183,17 @@ create or replace package body test_suite_builder is
 
   procedure duplicate_name_annotation is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-      ut3.ut_annotation(1, 'suite','Cool', null),
-      ut3.ut_annotation(4, 'context','A context', null),
-      ut3.ut_annotation(5, 'name','a_context_name', null),
-      ut3.ut_annotation(6, 'name','a_newer_context_name', null),
-      ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
-      ut3.ut_annotation(8, 'endcontext',null, null),
-      ut3.ut_annotation(12, 'test', 'In suite', 'suite_level_test')
+    l_annotations := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation(1, 'suite','Cool', null),
+      ut3_develop.ut_annotation(4, 'context','A context', null),
+      ut3_develop.ut_annotation(5, 'name','a_context_name', null),
+      ut3_develop.ut_annotation(6, 'name','a_newer_context_name', null),
+      ut3_develop.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+      ut3_develop.ut_annotation(8, 'endcontext',null, null),
+      ut3_develop.ut_annotation(12, 'test', 'In suite', 'suite_level_test')
       );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1229,16 +1229,16 @@ create or replace package body test_suite_builder is
 
   procedure name_outside_of_context is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-      ut3.ut_annotation(1, 'suite','Cool', null),
-      ut3.ut_annotation(3, 'name','a_context_name', null),
-      ut3.ut_annotation(4, 'context','A context', null),
-      ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
-      ut3.ut_annotation(8, 'endcontext',null, null),
-      ut3.ut_annotation(12, 'test', 'In suite', 'suite_level_test')
+    l_annotations := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation(1, 'suite','Cool', null),
+      ut3_develop.ut_annotation(3, 'name','a_context_name', null),
+      ut3_develop.ut_annotation(4, 'context','A context', null),
+      ut3_develop.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+      ut3_develop.ut_annotation(8, 'endcontext',null, null),
+      ut3_develop.ut_annotation(12, 'test', 'In suite', 'suite_level_test')
       );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1274,16 +1274,16 @@ create or replace package body test_suite_builder is
 
   procedure name_empty_value is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-      ut3.ut_annotation(1, 'suite','Cool', null),
-      ut3.ut_annotation(4, 'context','A context', null),
-      ut3.ut_annotation(5, 'name',null, null),
-      ut3.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
-      ut3.ut_annotation(8, 'endcontext',null, null),
-      ut3.ut_annotation(12, 'test', 'In suite', 'suite_level_test')
+    l_annotations := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation(1, 'suite','Cool', null),
+      ut3_develop.ut_annotation(4, 'context','A context', null),
+      ut3_develop.ut_annotation(5, 'name',null, null),
+      ut3_develop.ut_annotation(7, 'test', 'In context', 'test_in_a_context'),
+      ut3_develop.ut_annotation(8, 'endcontext',null, null),
+      ut3_develop.ut_annotation(12, 'test', 'In suite', 'suite_level_test')
       );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1319,17 +1319,17 @@ create or replace package body test_suite_builder is
 
   procedure multiple_contexts is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-      ut3.ut_annotation(1, 'suite','Cool', null),
-      ut3.ut_annotation(4, 'context','A context', null),
-      ut3.ut_annotation(6, 'test', 'In context1', 'test_in_a_context1'),
-      ut3.ut_annotation(7, 'endcontext',null, null),
-      ut3.ut_annotation(8, 'context','A context', null),
-      ut3.ut_annotation(10, 'test', 'In context2', 'test_in_a_context2'),
-      ut3.ut_annotation(11, 'endcontext',null, null)
+    l_annotations := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation(1, 'suite','Cool', null),
+      ut3_develop.ut_annotation(4, 'context','A context', null),
+      ut3_develop.ut_annotation(6, 'test', 'In context1', 'test_in_a_context1'),
+      ut3_develop.ut_annotation(7, 'endcontext',null, null),
+      ut3_develop.ut_annotation(8, 'context','A context', null),
+      ut3_develop.ut_annotation(10, 'test', 'In context2', 'test_in_a_context2'),
+      ut3_develop.ut_annotation(11, 'endcontext',null, null)
       );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1372,13 +1372,13 @@ create or replace package body test_suite_builder is
 
   procedure throws_value_empty is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(3, 'test','A test with empty throws annotation', 'A_TEST_PROCEDURE'),
-        ut3.ut_annotation(3, 'throws',null, 'A_TEST_PROCEDURE')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(3, 'test','A test with empty throws annotation', 'A_TEST_PROCEDURE'),
+        ut3_develop.ut_annotation(3, 'throws',null, 'A_TEST_PROCEDURE')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1391,16 +1391,16 @@ create or replace package body test_suite_builder is
 
   procedure before_aftertest_multi is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(14, 'test','A test', 'some_test'),
-        ut3.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
-        ut3.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
-        ut3.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
-        ut3.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3_develop.ut_annotation(15, 'beforetest','before_test_proc', 'some_test'),
+        ut3_develop.ut_annotation(16, 'beforetest','before_test_proc2', 'some_test'),
+        ut3_develop.ut_annotation(18, 'aftertest','after_test_proc', 'some_test'),
+        ut3_develop.ut_annotation(20, 'aftertest','after_test_proc2', 'some_test')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1421,16 +1421,16 @@ create or replace package body test_suite_builder is
 
   procedure before_aftertest_twice is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(14, 'test','A test', 'some_test'),
-        ut3.ut_annotation(15, 'beforetest','before_test_proc, before_test_proc2', 'some_test'),
-        ut3.ut_annotation(16, 'beforetest','before_test_proc3', 'some_test'),
-        ut3.ut_annotation(18, 'aftertest','after_test_proc,after_test_proc2', 'some_test'),
-        ut3.ut_annotation(20, 'aftertest','after_test_proc3', 'some_test')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3_develop.ut_annotation(15, 'beforetest','before_test_proc, before_test_proc2', 'some_test'),
+        ut3_develop.ut_annotation(16, 'beforetest','before_test_proc3', 'some_test'),
+        ut3_develop.ut_annotation(18, 'aftertest','after_test_proc,after_test_proc2', 'some_test'),
+        ut3_develop.ut_annotation(20, 'aftertest','after_test_proc3', 'some_test')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1453,14 +1453,14 @@ create or replace package body test_suite_builder is
 
   procedure before_aftertest_pkg_proc is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(14, 'test','A test', 'some_test'),
-        ut3.ut_annotation(15, 'beforetest','external_package.before_test_proc', 'some_test'),
-        ut3.ut_annotation(18, 'aftertest','external_package.after_test_proc', 'some_test')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3_develop.ut_annotation(15, 'beforetest','external_package.before_test_proc', 'some_test'),
+        ut3_develop.ut_annotation(18, 'aftertest','external_package.after_test_proc', 'some_test')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1479,14 +1479,14 @@ create or replace package body test_suite_builder is
 
   procedure before_aftertest_mixed_syntax is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(14, 'test','A test', 'some_test'),
-        ut3.ut_annotation(15, 'beforetest','external_package.before_test_proc, before_test_proc2', 'some_test'),
-        ut3.ut_annotation(18, 'aftertest','external_package.after_test_proc, after_test_proc2', 'some_test')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(14, 'test','A test', 'some_test'),
+        ut3_develop.ut_annotation(15, 'beforetest','external_package.before_test_proc, before_test_proc2', 'some_test'),
+        ut3_develop.ut_annotation(18, 'aftertest','external_package.after_test_proc, after_test_proc2', 'some_test')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1507,14 +1507,14 @@ create or replace package body test_suite_builder is
 
   procedure test_annotation_ordering is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(4, 'test','B test', 'b_test'),
-        ut3.ut_annotation(10, 'test','Z test', 'z_test'),
-        ut3.ut_annotation(14, 'test','A test', 'a_test')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(4, 'test','B test', 'b_test'),
+        ut3_develop.ut_annotation(10, 'test','Z test', 'z_test'),
+        ut3_develop.ut_annotation(14, 'test','A test', 'a_test')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1531,13 +1531,13 @@ create or replace package body test_suite_builder is
 
   procedure test_bad_procedure_annotation is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(1, 'suite','Cool', null),
-        ut3.ut_annotation(2, 'bad_procedure_annotation',null, 'some_procedure'),
-        ut3.ut_annotation(6, 'test','A test', 'do_stuff')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(1, 'suite','Cool', null),
+        ut3_develop.ut_annotation(2, 'bad_procedure_annotation',null, 'some_procedure'),
+        ut3_develop.ut_annotation(6, 'test','A test', 'do_stuff')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1547,13 +1547,13 @@ create or replace package body test_suite_builder is
 
   procedure test_bad_package_annotation is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
     begin
       --Arrange
-      l_annotations := ut3.ut_annotations(
-          ut3.ut_annotation(1, 'suite','Cool', null),
-          ut3.ut_annotation(17, 'bad_package_annotation',null, null),
-          ut3.ut_annotation(24, 'test','A test', 'do_stuff')
+      l_annotations := ut3_develop.ut_annotations(
+          ut3_develop.ut_annotation(1, 'suite','Cool', null),
+          ut3_develop.ut_annotation(17, 'bad_package_annotation',null, null),
+          ut3_develop.ut_annotation(24, 'test','A test', 'do_stuff')
       );
       --Act
       l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1563,13 +1563,13 @@ create or replace package body test_suite_builder is
 
   procedure test_tag_annotation is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tags','testtag', 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3_develop.ut_annotation(9, 'tags','testtag', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1585,12 +1585,12 @@ create or replace package body test_suite_builder is
 
   procedure suite_tag_annotation is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tags','suitetag', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(3, 'tags','suitetag', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1606,13 +1606,13 @@ create or replace package body test_suite_builder is
 
   procedure test_tags_annotation is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tags','testtag,testtag2,testtag3', 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3_develop.ut_annotation(9, 'tags','testtag,testtag2,testtag3', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1628,12 +1628,12 @@ create or replace package body test_suite_builder is
 
   procedure suite_tags_annotation is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tags','suitetag,suitetag1,suitetag2', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(3, 'tags','suitetag,suitetag1,suitetag2', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1649,14 +1649,14 @@ create or replace package body test_suite_builder is
 
   procedure test_2line_tags_annotation is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tags','testtag', 'test_procedure'),
-        ut3.ut_annotation(10, 'tags','testtag2', 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3_develop.ut_annotation(9, 'tags','testtag', 'test_procedure'),
+        ut3_develop.ut_annotation(10, 'tags','testtag2', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1672,13 +1672,13 @@ create or replace package body test_suite_builder is
 
   procedure suite_2line_tags_annotation is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tags','suitetag', null),
-        ut3.ut_annotation(4, 'tags','suitetag1', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(3, 'tags','suitetag', null),
+        ut3_develop.ut_annotation(4, 'tags','suitetag1', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1694,12 +1694,12 @@ create or replace package body test_suite_builder is
 
   procedure test_empty_tag is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tags',null, 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3_develop.ut_annotation(9, 'tags',null, 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1713,12 +1713,12 @@ create or replace package body test_suite_builder is
 
   procedure suite_empty_tag is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tags',null, null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(3, 'tags',null, null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1732,14 +1732,14 @@ create or replace package body test_suite_builder is
 
   procedure test_duplicate_tag is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tags','testtag,testtag1,testtag', 'test_procedure'),
-        ut3.ut_annotation(10, 'tags',' testtag,testtag1,testtag2', 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3_develop.ut_annotation(9, 'tags','testtag,testtag1,testtag', 'test_procedure'),
+        ut3_develop.ut_annotation(10, 'tags',' testtag,testtag1,testtag2', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1755,13 +1755,13 @@ create or replace package body test_suite_builder is
 
   procedure suite_duplicate_tag is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tags','suitetag,suitetag1,suitetag', null),
-        ut3.ut_annotation(4, 'tags',' suitetag1,suitetag2', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(3, 'tags','suitetag,suitetag1,suitetag', null),
+        ut3_develop.ut_annotation(4, 'tags',' suitetag1,suitetag2', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1777,13 +1777,13 @@ create or replace package body test_suite_builder is
 
   procedure test_empty_tag_between is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tags','testtag,,  ,testtag1', 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3_develop.ut_annotation(9, 'tags','testtag,,  ,testtag1', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1799,12 +1799,12 @@ create or replace package body test_suite_builder is
 
   procedure suite_empty_tag_between is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tags','suitetag,,  ,suitetag1', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(3, 'tags','suitetag,,  ,suitetag1', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1820,13 +1820,13 @@ create or replace package body test_suite_builder is
 
   procedure test_special_char_tag is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-        ut3.ut_annotation(9, 'tags','#?$%^&*!|\/@][', 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(8, 'test','Some test', 'test_procedure'),
+        ut3_develop.ut_annotation(9, 'tags','#?$%^&*!|\/@][', 'test_procedure')
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1842,12 +1842,12 @@ create or replace package body test_suite_builder is
 
   procedure suite_special_char_tag is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
       --Arrange
-    l_annotations := ut3.ut_annotations(
-        ut3.ut_annotation(2, 'suite','testsuite', null),
-        ut3.ut_annotation(3, 'tags','#?$%^&*!|\/@][', null)
+    l_annotations := ut3_develop.ut_annotations(
+        ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+        ut3_develop.ut_annotation(3, 'tags','#?$%^&*!|\/@][', null)
     );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1863,14 +1863,14 @@ create or replace package body test_suite_builder is
 
   procedure test_spaces_in_tag is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-      ut3.ut_annotation(2, 'suite','testsuite', null),
-      ut3.ut_annotation(3, 'tags',' good_tag , bad tag , good-tag ', null),
-      ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-      ut3.ut_annotation(9, 'tags',' good_tag , bad tag , good-tag ', 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+      ut3_develop.ut_annotation(3, 'tags',' good_tag , bad tag , good-tag ', null),
+      ut3_develop.ut_annotation(8, 'test','Some test', 'test_procedure'),
+      ut3_develop.ut_annotation(9, 'tags',' good_tag , bad tag , good-tag ', 'test_procedure')
       );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');
@@ -1893,14 +1893,14 @@ create or replace package body test_suite_builder is
 
   procedure test_minus_in_tag is
     l_actual      clob;
-    l_annotations ut3.ut_annotations;
+    l_annotations ut3_develop.ut_annotations;
   begin
     --Arrange
-    l_annotations := ut3.ut_annotations(
-      ut3.ut_annotation(2, 'suite','testsuite', null),
-      ut3.ut_annotation(3, 'tags',' good_tag , -invalid_tag , good-tag ', null),
-      ut3.ut_annotation(8, 'test','Some test', 'test_procedure'),
-      ut3.ut_annotation(9, 'tags',' good_tag , -invalid_tag , good-tag ', 'test_procedure')
+    l_annotations := ut3_develop.ut_annotations(
+      ut3_develop.ut_annotation(2, 'suite','testsuite', null),
+      ut3_develop.ut_annotation(3, 'tags',' good_tag , -invalid_tag , good-tag ', null),
+      ut3_develop.ut_annotation(8, 'test','Some test', 'test_procedure'),
+      ut3_develop.ut_annotation(9, 'tags',' good_tag , -invalid_tag , good-tag ', 'test_procedure')
       );
     --Act
     l_actual := invoke_builder_for_annotations(l_annotations, 'SOME_PACKAGE');

@@ -15,11 +15,7 @@ create or replace package body ut_session_context as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  $IF $$SELF_TESTING_INSTALL $THEN
   gc_context_name constant varchar2(30) := ut_utils.ut_owner()||'_INFO';
-  $ELSE
-  gc_context_name constant varchar2(30) := 'UT3_INFO';
-  $END
 
   procedure set_context(a_name varchar2, a_value varchar2) is
   begin

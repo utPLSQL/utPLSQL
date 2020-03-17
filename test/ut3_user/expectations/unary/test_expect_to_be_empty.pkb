@@ -10,7 +10,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     open l_cursor for select * from dual where 1 = 2;
     --Act
-    ut3.ut.expect(l_cursor).to_be_empty;
+    ut3_develop.ut.expect(l_cursor).to_be_empty;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -21,7 +21,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     open l_cursor for select * from dual;
     --Act
-    ut3.ut.expect(l_cursor).to_be_empty;
+    ut3_develop.ut.expect(l_cursor).to_be_empty;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -34,7 +34,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     open l_cursor for select * from dual;
     --Act
-    ut3.ut.expect(l_cursor).to_be_empty;
+    ut3_develop.ut.expect(l_cursor).to_be_empty;
 
     l_expected_message := q'[Actual: (refcursor [ count = 1 ])%
     <ROW><DUMMY>X</DUMMY></ROW>%
@@ -51,7 +51,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     open l_cursor for select * from dual;
     --Act
-    ut3.ut.expect(l_cursor).not_to_be_empty;
+    ut3_develop.ut.expect(l_cursor).not_to_be_empty;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -62,7 +62,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     open l_cursor for select * from dual where 1 = 2;
     --Act
-    ut3.ut.expect(l_cursor).not_to_be_empty;
+    ut3_develop.ut.expect(l_cursor).not_to_be_empty;
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -73,7 +73,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     l_actual := anydata.convertcollection(ora_mining_varchar2_nt());
     -- Act
-    ut3.ut.expect(l_actual).to_be_empty();
+    ut3_develop.ut.expect(l_actual).to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -84,7 +84,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     l_actual := anydata.convertcollection(ora_mining_varchar2_nt('a'));
     -- Act
-    ut3.ut.expect(l_actual).to_be_empty();
+    ut3_develop.ut.expect(l_actual).to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -95,7 +95,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     l_actual := anydata.convertcollection(ora_mining_varchar2_nt('a'));
     -- Act
-    ut3.ut.expect(l_actual).not_to_be_empty();
+    ut3_develop.ut.expect(l_actual).not_to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -106,7 +106,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     l_actual := anydata.convertcollection(ora_mining_varchar2_nt());
     -- Act
-    ut3.ut.expect(l_actual).not_to_be_empty();
+    ut3_develop.ut.expect(l_actual).not_to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -118,7 +118,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     l_actual := anydata.convertcollection(l_data);
     -- Act
-    ut3.ut.expect(l_actual).to_be_empty();
+    ut3_develop.ut.expect(l_actual).to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -130,7 +130,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     l_actual := anydata.convertcollection(l_data);
     -- Act
-    ut3.ut.expect(l_actual).not_to_be_empty();
+    ut3_develop.ut.expect(l_actual).not_to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -141,7 +141,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     l_actual := anydata.convertObject(ut3_tester_helper.test_dummy_number(1));
     -- Act
-    ut3.ut.expect(l_actual).to_be_empty();
+    ut3_develop.ut.expect(l_actual).to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -153,7 +153,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     l_actual := anydata.convertObject(l_data);
     -- Act
-    ut3.ut.expect(l_actual).to_be_empty();
+    ut3_develop.ut.expect(l_actual).to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -161,7 +161,7 @@ create or replace package body test_expect_to_be_empty is
   procedure fail_be_empty_number is
   begin
     -- Act
-    ut3.ut.expect( 1 ).to_( ut3.be_empty() );
+    ut3_develop.ut.expect( 1 ).to_( ut3_develop.be_empty() );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -176,7 +176,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     l_actual := anydata.convertObject(ut3_tester_helper.test_dummy_number(1));
     -- Act
-    ut3.ut.expect(l_actual).not_to_be_empty();
+    ut3_develop.ut.expect(l_actual).not_to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -188,7 +188,7 @@ create or replace package body test_expect_to_be_empty is
     --Arrange
     l_actual := anydata.convertObject(l_data);
     -- Act
-    ut3.ut.expect(l_actual).not_to_be_empty();
+    ut3_develop.ut.expect(l_actual).not_to_be_empty();
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -196,7 +196,7 @@ create or replace package body test_expect_to_be_empty is
   procedure fail_not_be_empty_number is
   begin
     -- Act
-    ut3.ut.expect( 1 ).not_to( ut3.be_empty() );
+    ut3_develop.ut.expect( 1 ).not_to( ut3_develop.be_empty() );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -204,7 +204,7 @@ create or replace package body test_expect_to_be_empty is
   procedure success_be_empty_clob is
     begin
       -- Act
-      ut3.ut.expect( empty_clob() ).to_( ut3.be_empty() );
+      ut3_develop.ut.expect( empty_clob() ).to_( ut3_develop.be_empty() );
       --Assert
       ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     end;
@@ -212,7 +212,7 @@ create or replace package body test_expect_to_be_empty is
   procedure fail_be_empty_clob is
     begin
       -- Act
-      ut3.ut.expect( to_clob(' ') ).to_( ut3.be_empty() );
+      ut3_develop.ut.expect( to_clob(' ') ).to_( ut3_develop.be_empty() );
       --Assert
       ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
     end;
@@ -220,7 +220,7 @@ create or replace package body test_expect_to_be_empty is
   procedure success_be_empty_blob is
     begin
       -- Act
-      ut3.ut.expect( empty_blob() ).to_( ut3.be_empty() );
+      ut3_develop.ut.expect( empty_blob() ).to_( ut3_develop.be_empty() );
       --Assert
       ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     end;
@@ -228,7 +228,7 @@ create or replace package body test_expect_to_be_empty is
   procedure fail_be_empty_blob is
     begin
       -- Act
-      ut3.ut.expect( to_blob('AA') ).to_( ut3.be_empty() );
+      ut3_develop.ut.expect( to_blob('AA') ).to_( ut3_develop.be_empty() );
       --Assert
       ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
     end;
@@ -237,7 +237,7 @@ create or replace package body test_expect_to_be_empty is
   procedure fail_not_be_empty_clob is
   begin
     -- Act
-    ut3.ut.expect( empty_clob() ).not_to( ut3.be_empty() );
+    ut3_develop.ut.expect( empty_clob() ).not_to( ut3_develop.be_empty() );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -245,7 +245,7 @@ create or replace package body test_expect_to_be_empty is
   procedure success_not_be_empty_clob is
   begin
     -- Act
-    ut3.ut.expect( to_clob(' ') ).not_to( ut3.be_empty() );
+    ut3_develop.ut.expect( to_clob(' ') ).not_to( ut3_develop.be_empty() );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;
@@ -253,7 +253,7 @@ create or replace package body test_expect_to_be_empty is
   procedure fail_not_be_empty_blob is
   begin
     -- Act
-    ut3.ut.expect( empty_blob() ).not_to( ut3.be_empty() );
+    ut3_develop.ut.expect( empty_blob() ).not_to( ut3_develop.be_empty() );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_be_greater_than(0);
   end;
@@ -261,7 +261,7 @@ create or replace package body test_expect_to_be_empty is
   procedure success_not_be_empty_blob is
   begin
     -- Act
-    ut3.ut.expect( to_blob('AA') ).not_to( ut3.be_empty() );
+    ut3_develop.ut.expect( to_blob('AA') ).not_to( ut3_develop.be_empty() );
     --Assert
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
   end;

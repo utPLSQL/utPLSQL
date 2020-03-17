@@ -292,15 +292,15 @@ end test_package_with_ctx;]';
 
   procedure test_schema_run is
     c_path           constant varchar2(100) := sys_context('USERENV', 'CURRENT_USER');
-    l_objects_to_run ut3.ut_suite_items := ut3.ut_suite_items();
-    l_all_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items := ut3_develop.ut_suite_items();
+    l_all_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test2_suite ut3.ut_logical_suite;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test2_suite ut3_develop.ut_logical_suite;
   begin
     --Act
-    l_all_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_all_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
     for i in 1..l_all_objects_to_run.count loop
       if l_all_objects_to_run(i).name in ('tests', 'tests2') then
@@ -313,21 +313,21 @@ end test_package_with_ctx;]';
     ut.expect(l_objects_to_run.count).to_equal(2);
 
     for i in 1 .. 2 loop
-      l_test0_suite := treat(l_objects_to_run(i) as ut3.ut_logical_suite);
+      l_test0_suite := treat(l_objects_to_run(i) as ut3_develop.ut_logical_suite);
       ut.expect(l_test0_suite.name in ('tests', 'tests2')).to_be_true;
 
-      l_test1_suite := treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+      l_test1_suite := treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
       case l_test0_suite.name
         when 'tests' then
           ut.expect(l_test1_suite.name).to_equal('test_package_1');
           ut.expect(l_test1_suite.items.count).to_equal(3);
-          ut.expect(l_test1_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
-          l_test2_suite := treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
+          ut.expect(l_test1_suite.rollback_type).to_equal(ut3_develop.ut_utils.gc_rollback_manual);
+          l_test2_suite := treat(l_test1_suite.items(1) as ut3_develop.ut_logical_suite);
 
           ut.expect(l_test2_suite.name).to_equal('test_package_2');
           ut.expect(l_test2_suite.items.count).to_equal(3);
-          ut.expect(l_test2_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
+          ut.expect(l_test2_suite.rollback_type).to_equal(ut3_develop.ut_utils.gc_rollback_manual);
         when 'tests2' then
           ut.expect(l_test1_suite.name).to_equal('test_package_3');
           ut.expect(l_test1_suite.items.count).to_equal(3);
@@ -339,84 +339,84 @@ end test_package_with_ctx;]';
 
   procedure test_top2_by_name is
     c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||'.test_package_2';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test2_suite ut3.ut_logical_suite;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test2_suite ut3_develop.ut_logical_suite;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(1);
-    ut.expect(l_test1_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
-    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
+    ut.expect(l_test1_suite.rollback_type).to_equal(ut3_develop.ut_utils.gc_rollback_manual);
+    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
+    ut.expect(l_test2_suite.rollback_type).to_equal(ut3_develop.ut_utils.gc_rollback_manual);
     ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
   procedure test_top2_bt_name_cur_user is
     c_path varchar2(100) := 'test_package_2';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test2_suite ut3.ut_logical_suite;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test2_suite ut3_develop.ut_logical_suite;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(1);
-    ut.expect(l_test1_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
-    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
+    ut.expect(l_test1_suite.rollback_type).to_equal(ut3_develop.ut_utils.gc_rollback_manual);
+    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
+    ut.expect(l_test2_suite.rollback_type).to_equal(ut3_develop.ut_utils.gc_rollback_manual);
     ut.expect(l_test2_suite.items.count).to_equal(3);
   end;
 
   procedure test_by_path_to_subsuite is
     c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||':tests.test_package_1.test_package_2';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test2_suite ut3.ut_logical_suite;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test2_suite ut3_develop.ut_logical_suite;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(1);
-    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
+    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
     ut.expect(l_test2_suite.items.count).to_equal(3);
@@ -424,26 +424,26 @@ end test_package_with_ctx;]';
 
   procedure test_by_path_to_subsuite_cu is
     c_path varchar2(100) := ':tests.test_package_1.test_package_2';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test2_suite ut3.ut_logical_suite;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test2_suite ut3_develop.ut_logical_suite;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(1);
-    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
+    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
     ut.expect(l_test2_suite.items.count).to_equal(3);
@@ -451,36 +451,36 @@ end test_package_with_ctx;]';
 
    procedure test_subsute_proc_by_path is
     c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||':tests.test_package_1.test_package_2.test2';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test2_suite ut3.ut_logical_suite;
-    l_test_proc ut3.ut_test;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test2_suite ut3_develop.ut_logical_suite;
+    l_test_proc ut3_develop.ut_test;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
-    ut.expect(l_test1_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
+    ut.expect(l_test1_suite.rollback_type).to_equal(ut3_develop.ut_utils.gc_rollback_manual);
     ut.expect(l_test1_suite.items.count).to_equal(1);
-    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
+    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
-    ut.expect(l_test2_suite.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
+    ut.expect(l_test2_suite.rollback_type).to_equal(ut3_develop.ut_utils.gc_rollback_manual);
     ut.expect(l_test2_suite.items.count).to_equal(1);
 
-    l_test_proc := treat(l_test2_suite.items(1) as ut3.ut_test);
+    l_test_proc := treat(l_test2_suite.items(1) as ut3_develop.ut_test);
     ut.expect(l_test_proc.name).to_equal('test2');
-    ut.expect(l_test_proc.rollback_type).to_equal(ut3.ut_utils.gc_rollback_manual);
+    ut.expect(l_test_proc.rollback_type).to_equal(ut3_develop.ut_utils.gc_rollback_manual);
     ut.expect(l_test_proc.before_test_list.count).to_be_greater_than(0);
     ut.expect(l_test_proc.after_test_list.count).to_be_greater_than(0);
 
@@ -488,32 +488,32 @@ end test_package_with_ctx;]';
 
    procedure test_subsute_proc_by_path_cu is
     c_path varchar2(100) := ':tests.test_package_1.test_package_2.test2';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test2_suite ut3.ut_logical_suite;
-    l_test_proc ut3.ut_test;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test2_suite ut3_develop.ut_logical_suite;
+    l_test_proc ut3_develop.ut_test;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(1);
-    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
+    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
     ut.expect(l_test2_suite.items.count).to_equal(1);
 
-    l_test_proc := treat(l_test2_suite.items(1) as ut3.ut_test);
+    l_test_proc := treat(l_test2_suite.items(1) as ut3_develop.ut_test);
     ut.expect(l_test_proc.name).to_equal('test2');
     ut.expect(l_test_proc.before_test_list.count).to_be_greater_than(0);
     ut.expect(l_test_proc.after_test_list.count).to_be_greater_than(0);
@@ -521,101 +521,101 @@ end test_package_with_ctx;]';
 
   procedure test_top_pack_by_name is
     c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||'.test_package_1';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_suite;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_suite;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(2);
 
     ut.expect(l_test1_suite.items(1).name).to_equal('test1');
     ut.expect(l_test1_suite.items(1).description).to_equal('Test1 from test package 1');
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).before_test_list.count).to_equal(0);
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).after_test_list.count).to_equal(0);
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).before_each_list.count).to_be_greater_than(0);
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).disabled_flag).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3_develop.ut_test).before_test_list.count).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3_develop.ut_test).after_test_list.count).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3_develop.ut_test).before_each_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3_develop.ut_test).disabled_flag).to_equal(0);
 
     ut.expect(l_test1_suite.items(2).name).to_equal('test2');
     ut.expect(l_test1_suite.items(2).description).to_equal('Test2 from test package 1');
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_test_list.count).to_be_greater_than(0);
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).after_test_list.count).to_be_greater_than(0);
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_each_list.count).to_be_greater_than(0);
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).disabled_flag).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3_develop.ut_test).before_test_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3_develop.ut_test).after_test_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3_develop.ut_test).before_each_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3_develop.ut_test).disabled_flag).to_equal(0);
 
   end;
 
   procedure test_top_pack_by_name_cu is
     c_path varchar2(100) := 'test_package_1';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_suite;
-    l_test2_suite ut3.ut_suite;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_suite;
+    l_test2_suite ut3_develop.ut_suite;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(2);
 
     ut.expect(l_test1_suite.items(1).name).to_equal('test1');
     ut.expect(l_test1_suite.items(1).description).to_equal('Test1 from test package 1');
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).before_test_list.count).to_equal(0);
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).after_test_list.count).to_equal(0);
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).before_each_list.count).to_be_greater_than(0);
-    ut.expect(treat(l_test1_suite.items(1) as ut3.ut_test).disabled_flag).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3_develop.ut_test).before_test_list.count).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3_develop.ut_test).after_test_list.count).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3_develop.ut_test).before_each_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(1) as ut3_develop.ut_test).disabled_flag).to_equal(0);
 
     ut.expect(l_test1_suite.items(2).name).to_equal('test2');
     ut.expect(l_test1_suite.items(2).description).to_equal('Test2 from test package 1');
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_test_list.count).to_be_greater_than(0);
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).after_test_list.count).to_be_greater_than(0);
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).before_each_list.count).to_be_greater_than(0);
-    ut.expect(treat(l_test1_suite.items(2) as ut3.ut_test).disabled_flag).to_equal(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3_develop.ut_test).before_test_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3_develop.ut_test).after_test_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3_develop.ut_test).before_each_list.count).to_be_greater_than(0);
+    ut.expect(treat(l_test1_suite.items(2) as ut3_develop.ut_test).disabled_flag).to_equal(0);
 
   end;
 
   procedure test_top_pack_by_path is
     c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||':tests';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test2_suite ut3.ut_logical_suite;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test2_suite ut3_develop.ut_logical_suite;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(3);
-    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
+    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
     ut.expect(l_test2_suite.items.count).to_equal(3);
@@ -623,26 +623,26 @@ end test_package_with_ctx;]';
 
   procedure test_top_pack_by_path_cu is
     c_path varchar2(100) := ':tests';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test2_suite ut3.ut_logical_suite;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test2_suite ut3_develop.ut_logical_suite;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(3);
-    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3.ut_logical_suite);
+    l_test2_suite :=  treat(l_test1_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test2_suite.name).to_equal('test_package_2');
     ut.expect(l_test2_suite.items.count).to_equal(3);
@@ -650,27 +650,27 @@ end test_package_with_ctx;]';
 
   procedure test_top_pck_proc_by_path is
     c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||':tests.test_package_1.test2';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test2_suite ut3.ut_logical_suite;
-    l_test_proc ut3.ut_test;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test2_suite ut3_develop.ut_logical_suite;
+    l_test_proc ut3_develop.ut_test;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(1);
-    l_test_proc := treat(l_test1_suite.items(1) as ut3.ut_test);
+    l_test_proc := treat(l_test1_suite.items(1) as ut3_develop.ut_test);
 
     ut.expect(l_test_proc.name).to_equal('test2');
     ut.expect(l_test_proc.description).to_equal('Test2 from test package 1');
@@ -680,27 +680,27 @@ end test_package_with_ctx;]';
 
   procedure test_top_pck_proc_by_path_cu is
     c_path varchar2(100) := ':tests.test_package_1.test2';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test2_suite ut3.ut_logical_suite;
-    l_test_proc ut3.ut_test;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test2_suite ut3_develop.ut_logical_suite;
+    l_test_proc ut3_develop.ut_test;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(1);
-    l_test_proc := treat(l_test1_suite.items(1) as ut3.ut_test);
+    l_test_proc := treat(l_test1_suite.items(1) as ut3_develop.ut_test);
 
     ut.expect(l_test_proc.name).to_equal('test2');
     ut.expect(l_test_proc.description).to_equal('Test2 from test package 1');
@@ -710,27 +710,27 @@ end test_package_with_ctx;]';
 
   procedure test_top_pkc_proc_by_name is
     c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||'.test_package_1.test2';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test_proc ut3.ut_test;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test_proc ut3_develop.ut_test;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(1);
 
-    l_test_proc := treat(l_test1_suite.items(1) as ut3.ut_test);
+    l_test_proc := treat(l_test1_suite.items(1) as ut3_develop.ut_test);
     ut.expect(l_test_proc.name).to_equal('test2');
     ut.expect(l_test_proc.before_test_list.count).to_be_greater_than(0);
     ut.expect(l_test_proc.after_test_list.count).to_be_greater_than(0);
@@ -738,27 +738,27 @@ end test_package_with_ctx;]';
 
   procedure test_top_pkc_proc_by_name_cu is
     c_path varchar2(100) := 'test_package_1.test2';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test_proc ut3.ut_test;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test_proc ut3_develop.ut_test;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_1');
     ut.expect(l_test1_suite.items.count).to_equal(1);
 
-    l_test_proc := treat(l_test1_suite.items(1) as ut3.ut_test);
+    l_test_proc := treat(l_test1_suite.items(1) as ut3_develop.ut_test);
     ut.expect(l_test_proc.name).to_equal('test2');
     ut.expect(l_test_proc.before_test_list.count).to_be_greater_than(0);
     ut.expect(l_test_proc.after_test_list.count).to_be_greater_than(0);
@@ -766,139 +766,139 @@ end test_package_with_ctx;]';
 
   procedure test_top_pkc_nosub_by_name is
     c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||'.test_package_3';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test1        ut3.ut_test;
-    l_test3        ut3.ut_test;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test1        ut3_develop.ut_test;
+    l_test3        ut3_develop.ut_test;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests2');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_3');
     ut.expect(l_test1_suite.items.count).to_equal(3);
 
-    l_test1 := treat(l_test1_suite.items(1) as ut3.ut_test);
+    l_test1 := treat(l_test1_suite.items(1) as ut3_develop.ut_test);
     ut.expect(l_test1.name).to_equal('test1');
     ut.expect(l_test1.DISABLED_FLAG).to_equal(0);
 
-    l_test3 := treat(l_test1_suite.items(3) as ut3.ut_test);
+    l_test3 := treat(l_test1_suite.items(3) as ut3_develop.ut_test);
     ut.expect(l_test3.name).to_equal('disabled_test');
     ut.expect(l_test3.DISABLED_FLAG).to_equal(1);
   end;
 
   procedure test_top_pkc_nosub_by_name_cu is
     c_path varchar2(100) := 'test_package_3';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test1        ut3.ut_test;
-    l_test3        ut3.ut_test;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test1        ut3_develop.ut_test;
+    l_test3        ut3_develop.ut_test;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests2');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_3');
     ut.expect(l_test1_suite.items.count).to_equal(3);
 
-    l_test1 := treat(l_test1_suite.items(1) as ut3.ut_test);
+    l_test1 := treat(l_test1_suite.items(1) as ut3_develop.ut_test);
     ut.expect(l_test1.name).to_equal('test1');
     ut.expect(l_test1.DISABLED_FLAG).to_equal(0);
 
-    l_test3 := treat(l_test1_suite.items(3) as ut3.ut_test);
+    l_test3 := treat(l_test1_suite.items(3) as ut3_develop.ut_test);
     ut.expect(l_test3.name).to_equal('disabled_test');
     ut.expect(l_test3.DISABLED_FLAG).to_equal(1);
   end;
 
   procedure test_top_subpck_by_path is
     c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||':tests2.test_package_3';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test1        ut3.ut_test;
-    l_test3        ut3.ut_test;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test1        ut3_develop.ut_test;
+    l_test3        ut3_develop.ut_test;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests2');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_3');
     ut.expect(l_test1_suite.items.count).to_equal(3);
 
-    l_test1 := treat(l_test1_suite.items(1) as ut3.ut_test);
+    l_test1 := treat(l_test1_suite.items(1) as ut3_develop.ut_test);
     ut.expect(l_test1.name).to_equal('test1');
     ut.expect(l_test1.DISABLED_FLAG).to_equal(0);
 
-    l_test3 := treat(l_test1_suite.items(3) as ut3.ut_test);
+    l_test3 := treat(l_test1_suite.items(3) as ut3_develop.ut_test);
     ut.expect(l_test3.name).to_equal('disabled_test');
     ut.expect(l_test3.DISABLED_FLAG).to_equal(1);
   end;
 
   procedure test_top_subpck_by_path_cu is
     c_path varchar2(100) := ':tests2.test_package_3';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test0_suite ut3.ut_logical_suite;
-    l_test1_suite ut3.ut_logical_suite;
-    l_test1        ut3.ut_test;
-    l_test3        ut3.ut_test;
+    l_test0_suite ut3_develop.ut_logical_suite;
+    l_test1_suite ut3_develop.ut_logical_suite;
+    l_test1        ut3_develop.ut_test;
+    l_test3        ut3_develop.ut_test;
   begin
   --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
   --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_test0_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_test0_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test0_suite.name).to_equal('tests2');
     ut.expect(l_test0_suite.items.count).to_equal(1);
-    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3.ut_logical_suite);
+    l_test1_suite :=  treat(l_test0_suite.items(1) as ut3_develop.ut_logical_suite);
 
     ut.expect(l_test1_suite.name).to_equal('test_package_3');
     ut.expect(l_test1_suite.items.count).to_equal(3);
 
-    l_test1 := treat(l_test1_suite.items(1) as ut3.ut_test);
+    l_test1 := treat(l_test1_suite.items(1) as ut3_develop.ut_test);
     ut.expect(l_test1.name).to_equal('test1');
     ut.expect(l_test1.DISABLED_FLAG).to_equal(0);
 
-    l_test3 := treat(l_test1_suite.items(3) as ut3.ut_test);
+    l_test3 := treat(l_test1_suite.items(3) as ut3_develop.ut_test);
     ut.expect(l_test3.name).to_equal('disabled_test');
     ut.expect(l_test3.DISABLED_FLAG).to_equal(1);
   end;
 
   procedure test_search_invalid_pck is
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
   begin
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('failing_invalid_spec'));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('failing_invalid_spec'));
     
-    ut3.ut.expect(l_objects_to_run.count).to_be_greater_than(0);
-    ut3.ut.expect(l_objects_to_run(l_objects_to_run.first).object_name).to_equal('failing_invalid_spec');
+    ut3_develop.ut.expect(l_objects_to_run.count).to_be_greater_than(0);
+    ut3_develop.ut.expect(l_objects_to_run(l_objects_to_run.first).object_name).to_equal('failing_invalid_spec');
   end;
 
   procedure compile_invalid_package is
@@ -936,9 +936,9 @@ end;]';
   end;
 
   procedure test_search_nonexisting_pck is
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
   begin
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('ut3.failing_non_existing'));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('ut3_develop.failing_non_existing'));
     ut.fail('Non existing package did not raise exception');
   exception
     when others then
@@ -946,9 +946,9 @@ end;]';
   end;
   
   procedure test_search_nonexist_sch_pck is
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
   begin
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('failing_non_existing'));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('failing_non_existing'));
     ut.fail('Non existing package without schema did not raise exception');
   exception
     when others then
@@ -956,27 +956,27 @@ end;]';
   end;
   
   procedure test_desc_with_comma is
-    l_objects_to_run ut3.ut_suite_items;
-    l_suite          ut3.ut_suite;
-    l_test           ut3.ut_test;
+    l_objects_to_run ut3_develop.ut_suite_items;
+    l_suite          ut3_develop.ut_suite;
+    l_test           ut3_develop.ut_test;
   begin
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('tst_package_to_be_dropped'));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('tst_package_to_be_dropped'));
 
     --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
 
-    l_suite := treat(l_objects_to_run(1) as ut3.ut_suite);
+    l_suite := treat(l_objects_to_run(1) as ut3_develop.ut_suite);
 
     ut.expect(l_suite.name).to_equal('tst_package_to_be_dropped');
     ut.expect(l_suite.description).to_equal('A suite description, though with comma, is assigned by suite_manager');
     ut.expect(l_suite.items.count).to_equal(2);
 
-    l_test := treat(l_suite.items(1) as ut3.ut_test);
+    l_test := treat(l_suite.items(1) as ut3_develop.ut_test);
 
     ut.expect(l_test.name).to_equal('test1');
     ut.expect(l_test.description).to_equal('A test description, though with comma, is assigned by suite_manager');
 
---     l_test := treat(l_suite.items(2) as ut3.ut_test);
+--     l_test := treat(l_suite.items(2) as ut3_develop.ut_test);
 --
 --     ut.expect(l_test.name).to_equal('test2');
 --     ut.expect(l_test.description).to_equal('A test description, though with comma, is assigned by suite_manager');
@@ -1013,16 +1013,16 @@ end;';
   end;
 
   procedure test_inv_cache_on_drop is
-    l_test_report ut3.ut_varchar2_list;
+    l_test_report ut3_develop.ut_varchar2_list;
   begin
 
-    select * bulk collect into l_test_report from table(ut3.ut.run(sys_context('USERENV', 'CURRENT_USER')||'.tst_package_to_be_dropped'));
+    select * bulk collect into l_test_report from table(ut3_develop.ut.run(sys_context('USERENV', 'CURRENT_USER')||'.tst_package_to_be_dropped'));
 
     -- drop package
     clean_inv_cache_on_drop;
 
     begin
-      select * bulk collect into l_test_report from table(ut3.ut.run(sys_context('USERENV', 'CURRENT_USER') || '.tst_package_to_be_dropped'));
+      select * bulk collect into l_test_report from table(ut3_develop.ut.run(sys_context('USERENV', 'CURRENT_USER') || '.tst_package_to_be_dropped'));
       ut.fail('Cache not invalidated on package drop');
     exception
       when others then
@@ -1056,15 +1056,15 @@ end;';
   end;
 
   procedure test_inv_pck_bodies is
-    l_test_report ut3.ut_varchar2_list;
+    l_test_report ut3_develop.ut_varchar2_list;
   begin
 
-    select * bulk collect into l_test_report from table(ut3.ut.run(sys_context('USERENV', 'CURRENT_USER')||'.test_dependencies'));
+    select * bulk collect into l_test_report from table(ut3_develop.ut.run(sys_context('USERENV', 'CURRENT_USER')||'.test_dependencies'));
 
     ut.expect(l_test_report(l_test_report.count-1)).to_be_like('1 test_, 0 failed, 0 errored, 0 disabled, 0 warning(s)');
-    --execute immediate 'select * from table(ut3.ut.run(''UT3.test_dependencies'', ut3.utplsql_test_reporter()))' into l_result;
+    --execute immediate 'select * from table(ut3_develop.ut.run(''UT3_DEVELOP.test_dependencies'', ut3_develop.utplsql_test_reporter()))' into l_result;
 
---    ut.expect(l_result).to_equal(ut3.ut_utils.gc_success);
+--    ut.expect(l_result).to_equal(ut3_develop.ut_utils.gc_success);
   end;
   procedure setup_inv_pck_bodies is
     pragma autonomous_transaction;
@@ -1092,16 +1092,16 @@ end;';
   end;
 
   procedure test_pck_with_dollar is
-    l_objects_to_run ut3.ut_suite_items;
-    l_suite          ut3.ut_suite;
+    l_objects_to_run ut3_develop.ut_suite_items;
+    l_suite          ut3_develop.ut_suite;
   begin
     --act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('tst_package_with$dollar'));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('tst_package_with$dollar'));
 
     --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
 
-    l_suite := treat(l_objects_to_run(1) as ut3.ut_suite);
+    l_suite := treat(l_objects_to_run(1) as ut3_develop.ut_suite);
     ut.expect(l_suite.name).to_equal('tst_package_with$dollar');
   end;
   procedure setup_pck_with_dollar is
@@ -1127,16 +1127,16 @@ end;';
 
 
   procedure test_pck_with_hash is
-    l_objects_to_run ut3.ut_suite_items;
-    l_suite          ut3.ut_suite;
+    l_objects_to_run ut3_develop.ut_suite_items;
+    l_suite          ut3_develop.ut_suite;
   begin
     --act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('tst_package_with#hash'));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('tst_package_with#hash'));
 
     --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
 
-    l_suite := treat(l_objects_to_run(1) as ut3.ut_suite);
+    l_suite := treat(l_objects_to_run(1) as ut3_develop.ut_suite);
     ut.expect(l_suite.name).to_equal('tst_package_with#hash');
   end;
   procedure setup_pck_with_hash is
@@ -1162,22 +1162,22 @@ end;';
 
 
   procedure test_test_with_dollar is
-    l_objects_to_run ut3.ut_suite_items;
-    l_suite          ut3.ut_suite;
-    l_test           ut3.ut_test;
+    l_objects_to_run ut3_develop.ut_suite_items;
+    l_suite          ut3_develop.ut_suite;
+    l_test           ut3_develop.ut_test;
   begin
     --act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('tst_package_with_dollar_test.test$1'));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('tst_package_with_dollar_test.test$1'));
 
     --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
 
-    l_suite := treat(l_objects_to_run(1) as ut3.ut_suite);
+    l_suite := treat(l_objects_to_run(1) as ut3_develop.ut_suite);
 
     ut.expect(l_suite.name).to_equal('tst_package_with_dollar_test');
     ut.expect(l_suite.items.count).to_equal(1);
 
-    l_test := treat(l_suite.items(1) as ut3.ut_test);
+    l_test := treat(l_suite.items(1) as ut3_develop.ut_test);
 
     ut.expect(l_test.name).to_equal('test$1');
 
@@ -1203,22 +1203,22 @@ end;';
   end;
 
   procedure test_test_with_hash is
-    l_objects_to_run ut3.ut_suite_items;
-    l_suite          ut3.ut_suite;
-    l_test           ut3.ut_test;
+    l_objects_to_run ut3_develop.ut_suite_items;
+    l_suite          ut3_develop.ut_suite;
+    l_test           ut3_develop.ut_test;
   begin
     --act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('tst_package_with_hash_test.test#1'));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('tst_package_with_hash_test.test#1'));
 
     --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
 
-    l_suite := treat(l_objects_to_run(1) as ut3.ut_suite);
+    l_suite := treat(l_objects_to_run(1) as ut3_develop.ut_suite);
 
     ut.expect(l_suite.name).to_equal('tst_package_with_hash_test');
     ut.expect(l_suite.items.count).to_equal(1);
 
-    l_test := treat(l_suite.items(1) as ut3.ut_test);
+    l_test := treat(l_suite.items(1) as ut3_develop.ut_test);
 
     ut.expect(l_test.name).to_equal('test#1');
 
@@ -1244,17 +1244,17 @@ end;';
   end;
 
   procedure test_empty_suite_path is
-    l_objects_to_run ut3.ut_suite_items;
-    l_suite          ut3.ut_suite;
+    l_objects_to_run ut3_develop.ut_suite_items;
+    l_suite          ut3_develop.ut_suite;
   begin
 
     --act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('tst_empty_suite_path'));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('tst_empty_suite_path'));
 
     --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
 
-    l_suite := treat(l_objects_to_run(1) as ut3.ut_suite);
+    l_suite := treat(l_objects_to_run(1) as ut3_develop.ut_suite);
 
     ut.expect(l_suite.name).to_equal('tst_empty_suite_path');
   end;
@@ -1281,25 +1281,25 @@ end;';
   end;
 
   procedure test_pck_with_same_path is
-    l_objects_to_run ut3.ut_suite_items;
-    l_suite1 ut3.ut_logical_suite;
-    l_suite2 ut3.ut_logical_suite;
-    l_suite3 ut3.ut_suite;
+    l_objects_to_run ut3_develop.ut_suite_items;
+    l_suite1 ut3_develop.ut_logical_suite;
+    l_suite2 ut3_develop.ut_logical_suite;
+    l_suite3 ut3_develop.ut_suite;
   begin
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(':test1.test2$.test_package_same_1'));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(':test1.test2$.test_package_same_1'));
 
     --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
 
-    l_suite1 := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+    l_suite1 := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
     ut.expect(l_suite1.name).to_equal('test1');
     ut.expect(l_suite1.items.count).to_equal(1);
 
-    l_suite2 := treat(l_suite1.items(1) as ut3.ut_logical_suite);
+    l_suite2 := treat(l_suite1.items(1) as ut3_develop.ut_logical_suite);
     ut.expect(l_suite2.name).to_equal('test2$');
     ut.expect(l_suite2.items.count).to_equal(1);
 
-    l_suite3 := treat(l_suite2.items(1) as ut3.ut_suite);
+    l_suite3 := treat(l_suite2.items(1) as ut3_develop.ut_suite);
     ut.expect(l_suite3.name).to_equal('test_package_same_1');
   end;
 
@@ -1359,17 +1359,17 @@ end;]';
   end;
 
   procedure disable_suite_floating_annot is
-    l_objects_to_run ut3.ut_suite_items;
-    l_suite          ut3.ut_suite;
+    l_objects_to_run ut3_develop.ut_suite_items;
+    l_suite          ut3_develop.ut_suite;
   begin
     --Arrange
     setup_disabled_pck;
     --Act
-    l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list('test_disabled_floating'));
+    l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list('test_disabled_floating'));
 
     --Assert
     ut.expect(l_objects_to_run.count).to_equal(1);
-    l_suite := treat(l_objects_to_run(1) as ut3.ut_suite);
+    l_suite := treat(l_objects_to_run(1) as ut3_develop.ut_suite);
     ut.expect(l_suite.name).to_equal('test_disabled_floating');
     ut.expect(l_suite.get_disabled_flag()).to_be_true();
 
@@ -1378,66 +1378,66 @@ end;]';
 
   procedure pck_proc_in_ctx_by_name is
     c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||'.test_package_with_ctx.test1';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test_suite  ut3.ut_logical_suite;
-    l_ctx_suite   ut3.ut_logical_suite;
-    l_test_proc   ut3.ut_test;
+    l_test_suite  ut3_develop.ut_logical_suite;
+    l_ctx_suite   ut3_develop.ut_logical_suite;
+    l_test_proc   ut3_develop.ut_test;
     begin
       --Act
-      l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+      l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
       --Assert
       ut.expect(l_objects_to_run.count).to_equal(1);
 
-      l_test_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+      l_test_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
       ut.expect(l_test_suite.name).to_equal('test_package_with_ctx');
       ut.expect(l_test_suite.items.count).to_equal(1);
 
-      l_ctx_suite := treat(l_test_suite.items(1) as ut3.ut_logical_suite);
+      l_ctx_suite := treat(l_test_suite.items(1) as ut3_develop.ut_logical_suite);
       ut.expect(l_ctx_suite.name).to_equal('some_context');
       ut.expect(l_ctx_suite.description).to_equal('Some context description');
       ut.expect(l_ctx_suite.items.count).to_equal(1);
 
-      l_test_proc := treat(l_ctx_suite.items(1) as ut3.ut_test);
+      l_test_proc := treat(l_ctx_suite.items(1) as ut3_develop.ut_test);
       ut.expect(l_test_proc.name).to_equal('test1');
     end;
 
   procedure pck_proc_in_ctx_by_path is
     c_path varchar2(100) := sys_context('USERENV', 'CURRENT_USER')||':test_package_with_ctx.some_context.test1';
-    l_objects_to_run ut3.ut_suite_items;
+    l_objects_to_run ut3_develop.ut_suite_items;
 
-    l_test_suite  ut3.ut_logical_suite;
-    l_ctx_suite   ut3.ut_logical_suite;
-    l_test_proc   ut3.ut_test;
+    l_test_suite  ut3_develop.ut_logical_suite;
+    l_ctx_suite   ut3_develop.ut_logical_suite;
+    l_test_proc   ut3_develop.ut_test;
     begin
       --Act
-      l_objects_to_run := ut3.ut_suite_manager.configure_execution_by_path(ut3.ut_varchar2_list(c_path));
+      l_objects_to_run := ut3_develop.ut_suite_manager.configure_execution_by_path(ut3_develop.ut_varchar2_list(c_path));
 
       --Assert
       ut.expect(l_objects_to_run.count).to_equal(1);
 
-      l_test_suite := treat(l_objects_to_run(1) as ut3.ut_logical_suite);
+      l_test_suite := treat(l_objects_to_run(1) as ut3_develop.ut_logical_suite);
       ut.expect(l_test_suite.name).to_equal('test_package_with_ctx');
       ut.expect(l_test_suite.items.count).to_equal(1);
 
-      l_ctx_suite := treat(l_test_suite.items(1) as ut3.ut_logical_suite);
+      l_ctx_suite := treat(l_test_suite.items(1) as ut3_develop.ut_logical_suite);
       ut.expect(l_ctx_suite.name).to_equal('some_context');
       ut.expect(l_ctx_suite.description).to_equal('Some context description');
       ut.expect(l_ctx_suite.items.count).to_equal(1);
 
-      l_test_proc := treat(l_ctx_suite.items(1) as ut3.ut_test);
+      l_test_proc := treat(l_ctx_suite.items(1) as ut3_develop.ut_test);
       ut.expect(l_test_proc.name).to_equal('test1');
     end;
 
   procedure test_get_schema_ut_packages is
-    l_expected  ut3.ut_object_names;
-    l_actual    ut3.ut_object_names;
+    l_expected  ut3_develop.ut_object_names;
+    l_actual    ut3_develop.ut_object_names;
   begin
-    l_expected := ut3.ut_object_names(
-      ut3.ut_object_name('UT3','SOME_TEST_PACKAGE')
+    l_expected := ut3_develop.ut_object_names(
+      ut3_develop.ut_object_name('UT3_DEVELOP','SOME_TEST_PACKAGE')
       );
-    l_actual := ut3_tester_helper.run_helper.get_schema_ut_packages('UT3');
+    l_actual := ut3_tester_helper.run_helper.get_schema_ut_packages('UT3_DEVELOP');
 
     ut.expect(anydata.convertCollection(l_actual)).to_equal(anydata.convertCollection(l_expected));
   end;
@@ -1454,16 +1454,16 @@ end;]';
   end;
 
   procedure add_new_long_test_package is
-    l_actual    ut3.ut_object_names;
+    l_actual    ut3_develop.ut_object_names;
     l_expected_message varchar2(500);
   begin
-    l_expected_message := q'[ORA-20217: 'Suitepath exceeds 1000 CHAR on: UT3.DUMMY_LONG_TEST_PACKAGE,UT3.DUMMY_LONG_TEST_PACKAGE1'%]';
-    l_actual := ut3_tester_helper.run_helper.get_schema_ut_packages('UT3');
+    l_expected_message := q'[ORA-20217: 'Suitepath exceeds 1000 CHAR on: UT3_DEVELOP.DUMMY_LONG_TEST_PACKAGE,UT3_DEVELOP.DUMMY_LONG_TEST_PACKAGE1'%]';
+    l_actual := ut3_tester_helper.run_helper.get_schema_ut_packages('UT3_DEVELOP');
     ut.fail('Expected exception for suitpaths over 1k for two packages');
   exception
     when others then
       ut.expect(dbms_utility.format_error_stack()).to_be_like(l_expected_message);
-      ut.expect(SQLCODE).to_equal(ut3.ut_utils.gc_value_too_large);
+      ut.expect(SQLCODE).to_equal(ut3_develop.ut_utils.gc_value_too_large);
   end;
 
 end test_suite_manager;

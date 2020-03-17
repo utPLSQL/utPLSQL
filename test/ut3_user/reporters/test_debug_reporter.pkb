@@ -3,14 +3,14 @@ create or replace package body test_debug_reporter as
   g_actual clob;
 
   procedure run_reporter is
-    l_results   ut3.ut_varchar2_list;
+    l_results   ut3_develop.ut_varchar2_list;
   begin
     select *
            bulk collect into l_results
       from table(
-                  ut3.ut.run(
+                  ut3_develop.ut.run(
                     'test_reporters',
-                    ut3.ut_debug_reporter()
+                    ut3_develop.ut_debug_reporter()
                     )
                 );
     g_actual := ut3_tester_helper.main_helper.table_to_clob(l_results);

@@ -1,6 +1,6 @@
 PROMPT Run all examples
-set echo off
-set feedback off
+set echo on
+set feedback on
 set linesize 1000
 
 declare
