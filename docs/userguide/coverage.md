@@ -243,7 +243,7 @@ By default, utPLSQL will convert file paths into database objects using the foll
 > This is done to simplify the syntax of regular expressions. Regular expression will always use '/' as a directory separator on a file path regardless of whether you're on a Windows or Unix system.    
 
 **Note**
-> Below examples assume that you have downloaded latest version of [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli/releases), extracted it into your projects root directory (my_project) and placed ojdbc8.jar and orai18n.jar files in utPLSQL-cli\lib directory.
+> Below examples assume that you have downloaded latest version of [utPLSQL-cli](https://github.com/utPLSQL/utPLSQL-cli/releases) and extracted it into your projects root directory (my_project).
 > The examples assume that you run the utPLSQL-cli from `my_project` directory.    
 
 Windows:
