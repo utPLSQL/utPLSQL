@@ -780,6 +780,74 @@ Failures:%
     execute immediate 'drop package '||gc_owner||'.'||gc_owner;
   end;
 
+  procedure create_suites_with_path is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[create or replace package ut_abc is
+      -- %suite
+      -- %suitepath(main.abc)
+
+      -- %test
+      procedure ut_test_01;
+    end ut_abc;]';
+
+    execute immediate q'[create or replace package body ut_abc
+    is
+      procedure ut_test_01 as begin ut.expect(true).to_be_true(); end;
+    end;]';
+
+    execute immediate q'[create or replace package ut_abc_def
+    is
+      -- %suite
+      -- %suitepath(main.abc_def)
+
+      -- %test
+      procedure ut_test_01;
+    end ut_abc_def;]';
+
+    execute immediate q'[create or replace package body ut_abc_def
+    is
+      procedure ut_test_01 as begin ut.expect(true).to_be_true(); end;
+    end;]';
+
+  end;
+
+  procedure drop_suites_with_path is
+    pragma autonomous_transaction;
+  begin
+    execute immediate q'[drop package ut_abc]';
+    execute immediate q'[drop package ut_abc_def]';
+  end;
+
+  procedure run_suite_with_nls_sort is
+    L_current_sort varchar2(2000);
+    l_results    ut3_develop.ut_varchar2_list;
+    l_expected   clob;
+  begin
+    --Arrange
+    select value
+      into l_current_sort
+      from nls_session_parameters where parameter = 'NLS_SORT';
+
+    execute immediate 'alter session set nls_sort=GERMAN';
+
+    --Act
+    select *
+      bulk collect into l_results
+                   from table ( ut3_develop.ut.run( gc_owner||':main' ) );
+    --Assert
+    l_expected := q'[main%
+  abc_def%
+    ut_abc_def%
+      ut_test_01%
+  abc%
+    ut_abc%
+      ut_test_01%]';
+    ut.expect(ut3_tester_helper.main_helper.table_to_clob(l_results) ).to_be_like( l_expected );
+
+    execute immediate 'alter session set nls_sort='||l_current_sort;
+  end;
+
   procedure run_with_random_order is
     l_random_results ut3_develop.ut_varchar2_list;
     l_results        ut3_develop.ut_varchar2_list;

@@ -161,13 +161,16 @@ create or replace package body ut_suite_cache_manager is
   begin
     return case
            when a_random_seed is null then q'[
-              replace(
-                --suite path until objects name (excluding contexts and test path) with trailing dot (full stop)
-                substr( c.obj.path, 1, instr( c.obj.path, lower(c.obj.object_name), -1 ) + length(c.obj.object_name) ),
-                '.',
-                --'.' replaced with chr(0) to assure that child elements come before parent when sorting in descending oder
-                chr(0)
-              ) desc nulls last,
+              nlssort(
+                replace(
+                  /*suite path until objects name (excluding contexts and test path) with trailing dot (full stop)*/
+                  substr( c.obj.path, 1, instr( c.obj.path, lower(c.obj.object_name), -1 ) + length(c.obj.object_name) ),
+                  '.',
+                  /*'.' replaced with chr(0) to assure that child elements come before parent when sorting in descending order*/
+                  chr(0)
+                ),
+                'nls_sort=binary'
+              )desc nulls last,
               case when c.obj.self_type = 'UT_SUITE_CONTEXT' then
                 ( select max( x.line_no ) + 1
                     from ut_suite_cache x
@@ -178,7 +181,7 @@ create or replace package body ut_suite_cache_manager is
               else
                 c.obj.line_no
               end,
-              --assures that child contexts come before parent contexts
+              /*assures that child contexts come before parent contexts*/
               regexp_count(c.obj.path,'\.') desc,
               :a_random_seed]'
            else
