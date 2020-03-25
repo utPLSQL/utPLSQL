@@ -155,6 +155,13 @@ create or replace package test_ut_run is
   procedure create_schema_name_package;
   procedure drop_schema_name_package;
 
+  --%test(Runs properly formed suite hierarchy regardless of NLS_SORT settings - Issue #1060)
+  --%beforetest(create_suites_with_path)
+  --%aftertest(drop_suites_with_path)
+  procedure run_suite_with_nls_sort;
+  procedure create_suites_with_path;
+  procedure drop_suites_with_path;
+
   --%endcontext
 
   --%context(random_order)
