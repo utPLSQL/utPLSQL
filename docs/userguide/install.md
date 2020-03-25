@@ -1,10 +1,35 @@
 ![version](https://img.shields.io/badge/version-v3.1.11.3367--develop-blue.svg)
 
-# Downloading latest version of utPLSQL
+# Supported database versions
 
-To download latest version of utPLSQL from github on both Unix/Linux as well as Windows machines use the below snippets.
+utPLSQL is continuously tested against following versions of Oracle databases
+* 11g R2 
+* 12c
+* 12c R2
+* 18c
+* 19c
 
-## Unix/Linux
+We do our best to assure fill compatibility with supported versions of Oracle databases [See](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6)
+
+# Downloading utPLSQL
+
+## Manual download
+
+- Go to GitHub releases page for utPLSQL `https://github.com/utPLSQL/utPLSQL/releases`
+- Download and one of files
+    - utPLSQL.tar.gz
+    - utPLSQL.zip
+    
+The files have identical content but different compression (tar / zip ) so choose whichever you preref depending on your platform (Win/Mac/Unix/Linux) 
+
+
+## Scripted download of latest utPLSQL version
+
+The below snippets can be used to download latest version of utPLSQL from github releases.
+
+Installation instructions are outlined in next sections of this document.
+
+### Unix/Linux
 
 ```bash
 #!/bin/bash
@@ -22,7 +47,7 @@ You may download with a one-liner if that is more convenient.
 curl -LOk $(curl --silent https://api.github.com/repos/utPLSQL/utPLSQL/releases/latest | awk '/browser_download_url/ { print $2 }' | grep ".zip\"" | sed 's/"//g') 
 ```
 
-## Windows
+### Windows
 
 To run the script on windows you will need [PowerShell 3.0](https://blogs.technet.microsoft.com/heyscriptingguy/2013/06/02/weekend-scripter-install-powershell-3-0-on-windows-7/) or above. 
 You will also need .NET 4.0 Framework or above.
@@ -50,29 +75,6 @@ foreach ($i in $urlList) {
    }
 }
 ```
-
-# Checking environment and utPLSQL version
-
-To check the framework version execute the following query:
-```sql
-select substr(ut.version(),1,60) as ut_version from dual;
-```
-
-Additionally you may retrieve more information about your environment by executing the following query:
-```sql
-select 
-  xmlserialize( content xmltype(ut_run_info()) as clob indent size = 2 )
-  from dual;
-```
-
-# Supported database versions
-
-The utPLSQL may be installed on any supported version of Oracle Database [see](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6)
-* 11g R2 
-* 12c
-* 12c R2
-* 18c
-* 19c
 
 # Headless installation
 
@@ -235,6 +237,20 @@ The following tools that support the SQL*Plus commands can be used to run the in
   - [SQLcl](http://www.oracle.com/technetwork/developer-tools/sqlcl/overview/index.html)
   - [Oracle SQL Developer](http://www.oracle.com/technetwork/developer-tools/sql-developer/overview/index.html)
  
+# Checking environment and utPLSQL version
+
+To check the framework version execute the following query:
+```sql
+select substr(ut.version(),1,60) as ut_version from dual;
+```
+
+Additionally you may retrieve more information about your environment by executing the following query:
+```sql
+select 
+  xmlserialize( content xmltype(ut_run_info()) as clob indent size = 2 )
+  from dual;
+```
+
 # Additional requirements
 
 In order to use the Code Coverage functionality of utPLSQL, users executing the tests must have the CREATE privilege on the PLSQL code that the coverage is gathered on.
