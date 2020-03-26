@@ -9,25 +9,26 @@ utPLSQL is continuously tested against following versions of Oracle databases
 * 18c
 * 19c
 
-We do our best to assure fill compatibility with supported versions of Oracle databases [See](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6)
+We do our best to assure full compatibility with supported versions of Oracle databases [See](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6)
 
 # Downloading utPLSQL
 
 ## Manual download
 
-- Go to GitHub releases page for utPLSQL `https://github.com/utPLSQL/utPLSQL/releases`
-- Download and one of files
+- Go to GitHub releases page for utPLSQL [`https://github.com/utPLSQL/utPLSQL/releases`](https://github.com/utPLSQL/utPLSQL/releases)
+- Choose the version to download - latest is always greatest
+- Download one of files
     - utPLSQL.tar.gz
     - utPLSQL.zip
     
-The files have identical content but different compression (tar / zip ) so choose whichever you preref depending on your platform (Win/Mac/Unix/Linux) 
+The files have identical content but use different compression (tar / zip ) so choose whichever you prefer depending on your platform (Win/Mac/Unix/Linux). 
 
 
 ## Scripted download of latest utPLSQL version
 
 The below snippets can be used to download latest version of utPLSQL from github releases.
 
-Installation instructions are outlined in next sections of this document.
+After downloading follow the installation instructions in next sections of this document.
 
 ### Unix/Linux
 
