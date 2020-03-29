@@ -13,6 +13,8 @@ We do our best to assure full compatibility with supported versions of Oracle da
 
 # Requirements
 
+utPLSQL will run on any Oracle Database version 11g relase 2 or above.
+
 ## Licensed features required
 
 utPLSQL doesn't require any extra licensed features of Oracle database. It can be installed on any Standard Edition Oracle Database.
