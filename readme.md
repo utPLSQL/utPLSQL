@@ -5,7 +5,7 @@
 [![license](https://img.shields.io/github/license/utPLSQL/utPLSQL.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![latest-release](https://img.shields.io/github/release/utPLSQL/utPLSQL.svg)](https://github.com/utPLSQL/utPLSQL/releases)
 [![Download statistics](https://img.shields.io/github/downloads/utPLSQL/utPLSQL/total.svg)](http://gra.caldis.me/?url=https://github.com/utPLSQL/utPLSQL)
-[![chat](http://img.shields.io/badge/slack-team--chat-blue.svg)](http://utplsql-slack-invite.herokuapp.com/)
+[![chat](http://img.shields.io/badge/slack-team--chat-blue.svg)](https://join.slack.com/t/utplsql/shared_invite/zt-d6zor80g-WWqAhbLWioJZUtLYeXetzA)
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 
 [![build](https://img.shields.io/travis/utPLSQL/utPLSQL/master.svg?label=master%20branch)](https://travis-ci.org/utPLSQL/utPLSQL)
@@ -163,7 +163,7 @@ We welcome new developers to join our community and contribute to the utPLSQL pr
 If you are interested in helping please read our [guide to contributing](CONTRIBUTING.md)
 The best place to start is to read the documentation and get familiar with the existing code base.
 A [slack chat](https://utplsql.slack.com/) is the place to go if you want to talk with team members.
-To sign up to the chat use [this link](http://utplsql-slack-invite.herokuapp.com/)
+To sign up to the chat use [this link](https://join.slack.com/t/utplsql/shared_invite/zt-d6zor80g-WWqAhbLWioJZUtLYeXetzA).
 
 
 ----------
@@ -183,7 +183,7 @@ __Project Directories__
 
 ----------
 
-If you have a great feature in mind, that you would like to see in utPLSQL v3 please create an [issue on GitHub](https://github.com/utPLSQL/utPLSQL/issues) or discuss it with us in the [Slack chat rooms](http://utplsql-slack-invite.herokuapp.com/).  
+If you have a great feature in mind, that you would like to see in utPLSQL v3 please create an [issue on GitHub](https://github.com/utPLSQL/utPLSQL/issues) or discuss it with us in the [slack chat rooms](https://utplsql.slack.com/). Use [invite link](https://join.slack.com/t/utplsql/shared_invite/zt-d6zor80g-WWqAhbLWioJZUtLYeXetzA) to join the chat.  
 
 
 # Version 2 to Version 3 Comparison

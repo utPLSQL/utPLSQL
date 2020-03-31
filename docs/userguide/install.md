@@ -11,6 +11,33 @@ utPLSQL is continuously tested against following versions of Oracle databases
 
 We do our best to assure full compatibility with supported versions of Oracle databases [See](http://www.oracle.com/us/support/library/lifetime-support-technology-069183.pdf#page=6)
 
+# Requirements
+
+utPLSQL will run on any Oracle Database version 11g relase 2 or above.
+
+## Licensed features required
+
+utPLSQL doesn't require any extra licensed features of Oracle database. It can be installed on any Standard Edition Oracle Database.
+
+In fact, it even supports Oracle 11g XE which is a free Oracle Database version with minimal features and storage limits.
+
+## Storage requirements
+
+utPLSQL will use tablespace for the following:
+- storage of annotation cache
+- storage of suite cache
+- storage of profiler results
+- storage for staging utPLSQL reports outputs
+
+
+utPLSQL purges the staging storage for reports while fetching reports to screen / saving reports to files.
+
+Suite and annotation cache storage requirements are minimal and unless you have hundreds of thousands of tests, you'll probably not even notice the space used. 
+
+Profiler results may require regular purging to assure low space consumption.
+utPLSQl does not purge profiler tables as those tables can can be shared with other tools.
+     
+
 # Downloading utPLSQL
 
 ## Manual download
@@ -143,7 +170,7 @@ sqlplus sys/sys_pass@db as sysdba @install_headless_with_trigger.sql utp3 my_ver
 
 # Recommended Schema
 It is highly recommended to install utPLSQL in it's own schema. You are free to choose any name for this schema.
-Installing uPLSQL into shared schema is really not recommended as you loose isolation of framework.
+Installing uPLSQL into a shared schema is really not recommended as you loose isolation of framework.
 
 If the installing user and utPLSQL owner is one and the same, the user must have the following Oracle system permissions before you can proceed with the installation.
 
