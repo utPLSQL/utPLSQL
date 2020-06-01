@@ -15,12 +15,12 @@ create or replace type body ut_expectation as
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  member procedure to_(self in ut_expectation, a_matcher ut_matcher) is
+  member procedure to_(self in ut_expectation, a_matcher ut_matcher_base) is
     l_expectation_result boolean;
-    l_matcher       ut_matcher := a_matcher;
+    l_matcher       ut_matcher := treat(a_matcher as ut_matcher);
     l_message       varchar2(32767);
   begin
-    if a_matcher.is_negated() then
+    if l_matcher.is_negated() then
       self.not_to( a_matcher );
     else
       l_expectation_result := l_matcher.run_matcher( self.actual_data );
@@ -30,9 +30,9 @@ create or replace type body ut_expectation as
     end if;
   end;
 
-  member procedure not_to(self in ut_expectation, a_matcher ut_matcher) is
+  member procedure not_to(self in ut_expectation, a_matcher ut_matcher_base) is
     l_expectation_result boolean;
-    l_matcher       ut_matcher := a_matcher;
+    l_matcher       ut_matcher := treat(a_matcher as ut_matcher);
     l_message       varchar2(32767);
   begin
     l_expectation_result := coalesce( l_matcher.run_matcher_negated( self.actual_data ), false );

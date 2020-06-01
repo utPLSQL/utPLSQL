@@ -1,4 +1,4 @@
-create or replace type ut_expectation authid current_user as object(
+create or replace type ut_expectation force authid current_user as object(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2019 utPLSQL Project
@@ -19,8 +19,8 @@ create or replace type ut_expectation authid current_user as object(
   description         varchar2(4000 char),
 
   --base matcher executors
-  member procedure to_(self in ut_expectation, a_matcher ut_matcher),
-  member procedure not_to(self in ut_expectation, a_matcher ut_matcher),
+  member procedure to_(self in ut_expectation, a_matcher ut_matcher_base),
+  member procedure not_to(self in ut_expectation, a_matcher ut_matcher_base),
   
   --shortcuts
   member procedure to_be_null(self in ut_expectation),
@@ -172,4 +172,4 @@ create or replace type ut_expectation authid current_user as object(
   
 )
 not final
-/
+

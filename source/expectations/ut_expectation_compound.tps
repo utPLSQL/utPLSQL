@@ -24,7 +24,7 @@ create or replace type ut_expectation_compound force under ut_expectation(
 
   member function  to_equal(a_expected anydata, a_nulls_are_equal boolean := null) return ut_expectation_compound,
   member function  not_to_equal(a_expected anydata, a_nulls_are_equal boolean := null) return ut_expectation_compound,
-  member function  to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_expectation_compound,
+  member function  to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_equal,
   member function  not_to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_expectation_compound,
   member function  to_contain(a_expected sys_refcursor) return ut_expectation_compound,
   member function  not_to_contain(a_expected sys_refcursor) return ut_expectation_compound,
@@ -51,4 +51,4 @@ create or replace type ut_expectation_compound force under ut_expectation(
   member function  uc return ut_expectation_compound,
   member procedure uc(self in ut_expectation_compound)
 )
-/
+

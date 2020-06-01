@@ -48,11 +48,12 @@ create or replace type body ut_expectation_compound as
     return l_result;
   end;
 
-   member function to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_expectation_compound is
+   member function to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_equal is
     l_result ut_expectation_compound := self;
   begin
     l_result.matcher := ut_equal(a_expected, a_nulls_are_equal);
-    return l_result;
+    l_result.matcher.expectation := l_result;
+    return treat(l_result.matcher as ut_equal);
   end;
 
   member function not_to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_expectation_compound is

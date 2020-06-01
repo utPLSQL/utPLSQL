@@ -1,4 +1,4 @@
-create or replace type ut_matcher authid current_user as object(
+create or replace type ut_matcher force under ut_matcher_base(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2019 utPLSQL Project
@@ -15,10 +15,9 @@ create or replace type ut_matcher authid current_user as object(
   See the License for the specific language governing permissions and
   limitations under the License.
   */
-  self_type       varchar2(250),
   is_errored      integer,
   is_negated_flag number(1,0),
-
+  expectation     ut_expectation,
   /*
     function: run_matcher
 
@@ -41,4 +40,4 @@ create or replace type ut_matcher authid current_user as object(
   member function negated return ut_matcher,
   member function is_negated return boolean
 ) not final not instantiable
-/
+
