@@ -173,10 +173,9 @@ create or replace type body ut_equal as
   end;
 
   member procedure include(self in ut_equal, a_items varchar2) is
-    --l_result ut_equal := self;
+    l_result ut_equal := self;
   begin
-    null;
-    --l_result.expectation.to_(l_result );
+    l_result.expectation.to_(l_result );
   end;
 
   member function exclude(a_items varchar2) return ut_equal is

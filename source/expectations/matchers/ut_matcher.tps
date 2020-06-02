@@ -1,4 +1,4 @@
-create or replace type ut_matcher force under ut_matcher_base(
+create or replace type ut_matcher under ut_matcher_base(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2019 utPLSQL Project
@@ -40,4 +40,4 @@ create or replace type ut_matcher force under ut_matcher_base(
   member function negated return ut_matcher,
   member function is_negated return boolean
 ) not final not instantiable
-
+/

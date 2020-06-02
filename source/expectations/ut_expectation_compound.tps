@@ -1,4 +1,4 @@
-create or replace type ut_expectation_compound force under ut_expectation(
+create or replace type ut_expectation_compound under ut_expectation(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2019 utPLSQL Project
@@ -51,4 +51,4 @@ create or replace type ut_expectation_compound force under ut_expectation(
   member function  uc return ut_expectation_compound,
   member procedure uc(self in ut_expectation_compound)
 )
-
+/
