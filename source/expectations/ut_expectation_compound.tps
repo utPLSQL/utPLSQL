@@ -26,10 +26,10 @@ create or replace type ut_expectation_compound under ut_expectation(
   member function  not_to_equal(a_expected anydata, a_nulls_are_equal boolean := null) return ut_equal,
   member function  to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_equal,
   member function  not_to_equal(a_expected sys_refcursor, a_nulls_are_equal boolean := null) return ut_equal,
-  member function  to_contain(a_expected sys_refcursor) return ut_expectation_compound,
-  member function  not_to_contain(a_expected sys_refcursor) return ut_expectation_compound,
-  member function  to_contain(a_expected anydata) return ut_expectation_compound,
-  member function  not_to_contain(a_expected anydata) return ut_expectation_compound
+  member function  to_contain(a_expected sys_refcursor) return ut_equal,
+  member function  not_to_contain(a_expected sys_refcursor) return ut_equal,
+  member function  to_contain(a_expected anydata) return ut_equal,
+  member function  not_to_contain(a_expected anydata) return ut_equal
 )
 /
 
