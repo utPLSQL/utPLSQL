@@ -252,7 +252,7 @@ create or replace type body ut_realtime_reporter is
   ) is
   begin
     if a_content is not null then
-       self.print_xml_fragment('<' || a_name || '><![CDATA[' || a_content || ']]></' || a_name || '>');
+       self.print_xml_fragment('<' || a_name || '><![CDATA[' || ut_utils.to_cdata(a_content) || ']]></' || a_name || '>');
     end if;
   end print_cdata_node;
 
