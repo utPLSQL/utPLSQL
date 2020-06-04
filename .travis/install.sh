@@ -113,6 +113,20 @@ PROMPT Creating $UT3_USER - minimal privileges user for API testing
 create user $UT3_USER identified by "$UT3_USER_PASSWORD" default tablespace $UT3_TABLESPACE quota unlimited on $UT3_TABLESPACE;
 grant create session, create procedure, create type, create table to $UT3_USER;
 
+PROMPT Grants for starting a debugging session from $UT3_USER
+grant debug connect session to $UT3_USER;
+begin
+  dbms_network_acl_admin.append_host_ace (
+    host =>'*',
+    ace  => sys.xs\$ace_type(
+                privilege_list => sys.xs\$name_list('JDWP') ,
+                principal_name => '$UT3_USER',
+                principal_type => sys.xs_acl.ptype_db
+            )
+  );
+end;
+/
+grant debug any procedure to $UT3_USER;
 
 --------------------------------------------------------------------------------
 PROMPT Creating $UT3_TESTER_HELPER - provides functions to allow min grant test user setup tests.
