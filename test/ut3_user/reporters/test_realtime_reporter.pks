@@ -54,6 +54,9 @@ create or replace package test_realtime_reporter as
   --%test(Provide a description of the reporter explaining the use for SQL Developer)
   procedure get_description;
 
+  --%test(Escape nested CDATA sections in test output)
+  procedure nested_cdata_output;
+
   --%afterall
   procedure remove_test_suites;
 

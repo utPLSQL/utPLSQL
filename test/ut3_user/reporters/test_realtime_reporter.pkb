@@ -118,6 +118,22 @@ create or replace package body test_realtime_reporter as
       end;
     end;]';
     
+    execute immediate q'[create or replace package check_realtime_reporting5 is
+      --%suite
+      --%suitepath(realtime_reporting_bufix)
+
+      --%test(test XML with nested CDATA)
+      procedure test_nested_cdata;
+    end;]';
+    
+    execute immediate q'[create or replace package body check_realtime_reporting5 is
+      procedure test_nested_cdata is
+      begin
+        dbms_output.put_line('nested cdata block: <![CDATA[...]]>, to be handled.');
+        ut.expect(1).to_equal(1);
+      end;
+   end;]';
+
     <<run_report_and_cache_result>>
     declare 
       l_reporter ut3_develop.ut_realtime_reporter := ut3_develop.ut_realtime_reporter();
@@ -448,6 +464,35 @@ create or replace package body test_realtime_reporter as
     l_actual := l_reporter.get_description();
     ut.expect(l_actual).to_be_like(l_expected);
   end get_description;
+  
+  procedure nested_cdata_output is
+    l_text     varchar2(4000);
+    l_xml      xmltype;
+    --
+    function produce_and_consume return varchar2 is
+      pragma autonomous_transaction;
+      l_reporter ut3_develop.ut_realtime_reporter := ut3_develop.ut_realtime_reporter();
+      l_text varchar2(4000);
+    begin
+      -- produce
+      ut3_develop.ut_runner.run(
+        a_paths     => ut3_develop.ut_varchar2_list(':realtime_reporting_bufix'),
+        a_reporters => ut3_develop.ut_reporters(l_reporter)
+      );
+      -- consume
+      select text
+        into l_text
+        from table(l_reporter.get_lines())
+       where item_type = 'post-test';
+      return l_text;
+    end produce_and_consume; 
+  begin
+    l_text := produce_and_consume();
+    ut.expect(l_text).to_be_not_null();
+    -- this fails, if l_text is not a valid XML
+    l_xml := xmltype(l_text);
+    ut.expect(l_xml is not null).to_be_true();
+  end;
 
   procedure remove_test_suites is
     pragma autonomous_transaction;
@@ -456,6 +501,7 @@ create or replace package body test_realtime_reporter as
     execute immediate 'drop package check_realtime_reporting2';
     execute immediate 'drop package check_realtime_reporting3';
     execute immediate 'drop package check_realtime_reporting4';
+    execute immediate 'drop package check_realtime_reporting5';
   end remove_test_suites;
 
 end test_realtime_reporter;
