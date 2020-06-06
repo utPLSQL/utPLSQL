@@ -16,16 +16,16 @@ create or replace package test_to_be_within is
   procedure fail_for_number_not_within;
   
   --%test(Check failure message for inteval of 1 sec not within)
-  procedure fail_for_ds_interval_not_within;  
+  procedure fail_for_ds_int_not_within;  
   
   --%test(Check failure message for custom ds interval not within)
-  procedure fail_for_custom_ds_interval_not_within;    
+  procedure fail_for_custom_ds_int;    
   
   --%test(Check failure message for inteval of 1 month not within)
-  procedure fail_for_ym_interval_not_within;  
+  procedure fail_for_ym_int_not_within;  
   
   --%test(Check failure message for custom ym interval not within)
-  procedure fail_for_custom_ym_interval_not_within;     
+  procedure fail_for_custom_ym_int;     
   
 end;
 /

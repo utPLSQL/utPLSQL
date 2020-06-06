@@ -333,6 +333,7 @@ The matrix below illustrates the data types supported by different matchers.
 |       **be_like**       |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
 |      **be_empty**       |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
 |     **have_count**      |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
+| **be_within().of_()**   |      |         |      |   x  |   x    |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
 
 
 # Expecting exceptions
@@ -1092,6 +1093,17 @@ SUCCESS
       Data:
       <ROW><UT_VARCHAR2_LIST>D</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>E</UT_VARCHAR2_LIST></ROW><ROW><UT_VARCHAR2_LIST>F</UT_VARCHAR2_LIST></ROW>
 ```
+
+## to_be_within of
+
+This fuzzy matcher is designed to allow user to compare a numbers and dates within distance of error.
+
+We are allowing a numbers to be compared within a absolute distance from other number of within a percentage calculated based on expected value.
+
+When comparing a date a distance is measured in interval.
+
+
+
 
 
 ## Comparing cursors, object types, nested tables and varrays 

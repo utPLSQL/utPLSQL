@@ -81,7 +81,7 @@ create or replace package body test_to_be_within is
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
     
-  procedure fail_for_ds_interval_not_within is   
+  procedure fail_for_number_not_within is   
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -95,7 +95,7 @@ create or replace package body test_to_be_within is
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;
   
-  procedure fail_for_custom_ds_interval_not_within is   
+  procedure fail_for_custom_ds_int is   
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -109,7 +109,7 @@ create or replace package body test_to_be_within is
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;  
   
-  procedure fail_for_ym_interval_not_within is   
+  procedure fail_for_ym_int_not_within is   
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
@@ -123,7 +123,7 @@ create or replace package body test_to_be_within is
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;  
   
-  procedure fail_for_custom_ym_interval_not_within is   
+  procedure fail_for_custom_ym_int is   
     l_actual_message   varchar2(32767);
     l_expected_message varchar2(32767);
   begin
