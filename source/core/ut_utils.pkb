@@ -877,5 +877,30 @@ create or replace package body ut_utils is
         end;
   end;
 
+  function interval_to_text(a_interval dsinterval_unconstrained) return varchar2 is
+    l_day varchar2(100) := extract(day  from a_interval); 
+    l_hour varchar2(100) := extract(hour  from a_interval); 
+    l_minute varchar2(100) := extract(minute  from a_interval);
+    l_second varchar2(100) := extract(second from a_interval);     
+    l_result varchar2(32767);  
+  begin
+    l_result := case when l_day > 0 then l_day ||' day' else null end;
+    l_result := l_result || case when l_hour > 0 then ' '|| l_hour ||' hour' else null end;
+    l_result := l_result || case when l_minute> 0 then ' '||l_minute ||' minute' else null end; 
+    l_result := l_result || case when l_second > 0 then ' '||l_second ||' second' else null end;    
+    return trim(leading ' ' from l_result);
+  end;
+  
+  function interval_to_text(a_interval yminterval_unconstrained) return varchar2 is
+    l_year varchar2(4) :=  extract(year from a_interval); 
+    l_month varchar2(20) := extract(month from a_interval);   
+    l_result varchar2(32767);     
+  begin
+    l_result := case when l_year > 0 then l_year ||' year' else null end;
+    l_result := l_result || case when l_month > 0 then  ' '||l_month ||' month' else null end;   
+    return trim(leading ' ' from l_result);
+  end;
+
+
 end ut_utils;
 /

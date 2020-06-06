@@ -31,7 +31,7 @@ create or replace type body ut_data_value_yminterval as
 
   overriding member function to_string return varchar2 is
   begin
-    return ut_utils.to_string(self.data_value);
+    return ut_utils.interval_to_text(self.data_value);
   end;
 
   overriding member function compare_implementation(a_other ut_data_value) return integer is

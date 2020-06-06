@@ -25,6 +25,7 @@ prompt Install user tests
 @@ut3_user/expectations/binary/test_be_less_or_equal.pks
 @@ut3_user/expectations/binary/test_be_greater_or_equal.pks
 @@ut3_user/expectations/binary/test_be_greater_than.pks
+@@ut3_user/expectations/binary/test_to_be_within.pks
 @@ut3_user/expectations/test_matchers.pks
 @@ut3_user/expectations/test_expectation_anydata.pks
 @@ut3_user/expectations/test_expectations_cursor.pks
@@ -66,6 +67,7 @@ set define off
 @@ut3_user/expectations/binary/test_be_less_or_equal.pkb
 @@ut3_user/expectations/binary/test_be_greater_or_equal.pkb
 @@ut3_user/expectations/binary/test_be_greater_than.pkb
+@@ut3_user/expectations/binary/test_to_be_within.pkb
 @@ut3_user/expectations/test_matchers.pkb
 @@ut3_user/expectations/test_expectation_anydata.pkb
 @@ut3_user/expectations/test_expectations_cursor.pkb

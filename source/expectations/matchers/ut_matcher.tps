@@ -17,7 +17,7 @@ create or replace type ut_matcher under ut_matcher_base(
   */
   is_errored      integer,
   is_negated_flag number(1,0),
-  expectation     ut_expectation,
+  expectation     ut_expectation_base,
   /*
     function: run_matcher
 
