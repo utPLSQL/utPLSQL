@@ -103,7 +103,7 @@ create or replace package body test_to_be_within is
     --Act
     ut3_develop.ut.expect(sysdate).to_be_within(INTERVAL '2 3:04:11.333' DAY TO SECOND).of_(sysdate+100);
     --Assert
-    l_expected_message := q'[Actual: % (date) was expected to be within 2 day 3 hour 4 minute 11.333 second of % (date)]';
+    l_expected_message := q'[Actual: % (date) was expected to be within 2 days 3 hours 4 minutes 11.333 seconds of % (date)]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);
@@ -131,7 +131,7 @@ create or replace package body test_to_be_within is
     --Act
     ut3_develop.ut.expect(sysdate).to_be_within(INTERVAL '1-3' YEAR TO MONTH).of_(sysdate+720);
     --Assert
-    l_expected_message := q'[Actual: % (date) was expected to be within 1 year 3 month % (date)]';
+    l_expected_message := q'[Actual: % (date) was expected to be within 1 year 3 months % (date)]';
     l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
     --Assert
     ut.expect(l_actual_message).to_be_like(l_expected_message);

@@ -60,16 +60,25 @@ create or replace type body ut_be_within as
   begin
     if self.expected.data_type = a_actual.data_type then
       if self.expected is of (ut_data_value_number) and self.is_pct = 0 then
-        l_result := abs((treat(self.expected as ut_data_value_number).data_value - treat(a_actual as ut_data_value_number).data_value)) <= treat(self.dist as ut_data_value_number).data_value;
+        l_result := abs((treat(self.expected as ut_data_value_number).data_value - treat(a_actual as ut_data_value_number).data_value)) <= 
+                    treat(self.dist as ut_data_value_number).data_value;
       elsif self.expected is of (ut_data_value_number) and self.is_pct = 1 then
-        l_result := treat(self.dist as ut_data_value_number).data_value >= ((treat(self.expected as ut_data_value_number).data_value - treat(a_actual as ut_data_value_number).data_value ) * 100 ) /
-                    (treat(self.expected as ut_data_value_number).data_value) ;      
+        l_result := treat(self.dist as ut_data_value_number).data_value >= 
+                    (
+                     ((treat(self.expected as ut_data_value_number).data_value - treat(a_actual as ut_data_value_number).data_value ) * 100 ) /
+                    (treat(self.expected as ut_data_value_number).data_value)) ;      
       elsif self.expected is of (ut_data_value_date) and self.dist is of ( ut_data_value_yminterval) then      
-        l_result := treat(a_actual as ut_data_value_date).data_value between (treat(self.expected as ut_data_value_date).data_value) - treat(self.dist as ut_data_value_yminterval).data_value
-                    and (treat(self.expected as ut_data_value_date).data_value) + treat(self.dist as ut_data_value_yminterval).data_value;
+        l_result := treat(a_actual as ut_data_value_date).data_value 
+                    between 
+                     (treat(self.expected as ut_data_value_date).data_value) - treat(self.dist as ut_data_value_yminterval).data_value
+                     and 
+                     (treat(self.expected as ut_data_value_date).data_value) + treat(self.dist as ut_data_value_yminterval).data_value;
       elsif self.expected is of (ut_data_value_date) and self.dist is of ( ut_data_value_dsinterval) then      
-        l_result := treat(a_actual as ut_data_value_date).data_value between (treat(self.expected as ut_data_value_date).data_value) - treat(self.dist as ut_data_value_dsinterval).data_value
-                    and (treat(self.expected as ut_data_value_date).data_value) + treat(self.dist as ut_data_value_dsinterval).data_value;
+        l_result := treat(a_actual as ut_data_value_date).data_value 
+                    between 
+                      (treat(self.expected as ut_data_value_date).data_value) - treat(self.dist as ut_data_value_dsinterval).data_value
+                      and 
+                      (treat(self.expected as ut_data_value_date).data_value) + treat(self.dist as ut_data_value_dsinterval).data_value;
       end if;
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);

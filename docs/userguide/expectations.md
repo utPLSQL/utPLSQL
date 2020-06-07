@@ -1096,15 +1096,85 @@ SUCCESS
 
 ## to_be_within of
 
-This fuzzy matcher is designed to allow user to compare a numbers and dates within distance of error.
+This matcher is created to determine wheter expected value is approximately equal or "close" to another value.
 
-We are allowing a numbers to be compared within a absolute distance from other number of within a percentage calculated based on expected value.
+Matcher will allow to compare numbers as well as dates. 
 
-When comparing a date a distance is measured in interval.
+When comparing a number the tolerance / distance can be expressed as another postive number or a percentage.
 
+When comparing a two dates tolerance can be expressed in interval time either Day-To-Second or Year-To-Month.
 
+Matcher for numbers will calculate a absolute distance between expected and actual and check whether that value is within a tolerance.
 
+When comparing a date a distance is measured in interval, the check is done that actual value is within date range of expected taking into account interval plus and minus.
 
+**Example 1.**
+```sql
+begin
+  ut.expect(3).to_be_within(1).of_(4);
+end;
+/
+```
+
+**Example 2.**
+```sql
+begin
+  ut.expect(9).to_be_within_pct(10).of_(10);
+end;
+/
+```
+
+**Example 3.**
+```sql
+begin
+  ut.expect(sysdate).to_be_within_pct(interval '1' day).of_(sysdate + 1);
+end;
+/
+```
+
+**Example 4.**
+```sql
+begin
+  ut.expect(sysdate).to_be_within_pct(interval '1' month).of_(add_months(sysdate,1));
+end;
+/
+```
+
+**Example 5.**
+```sql
+begin
+  ut.expect(3).to_be_within(1).of_(5);
+end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+Failures:
+ 
+  1) wihtin_test
+      Actual: 3 (number) was expected to be within 1 of 5 (number)
+      at "UT3_DEVELOP.UT_BE_WITHIN.OF_", line 48 l_result.expectation.to_(l_result );        
+      at "UT3_DEVELOP.TEST_BETWNSTR.WIHTIN_TEST", line 5
+```
+
+**Example 6.**
+```sql
+begin
+  ut.expect(sysdate).to_be_within(interval '1' day).of_(sysdate+2);
+end;
+/
+```
+
+Returns following output via DBMS_OUTPUT:
+```
+Failures:
+ 
+  1) wihtin_test
+      Actual: 2020-06-07T13:32:58 (date) was expected to be within 1 day of 2020-06-09T13:32:58 (date)
+      at "UT3_DEVELOP.UT_BE_WITHIN.OF_", line 55 l_result.expectation.to_(l_result );    
+      at "UT3_DEVELOP.TEST_BETWNSTR.WIHTIN_TEST", line 5
+```
 
 ## Comparing cursors, object types, nested tables and varrays 
 
