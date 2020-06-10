@@ -42,15 +42,16 @@ set define off
 @@ut3_user/reporters/test_debug_reporter.pks
 @@ut3_user/reporters/test_realtime_reporter.pks
 @@ut3_user/reporters/test_coverage.pks
+@@ut3_user/reporters/test_coverage/test_coverage_standalone.pks
 set define on
-@@install_above_12_1.sql 'ut3_user/reporters/test_extended_coverage.pks'
+@@install_above_12_1.sql 'ut3_user/reporters/test_coverage/test_extended_coverage.pks'
 @@install_above_12_1.sql 'ut3_user/reporters/test_coverage/test_html_extended_reporter.pks'
 set define off
 @@ut3_user/reporters/test_coverage/test_coveralls_reporter.pks
 @@ut3_user/reporters/test_coverage/test_cov_cobertura_reporter.pks
 @@ut3_user/reporters/test_coverage/test_coverage_sonar_reporter.pks
 set define on
-@@install_below_12_2.sql 'ut3_user/reporters/test_proftab_coverage.pks'
+@@install_below_12_2.sql 'ut3_user/reporters/test_coverage/test_proftab_coverage.pks'
 @@install_below_12_2.sql 'ut3_user/reporters/test_coverage/test_html_proftab_reporter.pks'
 set define off
 
@@ -83,15 +84,16 @@ set define off
 @@ut3_user/reporters/test_debug_reporter.pkb
 @@ut3_user/reporters/test_realtime_reporter.pkb
 @@ut3_user/reporters/test_coverage.pkb
+@@ut3_user/reporters/test_coverage/test_coverage_standalone.pkb
 set define on
-@@install_above_12_1.sql 'ut3_user/reporters/test_extended_coverage.pkb'
+@@install_above_12_1.sql 'ut3_user/reporters/test_coverage/test_extended_coverage.pkb'
 @@install_above_12_1.sql 'ut3_user/reporters/test_coverage/test_html_extended_reporter.pkb'
 set define off
 @@ut3_user/reporters/test_coverage/test_coveralls_reporter.pkb
 @@ut3_user/reporters/test_coverage/test_cov_cobertura_reporter.pkb
 @@ut3_user/reporters/test_coverage/test_coverage_sonar_reporter.pkb
 set define on
-@@install_below_12_2.sql 'ut3_user/reporters/test_proftab_coverage.pkb'
+@@install_below_12_2.sql 'ut3_user/reporters/test_coverage/test_proftab_coverage.pkb'
 @@install_below_12_2.sql 'ut3_user/reporters/test_coverage/test_html_proftab_reporter.pkb'
 set define off
 

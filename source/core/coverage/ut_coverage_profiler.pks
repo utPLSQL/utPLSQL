@@ -16,7 +16,7 @@ create or replace package ut_coverage_profiler authid current_user is
   limitations under the License.
   */
 
-  function get_coverage_data(a_coverage_options ut_coverage_options, a_coverage_id integer) return ut_coverage.t_coverage;
+  function get_coverage_data(a_coverage_options ut_coverage_options) return ut_coverage.t_coverage;
 
 end;
 /

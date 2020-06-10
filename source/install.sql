@@ -177,6 +177,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 
 --gathering coverage
 @@install_component.sql 'core/coverage/ut_coverage_sources_tmp.sql'
+@@install_component.sql 'core/coverage/ut_coverage_runs.sql'
 @@install_component.sql 'core/coverage/ut_coverage_helper.pks'
 @@install_component.sql 'core/coverage/ut_coverage_helper_block.pks'
 @@install_component.sql 'core/coverage/ut_coverage_helper_profiler.pks'
@@ -199,6 +200,7 @@ prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@install_component.sql 'core/types/ut_logical_suite.tpb'
 @@install_component.sql 'core/types/ut_suite.tpb'
 @@install_component.sql 'core/types/ut_suite_context.tpb'
+@@install_component.sql 'core/types/ut_coverage_options.tpb'
 @@install_component.sql 'core/types/ut_run.tpb'
 @@install_component.sql 'core/types/ut_expectation_result.tpb'
 @@install_component.sql 'core/types/ut_reporter_base.tpb'

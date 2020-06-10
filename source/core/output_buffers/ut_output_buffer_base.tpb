@@ -44,7 +44,7 @@ create or replace type body ut_output_buffer_base is
     return l_lines;
   end;
 
-    member procedure lines_to_dbms_output(self in ut_output_buffer_base, a_initial_timeout natural := null, a_timeout_sec natural := null) is
+  member procedure lines_to_dbms_output(self in ut_output_buffer_base, a_initial_timeout natural := null, a_timeout_sec natural := null) is
     l_data      sys_refcursor;
     l_clob      clob;
     l_item_type varchar2(32767);

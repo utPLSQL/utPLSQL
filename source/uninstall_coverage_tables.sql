@@ -11,7 +11,7 @@ begin
         and owner = sys_context( 'USERENV', 'CURRENT_SCHEMA' )
   )
   loop
-    execute immediate 'drop table '||to_be_dopped.table_name||' cascade constraints';
+    execute immediate 'drop table '||to_be_dopped.table_name||' cascade constraints purge';
     dbms_output.put_line('Table '||to_be_dopped.table_name||' dropped');
   end loop;
 end;

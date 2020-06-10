@@ -20,27 +20,6 @@ create or replace package body ut_runner is
   /**
    * Private functions
    */
-  function to_ut_object_list(a_names ut_varchar2_list, a_schema_names ut_varchar2_rows) return ut_object_names is
-    l_result      ut_object_names;
-    l_object_name ut_object_name;
-  begin
-    if a_names is not empty then
-      l_result := ut_object_names();
-      for i in 1 .. a_names.count loop
-        l_object_name := ut_object_name(a_names(i));
-        if l_object_name.owner is null then
-          for i in 1 .. cardinality(a_schema_names) loop
-            l_result.extend;
-            l_result(l_result.last) := ut_object_name(a_schema_names(i)||'.'||l_object_name.name);
-          end loop;
-        else
-          l_result.extend;
-          l_result(l_result.last) := l_object_name;
-        end if;
-      end loop;
-    end if;
-    return l_result;
-  end;
 
   procedure finish_run(a_run ut_run, a_force_manual_rollback boolean) is
   begin
@@ -51,7 +30,6 @@ create or replace package body ut_runner is
     ut_compound_data_helper.cleanup_diff();
     if not a_force_manual_rollback then
       rollback;
-      ut_utils.cleanup_session_temp_tables;
     end if;
   end;
 
@@ -95,9 +73,7 @@ create or replace package body ut_runner is
   ) is
     l_run                     ut_run;
     l_coverage_schema_names   ut_varchar2_rows;
-    l_exclude_object_names    ut_object_names := ut_object_names();
-    l_include_object_names    ut_object_names;
-    l_paths                   ut_varchar2_list := ut_varchar2_list();
+    l_paths                   ut_varchar2_list;
     l_random_test_order_seed  positive;
     l_tags                    ut_varchar2_rows := ut_varchar2_rows();
   begin
@@ -113,18 +89,17 @@ create or replace package body ut_runner is
 
     ut_event_manager.trigger_event(ut_event_manager.gc_initialize);
     ut_event_manager.trigger_event(ut_event_manager.gc_debug, ut_run_info());
+
     if a_random_test_order_seed is not null then
       l_random_test_order_seed  := a_random_test_order_seed;
     elsif a_random_test_order then
       dbms_random.seed( to_char(systimestamp,'yyyyddmmhh24missffff') );
       l_random_test_order_seed := trunc(dbms_random.value(1, 1000000000));
     end if;
-    if a_paths is null or a_paths is empty or a_paths.count = 1 and a_paths(1) is null then
+
+    l_paths := ut_utils.filter_list(ut_utils.string_table_to_table(a_paths,','), '.+');
+    if l_paths is null or l_paths is empty then
       l_paths := ut_varchar2_list(sys_context('userenv', 'current_schema'));
-    else
-      for i in 1..a_paths.count loop
-        l_paths := l_paths multiset union ut_utils.string_to_table(a_string => a_paths(i),a_delimiter => ',');
-      end loop;
     end if;
 
     begin
@@ -132,36 +107,32 @@ create or replace package body ut_runner is
       ut_utils.save_dbms_output_to_cache();
 
       ut_console_reporter_base.set_color_enabled(a_color_console);
+
       if a_coverage_schemes is not empty then
         l_coverage_schema_names := ut_utils.convert_collection(a_coverage_schemes);
       else
         l_coverage_schema_names := ut_suite_manager.get_schema_names(l_paths);
       end if;
 
-      if a_exclude_objects is not empty then
-        l_exclude_object_names := to_ut_object_list(a_exclude_objects, l_coverage_schema_names);
-      end if;
-       
+
       if a_tags is not null then
-        l_tags := l_tags multiset union distinct ut_utils.convert_collection( 
+        l_tags := l_tags multiset union distinct ut_utils.convert_collection(
           ut_utils.trim_list_elements(ut_utils.filter_list(ut_utils.string_to_table(a_tags,','),ut_utils.gc_word_no_space))
         );
       end if;
-      l_exclude_object_names := l_exclude_object_names multiset union all ut_suite_manager.get_schema_ut_packages(l_coverage_schema_names);
-
-      l_include_object_names := to_ut_object_list(a_include_objects, l_coverage_schema_names);
 
       l_run := ut_run(
-        null,
-        l_paths,
-        l_coverage_schema_names,
-        l_exclude_object_names,
-        l_include_object_names,
-        set(a_source_file_mappings),
-        set(a_test_file_mappings),
-        a_client_character_set,
-        l_random_test_order_seed,
-        l_tags
+        a_run_paths => l_paths,
+        a_coverage_options => ut_coverage_options(
+          schema_names => l_coverage_schema_names,
+          exclude_objects => ut_utils.convert_collection(a_exclude_objects),
+          include_objects => ut_utils.convert_collection(a_include_objects),
+          file_mappings => set(a_source_file_mappings)
+        ),
+        a_test_file_mappings => set(a_test_file_mappings),
+        a_client_character_set => a_client_character_set,
+        a_random_test_order_seed => l_random_test_order_seed,
+        a_run_tags => l_tags
       );
 
       ut_suite_manager.configure_execution_by_path(l_paths, l_run.items, l_random_test_order_seed, l_tags);
@@ -294,6 +265,16 @@ create or replace package body ut_runner is
       end loop;
       end if;
     return l_result;
+  end;
+
+  procedure coverage_start(a_coverage_run_id raw) is
+  begin
+    ut_coverage.coverage_start(a_coverage_run_id);
+  end;
+
+  procedure coverage_stop is
+  begin
+    ut_coverage.coverage_stop;
   end;
 
 end ut_runner;

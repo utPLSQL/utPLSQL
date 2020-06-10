@@ -132,7 +132,7 @@ create or replace package body test_output_buffer is
     --Assert
     -- Data in "fresh" buffer remains
     ut.expect( l_fresh_buffer.get_lines_cursor(0,0), l_buffer.self_type ).to_have_count(1);
-    -- Data in "slate" buffer is purged and so the call to get_lines_cursor throws ORA-20218
+    -- Data in "stale" buffer is purged and so the call to get_lines_cursor throws ORA-20218
     ut.expect( l_stale_buffer.get_lines_cursor(0,0), l_buffer.self_type ).to_be_empty();
   end;
 

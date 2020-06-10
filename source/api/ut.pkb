@@ -248,6 +248,12 @@ create or replace package body ut is
       end loop;
     end if;
     return;
+  exception
+    when no_data_needed then
+      if l_results%isopen then
+        close l_results;
+      end if;
+      raise;
   end;
 
   function run(
@@ -287,6 +293,12 @@ create or replace package body ut is
       end loop;
     end if;
     return;
+  exception
+    when no_data_needed then
+      if l_results%isopen then
+        close l_results;
+      end if;
+      raise;
   end;
 
   function run(
@@ -327,6 +339,12 @@ create or replace package body ut is
       end loop;
     end if;
     return;
+  exception
+    when no_data_needed then
+      if l_results%isopen then
+        close l_results;
+      end if;
+      raise;
   end;
 
   function run(
@@ -367,6 +385,12 @@ create or replace package body ut is
       end loop;
     end if;
     return;
+  exception
+    when no_data_needed then
+      if l_results%isopen then
+        close l_results;
+      end if;
+      raise;
   end;
 
   function run(
@@ -407,6 +431,12 @@ create or replace package body ut is
       end loop;
     end if;
     return;
+  exception
+    when no_data_needed then
+      if l_results%isopen then
+        close l_results;
+      end if;
+      raise;
   end;
 
   function run(
@@ -447,6 +477,12 @@ create or replace package body ut is
       end loop;
     end if;
     return;
+  exception
+    when no_data_needed then
+      if l_results%isopen then
+        close l_results;
+      end if;
+      raise;
   end;
 
   procedure run(

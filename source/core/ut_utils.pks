@@ -216,8 +216,10 @@ create or replace package ut_utils authid definer is
    *
    * Splits a given string into table of string by delimiter.
    * The delimiter gets removed.
-   * If null passed as any of the parameters, empty table is returned.
-   * If no occurence of a_delimiter found in a_text then text is returned as a single row of the table.
+   * If null a_string passed, empty table is returned.
+   * If null a_delimiter passed, a_string is returned as element of result table.
+   * If null a_skip_leading_delimiter, it defaults to 'N'
+   * If no occurrence of a_delimiter found in a_text then text is returned as a single row of the table.
    * If no text between delimiters found then an empty row is returned, example:
    *   string_to_table( 'a,,b', ',' ) gives table ut_varchar2_list( 'a', null, 'b' );
    *
@@ -230,13 +232,35 @@ create or replace package ut_utils authid definer is
   function string_to_table(a_string varchar2, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_varchar2_list;
 
   /**
+   *
+   * Splits each string in table of string into a table of string using specified delimiter.
+   * The delimiter gets removed.
+   * If null a_delimiter passed, a_list is returned as-is.
+   * If null a_list passed, empty table is returned.
+   * If null a_skip_leading_delimiter, it defaults to 'N'
+   * If no occurrence of a_delimiter found in a_text then text is returned as a single row of the table.
+   * If no text between delimiters found then an empty row is returned, example:
+   *   string_table_to_table( a_list => ut_varchar2_list('x','y',null,'a,,b'), a_delimiter=>',' ) gives table ut_varchar2_list( 'x', 'y', null, 'a', null, 'b' );
+   *
+   * @param a_list                   the table of texts to be split.
+   * @param a_delimiter              the delimiter character or string
+   * @param a_skip_leading_delimiter determines if the leading delimiter should be ignored, used by clob_to_table
+   *
+   * @return table of varchar2 values
+   */
+  function string_table_to_table(a_list ut_varchar2_list, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_varchar2_list;
+
+  /**
    * Splits a given string into table of string by delimiter.
    * Default value of a_max_amount is 8191 because of code can contains multibyte character.
    * The delimiter gets removed.
-   * If null passed as any of the parameters, empty table is returned.
+   * If null a_clob passed, empty table is returned.
+   * If null a_delimiter passed, a_string is returned as element of result table.
+   * If null a_skip_leading_delimiter, it defaults to 'N'
+   * If no occurrence of a_delimiter found in a_text then text is returned as a single row of the table.
    * If split text is longer than a_max_amount it gets split into pieces of a_max_amount.
    * If no text between delimiters found then an empty row is returned, example:
-   *   string_to_table( 'a,,b', ',' ) gives table ut_varchar2_list( 'a', null, 'b' );
+   *   clob_to_table( 'a,,b', ',' ) gives table ut_varchar2_list( 'a', null, 'b' );
    *
    * @param a_clob       the text to be split.
    * @param a_delimiter  the delimiter character or string (default chr(10) )
@@ -287,6 +311,11 @@ create or replace package ut_utils authid definer is
    */
   procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_items ut_varchar2_rows);
 
+  /**
+   * Append a list of items to the end of ut_varchar2_list
+   */
+  procedure append_to_list(a_list in out nocopy ut_varchar2_list, a_items ut_varchar2_list);
+
   procedure append_to_clob(a_src_clob in out nocopy clob, a_clob_table t_clob_tab, a_delimiter varchar2 := chr(10));
 
   procedure append_to_clob(a_src_clob in out nocopy clob, a_new_data clob);
@@ -298,12 +327,6 @@ create or replace package ut_utils authid definer is
   function to_xpath(a_list varchar2, a_ancestors varchar2 := '/*/') return varchar2;
 
   function to_xpath(a_list ut_varchar2_list, a_ancestors varchar2 := '/*/') return varchar2;
-
-  /*
-  * Truncates session-level GTT's (on commit preserve rows)
-  * IMPORTANT: Procedure will do an implicit commit when called
-  */
-  procedure cleanup_session_temp_tables;
 
   /**
    * Converts version string into version record

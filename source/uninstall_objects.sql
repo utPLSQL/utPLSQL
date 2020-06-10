@@ -74,6 +74,8 @@ drop package ut_coverage_helper;
 
 drop table ut_coverage_sources_tmp purge;
 
+drop table ut_coverage_runs purge;
+
 drop package ut_teamcity_reporter_helper;
 
 drop package ut_runner;
@@ -196,7 +198,7 @@ drop table ut_compound_data_tmp purge;
 
 drop table ut_compound_data_diff_tmp purge;
 
-drop table ut_json_data_diff_tmp;
+drop table ut_json_data_diff_tmp purge;
 
 drop package ut_annotation_manager;
 

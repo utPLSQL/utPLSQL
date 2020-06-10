@@ -1,11 +1,11 @@
 create or replace package test_extended_coverage is
 
   --%suite
-  --%suitepath(utplsql.test_user.reporters)
+  --%suitepath(utplsql.test_user.reporters.test_coverage)
 
-  --%beforeall(ut3_tester_helper.coverage_helper.setup_dummy_coverage)
+  --%beforeall(ut3_tester_helper.coverage_helper.setup_long_name_package)
+  --%afterall(ut3_tester_helper.coverage_helper.cleanup_long_name_package)
 
-  --%afterall(ut3_tester_helper.coverage_helper.cleanup_dummy_coverage)
 
   --%test(Coverage is gathered for specified object - extended coverage type)
   procedure coverage_for_object;

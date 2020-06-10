@@ -16,7 +16,7 @@ create or replace package ut_coverage_helper_profiler authid definer is
   limitations under the License.
   */
 
-  procedure coverage_start(a_run_comment in varchar2,a_coverage_id out integer);
+  function coverage_start(a_run_comment in varchar2) return integer;
 
   procedure coverage_stop;
 
@@ -24,7 +24,9 @@ create or replace package ut_coverage_helper_profiler authid definer is
 
   procedure coverage_resume;
 
-  function get_raw_coverage_data(a_object_owner varchar2, a_object_name varchar2, a_coverage_id integer) return ut_coverage_helper.t_unit_line_calls;
+  function get_raw_coverage_data(
+    a_object_owner varchar2, a_object_name varchar2, a_coverage_run_id raw
+  ) return ut_coverage_helper.t_unit_line_calls;
 
 end;
 /
