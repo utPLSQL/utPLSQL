@@ -64,14 +64,6 @@ create or replace package ut_coverage authid current_user is
 
   function is_develop_mode return boolean;
 
-  /***
-  * Allows overwriting of private global variable g_coverage_id
-  * Used internally, only for unit testing of the framework only
-  */
-  procedure mock_coverage_id(
-    a_coverage_run_id t_coverage_run_id, a_line_coverage_id integer, a_block_coverage_id integer
-  );
-
   procedure coverage_start(a_coverage_run_id t_coverage_run_id);
 
   procedure coverage_stop;

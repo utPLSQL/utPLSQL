@@ -8,7 +8,7 @@ create or replace package body test_cov_cobertura_reporter is
     l_expected := 
     q'[<?xml version="1.0"?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage line-rate="0" branch-rate="0.0" lines-covered="2" lines-valid="5" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="%">
+<coverage line-rate="0" branch-rate="0.0" lines-covered="2" lines-valid="3" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="%">
 <sources>
 <source>test/ut3_develop.dummy_coverage.pkb</source>
 </sources>
@@ -19,8 +19,6 @@ create or replace package body test_cov_cobertura_reporter is
 <line number="4" hits="1" branch="false"/>
 <line number="5" hits="0" branch="false"/>
 <line number="7" hits="1" branch="false"/>
-<line number="13" hits="0" branch="false"/>
-<line number="14" hits="0" branch="false"/>
 </lines>
 </class>
 </package>
@@ -50,7 +48,7 @@ create or replace package body test_cov_cobertura_reporter is
     l_expected :=
     q'[<?xml version="1.0"?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage line-rate="0" branch-rate="0.0" lines-covered="0" lines-valid="16" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="%">
+<coverage line-rate="0" branch-rate="0.0" lines-covered="0" lines-valid="10" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="%">
 <sources>
 <source>ut3_develop.dummy_coverage</source>
 </sources>
@@ -68,19 +66,13 @@ create or replace package body test_cov_cobertura_reporter is
 <line number="8" hits="0" branch="false"/>
 <line number="9" hits="0" branch="false"/>
 <line number="10" hits="0" branch="false"/>
-<line number="11" hits="0" branch="false"/>
-<line number="12" hits="0" branch="false"/>
-<line number="13" hits="0" branch="false"/>
-<line number="14" hits="0" branch="false"/>
-<line number="15" hits="0" branch="false"/>
-<line number="16" hits="0" branch="false"/>
 </lines>
 </class>
 </package>
 </packages>
 </coverage>]';
 
-    ut3_tester_helper.coverage_helper.cleanup_long_name_package();
+    ut3_tester_helper.coverage_helper.drop_long_name_package();
     --Act
     l_actual :=
       ut3_tester_helper.coverage_helper.run_tests_as_job(
@@ -95,7 +87,7 @@ create or replace package body test_cov_cobertura_reporter is
     --Assert
     ut.expect(l_actual).to_be_like(l_expected);
     --Cleanup
-    test_coverage.setup;
+    ut3_tester_helper.coverage_helper.create_dummy_coverage;
   end;
 
 end;

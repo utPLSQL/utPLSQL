@@ -9,13 +9,11 @@ create or replace package test_coverage is
     gc_block_coverage_enabled constant boolean := false;
   $end
 
-  --%beforeall
-  procedure setup;
-
   --%beforeall(ut3_tester_helper.coverage_helper.create_test_results_table)
+  --%beforeall(ut3_tester_helper.coverage_helper.create_dummy_coverage)
 
-  --%afterall(ut3_tester_helper.coverage_helper.drop_dummy_coverage_pkg)
-  --%afterall(ut3_tester_helper.coverage_helper.cleanup_long_name_package)
+
+  --%afterall(ut3_tester_helper.coverage_helper.drop_dummy_coverage)
   --%afterall(ut3_tester_helper.coverage_helper.drop_test_results_table)
 
 end;

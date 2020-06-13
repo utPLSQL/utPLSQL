@@ -16,7 +16,6 @@ create or replace package body ut_coverage is
   limitations under the License.
   */
 
-  g_coverage_run_id raw(32);
   g_develop_mode    boolean not null := false;
   g_is_started      boolean not null := false;
 
@@ -197,16 +196,6 @@ create or replace package body ut_coverage is
     ut_coverage_helper_profiler.coverage_resume();
   end;
 
-  procedure mock_coverage_id(
-    a_coverage_run_id t_coverage_run_id, a_line_coverage_id integer, a_block_coverage_id integer
-  ) is
-  begin
-    g_develop_mode := true;
-    g_is_started := true;
-    g_coverage_run_id := a_coverage_run_id;
-    ut_coverage_helper.set_coverage_run_ids(a_coverage_run_id, a_line_coverage_id, a_block_coverage_id);
-  end;
-
   procedure coverage_stop is
   begin
     if not is_develop_mode() then
@@ -224,9 +213,6 @@ create or replace package body ut_coverage is
     l_line_no                binary_integer;
     l_coverage_options       ut_coverage_options := a_coverage_options;
   begin
-    if is_develop_mode() then
-      l_coverage_options.coverage_run_id := coalesce(g_coverage_run_id, l_coverage_options.coverage_run_id);
-    end if;
     --prepare global temp table with sources
     ut_event_manager.trigger_event('about to populate coverage temp table');
     populate_tmp_table(l_coverage_options);

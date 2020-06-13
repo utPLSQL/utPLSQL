@@ -105,7 +105,7 @@ create or replace package body test_proftab_coverage is
             a_include_objects => ut3_develop.ut_varchar2_list( 'ut3_develop.dummy_coverage' )
           )
         );
-        coverage_helper.drop_dummy_coverage_pkg();
+        coverage_helper.drop_dummy_coverage();
         coverage_helper.create_dummy_coverage_test_1();
 
     --Act

@@ -17,8 +17,6 @@ create or replace package body test_coverage_sonar_reporter is
 <lineToCover lineNumber="4" covered="true"/>
 <lineToCover lineNumber="5" covered="false"/>
 '||l_block_cov||'
-<lineToCover lineNumber="13" covered="false"/>
-<lineToCover lineNumber="14" covered="false"/>
 </file>
 </coverage>';
     --Act

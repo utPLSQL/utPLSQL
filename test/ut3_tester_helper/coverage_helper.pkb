@@ -2,30 +2,17 @@ create or replace package body coverage_helper is
 
   g_job_no          integer := 0;
 
-  procedure setup_mock_coverage_id is
-  begin
-    null;
-  end;
-
-  procedure setup_long_name_package is
+  procedure create_long_name_package is
     pragma autonomous_transaction;
   begin
     execute immediate q'[create or replace package UT3_DEVELOP.DUMMY_COVERAGE_PACKAGE_WITH_AN_AMAZINGLY_LONG_NAME_THAT_YOU_WOULD_NOT_THINK_OF_IN_REAL_LIFE_PROJECT_BECAUSE_ITS_SIMPLY_TOO_LONG is
       procedure do_stuff(i_input in number);
-
-      procedure grant_myself;
     end;]';
     execute immediate q'[create or replace package body UT3_DEVELOP.DUMMY_COVERAGE_PACKAGE_WITH_AN_AMAZINGLY_LONG_NAME_THAT_YOU_WOULD_NOT_THINK_OF_IN_REAL_LIFE_PROJECT_BECAUSE_ITS_SIMPLY_TOO_LONG is
       procedure do_stuff(i_input in number) is
       begin
         if i_input = 2 then dbms_output.put_line('should not get here'); else dbms_output.put_line('should get here'); end if;
       end;
-
-      procedure grant_myself is
-      begin
-        execute immediate 'grant debug,execute on UT3_DEVELOP.DUMMY_COVERAGE_PACKAGE_WITH_AN_AMAZINGLY_LONG_NAME_THAT_YOU_WOULD_NOT_THINK_OF_IN_REAL_LIFE_PROJECT_BECAUSE_ITS_SIMPLY_TOO_LONG to ut3$user#';
-      end;
-
     end;]';
 
     execute immediate q'[create or replace package UT3_DEVELOP.TEST_BLOCK_DUMMY_COVERAGE is
@@ -34,9 +21,6 @@ create or replace package body coverage_helper is
 
       --%test
       procedure test_do_stuff;
-
-      procedure grant_myself;
-
     end;]';
     execute immediate q'[create or replace package body UT3_DEVELOP.TEST_BLOCK_DUMMY_COVERAGE is
       procedure test_do_stuff is
@@ -44,26 +28,11 @@ create or replace package body coverage_helper is
         dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long.do_stuff(1);
         ut.expect(1).to_equal(1);
       end;
-
-      procedure grant_myself is
-      begin
-        execute immediate 'grant debug,execute on  UT3_DEVELOP.TEST_BLOCK_DUMMY_COVERAGE to ut3$user#';
-      end;
     end;]';
 
-
-    execute immediate 'begin UT3_DEVELOP.DUMMY_COVERAGE_PACKAGE_WITH_AN_AMAZINGLY_LONG_NAME_THAT_YOU_WOULD_NOT_THINK_OF_IN_REAL_LIFE_PROJECT_BECAUSE_ITS_SIMPLY_TOO_LONG.grant_myself(); end;';
-    execute immediate 'begin UT3_DEVELOP.TEST_BLOCK_DUMMY_COVERAGE.grant_myself(); end;';
-
-    commit;
   end;
 
-  procedure mock_coverage_data(a_user in varchar2) is
-  begin
-    null;
-  end;
-
-  procedure cleanup_long_name_package is
+  procedure drop_long_name_package is
     pragma autonomous_transaction;
   begin
     begin
@@ -78,14 +47,15 @@ create or replace package body coverage_helper is
     end;
   end;
 
-  procedure create_dummy_coverage_package is
+
+
+
+  procedure create_dummy_coverage is
     pragma autonomous_transaction;
   begin
     execute immediate 'alter session set plsql_optimize_level=0';
     execute immediate q'[create or replace package UT3_DEVELOP.DUMMY_COVERAGE is
       procedure do_stuff;
-      
-      procedure grant_myself;
     end;]';
     execute immediate q'[create or replace package body UT3_DEVELOP.DUMMY_COVERAGE is
       procedure do_stuff is
@@ -96,19 +66,7 @@ create or replace package body coverage_helper is
           dbms_output.put_line('should get here');
         end if;
       end;
-      
-      procedure grant_myself is
-      begin
-        execute immediate 'grant debug,execute on UT3_DEVELOP.DUMMY_COVERAGE to ut3$user#';
-        execute immediate 'grant debug,execute on UT3_DEVELOP.DUMMY_COVERAGE to ut3_tester_helper';
-      end;
     end;]';
-    
-  end; 
-
-  procedure create_dummy_coverage_test is
-    pragma autonomous_transaction;
-  begin
     execute immediate q'[create or replace package UT3_DEVELOP.TEST_DUMMY_COVERAGE is
       --%suite(dummy coverage test)
       --%suitepath(coverage_testing)
@@ -118,8 +76,6 @@ create or replace package body coverage_helper is
 
       --%test
       procedure zero_coverage;
-      
-      procedure grant_myself;
     end;]';
     execute immediate q'[create or replace package body UT3_DEVELOP.TEST_DUMMY_COVERAGE is
       procedure test_do_stuff is
@@ -131,23 +87,11 @@ create or replace package body coverage_helper is
       begin
         null;
       end;
-
-      procedure grant_myself is
-      begin
-        execute immediate 'grant debug,execute on UT3_DEVELOP.TEST_DUMMY_COVERAGE to ut3$user#';
-      end;
     end;]';
     
   end;
-  
-  procedure grant_exec_on_cov is
-      pragma autonomous_transaction;
-  begin
-    execute immediate 'begin UT3_DEVELOP.DUMMY_COVERAGE.grant_myself(); end;';
-    execute immediate 'begin UT3_DEVELOP.TEST_DUMMY_COVERAGE.grant_myself(); end;';
-  end;
- 
-  procedure drop_dummy_coverage_pkg is
+
+  procedure drop_dummy_coverage is
     pragma autonomous_transaction;
   begin
     begin execute immediate q'[drop package ut3_develop.test_dummy_coverage]'; exception when others then null; end;
@@ -160,7 +104,6 @@ create or replace package body coverage_helper is
   begin
     execute immediate q'[create or replace package UT3_DEVELOP.DUMMY_COVERAGE_1 is
       procedure do_stuff;
-      procedure grant_myself;
     end;]';
     execute immediate q'[create or replace package body UT3_DEVELOP.DUMMY_COVERAGE_1 is
       procedure do_stuff is
@@ -171,12 +114,6 @@ create or replace package body coverage_helper is
           dbms_output.put_line('should get here');
         end if;
       end;
-      
-      procedure grant_myself is
-      begin
-        execute immediate 'grant debug,execute on UT3_DEVELOP.DUMMY_COVERAGE_1 to ut3$user#';
-      end;
-      
     end;]';
     execute immediate q'[create or replace package UT3_DEVELOP.TEST_DUMMY_COVERAGE_1 is
       --%suite(dummy coverage test 1)
@@ -184,8 +121,6 @@ create or replace package body coverage_helper is
 
       --%test
       procedure test_do_stuff;
-      
-      procedure grant_myself;
     end;]';
     execute immediate q'[create or replace package body UT3_DEVELOP.TEST_DUMMY_COVERAGE_1 is
       procedure test_do_stuff is
@@ -193,14 +128,7 @@ create or replace package body coverage_helper is
         dummy_coverage_1.do_stuff;
       end;
       
-      procedure grant_myself is
-      begin
-        execute immediate 'grant debug,execute on UT3_DEVELOP.TEST_DUMMY_COVERAGE_1 to ut3$user#';
-      end;
-      
     end;]';
-    execute immediate 'begin UT3_DEVELOP.DUMMY_COVERAGE_1.grant_myself(); end;';
-    execute immediate 'begin UT3_DEVELOP.TEST_DUMMY_COVERAGE_1.grant_myself(); end;';
   end;
 
   procedure drop_dummy_coverage_test_1 is
@@ -209,39 +137,6 @@ create or replace package body coverage_helper is
     begin execute immediate q'[drop package UT3_DEVELOP.DUMMY_COVERAGE_1]'; exception when others then null; end;
     begin execute immediate q'[drop package UT3_DEVELOP.TEST_DUMMY_COVERAGE_1]'; exception when others then null; end;
   end;
-
-  procedure mock_block_coverage_data(a_run_id integer,a_user in varchar2) is
-    c_unit_id   constant integer := 1;
-  begin
-    insert into dbmspcc_runs ( run_id, run_owner, run_timestamp, run_comment)
-    values(a_run_id, a_user, sysdate, 'unit testing utPLSQL');
-
-    insert into dbmspcc_units ( run_id, object_id, type, owner, name,last_ddl_time)
-    values(a_run_id, c_unit_id, 'PACKAGE BODY', 'UT3_DEVELOP', 'DUMMY_COVERAGE_PACKAGE_WITH_AN_AMAZINGLY_LONG_NAME_THAT_YOU_WOULD_NOT_THINK_OF_IN_REAL_LIFE_PROJECT_BECAUSE_ITS_SIMPLY_TOO_LONG',sysdate);
-
-    insert into dbmspcc_blocks ( run_id,  object_id, line,block,col,covered,not_feasible)
-    select a_run_id, c_unit_id,4,1,1,1,0  from dual union all
-    select a_run_id, c_unit_id,4,2,2,0,0  from dual union all
-    select a_run_id, c_unit_id,5,3,0,1,0  from dual union all
-    select a_run_id, c_unit_id,7,4,1,1,0  from dual;
-  end;
-
-  procedure mock_profiler_coverage_data(a_run_id integer,a_user in varchar2) is
-    c_unit_id   constant integer := 1;
-  begin
-    insert into ut3_develop.plsql_profiler_runs ( runid, run_owner, run_date, run_comment)
-    values(a_run_id, a_user, sysdate, 'unit testing utPLSQL');
-
-    insert into ut3_develop.plsql_profiler_units ( runid, unit_number, unit_type, unit_owner, unit_name)
-    values(a_run_id, c_unit_id, 'PACKAGE BODY', 'UT3_DEVELOP', 'DUMMY_COVERAGE_PACKAGE_WITH_AN_AMAZINGLY_LONG_NAME_THAT_YOU_WOULD_NOT_THINK_OF_IN_REAL_LIFE_PROJECT_BECAUSE_ITS_SIMPLY_TOO_LONG');
-
-    insert into ut3_develop.plsql_profiler_data ( runid,  unit_number, line#, total_occur, total_time)
-    select a_run_id, c_unit_id,     4,           1, 1  from dual union all
-    select a_run_id, c_unit_id,     5,           0, 0  from dual union all
-    select a_run_id, c_unit_id,     6,           1, 0  from dual union all
-    select a_run_id, c_unit_id,     7,           1, 1  from dual;
-  end;
-
 
   procedure set_develop_mode is
   begin

@@ -14,14 +14,7 @@ null,
 1,
 0,
 null,
-1,
-null,
-null,
-null,
-null,
-null,
-0,
-0
+1
 ]
 }
 ]}
@@ -49,12 +42,6 @@ null,
     l_expected := q'[{"source_files":[
 { "name": "ut3_develop.dummy_coverage",
 "coverage": [
-0,
-0,
-0,
-0,
-0,
-0,
 0,
 0,
 0,
