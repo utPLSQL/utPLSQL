@@ -29,6 +29,7 @@ alter session set plsql_optimize_level=0;
 @@ut3_tester_helper/annotation_cache_helper.pks
 @@ut3_tester_helper/annotation_cache_helper.pkb
 create or replace synonym ut3_tester.annotation_cache_helper for ut3_tester_helper.annotation_cache_helper;
+create or replace synonym ut3$user#.coverage_helper for ut3_tester_helper.coverage_helper;
 
 set linesize 200
 set define on

@@ -2,72 +2,56 @@ create or replace package body coverage_helper is
 
   g_job_no          integer := 0;
 
-  procedure create_long_name_package is
-    pragma autonomous_transaction;
+  function block_coverage_available return boolean is
   begin
-    execute immediate q'[create or replace package UT3_DEVELOP.DUMMY_COVERAGE_PACKAGE_WITH_AN_AMAZINGLY_LONG_NAME_THAT_YOU_WOULD_NOT_THINK_OF_IN_REAL_LIFE_PROJECT_BECAUSE_ITS_SIMPLY_TOO_LONG is
-      procedure do_stuff(i_input in number);
-    end;]';
-    execute immediate q'[create or replace package body UT3_DEVELOP.DUMMY_COVERAGE_PACKAGE_WITH_AN_AMAZINGLY_LONG_NAME_THAT_YOU_WOULD_NOT_THINK_OF_IN_REAL_LIFE_PROJECT_BECAUSE_ITS_SIMPLY_TOO_LONG is
-      procedure do_stuff(i_input in number) is
-      begin
-        if i_input = 2 then dbms_output.put_line('should not get here'); else dbms_output.put_line('should get here'); end if;
-      end;
-    end;]';
-
-    execute immediate q'[create or replace package UT3_DEVELOP.TEST_BLOCK_DUMMY_COVERAGE is
-      --%suite(dummy coverage test)
-      --%suitepath(coverage_testing)
-
-      --%test
-      procedure test_do_stuff;
-    end;]';
-    execute immediate q'[create or replace package body UT3_DEVELOP.TEST_BLOCK_DUMMY_COVERAGE is
-      procedure test_do_stuff is
-      begin
-        dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long.do_stuff(1);
-        ut.expect(1).to_equal(1);
-      end;
-    end;]';
-
+    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+      return true;
+    $else
+      return false;
+    $end
   end;
 
-  procedure drop_long_name_package is
-    pragma autonomous_transaction;
+  function covered_package_name return varchar2 is
   begin
-    begin
-      execute immediate q'[drop package ut3_develop.test_block_dummy_coverage]';
-    exception
-      when others then null;
-    end;
-    begin
-      execute immediate q'[drop package ut3_develop.dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long]';
-    exception
-      when others then null;
-    end;
+    $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
+      return 'dummy_coverage_package_with_an_amazingly_long_name_that_you_would_not_think_of_in_real_life_project_because_its_simply_too_long';
+    $else
+      return 'dummy_coverage';
+    $end
   end;
 
+  function substitute_covered_package(
+    a_text varchar2,
+    a_substitution varchar2
+  ) return varchar2 is
+  begin
+    return replace( replace( a_text, a_substitution, covered_package_name() ), upper(a_substitution), upper(covered_package_name()) );
+  end;
 
+  procedure set_develop_mode is
+  begin
+    ut3_develop.ut_coverage.set_develop_mode(true);
+  end;
 
 
   procedure create_dummy_coverage is
     pragma autonomous_transaction;
   begin
-    execute immediate 'alter session set plsql_optimize_level=0';
-    execute immediate q'[create or replace package UT3_DEVELOP.DUMMY_COVERAGE is
-      procedure do_stuff;
+    execute immediate q'[create or replace package ut3_develop.]'||covered_package_name||q'[ is
+      procedure do_stuff(i_input in number);
     end;]';
-    execute immediate q'[create or replace package body UT3_DEVELOP.DUMMY_COVERAGE is
-      procedure do_stuff is
+
+    execute immediate q'[create or replace package body ut3_develop.]'||covered_package_name||q'[ is
+      procedure do_stuff(i_input in number) is
       begin
-        if 1 = 2 then
-          dbms_output.put_line('should not get here');
+        if i_input = 2 then dbms_output.put_line('should not get here'); elsif i_input = 1 then dbms_output.put_line('should get here');
         else
-          dbms_output.put_line('should get here');
+          dbms_output.put_line('should not get here');
         end if;
       end;
     end;]';
-    execute immediate q'[create or replace package UT3_DEVELOP.TEST_DUMMY_COVERAGE is
+
+    execute immediate q'[create or replace package ut3_develop.test_dummy_coverage is
       --%suite(dummy coverage test)
       --%suitepath(coverage_testing)
 
@@ -77,35 +61,37 @@ create or replace package body coverage_helper is
       --%test
       procedure zero_coverage;
     end;]';
-    execute immediate q'[create or replace package body UT3_DEVELOP.TEST_DUMMY_COVERAGE is
+
+    execute immediate q'[create or replace package body ut3_develop.test_dummy_coverage is
       procedure test_do_stuff is
       begin
-        dummy_coverage.do_stuff;
+        ]'||covered_package_name||q'[.do_stuff(1);
+        ut.expect(1).to_equal(1);
       end;
-
       procedure zero_coverage is
       begin
         null;
       end;
     end;]';
-    
+
   end;
 
   procedure drop_dummy_coverage is
     pragma autonomous_transaction;
   begin
-    begin execute immediate q'[drop package ut3_develop.test_dummy_coverage]'; exception when others then null; end;
-    begin execute immediate q'[drop package ut3_develop.dummy_coverage]'; exception when others then null; end;
+    begin execute immediate q'[drop package ut3_develop.test_dummy_coverage]';    exception when others then null; end;
+    begin execute immediate q'[drop package ut3_develop.]'||covered_package_name; exception when others then null; end;
   end;
  
 
-  procedure create_dummy_coverage_test_1 is
+  procedure create_dummy_coverage_1 is
     pragma autonomous_transaction;
   begin
-    execute immediate q'[create or replace package UT3_DEVELOP.DUMMY_COVERAGE_1 is
+    execute immediate q'[create or replace package ut3_develop.dummy_coverage_1 is
       procedure do_stuff;
     end;]';
-    execute immediate q'[create or replace package body UT3_DEVELOP.DUMMY_COVERAGE_1 is
+
+    execute immediate q'[create or replace package body ut3_develop.dummy_coverage_1 is
       procedure do_stuff is
       begin
         if 1 = 2 then
@@ -115,14 +101,16 @@ create or replace package body coverage_helper is
         end if;
       end;
     end;]';
-    execute immediate q'[create or replace package UT3_DEVELOP.TEST_DUMMY_COVERAGE_1 is
+
+    execute immediate q'[create or replace package ut3_develop.test_dummy_coverage_1 is
       --%suite(dummy coverage test 1)
       --%suitepath(coverage_testing)
 
       --%test
       procedure test_do_stuff;
     end;]';
-    execute immediate q'[create or replace package body UT3_DEVELOP.TEST_DUMMY_COVERAGE_1 is
+
+    execute immediate q'[create or replace package body ut3_develop.test_dummy_coverage_1 is
       procedure test_do_stuff is
       begin
         dummy_coverage_1.do_stuff;
@@ -131,16 +119,11 @@ create or replace package body coverage_helper is
     end;]';
   end;
 
-  procedure drop_dummy_coverage_test_1 is
+  procedure drop_dummy_coverage_1 is
     pragma autonomous_transaction;
   begin
-    begin execute immediate q'[drop package UT3_DEVELOP.DUMMY_COVERAGE_1]'; exception when others then null; end;
-    begin execute immediate q'[drop package UT3_DEVELOP.TEST_DUMMY_COVERAGE_1]'; exception when others then null; end;
-  end;
-
-  procedure set_develop_mode is
-  begin
-    ut3_develop.ut_coverage.set_develop_mode(true);
+    begin execute immediate q'[drop package ut3_develop.dummy_coverage_1]'; exception when others then null; end;
+    begin execute immediate q'[drop package ut3_develop.test_dummy_coverage_1]'; exception when others then null; end;
   end;
 
   procedure create_coverage_pkg is
@@ -168,6 +151,8 @@ create or replace package body coverage_helper is
   begin
     execute immediate q'[drop package coverage_pkg]';
   end;
+
+
 
   procedure run_standalone_coverage(a_coverage_run_id raw, a_input integer) is
     x integer;

@@ -16,9 +16,12 @@ create or replace package test_proftab_coverage is
   procedure coverage_for_file;
   
   --%test(Coverage data is not cached between runs - issue #562 )
+  --%aftertest(ut3_tester_helper.coverage_helper.drop_dummy_coverage_1)
   --%aftertest(ut3_tester_helper.coverage_helper.create_dummy_coverage)
-  --%aftertest(ut3_tester_helper.coverage_helper.drop_dummy_coverage_test_1)
   procedure coverage_tmp_data_refresh;
+
+  --%test(reports zero coverage on each line of non-executed database object - Issue #917)
+  procedure report_zero_coverage;
 
 end;
 /

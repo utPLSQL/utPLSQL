@@ -1,4 +1,4 @@
-create or replace package test_html_extended_reporter is
+create or replace package test_html_coverage_reporter is
 
   --%suite(ut_html_extended_reporter)
   --%suitepath(utplsql.test_user.reporters.test_coverage.test_extended_coverage)
@@ -6,5 +6,5 @@ create or replace package test_html_extended_reporter is
   --%test(reports on a project file mapped to database object in extended profiler coverage)
   procedure report_on_file;
 
-end test_html_extended_reporter;
+end test_html_coverage_reporter;
 /

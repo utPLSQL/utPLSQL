@@ -3,18 +3,19 @@ create or replace package body test_coveralls_reporter is
   procedure report_on_file is
     l_expected  clob;
     l_actual    clob;
+    l_file_path varchar2(250);
   begin
     --Arrange
+    l_file_path := 'test/ut3_develop.'||ut3_tester_helper.coverage_helper.covered_package_name||'.pkb';
     l_expected := q'[{"source_files":[
-{ "name": "test/ut3_develop.dummy_coverage.pkb",
+{ "name": "]'||l_file_path||q'[",
 "coverage": [
 null,
 null,
 null,
-1,
-0,
+3,
 null,
-1
+0
 ]
 }
 ]}
@@ -25,7 +26,7 @@ null,
             ut3_develop.ut.run(
               a_path => 'ut3_develop.test_dummy_coverage',
               a_reporter => ut3_develop.ut_coveralls_reporter( ),
-              a_source_files => ut3_develop.ut_varchar2_list( 'test/ut3_develop.dummy_coverage.pkb' ),
+              a_source_files => ut3_develop.ut_varchar2_list( ']'||l_file_path||q'[' ),
               a_test_files => ut3_develop.ut_varchar2_list( )
             )
           ]'
@@ -40,9 +41,8 @@ null,
   begin
     --Arrange
     l_expected := q'[{"source_files":[
-{ "name": "ut3_develop.dummy_coverage",
+{ "name": "ut3_develop.]'||ut3_tester_helper.coverage_helper.covered_package_name||q'[",
 "coverage": [
-0,
 0,
 0,
 0,
@@ -64,7 +64,7 @@ null,
             ut3_develop.ut.run(
               'ut3_develop.test_dummy_coverage.zero_coverage',
               ut3_develop.ut_coveralls_reporter(),
-              a_include_objects => ut3_develop.ut_varchar2_list('UT3_DEVELOP.DUMMY_COVERAGE')
+              a_include_objects => ut3_develop.ut_varchar2_list('UT3_DEVELOP.]'||ut3_tester_helper.coverage_helper.covered_package_name||q'[')
             )
           ]'
         );

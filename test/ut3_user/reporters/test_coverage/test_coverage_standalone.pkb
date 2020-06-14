@@ -7,7 +7,7 @@ create or replace package body test_coverage_standalone is
     l_block_cov       clob;
   begin
     --Arrange
-    if test_coverage.block_coverage_available then
+    if ut3_tester_helper.coverage_helper.block_coverage_available then
       l_block_cov := '%<line number="5" hits="4" branch="true" condition-coverage="67% (2/3)"/>';
     else
       l_block_cov := '%<line number="5" hits="4" branch="false"/>';
@@ -46,7 +46,7 @@ create or replace package body test_coverage_standalone is
     l_block_cov       clob;
   begin
     --Arrange
-    if test_coverage.block_coverage_available then
+    if ut3_tester_helper.coverage_helper.block_coverage_available then
       l_block_cov := '%<line number="5" hits="4" branch="true" condition-coverage="67% (2/3)"/>';
     else
       l_block_cov := '%<line number="5" hits="4" branch="false"/>';

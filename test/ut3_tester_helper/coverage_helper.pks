@@ -1,19 +1,25 @@
 create or replace package coverage_helper is
 
-  procedure create_long_name_package;
-  procedure drop_long_name_package;
+  function block_coverage_available return boolean;
 
-  --Profiler coverage
-  procedure create_dummy_coverage;
-  procedure drop_dummy_coverage;
+  function covered_package_name return varchar2;
 
-  procedure create_dummy_coverage_test_1;
-  procedure drop_dummy_coverage_test_1; 
+  function substitute_covered_package(
+    a_text varchar2,
+    a_substitution varchar2 := '{p}'
+  ) return varchar2;
 
   procedure set_develop_mode;
 
+  procedure create_dummy_coverage;
+  procedure drop_dummy_coverage;
+
+  procedure create_dummy_coverage_1;
+  procedure drop_dummy_coverage_1;
+
   procedure run_standalone_coverage(a_coverage_run_id raw, a_input integer);
   procedure run_coverage_job(a_coverage_run_id raw, a_input integer);
+
   procedure create_coverage_pkg;
   procedure drop_coverage_pkg;
 
