@@ -333,7 +333,7 @@ The matrix below illustrates the data types supported by different matchers.
 |       **be_like**       |      |         |  X   |      |        |           |                               |                                        |    X     |                                 |                                 |        |                             |        |      |
 |      **be_empty**       |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
 |     **have_count**      |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
-| **be_within().of_()**   |      |         |      |   x  |   x    |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
+| **be_within().of_()**   |      |         |      |   x  |   x    |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
 
 
 # Expecting exceptions
