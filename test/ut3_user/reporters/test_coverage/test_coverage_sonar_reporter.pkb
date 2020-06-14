@@ -6,7 +6,7 @@ create or replace package body test_coverage_sonar_reporter is
     l_block_cov clob;
   begin
     --Arrange
-    if test_coverage.gc_block_coverage_enabled then
+    if test_coverage.block_coverage_available then
       l_block_cov := '<lineToCover lineNumber="7" covered="true" branchesToCover="1" coveredBranches="1"/>';
     else
       l_block_cov := '<lineToCover lineNumber="7" covered="true"/>';
