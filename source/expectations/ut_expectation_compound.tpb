@@ -66,36 +66,36 @@ create or replace type body ut_expectation_compound as
     return treat(l_result as ut_equal);
   end;
 
-  member function to_contain(a_expected sys_refcursor) return ut_equal is
-    l_result ut_equal;
+  member function to_contain(a_expected sys_refcursor) return ut_contain is
+    l_result ut_contain;
   begin
     l_result := ut_contain(a_expected);
     l_result.expectation := self;
     return l_result;
   end;
 
-  member function not_to_contain(a_expected sys_refcursor) return ut_equal is
+  member function not_to_contain(a_expected sys_refcursor) return ut_contain is
     l_result ut_matcher;
   begin
     l_result := ut_contain(a_expected).negated();
     l_result.expectation := self;
-    return treat(l_result as ut_equal);
+    return treat(l_result as ut_contain);
   end;
   
-  member function to_contain(a_expected anydata) return ut_equal is
-    l_result ut_equal;
+  member function to_contain(a_expected anydata) return ut_contain is
+    l_result ut_contain;
   begin
     l_result := ut_contain(a_expected);
     l_result.expectation := self;
     return l_result;
   end;
 
-  member function not_to_contain(a_expected anydata) return ut_equal is
+  member function not_to_contain(a_expected anydata) return ut_contain is
     l_result ut_matcher;
   begin
     l_result := ut_contain(a_expected).negated();
     l_result.expectation := self;
-    return treat(l_result as ut_equal);
+    return treat(l_result as ut_contain);
   end;
 
 end;
