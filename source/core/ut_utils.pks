@@ -440,6 +440,9 @@ create or replace package ut_utils authid definer is
   */  
   function interval_to_text(a_interval dsinterval_unconstrained) return varchar2;
   
+  /*
+  * Return value of interval in plain english
+  */    
   function interval_to_text(a_interval yminterval_unconstrained) return varchar2;
   
 end ut_utils;

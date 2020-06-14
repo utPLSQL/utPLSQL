@@ -16,28 +16,28 @@ create or replace type body ut_be_within as
   limitations under the License.
   */
 
- member procedure init(self in out nocopy ut_be_within, a_dist ut_data_value, a_is_pct number , a_self_type varchar2 := null) is
+ member procedure init(self in out nocopy ut_be_within, a_distance_from_expected ut_data_value, a_is_pct number , a_self_type varchar2 := null) is
   begin
-    self.dist  := a_dist;
+    self.distance_from_expected  := a_distance_from_expected;
     self.is_pct := nvl(a_is_pct,0);
     self.self_type := nvl( a_self_type, $$plsql_unit );
   end;
 
-  constructor function ut_be_within(self in out nocopy ut_be_within, a_dist number, a_is_pct number) return self as result is
+  constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected number, a_is_pct number) return self as result is
   begin
-    init(ut_data_value_number(a_dist),a_is_pct);
+    init(ut_data_value_number(a_distance_from_expected),a_is_pct);
     return;
   end;
   
-  constructor function ut_be_within(self in out nocopy ut_be_within, a_dist dsinterval_unconstrained, a_is_pct number) return self as result is
+  constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected dsinterval_unconstrained, a_is_pct number) return self as result is
   begin
-    init(ut_data_value_dsinterval(a_dist),a_is_pct); 
+    init(ut_data_value_dsinterval(a_distance_from_expected),a_is_pct); 
     return;
   end;
   
-  constructor function ut_be_within(self in out nocopy ut_be_within, a_dist yminterval_unconstrained, a_is_pct number) return self as result is
+  constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected yminterval_unconstrained, a_is_pct number) return self as result is
   begin
-    init(ut_data_value_yminterval(a_dist),a_is_pct);
+    init(ut_data_value_yminterval(a_distance_from_expected),a_is_pct);
     return;
   end;
   
@@ -61,24 +61,24 @@ create or replace type body ut_be_within as
     if self.expected.data_type = a_actual.data_type then
       if self.expected is of (ut_data_value_number) and self.is_pct = 0 then
         l_result := abs((treat(self.expected as ut_data_value_number).data_value - treat(a_actual as ut_data_value_number).data_value)) <= 
-                    treat(self.dist as ut_data_value_number).data_value;
+                    treat(self.distance_from_expected as ut_data_value_number).data_value;
       elsif self.expected is of (ut_data_value_number) and self.is_pct = 1 then
-        l_result := treat(self.dist as ut_data_value_number).data_value >= 
+        l_result := treat(self.distance_from_expected as ut_data_value_number).data_value >= 
                     (
                      ((treat(self.expected as ut_data_value_number).data_value - treat(a_actual as ut_data_value_number).data_value ) * 100 ) /
                     (treat(self.expected as ut_data_value_number).data_value)) ;      
-      elsif self.expected is of (ut_data_value_date) and self.dist is of ( ut_data_value_yminterval) then      
+      elsif self.expected is of (ut_data_value_date) and self.distance_from_expected is of ( ut_data_value_yminterval) then      
         l_result := treat(a_actual as ut_data_value_date).data_value 
                     between 
-                     (treat(self.expected as ut_data_value_date).data_value) - treat(self.dist as ut_data_value_yminterval).data_value
+                     (treat(self.expected as ut_data_value_date).data_value) - treat(self.distance_from_expected as ut_data_value_yminterval).data_value
                      and 
-                     (treat(self.expected as ut_data_value_date).data_value) + treat(self.dist as ut_data_value_yminterval).data_value;
-      elsif self.expected is of (ut_data_value_date) and self.dist is of ( ut_data_value_dsinterval) then      
+                     (treat(self.expected as ut_data_value_date).data_value) + treat(self.distance_from_expected as ut_data_value_yminterval).data_value;
+      elsif self.expected is of (ut_data_value_date) and self.distance_from_expected is of ( ut_data_value_dsinterval) then      
         l_result := treat(a_actual as ut_data_value_date).data_value 
                     between 
-                      (treat(self.expected as ut_data_value_date).data_value) - treat(self.dist as ut_data_value_dsinterval).data_value
+                      (treat(self.expected as ut_data_value_date).data_value) - treat(self.distance_from_expected as ut_data_value_dsinterval).data_value
                       and 
-                      (treat(self.expected as ut_data_value_date).data_value) + treat(self.dist as ut_data_value_dsinterval).data_value;
+                      (treat(self.expected as ut_data_value_date).data_value) + treat(self.distance_from_expected as ut_data_value_dsinterval).data_value;
       end if;
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);
@@ -87,20 +87,20 @@ create or replace type body ut_be_within as
   end;
 
   overriding member function failure_message(a_actual ut_data_value) return varchar2 is
-    l_distance varchar2(32767);
+    l_distance_from_expected varchar2(32767);
   begin
-    l_distance := case 
-                    when self.dist is of (ut_data_value_number) then
-                      treat(self.dist as ut_data_value_number).to_string
-                    when self.dist is of (ut_data_value_yminterval) then
-                      treat(self.dist as ut_data_value_yminterval).to_string 
-                    when self.dist is of (ut_data_value_dsinterval) then
-                      treat(self.dist as ut_data_value_dsinterval).to_string 
+    l_distance_from_expected := case 
+                    when self.distance_from_expected is of (ut_data_value_number) then
+                      treat(self.distance_from_expected as ut_data_value_number).to_string
+                    when self.distance_from_expected is of (ut_data_value_yminterval) then
+                      treat(self.distance_from_expected as ut_data_value_yminterval).to_string 
+                    when self.distance_from_expected is of (ut_data_value_dsinterval) then
+                      treat(self.distance_from_expected as ut_data_value_dsinterval).to_string 
                     else
                       null
                     end;
                     
-    return (self as ut_matcher).failure_message(a_actual) || ' '||l_distance ||' of '|| expected.to_string_report();
+    return (self as ut_matcher).failure_message(a_actual) || ' '||l_distance_from_expected ||' of '|| expected.to_string_report();
   end;
 
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2 is

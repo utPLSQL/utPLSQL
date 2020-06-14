@@ -1127,22 +1127,6 @@ end;
 **Example 3.**
 ```sql
 begin
-  ut.expect(sysdate).to_be_within_pct(interval '1' day).of_(sysdate + 1);
-end;
-/
-```
-
-**Example 4.**
-```sql
-begin
-  ut.expect(sysdate).to_be_within_pct(interval '1' month).of_(add_months(sysdate,1));
-end;
-/
-```
-
-**Example 5.**
-```sql
-begin
   ut.expect(3).to_be_within(1).of_(5);
 end;
 /
@@ -1158,7 +1142,7 @@ Failures:
       at "UT3_DEVELOP.TEST_BETWNSTR.WIHTIN_TEST", line 5
 ```
 
-**Example 6.**
+**Example 4.**
 ```sql
 begin
   ut.expect(sysdate).to_be_within(interval '1' day).of_(sysdate+2);

@@ -887,25 +887,18 @@ create or replace package body ut_utils is
     l_result := case 
                   when l_day = 1 then l_day ||' day' 
                   when l_day > 1 then l_day ||' days' 
-                  else null 
-                end;
-    l_result := l_result || 
+                end || 
                 case 
                   when l_hour = 1 then ' '|| l_hour ||' hour' 
                   when l_hour > 1 then ' '|| l_hour ||' hours' 
-                  else null 
-                end;
-    l_result := l_result || 
+                end || 
                 case 
                   when l_minute = 1 then ' '||l_minute ||' minute' 
                   when l_minute > 1 then ' '||l_minute ||' minutes' 
-                  else null 
-                end; 
-    l_result := l_result || 
+                end || 
                 case 
                   when l_second = 1 then ' '||l_second ||' second' 
                   when l_second > 1 then ' '||l_second ||' seconds' 
-                  else null 
                 end;    
     return trim(leading ' ' from l_result);
   end;
@@ -918,13 +911,10 @@ create or replace package body ut_utils is
     l_result := case 
                   when l_year = 1 then l_year ||' year' 
                   when l_year > 1 then l_year ||' years'
-                  else null 
-                end;
-    l_result := l_result || 
+                end || 
                 case 
                   when l_month = 1 then  ' '||l_month ||' month' 
                   when l_month > 1 then  ' '||l_month ||' months' 
-                  else null 
                 end;   
     return trim(leading ' ' from l_result);
   end;

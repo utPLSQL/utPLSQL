@@ -21,5 +21,5 @@ create or replace type ut_expectation_base force authid current_user as object(
   --base matcher executors
   member procedure to_(self in ut_expectation_base, a_matcher ut_matcher_base),
   member procedure not_to(self in ut_expectation_base, a_matcher ut_matcher_base)
-) not final
+) not final not instantiable
 /
