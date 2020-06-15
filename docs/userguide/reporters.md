@@ -1,4 +1,4 @@
-![version](https://img.shields.io/badge/version-v3.1.11.3400--develop-blue.svg)
+![version](https://img.shields.io/badge/version-v3.1.11.3422--develop-blue.svg)
 
 utPLSQL provides the following reporting formats.
 
