@@ -103,26 +103,14 @@ create or replace type body ut_be_within as
   end;
 
   overriding member function failure_message(a_actual ut_data_value) return varchar2 is
-    l_distance_from_expected varchar2(32767);
-  begin
-    l_distance_from_expected := case 
-                    when self.distance_from_expected is of (ut_data_value_number) then
-                      treat(self.distance_from_expected as ut_data_value_number).to_string
-                    when self.distance_from_expected is of (ut_data_value_yminterval) then
-                      treat(self.distance_from_expected as ut_data_value_yminterval).to_string 
-                    when self.distance_from_expected is of (ut_data_value_dsinterval) then
-                      treat(self.distance_from_expected as ut_data_value_dsinterval).to_string 
-                    else
-                      null
-                    end;
-                    
-    return (self as ut_matcher).failure_message(a_actual) || ' '||l_distance_from_expected ||' of '|| expected.to_string_report();
+  begin                
+    return (self as ut_matcher).failure_message(a_actual) || ' '||self.distance_from_expected.to_string ||' of '|| expected.to_string_report();
   end;
 
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2 is
     l_result varchar2(32767);
-  begin
-    return (self as ut_matcher).failure_message_when_negated(a_actual) || ': '|| expected.to_string_report();
+  begin 
+    return (self as ut_matcher).failure_message_when_negated(a_actual) || ' '||self.distance_from_expected.to_string ||' of '|| expected.to_string_report();
   end;  
   
 end;

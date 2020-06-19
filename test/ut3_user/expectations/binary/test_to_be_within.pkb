@@ -192,5 +192,20 @@ create or replace package body test_to_be_within is
     ut.expect(l_actual_message).to_be_like(l_expected_message);
   end;      
   
+  procedure fail_msg_when_not_within is
+    l_actual_message   varchar2(32767);
+    l_expected_message varchar2(32767);
+  begin
+    --Arrange
+    --Act
+    ut3_develop.ut.expect(1).to_be_within(3).of_(12);
+    --Assert
+    l_expected_message := q'[Actual: 1 (number) was expected to be within 3 of 12 (number)]';
+    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
+    --Assert
+    ut.expect(l_actual_message).to_be_like(l_expected_message);
+ end;
+ 
+  
 end;
 /

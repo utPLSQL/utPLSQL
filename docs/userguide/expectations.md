@@ -334,7 +334,7 @@ The matrix below illustrates the data types supported by different matchers.
 |      **be_empty**       |  X   |         |  X   |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
 |     **have_count**      |      |         |      |      |        |           |                               |                                        |          |                                 |                                 |   X    |              X              |        |  X   |
 | **be_within().of_()**   |      |         |      |   x  |   x    |           |                               |                                        |          |                                 |                                 |        |                             |        |      |
-
+| **be_within_pct().of()**|      |         |      |      |   x    |           |                               |                                        |          |                                 |                                 |        |                             |        |      |              
 
 # Expecting exceptions
 
@@ -1119,14 +1119,6 @@ end;
 **Example 2.**
 ```sql
 begin
-  ut.expect(9).to_be_within_pct(10).of_(10);
-end;
-/
-```
-
-**Example 3.**
-```sql
-begin
   ut.expect(3).to_be_within(1).of_(5);
 end;
 /
@@ -1142,7 +1134,7 @@ Failures:
       at "UT3_DEVELOP.TEST_BETWNSTR.WIHTIN_TEST", line 5
 ```
 
-**Example 4.**
+**Example 3.**
 ```sql
 begin
   ut.expect(sysdate).to_be_within(interval '1' day).of_(sysdate+2);
@@ -1159,6 +1151,30 @@ Failures:
       at "UT3_DEVELOP.UT_BE_WITHIN.OF_", line 55 l_result.expectation.to_(l_result );    
       at "UT3_DEVELOP.TEST_BETWNSTR.WIHTIN_TEST", line 5
 ```
+
+
+## to_be_within_pct of
+
+This matcher is created to determine wheter expected value is approximately equal or "close" to another value within percentage value of expected.
+
+Matcher will allow to compare numbers.
+
+When comparing a number the tolerance / distance can be expressed as another postive number or a percentage.
+
+When comparing a two dates tolerance can be expressed in interval time either Day-To-Second or Year-To-Month.
+
+Matcher for numbers will calculate a absolute distance between expected and actual and check whether that value is within a tolerance.
+
+When comparing a date a distance is measured in interval, the check is done that actual value is within date range of expected taking into account interval plus and minus.
+
+**Example 1.**
+```sql
+begin
+  ut.expect(9).to_be_within_pct(10).of_(10);
+end;
+/
+```
+
 
 ## Comparing cursors, object types, nested tables and varrays 
 

@@ -12,20 +12,23 @@ create or replace package test_to_be_within is
   --%test(gives failure when number is not within distance)
   procedure failed_tests;
  
-  --%test(Check failure message for number not within)
+  --%test(check failure message for number not within)
   procedure fail_for_number_not_within;
   
-  --%test(Check failure message for inteval of 1 sec not within)
+  --%test(check failure message for inteval of 1 sec not within)
   procedure fail_for_ds_int_not_within;  
   
-  --%test(Check failure message for custom ds interval not within)
+  --%test(check failure message for custom ds interval not within)
   procedure fail_for_custom_ds_int;    
   
-  --%test(Check failure message for inteval of 1 month not within)
+  --%test(check failure message for inteval of 1 month not within)
   procedure fail_for_ym_int_not_within;  
   
-  --%test(Check failure message for custom ym interval not within)
+  --%test(check failure message for custom ym interval not within)
   procedure fail_for_custom_ym_int;   
-  
+   
+  --%test(check failure message for simple within)
+  procedure fail_msg_when_not_within;  
+    
 end;
 /

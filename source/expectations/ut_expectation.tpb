@@ -695,35 +695,35 @@ create or replace type body ut_expectation as
   end;
   
   member function to_be_within(a_dist natural) return ut_be_within is
-    l_result ut_matcher;
+    l_result ut_be_within;
   begin
     l_result := ut_be_within(a_dist);
     l_result.expectation := self;
-    return treat(l_result as ut_be_within);
+    return l_result;
   end;  
  
   member function to_be_within(a_dist dsinterval_unconstrained) return ut_be_within is
-    l_result ut_matcher;
+    l_result ut_be_within;
   begin
     l_result := ut_be_within(a_dist);
     l_result.expectation := self;
-    return treat(l_result as ut_be_within);
+    return l_result;
   end;  
   
   member function to_be_within(a_dist yminterval_unconstrained) return ut_be_within is
-    l_result ut_matcher;
+    l_result ut_be_within;
   begin
     l_result := ut_be_within(a_dist);
     l_result.expectation := self;
-    return treat(l_result as ut_be_within);
+    return l_result;
   end;  
   
  member function to_be_within_pct(a_dist natural) return ut_be_within_pct is
-   l_result ut_matcher;
+   l_result ut_be_within_pct;
  begin
    l_result := ut_be_within_pct(a_dist);
    l_result.expectation := self;
-   return treat(l_result as ut_be_within_pct);
+   return  l_result;
   end;  
   
   member function not_to_be_within(a_dist natural) return ut_be_within is
@@ -731,7 +731,7 @@ create or replace type body ut_expectation as
   begin
     l_result := ut_be_within(a_dist).negated();
     l_result.expectation := self;
-    return treat(l_result as ut_be_within);
+    return  treat(l_result as ut_be_within);
   end;
 
   member function not_to_be_within(a_dist dsinterval_unconstrained) return ut_be_within is
