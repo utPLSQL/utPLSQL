@@ -21,15 +21,5 @@ create or replace package expectations_helper is
     a_expected_data      varchar2
   ) return varchar2;
   
-  function be_within_expectation_block(
-    a_matcher_name       varchar2,
-    a_actual_data_type   varchar2,
-    a_actual_data        varchar2,
-    a_expected_data_type varchar2,
-    a_expected_data      varchar2,
-    a_distance           varchar2,
-    a_distance_data_type varchar2
-  ) return varchar2;  
-  
 end;
 /
