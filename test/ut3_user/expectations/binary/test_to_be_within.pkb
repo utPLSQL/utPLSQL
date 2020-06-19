@@ -7,16 +7,27 @@ create or replace package body test_to_be_within is
 
   function be_within_expectation_block(
     a_matcher_name       varchar2,
-    a_data_type          varchar2,
-    a_actual             varchar2,
-    a_expected           varchar2,
+    a_actual_data_type   varchar2,
+    a_actual_data        varchar2,
+    a_expected_data_type varchar2,
+    a_expected_data      varchar2,
     a_distance           varchar2,
-    a_distance_data_type varchar2
-  ) return varchar2 is
+    a_distance_data_type varchar2,
+    a_matcher_end        varchar2
+  ) return varchar2
+    is
+    l_execute varchar2(32000);
   begin
-    return ut3_tester_helper.expectations_helper.be_within_expectation_block(
-        a_matcher_name, a_data_type, a_actual, a_data_type, a_expected,a_distance,a_distance_data_type
-    );
+    l_execute := '
+      declare
+        l_actual   '||a_actual_data_type||' := '||a_actual_data||';
+        l_expected '||a_expected_data_type||' := '||a_expected_data||';
+        l_distance '||a_distance_data_type||' := '||a_distance||';
+      begin
+        --act - execute the expectation
+        ut3_develop.ut.expect( l_actual ).'||a_matcher_name||'(l_distance).of_(l_expected)'||a_matcher_end||';
+      end;';
+    return l_execute;
   end;
 
   procedure test_to_be_within_fail(
@@ -25,10 +36,14 @@ create or replace package body test_to_be_within is
     a_actual             varchar2,
     a_expected           varchar2,
     a_distance           varchar2,
-    a_distance_data_type varchar2
+    a_distance_data_type varchar2,
+    a_matcher_end        varchar2 := null
   ) is
   begin
-    execute immediate be_within_expectation_block(a_matcher_name,a_data_type, a_actual, a_expected,a_distance,a_distance_data_type);
+    execute immediate be_within_expectation_block(
+      a_matcher_name,a_data_type, a_actual, a_data_type, a_expected,
+      a_distance,a_distance_data_type, a_matcher_end
+      );
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).not_to_equal(0);
     cleanup_expectations;
   end;
@@ -39,10 +54,14 @@ create or replace package body test_to_be_within is
     a_actual             varchar2,
     a_expected           varchar2,
     a_distance           varchar2,
-    a_distance_data_type varchar2
+    a_distance_data_type varchar2,
+    a_matcher_end        varchar2 := null
   ) is
   begin
-    execute immediate be_within_expectation_block(a_matcher_name,a_data_type, a_actual, a_expected,a_distance,a_distance_data_type);
+    execute immediate be_within_expectation_block(
+      a_matcher_name,a_data_type, a_actual, a_data_type, a_expected,
+      a_distance,a_distance_data_type, a_matcher_end
+      );
     ut.expect(ut3_tester_helper.main_helper.get_failed_expectations_num).to_equal(0);
     cleanup_expectations;
   end;
@@ -55,6 +74,24 @@ create or replace package body test_to_be_within is
     test_to_be_within_success('to_be_within','date', 'sysdate', 'sysdate+1','''1 0:00:11.333''','interval day to second');
     test_to_be_within_success('to_be_within','date', 'sysdate', 'sysdate+200','''1-0''','interval year to month');
     test_to_be_within_success('to_be_within','date', 'sysdate+200', 'sysdate','''1-0''','interval year to month');
+    test_to_be_within_success('to_( ut3_develop.be_within','number', '2', '4','2','number', ')');
+    test_to_be_within_success('to_( ut3_develop.be_within','number', '4', '2','2','number', ')');
+    test_to_be_within_success('to_( ut3_develop.be_within','date', 'sysdate+1', 'sysdate','''1 0:00:11.333''','interval day to second', ')');
+    test_to_be_within_success('to_( ut3_develop.be_within','date', 'sysdate', 'sysdate+1','''1 0:00:11.333''','interval day to second', ')');
+    test_to_be_within_success('to_( ut3_develop.be_within','date', 'sysdate', 'sysdate+200','''1-0''','interval year to month', ')');
+    test_to_be_within_success('to_( ut3_develop.be_within','date', 'sysdate+200', 'sysdate','''1-0''','interval year to month', ')');
+    test_to_be_within_fail('not_to_be_within','number', '2', '4','2','number');
+    test_to_be_within_fail('not_to_be_within','number', '4', '2','2','number');
+    test_to_be_within_fail('not_to_be_within','date', 'sysdate+1', 'sysdate','''1 0:00:11.333''','interval day to second');
+    test_to_be_within_fail('not_to_be_within','date', 'sysdate', 'sysdate+1','''1 0:00:11.333''','interval day to second');
+    test_to_be_within_fail('not_to_be_within','date', 'sysdate', 'sysdate+200','''1-0''','interval year to month');
+    test_to_be_within_fail('not_to_be_within','date', 'sysdate+200', 'sysdate','''1-0''','interval year to month');
+    test_to_be_within_fail('not_to( ut3_develop.be_within','number', '2', '4','2','number',')');
+    test_to_be_within_fail('not_to( ut3_develop.be_within','number', '4', '2','2','number',')');
+    test_to_be_within_fail('not_to( ut3_develop.be_within','date', 'sysdate+1', 'sysdate','''1 0:00:11.333''','interval day to second',')');
+    test_to_be_within_fail('not_to( ut3_develop.be_within','date', 'sysdate', 'sysdate+1','''1 0:00:11.333''','interval day to second',')');
+    test_to_be_within_fail('not_to( ut3_develop.be_within','date', 'sysdate', 'sysdate+200','''1-0''','interval year to month',')');
+    test_to_be_within_fail('not_to( ut3_develop.be_within','date', 'sysdate+200', 'sysdate','''1-0''','interval year to month',')');
   end;
   
   procedure failed_tests is
@@ -65,7 +102,25 @@ create or replace package body test_to_be_within is
     test_to_be_within_fail('to_be_within','date', 'sysdate+1', 'sysdate','''0 0:00:11.333''','interval day to second');
     test_to_be_within_fail('to_be_within','date', 'sysdate', 'sysdate+750','''1-0''','interval year to month');
     test_to_be_within_fail('to_be_within','date', 'sysdate+750', 'sysdate','''1-0''','interval year to month');
-  end;  
+    test_to_be_within_fail('to_( ut3_develop.be_within','number', '2', '4','1','number',')');
+    test_to_be_within_fail('to_( ut3_develop.be_within','number', '4', '2','1','number',')');
+    test_to_be_within_fail('to_( ut3_develop.be_within','date', 'sysdate', 'sysdate+1','''0 0:00:11.333''','interval day to second',')');
+    test_to_be_within_fail('to_( ut3_develop.be_within','date', 'sysdate+1', 'sysdate','''0 0:00:11.333''','interval day to second',')');
+    test_to_be_within_fail('to_( ut3_develop.be_within','date', 'sysdate', 'sysdate+750','''1-0''','interval year to month',')');
+    test_to_be_within_fail('to_( ut3_develop.be_within','date', 'sysdate+750', 'sysdate','''1-0''','interval year to month',')');
+    test_to_be_within_success('not_to_be_within','number', '2', '4','1','number');
+    test_to_be_within_success('not_to_be_within','number', '4', '2','1','number');
+    test_to_be_within_success('not_to_be_within','date', 'sysdate', 'sysdate+1','''0 0:00:11.333''','interval day to second');
+    test_to_be_within_success('not_to_be_within','date', 'sysdate+1', 'sysdate','''0 0:00:11.333''','interval day to second');
+    test_to_be_within_success('not_to_be_within','date', 'sysdate', 'sysdate+750','''1-0''','interval year to month');
+    test_to_be_within_success('not_to_be_within','date', 'sysdate+750', 'sysdate','''1-0''','interval year to month');
+    test_to_be_within_success('not_to( ut3_develop.be_within','number', '2', '4','1','number',')');
+    test_to_be_within_success('not_to( ut3_develop.be_within','number', '4', '2','1','number',')');
+    test_to_be_within_success('not_to( ut3_develop.be_within','date', 'sysdate', 'sysdate+1','''0 0:00:11.333''','interval day to second',')');
+    test_to_be_within_success('not_to( ut3_develop.be_within','date', 'sysdate+1', 'sysdate','''0 0:00:11.333''','interval day to second',')');
+    test_to_be_within_success('not_to( ut3_develop.be_within','date', 'sysdate', 'sysdate+750','''1-0''','interval year to month',')');
+    test_to_be_within_success('not_to( ut3_develop.be_within','date', 'sysdate+750', 'sysdate','''1-0''','interval year to month',')');
+  end;
 
   procedure fail_for_number_not_within is
     l_actual_message   varchar2(32767);

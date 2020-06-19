@@ -16,28 +16,27 @@ create or replace type body ut_be_within as
   limitations under the License.
   */
 
- member procedure init(self in out nocopy ut_be_within, a_distance_from_expected ut_data_value, a_is_pct number , a_self_type varchar2 := null) is
+ member procedure init(self in out nocopy ut_be_within, a_distance_from_expected ut_data_value) is
   begin
     self.distance_from_expected  := a_distance_from_expected;
-    self.is_pct := nvl(a_is_pct,0);
-    self.self_type := nvl( a_self_type, $$plsql_unit );
+    self.self_type := $$plsql_unit;
   end;
 
-  constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected number, a_is_pct number) return self as result is
+  constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected number) return self as result is
   begin
-    init(ut_data_value_number(a_distance_from_expected),a_is_pct);
+    init(ut_data_value_number(a_distance_from_expected));
     return;
   end;
   
-  constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected dsinterval_unconstrained, a_is_pct number) return self as result is
+  constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected dsinterval_unconstrained) return self as result is
   begin
-    init(ut_data_value_dsinterval(a_distance_from_expected),a_is_pct); 
+    init(ut_data_value_dsinterval(a_distance_from_expected));
     return;
   end;
   
-  constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected yminterval_unconstrained, a_is_pct number) return self as result is
+  constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected yminterval_unconstrained) return self as result is
   begin
-    init(ut_data_value_yminterval(a_distance_from_expected),a_is_pct);
+    init(ut_data_value_yminterval(a_distance_from_expected));
     return;
   end;
   
@@ -54,20 +53,29 @@ create or replace type body ut_be_within as
     l_result.expected := ut_data_value_date(a_expected);
     l_result.expectation.to_(l_result );    
   end;
-  
+
+  member function of_(self in ut_be_within, a_expected number) return ut_be_within is
+    l_result ut_be_within := self;
+  begin
+    l_result.expected := ut_data_value_number(a_expected);
+    return l_result;
+  end;
+
+  member function of_(self in ut_be_within, a_expected date)  return ut_be_within is
+    l_result ut_be_within := self;
+  begin
+    l_result.expected := ut_data_value_date(a_expected);
+    return l_result;
+  end;
+
   overriding member function run_matcher(self in out nocopy ut_be_within, a_actual ut_data_value) return boolean is
     l_result boolean;
   begin
     if self.expected.data_type = a_actual.data_type then
-      if self.expected is of (ut_data_value_number) and self.is_pct = 0 then
+      if self.expected is of (ut_data_value_number) then
         l_result := abs((treat(self.expected as ut_data_value_number).data_value - treat(a_actual as ut_data_value_number).data_value)) <= 
                     treat(self.distance_from_expected as ut_data_value_number).data_value;
-      elsif self.expected is of (ut_data_value_number) and self.is_pct = 1 then
-        l_result := treat(self.distance_from_expected as ut_data_value_number).data_value >= 
-                    (
-                     ((treat(self.expected as ut_data_value_number).data_value - treat(a_actual as ut_data_value_number).data_value ) * 100 ) /
-                    (treat(self.expected as ut_data_value_number).data_value)) ;      
-      elsif self.expected is of (ut_data_value_date) and self.distance_from_expected is of ( ut_data_value_yminterval) then      
+      elsif self.expected is of (ut_data_value_date) and self.distance_from_expected is of ( ut_data_value_yminterval) then
         l_result := treat(a_actual as ut_data_value_date).data_value 
                     between 
                      (treat(self.expected as ut_data_value_date).data_value) - treat(self.distance_from_expected as ut_data_value_yminterval).data_value

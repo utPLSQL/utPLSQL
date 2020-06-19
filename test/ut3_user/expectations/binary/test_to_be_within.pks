@@ -1,6 +1,6 @@
 create or replace package test_to_be_within is
 
-  --%suite((not)to_be_less_or_equal)
+  --%suite((not)to_be_within)
   --%suitepath(utplsql.test_user.expectations.binary)
   
   --%aftereach
