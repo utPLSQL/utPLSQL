@@ -6,10 +6,10 @@ create or replace package test_to_be_within is
   --%aftereach
   procedure cleanup_expectations;
 
-  --%test(Gives failure when number is not within positive distance)
+  --%test(gives success for values within a distance)
   procedure success_tests;
 
-  --%test(Gives failure when number is not within negative distance)
+  --%test(gives failure when number is not within distance)
   procedure failed_tests;
  
   --%test(Check failure message for number not within)
@@ -25,7 +25,7 @@ create or replace package test_to_be_within is
   procedure fail_for_ym_int_not_within;  
   
   --%test(Check failure message for custom ym interval not within)
-  procedure fail_for_custom_ym_int;     
+  procedure fail_for_custom_ym_int;   
   
 end;
 /

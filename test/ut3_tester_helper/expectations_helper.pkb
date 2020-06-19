@@ -1,4 +1,4 @@
-create or replace package body ut3_tester_helper.expectations_helper is
+create or replace package body expectations_helper is
 
   function unary_expectation_block(
     a_matcher_name varchar2,

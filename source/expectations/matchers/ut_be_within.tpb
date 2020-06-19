@@ -45,14 +45,22 @@ create or replace type body ut_be_within as
     l_result ut_be_within := self;
   begin 
     l_result.expected := ut_data_value_number(a_expected);
-    l_result.expectation.to_(l_result );        
+    if l_result.is_negated_flag = 1 then
+      l_result.expectation.not_to(l_result );
+    else
+      l_result.expectation.to_(l_result );
+    end if;
   end;
   
   member procedure of_(self in ut_be_within, a_expected date) is
     l_result ut_be_within := self;
   begin 
     l_result.expected := ut_data_value_date(a_expected);
-    l_result.expectation.to_(l_result );    
+    if l_result.is_negated_flag = 1 then
+      l_result.expectation.not_to(l_result );
+    else
+      l_result.expectation.to_(l_result );
+    end if;
   end;
   
   overriding member function run_matcher(self in out nocopy ut_be_within, a_actual ut_data_value) return boolean is

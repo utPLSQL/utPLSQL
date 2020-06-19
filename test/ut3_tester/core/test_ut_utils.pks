@@ -130,28 +130,28 @@ create or replace package test_ut_utils is
 
   --%context(interval_converter_to_strin)
   
-  --%test(Test day to second interval passing a second)
+  --%test(returns text representation of interval day to second for 1 second interval)
   procedure int_conv_ds_sec; 
   
-  --%test(Test day to second interval passing a minute)    
+   --%test(returns text representation of interval day to second for 1 minute interval) 
   procedure int_conv_ds_minute; 
   
-  --%test(Test day to second interval passing a hour)    
+   --%test(returns text representation of interval day to second for 1 hour interval)
   procedure int_conv_ds_hour;  
   
-  --%test(Test day to second interval passing a day)  
+   --%test(returns text representation of interval day to second for 1 day interval)
   procedure int_conv_ds_day; 
     
-  --%test(Test day to second interval passing a custom date )  
+   --%test(returns text representation of interval day to second for combination interval) 
   procedure int_conv_ds_date; 
   
-  --%test(Test year to month interval passing a hour)    
+   --%test(returns text representation of interval year to month for 1 year interval)
   procedure int_conv_ym_year;  
   
-  --%test(Test year to month interval passing a day)  
+   --%test(returns text representation of interval year to month for 1 month interval)
   procedure int_conv_ym_month; 
     
-  --%test(Test year to month interval passing a custom date )  
+   --%test(returns text representation of interval year to month for custom interval)  
   procedure int_conv_ym_date;   
   
   

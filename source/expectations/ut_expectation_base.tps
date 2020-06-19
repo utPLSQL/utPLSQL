@@ -1,4 +1,4 @@
-create or replace type ut_expectation_base force authid current_user as object(
+create or replace type ut_expectation_base authid current_user as object(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2019 utPLSQL Project
