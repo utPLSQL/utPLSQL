@@ -143,20 +143,15 @@ create or replace package body test_to_be_within_pct is
   end;
 
   procedure fail_for_number_not_within is
-    l_actual_message   varchar2(32767);
-    l_expected_message varchar2(32767);
   begin
-    --Arrange
-    --Act
-    ut3_develop.ut.expect(4).to_be_within_pct(1).of_(7);
-    --Assert
-    l_expected_message := q'[Actual: 4 (number) was expected to be within 1 % of 7 (number)]';
-    l_actual_message := ut3_tester_helper.main_helper.get_failed_expectations(1);
-    --Assert
-    ut.expect(l_actual_message).to_be_like(l_expected_message);
+    test_to_be_within_fail(
+      'to_be_within_pct','number', '4', 'number','7',
+      '1','number',
+      q'[Actual: 4 (number) was expected to be within 1 % of 7 (number)]'
+      );
   end;
 
-  procedure fail_to_compile_for_types is
+  procedure fail_at_invalid_argument_types is
   begin
     test_to_be_within_error(
       'to_be_within_pct','date', 'sysdate', 'date','sysdate',

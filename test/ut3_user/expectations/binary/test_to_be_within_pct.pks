@@ -16,7 +16,7 @@ create or replace package test_to_be_within_pct is
   procedure fail_for_number_not_within;
 
   --%test(fails at compile or run time for unsupported data-types )
-  procedure fail_in_invalid_argument_types;
+  procedure fail_at_invalid_argument_types;
 
 end;
 /
