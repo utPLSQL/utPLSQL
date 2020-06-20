@@ -1,4 +1,4 @@
-create or replace type ut_be_within under ut_comparison_matcher(
+create or replace type ut_be_within under ut_be_within_pct(
   /*
   utPLSQL - Version 3
   Copyright 2016 - 2019 utPLSQL Project
@@ -17,19 +17,11 @@ create or replace type ut_be_within under ut_comparison_matcher(
   */
 
 
-  /**
-  * Holds information about mather options
-  */
-  distance_from_expected ut_data_value,
-  member procedure init(self in out nocopy ut_be_within, a_distance_from_expected ut_data_value),
   constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected number) return self as result,
   constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected dsinterval_unconstrained) return self as result,
   constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected yminterval_unconstrained) return self as result,
-  member procedure of_(self in ut_be_within, a_expected number),
   member procedure of_(self in ut_be_within, a_expected date),
-  member function of_(self in ut_be_within, a_expected number) return ut_be_within,
   member function of_(self in ut_be_within, a_expected date)  return ut_be_within,
-
   overriding member function run_matcher(self in out nocopy ut_be_within, a_actual ut_data_value) return boolean,
   overriding member function failure_message(a_actual ut_data_value) return varchar2,
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2

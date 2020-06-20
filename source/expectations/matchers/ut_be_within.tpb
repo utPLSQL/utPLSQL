@@ -16,39 +16,22 @@ create or replace type body ut_be_within as
   limitations under the License.
   */
 
- member procedure init(self in out nocopy ut_be_within, a_distance_from_expected ut_data_value) is
-  begin
-    self.distance_from_expected  := a_distance_from_expected;
-    self.self_type := $$plsql_unit;
-  end;
-
   constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected number) return self as result is
   begin
-    init(ut_data_value_number(a_distance_from_expected));
+    self.init(ut_data_value_number(a_distance_from_expected), $$plsql_unit);
     return;
   end;
   
   constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected dsinterval_unconstrained) return self as result is
   begin
-    init(ut_data_value_dsinterval(a_distance_from_expected));
+    self.init(ut_data_value_dsinterval(a_distance_from_expected), $$plsql_unit);
     return;
   end;
-  
+
   constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected yminterval_unconstrained) return self as result is
   begin
-    init(ut_data_value_yminterval(a_distance_from_expected));
+    self.init(ut_data_value_yminterval(a_distance_from_expected), $$plsql_unit);
     return;
-  end;
-  
-  member procedure of_(self in ut_be_within, a_expected number) is
-    l_result ut_be_within := self;
-  begin 
-    l_result.expected := ut_data_value_number(a_expected);
-    if l_result.is_negated_flag = 1 then
-      l_result.expectation.not_to(l_result );
-    else
-      l_result.expectation.to_(l_result );
-    end if;
   end;
   
   member procedure of_(self in ut_be_within, a_expected date) is
@@ -60,13 +43,6 @@ create or replace type body ut_be_within as
     else
       l_result.expectation.to_(l_result );
     end if;
-  end;
-
-  member function of_(self in ut_be_within, a_expected number) return ut_be_within is
-    l_result ut_be_within := self;
-  begin
-    l_result.expected := ut_data_value_number(a_expected);
-    return l_result;
   end;
 
   member function of_(self in ut_be_within, a_expected date)  return ut_be_within is
@@ -96,7 +72,7 @@ create or replace type body ut_be_within as
                                                   then treat(self.distance_from_expected as ut_data_value_dsinterval).data_value
                                                 end;
     begin
-      return case when  l_distance_ym is not null 
+      return case when l_distance_ym is not null
                then l_actual between l_expected - l_distance_ym and l_expected + l_distance_ym
                else l_actual between l_expected - l_distance_ds and l_expected + l_distance_ds
              end;
@@ -116,15 +92,14 @@ create or replace type body ut_be_within as
   end;
 
   overriding member function failure_message(a_actual ut_data_value) return varchar2 is
-  begin                
+  begin
     return (self as ut_matcher).failure_message(a_actual) || ' '||self.distance_from_expected.to_string ||' of '|| expected.to_string_report();
   end;
 
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2 is
-    l_result varchar2(32767);
-  begin 
+  begin
     return (self as ut_matcher).failure_message_when_negated(a_actual) || ' '||self.distance_from_expected.to_string ||' of '|| expected.to_string_report();
-  end;  
-  
+  end;
+
 end;
 /

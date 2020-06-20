@@ -56,6 +56,8 @@ drop synonym equal;
 
 drop synonym be_within;
 
+drop synonym be_within_pct;
+
 drop type ut_coveralls_reporter force;
 
 drop type ut_coverage_sonar_reporter force;

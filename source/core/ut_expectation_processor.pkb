@@ -183,6 +183,7 @@ create or replace package body ut_expectation_processor as
         );
     end;
   begin
+--     dbms_output.put_line(a_call_stack);
     l_call_stack  := cut_header_and_expectations( a_call_stack );
     l_call_stack  := cut_address_columns( l_call_stack );
     l_call_stack := cut_framework_stack( l_call_stack );
