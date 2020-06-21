@@ -1,6 +1,6 @@
 create or replace package body test_coverage_standalone is
 
-  function run_coverage_twice(a_overage_run_id raw, a_object_name varchar2) return clob is
+  function run_coverage_twice(a_overage_run_id raw, a_object_name varchar2, a_charset varchar2) return clob is
     l_expected        clob;
     l_block_cov       clob;
     l_file_path       varchar2(250);
@@ -13,7 +13,7 @@ create or replace package body test_coverage_standalone is
       l_block_cov := '<line number="4" hits="5" branch="false"/>';
     end if;
     l_expected :=
-      q'[<?xml version="1.0"?>
+      q'[<?xml version="1.0" encoding="]'||upper(a_charset)||q'["?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
 <coverage line-rate="0" branch-rate="0.0" lines-covered="2" lines-valid="2" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="%">
 <sources>
@@ -41,22 +41,24 @@ create or replace package body test_coverage_standalone is
     l_actual          ut3_develop.ut_varchar2_list;
     l_expected        clob;
     l_name            varchar2(250);
+    l_charset         varchar2(100) := 'ISO-8859-1';
   begin
     l_name := ut3_tester_helper.coverage_helper.covered_package_name;
 
     --Arrange and Act
-    l_expected := run_coverage_twice(l_coverage_run_id, l_name);
+    l_expected := run_coverage_twice(l_coverage_run_id, l_name, l_charset);
 
     select *
       bulk collect into l_actual
       from
         table (
-          ut3_develop.ut_coverage_cobertura_reporter( ).get_report(
-            ut3_develop.ut_coverage_options(
+          ut3_develop.ut_coverage_cobertura_reporter().get_report(
+            a_coverage_options => ut3_develop.ut_coverage_options(
               coverage_run_id => l_coverage_run_id,
               include_objects => ut3_develop.ut_varchar2_rows(l_name),
               schema_names => ut3_develop.ut_varchar2_rows('UT3_DEVELOP')
-              )
+              ),
+            a_client_character_set => l_charset
             )
           );
 
@@ -70,19 +72,21 @@ create or replace package body test_coverage_standalone is
     l_actual          ut3_develop.ut_varchar2_list;
     l_expected        clob;
     l_name            varchar2(250);
+    l_charset         varchar2(100) := 'ISO-8859-1';
   begin
     l_name := ut3_tester_helper.coverage_helper.covered_package_name;
 
     --Arrange and Act
-    l_expected := run_coverage_twice(l_coverage_run_id, l_name);
+    l_expected := run_coverage_twice(l_coverage_run_id, l_name, l_charset);
 
     l_coverage_cursor :=
       ut3_develop.ut_coverage_cobertura_reporter( ).get_report_cursor(
-        ut3_develop.ut_coverage_options(
+        a_coverage_options => ut3_develop.ut_coverage_options(
           coverage_run_id => l_coverage_run_id,
           include_objects => ut3_develop.ut_varchar2_rows(l_name),
           schema_names => ut3_develop.ut_varchar2_rows('UT3_DEVELOP')
-          )
+          ),
+        a_client_character_set => l_charset
         );
     fetch l_coverage_cursor bulk collect into l_actual;
     close l_coverage_cursor;

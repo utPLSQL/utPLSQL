@@ -86,12 +86,12 @@ create or replace type body ut_coverage_reporter_base is
       ut_coverage.coverage_pause();
   end;
 
-  final member function get_report( a_coverage_options ut_coverage_options ) return ut_varchar2_rows pipelined is
+  final member function get_report( a_coverage_options ut_coverage_options, a_client_character_set varchar2 := null ) return ut_varchar2_rows pipelined is
     l_reporter ut_coverage_reporter_base := self;
   begin
     ut_coverage_helper.cleanup_tmp_table();
     (l_reporter as ut_output_reporter_base).before_calling_run(null);
-    l_reporter.after_calling_run( ut_run( a_coverage_options => a_coverage_options ) );
+    l_reporter.after_calling_run( ut_run( a_coverage_options => a_coverage_options, a_client_character_set => a_client_character_set ) );
     l_reporter.on_finalize(null);
     for i in (select x.text from table(l_reporter.get_lines(1, 1)) x ) loop
       pipe row (i.text);
@@ -99,13 +99,13 @@ create or replace type body ut_coverage_reporter_base is
     return;
   end;
 
-  final member function get_report_cursor( a_coverage_options ut_coverage_options ) return sys_refcursor is
+  final member function get_report_cursor( a_coverage_options ut_coverage_options, a_client_character_set varchar2 := null ) return sys_refcursor is
     l_reporter ut_coverage_reporter_base := self;
     l_result sys_refcursor;
   begin
     ut_coverage_helper.cleanup_tmp_table();
     (l_reporter as ut_output_reporter_base).before_calling_run(null);
-    l_reporter.after_calling_run( ut_run( a_coverage_options => a_coverage_options ) );
+    l_reporter.after_calling_run( ut_run( a_coverage_options => a_coverage_options, a_client_character_set => a_client_character_set ) );
     l_reporter.on_finalize(null);
     open l_result for select x.text from table(l_reporter.get_lines(1, 1)) x;
     return l_result;
