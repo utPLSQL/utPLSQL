@@ -16,13 +16,6 @@ create or replace package body ut_coverage_helper_block is
   limitations under the License.
   */
 
-  type t_proftab_row is record (
-      line  binary_integer,
-      calls number(38,0)
-    );
-    
-  type t_proftab_rows is table of t_proftab_row;
-
   type t_block_row is record(
        line           binary_integer
       ,blocks         binary_integer
