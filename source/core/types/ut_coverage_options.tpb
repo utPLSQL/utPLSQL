@@ -18,7 +18,7 @@ create or replace type body ut_coverage_options as
 
   constructor function ut_coverage_options(
     self       in out nocopy ut_coverage_options,
-    coverage_run_id          raw              := null,
+    coverage_run_id          raw,
     schema_names             ut_varchar2_rows := null,
     exclude_objects          ut_varchar2_rows := null,
     include_objects          ut_varchar2_rows := null,
@@ -46,7 +46,7 @@ create or replace type body ut_coverage_options as
       return l_result;
     end;
   begin
-    self.coverage_run_id := coalesce(coverage_run_id, sys_guid());
+    self.coverage_run_id := coverage_run_id;
     self.file_mappings   := file_mappings;
     self.schema_names    := schema_names;
     self.exclude_objects := ut_object_names();

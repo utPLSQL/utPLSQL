@@ -23,7 +23,7 @@ create or replace type ut_coverage_options force as object (
   file_mappings    ut_file_mappings,
   constructor function ut_coverage_options(
     self       in out nocopy ut_coverage_options,
-    coverage_run_id          raw              := null,
+    coverage_run_id          raw,
     schema_names             ut_varchar2_rows := null,
     exclude_objects          ut_varchar2_rows := null,
     include_objects          ut_varchar2_rows := null,

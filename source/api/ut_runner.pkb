@@ -124,6 +124,7 @@ create or replace package body ut_runner is
       l_run := ut_run(
         a_run_paths => l_paths,
         a_coverage_options => ut_coverage_options(
+          coverage_run_id => sys_guid(),
           schema_names => l_coverage_schema_names,
           exclude_objects => ut_utils.convert_collection(a_exclude_objects),
           include_objects => ut_utils.convert_collection(a_include_objects),
