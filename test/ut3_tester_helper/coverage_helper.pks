@@ -4,10 +4,7 @@ create or replace package coverage_helper is
 
   function covered_package_name return varchar2;
 
-  function substitute_covered_package(
-    a_text varchar2,
-    a_substitution varchar2 := '{p}'
-  ) return varchar2;
+  function substitute_covered_package( a_text varchar2, a_substitution varchar2 := '{p}' ) return varchar2;
 
   procedure set_develop_mode;
 
@@ -19,9 +16,6 @@ create or replace package coverage_helper is
 
   procedure run_standalone_coverage(a_coverage_run_id raw, a_input integer);
   procedure run_coverage_job(a_coverage_run_id raw, a_input integer);
-
-  procedure create_coverage_pkg;
-  procedure drop_coverage_pkg;
 
   function run_tests_as_job( a_run_command varchar2 ) return clob;
   function run_code_as_job( a_plsql_block varchar2 ) return clob;

@@ -20,10 +20,7 @@ create or replace package body coverage_helper is
     $end
   end;
 
-  function substitute_covered_package(
-    a_text varchar2,
-    a_substitution varchar2
-  ) return varchar2 is
+  function substitute_covered_package( a_text varchar2, a_substitution varchar2 ) return varchar2 is
   begin
     return replace( replace( a_text, a_substitution, covered_package_name() ), upper(a_substitution), upper(covered_package_name()) );
   end;
@@ -126,39 +123,10 @@ create or replace package body coverage_helper is
     begin execute immediate q'[drop package ut3_develop.test_dummy_coverage_1]'; exception when others then null; end;
   end;
 
-  procedure create_coverage_pkg is
-    pragma autonomous_transaction;
-  begin
-    execute immediate 'alter session set plsql_optimize_level=0';
-    execute immediate q'[create or replace package coverage_pkg as
-      function run_some_branching_code(a_input integer) return integer;
-    end;]';
-    execute immediate q'[create or replace package body coverage_pkg as
-      function run_some_branching_code(a_input integer) return integer is
-        l_result integer;
-      begin
-        if a_input = 1 then return -1; elsif a_input = 2 then return 0;
-        else
-          return a_input;
-        end if;
-      end;
-    end;]';
-    execute immediate 'grant debug on coverage_pkg to ut3$user#';
-  end;
-
-  procedure drop_coverage_pkg is
-    pragma autonomous_transaction;
-  begin
-    execute immediate q'[drop package coverage_pkg]';
-  end;
-
-
-
   procedure run_standalone_coverage(a_coverage_run_id raw, a_input integer) is
-    x integer;
   begin
     ut3_develop.ut_runner.coverage_start(a_coverage_run_id);
-    execute immediate 'begin :x := coverage_pkg.run_some_branching_code(:a_input); end;' using out x, in a_input;
+    execute immediate 'begin ut3_develop.'||covered_package_name||'.do_stuff(:a_input); end;' using in a_input;
     ut3_develop.ut_runner.coverage_stop();
   end;
 
