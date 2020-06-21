@@ -159,7 +159,7 @@ create or replace package body ut_expectation_processor as
     -- when 11g and 12c reports only package name
     function cut_header_and_expectations( a_stack varchar2 ) return varchar2 is
     begin
-      return regexp_substr( a_stack, '(.*\.(UT_EXPECTATION[A-Z0-9#_$]*|UT|UTASSERT2?)(\.[A-Z0-9#_$]+)?\s+)+((.|\s)*)', 1, 1, 'm', 4);
+      return regexp_substr( a_stack, '(.*\.(UT_EQUAL|UT_BE_WITHIN[A-Z0-9#_$]*|UT_EXPECTATION[A-Z0-9#_$]*|UT|UTASSERT2?)(\.[A-Z0-9#_$]+)?\s+)+((.|\s)*)', 1, 1, 'm', 4);
     end;
     function cut_address_columns( a_stack varchar2 ) return varchar2 is
     begin
@@ -183,7 +183,6 @@ create or replace package body ut_expectation_processor as
         );
     end;
   begin
---     dbms_output.put_line(a_call_stack);
     l_call_stack  := cut_header_and_expectations( a_call_stack );
     l_call_stack  := cut_address_columns( l_call_stack );
     l_call_stack := cut_framework_stack( l_call_stack );
