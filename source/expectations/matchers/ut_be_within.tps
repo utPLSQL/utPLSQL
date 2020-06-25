@@ -22,6 +22,12 @@ create or replace type ut_be_within under ut_be_within_pct(
   constructor function ut_be_within(self in out nocopy ut_be_within, a_distance_from_expected yminterval_unconstrained) return self as result,
   member procedure of_(self in ut_be_within, a_expected date),
   member function of_(self in ut_be_within, a_expected date)  return ut_be_within,
+  member procedure of_(self in ut_be_within, a_expected timestamp),
+  member function of_(self in ut_be_within, a_expected timestamp)  return ut_be_within,  
+  member procedure of_(self in ut_be_within, a_expected timestamp_tz_unconstrained ),
+  member function of_(self in ut_be_within, a_expected timestamp_tz_unconstrained)  return ut_be_within,   
+  member procedure of_(self in ut_be_within, a_expected timestamp_ltz_unconstrained),
+  member function of_(self in ut_be_within, a_expected timestamp_ltz_unconstrained) return ut_be_within,      
   overriding member function run_matcher(self in out nocopy ut_be_within, a_actual ut_data_value) return boolean,
   overriding member function failure_message(a_actual ut_data_value) return varchar2,
   overriding member function failure_message_when_negated(a_actual ut_data_value) return varchar2
