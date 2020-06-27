@@ -148,6 +148,8 @@ drop type ut_be_within_pct force;
 
 drop type ut_be_within force;
 
+drop package ut_be_within_helper;
+
 drop type ut_comparison_matcher force;
 
 drop type ut_matcher force;

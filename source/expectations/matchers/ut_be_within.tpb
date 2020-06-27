@@ -107,64 +107,13 @@ create or replace type body ut_be_within as
   end;    
   
   overriding member function run_matcher(self in out nocopy ut_be_within, a_actual ut_data_value) return boolean is
-    l_result boolean;
-    function l_result_from_number return boolean is
-      l_expected number := treat(self.expected as ut_data_value_number).data_value;
-      l_actual   number := treat(a_actual as ut_data_value_number).data_value;
-      l_distance number := treat(self.distance_from_expected as ut_data_value_number).data_value;
-    begin
-      return abs(l_expected - l_actual) <= l_distance;
-    end;
-  
-    function l_result_from_date(a_distance ut_data_value) return boolean is
-      l_expected date        := treat(self.expected as ut_data_value_date).data_value;
-      l_actual   date        := treat(a_actual as ut_data_value_date).data_value;
-      l_distance_ym yminterval_unconstrained := case when self.distance_from_expected is of ( ut_data_value_yminterval) 
-                                                  then treat(self.distance_from_expected as ut_data_value_yminterval).data_value
-                                                end;
-      l_distance_ds dsinterval_unconstrained := case when self.distance_from_expected is of ( ut_data_value_dsinterval) 
-                                                  then treat(self.distance_from_expected as ut_data_value_dsinterval).data_value
-                                                end;
-    begin
-      return case when l_distance_ym is not null
-               then l_actual between l_expected - l_distance_ym and l_expected + l_distance_ym
-               else l_actual between l_expected - l_distance_ds and l_expected + l_distance_ds
-             end;
-    end; 
-  
-    function l_result_from_timestamp (a_distance ut_data_value) return boolean is
-      l_expected timestamp := case when self.expected is of ( ut_data_value_timestamp) then
-                                 treat(self.expected as ut_data_value_timestamp).data_value
-                              when self.expected is of ( ut_data_value_timestamp_tz) then
-                                 treat(self.expected as ut_data_value_timestamp_tz).data_value
-                              when self.expected is of ( ut_data_value_timestamp_ltz) then
-                                 treat(self.expected as ut_data_value_timestamp_ltz).data_value
-                              end;
-      l_actual   timestamp with time zone        := treat(a_actual as ut_data_value_date).data_value;
-      l_distance_ym yminterval_unconstrained := case when self.distance_from_expected is of ( ut_data_value_yminterval) 
-                                                  then treat(self.distance_from_expected as ut_data_value_yminterval).data_value
-                                                end;
-      l_distance_ds dsinterval_unconstrained := case when self.distance_from_expected is of ( ut_data_value_dsinterval) 
-                                                  then treat(self.distance_from_expected as ut_data_value_dsinterval).data_value
-                                                end;
-    begin
-      return case when l_distance_ym is not null
-               then l_actual between l_expected - l_distance_ym and l_expected + l_distance_ym
-               else l_actual between l_expected - l_distance_ds and l_expected + l_distance_ds
-             end;
-    end; 
-   
- 
-  begin
+    l_result     boolean;
+   begin
     if self.expected.data_type = a_actual.data_type then
-      if self.expected is of (ut_data_value_number) then
-        l_result := l_result_from_number;
-      elsif self.expected is of (ut_data_value_date)then
-        l_result := l_result_from_date(self.distance_from_expected);
-      elsif self.expected is of (ut_data_value_timestamp_tz)then
-        l_result := l_result_from_date(self.distance_from_expected);
-      elsif self.expected is of (ut_data_value_timestamp_ltz)then
-        l_result := l_result_from_date(self.distance_from_expected);        
+      if self.expected is of (ut_data_value_date, ut_data_value_number, ut_data_value_timestamp, ut_data_value_timestamp_tz, ut_data_value_timestamp_ltz) then
+        l_result := ut_be_within_helper.values_within_abs_distance(self.expected, a_actual, self.distance_from_expected) ;
+      else
+        l_result := (self as ut_matcher).run_matcher(a_actual);
       end if;
     else
       l_result := (self as ut_matcher).run_matcher(a_actual);

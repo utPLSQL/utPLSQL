@@ -75,11 +75,19 @@ create or replace package body test_to_be_within is
     test_to_be_within_success('to_be_within','date', 'sysdate', 'sysdate+200','''1-0''','interval year to month');
     test_to_be_within_success('to_be_within','date', 'sysdate+200', 'sysdate','''1-0''','interval year to month');
     
-    test_to_be_within_success('to_be_within','timestamp_tz_unconstrained', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']', 'sysdate','''1 0:00:11.333''','interval day to second');
-    test_to_be_within_success('to_be_within','timestamp_tz_unconstrained', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']', 'sysdate+1','''1 0:00:11.333''','interval day to second');
-    test_to_be_within_success('to_be_within','timestamp_ltz_unconstrained', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']', 'sysdate+200','''1-0''','interval year to month');
-    test_to_be_within_success('to_be_within','timestamp_ltz_unconstrained', 'sysdate+200', 'sysdate','''1-0''','interval year to month');    
-    
+    test_to_be_within_success('to_be_within','timestamp', q'[TIMESTAMP '2017-08-09 07:00:00']', q'[TIMESTAMP '2017-08-08 06:59:48.667']','''1 0:00:11.333''','interval day to second');
+    test_to_be_within_success('to_be_within','timestamp', q'[TIMESTAMP '2017-08-08 06:59:48.667']', q'[TIMESTAMP '2017-08-09 07:00:00']','''1 0:00:11.333''','interval day to second');
+    test_to_be_within_success('to_be_within','timestamp', q'[TIMESTAMP '2017-08-09 07:00:00']', q'[TIMESTAMP '2018-08-09 07:00:00']','''1-0''','interval year to month');
+    test_to_be_within_success('to_be_within','timestamp', q'[TIMESTAMP '2018-08-09 07:00:00']', q'[TIMESTAMP '2017-08-09 07:00:00']','''1-0''','interval year to month');
+    test_to_be_within_success('to_be_within','timestamp_tz_unconstrained', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']', q'[TIMESTAMP '2017-08-08 05:59:48.668 -8:00']','''1 0:00:11.333''','interval day to second');
+    test_to_be_within_success('to_be_within','timestamp_tz_unconstrained', q'[TIMESTAMP '2017-08-08 05:59:48.668 -8:00']', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']','''1 0:00:11.333''','interval day to second');
+    test_to_be_within_success('to_be_within','timestamp_tz_unconstrained', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']', q'[TIMESTAMP '2018-08-09 07:00:00 -7:00']','''1-0''','interval year to month');
+    test_to_be_within_success('to_be_within','timestamp_tz_unconstrained', q'[TIMESTAMP '2018-08-09 07:00:00 -7:00']', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']','''1-0''','interval year to month');
+    test_to_be_within_success('to_be_within','timestamp_ltz_unconstrained', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']', q'[TIMESTAMP '2017-08-08 05:59:48.668 -8:00']','''1 0:00:11.333''','interval day to second');
+    test_to_be_within_success('to_be_within','timestamp_ltz_unconstrained', q'[TIMESTAMP '2017-08-08 05:59:48.668 -8:00']', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']','''1 0:00:11.333''','interval day to second');
+    test_to_be_within_success('to_be_within','timestamp_ltz_unconstrained', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']', q'[TIMESTAMP '2018-08-09 07:00:00 -7:00']','''1-0''','interval year to month');
+    test_to_be_within_success('to_be_within','timestamp_ltz_unconstrained', q'[TIMESTAMP '2018-08-09 07:00:00 -7:00']', q'[TIMESTAMP '2017-08-09 07:00:00 -7:00']','''1-0''','interval year to month');
+
     test_to_be_within_success('to_( ut3_develop.be_within','number', '2', '4','2','number', ')');
     test_to_be_within_success('to_( ut3_develop.be_within','number', '4', '2','2','number', ')');
     test_to_be_within_success('to_( ut3_develop.be_within','date', 'sysdate+1', 'sysdate','''1 0:00:11.333''','interval day to second', ')');
