@@ -827,6 +827,9 @@ create or replace package body ut_utils is
   begin
     if a_clob is not null and a_clob != empty_clob() then
       l_result := replace( a_clob, gc_cdata_end_tag, gc_cdata_end_tag_wrap );
+      l_result := to_clob(gc_cdata_start_tag)
+        || replace( a_clob, gc_cdata_end_tag, gc_cdata_end_tag_wrap )
+        || to_clob(gc_cdata_end_tag);
     else
       l_result := a_clob;
     end if;
