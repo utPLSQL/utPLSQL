@@ -19,22 +19,26 @@ create or replace package body ut_be_within_helper as
   function values_within_abs_distance(
     a_value_1 ut_data_value, a_value_2 ut_data_value, a_distance ut_data_value
   ) return boolean is
-    l_result boolean;
+    l_result integer;
   begin
     execute immediate q'[
             begin
               :result :=
-                treat(:a_value_1 as ut3_develop.]'||a_value_1.self_type||q'[).data_value
-                  between
-                    treat(:a_value_2 as ut3_develop.]'||a_value_2.self_type||q'[).data_value
-                    - treat(:a_distance as ut3_develop.]'||a_distance.self_type||q'[).data_value
-                  and
-                    treat(:a_value_2 as ut3_develop.]'||a_value_2.self_type||q'[).data_value
-                    + treat(:a_distance as ut3_develop.]'||a_distance.self_type||q'[).data_value;
+                case
+                  when
+                    treat(:a_value_1 as ut3_develop.]'||a_value_1.self_type||q'[).data_value
+                      between
+                        treat(:a_value_2 as ut3_develop.]'||a_value_2.self_type||q'[).data_value
+                        - treat(:a_distance as ut3_develop.]'||a_distance.self_type||q'[).data_value
+                      and
+                        treat(:a_value_2 as ut3_develop.]'||a_value_2.self_type||q'[).data_value
+                        + treat(:a_distance as ut3_develop.]'||a_distance.self_type||q'[).data_value
+                  then 1
+                end;
             end;
             ]'
       using out l_result, a_value_1, a_value_2, a_distance;
-    return l_result;
+    return l_result > 0;
   end;
 
 end;
