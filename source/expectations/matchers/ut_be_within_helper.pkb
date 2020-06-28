@@ -34,6 +34,7 @@ create or replace package body ut_be_within_helper as
                         treat(:a_value_2 as ut3_develop.]'||a_value_2.self_type||q'[).data_value
                         + treat(:a_distance as ut3_develop.]'||a_distance.self_type||q'[).data_value
                   then 1
+                  else 0
                 end;
             end;
             ]'
