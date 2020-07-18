@@ -15,6 +15,7 @@ create or replace package body test_junit_reporter as
       begin
         ut3_develop.ut.expect(1).to_equal(1);
         ut3_develop.ut.expect(1).to_equal(2);
+        dbms_output.put_line('<xml_tag><![CDATA[ and some raw CDATA <with_xml_tag/> ]]></xml_tag>');
       end;
 
     end;]';
@@ -87,6 +88,8 @@ create or replace package body test_junit_reporter as
     --Assert
     ut.expect(l_actual).not_to_be_like('%<tag>%');
     ut.expect(l_actual).to_be_like('%&lt;tag&gt;%');
+    ut.expect(l_actual).to_be_like(q'/%<![CDATA[<xml_tag><![CDATA[ and some raw CDATA <with_xml_tag/> ]]]]><![CDATA[></xml_tag>
+]]>%/');
   end;
 
   procedure reports_only_failed_or_errored is
