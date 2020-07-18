@@ -41,7 +41,7 @@ create or replace package body ut_coverage_helper_block is
     $end
   end;
 
-  function block_results(a_object_owner varchar2, a_object_name varchar2, a_coverage_run_id raw) return t_block_rows is
+  function block_results(a_object ut_coverage_helper.t_tmp_table_object, a_coverage_run_id raw) return t_block_rows is
     l_coverage_rows t_block_rows;
     l_ut_owner       varchar2(250) := ut_utils.ut_owner;
   begin
@@ -61,23 +61,26 @@ create or replace package body ut_coverage_helper_block is
            where r.coverage_run_id = :a_coverage_run_id
              and ccu.owner = :a_object_owner
              and ccu.name = :a_object_name
+             and ccu.type = :a_object_type
            group by ccb.line, ccb.block
          )
      group by line
      order by line]'
-    bulk collect into l_coverage_rows using a_coverage_run_id, a_object_owner, a_object_name;
+    bulk collect into l_coverage_rows
+    using
+      a_coverage_run_id, a_object.owner,
+      a_object.name, a_object.type;
+
     return l_coverage_rows;
   end;
 
-  function get_raw_coverage_data(
-    a_object_owner varchar2, a_object_name varchar2, a_coverage_run_id raw
-  ) return ut_coverage_helper.t_unit_line_calls is
+  function get_raw_coverage_data(a_object ut_coverage_helper.t_tmp_table_object, a_coverage_run_id raw) return ut_coverage_helper.t_unit_line_calls is
     l_tmp_data t_block_rows;
     l_results  ut_coverage_helper.t_unit_line_calls;
   
   begin
     $if dbms_db_version.version = 12 and dbms_db_version.release >= 2 or dbms_db_version.version > 12 $then
-      l_tmp_data := block_results(a_object_owner, a_object_name, a_coverage_run_id);
+      l_tmp_data := block_results(a_object, a_coverage_run_id);
 
       for i in 1 .. l_tmp_data.count loop
         l_results(l_tmp_data(i).line).blocks := l_tmp_data(i).blocks;

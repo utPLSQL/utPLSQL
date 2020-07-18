@@ -55,7 +55,7 @@ create or replace package body ut_coverage_helper_profiler is
    dbms_profiler.stop_profiler();
   end;
 
-  function proftab_results(a_object_owner varchar2, a_object_name varchar2, a_coverage_run_id raw) return t_proftab_rows is
+  function proftab_results(a_object ut_coverage_helper.t_tmp_table_object, a_coverage_run_id raw) return t_proftab_rows is
     l_coverage_rows t_proftab_rows;
   begin
     select
@@ -69,21 +69,19 @@ create or replace package body ut_coverage_helper_profiler is
       join ut_coverage_runs r
         on r.line_coverage_id = u.runid
      where r.coverage_run_id = a_coverage_run_id
-       and u.unit_owner = a_object_owner
-       and u.unit_name = a_object_name
-       and u.unit_type in ('PACKAGE BODY', 'TYPE BODY', 'PROCEDURE', 'FUNCTION', 'TRIGGER')
+       and u.unit_owner = a_object.owner
+       and u.unit_name = a_object.name
+       and u.unit_type = a_object.type
      group by d.line#;
 
     return l_coverage_rows;
   end;
   
-  function get_raw_coverage_data(
-    a_object_owner varchar2, a_object_name varchar2, a_coverage_run_id raw
-  ) return ut_coverage_helper.t_unit_line_calls is
+  function get_raw_coverage_data(a_object ut_coverage_helper.t_tmp_table_object, a_coverage_run_id raw) return ut_coverage_helper.t_unit_line_calls is
     l_tmp_data t_proftab_rows;
     l_results  ut_coverage_helper.t_unit_line_calls;  
   begin
-    l_tmp_data := proftab_results(a_object_owner, a_object_name, a_coverage_run_id);
+    l_tmp_data := proftab_results(a_object, a_coverage_run_id);
        
     for i in 1 .. l_tmp_data.count loop
       l_results(l_tmp_data(i).line).calls := l_tmp_data(i).calls;

@@ -92,6 +92,27 @@ create or replace package body test_proftab_coverage is
     ut.expect(l_actual).to_be_like(l_expected);
   end;
 
+  procedure dup_object_name_coverage is
+    l_actual clob;
+    l_expected clob;
+  begin
+    l_expected := '%<file path="ut3_develop.duplicate_name"><lineToCover lineNumber="6" covered="false"/>';
+    --Act
+    l_actual :=
+      ut3_tester_helper.coverage_helper.run_tests_as_job(
+      q'[
+            ut3_develop.ut.run(
+              a_path => 'ut3_develop.test_duplicate_name',
+              a_reporter=> ut3_develop.ut_coverage_sonar_reporter( ),
+              a_include_objects => ut3_develop.ut_varchar2_list( 'ut3_develop.duplicate_name' )
+            )
+          ]'
+      );
+    --Assert
+    --TODO - need to fix coverage reporting so that coverage is grouped by object type not only object name
+    ut.expect(l_actual).to_be_like(l_expected);
+  end;
+
   procedure coverage_tmp_data_refresh is
     l_actual    clob;
     l_test_code varchar2(32767);

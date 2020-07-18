@@ -32,6 +32,7 @@ create or replace package ut_coverage_helper authid definer is
     full_name      ut_coverage_sources_tmp.full_name%type,
     owner          ut_coverage_sources_tmp.owner%type,
     name           ut_coverage_sources_tmp.name%type,
+    type           ut_coverage_sources_tmp.type%type,
     line           ut_coverage_sources_tmp.line%type,
     to_be_skipped  ut_coverage_sources_tmp.to_be_skipped%type,
     text           ut_coverage_sources_tmp.text%type
@@ -42,6 +43,7 @@ create or replace package ut_coverage_helper authid definer is
   type t_tmp_table_object is record(
     owner              ut_coverage_sources_tmp.owner%type,
     name               ut_coverage_sources_tmp.name%type,
+    type               ut_coverage_sources_tmp.type%type,
     full_name          ut_coverage_sources_tmp.full_name%type,
     lines_count        integer,
     to_be_skipped_list ut_varchar2_list

@@ -246,5 +246,58 @@ create or replace package body coverage_helper is
     return run_code_as_job( l_plsql_block );
   end;
 
+  procedure create_dup_object_name is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'create table ut3_develop.test_table(id integer)';
+    execute immediate q'[
+    create or replace trigger ut3_develop.duplicate_name
+      before insert on ut3_develop.test_table
+    begin
+
+      dbms_output.put_line('A');
+    end;
+    ]';
+    execute immediate q'[
+    create or replace package ut3_develop.duplicate_name is
+      procedure some_procedure;
+    end;
+    ]';
+    execute immediate q'[
+    create or replace package body ut3_develop.duplicate_name is
+      procedure some_procedure is
+      begin
+        insert into test_table(id) values(1);
+      end;
+    end;
+    ]';
+    execute immediate q'[
+    create or replace package ut3_develop.test_duplicate_name is
+      --%suite
+      
+      --%test
+      procedure run_duplicate_name;
+    end;
+    ]';
+    execute immediate q'[
+    create or replace package body ut3_develop.test_duplicate_name is
+      procedure run_duplicate_name is
+        l_actual sys_refcursor;
+      begin
+        ut3_develop.duplicate_name.some_procedure;
+        ut.expect(l_actual).to_have_count(1);
+      end;
+    end;
+    ]';
+  end;
+
+  procedure drop_dup_object_name is
+    pragma autonomous_transaction;
+  begin
+    execute immediate 'drop table ut3_develop.test_table';
+    execute immediate 'drop package ut3_develop.duplicate_name';
+    execute immediate 'drop package ut3_develop.test_duplicate_name';
+  end;
+
 end;
 /

@@ -15,10 +15,11 @@ create global temporary table ut_coverage_sources_tmp(
   full_name varchar2(4000),
   owner varchar2(250),
   name  varchar2(250),
+  type  varchar2(250),
   line  number(38,0),
   to_be_skipped varchar2(1),
   text varchar2(4000),
-  constraint ut_coverage_sources_tmp_pk primary key (owner,name,line)
+  constraint ut_coverage_sources_tmp_pk primary key (owner,name,type,line)
 ) on commit preserve rows;
 
 --is this needed?

@@ -34,11 +34,7 @@ create or replace package body ut_coverage_profiler is
       exit when l_source_objects_crsr%notfound;
 
       --get coverage data
-      l_line_calls := ut_coverage_helper_profiler.get_raw_coverage_data(
-        l_source_object.owner,
-        l_source_object.name,
-        a_coverage_options.coverage_run_id
-        );
+      l_line_calls := ut_coverage_helper_profiler.get_raw_coverage_data( l_source_object, a_coverage_options.coverage_run_id);
 
       --if there is coverage, we need to filter out the garbage (badly indicated data from dbms_profiler)
       if l_line_calls.count > 0 then

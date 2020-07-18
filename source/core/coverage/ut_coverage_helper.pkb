@@ -36,8 +36,8 @@ create or replace package body ut_coverage_helper is
   begin
     forall i in 1 .. a_data.count
       insert into ut_coverage_sources_tmp
-             (full_name,owner,name,line,text, to_be_skipped)
-       values(a_data(i).full_name,a_data(i).owner,a_data(i).name,a_data(i).line,a_data(i).text,a_data(i).to_be_skipped);
+             (full_name,owner,name,type,line,text,to_be_skipped)
+       values(a_data(i).full_name,a_data(i).owner,a_data(i).name,a_data(i).type,a_data(i).line,a_data(i).text,a_data(i).to_be_skipped);
   end;
 
   procedure cleanup_tmp_table is
@@ -60,12 +60,12 @@ create or replace package body ut_coverage_helper is
     l_result t_tmp_table_objects_crsr;
   begin
     open l_result for
-      select o.owner, o.name, o.full_name, max(o.line) as lines_count,
+      select o.owner, o.name, o.type, o.full_name, max(o.line) as lines_count,
              cast(
                collect(decode(to_be_skipped, 'Y', to_char(line))) as ut_varchar2_list
              ) as to_be_skipped_list
         from ut_coverage_sources_tmp o
-       group by o.owner, o.name, o.full_name;
+       group by o.owner, o.name, o.type, o.full_name;
 
     return l_result;
   end;
