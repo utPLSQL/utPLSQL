@@ -1,34 +1,26 @@
 create or replace package coverage_helper is
 
-  type prof_runs_tab is table of ut3_develop.plsql_profiler_runs%rowtype;
-  
-  function get_mock_proftab_run_id return integer;
+  function block_coverage_available return boolean;
 
-  procedure setup_mock_coverage_id;
+  function covered_package_name return varchar2;
 
-  procedure mock_coverage_data(a_user in varchar2);
-
-  procedure cleanup_dummy_coverage;
-
-  procedure setup_dummy_coverage;
-
-  --Profiler coverage
-  procedure create_dummy_coverage_package;
-  procedure create_dummy_coverage_test;
-  procedure grant_exec_on_cov;
-  procedure mock_profiler_coverage_data(a_run_id integer,a_user in varchar2);
-  procedure drop_dummy_coverage_pkg;  
-
-  procedure create_dummy_coverage_test_1;
-  procedure drop_dummy_coverage_test_1; 
-
-  --Block coverage
-  procedure create_dummy_12_2_cov_pck;
-  procedure create_dummy_12_2_cov_test;
-  procedure mock_block_coverage_data(a_run_id integer,a_user in varchar2);
-  procedure grant_exec_on_12_2_cov;
+  function substitute_covered_package( a_text varchar2, a_substitution varchar2 := '{p}' ) return varchar2;
 
   procedure set_develop_mode;
-  
+
+  procedure create_dummy_coverage;
+  procedure drop_dummy_coverage;
+
+  procedure create_dummy_coverage_1;
+  procedure drop_dummy_coverage_1;
+
+  procedure run_standalone_coverage(a_coverage_run_id raw, a_input integer);
+  procedure run_coverage_job(a_coverage_run_id raw, a_input integer);
+
+  function run_tests_as_job( a_run_command varchar2 ) return clob;
+  function run_code_as_job( a_plsql_block varchar2 ) return clob;
+  procedure create_test_results_table;
+  procedure drop_test_results_table;
+
 end;
 /

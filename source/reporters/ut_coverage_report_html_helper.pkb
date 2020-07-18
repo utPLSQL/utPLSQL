@@ -287,7 +287,7 @@ create or replace package body ut_coverage_report_html_helper is
     l_coverage_pct  number(5, 2);
     l_time_str      varchar2(50);
     l_using         varchar2(1000);
-    l_unit          ut_coverage.t_full_name;
+    l_unit          ut_coverage.t_object_name;
     l_charset       varchar2(1000);
   begin
     l_charset := coalesce(upper(a_charset),'UTF-8');

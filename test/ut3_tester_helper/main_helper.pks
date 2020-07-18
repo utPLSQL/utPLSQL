@@ -1,7 +1,7 @@
 create or replace package main_helper is
 
-    gc_success number := ut3_develop.ut_utils.gc_success;
-    gc_failure number := ut3_develop.ut_utils.gc_failure;
+  gc_success number := ut3_develop.ut_utils.gc_success;
+  gc_failure number := ut3_develop.ut_utils.gc_failure;
 
   procedure execute_autonomous(a_sql varchar2);
 
@@ -34,8 +34,6 @@ create or replace package main_helper is
   procedure drop_parse_proc_as_ut3$user#;
   
   procedure parse_dummy_test_as_ut3$user#;
-  
-  function get_job_count(a_job_name varchar2) return number;
   
   procedure append_to_list(a_list in out nocopy ut3_develop.ut_varchar2_list, a_item varchar2);
 

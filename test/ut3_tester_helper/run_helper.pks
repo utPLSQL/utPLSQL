@@ -3,7 +3,6 @@ create or replace package run_helper is
   g_run_id integer;
   
   type t_out_buff_tab is table of ut3_develop.ut_output_buffer_tmp%rowtype;
-  type prof_runs_tab is table of ut3_develop.plsql_profiler_runs%rowtype;
 
   procedure setup_cache_objects;
   procedure setup_cache_objectstag;

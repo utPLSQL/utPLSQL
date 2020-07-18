@@ -61,7 +61,7 @@ create or replace type body ut_coverage_sonar_reporter is
       a_run ut_run
     ) return ut_varchar2_rows is
       l_result               ut_varchar2_rows := ut_varchar2_rows();
-      l_unit                 ut_coverage.t_full_name;
+      l_unit                 ut_coverage.t_object_name;
       c_coverage_header constant varchar2(30) := '<coverage version="1">';
       c_file_footer     constant varchar2(30) := '</file>';
       c_coverage_footer constant varchar2(30) := '</coverage>';

@@ -229,6 +229,19 @@ create or replace package body ut_utils is
     return l_result;
   end;
 
+  function string_table_to_table(a_list ut_varchar2_list, a_delimiter varchar2:= chr(10), a_skip_leading_delimiter varchar2 := 'N') return ut_varchar2_list is
+    l_result ut_varchar2_list;
+  begin
+    if a_delimiter is null then
+      l_result := a_list;
+    elsif a_list is not empty then
+      for i in 1 .. a_list.count loop
+        ut_utils.append_to_list(l_result, ut_utils.string_to_table(a_list(i), a_delimiter, a_skip_leading_delimiter) );
+      end loop;
+    end if;
+    return l_result;
+  end;
+
   function clob_to_table(a_clob clob, a_max_amount integer := 8191, a_delimiter varchar2:= chr(10)) return ut_varchar2_list is
     l_offset         integer := 1;
     l_length         integer := dbms_lob.getlength(a_clob);
@@ -369,6 +382,19 @@ create or replace package body ut_utils is
     end if;
   end;
 
+  procedure append_to_list(a_list in out nocopy ut_varchar2_list, a_items ut_varchar2_list) is
+  begin
+    if a_items is not null then
+      if a_list is null then
+        a_list := ut_varchar2_list();
+      end if;
+      for i in 1 .. a_items.count loop
+        a_list.extend;
+        a_list(a_list.last) := a_items(i);
+      end loop;
+    end if;
+  end;
+
   procedure append_to_list(a_list in out nocopy ut_varchar2_rows, a_item clob) is
   begin
     append_to_list(
@@ -477,13 +503,6 @@ create or replace package body ut_utils is
       l_xpath := rtrim(l_xpath,',|');
     end if;
     return l_xpath;
-  end;
-
-  procedure cleanup_session_temp_tables is
-  begin
-    execute immediate 'truncate table dbmspcc_blocks';
-    execute immediate 'truncate table dbmspcc_units';
-    execute immediate 'truncate table dbmspcc_runs';
   end;
 
   function to_version(a_version_no varchar2) return t_version is

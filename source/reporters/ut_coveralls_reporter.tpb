@@ -62,7 +62,7 @@ create or replace type body ut_coveralls_reporter is
       a_coverage_data ut_coverage.t_coverage
     ) return ut_varchar2_rows is
       l_result               ut_varchar2_rows := ut_varchar2_rows();
-      l_unit                 ut_coverage.t_full_name;
+      l_unit                 ut_coverage.t_object_name;
       c_coverage_header constant varchar2(30) := '{"source_files":[';
       c_coverage_footer constant varchar2(30) := ']}'||chr(10)||' ';
     begin

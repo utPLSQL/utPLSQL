@@ -60,10 +60,10 @@ create or replace package body ut_coverage_helper is
     l_result t_tmp_table_objects_crsr;
   begin
     open l_result for
-      select o.owner, o.name, o.full_name, max(o.line) lines_count,
+      select o.owner, o.name, o.full_name, max(o.line) as lines_count,
              cast(
                collect(decode(to_be_skipped, 'Y', to_char(line))) as ut_varchar2_list
-             ) to_be_skipped_list
+             ) as to_be_skipped_list
         from ut_coverage_sources_tmp o
        group by o.owner, o.name, o.full_name;
 
@@ -73,7 +73,7 @@ create or replace package body ut_coverage_helper is
   function get_tmp_table_object_lines(a_owner varchar2, a_object_name varchar2) return ut_varchar2_list is
     l_result ut_varchar2_list;
   begin
-    select rtrim(s.text,chr(10)) text
+    select rtrim(s.text,chr(10)) as text
       bulk collect into l_result
       from ut_coverage_sources_tmp s
      where s.owner = a_owner
@@ -81,6 +81,16 @@ create or replace package body ut_coverage_helper is
      order by s.line;
 
     return l_result;
+  end;
+
+  procedure set_coverage_run_ids( a_coverage_run_id raw, a_line_coverage_id integer, a_block_coverage_id integer ) is
+    pragma autonomous_transaction;
+  begin
+    insert into ut_coverage_runs
+      ( coverage_run_id, line_coverage_id, block_coverage_id )
+    values
+      ( a_coverage_run_id, a_line_coverage_id, a_block_coverage_id );
+    commit;
   end;
 
 end;

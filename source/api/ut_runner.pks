@@ -145,5 +145,9 @@ create or replace package ut_runner authid current_user is
   */
   function hash_suite_path(a_path varchar2, a_random_seed positiven) return varchar2;
 
+  procedure coverage_start(a_coverage_run_id raw);
+
+  procedure coverage_stop;
+
 end ut_runner;
 /
