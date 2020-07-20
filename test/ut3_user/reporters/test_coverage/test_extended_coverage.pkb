@@ -15,7 +15,7 @@ create or replace package body test_extended_coverage is
     l_actual    clob;
   begin
     --Arrange
-    l_expected := '%<file path="ut3_develop.'||ut3_tester_helper.coverage_helper.covered_package_name||'">' ||
+    l_expected := '%<file path="package body ut3_develop.'||ut3_tester_helper.coverage_helper.covered_package_name||'">' ||
       get_block_coverage_line||
       '%<lineToCover lineNumber="6" covered="false"/>%';
     --Act
@@ -38,7 +38,7 @@ create or replace package body test_extended_coverage is
     l_actual    clob;
   begin
     --Arrange
-    l_expected := '%<file path="ut3_develop.'||ut3_tester_helper.coverage_helper.covered_package_name||'">' ||
+    l_expected := '%<file path="package body ut3_develop.'||ut3_tester_helper.coverage_helper.covered_package_name||'">' ||
       get_block_coverage_line ||
       '%<lineToCover lineNumber="6" covered="false"/>%';
     --Act
@@ -54,7 +54,7 @@ create or replace package body test_extended_coverage is
         );
     --Assert
     ut.expect(l_actual).to_be_like(l_expected);
-    ut.expect(l_actual).to_be_like('%<file path="ut3_develop.%">%<file path="ut3_develop.%">%');
+    ut.expect(l_actual).to_be_like('%<file path="package body ut3_develop.%">%<file path="package body ut3_develop.%">%');
   end;
 
   procedure coverage_for_file is

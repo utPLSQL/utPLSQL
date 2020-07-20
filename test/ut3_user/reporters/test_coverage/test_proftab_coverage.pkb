@@ -5,7 +5,7 @@ create or replace package body test_proftab_coverage is
     l_actual    clob;
   begin
     --Arrange
-    l_expected := coverage_helper.substitute_covered_package('%<file path="ut3_develop.{p}">%');
+    l_expected := coverage_helper.substitute_covered_package('%<file path="package body ut3_develop.{p}">%');
     --Act
     l_actual :=
       ut3_tester_helper.coverage_helper.run_tests_as_job(
@@ -28,7 +28,7 @@ create or replace package body test_proftab_coverage is
     l_actual    clob;
   begin
     --Arrange
-    l_expected := coverage_helper.substitute_covered_package('%<file path="ut3_develop.{p}">%');
+    l_expected := coverage_helper.substitute_covered_package('%<file path="package body ut3_develop.{p}">%');
     --Act
     l_actual :=
       ut3_tester_helper.coverage_helper.run_tests_as_job(
@@ -51,7 +51,7 @@ create or replace package body test_proftab_coverage is
     l_actual    clob;
   begin
     --Arrange
-    l_expected := '<file path="ut3_develop.%">';
+    l_expected := '<file path="package body ut3_develop.%">';
     l_expected := '%'||l_expected||'%'||l_expected||'%';
     --Act
     l_actual :=
@@ -96,7 +96,9 @@ create or replace package body test_proftab_coverage is
     l_actual clob;
     l_expected clob;
   begin
-    l_expected := '%<file path="ut3_develop.duplicate_name"><lineToCover lineNumber="6" covered="false"/>';
+    l_expected :=
+      '%<file path="package body ut3_develop.duplicate_name">%<lineToCover lineNumber="4" covered="true"/>' ||
+           '%<file path="trigger ut3_develop.duplicate_name">%<lineToCover lineNumber="3" covered="true"/>%';
     --Act
     l_actual :=
       ut3_tester_helper.coverage_helper.run_tests_as_job(
@@ -164,11 +166,11 @@ create or replace package body test_proftab_coverage is
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
 <coverage line-rate="0" branch-rate="0.0" lines-covered="0" lines-valid="9" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="%">
 <sources>
-<source>ut3_develop.{p}</source>
+<source>package body ut3_develop.{p}</source>
 </sources>
 <packages>
 <package name="{P}" line-rate="0.0" branch-rate="0.0" complexity="0.0">
-<class name="{P}" filename="ut3_develop.{p}" line-rate="0.0" branch-rate="0.0" complexity="0.0">
+<class name="{P}" filename="package body ut3_develop.{p}" line-rate="0.0" branch-rate="0.0" complexity="0.0">
 <lines>
 <line number="1" hits="0" branch="false"/>
 <line number="2" hits="0" branch="false"/>

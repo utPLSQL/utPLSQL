@@ -5,7 +5,7 @@ create or replace package body test_coverage_standalone is
     l_block_cov       clob;
     l_file_path       varchar2(250);
   begin
-    l_file_path := 'ut3_develop.'||a_object_name;
+    l_file_path := 'package body ut3_develop.'||a_object_name;
     --Arrange
     if ut3_tester_helper.coverage_helper.block_coverage_available then
       l_block_cov := '<line number="4" hits="5" branch="true" condition-coverage="67% (2/3)"/>';

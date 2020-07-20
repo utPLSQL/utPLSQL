@@ -93,7 +93,7 @@ create or replace package body ut_coverage is
              and s.type  = f.object_type
              and s.owner = f.object_owner';
     else
-      l_full_name := q'[lower(s.owner||'.'||s.name)]';
+      l_full_name := q'[lower(s.type||' '||s.owner||'.'||s.name)]';
       l_filters := case
         when a_coverage_options.include_objects is not empty then '
            and (s.owner, s.name) in (

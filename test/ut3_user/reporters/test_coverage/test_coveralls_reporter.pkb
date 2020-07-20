@@ -41,7 +41,7 @@ null,
   begin
     --Arrange
     l_expected := q'[{"source_files":[
-{ "name": "ut3_develop.]'||ut3_tester_helper.coverage_helper.covered_package_name||q'[",
+{ "name": "package body ut3_develop.]'||ut3_tester_helper.coverage_helper.covered_package_name||q'[",
 "coverage": [
 0,
 0,

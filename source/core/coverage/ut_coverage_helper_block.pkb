@@ -65,6 +65,7 @@ create or replace package body ut_coverage_helper_block is
            group by ccb.line, ccb.block
          )
      group by line
+     having count(block) > 1
      order by line]'
     bulk collect into l_coverage_rows
     using
