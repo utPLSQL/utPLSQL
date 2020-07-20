@@ -22,5 +22,8 @@ create or replace package coverage_helper is
   procedure create_test_results_table;
   procedure drop_test_results_table;
 
+  procedure drop_dup_object_name;
+  procedure create_dup_object_name;
+
 end;
 /

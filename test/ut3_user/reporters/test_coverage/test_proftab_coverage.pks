@@ -14,6 +14,11 @@ create or replace package test_proftab_coverage is
 
   --%test(Coverage is gathered for specified file - default coverage type)
   procedure coverage_for_file;
+
+  --%beforetest(ut3_tester_helper.coverage_helper.create_dup_object_name)
+  --%aftertest(ut3_tester_helper.coverage_helper.drop_dup_object_name)
+  --%test(Coverage on duplicate object name)
+  procedure dup_object_name_coverage;
   
   --%test(Coverage data is not cached between runs - issue #562 )
   --%aftertest(ut3_tester_helper.coverage_helper.drop_dummy_coverage_1)

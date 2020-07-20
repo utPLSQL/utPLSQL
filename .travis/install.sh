@@ -147,7 +147,7 @@ PROMPT Grants for testing coverage outside of main $UT3_DEVELOP_SCHEMA schema.
 grant create any procedure, drop any procedure, execute any procedure, create any type, drop any type, execute any type, under any type,
   select any table, update any table, insert any table, delete any table, create any table, drop any table, alter any table,
   select any dictionary, create any synonym, drop any synonym,
-  grant any object privilege, grant any privilege, create public synonym, drop public synonym
+  grant any object privilege, grant any privilege, create public synonym, drop public synonym, create any trigger
   to $UT3_TESTER_HELPER;
 
 grant create job to $UT3_TESTER_HELPER;

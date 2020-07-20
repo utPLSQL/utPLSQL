@@ -48,7 +48,7 @@ create or replace package body ut_coverage is
       ),
       sources as (
         select /*+ cardinality(f {mappings_cardinality}) */
-               {l_full_name} as full_name, s.owner, s.name,
+               {l_full_name} as full_name, s.owner, s.name, s.type,
                s.line - case when s.type = 'TRIGGER' then o.offset else 0 end as line,
                s.text
           from {sources_view} s {join_file_mappings}
@@ -58,7 +58,7 @@ create or replace package body ut_coverage is
            {filters}
       ),
       coverage_sources as (
-        select full_name, owner, name, line, text,
+        select full_name, owner, name, type, line, text,
                case
                  when
                    -- to avoid execution of regexp_like on every line
@@ -77,7 +77,7 @@ create or replace package body ut_coverage is
                end as to_be_skipped
           from sources s
       )
-    select full_name, owner, name, line, to_be_skipped, text
+    select full_name, owner, name, type, line, to_be_skipped, text
       from coverage_sources s
            -- Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
      where (s.owner, s.name) not in ( select /*+ cardinality(el {skipped_objects_cardinality})*/el.owner, el.name from table(:l_skipped_objects) el )
@@ -93,7 +93,7 @@ create or replace package body ut_coverage is
              and s.type  = f.object_type
              and s.owner = f.object_owner';
     else
-      l_full_name := q'[lower(s.owner||'.'||s.name)]';
+      l_full_name := q'[lower(s.type||' '||s.owner||'.'||s.name)]';
       l_filters := case
         when a_coverage_options.include_objects is not empty then '
            and (s.owner, s.name) in (

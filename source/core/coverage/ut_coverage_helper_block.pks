@@ -20,9 +20,7 @@ create or replace package ut_coverage_helper_block authid current_user is
 
   procedure coverage_stop;
 
-  function get_raw_coverage_data(
-    a_object_owner varchar2, a_object_name varchar2, a_coverage_run_id raw
-  ) return ut_coverage_helper.t_unit_line_calls;
+  function get_raw_coverage_data(a_object ut_coverage_helper.t_tmp_table_object, a_coverage_run_id raw) return ut_coverage_helper.t_unit_line_calls;
 
 end;
 /
