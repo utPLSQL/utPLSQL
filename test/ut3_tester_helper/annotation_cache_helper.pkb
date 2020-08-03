@@ -4,7 +4,7 @@ create or replace package body annotation_cache_helper as
     pragma autonomous_transaction;
   begin
     execute immediate
-      'create or replace package ut3_cache_test_owner.granted_test_suite is
+      'create or replace package ut3_cache_test_owner.granted_test_suite authid definer is
         --%suite
 
         --%test
@@ -19,7 +19,7 @@ create or replace package body annotation_cache_helper as
         procedure test2 is begin ut3_develop.ut.expect( 1 ).to_equal( 1 ); end;
         end;';
     execute immediate
-      'create or replace package ut3_cache_test_owner.not_granted_test_suite is
+      'create or replace package ut3_cache_test_owner.not_granted_test_suite authid definer is
         --%suite
 
         --%test
@@ -54,7 +54,7 @@ create or replace package body annotation_cache_helper as
     pragma autonomous_transaction;
   begin
     execute immediate
-      'create or replace package ut3_cache_test_owner.new_suite is
+      'create or replace package ut3_cache_test_owner.new_suite authid definer is
         --%suite
 
         --%test
