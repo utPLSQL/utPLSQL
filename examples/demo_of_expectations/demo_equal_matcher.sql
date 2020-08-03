@@ -18,7 +18,7 @@ create or replace package demo_equal_matcher as
   -- %suitepath(org.utplsql.v3.demo.matchers)
 
   -- TODO this should go into context(compare_objects, Comparing objects)
-  -- %context(compare_objects, Comparing objects)
+  -- %context(Comparing objects)
 
     -- %test
     -- %displayname(Gives success when comparing identical objects containing identical data)
@@ -48,7 +48,7 @@ create or replace package demo_equal_matcher as
     -- %displayname(Gives failure when comparing different objects containing identical data)
     procedure object_compare_different_type;
 
-  -- %end_context
+  -- %endcontext
 
 end;
 /
