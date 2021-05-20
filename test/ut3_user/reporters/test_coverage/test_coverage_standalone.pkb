@@ -21,12 +21,14 @@ create or replace package body test_coverage_standalone is
 </sources>
 <packages>
 <package name="]'||upper(a_object_name)||q'[" line-rate="0.0" branch-rate="0.0" complexity="0.0">
+<classes>
 <class name="]'||upper(a_object_name)||q'[" filename="]'||l_file_path||q'[" line-rate="0.0" branch-rate="0.0" complexity="0.0">
 <lines>
 ]'||l_block_cov||q'[
 <line number="6" hits="1" branch="false"/>
 </lines>
 </class>
+</classes>
 </package>
 </packages>
 </coverage>]';

@@ -170,6 +170,7 @@ create or replace package body test_proftab_coverage is
 </sources>
 <packages>
 <package name="{P}" line-rate="0.0" branch-rate="0.0" complexity="0.0">
+<classes>
 <class name="{P}" filename="package body ut3_develop.{p}" line-rate="0.0" branch-rate="0.0" complexity="0.0">
 <lines>
 <line number="1" hits="0" branch="false"/>
@@ -183,6 +184,7 @@ create or replace package body test_proftab_coverage is
 <line number="9" hits="0" branch="false"/>
 </lines>
 </class>
+</classes>
 </package>
 </packages>
 </coverage>]';
