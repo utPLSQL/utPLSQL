@@ -79,6 +79,7 @@ create or replace type body ut_coverage_cobertura_reporter is
       c_packages_footer constant varchar2(30) := '</packages>';
       c_package_footer  constant varchar2(30) := '</package>';
       c_class_footer    constant varchar2(30) := '</class>';
+      c_classes_footer    constant varchar2(30) := '</classes>';
       c_lines_footer    constant varchar2(30) := '</lines>';
       l_epoch           varchar2(50) := (sysdate - to_date('01-01-1970 00:00:00', 'dd-mm-yyyy hh24:mi:ss')) * 24 * 60 * 60;
       begin
@@ -116,6 +117,11 @@ create or replace type body ut_coverage_cobertura_reporter is
           l_result,
           '<package name="'||dbms_xmlgen.convert(l_obj_name)||'" line-rate="0.0" branch-rate="0.0" complexity="0.0">'
         );
+
+        ut_utils.append_to_list(
+          l_result,
+          '<classes>'
+        );
         
         ut_utils.append_to_list(
           l_result,
@@ -129,6 +135,7 @@ create or replace type body ut_coverage_cobertura_reporter is
 
         ut_utils.append_to_list(l_result, c_lines_footer);
         ut_utils.append_to_list(l_result, c_class_footer);
+        ut_utils.append_to_list(l_result, c_classes_footer);
         ut_utils.append_to_list(l_result, c_package_footer);
        
         l_unit := a_coverage_data.objects.next(l_unit);
