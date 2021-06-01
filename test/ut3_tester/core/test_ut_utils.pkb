@@ -432,5 +432,62 @@ end;
     --Assert
     ut.expect(l_actual).to_equal(l_expected);
   end;
+  
+  procedure int_conv_ds_sec is
+    l_expected varchar2(100) := '1 second';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(interval '1' second);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;
+  
+  procedure int_conv_ds_minute is
+    l_expected varchar2(100) := '1 minute';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(interval '1' minute);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;
+    
+  procedure int_conv_ds_hour is
+    l_expected varchar2(100) := '1 hour';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(interval '1' hour);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;
+  
+  procedure int_conv_ds_day is
+    l_expected varchar2(100) := '1 day';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(interval '1' day);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;
+
+  procedure int_conv_ds_date is
+    l_expected varchar2(100) := '2 days 3 hours 4 minutes 11.333 seconds';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(INTERVAL '2 3:04:11.333' DAY TO SECOND);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end; 
+  
+  procedure int_conv_ym_year is
+    l_expected varchar2(100) := '1 year';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(interval '1' year);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;
+  
+  procedure int_conv_ym_month is
+    l_expected varchar2(100) := '1 month';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(interval '1' month);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;
+
+  procedure int_conv_ym_date is
+    l_expected varchar2(100) := '1 year 2 months';
+    l_actual   varchar2(200) := ut3_develop.ut_utils.interval_to_text(INTERVAL '1-2' YEAR TO MONTH);
+  begin
+    ut.expect(l_expected).to_equal(l_actual);
+  end;   
+  
 end test_ut_utils;
 /

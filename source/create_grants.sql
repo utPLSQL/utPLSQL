@@ -88,6 +88,8 @@ grant execute on &&ut3_owner..ut_be_like to &ut3_user;
 grant execute on &&ut3_owner..ut_be_not_null to &ut3_user;
 grant execute on &&ut3_owner..ut_be_null to &ut3_user;
 grant execute on &&ut3_owner..ut_be_true to &ut3_user;
+grant execute on &&ut3_owner..ut_be_within to &ut3_user;
+grant execute on &&ut3_owner..ut_be_within_pct to &ut3_user;
 grant execute on &&ut3_owner..ut_contain to &ut3_user;
 grant execute on &&ut3_owner..ut_equal to &ut3_user;
 grant execute on &&ut3_owner..ut_have_count to &ut3_user;
