@@ -90,7 +90,9 @@ create or replace type body ut_coverage_cobertura_reporter is
       --write header
       ut_utils.append_to_list(
         l_result,
-        '<coverage line-rate="0" branch-rate="0.0" lines-covered="'
+        '<coverage line-rate="'
+          ||to_char(round(a_coverage_data.covered_lines/(a_coverage_data.covered_lines + a_coverage_data.uncovered_lines), 17), rpad('FM0.',21,'9')) 
+          ||'" branch-rate="0.0" lines-covered="'
           ||a_coverage_data.covered_lines||'" lines-valid="'
           ||TO_CHAR(a_coverage_data.covered_lines + a_coverage_data.uncovered_lines)
           ||'" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="'||l_epoch||'">'
