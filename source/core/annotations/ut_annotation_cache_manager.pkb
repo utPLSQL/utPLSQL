@@ -21,12 +21,12 @@ create or replace package body ut_annotation_cache_manager as
     l_timestamp         timestamp := systimestamp;
     pragma autonomous_transaction;
   begin
-    update ut_annotation_cache_schema s
+    update /*+ noparallel */ ut_annotation_cache_schema s
        set s.max_parse_time = l_timestamp
          where s.object_type = a_object.object_type and s.object_owner = a_object.object_owner;
 
     if sql%rowcount = 0 then
-      insert into ut_annotation_cache_schema s
+      insert /*+ noparallel */ into ut_annotation_cache_schema s
       (object_owner, object_type, max_parse_time)
       values (a_object.object_owner, a_object.object_type, l_timestamp);
     end if;
@@ -34,7 +34,7 @@ create or replace package body ut_annotation_cache_manager as
     -- if not in trigger, or object has annotations
     if ora_sysevent is null or a_object.annotations is not null and a_object.annotations.count > 0 then
 
-      update ut_annotation_cache_info i
+      update /*+ noparallel */ ut_annotation_cache_info i
          set i.parse_time = l_timestamp
        where (i.object_owner, i.object_name, i.object_type)
           in ((a_object.object_owner, a_object.object_name, a_object.object_type))
@@ -42,7 +42,7 @@ create or replace package body ut_annotation_cache_manager as
 
       if sql%rowcount = 0 then
 
-        insert into ut_annotation_cache_info
+        insert /*+ noparallel */ into ut_annotation_cache_info
                (cache_id, object_owner, object_name, object_type, parse_time)
         values (ut_annotation_cache_seq.nextval, a_object.object_owner, a_object.object_name, a_object.object_type, l_timestamp)
           returning cache_id into l_cache_id;
@@ -50,10 +50,10 @@ create or replace package body ut_annotation_cache_manager as
 
     end if;
 
-    delete from ut_annotation_cache c where cache_id = l_cache_id;
+    delete /*+ noparallel */ from ut_annotation_cache c where cache_id = l_cache_id;
 
     if a_object.annotations is not null and a_object.annotations.count > 0 then
-      insert into ut_annotation_cache
+      insert /*+ noparallel */ into ut_annotation_cache
              (cache_id, annotation_position, annotation_name, annotation_text, subobject_name)
       select l_cache_id, a.position, a.name, a.text, a.subobject_name
         from table(a_object.annotations) a;
@@ -67,7 +67,7 @@ create or replace package body ut_annotation_cache_manager as
     pragma autonomous_transaction;
   begin
 
-    delete from ut_annotation_cache c
+    delete /*+ noparallel */ from ut_annotation_cache c
      where c.cache_id
         in (select i.cache_id
               from ut_annotation_cache_info i
@@ -78,7 +78,7 @@ create or replace package body ut_annotation_cache_manager as
                and o.needs_refresh = 'Y'
            );
 
-    update ut_annotation_cache_schema s
+    update /*+ noparallel */ ut_annotation_cache_schema s
        set s.max_parse_time = l_timestamp
     where (s.object_owner, s.object_type)
       in (
@@ -88,14 +88,15 @@ create or replace package body ut_annotation_cache_manager as
          );
 
     if sql%rowcount = 0 then
-      insert into ut_annotation_cache_schema s
+      insert /*+ noparallel */ into ut_annotation_cache_schema s
       (object_owner, object_type, max_parse_time)
       select distinct o.object_owner, o.object_type, l_timestamp
         from table(a_objects) o
        where o.needs_refresh = 'Y';
     end if;
 
-    merge into ut_annotation_cache_info i
+    merge /*+ noparallel */
+      into ut_annotation_cache_info i
       using (select o.object_name, o.object_type, o.object_owner
                from table(a_objects) o
               where o.needs_refresh = 'Y'
@@ -149,7 +150,7 @@ create or replace package body ut_annotation_cache_manager as
   procedure set_fully_refreshed(a_object_owner varchar2, a_object_type varchar2) is
     pragma autonomous_transaction;
   begin
-    update ut_annotation_cache_schema s
+    update /*+ noparallel */ ut_annotation_cache_schema s
        set s.full_refresh_time = s.max_parse_time
      where s.object_owner = a_object_owner
        and s.object_type  = a_object_type;
@@ -160,7 +161,7 @@ create or replace package body ut_annotation_cache_manager as
     pragma autonomous_transaction;
   begin
 
-    delete from ut_annotation_cache_info i
+    delete /*+ noparallel */ from ut_annotation_cache_info i
      where exists (
              select 1 from table (a_objects) o
               where o.object_name = i.object_name
@@ -206,13 +207,13 @@ create or replace package body ut_annotation_cache_manager as
       l_filter := l_filter || ' and ' || case when a_object_type is null then ':a_object_type is null' else 'object_type = :a_object_type' end;
       l_cache_filter := ' c.cache_id in (select i.cache_id from ut_annotation_cache_info i where ' || l_filter || ' )';
     end if;
-    execute immediate 'delete from ut_annotation_cache c where ' || l_cache_filter
+    execute immediate 'delete /*+ noparallel */ from ut_annotation_cache c where ' || l_cache_filter
     using a_object_owner, a_object_type;
 
-    execute immediate ' delete from ut_annotation_cache_info i where ' || l_filter
+    execute immediate ' delete /*+ noparallel */ from ut_annotation_cache_info i where ' || l_filter
     using a_object_owner, a_object_type;
 
-    execute immediate ' delete from ut_annotation_cache_schema s where ' || l_filter
+    execute immediate ' delete /*+ noparallel */ from ut_annotation_cache_schema s where ' || l_filter
     using a_object_owner, a_object_type;
 
     commit;
