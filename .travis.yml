@@ -1,12 +1,10 @@
 sudo: required
 language: python
+os: linux
+
+jdk: openjdk10
 
 addons:
-  apt:
-    packages:
-      - unzip
-      # Java9+ Required for Sonar and SQLCL
-      - openjdk-9-jre-headless
   sonarcloud:
     organization: utplsql
     token:   ${SONAR_TOKEN}
@@ -65,6 +63,7 @@ cache:
     - $MAVEN_CFG
 
 before_install:
+
   #cache to be used between stages. Based on https://github.com/travis-ci/docs-travis-ci-com/issues/1329
   #delete all files in cache that are older than 5 days
   - mkdir -p $CACHE_DIR/stages_cache; find $CACHE_DIR/stages_cache/ -mtime +5 -exec rm {} \;

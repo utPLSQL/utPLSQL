@@ -15,7 +15,7 @@
 
 echoerr() { echo "$@" 1>&2; }
 
-TRAVIS_URL=travis-ci.org
+TRAVIS_URL=travis-ci.com
 BRANCH=develop
 USER="utPLSQL"
 RESULT=1
