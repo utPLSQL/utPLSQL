@@ -79,9 +79,10 @@ create or replace type body ut_coverage_cobertura_reporter is
       c_packages_footer constant varchar2(30) := '</packages>';
       c_package_footer  constant varchar2(30) := '</package>';
       c_class_footer    constant varchar2(30) := '</class>';
-      c_classes_footer    constant varchar2(30) := '</classes>';
+      c_classes_footer  constant varchar2(30) := '</classes>';
       c_lines_footer    constant varchar2(30) := '</lines>';
       l_epoch           varchar2(50) := (sysdate - to_date('01-01-1970 00:00:00', 'dd-mm-yyyy hh24:mi:ss')) * 24 * 60 * 60;
+      l_lines_valid     number := a_coverage_data.covered_lines + a_coverage_data.uncovered_lines;
       begin
    
       ut_utils.append_to_list( l_result, ut_utils.get_xml_header(a_run.client_character_set) );
@@ -91,10 +92,10 @@ create or replace type body ut_coverage_cobertura_reporter is
       ut_utils.append_to_list(
         l_result,
         '<coverage line-rate="'
-          ||to_char(round(a_coverage_data.covered_lines/(a_coverage_data.covered_lines + a_coverage_data.uncovered_lines), 17), rpad('FM0.',21,'9')) 
+          ||to_char(round((case l_lines_valid when 0 then 0 else a_coverage_data.covered_lines/(l_lines_valid) end), 17), rpad('FM0.',21,'9')) 
           ||'" branch-rate="0.0" lines-covered="'
           ||a_coverage_data.covered_lines||'" lines-valid="'
-          ||TO_CHAR(a_coverage_data.covered_lines + a_coverage_data.uncovered_lines)
+          ||TO_CHAR(l_lines_valid)
           ||'" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="'||l_epoch||'">'
       );
       
