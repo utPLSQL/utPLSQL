@@ -5,7 +5,7 @@
 [![license](https://img.shields.io/github/license/utPLSQL/utPLSQL.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![latest-release](https://img.shields.io/github/release/utPLSQL/utPLSQL.svg)](https://github.com/utPLSQL/utPLSQL/releases)
 [![Download statistics](https://img.shields.io/github/downloads/utPLSQL/utPLSQL/total.svg)](http://gra.caldis.me/?url=https://github.com/utPLSQL/utPLSQL)
-[![chat](http://img.shields.io/badge/slack-team--chat-blue.svg)](https://join.slack.com/t/utplsql/shared_invite/zt-d6zor80g-WWqAhbLWioJZUtLYeXetzA)
+[![chat](http://img.shields.io/badge/slack-team--chat-blue.svg)](https://join.slack.com/t/utplsql/shared_invite/zt-hsu14tf7-GLUyLpj~x2LIL_F57PMbhA)
 [![twitter](https://img.shields.io/twitter/follow/utPLSQL.svg?style=social&label=Follow)](https://twitter.com/utPLSQL)
 
 [![build](https://travis-ci.com/utPLSQL/utPLSQL.svg?branch=develop)](https://travis-ci.com/utPLSQL/utPLSQL)
