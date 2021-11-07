@@ -79,7 +79,7 @@ create or replace package body ut_suite_cache_manager is
         union all
         select obj from logical_suites
       )
-    select c.obj
+    select /*+ no_parallel */ c.obj
       from items c
      order by c.obj.object_owner,{:random_seed:}]';
 
@@ -89,7 +89,7 @@ create or replace package body ut_suite_cache_manager is
   begin
     l_data := ut_annotation_cache_manager.get_cached_objects_list(a_object_owner, 'PACKAGE');
 
-    select i.object_name
+    select /*+ no_parallel */ i.object_name
            bulk collect into l_result
       from ut_suite_cache_package i
      where not exists (
@@ -172,7 +172,7 @@ create or replace package body ut_suite_cache_manager is
                 'nls_sort=binary'
               )desc nulls last,
               case when c.obj.self_type = 'UT_SUITE_CONTEXT' then
-                ( select max( x.line_no ) + 1
+                ( select /*+ no_parallel */ max( x.line_no ) + 1
                     from ut_suite_cache x
                    where c.obj.object_owner = x.object_owner
                      and c.obj.object_name = x.object_name
@@ -216,18 +216,18 @@ create or replace package body ut_suite_cache_manager is
     l_procedure_name  varchar2(250) := ut_utils.qualified_sql_name(a_procedure_name);
   begin
 
-    select column_value
+    select /*+ no_parallel */ column_value
       bulk collect into l_include_tags
       from table(l_tags)
      where column_value not like '-%';
 
-    select ltrim(column_value,'-')
+    select /*+ no_parallel */ ltrim(column_value,'-')
       bulk collect into l_exclude_tags
       from table(l_tags)
      where column_value like '-%';
 
     if a_path is null and a_object_name is not null then
-      select min(c.path)
+      select /*+ no_parallel */ min(c.path)
              into l_path
         from ut_suite_cache c
        where c.object_owner = upper(l_object_owner)
@@ -258,7 +258,7 @@ create or replace package body ut_suite_cache_manager is
   function get_schema_parse_time(a_schema_name varchar2) return timestamp result_cache is
     l_cache_parse_time timestamp;
   begin
-    select min(t.parse_time)
+    select /*+ no_parallel */ min(t.parse_time)
       into l_cache_parse_time
       from ut_suite_cache_schema t
      where object_owner = upper(a_schema_name);
@@ -288,7 +288,7 @@ create or replace package body ut_suite_cache_manager is
 
     else
 
-      select min(parse_time)
+      select /*+ no_parallel */ min(parse_time)
         into l_cached_parse_time
         from ut_suite_cache_package t
        where t.object_name = l_object_name
@@ -296,23 +296,23 @@ create or replace package body ut_suite_cache_manager is
 
       if a_parse_time > l_cached_parse_time or l_cached_parse_time is null then
 
-        update ut_suite_cache_schema t
+        update /*+ no_parallel */ ut_suite_cache_schema t
            set t.parse_time = a_parse_time
          where object_owner = l_object_owner;
 
         if sql%rowcount = 0 then
-          insert into ut_suite_cache_schema
+          insert /*+ no_parallel */ into ut_suite_cache_schema
             (object_owner, parse_time)
           values (l_object_owner, a_parse_time);
         end if;
 
-        update ut_suite_cache_package t
+        update  /*+ no_parallel */ ut_suite_cache_package t
            set t.parse_time = a_parse_time
          where t.object_owner = l_object_owner
            and t.object_name = l_object_name;
 
         if sql%rowcount = 0 then
-          insert into ut_suite_cache_package
+          insert /*+ no_parallel */ into ut_suite_cache_package
             (object_owner, object_name, parse_time)
           values (l_object_owner, l_object_name, a_parse_time );
         end if;
@@ -321,7 +321,7 @@ create or replace package body ut_suite_cache_manager is
         where t.object_owner = l_object_owner
           and t.object_name  = l_object_name;
 
-        insert into ut_suite_cache t
+        insert /*+ no_parallel */ into ut_suite_cache t
             (
                 id, self_type, path, object_owner, object_name, name,
                 line_no, parse_time, description,
@@ -336,7 +336,7 @@ create or replace package body ut_suite_cache_manager is
                select treat(value(x) as ut_suite) i
                  from table(a_suite_items) x
                 where x.self_type in( 'UT_SUITE', 'UT_SUITE_CONTEXT' ) )
-          select ut_suite_cache_seq.nextval, s.i.self_type as self_type, s.i.path as path,
+          select /*+ no_parallel */ ut_suite_cache_seq.nextval, s.i.self_type as self_type, s.i.path as path,
                  upper(s.i.object_owner) as object_owner, upper(s.i.object_name) as object_name, upper(s.i.name) as name,
                  s.i.line_no as line_no, s.i.parse_time as parse_time, s.i.description as description,
                  s.i.rollback_type as rollback_type, s.i.disabled_flag as disabled_flag, s.i.warnings as warnings,
@@ -347,7 +347,7 @@ create or replace package body ut_suite_cache_manager is
                  null item
           from suites s;
 
-        insert into ut_suite_cache t
+        insert /*+ no_parallel */ into ut_suite_cache t
           (
             id, self_type, path, object_owner, object_name, name,
             line_no, parse_time, description,
@@ -362,7 +362,7 @@ create or replace package body ut_suite_cache_manager is
                select treat(value(x) as ut_test) t
                  from table ( a_suite_items ) x
                 where x.self_type in ( 'UT_TEST' ) )
-        select ut_suite_cache_seq.nextval, s.t.self_type as self_type, s.t.path as path,
+        select /*+ no_parallel */ ut_suite_cache_seq.nextval, s.t.self_type as self_type, s.t.path as path,
                upper(s.t.object_owner) as object_owner, upper(s.t.object_name) as object_name, upper(s.t.name) as name,
                s.t.line_no as line_no, s.t.parse_time as parse_time, s.t.description as description,
                s.t.rollback_type as rollback_type, s.t.disabled_flag as disabled_flag, s.t.warnings as warnings,
@@ -385,13 +385,13 @@ create or replace package body ut_suite_cache_manager is
     l_objects := get_missing_cache_objects(a_schema_name);
 
     if l_objects is not empty then
-      delete from ut_suite_cache i
+      delete /*+ no_parallel */ from ut_suite_cache i
        where i.object_owner = a_schema_name
-         and i.object_name in ( select column_value from table (l_objects) );
+         and i.object_name in ( select /*+ no_parallel */ column_value from table (l_objects) );
 
-      delete from ut_suite_cache_package i
+      delete /*+ no_parallel */ from ut_suite_cache_package i
        where i.object_owner = a_schema_name
-         and i.object_name in ( select column_value from table (l_objects) );
+         and i.object_name in ( select /*+ no_parallel */ column_value from table (l_objects) );
     end if;
 
     commit;
@@ -405,7 +405,7 @@ create or replace package body ut_suite_cache_manager is
     l_results      ut_suite_items_info;
   begin
     l_cache_rows := get_cached_suite_rows( a_object_owner => a_object_owner, a_object_name =>a_object_name );
-    select ut_suite_item_info(
+    select /*+ no_parallel */ ut_suite_item_info(
              c.object_owner, c.object_name, c.name,
              c.description, c.self_type, c.line_no,
              c.path, c.disabled_flag, c.tags
@@ -421,7 +421,7 @@ create or replace package body ut_suite_cache_manager is
   ) return ut_object_names is
     l_results ut_object_names;
   begin
-    select ut_object_name( c.object_owner, c.object_name )
+    select /*+ no_parallel */ ut_object_name( c.object_owner, c.object_name )
       bulk collect into l_results
       from ut_suite_cache_package c
       join table ( a_schema_names ) s
@@ -437,7 +437,7 @@ create or replace package body ut_suite_cache_manager is
     l_count integer;
   begin
     if a_procedure_name is not null then
-      select count( 1 ) into l_count from dual
+      select /*+ no_parallel */ count( 1 ) into l_count from dual
        where exists(
                select 1
                  from ut_suite_cache c
@@ -446,7 +446,7 @@ create or replace package body ut_suite_cache_manager is
                   and c.name = a_procedure_name
                );
     elsif a_package_name is not null then
-      select count( 1 ) into l_count from dual
+      select /*+ no_parallel */ count( 1 ) into l_count from dual
        where exists(
                select 1
                  from ut_suite_cache c
@@ -454,7 +454,7 @@ create or replace package body ut_suite_cache_manager is
                   and c.object_name = a_package_name
                );
     else
-      select count( 1 ) into l_count from dual
+      select /*+ no_parallel */ count( 1 ) into l_count from dual
        where exists(
                select 1
                  from ut_suite_cache c

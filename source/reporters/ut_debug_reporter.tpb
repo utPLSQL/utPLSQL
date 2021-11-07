@@ -71,7 +71,7 @@ create or replace type body ut_debug_reporter is
   member function event_item_to_clob(a_event_item ut_event_item) return clob is
     l_clob clob;
   begin
-    select xmlserialize( content deletexml(xmltype(a_event_item),'/*/ITEMS|/*/ALL_EXPECTATIONS|/*/FAILED_EXPECTATIONS') as clob indent size = 2 ) into l_clob from dual;
+    select /*+ no_parallel */ xmlserialize( content deletexml(xmltype(a_event_item),'/*/ITEMS|/*/ALL_EXPECTATIONS|/*/FAILED_EXPECTATIONS') as clob indent size = 2 ) into l_clob from dual;
     return l_clob;
   end;
 

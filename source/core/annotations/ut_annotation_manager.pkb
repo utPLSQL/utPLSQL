@@ -34,7 +34,7 @@ create or replace package body ut_annotation_manager as
     l_cached_objects := ut_annotation_cache_manager.get_cached_objects_list( a_object_owner, a_object_type );
 
     if l_cached_objects is not empty then
-      execute immediate 'select /*+ cardinality(i '||ut_utils.scale_cardinality(cardinality(l_cached_objects))||') */
+      execute immediate 'select /*+ no_parallel cardinality(i '||ut_utils.scale_cardinality(cardinality(l_cached_objects))||') */
                   value(i)
              from table( :l_data ) i
              where
@@ -71,7 +71,7 @@ create or replace package body ut_annotation_manager as
       --limit the list to objects that exist and are visible to the invoking user
       --enrich the list by info about cache validity
       execute immediate
-        'select /*+ cardinality(i '||ut_utils.scale_cardinality(cardinality(l_cached_objects))||') */
+        'select /*+ no_parallel cardinality(i '||ut_utils.scale_cardinality(cardinality(l_cached_objects))||') */
                 '||l_ut_owner||q'[.ut_annotation_obj_cache_info(
                   object_owner  => o.owner,
                   object_name   => o.object_name,
@@ -108,7 +108,7 @@ create or replace package body ut_annotation_manager as
   begin
     l_card := ut_utils.scale_cardinality(cardinality(a_objects_to_refresh));
     open l_result for
-      q'[select x.name, x.text
+      q'[select /*+ no_parallel */ x.name, x.text
           from (select /*+ cardinality( r ]'||l_card||q'[ )*/
                        s.name, s.text, s.line,
                        max(case when s.text like '%--%\%%' escape '\'
@@ -252,7 +252,7 @@ create or replace package body ut_annotation_manager as
         l_sql_lines := ut_utils.convert_collection( ut_utils.clob_to_table(l_sql_clob) );
       end if;
       open l_result for
-        select a_object_name as name, column_value||chr(10) as text from table(l_sql_lines);
+        select /*+ no_parallel */ a_object_name as name, column_value||chr(10) as text from table(l_sql_lines);
       return l_result;
     end;
 
@@ -261,7 +261,7 @@ create or replace package body ut_annotation_manager as
       l_sources_view varchar2(200) := ut_metadata.get_source_view_name();
     begin
       open l_result for
-        q'[select :a_object_name, s.text
+        q'[select /*+ no_parallel */ :a_object_name, s.text
              from ]'||l_sources_view||q'[ s
             where s.type  = :a_object_type
               and s.owner = :a_object_owner
@@ -279,7 +279,7 @@ create or replace package body ut_annotation_manager as
           'GSMCATUSER','GSMUSER','ORACLE_OCM','OUTLN','REMOTE_SCHEDULER_AGENT','SYS','SYS$UMF',
           'SYSBACKUP','SYSDG','SYSKM','SYSRAC','SYSTEM','WMSYS','XDB','XS$NULL');
       $else
-        select username bulk collect into l_restricted_users
+        select /*+ no_parallel */ username bulk collect into l_restricted_users
           from all_users where oracle_maintained = 'Y';
       $end
       if ora_dict_obj_owner member of l_restricted_users then

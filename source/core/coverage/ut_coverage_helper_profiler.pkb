@@ -58,7 +58,7 @@ create or replace package body ut_coverage_helper_profiler is
   function proftab_results(a_object ut_coverage_helper.t_tmp_table_object, a_coverage_run_id raw) return t_proftab_rows is
     l_coverage_rows t_proftab_rows;
   begin
-    select
+    select /*+ no_parallel */
         d.line#,
         case when sum(d.total_occur) = 0 and sum(d.total_time) > 0 then 1 else sum(d.total_occur) end total_occur
       bulk collect into l_coverage_rows

@@ -25,11 +25,11 @@ create or replace type body ut_output_buffer_base is
     self.output_id := coalesce(a_output_id, self.output_id, sys_guid());
     self.start_date := coalesce(self.start_date, sysdate);
     self.last_message_id := 0;
-    select count(*) into l_exists from ut_output_buffer_info_tmp where output_id = self.output_id;
+    select /*+ no_parallel */ count(*) into l_exists from ut_output_buffer_info_tmp where output_id = self.output_id;
     if ( l_exists > 0 ) then
-      update ut_output_buffer_info_tmp set start_date = self.start_date where output_id = self.output_id;
+      update  /*+ no_parallel */ ut_output_buffer_info_tmp set start_date = self.start_date where output_id = self.output_id;
     else
-      insert into ut_output_buffer_info_tmp(output_id, start_date) values (self.output_id, self.start_date);
+      insert /*+ no_parallel */ into ut_output_buffer_info_tmp(output_id, start_date) values (self.output_id, self.start_date);
     end if;
     commit;
     self.is_closed := 0;
@@ -39,7 +39,7 @@ create or replace type body ut_output_buffer_base is
     l_lines sys_refcursor;
   begin
     open l_lines for
-      select text, item_type
+      select /*+ no_parallel */ text, item_type
         from table(self.get_lines(a_initial_timeout, a_timeout_sec));
     return l_lines;
   end;

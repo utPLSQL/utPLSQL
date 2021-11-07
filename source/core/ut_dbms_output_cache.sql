@@ -19,7 +19,7 @@ limitations under the License.
 declare
   l_tab_exist number;
 begin
-  select count(*) into l_tab_exist from 
+  select /*+ no_parallel */ count(*) into l_tab_exist from
   (select table_name from all_tables where table_name = 'UT_DBMS_OUTPUT_CACHE' and owner = sys_context('USERENV','CURRENT_SCHEMA')
    union all
    select synonym_name from all_synonyms where synonym_name = 'UT_DBMS_OUTPUT_CACHE' and owner = sys_context('USERENV','CURRENT_SCHEMA'));

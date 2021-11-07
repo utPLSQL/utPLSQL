@@ -350,7 +350,7 @@ create or replace package body ut_utils is
   function get_utplsql_objects_list return ut_object_names is
     l_result ut_object_names;
   begin
-    select distinct ut_object_name(sys_context('userenv','current_user'), o.object_name)
+    select /*+ no_parallel */ distinct ut_object_name(sys_context('userenv','current_user'), o.object_name)
       bulk collect into l_result
       from user_objects o
      where o.object_name = 'UT' or object_name like 'UT\_%' escape '\'
@@ -532,8 +532,8 @@ create or replace package body ut_utils is
     procedure flush_lines(a_lines ut_varchar2_rows, a_offset integer) is
     begin
       if a_lines is not empty then
-        insert into ut_dbms_output_cache (seq_no,text)
-          select rownum+a_offset, column_value
+        insert /*+ no_parallel */ into ut_dbms_output_cache (seq_no,text)
+          select /*+ no_parallel */ rownum+a_offset, column_value
           from table(a_lines);
       end if;
     end;
@@ -558,7 +558,7 @@ create or replace package body ut_utils is
     c_lines_limit constant integer := 10000;
     pragma autonomous_transaction;
   begin
-    open l_lines_data for select text from ut_dbms_output_cache order by seq_no;
+    open l_lines_data for select /*+ no_parallel */ text from ut_dbms_output_cache order by seq_no;
     loop
       fetch l_lines_data bulk collect into l_lines limit c_lines_limit;
       for i in 1 .. l_lines.count loop
@@ -646,10 +646,10 @@ create or replace package body ut_utils is
 
   function xmlgen_escaped_string(a_string in varchar2) return varchar2 is
     l_result varchar2(4000) := a_string;
-    l_sql varchar2(32767) := q'!select q'[!'||a_string||q'!]' as "!'||a_string||'" from dual';
+    l_sql varchar2(32767) := q'!select /*+ no_parallel */ q'[!'||a_string||q'!]' as "!'||a_string||'" from dual';
   begin
     if a_string is not null then
-      select extract(dbms_xmlgen.getxmltype(l_sql),'/*/*/*').getRootElement()
+      select /*+ no_parallel */ extract(dbms_xmlgen.getxmltype(l_sql),'/*/*/*').getRootElement()
       into l_result
       from dual;
     end if;
@@ -753,7 +753,7 @@ create or replace package body ut_utils is
       l_for_reporters := ut_reporters_info(ut_reporter_info('UT_REPORTER_BASE','N','N','N'));
     end if;
     
-    select /*+ cardinality(f 10) */
+    select  /*+ no_parallel cardinality(f 10) */
       ut_reporter_info(
         object_name => t.type_name,
         is_output_reporter =>
@@ -801,7 +801,7 @@ create or replace package body ut_utils is
   function build_valid_xml_name(a_preprocessed_name varchar2) return varchar2 is
     l_post_processed varchar2(4000);
   begin
-    for i in (select regexp_substr( a_preprocessed_name ,'(.{1})', 1, level, null, 1 ) AS string_char,level level_no
+    for i in (select /*+ no_parallel */ regexp_substr( a_preprocessed_name ,'(.{1})', 1, level, null, 1 ) AS string_char,level level_no
               from   dual connect by level <= regexp_count(a_preprocessed_name, '(.{1})'))
     loop
       if i.level_no = 1 and regexp_like(i.string_char,gc_invalid_first_xml_char) then

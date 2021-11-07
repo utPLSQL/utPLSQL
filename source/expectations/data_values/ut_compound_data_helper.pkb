@@ -61,7 +61,7 @@ create or replace package body ut_compound_data_helper is
           where x.data_id = :act_guid
           ) ucd
     )   
-    select 
+    select /*+ no_parallel */
       a."UT3$_Item#Data" as act_item_data,
       a."UT3$_Data#Id" act_data_id,
       e."UT3$_Item#Data" as exp_item_data,
@@ -103,7 +103,7 @@ create or replace package body ut_compound_data_helper is
               full outer join actual_cols a
                 on e.exp_column_name = a.act_column_name
           )
-          select case
+          select /*+ no_parallel */ case
                    when exp_col_pos is null and act_col_pos is not null then '+'
                    when exp_col_pos is not null and act_col_pos is null then '-'
                    when exp_col_type_compare != act_col_type_compare then 't'
@@ -486,7 +486,7 @@ create or replace package body ut_compound_data_helper is
         )
       unpivot ( data_item for diff_type in (exp_item as 'Expected:', act_item as 'Actual:') )
     )
-    select rn, diff_type, diffed_row, pk_value
+    select /*+ no_parallel */ rn, diff_type, diffed_row, pk_value
     from (
       select rn, diff_type, diffed_row, pk_value,
              case when diff_type = 'Actual:' then 1 else 2 end rnk,
@@ -564,7 +564,7 @@ create or replace package body ut_compound_data_helper is
   procedure insert_diffs_result(a_diff_tab t_diff_tab, a_diff_id raw) is
   begin  
     forall idx in 1..a_diff_tab.count save exceptions
-    insert into ut_compound_data_diff_tmp
+    insert /*+ no_parallel */ into ut_compound_data_diff_tmp
     ( diff_id, act_item_data, act_data_id, exp_item_data, exp_data_id, item_no, duplicate_no )
     values 
     (a_diff_id, 
@@ -639,13 +639,13 @@ create or replace package body ut_compound_data_helper is
 
   procedure save_cursor_data_for_diff(a_data_id raw, a_set_id integer, a_xml xmltype) is
   begin
-    insert into ut_compound_data_tmp (data_id, item_no, item_data) values (a_data_id, a_set_id, a_xml);
+    insert /*+ no_parallel */ into ut_compound_data_tmp (data_id, item_no, item_data) values (a_data_id, a_set_id, a_xml);
   end;
 
   function get_row_data_as_xml(a_data_id raw, a_max_rows integer) return ut_utils.t_clob_tab is
     l_results       ut_utils.t_clob_tab;
   begin
-    select xmlserialize( content ucd.item_data no indent)
+    select /*+ no_parallel */ xmlserialize( content ucd.item_data no indent)
       bulk collect into l_results
       from ut_compound_data_tmp tmp
         ,xmltable ( '/ROWSET' passing tmp.item_data
@@ -720,7 +720,7 @@ create or replace package body ut_compound_data_helper is
            or (a.json_type != e.json_type)
            or (decode(a.element_value,e.element_value,1,0) = 0)
      )
-     select difference_type,
+     select /*+ no_parallel */ difference_type,
             act_element_name, act_element_value, act_json_type, act_access_path, act_parent_path,
             exp_element_name, exp_element_value, exp_json_type, exp_access_path, exp_parent_path
      bulk collect into l_result_diff
@@ -742,7 +742,7 @@ create or replace package body ut_compound_data_helper is
     l_diffs tt_json_diff_tab := compare_json_data(a_act_json_data,a_exp_json_data);
   begin
     forall i in 1..l_diffs.count
-    insert into ut_json_data_diff_tmp (
+    insert /*+ no_parallel */ into ut_json_data_diff_tmp (
       diff_id, difference_type,
       act_element_name, act_element_value, act_json_type, act_access_path, act_parent_path,
       exp_element_name, exp_element_value, exp_json_type, exp_access_path, exp_parent_path
@@ -759,7 +759,7 @@ create or replace package body ut_compound_data_helper is
   function get_json_diffs_type(a_diff_id raw) return tt_json_diff_type_tab is
     l_diffs_summary tt_json_diff_type_tab := tt_json_diff_type_tab();
   begin
-    select d.difference_type,count(1) 
+    select /*+ no_parallel */ d.difference_type,count(1)
     bulk collect into l_diffs_summary
     from ut_json_data_diff_tmp d
     where diff_id = a_diff_id
@@ -771,7 +771,7 @@ create or replace package body ut_compound_data_helper is
   function get_json_diffs_tmp(a_diff_id raw) return tt_json_diff_tab is
     l_diffs tt_json_diff_tab;
   begin
-    select difference_type,
+    select /*+ no_parallel */ difference_type,
            act_element_name, act_element_value, act_json_type, act_access_path, act_parent_path,
            exp_element_name, exp_element_value, exp_json_type, exp_access_path, exp_parent_path
     bulk collect into l_diffs
