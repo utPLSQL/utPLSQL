@@ -1,8 +1,8 @@
 #!/bin/bash
 
 set -ev
-
-cd $UTPLSQL_DIR/source
+SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+cd ${SCRIPT_DIR}/../${UTPLSQL_DIR}/source
 
 "$SQLCLI" sys/$ORACLE_PWD@//$CONNECTION_STR AS SYSDBA <<SQL
 set serveroutput on
