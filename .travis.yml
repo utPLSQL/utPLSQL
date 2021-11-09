@@ -47,8 +47,7 @@ env:
     - SQLCLI="${BUILD_DIR}/sqlcl/bin/sql"
     - OJDBC_HOME="${BUILD_DIR}/ojdbc"
     - ORACLE_PWD="oracle"
-    - UT3_DOCKER_REPO="utplsqlv3/oracledb"
-    - DOCKHER_HUB_REPO="${DOCKER_BASE_TAG:-$UT3_DOCKER_REPO}"
+    - DOCKHER_HUB_REPO="utplsqlv3/oracledb"
     - DOCKER_VOLUME="/home/oracle/host"
     - DOCKER_ENV="-e SQLCLI=sqlplus -e UT3_DEVELOP_SCHEMA -e UT3_DEVELOP_SCHEMA_PASSWORD -e UT3_RELEASE_VERSION_SCHEMA -e UT3_RELEASE_VERSION_SCHEMA_PASSWORD -e UT3_USER -e UT3_USER_PASSWORD -e UT3_TESTER -e UT3_TESTER_PASSWORD -e UT3_TESTER_HELPER -e UT3_TESTER_HELPER_PASSWORD -e UT3_TABLESPACE -e ORACLE_PWD -e CONNECTION_STR -e UTPLSQL_DIR"
     #utPLSQL released version directory
@@ -59,12 +58,14 @@ env:
     - MAVEN_HOME=/usr/local/maven
     - MAVEN_CFG=$HOME/.m2
   jobs:
-    - ORACLE_VERSION="${DOCKER_TAG_11G:-11g-r2-xe}"                     CONNECTION_STR='127.0.0.1:1521/XE'      DOCKER_VOLUME="/mnt/host" DOCKER_OPTIONS='--shm-size=1g'
-    - ORACLE_VERSION="${DOCKER_TAG_12C:-12c-r1-se2-small}"              CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
-    - ORACLE_VERSION="${DOCKER_TAG_12C2:-12c-r2-se2-small}"             CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
-    - ORACLE_VERSION="${DOCKER_TAG_18:-18c-se2-small}"                  CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
-    - ORACLE_VERSION="${DOCKER_TAG_19:-19c-se2-small}"                  CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
-    - ORACLE_VERSION="${DOCKER_TAG_21XE:-21c-xe-full}"                  CONNECTION_STR='127.0.0.1:1521/XEPDB1'  DOCKER_OPTIONS='-e ORACLE_PASSWORD=oracle'
+    - ORACLE_VERSION="11g-r2-xe"           CONNECTION_STR='127.0.0.1:1521/XE'                                          DOCKER_VOLUME="/mnt/host" DOCKER_OPTIONS='--shm-size=1g'
+    - ORACLE_VERSION="11-slim"             CONNECTION_STR='127.0.0.1:1521/XE'      DOCKHER_HUB_REPO="gvenzl/oracle-xe" DOCKER_OPTIONS='-e ORACLE_PASSWORD=oracle' DOCKER_VOLUME="/mnt/host"
+    - ORACLE_VERSION="12c-r1-se2-small"    CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+    - ORACLE_VERSION="12c-r2-se2-small"    CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+    - ORACLE_VERSION="18-slim"             CONNECTION_STR='127.0.0.1:1521/XEPDB1'  DOCKHER_HUB_REPO="gvenzl/oracle-xe" DOCKER_OPTIONS='-e ORACLE_PASSWORD=oracle'
+    - ORACLE_VERSION="18c-se2-small"       CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+    - ORACLE_VERSION="19c-se2-small"       CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
+    - ORACLE_VERSION="21-full"             CONNECTION_STR='127.0.0.1:1521/XEPDB1'  DOCKHER_HUB_REPO="gvenzl/oracle-xe" DOCKER_OPTIONS='-e ORACLE_PASSWORD=oracle'
 
 cache:
   pip: true
