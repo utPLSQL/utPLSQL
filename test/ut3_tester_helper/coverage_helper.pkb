@@ -163,7 +163,7 @@ create or replace package body coverage_helper is
   begin
     g_job_no := g_job_no + 1;
     l_job_name := 'utPLSQL_selftest_job_'||g_job_no;
-    sleep(0.01);
+    sleep(0.15);
     dbms_scheduler.create_job(
       job_name      =>  l_job_name,
       job_type      =>  'PLSQL_BLOCK',
