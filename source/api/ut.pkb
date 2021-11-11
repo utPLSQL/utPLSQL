@@ -674,7 +674,7 @@ create or replace package body ut is
   procedure set_nls is
   begin
     if g_nls_date_format is null then
-      select nsp.value
+      select /*+ no_parallel */ nsp.value
        into g_nls_date_format
        from nls_session_parameters nsp
       where parameter = 'NLS_DATE_FORMAT';

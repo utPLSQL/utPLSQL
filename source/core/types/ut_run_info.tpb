@@ -20,27 +20,27 @@ create or replace type body ut_run_info as
   begin
     self.self_type := $$plsql_unit;
     execute immediate
-      'select '||l_ut_owner||'.ut.version() from dual'
+      'select /*+ no_parallel */ '||l_ut_owner||'.ut.version() from dual'
         into self.ut_version;
 
     dbms_utility.db_version( self.db_version, self.db_compatibility );
     db_os_type := dbms_utility.port_string();
 
     execute immediate
-      'select '||l_ut_owner||'.ut_key_value_pair(x.product, x.version) from product_component_version x'
+      'select /*+ no_parallel */ '||l_ut_owner||'.ut_key_value_pair(x.product, x.version) from product_component_version x'
         bulk collect into self.db_component_version;
 
     execute immediate
-      'select '||l_ut_owner||'.ut_key_value_pair(x.parameter, x.value)
+      'select /*+ no_parallel */ '||l_ut_owner||'.ut_key_value_pair(x.parameter, x.value)
       from nls_session_parameters x'
         bulk collect into self.nls_session_params;
 
     execute immediate
-      'select '||l_ut_owner||'.ut_key_value_pair(x.parameter, x.value) from nls_instance_parameters x'
+      'select /*+ no_parallel */ '||l_ut_owner||'.ut_key_value_pair(x.parameter, x.value) from nls_instance_parameters x'
         bulk collect into self.nls_instance_params;
 
     execute immediate
-      'select '||l_ut_owner||'.ut_key_value_pair(x.parameter, x.value) from nls_database_parameters x'
+      'select /*+ no_parallel */ '||l_ut_owner||'.ut_key_value_pair(x.parameter, x.value) from nls_database_parameters x'
         bulk collect into self.nls_db_params;
     return;
   end;

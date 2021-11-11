@@ -46,7 +46,8 @@ create or replace package body ut_coverage_helper_block is
     l_ut_owner       varchar2(250) := ut_utils.ut_owner;
   begin
     execute immediate q'[
-    select line         as line,
+    select /*+ no_parallel */
+           line         as line,
            count(block) as blocks,
            sum(covered) as covered_blocks
     from (select line,

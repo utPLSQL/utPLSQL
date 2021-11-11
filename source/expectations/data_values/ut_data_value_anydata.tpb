@@ -48,11 +48,11 @@ create or replace type body ut_data_value_anydata as
         begin
           l_status := l_value.get'||self.compound_type||'(l_data); '||
           case when self.compound_type = 'collection' then
-            q'[ open :l_tmp_refcursor for select value(x) as "]'||
+            q'[ open :l_tmp_refcursor for select /*+ no_parallel */ value(x) as "]'||
             ut_metadata.get_object_name(ut_metadata.get_collection_element(a_data_value))||
             q'[" from table(l_data) x;]'
           else
-            q'[ open :l_tmp_refcursor for select l_data as "]'||ut_metadata.get_object_name(self.data_type)||
+            q'[ open :l_tmp_refcursor for select /*+ no_parallel */ l_data as "]'||ut_metadata.get_object_name(self.data_type)||
             q'[" from dual;]'            
           end ||
         'end;';  

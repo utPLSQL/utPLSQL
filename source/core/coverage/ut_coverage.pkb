@@ -77,7 +77,7 @@ create or replace package body ut_coverage is
                end as to_be_skipped
           from sources s
       )
-    select full_name, owner, name, type, line, to_be_skipped, text
+    select /*+ no_parallel */ full_name, owner, name, type, line, to_be_skipped, text
       from coverage_sources s
            -- Exclude calls to utPLSQL framework, Unit Test packages and objects from a_exclude_list parameter of coverage reporter
      where (s.owner, s.name) not in ( select /*+ cardinality(el {skipped_objects_cardinality})*/el.owner, el.name from table(:l_skipped_objects) el )

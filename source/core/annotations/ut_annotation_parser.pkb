@@ -210,7 +210,7 @@ create or replace package body ut_annotation_parser as
 
     dbms_lob.freetemporary(l_source);
 
-    select value(x) bulk collect into l_result from table(l_annotations) x order by x.position;
+    select /*+ no_parallel */ value(x) bulk collect into l_result from table(l_annotations) x order by x.position;
 
     return l_result;
   end parse_object_annotations;

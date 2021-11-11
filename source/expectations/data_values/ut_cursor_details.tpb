@@ -3,7 +3,7 @@ create or replace type body ut_cursor_details as
   member function equals( a_other ut_cursor_details, a_match_options ut_matcher_options ) return boolean is
    l_diffs integer;
   begin   
-    select count(1) into l_diffs
+    select /*+ no_parallel */ count(1) into l_diffs
       from table(self.cursor_columns_info) a
       full outer join table(a_other.cursor_columns_info) e
         on decode(a.parent_name,e.parent_name,1,0)= 1
@@ -139,7 +139,7 @@ create or replace type body ut_cursor_details as
   member function contains_collection return boolean is
     l_collection_elements number;
   begin
-    select count(1) into l_collection_elements
+    select /*+ no_parallel */ count(1) into l_collection_elements
       from table(cursor_columns_info) c
      where c.is_collection = 1 and rownum = 1;
     return l_collection_elements > 0;
@@ -149,7 +149,7 @@ create or replace type body ut_cursor_details as
     l_result ut_varchar2_list;
   begin
     --regexp_replace(c.access_path,'^\/?([^\/]+\/){1}')
-    select fl.column_value
+    select /*+ no_parallel */ fl.column_value
       bulk collect into l_result
       from table(a_expected_columns) fl
      where not exists (
@@ -179,7 +179,7 @@ create or replace type body ut_cursor_details as
             select regexp_replace( column_value, c_xpath_extract_reg, '\5' ) col_names
               from table(a_match_options.exclude.items)
           )
-          select value(x)
+          select /*+ no_parallel */ value(x)
                  bulk collect into l_result.cursor_columns_info
             from table(self.cursor_columns_info) x
            where exists(
@@ -192,7 +192,7 @@ create or replace type body ut_cursor_details as
             select regexp_replace( column_value, c_xpath_extract_reg, '\5' ) col_names
               from table(a_match_options.exclude.items)
           )
-          select value(x)
+          select /*+ no_parallel */ value(x)
                  bulk collect into l_result.cursor_columns_info
             from table(self.cursor_columns_info) x
            where not exists(
@@ -202,7 +202,7 @@ create or replace type body ut_cursor_details as
       
       --Rewrite column order after columns been excluded
       for i in (
-      select parent_name, access_path, display_path, has_nested_col,
+      select /*+ no_parallel */ parent_name, access_path, display_path, has_nested_col,
         transformed_name, hierarchy_level, 
         rownum as new_position, xml_valid_name,
         column_name, column_type, column_type_name, column_schema,
@@ -224,7 +224,7 @@ create or replace type body ut_cursor_details as
   member function get_xml_children(a_parent_name varchar2 := null) return xmltype is
     l_result xmltype;
   begin
-    select xmlagg(xmlelement(evalname t.column_name,t.column_type_name))
+    select /*+ no_parallel */ xmlagg(xmlelement(evalname t.column_name,t.column_type_name))
            into l_result
       from table(self.cursor_columns_info) t
      where (a_parent_name is null and parent_name is null and hierarchy_level = 1 and column_name is not null)
@@ -236,7 +236,7 @@ create or replace type body ut_cursor_details as
     l_root varchar2(250);
   begin
     if self.cursor_columns_info.count > 0 then
-      select x.access_path into l_root from table(self.cursor_columns_info) x
+      select /*+ no_parallel */ x.access_path into l_root from table(self.cursor_columns_info) x
       where x.hierarchy_level = 1;
     else
       l_root := null;

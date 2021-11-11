@@ -104,7 +104,7 @@ create or replace package body ut_expectation_processor as
   function get_session_parameters return tt_nls_params is
     l_session_params tt_nls_params;
   begin
-    select nsp.parameter, nsp.value
+    select /*+ no_parallel */ nsp.parameter, nsp.value
       bulk collect into l_session_params
      from nls_session_parameters nsp
     where parameter
