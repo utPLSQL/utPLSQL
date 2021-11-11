@@ -59,7 +59,7 @@ env:
     - MAVEN_CFG=$HOME/.m2
   jobs:
     - ORACLE_VERSION="11g-r2-xe"           CONNECTION_STR='127.0.0.1:1521/XE'                                          DOCKER_VOLUME="/mnt/host" DOCKER_OPTIONS='--shm-size=1g'
-    - ORACLE_VERSION="11-full"             CONNECTION_STR='127.0.0.1:1521/XE'      DOCKHER_HUB_REPO="gvenzl/oracle-xe" DOCKER_OPTIONS='-e ORACLE_PASSWORD=oracle --shm-size=1g' DOCKER_VOLUME="/mnt/host"
+#    - ORACLE_VERSION="11-full"             CONNECTION_STR='127.0.0.1:1521/XE'      DOCKHER_HUB_REPO="gvenzl/oracle-xe" DOCKER_OPTIONS='-e ORACLE_PASSWORD=oracle --shm-size=1g' DOCKER_VOLUME="/mnt/host"
     - ORACLE_VERSION="12c-r1-se2-small"    CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
     - ORACLE_VERSION="12c-r2-se2-small"    CONNECTION_STR='127.0.0.1:1521/ORCLCDB'
     - ORACLE_VERSION="18-slim"             CONNECTION_STR='127.0.0.1:1521/XEPDB1'  DOCKHER_HUB_REPO="gvenzl/oracle-xe" DOCKER_OPTIONS='-e ORACLE_PASSWORD=oracle'
