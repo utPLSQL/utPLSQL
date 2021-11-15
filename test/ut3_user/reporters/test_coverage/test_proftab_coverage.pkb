@@ -164,7 +164,7 @@ create or replace package body test_proftab_coverage is
     l_expected :=
       q'[<?xml version="1.0"?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage line-rate="0" branch-rate="0.0" lines-covered="0" lines-valid="9" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="%">
+<coverage line-rate="0.0" branch-rate="0.0" lines-covered="0" lines-valid="9" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="%">
 <sources>
 <source>package body ut3_develop.{p}</source>
 </sources>
