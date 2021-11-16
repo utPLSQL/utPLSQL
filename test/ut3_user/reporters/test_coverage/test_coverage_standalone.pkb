@@ -15,7 +15,7 @@ create or replace package body test_coverage_standalone is
     l_expected :=
       q'[<?xml version="1.0" encoding="]'||upper(a_charset)||q'["?>
 <!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
-<coverage line-rate="0" branch-rate="0.0" lines-covered="2" lines-valid="2" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="%">
+<coverage line-rate="1.0" branch-rate="0.0" lines-covered="2" lines-valid="2" branches-covered="0" branches-valid="0" complexity="0" version="1" timestamp="%">
 <sources>
 <source>]'||l_file_path||q'[</source>
 </sources>
