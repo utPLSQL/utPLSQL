@@ -165,9 +165,6 @@ create or replace context &&ut3_owner._info using &&ut3_owner..ut_session_contex
 prompt Installing PLSQL profiler objects into &&ut3_owner schema
 @@core/coverage/proftab.sql
 
-prompt Installing PLSQL profiler objects into &&ut3_owner schema
-@@core/coverage/proftab.sql
-
 prompt Installing DBMSPLSQL Tables objects into &&ut3_owner schema
 @@core/coverage/dbms_plssqlcode.sql
 
